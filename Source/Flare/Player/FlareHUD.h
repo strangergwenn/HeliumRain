@@ -1,0 +1,198 @@
+#pragma once
+
+#include "SlateBasics.h"
+#include "GameFramework/HUD.h"
+#include "../UI/Menus/FlareDashboard.h"
+#include "../UI/Menus/FlareShipMenu.h"
+#include "../UI/Menus/FlareStationMenu.h"
+#include "../UI/Menus/FlareSectorMenu.h"
+#include "../UI/Menus/FlareContextMenu.h"
+#include "FlareHUD.generated.h"
+
+
+/** Possible menu targets */
+UENUM()
+namespace EFlareMenu
+{
+	enum Type
+	{
+		MENU_None,
+		MENU_Dashboard,
+		MENU_Ship,
+		MENU_ShipConfig,
+		MENU_Station,
+		MENU_Undock,
+		MENU_Sector,
+		MENU_Orbit,
+		MENU_Encyclopedia,
+		MENU_Help,
+		MENU_Settings,
+		MENU_Quit,
+		MENU_Exit
+	};
+}
+
+
+/** Main HUD class (container for HUD and menus) */
+UCLASS()
+class FLARE_API AFlareHUD : public AHUD
+{
+public:
+
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	/*----------------------------------------------------
+		Gameplay events
+	----------------------------------------------------*/
+
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void DrawHUD() override;
+
+	/** Draw the text render target */
+	UFUNCTION()
+	void DrawHUDTextTarget(UCanvas* Cnv, int32 Width, int32 Height);
+
+	/** Draw text on a canvas */
+	void PrintText(UCanvas* Cnv, FString Text, int32 X, int32 Y);
+
+
+	/*----------------------------------------------------
+		HUD interaction
+	----------------------------------------------------*/
+
+	/** Get the current context menu position */
+	FVector GetContextMenuPosition() const;
+
+
+	/*----------------------------------------------------
+		Menu interaction
+	----------------------------------------------------*/
+
+	/** Construct the Slate menu interface */
+	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
+
+	/** Open a menu asynchronously, from a target and user data */
+	void OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
+
+	/** Close the current menu */
+	void CloseMenu(bool HardClose = false);
+
+	/** Show the interface on the HUD (not the flight helpers) */
+	void SetIsExternalCamera(bool Status);
+
+
+protected:
+
+	/*----------------------------------------------------
+		Menu commands
+	----------------------------------------------------*/
+	
+	/** After a fading process has completed, proceed */
+	virtual void ProcessFadeTarget();
+
+	/** Open the main menu */
+	virtual void OpenDashboard();
+
+	/** Show the config menu for a specific ship */
+	virtual void InspectShip(IFlareShipInterface* Target = NULL, bool IsEditable = false);
+
+	/** Show the config menu for a specific station */
+	virtual void InspectStation(IFlareStationInterface* Target = NULL, bool IsEditable = false);
+
+	/** Open the sector menu */
+	virtual void OpenSector();
+
+	/** Exit the menu */
+	virtual void ExitMenu();
+
+
+	/*----------------------------------------------------
+		Menu management
+	----------------------------------------------------*/
+
+	/** Hide the menu */
+	void ResetMenu();
+
+	/** Fade from black */
+	void FadeIn();
+
+	/** Fade to black */
+	void FadeOut();
+
+	/** Set the menu pawn as the current pawn, or not */
+	void SetMenuPawn(bool Status);
+
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	// Fade-to-black system
+	bool                               MenuIsOpen;
+	bool                               IsExternalCamera;
+	bool                               FadeFromBlack;
+	float                              FadeDuration;
+	float                              FadeTimer;
+	TSharedPtr<SBorder>                Fader;
+
+	// Menu target data
+	TEnumAsByte<EFlareMenu::Type>      FadeTarget;
+	void*                              FadeTargetData;
+
+
+	// HUD font
+	UPROPERTY()
+	class UFont*                       HUDFont;
+	
+	// HUD materials
+	UPROPERTY()	UMaterial*                  HUDHelpersMaterialMaster;
+	UPROPERTY()	UMaterialInstanceDynamic*   HUDHelpersMaterial;
+	UPROPERTY()	UMaterial*                  HUDTextMaterialMaster;
+
+	// Left panel render target
+	UPROPERTY()	UCanvasRenderTarget2D*      HUDTextRenderTarget;
+	UPROPERTY()	UMaterialInstanceDynamic*   HUDTextMaterial;
+
+
+	// Context menu
+	TSharedPtr<SFlareContextMenu>      ContextMenu;
+	FVector2D                          ContextMenuPosition;
+
+	// Menus
+	TSharedPtr<SOverlay>               HUDContainer;
+	TSharedPtr<SFlareDashboard>        Dashboard;
+	TSharedPtr<SFlareShipMenu>         ShipMenu;
+	TSharedPtr<SFlareStationMenu>      StationMenu;
+	TSharedPtr<SFlareSectorMenu>       SectorMenu;
+
+
+public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	const FVector2D& GetContextMenuLocation() const
+	{
+		return ContextMenuPosition;
+	}
+
+	/*----------------------------------------------------
+		Slate
+	----------------------------------------------------*/
+
+	/** Get a Slate icon from menu target */
+	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType);
+
+	/** Start the loading screen */
+	void ShowLoadingScreen();
+
+
+};

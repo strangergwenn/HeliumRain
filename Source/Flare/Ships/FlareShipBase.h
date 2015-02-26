@@ -1,0 +1,134 @@
+#pragma once
+
+#include "FlareShipModule.h"
+#include "FlareShipBase.generated.h"
+
+
+class AFlareGame;
+class AFlarePlayerController;
+
+
+UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
+class AFlareShipBase : public APawn
+{
+
+public:
+
+	GENERATED_UCLASS_BODY()
+
+	/*----------------------------------------------------
+		Component data
+	----------------------------------------------------*/
+
+	/** Camera container (we will rotate this on Yaw) */
+	UPROPERTY(Category = Components, VisibleDefaultsOnly, BlueprintReadOnly)
+	USceneComponent* CameraContainerYaw;
+
+	/** Camera container (we will rotate this on Pitch) */
+	UPROPERTY(Category = Components, VisibleDefaultsOnly, BlueprintReadOnly)
+	USceneComponent* CameraContainerPitch;
+	
+	/** Camera component */
+	UPROPERTY(Category = Components, VisibleDefaultsOnly, BlueprintReadOnly)
+	USceneComponent* Camera;
+
+
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+
+	/*----------------------------------------------------
+		Camera control
+	----------------------------------------------------*/
+
+	/** Set the camera pitch in the spherical coordinate system */
+	void SetCameraPitch(float Value, bool ForceUpdate = false);
+
+	/** Set the camera yaw in the spherical coordinate system */
+	void SetCameraYaw(float Value, bool ForceUpdate = false);
+
+	/** Set the camera radius in the spherical coordinate system */
+	void SetCameraDistance(float Value, bool ForceUpdate = false);
+
+	/** Step the camera distance */
+	void StepCameraDistance(bool TowardCenter);
+
+
+	/*----------------------------------------------------
+		Customization
+	----------------------------------------------------*/
+
+	/** Reload the part Target with TargetDescription */
+	virtual void ReloadPart(UFlareShipModule* Target, const FFlareShipModuleDescription* TargetDescription);
+
+	/** Reload all parts of type TargetClass with TargetDescription */
+	virtual void ReloadAllParts(const UClass* TargetClass, const FFlareShipModuleDescription* TargetDescription);
+
+	/** Update the parts settings */
+	virtual void UpdateCustomization();
+
+
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
+
+	/** Compute a quaternion's "length" in degrees */
+	static float GetRotationAmount(const FQuat& X, bool ClampToHalfTurn = false);
+
+	/** Clamp a quaternion within a cone */
+	static FQuat ClampQuaternion(const FQuat& X, float Angle);
+
+	/** Compute a float value between -1 and 1 to regulate a value */
+	static float TriStateRegulator(float Target, float Current, float Threshold);
+
+	/** Convert a direction from world space to localspace */
+	FVector WorldToLocal(FVector World);
+
+	/** Convert a rotation from world space to local space */
+	FQuat WorldToLocal(FQuat World);
+
+	/** Get the pawn */
+	AFlarePlayerController* GetPC() const;
+
+	/** Get the game class instance */
+	AFlareGame* GetGame() const;
+
+	/** Get the ship size */
+	float GetMeshScale() const;
+
+
+protected:
+
+	/*----------------------------------------------------
+		Properties
+	----------------------------------------------------*/
+
+	// Camera rotation properties
+	float    CameraPanSpeed;
+	float    CameraMaxPitch;
+	float    CameraMaxYaw;
+
+	// Camera distance properties
+	float    CameraMinDistance;
+	float    CameraMaxDistance;
+	float    CameraDistanceStepAmount;
+
+
+private:
+
+	/*----------------------------------------------------
+		Private data
+	----------------------------------------------------*/
+	
+	// Current spherical coordinates for the camera
+	float    CameraOffsetPitch;
+	float    CameraOffsetYaw;
+	float    CameraOffsetDistance;
+
+
+};
