@@ -117,9 +117,14 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 
 void SFlareColorPanel::Setup(FFlarePlayerSave& PlayerData)
 {
-	PaintColorPicker->SetSelectedIndex(PlayerData.CustomizationPaintColorIndex);
-	LightColorPicker->SetSelectedIndex(PlayerData.CustomizationLightColorIndex);
-	PatternPicker->SetSelectedIndex(PlayerData.CustomizationPatternIndex);
+	AFlareGame* Game = Cast<AFlareGame>(OwnerHUD->GetWorld()->GetAuthGameMode());
+	UFlareCompany* Company = Game->FindCompany(PlayerData.CompanyIdentifier);
+	if (Company)
+	{
+		PaintColorPicker->SetSelectedIndex(Company->GetPaintColorIndex());
+		LightColorPicker->SetSelectedIndex(Company->GetLightColorIndex());
+		PatternPicker->SetSelectedIndex(Company->GetPatternIndex());
+	}
 }
 
 void SFlareColorPanel::OnPaintColorPicked(int32 Index)
@@ -128,7 +133,8 @@ void SFlareColorPanel::OnPaintColorPicked(int32 Index)
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnPaintColorPicked %d", Index);
-		PC->SetCustomizationPaintColorIndex(Index);
+		PC->GetCompany()->SetPaintColorIndex(Index);
+		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }
 
@@ -138,8 +144,9 @@ void SFlareColorPanel::OnLightColorPicked(int32 Index)
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnLightColorPicked %d", Index);
-		PC->SetCustomizationLightColorIndex(Index);
-		PC->SetCustomizationEngineColorIndex(Index);
+		PC->GetCompany()->SetLightColorIndex(Index);
+		PC->GetCompany()->SetEngineColorIndex(Index);
+		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }
 
@@ -149,7 +156,8 @@ void SFlareColorPanel::OnPatternPicked(int32 Index)
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnPatternPicked %d", Index);
-		PC->SetCustomizationPatternIndex(Index);
+		PC->GetCompany()->SetPatternIndex(Index);
+		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }
 

@@ -163,7 +163,7 @@ void AFlareMenuPawn::ShowPart(const FFlareShipModuleDescription* PartDesc)
 
 	// Load the parts and scale accordingly
 	CurrentPart->SetVisibility(true, true);
-	CurrentPart->Initialize(PartDesc, GetPC(), this, true);
+	CurrentPart->Initialize(PartDesc, GetPC()->GetCompany(), this, true);
 	CurrentPart->SetWorldScale3D(FVector(1, 1, 1));
 	float Scale = DisplaySize / CurrentPart->GetMeshScale();
 	CurrentPart->SetWorldScale3D(Scale * FVector(1, 1, 1));

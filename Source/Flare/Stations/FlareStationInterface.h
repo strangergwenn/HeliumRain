@@ -51,6 +51,10 @@ struct FFlareStationSave
 	/** Station catalog identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Identifier;
+
+	/** Company identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName CompanyIdentifier;
 };
 
 

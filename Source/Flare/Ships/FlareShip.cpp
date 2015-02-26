@@ -26,7 +26,6 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	, NegligibleSpeedRatio(0.05)
 	, Status(EFlareShipStatus::SS_Manual)
 	, FakeThrust(false)
-	, Company(NULL)
 {	
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareAirframe>(this, TEXT("Airframe"));
@@ -76,9 +75,6 @@ void AFlareShip::BeginPlay()
 			WeaponList.Add(Weapon);
 		}
 	}
-
-	// Register airframe
-	Airframe->Initialize(NULL, GetPC(), this);
 }
 
 void AFlareShip::Tick(float DeltaSeconds)
@@ -183,7 +179,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	ShipData.Name = FName(*GetName());
 
 	// Look for parent company
-	Company = GetGame()->FindCompany(ShipData.CompanyIdentifier);
+	SetOwnerCompany(GetGame()->FindCompany(Data.CompanyIdentifier));
 
 	// Load ship description
 	UFlareShipPartsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
@@ -242,8 +238,10 @@ FFlareShipSave* AFlareShip::Save()
 
 void AFlareShip::SetOwnerCompany(UFlareCompany* NewCompany)
 {
-	Company = NewCompany;
+	SetCompany(NewCompany);
 	ShipData.CompanyIdentifier = NewCompany->GetIdentifier();
+	Airframe->Initialize(NULL, Company, this);
+	NewCompany->Register(this);
 }
 
 bool AFlareShip::NavigateTo(FVector TargetLocation)

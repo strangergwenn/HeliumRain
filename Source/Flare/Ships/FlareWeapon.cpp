@@ -30,9 +30,9 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareWeapon::Initialize(const FFlareShipModuleDescription* Description, AFlarePlayerController* PC, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareWeapon::Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
-	Super::Initialize(Description, PC, OwnerShip, IsInMenu);
+	Super::Initialize(Description, Company, OwnerShip, IsInMenu);
 
 	// Setup properties
 	if (Description)

@@ -2,7 +2,6 @@
 #include "../Flare.h"
 #include "FlareShip.h"
 #include "FlareEngine.h"
-#include "../Player/FlarePlayerController.h"
 
 
 /*----------------------------------------------------

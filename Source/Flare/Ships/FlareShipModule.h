@@ -3,7 +3,7 @@
 #include "FlareShipModule.generated.h"
 
 class AFlareShipBase;
-class AFlarePlayerController;
+class UFlareCompany;
 
 
 /** Part size values */
@@ -129,7 +129,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	
 	/** Initialize this component and register the master ship object */
-	virtual void Initialize(const FFlareShipModuleDescription* Description, AFlarePlayerController* PC, AFlareShipBase* OwnerShip, bool IsInMenu = false);
+	virtual void Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu = false);
 
 	/** Get the meshg scale */
 	float GetMeshScale();
@@ -158,9 +158,9 @@ protected:
 
 	UPROPERTY()
 	AFlareShipBase* Ship;
-
+	
 	UPROPERTY()
-	AFlarePlayerController* Player;
+	UFlareCompany* PlayerCompany;
 
 	UPROPERTY()
 	UStaticMeshComponent* EffectMesh;

@@ -24,12 +24,13 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 
 void AFlarePlayerController::BeginPlay()
 {
-	// Setup player stuff
 	Super::BeginPlay();
-	SetupMenu();
 
 	// Load our ship
 	PossessCurrentShip();
+
+	// Menus
+	SetupMenu();
 	SetExternalCamera(false);
 }
 
@@ -88,6 +89,7 @@ void AFlarePlayerController::PrepareForExit()
 void AFlarePlayerController::Load(const FFlarePlayerSave& Data)
 {
 	PlayerData = Data;
+	Company = GetGame()->FindCompany(Data.CompanyIdentifier);
 }
 
 void AFlarePlayerController::Save(FFlarePlayerSave& Data)
@@ -112,14 +114,6 @@ void AFlarePlayerController::PossessCurrentShip()
 			ShipPawn = Ship;
 			break;
 		}
-	}
-
-	// At this point, no save file was available, create a first company & ship
-	if (!ShipPawn)
-	{
-		Company = GetGame()->CreateCompany("Weyland-Yutani");
-		ShipPawn = GetGame()->CreateShip(FName("ship-ghoul"));
-		ShipPawn->SetOwnerCompany(Company);
 	}
 
 	// Possess the ship
@@ -182,75 +176,6 @@ FVector2D AFlarePlayerController::GetMousePosition()
 	}
 
 	return Result;
-}
-
-
-/*----------------------------------------------------
-	Customization
-----------------------------------------------------*/
-
-void AFlarePlayerController::CustomizeModuleMaterial(UMaterialInstanceDynamic* Mat)
-{
-	// Get data from storage
-	AFlareGame* Game = GetGame();
-	FLinearColor PaintColor = Game->GetCustomizationCatalog()->GetColor(PlayerData.CustomizationPaintColorIndex);
-	FLinearColor LightColor = Game->GetCustomizationCatalog()->GetColor(PlayerData.CustomizationLightColorIndex);
-	UTexture2D* Pattern = Game->GetCustomizationCatalog()->GetPattern(PlayerData.CustomizationPatternIndex);
-
-	// Apply settings to the material instance
-	Mat->SetVectorParameterValue("PaintColor", PaintColor);
-	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
-	Mat->SetTextureParameterValue("PaintPattern", Pattern);
-}
-
-void AFlarePlayerController::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)
-{
-	FLinearColor EngineColor = GetGame()->GetCustomizationCatalog()->GetColor(PlayerData.CustomizationEngineColorIndex);
-	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(EngineColor));
-}
-
-void AFlarePlayerController::SetCustomizationPaintColorIndex(int32 Index)
-{
-	PlayerData.CustomizationPaintColorIndex = Index;
-	UpdateShipCustomization();
-}
-
-void AFlarePlayerController::SetCustomizationLightColorIndex(int32 Index)
-{
-	PlayerData.CustomizationLightColorIndex = Index;
-	UpdateShipCustomization();
-}
-
-void AFlarePlayerController::SetCustomizationEngineColorIndex(int32 Index)
-{
-	PlayerData.CustomizationEngineColorIndex = Index;
-	UpdateShipCustomization();
-}
-
-void AFlarePlayerController::SetCustomizationPatternIndex(int32 Index)
-{
-	PlayerData.CustomizationPatternIndex = Index;
-	UpdateShipCustomization();
-}
-
-void AFlarePlayerController::UpdateShipCustomization()
-{
-	// Current player ship
-	if (ShipPawn)
-	{
-		ShipPawn->UpdateCustomization();
-	}
-
-	// Current menu pawn
-	if (MenuPawn)
-	{
-		MenuPawn->UpdateCustomization();
-	}
-}
-
-FLinearColor AFlarePlayerController::NormalizeColor(FLinearColor Col) const
-{
-	return FLinearColor(FVector(Col.R, Col.G, Col.B) / Col.GetLuminance());
 }
 
 

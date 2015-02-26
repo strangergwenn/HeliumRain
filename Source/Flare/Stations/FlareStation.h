@@ -62,10 +62,6 @@ protected:
 	// Dock data
 	TArray <FFlareDockingInfo>       DockingSlots;
 
-	// Company reference
-	UPROPERTY()
-	UFlareCompany* Company;
-
 
 public:
 

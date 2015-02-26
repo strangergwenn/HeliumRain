@@ -17,7 +17,7 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	void Initialize(const FFlareShipModuleDescription* Description, AFlarePlayerController* PC, AFlareShipBase* OwnerShip, bool IsInMenu) override;
+	void Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
 
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 

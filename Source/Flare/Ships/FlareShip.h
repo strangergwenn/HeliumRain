@@ -284,10 +284,7 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-
-	// Company reference
-	UPROPERTY()
-	UFlareCompany* Company;
+	
 
 	// Component description
 	FFlareShipSave                ShipData;

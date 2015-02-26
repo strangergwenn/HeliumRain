@@ -16,22 +16,10 @@ struct FFlarePlayerSave
 	/** UObject name of the currently possessed ship */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FString CurrentShipName;
-	
-	/** Paint color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationPaintColorIndex;
 
-	/** Lights color index in the customization catalog */
+	/** Identifier of the company */
 	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationLightColorIndex;
-
-	/** Engine exhaust color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationEngineColorIndex;
-
-	/** Pattern index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationPatternIndex;
+	FName CompanyIdentifier;
 
 };
 
@@ -73,7 +61,7 @@ public:
 
 	/** Take control of our current ship and remove the old pawn */
 	virtual void PossessCurrentShip();
-
+	
 
 	/*----------------------------------------------------
 		Menus
@@ -93,35 +81,6 @@ public:
 
 	/** Get the position of the mouse on the screen */
 	FVector2D GetMousePosition();
-
-
-	/*----------------------------------------------------
-		Customization
-	----------------------------------------------------*/
-
-	/** Apply customization to a component's material */
-	virtual void CustomizeModuleMaterial(UMaterialInstanceDynamic* Mat);
-
-	/** Apply customization to a component's special effect material */
-	virtual void CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat);
-
-	/** Set the paint overlay color */
-	virtual void SetCustomizationPaintColorIndex(int32 Index);
-
-	/** Set the light color for the ship's headlights */
-	virtual void SetCustomizationLightColorIndex(int32 Index);
-
-	/** Set the engine color for the engine's exhausts */
-	virtual void SetCustomizationEngineColorIndex(int32 Index);
-
-	/** Set the pattern index */
-	virtual void SetCustomizationPatternIndex(int32 Index);
-
-	/** Update the pawn to account for our customization */
-	void UpdateShipCustomization();
-
-	/** Normalize a color */
-	FLinearColor NormalizeColor(FLinearColor Col) const;
 
 
 	/*----------------------------------------------------
@@ -172,7 +131,12 @@ public:
 	/*----------------------------------------------------
 		Get & Set
 	----------------------------------------------------*/
-	
+
+	inline UFlareCompany* GetCompany() const
+	{
+		return Company;
+	}
+
 	inline AFlareMenuPawn* GetMenuPawn() const
 	{
 		return MenuPawn;
@@ -190,12 +154,12 @@ public:
 
 	inline FLinearColor GetLightColor() const
 	{
-		return GetGame()->GetCustomizationCatalog()->GetColor(PlayerData.CustomizationLightColorIndex);
+		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetLightColorIndex());
 	}
 
 	inline FLinearColor GetColor() const
 	{
-		return GetGame()->GetCustomizationCatalog()->GetColor(PlayerData.CustomizationPaintColorIndex);
+		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
 	}
 
 

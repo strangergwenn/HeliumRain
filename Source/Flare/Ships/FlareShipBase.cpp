@@ -18,6 +18,7 @@ AFlareShipBase::AFlareShipBase(const class FObjectInitializer& PCIP)
 	, CameraMinDistance(1.5)
 	, CameraMaxDistance(4)
 	, CameraDistanceStepAmount(0.5)
+	, Company(NULL)
 {
 	// Camera containers
 	CameraContainerYaw = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("CameraContainerYaw"));
@@ -86,9 +87,14 @@ void AFlareShipBase::StepCameraDistance(bool TowardCenter)
 	Customization
 ----------------------------------------------------*/
 
+void AFlareShipBase::SetCompany(UFlareCompany* NewCompany)
+{
+	Company = NewCompany;
+}
+
 void AFlareShipBase::ReloadPart(UFlareShipModule* Target, const FFlareShipModuleDescription* TargetDescription)
 {
-	Target->Initialize(TargetDescription, GetPC(), this);
+	Target->Initialize(TargetDescription, Company, this);
 }
 
 void AFlareShipBase::ReloadAllParts(const UClass* TargetClass, const FFlareShipModuleDescription* TargetDescription)

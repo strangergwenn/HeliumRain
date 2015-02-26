@@ -90,7 +90,7 @@ void AFlareGame::PostLogin(APlayerController* Player)
 		bool WorldLoaded = LoadWorld(PC, "DefaultSave");
 		if (!WorldLoaded)
 		{
-			CreateWorld();
+			CreateWorld(PC);
 		}
 	}
 }
@@ -112,11 +112,6 @@ void AFlareGame::Logout(AController* Player)
 	Save
 ----------------------------------------------------*/
 
-void AFlareGame::CreateWorld()
-{
-
-}
-
 bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 {
 	FLOGV("AFlareGame::LoadWorld : loading from %s", *SaveFile);
@@ -129,14 +124,14 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
 
-		// Load the player
-		PC->Load(Save->PlayerData);
-
 		// Load all companies
 		for (int32 i = 0; i < Save->CompanyData.Num(); i++)
 		{
 			LoadCompany(Save->CompanyData[i]);
 		}
+
+		// Load the player
+		PC->Load(Save->PlayerData);
 
 		// Load all stations
 		for (int32 i = 0; i < Save->StationData.Num(); i++)
@@ -315,6 +310,23 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 	Creation tools
 ----------------------------------------------------*/
 
+void AFlareGame::CreateWorld(AFlarePlayerController* PC)
+{
+	FFlarePlayerSave PlayerData;
+
+	// Player company
+	UFlareCompany* Company = CreateCompany("Weyland-Yutani");
+	PlayerData.CompanyIdentifier = Company->GetIdentifier();
+
+	// Player ship
+	AFlareShip* ShipPawn = CreateShip(FName("ship-ghoul"));
+	ShipPawn->SetOwnerCompany(Company);
+	PlayerData.CurrentShipName = ShipPawn->GetName();
+
+	// Load
+	PC->Load(PlayerData);
+}
+
 UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 {
 	UFlareCompany* Company = NULL;
@@ -328,6 +340,10 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	CompanyData.Name = CompanyName;
 	CompanyData.ShortName = *CompanyName.Left(3);
 	CompanyData.Identifier = *Immatriculation;
+	CompanyData.CustomizationEngineColorIndex = 0;
+	CompanyData.CustomizationPaintColorIndex = 0;
+	CompanyData.CustomizationLightColorIndex = 0;
+	CompanyData.CustomizationPatternIndex = 0;
 
 	// Create company
 	Company = LoadCompany(CompanyData);
@@ -367,6 +383,11 @@ AFlareStation* AFlareGame::CreateStation(FName StationClass)
 		FLOGV("AFlareGame::CreateStation : Created station '%s'", *StationPawn->GetName());
 	}
 
+	// Parent company
+	if (PC && PC->GetCompany())
+	{
+		StationPawn->SetOwnerCompany(PC->GetCompany());
+	}
 	return StationPawn;
 }
 
@@ -421,6 +442,11 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		FLOGV("AFlareGame::CreateShip : Created ship '%s'", *ShipPawn->GetName());
 	}
 
+	// Parent company
+	if (PC && PC->GetCompany())
+	{
+		ShipPawn->SetOwnerCompany(PC->GetCompany());
+	}
 	return ShipPawn;
 }
 

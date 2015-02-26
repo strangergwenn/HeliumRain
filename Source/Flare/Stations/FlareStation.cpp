@@ -15,7 +15,6 @@
 
 AFlareStation::AFlareStation(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
-	, Company(NULL)
 {
 	// Create static mesh component
 	HullRoot = PCIP.CreateDefaultSubobject<UFlareShipModule>(this, TEXT("HullRoot"));
@@ -84,6 +83,9 @@ void AFlareStation::Load(const FFlareStationSave& Data)
 	StationData.Name = FName(*GetName());
 	StationDescription = GetGame()->GetStationCatalog()->Get(Data.Identifier);
 
+	// Look for parent company
+	SetOwnerCompany(GetGame()->FindCompany(Data.CompanyIdentifier));
+
 	// Customization
 	UpdateCustomization();
 }
@@ -98,7 +100,9 @@ FFlareStationSave* AFlareStation::Save()
 
 void AFlareStation::SetOwnerCompany(UFlareCompany* NewCompany)
 {
-	Company = NewCompany;
+	SetCompany(NewCompany);
+	StationData.CompanyIdentifier = NewCompany->GetIdentifier();
+	NewCompany->Register(this);
 }
 
 FFlareDockingInfo AFlareStation::RequestDock(IFlareShipInterface* Ship)

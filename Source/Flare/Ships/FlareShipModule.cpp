@@ -14,7 +14,7 @@
 UFlareShipModule::UFlareShipModule(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, Ship(NULL)
-	, Player(NULL)
+	, PlayerCompany(NULL)
 	, ModuleMaterial(NULL)
 	, ModuleDescription(NULL)
 {
@@ -39,11 +39,11 @@ void UFlareShipModule::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UFlareShipModule::Initialize(const FFlareShipModuleDescription* Description, AFlarePlayerController* PC, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareShipModule::Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
 	// Main data
 	Ship = OwnerShip;
-	Player = PC ? PC : Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	PlayerCompany = Company;
 
 	// Setup properties
 	if (Description)
@@ -162,15 +162,15 @@ void UFlareShipModule::SetupEffectMesh()
 
 void UFlareShipModule::UpdateCustomization()
 {
-	if (Player)
+	if (PlayerCompany)
 	{
 		if (ModuleMaterial)
 		{
-			Player->CustomizeModuleMaterial(ModuleMaterial);
+			PlayerCompany->CustomizeModuleMaterial(ModuleMaterial);
 		}
 		if (EffectMaterial)
 		{
-			Player->CustomizeEffectMaterial(EffectMaterial);
+			PlayerCompany->CustomizeEffectMaterial(EffectMaterial);
 		}
 	}
 }

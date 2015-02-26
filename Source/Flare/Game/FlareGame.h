@@ -34,9 +34,6 @@ public:
 		Save
 	----------------------------------------------------*/
 
-	/** Create a new world from scratch */
-	virtual void CreateWorld();
-
 	/** Load the world from this save file */
 	virtual bool LoadWorld(AFlarePlayerController* PC, FString SaveFile);
 
@@ -56,6 +53,9 @@ public:
 	/*----------------------------------------------------
 		Creation tools
 	----------------------------------------------------*/
+
+	/** Create a new world from scratch */
+	virtual void CreateWorld(AFlarePlayerController* PC);
 
 	/** Create a company */
 	UFUNCTION(exec)

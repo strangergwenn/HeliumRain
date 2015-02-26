@@ -63,6 +63,9 @@ public:
 		Customization
 	----------------------------------------------------*/
 
+	/** Set the company this object nelongs to */
+	void SetCompany(UFlareCompany* NewCompany);
+
 	/** Reload the part Target with TargetDescription */
 	virtual void ReloadPart(UFlareShipModule* Target, const FFlareShipModuleDescription* TargetDescription);
 
@@ -117,6 +120,10 @@ protected:
 	float    CameraMinDistance;
 	float    CameraMaxDistance;
 	float    CameraDistanceStepAmount;
+
+	// Company reference
+	UPROPERTY()
+	UFlareCompany* Company;
 
 
 private:
