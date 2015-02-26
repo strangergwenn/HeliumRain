@@ -207,7 +207,7 @@ void AFlareHUD::DrawHUDTextTarget(UCanvas* Cnv, int32 Width, int32 Height)
 
 			// Ship location
 			FVector ShipLocation = Ship->GetActorLocation() / 100;
-			FString LocationDescription = FString::Printf(TEXT("\n\n%ldm\n%ldm\n%ldm"), (int)ShipLocation.X, (int)ShipLocation.Y, (int)ShipLocation.Z);
+			FString LocationDescription = FString::Printf(TEXT("\n\n%ldm\n%ldm\n%ldm"), (long)ShipLocation.X, (long)ShipLocation.Y, (long)ShipLocation.Z);
 			PrintText(Cnv, Ship->GetName() + FString("\n\nX\nY\nZ"), Width - 300, 150);
 			PrintText(Cnv, LocationDescription, Width - 200, 150);
 		}
