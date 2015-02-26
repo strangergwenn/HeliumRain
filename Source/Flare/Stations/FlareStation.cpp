@@ -15,6 +15,7 @@
 
 AFlareStation::AFlareStation(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
+	, Company(NULL)
 {
 	// Create static mesh component
 	HullRoot = PCIP.CreateDefaultSubobject<UFlareShipModule>(this, TEXT("HullRoot"));
@@ -93,6 +94,11 @@ FFlareStationSave* AFlareStation::Save()
 	StationData.Rotation = GetActorRotation();
 
 	return &StationData;
+}
+
+void AFlareStation::SetOwnerCompany(UFlareCompany* NewCompany)
+{
+	Company = NewCompany;
 }
 
 FFlareDockingInfo AFlareStation::RequestDock(IFlareShipInterface* Ship)

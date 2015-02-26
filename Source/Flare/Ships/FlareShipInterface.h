@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Game/FlareCompany.h"
 #include "FlareShipInterface.generated.h"
 
 
@@ -27,6 +28,10 @@ struct FFlareShipSave
 	/** Ship catalog identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Identifier;
+
+	/** Ship company identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName CompanyIdentifier;
 
 
 	/** Orbital engine catalog identifier */
@@ -125,6 +130,9 @@ public:
 
 	/** Save the ship to a save file */
 	virtual FFlareShipSave* Save() = 0;
+
+	/** Set the parent company */
+	virtual void SetOwnerCompany(UFlareCompany* Company) = 0;
 
 
 	/*----------------------------------------------------

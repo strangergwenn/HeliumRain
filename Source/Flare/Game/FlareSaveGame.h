@@ -2,6 +2,7 @@
 
 #include "../Player/FlarePlayerController.h"
 #include "../Ships/FlareShipInterface.h"
+#include "FlareCompany.h"
 #include "FlareSaveGame.generated.h"
 
 
@@ -25,6 +26,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareStationSave> StationData;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareCompanySave> CompanyData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	int32 CurrentImmatriculationIndex;

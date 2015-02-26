@@ -83,55 +83,95 @@ void AFlareGame::PostLogin(APlayerController* Player)
 	FLOG("AFlareGame::PostLogin");
 	Super::PostLogin(Player);
 
+	// Load the world from save, create a new one if no save was found
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
-	LoadWorld(PC, "DefaultSave");
+	if (PC)
+	{
+		bool WorldLoaded = LoadWorld(PC, "DefaultSave");
+		if (!WorldLoaded)
+		{
+			CreateWorld();
+		}
+	}
 }
 
 void AFlareGame::Logout(AController* Player)
 {
 	FLOG("AFlareGame::Logout");
 
+	// Save the world, literally
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 	SaveWorld(PC, "DefaultSave");
-
 	PC->PrepareForExit();
 
 	Super::Logout(Player);
 }
 
-AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
+
+/*----------------------------------------------------
+	Save
+----------------------------------------------------*/
+
+void AFlareGame::CreateWorld()
 {
-	AFlareShip* Ship = NULL;
-	FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Name.ToString());
 
-	if (ShipCatalog)
+}
+
+bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
+{
+	FLOGV("AFlareGame::LoadWorld : loading from %s", *SaveFile);
+	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
+
+	// Load from save
+	if (PC && Save && UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
 	{
-		FFlareShipDescription* Desc = ShipCatalog->Get(ShipData.Identifier);
-		if (Desc)
-		{
-			// Spawn parameters
-			FActorSpawnParameters Params;
-			Params.Name = ShipData.Name;
-			Params.bNoFail = true;
+		// Load
+		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
+		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
 
-			// Create and configure the ship
-			Ship = GetWorld()->SpawnActor<AFlareShip>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
-			if (Ship)
-			{
-				Ship->Load(ShipData);
-			}
-		}
-		else
+		// Load the player
+		PC->Load(Save->PlayerData);
+
+		// Load all companies
+		for (int32 i = 0; i < Save->CompanyData.Num(); i++)
 		{
-			FLOG("AFlareGame::LoadShip failed (no description available)");
+			LoadCompany(Save->CompanyData[i]);
 		}
+
+		// Load all stations
+		for (int32 i = 0; i < Save->StationData.Num(); i++)
+		{
+			LoadStation(Save->StationData[i]);
+		}
+
+		// Load all ships
+		for (int32 i = 0; i < Save->ShipData.Num(); i++)
+		{
+			LoadShip(Save->ShipData[i]);
+		}
+
+		return true;
 	}
+
+	// No file existing
 	else
 	{
-		FLOG("AFlareGame::LoadShip failed (no catalog data)");
+		FLOGV("AFlareGame::LoadWorld : could lot load %s", *SaveFile);
+		return false;
 	}
+}
 
-	return Ship;
+UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
+{
+	UFlareCompany* Company = NULL;
+	FLOGV("AFlareGame::LoadCompany ('%s')", *CompanyData.Name);
+
+	// Create the new company
+	Company = NewNamedObject<UFlareCompany>(this, CompanyData.Identifier);
+	Company->Load(CompanyData);
+	Companies.AddUnique(Company);
+
+	return Company;
 }
 
 AFlareStation* AFlareGame::LoadStation(const FFlareStationSave& StationData)
@@ -170,10 +210,165 @@ AFlareStation* AFlareGame::LoadStation(const FFlareStationSave& StationData)
 	return Station;
 }
 
+AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
+{
+	AFlareShip* Ship = NULL;
+	FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Name.ToString());
+
+	if (ShipCatalog)
+	{
+		FFlareShipDescription* Desc = ShipCatalog->Get(ShipData.Identifier);
+		if (Desc)
+		{
+			// Spawn parameters
+			FActorSpawnParameters Params;
+			Params.Name = ShipData.Name;
+			Params.bNoFail = true;
+
+			// Create and configure the ship
+			Ship = GetWorld()->SpawnActor<AFlareShip>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
+			if (Ship)
+			{
+				Ship->Load(ShipData);
+			}
+		}
+		else
+		{
+			FLOG("AFlareGame::LoadShip failed (no description available)");
+		}
+	}
+	else
+	{
+		FLOG("AFlareGame::LoadShip failed (no catalog data)");
+	}
+
+	return Ship;
+}
+
+bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
+{
+	FLOGV("AFlareGame::SaveWorld : saving to '%s'", *SaveFile);
+	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
+
+	// Save process
+	if (PC && Save)
+	{
+		// Save the player
+		PC->Save(Save->PlayerData);
+		Save->ShipData.Empty();
+		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
+
+		// Save all physical ships
+		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			// Tentative casts
+			AFlareMenuPawn* MenuPawn = PC->GetMenuPawn();
+			AFlareShip* Ship = Cast<AFlareShip>(*ActorItr);
+			AFlareStation* Station = Cast<AFlareStation>(*ActorItr);
+
+			// Ship
+			if (Ship && Ship->GetDescription() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentShip()))
+			{
+				FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetName());
+				FFlareShipSave* TempData = Ship->Save();
+				Save->ShipData.Add(*TempData);
+			}
+
+			// Station
+			else if (Station && Station->GetDescription() && (MenuPawn == NULL || Station != MenuPawn->GetCurrentStation()))
+			{
+				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Station->GetName());
+				FFlareStationSave* TempData = Station->Save();
+				Save->StationData.Add(*TempData);
+			}
+		}
+
+		// Save all UObjects
+		for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+		{
+			UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+
+			// Company
+			if (Company)
+			{
+				FLOGV("AFlareGame::SaveWorld : saving company ('%s')", *Company->GetName());
+				FFlareCompanySave* TempData = Company->Save();
+				Save->CompanyData.Add(*TempData);
+			}
+		}
+
+		// Save
+		UGameplayStatics::SaveGameToSlot(Save, SaveFile, 0);
+		return true;
+	}
+
+	// No PC
+	else
+	{
+		FLOG("AFlareGame::SaveWorld failed");
+		return false;
+	}
+}
+
 
 /*----------------------------------------------------
 	Creation tools
 ----------------------------------------------------*/
+
+UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
+{
+	UFlareCompany* Company = NULL;
+	FFlareCompanySave CompanyData;
+
+	// Generate identifier
+	CurrentImmatriculationIndex++;
+	FString Immatriculation = FString::Printf(TEXT("CPNY-%06d"), CurrentImmatriculationIndex);
+
+	// Generate save data
+	CompanyData.Name = CompanyName;
+	CompanyData.ShortName = *CompanyName.Left(3);
+	CompanyData.Identifier = *Immatriculation;
+
+	// Create company
+	Company = LoadCompany(CompanyData);
+	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());
+
+	return Company;
+}
+
+AFlareStation* AFlareGame::CreateStation(FName StationClass)
+{
+	AFlareStation* StationPawn = NULL;
+	FVector TargetPosition = FVector::ZeroVector;
+	FFlareStationDescription* Desc = GetStationCatalog()->Get(StationClass);
+
+	// Get target position
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		if (ExistingShipPawn)
+		{
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
+		}
+	}
+
+	if (Desc)
+	{
+		// Default data
+		FFlareStationSave StationData;
+		StationData.Location = TargetPosition;
+		StationData.Rotation = FRotator::ZeroRotator;
+		StationData.Name = Immatriculate("GWE", StationClass);
+		StationData.Identifier = StationClass;
+
+		// Create the station
+		StationPawn = LoadStation(StationData);
+		FLOGV("AFlareGame::CreateStation : Created station '%s'", *StationPawn->GetName());
+	}
+
+	return StationPawn;
+}
 
 AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 {
@@ -229,46 +424,12 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 	return ShipPawn;
 }
 
-AFlareStation* AFlareGame::CreateStation(FName StationClass)
-{
-	AFlareStation* StationPawn = NULL;
-	FVector TargetPosition = FVector::ZeroVector;
-	FFlareStationDescription* Desc = GetStationCatalog()->Get(StationClass);
-
-	// Get target position
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC)
-	{
-		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
-		if (ExistingShipPawn)
-		{
-			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
-		}
-	}
-
-	if (Desc)
-	{
-		// Default data
-		FFlareStationSave StationData;
-		StationData.Location = TargetPosition;
-		StationData.Rotation = FRotator::ZeroRotator;
-		StationData.Name = Immatriculate("GWE", StationClass);
-		StationData.Identifier = StationClass;
-
-		// Create the station
-		StationPawn = LoadStation(StationData);
-		FLOGV("AFlareGame::CreateStation : Created station '%s'", *StationPawn->GetName());
-	}
-
-	return StationPawn;
-}
-
 FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 {
 	FString Immatriculation;
 	FFlareShipDescription* ShipDesc = ShipCatalog->Get(TargetClass);
 	FFlareStationDescription* StationDesc = StationCatalog->Get(TargetClass);
-	
+
 	// Ship
 	if (ShipDesc)
 	{
@@ -300,98 +461,4 @@ FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 	// Return
 	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
 	return FName(*Immatriculation);
-}
-
-
-/*----------------------------------------------------
-	Save
-----------------------------------------------------*/
-
-bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
-{
-	FLOGV("AFlareGame::LoadWorld : loading from %s", *SaveFile);
-	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
-
-	// Load from save
-	if (PC && Save && UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
-	{
-		// Load
-		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
-		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
-
-		// Load the player
-		PC->Load(Save->PlayerData);
-
-		// Load all stations
-		for (int32 i = 0; i < Save->StationData.Num(); i++)
-		{
-			LoadStation(Save->StationData[i]);
-		}
-
-		// Load all ships
-		for (int32 i = 0; i < Save->ShipData.Num(); i++)
-		{
-			LoadShip(Save->ShipData[i]);
-		}
-
-		return true;
-	}
-
-	// No file existing
-	else
-	{
-		FLOGV("AFlareGame::LoadWorld : could lot load %s", *SaveFile);
-		return false;
-	}
-}
-
-bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
-{
-	FLOGV("AFlareGame::SaveWorld : saving to '%s'", *SaveFile);
-	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
-
-	// Save process
-	if (PC && Save)
-	{
-		// Save the player
-		PC->Save(Save->PlayerData);
-		Save->ShipData.Empty();
-		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
-
-		// Save all physical ships
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-		{
-			// Tentative casts
-			AFlareMenuPawn* MenuPawn = PC->GetMenuPawn();
-			AFlareShip* Ship = Cast<AFlareShip>(*ActorItr);
-			AFlareStation* Station = Cast<AFlareStation>(*ActorItr);
-
-			// Ship
-			if (Ship && Ship->GetDescription() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentShip()))
-			{
-				FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetName());
-				FFlareShipSave* TempData = Ship->Save();
-				Save->ShipData.Add(*TempData);
-			}
-
-			// Station
-			else if (Station && Station->GetDescription() && (MenuPawn == NULL || Station != MenuPawn->GetCurrentStation()))
-			{
-				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Station->GetName());
-				FFlareStationSave* TempData = Station->Save();
-				Save->StationData.Add(*TempData);
-			}
-		}
-
-		// Save
-		UGameplayStatics::SaveGameToSlot(Save, SaveFile, 0);
-		return true;
-	}
-
-	// No PC
-	else
-	{
-		FLOG("AFlareGame::SaveWorld failed");
-		return false;
-	}
 }

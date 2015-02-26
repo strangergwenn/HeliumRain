@@ -34,6 +34,8 @@ public:
 
 	virtual FFlareStationSave* Save() override;
 
+	virtual void SetOwnerCompany(UFlareCompany* Company) override;
+
 	virtual FFlareDockingInfo RequestDock(IFlareShipInterface* Ship) override;
 
 	virtual void ReleaseDock(IFlareShipInterface* Ship, int32 DockId) override;
@@ -59,6 +61,10 @@ protected:
 
 	// Dock data
 	TArray <FFlareDockingInfo>       DockingSlots;
+
+	// Company reference
+	UPROPERTY()
+	UFlareCompany* Company;
 
 
 public:

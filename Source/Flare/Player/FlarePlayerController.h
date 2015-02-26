@@ -161,6 +161,9 @@ protected:
 	UPROPERTY()
 	AFlareShip* ShipPawn;
 
+	UPROPERTY()
+	UFlareCompany* Company;
+
 	bool   ExternalCamera;
 
 

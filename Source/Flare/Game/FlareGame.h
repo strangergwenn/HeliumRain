@@ -8,6 +8,7 @@
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Player/FlareMenuPawn.h"
 #include "FlarePlanetarium.h"
+#include "FlareCompany.h"
 #include "FlareGame.generated.h"
 
 
@@ -28,8 +29,25 @@ public:
 
 	virtual void Logout(AController* Player) override;
 
+
+	/*----------------------------------------------------
+		Save
+	----------------------------------------------------*/
+
+	/** Create a new world from scratch */
+	virtual void CreateWorld();
+
 	/** Load the world from this save file */
 	virtual bool LoadWorld(AFlarePlayerController* PC, FString SaveFile);
+
+	/** Spawn a company from save data */
+	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
+
+	/** Spawn a station from save data */
+	virtual AFlareStation* LoadStation(const FFlareStationSave& StationData);
+
+	/** Spawn a ship from save data */
+	virtual AFlareShip* LoadShip(const FFlareShipSave& ShipData);
 
 	/** Save the world to this save file */
 	virtual bool SaveWorld(AFlarePlayerController* PC, FString SaveFile);
@@ -39,27 +57,20 @@ public:
 		Creation tools
 	----------------------------------------------------*/
 
-	/** Create a ship in the level */
+	/** Create a company */
 	UFUNCTION(exec)
-	AFlareShip* CreateShip(FName ShipClass);
+	UFlareCompany* CreateCompany(FString CompanyName);
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
 	AFlareStation* CreateStation(FName StationClass);
 
+	/** Create a ship in the level */
+	UFUNCTION(exec)
+	AFlareShip* CreateShip(FName ShipClass);
+
 	/** Build a unique immatriculation string for this object */
 	FName Immatriculate(FName Company, FName TargetClass);
-
-
-	/*----------------------------------------------------
-		Save
-	----------------------------------------------------*/
-
-	/** Spawn a ship from save data */
-	virtual AFlareShip* LoadShip(const FFlareShipSave& ShipData);
-
-	/** Spawn a station from save data */
-	virtual AFlareStation* LoadStation(const FFlareStationSave& ShipData);
 
 
 protected:
@@ -99,12 +110,28 @@ protected:
 	/** Immatriculation index */
 	int32 CurrentImmatriculationIndex;
 
+	/** Comapnies */
+	TArray<UFlareCompany*> Companies;
+
 
 public:
 
 	/*----------------------------------------------------
 		Get & Set
 	----------------------------------------------------*/
+
+	inline UFlareCompany* FindCompany(FName Identifier) const
+	{
+		for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+		{
+			UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+			if (Company)
+			{
+				return Company;
+			}
+		}
+		return NULL;
+	}
 
 	inline UClass* GetMenuPawnClass() const
 	{

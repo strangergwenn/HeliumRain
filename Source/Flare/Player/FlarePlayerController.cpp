@@ -11,7 +11,8 @@
 ----------------------------------------------------*/
 
 AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& PCIP)
-: Super(PCIP)
+	: Super(PCIP)
+	, Company(NULL)
 {
 	DefaultMouseCursor = EMouseCursor::Default;
 }
@@ -113,10 +114,12 @@ void AFlarePlayerController::PossessCurrentShip()
 		}
 	}
 
-	// At this point, no save file was available, create a debug ship
+	// At this point, no save file was available, create a first company & ship
 	if (!ShipPawn)
 	{
+		Company = GetGame()->CreateCompany("Weyland-Yutani");
 		ShipPawn = GetGame()->CreateShip(FName("ship-ghoul"));
+		ShipPawn->SetOwnerCompany(Company);
 	}
 
 	// Possess the ship

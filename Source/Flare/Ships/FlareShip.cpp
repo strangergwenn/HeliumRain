@@ -26,6 +26,7 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	, NegligibleSpeedRatio(0.05)
 	, Status(EFlareShipStatus::SS_Manual)
 	, FakeThrust(false)
+	, Company(NULL)
 {	
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareAirframe>(this, TEXT("Airframe"));
@@ -181,6 +182,9 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	ShipData = Data;
 	ShipData.Name = FName(*GetName());
 
+	// Look for parent company
+	Company = GetGame()->FindCompany(ShipData.CompanyIdentifier);
+
 	// Load ship description
 	UFlareShipPartsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
 	FFlareShipDescription* Desc = GetGame()->GetShipCatalog()->Get(Data.Identifier);
@@ -234,6 +238,12 @@ FFlareShipSave* AFlareShip::Save()
 	}
 
 	return &ShipData;
+}
+
+void AFlareShip::SetOwnerCompany(UFlareCompany* NewCompany)
+{
+	Company = NewCompany;
+	ShipData.CompanyIdentifier = NewCompany->GetIdentifier();
 }
 
 bool AFlareShip::NavigateTo(FVector TargetLocation)
@@ -736,8 +746,11 @@ void AFlareShip::SetShipDescription(FFlareShipDescription* Description)
 	ShipDescription = Description;
 
 	// Load data from the ship info
-	LinearMaxVelocity = 100 * Description->LinearMaxVelocity;
-	AngularMaxVelocity = Description->AngularMaxVelocity;
+	if (Description)
+	{
+		LinearMaxVelocity = 100 * Description->LinearMaxVelocity;
+		AngularMaxVelocity = Description->AngularMaxVelocity;
+	}
 }
 
 void AFlareShip::SetOrbitalEngineDescription(FFlareShipModuleDescription* Description)
@@ -746,14 +759,17 @@ void AFlareShip::SetOrbitalEngineDescription(FFlareShipModuleDescription* Descri
 	ReloadAllParts(UFlareOrbitalEngine::StaticClass(), Description);
 
 	// Find the orbital thrust rating
-	for (int32 i = 0; i < Description->Characteristics.Num(); i++)
+	if (Description)
 	{
-		const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
-
-		// Calculate the orbital engine linear thrust force in N (data value in kN)
-		if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
+		for (int32 i = 0; i < Description->Characteristics.Num(); i++)
 		{
-			LinearOrbitalThrust = 100 * 1000 * Characteristic.CharacteristicValue;
+			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
+
+			// Calculate the orbital engine linear thrust force in N (data value in kN)
+			if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
+			{
+				LinearOrbitalThrust = 100 * 1000 * Characteristic.CharacteristicValue;
+			}
 		}
 	}
 }
@@ -764,21 +780,24 @@ void AFlareShip::SetRCSDescription(FFlareShipModuleDescription* Description)
 	ReloadAllParts(UFlareRCS::StaticClass(), Description);
 
 	// Find the RCS turn and power rating, since RCSs themselves don't do anything
-	for (int32 i = 0; i < Description->Characteristics.Num(); i++)
+	if (Description)
 	{
-		const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
-
-		// Calculate the angular acceleration rate from the ton weight (data value in °/s per 100T)
-		if (Airframe && Characteristic.CharacteristicType == EFlarePartAttributeType::RCSAccelerationRating)
+		for (int32 i = 0; i < Description->Characteristics.Num(); i++)
 		{
-			float Mass = Airframe->GetMass() / 100000;
-			AngularAccelerationRate = Characteristic.CharacteristicValue / (60 * Mass);
-		}
+			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
 
-		// Calculate the RCS linear thrust force in N (data value in kN)
-		else if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
-		{
-			LinearThrust = 100 * 1000 * Characteristic.CharacteristicValue;
+			// Calculate the angular acceleration rate from the ton weight (data value in °/s per 100T)
+			if (Airframe && Characteristic.CharacteristicType == EFlarePartAttributeType::RCSAccelerationRating)
+			{
+				float Mass = Airframe->GetMass() / 100000;
+				AngularAccelerationRate = Characteristic.CharacteristicValue / (60 * Mass);
+			}
+
+			// Calculate the RCS linear thrust force in N (data value in kN)
+			else if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
+			{
+				LinearThrust = 100 * 1000 * Characteristic.CharacteristicValue;
+			}
 		}
 	}
 }

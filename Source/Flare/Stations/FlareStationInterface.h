@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Game/FlareCompany.h"
 #include "FlareStationInterface.generated.h"
 
 
@@ -101,6 +102,9 @@ public:
 
 	/** Save the station to a save file */
 	virtual FFlareStationSave* Save() = 0;
+
+	/** Set the parent company */
+	virtual void SetOwnerCompany(UFlareCompany* Company) = 0;
 
 
 	/*----------------------------------------------------

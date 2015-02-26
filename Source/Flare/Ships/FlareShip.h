@@ -118,6 +118,8 @@ public:
 
 	virtual FFlareShipSave* Save() override;
 
+	virtual void SetOwnerCompany(UFlareCompany* Company) override;
+
 	bool NavigateTo(FVector TargetLocation) override;
 
 	virtual bool IsManualPilot() override;
@@ -282,6 +284,10 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
+
+	// Company reference
+	UPROPERTY()
+	UFlareCompany* Company;
 
 	// Component description
 	FFlareShipSave                ShipData;
