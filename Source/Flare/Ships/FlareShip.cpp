@@ -122,6 +122,8 @@ void AFlareShip::Tick(float DeltaSeconds)
 				// Physics
 		if (!IsDocked())
 		{
+		  
+			COM = Airframe->GetBodyInstance()->GetCOMPosition();
 
 			UE_LOG(LogTemp, Warning, TEXT("Not docked"));
 
@@ -1054,11 +1056,19 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 
 	FVector Acceleration = FVector(0);
 	Acceleration += TickSumForce / Airframe->GetMass();
-
+	UE_LOG(LogTemp, Warning, TEXT("0 - TickSumForce: %s"), *TickSumForce.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("1 - Mass: %f"), Airframe->GetMass());
+	UE_LOG(LogTemp, Warning, TEXT("2 - deltaTime: %f"), DeltaTime);
+	UE_LOG(LogTemp, Warning, TEXT("3 - Acceleration: %s"), *Acceleration.ToString());
+	
+	
 	Airframe->SetPhysicsLinearVelocity(Acceleration * DeltaTime * 100, true); // Multiply by 100 because UE4 works in cm
 
+	UE_LOG(LogTemp, Warning, TEXT("4 - GetPhysicsLinearVelocity: %s"), *Airframe->GetPhysicsLinearVelocity().ToString());
+
+	
 	// TODO find a better place to set
-	float WorldInertiaTensor = 100;
+	float WorldInertiaTensor = 10000;
 
 	FVector AngularAcceleration = FVector(0);
 	AngularAcceleration += TickSumTorque / WorldInertiaTensor;

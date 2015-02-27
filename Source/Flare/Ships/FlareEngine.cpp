@@ -12,7 +12,8 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	ExhaustAlpha = 0.0;
-	MaxThrust = 10; // TODO init
+	MaxThrust = 600; // TODO init
+	ThrustAxis = FVector(-1,0,0);
 }
 
 
@@ -87,7 +88,7 @@ void UFlareEngine::TickModule(float DeltaTime)
 
 	FVector WorldThrust = GetComponentToWorld().GetRotation().RotateVector(LocalThrust);
 
-	UE_LOG(LogTemp, Warning, TEXT("1 - WorldThrust: %s TargetThrust=%d"), *WorldThrust.ToString(), TargetThrust);
+	UE_LOG(LogTemp, Warning, TEXT("1 - WorldThrust: %s TargetThrust=%f"), *WorldThrust.ToString(), TargetThrust);
 
 
 	OwnerShip->AddForceAtLocation(WorldThrust, GetComponentLocation());
