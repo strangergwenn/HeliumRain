@@ -3,6 +3,7 @@
 #include "SlateBasics.h"
 #include "GameFramework/HUD.h"
 #include "../UI/Menus/FlareDashboard.h"
+#include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareStationMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
@@ -18,6 +19,7 @@ namespace EFlareMenu
 	{
 		MENU_None,
 		MENU_Dashboard,
+		MENU_Company,
 		MENU_Ship,
 		MENU_ShipConfig,
 		MENU_Station,
@@ -98,6 +100,9 @@ protected:
 	/** Open the main menu */
 	virtual void OpenDashboard();
 
+	/** Open the company menu */
+	virtual void InspectCompany(UFlareCompany* Target);
+
 	/** Show the config menu for a specific ship */
 	virtual void InspectShip(IFlareShipInterface* Target = NULL, bool IsEditable = false);
 
@@ -168,6 +173,7 @@ protected:
 	// Menus
 	TSharedPtr<SOverlay>               HUDContainer;
 	TSharedPtr<SFlareDashboard>        Dashboard;
+	TSharedPtr<SFlareCompanyMenu>      CompanyMenu;
 	TSharedPtr<SFlareShipMenu>         ShipMenu;
 	TSharedPtr<SFlareStationMenu>      StationMenu;
 	TSharedPtr<SFlareSectorMenu>       SectorMenu;

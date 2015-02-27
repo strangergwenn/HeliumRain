@@ -121,6 +121,14 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	.AutoHeight()
 	[
 		SNew(SFlareDashboardButton)
+		.Text(LOCTEXT("InspectCompany", "Company"))
+		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Company))
+		.OnClicked(this, &SFlareDashboard::OnInspectCompany)
+	];
+	CompanyBox->AddSlot()
+	.AutoHeight()
+	[
+		SNew(SFlareDashboardButton)
 		.Text(LOCTEXT("InspectShip", "Ship"))
 		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Ship))
 		.OnClicked(this, &SFlareDashboard::OnInspectShip)
@@ -269,6 +277,11 @@ void SFlareDashboard::Exit()
 void SFlareDashboard::OnExit()
 {
 	OwnerHUD->CloseMenu();
+}
+
+void SFlareDashboard::OnInspectCompany()
+{
+	OwnerHUD->OpenMenu(EFlareMenu::MENU_Company);
 }
 
 void SFlareDashboard::OnInspectShip()

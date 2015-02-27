@@ -45,6 +45,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Inspect the company */
+	void OnInspectCompany();
+
 	/** Inspect the current ship */
 	void OnInspectShip();
 

@@ -163,23 +163,6 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(WeaponButtonBox, SVerticalBox)
 						]
-
-						// Color title
-						+ SVerticalBox::Slot()
-						.Padding(FMargin(0, 20))
-						.AutoHeight()
-						[
-							SAssignNew(ColorBoxTitle, STextBlock)
-							.Text(LOCTEXT("ShipPartsColor", "PAINT SCHEME"))
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-						]
-
-						// Picker
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SAssignNew(ColorBox, SFlareColorPanel).OwnerHUD(OwnerHUD)
-						]
 					]
 
 					// Ship part customization panel
@@ -248,9 +231,8 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareShipMenu::Setup(FFlarePlayerSave& PlayerData)
+void SFlareShipMenu::Setup()
 {
-	ColorBox->Setup(PlayerData);
 	SetVisibility(EVisibility::Hidden);
 }
 
@@ -306,8 +288,6 @@ void SFlareShipMenu::LoadTargetShip()
 		ShipPartCustomizationBox->SetVisibility(EVisibility::Collapsed);
 		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
 		ShipCustomizationBox->SetVisibility(EVisibility::Visible);
-		ColorBoxTitle->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
-		ColorBox->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
 		
 		// Add orbital engine button
 		EngineButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
@@ -374,8 +354,6 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	ShipPartCustomizationBox->SetVisibility(EVisibility::Visible);
 	PartCharacteristicBox->SetVisibility(EVisibility::Visible);
 	ShipCustomizationBox->SetVisibility(EVisibility::Collapsed);
-	ColorBoxTitle->SetVisibility(EVisibility::Collapsed);
-	ColorBox->SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareShipMenu::UpdatePartList(FFlareShipModuleDescription* SelectItem)

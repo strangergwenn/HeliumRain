@@ -243,6 +243,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 
 		// Create menus
 		SAssignNew(Dashboard, SFlareDashboard).OwnerHUD(this);
+		SAssignNew(CompanyMenu, SFlareCompanyMenu).OwnerHUD(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).OwnerHUD(this);
 		SAssignNew(StationMenu, SFlareStationMenu).OwnerHUD(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).OwnerHUD(this);
@@ -256,6 +257,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		// Register menus at their Z-Index
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(HUDContainer.ToSharedRef()),    10);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),       50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),     50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StationMenu.ToSharedRef()),     50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),      50);
@@ -263,7 +265,8 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 
 		// Setup menus
 		Dashboard->Setup();
-		ShipMenu->Setup(PlayerData);
+		CompanyMenu->Setup(PlayerData);
+		ShipMenu->Setup();
 		StationMenu->Setup();
 		SectorMenu->Setup();
 
@@ -317,6 +320,10 @@ void AFlareHUD::ProcessFadeTarget()
 			OpenDashboard();
 			break;
 
+		case EFlareMenu::MENU_Company:
+			InspectCompany(static_cast<UFlareCompany*>(FadeTargetData));
+			break;
+
 		case EFlareMenu::MENU_Ship:
 			InspectShip(static_cast<IFlareShipInterface*>(FadeTargetData));
 			break;
@@ -357,6 +364,19 @@ void AFlareHUD::OpenDashboard()
 	HUDContainer->SetVisibility(EVisibility::Hidden);
 
 	Dashboard->Enter();
+}
+
+void AFlareHUD::InspectCompany(UFlareCompany* Target)
+{
+	ResetMenu();
+	SetMenuPawn(true);
+	HUDContainer->SetVisibility(EVisibility::Hidden);
+
+	if (Target == NULL)
+	{
+		Target = Cast<AFlarePlayerController>(GetOwner())->GetCompany();
+	}
+	CompanyMenu->Enter(Target);
 }
 
 void AFlareHUD::InspectShip(IFlareShipInterface* Target, bool IsEditable)
@@ -413,6 +433,7 @@ void AFlareHUD::ResetMenu()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
 	Dashboard->Exit();
+	CompanyMenu->Exit();
 	ShipMenu->Exit();
 	StationMenu->Exit();
 	SectorMenu->Exit();
@@ -463,6 +484,7 @@ const FSlateBrush* AFlareHUD::GetMenuIcon(EFlareMenu::Type MenuType)
 	switch (MenuType)
 	{
 	case EFlareMenu::MENU_Dashboard:      return FFlareStyleSet::GetIcon("Dashboard");
+	case EFlareMenu::MENU_Company:        return FFlareStyleSet::GetIcon("Company");
 	case EFlareMenu::MENU_Ship:           return FFlareStyleSet::GetIcon("Ship");
 	case EFlareMenu::MENU_ShipConfig:     return FFlareStyleSet::GetIcon("ShipUpgrade");
 	case EFlareMenu::MENU_Station:        return FFlareStyleSet::GetIcon("Station");

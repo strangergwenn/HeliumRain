@@ -2,7 +2,6 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "../Components/FlareColorPanel.h"
 #include "../Components/FlareListItem.h"
 #include "../Widgets/FlareConfirmationBox.h"
 #include "../../Ships/FlareShipModule.h"
@@ -32,7 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Setup the widget with saved data */
-	void Setup(FFlarePlayerSave& PlayerData);
+	void Setup();
 
 	/** Enter this menu */
 	void Enter(IFlareShipInterface* Target, bool IsEditable = false);
@@ -115,12 +114,10 @@ protected:
 	TSharedPtr<SVerticalBox>           ShipCustomizationBox;
 	TSharedPtr<SFlareButton>           EngineButton;
 	TSharedPtr<SFlareButton>           RCSButton;
-	TSharedPtr<STextBlock>             ColorBoxTitle;
-	TSharedPtr<SFlareColorPanel>       ColorBox;
 
 	// Ship weapons
-	TSharedPtr<SVerticalBox>          WeaponButtonBox;
-	int32                             CurrentWeaponIndex;
+	TSharedPtr<SVerticalBox>           WeaponButtonBox;
+	int32                              CurrentWeaponIndex;
 
 	/** List of parts being shown right now */
 	UPROPERTY()
