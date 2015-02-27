@@ -21,10 +21,11 @@ UFlareOrbitalEngine::UFlareOrbitalEngine(const class FObjectInitializer& PCIP)
 
 void UFlareOrbitalEngine::UpdateAlpha(float DeltaTime)
 {
+	Super::UpdateAlpha(DeltaTime);
 	AFlareShip* OwnerShip = Cast<AFlareShip>(Ship);
-	if (OwnerShip)
+	if (OwnerShip && OwnerShip->IsFakeThrust())
 	{
-		ExhaustAlpha = (OwnerShip->IsFakeThrust() ? 1.0f : OwnerShip->GetAttitudeCommandOrbitalThrust());
+		ExhaustAlpha = 1.0f;
 	}
 }
 

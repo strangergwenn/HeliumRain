@@ -41,7 +41,7 @@ bool UFlareRCS::CanMoveHorizontal()
 	}
 	return false;
 }
-
+/*
 void UFlareRCS::UpdateAlpha(float DeltaTime)
 {
 	// Setup data
@@ -82,4 +82,4 @@ void UFlareRCS::UpdateAlpha(float DeltaTime)
 		// Thrust will always saturate commands to look better, but not rotations
 		ExhaustAlpha /= (Capabilities.Num() - ThrustCapabilities);
 	}
-}
+}*/

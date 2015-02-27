@@ -80,7 +80,7 @@ void AFlareShip::BeginPlay()
 void AFlareShip::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
+	UE_LOG(LogTemp, Warning, TEXT("Tick"));
 	// Attitude control
 	if (Airframe && !FakeThrust)
 	{
@@ -122,8 +122,22 @@ void AFlareShip::Tick(float DeltaSeconds)
 				// Physics
 		if (!IsDocked())
 		{
-			UpdateLinearPhysics(DeltaSeconds);
-			UpdateAngularPhysics(DeltaSeconds);
+
+			UE_LOG(LogTemp, Warning, TEXT("Not docked"));
+
+			LowLevelAutoPilotSubTick(DeltaSeconds);
+
+			// Tick Modules
+			TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipModule::StaticClass());
+			for (int32 i = 0; i < Modules.Num(); i++) {
+				UFlareShipModule* Module = Cast<UFlareShipModule>(Modules[i]);
+				Module->TickModule(DeltaSeconds);
+			}
+
+			//UpdateLinearPhysics(DeltaSeconds);
+			//UpdateAngularPhysics(DeltaSeconds);
+
+			PhysicSubTick(DeltaSeconds);
 		}
 	}
 }
@@ -1015,4 +1029,52 @@ void AFlareShip::StopFire()
 			WeaponList[i]->StopFire();
 		}
 	}
+}
+
+/*----------------------------------------------------
+	Physics
+----------------------------------------------------*/
+
+void AFlareShip::LowLevelAutoPilotSubTick(float DeltaTime)
+{
+      TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+
+      UE_LOG(LogTemp, Warning, TEXT("LowLevelAutoPilotSubTick num engine=%d"), Engines.Num());
+
+      for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++) {
+		float ThrustRatio = 1;
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+		Engine->SetTargetThrustRatio(ThrustRatio);
+	}
+}
+
+void AFlareShip::PhysicSubTick(float DeltaTime)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PhysicSubTick"));
+
+	FVector Acceleration = FVector(0);
+	Acceleration += TickSumForce / Airframe->GetMass();
+
+	Airframe->SetPhysicsLinearVelocity(Acceleration * DeltaTime * 100, true); // Multiply by 100 because UE4 works in cm
+
+	// TODO find a better place to set
+	float WorldInertiaTensor = 100;
+
+	FVector AngularAcceleration = FVector(0);
+	AngularAcceleration += TickSumTorque / WorldInertiaTensor;
+	// TODO Clamp
+
+	Airframe->SetPhysicsAngularVelocity(AngularAcceleration * DeltaTime, true);
+
+	// Reset force and torque for next tick
+	TickSumForce = FVector::ZeroVector;
+	TickSumTorque = FVector::ZeroVector;
+}
+
+void AFlareShip::AddForceAtLocation(FVector force, FVector applicationPoint)
+{
+	TickSumForce += force;
+	FVector ApplicationOffset = (applicationPoint - COM) / 100; // TODO divise by 100 in parameter
+
+	TickSumTorque += FVector::CrossProduct(ApplicationOffset, force);
 }

@@ -17,14 +17,32 @@ public:
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-	/** Update the exhaust power command */
+	/** Apply the current thrust to a ship*/
+	virtual void TickModule(float deltaTime) override;
+
+	float CurrentThrust;
+
+	// TODO init with characteristics
+	float MaxThrust;
+
+	float TargetThrust;
+
+	// TODO remove if always in same axis
+	FVector ThrustAxis;
+	
+	/**
+	  * Configure the target thrust
+	  * 1 for max trust
+	  * 0 for no thrust
+	  */
+	void SetTargetThrustRatio(float Ratio);
+
+protected:
+	/** Update the exhaust power from current thrust */
 	virtual void UpdateAlpha(float DeltaTime);
 
 	/** Update the exhaust special effect */
 	virtual void UpdateEffects();
-	
-
-protected:
 
 	/*----------------------------------------------------
 		Protected data

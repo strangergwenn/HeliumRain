@@ -56,7 +56,7 @@ public:
 	virtual bool CanMoveHorizontal();
 
 
-	virtual void UpdateAlpha(float DeltaTime) override;
+	//virtual void UpdateAlpha(float DeltaTime) override;
 
 
 protected:

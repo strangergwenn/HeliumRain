@@ -160,6 +160,11 @@ void UFlareShipModule::SetupEffectMesh()
 	}
 }
 
+void UFlareShipModule::TickModule(float DeltaTime)
+{
+  // Do nothing
+}
+
 void UFlareShipModule::UpdateCustomization()
 {
 	if (PlayerCompany)

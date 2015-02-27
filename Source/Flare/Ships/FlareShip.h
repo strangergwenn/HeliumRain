@@ -186,6 +186,10 @@ public:
 	/** Make sure this point is not in a path collider */
 	virtual bool IsPointColliding(FVector Candidate, AActor* Ignore);
 
+	/*----------------------------------------------------
+		Physics
+	----------------------------------------------------*/
+	void AddForceAtLocation(FVector Force, FVector ApplicationPoint);
 
 protected:
 
@@ -217,6 +221,14 @@ protected:
 	/** Control rotation physics */
 	void UpdateAngularPhysics(float DeltaSeconds);
 
+	/*----------------------------------------------------
+		Physics
+	----------------------------------------------------*/
+
+	/** Configure all engine from commands*/
+	void LowLevelAutoPilotSubTick(float DeltaSeconds);
+
+	void PhysicSubTick(float DeltaSeconds);
 
 public:
 
@@ -338,6 +350,10 @@ protected:
 	FQuat                         AngularVelocityDelta;
 	float                         AngularStopDistance;
 
+	// Temporary variable reset each tich
+	FVector TickSumForce;
+	FVector TickSumTorque;
+	FVector COM;
 
 public:
 
