@@ -12,8 +12,24 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	ExhaustAlpha = 0.0;
+	MaxThrust = 0.0;
 }
 
+
+void UFlareEngine::Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+{
+	Super::Initialize(Description, Company, OwnerShip, IsInMenu);
+	for (int32 i = 0; i < Description->Characteristics.Num(); i++)
+	{
+		const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
+
+		// Calculate the engine linear thrust force in N (data value in kN)
+		if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
+		{
+			MaxThrust = 1000 * Characteristic.CharacteristicValue;
+		}
+	}
+}
 
 /*----------------------------------------------------
 	Gameplay
@@ -23,35 +39,40 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Compute the command
-	UpdateAlpha(DeltaTime);
-
-	// Smooth the command value
-	float AverageCoeff = 0.15;
-	ExhaustAlpha = FMath::Clamp(ExhaustAlpha, 0.0f, 1.0f);
-	ExhaustAlpha = AverageCoeff * ExhaustAlpha + (1 - AverageCoeff) * ExhaustAccumulator;
-	ExhaustAccumulator = ExhaustAlpha;
+	// Smooth the alpha value
+	float AverageCoeff = 8 * DeltaTime; // Half-life time : 1/8 second
+	ExhaustAccumulator = FMath::Clamp(AverageCoeff * ExhaustAlpha + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
 
 	// Apply effects
 	UpdateEffects();
 }
 
-void UFlareEngine::UpdateAlpha(float DeltaTime)
+void UFlareEngine::SetAlpha(float Alpha)
 {
-	ExhaustAlpha = 0.0f;
+	ExhaustAlpha = FMath::Clamp(Alpha, 0.0f, 1.0f);
 }
 
 void UFlareEngine::UpdateEffects()
 {
-	// Smooth the alpha value
-	float AverageCoeff = 0.3;
-	ExhaustAlpha = FMath::Clamp(ExhaustAlpha, 0.0f, 1.0f);
-	ExhaustAlpha = AverageCoeff * ExhaustAlpha + (1 - AverageCoeff) * ExhaustAccumulator;
-	ExhaustAccumulator = ExhaustAlpha;
-
 	// Apply the glow value
 	if (EffectMaterial)
 	{
-		EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), ExhaustAlpha);
+		EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), ExhaustAccumulator);
 	}
+}
+
+FVector UFlareEngine::GetThurstAxis() const
+{
+	// Return the front vector in world space
+	return GetComponentToWorld().GetRotation().RotateVector(FVector(1.0f, 0.0f, 0.0f));
+}
+
+float UFlareEngine::GetMaxThrust() const
+{
+	return MaxThrust; // TODO include damages
+}
+
+float UFlareEngine::GetInitialMaxThrust() const
+{
+	return MaxThrust;
 }

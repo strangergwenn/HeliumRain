@@ -16,10 +16,9 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	virtual void UpdateAlpha(float DeltaTime) override;
-
 	virtual void UpdateEffects() override;
 
+	virtual bool IsOrbitalEngine() const;
 
 private:
 

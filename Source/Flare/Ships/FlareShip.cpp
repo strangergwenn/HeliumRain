@@ -22,8 +22,8 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, AngularDeadAngle(0.5)
 	, AngularInputDeadRatio(0.025)
-	, LinearDeadDistance(10)
-	, NegligibleSpeedRatio(0.05)
+	, LinearDeadDistance(0.1)
+	, NegligibleSpeedRatio(0.0005)
 	, Status(EFlareShipStatus::SS_Manual)
 	, FakeThrust(false)
 {	
@@ -50,23 +50,12 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 void AFlareShip::BeginPlay()
 {
 	Super::BeginPlay();
-	AngularVelocity = NULL_QUAT;
 	TArray<UActorComponent*> ActorComponents;
 	GetComponents(ActorComponents);
 
 	// Check which moves are allowed
 	for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
 	{
-		// RCS
-		UFlareRCS* RCS = Cast<UFlareRCS>(*ComponentIt);
-		if (RCS)
-		{
-			if (RCS->CanMoveVertical())
-			{
-				CanMoveVertical = true;
-			}
-		}
-
 		// If this is a weapon, reinitialize it directly so that it updates its properties
 		UFlareWeapon* Weapon = Cast<UFlareWeapon>(*ComponentIt);
 		if (Weapon && WeaponList.Num() < WeaponDescriptionList.Num())
@@ -75,15 +64,18 @@ void AFlareShip::BeginPlay()
 			WeaponList.Add(Weapon);
 		}
 	}
+	
+	UpdateCOM();
 }
 
 void AFlareShip::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 	// Attitude control
 	if (Airframe && !FakeThrust)
 	{
+		UpdateCOM();
+	  
 		// Manual pilot
 		if (IsManualPilot())
 		{
@@ -122,8 +114,13 @@ void AFlareShip::Tick(float DeltaSeconds)
 				// Physics
 		if (!IsDocked())
 		{
-			UpdateLinearPhysics(DeltaSeconds);
-			UpdateAngularPhysics(DeltaSeconds);
+			// Tick Modules
+			TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipModule::StaticClass());
+			for (int32 i = 0; i < Modules.Num(); i++) {
+				UFlareShipModule* Module = Cast<UFlareShipModule>(Modules[i]);
+				Module->TickModule(DeltaSeconds);
+			}
+			PhysicSubTick(DeltaSeconds);
 		}
 	}
 }
@@ -281,13 +278,13 @@ bool AFlareShip::NavigateTo(FVector TargetLocation)
 		// Generate commands for travel
 		for (int32 i = 0; i < Path.Num(); i++)
 		{
-			PushCommandRotation((Path[i] - Temp).Rotation().Quaternion());
+			PushCommandRotation((Path[i] - Temp), FVector(1,0,0)); // Front
 			PushCommandLocation(Path[i]);
 			Temp = Path[i];
 		}
 
 		// Move toward objective for pre-final approach
-		PushCommandRotation((TargetLocation - Temp).Rotation().Quaternion());
+		PushCommandRotation((TargetLocation - Temp), FVector(1,0,0));
 		PushCommandLocation(TargetLocation);
 		return true;
 	}
@@ -330,14 +327,19 @@ bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
 	// Try to dock
 	if (DockingInfo.Granted)
 	{
+		
 		FVector ShipDockOffset = GetDockLocation();
-		DockingInfo.EndPoint += DockingInfo.Rotation.RotateVector(ShipDockOffset);
-		DockingInfo.StartPoint += 5000 * DockingInfo.Rotation.RotateVector(FVector(1, 0, 0));
-
+		DockingInfo.EndPoint += DockingInfo.Rotation.RotateVector(ShipDockOffset * FVector(1, 0, 0)) - ShipDockOffset * FVector(0, 1, 1);
+		DockingInfo.StartPoint = DockingInfo.EndPoint + 5000 * DockingInfo.Rotation.RotateVector(FVector(1, 0, 0));
+		
 		// Dock
 		if (NavigateTo(DockingInfo.StartPoint))
 		{
-			PushCommandRotation((DockingInfo.EndPoint - DockingInfo.StartPoint).Rotation().Quaternion());
+			// Align front to dock axis
+			PushCommandRotation((DockingInfo.EndPoint - DockingInfo.StartPoint), FVector(1,0,0));
+			// Align ship top to station top
+			PushCommandRotation(FVector(0,0,1), FVector(0,0,1));
+			
 			PushCommandLocation(DockingInfo.EndPoint);
 			PushCommandDock(DockingInfo);
 
@@ -368,6 +370,17 @@ void AFlareShip::ConfirmDock(IFlareStationInterface* DockStation, int32 DockId)
 	Status = EFlareShipStatus::SS_Docked;
 	ShipData.DockedTo = *DockStation->_getUObject()->GetName();
 	ShipData.DockedAt = DockId;
+	
+	// Disable physics
+	Airframe->SetSimulatePhysics(false);
+	// Cut engines
+	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
+	{
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+		Engine->SetAlpha(0.0f);
+	}
+
 }
 
 bool AFlareShip::Undock()
@@ -378,6 +391,9 @@ bool AFlareShip::Undock()
 	// Try undocking
 	if (IsDocked())
 	{
+		// Enable physics
+		Airframe->SetSimulatePhysics(true);
+	  
 		// Evacuate
 		ClearCurrentCommand();
 		GetDockStation()->ReleaseDock(this, ShipData.DockedAt);
@@ -441,11 +457,14 @@ void AFlareShip::PushCommandLocation(const FVector& Location)
 	PushCommand(Data);
 }
 
-void AFlareShip::PushCommandRotation(const FQuat& Rotation)
+void AFlareShip::PushCommandRotation(const FVector& RotationTarget, const FVector& LocalShipAxis)
 {
 	FFlareShipCommandData Data;
 	Data.Type = EFlareCommandDataType::CDT_Rotation;
-	Data.RotationTarget = Rotation;
+	Data.RotationTarget = RotationTarget;
+	Data.LocalShipAxis = LocalShipAxis;
+	FLOGV("PushCommandRotation RotationTarget '%s'", *RotationTarget.ToString());
+	FLOGV("PushCommandRotation LocalShipAxis '%s'", *LocalShipAxis.ToString());
 	PushCommand(Data);
 }
 
@@ -577,14 +596,15 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 
 void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 {
-	// RCS impulse
-	LinearTargetVelocity = ManualLinearVelocity;
-
-	// Orbital impulse
-	if (ManualOrbitalBoost)
+	if(IsGliding())
 	{
-		FVector OrbitalPushDirection = GetActorQuat().RotateVector(FVector(1, 0, 0));
-		Airframe->AddForce(LinearOrbitalThrust * OrbitalPushDirection);
+		// Add velocity command to current velocity
+		LinearTargetVelocity = GetLinearVelocity() + Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
+		LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(LinearMaxVelocity);
+	}
+	else
+	{
+		LinearTargetVelocity = Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
 	}
 }
 
@@ -593,35 +613,57 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 	// Location data
 	FFlareShipCommandData Data;
 	CommandData.Peek(Data);
-	FVector LocalCommand = WorldToLocal(Data.LocationTarget - GetActorLocation());
 
-	// Check legit movements
-	if (!CanMoveVertical)
+	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+  
+	FVector DeltaPosition = (Data.LocationTarget - GetActorLocation()) / 100; // Distance in meters
+	FVector DeltaPositionDirection = DeltaPosition;
+	DeltaPositionDirection.Normalize();
+	float Distance = FMath::Max(0.0f, DeltaPosition.Size() - LinearDeadDistance);
+
+	FVector DeltaVelocity = -GetLinearVelocity();
+	FVector DeltaVelocityAxis = DeltaVelocity;
+	DeltaVelocityAxis.Normalize();
+
+	float TimeToFinalVelocity;
+	
+	if (FMath::IsNearlyZero(DeltaVelocity.SizeSquared()))
 	{
-		LocalCommand.Z = 0;
+		TimeToFinalVelocity = 0;
 	}
-	float RemainingTravelDistance = LocalCommand.Size();
+	else {
 		
-	// Under this angle we consider the variation negligible, and ensure null delta + null speed
-	if (RemainingTravelDistance < LinearDeadDistance && LinearVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
+		FVector Acceleration = GetTotalMaxThrustInAxis(Engines, DeltaVelocityAxis, 0, false) / Airframe->GetMass();
+		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, DeltaPositionDirection));
+		
+		TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
+	}
+
+	float DistanceToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + DeltaSeconds);
+
+	FVector RelativeResultSpeed;
+
+	if (DistanceToStop > Distance) {
+		RelativeResultSpeed = FVector::ZeroVector;
+	}
+	else {
+
+		float MaxPreciseSpeed = FMath::Min((Distance - DistanceToStop) / DeltaSeconds, LinearMaxVelocity);
+
+		RelativeResultSpeed = DeltaPositionDirection;
+		RelativeResultSpeed *= MaxPreciseSpeed;
+	}
+
+	
+	// Under this distance we consider the variation negligible, and ensure null delta + null speed
+	if (Distance < LinearDeadDistance && DeltaVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
 	{
-		Airframe->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
-		SetActorLocation(Data.LocationTarget, true);
-		LinearTargetVelocity = FVector::ZeroVector;
+		Airframe->SetPhysicsLinearVelocity(FVector::ZeroVector, false); // TODO remove
 		ClearCurrentCommand();
-	}
+		RelativeResultSpeed = FVector::ZeroVector;	
 
-	// Brake if "close" to target and not going away from it
-	else if (RemainingTravelDistance <= LinearStopDistance)
-	{
-		LinearTargetVelocity = FVector::ZeroVector;
 	}
-
-	// The rest of the time we try to follow the command
-	else
-	{
-		LinearTargetVelocity = LocalCommand;
-	}
+	LinearTargetVelocity = RelativeResultSpeed;
 }
 
 void AFlareShip::UpdateLinearBraking(float DeltaSeconds)
@@ -637,119 +679,95 @@ void AFlareShip::UpdateLinearBraking(float DeltaSeconds)
 	}
 }
 
-void AFlareShip::UpdateLinearPhysics(float DeltaSeconds)
-{
-	if (IsGliding())
-	{
-		LinearThrustDirection = FVector::ZeroVector;
-	}
-	else
-	{
-		// Target and current speed
-		LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(LinearMaxVelocity);
-		LinearVelocity = WorldToLocal(Airframe->GetPhysicsLinearVelocity());
-
-		// Regulate thrust from target speed
-		LinearThrustDirection.X = TriStateRegulator(LinearVelocity.X, LinearTargetVelocity.X, LinearDeadDistance);
-		LinearThrustDirection.Y = TriStateRegulator(LinearVelocity.Y, LinearTargetVelocity.Y, LinearDeadDistance);
-		LinearThrustDirection.Z = TriStateRegulator(LinearVelocity.Z, LinearTargetVelocity.Z, LinearDeadDistance);
-
-		// Thrust
-		FVector ThrustDirection = Airframe->GetComponentTransform().TransformVectorNoScale(LinearThrustDirection);
-		Airframe->AddForce(LinearThrust * ThrustDirection);
-	}
-
-	// Update speed data
-	float LinearAccelerationRate = LinearThrust / Airframe->GetMass();
-	LinearStopDistance = 0.5 * FMath::Square(Airframe->GetPhysicsLinearVelocity().Size()) / LinearAccelerationRate;
-}
-
-
 /*----------------------------------------------------
 	Attitude control : angular version
 ----------------------------------------------------*/
 
 void AFlareShip::UpdateAngularAttitudeManual(float DeltaSeconds)
 {
-	AngularTargetVelocity = FQuat::MakeFromEuler(ManualAngularVelocity);
+	AngularTargetVelocity = Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualAngularVelocity);
 }
 
 void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 {
+	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+  
 	// Rotation data
 	FFlareShipCommandData Data;
 	CommandData.Peek(Data);
-	FQuat LocalCommand = WorldToLocal(Data.RotationTarget);
-	float RemainingTravelDistance = GetRotationAmount(LocalCommand, true);
+	FVector TargetAxis = Data.RotationTarget;
+	FVector LocalShipAxis = Data.LocalShipAxis;
+	
+	FVector AngularVelocity = Airframe->GetPhysicsAngularVelocity();
+	FVector WorldShipAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalShipAxis);
+	
+	WorldShipAxis.Normalize();
+	TargetAxis.Normalize();
 
-	// Detect if we are going away from the target
-	static float PreviousRemainingTravelDistance = 360;
-	bool PilotError = (RemainingTravelDistance > PreviousRemainingTravelDistance);
-	PreviousRemainingTravelDistance = RemainingTravelDistance;
+	FVector RotationDirection = FVector::CrossProduct(WorldShipAxis, TargetAxis);
+	RotationDirection.Normalize();
+	float Dot = FVector::DotProduct(WorldShipAxis, TargetAxis);
+	float angle = FMath::RadiansToDegrees(FMath::Acos(Dot));
 
+	FVector DeltaVelocity = -AngularVelocity;
+	FVector DeltaVelocityAxis = DeltaVelocity;
+	DeltaVelocityAxis.Normalize();
+
+	float TimeToFinalVelocity;
+	
+	if (FMath::IsNearlyZero(DeltaVelocity.SizeSquared()))
+	{
+		TimeToFinalVelocity = 0;
+	}
+	else {
+	    FVector SimpleAcceleration = DeltaVelocityAxis * AngularAccelerationRate;
+	    // Scale with damages
+	    float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, COM, 0, true, false) / GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, COM, 0, false, false);
+	    FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
+	     
+	    FVector Acceleration = DamagedSimpleAcceleration;
+	    float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(DamagedSimpleAcceleration, RotationDirection));
+	    
+	    TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);	
+	}
+
+	float AngleToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + DeltaSeconds);
+
+	FVector RelativeResultSpeed;
+
+	if (AngleToStop > angle) {
+		RelativeResultSpeed = FVector::ZeroVector;
+	}
+	else {
+
+		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / DeltaSeconds, AngularMaxVelocity);
+
+		RelativeResultSpeed = RotationDirection;
+		RelativeResultSpeed *= MaxPreciseSpeed;
+	}	
+	
 	// Under this angle we consider the variation negligible, and ensure null delta + null speed
-	if (RemainingTravelDistance < AngularDeadAngle && AngularStopDistance < AngularDeadAngle)
+	if (angle < AngularDeadAngle && DeltaVelocity.Size() < AngularDeadAngle)
 	{
-		AngularVelocity = NULL_QUAT;
-		AngularTargetVelocity = NULL_QUAT;
-		PreviousRemainingTravelDistance = 360;
-		AddActorLocalRotation(LocalCommand.Rotator(), true);
+		Airframe->SetPhysicsAngularVelocity(FVector::ZeroVector, false); // TODO remove
 		ClearCurrentCommand();
+		RelativeResultSpeed = FVector::ZeroVector;
 	}
-
-	// Brake if "close" to target or going away from it
-	else if (RemainingTravelDistance <= AngularStopDistance || PilotError)
-	{
-		AngularTargetVelocity = NULL_QUAT;
-	}
-
-	// The rest of the time we try to follow the command
-	else
-	{
-		AngularTargetVelocity = LocalCommand;
-	}
+	AngularTargetVelocity = RelativeResultSpeed;
 }
 
 void AFlareShip::UpdateAngularBraking(float DeltaSeconds)
 {
-	AngularTargetVelocity = NULL_QUAT;
-
+	AngularTargetVelocity = FVector::ZeroVector;
+	FVector AngularVelocity = Airframe->GetPhysicsAngularVelocity();
 	// Null speed detection
-	if (GetRotationAmount(AngularVelocity) < NegligibleSpeedRatio * AngularMaxVelocity)
+	if (AngularVelocity.Size() < NegligibleSpeedRatio * AngularMaxVelocity)
 	{
-		AngularTargetVelocity = NULL_QUAT;
-		AngularVelocity = NULL_QUAT;
+		AngularTargetVelocity = FVector::ZeroVector;
+		Airframe->SetPhysicsAngularVelocity(FVector::ZeroVector, false); // TODO remove
 		ClearCurrentCommand();
 	}
 }
-
-void AFlareShip::UpdateAngularPhysics(float DeltaSeconds)
-{
-	// Compute physic values : double the current acceleration rating
-	FVector Limit = 2 * AngularAccelerationRate * DeltaSeconds * FVector(1, 1, 1);
-	FVector PhysicalVel = Airframe->GetPhysicsAngularVelocity();
-	FVector DeltaPhysicalVel = ClampVector(-PhysicalVel, -Limit, Limit);
-
-	// Update physical speed
-	PhysicalVel += DeltaPhysicalVel;
-	Airframe->SetPhysicsAngularVelocity(PhysicalVel);
-
-	// Recalculate acceleration
-	AngularVelocityDelta = AngularTargetVelocity * AngularVelocity.Inverse();
-	AngularVelocityDelta = ClampQuaternion(AngularVelocityDelta, AngularAccelerationRate * DeltaSeconds);
-
-	// Integrate acceleration to get the speed
-	AngularVelocity = AngularVelocityDelta * AngularVelocity;
-	AngularVelocity.Normalize();
-	AngularVelocity = ClampQuaternion(AngularVelocity, AngularMaxVelocity / 60);
-	AngularStopDistance = 0.5 * FMath::Square(GetRotationAmount(AngularVelocity)) / (AngularAccelerationRate / 60);
-	
-	// Update speed data
-	FRotator AngularDelta = AngularVelocity.Rotator();
-	AngularDelta *= 60 * DeltaSeconds;
-	AddActorLocalRotation(AngularDelta, true);
-}
-
 
 /*----------------------------------------------------
 	Customization
@@ -762,7 +780,7 @@ void AFlareShip::SetShipDescription(FFlareShipDescription* Description)
 	// Load data from the ship info
 	if (Description)
 	{
-		LinearMaxVelocity = 100 * Description->LinearMaxVelocity;
+		LinearMaxVelocity = Description->LinearMaxVelocity;
 		AngularMaxVelocity = Description->AngularMaxVelocity;
 	}
 }
@@ -771,21 +789,6 @@ void AFlareShip::SetOrbitalEngineDescription(FFlareShipModuleDescription* Descri
 {
 	OrbitalEngineDescription = Description;
 	ReloadAllParts(UFlareOrbitalEngine::StaticClass(), Description);
-
-	// Find the orbital thrust rating
-	if (Description)
-	{
-		for (int32 i = 0; i < Description->Characteristics.Num(); i++)
-		{
-			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
-
-			// Calculate the orbital engine linear thrust force in N (data value in kN)
-			if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
-			{
-				LinearOrbitalThrust = 100 * 1000 * Characteristic.CharacteristicValue;
-			}
-		}
-	}
 }
 
 void AFlareShip::SetRCSDescription(FFlareShipModuleDescription* Description)
@@ -842,6 +845,75 @@ void AFlareShip::UpdateCustomization()
 	Airframe->UpdateCustomization();
 }
 
+/*----------------------------------------------------
+	Physics
+----------------------------------------------------*/
+
+void AFlareShip::PhysicSubTick(float DeltaSeconds)
+{
+	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+	
+	// Linear physics	
+	FVector DeltaV = LinearTargetVelocity - GetLinearVelocity();
+	FVector DeltaVAxis = DeltaV;
+	DeltaVAxis.Normalize();
+	
+	if(!DeltaV.IsNearlyZero()) 
+	{
+		FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, 0, ManualOrbitalBoost).Size() / Airframe->GetMass();
+		FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
+
+		Airframe->SetPhysicsLinearVelocity(ClampedAcceleration * DeltaSeconds * 100, true); // Multiply by 100 because UE4 works in cm
+	}
+
+	// Angular physics
+	FVector DeltaAngularV = AngularTargetVelocity - Airframe->GetPhysicsAngularVelocity();
+	FVector DeltaAngularVAxis = DeltaAngularV;
+	DeltaAngularVAxis.Normalize();
+	
+	if(!DeltaAngularV.IsNearlyZero())
+	{
+		FVector SimpleAcceleration = DeltaAngularVAxis * AngularAccelerationRate;
+
+		// Scale with damages
+		float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, COM, 0, true, false) / GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, COM, 0, false, false);
+		FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
+		FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.GetClampedToMaxSize(DeltaAngularV.Size() / DeltaSeconds);
+
+		Airframe->SetPhysicsAngularVelocity(ClampedSimplifiedAcceleration  * DeltaSeconds, true);
+	}
+	
+	// Update engine alpha
+	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
+	{
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+		FVector ThrustAxis = Engine->GetThurstAxis();
+		float LinearAlpha = 0;
+		float AngularAlpha = 0;
+		
+		if(IsFakeThrust()) {
+			LinearAlpha = true;
+		} else if(!DeltaV.IsNearlyZero()) { 
+			if(!(!ManualOrbitalBoost && Engine->IsOrbitalEngine())) {	
+				LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis);
+			}
+		}
+		
+		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
+		TorqueDirection.Normalize();
+		
+		if(!DeltaAngularV.IsNearlyZero() && !Engine->IsOrbitalEngine()) { 
+			AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
+		}
+		
+		Engine->SetAlpha(FMath::Clamp(LinearAlpha + AngularAlpha, 0.0f, 1.0f));
+	}
+}
+
+void AFlareShip::UpdateCOM() {
+    COM = Airframe->GetBodyInstance()->GetCOMPosition();
+}
 
 /*----------------------------------------------------
 	Input
@@ -878,14 +950,13 @@ void AFlareShip::MousePositionInput(FVector2D Val)
 {
 	if (!ExternalCamera)
 	{
-		float CompensationRatio = (1 - AngularInputDeadRatio);
+		// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
+		Val.X = FMath::Clamp(1. + (FMath::Abs(Val.X) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.X);
+		Val.Y = FMath::Clamp(1. + (FMath::Abs(Val.Y) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.Y);
+		
 
-		Val.X = (FMath::Abs(Val.X) < AngularInputDeadRatio) ? 0 : (Val.X - AngularInputDeadRatio * FMath::Sign(Val.X));
-		Val.Y = (FMath::Abs(Val.Y) < AngularInputDeadRatio) ? 0 : (Val.Y - AngularInputDeadRatio * FMath::Sign(Val.X));
-		Val /= CompensationRatio;
-
-		ManualAngularVelocity.Z = FMath::Clamp(Val.X, -AngularMaxVelocity, AngularMaxVelocity);
-		ManualAngularVelocity.Y = -FMath::Clamp(Val.Y, -AngularMaxVelocity, AngularMaxVelocity);
+		ManualAngularVelocity.Z = Val.X * AngularMaxVelocity;
+		ManualAngularVelocity.Y = Val.Y * AngularMaxVelocity;
 	}
 }
 
@@ -899,7 +970,7 @@ void AFlareShip::ThrustInput(float Val)
 
 void AFlareShip::MoveVerticalInput(float Val)
 {
-	if (!ExternalCamera && CanMoveVertical)
+	if (!ExternalCamera)
 	{
 		ManualLinearVelocity.Z = LinearMaxVelocity * Val;
 	}
@@ -917,7 +988,7 @@ void AFlareShip::RollInput(float Val)
 {
 	if (!ExternalCamera)
 	{
-		ManualAngularVelocity.X = Val * FMath::Clamp(AngularMaxVelocity, 5.0f, 85.0f);
+		ManualAngularVelocity.X = - Val * AngularMaxVelocity;
 	}
 }
 
@@ -959,7 +1030,7 @@ void AFlareShip::FaceForward()
 {
 	if (IsManualPilot())
 	{
-		PushCommandRotation(Airframe->GetPhysicsLinearVelocity().Rotation().Quaternion());
+		PushCommandRotation(Airframe->GetPhysicsLinearVelocity(), FVector(1,0,0));
 	}
 }
 
@@ -967,7 +1038,7 @@ void AFlareShip::FaceBackward()
 {
 	if (IsManualPilot())
 	{
-		PushCommandRotation((-Airframe->GetPhysicsLinearVelocity()).Rotation().Quaternion());
+		PushCommandRotation((-Airframe->GetPhysicsLinearVelocity()), FVector(1,0,0));
 	}
 }
 
@@ -1017,4 +1088,77 @@ void AFlareShip::StopFire()
 			WeaponList[i]->StopFire();
 		}
 	}
+}
+
+/*----------------------------------------------------
+		Getters (Attitude)
+----------------------------------------------------*/
+
+FVector AFlareShip::GetLinearVelocity() const
+{
+	return Airframe->GetPhysicsLinearVelocity() / 100;
+}
+
+FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit, bool WithOrbitalEngines) const
+{
+	Axis.Normalize();
+	FVector TotalMaxThrust = FVector::ZeroVector;
+	for (int32 i = 0; i < Engines.Num(); i++) {
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
+
+		if(Engine->IsOrbitalEngine() && !WithOrbitalEngines) {
+		  continue;
+		}
+
+		FVector WorldThurstAxis = Engine->GetThurstAxis();
+
+		float dot = FVector::DotProduct(WorldThurstAxis, Axis);
+		if (dot > ThurstAngleLimit) {
+			float ratio = (dot - ThurstAngleLimit) / (1 - ThurstAngleLimit);
+
+			TotalMaxThrust += WorldThurstAxis * Engine->GetMaxThrust() * ratio;
+		}
+	}
+
+	return TotalMaxThrust;
+}
+
+float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, FVector COM, float ThurstAngleLimit, bool WithDamages, bool WithOrbitalEngines) const
+{
+	//UE_LOG(LogTemp, Warning, TEXT("----"));
+	TorqueAxis.Normalize();
+	float TotalMaxTorque = 0;
+	for (int32 i = 0; i < Engines.Num(); i++) {
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
+
+		if(!WithOrbitalEngines && Engine->IsOrbitalEngine()) {
+		  continue;
+		}
+
+		float MaxThrust = (WithDamages ? Engine->GetMaxThrust() : Engine->GetInitialMaxThrust());
+		
+		if (MaxThrust == 0) {
+			// Not controlable engine
+			continue;
+		}
+
+		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+		
+		FVector WorldThurstAxis = Engine->GetThurstAxis();
+		WorldThurstAxis.Normalize();
+		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThurstAxis);
+		TorqueDirection.Normalize();
+
+		float dot = FVector::DotProduct(TorqueAxis, TorqueDirection);
+		
+		
+		if (dot > ThurstAngleLimit) {
+			float ratio = (dot - ThurstAngleLimit) / (1 - ThurstAngleLimit);
+
+			TotalMaxTorque += FVector::CrossProduct(EngineOffset, WorldThurstAxis).Size() * MaxThrust * ratio;
+		}
+
+	}
+
+	return TotalMaxTorque;
 }

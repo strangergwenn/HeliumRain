@@ -60,7 +60,8 @@ struct FFlareShipCommandData
 
 	bool PreciseApproach;
 	FVector LocationTarget;
-	FQuat RotationTarget;
+	FVector RotationTarget;
+	FVector LocalShipAxis;
 
 	UPROPERTY()
 	AActor* ActionTarget;
@@ -163,7 +164,7 @@ public:
 	void PushCommandLocation(const FVector& Location);
 
 	/** Turn this way */
-	void PushCommandRotation(const FQuat& Rotation);
+	void PushCommandRotation(const FVector& RotationTarget, const FVector& LocalShipAxis);
 
 	/** Dock to this */
 	void PushCommandDock(const FFlareDockingInfo& DockingInfo);
@@ -186,7 +187,6 @@ public:
 	/** Make sure this point is not in a path collider */
 	virtual bool IsPointColliding(FVector Candidate, AActor* Ignore);
 
-
 protected:
 
 	/*----------------------------------------------------
@@ -202,9 +202,6 @@ protected:
 	/** Brake */
 	void UpdateLinearBraking(float DeltaSeconds);
 
-	/** Control translation physics */
-	void UpdateLinearPhysics(float DeltaSeconds);
-
 	/** Manually update the current angular attitude */
 	void UpdateAngularAttitudeManual(float DeltaSeconds);
 
@@ -214,9 +211,13 @@ protected:
 	/** Brake */
 	void UpdateAngularBraking(float DeltaSeconds);
 
-	/** Control rotation physics */
-	void UpdateAngularPhysics(float DeltaSeconds);
+	/*----------------------------------------------------
+		Physics
+	----------------------------------------------------*/
 
+	void PhysicSubTick(float DeltaSeconds);
+	
+	void UpdateCOM();
 
 public:
 
@@ -303,18 +304,16 @@ protected:
 	// Configuration properties
 	float                         AngularDeadAngle;
 	float                         AngularInputDeadRatio;
-	float                         AngularMaxVelocity;
+	float                         AngularMaxVelocity; // degree/s
 	float                         AngularAccelerationRate;
 	float                         LinearDeadDistance;
-	float                         LinearMaxVelocity;
+	float                         LinearMaxVelocity; // m/s
 	float                         LinearThrust;
-	float                         LinearOrbitalThrust;
 	float                         NegligibleSpeedRatio;
 
 	// Dynamic gameplay data
 	TEnumAsByte <EFlareShipStatus::Type> Status;
 	bool                          FakeThrust;
-	bool                          CanMoveVertical;
 	bool                          ExternalCamera;
 
 	// Navigation
@@ -322,22 +321,16 @@ protected:
 	TQueue <FFlareShipCommandData> CommandData;
 
 	// Manual pilot
-	FVector                       ManualAngularVelocity;
+	FVector                       ManualAngularVelocity; // In local space
 	FVector                       ManualLinearVelocity;
 	bool                          ManualOrbitalBoost;
 
 	// Physics simulation
 	FVector                       LinearTargetVelocity;
-	FVector                       LinearThrustDirection;
-	FVector                       LinearVelocity;
-	float                         LinearStopDistance;
-
-	// Physics simulation
-	FQuat                         AngularTargetVelocity;
-	FQuat                         AngularVelocity;
-	FQuat                         AngularVelocityDelta;
-	float                         AngularStopDistance;
-
+	FVector                       AngularTargetVelocity;
+	
+	// Temporary variable reset each tich
+	FVector COM;
 
 public:
 
@@ -350,35 +343,12 @@ public:
 		return ManualOrbitalBoost;
 	}
 
-	inline float GetAttitudeCommandThrust() const
-	{
-		return LinearThrustDirection.X;
-	}
-
-	inline float GetAttitudeCommandHorizontal() const
-	{
-		return LinearThrustDirection.Y;
-	}
-
-	inline float GetAttitudeCommandVertical() const
-	{
-		return LinearThrustDirection.Z;
-	}
-
-	inline float GetAttitudeCommandPitch() const
-	{
-		return AngularVelocityDelta.Rotator().Pitch / AngularAccelerationRate;
-	}
-
-	inline float GetAttitudeCommandYaw() const
-	{
-		return AngularVelocityDelta.Rotator().Yaw / AngularAccelerationRate;
-	}
-
-	inline float GetAttitudeCommandRoll() const
-	{
-		return AngularVelocityDelta.Rotator().Roll / AngularAccelerationRate;
-	}
+	/** Linear velocity in meters */
+	FVector GetLinearVelocity() const;
+	
+	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit, bool WithOrbitalEngines) const;
+	
+	float GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThurstAngleLimit, bool WithDamages, bool WithOrbitalEngines) const;
 
 
 	/*----------------------------------------------------

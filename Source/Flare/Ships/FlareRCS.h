@@ -55,10 +55,6 @@ public:
 	/** Can this RCS generate horizontal thrust ? */
 	virtual bool CanMoveHorizontal();
 
-
-	virtual void UpdateAlpha(float DeltaTime) override;
-
-
 protected:
 
 	/*----------------------------------------------------

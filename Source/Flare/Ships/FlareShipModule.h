@@ -147,6 +147,9 @@ public:
 	/** Create a special effect mesh */
 	virtual void SetupEffectMesh();
 
+	/** Perform physical ship tick. */
+	virtual void TickModule(float DeltaTime);
+
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
 
