@@ -133,6 +133,11 @@ void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Oth
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 }
 
+void AFlareShip::Destroyed()
+{
+	Company->Unregister(this);
+}
+
 
 /*----------------------------------------------------
 	Player interface

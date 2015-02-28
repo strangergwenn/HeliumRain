@@ -70,6 +70,12 @@ public:
 	/** Register a station */
 	virtual void Register(IFlareStationInterface* Station);
 
+	/** Un-register a ship */
+	virtual void Unregister(IFlareShipInterface* Ship);
+
+	/** Un-register a station */
+	virtual void Unregister(IFlareStationInterface* Station);
+
 
 	/*----------------------------------------------------
 		Customization

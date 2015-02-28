@@ -41,6 +41,16 @@ void UFlareCompany::Register(IFlareStationInterface* Station)
 	CompanyStations.AddUnique(Station);
 }
 
+void UFlareCompany::Unregister(IFlareShipInterface* Ship)
+{
+	CompanyShips.Remove(Ship);
+}
+
+void UFlareCompany::Unregister(IFlareStationInterface* Station)
+{
+	CompanyStations.Remove(Station);
+}
+
 
 /*----------------------------------------------------
 	Customization

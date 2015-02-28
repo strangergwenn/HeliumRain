@@ -71,6 +71,11 @@ void AFlareStation::Initialize()
 	}
 }
 
+void AFlareStation::Destroyed()
+{
+	Company->Unregister(this);
+}
+
 
 /*----------------------------------------------------
 	Station interface

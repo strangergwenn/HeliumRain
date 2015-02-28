@@ -25,6 +25,8 @@ public:
 	/** Setup this station */
 	virtual void Initialize();
 
+	virtual void Destroyed() override;
+
 
 	/*----------------------------------------------------
 		Station interface
