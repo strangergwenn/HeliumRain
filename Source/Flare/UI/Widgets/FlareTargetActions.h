@@ -14,9 +14,12 @@ class SFlareTargetActions : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareTargetActions)
 		: _Player(NULL)
+		, _MinimizedMode(false)
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
+
+	SLATE_ARGUMENT(bool, MinimizedMode)
 
 	SLATE_END_ARGS()
 
@@ -85,6 +88,7 @@ protected:
 
 	// Game data
 	AFlarePlayerController*           PC;
+	bool                              MinimizedMode;
 
 	// Target data
 	IFlareStationInterface*           TargetStation;

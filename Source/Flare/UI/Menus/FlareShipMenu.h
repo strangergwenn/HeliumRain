@@ -6,6 +6,7 @@
 #include "../Widgets/FlareConfirmationBox.h"
 #include "../../Ships/FlareShipModule.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../Widgets/FlareTargetActions.h"
 
 
 class SFlareShipMenu : public SCompoundWidget
@@ -109,6 +110,7 @@ protected:
 	bool                               CanEdit;
 	TSharedPtr<STextBlock>             ObjectName;
 	TSharedPtr<STextBlock>             ObjectDescription;
+	TSharedPtr<SFlareTargetActions>    ObjectActionMenu;
 
 	// Ship UI
 	TSharedPtr<SVerticalBox>           ShipCustomizationBox;

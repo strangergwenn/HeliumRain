@@ -33,7 +33,7 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 			// Title and cost
 			+ SVerticalBox::Slot()
 			.VAlign(VAlign_Top)
-			.Padding(FMargin(10, 2))
+			.Padding(FMargin(10))
 			.AutoHeight()
 			[
 				SNew(SHorizontalBox)
@@ -43,7 +43,7 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text(InArgs._Description->Name)
-					.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+					.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
 				]
 
 				// Cost icon
@@ -68,7 +68,7 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 
 			// Characteristics
 			+ SVerticalBox::Slot()
-			.Padding(FMargin(10, 2, 20, 2))
+			.Padding(FMargin(10, 2, 10, 2))
 			.AutoHeight()
 			[
 				SAssignNew(InfoBox, SHorizontalBox)
@@ -133,6 +133,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 
 			// Icon
 			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Center)
 			.AutoWidth()
 			[
 				SNew(SImage).Image(GetCharacteristicBrush(Characteristic))
@@ -166,7 +167,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 			[
 				SNew(STextBlock)
 				.Text(GetCharacteristicLabel(Characteristic.CharacteristicType))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+				.TextStyle(FFlareStyleSet::Get(), "Flare.SmallText")
 			];
 		}
 	}

@@ -60,7 +60,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 						.AutoWidth()
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("Title", "COMPANY OVERVIEW"))
+							.Text(LOCTEXT("Title", "COMPANY"))
 							.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
 						]
 					]

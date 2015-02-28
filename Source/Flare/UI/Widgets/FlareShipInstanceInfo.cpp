@@ -61,7 +61,7 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(Target->GetName())
-			.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+			.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
 		]
 
 		// Info box

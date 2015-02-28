@@ -69,6 +69,7 @@ protected:
 	IFlareStationInterface* CurrentStationTarget;
 	
 	// Menu components
+	TSharedPtr<SFlareTargetActions>    ObjectActionMenu;
 	TSharedPtr<SFlareTargetActions>    ActionMenu;
 	TSharedPtr<STextBlock>             SelectedTargetText;
 	TSharedPtr<SFlareListItem>         PreviousSelection;

@@ -31,66 +31,41 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		// UI
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
 		[
 			SNew(SScrollBox)
 
 			+ SScrollBox::Slot()
 			.Padding(FMargin(10))
 			[
-				SNew(SVerticalBox)
+				SNew(SHorizontalBox)
 
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+				// Company
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Center)
 				[
-					SNew(SHorizontalBox)
-
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SImage).Image(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Dashboard))
-					]
-
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("Dashboard", "DASHBOARD"))
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
-					]
+					SAssignNew(CompanyBox, SVerticalBox)
 				]
 
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+				// Station
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Center)
 				[
-					SNew(SHorizontalBox)
+					SAssignNew(StationBox, SVerticalBox)
+				]
 
-					// Company
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Center)
-					[
-						SAssignNew(CompanyBox, SVerticalBox)
-					]
+				// Universe
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Center)
+				[
+					SAssignNew(UniverseBox, SVerticalBox)
+				]
 
-					// Station
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Center)
-					[
-						SAssignNew(StationBox, SVerticalBox)
-					]
-
-					// Universe
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Center)
-					[
-						SAssignNew(UniverseBox, SVerticalBox)
-					]
-
-					// Settings
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Center)
-					[
-						SAssignNew(SettingsBox, SVerticalBox)
-					]
+				// Settings
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Center)
+				[
+					SAssignNew(SettingsBox, SVerticalBox)
 				]
 			]
 		]
@@ -111,6 +86,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	// Company box
 	CompanyBox->AddSlot()
 	.Padding(FMargin(10))
+	.HAlign(HAlign_Center)
 	.AutoHeight()
 	[
 		SNew(STextBlock)
@@ -137,6 +113,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	// Station box
 	StationBox->AddSlot()
 	.Padding(FMargin(10))
+	.HAlign(HAlign_Center)
 	.AutoHeight()
 	[
 		SNew(STextBlock)
@@ -171,6 +148,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	// Universe box
 	UniverseBox->AddSlot()
 	.Padding(FMargin(10))
+	.HAlign(HAlign_Center)
 	.AutoHeight()
 	[
 		SNew(STextBlock)
@@ -205,6 +183,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	// Settings box
 	SettingsBox->AddSlot()
 	.Padding(FMargin(10))
+	.HAlign(HAlign_Center)
 	.AutoHeight()
 	[
 		SNew(STextBlock)

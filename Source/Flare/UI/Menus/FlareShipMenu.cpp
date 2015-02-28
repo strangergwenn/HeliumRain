@@ -43,7 +43,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SVerticalBox)
 
-					// Object name
+					// Menu title
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(FMargin(10))
@@ -75,24 +75,30 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
 					]
 
+					// Action box
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(FMargin(10))
+					[
+						SAssignNew(ObjectActionMenu, SFlareTargetActions)
+						.Player(PC)
+						.MinimizedMode(true)
+					]
+
 					// Object description
 					+ SVerticalBox::Slot()
 					.Padding(FMargin(10))
 					.AutoHeight()
 					[
-						SNew(SBox)
-						.WidthOverride(714)
-						.HeightOverride(80)
-						[
-							SAssignNew(ObjectDescription, STextBlock)
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
-							.AutoWrapText(true)
-						]
+						SAssignNew(ObjectDescription, STextBlock)
+						.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+						.WrapTextAt(600)
 					]
 
 					// Ship part characteristics
 					+ SVerticalBox::Slot()
 					.HAlign(HAlign_Fill)
+					.VAlign(VAlign_Center)
 					.AutoHeight()
 					.Padding(FMargin(10))
 					[
@@ -258,6 +264,7 @@ void SFlareShipMenu::Enter(IFlareShipInterface* Target, bool IsEditable)
 
 void SFlareShipMenu::Exit()
 {
+	ObjectActionMenu->Hide();
 	PartListData.Empty();
 	PartList->RequestListRefresh();
 	SetVisibility(EVisibility::Hidden);
@@ -284,7 +291,11 @@ void SFlareShipMenu::LoadTargetShip()
 		}
 
 		// Make the right box visible
-		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
+		if (!CanEdit)
+		{
+			ObjectActionMenu->SetShip(CurrentShipTarget);
+			ObjectActionMenu->Show();
+		}
 		ShipPartCustomizationBox->SetVisibility(EVisibility::Collapsed);
 		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
 		ShipCustomizationBox->SetVisibility(EVisibility::Visible);
@@ -350,7 +361,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	}
 
 	// Make the right box visible
-	PartCharacteristicBox->SetVisibility(EVisibility::Visible);
+	ObjectActionMenu->Hide();
 	ShipPartCustomizationBox->SetVisibility(EVisibility::Visible);
 	PartCharacteristicBox->SetVisibility(EVisibility::Visible);
 	ShipCustomizationBox->SetVisibility(EVisibility::Collapsed);

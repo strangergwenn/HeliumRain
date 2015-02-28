@@ -13,8 +13,19 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 {
 	// Data
 	PC = InArgs._Player;
+	MinimizedMode = InArgs._MinimizedMode;
 	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/PartButton");
-	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
+	const FFlareContainerStyle* ContainerStyle;
+	
+	// Container color
+	if (MinimizedMode)
+	{
+		ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvisibleContainerStyle");
+	}
+	else
+	{
+		ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
+	}
 
 	// Create the layout
 	ChildSlot
@@ -50,7 +61,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.Text(this, &SFlareTargetActions::GetName)
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+							.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
 						]
 
 						// Class line
@@ -62,6 +73,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 							// Class icon
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
+							.VAlign(VAlign_Center)
 							[
 								SNew(SImage).Image(this, &SFlareTargetActions::GetClassIcon)
 							]
@@ -73,7 +85,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 							[
 								SNew(STextBlock)
 								.Text(this, &SFlareTargetActions::GetClassName)
-								.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+								.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
 							]
 						]
 					]
@@ -185,8 +197,11 @@ void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
 		}
 
 		// Docking
-		UndockButton->SetVisibility(Docked ? EVisibility::Visible : EVisibility::Collapsed);
-		DockButton->SetVisibility(Docked ? EVisibility::Collapsed : EVisibility::Visible);
+		if (!MinimizedMode)
+		{
+			UndockButton->SetVisibility(Docked ? EVisibility::Visible : EVisibility::Collapsed);
+			DockButton->SetVisibility(Docked ? EVisibility::Collapsed : EVisibility::Visible);
+		}
 	}
 }
 
@@ -211,15 +226,24 @@ void SFlareTargetActions::SetShip(IFlareShipInterface* Target)
 void SFlareTargetActions::Show()
 {
 	SetVisibility(EVisibility::Visible);
-	if (TargetStation)
-	{
-		StationContainer->SetVisibility(EVisibility::Visible);
-		ShipContainer->SetVisibility(EVisibility::Collapsed);
-	}
-	else if (TargetShip)
+
+	if (MinimizedMode)
 	{
 		StationContainer->SetVisibility(EVisibility::Collapsed);
-		ShipContainer->SetVisibility(EVisibility::Visible);
+		ShipContainer->SetVisibility(EVisibility::Collapsed);
+	}
+	else
+	{
+		if (TargetStation)
+		{
+			StationContainer->SetVisibility(EVisibility::Visible);
+			ShipContainer->SetVisibility(EVisibility::Collapsed);
+		}
+		else if (TargetShip)
+		{
+			StationContainer->SetVisibility(EVisibility::Collapsed);
+			ShipContainer->SetVisibility(EVisibility::Visible);
+		}
 	}
 }
 

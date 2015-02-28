@@ -42,7 +42,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SVerticalBox)
 
-					// Object name
+					// Menu title
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(FMargin(10))
@@ -60,9 +60,29 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 						.AutoWidth()
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("Title", "STATION OVERVIEW"))
+							.Text(LOCTEXT("Title", "STATION"))
 							.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
 						]
+					]
+
+					// Section title
+					+ SVerticalBox::Slot()
+					.Padding(FMargin(10))
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("SelectedInstance", "STATION INFO"))
+						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+					]
+
+					// Action box
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(FMargin(10))
+					[
+						SAssignNew(ObjectActionMenu, SFlareTargetActions)
+						.Player(PC)
+						.MinimizedMode(true)
 					]
 
 					// Section title
@@ -120,6 +140,9 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 			.OnClicked(this, &SFlareStationMenu::OnDashboardClicked)
 		]
 	];
+
+	// Dashboard button
+	BackButton->GetContainer()->SetContent(SNew(SImage).Image(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit)));
 }
 
 
@@ -138,6 +161,8 @@ void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 
 	CurrentStationTarget = Target;
 	SetVisibility(EVisibility::Visible);
+	ObjectActionMenu->SetStation(Target);
+	ObjectActionMenu->Show();
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC && Target)
@@ -170,6 +195,7 @@ void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 void SFlareStationMenu::Exit()
 {
 	ActionMenu->Hide();
+	ObjectActionMenu->Hide();
 	SelectedTargetText->SetVisibility(EVisibility::Collapsed);
 
 	TargetListData.Empty();

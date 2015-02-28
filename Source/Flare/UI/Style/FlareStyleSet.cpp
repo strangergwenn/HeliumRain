@@ -47,49 +47,49 @@ TSharedRef< FSlateStyleSet > FFlareStyleSet::Create()
 	FLinearColor BlackColor(0.0, 0.0, 0.0, 0.7);
 
 	Style.Set("Flare.SmallText", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato500", 10))
+		.SetFont(TTF_FONT("Lato500", 12))
 		.SetColorAndOpacity(WhiteColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
 
 	Style.Set("Flare.SmallTextInverted", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato500", 10))
+		.SetFont(TTF_FONT("Lato500", 12))
 		.SetColorAndOpacity(BlackColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
 
 	Style.Set("Flare.Text", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato500", 16))
+		.SetFont(TTF_FONT("Lato500", 14))
 		.SetColorAndOpacity(WhiteColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
 
 	Style.Set("Flare.TextInverted", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato500", 18))
+		.SetFont(TTF_FONT("Lato500", 14))
 		.SetColorAndOpacity(BlackColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
 
 	Style.Set("Flare.Title3", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato700", 18))
+		.SetFont(TTF_FONT("Lato700", 16))
 		.SetColorAndOpacity(WhiteColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
 
 	Style.Set("Flare.Title3Inverted", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato700", 18))
+		.SetFont(TTF_FONT("Lato700", 16))
 		.SetColorAndOpacity(BlackColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
 
 	Style.Set("Flare.Title2", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato300", 32))
+		.SetFont(TTF_FONT("Lato300", 24))
 		.SetColorAndOpacity(WhiteColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
 
 	Style.Set("Flare.Title2Inverted", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato300", 32))
+		.SetFont(TTF_FONT("Lato300", 24))
 		.SetColorAndOpacity(BlackColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
