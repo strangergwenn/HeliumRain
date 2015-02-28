@@ -291,10 +291,17 @@ void SFlareShipMenu::LoadTargetShip()
 		}
 
 		// Make the right box visible
-		if (!CanEdit)
+		if (CanEdit)
+		{
+			ObjectName->SetVisibility(EVisibility::Collapsed);
+			ObjectDescription->SetVisibility(EVisibility::Collapsed);
+		}
+		else
 		{
 			ObjectActionMenu->SetShip(CurrentShipTarget);
 			ObjectActionMenu->Show();
+			ObjectName->SetVisibility(EVisibility::Visible);
+			ObjectDescription->SetVisibility(EVisibility::Visible);
 		}
 		ShipPartCustomizationBox->SetVisibility(EVisibility::Collapsed);
 		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
@@ -362,6 +369,8 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 
 	// Make the right box visible
 	ObjectActionMenu->Hide();
+	ObjectName->SetVisibility(EVisibility::Visible);
+	ObjectDescription->SetVisibility(EVisibility::Visible);
 	ShipPartCustomizationBox->SetVisibility(EVisibility::Visible);
 	PartCharacteristicBox->SetVisibility(EVisibility::Visible);
 	ShipCustomizationBox->SetVisibility(EVisibility::Collapsed);
@@ -371,6 +380,8 @@ void SFlareShipMenu::UpdatePartList(FFlareShipModuleDescription* SelectItem)
 {
 	ShipPartPickerTitle->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
 	PartList->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
+	PartListDataShared.Empty();
+	PartList->RequestListRefresh();
 
 	if (CanEdit)
 	{
@@ -380,7 +391,6 @@ void SFlareShipMenu::UpdatePartList(FFlareShipModuleDescription* SelectItem)
 		CurrentEquippedPartIndex = Index;
 
 		// Copy items
-		PartListDataShared.Empty();
 		for (int32 i = 0; i < PartListData.Num(); i++)
 		{
 			PartListDataShared.AddUnique(FInterfaceContainer::New(PartListData[i]));

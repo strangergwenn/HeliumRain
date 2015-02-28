@@ -191,6 +191,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	SetRCSDescription(Catalog->Get(Data.RCSIdentifier));
 
 	// Load weapon descriptions
+	WeaponDescriptionList.Empty();
 	for (int32 i = 0; i < Data.WeaponIdentifiers.Num(); i++)
 	{
 		WeaponDescriptionList.Add(Catalog->Get(Data.WeaponIdentifiers[i]));

@@ -172,7 +172,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	if (PC)
 	{
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
-		PC->GetMenuPawn()->UpdateBackgroundColor(0.85, 1.0);
+		PC->GetMenuPawn()->UpdateBackgroundColor(0.85, 0.8);
 	}
 
 }
