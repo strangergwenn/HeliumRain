@@ -75,7 +75,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
 					]
 
-					// Action box
+					// Action box for this station
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(FMargin(10))
@@ -85,45 +85,23 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 						.MinimizedMode(true)
 					]
 
-					// Section title
+					// Object description
 					+ SVerticalBox::Slot()
-					.AutoHeight()
 					.Padding(FMargin(10))
+					.AutoHeight()
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("DockedShips", "DOCKED SHIPS"))
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+						SAssignNew(ObjectDescription, STextBlock)
+						.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+						.WrapTextAt(600)
 					]
 
-					// Station box
+					// Object list
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
-						SAssignNew(TargetList, SListView< TSharedPtr<FInterfaceContainer> >)
-						.ListItemsSource(&TargetListData)
-						.SelectionMode(ESelectionMode::Single)
-						.OnGenerateRow(this, &SFlareStationMenu::GenerateTargetInfo)
-						.OnSelectionChanged(this, &SFlareStationMenu::OnTargetSelected)
-					]
-
-					// Section title
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(FMargin(10))
-					[
-						SAssignNew(SelectedTargetText, STextBlock)
-						.Text(LOCTEXT("SelectedShip", "SELECTED SHIP"))
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-					]
-
-					// Action box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(FMargin(10))
-					[
-						SAssignNew(ActionMenu, SFlareTargetActions)
-						.Player(PC)
+						SAssignNew(ShipList, SFlareShipList)
+						.OwnerHUD(OwnerHUD)
+						.Title(LOCTEXT("DockedShips", "DOCKED SHIPS"))
 					]
 				]
 			]
@@ -167,6 +145,7 @@ void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC && Target)
 	{
+		// Menu
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
 		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.8);
 
@@ -177,6 +156,7 @@ void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 			FFlareStationDescription* Desc = PC->GetGame()->GetStationCatalog()->Get(Data->Identifier);
 			if (Desc)
 			{
+				ObjectDescription->SetText(Desc->Description);
 				PC->GetMenuPawn()->ShowStation(Desc, Data);
 			}
 		}
@@ -185,20 +165,17 @@ void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 		TArray<IFlareShipInterface*> DockedShips = Target->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
 		{
-			TargetListData.AddUnique(FInterfaceContainer::New(DockedShips[0]));
+			ShipList->AddShip(DockedShips[0]);
 		}
 	}
 
-	TargetList->RequestListRefresh();
+	ShipList->RefreshList();
 }
 
 void SFlareStationMenu::Exit()
 {
-	ActionMenu->Hide();
+	ShipList->Reset();
 	ObjectActionMenu->Hide();
-	SelectedTargetText->SetVisibility(EVisibility::Collapsed);
-
-	TargetListData.Empty();
 	SetVisibility(EVisibility::Hidden);
 }
 
@@ -206,65 +183,6 @@ void SFlareStationMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
-
-TSharedRef<ITableRow> SFlareStationMenu::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
-{
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-
-	if (Item->ShipInterfacePtr)
-	{
-		return SNew(SFlareListItem, OwnerTable)
-			.ButtonStyle(&FFlareStyleSet::Get(), "/Style/ShipInstanceButton")
-			.Content()
-			[
-				SNew(SFlareShipInstanceInfo)
-				.Player(PC)
-				.Ship(Item->ShipInterfacePtr)
-				.Station(NULL)
-			];
-	}
-	else
-	{
-		return SNew(SFlareListItem, OwnerTable)
-			.Content()
-			[
-				SNew(STextBlock).Text(FText::FromString("Invalid item"))
-			];
-	}
-}
-
-void SFlareStationMenu::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo)
-{
-	FLOG("SFlareStationMenu::OnTargetSelected");
-	TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(TargetList->WidgetFromItem(Item));
-
-	// Update selection
-	if (PreviousSelection.IsValid())
-	{
-		PreviousSelection->SetSelected(false);
-	}
-	if (ItemWidget.IsValid())
-	{
-		ItemWidget->SetSelected(true);
-		PreviousSelection = ItemWidget;
-	}
-
-	// Update the action menu
-	if (Item.IsValid())
-	{
-		if (Item->ShipInterfacePtr)
-		{
-			ActionMenu->SetShip(Item->ShipInterfacePtr);
-		}
-		ActionMenu->Show();
-		SelectedTargetText->SetVisibility(EVisibility::Visible);
-	}
-	else
-	{
-		ActionMenu->Hide();
-		SelectedTargetText->SetVisibility(EVisibility::Collapsed);
-	}
-}
 
 void SFlareStationMenu::OnDashboardClicked()
 {

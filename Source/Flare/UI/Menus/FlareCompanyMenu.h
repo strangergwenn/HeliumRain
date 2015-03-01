@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareColorPanel.h"
+#include "../Widgets/FlareShipList.h"
 
 
 class SFlareCompanyMenu : public SCompoundWidget
@@ -59,6 +60,7 @@ protected:
 	// Menu data
 	TSharedPtr<STextBlock>             ColorBoxTitle;
 	TSharedPtr<SFlareColorPanel>       ColorBox;
+	TSharedPtr<SFlareShipList>         ShipList;
 
 
 };

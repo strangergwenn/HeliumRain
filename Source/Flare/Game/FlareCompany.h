@@ -114,8 +114,8 @@ protected:
 
 	// Gameplay data
 	FFlareCompanySave                 CompanyData;
-	TArray<IFlareShipInterface*>      CompanyShips;
 	TArray<IFlareStationInterface*>   CompanyStations;
+	TArray<IFlareShipInterface*>      CompanyShips;
 
 
 public:
@@ -152,6 +152,16 @@ public:
 	inline int32 GetPatternIndex() const
 	{
 		return CompanyData.CustomizationPatternIndex;
+	}
+
+	inline TArray<IFlareStationInterface*>& GetCompanyStations()
+	{
+		return CompanyStations;
+	}
+
+	inline TArray<IFlareShipInterface*>& GetCompanyShips()
+	{
+		return CompanyShips;
 	}
 
 };

@@ -33,6 +33,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		// UI container
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Left)
+		.AutoWidth()
 		[
 			SNew(SBorder)
 			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
@@ -64,47 +65,15 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 							.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
 						]
 					]
-
-					// Section title
+					
+					// Object list
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("DockedShips", "DOCKED SHIPS"))
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+						SAssignNew(ShipList, SFlareShipList)
+						.OwnerHUD(OwnerHUD)
+						.Title(LOCTEXT("Property", "PROPERTY"))
 					]
-
-					//// Station box
-					//+ SVerticalBox::Slot()
-					//.AutoHeight()
-					//.Padding(FMargin(10))
-					//[
-					//	SAssignNew(TargetList, SListView< TSharedPtr<FInterfaceContainer> >)
-					//	.ListItemsSource(&TargetListData)
-					//	.SelectionMode(ESelectionMode::Single)
-					//	.OnGenerateRow(this, &SFlareCompanyMenu::GenerateTargetInfo)
-					//	.OnSelectionChanged(this, &SFlareCompanyMenu::OnTargetSelected)
-					//]
-
-					//// Section title
-					//+ SVerticalBox::Slot()
-					//.AutoHeight()
-					//.Padding(FMargin(10))
-					//[
-					//	SAssignNew(SelectedTargetText, STextBlock)
-					//	.Text(LOCTEXT("SelectedShip", "SELECTED SHIP"))
-					//	.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-					//]
-
-					//// Action box
-					//+ SVerticalBox::Slot()
-					//.AutoHeight()
-					//.Padding(FMargin(10))
-					//[
-					//	SAssignNew(ActionMenu, SFlareTargetActions)
-					//	.Player(PC)
-					//]
 				]
 			]
 		]
@@ -113,6 +82,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Right)
 		.VAlign(VAlign_Top)
+		.AutoWidth()
 		[
 			SNew(SVerticalBox)
 
@@ -167,18 +137,34 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 	SetVisibility(EVisibility::Visible);
 
-	// Move the viewer to the right
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-	if (PC)
+	if (PC && Target)
 	{
+		// Menu
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
 		PC->GetMenuPawn()->UpdateBackgroundColor(0.85, 0.8);
+
+		// Station
+		TArray<IFlareStationInterface*>& CompanyStations = Target->GetCompanyStations();
+		for (int32 i = 0; i < CompanyStations.Num(); i++)
+		{
+			ShipList->AddStation(CompanyStations[i]);
+		}
+
+		// Ship
+		TArray<IFlareShipInterface*>& CompanyShips = Target->GetCompanyShips();
+		for (int32 i = 0; i < CompanyShips.Num(); i++)
+		{
+			ShipList->AddShip(CompanyShips[i]);
+		}
 	}
 
+	ShipList->RefreshList();
 }
 
 void SFlareCompanyMenu::Exit()
 {
+	ShipList->Reset();
 	SetVisibility(EVisibility::Hidden);
 }
 

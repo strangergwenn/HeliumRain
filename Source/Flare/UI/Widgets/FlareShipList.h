@@ -4,18 +4,19 @@
 #include "../Components/FlareListItem.h"
 #include "../Widgets/FlareShipInstanceInfo.h"
 #include "../Widgets/FlareTargetActions.h"
-#include "../Widgets/FlareShipList.h"
 
 
-class SFlareStationMenu : public SCompoundWidget
+class SFlareShipList : public SCompoundWidget
 {
 	/*----------------------------------------------------
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareStationMenu){}
+	SLATE_BEGIN_ARGS(SFlareShipList){}
 
 	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, OwnerHUD)
+
+	SLATE_ARGUMENT(FText, Title)
 	
 	SLATE_END_ARGS()
 
@@ -29,14 +30,20 @@ public:
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
 
-	/** Setup the widget */
-	void Setup();
+	/** Add a new station to the list */
+	void AddStation(IFlareStationInterface* StationCandidate);
 
-	/** Enter this menu */
-	void Enter(IFlareStationInterface* Target);
+	/** Add a new ship to the list */
+	void AddShip(IFlareShipInterface* ShipCandidate);
 
-	/** Exit this menu */
-	void Exit();
+	/** Remove all entries from the list */
+	void ClearList();
+
+	/** Update the list display from content */
+	void RefreshList();
+
+	/** Reset everything and hide */
+	void Reset();
 
 
 protected:
@@ -51,8 +58,6 @@ protected:
 	/** Target item selected */
 	void OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
 
-	/** Go back to the dahsboard */
-	void OnDashboardClicked();
 
 
 protected:
@@ -61,17 +66,18 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	/** HUD reference */
+	// HUD reference
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD> OwnerHUD;
+	TWeakObjectPtr<class AFlareHUD>    OwnerHUD;
 
-	/** Target station to use */
-	UPROPERTY()
-	IFlareStationInterface* CurrentStationTarget;
-	
 	// Menu components
-	TSharedPtr<SFlareTargetActions>    ObjectActionMenu;
-	TSharedPtr<STextBlock>             ObjectDescription;
-	TSharedPtr<SFlareShipList>         ShipList;
+	TSharedPtr<SFlareTargetActions>    ActionMenu;
+	TSharedPtr<STextBlock>             SelectedTargetText;
+	TSharedPtr<SFlareListItem>         PreviousSelection;
+
+	// Target list
+	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >   TargetList;
+	TArray< TSharedPtr<FInterfaceContainer> >                    TargetListData;
+
 
 };

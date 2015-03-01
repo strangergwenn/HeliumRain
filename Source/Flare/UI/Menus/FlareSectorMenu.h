@@ -4,6 +4,7 @@
 #include "../Components/FlareListItem.h"
 #include "../Widgets/FlareShipInstanceInfo.h"
 #include "../Widgets/FlareTargetActions.h"
+#include "../Widgets/FlareShipList.h"
 
 
 class SFlareSectorMenu : public SCompoundWidget
@@ -43,13 +44,7 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-
-	/** Target item generator */
-	TSharedRef<ITableRow> GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
-
-	/** Target item selected */
-	void OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
-
+	
 	/** Go back to the dahsboard */
 	void OnDashboardClicked();
 
@@ -65,13 +60,7 @@ protected:
 	TWeakObjectPtr<class AFlareHUD>    OwnerHUD;
 
 	// Menu components
-	TSharedPtr<SFlareTargetActions>    ActionMenu;
-	TSharedPtr<STextBlock>             SelectedTargetText;
-	TSharedPtr<SFlareListItem>         PreviousSelection;
-
-	// Target list
-	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >   TargetList;
-	TArray< TSharedPtr<FInterfaceContainer> >                    TargetListData;
+	TSharedPtr<SFlareShipList>         ShipList;
 
 
 };
