@@ -134,6 +134,9 @@ public:
 	/** Set the parent company */
 	virtual void SetOwnerCompany(UFlareCompany* Company) = 0;
 
+	/** Get the parent company */
+	virtual UFlareCompany* GetCompany() = 0;
+
 
 	/*----------------------------------------------------
 		Navigation API

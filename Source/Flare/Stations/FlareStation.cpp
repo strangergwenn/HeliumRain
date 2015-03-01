@@ -110,6 +110,11 @@ void AFlareStation::SetOwnerCompany(UFlareCompany* NewCompany)
 	NewCompany->Register(this);
 }
 
+UFlareCompany* AFlareStation::GetCompany()
+{
+	return Company;
+}
+
 FFlareDockingInfo AFlareStation::RequestDock(IFlareShipInterface* Ship)
 {
 	FLOGV("AFlareStation::RequestDock ('%s')", *Ship->_getUObject()->GetName());

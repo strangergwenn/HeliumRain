@@ -38,6 +38,8 @@ public:
 
 	virtual void SetOwnerCompany(UFlareCompany* Company) override;
 
+	virtual UFlareCompany* GetCompany() override;
+
 	virtual FFlareDockingInfo RequestDock(IFlareShipInterface* Ship) override;
 
 	virtual void ReleaseDock(IFlareShipInterface* Ship, int32 DockId) override;

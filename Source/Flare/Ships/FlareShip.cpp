@@ -250,6 +250,11 @@ void AFlareShip::SetOwnerCompany(UFlareCompany* NewCompany)
 	NewCompany->Register(this);
 }
 
+UFlareCompany* AFlareShip::GetCompany()
+{
+	return Company;
+}
+
 bool AFlareShip::NavigateTo(FVector TargetLocation)
 {
 	// Pathfinding data

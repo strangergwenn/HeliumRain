@@ -122,6 +122,8 @@ public:
 
 	virtual void SetOwnerCompany(UFlareCompany* Company) override;
 
+	virtual UFlareCompany* GetCompany() override;
+
 	bool NavigateTo(FVector TargetLocation) override;
 
 	virtual bool IsManualPilot() override;
