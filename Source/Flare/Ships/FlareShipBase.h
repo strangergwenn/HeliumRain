@@ -47,13 +47,13 @@ public:
 	----------------------------------------------------*/
 
 	/** Set the camera pitch in the spherical coordinate system */
-	void SetCameraPitch(float Value, bool ForceUpdate = false);
+	void SetCameraPitch(float Value);
 
 	/** Set the camera yaw in the spherical coordinate system */
-	void SetCameraYaw(float Value, bool ForceUpdate = false);
+	void SetCameraYaw(float Value);
 
 	/** Set the camera radius in the spherical coordinate system */
-	void SetCameraDistance(float Value, bool ForceUpdate = false);
+	void SetCameraDistance(float Value);
 
 	/** Step the camera distance */
 	void StepCameraDistance(bool TowardCenter);

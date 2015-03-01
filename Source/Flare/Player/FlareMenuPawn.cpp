@@ -253,8 +253,11 @@ void AFlareMenuPawn::SetupPlayerInputComponent(class UInputComponent* InputCompo
 
 void AFlareMenuPawn::PitchInput(float Val)
 {
-	FRotator CurrentRot = CameraContainerPitch->GetComponentRotation();
-	SetCameraPitch(CurrentRot.Pitch + CameraPanSpeed * Val);
+	if (Val)
+	{
+		FRotator CurrentRot = CameraContainerPitch->GetComponentRotation();
+		SetCameraPitch(CurrentRot.Pitch + CameraPanSpeed * Val);
+	}
 }
 
 void AFlareMenuPawn::YawInput(float Val)

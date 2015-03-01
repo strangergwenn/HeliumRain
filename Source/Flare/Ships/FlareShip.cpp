@@ -153,8 +153,8 @@ void AFlareShip::SetExternalCamera(bool NewState)
 
 	// Reset rotations
 	ExternalCamera = NewState;
-	SetCameraPitch(0, true);
-	SetCameraYaw(0, true);
+	SetCameraPitch(0);
+	SetCameraYaw(0);
 
 	// Reset controls
 	ManualLinearVelocity = FVector::ZeroVector;
@@ -163,12 +163,12 @@ void AFlareShip::SetExternalCamera(bool NewState)
 	// Put the camera at the right spot
 	if (ExternalCamera)
 	{
-		SetCameraDistance(CameraMaxDistance * GetMeshScale(), true);
+		SetCameraDistance(CameraMaxDistance * GetMeshScale());
 	}
 	else
 	{
 		FVector CameraDistance = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
-		SetCameraDistance(-CameraDistance.Size(), true);
+		SetCameraDistance(-CameraDistance.Size());
 	}
 }
 

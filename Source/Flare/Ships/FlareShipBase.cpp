@@ -55,17 +55,17 @@ void AFlareShipBase::Tick(float DeltaSeconds)
 	Camera control
 ----------------------------------------------------*/
 
-void AFlareShipBase::SetCameraPitch(float Value, bool ForceUpdate)
+void AFlareShipBase::SetCameraPitch(float Value)
 {
 	CameraOffsetPitch = FMath::Clamp(Value, -CameraMaxPitch, +CameraMaxPitch);
 }
 
-void AFlareShipBase::SetCameraYaw(float Value, bool ForceUpdate)
+void AFlareShipBase::SetCameraYaw(float Value)
 {
 	CameraOffsetYaw = FMath::Clamp(Value, -CameraMaxYaw, +CameraMaxYaw);
 }
 
-void AFlareShipBase::SetCameraDistance(float Value, bool ForceUpdate)
+void AFlareShipBase::SetCameraDistance(float Value)
 {
 	CameraOffsetDistance = Value;
 }
