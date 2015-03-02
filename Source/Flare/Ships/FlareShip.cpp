@@ -1048,12 +1048,15 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	TickSumTorque = FVector::ZeroVector;
 }
 
-void AFlareShip::AddForceAtLocation(FVector LinearForce, FVector AngularForce, FVector applicationPoint)
+void AFlareShip::AddForceAtLocation(FVector LinearForce, FVector AngularForce, FVector applicationPoint, float Distance)
 {
 	TickSumForce += LinearForce;
 	FVector ApplicationOffset = (applicationPoint - COM) / 100; // TODO divise by 100 in parameter
+	
+	ApplicationOffset.Normalize();
 
-	TickSumTorque += FVector::CrossProduct(ApplicationOffset, AngularForce);
+
+	TickSumTorque += FVector::CrossProduct(ApplicationOffset * Distance, AngularForce);
 }
 
 FVector AFlareShip::GetLinearVelocity() const
@@ -1096,6 +1099,7 @@ FVector AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, F
 		}
 
 		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+		EngineOffset.Normalize(); // TODO Hack
 		
 		FVector WorldThurstAxis = Engine->GetThurstAxis();
 		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThurstAxis);
@@ -1186,6 +1190,7 @@ float* AFlareShip::ComputeAngularVelocityStabilisation(float DeltaSeconds, TArra
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
 		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+		EngineOffset.Normalize(); // TODO hack
 
 		FVector WorldThurstAxis = Engine->GetThurstAxis();
 		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThurstAxis); 

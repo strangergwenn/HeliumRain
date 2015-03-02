@@ -189,7 +189,7 @@ public:
 	/*----------------------------------------------------
 		Physics
 	----------------------------------------------------*/
-	void AddForceAtLocation(FVector LinearForce, FVector AngularForce, FVector ApplicationPoint);
+	void AddForceAtLocation(FVector LinearForce, FVector AngularForce, FVector ApplicationPoint, float Distance);
 
 protected:
 
