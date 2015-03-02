@@ -189,7 +189,7 @@ public:
 	/*----------------------------------------------------
 		Physics
 	----------------------------------------------------*/
-	void AddForceAtLocation(FVector Force, FVector ApplicationPoint);
+	void AddForceAtLocation(FVector LinearForce, FVector AngularForce, FVector ApplicationPoint);
 
 protected:
 
@@ -235,7 +235,6 @@ protected:
 	/*----------------------------------------------------
 		Autopilot
 	----------------------------------------------------*/
-	float* ComputeVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector WorldLinearVelocityTarget, FVector WorldAngularVelocityTarget, float ThrustAngleLimit) const;
 	
 	float* ComputeLinearVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector WorldTargetSpeed, float ThrustAngleLimit) const;
 	

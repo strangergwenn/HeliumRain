@@ -20,12 +20,14 @@ public:
 	/** Apply the current thrust to a ship*/
 	virtual void TickModule(float deltaTime) override;
 
-	float CurrentThrust;
+	float CurrentLinearThrust;
+	float CurrentAngularThrust;
 
 	// TODO init with characteristics
 	float MaxThrust;
 
-	float TargetThrust;
+	float TargetLinearThrust;
+	float TargetAngularThrust;
 
 	// TODO remove if always in same axis
 	FVector ThrustAxis;
@@ -35,7 +37,14 @@ public:
 	  * 1 for max trust
 	  * 0 for no thrust
 	  */
-	void SetTargetThrustRatio(float Ratio);
+	void SetTargetLinearThrustRatio(float Ratio);
+	
+	/**
+	  * Configure the target thrust
+	  * 1 for max trust
+	  * 0 for no thrust
+	  */
+	void SetTargetAngularThrustRatio(float Ratio);
 
 	/** Get engine thrust axis in world space */
 	FVector GetThurstAxis() const;

@@ -40,7 +40,7 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 void UFlareEngine::UpdateAlpha(float DeltaTime)
 {
-	ExhaustAlpha = CurrentThrust / MaxThrust;
+	ExhaustAlpha = FMath::Max(CurrentLinearThrust, CurrentAngularThrust) / MaxThrust;
 }
 
 void UFlareEngine::UpdateEffects()
@@ -58,15 +58,27 @@ void UFlareEngine::UpdateEffects()
 	}
 }
 
-void UFlareEngine::SetTargetThrustRatio(float Ratio)
+void UFlareEngine::SetTargetLinearThrustRatio(float Ratio)
 {
 	if (Ratio > 0)
 	{
-		TargetThrust = Ratio * MaxThrust;
+		TargetLinearThrust = Ratio * MaxThrust;
 	}
 	else
 	{
-		TargetThrust = 0;
+		TargetLinearThrust = 0;
+	}
+}
+
+void UFlareEngine::SetTargetAngularThrustRatio(float Ratio)
+{
+	if (Ratio > 0)
+	{
+		TargetAngularThrust = Ratio * MaxThrust;
+	}
+	else
+	{
+		TargetAngularThrust = 0;
 	}
 }
 
@@ -86,12 +98,16 @@ void UFlareEngine::TickModule(float DeltaTime)
 	Super::TickModule(DeltaTime);
 	AFlareShip* OwnerShip = Cast<AFlareShip>(Ship);
 
-	CurrentThrust = TargetThrust;
-	CurrentThrust = FMath::Clamp(CurrentThrust, 0.f, MaxThrust);
+	CurrentLinearThrust = TargetLinearThrust;
+	CurrentLinearThrust = FMath::Clamp(CurrentLinearThrust, 0.f, MaxThrust);
+	FVector LocalLinearThrust = ThrustAxis * CurrentLinearThrust;
+	FVector WorldLinearThrust = GetComponentToWorld().GetRotation().RotateVector(LocalLinearThrust);
+	
+	CurrentAngularThrust = TargetAngularThrust;
+	CurrentAngularThrust = FMath::Clamp(CurrentAngularThrust, 0.f, MaxThrust);
+	FVector LocalAngularThrust = ThrustAxis * CurrentAngularThrust;
+	FVector WorldAngularThrust = GetComponentToWorld().GetRotation().RotateVector(LocalAngularThrust);
+	
 
-	FVector LocalThrust = ThrustAxis * CurrentThrust;
-
-	FVector WorldThrust = GetComponentToWorld().GetRotation().RotateVector(LocalThrust);
-
-	OwnerShip->AddForceAtLocation(WorldThrust, GetComponentLocation());
+	OwnerShip->AddForceAtLocation(WorldLinearThrust, WorldAngularThrust, GetComponentLocation());
 }
