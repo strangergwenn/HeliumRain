@@ -83,7 +83,7 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult)
 			Target,
 			NAME_None,
 			HitResult.Location,
-			ShellDirection.Rotation(),
+			HitResult.ImpactNormal.Rotation(),
 			EAttachLocation::KeepWorldPosition,
 			true);
 
