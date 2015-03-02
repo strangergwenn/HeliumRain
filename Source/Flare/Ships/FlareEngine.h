@@ -37,6 +37,14 @@ public:
 	  */
 	void SetTargetThrustRatio(float Ratio);
 
+	/** Get engine thrust axis in world space */
+	FVector GetThurstAxis() const;
+	
+	/** Get engine current max thrust 
+	  current max thrust can change with damages
+	 */
+	float GetMaxThrust() const;
+	
 protected:
 	/** Update the exhaust power from current thrust */
 	virtual void UpdateAlpha(float DeltaTime);

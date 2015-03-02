@@ -591,14 +591,17 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 
 void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 {
+  
 	// RCS impulse
 	LinearTargetVelocity = ManualLinearVelocity;
 
+	FLOGV("UpdateLinearAttitudeManual LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
 	// Orbital impulse
 	if (ManualOrbitalBoost)
 	{
 		FVector OrbitalPushDirection = GetActorQuat().RotateVector(FVector(1, 0, 0));
-		Airframe->AddForce(LinearOrbitalThrust * OrbitalPushDirection);
+		// TODO remove and add in global engine system
+		//Airframe->AddForce(LinearOrbitalThrust * OrbitalPushDirection);
 	}
 }
 
@@ -1037,14 +1040,33 @@ void AFlareShip::StopFire()
 	Physics
 ----------------------------------------------------*/
 
-void AFlareShip::LowLevelAutoPilotSubTick(float DeltaTime)
+void AFlareShip::LowLevelAutoPilotSubTick(float DeltaSeconds)
 {
-      TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
 
-      UE_LOG(LogTemp, Warning, TEXT("LowLevelAutoPilotSubTick num engine=%d"), Engines.Num());
+  
+	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
 
-      for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++) {
-		float ThrustRatio = 1;
+	UE_LOG(LogTemp, Warning, TEXT("LowLevelAutoPilotSubTick num engine=%d"), Engines.Num());
+
+	TArray<float*> EngineCommands;
+
+	FVector LinearTarget = Airframe->GetComponentToWorld().GetRotation().RotateVector(LinearTargetVelocity);
+	FVector AngularTarget = 180 * Airframe->GetComponentToWorld().GetRotation().RotateVector( AngularTargetVelocity.Euler());
+	
+	EngineCommands.Add(ComputeLinearVelocityStabilisation(DeltaSeconds, Engines, LinearTarget, 0.0));
+	EngineCommands.Add(ComputeAngularVelocityStabilisation(DeltaSeconds, Engines, AngularTarget));
+
+
+	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++) {
+		float ThrustRatio = 0;
+		for (int32 CommandIndex = 0; CommandIndex < EngineCommands.Num(); CommandIndex++) {
+			float newThustRatio =EngineCommands[CommandIndex][EngineIndex];
+			if (newThustRatio * ThrustRatio < 0) {
+				// Opposite order
+				ThrustRatio = ThrustRatio * 0.5;
+			}
+			ThrustRatio = ThrustRatio + newThustRatio;
+		}
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
 		Engine->SetTargetThrustRatio(ThrustRatio);
 	}
@@ -1068,7 +1090,7 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 
 	
 	// TODO find a better place to set
-	float WorldInertiaTensor = 10000;
+	float WorldInertiaTensor = 100;
 
 	FVector AngularAcceleration = FVector(0);
 	AngularAcceleration += TickSumTorque / WorldInertiaTensor;
@@ -1087,4 +1109,207 @@ void AFlareShip::AddForceAtLocation(FVector force, FVector applicationPoint)
 	FVector ApplicationOffset = (applicationPoint - COM) / 100; // TODO divise by 100 in parameter
 
 	TickSumTorque += FVector::CrossProduct(ApplicationOffset, force);
+}
+
+FVector AFlareShip::GetLinearVelocity() const
+{
+	return Airframe->GetPhysicsLinearVelocity() / 100;
+}
+
+FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit) const
+{
+	Axis.Normalize();
+	FVector TotalMaxThrust = FVector::ZeroVector;
+	for (int32 i = 0; i < Engines.Num(); i++) {
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
+
+		FVector WorldThurstAxis = Engine->GetThurstAxis();
+
+		float dot = FVector::DotProduct(WorldThurstAxis, Axis);
+		if (dot > ThurstAngleLimit) {
+			float ratio = (dot - ThurstAngleLimit) / (1 - ThurstAngleLimit);
+
+			TotalMaxThrust += WorldThurstAxis * Engine->GetMaxThrust() * ratio;
+		}
+	}
+
+	return TotalMaxThrust;
+}
+
+FVector AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, FVector COM, float ThurstAngleLimit) const
+{
+	TorqueAxis.Normalize();
+	FVector TotalMaxTorque = FVector::ZeroVector;
+	for (int32 i = 0; i < Engines.Num(); i++) {
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
+
+		float MaxThrust = Engine->GetMaxThrust();
+		
+		if (MaxThrust == 0) {
+			// Not controlable engine
+			continue;
+		}
+
+		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+		
+		FVector WorldThurstAxis = Engine->GetThurstAxis();
+		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThurstAxis);
+		TorqueDirection.Normalize();
+
+		float dot = FVector::DotProduct(TorqueAxis, TorqueDirection);
+		if (dot > ThurstAngleLimit) {
+			float ratio = (dot - ThurstAngleLimit) / (1 - ThurstAngleLimit);
+
+			TotalMaxTorque += FVector::CrossProduct(EngineOffset, WorldThurstAxis * MaxThrust * ratio);
+		}
+	}
+
+	return TotalMaxTorque;
+
+
+}
+
+/*----------------------------------------------------
+	Autopilot
+----------------------------------------------------*/
+
+float* AFlareShip::ComputeVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector WorldLinearVelocityTarget, FVector WorldAngularVelocityTarget, float ThrustAngleLimit) const
+{
+	FLOGV("ComputeVelocityStabilisation WorldLinearVelocityTarget=%s WorldAngularVelocityTarget=%s",*WorldLinearVelocityTarget.ToString(), *WorldAngularVelocityTarget.ToString());
+	FLOGV("ComputeVelocityStabilisation lv=%s av=%s",*GetLinearVelocity().ToString(), *Airframe->GetPhysicsAngularVelocity().ToString());
+  
+	
+	float* command = new float[Engines.Num()];
+	for (int32 i = 0; i < Engines.Num(); i++) {
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
+
+		
+		
+		FVector WorldThurstAxis = Engine->GetThurstAxis();
+		
+		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+		// TODO manage inertia tensor
+		FVector WorldLocalVelocity = GetLinearVelocity()  -  PI / 180 *  FVector::CrossProduct(EngineOffset, Airframe->GetPhysicsAngularVelocity()) * 0;
+		FVector WorldLocalLinearVelocityTarget = WorldLinearVelocityTarget -  PI / 180 *  FVector::CrossProduct(EngineOffset, WorldAngularVelocityTarget) *0; 
+
+		FLOGV("ComputeVelocityStabilisation WorldLocalVelocity=%s",*WorldLocalVelocity.ToString());
+		FLOGV("ComputeVelocityStabilisation WorldLocalLinearVelocityTarget=%s",*WorldLocalLinearVelocityTarget.ToString());
+	
+
+		
+		float LocalTargetVelocity = FVector::DotProduct(WorldThurstAxis, WorldLocalLinearVelocityTarget);
+
+		float TotalMaxThrustInAxis = FVector::DotProduct(WorldThurstAxis, GetTotalMaxThrustInAxis(Engines, WorldThurstAxis, ThrustAngleLimit));
+				
+		// Compute delta to stop
+		float WorldVelocityToEnginesStop = FVector::DotProduct(WorldThurstAxis, WorldLocalVelocity);
+		//WorldVelocityToEnginesStop += FVector::DotProduct(WorldThurstAxis, getDeltaVToEnginesRatio(Engines, Mass, FinalThurstRatio, WorldThurstAxis, ThrustAngleLimit));
+
+		// Check if air resistant won't make the estimation optimist.
+		//WorldVelocityToEnginesStop += FVector::DotProduct(WorldThurstAxis, (getEngineToRatioDuration(Engine, FinalThurstRatio) * (-FinalThurst) / Mass)); // Assusme the air resistance will be almost constant during all the process. It's wrong, but it's better than noting
+
+		float DeltaVelocityToStop = (LocalTargetVelocity - WorldVelocityToEnginesStop);
+
+		float ThrustAjustement = DeltaVelocityToStop * Airframe->GetMass() / (1.5*DeltaSeconds);
+		float ThrustCommand = FMath::Clamp((ThrustAjustement / TotalMaxThrustInAxis), -1.0f, 1.0f);
+	
+		FLOGV("ComputeLinearVelocityStabilisation ThrustCommand=%f",ThrustCommand);
+
+		if (FMath::IsNearlyZero(ThrustCommand)) {
+			ThrustCommand = 0;
+		}
+		command[i] = ThrustCommand;
+	}
+	return command;
+}
+
+
+float* AFlareShip::ComputeLinearVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector WorldTargetSpeed, float ThrustAngleLimit) const
+{
+	FLOGV("ComputeLinearVelocityStabilisation WorldTargetSpeed=%s",*WorldTargetSpeed.ToString());
+  
+  	FVector WorldVelocity = GetLinearVelocity();
+	
+	FLOGV("ComputeLinearVelocityStabilisation WorldVelocity=%s",*WorldVelocity.ToString());
+	
+	float* command = new float[Engines.Num()];
+	for (int32 i = 0; i < Engines.Num(); i++) {
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
+
+		FVector WorldThurstAxis = Engine->GetThurstAxis();
+		float LocalTargetVelocity = FVector::DotProduct(WorldThurstAxis, WorldTargetSpeed);
+
+		float TotalMaxThrustInAxis = FVector::DotProduct(WorldThurstAxis, GetTotalMaxThrustInAxis(Engines, WorldThurstAxis, ThrustAngleLimit));
+				
+		// Compute delta to stop
+		float WorldVelocityToEnginesStop = FVector::DotProduct(WorldThurstAxis, WorldVelocity);
+		//WorldVelocityToEnginesStop += FVector::DotProduct(WorldThurstAxis, getDeltaVToEnginesRatio(Engines, Mass, FinalThurstRatio, WorldThurstAxis, ThrustAngleLimit));
+
+		// Check if air resistant won't make the estimation optimist.
+		//WorldVelocityToEnginesStop += FVector::DotProduct(WorldThurstAxis, (getEngineToRatioDuration(Engine, FinalThurstRatio) * (-FinalThurst) / Mass)); // Assusme the air resistance will be almost constant during all the process. It's wrong, but it's better than noting
+
+		float DeltaVelocityToStop = (LocalTargetVelocity - WorldVelocityToEnginesStop);
+
+		float ThrustAjustement = DeltaVelocityToStop * Airframe->GetMass() / (1.5*DeltaSeconds);
+		float ThrustCommand = FMath::Clamp((ThrustAjustement / TotalMaxThrustInAxis), -1.0f, 1.0f);
+	
+		FLOGV("ComputeLinearVelocityStabilisation ThrustCommand=%f",ThrustCommand);
+
+		if (FMath::IsNearlyZero(ThrustCommand)) {
+			ThrustCommand = 0;
+		}
+		command[i] = ThrustCommand;
+	}
+	return command;
+}
+
+float* AFlareShip::ComputeAngularVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector WorldTargetSpeed) const
+{
+	FVector AngularVelocity = Airframe->GetPhysicsAngularVelocity();
+
+	float* command = new float[Engines.Num()];
+	int index = 0;
+	for (int32 i = 0; i < Engines.Num(); i++) {
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
+
+		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+
+		FVector WorldThurstAxis = Engine->GetThurstAxis();
+		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThurstAxis); 
+		if (TorqueDirection.Size() < 0.001) {
+			command[index++] = 0;
+			continue;
+		}
+		TorqueDirection.Normalize();
+
+		float LocalTargetVelocity = FVector::DotProduct(TorqueDirection, WorldTargetSpeed);
+
+		float TotalMaxTorqueInAxis = FVector::DotProduct(TorqueDirection, GetTotalMaxTorqueInAxis(Engines, TorqueDirection, COM, 0));
+		if (FMath::IsNearlyZero(TotalMaxTorqueInAxis)) {
+			// Just wait better days
+			command[index++] = 0;
+			continue;
+		}
+
+		// Compute delta to stop
+		float WorldVelocityToEnginesStop = FVector::DotProduct(TorqueDirection, AngularVelocity);
+		//WorldVelocityToEnginesStop += FVector::DotProduct(TorqueDirection, getDeltaAngularVelocityToEnginesRatio(Engines, COM, InertiaTensor, FinalThurstRatio)); // TODO inertia
+
+		// Check if air resistant won't make the estimation optimist.
+		//WorldVelocityToEnginesStop += FVector::DotProduct(TorqueDirection, (getEngineToRatioDuration(Engine, FinalThurstRatio) * (-FinalTorque) / InertiaTensor)); // Assusme the air resistance will be almost constant during all the process. It's wrong, but it's better than noting
+
+		float DeltaVelocityToStop = (LocalTargetVelocity - WorldVelocityToEnginesStop);
+
+		float InertiaTensor = 100; //TODO externalize
+		
+		float ThrustAjustement = DeltaVelocityToStop * InertiaTensor / (1.5*DeltaSeconds);
+		float ThrustCommand = FMath::Clamp((ThrustAjustement / TotalMaxTorqueInAxis), -1.0f, 1.0f);
+
+		if (FMath::IsNearlyZero(ThrustCommand)) {
+			ThrustCommand = 0;
+		}
+		command[index++] = ThrustCommand;
+	}
+
+	return command;
 }

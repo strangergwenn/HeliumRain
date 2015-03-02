@@ -229,6 +229,25 @@ protected:
 	void LowLevelAutoPilotSubTick(float DeltaSeconds);
 
 	void PhysicSubTick(float DeltaSeconds);
+	
+	/** Linear velocity in meters */
+	FVector GetLinearVelocity() const;
+	
+	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit) const;
+	
+	FVector GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThurstAngleLimit) const;
+
+	
+	/*----------------------------------------------------
+		Autopilot
+	----------------------------------------------------*/
+	float* ComputeVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector WorldLinearVelocityTarget, FVector WorldAngularVelocityTarget, float ThrustAngleLimit) const;
+	
+	float* ComputeLinearVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector WorldTargetSpeed, float ThrustAngleLimit) const;
+	
+	float* ComputeAngularVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector LocalTargetSpeed) const;
+
+
 
 public:
 

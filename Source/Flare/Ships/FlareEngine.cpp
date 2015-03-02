@@ -70,6 +70,17 @@ void UFlareEngine::SetTargetThrustRatio(float Ratio)
 	}
 }
 
+FVector UFlareEngine::GetThurstAxis() const
+{
+	  return GetComponentToWorld().GetRotation().RotateVector(ThrustAxis);
+}
+
+float UFlareEngine::GetMaxThrust() const
+{
+	return MaxThrust;
+}
+
+
 void UFlareEngine::TickModule(float DeltaTime)
 {
 	Super::TickModule(DeltaTime);
