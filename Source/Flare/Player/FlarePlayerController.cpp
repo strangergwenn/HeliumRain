@@ -126,6 +126,11 @@ void AFlarePlayerController::PossessCurrentShip()
 	}
 }
 
+void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
+{
+	Company = NewCompany;
+}
+
 
 /*----------------------------------------------------
 	Menus

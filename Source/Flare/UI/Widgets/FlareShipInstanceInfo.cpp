@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareShipInstanceInfo.h"
+#include "../../Game/FlareCompany.h"
 #include "../../Ships/FlareShipInterface.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -18,6 +19,8 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 	ShipDescription = NULL;
 	UObject* Target = NULL;
 	const FSlateBrush* Icon = NULL;
+	UFlareCompany* Company = NULL;
+	AFlareGame* Game = InArgs._Player->GetGame();
 
 	// Station data
 	if (InArgs._Station)
@@ -26,6 +29,7 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 		StationData = InArgs._Station->Save();
 		StationDescription = InArgs._Player->GetGame()->GetStationCatalog()->Get(StationData->Identifier);
 		Icon = IFlareStationInterface::GetIcon(StationDescription);
+		Company = InArgs._Station->GetCompany();
 	}
 
 	// Ship data
@@ -35,6 +39,7 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 		ShipData = InArgs._Ship->Save();
 		ShipDescription = InArgs._Player->GetGame()->GetShipCatalog()->Get(ShipData->Identifier);
 		Icon = IFlareShipInterface::GetIcon(ShipDescription);
+		Company = InArgs._Ship->GetCompany();
 	}
 
 	// Create the layout
@@ -61,16 +66,18 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(Target->GetName())
-			.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+			.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
 		]
 
-		// Info box
+		// Company flag
 		+ SHorizontalBox::Slot()
-		.AutoWidth()
 		.Padding(FMargin(10))
 		.VAlign(VAlign_Center)
+		.HAlign(HAlign_Right)
 		[
-			SAssignNew(InfoBox, SHorizontalBox)
+			SAssignNew(CompanyFlag, SFlareCompanyFlag)
+			.Player(InArgs._Player)
+			.Company(Company)
 		]
 	];
 }

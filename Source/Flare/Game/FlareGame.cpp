@@ -317,6 +317,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 	// Player company
 	UFlareCompany* Company = CreateCompany("Weyland-Yutani");
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
+	PC->SetCompany(Company);
 
 	// Player ship
 	AFlareShip* ShipPawn = CreateShip(FName("ship-ghoul"));
@@ -337,8 +338,8 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	FString Immatriculation = FString::Printf(TEXT("CPNY-%06d"), CurrentImmatriculationIndex);
 
 	// Generate save data
-	CompanyData.Name = CompanyName;
-	CompanyData.ShortName = *CompanyName.Left(3);
+	CompanyData.Name = CompanyName.ToUpper();
+	CompanyData.ShortName = *CompanyName.Left(3).ToUpper();
 	CompanyData.Identifier = *Immatriculation;
 	CompanyData.CustomizationEngineColorIndex = 0;
 	CompanyData.CustomizationPaintColorIndex = 0;
@@ -375,7 +376,7 @@ AFlareStation* AFlareGame::CreateStation(FName StationClass)
 		FFlareStationSave StationData;
 		StationData.Location = TargetPosition;
 		StationData.Rotation = FRotator::ZeroRotator;
-		StationData.Name = Immatriculate("GWE", StationClass);
+		StationData.Name = Immatriculate(PC->GetCompany()->GetShortName(), StationClass);
 		StationData.Identifier = StationClass;
 
 		// Create the station
@@ -414,7 +415,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		FFlareShipSave ShipData;
 		ShipData.Location = TargetPosition;
 		ShipData.Rotation = FRotator::ZeroRotator;
-		ShipData.Name = Immatriculate("GWE", ShipClass);
+		ShipData.Name = Immatriculate(PC->GetCompany()->GetShortName(), ShipClass);
 		ShipData.Identifier = ShipClass;
 
 		// Size selector

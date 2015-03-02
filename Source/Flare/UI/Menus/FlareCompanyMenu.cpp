@@ -18,6 +18,7 @@
 void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 {
 	// Data
+	Company = NULL;
 	OwnerHUD = InArgs._OwnerHUD;
 	TSharedPtr<SFlareButton> BackButton;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
@@ -65,7 +66,43 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 							.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
 						]
 					]
-					
+
+					// Title
+					+ SVerticalBox::Slot()
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("Overview", "OVERVIEW"))
+						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+					]
+
+					// Company info
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Company flag
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(FMargin(10))
+						.VAlign(VAlign_Center)
+						[
+							SAssignNew(CompanyFlag, SFlareCompanyFlag)
+							.Player(Cast<AFlarePlayerController>(OwnerHUD->GetOwner()))
+						]
+
+						// Name
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(FMargin(10))
+						.VAlign(VAlign_Center)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareCompanyMenu::GetCompanyName)
+							.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+						]
+					]
+
 					// Object list
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -135,6 +172,9 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 {
 	FLOG("SFlareCompanyMenu::Enter");
 
+	// Company data
+	Company = Target;
+	CompanyFlag->SetCompany(Target);
 	SetVisibility(EVisibility::Visible);
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
@@ -165,6 +205,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 void SFlareCompanyMenu::Exit()
 {
 	ShipList->Reset();
+	Company = NULL;
 	SetVisibility(EVisibility::Hidden);
 }
 
@@ -172,6 +213,18 @@ void SFlareCompanyMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+FString SFlareCompanyMenu::GetCompanyName() const
+{
+	if (Company)
+	{
+		return Company->GetCompanyName();
+	}
+	else
+	{
+		return FString("<undefined>");
+	}
+}
 
 void SFlareCompanyMenu::OnDashboardClicked()
 {

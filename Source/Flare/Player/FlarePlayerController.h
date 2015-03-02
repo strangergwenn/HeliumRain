@@ -61,6 +61,9 @@ public:
 
 	/** Take control of our current ship and remove the old pawn */
 	virtual void PossessCurrentShip();
+
+	/** Set the player's company */
+	virtual void SetCompany(UFlareCompany* NewCompany);
 	
 
 	/*----------------------------------------------------

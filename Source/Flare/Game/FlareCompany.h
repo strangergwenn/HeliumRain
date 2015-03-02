@@ -134,6 +134,16 @@ public:
 		return CompanyData.Identifier;
 	}
 
+	inline FString GetCompanyName() const
+	{
+		return CompanyData.Name;
+	}
+
+	inline FName GetShortName() const
+	{
+		return CompanyData.ShortName;
+	}
+
 	inline int32 GetLightColorIndex() const
 	{
 		return CompanyData.CustomizationLightColorIndex;

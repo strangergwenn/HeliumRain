@@ -14,7 +14,8 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 	// Data
 	PC = InArgs._Player;
 	MinimizedMode = InArgs._MinimizedMode;
-	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/PartButton");
+	AFlareGame* Game = InArgs._Player->GetGame();
+	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/ActionButton");
 	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
 
 	// Create the layout
@@ -40,21 +41,10 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			
 					// Data block
 					+ SHorizontalBox::Slot()
-					.Padding(FMargin(10))
 					[
 						SNew(SVerticalBox)
 
-						// Ship name
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(FMargin(0, 0, 0, 10))
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareTargetActions::GetName)
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
-						]
-
-						// Class line
+						// Main line
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						[
@@ -63,15 +53,60 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 							// Class icon
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
+							.Padding(FMargin(8))
 							.VAlign(VAlign_Center)
 							[
 								SNew(SImage).Image(this, &SFlareTargetActions::GetClassIcon)
 							]
 
-							// Ship class
+							// Ship name
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
 							.Padding(FMargin(10))
+							.VAlign(VAlign_Center)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareTargetActions::GetName)
+								.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+							]
+						]
+
+						// Company line
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Company flag
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(FMargin(8))
+							[
+								SAssignNew(CompanyFlag, SFlareCompanyFlag)
+								.Player(InArgs._Player)
+							]
+
+							// Company name
+							+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(FMargin(8))
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareTargetActions::GetCompanyName)
+								.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+							]
+						]
+
+						// Ship info line
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+							
+							// Ship class
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(FMargin(8))
 							[
 								SNew(STextBlock)
 								.Text(this, &SFlareTargetActions::GetClassName)
@@ -169,6 +204,7 @@ void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
 	if (Target && PC)
 	{
 		// Data
+		Company = Target->GetCompany();
 		TargetName = Target->_getUObject()->GetName();
 		FFlareStationSave* SaveData = Target->Save();
 		if (SaveData)
@@ -204,6 +240,7 @@ void SFlareTargetActions::SetShip(IFlareShipInterface* Target)
 	// Get the save data info to retrieve the class data
 	if (Target && PC)
 	{
+		Company = Target->GetCompany();
 		TargetName = Target->_getUObject()->GetName();
 		FFlareShipSave* SaveData = Target->Save();
 		if (SaveData)
@@ -213,9 +250,15 @@ void SFlareTargetActions::SetShip(IFlareShipInterface* Target)
 	}
 }
 
+void SFlareTargetActions::SetMinimized(bool NewState)
+{
+	MinimizedMode = NewState;
+}
+
 void SFlareTargetActions::Show()
 {
 	SetVisibility(EVisibility::Visible);
+	CompanyFlag->SetCompany(Company);
 
 	if (MinimizedMode)
 	{
@@ -239,6 +282,7 @@ void SFlareTargetActions::Show()
 
 void SFlareTargetActions::Hide()
 {
+	Company = NULL;
 	TargetShip = NULL;
 	TargetStation = NULL;
 	TargetShipDesc = NULL;
@@ -306,13 +350,13 @@ FString SFlareTargetActions::GetClassName() const
 {
 	if (TargetStationDesc)
 	{
-		return "STATION - " + TargetStationDesc->Name.ToString();
+		return TargetStationDesc->Name.ToString() + " CLASS";
 	}
 	else if (TargetShipDesc)
 	{
-		return "SHIP - " + TargetShipDesc->Name.ToString();
+		return TargetShipDesc->Name.ToString() + " CLASS";
 	}
-	return "";
+	return "<undefined>";
 }
 
 const FSlateBrush* SFlareTargetActions::GetIcon() const
@@ -340,5 +384,18 @@ const FSlateBrush* SFlareTargetActions::GetClassIcon() const
 	}
 	return NULL;
 }
+
+FString SFlareTargetActions::GetCompanyName() const
+{
+	if (Company)
+	{
+		return Company->GetCompanyName();
+	}
+	else
+	{
+		return FString("<undefined>");
+	}
+}
+
 
 #undef LOCTEXT_NAMESPACE

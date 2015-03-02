@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareCompanyFlag.h"
 #include "../../Ships/FlareShipInterface.h"
 #include "../../Stations/FlareStationInterface.h"
 
@@ -46,9 +47,6 @@ protected:
 		Private data
 	----------------------------------------------------*/
 	
-	// Slate data
-	TSharedPtr<SHorizontalBox>         InfoBox;
-
 	// Station target data
 	FFlareStationSave*                StationData;
 	FFlareStationDescription*         StationDescription;
@@ -56,5 +54,8 @@ protected:
 	// Ship target data
 	FFlareShipSave*                   ShipData;
 	FFlareShipDescription*            ShipDescription;
+
+	// Widgets
+	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
 
 };

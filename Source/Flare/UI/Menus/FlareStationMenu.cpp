@@ -71,7 +71,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("SelectedInstance", "STATION INFO"))
+						.Text(LOCTEXT("Overview", "OVERVIEW"))
 						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
 					]
 

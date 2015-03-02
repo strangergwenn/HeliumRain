@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../../Game/FlareCompany.h"
 #include "../Components/FlareColorPanel.h"
 #include "../Widgets/FlareShipList.h"
 
@@ -42,6 +43,9 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
+	
+	/** Get the company name */
+	FString GetCompanyName() const;
 
 	/** Go back to the dahsboard */
 	void OnDashboardClicked();
@@ -57,10 +61,14 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareHUD> OwnerHUD;
 
+	// Gameplay data
+	UFlareCompany*                     Company;
+
 	// Menu data
 	TSharedPtr<STextBlock>             ColorBoxTitle;
 	TSharedPtr<SFlareColorPanel>       ColorBox;
 	TSharedPtr<SFlareShipList>         ShipList;
+	TSharedPtr<SFlareCompanyFlag>      CompanyFlag;
 
 
 };

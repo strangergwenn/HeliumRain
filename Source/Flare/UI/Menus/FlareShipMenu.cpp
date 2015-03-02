@@ -284,7 +284,7 @@ void SFlareShipMenu::LoadTargetShip()
 			const FFlareShipDescription* ShipDesc = PC->GetGame()->GetShipCatalog()->Get(CurrentShipData->Identifier);
 			if (ShipDesc)
 			{
-				ObjectName->SetText(ShipDesc->Name);
+				ObjectName->SetText(LOCTEXT("Overview", "OVERVIEW"));
 				ObjectDescription->SetText(ShipDesc->Description);
 				PC->GetMenuPawn()->ShowShip(ShipDesc, CurrentShipData);
 			}
@@ -429,7 +429,7 @@ FText SFlareShipMenu::GetTitleText() const
 	}
 	else
 	{
-		return LOCTEXT("ShipMenuTitle", "SHIP OVERVIEW");
+		return LOCTEXT("ShipMenuTitle", "SHIP");
 	}
 }
 

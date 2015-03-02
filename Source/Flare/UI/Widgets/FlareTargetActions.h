@@ -2,8 +2,10 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareCompanyFlag.h"
 #include "../../Ships/FlareShipInterface.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Game/FlareCompany.h"
 
 
 class SFlareTargetActions : public SCompoundWidget
@@ -38,6 +40,9 @@ public:
 
 	/** Set a ship as content */
 	void SetShip(IFlareShipInterface* Target);
+
+	/** Set the minimized mode */
+	void SetMinimized(bool NewState);
 
 	/** SHow the menu */
 	void Show();
@@ -78,6 +83,9 @@ public:
 
 	/** Get the target class icon */
 	const FSlateBrush* GetClassIcon() const;
+	
+	/** Get the company name */
+	FString GetCompanyName() const;
 
 
 protected:
@@ -96,11 +104,13 @@ protected:
 	IFlareShipInterface*              TargetShip;
 	FFlareShipDescription*            TargetShipDesc;
 	FString                           TargetName;
+	UFlareCompany*                    Company;
 
 	// Slate data
 	TSharedPtr<SHorizontalBox>        StationContainer;
 	TSharedPtr<SHorizontalBox>        ShipContainer;
 	TSharedPtr<SFlareButton>          DockButton;
 	TSharedPtr<SFlareButton>          UndockButton;
+	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
 
 };
