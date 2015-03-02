@@ -135,7 +135,10 @@ void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Oth
 
 void AFlareShip::Destroyed()
 {
-	Company->Unregister(this);
+	if (Company)
+	{
+		Company->Unregister(this);
+	}
 }
 
 
