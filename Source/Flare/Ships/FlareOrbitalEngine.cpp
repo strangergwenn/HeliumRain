@@ -12,7 +12,7 @@
 UFlareOrbitalEngine::UFlareOrbitalEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-    MaxThrust = 6000; // TODO remove
+    MaxThrust = 60000; // TODO remove
 }
 
 

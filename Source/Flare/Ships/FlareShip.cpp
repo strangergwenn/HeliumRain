@@ -137,7 +137,6 @@ void AFlareShip::Tick(float DeltaSeconds)
 			}
 
 			//UpdateLinearPhysics(DeltaSeconds);
-			//UpdateAngularPhysics(DeltaSeconds);
 
 			PhysicSubTick(DeltaSeconds);
 		}
@@ -688,7 +687,7 @@ void AFlareShip::UpdateLinearPhysics(float DeltaSeconds)
 
 void AFlareShip::UpdateAngularAttitudeManual(float DeltaSeconds)
 {
-	AngularTargetVelocity = FQuat::MakeFromEuler(ManualAngularVelocity);
+	AngularTargetVelocity = ManualAngularVelocity;
 }
 
 void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
@@ -708,7 +707,7 @@ void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 	if (RemainingTravelDistance < AngularDeadAngle && AngularStopDistance < AngularDeadAngle)
 	{
 		AngularVelocity = NULL_QUAT;
-		AngularTargetVelocity = NULL_QUAT;
+		AngularTargetVelocity = FVector::ZeroVector;
 		PreviousRemainingTravelDistance = 360;
 		AddActorLocalRotation(LocalCommand.Rotator(), true);
 		ClearCurrentCommand();
@@ -717,56 +716,29 @@ void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 	// Brake if "close" to target or going away from it
 	else if (RemainingTravelDistance <= AngularStopDistance || PilotError)
 	{
-		AngularTargetVelocity = NULL_QUAT;
+		AngularTargetVelocity = FVector::ZeroVector;
 	}
 
 	// The rest of the time we try to follow the command
 	else
 	{
-		AngularTargetVelocity = LocalCommand;
+		//TODO Repair
+		//AngularTargetVelocity = LocalCommand;
 	}
 }
 
 void AFlareShip::UpdateAngularBraking(float DeltaSeconds)
 {
-	AngularTargetVelocity = NULL_QUAT;
+	AngularTargetVelocity = FVector::ZeroVector;
 
 	// Null speed detection
 	if (GetRotationAmount(AngularVelocity) < NegligibleSpeedRatio * AngularMaxVelocity)
 	{
-		AngularTargetVelocity = NULL_QUAT;
+		AngularTargetVelocity = FVector::ZeroVector;
 		AngularVelocity = NULL_QUAT;
 		ClearCurrentCommand();
 	}
 }
-
-void AFlareShip::UpdateAngularPhysics(float DeltaSeconds)
-{
-	// Compute physic values : double the current acceleration rating
-	FVector Limit = 2 * AngularAccelerationRate * DeltaSeconds * FVector(1, 1, 1);
-	FVector PhysicalVel = Airframe->GetPhysicsAngularVelocity();
-	FVector DeltaPhysicalVel = ClampVector(-PhysicalVel, -Limit, Limit);
-
-	// Update physical speed
-	PhysicalVel += DeltaPhysicalVel;
-	Airframe->SetPhysicsAngularVelocity(PhysicalVel);
-
-	// Recalculate acceleration
-	AngularVelocityDelta = AngularTargetVelocity * AngularVelocity.Inverse();
-	AngularVelocityDelta = ClampQuaternion(AngularVelocityDelta, AngularAccelerationRate * DeltaSeconds);
-
-	// Integrate acceleration to get the speed
-	AngularVelocity = AngularVelocityDelta * AngularVelocity;
-	AngularVelocity.Normalize();
-	AngularVelocity = ClampQuaternion(AngularVelocity, AngularMaxVelocity / 60);
-	AngularStopDistance = 0.5 * FMath::Square(GetRotationAmount(AngularVelocity)) / (AngularAccelerationRate / 60);
-	
-	// Update speed data
-	FRotator AngularDelta = AngularVelocity.Rotator();
-	AngularDelta *= 60 * DeltaSeconds;
-	AddActorLocalRotation(AngularDelta, true);
-}
-
 
 /*----------------------------------------------------
 	Customization
@@ -779,7 +751,7 @@ void AFlareShip::SetShipDescription(FFlareShipDescription* Description)
 	// Load data from the ship info
 	if (Description)
 	{
-		LinearMaxVelocity = 100 * Description->LinearMaxVelocity;
+		LinearMaxVelocity = Description->LinearMaxVelocity;
 		AngularMaxVelocity = Description->AngularMaxVelocity;
 	}
 }
@@ -895,14 +867,13 @@ void AFlareShip::MousePositionInput(FVector2D Val)
 {
 	if (!ExternalCamera)
 	{
-		float CompensationRatio = (1 - AngularInputDeadRatio);
+		// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
+		Val.X = FMath::Clamp(1. + (FMath::Abs(Val.X) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.X);
+		Val.Y = FMath::Clamp(1. + (FMath::Abs(Val.Y) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.Y);
+		
 
-		Val.X = (FMath::Abs(Val.X) < AngularInputDeadRatio) ? 0 : (Val.X - AngularInputDeadRatio * FMath::Sign(Val.X));
-		Val.Y = (FMath::Abs(Val.Y) < AngularInputDeadRatio) ? 0 : (Val.Y - AngularInputDeadRatio * FMath::Sign(Val.X));
-		Val /= CompensationRatio;
-
-		ManualAngularVelocity.Z = FMath::Clamp(Val.X, -AngularMaxVelocity, AngularMaxVelocity);
-		ManualAngularVelocity.Y = -FMath::Clamp(Val.Y, -AngularMaxVelocity, AngularMaxVelocity);
+		ManualAngularVelocity.Z = Val.X * AngularMaxVelocity;
+		ManualAngularVelocity.Y = Val.Y * AngularMaxVelocity;
 	}
 }
 
@@ -934,7 +905,7 @@ void AFlareShip::RollInput(float Val)
 {
 	if (!ExternalCamera)
 	{
-		ManualAngularVelocity.X = Val * FMath::Clamp(AngularMaxVelocity, 5.0f, 85.0f);
+		ManualAngularVelocity.X = Val * AngularMaxVelocity;
 	}
 }
 
@@ -1051,7 +1022,7 @@ void AFlareShip::LowLevelAutoPilotSubTick(float DeltaSeconds)
 	TArray<float*> EngineCommands;
 
 	FVector LinearTarget = Airframe->GetComponentToWorld().GetRotation().RotateVector(LinearTargetVelocity);
-	FVector AngularTarget = 180 * Airframe->GetComponentToWorld().GetRotation().RotateVector( AngularTargetVelocity.Euler());
+	FVector AngularTarget = Airframe->GetComponentToWorld().GetRotation().RotateVector(AngularTargetVelocity);
 	
 	EngineCommands.Add(ComputeLinearVelocityStabilisation(DeltaSeconds, Engines, LinearTarget, 0.0));
 	EngineCommands.Add(ComputeAngularVelocityStabilisation(DeltaSeconds, Engines, AngularTarget));

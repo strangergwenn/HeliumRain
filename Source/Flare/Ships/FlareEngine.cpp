@@ -12,7 +12,7 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	ExhaustAlpha = 0.0;
-	MaxThrust = 600; // TODO init
+	MaxThrust = 6000; // TODO init
 	ThrustAxis = FVector(-1,0,0);
 }
 

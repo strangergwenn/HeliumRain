@@ -334,10 +334,10 @@ protected:
 	// Configuration properties
 	float                         AngularDeadAngle;
 	float                         AngularInputDeadRatio;
-	float                         AngularMaxVelocity;
+	float                         AngularMaxVelocity; // degree/s
 	float                         AngularAccelerationRate;
 	float                         LinearDeadDistance;
-	float                         LinearMaxVelocity;
+	float                         LinearMaxVelocity; // m/s
 	float                         LinearThrust;
 	float                         LinearOrbitalThrust;
 	float                         NegligibleSpeedRatio;
@@ -364,7 +364,7 @@ protected:
 	float                         LinearStopDistance;
 
 	// Physics simulation
-	FQuat                         AngularTargetVelocity;
+	FVector                       AngularTargetVelocity;
 	FQuat                         AngularVelocity;
 	FQuat                         AngularVelocityDelta;
 	float                         AngularStopDistance;
