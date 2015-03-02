@@ -206,9 +206,6 @@ protected:
 	/** Brake */
 	void UpdateLinearBraking(float DeltaSeconds);
 
-	/** Control translation physics */
-	void UpdateLinearPhysics(float DeltaSeconds);
-
 	/** Manually update the current angular attitude */
 	void UpdateAngularAttitudeManual(float DeltaSeconds);
 
@@ -217,9 +214,6 @@ protected:
 
 	/** Brake */
 	void UpdateAngularBraking(float DeltaSeconds);
-
-	/** Control rotation physics */
-	void UpdateAngularPhysics(float DeltaSeconds);
 
 	/*----------------------------------------------------
 		Physics

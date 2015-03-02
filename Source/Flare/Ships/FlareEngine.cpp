@@ -12,7 +12,7 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	ExhaustAlpha = 0.0;
-	MaxThrust = 6000; // TODO init
+	MaxThrust = 30000; // TODO init
 	ThrustAxis = FVector(-1,0,0);
 }
 
@@ -89,18 +89,9 @@ void UFlareEngine::TickModule(float DeltaTime)
 	CurrentThrust = TargetThrust;
 	CurrentThrust = FMath::Clamp(CurrentThrust, 0.f, MaxThrust);
 
-
-
-	FVector ThrustNoise; // Little random because engine are not perfectly precise
-	ThrustNoise.X = FMath::FRandRange(-0.01, 0.01) * CurrentThrust;
-	ThrustNoise.Y = FMath::FRandRange(-0.01, 0.01) * CurrentThrust;
-	ThrustNoise.Z = FMath::FRandRange(-0.05, 0.05) * CurrentThrust;
-	FVector LocalThrust = ThrustAxis * CurrentThrust + ThrustNoise * 0.0;
+	FVector LocalThrust = ThrustAxis * CurrentThrust;
 
 	FVector WorldThrust = GetComponentToWorld().GetRotation().RotateVector(LocalThrust);
-
-	UE_LOG(LogTemp, Warning, TEXT("1 - WorldThrust: %s TargetThrust=%f"), *WorldThrust.ToString(), TargetThrust);
-
 
 	OwnerShip->AddForceAtLocation(WorldThrust, GetComponentLocation());
 }
