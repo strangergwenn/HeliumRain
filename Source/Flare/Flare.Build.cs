@@ -6,7 +6,8 @@ public class Flare : ModuleRules
 {
 	public Flare(TargetInfo Target)
 	{
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "OnlineSubsystem", "OnlineSubsystemUtils" });
         PrivateDependencyModuleNames.AddRange(new string[] { "FlareLoadingScreen", "Slate", "SlateCore" });
+        DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
 	}
 }

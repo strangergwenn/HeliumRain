@@ -7,7 +7,8 @@ public class FlareTarget : TargetRules
 {
 	public FlareTarget(TargetInfo Target)
 	{
-		Type = TargetType.Game;
+        Type = TargetType.Game;
+        bUsesSteam = true;
 	}
 
 	//
