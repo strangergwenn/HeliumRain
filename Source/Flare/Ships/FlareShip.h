@@ -189,7 +189,7 @@ public:
 	/*----------------------------------------------------
 		Physics
 	----------------------------------------------------*/
-	void AddForceAtLocation(FVector LinearForce, FVector AngularForce, FVector ApplicationPoint, float Distance);
+	void AddForceAtLocation(FVector LinearForce, FVector AngularForce, FVector ApplicationPoint);
 
 protected:
 
@@ -239,8 +239,6 @@ protected:
 	float* ComputeLinearVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector WorldTargetSpeed, float ThrustAngleLimit) const;
 	
 	float* ComputeAngularVelocityStabilisation(float DeltaSeconds, TArray<UActorComponent*>& Engines, FVector LocalTargetSpeed) const;
-
-
 
 public:
 

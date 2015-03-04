@@ -109,5 +109,5 @@ void UFlareEngine::TickModule(float DeltaTime)
 	FVector WorldAngularThrust = GetComponentToWorld().GetRotation().RotateVector(LocalAngularThrust);
 	
 
-	OwnerShip->AddForceAtLocation(WorldLinearThrust, WorldAngularThrust, GetComponentLocation(), 1);
+	OwnerShip->AddForceAtLocation(WorldLinearThrust, WorldAngularThrust, GetComponentLocation());
 }
