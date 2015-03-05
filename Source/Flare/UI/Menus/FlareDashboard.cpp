@@ -238,7 +238,10 @@ void SFlareDashboard::Enter()
 	if (PC)
 	{
 		AFlareShip* Ship = PC->GetShipPawn();
-		StationBox->SetVisibility(Ship->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
+		if (Ship)
+		{
+			StationBox->SetVisibility(Ship->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
+		}
 		PC->GetMenuPawn()->UpdateBackgroundColor(0.15, 0.15);
 	}
 }

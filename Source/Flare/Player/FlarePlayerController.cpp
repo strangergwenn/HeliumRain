@@ -94,7 +94,10 @@ void AFlarePlayerController::Load(const FFlarePlayerSave& Data)
 
 void AFlarePlayerController::Save(FFlarePlayerSave& Data)
 {
-	PlayerData.CurrentShipName = ShipPawn->GetName();
+	if (ShipPawn)
+	{
+		PlayerData.CurrentShipName = ShipPawn->GetName();
+	}
 	Data = PlayerData;
 }
 
