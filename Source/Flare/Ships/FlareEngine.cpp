@@ -89,9 +89,13 @@ FVector UFlareEngine::GetThurstAxis() const
 
 float UFlareEngine::GetMaxThrust() const
 {
-	return MaxThrust;
+	return MaxThrust; // TODO include damages
 }
 
+float UFlareEngine::GetInitialMaxThrust() const
+{
+	return MaxThrust;
+}
 
 void UFlareEngine::TickModule(float DeltaTime)
 {

@@ -75,6 +75,18 @@ void AFlareShip::BeginPlay()
 			WeaponList.Add(Weapon);
 		}
 	}
+	
+	// Compute Inertia tensor for homogeneous rotation
+	UpdateCOM();
+	LocalInertiaTensor = FVector::ZeroVector;
+	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+	FVector WorldXAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
+	FVector WorldYAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(0,1,0));
+	FVector WorldZAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(0,0,1));
+	float angularStantardAcceleration = 90; // °/s² // TODO In ship spec
+	LocalInertiaTensor.X = GetTotalMaxTorqueInAxis(Engines, WorldXAxis, COM, 0, false).Size() / angularStantardAcceleration;
+	LocalInertiaTensor.Y = GetTotalMaxTorqueInAxis(Engines, WorldYAxis, COM, 0, false).Size() / angularStantardAcceleration;
+	LocalInertiaTensor.Z = GetTotalMaxTorqueInAxis(Engines, WorldZAxis, COM, 0, false).Size() / angularStantardAcceleration;
 }
 
 void AFlareShip::Tick(float DeltaSeconds)
@@ -122,7 +134,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 		if (!IsDocked())
 		{
 		  
-			COM = Airframe->GetBodyInstance()->GetCOMPosition();
+			UpdateCOM();
 
 			LowLevelAutoPilotSubTick(DeltaSeconds);
 
@@ -869,7 +881,6 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	  */
 	  
 	  FVector AngularAcceleration = FVector(0);
-	  FVector LocalInertiaTensor = FVector(30,4000,30);  //TODO externalize
 	  
 	  FVector LocalTickSumTorque = Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(TickSumTorque);
 	  FVector LocalAngularAcceleration = LocalTickSumTorque / LocalInertiaTensor;
@@ -882,10 +893,29 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	  AngularAcceleration += Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalAngularAcceleration);
 	  // TODO Clamp
 	  
-	  /*UE_LOG(LogTemp, Warning, TEXT("0 - TickSumTorque: %s"), *TickSumTorque.ToString());
+	/*  UE_LOG(LogTemp, Warning, TEXT("====================="));
+	  UE_LOG(LogTemp, Warning, TEXT("0 - TickSumTorque: %s"), *TickSumTorque.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("0 - LocalInertiaTensor: %s"), *LocalInertiaTensor.ToString());
 	  UE_LOG(LogTemp, Warning, TEXT("1 - LocalTickSumTorque: %s"), *LocalTickSumTorque.ToString());
 	  UE_LOG(LogTemp, Warning, TEXT("1 - LocalAngularAcceleration: %s"), *LocalAngularAcceleration.ToString());
-	  UE_LOG(LogTemp, Warning, TEXT("1 - AngularAcceleration: %s"), *AngularAcceleration.ToString());*/
+	  UE_LOG(LogTemp, Warning, TEXT("1 - AngularAcceleration: %s"), *AngularAcceleration.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT(""));*/
+	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+
+	FVector LocalInertiaTensor2;
+	FVector WorldXAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
+	FVector WorldYAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(0,1,0));
+	FVector WorldZAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(0,0,1));
+	float angularStantardAcceleration = 90; // °/s² // TODO In ship spec
+	LocalInertiaTensor2.X = GetTotalMaxTorqueInAxis(Engines, WorldXAxis, COM, 0, false).Size();
+	LocalInertiaTensor2.Y = GetTotalMaxTorqueInAxis(Engines, WorldYAxis, COM, 0, false).Size();
+	LocalInertiaTensor2.Z = GetTotalMaxTorqueInAxis(Engines, WorldZAxis, COM, 0, false).Size();
+	
+	/*UE_LOG(LogTemp, Warning, TEXT("2 - X: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldXAxis, COM, 0, false).ToString());
+	UE_LOG(LogTemp, Warning, TEXT("2 - Y: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldYAxis, COM, 0, false).ToString());
+	UE_LOG(LogTemp, Warning, TEXT("2 - Z: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldZAxis, COM, 0, false).ToString());
+	UE_LOG(LogTemp, Warning, TEXT("2 - LocalInertiaTensor2: %s"), *LocalInertiaTensor2.ToString());*/
+	
 	  Airframe->SetPhysicsAngularVelocity(AngularAcceleration * DeltaTime, true);
 	}
 	
@@ -902,10 +932,14 @@ void AFlareShip::AddForceAtLocation(FVector LinearForce, FVector AngularForce, F
 	TickSumForce += LinearForce;
 	FVector ApplicationOffset = (applicationPoint - COM) / 100; // TODO divise by 100 in parameter
 	
-	ApplicationOffset.Normalize();
-
+	//ApplicationOffset.Normalize();
+	/*UE_LOG(LogTemp, Warning, TEXT("AddForceAtLocation before: %s"), *TickSumTorque.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("ApplicationOffset: %s"), *ApplicationOffset.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("AngularForce: %s"), *AngularForce.ToString());*/
+	
 
 	TickSumTorque += FVector::CrossProduct(ApplicationOffset, AngularForce);
+	/*UE_LOG(LogTemp, Warning, TEXT("AddForceAtLocation after: %s"), *TickSumTorque.ToString());*/
 }
 
 FVector AFlareShip::GetLinearVelocity() const
@@ -928,19 +962,21 @@ FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, F
 
 			TotalMaxThrust += WorldThurstAxis * Engine->GetMaxThrust() * ratio;
 		}
+		
 	}
 
 	return TotalMaxThrust;
 }
 
-FVector AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, FVector COM, float ThurstAngleLimit) const
+FVector AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, FVector COM, float ThurstAngleLimit, bool WithDamages) const
 {
+	/*UE_LOG(LogTemp, Warning, TEXT("----"));*/
 	TorqueAxis.Normalize();
 	FVector TotalMaxTorque = FVector::ZeroVector;
 	for (int32 i = 0; i < Engines.Num(); i++) {
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
-		float MaxThrust = Engine->GetMaxThrust();
+		float MaxThrust = (WithDamages ? Engine->GetMaxThrust() : Engine->GetInitialMaxThrust());
 		
 		if (MaxThrust == 0) {
 			// Not controlable engine
@@ -954,16 +990,31 @@ FVector AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, F
 		TorqueDirection.Normalize();
 
 		float dot = FVector::DotProduct(TorqueAxis, TorqueDirection);
+		
+		/*UE_LOG(LogTemp, Warning, TEXT("TotalMaxTorque before: %s"), *TotalMaxTorque.ToString());*/
+		
 		if (dot > ThurstAngleLimit) {
 			float ratio = (dot - ThurstAngleLimit) / (1 - ThurstAngleLimit);
 
-			TotalMaxTorque += FVector::CrossProduct(EngineOffset, WorldThurstAxis * MaxThrust * ratio);
+			/*UE_LOG(LogTemp, Warning, TEXT("EngineOffset : %s"), *EngineOffset.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("TorqueDirection : %s"), *TorqueDirection.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("TorqueAxis : %s"), *TorqueAxis.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("WorldThurstAxis : %s"), *WorldThurstAxis.ToString());
+			UE_LOG(LogTemp, Warning, TEXT("MaxThrust : %f"), MaxThrust);
+			UE_LOG(LogTemp, Warning, TEXT("ratio : %f"), ratio);
+			UE_LOG(LogTemp, Warning, TEXT("dot : %f"), dot);*/
+			TotalMaxTorque += TorqueAxis * FVector::CrossProduct(EngineOffset, WorldThurstAxis).Size() * MaxThrust * ratio;
 		}
+		/*UE_LOG(LogTemp, Warning, TEXT("TotalMaxTorque after: %s"), *TotalMaxTorque.ToString());*/
 	}
 
 	return TotalMaxTorque;
 
 
+}
+
+void AFlareShip::UpdateCOM() {
+    COM = Airframe->GetBodyInstance()->GetCOMPosition();
 }
 
 /*----------------------------------------------------
@@ -1041,8 +1092,7 @@ float* AFlareShip::ComputeAngularVelocityStabilisation(float DeltaSeconds, TArra
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
 		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
-		EngineOffset.Normalize(); // TODO hack
-
+		
 		FVector WorldThurstAxis = Engine->GetThurstAxis();
 		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThurstAxis); 
 		if (TorqueDirection.Size() < 0.001) {
@@ -1053,7 +1103,7 @@ float* AFlareShip::ComputeAngularVelocityStabilisation(float DeltaSeconds, TArra
 
 		float LocalTargetVelocity = FVector::DotProduct(TorqueDirection, WorldTargetSpeed);
 
-		float TotalMaxTorqueInAxis = FVector::DotProduct(TorqueDirection, GetTotalMaxTorqueInAxis(Engines, TorqueDirection, COM, 0));
+		float TotalMaxTorqueInAxis = FVector::DotProduct(TorqueDirection, GetTotalMaxTorqueInAxis(Engines, TorqueDirection, COM, 0, true));
 		if (FMath::IsNearlyZero(TotalMaxTorqueInAxis)) {
 			// Just wait better days
 			command[index++] = 0;
@@ -1071,7 +1121,6 @@ float* AFlareShip::ComputeAngularVelocityStabilisation(float DeltaSeconds, TArra
 		float AccelerationToTarget = DeltaVelocityToTarget / DeltaSeconds;
 		
 		FVector LocalAccelerationToTarget = Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(AccelerationToTarget * TorqueDirection);
-		FVector LocalInertiaTensor = FVector(30,4000,30);  //TODO externalize
 		FVector LocalTorqueToTarget = LocalAccelerationToTarget * LocalInertiaTensor;
 		
 		FVector TorqueToTarget = Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalTorqueToTarget);

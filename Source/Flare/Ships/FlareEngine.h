@@ -54,6 +54,11 @@ public:
 	 */
 	float GetMaxThrust() const;
 	
+	/** Get engine max thrust from specification
+	  initial max thrust don't change with damages
+	 */
+	float GetInitialMaxThrust() const;
+	
 protected:
 	/** Update the exhaust power from current thrust */
 	virtual void UpdateAlpha(float DeltaTime);

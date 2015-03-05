@@ -229,8 +229,9 @@ protected:
 	
 	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit) const;
 	
-	FVector GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThurstAngleLimit) const;
+	FVector GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThurstAngleLimit, bool WithDamages) const;
 
+	void UpdateCOM();
 	
 	/*----------------------------------------------------
 		Autopilot
@@ -359,6 +360,7 @@ protected:
 	FQuat                         AngularVelocity;
 	FQuat                         AngularVelocityDelta;
 	float                         AngularStopDistance;
+	FVector                       LocalInertiaTensor;
 
 	// Temporary variable reset each tich
 	FVector TickSumForce;
