@@ -12,10 +12,25 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	ExhaustAlpha = 0.0;
-	MaxThrust = 30000; // TODO init
+	MaxThrust = 0.0;
 	ThrustAxis = FVector(-1,0,0);
 }
 
+
+void UFlareEngine::Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+{
+	Super::Initialize(Description, Company, OwnerShip, IsInMenu);
+	for (int32 i = 0; i < Description->Characteristics.Num(); i++)
+	{
+		const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
+
+		// Calculate the engine linear thrust force in N (data value in kN)
+		if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
+		{
+			MaxThrust = 1000 * Characteristic.CharacteristicValue;
+		}
+	}
+}
 
 /*----------------------------------------------------
 	Gameplay

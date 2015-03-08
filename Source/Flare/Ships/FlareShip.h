@@ -227,9 +227,9 @@ protected:
 	/** Linear velocity in meters */
 	FVector GetLinearVelocity() const;
 	
-	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit) const;
+	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit, bool WithOrbitalEngines) const;
 	
-	FVector GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThurstAngleLimit, bool WithDamages) const;
+	FVector GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThurstAngleLimit, bool WithDamages, bool WithOrbitalEngines) const;
 
 	void UpdateCOM();
 	

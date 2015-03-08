@@ -20,6 +20,8 @@ public:
 	/** Apply the current thrust to a ship*/
 	virtual void TickModule(float deltaTime) override;
 
+	virtual void Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
+
 	float CurrentLinearThrust;
 	float CurrentAngularThrust;
 
@@ -59,6 +61,10 @@ public:
 	 */
 	float GetInitialMaxThrust() const;
 	
+	/** Return true if the engine is an Orbital engine.
+	 */
+	virtual bool IsOrbitalEngine() const { return false; };
+
 protected:
 	/** Update the exhaust power from current thrust */
 	virtual void UpdateAlpha(float DeltaTime);

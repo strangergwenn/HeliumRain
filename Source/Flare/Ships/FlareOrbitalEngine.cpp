@@ -12,7 +12,6 @@
 UFlareOrbitalEngine::UFlareOrbitalEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-    MaxThrust = 000000; // TODO remove
 }
 
 
@@ -41,4 +40,9 @@ void UFlareOrbitalEngine::UpdateEffects()
 	AverageAlpha = TemperatureAlpha;
 
 	SetTemperature(1500 * TemperatureAlpha);
+}
+
+bool UFlareOrbitalEngine::IsOrbitalEngine() const
+{
+    return true;
 }
