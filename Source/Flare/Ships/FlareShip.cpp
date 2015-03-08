@@ -854,6 +854,8 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("PhysicSubTick"));
 
+	if(!TickSumForce.IsNearlyZero()) {
+
 	FVector Acceleration = FVector(0);
 	Acceleration += TickSumForce / Airframe->GetMass();
 	/*UE_LOG(LogTemp, Warning, TEXT("0 - TickSumForce: %s"), *TickSumForce.ToString());
@@ -867,6 +869,7 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	//UE_LOG(LogTemp, Warning, TEXT("4 - GetPhysicsLinearVelocity: %s"), *Airframe->GetPhysicsLinearVelocity().ToString());
 
 	
+	}
 	// TODO find a better place to set
 	//float WorldInertiaTensor = 1000;
 
@@ -1054,11 +1057,6 @@ float* AFlareShip::ComputeLinearVelocityStabilisation(float DeltaSeconds, TArray
 		FLOGV("ComputeLinearVelocityStabilisation for engine %d WorldVelocityToEnginesStop=%f",i, WorldVelocityToEnginesStop);
 		FLOGV("ComputeLinearVelocityStabilisation for engine %d DeltaVelocityToStop=%f",i, DeltaVelocityToStop);*/
 		
-		if(FMath::Abs(DeltaVelocityToStop) < 0.0001) {
-		    command[i] = 0;
-		    continue;
-		}
-
 		float ThrustAjustement = DeltaVelocityToStop * Airframe->GetMass() / (1.5*DeltaSeconds);
 		float ThrustCommand = FMath::Clamp((ThrustAjustement / TotalMaxThrustInAxis), -1.0f, 1.0f);
 	
