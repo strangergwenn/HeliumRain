@@ -906,7 +906,7 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	  UE_LOG(LogTemp, Warning, TEXT(""));*/
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
 
-	FVector LocalInertiaTensor2;
+	/*FVector LocalInertiaTensor2;
 	FVector WorldXAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
 	FVector WorldYAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(0,1,0));
 	FVector WorldZAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(0,0,1));
@@ -915,7 +915,7 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	LocalInertiaTensor2.Y = GetTotalMaxTorqueInAxis(Engines, WorldYAxis, COM, 0, false).Size();
 	LocalInertiaTensor2.Z = GetTotalMaxTorqueInAxis(Engines, WorldZAxis, COM, 0, false).Size();
 	
-	/*UE_LOG(LogTemp, Warning, TEXT("2 - X: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldXAxis, COM, 0, false).ToString());
+	UE_LOG(LogTemp, Warning, TEXT("2 - X: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldXAxis, COM, 0, false).ToString());
 	UE_LOG(LogTemp, Warning, TEXT("2 - Y: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldYAxis, COM, 0, false).ToString());
 	UE_LOG(LogTemp, Warning, TEXT("2 - Z: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldZAxis, COM, 0, false).ToString());
 	UE_LOG(LogTemp, Warning, TEXT("2 - LocalInertiaTensor2: %s"), *LocalInertiaTensor2.ToString());*/
