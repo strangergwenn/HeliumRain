@@ -181,17 +181,19 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	if (PC && Target)
 	{
 		// Menu
+		const FFlareShipModuleDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("engine-octopus");
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
-		PC->GetMenuPawn()->UpdateBackgroundColor(0.85, 0.8);
-
-		// Station
+		PC->GetMenuPawn()->UpdateBackgroundColor(0.75, 0.8);
+		PC->GetMenuPawn()->ShowPart(PartDesc);
+		
+		// Station list
 		TArray<IFlareStationInterface*>& CompanyStations = Target->GetCompanyStations();
 		for (int32 i = 0; i < CompanyStations.Num(); i++)
 		{
 			ShipList->AddStation(CompanyStations[i]);
 		}
 
-		// Ship
+		// Ship list
 		TArray<IFlareShipInterface*>& CompanyShips = Target->GetCompanyShips();
 		for (int32 i = 0; i < CompanyShips.Num(); i++)
 		{

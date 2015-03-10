@@ -30,6 +30,9 @@ public:
 	/** Setup the widget with saved data */
 	void Setup(struct FFlarePlayerSave& PlayerData);
 
+	/** Chose a color for the paint base */
+	void OnBasePaintColorPicked(int32 Index);
+
 	/** Chose a color for the paint */
 	void OnPaintColorPicked(int32 Index);
 
@@ -51,11 +54,13 @@ protected:
 
 	TSharedPtr<SHorizontalBox> PickerList;
 
+	TSharedPtr<SFlareDropList> BasePaintColorPicker;
+
 	TSharedPtr<SFlareDropList> PaintColorPicker;
 
 	TSharedPtr<SFlareDropList> LightColorPicker;
 
-	TSharedPtr<SFlareDropList> EngineColorPicker;
+	TSharedPtr<SFlareDropList> BaseColorPicker;
 	
 	TSharedPtr<SFlareDropList> PatternPicker;
 		

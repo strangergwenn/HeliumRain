@@ -22,6 +22,10 @@ struct FFlareCompanySave
 	/** Save identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Identifier;
+
+	/** Engine exhaust color index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CustomizationBasePaintColorIndex;
 	
 	/** Paint color index in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -30,10 +34,6 @@ struct FFlareCompanySave
 	/** Lights color index in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CustomizationLightColorIndex;
-
-	/** Engine exhaust color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationEngineColorIndex;
 
 	/** Pattern index in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -81,14 +81,14 @@ public:
 		Customization
 	----------------------------------------------------*/
 
-	/** Set the color of ship lights */
-	inline void SetLightColorIndex(int32 Index);
+	/** Set the color of engine exhausts */
+	inline void SetBasePaintColorIndex(int32 Index);
 
 	/** Set the color of ship paint */
 	inline void SetPaintColorIndex(int32 Index);
 
-	/** Set the color of engine exhausts */
-	inline void SetEngineColorIndex(int32 Index);
+	/** Set the color of ship lights */
+	inline void SetLightColorIndex(int32 Index);
 
 	/** Set the pattern index for ship paint */
 	inline void SetPatternIndex(int32 Index);
@@ -144,9 +144,9 @@ public:
 		return CompanyData.ShortName;
 	}
 
-	inline int32 GetLightColorIndex() const
+	inline int32 GetBasePaintColorIndex() const
 	{
-		return CompanyData.CustomizationLightColorIndex;
+		return CompanyData.CustomizationBasePaintColorIndex;
 	}
 
 	inline int32 GetPaintColorIndex() const
@@ -154,9 +154,9 @@ public:
 		return CompanyData.CustomizationPaintColorIndex;
 	}
 
-	inline int32 GetEngineColorIndex() const
+	inline int32 GetLightColorIndex() const
 	{
-		return CompanyData.CustomizationEngineColorIndex;
+		return CompanyData.CustomizationLightColorIndex;
 	}
 
 	inline int32 GetPatternIndex() const

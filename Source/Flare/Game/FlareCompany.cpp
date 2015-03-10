@@ -56,9 +56,9 @@ void UFlareCompany::Unregister(IFlareStationInterface* Station)
 	Customization
 ----------------------------------------------------*/
 
-inline void UFlareCompany::SetLightColorIndex(int32 Index)
+inline void UFlareCompany::SetBasePaintColorIndex(int32 Index)
 {
-	CompanyData.CustomizationLightColorIndex = Index;
+	CompanyData.CustomizationBasePaintColorIndex = Index;
 	UpdateCompanyCustomization();
 }
 
@@ -68,9 +68,9 @@ inline void UFlareCompany::SetPaintColorIndex(int32 Index)
 	UpdateCompanyCustomization();
 }
 
-inline void UFlareCompany::SetEngineColorIndex(int32 Index)
+inline void UFlareCompany::SetLightColorIndex(int32 Index)
 {
-	CompanyData.CustomizationEngineColorIndex = Index;
+	CompanyData.CustomizationLightColorIndex = Index;
 	UpdateCompanyCustomization();
 }
 
@@ -106,11 +106,13 @@ void UFlareCompany::UpdateCompanyCustomization()
 void UFlareCompany::CustomizeModuleMaterial(UMaterialInstanceDynamic* Mat)
 {
 	// Get data from storage
+	FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(GetBasePaintColorIndex());
 	FLinearColor PaintColor = GetGame()->GetCustomizationCatalog()->GetColor(GetPaintColorIndex());
 	FLinearColor LightColor = GetGame()->GetCustomizationCatalog()->GetColor(GetLightColorIndex());
 	UTexture2D* Pattern = GetGame()->GetCustomizationCatalog()->GetPattern(GetPatternIndex());
 
 	// Apply settings to the material instance
+	Mat->SetVectorParameterValue("BasePaintColor", BasePaintColor);
 	Mat->SetVectorParameterValue("PaintColor", PaintColor);
 	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
 	Mat->SetTextureParameterValue("PaintPattern", Pattern);
@@ -118,8 +120,8 @@ void UFlareCompany::CustomizeModuleMaterial(UMaterialInstanceDynamic* Mat)
 
 void UFlareCompany::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)
 {
-	FLinearColor EngineColor = GetGame()->GetCustomizationCatalog()->GetColor(GetEngineColorIndex());
-	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(EngineColor));
+	FLinearColor BaseColor = GetGame()->GetCustomizationCatalog()->GetColor(0);
+	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(BaseColor));
 }
 
 FLinearColor UFlareCompany::NormalizeColor(FLinearColor Col) const
