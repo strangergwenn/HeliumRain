@@ -148,7 +148,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	if (PC && Target)
 	{
 		// Menu
-		const FFlareShipModuleDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("engine-octopus");
+		const FFlareShipModuleDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
 		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.8);
 		PC->GetMenuPawn()->ShowPart(PartDesc);
