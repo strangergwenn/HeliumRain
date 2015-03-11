@@ -25,6 +25,7 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 		// List header
 		+ SVerticalBox::Slot()
 		.AutoHeight()
+		.Padding(FMargin(5))
 		[
 			SAssignNew(HeaderButton, SFlareButton)
 			.ButtonStyle(InArgs._HeaderStyle)

@@ -33,11 +33,11 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		.Padding(FMargin(5, 0))
 		[
 			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 5)
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(5)
 			[
 				SNew(STextBlock)
 				.Text(LOCTEXT("PaintSchemePattern", "PATTERN"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
 			]
 			+ SVerticalBox::Slot().AutoHeight()
 			[
@@ -53,11 +53,11 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		.Padding(FMargin(5, 0))
 		[
 			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 5)
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(5)
 			[
 				SNew(STextBlock)
-				.Text(LOCTEXT("PaintSchemeBaseColor", "BASE"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+				.Text(LOCTEXT("PaintSchemeBaseColor", "COLOR 1"))
+				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
 			]
 			+ SVerticalBox::Slot().AutoHeight()
 			[
@@ -74,11 +74,11 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		.Padding(FMargin(5, 0))
 		[
 			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 5)
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(5)
 			[
 				SNew(STextBlock)
-				.Text(LOCTEXT("PaintSchemeOverlayColor", "MAIN"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+				.Text(LOCTEXT("PaintSchemeOverlayColor", "COLOR 2"))
+				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
 			]
 			+ SVerticalBox::Slot().AutoHeight()
 			[
@@ -95,11 +95,11 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		.Padding(FMargin(5, 0))
 		[
 			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 5)
+			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(5)
 			[
 				SNew(STextBlock)
-				.Text(LOCTEXT("PaintSchemeEngine", "OVERLAY"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+				.Text(LOCTEXT("PaintSchemeEngine", "COLOR 3"))
+				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
 			]
 			+ SVerticalBox::Slot().AutoHeight()
 			[

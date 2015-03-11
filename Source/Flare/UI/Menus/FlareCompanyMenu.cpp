@@ -70,6 +70,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					// Title
 					+ SVerticalBox::Slot()
 					.Padding(FMargin(10))
+					.AutoHeight()
 					[
 						SNew(STextBlock)
 						.Text(LOCTEXT("Overview", "OVERVIEW"))
@@ -104,6 +105,14 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 						]
 					]
 
+					// Color picker
+					+ SVerticalBox::Slot()
+					.Padding(FMargin(10))
+					.AutoHeight()
+					[
+						SAssignNew(ColorBox, SFlareColorPanel).OwnerHUD(OwnerHUD)
+					]
+
 					// Object list
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -112,37 +121,6 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 						.OwnerHUD(OwnerHUD)
 						.Title(LOCTEXT("Property", "PROPERTY"))
 					]
-				]
-			]
-		]
-
-		// Color picker
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Top)
-		.AutoWidth()
-		[
-			SNew(SBorder)
-			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
-			[
-				SNew(SVerticalBox)
-
-				// Color title
-				+ SVerticalBox::Slot()
-				.Padding(FMargin(10))
-				.AutoHeight()
-				[
-					SAssignNew(ColorBoxTitle, STextBlock)
-					.Text(LOCTEXT("ShipPartsColor", "PAINT SCHEME"))
-					.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-				]
-
-				// Picker
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(FMargin(10))
-				[
-					SAssignNew(ColorBox, SFlareColorPanel).OwnerHUD(OwnerHUD)
 				]
 			]
 		]

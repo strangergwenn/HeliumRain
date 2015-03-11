@@ -65,7 +65,6 @@ protected:
 	UFlareCompany*                     Company;
 
 	// Menu data
-	TSharedPtr<STextBlock>             ColorBoxTitle;
 	TSharedPtr<SFlareColorPanel>       ColorBox;
 	TSharedPtr<SFlareShipList>         ShipList;
 	TSharedPtr<SFlareCompanyFlag>      CompanyFlag;
