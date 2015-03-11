@@ -65,9 +65,9 @@ protected:
 	UFlareCompany*                     Company;
 
 	// Menu data
+	TSharedPtr<SFlareTargetActions>    ActionMenu;
 	TSharedPtr<SFlareColorPanel>       ColorBox;
 	TSharedPtr<SFlareShipList>         ShipList;
-	TSharedPtr<SFlareCompanyFlag>      CompanyFlag;
 
 
 };

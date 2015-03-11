@@ -88,8 +88,8 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 
 							// Company name
 							+ SHorizontalBox::Slot()
-								.AutoWidth()
-								.Padding(FMargin(8))
+							.AutoWidth()
+							.Padding(FMargin(8))
 							[
 								SNew(STextBlock)
 								.Text(this, &SFlareTargetActions::GetCompanyName)
@@ -109,7 +109,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 							.Padding(FMargin(8))
 							[
 								SNew(STextBlock)
-								.Text(this, &SFlareTargetActions::GetClassName)
+								.Text(this, &SFlareTargetActions::GetDescription)
 								.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
 							]
 						]
@@ -123,6 +123,22 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 						SNew(SImage).Image(this, &SFlareTargetActions::GetIcon)
 					]
 				]
+			]
+		]
+
+		// Company menu container
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SAssignNew(CompanyContainer, SHorizontalBox)
+
+			// Inspect a company
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("CompanyInspect", "INSPECT"))
+				.OnClicked(this, &SFlareTargetActions::OnInspect)
 			]
 		]
 		
@@ -194,8 +210,30 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
+void SFlareTargetActions::SetCompany(UFlareCompany* Target)
+{
+	TargetCompany = Target;
+	TargetStationDesc = NULL;
+	TargetStation = NULL;
+	TargetShipDesc = NULL;
+	TargetShip = NULL;
+
+	// Get the save data info to retrieve the class data
+	if (Target && PC)
+	{
+		// Data
+		CompanyFlag->SetCompany(Target);
+		TargetName = Target->GetName();
+		FFlareCompanySave* SaveData = Target->Save();
+		if (SaveData)
+		{
+		}
+	}
+}
+
 void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
 {
+	TargetCompany = NULL;
 	TargetStation = Target;
 	TargetShipDesc = NULL;
 	TargetShip = NULL;
@@ -204,7 +242,8 @@ void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
 	if (Target && PC)
 	{
 		// Data
-		Company = Target->GetCompany();
+		TargetCompany = Target->GetCompany();
+		CompanyFlag->SetCompany(TargetCompany);
 		TargetName = Target->_getUObject()->GetName();
 		FFlareStationSave* SaveData = Target->Save();
 		if (SaveData)
@@ -233,6 +272,7 @@ void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
 
 void SFlareTargetActions::SetShip(IFlareShipInterface* Target)
 {
+	TargetCompany = NULL;
 	TargetShip = Target;
 	TargetStation = NULL;
 	TargetStationDesc = NULL;
@@ -240,7 +280,8 @@ void SFlareTargetActions::SetShip(IFlareShipInterface* Target)
 	// Get the save data info to retrieve the class data
 	if (Target && PC)
 	{
-		Company = Target->GetCompany();
+		TargetCompany = Target->GetCompany();
+		CompanyFlag->SetCompany(TargetCompany);
 		TargetName = Target->_getUObject()->GetName();
 		FFlareShipSave* SaveData = Target->Save();
 		if (SaveData)
@@ -258,10 +299,10 @@ void SFlareTargetActions::SetMinimized(bool NewState)
 void SFlareTargetActions::Show()
 {
 	SetVisibility(EVisibility::Visible);
-	CompanyFlag->SetCompany(Company);
 
 	if (MinimizedMode)
 	{
+		CompanyContainer->SetVisibility(EVisibility::Collapsed);
 		StationContainer->SetVisibility(EVisibility::Collapsed);
 		ShipContainer->SetVisibility(EVisibility::Collapsed);
 	}
@@ -269,20 +310,28 @@ void SFlareTargetActions::Show()
 	{
 		if (TargetStation)
 		{
+			CompanyContainer->SetVisibility(EVisibility::Collapsed);
 			StationContainer->SetVisibility(EVisibility::Visible);
 			ShipContainer->SetVisibility(EVisibility::Collapsed);
 		}
 		else if (TargetShip)
 		{
+			CompanyContainer->SetVisibility(EVisibility::Collapsed);
 			StationContainer->SetVisibility(EVisibility::Collapsed);
 			ShipContainer->SetVisibility(EVisibility::Visible);
+		}
+		else if (TargetCompany)
+		{
+			CompanyContainer->SetVisibility(EVisibility::Visible);
+			StationContainer->SetVisibility(EVisibility::Collapsed);
+			ShipContainer->SetVisibility(EVisibility::Collapsed);
 		}
 	}
 }
 
 void SFlareTargetActions::Hide()
 {
-	Company = NULL;
+	TargetCompany = NULL;
 	TargetShip = NULL;
 	TargetStation = NULL;
 	TargetShipDesc = NULL;
@@ -305,6 +354,10 @@ void SFlareTargetActions::OnInspect()
 		else if (TargetShip)
 		{
 			Cast<AFlareHUD>(PC->GetHUD())->OpenMenu(EFlareMenu::MENU_Ship, TargetShip);
+		}
+		else if (TargetCompany)
+		{
+			Cast<AFlareHUD>(PC->GetHUD())->OpenMenu(EFlareMenu::MENU_Company, TargetCompany);
 		}
 	}
 }
@@ -346,17 +399,27 @@ FString SFlareTargetActions::GetName() const
 	return TargetName;
 }
 
-FString SFlareTargetActions::GetClassName() const
+FString SFlareTargetActions::GetDescription() const
 {
+	// Common text
+	FText ClassText = LOCTEXT("Class", "CLASS");
+	FText DefaultText = LOCTEXT("Default", "UNKNOWN OBJECT");
+
+	// Description builder
 	if (TargetStationDesc)
 	{
-		return TargetStationDesc->Name.ToString() + " CLASS";
+		return TargetStationDesc->Name.ToString() + " " + ClassText.ToString();
 	}
 	else if (TargetShipDesc)
 	{
-		return TargetShipDesc->Name.ToString() + " CLASS";
+		return TargetShipDesc->Name.ToString() + " " + ClassText.ToString();
 	}
-	return "<undefined>";
+	else if (TargetCompany)
+	{
+		FText CompanyText = LOCTEXT("Company", "COMPANY");
+		return CompanyText.ToString();
+	}
+	return DefaultText.ToString();
 }
 
 const FSlateBrush* SFlareTargetActions::GetIcon() const
@@ -368,6 +431,10 @@ const FSlateBrush* SFlareTargetActions::GetIcon() const
 	else if (TargetShipDesc)
 	{
 		return &TargetShipDesc->MeshPreviewBrush;
+	}
+	else if (TargetCompany)
+	{
+		return NULL;
 	}
 	return NULL;
 }
@@ -382,18 +449,35 @@ const FSlateBrush* SFlareTargetActions::GetClassIcon() const
 	{
 		return IFlareShipInterface::GetIcon(TargetShipDesc);
 	}
+	else if (TargetCompany)
+	{
+		return FFlareStyleSet::GetIcon("CompanySmall");
+	}
 	return NULL;
 }
 
 FString SFlareTargetActions::GetCompanyName() const
 {
-	if (Company)
+	if (TargetCompany)
 	{
-		return Company->GetCompanyName();
+		// Static text
+		FText ShipText = LOCTEXT("Ship", "ship");
+		FText ShipsText = LOCTEXT("Ships", "ships");
+		FText StationText = LOCTEXT("Station", "station");
+		FText StationsText = LOCTEXT("Stations", "stations");
+		FText MoneyText = LOCTEXT("Money", "credits");
+
+		// Dynamic data
+		int32 ShipCount = TargetCompany->GetCompanyShips().Num();
+		int32 StationCount = TargetCompany->GetCompanyStations().Num();
+		FString ShipDescriptionString = FString::FromInt(ShipCount) + " " + (ShipCount > 1 ? ShipsText : ShipText).ToString();
+		FString StationDescriptionString = FString::FromInt(StationCount) + " " + (StationCount > 1 ? StationsText : StationText).ToString();
+		return (TargetCompany->GetCompanyName() + " (" + StationDescriptionString + ", " + ShipDescriptionString + ")");
 	}
 	else
 	{
-		return FString("<undefined>");
+		FText AbandonedText = LOCTEXT("Abandoned", "ABANDONED OBJECT");
+		return AbandonedText.ToString();
 	}
 }
 

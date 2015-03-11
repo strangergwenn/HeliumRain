@@ -32,83 +32,43 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot().AutoWidth()
 		.Padding(FMargin(5, 0))
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(5)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("PaintSchemePattern", "PATTERN"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SAssignNew(PatternPicker, SFlareDropList)
-				.OnItemPicked(this, &SFlareColorPanel::OnPatternPicked)
-				.ItemStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
-				.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
-			]
+			SAssignNew(PatternPicker, SFlareDropList)
+			.OnItemPicked(this, &SFlareColorPanel::OnPatternPicked)
+			.ItemStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
+			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
 		]
 		
 		// Base paint picker
 		+ SHorizontalBox::Slot().AutoWidth()
 		.Padding(FMargin(5, 0))
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(5)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("PaintSchemeBaseColor", "COLOR 1"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SAssignNew(BasePaintColorPicker, SFlareDropList)
-				.OnItemPicked(this, &SFlareColorPanel::OnBasePaintColorPicked)
-				.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
-				.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
-				.LineSize(3)
-			]
+			SAssignNew(BasePaintColorPicker, SFlareDropList)
+			.OnItemPicked(this, &SFlareColorPanel::OnBasePaintColorPicked)
+			.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
+			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
+			.LineSize(3)
 		]
 		
 		// Paint picker
 		+ SHorizontalBox::Slot().AutoWidth()
 		.Padding(FMargin(5, 0))
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(5)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("PaintSchemeOverlayColor", "COLOR 2"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SAssignNew(PaintColorPicker, SFlareDropList)
-				.OnItemPicked(this, &SFlareColorPanel::OnPaintColorPicked)
-				.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
-				.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
-				.LineSize(3)
-			]
+			SAssignNew(PaintColorPicker, SFlareDropList)
+			.OnItemPicked(this, &SFlareColorPanel::OnPaintColorPicked)
+			.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
+			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
+			.LineSize(3)
 		]
 		
 		// Light picker
 		+ SHorizontalBox::Slot().AutoWidth()
 		.Padding(FMargin(5, 0))
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(5)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("PaintSchemeEngine", "COLOR 3"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
-			]
-			+ SVerticalBox::Slot().AutoHeight()
-			[
-				SAssignNew(OverlayColorPicker, SFlareDropList)
-				.OnItemPicked(this, &SFlareColorPanel::OnOverlayColorPicked)
-				.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
-				.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
-				.LineSize(3)
-			]
+			SAssignNew(OverlayColorPicker, SFlareDropList)
+			.OnItemPicked(this, &SFlareColorPanel::OnOverlayColorPicked)
+			.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
+			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
+			.LineSize(3)
 		]
 	];
 

@@ -35,6 +35,9 @@ public:
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
 
+	/** Set a company as content */
+	void SetCompany(UFlareCompany* Target);
+
 	/** Set a station as content */
 	void SetStation(IFlareStationInterface* Target);
 
@@ -76,7 +79,7 @@ public:
 	FString GetName() const;
 
 	/** Get the target class name */
-	FString GetClassName() const;
+	FString GetDescription() const;
 
 	/** Get the target icon */
 	const FSlateBrush* GetIcon() const;
@@ -99,14 +102,15 @@ protected:
 	bool                              MinimizedMode;
 
 	// Target data
+	UFlareCompany*                    TargetCompany;
 	IFlareStationInterface*           TargetStation;
 	FFlareStationDescription*         TargetStationDesc;
 	IFlareShipInterface*              TargetShip;
 	FFlareShipDescription*            TargetShipDesc;
 	FString                           TargetName;
-	UFlareCompany*                    Company;
 
 	// Slate data
+	TSharedPtr<SHorizontalBox>        CompanyContainer;
 	TSharedPtr<SHorizontalBox>        StationContainer;
 	TSharedPtr<SHorizontalBox>        ShipContainer;
 	TSharedPtr<SFlareButton>          DockButton;

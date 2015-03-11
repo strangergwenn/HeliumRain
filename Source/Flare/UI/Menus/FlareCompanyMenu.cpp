@@ -79,30 +79,12 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 
 					// Company info
 					+ SVerticalBox::Slot()
+					.Padding(FMargin(10))
 					.AutoHeight()
 					[
-						SNew(SHorizontalBox)
-
-						// Company flag
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(FMargin(10))
-						.VAlign(VAlign_Center)
-						[
-							SAssignNew(CompanyFlag, SFlareCompanyFlag)
-							.Player(Cast<AFlarePlayerController>(OwnerHUD->GetOwner()))
-						]
-
-						// Name
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(FMargin(10))
-						.VAlign(VAlign_Center)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareCompanyMenu::GetCompanyName)
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
-						]
+						SAssignNew(ActionMenu, SFlareTargetActions)
+						.Player(PC)
+						.MinimizedMode(true)
 					]
 
 					// Color picker
@@ -158,7 +140,8 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 	// Company data
 	Company = Target;
-	CompanyFlag->SetCompany(Target);
+	ActionMenu->SetCompany(Target);
+	ActionMenu->Show();
 	SetVisibility(EVisibility::Visible);
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());

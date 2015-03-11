@@ -23,7 +23,13 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Identifier;
 
-	/** Engine exhaust color index in the customization catalog */
+
+	/** Money money money / Always funny / In a rich men's world */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 Money;
+
+
+	/** Base color index in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CustomizationBasePaintColorIndex;
 	
