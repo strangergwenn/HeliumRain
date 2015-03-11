@@ -5,3 +5,8 @@ Flare.sln
 Saved/
 DerivedDataCache/
 *.exp
+*.tmp
+*.blend1
+*.blend2
+*.blend3
+*.fbx
