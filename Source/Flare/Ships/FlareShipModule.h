@@ -38,6 +38,7 @@ namespace EFlarePartType
 		OrbitalEngine,
 		RCS,
 		Weapon,
+		Meta,
 		Num
 	};
 }

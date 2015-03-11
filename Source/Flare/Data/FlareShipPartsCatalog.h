@@ -27,6 +27,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<UFlareShipPartsCatalogEntry*> WeaponCatalog;
 
+	/** Meta objects */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<UFlareShipPartsCatalogEntry*> MetaCatalog;
+
 
 public:
 
