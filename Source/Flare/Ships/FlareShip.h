@@ -60,7 +60,8 @@ struct FFlareShipCommandData
 
 	bool PreciseApproach;
 	FVector LocationTarget;
-	FQuat RotationTarget;
+	FVector RotationTarget;
+	FVector LocalShipAxis;
 
 	UPROPERTY()
 	AActor* ActionTarget;
@@ -163,7 +164,7 @@ public:
 	void PushCommandLocation(const FVector& Location);
 
 	/** Turn this way */
-	void PushCommandRotation(const FQuat& Rotation);
+	void PushCommandRotation(const FVector& RotationTarget, const FVector& LocalShipAxis);
 
 	/** Dock to this */
 	void PushCommandDock(const FFlareDockingInfo& DockingInfo);
@@ -331,7 +332,6 @@ protected:
 	float                         LinearDeadDistance;
 	float                         LinearMaxVelocity; // m/s
 	float                         LinearThrust;
-	float                         LinearOrbitalThrust;
 	float                         NegligibleSpeedRatio;
 
 	// Dynamic gameplay data
@@ -345,7 +345,7 @@ protected:
 	TQueue <FFlareShipCommandData> CommandData;
 
 	// Manual pilot
-	FVector                       ManualAngularVelocity;
+	FVector                       ManualAngularVelocity; // In local space
 	FVector                       ManualLinearVelocity;
 	bool                          ManualOrbitalBoost;
 
@@ -357,9 +357,9 @@ protected:
 
 	// Physics simulation
 	FVector                       AngularTargetVelocity;
-	FQuat                         AngularVelocity;
+	//FQuat                         AngularVelocity;
 	FQuat                         AngularVelocityDelta;
-	float                         AngularStopDistance;
+	//float                         AngularStopDistance;
 	FVector                       LocalInertiaTensor;
 
 	// Temporary variable reset each tich

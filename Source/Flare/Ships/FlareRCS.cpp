@@ -41,6 +41,7 @@ bool UFlareRCS::CanMoveHorizontal()
 	}
 	return false;
 }
+
 /*
 void UFlareRCS::UpdateAlpha(float DeltaTime)
 {
