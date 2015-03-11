@@ -69,6 +69,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 
 					// Title
 					+ SVerticalBox::Slot()
+					.Padding(FMargin(10))
 					[
 						SNew(STextBlock)
 						.Text(LOCTEXT("Overview", "OVERVIEW"))
@@ -121,23 +122,28 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		.AutoWidth()
 		[
-			SNew(SVerticalBox)
-
-			// Color title
-			+ SVerticalBox::Slot()
-			.Padding(FMargin(0, 20))
-			.AutoHeight()
+			SNew(SBorder)
+			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
 			[
-				SAssignNew(ColorBoxTitle, STextBlock)
-				.Text(LOCTEXT("ShipPartsColor", "PAINT SCHEME"))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-			]
+				SNew(SVerticalBox)
 
-			// Picker
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SAssignNew(ColorBox, SFlareColorPanel).OwnerHUD(OwnerHUD)
+				// Color title
+				+ SVerticalBox::Slot()
+				.Padding(FMargin(10))
+				.AutoHeight()
+				[
+					SAssignNew(ColorBoxTitle, STextBlock)
+					.Text(LOCTEXT("ShipPartsColor", "PAINT SCHEME"))
+					.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+				]
+
+				// Picker
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(10))
+				[
+					SAssignNew(ColorBox, SFlareColorPanel).OwnerHUD(OwnerHUD)
+				]
 			]
 		]
 
@@ -183,7 +189,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		// Menu
 		const FFlareShipModuleDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("engine-octopus");
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
-		PC->GetMenuPawn()->UpdateBackgroundColor(0.75, 0.8);
+		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.8);
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 		
 		// Station list

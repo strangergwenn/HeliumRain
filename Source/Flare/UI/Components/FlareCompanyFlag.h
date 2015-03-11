@@ -38,14 +38,14 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 
-	/** Get the color pattern */
-	const FSlateBrush* GetPattern() const;
+	/** Get the base color */
+	FLinearColor GetBasePaintColor() const;
 
 	/** Get the paint color */
 	FLinearColor GetPaintColor() const;
 
 	/** Get the light color */
-	FLinearColor GetLightColor() const;
+	FLinearColor GetOverlayColor() const;
 
 
 protected:

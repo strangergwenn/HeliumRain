@@ -167,7 +167,7 @@ void AFlareHUD::DrawHUD()
 			FRotator ShipAttitude = Ship->GetActorRotation();
 
 			// Update helper
-			HUDHelpersMaterial->SetVectorParameterValue(FName("Color"), PC->GetLightColor());
+			HUDHelpersMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Pitch"), -FMath::DegreesToRadians(ShipAttitude.Pitch));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Yaw"), FMath::DegreesToRadians(ShipAttitude.Yaw));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
@@ -177,7 +177,7 @@ void AFlareHUD::DrawHUD()
 			if (HUDTextRenderTarget)
 			{
 				HUDTextRenderTarget->UpdateResource();
-				HUDTextMaterial->SetVectorParameterValue(FName("Color"), PC->GetLightColor());
+				HUDTextMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
 				DrawMaterialSimple(HUDTextMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
 			}
 		}

@@ -155,9 +155,9 @@ public:
 		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	}
 
-	inline FLinearColor GetLightColor() const
+	inline FLinearColor GetOverlayColor() const
 	{
-		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetLightColorIndex());
+		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetOverlayColorIndex());
 	}
 
 	inline FLinearColor GetColor() const

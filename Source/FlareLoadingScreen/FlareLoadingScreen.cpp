@@ -46,7 +46,7 @@ public:
 	void Construct(const FArguments& InArgs)
 	{
 		// Get brush data
-		static const FName LoadingScreenName(TEXT("/Game/Gameplay/Camo/TX_Dark.TX_Dark"));
+		static const FName LoadingScreenName(TEXT("/Engine/EngineResources/Black.Black"));
 		static const FName ThrobberImageName(TEXT("/Game/Slate/Icons/TX_Icon_Universe.TX_Icon_Universe"));
 
 		// Create textures

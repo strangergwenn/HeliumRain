@@ -27,7 +27,7 @@ void SFlareCompanyFlag::Construct(const FArguments& InArgs)
 			// Pattern
 			+ SVerticalBox::Slot()
 			[
-				SNew(SImage).Image(this, &SFlareCompanyFlag::GetPattern)
+				SNew(SColorBlock).Color(this, &SFlareCompanyFlag::GetBasePaintColor)
 			]
 
 			// Middle line
@@ -36,7 +36,7 @@ void SFlareCompanyFlag::Construct(const FArguments& InArgs)
 			[
 				SNew(SBox)
 				.WidthOverride(32)
-				.HeightOverride(3)
+				.HeightOverride(5)
 				[
 					SNew(SColorBlock).Color(this, &SFlareCompanyFlag::GetPaintColor)
 				]
@@ -48,9 +48,9 @@ void SFlareCompanyFlag::Construct(const FArguments& InArgs)
 			[
 				SNew(SBox)
 				.WidthOverride(32)
-				.HeightOverride(3)
+				.HeightOverride(5)
 				[
-					SNew(SColorBlock).Color(this, &SFlareCompanyFlag::GetLightColor)
+					SNew(SColorBlock).Color(this, &SFlareCompanyFlag::GetOverlayColor)
 				]
 			]
 		]
@@ -72,13 +72,13 @@ void SFlareCompanyFlag::SetCompany(UFlareCompany* NewCompany)
 	Callbacks
 ----------------------------------------------------*/
 
-const FSlateBrush* SFlareCompanyFlag::GetPattern() const
+FLinearColor SFlareCompanyFlag::GetBasePaintColor() const
 {
 	if (PC && Company)
 	{
-		return PC->GetGame()->GetCustomizationCatalog()->GetPatternBrush(Company->GetPatternIndex());
+		return PC->GetGame()->GetCustomizationCatalog()->GetColor(Company->GetBasePaintColorIndex());
 	}
-	return NULL;
+	return FLinearColor::Black;
 }
 
 FLinearColor SFlareCompanyFlag::GetPaintColor() const
@@ -90,11 +90,11 @@ FLinearColor SFlareCompanyFlag::GetPaintColor() const
 	return FLinearColor::Black;
 }
 
-FLinearColor SFlareCompanyFlag::GetLightColor() const
+FLinearColor SFlareCompanyFlag::GetOverlayColor() const
 {
 	if (PC && Company)
 	{
-		return PC->GetGame()->GetCustomizationCatalog()->GetColor(Company->GetLightColorIndex());
+		return PC->GetGame()->GetCustomizationCatalog()->GetColor(Company->GetOverlayColorIndex());
 	}
 	return FLinearColor::Black;
 }
