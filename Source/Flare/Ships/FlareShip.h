@@ -230,7 +230,7 @@ protected:
 	
 	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit, bool WithOrbitalEngines) const;
 	
-	FVector GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThurstAngleLimit, bool WithDamages, bool WithOrbitalEngines) const;
+	float GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThurstAngleLimit, bool WithDamages, bool WithOrbitalEngines) const;
 
 	void UpdateCOM();
 	
