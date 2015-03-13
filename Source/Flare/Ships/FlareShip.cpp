@@ -22,8 +22,8 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, AngularDeadAngle(0.5)
 	, AngularInputDeadRatio(0.025)
-	, LinearDeadDistance(10)
-	, NegligibleSpeedRatio(0.05)
+	, LinearDeadDistance(0.1)
+	, NegligibleSpeedRatio(0.0005)
 	, Status(EFlareShipStatus::SS_Manual)
 	, FakeThrust(false)
 {	
@@ -607,7 +607,7 @@ void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 {
   
 	// RCS impulse
-	LinearTargetVelocity = ManualLinearVelocity;
+	LinearTargetVelocity = Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);;
 
 	//FLOGV("UpdateLinearAttitudeManual LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
 	// Orbital impulse
@@ -624,35 +624,78 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 	// Location data
 	FFlareShipCommandData Data;
 	CommandData.Peek(Data);
-	FVector LocalCommand = WorldToLocal(Data.LocationTarget - GetActorLocation());
 
-	// Check legit movements
-	if (!CanMoveVertical)
+	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+  
+	FVector DeltaPosition = (Data.LocationTarget - GetActorLocation()) /100; // Work in meters
+	FVector DeltaPositionDirection = DeltaPosition;
+	DeltaPositionDirection.Normalize();
+	float Distance = FMath::Max(0 ,DeltaPosition.Size() - LinearDeadDistance);
+
+	FVector DeltaVelocity = -GetLinearVelocity();
+	FVector DeltaVelocityAxis = DeltaVelocity;
+	DeltaVelocityAxis.Normalize();
+
+	float TimeToFinalVelocity;
+	
+	if (FMath::IsNearlyZero(DeltaVelocity.SizeSquared()))
 	{
-		LocalCommand.Z = 0;
+		TimeToFinalVelocity = 0;
 	}
-	float RemainingTravelDistance = LocalCommand.Size();
+	else {
 		
-	// Under this angle we consider the variation negligible, and ensure null delta + null speed
-	if (RemainingTravelDistance < LinearDeadDistance && LinearVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
+		FVector Acceleration = GetTotalMaxThrustInAxis(Engines, DeltaVelocityAxis, 0, false) / Airframe->GetMass();
+		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, DeltaPositionDirection));
+		
+		TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
+	
+		UE_LOG(LogTemp, Warning, TEXT("===="));
+	
+		UE_LOG(LogTemp, Warning, TEXT("3 - Acceleration: %s"), *Acceleration.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("3 - AccelerationInAngleAxis: %f"), AccelerationInAngleAxis);	
+	}
+
+	float DistanceToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + DeltaSeconds);
+
+	UE_LOG(LogTemp, Warning, TEXT("===="));
+	UE_LOG(LogTemp, Warning, TEXT("3 - Data.LocationTarget: %s"), *Data.LocationTarget.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("3 - GetActorLocation(): %s"), *GetActorLocation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("3 - DeltaPosition: %s"), *DeltaPosition.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("3 - DeltaPositionDirection: %s"), *DeltaPositionDirection.ToString());
+	
+	UE_LOG(LogTemp, Warning, TEXT("3 - DeltaVelocity: %s"), *DeltaVelocity.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("3 - Distance: %f"), Distance);
+	UE_LOG(LogTemp, Warning, TEXT("3 - TimeToFinalVelocity: %f"), TimeToFinalVelocity);
+	UE_LOG(LogTemp, Warning, TEXT("3 - DeltaSeconds: %f"), DeltaSeconds);
+	UE_LOG(LogTemp, Warning, TEXT("3 - DistanceToStop: %f"), DistanceToStop);
+
+	FVector RelativeResultSpeed;
+
+	if (DistanceToStop > Distance) {
+		RelativeResultSpeed = FVector::ZeroVector;
+	}
+	else {
+
+		float MaxPreciseSpeed = FMath::Min((Distance - DistanceToStop) / DeltaSeconds, LinearMaxVelocity);
+
+		RelativeResultSpeed = DeltaPositionDirection;
+		RelativeResultSpeed *= MaxPreciseSpeed;
+		UE_LOG(LogTemp, Warning, TEXT("3 - MaxPreciseSpeed: %f"), MaxPreciseSpeed);
+	}
+
+	
+	// Under this distance we consider the variation negligible, and ensure null delta + null speed
+	if (Distance < LinearDeadDistance && DeltaVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
 	{
-		Airframe->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
-		SetActorLocation(Data.LocationTarget, true);
-		LinearTargetVelocity = FVector::ZeroVector;
+		Airframe->SetPhysicsLinearVelocity(FVector::ZeroVector, false); // TODO remove
 		ClearCurrentCommand();
-	}
+		RelativeResultSpeed = FVector::ZeroVector;	
 
-	// Brake if "close" to target and not going away from it
-	else if (RemainingTravelDistance <= LinearStopDistance)
-	{
-		LinearTargetVelocity = FVector::ZeroVector;
 	}
-
-	// The rest of the time we try to follow the command
-	else
-	{
-		LinearTargetVelocity = LocalCommand;
-	}
+	LinearTargetVelocity = RelativeResultSpeed;
+	UE_LOG(LogTemp, Warning, TEXT("3 - RelativeResultSpeed: %s"), *RelativeResultSpeed.ToString());
+	
+	
 }
 
 void AFlareShip::UpdateLinearBraking(float DeltaSeconds)
@@ -755,18 +798,18 @@ void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 		
 		TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
 		
-		UE_LOG(LogTemp, Warning, TEXT("===="));
+	/*	UE_LOG(LogTemp, Warning, TEXT("===="));
 	UE_LOG(LogTemp, Warning, TEXT("3 - SimpleAcceleration: %s"), *SimpleAcceleration.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("3 - DamageRatio: %f"), DamageRatio);
 	UE_LOG(LogTemp, Warning, TEXT("3 - Acceleration: %s"), *Acceleration.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("3 - AccelerationInAngleAxis: %f"), AccelerationInAngleAxis);
-	
+	*/
 			
 	}
 
 	float AngleToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + DeltaSeconds);
 
-	UE_LOG(LogTemp, Warning, TEXT("===="));
+	/*UE_LOG(LogTemp, Warning, TEXT("===="));
 	UE_LOG(LogTemp, Warning, TEXT("3 - TargetAxis: %s"), *TargetAxis.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("3 - RotationDirection: %s"), *RotationDirection.ToString());
 	
@@ -779,7 +822,7 @@ void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 	UE_LOG(LogTemp, Warning, TEXT("3 - TimeToFinalVelocity: %f"), TimeToFinalVelocity);
 	UE_LOG(LogTemp, Warning, TEXT("3 - DeltaSeconds: %f"), DeltaSeconds);
 	UE_LOG(LogTemp, Warning, TEXT("3 - AngleToStop: %f"), AngleToStop);
-
+*/
 	FVector RelativeResultSpeed;
 
 	if (AngleToStop > angle) {
@@ -963,7 +1006,7 @@ void AFlareShip::LowLevelAutoPilotSubTick(float DeltaSeconds)
 
 	TArray<float*> EngineCommands;
 
-	FVector LinearTarget = Airframe->GetComponentToWorld().GetRotation().RotateVector(LinearTargetVelocity);
+	FVector LinearTarget = LinearTargetVelocity;
 	FVector AngularTarget = AngularTargetVelocity;
 	
 	EngineCommands.Add(ComputeLinearVelocityStabilisation(DeltaSeconds, Engines, LinearTarget, 0.0));
@@ -987,10 +1030,14 @@ void AFlareShip::LowLevelAutoPilotSubTick(float DeltaSeconds)
 	}
 }
 
-void AFlareShip::PhysicSubTick(float DeltaTime)
+void AFlareShip::PhysicSubTick(float DeltaSeconds)
 {
+  
+    TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+	
+  
 	//UE_LOG(LogTemp, Warning, TEXT("PhysicSubTick"));
-
+/*
 	if(!TickSumForce.IsNearlyZero()) {
 
 	FVector Acceleration = FVector(0);
@@ -1008,11 +1055,78 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 
 	
 	}
+	*/
+	
+	
+	FVector DeltaV = LinearTargetVelocity - GetLinearVelocity();
+	
+	if(!DeltaV.IsNearlyZero()) { 
+	  FVector DeltaVAxis = DeltaV;
+	  DeltaVAxis.Normalize();
+	  FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, DeltaVAxis, 0, false).Size() / Airframe->GetMass();
+	  FVector ClampedAcceleration = Acceleration.ClampMaxSize(DeltaV.Size() / DeltaSeconds);
+	  
+	  // TODO Clamp
+	  UE_LOG(LogTemp, Warning, TEXT("====================="));
+	  UE_LOG(LogTemp, Warning, TEXT("1 - LinearTargetVelocity: %s"), *LinearTargetVelocity.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - GetLinearVelocity: %s"), *GetLinearVelocity().ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - DeltaV: %s"), *DeltaV.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - DeltaVAxis: %s"), *DeltaVAxis.ToString());
+	  
+	  UE_LOG(LogTemp, Warning, TEXT("1 - Acceleration: %s"), *Acceleration.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - ClampedAcceleration: %s"), *ClampedAcceleration.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("2 - DeltaSeconds: %f"), DeltaSeconds);
+	  UE_LOG(LogTemp, Warning, TEXT("4 - GetPhysicsLinearVelocity: %s"), *Airframe->GetPhysicsLinearVelocity().ToString());
+	  /*UE_LOG(LogTemp, Warning, TEXT("0 - TickSumTorque: %s"), *TickSumTorque.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("0 - LocalInertiaTensor: %s"), *LocalInertiaTensor.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - LocalTickSumTorque: %s"), *LocalTickSumTorque.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - LocalAngularAcceleration: %s"), *LocalAngularAcceleration.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - AngularAcceleration: %s"), *AngularAcceleration.ToString());
+	  
+	  UE_LOG(LogTemp, Warning, TEXT("1 - AccelerationInAxis: %f"), AccelerationInAxis);
+	  UE_LOG(LogTemp, Warning, TEXT("1 - CorrectedAngularAcceleration: %s"), *CorrectedAngularAcceleration.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - LocalDeltaVAxis: %s"), *LocalDeltaVAxis.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - LocalThustAxis: %s"), *LocalThustAxis.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - WorldThustAxis: %s"), *WorldThustAxis.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - MaxTorqueInAxis: %s"), *MaxTorqueInAxis.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - LocalMaxTorqueInAxis: %s"), *LocalMaxTorqueInAxis.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - LocalAcceleration: %s"), *LocalAcceleration.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - UnifiedAcceleration: %s"), *UnifiedAcceleration.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - ClampedUnifiedAcceleration: %s"), *ClampedUnifiedAcceleration.ToString());*/
+	  
+	
+	/*FVector LocalInertiaTensor2;
+	FVector WorldXAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
+	FVector WorldYAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(0,1,0));
+	FVector WorldZAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(0,0,1));
+	float angularStantardAcceleration = 90; // °/s² // TODO In ship spec
+	LocalInertiaTensor2.X = GetTotalMaxTorqueInAxis(Engines, WorldXAxis, COM, 0, false).Size();
+	LocalInertiaTensor2.Y = GetTotalMaxTorqueInAxis(Engines, WorldYAxis, COM, 0, false).Size();
+	LocalInertiaTensor2.Z = GetTotalMaxTorqueInAxis(Engines, WorldZAxis, COM, 0, false).Size();
+	
+	UE_LOG(LogTemp, Warning, TEXT("2 - X: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldXAxis, COM, 0, false).ToString());
+	UE_LOG(LogTemp, Warning, TEXT("2 - Y: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldYAxis, COM, 0, false).ToString());
+	UE_LOG(LogTemp, Warning, TEXT("2 - Z: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldZAxis, COM, 0, false).ToString());
+	UE_LOG(LogTemp, Warning, TEXT("2 - LocalInertiaTensor2: %s"), *LocalInertiaTensor2.ToString());*/
+	
+	  Airframe->SetPhysicsLinearVelocity(ClampedAcceleration * DeltaSeconds * 100, true); // Multiply by 100 because UE4 works in cm
+	  UE_LOG(LogTemp, Warning, TEXT("5 - GetPhysicsLinearVelocity: %s"), *Airframe->GetPhysicsLinearVelocity().ToString());
+	UE_LOG(LogTemp, Warning, TEXT(""));
+	}
+	
+	
+	
+	
+	
+	
+	
 	// TODO find a better place to set
 	//float WorldInertiaTensor = 1000;
 
 	//TODO inertia in axis
-	if(!TickSumTorque.IsNearlyZero()) {
+	FVector DeltaAngularV = AngularTargetVelocity - Airframe->GetPhysicsAngularVelocity();
+	
+	if(!DeltaAngularV.IsNearlyZero()) {
 	  /*FVector LocalAccelerationAxis = Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(TickSumTorque);
 	  LocalAccelerationAxis.Normalize();
 	  
@@ -1039,14 +1153,13 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	  
 	  // Align with target speed delta to be more MaxPreciseSpeed
 	  
-	  FVector DeltaV = AngularTargetVelocity - Airframe->GetPhysicsAngularVelocity();
-	  FVector DeltaVAxis = DeltaV;
+	  
+	  FVector DeltaVAxis = DeltaAngularV;
 	  DeltaVAxis.Normalize();
 	  float AccelerationInAxis = FVector::DotProduct(DeltaVAxis, AngularAcceleration);
 	  
 	  FVector CorrectedAngularAcceleration = DeltaVAxis * AccelerationInAxis;
 	  
-	  TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
 	  
 	  /*
 	  FVector LocalDeltaVAxis = Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(DeltaVAxis);
@@ -1069,7 +1182,7 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	  // Scale with damages
 	  float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaVAxis, COM, 0, true, false) / GetTotalMaxTorqueInAxis(Engines, DeltaVAxis, COM, 0, false, false);
 	  FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
-	  FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.ClampMaxSize(DeltaV.Size() / DeltaTime);
+	  FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.ClampMaxSize(DeltaAngularV.Size() / DeltaSeconds);
 	  
 	  
 	  
@@ -1078,7 +1191,7 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	  UE_LOG(LogTemp, Warning, TEXT("====================="));
 	  UE_LOG(LogTemp, Warning, TEXT("1 - AngularTargetVelocity: %s"), *AngularTargetVelocity.ToString());
 	  UE_LOG(LogTemp, Warning, TEXT("1 - Airframe->GetPhysicsAngularVelocity(): %s"), *Airframe->GetPhysicsAngularVelocity().ToString());
-	  UE_LOG(LogTemp, Warning, TEXT("1 - DeltaV: %s"), *DeltaV.ToString());
+	  UE_LOG(LogTemp, Warning, TEXT("1 - DeltaAngularV: %s"), *DeltaAngularV.ToString());
 	  UE_LOG(LogTemp, Warning, TEXT("1 - DeltaVAxis: %s"), *DeltaVAxis.ToString());
 	  
 	  UE_LOG(LogTemp, Warning, TEXT("1 - SimpleAcceleration: %s"), *SimpleAcceleration.ToString());
@@ -1118,7 +1231,7 @@ void AFlareShip::PhysicSubTick(float DeltaTime)
 	UE_LOG(LogTemp, Warning, TEXT("2 - Z: %s"), *GetTotalMaxTorqueInAxis(Engines, WorldZAxis, COM, 0, false).ToString());
 	UE_LOG(LogTemp, Warning, TEXT("2 - LocalInertiaTensor2: %s"), *LocalInertiaTensor2.ToString());*/
 	
-	  Airframe->SetPhysicsAngularVelocity(ClampedSimplifiedAcceleration  * DeltaTime, true);
+	  Airframe->SetPhysicsAngularVelocity(ClampedSimplifiedAcceleration  * DeltaSeconds, true);
 	}
 	
 
