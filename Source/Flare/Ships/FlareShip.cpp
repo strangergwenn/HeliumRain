@@ -605,17 +605,14 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 
 void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 {
-  
-	// RCS impulse
-	LinearTargetVelocity = Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);;
-
-	//FLOGV("UpdateLinearAttitudeManual LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
-	// Orbital impulse
-	if (ManualOrbitalBoost)
+	if(IsGliding())
 	{
-		FVector OrbitalPushDirection = GetActorQuat().RotateVector(FVector(1, 0, 0));
-		// TODO remove and add in global engine system
-		//Airframe->AddForce(LinearOrbitalThrust * OrbitalPushDirection);
+	   LinearTargetVelocity = GetLinearVelocity() + Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
+	   LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(LinearMaxVelocity);
+	}
+	else
+	{
+	    LinearTargetVelocity = Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
 	}
 }
 
