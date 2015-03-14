@@ -73,7 +73,10 @@ void AFlareStation::Initialize()
 
 void AFlareStation::Destroyed()
 {
-	Company->Unregister(this);
+	if (Company)
+	{
+		Company->Unregister(this);
+	}
 }
 
 
