@@ -627,10 +627,10 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
   
-	FVector DeltaPosition = (Data.LocationTarget - GetActorLocation()) /100; // Work in meters
+	FVector DeltaPosition = (Data.LocationTarget - GetActorLocation()) / 100; // Work in meters
 	FVector DeltaPositionDirection = DeltaPosition;
 	DeltaPositionDirection.Normalize();
-	float Distance = FMath::Max(0 ,DeltaPosition.Size() - LinearDeadDistance);
+	float Distance = FMath::Max(0.0f, DeltaPosition.Size() - LinearDeadDistance);
 
 	FVector DeltaVelocity = -GetLinearVelocity();
 	FVector DeltaVelocityAxis = DeltaVelocity;
@@ -1064,7 +1064,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 	  FVector DeltaVAxis = DeltaV;
 	  DeltaVAxis.Normalize();
 	  FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, DeltaVAxis, 0, false).Size() / Airframe->GetMass();
-	  FVector ClampedAcceleration = Acceleration.ClampMaxSize(DeltaV.Size() / DeltaSeconds);
+	  FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
 	  
 	  // TODO Clamp
 	  UE_LOG(LogTemp, Warning, TEXT("====================="));
@@ -1182,7 +1182,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 	  // Scale with damages
 	  float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaVAxis, COM, 0, true, false) / GetTotalMaxTorqueInAxis(Engines, DeltaVAxis, COM, 0, false, false);
 	  FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
-	  FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.ClampMaxSize(DeltaAngularV.Size() / DeltaSeconds);
+	  FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.GetClampedToMaxSize(DeltaAngularV.Size() / DeltaSeconds);
 	  
 	  
 	  
