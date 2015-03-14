@@ -355,14 +355,26 @@ bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
 	// Try to dock
 	if (DockingInfo.Granted)
 	{
+		
 		FVector ShipDockOffset = GetDockLocation();
-		DockingInfo.EndPoint += DockingInfo.Rotation.RotateVector(ShipDockOffset);
-		DockingInfo.StartPoint += 5000 * DockingInfo.Rotation.RotateVector(FVector(1, 0, 0));
+		
+		FLOGV("Dock DockingInfo.EndPoint=%s", *DockingInfo.EndPoint.ToString());
+		FLOGV("Dock DockingInfo.StartPoint=%s", *DockingInfo.StartPoint.ToString());
+		
+		DockingInfo.EndPoint += DockingInfo.Rotation.RotateVector(ShipDockOffset * FVector(1, 0, 0)) - ShipDockOffset * FVector(0, 1, 1);
+		DockingInfo.StartPoint = DockingInfo.EndPoint + 5000 * DockingInfo.Rotation.RotateVector(FVector(1, 0, 0));
 
+		FLOGV("Dock ShipDockOffset=%s", *ShipDockOffset.ToString());
+		FLOGV("Dock DockingInfo.EndPoint2=%s", *DockingInfo.EndPoint.ToString());
+		FLOGV("Dock DockingInfo.StartPoint2=%s", *DockingInfo.StartPoint.ToString());
+		
+		
 		// Dock
 		if (NavigateTo(DockingInfo.StartPoint))
 		{
 			PushCommandRotation((DockingInfo.EndPoint - DockingInfo.StartPoint), FVector(1,0,0));
+			PushCommandRotation(FVector(0,0,1), FVector(0,0,1));
+			
 			PushCommandLocation(DockingInfo.EndPoint);
 			PushCommandDock(DockingInfo);
 
