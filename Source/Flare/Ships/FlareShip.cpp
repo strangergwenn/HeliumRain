@@ -405,6 +405,9 @@ void AFlareShip::ConfirmDock(IFlareStationInterface* DockStation, int32 DockId)
 	Status = EFlareShipStatus::SS_Docked;
 	ShipData.DockedTo = *DockStation->_getUObject()->GetName();
 	ShipData.DockedAt = DockId;
+	
+	// Disable physics
+	Airframe->SetSimulatePhysics(false);
 }
 
 bool AFlareShip::Undock()
@@ -415,6 +418,9 @@ bool AFlareShip::Undock()
 	// Try undocking
 	if (IsDocked())
 	{
+		// Enable physics
+		Airframe->SetSimulatePhysics(true);
+	  
 		// Evacuate
 		ClearCurrentCommand();
 		GetDockStation()->ReleaseDock(this, ShipData.DockedAt);
