@@ -166,12 +166,14 @@ void AFlareShip::SetExternalCamera(bool NewState)
 	// Put the camera at the right spot
 	if (ExternalCamera)
 	{
+		SetCameraLocalPosition(FVector::ZeroVector);
 		SetCameraDistance(CameraMaxDistance * GetMeshScale());
 	}
 	else
 	{
-		FVector CameraDistance = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
-		SetCameraDistance(-CameraDistance.Size());
+		FVector CameraOffset = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
+		SetCameraDistance(0);
+		SetCameraLocalPosition(CameraOffset);
 	}
 }
 

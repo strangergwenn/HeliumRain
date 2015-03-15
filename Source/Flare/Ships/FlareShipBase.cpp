@@ -47,7 +47,7 @@ void AFlareShipBase::Tick(float DeltaSeconds)
 	// Apply interpolated values
 	CameraContainerPitch->SetRelativeRotation(FRotator(CameraOffsetPitch, 0, 0).GetNormalized());
 	CameraContainerYaw->SetRelativeRotation(FRotator(0, CameraOffsetYaw, 0).GetNormalized());
-	Camera->SetRelativeLocation(FVector(-CameraOffsetDistance, 0, 0));
+	Camera->SetRelativeLocation(CameraLocalPosition - FVector(CameraOffsetDistance, 0, 0));
 }
 
 
@@ -63,6 +63,11 @@ void AFlareShipBase::SetCameraPitch(float Value)
 void AFlareShipBase::SetCameraYaw(float Value)
 {
 	CameraOffsetYaw = FMath::Clamp(Value, -CameraMaxYaw, +CameraMaxYaw);
+}
+
+void AFlareShipBase::SetCameraLocalPosition(FVector Value)
+{
+	CameraLocalPosition = Value;
 }
 
 void AFlareShipBase::SetCameraDistance(float Value)

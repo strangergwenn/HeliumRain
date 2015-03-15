@@ -52,6 +52,9 @@ public:
 	/** Set the camera yaw in the spherical coordinate system */
 	void SetCameraYaw(float Value);
 
+	/** Set the offset for the camera containers */
+	void SetCameraLocalPosition(FVector Value);
+
 	/** Set the camera radius in the spherical coordinate system */
 	void SetCameraDistance(float Value);
 
@@ -120,6 +123,7 @@ protected:
 	float    CameraMinDistance;
 	float    CameraMaxDistance;
 	float    CameraDistanceStepAmount;
+	FVector  CameraLocalPosition;
 
 	// Company reference
 	UPROPERTY()
