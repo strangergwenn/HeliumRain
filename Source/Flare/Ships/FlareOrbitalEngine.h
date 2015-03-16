@@ -20,6 +20,7 @@ public:
 
 	virtual bool IsOrbitalEngine() const;
 
+
 private:
 
 	/*----------------------------------------------------

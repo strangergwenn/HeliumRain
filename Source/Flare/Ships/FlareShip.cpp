@@ -887,7 +887,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
 	{
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
-		FVector ThrustAxis = Engine->GetThurstAxis();
+		FVector ThrustAxis = Engine->GetThrustAxis();
 		float LinearAlpha = 0;
 		float AngularAlpha = 0;
 		
@@ -1099,7 +1099,7 @@ FVector AFlareShip::GetLinearVelocity() const
 	return Airframe->GetPhysicsLinearVelocity() / 100;
 }
 
-FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThurstAngleLimit, bool WithOrbitalEngines) const
+FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThrustAngleLimit, bool WithOrbitalEngines) const
 {
 	Axis.Normalize();
 	FVector TotalMaxThrust = FVector::ZeroVector;
@@ -1110,20 +1110,20 @@ FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, F
 		  continue;
 		}
 
-		FVector WorldThurstAxis = Engine->GetThurstAxis();
+		FVector WorldThrustAxis = Engine->GetThrustAxis();
 
-		float dot = FVector::DotProduct(WorldThurstAxis, Axis);
-		if (dot > ThurstAngleLimit) {
-			float ratio = (dot - ThurstAngleLimit) / (1 - ThurstAngleLimit);
+		float dot = FVector::DotProduct(WorldThrustAxis, Axis);
+		if (dot > ThrustAngleLimit) {
+			float ratio = (dot - ThrustAngleLimit) / (1 - ThrustAngleLimit);
 
-			TotalMaxThrust += WorldThurstAxis * Engine->GetMaxThrust() * ratio;
+			TotalMaxThrust += WorldThrustAxis * Engine->GetMaxThrust() * ratio;
 		}
 	}
 
 	return TotalMaxThrust;
 }
 
-float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, FVector COM, float ThurstAngleLimit, bool WithDamages, bool WithOrbitalEngines) const
+float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, FVector COM, float ThrustAngleLimit, bool WithDamages, bool WithOrbitalEngines) const
 {
 	//UE_LOG(LogTemp, Warning, TEXT("----"));
 	TorqueAxis.Normalize();
@@ -1144,18 +1144,18 @@ float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVe
 
 		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
 		
-		FVector WorldThurstAxis = Engine->GetThurstAxis();
-		WorldThurstAxis.Normalize();
-		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThurstAxis);
+		FVector WorldThrustAxis = Engine->GetThrustAxis();
+		WorldThrustAxis.Normalize();
+		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThrustAxis);
 		TorqueDirection.Normalize();
 
 		float dot = FVector::DotProduct(TorqueAxis, TorqueDirection);
 		
 		
-		if (dot > ThurstAngleLimit) {
-			float ratio = (dot - ThurstAngleLimit) / (1 - ThurstAngleLimit);
+		if (dot > ThrustAngleLimit) {
+			float ratio = (dot - ThrustAngleLimit) / (1 - ThrustAngleLimit);
 
-			TotalMaxTorque += FVector::CrossProduct(EngineOffset, WorldThurstAxis).Size() * MaxThrust * ratio;
+			TotalMaxTorque += FVector::CrossProduct(EngineOffset, WorldThrustAxis).Size() * MaxThrust * ratio;
 		}
 
 	}

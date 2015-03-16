@@ -23,7 +23,7 @@ public:
 	float MaxThrust;
 
 	/** Get engine thrust axis in world space */
-	FVector GetThurstAxis() const;
+	FVector GetThrustAxis() const;
 	
 	/** Get engine current max thrust 
 	  current max thrust can change with damages
@@ -42,7 +42,12 @@ public:
 	/** Update the exhaust power for current thrust */
 	void SetAlpha(float Alpha);
 	
+
 protected:
+
+	/*----------------------------------------------------
+		Protected methods
+	----------------------------------------------------*/
 
 	/** Update the exhaust special effect */
 	virtual void UpdateEffects();

@@ -23,7 +23,7 @@ void UFlareOrbitalEngine::UpdateEffects()
 {
 	Super::UpdateEffects();
 
-	// Smooth the command value
+	// TODO : make this a part of the component system
 	float AverageCoeff = 0.005;
 	float TemperatureAlpha = AverageCoeff * ExhaustAccumulator + (1 - AverageCoeff) * AverageAlpha;
 	AverageAlpha = TemperatureAlpha;

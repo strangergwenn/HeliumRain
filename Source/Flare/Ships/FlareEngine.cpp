@@ -61,7 +61,7 @@ void UFlareEngine::UpdateEffects()
 	}
 }
 
-FVector UFlareEngine::GetThurstAxis() const
+FVector UFlareEngine::GetThrustAxis() const
 {
 	// Return the front vector in world space
 	return GetComponentToWorld().GetRotation().RotateVector(FVector(1.0f, 0.0f, 0.0f));
@@ -69,7 +69,8 @@ FVector UFlareEngine::GetThurstAxis() const
 
 float UFlareEngine::GetMaxThrust() const
 {
-	return MaxThrust; // TODO include damages
+	// TODO include damage
+	return MaxThrust;
 }
 
 float UFlareEngine::GetInitialMaxThrust() const
