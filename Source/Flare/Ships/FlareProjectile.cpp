@@ -54,7 +54,7 @@ void AFlareProjectile::PostInitializeComponents()
 	SetLifeSpan(1000000 / MovementComp->InitialSpeed);
 }
 
-void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipModuleDescription* Description, FVector ShootDirection)
+void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipModuleDescription* Description, FVector ShootDirection, FVector ParentVelocity)
 {
 	ShellDirection = ShootDirection;
 	ShellDescription = Description;
@@ -65,7 +65,7 @@ void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipModuleDe
 	}
 	if (MovementComp)
 	{
-		MovementComp->Velocity = ShootDirection * MovementComp->InitialSpeed;
+		MovementComp->Velocity = ParentVelocity + ShootDirection * MovementComp->InitialSpeed;
 	}
 }
 

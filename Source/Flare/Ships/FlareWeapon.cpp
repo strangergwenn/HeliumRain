@@ -84,6 +84,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		// Get firing data
 		FVector FiringLocation = GetSocketLocation(FName("Muzzle"));
 		FVector FiringDirection = GetComponentRotation().RotateVector(FVector(1, 0, 0));
+		FVector FiringVelocity = GetPhysicsLinearVelocity();
 
 		// Create a shell
 		AFlareProjectile* Shell = GetWorld()->SpawnActor<AFlareProjectile>(
@@ -93,7 +94,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			ProjectileSpawnParams);
 
 		// Fire it
-		Shell->Initialize(this, ModuleDescription, FiringDirection);
+		Shell->Initialize(this, ModuleDescription, FiringDirection, FiringVelocity);
 		FiringEffect->ActivateSystem();
 
 		// Play sound

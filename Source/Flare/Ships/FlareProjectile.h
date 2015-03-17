@@ -20,7 +20,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	/** Properties setup */
-	void Initialize(class UFlareWeapon* Weapon, const FFlareShipModuleDescription* Description, FVector ShootDirection);
+	void Initialize(class UFlareWeapon* Weapon, const FFlareShipModuleDescription* Description, FVector ShootDirection, FVector ParentVelocity);
 
 	/** Impact happened */
 	UFUNCTION()
