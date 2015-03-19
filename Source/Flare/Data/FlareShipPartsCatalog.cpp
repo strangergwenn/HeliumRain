@@ -52,6 +52,15 @@ FFlareShipModuleDescription* UFlareShipPartsCatalog::Get(FName Identifier) const
 
 	if (!Part)
 	{
+		Temp = InternalModulesCatalog.FindByPredicate(FindByName);
+		if (Temp)
+		{
+			Part = &(*Temp)->Data;
+		}
+	}
+	
+	if (!Part)
+	{
 		Temp = MetaCatalog.FindByPredicate(FindByName);
 		if (Temp)
 		{

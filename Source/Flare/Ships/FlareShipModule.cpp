@@ -54,7 +54,7 @@ void UFlareShipModule::Initialize(const FFlareShipModuleDescription* Description
 			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
 			switch (Characteristic.CharacteristicType)
 			{
-				case EFlarePartAttributeType::Armor:
+				case EFlarePartCharacteristicType::Armor:
 					// TODO
 					break;
 			}

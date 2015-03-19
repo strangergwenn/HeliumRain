@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine.h"
 #include "FlareShipModule.generated.h"
 
 class AFlareShipBase;
@@ -39,17 +40,17 @@ namespace EFlarePartType
 		RCS,
 		Weapon,
 		Meta,
+		InternalModule,
 		Num
 	};
 }
 
 /** Part attribute types */
 UENUM()
-namespace EFlarePartAttributeType
+namespace EFlarePartCharacteristicType
 {
 	enum Type
 	{
-		Armor,
 		AmmoPower,
 		AmmoRange,
 		AmmoCapacity,
@@ -67,9 +68,46 @@ struct FFlarePartCharacteristic
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlarePartAttributeType::Type> CharacteristicType;
+	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlarePartCharacteristicType::Type> CharacteristicType;
 
 	UPROPERTY(EditAnywhere, Category = Content) float CharacteristicValue;
+};
+
+
+/** Ship module attribute save data */
+
+USTRUCT()
+struct FFlareShipModuleAttributeSave
+{
+	GENERATED_USTRUCT_BODY()
+	
+	/** Attribute name */
+	UPROPERTY(EditAnywhere, Category = Save) FName AttributeIdentifier;
+	
+	/** Attribute value */
+	UPROPERTY(EditAnywhere, Category = Save) float AttributeValue;
+};
+
+USTRUCT()
+struct FFlareShipModuleSave
+{
+	GENERATED_USTRUCT_BODY()
+	
+	/** Module catalog identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ModuleIdentifier;
+	
+	/** Ship slot identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ShipSlotIdentifier;
+	
+	/** Taken damages */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 Damage;
+	
+	/** Module attributes */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareShipModuleAttributeSave> Attributes;
 };
 
 
@@ -96,6 +134,15 @@ struct FFlareShipModuleDescription
 
 	/** Part cost */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
+	
+	/** Hit point for module armor. Absorb first damages */
+	UPROPERTY(EditAnywhere, Category = Content) int32 ArmorHitPoints;
+	
+	/** Hit point for module fonctionnaly. Absorb when no more armor. Module not working when no more fonctional hit points */
+	UPROPERTY(EditAnywhere, Category = Content) int32 FonctionalHitPoints;
+	
+	/** Hit point for module structure. Absorb when no more armor and fonctional hit points. Module physicaly destroyed when no more structural hit points */
+	UPROPERTY(EditAnywhere, Category = Content) int32 StruturalHitPoints;
 
 	/** Array of characteristics */
 	UPROPERTY(EditAnywhere, Category = Content)	TArray< FFlarePartCharacteristic > Characteristics;

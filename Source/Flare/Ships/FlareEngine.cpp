@@ -24,7 +24,7 @@ void UFlareEngine::Initialize(const FFlareShipModuleDescription* Description, UF
 		const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
 
 		// Calculate the engine linear thrust force in N (data value in kN)
-		if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
+		if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::EnginePower)
 		{
 			MaxThrust = 1000 * Characteristic.CharacteristicValue;
 		}

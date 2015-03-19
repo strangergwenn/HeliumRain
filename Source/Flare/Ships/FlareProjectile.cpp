@@ -116,7 +116,7 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult)
 				const FFlarePartCharacteristic& Characteristic = ShellDescription->Characteristics[i];
 				switch (Characteristic.CharacteristicType)
 				{
-					case EFlarePartAttributeType::AmmoPower:
+					case EFlarePartCharacteristicType::AmmoPower:
 						ShellPower = Characteristic.CharacteristicValue;
 						break;
 				}
