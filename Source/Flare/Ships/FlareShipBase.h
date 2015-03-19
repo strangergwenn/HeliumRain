@@ -78,6 +78,13 @@ public:
 	/** Update the parts settings */
 	virtual void UpdateCustomization();
 
+	/** Setup for menu display */
+	virtual void StartPresentation();
+
+	/** We are now in presentation mode */
+	UFUNCTION(BlueprintImplementableEvent)
+	virtual void PresentationModeStarted();
+
 
 	/*----------------------------------------------------
 		Helpers
@@ -114,6 +121,9 @@ protected:
 		Properties
 	----------------------------------------------------*/
 
+	// Gameplay data
+	bool     PresentationMode;
+
 	// Camera rotation properties
 	float    CameraPanSpeed;
 	float    CameraMaxPitch;
@@ -135,11 +145,22 @@ private:
 	/*----------------------------------------------------
 		Private data
 	----------------------------------------------------*/
-	
+
 	// Current spherical coordinates for the camera
 	float    CameraOffsetPitch;
 	float    CameraOffsetYaw;
 	float    CameraOffsetDistance;
 
+
+	public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	inline bool IsPresentationMode() const
+	{
+		return PresentationMode;
+	}
 
 };

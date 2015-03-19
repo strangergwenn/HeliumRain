@@ -25,7 +25,6 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	, LinearDeadDistance(0.1)
 	, NegligibleSpeedRatio(0.0005)
 	, Status(EFlareShipStatus::SS_Manual)
-	, FakeThrust(false)
 {	
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareAirframe>(this, TEXT("Airframe"));
@@ -72,7 +71,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	// Attitude control
-	if (Airframe && !FakeThrust)
+	if (Airframe && !IsPresentationMode())
 	{
 		UpdateCOM();
 	  
@@ -832,18 +831,23 @@ void AFlareShip::SetWeaponDescription(int32 Index, FFlareShipModuleDescription* 
 	}
 }
 
-void AFlareShip::StartPresentation()
-{
-	Airframe->SetSimulatePhysics(false);
-	FakeThrust = true;
-}
-
 void AFlareShip::UpdateCustomization()
 {
 	Super::UpdateCustomization();
 
 	Airframe->UpdateCustomization();
 }
+
+void AFlareShip::StartPresentation()
+{
+	Super::StartPresentation();
+
+	if (Airframe)
+	{
+		Airframe->SetSimulatePhysics(false);
+	}
+}
+
 
 /*----------------------------------------------------
 	Physics
@@ -891,7 +895,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 		float LinearAlpha = 0;
 		float AngularAlpha = 0;
 		
-		if(IsFakeThrust()) {
+		if (IsPresentationMode()) {
 			LinearAlpha = true;
 		} else if(!DeltaV.IsNearlyZero()) { 
 			if(!(!ManualOrbitalBoost && Engine->IsOrbitalEngine())) {	

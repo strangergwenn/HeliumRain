@@ -12,6 +12,7 @@
 
 AFlareShipBase::AFlareShipBase(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
+	, PresentationMode(false)
 	, CameraPanSpeed(2)
 	, CameraMaxPitch(60)
 	, CameraMaxYaw(179)
@@ -138,6 +139,12 @@ void AFlareShipBase::UpdateCustomization()
 			Module->UpdateCustomization();
 		}
 	}
+}
+
+void AFlareShipBase::StartPresentation()
+{
+	PresentationMode = true;
+	PresentationModeStarted();
 }
 
 

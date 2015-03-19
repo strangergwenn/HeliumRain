@@ -237,10 +237,9 @@ public:
 	/** Set the description for a specific weapon slot */
 	virtual void SetWeaponDescription(int32 Index, FFlareShipModuleDescription* Description);
 
-	/** Setup for menu display */
-	virtual void StartPresentation();
-
 	virtual void UpdateCustomization() override;
+
+	virtual void StartPresentation() override;
 
 
 public:
@@ -313,7 +312,6 @@ protected:
 
 	// Dynamic gameplay data
 	TEnumAsByte <EFlareShipStatus::Type> Status;
-	bool                          FakeThrust;
 	bool                          ExternalCamera;
 
 	// Navigation
@@ -378,11 +376,6 @@ public:
 	inline TArray<UFlareWeapon*>& GetWeaponList()
 	{
 		return WeaponList;
-	}
-
-	inline bool IsFakeThrust() const
-	{
-		return FakeThrust;
 	}
 
 };
