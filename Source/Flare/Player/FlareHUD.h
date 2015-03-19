@@ -2,6 +2,7 @@
 
 #include "SlateBasics.h"
 #include "GameFramework/HUD.h"
+#include "../Ships/FlareShipBase.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
@@ -54,6 +55,12 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void DrawHUD() override;
+
+	/** Draw a designator corner */
+	void DrawHUDDesignator(AFlareShipBase* ShipBase);
+
+	/** Draw a designator corner */
+	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float CornerSize, FVector2D MainOffset, float Rotation);
 
 	/** Draw the text render target */
 	UFUNCTION()
@@ -151,6 +158,11 @@ protected:
 	TEnumAsByte<EFlareMenu::Type>      FadeTarget;
 	void*                              FadeTargetData;
 
+
+	// Designator content
+	bool                               FoundTargetUnderMouse;
+	FLinearColor                       HudColor;
+	UTexture2D*                        HUDDesignatorCornerTexture;
 
 	// HUD font
 	UPROPERTY()

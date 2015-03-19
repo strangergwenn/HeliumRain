@@ -16,8 +16,8 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	Visible = false;
 	OwnerHUD = InArgs._OwnerHUD;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvertedContainerStyle");
-	const FTextBlockStyle* TextStyle = &FFlareStyleSet::Get().GetWidgetStyle<FTextBlockStyle>("Flare.TextInverted");
+	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/NoContainerStyle");
+	const FTextBlockStyle* TextStyle = &FFlareStyleSet::Get().GetWidgetStyle<FTextBlockStyle>("Flare.Title1Inverted");
 
 	// Structure
 	ChildSlot
@@ -57,9 +57,14 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 
 	// Legend
 	MinimizedButton->GetContainer()->SetContent(
-		SNew(STextBlock)
-		.Text(this, &SFlareContextMenu::GetLegendText)
-		.TextStyle(TextStyle)
+		SNew(SBorder)
+		.BorderImage(FFlareStyleSet::GetIcon("DesignatorContextButton"))
+		.Padding(FMargin(31, 11))
+		[
+			SNew(STextBlock)
+			.Text(this, &SFlareContextMenu::GetLegendText)
+			.TextStyle(TextStyle)
+		]
 	);
 }
 
@@ -128,7 +133,7 @@ bool SFlareContextMenu::CanBeHidden()
 
 FText SFlareContextMenu::GetLegendText() const
 {
-	return FText::FromString(" + " + ActionMenu->GetName());
+	return FText::FromString("+");
 }
 
 FMargin SFlareContextMenu::GetContextMenuPosition() const
@@ -136,7 +141,7 @@ FMargin SFlareContextMenu::GetContextMenuPosition() const
 	FVector2D Pos = OwnerHUD->GetContextMenuLocation();
 
 	Pos.X -= Container->GetDesiredSize().X / 2;
-	Pos.Y -= 25;
+	Pos.Y -= 40;
 
 	return FMargin(Pos.X, Pos.Y, 0, 0);
 }

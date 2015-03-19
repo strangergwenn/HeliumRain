@@ -21,13 +21,22 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, HUDHelpersMaterial(NULL)
 	, HUDTextRenderTarget(NULL)
 {
-	FadeTimer = FadeDuration;
+	// Load content
 	static ConstructorHelpers::FObjectFinder<UFont> HUDFontObj(TEXT("/Game/Master/FT_LatoBold"));
 	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj(TEXT("/Game/Master/Materials/MT_HUDHelper"));
 	static ConstructorHelpers::FObjectFinder<UMaterial> HUDTextMaterialMasterObj(TEXT("/Game/Master/Materials/MT_HUDGenerated"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj(TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+
+	// Set content
 	HUDHelpersMaterialMaster = HUDHelpersMaterialObj.Object;
 	HUDTextMaterialMaster = HUDTextMaterialMasterObj.Object;
+	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 	HUDFont = HUDFontObj.Object;
+
+	// Dynamic data
+	FadeTimer = FadeDuration;
+	HudColor = FLinearColor::White;
+	HudColor.A = 0.7;
 }
 
 
@@ -47,55 +56,9 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	Super::Tick(DeltaSeconds);
 
-	// In-game interactions with stations or other ships
+	// Mouse control
 	if (PC)
 	{
-		// Trace data
-		FHitResult TraceHit;
-		float      TraceDepth = 1000000;
-		FVector    TraceOrigin;
-		FVector    TraceDirection;
-
-		// Deproject and trace the result against the world
-		if (IsExternalCamera && PC->DeprojectMousePositionToWorld(TraceOrigin, TraceDirection))
-		{
-			GetWorld()->LineTraceSingle(TraceHit, TraceOrigin, TraceOrigin + TraceDepth * TraceDirection, ECollisionChannel::ECC_WorldDynamic, FCollisionQueryParams("ClickableTrace", true));
-
-			// Update the context menu
-			if (TraceHit.IsValidBlockingHit()
-				&& TraceHit.Actor.IsValid()
-				&& TraceHit.Actor->IsA(AFlareShipBase::StaticClass())
-				&& TraceHit.Actor != PC->GetShipPawn())
-			{
-				if (!ContextMenu->IsVisible())
-				{
-					PC->ProjectWorldLocationToScreen(TraceHit.Component->GetComponentLocation(), ContextMenuPosition);
-					ContextMenu->Show();
-
-					// If station, set data
-					AFlareStation* Station = Cast<AFlareStation>(TraceHit.Actor.Get());
-					if (Station)
-					{
-						ContextMenu->SetStation(Station);
-					}
-
-					// If ship, set data
-					AFlareShip* Ship = Cast<AFlareShip>(TraceHit.Actor.Get());
-					if (Ship)
-					{
-						ContextMenu->SetShip(Ship);
-					}
-				}
-			}
-
-			// Close the context menu
-			else if (ContextMenu->CanBeHidden())
-			{
-				ContextMenu->Hide();
-			}
-		}
-
-		// Mouse control
 		if (!ContextMenu->IsOpen())
 		{
 			FVector2D MousePos = PC->GetMousePosition();
@@ -143,11 +106,11 @@ void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
-	// Create render target for the text
+	// Create render target for the text if it doesn't exist yet
 	if (!HUDTextRenderTarget)
 	{
-		FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 		HUDTextRenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(GetWorld(), UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
 		if (HUDTextRenderTarget)
 		{
@@ -156,13 +119,37 @@ void AFlareHUD::DrawHUD()
 		}
 	}
 
+	// Draw designators and context menu
+	if (!MenuIsOpen)
+	{
+		// Draw designators
+		FoundTargetUnderMouse = false;
+		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			AFlareShipBase* ShipBase = Cast<AFlareShipBase>(*ActorItr);
+			if (PC && ShipBase && ShipBase != PC->GetShipPawn())
+			{
+				if (PC->LineOfSightTo(ShipBase))
+				{
+					DrawHUDDesignator(ShipBase);
+				}
+			}
+		}
+
+		// Hide the context menu
+		if (!FoundTargetUnderMouse && ContextMenu->CanBeHidden())
+		{
+			ContextMenu->Hide();
+		}
+	}
+
+	// Update HUD materials
 	if (PC && !IsExternalCamera && !MenuIsOpen)
 	{
 		AFlareShip* Ship = PC->GetShipPawn();
 		if (HUDHelpersMaterial && HUDTextMaterial && Ship)
 		{
 			// Get HUD data
-			FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 			int32 HelperScale = ViewportSize.Y;
 			FRotator ShipAttitude = Ship->GetActorRotation();
 
@@ -171,17 +158,89 @@ void AFlareHUD::DrawHUD()
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Pitch"), -FMath::DegreesToRadians(ShipAttitude.Pitch));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Yaw"), FMath::DegreesToRadians(ShipAttitude.Yaw));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
-			DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
+			//DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
 
 			// Update panel
 			if (HUDTextRenderTarget)
 			{
-				HUDTextRenderTarget->UpdateResource();
-				HUDTextMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
-				DrawMaterialSimple(HUDTextMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
+				//HUDTextRenderTarget->UpdateResource();
+				//HUDTextMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
+				//DrawMaterialSimple(HUDTextMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
 			}
 		}
 	}
+}
+
+void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
+{
+	// Calculation data
+	FVector2D ScreenPosition;
+	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
+	FVector TargetLocation = ShipBase->GetActorLocation();
+
+	if (PC->ProjectWorldLocationToScreen(TargetLocation, ScreenPosition))
+	{
+		// Compute apparent size in screenspace
+		float ShipSize = 2 * ShipBase->GetMeshScale();
+		float Distance = (TargetLocation - PlayerLocation).Size();
+		float ApparentAngle = FMath::RadiansToDegrees(FMath::Atan(ShipSize / Distance));
+		float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * ViewportSize.X;
+		FVector2D ObjectSize = FMath::Min(0.8f * Size, 500.0f) * FVector2D(1, 1);
+
+		// Check if the mouse is there
+		FVector2D MousePos = PC->GetMousePosition();
+		FVector2D ShipBoxMin = ScreenPosition - ObjectSize / 2;
+		FVector2D ShipBoxMax = ScreenPosition + ObjectSize / 2;
+		bool Hovering = (MousePos.X >= ShipBoxMin.X && MousePos.Y >= ShipBoxMin.Y && MousePos.X <= ShipBoxMax.X && MousePos.Y <= ShipBoxMax.Y);
+
+		// Draw the context menu
+		if (Hovering && !FoundTargetUnderMouse)
+		{
+			// Update state
+			FoundTargetUnderMouse = true;
+			if (!ContextMenu->IsOpen())
+			{
+				ContextMenuPosition = ScreenPosition;
+				ContextMenu->Show();
+
+				// If station, set data
+				AFlareStation* Station = Cast<AFlareStation>(ShipBase);
+				if (Station)
+				{
+					ContextMenu->SetStation(Station);
+				}
+
+				// If ship, set data
+				AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
+				if (Ship)
+				{
+					ContextMenu->SetShip(Ship);
+				}
+			}
+		}
+		else
+		{
+			// Draw designator
+			float CornerSize = 16;
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270);
+		}
+	}
+}
+
+void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float CornerSize, FVector2D MainOffset, float Rotation)
+{
+	DrawTexture(HUDDesignatorCornerTexture,
+		Position.X + (ObjectSize.X + CornerSize) * MainOffset.X / 2,
+		Position.Y + (ObjectSize.Y + CornerSize) * MainOffset.Y / 2,
+		CornerSize, CornerSize, 0, 0, 1, 1,
+		HudColor,
+		BLEND_Translucent, 1.0f, false,
+		Rotation);
 }
 
 void AFlareHUD::DrawHUDTextTarget(UCanvas* Cnv, int32 Width, int32 Height)
