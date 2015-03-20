@@ -16,7 +16,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	Visible = false;
 	OwnerHUD = InArgs._OwnerHUD;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/NoContainerStyle");
+	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/ContextMenuButtonStyle");
 	const FTextBlockStyle* TextStyle = &FFlareStyleSet::Get().GetWidgetStyle<FTextBlockStyle>("Flare.Title1Inverted");
 
 	// Structure
@@ -57,14 +57,9 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 
 	// Legend
 	MinimizedButton->GetContainer()->SetContent(
-		SNew(SBorder)
-		.BorderImage(FFlareStyleSet::GetIcon("DesignatorContextButton"))
-		.Padding(FMargin(31, 11))
-		[
-			SNew(STextBlock)
-			.Text(this, &SFlareContextMenu::GetLegendText)
-			.TextStyle(TextStyle)
-		]
+		SNew(STextBlock)
+		.Text(this, &SFlareContextMenu::GetLegendText)
+		.TextStyle(TextStyle)
 	);
 }
 
