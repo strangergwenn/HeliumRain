@@ -53,7 +53,7 @@ void AFlareShip::BeginPlay()
 	GetComponents(ActorComponents);
 
 	// Check which moves are allowed
-	for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
+	/*for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
 	{
 		// If this is a weapon, reinitialize it directly so that it updates its properties
 		UFlareWeapon* Weapon = Cast<UFlareWeapon>(*ComponentIt);
@@ -62,7 +62,7 @@ void AFlareShip::BeginPlay()
 			ReloadPart(Weapon, WeaponDescriptionList[WeaponList.Num()]);
 			WeaponList.Add(Weapon);
 		}
-	}
+	}*/
 	
 	UpdateCOM();
 }
@@ -180,6 +180,10 @@ void AFlareShip::SetExternalCamera(bool NewState)
 
 void AFlareShip::Load(const FFlareShipSave& Data)
 {
+	// Clear previous data
+	WeaponList.Empty();
+	WeaponDescriptionList.Empty();
+	
 	// Update local data
 	ShipData = Data;
 	ShipData.Name = FName(*GetName());
@@ -192,15 +196,70 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	FFlareShipDescription* Desc = GetGame()->GetShipCatalog()->Get(Data.Identifier);
 	SetShipDescription(Desc);
 
-	// Load component descriptions 
-	SetOrbitalEngineDescription(Catalog->Get(Data.OrbitalEngineIdentifier));
-	SetRCSDescription(Catalog->Get(Data.RCSIdentifier));
-
-	// Load weapon descriptions
-	WeaponDescriptionList.Empty();
-	for (int32 i = 0; i < Data.WeaponIdentifiers.Num(); i++)
+	
+	// Initialize modules
+	TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipModule::StaticClass());
+	
+	// Add one to count the Airframe
+	if(Modules.Num()+1 != Data.Modules.Num())
 	{
-		WeaponDescriptionList.Add(Catalog->Get(Data.WeaponIdentifiers[i]));
+		FLOGV("WARNING ! There is %d modules in the save but %d modules in the blueprint.", Data.Modules.Num(), Modules.Num());
+	}
+	
+	// Begin at 1 to skip the Airframe
+	for (int32 ModuleIndex = 1; ModuleIndex < Modules.Num(); ModuleIndex++)
+	{	
+		UFlareShipModule* Module = Cast<UFlareShipModule>(Modules[ModuleIndex]);
+		FFlareShipModuleSave ModuleData;
+		
+		// Find module data
+		bool found = false;
+		for (int32 i = 0; i < Data.Modules.Num(); i++)
+		{
+			if(Module->SlotIdentifier == Data.Modules[i].ShipSlotIdentifier)
+			{
+				ModuleData = Data.Modules[i];
+				found = true;
+				break;
+			}
+		}
+		
+		if(!found)
+		{
+			FLOGV("WARNING ! No data found for module %s (%d) with id  %s.", *Module->GetReadableName(),ModuleIndex, Module->SlotIdentifier);
+			continue;
+		}
+		
+		
+		ReloadPart(Module, &ModuleData);
+		
+		
+		FFlareShipModuleDescription* ModuleDescription = Catalog->Get(ModuleData.ModuleIdentifier);
+		if(ModuleDescription->Type == EFlarePartType::RCS)
+		{
+			SetRCSDescription(ModuleDescription);
+		}
+		else if(ModuleDescription->Type == EFlarePartType::OrbitalEngine)
+		{
+			SetOrbitalEngineDescription(ModuleDescription);
+		}
+		
+		// If this is a weapon, Add to weapon list.
+		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Module);
+		if (Weapon)
+		{
+			WeaponList.Add(Weapon);
+		}
+	}
+	
+	// Load weapon descriptions
+	for (int32 i = 0; i < Data.Modules.Num(); i++)
+	{
+		FFlareShipModuleDescription* ModuleDescription = Catalog->Get(Data.Modules[i].ModuleIdentifier);
+		if(ModuleDescription->Type == EFlarePartType::Weapon)
+		{
+			WeaponDescriptionList.Add(ModuleDescription);
+		}
 	}
 
 	// Customization
@@ -228,17 +287,21 @@ FFlareShipSave* AFlareShip::Save()
 	// Physical data
 	ShipData.Location = GetActorLocation();
 	ShipData.Rotation = GetActorRotation();
+	ShipData.LinearVelocity = Airframe->GetPhysicsLinearVelocity();
+	ShipData.AngularVelocity = Airframe->GetPhysicsAngularVelocity();
 
 	// Engines
-	ShipData.OrbitalEngineIdentifier = OrbitalEngineDescription->Identifier;
-	ShipData.RCSIdentifier = RCSDescription->Identifier;
+	//ShipData.OrbitalEngineIdentifier = OrbitalEngineDescription->Identifier;
+	//ShipData.RCSIdentifier = RCSDescription->Identifier;
 
 	// Weapons
-	ShipData.WeaponIdentifiers.Empty();
+	/*ShipData.WeaponIdentifiers.Empty();
 	for (int32 i = 0; i < WeaponDescriptionList.Num(); i++)
 	{
 		ShipData.WeaponIdentifiers.Add(WeaponDescriptionList[i]->Identifier);
-	}
+	}*/
+	
+	//TODO save all modules
 
 	return &ShipData;
 }
@@ -787,13 +850,13 @@ void AFlareShip::SetShipDescription(FFlareShipDescription* Description)
 void AFlareShip::SetOrbitalEngineDescription(FFlareShipModuleDescription* Description)
 {
 	OrbitalEngineDescription = Description;
-	ReloadAllParts(UFlareOrbitalEngine::StaticClass(), Description);
+	//ReloadAllParts(UFlareOrbitalEngine::StaticClass(), Description);
 }
 
 void AFlareShip::SetRCSDescription(FFlareShipModuleDescription* Description)
 {
 	RCSDescription = Description;
-	ReloadAllParts(UFlareRCS::StaticClass(), Description);
+	//ReloadAllParts(UFlareRCS::StaticClass(), Description);
 
 	// Find the RCS turn and power rating, since RCSs themselves don't do anything
 	if (Description)
@@ -803,21 +866,21 @@ void AFlareShip::SetRCSDescription(FFlareShipModuleDescription* Description)
 			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
 
 			// Calculate the angular acceleration rate from the ton weight (data value in °/s per 100T)
-			if (Airframe && Characteristic.CharacteristicType == EFlarePartAttributeType::RCSAccelerationRating)
+			if (Airframe && Characteristic.CharacteristicType == EFlarePartCharacteristicType::RCSAccelerationRating)
 			{
 				float Mass = Airframe->GetMass() / 100000;
 				AngularAccelerationRate = Characteristic.CharacteristicValue / (60 * Mass);
 			}
 
 			// Calculate the RCS linear thrust force in N (data value in kN)
-			else if (Characteristic.CharacteristicType == EFlarePartAttributeType::EnginePower)
+			else if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::EnginePower)
 			{
 				LinearThrust = 100 * 1000 * Characteristic.CharacteristicValue;
 			}
 		}
 	}
 }
-
+/*
 void AFlareShip::SetWeaponDescription(int32 Index, FFlareShipModuleDescription* Description)
 {
 	if (Index < WeaponList.Num())
@@ -829,7 +892,7 @@ void AFlareShip::SetWeaponDescription(int32 Index, FFlareShipModuleDescription* 
 	{
 		FLOGV("AFlareShip::SetWeaponDescription : failed (no such index %d)", Index);
 	}
-}
+}*/
 
 void AFlareShip::UpdateCustomization()
 {

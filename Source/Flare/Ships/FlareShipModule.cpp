@@ -39,24 +39,21 @@ void UFlareShipModule::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UFlareShipModule::Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareShipModule::Initialize(const FFlareShipModuleSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
 	// Main data
 	Ship = OwnerShip;
 	PlayerCompany = Company;
 
 	// Setup properties
-	if (Description)
+	if (Data)
 	{
-		ModuleDescription = Description;
-		for (int32 i = 0; i < Description->Characteristics.Num(); i++)
+		ModuleDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ModuleIdentifier);
+		for (int32 i = 0; i < ModuleDescription->Characteristics.Num(); i++)
 		{
-			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
+			const FFlarePartCharacteristic& Characteristic = ModuleDescription->Characteristics[i];
 			switch (Characteristic.CharacteristicType)
 			{
-				case EFlarePartCharacteristicType::Armor:
-					// TODO
-					break;
 			}
 		}
 	}

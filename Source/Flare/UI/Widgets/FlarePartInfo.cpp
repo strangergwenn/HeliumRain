@@ -173,7 +173,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 	}
 }
 
-FString SFlarePartInfo::GetCharacteristicInfo(const FFlareShipModuleDescription* Desc, EFlarePartAttributeType::Type Type)
+FString SFlarePartInfo::GetCharacteristicInfo(const FFlareShipModuleDescription* Desc, EFlarePartCharacteristicType::Type Type)
 {
 	for (int32 i = 0; i < Desc->Characteristics.Num(); i++)
 	{
@@ -194,51 +194,47 @@ FString SFlarePartInfo::GetCharacteristicInfo(const FFlarePartCharacteristic& Ch
 
 	switch (Characteristic.CharacteristicType)
 	{
-		case EFlarePartAttributeType::AmmoRate:
+		case EFlarePartCharacteristicType::AmmoRate:
 			Unit += "rpm";
 			break;
-		case EFlarePartAttributeType::EnginePower:
+		case EFlarePartCharacteristicType::EnginePower:
 			Unit += "kN";
 			break;
-		case EFlarePartAttributeType::Armor:
-		case EFlarePartAttributeType::AmmoPower:
-		case EFlarePartAttributeType::AmmoCapacity:
-		case EFlarePartAttributeType::EngineTankDrain:
-		case EFlarePartAttributeType::RCSAccelerationRating:
+		case EFlarePartCharacteristicType::AmmoPower:
+		case EFlarePartCharacteristicType::AmmoCapacity:
+		case EFlarePartCharacteristicType::EngineTankDrain:
+		case EFlarePartCharacteristicType::RCSAccelerationRating:
 		default: break;
 	}
 
 	return FString::FromInt(Characteristic.CharacteristicValue) + " " + Unit;
 }
 
-FString SFlarePartInfo::GetCharacteristicLabel(EFlarePartAttributeType::Type Type)
+FString SFlarePartInfo::GetCharacteristicLabel(EFlarePartCharacteristicType::Type Type)
 {
 	FString Label;
 
 	switch (Type)
 	{
-		case EFlarePartAttributeType::Armor:
-			Label = "Hull";
-			break;
-		case EFlarePartAttributeType::AmmoPower:
+		case EFlarePartCharacteristicType::AmmoPower:
 			Label = "Power";
 			break;
-		case EFlarePartAttributeType::AmmoRange:
+		case EFlarePartCharacteristicType::AmmoRange:
 			Label = "Range";
 			break;
-		case EFlarePartAttributeType::AmmoRate:
+		case EFlarePartCharacteristicType::AmmoRate:
 			Label += "Rate of fire";
 			break;
-		case EFlarePartAttributeType::AmmoCapacity:
+		case EFlarePartCharacteristicType::AmmoCapacity:
 			Label = "Magazine";
 			break;
-		case EFlarePartAttributeType::EngineTankDrain:
+		case EFlarePartCharacteristicType::EngineTankDrain:
 			Label = "Consumption";
 			break;
-		case EFlarePartAttributeType::RCSAccelerationRating:
+		case EFlarePartCharacteristicType::RCSAccelerationRating:
 			Label = "Turn rating";
 			break;
-		case EFlarePartAttributeType::EnginePower:
+		case EFlarePartCharacteristicType::EnginePower:
 			Label = "Thrust";
 			break;
 
@@ -254,28 +250,25 @@ const FSlateBrush* SFlarePartInfo::GetCharacteristicBrush(const FFlarePartCharac
 
 	switch (Characteristic.CharacteristicType)
 	{
-		case EFlarePartAttributeType::Armor:
-			Result = FFlareStyleSet::GetIcon("Armor");
-			break;
-		case EFlarePartAttributeType::AmmoPower:
+		case EFlarePartCharacteristicType::AmmoPower:
 			Result = FFlareStyleSet::GetIcon("Shell");
 			break;
-		case EFlarePartAttributeType::AmmoRange:
+		case EFlarePartCharacteristicType::AmmoRange:
 			Result = FFlareStyleSet::GetIcon("Range");
 			break;
-		case EFlarePartAttributeType::AmmoRate:
+		case EFlarePartCharacteristicType::AmmoRate:
 			Result = FFlareStyleSet::GetIcon("Rate");
 			break;
-		case EFlarePartAttributeType::AmmoCapacity:
+		case EFlarePartCharacteristicType::AmmoCapacity:
 			Result = FFlareStyleSet::GetIcon("Ammo");
 			break;
-		case EFlarePartAttributeType::EnginePower:
+		case EFlarePartCharacteristicType::EnginePower:
 			Result = FFlareStyleSet::GetIcon("ExhaustPower");
 			break;
-		case EFlarePartAttributeType::RCSAccelerationRating:
+		case EFlarePartCharacteristicType::RCSAccelerationRating:
 			Result = FFlareStyleSet::GetIcon("RCSPower");
 			break;
-		case EFlarePartAttributeType::EngineTankDrain:
+		case EFlarePartCharacteristicType::EngineTankDrain:
 			Result = FFlareStyleSet::GetIcon("Tank");
 			break;
 

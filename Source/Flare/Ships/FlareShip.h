@@ -235,7 +235,7 @@ public:
 	virtual void SetRCSDescription(FFlareShipModuleDescription* Description);
 
 	/** Set the description for a specific weapon slot */
-	virtual void SetWeaponDescription(int32 Index, FFlareShipModuleDescription* Description);
+	//virtual void SetWeaponDescription(int32 Index, FFlareShipModuleDescription* Description);
 
 	virtual void UpdateCustomization() override;
 

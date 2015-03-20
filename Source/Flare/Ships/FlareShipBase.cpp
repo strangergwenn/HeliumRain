@@ -98,11 +98,11 @@ void AFlareShipBase::SetCompany(UFlareCompany* NewCompany)
 	Company = NewCompany;
 }
 
-void AFlareShipBase::ReloadPart(UFlareShipModule* Target, const FFlareShipModuleDescription* TargetDescription)
+void AFlareShipBase::ReloadPart(UFlareShipModule* Target, const FFlareShipModuleSave* Data)
 {
-	Target->Initialize(TargetDescription, Company, this);
+	Target->Initialize(Data, Company, this);
 }
-
+/*
 void AFlareShipBase::ReloadAllParts(const UClass* TargetClass, const FFlareShipModuleDescription* TargetDescription)
 {
 	// Required data
@@ -118,7 +118,7 @@ void AFlareShipBase::ReloadAllParts(const UClass* TargetClass, const FFlareShipM
 			ReloadPart(Module, TargetDescription);
 		}
 	}
-}
+}*/
 
 void AFlareShipBase::UpdateCustomization()
 {

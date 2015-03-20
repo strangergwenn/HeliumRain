@@ -70,10 +70,10 @@ public:
 	void SetCompany(UFlareCompany* NewCompany);
 
 	/** Reload the part Target with TargetDescription */
-	virtual void ReloadPart(UFlareShipModule* Target, const FFlareShipModuleDescription* TargetDescription);
+	virtual void ReloadPart(UFlareShipModule* Target, const FFlareShipModuleSave* Data);
 
 	/** Reload all parts of type TargetClass with TargetDescription */
-	virtual void ReloadAllParts(const UClass* TargetClass, const FFlareShipModuleDescription* TargetDescription);
+	//virtual void ReloadAllParts(const UClass* TargetClass, const FFlareShipModuleDescription* TargetDescription);
 
 	/** Update the parts settings */
 	virtual void UpdateCustomization();

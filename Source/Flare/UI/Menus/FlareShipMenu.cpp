@@ -306,27 +306,20 @@ void SFlareShipMenu::LoadTargetShip()
 		ShipPartCustomizationBox->SetVisibility(EVisibility::Collapsed);
 		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
 		ShipCustomizationBox->SetVisibility(EVisibility::Visible);
-		
-		// Add orbital engine button
-		EngineButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
-			.IsOwned(true)
-			.Description(Catalog->Get(CurrentShipData->OrbitalEngineIdentifier)));
-
-		// Add RCS button
-		RCSButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
-			.IsOwned(true)
-			.Description(Catalog->Get(CurrentShipData->RCSIdentifier)));
 
 		// Add weapon slots buttons
-		if (CurrentShipData->WeaponIdentifiers.Num() > 0)
+		int32 WeaponCount = 0;
+		TSharedPtr<SFlareButton> Temp;
+		WeaponButtonBox->ClearChildren();
+		FName OrbitalEngineIdentifier;
+		FName RCSIdentifier;
+		
+		for (int32 i = 0; i < CurrentShipData->Modules.Num(); i++)
 		{
-			TSharedPtr<SFlareButton> Temp;
-			WeaponButtonBox->ClearChildren();
-			WeaponButtonBox->SetVisibility(EVisibility::Visible);
-
-			// Create buttons
-			for (int32 i = 0; i < CurrentShipData->WeaponIdentifiers.Num(); i++)
+			FFlareShipModuleDescription* ModuleDescription = Catalog->Get(CurrentShipData->Modules[i].ModuleIdentifier);
+			if(ModuleDescription->Type == EFlarePartType::Weapon)
 			{
+				
 				WeaponButtonBox->AddSlot()
 					.AutoHeight()
 					[
@@ -337,13 +330,36 @@ void SFlareShipMenu::LoadTargetShip()
 					];
 				Temp->GetContainer()->SetContent(SNew(SFlarePartInfo)
 					.IsOwned(true)
-					.Description(Catalog->Get(CurrentShipData->WeaponIdentifiers[0])));
+					.Description(Catalog->Get(CurrentShipData->Modules[i].ModuleIdentifier)));
+				WeaponCount++;
+			} 
+			else if(ModuleDescription->Type == EFlarePartType::RCS) {
+				RCSIdentifier = ModuleDescription->Identifier;
 			}
+			else if(ModuleDescription->Type == EFlarePartType::OrbitalEngine) {
+				OrbitalEngineIdentifier = ModuleDescription->Identifier;
+			}
+		}
+
+		if (WeaponCount > 0)
+		{
+			WeaponButtonBox->SetVisibility(EVisibility::Visible);
 		}
 		else
 		{
 			WeaponButtonBox->SetVisibility(EVisibility::Collapsed);
 		}
+		
+		// Add orbital engine button
+		EngineButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
+			.IsOwned(true)
+			.Description(Catalog->Get(OrbitalEngineIdentifier)));
+
+		// Add RCS button
+		RCSButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
+			.IsOwned(true)
+			.Description(Catalog->Get(RCSIdentifier)));
+
 	}
 
 }
@@ -548,32 +564,36 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 
 void SFlareShipMenu::OnPartConfirmed()
 {
-	CurrentEquippedPartIndex = CurrentPartIndex;
-
-	// Edit the correct save data property
-	FFlareShipModuleDescription* PartDesc = PartListData[CurrentPartIndex];
-	switch (PartDesc->Type)
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	if (PC)
 	{
-		case EFlarePartType::OrbitalEngine:
-			CurrentShipData->OrbitalEngineIdentifier = PartDesc->Identifier;
-			break;
-		case EFlarePartType::RCS:
-			CurrentShipData->RCSIdentifier = PartDesc->Identifier;
-			break;
-		case EFlarePartType::Weapon:
-			CurrentShipData->WeaponIdentifiers[CurrentWeaponIndex] = PartDesc->Identifier;
-			break;
-	}
+		CurrentEquippedPartIndex = CurrentPartIndex;
 
-	// Update the world ship if it exists
-	if (CurrentShipTarget)
-	{
-		CurrentShipTarget->Load(*CurrentShipData);
-	}
+		// Edit the correct save data property
+		FFlareShipModuleDescription* PartDesc = PartListData[CurrentPartIndex];
+		UFlareShipPartsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+		for (int32 i = 0; i < CurrentShipData->Modules.Num(); i++)
+		{
+			FFlareShipModuleDescription* ModuleDescription = Catalog->Get(CurrentShipData->Modules[i].ModuleIdentifier);
+			if(ModuleDescription->Type == PartDesc->Type)
+			{
+				CurrentShipData->Modules[i].ModuleIdentifier = PartDesc->Identifier;
+			}
+			
+			//TODO Fix CurrentWeaponIndex
+			
+		}
+		
+		// Update the world ship if it exists
+		if (CurrentShipTarget)
+		{
+			CurrentShipTarget->Load(*CurrentShipData);
+		}
 
-	// Get back to the ship config
-	BuyConfirmation->Hide();
-	LoadTargetShip();
+		// Get back to the ship config
+		BuyConfirmation->Hide();
+		LoadTargetShip();
+	}
 }
 
 void SFlareShipMenu::OnPartCancelled()

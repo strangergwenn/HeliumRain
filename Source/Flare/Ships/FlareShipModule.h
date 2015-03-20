@@ -177,7 +177,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	
 	/** Initialize this component and register the master ship object */
-	virtual void Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu = false);
+	virtual void Initialize(const FFlareShipModuleSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu = false);
 
 	/** Get the meshg scale */
 	float GetMeshScale();
@@ -200,6 +200,8 @@ public:
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
 
+	/** Module slot identifier */
+	UPROPERTY(EditAnywhere, Category = Content) FName SlotIdentifier;
 
 protected:
 

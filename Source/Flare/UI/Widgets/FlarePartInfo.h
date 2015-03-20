@@ -45,13 +45,13 @@ public:
 	static void BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareShipModuleDescription* Desc, bool ShowHelpers = true);
 
 	/** Get a readable info string */
-	static FString GetCharacteristicInfo(const FFlareShipModuleDescription* Desc, EFlarePartAttributeType::Type Type);
+	static FString GetCharacteristicInfo(const FFlareShipModuleDescription* Desc, EFlarePartCharacteristicType::Type Type);
 
 	/** Get a readable info string */
 	static FString GetCharacteristicInfo(const FFlarePartCharacteristic& Characteristic);
 
 	/** Get a readable label string */
-	static FString GetCharacteristicLabel(EFlarePartAttributeType::Type Type);
+	static FString GetCharacteristicLabel(EFlarePartCharacteristicType::Type Type);
 
 	/** Get a Slate brush */
 	static const FSlateBrush* GetCharacteristicBrush(const FFlarePartCharacteristic& Characteristic);

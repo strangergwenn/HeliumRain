@@ -226,6 +226,10 @@ AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
 			{
 				Ship->Load(ShipData);
 			}
+			 UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
+			
+			RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
+			RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 		}
 		else
 		{
