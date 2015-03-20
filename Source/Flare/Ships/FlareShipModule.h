@@ -52,7 +52,6 @@ namespace EFlarePartCharacteristicType
 	enum Type
 	{
 		AmmoPower,
-		AmmoRange,
 		AmmoCapacity,
 		AmmoRate,
 		EnginePower,

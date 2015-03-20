@@ -44,10 +44,6 @@ void UFlareWeapon::Initialize(const FFlareShipModuleSave* Data, UFlareCompany* C
 			const FFlarePartCharacteristic& Characteristic = ModuleDescription->Characteristics[i];
 			switch (Characteristic.CharacteristicType)
 			{
-				case EFlarePartCharacteristicType::AmmoRange:
-					// TODO
-					break;
-
 				case EFlarePartCharacteristicType::AmmoRate:
 					FiringRate = Characteristic.CharacteristicValue;
 					break;

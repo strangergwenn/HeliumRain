@@ -307,7 +307,6 @@ protected:
 	float                         AngularAccelerationRate;
 	float                         LinearDeadDistance;
 	float                         LinearMaxVelocity; // m/s
-	float                         LinearThrust;
 	float                         NegligibleSpeedRatio;
 
 	// Dynamic gameplay data

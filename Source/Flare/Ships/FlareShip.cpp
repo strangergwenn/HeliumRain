@@ -51,18 +51,6 @@ void AFlareShip::BeginPlay()
 	Super::BeginPlay();
 	TArray<UActorComponent*> ActorComponents;
 	GetComponents(ActorComponents);
-
-	// Check which moves are allowed
-	/*for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
-	{
-		// If this is a weapon, reinitialize it directly so that it updates its properties
-		UFlareWeapon* Weapon = Cast<UFlareWeapon>(*ComponentIt);
-		if (Weapon && WeaponList.Num() < WeaponDescriptionList.Num())
-		{
-			ReloadPart(Weapon, WeaponDescriptionList[WeaponList.Num()]);
-			WeaponList.Add(Weapon);
-		}
-	}*/
 	
 	UpdateCOM();
 }
@@ -199,15 +187,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	
 	// Initialize modules
 	TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipModule::StaticClass());
-	
-	// Add one to count the Airframe
-	if(Modules.Num()+1 != Data.Modules.Num())
-	{
-		FLOGV("WARNING ! There is %d modules in the save but %d modules in the blueprint.", Data.Modules.Num(), Modules.Num());
-	}
-	
-	// Begin at 1 to skip the Airframe
-	for (int32 ModuleIndex = 1; ModuleIndex < Modules.Num(); ModuleIndex++)
+	for (int32 ModuleIndex = 0; ModuleIndex < Modules.Num(); ModuleIndex++)
 	{	
 		UFlareShipModule* Module = Cast<UFlareShipModule>(Modules[ModuleIndex]);
 		FFlareShipModuleSave ModuleData;
@@ -226,7 +206,6 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		
 		if(!found)
 		{
-			FLOGV("WARNING ! No data found for module %s (%d) with id  %s.", *Module->GetReadableName(),ModuleIndex, Module->SlotIdentifier);
 			continue;
 		}
 		
@@ -389,7 +368,7 @@ bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
 	// Try to dock
 	if (DockingInfo.Granted)
 	{
-		
+		FLOG("AFlareShip::DockAt : access granted");
 		FVector ShipDockOffset = GetDockLocation();
 		DockingInfo.EndPoint += DockingInfo.Rotation.RotateVector(ShipDockOffset * FVector(1, 0, 0)) - ShipDockOffset * FVector(0, 1, 1);
 		DockingInfo.StartPoint = DockingInfo.EndPoint + 5000 * DockingInfo.Rotation.RotateVector(FVector(1, 0, 0));
@@ -677,7 +656,7 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 	CommandData.Peek(Data);
 
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
-  
+
 	FVector DeltaPosition = (Data.LocationTarget - GetActorLocation()) / 100; // Distance in meters
 	FVector DeltaPositionDirection = DeltaPosition;
 	DeltaPositionDirection.Normalize();
@@ -716,7 +695,6 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 		RelativeResultSpeed *= MaxPreciseSpeed;
 	}
 
-	
 	// Under this distance we consider the variation negligible, and ensure null delta + null speed
 	if (Distance < LinearDeadDistance && DeltaVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
 	{
@@ -870,29 +848,11 @@ void AFlareShip::SetRCSDescription(FFlareShipModuleDescription* Description)
 			{
 				float Mass = Airframe->GetMass() / 100000;
 				AngularAccelerationRate = Characteristic.CharacteristicValue / (60 * Mass);
-			}
-
-			// Calculate the RCS linear thrust force in N (data value in kN)
-			else if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::EnginePower)
-			{
-				LinearThrust = 100 * 1000 * Characteristic.CharacteristicValue;
+				break;
 			}
 		}
 	}
 }
-/*
-void AFlareShip::SetWeaponDescription(int32 Index, FFlareShipModuleDescription* Description)
-{
-	if (Index < WeaponList.Num())
-	{
-		WeaponDescriptionList[Index] = Description;
-		ReloadPart(WeaponList[Index], Description);
-	}
-	else
-	{
-		FLOGV("AFlareShip::SetWeaponDescription : failed (no such index %d)", Index);
-	}
-}*/
 
 void AFlareShip::UpdateCustomization()
 {

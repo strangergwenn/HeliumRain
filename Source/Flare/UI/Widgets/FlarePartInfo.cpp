@@ -219,9 +219,6 @@ FString SFlarePartInfo::GetCharacteristicLabel(EFlarePartCharacteristicType::Typ
 		case EFlarePartCharacteristicType::AmmoPower:
 			Label = "Power";
 			break;
-		case EFlarePartCharacteristicType::AmmoRange:
-			Label = "Range";
-			break;
 		case EFlarePartCharacteristicType::AmmoRate:
 			Label += "Rate of fire";
 			break;
@@ -252,9 +249,6 @@ const FSlateBrush* SFlarePartInfo::GetCharacteristicBrush(const FFlarePartCharac
 	{
 		case EFlarePartCharacteristicType::AmmoPower:
 			Result = FFlareStyleSet::GetIcon("Shell");
-			break;
-		case EFlarePartCharacteristicType::AmmoRange:
-			Result = FFlareStyleSet::GetIcon("Range");
 			break;
 		case EFlarePartCharacteristicType::AmmoRate:
 			Result = FFlareStyleSet::GetIcon("Rate");

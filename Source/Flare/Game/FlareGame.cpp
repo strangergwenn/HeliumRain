@@ -456,7 +456,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		for (int32 i = 0; i < Desc->OrbitalEngineCount; i++)
 		{
 			FFlareShipModuleSave ModuleData;
-			ModuleData.ModuleIdentifier = FName("engine-octopus");
+			ModuleData.ModuleIdentifier = OrbitalEngineIdentifier;
 			ModuleData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
 			int32 Damage = 0;
 			ShipData.Modules.Add(ModuleData);
