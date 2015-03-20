@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine.h"
-#include "FlareShipModule.generated.h"
+#include "FlareShipComponent.generated.h"
 
 class AFlareShipBase;
 class UFlareCompany;
@@ -159,7 +159,7 @@ struct FFlareShipModuleDescription
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class UFlareShipModule : public UStaticMeshComponent
+class UFlareShipComponent : public UStaticMeshComponent
 {
 
 public:

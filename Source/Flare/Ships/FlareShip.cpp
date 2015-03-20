@@ -102,9 +102,9 @@ void AFlareShip::Tick(float DeltaSeconds)
 		if (!IsDocked())
 		{
 			// Tick Modules
-			TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipModule::StaticClass());
+			TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipComponent::StaticClass());
 			for (int32 i = 0; i < Modules.Num(); i++) {
-				UFlareShipModule* Module = Cast<UFlareShipModule>(Modules[i]);
+				UFlareShipComponent* Module = Cast<UFlareShipComponent>(Modules[i]);
 				Module->TickModule(DeltaSeconds);
 			}
 			PhysicSubTick(DeltaSeconds);
@@ -186,10 +186,10 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 
 	
 	// Initialize modules
-	TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipModule::StaticClass());
+	TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipComponent::StaticClass());
 	for (int32 ModuleIndex = 0; ModuleIndex < Modules.Num(); ModuleIndex++)
 	{	
-		UFlareShipModule* Module = Cast<UFlareShipModule>(Modules[ModuleIndex]);
+		UFlareShipComponent* Module = Cast<UFlareShipComponent>(Modules[ModuleIndex]);
 		FFlareShipModuleSave ModuleData;
 		
 		// Find module data

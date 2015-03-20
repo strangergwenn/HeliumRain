@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareListItem.h"
 #include "../Widgets/FlareConfirmationBox.h"
-#include "../../Ships/FlareShipModule.h"
+#include "../../Ships/FlareShipComponent.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../Widgets/FlareTargetActions.h"
 

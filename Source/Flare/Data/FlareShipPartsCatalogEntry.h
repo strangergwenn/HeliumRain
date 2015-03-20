@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Ships/FlareShipModule.h"
+#include "../Ships/FlareShipComponent.h"
 #include "FlareShipPartsCatalogEntry.generated.h"
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Ships/FlareShip.h"
-#include "../Ships/FlareShipModule.h"
+#include "../Ships/FlareShipComponent.h"
 #include "FlareMenuPawn.generated.h"
 
 
@@ -82,11 +82,11 @@ protected:
 
 	/** StaticMesh component */
 	UPROPERTY(Category = PartViewer, VisibleDefaultsOnly, BlueprintReadOnly)
-	class UFlareShipModule* CurrentPartA;
+	class UFlareShipComponent* CurrentPartA;
 
 	/** StaticMesh component */
 	UPROPERTY(Category = PartViewer, VisibleDefaultsOnly, BlueprintReadOnly)
-	class UFlareShipModule* CurrentPartB;
+	class UFlareShipComponent* CurrentPartB;
 
 	/** Max pitch angle on viewer */
 	UPROPERTY(Category = PartViewer, EditAnywhere, BlueprintReadWrite)

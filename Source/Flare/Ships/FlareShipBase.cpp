@@ -98,27 +98,10 @@ void AFlareShipBase::SetCompany(UFlareCompany* NewCompany)
 	Company = NewCompany;
 }
 
-void AFlareShipBase::ReloadPart(UFlareShipModule* Target, const FFlareShipModuleSave* Data)
+void AFlareShipBase::ReloadPart(UFlareShipComponent* Target, const FFlareShipModuleSave* Data)
 {
 	Target->Initialize(Data, Company, this);
 }
-/*
-void AFlareShipBase::ReloadAllParts(const UClass* TargetClass, const FFlareShipModuleDescription* TargetDescription)
-{
-	// Required data
-	TArray<UActorComponent*> ActorComponents;
-	GetComponents(ActorComponents);
-
-	// Find all components of the target type
-	for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
-	{
-		UFlareShipModule* Module = Cast<UFlareShipModule>(*ComponentIt);
-		if (Module && Module->GetClass() == TargetClass)
-		{
-			ReloadPart(Module, TargetDescription);
-		}
-	}
-}*/
 
 void AFlareShipBase::UpdateCustomization()
 {
@@ -129,7 +112,7 @@ void AFlareShipBase::UpdateCustomization()
 	// Find all components
 	for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
 	{
-		UFlareShipModule* Module = Cast<UFlareShipModule>(*ComponentIt);
+		UFlareShipComponent* Module = Cast<UFlareShipComponent>(*ComponentIt);
 		if (Module)
 		{
 			if (!Module->IsInitialized())

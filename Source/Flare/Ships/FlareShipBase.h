@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareShipModule.h"
+#include "FlareShipComponent.h"
 #include "FlareShipBase.generated.h"
 
 
@@ -70,10 +70,7 @@ public:
 	void SetCompany(UFlareCompany* NewCompany);
 
 	/** Reload the part Target with TargetDescription */
-	virtual void ReloadPart(UFlareShipModule* Target, const FFlareShipModuleSave* Data);
-
-	/** Reload all parts of type TargetClass with TargetDescription */
-	//virtual void ReloadAllParts(const UClass* TargetClass, const FFlareShipModuleDescription* TargetDescription);
+	virtual void ReloadPart(UFlareShipComponent* Target, const FFlareShipModuleSave* Data);
 
 	/** Update the parts settings */
 	virtual void UpdateCustomization();

@@ -1,7 +1,7 @@
 ;
 #include "../Flare.h"
 #include "FlareShip.h"
-#include "FlareShipModule.h"
+#include "FlareShipComponent.h"
 #include "../Player/FlarePlayerController.h"
 
 #include "StaticMeshResources.h"
@@ -11,7 +11,7 @@
 	Constructor
 ----------------------------------------------------*/
 
-UFlareShipModule::UFlareShipModule(const class FObjectInitializer& PCIP)
+UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, Ship(NULL)
 	, PlayerCompany(NULL)
@@ -26,7 +26,7 @@ UFlareShipModule::UFlareShipModule(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareShipModule::OnRegister()
+void UFlareShipComponent::OnRegister()
 {
 	Super::OnRegister();
 
@@ -34,12 +34,12 @@ void UFlareShipModule::OnRegister()
 	SetCollisionProfileName("BlockAllDynamic");
 }
 
-void UFlareShipModule::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UFlareShipModule::Initialize(const FFlareShipModuleSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareShipComponent::Initialize(const FFlareShipModuleSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
 	// Main data
 	Ship = OwnerShip;
@@ -67,18 +67,18 @@ void UFlareShipModule::Initialize(const FFlareShipModuleSave* Data, UFlareCompan
 	UpdateCustomization();
 }
 
-float UFlareShipModule::GetMeshScale()
+float UFlareShipComponent::GetMeshScale()
 {
 	FVector Extent = GetCollisionShape().GetExtent();
 	return FMath::Max(Extent.Size(), 1.0f);
 }
 
-bool UFlareShipModule::IsInitialized()
+bool UFlareShipComponent::IsInitialized()
 {
 	return (Ship != NULL);
 }
 
-void UFlareShipModule::SetTemperature(int32 TemperatureKelvin)
+void UFlareShipComponent::SetTemperature(int32 TemperatureKelvin)
 {
 	if (ModuleMaterial)
 	{
@@ -91,7 +91,7 @@ void UFlareShipModule::SetTemperature(int32 TemperatureKelvin)
 	Customization
 ----------------------------------------------------*/
 
-void UFlareShipModule::SetupModuleMesh()
+void UFlareShipComponent::SetupModuleMesh()
 {
 	// Set the mesh
 	if (ModuleDescription)
@@ -125,7 +125,7 @@ void UFlareShipModule::SetupModuleMesh()
 	}
 }
 
-void UFlareShipModule::SetupEffectMesh()
+void UFlareShipComponent::SetupEffectMesh()
 {
 	// Remove the previous effect mesh is available
 	if (EffectMesh)
@@ -157,12 +157,12 @@ void UFlareShipModule::SetupEffectMesh()
 	}
 }
 
-void UFlareShipModule::TickModule(float DeltaTime)
+void UFlareShipComponent::TickModule(float DeltaTime)
 {
 	// Do nothing
 }
 
-void UFlareShipModule::UpdateCustomization()
+void UFlareShipComponent::UpdateCustomization()
 {
 	if (PlayerCompany)
 	{
