@@ -35,7 +35,7 @@ public:
 	void ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData);
 
 	/** Load a new part to visualize */
-	void ShowPart(const FFlareShipModuleDescription* PartDesc);
+	void ShowPart(const FFlareShipComponentDescription* PartDesc);
 
 
 	/*----------------------------------------------------

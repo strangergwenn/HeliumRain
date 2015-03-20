@@ -17,9 +17,9 @@ UFlareShipPartsCatalog::UFlareShipPartsCatalog(const class FObjectInitializer& P
 	Data getters
 ----------------------------------------------------*/
 
-FFlareShipModuleDescription* UFlareShipPartsCatalog::Get(FName Identifier) const
+FFlareShipComponentDescription* UFlareShipPartsCatalog::Get(FName Identifier) const
 {
-	FFlareShipModuleDescription* Part = NULL;
+	FFlareShipComponentDescription* Part = NULL;
 
 	auto FindByName = [=](const UFlareShipPartsCatalogEntry* Candidate)
 	{
@@ -52,7 +52,7 @@ FFlareShipModuleDescription* UFlareShipPartsCatalog::Get(FName Identifier) const
 
 	if (!Part)
 	{
-		Temp = InternalModulesCatalog.FindByPredicate(FindByName);
+		Temp = InternalComponentsCatalog.FindByPredicate(FindByName);
 		if (Temp)
 		{
 			Part = &(*Temp)->Data;
@@ -71,7 +71,7 @@ FFlareShipModuleDescription* UFlareShipPartsCatalog::Get(FName Identifier) const
 	return Part;
 }
 
-const void UFlareShipPartsCatalog::GetEngineList(TArray<FFlareShipModuleDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareShipPartsCatalog::GetEngineList(TArray<FFlareShipComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
 {
 	for (int32 i = 0; i < EngineCatalog.Num(); i++)
 	{
@@ -82,7 +82,7 @@ const void UFlareShipPartsCatalog::GetEngineList(TArray<FFlareShipModuleDescript
 	}
 }
 
-const void UFlareShipPartsCatalog::GetRCSList(TArray<FFlareShipModuleDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareShipPartsCatalog::GetRCSList(TArray<FFlareShipComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
 {
 	for (int32 i = 0; i < RCSCatalog.Num(); i++)
 	{
@@ -93,7 +93,7 @@ const void UFlareShipPartsCatalog::GetRCSList(TArray<FFlareShipModuleDescription
 	}
 }
 
-const void UFlareShipPartsCatalog::GetWeaponList(TArray<FFlareShipModuleDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareShipPartsCatalog::GetWeaponList(TArray<FFlareShipComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
 {
 	for (int32 i = 0; i < WeaponCatalog.Num(); i++)
 	{

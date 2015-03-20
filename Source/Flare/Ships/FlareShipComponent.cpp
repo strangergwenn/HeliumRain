@@ -15,8 +15,8 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, Ship(NULL)
 	, PlayerCompany(NULL)
-	, ModuleMaterial(NULL)
-	, ModuleDescription(NULL)
+	, ComponentMaterial(NULL)
+	, ComponentDescription(NULL)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -39,7 +39,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UFlareShipComponent::Initialize(const FFlareShipModuleSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
 	// Main data
 	Ship = OwnerShip;
@@ -48,10 +48,10 @@ void UFlareShipComponent::Initialize(const FFlareShipModuleSave* Data, UFlareCom
 	// Setup properties
 	if (Data)
 	{
-		ModuleDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ModuleIdentifier);
-		for (int32 i = 0; i < ModuleDescription->Characteristics.Num(); i++)
+		ComponentDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
+		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
 		{
-			const FFlarePartCharacteristic& Characteristic = ModuleDescription->Characteristics[i];
+			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
 			switch (Characteristic.CharacteristicType)
 			{
 			}
@@ -63,7 +63,7 @@ void UFlareShipComponent::Initialize(const FFlareShipModuleSave* Data, UFlareCom
 	{
 		SetupEffectMesh();
 	}
-	SetupModuleMesh();
+	SetupComponentMesh();
 	UpdateCustomization();
 }
 
@@ -80,9 +80,9 @@ bool UFlareShipComponent::IsInitialized()
 
 void UFlareShipComponent::SetTemperature(int32 TemperatureKelvin)
 {
-	if (ModuleMaterial)
+	if (ComponentMaterial)
 	{
-		ModuleMaterial->SetScalarParameterValue("Temperature", TemperatureKelvin);
+		ComponentMaterial->SetScalarParameterValue("Temperature", TemperatureKelvin);
 	}
 }
 
@@ -91,13 +91,13 @@ void UFlareShipComponent::SetTemperature(int32 TemperatureKelvin)
 	Customization
 ----------------------------------------------------*/
 
-void UFlareShipComponent::SetupModuleMesh()
+void UFlareShipComponent::SetupComponentMesh()
 {
 	// Set the mesh
-	if (ModuleDescription)
+	if (ComponentDescription)
 	{
-		SetStaticMesh(ModuleDescription->Mesh);
-		SetMaterial(0, ModuleDescription->Mesh->GetMaterial(0));
+		SetStaticMesh(ComponentDescription->Mesh);
+		SetMaterial(0, ComponentDescription->Mesh->GetMaterial(0));
 	}
 
 	// Parse all LODs levels, then all elements
@@ -113,13 +113,13 @@ void UFlareShipComponent::SetupModuleMesh()
 			// Generate MIDs from LOD 0 only
 			if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
 			{
-				ModuleMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+				ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
 			}
 
 			// Apply generated materials at each LOD
-			if (ModuleMaterial)
+			if (ComponentMaterial)
 			{
-				SetMaterial(Element.MaterialIndex, ModuleMaterial);
+				SetMaterial(Element.MaterialIndex, ComponentMaterial);
 			}
 		}
 	}
@@ -134,10 +134,11 @@ void UFlareShipComponent::SetupEffectMesh()
 	}
 
 	// Add and register the effect mesh if available
-	if (Ship && ModuleDescription && ModuleDescription->EffectMesh)
+	if (Ship && ComponentDescription && ComponentDescription->EffectMesh)
 	{
+
 		EffectMesh = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), Ship);
-		EffectMesh->SetStaticMesh(ModuleDescription->EffectMesh);
+		EffectMesh->SetStaticMesh(ComponentDescription->EffectMesh);
 
 		// Place and register
 		EffectMesh->SetWorldLocation(GetComponentLocation());
@@ -157,7 +158,7 @@ void UFlareShipComponent::SetupEffectMesh()
 	}
 }
 
-void UFlareShipComponent::TickModule(float DeltaTime)
+void UFlareShipComponent::ShipTickComponent(float DeltaTime)
 {
 	// Do nothing
 }
@@ -166,9 +167,9 @@ void UFlareShipComponent::UpdateCustomization()
 {
 	if (PlayerCompany)
 	{
-		if (ModuleMaterial)
+		if (ComponentMaterial)
 		{
-			PlayerCompany->CustomizeModuleMaterial(ModuleMaterial);
+			PlayerCompany->CustomizeComponentMaterial(ComponentMaterial);
 		}
 		if (EffectMaterial)
 		{

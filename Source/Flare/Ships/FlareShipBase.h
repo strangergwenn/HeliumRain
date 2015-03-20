@@ -70,7 +70,7 @@ public:
 	void SetCompany(UFlareCompany* NewCompany);
 
 	/** Reload the part Target with TargetDescription */
-	virtual void ReloadPart(UFlareShipComponent* Target, const FFlareShipModuleSave* Data);
+	virtual void ReloadPart(UFlareShipComponent* Target, const FFlareShipComponentSave* Data);
 
 	/** Update the parts settings */
 	virtual void UpdateCustomization();

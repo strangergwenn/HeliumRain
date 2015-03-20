@@ -446,29 +446,29 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		
 		for (int32 i = 0; i < Desc->RCSCount; i++)
 		{
-			FFlareShipModuleSave ModuleData;
-			ModuleData.ModuleIdentifier = RCSIdentifier;
-			ModuleData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
+			FFlareShipComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = RCSIdentifier;
+			ComponentData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
 			int32 Damage = 0;
-			ShipData.Modules.Add(ModuleData);
+			ShipData.Components.Add(ComponentData);
 		}
 		
 		for (int32 i = 0; i < Desc->OrbitalEngineCount; i++)
 		{
-			FFlareShipModuleSave ModuleData;
-			ModuleData.ModuleIdentifier = OrbitalEngineIdentifier;
-			ModuleData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
+			FFlareShipComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
+			ComponentData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
 			int32 Damage = 0;
-			ShipData.Modules.Add(ModuleData);
+			ShipData.Components.Add(ComponentData);
 		}
 
 		for (int32 i = 0; i < Desc->GunSlots.Num(); i++)
 		{
-			FFlareShipModuleSave ModuleData;
-			ModuleData.ModuleIdentifier = FName("weapon-eradicator");
-			ModuleData.ShipSlotIdentifier = Desc->GunSlots[i].Identifier;
+			FFlareShipComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = FName("weapon-eradicator");
+			ComponentData.ShipSlotIdentifier = Desc->GunSlots[i].Identifier;
 			int32 Damage = 0;
-			ShipData.Modules.Add(ModuleData);
+			ShipData.Components.Add(ComponentData);
 		}
 		
 		for (int32 i = 0; i < Desc->TurretSlots.Num(); i++)
@@ -476,16 +476,16 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 			// TODO TURRETS
 		}
 		
-		for (int32 i = 0; i < Desc->InternalModuleSlots.Num(); i++)
+		for (int32 i = 0; i < Desc->InternalComponentSlots.Num(); i++)
 		{
-			FFlareShipModuleSave ModuleData;
-			ModuleData.ModuleIdentifier = Desc->InternalModuleSlots[i].Module.Identifier;
-			ModuleData.ShipSlotIdentifier = Desc->GunSlots[i].Identifier;
+			FFlareShipComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = Desc->InternalComponentSlots[i].Component.Identifier;
+			ComponentData.ShipSlotIdentifier = Desc->GunSlots[i].Identifier;
 			int32 Damage = 0;
 			
 			// TODO Init attributes for different types
 			
-			ShipData.Modules.Add(ModuleData);
+			ShipData.Components.Add(ComponentData);
 		}
 
 		// Create the ship

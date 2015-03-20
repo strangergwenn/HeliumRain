@@ -30,18 +30,18 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareWeapon::Initialize(const FFlareShipModuleSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 
 	// Setup properties
-	if (ModuleDescription)
+	if (ComponentDescription)
 	{
-		ShellMesh = ModuleDescription->EffectMesh;
+		ShellMesh = ComponentDescription->EffectMesh;
 
-		for (int32 i = 0; i < ModuleDescription->Characteristics.Num(); i++)
+		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
 		{
-			const FFlarePartCharacteristic& Characteristic = ModuleDescription->Characteristics[i];
+			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
 			switch (Characteristic.CharacteristicType)
 			{
 				case EFlarePartCharacteristicType::AmmoRate:
@@ -90,7 +90,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			ProjectileSpawnParams);
 
 		// Fire it
-		Shell->Initialize(this, ModuleDescription, FiringDirection, FiringVelocity);
+		Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity);
 		FiringEffect->ActivateSystem();
 
 		// Play sound

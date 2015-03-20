@@ -4,7 +4,7 @@
 #include "FlareShipInterface.generated.h"
 
 class IFlareStationInterface;
-struct FFlareShipModuleSave;
+struct FFlareShipComponentSave;
 
 /** Game save data */
 
@@ -45,7 +45,7 @@ struct FFlareShipSave
 
 	/** Orbital engine catalog identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareShipModuleSave> Modules;
+	TArray<FFlareShipComponentSave> Components;
 
 	/** We are docked at this station */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -57,7 +57,7 @@ struct FFlareShipSave
 
 };
 
-/** Catalog binding between FFlareShipDescription and FFlareShipModuleDescription structure */
+/** Catalog binding between FFlareShipDescription and FFlareShipComponentDescription structure */
 USTRUCT()
 struct FFlareShipSlotDescription
 {
@@ -66,8 +66,8 @@ struct FFlareShipSlotDescription
 	/** Slot internal name */
 	UPROPERTY(EditAnywhere, Category = Content) FName Identifier;
 	
-	/** Module description can be empty if configurable slot */
-	UPROPERTY(EditAnywhere, Category = Content) FFlareShipModuleDescription Module;
+	/** Component description can be empty if configurable slot */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentDescription Component;
 };
 
 /** Catalog data structure for a ship */
@@ -109,9 +109,9 @@ struct FFlareShipDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareShipSlotDescription> TurretSlots;
 
-	/** Internal module slots */
+	/** Internal component slots */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareShipSlotDescription> InternalModuleSlots;
+	TArray<FFlareShipSlotDescription> InternalComponentSlots;
 
 	/** Max angular velocity in degree/s */
 	UPROPERTY(EditAnywhere, Category = Content)	float AngularMaxVelocity;

@@ -101,11 +101,11 @@ void AFlareShip::Tick(float DeltaSeconds)
 				// Physics
 		if (!IsDocked())
 		{
-			// Tick Modules
-			TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipComponent::StaticClass());
-			for (int32 i = 0; i < Modules.Num(); i++) {
-				UFlareShipComponent* Module = Cast<UFlareShipComponent>(Modules[i]);
-				Module->TickModule(DeltaSeconds);
+			// Tick Components
+			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+			for (int32 i = 0; i < Components.Num(); i++) {
+				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
+				Component->ShipTickComponent(DeltaSeconds);
 			}
 			PhysicSubTick(DeltaSeconds);
 		}
@@ -185,20 +185,20 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	SetShipDescription(Desc);
 
 	
-	// Initialize modules
-	TArray<UActorComponent*> Modules = GetComponentsByClass(UFlareShipComponent::StaticClass());
-	for (int32 ModuleIndex = 0; ModuleIndex < Modules.Num(); ModuleIndex++)
+	// Initialize components
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{	
-		UFlareShipComponent* Module = Cast<UFlareShipComponent>(Modules[ModuleIndex]);
-		FFlareShipModuleSave ModuleData;
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		FFlareShipComponentSave ComponentData;
 		
-		// Find module data
+		// Find component data
 		bool found = false;
-		for (int32 i = 0; i < Data.Modules.Num(); i++)
+		for (int32 i = 0; i < Data.Components.Num(); i++)
 		{
-			if(Module->SlotIdentifier == Data.Modules[i].ShipSlotIdentifier)
+			if(Component->SlotIdentifier == Data.Components[i].ShipSlotIdentifier)
 			{
-				ModuleData = Data.Modules[i];
+				ComponentData = Data.Components[i];
 				found = true;
 				break;
 			}
@@ -210,21 +210,21 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		}
 		
 		
-		ReloadPart(Module, &ModuleData);
+		ReloadPart(Component, &ComponentData);
 		
 		
-		FFlareShipModuleDescription* ModuleDescription = Catalog->Get(ModuleData.ModuleIdentifier);
-		if(ModuleDescription->Type == EFlarePartType::RCS)
+		FFlareShipComponentDescription* ComponentDescription = Catalog->Get(ComponentData.ComponentIdentifier);
+		if(ComponentDescription->Type == EFlarePartType::RCS)
 		{
-			SetRCSDescription(ModuleDescription);
+			SetRCSDescription(ComponentDescription);
 		}
-		else if(ModuleDescription->Type == EFlarePartType::OrbitalEngine)
+		else if(ComponentDescription->Type == EFlarePartType::OrbitalEngine)
 		{
-			SetOrbitalEngineDescription(ModuleDescription);
+			SetOrbitalEngineDescription(ComponentDescription);
 		}
 		
 		// If this is a weapon, Add to weapon list.
-		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Module);
+		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Component);
 		if (Weapon)
 		{
 			WeaponList.Add(Weapon);
@@ -232,12 +232,12 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	}
 	
 	// Load weapon descriptions
-	for (int32 i = 0; i < Data.Modules.Num(); i++)
+	for (int32 i = 0; i < Data.Components.Num(); i++)
 	{
-		FFlareShipModuleDescription* ModuleDescription = Catalog->Get(Data.Modules[i].ModuleIdentifier);
-		if(ModuleDescription->Type == EFlarePartType::Weapon)
+		FFlareShipComponentDescription* ComponentDescription = Catalog->Get(Data.Components[i].ComponentIdentifier);
+		if(ComponentDescription->Type == EFlarePartType::Weapon)
 		{
-			WeaponDescriptionList.Add(ModuleDescription);
+			WeaponDescriptionList.Add(ComponentDescription);
 		}
 	}
 
@@ -280,7 +280,7 @@ FFlareShipSave* AFlareShip::Save()
 		ShipData.WeaponIdentifiers.Add(WeaponDescriptionList[i]->Identifier);
 	}*/
 	
-	//TODO save all modules
+	//TODO save all components
 
 	return &ShipData;
 }
@@ -825,13 +825,13 @@ void AFlareShip::SetShipDescription(FFlareShipDescription* Description)
 	}
 }
 
-void AFlareShip::SetOrbitalEngineDescription(FFlareShipModuleDescription* Description)
+void AFlareShip::SetOrbitalEngineDescription(FFlareShipComponentDescription* Description)
 {
 	OrbitalEngineDescription = Description;
 	//ReloadAllParts(UFlareOrbitalEngine::StaticClass(), Description);
 }
 
-void AFlareShip::SetRCSDescription(FFlareShipModuleDescription* Description)
+void AFlareShip::SetRCSDescription(FFlareShipComponentDescription* Description)
 {
 	RCSDescription = Description;
 	//ReloadAllParts(UFlareRCS::StaticClass(), Description);
@@ -841,7 +841,7 @@ void AFlareShip::SetRCSDescription(FFlareShipModuleDescription* Description)
 	{
 		for (int32 i = 0; i < Description->Characteristics.Num(); i++)
 		{
-			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
+			const FFlareShipComponentCharacteristic& Characteristic = Description->Characteristics[i];
 
 			// Calculate the angular acceleration rate from the ton weight (data value in °/s per 100T)
 			if (Airframe && Characteristic.CharacteristicType == EFlarePartCharacteristicType::RCSAccelerationRating)

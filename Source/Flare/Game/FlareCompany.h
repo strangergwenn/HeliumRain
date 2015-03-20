@@ -103,7 +103,7 @@ public:
 	virtual void UpdateCompanyCustomization();
 
 	/** Apply customization to a component's material */
-	virtual void CustomizeModuleMaterial(UMaterialInstanceDynamic* Mat);
+	virtual void CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat);
 
 	/** Apply customization to a component's special effect material */
 	virtual void CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat);

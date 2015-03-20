@@ -54,7 +54,7 @@ void AFlareProjectile::PostInitializeComponents()
 	SetLifeSpan(1000000 / MovementComp->InitialSpeed);
 }
 
-void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipModuleDescription* Description, FVector ShootDirection, FVector ParentVelocity)
+void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity)
 {
 	ShellDirection = ShootDirection;
 	ShellDescription = Description;
@@ -113,7 +113,7 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult)
 			int32 ShellPower = 0;
 			for (int32 i = 0; i < ShellDescription->Characteristics.Num(); i++)
 			{
-				const FFlarePartCharacteristic& Characteristic = ShellDescription->Characteristics[i];
+				const FFlareShipComponentCharacteristic& Characteristic = ShellDescription->Characteristics[i];
 				switch (Characteristic.CharacteristicType)
 				{
 					case EFlarePartCharacteristicType::AmmoPower:

@@ -17,7 +17,7 @@ public:
 
 	/** Data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	FFlareShipModuleDescription Data;
+	FFlareShipComponentDescription Data;
 
 
 };

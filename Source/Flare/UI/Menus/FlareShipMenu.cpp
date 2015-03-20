@@ -314,10 +314,10 @@ void SFlareShipMenu::LoadTargetShip()
 		FName OrbitalEngineIdentifier;
 		FName RCSIdentifier;
 		
-		for (int32 i = 0; i < CurrentShipData->Modules.Num(); i++)
+		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
 		{
-			FFlareShipModuleDescription* ModuleDescription = Catalog->Get(CurrentShipData->Modules[i].ModuleIdentifier);
-			if(ModuleDescription->Type == EFlarePartType::Weapon)
+			FFlareShipComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
+			if(ComponentDescription->Type == EFlarePartType::Weapon)
 			{
 				
 				WeaponButtonBox->AddSlot()
@@ -330,14 +330,14 @@ void SFlareShipMenu::LoadTargetShip()
 					];
 				Temp->GetContainer()->SetContent(SNew(SFlarePartInfo)
 					.IsOwned(true)
-					.Description(Catalog->Get(CurrentShipData->Modules[i].ModuleIdentifier)));
+					.Description(Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier)));
 				WeaponCount++;
 			} 
-			else if(ModuleDescription->Type == EFlarePartType::RCS) {
-				RCSIdentifier = ModuleDescription->Identifier;
+			else if(ComponentDescription->Type == EFlarePartType::RCS) {
+				RCSIdentifier = ComponentDescription->Identifier;
 			}
-			else if(ModuleDescription->Type == EFlarePartType::OrbitalEngine) {
-				OrbitalEngineIdentifier = ModuleDescription->Identifier;
+			else if(ComponentDescription->Type == EFlarePartType::OrbitalEngine) {
+				OrbitalEngineIdentifier = ComponentDescription->Identifier;
 			}
 		}
 
@@ -370,7 +370,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC)
 	{
-		const FFlareShipModuleDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get(InternalName);
+		const FFlareShipComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get(InternalName);
 		if (PartDesc)
 		{
 			// Show part
@@ -392,7 +392,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	ShipCustomizationBox->SetVisibility(EVisibility::Collapsed);
 }
 
-void SFlareShipMenu::UpdatePartList(FFlareShipModuleDescription* SelectItem)
+void SFlareShipMenu::UpdatePartList(FFlareShipComponentDescription* SelectItem)
 {
 	ShipPartPickerTitle->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
 	PartList->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
@@ -570,14 +570,14 @@ void SFlareShipMenu::OnPartConfirmed()
 		CurrentEquippedPartIndex = CurrentPartIndex;
 
 		// Edit the correct save data property
-		FFlareShipModuleDescription* PartDesc = PartListData[CurrentPartIndex];
+		FFlareShipComponentDescription* PartDesc = PartListData[CurrentPartIndex];
 		UFlareShipPartsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
-		for (int32 i = 0; i < CurrentShipData->Modules.Num(); i++)
+		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
 		{
-			FFlareShipModuleDescription* ModuleDescription = Catalog->Get(CurrentShipData->Modules[i].ModuleIdentifier);
-			if(ModuleDescription->Type == PartDesc->Type)
+			FFlareShipComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
+			if(ComponentDescription->Type == PartDesc->Type)
 			{
-				CurrentShipData->Modules[i].ModuleIdentifier = PartDesc->Identifier;
+				CurrentShipData->Components[i].ComponentIdentifier = PartDesc->Identifier;
 			}
 			
 			//TODO Fix CurrentWeaponIndex

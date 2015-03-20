@@ -5,7 +5,7 @@
 
 
 USTRUCT()
-struct FFlareAirframeDescription : public FFlareShipModuleDescription
+struct FFlareAirframeDescription : public FFlareShipComponentDescription
 {
 	GENERATED_USTRUCT_BODY()
 

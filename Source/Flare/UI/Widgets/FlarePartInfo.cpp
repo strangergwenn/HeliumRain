@@ -117,7 +117,7 @@ void SFlarePartInfo::SetOwned(bool State)
 	Helpers
 ----------------------------------------------------*/
 
-void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareShipModuleDescription* Desc, bool ShowHelpers)
+void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareShipComponentDescription* Desc, bool ShowHelpers)
 {
 	Box->ClearChildren();
 
@@ -125,7 +125,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 	for (int32 i = 0; i < Desc->Characteristics.Num(); i++)
 	{
 		TSharedPtr<SVerticalBox> TempBox;
-		const FFlarePartCharacteristic& Characteristic = Desc->Characteristics[i];
+		const FFlareShipComponentCharacteristic& Characteristic = Desc->Characteristics[i];
 
 		Box->AddSlot().HAlign(HAlign_Fill)
 		[
@@ -173,11 +173,11 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 	}
 }
 
-FString SFlarePartInfo::GetCharacteristicInfo(const FFlareShipModuleDescription* Desc, EFlarePartCharacteristicType::Type Type)
+FString SFlarePartInfo::GetCharacteristicInfo(const FFlareShipComponentDescription* Desc, EFlarePartCharacteristicType::Type Type)
 {
 	for (int32 i = 0; i < Desc->Characteristics.Num(); i++)
 	{
-		const FFlarePartCharacteristic& Characteristic = Desc->Characteristics[i];
+		const FFlareShipComponentCharacteristic& Characteristic = Desc->Characteristics[i];
 
 		if (Characteristic.CharacteristicType == Type)
 		{
@@ -188,7 +188,7 @@ FString SFlarePartInfo::GetCharacteristicInfo(const FFlareShipModuleDescription*
 	return "";
 }
 
-FString SFlarePartInfo::GetCharacteristicInfo(const FFlarePartCharacteristic& Characteristic)
+FString SFlarePartInfo::GetCharacteristicInfo(const FFlareShipComponentCharacteristic& Characteristic)
 {
 	FString Unit;
 
@@ -241,7 +241,7 @@ FString SFlarePartInfo::GetCharacteristicLabel(EFlarePartCharacteristicType::Typ
 	return Label;
 }
 
-const FSlateBrush* SFlarePartInfo::GetCharacteristicBrush(const FFlarePartCharacteristic& Characteristic)
+const FSlateBrush* SFlarePartInfo::GetCharacteristicBrush(const FFlareShipComponentCharacteristic& Characteristic)
 {
 	const FSlateBrush* Result = NULL;
 

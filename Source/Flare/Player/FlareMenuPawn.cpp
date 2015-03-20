@@ -151,7 +151,7 @@ void AFlareMenuPawn::ShowStation(const FFlareStationDescription* StationDesc, co
 	}
 }
 
-void AFlareMenuPawn::ShowPart(const FFlareShipModuleDescription* PartDesc)
+void AFlareMenuPawn::ShowPart(const FFlareShipComponentDescription* PartDesc)
 {
 	// Clean up
 	ResetContent();
@@ -163,8 +163,8 @@ void AFlareMenuPawn::ShowPart(const FFlareShipModuleDescription* PartDesc)
 
 	// Load the parts and scale accordingly
 	CurrentPart->SetVisibility(true, true);
-	FFlareShipModuleSave Data;
-	Data.ModuleIdentifier = PartDesc->Identifier;
+	FFlareShipComponentSave Data;
+	Data.ComponentIdentifier = PartDesc->Identifier;
 	CurrentPart->Initialize(&Data, GetPC()->GetCompany(), this, true);
 	CurrentPart->SetWorldScale3D(FVector(1, 1, 1));
 	float Scale = DisplaySize / CurrentPart->GetMeshScale();

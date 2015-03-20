@@ -29,7 +29,7 @@ public:
 
 	/** Internal modules */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UFlareShipPartsCatalogEntry*> InternalModulesCatalog;
+	TArray<UFlareShipPartsCatalogEntry*> InternalComponentsCatalog;
 
 	/** Meta objects */
 	UPROPERTY(EditAnywhere, Category = Content)
@@ -42,16 +42,16 @@ public:
 	----------------------------------------------------*/
 
 	/** Get a part description */
-	FFlareShipModuleDescription* Get(FName Identifier) const;
+	FFlareShipComponentDescription* Get(FName Identifier) const;
 
 	/** Search all engines and get one that fits */
-	const void GetEngineList(TArray<FFlareShipModuleDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size);
+	const void GetEngineList(TArray<FFlareShipComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size);
 
 	/** Search all RCS and get one that fits */
-	const void GetRCSList(TArray<FFlareShipModuleDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size);
+	const void GetRCSList(TArray<FFlareShipComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size);
 
 	/** Search all weapons and get one that fits */
-	const void GetWeaponList(TArray<FFlareShipModuleDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size);
+	const void GetWeaponList(TArray<FFlareShipComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size);
 
 
 };
