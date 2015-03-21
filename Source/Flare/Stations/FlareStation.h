@@ -27,6 +27,8 @@ public:
 
 	virtual void Destroyed() override;
 
+	virtual void StartPresentation() override;
+
 
 	/*----------------------------------------------------
 		Station interface

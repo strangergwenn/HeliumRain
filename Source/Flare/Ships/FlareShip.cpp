@@ -468,7 +468,6 @@ IFlareStationInterface* AFlareShip::GetDockStation()
 			AFlareStation* Station = Cast<AFlareStation>(*ActorItr);
 			if (Station && *Station->GetName() == ShipData.DockedTo)
 			{
-				FLOGV("AFlareShip::GetDockStation : Found dock station '%s'", *Station->GetName());
 				return Station;
 			}
 		}
