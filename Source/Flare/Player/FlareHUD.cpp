@@ -127,7 +127,7 @@ void AFlareHUD::DrawHUD()
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareShipBase* ShipBase = Cast<AFlareShipBase>(*ActorItr);
-			if (PC && ShipBase && ShipBase != PC->GetShipPawn())
+			if (PC && ShipBase && ShipBase != PC->GetShipPawn() && ShipBase != PC->GetMenuPawn())
 			{
 				if (PC->LineOfSightTo(ShipBase) && IsExternalCamera)
 				{
