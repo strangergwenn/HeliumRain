@@ -124,7 +124,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 	// Armor
 	AddCharacteristicToBlock(Box,
 		"Armor",
-		FString::FromInt(Desc->ArmorHitPoints + Desc->FonctionalHitPoints + Desc->StruturalHitPoints),
+		FString::FromInt(Desc->ArmorHitPoints + Desc->HitPoints),
 		FFlareStyleSet::GetIcon("Armor"),
 		ShowHelpers);
 
