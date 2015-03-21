@@ -272,18 +272,18 @@ FFlareShipSave* AFlareShip::Save()
 	ShipData.LinearVelocity = Airframe->GetPhysicsLinearVelocity();
 	ShipData.AngularVelocity = Airframe->GetPhysicsAngularVelocity();
 
-	// Engines
-	//ShipData.OrbitalEngineIdentifier = OrbitalEngineDescription->Identifier;
-	//ShipData.RCSIdentifier = RCSDescription->Identifier;
+	ShipData.Components.Empty();
 
-	// Weapons
-	/*ShipData.WeaponIdentifiers.Empty();
-	for (int32 i = 0; i < WeaponDescriptionList.Num(); i++)
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
-		ShipData.WeaponIdentifiers.Add(WeaponDescriptionList[i]->Identifier);
-	}*/
-	
-	//TODO save all components
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		FFlareShipComponentSave* ComponentSave = Component->Save();
+
+		if(ComponentSave) {
+			ShipData.Components.Add(*ComponentSave);
+		}
+	}
 
 	return &ShipData;
 }
@@ -391,7 +391,7 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 		Component->GetLocalBounds(Min,Max);
 
 		FVector LocalBoxCenter = (Max + Min) /2;
-		
+
 		float ComponentSize = (Max - LocalBoxCenter).Size() /100.0f;
 		
 		FVector ComponentLocation = Component->GetComponentToWorld().TransformPosition(LocalBoxCenter);
@@ -399,7 +399,7 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 		float IntersectDistance =  Radius + ComponentSize - Distance;
 
 
-		FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance); 
+		FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
 		FLOGV("Component Min=%s Max=%s", *Min.ToString(), *Max.ToString());
 		//DrawDebugSphere(GetWorld(), ComponentLocation, ComponentSize * 100, 12, FColor::Green, true);
 

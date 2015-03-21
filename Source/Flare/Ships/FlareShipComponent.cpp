@@ -121,6 +121,18 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 	UpdateCustomization();
 }
 
+FFlareShipComponentSave* UFlareShipComponent::Save()
+{
+	if(ComponentDescription)
+	{
+		return &ShipComponentData;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 float UFlareShipComponent::GetMeshScale()
 {
 	FVector Extent = GetCollisionShape().GetExtent();

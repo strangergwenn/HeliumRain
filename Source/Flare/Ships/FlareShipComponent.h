@@ -188,6 +188,9 @@ public:
 	/** Initialize this component and register the master ship object */
 	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu = false);
 
+	/** Save the ship component to a save file */
+	virtual FFlareShipComponentSave* Save();
+
 	/** Get the meshg scale */
 	float GetMeshScale();
 

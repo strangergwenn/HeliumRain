@@ -19,6 +19,8 @@ public:
 
 	void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
 
+	virtual FFlareShipComponentSave* Save() override;
+
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	void SetupEffectMesh() override;

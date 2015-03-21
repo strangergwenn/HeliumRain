@@ -34,6 +34,8 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 
+	float FiredAmmo = 0;
+
 	// Setup properties
 	if (ComponentDescription)
 	{
@@ -57,6 +59,15 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 					break;
 			}
 		}
+
+		for (int32 i = 0; i < ShipComponentData.Attributes.Num(); i++)
+		{
+			FFlareShipComponentAttributeSave FiredAmmoAttribute;
+			if(ShipComponentData.Attributes[i].AttributeIdentifier == FName("weapon-fired-ammo"))
+			{
+				FiredAmmo = ShipComponentData.Attributes[i].AttributeValue;
+			}
+		}
 	}
 
 	// Spawn properties
@@ -65,8 +76,21 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 	ProjectileSpawnParams.bNoCollisionFail = true;
 
 	// Additional properties
-	CurrentAmmo = MaxAmmo;
+	CurrentAmmo = MaxAmmo - FiredAmmo;
 	FiringPeriod = 1 / (FiringRate / 60);
+}
+
+FFlareShipComponentSave* UFlareWeapon::Save()
+{
+	float FiredAmmo = MaxAmmo - CurrentAmmo;
+	FFlareShipComponentAttributeSave FiredAmmoAttribute;
+	FiredAmmoAttribute.AttributeIdentifier = FName("weapon-fired-ammo");
+	FiredAmmoAttribute.AttributeValue = FiredAmmo;
+	// TODO implement correct attibute insert method
+	ShipComponentData.Attributes.Empty();
+	ShipComponentData.Attributes.Add(FiredAmmoAttribute);
+
+	return Super::Save();
 }
 
 void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
