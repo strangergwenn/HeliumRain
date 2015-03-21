@@ -121,7 +121,6 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 
 void UFlareCompany::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)
 {
-	Mat->SetVectorParameterValue("GlowColor", FLinearColor(1, 0.1, 0));
 }
 
 FLinearColor UFlareCompany::NormalizeColor(FLinearColor Col) const

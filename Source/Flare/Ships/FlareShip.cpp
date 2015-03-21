@@ -649,6 +649,10 @@ void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 	}
 	else
 	{
+		if (ManualOrbitalBoost)
+		{
+			ManualLinearVelocity = LinearMaxVelocity * FVector(1, 0, 0);
+		}
 		LinearTargetVelocity = Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
 	}
 }
@@ -835,13 +839,11 @@ void AFlareShip::SetShipDescription(FFlareShipDescription* Description)
 void AFlareShip::SetOrbitalEngineDescription(FFlareShipComponentDescription* Description)
 {
 	OrbitalEngineDescription = Description;
-	//ReloadAllParts(UFlareOrbitalEngine::StaticClass(), Description);
 }
 
 void AFlareShip::SetRCSDescription(FFlareShipComponentDescription* Description)
 {
 	RCSDescription = Description;
-	//ReloadAllParts(UFlareRCS::StaticClass(), Description);
 
 	// Find the RCS turn and power rating, since RCSs themselves don't do anything
 	if (Description)
