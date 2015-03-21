@@ -121,13 +121,31 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 {
 	Box->ClearChildren();
 
-	// Fill in the characteristics structure for everything except the cost
+	// Armor
+	AddCharacteristicToBlock(Box,
+		"Armor",
+		FString::FromInt(Desc->ArmorHitPoints + Desc->FonctionalHitPoints + Desc->StruturalHitPoints),
+		FFlareStyleSet::GetIcon("Armor"),
+		ShowHelpers);
+
+	// Fill in the characteristics structure for dynamic values
 	for (int32 i = 0; i < Desc->Characteristics.Num(); i++)
 	{
-		TSharedPtr<SVerticalBox> TempBox;
 		const FFlareShipComponentCharacteristic& Characteristic = Desc->Characteristics[i];
 
-		Box->AddSlot().HAlign(HAlign_Fill)
+		AddCharacteristicToBlock(Box,
+			GetCharacteristicLabel(Characteristic.CharacteristicType),
+			GetCharacteristicInfo(Characteristic),
+			GetCharacteristicBrush(Characteristic),
+			ShowHelpers);
+	}
+}
+
+void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers)
+{
+	TSharedPtr<SVerticalBox> TempBox;
+
+	Box->AddSlot().HAlign(HAlign_Fill)
 		[
 			SNew(SHorizontalBox)
 
@@ -136,40 +154,39 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 			.VAlign(VAlign_Center)
 			.AutoWidth()
 			[
-				SNew(SImage).Image(GetCharacteristicBrush(Characteristic))
+				SNew(SImage).Image(Icon)
 			]
 
 			// Text
 			+ SHorizontalBox::Slot()
-			.Padding(FMargin(5, 0))
-			.VAlign(VAlign_Center)
-			.AutoWidth()
-			[
-				SAssignNew(TempBox, SVerticalBox)
-
-				// Value
-				+ SVerticalBox::Slot()
-				.VAlign(VAlign_Top)
-				.AutoHeight()
+				.Padding(FMargin(5, 0))
+				.VAlign(VAlign_Center)
+				.AutoWidth()
 				[
-					SNew(STextBlock)
-					.Text(GetCharacteristicInfo(Characteristic))
-					.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+					SAssignNew(TempBox, SVerticalBox)
+
+					// Value
+					+ SVerticalBox::Slot()
+					.VAlign(VAlign_Top)
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(Value)
+						.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+					]
 				]
-			]
 		];
 
-		// Helpers
-		if (ShowHelpers)
-		{
-			TempBox->AddSlot()
+	// Helpers
+	if (ShowHelpers)
+	{
+		TempBox->AddSlot()
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(GetCharacteristicLabel(Characteristic.CharacteristicType))
+				.Text(Label)
 				.TextStyle(FFlareStyleSet::Get(), "Flare.SmallText")
 			];
-		}
 	}
 }
 

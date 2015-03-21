@@ -44,6 +44,9 @@ public:
 	/** Get a Slate info block */
 	static void BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareShipComponentDescription* Desc, bool ShowHelpers = true);
 
+	/** Add data for a single characteristic to an horizontal box */
+	static void AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers);
+
 	/** Get a readable info string */
 	static FString GetCharacteristicInfo(const FFlareShipComponentDescription* Desc, EFlarePartCharacteristicType::Type Type);
 

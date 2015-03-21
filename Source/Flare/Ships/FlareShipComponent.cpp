@@ -49,13 +49,6 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 	if (Data)
 	{
 		ComponentDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
-		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
-		{
-			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
-			switch (Characteristic.CharacteristicType)
-			{
-			}
-		}
 	}
 
 	// Mesh and material setup
