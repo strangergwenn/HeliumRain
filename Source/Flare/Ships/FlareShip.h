@@ -112,7 +112,6 @@ public:
 	virtual void SetExternalCamera(bool NewState);
 
 
-
 	/*----------------------------------------------------
 		Ship interface
 	----------------------------------------------------*/
@@ -187,6 +186,7 @@ public:
 	/** Make sure this point is not in a path collider */
 	virtual bool IsPointColliding(FVector Candidate, AActor* Ignore);
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -215,9 +215,12 @@ protected:
 		Physics
 	----------------------------------------------------*/
 
+	/** Update the attitude control */
 	void PhysicSubTick(float DeltaSeconds);
 	
+	/** Update the ship's center of mass */
 	void UpdateCOM();
+
 
 public:
 
@@ -291,43 +294,45 @@ protected:
 	
 
 	// Component description
-	FFlareShipSave                ShipData;
-	FFlareShipDescription*        ShipDescription;
-	FFlareShipComponentDescription*  OrbitalEngineDescription;
-	FFlareShipComponentDescription*  RCSDescription;
+	FFlareShipSave                       ShipData;
+	FFlareShipDescription*               ShipDescription;
+	FFlareShipComponentDescription*      OrbitalEngineDescription;
+	FFlareShipComponentDescription*      RCSDescription;
 
 	// Weapons
-	TArray <UFlareWeapon*>                 WeaponList;
-	TArray <FFlareShipComponentDescription*>  WeaponDescriptionList;
+	TArray <UFlareWeapon*>                   WeaponList;
+	TArray <FFlareShipComponentDescription*> WeaponDescriptionList;
 
 	// Configuration properties
-	float                         AngularDeadAngle;
-	float                         AngularInputDeadRatio;
-	float                         AngularMaxVelocity; // degree/s
-	float                         AngularAccelerationRate;
-	float                         LinearDeadDistance;
-	float                         LinearMaxVelocity; // m/s
-	float                         NegligibleSpeedRatio;
+	float                                AngularDeadAngle;
+	float                                AngularInputDeadRatio;
+	float                                AngularMaxVelocity; // degree/s
+	float                                AngularAccelerationRate;
+	float                                LinearDeadDistance;
+	float                                LinearMaxVelocity; // m/s
+	float                                LinearMaxDockingVelocity; // m/s
+	float                                NegligibleSpeedRatio;
 
 	// Dynamic gameplay data
 	TEnumAsByte <EFlareShipStatus::Type> Status;
-	bool                          ExternalCamera;
+	bool                                 ExternalCamera;
 
 	// Navigation
-	TArray <AActor*>              PathColliders;
-	TQueue <FFlareShipCommandData> CommandData;
+	TArray <AActor*>                     PathColliders;
+	TQueue <FFlareShipCommandData>       CommandData;
 
 	// Manual pilot
-	FVector                       ManualAngularVelocity; // In local space
-	FVector                       ManualLinearVelocity;
-	bool                          ManualOrbitalBoost;
+	FVector                              ManualAngularVelocity; // In local space
+	FVector                              ManualLinearVelocity;
+	bool                                 ManualOrbitalBoost;
 
 	// Physics simulation
-	FVector                       LinearTargetVelocity;
-	FVector                       AngularTargetVelocity;
+	FVector                              LinearTargetVelocity;
+	FVector                              AngularTargetVelocity;
 	
-	// Temporary variable reset each tich
-	FVector COM;
+	// Temporary variable reset each tick
+	FVector                              COM;
+
 
 public:
 

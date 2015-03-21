@@ -23,6 +23,7 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	, AngularDeadAngle(0.5)
 	, AngularInputDeadRatio(0.025)
 	, LinearDeadDistance(0.1)
+	, LinearMaxDockingVelocity(10)
 	, NegligibleSpeedRatio(0.0005)
 	, Status(EFlareShipStatus::SS_Manual)
 {	
@@ -98,12 +99,14 @@ void AFlareShip::Tick(float DeltaSeconds)
 				}
 			}
 		}
-				// Physics
+
+		// Physics
 		if (!IsDocked())
 		{
-			// Tick Components
+			// Tick components
 			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
-			for (int32 i = 0; i < Components.Num(); i++) {
+			for (int32 i = 0; i < Components.Num(); i++)
+			{
 				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
 				Component->ShipTickComponent(DeltaSeconds);
 			}
@@ -184,7 +187,6 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	FFlareShipDescription* Desc = GetGame()->GetShipCatalog()->Get(Data.Identifier);
 	SetShipDescription(Desc);
 
-	
 	// Initialize components
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
@@ -196,7 +198,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		bool found = false;
 		for (int32 i = 0; i < Data.Components.Num(); i++)
 		{
-			if(Component->SlotIdentifier == Data.Components[i].ShipSlotIdentifier)
+			if (Component->SlotIdentifier == Data.Components[i].ShipSlotIdentifier)
 			{
 				ComponentData = Data.Components[i];
 				found = true;
@@ -204,26 +206,27 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 			}
 		}
 		
-		if(!found)
+		// Reload the component
+		if (!found)
 		{
 			continue;
 		}
-		
-		
 		ReloadPart(Component, &ComponentData);
 		
-		
+		// Set RCS description
 		FFlareShipComponentDescription* ComponentDescription = Catalog->Get(ComponentData.ComponentIdentifier);
-		if(ComponentDescription->Type == EFlarePartType::RCS)
+		if (ComponentDescription->Type == EFlarePartType::RCS)
 		{
 			SetRCSDescription(ComponentDescription);
 		}
-		else if(ComponentDescription->Type == EFlarePartType::OrbitalEngine)
+
+		// Set orbital engine description
+		else if (ComponentDescription->Type == EFlarePartType::OrbitalEngine)
 		{
 			SetOrbitalEngineDescription(ComponentDescription);
 		}
 		
-		// If this is a weapon, Add to weapon list.
+		// If this is a weapon, add to weapon list.
 		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Component);
 		if (Weapon)
 		{
@@ -235,7 +238,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	for (int32 i = 0; i < Data.Components.Num(); i++)
 	{
 		FFlareShipComponentDescription* ComponentDescription = Catalog->Get(Data.Components[i].ComponentIdentifier);
-		if(ComponentDescription->Type == EFlarePartType::Weapon)
+		if (ComponentDescription->Type == EFlarePartType::Weapon)
 		{
 			WeaponDescriptionList.Add(ComponentDescription);
 		}
@@ -376,14 +379,14 @@ bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
 		// Dock
 		if (NavigateTo(DockingInfo.StartPoint))
 		{
-			// Align front to dock axis
-			PushCommandRotation((DockingInfo.EndPoint - DockingInfo.StartPoint), FVector(1,0,0));
-			// Align ship top to station top
+			// Align front to dock axis, ship top to station top, set speed
+			PushCommandRotation((DockingInfo.EndPoint - DockingInfo.StartPoint), FVector(1, 0, 0));
 			PushCommandRotation(FVector(0,0,1), FVector(0,0,1));
+			LinearMaxVelocity = LinearMaxDockingVelocity;
 			
+			// Move there
 			PushCommandLocation(DockingInfo.EndPoint);
 			PushCommandDock(DockingInfo);
-
 			FLOG("AFlareShip::DockAt : navigation sent");
 			return true;
 		}
@@ -412,8 +415,10 @@ void AFlareShip::ConfirmDock(IFlareStationInterface* DockStation, int32 DockId)
 	ShipData.DockedTo = *DockStation->_getUObject()->GetName();
 	ShipData.DockedAt = DockId;
 	
-	// Disable physics
+	// Disable physics, reset speed
+	LinearMaxVelocity = ShipDescription->LinearMaxVelocity;
 	Airframe->SetSimulatePhysics(false);
+
 	// Cut engines
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
 	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
@@ -637,7 +642,7 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 
 void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 {
-	if(IsGliding())
+	if (IsGliding())
 	{
 		// Add velocity command to current velocity
 		LinearTargetVelocity = GetLinearVelocity() + Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
@@ -672,7 +677,8 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 	{
 		TimeToFinalVelocity = 0;
 	}
-	else {
+	else
+	{
 		
 		FVector Acceleration = GetTotalMaxThrustInAxis(Engines, DeltaVelocityAxis, 0, false) / Airframe->GetMass();
 		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, DeltaPositionDirection));
@@ -684,7 +690,8 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 
 	FVector RelativeResultSpeed;
 
-	if (DistanceToStop > Distance) {
+	if (DistanceToStop > Distance)
+	{
 		RelativeResultSpeed = FVector::ZeroVector;
 	}
 	else {
@@ -718,6 +725,7 @@ void AFlareShip::UpdateLinearBraking(float DeltaSeconds)
 		ClearCurrentCommand();
 	}
 }
+
 
 /*----------------------------------------------------
 	Attitude control : angular version
@@ -885,7 +893,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 	FVector DeltaVAxis = DeltaV;
 	DeltaVAxis.Normalize();
 	
-	if(!DeltaV.IsNearlyZero()) 
+	if (!DeltaV.IsNearlyZero()) 
 	{
 		FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, 0, ManualOrbitalBoost).Size() / Airframe->GetMass();
 		FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
@@ -898,7 +906,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 	FVector DeltaAngularVAxis = DeltaAngularV;
 	DeltaAngularVAxis.Normalize();
 	
-	if(!DeltaAngularV.IsNearlyZero())
+	if (!DeltaAngularV.IsNearlyZero())
 	{
 		FVector SimpleAcceleration = DeltaAngularVAxis * AngularAccelerationRate;
 
@@ -920,8 +928,8 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 		
 		if (IsPresentationMode()) {
 			LinearAlpha = true;
-		} else if(!DeltaV.IsNearlyZero()) { 
-			if(!(!ManualOrbitalBoost && Engine->IsOrbitalEngine())) {	
+		} else if (!DeltaV.IsNearlyZero()) { 
+			if (!(!ManualOrbitalBoost && Engine->IsOrbitalEngine())) {	
 				LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis);
 			}
 		}
@@ -930,7 +938,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
 		TorqueDirection.Normalize();
 		
-		if(!DeltaAngularV.IsNearlyZero() && !Engine->IsOrbitalEngine()) { 
+		if (!DeltaAngularV.IsNearlyZero() && !Engine->IsOrbitalEngine()) { 
 			AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
 		}
 		
@@ -938,9 +946,11 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 	}
 }
 
-void AFlareShip::UpdateCOM() {
+void AFlareShip::UpdateCOM()
+{
     COM = Airframe->GetBodyInstance()->GetCOMPosition();
 }
+
 
 /*----------------------------------------------------
 	Input
@@ -1130,20 +1140,23 @@ FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, F
 {
 	Axis.Normalize();
 	FVector TotalMaxThrust = FVector::ZeroVector;
-	for (int32 i = 0; i < Engines.Num(); i++) {
+	for (int32 i = 0; i < Engines.Num(); i++)
+	{
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
-		if(Engine->IsOrbitalEngine() && !WithOrbitalEngines) {
+		if (Engine->IsOrbitalEngine() && !WithOrbitalEngines)
+		{
 		  continue;
 		}
 
 		FVector WorldThrustAxis = Engine->GetThrustAxis();
 
-		float dot = FVector::DotProduct(WorldThrustAxis, Axis);
-		if (dot > ThrustAngleLimit) {
-			float ratio = (dot - ThrustAngleLimit) / (1 - ThrustAngleLimit);
+		float Dot = FVector::DotProduct(WorldThrustAxis, Axis);
+		if (Dot > ThrustAngleLimit)
+		{
+			float Ratio = (Dot - ThrustAngleLimit) / (1 - ThrustAngleLimit);
 
-			TotalMaxThrust += WorldThrustAxis * Engine->GetMaxThrust() * ratio;
+			TotalMaxThrust += WorldThrustAxis * Engine->GetMaxThrust() * Ratio;
 		}
 	}
 
@@ -1152,19 +1165,20 @@ FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, F
 
 float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, FVector COM, float ThrustAngleLimit, bool WithDamages, bool WithOrbitalEngines) const
 {
-	//UE_LOG(LogTemp, Warning, TEXT("----"));
 	TorqueAxis.Normalize();
 	float TotalMaxTorque = 0;
+
 	for (int32 i = 0; i < Engines.Num(); i++) {
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
-		if(!WithOrbitalEngines && Engine->IsOrbitalEngine()) {
+		if (!WithOrbitalEngines && Engine->IsOrbitalEngine()) {
 		  continue;
 		}
 
 		float MaxThrust = (WithDamages ? Engine->GetMaxThrust() : Engine->GetInitialMaxThrust());
 		
-		if (MaxThrust == 0) {
+		if (MaxThrust == 0)
+		{
 			// Not controlable engine
 			continue;
 		}
