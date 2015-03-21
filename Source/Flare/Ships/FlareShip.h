@@ -140,6 +140,7 @@ public:
 
 	virtual bool IsDocked() override;
 
+	virtual void ApplyDamage(float Energy, float Radius, FVector Location) override;
 
 	/*----------------------------------------------------
 		Docking

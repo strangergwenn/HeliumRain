@@ -24,7 +24,7 @@ public:
 
 	/** Impact happened */
 	UFUNCTION()
-	void OnImpact(const FHitResult& HitResult);
+	void OnImpact(const FHitResult& HitResult, const FVector& ImpactVelocity);
 
 
 protected:
@@ -52,5 +52,7 @@ protected:
 	// Shell data
 	FVector                                  ShellDirection;
 	const FFlareShipComponentDescription*       ShellDescription;
+	int32 ShellPower;
+	float ShellMass;
 
 };

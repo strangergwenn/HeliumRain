@@ -218,7 +218,14 @@ public:
 
 	/** Get the station where we are docked to */
 	virtual IFlareStationInterface* GetDockStation() = 0;
-
+	
+	/*----------------------------------------------------
+		Damages
+	----------------------------------------------------*/
+	/**
+	 * Apply damage to this ship.
+	 */
+	virtual void ApplyDamage(float Energy, float Radius, FVector Location) = 0;
 
 	/*----------------------------------------------------
 		Content

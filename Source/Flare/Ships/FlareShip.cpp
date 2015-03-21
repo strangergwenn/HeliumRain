@@ -376,6 +376,39 @@ bool AFlareShip::IsDocked()
 	return (Status == EFlareShipStatus::SS_Docked);
 }
 
+void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
+{
+	FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
+	
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{	
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		FVector ComponentLocation = Component->GetComponentLocation();
+		
+		FVector Min;
+		FVector Max;
+		Component->GetLocalBounds(Min,Max);
+
+		float ComponentSize = FMath::Max(Min.Size(), Max.Size()) /100.0f;
+		
+		float Distance = (ComponentLocation - Location).Size() / 100.0f;
+		
+		float IntersectDistance =  Radius + ComponentSize - Distance;
+		
+		
+		FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance); 
+		
+		FLOGV("Component Min=%s Max=%s", *Min.ToString(), *Max.ToString());
+		
+		if(IntersectDistance > 0) {
+			// Hit this component
+			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
+			Component->ApplyDamage(Energy * Efficiency);
+			FLOGV("Component hit with Efficiency=%f", Efficiency);
+		}
+	}
+}
 
 /*----------------------------------------------------
 	Docking

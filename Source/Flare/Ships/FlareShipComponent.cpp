@@ -108,6 +108,7 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 	// Setup properties
 	if (Data)
 	{
+		ShipComponentData = *Data;
 		ComponentDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
 	}
 
@@ -243,3 +244,22 @@ void UFlareShipComponent::UpdateCustomization()
 		}
 	}
 }
+
+float UFlareShipComponent::GetRemainingArmorAtLocation(FVector Location)
+{
+	if(!ComponentDescription || (ComponentDescription->ArmorHitPoints == 0.0f && ComponentDescription->HitPoints == 0.0f))
+	{
+		// Not destructible
+		return -1.0f;
+	} else {
+		return FMath::Max(0.0f, ShipComponentData.Damage - ComponentDescription->ArmorHitPoints);
+	}
+}
+
+void UFlareShipComponent::ApplyDamage(float Energy) {
+	if(ComponentDescription) {
+		ShipComponentData.Damage += Energy;
+		FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints); 
+	}
+}
+	

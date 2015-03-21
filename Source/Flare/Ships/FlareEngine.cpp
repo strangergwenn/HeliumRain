@@ -39,9 +39,12 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData.Damage;
+	float DamageRatio = FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
+	
 	// Smooth the alpha value
 	float AverageCoeff = 8 * DeltaTime; // Half-life time : 1/8 second
-	ExhaustAccumulator = FMath::Clamp(AverageCoeff * ExhaustAlpha + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
+	ExhaustAccumulator = FMath::Clamp(AverageCoeff * ExhaustAlpha * DamageRatio  + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
 
 	// Apply effects
 	UpdateEffects();
@@ -69,8 +72,9 @@ FVector UFlareEngine::GetThrustAxis() const
 
 float UFlareEngine::GetMaxThrust() const
 {
-	// TODO include damage
-	return MaxThrust;
+	float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData.Damage;
+	float DamageRatio = FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
+	return MaxThrust * DamageRatio;
 }
 
 float UFlareEngine::GetInitialMaxThrust() const

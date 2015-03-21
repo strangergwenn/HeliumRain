@@ -115,7 +115,7 @@ struct FFlareShipComponentSave
 	
 	/** Taken damages */
 	UPROPERTY(EditAnywhere, Category = Save)
-	int32 Damage;
+	float Damage;
 	
 	/** Component attributes */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -148,14 +148,11 @@ struct FFlareShipComponentDescription
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
 	
 	/** Hit point for component armor. Absorb first damages */
-	UPROPERTY(EditAnywhere, Category = Content) int32 ArmorHitPoints;
+	UPROPERTY(EditAnywhere, Category = Content) float ArmorHitPoints;
 	
-	/** Hit point for component fonctionnaly. Absorb when no more armor. Component not working when no more fonctional hit points */
-	UPROPERTY(EditAnywhere, Category = Content) int32 FonctionalHitPoints;
+	/** Hit point for component fonctionnaly. Absorb when no more armor. Component not working when no more hit points */
+	UPROPERTY(EditAnywhere, Category = Content) float HitPoints;
 	
-	/** Hit point for component structure. Absorb when no more armor and fonctional hit points. Component physicaly destroyed when no more structural hit points */
-	UPROPERTY(EditAnywhere, Category = Content) int32 StruturalHitPoints;
-
 	/** Array of characteristics */
 	UPROPERTY(EditAnywhere, Category = Content)	TArray< FFlareShipComponentCharacteristic > Characteristics;
 
@@ -228,7 +225,20 @@ public:
 	/** Component slot identifier */
 	UPROPERTY(EditAnywhere, Category = Content) FName SlotIdentifier;
 
-
+	/*----------------------------------------------------
+		Damages
+	----------------------------------------------------*/
+	
+	/**
+	 * Return the amount of armor hit points at the world location.
+	 * If not destructible, return a negative value
+	 */ 
+	virtual float GetRemainingArmorAtLocation(FVector Location);
+	
+	/**
+	 * Apply damage to this component or its subcomponent.
+	 */
+	virtual void ApplyDamage(float Energy);
 protected:
 
 	/*----------------------------------------------------
@@ -256,6 +266,9 @@ protected:
 	float                                   FlickerMaxOnPeriod;
 	float                                   FlickerMaxOffPeriod;
 	float                                   CurrentFlickerMaxPeriod;
+
+	FFlareShipComponentSave                ShipComponentData;
+	const FFlareShipComponentDescription* ComponentDescription;
 
 
 };
