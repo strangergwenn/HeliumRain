@@ -229,13 +229,13 @@ public:
 	virtual void SetShipDescription(FFlareShipDescription* Description);
 
 	/** Set the description to use for all orbital engines */
-	virtual void SetOrbitalEngineDescription(FFlareShipModuleDescription* Description);
+	virtual void SetOrbitalEngineDescription(FFlareShipComponentDescription* Description);
 
 	/** Set the description to use for all RCS */
-	virtual void SetRCSDescription(FFlareShipModuleDescription* Description);
+	virtual void SetRCSDescription(FFlareShipComponentDescription* Description);
 
 	/** Set the description for a specific weapon slot */
-	virtual void SetWeaponDescription(int32 Index, FFlareShipModuleDescription* Description);
+	//virtual void SetWeaponDescription(int32 Index, FFlareShipComponentDescription* Description);
 
 	virtual void UpdateCustomization() override;
 
@@ -293,12 +293,12 @@ protected:
 	// Component description
 	FFlareShipSave                ShipData;
 	FFlareShipDescription*        ShipDescription;
-	FFlareShipModuleDescription*  OrbitalEngineDescription;
-	FFlareShipModuleDescription*  RCSDescription;
+	FFlareShipComponentDescription*  OrbitalEngineDescription;
+	FFlareShipComponentDescription*  RCSDescription;
 
 	// Weapons
 	TArray <UFlareWeapon*>                 WeaponList;
-	TArray <FFlareShipModuleDescription*>  WeaponDescriptionList;
+	TArray <FFlareShipComponentDescription*>  WeaponDescriptionList;
 
 	// Configuration properties
 	float                         AngularDeadAngle;
@@ -307,7 +307,6 @@ protected:
 	float                         AngularAccelerationRate;
 	float                         LinearDeadDistance;
 	float                         LinearMaxVelocity; // m/s
-	float                         LinearThrust;
 	float                         NegligibleSpeedRatio;
 
 	// Dynamic gameplay data
@@ -358,17 +357,17 @@ public:
 		return ShipDescription;
 	}
 
-	inline FFlareShipModuleDescription* GetOrbitalEngineDescription() const
+	inline FFlareShipComponentDescription* GetOrbitalEngineDescription() const
 	{
 		return OrbitalEngineDescription;
 	}
 
-	inline FFlareShipModuleDescription* GetRCSDescription() const
+	inline FFlareShipComponentDescription* GetRCSDescription() const
 	{
 		return RCSDescription;
 	}
 
-	inline FFlareShipModuleDescription* GetWeaponDescription(int32 Index) const
+	inline FFlareShipComponentDescription* GetWeaponDescription(int32 Index) const
 	{
 		return WeaponDescriptionList[Index];
 	}

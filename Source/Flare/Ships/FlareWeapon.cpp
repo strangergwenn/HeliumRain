@@ -30,33 +30,29 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareWeapon::Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
-	Super::Initialize(Description, Company, OwnerShip, IsInMenu);
+	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 
 	// Setup properties
-	if (Description)
+	if (ComponentDescription)
 	{
-		ShellMesh = Description->EffectMesh;
+		ShellMesh = ComponentDescription->EffectMesh;
 
-		for (int32 i = 0; i < Description->Characteristics.Num(); i++)
+		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
 		{
-			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
+			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
 			switch (Characteristic.CharacteristicType)
 			{
-				case EFlarePartAttributeType::AmmoRange:
-					// TODO
-					break;
-
-				case EFlarePartAttributeType::AmmoRate:
+				case EFlarePartCharacteristicType::AmmoRate:
 					FiringRate = Characteristic.CharacteristicValue;
 					break;
 
-				case EFlarePartAttributeType::AmmoPower:
+				case EFlarePartCharacteristicType::AmmoPower:
 					// TODO
 					break;
 
-				case EFlarePartAttributeType::AmmoCapacity:
+				case EFlarePartCharacteristicType::AmmoCapacity:
 					MaxAmmo = Characteristic.CharacteristicValue;
 					break;
 			}
@@ -94,7 +90,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			ProjectileSpawnParams);
 
 		// Fire it
-		Shell->Initialize(this, ModuleDescription, FiringDirection, FiringVelocity);
+		Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity);
 		FiringEffect->ActivateSystem();
 
 		// Play sound

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "FlareShipModule.h"
+#include "FlareShipComponent.h"
 #include "FlareWeapon.generated.h"
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class UFlareWeapon : public UFlareShipModule
+class UFlareWeapon : public UFlareShipComponent
 {
 public:
 
@@ -17,7 +17,7 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	void Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
+	void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
 
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 

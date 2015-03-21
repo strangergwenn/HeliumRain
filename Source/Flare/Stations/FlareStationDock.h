@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Ships/FlareShipModule.h"
+#include "../Ships/FlareShipComponent.h"
 #include "FlareStationDock.generated.h"
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class UFlareStationDock : public UFlareShipModule
+class UFlareStationDock : public UFlareShipComponent
 {
 public:
 

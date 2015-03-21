@@ -1,11 +1,11 @@
 #pragma once
 
-#include "FlareShipModule.h"
+#include "FlareShipComponent.h"
 #include "FlareAirframe.generated.h"
 
 
 USTRUCT()
-struct FFlareAirframeDescription : public FFlareShipModuleDescription
+struct FFlareAirframeDescription : public FFlareShipComponentDescription
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -14,7 +14,7 @@ struct FFlareAirframeDescription : public FFlareShipModuleDescription
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class UFlareAirframe : public UFlareShipModule
+class UFlareAirframe : public UFlareShipComponent
 {
 
 public:

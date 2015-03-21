@@ -129,7 +129,7 @@ void AFlareHUD::DrawHUD()
 			AFlareShipBase* ShipBase = Cast<AFlareShipBase>(*ActorItr);
 			if (PC && ShipBase && ShipBase != PC->GetShipPawn())
 			{
-				if (PC->LineOfSightTo(ShipBase))
+				if (PC->LineOfSightTo(ShipBase) && IsExternalCamera)
 				{
 					DrawHUDDesignator(ShipBase);
 				}

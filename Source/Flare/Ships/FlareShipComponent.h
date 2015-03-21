@@ -1,6 +1,7 @@
 #pragma once
 
-#include "FlareShipModule.generated.h"
+#include "Engine.h"
+#include "FlareShipComponent.generated.h"
 
 class AFlareShipBase;
 class UFlareCompany;
@@ -39,19 +40,18 @@ namespace EFlarePartType
 		RCS,
 		Weapon,
 		Meta,
+		InternalComponent,
 		Num
 	};
 }
 
 /** Part attribute types */
 UENUM()
-namespace EFlarePartAttributeType
+namespace EFlarePartCharacteristicType
 {
 	enum Type
 	{
-		Armor,
 		AmmoPower,
-		AmmoRange,
 		AmmoCapacity,
 		AmmoRate,
 		EnginePower,
@@ -63,19 +63,56 @@ namespace EFlarePartAttributeType
 
 /** Part characteristic */
 USTRUCT()
-struct FFlarePartCharacteristic
+struct FFlareShipComponentCharacteristic
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlarePartAttributeType::Type> CharacteristicType;
+	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlarePartCharacteristicType::Type> CharacteristicType;
 
 	UPROPERTY(EditAnywhere, Category = Content) float CharacteristicValue;
 };
 
 
+/** Ship component attribute save data */
+
+USTRUCT()
+struct FFlareShipComponentAttributeSave
+{
+	GENERATED_USTRUCT_BODY()
+	
+	/** Attribute name */
+	UPROPERTY(EditAnywhere, Category = Save) FName AttributeIdentifier;
+	
+	/** Attribute value */
+	UPROPERTY(EditAnywhere, Category = Save) float AttributeValue;
+};
+
+USTRUCT()
+struct FFlareShipComponentSave
+{
+	GENERATED_USTRUCT_BODY()
+	
+	/** Component catalog identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ComponentIdentifier;
+	
+	/** Ship slot identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ShipSlotIdentifier;
+	
+	/** Taken damages */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 Damage;
+	
+	/** Component attributes */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareShipComponentAttributeSave> Attributes;
+};
+
+
 /** Base description of a ship component */
 USTRUCT()
-struct FFlareShipModuleDescription
+struct FFlareShipComponentDescription
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -96,9 +133,18 @@ struct FFlareShipModuleDescription
 
 	/** Part cost */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
+	
+	/** Hit point for component armor. Absorb first damages */
+	UPROPERTY(EditAnywhere, Category = Content) int32 ArmorHitPoints;
+	
+	/** Hit point for component fonctionnaly. Absorb when no more armor. Component not working when no more fonctional hit points */
+	UPROPERTY(EditAnywhere, Category = Content) int32 FonctionalHitPoints;
+	
+	/** Hit point for component structure. Absorb when no more armor and fonctional hit points. Component physicaly destroyed when no more structural hit points */
+	UPROPERTY(EditAnywhere, Category = Content) int32 StruturalHitPoints;
 
 	/** Array of characteristics */
-	UPROPERTY(EditAnywhere, Category = Content)	TArray< FFlarePartCharacteristic > Characteristics;
+	UPROPERTY(EditAnywhere, Category = Content)	TArray< FFlareShipComponentCharacteristic > Characteristics;
 
 	/** Part mesh name */
 	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* Mesh;
@@ -113,7 +159,7 @@ struct FFlareShipModuleDescription
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class UFlareShipModule : public UStaticMeshComponent
+class UFlareShipComponent : public UStaticMeshComponent
 {
 
 public:
@@ -130,7 +176,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 	
 	/** Initialize this component and register the master ship object */
-	virtual void Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu = false);
+	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu = false);
 
 	/** Get the meshg scale */
 	float GetMeshScale();
@@ -141,18 +187,20 @@ public:
 	/** Set the new temperature of this component */
 	virtual void SetTemperature(int32 TemperatureKelvin);
 
-	/** Apply all customizations to the module */
-	virtual void SetupModuleMesh();
+	/** Apply all customizations to the component */
+	virtual void SetupComponentMesh();
 
 	/** Create a special effect mesh */
 	virtual void SetupEffectMesh();
 
 	/** Perform physical ship tick. */
-	virtual void TickModule(float DeltaTime);
+	virtual void ShipTickComponent(float DeltaTime);
 
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
 
+	/** Component slot identifier */
+	UPROPERTY(EditAnywhere, Category = Content) FName SlotIdentifier;
 
 protected:
 
@@ -169,10 +217,10 @@ protected:
 	UPROPERTY()
 	UStaticMeshComponent* EffectMesh;
 
-	UMaterialInstanceDynamic* ModuleMaterial;
+	UMaterialInstanceDynamic* ComponentMaterial;
 	UMaterialInstanceDynamic* EffectMaterial;
 
-	const FFlareShipModuleDescription* ModuleDescription;
+	const FFlareShipComponentDescription* ComponentDescription;
 
 
 };

@@ -226,6 +226,10 @@ AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
 			{
 				Ship->Load(ShipData);
 			}
+			 UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
+			
+			RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
+			RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 		}
 		else
 		{
@@ -416,27 +420,72 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		FFlareShipSave ShipData;
 		ShipData.Location = TargetPosition;
 		ShipData.Rotation = FRotator::ZeroRotator;
+		ShipData.LinearVelocity = FVector::ZeroVector;
+		ShipData.AngularVelocity = FVector::ZeroVector; 
 		ShipData.Name = Immatriculate(PC->GetCompany()->GetShortName(), ShipClass);
 		ShipData.Identifier = ShipClass;
-
+		
+		FName RCSIdentifier;
+		FName OrbitalEngineIdentifier;
+		
 		// Size selector
 		if (Desc->Size == EFlarePartSize::S)
 		{
-			ShipData.OrbitalEngineIdentifier = FName("engine-octopus");
-			ShipData.RCSIdentifier = FName("rcs-piranha");
-			for (int32 i = 0; i < Desc->GunCount; i++)
-			{
-				ShipData.WeaponIdentifiers.Add("weapon-eradicator");
-			}
+			RCSIdentifier = FName("rcs-piranha");
+			OrbitalEngineIdentifier = FName("engine-octopus");
 		}
 		else if (Desc->Size == EFlarePartSize::L)
 		{
-			ShipData.OrbitalEngineIdentifier = FName("pod-surtsey");
-			ShipData.RCSIdentifier = FName("rcs-rift");
-			for (int32 i = 0; i < Desc->TurretCount; i++)
-			{
-				// TODO TURRETS
-			}
+			RCSIdentifier = FName("rcs-rift");
+			OrbitalEngineIdentifier = FName("pod-surtsey");
+		}
+		else
+		{
+			// TODO
+		}
+		
+		for (int32 i = 0; i < Desc->RCSCount; i++)
+		{
+			FFlareShipComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = RCSIdentifier;
+			ComponentData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
+			int32 Damage = 0;
+			ShipData.Components.Add(ComponentData);
+		}
+		
+		for (int32 i = 0; i < Desc->OrbitalEngineCount; i++)
+		{
+			FFlareShipComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
+			ComponentData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
+			int32 Damage = 0;
+			ShipData.Components.Add(ComponentData);
+		}
+
+		for (int32 i = 0; i < Desc->GunSlots.Num(); i++)
+		{
+			FFlareShipComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = FName("weapon-eradicator");
+			ComponentData.ShipSlotIdentifier = Desc->GunSlots[i].Identifier;
+			int32 Damage = 0;
+			ShipData.Components.Add(ComponentData);
+		}
+		
+		for (int32 i = 0; i < Desc->TurretSlots.Num(); i++)
+		{
+			// TODO TURRETS
+		}
+		
+		for (int32 i = 0; i < Desc->InternalComponentSlots.Num(); i++)
+		{
+			FFlareShipComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = Desc->InternalComponentSlots[i].Component.Identifier;
+			ComponentData.ShipSlotIdentifier = Desc->GunSlots[i].Identifier;
+			int32 Damage = 0;
+			
+			// TODO Init attributes for different types
+			
+			ShipData.Components.Add(ComponentData);
 		}
 
 		// Create the ship

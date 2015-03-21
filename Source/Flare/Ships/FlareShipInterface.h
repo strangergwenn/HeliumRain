@@ -3,11 +3,12 @@
 #include "../Game/FlareCompany.h"
 #include "FlareShipInterface.generated.h"
 
-
 class IFlareStationInterface;
-
+struct FFlareShipComponentSave;
 
 /** Game save data */
+
+/** Ship save data */
 USTRUCT()
 struct FFlareShipSave
 {
@@ -20,6 +21,14 @@ struct FFlareShipSave
 	/** Ship rotation */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FRotator Rotation;
+	
+	/** Ship linear velocity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector LinearVelocity;
+
+	/** Ship angular velocity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector AngularVelocity;
 
 	/** Ship name */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -36,16 +45,7 @@ struct FFlareShipSave
 
 	/** Orbital engine catalog identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
-	FName OrbitalEngineIdentifier;
-
-	/** RCS catalog identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName RCSIdentifier;
-
-	/** List of weapon catalog identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FName> WeaponIdentifiers;
-
+	TArray<FFlareShipComponentSave> Components;
 
 	/** We are docked at this station */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -57,6 +57,18 @@ struct FFlareShipSave
 
 };
 
+/** Catalog binding between FFlareShipDescription and FFlareShipComponentDescription structure */
+USTRUCT()
+struct FFlareShipSlotDescription
+{
+	GENERATED_USTRUCT_BODY()
+	
+	/** Slot internal name */
+	UPROPERTY(EditAnywhere, Category = Content) FName Identifier;
+	
+	/** Component description can be empty if configurable slot */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentDescription Component;
+};
 
 /** Catalog data structure for a ship */
 USTRUCT()
@@ -80,16 +92,26 @@ struct FFlareShipDescription
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlarePartSize::Type> Size;
 
-
 	/** Ship status */
 	UPROPERTY(EditAnywhere, Category = Content) bool Military;
 
-	/** Number of guns */
-	UPROPERTY(EditAnywhere, Category = Save) int32 GunCount;
+	/** Number of RCS */
+	UPROPERTY(EditAnywhere, Category = Save) int32 RCSCount;
 
-	/** Number of gun turrets */
-	UPROPERTY(EditAnywhere, Category = Save) int32 TurretCount;
+	/** Number of orbital engine */
+	UPROPERTY(EditAnywhere, Category = Save) int32 OrbitalEngineCount;
 
+	/** Gun slots */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareShipSlotDescription> GunSlots;
+
+	/** Turret slots */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareShipSlotDescription> TurretSlots;
+
+	/** Internal component slots */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareShipSlotDescription> InternalComponentSlots;
 
 	/** Max angular velocity in degree/s */
 	UPROPERTY(EditAnywhere, Category = Content)	float AngularMaxVelocity;

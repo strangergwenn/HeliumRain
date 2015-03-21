@@ -17,7 +17,7 @@ AFlareStation::AFlareStation(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	// Create static mesh component
-	HullRoot = PCIP.CreateDefaultSubobject<UFlareShipModule>(this, TEXT("HullRoot"));
+	HullRoot = PCIP.CreateDefaultSubobject<UFlareShipComponent>(this, TEXT("HullRoot"));
 	HullRoot->SetSimulatePhysics(false);
 	RootComponent = HullRoot;
 }
@@ -45,13 +45,13 @@ void AFlareStation::Initialize()
 		// Fill all dock slots
 		for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
 		{
-			UFlareStationDock* Module = Cast<UFlareStationDock>(*ComponentIt);
-			if (Module)
+			UFlareStationDock* Component = Cast<UFlareStationDock>(*ComponentIt);
+			if (Component)
 			{
 				// Get data
 				FVector DockLocation;
 				FRotator DockRotation;
-				Module->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
+				Component->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
 
 				// Fill info
 				FFlareDockingInfo Info;

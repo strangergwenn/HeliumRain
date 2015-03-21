@@ -103,7 +103,7 @@ void UFlareCompany::UpdateCompanyCustomization()
 	}
 }
 
-void UFlareCompany::CustomizeModuleMaterial(UMaterialInstanceDynamic* Mat)
+void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 {
 	// Get data from storage
 	FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(GetBasePaintColorIndex());

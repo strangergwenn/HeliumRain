@@ -1,7 +1,7 @@
 ;
 #include "../Flare.h"
 #include "FlareShip.h"
-#include "FlareShipModule.h"
+#include "FlareShipComponent.h"
 #include "../Player/FlarePlayerController.h"
 
 #include "StaticMeshResources.h"
@@ -11,12 +11,12 @@
 	Constructor
 ----------------------------------------------------*/
 
-UFlareShipModule::UFlareShipModule(const class FObjectInitializer& PCIP)
+UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, Ship(NULL)
 	, PlayerCompany(NULL)
-	, ModuleMaterial(NULL)
-	, ModuleDescription(NULL)
+	, ComponentMaterial(NULL)
+	, ComponentDescription(NULL)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -26,7 +26,7 @@ UFlareShipModule::UFlareShipModule(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareShipModule::OnRegister()
+void UFlareShipComponent::OnRegister()
 {
 	Super::OnRegister();
 
@@ -34,31 +34,21 @@ void UFlareShipModule::OnRegister()
 	SetCollisionProfileName("BlockAllDynamic");
 }
 
-void UFlareShipModule::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UFlareShipModule::Initialize(const FFlareShipModuleDescription* Description, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
 	// Main data
 	Ship = OwnerShip;
 	PlayerCompany = Company;
 
 	// Setup properties
-	if (Description)
+	if (Data)
 	{
-		ModuleDescription = Description;
-		for (int32 i = 0; i < Description->Characteristics.Num(); i++)
-		{
-			const FFlarePartCharacteristic& Characteristic = Description->Characteristics[i];
-			switch (Characteristic.CharacteristicType)
-			{
-				case EFlarePartAttributeType::Armor:
-					// TODO
-					break;
-			}
-		}
+		ComponentDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
 	}
 
 	// Mesh and material setup
@@ -66,26 +56,26 @@ void UFlareShipModule::Initialize(const FFlareShipModuleDescription* Description
 	{
 		SetupEffectMesh();
 	}
-	SetupModuleMesh();
+	SetupComponentMesh();
 	UpdateCustomization();
 }
 
-float UFlareShipModule::GetMeshScale()
+float UFlareShipComponent::GetMeshScale()
 {
 	FVector Extent = GetCollisionShape().GetExtent();
 	return FMath::Max(Extent.Size(), 1.0f);
 }
 
-bool UFlareShipModule::IsInitialized()
+bool UFlareShipComponent::IsInitialized()
 {
 	return (Ship != NULL);
 }
 
-void UFlareShipModule::SetTemperature(int32 TemperatureKelvin)
+void UFlareShipComponent::SetTemperature(int32 TemperatureKelvin)
 {
-	if (ModuleMaterial)
+	if (ComponentMaterial)
 	{
-		ModuleMaterial->SetScalarParameterValue("Temperature", TemperatureKelvin);
+		ComponentMaterial->SetScalarParameterValue("Temperature", TemperatureKelvin);
 	}
 }
 
@@ -94,13 +84,13 @@ void UFlareShipModule::SetTemperature(int32 TemperatureKelvin)
 	Customization
 ----------------------------------------------------*/
 
-void UFlareShipModule::SetupModuleMesh()
+void UFlareShipComponent::SetupComponentMesh()
 {
 	// Set the mesh
-	if (ModuleDescription)
+	if (ComponentDescription)
 	{
-		SetStaticMesh(ModuleDescription->Mesh);
-		SetMaterial(0, ModuleDescription->Mesh->GetMaterial(0));
+		SetStaticMesh(ComponentDescription->Mesh);
+		SetMaterial(0, ComponentDescription->Mesh->GetMaterial(0));
 	}
 
 	// Parse all LODs levels, then all elements
@@ -116,19 +106,19 @@ void UFlareShipModule::SetupModuleMesh()
 			// Generate MIDs from LOD 0 only
 			if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
 			{
-				ModuleMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+				ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
 			}
 
 			// Apply generated materials at each LOD
-			if (ModuleMaterial)
+			if (ComponentMaterial)
 			{
-				SetMaterial(Element.MaterialIndex, ModuleMaterial);
+				SetMaterial(Element.MaterialIndex, ComponentMaterial);
 			}
 		}
 	}
 }
 
-void UFlareShipModule::SetupEffectMesh()
+void UFlareShipComponent::SetupEffectMesh()
 {
 	// Remove the previous effect mesh is available
 	if (EffectMesh)
@@ -137,10 +127,11 @@ void UFlareShipModule::SetupEffectMesh()
 	}
 
 	// Add and register the effect mesh if available
-	if (Ship && ModuleDescription && ModuleDescription->EffectMesh)
+	if (Ship && ComponentDescription && ComponentDescription->EffectMesh)
 	{
+
 		EffectMesh = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), Ship);
-		EffectMesh->SetStaticMesh(ModuleDescription->EffectMesh);
+		EffectMesh->SetStaticMesh(ComponentDescription->EffectMesh);
 
 		// Place and register
 		EffectMesh->SetWorldLocation(GetComponentLocation());
@@ -160,18 +151,18 @@ void UFlareShipModule::SetupEffectMesh()
 	}
 }
 
-void UFlareShipModule::TickModule(float DeltaTime)
+void UFlareShipComponent::ShipTickComponent(float DeltaTime)
 {
 	// Do nothing
 }
 
-void UFlareShipModule::UpdateCustomization()
+void UFlareShipComponent::UpdateCustomization()
 {
 	if (PlayerCompany)
 	{
-		if (ModuleMaterial)
+		if (ComponentMaterial)
 		{
-			PlayerCompany->CustomizeModuleMaterial(ModuleMaterial);
+			PlayerCompany->CustomizeComponentMaterial(ComponentMaterial);
 		}
 		if (EffectMaterial)
 		{

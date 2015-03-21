@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "../../Ships/FlareShipModule.h"
+#include "../../Ships/FlareShipComponent.h"
 
 
 class SFlarePartInfo : public SCompoundWidget
@@ -20,7 +20,7 @@ class SFlarePartInfo : public SCompoundWidget
 
 	SLATE_ARGUMENT(bool, ShowOwnershipInfo)
 
-	SLATE_ARGUMENT(const FFlareShipModuleDescription*, Description)
+	SLATE_ARGUMENT(const FFlareShipComponentDescription*, Description)
 	
 	SLATE_END_ARGS()
 
@@ -42,19 +42,22 @@ public:
 	----------------------------------------------------*/
 
 	/** Get a Slate info block */
-	static void BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareShipModuleDescription* Desc, bool ShowHelpers = true);
+	static void BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareShipComponentDescription* Desc, bool ShowHelpers = true);
+
+	/** Add data for a single characteristic to an horizontal box */
+	static void AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers);
 
 	/** Get a readable info string */
-	static FString GetCharacteristicInfo(const FFlareShipModuleDescription* Desc, EFlarePartAttributeType::Type Type);
+	static FString GetCharacteristicInfo(const FFlareShipComponentDescription* Desc, EFlarePartCharacteristicType::Type Type);
 
 	/** Get a readable info string */
-	static FString GetCharacteristicInfo(const FFlarePartCharacteristic& Characteristic);
+	static FString GetCharacteristicInfo(const FFlareShipComponentCharacteristic& Characteristic);
 
 	/** Get a readable label string */
-	static FString GetCharacteristicLabel(EFlarePartAttributeType::Type Type);
+	static FString GetCharacteristicLabel(EFlarePartCharacteristicType::Type Type);
 
 	/** Get a Slate brush */
-	static const FSlateBrush* GetCharacteristicBrush(const FFlarePartCharacteristic& Characteristic);
+	static const FSlateBrush* GetCharacteristicBrush(const FFlareShipComponentCharacteristic& Characteristic);
 	
 
 protected:

@@ -1,7 +1,7 @@
 ;
 #include "../Flare.h"
 #include "FlareShipInterface.h"
-#include "FlareShipModule.h"
+#include "FlareShipComponent.h"
 
 
 /*----------------------------------------------------

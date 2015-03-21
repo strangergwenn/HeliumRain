@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "../../Ships/FlareShipModule.h"
+#include "../../Ships/FlareShipComponent.h"
 
 
 class SFlareShipInfo : public SCompoundWidget

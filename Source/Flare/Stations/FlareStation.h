@@ -2,7 +2,7 @@
 
 #include "FlareStationInterface.h"
 #include "../Ships/FlareShipBase.h"
-#include "../Ships/FlareShipModule.h"
+#include "../Ships/FlareShipComponent.h"
 #include "FlareStation.generated.h"
 
 
@@ -61,7 +61,7 @@ protected:
 
 	/** Root hull component */
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-	class UFlareShipModule*	         HullRoot;
+	class UFlareShipComponent*	         HullRoot;
 
 	// Dock data
 	TArray <FFlareDockingInfo>       DockingSlots;
