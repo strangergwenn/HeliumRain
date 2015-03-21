@@ -326,7 +326,7 @@ void SFlareShipMenu::LoadTargetShip()
 						SAssignNew(Temp, SFlareButton)
 						.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButton")
 						.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
-						.OnClicked(this, &SFlareShipMenu::ShowWeapons, TSharedPtr<int32>(new int32(i)))
+						.OnClicked(this, &SFlareShipMenu::ShowWeapons, TSharedPtr<int32>(new int32(WeaponCount)))
 					];
 				Temp->GetContainer()->SetContent(SNew(SFlarePartInfo)
 					.IsOwned(true)
