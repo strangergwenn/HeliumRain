@@ -239,6 +239,11 @@ public:
 	 * Apply damage to this component or its subcomponent.
 	 */
 	virtual void ApplyDamage(float Energy);
+	
+	/**
+	 * Return the remaining hit points ratio. 1 for no damage, 0 for destroyed
+	 */
+	float GetDamageRatio() const;
 protected:
 
 	/*----------------------------------------------------

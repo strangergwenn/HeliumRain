@@ -75,11 +75,15 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod)
+	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f)
 	{
 		// Get firing data
 		FVector FiringLocation = GetSocketLocation(FName("Muzzle"));
-		FVector FiringDirection = GetComponentRotation().RotateVector(FVector(1, 0, 0));
+
+		float Vibration = (1.f- GetDamageRatio()) * 0.05;
+		FVector Imprecision = FVector(0, FMath::FRandRange(0.f, Vibration), 0).RotateAngleAxis(FMath::FRandRange(0.f, 360), FVector(1, 0, 0));
+
+		FVector FiringDirection = GetComponentRotation().RotateVector(FVector(1, 0, 0) + Imprecision);
 		FVector FiringVelocity = GetPhysicsLinearVelocity();
 
 		// Create a shell
@@ -100,7 +104,9 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		}
 
 		// Update data
-		TimeSinceLastShell = 0;
+		// If damage the firerate is randomly reduced to a min of 10 times normal value
+		float DamageDelay = FMath::Square(1.f- GetDamageRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
+		TimeSinceLastShell = -DamageDelay;
 		CurrentAmmo--;
 	}
 }

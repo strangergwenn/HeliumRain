@@ -150,7 +150,7 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 		IFlareShipInterface* Ship = Cast<IFlareShipInterface>(HitResult.Actor.Get());
 		if(Ship) {
 			// Hit a component
-			 Ship->ApplyDamage(AbsorbedEnergy, 0.5f, HitResult.Location);
+			 Ship->ApplyDamage(AbsorbedEnergy, 0.75f, HitResult.Location);
 		}
 		
 		// Data

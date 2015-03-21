@@ -256,10 +256,22 @@ float UFlareShipComponent::GetRemainingArmorAtLocation(FVector Location)
 	}
 }
 
-void UFlareShipComponent::ApplyDamage(float Energy) {
-	if(ComponentDescription) {
+void UFlareShipComponent::ApplyDamage(float Energy)
+{
+	if(ComponentDescription)
+	{
 		ShipComponentData.Damage += Energy;
 		FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints); 
 	}
 }
-	
+
+float UFlareShipComponent::GetDamageRatio() const
+{
+	if(ComponentDescription)
+	{
+		float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData.Damage;
+		return FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
+	} else {
+		return 1.f;
+	}
+}
