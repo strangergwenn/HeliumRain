@@ -25,6 +25,7 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	CurrentFlickerMaxPeriod = FlickerMaxOnPeriod;
+	SetNotifyRigidBodyCollision(true);
 }
 
 

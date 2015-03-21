@@ -30,6 +30,7 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareAirframe>(this, TEXT("Airframe"));
 	Airframe->SetSimulatePhysics(true);
+
 	RootComponent = Airframe;
 
 	// Camera settings
@@ -118,6 +119,37 @@ void AFlareShip::Tick(float DeltaSeconds)
 void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+
+	AFlareProjectile* OtherProjectile = Cast<AFlareProjectile>(Other);
+	if(OtherProjectile) {
+		return;
+	}
+
+	UPrimitiveComponent* OtherRoot = Cast<UPrimitiveComponent>(Other->GetRootComponent());
+
+	FVector DeltaVelocity = ((OtherRoot->GetPhysicsLinearVelocity() - Airframe->GetPhysicsLinearVelocity()) / 100);
+
+	float ImpactSpeed = FVector::DotProduct(DeltaVelocity, HitNormal);
+	float ImpactMass = OtherRoot->GetMass();
+	float ImpactEnergy = 0.5 * ImpactMass * FMath::Square(ImpactSpeed);
+
+	FLOGV("ReceiveHit at %s at %s", *(MyComp->GetReadableName()), *(OtherComp->GetReadableName()));
+	FLOGV("Hit location=%s normal=%s impulse=%s ", *HitLocation.ToString(), *HitNormal.ToString(), *NormalImpulse.ToString());
+
+	float Energy = NormalImpulse.Size() / 1000;
+	float Radius = 0.2 + Energy /20000; // 1 meter for each 2KJ
+
+	FLOGV("Hit Energy=%f Radius=%f", Energy, Radius);
+
+	Energy = ImpactEnergy / 500;
+	Radius = 0.2 + FMath::Sqrt(Energy) * 0.007; // 1 meter for 20KJ
+
+	FLOGV("Hit ImpactSpeed=%f ImpactMass=%f ImpactEnergy=%f Energy2=%f Raduis2=%f",ImpactSpeed, ImpactMass, ImpactEnergy, Energy, Radius);
+
+	ApplyDamage(Energy, Radius, HitLocation);
+
+	DrawDebugSphere(GetWorld(), HitLocation, Radius * 100, 12, FColor::Red, false, 10.f);
+
 }
 
 void AFlareShip::Destroyed()
@@ -399,12 +431,14 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 		float IntersectDistance =  Radius + ComponentSize - Distance;
 
 
-		FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
-		FLOGV("Component Min=%s Max=%s", *Min.ToString(), *Max.ToString());
 		//DrawDebugSphere(GetWorld(), ComponentLocation, ComponentSize * 100, 12, FColor::Green, true);
 
 		if(IntersectDistance > 0) {
 			// Hit this component
+			FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
+			FLOGV("Component Min=%s Max=%s", *Min.ToString(), *Max.ToString());
+
+
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
 			Component->ApplyDamage(Energy * Efficiency);
 			FLOGV("Component hit with Efficiency=%f", Efficiency);
