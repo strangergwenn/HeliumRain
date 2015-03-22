@@ -79,6 +79,14 @@ void UFlareShipComponent::SetTemperature(int32 TemperatureKelvin)
 	}
 }
 
+void UFlareShipComponent::SetHealth(int32 HealthPercent)
+{
+	if (ComponentMaterial)
+	{
+		ComponentMaterial->SetScalarParameterValue("Health", (float)HealthPercent / 100.0f);
+	}
+}
+
 
 /*----------------------------------------------------
 	Customization

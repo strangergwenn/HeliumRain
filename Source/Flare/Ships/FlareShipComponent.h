@@ -187,6 +187,9 @@ public:
 	/** Set the new temperature of this component */
 	virtual void SetTemperature(int32 TemperatureKelvin);
 
+	/** Set the health of this component */
+	virtual void SetHealth(int32 HealthPercent);
+
 	/** Apply all customizations to the component */
 	virtual void SetupComponentMesh();
 
