@@ -29,7 +29,7 @@ namespace EFlarePartSize
 }
 
 
-/** Part size values */
+/** Part type values */
 UENUM()
 namespace EFlarePartType
 {
@@ -57,6 +57,10 @@ namespace EFlarePartCharacteristicType
 		EnginePower,
 		EngineTankDrain,
 		RCSAccelerationRating,
+		LifeSupport,
+		HeatSink,
+		ElectricSystem,
+		Cargo,
 		Num
 	};
 }
@@ -247,6 +251,22 @@ public:
 	 * Return the remaining hit points ratio. 1 for no damage, 0 for destroyed
 	 */
 	float GetDamageRatio() const;
+
+	/**
+	 * Return true if the ship component is destroyed
+	 */
+	virtual bool IsDestroyed();
+
+	/**
+	 * Return true if any lifesupport system is available
+	 */
+	virtual bool IsAlive();
+
+	/**
+	 * Return true if the ship component is powered. A destroyed component is not powered
+	 */
+	virtual bool IsPowered();
+
 protected:
 
 	/*----------------------------------------------------
@@ -278,5 +298,7 @@ protected:
 	FFlareShipComponentSave                ShipComponentData;
 	const FFlareShipComponentDescription* ComponentDescription;
 
+	float LifeSupport;
+	float Power;
 
 };

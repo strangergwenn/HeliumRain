@@ -193,7 +193,19 @@ public:
 	/** Make sure this point is not in a path collider */
 	virtual bool IsPointColliding(FVector Candidate, AActor* Ignore);
 
+	/*----------------------------------------------------
+		Damage status
+	----------------------------------------------------*/
 
+	/**
+	 * Return true if any lifesupport system is available
+	 */
+	virtual bool IsAlive() override;
+
+	/**
+	 * Return true if the ship cockpit is powered
+	 */
+	virtual bool IsPowered() override;
 protected:
 
 	/*----------------------------------------------------
@@ -340,6 +352,8 @@ protected:
 	// Temporary variable reset each tick
 	FVector                              COM;
 
+	// Damage status
+	UFlareShipComponent*                 ShipCockit;
 
 public:
 

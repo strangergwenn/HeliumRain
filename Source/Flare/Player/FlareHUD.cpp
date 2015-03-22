@@ -135,6 +135,34 @@ void AFlareHUD::DrawHUD()
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Yaw"), FMath::DegreesToRadians(ShipAttitude.Yaw));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
 			DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
+
+			// Update panel
+			if (HUDTextRenderTarget)
+			{
+				//HUDTextRenderTarget->UpdateResource();
+				//HUDTextMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
+				//DrawMaterialSimple(HUDTextMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
+			}
+
+			// TODO Remove debug hud
+
+			if(Ship->IsAlive())
+			{
+				DrawHUDDesignatorCorner(FVector2D(48,48)   , FVector2D(0,0), 48, FVector2D(-1, -1), 0);
+			}
+			else
+			{
+				DrawHUDDesignatorCorner(FVector2D(48,48)   , FVector2D(0,0), 48, FVector2D(+1, +1), -180);
+			}
+
+			if(Ship->IsPowered())
+			{
+				DrawHUDDesignatorCorner(FVector2D(2*48,48)   , FVector2D(0,0), 48, FVector2D(-1, -1), 0);
+			}
+			else
+			{
+				DrawHUDDesignatorCorner(FVector2D(2*48,48)   , FVector2D(0,0), 48, FVector2D(+1, +1), -180);
+			}
 		}
 	}
 }
@@ -193,6 +221,26 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270);
+
+			// TODO Remove debug hud
+
+			if(ShipBase->IsAlive())
+			{
+				DrawHUDDesignatorCorner(ScreenPosition + FVector2D(-ObjectSize.X/2 + CornerSize, -ObjectSize.X/2 + CornerSize)  , FVector2D(0,0), CornerSize, FVector2D(-1, -1), 0);
+			}
+			else
+			{
+				DrawHUDDesignatorCorner(ScreenPosition + FVector2D(-ObjectSize.X/2 + CornerSize, -ObjectSize.X/2 + CornerSize), FVector2D(0,0), CornerSize, FVector2D(+1, +1), -180);
+			}
+
+			if(ShipBase->IsPowered())
+			{
+				DrawHUDDesignatorCorner(FVector2D(CornerSize,0) + ScreenPosition + FVector2D(-ObjectSize.X/2 + CornerSize, -ObjectSize.X/2 + CornerSize)  , FVector2D(0,0), CornerSize, FVector2D(-1, -1), 0);
+			}
+			else
+			{
+				DrawHUDDesignatorCorner(FVector2D(CornerSize,0) + ScreenPosition + FVector2D(-ObjectSize.X/2 + CornerSize, -ObjectSize.X/2 + CornerSize), FVector2D(0,0), CornerSize, FVector2D(+1, +1), -180);
+			}
 		}
 	}
 }

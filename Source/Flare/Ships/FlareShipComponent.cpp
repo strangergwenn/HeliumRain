@@ -26,6 +26,7 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	PrimaryComponentTick.bCanEverTick = true;
 	CurrentFlickerMaxPeriod = FlickerMaxOnPeriod;
 	SetNotifyRigidBodyCollision(true);
+	Power = 1;
 }
 
 
@@ -116,6 +117,17 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 	{
 		ShipComponentData = *Data;
 		ComponentDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
+
+		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
+		{
+			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
+			switch (Characteristic.CharacteristicType)
+			{
+				case EFlarePartCharacteristicType::LifeSupport:
+					LifeSupport = Characteristic.CharacteristicValue;
+				break;
+			}
+		}
 	}
 
 	// Mesh and material setup
@@ -295,4 +307,19 @@ float UFlareShipComponent::GetDamageRatio() const
 	} else {
 		return 1.f;
 	}
+}
+
+bool UFlareShipComponent::IsDestroyed()
+{
+	return (GetDamageRatio() <= 0);
+}
+
+bool UFlareShipComponent::IsAlive()
+{
+	return (LifeSupport*GetDamageRatio() > 0);
+}
+
+bool UFlareShipComponent::IsPowered()
+{
+	return (Power*GetDamageRatio() > 0);
 }

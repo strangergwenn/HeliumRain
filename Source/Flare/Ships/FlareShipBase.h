@@ -41,6 +41,24 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	/*----------------------------------------------------
+		Damage status
+	----------------------------------------------------*/
+
+	/**
+	 * Return true if any lifesupport system is available
+	 */
+	virtual bool IsAlive() { return false; };
+
+	/**
+	 * Return true if the ship cockpit is powered
+	 */
+	virtual bool IsPowered() { return false; };
+
+	/**
+	 * Return true if the ship has weapon
+	 */
+	virtual bool IsArmed() { return false; };
 
 	/*----------------------------------------------------
 		Camera control

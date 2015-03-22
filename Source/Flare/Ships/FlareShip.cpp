@@ -67,7 +67,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 		UpdateCOM();
 	  
 		// Manual pilot
-		if (IsManualPilot())
+		if (IsManualPilot() && IsAlive())
 		{
 			UpdateLinearAttitudeManual(DeltaSeconds);
 			UpdateAngularAttitudeManual(DeltaSeconds);
@@ -260,7 +260,19 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		{
 			WeaponList.Add(Weapon);
 		}
+
+		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
+		{
+			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
+
+			if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::LifeSupport)
+			{
+				ShipCockit = Component;
+			}
+		}
 	}
+
+
 	
 	// Load weapon descriptions
 	for (int32 i = 0; i < Data.Components.Num(); i++)
@@ -727,6 +739,33 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 	return false;
 }
 
+/*----------------------------------------------------
+	Damage status
+----------------------------------------------------*/
+
+bool AFlareShip::IsAlive()
+{
+	if(ShipCockit)
+	{
+		return ShipCockit->IsAlive();
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool AFlareShip::IsPowered()
+{
+	if(ShipCockit)
+	{
+		return ShipCockit->IsPowered();
+	}
+	else
+	{
+		return false;
+	}
+}
 
 /*----------------------------------------------------
 	Attitude control : linear version
@@ -982,61 +1021,73 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 {
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
 	
-	// Linear physics	
-	FVector DeltaV = LinearTargetVelocity - GetLinearVelocity();
-	FVector DeltaVAxis = DeltaV;
-	DeltaVAxis.Normalize();
-	
-	if (!DeltaV.IsNearlyZero()) 
+	if(IsPowered())
 	{
-		FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, 0, ManualOrbitalBoost).Size() / Airframe->GetMass();
-		FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
+		// Linear physics
+		FVector DeltaV = LinearTargetVelocity - GetLinearVelocity();
+		FVector DeltaVAxis = DeltaV;
+		DeltaVAxis.Normalize();
 
-		Airframe->SetPhysicsLinearVelocity(ClampedAcceleration * DeltaSeconds * 100, true); // Multiply by 100 because UE4 works in cm
-	}
+		if (!DeltaV.IsNearlyZero())
+		{
+			FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, 0, ManualOrbitalBoost).Size() / Airframe->GetMass();
+			FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
 
-	// Angular physics
-	FVector DeltaAngularV = AngularTargetVelocity - Airframe->GetPhysicsAngularVelocity();
-	FVector DeltaAngularVAxis = DeltaAngularV;
-	DeltaAngularVAxis.Normalize();
-	
-	if (!DeltaAngularV.IsNearlyZero())
-	{
-		FVector SimpleAcceleration = DeltaAngularVAxis * AngularAccelerationRate;
+			Airframe->SetPhysicsLinearVelocity(ClampedAcceleration * DeltaSeconds * 100, true); // Multiply by 100 because UE4 works in cm
+		}
 
-		// Scale with damages
-		float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, COM, 0, true, false) / GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, COM, 0, false, false);
-		FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
-		FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.GetClampedToMaxSize(DeltaAngularV.Size() / DeltaSeconds);
+		// Angular physics
+		FVector DeltaAngularV = AngularTargetVelocity - Airframe->GetPhysicsAngularVelocity();
+		FVector DeltaAngularVAxis = DeltaAngularV;
+		DeltaAngularVAxis.Normalize();
 
-		Airframe->SetPhysicsAngularVelocity(ClampedSimplifiedAcceleration  * DeltaSeconds, true);
-	}
-	
-	// Update engine alpha
-	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
-	{
-		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
-		FVector ThrustAxis = Engine->GetThrustAxis();
-		float LinearAlpha = 0;
-		float AngularAlpha = 0;
-		
-		if (IsPresentationMode()) {
-			LinearAlpha = true;
-		} else if (!DeltaV.IsNearlyZero()) { 
-			if (!(!ManualOrbitalBoost && Engine->IsOrbitalEngine())) {	
-				LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis);
+		if (!DeltaAngularV.IsNearlyZero())
+		{
+			FVector SimpleAcceleration = DeltaAngularVAxis * AngularAccelerationRate;
+
+			// Scale with damages
+			float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, COM, 0, true, false) / GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, COM, 0, false, false);
+			FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
+			FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.GetClampedToMaxSize(DeltaAngularV.Size() / DeltaSeconds);
+
+			Airframe->SetPhysicsAngularVelocity(ClampedSimplifiedAcceleration  * DeltaSeconds, true);
+		}
+
+		// Update engine alpha
+		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
+		{
+			UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+			FVector ThrustAxis = Engine->GetThrustAxis();
+			float LinearAlpha = 0;
+			float AngularAlpha = 0;
+
+			if (IsPresentationMode()) {
+				LinearAlpha = true;
+			} else if (!DeltaV.IsNearlyZero()) {
+				if (!(!ManualOrbitalBoost && Engine->IsOrbitalEngine())) {
+					LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis);
+				}
 			}
+
+			FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+			FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
+			TorqueDirection.Normalize();
+
+			if (!DeltaAngularV.IsNearlyZero() && !Engine->IsOrbitalEngine()) {
+				AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
+			}
+
+			Engine->SetAlpha(FMath::Clamp(LinearAlpha + AngularAlpha, 0.0f, 1.0f));
 		}
-		
-		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
-		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
-		TorqueDirection.Normalize();
-		
-		if (!DeltaAngularV.IsNearlyZero() && !Engine->IsOrbitalEngine()) { 
-			AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
+	}
+	else
+	{
+		// Shutdown engines
+		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
+		{
+			UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+			Engine->SetAlpha(0);
 		}
-		
-		Engine->SetAlpha(FMath::Clamp(LinearAlpha + AngularAlpha, 0.0f, 1.0f));
 	}
 }
 
