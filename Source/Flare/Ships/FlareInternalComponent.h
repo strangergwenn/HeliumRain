@@ -5,7 +5,7 @@
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class UFlareInternalComponent : public UFlareShipComponent
+class FLARE_API UFlareInternalComponent : public UFlareShipComponent
 {
 public:
 
