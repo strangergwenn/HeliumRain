@@ -98,6 +98,11 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 		}
 		ComponentMaterial->SetScalarParameterValue("GlowAlpha", GlowAlpha);
 	}
+
+	if(ComponentDescription)
+	{
+		SetHealth(GetDamageRatio());
+	}
 }
 
 void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
@@ -153,11 +158,11 @@ void UFlareShipComponent::SetTemperature(int32 TemperatureKelvin)
 	}
 }
 
-void UFlareShipComponent::SetHealth(int32 HealthPercent)
+void UFlareShipComponent::SetHealth(float HealthRatio)
 {
 	if (ComponentMaterial)
 	{
-		ComponentMaterial->SetScalarParameterValue("Health", (float)HealthPercent / 100.0f);
+		ComponentMaterial->SetScalarParameterValue("Health", HealthRatio);
 	}
 }
 

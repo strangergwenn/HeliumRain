@@ -201,7 +201,7 @@ public:
 	virtual void SetTemperature(int32 TemperatureKelvin);
 
 	/** Set the health of this component */
-	virtual void SetHealth(int32 HealthPercent);
+	virtual void SetHealth(float HealthRatio);
 
 	/** Set the light status of this component */
 	virtual void SetLightStatus(EFlareLightStatus::Type Status);
