@@ -450,7 +450,6 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 			FFlareShipComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = RCSIdentifier;
 			ComponentData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
-			int32 Damage = 0;
 			ShipData.Components.Add(ComponentData);
 		}
 		
@@ -459,7 +458,6 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 			FFlareShipComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
 			ComponentData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
-			int32 Damage = 0;
 			ShipData.Components.Add(ComponentData);
 		}
 
@@ -467,8 +465,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		{
 			FFlareShipComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = FName("weapon-eradicator");
-			ComponentData.ShipSlotIdentifier = Desc->GunSlots[i].Identifier;
-			int32 Damage = 0;
+			ComponentData.ShipSlotIdentifier = Desc->GunSlots[i].SlotIdentifier;
 			ShipData.Components.Add(ComponentData);
 		}
 		
@@ -480,9 +477,8 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		for (int32 i = 0; i < Desc->InternalComponentSlots.Num(); i++)
 		{
 			FFlareShipComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = Desc->InternalComponentSlots[i].Component.Identifier;
-			ComponentData.ShipSlotIdentifier = Desc->GunSlots[i].Identifier;
-			int32 Damage = 0;
+			ComponentData.ComponentIdentifier = Desc->InternalComponentSlots[i].ComponentIdentifier;
+			ComponentData.ShipSlotIdentifier = Desc->InternalComponentSlots[i].SlotIdentifier;
 			
 			// TODO Init attributes for different types
 			

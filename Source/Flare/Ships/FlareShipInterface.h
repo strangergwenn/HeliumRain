@@ -80,10 +80,10 @@ struct FFlareShipSlotDescription
 	GENERATED_USTRUCT_BODY()
 	
 	/** Slot internal name */
-	UPROPERTY(EditAnywhere, Category = Content) FName Identifier;
+	UPROPERTY(EditAnywhere, Category = Content) FName SlotIdentifier;
 	
 	/** Component description can be empty if configurable slot */
-	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentDescription Component;
+	UPROPERTY(EditAnywhere, Category = Content) FName ComponentIdentifier;
 };
 
 
