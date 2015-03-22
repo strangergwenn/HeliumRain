@@ -131,18 +131,13 @@ void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Oth
 
 	float ImpactSpeed = FVector::DotProduct(DeltaVelocity, HitNormal);
 	float ImpactMass = OtherRoot->GetMass();
-	float ImpactEnergy = 0.5 * ImpactMass * FMath::Square(ImpactSpeed);
+	float ImpactEnergy = 0.5 * ImpactMass * FMath::Square(ImpactSpeed) * 0.001; // In KJ
 
 	FLOGV("ReceiveHit at %s at %s", *(MyComp->GetReadableName()), *(OtherComp->GetReadableName()));
 	FLOGV("Hit location=%s normal=%s impulse=%s ", *HitLocation.ToString(), *HitNormal.ToString(), *NormalImpulse.ToString());
 
-	float Energy = NormalImpulse.Size() / 1000;
-	float Radius = 0.2 + Energy /20000; // 1 meter for each 2KJ
-
-	FLOGV("Hit Energy=%f Radius=%f", Energy, Radius);
-
-	Energy = ImpactEnergy / 500;
-	Radius = 0.2 + FMath::Sqrt(Energy) * 0.007; // 1 meter for 20KJ
+	float Energy = ImpactEnergy / 500;
+	float  Radius = 0.2 + FMath::Sqrt(Energy) * 0.22; // 1 meter for 20KJ
 
 	FLOGV("Hit ImpactSpeed=%f ImpactMass=%f ImpactEnergy=%f Energy2=%f Raduis2=%f",ImpactSpeed, ImpactMass, ImpactEnergy, Energy, Radius);
 
