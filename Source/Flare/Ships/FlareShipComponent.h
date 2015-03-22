@@ -171,6 +171,7 @@ struct FFlareShipComponentDescription
 
 };
 
+class UFlareInternalComponent;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareShipComponent : public UStaticMeshComponent
@@ -255,17 +256,32 @@ public:
 	/**
 	 * Return true if the ship component is destroyed
 	 */
-	virtual bool IsDestroyed();
+	virtual bool IsDestroyed() const;
 
 	/**
 	 * Return true if any lifesupport system is available
 	 */
-	virtual bool IsAlive();
+	virtual bool IsAlive() const;
 
 	/**
 	 * Return true if the ship component is powered. A destroyed component is not powered
 	 */
-	virtual bool IsPowered();
+	virtual bool IsPowered() const;
+
+	/**
+	 * Compute the current available power
+	 */
+	virtual void UpdatePower();
+
+	/**
+	 * Return the current amount of generated power
+	 */
+	virtual float GetGeneratedPower() const;
+
+	/**
+	 * Find the closest sources
+	 */
+	virtual void UpdatePowerSources(TArray<UFlareInternalComponent*>* AvailablePowerSources);
 
 protected:
 
@@ -300,5 +316,7 @@ protected:
 
 	float LifeSupport;
 	float Power;
+	float GeneratedPower;
+	TArray<UFlareShipComponent*> PowerSources;
 
 };

@@ -26,7 +26,6 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	PrimaryComponentTick.bCanEverTick = true;
 	CurrentFlickerMaxPeriod = FlickerMaxOnPeriod;
 	SetNotifyRigidBodyCollision(true);
-	Power = 1;
 }
 
 
@@ -125,6 +124,9 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 			{
 				case EFlarePartCharacteristicType::LifeSupport:
 					LifeSupport = Characteristic.CharacteristicValue;
+				break;
+				case EFlarePartCharacteristicType::ElectricSystem:
+					GeneratedPower = Characteristic.CharacteristicValue;
 				break;
 			}
 		}
@@ -309,17 +311,70 @@ float UFlareShipComponent::GetDamageRatio() const
 	}
 }
 
-bool UFlareShipComponent::IsDestroyed()
+bool UFlareShipComponent::IsDestroyed() const
 {
 	return (GetDamageRatio() <= 0);
 }
 
-bool UFlareShipComponent::IsAlive()
+bool UFlareShipComponent::IsAlive() const
 {
-	return (LifeSupport*GetDamageRatio() > 0);
+	return (LifeSupport*GetDamageRatio() > 0.5); // Half a person is need to keep manual control
 }
 
-bool UFlareShipComponent::IsPowered()
+bool UFlareShipComponent::IsPowered() const
 {
 	return (Power*GetDamageRatio() > 0);
+}
+
+float UFlareShipComponent::GetGeneratedPower() const
+{
+	return GeneratedPower*GetDamageRatio();
+}
+
+void UFlareShipComponent::UpdatePower()
+{
+	Power = 0;
+	for (int32 i = 0; i < PowerSources.Num(); i++)
+	{
+		Power += PowerSources[i]->GetGeneratedPower();
+	}
+
+	FLOGV("Component %s available power is %f", *GetReadableName(), Power);
+}
+
+void UFlareShipComponent::UpdatePowerSources(TArray<UFlareInternalComponent*>* AvailablePowerSources)
+{
+	PowerSources.Empty();
+
+	float MinDistance = 100000; // 1km max attach MinDistance
+	float DoubleConnectionThesold = 100; // 1m
+	FVector Location = GetComponentLocation();
+
+	// First pass, find the closest distance
+	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
+	{
+		UFlareInternalComponent* PowerSource = (*AvailablePowerSources)[i];
+		FVector OtherLocation = PowerSource->GetComponentLocation();
+		float Distance = (OtherLocation - Location).Size() - PowerSource->Radius;
+
+		if(Distance < MinDistance)
+		{
+			MinDistance = Distance;
+		}
+	}
+
+	// Second pass, add all source in the distance thresold
+	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
+	{
+		UFlareInternalComponent* PowerSource = (*AvailablePowerSources)[i];
+		FVector OtherLocation = PowerSource->GetComponentLocation();
+		float Distance = (OtherLocation - Location).Size() - PowerSource->Radius;
+
+		if(Distance < MinDistance + DoubleConnectionThesold)
+		{
+			PowerSources.Add(PowerSource);
+			FLOGV("Component %s powered by %s", *GetReadableName(), *PowerSource->GetReadableName());
+		}
+	}
+	UpdatePower();
 }

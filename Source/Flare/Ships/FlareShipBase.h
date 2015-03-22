@@ -53,7 +53,7 @@ public:
 	/**
 	 * Return true if the ship cockpit is powered
 	 */
-	virtual bool IsPowered() { return false; };
+	virtual bool IsPowered() { return true; };
 
 	/**
 	 * Return true if the ship has weapon

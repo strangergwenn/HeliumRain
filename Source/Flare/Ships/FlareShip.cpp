@@ -217,6 +217,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 
 	// Initialize components
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	TArray<UFlareInternalComponent*> PowerSources;
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{	
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
@@ -270,7 +271,23 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 				ShipCockit = Component;
 			}
 		}
+
+		// Fill power sources
+		UFlareInternalComponent* InternalComponent = Cast<UFlareInternalComponent>(Component);
+
+		if (InternalComponent && InternalComponent->IsGenerator())
+		{
+			PowerSources.Add(InternalComponent);
+		}
 	}
+
+	// Second pass
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		Component->UpdatePowerSources(&PowerSources);
+	}
+
 
 
 	
@@ -461,6 +478,13 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 			Component->ApplyDamage(Energy * Efficiency);
 			FLOGV("Component hit with Efficiency=%f", Efficiency);
 		}
+	}
+
+	// Update power
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		Component->UpdatePower();
 	}
 }
 

@@ -30,3 +30,8 @@ void UFlareInternalComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
+
+bool UFlareInternalComponent::IsGenerator() const
+{
+	return GeneratedPower > 0;
+}

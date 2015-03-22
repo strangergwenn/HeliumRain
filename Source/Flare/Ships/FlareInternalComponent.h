@@ -28,6 +28,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	float Radius;
 
+	/**
+	 * Return true if is a generator (broken or not)
+	 */
+	virtual bool IsGenerator() const;
+
 protected:
 
 	/*----------------------------------------------------
