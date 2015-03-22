@@ -179,32 +179,35 @@ void UFlareShipComponent::SetLightStatus(EFlareLightStatus::Type Status)
 void UFlareShipComponent::SetupComponentMesh()
 {
 	// Set the mesh
-	if (ComponentDescription)
+	if (ComponentDescription && ComponentDescription->Mesh)
 	{
 		SetStaticMesh(ComponentDescription->Mesh);
 		SetMaterial(0, ComponentDescription->Mesh->GetMaterial(0));
 	}
 
-	// Parse all LODs levels, then all elements
-	for (int32 LODIndex = 0; LODIndex < StaticMesh->RenderData->LODResources.Num(); LODIndex++)
+	if(StaticMesh)
 	{
-		FStaticMeshLODResources& LOD = StaticMesh->RenderData->LODResources[LODIndex];
-		for (int32 ElementIndex = 0; ElementIndex < LOD.Sections.Num(); ElementIndex++)
+		// Parse all LODs levels, then all elements
+		for (int32 LODIndex = 0; LODIndex < StaticMesh->RenderData->LODResources.Num(); LODIndex++)
 		{
-			// Get base material from LOD element
-			const FStaticMeshSection& Element = LOD.Sections[ElementIndex];
-			UMaterialInterface* BaseMaterial = GetMaterial(Element.MaterialIndex);
-
-			// Generate MIDs from LOD 0 only
-			if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+			FStaticMeshLODResources& LOD = StaticMesh->RenderData->LODResources[LODIndex];
+			for (int32 ElementIndex = 0; ElementIndex < LOD.Sections.Num(); ElementIndex++)
 			{
-				ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
-			}
+				// Get base material from LOD element
+				const FStaticMeshSection& Element = LOD.Sections[ElementIndex];
+				UMaterialInterface* BaseMaterial = GetMaterial(Element.MaterialIndex);
 
-			// Apply generated materials at each LOD
-			if (ComponentMaterial)
-			{
-				SetMaterial(Element.MaterialIndex, ComponentMaterial);
+				// Generate MIDs from LOD 0 only
+				if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+				{
+					ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+				}
+
+				// Apply generated materials at each LOD
+				if (ComponentMaterial)
+				{
+					SetMaterial(Element.MaterialIndex, ComponentMaterial);
+				}
 			}
 		}
 	}

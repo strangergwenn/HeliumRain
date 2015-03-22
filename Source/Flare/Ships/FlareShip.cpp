@@ -6,6 +6,7 @@
 #include "FlareOrbitalEngine.h"
 #include "FlareRCS.h"
 #include "FlareWeapon.h"
+#include "FlareInternalComponent.h"
 
 #include "Particles/ParticleSystemComponent.h"
 
@@ -413,15 +414,27 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 	{	
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
 
-		FVector Min;
-		FVector Max;
-		Component->GetLocalBounds(Min,Max);
+		float ComponentSize;
+		FVector ComponentLocation;
 
-		FVector LocalBoxCenter = (Max + Min) /2;
+		UFlareInternalComponent* InternalComponent = Cast<UFlareInternalComponent>(Component);
+		if(InternalComponent)
+		{
+			ComponentLocation = InternalComponent->GetComponentLocation();
+			ComponentSize = InternalComponent->Radius;
+		}
+		else
+		{
+			FVector Min;
+			FVector Max;
+			Component->GetLocalBounds(Min,Max);
 
-		float ComponentSize = (Max - LocalBoxCenter).Size() /100.0f;
-		
-		FVector ComponentLocation = Component->GetComponentToWorld().TransformPosition(LocalBoxCenter);
+			FVector LocalBoxCenter = (Max + Min) /2;
+
+			ComponentSize = (Max - LocalBoxCenter).Size() /100.0f;
+			ComponentLocation = Component->GetComponentToWorld().TransformPosition(LocalBoxCenter);
+
+		}
 		float Distance = (ComponentLocation - Location).Size() / 100.0f;
 		float IntersectDistance =  Radius + ComponentSize - Distance;
 
@@ -431,8 +444,6 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 		if(IntersectDistance > 0) {
 			// Hit this component
 			FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
-			FLOGV("Component Min=%s Max=%s", *Min.ToString(), *Max.ToString());
-
 
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
 			Component->ApplyDamage(Energy * Efficiency);

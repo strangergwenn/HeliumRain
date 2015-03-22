@@ -30,24 +30,3 @@ void UFlareInternalComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
-
-/*----------------------------------------------------
-	Visualizer
-----------------------------------------------------*/
-/*
-void FFlareInternalComponentDebugVisualizer::DrawVisualization( const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI )
-{
-	if(View->Family->EngineShowFlags.LightRadius)
-	{
-		const UFlareInternalComponent* InternalComponent = Cast<const UFlareInternalComponent>(Component);
-		if(InternalComponent != NULL)
-		{
-			FTransform TM = InternalComponent->ComponentToWorld;
-			TM.RemoveScaling();
-
-			// Draw light radius
-			DrawWireSphereAutoSides(PDI, TM, FColor(200, 255, 255), InternalComponent->Radius, SDPG_World);
-		}
-	}
-
-}*/

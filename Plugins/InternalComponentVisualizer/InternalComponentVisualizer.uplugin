@@ -1,0 +1,22 @@
+{
+    "FileVersion" : 3,
+
+    "FriendlyName" : "Internal component visualizer Plugin",
+    "Version" : 1,
+    "VersionName": "1.0",
+    "EngineVersion" : 1579795,
+    "Description" : "Display the radius of ship internal component.",
+    "Category" : "Flare.Module",
+    "CreatedBy" : "Frédéric Bertolus",
+    "CreatedByURL" : "http://niavok.com",
+    "CanContainContent" : "true",
+
+    "Modules" :
+    [
+        {
+            "Name" : "InternalComponentVisualizer",
+            "Type" : "Developer",
+            "LoadingPhase" : "PostEngineInit"
+        }
+    ]
+}
