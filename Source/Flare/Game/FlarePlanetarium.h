@@ -4,7 +4,7 @@
 
 
 UCLASS()
-class FLARE_API AFlarePlanetarium : public AGameMode
+class FLARE_API AFlarePlanetarium : public AActor
 {
 public:
 
