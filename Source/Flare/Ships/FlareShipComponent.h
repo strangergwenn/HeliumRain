@@ -312,7 +312,6 @@ protected:
 	float                                   CurrentFlickerMaxPeriod;
 
 	FFlareShipComponentSave                ShipComponentData;
-	const FFlareShipComponentDescription* ComponentDescription;
 
 	float LifeSupport;
 	float Power;

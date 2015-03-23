@@ -297,6 +297,11 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 	{
 		ShipComponentData.Damage += Energy;
 		FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints); 
+
+		if(IsDestroyed())
+		{
+			SetLightStatus(EFlareLightStatus::Dark);
+		}
 	}
 }
 
@@ -333,10 +338,24 @@ float UFlareShipComponent::GetGeneratedPower() const
 
 void UFlareShipComponent::UpdatePower()
 {
+
 	Power = 0;
 	for (int32 i = 0; i < PowerSources.Num(); i++)
 	{
 		Power += PowerSources[i]->GetGeneratedPower();
+	}
+
+	if(Power <=0 || IsDestroyed())
+	{
+		SetLightStatus(EFlareLightStatus::Dark);
+	}
+	else if (Power < 0.5)
+	{
+		SetLightStatus(EFlareLightStatus::Flickering);
+	}
+	else
+	{
+		SetLightStatus(EFlareLightStatus::Lit);
 	}
 
 	FLOGV("Component %s available power is %f", *GetReadableName(), Power);
