@@ -61,6 +61,19 @@ namespace EFlarePartCharacteristicType
 	};
 }
 
+/** Light flickering status */
+UENUM()
+namespace EFlareLightStatus
+{
+	enum Type
+	{
+		Lit,
+		Flickering,
+		Dark,
+		Num
+	};
+}
+
 /** Part characteristic */
 USTRUCT()
 struct FFlareShipComponentCharacteristic
@@ -190,6 +203,9 @@ public:
 	/** Set the health of this component */
 	virtual void SetHealth(int32 HealthPercent);
 
+	/** Set the light status of this component */
+	virtual void SetLightStatus(EFlareLightStatus::Type Status);
+
 	/** Apply all customizations to the component */
 	virtual void SetupComponentMesh();
 
@@ -202,8 +218,16 @@ public:
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
 
+
+public:
+
+	/*----------------------------------------------------
+		Public data
+	----------------------------------------------------*/
+
 	/** Component slot identifier */
 	UPROPERTY(EditAnywhere, Category = Content) FName SlotIdentifier;
+
 
 protected:
 
@@ -212,18 +236,26 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY()
-	AFlareShipBase* Ship;
+	AFlareShipBase*                         Ship;
 	
 	UPROPERTY()
-	UFlareCompany* PlayerCompany;
+	UFlareCompany*                          PlayerCompany;
 
 	UPROPERTY()
-	UStaticMeshComponent* EffectMesh;
+	UStaticMeshComponent*                   EffectMesh;
 
-	UMaterialInstanceDynamic* ComponentMaterial;
-	UMaterialInstanceDynamic* EffectMaterial;
+	UMaterialInstanceDynamic*               ComponentMaterial;
+	UMaterialInstanceDynamic*               EffectMaterial;
 
-	const FFlareShipComponentDescription* ComponentDescription;
+	const FFlareShipComponentDescription*   ComponentDescription;
+
+	// Light flickering style
+	TEnumAsByte<EFlareLightStatus::Type>    LightFlickeringStatus;
+	float                                   TimeLeftUntilFlicker;
+	float                                   TimeLeftInFlicker;
+	float                                   FlickerMaxOnPeriod;
+	float                                   FlickerMaxOffPeriod;
+	float                                   CurrentFlickerMaxPeriod;
 
 
 };

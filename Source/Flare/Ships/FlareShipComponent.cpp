@@ -17,8 +17,14 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	, PlayerCompany(NULL)
 	, ComponentMaterial(NULL)
 	, ComponentDescription(NULL)
+	, LightFlickeringStatus(EFlareLightStatus::Lit)
+	, TimeLeftUntilFlicker(0)
+	, TimeLeftInFlicker(0)
+	, FlickerMaxOnPeriod(1)
+	, FlickerMaxOffPeriod(3)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	CurrentFlickerMaxPeriod = FlickerMaxOnPeriod;
 }
 
 
@@ -37,6 +43,60 @@ void UFlareShipComponent::OnRegister()
 void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Update the light status
+	if (ComponentMaterial)
+	{
+		float GlowAlpha = 0;
+
+		switch (LightFlickeringStatus)
+		{
+			// Flickering light
+			case EFlareLightStatus::Flickering:
+			{
+				if (TimeLeftUntilFlicker > 0)
+				{
+					TimeLeftUntilFlicker -= DeltaTime;
+					GlowAlpha = 0;
+				}
+				else
+				{
+					if (TimeLeftInFlicker > 0)
+					{
+						TimeLeftInFlicker -= DeltaTime;
+						if (TimeLeftInFlicker > CurrentFlickerMaxPeriod / 2)
+						{
+							GlowAlpha = FMath::InterpEaseInOut(0.0f, 1.0f, 2 * (TimeLeftInFlicker / CurrentFlickerMaxPeriod), 2);
+						}
+						else
+						{
+							GlowAlpha = FMath::InterpEaseInOut(1.0f, 0.0f, 2 * (TimeLeftInFlicker / CurrentFlickerMaxPeriod) - 1, 2);
+						}
+					}
+					else
+					{
+						TimeLeftInFlicker = FMath::FRandRange(0, FlickerMaxOnPeriod);
+						TimeLeftUntilFlicker = FMath::FRandRange(0, FlickerMaxOffPeriod);
+						CurrentFlickerMaxPeriod = TimeLeftInFlicker;
+						GlowAlpha = 0;
+					}
+				}
+			}
+			break;
+
+			// Fully dark
+			case EFlareLightStatus::Dark:
+				GlowAlpha = 0;
+				break;
+
+			// Fully lit
+			default:
+			case EFlareLightStatus::Lit:
+				GlowAlpha = 1;
+				break;
+		}
+		ComponentMaterial->SetScalarParameterValue("GlowAlpha", GlowAlpha);
+	}
 }
 
 void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
@@ -85,6 +145,11 @@ void UFlareShipComponent::SetHealth(int32 HealthPercent)
 	{
 		ComponentMaterial->SetScalarParameterValue("Health", (float)HealthPercent / 100.0f);
 	}
+}
+
+void UFlareShipComponent::SetLightStatus(EFlareLightStatus::Type Status)
+{
+	LightFlickeringStatus = Status;
 }
 
 
