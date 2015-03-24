@@ -31,7 +31,8 @@ void UFlareInternalComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UFlareInternalComponent::IsGenerator() const
+void UFlareInternalComponent::GetBoundingSphere(FVector& Location, float& SphereRadius)
 {
-	return GeneratedPower > 0;
+	SphereRadius = Radius * 100; // In cm
+	Location = GetComponentLocation();
 }

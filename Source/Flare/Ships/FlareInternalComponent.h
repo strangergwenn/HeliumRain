@@ -28,10 +28,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	float Radius;
 
-	/**
-	 * Return true if is a generator (broken or not)
-	 */
-	virtual bool IsGenerator() const;
+	void GetBoundingSphere(FVector& Location, float& Radius) override;
+
 
 protected:
 
@@ -47,3 +45,4 @@ public:
 	----------------------------------------------------*/
 
 };
+

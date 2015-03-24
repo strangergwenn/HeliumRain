@@ -29,4 +29,7 @@ public:
 	virtual void OnRegister()  override;
 
 
+	float GetRemainingArmorAtLocation(FVector Location) override;
+
+	float GetAvailablePower() const override;
 };

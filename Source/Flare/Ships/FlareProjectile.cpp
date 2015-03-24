@@ -100,9 +100,9 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 		FVector ImpactVelocity = ProjectileVelocity - TargetVelocity;
 		FVector ImpactVelocityAxis = ImpactVelocity.GetUnsafeNormal();
 		
-		float ShellEnergy = 0.5f * ShellMass * ImpactVelocity.SizeSquared();
+		float ShellEnergy = 0.5f * ShellMass * ImpactVelocity.SizeSquared() / 1000; // Damage in KJ
 		
-		float PenerationIncidenceLimit = 0.3f;
+		float PenerationIncidenceLimit = 0.5f;
 		
 		float Incidence = FVector::DotProduct(HitResult.ImpactNormal, -ImpactVelocityAxis);
 		
@@ -113,10 +113,8 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 		
 		float RemainingArmor = -1; // Negative value mean no destructable
 		
-		FLOGV("OnImpact ProjectileVelocity=%s TargetVelocity=%s ImpactVelocity=%s ImpactVelocityAxis=%s", *ProjectileVelocity.ToString(), *TargetVelocity.ToString(), *ImpactVelocity.ToString(), *ImpactVelocityAxis.ToString());
-		
-		FLOGV("OnImpact ShellMass=%f PenerationIncidenceLimit=%f RemainingArmor=%f HitResult.ImpactNormal=%s", ShellMass, PenerationIncidenceLimit, RemainingArmor, *(HitResult.ImpactNormal.ToString()));
-		
+
+		FLOGV("OnImpact on %s", *(HitResult.Component.Get()->GetReadableName()));
 		
 		UFlareShipComponent* ShipComponent = Cast<UFlareShipComponent>(HitResult.Component.Get());
 		if(ShipComponent) {
@@ -124,7 +122,10 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 			 RemainingArmor = ShipComponent->GetRemainingArmorAtLocation(HitResult.Location);
 		}
 		
-		
+		FLOGV("OnImpact ProjectileVelocity=%s TargetVelocity=%s ImpactVelocity=%s ImpactVelocityAxis=%s", *ProjectileVelocity.ToString(), *TargetVelocity.ToString(), *ImpactVelocity.ToString(), *ImpactVelocityAxis.ToString());
+
+		FLOGV("OnImpact ShellMass=%f PenerationIncidenceLimit=%f RemainingArmor=%f HitResult.ImpactNormal=%s", ShellMass, PenerationIncidenceLimit, RemainingArmor, *(HitResult.ImpactNormal.ToString()));
+
 		
 		
 		// Check armor peneration
@@ -150,12 +151,12 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 		IFlareShipInterface* Ship = Cast<IFlareShipInterface>(HitResult.Actor.Get());
 		if(Ship) {
 			// Hit a component. Damage in KJ
-			 Ship->ApplyDamage(AbsorbedEnergy / 1000, 0.75f, HitResult.Location);
+			 Ship->ApplyDamage(AbsorbedEnergy, 0.75f, HitResult.Location);
 		}
 		
 		// Data
 		USceneComponent* Target = HitResult.GetComponent();
-		float DecalSize = FMath::FRandRange(250, 500);
+		float DecalSize = FMath::FRandRange(60, 90);
 
 		// Spawn decal
 		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(

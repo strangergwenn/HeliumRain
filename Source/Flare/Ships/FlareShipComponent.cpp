@@ -186,6 +186,19 @@ void UFlareShipComponent::SetLightStatus(EFlareLightStatus::Type Status)
 }
 
 
+void UFlareShipComponent::GetBoundingSphere(FVector& Location, float& Radius)
+{
+	FVector Min;
+	FVector Max;
+	GetLocalBounds(Min,Max);
+
+	FVector LocalBoxCenter = (Max + Min) /2;
+
+	Radius = (Max - LocalBoxCenter).Size();
+	Location = GetComponentToWorld().TransformPosition(LocalBoxCenter);
+}
+
+
 /*----------------------------------------------------
 	Customization
 ----------------------------------------------------*/
@@ -282,12 +295,13 @@ void UFlareShipComponent::UpdateCustomization()
 
 float UFlareShipComponent::GetRemainingArmorAtLocation(FVector Location)
 {
+
 	if(!ComponentDescription || (ComponentDescription->ArmorHitPoints == 0.0f && ComponentDescription->HitPoints == 0.0f))
 	{
 		// Not destructible
 		return -1.0f;
 	} else {
-		return FMath::Max(0.0f, ShipComponentData.Damage - ComponentDescription->ArmorHitPoints);
+		return FMath::Max(0.0f, ComponentDescription->ArmorHitPoints - ShipComponentData.Damage);
 	}
 }
 
@@ -298,10 +312,7 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 		ShipComponentData.Damage += Energy;
 		FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints); 
 
-		if(IsDestroyed())
-		{
-			SetLightStatus(EFlareLightStatus::Dark);
-		}
+		UpdateLight();
 	}
 }
 
@@ -336,6 +347,16 @@ float UFlareShipComponent::GetGeneratedPower() const
 	return GeneratedPower*GetDamageRatio();
 }
 
+float UFlareShipComponent::GetAvailablePower() const
+{
+	return Power*GetDamageRatio();
+}
+
+bool UFlareShipComponent::IsGenerator() const
+{
+	return GeneratedPower > 0;
+}
+
 void UFlareShipComponent::UpdatePower()
 {
 
@@ -345,11 +366,19 @@ void UFlareShipComponent::UpdatePower()
 		Power += PowerSources[i]->GetGeneratedPower();
 	}
 
-	if(Power <=0 || IsDestroyed())
+	UpdateLight();
+
+	FLOGV("Component %s available power is %f", *GetReadableName(), Power);
+}
+
+void UFlareShipComponent::UpdateLight()
+{
+	float AvailablePower = GetAvailablePower();
+	if( AvailablePower <=0)
 	{
 		SetLightStatus(EFlareLightStatus::Dark);
 	}
-	else if (Power < 0.5)
+	else if (AvailablePower < 0.5)
 	{
 		SetLightStatus(EFlareLightStatus::Flickering);
 	}
@@ -358,10 +387,9 @@ void UFlareShipComponent::UpdatePower()
 		SetLightStatus(EFlareLightStatus::Lit);
 	}
 
-	FLOGV("Component %s available power is %f", *GetReadableName(), Power);
 }
 
-void UFlareShipComponent::UpdatePowerSources(TArray<UFlareInternalComponent*>* AvailablePowerSources)
+void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources)
 {
 	PowerSources.Empty();
 
@@ -372,9 +400,12 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareInternalComponent*>* A
 	// First pass, find the closest distance
 	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
 	{
-		UFlareInternalComponent* PowerSource = (*AvailablePowerSources)[i];
-		FVector OtherLocation = PowerSource->GetComponentLocation();
-		float Distance = (OtherLocation - Location).Size() - PowerSource->Radius;
+		UFlareShipComponent* PowerSource = (*AvailablePowerSources)[i];
+
+		FVector OtherLocation;
+		float OtherRadius;
+		PowerSource->GetBoundingSphere(OtherLocation, OtherRadius);
+		float Distance = (OtherLocation - Location).Size() - OtherRadius;
 
 		if(Distance < MinDistance)
 		{
@@ -385,9 +416,11 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareInternalComponent*>* A
 	// Second pass, add all source in the distance thresold
 	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
 	{
-		UFlareInternalComponent* PowerSource = (*AvailablePowerSources)[i];
-		FVector OtherLocation = PowerSource->GetComponentLocation();
-		float Distance = (OtherLocation - Location).Size() - PowerSource->Radius;
+		UFlareShipComponent* PowerSource = (*AvailablePowerSources)[i];
+		FVector OtherLocation;
+		float OtherRadius;
+		PowerSource->GetBoundingSphere(OtherLocation, OtherRadius);
+		float Distance = (OtherLocation - Location).Size() - OtherRadius;
 
 		if(Distance < MinDistance + DoubleConnectionThesold)
 		{
@@ -395,5 +428,4 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareInternalComponent*>* A
 			FLOGV("Component %s powered by %s", *GetReadableName(), *PowerSource->GetReadableName());
 		}
 	}
-	UpdatePower();
 }

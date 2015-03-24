@@ -217,7 +217,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 
 	// Initialize components
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
-	TArray<UFlareInternalComponent*> PowerSources;
+	TArray<UFlareShipComponent*> PowerSources;
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{	
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
@@ -273,11 +273,9 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		}
 
 		// Fill power sources
-		UFlareInternalComponent* InternalComponent = Cast<UFlareInternalComponent>(Component);
-
-		if (InternalComponent && InternalComponent->IsGenerator())
+		if (Component->IsGenerator())
 		{
-			PowerSources.Add(InternalComponent);
+			PowerSources.Add(Component);
 		}
 	}
 
@@ -287,7 +285,12 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
 		Component->UpdatePowerSources(&PowerSources);
 	}
-
+	// Update power
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		Component->UpdatePower();
+	}
 
 
 	
@@ -445,27 +448,10 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 
 		float ComponentSize;
 		FVector ComponentLocation;
+		Component->GetBoundingSphere(ComponentLocation, ComponentSize);
 
-		UFlareInternalComponent* InternalComponent = Cast<UFlareInternalComponent>(Component);
-		if(InternalComponent)
-		{
-			ComponentLocation = InternalComponent->GetComponentLocation();
-			ComponentSize = InternalComponent->Radius;
-		}
-		else
-		{
-			FVector Min;
-			FVector Max;
-			Component->GetLocalBounds(Min,Max);
-
-			FVector LocalBoxCenter = (Max + Min) /2;
-
-			ComponentSize = (Max - LocalBoxCenter).Size() /100.0f;
-			ComponentLocation = Component->GetComponentToWorld().TransformPosition(LocalBoxCenter);
-
-		}
 		float Distance = (ComponentLocation - Location).Size() / 100.0f;
-		float IntersectDistance =  Radius + ComponentSize - Distance;
+		float IntersectDistance =  Radius + ComponentSize/100 - Distance;
 
 
 		//DrawDebugSphere(GetWorld(), ComponentLocation, ComponentSize * 100, 12, FColor::Green, true);

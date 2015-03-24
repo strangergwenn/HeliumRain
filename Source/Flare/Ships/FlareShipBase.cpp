@@ -218,3 +218,28 @@ float AFlareShipBase::GetMeshScale() const
 	FBox Box = GetComponentsBoundingBox();
 	return FMath::Max(Box.GetExtent().Size(), 1.0f);
 }
+
+
+UFlareInternalComponent* AFlareShipBase::GetInternalComponentAtLocation(FVector Location) const
+{
+	float MinDistance = 100000; // 1km
+	UFlareInternalComponent* ClosestComponent = NULL;
+
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareInternalComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareInternalComponent* InternalComponent = Cast<UFlareInternalComponent>(Components[ComponentIndex]);
+
+		FVector ComponentLocation;
+		float ComponentSize;
+		InternalComponent->GetBoundingSphere(ComponentLocation, ComponentSize);
+
+		float Distance = (ComponentLocation - Location).Size() - ComponentSize;
+		if(Distance < MinDistance)
+		{
+			ClosestComponent = InternalComponent;
+			MinDistance = Distance;
+		}
+	}
+	return ClosestComponent;
+}

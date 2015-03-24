@@ -206,6 +206,8 @@ public:
 	 * Return true if the ship cockpit is powered
 	 */
 	virtual bool IsPowered() override;
+
+	virtual UFlareShipComponent* GetCockpit() override { return ShipCockit; }
 protected:
 
 	/*----------------------------------------------------

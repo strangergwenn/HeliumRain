@@ -60,6 +60,11 @@ public:
 	 */
 	virtual bool IsArmed() { return false; };
 
+	/**
+	 * Return cockpit, if present
+	 */
+	virtual UFlareShipComponent* GetCockpit() { return NULL; };
+
 	/*----------------------------------------------------
 		Camera control
 	----------------------------------------------------*/
@@ -129,7 +134,7 @@ public:
 	/** Get the ship size */
 	float GetMeshScale() const;
 
-
+	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
 protected:
 
 	/*----------------------------------------------------

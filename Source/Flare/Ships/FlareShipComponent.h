@@ -223,6 +223,15 @@ public:
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
 
+	/**
+	 * Update light effect
+	 */
+	virtual void UpdateLight();
+
+	/**
+	 * Return bounding sphere in out parameters
+	 */
+	virtual void GetBoundingSphere(FVector& Location, float& Radius);
 
 public:
 
@@ -279,9 +288,19 @@ public:
 	virtual float GetGeneratedPower() const;
 
 	/**
+	 * Return the current amount of available power
+	 */
+	virtual float GetAvailablePower() const;
+
+	/**
+	 * Return true if is a generator (broken or not)
+	 */
+	virtual bool IsGenerator() const;
+
+	/**
 	 * Find the closest sources
 	 */
-	virtual void UpdatePowerSources(TArray<UFlareInternalComponent*>* AvailablePowerSources);
+	virtual void UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources);
 
 protected:
 
