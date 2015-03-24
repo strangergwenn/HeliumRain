@@ -65,6 +65,11 @@ public:
 	 */
 	virtual UFlareShipComponent* GetCockpit() { return NULL; };
 
+	/**
+	 * Update power status for all components
+	 */
+	virtual void UpdatePower();
+
 	/*----------------------------------------------------
 		Camera control
 	----------------------------------------------------*/

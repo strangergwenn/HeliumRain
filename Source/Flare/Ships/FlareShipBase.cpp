@@ -243,3 +243,13 @@ UFlareInternalComponent* AFlareShipBase::GetInternalComponentAtLocation(FVector 
 	}
 	return ClosestComponent;
 }
+
+void AFlareShipBase::UpdatePower()
+{
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		Component->UpdatePower();
+	}
+}

@@ -285,12 +285,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
 		Component->UpdatePowerSources(&PowerSources);
 	}
-	// Update power
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
-		Component->UpdatePower();
-	}
+	UpdatePower();
 
 
 	
@@ -467,11 +462,7 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 	}
 
 	// Update power
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
-		Component->UpdatePower();
-	}
+	UpdatePower();
 }
 
 /*----------------------------------------------------

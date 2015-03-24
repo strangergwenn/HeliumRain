@@ -335,6 +335,7 @@ protected:
 	float LifeSupport;
 	float Power;
 	float GeneratedPower;
+	float PowerOutageDelay;
 	TArray<UFlareShipComponent*> PowerSources;
 
 };

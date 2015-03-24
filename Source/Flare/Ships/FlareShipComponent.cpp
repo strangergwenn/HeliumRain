@@ -102,6 +102,15 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	if(ComponentDescription)
 	{
 		SetHealth(GetDamageRatio());
+		if(PowerOutageDelay > 0)
+		{
+			PowerOutageDelay -=  DeltaTime;
+			if(PowerOutageDelay <=0)
+			{
+				PowerOutageDelay = 0;
+				Ship->UpdatePower();
+			}
+		}
 	}
 }
 
@@ -312,7 +321,18 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 		ShipComponentData.Damage += Energy;
 		FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints); 
 
+		if(IsGenerator() && ComponentDescription->ArmorHitPoints < ShipComponentData.Damage)
+		{
+			// No more armo, power outage risk
+			float DamageRatio = GetDamageRatio();
+			if(FMath::FRand() > DamageRatio)
+			{
+				PowerOutageDelay += FMath::FRandRange(0, 5 * (1.f - DamageRatio));
+			}
+		}
+
 		UpdateLight();
+
 	}
 }
 
@@ -344,7 +364,7 @@ bool UFlareShipComponent::IsPowered() const
 
 float UFlareShipComponent::GetGeneratedPower() const
 {
-	return GeneratedPower*GetDamageRatio();
+	return GeneratedPower*GetDamageRatio()*(PowerOutageDelay > 0 ? 0 : 1);
 }
 
 float UFlareShipComponent::GetAvailablePower() const
