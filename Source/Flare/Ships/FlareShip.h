@@ -7,6 +7,20 @@
 #include "FlareShip.generated.h"
 
 
+/** Possible subsystems targets */
+UENUM()
+namespace EFlareSubsystem
+{
+	enum Type
+	{
+		SYS_Temperature,
+		SYS_Propulsion,
+		SYS_RCS,
+		SYS_LifeSupport,
+		SYS_Weapon
+	};
+}
+
 /** Status of the ship */
 UENUM()
 namespace EFlareShipStatus

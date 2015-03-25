@@ -4,6 +4,7 @@
 #include "GameFramework/HUD.h"
 #include "../Ships/FlareShipBase.h"
 #include "../UI/Menus/FlareDashboard.h"
+#include "../UI/Menus/FlareHUDMenu.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareStationMenu.h"
@@ -166,7 +167,8 @@ protected:
 	FVector2D                               ContextMenuPosition;
 
 	// Menus
-	TSharedPtr<SOverlay>                    HUDContainer;
+	TSharedPtr<SFlareHUDMenu>               HUDMenu;
+	TSharedPtr<SOverlay>                    OverlayContainer;
 	TSharedPtr<SFlareDashboard>             Dashboard;
 	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;
 	TSharedPtr<SFlareShipMenu>              ShipMenu;

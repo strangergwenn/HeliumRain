@@ -217,8 +217,8 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 {
 	if (GEngine->IsValidLowLevel())
 	{
-		// HUD widgets
-		SAssignNew(HUDContainer, SOverlay)
+		// HUD widget
+		SAssignNew(OverlayContainer, SOverlay)
 
 			// Context menu
 			+ SOverlay::Slot()
@@ -229,6 +229,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 			];
 
 		// Create menus
+		SAssignNew(HUDMenu, SFlareHUDMenu).OwnerHUD(this);
 		SAssignNew(Dashboard, SFlareDashboard).OwnerHUD(this);
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).OwnerHUD(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).OwnerHUD(this);
@@ -242,13 +243,14 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"));
 
 		// Register menus at their Z-Index
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(HUDContainer.ToSharedRef()),    10);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),       50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),     50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),        50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StationMenu.ToSharedRef()),     50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),      50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),           100);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(HUDMenu.ToSharedRef()),          0);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OverlayContainer.ToSharedRef()), 10);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StationMenu.ToSharedRef()),      50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
 
 		// Setup menus
 		Dashboard->Setup();
@@ -348,7 +350,7 @@ void AFlareHUD::OpenDashboard()
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	HUDContainer->SetVisibility(EVisibility::Hidden);
+	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	Dashboard->Enter();
 }
@@ -357,7 +359,7 @@ void AFlareHUD::InspectCompany(UFlareCompany* Target)
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	HUDContainer->SetVisibility(EVisibility::Hidden);
+	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	if (Target == NULL)
 	{
@@ -370,7 +372,7 @@ void AFlareHUD::InspectShip(IFlareShipInterface* Target, bool IsEditable)
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	HUDContainer->SetVisibility(EVisibility::Hidden);
+	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	if (Target == NULL)
 	{
@@ -383,7 +385,7 @@ void AFlareHUD::InspectStation(IFlareStationInterface* Target, bool IsEditable)
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	HUDContainer->SetVisibility(EVisibility::Hidden);
+	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	AFlareShip* PlayerShip = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
 
@@ -398,7 +400,7 @@ void AFlareHUD::OpenSector()
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	HUDContainer->SetVisibility(EVisibility::Hidden);
+	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	SectorMenu->Enter();
 }
@@ -407,7 +409,8 @@ void AFlareHUD::ExitMenu()
 {
 	ResetMenu();
 	SetMenuPawn(false);
-	HUDContainer->SetVisibility(EVisibility::Visible);
+	HUDMenu->SetVisibility(EVisibility::Visible);
+	OverlayContainer->SetVisibility(EVisibility::Visible);
 }
 
 
@@ -424,6 +427,7 @@ void AFlareHUD::ResetMenu()
 	ShipMenu->Exit();
 	StationMenu->Exit();
 	SectorMenu->Exit();
+	HUDMenu->SetVisibility(EVisibility::Hidden);
 
 	if (PC)
 	{
@@ -457,6 +461,7 @@ void AFlareHUD::SetMenuPawn(bool Status)
 		else
 		{
 			PC->OnExitMenu();
+			HUDMenu->SetTargetShip(PC->GetShipPawn());
 		}
 	}
 }
