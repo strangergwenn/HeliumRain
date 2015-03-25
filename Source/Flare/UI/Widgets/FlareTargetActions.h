@@ -119,6 +119,9 @@ protected:
 	TSharedPtr<SHorizontalBox>        CompanyContainer;
 	TSharedPtr<SHorizontalBox>        StationContainer;
 	TSharedPtr<SHorizontalBox>        ShipContainer;
+	TSharedPtr<SFlareButton>          StationInspectButton;
+	TSharedPtr<SFlareButton>          ShipInspectButton;
+	TSharedPtr<SFlareButton>          ShipFlyButton;
 	TSharedPtr<SFlareButton>          DockButton;
 	TSharedPtr<SFlareButton>          UndockButton;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;

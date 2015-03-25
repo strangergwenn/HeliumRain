@@ -153,7 +153,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SNew(SFlareButton)
+				SAssignNew(StationInspectButton, SFlareButton)
 				.Text(LOCTEXT("StationInspect", "INSPECT"))
 				.OnClicked(this, &SFlareTargetActions::OnInspect)
 			]
@@ -187,7 +187,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SNew(SFlareButton)
+				SAssignNew(ShipInspectButton, SFlareButton)
 				.Text(LOCTEXT("ShipInspect", "INSPECT"))
 				.OnClicked(this, &SFlareTargetActions::OnInspect)
 			]
@@ -196,7 +196,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SNew(SFlareButton)
+				SAssignNew(ShipFlyButton, SFlareButton)
 				.Text(LOCTEXT("ShipFly", "FLY"))
 				.OnClicked(this, &SFlareTargetActions::OnFly)
 			]
@@ -225,10 +225,6 @@ void SFlareTargetActions::SetCompany(UFlareCompany* Target)
 		// Data
 		CompanyFlag->SetCompany(Target);
 		TargetName = Target->GetName();
-		FFlareCompanySave* SaveData = Target->Save();
-		if (SaveData)
-		{
-		}
 	}
 }
 
@@ -319,12 +315,15 @@ void SFlareTargetActions::Show()
 			CompanyContainer->SetVisibility(EVisibility::Collapsed);
 			StationContainer->SetVisibility(EVisibility::Visible);
 			ShipContainer->SetVisibility(EVisibility::Collapsed);
+			StationInspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
 		}
 		else if (TargetShip)
 		{
 			CompanyContainer->SetVisibility(EVisibility::Collapsed);
 			StationContainer->SetVisibility(EVisibility::Collapsed);
 			ShipContainer->SetVisibility(EVisibility::Visible);
+			ShipInspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
+			ShipFlyButton->SetVisibility(TargetShip == PC->GetShipPawn() ? EVisibility::Collapsed : EVisibility::Visible);
 		}
 		else if (TargetCompany)
 		{
