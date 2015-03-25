@@ -59,18 +59,11 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	// Mouse control
 	if (PC)
 	{
-		if (!ContextMenu->IsOpen())
-		{
-			FVector2D MousePos = PC->GetMousePosition();
-			FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-			FVector2D ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
-			MousePos = 2 * ((MousePos - ViewportCenter) / ViewportSize);
-			PC->MousePositionInput(MousePos);
-		}
-		else
-		{
-			PC->MousePositionInput(FVector2D::ZeroVector);
-		}
+		FVector2D MousePos = PC->GetMousePosition();
+		FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+		FVector2D ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+		MousePos = 2 * ((MousePos - ViewportCenter) / ViewportSize);
+		PC->MousePositionInput(MousePos);
 	}
 
 	// Fade system
@@ -137,7 +130,7 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Hide the context menu
-		if (!FoundTargetUnderMouse && ContextMenu->CanBeHidden())
+		if (!FoundTargetUnderMouse)
 		{
 			ContextMenu->Hide();
 		}
@@ -200,24 +193,21 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 		{
 			// Update state
 			FoundTargetUnderMouse = true;
-			if (!ContextMenu->IsOpen())
+			ContextMenuPosition = ScreenPosition;
+			ContextMenu->Show();
+
+			// If station, set data
+			AFlareStation* Station = Cast<AFlareStation>(ShipBase);
+			if (Station)
 			{
-				ContextMenuPosition = ScreenPosition;
-				ContextMenu->Show();
+				ContextMenu->SetStation(Station);
+			}
 
-				// If station, set data
-				AFlareStation* Station = Cast<AFlareStation>(ShipBase);
-				if (Station)
-				{
-					ContextMenu->SetStation(Station);
-				}
-
-				// If ship, set data
-				AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
-				if (Ship)
-				{
-					ContextMenu->SetShip(Ship);
-				}
+			// If ship, set data
+			AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
+			if (Ship)
+			{
+				ContextMenu->SetShip(Ship);
 			}
 		}
 		else

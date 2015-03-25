@@ -16,11 +16,13 @@ class SFlareTargetActions : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareTargetActions)
 		: _Player(NULL)
+		, _NoInspect(false)
 		, _MinimizedMode(false)
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
 
+	SLATE_ARGUMENT(bool, NoInspect)
 	SLATE_ARGUMENT(bool, MinimizedMode)
 
 	SLATE_END_ARGS()
@@ -43,6 +45,9 @@ public:
 
 	/** Set a ship as content */
 	void SetShip(IFlareShipInterface* Target);
+
+	/** Set the no-inspect mode */
+	void SetNoInspect(bool NewState);
 
 	/** Set the minimized mode */
 	void SetMinimized(bool NewState);
@@ -99,6 +104,7 @@ protected:
 
 	// Game data
 	AFlarePlayerController*           PC;
+	bool                              NoInspect;
 	bool                              MinimizedMode;
 
 	// Target data

@@ -13,6 +13,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 {
 	// Data
 	PC = InArgs._Player;
+	NoInspect = InArgs._NoInspect;
 	MinimizedMode = InArgs._MinimizedMode;
 	AFlareGame* Game = InArgs._Player->GetGame();
 	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/ActionButton");
@@ -289,6 +290,11 @@ void SFlareTargetActions::SetShip(IFlareShipInterface* Target)
 			TargetShipDesc = PC->GetGame()->GetShipCatalog()->Get(SaveData->Identifier);
 		}
 	}
+}
+
+void SFlareTargetActions::SetNoInspect(bool NewState)
+{
+	NoInspect = NewState;
 }
 
 void SFlareTargetActions::SetMinimized(bool NewState)

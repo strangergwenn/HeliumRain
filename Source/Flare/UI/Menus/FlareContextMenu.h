@@ -39,17 +39,8 @@ public:
 	/** Hide the menu */
 	void Hide();
 
-	/** Maximize the menu, showing its contents */
-	void Open();
-
-	/** Minimize the menu to its icon state */
-	void Close();
-
-	/** Return true if we are open */
-	bool IsOpen();
-
-	/** Return true if we are allowed to hide this menu */
-	bool CanBeHidden();
+	/** Open the menu associated to the target */
+	void OpenTargetMenu();
 
 
 protected:
@@ -76,12 +67,13 @@ protected:
 	TWeakObjectPtr<class AFlareHUD>   OwnerHUD;
 
 	// Widget data
-	TSharedPtr<SFlareButton>          MinimizedButton;
 	TSharedPtr<SVerticalBox>          Container;
-	TSharedPtr<SFlareTargetActions>   ActionMenu;
 	
 	// State data
 	bool Visible;
+	TSharedPtr<SFlareButton>          MinimizedButton;
+	IFlareStationInterface*           TargetStation;
+	IFlareShipInterface*              TargetShip;
 
 
 public:

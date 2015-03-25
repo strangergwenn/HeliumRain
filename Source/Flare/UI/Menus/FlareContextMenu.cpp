@@ -14,6 +14,8 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 {
 	// Data
 	Visible = false;
+	TargetShip = NULL;
+	TargetStation = NULL;
 	OwnerHUD = InArgs._OwnerHUD;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/ContextMenuButtonStyle");
@@ -41,15 +43,8 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(MinimizedButton, SFlareButton)
 					.ContainerStyle(ContainerStyle)
-					.OnClicked(this, &SFlareContextMenu::Open)
+					.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
 					.ButtonStyle(FFlareStyleSet::Get(), "/Style/ContextMenuButton")
-				]
-
-				// Menu
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SAssignNew(ActionMenu, SFlareTargetActions).Player(PC)
 				]
 			]
 		]
@@ -70,54 +65,35 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 
 void SFlareContextMenu::SetStation(IFlareStationInterface* Target)
 {
-	ActionMenu->SetStation(Target);
+	TargetStation = Target;
+	TargetShip = NULL;
 }
 
 void SFlareContextMenu::SetShip(IFlareShipInterface* Target)
 {
-	ActionMenu->SetShip(Target);
+	TargetShip = Target;
+	TargetStation = NULL;
 }
 
 void SFlareContextMenu::Show()
 {
-	Close();
-	Visible = true;
 	SetVisibility(EVisibility::Visible);
 }
 
 void SFlareContextMenu::Hide()
 {
-	Close();
-	Visible = false;
 	SetVisibility(EVisibility::Hidden);
 }
 
-void SFlareContextMenu::Open()
+void SFlareContextMenu::OpenTargetMenu()
 {
-	MinimizedButton->SetVisibility(EVisibility::Collapsed);
-	ActionMenu->Show();
-}
-
-void SFlareContextMenu::Close()
-{
-	MinimizedButton->SetVisibility(EVisibility::Visible);
-	ActionMenu->Hide();
-}
-
-bool SFlareContextMenu::IsOpen()
-{
-	return ActionMenu->GetVisibility() == EVisibility::Visible;
-}
-
-bool SFlareContextMenu::CanBeHidden()
-{
-	if (Container.IsValid())
+	if (TargetShip)
 	{
-		return Visible && !Container->IsHovered();
+		OwnerHUD->OpenMenu(EFlareMenu::MENU_Ship, TargetShip);
 	}
-	else
+	else if (TargetStation)
 	{
-		return Visible;
+		OwnerHUD->OpenMenu(EFlareMenu::MENU_Station, TargetStation);
 	}
 }
 

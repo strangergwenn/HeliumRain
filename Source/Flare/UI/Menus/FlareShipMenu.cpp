@@ -82,7 +82,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(ObjectActionMenu, SFlareTargetActions)
 						.Player(PC)
-						.MinimizedMode(true)
+						.NoInspect(true)
 					]
 
 					// Object description
