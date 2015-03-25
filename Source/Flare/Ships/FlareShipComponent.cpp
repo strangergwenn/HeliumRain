@@ -126,23 +126,31 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 		ShipComponentData = *Data;
 		ComponentDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
 
-		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
+		if(!ComponentDescription)
 		{
-			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
-			switch (Characteristic.CharacteristicType)
+			FLOGV("!!! Bad Component Identifier : %s", *Data->ComponentIdentifier.ToString());
+		}
+		else
+		{
+
+			for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
 			{
-				case EFlarePartCharacteristicType::LifeSupport:
-					LifeSupport = Characteristic.CharacteristicValue;
-				break;
-				case EFlarePartCharacteristicType::ElectricSystem:
-					GeneratedPower = Characteristic.CharacteristicValue;
-				break;
-				case EFlarePartCharacteristicType::HeatProduction:
-					HeatProduction = Characteristic.CharacteristicValue;
-				break;
-				case EFlarePartCharacteristicType::HeatSink:
-					HeatSinkSurface = Characteristic.CharacteristicValue;
-				break;
+				const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
+				switch (Characteristic.CharacteristicType)
+				{
+					case EFlarePartCharacteristicType::LifeSupport:
+						LifeSupport = Characteristic.CharacteristicValue;
+					break;
+					case EFlarePartCharacteristicType::ElectricSystem:
+						GeneratedPower = Characteristic.CharacteristicValue;
+					break;
+					case EFlarePartCharacteristicType::HeatProduction:
+						HeatProduction = Characteristic.CharacteristicValue;
+					break;
+					case EFlarePartCharacteristicType::HeatSink:
+						HeatSinkSurface = Characteristic.CharacteristicValue;
+					break;
+				}
 			}
 		}
 	}
@@ -365,7 +373,7 @@ bool UFlareShipComponent::IsAlive() const
 
 bool UFlareShipComponent::IsPowered() const
 {
-	return (Power*GetDamageRatio() > 0);
+	return (GetAvailablePower()> 0);
 }
 
 float UFlareShipComponent::GetGeneratedPower() const

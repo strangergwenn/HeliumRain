@@ -68,7 +68,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	if (Airframe && !IsPresentationMode())
 	{
 		UpdateCOM();
-	  
+
 		// Manual pilot
 		if (IsManualPilot() && IsAlive())
 		{
@@ -1074,7 +1074,6 @@ void AFlareShip::StartPresentation()
 void AFlareShip::PhysicSubTick(float DeltaSeconds)
 {
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
-	
 	if(IsPowered())
 	{
 		// Linear physics
