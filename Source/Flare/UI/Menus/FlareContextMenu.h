@@ -70,22 +70,8 @@ protected:
 	TSharedPtr<SVerticalBox>          Container;
 	
 	// State data
-	bool Visible;
 	TSharedPtr<SFlareButton>          MinimizedButton;
 	IFlareStationInterface*           TargetStation;
 	IFlareShipInterface*              TargetShip;
-
-
-public:
-
-	/*----------------------------------------------------
-		Getters
-	----------------------------------------------------*/
-
-	bool IsVisible() const
-	{
-		return Visible;
-	}
-
-
+	
 };

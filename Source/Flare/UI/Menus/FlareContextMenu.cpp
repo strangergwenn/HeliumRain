@@ -13,7 +13,6 @@
 void SFlareContextMenu::Construct(const FArguments& InArgs)
 {
 	// Data
-	Visible = false;
 	TargetShip = NULL;
 	TargetStation = NULL;
 	OwnerHUD = InArgs._OwnerHUD;

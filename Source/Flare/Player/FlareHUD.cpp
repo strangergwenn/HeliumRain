@@ -19,19 +19,14 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, MenuIsOpen(false)
 	, FadeDuration(0.15)
 	, HUDHelpersMaterial(NULL)
-	, HUDTextRenderTarget(NULL)
 {
 	// Load content
-	static ConstructorHelpers::FObjectFinder<UFont> HUDFontObj(TEXT("/Game/Master/FT_LatoBold"));
-	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj(TEXT("/Game/Master/Materials/MT_HUDHelper"));
-	static ConstructorHelpers::FObjectFinder<UMaterial> HUDTextMaterialMasterObj(TEXT("/Game/Master/Materials/MT_HUDGenerated"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj(TEXT("/Game/Gameplay/HUD/MT_HUDHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj(TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 
 	// Set content
 	HUDHelpersMaterialMaster = HUDHelpersMaterialObj.Object;
-	HUDTextMaterialMaster = HUDTextMaterialMasterObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
-	HUDFont = HUDFontObj.Object;
 
 	// Dynamic data
 	FadeTimer = FadeDuration;
@@ -48,7 +43,6 @@ void AFlareHUD::BeginPlay()
 {
 	Super::BeginPlay();
 	HUDHelpersMaterial = UMaterialInstanceDynamic::Create(HUDHelpersMaterialMaster, GetWorld());
-	HUDTextMaterial = UMaterialInstanceDynamic::Create(HUDTextMaterialMaster, GetWorld());
 }
 
 void AFlareHUD::Tick(float DeltaSeconds)
@@ -99,18 +93,6 @@ void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-
-	// Create render target for the text if it doesn't exist yet
-	if (!HUDTextRenderTarget)
-	{
-		HUDTextRenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(GetWorld(), UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
-		if (HUDTextRenderTarget)
-		{
-			HUDTextRenderTarget->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlareHUD::DrawHUDTextTarget);
-			HUDTextMaterial->SetTextureParameterValue(TEXT("GeneratedTexture"), HUDTextRenderTarget);
-		}
-	}
 
 	// Draw designators and context menu
 	if (!MenuIsOpen)
@@ -122,7 +104,7 @@ void AFlareHUD::DrawHUD()
 			AFlareShipBase* ShipBase = Cast<AFlareShipBase>(*ActorItr);
 			if (PC && ShipBase && ShipBase != PC->GetShipPawn() && ShipBase != PC->GetMenuPawn())
 			{
-				if (PC->LineOfSightTo(ShipBase) && IsExternalCamera)
+				if (PC->LineOfSightTo(ShipBase))
 				{
 					DrawHUDDesignator(ShipBase);
 				}
@@ -130,7 +112,7 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Hide the context menu
-		if (!FoundTargetUnderMouse)
+		if (!FoundTargetUnderMouse || !IsExternalCamera)
 		{
 			ContextMenu->Hide();
 		}
@@ -140,9 +122,10 @@ void AFlareHUD::DrawHUD()
 	if (PC && !IsExternalCamera && !MenuIsOpen)
 	{
 		AFlareShip* Ship = PC->GetShipPawn();
-		if (HUDHelpersMaterial && HUDTextMaterial && Ship)
+		if (HUDHelpersMaterial && Ship)
 		{
 			// Get HUD data
+			FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 			int32 HelperScale = ViewportSize.Y;
 			FRotator ShipAttitude = Ship->GetActorRotation();
 
@@ -151,15 +134,7 @@ void AFlareHUD::DrawHUD()
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Pitch"), -FMath::DegreesToRadians(ShipAttitude.Pitch));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Yaw"), FMath::DegreesToRadians(ShipAttitude.Yaw));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
-			//DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
-
-			// Update panel
-			if (HUDTextRenderTarget)
-			{
-				//HUDTextRenderTarget->UpdateResource();
-				//HUDTextMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
-				//DrawMaterialSimple(HUDTextMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
-			}
+			DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
 		}
 	}
 }
@@ -189,7 +164,7 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 		bool Hovering = (MousePos.X >= ShipBoxMin.X && MousePos.Y >= ShipBoxMin.Y && MousePos.X <= ShipBoxMax.X && MousePos.Y <= ShipBoxMax.Y);
 
 		// Draw the context menu
-		if (Hovering && !FoundTargetUnderMouse)
+		if (Hovering && !FoundTargetUnderMouse && IsExternalCamera)
 		{
 			// Update state
 			FoundTargetUnderMouse = true;
@@ -231,43 +206,6 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 		HudColor,
 		BLEND_Translucent, 1.0f, false,
 		Rotation);
-}
-
-void AFlareHUD::DrawHUDTextTarget(UCanvas* Cnv, int32 Width, int32 Height)
-{
-	Cnv->Canvas->Clear(FLinearColor::Black);
-
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC)
-	{
-		AFlareShip* Ship = PC->GetShipPawn();
-		if (Ship)
-		{
-			TArray<UFlareWeapon*>& WeaponList = Ship->GetWeaponList();
-
-			// Weapons
-			PrintText(Cnv, FString("MAIN GUNS"), 200, 150);
-			PrintText(Cnv, FString("ARMED"), 300, 150);
-			for (int32 i = 0; i < WeaponList.Num(); i++)
-			{
-				PrintText(Cnv, FString("GUN ") + FString::FromInt(i) + (WeaponList[i]->isFiring() ? " (!)" : ""), 200, 200 + 30 * i);
-				PrintText(Cnv, FString::FromInt(WeaponList[i]->GetCurrentAmmo()) + " / " + FString::FromInt(WeaponList[i]->GetMaxAmmo()) , 300, 200 + 30 * i);
-			}
-
-			// Ship location
-			FVector ShipLocation = Ship->GetActorLocation() / 100;
-			FString LocationDescription = FString::Printf(TEXT("\n\n%ldm\n%ldm\n%ldm"), (long)ShipLocation.X, (long)ShipLocation.Y, (long)ShipLocation.Z);
-			PrintText(Cnv, Ship->GetName() + FString("\n\nX\nY\nZ"), Width - 300, 150);
-			PrintText(Cnv, LocationDescription, Width - 200, 150);
-		}
-	}
-}
-
-void AFlareHUD::PrintText(UCanvas* Cnv, FString Text, int32 X, int32 Y)
-{
-	FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), HUDFont, FLinearColor::White);
-	TextItem.Scale *= FVector2D((float)Cnv->SizeY / 2048, (float)Cnv->SizeY / 2048);
-	Cnv->DrawItem(TextItem);
 }
 
 

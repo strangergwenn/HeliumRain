@@ -61,14 +61,7 @@ public:
 
 	/** Draw a designator corner */
 	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float CornerSize, FVector2D MainOffset, float Rotation);
-
-	/** Draw the text render target */
-	UFUNCTION()
-	void DrawHUDTextTarget(UCanvas* Cnv, int32 Width, int32 Height);
-
-	/** Draw text on a canvas */
-	void PrintText(UCanvas* Cnv, FString Text, int32 X, int32 Y);
-
+	
 
 	/*----------------------------------------------------
 		HUD interaction
@@ -147,48 +140,38 @@ protected:
 	----------------------------------------------------*/
 
 	// Fade-to-black system
-	bool                               MenuIsOpen;
-	bool                               IsExternalCamera;
-	bool                               FadeFromBlack;
-	float                              FadeDuration;
-	float                              FadeTimer;
-	TSharedPtr<SBorder>                Fader;
+	bool                                    MenuIsOpen;
+	bool                                    IsExternalCamera;
+	bool                                    FadeFromBlack;
+	float                                   FadeDuration;
+	float                                   FadeTimer;
+	TSharedPtr<SBorder>                     Fader;
 
 	// Menu target data
-	TEnumAsByte<EFlareMenu::Type>      FadeTarget;
-	void*                              FadeTargetData;
+	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
+	void*                                   FadeTargetData;
 
 
 	// Designator content
-	bool                               FoundTargetUnderMouse;
-	FLinearColor                       HudColor;
-	UTexture2D*                        HUDDesignatorCornerTexture;
-
-	// HUD font
-	UPROPERTY()
-	class UFont*                       HUDFont;
-	
+	bool                                    FoundTargetUnderMouse;
+	FLinearColor                            HudColor;
+	UTexture2D*                             HUDDesignatorCornerTexture;
+		     
 	// HUD materials
-	UPROPERTY()	UMaterial*                  HUDHelpersMaterialMaster;
+	UPROPERTY()UMaterial*                   HUDHelpersMaterialMaster;
 	UPROPERTY()	UMaterialInstanceDynamic*   HUDHelpersMaterial;
-	UPROPERTY()	UMaterial*                  HUDTextMaterialMaster;
-
-	// Left panel render target
-	UPROPERTY()	UCanvasRenderTarget2D*      HUDTextRenderTarget;
-	UPROPERTY()	UMaterialInstanceDynamic*   HUDTextMaterial;
-
-
+	
 	// Context menu
-	TSharedPtr<SFlareContextMenu>      ContextMenu;
-	FVector2D                          ContextMenuPosition;
+	TSharedPtr<SFlareContextMenu>           ContextMenu;
+	FVector2D                               ContextMenuPosition;
 
 	// Menus
-	TSharedPtr<SOverlay>               HUDContainer;
-	TSharedPtr<SFlareDashboard>        Dashboard;
-	TSharedPtr<SFlareCompanyMenu>      CompanyMenu;
-	TSharedPtr<SFlareShipMenu>         ShipMenu;
-	TSharedPtr<SFlareStationMenu>      StationMenu;
-	TSharedPtr<SFlareSectorMenu>       SectorMenu;
+	TSharedPtr<SOverlay>                    HUDContainer;
+	TSharedPtr<SFlareDashboard>             Dashboard;
+	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;
+	TSharedPtr<SFlareShipMenu>              ShipMenu;
+	TSharedPtr<SFlareStationMenu>           StationMenu;
+	TSharedPtr<SFlareSectorMenu>            SectorMenu;
 
 
 public:
