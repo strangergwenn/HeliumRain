@@ -61,6 +61,9 @@ void AFlareShip::BeginPlay()
 void AFlareShip::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+
 	// Attitude control
 	if (Airframe && !IsPresentationMode())
 	{
@@ -106,7 +109,6 @@ void AFlareShip::Tick(float DeltaSeconds)
 		if (!IsDocked())
 		{
 			// Tick components
-			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 			for (int32 i = 0; i < Components.Num(); i++)
 			{
 				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
@@ -115,7 +117,55 @@ void AFlareShip::Tick(float DeltaSeconds)
 			PhysicSubTick(DeltaSeconds);
 		}
 	}
+
+	// Heat
+
+	// First pass get heat production and heat sink surface
+	float HeatProduction = 0.f;
+	float HeatSinkSurface = 0.f;
+	for (int32 i = 0; i < Components.Num(); i++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
+		HeatProduction += Component->GetHeatProduction();
+		HeatSinkSurface += Component->GetHeatSinkSurface();
+	}
+
+	// Sun flow 3.094KW/m^2 half reflected
+	HeatProduction += HeatSinkSurface * 3.094 * 0.5;
+
+	// Heat up
+	ShipData.Heat += HeatProduction * DeltaSeconds;
+	// Radiate. Stefan-Boltzmann constant=5.670373e-8
+	float Temperature = ShipData.Heat / ShipDescription->HeatCapacity;
+	float HeatRadiation = 0.f;
+	if(Temperature > 0)
+	{
+		HeatRadiation = HeatSinkSurface * 5.670373e-8 * FMath::Pow(Temperature, 4) / 1000;
+	}
+	ShipData.Heat -= FMath::Min(HeatRadiation * DeltaSeconds, ShipData.Heat);
+
+	// Overheat after 800°K, 0.005%/(°K*s)
+	float HeatDamage = (Temperature - 800) * DeltaSeconds * 0.00005;
+
+	// Update component temperature and apply heat damage
+	for (int32 i = 0; i < Components.Num(); i++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
+		Component->SetTemperature(Temperature);
+
+		// Overheat apply damage
+		if(HeatDamage > 0)
+		{
+			Component->ApplyDamage(Component->GetTotalHitPoints() * HeatDamage);
+		}
+	}
+
+	if(HeatDamage > 0)
+	{
+		UpdatePower();
+	}
 }
+
 
 void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -463,6 +513,9 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 
 	// Update power
 	UpdatePower();
+
+	// Heat the ship
+	ShipData.Heat += Energy;
 }
 
 /*----------------------------------------------------

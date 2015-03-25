@@ -161,3 +161,8 @@ void UFlareWeapon::StopFire()
 {
 	Firing = false;
 }
+
+float UFlareWeapon::GetHeatProduction() const
+{
+	return Super::GetHeatProduction() * (Firing ? 1.f : 0.f);
+}

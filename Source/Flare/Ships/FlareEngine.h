@@ -42,6 +42,11 @@ public:
 	/** Update the exhaust power for current thrust */
 	void SetAlpha(float Alpha);
 	
+	/**
+	 * Return the current amount of heat production in KW
+	 */
+	virtual float GetHeatProduction() const override;
+
 
 protected:
 

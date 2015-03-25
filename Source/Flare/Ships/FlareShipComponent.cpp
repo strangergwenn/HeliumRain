@@ -137,6 +137,12 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 				case EFlarePartCharacteristicType::ElectricSystem:
 					GeneratedPower = Characteristic.CharacteristicValue;
 				break;
+				case EFlarePartCharacteristicType::HeatProduction:
+					HeatProduction = Characteristic.CharacteristicValue;
+				break;
+				case EFlarePartCharacteristicType::HeatSink:
+					HeatSinkSurface = Characteristic.CharacteristicValue;
+				break;
 			}
 		}
 	}
@@ -387,8 +393,6 @@ void UFlareShipComponent::UpdatePower()
 	}
 
 	UpdateLight();
-
-	FLOGV("Component %s available power is %f", *GetReadableName(), Power);
 }
 
 void UFlareShipComponent::UpdateLight()
@@ -447,5 +451,26 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* Avail
 			PowerSources.Add(PowerSource);
 			FLOGV("Component %s powered by %s", *GetReadableName(), *PowerSource->GetReadableName());
 		}
+	}
+}
+
+
+float UFlareShipComponent::GetHeatProduction() const
+{
+	return HeatProduction * (-FMath::Pow((GetDamageRatio()-1),2)+1);
+}
+
+float UFlareShipComponent::GetHeatSinkSurface() const
+{
+	return HeatSinkSurface * (0.25 +  3 * GetDamageRatio() / 4);
+}
+
+float UFlareShipComponent::GetTotalHitPoints() const
+{
+	if(ComponentDescription)
+	{
+		return ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints;
+	} else {
+		return -1.f;
 	}
 }

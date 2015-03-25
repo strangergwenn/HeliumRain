@@ -76,3 +76,8 @@ float UFlareEngine::GetInitialMaxThrust() const
 {
 	return MaxThrust;
 }
+
+float UFlareEngine::GetHeatProduction() const
+{
+	return Super::GetHeatProduction() * ExhaustAlpha;
+}

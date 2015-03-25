@@ -70,6 +70,10 @@ struct FFlareShipSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 DockedAt;
 
+	/** Accululated heat in KJ */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float Heat;
+
 };
 
 
@@ -135,6 +139,9 @@ struct FFlareShipDescription
 
 	/** Max linear velocity in m/s */
 	UPROPERTY(EditAnywhere, Category = Content)	float LinearMaxVelocity;
+
+	/** Heat capacity un KJ/K */
+	UPROPERTY(EditAnywhere, Category = Content) float HeatCapacity;
 
 	/** Ship mesh name */
 	UPROPERTY(EditAnywhere, Category = Content) UBlueprint* Template;

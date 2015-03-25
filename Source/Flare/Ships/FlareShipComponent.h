@@ -58,9 +58,10 @@ namespace EFlarePartCharacteristicType
 		EngineTankDrain,
 		RCSAccelerationRating,
 		LifeSupport,
-		HeatSink,
+		HeatSink, // Disipation surface in m^2
 		ElectricSystem,
 		Cargo,
+		HeatProduction, // In KiloWatt
 		Num
 	};
 }
@@ -293,15 +294,29 @@ public:
 	virtual float GetAvailablePower() const;
 
 	/**
+	 * Find the closest sources
+	 */
+	virtual void UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources);
+
+	/**
 	 * Return true if is a generator (broken or not)
 	 */
 	virtual bool IsGenerator() const;
 
 	/**
-	 * Find the closest sources
+	 * Return the current amount of heat production in KW
 	 */
-	virtual void UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources);
+	virtual float GetHeatProduction() const;
 
+	/**
+	 * Return the current amount of heat sink surface in m^2
+	 */
+	virtual float GetHeatSinkSurface() const;
+
+	/**
+	 * Return component total hit points, with armor and hitpoints
+	 */
+	virtual float GetTotalHitPoints() const;
 protected:
 
 	/*----------------------------------------------------
@@ -336,6 +351,8 @@ protected:
 	float Power;
 	float GeneratedPower;
 	float PowerOutageDelay;
+	float HeatSinkSurface;
+	float HeatProduction;
 	TArray<UFlareShipComponent*> PowerSources;
 
 };

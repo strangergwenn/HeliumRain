@@ -31,6 +31,10 @@ public:
 	/** Stop firing */
 	virtual void StopFire();
 
+	/**
+	 * Return the current amount of heat production in KW
+	 */
+	virtual float GetHeatProduction() const override;
 
 protected:
 
