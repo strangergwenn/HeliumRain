@@ -81,3 +81,12 @@ float UFlareEngine::GetHeatProduction() const
 {
 	return Super::GetHeatProduction() * ExhaustAlpha;
 }
+
+void UFlareEngine::ApplyHeatDamage(float Energy)
+{
+	// Apply damage only on usage
+	if(ExhaustAlpha > 0)
+	{
+		ApplyDamage(Energy * ExhaustAlpha);
+	}
+}

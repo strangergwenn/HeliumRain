@@ -156,7 +156,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 		// Overheat apply damage
 		if(HeatDamage > 0)
 		{
-			Component->ApplyDamage(Component->GetTotalHitPoints() * HeatDamage);
+			Component->ApplyHeatDamage(Component->GetTotalHitPoints() * HeatDamage);
 		}
 	}
 
@@ -272,7 +272,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	{	
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
 		FFlareShipComponentSave ComponentData;
-		
+
 		// Find component data
 		bool found = false;
 		for (int32 i = 0; i < Data.Components.Num(); i++)
@@ -284,12 +284,13 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 				break;
 			}
 		}
-		
+
 		// Reload the component
 		if (!found)
 		{
 			continue;
 		}
+
 		ReloadPart(Component, &ComponentData);
 		
 		// Set RCS description

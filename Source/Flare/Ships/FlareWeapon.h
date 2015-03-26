@@ -36,6 +36,11 @@ public:
 	 */
 	virtual float GetHeatProduction() const override;
 
+	/**
+	 * Apply damage to this component only it is used.
+	 */
+	virtual void ApplyHeatDamage(float Energy) override;
+
 protected:
 
 	/*----------------------------------------------------

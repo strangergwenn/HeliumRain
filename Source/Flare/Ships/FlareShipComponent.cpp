@@ -350,6 +350,12 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 	}
 }
 
+void UFlareShipComponent::ApplyHeatDamage(float Energy)
+{
+	// Standard component have no clasical usage.
+}
+
+
 float UFlareShipComponent::GetDamageRatio() const
 {
 	if(ComponentDescription)

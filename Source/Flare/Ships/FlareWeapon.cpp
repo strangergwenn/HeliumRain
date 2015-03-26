@@ -164,5 +164,15 @@ void UFlareWeapon::StopFire()
 
 float UFlareWeapon::GetHeatProduction() const
 {
-	return Super::GetHeatProduction() * (Firing ? 1.f : 0.f);
+	// Produce heat if the player has fire recently, so can't fire due to cooldown
+	return Super::GetHeatProduction() * (TimeSinceLastShell <= FiringPeriod ? 1.f : 0.f);
+}
+
+void UFlareWeapon::ApplyHeatDamage(float Energy)
+{
+	// Apply damage only if the player has fire recently, so can't fire due to cooldown
+	if(TimeSinceLastShell <= FiringPeriod)
+	{
+		ApplyDamage(Energy);
+	}
 }
