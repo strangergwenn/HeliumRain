@@ -70,6 +70,13 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 								.Text(this, &SFlareTargetActions::GetName)
 								.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
 							]
+
+							// Status
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Right)
+							[
+								SAssignNew(ShipStatus, SFlareShipStatus)
+							]
 						]
 
 						// Company line
@@ -218,6 +225,7 @@ void SFlareTargetActions::SetCompany(UFlareCompany* Target)
 	TargetStation = NULL;
 	TargetShipDesc = NULL;
 	TargetShip = NULL;
+	ShipStatus->SetTargetShip(NULL);
 
 	// Get the save data info to retrieve the class data
 	if (Target && PC)
@@ -234,6 +242,7 @@ void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
 	TargetStation = Target;
 	TargetShipDesc = NULL;
 	TargetShip = NULL;
+	ShipStatus->SetTargetShip(TargetShip);
 
 	// Get the save data info to retrieve the class data
 	if (Target && PC)

@@ -101,7 +101,7 @@ void SFlareHUDMenu::SetTargetShip(AFlareShip* Target)
 			.AutoWidth()
 			[
 				SAssignNew(Temp, SFlareSubsystemStatus)
-				.Subsystem(EFlareSubsystem::SYS_Gun)
+				.Subsystem(EFlareSubsystem::SYS_Weapon)
 			];
 		Temp->SetTargetShip(Target);
 	}

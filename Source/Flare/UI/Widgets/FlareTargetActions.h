@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareShipStatus.h"
 #include "../Components/FlareCompanyFlag.h"
 #include "../../Ships/FlareShipInterface.h"
 #include "../../Player/FlarePlayerController.h"
@@ -120,6 +121,7 @@ protected:
 	TSharedPtr<SHorizontalBox>        StationContainer;
 	TSharedPtr<SHorizontalBox>        ShipContainer;
 	TSharedPtr<SFlareButton>          StationInspectButton;
+	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SFlareButton>          ShipInspectButton;
 	TSharedPtr<SFlareButton>          ShipFlyButton;
 	TSharedPtr<SFlareButton>          DockButton;

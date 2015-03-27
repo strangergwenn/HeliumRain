@@ -18,8 +18,7 @@ namespace EFlareSubsystem
 		SYS_RCS,
 		SYS_LifeSupport,
 		SYS_Power,
-		SYS_Gun,
-		SYS_Turret
+		SYS_Weapon,
 	};
 }
 

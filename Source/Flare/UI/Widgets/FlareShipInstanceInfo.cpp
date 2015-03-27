@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareShipInstanceInfo.h"
+#include "../Components/FlareShipStatus.h"
 #include "../../Game/FlareCompany.h"
 #include "../../Ships/FlareShipInterface.h"
 #include "../../Player/FlarePlayerController.h"
@@ -69,8 +70,17 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 			.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
 		]
 
+		// Status
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Right)
+		[
+			SNew(SFlareShipStatus)
+			.Ship(InArgs._Ship)
+		]
+
 		// Company flag
 		+ SHorizontalBox::Slot()
+		.AutoWidth()
 		.Padding(FMargin(10))
 		.VAlign(VAlign_Center)
 		.HAlign(HAlign_Right)

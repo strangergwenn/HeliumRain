@@ -134,8 +134,7 @@ const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
 		case EFlareSubsystem::SYS_RCS:           return FFlareStyleSet::GetIcon("HUD_RCS");
 		case EFlareSubsystem::SYS_LifeSupport:   return FFlareStyleSet::GetIcon("HUD_LifeSupport");
 		case EFlareSubsystem::SYS_Power:         return FFlareStyleSet::GetIcon("HUD_Power");
-		case EFlareSubsystem::SYS_Gun:           return FFlareStyleSet::GetIcon("HUD_Gun");
-		case EFlareSubsystem::SYS_Turret:        return FFlareStyleSet::GetIcon("HUD_Turret");
+		case EFlareSubsystem::SYS_Weapon:        return FFlareStyleSet::GetIcon("HUD_Shell");
 		default:                                 return FFlareStyleSet::GetIcon("HUD_LifeSupport");
 	}
 }
@@ -177,8 +176,7 @@ FText SFlareSubsystemStatus::GetStatusText() const
 			Text += "\n" + FString::FromInt(TargetShip->GetTemperature()) + " K";
 			break;
 
-		case EFlareSubsystem::SYS_Gun:
-		case EFlareSubsystem::SYS_Turret:
+		case EFlareSubsystem::SYS_Weapon:
 			Text += "\n150";
 			break;
 
@@ -198,12 +196,11 @@ FText SFlareSubsystemStatus::GetTypeText() const
 	switch (SubsystemType)
 	{
 		case EFlareSubsystem::SYS_Temperature:   return LOCTEXT("SYS_Temperature", "COOLING");
-		case EFlareSubsystem::SYS_Propulsion:    return LOCTEXT("SYS_Propulsion",  "PROPULSION");
+		case EFlareSubsystem::SYS_Propulsion:    return LOCTEXT("SYS_Propulsion",  "MAIN ENGINES");
 		case EFlareSubsystem::SYS_RCS:           return LOCTEXT("SYS_RCS",         "RCS");
 		case EFlareSubsystem::SYS_LifeSupport:   return LOCTEXT("SYS_LifeSupport", "LIFE SUPPORT");
 		case EFlareSubsystem::SYS_Power:         return LOCTEXT("SYS_Power",       "POWER");
-		case EFlareSubsystem::SYS_Gun:           return LOCTEXT("SYS_Weapon",      "GUN");
-		case EFlareSubsystem::SYS_Turret:        return LOCTEXT("SYS_Weapon",      "TURRET");
+		case EFlareSubsystem::SYS_Weapon:        return LOCTEXT("SYS_Weapon",      "WEAPON");
 		default:                                 return LOCTEXT("SYS_Default",     "HULL");
 	}
 }
