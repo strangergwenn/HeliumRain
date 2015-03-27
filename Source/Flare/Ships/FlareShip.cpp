@@ -113,9 +113,9 @@ void AFlareShip::Tick(float DeltaSeconds)
 		}
 	}
 
-	// Heat
+	// Apply heat variation : add producted heat then substract radiated heat.
 
-	// First pass get heat production and heat sink surface
+	// Get the to heat production and heat sink surface
 	float HeatProduction = 0.f;
 	float HeatSinkSurface = 0.f;
 	for (int32 i = 0; i < Components.Num(); i++)
@@ -125,21 +125,23 @@ void AFlareShip::Tick(float DeltaSeconds)
 		HeatSinkSurface += Component->GetHeatSinkSurface();
 	}
 
-	// Sun flow 3.094KW/m^2 half reflected
+	// Add a part of sun radiation to ship heat production
+	// Sun flow is 3.094KW/m^2 and keep only half.
 	HeatProduction += HeatSinkSurface * 3.094 * 0.5;
 
 	// Heat up
 	ShipData.Heat += HeatProduction * DeltaSeconds;
-	// Radiate. Stefan-Boltzmann constant=5.670373e-8
+	// Radiate: Stefan-Boltzmann constant=5.670373e-8
 	float Temperature = ShipData.Heat / ShipDescription->HeatCapacity;
 	float HeatRadiation = 0.f;
 	if(Temperature > 0)
 	{
 		HeatRadiation = HeatSinkSurface * 5.670373e-8 * FMath::Pow(Temperature, 4) / 1000;
 	}
+	// Don't radiate too much energy : negative temperature is not possible
 	ShipData.Heat -= FMath::Min(HeatRadiation * DeltaSeconds, ShipData.Heat);
 
-	// Overheat after 800°K, 0.005%/(°K*s)
+	// Overheat after 800°K, compute heat damage from temperature beyond 800°K : 0.005%/(°K*s)
 	float HeatDamage = (Temperature - 800) * DeltaSeconds * 0.00005;
 
 	// Update component temperature and apply heat damage
@@ -148,49 +150,56 @@ void AFlareShip::Tick(float DeltaSeconds)
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
 		Component->SetTemperature(Temperature);
 
-		// Overheat apply damage
+		// Overheat apply damage is necessary
 		if(HeatDamage > 0)
 		{
 			Component->ApplyHeatDamage(Component->GetTotalHitPoints() * HeatDamage);
 		}
 	}
 
+	// If damage have been applied, power production may have change
 	if(HeatDamage > 0)
 	{
 		UpdatePower();
 	}
 }
 
-
 void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
+	// If receive hit from over actor, like a ship we must apply collision damages.
+	// The applied damage energy is 0.2% of the kinetic energy of the other actor. The kinetic 
+	// energy is calculated from the relative speed between the 2 actors, and only with the relative
+	// speed projected in the axis of the collision normal: if 2 very fast ship only slightly touch,
+	// only few energy will be decipated by the impact.
+	//
+	// The damages are applied only to the current actor, the ReceiveHit method of the other actor
+	// will also call an it will apply its collision damages itself.
+
+	// If the other actor is a projectile, specific weapon damage code is done in the projectile hit
+	// handler: in this case we ignore the collision
 	AFlareProjectile* OtherProjectile = Cast<AFlareProjectile>(Other);
 	if(OtherProjectile) {
 		return;
 	}
 
 	UPrimitiveComponent* OtherRoot = Cast<UPrimitiveComponent>(Other->GetRootComponent());
-
+	
+	// Relative velocity
 	FVector DeltaVelocity = ((OtherRoot->GetPhysicsLinearVelocity() - Airframe->GetPhysicsLinearVelocity()) / 100);
 
+	// Compute the relative velocity in the impact axis then compute kinetic energy
 	float ImpactSpeed = FVector::DotProduct(DeltaVelocity, HitNormal);
 	float ImpactMass = OtherRoot->GetMass();
 	float ImpactEnergy = 0.5 * ImpactMass * FMath::Square(ImpactSpeed) * 0.001; // In KJ
 
-	FLOGV("ReceiveHit at %s at %s", *(MyComp->GetReadableName()), *(OtherComp->GetReadableName()));
-	FLOGV("Hit location=%s normal=%s impulse=%s ", *HitLocation.ToString(), *HitNormal.ToString(), *NormalImpulse.ToString());
-
+	// Convert only 0.2% of the energy as damages and make vary de damage radius with the damage:
+	// minimum 20cm and about 1 meter for 20KJ of damage (about the damages provide by a bullet)
 	float Energy = ImpactEnergy / 500;
-	float  Radius = 0.2 + FMath::Sqrt(Energy) * 0.22; // 1 meter for 20KJ
-
-	FLOGV("Hit ImpactSpeed=%f ImpactMass=%f ImpactEnergy=%f Energy2=%f Raduis2=%f",ImpactSpeed, ImpactMass, ImpactEnergy, Energy, Radius);
+	float  Radius = 0.2 + FMath::Sqrt(Energy) * 0.22; 
 
 	ApplyDamage(Energy, Radius, HitLocation);
-
-	DrawDebugSphere(GetWorld(), HitLocation, Radius * 100, 12, FColor::Red, false, 10.f);
-
 }
 
 void AFlareShip::Destroyed()
@@ -268,7 +277,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
 		FFlareShipComponentSave ComponentData;
 
-		// Find component data
+		// Find component the corresponding component data comparing the slot id
 		bool found = false;
 		for (int32 i = 0; i < Data.Components.Num(); i++)
 		{
@@ -280,12 +289,13 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 			}
 		}
 
-		// Reload the component
+		// If no data, this is a cosmetic component and it don't need to be initialized
 		if (!found)
 		{
 			continue;
 		}
 
+		// Reload the component
 		ReloadPart(Component, &ComponentData);
 		
 		// Set RCS description
@@ -308,6 +318,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 			WeaponList.Add(Weapon);
 		}
 
+		// Find the cockpit
 		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
 		{
 			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
@@ -315,6 +326,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 			if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::LifeSupport)
 			{
 				ShipCockit = Component;
+				break;
 			}
 		}
 
@@ -325,7 +337,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		}
 	}
 
-	// Second pass
+	// Second pass, update component power sources and update power
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
@@ -334,7 +346,6 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	UpdatePower();
 
 
-	
 	// Load weapon descriptions
 	for (int32 i = 0; i < Data.Components.Num(); i++)
 	{
@@ -373,8 +384,8 @@ FFlareShipSave* AFlareShip::Save()
 	ShipData.LinearVelocity = Airframe->GetPhysicsLinearVelocity();
 	ShipData.AngularVelocity = Airframe->GetPhysicsAngularVelocity();
 
+	// Save all components datas
 	ShipData.Components.Empty();
-
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
@@ -758,6 +769,12 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 
 void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 {
+	// The damages are applied to all component touching the sphere defined by the radius and the
+	// location in parameter.
+	// The maximum damage are applied to a component only if its bounding sphere touch the center of
+	// the damage sphere. There is a linear decrease of damage with a minumum of 0 if the 2 sphere
+	// only touch.
+	
 	FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
 	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
