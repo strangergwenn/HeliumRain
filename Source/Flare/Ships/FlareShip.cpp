@@ -142,7 +142,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	ShipData.Heat -= FMath::Min(HeatRadiation * DeltaSeconds, ShipData.Heat);
 
 	// Overheat after 800°K, compute heat damage from temperature beyond 800°K : 0.005%/(°K*s)
-	float HeatDamage = (Temperature - 800) * DeltaSeconds * 0.00005;
+	float HeatDamage = (Temperature - GetMaxTemperature()) * DeltaSeconds * 0.00005;
 
 	// Update component temperature and apply heat damage
 	for (int32 i = 0; i < Components.Num(); i++)
@@ -415,19 +415,115 @@ UFlareCompany* AFlareShip::GetCompany()
 
 float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 {
-	// TODO
-	return 0.3;
+	float Health = 0.f;
+
+	switch(Type)
+	{
+		case EFlareSubsystem::SYS_Propulsion:
+		{
+			TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+			float Total = 0.f;
+			float EngineCount = 0;
+			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
+			{
+				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
+				if(Engine->IsOrbitalEngine())
+				{
+					EngineCount+=1.f;
+					Total+=Engine->GetDamageRatio();
+				}
+			}
+			Health = Total/EngineCount;
+		}
+		break;
+		case EFlareSubsystem::SYS_RCS:
+		{
+			TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+			float Total = 0.f;
+			float EngineCount = 0;
+			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
+			{
+				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
+				if(!Engine->IsOrbitalEngine())
+				{
+					EngineCount+=1.f;
+					Total+=Engine->GetDamageRatio();
+				}
+			}
+			Health = Total/EngineCount;
+		}
+		break;
+		case EFlareSubsystem::SYS_LifeSupport:
+		{
+			if(ShipCockit)
+			{
+				Health = ShipCockit->GetDamageRatio();
+			}
+		}
+		break;
+		case EFlareSubsystem::SYS_Power:
+		{
+			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+			float Total = 0.f;
+			float GeneratorCount = 0;
+			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+			{
+				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+				if(Component->IsGenerator())
+				{
+					GeneratorCount+=1.f;
+					Total+=Component->GetDamageRatio();
+				}
+			}
+			Health = Total/GeneratorCount;
+		}
+		break;
+		case EFlareSubsystem::SYS_Gun:
+		{
+			TArray<UActorComponent*> Weapons = GetComponentsByClass(UFlareWeapon::StaticClass());
+			float Total = 0.f;
+			for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
+			{
+				UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
+				Total += Weapon->GetDamageRatio();
+			}
+			Health = Total/Weapons.Num();
+		}
+		break;
+		case EFlareSubsystem::SYS_Temperature:
+		{
+			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+			float Total = 0.f;
+			float HeatSinkCount = 0;
+			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+			{
+				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+				if(Component->IsHeatSink())
+				{
+					HeatSinkCount+=1.f;
+					Total+=Component->GetDamageRatio();
+				}
+			}
+			Health = Total/HeatSinkCount;
+		}
+		break;
+		case EFlareSubsystem::SYS_Turret:
+			//TODO
+			break;
+
+
+	}
+
+	return Health;
 }
 
 float AFlareShip::GetTemperature()
 {
-	// TODO
-	return 300;
+	return ShipData.Heat / ShipDescription->HeatCapacity;
 }
 
 float AFlareShip::GetMaxTemperature()
 {
-	// TODO
 	return 800;
 }
 

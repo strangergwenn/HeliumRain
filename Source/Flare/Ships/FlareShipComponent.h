@@ -315,6 +315,11 @@ public:
 	virtual float GetHeatSinkSurface() const;
 
 	/**
+	 * Return true if is a heatsink (broken or not)
+	 */
+	virtual bool IsHeatSink() const;
+
+	/**
 	 * Return component total hit points, with armor and hitpoints
 	 */
 	virtual float GetTotalHitPoints() const;

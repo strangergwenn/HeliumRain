@@ -474,6 +474,11 @@ float UFlareShipComponent::GetHeatSinkSurface() const
 	return HeatSinkSurface * (0.25 +  3 * GetDamageRatio() / 4);
 }
 
+bool UFlareShipComponent::IsHeatSink() const
+{
+	return HeatSinkSurface > 0;
+}
+
 float UFlareShipComponent::GetTotalHitPoints() const
 {
 	if(ComponentDescription)
