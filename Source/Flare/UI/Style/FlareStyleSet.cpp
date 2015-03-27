@@ -46,6 +46,18 @@ TSharedRef< FSlateStyleSet > FFlareStyleSet::Create()
 	FLinearColor WhiteColor(1.0, 1.0, 1.0, 0.7);
 	FLinearColor BlackColor(0.0, 0.0, 0.0, 0.7);
 
+	Style.Set("Flare.VerySmallText", FTextBlockStyle()
+		.SetFont(TTF_FONT("Lato500", 10))
+		.SetColorAndOpacity(WhiteColor)
+		.SetShadowColorAndOpacity(FLinearColor::Black)
+		);
+
+	Style.Set("Flare.VerySmallTextInverted", FTextBlockStyle()
+		.SetFont(TTF_FONT("Lato500", 10))
+		.SetColorAndOpacity(BlackColor)
+		.SetShadowColorAndOpacity(FLinearColor::Black)
+		);
+
 	Style.Set("Flare.SmallText", FTextBlockStyle()
 		.SetFont(TTF_FONT("Lato500", 12))
 		.SetColorAndOpacity(WhiteColor)

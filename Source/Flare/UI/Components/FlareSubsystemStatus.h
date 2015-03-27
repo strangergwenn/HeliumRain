@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Ships/FlareShip.h"
+#include "../../Ships/FlareShipInterface.h"
 
 
 class SFlareSubsystemStatus : public SCompoundWidget
@@ -28,7 +28,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set the ship to display data for */
-	void SetTargetShip(AFlareShip* Target);
+	void SetTargetShip(IFlareShipInterface* Target);
 
 
 protected:
@@ -58,7 +58,7 @@ protected:
 
 	// Indicator data
 	TEnumAsByte<EFlareSubsystem::Type>      SubsystemType;
-	AFlareShip*                             TargetShip;
+	IFlareShipInterface*                    TargetShip;
 
 
 };

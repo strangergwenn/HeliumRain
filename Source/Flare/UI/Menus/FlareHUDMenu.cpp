@@ -21,6 +21,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Bottom)
+	.Padding(FMargin(20))
 	[
 		SNew(SHorizontalBox)
 
@@ -33,8 +34,15 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SAssignNew(HullStatus, SFlareSubsystemStatus)
+				SAssignNew(TemperatureStatus, SFlareSubsystemStatus)
 				.Subsystem(EFlareSubsystem::SYS_Temperature)
+			]
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SAssignNew(PowerStatus, SFlareSubsystemStatus)
+				.Subsystem(EFlareSubsystem::SYS_Power)
 			]
 
 			+ SHorizontalBox::Slot()
@@ -60,7 +68,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		]
 
 		// Weapon container
-		+SHorizontalBox::Slot()
+		+ SHorizontalBox::Slot()
 		.AutoWidth()
 		[
 			SAssignNew(WeaponContainer, SHorizontalBox)
@@ -75,7 +83,29 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 void SFlareHUDMenu::SetTargetShip(AFlareShip* Target)
 {
-	HullStatus->SetTargetShip(Target);
+	// Set targets
+	TemperatureStatus->SetTargetShip(Target);
+	PowerStatus->SetTargetShip(Target);
+	PropulsionStatus->SetTargetShip(Target);
+	RCSStatus->SetTargetShip(Target);
+	LifeSupportStatus->SetTargetShip(Target);
+
+	// Cleanup old weapon indicators
+	TSharedPtr<SFlareSubsystemStatus> Temp;
+	WeaponContainer->ClearChildren();
+
+	// Add weapon indicators
+	for (int32 i = 0; i < 2; i++)
+	{
+		WeaponContainer->AddSlot()
+			.AutoWidth()
+			[
+				SAssignNew(Temp, SFlareSubsystemStatus)
+				.Subsystem(EFlareSubsystem::SYS_Gun)
+			];
+		Temp->SetTargetShip(Target);
+	}
+	WeaponContainer->SetVisibility(EVisibility::Visible);
 }
 
 

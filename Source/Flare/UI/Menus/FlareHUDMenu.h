@@ -50,7 +50,8 @@ protected:
 	TWeakObjectPtr<class AFlareHUD>      OwnerHUD;
 
 	// Menu components
-	TSharedPtr<SFlareSubsystemStatus>    HullStatus;
+	TSharedPtr<SFlareSubsystemStatus>    TemperatureStatus;
+	TSharedPtr<SFlareSubsystemStatus>    PowerStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PropulsionStatus;
 	TSharedPtr<SFlareSubsystemStatus>    RCSStatus;
 	TSharedPtr<SFlareSubsystemStatus>    LifeSupportStatus;

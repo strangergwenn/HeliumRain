@@ -262,6 +262,11 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		// Setup extra menus
 		ContextMenu->Hide();
 		Fader->SetVisibility(EVisibility::Hidden);
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+		if (PC)
+		{
+			HUDMenu->SetTargetShip(PC->GetShipPawn());
+		}
 	}
 }
 
@@ -435,6 +440,7 @@ void AFlareHUD::ResetMenu()
 	}
 
 	FadeIn();
+	HUDMenu->SetTargetShip(PC->GetShipPawn());
 }
 
 void AFlareHUD::FadeIn()
@@ -461,7 +467,6 @@ void AFlareHUD::SetMenuPawn(bool Status)
 		else
 		{
 			PC->OnExitMenu();
-			HUDMenu->SetTargetShip(PC->GetShipPawn());
 		}
 	}
 }

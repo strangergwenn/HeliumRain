@@ -6,7 +6,23 @@
 class IFlareStationInterface;
 struct FFlareShipComponentSave;
 
-/** Game save data */
+
+/** Possible subsystems targets */
+UENUM()
+namespace EFlareSubsystem
+{
+	enum Type
+	{
+		SYS_Temperature,
+		SYS_Propulsion,
+		SYS_RCS,
+		SYS_LifeSupport,
+		SYS_Power,
+		SYS_Gun,
+		SYS_Turret
+	};
+}
+
 
 /** Ship save data */
 USTRUCT()
@@ -57,6 +73,7 @@ struct FFlareShipSave
 
 };
 
+
 /** Catalog binding between FFlareShipDescription and FFlareShipComponentDescription structure */
 USTRUCT()
 struct FFlareShipSlotDescription
@@ -69,6 +86,7 @@ struct FFlareShipSlotDescription
 	/** Component description can be empty if configurable slot */
 	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentDescription Component;
 };
+
 
 /** Catalog data structure for a ship */
 USTRUCT()
