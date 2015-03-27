@@ -478,7 +478,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 			Health = Total/GeneratorCount;
 		}
 		break;
-		case EFlareSubsystem::SYS_Gun:
+		case EFlareSubsystem::SYS_Weapon:
 		{
 			TArray<UActorComponent*> Weapons = GetComponentsByClass(UFlareWeapon::StaticClass());
 			float Total = 0.f;
@@ -507,11 +507,6 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 			Health = Total/HeatSinkCount;
 		}
 		break;
-		case EFlareSubsystem::SYS_Turret:
-			//TODO
-			break;
-
-
 	}
 
 	return Health;
