@@ -12,6 +12,7 @@
 void SFlareShipStatus::Construct(const FArguments& InArgs)
 {
 	TargetShip = InArgs._Ship;
+	FLinearColor Color(1.0, 0.05, 0, 1.0);
 
 	ChildSlot
 	.VAlign(VAlign_Fill)
@@ -25,7 +26,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("Temperature"))
-			.ColorAndOpacity(FLinearColor::Red)
+			.ColorAndOpacity(Color)
 			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Temperature)
 		]
 
@@ -34,7 +35,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("Power"))
-			.ColorAndOpacity(FLinearColor::Red)
+			.ColorAndOpacity(Color)
 			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Power)
 		]
 
@@ -43,7 +44,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("Propulsion"))
-			.ColorAndOpacity(FLinearColor::Red)
+			.ColorAndOpacity(Color)
 			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Propulsion)
 		]
 
@@ -52,7 +53,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("RCS"))
-			.ColorAndOpacity(FLinearColor::Red)
+			.ColorAndOpacity(Color)
 			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_RCS)
 		]
 
@@ -61,7 +62,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("LifeSupport"))
-			.ColorAndOpacity(FLinearColor::Red)
+			.ColorAndOpacity(Color)
 			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_LifeSupport)
 		]
 
@@ -70,7 +71,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("Shell"))
-			.ColorAndOpacity(FLinearColor::Red)
+			.ColorAndOpacity(Color)
 			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Weapon)
 		]
 	];
