@@ -15,13 +15,19 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 	// Data
 	TargetShip = NULL;
 	SubsystemType = InArgs._Subsystem;
+	Health = 1.0f;
+	PreviousHealth = 1.0f;
+	HealthDropFlashTime = 2.0f;
+	TimeSinceFlash = HealthDropFlashTime;
+
+	// Style
 	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/HUDIndicatorIcon");
 	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
 	const FFlareContainerStyle* InvertedContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvertedContainerStyle");
 
 	// Structure
 	ChildSlot
-	.VAlign(VAlign_Center)
+	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Center)
 	[
 		SNew(SVerticalBox)
@@ -57,6 +63,7 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 			SNew(SBorder)
 			.Padding(FMargin(ButtonStyle->ContentPadding))
 			.BorderImage(&InvertedContainerStyle->BackgroundBrush)
+			.BorderBackgroundColor(this, &::SFlareSubsystemStatus::GetFlashColor)
 			[
 				SNew(STextBlock)
 				.Text(this, &SFlareSubsystemStatus::GetTypeText)
@@ -99,6 +106,25 @@ void SFlareSubsystemStatus::SetTargetShip(IFlareShipInterface* Target)
 	Callbacks
 ----------------------------------------------------*/
 
+void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	// Update data from the ship
+	if (TargetShip)
+	{
+		Health = FMath::Sin(InCurrentTime / 10); // TODO get real values from the ship
+	}
+
+	// Update health and flash
+	if (Health < PreviousHealth)
+	{
+		TimeSinceFlash = 0.0f;
+	}
+	TimeSinceFlash += InDeltaTime;
+	PreviousHealth = Health;
+}
+
 const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
 {
 	switch (SubsystemType)
@@ -116,36 +142,46 @@ const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
 
 FSlateColor SFlareSubsystemStatus::GetIconColor() const
 {
-	return FLinearColor(FColor::MakeRedToGreenColorFromScalar(1.0)).Desaturate(0.05);
+	return FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
+}
+
+FSlateColor SFlareSubsystemStatus::GetFlashColor() const
+{
+	FLinearColor FlashColor = (FLinearColor::Red).Desaturate(0.05);
+	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
+	return FMath::Lerp(FlashColor, FLinearColor::White, Ratio);
 }
 
 FText SFlareSubsystemStatus::GetStatusText() const
 {
+	// Initial data
 	FString Text;
+	if (Health <= 0)
+	{
+		Text = LOCTEXT("Offline", "OFFLINE").ToString();
+	}
+	else
+	{
+		Text = FString::FromInt(100 * Health) + " %";;
+	}
 
+	// Advanced information
 	switch (SubsystemType)
 	{
 		case EFlareSubsystem::SYS_Temperature:
-			Text = "150 K";
-			break;
-
-		case EFlareSubsystem::SYS_Propulsion:
-			Text = "15 m/s";
-			break;
-
-		case EFlareSubsystem::SYS_RCS:
-			Text = "5 deg/s";
+			Text += "\n150 K";
 			break;
 
 		case EFlareSubsystem::SYS_Gun:
 		case EFlareSubsystem::SYS_Turret:
-			Text = "150 / 150";
+			Text += "\n150/150";
 			break;
 
+		case EFlareSubsystem::SYS_Propulsion:
+		case EFlareSubsystem::SYS_RCS:
 		case EFlareSubsystem::SYS_LifeSupport:
 		case EFlareSubsystem::SYS_Power:
 		default:
-			Text = "100 %";
 			break;
 	}
 
