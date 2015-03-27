@@ -179,6 +179,20 @@ public:
 
 
 	/*----------------------------------------------------
+		Damage control
+	----------------------------------------------------*/
+
+	/** Get the health factor associated to a ship's subsystem */
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type) = 0;
+
+	/** Get the ship's temperature in Kelvin */
+	virtual float GetTemperature() = 0;
+
+	/** Get the ship's maximum acceptable temperature in Kelvin */
+	virtual float GetMaxTemperature() = 0;
+
+
+	/*----------------------------------------------------
 		Navigation API
 	----------------------------------------------------*/
 

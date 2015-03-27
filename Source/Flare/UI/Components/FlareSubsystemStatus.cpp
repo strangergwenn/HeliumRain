@@ -113,7 +113,7 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	// Update data from the ship
 	if (TargetShip)
 	{
-		Health = FMath::Sin(InCurrentTime / 10); // TODO get real values from the ship
+		Health = TargetShip->GetSubsystemHealth(SubsystemType);
 	}
 
 	// Update health and flash
@@ -154,6 +154,11 @@ FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 
 FText SFlareSubsystemStatus::GetStatusText() const
 {
+	if (!TargetShip)
+	{
+		return FText::FromString("?");
+	}
+
 	// Initial data
 	FString Text;
 	if (Health <= 0)
@@ -169,12 +174,12 @@ FText SFlareSubsystemStatus::GetStatusText() const
 	switch (SubsystemType)
 	{
 		case EFlareSubsystem::SYS_Temperature:
-			Text += "\n150 K";
+			Text += "\n" + FString::FromInt(TargetShip->GetTemperature()) + " K";
 			break;
 
 		case EFlareSubsystem::SYS_Gun:
 		case EFlareSubsystem::SYS_Turret:
-			Text += "\n150/150";
+			Text += "\n150";
 			break;
 
 		case EFlareSubsystem::SYS_Propulsion:

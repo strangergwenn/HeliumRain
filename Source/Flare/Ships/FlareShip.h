@@ -124,6 +124,12 @@ public:
 
 	virtual UFlareCompany* GetCompany() override;
 
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type) override;
+
+	virtual float GetTemperature() override;
+
+	virtual float GetMaxTemperature() override;
+
 	bool NavigateTo(FVector TargetLocation) override;
 
 	virtual bool IsManualPilot() override;

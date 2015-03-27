@@ -301,6 +301,24 @@ UFlareCompany* AFlareShip::GetCompany()
 	return Company;
 }
 
+float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
+{
+	// TODO
+	return 0.3;
+}
+
+float AFlareShip::GetTemperature()
+{
+	// TODO
+	return 300;
+}
+
+float AFlareShip::GetMaxTemperature()
+{
+	// TODO
+	return 800;
+}
+
 bool AFlareShip::NavigateTo(FVector TargetLocation)
 {
 	// Pathfinding data
