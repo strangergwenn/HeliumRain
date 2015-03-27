@@ -1109,7 +1109,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 			FVector SimpleAcceleration = DeltaAngularVAxis * AngularAccelerationRate;
 
 			// Scale with damages
-			float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, COM, 0, true, false) / GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, COM, 0, false, false);
+			float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, true) / GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, false);
 			FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
 			FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.GetClampedToMaxSize(DeltaAngularV.Size() / DeltaSeconds);
 
@@ -1359,11 +1359,9 @@ FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, F
 
 		FVector WorldThrustAxis = Engine->GetThrustAxis();
 
-		float Dot = FVector::DotProduct(WorldThrustAxis, Axis);
-		if (Dot > ThrustAngleLimit)
+		float Ratio = FVector::DotProduct(WorldThrustAxis, Axis);
+		if (Ratio > 0)
 		{
-			float Ratio = (Dot - ThrustAngleLimit) / (1 - ThrustAngleLimit);
-
 			TotalMaxThrust += WorldThrustAxis * Engine->GetMaxThrust() * Ratio;
 		}
 	}
@@ -1399,12 +1397,9 @@ float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVe
 		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThrustAxis);
 		TorqueDirection.Normalize();
 
-		float dot = FVector::DotProduct(TorqueAxis, TorqueDirection);
-		
-		
-		if (dot > ThrustAngleLimit) {
-			float ratio = (dot - ThrustAngleLimit) / (1 - ThrustAngleLimit);
+		float ratio = FVector::DotProduct(TorqueAxis, TorqueDirection);
 
+		if (ratio > 0) {
 			TotalMaxTorque += FVector::CrossProduct(EngineOffset, WorldThrustAxis).Size() * MaxThrust * ratio;
 		}
 

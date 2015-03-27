@@ -6,7 +6,7 @@
 
 class AFlareGame;
 class AFlarePlayerController;
-
+class UFlareInternalComponent;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
 class AFlareShipBase : public APawn
