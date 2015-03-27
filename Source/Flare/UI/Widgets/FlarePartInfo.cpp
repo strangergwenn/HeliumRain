@@ -159,22 +159,22 @@ void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, F
 
 			// Text
 			+ SHorizontalBox::Slot()
-				.Padding(FMargin(5, 0))
-				.VAlign(VAlign_Center)
-				.AutoWidth()
-				[
-					SAssignNew(TempBox, SVerticalBox)
+			.Padding(FMargin(5, 0))
+			.VAlign(VAlign_Center)
+			.AutoWidth()
+			[
+				SAssignNew(TempBox, SVerticalBox)
 
-					// Value
-					+ SVerticalBox::Slot()
-					.VAlign(VAlign_Top)
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(Value)
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
-					]
+				// Value
+				+ SVerticalBox::Slot()
+				.VAlign(VAlign_Top)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(Value)
+					.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
 				]
+			]
 		];
 
 	// Helpers
@@ -274,10 +274,10 @@ const FSlateBrush* SFlarePartInfo::GetCharacteristicBrush(const FFlareShipCompon
 			Result = FFlareStyleSet::GetIcon("Ammo");
 			break;
 		case EFlarePartCharacteristicType::EnginePower:
-			Result = FFlareStyleSet::GetIcon("ExhaustPower");
+			Result = FFlareStyleSet::GetIcon("Propulsion");
 			break;
 		case EFlarePartCharacteristicType::RCSAccelerationRating:
-			Result = FFlareStyleSet::GetIcon("RCSPower");
+			Result = FFlareStyleSet::GetIcon("RCS");
 			break;
 		case EFlarePartCharacteristicType::EngineTankDrain:
 			Result = FFlareStyleSet::GetIcon("Tank");
