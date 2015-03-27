@@ -31,20 +31,21 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(Container, SVerticalBox)
 
+			// Status
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Center)
+			[
+				SAssignNew(ShipStatus, SFlareShipStatus)
+			]
+
+			// Button
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			[
-				SNew(SHorizontalBox)
-
-				// Legend
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SAssignNew(MinimizedButton, SFlareButton)
-					.ContainerStyle(ContainerStyle)
-					.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
-					.ButtonStyle(FFlareStyleSet::Get(), "/Style/ContextMenuButton")
-				]
+				SAssignNew(MinimizedButton, SFlareButton)
+				.ContainerStyle(ContainerStyle)
+				.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
+				.ButtonStyle(FFlareStyleSet::Get(), "/Style/ContextMenuButton")
 			]
 		]
 	];
@@ -66,12 +67,14 @@ void SFlareContextMenu::SetStation(IFlareStationInterface* Target)
 {
 	TargetStation = Target;
 	TargetShip = NULL;
+	ShipStatus->SetTargetShip(NULL);
 }
 
 void SFlareContextMenu::SetShip(IFlareShipInterface* Target)
 {
 	TargetShip = Target;
 	TargetStation = NULL;
+	ShipStatus->SetTargetShip(Target);
 }
 
 void SFlareContextMenu::Show()

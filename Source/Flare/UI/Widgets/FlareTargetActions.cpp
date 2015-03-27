@@ -242,7 +242,7 @@ void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
 	TargetStation = Target;
 	TargetShipDesc = NULL;
 	TargetShip = NULL;
-	ShipStatus->SetTargetShip(TargetShip);
+	ShipStatus->SetTargetShip(NULL);
 
 	// Get the save data info to retrieve the class data
 	if (Target && PC)
@@ -282,6 +282,7 @@ void SFlareTargetActions::SetShip(IFlareShipInterface* Target)
 	TargetShip = Target;
 	TargetStation = NULL;
 	TargetStationDesc = NULL;
+	ShipStatus->SetTargetShip(Target);
 
 	// Get the save data info to retrieve the class data
 	if (Target && PC)

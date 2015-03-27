@@ -39,7 +39,7 @@ protected:
 	----------------------------------------------------*/
 
 	/** Is this visible ? */
-	EVisibility IsVisible(TSharedPtr<EFlareSubsystem::Type> Type) const;
+	EVisibility IsVisible(EFlareSubsystem::Type Type) const;
 
 
 protected:

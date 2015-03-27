@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../Components/FlareShipStatus.h"
 #include "../Widgets/FlareTargetActions.h"
 
 
@@ -67,6 +68,7 @@ protected:
 	TWeakObjectPtr<class AFlareHUD>   OwnerHUD;
 
 	// Widget data
+	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SVerticalBox>          Container;
 	
 	// State data
