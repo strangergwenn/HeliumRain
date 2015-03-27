@@ -140,8 +140,6 @@ public:
 
 	virtual bool IsDocked() override;
 
-	virtual void ApplyDamage(float Energy, float Radius, FVector Location) override;
-
 	/*----------------------------------------------------
 		Docking
 	----------------------------------------------------*/
@@ -198,7 +196,13 @@ public:
 	----------------------------------------------------*/
 
 	/**
-	 * Return true if any lifesupport system is available
+	 * Apply damage to this ship.
+	 * Location is the center of sphere where damages are applied.
+	 */
+	virtual void ApplyDamage(float Energy, float Radius, FVector Location) override;
+
+	/**
+	 * Return true if any lifesupport system is alive
 	 */
 	virtual bool IsAlive() override;
 
@@ -207,7 +211,6 @@ public:
 	 */
 	virtual bool IsPowered() override;
 
-	virtual UFlareShipComponent* GetCockpit() override { return ShipCockit; }
 protected:
 
 	/*----------------------------------------------------
@@ -242,7 +245,6 @@ protected:
 	/** Update the ship's center of mass */
 	void UpdateCOM();
 
-
 public:
 
 	/*----------------------------------------------------
@@ -257,9 +259,6 @@ public:
 
 	/** Set the description to use for all RCS */
 	virtual void SetRCSDescription(FFlareShipComponentDescription* Description);
-
-	/** Set the description for a specific weapon slot */
-	//virtual void SetWeaponDescription(int32 Index, FFlareShipComponentDescription* Description);
 
 	virtual void UpdateCustomization() override;
 
@@ -312,7 +311,6 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-	
 
 	// Component description
 	FFlareShipSave                       ShipData;
@@ -368,12 +366,26 @@ public:
 		return ManualOrbitalBoost;
 	}
 
-	/** Linear velocity in meters */
+	/**
+	 * Return linear velocity in meters
+	 */
 	FVector GetLinearVelocity() const;
-	
-	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThrustAngleLimit, bool WithOrbitalEngines) const;
-	
-	float GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, FVector COM, float ThrustAngleLimit, bool WithDamages, bool WithOrbitalEngines) const;
+
+	/**
+	 * Return the maximum current (with damages) trust the ship can provide in a specific axis.
+	 * Engines : List of engine to use to compute the max thrust
+	 * Axis : Axis of the thurst
+	 * WithObitalEngines : if false, ignore orbitals engines
+	 */
+	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, bool WithOrbitalEngines) const;
+
+	/**
+	 * Return the maximum torque the ship can provide in a specific axis.
+	 * Engines : List of engine to use to compute the max thrust
+	 * TorqueDirection : Axis of the torque
+	 * WithDamages : if true, use current thrust value and not theorical thrust value
+	 */
+	float GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, bool WithDamages) const;
 
 
 	/*----------------------------------------------------
@@ -404,5 +416,7 @@ public:
 	{
 		return WeaponList;
 	}
+
+	virtual UFlareShipComponent* GetCockpit() const override { return ShipCockit; }
 
 };

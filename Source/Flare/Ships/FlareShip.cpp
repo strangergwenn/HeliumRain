@@ -108,12 +108,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 		// Physics
 		if (!IsDocked())
 		{
-			// Tick components
-			for (int32 i = 0; i < Components.Num(); i++)
-			{
-				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
-				Component->ShipTickComponent(DeltaSeconds);
-			}
+			// TODO enable physic when docked but attach the ship to the station
 			PhysicSubTick(DeltaSeconds);
 		}
 	}
@@ -482,43 +477,6 @@ bool AFlareShip::IsDocked()
 	return (Status == EFlareShipStatus::SS_Docked);
 }
 
-void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
-{
-	FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
-	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
-
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{	
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
-
-		float ComponentSize;
-		FVector ComponentLocation;
-		Component->GetBoundingSphere(ComponentLocation, ComponentSize);
-
-		float Distance = (ComponentLocation - Location).Size() / 100.0f;
-		float IntersectDistance =  Radius + ComponentSize/100 - Distance;
-
-
-		//DrawDebugSphere(GetWorld(), ComponentLocation, ComponentSize * 100, 12, FColor::Green, true);
-
-		if(IntersectDistance > 0) {
-			// Hit this component
-			FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
-
-			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
-			Component->ApplyDamage(Energy * Efficiency);
-			FLOGV("Component hit with Efficiency=%f", Efficiency);
-		}
-	}
-
-	// Update power
-	UpdatePower();
-
-	// Heat the ship
-	ShipData.Heat += Energy;
-}
-
 /*----------------------------------------------------
 	Docking
 ----------------------------------------------------*/
@@ -798,6 +756,40 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 	Damage status
 ----------------------------------------------------*/
 
+void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
+{
+	FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
+	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
+
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+
+		float ComponentSize;
+		FVector ComponentLocation;
+		Component->GetBoundingSphere(ComponentLocation, ComponentSize);
+
+		float Distance = (ComponentLocation - Location).Size() / 100.0f;
+		float IntersectDistance =  Radius + ComponentSize/100 - Distance;
+
+		if(IntersectDistance > 0) {
+			// Hit this component
+			FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
+
+			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
+			Component->ApplyDamage(Energy * Efficiency);
+			FLOGV("Component hit with Efficiency=%f", Efficiency);
+		}
+	}
+
+	// Update power
+	UpdatePower();
+
+	// Heat the ship
+	ShipData.Heat += Energy;
+}
+
 bool AFlareShip::IsAlive()
 {
 	if(ShipCockit)
@@ -870,7 +862,7 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 	else
 	{
 		
-		FVector Acceleration = GetTotalMaxThrustInAxis(Engines, DeltaVelocityAxis, 0, false) / Airframe->GetMass();
+		FVector Acceleration = GetTotalMaxThrustInAxis(Engines, DeltaVelocityAxis, false) / Airframe->GetMass();
 		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, DeltaPositionDirection));
 		
 		TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
@@ -960,7 +952,7 @@ void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 	else {
 	    FVector SimpleAcceleration = DeltaVelocityAxis * AngularAccelerationRate;
 	    // Scale with damages
-	    float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, COM, 0, true, false) / GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, COM, 0, false, false);
+	    float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, true) / GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, false);
 	    FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
 	     
 	    FVector Acceleration = DamagedSimpleAcceleration;
@@ -1084,7 +1076,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 
 		if (!DeltaV.IsNearlyZero())
 		{
-			FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, 0, ManualOrbitalBoost).Size() / Airframe->GetMass();
+			FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, ManualOrbitalBoost).Size() / Airframe->GetMass();
 			FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
 
 			Airframe->SetPhysicsLinearVelocity(ClampedAcceleration * DeltaSeconds * 100, true); // Multiply by 100 because UE4 works in cm
@@ -1335,7 +1327,7 @@ FVector AFlareShip::GetLinearVelocity() const
 	return Airframe->GetPhysicsLinearVelocity() / 100;
 }
 
-FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, float ThrustAngleLimit, bool WithOrbitalEngines) const
+FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, bool WithOrbitalEngines) const
 {
 	Axis.Normalize();
 	FVector TotalMaxThrust = FVector::ZeroVector;
@@ -1362,7 +1354,7 @@ FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, F
 	return TotalMaxThrust;
 }
 
-float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, FVector COM, float ThrustAngleLimit, bool WithDamages, bool WithOrbitalEngines) const
+float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, bool WithDamages) const
 {
 	TorqueAxis.Normalize();
 	float TotalMaxTorque = 0;
@@ -1370,7 +1362,8 @@ float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVe
 	for (int32 i = 0; i < Engines.Num(); i++) {
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
-		if (!WithOrbitalEngines && Engine->IsOrbitalEngine()) {
+		// Ignore orbital engines for torque computation
+		if (Engine->IsOrbitalEngine()) {
 		  continue;
 		}
 

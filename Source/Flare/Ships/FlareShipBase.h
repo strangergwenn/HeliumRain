@@ -46,7 +46,7 @@ public:
 	----------------------------------------------------*/
 
 	/**
-	 * Return true if any lifesupport system is available
+	 * Return true if any lifesupport system is alive
 	 */
 	virtual bool IsAlive() { return false; };
 
@@ -59,11 +59,6 @@ public:
 	 * Return true if the ship has weapon
 	 */
 	virtual bool IsArmed() { return false; };
-
-	/**
-	 * Return cockpit, if present
-	 */
-	virtual UFlareShipComponent* GetCockpit() { return NULL; };
 
 	/**
 	 * Update power status for all components
@@ -140,6 +135,12 @@ public:
 	float GetMeshScale() const;
 
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
+
+	/**
+	 * Return cockpit, if present
+	 */
+	virtual UFlareShipComponent* GetCockpit() const { return NULL; };
+
 protected:
 
 	/*----------------------------------------------------

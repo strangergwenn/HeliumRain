@@ -45,7 +45,7 @@ struct FFlareShipSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector AngularVelocity;
 
-	/** Ship name */
+	/** Ship name. Readable for the player */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Name;
 
@@ -57,8 +57,7 @@ struct FFlareShipSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName CompanyIdentifier;
 
-
-	/** Orbital engine catalog identifier */
+	/** Components list */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareShipComponentSave> Components;
 
@@ -225,12 +224,13 @@ public:
 
 	/** Get the station where we are docked to */
 	virtual IFlareStationInterface* GetDockStation() = 0;
-	
+
 	/*----------------------------------------------------
 		Damages
 	----------------------------------------------------*/
 	/**
 	 * Apply damage to this ship.
+	 * Location is the center of sphere where damages are applied.
 	 */
 	virtual void ApplyDamage(float Energy, float Radius, FVector Location) = 0;
 

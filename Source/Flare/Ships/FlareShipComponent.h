@@ -51,17 +51,17 @@ namespace EFlarePartCharacteristicType
 {
 	enum Type
 	{
-		AmmoPower,
-		AmmoCapacity,
-		AmmoRate,
-		EnginePower,
-		EngineTankDrain,
-		RCSAccelerationRating,
-		LifeSupport,
-		HeatSink, // Disipation surface in m^2
-		ElectricSystem,
-		Cargo,
-		HeatProduction, // In KiloWatt
+		AmmoPower, // Weapon ammo energy in KJ
+		AmmoCapacity, // Weapon ammo max capacity
+		AmmoRate, // Weapon firerate in ammo/min
+		EnginePower, // Engine thrust in KN
+		EngineTankDrain, // Old
+		RCSAccelerationRating, // Value represents global rcs system initial capabilities. Angular acceleration un °/s^2
+		LifeSupport, // Value represents crew. When available crew fall below 0.5 the crew is disable, at 0, the crew is dead.
+		HeatSink, // Value represents radiation surface in m^2
+		ElectricSystem, // Value is positive to indicate the component generate power
+		Cargo, // Value represents cargo volume in m^2
+		HeatProduction, // Value represents heat production on usage in KiloWatt
 		Num
 	};
 }
@@ -79,7 +79,7 @@ namespace EFlareLightStatus
 	};
 }
 
-/** Part characteristic */
+/** Component characteristic */
 USTRUCT()
 struct FFlareShipComponentCharacteristic
 {
@@ -92,7 +92,6 @@ struct FFlareShipComponentCharacteristic
 
 
 /** Ship component attribute save data */
-
 USTRUCT()
 struct FFlareShipComponentAttributeSave
 {
@@ -105,6 +104,7 @@ struct FFlareShipComponentAttributeSave
 	UPROPERTY(EditAnywhere, Category = Save) float AttributeValue;
 };
 
+/** Ship component save data */
 USTRUCT()
 struct FFlareShipComponentSave
 {
@@ -172,7 +172,6 @@ struct FFlareShipComponentDescription
 
 };
 
-class UFlareInternalComponent;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareShipComponent : public UStaticMeshComponent
@@ -218,9 +217,6 @@ public:
 	/** Create a special effect mesh */
 	virtual void SetupEffectMesh();
 
-	/** Perform physical ship tick. */
-	virtual void ShipTickComponent(float DeltaTime);
-
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
 
@@ -246,23 +242,22 @@ public:
 	/*----------------------------------------------------
 		Damages
 	----------------------------------------------------*/
-	
+
 	/**
 	 * Return the amount of armor hit points at the world location.
 	 * If not destructible, return a negative value
 	 */ 
 	virtual float GetRemainingArmorAtLocation(FVector Location);
-	
+
 	/**
-	 * Apply damage to this component or its subcomponent.
+	 * Apply damage to this component.
 	 */
 	virtual void ApplyDamage(float Energy);
-	
+
 	/**
 	 * Apply damage to this component only it is used.
 	 */
 	virtual void ApplyHeatDamage(float Energy);
-
 
 	/**
 	 * Return the remaining hit points ratio. 1 for no damage, 0 for destroyed
@@ -275,7 +270,7 @@ public:
 	virtual bool IsDestroyed() const;
 
 	/**
-	 * Return true if any lifesupport system is available
+	 * Return true if any lifesupport system is available and alive
 	 */
 	virtual bool IsAlive() const;
 
@@ -285,7 +280,7 @@ public:
 	virtual bool IsPowered() const;
 
 	/**
-	 * Compute the current available power
+	 * Compute the current available power from power sources
 	 */
 	virtual void UpdatePower();
 
@@ -300,7 +295,7 @@ public:
 	virtual float GetAvailablePower() const;
 
 	/**
-	 * Find the closest sources
+	 * Find the closest power sources form all ship power sources
 	 */
 	virtual void UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources);
 
@@ -354,11 +349,11 @@ protected:
 	FFlareShipComponentSave                ShipComponentData;
 
 	float LifeSupport;
-	float Power;
-	float GeneratedPower;
-	float PowerOutageDelay;
-	float HeatSinkSurface;
-	float HeatProduction;
+	float Power; // Current available power
+	float GeneratedPower; // Maximum generated power
+	float PowerOutageDelay; // Duration until the end of th power outage, in seconds
+	float HeatSinkSurface; // Maximum heat surface in m^2
+	float HeatProduction; // Maxiumum heat production, in KW
 	TArray<UFlareShipComponent*> PowerSources;
 
 };

@@ -296,11 +296,6 @@ void UFlareShipComponent::SetupEffectMesh()
 	}
 }
 
-void UFlareShipComponent::ShipTickComponent(float DeltaTime)
-{
-	// Do nothing
-}
-
 void UFlareShipComponent::UpdateCustomization()
 {
 	if (PlayerCompany)
