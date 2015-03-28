@@ -348,8 +348,8 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	CompanyData.Identifier = *Immatriculation;
 	CompanyData.Money = 100000;
 	CompanyData.CustomizationBasePaintColorIndex = 0;
-	CompanyData.CustomizationPaintColorIndex = 0;
-	CompanyData.CustomizationOverlayColorIndex = 0;
+	CompanyData.CustomizationPaintColorIndex = 4;
+	CompanyData.CustomizationOverlayColorIndex = 7;
 	CompanyData.CustomizationPatternIndex = 0;
 
 	// Create company
