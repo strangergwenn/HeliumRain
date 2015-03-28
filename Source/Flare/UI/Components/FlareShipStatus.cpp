@@ -12,7 +12,7 @@
 void SFlareShipStatus::Construct(const FArguments& InArgs)
 {
 	TargetShip = InArgs._Ship;
-	FLinearColor Color(1.0, 0.05, 0, 1.0);
+	FLinearColor Color = FFlareStyleSet::GetHeatColor();
 
 	ChildSlot
 	.VAlign(VAlign_Fill)
@@ -96,7 +96,7 @@ EVisibility SFlareShipStatus::IsVisible(EFlareSubsystem::Type Type) const
 {
 	if (TargetShip)
 	{
-		return ((TargetShip->GetSubsystemHealth(Type) <= 0.3f) ? EVisibility::Visible : EVisibility::Collapsed);
+		return ((TargetShip->GetSubsystemHealth(Type) <= 0.5f) ? EVisibility::Visible : EVisibility::Collapsed);
 	}
 	{
 		return EVisibility::Collapsed;

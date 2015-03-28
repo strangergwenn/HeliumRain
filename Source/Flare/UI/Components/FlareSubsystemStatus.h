@@ -67,7 +67,6 @@ protected:
 
 	// Health management
 	float                                   Health;
-	float                                   PreviousHealth;
 	float                                   TimeSinceFlash;
 	float                                   HealthDropFlashTime;
 

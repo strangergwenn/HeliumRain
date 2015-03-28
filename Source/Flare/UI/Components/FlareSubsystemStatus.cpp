@@ -16,7 +16,6 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 	TargetShip = NULL;
 	SubsystemType = InArgs._Subsystem;
 	Health = 1.0f;
-	PreviousHealth = 1.0f;
 	HealthDropFlashTime = 2.0f;
 	TimeSinceFlash = HealthDropFlashTime;
 
@@ -109,20 +108,15 @@ void SFlareSubsystemStatus::SetTargetShip(IFlareShipInterface* Target)
 void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
-
-	// Update data from the ship
-	if (TargetShip)
-	{
-		Health = TargetShip->GetSubsystemHealth(SubsystemType);
-	}
-
-	// Update health and flash
-	if (Health < PreviousHealth)
-	{
-		TimeSinceFlash = 0.0f;
-	}
+	
+	// Update health
 	TimeSinceFlash += InDeltaTime;
-	PreviousHealth = Health;
+	float NewHealth = TargetShip->GetSubsystemHealth(SubsystemType);
+	if (NewHealth < Health)
+	{
+		TimeSinceFlash = 0;
+	}
+	Health = NewHealth;
 }
 
 const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
@@ -146,7 +140,7 @@ FSlateColor SFlareSubsystemStatus::GetIconColor() const
 
 FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 {
-	FLinearColor FlashColor = (FLinearColor::Red).Desaturate(0.05);
+	FLinearColor FlashColor = FFlareStyleSet::GetHeatColor();
 	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
 	return FMath::Lerp(FlashColor, FLinearColor::White, Ratio);
 }
@@ -185,6 +179,7 @@ FText SFlareSubsystemStatus::GetStatusText() const
 		case EFlareSubsystem::SYS_LifeSupport:
 		case EFlareSubsystem::SYS_Power:
 		default:
+			Text += "\n";
 			break;
 	}
 

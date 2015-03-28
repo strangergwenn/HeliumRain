@@ -35,6 +35,18 @@ public:
 		return FFlareStyleSet::Get().GetBrush(*Path);
 	}
 
+	/** Get the color for heating status */
+	static FLinearColor GetHeatColor()
+	{
+		return (FLinearColor::Red).Desaturate(0.05);
+	}
+
+	/** Get the color for stun effect */
+	static FLinearColor GetStunColor()
+	{
+		return (FLinearColor::Blue).Desaturate(0.1);
+	}
+
 
 protected:
 

@@ -99,7 +99,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 		ComponentMaterial->SetScalarParameterValue("GlowAlpha", GlowAlpha);
 	}
 
-	if(ComponentDescription)
+	if (ComponentDescription)
 	{
 		SetHealth(GetDamageRatio());
 		if(PowerOutageDelay > 0)
@@ -313,24 +313,25 @@ void UFlareShipComponent::UpdateCustomization()
 
 float UFlareShipComponent::GetRemainingArmorAtLocation(FVector Location)
 {
-
-	if(!ComponentDescription || (ComponentDescription->ArmorHitPoints == 0.0f && ComponentDescription->HitPoints == 0.0f))
+	if (!ComponentDescription || (ComponentDescription->ArmorHitPoints == 0.0f && ComponentDescription->HitPoints == 0.0f))
 	{
 		// Not destructible
 		return -1.0f;
-	} else {
+	}
+	else
+	{
 		return FMath::Max(0.0f, ComponentDescription->ArmorHitPoints - ShipComponentData.Damage);
 	}
 }
 
 void UFlareShipComponent::ApplyDamage(float Energy)
 {
-	if(ComponentDescription)
+	if (ComponentDescription)
 	{
 		ShipComponentData.Damage += Energy;
 		FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints); 
 
-		if(IsGenerator() && ComponentDescription->ArmorHitPoints < ShipComponentData.Damage)
+		if (IsGenerator() && ComponentDescription->ArmorHitPoints < ShipComponentData.Damage)
 		{
 			// No more armo, power outage risk
 			float DamageRatio = GetDamageRatio();
@@ -353,11 +354,13 @@ void UFlareShipComponent::ApplyHeatDamage(float Energy)
 
 float UFlareShipComponent::GetDamageRatio() const
 {
-	if(ComponentDescription)
+	if (ComponentDescription)
 	{
 		float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData.Damage;
 		return FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
-	} else {
+	} 
+	else
+	{
 		return 1.f;
 	}
 }
