@@ -430,7 +430,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 				if(Engine->IsOrbitalEngine())
 				{
 					EngineCount+=1.f;
-					Total+=Engine->GetDamageRatio();
+					Total+=Engine->GetDamageRatio()*(Engine->IsPowered() ? 1 : 0);
 				}
 			}
 			Health = Total/EngineCount;
@@ -447,7 +447,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 				if(!Engine->IsOrbitalEngine())
 				{
 					EngineCount+=1.f;
-					Total+=Engine->GetDamageRatio();
+					Total+=Engine->GetDamageRatio()*(Engine->IsPowered() ? 1 : 0);
 				}
 			}
 			Health = Total/EngineCount;
@@ -457,7 +457,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 		{
 			if(ShipCockit)
 			{
-				Health = ShipCockit->GetDamageRatio();
+				Health = ShipCockit->GetDamageRatio() * (ShipCockit->IsPowered() ? 1 : 0);
 			}
 		}
 		break;
@@ -485,7 +485,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 			for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
 			{
 				UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
-				Total += Weapon->GetDamageRatio();
+				Total += Weapon->GetDamageRatio()*(Weapon->IsPowered() ? 1 : 0);
 			}
 			Health = Total/Weapons.Num();
 		}
@@ -501,7 +501,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 				if(Component->IsHeatSink())
 				{
 					HeatSinkCount+=1.f;
-					Total+=Component->GetDamageRatio();
+					Total+=Component->GetDamageRatio() * (ShipCockit->IsPowered() ? 1 : 0);
 				}
 			}
 			Health = Total/HeatSinkCount;
