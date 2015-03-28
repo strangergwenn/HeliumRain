@@ -230,10 +230,7 @@ public:
 
 	/** Check if the ship is manually flown */
 	virtual bool IsManualPilot() = 0;
-
-	/** Check if the gliding mode is activated */
-	virtual bool IsGliding() = 0;
-
+	
 	/** Check if the autopilot is enabled */
 	virtual bool IsAutoPilot() = 0;
 

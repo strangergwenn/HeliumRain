@@ -14,7 +14,6 @@ namespace EFlareShipStatus
 	enum Type
 	{
 		SS_Manual,
-		SS_Gliding,
 		SS_AutoPilot,
 		SS_Docked
 	};
@@ -135,8 +134,6 @@ public:
 	bool NavigateTo(FVector TargetLocation) override;
 
 	virtual bool IsManualPilot() override;
-
-	virtual bool IsGliding() override;
 
 	virtual bool IsAutoPilot() override;
 
@@ -302,7 +299,7 @@ public:
 
 	virtual void BoostOff();
 
-	virtual void ToggleGliding();
+	virtual void ForceManual();
 
 	virtual void StartFire();
 

@@ -171,6 +171,7 @@ protected:
 	bool                                    FoundTargetUnderMouse;
 	FLinearColor                            HudColor;
 	UTexture2D*                             HUDDesignatorCornerTexture;
+	UTexture2D*                             HUDReticleIcon;
 
 	// Ship status content
 	UTexture2D*                             HUDTemperatureIcon;

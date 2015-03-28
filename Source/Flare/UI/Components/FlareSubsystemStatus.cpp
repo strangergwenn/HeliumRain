@@ -199,7 +199,6 @@ FText SFlareSubsystemStatus::GetStatusText() const
 			switch (Ship->GetCommandType())
 			{
 				case EFlareShipStatus::SS_Manual:    Text += LOCTEXT("CmdManual", "Manual").ToString();  break;
-				case EFlareShipStatus::SS_Gliding:   Text += LOCTEXT("CmdGlide", "Gliding").ToString();  break;
 				case EFlareShipStatus::SS_AutoPilot: Text += LOCTEXT("CmdAuto", "Autopilot").ToString(); break;
 				case EFlareShipStatus::SS_Docked:    Text += LOCTEXT("CmdDocked", "Docked").ToString();  break;
 			}

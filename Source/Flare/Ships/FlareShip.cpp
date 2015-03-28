@@ -583,12 +583,7 @@ bool AFlareShip::NavigateTo(FVector TargetLocation)
 
 bool AFlareShip::IsManualPilot()
 {
-	return (Status == EFlareShipStatus::SS_Manual || Status == EFlareShipStatus::SS_Gliding);
-}
-
-bool AFlareShip::IsGliding()
-{
-	return (Status == EFlareShipStatus::SS_Gliding);
+	return (Status == EFlareShipStatus::SS_Manual);
 }
 
 bool AFlareShip::IsAutoPilot()
@@ -986,20 +981,9 @@ void AFlareShip::OnElectricDamage(float DamageRatio)
 
 void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 {
-	if (IsGliding())
-	{
-		// Add velocity command to current velocity
-		LinearTargetVelocity = GetLinearVelocity() + Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
-		LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(LinearMaxVelocity);
-	}
-	else
-	{
-		if (ManualOrbitalBoost)
-		{
-			ManualLinearVelocity = LinearMaxVelocity * FVector(1, 0, 0);
-		}
-		LinearTargetVelocity = Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
-	}
+	// Add velocity command to current velocity
+	LinearTargetVelocity = GetLinearVelocity() + Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
+	LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(LinearMaxVelocity);
 }
 
 void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
@@ -1334,7 +1318,7 @@ void AFlareShip::SetupPlayerInputComponent(class UInputComponent* InputComponent
 	InputComponent->BindAction("FaceBackward", EInputEvent::IE_Released, this, &AFlareShip::FaceBackward);
 	InputComponent->BindAction("Boost", EInputEvent::IE_Pressed, this, &AFlareShip::BoostOn);
 	InputComponent->BindAction("Boost", EInputEvent::IE_Released, this, &AFlareShip::BoostOff);
-	InputComponent->BindAction("Glide", EInputEvent::IE_Released, this, &AFlareShip::ToggleGliding);
+	InputComponent->BindAction("Manual", EInputEvent::IE_Released, this, &AFlareShip::ForceManual);
 
 	InputComponent->BindAction("MouseLeft", EInputEvent::IE_Pressed, this, &AFlareShip::StartFire);
 	InputComponent->BindAction("MouseLeft", EInputEvent::IE_Released, this, &AFlareShip::StopFire);
@@ -1449,17 +1433,9 @@ void AFlareShip::BoostOff()
 	ManualOrbitalBoost = false;
 }
 
-
-void AFlareShip::ToggleGliding()
+void AFlareShip::ForceManual()
 {
-	if (IsGliding())
-	{
-		Status = EFlareShipStatus::SS_Manual;
-	}
-	else
-	{
-		Status = EFlareShipStatus::SS_Gliding;
-	}
+	Status = EFlareShipStatus::SS_Manual;
 }
 
 void AFlareShip::StartFire()

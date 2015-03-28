@@ -22,6 +22,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 {
 	// Load content
 	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj   (TEXT("/Game/Gameplay/HUD/MT_HUDHelper"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj      (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDTemperatureIconObj  (TEXT("/Game/Slate/Icons/TX_Icon_Temperature.TX_Icon_Temperature"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPowerIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Power.TX_Icon_Power"));
@@ -32,6 +33,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	// Set content
 	HUDHelpersMaterialMaster = HUDHelpersMaterialObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
+	HUDReticleIcon = HUDReticleIconObj.Object;
 	HUDTemperatureIcon = HUDTemperatureIconObj.Object;
 	HUDPowerIcon = HUDPowerIconObj.Object;
 	HUDPropulsionIcon = HUDPropulsionIconObj.Object;
@@ -103,6 +105,7 @@ void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	AFlareShip* Ship = PC->GetShipPawn();
 
 	// Draw designators and context menu
 	if (!MenuIsOpen)
@@ -131,7 +134,6 @@ void AFlareHUD::DrawHUD()
 	// Update HUD materials
 	if (PC && !IsExternalCamera && !MenuIsOpen)
 	{
-		AFlareShip* Ship = PC->GetShipPawn();
 		if (HUDHelpersMaterial && Ship)
 		{
 			// Get HUD data
@@ -146,6 +148,15 @@ void AFlareHUD::DrawHUD()
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
 			DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
 		}
+	}
+
+	// Update inertial vector
+	FVector2D ScreenPosition;
+	FVector Velocity = Ship->GetLinearVelocity();
+	FVector EndPoint = Ship->GetActorLocation() + 100 * 100000 * Velocity;
+	if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
+	{
+		DrawTextureSimple(HUDReticleIcon, ScreenPosition.X, ScreenPosition.Y);
 	}
 }
 
