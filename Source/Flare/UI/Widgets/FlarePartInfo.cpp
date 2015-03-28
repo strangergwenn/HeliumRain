@@ -133,11 +133,14 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 	{
 		const FFlareShipComponentCharacteristic& Characteristic = Desc->Characteristics[i];
 
-		AddCharacteristicToBlock(Box,
-			GetCharacteristicLabel(Characteristic.CharacteristicType),
-			GetCharacteristicInfo(Characteristic),
-			GetCharacteristicBrush(Characteristic),
-			ShowHelpers);
+		if (Characteristic.CharacteristicType <= EFlarePartCharacteristicType::RCSAccelerationRating)
+		{
+			AddCharacteristicToBlock(Box,
+				GetCharacteristicLabel(Characteristic.CharacteristicType),
+				GetCharacteristicInfo(Characteristic),
+				GetCharacteristicBrush(Characteristic),
+				ShowHelpers);
+		}
 	}
 }
 
