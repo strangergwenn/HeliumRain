@@ -211,6 +211,21 @@ public:
 	 */
 	virtual bool IsPowered() override;
 
+	/**
+	 * Return true if the ship is currently on power outage
+	 */
+	virtual bool HasPowerOutage() override;
+
+	/**
+	 * If on power outage, time until the end of the power outage. Else 0.
+	 */
+	virtual float GetPowerOutageDuration() override;
+
+	/**
+	 * Method call if a electric component had been damaged
+	 */
+	virtual void OnElectricDamage(float DamageRatio);
+
 protected:
 
 	/*----------------------------------------------------

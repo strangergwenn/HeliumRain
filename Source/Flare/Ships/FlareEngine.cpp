@@ -41,7 +41,7 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	// Smooth the alpha value
 	float AverageCoeff = 8 * DeltaTime; // Half-life time : 1/8 second
-	ExhaustAccumulator = FMath::Clamp(AverageCoeff * ExhaustAlpha * GetDamageRatio() * (IsPowered() ? 1 : 0)  + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
+	ExhaustAccumulator = FMath::Clamp(AverageCoeff * ExhaustAlpha * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Ship->HasPowerOutage() ? 0 : 1) + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
 
 	// Apply effects
 	UpdateEffects();
@@ -69,7 +69,7 @@ FVector UFlareEngine::GetThrustAxis() const
 
 float UFlareEngine::GetMaxThrust() const
 {
-	return MaxThrust * GetDamageRatio() * (IsPowered() ? 1 : 0);
+	return MaxThrust * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Ship->HasPowerOutage() ? 0 : 1);
 }
 
 float UFlareEngine::GetInitialMaxThrust() const

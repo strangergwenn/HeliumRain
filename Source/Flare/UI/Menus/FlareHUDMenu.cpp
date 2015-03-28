@@ -223,7 +223,7 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 		// Stun status
 		TimeSinceStunChanged += InDeltaTime;
-		bool NewStunned = 0; // TODO TargetShip->IsStunned();
+		bool NewStunned = TargetShip->HasPowerOutage();
 		if (NewStunned != Stunned)
 		{
 			TimeSinceStunChanged = 0;

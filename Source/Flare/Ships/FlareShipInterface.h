@@ -73,6 +73,10 @@ struct FFlareShipSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	float Heat;
 
+	// Duration until the end of th power outage, in seconds
+	UPROPERTY(EditAnywhere, Category = Save)
+	float PowerOutageDelay;
+
 };
 
 
@@ -196,6 +200,15 @@ public:
 	/** Get the ship's maximum acceptable temperature in Kelvin */
 	virtual float GetMaxTemperature() = 0;
 
+	/**
+	 * Return true if the ship is currently on power outage
+	 */
+	virtual bool HasPowerOutage() = 0;
+
+	/**
+	 * If on power outage, time until the end of the power outage. Else 0.
+	 */
+	virtual float GetPowerOutageDuration() = 0;
 
 	/*----------------------------------------------------
 		Navigation API

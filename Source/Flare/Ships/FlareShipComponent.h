@@ -290,6 +290,11 @@ public:
 	virtual float GetGeneratedPower() const;
 
 	/**
+	 * Return the maximum amount of generated power
+	 */
+	virtual float GetMaxGeneratedPower() const;
+
+	/**
 	 * Return the current amount of available power
 	 */
 	virtual float GetAvailablePower() const;
@@ -356,7 +361,7 @@ protected:
 	float LifeSupport;
 	float Power; // Current available power
 	float GeneratedPower; // Maximum generated power
-	float PowerOutageDelay; // Duration until the end of th power outage, in seconds
+
 	float HeatSinkSurface; // Maximum heat surface in m^2
 	float HeatProduction; // Maxiumum heat production, in KW
 	TArray<UFlareShipComponent*> PowerSources;

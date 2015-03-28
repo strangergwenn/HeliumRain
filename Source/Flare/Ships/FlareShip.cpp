@@ -162,6 +162,16 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		UpdatePower();
 	}
+
+	// Power outage
+	if(ShipData.PowerOutageDelay > 0)
+	{
+		ShipData.PowerOutageDelay -=  DeltaSeconds;
+		if(ShipData.PowerOutageDelay <=0)
+		{
+			ShipData.PowerOutageDelay = 0;
+		}
+	}
 }
 
 void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
@@ -920,6 +930,49 @@ bool AFlareShip::IsPowered()
 	{
 		return false;
 	}
+}
+
+bool AFlareShip::HasPowerOutage()
+{
+	return GetPowerOutageDuration() > 0.f;
+}
+
+float AFlareShip::GetPowerOutageDuration()
+{
+	return ShipData.PowerOutageDelay;
+}
+
+void AFlareShip::OnElectricDamage(float DamageRatio)
+{
+	float MaxPower = 0.f;
+	float AvailablePower = 0.f;
+
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	float Total = 0.f;
+	float GeneratorCount = 0;
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		MaxPower += Component->GetMaxGeneratedPower();
+		AvailablePower += Component->GetGeneratedPower();
+	}
+
+	float PowerRatio = AvailablePower/MaxPower;
+
+
+	FLOGV("OnElectricDamage initial PowerOutageDelay=%f, DamageRatio=%f, PowerRatio=%f", ShipData.PowerOutageDelay, DamageRatio, PowerRatio);
+
+	// The outage probability depend on global available power ratio
+	if(FMath::FRand() > PowerRatio)
+	{
+		// The outage duration depend on the relative amount of damage the component just receive
+		// This avoid very long outage if multiple small collision.
+		// Between 5 and 10s of outage if component one shot
+		ShipData.PowerOutageDelay += DamageRatio *  FMath::FRandRange(5, 10 * (1.f - PowerRatio));
+		FLOGV("OnElectricDamage new PowerOutageDelay=%f", ShipData.PowerOutageDelay);
+	}
+
+
 }
 
 /*----------------------------------------------------

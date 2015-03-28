@@ -102,15 +102,6 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	if (ComponentDescription)
 	{
 		SetHealth(GetDamageRatio());
-		if(PowerOutageDelay > 0)
-		{
-			PowerOutageDelay -=  DeltaTime;
-			if(PowerOutageDelay <=0)
-			{
-				PowerOutageDelay = 0;
-				Ship->UpdatePower();
-			}
-		}
 	}
 }
 
@@ -328,17 +319,18 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 {
 	if (ComponentDescription)
 	{
+		float StateBeforeDamage = GetDamageRatio();
+
 		ShipComponentData.Damage += Energy;
 		FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints); 
 
-		if (IsGenerator() && ComponentDescription->ArmorHitPoints < ShipComponentData.Damage)
+		float StateAfterDamage = GetDamageRatio();
+
+		// No power outage if
+		if (IsGenerator() && StateAfterDamage < 1.0 && StateBeforeDamage > 0)
 		{
 			// No more armo, power outage risk
-			float DamageRatio = GetDamageRatio();
-			if(FMath::FRand() > DamageRatio)
-			{
-				PowerOutageDelay += FMath::FRandRange(0, 5 * (1.f - DamageRatio));
-			}
+			Ship->OnElectricDamage(StateBeforeDamage - StateAfterDamage);
 		}
 
 		UpdateLight();
@@ -382,7 +374,12 @@ bool UFlareShipComponent::IsPowered() const
 
 float UFlareShipComponent::GetGeneratedPower() const
 {
-	return GeneratedPower*GetDamageRatio()*(PowerOutageDelay > 0 ? 0 : 1);
+	return GeneratedPower*GetDamageRatio();
+}
+
+float UFlareShipComponent::GetMaxGeneratedPower() const
+{
+	return GeneratedPower;
 }
 
 float UFlareShipComponent::GetAvailablePower() const
@@ -474,7 +471,7 @@ float UFlareShipComponent::GetHeatProduction() const
 
 float UFlareShipComponent::GetHeatSinkSurface() const
 {
-	return HeatSinkSurface * (0.25 +  3 * GetDamageRatio() * (IsPowered() ? 1 : 0) / 4);
+	return HeatSinkSurface * (0.25 +  3 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Ship->HasPowerOutage() ? 0 : 1) / 4);
 }
 
 bool UFlareShipComponent::IsHeatSink() const

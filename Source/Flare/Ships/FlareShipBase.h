@@ -56,6 +56,16 @@ public:
 	virtual bool IsPowered() { return true; };
 
 	/**
+	 * Return true if the ship is currently on power outage
+	 */
+	virtual bool HasPowerOutage() { return false; };
+
+	/**
+	 * If on power outage, time until the end of the power outage. Else 0.
+	 */
+	virtual float GetPowerOutageDuration() { return 0.f; };
+
+	/**
 	 * Return true if the ship has weapon
 	 */
 	virtual bool IsArmed() { return false; };
@@ -64,6 +74,11 @@ public:
 	 * Update power status for all components
 	 */
 	virtual void UpdatePower();
+
+	/**
+	 * Method call if a electric component had been damaged
+	 */
+	virtual void OnElectricDamage(float DamageRatio) {};
 
 	/*----------------------------------------------------
 		Camera control
@@ -164,7 +179,6 @@ protected:
 	// Company reference
 	UPROPERTY()
 	UFlareCompany* Company;
-
 
 private:
 

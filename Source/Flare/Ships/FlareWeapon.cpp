@@ -99,7 +99,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered())
+	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered() && !Ship->HasPowerOutage())
 	{
 		// Get firing data
 		FVector FiringLocation = GetSocketLocation(FName("Muzzle"));
