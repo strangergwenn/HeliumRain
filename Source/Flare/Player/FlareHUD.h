@@ -69,6 +69,9 @@ public:
 	/** Draw a status icon */
 	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, float Health, UTexture2D* Texture);
 
+	/** Draw an icon */
+	void DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, bool Center = false);
+
 
 	/*----------------------------------------------------
 		HUD interaction
@@ -172,6 +175,7 @@ protected:
 	FLinearColor                            HudColor;
 	UTexture2D*                             HUDDesignatorCornerTexture;
 	UTexture2D*                             HUDReticleIcon;
+	UTexture2D*                             HUDAimIcon;
 
 	// Ship status content
 	UTexture2D*                             HUDTemperatureIcon;

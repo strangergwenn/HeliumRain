@@ -20,20 +20,26 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, FadeDuration(0.15)
 	, HUDHelpersMaterial(NULL)
 {
-	// Load content
+	// Load content (general icons)
 	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj   (TEXT("/Game/Gameplay/HUD/MT_HUDHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj      (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj          (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+
+	// Load content (status icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDTemperatureIconObj  (TEXT("/Game/Slate/Icons/TX_Icon_Temperature.TX_Icon_Temperature"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPowerIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Power.TX_Icon_Power"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPropulsionIconObj   (TEXT("/Game/Slate/Icons/TX_Icon_Propulsion.TX_Icon_Propulsion"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDRCSIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_RCS.TX_Icon_RCS"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
 
-	// Set content
+	// Set content (general icons)
 	HUDHelpersMaterialMaster = HUDHelpersMaterialObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 	HUDReticleIcon = HUDReticleIconObj.Object;
+	HUDAimIcon = HUDAimIconObj.Object;
+
+	// Set content (status icons)
 	HUDTemperatureIcon = HUDTemperatureIconObj.Object;
 	HUDPowerIcon = HUDPowerIconObj.Object;
 	HUDPropulsionIcon = HUDPropulsionIconObj.Object;
@@ -54,7 +60,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 void AFlareHUD::BeginPlay()
 {
 	Super::BeginPlay();
-	HUDHelpersMaterial = UMaterialInstanceDynamic::Create(HUDHelpersMaterialMaster, GetWorld());
+
+	// TODO : See if we want this back at some point.
+	//HUDHelpersMaterial = UMaterialInstanceDynamic::Create(HUDHelpersMaterialMaster, GetWorld());
 }
 
 void AFlareHUD::Tick(float DeltaSeconds)
@@ -132,31 +140,44 @@ void AFlareHUD::DrawHUD()
 	}
 
 	// Update HUD materials
-	if (PC && !IsExternalCamera && !MenuIsOpen)
+	if (PC && Ship && !IsExternalCamera && !MenuIsOpen)
 	{
-		if (HUDHelpersMaterial && Ship)
-		{
-			// Get HUD data
-			FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-			int32 HelperScale = ViewportSize.Y;
-			FRotator ShipAttitude = Ship->GetActorRotation();
+		// Get HUD data
+		float FocusDistance = 100000;
+		FVector2D ScreenPosition;
+		FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+		int32 HelperScale = ViewportSize.Y;
+		FRotator ShipAttitude = Ship->GetActorRotation();
+		FVector ShipVelocity = 100 * Ship->GetLinearVelocity();
+		
+		// Bullet velocity
+		FVector BulletVelocity = ShipAttitude.Vector();
+		BulletVelocity.Normalize();
+		BulletVelocity *= 50000; // TODO get from projectile
 
-			// Update helper
+		// Update helper
+		if (HUDHelpersMaterial)
+		{
 			HUDHelpersMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Pitch"), -FMath::DegreesToRadians(ShipAttitude.Pitch));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Yaw"), FMath::DegreesToRadians(ShipAttitude.Yaw));
 			HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
 			DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
 		}
-	}
 
-	// Update inertial vector
-	FVector2D ScreenPosition;
-	FVector Velocity = Ship->GetLinearVelocity();
-	FVector EndPoint = Ship->GetActorLocation() + 100 * 100000 * Velocity;
-	if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
-	{
-		DrawTextureSimple(HUDReticleIcon, ScreenPosition.X, ScreenPosition.Y);
+		// Update inertial vector
+		FVector EndPoint = Ship->GetActorLocation() + FocusDistance * ShipVelocity;
+		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
+		{
+			DrawHUDIcon(ScreenPosition, 16, HUDReticleIcon, HudColor, true);
+		}
+
+		// Update attack vector
+		EndPoint = Ship->GetActorLocation() + FocusDistance * (ShipVelocity + BulletVelocity);
+		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
+		{
+			DrawHUDIcon(ScreenPosition, 16, HUDAimIcon, HudColor, true);
+		}
 	}
 }
 
@@ -262,8 +283,17 @@ FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float IconS
 {
 	FLinearColor Color = FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
 	Color.A = 0.7;
-	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color);
+	DrawHUDIcon(Position, IconSize, Texture, Color);
 	return Position + IconSize * FVector2D(1, 0);
+}
+
+void AFlareHUD::DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, bool Center)
+{
+	if (Center)
+	{
+		Position -= (IconSize / 2) * FVector2D::UnitVector;
+	}
+	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color);
 }
 
 

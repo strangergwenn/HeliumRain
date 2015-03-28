@@ -31,11 +31,11 @@ AFlareProjectile::AFlareProjectile(const class FObjectInitializer& PCIP) : Super
 	// Setup movement
 	MovementComp = PCIP.CreateDefaultSubobject<UProjectileMovementComponent>(this, TEXT("Movement"));
 	MovementComp->UpdatedComponent = ShellComp;
-	MovementComp->InitialSpeed = 20000.0f;
-	MovementComp->MaxSpeed = 200000.0f;
+	MovementComp->InitialSpeed = 50000;
+	MovementComp->MaxSpeed = 50000;
 	MovementComp->bRotationFollowsVelocity = true;
-	MovementComp->ProjectileGravityScale = 0.f;
-	MovementComp->Bounciness = 1.f;
+	MovementComp->ProjectileGravityScale = 0;
+	MovementComp->Bounciness = 1;
 	MovementComp->bShouldBounce = true;
 	
 	// Settings
