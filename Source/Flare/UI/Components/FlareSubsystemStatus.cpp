@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareSubsystemStatus.h"
 #include "../Components/FlareButton.h"
+#include "../../Ships/FlareWeapon.h"
 
 #define LOCTEXT_NAMESPACE "FlareSubsystemStatus"
 
@@ -14,7 +15,10 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 {
 	// Data
 	TargetShip = NULL;
+	TargetComponent = NULL;
 	SubsystemType = InArgs._Subsystem;
+
+	// Effect data
 	Health = 1.0f;
 	HealthDropFlashTime = 2.0f;
 	TimeSinceFlash = HealthDropFlashTime;
@@ -100,6 +104,11 @@ void SFlareSubsystemStatus::SetTargetShip(IFlareShipInterface* Target)
 	TargetShip = Target;
 }
 
+void SFlareSubsystemStatus::SetTargetComponent(UFlareShipComponent* Target)
+{
+	TargetComponent = Target;
+}
+
 
 /*----------------------------------------------------
 	Callbacks
@@ -162,24 +171,41 @@ FText SFlareSubsystemStatus::GetStatusText() const
 	{
 		Text = FString::FromInt(100 * Health) + " %";;
 	}
+	Text += "\n";
 
 	// Advanced information
 	switch (SubsystemType)
 	{
+		// Temperature display
 		case EFlareSubsystem::SYS_Temperature:
-			Text += "\n" + FString::FromInt(TargetShip->GetTemperature()) + " K";
+			Text += FString::FromInt(TargetShip->GetTemperature()) + " K";
 			break;
 
+		// Ammo display
 		case EFlareSubsystem::SYS_Weapon:
-			Text += "\n150";
+			if (TargetComponent)
+			{
+				UFlareWeapon* Weapon = Cast<UFlareWeapon>(TargetComponent);
+				if (Weapon)
+				{
+					Text += FString::FromInt(Weapon->GetCurrentAmmo());
+				}
+			}
 			break;
 
+		// Power outages
+		case EFlareSubsystem::SYS_Power:
+			if (TargetShip->HasPowerOutage())
+			{
+				Text += LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(TargetShip->GetPowerOutageDuration()) + " s";
+			}
+			break; 
+
+		// No particular information
 		case EFlareSubsystem::SYS_Propulsion:
 		case EFlareSubsystem::SYS_RCS:
 		case EFlareSubsystem::SYS_LifeSupport:
-		case EFlareSubsystem::SYS_Power:
 		default:
-			Text += "\n";
 			break;
 	}
 

@@ -184,22 +184,27 @@ void SFlareHUDMenu::SetTargetShip(AFlareShip* Target)
 	RCSStatus->SetTargetShip(Target);
 	LifeSupportStatus->SetTargetShip(Target);
 
-	// Cleanup old weapon indicators
-	TSharedPtr<SFlareSubsystemStatus> Temp;
-	WeaponContainer->ClearChildren();
-
-	// Add weapon indicators
-	for (int32 i = 0; i < 2; i++)
+	if (Target)
 	{
-		WeaponContainer->AddSlot()
-			.AutoWidth()
-			[
-				SAssignNew(Temp, SFlareSubsystemStatus)
-				.Subsystem(EFlareSubsystem::SYS_Weapon)
-			];
-		Temp->SetTargetShip(Target);
+		// Update weapon list
+		TArray<UFlareWeapon*> WeaponList = Target->GetWeaponList();
+		TSharedPtr<SFlareSubsystemStatus> Temp;
+		WeaponContainer->ClearChildren();
+
+		// Add weapon indicators
+		for (int32 i = 0; i < WeaponList.Num(); i++)
+		{
+			WeaponContainer->AddSlot()
+				.AutoWidth()
+				[
+					SAssignNew(Temp, SFlareSubsystemStatus)
+					.Subsystem(EFlareSubsystem::SYS_Weapon)
+				];
+			Temp->SetTargetShip(Target);
+			Temp->SetTargetComponent(WeaponList[i]);
+		}
+		WeaponContainer->SetVisibility(EVisibility::Visible);
 	}
-	WeaponContainer->SetVisibility(EVisibility::Visible);
 }
 
 

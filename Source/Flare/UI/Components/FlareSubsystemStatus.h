@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../../Ships/FlareShipInterface.h"
+#include "../../Ships/FlareShipComponent.h"
 
 
 class SFlareSubsystemStatus : public SCompoundWidget
@@ -29,6 +30,9 @@ public:
 
 	/** Set the ship to display data for */
 	void SetTargetShip(IFlareShipInterface* Target);
+
+	/** Set an optional component to show data for */
+	void SetTargetComponent(UFlareShipComponent* Target);
 
 
 protected:
@@ -64,6 +68,7 @@ protected:
 	// Indicator data
 	TEnumAsByte<EFlareSubsystem::Type>      SubsystemType;
 	IFlareShipInterface*                    TargetShip;
+	UFlareShipComponent*                    TargetComponent;
 
 	// Health management
 	float                                   Health;
