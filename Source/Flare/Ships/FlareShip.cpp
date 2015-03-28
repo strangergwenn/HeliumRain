@@ -423,6 +423,18 @@ UFlareCompany* AFlareShip::GetCompany()
 	return Company;
 }
 
+bool AFlareShip::IsMilitary()
+{
+	if (ShipDescription)
+	{
+		return ShipDescription->Military;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 {
 	float Health = 0.f;

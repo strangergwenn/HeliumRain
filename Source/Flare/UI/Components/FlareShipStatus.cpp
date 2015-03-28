@@ -12,7 +12,7 @@
 void SFlareShipStatus::Construct(const FArguments& InArgs)
 {
 	TargetShip = InArgs._Ship;
-	FLinearColor Color = FFlareStyleSet::GetHeatColor();
+	CenterIcons = InArgs._Center;
 
 	ChildSlot
 	.VAlign(VAlign_Fill)
@@ -26,8 +26,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("Temperature"))
-			.ColorAndOpacity(Color)
-			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Temperature)
+			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Temperature)
 		]
 
 		+ SHorizontalBox::Slot()
@@ -35,8 +34,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("Power"))
-			.ColorAndOpacity(Color)
-			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Power)
+			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Power)
 		]
 
 		+ SHorizontalBox::Slot()
@@ -44,8 +42,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("Propulsion"))
-			.ColorAndOpacity(Color)
-			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Propulsion)
+			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Propulsion)
 		]
 
 		+ SHorizontalBox::Slot()
@@ -53,19 +50,23 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("RCS"))
-			.ColorAndOpacity(Color)
-			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_RCS)
+			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_RCS)
 		]
 
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
 		[
-			SNew(SImage)
+			SAssignNew(WeaponIndicator, SImage)
 			.Image(FFlareStyleSet::GetIcon("Shell"))
-			.ColorAndOpacity(Color)
-			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Weapon)
+			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Weapon)
 		]
 	];
+
+	// Set visibility for the weapon indicator
+	if (TargetShip && !TargetShip->IsMilitary())
+	{
+		WeaponIndicator->SetVisibility(CenterIcons ? EVisibility::Collapsed : EVisibility::Hidden);
+	}
 }
 
 
@@ -76,6 +77,15 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 void SFlareShipStatus::SetTargetShip(IFlareShipInterface* Target)
 {
 	TargetShip = Target;
+
+	if (TargetShip && TargetShip->IsMilitary())
+	{
+		WeaponIndicator->SetVisibility(EVisibility::Visible);
+	}
+	else
+	{
+		WeaponIndicator->SetVisibility(CenterIcons ? EVisibility::Collapsed : EVisibility::Hidden);
+	}
 }
 
 
@@ -83,15 +93,14 @@ void SFlareShipStatus::SetTargetShip(IFlareShipInterface* Target)
 	Callbacks
 ----------------------------------------------------*/
 
-EVisibility SFlareShipStatus::IsVisible(EFlareSubsystem::Type Type) const
+FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
 {
 	if (TargetShip)
 	{
-		return ((TargetShip->GetSubsystemHealth(Type) <= 0.5f) ? EVisibility::Visible : EVisibility::Collapsed);
+		float Health = TargetShip->GetSubsystemHealth(Type);
+		return FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
 	}
-	{
-		return EVisibility::Collapsed;
-	}
+	return FLinearColor::Black;
 }
 
 

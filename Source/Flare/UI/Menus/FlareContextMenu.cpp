@@ -36,6 +36,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Center)
 			[
 				SAssignNew(ShipStatus, SFlareShipStatus)
+				.Center(true)
 			]
 
 			// Button
@@ -114,7 +115,7 @@ FMargin SFlareContextMenu::GetContextMenuPosition() const
 	FVector2D Pos = OwnerHUD->GetContextMenuLocation();
 
 	Pos.X -= Container->GetDesiredSize().X / 2;
-	Pos.Y -= 40;
+	Pos.Y -= 90;
 
 	return FMargin(Pos.X, Pos.Y, 0, 0);
 }

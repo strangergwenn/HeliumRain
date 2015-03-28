@@ -12,9 +12,11 @@ class SFlareShipStatus : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareShipStatus)
 		: _Ship(NULL)
+		, _Center(false)
 	{}
 
 	SLATE_ARGUMENT(IFlareShipInterface*, Ship)
+	SLATE_ARGUMENT(bool, Center)
 	
 	SLATE_END_ARGS()
 
@@ -38,8 +40,8 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
-	/** Is this visible ? */
-	EVisibility IsVisible(EFlareSubsystem::Type Type) const;
+	/** Get the current color */
+	FSlateColor GetIconColor(EFlareSubsystem::Type Type) const;
 
 
 protected:
@@ -50,6 +52,10 @@ protected:
 
 	// Ship data
 	IFlareShipInterface*                    TargetShip;
+	bool                                    CenterIcons;
+
+	// Slate data
+	TSharedPtr<SImage>                      WeaponIndicator;
 
 
 };

@@ -201,19 +201,23 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 		}
 		else if ((Ship && Ship->IsAlive()) || !Ship)
 		{
-			// Draw designator corners
 			float CornerSize = 16;
+			float IconSize = 32;
+
+			// Draw designator corners
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270);
 
 			// Draw the status
-			if (Ship && ObjectSize.X > 64)
+			if (Ship && ObjectSize.X > 2 * IconSize)
 			{
+				int32 NumberOfIcons = Ship->IsMilitary() ? 5 : 4;
 				FVector2D StatusPos = ScreenPosition - ObjectSize / 2;
-				StatusPos.Y -= 40;
-				DrawHUDDesignatorStatus(StatusPos, 32, Ship);
+				StatusPos.X += 0.5 * (ObjectSize.X - NumberOfIcons * IconSize);
+				StatusPos.Y -= (IconSize + 0.5 * CornerSize);
+				DrawHUDDesignatorStatus(StatusPos, IconSize, Ship);
 			}
 		}
 	}
@@ -232,49 +236,23 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 
 void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareShip* Ship)
 {
-	float Offset = 0;
-	float DamageThreshold = 0.5f;
-	FLinearColor DamageColor = FFlareStyleSet::GetHeatColor();
-	DamageColor.A = 0.7;
+	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature), HUDTemperatureIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Power), HUDPowerIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_RCS), HUDRCSIcon);
 
-	// Temperature
-	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature) <= DamageThreshold)
+	if (Ship->IsMilitary())
 	{
-		DrawTexture(HUDTemperatureIcon, Position.X + Offset, Position.Y,
-			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
-		Offset += IconSize;
+		DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
 	}
+}
 
-	// Power
-	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Power) <= DamageThreshold)
-	{
-		DrawTexture(HUDPowerIcon, Position.X + Offset, Position.Y,
-			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
-		Offset += IconSize;
-	}
-
-	// Propulsion
-	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) <= DamageThreshold)
-	{
-		DrawTexture(HUDPropulsionIcon, Position.X + Offset, Position.Y,
-			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
-		Offset += IconSize;
-	}
-
-	// RCS
-	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_RCS) <= DamageThreshold)
-	{
-		DrawTexture(HUDRCSIcon, Position.X + Offset, Position.Y,
-			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
-		Offset += IconSize;
-	}
-
-	// Weapons
-	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= DamageThreshold)
-	{
-		DrawTexture(HUDWeaponIcon, Position.X + Offset, Position.Y,
-			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
-	}
+FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, float Health, UTexture2D* Texture)
+{
+	FLinearColor Color = FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
+	Color.A = 0.7;
+	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color);
+	return Position + IconSize * FVector2D(1, 0);
 }
 
 

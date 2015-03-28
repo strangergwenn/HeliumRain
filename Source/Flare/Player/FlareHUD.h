@@ -66,6 +66,9 @@ public:
 	/** Draw a status block for the ship */
 	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareShip* Ship);
 
+	/** Draw a status icon */
+	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, float Health, UTexture2D* Texture);
+
 
 	/*----------------------------------------------------
 		HUD interaction

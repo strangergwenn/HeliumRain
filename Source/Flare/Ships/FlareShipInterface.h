@@ -186,6 +186,9 @@ public:
 	/** Get the parent company */
 	virtual UFlareCompany* GetCompany() = 0;
 
+	/** Check if this is a military ship */
+	virtual bool IsMilitary() = 0;
+
 
 	/*----------------------------------------------------
 		Damage control

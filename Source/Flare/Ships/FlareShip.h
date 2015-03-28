@@ -124,6 +124,8 @@ public:
 
 	virtual UFlareCompany* GetCompany() override;
 
+	virtual bool IsMilitary() override;
+
 	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type) override;
 
 	virtual float GetTemperature() override;
