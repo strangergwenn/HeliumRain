@@ -17,9 +17,10 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	OwnerHUD = InArgs._OwnerHUD;
 	TargetShip = NULL;
 	Overheating = false;
+	PowerOutage = false;
 	PresentationFlashTime = 1.0f;
 	TimeSinceOverheatChanged = PresentationFlashTime;
-	TimeSinceStunChanged = PresentationFlashTime;
+	TimeSinceOutageChanged = PresentationFlashTime;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 
 	// Style
@@ -59,7 +60,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SImage)
 						.Image(FFlareStyleSet::GetIcon("HUD_Temperature"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor)
+						.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, false)
 					]
 
 					// Overheating text
@@ -70,40 +71,40 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
 						.Text(LOCTEXT("Overheating", "OVERHEATING"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor)
+						.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
 					]
 				]
 			]
 
-			// Stun box
+			// Outage box
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			[
 				SNew(SBorder)
 				.HAlign(HAlign_Center)
 				.BorderImage(&ContainerStyle->BackgroundBrush)
-				.BorderBackgroundColor(this, &SFlareHUDMenu::GetStunBackgroundColor)
+				.BorderBackgroundColor(this, &SFlareHUDMenu::GetOutageBackgroundColor)
 				[
 					SNew(SHorizontalBox)
 
-					// Stun icon
+					// Outage icon
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					[
 						SNew(SImage)
 						.Image(FFlareStyleSet::GetIcon("HUD_Power"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetStunColor)
+						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, false)
 					]
 
-					// Stun text
+					// Outage text
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
 						.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
-						.Text(LOCTEXT("Stunned", "STUNNED"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetStunColor)
+						.Text(LOCTEXT("PowerOutage", "POWER OUTAGE"))
+						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 					]
 				]
 			]
@@ -221,44 +222,56 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 		}
 		Overheating = NewOverheating;
 
-		// Stun status
-		TimeSinceStunChanged += InDeltaTime;
-		bool NewStunned = TargetShip->HasPowerOutage();
-		if (NewStunned != Stunned)
+		// Outage status
+		TimeSinceOutageChanged += InDeltaTime;
+		bool NewPowerOutage = TargetShip->HasPowerOutage();
+		if (NewPowerOutage != PowerOutage)
 		{
-			TimeSinceStunChanged = 0;
+			TimeSinceOutageChanged = 0;
 		}
-		Stunned = NewStunned;
+		PowerOutage = NewPowerOutage;
 	}
 }
 
-FSlateColor SFlareHUDMenu::GetOverheatColor() const
+FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
 {
 	FLinearColor Color = FFlareStyleSet::GetHeatColor();
 	float Ratio = FMath::Clamp(TimeSinceOverheatChanged / PresentationFlashTime, 0.0f, 1.0f);
 	Color.A *= (Overheating ? Ratio : (1 - Ratio));
+
+	if (Text)
+	{
+		Color.A *= 0.7;
+	}
+
 	return Color;
 }
 
 FSlateColor SFlareHUDMenu::GetOverheatBackgroundColor() const
 {
 	FLinearColor Color = FLinearColor::White;
-	Color.A = GetOverheatColor().GetSpecifiedColor().A;
+	Color.A = GetOverheatColor(true).GetSpecifiedColor().A;
 	return Color;
 }
 
-FSlateColor SFlareHUDMenu::GetStunColor() const
-{
-	FLinearColor Color = FFlareStyleSet::GetStunColor();
-	float Ratio = FMath::Clamp(TimeSinceStunChanged / PresentationFlashTime, 0.0f, 1.0f);
-	Color.A *= (Stunned ? Ratio : (1 - Ratio));
-	return Color;
-}
-
-FSlateColor SFlareHUDMenu::GetStunBackgroundColor() const
+FSlateColor SFlareHUDMenu::GetOutageColor(bool Text) const
 {
 	FLinearColor Color = FLinearColor::White;
-	Color.A = GetStunColor().GetSpecifiedColor().A;
+	float Ratio = FMath::Clamp(TimeSinceOutageChanged / PresentationFlashTime, 0.0f, 1.0f);
+	Color.A *= (PowerOutage ? Ratio : (1 - Ratio));
+
+	if (Text)
+	{
+		Color.A *= 0.7;
+	}
+
+	return Color;
+}
+
+FSlateColor SFlareHUDMenu::GetOutageBackgroundColor() const
+{
+	FLinearColor Color = FLinearColor::White;
+	Color.A = GetOutageColor(true).GetSpecifiedColor().A;
 	return Color;
 }
 

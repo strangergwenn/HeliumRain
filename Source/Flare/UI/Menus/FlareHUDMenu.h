@@ -40,16 +40,16 @@ protected:
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
 	/** Get the color and alpha of the overheating warning */
-	FSlateColor GetOverheatColor() const;
+	FSlateColor GetOverheatColor(bool Text) const;
 
 	/** Get the color multiplier of the background behind overheat text */
 	FSlateColor GetOverheatBackgroundColor() const;
 
-	/** Get the color and alpha of the stun warning */
-	FSlateColor GetStunColor() const;
+	/** Get the color and alpha of the Outage warning */
+	FSlateColor GetOutageColor(bool Text) const;
 
 	/** Get the color multiplier of the background behind overheat text */
-	FSlateColor GetStunBackgroundColor() const;
+	FSlateColor GetOutageBackgroundColor() const;
 
 
 protected:
@@ -73,11 +73,11 @@ protected:
 	// Target data
 	IFlareShipInterface*                 TargetShip;
 	bool                                 Overheating;
-	bool                                 Stunned;
+	bool                                 PowerOutage;
 
 	// Effect data
 	float                                PresentationFlashTime;
 	float                                TimeSinceOverheatChanged;
-	float                                TimeSinceStunChanged;
+	float                                TimeSinceOutageChanged;
 
 };
