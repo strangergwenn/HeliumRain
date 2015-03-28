@@ -164,7 +164,10 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		TArray<IFlareShipInterface*>& CompanyShips = Target->GetCompanyShips();
 		for (int32 i = 0; i < CompanyShips.Num(); i++)
 		{
-			ShipList->AddShip(CompanyShips[i]);
+			if (CompanyShips[i]->IsAlive())
+			{
+				ShipList->AddShip(CompanyShips[i]);
+			}
 		}
 	}
 

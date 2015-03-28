@@ -200,15 +200,23 @@ public:
 	/** Get the ship's maximum acceptable temperature in Kelvin */
 	virtual float GetMaxTemperature() = 0;
 
-	/**
-	 * Return true if the ship is currently on power outage
+	/** Apply damage to this ship.
+	 * Location is the center of sphere where damages are applied.
 	 */
+	virtual void ApplyDamage(float Energy, float Radius, FVector Location) = 0;
+
+	/** Return true if any lifesupport system is alive */
+	virtual bool IsAlive() = 0;
+
+	/** Return true if the ship cockpit is powered */
+	virtual bool IsPowered() = 0;
+
+	/** Return true if the ship is currently on power outage */
 	virtual bool HasPowerOutage() = 0;
 
-	/**
-	 * If on power outage, time until the end of the power outage. Else 0.
-	 */
+	/** If on power outage, time until the end of the power outage. Else 0. */
 	virtual float GetPowerOutageDuration() = 0;
+
 
 	/*----------------------------------------------------
 		Navigation API
@@ -238,14 +246,6 @@ public:
 	/** Get the station where we are docked to */
 	virtual IFlareStationInterface* GetDockStation() = 0;
 
-	/*----------------------------------------------------
-		Damages
-	----------------------------------------------------*/
-	/**
-	 * Apply damage to this ship.
-	 * Location is the center of sphere where damages are applied.
-	 */
-	virtual void ApplyDamage(float Energy, float Radius, FVector Location) = 0;
 
 	/*----------------------------------------------------
 		Content

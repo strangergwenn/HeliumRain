@@ -57,12 +57,15 @@ public:
 
 	virtual void DrawHUD() override;
 
-	/** Draw a designator corner */
+	/** Draw a designator block around a ship */
 	void DrawHUDDesignator(AFlareShipBase* ShipBase);
 
 	/** Draw a designator corner */
-	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float CornerSize, FVector2D MainOffset, float Rotation);
-	
+	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation);
+
+	/** Draw a status block for the ship */
+	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareShip* Ship);
+
 
 	/*----------------------------------------------------
 		HUD interaction
@@ -148,24 +151,6 @@ protected:
 	float                                   FadeTimer;
 	TSharedPtr<SBorder>                     Fader;
 
-	// Menu target data
-	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
-	void*                                   FadeTargetData;
-
-
-	// Designator content
-	bool                                    FoundTargetUnderMouse;
-	FLinearColor                            HudColor;
-	UTexture2D*                             HUDDesignatorCornerTexture;
-		     
-	// HUD materials
-	UPROPERTY()UMaterial*                   HUDHelpersMaterialMaster;
-	UPROPERTY()	UMaterialInstanceDynamic*   HUDHelpersMaterial;
-	
-	// Context menu
-	TSharedPtr<SFlareContextMenu>           ContextMenu;
-	FVector2D                               ContextMenuPosition;
-
 	// Menus
 	TSharedPtr<SFlareHUDMenu>               HUDMenu;
 	TSharedPtr<SOverlay>                    OverlayContainer;
@@ -174,6 +159,30 @@ protected:
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
 	TSharedPtr<SFlareStationMenu>           StationMenu;
 	TSharedPtr<SFlareSectorMenu>            SectorMenu;
+
+	// Menu target data
+	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
+	void*                                   FadeTargetData;
+
+	// Designator content
+	bool                                    FoundTargetUnderMouse;
+	FLinearColor                            HudColor;
+	UTexture2D*                             HUDDesignatorCornerTexture;
+
+	// Ship status content
+	UTexture2D*                             HUDTemperatureIcon;
+	UTexture2D*                             HUDPowerIcon;
+	UTexture2D*                             HUDPropulsionIcon;
+	UTexture2D*                             HUDRCSIcon;
+	UTexture2D*                             HUDWeaponIcon;
+		     
+	// HUD materials
+	UPROPERTY()UMaterial*                   HUDHelpersMaterialMaster;
+	UPROPERTY()	UMaterialInstanceDynamic*   HUDHelpersMaterial;
+	
+	// Context menu
+	TSharedPtr<SFlareContextMenu>           ContextMenu;
+	FVector2D                               ContextMenuPosition;
 
 
 public:

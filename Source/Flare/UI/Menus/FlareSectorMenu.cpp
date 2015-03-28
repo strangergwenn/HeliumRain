@@ -124,7 +124,7 @@ void SFlareSectorMenu::Enter()
 
 			// Ship
 			AFlareShip* ShipCandidate = Cast<AFlareShip>(*ActorItr);
-			if (ShipCandidate)
+			if (ShipCandidate && ShipCandidate->IsAlive())
 			{
 				ShipList->AddShip(ShipCandidate);
 			}

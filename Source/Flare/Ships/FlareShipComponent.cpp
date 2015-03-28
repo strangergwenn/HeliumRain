@@ -364,7 +364,7 @@ bool UFlareShipComponent::IsDestroyed() const
 
 bool UFlareShipComponent::IsAlive() const
 {
-	return (LifeSupport*GetDamageRatio() > 0.5); // Half a person is need to keep manual control
+	return (LifeSupport * GetDamageRatio() > 0);
 }
 
 bool UFlareShipComponent::IsPowered() const

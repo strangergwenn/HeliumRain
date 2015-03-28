@@ -21,12 +21,22 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, HUDHelpersMaterial(NULL)
 {
 	// Load content
-	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj(TEXT("/Game/Gameplay/HUD/MT_HUDHelper"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj(TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj   (TEXT("/Game/Gameplay/HUD/MT_HUDHelper"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDTemperatureIconObj  (TEXT("/Game/Slate/Icons/TX_Icon_Temperature.TX_Icon_Temperature"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPowerIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Power.TX_Icon_Power"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPropulsionIconObj   (TEXT("/Game/Slate/Icons/TX_Icon_Propulsion.TX_Icon_Propulsion"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDRCSIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_RCS.TX_Icon_RCS"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
 
 	// Set content
 	HUDHelpersMaterialMaster = HUDHelpersMaterialObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
+	HUDTemperatureIcon = HUDTemperatureIconObj.Object;
+	HUDPowerIcon = HUDPowerIconObj.Object;
+	HUDPropulsionIcon = HUDPropulsionIconObj.Object;
+	HUDRCSIcon = HUDRCSIconObj.Object;
+	HUDWeaponIcon = HUDWeaponIconObj.Object;
 
 	// Dynamic data
 	FadeTimer = FadeDuration;
@@ -164,48 +174,107 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 		bool Hovering = (MousePos.X >= ShipBoxMin.X && MousePos.Y >= ShipBoxMin.Y && MousePos.X <= ShipBoxMax.X && MousePos.Y <= ShipBoxMax.Y);
 
 		// Draw the context menu
+		AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
 		if (Hovering && !FoundTargetUnderMouse && IsExternalCamera)
 		{
 			// Update state
 			FoundTargetUnderMouse = true;
 			ContextMenuPosition = ScreenPosition;
-			ContextMenu->Show();
 
 			// If station, set data
 			AFlareStation* Station = Cast<AFlareStation>(ShipBase);
 			if (Station)
 			{
 				ContextMenu->SetStation(Station);
+				ContextMenu->Show();
 			}
 
 			// If ship, set data
-			AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
 			if (Ship)
 			{
 				ContextMenu->SetShip(Ship);
+				if (Ship->IsAlive())
+				{
+					ContextMenu->Show();
+				}
 			}
 		}
-		else
+		else if ((Ship && Ship->IsAlive()) || !Ship)
 		{
-			// Draw designator
+			// Draw designator corners
 			float CornerSize = 16;
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270);
+
+			// Draw the status
+			if (Ship && ObjectSize.X > 64)
+			{
+				FVector2D StatusPos = ScreenPosition - ObjectSize / 2;
+				StatusPos.Y -= 40;
+				DrawHUDDesignatorStatus(StatusPos, 32, Ship);
+			}
 		}
 	}
 }
 
-void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float CornerSize, FVector2D MainOffset, float Rotation)
+void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation)
 {
 	DrawTexture(HUDDesignatorCornerTexture,
-		Position.X + (ObjectSize.X + CornerSize) * MainOffset.X / 2,
-		Position.Y + (ObjectSize.Y + CornerSize) * MainOffset.Y / 2,
-		CornerSize, CornerSize, 0, 0, 1, 1,
+		Position.X + (ObjectSize.X + IconSize) * MainOffset.X / 2,
+		Position.Y + (ObjectSize.Y + IconSize) * MainOffset.Y / 2,
+		IconSize, IconSize, 0, 0, 1, 1,
 		HudColor,
 		BLEND_Translucent, 1.0f, false,
 		Rotation);
+}
+
+void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareShip* Ship)
+{
+	float Offset = 0;
+	float DamageThreshold = 0.5f;
+	FLinearColor DamageColor = FFlareStyleSet::GetHeatColor();
+	DamageColor.A = 0.7;
+
+	// Temperature
+	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature) <= DamageThreshold)
+	{
+		DrawTexture(HUDTemperatureIcon, Position.X + Offset, Position.Y,
+			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
+		Offset += IconSize;
+	}
+
+	// Power
+	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Power) <= DamageThreshold)
+	{
+		DrawTexture(HUDPowerIcon, Position.X + Offset, Position.Y,
+			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
+		Offset += IconSize;
+	}
+
+	// Propulsion
+	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) <= DamageThreshold)
+	{
+		DrawTexture(HUDPropulsionIcon, Position.X + Offset, Position.Y,
+			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
+		Offset += IconSize;
+	}
+
+	// RCS
+	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_RCS) <= DamageThreshold)
+	{
+		DrawTexture(HUDRCSIcon, Position.X + Offset, Position.Y,
+			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
+		Offset += IconSize;
+	}
+
+	// Weapons
+	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= DamageThreshold)
+	{
+		DrawTexture(HUDWeaponIcon, Position.X + Offset, Position.Y,
+			IconSize, IconSize, 0, 0, 1, 1, DamageColor);
+	}
 }
 
 

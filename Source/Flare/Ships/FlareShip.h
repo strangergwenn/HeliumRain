@@ -191,40 +191,26 @@ public:
 	/** Make sure this point is not in a path collider */
 	virtual bool IsPointColliding(FVector Candidate, AActor* Ignore);
 
+
 	/*----------------------------------------------------
-		Damage status
+		Damage status interface
 	----------------------------------------------------*/
 
-	/**
-	 * Apply damage to this ship.
-	 * Location is the center of sphere where damages are applied.
-	 */
 	virtual void ApplyDamage(float Energy, float Radius, FVector Location) override;
 
-	/**
-	 * Return true if any lifesupport system is alive
-	 */
 	virtual bool IsAlive() override;
 
-	/**
-	 * Return true if the ship cockpit is powered
-	 */
 	virtual bool IsPowered() override;
 
-	/**
-	 * Return true if the ship is currently on power outage
-	 */
 	virtual bool HasPowerOutage() override;
 
-	/**
-	 * If on power outage, time until the end of the power outage. Else 0.
-	 */
 	virtual float GetPowerOutageDuration() override;
 
 	/**
 	 * Method call if a electric component had been damaged
 	 */
 	virtual void OnElectricDamage(float DamageRatio);
+
 
 protected:
 

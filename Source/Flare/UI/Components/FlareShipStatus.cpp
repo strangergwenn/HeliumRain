@@ -61,15 +61,6 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SNew(SImage)
-			.Image(FFlareStyleSet::GetIcon("LifeSupport"))
-			.ColorAndOpacity(Color)
-			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_LifeSupport)
-		]
-
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(SImage)
 			.Image(FFlareStyleSet::GetIcon("Shell"))
 			.ColorAndOpacity(Color)
 			.Visibility(this, &SFlareShipStatus::IsVisible, EFlareSubsystem::SYS_Weapon)

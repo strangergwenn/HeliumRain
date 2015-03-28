@@ -165,7 +165,10 @@ void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 		TArray<IFlareShipInterface*> DockedShips = Target->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
 		{
-			ShipList->AddShip(DockedShips[0]);
+			if (DockedShips[i]->IsAlive())
+			{
+				ShipList->AddShip(DockedShips[i]);
+			}
 		}
 	}
 

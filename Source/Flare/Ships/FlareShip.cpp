@@ -910,14 +910,7 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 
 bool AFlareShip::IsAlive()
 {
-	if(ShipCockit)
-	{
-		return ShipCockit->IsAlive();
-	}
-	else
-	{
-		return false;
-	}
+	return GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport) > 0;
 }
 
 bool AFlareShip::IsPowered()
