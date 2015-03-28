@@ -3,6 +3,7 @@
 #include "FlareSubsystemStatus.h"
 #include "../Components/FlareButton.h"
 #include "../../Ships/FlareWeapon.h"
+#include "../../Ships/FlareShip.h"
 
 #define LOCTEXT_NAMESPACE "FlareSubsystemStatus"
 
@@ -156,21 +157,13 @@ FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 
 FText SFlareSubsystemStatus::GetStatusText() const
 {
-	if (!TargetShip)
+	// Data check
+	AFlareShip* Ship = Cast<AFlareShip>(TargetShip);
+	if (!TargetShip || !Ship)
 	{
 		return FText::FromString("?");
 	}
-
-	// Initial data
-	FString Text;
-	if (Health <= 0)
-	{
-		Text = LOCTEXT("Offline", "OFFLINE").ToString();
-	}
-	else
-	{
-		Text = FString::FromInt(100 * Health) + " %";;
-	}
+	FString Text = (Health <= 0) ? LOCTEXT("Offline", "OFFLINE").ToString() : FString::FromInt(100 * Health) + " %";
 	Text += "\n";
 
 	// Advanced information
@@ -201,9 +194,26 @@ FText SFlareSubsystemStatus::GetStatusText() const
 			}
 			break; 
 
-		// No particular information
-		case EFlareSubsystem::SYS_Propulsion:
+		// Pilot mode
 		case EFlareSubsystem::SYS_RCS:
+			switch (Ship->GetCommandType())
+			{
+				case EFlareShipStatus::SS_Manual:    Text += LOCTEXT("CmdManual", "Manual").ToString();  break;
+				case EFlareShipStatus::SS_Gliding:   Text += LOCTEXT("CmdGlide", "Gliding").ToString();  break;
+				case EFlareShipStatus::SS_AutoPilot: Text += LOCTEXT("CmdAuto", "Autopilot").ToString(); break;
+				case EFlareShipStatus::SS_Docked:    Text += LOCTEXT("CmdDocked", "Docked").ToString();  break;
+			}
+			break;
+
+		// Boost mode
+		case EFlareSubsystem::SYS_Propulsion:
+			if (Ship->IsBoosting())
+			{
+				Text += LOCTEXT("Boosting", "Boosting").ToString();
+			}
+			break;
+
+		// No particular information
 		case EFlareSubsystem::SYS_LifeSupport:
 		default:
 			break;

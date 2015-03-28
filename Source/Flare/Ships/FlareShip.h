@@ -363,12 +363,7 @@ public:
 	/*----------------------------------------------------
 		Getters (Attitude)
 	----------------------------------------------------*/
-
-	inline float GetAttitudeCommandOrbitalThrust() const
-	{
-		return ManualOrbitalBoost;
-	}
-
+	
 	/**
 	 * Return linear velocity in meters
 	 */
@@ -420,6 +415,19 @@ public:
 		return WeaponList;
 	}
 
-	virtual UFlareShipComponent* GetCockpit() const override { return ShipCockit; }
+	virtual UFlareShipComponent* GetCockpit() const override
+	{
+		return ShipCockit;
+	}
+
+	inline EFlareShipStatus::Type GetCommandType() const
+	{
+		return Status;
+	}
+	
+	inline bool IsBoosting() const
+	{
+		return ManualOrbitalBoost;
+	}
 
 };
