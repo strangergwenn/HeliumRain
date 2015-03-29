@@ -13,6 +13,7 @@
 AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, Company(NULL)
+	, CombatMode(false)
 {
 	DefaultMouseCursor = EMouseCursor::Default;
 }
@@ -47,21 +48,28 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 	{
 		NewState = true;
 	}
-	else
+
+	// Abort combat if we are going to external
+	if (NewState && CombatMode)
 	{
-		// Keep param original value
+		CombatMode = false;
+		ShipPawn->SetCombatMode(false);
 	}
 
+	// If something changed...
 	if (ExternalCamera != NewState || Force)
 	{
-		bShowMouseCursor = true;
+		// TODO COMBAT MODE : force focus / mouse appearance when changing focus
+		bShowMouseCursor = !CombatMode;
 		
 		// Send the camera order to the ship
 		if (ShipPawn)
 		{
 			ShipPawn->SetExternalCamera(NewState);
 		}
-		Cast<AFlareHUD>(GetHUD())->SetIsExternalCamera(NewState);
+
+		// Update camera 
+		Cast<AFlareHUD>(GetHUD())->SetInteractive(!CombatMode);
 		ExternalCamera = NewState;
 	}
 }
@@ -197,6 +205,7 @@ void AFlarePlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("ToggleCamera", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCamera);
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
+	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
 
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
@@ -225,6 +234,13 @@ void AFlarePlayerController::ToggleMenu()
 	{
 		Cast<AFlareHUD>(GetHUD())->OpenMenu(EFlareMenu::MENU_Dashboard);
 	}
+}
+
+void AFlarePlayerController::ToggleCombat()
+{
+	CombatMode = !CombatMode;
+	ShipPawn->SetCombatMode(CombatMode);
+	SetExternalCamera(false, true);
 }
 
 void AFlarePlayerController::Test1()

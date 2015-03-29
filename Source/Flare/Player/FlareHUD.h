@@ -95,7 +95,7 @@ public:
 	void CloseMenu(bool HardClose = false);
 
 	/** Show the interface on the HUD (not the flight helpers) */
-	void SetIsExternalCamera(bool Status);
+	void SetInteractive(bool Status);
 
 
 protected:
@@ -151,7 +151,7 @@ protected:
 
 	// Fade-to-black system
 	bool                                    MenuIsOpen;
-	bool                                    IsExternalCamera;
+	bool                                    IsInteractive;
 	bool                                    FadeFromBlack;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
@@ -176,6 +176,7 @@ protected:
 	UTexture2D*                             HUDDesignatorCornerTexture;
 	UTexture2D*                             HUDReticleIcon;
 	UTexture2D*                             HUDAimIcon;
+	UTexture2D*                             HUDNoseIcon;
 
 	// Ship status content
 	UTexture2D*                             HUDTemperatureIcon;

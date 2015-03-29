@@ -101,6 +101,9 @@ public:
 	/** Toggle the dashboard */
 	virtual void ToggleMenu();
 
+	/** Toggle the combat mode */
+	virtual void ToggleCombat();
+
 	/** Test method 1 */
 	virtual void Test1();
 
@@ -126,6 +129,7 @@ protected:
 	UPROPERTY()
 	UFlareCompany* Company;
 
+	bool   CombatMode;
 	bool   ExternalCamera;
 
 

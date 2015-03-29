@@ -109,6 +109,9 @@ public:
 	
 	/** Activate or deactivate the exterbal camera */
 	virtual void SetExternalCamera(bool NewState);
+	
+	/** Switch to combat mode */
+	virtual void SetCombatMode(bool NewState);
 
 
 	/*----------------------------------------------------
@@ -245,6 +248,7 @@ protected:
 	/** Update the ship's center of mass */
 	void UpdateCOM();
 
+
 public:
 
 	/*----------------------------------------------------
@@ -272,6 +276,10 @@ public:
 	----------------------------------------------------*/
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
+
+	virtual void MousePress();
+
+	virtual void MouseRelease();
 
 	virtual void MousePositionInput(FVector2D Val);
 
@@ -335,6 +343,8 @@ protected:
 	// Dynamic gameplay data
 	TEnumAsByte <EFlareShipStatus::Type> Status;
 	bool                                 ExternalCamera;
+	bool                                 MousePressed;
+	bool                                 CombatMode;
 
 	// Navigation
 	TArray <AActor*>                     PathColliders;
@@ -425,6 +435,16 @@ public:
 	inline bool IsBoosting() const
 	{
 		return ManualOrbitalBoost;
+	}
+
+	inline bool IsExternalCamera() const
+	{
+		return ExternalCamera;
+	}
+
+	inline bool IsCombatMode() const
+	{
+		return CombatMode;
 	}
 
 };

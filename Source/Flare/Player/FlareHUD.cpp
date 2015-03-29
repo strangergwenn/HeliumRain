@@ -24,6 +24,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj   (TEXT("/Game/Gameplay/HUD/MT_HUDHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj      (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj          (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj         (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 
 	// Load content (status icons)
@@ -38,6 +39,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 	HUDReticleIcon = HUDReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
+	HUDNoseIcon = HUDNoseIconObj.Object;
 
 	// Set content (status icons)
 	HUDTemperatureIcon = HUDTemperatureIconObj.Object;
@@ -61,7 +63,7 @@ void AFlareHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// TODO : See if we want this back at some point.
+	// TODO : See if we want this back at some point or if it's gone for good.
 	//HUDHelpersMaterial = UMaterialInstanceDynamic::Create(HUDHelpersMaterialMaster, GetWorld());
 }
 
@@ -133,17 +135,17 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Hide the context menu
-		if (!FoundTargetUnderMouse || !IsExternalCamera)
+		if (!FoundTargetUnderMouse || !IsInteractive)
 		{
 			ContextMenu->Hide();
 		}
 	}
 
 	// Update HUD materials
-	if (PC && Ship && !IsExternalCamera && !MenuIsOpen)
+	if (PC && Ship && !MenuIsOpen)
 	{
 		// Get HUD data
-		float FocusDistance = 100000;
+		float FocusDistance = 1000000;
 		FVector2D ScreenPosition;
 		FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 		int32 HelperScale = ViewportSize.Y;
@@ -154,15 +156,11 @@ void AFlareHUD::DrawHUD()
 		FVector BulletVelocity = ShipAttitude.Vector();
 		BulletVelocity.Normalize();
 		BulletVelocity *= 50000; // TODO get from projectile
-
-		// Update helper
-		if (HUDHelpersMaterial)
+		
+		// Update nose
+		if (!Ship->IsExternalCamera() && !Ship->IsCombatMode())
 		{
-			HUDHelpersMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
-			HUDHelpersMaterial->SetScalarParameterValue(FName("Pitch"), -FMath::DegreesToRadians(ShipAttitude.Pitch));
-			HUDHelpersMaterial->SetScalarParameterValue(FName("Yaw"), FMath::DegreesToRadians(ShipAttitude.Yaw));
-			HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
-			DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
+			DrawHUDIcon(ViewportSize / 2, 16, HUDNoseIcon, HudColor, true);
 		}
 
 		// Update inertial vector
@@ -172,11 +170,25 @@ void AFlareHUD::DrawHUD()
 			DrawHUDIcon(ScreenPosition, 16, HUDReticleIcon, HudColor, true);
 		}
 
-		// Update attack vector
-		EndPoint = Ship->GetActorLocation() + FocusDistance * (ShipVelocity + BulletVelocity);
-		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
+		// Advanced UI in combat mode
+		if (!IsInteractive)
 		{
-			DrawHUDIcon(ScreenPosition, 16, HUDAimIcon, HudColor, true);
+			// Update helper
+			if (HUDHelpersMaterial)
+			{
+				HUDHelpersMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
+				HUDHelpersMaterial->SetScalarParameterValue(FName("Pitch"), -FMath::DegreesToRadians(ShipAttitude.Pitch));
+				HUDHelpersMaterial->SetScalarParameterValue(FName("Yaw"), FMath::DegreesToRadians(ShipAttitude.Yaw));
+				HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
+				DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
+			}
+
+			// Update attack vector
+			FVector EndPoint = Ship->GetActorLocation() + FocusDistance * (ShipVelocity + BulletVelocity);
+			if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
+			{
+				DrawHUDIcon(ScreenPosition, 16, HUDAimIcon, HudColor, true);
+			}
 		}
 	}
 }
@@ -207,7 +219,7 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 
 		// Draw the context menu
 		AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
-		if (Hovering && !FoundTargetUnderMouse && IsExternalCamera)
+		if (Hovering && !FoundTargetUnderMouse && IsInteractive)
 		{
 			// Update state
 			FoundTargetUnderMouse = true;
@@ -382,9 +394,9 @@ void AFlareHUD::CloseMenu(bool HardClose)
 	MenuIsOpen = false;
 }
 
-void AFlareHUD::SetIsExternalCamera(bool Status)
+void AFlareHUD::SetInteractive(bool Status)
 {
-	IsExternalCamera = Status;
+	IsInteractive = Status;
 }
 
 

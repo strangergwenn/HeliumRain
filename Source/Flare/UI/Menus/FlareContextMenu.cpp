@@ -69,6 +69,7 @@ void SFlareContextMenu::SetStation(IFlareStationInterface* Target)
 	TargetStation = Target;
 	TargetShip = NULL;
 	ShipStatus->SetTargetShip(NULL);
+	ShipStatus->SetVisibility(EVisibility::Hidden);
 }
 
 void SFlareContextMenu::SetShip(IFlareShipInterface* Target)
@@ -76,6 +77,7 @@ void SFlareContextMenu::SetShip(IFlareShipInterface* Target)
 	TargetShip = Target;
 	TargetStation = NULL;
 	ShipStatus->SetTargetShip(Target);
+	ShipStatus->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareContextMenu::Show()

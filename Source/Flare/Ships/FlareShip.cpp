@@ -256,6 +256,11 @@ void AFlareShip::SetExternalCamera(bool NewState)
 	}
 }
 
+void AFlareShip::SetCombatMode(bool NewState)
+{
+	CombatMode = NewState;
+}
+
 
 /*----------------------------------------------------
 	Ship interface
@@ -1325,20 +1330,48 @@ void AFlareShip::SetupPlayerInputComponent(class UInputComponent* InputComponent
 	InputComponent->BindAction("Boost", EInputEvent::IE_Released, this, &AFlareShip::BoostOff);
 	InputComponent->BindAction("Manual", EInputEvent::IE_Released, this, &AFlareShip::ForceManual);
 
-	InputComponent->BindAction("MouseLeft", EInputEvent::IE_Pressed, this, &AFlareShip::StartFire);
-	InputComponent->BindAction("MouseLeft", EInputEvent::IE_Released, this, &AFlareShip::StopFire);
+	InputComponent->BindAction("MouseLeft", EInputEvent::IE_Pressed, this, &AFlareShip::MousePress);
+	InputComponent->BindAction("MouseLeft", EInputEvent::IE_Released, this, &AFlareShip::MouseRelease);
+}
+
+void AFlareShip::MousePress()
+{
+	MousePressed = true;
+
+	if (CombatMode)
+	{
+		StartFire();
+	}
+}
+
+void AFlareShip::MouseRelease()
+{
+	MousePressed = false;
+
+	if (CombatMode)
+	{
+		StopFire();
+	}
 }
 
 void AFlareShip::MousePositionInput(FVector2D Val)
 {
 	if (!ExternalCamera)
 	{
-		// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
-		Val.X = FMath::Clamp(1. + (FMath::Abs(Val.X) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.X);
-		Val.Y = FMath::Clamp(1. + (FMath::Abs(Val.Y) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.Y);
+		if (MousePressed  || CombatMode)
+		{
+			// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
+			Val.X = FMath::Clamp(1. + (FMath::Abs(Val.X) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.X);
+			Val.Y = FMath::Clamp(1. + (FMath::Abs(Val.Y) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.Y);
 		
-		ManualAngularVelocity.Z = Val.X * AngularMaxVelocity;
-		ManualAngularVelocity.Y = Val.Y * AngularMaxVelocity;
+			ManualAngularVelocity.Z = Val.X * AngularMaxVelocity;
+			ManualAngularVelocity.Y = Val.Y * AngularMaxVelocity;
+		}
+		else
+		{
+			ManualAngularVelocity.Z = 0;
+			ManualAngularVelocity.Y = 0;
+		}
 	}
 }
 
