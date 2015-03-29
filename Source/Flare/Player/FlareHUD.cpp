@@ -158,7 +158,7 @@ void AFlareHUD::DrawHUD()
 		BulletVelocity *= 50000; // TODO get from projectile
 		
 		// Update nose
-		if (!Ship->IsExternalCamera() && !Ship->IsCombatMode())
+		if (!Ship->IsExternalCamera())
 		{
 			DrawHUDIcon(ViewportSize / 2, 16, HUDNoseIcon, HudColor, true);
 		}
