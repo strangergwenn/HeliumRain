@@ -773,6 +773,11 @@ void AFlareShip::ClearCurrentCommand()
 	CommandData.Dequeue(Command);
 
 	FLOGV("Cleared command '%s'", *EFlareCommandDataType::ToString(Command.Type));
+
+	if (!CommandData.Peek(Command))
+	{
+		Status = EFlareShipStatus::SS_Manual;
+	}
 }
 
 FVector AFlareShip::GetDockLocation()
@@ -1332,7 +1337,6 @@ void AFlareShip::MousePositionInput(FVector2D Val)
 		Val.X = FMath::Clamp(1. + (FMath::Abs(Val.X) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.X);
 		Val.Y = FMath::Clamp(1. + (FMath::Abs(Val.Y) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.Y);
 		
-
 		ManualAngularVelocity.Z = Val.X * AngularMaxVelocity;
 		ManualAngularVelocity.Y = Val.Y * AngularMaxVelocity;
 	}
