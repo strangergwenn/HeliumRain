@@ -78,6 +78,7 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 {
 	Possess(Ship);
 	ShipPawn = Ship;
+	CombatMode = false;
 	SetExternalCamera(true, true);
 }
 
@@ -238,9 +239,12 @@ void AFlarePlayerController::ToggleMenu()
 
 void AFlarePlayerController::ToggleCombat()
 {
-	CombatMode = !CombatMode;
-	ShipPawn->SetCombatMode(CombatMode);
-	SetExternalCamera(false, true);
+	if (ShipPawn->IsMilitary())
+	{
+		CombatMode = !CombatMode;
+		ShipPawn->SetCombatMode(CombatMode);
+		SetExternalCamera(false, true);
+	}
 }
 
 void AFlarePlayerController::Test1()
