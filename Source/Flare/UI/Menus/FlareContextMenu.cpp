@@ -56,6 +56,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 		SNew(STextBlock)
 		.Text(this, &SFlareContextMenu::GetLegendText)
 		.TextStyle(TextStyle)
+		.Justification(ETextJustify::Center)
 	);
 }
 

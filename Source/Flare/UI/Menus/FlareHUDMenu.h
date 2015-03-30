@@ -28,7 +28,7 @@ public:
 	void Construct(const FArguments& InArgs);
 	
 	/** Set the ship to display data for */
-	void SetTargetShip(AFlareShip* Target);
+	void SetTargetShip(IFlareShipInterface* Target);
 
 
 protected:
@@ -38,6 +38,9 @@ protected:
 	----------------------------------------------------*/
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
+	/** Get the current speed measure */
+	FText GetSpeedText() const;
 
 	/** Get the color and alpha of the overheating warning */
 	FSlateColor GetOverheatColor(bool Text) const;

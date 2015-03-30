@@ -48,7 +48,6 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 			[
 				// Background
 				SNew(SBorder)
-				.Padding(ContainerStyle->BorderPadding)
 				.BorderImage(&ContainerStyle->BackgroundBrush)
 				[
 					SNew(SImage)
@@ -65,7 +64,6 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		[
 			// Background
 			SNew(SBorder)
-			.Padding(FMargin(ButtonStyle->ContentPadding))
 			.BorderImage(&InvertedContainerStyle->BackgroundBrush)
 			.BorderBackgroundColor(this, &::SFlareSubsystemStatus::GetFlashColor)
 			[
@@ -83,7 +81,6 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		[
 			// Background
 			SNew(SBorder)
-			.Padding(FMargin(ButtonStyle->ContentPadding))
 			.BorderImage(&ContainerStyle->BackgroundBrush)
 			[
 				SNew(STextBlock)

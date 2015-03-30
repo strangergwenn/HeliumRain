@@ -25,6 +25,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 	// Style
 	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
+	const FFlareContainerStyle* InvertedContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvertedContainerStyle");
 	
 	// Structure
 	ChildSlot
@@ -39,12 +40,57 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Top)
-		.Padding(FMargin(0, 100))
 		[
 			SNew(SVerticalBox)
 
+			// Speed
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SNew(SBox)
+				.HAlign(HAlign_Center)
+				[
+					SNew(SVerticalBox)
+
+					// Status string
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(FMargin(0))
+					[
+						// Background
+						SNew(SBorder)
+						.BorderImage(&ContainerStyle->BackgroundBrush)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareHUDMenu::GetSpeedText)
+							.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+							.Justification(ETextJustify::Center)
+						]
+					]
+
+					// Speed text
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(FMargin(0))
+					.HAlign(HAlign_Center)
+					[
+						// Background
+						SNew(SBorder)
+						.Padding(FMargin(10, 0))
+						.BorderImage(&InvertedContainerStyle->BackgroundBrush)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("Speed", "CURRENT SPEED"))
+							.TextStyle(FFlareStyleSet::Get(), "Flare.VerySmallTextInverted")
+							.Justification(ETextJustify::Center)
+						]
+					]
+				]
+			]
+
 			// Overheating box
 			+ SVerticalBox::Slot()
+			.Padding(FMargin(0, 100))
 			.AutoHeight()
 			[
 				SNew(SBorder)
@@ -174,7 +220,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareHUDMenu::SetTargetShip(AFlareShip* Target)
+void SFlareHUDMenu::SetTargetShip(IFlareShipInterface* Target)
 {
 	// Set targets
 	TargetShip = Target;
@@ -183,11 +229,12 @@ void SFlareHUDMenu::SetTargetShip(AFlareShip* Target)
 	PropulsionStatus->SetTargetShip(Target);
 	RCSStatus->SetTargetShip(Target);
 	LifeSupportStatus->SetTargetShip(Target);
+	AFlareShip* PlayerShip = Cast<AFlareShip>(Target);
 
-	if (Target)
+	if (PlayerShip)
 	{
 		// Update weapon list
-		TArray<UFlareWeapon*> WeaponList = Target->GetWeaponList();
+		TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponList();
 		TSharedPtr<SFlareSubsystemStatus> Temp;
 		WeaponContainer->ClearChildren();
 
@@ -200,7 +247,7 @@ void SFlareHUDMenu::SetTargetShip(AFlareShip* Target)
 					SAssignNew(Temp, SFlareSubsystemStatus)
 					.Subsystem(EFlareSubsystem::SYS_Weapon)
 				];
-			Temp->SetTargetShip(Target);
+			Temp->SetTargetShip(PlayerShip);
 			Temp->SetTargetComponent(WeaponList[i]);
 		}
 		WeaponContainer->SetVisibility(EVisibility::Visible);
@@ -236,6 +283,20 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 		}
 		PowerOutage = NewPowerOutage;
 	}
+}
+
+FText SFlareHUDMenu::GetSpeedText() const
+{
+	if (TargetShip)
+	{
+		AFlareShip* PlayerShip = Cast<AFlareShip>(TargetShip);
+		if (PlayerShip)
+		{
+			return FText::FromString("\n" + FString::FromInt(PlayerShip->GetLinearVelocity().Size()) + " m/s");
+		}
+	}
+
+	return FText::FromString("");
 }
 
 FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
