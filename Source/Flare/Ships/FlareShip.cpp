@@ -231,8 +231,9 @@ void AFlareShip::SetExternalCamera(bool NewState)
 	if (NewState)
 	{
 		StopFire();
+		ManualOrbitalBoost = false;
 	}
-
+	
 	// Reset rotations
 	ExternalCamera = NewState;
 	SetCameraPitch(0);
@@ -997,6 +998,12 @@ void AFlareShip::OnElectricDamage(float DamageRatio)
 
 void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 {
+	// Manual orbital boost
+	if (ManualOrbitalBoost)
+	{
+		ManualLinearVelocity = LinearMaxVelocity * FVector(1, 0, 0);
+	}
+
 	// Add velocity command to current velocity
 	LinearTargetVelocity = GetLinearVelocity() + Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
 	LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(LinearMaxVelocity);
@@ -1465,7 +1472,7 @@ void AFlareShip::FaceBackward()
 
 void AFlareShip::BoostOn()
 {
-	if (IsManualPilot())
+	if (IsManualPilot() && !ExternalCamera)
 	{
 		ManualOrbitalBoost = true;
 	}
@@ -1503,6 +1510,7 @@ void AFlareShip::StopFire()
 	}
 }
 
+
 /*----------------------------------------------------
 		Getters (Attitude)
 ----------------------------------------------------*/
@@ -1522,7 +1530,7 @@ FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, F
 
 		if (Engine->IsOrbitalEngine() && !WithOrbitalEngines)
 		{
-		  continue;
+			continue;
 		}
 
 		FVector WorldThrustAxis = Engine->GetThrustAxis();
