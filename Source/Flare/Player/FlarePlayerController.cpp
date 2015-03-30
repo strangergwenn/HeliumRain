@@ -76,10 +76,15 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 
 void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 {
+	if(ShipPawn)
+	{
+		ShipPawn->EnablePilot(true);
+	}
 	Possess(Ship);
 	ShipPawn = Ship;
 	CombatMode = false;
 	SetExternalCamera(true, true);
+	ShipPawn->EnablePilot(false);
 }
 
 void AFlarePlayerController::PrepareForExit()

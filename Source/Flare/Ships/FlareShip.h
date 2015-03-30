@@ -216,6 +216,11 @@ public:
 	 */
 	virtual void OnElectricDamage(float DamageRatio);
 
+	/*----------------------------------------------------
+		Pilot
+	----------------------------------------------------*/
+
+	virtual void EnablePilot(bool EnablePilot);
 
 protected:
 
@@ -367,6 +372,11 @@ protected:
 
 	// Damage status
 	UFlareShipComponent*                 ShipCockit;
+
+	// Pilot
+	bool                                 IsPiloted;
+	float                                TimeUntilNextChange;
+	FVector                              PilotTarget;
 
 public:
 

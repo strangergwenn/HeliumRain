@@ -42,6 +42,11 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	// Dock info
 	ShipData.DockedTo = NAME_None;
 	ShipData.DockedAt = -1;
+
+	//
+	IsPiloted = true;
+	TimeUntilNextChange = 0;
+	PilotTarget = FVector::ZeroVector;
 }
 
 
@@ -95,7 +100,6 @@ void AFlareShip::Tick(float DeltaSeconds)
 		}
 	}
 
-
 	// Attitude control
 	if (Airframe && !IsPresentationMode())
 	{
@@ -104,8 +108,36 @@ void AFlareShip::Tick(float DeltaSeconds)
 		// Manual pilot
 		if (IsManualPilot() && IsAlive())
 		{
-			UpdateLinearAttitudeManual(DeltaSeconds);
-			UpdateAngularAttitudeManual(DeltaSeconds);
+			if(IsPiloted)
+			{
+				TimeUntilNextChange -= DeltaSeconds;
+				if(TimeUntilNextChange <= 0)
+				{
+
+					TimeUntilNextChange = FMath::FRandRange(10, 40);
+					PilotTarget = FVector(FMath::FRandRange(-4000, 4000), FMath::FRandRange(-4000, 4000), FMath::FRandRange(-4000, 4000));
+					FLOGV("Pilot change destination to %s", *PilotTarget.ToString());
+					FLOGV("New change in %fs", TimeUntilNextChange);
+				}
+
+				LinearTargetVelocity = (PilotTarget - GetActorLocation()/100).GetClampedToMaxSize(LinearMaxVelocity);
+
+				if(GetTemperature() < 600)
+				{
+					ManualOrbitalBoost = true;
+				}
+
+				if(GetTemperature() > 780)
+				{
+					ManualOrbitalBoost = false;
+				}
+
+			}
+			else
+			{
+				UpdateLinearAttitudeManual(DeltaSeconds);
+				UpdateAngularAttitudeManual(DeltaSeconds);
+			}
 		}
 
 		// Autopilot
@@ -1041,6 +1073,16 @@ void AFlareShip::OnElectricDamage(float DamageRatio)
 }
 
 /*----------------------------------------------------
+		Pilot
+----------------------------------------------------*/
+
+void AFlareShip::EnablePilot(bool PilotEnabled)
+{
+	FLOGV("EnablePilot %d", PilotEnabled);
+	IsPiloted = PilotEnabled;
+}
+
+/*----------------------------------------------------
 	Attitude control : linear version
 ----------------------------------------------------*/
 
@@ -1422,6 +1464,7 @@ void AFlareShip::MousePositionInput(FVector2D Val)
 		if (MousePressed  || CombatMode)
 		{
 			// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
+
 			Val.X = FMath::Clamp(1. + (FMath::Abs(Val.X) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.X);
 			Val.Y = FMath::Clamp(1. + (FMath::Abs(Val.Y) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.Y);
 		
