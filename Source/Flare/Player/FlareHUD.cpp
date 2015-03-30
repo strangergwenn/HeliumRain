@@ -18,12 +18,11 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, MenuIsOpen(false)
 	, FadeDuration(0.15)
-	, HUDHelpersMaterial(NULL)
 {
 	// Load content (general icons)
-	static ConstructorHelpers::FObjectFinder<UMaterial> HUDHelpersMaterialObj   (TEXT("/Game/Gameplay/HUD/MT_HUDHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj      (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj          (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj    (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj         (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 
@@ -35,11 +34,11 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
 
 	// Set content (general icons)
-	HUDHelpersMaterialMaster = HUDHelpersMaterialObj.Object;
-	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 	HUDReticleIcon = HUDReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
+	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
 	HUDNoseIcon = HUDNoseIconObj.Object;
+	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 
 	// Set content (status icons)
 	HUDTemperatureIcon = HUDTemperatureIconObj.Object;
@@ -62,9 +61,6 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 void AFlareHUD::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// TODO : See if we want this back at some point or if it's gone for good.
-	//HUDHelpersMaterial = UMaterialInstanceDynamic::Create(HUDHelpersMaterialMaster, GetWorld());
 }
 
 void AFlareHUD::Tick(float DeltaSeconds)
@@ -160,35 +156,14 @@ void AFlareHUD::DrawHUD()
 		// Update nose
 		if (!Ship->IsExternalCamera())
 		{
-			DrawHUDIcon(ViewportSize / 2, 16, HUDNoseIcon, HudColor, true);
+			DrawHUDIcon(ViewportSize / 2, 32, Ship->IsCombatMode() ? HUDAimIcon : HUDNoseIcon, HudColor, true);
 		}
 
 		// Update inertial vector
 		FVector EndPoint = Ship->GetActorLocation() + FocusDistance * ShipVelocity;
 		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
 		{
-			DrawHUDIcon(ScreenPosition, 16, HUDReticleIcon, HudColor, true);
-		}
-
-		// Advanced UI in combat mode
-		if (!IsInteractive)
-		{
-			// Update helper
-			if (HUDHelpersMaterial)
-			{
-				HUDHelpersMaterial->SetVectorParameterValue(FName("Color"), PC->GetOverlayColor());
-				HUDHelpersMaterial->SetScalarParameterValue(FName("Pitch"), -FMath::DegreesToRadians(ShipAttitude.Pitch));
-				HUDHelpersMaterial->SetScalarParameterValue(FName("Yaw"), FMath::DegreesToRadians(ShipAttitude.Yaw));
-				HUDHelpersMaterial->SetScalarParameterValue(FName("Roll"), FMath::DegreesToRadians(ShipAttitude.Roll));
-				DrawMaterialSimple(HUDHelpersMaterial, ViewportSize.X / 2 - (HelperScale / 2), 0, HelperScale, HelperScale);
-			}
-
-			// Update attack vector
-			FVector EndPoint = Ship->GetActorLocation() + FocusDistance * (ShipVelocity + BulletVelocity);
-			if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
-			{
-				DrawHUDIcon(ScreenPosition, 16, HUDAimIcon, HudColor, true);
-			}
+			DrawHUDIcon(ScreenPosition, 32, HUDReticleIcon, HudColor, true);
 		}
 	}
 }
@@ -243,6 +218,8 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 				}
 			}
 		}
+
+		// Draw the HUD designator
 		else if ((Ship && Ship->IsAlive()) || !Ship)
 		{
 			float CornerSize = 16;
@@ -262,6 +239,16 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 				StatusPos.X += 0.5 * (ObjectSize.X - NumberOfIcons * IconSize);
 				StatusPos.Y -= (IconSize + 0.5 * CornerSize);
 				DrawHUDDesignatorStatus(StatusPos, IconSize, Ship);
+			}
+
+			// Combat helper
+			AFlareShip* PlayerShip = PC->GetShipPawn();
+			if (Ship && PlayerShip && PlayerShip->IsCombatMode())
+			{
+				if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, 50000), ScreenPosition)) // TODO get from projectile
+				{
+					DrawHUDIcon(ScreenPosition, 32, HUDAimHelperIcon, HudColor, true);
+				}
 			}
 		}
 	}

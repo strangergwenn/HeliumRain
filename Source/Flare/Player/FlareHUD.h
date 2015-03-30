@@ -169,14 +169,15 @@ protected:
 	// Menu target data
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
 	void*                                   FadeTargetData;
+	bool                                    FoundTargetUnderMouse;
 
 	// Designator content
-	bool                                    FoundTargetUnderMouse;
 	FLinearColor                            HudColor;
-	UTexture2D*                             HUDDesignatorCornerTexture;
 	UTexture2D*                             HUDReticleIcon;
 	UTexture2D*                             HUDAimIcon;
+	UTexture2D*                             HUDAimHelperIcon;
 	UTexture2D*                             HUDNoseIcon;
+	UTexture2D*                             HUDDesignatorCornerTexture;
 
 	// Ship status content
 	UTexture2D*                             HUDTemperatureIcon;
@@ -184,10 +185,6 @@ protected:
 	UTexture2D*                             HUDPropulsionIcon;
 	UTexture2D*                             HUDRCSIcon;
 	UTexture2D*                             HUDWeaponIcon;
-		     
-	// HUD materials
-	UPROPERTY()UMaterial*                   HUDHelpersMaterialMaster;
-	UPROPERTY()	UMaterialInstanceDynamic*   HUDHelpersMaterial;
 	
 	// Context menu
 	TSharedPtr<SFlareContextMenu>           ContextMenu;

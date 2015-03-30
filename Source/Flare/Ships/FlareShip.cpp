@@ -262,6 +262,12 @@ void AFlareShip::SetCombatMode(bool NewState)
 }
 
 
+FVector AFlareShip::GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed) const
+{
+	return GetActorLocation();
+}
+
+
 /*----------------------------------------------------
 	Ship interface
 ----------------------------------------------------*/

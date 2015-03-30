@@ -113,6 +113,9 @@ public:
 	/** Switch to combat mode */
 	virtual void SetCombatMode(bool NewState);
 
+	/** Extrapolate the position of a ship for a given targetting ship */
+	virtual FVector GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed) const;
+
 
 	/*----------------------------------------------------
 		Ship interface
