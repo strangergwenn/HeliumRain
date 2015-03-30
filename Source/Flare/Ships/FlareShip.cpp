@@ -64,6 +64,38 @@ void AFlareShip::Tick(float DeltaSeconds)
 
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 
+	//Update Camera
+	if(!ExternalCamera && CombatMode)
+	{
+		if(CombatMode)
+		{
+		FRotator ShipAttitude = GetActorRotation();
+		FVector ShipVelocity = 100 * GetLinearVelocity();
+
+		// Bullet velocity
+		FVector BulletVelocity = ShipAttitude.Vector();
+		BulletVelocity.Normalize();
+		BulletVelocity *= 50000; // TODO get from projectile
+
+
+		FVector BulletDirection = (ShipVelocity + BulletVelocity).GetUnsafeNormal();
+
+		FVector LocalBulletDirection = Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(BulletDirection);
+
+		float Pitch = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Z));
+		float Yaw = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Y));
+
+		SetCameraPitch(Pitch);
+		SetCameraYaw(Yaw);
+		}
+		else
+		{
+			SetCameraPitch(0);
+			SetCameraYaw(0);
+		}
+	}
+
+
 	// Attitude control
 	if (Airframe && !IsPresentationMode())
 	{
@@ -265,7 +297,23 @@ void AFlareShip::SetCombatMode(bool NewState)
 
 FVector AFlareShip::GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed) const
 {
-	return GetActorLocation();
+	FVector TargetLocation = GetActorLocation();
+	FVector BulletLocation = TargettingShip->GetActorLocation();
+	//Relative Target Speed
+	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
+
+	float Divisor = FMath::Square(BulletSpeed) - TargetVelocity.SizeSquared();
+
+	float A = -1;
+	float B = 2 * (TargetVelocity.X * (TargetLocation.X - BulletLocation.X) + TargetVelocity.Y * (TargetLocation.Y - BulletLocation.Y) + TargetVelocity.Z * (TargetLocation.Z - BulletLocation.Z)) / Divisor;
+	float C = (TargetLocation - BulletLocation).SizeSquared() / Divisor;
+
+	float Delta = FMath::Square(B) - 4 * A * C;
+
+	float InterceptTime = - B - FMath::Sqrt(Delta) / (2 * A);
+	FVector InterceptLocation = TargetLocation + TargetVelocity * InterceptTime;
+
+	return InterceptLocation;
 }
 
 
