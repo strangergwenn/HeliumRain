@@ -292,7 +292,7 @@ FText SFlareHUDMenu::GetSpeedText() const
 		AFlareShip* PlayerShip = Cast<AFlareShip>(TargetShip);
 		if (PlayerShip)
 		{
-			return FText::FromString("\n" + FString::FromInt(PlayerShip->GetLinearVelocity().Size()) + " m/s");
+			return FText::FromString(FString::FromInt(PlayerShip->GetLinearVelocity().Size()) + " m/s");
 		}
 	}
 
