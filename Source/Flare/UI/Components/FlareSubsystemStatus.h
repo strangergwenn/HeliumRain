@@ -12,8 +12,11 @@ class SFlareSubsystemStatus : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareSubsystemStatus)
+		: _Type(EFlareInfoDisplay::ID_Subsystem)
+		, _Subsystem(EFlareSubsystem::SYS_None)
 	{}
 
+	SLATE_ARGUMENT(EFlareInfoDisplay::Type, Type)
 	SLATE_ARGUMENT(EFlareSubsystem::Type, Subsystem)
 	
 	SLATE_END_ARGS()
@@ -43,6 +46,9 @@ protected:
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
+	/** Is this icon visible ? */
+	EVisibility IsIconVisible() const;
+
 	/** Get the current icon */
 	const FSlateBrush* GetIcon() const;
 
@@ -66,6 +72,7 @@ protected:
 	----------------------------------------------------*/
 
 	// Indicator data
+	TEnumAsByte<EFlareInfoDisplay::Type>    DisplayType;
 	TEnumAsByte<EFlareSubsystem::Type>      SubsystemType;
 	IFlareShipInterface*                    TargetShip;
 	UFlareShipComponent*                    TargetComponent;

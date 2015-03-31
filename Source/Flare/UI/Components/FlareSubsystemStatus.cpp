@@ -17,6 +17,7 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 	// Data
 	TargetShip = NULL;
 	TargetComponent = NULL;
+	DisplayType = InArgs._Type;
 	SubsystemType = InArgs._Subsystem;
 
 	// Effect data
@@ -39,7 +40,6 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		// Icon
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(0))
 		[
 			// Content box
 			SNew(SBox)
@@ -49,6 +49,8 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 				// Background
 				SNew(SBorder)
 				.BorderImage(&ContainerStyle->BackgroundBrush)
+				.Visibility(this, &SFlareSubsystemStatus::IsIconVisible)
+				.Padding(FMargin(5, 0))
 				[
 					SNew(SImage)
 					.Image(this, &SFlareSubsystemStatus::GetIcon)
@@ -60,12 +62,12 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		// Subsystem type
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(0))
 		[
 			// Background
 			SNew(SBorder)
 			.BorderImage(&InvertedContainerStyle->BackgroundBrush)
 			.BorderBackgroundColor(this, &::SFlareSubsystemStatus::GetFlashColor)
+			.Padding(FMargin(5, 0))
 			[
 				SNew(STextBlock)
 				.Text(this, &SFlareSubsystemStatus::GetTypeText)
@@ -77,11 +79,11 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		// Status string
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(0))
 		[
 			// Background
 			SNew(SBorder)
 			.BorderImage(&ContainerStyle->BackgroundBrush)
+			.Padding(FMargin(5, 0))
 			[
 				SNew(STextBlock)
 				.Text(this, &SFlareSubsystemStatus::GetStatusText)
@@ -117,13 +119,25 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	
 	// Update health
-	TimeSinceFlash += InDeltaTime;
-	float NewHealth = TargetShip->GetSubsystemHealth(SubsystemType);
-	if (NewHealth < Health)
+	if (TargetShip && DisplayType == EFlareInfoDisplay::ID_Subsystem)
 	{
-		TimeSinceFlash = 0;
+		TimeSinceFlash += InDeltaTime;
+		float NewHealth = TargetShip->GetSubsystemHealth(SubsystemType);
+		if (NewHealth < Health)
+		{
+			TimeSinceFlash = 0;
+		}
+		Health = NewHealth;
 	}
-	Health = NewHealth;
+	else
+	{
+		Health = 1;
+	}
+}
+
+EVisibility SFlareSubsystemStatus::IsIconVisible() const
+{
+	return (DisplayType == EFlareInfoDisplay::ID_Subsystem) ? EVisibility::Visible : EVisibility::Hidden;
 }
 
 const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
@@ -136,8 +150,9 @@ const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
 		case EFlareSubsystem::SYS_LifeSupport:   return FFlareStyleSet::GetIcon("HUD_LifeSupport");
 		case EFlareSubsystem::SYS_Power:         return FFlareStyleSet::GetIcon("HUD_Power");
 		case EFlareSubsystem::SYS_Weapon:        return FFlareStyleSet::GetIcon("HUD_Shell");
-		default:                                 return FFlareStyleSet::GetIcon("HUD_LifeSupport");
 	}
+
+	return NULL;
 }
 
 FSlateColor SFlareSubsystemStatus::GetIconColor() const
@@ -156,80 +171,110 @@ FText SFlareSubsystemStatus::GetStatusText() const
 {
 	// Data check
 	AFlareShip* Ship = Cast<AFlareShip>(TargetShip);
-	if (!TargetShip || !Ship)
-	{
-		return FText::FromString("?");
-	}
-	FString Text = (Health <= 0) ? LOCTEXT("Offline", "OFFLINE").ToString() : FString::FromInt(100 * Health) + " %";
-	Text += "\n";
 
-	// Advanced information
-	switch (SubsystemType)
+	// Subsystem display
+	if (Ship && DisplayType == EFlareInfoDisplay::ID_Subsystem)
 	{
-		// Temperature display
-		case EFlareSubsystem::SYS_Temperature:
-			Text += FString::FromInt(TargetShip->GetTemperature()) + " K";
-			break;
+		FString Text;
 
-		// Ammo display
-		case EFlareSubsystem::SYS_Weapon:
-			if (TargetComponent)
-			{
-				UFlareWeapon* Weapon = Cast<UFlareWeapon>(TargetComponent);
-				if (Weapon)
+		switch (SubsystemType)
+		{
+			// Temperature display
+			case EFlareSubsystem::SYS_Temperature:
+				Text = FString::FromInt(Ship->GetTemperature()) + " K";
+				break;
+
+			// Ammo display
+			case EFlareSubsystem::SYS_Weapon:
+				if (TargetComponent)
 				{
-					Text += FString::FromInt(Weapon->GetCurrentAmmo());
+					UFlareWeapon* Weapon = Cast<UFlareWeapon>(TargetComponent);
+					if (Weapon)
+					{
+						Text = FString::FromInt(Weapon->GetCurrentAmmo());
+					}
 				}
-			}
-			break;
+				break;
 
-		// Power outages
-		case EFlareSubsystem::SYS_Power:
-			if (TargetShip->HasPowerOutage())
-			{
-				Text += LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(TargetShip->GetPowerOutageDuration()) + " s";
-			}
-			break; 
+			// Power outages
+			case EFlareSubsystem::SYS_Power:
+				if (Ship->HasPowerOutage())
+				{
+					Text = LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(Ship->GetPowerOutageDuration()) + " s";
+				}
+				break; 
 
-		// Pilot mode
-		case EFlareSubsystem::SYS_RCS:
-			switch (Ship->GetCommandType())
-			{
-				case EFlareShipStatus::SS_Manual:    Text += LOCTEXT("CmdManual", "Manual").ToString();  break;
-				case EFlareShipStatus::SS_AutoPilot: Text += LOCTEXT("CmdAuto", "Autopilot").ToString(); break;
-				case EFlareShipStatus::SS_Docked:    Text += LOCTEXT("CmdDocked", "Docked").ToString();  break;
-			}
-			break;
+			// Pilot mode
+			case EFlareSubsystem::SYS_RCS:
+				switch (Ship->GetCommandType())
+				{
+					case EFlareShipStatus::SS_Manual:    Text += LOCTEXT("CmdManual", "Manual").ToString();  break;
+					case EFlareShipStatus::SS_AutoPilot: Text += LOCTEXT("CmdAuto", "Autopilot").ToString(); break;
+					case EFlareShipStatus::SS_Docked:    Text += LOCTEXT("CmdDocked", "Docked").ToString();  break;
+				}
+				break;
 
-		// Boost mode
-		case EFlareSubsystem::SYS_Propulsion:
-			if (Ship->IsBoosting())
-			{
-				Text += LOCTEXT("Boosting", "Boosting").ToString();
-			}
-			break;
+			// Boost mode
+			case EFlareSubsystem::SYS_Propulsion:
+				if (Ship->IsBoosting())
+				{
+					Text = LOCTEXT("Boosting", "Boosting").ToString();
+				}
+				break;
 
-		// No particular information
-		case EFlareSubsystem::SYS_LifeSupport:
-		default:
-			break;
+			// No particular information
+			case EFlareSubsystem::SYS_LifeSupport:
+			default:
+				break;
+		}
+
+		return FText::FromString(Text);
 	}
 
-	return FText::FromString(Text);
+	// Speed display
+	else if (Ship && DisplayType == EFlareInfoDisplay::ID_Speed)
+	{
+		return FText::FromString(FString::FromInt(Ship->GetLinearVelocity().Size()) + " m/s");
+	}
+
+	// Sector display
+	else if (DisplayType == EFlareInfoDisplay::ID_Sector)
+	{
+		return FText::FromString("Nema D43");
+	}
+
+	return FText::FromString("");
 }
 
 FText SFlareSubsystemStatus::GetTypeText() const
 {
-	switch (SubsystemType)
+	// Subsystem display
+	if (DisplayType == EFlareInfoDisplay::ID_Subsystem)
 	{
-		case EFlareSubsystem::SYS_Temperature:   return LOCTEXT("SYS_Temperature", "COOLING");
-		case EFlareSubsystem::SYS_Propulsion:    return LOCTEXT("SYS_Propulsion",  "MAIN ENGINES");
-		case EFlareSubsystem::SYS_RCS:           return LOCTEXT("SYS_RCS",         "RCS");
-		case EFlareSubsystem::SYS_LifeSupport:   return LOCTEXT("SYS_LifeSupport", "LIFE SUPPORT");
-		case EFlareSubsystem::SYS_Power:         return LOCTEXT("SYS_Power",       "POWER");
-		case EFlareSubsystem::SYS_Weapon:        return LOCTEXT("SYS_Weapon",      "WEAPON");
-		default:                                 return LOCTEXT("SYS_Default",     "HULL");
+		switch (SubsystemType)
+		{
+			case EFlareSubsystem::SYS_Temperature:   return LOCTEXT("SYS_Temperature", "COOLING");
+			case EFlareSubsystem::SYS_Propulsion:    return LOCTEXT("SYS_Propulsion",  "MAIN ENGINES");
+			case EFlareSubsystem::SYS_RCS:           return LOCTEXT("SYS_RCS",         "RCS");
+			case EFlareSubsystem::SYS_LifeSupport:   return LOCTEXT("SYS_LifeSupport", "LIFE SUPPORT");
+			case EFlareSubsystem::SYS_Power:         return LOCTEXT("SYS_Power",       "POWER");
+			case EFlareSubsystem::SYS_Weapon:        return LOCTEXT("SYS_Weapon",      "WEAPON");
+		}
 	}
+
+	// Speed display
+	else if (DisplayType == EFlareInfoDisplay::ID_Speed)
+	{
+		return LOCTEXT("ShipSpeed", "SHIP SPEED");
+	}
+
+	// Sector display
+	else if (DisplayType == EFlareInfoDisplay::ID_Sector)
+	{
+		return LOCTEXT("Sector", "SECTOR");
+	}
+
+	return FText::FromString("");
 }
 
 

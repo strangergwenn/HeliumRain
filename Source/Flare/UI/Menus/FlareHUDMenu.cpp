@@ -42,52 +42,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SNew(SVerticalBox)
-
-			// Speed
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SBox)
-				.HAlign(HAlign_Center)
-				[
-					SNew(SVerticalBox)
-
-					// Status string
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(FMargin(0))
-					[
-						// Background
-						SNew(SBorder)
-						.BorderImage(&ContainerStyle->BackgroundBrush)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareHUDMenu::GetSpeedText)
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
-							.Justification(ETextJustify::Center)
-						]
-					]
-
-					// Speed text
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(FMargin(0))
-					.HAlign(HAlign_Center)
-					[
-						// Background
-						SNew(SBorder)
-						.Padding(FMargin(10, 0))
-						.BorderImage(&InvertedContainerStyle->BackgroundBrush)
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("Speed", "CURRENT SPEED"))
-							.TextStyle(FFlareStyleSet::Get(), "Flare.VerySmallTextInverted")
-							.Justification(ETextJustify::Center)
-						]
-					]
-				]
-			]
-
+			
 			// Overheating box
 			+ SVerticalBox::Slot()
 			.Padding(FMargin(0, 100))
@@ -163,53 +118,44 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SHorizontalBox)
 
-			// Static container
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
+			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SNew(SHorizontalBox)
-
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SAssignNew(TemperatureStatus, SFlareSubsystemStatus)
-					.Subsystem(EFlareSubsystem::SYS_Temperature)
-				]
-
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SAssignNew(PowerStatus, SFlareSubsystemStatus)
-					.Subsystem(EFlareSubsystem::SYS_Power)
-				]
-
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SAssignNew(PropulsionStatus, SFlareSubsystemStatus)
-					.Subsystem(EFlareSubsystem::SYS_Propulsion)
-				]
-
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SAssignNew(RCSStatus, SFlareSubsystemStatus)
-					.Subsystem(EFlareSubsystem::SYS_RCS)
-				]
-
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SAssignNew(LifeSupportStatus, SFlareSubsystemStatus)
-					.Subsystem(EFlareSubsystem::SYS_LifeSupport)
-				]
+				SAssignNew(SpeedStatus, SFlareSubsystemStatus).Type(EFlareInfoDisplay::ID_Speed)
 			]
 
-			// Weapon container
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SAssignNew(TemperatureStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Temperature)
+			]
+
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SAssignNew(PowerStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Power)
+			]
+
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SAssignNew(PropulsionStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Propulsion)
+			]
+
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SAssignNew(RCSStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_RCS)
+			]
+
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SAssignNew(LifeSupportStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_LifeSupport)
+			]
+
+			+ SHorizontalBox::Slot().AutoWidth()
 			[
 				SAssignNew(WeaponContainer, SHorizontalBox)
+			]
+
+			+ SHorizontalBox::Slot().AutoWidth()
+			[
+				SAssignNew(SpeedStatus, SFlareSubsystemStatus).Type(EFlareInfoDisplay::ID_Sector)
 			]
 		]
 	];
@@ -224,6 +170,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareShipInterface* Target)
 {
 	// Set targets
 	TargetShip = Target;
+	SpeedStatus->SetTargetShip(Target);
 	TemperatureStatus->SetTargetShip(Target);
 	PowerStatus->SetTargetShip(Target);
 	PropulsionStatus->SetTargetShip(Target);
@@ -283,20 +230,6 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 		}
 		PowerOutage = NewPowerOutage;
 	}
-}
-
-FText SFlareHUDMenu::GetSpeedText() const
-{
-	if (TargetShip)
-	{
-		AFlareShip* PlayerShip = Cast<AFlareShip>(TargetShip);
-		if (PlayerShip)
-		{
-			return FText::FromString(FString::FromInt(PlayerShip->GetLinearVelocity().Size()) + " m/s");
-		}
-	}
-
-	return FText::FromString("");
 }
 
 FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const

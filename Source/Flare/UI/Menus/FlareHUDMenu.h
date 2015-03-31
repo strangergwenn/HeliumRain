@@ -38,10 +38,7 @@ protected:
 	----------------------------------------------------*/
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-
-	/** Get the current speed measure */
-	FText GetSpeedText() const;
-
+	
 	/** Get the color and alpha of the overheating warning */
 	FSlateColor GetOverheatColor(bool Text) const;
 
@@ -66,6 +63,7 @@ protected:
 	TWeakObjectPtr<class AFlareHUD>      OwnerHUD;
 
 	// Menu components
+	TSharedPtr<SFlareSubsystemStatus>    SpeedStatus;
 	TSharedPtr<SFlareSubsystemStatus>    TemperatureStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PowerStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PropulsionStatus;

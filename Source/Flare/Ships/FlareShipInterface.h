@@ -13,6 +13,7 @@ namespace EFlareSubsystem
 {
 	enum Type
 	{
+		SYS_None,
 		SYS_Temperature,
 		SYS_Propulsion,
 		SYS_RCS,
