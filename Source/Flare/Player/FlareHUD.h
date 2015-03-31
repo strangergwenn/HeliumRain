@@ -10,31 +10,8 @@
 #include "../UI/Menus/FlareStationMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
 #include "../UI/Menus/FlareContextMenu.h"
+#include "../UI/Widgets/FlareNotifier.h"
 #include "FlareHUD.generated.h"
-
-
-/** Possible menu targets */
-UENUM()
-namespace EFlareMenu
-{
-	enum Type
-	{
-		MENU_None,
-		MENU_Dashboard,
-		MENU_Company,
-		MENU_Ship,
-		MENU_ShipConfig,
-		MENU_Station,
-		MENU_Undock,
-		MENU_Sector,
-		MENU_Orbit,
-		MENU_Encyclopedia,
-		MENU_Help,
-		MENU_Settings,
-		MENU_Quit,
-		MENU_Exit
-	};
-}
 
 
 /** Main HUD class (container for HUD and menus) */
@@ -87,6 +64,9 @@ public:
 
 	/** Construct the Slate menu interface */
 	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
+
+	/** Show a notification to the user */
+	void Notify(FText Text, EFlareNotification::Type Type = EFlareNotification::NT_General, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL);
 
 	/** Open a menu asynchronously, from a target and user data */
 	void OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
@@ -165,6 +145,7 @@ protected:
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
 	TSharedPtr<SFlareStationMenu>           StationMenu;
 	TSharedPtr<SFlareSectorMenu>            SectorMenu;
+	TSharedPtr<SFlareNotifier>              Notifier;
 
 	// Menu target data
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;

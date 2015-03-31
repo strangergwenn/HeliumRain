@@ -10,16 +10,26 @@
 	UI enums
 ----------------------------------------------------*/
 
-/** Possible display targets for the subsystem display widgets */
+/** Possible menu targets */
 UENUM()
-namespace EFlareInfoDisplay
+namespace EFlareMenu
 {
 	enum Type
 	{
-		ID_Subsystem,
-		ID_Spacer,
-		ID_Speed,
-		ID_Sector
+		MENU_None,
+		MENU_Dashboard,
+		MENU_Company,
+		MENU_Ship,
+		MENU_ShipConfig,
+		MENU_Station,
+		MENU_Undock,
+		MENU_Sector,
+		MENU_Orbit,
+		MENU_Encyclopedia,
+		MENU_Help,
+		MENU_Settings,
+		MENU_Quit,
+		MENU_Exit
 	};
 }
 

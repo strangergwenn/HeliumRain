@@ -322,6 +322,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		SAssignNew(ShipMenu, SFlareShipMenu).OwnerHUD(this);
 		SAssignNew(StationMenu, SFlareStationMenu).OwnerHUD(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).OwnerHUD(this);
+		SAssignNew(Notifier, SFlareNotifier).OwnerHUD(this);
 
 		// Fade-to-black system
 		SAssignNew(Fader, SBorder)
@@ -337,6 +338,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StationMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
 
 		// Setup menus
@@ -355,6 +357,11 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 			HUDMenu->SetTargetShip(PC->GetShipPawn());
 		}
 	}
+}
+
+void AFlareHUD::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
+{
+	Notifier->Notify(Text, Type, TargetMenu, TargetInfo);
 }
 
 void AFlareHUD::OpenMenu(EFlareMenu::Type Target, void* Data)

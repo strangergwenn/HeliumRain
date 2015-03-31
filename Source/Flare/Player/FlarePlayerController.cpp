@@ -255,17 +255,10 @@ void AFlarePlayerController::ToggleCombat()
 
 void AFlarePlayerController::Test1()
 {
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		AFlareStation* TargetStation = Cast<AFlareStation>(*ActorItr);
-		if (TargetStation)
-		{
-			ShipPawn->DockAt(TargetStation);
-		}
-	}
+	Cast<AFlareHUD>(GetHUD())->Notify(FText::FromString("I am Test1"));
 }
 
 void AFlarePlayerController::Test2()
 {
-	ShipPawn->Undock();
+	Cast<AFlareHUD>(GetHUD())->Notify(FText::FromString("I am Test2"));
 }

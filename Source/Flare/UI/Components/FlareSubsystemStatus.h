@@ -3,6 +3,21 @@
 #include "../../Flare.h"
 #include "../../Ships/FlareShipInterface.h"
 #include "../../Ships/FlareShipComponent.h"
+#include "FlareSubsystemStatus.generated.h"
+
+
+/** Possible display targets for the subsystem display widgets */
+UENUM()
+namespace EFlareInfoDisplay
+{
+	enum Type
+	{
+		ID_Subsystem,
+		ID_Spacer,
+		ID_Speed,
+		ID_Sector
+	};
+}
 
 
 class SFlareSubsystemStatus : public SCompoundWidget
