@@ -60,7 +60,8 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 	if (ExternalCamera != NewState || Force)
 	{
 		// TODO COMBAT MODE : force focus / mouse appearance when changing focus
-		bShowMouseCursor = !CombatMode;
+		//bShowMouseCursor = !CombatMode;
+		bShowMouseCursor = true;
 		
 		// Send the camera order to the ship
 		if (ShipPawn)
