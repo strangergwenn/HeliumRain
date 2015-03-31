@@ -14,6 +14,9 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	// Data
 	OwnerHUD = InArgs._OwnerHUD;
 	NotificationIndex = 0;
+	NotificationTimeout = 10;
+	NotificationScroll = 200;
+	NotificationScrollTime = 1;
 
 	// Create the layout
 	ChildSlot
@@ -42,15 +45,19 @@ void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMen
 	NotificationContainer->InsertSlot(0)
 		.AutoHeight()
 		[
-			SAssignNew(Temp, STextBlock)
-			.Text(Text)
-			.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+			SNew(SBox)
+			.Padding(this, &SFlareNotifier::GetNotificationMargin, NotificationIndex)
+			[
+				SAssignNew(Temp, STextBlock)
+				.Text(Text)
+				.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+			]
 		];
 
 	FFlareNotificationData NotificationEntry;
 	NotificationEntry.Index = NotificationIndex;
 	NotificationEntry.Widget = Temp;
-	NotificationEntry.Lifetime = 5;
+	NotificationEntry.Lifetime = 0;
 
 	NotificationData.Add(NotificationEntry);
 	NotificationIndex++;
@@ -67,12 +74,28 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 
 	for (auto& NotificationEntry : NotificationData)
 	{
-		NotificationEntry.Lifetime -= InDeltaTime;
-		if (NotificationEntry.Lifetime <= 0)
+		NotificationEntry.Lifetime += InDeltaTime;
+		if (NotificationEntry.Lifetime >= NotificationTimeout)
 		{
 			NotificationContainer->RemoveSlot(NotificationEntry.Widget.ToSharedRef());
 		}
 	}
+}
+
+FMargin SFlareNotifier::GetNotificationMargin(int32 Index) const
+{
+	float BottomMargin = 0;
+
+	for (auto& NotificationEntry : NotificationData)
+	{
+		if (NotificationEntry.Index == Index)
+		{
+			float Alpha = FMath::Clamp(NotificationEntry.Lifetime / NotificationScrollTime, 0.0f, 1.0f);
+			BottomMargin = FMath::InterpEaseOut(NotificationScroll, 0.0f, Alpha, 2);
+		}
+	}
+
+	return FMargin(0, 0, 0, BottomMargin);
 }
 
 FSlateColor SFlareNotifier::GetNotificationColor(int32 Index) const
@@ -83,7 +106,8 @@ FSlateColor SFlareNotifier::GetNotificationColor(int32 Index) const
 	{
 		if (NotificationEntry.Index == Index)
 		{
-			Result.A = FMath::InterpEaseInOut(1.0f, 0.0f, 1 - NotificationEntry.Lifetime / 5.0f, 2);
+			float Alpha = FMath::Clamp(NotificationEntry.Lifetime / NotificationTimeout, 0.0f, 1.0f);
+			Result.A = FMath::InterpEaseOut(1.0f, 0.0f, Alpha, 2);
 		}
 	}
 

@@ -71,7 +71,10 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 	
-	void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
+	/** Get the current margin */
+	FMargin GetNotificationMargin(int32 Index) const;
 
 	/** Get the current color */
 	FSlateColor GetNotificationColor(int32 Index) const;
@@ -86,6 +89,11 @@ protected:
 	/** HUD reference */
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareHUD>      OwnerHUD;
+
+	// Settings
+	float                                NotificationTimeout;
+	float                                NotificationScroll;
+	float                                NotificationScrollTime;
 
 	// Notification timeout data
 	int32                                NotificationIndex;
