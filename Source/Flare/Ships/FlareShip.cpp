@@ -46,10 +46,8 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	ShipData.DockedTo = NAME_None;
 	ShipData.DockedAt = -1;
 
-	//
+	// Pilot
 	IsPiloted = true;
-	TimeUntilNextChange = 0;
-	PilotTarget = FVector::ZeroVector;
 }
 
 
@@ -69,8 +67,12 @@ void AFlareShip::BeginPlay()
 void AFlareShip::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	FLOG("Tick 1");
+
 
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+
+FLOG("Tick 2");
 
 	//Update Camera
 	if(!ExternalCamera && CombatMode)
@@ -103,41 +105,44 @@ void AFlareShip::Tick(float DeltaSeconds)
 		}
 	}
 
+FLOG("Tick 3");
+
+
 	// Attitude control
 	if (Airframe && !IsPresentationMode())
 	{
 		UpdateCOM();
 
+FLOG("Tick 4");
+
+		FLOGV("Pilot %x", Pilot);
+
+		if(IsAlive())
+		{
+			FLOG("Tick 4.1");
+			FLOGV("Pilot2 %x", Pilot);
+			Pilot->TickPilot(DeltaSeconds);
+		}
+		FLOG("Tick 5");
+
+
 		// Manual pilot
 		if (IsManualPilot() && IsAlive())
 		{
+			FLOG("Tick 6");
+
 			if(IsPiloted)
 			{
-				TimeUntilNextChange -= DeltaSeconds;
-				if(TimeUntilNextChange <= 0)
-				{
+				FLOG("Tick 7");
 
-					TimeUntilNextChange = FMath::FRandRange(10, 40);
-					PilotTarget = FVector(FMath::FRandRange(-4000, 4000), FMath::FRandRange(-4000, 4000), FMath::FRandRange(-4000, 4000));
-					FLOGV("Pilot change destination to %s", *PilotTarget.ToString());
-					FLOGV("New change in %fs", TimeUntilNextChange);
-				}
-
-				LinearTargetVelocity = (PilotTarget - GetActorLocation()/100).GetClampedToMaxSize(LinearMaxVelocity);
-
-				if(GetTemperature() < 600)
-				{
-					ManualOrbitalBoost = true;
-				}
-
-				if(GetTemperature() > 780)
-				{
-					ManualOrbitalBoost = false;
-				}
-
+				LinearTargetVelocity = Pilot->GetLinearTargetVelocity().GetClampedToMaxSize(LinearMaxVelocity);
+				AngularTargetVelocity = Pilot->GetAngularTargetVelocity();
+				ManualOrbitalBoost = Pilot->IsUseOrbitalBoost();
 			}
 			else
 			{
+				FLOG("Tick 8");
+
 				UpdateLinearAttitudeManual(DeltaSeconds);
 				UpdateAngularAttitudeManual(DeltaSeconds);
 			}
@@ -146,6 +151,8 @@ void AFlareShip::Tick(float DeltaSeconds)
 		// Autopilot
 		else if (IsAutoPilot())
 		{
+			FLOG("Tick 9");
+
 			FFlareShipCommandData Temp;
 			if (CommandData.Peek(Temp))
 			{
@@ -172,13 +179,22 @@ void AFlareShip::Tick(float DeltaSeconds)
 			}
 		}
 
+FLOG("Tick 10");
+
 		// Physics
 		if (!IsDocked())
 		{
 			// TODO enable physic when docked but attach the ship to the station
+			FLOG("Tick 11");
+
 			PhysicSubTick(DeltaSeconds);
+		FLOG("Tick 12");
+
 		}
 	}
+
+FLOG("Tick 13");
+
 
 	// Apply heat variation : add producted heat then substract radiated heat.
 
@@ -487,8 +503,13 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		}
 	}
 
+	// Initialize pilot
+	Pilot = NewNamedObject<UFlareShipPilot>(this, ShipData.Pilot.Identifier);
+	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
+
 	// Init alive status
 	WasAlive = IsAlive();
+
 }
 
 FFlareShipSave* AFlareShip::Save()

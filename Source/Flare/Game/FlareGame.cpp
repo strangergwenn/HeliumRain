@@ -487,6 +487,11 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 			ComponentData.Damage = 0.f;
 			ShipData.Components.Add(ComponentData);
 		}
+		
+		// Init pilot
+		ShipData.Pilot.Identifier = "chewbaca";
+		ShipData.Pilot.Name = "Chewbaca";
+
 
 		// Create the ship
 		ShipPawn = LoadShip(ShipData);

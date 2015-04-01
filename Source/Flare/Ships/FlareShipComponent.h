@@ -336,7 +336,7 @@ protected:
 
 	UPROPERTY()
 	AFlareShipBase*                         Ship;
-	
+
 	UPROPERTY()
 	UFlareCompany*                          PlayerCompany;
 
