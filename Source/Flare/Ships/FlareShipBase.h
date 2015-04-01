@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FlareShipComponent.h"
+#include "FlareShipPilot.h"
 #include "FlareShipBase.generated.h"
 
 

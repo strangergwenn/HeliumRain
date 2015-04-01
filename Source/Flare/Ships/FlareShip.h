@@ -382,9 +382,8 @@ protected:
 	bool                                 WasAlive; // true if was alive at the last tick
 
 	// Pilot
+	UFlareShipPilot*                      Pilot;
 	bool                                 IsPiloted;
-	float                                TimeUntilNextChange;
-	FVector                              PilotTarget;
 
 public:
 

@@ -74,9 +74,13 @@ struct FFlareShipSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	float Heat;
 
-	// Duration until the end of th power outage, in seconds
+	/** Duration until the end of th power outage, in seconds */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float PowerOutageDelay;
+	
+	/** Pilot */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareShipPilotSave Pilot;
 
 };
 
