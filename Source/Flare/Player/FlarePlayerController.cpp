@@ -255,7 +255,7 @@ void AFlarePlayerController::ToggleCombat()
 
 void AFlarePlayerController::Test1()
 {
-	Cast<AFlareHUD>(GetHUD())->Notify(FText::FromString("I am Test1"));
+	Cast<AFlareHUD>(GetHUD())->Notify(FText::FromString("I am Test1"), EFlareNotification::NT_Trading, EFlareMenu::MENU_Dashboard);
 }
 
 void AFlarePlayerController::Test2()

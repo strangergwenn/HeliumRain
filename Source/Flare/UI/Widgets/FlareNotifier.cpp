@@ -16,7 +16,8 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	NotificationIndex = 0;
 	NotificationTimeout = 10;
 	NotificationScroll = 200;
-	NotificationScrollTime = 1;
+	NotificationEnterTime = 0.5;
+	NotificationExitTime = 0.5;
 
 	// Create the layout
 	ChildSlot
@@ -40,10 +41,9 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 
 void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
+	// Add button
 	TSharedPtr<SWidget> TempContainer;
 	TSharedPtr<SFlareButton> TempButton;
-
-	// Add button
 	NotificationContainer->InsertSlot(0)
 		.AutoHeight()
 		[
@@ -51,15 +51,46 @@ void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMen
 			.Padding(this, &SFlareNotifier::GetNotificationMargin, NotificationIndex)
 			[
 				SAssignNew(TempButton, SFlareButton)
+				.Color(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+				.OnClicked(this, &SFlareNotifier::OnNotificationClicked, NotificationIndex)
+				.ButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/BuyButton"))
 			]
 		];
+
+	// Get icon
+	const FSlateBrush* Icon = NULL;
+	switch (Type)
+	{
+		case EFlareNotification::NT_General:  Icon = FFlareStyleSet::GetIcon("Owned");       break;
+		case EFlareNotification::NT_Help:     Icon = FFlareStyleSet::GetIcon("Help_Notif");  break;
+		case EFlareNotification::NT_Military: Icon = FFlareStyleSet::GetIcon("Shell_Notif"); break;
+		case EFlareNotification::NT_Trading:  Icon = FFlareStyleSet::GetIcon("Cost");        break;
+	}
 
 	// Fill button
 	TempButton->GetContainer()->SetContent
 	(
-		SNew(STextBlock)
-		.Text(Text)
-		.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+		SNew(SHorizontalBox)
+
+		// Icon
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SImage)
+			.Image(Icon)
+			.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+		]
+
+		// Text
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.Padding(FMargin(10, 5))
+		[
+			SNew(STextBlock)
+			.Text(Text)
+			.TextStyle(&FFlareStyleSet::Get(), "Flare.Text")
+			.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+		]
 	);
 
 	// Configure notification
@@ -67,6 +98,10 @@ void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMen
 	NotificationEntry.Index = NotificationIndex;
 	NotificationEntry.Widget = TempContainer;
 	NotificationEntry.Lifetime = 0;
+	NotificationEntry.TargetMenu = TargetMenu;
+	NotificationEntry.TargetInfo = TargetInfo;
+
+	// Add notification
 	NotificationData.Add(NotificationEntry);
 	NotificationIndex++;
 }
@@ -79,7 +114,9 @@ void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMen
 void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+	int NotificationCount = 0;
 
+	// look for valid notifications
 	for (auto& NotificationEntry : NotificationData)
 	{
 		NotificationEntry.Lifetime += InDeltaTime;
@@ -87,23 +124,41 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 		{
 			NotificationContainer->RemoveSlot(NotificationEntry.Widget.ToSharedRef());
 		}
+		else
+		{
+			NotificationCount++;
+		}
+	}
+
+	// Clean up
+	if (NotificationCount == 0)
+	{
+		NotificationData.Empty();
 	}
 }
 
 FMargin SFlareNotifier::GetNotificationMargin(int32 Index) const
 {
 	float BottomMargin = 0;
+	float TopMargin = 0;
 
 	for (auto& NotificationEntry : NotificationData)
 	{
 		if (NotificationEntry.Index == Index)
 		{
-			float Alpha = FMath::Clamp(NotificationEntry.Lifetime / NotificationScrollTime, 0.0f, 1.0f);
-			BottomMargin = FMath::InterpEaseOut(NotificationScroll, 0.0f, Alpha, 2);
+			// Compute alphas
+			float RemainingTime = NotificationTimeout - NotificationEntry.Lifetime;
+			float AlphaIn = FMath::Clamp(NotificationEntry.Lifetime / NotificationEnterTime, 0.0f, 1.0f);
+			float AlphaOut = FMath::Clamp(RemainingTime / NotificationExitTime, 0.0f, 1.0f);
+
+			// Update margin
+			BottomMargin = FMath::InterpEaseOut(NotificationScroll, 0.0f, AlphaIn, 2);
+			TopMargin = FMath::InterpEaseOut(0.0f, 50.0f, AlphaOut, 2);
+			break;
 		}
 	}
 
-	return FMargin(0, 0, 0, BottomMargin);
+	return FMargin(0, TopMargin, 0, BottomMargin);
 }
 
 FSlateColor SFlareNotifier::GetNotificationColor(int32 Index) const
@@ -114,12 +169,35 @@ FSlateColor SFlareNotifier::GetNotificationColor(int32 Index) const
 	{
 		if (NotificationEntry.Index == Index)
 		{
-			float Alpha = FMath::Clamp(NotificationEntry.Lifetime / NotificationTimeout, 0.0f, 1.0f);
-			Result.A = FMath::InterpEaseOut(1.0f, 0.0f, Alpha, 2);
+			// Find the new color
+			float RemainingTime = NotificationTimeout - NotificationEntry.Lifetime - NotificationExitTime;
+			float Alpha = FMath::Clamp(RemainingTime / NotificationExitTime, 0.0f, 1.0f);
+			Result.A = FMath::InterpEaseOut(0.0f, 0.7f, Alpha, 2);
+			break;
 		}
 	}
 
 	return Result;
 }
+
+void SFlareNotifier::OnNotificationClicked(int32 Index)
+{
+	for (auto& NotificationEntry : NotificationData)
+	{
+		if (NotificationEntry.Index == Index)
+		{
+			// Call if necessary
+			if (NotificationEntry.TargetMenu != EFlareMenu::MENU_None)
+			{
+				OwnerHUD->OpenMenu(NotificationEntry.TargetMenu, NotificationEntry.TargetInfo);
+			}
+
+			// Set the lifetime to "almost done"
+			NotificationEntry.Lifetime = FMath::Max(NotificationEntry.Lifetime, NotificationTimeout - 2 * NotificationExitTime);
+			break;
+		}
+	}
+}
+
 
 #undef LOCTEXT_NAMESPACE

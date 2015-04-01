@@ -15,12 +15,11 @@ class SFlareButton : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareButton)
-	: _Toggle(false)
-	, _TextStyle(&FFlareStyleSet::Get().GetWidgetStyle<FTextBlockStyle>("Flare.Text"))
-	, _ContainerStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle"))
-	, _ButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
-	, _BackgroundImage(NULL)
-	, _DecoratorImage(NULL)
+		: _Toggle(false)
+		, _TextStyle(&FFlareStyleSet::Get().GetWidgetStyle<FTextBlockStyle>("Flare.Text"))
+		, _ContainerStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle"))
+		, _ButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
+		, _Color(FLinearColor::White)
 	{}
 
 	SLATE_ARGUMENT(bool, Toggle)
@@ -31,8 +30,8 @@ class SFlareButton : public SCompoundWidget
 
 	SLATE_STYLE_ARGUMENT(FFlareContainerStyle, ContainerStyle)
 	SLATE_STYLE_ARGUMENT(FFlareButtonStyle, ButtonStyle)
-	SLATE_ARGUMENT(const FSlateBrush*, BackgroundImage)
-	SLATE_ARGUMENT(const FSlateBrush*, DecoratorImage)
+
+	SLATE_ATTRIBUTE(FSlateColor, Color)
 	
 	SLATE_END_ARGS()
 
@@ -58,6 +57,9 @@ public:
 	/** Brush callback*/
 	const FSlateBrush* GetBackgroundBrush() const;
 
+	/** Color callback */
+	FSlateColor GetMainColor() const;
+
 	/** Mouse click	*/
 	FReply OnButtonClicked();
 
@@ -68,19 +70,18 @@ protected:
 		Private data
 	----------------------------------------------------*/
 
-	bool IsToggle;
-	bool IsPressed;
+	// State data
+	bool                           IsToggle;
+	bool                           IsPressed;
 
-	FFlareButtonClicked OnClicked;
+	// Style data
+	const FFlareContainerStyle*    ContainerStyle;
+	const FFlareButtonStyle*       ButtonStyle;
 
-	const FSlateBrush* DecoratorImage;
-	const FSlateBrush* BackgroundImage;
-
-	const FFlareContainerStyle* ContainerStyle;
-	const FFlareButtonStyle* ButtonStyle;
-
-	UPROPERTY()
-	TSharedPtr<SBorder> InnerContainer;
+	// Slate data
+	FFlareButtonClicked            OnClicked;
+	TSharedPtr<SBorder>            InnerContainer;
+	TAttribute<FSlateColor>        Color;
 
 
 public:

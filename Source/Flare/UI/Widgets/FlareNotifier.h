@@ -10,11 +10,16 @@ USTRUCT()
 struct FFlareNotificationData
 {
 	GENERATED_USTRUCT_BODY()
-
+	
+	// Display data
 	UPROPERTY()
-	int32               Index;
-	TSharedPtr<SWidget> Widget;
-	float               Lifetime;
+	int32                            Index;
+	TSharedPtr<SWidget>              Widget;
+	float                            Lifetime;
+
+	// Action data
+	TEnumAsByte<EFlareMenu::Type>    TargetMenu;
+	void*                            TargetInfo;
 
 };
 
@@ -79,6 +84,9 @@ public:
 	/** Get the current color */
 	FSlateColor GetNotificationColor(int32 Index) const;
 
+	/** We clicked something */
+	void OnNotificationClicked(int32 Index);
+
 
 protected:
 
@@ -93,7 +101,8 @@ protected:
 	// Settings
 	float                                NotificationTimeout;
 	float                                NotificationScroll;
-	float                                NotificationScrollTime;
+	float                                NotificationEnterTime;
+	float                                NotificationExitTime;
 
 	// Notification timeout data
 	int32                                NotificationIndex;

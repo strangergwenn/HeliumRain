@@ -17,8 +17,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	OnClicked = InArgs._OnClicked;
 	ButtonStyle = InArgs._ButtonStyle;
 	ContainerStyle = InArgs._ContainerStyle;
-	BackgroundImage = InArgs._BackgroundImage;
-	DecoratorImage = InArgs._DecoratorImage;
+	Color = InArgs._Color;
 
 	ChildSlot
 	.VAlign(VAlign_Center)
@@ -40,6 +39,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 				SNew(SBorder)
 				.Padding(ContainerStyle->BorderPadding)
 				.BorderImage(this, &SFlareButton::GetBackgroundBrush)
+				.BorderBackgroundColor(this, &SFlareButton::GetMainColor)
 				[
 					SNew(SHorizontalBox)
 
@@ -111,14 +111,7 @@ const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 	}
 	else if (IsPressed)
 	{
-		if (DecoratorImage != NULL)
-		{
-			return DecoratorImage;
-		}
-		else
-		{
-			return &ButtonStyle->ActiveDecoratorBrush;
-		}
+		return &ButtonStyle->ActiveDecoratorBrush;
 	}
 	else
 	{
@@ -128,14 +121,12 @@ const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 
 const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 {
-	if (BackgroundImage != NULL)
-	{
-		return BackgroundImage;
-	}
-	else
-	{
-		return (IsHovered() ? &ContainerStyle->ActiveBackgroundBrush : &ContainerStyle->BackgroundBrush);
-	}
+	return (IsHovered() ? &ContainerStyle->ActiveBackgroundBrush : &ContainerStyle->BackgroundBrush);
+}
+
+FSlateColor SFlareButton::GetMainColor() const
+{
+	return Color.Get();
 }
 
 FReply SFlareButton::OnButtonClicked()
