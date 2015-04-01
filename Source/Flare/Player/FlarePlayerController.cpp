@@ -154,6 +154,11 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 	Menus
 ----------------------------------------------------*/
 
+void AFlarePlayerController::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
+{
+	Cast<AFlareHUD>(GetHUD())->Notify(Text, Type, TargetMenu, TargetInfo);
+}
+
 void AFlarePlayerController::SetupMenu()
 {
 	// Spawn the menu pawn at an arbitrarily large location
@@ -255,10 +260,10 @@ void AFlarePlayerController::ToggleCombat()
 
 void AFlarePlayerController::Test1()
 {
-	Cast<AFlareHUD>(GetHUD())->Notify(FText::FromString("I am Test1"), EFlareNotification::NT_Trading, EFlareMenu::MENU_Dashboard);
+	Notify(FText::FromString("I am Test1"), EFlareNotification::NT_Trading, EFlareMenu::MENU_Dashboard);
 }
 
 void AFlarePlayerController::Test2()
 {
-	Cast<AFlareHUD>(GetHUD())->Notify(FText::FromString("I am Test2"));
+	Notify(FText::FromString("I am Test2"));
 }

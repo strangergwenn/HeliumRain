@@ -70,6 +70,9 @@ public:
 		Menus
 	----------------------------------------------------*/
 
+	/** Show a notification to the user */
+	void Notify(FText Text, EFlareNotification::Type Type = EFlareNotification::NT_General, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL);
+
 	/** Spawn the menu pawn and prepare the UI */
 	virtual void SetupMenu();
 

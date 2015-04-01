@@ -66,7 +66,7 @@ public:
 	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
 
 	/** Show a notification to the user */
-	void Notify(FText Text, EFlareNotification::Type Type = EFlareNotification::NT_General, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL);
+	void Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo);
 
 	/** Open a menu asynchronously, from a target and user data */
 	void OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
