@@ -313,14 +313,6 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 			.VAlign(VAlign_Fill)
 			[
 				SAssignNew(ContextMenu, SFlareContextMenu).OwnerHUD(this)
-			]
-
-			// Notifications
-			+ SOverlay::Slot()
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			[
-				SAssignNew(Notifier, SFlareNotifier).OwnerHUD(this)
 			];
 
 		// Create menus
@@ -330,6 +322,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		SAssignNew(ShipMenu, SFlareShipMenu).OwnerHUD(this);
 		SAssignNew(StationMenu, SFlareStationMenu).OwnerHUD(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).OwnerHUD(this);
+		SAssignNew(Notifier, SFlareNotifier).OwnerHUD(this).Visibility(EVisibility::SelfHitTestInvisible);
 
 		// Fade-to-black system
 		SAssignNew(Fader, SBorder)
@@ -339,12 +332,13 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 
 		// Register menus at their Z-Index
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(HUDMenu.ToSharedRef()),          0);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OverlayContainer.ToSharedRef()), 90);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OverlayContainer.ToSharedRef()), 10);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StationMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
 
 		// Setup menus

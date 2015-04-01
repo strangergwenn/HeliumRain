@@ -40,25 +40,33 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 
 void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
-	TSharedPtr<SWidget> Temp;
+	TSharedPtr<SWidget> TempContainer;
+	TSharedPtr<SFlareButton> TempButton;
 
+	// Add button
 	NotificationContainer->InsertSlot(0)
 		.AutoHeight()
 		[
-			SNew(SBox)
+			SAssignNew(TempContainer, SBox)
 			.Padding(this, &SFlareNotifier::GetNotificationMargin, NotificationIndex)
 			[
-				SAssignNew(Temp, STextBlock)
-				.Text(Text)
-				.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+				SAssignNew(TempButton, SFlareButton)
 			]
 		];
 
+	// Fill button
+	TempButton->GetContainer()->SetContent
+	(
+		SNew(STextBlock)
+		.Text(Text)
+		.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+	);
+
+	// Configure notification
 	FFlareNotificationData NotificationEntry;
 	NotificationEntry.Index = NotificationIndex;
-	NotificationEntry.Widget = Temp;
+	NotificationEntry.Widget = TempContainer;
 	NotificationEntry.Lifetime = 0;
-
 	NotificationData.Add(NotificationEntry);
 	NotificationIndex++;
 }
