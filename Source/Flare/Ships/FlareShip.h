@@ -468,4 +468,13 @@ public:
 		return CombatMode;
 	}
 
+	inline float GetAngularAccelerationRate() const
+	{
+		return AngularAccelerationRate;
+	}
+
+	inline float GetAngularMaxVelocity() const
+	{
+		return AngularMaxVelocity;
+	}
 };

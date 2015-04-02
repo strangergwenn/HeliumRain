@@ -106,7 +106,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		UpdateCOM();
 
-		if(IsAlive())
+		if(IsAlive() && IsPiloted) // Also tick not piloted ship
 		{
 			Pilot->TickPilot(DeltaSeconds);
 		}
@@ -120,6 +120,14 @@ void AFlareShip::Tick(float DeltaSeconds)
 				LinearTargetVelocity = Pilot->GetLinearTargetVelocity().GetClampedToMaxSize(LinearMaxVelocity);
 				AngularTargetVelocity = Pilot->GetAngularTargetVelocity();
 				ManualOrbitalBoost = Pilot->IsUseOrbitalBoost();
+				if(Pilot->IsWantFire())
+				{
+					StartFire();
+				}
+				else
+				{
+					StopFire();
+				}
 			}
 			else
 			{
@@ -474,7 +482,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	}
 
 	// Initialize pilot
-	Pilot = NewObject<UFlareShipPilot>(this);
+	Pilot = ConstructObject<UFlareShipPilot>(UFlareShipPilot::StaticClass(), this);
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
 
 	// Init alive status
@@ -1611,7 +1619,7 @@ void AFlareShip::ForceManual()
 
 void AFlareShip::StartFire()
 {
-	if (!ExternalCamera)
+	if (IsPiloted || !ExternalCamera)
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
@@ -1622,7 +1630,7 @@ void AFlareShip::StartFire()
 
 void AFlareShip::StopFire()
 {
-	if (!ExternalCamera)
+	if (IsPiloted ||!ExternalCamera)
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{

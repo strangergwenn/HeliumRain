@@ -42,7 +42,19 @@ public:
 	virtual void Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareShip* OwnerShip);
 
 protected:
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
 
+	/**
+	 * Return the nearest hostile ship
+	 */
+	virtual AFlareShip* GetNearestHostileShip() const;
+
+	/**
+	 * Return the angular velocity need to align the local ship axis to the target axis
+	 */
+	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, float DeltaSeconds) const;
 public:
 
 	/*----------------------------------------------------
@@ -57,6 +69,9 @@ public:
 
 	/** Is pilot want to use orbital boost */
 	virtual bool IsUseOrbitalBoost() const;
+
+	/** Is pilot want to fire */
+	virtual bool IsWantFire() const;
 
 protected:
 
@@ -75,11 +90,13 @@ protected:
 	
 	//Output commands
 	bool                                      UseOrbitalBoost;
+	bool                                      WantFire;
 	FVector                                   LinearTargetVelocity;
 	FVector                                   AngularTargetVelocity;
 
-	// Pilot brain
+
+	// Pilot brain TODO save in save
 	float                                TimeUntilNextChange;
 	FVector                              PilotTargetLocation;
-	IFlareShipInterface*                 PilotTargetShip;
+	AFlareShip*                 PilotTargetShip;
 };
