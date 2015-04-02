@@ -236,6 +236,13 @@ void AFlareShip::Tick(float DeltaSeconds)
 			ShipData.PowerOutageDelay = 0;
 		}
 	}
+
+	// Update Alive status
+	if(WasAlive && !IsAlive())
+	{
+		WasAlive = false;
+		OnControlLost();
+	}
 }
 
 void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
@@ -476,6 +483,9 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 			}
 		}
 	}
+
+	// Init alive status
+	WasAlive = IsAlive();
 }
 
 FFlareShipSave* AFlareShip::Save()
@@ -974,6 +984,8 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 
 void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 {
+
+
 	// The damages are applied to all component touching the sphere defined by the radius and the
 	// location in parameter.
 	// The maximum damage are applied to a component only if its bounding sphere touch the center of
@@ -982,6 +994,8 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 	
 	FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
 	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
+
+	bool IsAliveBeforeDamage = IsAlive();
 
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
@@ -1405,6 +1419,14 @@ void AFlareShip::UpdateCOM()
     COM = Airframe->GetBodyInstance()->GetCOMPosition();
 }
 
+/*----------------------------------------------------
+		Damage system
+----------------------------------------------------*/
+
+void AFlareShip::OnControlLost()
+{
+	// TODO: make something
+}
 
 /*----------------------------------------------------
 	Input

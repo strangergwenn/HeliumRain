@@ -198,7 +198,7 @@ public:
 
 
 	/*----------------------------------------------------
-		Damage status interface
+		Damage system interface
 	----------------------------------------------------*/
 
 	virtual void ApplyDamage(float Energy, float Radius, FVector Location) override;
@@ -256,6 +256,11 @@ protected:
 	/** Update the ship's center of mass */
 	void UpdateCOM();
 
+	/*----------------------------------------------------
+		Damage system
+	----------------------------------------------------*/
+
+	virtual void OnControlLost();
 
 public:
 
@@ -374,6 +379,7 @@ protected:
 
 	// Damage status
 	UFlareShipComponent*                 ShipCockit;
+	bool                                 WasAlive; // true if was alive at the last tick
 
 	// Pilot
 	bool                                 IsPiloted;
