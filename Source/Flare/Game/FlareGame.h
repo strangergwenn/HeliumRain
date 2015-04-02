@@ -65,13 +65,16 @@ public:
 	UFUNCTION(exec)
 	AFlareStation* CreateStation(FName StationClass);
 
-	/** Create a ship in the level */
+	/** Create a ship in the level for the current player*/
 	UFUNCTION(exec)
-	AFlareShip* CreateShip(FName ShipClass);
+	AFlareShip* CreateShipForMe(FName ShipClass);
 
-	/** Create a ship in the level for a specific company */
+	/** Create a ship in the level for a specific company identified by its short name*/
 	UFUNCTION(exec)
-	AFlareShip* CreateShipInCompany(FName ShipClass, FName CompanyIdentifier);
+	AFlareShip* CreateShipInCompany(FName ShipClass, FName CompanyShortName);
+
+	/** Create a ship in the level  for a specific company */
+	AFlareShip* CreateShip(FName ShipClass, FName CompanyIdentifier);
 
 	/** Build a unique immatriculation string for this object */
 	FName Immatriculate(FName Company, FName TargetClass);
@@ -126,17 +129,12 @@ public:
 
 	inline UFlareCompany* FindCompany(FName Identifier) const
 	{
-		FLOGV("FindCompany %s", *Identifier.ToString());
 		for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
 		{
 			UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
 			if (Company && Company->GetIdentifier() == Identifier)
 			{
 				return Company;
-			}
-			if(Company)
-			{
-				FLOGV("Company %s not match ", *(Company->GetIdentifier()->ToString()));
 			}
 		}
 		return NULL;

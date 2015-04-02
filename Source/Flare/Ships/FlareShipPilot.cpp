@@ -11,7 +11,7 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	TimeUntilNextChange = 0;
-	PilotTarget = FVector::ZeroVector;
+	PilotTargetLocation = FVector::ZeroVector;
 	PilotTargetShip = NULL;
 }
 
@@ -27,15 +27,13 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	{
 
 		TimeUntilNextChange = FMath::FRandRange(10, 40);
-		PilotTarget = FVector(FMath::FRandRange(-4000, 4000), FMath::FRandRange(-1000, 1000), FMath::FRandRange(-1000, 1000));
-		FLOGV("Pilot change destination to %s", *PilotTarget.ToString());
+		PilotTargetLocation = FVector(FMath::FRandRange(-4000, 4000), FMath::FRandRange(-1000, 1000), FMath::FRandRange(-1000, 1000));
+		FLOGV("Pilot change destination to %s", *PilotTargetLocation.ToString());
 		FLOGV("New change in %fs", TimeUntilNextChange);
 	}
-	
-	FLOGV("Pilot company: %s", *Ship->GetCompany()->GetCompanyName());
-		
 
-	LinearTargetVelocity = (PilotTarget - Ship->GetActorLocation()/100);
+	LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()/100);
+	LinearTargetVelocity = FVector::ZeroVector;
 
 	if(Ship->GetTemperature() < 600)
 	{

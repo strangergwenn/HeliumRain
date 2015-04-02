@@ -325,8 +325,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 	PC->SetCompany(Company);
 
 	// Player ship
-	AFlareShip* ShipPawn = CreateShip(FName("ship-ghoul"));
-	ShipPawn->SetOwnerCompany(Company);
+	AFlareShip* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
 	PlayerData.CurrentShipName = ShipPawn->GetName();
 
 	// Load
@@ -398,7 +397,7 @@ AFlareStation* AFlareGame::CreateStation(FName StationClass)
 	return StationPawn;
 }
 
-AFlareShip* AFlareGame::CreateShip(FName ShipClass)
+AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
 {
 	AFlareShip* ShipPawn = NULL;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
@@ -406,12 +405,28 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 	// Parent company
 	if (PC && PC->GetCompany())
 	{
-		ShipPawn = CreateShipInCompany(ShipClass, PC->GetCompany()->GetIdentifier());
+		ShipPawn = CreateShip(ShipClass, PC->GetCompany()->GetIdentifier());
 	}
 	return ShipPawn;
 }
 
-AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyIdentifier)
+
+AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName)
+{
+	AFlareShip* ShipPawn = NULL;
+	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+		{
+			UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+			if (Company && Company->GetShortName() == CompanyShortName)
+			{
+				ShipPawn = CreateShip(ShipClass, Company->GetIdentifier());
+				break;
+			}
+		}
+	return ShipPawn;
+}
+
+AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier)
 {
 	AFlareShip* ShipPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
@@ -502,19 +517,15 @@ AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyIdenti
 		}
 		
 		// Init pilot
-		ShipData.Pilot.Identifier = "chewbaca";
+		ShipData.Pilot.Identifier = "chewie";
 		ShipData.Pilot.Name = "Chewbaca";
 
+		// Init company
+		ShipData.CompanyIdentifier = CompanyIdentifier;
 
 		// Create the ship
 		ShipPawn = LoadShip(ShipData);
 		FLOGV("AFlareGame::CreateShip : Created ship '%s'", *ShipPawn->GetName());
-	}
-
-	UFlareCompany* Company = FindCompany(CompanyIdentifier);
-	if(Company)
-	{
-		ShipPawn->SetOwnerCompany(Company);
 	}
 
 	return ShipPawn;
