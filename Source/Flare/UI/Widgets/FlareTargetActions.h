@@ -2,8 +2,8 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "../Components/FlareShipStatus.h"
 #include "../Components/FlareCompanyFlag.h"
+#include "../Widgets/FlareShipStatus.h"
 #include "../../Ships/FlareShipInterface.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Game/FlareCompany.h"

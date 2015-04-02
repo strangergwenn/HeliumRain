@@ -311,6 +311,8 @@ public:
 
 	virtual void FaceBackward();
 
+	virtual void Brake();
+
 	virtual void BoostOn();
 
 	virtual void BoostOff();

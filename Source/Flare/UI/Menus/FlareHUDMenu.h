@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../../Ships/FlareShip.h"
-#include "../Components/FlareSubsystemStatus.h"
+#include "../Widgets/FlareSubsystemStatus.h"
 
 
 class SFlareHUDMenu : public SCompoundWidget

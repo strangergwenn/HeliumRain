@@ -1429,6 +1429,7 @@ void AFlareShip::SetupPlayerInputComponent(class UInputComponent* InputComponent
 
 	InputComponent->BindAction("FaceForward", EInputEvent::IE_Released, this, &AFlareShip::FaceForward);
 	InputComponent->BindAction("FaceBackward", EInputEvent::IE_Released, this, &AFlareShip::FaceBackward);
+	InputComponent->BindAction("Brake", EInputEvent::IE_Released, this, &AFlareShip::Brake);
 	InputComponent->BindAction("Boost", EInputEvent::IE_Pressed, this, &AFlareShip::BoostOn);
 	InputComponent->BindAction("Boost", EInputEvent::IE_Released, this, &AFlareShip::BoostOff);
 	InputComponent->BindAction("Manual", EInputEvent::IE_Released, this, &AFlareShip::ForceManual);
@@ -1557,7 +1558,15 @@ void AFlareShip::FaceBackward()
 {
 	if (IsManualPilot())
 	{
-		PushCommandRotation((-Airframe->GetPhysicsLinearVelocity()), FVector(1,0,0));
+		PushCommandRotation((-Airframe->GetPhysicsLinearVelocity()), FVector(1, 0, 0));
+	}
+}
+
+void AFlareShip::Brake()
+{
+	if (IsManualPilot())
+	{
+		// TODO 
 	}
 }
 
