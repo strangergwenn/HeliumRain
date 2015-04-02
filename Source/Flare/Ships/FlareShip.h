@@ -382,6 +382,7 @@ protected:
 	bool                                 WasAlive; // true if was alive at the last tick
 
 	// Pilot
+	UPROPERTY()
 	UFlareShipPilot*                      Pilot;
 	bool                                 IsPiloted;
 

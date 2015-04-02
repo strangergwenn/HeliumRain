@@ -504,7 +504,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	}
 
 	// Initialize pilot
-	Pilot = NewNamedObject<UFlareShipPilot>(this, ShipData.Pilot.Identifier);
+	Pilot = NewObject<UFlareShipPilot>(this);
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
 
 	// Init alive status
