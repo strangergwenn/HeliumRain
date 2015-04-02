@@ -212,6 +212,9 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 	if (TargetShip)
 	{
+		// Is alive ?
+		SetVisibility(TargetShip->IsAlive() ? EVisibility::Visible : EVisibility::Collapsed);
+
 		// Overheating status
 		TimeSinceOverheatChanged += InDeltaTime;
 		bool NewOverheating = (TargetShip->GetTemperature() > TargetShip->GetMaxTemperature());

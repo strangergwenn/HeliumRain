@@ -15,6 +15,9 @@
 #include "../Game/FlareGame.h"
 
 
+#define LOCTEXT_NAMESPACE "FlareShip"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -1425,8 +1428,13 @@ void AFlareShip::UpdateCOM()
 
 void AFlareShip::OnControlLost()
 {
-	// TODO: make something
+	AFlarePlayerController* PC = GetPC();
+	if (PC)
+	{
+		PC->Notify(LOCTEXT("ShipDestroyed", "Your ship has been destroyed !"), EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
+	}
 }
+
 
 /*----------------------------------------------------
 	Input
@@ -1705,3 +1713,6 @@ float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVe
 
 	return TotalMaxTorque;
 }
+
+
+#undef LOCTEXT_NAMESPACE
