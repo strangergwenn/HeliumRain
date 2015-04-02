@@ -12,6 +12,7 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 {
 	TimeUntilNextChange = 0;
 	PilotTarget = FVector::ZeroVector;
+	PilotTargetShip = NULL;
 }
 
 
@@ -21,11 +22,6 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 
 void UFlareShipPilot::TickPilot(float DeltaSeconds)
 {
-	
-	FLOG("TickPilot");
-	FLOGV("Pilot this %x", this);
-	
-	FLOGV("Pilot ship %x", Ship);
 	TimeUntilNextChange -= DeltaSeconds;
 	if(TimeUntilNextChange <= 0)
 	{
@@ -35,6 +31,9 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		FLOGV("Pilot change destination to %s", *PilotTarget.ToString());
 		FLOGV("New change in %fs", TimeUntilNextChange);
 	}
+	
+	FLOGV("Pilot company: %s", *Ship->GetCompany()->GetCompanyName());
+		
 
 	LinearTargetVelocity = (PilotTarget - Ship->GetActorLocation()/100);
 
@@ -47,6 +46,27 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	{
 		UseOrbitalBoost = false;
 	}
+
+	// If has no target
+		// find target
+	
+
+	// If has ship target 
+		// Turn to target
+		// Allow boost
+		// If near
+			// If turned
+				// Fire
+		// else
+			// Go near
+	
+	// Find friend barycenter
+	// Go to friend barycenter
+	// If near
+		// Turn to opposite from barycentre
+	// else
+		// Turn to direction
+
 
 	AngularTargetVelocity = FVector::ZeroVector;
 }
