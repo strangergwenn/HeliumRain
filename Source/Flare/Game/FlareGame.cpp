@@ -401,6 +401,19 @@ AFlareStation* AFlareGame::CreateStation(FName StationClass)
 AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 {
 	AFlareShip* ShipPawn = NULL;
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+
+	// Parent company
+	if (PC && PC->GetCompany())
+	{
+		ShipPawn = CreateShipInCompany(ShipClass, PC->GetCompany()->GetIdentifier());
+	}
+	return ShipPawn;
+}
+
+AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyIdentifier)
+{
+	AFlareShip* ShipPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
 	FFlareShipDescription* Desc = GetShipCatalog()->Get(ShipClass);
 
@@ -498,11 +511,12 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		FLOGV("AFlareGame::CreateShip : Created ship '%s'", *ShipPawn->GetName());
 	}
 
-	// Parent company
-	if (PC && PC->GetCompany())
+	UFlareCompany* Company = FindCompany(CompanyIdentifier);
+	if(Company)
 	{
-		ShipPawn->SetOwnerCompany(PC->GetCompany());
+		ShipPawn->SetOwnerCompany(Company);
 	}
+
 	return ShipPawn;
 }
 

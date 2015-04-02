@@ -67,12 +67,8 @@ void AFlareShip::BeginPlay()
 void AFlareShip::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	FLOG("Tick 1");
-
 
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
-
-FLOG("Tick 2");
 
 	//Update Camera
 	if(!ExternalCamera && CombatMode)
@@ -105,44 +101,28 @@ FLOG("Tick 2");
 		}
 	}
 
-FLOG("Tick 3");
-
-
 	// Attitude control
 	if (Airframe && !IsPresentationMode())
 	{
 		UpdateCOM();
 
-FLOG("Tick 4");
-
-		FLOGV("Pilot %x", Pilot);
-
 		if(IsAlive())
 		{
-			FLOG("Tick 4.1");
-			FLOGV("Pilot2 %x", Pilot);
 			Pilot->TickPilot(DeltaSeconds);
 		}
-		FLOG("Tick 5");
 
 
 		// Manual pilot
 		if (IsManualPilot() && IsAlive())
 		{
-			FLOG("Tick 6");
-
 			if(IsPiloted)
 			{
-				FLOG("Tick 7");
-
 				LinearTargetVelocity = Pilot->GetLinearTargetVelocity().GetClampedToMaxSize(LinearMaxVelocity);
 				AngularTargetVelocity = Pilot->GetAngularTargetVelocity();
 				ManualOrbitalBoost = Pilot->IsUseOrbitalBoost();
 			}
 			else
 			{
-				FLOG("Tick 8");
-
 				UpdateLinearAttitudeManual(DeltaSeconds);
 				UpdateAngularAttitudeManual(DeltaSeconds);
 			}
@@ -151,8 +131,6 @@ FLOG("Tick 4");
 		// Autopilot
 		else if (IsAutoPilot())
 		{
-			FLOG("Tick 9");
-
 			FFlareShipCommandData Temp;
 			if (CommandData.Peek(Temp))
 			{
@@ -179,22 +157,14 @@ FLOG("Tick 4");
 			}
 		}
 
-FLOG("Tick 10");
-
 		// Physics
 		if (!IsDocked())
 		{
 			// TODO enable physic when docked but attach the ship to the station
-			FLOG("Tick 11");
 
 			PhysicSubTick(DeltaSeconds);
-		FLOG("Tick 12");
-
 		}
 	}
-
-FLOG("Tick 13");
-
 
 	// Apply heat variation : add producted heat then substract radiated heat.
 

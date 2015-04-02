@@ -79,5 +79,6 @@ protected:
 
 	// Pilot brain
 	float                                TimeUntilNextChange;
-	FVector                              PilotTarget;
+	FVector                              PilotTargetLocation;
+	IFlareShipInterface*                 PilotTargetShip;
 };
