@@ -218,6 +218,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleCamera", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCamera);
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
+	InputComponent->BindAction("TooglePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePilot);
 
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
@@ -256,6 +257,12 @@ void AFlarePlayerController::ToggleCombat()
 		ShipPawn->SetCombatMode(CombatMode);
 		SetExternalCamera(false, true);
 	}
+}
+
+void AFlarePlayerController::TogglePilot()
+{
+	FLOG("TooglePilot");
+	ShipPawn->EnablePilot(!ShipPawn->IsPilotMode());
 }
 
 void AFlarePlayerController::Test1()

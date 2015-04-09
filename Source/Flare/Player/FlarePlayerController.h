@@ -107,6 +107,9 @@ public:
 	/** Toggle the combat mode */
 	virtual void ToggleCombat();
 
+	/** Toggle the pilot mode */
+	virtual void TogglePilot();
+
 	/** Test method 1 */
 	virtual void Test1();
 
