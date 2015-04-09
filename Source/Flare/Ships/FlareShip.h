@@ -468,6 +468,11 @@ public:
 		return CombatMode;
 	}
 
+	inline bool IsPilotMode() const
+	{
+		return IsPiloted;
+	}
+
 	inline float GetAngularAccelerationRate() const
 	{
 		return AngularAccelerationRate;
