@@ -127,7 +127,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 			//FLOGV("AngularPrecision=%f", AngularPrecision);
 
-			if(AngularPrecision > (DangerousTarget ? 0.997f : 0.999f))
+			if(AngularPrecision > (DangerousTarget ? 0.998f : 0.999f))
 			{
 				//FLOG("Fire");
 				WantFire = true;
@@ -175,7 +175,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		UseOrbitalBoost = false;
 	}
 
-	if(Ship->GetTemperature() > 800)
+	if(Ship->GetTemperature() > (DangerousTarget ? 900.f : 780.f))
 	{
 		// TODO Fire on dangerous target
 		WantFire = false;

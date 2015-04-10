@@ -994,7 +994,7 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 	// the damage sphere. There is a linear decrease of damage with a minumum of 0 if the 2 sphere
 	// only touch.
 	
-	FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
+	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
 	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
 	bool IsAliveBeforeDamage = IsAlive();
@@ -1013,11 +1013,11 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 
 		if(IntersectDistance > 0) {
 			// Hit this component
-			FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
+			//FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
 
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
 			Component->ApplyDamage(Energy * Efficiency);
-			FLOGV("Component hit with Efficiency=%f", Efficiency);
+			//FLOGV("Component hit with Efficiency=%f", Efficiency);
 		}
 	}
 
