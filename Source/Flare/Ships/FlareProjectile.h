@@ -45,13 +45,20 @@ protected:
 	UPROPERTY()
 	UParticleSystem*                         ExplosionEffectTemplate;
 
+	/** Special effects on flight */
+	UPROPERTY()
+	UParticleSystem*                         FlightEffectsTemplate;
+
+	// Flight effects
+	UParticleSystemComponent*                FlightEffects;
+
 	/** Burn mark decal */
 	UPROPERTY()
 	UMaterialInterface*                      ExplosionEffectMaterial;
 
 	// Shell data
 	FVector                                  ShellDirection;
-	const FFlareShipComponentDescription*       ShellDescription;
+	const FFlareShipComponentDescription*    ShellDescription;
 	int32 ShellPower;
 	float ShellMass;
 
