@@ -49,7 +49,7 @@ protected:
 	/**
 	 * Return the nearest hostile alive ship
 	 */
-	virtual AFlareShip* GetNearestHostileShip() const;
+	virtual AFlareShip* GetNearestHostileShip(bool DangerousOnly) const;
 
 	/**
 	 * Return the nearest ship, alive or not
