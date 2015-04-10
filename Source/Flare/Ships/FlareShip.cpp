@@ -611,7 +611,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 			for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
 			{
 				UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
-				Total += Weapon->GetDamageRatio()*(Weapon->IsPowered() ? 1 : 0);
+				Total += Weapon->GetDamageRatio()*(Weapon->IsPowered() ? 1 : 0)*(Weapon->GetCurrentAmmo() > 0 ? 1 : 0);
 			}
 			Health = Total/Weapons.Num();
 		}
@@ -1096,6 +1096,7 @@ void AFlareShip::EnablePilot(bool PilotEnabled)
 {
 	FLOGV("EnablePilot %d", PilotEnabled);
 	IsPiloted = PilotEnabled;
+	ManualOrbitalBoost = false;
 }
 
 /*----------------------------------------------------

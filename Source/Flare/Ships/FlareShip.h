@@ -482,4 +482,9 @@ public:
 	{
 		return AngularMaxVelocity;
 	}
+
+	inline float GetLinearMaxVelocity() const
+	{
+		return LinearMaxVelocity;
+	}
 };

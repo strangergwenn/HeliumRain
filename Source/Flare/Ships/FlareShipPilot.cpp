@@ -28,8 +28,8 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 		TimeUntilNextChange = FMath::FRandRange(10, 40);
 		PilotTargetLocation = FVector(FMath::FRandRange(-4000, 4000), FMath::FRandRange(-1000, 1000), FMath::FRandRange(-1000, 1000));
-		FLOGV("Pilot change destination to %s", *PilotTargetLocation.ToString());
-		FLOGV("New change in %fs", TimeUntilNextChange);
+		//FLOGV("Pilot change destination to %s", *PilotTargetLocation.ToString());
+		//FLOGV("New change in %fs", TimeUntilNextChange);
 	}
 
 	LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()/100);
@@ -57,7 +57,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 	if(PilotTargetShip)
 	{
-		FLOGV("%s target %s",  *Ship->GetHumanReadableName(),  *PilotTargetShip->GetHumanReadableName());
+		//FLOGV("%s target %s",  *Ship->GetHumanReadableName(),  *PilotTargetShip->GetHumanReadableName());
 		// The pilot have a target, track and kill it
 
 		FVector LocalNose = FVector(1.f, 0.f, 0.f);
@@ -68,41 +68,41 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 		FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(Ship, 50000) - Ship->GetActorLocation()).GetUnsafeNormal(); // TODO et weapon velocity
 
-		FRotator ShipAttitude = PilotTargetShip->GetActorRotation();
-		FVector ShipVelocity = 100 * PilotTargetShip->GetLinearVelocity();
+		FRotator ShipAttitude = Ship->GetActorRotation();
+		FVector ShipVelocity = 100 * Ship->GetLinearVelocity();
 
 		// Bullet velocity
 		FVector BulletVelocity = ShipAttitude.Vector();
 		BulletVelocity.Normalize();
 		BulletVelocity *= 50000; // TODO get from projectile
 
-
 		FVector BulletDirection = Ship->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector((ShipVelocity + BulletVelocity)).GetUnsafeNormal();
 
 
 		// First allow align nose to target bullet interception point
 		// TODO Use BulletDirection instead of LocalNose
-		AngularTargetVelocity = GetAngularVelocityToAlignAxis(LocalNose, FireTargetAxis, DeltaSeconds);
+		//AngularTargetVelocity = GetAngularVelocityToAlignAxis(LocalNose, FireTargetAxis, DeltaSeconds);
+		AngularTargetVelocity = GetAngularVelocityToAlignAxis(BulletDirection, FireTargetAxis, DeltaSeconds);
 
 
-		FLOGV("DeltaLocation=%s", *DeltaLocation.ToString());
+		/*FLOGV("DeltaLocation=%s", *DeltaLocation.ToString());
 		FLOGV("TargetAxis=%s", *TargetAxis.ToString());
 		FLOGV("FireTargetAxis=%s", *FireTargetAxis.ToString());
 		FLOGV("BulletVelocity=%s", *BulletVelocity.ToString());
 		FLOGV("BulletDirection=%s", *BulletDirection.ToString());
 		FLOGV("AngularTargetVelocity=%s", *AngularTargetVelocity.ToString());
-
+*/
 
 		// If is near, match speed, else go to target with boost
 		if(Distance < 200.f)
 		{
-			FLOGV("is near distance=%f", Distance);
+			//FLOGV("is near distance=%f", Distance);
 			LinearTargetVelocity = PilotTargetShip->GetLinearVelocity();
 		}
 		else
 		{
-			FLOGV("is far distance=%f", Distance);
-			LinearTargetVelocity = DeltaLocation;
+			//FLOGV("is far distance=%f", Distance);
+			LinearTargetVelocity = DeltaLocation.GetClampedToMaxSize(Ship->GetLinearMaxVelocity());
 			AllowOrbitalBoost = true;
 		}
 
@@ -110,22 +110,44 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		//TODO increase tolerance if target is near
 		if(Distance < 600.f)
 		{
-			FLOGV("is at fire range=%f", Distance);
+			//FLOGV("is at fire range=%f", Distance);
 			// TODO Use BulletDirection instead of LocalNose
 			FVector WorldShipAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
 			float AngularPrecision = FVector::DotProduct(FireTargetAxis, WorldShipAxis);
 
-			FLOGV("WorldShipAxis=%s", *WorldShipAxis.ToString());
+			//FLOGV("WorldShipAxis=%s", *WorldShipAxis.ToString());
 
-			FLOGV("AngularPrecision=%f", AngularPrecision);
+			//FLOGV("AngularPrecision=%f", AngularPrecision);
 
-			if(AngularPrecision > 0.999f) // 2.5°
+			if(AngularPrecision > 0.997f)
 			{
-				FLOG("Fire");
+				//FLOG("Fire");
 				WantFire = true;
 			}
 		}
 	}
+	else
+	{
+		AngularTargetVelocity = FVector::ZeroVector;
+		LinearTargetVelocity = - Ship->GetActorLocation().GetClampedToMaxSize(Ship->GetLinearMaxVelocity());
+	}
+
+	// Anticollision
+	AFlareShip* NearestShip = GetNearestShip();
+
+	if(NearestShip)
+	{
+		FVector DeltaLocation = NearestShip->GetActorLocation() - Ship->GetActorLocation();
+		float Distance = DeltaLocation.Size() / 100.f; // Distance in meters
+
+		if(Distance < 200.f)
+		{
+			// Below 200m begin avoidance maneuver
+			float Alpha = 1 - Distance/200.f;
+			LinearTargetVelocity = LinearTargetVelocity * (1.f - Alpha) + Alpha * (-DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity());
+		}
+	}
+
 
 	// Find friend barycenter
 	// Go to friend barycenter
@@ -136,7 +158,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 
 	// Manage orbital boost
-	if(Ship->GetTemperature() < 780)
+	if(Ship->GetTemperature() < 680)
 	{
 		UseOrbitalBoost = true;
 	}
@@ -144,6 +166,15 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	{
 		UseOrbitalBoost = false;
 	}
+
+	if(Ship->GetTemperature() > 800)
+	{
+		// TODO Fire on dangerous target
+		WantFire = false;
+	}
+
+
+
 }
 
 void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareShip* OwnerShip)
@@ -202,6 +233,34 @@ AFlareShip* UFlareShipPilot::GetNearestHostileShip() const
 	return NearestHostileShip;
 }
 
+AFlareShip* UFlareShipPilot::GetNearestShip() const
+{
+	// For now an host ship is a the nearest host ship with the following critera:
+	// - Alive or not
+	// - From any company
+	// - Is the nearest
+	// - Is not me
+
+	FVector PilotLocation = Ship->GetActorLocation();
+	float MinDistanceSquared = -1;
+	AFlareShip* NearestShip = NULL;
+
+	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Ship
+		AFlareShip* ShipCandidate = Cast<AFlareShip>(*ActorItr);
+		if (ShipCandidate && ShipCandidate != Ship)
+		{
+			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
+			if(NearestShip == NULL || DistanceSquared < MinDistanceSquared)
+			{
+				MinDistanceSquared = DistanceSquared;
+				NearestShip = ShipCandidate;
+			}
+		}
+	}
+	return NearestShip;
+}
 
 FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, float DeltaSeconds) const
 {
