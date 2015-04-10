@@ -411,7 +411,6 @@ AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
 		FVector TargetPosition = FVector::ZeroVector;
 		if (ExistingShipPawn)
 		{
-
 			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
 		}
 
@@ -421,7 +420,7 @@ AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
 }
 
 
-AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName)
+AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance)
 {
 	FVector TargetPosition = FVector::ZeroVector;
 	// Get target position
@@ -431,7 +430,7 @@ AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortN
 		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
 		if (ExistingShipPawn)
 		{
-			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
 		}
 	}
 
@@ -537,7 +536,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVe
 
 		// Create the ship
 		ShipPawn = LoadShip(ShipData);
-		FLOGV("AFlareGame::CreateShip : Created ship '%s'", *ShipPawn->GetName());
+		FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetName(), *TargetPosition.ToString());
 	}
 
 	return ShipPawn;

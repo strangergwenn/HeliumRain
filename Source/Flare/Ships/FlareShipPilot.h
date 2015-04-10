@@ -47,9 +47,14 @@ protected:
 	----------------------------------------------------*/
 
 	/**
-	 * Return the nearest hostile ship
+	 * Return the nearest hostile alive ship
 	 */
 	virtual AFlareShip* GetNearestHostileShip() const;
+
+	/**
+	 * Return the nearest ship, alive or not
+	 */
+	virtual AFlareShip* GetNearestShip() const;
 
 	/**
 	 * Return the angular velocity need to align the local ship axis to the target axis

@@ -71,7 +71,7 @@ public:
 
 	/** Create a ship in the level for a specific company identified by its short name*/
 	UFUNCTION(exec)
-	AFlareShip* CreateShipInCompany(FName ShipClass, FName CompanyShortName);
+	AFlareShip* CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance);
 
 	/** Create a ship in the level  for a specific company */
 	AFlareShip* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
