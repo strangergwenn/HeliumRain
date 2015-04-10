@@ -45,13 +45,21 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		UseOrbitalBoost = false;
 	}
 
+	bool DangerousTarget = true;
 	bool AllowOrbitalBoost = false;
 	WantFire = false;
 
-	// Begin to find a new target only if the pilot has currently no alive target or the target is too far
-	if(!PilotTargetShip || !PilotTargetShip->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 50000)
+	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
+	if(!PilotTargetShip || !PilotTargetShip->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 50000 || PilotTargetShip->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
 	{
-		PilotTargetShip = GetNearestHostileShip();
+		PilotTargetShip = GetNearestHostileShip(true);
+	}
+
+	// No dangerous ship, try not dangerous ships
+	if(!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(false);
+		DangerousTarget = false;
 	}
 
 
@@ -94,7 +102,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 */
 
 		// If is near, match speed, else go to target with boost
-		if(Distance < 200.f)
+		if(Distance < (DangerousTarget ? 200.f : 100.f))
 		{
 			//FLOGV("is near distance=%f", Distance);
 			LinearTargetVelocity = PilotTargetShip->GetLinearVelocity();
@@ -108,18 +116,18 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(Distance < 600.f)
+		if(Distance < (DangerousTarget ? 600.f : 150.f))
 		{
 			//FLOGV("is at fire range=%f", Distance);
 			// TODO Use BulletDirection instead of LocalNose
-			FVector WorldShipAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
+			FVector WorldShipAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(BulletDirection);
 			float AngularPrecision = FVector::DotProduct(FireTargetAxis, WorldShipAxis);
 
 			//FLOGV("WorldShipAxis=%s", *WorldShipAxis.ToString());
 
 			//FLOGV("AngularPrecision=%f", AngularPrecision);
 
-			if(AngularPrecision > 0.997f)
+			if(AngularPrecision > (DangerousTarget ? 0.997f : 0.999f))
 			{
 				//FLOG("Fire");
 				WantFire = true;
@@ -140,10 +148,10 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		FVector DeltaLocation = NearestShip->GetActorLocation() - Ship->GetActorLocation();
 		float Distance = DeltaLocation.Size() / 100.f; // Distance in meters
 
-		if(Distance < 200.f)
+		if(Distance < 100.f)
 		{
-			// Below 200m begin avoidance maneuver
-			float Alpha = 1 - Distance/200.f;
+			// Below 100m begin avoidance maneuver
+			float Alpha = 1 - Distance/100.f;
 			LinearTargetVelocity = LinearTargetVelocity * (1.f - Alpha) + Alpha * (-DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity());
 		}
 	}
@@ -195,10 +203,11 @@ void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany*
 	Helpers
 ----------------------------------------------------*/
 
-AFlareShip* UFlareShipPilot::GetNearestHostileShip() const
+AFlareShip* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) const
 {
 	// For now an host ship is a the nearest host ship with the following critera:
 	// - Alive
+	// - Is dangerous if needed
 	// - From another company
 	// - Is the nearest
 
@@ -217,10 +226,18 @@ AFlareShip* UFlareShipPilot::GetNearestHostileShip() const
 				continue;
 			}
 
+			if(DangerousOnly && ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
+			{
+				continue;
+			}
+
 			if(ShipCandidate->GetCompany() == Ship->GetCompany())
 			{
 				continue;
 			}
+
+
+
 
 			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
 			if(NearestHostileShip == NULL || DistanceSquared < MinDistanceSquared)
