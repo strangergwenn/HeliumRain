@@ -19,14 +19,18 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 void UFlareEngine::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
-	for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
-	{
-		const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
 
-		// Calculate the engine linear thrust force in N (data value in kN)
-		if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::EnginePower)
+	if (ComponentDescription)
+	{
+		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
 		{
-			MaxThrust = 1000 * Characteristic.CharacteristicValue;
+			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
+
+			// Calculate the engine linear thrust force in N (data value in kN)
+			if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::EnginePower)
+			{
+				MaxThrust = 1000 * Characteristic.CharacteristicValue;
+			}
 		}
 	}
 }

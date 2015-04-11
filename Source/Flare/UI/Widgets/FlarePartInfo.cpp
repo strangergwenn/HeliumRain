@@ -79,7 +79,10 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 	BuildInfoBlock(InfoBox, InArgs._Description, false);
 
 	// Toggle cost
-	PartCost = InArgs._Description->Cost;
+	if (InArgs._Description)
+	{
+		PartCost = InArgs._Description->Cost;
+	}
 	SetOwned(InArgs._IsOwned);
 }
 
