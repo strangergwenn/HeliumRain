@@ -4,7 +4,7 @@
 #include "FlareEngine.generated.h"
 
 
-UCLASS(Blueprintable, ClassGroup = (Flare, Ship), hidecategories = (Rendering, Lighting, Base), meta = (BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareEngine : public UFlareShipComponent
 {
 public:
