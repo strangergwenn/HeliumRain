@@ -120,6 +120,14 @@ protected:
 		Private data
 	----------------------------------------------------*/
 
+	/** Dust effect template */
+	UPROPERTY()
+	UParticleSystem*                         DustEffectTemplate;
+
+	/** Dust effect */
+	UPROPERTY()
+	UParticleSystemComponent*                DustEffect;
+
 	UPROPERTY()
 	FFlarePlayerSave PlayerData;
 

@@ -12,9 +12,12 @@
 
 AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
+	, DustEffect(NULL)
 	, Company(NULL)
 	, CombatMode(false)
 {
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
+	DustEffectTemplate = DustEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
 }
 
@@ -26,7 +29,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	// Load our ship
 	PossessCurrentShip();
 
@@ -39,6 +42,30 @@ void AFlarePlayerController::BeginPlay()
 void AFlarePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+
+	if (!DustEffect && ShipPawn)
+	{
+		DustEffect = UGameplayStatics::SpawnEmitterAttached(
+			DustEffectTemplate,
+			ShipPawn->GetRootComponent(),
+			NAME_None);
+	}
+
+	if (DustEffect && ShipPawn && !IsInMenu())
+	{
+		FVector ViewLocation;
+		FRotator ViewRotation;
+
+		GetPlayerViewPoint(ViewLocation, ViewRotation);
+		ViewRotation.Normalize();
+		ViewLocation += ViewRotation.RotateVector(500 * FVector(1, 0, 0));
+
+		FVector Direction = ShipPawn->GetLinearVelocity();
+		Direction.Normalize();
+
+		DustEffect->SetWorldLocation(ViewLocation);
+		DustEffect->SetVectorParameter("Direction", -Direction);
+	}
 }
 
 void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
