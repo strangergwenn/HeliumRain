@@ -12,7 +12,7 @@ AFlareProjectile::AFlareProjectile(const class FObjectInitializer& PCIP) : Super
 {
 	// FX particles
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> ExplosionEffectObject(TEXT("/Game/Master/Particles/PS_Explosion"));
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> FlightEffectsObject(TEXT("/Game/Master/Particles/PS_FlightEffects"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> FlightEffectsObject(TEXT("/Game/Master/Particles/PS_FlightTrail"));
 	ExplosionEffectTemplate = ExplosionEffectObject.Object;
 	FlightEffectsTemplate = FlightEffectsObject.Object;
 	
