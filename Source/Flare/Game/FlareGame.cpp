@@ -452,9 +452,9 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVe
 	AFlareShip* ShipPawn = NULL;
 	FFlareShipDescription* Desc = GetShipCatalog()->Get(ShipClass);
 
-	UFlareCompany* Company =  FindCompany(CompanyIdentifier);
+	UFlareCompany* Company = FindCompany(CompanyIdentifier);
 
-	if (Desc)
+	if (Desc && Company)
 	{
 		// Default data
 		FFlareShipSave ShipData;
