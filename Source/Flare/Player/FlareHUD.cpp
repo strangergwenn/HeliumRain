@@ -156,14 +156,14 @@ void AFlareHUD::DrawHUD()
 		// Update nose
 		if (!Ship->IsExternalCamera())
 		{
-			DrawHUDIcon(ViewportSize / 2, 32, Ship->IsCombatMode() ? HUDAimIcon : HUDNoseIcon, HudColor, true);
+			DrawHUDIcon(ViewportSize / 2, 24, Ship->IsCombatMode() ? HUDAimIcon : HUDNoseIcon, HudColor, true);
 		}
 
 		// Update inertial vector
 		FVector EndPoint = Ship->GetActorLocation() + FocusDistance * ShipVelocity;
 		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
 		{
-			DrawHUDIcon(ScreenPosition, 32, HUDReticleIcon, HudColor, true);
+			DrawHUDIcon(ScreenPosition, 24, HUDReticleIcon, HudColor, true);
 		}
 	}
 }
@@ -222,8 +222,8 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 		// Draw the HUD designator
 		else if ((Ship && Ship->IsAlive()) || !Ship)
 		{
-			float CornerSize = 16;
-			float IconSize = 32;
+			float CornerSize = 8;
+			float IconSize = 24;
 
 			// Draw designator corners
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0);
@@ -232,7 +232,7 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270);
 
 			// Draw the status
-			if (Ship && ObjectSize.X > 2 * IconSize)
+			if (Ship && ObjectSize.X > IconSize)
 			{
 				int32 NumberOfIcons = Ship->IsMilitary() ? 5 : 4;
 				FVector2D StatusPos = ScreenPosition - ObjectSize / 2;
@@ -247,7 +247,7 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			{
 				if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, 50000), ScreenPosition)) // TODO get from projectile
 				{
-					DrawHUDIcon(ScreenPosition, 32, HUDAimHelperIcon, HudColor, true);
+					DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, HudColor, true);
 				}
 			}
 		}
