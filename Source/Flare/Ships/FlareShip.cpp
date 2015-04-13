@@ -139,28 +139,28 @@ void AFlareShip::Tick(float DeltaSeconds)
 		// Autopilot
 		else if (IsAutoPilot())
 		{
-			FFlareShipCommandData Temp;
-			if (CommandData.Peek(Temp))
+			FFlareShipCommandData CurrentCommand;
+			if (CommandData.Peek(CurrentCommand))
 			{
-				if (Temp.Type == EFlareCommandDataType::CDT_Location)
+				if (CurrentCommand.Type == EFlareCommandDataType::CDT_Location)
 				{
-					UpdateLinearAttitudeAuto(DeltaSeconds);
+					UpdateLinearAttitudeAuto(DeltaSeconds, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity));
 				}
-				else if (Temp.Type == EFlareCommandDataType::CDT_BrakeLocation)
+				else if (CurrentCommand.Type == EFlareCommandDataType::CDT_BrakeLocation)
 				{
 					UpdateLinearBraking(DeltaSeconds);
 				}
-				else if (Temp.Type == EFlareCommandDataType::CDT_Rotation)
+				else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Rotation)
 				{
 					UpdateAngularAttitudeAuto(DeltaSeconds);
 				}
-				else if (Temp.Type == EFlareCommandDataType::CDT_BrakeRotation)
+				else if (CurrentCommand.Type == EFlareCommandDataType::CDT_BrakeRotation)
 				{
 					UpdateAngularBraking(DeltaSeconds);
 				}
-				else if (Temp.Type == EFlareCommandDataType::CDT_Dock)
+				else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Dock)
 				{
-					ConfirmDock(Cast<IFlareStationInterface>(Temp.ActionTarget), Temp.ActionTargetParam);
+					ConfirmDock(Cast<IFlareStationInterface>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam);
 				}
 			}
 		}
@@ -350,6 +350,12 @@ FVector AFlareShip::GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed
 	FVector InterceptLocation = TargetLocation + TargetVelocity * InterceptTime;
 
 	return InterceptLocation;
+}
+
+void AFlareShip::SetStatus(EFlareShipStatus::Type NewStatus)
+{
+	FLOGV("AFlareShip::SetStatus %d", NewStatus - EFlareShipStatus::SS_Manual);
+	Status = NewStatus;
 }
 
 
@@ -723,10 +729,9 @@ bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
 			// Align front to dock axis, ship top to station top, set speed
 			PushCommandRotation((DockingInfo.EndPoint - DockingInfo.StartPoint), FVector(1, 0, 0));
 			PushCommandRotation(FVector(0,0,1), FVector(0,0,1));
-			LinearMaxVelocity = LinearMaxDockingVelocity;
 			
 			// Move there
-			PushCommandLocation(DockingInfo.EndPoint);
+			PushCommandLocation(DockingInfo.EndPoint, true);
 			PushCommandDock(DockingInfo);
 			FLOG("AFlareShip::DockAt : navigation sent");
 			return true;
@@ -752,7 +757,7 @@ void AFlareShip::ConfirmDock(IFlareStationInterface* DockStation, int32 DockId)
 
 	// Set as docked
 	DockStation->Dock(this, DockId);
-	Status = EFlareShipStatus::SS_Docked;
+	SetStatus(EFlareShipStatus::SS_Docked);
 	ShipData.DockedTo = *DockStation->_getUObject()->GetName();
 	ShipData.DockedAt = DockId;
 	
@@ -768,6 +773,20 @@ void AFlareShip::ConfirmDock(IFlareStationInterface* DockStation, int32 DockId)
 		Engine->SetAlpha(0.0f);
 	}
 
+	// Reload and repair
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		Component->Repair();
+
+		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Components[ComponentIndex]);
+		if (Weapon)
+		{
+			Weapon->RefillAmmo();
+		}
+	}
+	UpdatePower();
 }
 
 bool AFlareShip::Undock()
@@ -782,12 +801,11 @@ bool AFlareShip::Undock()
 		Airframe->SetSimulatePhysics(true);
 	  
 		// Evacuate
-		ClearCurrentCommand();
 		GetDockStation()->ReleaseDock(this, ShipData.DockedAt);
 		PushCommandLocation(RootComponent->GetComponentTransform().TransformPositionNoScale(5000 * FVector(-1, 0, 0)));
 
 		// Update data
-		Status = EFlareShipStatus::SS_AutoPilot;
+		SetStatus(EFlareShipStatus::SS_AutoPilot);
 		ShipData.DockedTo = NAME_None;
 		ShipData.DockedAt = -1;
 
@@ -835,11 +853,12 @@ void AFlareShip::PushCommandAngularBrake()
 	PushCommand(Data);
 }
 
-void AFlareShip::PushCommandLocation(const FVector& Location)
+void AFlareShip::PushCommandLocation(const FVector& Location, bool Precise)
 {
 	FFlareShipCommandData Data;
 	Data.Type = EFlareCommandDataType::CDT_Location;
 	Data.LocationTarget = Location;
+	Data.PreciseApproach = Precise;
 	PushCommand(Data);
 }
 
@@ -865,7 +884,7 @@ void AFlareShip::PushCommandDock(const FFlareDockingInfo& DockingInfo)
 
 void AFlareShip::PushCommand(const FFlareShipCommandData& Command)
 {
-	Status = EFlareShipStatus::SS_AutoPilot;
+	SetStatus(EFlareShipStatus::SS_AutoPilot);
 	CommandData.Enqueue(Command);
 
 	FLOGV("Pushed command '%s'", *EFlareCommandDataType::ToString(Command.Type));
@@ -880,7 +899,7 @@ void AFlareShip::ClearCurrentCommand()
 
 	if (!CommandData.Peek(Command))
 	{
-		Status = EFlareShipStatus::SS_Manual;
+		SetStatus(EFlareShipStatus::SS_Manual);
 	}
 }
 
@@ -1116,7 +1135,7 @@ void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 	LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(LinearMaxVelocity);
 }
 
-void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
+void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds, float MaxVelocity)
 {
 	// Location data
 	FFlareShipCommandData Data;
@@ -1156,16 +1175,17 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds)
 	{
 		RelativeResultSpeed = FVector::ZeroVector;
 	}
-	else {
+	else
+	{
 
-		float MaxPreciseSpeed = FMath::Min((Distance - DistanceToStop) / DeltaSeconds, LinearMaxVelocity);
+		float MaxPreciseSpeed = FMath::Min((Distance - DistanceToStop) / DeltaSeconds, MaxVelocity);
 
 		RelativeResultSpeed = DeltaPositionDirection;
 		RelativeResultSpeed *= MaxPreciseSpeed;
 	}
 
 	// Under this distance we consider the variation negligible, and ensure null delta + null speed
-	if (Distance < LinearDeadDistance && DeltaVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
+	if (Distance < LinearDeadDistance && DeltaVelocity.Size() < NegligibleSpeedRatio * MaxVelocity)
 	{
 		Airframe->SetPhysicsLinearVelocity(FVector::ZeroVector, false); // TODO remove
 		ClearCurrentCommand();
@@ -1615,7 +1635,10 @@ void AFlareShip::BoostOff()
 
 void AFlareShip::ForceManual()
 {
-	Status = EFlareShipStatus::SS_Manual;
+	if (Status != EFlareShipStatus::SS_Docked)
+	{
+		SetStatus(EFlareShipStatus::SS_Manual);
+	}
 }
 
 void AFlareShip::StartFire()

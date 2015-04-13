@@ -50,6 +50,7 @@ public:
 
 	virtual TArray<IFlareShipInterface*> GetDockedShips() override;
 
+	virtual bool HasAvailableDock(IFlareShipInterface* Ship) const override;
 
 protected:
 

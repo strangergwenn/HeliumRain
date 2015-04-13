@@ -182,3 +182,16 @@ TArray<IFlareShipInterface*> AFlareStation::GetDockedShips()
 
 	return Result;
 }
+
+bool AFlareStation::HasAvailableDock(IFlareShipInterface* Ship) const
+{
+	// Looking for slot
+	for (int32 i = 0; i < DockingSlots.Num(); i++)
+	{
+		if (!DockingSlots[i].Granted)
+		{
+			return true;
+		}
+	}
+	return false;
+}

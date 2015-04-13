@@ -176,3 +176,9 @@ void UFlareWeapon::ApplyHeatDamage(float Energy)
 		ApplyDamage(Energy);
 	}
 }
+
+void UFlareWeapon::RefillAmmo()
+{
+	CurrentAmmo = MaxAmmo;
+}
+

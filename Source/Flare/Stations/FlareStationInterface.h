@@ -130,6 +130,8 @@ public:
 	/** Get the list of docked ships */
 	virtual TArray<IFlareShipInterface*> GetDockedShips() = 0;
 	
+	/** True if at least one available docking port */
+	virtual bool HasAvailableDock(IFlareShipInterface* Ship) const = 0;
 
 	/*----------------------------------------------------
 		Content

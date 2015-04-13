@@ -31,16 +31,16 @@ public:
 	/** Stop firing */
 	virtual void StopFire();
 
-	/**
-	 * Return the current amount of heat production in KW
-	 */
+	/** Return the current amount of heat production in KW */
 	virtual float GetHeatProduction() const override;
 
-	/**
-	 * Apply damage to this component only it is used.
-	 */
+	/** Apply damage to this component only it is used. */
 	virtual void ApplyHeatDamage(float Energy) override;
 
+	/** Reset the current ammo to max ammo.	*/
+	virtual void RefillAmmo();
+
+	
 protected:
 
 	/*----------------------------------------------------

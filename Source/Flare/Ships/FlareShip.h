@@ -116,6 +116,9 @@ public:
 	/** Extrapolate the position of a ship for a given targetting ship */
 	virtual FVector GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed) const;
 
+	/** Set the new flight status */
+	virtual void SetStatus(EFlareShipStatus::Type NewStatus);
+	
 
 	/*----------------------------------------------------
 		Ship interface
@@ -170,7 +173,7 @@ public:
 	void PushCommandAngularBrake();
 
 	/** Go there */
-	void PushCommandLocation(const FVector& Location);
+	void PushCommandLocation(const FVector& Location, bool Precise = false);
 
 	/** Turn this way */
 	void PushCommandRotation(const FVector& RotationTarget, const FVector& LocalShipAxis);
@@ -232,7 +235,7 @@ protected:
 	void UpdateLinearAttitudeManual(float DeltaSeconds);
 
 	/** Automatically update the current linear attitude */
-	void UpdateLinearAttitudeAuto(float DeltaSeconds);
+	void UpdateLinearAttitudeAuto(float DeltaSeconds, float MaxVelocity);
 
 	/** Brake */
 	void UpdateLinearBraking(float DeltaSeconds);
@@ -261,6 +264,7 @@ protected:
 	----------------------------------------------------*/
 
 	virtual void OnControlLost();
+
 
 public:
 
@@ -487,4 +491,10 @@ public:
 	{
 		return LinearMaxVelocity;
 	}
+
+	inline EFlareShipStatus::Type GetStatus() const
+	{
+		return Status;
+	}
+
 };

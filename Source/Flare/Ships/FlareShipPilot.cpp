@@ -2,6 +2,7 @@
 #include "../Flare.h"
 
 #include "FlareShipPilot.h"
+#include "FlareShip.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -22,32 +23,41 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 
 void UFlareShipPilot::TickPilot(float DeltaSeconds)
 {
-	TimeUntilNextChange -= DeltaSeconds;
-	if(TimeUntilNextChange <= 0)
-	{
-
-		TimeUntilNextChange = FMath::FRandRange(10, 40);
-		PilotTargetLocation = FVector(FMath::FRandRange(-4000, 4000), FMath::FRandRange(-1000, 1000), FMath::FRandRange(-1000, 1000));
-		//FLOGV("Pilot change destination to %s", *PilotTargetLocation.ToString());
-		//FLOGV("New change in %fs", TimeUntilNextChange);
-	}
-
-	LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()/100);
 	LinearTargetVelocity = FVector::ZeroVector;
-
-	if(Ship->GetTemperature() < 600)
-	{
-		UseOrbitalBoost = true;
-	}
-
-	if(Ship->GetTemperature() > 780)
-	{
-		UseOrbitalBoost = false;
-	}
 
 	bool DangerousTarget = true;
 	bool AllowOrbitalBoost = false;
 	WantFire = false;
+
+
+	if (Ship->GetStatus() == EFlareShipStatus::SS_Docked)
+	{
+		// Let's undock
+		Ship->Undock();
+		return;
+	}
+	else if (Ship->GetStatus() == EFlareShipStatus::SS_AutoPilot)
+	{
+		// Wait manoeuver
+		return;
+	}
+
+
+	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
+	{
+		// Go repair or refill ammo
+		AFlareStation* TargetStation  = GetNearestAvailableStation();
+		if (TargetStation)
+		{
+			if (Ship->DockAt(TargetStation))
+			{
+				// Ok let dock
+				return;
+			}
+		}
+	}
+
+
 
 	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
 	if(!PilotTargetShip || !PilotTargetShip->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 50000 || PilotTargetShip->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
@@ -116,7 +126,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(Distance < (DangerousTarget ? 600.f : 150.f))
+		if(Distance < (DangerousTarget ? 600.f : 300.f))
 		{
 			//FLOGV("is at fire range=%f", Distance);
 			// TODO Use BulletDirection instead of LocalNose
@@ -146,9 +156,9 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	if(NearestShip)
 	{
 		FVector DeltaLocation = NearestShip->GetActorLocation() - Ship->GetActorLocation();
-		float Distance = DeltaLocation.Size() / 100.f; // Distance in meters
+		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale()) / 100.f; // Distance in meters
 
-		if(Distance < 100.f)
+		if (Distance < 100.f)
 		{
 			// Below 100m begin avoidance maneuver
 			float Alpha = 1 - Distance/100.f;
@@ -334,6 +344,40 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 	return RelativeResultSpeed;
 }
 
+
+AFlareStation* UFlareShipPilot::GetNearestAvailableStation() const
+{
+	FVector PilotLocation = Ship->GetActorLocation();
+	float MinDistanceSquared = -1;
+	AFlareStation* NearestStation = NULL;
+
+	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Ship
+		AFlareStation* StationCandidate = Cast<AFlareStation>(*ActorItr);
+		if (StationCandidate)
+		{
+
+			if (StationCandidate->GetCompany() != Ship->GetCompany())
+			{
+				continue;
+			}
+
+			if (!StationCandidate->HasAvailableDock(Ship))
+			{
+				continue;
+			}
+
+			float DistanceSquared = (PilotLocation - StationCandidate->GetActorLocation()).SizeSquared();
+			if (NearestStation == NULL || DistanceSquared < MinDistanceSquared)
+			{
+				MinDistanceSquared = DistanceSquared;
+				NearestStation = StationCandidate;
+			}
+		}
+	}
+	return NearestStation;
+}
 
 /*----------------------------------------------------
 	Pilot Output

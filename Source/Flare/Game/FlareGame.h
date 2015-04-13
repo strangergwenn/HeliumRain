@@ -57,13 +57,23 @@ public:
 	/** Create a new world from scratch */
 	virtual void CreateWorld(AFlarePlayerController* PC);
 
+
 	/** Create a company */
 	UFUNCTION(exec)
 	UFlareCompany* CreateCompany(FString CompanyName);
 
+
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	AFlareStation* CreateStation(FName StationClass);
+	AFlareStation* CreateStationForMe(FName StationClass);
+
+	/** Create a station in the level */
+	UFUNCTION(exec)
+	AFlareStation* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
+
+	/** Create a station in the level */
+	AFlareStation* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition);
+
 
 	/** Create a ship in the level for the current player*/
 	UFUNCTION(exec)
@@ -75,6 +85,7 @@ public:
 
 	/** Create a ship in the level  for a specific company */
 	AFlareShip* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
+
 
 	/** Build a unique immatriculation string for this object */
 	FName Immatriculate(FName Company, FName TargetClass);

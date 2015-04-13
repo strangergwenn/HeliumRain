@@ -56,7 +56,7 @@ void AFlareProjectile::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	MovementComp->OnProjectileBounce.AddDynamic(this, &AFlareProjectile::OnImpact);
 	ShellComp->MoveIgnoreActors.Add(Instigator);
-	SetLifeSpan(1000000 / MovementComp->InitialSpeed);
+	SetLifeSpan(200000 / MovementComp->InitialSpeed);
 }
 
 void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity)
@@ -127,16 +127,6 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 			 RemainingArmor = ShipComponent->GetRemainingArmorAtLocation(HitResult.Location);
 		}
 
-		// Debug
-		/*FLOGV("Incidence %f", Incidence);
-		FLOGV("ImpactVelocityAxis %s", *ImpactVelocityAxis.ToString());
-		FLOGV("ImpactNormal %s", *HitResult.ImpactNormal.ToString());
-		FLOGV("OnImpact on %s", *(HitResult.Component.Get()->GetReadableName()));
-		FLOGV("OnImpact ProjectileVelocity=%s TargetVelocity=%s ImpactVelocity=%s ImpactVelocityAxis=%s",
-			*ProjectileVelocity.ToString(), *TargetVelocity.ToString(), *ImpactVelocity.ToString(), *ImpactVelocityAxis.ToString());
-		FLOGV("OnImpact ShellMass=%f PenerationIncidenceLimit=%f RemainingArmor=%f HitResult.ImpactNormal=%s",
-			ShellMass, PenerationIncidenceLimit, RemainingArmor, *(HitResult.ImpactNormal.ToString()));
-*/
 		// Check armor peneration
 		int32 PenetrateArmor = false;
 		if (Incidence > PenerationIncidenceLimit)
@@ -150,7 +140,6 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 		
 		// Calculate useful energy
 		float AbsorbedEnergy = (PenetrateArmor ? ShellEnergy : Incidence * ShellEnergy);		
-		//FLOGV("OnImpact AbsorbedEnergy=%f PenetrateArmor=%d ShellEnergy=%f Incidence=%f", AbsorbedEnergy, PenetrateArmor, ShellEnergy, Incidence);
 
 		// Hit a component : damage in KJ
 		IFlareShipInterface* Ship = Cast<IFlareShipInterface>(HitResult.Actor.Get());
@@ -208,7 +197,6 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 			float RemainingEnergy = ShellEnergy - AbsorbedEnergy;
 			float RemainingVelocity = FMath::Sqrt(2 * RemainingEnergy / ShellMass);
 			MovementComp->Bounciness = RemainingEnergy / ShellEnergy;
-			//FLOGV("OnImpact projectile velocity to %f ", MovementComp->Bounciness);
 		}
 	
 		// Physics impulse

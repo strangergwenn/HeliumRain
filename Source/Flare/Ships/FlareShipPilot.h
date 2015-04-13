@@ -3,6 +3,7 @@
 #include "FlareShipPilot.generated.h"
 
 class AFlareShip;
+class AFlareStation;
 class IFlareShipInterface;
 
 /** Ship component save data */
@@ -57,9 +58,16 @@ protected:
 	virtual AFlareShip* GetNearestShip() const;
 
 	/**
+	* Return the nearest station where docking is available
+	*/
+	virtual AFlareStation* GetNearestAvailableStation() const;
+
+	/**
 	 * Return the angular velocity need to align the local ship axis to the target axis
 	 */
 	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, float DeltaSeconds) const;
+
+
 public:
 
 	/*----------------------------------------------------

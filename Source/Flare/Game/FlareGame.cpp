@@ -358,11 +358,31 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	return Company;
 }
 
-AFlareStation* AFlareGame::CreateStation(FName StationClass)
+AFlareStation* AFlareGame::CreateStationForMe(FName StationClass)
+{
+	AFlareStation* StationPawn = NULL;
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+
+
+	// Parent company
+	if (PC && PC->GetCompany())
+	{
+		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		FVector TargetPosition = FVector::ZeroVector;
+		if (ExistingShipPawn)
+		{
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
+		}
+
+		StationPawn = CreateStation(StationClass, PC->GetCompany()->GetIdentifier(), TargetPosition);
+	}
+	return StationPawn;
+}
+
+AFlareStation* AFlareGame::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
 {
 	AFlareStation* StationPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
-	FFlareStationDescription* Desc = GetStationCatalog()->Get(StationClass);
 
 	// Get target position
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
@@ -371,29 +391,44 @@ AFlareStation* AFlareGame::CreateStation(FName StationClass)
 		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
 		if (ExistingShipPawn)
 		{
-			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
 		}
 	}
 
-	if (Desc)
+	// Find company
+	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+	{
+		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+		if (Company && Company->GetShortName() == CompanyShortName)
+		{
+			StationPawn = CreateStation(StationClass, Company->GetIdentifier(), TargetPosition);
+			break;
+		}
+	}
+	return StationPawn;
+} 
+
+AFlareStation* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)
+{
+	AFlareStation* StationPawn = NULL;
+	FFlareStationDescription* Desc = GetStationCatalog()->Get(StationClass);
+	UFlareCompany* Company = FindCompany(CompanyIdentifier);
+
+	if (Desc && Company)
 	{
 		// Default data
 		FFlareStationSave StationData;
 		StationData.Location = TargetPosition;
 		StationData.Rotation = FRotator::ZeroRotator;
-		StationData.Name = Immatriculate(PC->GetCompany()->GetShortName(), StationClass);
+		StationData.Name = Immatriculate(Company->GetShortName(), StationClass);
 		StationData.Identifier = StationClass;
+		StationData.CompanyIdentifier = CompanyIdentifier;
 
 		// Create the station
 		StationPawn = LoadStation(StationData);
 		FLOGV("AFlareGame::CreateStation : Created station '%s'", *StationPawn->GetName());
 	}
 
-	// Parent company
-	if (PC && PC->GetCompany())
-	{
-		StationPawn->SetOwnerCompany(PC->GetCompany());
-	}
 	return StationPawn;
 }
 
@@ -401,8 +436,6 @@ AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
 {
 	AFlareShip* ShipPawn = NULL;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-
-
 
 	// Parent company
 	if (PC && PC->GetCompany())
@@ -422,7 +455,9 @@ AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
 
 AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance)
 {
+	AFlareShip* ShipPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
+
 	// Get target position
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
@@ -434,7 +469,7 @@ AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortN
 		}
 	}
 
-	AFlareShip* ShipPawn = NULL;
+	// Find company
 	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
 	{
 		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);

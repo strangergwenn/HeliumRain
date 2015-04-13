@@ -489,3 +489,12 @@ float UFlareShipComponent::GetTotalHitPoints() const
 		return -1.f;
 	}
 }
+
+void UFlareShipComponent::Repair()
+{
+	if (ComponentDescription)
+	{
+		ShipComponentData.Damage = 0;
+		UpdateLight();
+	}
+}

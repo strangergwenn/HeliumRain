@@ -328,6 +328,11 @@ public:
 	 * Return component total hit points, with armor and hitpoints
 	 */
 	virtual float GetTotalHitPoints() const;
+
+	/** Reset the taken damage to zero.	*/
+	virtual void Repair();
+
+
 protected:
 
 	/*----------------------------------------------------
