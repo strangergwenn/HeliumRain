@@ -65,13 +65,23 @@ public:
 	UFUNCTION(exec)
 	AFlareStation* CreateStation(FName StationClass);
 
-	/** Create a ship in the level */
+	/** Create a ship in the level for the current player*/
 	UFUNCTION(exec)
-	AFlareShip* CreateShip(FName ShipClass);
+	AFlareShip* CreateShipForMe(FName ShipClass);
+
+	/** Create a ship in the level for a specific company identified by its short name*/
+	UFUNCTION(exec)
+	AFlareShip* CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance);
+
+	/** Create a ship in the level  for a specific company */
+	AFlareShip* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
 
 	/** Build a unique immatriculation string for this object */
 	FName Immatriculate(FName Company, FName TargetClass);
 
+	/** Create 2 fleets for 2 companies At a defined distance */
+	UFUNCTION(exec)
+	void CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count);
 
 protected:
 
@@ -125,7 +135,7 @@ public:
 		for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
 		{
 			UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
-			if (Company)
+			if (Company && Company->GetIdentifier() == Identifier)
 			{
 				return Company;
 			}

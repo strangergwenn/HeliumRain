@@ -323,7 +323,7 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 		float StateBeforeDamage = GetDamageRatio();
 
 		ShipComponentData.Damage += Energy;
-		FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints); 
+		//FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints);
 
 		float StateAfterDamage = GetDamageRatio();
 

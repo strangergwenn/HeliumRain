@@ -382,9 +382,9 @@ protected:
 	bool                                 WasAlive; // true if was alive at the last tick
 
 	// Pilot
+	UPROPERTY()
+	UFlareShipPilot*                      Pilot;
 	bool                                 IsPiloted;
-	float                                TimeUntilNextChange;
-	FVector                              PilotTarget;
 
 public:
 
@@ -468,4 +468,23 @@ public:
 		return CombatMode;
 	}
 
+	inline bool IsPilotMode() const
+	{
+		return IsPiloted;
+	}
+
+	inline float GetAngularAccelerationRate() const
+	{
+		return AngularAccelerationRate;
+	}
+
+	inline float GetAngularMaxVelocity() const
+	{
+		return AngularMaxVelocity;
+	}
+
+	inline float GetLinearMaxVelocity() const
+	{
+		return LinearMaxVelocity;
+	}
 };

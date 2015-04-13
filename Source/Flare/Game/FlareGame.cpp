@@ -325,8 +325,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 	PC->SetCompany(Company);
 
 	// Player ship
-	AFlareShip* ShipPawn = CreateShip(FName("ship-ghoul"));
-	ShipPawn->SetOwnerCompany(Company);
+	AFlareShip* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
 	PlayerData.CurrentShipName = ShipPawn->GetName();
 
 	// Load
@@ -398,12 +397,32 @@ AFlareStation* AFlareGame::CreateStation(FName StationClass)
 	return StationPawn;
 }
 
-AFlareShip* AFlareGame::CreateShip(FName ShipClass)
+AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
 {
 	AFlareShip* ShipPawn = NULL;
-	FVector TargetPosition = FVector::ZeroVector;
-	FFlareShipDescription* Desc = GetShipCatalog()->Get(ShipClass);
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
+
+
+	// Parent company
+	if (PC && PC->GetCompany())
+	{
+		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		FVector TargetPosition = FVector::ZeroVector;
+		if (ExistingShipPawn)
+		{
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
+		}
+
+		ShipPawn = CreateShip(ShipClass, PC->GetCompany()->GetIdentifier(), TargetPosition);
+	}
+	return ShipPawn;
+}
+
+
+AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance)
+{
+	FVector TargetPosition = FVector::ZeroVector;
 	// Get target position
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
@@ -411,11 +430,31 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
 		if (ExistingShipPawn)
 		{
-			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
 		}
 	}
 
-	if (Desc)
+	AFlareShip* ShipPawn = NULL;
+	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+	{
+		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+		if (Company && Company->GetShortName() == CompanyShortName)
+		{
+			ShipPawn = CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition);
+			break;
+		}
+	}
+	return ShipPawn;
+}
+
+AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
+{
+	AFlareShip* ShipPawn = NULL;
+	FFlareShipDescription* Desc = GetShipCatalog()->Get(ShipClass);
+
+	UFlareCompany* Company = FindCompany(CompanyIdentifier);
+
+	if (Desc && Company)
 	{
 		// Default data
 		FFlareShipSave ShipData;
@@ -423,7 +462,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 		ShipData.Rotation = FRotator::ZeroRotator;
 		ShipData.LinearVelocity = FVector::ZeroVector;
 		ShipData.AngularVelocity = FVector::ZeroVector; 
-		ShipData.Name = Immatriculate(PC->GetCompany()->GetShortName(), ShipClass);
+		ShipData.Name = Immatriculate(Company->GetShortName(), ShipClass);
 		ShipData.Identifier = ShipClass;
 		ShipData.Heat = 500;
 		ShipData.PowerOutageDelay = 0;
@@ -487,17 +526,19 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass)
 			ComponentData.Damage = 0.f;
 			ShipData.Components.Add(ComponentData);
 		}
+		
+		// Init pilot
+		ShipData.Pilot.Identifier = "chewie";
+		ShipData.Pilot.Name = "Chewbaca";
+
+		// Init company
+		ShipData.CompanyIdentifier = CompanyIdentifier;
 
 		// Create the ship
 		ShipPawn = LoadShip(ShipData);
-		FLOGV("AFlareGame::CreateShip : Created ship '%s'", *ShipPawn->GetName());
+		FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetName(), *TargetPosition.ToString());
 	}
 
-	// Parent company
-	if (PC && PC->GetCompany())
-	{
-		ShipPawn->SetOwnerCompany(PC->GetCompany());
-	}
 	return ShipPawn;
 }
 
@@ -538,4 +579,59 @@ FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 	// Return
 	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
 	return FName(*Immatriculation);
+}
+
+void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count)
+{
+	FVector BasePosition = FVector::ZeroVector;
+	FVector BaseOffset = FVector(1.f, 0.f, 0.f) * Distance / 50.f; // Half the distance in cm
+	FVector BaseShift =  FVector(0.f, 3000.f, 0.f) ;  // 30 m
+	FVector BaseDeep = FVector(10000.f, 0.f, 0.f); // 100 m
+
+	FName Company1Identifier;
+	FName Company2Identifier;
+
+	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+	{
+		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+		if (Company && Company->GetShortName() == Company1)
+		{
+			Company1Identifier = Company->GetIdentifier();
+		}
+
+		if (Company && Company->GetShortName() == Company2)
+		{
+			Company2Identifier = Company->GetIdentifier();
+		}
+	}
+
+
+	// Get target position
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		if (ExistingShipPawn)
+		{
+			BasePosition = ExistingShipPawn->GetActorLocation();
+			BaseOffset = ExistingShipPawn->GetActorRotation().RotateVector(Distance * 50.f * FVector(1, 0, 0)); // Half the distance in cm
+			BaseDeep = ExistingShipPawn->GetActorRotation().RotateVector(FVector(10000.f, 0, 0)); // 100 m in cm
+			BaseShift = ExistingShipPawn->GetActorRotation().RotateVector(FVector(0, 3000.f, 0)); // 30 m in cm
+		}
+	}
+
+
+	for(int32 ShipIndex = 0; ShipIndex < ShipClass1Count; ShipIndex++)
+	{
+		FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1:-1);
+		CreateShip(ShipClass1, Company1Identifier, BasePosition + BaseOffset + Shift);
+		CreateShip(ShipClass1, Company2Identifier, BasePosition - BaseOffset - Shift);
+	}
+
+	for(int32 ShipIndex = 0; ShipIndex < ShipClass2Count; ShipIndex++)
+	{
+		FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1:-1);
+		CreateShip(ShipClass2, Company1Identifier, BasePosition + BaseOffset + Shift + BaseDeep);
+		CreateShip(ShipClass2, Company2Identifier, BasePosition - BaseOffset - Shift - BaseDeep);
+	}
 }

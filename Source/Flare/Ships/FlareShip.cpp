@@ -46,10 +46,8 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	ShipData.DockedTo = NAME_None;
 	ShipData.DockedAt = -1;
 
-	//
+	// Pilot
 	IsPiloted = true;
-	TimeUntilNextChange = 0;
-	PilotTarget = FVector::ZeroVector;
 }
 
 
@@ -108,33 +106,28 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		UpdateCOM();
 
+		if(IsAlive() && IsPiloted) // Also tick not piloted ship
+		{
+			Pilot->TickPilot(DeltaSeconds);
+		}
+
+
 		// Manual pilot
 		if (IsManualPilot() && IsAlive())
 		{
 			if(IsPiloted)
 			{
-				TimeUntilNextChange -= DeltaSeconds;
-				if(TimeUntilNextChange <= 0)
+				LinearTargetVelocity = Pilot->GetLinearTargetVelocity().GetClampedToMaxSize(LinearMaxVelocity);
+				AngularTargetVelocity = Pilot->GetAngularTargetVelocity();
+				ManualOrbitalBoost = Pilot->IsUseOrbitalBoost();
+				if(Pilot->IsWantFire())
 				{
-
-					TimeUntilNextChange = FMath::FRandRange(10, 40);
-					PilotTarget = FVector(FMath::FRandRange(-4000, 4000), FMath::FRandRange(-4000, 4000), FMath::FRandRange(-4000, 4000));
-					FLOGV("Pilot change destination to %s", *PilotTarget.ToString());
-					FLOGV("New change in %fs", TimeUntilNextChange);
+					StartFire();
 				}
-
-				LinearTargetVelocity = (PilotTarget - GetActorLocation()/100).GetClampedToMaxSize(LinearMaxVelocity);
-
-				if(GetTemperature() < 600)
+				else
 				{
-					ManualOrbitalBoost = true;
+					StopFire();
 				}
-
-				if(GetTemperature() > 780)
-				{
-					ManualOrbitalBoost = false;
-				}
-
 			}
 			else
 			{
@@ -176,6 +169,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 		if (!IsDocked())
 		{
 			// TODO enable physic when docked but attach the ship to the station
+
 			PhysicSubTick(DeltaSeconds);
 		}
 	}
@@ -487,8 +481,13 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		}
 	}
 
+	// Initialize pilot
+	Pilot = ConstructObject<UFlareShipPilot>(UFlareShipPilot::StaticClass(), this);
+	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
+
 	// Init alive status
 	WasAlive = IsAlive();
+
 }
 
 FFlareShipSave* AFlareShip::Save()
@@ -612,7 +611,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type)
 			for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
 			{
 				UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
-				Total += Weapon->GetDamageRatio()*(Weapon->IsPowered() ? 1 : 0);
+				Total += Weapon->GetDamageRatio()*(Weapon->IsPowered() ? 1 : 0)*(Weapon->GetCurrentAmmo() > 0 ? 1 : 0);
 			}
 			Health = Total/Weapons.Num();
 		}
@@ -995,7 +994,7 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 	// the damage sphere. There is a linear decrease of damage with a minumum of 0 if the 2 sphere
 	// only touch.
 	
-	FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
+	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
 	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
 	bool IsAliveBeforeDamage = IsAlive();
@@ -1014,11 +1013,11 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 
 		if(IntersectDistance > 0) {
 			// Hit this component
-			FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
+			//FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
 
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
 			Component->ApplyDamage(Energy * Efficiency);
-			FLOGV("Component hit with Efficiency=%f", Efficiency);
+			//FLOGV("Component hit with Efficiency=%f", Efficiency);
 		}
 	}
 
@@ -1097,6 +1096,7 @@ void AFlareShip::EnablePilot(bool PilotEnabled)
 {
 	FLOGV("EnablePilot %d", PilotEnabled);
 	IsPiloted = PilotEnabled;
+	ManualOrbitalBoost = false;
 }
 
 /*----------------------------------------------------
@@ -1620,7 +1620,7 @@ void AFlareShip::ForceManual()
 
 void AFlareShip::StartFire()
 {
-	if (!ExternalCamera)
+	if (IsPiloted || !ExternalCamera)
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
@@ -1631,7 +1631,7 @@ void AFlareShip::StartFire()
 
 void AFlareShip::StopFire()
 {
-	if (!ExternalCamera)
+	if (IsPiloted ||!ExternalCamera)
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
