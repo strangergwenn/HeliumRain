@@ -14,6 +14,8 @@
 void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 {
 	// Data
+	Station = InArgs._Station;
+	Ship = InArgs._Ship;
 	StationData = NULL;
 	ShipData = NULL;
 	StationDescription = NULL;
@@ -24,71 +26,117 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 	AFlareGame* Game = InArgs._Player->GetGame();
 
 	// Station data
-	if (InArgs._Station)
+	if (Station)
 	{
-		Target = InArgs._Station->_getUObject();
-		StationData = InArgs._Station->Save();
+		Target = Station->_getUObject();
+		StationData = Station->Save();
 		StationDescription = InArgs._Player->GetGame()->GetStationCatalog()->Get(StationData->Identifier);
 		Icon = IFlareStationInterface::GetIcon(StationDescription);
-		Company = InArgs._Station->GetCompany();
+		Company = Station->GetCompany();
 	}
 
 	// Ship data
-	else if (InArgs._Ship)
+	else if (Ship)
 	{
-		Target = InArgs._Ship->_getUObject();
-		ShipData = InArgs._Ship->Save();
+		Target = Ship->_getUObject();
+		ShipData = Ship->Save();
 		ShipDescription = InArgs._Player->GetGame()->GetShipCatalog()->Get(ShipData->Identifier);
 		Icon = IFlareShipInterface::GetIcon(ShipDescription);
-		Company = InArgs._Ship->GetCompany();
+		Company = Ship->GetCompany();
 	}
 
 	// Create the layout
 	ChildSlot
-	.VAlign(VAlign_Fill)
+	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Fill)
 	[
-		SNew(SHorizontalBox)
+		SNew(SVerticalBox)
 
-		// Icon
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(FMargin(8))
-		.VAlign(VAlign_Center)
+		// Minimal implementation
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
-			SNew(SImage).Image(Icon)
+			SAssignNew(ListContainer, SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(FMargin(8))
+			.VAlign(VAlign_Center)
+			[
+				SNew(SImage).Image(Icon)
+			]
+
+			// Name
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(FMargin(10))
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.Text(Target->GetName())
+				.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+			]
+
+			// Status
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.Padding(0, 0, 76, 0)
+			[
+				SNew(SFlareShipStatus)
+				.Ship(Ship)
+			]
+
+			// Company flag
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(FMargin(10))
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Right)
+			[
+				SAssignNew(CompanyFlag, SFlareCompanyFlag)
+				.Player(InArgs._Player)
+				.Company(Company)
+			]
 		]
 
-		// Name
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(FMargin(10))
-		.VAlign(VAlign_Center)
+		// Full target actions
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
-			SNew(STextBlock)
-			.Text(Target->GetName())
-			.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
-		]
-
-		// Status
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		[
-			SNew(SFlareShipStatus)
-			.Ship(InArgs._Ship)
-		]
-
-		// Company flag
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(FMargin(10))
-		.VAlign(VAlign_Center)
-		.HAlign(HAlign_Right)
-		[
-			SAssignNew(CompanyFlag, SFlareCompanyFlag)
+			SAssignNew(ActionContainer, SFlareTargetActions)
 			.Player(InArgs._Player)
-			.Company(Company)
+			.Translucent(true)
 		]
 	];
+
+	// Defaults
+	SetActionsVisible(false);
 }
 
+
+/*----------------------------------------------------
+	Interaction
+----------------------------------------------------*/
+
+void SFlareShipInstanceInfo::SetActionsVisible(bool State)
+{
+	if (State)
+	{
+		ListContainer->SetVisibility(EVisibility::Collapsed);
+		if (Station)
+		{
+			ActionContainer->SetStation(Station);
+		}
+		else if (Ship)
+		{
+			ActionContainer->SetShip(Ship);
+		}
+		ActionContainer->Show();
+	}
+	else
+	{
+		ListContainer->SetVisibility(EVisibility::Visible);
+		ActionContainer->Hide();
+	}
+}

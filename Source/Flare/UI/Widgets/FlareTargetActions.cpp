@@ -17,7 +17,17 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 	MinimizedMode = InArgs._MinimizedMode;
 	AFlareGame* Game = InArgs._Player->GetGame();
 	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/ActionButton");
-	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
+
+	// Container style
+	const FFlareContainerStyle* ContainerStyle;
+	if (InArgs._Translucent)
+	{
+		ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvisibleContainerStyle");
+	}
+	else
+	{
+		ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
+	}
 
 	// Create the layout
 	ChildSlot

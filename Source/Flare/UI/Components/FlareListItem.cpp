@@ -21,8 +21,9 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 			// Central content box
 			SNew(SBox)
 			.WidthOverride(ButtonStyle->Width)
-			.HeightOverride(ButtonStyle->Height)
+			.MinDesiredHeight(ButtonStyle->Height)
 			.Padding(FMargin(0))
+			.VAlign(VAlign_Top)
 			[
 				// Button background
 				SNew(SBorder)
@@ -36,7 +37,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 					[
 						SAssignNew(InnerContainer, SBorder)
 						.HAlign(HAlign_Fill)
-						.VAlign(VAlign_Center)
+						.VAlign(VAlign_Top)
 						.Padding(ButtonStyle->ContentPadding)
 						.BorderImage(new FSlateNoResource)
 						[
@@ -50,8 +51,13 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 					.HAlign(HAlign_Right)
 					.VAlign(VAlign_Center)
 					[
-						SNew(SImage)
-						.Image(this, &SFlareListItem::GetDecoratorBrush)
+						SNew(SBorder)
+						.Padding(ContainerStyle->BorderPadding)
+						.BorderImage(this, &SFlareListItem::GetBackgroundBrush)
+						[
+							SNew(SImage)
+							.Image(this, &SFlareListItem::GetDecoratorBrush)
+						]
 					]
 				]
 			]

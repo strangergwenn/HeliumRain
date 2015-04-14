@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareCompanyFlag.h"
+#include "../Widgets/FlareTargetActions.h"
 #include "../../Ships/FlareShipInterface.h"
 #include "../../Stations/FlareStationInterface.h"
 
@@ -33,12 +34,9 @@ public:
 
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
-
-	/** Show or hide the cost label */
-	void SetOwned(bool State);
-
-	/** Show or hide the details */
-	void SetMinimized(bool State);
+	
+	/** Set if we can show the actions or not */
+	void SetActionsVisible(bool State);
 
 
 protected:
@@ -48,14 +46,18 @@ protected:
 	----------------------------------------------------*/
 	
 	// Station target data
+	IFlareStationInterface*           Station;
 	FFlareStationSave*                StationData;
 	FFlareStationDescription*         StationDescription;
 
 	// Ship target data
+	IFlareShipInterface*              Ship;
 	FFlareShipSave*                   ShipData;
 	FFlareShipDescription*            ShipDescription;
 
 	// Widgets
+	TSharedPtr<SHorizontalBox>        ListContainer;
+	TSharedPtr<SFlareTargetActions>   ActionContainer;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
 
 };

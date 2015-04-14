@@ -49,30 +49,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 			.OnGenerateRow(this, &SFlareShipList::GenerateTargetInfo)
 			.OnSelectionChanged(this, &SFlareShipList::OnTargetSelected)
 		]
-
-		// Section title
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(10))
-		[
-			SAssignNew(SelectedTargetText, STextBlock)
-			.Text(LOCTEXT("SectorSelectedTitle", "SELECTED OBJECT"))
-			.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-		]
-
-		// Action box
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(10))
-		[
-			SAssignNew(ActionMenu, SFlareTargetActions)
-			.Player(PC)
-		]
 	];
-
-	// Defaults
-	SelectedTargetText->SetVisibility(EVisibility::Collapsed);
-	ActionMenu->Hide();
 }
 
 
@@ -90,11 +67,6 @@ void SFlareShipList::AddShip(IFlareShipInterface* ShipCandidate)
 	TargetListData.AddUnique(FInterfaceContainer::New(ShipCandidate));
 }
 
-void SFlareShipList::ClearList()
-{
-	TargetListData.Empty();
-}
-
 void SFlareShipList::RefreshList()
 {
 	TargetList->RequestListRefresh();
@@ -102,8 +74,6 @@ void SFlareShipList::RefreshList()
 
 void SFlareShipList::Reset()
 {
-	ActionMenu->Hide();
-	SelectedTargetText->SetVisibility(EVisibility::Collapsed);
 	TargetListData.Empty();
 }
 
@@ -158,32 +128,18 @@ void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESel
 	// Update selection
 	if (PreviousSelection.IsValid())
 	{
+		TSharedRef<SFlareShipInstanceInfo> ShipInfoWidget = StaticCastSharedRef<SFlareShipInstanceInfo>(PreviousSelection->GetContainer()->GetContent());
+		ShipInfoWidget->SetActionsVisible(false);
+
 		PreviousSelection->SetSelected(false);
 	}
 	if (ItemWidget.IsValid())
 	{
+		TSharedRef<SFlareShipInstanceInfo> ShipInfoWidget = StaticCastSharedRef<SFlareShipInstanceInfo>(ItemWidget->GetContainer()->GetContent());
+		ShipInfoWidget->SetActionsVisible(true);
+
 		ItemWidget->SetSelected(true);
 		PreviousSelection = ItemWidget;
-	}
-
-	// Update the action menu
-	if (Item.IsValid())
-	{
-		if (Item->StationInterfacePtr)
-		{
-			ActionMenu->SetStation(Item->StationInterfacePtr);
-		}
-		else
-		{
-			ActionMenu->SetShip(Item->ShipInterfacePtr);
-		}
-		ActionMenu->Show();
-		SelectedTargetText->SetVisibility(EVisibility::Visible);
-	}
-	else
-	{
-		ActionMenu->Hide();
-		SelectedTargetText->SetVisibility(EVisibility::Collapsed);
 	}
 }
 

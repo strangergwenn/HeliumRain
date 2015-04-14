@@ -35,14 +35,11 @@ public:
 
 	/** Add a new ship to the list */
 	void AddShip(IFlareShipInterface* ShipCandidate);
-
-	/** Remove all entries from the list */
-	void ClearList();
-
+	
 	/** Update the list display from content */
 	void RefreshList();
 
-	/** Reset everything and hide */
+	/** Remove all entries from the list */
 	void Reset();
 
 
@@ -71,11 +68,7 @@ protected:
 	TWeakObjectPtr<class AFlareHUD>    OwnerHUD;
 
 	// Menu components
-	TSharedPtr<SFlareTargetActions>    ActionMenu;
-	TSharedPtr<STextBlock>             SelectedTargetText;
-	TSharedPtr<SFlareListItem>         PreviousSelection;
-
-	// Target list
+	TSharedPtr<SFlareListItem>                                   PreviousSelection;
 	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >   TargetList;
 	TArray< TSharedPtr<FInterfaceContainer> >                    TargetListData;
 
