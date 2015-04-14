@@ -47,7 +47,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Update the light status
-	if (ComponentMaterial)
+	if (ComponentMaterial && Ship && Ship->GetLastRenderTime() < 0.5f)
 	{
 		float GlowAlpha = 0;
 
@@ -266,7 +266,7 @@ void UFlareShipComponent::SetupEffectMesh()
 	// Add and register the effect mesh if available
 	if (Ship && ComponentDescription && ComponentDescription->EffectMesh)
 	{
-
+		// Create
 		EffectMesh = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), Ship);
 		EffectMesh->SetStaticMesh(ComponentDescription->EffectMesh);
 
@@ -277,6 +277,7 @@ void UFlareShipComponent::SetupEffectMesh()
 		EffectMesh->RegisterComponentWithWorld(GetWorld());
 		EffectMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		EffectMesh->AttachTo(this, NAME_None, EAttachLocation::KeepWorldPosition);
+		EffectMesh->LDMaxDrawDistance = 100000; // 1km
 
 		// Generate a MID
 		UMaterialInterface* BaseMaterial = EffectMesh->GetMaterial(0);

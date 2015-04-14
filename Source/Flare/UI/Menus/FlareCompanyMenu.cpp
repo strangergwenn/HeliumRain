@@ -130,6 +130,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 
 void SFlareCompanyMenu::Setup(FFlarePlayerSave& PlayerData)
 {
+	SetEnabled(false);
 	ColorBox->Setup(PlayerData);
 	SetVisibility(EVisibility::Hidden);	
 }
@@ -137,6 +138,7 @@ void SFlareCompanyMenu::Setup(FFlarePlayerSave& PlayerData)
 void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 {
 	FLOG("SFlareCompanyMenu::Enter");
+	SetEnabled(true);
 
 	// Company data
 	Company = Target;
@@ -176,6 +178,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 void SFlareCompanyMenu::Exit()
 {
+	SetEnabled(false);
 	ShipList->Reset();
 	Company = NULL;
 	SetVisibility(EVisibility::Hidden);

@@ -100,12 +100,14 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 
 void SFlareSectorMenu::Setup()
 {
+	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 }
 
 void SFlareSectorMenu::Enter()
 {
 	FLOG("SFlareSectorMenu::Enter");
+	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
@@ -136,6 +138,7 @@ void SFlareSectorMenu::Enter()
 
 void SFlareSectorMenu::Exit()
 {
+	SetEnabled(false);
 	ShipList->Reset();
 	SetVisibility(EVisibility::Hidden);
 }

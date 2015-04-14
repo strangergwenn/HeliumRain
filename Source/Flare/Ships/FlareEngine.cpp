@@ -59,7 +59,7 @@ void UFlareEngine::SetAlpha(float Alpha)
 void UFlareEngine::UpdateEffects()
 {
 	// Apply the glow value
-	if (EffectMaterial)
+	if (EffectMaterial && Ship && Ship->GetLastRenderTime() < 0.5f)
 	{
 		EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), ExhaustAccumulator);
 	}

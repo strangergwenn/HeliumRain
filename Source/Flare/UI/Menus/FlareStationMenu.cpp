@@ -130,12 +130,14 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 
 void SFlareStationMenu::Setup()
 {
+	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);	
 }
 
 void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 {
 	FLOG("SFlareStationMenu::Enter");
+	SetEnabled(true);
 
 	CurrentStationTarget = Target;
 	SetVisibility(EVisibility::Visible);
@@ -177,6 +179,7 @@ void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 
 void SFlareStationMenu::Exit()
 {
+	SetEnabled(false);
 	ShipList->Reset();
 	ObjectActionMenu->Hide();
 	SetVisibility(EVisibility::Hidden);

@@ -239,12 +239,14 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 
 void SFlareShipMenu::Setup()
 {
+	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 }
 
 void SFlareShipMenu::Enter(IFlareShipInterface* Target, bool IsEditable)
 {
 	FLOG("SFlareShipMenu::Enter");
+	SetEnabled(true);
 
 	CanEdit = IsEditable;
 	CurrentShipTarget = Target;
@@ -264,6 +266,7 @@ void SFlareShipMenu::Enter(IFlareShipInterface* Target, bool IsEditable)
 
 void SFlareShipMenu::Exit()
 {
+	SetEnabled(false);
 	ObjectActionMenu->Hide();
 	PartListData.Empty();
 	PartList->RequestListRefresh();

@@ -226,12 +226,14 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 
 void SFlareDashboard::Setup()
 {
+	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 }
 
 void SFlareDashboard::Enter()
 {
 	FLOG("SFlareDashboard::Enter");
+	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
@@ -248,6 +250,7 @@ void SFlareDashboard::Enter()
 
 void SFlareDashboard::Exit()
 {
+	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 }
 
