@@ -237,7 +237,7 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
 {
-	FLinearColor Color = FFlareStyleSet::GetHeatColor();
+	FLinearColor Color = FFlareStyleSet::GetEnemyColor();
 	float Ratio = FMath::Clamp(TimeSinceOverheatChanged / PresentationFlashTime, 0.0f, 1.0f);
 	Color.A *= (Overheating ? Ratio : (1 - Ratio));
 

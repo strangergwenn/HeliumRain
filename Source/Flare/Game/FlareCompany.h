@@ -5,6 +5,20 @@
 #include "FlareCompany.generated.h"
 
 
+/** Hostility status */
+UENUM()
+namespace EFlareHostility
+{
+	enum Type
+	{
+		Hostile,
+		Neutral,
+		Friendly,
+		Owned
+	};
+}
+
+
 /** Game save data */
 USTRUCT()
 struct FFlareCompanySave
@@ -81,6 +95,17 @@ public:
 
 	/** Un-register a station */
 	virtual void Unregister(IFlareStationInterface* Station);
+
+
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+
+	/** Check if we are friend or for toward the player */
+	inline EFlareHostility::Type GetPlayerHostility() const;
+
+	/** Check if we are friend or foe toward this target company */
+	virtual EFlareHostility::Type GetHostility(UFlareCompany* TargetCompany) const;
 
 
 	/*----------------------------------------------------

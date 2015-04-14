@@ -162,7 +162,7 @@ FSlateColor SFlareSubsystemStatus::GetIconColor() const
 
 FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 {
-	FLinearColor FlashColor = FFlareStyleSet::GetHeatColor();
+	FLinearColor FlashColor = FFlareStyleSet::GetEnemyColor();
 	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
 	return FMath::Lerp(FlashColor, FLinearColor::White, Ratio);
 }

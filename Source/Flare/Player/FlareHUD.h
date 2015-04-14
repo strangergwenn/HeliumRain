@@ -38,7 +38,7 @@ public:
 	void DrawHUDDesignator(AFlareShipBase* ShipBase);
 
 	/** Draw a designator corner */
-	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation);
+	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor);
 
 	/** Draw a status block for the ship */
 	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareShip* Ship);
@@ -48,6 +48,9 @@ public:
 
 	/** Draw an icon */
 	void DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, bool Center = false);
+
+	/** Get the appropriate hostility color */
+	FLinearColor GetHostilityColor(AFlarePlayerController* PC, UFlareCompany* TargetCompany);
 
 
 	/*----------------------------------------------------
@@ -153,7 +156,9 @@ protected:
 	bool                                    FoundTargetUnderMouse;
 
 	// Designator content
-	FLinearColor                            HudColor;
+	FLinearColor                            HudColorNeutral;
+	FLinearColor                            HudColorFriendly;
+	FLinearColor                            HudColorEnemy;
 	UTexture2D*                             HUDReticleIcon;
 	UTexture2D*                             HUDAimIcon;
 	UTexture2D*                             HUDAimHelperIcon;

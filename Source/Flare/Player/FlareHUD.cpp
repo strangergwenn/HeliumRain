@@ -49,8 +49,12 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Dynamic data
 	FadeTimer = FadeDuration;
-	HudColor = FLinearColor::White;
-	HudColor.A = 0.7;
+	HudColorNeutral = FLinearColor::White;
+	HudColorFriendly = FFlareStyleSet::GetFriendlyColor();
+	HudColorEnemy = FFlareStyleSet::GetEnemyColor();
+	HudColorNeutral.A = 0.7;
+	HudColorFriendly.A = 0.7;
+	HudColorEnemy.A = 0.7;
 }
 
 
@@ -156,14 +160,14 @@ void AFlareHUD::DrawHUD()
 		// Update nose
 		if (!Ship->IsExternalCamera())
 		{
-			DrawHUDIcon(ViewportSize / 2, 24, Ship->IsCombatMode() ? HUDAimIcon : HUDNoseIcon, HudColor, true);
+			DrawHUDIcon(ViewportSize / 2, 24, Ship->IsCombatMode() ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
 		}
 
 		// Update inertial vector
 		FVector EndPoint = Ship->GetActorLocation() + FocusDistance * ShipVelocity;
 		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
 		{
-			DrawHUDIcon(ScreenPosition, 24, HUDReticleIcon, HudColor, true);
+			DrawHUDIcon(ScreenPosition, 24, HUDReticleIcon, HudColorNeutral, true);
 		}
 	}
 }
@@ -226,10 +230,11 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			float IconSize = 24;
 
 			// Draw designator corners
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270);
+			FLinearColor Color = GetHostilityColor(PC, Ship->GetCompany());
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color);
 
 			// Draw the status
 			if (Ship && ObjectSize.X > IconSize)
@@ -243,18 +248,19 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 
 			// Combat helper
 			AFlareShip* PlayerShip = PC->GetShipPawn();
-			if (Ship && PlayerShip && PlayerShip->IsCombatMode())
+			if (Ship && Ship->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->IsCombatMode())
 			{
 				if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, 50000), ScreenPosition)) // TODO get from projectile
 				{
-					DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, HudColor, true);
+					FLinearColor Color = GetHostilityColor(PC, Ship->GetCompany());
+					DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, Color, true);
 				}
 			}
 		}
 	}
 }
 
-void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation)
+void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor)
 {
 	DrawTexture(HUDDesignatorCornerTexture,
 		Position.X + (ObjectSize.X + IconSize) * MainOffset.X / 2,
@@ -293,6 +299,24 @@ void AFlareHUD::DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Text
 		Position -= (IconSize / 2) * FVector2D::UnitVector;
 	}
 	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color);
+}
+
+FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, UFlareCompany* TargetCompany)
+{
+	EFlareHostility::Type Hostility = TargetCompany->GetHostility(PC->GetCompany());
+	switch (Hostility)
+	{
+		case EFlareHostility::Hostile:
+			return HudColorEnemy;
+
+		case EFlareHostility::Owned:
+			return HudColorFriendly;
+
+		case EFlareHostility::Neutral:
+		case EFlareHostility::Friendly:
+		default:
+			return HudColorNeutral;
+	}
 }
 
 

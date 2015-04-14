@@ -35,10 +35,16 @@ public:
 		return FFlareStyleSet::Get().GetBrush(*Path);
 	}
 
-	/** Get the color for heating status */
-	static FLinearColor GetHeatColor()
+	/** Get the color for enemies */
+	static FLinearColor GetEnemyColor()
 	{
 		return (FLinearColor::Red).Desaturate(0.05);
+	}
+
+	/** Get the color for friendlies */
+	static FLinearColor GetFriendlyColor()
+	{
+		return (FLinearColor::Green).Desaturate(0.05);
 	}
 
 

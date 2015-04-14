@@ -333,7 +333,15 @@ void SFlareTargetActions::Show()
 			StationContainer->SetVisibility(EVisibility::Collapsed);
 			ShipContainer->SetVisibility(EVisibility::Visible);
 			ShipInspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
-			ShipFlyButton->SetVisibility(TargetShip == PC->GetShipPawn() ? EVisibility::Collapsed : EVisibility::Visible);
+
+			if (TargetShip != PC->GetShipPawn() && TargetShip->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
+			{
+				ShipFlyButton->SetVisibility(EVisibility::Visible);
+			}
+			else
+			{
+				ShipFlyButton->SetVisibility(EVisibility::Collapsed);
+			}
 		}
 		else if (TargetCompany)
 		{

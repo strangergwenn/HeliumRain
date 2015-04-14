@@ -2,6 +2,7 @@
 #include "Flare.h"
 #include "FlareGame.h"
 #include "FlareCompany.h"
+#include "../Player/FlarePlayerController.h"
 #include "../Ships/FlareShip.h"
 #include "../Stations/FlareStation.h"
 
@@ -49,6 +50,37 @@ void UFlareCompany::Unregister(IFlareShipInterface* Ship)
 void UFlareCompany::Unregister(IFlareStationInterface* Station)
 {
 	CompanyStations.Remove(Station);
+}
+
+
+/*----------------------------------------------------
+	Gameplay
+----------------------------------------------------*/
+
+EFlareHostility::Type UFlareCompany::GetPlayerHostility() const
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOuter()->GetWorld()->GetFirstPlayerController());
+
+	if (PC)
+	{
+		return GetHostility(PC->GetCompany());
+	}
+
+	return EFlareHostility::Neutral;
+}
+
+EFlareHostility::Type UFlareCompany::GetHostility(UFlareCompany* TargetCompany) const
+{
+	if (TargetCompany == this)
+	{
+		return EFlareHostility::Owned;
+	}
+	else if (TargetCompany && true)// TODO hostility
+	{
+		return EFlareHostility::Hostile;
+	}
+
+	return EFlareHostility::Neutral;
 }
 
 
