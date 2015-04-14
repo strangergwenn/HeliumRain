@@ -1,7 +1,7 @@
 
 #include "../Flare.h"
+#include "FlareShip.h"
 #include "FlareProjectile.h"
-#include "FlareShipBase.h"
 
 
 /*----------------------------------------------------
@@ -138,10 +138,8 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 			PenetrateArmor = true; // Armor destruction
 		}	
 		
-		// Calculate useful energy
-		float AbsorbedEnergy = (PenetrateArmor ? ShellEnergy : Incidence * ShellEnergy);		
-
 		// Hit a component : damage in KJ
+		float AbsorbedEnergy = (PenetrateArmor ? ShellEnergy : Incidence * ShellEnergy);
 		IFlareShipInterface* Ship = Cast<IFlareShipInterface>(HitResult.Actor.Get());
 		if (Ship)
 		{
@@ -152,36 +150,50 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 		USceneComponent* Target = HitResult.GetComponent();
 		float DecalSize = FMath::FRandRange(60, 90);
 		
-		// Spawn decal
-		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
-			ExplosionEffectMaterial,
-			DecalSize * FVector(1, 1, 1),
-			Target,
-			NAME_None,
-			HitResult.Location,
-			HitResult.ImpactNormal.Rotation(),
-			EAttachLocation::KeepWorldPosition);
-
-		// Instanciate and configure the decal material
-		UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);
-		UMaterialInstanceDynamic* DecalMaterialInst = UMaterialInstanceDynamic::Create(DecalMaterial, GetWorld());
-		if (DecalMaterialInst)
+		// Spawn impact decal
+		if (ShipComponent && ShipComponent->IsVisibleByPlayer())
 		{
-			DecalMaterialInst->SetScalarParameterValue("RandomParameter", FMath::FRandRange(1, 0));
-			Decal->SetMaterial(0, DecalMaterialInst);
+			UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
+				ExplosionEffectMaterial,
+				DecalSize * FVector(1, 1, 1),
+				Target,
+				NAME_None,
+				HitResult.Location,
+				HitResult.ImpactNormal.Rotation(),
+				EAttachLocation::KeepWorldPosition);
+
+			// Instanciate and configure the decal material
+			UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);
+			UMaterialInstanceDynamic* DecalMaterialInst = UMaterialInstanceDynamic::Create(DecalMaterial, GetWorld());
+			if (DecalMaterialInst)
+			{
+				DecalMaterialInst->SetScalarParameterValue("RandomParameter", FMath::FRandRange(1, 0));
+				Decal->SetMaterial(0, DecalMaterialInst);
+			}
+		}
+		else
+		{
+			FLOG("aaaa")
 		}
 
 		// Spawn penetration effect
 		if (PenetrateArmor)
 		{
-			UGameplayStatics::SpawnEmitterAttached(
-				ExplosionEffectTemplate,
-				Target,
-				NAME_None,
-				HitResult.Location,
-				HitResult.ImpactNormal.Rotation(),
-				EAttachLocation::KeepWorldPosition,
-				true);
+			if (ShipComponent && ShipComponent->IsVisibleByPlayer())
+			{
+				UGameplayStatics::SpawnEmitterAttached(
+					ExplosionEffectTemplate,
+					Target,
+					NAME_None,
+					HitResult.Location,
+					HitResult.ImpactNormal.Rotation(),
+					EAttachLocation::KeepWorldPosition,
+					true);
+			}
+			else
+			{
+				FLOG("aaaa")
+			}
 
 			// Remove flight effects
 			if (FlightEffects)

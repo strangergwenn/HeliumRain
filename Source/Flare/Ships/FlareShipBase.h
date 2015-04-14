@@ -43,6 +43,7 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+
 	/*----------------------------------------------------
 		Damage status
 	----------------------------------------------------*/
@@ -152,11 +153,10 @@ public:
 	/** Get the ship size */
 	float GetMeshScale() const;
 
+	/** Get the closest internal component */
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
 
-	/**
-	 * Return cockpit, if present
-	 */
+	/** Return cockpit, if present */
 	virtual UFlareShipComponent* GetCockpit() const { return NULL; };
 
 

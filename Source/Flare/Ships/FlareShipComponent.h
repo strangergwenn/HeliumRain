@@ -220,15 +220,15 @@ public:
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
 
-	/**
-	 * Update light effect
-	 */
+	/** Update light effect */
 	virtual void UpdateLight();
 
-	/**
-	 * Return bounding sphere in out parameters
-	 */
+	/** Return bounding sphere in out parameters */
 	virtual void GetBoundingSphere(FVector& Location, float& Radius);
+
+	/** Check if the parent actor was rendered recently */
+	bool IsVisibleByPlayer();
+
 
 public:
 

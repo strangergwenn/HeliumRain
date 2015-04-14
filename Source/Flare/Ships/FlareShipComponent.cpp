@@ -47,7 +47,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Update the light status
-	if (ComponentMaterial && Ship && Ship->GetLastRenderTime() < 0.5f)
+	if (ComponentMaterial && IsVisibleByPlayer())
 	{
 		float GlowAlpha = 0;
 
@@ -213,6 +213,11 @@ void UFlareShipComponent::GetBoundingSphere(FVector& Location, float& Radius)
 	Location = GetComponentToWorld().TransformPosition(LocalBoxCenter);
 }
 
+bool UFlareShipComponent::IsVisibleByPlayer()
+{
+	return Ship && (GetWorld()->TimeSeconds - LastRenderTime < 0.2f);
+}
+
 
 /*----------------------------------------------------
 	Customization
@@ -303,6 +308,11 @@ void UFlareShipComponent::UpdateCustomization()
 		}
 	}
 }
+
+
+/*----------------------------------------------------
+	Damages
+----------------------------------------------------*/
 
 float UFlareShipComponent::GetRemainingArmorAtLocation(FVector Location)
 {
