@@ -109,7 +109,8 @@ protected:
 
 
 	// Pilot brain TODO save in save
-	float                                TimeUntilNextChange;
+	float                                ReactionTime;
+	float                                TimeUntilNextReaction;
 	FVector                              PilotTargetLocation;
 	AFlareShip*                 PilotTargetShip;
 };

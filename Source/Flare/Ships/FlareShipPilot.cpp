@@ -11,7 +11,8 @@
 UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-	TimeUntilNextChange = 0;
+	ReactionTime = FMath::FRandRange(0.2, 0.5);
+	TimeUntilNextReaction = 0;
 	PilotTargetLocation = FVector::ZeroVector;
 	PilotTargetShip = NULL;
 }
@@ -23,6 +24,16 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 
 void UFlareShipPilot::TickPilot(float DeltaSeconds)
 {
+	if (TimeUntilNextReaction > 0)
+	{
+		TimeUntilNextReaction -= DeltaSeconds;
+		return;
+	}
+	else
+	{
+		TimeUntilNextReaction = ReactionTime;
+	}
+
 	LinearTargetVelocity = FVector::ZeroVector;
 
 	bool DangerousTarget = true;
@@ -100,6 +111,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		// First allow align nose to target bullet interception point
 		// TODO Use BulletDirection instead of LocalNose
 		//AngularTargetVelocity = GetAngularVelocityToAlignAxis(LocalNose, FireTargetAxis, DeltaSeconds);
+		//TODO find target angular velocity
 		AngularTargetVelocity = GetAngularVelocityToAlignAxis(BulletDirection, FireTargetAxis, DeltaSeconds);
 
 
@@ -137,7 +149,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 			//FLOGV("AngularPrecision=%f", AngularPrecision);
 
-			if(AngularPrecision > (DangerousTarget ? 0.998f : 0.999f))
+			if(AngularPrecision > (DangerousTarget ? 0.999f : 0.9995f))
 			{
 				//FLOG("Fire");
 				WantFire = true;
@@ -326,7 +338,7 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 	    TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
 	}
 
-	float AngleToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + DeltaSeconds);
+	float AngleToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + ReactionTime);
 
 	FVector RelativeResultSpeed;
 
@@ -335,7 +347,7 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 	}
 	else {
 
-		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / DeltaSeconds, Ship->GetAngularMaxVelocity());
+		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / ReactionTime, Ship->GetAngularMaxVelocity());
 
 		RelativeResultSpeed = RotationDirection;
 		RelativeResultSpeed *= MaxPreciseSpeed;
