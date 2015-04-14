@@ -102,7 +102,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Check if we are friend or for toward the player */
-	inline EFlareHostility::Type GetPlayerHostility() const;
+	virtual EFlareHostility::Type GetPlayerHostility() const;
 
 	/** Check if we are friend or foe toward this target company */
 	virtual EFlareHostility::Type GetHostility(UFlareCompany* TargetCompany) const;
