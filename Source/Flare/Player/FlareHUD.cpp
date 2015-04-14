@@ -230,7 +230,7 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			float IconSize = 24;
 
 			// Draw designator corners
-			FLinearColor Color = GetHostilityColor(PC, Ship->GetCompany());
+			FLinearColor Color = GetHostilityColor(PC, ShipBase);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color);
@@ -252,7 +252,7 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			{
 				if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, 50000), ScreenPosition)) // TODO get from projectile
 				{
-					FLinearColor Color = GetHostilityColor(PC, Ship->GetCompany());
+					FLinearColor Color = GetHostilityColor(PC, Ship);
 					DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, Color, true);
 				}
 			}
@@ -301,9 +301,9 @@ void AFlareHUD::DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Text
 	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color);
 }
 
-FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, UFlareCompany* TargetCompany)
+FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareShipBase* Target)
 {
-	EFlareHostility::Type Hostility = TargetCompany->GetHostility(PC->GetCompany());
+	EFlareHostility::Type Hostility = Target->GetPlayerHostility();
 	switch (Hostility)
 	{
 		case EFlareHostility::Hostile:

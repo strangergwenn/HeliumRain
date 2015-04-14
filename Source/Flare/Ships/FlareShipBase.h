@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Game/FlareCompany.h"
 #include "FlareShipComponent.h"
 #include "FlareShipPilot.h"
 #include "FlareShipBase.generated.h"
@@ -81,6 +82,7 @@ public:
 	 */
 	virtual void OnElectricDamage(float DamageRatio) {};
 
+
 	/*----------------------------------------------------
 		Camera control
 	----------------------------------------------------*/
@@ -157,6 +159,7 @@ public:
 	 */
 	virtual UFlareShipComponent* GetCockpit() const { return NULL; };
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -202,6 +205,30 @@ private:
 	inline bool IsPresentationMode() const
 	{
 		return PresentationMode;
+	}
+
+	inline EFlareHostility::Type GetPlayerHostility() const
+	{
+		if (Company)
+		{
+			return Company->GetPlayerHostility();
+		}
+		else
+		{
+			return EFlareHostility::Neutral;
+		}
+	}
+
+	inline EFlareHostility::Type GetHostility(UFlareCompany* TargetCompany) const
+	{
+		if (Company)
+		{
+			return Company->GetHostility(TargetCompany);
+		}
+		else
+		{
+			return EFlareHostility::Neutral;
+		}
 	}
 
 };

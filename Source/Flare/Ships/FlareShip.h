@@ -498,28 +498,4 @@ public:
 		return Status;
 	}
 
-	inline EFlareHostility::Type GetPlayerHostility() const
-	{
-		if (Company)
-		{
-			return Company->GetPlayerHostility();
-		}
-		else
-		{
-			return EFlareHostility::Neutral;
-		}
-	}
-
-	inline EFlareHostility::Type GetHostility(UFlareCompany* TargetCompany) const
-	{
-		if (Company)
-		{
-			return Company->GetHostility(TargetCompany);
-		}
-		else
-		{
-			return EFlareHostility::Neutral;
-		}
-	}
-
 };

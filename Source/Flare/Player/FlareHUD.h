@@ -50,7 +50,7 @@ public:
 	void DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, bool Center = false);
 
 	/** Get the appropriate hostility color */
-	FLinearColor GetHostilityColor(AFlarePlayerController* PC, UFlareCompany* TargetCompany);
+	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareShipBase* Target);
 
 
 	/*----------------------------------------------------
