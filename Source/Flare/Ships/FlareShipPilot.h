@@ -65,7 +65,7 @@ protected:
 	/**
 	 * Return the angular velocity need to align the local ship axis to the target axis
 	 */
-	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, float DeltaSeconds) const;
+	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const;
 
 
 public:
@@ -113,4 +113,8 @@ protected:
 	float                                TimeUntilNextReaction;
 	FVector                              PilotTargetLocation;
 	AFlareShip*                 PilotTargetShip;
+	float AttackAngle;
+	float AttackDistance;
+	float AttackPhase;
+	float LastTargetDistance;
 };
