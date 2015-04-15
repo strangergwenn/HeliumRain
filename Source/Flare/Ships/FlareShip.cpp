@@ -1514,13 +1514,14 @@ void AFlareShip::MousePositionInput(FVector2D Val)
 	{
 		if (MousePressed  || CombatMode)
 		{
-			// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
+			float DistanceToCenter = FMath::Sqrt(FMath::Square(Val.X) + FMath::Square(Val.Y));
 
-			Val.X = FMath::Clamp(1. + (FMath::Abs(Val.X) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.X);
-			Val.Y = FMath::Clamp(1. + (FMath::Abs(Val.Y) - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.) * FMath::Sign(Val.Y);
-		
-			ManualAngularVelocity.Z = Val.X * AngularMaxVelocity;
-			ManualAngularVelocity.Y = Val.Y * AngularMaxVelocity;
+			// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
+			float CompensatedDistance = FMath::Clamp(1. + (DistanceToCenter - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.);
+			float Angle = FMath::Atan2(Val.Y, Val.X);
+
+			ManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * AngularMaxVelocity;
+			ManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * AngularMaxVelocity;
 		}
 		else
 		{
