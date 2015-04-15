@@ -28,6 +28,7 @@ AFlareProjectile::AFlareProjectile(const class FObjectInitializer& PCIP) : Super
 	ShellComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	ShellComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	ShellComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	ShellComp->LDMaxDrawDistance = 100000; // 1km
 	RootComponent = ShellComp;
 
 	// Setup movement
@@ -171,10 +172,6 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 				Decal->SetMaterial(0, DecalMaterialInst);
 			}
 		}
-		else
-		{
-			FLOG("aaaa")
-		}
 
 		// Spawn penetration effect
 		if (PenetrateArmor)
@@ -189,10 +186,6 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 					HitResult.ImpactNormal.Rotation(),
 					EAttachLocation::KeepWorldPosition,
 					true);
-			}
-			else
-			{
-				FLOG("aaaa")
 			}
 
 			// Remove flight effects
