@@ -262,7 +262,7 @@ public:
 	/**
 	 * Return the remaining hit points ratio. 1 for no damage, 0 for destroyed
 	 */
-	float GetDamageRatio() const;
+	float GetDamageRatio(bool WithArmor = false) const;
 
 	/**
 	 * Return true if the ship component is destroyed

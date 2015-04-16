@@ -122,7 +122,7 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	if (TargetShip && DisplayType == EFlareInfoDisplay::ID_Subsystem)
 	{
 		TimeSinceFlash += InDeltaTime;
-		float NewHealth = TargetShip->GetSubsystemHealth(SubsystemType);
+		float NewHealth = TargetShip->GetSubsystemHealth(SubsystemType, true);
 		if (NewHealth < Health)
 		{
 			TimeSinceFlash = 0;

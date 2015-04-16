@@ -200,7 +200,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Get the health factor associated to a ship's subsystem */
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type) = 0;
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false) = 0;
 
 	/** Get the ship's temperature in Kelvin */
 	virtual float GetTemperature() = 0;

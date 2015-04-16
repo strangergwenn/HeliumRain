@@ -134,7 +134,7 @@ public:
 
 	virtual bool IsMilitary() override;
 
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type) override;
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false) override;
 
 	virtual float GetTemperature() override;
 

@@ -356,12 +356,12 @@ void UFlareShipComponent::ApplyHeatDamage(float Energy)
 }
 
 
-float UFlareShipComponent::GetDamageRatio() const
+float UFlareShipComponent::GetDamageRatio(bool WithArmor) const
 {
 	if (ComponentDescription)
 	{
 		float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData.Damage;
-		return FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
+		return FMath::Clamp(RemainingHitPoints / (ComponentDescription->HitPoints + (WithArmor ? ComponentDescription->ArmorHitPoints : 0.f)), 0.f, 1.f);
 	} 
 	else
 	{
