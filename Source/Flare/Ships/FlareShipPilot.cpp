@@ -339,26 +339,23 @@ AFlareShip* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) const
 		AFlareShip* ShipCandidate = Cast<AFlareShip>(*ActorItr);
 		if (ShipCandidate)
 		{
-			if(!ShipCandidate->IsAlive())
+			if (!ShipCandidate->IsAlive())
 			{
 				continue;
 			}
 
-			if(DangerousOnly && ShipCandidate->IsMilitary() && ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
+			if (DangerousOnly && ShipCandidate->IsMilitary() && ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
 			{
 				continue;
 			}
 
-			if(ShipCandidate->GetCompany() == Ship->GetCompany())
+			if (Ship->GetCompany()->GetHostility(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
 			{
 				continue;
 			}
-
-
-
 
 			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
-			if(NearestHostileShip == NULL || DistanceSquared < MinDistanceSquared)
+			if (NearestHostileShip == NULL || DistanceSquared < MinDistanceSquared)
 			{
 				MinDistanceSquared = DistanceSquared;
 				NearestHostileShip = ShipCandidate;
