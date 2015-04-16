@@ -94,6 +94,7 @@ protected:
 
 	// Health management
 	float                                   Health;
+	float                                   ComponentHealth;
 	float                                   TimeSinceFlash;
 	float                                   HealthDropFlashTime;
 
