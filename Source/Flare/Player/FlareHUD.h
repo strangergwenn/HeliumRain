@@ -49,6 +49,9 @@ public:
 	/** Draw an icon */
 	void DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, bool Center = false);
 
+	/** Draw an icon */
+	void DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, float Rotation);
+
 	/** Get the appropriate hostility color */
 	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareShipBase* Target);
 
@@ -132,6 +135,9 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
+	// Settings
+	float                                   CombatMouseRadius;
+
 	// Fade-to-black system
 	bool                                    MenuIsOpen;
 	bool                                    IsInteractive;
@@ -163,6 +169,7 @@ protected:
 	UTexture2D*                             HUDAimIcon;
 	UTexture2D*                             HUDAimHelperIcon;
 	UTexture2D*                             HUDNoseIcon;
+	UTexture2D*                             HUDCombatMouseIcon;
 	UTexture2D*                             HUDDesignatorCornerTexture;
 
 	// Ship status content

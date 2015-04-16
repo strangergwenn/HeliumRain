@@ -88,6 +88,9 @@ public:
 	/** Get the position of the mouse on the screen */
 	FVector2D GetMousePosition();
 
+	/** Reset the mouse to the center of the screen */
+	void ResetMousePosition();
+
 
 	/*----------------------------------------------------
 		Input

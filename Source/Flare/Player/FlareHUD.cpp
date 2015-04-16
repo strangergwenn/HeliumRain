@@ -16,6 +16,7 @@
 
 AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
+	, CombatMouseRadius(100)
 	, MenuIsOpen(false)
 	, FadeDuration(0.15)
 {
@@ -24,6 +25,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj          (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj    (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj         (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj  (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 
 	// Load content (status icons)
@@ -38,6 +40,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDAimIcon = HUDAimIconObj.Object;
 	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
 	HUDNoseIcon = HUDNoseIconObj.Object;
+	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 
 	// Set content (status icons)
@@ -169,6 +172,21 @@ void AFlareHUD::DrawHUD()
 		{
 			DrawHUDIcon(ScreenPosition, 24, HUDReticleIcon, HudColorNeutral, true);
 		}
+
+		// Update combat mouse pointer
+		if (Ship->IsCombatMode())
+		{
+			// Compute clamped mouse position
+			FVector2D MousePosDelta = 2 * CombatMouseRadius * (PC->GetMousePosition() - ViewportSize / 2) / ViewportSize.Size();
+			FVector MousePosDelta3D = FVector(MousePosDelta.X, MousePosDelta.Y, 0);
+			MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
+			MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);
+
+			// Draw
+			FLinearColor PointerColor = HudColorNeutral;
+			PointerColor.A *= MousePosDelta.Size() / CombatMouseRadius;
+			DrawHUDIconRotated(ViewportSize / 2 + MousePosDelta, 24, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
+		}
 	}
 }
 
@@ -299,6 +317,13 @@ void AFlareHUD::DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Text
 		Position -= (IconSize / 2) * FVector2D::UnitVector;
 	}
 	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color);
+}
+
+void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, float Rotation)
+{
+	Position -= (IconSize / 2) * FVector2D::UnitVector;
+	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color,
+		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
 }
 
 FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareShipBase* Target)

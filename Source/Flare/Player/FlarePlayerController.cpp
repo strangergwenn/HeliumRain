@@ -42,7 +42,9 @@ void AFlarePlayerController::BeginPlay()
 void AFlarePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+	bShowMouseCursor = !CombatMode;
 
+	// Spawn dust effects if they are not already here
 	if (!DustEffect && ShipPawn)
 	{
 		DustEffect = UGameplayStatics::SpawnEmitterAttached(
@@ -51,6 +53,7 @@ void AFlarePlayerController::PlayerTick(float DeltaTime)
 			NAME_None);
 	}
 
+	// Update dust effects
 	if (DustEffect && ShipPawn && !IsInMenu())
 	{
 		FVector ViewLocation;
@@ -81,15 +84,12 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 	{
 		CombatMode = false;
 		ShipPawn->SetCombatMode(false);
+		ResetMousePosition();
 	}
 
 	// If something changed...
 	if (ExternalCamera != NewState || Force)
-	{
-		// TODO COMBAT MODE : force focus / mouse appearance when changing focus
-		//bShowMouseCursor = !CombatMode;
-		bShowMouseCursor = true;
-		
+	{		
 		// Send the camera order to the ship
 		if (ShipPawn)
 		{
@@ -104,10 +104,11 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 
 void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 {
-	if(ShipPawn)
+	if (ShipPawn)
 	{
 		ShipPawn->EnablePilot(true);
 	}
+
 	Possess(Ship);
 	ShipPawn = Ship;
 	CombatMode = false;
@@ -233,6 +234,17 @@ FVector2D AFlarePlayerController::GetMousePosition()
 	return Result;
 }
 
+void AFlarePlayerController::ResetMousePosition()
+{
+	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	if (LocalPlayer && LocalPlayer->ViewportClient)
+	{
+		FViewport* Viewport = LocalPlayer->ViewportClient->Viewport;
+		FVector2D ViewportSize = Viewport->GetSizeXY();
+		Viewport->SetMouse(ViewportSize.X / 2, ViewportSize.Y / 2);
+	}
+}
+
 
 /*----------------------------------------------------
 	Input
@@ -283,6 +295,7 @@ void AFlarePlayerController::ToggleCombat()
 		CombatMode = !CombatMode;
 		ShipPawn->SetCombatMode(CombatMode);
 		SetExternalCamera(false, true);
+		ResetMousePosition();
 	}
 }
 
