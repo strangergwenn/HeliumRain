@@ -92,6 +92,9 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	if(OldPilotTargetShip != PilotTargetShip)
 	{
 		AttackPhase = 0;
+		AttackAngle = FMath::FRandRange(0, 360);
+		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
+		AttackDistance = FMath::FRandRange(50, 100) + TargetSize;
 	}
 
 	if(PilotTargetShip)
@@ -158,8 +161,6 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 			if(FVector::DotProduct(DeltaLocation, DeltaVelocity) > 0)
 			{
 				// Target is approching, prepare attack
-				AttackAngle = FMath::FRandRange(0, 360);
-				AttackDistance = FMath::FRandRange(50, 100) + TargetSize;
 				AttackPhase = 1;
 				LastTargetDistance = Distance;
 			}
