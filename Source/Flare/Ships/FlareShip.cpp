@@ -338,7 +338,13 @@ FVector AFlareShip::GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed
 	//Relative Target Speed
 	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
 
-	float Divisor = FMath::Square(BulletSpeed) - TargetVelocity.SizeSquared();
+	// Find the relative speed in the axis of target
+	FVector TargetDirection = (TargetLocation - BulletLocation).GetUnsafeNormal();
+	FVector BonusVelocity = TargettingShip->GetLinearVelocity() * 100;
+	float BonusVelocityInTargetAxis = FVector::DotProduct(TargetDirection, BonusVelocity);
+	float EffectiveBulletSpeed = BulletSpeed + BonusVelocityInTargetAxis;
+
+	float Divisor = FMath::Square(EffectiveBulletSpeed) - TargetVelocity.SizeSquared();
 
 	float A = -1;
 	float B = 2 * (TargetVelocity.X * (TargetLocation.X - BulletLocation.X) + TargetVelocity.Y * (TargetLocation.Y - BulletLocation.Y) + TargetVelocity.Z * (TargetLocation.Z - BulletLocation.Z)) / Divisor;
@@ -346,7 +352,11 @@ FVector AFlareShip::GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed
 
 	float Delta = FMath::Square(B) - 4 * A * C;
 
-	float InterceptTime = - B - FMath::Sqrt(Delta) / (2 * A);
+	float InterceptTime1 = (- B - FMath::Sqrt(Delta)) / (2 * A);
+	float InterceptTime2 = (- B + FMath::Sqrt(Delta)) / (2 * A);
+
+	float InterceptTime = FMath::Max(InterceptTime1, InterceptTime2);
+
 	FVector InterceptLocation = TargetLocation + TargetVelocity * InterceptTime;
 
 	return InterceptLocation;
