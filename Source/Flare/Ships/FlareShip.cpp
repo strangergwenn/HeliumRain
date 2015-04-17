@@ -160,7 +160,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 				}
 				else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Dock)
 				{
-					ConfirmDock(Cast<IFlareStationInterface>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam);
+					Docking(Cast<IFlareStationInterface>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam);
 				}
 			}
 		}
@@ -729,28 +729,151 @@ bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
 	if (DockingInfo.Granted)
 	{
 		FLOG("AFlareShip::DockAt : access granted");
-		FVector ShipDockOffset = GetDockLocation();
-		DockingInfo.EndPoint += DockingInfo.Rotation.RotateVector(ShipDockOffset * FVector(1, 0, 0)) - ShipDockOffset * FVector(0, 1, 1);
-		DockingInfo.StartPoint = DockingInfo.EndPoint + 5000 * DockingInfo.Rotation.RotateVector(FVector(1, 0, 0));
-		
-		// Dock
-		if (NavigateTo(DockingInfo.StartPoint))
-		{
-			// Align front to dock axis, ship top to station top, set speed
-			PushCommandRotation((DockingInfo.EndPoint - DockingInfo.StartPoint), FVector(1, 0, 0));
-			PushCommandRotation(FVector(0,0,1), FVector(0,0,1));
-			
-			// Move there
-			PushCommandLocation(DockingInfo.EndPoint, true);
-			PushCommandDock(DockingInfo);
-			FLOG("AFlareShip::DockAt : navigation sent");
-			return true;
-		}
+		PushCommandDock(DockingInfo);
+		return true;
 	}
 
 	// Failed
 	FLOG("AFlareShip::DockAt failed");
 	return false;
+}
+
+void AFlareShip::Docking(IFlareStationInterface* DockStation, int32 DockId, float DeltaSeconds)
+{
+	// The dockin has multiple phase
+	// - Rendez-vous : go at the entrance of the docking corridor.
+	//     Its a large sphere  in front of the dock with a speed limit. During
+	//     the approch phase the ship can go as phase is as he want.
+	//
+	// - Approch (500 m): The ship advance in the approch corridor and try to keep itself
+	//    near the dock axis an align th ship.
+	//    The approch corridor is a cone with speed limitation more and more strict
+	//    approching the station. There is a prefered  speed and a limit speed. If
+	//    the limit speed is reach, the ship must abord and return to the entrance
+	//    of the docking corridor. The is also a angular limit.
+	//
+	// - Final Approch (5 m) : The ship slowly advance and wait for the docking trying to keep
+	//    the speed and alignement.
+	//
+	// - Docking : As soon as the ship is in the docking limits, the ship is attached to the station
+
+
+	// Compute docking infos
+	float DockToDockDeltaLocation;
+	float DockToDockDistance;
+	FVector DockAxisLinearVelocity;
+	FVector RelativeDockAngularVelocity;
+	float Angle;
+	// TODO init that
+
+	// First find the current docking phase
+
+
+	// Check if dockable
+	bool OkForDocking = true;
+	if (DockToDockDistance > DockingDockToDockDistanceLimit)
+	{
+		// Too far
+		OkForDocking = false;
+	}
+	else if (VectorPlaneProject(DockToDockDeltaLocation, FVector(1, 0, 0)).Size() > FinalApproachDockToDockDistanceLimit)
+	{
+		// Too far in lateral axis
+		OkForDocking = false;
+	}
+	else if (Angle > DockingAngleLimit)
+	{
+		// Not aligned
+		OkForDocking = false;
+	}
+	else if (DockAxisLinearVelocity.X > DockingVelocityLimit)
+	{
+		// Too fast
+		OkForDocking = false;
+	}
+	else if (VectorPlaneProject(DockAxisLinearVelocity, FVector(1, 0, 0)).Size()  > DockingLateralVelocityLimit)
+	{
+		// Too much lateral velocity
+		OkForDocking = false;
+	}
+	else if (RelativeDockAngularVelocity.Size() > DockingAngularVelocityLimit)
+	{
+		// Too much angular velocity
+		OkForDocking = false;
+	}
+
+	if(OkForDocking)
+	{
+		ConfirmDock(DockStation, DockId);
+		return;
+	}
+
+	bool InFinalApproach = true;
+	// Not dockable, check if in final approch
+	if (DockToDockDistance > FinalApproachDockToDockDistanceLimit)
+	{
+		// Too far
+		InFinalApproach = false;
+	}
+	else if (VectorPlaneProject(DockToDockDeltaLocation, FVector(1, 0, 0)).Size() > FinalApproachDockToDockDistanceLimit)
+	{
+		// Too far in lateral axis
+		InFinalApproach = false;
+	}
+	else if (Angle > FinalApproachAngleLimit)
+	{
+		// Not aligned
+		InFinalApproach = false;
+	}
+	else if (DockAxisLinearVelocity.X > FinalApproachVelocityLimit)
+	{
+		// Too fast
+		InFinalApproach = false;
+	}
+	else if (VectorPlaneProject(DockAxisLinearVelocity, FVector(1, 0, 0)).Size()  > FinalApproachLateralVelocityLimit)
+	{
+		// Too much lateral velocity
+		InFinalApproach = false;
+	}
+	else if (RelativeDockAngularVelocity.Size() > FinalApproachAngularVelocityLimit)
+	{
+		// Too much angular velocity
+		InFinalApproach = false;
+	}
+
+	if(InFinalApproach)
+	{
+		// TODO continue advance
+		return;
+	}
+
+	bool InApproach = true;
+	// Not in final approch, check if in approch
+	if (DockToDockDistance > ApproachDockToDockDistanceLimit)
+	{
+		// Too far
+		InApproach = false;
+	}
+	else if (VectorPlaneProject(DockToDockDeltaLocation, FVector(1, 0, 0)).Size() > GetApproachDockToDockDistanceLimit(DockToDockDistance))
+	{
+		// Too far in lateral axis
+		InApproach = false;
+	}
+	else if (DockAxisLinearVelocity.X > GetApproachVelocityLimit(DockToDockDistance))
+	{
+		// Too fast
+		InApproach = false;
+	}
+
+	if(InFinalApproach)
+	{
+		// TODO align, stabilize and advance
+		return;
+	}
+
+	// Not in approach, just go to the docking entrance point
+	UpdateLinearAttitudeAuto(DeltaSeconds, LinearMaxVelocity);
+	// TODO refactor to get the position in parameter
 }
 
 void AFlareShip::ConfirmDock(IFlareStationInterface* DockStation, int32 DockId)

@@ -155,6 +155,9 @@ public:
 
 	virtual bool DockAt(IFlareStationInterface* TargetStation) override;
 
+	/** Continue docking sequence has completed until effectif docking */
+	virtual void Docking(IFlareStationInterface* DockStation, int32 DockId, float DeltaSeconds);
+
 	/** Confirm that the docking sequence has completed */
 	virtual void ConfirmDock(IFlareStationInterface* DockStation, int32 DockId);
 
