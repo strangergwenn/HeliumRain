@@ -202,7 +202,13 @@ void AFlarePlayerController::OnEnterMenu()
 	if (!IsInMenu())
 	{
 		Possess(MenuPawn);
-		bShowMouseCursor = true;
+
+		if (CombatMode)
+		{
+			CombatMode = false;
+			ShipPawn->SetCombatMode(false);
+			ResetMousePosition();
+		}
 	}
 }
 

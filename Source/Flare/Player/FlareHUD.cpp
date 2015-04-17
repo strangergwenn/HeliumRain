@@ -182,9 +182,14 @@ void AFlareHUD::DrawHUD()
 			MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
 			MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);
 
+			// Keep an offset
+			FVector2D MinimalOffset = MousePosDelta;
+			MinimalOffset.Normalize();
+			MousePosDelta += 12 * MinimalOffset;
+
 			// Draw
 			FLinearColor PointerColor = HudColorNeutral;
-			PointerColor.A *= MousePosDelta.Size() / CombatMouseRadius;
+			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
 			DrawHUDIconRotated(ViewportSize / 2 + MousePosDelta, 24, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
 		}
 	}
