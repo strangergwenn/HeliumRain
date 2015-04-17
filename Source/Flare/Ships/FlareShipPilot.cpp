@@ -89,7 +89,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		DangerousTarget = false;
 	}
 
-	if(OldPilotTargetShip != PilotTargetShip)
+	if(PilotTargetShip && OldPilotTargetShip != PilotTargetShip)
 	{
 		AttackPhase = 0;
 		AttackAngle = FMath::FRandRange(0, 360);
@@ -345,7 +345,7 @@ AFlareShip* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) const
 				continue;
 			}
 
-			if (DangerousOnly && ShipCandidate->IsMilitary() && ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
+			if (DangerousOnly && (!ShipCandidate->IsMilitary() || ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0))
 			{
 				continue;
 			}
