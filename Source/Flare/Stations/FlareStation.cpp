@@ -18,7 +18,7 @@ AFlareStation::AFlareStation(const class FObjectInitializer& PCIP)
 {
 	// Create static mesh component
 	HullRoot = PCIP.CreateDefaultSubobject<UFlareShipComponent>(this, TEXT("HullRoot"));
-	HullRoot->SetSimulatePhysics(true);
+	HullRoot->SetSimulatePhysics(false);
 	RootComponent = HullRoot;
 }
 
