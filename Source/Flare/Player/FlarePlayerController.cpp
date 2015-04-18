@@ -296,7 +296,7 @@ void AFlarePlayerController::ToggleMenu()
 
 void AFlarePlayerController::ToggleCombat()
 {
-	if (ShipPawn->IsMilitary())
+	if (ShipPawn->IsMilitary() && !IsInMenu())
 	{
 		CombatMode = !CombatMode;
 		ShipPawn->SetCombatMode(CombatMode);
