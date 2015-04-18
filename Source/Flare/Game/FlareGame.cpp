@@ -70,8 +70,8 @@ void AFlareGame::StartPlay()
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
 	if (Planetarium)
 	{
-		Planetarium->SetAltitude(8000);
-		Planetarium->SetSunRotation(70);
+		Planetarium->SetAltitude(10000);
+		Planetarium->SetSunRotation(120);
 	}
 	else
 	{
