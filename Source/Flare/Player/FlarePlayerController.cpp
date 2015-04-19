@@ -6,6 +6,9 @@
 #include "EngineUtils.h"
 
 
+#define LOCTEXT_NAMESPACE "AFlarePlayerController"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -104,16 +107,25 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 
 void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 {
+	// Reset the current ship to auto
 	if (ShipPawn)
 	{
 		ShipPawn->EnablePilot(true);
 	}
 
+	// Fly the new ship
 	Possess(Ship);
 	ShipPawn = Ship;
 	CombatMode = false;
 	SetExternalCamera(true, true);
 	ShipPawn->EnablePilot(false);
+
+	// Inform the player
+	if (Ship)
+	{
+		FString Text = LOCTEXT("Flying", "Now flying").ToString();
+		Notify(FText::FromString(Text + " " + FString(*Ship->GetName())));
+	}
 }
 
 void AFlarePlayerController::PrepareForExit()
@@ -185,6 +197,7 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 void AFlarePlayerController::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	Cast<AFlareHUD>(GetHUD())->Notify(Text, Type, TargetMenu, TargetInfo);
+	FLOGV("AFlarePlayerController::Notify : '%s'", *Text.ToString());
 }
 
 void AFlarePlayerController::SetupMenu()
@@ -264,6 +277,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
 	InputComponent->BindAction("TooglePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePilot);
+	InputComponent->BindAction("QuickSwitch", EInputEvent::IE_Released, this, &AFlarePlayerController::QuickSwitch);
 
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
@@ -298,6 +312,7 @@ void AFlarePlayerController::ToggleCombat()
 {
 	if (ShipPawn->IsMilitary() && !IsInMenu())
 	{
+		FLOGV("AFlarePlayerController::ToggleCombat : new state is %d", !CombatMode);
 		CombatMode = !CombatMode;
 		ShipPawn->SetCombatMode(CombatMode);
 		SetExternalCamera(false, true);
@@ -307,8 +322,34 @@ void AFlarePlayerController::ToggleCombat()
 
 void AFlarePlayerController::TogglePilot()
 {
-	FLOG("TooglePilot");
-	ShipPawn->EnablePilot(!ShipPawn->IsPilotMode());
+	bool NewState = !ShipPawn->IsPilotMode();
+	FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
+	ShipPawn->EnablePilot(NewState);
+}
+
+void AFlarePlayerController::QuickSwitch()
+{
+	FLOG("AFlarePlayerController::QuickSwitch");
+
+	TArray<IFlareShipInterface*>& CompanyShips = Company->GetCompanyShips();
+
+	if (CompanyShips.Num())
+	{
+		for (int32 i = 0; i < CompanyShips.Num(); i++)
+		{
+			AFlareShip* Candidate = Cast<AFlareShip>(CompanyShips[i]);
+			if (Candidate && Candidate != ShipPawn)
+			{
+				FLOG("AFlarePlayerController::QuickSwitch : found new ship");
+				FlyShip(Candidate);
+				break;
+			}
+		}
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::QuickSwitch : no ships in company !");
+	}
 }
 
 void AFlarePlayerController::Test1()
@@ -320,3 +361,6 @@ void AFlarePlayerController::Test2()
 {
 	Notify(FText::FromString("I am Test2"));
 }
+
+
+#undef LOCTEXT_NAMESPACE

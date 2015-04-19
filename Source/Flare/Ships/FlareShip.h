@@ -295,9 +295,9 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	virtual void MousePress();
+	virtual void FirePress();
 
-	virtual void MouseRelease();
+	virtual void FireRelease();
 
 	virtual void MousePositionInput(FVector2D Val);
 
@@ -363,7 +363,7 @@ protected:
 	// Dynamic gameplay data
 	TEnumAsByte <EFlareShipStatus::Type> Status;
 	bool                                 ExternalCamera;
-	bool                                 MousePressed;
+	bool                                 FiringPressed;
 	bool                                 CombatMode;
 
 	// Navigation

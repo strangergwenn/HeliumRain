@@ -328,6 +328,11 @@ void AFlareShip::SetExternalCamera(bool NewState)
 void AFlareShip::SetCombatMode(bool NewState)
 {
 	CombatMode = NewState;
+
+	if (!NewState && FiringPressed)
+	{
+		StopFire();
+	}
 }
 
 
@@ -1494,13 +1499,13 @@ void AFlareShip::SetupPlayerInputComponent(class UInputComponent* InputComponent
 	InputComponent->BindAction("Boost", EInputEvent::IE_Released, this, &AFlareShip::BoostOff);
 	InputComponent->BindAction("Manual", EInputEvent::IE_Released, this, &AFlareShip::ForceManual);
 
-	InputComponent->BindAction("MouseLeft", EInputEvent::IE_Pressed, this, &AFlareShip::MousePress);
-	InputComponent->BindAction("MouseLeft", EInputEvent::IE_Released, this, &AFlareShip::MouseRelease);
+	InputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AFlareShip::FirePress);
+	InputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &AFlareShip::FireRelease);
 }
 
-void AFlareShip::MousePress()
+void AFlareShip::FirePress()
 {
-	MousePressed = true;
+	FiringPressed = true;
 
 	if (CombatMode)
 	{
@@ -1508,9 +1513,9 @@ void AFlareShip::MousePress()
 	}
 }
 
-void AFlareShip::MouseRelease()
+void AFlareShip::FireRelease()
 {
-	MousePressed = false;
+	FiringPressed = false;
 
 	if (CombatMode)
 	{
@@ -1522,7 +1527,7 @@ void AFlareShip::MousePositionInput(FVector2D Val)
 {
 	if (!ExternalCamera)
 	{
-		if (MousePressed  || CombatMode)
+		if (FiringPressed  || CombatMode)
 		{
 			float DistanceToCenter = FMath::Sqrt(FMath::Square(Val.X) + FMath::Square(Val.Y));
 

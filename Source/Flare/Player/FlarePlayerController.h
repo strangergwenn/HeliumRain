@@ -113,6 +113,9 @@ public:
 	/** Toggle the pilot mode */
 	virtual void TogglePilot();
 
+	/** Quick switch to another ship */
+	virtual void QuickSwitch();
+
 	/** Test method 1 */
 	virtual void Test1();
 
