@@ -62,6 +62,7 @@ protected:
 	// Weapon properties
 	float                       FiringRate;
 	float                       FiringPeriod;
+	float                       AmmoVelocity;
 	int32                       MaxAmmo;
 	UStaticMesh*                ShellMesh;
 	FActorSpawnParameters       ProjectileSpawnParams;
@@ -86,6 +87,11 @@ public:
 	inline int32 GetMaxAmmo() const
 	{
 		return MaxAmmo;
+	}
+
+	inline float GetAmmoVelocity() const
+	{
+		return AmmoVelocity;
 	}
 
 	inline bool isFiring() const

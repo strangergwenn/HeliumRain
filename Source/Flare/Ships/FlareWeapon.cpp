@@ -51,11 +51,14 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 					break;
 
 				case EFlarePartCharacteristicType::AmmoPower:
-					// TODO
+					// Get directly by FlareProjectile
 					break;
 
 				case EFlarePartCharacteristicType::AmmoCapacity:
 					MaxAmmo = Characteristic.CharacteristicValue;
+					break;
+				case EFlarePartCharacteristicType::AmmoVelocity:
+					AmmoVelocity = Characteristic.CharacteristicValue;
 					break;
 			}
 		}

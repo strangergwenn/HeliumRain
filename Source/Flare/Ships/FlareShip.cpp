@@ -75,24 +75,29 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		if(CombatMode)
 		{
-		FRotator ShipAttitude = GetActorRotation();
-		FVector ShipVelocity = 100 * GetLinearVelocity();
+			TArray<UFlareWeapon*> Weapons = GetWeaponList();
+			if (Weapons.Num() > 0)
+			{
+				float AmmoVelocity = Weapons[0]->GetAmmoVelocity();
+				FRotator ShipAttitude = GetActorRotation();
+				FVector ShipVelocity = 100.f * GetLinearVelocity();
 
-		// Bullet velocity
-		FVector BulletVelocity = ShipAttitude.Vector();
-		BulletVelocity.Normalize();
-		BulletVelocity *= 50000; // TODO get from projectile
+				// Bullet velocity
+				FVector BulletVelocity = ShipAttitude.Vector();
+				BulletVelocity.Normalize();
+				BulletVelocity *= 100.f * AmmoVelocity; // TODO get from projectile
 
 
-		FVector BulletDirection = (ShipVelocity + BulletVelocity).GetUnsafeNormal();
+				FVector BulletDirection = (ShipVelocity + BulletVelocity).GetUnsafeNormal();
 
-		FVector LocalBulletDirection = Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(BulletDirection);
+				FVector LocalBulletDirection = Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(BulletDirection);
 
-		float Pitch = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Z));
-		float Yaw = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Y));
+				float Pitch = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Z));
+				float Yaw = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Y));
 
-		SetCameraPitch(Pitch);
-		SetCameraYaw(Yaw);
+				SetCameraPitch(Pitch);
+				SetCameraYaw(Yaw);
+			}
 		}
 		else
 		{
@@ -347,7 +352,7 @@ FVector AFlareShip::GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed
 	FVector TargetDirection = (TargetLocation - BulletLocation).GetUnsafeNormal();
 	FVector BonusVelocity = TargettingShip->GetLinearVelocity() * 100;
 	float BonusVelocityInTargetAxis = FVector::DotProduct(TargetDirection, BonusVelocity);
-	float EffectiveBulletSpeed = BulletSpeed + BonusVelocityInTargetAxis;
+	float EffectiveBulletSpeed = BulletSpeed * 100.f + BonusVelocityInTargetAxis;
 
 	float Divisor = FMath::Square(EffectiveBulletSpeed) - TargetVelocity.SizeSquared();
 

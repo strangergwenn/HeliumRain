@@ -34,7 +34,7 @@ AFlareProjectile::AFlareProjectile(const class FObjectInitializer& PCIP) : Super
 	// Setup movement
 	MovementComp = PCIP.CreateDefaultSubobject<UProjectileMovementComponent>(this, TEXT("Movement"));
 	MovementComp->UpdatedComponent = ShellComp;
-	MovementComp->InitialSpeed = 50000;
+	MovementComp->InitialSpeed = 10000;
 	MovementComp->MaxSpeed = 500000;
 	MovementComp->bRotationFollowsVelocity = true;
 	MovementComp->ProjectileGravityScale = 0;
@@ -64,8 +64,7 @@ void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipComponen
 {
 	ShellDirection = ShootDirection;
 	ShellDescription = Description;
-	FVector FinalDirection = ParentVelocity + ShootDirection * MovementComp->InitialSpeed;
-
+	float AmmoVelocity = MovementComp->InitialSpeed;
 	// Get the power from description
 	if (Description)
 	{
@@ -79,9 +78,14 @@ void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipComponen
 				case EFlarePartCharacteristicType::AmmoPower:
 					ShellPower = Characteristic.CharacteristicValue;
 					break;
+				case EFlarePartCharacteristicType::AmmoVelocity:
+					AmmoVelocity = Characteristic.CharacteristicValue;
+					break;
 			}
 		}
 	}
+
+	FVector FinalDirection = ParentVelocity + ShootDirection * AmmoVelocity * 100;
 
 	// Set the speed
 	if (MovementComp)
@@ -89,7 +93,7 @@ void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipComponen
 		MovementComp->Velocity = FinalDirection;
 		ShellDirection = MovementComp->Velocity;
 		ShellDirection.Normalize();
-		ShellMass = 2 * ShellPower * 1000 / FMath::Square(MovementComp->InitialSpeed/100); // ShellPower is in Kilo-Joule, reverse kinetic energy equation
+		ShellMass = 2 * ShellPower * 1000 / FMath::Square(AmmoVelocity); // ShellPower is in Kilo-Joule, reverse kinetic energy equation
 	}
 
 	// Spawn the flight effects

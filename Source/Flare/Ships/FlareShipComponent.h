@@ -62,6 +62,7 @@ namespace EFlarePartCharacteristicType
 		ElectricSystem, // Value is positive to indicate the component generate power
 		Cargo, // Value represents cargo volume in m^2
 		HeatProduction, // Value represents heat production on usage in KiloWatt
+		AmmoVelocity, // Weapon ammo velocity in m/s
 		Num
 	};
 }

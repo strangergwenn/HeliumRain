@@ -55,6 +55,12 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		return;
 	}
 
+	TArray<UFlareWeapon*> Weapons = Ship->GetWeaponList();
+	float AmmoVelocity = 100;
+	if (Weapons.Num() > 0)
+	{
+		AmmoVelocity = Weapons[0]->GetAmmoVelocity();
+	}
 
 	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
 	{
@@ -76,7 +82,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 
 	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
-	if(!PilotTargetShip || !PilotTargetShip->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 50000 || PilotTargetShip->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
+	if(!PilotTargetShip || !PilotTargetShip->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 60000 || PilotTargetShip->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
 	{
 		PilotTargetShip = GetNearestHostileShip(true);
 
@@ -108,8 +114,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
 		FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
 
-
-		FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(Ship, 50000) - Ship->GetActorLocation()).GetUnsafeNormal(); // TODO et weapon velocity
+		FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(Ship, AmmoVelocity) - Ship->GetActorLocation()).GetUnsafeNormal(); // TODO et weapon velocity
 
 		FRotator ShipAttitude = Ship->GetActorRotation();
 		FVector ShipVelocity = 100 * Ship->GetLinearVelocity();
@@ -117,7 +122,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		// Bullet velocity
 		FVector BulletVelocity = ShipAttitude.Vector();
 		BulletVelocity.Normalize();
-		BulletVelocity *= 50000; // TODO get from projectile
+		BulletVelocity *= 100 * AmmoVelocity;
 
 		FVector BulletDirection = Ship->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector((ShipVelocity + BulletVelocity)).GetUnsafeNormal();
 
@@ -166,7 +171,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 			}
 			else
 			{
-				LinearTargetVelocity = DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+				LinearTargetVelocity = FireTargetAxis * Ship->GetLinearMaxVelocity();
 			}
 
 			if(Distance < SecurityDistance) {

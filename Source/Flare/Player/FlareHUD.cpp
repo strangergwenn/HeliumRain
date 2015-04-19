@@ -175,13 +175,7 @@ void AFlareHUD::DrawHUD()
 		// Get HUD data
 		FVector2D ScreenPosition;
 		int32 HelperScale = ViewportSize.Y;
-		FRotator ShipAttitude = Ship->GetActorRotation();
 		FVector ShipVelocity = 100 * Ship->GetLinearVelocity();
-		
-		// Bullet velocity
-		FVector BulletVelocity = ShipAttitude.Vector();
-		BulletVelocity.Normalize();
-		BulletVelocity *= 50000; // TODO get from projectile
 
 		// Draw inertial vector
 		FVector EndPoint = Ship->GetActorLocation() + FocusDistance * ShipVelocity;
@@ -300,10 +294,15 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			AFlareShip* PlayerShip = PC->GetShipPawn();
 			if (Ship && Ship->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->IsCombatMode())
 			{
-				if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, 50000), ScreenPosition)) // TODO get from projectile
+				TArray<UFlareWeapon*> Weapons = Ship->GetWeaponList();
+				if (Weapons.Num() > 0)
 				{
-					FLinearColor Color = GetHostilityColor(PC, Ship);
-					DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, Color, true);
+					float AmmoVelocity = Weapons[0]->GetAmmoVelocity();
+					if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, AmmoVelocity), ScreenPosition)) // TODO get from projectile
+					{
+						FLinearColor Color = GetHostilityColor(PC, Ship);
+						DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, Color, true);
+					}
 				}
 			}
 
