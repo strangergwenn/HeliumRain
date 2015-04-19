@@ -152,7 +152,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		// Menu
 		const FFlareShipComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
-		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.8);
+		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 1.0);
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 		
 		// Station list

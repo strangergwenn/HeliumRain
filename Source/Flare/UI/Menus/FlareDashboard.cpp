@@ -244,7 +244,7 @@ void SFlareDashboard::Enter()
 		{
 			StationBox->SetVisibility(Ship->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
 		}
-		PC->GetMenuPawn()->UpdateBackgroundColor(0.15, 0.15);
+		PC->GetMenuPawn()->UpdateBackgroundColor(0.12, 0.3);
 	}
 }
 
