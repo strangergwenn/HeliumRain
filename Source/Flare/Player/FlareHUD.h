@@ -34,8 +34,13 @@ public:
 
 	virtual void DrawHUD() override;
 
+
+	/*----------------------------------------------------
+		HUD library
+	----------------------------------------------------*/
+
 	/** Draw a designator block around a ship */
-	void DrawHUDDesignator(AFlareShipBase* ShipBase);
+	bool DrawHUDDesignator(AFlareShipBase* ShipBase);
 
 	/** Draw a designator corner */
 	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor);

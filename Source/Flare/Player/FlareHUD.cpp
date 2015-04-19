@@ -117,22 +117,47 @@ void AFlareHUD::Tick(float DeltaSeconds)
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
+
+	// Initial data
+	float FocusDistance = 1000000;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	AFlareShip* Ship = PC->GetShipPawn();
+	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
 	// Draw designators and context menu
 	if (!MenuIsOpen)
 	{
-		// Draw designators
+		// Draw ship designators and markers
 		FoundTargetUnderMouse = false;
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareShipBase* ShipBase = Cast<AFlareShipBase>(*ActorItr);
 			if (PC && ShipBase && ShipBase != PC->GetShipPawn() && ShipBase != PC->GetMenuPawn())
 			{
+				// Draw designators
+				bool ShouldDrawSearchMarker = true;
 				if (PC->LineOfSightTo(ShipBase))
 				{
-					DrawHUDDesignator(ShipBase);
+					ShouldDrawSearchMarker = DrawHUDDesignator(ShipBase);
+				}
+
+				// Draw search markers
+				if (Ship->IsCombatMode() && ShouldDrawSearchMarker)
+				{
+					FVector Direction = ShipBase->GetActorLocation() - Ship->GetActorLocation();
+					if (Direction.Size() < FocusDistance)
+					{
+						// Compute position
+						Direction = Ship->GetRootComponent()->GetComponentTransform().InverseTransformPositionNoScale(Direction);
+						FVector2D ScreenspacePosition = FVector2D(Direction.Y, -Direction.Z);
+						ScreenspacePosition.Normalize();
+						ScreenspacePosition *= 1.2 * CombatMouseRadius;
+
+						// Draw
+						FLinearColor Color = GetHostilityColor(PC, ShipBase);
+						FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
+						DrawHUDIconRotated(ViewportSize / 2 + ScreenspacePosition, 24, HUDCombatMouseIcon, Color, Position3D.Rotation().Yaw);
+					}
 				}
 			}
 		}
@@ -148,9 +173,7 @@ void AFlareHUD::DrawHUD()
 	if (PC && Ship && !MenuIsOpen)
 	{
 		// Get HUD data
-		float FocusDistance = 1000000;
 		FVector2D ScreenPosition;
-		FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 		int32 HelperScale = ViewportSize.Y;
 		FRotator ShipAttitude = Ship->GetActorRotation();
 		FVector ShipVelocity = 100 * Ship->GetLinearVelocity();
@@ -159,21 +182,21 @@ void AFlareHUD::DrawHUD()
 		FVector BulletVelocity = ShipAttitude.Vector();
 		BulletVelocity.Normalize();
 		BulletVelocity *= 50000; // TODO get from projectile
-		
-		// Update nose
-		if (!Ship->IsExternalCamera())
-		{
-			DrawHUDIcon(ViewportSize / 2, 24, Ship->IsCombatMode() ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
-		}
 
-		// Update inertial vector
+		// Draw inertial vector
 		FVector EndPoint = Ship->GetActorLocation() + FocusDistance * ShipVelocity;
 		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
 		{
 			DrawHUDIcon(ScreenPosition, 24, HUDReticleIcon, HudColorNeutral, true);
 		}
 
-		// Update combat mouse pointer
+		// Draw nose
+		if (!Ship->IsExternalCamera())
+		{
+			DrawHUDIcon(ViewportSize / 2, 24, Ship->IsCombatMode() ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
+		}
+
+		// Draw combat mouse pointer
 		if (Ship->IsCombatMode())
 		{
 			// Compute clamped mouse position
@@ -195,7 +218,11 @@ void AFlareHUD::DrawHUD()
 	}
 }
 
-void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
+/*----------------------------------------------------
+	HUD library
+----------------------------------------------------*/
+
+bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 {
 	// Calculation data
 	FVector2D ScreenPosition;
@@ -247,7 +274,7 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 		}
 
 		// Draw the HUD designator
-		else if ((Ship && Ship->IsAlive()) || !Ship)
+		else if (((Ship && Ship->IsAlive()) || !Ship))
 		{
 			float CornerSize = 8;
 			float IconSize = 24;
@@ -279,8 +306,13 @@ void AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 					DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, Color, true);
 				}
 			}
+
+			// Tell the HUD to draw the search marker only if we are outside this
+			return (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.Size() / 3));
 		}
 	}
+
+	return true;
 }
 
 void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor)
