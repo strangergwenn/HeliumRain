@@ -1664,7 +1664,7 @@ void AFlareShip::ForceManual()
 
 void AFlareShip::StartFire()
 {
-	if (IsPiloted || !ExternalCamera)
+	if (IsAlive() && (IsPiloted || !ExternalCamera))
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
@@ -1675,7 +1675,7 @@ void AFlareShip::StartFire()
 
 void AFlareShip::StopFire()
 {
-	if (IsPiloted ||!ExternalCamera)
+	if (IsAlive() && (IsPiloted || !ExternalCamera))
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{

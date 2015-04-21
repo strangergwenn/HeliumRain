@@ -33,6 +33,14 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
+	/** Impact sound */
+	UPROPERTY()
+	USoundCue*                               ImpactSound;
+
+	/** Damage sound */
+	UPROPERTY()
+	USoundCue*                               DamageSound;
+
 	/** Mesh component */
 	UPROPERTY()
 	UStaticMeshComponent*                    ShellComp;

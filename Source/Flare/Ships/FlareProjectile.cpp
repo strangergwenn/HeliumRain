@@ -10,6 +10,12 @@
 
 AFlareProjectile::AFlareProjectile(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
+	// Sounds
+	static ConstructorHelpers::FObjectFinder<USoundCue> ImpactSoundObj(TEXT("/Game/Master/Sound/A_Impact"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> DamageSoundObj(TEXT("/Game/Master/Sound/A_Damage"));
+	ImpactSound = ImpactSoundObj.Object;
+	DamageSound = DamageSoundObj.Object;
+
 	// FX particles
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> ExplosionEffectObject(TEXT("/Game/Master/Particles/PS_Explosion"));
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> FlightEffectsObject(TEXT("/Game/Master/Particles/PS_FlightTrail"));
@@ -138,7 +144,7 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 		{
 			PenetrateArmor = true; // No ricochet
 		}
-		else if(RemainingArmor >= 0 && Incidence * ShellEnergy > RemainingArmor)
+		else if (RemainingArmor >= 0 && Incidence * ShellEnergy > RemainingArmor)
 		{
 			PenetrateArmor = true; // Armor destruction
 		}	
@@ -148,9 +154,16 @@ void AFlareProjectile::OnImpact(const FHitResult& HitResult, const FVector& HitV
 		IFlareShipInterface* Ship = Cast<IFlareShipInterface>(HitResult.Actor.Get());
 		if (Ship)
 		{
-			 Ship->ApplyDamage(AbsorbedEnergy, 0.75f, HitResult.Location);
+			Ship->ApplyDamage(AbsorbedEnergy, 0.75f, HitResult.Location);
+			
+			// Play sound
+			AFlareShipBase* ShipBase = Cast<AFlareShipBase>(Ship);
+			if (ShipBase && ShipBase->IsLocallyControlled())
+			{
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), PenetrateArmor ? DamageSound : ImpactSound, HitResult.Location, 1, 1);
+			}
 		}
-		
+
 		// FX data
 		USceneComponent* Target = HitResult.GetComponent();
 		float DecalSize = FMath::FRandRange(60, 90);
