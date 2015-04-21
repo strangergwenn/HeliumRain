@@ -200,7 +200,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	// Radiate: Stefan-Boltzmann constant=5.670373e-8
 	float Temperature = ShipData.Heat / ShipDescription->HeatCapacity;
 	float HeatRadiation = 0.f;
-	if(Temperature > 0)
+	if (Temperature > 0)
 	{
 		HeatRadiation = HeatSinkSurface * 5.670373e-8 * FMath::Pow(Temperature, 4) / 1000;
 	}
@@ -224,13 +224,13 @@ void AFlareShip::Tick(float DeltaSeconds)
 	}
 
 	// If damage have been applied, power production may have change
-	if(HeatDamage > 0)
+	if (HeatDamage > 0)
 	{
 		UpdatePower();
 	}
 
 	// Power outage
-	if(ShipData.PowerOutageDelay > 0)
+	if (ShipData.PowerOutageDelay > 0)
 	{
 		ShipData.PowerOutageDelay -=  DeltaSeconds;
 		if(ShipData.PowerOutageDelay <=0)
@@ -240,7 +240,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	}
 
 	// Update Alive status
-	if(WasAlive && !IsAlive())
+	if (WasAlive && !IsAlive())
 	{
 		WasAlive = false;
 		OnControlLost();
@@ -1472,6 +1472,15 @@ void AFlareShip::OnControlLost()
 	if (PC)
 	{
 		PC->Notify(LOCTEXT("ShipDestroyed", "Your ship has been destroyed !"), EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
+	}
+}
+
+void AFlareShip::OnEnemyKilled(IFlareShipInterface* Enemy)
+{
+	AFlarePlayerController* PC = GetPC();
+	if (PC)
+	{
+		PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"), EFlareNotification::NT_Military);
 	}
 }
 

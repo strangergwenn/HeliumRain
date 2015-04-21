@@ -260,11 +260,16 @@ protected:
 	/** Update the ship's center of mass */
 	void UpdateCOM();
 
+
 	/*----------------------------------------------------
 		Damage system
 	----------------------------------------------------*/
 
+	/** Our ship was destroyed */
 	virtual void OnControlLost();
+
+	/** Our ship killed another ship */
+	virtual void OnEnemyKilled(IFlareShipInterface* Enemy);
 
 
 public:
