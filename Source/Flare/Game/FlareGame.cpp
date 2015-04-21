@@ -71,7 +71,7 @@ void AFlareGame::StartPlay()
 	if (Planetarium)
 	{
 		Planetarium->SetAltitude(10000);
-		Planetarium->SetSunRotation(85);
+		Planetarium->SetSunRotation(100);
 	}
 	else
 	{

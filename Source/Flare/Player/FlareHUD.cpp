@@ -316,6 +316,8 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 
 void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor)
 {
+	ObjectSize = FMath::Max(ObjectSize, IconSize * FVector2D::UnitVector);
+
 	DrawTexture(HUDDesignatorCornerTexture,
 		Position.X + (ObjectSize.X + IconSize) * MainOffset.X / 2,
 		Position.Y + (ObjectSize.Y + IconSize) * MainOffset.Y / 2,

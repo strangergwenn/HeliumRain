@@ -81,7 +81,7 @@ public:
 				.Padding(FMargin(10.0f))
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("LoadingTitle", "FLARE"))
+					.Text(LOCTEXT("LoadingTitle", "HELIUM RAIN"))
 					.Font(FSlateFontInfo(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 72))
 				]
 
