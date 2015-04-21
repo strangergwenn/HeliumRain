@@ -320,9 +320,12 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 	FFlarePlayerSave PlayerData;
 
 	// Player company
-	UFlareCompany* Company = CreateCompany("Weyland-Yutani");
+	UFlareCompany* Company = CreateCompany("Player Inc");
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
 	PC->SetCompany(Company);
+
+	// Enemy
+	CreateCompany("Evil Corp");
 
 	// Player ship
 	AFlareShip* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
@@ -341,14 +344,14 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	CurrentImmatriculationIndex++;
 	FString Immatriculation = FString::Printf(TEXT("CPNY-%06d"), CurrentImmatriculationIndex);
 
-	// Generate save data
+	// Generate arbitrary save data
 	CompanyData.Name = CompanyName.ToUpper();
 	CompanyData.ShortName = *CompanyName.Left(3).ToUpper();
 	CompanyData.Identifier = *Immatriculation;
 	CompanyData.Money = 100000;
 	CompanyData.CustomizationBasePaintColorIndex = 0;
 	CompanyData.CustomizationPaintColorIndex = 4;
-	CompanyData.CustomizationOverlayColorIndex = 7;
+	CompanyData.CustomizationOverlayColorIndex = FMath::RandRange(1, 15);
 	CompanyData.CustomizationPatternIndex = 0;
 
 	// Create company
@@ -362,7 +365,6 @@ AFlareStation* AFlareGame::CreateStationForMe(FName StationClass)
 {
 	AFlareStation* StationPawn = NULL;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-
 
 	// Parent company
 	if (PC && PC->GetCompany())
