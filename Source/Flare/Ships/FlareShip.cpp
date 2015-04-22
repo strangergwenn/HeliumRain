@@ -923,6 +923,23 @@ void AFlareShip::ClearCurrentCommand()
 	}
 }
 
+void AFlareShip::AbortAllCommands()
+{
+	FFlareShipCommandData Command;
+
+	while (CommandData.Dequeue(Command))
+	{
+		FLOGV("Abort command '%s'", *EFlareCommandDataType::ToString(Command.Type));
+		if (Command.Type == EFlareCommandDataType::CDT_Dock)
+		{
+			// Release dock grant
+			IFlareStationInterface* Station = Cast<IFlareStationInterface>(Command.ActionTarget);
+			Station->ReleaseDock(this, Command.ActionTargetParam);
+		}
+	}
+	SetStatus(EFlareShipStatus::SS_Manual);
+}
+
 FVector AFlareShip::GetDockLocation()
 {
 	FVector WorldLocation = RootComponent->GetSocketLocation(FName("Dock"));
@@ -1667,7 +1684,7 @@ void AFlareShip::ForceManual()
 {
 	if (Status != EFlareShipStatus::SS_Docked)
 	{
-		SetStatus(EFlareShipStatus::SS_Manual);
+		AbortAllCommands();
 	}
 }
 

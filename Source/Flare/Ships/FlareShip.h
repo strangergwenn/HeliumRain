@@ -188,6 +188,9 @@ public:
 	/** Clear the current autopilot command */
 	void ClearCurrentCommand();
 
+	/** Abort all the current pushed autopilot commands */
+	void AbortAllCommands();
+
 	/** Get the dock offset from the origin of the ship */
 	virtual FVector GetDockLocation();
 	

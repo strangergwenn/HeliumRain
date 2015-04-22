@@ -15,6 +15,8 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 	TimeUntilNextReaction = 0;
 	PilotTargetLocation = FVector::ZeroVector;
 	PilotTargetShip = NULL;
+	PilotTargetStation = NULL;
+	PilotLastTargetStation = NULL;
 }
 
 
@@ -35,13 +37,39 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	}
 
 	LinearTargetVelocity = FVector::ZeroVector;
-
-
-
-	bool DangerousTarget = true;
-	bool AllowOrbitalBoost = false;
+	AngularTargetVelocity = FVector::ZeroVector;
 	WantFire = false;
+	UseOrbitalBoost = false;
 
+	if (Ship->IsMilitary())
+	{
+		MilitaryPilot(DeltaSeconds);
+	}
+	else
+	{
+		CargoPilot(DeltaSeconds);
+	}
+
+}
+
+void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareShip* OwnerShip)
+{
+	// Main data
+	Ship = OwnerShip;
+	PlayerCompany = Company;
+
+	// Setup properties
+	if (Data)
+	{
+		ShipPilotData = *Data;
+	}
+}
+
+/*----------------------------------------------------
+	Pilot functions
+----------------------------------------------------*/
+void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
+{
 
 	if (Ship->GetStatus() == EFlareShipStatus::SS_Docked)
 	{
@@ -64,8 +92,6 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
 	{
-
-
 		// Go repair or refill ammo
 		AFlareStation* TargetStation  = GetNearestAvailableStation();
 		if (TargetStation)
@@ -85,14 +111,12 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	if(!PilotTargetShip || !PilotTargetShip->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 60000 || PilotTargetShip->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
 	{
 		PilotTargetShip = GetNearestHostileShip(true);
-
 	}
 
 	// No dangerous ship, try not dangerous ships
 	if(!PilotTargetShip)
 	{
 		PilotTargetShip = GetNearestHostileShip(false);
-		DangerousTarget = false;
 	}
 
 	if(PilotTargetShip && OldPilotTargetShip != PilotTargetShip)
@@ -105,6 +129,8 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 	if(PilotTargetShip)
 	{
+		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
+
 		//FLOGV("%s target %s",  *Ship->GetHumanReadableName(),  *PilotTargetShip->GetHumanReadableName());
 		// The pilot have a target, track and kill it
 
@@ -192,7 +218,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 				FVector AttackMargin =  AttackDistanceQuat.RotateVector(FVector(0,0,AttackDistance));
 
 				LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
-				AllowOrbitalBoost = true;
+				UseOrbitalBoost = true;
 			}
 
 			LastTargetDistance = Distance;
@@ -205,19 +231,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 				AttackPhase = 0;
 			} else {
 				LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
-				AllowOrbitalBoost = true;
-			}
-		}
-
-
-		// TODO function
-		if(!Ship->IsMilitary())
-		{
-			if(Distance > SecurityDistance * 4) {
-				LinearTargetVelocity = FVector::ZeroVector;
-			} else {
-				LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
-				AllowOrbitalBoost = true;
+				UseOrbitalBoost = true;
 			}
 		}
 
@@ -242,14 +256,17 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 			FLOGV("AngularPrecision=%f", AngularPrecision);
 			FLOGV("AngularSize=%f", AngularSize);*/
 
-
-
-
 			if(AngularPrecision < (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.3))
 			{
 				//FLOG("Fire");
 				WantFire = true;
 			}
+		}
+
+		if(Ship->GetTemperature() > (DangerousTarget ? 900.f : 780.f))
+		{
+			// TODO Fire on dangerous target
+			WantFire = false;
 		}
 	}
 	else
@@ -293,35 +310,94 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 
 	// Manage orbital boost
-	if(Ship->GetTemperature() < 680)
-	{
-		UseOrbitalBoost = true;
-	}
-	else
+	if(Ship->GetTemperature() > 680)
 	{
 		UseOrbitalBoost = false;
 	}
-
-	if(Ship->GetTemperature() > (DangerousTarget ? 900.f : 780.f))
-	{
-		// TODO Fire on dangerous target
-		WantFire = false;
-	}
 }
 
-void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareShip* OwnerShip)
+void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 {
-	// Main data
-	Ship = OwnerShip;
-	PlayerCompany = Company;
-	
-	// Setup properties
-	if (Data)
+	if (Ship->GetStatus() == EFlareShipStatus::SS_Docked)
 	{
-		ShipPilotData = *Data;
+		// Let's undock
+		Ship->Undock();
+
+		// Swap target station
+		PilotLastTargetStation = PilotTargetStation;
+		PilotTargetStation = NULL;
+
+		return;
+	}
+	else if (Ship->GetStatus() == EFlareShipStatus::SS_AutoPilot)
+	{
+		// Wait manoeuver
+	} else {
+		// If no station target, find a target : a random friendly station different from the last station
+		if (!PilotTargetStation)
+		{
+			TArray<AFlareStation*> FriendlyStations = GetFriendlyStations();
+			if (FriendlyStations.Num() > 0)
+			{
+				int32 Index = FMath::RandHelper(FriendlyStations.Num());
+
+				if (PilotLastTargetStation != FriendlyStations[Index])
+				{
+						PilotTargetStation = FriendlyStations[Index];
+				}
+			}
+		}
+
+		if (PilotTargetStation)
+		{
+			FVector DeltaLocation = (PilotTargetStation->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
+			float Distance = DeltaLocation.Size(); // Distance in meters
+
+
+			if (Distance < 1000)
+			{
+				if(!Ship->DockAt(PilotTargetStation))
+				{
+					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+				}
+			}
+			else
+			{
+				LinearTargetVelocity = DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+			}
+		}
+	}
+
+	PilotTargetShip = GetNearestHostileShip(true);
+	// If enemy near, run away !
+	if (PilotTargetShip)
+	{
+
+		FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
+		float Distance = DeltaLocation.Size(); // Distance in meters
+
+		// There is at least one hostile enemy
+		if (Distance < 4000)
+		{
+			Ship->ForceManual();
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+
+			UseOrbitalBoost = true;
+		}
+
+		if(Distance > 1000 && Ship->GetTemperature() > 800)
+		{
+			// Too hot and no imminent danger
+			UseOrbitalBoost = false;
+		}
+	}
+
+	// Turn to destination
+	if (! LinearTargetVelocity.IsZero())
+	{
+		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1.f, 0.f, 0.f) , LinearTargetVelocity.GetUnsafeNormal(),FVector(0.f, 0.f, 0.f), DeltaSeconds);
 	}
 }
-
 
 /*----------------------------------------------------
 	Helpers
@@ -350,7 +426,7 @@ AFlareShip* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) const
 				continue;
 			}
 
-			if (DangerousOnly && (!ShipCandidate->IsMilitary() || ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0))
+			if (DangerousOnly && !IsShipDangerous(ShipCandidate))
 			{
 				continue;
 			}
@@ -488,6 +564,34 @@ AFlareStation* UFlareShipPilot::GetNearestAvailableStation() const
 		}
 	}
 	return NearestStation;
+}
+
+TArray<AFlareStation*> UFlareShipPilot::GetFriendlyStations() const
+{
+	TArray<AFlareStation*> FriendlyStations;
+
+	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Ship
+		AFlareStation* StationCandidate = Cast<AFlareStation>(*ActorItr);
+		if (StationCandidate)
+		{
+
+			if (StationCandidate->GetCompany() != Ship->GetCompany())
+			{
+				continue;
+			}
+
+			FriendlyStations.Add(StationCandidate);
+		}
+	}
+	return FriendlyStations;
+}
+
+
+bool UFlareShipPilot::IsShipDangerous(AFlareShip* ShipCandidate) const
+{
+	return ShipCandidate->IsMilitary() && ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
 }
 
 /*----------------------------------------------------

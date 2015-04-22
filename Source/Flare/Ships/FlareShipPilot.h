@@ -11,11 +11,11 @@ USTRUCT()
 struct FFlareShipPilotSave
 {
 	GENERATED_USTRUCT_BODY()
-	
+
 	/** Pilot identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Identifier;
-	
+
 	/** Pilot name */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FString Name;
@@ -44,6 +44,13 @@ public:
 
 protected:
 	/*----------------------------------------------------
+		Pilot functions
+	----------------------------------------------------*/
+	virtual void MilitaryPilot(float DeltaSeconds);
+
+	virtual void CargoPilot(float DeltaSeconds);
+
+	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
 
@@ -62,11 +69,16 @@ protected:
 	*/
 	virtual AFlareStation* GetNearestAvailableStation() const;
 
+	/** Return all friendly station in the sector */
+	virtual TArray<AFlareStation*> GetFriendlyStations() const;
+
 	/**
 	 * Return the angular velocity need to align the local ship axis to the target axis
 	 */
 	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const;
 
+	/** Return true if the ship is dangerous */
+	virtual bool IsShipDangerous(AFlareShip* ShipCandidate) const;
 
 public:
 
@@ -100,7 +112,7 @@ protected:
 
 	// Component description
 	FFlareShipPilotSave                       ShipPilotData;
-	
+
 	//Output commands
 	bool                                      UseOrbitalBoost;
 	bool                                      WantFire;
@@ -112,7 +124,10 @@ protected:
 	float                                ReactionTime;
 	float                                TimeUntilNextReaction;
 	FVector                              PilotTargetLocation;
-	AFlareShip*                 PilotTargetShip;
+	AFlareShip*                          PilotTargetShip;
+	AFlareStation*                          PilotTargetStation;
+	AFlareStation*                          PilotLastTargetStation;
+
 	float AttackAngle;
 	float AttackDistance;
 	float AttackPhase;
