@@ -38,7 +38,6 @@ void AFlarePlayerController::BeginPlay()
 
 	// Menus
 	SetupMenu();
-	SetExternalCamera(false);
 }
 
 
@@ -116,9 +115,13 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 	// Fly the new ship
 	Possess(Ship);
 	ShipPawn = Ship;
-	CombatMode = false;
-	SetExternalCamera(true, true);
+	SetExternalCamera(false, true);
 	ShipPawn->EnablePilot(false);
+
+	// Stop combat mode
+	CombatMode = false;
+	ShipPawn->SetCombatMode(false);
+	ResetMousePosition();
 
 	// Inform the player
 	if (Ship)
@@ -338,7 +341,7 @@ void AFlarePlayerController::QuickSwitch()
 		for (int32 i = 0; i < CompanyShips.Num(); i++)
 		{
 			AFlareShip* Candidate = Cast<AFlareShip>(CompanyShips[i]);
-			if (Candidate && Candidate != ShipPawn)
+			if (Candidate && Candidate != ShipPawn && Candidate->IsAlive())
 			{
 				FLOG("AFlarePlayerController::QuickSwitch : found new ship");
 				FlyShip(Candidate);
