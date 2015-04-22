@@ -499,6 +499,7 @@ TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceCont
 
 	// Create the row
 	TSharedRef<ITableRow> res = SAssignNew(TempWidget, SFlareListItem, OwnerTable)
+		.ButtonStyle(&FFlareStyleSet::Get(), "/Style/PartButton")
 		.Content()
 		[
 			SAssignNew(Temp, SFlarePartInfo)
