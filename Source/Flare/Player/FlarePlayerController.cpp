@@ -313,7 +313,7 @@ void AFlarePlayerController::ToggleMenu()
 
 void AFlarePlayerController::ToggleCombat()
 {
-	if (ShipPawn->IsMilitary() && !IsInMenu())
+	if (ShipPawn && ShipPawn->IsMilitary() && !ShipPawn->IsDocked() && !IsInMenu())
 	{
 		FLOGV("AFlarePlayerController::ToggleCombat : new state is %d", !CombatMode);
 		CombatMode = !CombatMode;
