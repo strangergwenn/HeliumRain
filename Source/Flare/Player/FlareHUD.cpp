@@ -268,7 +268,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 		}
 
 		// Draw the HUD designator
-		else if (((Ship && Ship->IsAlive()) || !Ship))
+		else if ((Ship && Ship->IsAlive()) || !Ship)
 		{
 			float CornerSize = 8;
 			float IconSize = 24;
@@ -298,7 +298,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 				if (Weapons.Num() > 0)
 				{
 					float AmmoVelocity = Weapons[0]->GetAmmoVelocity();
-					if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, AmmoVelocity), ScreenPosition)) // TODO get from projectile
+					if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, AmmoVelocity), ScreenPosition))
 					{
 						FLinearColor Color = GetHostilityColor(PC, Ship);
 						DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, Color, true);
@@ -308,6 +308,12 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 
 			// Tell the HUD to draw the search marker only if we are outside this
 			return (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.Size() / 3));
+		}
+
+		// Dead ship
+		else if (Ship && !Ship->IsAlive())
+		{
+			return false;
 		}
 	}
 
