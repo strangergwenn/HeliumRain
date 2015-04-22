@@ -38,6 +38,7 @@ void AFlarePlayerController::BeginPlay()
 
 	// Menus
 	SetupMenu();
+	SetExternalCamera(false);
 }
 
 
@@ -115,13 +116,9 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 	// Fly the new ship
 	Possess(Ship);
 	ShipPawn = Ship;
-	SetExternalCamera(false, true);
-	ShipPawn->EnablePilot(false);
-
-	// Stop combat mode
 	CombatMode = false;
-	ShipPawn->SetCombatMode(false);
-	ResetMousePosition();
+	SetExternalCamera(true, true);
+	ShipPawn->EnablePilot(false);
 
 	// Inform the player
 	if (Ship)
