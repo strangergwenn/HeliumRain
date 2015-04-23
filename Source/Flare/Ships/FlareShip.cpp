@@ -334,6 +334,8 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		PowerSound->Stop();
 		EngineSound->Stop();
+		PowerSoundVolume = 0;
+		EngineSoundVolume = 0;
 	}
 }
 
