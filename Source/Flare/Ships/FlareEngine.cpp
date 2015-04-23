@@ -43,9 +43,9 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Smooth the alpha value
-	float AverageCoeff = 8 * DeltaTime; // Half-life time : 1/8 second
-	ExhaustAccumulator = FMath::Clamp(AverageCoeff * ExhaustAlpha * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Ship->HasPowerOutage() ? 0 : 1) + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
+	// Smooth the alpha value. Half-life time : 1/8 second
+	float AverageCoeff = 8 * DeltaTime;
+	ExhaustAccumulator = FMath::Clamp(AverageCoeff * GetEffectiveAlpha() + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
 
 	// Apply effects
 	UpdateEffects();
@@ -54,6 +54,11 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 void UFlareEngine::SetAlpha(float Alpha)
 {
 	ExhaustAlpha = FMath::Clamp(Alpha, 0.0f, 1.0f);
+}
+
+float UFlareEngine::GetEffectiveAlpha() const
+{
+	return ExhaustAlpha * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Ship->HasPowerOutage() ? 0 : 1);
 }
 
 void UFlareEngine::UpdateEffects()
@@ -83,13 +88,13 @@ float UFlareEngine::GetInitialMaxThrust() const
 
 float UFlareEngine::GetHeatProduction() const
 {
-	return Super::GetHeatProduction() * ExhaustAlpha;
+	return Super::GetHeatProduction() * GetEffectiveAlpha();
 }
 
 void UFlareEngine::ApplyHeatDamage(float Energy)
 {
 	// Apply damage only on usage
-	if(ExhaustAlpha > 0)
+	if (GetEffectiveAlpha() > 0)
 	{
 		ApplyDamage(Energy * ExhaustAlpha);
 	}

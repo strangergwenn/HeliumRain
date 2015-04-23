@@ -294,8 +294,23 @@ void AFlareShip::Tick(float DeltaSeconds)
 			PowerSoundVolume = NewPowerSoundVolume;
 		}
 
+		// Check all engines for engine alpha
+		float EngineAlpha = 0;
+		TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareOrbitalEngine::StaticClass());
+		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
+		{
+			UFlareOrbitalEngine* Engine = Cast<UFlareOrbitalEngine>(Engines[EngineIndex]);
+			EngineAlpha += Engine->GetEffectiveAlpha() / Engines.Num();
+		}
+
+		// Update engine alpha
+		if (EngineAlpha == 0 || IsExternalCamera())
+		{
+			EngineAlpha = -1;
+		}
+
 		// Engine sound
-		float EngineDelta = (IsBoosting() && !IsExternalCamera() ? 1 : -1) * 2 * DeltaSeconds;
+		float EngineDelta = EngineAlpha * 2 * DeltaSeconds;
 		float NewEngineSoundVolume = FMath::Clamp(EngineSoundVolume + EngineDelta, 0.0f, 1.0f);
 		if (NewEngineSoundVolume != EngineSoundVolume)
 		{
