@@ -397,6 +397,10 @@ protected:
 	bool                                     WasAlive; // True if was alive at the last tick
 	bool                                     IsPiloted;
 
+	// Sound data
+	float                                    EngineSoundVolume;
+	float                                    PowerSoundVolume;
+
 	// Navigation
 	TArray <AActor*>                         PathColliders;
 	TQueue <FFlareShipCommandData>           CommandData;

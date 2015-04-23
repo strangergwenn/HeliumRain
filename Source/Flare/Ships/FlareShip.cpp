@@ -51,6 +51,8 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	// Power sound setting
 	static ConstructorHelpers::FObjectFinder<USoundCue> PowerSoundObj(TEXT("/Game/Master/Sound/A_Power"));
 	PowerSoundTemplate = PowerSoundObj.Object;
+	EngineSoundVolume = 0;
+	PowerSoundVolume = 0;
 
 	// Camera settings
 	CameraContainerYaw->AttachTo(Airframe);
@@ -81,7 +83,7 @@ void AFlareShip::BeginPlay()
 	
 	// Power sound
 	PowerSound->SetSound(PowerSoundTemplate);
-	PowerSound->Play();
+	PowerSound->Stop();
 
 	UpdateCOM();
 }
@@ -272,14 +274,51 @@ void AFlareShip::Tick(float DeltaSeconds)
 	if (GetPC())
 	{
 		// Power sound
-		if (IsPowered() && !HasPowerOutage() && !PowerSound->IsPlaying())
+		float PowerDelta = (IsPowered() && !HasPowerOutage() && !IsExternalCamera() ? 1 : -1) * 0.5 * DeltaSeconds;
+		float NewPowerSoundVolume = FMath::Clamp(PowerSoundVolume + PowerDelta, 0.0f, 1.0f);
+		if (NewPowerSoundVolume != PowerSoundVolume)
 		{
-			PowerSound->Play();
+			if (NewPowerSoundVolume == 0)
+			{
+				PowerSound->Stop();
+			}
+			else if (PowerSoundVolume == 0)
+			{
+				PowerSound->Play();
+			}
+			else
+			{
+				PowerSound->SetVolumeMultiplier(NewPowerSoundVolume);
+				PowerSound->SetPitchMultiplier(0.75 + 0.25 * NewPowerSoundVolume);
+			}
+			PowerSoundVolume = NewPowerSoundVolume;
 		}
-		else if ((!IsPowered() || HasPowerOutage()) && PowerSound->IsPlaying())
+
+		// Engine sound
+		float EngineDelta = (IsBoosting() && !IsExternalCamera() ? 1 : -1) * 2 * DeltaSeconds;
+		float NewEngineSoundVolume = FMath::Clamp(EngineSoundVolume + EngineDelta, 0.0f, 1.0f);
+		if (NewEngineSoundVolume != EngineSoundVolume)
 		{
-			PowerSound->Stop();
+			if (NewEngineSoundVolume == 0)
+			{
+				EngineSound->Stop();
+			}
+			else if (EngineSoundVolume == 0)
+			{
+				EngineSound->SetSound(EngineSoundTemplate);
+				EngineSound->Play();
+			}
+			else
+			{
+				EngineSound->SetVolumeMultiplier(NewEngineSoundVolume);
+			}
+			EngineSoundVolume = NewEngineSoundVolume;
 		}
+	}
+	else
+	{
+		PowerSound->Stop();
+		EngineSound->Stop();
 	}
 }
 
@@ -1708,18 +1747,12 @@ void AFlareShip::BoostOn()
 	if (IsManualPilot() && !ExternalCamera)
 	{
 		ManualOrbitalBoost = true;
-		if (GetPC())
-		{
-			EngineSound->SetSound(EngineSoundTemplate);
-			EngineSound->Play();
-		}
 	}
 }
 
 void AFlareShip::BoostOff()
 {
 	ManualOrbitalBoost = false;
-	EngineSound->Stop();
 }
 
 void AFlareShip::ForceManual()
