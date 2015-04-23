@@ -17,6 +17,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	OwnerHUD = InArgs._OwnerHUD;
 	TargetShip = NULL;
 	Overheating = false;
+	Burning = false;
 	PowerOutage = false;
 	PresentationFlashTime = 1.0f;
 	TimeSinceOverheatChanged = PresentationFlashTime;
@@ -26,7 +27,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	// Style
 	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
 	const FFlareContainerStyle* InvertedContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvertedContainerStyle");
-	
+
 	// Structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
@@ -42,7 +43,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SNew(SVerticalBox)
-			
+
 			// Overheating box
 			+ SVerticalBox::Slot()
 			.Padding(FMargin(0, 100))
@@ -218,12 +219,14 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 		// Overheating status
 		TimeSinceOverheatChanged += InDeltaTime;
-		bool NewOverheating = (TargetShip->GetTemperature() > TargetShip->GetMaxTemperature());
+		bool NewOverheating = (TargetShip->GetTemperature() > TargetShip->GetOverheatTemperature());
 		if (NewOverheating != Overheating)
 		{
 			TimeSinceOverheatChanged = 0;
 		}
 		Overheating = NewOverheating;
+		Burning = (TargetShip->GetTemperature() > TargetShip->GetBurnTemperature());
+
 
 		// Outage status
 		TimeSinceOutageChanged += InDeltaTime;

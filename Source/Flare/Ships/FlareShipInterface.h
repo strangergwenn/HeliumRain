@@ -37,7 +37,7 @@ struct FFlareShipSave
 	/** Ship rotation */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FRotator Rotation;
-	
+
 	/** Ship linear velocity */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector LinearVelocity;
@@ -77,7 +77,7 @@ struct FFlareShipSave
 	/** Duration until the end of th power outage, in seconds */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float PowerOutageDelay;
-	
+
 	/** Pilot */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareShipPilotSave Pilot;
@@ -90,10 +90,10 @@ USTRUCT()
 struct FFlareShipSlotDescription
 {
 	GENERATED_USTRUCT_BODY()
-	
+
 	/** Slot internal name */
 	UPROPERTY(EditAnywhere, Category = Content) FName SlotIdentifier;
-	
+
 	/** Component description can be empty if configurable slot */
 	UPROPERTY(EditAnywhere, Category = Content) FName ComponentIdentifier;
 };
@@ -205,8 +205,11 @@ public:
 	/** Get the ship's temperature in Kelvin */
 	virtual float GetTemperature() = 0;
 
+	/** Get the ship's maximum acceptable temperature in Kelvin for active componentq$*/
+	virtual float GetOverheatTemperature() = 0;
+
 	/** Get the ship's maximum acceptable temperature in Kelvin */
-	virtual float GetMaxTemperature() = 0;
+	virtual float GetBurnTemperature() = 0;
 
 	/** Apply damage to this ship.
 	 * Location is the center of sphere where damages are applied.
@@ -235,7 +238,7 @@ public:
 
 	/** Check if the ship is manually flown */
 	virtual bool IsManualPilot() = 0;
-	
+
 	/** Check if the autopilot is enabled */
 	virtual bool IsAutoPilot() = 0;
 

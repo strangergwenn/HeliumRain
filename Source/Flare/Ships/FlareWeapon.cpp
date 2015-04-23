@@ -117,7 +117,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		AFlareProjectile* Shell = GetWorld()->SpawnActor<AFlareProjectile>(
 			AFlareProjectile::StaticClass(),
 			FiringLocation,
-			FRotator::ZeroRotator, 
+			FRotator::ZeroRotator,
 			ProjectileSpawnParams);
 
 		// Fire it
@@ -171,12 +171,13 @@ float UFlareWeapon::GetHeatProduction() const
 	return Super::GetHeatProduction() * (TimeSinceLastShell <= FiringPeriod ? 1.f : 0.f);
 }
 
-void UFlareWeapon::ApplyHeatDamage(float Energy)
+void UFlareWeapon::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
 {
+	Super::ApplyHeatDamage(OverheatEnergy, BurnEnergy);
 	// Apply damage only if the player has fire recently, so can't fire due to cooldown
 	if(TimeSinceLastShell <= FiringPeriod)
 	{
-		ApplyDamage(Energy);
+		ApplyDamage(OverheatEnergy);
 	}
 }
 

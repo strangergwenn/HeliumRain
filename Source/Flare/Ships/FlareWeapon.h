@@ -35,12 +35,12 @@ public:
 	virtual float GetHeatProduction() const override;
 
 	/** Apply damage to this component only it is used. */
-	virtual void ApplyHeatDamage(float Energy) override;
+	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy) override;
 
 	/** Reset the current ammo to max ammo.	*/
 	virtual void RefillAmmo();
 
-	
+
 protected:
 
 	/*----------------------------------------------------

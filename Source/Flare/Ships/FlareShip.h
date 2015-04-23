@@ -106,10 +106,10 @@ public:
 	/*----------------------------------------------------
 		Player interface
 	----------------------------------------------------*/
-	
+
 	/** Activate or deactivate the exterbal camera */
 	virtual void SetExternalCamera(bool NewState);
-	
+
 	/** Switch to combat mode */
 	virtual void SetCombatMode(bool NewState);
 
@@ -118,7 +118,7 @@ public:
 
 	/** Set the new flight status */
 	virtual void SetStatus(EFlareShipStatus::Type NewStatus);
-		
+
 
 	/*----------------------------------------------------
 		Ship interface
@@ -138,7 +138,9 @@ public:
 
 	virtual float GetTemperature() override;
 
-	virtual float GetMaxTemperature() override;
+	virtual float GetOverheatTemperature() override;
+
+	virtual float GetBurnTemperature() override;
 
 	bool NavigateTo(FVector TargetLocation) override;
 
@@ -193,7 +195,7 @@ public:
 
 	/** Get the dock offset from the origin of the ship */
 	virtual FVector GetDockLocation();
-	
+
 	/** Compute the path from OriginLocation to TargetLocation */
 	virtual bool ComputePath(TArray<FVector>& Commands, TArray<AActor*>& Colliders, FVector OriginLocation, FVector TargetLocation, float ShipSize);
 
@@ -259,7 +261,7 @@ protected:
 
 	/** Update the attitude control */
 	void PhysicSubTick(float DeltaSeconds);
-	
+
 	/** Update the ship's center of mass */
 	void UpdateCOM();
 
@@ -409,7 +411,7 @@ public:
 	/*----------------------------------------------------
 		Getters (Attitude)
 	----------------------------------------------------*/
-	
+
 	/**
 	 * Return linear velocity in meters
 	 */
@@ -435,7 +437,7 @@ public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
-	
+
 	inline FFlareShipDescription* GetDescription() const
 	{
 		return ShipDescription;
@@ -470,7 +472,7 @@ public:
 	{
 		return Status;
 	}
-	
+
 	inline bool IsBoosting() const
 	{
 		return ManualOrbitalBoost;

@@ -30,7 +30,7 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	, LinearMaxDockingVelocity(10)
 	, NegligibleSpeedRatio(0.0005)
 	, Status(EFlareShipStatus::SS_Manual)
-{	
+{
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareAirframe>(this, TEXT("Airframe"));
 	Airframe->SetSimulatePhysics(true);
@@ -205,7 +205,9 @@ void AFlareShip::Tick(float DeltaSeconds)
 	ShipData.Heat -= FMath::Min(HeatRadiation * DeltaSeconds, ShipData.Heat);
 
 	// Overheat after 800°K, compute heat damage from temperature beyond 800°K : 0.005%/(°K*s)
-	float HeatDamage = (Temperature - GetMaxTemperature()) * DeltaSeconds * 0.00005;
+	float OverheatDamage = (Temperature - GetOverheatTemperature()) * DeltaSeconds * 0.00005;
+	float BurningDamage = FMath::Max((Temperature - GetBurnTemperature()) * DeltaSeconds * 0.0001, 0.0);
+
 
 	// Update component temperature and apply heat damage
 	for (int32 i = 0; i < Components.Num(); i++)
@@ -214,14 +216,14 @@ void AFlareShip::Tick(float DeltaSeconds)
 		Component->SetTemperature(Temperature);
 
 		// Overheat apply damage is necessary
-		if (HeatDamage > 0)
+		if (OverheatDamage > 0)
 		{
-			Component->ApplyHeatDamage(Component->GetTotalHitPoints() * HeatDamage);
+			Component->ApplyHeatDamage(Component->GetTotalHitPoints() * OverheatDamage, Component->GetTotalHitPoints() * BurningDamage);
 		}
 	}
 
 	// If damage have been applied, power production may have change
-	if (HeatDamage > 0)
+	if (OverheatDamage > 0)
 	{
 		UpdatePower();
 	}
@@ -249,7 +251,7 @@ void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Oth
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
 	// If receive hit from over actor, like a ship we must apply collision damages.
-	// The applied damage energy is 0.2% of the kinetic energy of the other actor. The kinetic 
+	// The applied damage energy is 0.2% of the kinetic energy of the other actor. The kinetic
 	// energy is calculated from the relative speed between the 2 actors, and only with the relative
 	// speed projected in the axis of the collision normal: if 2 very fast ship only slightly touch,
 	// only few energy will be decipated by the impact.
@@ -265,7 +267,7 @@ void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Oth
 	}
 
 	UPrimitiveComponent* OtherRoot = Cast<UPrimitiveComponent>(Other->GetRootComponent());
-	
+
 	// Relative velocity
 	FVector DeltaVelocity = ((OtherRoot->GetPhysicsLinearVelocity() - Airframe->GetPhysicsLinearVelocity()) / 100);
 
@@ -277,7 +279,7 @@ void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Oth
 	// Convert only 0.2% of the energy as damages and make vary de damage radius with the damage:
 	// minimum 20cm and about 1 meter for 20KJ of damage (about the damages provide by a bullet)
 	float Energy = ImpactEnergy / 500;
-	float  Radius = 0.2 + FMath::Sqrt(Energy) * 0.22; 
+	float  Radius = 0.2 + FMath::Sqrt(Energy) * 0.22;
 
 	ApplyDamage(Energy, Radius, HitLocation);
 }
@@ -303,7 +305,7 @@ void AFlareShip::SetExternalCamera(bool NewState)
 		StopFire();
 		ManualOrbitalBoost = false;
 	}
-	
+
 	// Reset rotations
 	ExternalCamera = NewState;
 	SetCameraPitch(0);
@@ -385,7 +387,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	// Clear previous data
 	WeaponList.Empty();
 	WeaponDescriptionList.Empty();
-	
+
 	// Update local data
 	ShipData = Data;
 	ShipData.Name = FName(*GetName());
@@ -402,7 +404,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 	TArray<UFlareShipComponent*> PowerSources;
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{	
+	{
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
 		FFlareShipComponentSave ComponentData;
 
@@ -426,7 +428,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 
 		// Reload the component
 		ReloadPart(Component, &ComponentData);
-		
+
 		// Set RCS description
 		FFlareShipComponentDescription* ComponentDescription = Catalog->Get(ComponentData.ComponentIdentifier);
 		if (ComponentDescription->Type == EFlarePartType::RCS)
@@ -439,7 +441,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		{
 			SetOrbitalEngineDescription(ComponentDescription);
 		}
-		
+
 		// If this is a weapon, add to weapon list.
 		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Component);
 		if (Weapon)
@@ -666,9 +668,14 @@ float AFlareShip::GetTemperature()
 	return ShipData.Heat / ShipDescription->HeatCapacity;
 }
 
-float AFlareShip::GetMaxTemperature()
+float AFlareShip::GetOverheatTemperature()
 {
-	return 800;
+	return 1200;
+}
+
+float AFlareShip::GetBurnTemperature()
+{
+	return 1500;
 }
 
 bool AFlareShip::NavigateTo(FVector TargetLocation)
@@ -739,14 +746,14 @@ bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
 		FVector ShipDockOffset = GetDockLocation();
 		DockingInfo.EndPoint += DockingInfo.Rotation.RotateVector(ShipDockOffset * FVector(1, 0, 0)) - ShipDockOffset * FVector(0, 1, 1);
 		DockingInfo.StartPoint = DockingInfo.EndPoint + 5000 * DockingInfo.Rotation.RotateVector(FVector(1, 0, 0));
-		
+
 		// Dock
 		if (NavigateTo(DockingInfo.StartPoint))
 		{
 			// Align front to dock axis, ship top to station top, set speed
 			PushCommandRotation((DockingInfo.EndPoint - DockingInfo.StartPoint), FVector(1, 0, 0));
 			PushCommandRotation(FVector(0,0,1), FVector(0,0,1));
-			
+
 			// Move there
 			PushCommandLocation(DockingInfo.EndPoint, true);
 			PushCommandDock(DockingInfo);
@@ -777,7 +784,7 @@ void AFlareShip::ConfirmDock(IFlareStationInterface* DockStation, int32 DockId)
 	SetStatus(EFlareShipStatus::SS_Docked);
 	ShipData.DockedTo = *DockStation->_getUObject()->GetName();
 	ShipData.DockedAt = DockId;
-	
+
 	// Disable physics, reset speed
 	LinearMaxVelocity = ShipDescription->LinearMaxVelocity;
 	Airframe->SetSimulatePhysics(false);
@@ -816,7 +823,7 @@ bool AFlareShip::Undock()
 	{
 		// Enable physics
 		Airframe->SetSimulatePhysics(true);
-	  
+
 		// Evacuate
 		GetDockStation()->ReleaseDock(this, ShipData.DockedAt);
 		PushCommandLocation(RootComponent->GetComponentTransform().TransformPositionNoScale(5000 * FVector(-1, 0, 0)));
@@ -1046,7 +1053,7 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 	// The maximum damage are applied to a component only if its bounding sphere touch the center of
 	// the damage sphere. There is a linear decrease of damage with a minumum of 0 if the 2 sphere
 	// only touch.
-	
+
 	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
 	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
@@ -1187,17 +1194,17 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds, float MaxVelocity)
 	DeltaVelocityAxis.Normalize();
 
 	float TimeToFinalVelocity;
-	
+
 	if (FMath::IsNearlyZero(DeltaVelocity.SizeSquared()))
 	{
 		TimeToFinalVelocity = 0;
 	}
 	else
 	{
-		
+
 		FVector Acceleration = GetTotalMaxThrustInAxis(Engines, DeltaVelocityAxis, false) / Airframe->GetMass();
 		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, DeltaPositionDirection));
-		
+
 		TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
 	}
 
@@ -1223,7 +1230,7 @@ void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds, float MaxVelocity)
 	{
 		Airframe->SetPhysicsLinearVelocity(FVector::ZeroVector, false); // TODO remove
 		ClearCurrentCommand();
-		RelativeResultSpeed = FVector::ZeroVector;	
+		RelativeResultSpeed = FVector::ZeroVector;
 
 	}
 	LinearTargetVelocity = RelativeResultSpeed;
@@ -1255,16 +1262,16 @@ void AFlareShip::UpdateAngularAttitudeManual(float DeltaSeconds)
 void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 {
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
-  
+
 	// Rotation data
 	FFlareShipCommandData Data;
 	CommandData.Peek(Data);
 	FVector TargetAxis = Data.RotationTarget;
 	FVector LocalShipAxis = Data.LocalShipAxis;
-	
+
 	FVector AngularVelocity = Airframe->GetPhysicsAngularVelocity();
 	FVector WorldShipAxis = Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalShipAxis);
-	
+
 	WorldShipAxis.Normalize();
 	TargetAxis.Normalize();
 
@@ -1278,7 +1285,7 @@ void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 	DeltaVelocityAxis.Normalize();
 
 	float TimeToFinalVelocity;
-	
+
 	if (FMath::IsNearlyZero(DeltaVelocity.SizeSquared()))
 	{
 		TimeToFinalVelocity = 0;
@@ -1288,11 +1295,11 @@ void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 	    // Scale with damages
 	    float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, true) / GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, false);
 	    FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
-	     
+
 	    FVector Acceleration = DamagedSimpleAcceleration;
 	    float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(DamagedSimpleAcceleration, RotationDirection));
-	    
-	    TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);	
+
+	    TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
 	}
 
 	float AngleToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + DeltaSeconds);
@@ -1308,8 +1315,8 @@ void AFlareShip::UpdateAngularAttitudeAuto(float DeltaSeconds)
 
 		RelativeResultSpeed = RotationDirection;
 		RelativeResultSpeed *= MaxPreciseSpeed;
-	}	
-	
+	}
+
 	// Under this angle we consider the variation negligible, and ensure null delta + null speed
 	if (angle < AngularDeadAngle && DeltaVelocity.Size() < AngularDeadAngle)
 	{
@@ -1660,7 +1667,7 @@ void AFlareShip::Brake()
 {
 	if (IsManualPilot())
 	{
-		// TODO 
+		// TODO
 	}
 }
 
@@ -1756,7 +1763,7 @@ float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVe
 		}
 
 		float MaxThrust = (WithDamages ? Engine->GetMaxThrust() : Engine->GetInitialMaxThrust());
-		
+
 		if (MaxThrust == 0)
 		{
 			// Not controlable engine
@@ -1764,7 +1771,7 @@ float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVe
 		}
 
 		FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
-		
+
 		FVector WorldThrustAxis = Engine->GetThrustAxis();
 		WorldThrustAxis.Normalize();
 		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThrustAxis);
