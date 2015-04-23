@@ -19,9 +19,16 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, Company(NULL)
 	, CombatMode(false)
 {
+	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
 	DustEffectTemplate = DustEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
+
+	// Sounds
+	static ConstructorHelpers::FObjectFinder<USoundCue> OnSoundObj(TEXT("/Game/Master/Sound/A_Beep_On"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> OffSoundObj(TEXT("/Game/Master/Sound/A_Beep_Off"));
+	OnSound = OnSoundObj.Object;
+	OffSound = OffSoundObj.Object;
 }
 
 
@@ -214,6 +221,7 @@ void AFlarePlayerController::OnEnterMenu()
 {
 	if (!IsInMenu())
 	{
+		ClientPlaySound(OnSound);
 		Possess(MenuPawn);
 
 		if (CombatMode)
@@ -229,6 +237,7 @@ void AFlarePlayerController::OnExitMenu()
 {
 	if (IsInMenu())
 	{
+		ClientPlaySound(OffSound);
 		Possess(ShipPawn);
 		SetExternalCamera(false);
 	}

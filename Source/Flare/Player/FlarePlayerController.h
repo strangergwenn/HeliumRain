@@ -129,6 +129,14 @@ protected:
 		Private data
 	----------------------------------------------------*/
 
+	/** Sound for menu openings */
+	UPROPERTY()
+	USoundCue*                               OnSound;
+
+	/** Sound for menu closings */
+	UPROPERTY()
+	USoundCue*                               OffSound;
+
 	/** Dust effect template */
 	UPROPERTY()
 	UParticleSystem*                         DustEffectTemplate;
