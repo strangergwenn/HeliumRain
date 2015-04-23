@@ -350,9 +350,9 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 	}
 }
 
-void UFlareShipComponent::ApplyHeatDamage(float Energy)
+void UFlareShipComponent::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
 {
-	// Standard component have no clasical usage.
+	// Standard component have no overheat damage.
 }
 
 
@@ -362,7 +362,7 @@ float UFlareShipComponent::GetDamageRatio(bool WithArmor) const
 	{
 		float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData.Damage;
 		return FMath::Clamp(RemainingHitPoints / (ComponentDescription->HitPoints + (WithArmor ? ComponentDescription->ArmorHitPoints : 0.f)), 0.f, 1.f);
-	} 
+	}
 	else
 	{
 		return 1.f;

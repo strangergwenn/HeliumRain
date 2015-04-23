@@ -24,13 +24,13 @@ public:
 
 	/** Get engine thrust axis in world space */
 	FVector GetThrustAxis() const;
-	
+
 	/** Get engine current max thrust ; Ccurrent max thrust can change with damages */
 	float GetMaxThrust() const;
-	
+
 	/** Get engine max thrust from specification ; Initial max thrust doesn't change with damages */
 	float GetInitialMaxThrust() const;
-	
+
 	/** Return true if the engine is an Orbital engine. */
 	virtual bool IsOrbitalEngine() const { return false; };
 
@@ -39,12 +39,12 @@ public:
 
 	/** Get the actual alpha */
 	virtual float GetEffectiveAlpha() const;
-	
+
 	/** Return the current amount of heat production in KW */
 	virtual float GetHeatProduction() const override;
 
 	/** Apply damage to this component only if it is used. */
-	virtual void ApplyHeatDamage(float Energy) override;
+	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy) override;
 
 
 protected:

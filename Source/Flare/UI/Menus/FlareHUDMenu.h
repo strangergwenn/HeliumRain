@@ -14,7 +14,7 @@ class SFlareHUDMenu : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareHUDMenu){}
 
 	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, OwnerHUD)
-	
+
 	SLATE_END_ARGS()
 
 
@@ -26,7 +26,7 @@ public:
 
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
-	
+
 	/** Set the ship to display data for */
 	void SetTargetShip(IFlareShipInterface* Target);
 
@@ -38,7 +38,7 @@ protected:
 	----------------------------------------------------*/
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-	
+
 	/** Get the color and alpha of the overheating warning */
 	FSlateColor GetOverheatColor(bool Text) const;
 
@@ -74,6 +74,7 @@ protected:
 	// Target data
 	IFlareShipInterface*                 TargetShip;
 	bool                                 Overheating;
+	bool                                 Burning;
 	bool                                 PowerOutage;
 
 	// Effect data

@@ -97,10 +97,10 @@ USTRUCT()
 struct FFlareShipComponentAttributeSave
 {
 	GENERATED_USTRUCT_BODY()
-	
+
 	/** Attribute name */
 	UPROPERTY(EditAnywhere, Category = Save) FName AttributeIdentifier;
-	
+
 	/** Attribute value */
 	UPROPERTY(EditAnywhere, Category = Save) float AttributeValue;
 };
@@ -110,19 +110,19 @@ USTRUCT()
 struct FFlareShipComponentSave
 {
 	GENERATED_USTRUCT_BODY()
-	
+
 	/** Component catalog identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName ComponentIdentifier;
-	
+
 	/** Ship slot identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName ShipSlotIdentifier;
-	
+
 	/** Taken damages */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float Damage;
-	
+
 	/** Component attributes */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareShipComponentAttributeSave> Attributes;
@@ -152,13 +152,13 @@ struct FFlareShipComponentDescription
 
 	/** Part cost */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
-	
+
 	/** Hit point for component armor. Absorb first damages */
 	UPROPERTY(EditAnywhere, Category = Content) float ArmorHitPoints;
-	
+
 	/** Hit point for component fonctionnaly. Absorb when no more armor. Component not working when no more hit points */
 	UPROPERTY(EditAnywhere, Category = Content) float HitPoints;
-	
+
 	/** Array of characteristics */
 	UPROPERTY(EditAnywhere, Category = Content)	TArray< FFlareShipComponentCharacteristic > Characteristics;
 
@@ -190,7 +190,7 @@ public:
 	virtual void OnRegister() override;
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-	
+
 	/** Initialize this component and register the master ship object */
 	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu = false);
 
@@ -247,7 +247,7 @@ public:
 	/**
 	 * Return the amount of armor hit points at the world location.
 	 * If not destructible, return a negative value
-	 */ 
+	 */
 	virtual float GetRemainingArmorAtLocation(FVector Location);
 
 	/**
@@ -256,9 +256,9 @@ public:
 	virtual void ApplyDamage(float Energy);
 
 	/**
-	 * Apply damage to this component only it is used.
+	 * Apply overheat damage to this component only it is used. Burn damage are always applied.
 	 */
-	virtual void ApplyHeatDamage(float Energy);
+	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy);
 
 	/**
 	 * Return the remaining hit points ratio. 1 for no damage, 0 for destroyed
