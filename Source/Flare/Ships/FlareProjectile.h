@@ -35,11 +35,11 @@ protected:
 
 	/** Impact sound */
 	UPROPERTY()
-	USoundCue*                               ImpactSound;
+	USoundCue*                               ImpactSound; // TODO M3 : Move to characteristic (weapon description)
 
 	/** Damage sound */
 	UPROPERTY()
-	USoundCue*                               DamageSound;
+	USoundCue*                               DamageSound; // TODO M3 : Move to characteristic (weapon description)
 
 	/** Mesh component */
 	UPROPERTY()

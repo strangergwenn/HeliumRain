@@ -10,7 +10,7 @@
 
 AFlareProjectile::AFlareProjectile(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
-	// Sounds
+	// TODO M3 : Move to characteristic
 	static ConstructorHelpers::FObjectFinder<USoundCue> ImpactSoundObj(TEXT("/Game/Master/Sound/A_Impact"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> DamageSoundObj(TEXT("/Game/Master/Sound/A_Damage"));
 	ImpactSound = ImpactSoundObj.Object;

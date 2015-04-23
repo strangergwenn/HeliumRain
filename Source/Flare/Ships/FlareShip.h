@@ -345,59 +345,77 @@ public:
 protected:
 
 	/*----------------------------------------------------
-		Protected data
+		Component data
 	----------------------------------------------------*/
 
-	// Component description
-	FFlareShipSave                       ShipData;
-	FFlareShipDescription*               ShipDescription;
-	FFlareShipComponentDescription*      OrbitalEngineDescription;
-	FFlareShipComponentDescription*      RCSDescription;
+	// Component descriptions, save data
+	FFlareShipSave                           ShipData;
+	FFlareShipDescription*                   ShipDescription;
+	FFlareShipComponentDescription*          OrbitalEngineDescription;
+	FFlareShipComponentDescription*          RCSDescription;
 
-	// Weapons
+	// Weapon components and descriptions
 	TArray <UFlareWeapon*>                   WeaponList;
 	TArray <FFlareShipComponentDescription*> WeaponDescriptionList;
 
+	// Engine sound node
+	UPROPERTY()
+	UAudioComponent*                         EngineSound;
+
+	// Power sound node
+	UPROPERTY()
+	UAudioComponent*                         PowerSound;
+
+	// Lifesupport status
+	UPROPERTY()
+	UFlareShipComponent*                     ShipCockit;
+
+	// Pilot object
+	UPROPERTY()
+	UFlareShipPilot*                         Pilot;
+
+
+	/*----------------------------------------------------
+		Regular data
+	----------------------------------------------------*/
+
 	// Configuration properties
-	float                                AngularDeadAngle;
-	float                                AngularInputDeadRatio;
-	float                                AngularMaxVelocity; // degree/s
-	float                                AngularAccelerationRate;
-	float                                LinearDeadDistance;
-	float                                LinearMaxVelocity; // m/s
-	float                                LinearMaxDockingVelocity; // m/s
-	float                                NegligibleSpeedRatio;
+	float                                    AngularDeadAngle;
+	float                                    AngularInputDeadRatio;
+	float                                    AngularMaxVelocity; // degree/s
+	float                                    AngularAccelerationRate;
+	float                                    LinearDeadDistance;
+	float                                    LinearMaxVelocity; // m/s
+	float                                    LinearMaxDockingVelocity; // m/s
+	float                                    NegligibleSpeedRatio;
 
 	// Dynamic gameplay data
-	TEnumAsByte <EFlareShipStatus::Type> Status;
-	bool                                 ExternalCamera;
-	bool                                 FiringPressed;
-	bool                                 CombatMode;
+	TEnumAsByte <EFlareShipStatus::Type>     Status;
+	bool                                     ExternalCamera;
+	bool                                     FiringPressed;
+	bool                                     CombatMode;
+	bool                                     WasAlive; // True if was alive at the last tick
+	bool                                     IsPiloted;
 
 	// Navigation
-	TArray <AActor*>                     PathColliders;
-	TQueue <FFlareShipCommandData>       CommandData;
+	TArray <AActor*>                         PathColliders;
+	TQueue <FFlareShipCommandData>           CommandData;
 
 	// Manual pilot
-	FVector                              ManualAngularVelocity; // In local space
-	FVector                              ManualLinearVelocity;
-	bool                                 ManualOrbitalBoost;
+	FVector                                  ManualAngularVelocity; // In local space
+	FVector                                  ManualLinearVelocity;
+	bool                                     ManualOrbitalBoost;
 
 	// Physics simulation
-	FVector                              LinearTargetVelocity;
-	FVector                              AngularTargetVelocity;
-	
-	// Temporary variable reset each tick
-	FVector                              COM;
+	FVector                                  LinearTargetVelocity;
+	FVector                                  AngularTargetVelocity;
+	FVector                                  COM;
 
-	// Damage status
-	UFlareShipComponent*                 ShipCockit;
-	bool                                 WasAlive; // true if was alive at the last tick
+	// TODO M3 : Move to characteristic (engine description)
+	UPROPERTY() USoundCue* EngineSoundTemplate;
+	UPROPERTY() USoundCue* PowerSoundTemplate;
+	// End TODO
 
-	// Pilot
-	UPROPERTY()
-	UFlareShipPilot*                      Pilot;
-	bool                                 IsPiloted;
 
 public:
 

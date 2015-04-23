@@ -34,8 +34,23 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareAirframe>(this, TEXT("Airframe"));
 	Airframe->SetSimulatePhysics(true);
-
 	RootComponent = Airframe;
+
+	// Engine sound
+	EngineSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
+	EngineSound->AttachTo(RootComponent);
+	EngineSound->bAutoActivate = true;
+	EngineSound->bAutoDestroy = false;
+
+	// Power sound
+	PowerSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
+	PowerSound->AttachTo(RootComponent);
+	PowerSound->bAutoActivate = true;
+	PowerSound->bAutoDestroy = false;
+
+	// Power sound setting
+	static ConstructorHelpers::FObjectFinder<USoundCue> PowerSoundObj(TEXT("/Game/Master/Sound/A_Power"));
+	PowerSoundTemplate = PowerSoundObj.Object;
 
 	// Camera settings
 	CameraContainerYaw->AttachTo(Airframe);
@@ -48,6 +63,11 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 
 	// Pilot
 	IsPiloted = true;
+
+	// TODO M3 : Move to characteristic
+	static ConstructorHelpers::FObjectFinder<USoundCue> EngineSoundObj(TEXT("/Game/Master/Sound/A_Exhaust_Heavy"));
+	EngineSoundTemplate = EngineSoundObj.Object;
+	// End TODO
 }
 
 
@@ -58,9 +78,11 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 void AFlareShip::BeginPlay()
 {
 	Super::BeginPlay();
-	TArray<UActorComponent*> ActorComponents;
-	GetComponents(ActorComponents);
 	
+	// Power sound
+	PowerSound->SetSound(PowerSoundTemplate);
+	PowerSound->Play();
+
 	UpdateCOM();
 }
 
@@ -70,10 +92,10 @@ void AFlareShip::Tick(float DeltaSeconds)
 
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 
-	//Update Camera
-	if(!ExternalCamera && CombatMode)
+	// Update Camera
+	if (!ExternalCamera && CombatMode)
 	{
-		if(CombatMode)
+		if (CombatMode)
 		{
 			TArray<UFlareWeapon*> Weapons = GetWeaponList();
 			if (Weapons.Num() > 0)
@@ -111,7 +133,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		UpdateCOM();
 
-		if(IsAlive() && IsPiloted) // Also tick not piloted ship
+		if (IsAlive() && IsPiloted) // Also tick not piloted ship
 		{
 			Pilot->TickPilot(DeltaSeconds);
 		}
@@ -120,12 +142,12 @@ void AFlareShip::Tick(float DeltaSeconds)
 		// Manual pilot
 		if (IsManualPilot() && IsAlive())
 		{
-			if(IsPiloted)
+			if (IsPiloted)
 			{
 				LinearTargetVelocity = Pilot->GetLinearTargetVelocity().GetClampedToMaxSize(LinearMaxVelocity);
 				AngularTargetVelocity = Pilot->GetAngularTargetVelocity();
 				ManualOrbitalBoost = Pilot->IsUseOrbitalBoost();
-				if(Pilot->IsWantFire())
+				if (Pilot->IsWantFire())
 				{
 					StartFire();
 				}
@@ -217,7 +239,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 		Component->SetTemperature(Temperature);
 
 		// Overheat apply damage is necessary
-		if(HeatDamage > 0)
+		if (HeatDamage > 0)
 		{
 			Component->ApplyHeatDamage(Component->GetTotalHitPoints() * HeatDamage);
 		}
@@ -233,7 +255,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	if (ShipData.PowerOutageDelay > 0)
 	{
 		ShipData.PowerOutageDelay -=  DeltaSeconds;
-		if(ShipData.PowerOutageDelay <=0)
+		if (ShipData.PowerOutageDelay <=0)
 		{
 			ShipData.PowerOutageDelay = 0;
 		}
@@ -244,6 +266,20 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		WasAlive = false;
 		OnControlLost();
+	}
+
+	// Sound management
+	if (GetPC())
+	{
+		// Power sound
+		if (IsPowered() && !HasPowerOutage() && !PowerSound->IsPlaying())
+		{
+			PowerSound->Play();
+		}
+		else if ((!IsPowered() || HasPowerOutage()) && PowerSound->IsPlaying())
+		{
+			PowerSound->Stop();
+		}
 	}
 }
 
@@ -263,7 +299,7 @@ void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Oth
 	// If the other actor is a projectile, specific weapon damage code is done in the projectile hit
 	// handler: in this case we ignore the collision
 	AFlareProjectile* OtherProjectile = Cast<AFlareProjectile>(Other);
-	if(OtherProjectile) {
+	if (OtherProjectile) {
 		return;
 	}
 
@@ -532,7 +568,7 @@ FFlareShipSave* AFlareShip::Save()
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
 		FFlareShipComponentSave* ComponentSave = Component->Save();
 
-		if(ComponentSave) {
+		if (ComponentSave) {
 			ShipData.Components.Add(*ComponentSave);
 		}
 	}
@@ -579,7 +615,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
 			{
 				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
-				if(Engine->IsOrbitalEngine())
+				if (Engine->IsOrbitalEngine())
 				{
 					EngineCount+=1.f;
 					Total+=Engine->GetDamageRatio(WithArmor)*(Engine->IsPowered() ? 1 : 0);
@@ -596,7 +632,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
 			{
 				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
-				if(!Engine->IsOrbitalEngine())
+				if (!Engine->IsOrbitalEngine())
 				{
 					EngineCount+=1.f;
 					Total+=Engine->GetDamageRatio(WithArmor)*(Engine->IsPowered() ? 1 : 0);
@@ -607,7 +643,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 		break;
 		case EFlareSubsystem::SYS_LifeSupport:
 		{
-			if(ShipCockit)
+			if (ShipCockit)
 			{
 				Health = ShipCockit->GetDamageRatio(WithArmor) * (ShipCockit->IsPowered() ? 1 : 0);
 			}
@@ -621,7 +657,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 			{
 				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
-				if(Component->IsGenerator())
+				if (Component->IsGenerator())
 				{
 					GeneratorCount+=1.f;
 					Total+=Component->GetDamageRatio(WithArmor);
@@ -650,7 +686,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 			{
 				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
-				if(Component->IsHeatSink())
+				if (Component->IsHeatSink())
 				{
 					HeatSinkCount+=1.f;
 					Total+=Component->GetDamageRatio(WithArmor) * (ShipCockit->IsPowered() ? 1 : 0);
@@ -1067,7 +1103,7 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 		float Distance = (ComponentLocation - Location).Size() / 100.0f;
 		float IntersectDistance =  Radius + ComponentSize/100 - Distance;
 
-		if(IntersectDistance > 0) {
+		if (IntersectDistance > 0) {
 			// Hit this component
 			//FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
 
@@ -1091,7 +1127,7 @@ bool AFlareShip::IsAlive()
 
 bool AFlareShip::IsPowered()
 {
-	if(ShipCockit)
+	if (ShipCockit)
 	{
 		return ShipCockit->IsPowered();
 	}
@@ -1132,7 +1168,7 @@ void AFlareShip::OnElectricDamage(float DamageRatio)
 	FLOGV("OnElectricDamage initial PowerOutageDelay=%f, DamageRatio=%f, PowerRatio=%f", ShipData.PowerOutageDelay, DamageRatio, PowerRatio);
 
 	// The outage probability depend on global available power ratio
-	if(FMath::FRand() > PowerRatio)
+	if (FMath::FRand() > PowerRatio)
 	{
 		// The outage duration depend on the relative amount of damage the component just receive
 		// This avoid very long outage if multiple small collision.
@@ -1404,7 +1440,7 @@ void AFlareShip::StartPresentation()
 void AFlareShip::PhysicSubTick(float DeltaSeconds)
 {
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
-	if(IsPowered())
+	if (IsPowered())
 	{
 		// Linear physics
 		FVector DeltaV = LinearTargetVelocity - GetLinearVelocity();
@@ -1672,12 +1708,18 @@ void AFlareShip::BoostOn()
 	if (IsManualPilot() && !ExternalCamera)
 	{
 		ManualOrbitalBoost = true;
+		if (GetPC())
+		{
+			EngineSound->SetSound(EngineSoundTemplate);
+			EngineSound->Play();
+		}
 	}
 }
 
 void AFlareShip::BoostOff()
 {
 	ManualOrbitalBoost = false;
+	EngineSound->Stop();
 }
 
 void AFlareShip::ForceManual()
