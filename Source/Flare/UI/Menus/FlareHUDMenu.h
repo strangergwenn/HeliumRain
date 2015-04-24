@@ -70,6 +70,7 @@ protected:
 	TSharedPtr<SFlareSubsystemStatus>    RCSStatus;
 	TSharedPtr<SFlareSubsystemStatus>    LifeSupportStatus;
 	TSharedPtr<SHorizontalBox>           WeaponContainer;
+	TSharedPtr<SFlareSubsystemStatus>    SectorStatus;
 
 	// Target data
 	IFlareShipInterface*                 TargetShip;

@@ -155,7 +155,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SAssignNew(SpeedStatus, SFlareSubsystemStatus).Type(EFlareInfoDisplay::ID_Sector)
+				SAssignNew(SectorStatus, SFlareSubsystemStatus).Type(EFlareInfoDisplay::ID_Sector)
 			]
 		]
 	];
@@ -176,6 +176,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareShipInterface* Target)
 	PropulsionStatus->SetTargetShip(Target);
 	RCSStatus->SetTargetShip(Target);
 	LifeSupportStatus->SetTargetShip(Target);
+	SectorStatus->SetTargetShip(Target);
 	AFlareShip* PlayerShip = Cast<AFlareShip>(Target);
 
 	if (PlayerShip)
