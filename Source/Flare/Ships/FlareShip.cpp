@@ -271,10 +271,10 @@ void AFlareShip::Tick(float DeltaSeconds)
 	}
 
 	// Sound management
-	if (GetPC())
+	if (IsFlownByPlayer())
 	{
 		// Power sound
-		float PowerDelta = (IsPowered() && !HasPowerOutage() && !IsExternalCamera() ? 1 : -1) * 0.5 * DeltaSeconds;
+		float PowerDelta = (IsPowered() && !HasPowerOutage() ? 1 : -1) * 0.5 * DeltaSeconds;
 		float NewPowerSoundVolume = FMath::Clamp(PowerSoundVolume + PowerDelta, 0.0f, 1.0f);
 		if (NewPowerSoundVolume != PowerSoundVolume)
 		{
@@ -303,14 +303,8 @@ void AFlareShip::Tick(float DeltaSeconds)
 			EngineAlpha += Engine->GetEffectiveAlpha() / Engines.Num();
 		}
 
-		// Update engine alpha
-		if (EngineAlpha == 0 || IsExternalCamera())
-		{
-			EngineAlpha = -1;
-		}
-
 		// Engine sound
-		float EngineDelta = EngineAlpha * 2 * DeltaSeconds;
+		float EngineDelta = (EngineAlpha > 0 ? EngineAlpha : -1) * 2 * DeltaSeconds;
 		float NewEngineSoundVolume = FMath::Clamp(EngineSoundVolume + EngineDelta, 0.0f, 1.0f);
 		if (NewEngineSoundVolume != EngineSoundVolume)
 		{

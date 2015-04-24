@@ -206,6 +206,19 @@ AFlarePlayerController* AFlareShipBase::GetPC() const
 	return Cast<AFlarePlayerController>(GetController());
 }
 
+bool AFlareShipBase::IsFlownByPlayer() const
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		return (PC->GetShipPawn() == this);
+	}
+	else
+	{
+		return false;
+	}
+}
+
 AFlareGame* AFlareShipBase::GetGame() const
 {
 	return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());

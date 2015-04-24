@@ -147,6 +147,9 @@ public:
 	/** Get the pawn */
 	AFlarePlayerController* GetPC() const;
 
+	/** Check if this ship is the player ship */
+	bool IsFlownByPlayer() const;
+
 	/** Get the game class instance */
 	AFlareGame* GetGame() const;
 
