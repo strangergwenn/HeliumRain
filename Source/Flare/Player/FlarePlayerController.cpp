@@ -31,13 +31,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	OnSound = OnSoundObj.Object;
 	OffSound = OffSoundObj.Object;
 
-	// Engine sound
-	EngineSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
-	EngineSound->AttachTo(RootComponent);
-	EngineSound->bAutoActivate = false;
-	EngineSound->bAutoDestroy = false;
-	EngineSoundFadeSpeed = 2.0;
-
 	// Power sound
 	PowerSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
 	PowerSound->AttachTo(RootComponent);
@@ -45,11 +38,27 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	PowerSound->bAutoDestroy = false;
 	PowerSoundFadeSpeed = 0.3;
 
+	// Engine sound
+	EngineSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
+	EngineSound->AttachTo(RootComponent);
+	EngineSound->bAutoActivate = false;
+	EngineSound->bAutoDestroy = false;
+	EngineSoundFadeSpeed = 2.0;
+
+	// RCS sound
+	RCSSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("RCSSound"));
+	RCSSound->AttachTo(RootComponent);
+	RCSSound->bAutoActivate = false;
+	RCSSound->bAutoDestroy = false;
+	RCSSoundFadeSpeed = 5.0;
+
 	// TODO M3 : Move to ship characteristic
 	static ConstructorHelpers::FObjectFinder<USoundCue> PowerSoundObj(TEXT("/Game/Master/Sound/A_Power"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> EngineSoundObj(TEXT("/Game/Master/Sound/A_Exhaust_Heavy"));
-	EngineSoundTemplate = EngineSoundObj.Object;
+	static ConstructorHelpers::FObjectFinder<USoundCue> RCSSoundObj(TEXT("/Game/Master/Sound/A_Exhaust_Light"));
 	PowerSoundTemplate = PowerSoundObj.Object;
+	EngineSoundTemplate = EngineSoundObj.Object;
+	RCSSoundTemplate = RCSSoundObj.Object;
 	// End TODO
 }
 
@@ -105,25 +114,42 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	// Sound management
 	if (ShipPawn)
 	{
-		// Check all engines for engine alpha
+		// Engine values
+		float RCSAlpha = 0;
 		float EngineAlpha = 0;
-		TArray<UActorComponent*> Engines = ShipPawn->GetComponentsByClass(UFlareOrbitalEngine::StaticClass());
+		int32 RCSCount = 0;
+		int32 EngineCount = 0;
+
+		// Check all engines for engine alpha values
+		TArray<UActorComponent*> Engines = ShipPawn->GetComponentsByClass(UFlareEngine::StaticClass());
 		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
 		{
-			UFlareOrbitalEngine* Engine = Cast<UFlareOrbitalEngine>(Engines[EngineIndex]);
-			EngineAlpha += Engine->GetEffectiveAlpha();
+			UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+			if (Engine->IsOrbitalEngine())
+			{
+				EngineAlpha += Engine->GetEffectiveAlpha();
+				EngineCount++;
+			}
+			else
+			{
+				RCSAlpha += Engine->GetEffectiveAlpha();
+				RCSCount++;
+			}
 		}
 
 		// Update sounds
 		UpdateSound(PowerSound,  (ShipPawn->IsPowered() && !ShipPawn->HasPowerOutage() ? 1 : -1) * PowerSoundFadeSpeed  * DeltaSeconds, PowerSoundVolume);
-		UpdateSound(EngineSound, (EngineAlpha > 0 ? EngineAlpha / Engines.Num() : -1)            * EngineSoundFadeSpeed * DeltaSeconds, EngineSoundVolume);
+		UpdateSound(EngineSound, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1)              * EngineSoundFadeSpeed * DeltaSeconds, EngineSoundVolume);
+		UpdateSound(RCSSound,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)                       * RCSSoundFadeSpeed    * DeltaSeconds, RCSSoundVolume);
 	}
 	else
 	{
 		PowerSound->Stop();
 		EngineSound->Stop();
+		RCSSound->Stop();
 		PowerSoundVolume = 0;
 		EngineSoundVolume = 0;
+		RCSSoundVolume = 0;
 	}
 }
 
@@ -198,6 +224,7 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 	// TODO M3 : load from characteristics
 	PowerSound->SetSound(PowerSoundTemplate);
 	EngineSound->SetSound(EngineSoundTemplate);
+	RCSSound->SetSound(RCSSoundTemplate);
 
 	// Inform the player
 	if (Ship)

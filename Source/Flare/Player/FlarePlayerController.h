@@ -136,6 +136,10 @@ protected:
 	UPROPERTY()
 	UAudioComponent*                         EngineSound;
 
+	// RCS sound node
+	UPROPERTY()
+	UAudioComponent*                         RCSSound;
+
 	// Power sound node
 	UPROPERTY()
 	UAudioComponent*                         PowerSound;
@@ -150,12 +154,15 @@ protected:
 
 	// Sound data
 	float                                    EngineSoundFadeSpeed;
+	float                                    RCSSoundFadeSpeed;
 	float                                    PowerSoundFadeSpeed;
 	float                                    EngineSoundVolume;
+	float                                    RCSSoundVolume;
 	float                                    PowerSoundVolume;
 
 	// TODO M3 : Move to characteristic (engine description)
 	UPROPERTY() USoundCue* EngineSoundTemplate;
+	UPROPERTY() USoundCue* RCSSoundTemplate;
 	UPROPERTY() USoundCue* PowerSoundTemplate;
 	// End TODO
 
