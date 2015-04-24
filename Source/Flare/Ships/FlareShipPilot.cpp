@@ -263,7 +263,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			}
 		}
 
-		if(Ship->GetTemperature() > (DangerousTarget ? 900.f : 780.f))
+		if(Ship->GetTemperature() > Ship->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
 		{
 			// TODO Fire on dangerous target
 			WantFire = false;
@@ -310,7 +310,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 
 	// Manage orbital boost
-	if(Ship->GetTemperature() > 680)
+	if(Ship->GetTemperature() > Ship->GetOverheatTemperature() * 0.75)
 	{
 		UseOrbitalBoost = false;
 	}
@@ -385,7 +385,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 			UseOrbitalBoost = true;
 		}
 
-		if(Distance > 1000 && Ship->GetTemperature() > 800)
+		if(Distance > 1000 && Ship->GetTemperature() > Ship->GetOverheatTemperature() * 0.95)
 		{
 			// Too hot and no imminent danger
 			UseOrbitalBoost = false;

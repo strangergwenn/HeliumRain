@@ -66,6 +66,52 @@ class Ship:
 		return math.pow(1000 * power / (surface * 5.60373e-8), 1/4)
 
 
+
+	def compute_boost_duration(self, initial_temperature, final_temperature, power, surface, heat_capacity):
+		# Radiation in KJ = surface * 5.670373e-8 * FMath::Pow(Temperature, 4) / 1000
+		# Production in KJ = power
+		# temperature variation is : dT/dt = (1000 * power - surface * 5.670373e-8 * FMath::Pow(T, 4)) / heat_capacity
+		# T(t) = 1000 * power t - (surface * k * FMath::Pow(T, 5)/(5 * heat_capacity)
+
+		if self.compute_equilibrium(power, surface) < final_temperature:
+			# The final temperature will never be reach
+			return -1;
+
+		delta_seconds = 0.001
+		time = 0.0;
+		heat = initial_temperature * heat_capacity
+		temperature = heat / heat_capacity
+
+		while temperature < final_temperature:
+			heat = heat + (power - surface *  5.670373e-8 * math.pow(temperature, 4) / 1000) * delta_seconds
+			time = time + delta_seconds
+			temperature = heat / heat_capacity
+
+		return time
+
+	def compute_cooling_duration(self, initial_temperature, final_temperature, power, surface, heat_capacity):
+		# Radiation in KJ = surface * 5.670373e-8 * FMath::Pow(Temperature, 4) / 1000
+		# Production in KJ = power
+		# temperature variation is : dT/dt = (1000 * power - surface * 5.670373e-8 * FMath::Pow(T, 4)) / heat_capacity
+		# T(t) = 1000 * power t - (surface * k * FMath::Pow(T, 5)/(5 * heat_capacity)
+
+		if self.compute_equilibrium(power, surface) > final_temperature:
+			# The final temperature will never be reach
+			return -1;
+
+		delta_seconds = 0.001
+		time = 0.0;
+		heat = initial_temperature * heat_capacity
+		temperature = heat / heat_capacity
+
+		while temperature > final_temperature:
+			heat = heat + (power - surface *  5.670373e-8 * math.pow(temperature, 4) / 1000) * delta_seconds
+			time = time + delta_seconds
+			temperature = heat / heat_capacity
+
+		return time
+
+
 	def compute(self):
 		max_solar_power = self.max_heatsink * SOLAR_POWER * 0.5
 		active_max_usage = 0.26
@@ -82,6 +128,15 @@ class Ship:
 		self.min_firing_equilibrium = self.compute_equilibrium(self.passive_power + self.firing_power + min_solar_power, self.min_heatsink)
 		self.min_all_equilibrium = self.compute_equilibrium(self.passive_power + self.active_power * active_max_usage + self.boosting_power + self.firing_power + min_solar_power, self.min_heatsink)
 
+		self.passive_boost_duration = self.compute_boost_duration(self.max_passive_equilibrium, OVERHEAT_TEMPERATURE, self.passive_power + self.active_power * active_max_usage + self.boosting_power + max_solar_power, self.max_heatsink, self.heat_capacity)
+		self.active_boost_duration = self.compute_boost_duration(self.max_active_equilibrium, OVERHEAT_TEMPERATURE, self.passive_power + self.active_power * active_max_usage + self.boosting_power + max_solar_power, self.max_heatsink, self.heat_capacity)
+
+		self.passive_firing_duration = self.compute_boost_duration(self.max_passive_equilibrium, OVERHEAT_TEMPERATURE, self.passive_power + self.firing_power + max_solar_power, self.max_heatsink, self.heat_capacity)
+		self.active_firing_duration = self.compute_boost_duration(self.max_active_equilibrium, OVERHEAT_TEMPERATURE, self.passive_power + self.active_power * active_max_usage + self.firing_power + max_solar_power, self.max_heatsink, self.heat_capacity)
+
+		self.burning_to_overheat_cooling = self.compute_cooling_duration(BURN_TEMPERATURE, OVERHEAT_TEMPERATURE, self.passive_power + max_solar_power, self.max_heatsink, self.heat_capacity)
+		self.boosting_to_active_cooling = self.compute_cooling_duration(self.max_boosting_equilibrium, self.max_active_equilibrium, self.passive_power + max_solar_power, self.max_heatsink, self.heat_capacity)
+
 
 	def dump(self):
 		print("-------------------")
@@ -89,6 +144,8 @@ class Ship:
 		print("-------------------")
 		print("Heat capacity: "+ str(self.heat_capacity) + " KJ/°K")
 		print("Solar power: "+ str(SOLAR_POWER) + " KW/m²")
+		print("Heat capacity: "+ str(self.heat_capacity) + " KJ/°K")
+
 
 		print("Heatsink")
 		print("  - Maximum: "+ str(self.max_heatsink) + " m²")
@@ -113,8 +170,15 @@ class Ship:
 		print("  - Firing: "+ str(self.min_firing_equilibrium) + " °K")
 		print("  - All: "+ str(self.min_all_equilibrium) + " °K")
 
+		print("Usage duration")
+		print("  - Boosting from passive: "+ (str(self.passive_boost_duration) + " s" if self.passive_boost_duration > 0 else "No overheat"))
+		print("  - Boosting from active: "+ (str(self.active_boost_duration) + " s" if self.active_boost_duration > 0 else "No overheat"))
+		print("  - Firing from passive: "+ (str(self.passive_firing_duration) + " s" if self.passive_firing_duration > 0 else "No overheat"))
+		print("  - Firing from active: "+ (str(self.active_firing_duration) + " s" if self.active_firing_duration > 0 else "No overheat"))
 
-
+		print("Cooling duration")
+		print("  - Burning to Overheat: "+ str(self.burning_to_overheat_cooling) + " s")
+		print("  - Boosting to active: "+ str(self.boosting_to_active_cooling) + " s")
 
 ship = Ship("ghoul.ship")
 ship.compute()

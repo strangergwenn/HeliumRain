@@ -1,6 +1,6 @@
 [Ghoul]
 ShipName=Ghoul
-HeatCapacity=4
+HeatCapacity=13
 
 [ic-small-cockpit]
 PassivePower=1
@@ -15,12 +15,12 @@ MinHeatsink=1
 
 [weapon-eradicator]
 Count = 2
-FiringPower=200
+FiringPower=800
 
 [rcs-piranha]
 Count = 15
-ActivePower=5
+ActivePower=20
 
 [engine-octopus]
 Count = 2
-BoostingPower=50
+BoostingPower=500
