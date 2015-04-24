@@ -142,7 +142,7 @@ public:
 	FVector WorldToLocal(FVector World);
 
 	/** Convert a rotation from world space to local space */
-	FQuat WorldToLocal(FQuat World);
+	FQuat WorldToLocal(const FQuat& World);
 
 	/** Get the pawn */
 	AFlarePlayerController* GetPC() const;

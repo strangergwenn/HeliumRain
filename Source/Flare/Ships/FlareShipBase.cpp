@@ -180,7 +180,7 @@ float AFlareShipBase::TriStateRegulator(float Target, float Current, float Thres
 	}
 }
 
-FQuat AFlareShipBase::WorldToLocal(FQuat World)
+FQuat AFlareShipBase::WorldToLocal(const FQuat& World)
 {
 	FRotator WorldRotator = World.Rotator();
 	FTransform ParentWorldTransform = RootComponent->GetComponentTransform();
