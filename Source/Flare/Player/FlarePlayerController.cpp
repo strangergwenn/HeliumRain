@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "FlarePlayerController.h"
 #include "../Ships/FlareShip.h"
+#include "../Ships/FlareOrbitalEngine.h"
 #include "../Stations/FlareStation.h"
 #include "EngineUtils.h"
 
@@ -29,6 +30,27 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	static ConstructorHelpers::FObjectFinder<USoundCue> OffSoundObj(TEXT("/Game/Master/Sound/A_Beep_Off"));
 	OnSound = OnSoundObj.Object;
 	OffSound = OffSoundObj.Object;
+
+	// Engine sound
+	EngineSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
+	EngineSound->AttachTo(RootComponent);
+	EngineSound->bAutoActivate = false;
+	EngineSound->bAutoDestroy = false;
+	EngineSoundFadeSpeed = 2.0;
+
+	// Power sound
+	PowerSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
+	PowerSound->AttachTo(RootComponent);
+	PowerSound->bAutoActivate = false;
+	PowerSound->bAutoDestroy = false;
+	PowerSoundFadeSpeed = 0.3;
+
+	// TODO M3 : Move to ship characteristic
+	static ConstructorHelpers::FObjectFinder<USoundCue> PowerSoundObj(TEXT("/Game/Master/Sound/A_Power"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> EngineSoundObj(TEXT("/Game/Master/Sound/A_Exhaust_Heavy"));
+	EngineSoundTemplate = EngineSoundObj.Object;
+	PowerSoundTemplate = PowerSoundObj.Object;
+	// End TODO
 }
 
 
@@ -49,9 +71,9 @@ void AFlarePlayerController::BeginPlay()
 }
 
 
-void AFlarePlayerController::PlayerTick(float DeltaTime)
+void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 {
-	Super::PlayerTick(DeltaTime);
+	Super::PlayerTick(DeltaSeconds);
 	bShowMouseCursor = !CombatMode;
 
 	// Spawn dust effects if they are not already here
@@ -78,6 +100,52 @@ void AFlarePlayerController::PlayerTick(float DeltaTime)
 
 		DustEffect->SetWorldLocation(ViewLocation);
 		DustEffect->SetVectorParameter("Direction", -Direction);
+	}
+
+	// Sound management
+	if (ShipPawn)
+	{
+		// Check all engines for engine alpha
+		float EngineAlpha = 0;
+		TArray<UActorComponent*> Engines = ShipPawn->GetComponentsByClass(UFlareOrbitalEngine::StaticClass());
+		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
+		{
+			UFlareOrbitalEngine* Engine = Cast<UFlareOrbitalEngine>(Engines[EngineIndex]);
+			EngineAlpha += Engine->GetEffectiveAlpha();
+		}
+
+		// Update sounds
+		UpdateSound(PowerSound,  (ShipPawn->IsPowered() && !ShipPawn->HasPowerOutage() ? 1 : -1) * PowerSoundFadeSpeed  * DeltaSeconds, PowerSoundVolume);
+		UpdateSound(EngineSound, (EngineAlpha > 0 ? EngineAlpha / Engines.Num() : -1)            * EngineSoundFadeSpeed * DeltaSeconds, EngineSoundVolume);
+	}
+	else
+	{
+		PowerSound->Stop();
+		EngineSound->Stop();
+		PowerSoundVolume = 0;
+		EngineSoundVolume = 0;
+	}
+}
+
+void AFlarePlayerController::UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume)
+{
+	float NewVolume = FMath::Clamp(CurrentVolume + VolumeDelta, 0.0f, 1.0f);
+	if (NewVolume != CurrentVolume)
+	{
+		if (NewVolume == 0)
+		{
+			SoundComp->Stop();
+		}
+		else if (CurrentVolume == 0)
+		{
+			SoundComp->Play();
+		}
+		else
+		{
+			SoundComp->SetVolumeMultiplier(NewVolume);
+			SoundComp->SetPitchMultiplier(0.5 + 0.5 * NewVolume);
+		}
+		CurrentVolume = NewVolume;
 	}
 }
 
@@ -126,6 +194,10 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 	CombatMode = false;
 	SetExternalCamera(true, true);
 	ShipPawn->EnablePilot(false);
+
+	// TODO M3 : load from characteristics
+	PowerSound->SetSound(PowerSoundTemplate);
+	EngineSound->SetSound(EngineSoundTemplate);
 
 	// Inform the player
 	if (Ship)

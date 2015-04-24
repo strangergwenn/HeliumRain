@@ -39,6 +39,9 @@ public:
 
 	virtual void PlayerTick(float DeltaTime) override;
 
+	/** Update the sound state using fading */
+	virtual void UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume);
+
 	/** Activate or deactivate the exterbal camera */
 	virtual void SetExternalCamera(bool NewState, bool Force = false);
 
@@ -126,8 +129,16 @@ public:
 protected:
 
 	/*----------------------------------------------------
-		Private data
+		Sound data
 	----------------------------------------------------*/
+
+	// Engine sound node
+	UPROPERTY()
+	UAudioComponent*                         EngineSound;
+
+	// Power sound node
+	UPROPERTY()
+	UAudioComponent*                         PowerSound;
 
 	/** Sound for menu openings */
 	UPROPERTY()
@@ -136,6 +147,22 @@ protected:
 	/** Sound for menu closings */
 	UPROPERTY()
 	USoundCue*                               OffSound;
+
+	// Sound data
+	float                                    EngineSoundFadeSpeed;
+	float                                    PowerSoundFadeSpeed;
+	float                                    EngineSoundVolume;
+	float                                    PowerSoundVolume;
+
+	// TODO M3 : Move to characteristic (engine description)
+	UPROPERTY() USoundCue* EngineSoundTemplate;
+	UPROPERTY() USoundCue* PowerSoundTemplate;
+	// End TODO
+
+
+	/*----------------------------------------------------
+		Private data
+	----------------------------------------------------*/
 
 	/** Dust effect template */
 	UPROPERTY()

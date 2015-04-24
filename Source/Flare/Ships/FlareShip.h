@@ -358,14 +358,6 @@ protected:
 	TArray <UFlareWeapon*>                   WeaponList;
 	TArray <FFlareShipComponentDescription*> WeaponDescriptionList;
 
-	// Engine sound node
-	UPROPERTY()
-	UAudioComponent*                         EngineSound;
-
-	// Power sound node
-	UPROPERTY()
-	UAudioComponent*                         PowerSound;
-
 	// Lifesupport status
 	UPROPERTY()
 	UFlareShipComponent*                     ShipCockit;
@@ -397,10 +389,6 @@ protected:
 	bool                                     WasAlive; // True if was alive at the last tick
 	bool                                     IsPiloted;
 
-	// Sound data
-	float                                    EngineSoundVolume;
-	float                                    PowerSoundVolume;
-
 	// Navigation
 	TArray <AActor*>                         PathColliders;
 	TQueue <FFlareShipCommandData>           CommandData;
@@ -414,11 +402,6 @@ protected:
 	FVector                                  LinearTargetVelocity;
 	FVector                                  AngularTargetVelocity;
 	FVector                                  COM;
-
-	// TODO M3 : Move to characteristic (engine description)
-	UPROPERTY() USoundCue* EngineSoundTemplate;
-	UPROPERTY() USoundCue* PowerSoundTemplate;
-	// End TODO
 
 
 public:

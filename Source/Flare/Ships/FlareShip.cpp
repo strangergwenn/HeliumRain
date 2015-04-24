@@ -36,23 +36,6 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	Airframe->SetSimulatePhysics(true);
 	RootComponent = Airframe;
 
-	// Engine sound
-	EngineSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
-	EngineSound->AttachTo(RootComponent);
-	EngineSound->bAutoActivate = false;
-	EngineSound->bAutoDestroy = false;
-
-	// Power sound
-	PowerSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
-	PowerSound->AttachTo(RootComponent);
-	PowerSound->bAutoActivate = false;
-	PowerSound->bAutoDestroy = false;
-
-	// Power sound setting
-	static ConstructorHelpers::FObjectFinder<USoundCue> PowerSoundObj(TEXT("/Game/Master/Sound/A_Power"));
-	PowerSoundTemplate = PowerSoundObj.Object;
-	EngineSoundVolume = 0;
-
 	// Camera settings
 	CameraContainerYaw->AttachTo(Airframe);
 	CameraMaxPitch = 80;
@@ -64,11 +47,6 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 
 	// Pilot
 	IsPiloted = true;
-
-	// TODO M3 : Move to characteristic
-	static ConstructorHelpers::FObjectFinder<USoundCue> EngineSoundObj(TEXT("/Game/Master/Sound/A_Exhaust_Heavy"));
-	EngineSoundTemplate = EngineSoundObj.Object;
-	// End TODO
 }
 
 
@@ -79,11 +57,6 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 void AFlareShip::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// Power sound
-	PowerSound->SetSound(PowerSoundTemplate);
-	PowerSound->Stop();
-	PowerSoundVolume = 0;
 
 	UpdateCOM();
 }
@@ -268,68 +241,6 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		WasAlive = false;
 		OnControlLost();
-	}
-
-	// Sound management
-	if (IsFlownByPlayer())
-	{
-		// Power sound
-		float PowerDelta = (IsPowered() && !HasPowerOutage() ? 1 : -1) * 0.5 * DeltaSeconds;
-		float NewPowerSoundVolume = FMath::Clamp(PowerSoundVolume + PowerDelta, 0.0f, 1.0f);
-		if (NewPowerSoundVolume != PowerSoundVolume)
-		{
-			if (NewPowerSoundVolume == 0)
-			{
-				PowerSound->Stop();
-			}
-			else if (PowerSoundVolume == 0)
-			{
-				PowerSound->Play();
-			}
-			else
-			{
-				PowerSound->SetVolumeMultiplier(NewPowerSoundVolume);
-				PowerSound->SetPitchMultiplier(0.75 + 0.25 * NewPowerSoundVolume);
-			}
-			PowerSoundVolume = NewPowerSoundVolume;
-		}
-
-		// Check all engines for engine alpha
-		float EngineAlpha = 0;
-		TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareOrbitalEngine::StaticClass());
-		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
-		{
-			UFlareOrbitalEngine* Engine = Cast<UFlareOrbitalEngine>(Engines[EngineIndex]);
-			EngineAlpha += Engine->GetEffectiveAlpha() / Engines.Num();
-		}
-
-		// Engine sound
-		float EngineDelta = (EngineAlpha > 0 ? EngineAlpha : -1) * 2 * DeltaSeconds;
-		float NewEngineSoundVolume = FMath::Clamp(EngineSoundVolume + EngineDelta, 0.0f, 1.0f);
-		if (NewEngineSoundVolume != EngineSoundVolume)
-		{
-			if (NewEngineSoundVolume == 0)
-			{
-				EngineSound->Stop();
-			}
-			else if (EngineSoundVolume == 0)
-			{
-				EngineSound->SetSound(EngineSoundTemplate);
-				EngineSound->Play();
-			}
-			else
-			{
-				EngineSound->SetVolumeMultiplier(NewEngineSoundVolume);
-			}
-			EngineSoundVolume = NewEngineSoundVolume;
-		}
-	}
-	else
-	{
-		PowerSound->Stop();
-		EngineSound->Stop();
-		PowerSoundVolume = 0;
-		EngineSoundVolume = 0;
 	}
 }
 
