@@ -39,20 +39,19 @@ AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	// Engine sound
 	EngineSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
 	EngineSound->AttachTo(RootComponent);
-	EngineSound->bAutoActivate = true;
+	EngineSound->bAutoActivate = false;
 	EngineSound->bAutoDestroy = false;
 
 	// Power sound
 	PowerSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
 	PowerSound->AttachTo(RootComponent);
-	PowerSound->bAutoActivate = true;
+	PowerSound->bAutoActivate = false;
 	PowerSound->bAutoDestroy = false;
 
 	// Power sound setting
 	static ConstructorHelpers::FObjectFinder<USoundCue> PowerSoundObj(TEXT("/Game/Master/Sound/A_Power"));
 	PowerSoundTemplate = PowerSoundObj.Object;
 	EngineSoundVolume = 0;
-	PowerSoundVolume = 0;
 
 	// Camera settings
 	CameraContainerYaw->AttachTo(Airframe);
@@ -84,6 +83,7 @@ void AFlareShip::BeginPlay()
 	// Power sound
 	PowerSound->SetSound(PowerSoundTemplate);
 	PowerSound->Stop();
+	PowerSoundVolume = 0;
 
 	UpdateCOM();
 }
