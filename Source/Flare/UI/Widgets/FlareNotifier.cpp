@@ -23,13 +23,30 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	ChildSlot
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Right)
-	.Padding(FMargin(0, 0, 50, 0))
 	[
-		SNew(SBox)
-		.HeightOverride(700)
-		.VAlign(VAlign_Bottom)
+		SNew(SVerticalBox)
+
+		// Watermark
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(5))
 		[
-			SAssignNew(NotificationContainer, SVerticalBox)
+			SNew(STextBlock)
+			.Text(LOCTEXT("Watermark", "DEVELOPMENT BUILD"))
+			.TextStyle(FFlareStyleSet::Get(), "Flare.VerySmallText")
+		]
+
+		// Actual content
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(0, 0, 50, 0))
+		[
+			SNew(SBox)
+			.HeightOverride(700)
+			.VAlign(VAlign_Bottom)
+			[
+				SAssignNew(NotificationContainer, SVerticalBox)
+			]
 		]
 	];
 }
