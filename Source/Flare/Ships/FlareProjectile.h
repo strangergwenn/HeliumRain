@@ -51,11 +51,11 @@ protected:
 
 	/** Special effects on explosion */
 	UPROPERTY()
-	UParticleSystem*                         ExplosionEffectTemplate;
+	UParticleSystem*                         ExplosionEffectTemplate; // TODO M3 : Move to characteristic (weapon description)
 
 	/** Special effects on flight */
 	UPROPERTY()
-	UParticleSystem*                         FlightEffectsTemplate;
+	UParticleSystem*                         FlightEffectsTemplate; // TODO M3 : Move to characteristic (weapon description)
 
 	// Flight effects
 	UParticleSystemComponent*                FlightEffects;

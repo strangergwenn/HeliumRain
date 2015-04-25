@@ -240,98 +240,67 @@ public:
 	/** Component slot identifier */
 	UPROPERTY(EditAnywhere, Category = Content) FName SlotIdentifier;
 
+
 	/*----------------------------------------------------
 		Damages
 	----------------------------------------------------*/
 
-	/**
-	 * Return the amount of armor hit points at the world location.
-	 * If not destructible, return a negative value
-	 */
+	/** Return the amount of armor hit points at the world location. If not destructible, return a negative value */
 	virtual float GetRemainingArmorAtLocation(FVector Location);
 
-	/**
-	 * Apply damage to this component.
-	 */
+	/** Apply damage to this component. */
 	virtual void ApplyDamage(float Energy);
 
-	/**
-	 * Apply overheat damage to this component only it is used. Burn damage are always applied.
-	 */
+	/** Apply overheat damage to this component only it is used. Burn damage are always applied. */
 	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy);
 
-	/**
-	 * Return the remaining hit points ratio. 1 for no damage, 0 for destroyed
-	 */
+	/** Return the remaining hit points ratio. 1 for no damage, 0 for destroyed */
 	float GetDamageRatio(bool WithArmor = false) const;
 
-	/**
-	 * Return true if the ship component is destroyed
-	 */
+	/** Return true if the ship component is destroyed */
 	virtual bool IsDestroyed() const;
 
-	/**
-	 * Return true if any lifesupport system is available and alive
-	 */
+	/** Return true if any lifesupport system is available and alive */
 	virtual bool IsAlive() const;
 
-	/**
-	 * Return true if the ship component is powered. A destroyed component is not powered
-	 */
+	/** Return true if the ship component is powered. A destroyed component is not powered */
 	virtual bool IsPowered() const;
 
-	/**
-	 * Compute the current available power from power sources
-	 */
+	/** Compute the current available power from power sources */
 	virtual void UpdatePower();
 
-	/**
-	 * Return the current amount of generated power
-	 */
+	/** Return the current amount of generated power */
 	virtual float GetGeneratedPower() const;
 
-	/**
-	 * Return the maximum amount of generated power
-	 */
+	/** Return the maximum amount of generated power */
 	virtual float GetMaxGeneratedPower() const;
 
-	/**
-	 * Return the current amount of available power
-	 */
+	/** Return the current amount of available power */
 	virtual float GetAvailablePower() const;
 
-	/**
-	 * Find the closest power sources form all ship power sources
-	 */
+	/** Find the closest power sources form all ship power sources */
 	virtual void UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources);
 
-	/**
-	 * Return true if is a generator (broken or not)
-	 */
+	/** Return true if is a generator (broken or not) */
 	virtual bool IsGenerator() const;
 
-	/**
-	 * Return the current amount of heat production in KW
-	 */
+	/** Return the current amount of heat production in KW */
 	virtual float GetHeatProduction() const;
 
-	/**
-	 * Return the current amount of heat sink surface in m^2
-	 */
+	/** Return the current amount of heat sink surface in m^2 */
 	virtual float GetHeatSinkSurface() const;
 
-	/**
-	 * Return true if is a heatsink (broken or not)
-	 */
+	/** Return true if is a heatsink (broken or not) */
 	virtual bool IsHeatSink() const;
 
-	/**
-	 * Return component total hit points, with armor and hitpoints
-	 */
+	/** Return component total hit points, with armor and hitpoints */
 	virtual float GetTotalHitPoints() const;
 
 	/** Reset the taken damage to zero.	*/
 	virtual void Repair();
+
+	/** Create a damaged effect */
+	virtual void StartDestroyedEffects();
 
 
 protected:
@@ -349,12 +318,28 @@ protected:
 	UPROPERTY()
 	UStaticMeshComponent*                   EffectMesh;
 
+	UPROPERTY()
+	UParticleSystemComponent*               DestroyedEffects;
+
+	// Materials
 	UMaterialInstanceDynamic*               ComponentMaterial;
 	UMaterialInstanceDynamic*               EffectMaterial;
 
+	// Component description and data
 	const FFlareShipComponentDescription*   ComponentDescription;
+	FFlareShipComponentSave                 ShipComponentData;
 
-	// Light flickering style
+	// General state
+	float                                   LifeSupport;
+	float                                   Power; // Current available power
+	float                                   GeneratedPower; // Maximum generated power
+	TArray<UFlareShipComponent*>            PowerSources;
+
+	// Heat state
+	float                                   HeatSinkSurface; // Maximum heat surface in m^2
+	float                                   HeatProduction; // Maxiumum heat production, in KW
+
+	// Light flickering state
 	TEnumAsByte<EFlareLightStatus::Type>    LightFlickeringStatus;
 	float                                   TimeLeftUntilFlicker;
 	float                                   TimeLeftInFlicker;
@@ -362,14 +347,8 @@ protected:
 	float                                   FlickerMaxOffPeriod;
 	float                                   CurrentFlickerMaxPeriod;
 
-	FFlareShipComponentSave                ShipComponentData;
 
-	float LifeSupport;
-	float Power; // Current available power
-	float GeneratedPower; // Maximum generated power
-
-	float HeatSinkSurface; // Maximum heat surface in m^2
-	float HeatProduction; // Maxiumum heat production, in KW
-	TArray<UFlareShipComponent*> PowerSources;
+	// TODO M3 : Move to characteristic (engine description)
+	UPROPERTY()		UParticleSystem*                        DeathEffectTemplate; 
 
 };

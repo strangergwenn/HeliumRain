@@ -17,16 +17,22 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	, PlayerCompany(NULL)
 	, ComponentMaterial(NULL)
 	, ComponentDescription(NULL)
+	, DestroyedEffects(NULL)
 	, LightFlickeringStatus(EFlareLightStatus::Lit)
 	, TimeLeftUntilFlicker(0)
 	, TimeLeftInFlicker(0)
 	, FlickerMaxOnPeriod(1)
 	, FlickerMaxOffPeriod(3)
 {
+	// Physics setup
 	PrimaryComponentTick.bCanEverTick = true;
 	CurrentFlickerMaxPeriod = FlickerMaxOnPeriod;
 	SetNotifyRigidBodyCollision(true);
 	bGenerateOverlapEvents = false;
+
+	// TODO M3 : move to characteristic (engine)
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> DeathEffectObj(TEXT("/Game/Master/Particles/PS_Smoke_Small"));
+	DeathEffectTemplate = DeathEffectObj.Object;
 }
 
 
@@ -118,13 +124,12 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 		ShipComponentData = *Data;
 		ComponentDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
 
-		if(!ComponentDescription)
+		if (!ComponentDescription)
 		{
 			FLOGV("!!! Bad Component Identifier : %s", *Data->ComponentIdentifier.ToString());
 		}
 		else
 		{
-
 			for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
 			{
 				const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
@@ -145,6 +150,12 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 				}
 			}
 		}
+
+		// Destroyed component
+		if (GetDamageRatio() <= 0)
+		{
+			StartDestroyedEffects();
+		}
 	}
 
 	// Mesh and material setup
@@ -158,7 +169,7 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 
 FFlareShipComponentSave* UFlareShipComponent::Save()
 {
-	if(ComponentDescription)
+	if (ComponentDescription)
 	{
 		return &ShipComponentData;
 	}
@@ -232,7 +243,7 @@ void UFlareShipComponent::SetupComponentMesh()
 		SetMaterial(0, ComponentDescription->Mesh->GetMaterial(0));
 	}
 
-	if(StaticMesh)
+	if (StaticMesh)
 	{
 		// Parse all LODs levels, then all elements
 		for (int32 LODIndex = 0; LODIndex < StaticMesh->RenderData->LODResources.Num(); LODIndex++)
@@ -331,22 +342,23 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 {
 	if (ComponentDescription)
 	{
+		// Apply damage
 		float StateBeforeDamage = GetDamageRatio();
-
 		ShipComponentData.Damage += Energy;
-		//FLOGV("Apply %f damages to %s %s. Total damages: %f (%f|%f)", Energy, *GetReadableName(), *ShipComponentData.ShipSlotIdentifier.ToString(),  ShipComponentData.Damage, ComponentDescription->ArmorHitPoints, ComponentDescription->HitPoints);
-
 		float StateAfterDamage = GetDamageRatio();
 
-		// No power outage if
+		// No more armor, power outage risk
 		if (IsGenerator() && StateAfterDamage < 1.0 && StateBeforeDamage > 0)
 		{
-			// No more armo, power outage risk
 			Ship->OnElectricDamage(StateBeforeDamage - StateAfterDamage);
 		}
 
+		// Effects
+		if (StateAfterDamage <= 0 && StateBeforeDamage > 0)
+		{
+			StartDestroyedEffects();
+		}
 		UpdateLight();
-
 	}
 }
 
@@ -354,7 +366,6 @@ void UFlareShipComponent::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy
 {
 	// Standard component have no overheat damage.
 }
-
 
 float UFlareShipComponent::GetDamageRatio(bool WithArmor) const
 {
@@ -406,7 +417,6 @@ bool UFlareShipComponent::IsGenerator() const
 
 void UFlareShipComponent::UpdatePower()
 {
-
 	Power = 0;
 	for (int32 i = 0; i < PowerSources.Num(); i++)
 	{
@@ -419,7 +429,7 @@ void UFlareShipComponent::UpdatePower()
 void UFlareShipComponent::UpdateLight()
 {
 	float AvailablePower = GetAvailablePower();
-	if( AvailablePower <=0)
+	if (AvailablePower <= 0)
 	{
 		SetLightStatus(EFlareLightStatus::Dark);
 	}
@@ -431,7 +441,6 @@ void UFlareShipComponent::UpdateLight()
 	{
 		SetLightStatus(EFlareLightStatus::Lit);
 	}
-
 }
 
 void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources)
@@ -452,7 +461,7 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* Avail
 		PowerSource->GetBoundingSphere(OtherLocation, OtherRadius);
 		float Distance = (OtherLocation - Location).Size() - OtherRadius;
 
-		if(Distance < MinDistance)
+		if (Distance < MinDistance)
 		{
 			MinDistance = Distance;
 		}
@@ -467,7 +476,7 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* Avail
 		PowerSource->GetBoundingSphere(OtherLocation, OtherRadius);
 		float Distance = (OtherLocation - Location).Size() - OtherRadius;
 
-		if(Distance < MinDistance + DoubleConnectionThesold)
+		if (Distance < MinDistance + DoubleConnectionThesold)
 		{
 			PowerSources.Add(PowerSource);
 			FLOGV("Component %s powered by %s", *GetReadableName(), *PowerSource->GetReadableName());
@@ -493,10 +502,12 @@ bool UFlareShipComponent::IsHeatSink() const
 
 float UFlareShipComponent::GetTotalHitPoints() const
 {
-	if(ComponentDescription)
+	if (ComponentDescription)
 	{
 		return ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints;
-	} else {
+	}
+	else
+	{
 		return -1.f;
 	}
 }
@@ -507,5 +518,20 @@ void UFlareShipComponent::Repair()
 	{
 		ShipComponentData.Damage = 0;
 		UpdateLight();
+	}
+}
+
+void UFlareShipComponent::StartDestroyedEffects()
+{
+	if (!DestroyedEffects)
+	{
+		DestroyedEffects = UGameplayStatics::SpawnEmitterAttached(
+			DeathEffectTemplate,
+			this,
+			NAME_None,
+			GetComponentLocation(),
+			GetComponentRotation(),
+			EAttachLocation::KeepWorldPosition,
+			true);
 	}
 }
