@@ -183,3 +183,7 @@ class Ship:
 ship = Ship("ghoul.ship")
 ship.compute()
 ship.dump()
+
+ship = Ship("omen.ship")
+ship.compute()
+ship.dump()

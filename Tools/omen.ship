@@ -1,26 +1,23 @@
-[Ghoul]
-ShipName=Ghoul
-HeatCapacity=13
+[Omen]
+ShipName=Omen
+HeatCapacity=14
 
 [ic-small-cockpit]
 PassivePower=1
 
 [ic-small-electric-system]
-Count = 4
+Count = 2
 PassivePower=0.5
 
-[ic-small-heatsink]
-MaxHeatsink=4
-MinHeatsink=1
-
-[weapon-eradicator]
+[ic-small-heatsink2]
 Count = 2
-FiringPower=800
+MaxHeatsink=2
+MinHeatsink=0.5
 
 [rcs-piranha]
-Count = 14
+Count = 16
 ActivePower=20
 
 [engine-octopus]
-Count = 2
+Count = 1
 BoostingPower=500
