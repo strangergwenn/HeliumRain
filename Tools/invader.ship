@@ -1,0 +1,33 @@
+[Invader]
+ShipName=Invader
+HeatCapacity=800
+
+[ic-large-cockpit]
+PassivePower=100
+
+[ic-large-reactor]
+Count = 2
+PassivePower=50
+
+[ic-large-electric-system]
+Count = 6
+PassivePower=2
+MaxHeatsink=10
+MinHeatsink=2.5
+
+[ic-large-heatsink]
+Count = 2
+MaxHeatsink=20
+MinHeatsink=50
+
+[ic-large-heatsink-heavy]
+MaxHeatsink=60
+MinHeatsink=15
+
+[rcs-rift]
+Count = 26
+ActivePower=300
+
+[pod-surtsey]
+Count = 4
+BoostingPower=5000

@@ -187,3 +187,7 @@ ship.dump()
 ship = Ship("omen.ship")
 ship.compute()
 ship.dump()
+
+ship = Ship("invader.ship")
+ship.compute()
+ship.dump()
