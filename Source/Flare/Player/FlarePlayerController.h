@@ -194,6 +194,8 @@ protected:
 	bool   CombatMode;
 	bool   ExternalCamera;
 
+	int32 QuickSwitchNextOffset;
+
 
 public:
 

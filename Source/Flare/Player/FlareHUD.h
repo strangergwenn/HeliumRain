@@ -79,6 +79,9 @@ public:
 	/** Show a notification to the user */
 	void Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo);
 
+	/** Notify the HUD the played ship has changed */
+	void OnTargetShipChanged();
+
 	/** Open a menu asynchronously, from a target and user data */
 	void OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
 

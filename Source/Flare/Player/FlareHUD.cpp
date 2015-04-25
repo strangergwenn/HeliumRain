@@ -460,6 +460,17 @@ void AFlareHUD::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Ty
 	}
 }
 
+void AFlareHUD::OnTargetShipChanged()
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	if (PC)
+	{
+		HUDMenu->SetTargetShip(PC->GetShipPawn());
+		HUDMenu->SetVisibility(EVisibility::Visible);
+	}
+}
+
 void AFlareHUD::OpenMenu(EFlareMenu::Type Target, void* Data)
 {
 	MenuIsOpen = true;

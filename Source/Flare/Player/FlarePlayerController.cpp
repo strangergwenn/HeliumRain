@@ -221,6 +221,8 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 	SetExternalCamera(true, true);
 	ShipPawn->EnablePilot(false);
 
+	QuickSwitchNextOffset = 0;
+
 	// TODO M3 : load from characteristics
 	PowerSound->SetSound(PowerSoundTemplate);
 	EngineSound->SetSound(EngineSoundTemplate);
@@ -232,6 +234,8 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 		FString Text = LOCTEXT("Flying", "Now flying").ToString();
 		Notify(FText::FromString(Text + " " + FString(*Ship->GetName())));
 	}
+
+
 }
 
 void AFlarePlayerController::PrepareForExit()
@@ -443,15 +447,43 @@ void AFlarePlayerController::QuickSwitch()
 
 	if (CompanyShips.Num())
 	{
+		int32 QuickSwitchOffset = QuickSwitchNextOffset;
+		int32 OffsetIndex = 0;
+		AFlareShip* SeletedCandidate = NULL;
+		// First loop in military armed alive ships
 		for (int32 i = 0; i < CompanyShips.Num(); i++)
 		{
-			AFlareShip* Candidate = Cast<AFlareShip>(CompanyShips[i]);
-			if (Candidate && Candidate != ShipPawn && Candidate->IsAlive())
+			OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
+			AFlareShip* Candidate = Cast<AFlareShip>(CompanyShips[OffsetIndex]);
+			if (Candidate && Candidate != ShipPawn && Candidate->IsAlive() && Candidate->IsMilitary() && Candidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
 			{
-				FLOG("AFlarePlayerController::QuickSwitch : found new ship");
-				FlyShip(Candidate);
+				SeletedCandidate = Candidate;
 				break;
 			}
+		}
+
+		// If not, loop in all alive ships
+		if (!SeletedCandidate)
+		{
+			for (int32 i = 0; i < CompanyShips.Num(); i++)
+			{
+				OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
+				AFlareShip* Candidate = Cast<AFlareShip>(CompanyShips[OffsetIndex]);
+				if (Candidate && Candidate != ShipPawn && Candidate->IsAlive())
+				{
+					SeletedCandidate = Candidate;
+					break;
+				}
+			}
+		}
+
+
+		if (SeletedCandidate)
+		{
+			FLOG("AFlarePlayerController::QuickSwitch : found new ship");
+			FlyShip(SeletedCandidate);
+			QuickSwitchNextOffset = OffsetIndex + 1;
+			Cast<AFlareHUD>(GetHUD())->OnTargetShipChanged();
 		}
 	}
 	else
