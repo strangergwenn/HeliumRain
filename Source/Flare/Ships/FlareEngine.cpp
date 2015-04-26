@@ -13,6 +13,7 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 {
 	ExhaustAlpha = 0.0;
 	MaxThrust = 0.0;
+	FramesSinceLastUpdate = 0;
 }
 
 
@@ -35,6 +36,7 @@ void UFlareEngine::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 	}
 }
 
+
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
@@ -43,12 +45,18 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Smooth the alpha value. Half-life time : 1/8 second
-	float AverageCoeff = 8 * DeltaTime;
-	ExhaustAccumulator = FMath::Clamp(AverageCoeff * GetEffectiveAlpha() + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
+	if (FramesSinceLastUpdate % 10 == 0)
+	{
+		// Smooth the alpha value. Half-life time : 1/8 second
+		float AverageCoeff = 8 * DeltaTime;
+		ExhaustAccumulator = FMath::Clamp(AverageCoeff * GetEffectiveAlpha() + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
 
-	// Apply effects
-	UpdateEffects();
+		// Apply effects
+		UpdateEffects();
+		FramesSinceLastUpdate = 0;
+	}
+
+	FramesSinceLastUpdate++;
 }
 
 void UFlareEngine::SetAlpha(float Alpha)
@@ -94,6 +102,7 @@ float UFlareEngine::GetHeatProduction() const
 void UFlareEngine::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
 {
 	Super::ApplyHeatDamage(OverheatEnergy, BurnEnergy);
+
 	// Apply damage only on usage
 	if (GetEffectiveAlpha() > 0)
 	{

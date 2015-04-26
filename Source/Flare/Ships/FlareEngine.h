@@ -65,5 +65,7 @@ protected:
 
 	float ExhaustAccumulator;
 
+	int32 FramesSinceLastUpdate;
+
 
 };

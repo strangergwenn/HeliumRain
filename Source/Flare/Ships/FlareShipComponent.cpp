@@ -227,7 +227,15 @@ void UFlareShipComponent::GetBoundingSphere(FVector& Location, float& Radius)
 
 bool UFlareShipComponent::IsVisibleByPlayer()
 {
-	return Ship && (GetWorld()->TimeSeconds - LastRenderTime < 0.2f);
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC && (PC->GetShipPawn()->GetActorLocation() - GetComponentLocation()).Size() < 100000)
+	{
+		return Ship && (GetWorld()->TimeSeconds - LastRenderTime < 0.2f);
+	}
+	else
+	{
+		return false;
+	}
 }
 
 
