@@ -294,7 +294,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			AFlareShip* PlayerShip = PC->GetShipPawn();
 			if (Ship && Ship->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->IsCombatMode())
 			{
-				TArray<UFlareWeapon*> Weapons = Ship->GetWeaponList();
+				TArray<UFlareWeapon*> Weapons = PlayerShip->GetWeaponList();
 				if (Weapons.Num() > 0)
 				{
 					float AmmoVelocity = Weapons[0]->GetAmmoVelocity();
