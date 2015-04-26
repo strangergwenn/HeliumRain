@@ -24,6 +24,8 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	, TimeLeftInFlicker(0)
 	, FlickerMaxOnPeriod(1)
 	, FlickerMaxOffPeriod(3)
+	, FramesToCountBeforeTick(10)
+	, FramesSinceLastUpdate(0)
 {
 	// Physics setup
 	PrimaryComponentTick.bCanEverTick = true;
@@ -53,8 +55,16 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// Frame limiter update
+	bool TickThisFrame = FramesSinceLastUpdate % FramesToCountBeforeTick == 0;
+	if (TickThisFrame)
+	{
+		FramesSinceLastUpdate = 0;
+	}
+	FramesSinceLastUpdate++;
+
 	// Update the light status
-	if (ComponentMaterial && IsVisibleByPlayer())
+	if (ComponentMaterial && IsVisibleByPlayer() && TickThisFrame)
 	{
 		float GlowAlpha = 0;
 
@@ -107,7 +117,8 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 		ComponentMaterial->SetScalarParameterValue("GlowAlpha", GlowAlpha);
 	}
 
-	if (ComponentDescription)
+	// Update health
+	if (ComponentDescription && TickThisFrame)
 	{
 		SetHealth(GetDamageRatio());
 	}
@@ -302,7 +313,7 @@ void UFlareShipComponent::SetupEffectMesh()
 		EffectMesh->RegisterComponentWithWorld(GetWorld());
 		EffectMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		EffectMesh->AttachTo(this, NAME_None, EAttachLocation::KeepWorldPosition);
-		EffectMesh->LDMaxDrawDistance = 100000; // 1km
+		EffectMesh->LDMaxDrawDistance = 10000; // 100m
 
 		// Generate a MID
 		UMaterialInterface* BaseMaterial = EffectMesh->GetMaterial(0);
