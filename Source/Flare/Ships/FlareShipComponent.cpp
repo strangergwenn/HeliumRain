@@ -385,11 +385,6 @@ bool UFlareShipComponent::IsDestroyed() const
 	return (GetDamageRatio() <= 0);
 }
 
-bool UFlareShipComponent::IsAlive() const
-{
-	return (LifeSupport * GetDamageRatio() > 0);
-}
-
 bool UFlareShipComponent::IsPowered() const
 {
 	return (GetAvailablePower()> 0);

@@ -260,9 +260,6 @@ public:
 	/** Return true if the ship component is destroyed */
 	virtual bool IsDestroyed() const;
 
-	/** Return true if any lifesupport system is available and alive */
-	virtual bool IsAlive() const;
-
 	/** Return true if the ship component is powered. A destroyed component is not powered */
 	virtual bool IsPowered() const;
 
