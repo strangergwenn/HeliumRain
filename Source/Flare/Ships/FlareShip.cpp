@@ -969,7 +969,7 @@ bool AFlareShip::ComputePath(TArray<FVector>& Path, TArray<AActor*>& PossibleCol
 		// Colliding : split the travel
 		if (FMath::LineSphereIntersection(OriginLocation, TravelDirection, TravelLength, ColliderLocation, ColliderSize))
 		{
-			DrawDebugSphere(GetWorld(), ColliderLocation, ColliderSize, 12, FColor::Blue, true);
+			//DrawDebugSphere(GetWorld(), ColliderLocation, ColliderSize, 12, FColor::Blue, true);
 
 			// Get an orthogonal plane
 			FPlane TravelOrthoPlane = FPlane(ColliderLocation, TargetLocation - ColliderLocation);
@@ -982,7 +982,7 @@ bool AFlareShip::ComputePath(TArray<FVector>& Path, TArray<AActor*>& PossibleCol
 
 			// Collisions
 			bool IsColliding = IsPointColliding(IntersectedLocation, PossibleColliders[i]);
-			DrawDebugPoint(GetWorld(), IntersectedLocation, 8, IsColliding ? FColor::Red : FColor::Green, true);
+			//DrawDebugPoint(GetWorld(), IntersectedLocation, 8, IsColliding ? FColor::Red : FColor::Green, true);
 
 			// Dead end, go back
 			if (IsColliding)
