@@ -184,12 +184,11 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		// 0 - Prepare attack : change velocity to approch the target
 		// 1 - Attacking : target is approching
 		// 2 - Withdraw : target is passed, wait a security distance to attack again
-		float SecurityDistance= (DangerousTarget ? 600: 300) + TargetSize * 2;
-
+		float SecurityDistance = (DangerousTarget ? 600: 100) + TargetSize * 4;
 
 		if (AttackPhase == 0)
 		{
-			if(FVector::DotProduct(DeltaLocation, DeltaVelocity) > 0)
+			if(FVector::DotProduct(DeltaLocation, DeltaVelocity) < 0)
 			{
 				// Target is approching, prepare attack
 				AttackPhase = 1;
@@ -217,7 +216,14 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 				FQuat AttackDistanceQuat = FQuat(TargetAxis, AttackAngle);
 				FVector AttackMargin =  AttackDistanceQuat.RotateVector(FVector(0,0,AttackDistance));
 
-				LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+				if (Distance > SecurityDistance || DangerousTarget)
+				{
+					LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+				}
+				else
+				{
+					LinearTargetVelocity = PilotTargetShip->GetLinearVelocity() + (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetLinearMaxVelocity() / 4.0;
+				}
 				UseOrbitalBoost = true;
 			}
 
@@ -230,14 +236,21 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 				// Security distance reach
 				AttackPhase = 0;
 			} else {
-				LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
-				UseOrbitalBoost = true;
+				if (DangerousTarget)
+				{
+					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+					UseOrbitalBoost = true;
+				}
+				else
+				{
+					LinearTargetVelocity = PilotTargetShip->GetLinearVelocity() - DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity() / 4.0 ;
+				}
 			}
 		}
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(Distance < (DangerousTarget ? 600.f : 300.f) + 2* TargetSize)
+		if(Distance < (DangerousTarget ? 600.f : 100.f) + 4 * TargetSize)
 		{
 			//FLOGV("is at fire range=%f", Distance);
 			// TODO Use BulletDirection instead of LocalNose
@@ -256,7 +269,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			FLOGV("AngularPrecision=%f", AngularPrecision);
 			FLOGV("AngularSize=%f", AngularSize);*/
 
-			if(AngularPrecision < (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.3))
+			if(AngularPrecision < (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.4))
 			{
 				//FLOG("Fire");
 				WantFire = true;
