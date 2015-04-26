@@ -444,7 +444,12 @@ void AFlarePlayerController::ToggleHUD()
 {
 	if (!IsInMenu())
 	{
+		FLOG("AFlarePlayerController::ToggleHUD");
 		Cast<AFlareHUD>(GetHUD())->ToggleHUD();
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::ToggleHUD : don't do it in menus");
 	}
 }
 
@@ -459,6 +464,7 @@ void AFlarePlayerController::QuickSwitch()
 		int32 QuickSwitchOffset = QuickSwitchNextOffset;
 		int32 OffsetIndex = 0;
 		AFlareShip* SeletedCandidate = NULL;
+
 		// First loop in military armed alive ships
 		for (int32 i = 0; i < CompanyShips.Num(); i++)
 		{
@@ -486,13 +492,17 @@ void AFlarePlayerController::QuickSwitch()
 			}
 		}
 
-
+		// Switch to the found ship
 		if (SeletedCandidate)
 		{
 			FLOG("AFlarePlayerController::QuickSwitch : found new ship");
 			FlyShip(SeletedCandidate);
 			QuickSwitchNextOffset = OffsetIndex + 1;
 			Cast<AFlareHUD>(GetHUD())->OnTargetShipChanged();
+		}
+		else
+		{
+			FLOG("AFlarePlayerController::QuickSwitch : no ship found");
 		}
 	}
 	else

@@ -406,9 +406,14 @@ FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareShip
 void AFlareHUD::ToggleHUD()
 {
 	HUDVisible = !HUDVisible;
+	SetHUDVisibility(HUDVisible);
+}
 
-	HUDMenu->SetVisibility(HUDVisible ? EVisibility::Visible : EVisibility::Collapsed);
-	Notifier->SetVisibility(HUDVisible ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed);
+void AFlareHUD::SetHUDVisibility(bool Visibility)
+{
+	FLOGV("AFlareHUD::SetHUDVisibility : new state is %d", Visibility);
+	HUDMenu->SetVisibility(Visibility ? EVisibility::Visible : EVisibility::Collapsed);
+	Notifier->SetVisibility(Visibility ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed);
 }
 
 void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
@@ -467,6 +472,9 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		{
 			HUDMenu->SetTargetShip(PC->GetShipPawn());
 		}
+
+		// Visibility
+		SetHUDVisibility(HUDVisible);
 	}
 }
 
@@ -485,7 +493,7 @@ void AFlareHUD::OnTargetShipChanged()
 	if (PC)
 	{
 		HUDMenu->SetTargetShip(PC->GetShipPawn());
-		HUDMenu->SetVisibility(EVisibility::Visible);
+		SetHUDVisibility(HUDVisible);
 	}
 }
 
@@ -633,7 +641,7 @@ void AFlareHUD::ExitMenu()
 {
 	ResetMenu();
 	SetMenuPawn(false);
-	HUDMenu->SetVisibility(EVisibility::Visible);
+	SetHUDVisibility(HUDVisible);
 	OverlayContainer->SetVisibility(EVisibility::Visible);
 }
 
@@ -660,6 +668,7 @@ void AFlareHUD::ResetMenu()
 
 	FadeIn();
 	HUDMenu->SetTargetShip(PC->GetShipPawn());
+	SetHUDVisibility(HUDVisible);
 }
 
 void AFlareHUD::FadeIn()

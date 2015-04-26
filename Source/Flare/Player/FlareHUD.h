@@ -71,6 +71,9 @@ public:
 	/** Toggle the HUD's presence */
 	void ToggleHUD();
 
+	/** Decide if the HUD is displayed or not */
+	void SetHUDVisibility(bool Visibility);
+
 	/** Construct the Slate menu interface */
 	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
 
