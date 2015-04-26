@@ -3,6 +3,7 @@
 #include "FlareShip.h"
 #include "FlareShipComponent.h"
 #include "../Player/FlarePlayerController.h"
+#include "FlareOrbitalEngine.h"
 
 #include "StaticMeshResources.h"
 
@@ -520,11 +521,23 @@ void UFlareShipComponent::StartDestroyedEffects()
 {
 	if (!DestroyedEffects)
 	{
+		// Calculate smoke origin
+		FVector Position = GetComponentLocation();
+		if (DoesSocketExist(FName("Smoke")))
+		{
+			Position = GetSocketLocation(FName("Smoke"));
+		}
+		else
+		{
+			FLOGV("No socket found ! You should add a 'Smoke' socket on '%s'", *StaticMesh->GetName())
+		}
+
+		// Start smoke
 		DestroyedEffects = UGameplayStatics::SpawnEmitterAttached(
 			DeathEffectTemplate,
 			this,
 			NAME_None,
-			GetComponentLocation(),
+			Position,
 			GetComponentRotation(),
 			EAttachLocation::KeepWorldPosition,
 			true);

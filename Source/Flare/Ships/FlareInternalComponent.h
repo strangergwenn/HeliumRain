@@ -17,32 +17,27 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
-
-	virtual FFlareShipComponentSave* Save() override;
-
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 
-	/** Ship rotation */
-	UPROPERTY(EditAnywhere, Category = Content)
-	float Radius;
+	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
 
-	void GetBoundingSphere(FVector& Location, float& Radius) override;
+	virtual FFlareShipComponentSave* Save() override;
 
+	virtual void StartDestroyedEffects() override;
 
-protected:
-
-	/*----------------------------------------------------
-		Protected data
-	----------------------------------------------------*/
+	virtual void GetBoundingSphere(FVector& Location, float& Radius) override;
 
 
 public:
 
 	/*----------------------------------------------------
-		Getters
+		Public data
 	----------------------------------------------------*/
+
+	/** Ship rotation */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float Radius;
 
 };
 
