@@ -153,8 +153,8 @@ void AFlareHUD::DrawHUD()
 					if (Direction.Size() < FocusDistance)
 					{
 						// Compute position
-						Direction = Ship->GetRootComponent()->GetComponentTransform().InverseTransformPositionNoScale(Direction);
-						FVector2D ScreenspacePosition = FVector2D(Direction.Y, -Direction.Z);
+						FVector LocalDirection = Ship->GetRootComponent()->GetComponentToWorld().GetRotation().Inverse().RotateVector(Direction);
+						FVector2D ScreenspacePosition = FVector2D(LocalDirection.Y, -LocalDirection.Z);
 						ScreenspacePosition.Normalize();
 						ScreenspacePosition *= 1.2 * CombatMouseRadius;
 
