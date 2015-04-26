@@ -475,7 +475,7 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* Avail
 		if (Distance < MinDistance + DoubleConnectionThesold)
 		{
 			PowerSources.Add(PowerSource);
-			FLOGV("Component %s powered by %s", *GetReadableName(), *PowerSource->GetReadableName());
+			//FLOGV("Component %s powered by %s", *GetReadableName(), *PowerSource->GetReadableName());
 		}
 	}
 }

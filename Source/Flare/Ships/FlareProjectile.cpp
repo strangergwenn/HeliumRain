@@ -28,13 +28,13 @@ AFlareProjectile::AFlareProjectile(const class FObjectInitializer& PCIP) : Super
 
 	// Mesh data
 	ShellComp = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Mesh"));
-	ShellComp->bTraceComplexOnMove = true;
+	ShellComp->bTraceComplexOnMove = false;
 	ShellComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	ShellComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	ShellComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	ShellComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	ShellComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
-	ShellComp->LDMaxDrawDistance = 100000; // 1km
+	ShellComp->LDMaxDrawDistance = 50000; // 500m
 	RootComponent = ShellComp;
 
 	// Setup movement
@@ -63,7 +63,7 @@ void AFlareProjectile::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	MovementComp->OnProjectileBounce.AddDynamic(this, &AFlareProjectile::OnImpact);
 	ShellComp->MoveIgnoreActors.Add(Instigator);
-	SetLifeSpan(200000 / MovementComp->InitialSpeed);
+	SetLifeSpan(100000 / MovementComp->InitialSpeed); // 1km
 }
 
 void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity)
