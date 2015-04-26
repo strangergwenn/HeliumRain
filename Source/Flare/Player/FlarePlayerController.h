@@ -116,6 +116,9 @@ public:
 	/** Toggle the pilot mode */
 	virtual void TogglePilot();
 
+	/** Toggle the HUD's presence */
+	virtual void ToggleHUD();
+
 	/** Quick switch to another ship */
 	virtual void QuickSwitch();
 

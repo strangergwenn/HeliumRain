@@ -389,6 +389,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
 	InputComponent->BindAction("TooglePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePilot);
+	InputComponent->BindAction("ToggleHUD", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleHUD);
 	InputComponent->BindAction("QuickSwitch", EInputEvent::IE_Released, this, &AFlarePlayerController::QuickSwitch);
 
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
@@ -437,6 +438,14 @@ void AFlarePlayerController::TogglePilot()
 	bool NewState = !ShipPawn->IsPilotMode();
 	FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
 	ShipPawn->EnablePilot(NewState);
+}
+
+void AFlarePlayerController::ToggleHUD()
+{
+	if (!IsInMenu())
+	{
+		Cast<AFlareHUD>(GetHUD())->ToggleHUD();
+	}
 }
 
 void AFlarePlayerController::QuickSwitch()

@@ -62,16 +62,14 @@ public:
 
 
 	/*----------------------------------------------------
-		HUD interaction
+		Interaction
 	----------------------------------------------------*/
 
 	/** Get the current context menu position */
 	FVector GetContextMenuPosition() const;
 
-
-	/*----------------------------------------------------
-		Menu interaction
-	----------------------------------------------------*/
+	/** Toggle the HUD's presence */
+	void ToggleHUD();
 
 	/** Construct the Slate menu interface */
 	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
@@ -145,6 +143,7 @@ protected:
 
 	// Settings
 	float                                   CombatMouseRadius;
+	bool                                    HUDVisible;
 
 	// Fade-to-black system
 	bool                                    MenuIsOpen;

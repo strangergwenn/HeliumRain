@@ -17,6 +17,7 @@
 AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CombatMouseRadius(100)
+	, HUDVisible(true)
 	, MenuIsOpen(false)
 	, FadeDuration(0.15)
 {
@@ -117,6 +118,10 @@ void AFlareHUD::Tick(float DeltaSeconds)
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
+	if (!HUDVisible)
+	{
+		return;
+	}
 
 	// Initial data
 	float FocusDistance = 1000000;
@@ -397,6 +402,14 @@ FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareShip
 /*----------------------------------------------------
 	Menu interaction
 ----------------------------------------------------*/
+
+void AFlareHUD::ToggleHUD()
+{
+	HUDVisible = !HUDVisible;
+
+	HUDMenu->SetVisibility(HUDVisible ? EVisibility::Visible : EVisibility::Collapsed);
+	Notifier->SetVisibility(HUDVisible ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed);
+}
 
 void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 {
