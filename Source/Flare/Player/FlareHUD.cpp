@@ -135,10 +135,15 @@ void AFlareHUD::DrawHUD()
 			if (PC && ShipBase && ShipBase != PC->GetShipPawn() && ShipBase != PC->GetMenuPawn())
 			{
 				// Draw designators
-				bool ShouldDrawSearchMarker = true;
+				bool ShouldDrawSearchMarker;
 				if (PC->LineOfSightTo(ShipBase))
 				{
 					ShouldDrawSearchMarker = DrawHUDDesignator(ShipBase);
+				}
+				else
+				{
+					AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
+					ShouldDrawSearchMarker = !Ship || (Ship && Ship->IsAlive());
 				}
 
 				// Draw search markers
@@ -224,6 +229,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = ShipBase->GetActorLocation();
+	AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
 
 	if (PC->ProjectWorldLocationToScreen(TargetLocation, ScreenPosition))
 	{
@@ -241,7 +247,6 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 		bool Hovering = (MousePos.X >= ShipBoxMin.X && MousePos.Y >= ShipBoxMin.Y && MousePos.X <= ShipBoxMax.X && MousePos.Y <= ShipBoxMax.Y);
 
 		// Draw the context menu
-		AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
 		if (Hovering && !FoundTargetUnderMouse && IsInteractive)
 		{
 			// Update state
@@ -309,12 +314,12 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			// Tell the HUD to draw the search marker only if we are outside this
 			return (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.Size() / 3));
 		}
+	}
 
-		// Dead ship
-		else if (Ship && !Ship->IsAlive())
-		{
-			return false;
-		}
+	// Dead ship
+	if (Ship && !Ship->IsAlive())
+	{
+		return false;
 	}
 
 	return true;
