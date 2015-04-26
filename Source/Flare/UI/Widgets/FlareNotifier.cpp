@@ -27,14 +27,14 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 		SNew(SVerticalBox)
 
 		// Watermark
-		+ SVerticalBox::Slot()
+		/*+ SVerticalBox::Slot()
 		.AutoHeight()
 		.Padding(FMargin(5))
 		[
 			SNew(STextBlock)
 			.Text(LOCTEXT("Watermark", "DEVELOPMENT BUILD"))
 			.TextStyle(FFlareStyleSet::Get(), "Flare.VerySmallText")
-		]
+		]*/
 
 		// Actual content
 		+ SVerticalBox::Slot()
