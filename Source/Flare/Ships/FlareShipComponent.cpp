@@ -514,6 +514,10 @@ void UFlareShipComponent::Repair()
 	{
 		ShipComponentData.Damage = 0;
 		UpdateLight();
+		if (DestroyedEffects)
+		{
+			DestroyedEffects->Deactivate();
+		}
 	}
 }
 
