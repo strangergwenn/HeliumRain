@@ -411,6 +411,8 @@ void AFlareHUD::ToggleHUD()
 
 void AFlareHUD::SetHUDVisibility(bool Visibility)
 {
+	Visibility = Visibility && !MenuIsOpen;
+
 	FLOGV("AFlareHUD::SetHUDVisibility : new state is %d", Visibility);
 	HUDMenu->SetVisibility(Visibility ? EVisibility::Visible : EVisibility::Collapsed);
 	Notifier->SetVisibility(Visibility ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed);
