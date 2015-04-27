@@ -39,8 +39,6 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 	// Setup properties
 	if (ComponentDescription)
 	{
-		ShellMesh = ComponentDescription->EffectMesh;
-
 		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
 		{
 			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
@@ -138,8 +136,10 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 	}
 }
 
-void UFlareWeapon::SetupEffectMesh()
+void UFlareWeapon::SetupComponentMesh()
 {
+	Super::SetupComponentMesh();
+
 	if (FiringEffect == NULL)
 	{
 		FiringEffect = UGameplayStatics::SpawnEmitterAttached(

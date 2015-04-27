@@ -13,6 +13,7 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 {
 	ExhaustAlpha = 0.0;
 	MaxThrust = 0.0;
+	ExhaustAccumulator = 0.0;
 }
 
 
@@ -43,7 +44,7 @@ void UFlareEngine::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	if (FramesSinceLastUpdate % FramesToCountBeforeTick == 0)
 	{
 		// Smooth the alpha value. Half-life time : 1/8 second

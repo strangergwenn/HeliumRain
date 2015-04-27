@@ -23,7 +23,7 @@ public:
 
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-	void SetupEffectMesh() override;
+	void SetupComponentMesh() override;
 
 	/** Start firing */
 	virtual void StartFire();
@@ -64,7 +64,6 @@ protected:
 	float                       FiringPeriod;
 	float                       AmmoVelocity;
 	int32                       MaxAmmo;
-	UStaticMesh*                ShellMesh;
 	FActorSpawnParameters       ProjectileSpawnParams;
 
 	// State

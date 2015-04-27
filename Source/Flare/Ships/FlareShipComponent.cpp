@@ -24,7 +24,7 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	, TimeLeftInFlicker(0)
 	, FlickerMaxOnPeriod(1)
 	, FlickerMaxOffPeriod(3)
-	, FramesToCountBeforeTick(10)
+	, FramesToCountBeforeTick(2)
 	, FramesSinceLastUpdate(0)
 {
 	// Physics setup
@@ -171,10 +171,6 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 	}
 
 	// Mesh and material setup
-	if (!IsInMenu)
-	{
-		SetupEffectMesh();
-	}
 	SetupComponentMesh();
 	UpdateCustomization();
 }
@@ -275,52 +271,34 @@ void UFlareShipComponent::SetupComponentMesh()
 				const FStaticMeshSection& Element = LOD.Sections[ElementIndex];
 				UMaterialInterface* BaseMaterial = GetMaterial(Element.MaterialIndex);
 
-				// Generate MIDs from LOD 0 only
-				if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+				// Base material
+				if (ElementIndex == 0)
 				{
-					ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+					// Generate MIDs from LOD 0 only, apply generated materials at each LOD
+					if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+					{
+						ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+					}
+					if (ComponentMaterial)
+					{
+						SetMaterial(Element.MaterialIndex, ComponentMaterial);
+					}
 				}
 
-				// Apply generated materials at each LOD
-				if (ComponentMaterial)
+				// Effect material
+				else if (ElementIndex == 1)
 				{
-					SetMaterial(Element.MaterialIndex, ComponentMaterial);
+					// Generate MIDs from LOD 0 only, apply generated materials at each LOD
+					if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+					{
+						EffectMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+					}
+					if (EffectMaterial)
+					{
+						SetMaterial(Element.MaterialIndex, EffectMaterial);
+					}
 				}
 			}
-		}
-	}
-}
-
-void UFlareShipComponent::SetupEffectMesh()
-{
-	// Remove the previous effect mesh is available
-	if (EffectMesh)
-	{
-		EffectMesh->DestroyComponent();
-	}
-
-	// Add and register the effect mesh if available
-	if (Ship && ComponentDescription && ComponentDescription->EffectMesh)
-	{
-		// Create
-		EffectMesh = ConstructObject<UStaticMeshComponent>(UStaticMeshComponent::StaticClass(), Ship);
-		EffectMesh->SetStaticMesh(ComponentDescription->EffectMesh);
-
-		// Place and register
-		EffectMesh->SetWorldLocation(GetComponentLocation());
-		EffectMesh->SetWorldRotation(GetComponentRotation());
-		EffectMesh->SetWorldScale3D(GetComponentScale());
-		EffectMesh->RegisterComponentWithWorld(GetWorld());
-		EffectMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		EffectMesh->AttachTo(this, NAME_None, EAttachLocation::KeepWorldPosition);
-		EffectMesh->LDMaxDrawDistance = 10000; // 100m
-
-		// Generate a MID
-		UMaterialInterface* BaseMaterial = EffectMesh->GetMaterial(0);
-		if (BaseMaterial)
-		{
-			EffectMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
-			EffectMesh->SetMaterial(0, EffectMaterial);
 		}
 	}
 }

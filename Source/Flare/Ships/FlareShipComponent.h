@@ -160,13 +160,13 @@ struct FFlareShipComponentDescription
 	UPROPERTY(EditAnywhere, Category = Content) float HitPoints;
 
 	/** Array of characteristics */
-	UPROPERTY(EditAnywhere, Category = Content)	TArray< FFlareShipComponentCharacteristic > Characteristics;
+	UPROPERTY(EditAnywhere, Category = Content)	TArray< FFlareShipComponentCharacteristic > Characteristics; // TODO M3 : remove this
 
 	/** Part mesh name */
 	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* Mesh;
 
 	/** Special effect mesh name */
-	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* EffectMesh;
+	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* EffectMesh; // TODO M3 : remove this
 
 	/** Part mesh preview image */
 	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush MeshPreviewBrush;
@@ -214,9 +214,6 @@ public:
 
 	/** Apply all customizations to the component */
 	virtual void SetupComponentMesh();
-
-	/** Create a special effect mesh */
-	virtual void SetupEffectMesh();
 
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
@@ -311,9 +308,6 @@ protected:
 
 	UPROPERTY()
 	UFlareCompany*                          PlayerCompany;
-
-	UPROPERTY()
-	UStaticMeshComponent*                   EffectMesh;
 
 	UPROPERTY()
 	UParticleSystemComponent*               DestroyedEffects;

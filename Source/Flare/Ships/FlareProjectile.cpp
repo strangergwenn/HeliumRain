@@ -74,7 +74,7 @@ void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipComponen
 	// Get the power from description
 	if (Description)
 	{
-		ShellComp->SetStaticMesh(Description->EffectMesh);
+		ShellComp->SetStaticMesh(Description->EffectMesh); // TODO M3 : use weapon description 
 		
 		for (int32 i = 0; i < ShellDescription->Characteristics.Num(); i++)
 		{
