@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "FlareInternalComponent.h"
 
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -9,17 +10,13 @@
 UFlareInternalComponent::UFlareInternalComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
-
-void UFlareInternalComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
 
 void UFlareInternalComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {

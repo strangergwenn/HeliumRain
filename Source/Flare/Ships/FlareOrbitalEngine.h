@@ -18,8 +18,6 @@ public:
 
 	virtual void UpdateEffects() override;
 
-	virtual bool IsOrbitalEngine() const;
-
 
 private:
 

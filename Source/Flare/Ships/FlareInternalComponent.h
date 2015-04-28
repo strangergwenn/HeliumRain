@@ -16,10 +16,7 @@ public:
 	/*----------------------------------------------------
 		Public methods
 	----------------------------------------------------*/
-
-	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-
-
+	
 	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
 
 	virtual FFlareShipComponentSave* Save() override;

@@ -125,7 +125,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
 		{
 			UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
-			if (Engine->IsOrbitalEngine())
+			if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
 			{
 				EngineAlpha += Engine->GetEffectiveAlpha();
 				EngineCount++;

@@ -7,6 +7,7 @@
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareEngine : public UFlareShipComponent
 {
+
 public:
 
 	GENERATED_UCLASS_BODY()
@@ -19,6 +20,7 @@ public:
 
 	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu) override;
 
+
 	/** Max engine thrust in Newtons*/
 	float MaxThrust;
 
@@ -30,9 +32,6 @@ public:
 
 	/** Get engine max thrust from specification ; Initial max thrust doesn't change with damages */
 	float GetInitialMaxThrust() const;
-
-	/** Return true if the engine is an Orbital engine. */
-	virtual bool IsOrbitalEngine() const { return false; };
 
 	/** Update the exhaust power for current thrust */
 	void SetAlpha(float Alpha);

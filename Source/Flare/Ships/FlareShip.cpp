@@ -581,7 +581,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
 			{
 				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
-				if (Engine->IsOrbitalEngine())
+				if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
 				{
 					EngineCount+=1.f;
 					Total+=Engine->GetDamageRatio(WithArmor)*(Engine->IsPowered() ? 1 : 0);
@@ -598,7 +598,7 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
 			{
 				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
-				if (!Engine->IsOrbitalEngine())
+				if (!Engine->IsA(UFlareOrbitalEngine::StaticClass()))
 				{
 					EngineCount+=1.f;
 					Total+=Engine->GetDamageRatio(WithArmor)*(Engine->IsPowered() ? 1 : 0);
@@ -1452,7 +1452,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 			if (IsPresentationMode()) {
 				LinearAlpha = true;
 			} else if (!DeltaV.IsNearlyZero()) {
-				if (!(!ManualOrbitalBoost && Engine->IsOrbitalEngine())) {
+				if (!(!ManualOrbitalBoost && Engine->IsA(UFlareOrbitalEngine::StaticClass()))) {
 					LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis);
 				}
 			}
@@ -1461,7 +1461,7 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 			FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
 			TorqueDirection.Normalize();
 
-			if (!DeltaAngularV.IsNearlyZero() && !Engine->IsOrbitalEngine()) {
+			if (!DeltaAngularV.IsNearlyZero() && !Engine->IsA(UFlareOrbitalEngine::StaticClass())) {
 				AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
 			}
 
@@ -1733,7 +1733,7 @@ FVector AFlareShip::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, F
 	{
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
-		if (Engine->IsOrbitalEngine() && !WithOrbitalEngines)
+		if (Engine->IsA(UFlareOrbitalEngine::StaticClass()) && !WithOrbitalEngines)
 		{
 			continue;
 		}
@@ -1759,7 +1759,7 @@ float AFlareShip::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVe
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
 		// Ignore orbital engines for torque computation
-		if (Engine->IsOrbitalEngine()) {
+		if (Engine->IsA(UFlareOrbitalEngine::StaticClass())) {
 		  continue;
 		}
 

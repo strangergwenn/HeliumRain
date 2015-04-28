@@ -331,6 +331,7 @@ protected:
 	float                                   HeatProduction; // Maxiumum heat production, in KW
 
 	// Light flickering state
+	bool                                    HasFlickeringLights;
 	TEnumAsByte<EFlareLightStatus::Type>    LightFlickeringStatus;
 	float                                   TimeLeftUntilFlicker;
 	float                                   TimeLeftInFlicker;
@@ -339,7 +340,7 @@ protected:
 	float                                   CurrentFlickerMaxPeriod;
 
 
-	// TODO M3 : Move to characteristic (engine description)
+	// TODO M3 : Move to characteristic
 	UPROPERTY()		UParticleSystem*                        DeathEffectTemplate; 
 
 };

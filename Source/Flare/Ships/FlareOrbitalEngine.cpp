@@ -12,6 +12,7 @@
 UFlareOrbitalEngine::UFlareOrbitalEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
+	HasFlickeringLights = true;
 }
 
 
@@ -29,9 +30,4 @@ void UFlareOrbitalEngine::UpdateEffects()
 	AverageAlpha = TemperatureAlpha;
 
 	SetTemperature(1500 * TemperatureAlpha);
-}
-
-bool UFlareOrbitalEngine::IsOrbitalEngine() const
-{
-    return true;
 }

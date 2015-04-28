@@ -1,7 +1,9 @@
 ;
 #include "../Flare.h"
+#include "FlareShip.h"
 #include "FlareAirframe.h"
 #include "FlareInternalComponent.h"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -10,21 +12,25 @@
 UFlareAirframe::UFlareAirframe(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	HasFlickeringLights = true;
 }
+
+
+/*----------------------------------------------------
+	Gameplay
+----------------------------------------------------*/
 
 void UFlareAirframe::OnRegister()
 {
 	Super::OnRegister();
-	SetCollisionProfileName("BlockAllDynamic");
 }
 
 float UFlareAirframe::GetRemainingArmorAtLocation(FVector Location)
 {
-	if(!ComponentDescription)
+	if (!ComponentDescription)
 	{
 		UFlareInternalComponent* Component = Ship->GetInternalComponentAtLocation(Location);
-		if(Component)
+		if (Component)
 		{
 			return Component->GetRemainingArmorAtLocation(Location);
 		}
@@ -34,9 +40,10 @@ float UFlareAirframe::GetRemainingArmorAtLocation(FVector Location)
 
 float UFlareAirframe::GetAvailablePower() const
 {
-	UFlareShipComponent* Cockpit =  Ship->GetCockpit();
+	UFlareShipComponent* Cockpit = Ship->GetCockpit();
 
-	if(Cockpit) {
+	if (Cockpit)
+	{
 		Cockpit->UpdatePower();
 		return Cockpit->GetAvailablePower();
 	}

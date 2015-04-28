@@ -17,6 +17,10 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 }
 
 
+/*----------------------------------------------------
+	Gameplay
+----------------------------------------------------*/
+
 void UFlareEngine::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
@@ -35,11 +39,6 @@ void UFlareEngine::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 		}
 	}
 }
-
-
-/*----------------------------------------------------
-	Gameplay
-----------------------------------------------------*/
 
 void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {

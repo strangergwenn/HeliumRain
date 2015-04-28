@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "FlareShip.h"
 #include "FlareShipComponent.h"
+#include "../Player/FlareMenuPawn.h"
 #include "../Player/FlarePlayerController.h"
 #include "FlareOrbitalEngine.h"
 
@@ -35,8 +36,9 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	// Lighting settins
 	bAffectDynamicIndirectLighting = false;
 	bAffectDistanceFieldLighting = false;
+	HasFlickeringLights = false;
 
-	// TODO M3 : move to characteristic (engine)
+	// TODO M3 : move to characteristic
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DeathEffectObj(TEXT("/Game/Master/Particles/PS_Smoke_Small"));
 	DeathEffectTemplate = DeathEffectObj.Object;
 }
@@ -71,63 +73,64 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 		}
 	}
 
-	// Update the light status
-	if (ComponentMaterial && IsVisibleByPlayer())
+	// Graphical updates
+	if (ComponentDescription && ComponentMaterial && IsVisibleByPlayer())
 	{
-		float GlowAlpha = 0;
-
-		switch (LightFlickeringStatus)
+		// Update the light status
+		if (HasFlickeringLights)
 		{
-			// Flickering light
-			case EFlareLightStatus::Flickering:
+			float GlowAlpha = 0;
+
+			switch (LightFlickeringStatus)
 			{
-				if (TimeLeftUntilFlicker > 0)
+				// Flickering light
+				case EFlareLightStatus::Flickering:
 				{
-					TimeLeftUntilFlicker -= DeltaTime;
-					GlowAlpha = 0;
-				}
-				else
-				{
-					if (TimeLeftInFlicker > 0)
+					if (TimeLeftUntilFlicker > 0)
 					{
-						TimeLeftInFlicker -= DeltaTime;
-						if (TimeLeftInFlicker > CurrentFlickerMaxPeriod / 2)
-						{
-							GlowAlpha = FMath::InterpEaseInOut(0.0f, 1.0f, 2 * (TimeLeftInFlicker / CurrentFlickerMaxPeriod), 2);
-						}
-						else
-						{
-							GlowAlpha = FMath::InterpEaseInOut(1.0f, 0.0f, 2 * (TimeLeftInFlicker / CurrentFlickerMaxPeriod) - 1, 2);
-						}
+						TimeLeftUntilFlicker -= DeltaTime;
+						GlowAlpha = 0;
 					}
 					else
 					{
-						TimeLeftInFlicker = FMath::FRandRange(0, FlickerMaxOnPeriod);
-						TimeLeftUntilFlicker = FMath::FRandRange(0, FlickerMaxOffPeriod);
-						CurrentFlickerMaxPeriod = TimeLeftInFlicker;
-						GlowAlpha = 0;
+						if (TimeLeftInFlicker > 0)
+						{
+							TimeLeftInFlicker -= DeltaTime;
+							if (TimeLeftInFlicker > CurrentFlickerMaxPeriod / 2)
+							{
+								GlowAlpha = FMath::InterpEaseInOut(0.0f, 1.0f, 2 * (TimeLeftInFlicker / CurrentFlickerMaxPeriod), 2);
+							}
+							else
+							{
+								GlowAlpha = FMath::InterpEaseInOut(1.0f, 0.0f, 2 * (TimeLeftInFlicker / CurrentFlickerMaxPeriod) - 1, 2);
+							}
+						}
+						else
+						{
+							TimeLeftInFlicker = FMath::FRandRange(0, FlickerMaxOnPeriod);
+							TimeLeftUntilFlicker = FMath::FRandRange(0, FlickerMaxOffPeriod);
+							CurrentFlickerMaxPeriod = TimeLeftInFlicker;
+							GlowAlpha = 0;
+						}
 					}
 				}
+				break;
+
+				// Fully dark
+				case EFlareLightStatus::Dark:
+					GlowAlpha = 0;
+					break;
+
+				// Fully lit
+				default:
+				case EFlareLightStatus::Lit:
+					GlowAlpha = 1;
+					break;
 			}
-			break;
-
-			// Fully dark
-			case EFlareLightStatus::Dark:
-				GlowAlpha = 0;
-				break;
-
-			// Fully lit
-			default:
-			case EFlareLightStatus::Lit:
-				GlowAlpha = 1;
-				break;
+			ComponentMaterial->SetScalarParameterValue("GlowAlpha", GlowAlpha);
 		}
-		ComponentMaterial->SetScalarParameterValue("GlowAlpha", GlowAlpha);
-	}
 
-	// Update health
-	if (ComponentDescription)
-	{
+		// Update health
 		SetHealth(GetDamageRatio());
 	}
 }
@@ -227,7 +230,6 @@ void UFlareShipComponent::SetLightStatus(EFlareLightStatus::Type Status)
 	LightFlickeringStatus = Status;
 }
 
-
 void UFlareShipComponent::GetBoundingSphere(FVector& Location, float& Radius)
 {
 	FVector Min;
@@ -242,10 +244,9 @@ void UFlareShipComponent::GetBoundingSphere(FVector& Location, float& Radius)
 
 bool UFlareShipComponent::IsVisibleByPlayer()
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC && (PC->GetShipPawn()->GetActorLocation() - GetComponentLocation()).Size() < 100000)
+	if (bVisible)
 	{
-		return Ship && (GetWorld()->TimeSeconds - LastRenderTime < 0.2f);
+		return (GetWorld()->TimeSeconds - LastRenderTime < 0.2f);
 	}
 	else
 	{
