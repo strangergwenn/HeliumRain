@@ -1043,14 +1043,13 @@ bool AFlareShip::IsPointColliding(FVector Candidate, AActor* Ignore)
 	return false;
 }
 
+
 /*----------------------------------------------------
 	Damage status
 ----------------------------------------------------*/
 
 void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 {
-
-
 	// The damages are applied to all component touching the sphere defined by the radius and the
 	// location in parameter.
 	// The maximum damage are applied to a component only if its bounding sphere touch the center of
@@ -1074,13 +1073,12 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 		float Distance = (ComponentLocation - Location).Size() / 100.0f;
 		float IntersectDistance =  Radius + ComponentSize/100 - Distance;
 
-		if (IntersectDistance > 0) {
-			// Hit this component
+		// Hit this component
+		if (IntersectDistance > 0)
+		{
 			//FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
-
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
 			Component->ApplyDamage(Energy * Efficiency);
-			//FLOGV("Component hit with Efficiency=%f", Efficiency);
 		}
 	}
 

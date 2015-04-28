@@ -172,7 +172,7 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 		}
 
 		// Destroyed component
-		if (GetDamageRatio() <= 0)
+		if (GetDamageRatio() <= 0 && OwnerShip->IsAlive())
 		{
 			StartDestroyedEffects();
 		}
@@ -535,10 +535,6 @@ void UFlareShipComponent::StartDestroyedEffects()
 		if (DoesSocketExist(FName("Smoke")))
 		{
 			Position = GetSocketLocation(FName("Smoke"));
-		}
-		else
-		{
-			FLOGV("No socket found ! You should add a 'Smoke' socket on '%s'", *StaticMesh->GetName())
 		}
 
 		// Start smoke
