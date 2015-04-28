@@ -27,11 +27,19 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	, FramesToCountBeforeTick(2)
 	, FramesSinceLastUpdate(0)
 {
-	// Physics setup
+	// Tick setup
 	PrimaryComponentTick.bCanEverTick = true;
 	CurrentFlickerMaxPeriod = FlickerMaxOnPeriod;
+
+	// Physics setup
 	SetNotifyRigidBodyCollision(true);
 	bGenerateOverlapEvents = false;
+	bCanEverAffectNavigation = false;
+	bTraceComplexOnMove = false;
+
+	// Lighting settins
+	bAffectDynamicIndirectLighting = false;
+	bAffectDistanceFieldLighting = false;
 
 	// TODO M3 : move to characteristic (engine)
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DeathEffectObj(TEXT("/Game/Master/Particles/PS_Smoke_Small"));
