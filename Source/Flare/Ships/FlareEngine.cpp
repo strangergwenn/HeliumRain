@@ -45,15 +45,12 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if (FramesSinceLastUpdate % FramesToCountBeforeTick == 0)
-	{
-		// Smooth the alpha value. Half-life time : 1/8 second
-		float AverageCoeff = 8 * DeltaTime;
-		ExhaustAccumulator = FMath::Clamp(AverageCoeff * GetEffectiveAlpha() + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
+	// Smooth the alpha value. Half-life time : 1/8 second
+	float AverageCoeff = 8 * DeltaTime;
+	ExhaustAccumulator = FMath::Clamp(AverageCoeff * GetEffectiveAlpha() + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
 
-		// Apply effects
-		UpdateEffects();
-	}
+	// Apply effects
+	UpdateEffects();
 }
 
 void UFlareEngine::SetAlpha(float Alpha)
@@ -69,9 +66,16 @@ float UFlareEngine::GetEffectiveAlpha() const
 void UFlareEngine::UpdateEffects()
 {
 	// Apply the glow value
-	if (EffectMaterial && IsVisibleByPlayer())
+	if (EffectMaterial && Ship)
 	{
-		EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), ExhaustAccumulator);
+		if (!Ship->IsPresentationMode() && IsVisibleByPlayer())
+		{
+			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), ExhaustAccumulator);
+		}
+		else if (Ship->IsPresentationMode() || IsVisibleByPlayer())
+		{
+			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), 0);
+		}
 	}
 }
 

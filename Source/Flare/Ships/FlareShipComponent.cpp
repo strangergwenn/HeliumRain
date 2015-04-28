@@ -24,14 +24,9 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	, TimeLeftInFlicker(0)
 	, FlickerMaxOnPeriod(1)
 	, FlickerMaxOffPeriod(3)
-	, FramesToCountBeforeTick(2)
-	, FramesSinceLastUpdate(0)
 {
-	// Tick setup
-	PrimaryComponentTick.bCanEverTick = true;
-	CurrentFlickerMaxPeriod = FlickerMaxOnPeriod;
-
 	// Physics setup
+	PrimaryComponentTick.bCanEverTick = true;
 	SetNotifyRigidBodyCollision(true);
 	bGenerateOverlapEvents = false;
 	bCanEverAffectNavigation = false;
@@ -62,17 +57,9 @@ void UFlareShipComponent::OnRegister()
 void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// Frame limiter update
-	bool TickThisFrame = FramesSinceLastUpdate % FramesToCountBeforeTick == 0;
-	if (TickThisFrame)
-	{
-		FramesSinceLastUpdate = 0;
-	}
-	FramesSinceLastUpdate++;
-
+	
 	// Visibility
-	if (TickThisFrame && LDMaxDrawDistance)
+	if (LDMaxDrawDistance)
 	{
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 		if (PC)
@@ -85,7 +72,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	}
 
 	// Update the light status
-	if (ComponentMaterial && IsVisibleByPlayer() && TickThisFrame)
+	if (ComponentMaterial && IsVisibleByPlayer())
 	{
 		float GlowAlpha = 0;
 
@@ -139,7 +126,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	}
 
 	// Update health
-	if (ComponentDescription && TickThisFrame)
+	if (ComponentDescription)
 	{
 		SetHealth(GetDamageRatio());
 	}

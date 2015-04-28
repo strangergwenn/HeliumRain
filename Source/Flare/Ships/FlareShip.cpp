@@ -208,12 +208,15 @@ void AFlareShip::Tick(float DeltaSeconds)
 	float OverheatDamage = (Temperature - GetOverheatTemperature()) * DeltaSeconds * 0.00005;
 	float BurningDamage = FMath::Max((Temperature - GetBurnTemperature()) * DeltaSeconds * 0.0001, 0.0);
 
-
 	// Update component temperature and apply heat damage
 	for (int32 i = 0; i < Components.Num(); i++)
 	{
+		// Apply temperature
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
-		Component->SetTemperature(Temperature);
+		if (!Component->IsA(UFlareOrbitalEngine::StaticClass()))
+		{
+			Component->SetTemperature(Temperature);
+		}
 
 		// Overheat apply damage is necessary
 		if (OverheatDamage > 0)

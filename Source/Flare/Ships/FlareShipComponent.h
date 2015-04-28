@@ -338,10 +338,6 @@ protected:
 	float                                   FlickerMaxOffPeriod;
 	float                                   CurrentFlickerMaxPeriod;
 
-	// Frame limiter
-	int32                                   FramesToCountBeforeTick;
-	int32                                   FramesSinceLastUpdate;
-
 
 	// TODO M3 : Move to characteristic (engine description)
 	UPROPERTY()		UParticleSystem*                        DeathEffectTemplate; 
