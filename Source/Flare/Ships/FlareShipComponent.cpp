@@ -67,7 +67,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 			FVector ViewLocation;
 			FRotator ViewRotation;
 			PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
-			bVisible = ((ViewLocation - GetComponentLocation()).Size() < LDMaxDrawDistance);
+			SetVisibility((ViewLocation - GetComponentLocation()).Size() < LDMaxDrawDistance);
 		}
 	}
 
