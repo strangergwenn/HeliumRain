@@ -71,6 +71,19 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	}
 	FramesSinceLastUpdate++;
 
+	// Visibility
+	if (TickThisFrame && LDMaxDrawDistance)
+	{
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+		if (PC)
+		{
+			FVector ViewLocation;
+			FRotator ViewRotation;
+			PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
+			bVisible = ((ViewLocation - GetComponentLocation()).Size() < LDMaxDrawDistance);
+		}
+	}
+
 	// Update the light status
 	if (ComponentMaterial && IsVisibleByPlayer() && TickThisFrame)
 	{
