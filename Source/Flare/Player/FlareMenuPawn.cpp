@@ -165,6 +165,7 @@ void AFlareMenuPawn::ShowPart(const FFlareShipComponentDescription* PartDesc)
 	// Load the parts and scale accordingly
 	CurrentPart->SetVisibility(true, true);
 	FFlareShipComponentSave Data;
+	Data.Damage = 0;
 	Data.ComponentIdentifier = PartDesc->Identifier;
 	CurrentPart->Initialize(&Data, GetPC()->GetCompany(), this, true);
 	CurrentPart->SetWorldScale3D(FVector(1, 1, 1));
