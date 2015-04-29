@@ -107,9 +107,9 @@ void AFlareProjectile::Initialize(UFlareWeapon* Weapon, const FFlareShipComponen
 		FlightEffectsTemplate,
 		RootComponent,
 		NAME_None,
-		RootComponent->GetComponentLocation(),
-		FinalDirection.Rotation(),
-		EAttachLocation::KeepWorldPosition, 
+		FVector(0,0,0),
+		FRotator(0,0,0),
+		EAttachLocation::KeepRelativeOffset,
 		true);
 }
 
