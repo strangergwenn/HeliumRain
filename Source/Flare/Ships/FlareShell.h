@@ -16,8 +16,6 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	virtual void PostInitializeComponents() override;
-
 	/** Properties setup */
 	void Initialize(class UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity);
 

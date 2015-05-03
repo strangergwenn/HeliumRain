@@ -41,12 +41,6 @@ AFlareShell::AFlareShell(const class FObjectInitializer& PCIP) : Super(PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void AFlareShell::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-	SetLifeSpan(500000 / ShellVelocity.Size()); // 5km
-}
-
 void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity)
 {
 	ShellDescription = Description;
@@ -84,12 +78,12 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDesc
 		EAttachLocation::KeepRelativeOffset,
 		true);
 
+	SetLifeSpan(200000 / ShellVelocity.Size()); // 2km
 }
 
 void AFlareShell::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 	FVector ActorLocation = GetActorLocation();
 	ActorLocation += ShellVelocity * DeltaSeconds;
 	FVector NextActorLocation = ActorLocation + ShellVelocity * DeltaSeconds;
