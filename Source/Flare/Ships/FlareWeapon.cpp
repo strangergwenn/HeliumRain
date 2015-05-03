@@ -2,7 +2,7 @@
 #include "../Flare.h"
 #include "FlareWeapon.h"
 #include "FlareShip.h"
-#include "FlareProjectile.h"
+#include "FlareShell.h"
 
 
 /*----------------------------------------------------
@@ -112,8 +112,8 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		FVector FiringVelocity = GetPhysicsLinearVelocity();
 
 		// Create a shell
-		AFlareProjectile* Shell = GetWorld()->SpawnActor<AFlareProjectile>(
-			AFlareProjectile::StaticClass(),
+		AFlareShell* Shell = GetWorld()->SpawnActor<AFlareShell>(
+			AFlareShell::StaticClass(),
 			FiringLocation,
 			FRotator::ZeroRotator,
 			ProjectileSpawnParams);
