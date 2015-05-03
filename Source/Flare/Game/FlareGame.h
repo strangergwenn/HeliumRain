@@ -132,6 +132,7 @@ protected:
 	int32 CurrentImmatriculationIndex;
 
 	/** Comapnies */
+	UPROPERTY()
 	TArray<UFlareCompany*> Companies;
 
 
