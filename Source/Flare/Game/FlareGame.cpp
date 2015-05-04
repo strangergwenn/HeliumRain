@@ -501,7 +501,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVe
 		ShipData.AngularVelocity = FVector::ZeroVector; 
 		ShipData.Name = Immatriculate(Company->GetShortName(), ShipClass);
 		ShipData.Identifier = ShipClass;
-		ShipData.Heat = 500;
+		ShipData.Heat = 600 * Desc->HeatCapacity;
 		ShipData.PowerOutageDelay = 0;
 
 		FName RCSIdentifier;
