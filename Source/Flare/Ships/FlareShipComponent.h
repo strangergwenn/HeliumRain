@@ -329,6 +329,8 @@ protected:
 	// Heat state
 	float                                   HeatSinkSurface; // Maximum heat surface in m^2
 	float                                   HeatProduction; // Maxiumum heat production, in KW
+	bool                                    HasLocalHeatEffect; // Is component temperature vary localy
+	float                                   LocalTemperature;
 
 	// Light flickering state
 	bool                                    HasFlickeringLights;

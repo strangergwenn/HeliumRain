@@ -23,6 +23,7 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	// Firing effects
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> FiringEffectObject(TEXT("/Game/Master/Particles/PS_FiringEffect"));
 	FiringEffectTemplate = FiringEffectObject.Object;
+	HasLocalHeatEffect = true;
 }
 
 

@@ -16,16 +16,4 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	virtual void UpdateEffects() override;
-
-
-private:
-
-	/*----------------------------------------------------
-		Protected data
-	----------------------------------------------------*/
-
-	float AverageAlpha;
-
-
 };

@@ -13,21 +13,5 @@ UFlareOrbitalEngine::UFlareOrbitalEngine(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	HasFlickeringLights = true;
-}
-
-
-/*----------------------------------------------------
-	Gameplay
-----------------------------------------------------*/
-
-void UFlareOrbitalEngine::UpdateEffects()
-{
-	Super::UpdateEffects();
-
-	// TODO : make this a part of the component system
-	float AverageCoeff = 0.005;
-	float TemperatureAlpha = AverageCoeff * ExhaustAccumulator + (1 - AverageCoeff) * AverageAlpha;
-	AverageAlpha = TemperatureAlpha;
-
-	SetTemperature(1500 * TemperatureAlpha);
+	HasLocalHeatEffect = true;
 }

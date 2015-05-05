@@ -213,10 +213,6 @@ void AFlareShip::Tick(float DeltaSeconds)
 	{
 		// Apply temperature
 		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
-		if (!Component->IsA(UFlareOrbitalEngine::StaticClass()))
-		{
-			Component->SetTemperature(Temperature);
-		}
 
 		// Overheat apply damage is necessary
 		if (OverheatDamage > 0)
@@ -395,13 +391,14 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	ShipData = Data;
 	ShipData.Name = FName(*GetName());
 
-	// Look for parent company
-	SetOwnerCompany(GetGame()->FindCompany(Data.CompanyIdentifier));
-
-	// Load ship description
+		// Load ship description
 	UFlareShipPartsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
 	FFlareShipDescription* Desc = GetGame()->GetShipCatalog()->Get(Data.Identifier);
 	SetShipDescription(Desc);
+
+	// Look for parent company
+	SetOwnerCompany(GetGame()->FindCompany(Data.CompanyIdentifier));
+
 
 	// Initialize components
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
@@ -1134,7 +1131,7 @@ void AFlareShip::OnElectricDamage(float DamageRatio)
 	float PowerRatio = AvailablePower/MaxPower;
 
 
-	FLOGV("OnElectricDamage initial PowerOutageDelay=%f, DamageRatio=%f, PowerRatio=%f", ShipData.PowerOutageDelay, DamageRatio, PowerRatio);
+	//FLOGV("OnElectricDamage initial PowerOutageDelay=%f, DamageRatio=%f, PowerRatio=%f", ShipData.PowerOutageDelay, DamageRatio, PowerRatio);
 
 	// The outage probability depend on global available power ratio
 	if (FMath::FRand() > PowerRatio)

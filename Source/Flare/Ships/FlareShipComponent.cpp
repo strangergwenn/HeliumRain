@@ -20,6 +20,8 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	, DestroyedEffects(NULL)
 	, ComponentMaterial(NULL)
 	, ComponentDescription(NULL)
+	, HasLocalHeatEffect(false)
+	, LocalTemperature(0)
 	, LightFlickeringStatus(EFlareLightStatus::Lit)
 	, TimeLeftUntilFlicker(0)
 	, TimeLeftInFlicker(0)
@@ -133,6 +135,28 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 		// Update health
 		SetHealth(GetDamageRatio());
 	}
+
+	// Need even if no ComponentDescription to heat airframes
+	IFlareShipInterface* ShipInterface = Cast<IFlareShipInterface>(Ship);
+	if (ShipInterface)
+	{
+		if (HasLocalHeatEffect && HeatProduction > 0.f)
+		{
+			float Alpha = GetHeatProduction() / HeatProduction;
+			float TargetTemperature = (1.f- Alpha) * (ShipInterface->GetTemperature() * 0.3f)
+						+ Alpha * (ShipInterface->GetTemperature() * 1.8f);
+			float HalfLife = 3;
+			float Variation = DeltaTime / HalfLife;
+			LocalTemperature = (LocalTemperature + (TargetTemperature * Variation)) / (1+Variation);
+		}
+		else
+		{
+
+			LocalTemperature = ShipInterface->GetTemperature();
+		}
+		SetTemperature(LocalTemperature);
+
+	}
 }
 
 void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
@@ -140,6 +164,12 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 	// Main data
 	Ship = OwnerShip;
 	PlayerCompany = Company;
+
+	IFlareShipInterface* ShipInterface = Cast<IFlareShipInterface>(Ship);
+	if(ShipInterface)
+	{
+		LocalTemperature = ShipInterface->GetTemperature();
+	}
 
 	// Setup properties
 	if (Data)
