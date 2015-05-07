@@ -399,6 +399,7 @@ protected:
 	FVector                                  ManualAngularVelocity; // In local space
 	FVector                                  ManualLinearVelocity;
 	bool                                     ManualOrbitalBoost;
+	FVector2D                                MouseOffset;
 
 	// Physics simulation
 	FVector                                  LinearTargetVelocity;
@@ -511,6 +512,11 @@ public:
 	inline EFlareShipStatus::Type GetStatus() const
 	{
 		return Status;
+	}
+
+	inline FVector2D GetMouseOffset() const
+	{
+		return MouseOffset;
 	}
 
 };

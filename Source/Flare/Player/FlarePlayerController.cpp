@@ -398,7 +398,7 @@ void AFlarePlayerController::SetupInputComponent()
 
 void AFlarePlayerController::MousePositionInput(FVector2D Val)
 {
-	if (ShipPawn)
+	if (ShipPawn && !CombatMode)
 	{
 		ShipPawn->MousePositionInput(Val);
 	}
@@ -429,7 +429,10 @@ void AFlarePlayerController::ToggleCombat()
 		CombatMode = !CombatMode;
 		ShipPawn->SetCombatMode(CombatMode);
 		SetExternalCamera(false, true);
-		ResetMousePosition();
+		if(!CombatMode)
+		{
+			ResetMousePosition();
+		}
 	}
 }
 

@@ -204,7 +204,7 @@ void AFlareHUD::DrawHUD()
 		if (Ship->IsCombatMode())
 		{
 			// Compute clamped mouse position
-			FVector2D MousePosDelta = 2 * CombatMouseRadius * (PC->GetMousePosition() - ViewportSize / 2) / ViewportSize.Size();
+			FVector2D MousePosDelta = CombatMouseRadius * Ship->GetMouseOffset();
 			FVector MousePosDelta3D = FVector(MousePosDelta.X, MousePosDelta.Y, 0);
 			MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
 			MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);

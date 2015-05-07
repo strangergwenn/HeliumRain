@@ -25,7 +25,7 @@
 AFlareShip::AFlareShip(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, AngularDeadAngle(0.5)
-	, AngularInputDeadRatio(0.025)
+	, AngularInputDeadRatio(0.0025)
 	, LinearDeadDistance(0.1)
 	, LinearMaxDockingVelocity(10)
 	, NegligibleSpeedRatio(0.0005)
@@ -331,6 +331,8 @@ void AFlareShip::SetExternalCamera(bool NewState)
 void AFlareShip::SetCombatMode(bool NewState)
 {
 	CombatMode = NewState;
+	MouseOffset = FVector2D(0,0);
+	MousePositionInput(MouseOffset);
 
 	if (!NewState && FiringPressed)
 	{
@@ -1618,6 +1620,16 @@ void AFlareShip::PitchInput(float Val)
 		FRotator CurrentRot = WorldToLocal(CameraContainerPitch->GetComponentRotation().Quaternion()).Rotator();
 		SetCameraPitch(CurrentRot.Pitch + Val * CameraPanSpeed);
 	}
+	else if (CombatMode)
+	{
+		MouseOffset.Y -= FMath::Sign(Val) * FMath::Pow(FMath::Abs(Val),1.3) * 0.05; // TODO Config sensibility
+		if(MouseOffset.Size() > 1)
+		{
+			MouseOffset /= MouseOffset.Size();
+		}
+		MousePositionInput(MouseOffset);
+
+	}
 }
 
 void AFlareShip::YawInput(float Val)
@@ -1626,6 +1638,15 @@ void AFlareShip::YawInput(float Val)
 	{
 		FRotator CurrentRot = WorldToLocal(CameraContainerPitch->GetComponentRotation().Quaternion()).Rotator();
 		SetCameraYaw(CurrentRot.Yaw + Val * CameraPanSpeed);
+	}
+	else if (CombatMode)
+	{
+		MouseOffset.X += FMath::Sign(Val) * FMath::Pow(FMath::Abs(Val),1.3) * 0.05; // TODO Config sensibility
+		if(MouseOffset.Size() > 1)
+		{
+			MouseOffset /= MouseOffset.Size();
+		}
+		MousePositionInput(MouseOffset);
 	}
 }
 
