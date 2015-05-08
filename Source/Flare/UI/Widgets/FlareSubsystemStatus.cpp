@@ -204,7 +204,7 @@ FText SFlareSubsystemStatus::GetStatusText() const
 			case EFlareSubsystem::SYS_Power:
 				if (Ship->HasPowerOutage())
 				{
-					Text = LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(Ship->GetPowerOutageDuration()) + " s";
+					Text = LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(Ship->GetPowerOutageDuration() + 1) + " s";
 				}
 				break; 
 
