@@ -26,7 +26,7 @@ public:
 	void SetupComponentMesh() override;
 
 	/** Start firing */
-	virtual void StartFire();
+	virtual void StartFire(bool SafeFire);
 
 	/** Stop firing */
 	virtual void StopFire();
@@ -68,6 +68,7 @@ protected:
 
 	// State
 	bool                        Firing;
+	bool                        SafeFire;
 	float                       TimeSinceLastShell;
 	int32                       CurrentAmmo;
 

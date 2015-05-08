@@ -13,6 +13,7 @@
 #include "../Stations/FlareStation.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
+#include "../../../../UnrealEngine/Engine/Source/Runtime/Engine/Classes/Components/AudioComponent.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareShip"
@@ -124,7 +125,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 				ManualOrbitalBoost = Pilot->IsUseOrbitalBoost();
 				if (Pilot->IsWantFire())
 				{
-					StartFire();
+					StartFire(false);
 				}
 				else
 				{
@@ -1536,6 +1537,12 @@ void AFlareShip::SetupPlayerInputComponent(class UInputComponent* InputComponent
 
 	InputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AFlareShip::FirePress);
 	InputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &AFlareShip::FireRelease);
+
+	// Gamepad
+	InputComponent->BindAxis("GamepadPitchInput", this, &AFlareShip::GamepadPitchInput);
+	InputComponent->BindAxis("GamepadYawInput", this, &AFlareShip::GamepadYawInput);
+	InputComponent->BindAxis("GamepadFireInput", this, &AFlareShip::GamepadFireInput);
+	InputComponent->BindAxis("GamepadThrustInput", this, &AFlareShip::GamepadThrustInput);
 }
 
 void AFlareShip::FirePress()
@@ -1544,7 +1551,7 @@ void AFlareShip::FirePress()
 
 	if (CombatMode)
 	{
-		StartFire();
+		StartFire(false);
 	}
 }
 
@@ -1650,6 +1657,63 @@ void AFlareShip::YawInput(float Val)
 	}
 }
 
+void AFlareShip::GamepadPitchInput(float Val)
+{
+	if (ExternalCamera)
+	{
+		FRotator CurrentRot = WorldToLocal(CameraContainerPitch->GetComponentRotation().Quaternion()).Rotator();
+		SetCameraPitch(CurrentRot.Pitch + Val * CameraPanSpeed);
+	}
+	else if (CombatMode)
+	{
+		MouseOffset.Y = Val;
+		MousePositionInput(MouseOffset);
+	}
+}
+
+
+void AFlareShip::GamepadYawInput(float Val)
+{
+	if (ExternalCamera)
+	{
+		FRotator CurrentRot = WorldToLocal(CameraContainerPitch->GetComponentRotation().Quaternion()).Rotator();
+		SetCameraYaw(CurrentRot.Yaw + Val * CameraPanSpeed);
+	}
+	else if (CombatMode)
+	{
+		MouseOffset.X = Val;
+		MousePositionInput(MouseOffset);
+	}
+}
+
+void AFlareShip::GamepadThrustInput(float Val)
+{
+	if (IsManualPilot() && !ExternalCamera) // TODO Manual command refactor to make manual input seperate from used input
+	{
+
+		float Thrust = FMath::Clamp( Val * 2. , 0., 1.);
+		ManualLinearVelocity.X = Thrust * LinearMaxVelocity;
+
+		ManualOrbitalBoost = Val > 0.9;
+	}
+}
+
+void AFlareShip::GamepadFireInput(float Val)
+{
+	if (CombatMode)
+	{
+		if (Val > 0.1)
+		{
+			StartFire(Val < 0.9); // Full press mean unsafe fire
+		}
+		else
+		{
+			StopFire();
+		}
+	}
+}
+
+
 void AFlareShip::ZoomIn()
 {
 	if (ExternalCamera)
@@ -1711,13 +1775,13 @@ void AFlareShip::ForceManual()
 	}
 }
 
-void AFlareShip::StartFire()
+void AFlareShip::StartFire(bool SafeFire)
 {
 	if (IsAlive() && (IsPiloted || !ExternalCamera))
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
-			WeaponList[i]->StartFire();
+			WeaponList[i]->StartFire(SafeFire);
 		}
 	}
 }

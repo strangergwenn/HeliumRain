@@ -323,6 +323,14 @@ public:
 
 	virtual void YawInput(float Val);
 
+	virtual void GamepadPitchInput(float Val);
+
+	virtual void GamepadYawInput(float Val);
+
+	virtual void GamepadFireInput(float Val);
+
+	virtual void GamepadThrustInput(float Val);
+
 	virtual void ZoomIn();
 
 	virtual void ZoomOut();
@@ -339,7 +347,7 @@ public:
 
 	virtual void ForceManual();
 
-	virtual void StartFire();
+	virtual void StartFire(bool SafeFire);
 
 	virtual void StopFire();
 

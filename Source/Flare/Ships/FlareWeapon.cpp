@@ -15,6 +15,7 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	, FiringRate(0)
 	, MaxAmmo(0)
 	, Firing(false)
+	, SafeFire(true)
 {
 	// Firing sound
 	static ConstructorHelpers::FObjectFinder<USoundCue> FiringSoundObject(TEXT("/Game/Master/Sound/A_Shot"));
@@ -101,7 +102,14 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered() && !Ship->HasPowerOutage())
+	IFlareShipInterface* ShipInterface = Cast<IFlareShipInterface>(Ship); // TODO This IFlareShipInterface thing is a nigthmare
+
+	if (Firing && CurrentAmmo > 0
+		&& !(SafeFire && ShipInterface && (ShipInterface->GetTemperature() > ShipInterface->GetOverheatTemperature() * 0.90f))
+		&& TimeSinceLastShell > FiringPeriod
+		&& GetDamageRatio() > 0.f
+		&& IsPowered()
+		&& !Ship->HasPowerOutage())
 	{
 		// Get firing data
 		FVector FiringLocation = GetSocketLocation(FName("Muzzle"));
@@ -156,9 +164,10 @@ void UFlareWeapon::SetupComponentMesh()
 	}
 }
 
-void UFlareWeapon::StartFire()
+void UFlareWeapon::StartFire(bool SafeFire)
 {
 	Firing = true;
+	this->SafeFire = SafeFire;
 }
 
 void UFlareWeapon::StopFire()
