@@ -341,12 +341,12 @@ void AFlareShip::SetCombatMode(bool NewState)
 }
 
 
-FVector AFlareShip::GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed) const
+FVector AFlareShip::GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed, float PredictionDelay) const
 {
-	FVector TargetLocation = GetActorLocation();
-	FVector BulletLocation = TargettingShip->GetActorLocation();
 	//Relative Target Speed
 	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
+	FVector TargetLocation = GetActorLocation() + TargetVelocity * PredictionDelay;
+	FVector BulletLocation = TargettingShip->GetActorLocation() + TargettingShip->GetLinearVelocity() * 100 * PredictionDelay;
 
 	// Find the relative speed in the axis of target
 	FVector TargetDirection = (TargetLocation - BulletLocation).GetUnsafeNormal();

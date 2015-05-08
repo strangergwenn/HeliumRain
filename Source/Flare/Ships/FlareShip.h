@@ -114,7 +114,7 @@ public:
 	virtual void SetCombatMode(bool NewState);
 
 	/** Extrapolate the position of a ship for a given targetting ship */
-	virtual FVector GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed) const;
+	virtual FVector GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed, float PredictionDelay) const;
 
 	/** Set the new flight status */
 	virtual void SetStatus(EFlareShipStatus::Type NewStatus);

@@ -308,7 +308,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 				if (Weapons.Num() > 0)
 				{
 					float AmmoVelocity = Weapons[0]->GetAmmoVelocity();
-					if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, AmmoVelocity), ScreenPosition))
+					if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, AmmoVelocity, 0.0), ScreenPosition))
 					{
 						FLinearColor Color = GetHostilityColor(PC, Ship);
 						DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, Color, true);

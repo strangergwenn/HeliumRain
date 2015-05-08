@@ -139,11 +139,22 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		float Distance = DeltaLocation.Size(); // Distance in meters
 		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
 		FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
+		FVector ShipVelocity = 100 * Ship->GetLinearVelocity();
+		FVector PilotTargetShipVelocity = 100 * PilotTargetShip->GetLinearVelocity();
 
-		FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(Ship, AmmoVelocity) - Ship->GetActorLocation()).GetUnsafeNormal(); // TODO et weapon velocity
+		// Use position prediction
+		float PredictionDelay = ReactionTime - DeltaSeconds;
+		FVector PredictedShipLocation = Ship->GetActorLocation() + ShipVelocity * PredictionDelay;
+		FVector PredictedPilotTargetShipLocation = PilotTargetShip->GetActorLocation() + PilotTargetShipVelocity * PredictionDelay;
+		FVector PredictedDeltaLocation = (PredictedPilotTargetShipLocation - PredictedShipLocation) / 100.f;
+		FVector PredictedTargetAxis = PredictedDeltaLocation.GetUnsafeNormal();
+		float PredictedDistance = PredictedDeltaLocation.Size(); // Distance in meters
+
+		FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, 0) - Ship->GetActorLocation()).GetUnsafeNormal();
+		FVector PredictedFireTargetAxis = (PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, PredictionDelay) - PredictedShipLocation).GetUnsafeNormal();
 
 		FRotator ShipAttitude = Ship->GetActorRotation();
-		FVector ShipVelocity = 100 * Ship->GetLinearVelocity();
+
 
 		// Bullet velocity
 		FVector BulletVelocity = ShipAttitude.Vector();
@@ -155,7 +166,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 		FVector DeltaVelocity = PilotTargetShip->GetLinearVelocity() - ShipVelocity / 100.;
 
-		FVector TargetAngularVelocity = - 180 / (PI * Distance) * FVector::CrossProduct(DeltaVelocity, TargetAxis);
+		FVector PredictedTargetAngularVelocity = - 180 / (PI * PredictedDistance) * FVector::CrossProduct(DeltaVelocity, PredictedTargetAxis);
 
 		//TargetAngularVelocity = FVector(0,0,0);
 
@@ -163,7 +174,8 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		// TODO Use BulletDirection instead of LocalNose
 		//AngularTargetVelocity = GetAngularVelocityToAlignAxis(LocalNose, FireTargetAxis, DeltaSeconds);
 		//TODO find target angular velocity
-		AngularTargetVelocity = GetAngularVelocityToAlignAxis(BulletDirection, FireTargetAxis,TargetAngularVelocity, DeltaSeconds);
+
+		AngularTargetVelocity = GetAngularVelocityToAlignAxis(BulletDirection, PredictedFireTargetAxis, PredictedTargetAngularVelocity, DeltaSeconds);
 
 		/*FLOGV("Distance=%f", Distance);
 		FLOGV("PilotTargetShip->GetLinearVelocity()=%s", *(PilotTargetShip->GetLinearVelocity().ToString()));
@@ -184,7 +196,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		// 0 - Prepare attack : change velocity to approch the target
 		// 1 - Attacking : target is approching
 		// 2 - Withdraw : target is passed, wait a security distance to attack again
-		float SecurityDistance = (DangerousTarget ? 600: 100) + TargetSize * 4;
+		float SecurityDistance = (DangerousTarget ? 600: 300) + TargetSize * 4;
 
 		if (AttackPhase == 0)
 		{
@@ -196,7 +208,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			}
 			else
 			{
-				LinearTargetVelocity = FireTargetAxis * Ship->GetLinearMaxVelocity();
+				LinearTargetVelocity = PredictedFireTargetAxis * Ship->GetLinearMaxVelocity();
 			}
 
 			if(Distance < SecurityDistance) {
@@ -250,7 +262,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(Distance < (DangerousTarget ? 600.f : 100.f) + 4 * TargetSize)
+		if(Distance < (DangerousTarget ? 600.f : 300.f) + 4 * TargetSize)
 		{
 			//FLOGV("is at fire range=%f", Distance);
 			// TODO Use BulletDirection instead of LocalNose
@@ -266,12 +278,11 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			FLOGV("Distance=%f", Distance);
 
 			FLOGV("AngularPrecisionDot=%f", AngularPrecisionDot);
-			FLOGV("AngularPrecision=%f", AngularPrecision);
-			FLOGV("AngularSize=%f", AngularSize);*/
 
-			if(AngularPrecision < (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.4))
+			*/
+
+			if(AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 			{
-				//FLOG("Fire");
 				WantFire = true;
 			}
 		}
@@ -526,15 +537,15 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 	    TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
 	}
 
-	float AngleToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + ReactionTime);
+	float AngleToStop = (DeltaVelocity.Size() / 2) * (FMath::Max(TimeToFinalVelocity,ReactionTime));
 
 	FVector RelativeResultSpeed;
 
 	if (AngleToStop > angle) {
 		RelativeResultSpeed = TargetAngularVelocity;
 	}
-	else {
-
+	else
+	{
 		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / (ReactionTime * 0.75f), Ship->GetAngularMaxVelocity());
 
 		RelativeResultSpeed = RotationDirection;
