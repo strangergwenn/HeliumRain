@@ -74,7 +74,7 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Center)
 			[
 				SNew(STextBlock)
-				.Text(Target->GetName())
+				.Text(FText::FromString(Target->GetName()))
 				.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
 			]
 

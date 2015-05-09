@@ -84,10 +84,10 @@ public:
 	----------------------------------------------------*/
 
 	/** Get the target name */
-	FString GetName() const;
+	FText GetName() const;
 
 	/** Get the target class name */
-	FString GetDescription() const;
+	FText GetDescription() const;
 
 	/** Get the target icon */
 	const FSlateBrush* GetIcon() const;
@@ -96,7 +96,7 @@ public:
 	const FSlateBrush* GetClassIcon() const;
 	
 	/** Get the company name */
-	FString GetCompanyName() const;
+	FText GetCompanyName() const;
 
 
 protected:

@@ -231,7 +231,8 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 	}
 }
 
-bool AFlareShell::Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) {
+bool AFlareShell::Trace(const FVector& Start, const FVector& End, FHitResult& HitOut)
+{
 	FCollisionQueryParams TraceParams(FName(TEXT("Shell Trace")), true, this);
 	TraceParams.bTraceComplex = true;
 	//TraceParams.bTraceAsyncScene = true;

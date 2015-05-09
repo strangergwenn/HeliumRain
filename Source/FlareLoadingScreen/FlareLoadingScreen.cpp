@@ -35,12 +35,12 @@ struct FFlareLoadingScreenBrush : public FSlateDynamicImageBrush, public FGCObje
 	Screen layout
 ----------------------------------------------------*/
 
-class SStrategyLoadingScreen : public SCompoundWidget
+class SFlareLoadingScreen : public SCompoundWidget
 {
 
 public:
 
-	SLATE_BEGIN_ARGS(SStrategyLoadingScreen) {}
+	SLATE_BEGIN_ARGS(SFlareLoadingScreen) {}
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs)
@@ -140,7 +140,7 @@ public:
 	{
 		FLoadingScreenAttributes LoadingScreen;
 		LoadingScreen.bAutoCompleteWhenLoadingCompletes = true;
-		LoadingScreen.WidgetLoadingScreen = SNew(SStrategyLoadingScreen);
+		LoadingScreen.WidgetLoadingScreen = SNew(SFlareLoadingScreen);
 		GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);
 	}
 

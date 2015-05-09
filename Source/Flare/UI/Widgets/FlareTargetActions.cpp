@@ -427,12 +427,12 @@ void SFlareTargetActions::OnUndock()
 	Content
 ----------------------------------------------------*/
 
-FString SFlareTargetActions::GetName() const
+FText SFlareTargetActions::GetName() const
 {
-	return TargetName;
+	return FText::FromString(TargetName);
 }
 
-FString SFlareTargetActions::GetDescription() const
+FText SFlareTargetActions::GetDescription() const
 {
 	// Common text
 	FText ClassText = LOCTEXT("Class", "CLASS");
@@ -441,18 +441,17 @@ FString SFlareTargetActions::GetDescription() const
 	// Description builder
 	if (TargetStationDesc)
 	{
-		return TargetStationDesc->Name.ToString() + " " + ClassText.ToString();
+		return FText::FromString(TargetStationDesc->Name.ToString() + " " + ClassText.ToString());
 	}
 	else if (TargetShipDesc)
 	{
-		return TargetShipDesc->Name.ToString() + " " + ClassText.ToString();
+		return FText::FromString(TargetShipDesc->Name.ToString() + " " + ClassText.ToString());
 	}
 	else if (TargetCompany)
 	{
-		FText CompanyText = LOCTEXT("Company", "COMPANY");
-		return CompanyText.ToString();
+		return LOCTEXT("Company", "COMPANY");
 	}
-	return DefaultText.ToString();
+	return DefaultText;
 }
 
 const FSlateBrush* SFlareTargetActions::GetIcon() const
@@ -489,7 +488,7 @@ const FSlateBrush* SFlareTargetActions::GetClassIcon() const
 	return NULL;
 }
 
-FString SFlareTargetActions::GetCompanyName() const
+FText SFlareTargetActions::GetCompanyName() const
 {
 	if (TargetCompany)
 	{
@@ -505,12 +504,11 @@ FString SFlareTargetActions::GetCompanyName() const
 		int32 StationCount = TargetCompany->GetCompanyStations().Num();
 		FString ShipDescriptionString = FString::FromInt(ShipCount) + " " + (ShipCount > 1 ? ShipsText : ShipText).ToString();
 		FString StationDescriptionString = FString::FromInt(StationCount) + " " + (StationCount > 1 ? StationsText : StationText).ToString();
-		return (TargetCompany->GetCompanyName() + " (" + StationDescriptionString + ", " + ShipDescriptionString + ")");
+		return FText::FromString((TargetCompany->GetCompanyName() + " (" + StationDescriptionString + ", " + ShipDescriptionString + ")"));
 	}
 	else
 	{
-		FText AbandonedText = LOCTEXT("Abandoned", "ABANDONED OBJECT");
-		return AbandonedText.ToString();
+		return LOCTEXT("Abandoned", "ABANDONED OBJECT");
 	}
 }
 

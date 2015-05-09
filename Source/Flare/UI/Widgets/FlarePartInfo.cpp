@@ -177,7 +177,7 @@ void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, F
 				.AutoHeight()
 				[
 					SNew(STextBlock)
-					.Text(Value)
+					.Text(FText::FromString(Value))
 					.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
 				]
 			]
@@ -190,7 +190,7 @@ void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, F
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(Label)
+				.Text(FText::FromString(Label))
 				.TextStyle(FFlareStyleSet::Get(), "Flare.SmallText")
 			];
 	}

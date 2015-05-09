@@ -48,7 +48,7 @@ void SFlareShipInfo::Construct(const FArguments& InArgs)
 				+ SHorizontalBox::Slot()
 				[
 					SNew(STextBlock)
-					.Text(InArgs._Ship->_getUObject()->GetName())
+					.Text(FText::FromString(InArgs._Ship->_getUObject()->GetName()))
 					.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
 				]
 
