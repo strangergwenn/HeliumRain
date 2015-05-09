@@ -147,8 +147,8 @@ void AFlareHUD::DrawHUD()
 				}
 				else
 				{
-					AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
-					ShouldDrawSearchMarker = !Ship || (Ship && Ship->IsAlive());
+					AFlareShip* LocalShip = Cast<AFlareShip>(ShipBase);
+					ShouldDrawSearchMarker = !LocalShip || (LocalShip && LocalShip->IsAlive());
 				}
 
 				// Draw search markers
@@ -310,8 +310,8 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 					float AmmoVelocity = Weapons[0]->GetAmmoVelocity();
 					if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, AmmoVelocity, 0.0), ScreenPosition))
 					{
-						FLinearColor Color = GetHostilityColor(PC, Ship);
-						DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, Color, true);
+						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Ship);
+						DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, HUDAimHelperColor, true);
 					}
 				}
 			}

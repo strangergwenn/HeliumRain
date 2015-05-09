@@ -280,18 +280,14 @@ void SFlareShipMenu::LoadTargetShip()
 	{
 		UFlareShipPartsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 
-		// Spawn the ship
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-		if (PC)
+		const FFlareShipDescription* ShipDesc = PC->GetGame()->GetShipCatalog()->Get(CurrentShipData->Identifier);
+		if (ShipDesc)
 		{
-			const FFlareShipDescription* ShipDesc = PC->GetGame()->GetShipCatalog()->Get(CurrentShipData->Identifier);
-			if (ShipDesc)
-			{
-				ObjectName->SetText(LOCTEXT("Overview", "OVERVIEW"));
-				ObjectDescription->SetText(ShipDesc->Description);
-				PC->GetMenuPawn()->ShowShip(ShipDesc, CurrentShipData);
-			}
+			ObjectName->SetText(LOCTEXT("Overview", "OVERVIEW"));
+			ObjectDescription->SetText(ShipDesc->Description);
+			PC->GetMenuPawn()->ShowShip(ShipDesc, CurrentShipData);
 		}
+
 
 		// Make the right box visible
 		if (CanEdit)
