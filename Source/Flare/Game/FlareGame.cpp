@@ -163,7 +163,7 @@ UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
 	FLOGV("AFlareGame::LoadCompany ('%s')", *CompanyData.Name);
 
 	// Create the new company
-	Company = NewNamedObject<UFlareCompany>(this, CompanyData.Identifier);
+	Company = NewObject<UFlareCompany>(this, UFlareCompany::StaticClass(), CompanyData.Identifier);
 	Company->Load(CompanyData);
 	Companies.AddUnique(Company);
 

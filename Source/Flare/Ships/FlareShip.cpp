@@ -246,7 +246,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	}
 }
 
-void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+void AFlareShip::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
@@ -504,7 +504,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	}
 
 	// Initialize pilot
-	Pilot = ConstructObject<UFlareShipPilot>(UFlareShipPilot::StaticClass(), this);
+	Pilot = NewObject<UFlareShipPilot>(this, UFlareShipPilot::StaticClass());
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
 
 	// Init alive status

@@ -228,7 +228,7 @@ bool AFlareShell::Trace(const FVector& Start, const FVector& End, FHitResult& Hi
 	ECollisionChannel CollisionChannel = (ECollisionChannel) (ECC_WorldStatic | ECC_WorldDynamic | ECC_Pawn);
 
 	//Trace!
-	GetWorld()->LineTraceSingle(
+	GetWorld()->LineTraceSingleByChannel(
 		HitOut,		//result
 		Start,	//start
 		End , //end

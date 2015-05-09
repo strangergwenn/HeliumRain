@@ -2,12 +2,23 @@
 
 using UnrealBuildTool;
 
+// This module must be loaded "PreLoadingScreen" in the .uproject file, otherwise it will not hook in time!
+
 public class FlareLoadingScreen : ModuleRules
 {
     public FlareLoadingScreen(TargetInfo Target)
 	{
-		PrivateIncludePaths.Add("../Source/FlareLoadingScreen");
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" });
-        PrivateDependencyModuleNames.AddRange(new string[] { "MoviePlayer", "Slate", "SlateCore" });
+        PrivateIncludePaths.Add("../Source/FlareLoadingScreen");
+
+        PrivateDependencyModuleNames.AddRange(
+            new string[] {
+				"Core",
+				"CoreUObject",
+				"MoviePlayer",
+				"Slate",
+				"SlateCore",
+				"InputCore"
+			}
+        );
 	}
 }
