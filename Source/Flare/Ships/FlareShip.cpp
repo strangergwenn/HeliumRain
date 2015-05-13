@@ -234,6 +234,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 		if (ShipData.PowerOutageDelay <=0)
 		{
 			ShipData.PowerOutageDelay = 0;
+			UpdatePower(); // To update light
 		}
 	}
 
@@ -1143,7 +1144,9 @@ void AFlareShip::OnElectricDamage(float DamageRatio)
 		// Between 5 and 10s of outage if component one shot
 		ShipData.PowerOutageDelay += DamageRatio *  FMath::FRandRange(5, 10 * (1.f - PowerRatio));
 		FLOGV("OnElectricDamage new PowerOutageDelay=%f", ShipData.PowerOutageDelay);
+		UpdatePower();
 	}
+
 
 
 }

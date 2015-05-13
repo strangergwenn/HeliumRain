@@ -76,7 +76,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	}
 
 	// Graphical updates
-	if (ComponentDescription && ComponentMaterial && IsVisibleByPlayer())
+	if (ComponentMaterial && IsVisibleByPlayer())
 	{
 		// Update the light status
 		if (HasFlickeringLights)
@@ -465,7 +465,7 @@ void UFlareShipComponent::UpdateLight()
 	{
 		SetLightStatus(EFlareLightStatus::Dark);
 	}
-	else if (AvailablePower < 0.5)
+	else if (AvailablePower < 0.5 || Ship->HasPowerOutage())
 	{
 		SetLightStatus(EFlareLightStatus::Flickering);
 	}
