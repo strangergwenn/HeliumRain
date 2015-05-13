@@ -524,7 +524,7 @@ float UFlareShipComponent::GetHeatProduction() const
 
 float UFlareShipComponent::GetHeatSinkSurface() const
 {
-	return HeatSinkSurface * (0.25 +  3 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Ship->HasPowerOutage() ? 0 : 1) / 4);
+	return HeatSinkSurface * (0.1 +  9 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Ship->HasPowerOutage() ? 0 : 1) / 10);
 }
 
 bool UFlareShipComponent::IsHeatSink() const

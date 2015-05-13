@@ -1,6 +1,7 @@
 [Omen]
 ShipName=Omen
 HeatCapacity=14
+MinHeatsinkRatio=0.10
 
 [ic-small-cockpit]
 PassivePower=1

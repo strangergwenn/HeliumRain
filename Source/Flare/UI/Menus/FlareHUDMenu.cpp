@@ -219,7 +219,8 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 		// Overheating status
 		TimeSinceOverheatChanged += InDeltaTime;
-		bool NewOverheating = (TargetShip->GetTemperature() > TargetShip->GetOverheatTemperature());
+		// Alert the player if the ship is near the overheat temperature
+		bool NewOverheating = (TargetShip->GetTemperature() > TargetShip->GetOverheatTemperature() * 0.95);
 		if (NewOverheating != Overheating)
 		{
 			TimeSinceOverheatChanged = 0;

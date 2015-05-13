@@ -1,6 +1,7 @@
 [Ghoul]
 ShipName=Ghoul
 HeatCapacity=13
+MinHeatsinkRatio=0.10
 
 [ic-small-cockpit]
 PassivePower=1

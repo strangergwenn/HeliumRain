@@ -17,6 +17,7 @@ def print_u(str):
 class Ship:
 
 	name = "Unnamed"
+	min_heatsink_ratio = 0.0
 	max_heatsink = 0.0
 	min_heatsink = 0.0
 	passive_power = 0.0
@@ -47,10 +48,11 @@ class Ship:
 				value = config[section][key]
 				if key == "shipname":
 					self.name = value
+				elif key == "minheatsinkratio":
+					self.min_heatsink_ratio = float(value)
 				elif key == "maxheatsink":
 					self.max_heatsink += count * float(value)
-				elif key == "minheatsink":
-					self.min_heatsink += count * float(value)
+					self.min_heatsink += count * float(value) * self.min_heatsink_ratio
 				elif key == "heatcapacity":
 					self.heat_capacity += count * float(value)
 				elif key == "passivepower":
@@ -152,6 +154,7 @@ class Ship:
 		print("-------------------")
 		print_u("Heat capacity: "+ str(self.heat_capacity) + " KJ/°K")
 		print_u("Solar power: "+ str(SOLAR_POWER) + " KW/m²")
+		print_u("Min heatsink ratio: "+ str(self.min_heatsink_ratio))
 
 		print("Heatsink")
 		print_u("  - Maximum: "+ str(self.max_heatsink) + " m²")
