@@ -26,7 +26,7 @@ MinHeatsink=15
 
 [rcs-rift]
 Count = 26
-ActivePower=300
+ActivePower=75
 
 [pod-surtsey]
 Count = 4

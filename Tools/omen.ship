@@ -16,8 +16,8 @@ MinHeatsink=0.5
 
 [rcs-piranha]
 Count = 16
-ActivePower=20
+ActivePower=5
 
 [engine-octopus]
 Count = 1
-BoostingPower=500
+BoostingPower=800

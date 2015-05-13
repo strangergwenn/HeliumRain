@@ -15,12 +15,12 @@ MinHeatsink=1
 
 [weapon-eradicator]
 Count = 2
-FiringPower=800
+FiringPower=100
 
 [rcs-piranha]
 Count = 14
-ActivePower=20
+ActivePower=5
 
 [engine-octopus]
 Count = 2
-BoostingPower=500
+BoostingPower=800
