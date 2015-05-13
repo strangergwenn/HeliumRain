@@ -1,10 +1,18 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 import configparser
 import math
+import sys
 
 OVERHEAT_TEMPERATURE = 1200
 BURN_TEMPERATURE = 1500
 SOLAR_POWER = 3.094
+
+def print_u(str):
+	bytes_str = (str + "\n").encode('utf8')
+	sys.stdout.buffer.write(bytes_str)
+
+
 
 class Ship:
 
@@ -142,14 +150,12 @@ class Ship:
 		print("-------------------")
 		print("Ship " + self.name)
 		print("-------------------")
-		print("Heat capacity: "+ str(self.heat_capacity) + " KJ/°K")
-		print("Solar power: "+ str(SOLAR_POWER) + " KW/m²")
-		print("Heat capacity: "+ str(self.heat_capacity) + " KJ/°K")
-
+		print_u("Heat capacity: "+ str(self.heat_capacity) + " KJ/°K")
+		print_u("Solar power: "+ str(SOLAR_POWER) + " KW/m²")
 
 		print("Heatsink")
-		print("  - Maximum: "+ str(self.max_heatsink) + " m²")
-		print("  - Minimum: "+ str(self.min_heatsink) + " m²")
+		print_u("  - Maximum: "+ str(self.max_heatsink) + " m²")
+		print_u("  - Minimum: "+ str(self.min_heatsink) + " m²")
 		print("Heat production")
 		print("  - Passive: "+ str(self.passive_power) + " KW")
 		print("  - Active: "+ str(self.active_power) + " KW")
@@ -157,18 +163,18 @@ class Ship:
 		print("  - Firing: "+ str(self.firing_power) + " KW")
 
 		print("Equilibium at max heatsink")
-		print("  - Passive: "+ str(self.max_passive_equilibrium) + " °K")
-		print("  - Active: "+ str(self.max_active_equilibrium) + " °K")
-		print("  - Boosting: "+ str(self.max_boosting_equilibrium) + " °K")
-		print("  - Firing: "+ str(self.max_firing_equilibrium) + " °K")
-		print("  - All: "+ str(self.max_all_equilibrium) + " °K")
+		print_u("  - Passive: "+ str(self.max_passive_equilibrium) + " °K")
+		print_u("  - Active: "+ str(self.max_active_equilibrium) + " °K")
+		print_u("  - Boosting: "+ str(self.max_boosting_equilibrium) + " °K")
+		print_u("  - Firing: "+ str(self.max_firing_equilibrium) + " °K")
+		print_u("  - All: "+ str(self.max_all_equilibrium) + " °K")
 
 		print("Equilibium at min heatsink")
-		print("  - Passive: "+ str(self.min_passive_equilibrium) + " °K")
-		print("  - Active: "+ str(self.min_active_equilibrium) + " °K")
-		print("  - Boosting: "+ str(self.min_boosting_equilibrium) + " °K")
-		print("  - Firing: "+ str(self.min_firing_equilibrium) + " °K")
-		print("  - All: "+ str(self.min_all_equilibrium) + " °K")
+		print_u("  - Passive: "+ str(self.min_passive_equilibrium) + " °K")
+		print_u("  - Active: "+ str(self.min_active_equilibrium) + " °K")
+		print_u("  - Boosting: "+ str(self.min_boosting_equilibrium) + " °K")
+		print_u("  - Firing: "+ str(self.min_firing_equilibrium) + " °K")
+		print_u("  - All: "+ str(self.min_all_equilibrium) + " °K")
 
 		print("Usage duration")
 		print("  - Boosting from passive: "+ (str(self.passive_boost_duration) + " s" if self.passive_boost_duration > 0 else "No overheat"))
