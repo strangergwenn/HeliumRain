@@ -509,6 +509,11 @@ public:
 		return LinearMaxVelocity;
 	}
 
+	inline float GetLinearMaxBoostingVelocity() const
+	{
+		return LinearMaxVelocity * 1000;
+	}
+
 	inline EFlareShipStatus::Type GetStatus() const
 	{
 		return Status;

@@ -119,7 +119,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 		{
 			if (IsPiloted)
 			{
-				LinearTargetVelocity = Pilot->GetLinearTargetVelocity().GetClampedToMaxSize(LinearMaxVelocity);
+				LinearTargetVelocity = Pilot->GetLinearTargetVelocity();
 				AngularTargetVelocity = Pilot->GetAngularTargetVelocity();
 				ManualOrbitalBoost = Pilot->IsUseOrbitalBoost();
 				if (Pilot->IsWantFire())
@@ -1168,12 +1168,11 @@ void AFlareShip::UpdateLinearAttitudeManual(float DeltaSeconds)
 	// Manual orbital boost
 	if (ManualOrbitalBoost)
 	{
-		ManualLinearVelocity = LinearMaxVelocity * FVector(1, 0, 0);
+		ManualLinearVelocity = GetLinearMaxBoostingVelocity() * FVector(1, 0, 0);
 	}
 
 	// Add velocity command to current velocity
 	LinearTargetVelocity = GetLinearVelocity() + Airframe->GetComponentToWorld().GetRotation().RotateVector(ManualLinearVelocity);
-	LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(LinearMaxVelocity);
 }
 
 void AFlareShip::UpdateLinearAttitudeAuto(float DeltaSeconds, float MaxVelocity)
@@ -1410,6 +1409,15 @@ void AFlareShip::PhysicSubTick(float DeltaSeconds)
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
 	if (IsPowered())
 	{
+		// Clamp speed
+		float MaxVelocity = LinearMaxVelocity;
+		if (ManualOrbitalBoost)
+		{
+			FVector FrontDirection = Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
+			MaxVelocity = FVector::DotProduct(LinearTargetVelocity.GetUnsafeNormal(), FrontDirection) * GetLinearMaxBoostingVelocity();
+		}
+		LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(MaxVelocity);
+
 		// Linear physics
 		FVector DeltaV = LinearTargetVelocity - GetLinearVelocity();
 		FVector DeltaVAxis = DeltaV;
