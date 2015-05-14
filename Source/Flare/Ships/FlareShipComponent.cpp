@@ -465,7 +465,7 @@ void UFlareShipComponent::UpdateLight()
 	{
 		SetLightStatus(EFlareLightStatus::Dark);
 	}
-	else if (AvailablePower < 0.5 || Ship && Ship->HasPowerOutage())
+	else if (AvailablePower < 0.5 || (Ship && Ship->HasPowerOutage()))
 	{
 		SetLightStatus(EFlareLightStatus::Flickering);
 	}
