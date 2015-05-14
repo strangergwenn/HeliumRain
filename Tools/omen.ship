@@ -12,7 +12,7 @@ PassivePower=0.5
 
 [ic-small-heatsink2]
 Count = 2
-MaxHeatsink=2
+MaxHeatsink=1.0
 MinHeatsink=0.5
 
 [rcs-piranha]

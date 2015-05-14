@@ -1,0 +1,28 @@
+[Orca]
+ShipName=Orca
+HeatCapacity=40
+MinHeatsinkRatio=0.10
+
+[ic-small-cockpit]
+PassivePower=2
+
+[ic-medium-electric-system]
+Count = 3
+PassivePower=1
+
+[ic-small-heatsink2]
+Count = 4
+MaxHeatsink=1.5
+MinHeatsink=0.5
+
+[weapon-eradicator]
+Count = 4
+FiringPower=100
+
+[rcs-piranha]
+Count = 21
+ActivePower=5
+
+[engine-octopus]
+Count = 4
+BoostingPower=800
