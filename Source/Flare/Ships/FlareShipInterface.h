@@ -157,6 +157,9 @@ struct FFlareShipDescription
 	/** Ship mesh preview image */
 	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush MeshPreviewBrush;
 
+	/** Engine Power sound*/
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* PowerSound;
+
 };
 
 

@@ -10,22 +10,6 @@
 
 AFlareShell::AFlareShell(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
-	// TODO M3 : Move to characteristic
-	static ConstructorHelpers::FObjectFinder<USoundCue> ImpactSoundObj(TEXT("/Game/Master/Sound/A_Impact"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> DamageSoundObj(TEXT("/Game/Master/Sound/A_Damage"));
-	ImpactSound = ImpactSoundObj.Object;
-	DamageSound = DamageSoundObj.Object;
-
-	// FX particles
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ExplosionEffectObject(TEXT("/Game/Master/Particles/PS_Explosion"));
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> FlightEffectsObject(TEXT("/Game/Master/Particles/PS_FlightTrail"));
-	ExplosionEffectTemplate = ExplosionEffectObject.Object;
-	FlightEffectsTemplate = FlightEffectsObject.Object;
-	
-	// FX material
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> ExplosionMaterialObject(TEXT("/Game/Master/Materials/MT_Impact_Decal"));
-	ExplosionEffectMaterial = ExplosionMaterialObject.Object;
-
 	// Mesh data
 	ShellComp = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("Root"));
 	RootComponent = ShellComp;
@@ -49,19 +33,16 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDesc
 	// Get the power from description
 	if (Description)
 	{
-		for (int32 i = 0; i < ShellDescription->Characteristics.Num(); i++)
-		{
-			const FFlareShipComponentCharacteristic& Characteristic = ShellDescription->Characteristics[i];
-			switch (Characteristic.CharacteristicType)
-			{
-				case EFlarePartCharacteristicType::AmmoPower:
-					ShellPower = Characteristic.CharacteristicValue;
-					break;
-				case EFlarePartCharacteristicType::AmmoVelocity:
-					AmmoVelocity = Characteristic.CharacteristicValue;
-					break;
-			}
-		}
+		ShellPower = Description->GunCharacteristics.AmmoPower;
+		AmmoVelocity = Description->GunCharacteristics.AmmoVelocity;
+
+		ImpactSound = Description->GunCharacteristics.ImpactSound;
+		DamageSound = Description->GunCharacteristics.DamageSound;
+
+		ExplosionEffectTemplate = Description->GunCharacteristics.ExplosionEffect;
+		FlightEffectsTemplate = Description->GunCharacteristics.TracerEffect;
+
+		ExplosionEffectMaterial = Description->GunCharacteristics.ExplosionMaterial;
 	}
 
 	ShellVelocity = ParentVelocity + ShootDirection * AmmoVelocity * 100;

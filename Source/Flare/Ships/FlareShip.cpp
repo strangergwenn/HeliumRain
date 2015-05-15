@@ -261,7 +261,7 @@ void AFlareShip::ReceiveHit(class UPrimitiveComponent* MyComp, class AActor* Oth
 
 	// If the other actor is a projectile, specific weapon damage code is done in the projectile hit
 	// handler: in this case we ignore the collision
-	AFlareProjectile* OtherProjectile = Cast<AFlareProjectile>(Other);
+	AFlareShell* OtherProjectile = Cast<AFlareShell>(Other);
 	if (OtherProjectile) {
 		return;
 	}
@@ -453,15 +453,9 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		}
 
 		// Find the cockpit
-		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
+		if(ComponentDescription->GeneralCharacteristics.LifeSupport)
 		{
-			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
-
-			if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::LifeSupport)
-			{
-				ShipCockit = Component;
-				break;
-			}
+			ShipCockit = Component;
 		}
 
 		// Fill power sources
@@ -1369,17 +1363,10 @@ void AFlareShip::SetRCSDescription(FFlareShipComponentDescription* Description)
 	// Find the RCS turn and power rating, since RCSs themselves don't do anything
 	if (Description)
 	{
-		for (int32 i = 0; i < Description->Characteristics.Num(); i++)
+		if (Airframe && Description->EngineCharacteristics.AngularAccelerationRate > 0)
 		{
-			const FFlareShipComponentCharacteristic& Characteristic = Description->Characteristics[i];
-
-			// Calculate the angular acceleration rate from the ton weight (data value in °/s per 100T)
-			if (Airframe && Characteristic.CharacteristicType == EFlarePartCharacteristicType::RCSAccelerationRating)
-			{
-				float Mass = Airframe->GetMass() / 100000;
-				AngularAccelerationRate = Characteristic.CharacteristicValue / (60 * Mass);
-				break;
-			}
+			float Mass = Airframe->GetMass() / 100000;
+			AngularAccelerationRate = Description->EngineCharacteristics.AngularAccelerationRate / (60 * Mass);
 		}
 	}
 }

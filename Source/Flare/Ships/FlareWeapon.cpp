@@ -16,13 +16,6 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	, MaxAmmo(0)
 	, Firing(false)
 {
-	// Firing sound
-	static ConstructorHelpers::FObjectFinder<USoundCue> FiringSoundObject(TEXT("/Game/Master/Sound/A_Shot"));
-	FiringSound = FiringSoundObject.Object;
-
-	// Firing effects
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> FiringEffectObject(TEXT("/Game/Master/Particles/PS_FiringEffect"));
-	FiringEffectTemplate = FiringEffectObject.Object;
 	HasLocalHeatEffect = true;
 }
 
@@ -40,27 +33,12 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 	// Setup properties
 	if (ComponentDescription)
 	{
-		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
-		{
-			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
-			switch (Characteristic.CharacteristicType)
-			{
-				case EFlarePartCharacteristicType::AmmoRate:
-					FiringRate = Characteristic.CharacteristicValue;
-					break;
+		FiringRate = ComponentDescription->GunCharacteristics.AmmoRate;
+		MaxAmmo = ComponentDescription->GunCharacteristics.AmmoCapacity;
+		AmmoVelocity = ComponentDescription->GunCharacteristics.AmmoVelocity;
 
-				case EFlarePartCharacteristicType::AmmoPower:
-					// Get directly by FlareProjectile
-					break;
-
-				case EFlarePartCharacteristicType::AmmoCapacity:
-					MaxAmmo = Characteristic.CharacteristicValue;
-					break;
-				case EFlarePartCharacteristicType::AmmoVelocity:
-					AmmoVelocity = Characteristic.CharacteristicValue;
-					break;
-			}
-		}
+		FiringSound = ComponentDescription->GunCharacteristics.FiringSound;
+		FiringEffectTemplate = ComponentDescription->GunCharacteristics.FiringEffect;
 
 		for (int32 i = 0; i < ShipComponentData.Attributes.Num(); i++)
 		{
@@ -80,6 +58,20 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 	// Additional properties
 	CurrentAmmo = MaxAmmo - FiredAmmo;
 	FiringPeriod = 1 / (FiringRate / 60);
+
+	if (FiringEffect == NULL && FiringEffectTemplate)
+	{
+		FiringEffect = UGameplayStatics::SpawnEmitterAttached(
+			FiringEffectTemplate,
+			this,
+			NAME_None,
+			GetSocketLocation(FName("Muzzle")),
+			GetComponentRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false);
+		FiringEffect->DeactivateSystem();
+		FiringEffect->SetTickGroup(ETickingGroup::TG_PostPhysics);
+	}
 }
 
 FFlareShipComponentSave* UFlareWeapon::Save()
@@ -121,7 +113,10 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 		// Fire it. Tracer ammo every 3 bullets
 		Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity, (CurrentAmmo % 3 == 0));
-		FiringEffect->ActivateSystem();
+		if(FiringEffect)
+		{
+			FiringEffect->ActivateSystem();
+		}
 
 		// Play sound
 		if (Ship && Ship->IsLocallyControlled())
@@ -140,20 +135,6 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 void UFlareWeapon::SetupComponentMesh()
 {
 	Super::SetupComponentMesh();
-
-	if (FiringEffect == NULL)
-	{
-		FiringEffect = UGameplayStatics::SpawnEmitterAttached(
-			FiringEffectTemplate,
-			this,
-			NAME_None,
-			GetSocketLocation(FName("Muzzle")),
-			GetComponentRotation(),
-			EAttachLocation::KeepWorldPosition,
-			false);
-		FiringEffect->DeactivateSystem();
-		FiringEffect->SetTickGroup(ETickingGroup::TG_PostPhysics);
-	}
 }
 
 void UFlareWeapon::StartFire()

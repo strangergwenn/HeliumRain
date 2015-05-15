@@ -45,28 +45,6 @@ namespace EFlarePartType
 	};
 }
 
-/** Part attribute types */
-UENUM()
-namespace EFlarePartCharacteristicType
-{
-	enum Type
-	{
-		AmmoPower, // Weapon ammo energy in KJ
-		AmmoCapacity, // Weapon ammo max capacity
-		AmmoRate, // Weapon firerate in ammo/min
-		EnginePower, // Engine thrust in KN
-		EngineTankDrain, // Old
-		RCSAccelerationRating, // Value represents global rcs system initial capabilities. Angular acceleration un °/s^2
-		LifeSupport, // Value represents crew. When available crew fall below 0.5 the crew is disable, at 0, the crew is dead.
-		HeatSink, // Value represents radiation surface in m^2
-		ElectricSystem, // Value is positive to indicate the component generate power
-		Cargo, // Value represents cargo volume in m^2
-		HeatProduction, // Value represents heat production on usage in KiloWatt
-		AmmoVelocity, // Weapon ammo velocity in m/s
-		Num
-	};
-}
-
 /** Light flickering status */
 UENUM()
 namespace EFlareLightStatus
@@ -80,17 +58,88 @@ namespace EFlareLightStatus
 	};
 }
 
-/** Component characteristic */
+/** Component general characteristic */
 USTRUCT()
-struct FFlareShipComponentCharacteristic
+struct FFlareShipComponentGeneralCharacteristics
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlarePartCharacteristicType::Type> CharacteristicType;
+	// Contain the ship crew.
+	UPROPERTY(EditAnywhere, Category = Content) bool LifeSupport;
 
-	UPROPERTY(EditAnywhere, Category = Content) float CharacteristicValue;
+	// Is a electric system.
+	UPROPERTY(EditAnywhere, Category = Content) bool ElectricSystem;
+
+	// Heat radiation surface in m^2
+	UPROPERTY(EditAnywhere, Category = Content) float HeatSink;
+
+	// Heat production on usage in KiloWatt on max usage
+	UPROPERTY(EditAnywhere, Category = Content) float HeatProduction;
+
+	// Cargo volume un m^3
+	UPROPERTY(EditAnywhere, Category = Content) float Cargo;
 };
 
+/** Engine characteristic */
+USTRUCT()
+struct FFlareShipComponentEngineCharacteristics
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, Category = Content) bool IsEngine;
+
+	// Engine thrust in KN
+	UPROPERTY(EditAnywhere, Category = Content) float EnginePower;
+
+	//  Value represents global rcs system initial capabilities. Angular acceleration un °/s^2
+	UPROPERTY(EditAnywhere, Category = Content) float AngularAccelerationRate;
+
+	/** Sound played when firing */
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* EngineSound;
+};
+
+/** Gun characteristic */
+USTRUCT()
+struct FFlareShipComponentGunCharacteristics
+{
+	GENERATED_USTRUCT_BODY()
+
+	// Is a gun.
+	UPROPERTY(EditAnywhere, Category = Content) bool IsGun;
+
+	// Shell energy in KJ
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoPower;
+
+	// Weapon firerate in ammo/min
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoRate;
+
+	// Weapon ammo velocity in m/s
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoVelocity;
+
+	// Weapon ammo max capacity
+	UPROPERTY(EditAnywhere, Category = Content) int32 AmmoCapacity;
+
+	/** Sound played on impact */
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* ImpactSound;
+
+	/** Sound played on damage */
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* DamageSound;
+
+	/** Sound played when firing */
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* FiringSound;
+
+	/** Effect shown with a shell explode */
+	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ExplosionEffect;
+
+	/** Effect used when firing */
+	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* FiringEffect;
+
+	/** Effect used for tracer ammunitions */
+	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* TracerEffect;
+
+	/** Decal used when an explosion hit a ship */
+	UPROPERTY(EditAnywhere, Category = Content) UMaterialInterface* ExplosionMaterial;
+};
 
 /** Ship component attribute save data */
 USTRUCT()
@@ -159,18 +208,23 @@ struct FFlareShipComponentDescription
 	/** Hit point for component fonctionnaly. Absorb when no more armor. Component not working when no more hit points */
 	UPROPERTY(EditAnywhere, Category = Content) float HitPoints;
 
-	/** Array of characteristics */
-	UPROPERTY(EditAnywhere, Category = Content)	TArray< FFlareShipComponentCharacteristic > Characteristics; // TODO M3 : remove this
-
 	/** Part mesh name */
 	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* Mesh;
 
-	/** Special effect mesh name */
-	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* EffectMesh; // TODO M3 : remove this
+	/** Effect used when destroyed*/
+	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* DestroyedEffect;
 
 	/** Part mesh preview image */
 	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush MeshPreviewBrush;
 
+	/** General characteristic structure */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentGeneralCharacteristics GeneralCharacteristics;
+
+	/** General characteristic structure */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentEngineCharacteristics EngineCharacteristics;
+
+	/** General characteristic structure */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentGunCharacteristics GunCharacteristics;
 };
 
 
@@ -321,7 +375,7 @@ protected:
 	FFlareShipComponentSave                 ShipComponentData;
 
 	// General state
-	float                                   LifeSupport;
+	bool                                    LifeSupport;
 	float                                   Power; // Current available power
 	float                                   GeneratedPower; // Maximum generated power
 	TArray<UFlareShipComponent*>            PowerSources;
@@ -341,8 +395,6 @@ protected:
 	float                                   FlickerMaxOffPeriod;
 	float                                   CurrentFlickerMaxPeriod;
 
-
-	// TODO M3 : Move to characteristic
-	UPROPERTY()		UParticleSystem*                        DeathEffectTemplate; 
+	UPROPERTY()		UParticleSystem*                        DestroyedEffectTemplate;
 
 };

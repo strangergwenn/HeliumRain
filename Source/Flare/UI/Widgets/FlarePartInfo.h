@@ -47,19 +47,6 @@ public:
 	/** Add data for a single characteristic to an horizontal box */
 	static void AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers);
 
-	/** Get a readable info string */
-	static FString GetCharacteristicInfo(const FFlareShipComponentDescription* Desc, EFlarePartCharacteristicType::Type Type);
-
-	/** Get a readable info string */
-	static FString GetCharacteristicInfo(const FFlareShipComponentCharacteristic& Characteristic);
-
-	/** Get a readable label string */
-	static FString GetCharacteristicLabel(EFlarePartCharacteristicType::Type Type);
-
-	/** Get a Slate brush */
-	static const FSlateBrush* GetCharacteristicBrush(const FFlareShipComponentCharacteristic& Characteristic);
-	
-
 protected:
 
 	/*----------------------------------------------------

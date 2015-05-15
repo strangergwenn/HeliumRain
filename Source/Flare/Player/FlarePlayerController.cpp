@@ -51,15 +51,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	RCSSound->bAutoActivate = false;
 	RCSSound->bAutoDestroy = false;
 	RCSSoundFadeSpeed = 5.0;
-
-	// TODO M3 : Move to ship characteristic
-	static ConstructorHelpers::FObjectFinder<USoundCue> PowerSoundObj(TEXT("/Game/Master/Sound/A_Power"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> EngineSoundObj(TEXT("/Game/Master/Sound/A_Exhaust_Heavy"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> RCSSoundObj(TEXT("/Game/Master/Sound/A_Exhaust_Light"));
-	PowerSoundTemplate = PowerSoundObj.Object;
-	EngineSoundTemplate = EngineSoundObj.Object;
-	RCSSoundTemplate = RCSSoundObj.Object;
-	// End TODO
 }
 
 
@@ -223,10 +214,35 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 
 	QuickSwitchNextOffset = 0;
 
-	// TODO M3 : load from characteristics
-	PowerSound->SetSound(PowerSoundTemplate);
-	EngineSound->SetSound(EngineSoundTemplate);
-	RCSSound->SetSound(RCSSoundTemplate);
+	FFlareShipDescription* ShipDescription = Ship->GetDescription();
+	if(ShipDescription)
+	{
+		PowerSound->SetSound(ShipDescription->PowerSound);
+	}
+	else
+	{
+		PowerSound->SetSound(NULL);
+	}
+
+	FFlareShipComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
+	if(EngineDescription)
+	{
+		EngineSound->SetSound(EngineDescription->EngineCharacteristics.EngineSound);
+	}
+	else
+	{
+		EngineSound->SetSound(NULL);
+	}
+
+	FFlareShipComponentDescription* RCSDescription = Ship->GetRCSDescription();
+	if(RCSDescription)
+	{
+		RCSSound->SetSound(RCSDescription->EngineCharacteristics.EngineSound);
+	}
+	else
+	{
+		RCSSound->SetSound(NULL);
+	}
 
 	// Inform the player
 	if (Ship)

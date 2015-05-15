@@ -39,10 +39,6 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	bAffectDynamicIndirectLighting = false;
 	bAffectDistanceFieldLighting = false;
 	HasFlickeringLights = false;
-
-	// TODO M3 : move to characteristic
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> DeathEffectObj(TEXT("/Game/Master/Particles/PS_Smoke_Small"));
-	DeathEffectTemplate = DeathEffectObj.Object;
 }
 
 
@@ -183,25 +179,12 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 		}
 		else
 		{
-			for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
-			{
-				const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
-				switch (Characteristic.CharacteristicType)
-				{
-					case EFlarePartCharacteristicType::LifeSupport:
-						LifeSupport = Characteristic.CharacteristicValue;
-					break;
-					case EFlarePartCharacteristicType::ElectricSystem:
-						GeneratedPower = Characteristic.CharacteristicValue;
-					break;
-					case EFlarePartCharacteristicType::HeatProduction:
-						HeatProduction = Characteristic.CharacteristicValue;
-					break;
-					case EFlarePartCharacteristicType::HeatSink:
-						HeatSinkSurface = Characteristic.CharacteristicValue;
-					break;
-				}
-			}
+			LifeSupport = ComponentDescription->GeneralCharacteristics.LifeSupport;
+			GeneratedPower = (ComponentDescription->GeneralCharacteristics.ElectricSystem ? 1.0 : 0.0);
+			HeatProduction = ComponentDescription->GeneralCharacteristics.HeatProduction;
+			HeatSinkSurface = ComponentDescription->GeneralCharacteristics.HeatSink;
+
+			DestroyedEffectTemplate = ComponentDescription->DestroyedEffect;
 		}
 
 		// Destroyed component
@@ -559,7 +542,7 @@ void UFlareShipComponent::Repair()
 
 void UFlareShipComponent::StartDestroyedEffects()
 {
-	if (!DestroyedEffects)
+	if (!DestroyedEffects && DestroyedEffectTemplate)
 	{
 		// Calculate smoke origin
 		FVector Position = GetComponentLocation();
@@ -569,8 +552,9 @@ void UFlareShipComponent::StartDestroyedEffects()
 		}
 
 		// Start smoke
+
 		DestroyedEffects = UGameplayStatics::SpawnEmitterAttached(
-			DeathEffectTemplate,
+			DestroyedEffectTemplate,
 			this,
 			NAME_None,
 			Position,

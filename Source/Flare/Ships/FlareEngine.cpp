@@ -27,16 +27,7 @@ void UFlareEngine::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 
 	if (ComponentDescription)
 	{
-		for (int32 i = 0; i < ComponentDescription->Characteristics.Num(); i++)
-		{
-			const FFlareShipComponentCharacteristic& Characteristic = ComponentDescription->Characteristics[i];
-
-			// Calculate the engine linear thrust force in N (data value in kN)
-			if (Characteristic.CharacteristicType == EFlarePartCharacteristicType::EnginePower)
-			{
-				MaxThrust = 1000 * Characteristic.CharacteristicValue;
-			}
-		}
+        MaxThrust = 1000 * ComponentDescription->EngineCharacteristics.EnginePower;
 	}
 }
 

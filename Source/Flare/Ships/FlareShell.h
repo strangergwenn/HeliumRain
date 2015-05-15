@@ -35,11 +35,11 @@ protected:
 
 	/** Impact sound */
 	UPROPERTY()
-	USoundCue*                               ImpactSound; // TODO M3 : Move to characteristic (weapon description)
+	USoundCue*                               ImpactSound;
 
 	/** Damage sound */
 	UPROPERTY()
-	USoundCue*                               DamageSound; // TODO M3 : Move to characteristic (weapon description)
+	USoundCue*                               DamageSound;
 
 	/** Mesh component */
 	UPROPERTY()
@@ -47,11 +47,11 @@ protected:
 
 	/** Special effects on explosion */
 	UPROPERTY()
-	UParticleSystem*                         ExplosionEffectTemplate; // TODO M3 : Move to characteristic (weapon description)
+	UParticleSystem*                         ExplosionEffectTemplate;
 
 	/** Special effects on flight */
 	UPROPERTY()
-	UParticleSystem*                         FlightEffectsTemplate; // TODO M3 : Move to characteristic (weapon description)
+	UParticleSystem*                         FlightEffectsTemplate;
 
 	// Flight effects
 	UParticleSystemComponent*                FlightEffects;

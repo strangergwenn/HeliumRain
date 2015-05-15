@@ -131,19 +131,41 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 		FFlareStyleSet::GetIcon("Armor"),
 		ShowHelpers);
 
-	// Fill in the characteristics structure for dynamic values
-	for (int32 i = 0; i < Desc->Characteristics.Num(); i++)
+	// Gun
+	if(Desc->GunCharacteristics.IsGun)
 	{
-		const FFlareShipComponentCharacteristic& Characteristic = Desc->Characteristics[i];
+		AddCharacteristicToBlock(Box,
+			"Power",
+			FString::FromInt(Desc->GunCharacteristics.AmmoPower) + " kJ",
+			FFlareStyleSet::GetIcon("Shell"),
+			ShowHelpers);
+		AddCharacteristicToBlock(Box,
+			"Rate of fire",
+			FString::FromInt(Desc->GunCharacteristics.AmmoRate) + " rpm",
+			FFlareStyleSet::GetIcon("Rate"),
+			ShowHelpers);
+		AddCharacteristicToBlock(Box,
+			"Magazine",
+			FString::FromInt(Desc->GunCharacteristics.AmmoCapacity),
+			FFlareStyleSet::GetIcon("Ammo"),
+			ShowHelpers);
+	}
 
-		if (Characteristic.CharacteristicType <= EFlarePartCharacteristicType::RCSAccelerationRating)
+	if(Desc->EngineCharacteristics.IsEngine)
+	{
+		if(Desc->EngineCharacteristics.AngularAccelerationRate > 0)
 		{
 			AddCharacteristicToBlock(Box,
-				GetCharacteristicLabel(Characteristic.CharacteristicType),
-				GetCharacteristicInfo(Characteristic),
-				GetCharacteristicBrush(Characteristic),
+				"Turn rating",
+				FString::FromInt(Desc->EngineCharacteristics.AngularAccelerationRate),
+				FFlareStyleSet::GetIcon("RCS"),
 				ShowHelpers);
 		}
+		AddCharacteristicToBlock(Box,
+			"Thrust",
+			FString::FromInt(Desc->EngineCharacteristics.EnginePower) + " kN",
+			FFlareStyleSet::GetIcon("Propulsion"),
+			ShowHelpers);
 	}
 }
 
@@ -194,103 +216,4 @@ void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, F
 				.TextStyle(FFlareStyleSet::Get(), "Flare.SmallText")
 			];
 	}
-}
-
-FString SFlarePartInfo::GetCharacteristicInfo(const FFlareShipComponentDescription* Desc, EFlarePartCharacteristicType::Type Type)
-{
-	for (int32 i = 0; i < Desc->Characteristics.Num(); i++)
-	{
-		const FFlareShipComponentCharacteristic& Characteristic = Desc->Characteristics[i];
-
-		if (Characteristic.CharacteristicType == Type)
-		{
-			return GetCharacteristicInfo(Characteristic);
-		}
-	}
-
-	return "";
-}
-
-FString SFlarePartInfo::GetCharacteristicInfo(const FFlareShipComponentCharacteristic& Characteristic)
-{
-	FString Unit;
-
-	switch (Characteristic.CharacteristicType)
-	{
-		case EFlarePartCharacteristicType::AmmoRate:
-			Unit += "rpm";
-			break;
-		case EFlarePartCharacteristicType::EnginePower:
-			Unit += "kN";
-			break;
-		case EFlarePartCharacteristicType::AmmoPower:
-		case EFlarePartCharacteristicType::AmmoCapacity:
-		case EFlarePartCharacteristicType::EngineTankDrain:
-		case EFlarePartCharacteristicType::RCSAccelerationRating:
-		default: break;
-	}
-
-	return FString::FromInt(Characteristic.CharacteristicValue) + " " + Unit;
-}
-
-FString SFlarePartInfo::GetCharacteristicLabel(EFlarePartCharacteristicType::Type Type)
-{
-	FString Label;
-
-	switch (Type)
-	{
-		case EFlarePartCharacteristicType::AmmoPower:
-			Label = "Power";
-			break;
-		case EFlarePartCharacteristicType::AmmoRate:
-			Label += "Rate of fire";
-			break;
-		case EFlarePartCharacteristicType::AmmoCapacity:
-			Label = "Magazine";
-			break;
-		case EFlarePartCharacteristicType::EngineTankDrain:
-			Label = "Consumption";
-			break;
-		case EFlarePartCharacteristicType::RCSAccelerationRating:
-			Label = "Turn rating";
-			break;
-		case EFlarePartCharacteristicType::EnginePower:
-			Label = "Thrust";
-			break;
-
-		default: break;
-	}
-
-	return Label;
-}
-
-const FSlateBrush* SFlarePartInfo::GetCharacteristicBrush(const FFlareShipComponentCharacteristic& Characteristic)
-{
-	const FSlateBrush* Result = NULL;
-
-	switch (Characteristic.CharacteristicType)
-	{
-		case EFlarePartCharacteristicType::AmmoPower:
-			Result = FFlareStyleSet::GetIcon("Shell");
-			break;
-		case EFlarePartCharacteristicType::AmmoRate:
-			Result = FFlareStyleSet::GetIcon("Rate");
-			break;
-		case EFlarePartCharacteristicType::AmmoCapacity:
-			Result = FFlareStyleSet::GetIcon("Ammo");
-			break;
-		case EFlarePartCharacteristicType::EnginePower:
-			Result = FFlareStyleSet::GetIcon("Propulsion");
-			break;
-		case EFlarePartCharacteristicType::RCSAccelerationRating:
-			Result = FFlareStyleSet::GetIcon("RCS");
-			break;
-		case EFlarePartCharacteristicType::EngineTankDrain:
-			Result = FFlareStyleSet::GetIcon("Tank");
-			break;
-
-		default: break;
-	}
-
-	return Result;
 }

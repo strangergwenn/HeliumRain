@@ -163,12 +163,6 @@ protected:
 	float                                    RCSSoundVolume;
 	float                                    PowerSoundVolume;
 
-	// TODO M3 : Move to characteristic (engine description)
-	UPROPERTY() USoundCue* EngineSoundTemplate;
-	UPROPERTY() USoundCue* RCSSoundTemplate;
-	UPROPERTY() USoundCue* PowerSoundTemplate;
-	// End TODO
-
 
 	/*----------------------------------------------------
 		Private data
