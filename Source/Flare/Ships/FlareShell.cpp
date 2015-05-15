@@ -143,7 +143,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		}	
 		
 		// Hit a component : damage in KJ
-		float AbsorbedEnergy = (PenetrateArmor ? ShellEnergy : Incidence * ShellEnergy);
+		float AbsorbedEnergy = (PenetrateArmor ? ShellEnergy : FMath::Square(Incidence) * ShellEnergy);
 		IFlareShipInterface* Ship = Cast<IFlareShipInterface>(HitResult.Actor.Get());
 		if (Ship)
 		{
@@ -210,11 +210,10 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		{
 			DestroyProjectile = false;
 			float RemainingEnergy = ShellEnergy - AbsorbedEnergy;
-			float RemainingVelocity = FMath::Sqrt(2 * RemainingEnergy / ShellMass);
+			float RemainingVelocity = FMath::Sqrt(2 * RemainingEnergy * 1000 / ShellMass);
 			FVector BounceDirection = ShellVelocity.GetUnsafeNormal().MirrorByVector(HitResult.ImpactNormal);
 			ShellVelocity = BounceDirection * RemainingVelocity * 100;
 			SetActorLocation(HitResult.Location);
-
 		}
 	
 		// Physics impulse
