@@ -119,8 +119,8 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			FRotator::ZeroRotator,
 			ProjectileSpawnParams);
 
-		// Fire it
-		Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity);
+		// Fire it. Tracer ammo every 3 bullets
+		Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity, (CurrentAmmo % 3 == 0));
 		FiringEffect->ActivateSystem();
 
 		// Play sound

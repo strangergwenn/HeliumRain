@@ -41,9 +41,10 @@ AFlareShell::AFlareShell(const class FObjectInitializer& PCIP) : Super(PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity)
+void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity, bool Tracer)
 {
 	ShellDescription = Description;
+	TracerShell = Tracer;
 	float AmmoVelocity = 0.f;
 	// Get the power from description
 	if (Description)
@@ -69,14 +70,17 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDesc
 	LastLocation = GetActorLocation();
 
 	// Spawn the flight effects
-	FlightEffects = UGameplayStatics::SpawnEmitterAttached(
-		FlightEffectsTemplate,
-		RootComponent,
-		NAME_None,
-		FVector(0,0,0),
-		FRotator(0,0,0),
-		EAttachLocation::KeepRelativeOffset,
-		true);
+	if(TracerShell)
+	{
+		FlightEffects = UGameplayStatics::SpawnEmitterAttached(
+			FlightEffectsTemplate,
+			RootComponent,
+			NAME_None,
+			FVector(0,0,0),
+			FRotator(0,0,0),
+			EAttachLocation::KeepRelativeOffset,
+			true);
+	}
 
 	SetLifeSpan(200000 / ShellVelocity.Size()); // 2km
 }
@@ -95,9 +99,6 @@ void AFlareShell::Tick(float DeltaSeconds)
 	{
 		OnImpact(HitResult, ShellVelocity);
 	}
-
-	FlightEffects->SetBeamSourcePoint(0, ActorLocation, 0);
-	FlightEffects->SetBeamTargetPoint(0, NextActorLocation, 0);
 }
 
 void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVelocity)

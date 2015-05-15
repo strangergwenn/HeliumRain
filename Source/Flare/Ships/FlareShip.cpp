@@ -1141,9 +1141,8 @@ void AFlareShip::OnElectricDamage(float DamageRatio)
 	{
 		// The outage duration depend on the relative amount of damage the component just receive
 		// This avoid very long outage if multiple small collision.
-		// Between 5 and 10s of outage if component one shot
-		ShipData.PowerOutageDelay += DamageRatio *  FMath::FRandRange(5, 10 * (1.f - PowerRatio));
-		FLOGV("OnElectricDamage new PowerOutageDelay=%f", ShipData.PowerOutageDelay);
+		// Between 10 and 20s of outage if component one shot
+		ShipData.PowerOutageDelay += DamageRatio *  FMath::FRandRange(10, 20 * (1.f - PowerRatio));
 		UpdatePower();
 	}
 

@@ -519,7 +519,7 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* Avail
 
 float UFlareShipComponent::GetHeatProduction() const
 {
-	return HeatProduction * (-FMath::Pow((GetDamageRatio()-1),2)+1);
+	return HeatProduction * (0.5 + 0.5 *(-FMath::Pow((GetDamageRatio()-1),2)+1));
 }
 
 float UFlareShipComponent::GetHeatSinkSurface() const

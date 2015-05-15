@@ -17,7 +17,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Properties setup */
-	void Initialize(class UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity);
+	void Initialize(class UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity, bool Tracer);
 
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -66,5 +66,6 @@ protected:
 	FVector                                  LastLocation;
 	int32 ShellPower;
 	float ShellMass;
+	bool TracerShell;
 
 };
