@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Ships/FlareSpacecraftInterface.h"
+#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 
 
 class SFlareShipStatus : public SCompoundWidget

@@ -2,7 +2,7 @@
 #include "../Flare.h"
 #include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
-#include "../Ships/FlareSpacecraftInterface.h"
+#include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../FlareLoadingScreen/FlareLoadingScreen.h"
 
 
@@ -125,7 +125,7 @@ void AFlareHUD::DrawHUD()
 	// Initial data
 	float FocusDistance = 1000000;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	AFlareShip* Ship = PC->GetShipPawn();
+	AFlareSpacecraft* Ship = PC->GetShipPawn();
 	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
 	// Draw designators and context menu
@@ -146,7 +146,7 @@ void AFlareHUD::DrawHUD()
 				}
 				else
 				{
-					AFlareShip* LocalShip = Cast<AFlareShip>(ShipBase);
+					AFlareSpacecraft* LocalShip = Cast<AFlareSpacecraft>(ShipBase);
 					ShouldDrawSearchMarker = !LocalShip || (LocalShip && LocalShip->IsAlive());
 				}
 
@@ -233,7 +233,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = ShipBase->GetActorLocation();
-	AFlareShip* Ship = Cast<AFlareShip>(ShipBase);
+	AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(ShipBase);
 
 	if (PC->ProjectWorldLocationToScreen(TargetLocation, ScreenPosition))
 	{
@@ -299,7 +299,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 			}
 
 			// Combat helper
-			AFlareShip* PlayerShip = PC->GetShipPawn();
+			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 			if (Ship && Ship->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->IsCombatMode())
 			{
 				TArray<UFlareWeapon*> Weapons = PlayerShip->GetWeaponList();
@@ -341,7 +341,7 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 		Rotation);
 }
 
-void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareShip* Ship)
+void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship)
 {
 	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature), HUDTemperatureIcon);
 	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Power), HUDPowerIcon);
@@ -619,7 +619,7 @@ void AFlareHUD::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditabl
 	SetMenuPawn(true);
 	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
-	AFlareShip* PlayerShip = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
+	AFlareSpacecraft* PlayerShip = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
 
 	if (Target == NULL && PlayerShip && PlayerShip->IsDocked())
 	{

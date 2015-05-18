@@ -1,5 +1,5 @@
 #include "InternalComponentVisualizerPCH.h"
-#include "Flare/Ships/FlareInternalComponent.h"
+#include "Flare/Spacecrafts/FlareInternalComponent.h"
 #include "InternalComponentVisualizer.h"
 #include "UnrealEd.h"
 #include "ComponentVisualizer.h"

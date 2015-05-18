@@ -3,7 +3,7 @@
 #include "FlareSpacecraftPawn.h"
 #include "FlareWeapon.h"
 #include "FlareSpacecraftInterface.h"
-#include "FlareShip.generated.h"
+#include "FlareSpacecraft.generated.h"
 
 
 /** Status of the ship */
@@ -71,7 +71,7 @@ struct FFlareShipCommandData
 
 /** Ship class */
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
-class AFlareShip : public AFlareSpacecraftPawn, public IFlareSpacecraftInterface
+class AFlareSpacecraft : public AFlareSpacecraftPawn, public IFlareSpacecraftInterface
 {
 
 public:
@@ -113,7 +113,7 @@ public:
 	virtual void SetCombatMode(bool NewState);
 
 	/** Extrapolate the position of a ship for a given targetting ship */
-	virtual FVector GetAimPosition(AFlareShip* TargettingShip, float BulletSpeed, float PredictionDelay) const;
+	virtual FVector GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay) const;
 
 	/** Set the new flight status */
 	virtual void SetStatus(EFlareShipStatus::Type NewStatus);
@@ -123,9 +123,9 @@ public:
 		Ship interface
 	----------------------------------------------------*/
 
-	virtual void Load(const FFlareShipSave& Data) override;
+	virtual void Load(const FFlareSpacecraftSave& Data) override;
 
-	virtual FFlareShipSave* Save() override;
+	virtual FFlareSpacecraftSave* Save() override;
 
 	virtual void SetOwnerCompany(UFlareCompany* Company) override;
 
@@ -298,7 +298,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Set he ship description to load data from */
-	virtual void SetShipDescription(FFlareShipDescription* Description);
+	virtual void SetShipDescription(FFlareSpacecraftDescription* Description);
 
 	/** Set the description to use for all orbital engines */
 	virtual void SetOrbitalEngineDescription(FFlareSpacecraftComponentDescription* Description);
@@ -365,8 +365,8 @@ protected:
 	----------------------------------------------------*/
 
 	// Component descriptions, save data
-	FFlareShipSave                           ShipData;
-	FFlareShipDescription*                   ShipDescription;
+	FFlareSpacecraftSave                           ShipData;
+	FFlareSpacecraftDescription*                   ShipDescription;
 	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
 	FFlareSpacecraftComponentDescription*          RCSDescription;
 
@@ -453,7 +453,7 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	inline FFlareShipDescription* GetDescription() const
+	inline FFlareSpacecraftDescription* GetDescription() const
 	{
 		return ShipDescription;
 	}

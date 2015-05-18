@@ -46,9 +46,9 @@ struct FFlareDockingInfo
 
 
 
-/** Ship save data */
+/** Spacecraft save data */
 USTRUCT()
-struct FFlareShipSave
+struct FFlareSpacecraftSave
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -107,9 +107,9 @@ struct FFlareShipSave
 };
 
 
-/** Catalog binding between FFlareShipDescription and FFlareSpacecraftComponentDescription structure */
+/** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */
 USTRUCT()
-struct FFlareShipSlotDescription
+struct FFlareSpacecraftSlotDescription
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -123,7 +123,7 @@ struct FFlareShipSlotDescription
 
 /** Catalog data structure for a ship */
 USTRUCT()
-struct FFlareShipDescription
+struct FFlareSpacecraftDescription
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -154,15 +154,15 @@ struct FFlareShipDescription
 
 	/** Gun slots */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareShipSlotDescription> GunSlots;
+	TArray<FFlareSpacecraftSlotDescription> GunSlots;
 
 	/** Turret slots */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareShipSlotDescription> TurretSlots;
+	TArray<FFlareSpacecraftSlotDescription> TurretSlots;
 
 	/** Internal component slots */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareShipSlotDescription> InternalComponentSlots;
+	TArray<FFlareSpacecraftSlotDescription> InternalComponentSlots;
 
 	/** Max angular velocity in degree/s */
 	UPROPERTY(EditAnywhere, Category = Content)	float AngularMaxVelocity;
@@ -205,10 +205,10 @@ public:
 	----------------------------------------------------*/
 
 	/** Load the ship from a save file */
-	virtual void Load(const FFlareShipSave& Data) = 0;
+	virtual void Load(const FFlareSpacecraftSave& Data) = 0;
 
 	/** Save the ship to a save file */
-	virtual FFlareShipSave* Save() = 0;
+	virtual FFlareSpacecraftSave* Save() = 0;
 
 	/** Set the parent company */
 	virtual void SetOwnerCompany(UFlareCompany* Company) = 0;
@@ -308,6 +308,6 @@ public:
 	----------------------------------------------------*/
 
 	/** Get a Slate brush */
-	static const FSlateBrush* GetIcon(FFlareShipDescription* Characteristic);
+	static const FSlateBrush* GetIcon(FFlareSpacecraftDescription* Characteristic);
 
 };

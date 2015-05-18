@@ -36,7 +36,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	struct FConstructorStatics
 	{
 		ConstructorHelpers::FObjectFinder<UFlareSpacecraftCatalog> SpacecraftCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareShipPartsCatalog> ShipPartsCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareSpacecraftComponentsCatalog> ShipPartsCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
 
 		FConstructorStatics()
@@ -167,14 +167,14 @@ UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
 	return Company;
 }
 
-AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
+AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
 {
-	AFlareShip* Ship = NULL;
+	AFlareSpacecraft* Ship = NULL;
 	FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Name.ToString());
 
 	if (SpacecraftCatalog)
 	{
-		FFlareShipDescription* Desc = SpacecraftCatalog->Get(ShipData.Identifier);
+		FFlareSpacecraftDescription* Desc = SpacecraftCatalog->Get(ShipData.Identifier);
 		if (Desc)
 		{
 			// Spawn parameters
@@ -183,7 +183,7 @@ AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
 			Params.bNoFail = true;
 
 			// Create and configure the ship
-			Ship = GetWorld()->SpawnActor<AFlareShip>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
+			Ship = GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
 			if (Ship)
 			{
 				Ship->Load(ShipData);
@@ -224,13 +224,13 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 		{
 			// Tentative casts
 			AFlareMenuPawn* MenuPawn = PC->GetMenuPawn();
-			AFlareShip* Ship = Cast<AFlareShip>(*ActorItr);
+			AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
 
 			// Ship
 			if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentShip()))
 			{
 				FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetName());
-				FFlareShipSave* TempData = Ship->Save();
+				FFlareSpacecraftSave* TempData = Ship->Save();
 				Save->ShipData.Add(*TempData);
 			}
 
@@ -238,7 +238,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 			else if (Ship && Ship->GetDescription() && Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentStation()))
 			{
 				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Ship->GetName());
-				FFlareShipSave* TempData = Ship->Save();
+				FFlareSpacecraftSave* TempData = Ship->Save();
 				Save->StationData.Add(*TempData);
 			}
 		}
@@ -288,7 +288,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 	CreateCompany("Evil Corp");
 
 	// Player ship
-	AFlareShip* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
+	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
 	PlayerData.CurrentShipName = ShipPawn->GetName();
 
 	// Load
@@ -321,15 +321,15 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	return Company;
 }
 
-AFlareShip* AFlareGame::CreateStationForMe(FName StationClass)
+AFlareSpacecraft* AFlareGame::CreateStationForMe(FName StationClass)
 {
-	AFlareShip* StationPawn = NULL;
+	AFlareSpacecraft* StationPawn = NULL;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
 	// Parent company
 	if (PC && PC->GetCompany())
 	{
-		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 		FVector TargetPosition = FVector::ZeroVector;
 		if (ExistingShipPawn)
 		{
@@ -341,16 +341,16 @@ AFlareShip* AFlareGame::CreateStationForMe(FName StationClass)
 	return StationPawn;
 }
 
-AFlareShip* AFlareGame::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
+AFlareSpacecraft* AFlareGame::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
 {
-	AFlareShip* StationPawn = NULL;
+	AFlareSpacecraft* StationPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
 
 	// Get target position
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
 	{
-		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 		if (ExistingShipPawn)
 		{
 			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
@@ -370,15 +370,15 @@ AFlareShip* AFlareGame::CreateStationInCompany(FName StationClass, FName Company
 	return StationPawn;
 } 
 
-AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
+AFlareSpacecraft* AFlareGame::CreateShipForMe(FName ShipClass)
 {
-	AFlareShip* ShipPawn = NULL;
+	AFlareSpacecraft* ShipPawn = NULL;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
 	// Parent company
 	if (PC && PC->GetCompany())
 	{
-		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 		FVector TargetPosition = FVector::ZeroVector;
 		if (ExistingShipPawn)
 		{
@@ -391,16 +391,16 @@ AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
 }
 
 
-AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance)
+AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance)
 {
-	AFlareShip* ShipPawn = NULL;
+	AFlareSpacecraft* ShipPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
 
 	// Get target position
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
 	{
-		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 		if (ExistingShipPawn)
 		{
 			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
@@ -420,33 +420,33 @@ AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortN
 	return ShipPawn;
 }
 
-AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
+AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
 {
-	FFlareShipDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
+	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
 	if(Desc) {
 		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
 	}
 	return NULL;
 }
 
-AFlareShip* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)
+AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)
 {
-	FFlareShipDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
+	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
 	if(Desc) {
 		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
 	}
 	return NULL;
 }
 
-AFlareShip* AFlareGame::CreateShip(FFlareShipDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition)
+AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition)
 {
-	AFlareShip* ShipPawn = NULL;
+	AFlareSpacecraft* ShipPawn = NULL;
 	UFlareCompany* Company = FindCompany(CompanyIdentifier);
 
 	if (ShipDescription && Company)
 	{
 		// Default data
-		FFlareShipSave ShipData;
+		FFlareSpacecraftSave ShipData;
 		ShipData.Location = TargetPosition;
 		ShipData.Rotation = FRotator::ZeroRotator;
 		ShipData.LinearVelocity = FVector::ZeroVector;
@@ -534,7 +534,7 @@ AFlareShip* AFlareGame::CreateShip(FFlareShipDescription* ShipDescription, FName
 FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 {
 	FString Immatriculation;
-	FFlareShipDescription* SpacecraftDesc = SpacecraftCatalog->Get(TargetClass);
+	FFlareSpacecraftDescription* SpacecraftDesc = SpacecraftCatalog->Get(TargetClass);
 
 	// Spacecraft
 	if (SpacecraftDesc)
@@ -596,7 +596,7 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
 	{
-		AFlareShip* ExistingShipPawn = PC->GetShipPawn();
+		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 		if (ExistingShipPawn)
 		{
 			BasePosition = ExistingShipPawn->GetActorLocation();

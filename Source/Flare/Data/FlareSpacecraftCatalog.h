@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FlareSpacecraftCatalogEntry.h"
-#include "../Ships/FlareShip.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
 #include "FlareSpacecraftCatalog.generated.h"
 
 
@@ -31,7 +31,7 @@ public:
 	----------------------------------------------------*/
 	
 	/** Get a ship from identifier */
-	FFlareShipDescription* Get(FName Identifier) const;
+	FFlareSpacecraftDescription* Get(FName Identifier) const;
 
 
 };

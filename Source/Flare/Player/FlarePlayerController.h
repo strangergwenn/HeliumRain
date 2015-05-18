@@ -46,7 +46,7 @@ public:
 	virtual void SetExternalCamera(bool NewState, bool Force = false);
 
 	/** Fly this ship */
-	virtual void FlyShip(AFlareShip* Ship);
+	virtual void FlyShip(AFlareSpacecraft* Ship);
 
 	/** The world is ending. Literally. */
 	virtual void PrepareForExit();
@@ -183,7 +183,7 @@ protected:
 	AFlareMenuPawn* MenuPawn;
 
 	UPROPERTY()
-	AFlareShip* ShipPawn;
+	AFlareSpacecraft* ShipPawn;
 
 	UPROPERTY()
 	UFlareCompany* Company;
@@ -210,7 +210,7 @@ public:
 		return MenuPawn;
 	}
 
-	inline AFlareShip* GetShipPawn() const
+	inline AFlareSpacecraft* GetShipPawn() const
 	{
 		return ShipPawn;
 	}

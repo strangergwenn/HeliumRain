@@ -19,7 +19,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 	OwnerHUD = InArgs._OwnerHUD;
 	AFlareGame* Game = Cast<AFlareGame>(OwnerHUD->GetWorld()->GetAuthGameMode());
 	UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
-	UFlareShipPartsCatalog* ShipPartsCatalog = Game->GetShipPartsCatalog();
+	UFlareSpacecraftComponentsCatalog* ShipPartsCatalog = Game->GetShipPartsCatalog();
 	
 	// Layout
 	ChildSlot

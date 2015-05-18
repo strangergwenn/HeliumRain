@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Ships/FlareShip.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
 #include "FlareSpacecraftCatalogEntry.generated.h"
 
 
@@ -17,6 +17,6 @@ public:
 	
 	/** Ship data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	FFlareShipDescription Data;
+	FFlareSpacecraftDescription Data;
 
 };

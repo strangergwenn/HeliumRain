@@ -2,7 +2,7 @@
 
 #include "FlareShipPilot.generated.h"
 
-class AFlareShip;
+class AFlareSpacecraft;
 class IFlareSpacecraftInterface;
 
 /** Ship component save data */
@@ -39,7 +39,7 @@ public:
 	virtual void TickPilot(float DeltaSeconds);
 
 	/** Initialize this pilot and register the master ship object */
-	virtual void Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareShip* OwnerShip);
+	virtual void Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareSpacecraft* OwnerShip);
 
 protected:
 	/*----------------------------------------------------
@@ -56,20 +56,20 @@ protected:
 	/**
 	 * Return the nearest hostile alive ship
 	 */
-	virtual AFlareShip* GetNearestHostileShip(bool DangerousOnly) const;
+	virtual AFlareSpacecraft* GetNearestHostileShip(bool DangerousOnly) const;
 
 	/**
 	 * Return the nearest ship, alive or not
 	 */
-	virtual AFlareShip* GetNearestShip() const;
+	virtual AFlareSpacecraft* GetNearestShip() const;
 
 	/**
 	* Return the nearest station where docking is available
 	*/
-	virtual AFlareShip* GetNearestAvailableStation() const;
+	virtual AFlareSpacecraft* GetNearestAvailableStation() const;
 
 	/** Return all friendly station in the sector */
-	virtual TArray<AFlareShip*> GetFriendlyStations() const;
+	virtual TArray<AFlareSpacecraft*> GetFriendlyStations() const;
 
 	/**
 	 * Return the angular velocity need to align the local ship axis to the target axis
@@ -77,7 +77,7 @@ protected:
 	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const;
 
 	/** Return true if the ship is dangerous */
-	virtual bool IsShipDangerous(AFlareShip* ShipCandidate) const;
+	virtual bool IsShipDangerous(AFlareSpacecraft* ShipCandidate) const;
 
 public:
 
@@ -104,7 +104,7 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY()
-	AFlareShip*                               Ship;
+	AFlareSpacecraft*                               Ship;
 
 	UPROPERTY()
 	UFlareCompany*                            PlayerCompany;
@@ -123,9 +123,9 @@ protected:
 	float                                ReactionTime;
 	float                                TimeUntilNextReaction;
 	FVector                              PilotTargetLocation;
-	AFlareShip*                          PilotTargetShip;
-	AFlareShip*                          PilotTargetStation;
-	AFlareShip*                          PilotLastTargetStation;
+	AFlareSpacecraft*                          PilotTargetShip;
+	AFlareSpacecraft*                          PilotTargetStation;
+	AFlareSpacecraft*                          PilotLastTargetStation;
 
 	float AttackAngle;
 	float AttackDistance;

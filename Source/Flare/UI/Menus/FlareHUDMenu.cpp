@@ -178,7 +178,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	RCSStatus->SetTargetShip(Target);
 	LifeSupportStatus->SetTargetShip(Target);
 	SectorStatus->SetTargetShip(Target);
-	AFlareShip* PlayerShip = Cast<AFlareShip>(Target);
+	AFlareSpacecraft* PlayerShip = Cast<AFlareSpacecraft>(Target);
 
 	if (PlayerShip)
 	{

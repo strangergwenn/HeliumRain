@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Ships/FlareShip.h"
-#include "../Ships/FlareSpacecraftComponent.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Spacecrafts/FlareSpacecraftComponent.h"
 #include "FlareMenuPawn.generated.h"
 
 
@@ -29,7 +29,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Load a new ship to visualize */
-	void ShowShip(const FFlareShipDescription* ShipDesc, const FFlareShipSave* ShipData);
+	void ShowShip(const FFlareSpacecraftDescription* ShipDesc, const FFlareSpacecraftSave* ShipData);
 
 	/** Load a new station to visualize */
 	//void ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData);
@@ -119,11 +119,11 @@ protected:
 	
 	/** Ship reference */
 	UPROPERTY()
-	AFlareShip*                CurrentShip;
+	AFlareSpacecraft*                CurrentShip;
 
 	/** Station reference */
 	UPROPERTY()
-	AFlareShip*             CurrentStation;
+	AFlareSpacecraft*             CurrentStation;
 
 	// Part data
 	FVector                    CurrentPartOffsetA;
@@ -148,12 +148,12 @@ public:
 		return Cast<AFlarePlayerController>(GetController());
 	}
 
-	inline AFlareShip* GetCurrentShip()
+	inline AFlareSpacecraft* GetCurrentShip()
 	{
 		return CurrentShip;
 	}
 
-	inline AFlareShip* GetCurrentStation()
+	inline AFlareSpacecraft* GetCurrentStation()
 	{
 		return CurrentStation;
 	}

@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareCompanyFlag.h"
 #include "../Widgets/FlareTargetActions.h"
-#include "../../Ships/FlareSpacecraftInterface.h"
+#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 
 
 class SFlareShipInstanceInfo : public SCompoundWidget
@@ -44,8 +44,8 @@ protected:
 
 	// Ship target data
 	IFlareSpacecraftInterface*              Ship;
-	FFlareShipSave*                   ShipData;
-	FFlareShipDescription*            ShipDescription;
+	FFlareSpacecraftSave*                   ShipData;
+	FFlareSpacecraftDescription*            ShipDescription;
 
 	// Widgets
 	TSharedPtr<SHorizontalBox>        ListContainer;

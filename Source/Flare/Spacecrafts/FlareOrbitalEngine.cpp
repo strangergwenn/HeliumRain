@@ -1,6 +1,6 @@
 
 #include "../Flare.h"
-#include "FlareShip.h"
+#include "FlareSpacecraft.h"
 #include "FlareAirframe.h"
 #include "FlareOrbitalEngine.h"
 

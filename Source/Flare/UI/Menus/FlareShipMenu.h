@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareListItem.h"
 #include "../Widgets/FlareConfirmationBox.h"
-#include "../../Ships/FlareSpacecraftComponent.h"
+#include "../../Spacecrafts/FlareSpacecraftComponent.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../Widgets/FlareTargetActions.h"
 
@@ -103,7 +103,7 @@ protected:
 
 	/** Save data for the ship currently being customized */
 	UPROPERTY()
-	FFlareShipSave* CurrentShipData;
+	FFlareSpacecraftSave* CurrentShipData;
 
 
 	// Main UI

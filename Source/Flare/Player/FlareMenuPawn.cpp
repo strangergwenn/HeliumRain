@@ -95,13 +95,13 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	Resource loading
 ----------------------------------------------------*/
 
-void AFlareMenuPawn::ShowShip(const FFlareShipDescription* ShipDesc, const FFlareShipSave* ShipData)
+void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const FFlareSpacecraftSave* ShipData)
 {
 	// Clean up
 	ResetContent();
 
 	// Spawn and setup the ship
-	CurrentShip = GetWorld()->SpawnActor<AFlareShip>(ShipDesc->Template->GeneratedClass);
+	CurrentShip = GetWorld()->SpawnActor<AFlareSpacecraft>(ShipDesc->Template->GeneratedClass);
 	CurrentShip->AttachRootComponentToActor(this, NAME_None, EAttachLocation::SnapToTarget);
 
 	// Setup rotation and scale

@@ -18,7 +18,7 @@ UFlareSpacecraftInterface::UFlareSpacecraftInterface(const class FObjectInitiali
 	Content
 ----------------------------------------------------*/
 
-const FSlateBrush* IFlareSpacecraftInterface::GetIcon(FFlareShipDescription* Characteristic)
+const FSlateBrush* IFlareSpacecraftInterface::GetIcon(FFlareSpacecraftDescription* Characteristic)
 {
 	if (Characteristic)
 	{

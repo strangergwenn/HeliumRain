@@ -152,10 +152,10 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.8);
 
 		// Load station data
-		FFlareShipSave* Data = Target->Save();
+		FFlareSpacecraftSave* Data = Target->Save();
 		if (Data)
 		{
-			FFlareShipDescription* Desc = PC->GetGame()->GetSpacecraftCatalog()->Get(Data->Identifier);
+			FFlareSpacecraftDescription* Desc = PC->GetGame()->GetSpacecraftCatalog()->Get(Data->Identifier);
 			if (Desc)
 			{
 				ObjectDescription->SetText(Desc->Description);

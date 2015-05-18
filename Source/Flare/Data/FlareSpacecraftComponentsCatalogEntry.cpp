@@ -1,13 +1,13 @@
 
 #include "../Flare.h"
-#include "FlareShipPartsCatalogEntry.h"
+#include "FlareSpacecraftComponentsCatalogEntry.h"
 
 
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
 
-UFlareShipPartsCatalogEntry::UFlareShipPartsCatalogEntry(const class FObjectInitializer& PCIP)
+UFlareSpacecraftComponentsCatalogEntry::UFlareSpacecraftComponentsCatalogEntry(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 }

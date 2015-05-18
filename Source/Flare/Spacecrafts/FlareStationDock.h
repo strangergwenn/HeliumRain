@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Ships/FlareSpacecraftComponent.h"
+#include "../Spacecrafts/FlareSpacecraftComponent.h"
 #include "FlareStationDock.generated.h"
 
 

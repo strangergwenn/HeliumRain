@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareCompanyFlag.h"
 #include "../Widgets/FlareShipStatus.h"
-#include "../../Ships/FlareSpacecraftInterface.h"
+#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Game/FlareCompany.h"
 
@@ -113,9 +113,9 @@ protected:
 	// Target data
 	UFlareCompany*                    TargetCompany;
 	IFlareSpacecraftInterface*              TargetStation;
-	FFlareShipDescription*            TargetStationDesc;
+	FFlareSpacecraftDescription*            TargetStationDesc;
 	IFlareSpacecraftInterface*              TargetShip;
-	FFlareShipDescription*            TargetShipDesc;
+	FFlareSpacecraftDescription*            TargetShipDesc;
 	FString                           TargetName;
 
 	// Slate data

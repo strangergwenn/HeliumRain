@@ -1,8 +1,8 @@
 
 #include "../Flare.h"
 #include "FlarePlayerController.h"
-#include "../Ships/FlareShip.h"
-#include "../Ships/FlareOrbitalEngine.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Spacecrafts/FlareOrbitalEngine.h"
 #include "EngineUtils.h"
 
 
@@ -196,7 +196,7 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 	}
 }
 
-void AFlarePlayerController::FlyShip(AFlareShip* Ship)
+void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 {
 	// Reset the current ship to auto
 	if (ShipPawn)
@@ -213,7 +213,7 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 
 	QuickSwitchNextOffset = 0;
 
-	FFlareShipDescription* ShipDescription = Ship->GetDescription();
+	FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
 	if(ShipDescription)
 	{
 		PowerSound->SetSound(ShipDescription->PowerSound);
@@ -290,7 +290,7 @@ void AFlarePlayerController::PossessCurrentShip()
 	// Look for the ship in the game
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
-		AFlareShip* Ship = Cast<AFlareShip>(*ActorItr);
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
 		if (Ship && Ship->GetName() == PlayerData.CurrentShipName)
 		{
 			FLOGV("AFlarePlayerController::PossessCurrentShip : Found player ship '%s'", *PlayerData.CurrentShipName);
@@ -481,13 +481,13 @@ void AFlarePlayerController::QuickSwitch()
 	{
 		int32 QuickSwitchOffset = QuickSwitchNextOffset;
 		int32 OffsetIndex = 0;
-		AFlareShip* SeletedCandidate = NULL;
+		AFlareSpacecraft* SeletedCandidate = NULL;
 
 		// First loop in military armed alive ships
 		for (int32 i = 0; i < CompanyShips.Num(); i++)
 		{
 			OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
-			AFlareShip* Candidate = Cast<AFlareShip>(CompanyShips[OffsetIndex]);
+			AFlareSpacecraft* Candidate = Cast<AFlareSpacecraft>(CompanyShips[OffsetIndex]);
 			if (Candidate && Candidate != ShipPawn && Candidate->IsAlive() && Candidate->IsMilitary() && Candidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
 			{
 				SeletedCandidate = Candidate;
@@ -501,7 +501,7 @@ void AFlarePlayerController::QuickSwitch()
 			for (int32 i = 0; i < CompanyShips.Num(); i++)
 			{
 				OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
-				AFlareShip* Candidate = Cast<AFlareShip>(CompanyShips[OffsetIndex]);
+				AFlareSpacecraft* Candidate = Cast<AFlareSpacecraft>(CompanyShips[OffsetIndex]);
 				if (Candidate && Candidate != ShipPawn && Candidate->IsAlive())
 				{
 					SeletedCandidate = Candidate;

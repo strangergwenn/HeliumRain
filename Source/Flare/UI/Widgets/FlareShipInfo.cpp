@@ -1,7 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareShipInfo.h"
-#include "../../Ships/FlareSpacecraftInterface.h"
+#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../../Player/FlarePlayerController.h"
 
 
@@ -14,8 +14,8 @@ void SFlareShipInfo::Construct(const FArguments& InArgs)
 	ShowOwnershipInfo = InArgs._ShowOwnershipInfo;
 
 	// Ship data
-	const FFlareShipSave* CurrentShipData = InArgs._Ship->Save();
-	const FFlareShipDescription* Description = InArgs._Player->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
+	const FFlareSpacecraftSave* CurrentShipData = InArgs._Ship->Save();
+	const FFlareSpacecraftDescription* Description = InArgs._Player->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
 
 	// Create the layout
 	ChildSlot

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "GameFramework/GameMode.h"
-#include "../Ships/FlareShip.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Data/FlareSpacecraftCatalog.h"
-#include "../Data/FlareShipPartsCatalog.h"
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Player/FlareMenuPawn.h"
 #include "FlarePlanetarium.h"
@@ -40,7 +40,7 @@ public:
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
 
 	/** Spawn a ship from save data */
-	virtual AFlareShip* LoadShip(const FFlareShipSave& ShipData);
+	virtual AFlareSpacecraft* LoadShip(const FFlareSpacecraftSave& ShipData);
 
 	/** Save the world to this save file */
 	virtual bool SaveWorld(AFlarePlayerController* PC, FString SaveFile);
@@ -61,28 +61,28 @@ public:
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	AFlareShip* CreateStationForMe(FName StationClass);
+	AFlareSpacecraft* CreateStationForMe(FName StationClass);
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	AFlareShip* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
+	AFlareSpacecraft* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
 
 	/** Create a ship in the level for the current player*/
 	UFUNCTION(exec)
-	AFlareShip* CreateShipForMe(FName ShipClass);
+	AFlareSpacecraft* CreateShipForMe(FName ShipClass);
 
 	/** Create a ship in the level for a specific company identified by its short name*/
 	UFUNCTION(exec)
-	AFlareShip* CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance);
+	AFlareSpacecraft* CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance);
 
 	/** Create a ship in the level  for a specific company */
-	AFlareShip* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
+	AFlareSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
 
 	/** Create a station in the level  for a specific company */
-	AFlareShip* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition);
+	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition);
 
 	/** Create a ship or station in the level  for a specific company */
-	AFlareShip* CreateShip(FFlareShipDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
+	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
 
 
 	/** Build a unique immatriculation string for this object */
@@ -116,7 +116,7 @@ protected:
 
 	/** Reference to all available ship parts */
 	UPROPERTY()
-	UFlareShipPartsCatalog* ShipPartsCatalog;
+	UFlareSpacecraftComponentsCatalog* ShipPartsCatalog;
 
 	/** Reference to colors and patterns */
 	UPROPERTY()
@@ -159,7 +159,7 @@ public:
 		return SpacecraftCatalog;
 	}
 
-	inline UFlareShipPartsCatalog* GetShipPartsCatalog() const
+	inline UFlareSpacecraftComponentsCatalog* GetShipPartsCatalog() const
 	{
 		return ShipPartsCatalog;
 	}

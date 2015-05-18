@@ -3,7 +3,7 @@
 #include "FlareShipInstanceInfo.h"
 #include "../Widgets/FlareShipStatus.h"
 #include "../../Game/FlareCompany.h"
-#include "../../Ships/FlareSpacecraftInterface.h"
+#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../../Player/FlarePlayerController.h"
 
 

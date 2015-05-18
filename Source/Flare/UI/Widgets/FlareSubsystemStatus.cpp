@@ -2,8 +2,8 @@
 #include "../../Flare.h"
 #include "FlareSubsystemStatus.h"
 #include "../Components/FlareButton.h"
-#include "../../Ships/FlareWeapon.h"
-#include "../../Ships/FlareShip.h"
+#include "../../Spacecrafts/FlareWeapon.h"
+#include "../../Spacecrafts/FlareSpacecraft.h"
 
 #define LOCTEXT_NAMESPACE "FlareSubsystemStatus"
 
@@ -174,7 +174,7 @@ FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 FText SFlareSubsystemStatus::GetStatusText() const
 {
 	// Data check
-	AFlareShip* Ship = Cast<AFlareShip>(TargetShip);
+	AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(TargetShip);
 
 	// Subsystem display
 	if (Ship && DisplayType == EFlareInfoDisplay::ID_Subsystem)

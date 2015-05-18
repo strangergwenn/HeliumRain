@@ -2,7 +2,7 @@
 
 #include "SlateBasics.h"
 #include "GameFramework/HUD.h"
-#include "../Ships/FlareSpacecraftPawn.h"
+#include "../Spacecrafts/FlareSpacecraftPawn.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareHUDMenu.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
@@ -46,7 +46,7 @@ public:
 	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor);
 
 	/** Draw a status block for the ship */
-	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareShip* Ship);
+	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
 
 	/** Draw a status icon */
 	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, float Health, UTexture2D* Texture);

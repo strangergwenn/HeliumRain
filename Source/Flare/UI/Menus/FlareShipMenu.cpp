@@ -278,9 +278,9 @@ void SFlareShipMenu::LoadTargetShip()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC)
 	{
-		UFlareShipPartsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 
-		const FFlareShipDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
+		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
 		if (ShipDesc)
 		{
 			ObjectName->SetText(LOCTEXT("Overview", "OVERVIEW"));
@@ -455,7 +455,7 @@ void SFlareShipMenu::ShowRCSs()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC)
 	{
-		AFlareShip* Ship = Cast<AFlareShip>(CurrentShipTarget);
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
 		PC->GetGame()->GetShipPartsCatalog()->GetRCSList(PartListData, Ship->GetDescription()->Size);
 		UpdatePartList(Ship->GetRCSDescription());
 	}
@@ -468,7 +468,7 @@ void SFlareShipMenu::ShowEngines()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC)
 	{
-		AFlareShip* Ship = Cast<AFlareShip>(CurrentShipTarget);
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
 		PC->GetGame()->GetShipPartsCatalog()->GetEngineList(PartListData, Ship->GetDescription()->Size);
 		UpdatePartList(Ship->GetOrbitalEngineDescription());
 	}
@@ -482,7 +482,7 @@ void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponIndex)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC)
 	{
-		AFlareShip* Ship = Cast<AFlareShip>(CurrentShipTarget);
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
 		PC->GetGame()->GetShipPartsCatalog()->GetWeaponList(PartListData, Ship->GetDescription()->Size);
 		UpdatePartList(Ship->GetWeaponDescription(CurrentWeaponIndex));
 	}
@@ -571,7 +571,7 @@ void SFlareShipMenu::OnPartConfirmed()
 
 		// Edit the correct save data property
 		FFlareSpacecraftComponentDescription* PartDesc = PartListData[CurrentPartIndex];
-		UFlareShipPartsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
 		{
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);

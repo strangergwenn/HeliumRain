@@ -239,7 +239,7 @@ void SFlareDashboard::Enter()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC)
 	{
-		AFlareShip* Ship = PC->GetShipPawn();
+		AFlareSpacecraft* Ship = PC->GetShipPawn();
 		if (Ship)
 		{
 			StationBox->SetVisibility(Ship->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
@@ -290,7 +290,7 @@ void SFlareDashboard::OnUndock()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC)
 	{
-		AFlareShip* Ship = PC->GetShipPawn();
+		AFlareSpacecraft* Ship = PC->GetShipPawn();
 		if (Ship)
 		{
 			Ship->Undock();

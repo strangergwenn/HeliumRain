@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Ships/FlareSpacecraftInterface.h"
-#include "../../Ships/FlareSpacecraftComponent.h"
+#include "../../Spacecrafts/FlareSpacecraftInterface.h"
+#include "../../Spacecrafts/FlareSpacecraftComponent.h"
 #include "FlareSubsystemStatus.generated.h"
 
 

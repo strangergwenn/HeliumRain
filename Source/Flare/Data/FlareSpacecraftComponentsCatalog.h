@@ -1,11 +1,11 @@
 #pragma once
 
-#include "FlareShipPartsCatalogEntry.h"
-#include "FlareShipPartsCatalog.generated.h"
+#include "FlareSpacecraftComponentsCatalogEntry.h"
+#include "FlareSpacecraftComponentsCatalog.generated.h"
 
 
 UCLASS()
-class UFlareShipPartsCatalog : public UDataAsset
+class UFlareSpacecraftComponentsCatalog : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 
@@ -17,23 +17,23 @@ public:
 	
 	/** Orbital engines */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UFlareShipPartsCatalogEntry*> EngineCatalog;
+	TArray<UFlareSpacecraftComponentsCatalogEntry*> EngineCatalog;
 
 	/** RCS engines */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UFlareShipPartsCatalogEntry*> RCSCatalog;
+	TArray<UFlareSpacecraftComponentsCatalogEntry*> RCSCatalog;
 
 	/** Weapons */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UFlareShipPartsCatalogEntry*> WeaponCatalog;
+	TArray<UFlareSpacecraftComponentsCatalogEntry*> WeaponCatalog;
 
 	/** Internal modules */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UFlareShipPartsCatalogEntry*> InternalComponentsCatalog;
+	TArray<UFlareSpacecraftComponentsCatalogEntry*> InternalComponentsCatalog;
 
 	/** Meta objects */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UFlareShipPartsCatalogEntry*> MetaCatalog;
+	TArray<UFlareSpacecraftComponentsCatalogEntry*> MetaCatalog;
 
 public:
 

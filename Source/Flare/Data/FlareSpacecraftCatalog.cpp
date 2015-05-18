@@ -17,7 +17,7 @@ UFlareSpacecraftCatalog::UFlareSpacecraftCatalog(const class FObjectInitializer&
 	Data getters
 ----------------------------------------------------*/
 
-FFlareShipDescription* UFlareSpacecraftCatalog::Get(FName Identifier) const
+FFlareSpacecraftDescription* UFlareSpacecraftCatalog::Get(FName Identifier) const
 {
 	auto FindByName = [=](const UFlareSpacecraftCatalogEntry* Candidate)
 	{

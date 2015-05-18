@@ -2,7 +2,7 @@
 #include "../Flare.h"
 
 #include "FlareShipPilot.h"
-#include "FlareShip.h"
+#include "FlareSpacecraft.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -52,7 +52,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 
 }
 
-void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareShip* OwnerShip)
+void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareSpacecraft* OwnerShip)
 {
 	// Main data
 	Ship = OwnerShip;
@@ -93,7 +93,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
 	{
 		// Go repair or refill ammo
-		AFlareShip* TargetStation  = GetNearestAvailableStation();
+		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation();
 		if (TargetStation)
 		{
 			if (Ship->DockAt(TargetStation))
@@ -104,7 +104,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		}
 	}
 
-	AFlareShip* OldPilotTargetShip = PilotTargetShip;
+	AFlareSpacecraft* OldPilotTargetShip = PilotTargetShip;
 
 
 	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
@@ -300,7 +300,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	}
 
 	// Anticollision
-	AFlareShip* NearestShip = GetNearestShip();
+	AFlareSpacecraft* NearestShip = GetNearestShip();
 
 	if(NearestShip)
 	{
@@ -360,7 +360,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		// If no station target, find a target : a random friendly station different from the last station
 		if (!PilotTargetStation)
 		{
-			TArray<AFlareShip*> FriendlyStations = GetFriendlyStations();
+			TArray<AFlareSpacecraft*> FriendlyStations = GetFriendlyStations();
 			if (FriendlyStations.Num() > 0)
 			{
 				int32 Index = FMath::RandHelper(FriendlyStations.Num());
@@ -427,7 +427,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 	Helpers
 ----------------------------------------------------*/
 
-AFlareShip* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) const
+AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) const
 {
 	// For now an host ship is a the nearest host ship with the following critera:
 	// - Alive
@@ -437,12 +437,12 @@ AFlareShip* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) const
 
 	FVector PilotLocation = Ship->GetActorLocation();
 	float MinDistanceSquared = -1;
-	AFlareShip* NearestHostileShip = NULL;
+	AFlareSpacecraft* NearestHostileShip = NULL;
 
 	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
 	{
 		// Ship
-		AFlareShip* ShipCandidate = Cast<AFlareShip>(*ActorItr);
+		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
 		if (ShipCandidate)
 		{
 			if (!ShipCandidate->IsAlive())
@@ -471,7 +471,7 @@ AFlareShip* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) const
 	return NearestHostileShip;
 }
 
-AFlareShip* UFlareShipPilot::GetNearestShip() const
+AFlareSpacecraft* UFlareShipPilot::GetNearestShip() const
 {
 	// For now an host ship is a the nearest host ship with the following critera:
 	// - Alive or not
@@ -481,12 +481,12 @@ AFlareShip* UFlareShipPilot::GetNearestShip() const
 
 	FVector PilotLocation = Ship->GetActorLocation();
 	float MinDistanceSquared = -1;
-	AFlareShip* NearestShip = NULL;
+	AFlareSpacecraft* NearestShip = NULL;
 
 	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
 	{
 		// Ship
-		AFlareShip* ShipCandidate = Cast<AFlareShip>(*ActorItr);
+		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
 		if (ShipCandidate && ShipCandidate != Ship)
 		{
 			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
@@ -556,16 +556,16 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 }
 
 
-AFlareShip* UFlareShipPilot::GetNearestAvailableStation() const
+AFlareSpacecraft* UFlareShipPilot::GetNearestAvailableStation() const
 {
 	FVector PilotLocation = Ship->GetActorLocation();
 	float MinDistanceSquared = -1;
-	AFlareShip* NearestStation = NULL;
+	AFlareSpacecraft* NearestStation = NULL;
 
 	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
 	{
 		// Ship
-		AFlareShip* StationCandidate = Cast<AFlareShip>(*ActorItr);
+		AFlareSpacecraft* StationCandidate = Cast<AFlareSpacecraft>(*ActorItr);
 		if (StationCandidate && StationCandidate->IsStation())
 		{
 
@@ -590,14 +590,14 @@ AFlareShip* UFlareShipPilot::GetNearestAvailableStation() const
 	return NearestStation;
 }
 
-TArray<AFlareShip*> UFlareShipPilot::GetFriendlyStations() const
+TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 {
-	TArray<AFlareShip*> FriendlyStations;
+	TArray<AFlareSpacecraft*> FriendlyStations;
 
 	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
 	{
 		// Ship
-		AFlareShip* StationCandidate = Cast<AFlareShip>(*ActorItr);
+		AFlareSpacecraft* StationCandidate = Cast<AFlareSpacecraft>(*ActorItr);
 		if (StationCandidate && StationCandidate->IsStation())
 		{
 
@@ -613,7 +613,7 @@ TArray<AFlareShip*> UFlareShipPilot::GetFriendlyStations() const
 }
 
 
-bool UFlareShipPilot::IsShipDangerous(AFlareShip* ShipCandidate) const
+bool UFlareShipPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
 {
 	return ShipCandidate->IsMilitary() && ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
 }

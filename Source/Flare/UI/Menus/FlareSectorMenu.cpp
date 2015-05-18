@@ -118,7 +118,7 @@ void SFlareSectorMenu::Enter()
 		for (TActorIterator<AActor> ActorItr(PC->GetWorld()); ActorItr; ++ActorItr)
 		{
 			// Ship
-			AFlareShip* ShipCandidate = Cast<AFlareShip>(*ActorItr);
+			AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
 			if (ShipCandidate && ShipCandidate->IsAlive())
 			{
 				ShipList->AddShip(ShipCandidate);

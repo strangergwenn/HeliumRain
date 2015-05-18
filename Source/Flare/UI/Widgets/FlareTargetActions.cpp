@@ -261,7 +261,7 @@ void SFlareTargetActions::SetStation(IFlareSpacecraftInterface* Target)
 		TargetCompany = Target->GetCompany();
 		CompanyFlag->SetCompany(TargetCompany);
 		TargetName = Target->_getUObject()->GetName();
-		FFlareShipSave* SaveData = Target->Save();
+		FFlareSpacecraftSave* SaveData = Target->Save();
 		if (SaveData)
 		{
 			TargetStationDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
@@ -300,7 +300,7 @@ void SFlareTargetActions::SetShip(IFlareSpacecraftInterface* Target)
 		TargetCompany = Target->GetCompany();
 		CompanyFlag->SetCompany(TargetCompany);
 		TargetName = Target->_getUObject()->GetName();
-		FFlareShipSave* SaveData = Target->Save();
+		FFlareSpacecraftSave* SaveData = Target->Save();
 		if (SaveData)
 		{
 			TargetShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
@@ -399,7 +399,7 @@ void SFlareTargetActions::OnFly()
 {
 	if (PC && TargetShip)
 	{
-		PC->FlyShip(Cast<AFlareShip>(TargetShip));
+		PC->FlyShip(Cast<AFlareSpacecraft>(TargetShip));
 		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
 	}
 }

@@ -3,7 +3,7 @@
 #include "FlareGame.h"
 #include "FlareCompany.h"
 #include "../Player/FlarePlayerController.h"
-#include "../Ships/FlareShip.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -118,7 +118,7 @@ void UFlareCompany::UpdateCompanyCustomization()
 	// Update ships
 	for (int32 i = 0; i < CompanyShips.Num(); i++)
 	{
-		AFlareShip* Ship = Cast<AFlareShip>(CompanyShips[i]);
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CompanyShips[i]);
 		if (Ship)
 		{
 			Ship->UpdateCustomization();
@@ -128,7 +128,7 @@ void UFlareCompany::UpdateCompanyCustomization()
 	// Update stations
 	for (int32 i = 0; i < CompanyStations.Num(); i++)
 	{
-		AFlareShip* Station = Cast<AFlareShip>(CompanyStations[i]);
+		AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(CompanyStations[i]);
 		if (Station)
 		{
 			Station->UpdateCustomization();

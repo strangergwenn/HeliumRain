@@ -1,13 +1,13 @@
 
 #include "../Flare.h"
-#include "FlareShipPartsCatalog.h"
+#include "FlareSpacecraftComponentsCatalog.h"
 
 
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
 
-UFlareShipPartsCatalog::UFlareShipPartsCatalog(const class FObjectInitializer& PCIP)
+UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 }
@@ -17,16 +17,16 @@ UFlareShipPartsCatalog::UFlareShipPartsCatalog(const class FObjectInitializer& P
 	Data getters
 ----------------------------------------------------*/
 
-FFlareSpacecraftComponentDescription* UFlareShipPartsCatalog::Get(FName Identifier) const
+FFlareSpacecraftComponentDescription* UFlareSpacecraftComponentsCatalog::Get(FName Identifier) const
 {
 	FFlareSpacecraftComponentDescription* Part = NULL;
 
-	auto FindByName = [=](const UFlareShipPartsCatalogEntry* Candidate)
+	auto FindByName = [=](const UFlareSpacecraftComponentsCatalogEntry* Candidate)
 	{
 		return Candidate && Candidate->Data.Identifier == Identifier;
 	};
 
-	UFlareShipPartsCatalogEntry* const* Temp = EngineCatalog.FindByPredicate(FindByName);
+	UFlareSpacecraftComponentsCatalogEntry* const* Temp = EngineCatalog.FindByPredicate(FindByName);
 	if (Temp)
 	{
 		Part = &(*Temp)->Data;
@@ -71,7 +71,7 @@ FFlareSpacecraftComponentDescription* UFlareShipPartsCatalog::Get(FName Identifi
 	return Part;
 }
 
-const void UFlareShipPartsCatalog::GetEngineList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareSpacecraftComponentsCatalog::GetEngineList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
 {
 	for (int32 i = 0; i < EngineCatalog.Num(); i++)
 	{
@@ -82,7 +82,7 @@ const void UFlareShipPartsCatalog::GetEngineList(TArray<FFlareSpacecraftComponen
 	}
 }
 
-const void UFlareShipPartsCatalog::GetRCSList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareSpacecraftComponentsCatalog::GetRCSList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
 {
 	for (int32 i = 0; i < RCSCatalog.Num(); i++)
 	{
@@ -93,7 +93,7 @@ const void UFlareShipPartsCatalog::GetRCSList(TArray<FFlareSpacecraftComponentDe
 	}
 }
 
-const void UFlareShipPartsCatalog::GetWeaponList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareSpacecraftComponentsCatalog::GetWeaponList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
 {
 	for (int32 i = 0; i < WeaponCatalog.Num(); i++)
 	{

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Player/FlarePlayerController.h"
-#include "../Ships/FlareSpacecraftInterface.h"
+#include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "FlareCompany.h"
 #include "FlareSaveGame.generated.h"
 
@@ -22,10 +22,10 @@ public:
 	FFlarePlayerSave PlayerData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareShipSave> ShipData;
+	TArray<FFlareSpacecraftSave> ShipData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareShipSave> StationData;
+	TArray<FFlareSpacecraftSave> StationData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareCompanySave> CompanyData;
