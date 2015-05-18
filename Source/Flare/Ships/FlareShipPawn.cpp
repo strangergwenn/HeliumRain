@@ -1,6 +1,6 @@
 
 #include "../Flare.h"
-#include "FlareShipBase.h"
+#include "FlareShipPawn.h"
 #include "FlareRCS.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
@@ -10,7 +10,7 @@
 	Constructor
 ----------------------------------------------------*/
 
-AFlareShipBase::AFlareShipBase(const class FObjectInitializer& PCIP)
+AFlareShipPawn::AFlareShipPawn(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, PresentationMode(false)
 	, CameraPanSpeed(2)
@@ -36,12 +36,12 @@ AFlareShipBase::AFlareShipBase(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void AFlareShipBase::BeginPlay()
+void AFlareShipPawn::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AFlareShipBase::Tick(float DeltaSeconds)
+void AFlareShipPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
@@ -56,27 +56,27 @@ void AFlareShipBase::Tick(float DeltaSeconds)
 	Camera control
 ----------------------------------------------------*/
 
-void AFlareShipBase::SetCameraPitch(float Value)
+void AFlareShipPawn::SetCameraPitch(float Value)
 {
 	CameraOffsetPitch = FMath::Clamp(Value, -CameraMaxPitch, +CameraMaxPitch);
 }
 
-void AFlareShipBase::SetCameraYaw(float Value)
+void AFlareShipPawn::SetCameraYaw(float Value)
 {
 	CameraOffsetYaw = FMath::Clamp(Value, -CameraMaxYaw, +CameraMaxYaw);
 }
 
-void AFlareShipBase::SetCameraLocalPosition(FVector Value)
+void AFlareShipPawn::SetCameraLocalPosition(FVector Value)
 {
 	CameraLocalPosition = Value;
 }
 
-void AFlareShipBase::SetCameraDistance(float Value)
+void AFlareShipPawn::SetCameraDistance(float Value)
 {
 	CameraOffsetDistance = Value;
 }
 
-void AFlareShipBase::StepCameraDistance(bool TowardCenter)
+void AFlareShipPawn::StepCameraDistance(bool TowardCenter)
 {
 	// Compute camera data
 	float Scale = GetMeshScale();
@@ -93,17 +93,17 @@ void AFlareShipBase::StepCameraDistance(bool TowardCenter)
 	Customization
 ----------------------------------------------------*/
 
-void AFlareShipBase::SetCompany(UFlareCompany* NewCompany)
+void AFlareShipPawn::SetCompany(UFlareCompany* NewCompany)
 {
 	Company = NewCompany;
 }
 
-void AFlareShipBase::ReloadPart(UFlareShipComponent* Target, const FFlareShipComponentSave* Data)
+void AFlareShipPawn::ReloadPart(UFlareShipComponent* Target, const FFlareShipComponentSave* Data)
 {
 	Target->Initialize(Data, Company, this);
 }
 
-void AFlareShipBase::UpdateCustomization()
+void AFlareShipPawn::UpdateCustomization()
 {
 	// Required data
 	TArray<UActorComponent*> ActorComponents;
@@ -124,7 +124,7 @@ void AFlareShipBase::UpdateCustomization()
 	}
 }
 
-void AFlareShipBase::StartPresentation()
+void AFlareShipPawn::StartPresentation()
 {
 	PresentationMode = true;
 	PresentationModeStarted();
@@ -135,7 +135,7 @@ void AFlareShipBase::StartPresentation()
 	Helpers
 ----------------------------------------------------*/
 
-float AFlareShipBase::GetRotationAmount(const FQuat& X, bool ClampToHalfTurn)
+float AFlareShipPawn::GetRotationAmount(const FQuat& X, bool ClampToHalfTurn)
 {
 	float Angle;
 	FVector Vector;
@@ -151,7 +151,7 @@ float AFlareShipBase::GetRotationAmount(const FQuat& X, bool ClampToHalfTurn)
 	}
 }
 
-FQuat AFlareShipBase::ClampQuaternion(const FQuat& X, float Angle)
+FQuat AFlareShipPawn::ClampQuaternion(const FQuat& X, float Angle)
 {
 	float RotAngle = GetRotationAmount(X);
 
@@ -165,7 +165,7 @@ FQuat AFlareShipBase::ClampQuaternion(const FQuat& X, float Angle)
 	}
 }
 
-float AFlareShipBase::TriStateRegulator(float Target, float Current, float Threshold)
+float AFlareShipPawn::TriStateRegulator(float Target, float Current, float Threshold)
 {
 	float Diff = Target - Current;
 	float AbsDiff = FMath::Abs(Diff);
@@ -180,7 +180,7 @@ float AFlareShipBase::TriStateRegulator(float Target, float Current, float Thres
 	}
 }
 
-FQuat AFlareShipBase::WorldToLocal(const FQuat& World)
+FQuat AFlareShipPawn::WorldToLocal(const FQuat& World)
 {
 	FRotator WorldRotator = World.Rotator();
 	FTransform ParentWorldTransform = RootComponent->GetComponentTransform();
@@ -196,17 +196,17 @@ FQuat AFlareShipBase::WorldToLocal(const FQuat& World)
 	return Result;
 }
 
-FVector AFlareShipBase::WorldToLocal(FVector World)
+FVector AFlareShipPawn::WorldToLocal(FVector World)
 {
 	return RootComponent->GetComponentTransform().InverseTransformVectorNoScale(World);
 }
 
-AFlarePlayerController* AFlareShipBase::GetPC() const
+AFlarePlayerController* AFlareShipPawn::GetPC() const
 {
 	return Cast<AFlarePlayerController>(GetController());
 }
 
-bool AFlareShipBase::IsFlownByPlayer() const
+bool AFlareShipPawn::IsFlownByPlayer() const
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
@@ -219,12 +219,12 @@ bool AFlareShipBase::IsFlownByPlayer() const
 	}
 }
 
-AFlareGame* AFlareShipBase::GetGame() const
+AFlareGame* AFlareShipPawn::GetGame() const
 {
 	return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 }
 
-float AFlareShipBase::GetMeshScale() const
+float AFlareShipPawn::GetMeshScale() const
 {
 	FVector Origin;
 	FVector Extent;
@@ -233,7 +233,7 @@ float AFlareShipBase::GetMeshScale() const
 }
 
 
-UFlareInternalComponent* AFlareShipBase::GetInternalComponentAtLocation(FVector Location) const
+UFlareInternalComponent* AFlareShipPawn::GetInternalComponentAtLocation(FVector Location) const
 {
 	float MinDistance = 100000; // 1km
 	UFlareInternalComponent* ClosestComponent = NULL;
@@ -257,7 +257,7 @@ UFlareInternalComponent* AFlareShipBase::GetInternalComponentAtLocation(FVector 
 	return ClosestComponent;
 }
 
-void AFlareShipBase::UpdatePower()
+void AFlareShipPawn::UpdatePower()
 {
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)

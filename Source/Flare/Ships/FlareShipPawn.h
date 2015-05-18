@@ -3,7 +3,7 @@
 #include "../Game/FlareCompany.h"
 #include "FlareShipComponent.h"
 #include "FlareShipPilot.h"
-#include "FlareShipBase.generated.h"
+#include "FlareShipPawn.generated.h"
 
 
 class AFlareGame;
@@ -11,7 +11,7 @@ class AFlarePlayerController;
 class UFlareInternalComponent;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
-class AFlareShipBase : public APawn
+class AFlareShipPawn : public APawn
 {
 
 public:

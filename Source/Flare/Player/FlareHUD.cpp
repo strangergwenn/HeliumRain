@@ -135,7 +135,7 @@ void AFlareHUD::DrawHUD()
 		FoundTargetUnderMouse = false;
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
-			AFlareShipBase* ShipBase = Cast<AFlareShipBase>(*ActorItr);
+			AFlareShipPawn* ShipBase = Cast<AFlareShipPawn>(*ActorItr);
 			if (PC && ShipBase && ShipBase != PC->GetShipPawn() && ShipBase != PC->GetMenuPawn())
 			{
 				// Draw designators
@@ -225,7 +225,7 @@ void AFlareHUD::DrawHUD()
 	HUD library
 ----------------------------------------------------*/
 
-bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
+bool AFlareHUD::DrawHUDDesignator(AFlareShipPawn* ShipBase)
 {
 	// Calculation data
 	FVector2D ScreenPosition;
@@ -378,7 +378,7 @@ void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2
 		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
 }
 
-FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareShipBase* Target)
+FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareShipPawn* Target)
 {
 	EFlareHostility::Type Hostility = Target->GetPlayerHostility();
 	switch (Hostility)

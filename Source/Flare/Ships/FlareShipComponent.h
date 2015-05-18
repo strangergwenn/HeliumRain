@@ -3,7 +3,7 @@
 #include "Engine.h"
 #include "FlareShipComponent.generated.h"
 
-class AFlareShipBase;
+class AFlareShipPawn;
 class UFlareCompany;
 
 
@@ -246,7 +246,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	/** Initialize this component and register the master ship object */
-	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu = false);
+	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipPawn* OwnerShip, bool IsInMenu = false);
 
 	/** Save the ship component to a save file */
 	virtual FFlareShipComponentSave* Save();
@@ -358,7 +358,7 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY()
-	AFlareShipBase*                         Ship;
+	AFlareShipPawn*                         Ship;
 
 	UPROPERTY()
 	UFlareCompany*                          PlayerCompany;

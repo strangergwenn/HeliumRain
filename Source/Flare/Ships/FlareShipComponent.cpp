@@ -155,7 +155,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	}
 }
 
-void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipBase* OwnerShip, bool IsInMenu)
+void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipPawn* OwnerShip, bool IsInMenu)
 {
 	// Main data
 	Ship = OwnerShip;

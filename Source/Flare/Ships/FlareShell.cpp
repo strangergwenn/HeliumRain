@@ -132,7 +132,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 			Ship->ApplyDamage(AbsorbedEnergy, 0.75f, HitResult.Location);
 			
 			// Play sound
-			AFlareShipBase* ShipBase = Cast<AFlareShipBase>(Ship);
+			AFlareShipPawn* ShipBase = Cast<AFlareShipPawn>(Ship);
 			if (ShipBase && ShipBase->IsLocallyControlled())
 			{
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), PenetrateArmor ? DamageSound : ImpactSound, HitResult.Location, 1, 1);
