@@ -44,7 +44,7 @@ public:
 	void SetCompany(UFlareCompany* Target);
 
 	/** Set a station as content */
-	void SetStation(IFlareStationInterface* Target);
+	void SetStation(IFlareShipInterface* Target);
 
 	/** Set a ship as content */
 	void SetShip(IFlareShipInterface* Target);
@@ -112,8 +112,8 @@ protected:
 
 	// Target data
 	UFlareCompany*                    TargetCompany;
-	IFlareStationInterface*           TargetStation;
-	FFlareStationDescription*         TargetStationDesc;
+	IFlareShipInterface*              TargetStation;
+	FFlareShipDescription*            TargetStationDesc;
 	IFlareShipInterface*              TargetShip;
 	FFlareShipDescription*            TargetShipDesc;
 	FString                           TargetName;

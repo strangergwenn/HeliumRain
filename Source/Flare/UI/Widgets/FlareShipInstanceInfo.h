@@ -5,7 +5,6 @@
 #include "../Components/FlareCompanyFlag.h"
 #include "../Widgets/FlareTargetActions.h"
 #include "../../Ships/FlareShipInterface.h"
-#include "../../Stations/FlareStationInterface.h"
 
 
 class SFlareShipInstanceInfo : public SCompoundWidget
@@ -16,12 +15,10 @@ class SFlareShipInstanceInfo : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareShipInstanceInfo)
 		: _Ship(NULL)
-		, _Station(NULL)
 	{}
 	
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
 	SLATE_ARGUMENT(IFlareShipInterface*, Ship)
-	SLATE_ARGUMENT(IFlareStationInterface*, Station)
 	
 	SLATE_END_ARGS()
 
@@ -44,11 +41,6 @@ protected:
 	/*----------------------------------------------------
 		Private data
 	----------------------------------------------------*/
-	
-	// Station target data
-	IFlareStationInterface*           Station;
-	FFlareStationSave*                StationData;
-	FFlareStationDescription*         StationDescription;
 
 	// Ship target data
 	IFlareShipInterface*              Ship;

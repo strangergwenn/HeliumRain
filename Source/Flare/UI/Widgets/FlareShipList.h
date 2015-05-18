@@ -31,7 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Add a new station to the list */
-	void AddStation(IFlareStationInterface* StationCandidate);
+	void AddStation(IFlareShipInterface* StationCandidate);
 
 	/** Add a new ship to the list */
 	void AddShip(IFlareShipInterface* ShipCandidate);

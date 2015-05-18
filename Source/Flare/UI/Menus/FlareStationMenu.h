@@ -33,7 +33,7 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter(IFlareStationInterface* Target);
+	void Enter(IFlareShipInterface* Target);
 
 	/** Exit this menu */
 	void Exit();
@@ -67,7 +67,7 @@ protected:
 
 	/** Target station to use */
 	UPROPERTY()
-	IFlareStationInterface* CurrentStationTarget;
+	IFlareShipInterface* CurrentStationTarget;
 	
 	// Menu components
 	TSharedPtr<SFlareTargetActions>    ObjectActionMenu;

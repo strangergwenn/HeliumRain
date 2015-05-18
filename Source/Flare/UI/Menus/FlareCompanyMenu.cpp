@@ -156,10 +156,13 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 		
 		// Station list
-		TArray<IFlareStationInterface*>& CompanyStations = Target->GetCompanyStations();
+		TArray<IFlareShipInterface*>& CompanyStations = Target->GetCompanyStations();
 		for (int32 i = 0; i < CompanyStations.Num(); i++)
 		{
-			ShipList->AddStation(CompanyStations[i]);
+			if (CompanyStations[i]->IsAlive())
+			{
+				ShipList->AddShip(CompanyStations[i]);
+			}
 		}
 
 		// Ship list

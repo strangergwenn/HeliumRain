@@ -22,7 +22,11 @@ const FSlateBrush* IFlareShipInterface::GetIcon(FFlareShipDescription* Character
 {
 	if (Characteristic)
 	{
-		if (Characteristic->Military)
+		if (Characteristic->OrbitalEngineCount == 0) // Station
+		{
+			return FFlareStyleSet::GetIcon("SS");
+		}
+		else if ((Characteristic->GunSlots.Num() +  Characteristic->TurretSlots.Num()) > 0) // Military
 		{
 			if (Characteristic->Size == EFlarePartSize::S)
 			{

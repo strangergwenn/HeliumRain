@@ -3,7 +3,6 @@
 #include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Ships/FlareShipInterface.h"
-#include "../Stations/FlareStationInterface.h"
 #include "../FlareLoadingScreen/FlareLoadingScreen.h"
 
 
@@ -258,18 +257,17 @@ bool AFlareHUD::DrawHUDDesignator(AFlareShipBase* ShipBase)
 			FoundTargetUnderMouse = true;
 			ContextMenuPosition = ScreenPosition;
 
-			// If station, set data
-			AFlareStation* Station = Cast<AFlareStation>(ShipBase);
-			if (Station)
-			{
-				ContextMenu->SetStation(Station);
-				ContextMenu->Show();
-			}
-
 			// If ship, set data
 			if (Ship)
 			{
-				ContextMenu->SetShip(Ship);
+				if(Ship->IsStation())
+				{
+					ContextMenu->SetStation(Ship);
+				}
+				else
+				{
+					ContextMenu->SetShip(Ship);
+				}
 				if (Ship->IsAlive())
 				{
 					ContextMenu->Show();
@@ -560,7 +558,7 @@ void AFlareHUD::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Station:
-			InspectStation(static_cast<IFlareStationInterface*>(FadeTargetData));
+			InspectStation(static_cast<IFlareShipInterface*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Quit:
@@ -615,7 +613,7 @@ void AFlareHUD::InspectShip(IFlareShipInterface* Target, bool IsEditable)
 	ShipMenu->Enter(Target, IsEditable);
 }
 
-void AFlareHUD::InspectStation(IFlareStationInterface* Target, bool IsEditable)
+void AFlareHUD::InspectStation(IFlareShipInterface* Target, bool IsEditable)
 {
 	ResetMenu();
 	SetMenuPawn(true);

@@ -134,7 +134,7 @@ void SFlareStationMenu::Setup()
 	SetVisibility(EVisibility::Hidden);	
 }
 
-void SFlareStationMenu::Enter(IFlareStationInterface* Target)
+void SFlareStationMenu::Enter(IFlareShipInterface* Target)
 {
 	FLOG("SFlareStationMenu::Enter");
 	SetEnabled(true);
@@ -152,14 +152,14 @@ void SFlareStationMenu::Enter(IFlareStationInterface* Target)
 		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.8);
 
 		// Load station data
-		FFlareStationSave* Data = Target->Save();
+		FFlareShipSave* Data = Target->Save();
 		if (Data)
 		{
-			FFlareStationDescription* Desc = PC->GetGame()->GetStationCatalog()->Get(Data->Identifier);
+			FFlareShipDescription* Desc = PC->GetGame()->GetStationCatalog()->Get(Data->Identifier);
 			if (Desc)
 			{
 				ObjectDescription->SetText(Desc->Description);
-				PC->GetMenuPawn()->ShowStation(Desc, Data);
+				PC->GetMenuPawn()->ShowShip(Desc, Data);
 			}
 		}
 

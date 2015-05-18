@@ -29,7 +29,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set a station as content */
-	void SetStation(IFlareStationInterface* Target);
+	void SetStation(IFlareShipInterface* Target);
 
 	/** Set a ship as content */
 	void SetShip(IFlareShipInterface* Target);
@@ -73,7 +73,7 @@ protected:
 	
 	// State data
 	TSharedPtr<SFlareButton>          MinimizedButton;
-	IFlareStationInterface*           TargetStation;
+	IFlareShipInterface*           TargetStation;
 	IFlareShipInterface*              TargetShip;
 	
 };

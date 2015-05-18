@@ -10,7 +10,6 @@
 
 #include "Particles/ParticleSystemComponent.h"
 
-#include "../Stations/FlareStation.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
 
@@ -162,7 +161,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 				}
 				else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Dock)
 				{
-					ConfirmDock(Cast<IFlareStationInterface>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam);
+					ConfirmDock(Cast<IFlareShipInterface>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam);
 				}
 			}
 		}
@@ -204,7 +203,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	// Don't radiate too much energy : negative temperature is not possible
 	ShipData.Heat -= FMath::Min(HeatRadiation * DeltaSeconds, ShipData.Heat);
 
-	// Overheat after 800°K, compute heat damage from temperature beyond 800°K : 0.005%/(°K*s)
+	// Overheat after 800Â°K, compute heat damage from temperature beyond 800Â°K : 0.005%/(Â°K*s)
 	float OverheatDamage = (Temperature - GetOverheatTemperature()) * DeltaSeconds * 0.00005;
 	float BurningDamage = FMath::Max((Temperature - GetBurnTemperature()) * DeltaSeconds * 0.0001, 0.0);
 
@@ -397,6 +396,11 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		// Load ship description
 	UFlareShipPartsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
 	FFlareShipDescription* Desc = GetGame()->GetShipCatalog()->Get(Data.Identifier);
+	if (!Desc)
+	{
+		// TODO getSpaceCraftCatalog
+		Desc = GetGame()->GetStationCatalog()->Get(Data.Identifier);
+	}
 	SetShipDescription(Desc);
 
 	// Look for parent company
@@ -493,7 +497,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		FLOGV("AFlareShip::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
-			AFlareStation* Station = Cast<AFlareStation>(*ActorItr);
+			AFlareShip* Station = Cast<AFlareShip>(*ActorItr);
 			if (Station && *Station->GetName() == ShipData.DockedTo)
 			{
 				FLOGV("AFlareShip::Load : Found dock station '%s'", *Station->GetName());
@@ -551,14 +555,12 @@ UFlareCompany* AFlareShip::GetCompany()
 
 bool AFlareShip::IsMilitary()
 {
-	if (ShipDescription)
-	{
-		return ShipDescription->Military;
-	}
-	else
-	{
-		return false;
-	}
+	return (ShipDescription->GunSlots.Num() + ShipDescription->TurretSlots.Num()) > 0;
+}
+
+bool AFlareShip::IsStation()
+{
+	return ShipDescription->OrbitalEngineCount == 0;
 }
 
 float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
@@ -606,6 +608,11 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 			if (ShipCockit)
 			{
 				Health = ShipCockit->GetDamageRatio(WithArmor) * (ShipCockit->IsPowered() ? 1 : 0);
+			}
+			else
+			{
+				// No cockpit mean no destructible
+				Health = 1.0f;
 			}
 		}
 		break;
@@ -731,7 +738,7 @@ bool AFlareShip::IsDocked()
 	Docking
 ----------------------------------------------------*/
 
-bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
+bool AFlareShip::DockAt(IFlareShipInterface* TargetStation)
 {
 	FLOG("AFlareShip::DockAt");
 	FFlareDockingInfo DockingInfo = TargetStation->RequestDock(this);
@@ -764,7 +771,7 @@ bool AFlareShip::DockAt(IFlareStationInterface* TargetStation)
 	return false;
 }
 
-void AFlareShip::ConfirmDock(IFlareStationInterface* DockStation, int32 DockId)
+void AFlareShip::ConfirmDock(IFlareShipInterface* DockStation, int32 DockId)
 {
 	FLOG("AFlareShip::ConfirmDock");
 	ClearCurrentCommand();
@@ -839,13 +846,13 @@ bool AFlareShip::Undock()
 	return false;
 }
 
-IFlareStationInterface* AFlareShip::GetDockStation()
+IFlareShipInterface* AFlareShip::GetDockStation()
 {
 	if (IsDocked())
 	{
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
-			AFlareStation* Station = Cast<AFlareStation>(*ActorItr);
+			AFlareShip* Station = Cast<AFlareShip>(*ActorItr);
 			if (Station && *Station->GetName() == ShipData.DockedTo)
 			{
 				return Station;
@@ -855,6 +862,80 @@ IFlareStationInterface* AFlareShip::GetDockStation()
 	return NULL;
 }
 
+FFlareDockingInfo AFlareShip::RequestDock(IFlareShipInterface* Ship)
+{
+	FLOGV("AFlareShip::RequestDock ('%s')", *Ship->_getUObject()->GetName());
+
+	// Looking for slot
+	/*for (int32 i = 0; i < DockingSlots.Num(); i++)
+	{
+		if (!DockingSlots[i].Granted)
+		{
+			FLOGV("AFlareShip::RequestDock : found valid dock %d", i);
+			DockingSlots[i].Granted = true;
+			DockingSlots[i].Ship = Ship;
+			return DockingSlots[i];
+		}
+	}*/
+	// TODO Fix
+
+	// Default values
+	FFlareDockingInfo Info;
+	Info.Granted = false;
+	Info.Station = this;
+	return Info;
+}
+
+void AFlareShip::ReleaseDock(IFlareShipInterface* Ship, int32 DockId)
+{
+	FLOGV("AFlareShip::ReleaseDock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
+	/*DockingSlots[DockId].Granted = false;
+	DockingSlots[DockId].Occupied = false;
+	DockingSlots[DockId].Ship = NULL;*/
+	// TODO Fix
+}
+
+void AFlareShip::Dock(IFlareShipInterface* Ship, int32 DockId)
+{
+	FLOGV("AFlareShip::Dock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
+	/*DockingSlots[DockId].Granted = true;
+	DockingSlots[DockId].Occupied = true;
+	DockingSlots[DockId].Ship = Ship;*/
+	// TODO Fix
+}
+
+TArray<IFlareShipInterface*> AFlareShip::GetDockedShips()
+{
+	TArray<IFlareShipInterface*> Result;
+
+	/*for (int32 i = 0; i < DockingSlots.Num(); i++)
+	{
+		if (DockingSlots[i].Granted)
+		{
+			FLOGV("AFlareShip::GetDockedShips : found valid dock %d", i);
+			Result.AddUnique(DockingSlots[i].Ship);
+		}
+	}*/
+	//TODO Externalize
+
+	return Result;
+}
+
+bool AFlareShip::HasAvailableDock(IFlareShipInterface* Ship) const
+{
+	// Looking for slot
+	/*for (int32 i = 0; i < DockingSlots.Num(); i++)
+	{
+		if (!DockingSlots[i].Granted)
+		{
+			return true;
+		}
+	}*/
+
+	//TODO Externalize
+
+	return false;
+}
 
 /*----------------------------------------------------
 	Navigation commands and helpers
@@ -898,7 +979,7 @@ void AFlareShip::PushCommandDock(const FFlareDockingInfo& DockingInfo)
 {
 	FFlareShipCommandData Data;
 	Data.Type = EFlareCommandDataType::CDT_Dock;
-	Data.ActionTarget = Cast<AFlareStation>(DockingInfo.Station);
+	Data.ActionTarget = Cast<AFlareShip>(DockingInfo.Station);
 	Data.ActionTargetParam = DockingInfo.DockId;
 	PushCommand(Data);
 }
@@ -934,7 +1015,7 @@ void AFlareShip::AbortAllCommands()
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
 			// Release dock grant
-			IFlareStationInterface* Station = Cast<IFlareStationInterface>(Command.ActionTarget);
+			IFlareShipInterface* Station = Cast<IFlareShipInterface>(Command.ActionTarget);
 			Station->ReleaseDock(this, Command.ActionTargetParam);
 		}
 	}

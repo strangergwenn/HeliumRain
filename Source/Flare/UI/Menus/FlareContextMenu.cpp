@@ -65,7 +65,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareContextMenu::SetStation(IFlareStationInterface* Target)
+void SFlareContextMenu::SetStation(IFlareShipInterface* Target)
 {
 	TargetStation = Target;
 	TargetShip = NULL;

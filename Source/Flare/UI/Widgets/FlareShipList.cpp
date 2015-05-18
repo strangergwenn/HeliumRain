@@ -57,11 +57,6 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareShipList::AddStation(IFlareStationInterface* StationCandidate)
-{
-	TargetListData.AddUnique(FInterfaceContainer::New(StationCandidate));
-}
-
 void SFlareShipList::AddShip(IFlareShipInterface* ShipCandidate)
 {
 	TargetListData.AddUnique(FInterfaceContainer::New(ShipCandidate));
@@ -86,19 +81,7 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 
-	if (Item->StationInterfacePtr)
-	{
-		return SNew(SFlareListItem, OwnerTable)
-			.ButtonStyle(&FFlareStyleSet::Get(), "/Style/ShipInstanceButton")
-			.Content()
-			[
-				SNew(SFlareShipInstanceInfo)
-				.Player(PC)
-				.Ship(NULL)
-				.Station(Item->StationInterfacePtr)
-			];
-	}
-	else if (Item->ShipInterfacePtr)
+	if (Item->ShipInterfacePtr)
 	{
 		return SNew(SFlareListItem, OwnerTable)
 			.ButtonStyle(&FFlareStyleSet::Get(), "/Style/ShipInstanceButton")
@@ -107,7 +90,6 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 				SNew(SFlareShipInstanceInfo)
 				.Player(PC)
 				.Ship(Item->ShipInterfacePtr)
-				.Station(NULL)
 			];
 	}
 	else

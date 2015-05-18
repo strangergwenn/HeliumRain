@@ -4,8 +4,6 @@
 #include "FlareCompany.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Ships/FlareShip.h"
-#include "../Stations/FlareStation.h"
-
 
 /*----------------------------------------------------
 	Constructor
@@ -34,24 +32,27 @@ FFlareCompanySave* UFlareCompany::Save()
 
 void UFlareCompany::Register(IFlareShipInterface* Ship)
 {
-	CompanyShips.AddUnique(Ship);
-}
-
-void UFlareCompany::Register(IFlareStationInterface* Station)
-{
-	CompanyStations.AddUnique(Station);
+	if (Ship->IsStation())
+	{
+		CompanyStations.AddUnique(Ship);
+	}
+	else
+	{
+		CompanyShips.AddUnique(Ship);
+	}
 }
 
 void UFlareCompany::Unregister(IFlareShipInterface* Ship)
 {
-	CompanyShips.Remove(Ship);
+	if (Ship->IsStation())
+	{
+		CompanyStations.Remove(Ship);
+	}
+	else
+	{
+		CompanyShips.Remove(Ship);
+	}
 }
-
-void UFlareCompany::Unregister(IFlareStationInterface* Station)
-{
-	CompanyStations.Remove(Station);
-}
-
 
 /*----------------------------------------------------
 	Gameplay
@@ -127,7 +128,7 @@ void UFlareCompany::UpdateCompanyCustomization()
 	// Update stations
 	for (int32 i = 0; i < CompanyStations.Num(); i++)
 	{
-		AFlareStation* Station = Cast<AFlareStation>(CompanyStations[i]);
+		AFlareShip* Station = Cast<AFlareShip>(CompanyStations[i]);
 		if (Station)
 		{
 			Station->UpdateCustomization();

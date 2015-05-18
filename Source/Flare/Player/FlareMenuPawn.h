@@ -32,7 +32,7 @@ public:
 	void ShowShip(const FFlareShipDescription* ShipDesc, const FFlareShipSave* ShipData);
 
 	/** Load a new station to visualize */
-	void ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData);
+	//void ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData);
 
 	/** Load a new part to visualize */
 	void ShowPart(const FFlareShipComponentDescription* PartDesc);
@@ -123,7 +123,7 @@ protected:
 
 	/** Station reference */
 	UPROPERTY()
-	AFlareStation*             CurrentStation;
+	AFlareShip*             CurrentStation;
 
 	// Part data
 	FVector                    CurrentPartOffsetA;
@@ -153,7 +153,7 @@ public:
 		return CurrentShip;
 	}
 
-	inline AFlareStation* GetCurrentStation()
+	inline AFlareShip* GetCurrentStation()
 	{
 		return CurrentStation;
 	}

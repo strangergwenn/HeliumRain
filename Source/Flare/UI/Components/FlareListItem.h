@@ -16,22 +16,9 @@ public:
 	}
 	FInterfaceContainer(IFlareShipInterface* InPtr)
 		: ShipInterfacePtr(InPtr)
-		, StationInterfacePtr(NULL)
 		, PartDescription(NULL)
 	{}
 	IFlareShipInterface* ShipInterfacePtr;
-
-	// Station
-	static TSharedPtr<FInterfaceContainer> New(IFlareStationInterface* InObject)
-	{
-		return MakeShareable(new FInterfaceContainer(InObject));
-	}
-	FInterfaceContainer(IFlareStationInterface* InPtr)
-		: ShipInterfacePtr(NULL)
-		, StationInterfacePtr(InPtr)
-		, PartDescription(NULL)
-	{}
-	IFlareStationInterface* StationInterfacePtr;
 
 	// Part info
 	static TSharedPtr<FInterfaceContainer> New(FFlareShipComponentDescription* InObject)
@@ -40,7 +27,6 @@ public:
 	}
 	FInterfaceContainer(FFlareShipComponentDescription* InPtr)
 		: ShipInterfacePtr(NULL)
-		, StationInterfacePtr(NULL)
 		, PartDescription(InPtr)
 	{}
 	FFlareShipComponentDescription* PartDescription;

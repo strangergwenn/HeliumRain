@@ -3,7 +3,6 @@
 #include "FlareShipPilot.generated.h"
 
 class AFlareShip;
-class AFlareStation;
 class IFlareShipInterface;
 
 /** Ship component save data */
@@ -67,10 +66,10 @@ protected:
 	/**
 	* Return the nearest station where docking is available
 	*/
-	virtual AFlareStation* GetNearestAvailableStation() const;
+	virtual AFlareShip* GetNearestAvailableStation() const;
 
 	/** Return all friendly station in the sector */
-	virtual TArray<AFlareStation*> GetFriendlyStations() const;
+	virtual TArray<AFlareShip*> GetFriendlyStations() const;
 
 	/**
 	 * Return the angular velocity need to align the local ship axis to the target axis
@@ -125,8 +124,8 @@ protected:
 	float                                TimeUntilNextReaction;
 	FVector                              PilotTargetLocation;
 	AFlareShip*                          PilotTargetShip;
-	AFlareStation*                          PilotTargetStation;
-	AFlareStation*                          PilotLastTargetStation;
+	AFlareShip*                          PilotTargetStation;
+	AFlareShip*                          PilotLastTargetStation;
 
 	float AttackAngle;
 	float AttackDistance;

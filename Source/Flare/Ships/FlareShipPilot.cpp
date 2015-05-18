@@ -93,7 +93,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
 	{
 		// Go repair or refill ammo
-		AFlareStation* TargetStation  = GetNearestAvailableStation();
+		AFlareShip* TargetStation  = GetNearestAvailableStation();
 		if (TargetStation)
 		{
 			if (Ship->DockAt(TargetStation))
@@ -360,7 +360,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		// If no station target, find a target : a random friendly station different from the last station
 		if (!PilotTargetStation)
 		{
-			TArray<AFlareStation*> FriendlyStations = GetFriendlyStations();
+			TArray<AFlareShip*> FriendlyStations = GetFriendlyStations();
 			if (FriendlyStations.Num() > 0)
 			{
 				int32 Index = FMath::RandHelper(FriendlyStations.Num());
@@ -556,17 +556,17 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 }
 
 
-AFlareStation* UFlareShipPilot::GetNearestAvailableStation() const
+AFlareShip* UFlareShipPilot::GetNearestAvailableStation() const
 {
 	FVector PilotLocation = Ship->GetActorLocation();
 	float MinDistanceSquared = -1;
-	AFlareStation* NearestStation = NULL;
+	AFlareShip* NearestStation = NULL;
 
 	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
 	{
 		// Ship
-		AFlareStation* StationCandidate = Cast<AFlareStation>(*ActorItr);
-		if (StationCandidate)
+		AFlareShip* StationCandidate = Cast<AFlareShip>(*ActorItr);
+		if (StationCandidate && StationCandidate->IsStation())
 		{
 
 			if (StationCandidate->GetCompany() != Ship->GetCompany())
@@ -590,15 +590,15 @@ AFlareStation* UFlareShipPilot::GetNearestAvailableStation() const
 	return NearestStation;
 }
 
-TArray<AFlareStation*> UFlareShipPilot::GetFriendlyStations() const
+TArray<AFlareShip*> UFlareShipPilot::GetFriendlyStations() const
 {
-	TArray<AFlareStation*> FriendlyStations;
+	TArray<AFlareShip*> FriendlyStations;
 
 	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
 	{
 		// Ship
-		AFlareStation* StationCandidate = Cast<AFlareStation>(*ActorItr);
-		if (StationCandidate)
+		AFlareShip* StationCandidate = Cast<AFlareShip>(*ActorItr);
+		if (StationCandidate && StationCandidate->IsStation())
 		{
 
 			if (StationCandidate->GetCompany() != Ship->GetCompany())

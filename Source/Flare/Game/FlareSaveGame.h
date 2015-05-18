@@ -25,7 +25,7 @@ public:
 	TArray<FFlareShipSave> ShipData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareStationSave> StationData;
+	TArray<FFlareShipSave> StationData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareCompanySave> CompanyData;

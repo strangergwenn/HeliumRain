@@ -123,7 +123,7 @@ void AFlareMenuPawn::ShowShip(const FFlareShipDescription* ShipDesc, const FFlar
 	}
 	CurrentShip->StartPresentation();
 }
-
+/*
 void AFlareMenuPawn::ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData)
 {
 	// Clean up
@@ -150,7 +150,7 @@ void AFlareMenuPawn::ShowStation(const FFlareStationDescription* StationDesc, co
 		CurrentStation->Load(*StationData);
 	}
 	CurrentStation->StartPresentation();
-}
+}*/
 
 void AFlareMenuPawn::ShowPart(const FFlareShipComponentDescription* PartDesc)
 {

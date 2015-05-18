@@ -171,7 +171,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SAssignNew(StationInspectButton, SFlareButton)
-				.Text(LOCTEXT("StationInspect", "INSPECT"))
+				.Text(LOCTEXT("StationInspect", "INSPECT ST"))
 				.OnClicked(this, &SFlareTargetActions::OnInspect)
 			]
 
@@ -246,7 +246,7 @@ void SFlareTargetActions::SetCompany(UFlareCompany* Target)
 	}
 }
 
-void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
+void SFlareTargetActions::SetStation(IFlareShipInterface* Target)
 {
 	TargetCompany = NULL;
 	TargetStation = Target;
@@ -261,7 +261,7 @@ void SFlareTargetActions::SetStation(IFlareStationInterface* Target)
 		TargetCompany = Target->GetCompany();
 		CompanyFlag->SetCompany(TargetCompany);
 		TargetName = Target->_getUObject()->GetName();
-		FFlareStationSave* SaveData = Target->Save();
+		FFlareShipSave* SaveData = Target->Save();
 		if (SaveData)
 		{
 			TargetStationDesc = PC->GetGame()->GetStationCatalog()->Get(SaveData->Identifier);
@@ -475,7 +475,7 @@ const FSlateBrush* SFlareTargetActions::GetClassIcon() const
 {
 	if (TargetStationDesc)
 	{
-		return IFlareStationInterface::GetIcon(TargetStationDesc);
+		return IFlareShipInterface::GetIcon(TargetStationDesc);
 	}
 	else if (TargetShipDesc)
 	{

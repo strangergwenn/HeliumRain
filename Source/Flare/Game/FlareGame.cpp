@@ -36,7 +36,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	struct FConstructorStatics
 	{
 		ConstructorHelpers::FObjectFinder<UFlareShipCatalog> ShipCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareStationCatalog> StationCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareShipCatalog> StationCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareShipPartsCatalog> ShipPartsCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
 
@@ -137,7 +137,7 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 		// Load all stations
 		for (int32 i = 0; i < Save->StationData.Num(); i++)
 		{
-			LoadStation(Save->StationData[i]);
+			LoadShip(Save->StationData[i]);
 		}
 
 		// Load all ships
@@ -170,42 +170,6 @@ UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
 	return Company;
 }
 
-AFlareStation* AFlareGame::LoadStation(const FFlareStationSave& StationData)
-{
-	AFlareStation* Station = NULL;
-	FLOGV("AFlareGame::LoadStation ('%s')", *StationData.Name.ToString());
-
-	if (StationCatalog)
-	{
-		FFlareStationDescription* Desc = StationCatalog->Get(StationData.Identifier);
-		if (Desc)
-		{
-			// Spawn parameters
-			FActorSpawnParameters Params;
-			Params.Name = StationData.Name;
-			Params.bNoFail = true;
-
-			// Create and configure the station
-			Station = GetWorld()->SpawnActor<AFlareStation>(Desc->Template->GeneratedClass, StationData.Location, StationData.Rotation, Params);
-			if (Station)
-			{
-				Station->Initialize();
-				Station->Load(StationData);
-			}
-		}
-		else
-		{
-			FLOG("AFlareGame::LoadStation failed (no description available)");
-		}
-	}
-	else
-	{
-		FLOG("AFlareGame::LoadStation failed (no catalog data)");
-	}
-
-	return Station;
-}
-
 AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
 {
 	AFlareShip* Ship = NULL;
@@ -214,6 +178,12 @@ AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
 	if (ShipCatalog)
 	{
 		FFlareShipDescription* Desc = ShipCatalog->Get(ShipData.Identifier);
+		if (!Desc)
+		{
+			// TODO SpaceCraft catalog
+			Desc = StationCatalog->Get(ShipData.Identifier);
+		}
+
 		if (Desc)
 		{
 			// Spawn parameters
@@ -264,10 +234,9 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 			// Tentative casts
 			AFlareMenuPawn* MenuPawn = PC->GetMenuPawn();
 			AFlareShip* Ship = Cast<AFlareShip>(*ActorItr);
-			AFlareStation* Station = Cast<AFlareStation>(*ActorItr);
 
 			// Ship
-			if (Ship && Ship->GetDescription() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentShip()))
+			if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentShip()))
 			{
 				FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetName());
 				FFlareShipSave* TempData = Ship->Save();
@@ -275,10 +244,10 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 			}
 
 			// Station
-			else if (Station && Station->GetDescription() && (MenuPawn == NULL || Station != MenuPawn->GetCurrentStation()))
+			else if (Ship && Ship->GetDescription() && Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentStation()))
 			{
-				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Station->GetName());
-				FFlareStationSave* TempData = Station->Save();
+				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Ship->GetName());
+				FFlareShipSave* TempData = Ship->Save();
 				Save->StationData.Add(*TempData);
 			}
 		}
@@ -361,9 +330,9 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	return Company;
 }
 
-AFlareStation* AFlareGame::CreateStationForMe(FName StationClass)
+AFlareShip* AFlareGame::CreateStationForMe(FName StationClass)
 {
-	AFlareStation* StationPawn = NULL;
+	AFlareShip* StationPawn = NULL;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
 	// Parent company
@@ -381,9 +350,9 @@ AFlareStation* AFlareGame::CreateStationForMe(FName StationClass)
 	return StationPawn;
 }
 
-AFlareStation* AFlareGame::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
+AFlareShip* AFlareGame::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
 {
-	AFlareStation* StationPawn = NULL;
+	AFlareShip* StationPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
 
 	// Get target position
@@ -409,30 +378,6 @@ AFlareStation* AFlareGame::CreateStationInCompany(FName StationClass, FName Comp
 	}
 	return StationPawn;
 } 
-
-AFlareStation* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)
-{
-	AFlareStation* StationPawn = NULL;
-	FFlareStationDescription* Desc = GetStationCatalog()->Get(StationClass);
-	UFlareCompany* Company = FindCompany(CompanyIdentifier);
-
-	if (Desc && Company)
-	{
-		// Default data
-		FFlareStationSave StationData;
-		StationData.Location = TargetPosition;
-		StationData.Rotation = FRotator::ZeroRotator;
-		StationData.Name = Immatriculate(Company->GetShortName(), StationClass);
-		StationData.Identifier = StationClass;
-		StationData.CompanyIdentifier = CompanyIdentifier;
-
-		// Create the station
-		StationPawn = LoadStation(StationData);
-		FLOGV("AFlareGame::CreateStation : Created station '%s'", *StationPawn->GetName());
-	}
-
-	return StationPawn;
-}
 
 AFlareShip* AFlareGame::CreateShipForMe(FName ShipClass)
 {
@@ -486,12 +431,28 @@ AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortN
 
 AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
 {
-	AFlareShip* ShipPawn = NULL;
 	FFlareShipDescription* Desc = GetShipCatalog()->Get(ShipClass);
+	if(Desc) {
+		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
+	}
+	return NULL;
+}
 
+AFlareShip* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)
+{
+	FFlareShipDescription* Desc = GetStationCatalog()->Get(StationClass);
+	if(Desc) {
+		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
+	}
+	return NULL;
+}
+
+AFlareShip* AFlareGame::CreateShip(FFlareShipDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition)
+{
+	AFlareShip* ShipPawn = NULL;
 	UFlareCompany* Company = FindCompany(CompanyIdentifier);
 
-	if (Desc && Company)
+	if (ShipDescription && Company)
 	{
 		// Default data
 		FFlareShipSave ShipData;
@@ -499,21 +460,21 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVe
 		ShipData.Rotation = FRotator::ZeroRotator;
 		ShipData.LinearVelocity = FVector::ZeroVector;
 		ShipData.AngularVelocity = FVector::ZeroVector; 
-		ShipData.Name = Immatriculate(Company->GetShortName(), ShipClass);
-		ShipData.Identifier = ShipClass;
-		ShipData.Heat = 600 * Desc->HeatCapacity;
+		ShipData.Name = Immatriculate(Company->GetShortName(), ShipDescription->Identifier);
+		ShipData.Identifier = ShipDescription->Identifier;
+		ShipData.Heat = 600 * ShipDescription->HeatCapacity;
 		ShipData.PowerOutageDelay = 0;
 
 		FName RCSIdentifier;
 		FName OrbitalEngineIdentifier;
 		
 		// Size selector
-		if (Desc->Size == EFlarePartSize::S)
+		if (ShipDescription->Size == EFlarePartSize::S)
 		{
 			RCSIdentifier = FName("rcs-piranha");
 			OrbitalEngineIdentifier = FName("engine-octopus");
 		}
-		else if (Desc->Size == EFlarePartSize::L)
+		else if (ShipDescription->Size == EFlarePartSize::L)
 		{
 			RCSIdentifier = FName("rcs-rift");
 			OrbitalEngineIdentifier = FName("pod-surtsey");
@@ -523,7 +484,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVe
 			// TODO
 		}
 		
-		for (int32 i = 0; i < Desc->RCSCount; i++)
+		for (int32 i = 0; i < ShipDescription->RCSCount; i++)
 		{
 			FFlareShipComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = RCSIdentifier;
@@ -532,7 +493,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVe
 			ShipData.Components.Add(ComponentData);
 		}
 		
-		for (int32 i = 0; i < Desc->OrbitalEngineCount; i++)
+		for (int32 i = 0; i < ShipDescription->OrbitalEngineCount; i++)
 		{
 			FFlareShipComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
@@ -541,25 +502,25 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVe
 			ShipData.Components.Add(ComponentData);
 		}
 
-		for (int32 i = 0; i < Desc->GunSlots.Num(); i++)
+		for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
 		{
 			FFlareShipComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = FName("weapon-eradicator");
-			ComponentData.ShipSlotIdentifier = Desc->GunSlots[i].SlotIdentifier;
+			ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
 			ComponentData.Damage = 0.f;
 			ShipData.Components.Add(ComponentData);
 		}
 		
-		for (int32 i = 0; i < Desc->TurretSlots.Num(); i++)
+		for (int32 i = 0; i < ShipDescription->TurretSlots.Num(); i++)
 		{
 			// TODO TURRETS
 		}
 		
-		for (int32 i = 0; i < Desc->InternalComponentSlots.Num(); i++)
+		for (int32 i = 0; i < ShipDescription->InternalComponentSlots.Num(); i++)
 		{
 			FFlareShipComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = Desc->InternalComponentSlots[i].ComponentIdentifier;
-			ComponentData.ShipSlotIdentifier = Desc->InternalComponentSlots[i].SlotIdentifier;
+			ComponentData.ComponentIdentifier = ShipDescription->InternalComponentSlots[i].ComponentIdentifier;
+			ComponentData.ShipSlotIdentifier = ShipDescription->InternalComponentSlots[i].SlotIdentifier;
 			ComponentData.Damage = 0.f;
 			ShipData.Components.Add(ComponentData);
 		}
@@ -583,7 +544,7 @@ FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 {
 	FString Immatriculation;
 	FFlareShipDescription* ShipDesc = ShipCatalog->Get(TargetClass);
-	FFlareStationDescription* StationDesc = StationCatalog->Get(TargetClass);
+	FFlareShipDescription* StationDesc = StationCatalog->Get(TargetClass);
 
 	// Ship
 	if (ShipDesc)

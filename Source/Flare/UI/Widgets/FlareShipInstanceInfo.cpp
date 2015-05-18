@@ -14,36 +14,19 @@
 void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 {
 	// Data
-	Station = InArgs._Station;
 	Ship = InArgs._Ship;
-	StationData = NULL;
 	ShipData = NULL;
-	StationDescription = NULL;
 	ShipDescription = NULL;
 	UObject* Target = NULL;
 	const FSlateBrush* Icon = NULL;
 	UFlareCompany* Company = NULL;
 	AFlareGame* Game = InArgs._Player->GetGame();
 
-	// Station data
-	if (Station)
-	{
-		Target = Station->_getUObject();
-		StationData = Station->Save();
-		StationDescription = InArgs._Player->GetGame()->GetStationCatalog()->Get(StationData->Identifier);
-		Icon = IFlareStationInterface::GetIcon(StationDescription);
-		Company = Station->GetCompany();
-	}
-
-	// Ship data
-	else if (Ship)
-	{
-		Target = Ship->_getUObject();
-		ShipData = Ship->Save();
-		ShipDescription = InArgs._Player->GetGame()->GetShipCatalog()->Get(ShipData->Identifier);
-		Icon = IFlareShipInterface::GetIcon(ShipDescription);
-		Company = Ship->GetCompany();
-	}
+	Target = Ship->_getUObject();
+	ShipData = Ship->Save();
+	ShipDescription = InArgs._Player->GetGame()->GetShipCatalog()->Get(ShipData->Identifier);
+	Icon = IFlareShipInterface::GetIcon(ShipDescription);
+	Company = Ship->GetCompany();
 
 	// Create the layout
 	ChildSlot
@@ -124,11 +107,11 @@ void SFlareShipInstanceInfo::SetActionsVisible(bool State)
 	if (State)
 	{
 		ListContainer->SetVisibility(EVisibility::Collapsed);
-		if (Station)
+		if (Ship->IsStation())
 		{
-			ActionContainer->SetStation(Station);
+			ActionContainer->SetStation(Ship);
 		}
-		else if (Ship)
+		else
 		{
 			ActionContainer->SetShip(Ship);
 		}

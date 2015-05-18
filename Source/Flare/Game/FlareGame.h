@@ -3,7 +3,6 @@
 #include "GameFramework/GameMode.h"
 #include "../Ships/FlareShip.h"
 #include "../Data/FlareShipCatalog.h"
-#include "../Data/FlareStationCatalog.h"
 #include "../Data/FlareShipPartsCatalog.h"
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Player/FlareMenuPawn.h"
@@ -40,9 +39,6 @@ public:
 	/** Spawn a company from save data */
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
 
-	/** Spawn a station from save data */
-	virtual AFlareStation* LoadStation(const FFlareStationSave& StationData);
-
 	/** Spawn a ship from save data */
 	virtual AFlareShip* LoadShip(const FFlareShipSave& ShipData);
 
@@ -65,15 +61,11 @@ public:
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	AFlareStation* CreateStationForMe(FName StationClass);
+	AFlareShip* CreateStationForMe(FName StationClass);
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	AFlareStation* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
-
-	/** Create a station in the level */
-	AFlareStation* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition);
-
+	AFlareShip* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
 
 	/** Create a ship in the level for the current player*/
 	UFUNCTION(exec)
@@ -85,6 +77,12 @@ public:
 
 	/** Create a ship in the level  for a specific company */
 	AFlareShip* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
+
+	/** Create a station in the level  for a specific company */
+	AFlareShip* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition);
+
+	/** Create a ship or station in the level  for a specific company */
+	AFlareShip* CreateShip(FFlareShipDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
 
 
 	/** Build a unique immatriculation string for this object */
@@ -118,7 +116,7 @@ protected:
 
 	/** Reference to all available station models */
 	UPROPERTY()
-	UFlareStationCatalog* StationCatalog;
+	UFlareShipCatalog* StationCatalog;
 
 	/** Reference to all available ship parts */
 	UPROPERTY()
@@ -165,7 +163,7 @@ public:
 		return ShipCatalog;
 	}
 
-	inline UFlareStationCatalog* GetStationCatalog() const
+	inline UFlareShipCatalog* GetStationCatalog() const
 	{
 		return StationCatalog;
 	}

@@ -2,7 +2,6 @@
 
 #include "FlareShipBase.h"
 #include "FlareWeapon.h"
-#include "../Stations/FlareStation.h"
 #include "FlareShipInterface.h"
 #include "FlareShip.generated.h"
 
@@ -134,6 +133,8 @@ public:
 
 	virtual bool IsMilitary() override;
 
+	virtual bool IsStation() override;
+
 	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false) override;
 
 	virtual float GetTemperature() override;
@@ -155,14 +156,16 @@ public:
 		Docking
 	----------------------------------------------------*/
 
-	virtual bool DockAt(IFlareStationInterface* TargetStation) override;
+	virtual bool DockAt(IFlareShipInterface* TargetStation) override;
 
 	/** Confirm that the docking sequence has completed */
-	virtual void ConfirmDock(IFlareStationInterface* DockStation, int32 DockId);
+	virtual void ConfirmDock(IFlareShipInterface* DockStation, int32 DockId);
 
 	virtual bool Undock() override;
 
-	virtual IFlareStationInterface* GetDockStation() override;
+	virtual IFlareShipInterface* GetDockStation() override;
+
+	virtual bool HasAvailableDock(IFlareShipInterface* Ship) const override;
 
 
 	/*----------------------------------------------------
@@ -205,6 +208,17 @@ public:
 	/** Make sure this point is not in a path collider */
 	virtual bool IsPointColliding(FVector Candidate, AActor* Ignore);
 
+	/*----------------------------------------------------
+		Docking
+	----------------------------------------------------*/
+
+	virtual TArray<IFlareShipInterface*> GetDockedShips() override;
+
+	virtual FFlareDockingInfo RequestDock(IFlareShipInterface* Ship) override;
+
+	virtual void ReleaseDock(IFlareShipInterface* Ship, int32 DockId) override;
+
+	virtual void Dock(IFlareShipInterface* Ship, int32 DockId) override;
 
 	/*----------------------------------------------------
 		Damage system interface
