@@ -395,12 +395,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 
 		// Load ship description
 	UFlareShipPartsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
-	FFlareShipDescription* Desc = GetGame()->GetShipCatalog()->Get(Data.Identifier);
-	if (!Desc)
-	{
-		// TODO getSpaceCraftCatalog
-		Desc = GetGame()->GetStationCatalog()->Get(Data.Identifier);
-	}
+	FFlareShipDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(Data.Identifier);
 	SetShipDescription(Desc);
 
 	// Look for parent company

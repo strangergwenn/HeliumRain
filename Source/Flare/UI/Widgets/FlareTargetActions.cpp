@@ -264,7 +264,7 @@ void SFlareTargetActions::SetStation(IFlareSpacecraftInterface* Target)
 		FFlareShipSave* SaveData = Target->Save();
 		if (SaveData)
 		{
-			TargetStationDesc = PC->GetGame()->GetStationCatalog()->Get(SaveData->Identifier);
+			TargetStationDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
 		}
 
 		// Are we docked here
@@ -303,7 +303,7 @@ void SFlareTargetActions::SetShip(IFlareSpacecraftInterface* Target)
 		FFlareShipSave* SaveData = Target->Save();
 		if (SaveData)
 		{
-			TargetShipDesc = PC->GetGame()->GetShipCatalog()->Get(SaveData->Identifier);
+			TargetShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
 		}
 	}
 }

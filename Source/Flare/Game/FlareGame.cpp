@@ -35,14 +35,12 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	// Data catalogs
 	struct FConstructorStatics
 	{
-		ConstructorHelpers::FObjectFinder<UFlareShipCatalog> ShipCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareShipCatalog> StationCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareSpacecraftCatalog> SpacecraftCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareShipPartsCatalog> ShipPartsCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
 
 		FConstructorStatics()
-			: ShipCatalog(TEXT("/Game/Gameplay/Catalog/ShipCatalog"))
-			, StationCatalog(TEXT("/Game/Gameplay/Catalog/StationCatalog"))
+			: SpacecraftCatalog(TEXT("/Game/Gameplay/Catalog/SpacecraftCatalog"))
 			, ShipPartsCatalog(TEXT("/Game/Gameplay/Catalog/ShipPartsCatalog"))
 			, CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
 		{}
@@ -50,8 +48,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	static FConstructorStatics ConstructorStatics;
 
 	// Push catalog data into storage
-	ShipCatalog = ConstructorStatics.ShipCatalog.Object;
-	StationCatalog = ConstructorStatics.StationCatalog.Object;
+	SpacecraftCatalog = ConstructorStatics.SpacecraftCatalog.Object;
 	ShipPartsCatalog = ConstructorStatics.ShipPartsCatalog.Object;
 	CustomizationCatalog = ConstructorStatics.CustomizationCatalog.Object;
 }
@@ -175,15 +172,9 @@ AFlareShip* AFlareGame::LoadShip(const FFlareShipSave& ShipData)
 	AFlareShip* Ship = NULL;
 	FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Name.ToString());
 
-	if (ShipCatalog)
+	if (SpacecraftCatalog)
 	{
-		FFlareShipDescription* Desc = ShipCatalog->Get(ShipData.Identifier);
-		if (!Desc)
-		{
-			// TODO SpaceCraft catalog
-			Desc = StationCatalog->Get(ShipData.Identifier);
-		}
-
+		FFlareShipDescription* Desc = SpacecraftCatalog->Get(ShipData.Identifier);
 		if (Desc)
 		{
 			// Spawn parameters
@@ -431,7 +422,7 @@ AFlareShip* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortN
 
 AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
 {
-	FFlareShipDescription* Desc = GetShipCatalog()->Get(ShipClass);
+	FFlareShipDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
 	if(Desc) {
 		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
 	}
@@ -440,7 +431,7 @@ AFlareShip* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVe
 
 AFlareShip* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)
 {
-	FFlareShipDescription* Desc = GetStationCatalog()->Get(StationClass);
+	FFlareShipDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
 	if(Desc) {
 		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
 	}
@@ -543,13 +534,16 @@ AFlareShip* AFlareGame::CreateShip(FFlareShipDescription* ShipDescription, FName
 FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 {
 	FString Immatriculation;
-	FFlareShipDescription* ShipDesc = ShipCatalog->Get(TargetClass);
-	FFlareShipDescription* StationDesc = StationCatalog->Get(TargetClass);
+	FFlareShipDescription* SpacecraftDesc = SpacecraftCatalog->Get(TargetClass);
 
-	// Ship
-	if (ShipDesc)
+	// Spacecraft
+	if (SpacecraftDesc)
 	{
-		if (ShipDesc->Military)
+		if (SpacecraftDesc->OrbitalEngineCount == 0) // TODO use Spacecraft helper
+		{
+			Immatriculation += "ST";
+		}
+		else if (SpacecraftDesc->Military)
 		{
 			Immatriculation += "M";
 		}
@@ -557,13 +551,7 @@ FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 		{
 			Immatriculation += "C";
 		}
-		Immatriculation += EFlarePartSize::ToString(ShipDesc->Size);
-	}
-
-	// Station
-	else if (StationDesc)
-	{
-		Immatriculation += "ST";
+		Immatriculation += EFlarePartSize::ToString(SpacecraftDesc->Size);
 	}
 
 	// Company

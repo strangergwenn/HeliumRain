@@ -155,7 +155,7 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 		FFlareShipSave* Data = Target->Save();
 		if (Data)
 		{
-			FFlareShipDescription* Desc = PC->GetGame()->GetStationCatalog()->Get(Data->Identifier);
+			FFlareShipDescription* Desc = PC->GetGame()->GetSpacecraftCatalog()->Get(Data->Identifier);
 			if (Desc)
 			{
 				ObjectDescription->SetText(Desc->Description);

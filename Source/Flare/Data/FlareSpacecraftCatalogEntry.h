@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../Ships/FlareShip.h"
-#include "FlareShipCatalogEntry.generated.h"
+#include "FlareSpacecraftCatalogEntry.generated.h"
 
 
 UCLASS()
-class UFlareShipCatalogEntry : public UDataAsset
+class UFlareSpacecraftCatalogEntry : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 

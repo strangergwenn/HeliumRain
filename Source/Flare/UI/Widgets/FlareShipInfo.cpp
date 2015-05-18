@@ -15,7 +15,7 @@ void SFlareShipInfo::Construct(const FArguments& InArgs)
 
 	// Ship data
 	const FFlareShipSave* CurrentShipData = InArgs._Ship->Save();
-	const FFlareShipDescription* Description = InArgs._Player->GetGame()->GetShipCatalog()->Get(CurrentShipData->Identifier);
+	const FFlareShipDescription* Description = InArgs._Player->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
 
 	// Create the layout
 	ChildSlot

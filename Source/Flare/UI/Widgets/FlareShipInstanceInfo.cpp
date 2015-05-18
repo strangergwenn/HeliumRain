@@ -24,7 +24,8 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 
 	Target = Ship->_getUObject();
 	ShipData = Ship->Save();
-	ShipDescription = InArgs._Player->GetGame()->GetShipCatalog()->Get(ShipData->Identifier);
+	ShipDescription = InArgs._Player->GetGame()->GetSpacecraftCatalog()->Get(ShipData->Identifier);
+
 	Icon = IFlareSpacecraftInterface::GetIcon(ShipDescription);
 	Company = Ship->GetCompany();
 

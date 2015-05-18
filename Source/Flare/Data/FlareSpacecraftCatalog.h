@@ -1,12 +1,12 @@
 #pragma once
 
-#include "FlareShipCatalogEntry.h"
+#include "FlareSpacecraftCatalogEntry.h"
 #include "../Ships/FlareShip.h"
-#include "FlareShipCatalog.generated.h"
+#include "FlareSpacecraftCatalog.generated.h"
 
 
 UCLASS()
-class UFlareShipCatalog : public UDataAsset
+class UFlareSpacecraftCatalog : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 
@@ -18,8 +18,11 @@ public:
 	
 	/** Ships */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UFlareShipCatalogEntry*> ShipCatalog;
+	TArray<UFlareSpacecraftCatalogEntry*> ShipCatalog;
 
+	/** Stations */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<UFlareSpacecraftCatalogEntry*> StationCatalog;
 
 public:
 

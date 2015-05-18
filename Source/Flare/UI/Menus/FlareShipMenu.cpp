@@ -280,12 +280,7 @@ void SFlareShipMenu::LoadTargetShip()
 	{
 		UFlareShipPartsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 
-		const FFlareShipDescription* ShipDesc = PC->GetGame()->GetShipCatalog()->Get(CurrentShipData->Identifier);
-		if (!ShipDesc)
-		{
-			// TODO spacecraft
-			ShipDesc = PC->GetGame()->GetStationCatalog()->Get(CurrentShipData->Identifier);
-		}
+		const FFlareShipDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
 		if (ShipDesc)
 		{
 			ObjectName->SetText(LOCTEXT("Overview", "OVERVIEW"));

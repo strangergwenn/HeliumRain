@@ -2,7 +2,7 @@
 
 #include "GameFramework/GameMode.h"
 #include "../Ships/FlareShip.h"
-#include "../Data/FlareShipCatalog.h"
+#include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareShipPartsCatalog.h"
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Player/FlareMenuPawn.h"
@@ -112,11 +112,7 @@ protected:
 
 	/** Reference to all available ship models */
 	UPROPERTY()
-	UFlareShipCatalog* ShipCatalog;
-
-	/** Reference to all available station models */
-	UPROPERTY()
-	UFlareShipCatalog* StationCatalog;
+	UFlareSpacecraftCatalog* SpacecraftCatalog;
 
 	/** Reference to all available ship parts */
 	UPROPERTY()
@@ -158,14 +154,9 @@ public:
 		return MenuPawnClass;
 	}
 
-	inline UFlareShipCatalog* GetShipCatalog() const
+	inline UFlareSpacecraftCatalog* GetSpacecraftCatalog() const
 	{
-		return ShipCatalog;
-	}
-
-	inline UFlareShipCatalog* GetStationCatalog() const
-	{
-		return StationCatalog;
+		return SpacecraftCatalog;
 	}
 
 	inline UFlareShipPartsCatalog* GetShipPartsCatalog() const
