@@ -289,7 +289,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color);
 
 			// Draw the status
-			if (Ship && ObjectSize.X > IconSize)
+			if (Ship && !Ship->IsStation() && ObjectSize.X > IconSize)
 			{
 				int32 NumberOfIcons = Ship->IsMilitary() ? 5 : 4;
 				FVector2D StatusPos = ScreenPosition - ObjectSize / 2;
