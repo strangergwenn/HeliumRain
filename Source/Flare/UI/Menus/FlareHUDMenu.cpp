@@ -167,7 +167,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareHUDMenu::SetTargetShip(IFlareShipInterface* Target)
+void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 {
 	// Set targets
 	TargetShip = Target;

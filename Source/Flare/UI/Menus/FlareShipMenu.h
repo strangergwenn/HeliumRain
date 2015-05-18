@@ -35,7 +35,7 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter(IFlareShipInterface* Target, bool IsEditable = false);
+	void Enter(IFlareSpacecraftInterface* Target, bool IsEditable = false);
 
 	/** Exit this menu */
 	void Exit();
@@ -99,7 +99,7 @@ protected:
 
 	/** Target ship to use for customization */
 	UPROPERTY()
-	IFlareShipInterface* CurrentShipTarget;
+	IFlareSpacecraftInterface* CurrentShipTarget;
 
 	/** Save data for the ship currently being customized */
 	UPROPERTY()

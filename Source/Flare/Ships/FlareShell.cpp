@@ -126,7 +126,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		
 		// Hit a component : damage in KJ
 		float AbsorbedEnergy = (PenetrateArmor ? ShellEnergy : FMath::Square(Incidence) * ShellEnergy);
-		IFlareShipInterface* Ship = Cast<IFlareShipInterface>(HitResult.Actor.Get());
+		IFlareSpacecraftInterface* Ship = Cast<IFlareSpacecraftInterface>(HitResult.Actor.Get());
 		if (Ship)
 		{
 			Ship->ApplyDamage(AbsorbedEnergy, 0.75f, HitResult.Location);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Player/FlarePlayerController.h"
-#include "../Ships/FlareShipInterface.h"
+#include "../Ships/FlareSpacecraftInterface.h"
 #include "FlareCompany.h"
 #include "FlareSaveGame.generated.h"
 

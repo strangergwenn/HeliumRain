@@ -2,7 +2,7 @@
 #include "../Flare.h"
 #include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
-#include "../Ships/FlareShipInterface.h"
+#include "../Ships/FlareSpacecraftInterface.h"
 #include "../FlareLoadingScreen/FlareLoadingScreen.h"
 
 
@@ -546,11 +546,11 @@ void AFlareHUD::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Ship:
-			InspectShip(static_cast<IFlareShipInterface*>(FadeTargetData));
+			InspectShip(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_ShipConfig:
-			InspectShip(static_cast<IFlareShipInterface*>(FadeTargetData), true);
+			InspectShip(static_cast<IFlareSpacecraftInterface*>(FadeTargetData), true);
 			break;
 
 		case EFlareMenu::MENU_Sector:
@@ -558,7 +558,7 @@ void AFlareHUD::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Station:
-			InspectStation(static_cast<IFlareShipInterface*>(FadeTargetData));
+			InspectStation(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Quit:
@@ -600,7 +600,7 @@ void AFlareHUD::InspectCompany(UFlareCompany* Target)
 	CompanyMenu->Enter(Target);
 }
 
-void AFlareHUD::InspectShip(IFlareShipInterface* Target, bool IsEditable)
+void AFlareHUD::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
 	ResetMenu();
 	SetMenuPawn(true);
@@ -613,7 +613,7 @@ void AFlareHUD::InspectShip(IFlareShipInterface* Target, bool IsEditable)
 	ShipMenu->Enter(Target, IsEditable);
 }
 
-void AFlareHUD::InspectStation(IFlareShipInterface* Target, bool IsEditable)
+void AFlareHUD::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
 	ResetMenu();
 	SetMenuPawn(true);

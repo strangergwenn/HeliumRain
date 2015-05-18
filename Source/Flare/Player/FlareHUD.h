@@ -109,10 +109,10 @@ protected:
 	virtual void InspectCompany(UFlareCompany* Target);
 
 	/** Show the config menu for a specific ship */
-	virtual void InspectShip(IFlareShipInterface* Target = NULL, bool IsEditable = false);
+	virtual void InspectShip(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
 
 	/** Show the config menu for a specific station */
-	virtual void InspectStation(IFlareShipInterface* Target = NULL, bool IsEditable = false);
+	virtual void InspectStation(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
 
 	/** Open the sector menu */
 	virtual void OpenSector();

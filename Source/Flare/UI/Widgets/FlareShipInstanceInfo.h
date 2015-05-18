@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareCompanyFlag.h"
 #include "../Widgets/FlareTargetActions.h"
-#include "../../Ships/FlareShipInterface.h"
+#include "../../Ships/FlareSpacecraftInterface.h"
 
 
 class SFlareShipInstanceInfo : public SCompoundWidget
@@ -18,7 +18,7 @@ class SFlareShipInstanceInfo : public SCompoundWidget
 	{}
 	
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
-	SLATE_ARGUMENT(IFlareShipInterface*, Ship)
+	SLATE_ARGUMENT(IFlareSpacecraftInterface*, Ship)
 	
 	SLATE_END_ARGS()
 
@@ -43,7 +43,7 @@ protected:
 	----------------------------------------------------*/
 
 	// Ship target data
-	IFlareShipInterface*              Ship;
+	IFlareSpacecraftInterface*              Ship;
 	FFlareShipSave*                   ShipData;
 	FFlareShipDescription*            ShipDescription;
 

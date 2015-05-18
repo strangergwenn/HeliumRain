@@ -475,7 +475,7 @@ void AFlarePlayerController::QuickSwitch()
 {
 	FLOG("AFlarePlayerController::QuickSwitch");
 
-	TArray<IFlareShipInterface*>& CompanyShips = Company->GetCompanyShips();
+	TArray<IFlareSpacecraftInterface*>& CompanyShips = Company->GetCompanyShips();
 
 	if (CompanyShips.Num())
 	{

@@ -21,7 +21,7 @@ class SFlareShipInfo : public SCompoundWidget
 	SLATE_ARGUMENT(bool, ShowOwnershipInfo)
 
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
-	SLATE_ARGUMENT(IFlareShipInterface*, Ship)
+	SLATE_ARGUMENT(IFlareSpacecraftInterface*, Ship)
 	
 	SLATE_END_ARGS()
 

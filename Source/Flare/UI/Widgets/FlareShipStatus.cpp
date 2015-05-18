@@ -74,7 +74,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareShipStatus::SetTargetShip(IFlareShipInterface* Target)
+void SFlareShipStatus::SetTargetShip(IFlareSpacecraftInterface* Target)
 {
 	TargetShip = Target;
 

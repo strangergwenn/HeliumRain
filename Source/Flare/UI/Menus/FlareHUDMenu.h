@@ -28,7 +28,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set the ship to display data for */
-	void SetTargetShip(IFlareShipInterface* Target);
+	void SetTargetShip(IFlareSpacecraftInterface* Target);
 
 
 protected:
@@ -73,7 +73,7 @@ protected:
 	TSharedPtr<SFlareSubsystemStatus>    SectorStatus;
 
 	// Target data
-	IFlareShipInterface*                 TargetShip;
+	IFlareSpacecraftInterface*                 TargetShip;
 	bool                                 Overheating;
 	bool                                 Burning;
 	bool                                 PowerOutage;

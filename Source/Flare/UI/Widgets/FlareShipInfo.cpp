@@ -1,7 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareShipInfo.h"
-#include "../../Ships/FlareShipInterface.h"
+#include "../../Ships/FlareSpacecraftInterface.h"
 #include "../../Player/FlarePlayerController.h"
 
 

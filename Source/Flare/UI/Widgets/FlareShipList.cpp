@@ -57,7 +57,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareShipList::AddShip(IFlareShipInterface* ShipCandidate)
+void SFlareShipList::AddShip(IFlareSpacecraftInterface* ShipCandidate)
 {
 	TargetListData.AddUnique(FInterfaceContainer::New(ShipCandidate));
 }

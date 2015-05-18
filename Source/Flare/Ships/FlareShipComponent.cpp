@@ -133,7 +133,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	}
 
 	// Need even if no ComponentDescription to heat airframes
-	IFlareShipInterface* ShipInterface = Cast<IFlareShipInterface>(Ship);
+	IFlareSpacecraftInterface* ShipInterface = Cast<IFlareSpacecraftInterface>(Ship);
 	if (ShipInterface)
 	{
 		if (HasLocalHeatEffect && HeatProduction > 0.f)
@@ -161,7 +161,7 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 	Ship = OwnerShip;
 	PlayerCompany = Company;
 
-	IFlareShipInterface* ShipInterface = Cast<IFlareShipInterface>(Ship);
+	IFlareSpacecraftInterface* ShipInterface = Cast<IFlareSpacecraftInterface>(Ship);
 	if(ShipInterface)
 	{
 		LocalTemperature = ShipInterface->GetTemperature();

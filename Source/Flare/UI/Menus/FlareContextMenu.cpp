@@ -65,7 +65,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareContextMenu::SetStation(IFlareShipInterface* Target)
+void SFlareContextMenu::SetStation(IFlareSpacecraftInterface* Target)
 {
 	TargetStation = Target;
 	TargetShip = NULL;
@@ -73,7 +73,7 @@ void SFlareContextMenu::SetStation(IFlareShipInterface* Target)
 	ShipStatus->SetVisibility(EVisibility::Hidden);
 }
 
-void SFlareContextMenu::SetShip(IFlareShipInterface* Target)
+void SFlareContextMenu::SetShip(IFlareSpacecraftInterface* Target)
 {
 	TargetShip = Target;
 	TargetStation = NULL;

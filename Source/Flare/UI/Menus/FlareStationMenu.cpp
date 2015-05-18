@@ -134,7 +134,7 @@ void SFlareStationMenu::Setup()
 	SetVisibility(EVisibility::Hidden);	
 }
 
-void SFlareStationMenu::Enter(IFlareShipInterface* Target)
+void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 {
 	FLOG("SFlareStationMenu::Enter");
 	SetEnabled(true);
@@ -164,7 +164,7 @@ void SFlareStationMenu::Enter(IFlareShipInterface* Target)
 		}
 
 		// Fill the data
-		TArray<IFlareShipInterface*> DockedShips = Target->GetDockedShips();
+		TArray<IFlareSpacecraftInterface*> DockedShips = Target->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
 		{
 			if (DockedShips[i]->IsAlive())

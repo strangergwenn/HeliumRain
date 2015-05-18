@@ -3,7 +3,7 @@
 #include "FlareShipPilot.generated.h"
 
 class AFlareShip;
-class IFlareShipInterface;
+class IFlareSpacecraftInterface;
 
 /** Ship component save data */
 USTRUCT()

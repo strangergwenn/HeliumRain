@@ -10,15 +10,15 @@ class FInterfaceContainer
 public:
 
 	// Ship
-	static TSharedPtr<FInterfaceContainer> New(IFlareShipInterface* InObject)
+	static TSharedPtr<FInterfaceContainer> New(IFlareSpacecraftInterface* InObject)
 	{
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
-	FInterfaceContainer(IFlareShipInterface* InPtr)
+	FInterfaceContainer(IFlareSpacecraftInterface* InPtr)
 		: ShipInterfacePtr(InPtr)
 		, PartDescription(NULL)
 	{}
-	IFlareShipInterface* ShipInterfacePtr;
+	IFlareSpacecraftInterface* ShipInterfacePtr;
 
 	// Part info
 	static TSharedPtr<FInterfaceContainer> New(FFlareShipComponentDescription* InObject)

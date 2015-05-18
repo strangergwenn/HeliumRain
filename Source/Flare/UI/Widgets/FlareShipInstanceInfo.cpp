@@ -3,7 +3,7 @@
 #include "FlareShipInstanceInfo.h"
 #include "../Widgets/FlareShipStatus.h"
 #include "../../Game/FlareCompany.h"
-#include "../../Ships/FlareShipInterface.h"
+#include "../../Ships/FlareSpacecraftInterface.h"
 #include "../../Player/FlarePlayerController.h"
 
 
@@ -25,7 +25,7 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 	Target = Ship->_getUObject();
 	ShipData = Ship->Save();
 	ShipDescription = InArgs._Player->GetGame()->GetShipCatalog()->Get(ShipData->Identifier);
-	Icon = IFlareShipInterface::GetIcon(ShipDescription);
+	Icon = IFlareSpacecraftInterface::GetIcon(ShipDescription);
 	Company = Ship->GetCompany();
 
 	// Create the layout

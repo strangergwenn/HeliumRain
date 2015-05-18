@@ -246,7 +246,7 @@ void SFlareTargetActions::SetCompany(UFlareCompany* Target)
 	}
 }
 
-void SFlareTargetActions::SetStation(IFlareShipInterface* Target)
+void SFlareTargetActions::SetStation(IFlareSpacecraftInterface* Target)
 {
 	TargetCompany = NULL;
 	TargetStation = Target;
@@ -286,7 +286,7 @@ void SFlareTargetActions::SetStation(IFlareShipInterface* Target)
 	}
 }
 
-void SFlareTargetActions::SetShip(IFlareShipInterface* Target)
+void SFlareTargetActions::SetShip(IFlareSpacecraftInterface* Target)
 {
 	TargetCompany = NULL;
 	TargetShip = Target;
@@ -475,11 +475,11 @@ const FSlateBrush* SFlareTargetActions::GetClassIcon() const
 {
 	if (TargetStationDesc)
 	{
-		return IFlareShipInterface::GetIcon(TargetStationDesc);
+		return IFlareSpacecraftInterface::GetIcon(TargetStationDesc);
 	}
 	else if (TargetShipDesc)
 	{
-		return IFlareShipInterface::GetIcon(TargetShipDesc);
+		return IFlareSpacecraftInterface::GetIcon(TargetShipDesc);
 	}
 	else if (TargetCompany)
 	{

@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareCompanyFlag.h"
 #include "../Widgets/FlareShipStatus.h"
-#include "../../Ships/FlareShipInterface.h"
+#include "../../Ships/FlareSpacecraftInterface.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Game/FlareCompany.h"
 
@@ -44,10 +44,10 @@ public:
 	void SetCompany(UFlareCompany* Target);
 
 	/** Set a station as content */
-	void SetStation(IFlareShipInterface* Target);
+	void SetStation(IFlareSpacecraftInterface* Target);
 
 	/** Set a ship as content */
-	void SetShip(IFlareShipInterface* Target);
+	void SetShip(IFlareSpacecraftInterface* Target);
 
 	/** Set the no-inspect mode */
 	void SetNoInspect(bool NewState);
@@ -112,9 +112,9 @@ protected:
 
 	// Target data
 	UFlareCompany*                    TargetCompany;
-	IFlareShipInterface*              TargetStation;
+	IFlareSpacecraftInterface*              TargetStation;
 	FFlareShipDescription*            TargetStationDesc;
-	IFlareShipInterface*              TargetShip;
+	IFlareSpacecraftInterface*              TargetShip;
 	FFlareShipDescription*            TargetShipDesc;
 	FString                           TargetName;
 

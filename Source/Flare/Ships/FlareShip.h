@@ -2,7 +2,7 @@
 
 #include "FlareShipPawn.h"
 #include "FlareWeapon.h"
-#include "FlareShipInterface.h"
+#include "FlareSpacecraftInterface.h"
 #include "FlareShip.generated.h"
 
 
@@ -71,7 +71,7 @@ struct FFlareShipCommandData
 
 /** Ship class */
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
-class AFlareShip : public AFlareShipPawn, public IFlareShipInterface
+class AFlareShip : public AFlareShipPawn, public IFlareSpacecraftInterface
 {
 
 public:
@@ -156,16 +156,16 @@ public:
 		Docking
 	----------------------------------------------------*/
 
-	virtual bool DockAt(IFlareShipInterface* TargetStation) override;
+	virtual bool DockAt(IFlareSpacecraftInterface* TargetStation) override;
 
 	/** Confirm that the docking sequence has completed */
-	virtual void ConfirmDock(IFlareShipInterface* DockStation, int32 DockId);
+	virtual void ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId);
 
 	virtual bool Undock() override;
 
-	virtual IFlareShipInterface* GetDockStation() override;
+	virtual IFlareSpacecraftInterface* GetDockStation() override;
 
-	virtual bool HasAvailableDock(IFlareShipInterface* Ship) const override;
+	virtual bool HasAvailableDock(IFlareSpacecraftInterface* Ship) const override;
 
 
 	/*----------------------------------------------------
@@ -212,13 +212,13 @@ public:
 		Docking
 	----------------------------------------------------*/
 
-	virtual TArray<IFlareShipInterface*> GetDockedShips() override;
+	virtual TArray<IFlareSpacecraftInterface*> GetDockedShips() override;
 
-	virtual FFlareDockingInfo RequestDock(IFlareShipInterface* Ship) override;
+	virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship) override;
 
-	virtual void ReleaseDock(IFlareShipInterface* Ship, int32 DockId) override;
+	virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId) override;
 
-	virtual void Dock(IFlareShipInterface* Ship, int32 DockId) override;
+	virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId) override;
 
 	/*----------------------------------------------------
 		Damage system interface
@@ -288,7 +288,7 @@ protected:
 	virtual void OnControlLost();
 
 	/** Our ship killed another ship */
-	virtual void OnEnemyKilled(IFlareShipInterface* Enemy);
+	virtual void OnEnemyKilled(IFlareSpacecraftInterface* Enemy);
 
 
 public:

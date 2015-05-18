@@ -243,7 +243,7 @@ void SFlareShipMenu::Setup()
 	SetVisibility(EVisibility::Hidden);
 }
 
-void SFlareShipMenu::Enter(IFlareShipInterface* Target, bool IsEditable)
+void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
 	FLOG("SFlareShipMenu::Enter");
 	SetEnabled(true);

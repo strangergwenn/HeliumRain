@@ -30,7 +30,7 @@ FFlareCompanySave* UFlareCompany::Save()
 	return &CompanyData;
 }
 
-void UFlareCompany::Register(IFlareShipInterface* Ship)
+void UFlareCompany::Register(IFlareSpacecraftInterface* Ship)
 {
 	if (Ship->IsStation())
 	{
@@ -42,7 +42,7 @@ void UFlareCompany::Register(IFlareShipInterface* Ship)
 	}
 }
 
-void UFlareCompany::Unregister(IFlareShipInterface* Ship)
+void UFlareCompany::Unregister(IFlareSpacecraftInterface* Ship)
 {
 	if (Ship->IsStation())
 	{

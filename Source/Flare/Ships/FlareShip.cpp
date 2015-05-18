@@ -161,7 +161,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 				}
 				else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Dock)
 				{
-					ConfirmDock(Cast<IFlareShipInterface>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam);
+					ConfirmDock(Cast<IFlareSpacecraftInterface>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam);
 				}
 			}
 		}
@@ -738,7 +738,7 @@ bool AFlareShip::IsDocked()
 	Docking
 ----------------------------------------------------*/
 
-bool AFlareShip::DockAt(IFlareShipInterface* TargetStation)
+bool AFlareShip::DockAt(IFlareSpacecraftInterface* TargetStation)
 {
 	FLOG("AFlareShip::DockAt");
 	FFlareDockingInfo DockingInfo = TargetStation->RequestDock(this);
@@ -771,7 +771,7 @@ bool AFlareShip::DockAt(IFlareShipInterface* TargetStation)
 	return false;
 }
 
-void AFlareShip::ConfirmDock(IFlareShipInterface* DockStation, int32 DockId)
+void AFlareShip::ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId)
 {
 	FLOG("AFlareShip::ConfirmDock");
 	ClearCurrentCommand();
@@ -846,7 +846,7 @@ bool AFlareShip::Undock()
 	return false;
 }
 
-IFlareShipInterface* AFlareShip::GetDockStation()
+IFlareSpacecraftInterface* AFlareShip::GetDockStation()
 {
 	if (IsDocked())
 	{
@@ -862,7 +862,7 @@ IFlareShipInterface* AFlareShip::GetDockStation()
 	return NULL;
 }
 
-FFlareDockingInfo AFlareShip::RequestDock(IFlareShipInterface* Ship)
+FFlareDockingInfo AFlareShip::RequestDock(IFlareSpacecraftInterface* Ship)
 {
 	FLOGV("AFlareShip::RequestDock ('%s')", *Ship->_getUObject()->GetName());
 
@@ -886,7 +886,7 @@ FFlareDockingInfo AFlareShip::RequestDock(IFlareShipInterface* Ship)
 	return Info;
 }
 
-void AFlareShip::ReleaseDock(IFlareShipInterface* Ship, int32 DockId)
+void AFlareShip::ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId)
 {
 	FLOGV("AFlareShip::ReleaseDock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
 	/*DockingSlots[DockId].Granted = false;
@@ -895,7 +895,7 @@ void AFlareShip::ReleaseDock(IFlareShipInterface* Ship, int32 DockId)
 	// TODO Fix
 }
 
-void AFlareShip::Dock(IFlareShipInterface* Ship, int32 DockId)
+void AFlareShip::Dock(IFlareSpacecraftInterface* Ship, int32 DockId)
 {
 	FLOGV("AFlareShip::Dock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
 	/*DockingSlots[DockId].Granted = true;
@@ -904,9 +904,9 @@ void AFlareShip::Dock(IFlareShipInterface* Ship, int32 DockId)
 	// TODO Fix
 }
 
-TArray<IFlareShipInterface*> AFlareShip::GetDockedShips()
+TArray<IFlareSpacecraftInterface*> AFlareShip::GetDockedShips()
 {
-	TArray<IFlareShipInterface*> Result;
+	TArray<IFlareSpacecraftInterface*> Result;
 
 	/*for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
@@ -921,7 +921,7 @@ TArray<IFlareShipInterface*> AFlareShip::GetDockedShips()
 	return Result;
 }
 
-bool AFlareShip::HasAvailableDock(IFlareShipInterface* Ship) const
+bool AFlareShip::HasAvailableDock(IFlareSpacecraftInterface* Ship) const
 {
 	// Looking for slot
 	/*for (int32 i = 0; i < DockingSlots.Num(); i++)
@@ -1015,7 +1015,7 @@ void AFlareShip::AbortAllCommands()
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
 			// Release dock grant
-			IFlareShipInterface* Station = Cast<IFlareShipInterface>(Command.ActionTarget);
+			IFlareSpacecraftInterface* Station = Cast<IFlareSpacecraftInterface>(Command.ActionTarget);
 			Station->ReleaseDock(this, Command.ActionTargetParam);
 		}
 	}
@@ -1574,7 +1574,7 @@ void AFlareShip::OnControlLost()
 	}
 }
 
-void AFlareShip::OnEnemyKilled(IFlareShipInterface* Enemy)
+void AFlareShip::OnEnemyKilled(IFlareSpacecraftInterface* Enemy)
 {
 	AFlarePlayerController* PC = GetPC();
 	if (PC)

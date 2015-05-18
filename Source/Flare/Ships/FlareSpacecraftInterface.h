@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Game/FlareCompany.h"
-#include "FlareShipInterface.generated.h"
+#include "FlareSpacecraftInterface.generated.h"
 
 struct FFlareShipComponentSave;
 
@@ -29,8 +29,8 @@ struct FFlareDockingInfo
 	bool                      Granted;
 	bool                      Occupied;
 	int32                     DockId;
-	IFlareShipInterface*   Station;
-	IFlareShipInterface*      Ship;
+	IFlareSpacecraftInterface*   Station;
+	IFlareSpacecraftInterface*      Ship;
 
 	FRotator                  Rotation;
 	FVector                   StartPoint;
@@ -187,14 +187,14 @@ struct FFlareShipDescription
 
 /** Interface wrapper */
 UINTERFACE(MinimalAPI, meta=(CannotImplementInterfaceInBlueprint))
-class UFlareShipInterface  : public UInterface
+class UFlareSpacecraftInterface  : public UInterface
 {
 	GENERATED_UINTERFACE_BODY()
 };
 
 
 /** Actual interface */
-class IFlareShipInterface
+class IFlareSpacecraftInterface
 {
 	GENERATED_IINTERFACE_BODY()
 
@@ -280,27 +280,27 @@ public:
 	virtual bool IsDocked() = 0;
 
 	/** Navigate to and dock at this station */
-	virtual bool DockAt(IFlareShipInterface* TargetStation) = 0;
+	virtual bool DockAt(IFlareSpacecraftInterface* TargetStation) = 0;
 
 	/** Undock from the current station */
 	virtual bool Undock() = 0;
 
 	/** Get the station where we are docked to */
-	virtual IFlareShipInterface* GetDockStation() = 0;
+	virtual IFlareSpacecraftInterface* GetDockStation() = 0;
 
 	/** Get the list of docked ships */
-	virtual TArray<IFlareShipInterface*> GetDockedShips() = 0;
+	virtual TArray<IFlareSpacecraftInterface*> GetDockedShips() = 0;
 
 	/** Request a docking point */
-	virtual FFlareDockingInfo RequestDock(IFlareShipInterface* Ship) = 0;
+	virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship) = 0;
 
 	/** Cancel docking */
-	virtual void ReleaseDock(IFlareShipInterface* Ship, int32 DockId) = 0;
+	virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId) = 0;
 
 	/** Confirm the docking from external ship */
-	virtual void Dock(IFlareShipInterface* Ship, int32 DockId) = 0;
+	virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId) = 0;
 
-	virtual bool HasAvailableDock(IFlareShipInterface* Ship) const = 0;
+	virtual bool HasAvailableDock(IFlareSpacecraftInterface* Ship) const = 0;
 
 
 	/*----------------------------------------------------

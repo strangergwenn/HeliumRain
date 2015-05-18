@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Ships/FlareShipInterface.h"
+#include "../../Ships/FlareSpacecraftInterface.h"
 
 
 class SFlareShipStatus : public SCompoundWidget
@@ -15,7 +15,7 @@ class SFlareShipStatus : public SCompoundWidget
 		, _Center(false)
 	{}
 
-	SLATE_ARGUMENT(IFlareShipInterface*, Ship)
+	SLATE_ARGUMENT(IFlareSpacecraftInterface*, Ship)
 	SLATE_ARGUMENT(bool, Center)
 	
 	SLATE_END_ARGS()
@@ -31,7 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set the ship to display data for */
-	void SetTargetShip(IFlareShipInterface* Target);
+	void SetTargetShip(IFlareSpacecraftInterface* Target);
 
 
 protected:
@@ -51,7 +51,7 @@ protected:
 	----------------------------------------------------*/
 
 	// Ship data
-	IFlareShipInterface*                    TargetShip;
+	IFlareSpacecraftInterface*                    TargetShip;
 	bool                                    CenterIcons;
 
 	// Slate data

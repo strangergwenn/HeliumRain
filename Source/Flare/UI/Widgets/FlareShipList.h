@@ -31,10 +31,10 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Add a new station to the list */
-	void AddStation(IFlareShipInterface* StationCandidate);
+	void AddStation(IFlareSpacecraftInterface* StationCandidate);
 
 	/** Add a new ship to the list */
-	void AddShip(IFlareShipInterface* ShipCandidate);
+	void AddShip(IFlareSpacecraftInterface* ShipCandidate);
 	
 	/** Update the list display from content */
 	void RefreshList();

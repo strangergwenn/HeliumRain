@@ -100,7 +100,7 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareSubsystemStatus::SetTargetShip(IFlareShipInterface* Target)
+void SFlareSubsystemStatus::SetTargetShip(IFlareSpacecraftInterface* Target)
 {
 	TargetShip = Target;
 }

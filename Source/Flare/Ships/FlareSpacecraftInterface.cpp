@@ -1,6 +1,6 @@
 ;
 #include "../Flare.h"
-#include "FlareShipInterface.h"
+#include "FlareSpacecraftInterface.h"
 #include "FlareShipComponent.h"
 
 
@@ -8,7 +8,7 @@
 	Constructor
 ----------------------------------------------------*/
 
-UFlareShipInterface::UFlareShipInterface(const class FObjectInitializer& PCIP)
+UFlareSpacecraftInterface::UFlareSpacecraftInterface(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 }
@@ -18,7 +18,7 @@ UFlareShipInterface::UFlareShipInterface(const class FObjectInitializer& PCIP)
 	Content
 ----------------------------------------------------*/
 
-const FSlateBrush* IFlareShipInterface::GetIcon(FFlareShipDescription* Characteristic)
+const FSlateBrush* IFlareSpacecraftInterface::GetIcon(FFlareShipDescription* Characteristic)
 {
 	if (Characteristic)
 	{

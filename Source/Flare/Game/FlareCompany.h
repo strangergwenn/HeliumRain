@@ -63,7 +63,7 @@ struct FFlareCompanySave
 
 
 class AFlareGame;
-class IFlareShipInterface;
+class IFlareSpacecraftInterface;
 
 UCLASS()
 class FLARE_API UFlareCompany : public UObject
@@ -83,10 +83,10 @@ public:
 	virtual FFlareCompanySave* Save();
 
 	/** Register a ship or a station*/
-	virtual void Register(IFlareShipInterface* Ship);
+	virtual void Register(IFlareSpacecraftInterface* Ship);
 
 	/** Un-register a ship or a station*/
-	virtual void Unregister(IFlareShipInterface* Ship);
+	virtual void Unregister(IFlareSpacecraftInterface* Ship);
 
 	/*----------------------------------------------------
 		Gameplay
@@ -136,8 +136,8 @@ protected:
 
 	// Gameplay data
 	FFlareCompanySave                 CompanyData;
-	TArray<IFlareShipInterface*>   CompanyStations;
-	TArray<IFlareShipInterface*>      CompanyShips;
+	TArray<IFlareSpacecraftInterface*>   CompanyStations;
+	TArray<IFlareSpacecraftInterface*>      CompanyShips;
 
 
 public:
@@ -186,12 +186,12 @@ public:
 		return CompanyData.CustomizationPatternIndex;
 	}
 
-	inline TArray<IFlareShipInterface*>& GetCompanyStations()
+	inline TArray<IFlareSpacecraftInterface*>& GetCompanyStations()
 	{
 		return CompanyStations;
 	}
 
-	inline TArray<IFlareShipInterface*>& GetCompanyShips()
+	inline TArray<IFlareSpacecraftInterface*>& GetCompanyShips()
 	{
 		return CompanyShips;
 	}
