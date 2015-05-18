@@ -2,7 +2,7 @@
 
 #include "SlateBasics.h"
 #include "GameFramework/HUD.h"
-#include "../Ships/FlareShipPawn.h"
+#include "../Ships/FlareSpacecraftPawn.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareHUDMenu.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
@@ -40,7 +40,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Draw a designator block around a ship */
-	bool DrawHUDDesignator(AFlareShipPawn* ShipBase);
+	bool DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase);
 
 	/** Draw a designator corner */
 	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor);
@@ -58,7 +58,7 @@ public:
 	void DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, float Rotation);
 
 	/** Get the appropriate hostility color */
-	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareShipPawn* Target);
+	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target);
 
 
 	/*----------------------------------------------------

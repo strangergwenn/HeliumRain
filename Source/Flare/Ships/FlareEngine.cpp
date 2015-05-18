@@ -21,7 +21,7 @@ UFlareEngine::UFlareEngine(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareEngine::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipPawn* OwnerShip, bool IsInMenu)
+void UFlareEngine::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 

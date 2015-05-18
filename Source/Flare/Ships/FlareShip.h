@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareShipPawn.h"
+#include "FlareSpacecraftPawn.h"
 #include "FlareWeapon.h"
 #include "FlareSpacecraftInterface.h"
 #include "FlareShip.generated.h"
@@ -71,7 +71,7 @@ struct FFlareShipCommandData
 
 /** Ship class */
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
-class AFlareShip : public AFlareShipPawn, public IFlareSpacecraftInterface
+class AFlareShip : public AFlareSpacecraftPawn, public IFlareSpacecraftInterface
 {
 
 public:

@@ -6,7 +6,7 @@
 
 
 UCLASS()
-class AFlareMenuPawn : public AFlareShipPawn
+class AFlareMenuPawn : public AFlareSpacecraftPawn
 {
 
 public:

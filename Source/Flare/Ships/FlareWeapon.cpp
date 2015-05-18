@@ -24,7 +24,7 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareShipPawn* OwnerShip, bool IsInMenu)
+void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 

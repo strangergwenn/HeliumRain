@@ -1,6 +1,6 @@
 
 #include "../Flare.h"
-#include "FlareShipPawn.h"
+#include "FlareSpacecraftPawn.h"
 #include "FlareRCS.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
@@ -10,7 +10,7 @@
 	Constructor
 ----------------------------------------------------*/
 
-AFlareShipPawn::AFlareShipPawn(const class FObjectInitializer& PCIP)
+AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, PresentationMode(false)
 	, CameraPanSpeed(2)
@@ -36,12 +36,12 @@ AFlareShipPawn::AFlareShipPawn(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void AFlareShipPawn::BeginPlay()
+void AFlareSpacecraftPawn::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AFlareShipPawn::Tick(float DeltaSeconds)
+void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	
@@ -56,27 +56,27 @@ void AFlareShipPawn::Tick(float DeltaSeconds)
 	Camera control
 ----------------------------------------------------*/
 
-void AFlareShipPawn::SetCameraPitch(float Value)
+void AFlareSpacecraftPawn::SetCameraPitch(float Value)
 {
 	CameraOffsetPitch = FMath::Clamp(Value, -CameraMaxPitch, +CameraMaxPitch);
 }
 
-void AFlareShipPawn::SetCameraYaw(float Value)
+void AFlareSpacecraftPawn::SetCameraYaw(float Value)
 {
 	CameraOffsetYaw = FMath::Clamp(Value, -CameraMaxYaw, +CameraMaxYaw);
 }
 
-void AFlareShipPawn::SetCameraLocalPosition(FVector Value)
+void AFlareSpacecraftPawn::SetCameraLocalPosition(FVector Value)
 {
 	CameraLocalPosition = Value;
 }
 
-void AFlareShipPawn::SetCameraDistance(float Value)
+void AFlareSpacecraftPawn::SetCameraDistance(float Value)
 {
 	CameraOffsetDistance = Value;
 }
 
-void AFlareShipPawn::StepCameraDistance(bool TowardCenter)
+void AFlareSpacecraftPawn::StepCameraDistance(bool TowardCenter)
 {
 	// Compute camera data
 	float Scale = GetMeshScale();
@@ -93,17 +93,17 @@ void AFlareShipPawn::StepCameraDistance(bool TowardCenter)
 	Customization
 ----------------------------------------------------*/
 
-void AFlareShipPawn::SetCompany(UFlareCompany* NewCompany)
+void AFlareSpacecraftPawn::SetCompany(UFlareCompany* NewCompany)
 {
 	Company = NewCompany;
 }
 
-void AFlareShipPawn::ReloadPart(UFlareShipComponent* Target, const FFlareShipComponentSave* Data)
+void AFlareSpacecraftPawn::ReloadPart(UFlareShipComponent* Target, const FFlareShipComponentSave* Data)
 {
 	Target->Initialize(Data, Company, this);
 }
 
-void AFlareShipPawn::UpdateCustomization()
+void AFlareSpacecraftPawn::UpdateCustomization()
 {
 	// Required data
 	TArray<UActorComponent*> ActorComponents;
@@ -124,7 +124,7 @@ void AFlareShipPawn::UpdateCustomization()
 	}
 }
 
-void AFlareShipPawn::StartPresentation()
+void AFlareSpacecraftPawn::StartPresentation()
 {
 	PresentationMode = true;
 	PresentationModeStarted();
@@ -135,7 +135,7 @@ void AFlareShipPawn::StartPresentation()
 	Helpers
 ----------------------------------------------------*/
 
-float AFlareShipPawn::GetRotationAmount(const FQuat& X, bool ClampToHalfTurn)
+float AFlareSpacecraftPawn::GetRotationAmount(const FQuat& X, bool ClampToHalfTurn)
 {
 	float Angle;
 	FVector Vector;
@@ -151,7 +151,7 @@ float AFlareShipPawn::GetRotationAmount(const FQuat& X, bool ClampToHalfTurn)
 	}
 }
 
-FQuat AFlareShipPawn::ClampQuaternion(const FQuat& X, float Angle)
+FQuat AFlareSpacecraftPawn::ClampQuaternion(const FQuat& X, float Angle)
 {
 	float RotAngle = GetRotationAmount(X);
 
@@ -165,7 +165,7 @@ FQuat AFlareShipPawn::ClampQuaternion(const FQuat& X, float Angle)
 	}
 }
 
-float AFlareShipPawn::TriStateRegulator(float Target, float Current, float Threshold)
+float AFlareSpacecraftPawn::TriStateRegulator(float Target, float Current, float Threshold)
 {
 	float Diff = Target - Current;
 	float AbsDiff = FMath::Abs(Diff);
@@ -180,7 +180,7 @@ float AFlareShipPawn::TriStateRegulator(float Target, float Current, float Thres
 	}
 }
 
-FQuat AFlareShipPawn::WorldToLocal(const FQuat& World)
+FQuat AFlareSpacecraftPawn::WorldToLocal(const FQuat& World)
 {
 	FRotator WorldRotator = World.Rotator();
 	FTransform ParentWorldTransform = RootComponent->GetComponentTransform();
@@ -196,17 +196,17 @@ FQuat AFlareShipPawn::WorldToLocal(const FQuat& World)
 	return Result;
 }
 
-FVector AFlareShipPawn::WorldToLocal(FVector World)
+FVector AFlareSpacecraftPawn::WorldToLocal(FVector World)
 {
 	return RootComponent->GetComponentTransform().InverseTransformVectorNoScale(World);
 }
 
-AFlarePlayerController* AFlareShipPawn::GetPC() const
+AFlarePlayerController* AFlareSpacecraftPawn::GetPC() const
 {
 	return Cast<AFlarePlayerController>(GetController());
 }
 
-bool AFlareShipPawn::IsFlownByPlayer() const
+bool AFlareSpacecraftPawn::IsFlownByPlayer() const
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
@@ -219,12 +219,12 @@ bool AFlareShipPawn::IsFlownByPlayer() const
 	}
 }
 
-AFlareGame* AFlareShipPawn::GetGame() const
+AFlareGame* AFlareSpacecraftPawn::GetGame() const
 {
 	return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 }
 
-float AFlareShipPawn::GetMeshScale() const
+float AFlareSpacecraftPawn::GetMeshScale() const
 {
 	FVector Origin;
 	FVector Extent;
@@ -233,7 +233,7 @@ float AFlareShipPawn::GetMeshScale() const
 }
 
 
-UFlareInternalComponent* AFlareShipPawn::GetInternalComponentAtLocation(FVector Location) const
+UFlareInternalComponent* AFlareSpacecraftPawn::GetInternalComponentAtLocation(FVector Location) const
 {
 	float MinDistance = 100000; // 1km
 	UFlareInternalComponent* ClosestComponent = NULL;
@@ -257,7 +257,7 @@ UFlareInternalComponent* AFlareShipPawn::GetInternalComponentAtLocation(FVector 
 	return ClosestComponent;
 }
 
-void AFlareShipPawn::UpdatePower()
+void AFlareSpacecraftPawn::UpdatePower()
 {
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
