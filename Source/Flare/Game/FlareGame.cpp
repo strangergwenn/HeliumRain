@@ -486,7 +486,7 @@ AFlareShip* AFlareGame::CreateShip(FFlareShipDescription* ShipDescription, FName
 		
 		for (int32 i = 0; i < ShipDescription->RCSCount; i++)
 		{
-			FFlareShipComponentSave ComponentData;
+			FFlareSpacecraftComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = RCSIdentifier;
 			ComponentData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
 			ComponentData.Damage = 0.f;
@@ -495,7 +495,7 @@ AFlareShip* AFlareGame::CreateShip(FFlareShipDescription* ShipDescription, FName
 		
 		for (int32 i = 0; i < ShipDescription->OrbitalEngineCount; i++)
 		{
-			FFlareShipComponentSave ComponentData;
+			FFlareSpacecraftComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
 			ComponentData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
 			ComponentData.Damage = 0.f;
@@ -504,7 +504,7 @@ AFlareShip* AFlareGame::CreateShip(FFlareShipDescription* ShipDescription, FName
 
 		for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
 		{
-			FFlareShipComponentSave ComponentData;
+			FFlareSpacecraftComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = FName("weapon-eradicator");
 			ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
 			ComponentData.Damage = 0.f;
@@ -518,7 +518,7 @@ AFlareShip* AFlareGame::CreateShip(FFlareShipDescription* ShipDescription, FName
 		
 		for (int32 i = 0; i < ShipDescription->InternalComponentSlots.Num(); i++)
 		{
-			FFlareShipComponentSave ComponentData;
+			FFlareSpacecraftComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = ShipDescription->InternalComponentSlots[i].ComponentIdentifier;
 			ComponentData.ShipSlotIdentifier = ShipDescription->InternalComponentSlots[i].SlotIdentifier;
 			ComponentData.Damage = 0.f;

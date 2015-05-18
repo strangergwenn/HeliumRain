@@ -1,7 +1,7 @@
 ;
 #include "../Flare.h"
 #include "FlareShip.h"
-#include "FlareShipComponent.h"
+#include "FlareSpacecraftComponent.h"
 #include "../Player/FlareMenuPawn.h"
 #include "../Player/FlarePlayerController.h"
 #include "FlareOrbitalEngine.h"
@@ -13,7 +13,7 @@
 	Constructor
 ----------------------------------------------------*/
 
-UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
+UFlareSpacecraftComponent::UFlareSpacecraftComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, Ship(NULL)
 	, PlayerCompany(NULL)
@@ -46,7 +46,7 @@ UFlareShipComponent::UFlareShipComponent(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareShipComponent::OnRegister()
+void UFlareSpacecraftComponent::OnRegister()
 {
 	Super::OnRegister();
 
@@ -54,7 +54,7 @@ void UFlareShipComponent::OnRegister()
 	SetCollisionProfileName("BlockAllDynamic");
 }
 
-void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
@@ -155,7 +155,7 @@ void UFlareShipComponent::TickComponent(float DeltaTime, enum ELevelTick TickTyp
 	}
 }
 
-void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
+void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	// Main data
 	Ship = OwnerShip;
@@ -199,7 +199,7 @@ void UFlareShipComponent::Initialize(const FFlareShipComponentSave* Data, UFlare
 	UpdateCustomization();
 }
 
-FFlareShipComponentSave* UFlareShipComponent::Save()
+FFlareSpacecraftComponentSave* UFlareSpacecraftComponent::Save()
 {
 	if (ComponentDescription)
 	{
@@ -211,18 +211,18 @@ FFlareShipComponentSave* UFlareShipComponent::Save()
 	}
 }
 
-float UFlareShipComponent::GetMeshScale()
+float UFlareSpacecraftComponent::GetMeshScale()
 {
 	FVector Extent = GetCollisionShape().GetExtent();
 	return FMath::Max(Extent.Size(), 1.0f);
 }
 
-bool UFlareShipComponent::IsInitialized()
+bool UFlareSpacecraftComponent::IsInitialized()
 {
 	return (Ship != NULL);
 }
 
-void UFlareShipComponent::SetTemperature(int32 TemperatureKelvin)
+void UFlareSpacecraftComponent::SetTemperature(int32 TemperatureKelvin)
 {
 	if (ComponentMaterial)
 	{
@@ -230,7 +230,7 @@ void UFlareShipComponent::SetTemperature(int32 TemperatureKelvin)
 	}
 }
 
-void UFlareShipComponent::SetHealth(float HealthRatio)
+void UFlareSpacecraftComponent::SetHealth(float HealthRatio)
 {
 	if (ComponentMaterial)
 	{
@@ -238,12 +238,12 @@ void UFlareShipComponent::SetHealth(float HealthRatio)
 	}
 }
 
-void UFlareShipComponent::SetLightStatus(EFlareLightStatus::Type Status)
+void UFlareSpacecraftComponent::SetLightStatus(EFlareLightStatus::Type Status)
 {
 	LightFlickeringStatus = Status;
 }
 
-void UFlareShipComponent::GetBoundingSphere(FVector& Location, float& Radius)
+void UFlareSpacecraftComponent::GetBoundingSphere(FVector& Location, float& Radius)
 {
 	FVector Min;
 	FVector Max;
@@ -255,7 +255,7 @@ void UFlareShipComponent::GetBoundingSphere(FVector& Location, float& Radius)
 	Location = GetComponentToWorld().TransformPosition(LocalBoxCenter);
 }
 
-bool UFlareShipComponent::IsVisibleByPlayer()
+bool UFlareSpacecraftComponent::IsVisibleByPlayer()
 {
 	if (bVisible)
 	{
@@ -272,7 +272,7 @@ bool UFlareShipComponent::IsVisibleByPlayer()
 	Customization
 ----------------------------------------------------*/
 
-void UFlareShipComponent::SetupComponentMesh()
+void UFlareSpacecraftComponent::SetupComponentMesh()
 {
 	// Set the mesh
 	if (ComponentDescription && ComponentDescription->Mesh)
@@ -325,7 +325,7 @@ void UFlareShipComponent::SetupComponentMesh()
 	}
 }
 
-void UFlareShipComponent::UpdateCustomization()
+void UFlareSpacecraftComponent::UpdateCustomization()
 {
 	if (PlayerCompany)
 	{
@@ -345,7 +345,7 @@ void UFlareShipComponent::UpdateCustomization()
 	Damages
 ----------------------------------------------------*/
 
-float UFlareShipComponent::GetRemainingArmorAtLocation(FVector Location)
+float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
 {
 	if (!ComponentDescription || (ComponentDescription->ArmorHitPoints == 0.0f && ComponentDescription->HitPoints == 0.0f))
 	{
@@ -358,7 +358,7 @@ float UFlareShipComponent::GetRemainingArmorAtLocation(FVector Location)
 	}
 }
 
-void UFlareShipComponent::ApplyDamage(float Energy)
+void UFlareSpacecraftComponent::ApplyDamage(float Energy)
 {
 	if (ComponentDescription)
 	{
@@ -382,12 +382,12 @@ void UFlareShipComponent::ApplyDamage(float Energy)
 	}
 }
 
-void UFlareShipComponent::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
+void UFlareSpacecraftComponent::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
 {
 	// Standard component have no overheat damage.
 }
 
-float UFlareShipComponent::GetDamageRatio(bool WithArmor) const
+float UFlareSpacecraftComponent::GetDamageRatio(bool WithArmor) const
 {
 	if (ComponentDescription)
 	{
@@ -400,37 +400,37 @@ float UFlareShipComponent::GetDamageRatio(bool WithArmor) const
 	}
 }
 
-bool UFlareShipComponent::IsDestroyed() const
+bool UFlareSpacecraftComponent::IsDestroyed() const
 {
 	return (GetDamageRatio() <= 0);
 }
 
-bool UFlareShipComponent::IsPowered() const
+bool UFlareSpacecraftComponent::IsPowered() const
 {
 	return (GetAvailablePower()> 0);
 }
 
-float UFlareShipComponent::GetGeneratedPower() const
+float UFlareSpacecraftComponent::GetGeneratedPower() const
 {
 	return GeneratedPower*GetDamageRatio();
 }
 
-float UFlareShipComponent::GetMaxGeneratedPower() const
+float UFlareSpacecraftComponent::GetMaxGeneratedPower() const
 {
 	return GeneratedPower;
 }
 
-float UFlareShipComponent::GetAvailablePower() const
+float UFlareSpacecraftComponent::GetAvailablePower() const
 {
 	return Power*GetDamageRatio();
 }
 
-bool UFlareShipComponent::IsGenerator() const
+bool UFlareSpacecraftComponent::IsGenerator() const
 {
 	return GeneratedPower > 0;
 }
 
-void UFlareShipComponent::UpdatePower()
+void UFlareSpacecraftComponent::UpdatePower()
 {
 	Power = 0;
 	for (int32 i = 0; i < PowerSources.Num(); i++)
@@ -441,7 +441,7 @@ void UFlareShipComponent::UpdatePower()
 	UpdateLight();
 }
 
-void UFlareShipComponent::UpdateLight()
+void UFlareSpacecraftComponent::UpdateLight()
 {
 	float AvailablePower = GetAvailablePower();
 	if (AvailablePower <= 0)
@@ -458,7 +458,7 @@ void UFlareShipComponent::UpdateLight()
 	}
 }
 
-void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources)
+void UFlareSpacecraftComponent::UpdatePowerSources(TArray<UFlareSpacecraftComponent*>* AvailablePowerSources)
 {
 	PowerSources.Empty();
 
@@ -469,7 +469,7 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* Avail
 	// First pass, find the closest distance
 	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
 	{
-		UFlareShipComponent* PowerSource = (*AvailablePowerSources)[i];
+		UFlareSpacecraftComponent* PowerSource = (*AvailablePowerSources)[i];
 
 		FVector OtherLocation;
 		float OtherRadius;
@@ -485,7 +485,7 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* Avail
 	// Second pass, add all source in the distance thresold
 	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
 	{
-		UFlareShipComponent* PowerSource = (*AvailablePowerSources)[i];
+		UFlareSpacecraftComponent* PowerSource = (*AvailablePowerSources)[i];
 		FVector OtherLocation;
 		float OtherRadius;
 		PowerSource->GetBoundingSphere(OtherLocation, OtherRadius);
@@ -500,22 +500,22 @@ void UFlareShipComponent::UpdatePowerSources(TArray<UFlareShipComponent*>* Avail
 }
 
 
-float UFlareShipComponent::GetHeatProduction() const
+float UFlareSpacecraftComponent::GetHeatProduction() const
 {
 	return HeatProduction * (0.5 + 0.5 *(-FMath::Pow((GetDamageRatio()-1),2)+1));
 }
 
-float UFlareShipComponent::GetHeatSinkSurface() const
+float UFlareSpacecraftComponent::GetHeatSinkSurface() const
 {
 	return HeatSinkSurface * (0.1 +  9 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Ship->HasPowerOutage() ? 0 : 1) / 10);
 }
 
-bool UFlareShipComponent::IsHeatSink() const
+bool UFlareSpacecraftComponent::IsHeatSink() const
 {
 	return HeatSinkSurface > 0;
 }
 
-float UFlareShipComponent::GetTotalHitPoints() const
+float UFlareSpacecraftComponent::GetTotalHitPoints() const
 {
 	if (ComponentDescription)
 	{
@@ -527,7 +527,7 @@ float UFlareShipComponent::GetTotalHitPoints() const
 	}
 }
 
-void UFlareShipComponent::Repair()
+void UFlareSpacecraftComponent::Repair()
 {
 	if (ComponentDescription)
 	{
@@ -540,7 +540,7 @@ void UFlareShipComponent::Repair()
 	}
 }
 
-void UFlareShipComponent::StartDestroyedEffects()
+void UFlareSpacecraftComponent::StartDestroyedEffects()
 {
 	if (!DestroyedEffects && DestroyedEffectTemplate)
 	{

@@ -25,7 +25,7 @@ AFlareShell::AFlareShell(const class FObjectInitializer& PCIP) : Super(PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity, bool Tracer)
+void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity, bool Tracer)
 {
 	ShellDescription = Description;
 	TracerShell = Tracer;
@@ -107,7 +107,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		}
 
 		// Hit a component
-		UFlareShipComponent* ShipComponent = Cast<UFlareShipComponent>(HitResult.Component.Get());
+		UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(HitResult.Component.Get());
 		if (ShipComponent)
 		{
 			 RemainingArmor = ShipComponent->GetRemainingArmorAtLocation(HitResult.Location);

@@ -3,7 +3,7 @@
 #include "../Game/FlareCompany.h"
 #include "FlareSpacecraftInterface.generated.h"
 
-struct FFlareShipComponentSave;
+struct FFlareSpacecraftComponentSave;
 
 
 /** Possible subsystems targets */
@@ -82,7 +82,7 @@ struct FFlareShipSave
 
 	/** Components list */
 	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareShipComponentSave> Components;
+	TArray<FFlareSpacecraftComponentSave> Components;
 
 	/** We are docked at this station */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -107,7 +107,7 @@ struct FFlareShipSave
 };
 
 
-/** Catalog binding between FFlareShipDescription and FFlareShipComponentDescription structure */
+/** Catalog binding between FFlareShipDescription and FFlareSpacecraftComponentDescription structure */
 USTRUCT()
 struct FFlareShipSlotDescription
 {

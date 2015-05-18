@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "../../Ships/FlareShipComponent.h"
+#include "../../Ships/FlareSpacecraftComponent.h"
 
 
 class SFlarePartInfo : public SCompoundWidget
@@ -20,7 +20,7 @@ class SFlarePartInfo : public SCompoundWidget
 
 	SLATE_ARGUMENT(bool, ShowOwnershipInfo)
 
-	SLATE_ARGUMENT(const FFlareShipComponentDescription*, Description)
+	SLATE_ARGUMENT(const FFlareSpacecraftComponentDescription*, Description)
 	
 	SLATE_END_ARGS()
 
@@ -42,7 +42,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Get a Slate info block */
-	static void BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareShipComponentDescription* Desc, bool ShowHelpers = true);
+	static void BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareSpacecraftComponentDescription* Desc, bool ShowHelpers = true);
 
 	/** Add data for a single characteristic to an horizontal box */
 	static void AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers);

@@ -24,7 +24,7 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
+void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 
@@ -42,7 +42,7 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 
 		for (int32 i = 0; i < ShipComponentData.Attributes.Num(); i++)
 		{
-			FFlareShipComponentAttributeSave FiredAmmoAttribute;
+			FFlareSpacecraftComponentAttributeSave FiredAmmoAttribute;
 			if(ShipComponentData.Attributes[i].AttributeIdentifier == FName("weapon-fired-ammo"))
 			{
 				FiredAmmo = ShipComponentData.Attributes[i].AttributeValue;
@@ -74,10 +74,10 @@ void UFlareWeapon::Initialize(const FFlareShipComponentSave* Data, UFlareCompany
 	}
 }
 
-FFlareShipComponentSave* UFlareWeapon::Save()
+FFlareSpacecraftComponentSave* UFlareWeapon::Save()
 {
 	float FiredAmmo = MaxAmmo - CurrentAmmo;
-	FFlareShipComponentAttributeSave FiredAmmoAttribute;
+	FFlareSpacecraftComponentAttributeSave FiredAmmoAttribute;
 	FiredAmmoAttribute.AttributeIdentifier = FName("weapon-fired-ammo");
 	FiredAmmoAttribute.AttributeValue = FiredAmmo;
 	// TODO implement correct attibute insert method

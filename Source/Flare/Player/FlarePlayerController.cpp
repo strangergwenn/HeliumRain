@@ -223,7 +223,7 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 		PowerSound->SetSound(NULL);
 	}
 
-	FFlareShipComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
+	FFlareSpacecraftComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
 	if(EngineDescription)
 	{
 		EngineSound->SetSound(EngineDescription->EngineCharacteristics.EngineSound);
@@ -233,7 +233,7 @@ void AFlarePlayerController::FlyShip(AFlareShip* Ship)
 		EngineSound->SetSound(NULL);
 	}
 
-	FFlareShipComponentDescription* RCSDescription = Ship->GetRCSDescription();
+	FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
 	if(RCSDescription)
 	{
 		RCSSound->SetSound(RCSDescription->EngineCharacteristics.EngineSound);

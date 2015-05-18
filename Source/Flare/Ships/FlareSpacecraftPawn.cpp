@@ -98,7 +98,7 @@ void AFlareSpacecraftPawn::SetCompany(UFlareCompany* NewCompany)
 	Company = NewCompany;
 }
 
-void AFlareSpacecraftPawn::ReloadPart(UFlareShipComponent* Target, const FFlareShipComponentSave* Data)
+void AFlareSpacecraftPawn::ReloadPart(UFlareSpacecraftComponent* Target, const FFlareSpacecraftComponentSave* Data)
 {
 	Target->Initialize(Data, Company, this);
 }
@@ -112,7 +112,7 @@ void AFlareSpacecraftPawn::UpdateCustomization()
 	// Find all components
 	for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(*ComponentIt);
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(*ComponentIt);
 		if (Component)
 		{
 			if (!Component->IsInitialized())
@@ -259,10 +259,10 @@ UFlareInternalComponent* AFlareSpacecraftPawn::GetInternalComponentAtLocation(FV
 
 void AFlareSpacecraftPawn::UpdatePower()
 {
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 		Component->UpdatePower();
 	}
 }

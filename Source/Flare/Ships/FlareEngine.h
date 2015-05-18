@@ -1,11 +1,11 @@
 #pragma once
 
-#include "FlareShipComponent.h"
+#include "FlareSpacecraftComponent.h"
 #include "FlareEngine.generated.h"
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class UFlareEngine : public UFlareShipComponent
+class UFlareEngine : public UFlareSpacecraftComponent
 {
 
 public:
@@ -18,7 +18,7 @@ public:
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu) override;
+	virtual void Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu) override;
 
 
 	/** Max engine thrust in Newtons*/

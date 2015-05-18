@@ -301,10 +301,10 @@ public:
 	virtual void SetShipDescription(FFlareShipDescription* Description);
 
 	/** Set the description to use for all orbital engines */
-	virtual void SetOrbitalEngineDescription(FFlareShipComponentDescription* Description);
+	virtual void SetOrbitalEngineDescription(FFlareSpacecraftComponentDescription* Description);
 
 	/** Set the description to use for all RCS */
-	virtual void SetRCSDescription(FFlareShipComponentDescription* Description);
+	virtual void SetRCSDescription(FFlareSpacecraftComponentDescription* Description);
 
 	virtual void UpdateCustomization() override;
 
@@ -367,16 +367,16 @@ protected:
 	// Component descriptions, save data
 	FFlareShipSave                           ShipData;
 	FFlareShipDescription*                   ShipDescription;
-	FFlareShipComponentDescription*          OrbitalEngineDescription;
-	FFlareShipComponentDescription*          RCSDescription;
+	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
+	FFlareSpacecraftComponentDescription*          RCSDescription;
 
 	// Weapon components and descriptions
 	TArray <UFlareWeapon*>                   WeaponList;
-	TArray <FFlareShipComponentDescription*> WeaponDescriptionList;
+	TArray <FFlareSpacecraftComponentDescription*> WeaponDescriptionList;
 
 	// Lifesupport status
 	UPROPERTY()
-	UFlareShipComponent*                     ShipCockit;
+	UFlareSpacecraftComponent*                     ShipCockit;
 
 	// Pilot object
 	UPROPERTY()
@@ -458,17 +458,17 @@ public:
 		return ShipDescription;
 	}
 
-	inline FFlareShipComponentDescription* GetOrbitalEngineDescription() const
+	inline FFlareSpacecraftComponentDescription* GetOrbitalEngineDescription() const
 	{
 		return OrbitalEngineDescription;
 	}
 
-	inline FFlareShipComponentDescription* GetRCSDescription() const
+	inline FFlareSpacecraftComponentDescription* GetRCSDescription() const
 	{
 		return RCSDescription;
 	}
 
-	inline FFlareShipComponentDescription* GetWeaponDescription(int32 Index) const
+	inline FFlareSpacecraftComponentDescription* GetWeaponDescription(int32 Index) const
 	{
 		return WeaponDescriptionList[Index];
 	}
@@ -478,7 +478,7 @@ public:
 		return WeaponList;
 	}
 
-	virtual UFlareShipComponent* GetCockpit() const override
+	virtual UFlareSpacecraftComponent* GetCockpit() const override
 	{
 		return ShipCockit;
 	}

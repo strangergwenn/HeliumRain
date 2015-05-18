@@ -64,7 +64,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
 	// Update Camera
 	if (!ExternalCamera && CombatMode)
@@ -182,7 +182,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	float HeatSinkSurface = 0.f;
 	for (int32 i = 0; i < Components.Num(); i++)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[i]);
 		HeatProduction += Component->GetHeatProduction();
 		HeatSinkSurface += Component->GetHeatSinkSurface();
 	}
@@ -211,7 +211,7 @@ void AFlareShip::Tick(float DeltaSeconds)
 	for (int32 i = 0; i < Components.Num(); i++)
 	{
 		// Apply temperature
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[i]);
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[i]);
 
 		// Overheat apply damage is necessary
 		if (OverheatDamage > 0)
@@ -408,12 +408,12 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 
 
 	// Initialize components
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
-	TArray<UFlareShipComponent*> PowerSources;
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	TArray<UFlareSpacecraftComponent*> PowerSources;
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
-		FFlareShipComponentSave ComponentData;
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+		FFlareSpacecraftComponentSave ComponentData;
 
 		// Find component the corresponding component data comparing the slot id
 		bool found = false;
@@ -437,7 +437,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 		ReloadPart(Component, &ComponentData);
 
 		// Set RCS description
-		FFlareShipComponentDescription* ComponentDescription = Catalog->Get(ComponentData.ComponentIdentifier);
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData.ComponentIdentifier);
 		if (ComponentDescription->Type == EFlarePartType::RCS)
 		{
 			SetRCSDescription(ComponentDescription);
@@ -472,7 +472,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	// Second pass, update component power sources and update power
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 		Component->UpdatePowerSources(&PowerSources);
 	}
 	UpdatePower();
@@ -481,7 +481,7 @@ void AFlareShip::Load(const FFlareShipSave& Data)
 	// Load weapon descriptions
 	for (int32 i = 0; i < Data.Components.Num(); i++)
 	{
-		FFlareShipComponentDescription* ComponentDescription = Catalog->Get(Data.Components[i].ComponentIdentifier);
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(Data.Components[i].ComponentIdentifier);
 		if (ComponentDescription->Type == EFlarePartType::Weapon)
 		{
 			WeaponDescriptionList.Add(ComponentDescription);
@@ -526,11 +526,11 @@ FFlareShipSave* AFlareShip::Save()
 
 	// Save all components datas
 	ShipData.Components.Empty();
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
-		FFlareShipComponentSave* ComponentSave = Component->Save();
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+		FFlareSpacecraftComponentSave* ComponentSave = Component->Save();
 
 		if (ComponentSave) {
 			ShipData.Components.Add(*ComponentSave);
@@ -618,12 +618,12 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 		break;
 		case EFlareSubsystem::SYS_Power:
 		{
-			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 			float Total = 0.f;
 			float GeneratorCount = 0;
 			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 			{
-				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+				UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 				if (Component->IsGenerator())
 				{
 					GeneratorCount+=1.f;
@@ -647,12 +647,12 @@ float AFlareShip::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
 		break;
 		case EFlareSubsystem::SYS_Temperature:
 		{
-			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 			float Total = 0.f;
 			float HeatSinkCount = 0;
 			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 			{
-				UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+				UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 				if (Component->IsHeatSink())
 				{
 					HeatSinkCount+=1.f;
@@ -802,10 +802,10 @@ void AFlareShip::ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockI
 	}
 
 	// Reload and repair
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 		Component->Repair();
 
 		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Components[ComponentIndex]);
@@ -1136,10 +1136,10 @@ void AFlareShip::ApplyDamage(float Energy, float Radius, FVector Location)
 
 	bool IsAliveBeforeDamage = IsAlive();
 
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 
 		float ComponentSize;
 		FVector ComponentLocation;
@@ -1196,12 +1196,12 @@ void AFlareShip::OnElectricDamage(float DamageRatio)
 	float MaxPower = 0.f;
 	float AvailablePower = 0.f;
 
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareShipComponent::StaticClass());
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	float Total = 0.f;
 	float GeneratorCount = 0;
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
-		UFlareShipComponent* Component = Cast<UFlareShipComponent>(Components[ComponentIndex]);
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 		MaxPower += Component->GetMaxGeneratedPower();
 		AvailablePower += Component->GetGeneratedPower();
 	}
@@ -1432,12 +1432,12 @@ void AFlareShip::SetShipDescription(FFlareShipDescription* Description)
 	}
 }
 
-void AFlareShip::SetOrbitalEngineDescription(FFlareShipComponentDescription* Description)
+void AFlareShip::SetOrbitalEngineDescription(FFlareSpacecraftComponentDescription* Description)
 {
 	OrbitalEngineDescription = Description;
 }
 
-void AFlareShip::SetRCSDescription(FFlareShipComponentDescription* Description)
+void AFlareShip::SetRCSDescription(FFlareSpacecraftComponentDescription* Description)
 {
 	RCSDescription = Description;
 

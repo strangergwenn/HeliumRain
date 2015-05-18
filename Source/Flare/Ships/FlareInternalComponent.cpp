@@ -18,12 +18,12 @@ UFlareInternalComponent::UFlareInternalComponent(const class FObjectInitializer&
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareInternalComponent::Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
+void UFlareInternalComponent::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 }
 
-FFlareShipComponentSave* UFlareInternalComponent::Save()
+FFlareSpacecraftComponentSave* UFlareInternalComponent::Save()
 {
 	return Super::Save();
 }

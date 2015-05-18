@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Ships/FlareShip.h"
-#include "../Ships/FlareShipComponent.h"
+#include "../Ships/FlareSpacecraftComponent.h"
 #include "FlareMenuPawn.generated.h"
 
 
@@ -35,7 +35,7 @@ public:
 	//void ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData);
 
 	/** Load a new part to visualize */
-	void ShowPart(const FFlareShipComponentDescription* PartDesc);
+	void ShowPart(const FFlareSpacecraftComponentDescription* PartDesc);
 
 
 	/*----------------------------------------------------
@@ -82,11 +82,11 @@ protected:
 
 	/** StaticMesh component */
 	UPROPERTY(Category = PartViewer, VisibleDefaultsOnly, BlueprintReadOnly)
-	class UFlareShipComponent* CurrentPartA;
+	class UFlareSpacecraftComponent* CurrentPartA;
 
 	/** StaticMesh component */
 	UPROPERTY(Category = PartViewer, VisibleDefaultsOnly, BlueprintReadOnly)
-	class UFlareShipComponent* CurrentPartB;
+	class UFlareSpacecraftComponent* CurrentPartB;
 
 	/** Max pitch angle on viewer */
 	UPROPERTY(Category = PartViewer, EditAnywhere, BlueprintReadWrite)

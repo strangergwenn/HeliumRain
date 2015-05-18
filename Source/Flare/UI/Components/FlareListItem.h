@@ -21,15 +21,15 @@ public:
 	IFlareSpacecraftInterface* ShipInterfacePtr;
 
 	// Part info
-	static TSharedPtr<FInterfaceContainer> New(FFlareShipComponentDescription* InObject)
+	static TSharedPtr<FInterfaceContainer> New(FFlareSpacecraftComponentDescription* InObject)
 	{
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
-	FInterfaceContainer(FFlareShipComponentDescription* InPtr)
+	FInterfaceContainer(FFlareSpacecraftComponentDescription* InPtr)
 		: ShipInterfacePtr(NULL)
 		, PartDescription(InPtr)
 	{}
-	FFlareShipComponentDescription* PartDescription;
+	FFlareSpacecraftComponentDescription* PartDescription;
 };
 
 

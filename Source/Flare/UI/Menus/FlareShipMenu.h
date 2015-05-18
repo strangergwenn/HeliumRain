@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareListItem.h"
 #include "../Widgets/FlareConfirmationBox.h"
-#include "../../Ships/FlareShipComponent.h"
+#include "../../Ships/FlareSpacecraftComponent.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../Widgets/FlareTargetActions.h"
 
@@ -47,7 +47,7 @@ public:
 	void LoadPart(FName InternalName);
 	
 	/** Update the part list, preselect an item */
-	void UpdatePartList(FFlareShipComponentDescription* SelectItem);
+	void UpdatePartList(FFlareSpacecraftComponentDescription* SelectItem);
 
 
 protected:
@@ -123,7 +123,7 @@ protected:
 
 	/** List of parts being shown right now */
 	UPROPERTY()
-	TArray< FFlareShipComponentDescription* >                        PartListData;
+	TArray< FFlareSpacecraftComponentDescription* >                        PartListData;
 	TArray< TSharedPtr<FInterfaceContainer> >                     PartListDataShared;
 	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >    PartList;
 

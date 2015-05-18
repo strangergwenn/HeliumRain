@@ -105,7 +105,7 @@ void SFlareSubsystemStatus::SetTargetShip(IFlareSpacecraftInterface* Target)
 	TargetShip = Target;
 }
 
-void SFlareSubsystemStatus::SetTargetComponent(UFlareShipComponent* Target)
+void SFlareSubsystemStatus::SetTargetComponent(UFlareSpacecraftComponent* Target)
 {
 	TargetComponent = Target;
 }

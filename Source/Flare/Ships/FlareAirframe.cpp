@@ -40,7 +40,7 @@ float UFlareAirframe::GetRemainingArmorAtLocation(FVector Location)
 
 float UFlareAirframe::GetAvailablePower() const
 {
-	UFlareShipComponent* Cockpit = Ship->GetCockpit();
+	UFlareSpacecraftComponent* Cockpit = Ship->GetCockpit();
 
 	if (Cockpit)
 	{

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Ships/FlareShipComponent.h"
+#include "../../Ships/FlareSpacecraftComponent.h"
 #include "FlareButton.h"
 
 

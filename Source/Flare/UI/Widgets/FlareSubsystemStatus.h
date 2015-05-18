@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../../Ships/FlareSpacecraftInterface.h"
-#include "../../Ships/FlareShipComponent.h"
+#include "../../Ships/FlareSpacecraftComponent.h"
 #include "FlareSubsystemStatus.generated.h"
 
 
@@ -50,7 +50,7 @@ public:
 	void SetTargetShip(IFlareSpacecraftInterface* Target);
 
 	/** Set an optional component to show data for */
-	void SetTargetComponent(UFlareShipComponent* Target);
+	void SetTargetComponent(UFlareSpacecraftComponent* Target);
 
 
 protected:
@@ -90,7 +90,7 @@ protected:
 	TEnumAsByte<EFlareInfoDisplay::Type>    DisplayType;
 	TEnumAsByte<EFlareSubsystem::Type>      SubsystemType;
 	IFlareSpacecraftInterface*                    TargetShip;
-	UFlareShipComponent*                    TargetComponent;
+	UFlareSpacecraftComponent*                    TargetComponent;
 
 	// Health management
 	float                                   Health;

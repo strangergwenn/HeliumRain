@@ -120,7 +120,7 @@ void SFlarePartInfo::SetOwned(bool State)
 	Helpers
 ----------------------------------------------------*/
 
-void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareShipComponentDescription* Desc, bool ShowHelpers)
+void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareSpacecraftComponentDescription* Desc, bool ShowHelpers)
 {
 	Box->ClearChildren();
 

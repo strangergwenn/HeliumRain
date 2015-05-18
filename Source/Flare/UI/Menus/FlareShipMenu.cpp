@@ -320,7 +320,7 @@ void SFlareShipMenu::LoadTargetShip()
 		
 		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
 		{
-			FFlareShipComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
 			if(ComponentDescription->Type == EFlarePartType::Weapon)
 			{
 				
@@ -374,7 +374,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	if (PC)
 	{
-		const FFlareShipComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get(InternalName);
+		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get(InternalName);
 		if (PartDesc)
 		{
 			// Show part
@@ -396,7 +396,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	ShipCustomizationBox->SetVisibility(EVisibility::Collapsed);
 }
 
-void SFlareShipMenu::UpdatePartList(FFlareShipComponentDescription* SelectItem)
+void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* SelectItem)
 {
 	ShipPartPickerTitle->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
 	PartList->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
@@ -575,11 +575,11 @@ void SFlareShipMenu::OnPartConfirmed()
 		CurrentEquippedPartIndex = CurrentPartIndex;
 
 		// Edit the correct save data property
-		FFlareShipComponentDescription* PartDesc = PartListData[CurrentPartIndex];
+		FFlareSpacecraftComponentDescription* PartDesc = PartListData[CurrentPartIndex];
 		UFlareShipPartsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
 		{
-			FFlareShipComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
 			if(ComponentDescription->Type == PartDesc->Type)
 			{
 				CurrentShipData->Components[i].ComponentIdentifier = PartDesc->Identifier;

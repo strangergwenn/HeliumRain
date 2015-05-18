@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine.h"
-#include "FlareShipComponent.generated.h"
+#include "FlareSpacecraftComponent.generated.h"
 
 class AFlareSpacecraftPawn;
 class UFlareCompany;
@@ -60,7 +60,7 @@ namespace EFlareLightStatus
 
 /** Component general characteristic */
 USTRUCT()
-struct FFlareShipComponentGeneralCharacteristics
+struct FFlareSpacecraftComponentGeneralCharacteristics
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -82,7 +82,7 @@ struct FFlareShipComponentGeneralCharacteristics
 
 /** Engine characteristic */
 USTRUCT()
-struct FFlareShipComponentEngineCharacteristics
+struct FFlareSpacecraftComponentEngineCharacteristics
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -100,7 +100,7 @@ struct FFlareShipComponentEngineCharacteristics
 
 /** Gun characteristic */
 USTRUCT()
-struct FFlareShipComponentGunCharacteristics
+struct FFlareSpacecraftComponentGunCharacteristics
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -143,7 +143,7 @@ struct FFlareShipComponentGunCharacteristics
 
 /** Ship component attribute save data */
 USTRUCT()
-struct FFlareShipComponentAttributeSave
+struct FFlareSpacecraftComponentAttributeSave
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -156,7 +156,7 @@ struct FFlareShipComponentAttributeSave
 
 /** Ship component save data */
 USTRUCT()
-struct FFlareShipComponentSave
+struct FFlareSpacecraftComponentSave
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -174,13 +174,13 @@ struct FFlareShipComponentSave
 
 	/** Component attributes */
 	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareShipComponentAttributeSave> Attributes;
+	TArray<FFlareSpacecraftComponentAttributeSave> Attributes;
 };
 
 
 /** Base description of a ship component */
 USTRUCT()
-struct FFlareShipComponentDescription
+struct FFlareSpacecraftComponentDescription
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -218,18 +218,18 @@ struct FFlareShipComponentDescription
 	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush MeshPreviewBrush;
 
 	/** General characteristic structure */
-	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentGeneralCharacteristics GeneralCharacteristics;
+	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentGeneralCharacteristics GeneralCharacteristics;
 
 	/** General characteristic structure */
-	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentEngineCharacteristics EngineCharacteristics;
+	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentEngineCharacteristics EngineCharacteristics;
 
 	/** General characteristic structure */
-	UPROPERTY(EditAnywhere, Category = Content) FFlareShipComponentGunCharacteristics GunCharacteristics;
+	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentGunCharacteristics GunCharacteristics;
 };
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class UFlareShipComponent : public UStaticMeshComponent
+class UFlareSpacecraftComponent : public UStaticMeshComponent
 {
 
 public:
@@ -246,10 +246,10 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	/** Initialize this component and register the master ship object */
-	virtual void Initialize(const FFlareShipComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu = false);
+	virtual void Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu = false);
 
 	/** Save the ship component to a save file */
-	virtual FFlareShipComponentSave* Save();
+	virtual FFlareSpacecraftComponentSave* Save();
 
 	/** Get the meshg scale */
 	float GetMeshScale();
@@ -327,7 +327,7 @@ public:
 	virtual float GetAvailablePower() const;
 
 	/** Find the closest power sources form all ship power sources */
-	virtual void UpdatePowerSources(TArray<UFlareShipComponent*>* AvailablePowerSources);
+	virtual void UpdatePowerSources(TArray<UFlareSpacecraftComponent*>* AvailablePowerSources);
 
 	/** Return true if is a generator (broken or not) */
 	virtual bool IsGenerator() const;
@@ -371,14 +371,14 @@ protected:
 	UMaterialInstanceDynamic*               EffectMaterial;
 
 	// Component description and data
-	const FFlareShipComponentDescription*   ComponentDescription;
-	FFlareShipComponentSave                 ShipComponentData;
+	const FFlareSpacecraftComponentDescription*   ComponentDescription;
+	FFlareSpacecraftComponentSave                 ShipComponentData;
 
 	// General state
 	bool                                    LifeSupport;
 	float                                   Power; // Current available power
 	float                                   GeneratedPower; // Maximum generated power
-	TArray<UFlareShipComponent*>            PowerSources;
+	TArray<UFlareSpacecraftComponent*>            PowerSources;
 
 	// Heat state
 	float                                   HeatSinkSurface; // Maximum heat surface in m^2

@@ -40,13 +40,13 @@ AFlareMenuPawn::AFlareMenuPawn(const class FObjectInitializer& PCIP)
 	PartContainer->AttachTo(RootComponent);
 
 	// Create static mesh component for the part
-	CurrentPartA = PCIP.CreateDefaultSubobject<UFlareShipComponent>(this, TEXT("PartA"));
+	CurrentPartA = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("PartA"));
 	CurrentPartA->SetStaticMesh(ConstructorStatics.CurrentPart.Get());
 	CurrentPartA->SetSimulatePhysics(false);
 	CurrentPartA->AttachTo(PartContainer);
 
 	// Create static mesh component for the part
-	CurrentPartB = PCIP.CreateDefaultSubobject<UFlareShipComponent>(this, TEXT("PartB"));
+	CurrentPartB = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("PartB"));
 	CurrentPartB->SetStaticMesh(ConstructorStatics.CurrentPart.Get());
 	CurrentPartB->SetSimulatePhysics(false);
 	CurrentPartB->AttachTo(PartContainer);
@@ -152,19 +152,19 @@ void AFlareMenuPawn::ShowStation(const FFlareStationDescription* StationDesc, co
 	CurrentStation->StartPresentation();
 }*/
 
-void AFlareMenuPawn::ShowPart(const FFlareShipComponentDescription* PartDesc)
+void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDesc)
 {
 	// Clean up
 	ResetContent();
 
 	// Choose a part to work with
 	SlideFromAToB = !SlideFromAToB;
-	UFlareShipComponent* CurrentPart = SlideFromAToB ? CurrentPartB : CurrentPartA;
+	UFlareSpacecraftComponent* CurrentPart = SlideFromAToB ? CurrentPartB : CurrentPartA;
 	FVector& CurrentPartOffset = SlideFromAToB ? CurrentPartOffsetB : CurrentPartOffsetA;
 
 	// Load the parts and scale accordingly
 	CurrentPart->SetVisibility(true, true);
-	FFlareShipComponentSave Data;
+	FFlareSpacecraftComponentSave Data;
 	Data.Damage = 0;
 	Data.ComponentIdentifier = PartDesc->Identifier;
 	CurrentPart->Initialize(&Data, GetPC()->GetCompany(), this, true);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Game/FlareCompany.h"
-#include "FlareShipComponent.h"
+#include "FlareSpacecraftComponent.h"
 #include "FlareShipPilot.h"
 #include "FlareSpacecraftPawn.generated.h"
 
@@ -112,7 +112,7 @@ public:
 	void SetCompany(UFlareCompany* NewCompany);
 
 	/** Reload the part Target with TargetDescription */
-	virtual void ReloadPart(UFlareShipComponent* Target, const FFlareShipComponentSave* Data);
+	virtual void ReloadPart(UFlareSpacecraftComponent* Target, const FFlareSpacecraftComponentSave* Data);
 
 	/** Update the parts settings */
 	virtual void UpdateCustomization();
@@ -160,7 +160,7 @@ public:
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
 
 	/** Return cockpit, if present */
-	virtual UFlareShipComponent* GetCockpit() const { return NULL; };
+	virtual UFlareSpacecraftComponent* GetCockpit() const { return NULL; };
 
 
 protected:
