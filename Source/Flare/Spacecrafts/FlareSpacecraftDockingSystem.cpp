@@ -2,6 +2,7 @@
 #include "../Flare.h"
 
 #include "FlareSpacecraftDockingSystem.h"
+#include "FlareStationDock.h"
 #include "FlareSpacecraft.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftDockingSystem"
@@ -36,28 +37,53 @@ void UFlareSpacecraftDockingSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft
 
 void UFlareSpacecraftDockingSystem::Start()
 {
+	// Dock data
+	int32 Count = 0;
+	TArray<UActorComponent*> ActorComponents;
+	Spacecraft->GetComponents(ActorComponents);
 
+	// Fill all dock slots
+	for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
+	{
+		UFlareStationDock* Component = Cast<UFlareStationDock>(*ComponentIt);
+		if (Component)
+		{
+			// Get data
+			FVector DockLocation;
+			FRotator DockRotation;
+			Component->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
+
+			// Fill info
+			FFlareDockingInfo Info;
+			Info.LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(FVector(1,0,0));
+			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
+			Info.DockId = Count;
+			Info.Station = Spacecraft;
+			Info.Granted = false;
+			Info.Occupied = false;
+
+			// Push this slot
+			DockingSlots.Add(Info);
+			Count++;
+		}
+	}
 }
-
-
 
 FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInterface* Ship)
 {
-	FLOGV("AFlareSpacecraft::RequestDock ('%s')", *Ship->_getUObject()->GetName());
+	FLOGV("UFlareSpacecraftDockingSystem::RequestDock ('%s')", *Ship->_getUObject()->GetName());
 
 	// Looking for slot
-	/*for (int32 i = 0; i < DockingSlots.Num(); i++)
+	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
 		if (!DockingSlots[i].Granted)
 		{
-			FLOGV("AFlareSpacecraft::RequestDock : found valid dock %d", i);
+			FLOGV("UFlareSpacecraftDockingSystem::RequestDock : found valid dock %d", i);
 			DockingSlots[i].Granted = true;
 			DockingSlots[i].Ship = Ship;
 			return DockingSlots[i];
 		}
-	}*/
-	// TODO Fix
-
+	}
 	// Default values
 	FFlareDockingInfo Info;
 	Info.Granted = false;
@@ -67,35 +93,32 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInt
 
 void UFlareSpacecraftDockingSystem::ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId)
 {
-	FLOGV("AFlareSpacecraft::ReleaseDock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
-	/*DockingSlots[DockId].Granted = false;
+	FLOGV("UFlareSpacecraftDockingSystem::ReleaseDock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
+	DockingSlots[DockId].Granted = false;
 	DockingSlots[DockId].Occupied = false;
-	DockingSlots[DockId].Ship = NULL;*/
-	// TODO Fix
+	DockingSlots[DockId].Ship = NULL;
 }
 
 void UFlareSpacecraftDockingSystem::Dock(IFlareSpacecraftInterface* Ship, int32 DockId)
 {
-	FLOGV("AFlareSpacecraft::Dock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
-	/*DockingSlots[DockId].Granted = true;
+	FLOGV("UFlareSpacecraftDockingSystem::Dock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
+	DockingSlots[DockId].Granted = true;
 	DockingSlots[DockId].Occupied = true;
-	DockingSlots[DockId].Ship = Ship;*/
-	// TODO Fix
+	DockingSlots[DockId].Ship = Ship;
 }
 
 TArray<IFlareSpacecraftInterface*> UFlareSpacecraftDockingSystem::GetDockedShips()
 {
 	TArray<IFlareSpacecraftInterface*> Result;
 
-	/*for (int32 i = 0; i < DockingSlots.Num(); i++)
+	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
 		if (DockingSlots[i].Granted)
 		{
-			FLOGV("AFlareSpacecraft::GetDockedShips : found valid dock %d", i);
+			FLOGV("UFlareSpacecraftDockingSystem::GetDockedShips : found valid dock %d", i);
 			Result.AddUnique(DockingSlots[i].Ship);
 		}
-	}*/
-	//TODO Externalize
+	}
 
 	return Result;
 }
@@ -103,19 +126,21 @@ TArray<IFlareSpacecraftInterface*> UFlareSpacecraftDockingSystem::GetDockedShips
 bool UFlareSpacecraftDockingSystem::HasAvailableDock(IFlareSpacecraftInterface* Ship) const
 {
 	// Looking for slot
-	/*for (int32 i = 0; i < DockingSlots.Num(); i++)
+	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
 		if (!DockingSlots[i].Granted)
 		{
 			return true;
 		}
-	}*/
-
-	//TODO Externalize
+	}
 
 	return false;
 }
 
+FFlareDockingInfo UFlareSpacecraftDockingSystem::GetDockInfo(int32 DockId)
+{
+	return DockingSlots[DockId];
+}
 
 
 #undef LOCTEXT_NAMESPACE

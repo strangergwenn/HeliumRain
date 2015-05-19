@@ -26,6 +26,12 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 
 void UFlareShipPilot::TickPilot(float DeltaSeconds)
 {
+	if(Ship->IsStation())
+	{
+		// No pilot for stations
+		return;
+	}
+
 	if (TimeUntilNextReaction > 0)
 	{
 		TimeUntilNextReaction -= DeltaSeconds;

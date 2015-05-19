@@ -12,9 +12,8 @@ struct FFlareDockingInfo
 	IFlareSpacecraftInterface*   Station;
 	IFlareSpacecraftInterface*      Ship;
 
-	FRotator                  Rotation;
-	FVector                   StartPoint;
-	FVector                   EndPoint;
+	FVector                   LocalAxis;
+	FVector                   LocalLocation;
 
 	FFlareDockingInfo()
 		: Granted(false)
@@ -64,6 +63,9 @@ public:
 	/** Confirm the docking from external ship */
 	virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId);
 
+	/** Get infos for a specific docking port */
+	virtual FFlareDockingInfo GetDockInfo(int32 DockId);
+
 	virtual bool HasAvailableDock(IFlareSpacecraftInterface* Ship) const;
 
 protected:
@@ -77,4 +79,8 @@ protected:
 	FFlareSpacecraftSave*                           Data;
 	FFlareSpacecraftDescription*                    Description;
 	TArray<UActorComponent*>                        Components;
+
+	// Dock data
+	TArray <FFlareDockingInfo>       DockingSlots;
+
 };

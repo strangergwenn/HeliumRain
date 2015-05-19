@@ -112,6 +112,9 @@ public:
 
 	virtual bool DockAt(IFlareSpacecraftInterface* TargetStation);
 
+	/** Continue docking sequence has completed until effectif docking */
+	virtual void DockingAutopilot(IFlareSpacecraftInterface* DockStation, int32 DockId, float DeltaSeconds);
+
 	/** Confirm that the docking sequence has completed */
 	virtual void ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId);
 
@@ -147,7 +150,10 @@ public:
 	/** Abort all the current pushed autopilot commands */
 	void AbortAllCommands();
 
-	/** Get the dock offset from the origin of the ship */
+	/** Get the dock offset from the origin of the ship in local space */
+	virtual FVector GetDockOffset();
+
+	/** Get the dock world location */
 	virtual FVector GetDockLocation();
 
 	/** Compute the path from OriginLocation to TargetLocation */
@@ -169,7 +175,7 @@ public:
 	void UpdateLinearAttitudeManual(float DeltaSeconds);
 
 	/** Automatically update the current linear attitude */
-	void UpdateLinearAttitudeAuto(float DeltaSeconds, float MaxVelocity);
+	bool UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, float MaxVelocity);
 
 	/** Brake */
 	void UpdateLinearBraking(float DeltaSeconds);
