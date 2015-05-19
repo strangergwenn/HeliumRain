@@ -215,23 +215,23 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 	if (TargetShip)
 	{
 		// Is alive ?
-		SetVisibility(TargetShip->IsAlive() ? EVisibility::Visible : EVisibility::Collapsed);
+		SetVisibility(TargetShip->GetDamageSystem()->IsAlive() ? EVisibility::Visible : EVisibility::Collapsed);
 
 		// Overheating status
 		TimeSinceOverheatChanged += InDeltaTime;
 		// Alert the player if the ship is near the overheat temperature
-		bool NewOverheating = (TargetShip->GetTemperature() > TargetShip->GetOverheatTemperature() * 0.95);
+		bool NewOverheating = (TargetShip->GetDamageSystem()->GetTemperature() > TargetShip->GetDamageSystem()->GetOverheatTemperature() * 0.95);
 		if (NewOverheating != Overheating)
 		{
 			TimeSinceOverheatChanged = 0;
 		}
 		Overheating = NewOverheating;
-		Burning = (TargetShip->GetTemperature() > TargetShip->GetBurnTemperature());
+		Burning = (TargetShip->GetDamageSystem()->GetTemperature() > TargetShip->GetDamageSystem()->GetBurnTemperature());
 
 
 		// Outage status
 		TimeSinceOutageChanged += InDeltaTime;
-		bool NewPowerOutage = TargetShip->HasPowerOutage();
+		bool NewPowerOutage = TargetShip->GetDamageSystem()->HasPowerOutage();
 		if (NewPowerOutage != PowerOutage)
 		{
 			TimeSinceOutageChanged = 0;

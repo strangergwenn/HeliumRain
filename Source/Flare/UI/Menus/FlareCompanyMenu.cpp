@@ -159,7 +159,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		TArray<IFlareSpacecraftInterface*>& CompanyStations = Target->GetCompanyStations();
 		for (int32 i = 0; i < CompanyStations.Num(); i++)
 		{
-			if (CompanyStations[i]->IsAlive())
+			if (CompanyStations[i]->GetDamageSystem()->IsAlive())
 			{
 				ShipList->AddShip(CompanyStations[i]);
 			}
@@ -169,7 +169,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		TArray<IFlareSpacecraftInterface*>& CompanyShips = Target->GetCompanyShips();
 		for (int32 i = 0; i < CompanyShips.Num(); i++)
 		{
-			if (CompanyShips[i]->IsAlive())
+			if (CompanyShips[i]->GetDamageSystem()->IsAlive())
 			{
 				ShipList->AddShip(CompanyShips[i]);
 			}

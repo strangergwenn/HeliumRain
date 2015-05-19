@@ -147,7 +147,7 @@ void AFlareHUD::DrawHUD()
 				else
 				{
 					AFlareSpacecraft* LocalShip = Cast<AFlareSpacecraft>(ShipBase);
-					ShouldDrawSearchMarker = !LocalShip || (LocalShip && LocalShip->IsAlive());
+					ShouldDrawSearchMarker = !LocalShip || (LocalShip && LocalShip->GetDamageSystem()->IsAlive());
 				}
 
 				// Draw search markers
@@ -268,7 +268,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 				{
 					ContextMenu->SetShip(Ship);
 				}
-				if (Ship->IsAlive())
+				if (Ship->GetDamageSystem()->IsAlive())
 				{
 					ContextMenu->Show();
 				}
@@ -276,7 +276,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 		}
 
 		// Draw the HUD designator
-		else if ((Ship && Ship->IsAlive()) || !Ship)
+		else if ((Ship && Ship->GetDamageSystem()->IsAlive()) || !Ship)
 		{
 			float CornerSize = 8;
 			float IconSize = 24;
@@ -320,7 +320,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 	}
 
 	// Dead ship
-	if (Ship && !Ship->IsAlive())
+	if (Ship && !Ship->GetDamageSystem()->IsAlive())
 	{
 		return false;
 	}
@@ -343,14 +343,14 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 
 void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship)
 {
-	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature), HUDTemperatureIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Power), HUDPowerIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_RCS), HUDRCSIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature), HUDTemperatureIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power), HUDPowerIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS), HUDRCSIcon);
 
 	if (Ship->IsMilitary())
 	{
-		DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
+		DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
 	}
 }
 

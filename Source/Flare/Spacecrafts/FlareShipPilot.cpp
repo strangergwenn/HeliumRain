@@ -90,7 +90,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		AmmoVelocity = Weapons[0]->GetAmmoVelocity();
 	}
 
-	if (Ship->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
+	if (Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <= 0)
 	{
 		// Go repair or refill ammo
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation();
@@ -108,7 +108,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 
 	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
-	if(!PilotTargetShip || !PilotTargetShip->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 60000 || PilotTargetShip->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
+	if(!PilotTargetShip || !PilotTargetShip->GetDamageSystem()->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 60000 || PilotTargetShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
 	{
 		PilotTargetShip = GetNearestHostileShip(true);
 	}
@@ -287,7 +287,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			}
 		}
 
-		if(Ship->GetTemperature() > Ship->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
+		if(Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
 		{
 			// TODO Fire on dangerous target
 			WantFire = false;
@@ -334,7 +334,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 
 	// Manage orbital boost
-	if(Ship->GetTemperature() > Ship->GetOverheatTemperature() * 0.75)
+	if(Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
 	{
 		UseOrbitalBoost = false;
 	}
@@ -409,7 +409,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 			UseOrbitalBoost = true;
 		}
 
-		if(Distance > 1000 && Ship->GetTemperature() > Ship->GetOverheatTemperature() * 0.95)
+		if(Distance > 1000 && Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.95)
 		{
 			// Too hot and no imminent danger
 			UseOrbitalBoost = false;
@@ -445,7 +445,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) con
 		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
 		if (ShipCandidate)
 		{
-			if (!ShipCandidate->IsAlive())
+			if (!ShipCandidate->GetDamageSystem()->IsAlive())
 			{
 				continue;
 			}
@@ -615,7 +615,7 @@ TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 
 bool UFlareShipPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
 {
-	return ShipCandidate->IsMilitary() && ShipCandidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+	return ShipCandidate->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
 }
 
 /*----------------------------------------------------

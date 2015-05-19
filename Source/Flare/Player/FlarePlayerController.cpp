@@ -128,7 +128,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		}
 
 		// Update sounds
-		UpdateSound(PowerSound,  (ShipPawn->IsPowered() && !ShipPawn->HasPowerOutage() ? 1 : -1) * PowerSoundFadeSpeed  * DeltaSeconds, PowerSoundVolume);
+		UpdateSound(PowerSound,  (ShipPawn->GetDamageSystem()->IsPowered() && !ShipPawn->GetDamageSystem()->HasPowerOutage() ? 1 : -1) * PowerSoundFadeSpeed  * DeltaSeconds, PowerSoundVolume);
 		UpdateSound(EngineSound, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1)              * EngineSoundFadeSpeed * DeltaSeconds, EngineSoundVolume);
 		UpdateSound(RCSSound,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)                       * RCSSoundFadeSpeed    * DeltaSeconds, RCSSoundVolume);
 	}
@@ -488,7 +488,7 @@ void AFlarePlayerController::QuickSwitch()
 		{
 			OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
 			AFlareSpacecraft* Candidate = Cast<AFlareSpacecraft>(CompanyShips[OffsetIndex]);
-			if (Candidate && Candidate != ShipPawn && Candidate->IsAlive() && Candidate->IsMilitary() && Candidate->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
+			if (Candidate && Candidate != ShipPawn && Candidate->GetDamageSystem()->IsAlive() && Candidate->IsMilitary() && Candidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
 			{
 				SeletedCandidate = Candidate;
 				break;
@@ -502,7 +502,7 @@ void AFlarePlayerController::QuickSwitch()
 			{
 				OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
 				AFlareSpacecraft* Candidate = Cast<AFlareSpacecraft>(CompanyShips[OffsetIndex]);
-				if (Candidate && Candidate != ShipPawn && Candidate->IsAlive())
+				if (Candidate && Candidate != ShipPawn && Candidate->GetDamageSystem()->IsAlive())
 				{
 					SeletedCandidate = Candidate;
 					break;

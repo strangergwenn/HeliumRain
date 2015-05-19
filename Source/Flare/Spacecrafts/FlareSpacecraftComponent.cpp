@@ -139,8 +139,8 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 		if (HasLocalHeatEffect && HeatProduction > 0.f)
 		{
 			float Alpha = GetHeatProduction() / HeatProduction;
-			float TargetTemperature = (1.f- Alpha) * (Spacecraft->GetTemperature() * 0.3f)
-						+ Alpha * (Spacecraft->GetTemperature() * 1.8f);
+			float TargetTemperature = (1.f- Alpha) * (Spacecraft->GetDamageSystem()->GetTemperature() * 0.3f)
+						+ Alpha * (Spacecraft->GetDamageSystem()->GetTemperature() * 1.8f);
 			float HalfLife = 3;
 			float Variation = DeltaTime / HalfLife;
 			LocalTemperature = (LocalTemperature + (TargetTemperature * Variation)) / (1+Variation);
@@ -148,7 +148,7 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 		else
 		{
 
-			LocalTemperature = Spacecraft->GetTemperature();
+			LocalTemperature = Spacecraft->GetDamageSystem()->GetTemperature();
 		}
 		SetTemperature(LocalTemperature);
 
@@ -164,7 +164,7 @@ void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* 
 	Spacecraft = Cast<AFlareSpacecraft>(SpacecraftPawn);
 	if(Spacecraft)
 	{
-		LocalTemperature = Spacecraft->GetTemperature();
+		LocalTemperature = Spacecraft->GetDamageSystem()->GetTemperature();
 	}
 
 	// Setup properties
@@ -188,7 +188,7 @@ void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* 
 		}
 
 		// Destroyed component
-		if (Spacecraft && GetDamageRatio() <= 0 && Spacecraft->IsAlive())
+		if (Spacecraft && GetDamageRatio() <= 0)
 		{
 			StartDestroyedEffects();
 		}
@@ -370,7 +370,7 @@ void UFlareSpacecraftComponent::ApplyDamage(float Energy)
 		// No more armor, power outage risk
 		if (Spacecraft && IsGenerator() && StateAfterDamage < 1.0 && StateBeforeDamage > 0)
 		{
-			Spacecraft->OnElectricDamage(StateBeforeDamage - StateAfterDamage);
+			Spacecraft->GetDamageSystem()->OnElectricDamage(StateBeforeDamage - StateAfterDamage);
 		}
 
 		// Effects
@@ -448,7 +448,7 @@ void UFlareSpacecraftComponent::UpdateLight()
 	{
 		SetLightStatus(EFlareLightStatus::Dark);
 	}
-	else if (AvailablePower < 0.5 || (Spacecraft && Spacecraft->HasPowerOutage()))
+	else if (AvailablePower < 0.5 || (Spacecraft && Spacecraft->GetDamageSystem()->HasPowerOutage()))
 	{
 		SetLightStatus(EFlareLightStatus::Flickering);
 	}
@@ -507,7 +507,7 @@ float UFlareSpacecraftComponent::GetHeatProduction() const
 
 float UFlareSpacecraftComponent::GetHeatSinkSurface() const
 {
-	return HeatSinkSurface * (0.1 +  9 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Spacecraft && Spacecraft->HasPowerOutage() ? 0 : 1) / 10);
+	return HeatSinkSurface * (0.1 +  9 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Spacecraft && Spacecraft->GetDamageSystem()->HasPowerOutage() ? 0 : 1) / 10);
 }
 
 bool UFlareSpacecraftComponent::IsHeatSink() const

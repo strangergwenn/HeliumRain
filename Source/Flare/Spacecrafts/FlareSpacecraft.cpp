@@ -14,7 +14,7 @@
 #include "../Game/FlareGame.h"
 
 
-#define LOCTEXT_NAMESPACE "FlareShip"
+#define LOCTEXT_NAMESPACE "FlareSpacecraft"
 
 
 /*----------------------------------------------------
@@ -107,14 +107,14 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 	{
 		UpdateCOM();
 
-		if (IsAlive() && IsPiloted) // Also tick not piloted ship
+		if (GetDamageSystem()->IsAlive() && IsPiloted) // Also tick not piloted ship
 		{
 			Pilot->TickPilot(DeltaSeconds);
 		}
 
 
 		// Manual pilot
-		if (IsManualPilot() && IsAlive())
+		if (IsManualPilot() && GetDamageSystem()->IsAlive())
 		{
 			if (IsPiloted)
 			{
@@ -175,122 +175,17 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		}
 	}
 
-	// Apply heat variation : add producted heat then substract radiated heat.
-
-	// Get the to heat production and heat sink surface
-	float HeatProduction = 0.f;
-	float HeatSinkSurface = 0.f;
-	for (int32 i = 0; i < Components.Num(); i++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[i]);
-		HeatProduction += Component->GetHeatProduction();
-		HeatSinkSurface += Component->GetHeatSinkSurface();
-	}
-
-	// Add a part of sun radiation to ship heat production
-	// Sun flow is 3.094KW/m^2 and keep only half.
-	HeatProduction += HeatSinkSurface * 3.094 * 0.5;
-
-	// Heat up
-	ShipData.Heat += HeatProduction * DeltaSeconds;
-	// Radiate: Stefan-Boltzmann constant=5.670373e-8
-	float Temperature = ShipData.Heat / ShipDescription->HeatCapacity;
-	float HeatRadiation = 0.f;
-	if (Temperature > 0)
-	{
-		HeatRadiation = HeatSinkSurface * 5.670373e-8 * FMath::Pow(Temperature, 4) / 1000;
-	}
-	// Don't radiate too much energy : negative temperature is not possible
-	ShipData.Heat -= FMath::Min(HeatRadiation * DeltaSeconds, ShipData.Heat);
-
-	// Overheat after 800°K, compute heat damage from temperature beyond 800°K : 0.005%/(°K*s)
-	float OverheatDamage = (Temperature - GetOverheatTemperature()) * DeltaSeconds * 0.00005;
-	float BurningDamage = FMath::Max((Temperature - GetBurnTemperature()) * DeltaSeconds * 0.0001, 0.0);
-
-	// Update component temperature and apply heat damage
-	for (int32 i = 0; i < Components.Num(); i++)
-	{
-		// Apply temperature
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[i]);
-
-		// Overheat apply damage is necessary
-		if (OverheatDamage > 0)
-		{
-			Component->ApplyHeatDamage(Component->GetTotalHitPoints() * OverheatDamage, Component->GetTotalHitPoints() * BurningDamage);
-		}
-	}
-
-	// If damage have been applied, power production may have change
-	if (OverheatDamage > 0)
-	{
-		UpdatePower();
-	}
-
-	// Power outage
-	if (ShipData.PowerOutageDelay > 0)
-	{
-		ShipData.PowerOutageDelay -=  DeltaSeconds;
-		if (ShipData.PowerOutageDelay <=0)
-		{
-			ShipData.PowerOutageDelay = 0;
-			UpdatePower(); // To update light
-		}
-	}
-
-	// Update Alive status
-	if (WasAlive && !IsAlive())
-	{
-		WasAlive = false;
-		OnControlLost();
-	}
-}
-
-void AFlareSpacecraft::UpdatePower()
-{
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		Component->UpdatePower();
-	}
+	DockingSystem->TickSystem(DeltaSeconds);
+	NavigationSystem->TickSystem(DeltaSeconds);
+	WeaponsSystem->TickSystem(DeltaSeconds);
+	DamageSystem->TickSystem(DeltaSeconds);
 }
 
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
-	// If receive hit from over actor, like a ship we must apply collision damages.
-	// The applied damage energy is 0.2% of the kinetic energy of the other actor. The kinetic
-	// energy is calculated from the relative speed between the 2 actors, and only with the relative
-	// speed projected in the axis of the collision normal: if 2 very fast ship only slightly touch,
-	// only few energy will be decipated by the impact.
-	//
-	// The damages are applied only to the current actor, the ReceiveHit method of the other actor
-	// will also call an it will apply its collision damages itself.
-
-	// If the other actor is a projectile, specific weapon damage code is done in the projectile hit
-	// handler: in this case we ignore the collision
-	AFlareShell* OtherProjectile = Cast<AFlareShell>(Other);
-	if (OtherProjectile) {
-		return;
-	}
-
-	UPrimitiveComponent* OtherRoot = Cast<UPrimitiveComponent>(Other->GetRootComponent());
-
-	// Relative velocity
-	FVector DeltaVelocity = ((OtherRoot->GetPhysicsLinearVelocity() - Airframe->GetPhysicsLinearVelocity()) / 100);
-
-	// Compute the relative velocity in the impact axis then compute kinetic energy
-	float ImpactSpeed = FVector::DotProduct(DeltaVelocity, HitNormal);
-	float ImpactMass = OtherRoot->GetMass();
-	float ImpactEnergy = 0.5 * ImpactMass * FMath::Square(ImpactSpeed) * 0.001; // In KJ
-
-	// Convert only 0.2% of the energy as damages and make vary de damage radius with the damage:
-	// minimum 20cm and about 1 meter for 20KJ of damage (about the damages provide by a bullet)
-	float Energy = ImpactEnergy / 500;
-	float  Radius = 0.2 + FMath::Sqrt(Energy) * 0.22;
-
-	ApplyDamage(Energy, Radius, HitLocation);
+	DamageSystem->OnCollision(Other, HitLocation, HitNormal);
 }
 
 void AFlareSpacecraft::Destroyed()
@@ -408,13 +303,27 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(Data.Identifier);
 	SetShipDescription(Desc);
 
+	// Initialize damage system
+	DamageSystem = NewObject<UFlareSpacecraftDamageSystem>(this, UFlareSpacecraftDamageSystem::StaticClass());
+	DamageSystem->Initialize(this, &ShipData);
+
+	// Initialize navigation system
+	NavigationSystem = NewObject<UFlareSpacecraftNavigationSystem>(this, UFlareSpacecraftNavigationSystem::StaticClass());
+	NavigationSystem->Initialize(this, &ShipData);
+
+	// Initialize docking system
+	DockingSystem = NewObject<UFlareSpacecraftDockingSystem>(this, UFlareSpacecraftDockingSystem::StaticClass());
+	DockingSystem->Initialize(this, &ShipData);
+
+	// Initialize weapons system
+	WeaponsSystem = NewObject<UFlareSpacecraftWeaponsSystem>(this, UFlareSpacecraftWeaponsSystem::StaticClass());
+	WeaponsSystem->Initialize(this, &ShipData);
+
 	// Look for parent company
 	SetOwnerCompany(GetGame()->FindCompany(Data.CompanyIdentifier));
 
-
 	// Initialize components
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	TArray<UFlareSpacecraftComponent*> PowerSources;
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
@@ -466,22 +375,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		{
 			ShipCockit = Component;
 		}
-
-		// Fill power sources
-		if (Component->IsGenerator())
-		{
-			PowerSources.Add(Component);
-		}
 	}
-
-	// Second pass, update component power sources and update power
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		Component->UpdatePowerSources(&PowerSources);
-	}
-	UpdatePower();
-
 
 	// Load weapon descriptions
 	for (int32 i = 0; i < Data.Components.Num(); i++)
@@ -516,9 +410,10 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	Pilot = NewObject<UFlareShipPilot>(this, UFlareShipPilot::StaticClass());
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
 
-	// Init alive status
-	WasAlive = IsAlive();
-
+	DamageSystem->Start();
+	NavigationSystem->Start();
+	DockingSystem->Start();
+	WeaponsSystem->Start();
 }
 
 FFlareSpacecraftSave* AFlareSpacecraft::Save()
@@ -568,123 +463,25 @@ bool AFlareSpacecraft::IsStation()
 	return ShipDescription->OrbitalEngineCount == 0;
 }
 
-float AFlareSpacecraft::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor)
+UFlareSpacecraftDamageSystem* AFlareSpacecraft::GetDamageSystem() const
 {
-	float Health = 0.f;
-
-	switch(Type)
-	{
-		case EFlareSubsystem::SYS_Propulsion:
-		{
-			TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
-			float Total = 0.f;
-			float EngineCount = 0;
-			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
-			{
-				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
-				if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
-				{
-					EngineCount+=1.f;
-					Total+=Engine->GetDamageRatio(WithArmor)*(Engine->IsPowered() ? 1 : 0);
-				}
-			}
-			Health = Total/EngineCount;
-		}
-		break;
-		case EFlareSubsystem::SYS_RCS:
-		{
-			TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
-			float Total = 0.f;
-			float EngineCount = 0;
-			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
-			{
-				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
-				if (!Engine->IsA(UFlareOrbitalEngine::StaticClass()))
-				{
-					EngineCount+=1.f;
-					Total+=Engine->GetDamageRatio(WithArmor)*(Engine->IsPowered() ? 1 : 0);
-				}
-			}
-			Health = Total/EngineCount;
-		}
-		break;
-		case EFlareSubsystem::SYS_LifeSupport:
-		{
-			if (ShipCockit)
-			{
-				Health = ShipCockit->GetDamageRatio(WithArmor) * (ShipCockit->IsPowered() ? 1 : 0);
-			}
-			else
-			{
-				// No cockpit mean no destructible
-				Health = 1.0f;
-			}
-		}
-		break;
-		case EFlareSubsystem::SYS_Power:
-		{
-			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-			float Total = 0.f;
-			float GeneratorCount = 0;
-			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-			{
-				UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-				if (Component->IsGenerator())
-				{
-					GeneratorCount+=1.f;
-					Total+=Component->GetDamageRatio(WithArmor);
-				}
-			}
-			Health = Total/GeneratorCount;
-		}
-		break;
-		case EFlareSubsystem::SYS_Weapon:
-		{
-			TArray<UActorComponent*> Weapons = GetComponentsByClass(UFlareWeapon::StaticClass());
-			float Total = 0.f;
-			for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
-			{
-				UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
-				Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*(Weapon->GetCurrentAmmo() > 0 ? 1 : 0);
-			}
-			Health = Total/Weapons.Num();
-		}
-		break;
-		case EFlareSubsystem::SYS_Temperature:
-		{
-			TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-			float Total = 0.f;
-			float HeatSinkCount = 0;
-			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-			{
-				UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-				if (Component->IsHeatSink())
-				{
-					HeatSinkCount+=1.f;
-					Total+=Component->GetDamageRatio(WithArmor) * (ShipCockit->IsPowered() ? 1 : 0);
-				}
-			}
-			Health = Total/HeatSinkCount;
-		}
-		break;
-	}
-
-	return Health;
+	return DamageSystem;
 }
 
-float AFlareSpacecraft::GetTemperature()
+
+UFlareSpacecraftNavigationSystem* AFlareSpacecraft::GetNavigationSystem() const
 {
-	return ShipData.Heat / ShipDescription->HeatCapacity;
+	return NavigationSystem;
 }
 
-float AFlareSpacecraft::GetOverheatTemperature()
+UFlareSpacecraftWeaponsSystem* AFlareSpacecraft::GetWeaponsSystem() const
 {
-	return 1200;
+	return WeaponsSystem;
 }
 
-float AFlareSpacecraft::GetBurnTemperature()
+UFlareSpacecraftDockingSystem* AFlareSpacecraft::GetDockingSystem() const
 {
-	return 1500;
+	return DockingSystem;
 }
 
 bool AFlareSpacecraft::NavigateTo(FVector TargetLocation)
@@ -819,7 +616,7 @@ void AFlareSpacecraft::ConfirmDock(IFlareSpacecraftInterface* DockStation, int32
 			Weapon->RefillAmmo();
 		}
 	}
-	UpdatePower();
+	DamageSystem->UpdatePower();
 }
 
 bool AFlareSpacecraft::Undock()
@@ -1123,113 +920,6 @@ bool AFlareSpacecraft::IsPointColliding(FVector Candidate, AActor* Ignore)
 	return false;
 }
 
-
-/*----------------------------------------------------
-	Damage status
-----------------------------------------------------*/
-
-void AFlareSpacecraft::ApplyDamage(float Energy, float Radius, FVector Location)
-{
-	// The damages are applied to all component touching the sphere defined by the radius and the
-	// location in parameter.
-	// The maximum damage are applied to a component only if its bounding sphere touch the center of
-	// the damage sphere. There is a linear decrease of damage with a minumum of 0 if the 2 sphere
-	// only touch.
-
-	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *GetHumanReadableName(), Radius, *Location.ToString());
-	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
-
-	bool IsAliveBeforeDamage = IsAlive();
-
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-
-		float ComponentSize;
-		FVector ComponentLocation;
-		Component->GetBoundingSphere(ComponentLocation, ComponentSize);
-
-		float Distance = (ComponentLocation - Location).Size() / 100.0f;
-		float IntersectDistance =  Radius + ComponentSize/100 - Distance;
-
-		// Hit this component
-		if (IntersectDistance > 0)
-		{
-			//FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
-			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
-			Component->ApplyDamage(Energy * Efficiency);
-		}
-	}
-
-	// Update power
-	UpdatePower();
-
-	// Heat the ship
-	ShipData.Heat += Energy;
-}
-
-bool AFlareSpacecraft::IsAlive()
-{
-	return GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport) > 0;
-}
-
-bool AFlareSpacecraft::IsPowered()
-{
-	if (ShipCockit)
-	{
-		return ShipCockit->IsPowered();
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool AFlareSpacecraft::HasPowerOutage()
-{
-	return GetPowerOutageDuration() > 0.f;
-}
-
-float AFlareSpacecraft::GetPowerOutageDuration()
-{
-	return ShipData.PowerOutageDelay;
-}
-
-void AFlareSpacecraft::OnElectricDamage(float DamageRatio)
-{
-	float MaxPower = 0.f;
-	float AvailablePower = 0.f;
-
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	float Total = 0.f;
-	float GeneratorCount = 0;
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		MaxPower += Component->GetMaxGeneratedPower();
-		AvailablePower += Component->GetGeneratedPower();
-	}
-
-	float PowerRatio = AvailablePower/MaxPower;
-
-
-	//FLOGV("OnElectricDamage initial PowerOutageDelay=%f, DamageRatio=%f, PowerRatio=%f", ShipData.PowerOutageDelay, DamageRatio, PowerRatio);
-
-	// The outage probability depend on global available power ratio
-	if (FMath::FRand() > PowerRatio)
-	{
-		// The outage duration depend on the relative amount of damage the component just receive
-		// This avoid very long outage if multiple small collision.
-		// Between 10 and 20s of outage if component one shot
-		ShipData.PowerOutageDelay += DamageRatio *  FMath::FRandRange(10, 20 * (1.f - PowerRatio));
-		UpdatePower();
-	}
-
-
-
-}
-
 UFlareInternalComponent* AFlareSpacecraft::GetInternalComponentAtLocation(FVector Location) const
 {
 	float MinDistance = 100000; // 1km
@@ -1506,7 +1196,7 @@ void AFlareSpacecraft::StartPresentation()
 void AFlareSpacecraft::PhysicSubTick(float DeltaSeconds)
 {
 	TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
-	if (IsPowered())
+	if (GetDamageSystem()->IsPowered())
 	{
 		// Clamp speed
 		float MaxVelocity = LinearMaxVelocity;
@@ -1593,15 +1283,6 @@ void AFlareSpacecraft::UpdateCOM()
 /*----------------------------------------------------
 		Damage system
 ----------------------------------------------------*/
-
-void AFlareSpacecraft::OnControlLost()
-{
-	AFlarePlayerController* PC = GetPC();
-	if (PC)
-	{
-		PC->Notify(LOCTEXT("ShipDestroyed", "Your ship has been destroyed !"), EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
-	}
-}
 
 void AFlareSpacecraft::OnEnemyKilled(IFlareSpacecraftInterface* Enemy)
 {
@@ -1820,7 +1501,7 @@ void AFlareSpacecraft::ForceManual()
 
 void AFlareSpacecraft::StartFire()
 {
-	if (IsAlive() && (IsPiloted || !ExternalCamera))
+	if (GetDamageSystem()->IsAlive() && (IsPiloted || !ExternalCamera))
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
@@ -1831,7 +1512,7 @@ void AFlareSpacecraft::StartFire()
 
 void AFlareSpacecraft::StopFire()
 {
-	if (IsAlive() && (IsPiloted || !ExternalCamera))
+	if (GetDamageSystem()->IsAlive() && (IsPiloted || !ExternalCamera))
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{

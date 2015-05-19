@@ -122,8 +122,8 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	if (TargetShip && DisplayType == EFlareInfoDisplay::ID_Subsystem)
 	{
 		// Update health
-		float NewHealth = TargetShip->GetSubsystemHealth(SubsystemType, true);
-		ComponentHealth = TargetShip->GetSubsystemHealth(SubsystemType);
+		float NewHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType, true);
+		ComponentHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType);
 
 		// Update flash
 		TimeSinceFlash += InDeltaTime;
@@ -185,7 +185,7 @@ FText SFlareSubsystemStatus::GetStatusText() const
 		{
 			// Temperature display
 			case EFlareSubsystem::SYS_Temperature:
-				Text = FString::FromInt(Ship->GetTemperature()) + " K";
+				Text = FString::FromInt(Ship->GetDamageSystem()->GetTemperature()) + " K";
 				break;
 
 			// Ammo display
@@ -202,9 +202,9 @@ FText SFlareSubsystemStatus::GetStatusText() const
 
 			// Power outages
 			case EFlareSubsystem::SYS_Power:
-				if (Ship->HasPowerOutage())
+				if (Ship->GetDamageSystem()->HasPowerOutage())
 				{
-					Text = LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(Ship->GetPowerOutageDuration() + 1) + " s";
+					Text = LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(Ship->GetDamageSystem()->GetPowerOutageDuration() + 1) + " s";
 				}
 				break; 
 

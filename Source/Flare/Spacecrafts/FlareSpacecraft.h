@@ -3,6 +3,10 @@
 #include "FlareSpacecraftPawn.h"
 #include "FlareWeapon.h"
 #include "FlareSpacecraftInterface.h"
+#include "FlareSpacecraftDamageSystem.h"
+#include "FlareSpacecraftNavigationSystem.h"
+#include "FlareSpacecraftDockingSystem.h"
+#include "FlareSpacecraftWeaponsSystem.h"
 #include "FlareSpacecraft.generated.h"
 
 
@@ -135,13 +139,6 @@ public:
 
 	virtual bool IsStation() override;
 
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false) override;
-
-	virtual float GetTemperature() override;
-
-	virtual float GetOverheatTemperature() override;
-
-	virtual float GetBurnTemperature() override;
 
 	bool NavigateTo(FVector TargetLocation) override;
 
@@ -151,9 +148,15 @@ public:
 
 	virtual bool IsDocked() override;
 
-	virtual void UpdatePower() override;
-
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const override;
+
+	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const;
+
+	virtual UFlareSpacecraftNavigationSystem* GetNavigationSystem() const;
+
+	virtual UFlareSpacecraftDockingSystem* GetDockingSystem() const;
+
+	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
 	/*----------------------------------------------------
 		Docking
@@ -224,25 +227,6 @@ public:
 	virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId) override;
 
 	/*----------------------------------------------------
-		Damage system interface
-	----------------------------------------------------*/
-
-	virtual void ApplyDamage(float Energy, float Radius, FVector Location) override;
-
-	virtual bool IsAlive() override;
-
-	virtual bool IsPowered() override;
-
-	virtual bool HasPowerOutage() override;
-
-	virtual float GetPowerOutageDuration() override;
-
-	/**
-	 * Method call if a electric component had been damaged
-	 */
-	virtual void OnElectricDamage(float DamageRatio);
-
-	/*----------------------------------------------------
 		Pilot
 	----------------------------------------------------*/
 
@@ -287,11 +271,10 @@ protected:
 		Damage system
 	----------------------------------------------------*/
 
-	/** Our ship was destroyed */
-	virtual void OnControlLost();
-
 	/** Our ship killed another ship */
 	virtual void OnEnemyKilled(IFlareSpacecraftInterface* Enemy);
+
+
 
 
 public:
@@ -383,8 +366,17 @@ protected:
 
 	// Pilot object
 	UPROPERTY()
-	UFlareShipPilot*                         Pilot;
+	UFlareShipPilot*                               Pilot;
 
+	// Systems
+	UPROPERTY()
+	UFlareSpacecraftDamageSystem*                  DamageSystem;
+	UPROPERTY()
+	UFlareSpacecraftNavigationSystem*              NavigationSystem;
+	UPROPERTY()
+	UFlareSpacecraftDockingSystem*                 DockingSystem;
+	UPROPERTY()
+	UFlareSpacecraftWeaponsSystem*                 WeaponsSystem;
 
 	/*----------------------------------------------------
 		Regular data
@@ -405,7 +397,6 @@ protected:
 	bool                                     ExternalCamera;
 	bool                                     FiringPressed;
 	bool                                     CombatMode;
-	bool                                     WasAlive; // True if was alive at the last tick
 	bool                                     IsPiloted;
 
 	// Navigation
@@ -540,5 +531,4 @@ public:
 	{
 		return MouseOffset;
 	}
-
 };

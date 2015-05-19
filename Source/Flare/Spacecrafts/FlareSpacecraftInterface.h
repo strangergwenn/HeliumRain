@@ -2,27 +2,13 @@
 
 #include "../Game/FlareCompany.h"
 #include "FlareShipPilot.h"
+#include "FlareSpacecraftDamageSystem.h"
+#include "FlareSpacecraftNavigationSystem.h"
+#include "FlareSpacecraftDockingSystem.h"
+#include "FlareSpacecraftWeaponsSystem.h"
 #include "FlareSpacecraftInterface.generated.h"
 
 struct FFlareSpacecraftComponentSave;
-
-
-/** Possible subsystems targets */
-UENUM()
-namespace EFlareSubsystem
-{
-	enum Type
-	{
-		SYS_None,
-		SYS_Temperature,
-		SYS_Propulsion,
-		SYS_RCS,
-		SYS_LifeSupport,
-		SYS_Power,
-		SYS_Weapon,
-	};
-}
-
 
 /** Docking info TODO Move in docking System */
 struct FFlareDockingInfo
@@ -185,7 +171,6 @@ struct FFlareSpacecraftDescription
 
 };
 
-
 /** Interface wrapper */
 UINTERFACE(MinimalAPI, meta=(CannotImplementInterfaceInBlueprint))
 class UFlareSpacecraftInterface  : public UInterface
@@ -231,44 +216,16 @@ public:
 
 
 	/*----------------------------------------------------
-		Damage control
+		Sub system
 	----------------------------------------------------*/
 
-	/** Get the health factor associated to a ship's subsystem */
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false) = 0;
+	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const = 0;
 
-	/** Get the ship's temperature in Kelvin */
-	virtual float GetTemperature() = 0;
+	virtual UFlareSpacecraftNavigationSystem* GetNavigationSystem() const = 0;
 
-	/** Get the ship's maximum acceptable temperature in Kelvin for active componentq$*/
-	virtual float GetOverheatTemperature() = 0;
+	virtual UFlareSpacecraftDockingSystem* GetDockingSystem() const = 0;
 
-	/** Get the ship's maximum acceptable temperature in Kelvin */
-	virtual float GetBurnTemperature() = 0;
-
-	/** Apply damage to this ship.
-	 * Location is the center of sphere where damages are applied.
-	 */
-	virtual void ApplyDamage(float Energy, float Radius, FVector Location) = 0;
-
-	/** Return true if any lifesupport system is alive */
-	virtual bool IsAlive() = 0;
-
-	/** Return true if the ship cockpit is powered */
-	virtual bool IsPowered() = 0;
-
-	/** Return true if the ship is currently on power outage */
-	virtual bool HasPowerOutage() = 0;
-
-	/** If on power outage, time until the end of the power outage. Else 0. */
-	virtual float GetPowerOutageDuration() = 0;
-
-	/** Update power status for all components */
-	virtual void UpdatePower() = 0;
-
-	/** Method call if a electric component had been damaged */
-	virtual void OnElectricDamage(float DamageRatio) = 0;
-
+	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const = 0;
 
 	/*----------------------------------------------------
 		Navigation API
