@@ -2,7 +2,6 @@
 
 #include "../Game/FlareCompany.h"
 #include "FlareSpacecraftComponent.h"
-#include "FlareShipPilot.h"
 #include "FlareSpacecraftPawn.generated.h"
 
 
@@ -42,47 +41,6 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-
-
-	/*----------------------------------------------------
-		Damage status
-	----------------------------------------------------*/
-
-	/**
-	 * Return true if any lifesupport system is alive
-	 */
-	virtual bool IsAlive() { return false; };
-
-	/**
-	 * Return true if the ship cockpit is powered
-	 */
-	virtual bool IsPowered() { return true; };
-
-	/**
-	 * Return true if the ship is currently on power outage
-	 */
-	virtual bool HasPowerOutage() { return false; };
-
-	/**
-	 * If on power outage, time until the end of the power outage. Else 0.
-	 */
-	virtual float GetPowerOutageDuration() { return 0.f; };
-
-	/**
-	 * Return true if the ship has weapon
-	 */
-	virtual bool IsArmed() { return false; };
-
-	/**
-	 * Update power status for all components
-	 */
-	virtual void UpdatePower();
-
-	/**
-	 * Method call if a electric component had been damaged
-	 */
-	virtual void OnElectricDamage(float DamageRatio) {};
-
 
 	/*----------------------------------------------------
 		Camera control
@@ -155,13 +113,6 @@ public:
 
 	/** Get the ship size */
 	float GetMeshScale() const;
-
-	/** Get the closest internal component */
-	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
-
-	/** Return cockpit, if present */
-	virtual UFlareSpacecraftComponent* GetCockpit() const { return NULL; };
-
 
 protected:
 

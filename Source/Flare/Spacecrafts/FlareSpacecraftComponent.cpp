@@ -15,7 +15,8 @@
 
 UFlareSpacecraftComponent::UFlareSpacecraftComponent(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
-	, Ship(NULL)
+	, SpacecraftPawn(NULL)
+	, Spacecraft(NULL)
 	, PlayerCompany(NULL)
 	, DestroyedEffects(NULL)
 	, ComponentMaterial(NULL)
@@ -133,14 +134,13 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 	}
 
 	// Need even if no ComponentDescription to heat airframes
-	IFlareSpacecraftInterface* ShipInterface = Cast<IFlareSpacecraftInterface>(Ship);
-	if (ShipInterface)
+	if (Spacecraft)
 	{
 		if (HasLocalHeatEffect && HeatProduction > 0.f)
 		{
 			float Alpha = GetHeatProduction() / HeatProduction;
-			float TargetTemperature = (1.f- Alpha) * (ShipInterface->GetTemperature() * 0.3f)
-						+ Alpha * (ShipInterface->GetTemperature() * 1.8f);
+			float TargetTemperature = (1.f- Alpha) * (Spacecraft->GetTemperature() * 0.3f)
+						+ Alpha * (Spacecraft->GetTemperature() * 1.8f);
 			float HalfLife = 3;
 			float Variation = DeltaTime / HalfLife;
 			LocalTemperature = (LocalTemperature + (TargetTemperature * Variation)) / (1+Variation);
@@ -148,30 +148,30 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 		else
 		{
 
-			LocalTemperature = ShipInterface->GetTemperature();
+			LocalTemperature = Spacecraft->GetTemperature();
 		}
 		SetTemperature(LocalTemperature);
 
 	}
 }
 
-void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
+void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerSpacecraftPawn, bool IsInMenu)
 {
 	// Main data
-	Ship = OwnerShip;
+	SpacecraftPawn = OwnerSpacecraftPawn;
 	PlayerCompany = Company;
 
-	IFlareSpacecraftInterface* ShipInterface = Cast<IFlareSpacecraftInterface>(Ship);
-	if(ShipInterface)
+	Spacecraft = Cast<AFlareSpacecraft>(SpacecraftPawn);
+	if(Spacecraft)
 	{
-		LocalTemperature = ShipInterface->GetTemperature();
+		LocalTemperature = Spacecraft->GetTemperature();
 	}
 
 	// Setup properties
 	if (Data)
 	{
 		ShipComponentData = *Data;
-		ComponentDescription = OwnerShip->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
+		ComponentDescription = OwnerSpacecraftPawn->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
 
 		if (!ComponentDescription)
 		{
@@ -188,7 +188,7 @@ void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* 
 		}
 
 		// Destroyed component
-		if (GetDamageRatio() <= 0 && OwnerShip->IsAlive())
+		if (Spacecraft && GetDamageRatio() <= 0 && Spacecraft->IsAlive())
 		{
 			StartDestroyedEffects();
 		}
@@ -219,7 +219,7 @@ float UFlareSpacecraftComponent::GetMeshScale()
 
 bool UFlareSpacecraftComponent::IsInitialized()
 {
-	return (Ship != NULL);
+	return (SpacecraftPawn != NULL);
 }
 
 void UFlareSpacecraftComponent::SetTemperature(int32 TemperatureKelvin)
@@ -368,9 +368,9 @@ void UFlareSpacecraftComponent::ApplyDamage(float Energy)
 		float StateAfterDamage = GetDamageRatio();
 
 		// No more armor, power outage risk
-		if (IsGenerator() && StateAfterDamage < 1.0 && StateBeforeDamage > 0)
+		if (Spacecraft && IsGenerator() && StateAfterDamage < 1.0 && StateBeforeDamage > 0)
 		{
-			Ship->OnElectricDamage(StateBeforeDamage - StateAfterDamage);
+			Spacecraft->OnElectricDamage(StateBeforeDamage - StateAfterDamage);
 		}
 
 		// Effects
@@ -448,7 +448,7 @@ void UFlareSpacecraftComponent::UpdateLight()
 	{
 		SetLightStatus(EFlareLightStatus::Dark);
 	}
-	else if (AvailablePower < 0.5 || (Ship && Ship->HasPowerOutage()))
+	else if (AvailablePower < 0.5 || (Spacecraft && Spacecraft->HasPowerOutage()))
 	{
 		SetLightStatus(EFlareLightStatus::Flickering);
 	}
@@ -507,7 +507,7 @@ float UFlareSpacecraftComponent::GetHeatProduction() const
 
 float UFlareSpacecraftComponent::GetHeatSinkSurface() const
 {
-	return HeatSinkSurface * (0.1 +  9 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Ship->HasPowerOutage() ? 0 : 1) / 10);
+	return HeatSinkSurface * (0.1 +  9 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Spacecraft && Spacecraft->HasPowerOutage() ? 0 : 1) / 10);
 }
 
 bool UFlareSpacecraftComponent::IsHeatSink() const

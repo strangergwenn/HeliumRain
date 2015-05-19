@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Game/FlareCompany.h"
+#include "FlareShipPilot.h"
 #include "FlareSpacecraftInterface.generated.h"
 
 struct FFlareSpacecraftComponentSave;
@@ -222,6 +223,12 @@ public:
 	/** Check if this is a station ship */
 	virtual bool IsStation() = 0;
 
+	/** Get the closest internal component */
+	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const = 0;
+
+	/** Return cockpit, if present */
+	virtual UFlareSpacecraftComponent* GetCockpit() const = 0;
+
 
 	/*----------------------------------------------------
 		Damage control
@@ -255,6 +262,12 @@ public:
 
 	/** If on power outage, time until the end of the power outage. Else 0. */
 	virtual float GetPowerOutageDuration() = 0;
+
+	/** Update power status for all components */
+	virtual void UpdatePower() = 0;
+
+	/** Method call if a electric component had been damaged */
+	virtual void OnElectricDamage(float DamageRatio) = 0;
 
 
 	/*----------------------------------------------------

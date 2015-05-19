@@ -4,6 +4,7 @@
 #include "FlareSpacecraftComponent.generated.h"
 
 class AFlareSpacecraftPawn;
+class AFlareSpacecraft;
 class UFlareCompany;
 
 
@@ -246,7 +247,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	/** Initialize this component and register the master ship object */
-	virtual void Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu = false);
+	virtual void Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerSpacecraftPawn, bool IsInMenu = false);
 
 	/** Save the ship component to a save file */
 	virtual FFlareSpacecraftComponentSave* Save();
@@ -358,7 +359,9 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY()
-	AFlareSpacecraftPawn*                         Ship;
+	AFlareSpacecraftPawn*                         SpacecraftPawn;
+
+	AFlareSpacecraft*	                          Spacecraft;
 
 	UPROPERTY()
 	UFlareCompany*                          PlayerCompany;

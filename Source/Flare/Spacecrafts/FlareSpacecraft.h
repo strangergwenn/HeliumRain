@@ -151,6 +151,9 @@ public:
 
 	virtual bool IsDocked() override;
 
+	virtual void UpdatePower() override;
+
+	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const override;
 
 	/*----------------------------------------------------
 		Docking

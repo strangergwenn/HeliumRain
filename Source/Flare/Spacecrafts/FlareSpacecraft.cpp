@@ -245,6 +245,16 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 	}
 }
 
+void AFlareSpacecraft::UpdatePower()
+{
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+		Component->UpdatePower();
+	}
+}
+
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
@@ -1218,6 +1228,30 @@ void AFlareSpacecraft::OnElectricDamage(float DamageRatio)
 
 
 
+}
+
+UFlareInternalComponent* AFlareSpacecraft::GetInternalComponentAtLocation(FVector Location) const
+{
+	float MinDistance = 100000; // 1km
+	UFlareInternalComponent* ClosestComponent = NULL;
+
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareInternalComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareInternalComponent* InternalComponent = Cast<UFlareInternalComponent>(Components[ComponentIndex]);
+
+		FVector ComponentLocation;
+		float ComponentSize;
+		InternalComponent->GetBoundingSphere(ComponentLocation, ComponentSize);
+
+		float Distance = (ComponentLocation - Location).Size() - ComponentSize;
+		if(Distance < MinDistance)
+		{
+			ClosestComponent = InternalComponent;
+			MinDistance = Distance;
+		}
+	}
+	return ClosestComponent;
 }
 
 /*----------------------------------------------------

@@ -50,19 +50,26 @@ void UFlareEngine::SetAlpha(float Alpha)
 
 float UFlareEngine::GetEffectiveAlpha() const
 {
-	return ExhaustAlpha * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Ship->HasPowerOutage() ? 0 : 1);
+	if (Spacecraft)
+	{
+		return ExhaustAlpha * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Spacecraft->HasPowerOutage() ? 0 : 1);
+	}
+	else
+	{
+		return 1.f;
+	}
 }
 
 void UFlareEngine::UpdateEffects()
 {
 	// Apply the glow value
-	if (EffectMaterial && Ship)
+	if (EffectMaterial && SpacecraftPawn)
 	{
-		if (!Ship->IsPresentationMode() && IsVisibleByPlayer())
+		if (!SpacecraftPawn->IsPresentationMode() && IsVisibleByPlayer())
 		{
 			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), ExhaustAccumulator);
 		}
-		else if (Ship->IsPresentationMode() || IsVisibleByPlayer())
+		else if (SpacecraftPawn->IsPresentationMode() || IsVisibleByPlayer())
 		{
 			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), 0);
 		}
@@ -77,7 +84,14 @@ FVector UFlareEngine::GetThrustAxis() const
 
 float UFlareEngine::GetMaxThrust() const
 {
-	return MaxThrust * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Ship->HasPowerOutage() ? 0 : 1);
+	if (Spacecraft)
+	{
+		return MaxThrust * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Spacecraft->HasPowerOutage() ? 0 : 1);
+	}
+	else
+	{
+		return MaxThrust;
+	}
 }
 
 float UFlareEngine::GetInitialMaxThrust() const

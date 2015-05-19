@@ -51,7 +51,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	}
 
 	// Spawn properties
-	ProjectileSpawnParams.Instigator = Ship;
+	ProjectileSpawnParams.Instigator = SpacecraftPawn;
 	ProjectileSpawnParams.bNoFail = true;
 	ProjectileSpawnParams.bNoCollisionFail = true;
 
@@ -93,7 +93,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered() && !Ship->HasPowerOutage())
+	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered() && Spacecraft && !Spacecraft->HasPowerOutage())
 	{
 		// Get firing data
 		FVector FiringLocation = GetSocketLocation(FName("Muzzle"));
@@ -119,7 +119,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		}
 
 		// Play sound
-		if (Ship && Ship->IsLocallyControlled())
+		if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
 		{
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation(), 1, 1);
 		}

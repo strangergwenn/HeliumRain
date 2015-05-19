@@ -27,9 +27,9 @@ void UFlareAirframe::OnRegister()
 
 float UFlareAirframe::GetRemainingArmorAtLocation(FVector Location)
 {
-	if (!ComponentDescription)
+	if (!ComponentDescription && Spacecraft)
 	{
-		UFlareInternalComponent* Component = Ship->GetInternalComponentAtLocation(Location);
+		UFlareInternalComponent* Component = Spacecraft->GetInternalComponentAtLocation(Location);
 		if (Component)
 		{
 			return Component->GetRemainingArmorAtLocation(Location);
@@ -40,15 +40,16 @@ float UFlareAirframe::GetRemainingArmorAtLocation(FVector Location)
 
 float UFlareAirframe::GetAvailablePower() const
 {
-	UFlareSpacecraftComponent* Cockpit = Ship->GetCockpit();
+	if(Spacecraft)
+	{
+		UFlareSpacecraftComponent* Cockpit = Spacecraft->GetCockpit();
 
-	if (Cockpit)
-	{
-		Cockpit->UpdatePower();
-		return Cockpit->GetAvailablePower();
+		if (Cockpit)
+		{
+			Cockpit->UpdatePower();
+			return Cockpit->GetAvailablePower();
+		}
 	}
-	else
-	{
-		return Super::GetAvailablePower();
-	}
+
+	return Super::GetAvailablePower();
 }
