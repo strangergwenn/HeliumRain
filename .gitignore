@@ -10,3 +10,4 @@ DerivedDataCache/
 *.blend2
 *.blend3
 *.fbx
+Build/Receipts/FlareEditor-Win64-Development.target.xml
