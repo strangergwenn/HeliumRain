@@ -621,9 +621,9 @@ void AFlareHUD::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditabl
 
 	AFlareSpacecraft* PlayerShip = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
 
-	if (Target == NULL && PlayerShip && PlayerShip->IsDocked())
+	if (Target == NULL && PlayerShip && PlayerShip->GetNavigationSystem()->IsDocked())
 	{
-		Target = PlayerShip->GetDockStation();
+		Target = PlayerShip->GetNavigationSystem()->GetDockStation();
 	}
 	StationMenu->Enter(Target);
 }

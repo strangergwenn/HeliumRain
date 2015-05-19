@@ -10,29 +10,6 @@
 
 struct FFlareSpacecraftComponentSave;
 
-/** Docking info TODO Move in docking System */
-struct FFlareDockingInfo
-{
-	bool                      Granted;
-	bool                      Occupied;
-	int32                     DockId;
-	IFlareSpacecraftInterface*   Station;
-	IFlareSpacecraftInterface*      Ship;
-
-	FRotator                  Rotation;
-	FVector                   StartPoint;
-	FVector                   EndPoint;
-
-	FFlareDockingInfo()
-		: Granted(false)
-		, Occupied(false)
-		, DockId(-1)
-		, Station(NULL)
-	{}
-};
-
-
-
 /** Spacecraft save data */
 USTRUCT()
 struct FFlareSpacecraftSave
@@ -226,52 +203,6 @@ public:
 	virtual UFlareSpacecraftDockingSystem* GetDockingSystem() const = 0;
 
 	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const = 0;
-
-	/*----------------------------------------------------
-		Navigation API
-	----------------------------------------------------*/
-
-	/** Navigate there (scene coordinates) */
-	virtual bool NavigateTo(FVector TargetLocation) = 0;
-
-	/** Check if the ship is manually flown */
-	virtual bool IsManualPilot() = 0;
-
-	/** Check if the autopilot is enabled */
-	virtual bool IsAutoPilot() = 0;
-
-
-
-	/*----------------------------------------------------
-		Docking API
-	----------------------------------------------------*/
-
-	/** Check if the ship is currently docked */
-	virtual bool IsDocked() = 0;
-
-	/** Navigate to and dock at this station */
-	virtual bool DockAt(IFlareSpacecraftInterface* TargetStation) = 0;
-
-	/** Undock from the current station */
-	virtual bool Undock() = 0;
-
-	/** Get the station where we are docked to */
-	virtual IFlareSpacecraftInterface* GetDockStation() = 0;
-
-	/** Get the list of docked ships */
-	virtual TArray<IFlareSpacecraftInterface*> GetDockedShips() = 0;
-
-	/** Request a docking point */
-	virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship) = 0;
-
-	/** Cancel docking */
-	virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId) = 0;
-
-	/** Confirm the docking from external ship */
-	virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId) = 0;
-
-	virtual bool HasAvailableDock(IFlareSpacecraftInterface* Ship) const = 0;
-
 
 	/*----------------------------------------------------
 		Content

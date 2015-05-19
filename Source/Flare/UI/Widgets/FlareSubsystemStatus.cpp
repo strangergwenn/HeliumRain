@@ -210,7 +210,7 @@ FText SFlareSubsystemStatus::GetStatusText() const
 
 			// Pilot mode
 			case EFlareSubsystem::SYS_RCS:
-				switch (Ship->GetCommandType())
+				switch (Ship->GetNavigationSystem()->GetStatus())
 				{
 					case EFlareShipStatus::SS_Manual:    Text += LOCTEXT("CmdManual", "Manual").ToString();  break;
 					case EFlareShipStatus::SS_AutoPilot: Text += LOCTEXT("CmdAuto", "Autopilot").ToString(); break;
@@ -220,7 +220,7 @@ FText SFlareSubsystemStatus::GetStatusText() const
 
 			// Boost mode
 			case EFlareSubsystem::SYS_Propulsion:
-				if (Ship->IsBoosting())
+				if (Ship->GetNavigationSystem()->IsBoosting())
 				{
 					Text = LOCTEXT("Boosting", "Boosting").ToString();
 				}

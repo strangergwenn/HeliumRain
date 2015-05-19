@@ -168,7 +168,7 @@ void AFlarePlayerController::UpdateSound(UAudioComponent* SoundComp, float Volum
 void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 {
 	// No internal camera when docked
-	if (ShipPawn && ShipPawn->IsDocked())
+	if (ShipPawn && ShipPawn->GetNavigationSystem()->IsDocked())
 	{
 		NewState = true;
 	}
@@ -438,7 +438,7 @@ void AFlarePlayerController::ToggleMenu()
 
 void AFlarePlayerController::ToggleCombat()
 {
-	if (ShipPawn && ShipPawn->IsMilitary() && !ShipPawn->IsDocked() && !IsInMenu())
+	if (ShipPawn && ShipPawn->IsMilitary() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
 		FLOGV("AFlarePlayerController::ToggleCombat : new state is %d", !CombatMode);
 		CombatMode = !CombatMode;

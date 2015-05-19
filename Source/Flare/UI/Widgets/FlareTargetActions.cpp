@@ -269,9 +269,9 @@ void SFlareTargetActions::SetStation(IFlareSpacecraftInterface* Target)
 
 		// Are we docked here
 		bool Docked = false;
-		if (PC->GetShipPawn()->IsDocked())
+		if (PC->GetShipPawn()->GetNavigationSystem()->IsDocked())
 		{
-			if (PC->GetShipPawn()->GetDockStation() == Target)
+			if (PC->GetShipPawn()->GetNavigationSystem()->GetDockStation() == Target)
 			{
 				Docked = true;
 			}
@@ -408,7 +408,7 @@ void SFlareTargetActions::OnDockAt()
 {
 	if (PC && TargetStation)
 	{
-		PC->GetShipPawn()->DockAt(TargetStation);
+		PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetStation);
 		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
 	}
 }
@@ -417,7 +417,7 @@ void SFlareTargetActions::OnUndock()
 {
 	if (PC && TargetStation)
 	{
-		PC->GetShipPawn()->Undock();
+		PC->GetShipPawn()->GetNavigationSystem()->Undock();
 		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
 	}
 }

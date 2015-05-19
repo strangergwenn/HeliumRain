@@ -4,6 +4,26 @@
 
 class AFlareSpacecraft;
 
+struct FFlareDockingInfo
+{
+	bool                      Granted;
+	bool                      Occupied;
+	int32                     DockId;
+	IFlareSpacecraftInterface*   Station;
+	IFlareSpacecraftInterface*      Ship;
+
+	FRotator                  Rotation;
+	FVector                   StartPoint;
+	FVector                   EndPoint;
+
+	FFlareDockingInfo()
+		: Granted(false)
+		, Occupied(false)
+		, DockId(-1)
+		, Station(NULL)
+	{}
+};
+
 /** Spacecraft docking system class */
 UCLASS()
 class FLARE_API UFlareSpacecraftDockingSystem : public UObject
@@ -31,6 +51,20 @@ public:
 	/*----------------------------------------------------
 		System API
 	----------------------------------------------------*/
+
+	/** Get the list of docked ships */
+	virtual TArray<IFlareSpacecraftInterface*> GetDockedShips();
+
+	/** Request a docking point */
+	virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship);
+
+	/** Cancel docking */
+	virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId);
+
+	/** Confirm the docking from external ship */
+	virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId);
+
+	virtual bool HasAvailableDock(IFlareSpacecraftInterface* Ship) const;
 
 protected:
 

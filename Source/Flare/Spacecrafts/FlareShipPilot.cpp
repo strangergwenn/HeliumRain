@@ -71,13 +71,13 @@ void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany*
 void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 {
 
-	if (Ship->GetStatus() == EFlareShipStatus::SS_Docked)
+	if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_Docked)
 	{
 		// Let's undock
-		Ship->Undock();
+		Ship->GetNavigationSystem()->Undock();
 		return;
 	}
-	else if (Ship->GetStatus() == EFlareShipStatus::SS_AutoPilot)
+	else if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_AutoPilot)
 	{
 		// Wait manoeuver
 		return;
@@ -96,7 +96,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation();
 		if (TargetStation)
 		{
-			if (Ship->DockAt(TargetStation))
+			if (Ship->GetNavigationSystem()->DockAt(TargetStation))
 			{
 				// Ok let dock
 				return;
@@ -208,7 +208,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			}
 			else
 			{
-				LinearTargetVelocity = PredictedFireTargetAxis * Ship->GetLinearMaxVelocity();
+				LinearTargetVelocity = PredictedFireTargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			}
 
 			if(Distance < SecurityDistance) {
@@ -230,11 +230,11 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 				if (Distance > SecurityDistance || DangerousTarget)
 				{
-					LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+					LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 				}
 				else
 				{
-					LinearTargetVelocity = PilotTargetShip->GetLinearVelocity() + (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetLinearMaxVelocity() / 4.0;
+					LinearTargetVelocity = PilotTargetShip->GetLinearVelocity() + (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity() / 4.0;
 				}
 				UseOrbitalBoost = true;
 			}
@@ -250,12 +250,12 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			} else {
 				if (DangerousTarget)
 				{
-					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 					UseOrbitalBoost = true;
 				}
 				else
 				{
-					LinearTargetVelocity = PilotTargetShip->GetLinearVelocity() - DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity() / 4.0 ;
+					LinearTargetVelocity = PilotTargetShip->GetLinearVelocity() - DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity() / 4.0 ;
 				}
 			}
 		}
@@ -296,7 +296,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	else
 	{
 		AngularTargetVelocity = FVector::ZeroVector;
-		LinearTargetVelocity = - Ship->GetActorLocation().GetClampedToMaxSize(Ship->GetLinearMaxVelocity());
+		LinearTargetVelocity = - Ship->GetActorLocation().GetClampedToMaxSize(Ship->GetNavigationSystem()->GetLinearMaxVelocity());
 	}
 
 	// Anticollision
@@ -320,7 +320,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 			// Below 100m begin avoidance maneuver
 			float Alpha = 1 - Distance/100.f;
-			LinearTargetVelocity = LinearTargetVelocity * (1.f - Alpha) + Alpha * ((Avoid - DeltaLocation) .GetUnsafeNormal() * Ship->GetLinearMaxVelocity());
+			LinearTargetVelocity = LinearTargetVelocity * (1.f - Alpha) + Alpha * ((Avoid - DeltaLocation) .GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity());
 		}
 	}
 
@@ -342,10 +342,10 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 {
-	if (Ship->GetStatus() == EFlareShipStatus::SS_Docked)
+	if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_Docked)
 	{
 		// Let's undock
-		Ship->Undock();
+		Ship->GetNavigationSystem()->Undock();
 
 		// Swap target station
 		PilotLastTargetStation = PilotTargetStation;
@@ -353,7 +353,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 		return;
 	}
-	else if (Ship->GetStatus() == EFlareShipStatus::SS_AutoPilot)
+	else if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_AutoPilot)
 	{
 		// Wait manoeuver
 	} else {
@@ -380,14 +380,14 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 			if (Distance < 1000)
 			{
-				if(!Ship->DockAt(PilotTargetStation))
+				if(!Ship->GetNavigationSystem()->DockAt(PilotTargetStation))
 				{
-					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 				}
 			}
 			else
 			{
-				LinearTargetVelocity = DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+				LinearTargetVelocity = DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			}
 		}
 	}
@@ -403,8 +403,8 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		// There is at least one hostile enemy
 		if (Distance < 4000)
 		{
-			Ship->ForceManual();
-			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetLinearMaxVelocity();
+			Ship->ForceManual(); // TODO make independant command channel
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 
 			UseOrbitalBoost = true;
 		}
@@ -526,9 +526,9 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 		TimeToFinalVelocity = 0;
 	}
 	else {
-	    FVector SimpleAcceleration = DeltaVelocityAxis * Ship->GetAngularAccelerationRate();
+		FVector SimpleAcceleration = DeltaVelocityAxis * Ship->GetNavigationSystem()->GetAngularAccelerationRate();
 	    // Scale with damages
-	    float DamageRatio = Ship->GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, true) / Ship->GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, false);
+		float DamageRatio = Ship->GetNavigationSystem()->GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, true) / Ship->GetNavigationSystem()->GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, false);
 	    FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
 
 	    FVector Acceleration = DamagedSimpleAcceleration;
@@ -546,7 +546,7 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 	}
 	else
 	{
-		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / (ReactionTime * 0.75f), Ship->GetAngularMaxVelocity());
+		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / (ReactionTime * 0.75f), Ship->GetNavigationSystem()->GetAngularMaxVelocity());
 
 		RelativeResultSpeed = RotationDirection;
 		RelativeResultSpeed *= MaxPreciseSpeed;
@@ -574,7 +574,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestAvailableStation() const
 				continue;
 			}
 
-			if (!StationCandidate->HasAvailableDock(Ship))
+			if (!StationCandidate->GetDockingSystem()->HasAvailableDock(Ship))
 			{
 				continue;
 			}

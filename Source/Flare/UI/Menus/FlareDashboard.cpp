@@ -242,7 +242,7 @@ void SFlareDashboard::Enter()
 		AFlareSpacecraft* Ship = PC->GetShipPawn();
 		if (Ship)
 		{
-			StationBox->SetVisibility(Ship->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
+			StationBox->SetVisibility(Ship->GetNavigationSystem()->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
 		}
 		PC->GetMenuPawn()->UpdateBackgroundColor(0.12, 0.3);
 	}
@@ -293,7 +293,7 @@ void SFlareDashboard::OnUndock()
 		AFlareSpacecraft* Ship = PC->GetShipPawn();
 		if (Ship)
 		{
-			Ship->Undock();
+			Ship->GetNavigationSystem()->Undock();
 			Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
 		}
 	}

@@ -9,70 +9,6 @@
 #include "FlareSpacecraftWeaponsSystem.h"
 #include "FlareSpacecraft.generated.h"
 
-
-/** Status of the ship */
-UENUM()
-namespace EFlareShipStatus
-{
-	enum Type
-	{
-		SS_Manual,
-		SS_AutoPilot,
-		SS_Docked
-	};
-}
-namespace EFlareShipStatus
-{
-	inline FString ToString(EFlareShipStatus::Type EnumValue)
-	{
-		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlareShipStatus"), true);
-		return EnumPtr->GetEnumName(EnumValue);
-	}
-}
-
-
-/** Type of command */
-UENUM()
-namespace EFlareCommandDataType
-{
-	enum Type
-	{
-		CDT_None,
-		CDT_Location,
-		CDT_Rotation,
-		CDT_BrakeLocation,
-		CDT_BrakeRotation,
-		CDT_Dock
-	};
-}
-namespace EFlareCommandDataType
-{
-	inline FString ToString(EFlareCommandDataType::Type EnumValue)
-	{
-		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlareCommandDataType"), true);
-		return EnumPtr->GetEnumName(EnumValue);
-	}
-}
-
-
-/** Structure holding all data for a single command */
-struct FFlareShipCommandData
-{
-	TEnumAsByte <EFlareCommandDataType::Type> Type;
-
-	bool PreciseApproach;
-	FVector LocationTarget;
-	FVector RotationTarget;
-	FVector LocalShipAxis;
-
-	UPROPERTY()
-	AActor* ActionTarget;
-
-	int32 ActionTargetParam;
-
-};
-
-
 /** Ship class */
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
 class AFlareSpacecraft : public AFlareSpacecraftPawn, public IFlareSpacecraftInterface
@@ -105,6 +41,7 @@ public:
 
 	virtual void Destroyed() override;
 
+	virtual void OnDocked();
 
 	/*----------------------------------------------------
 		Player interface
@@ -118,10 +55,6 @@ public:
 
 	/** Extrapolate the position of a ship for a given targetting ship */
 	virtual FVector GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay) const;
-
-	/** Set the new flight status */
-	virtual void SetStatus(EFlareShipStatus::Type NewStatus);
-
 
 	/*----------------------------------------------------
 		Ship interface
@@ -139,15 +72,6 @@ public:
 
 	virtual bool IsStation() override;
 
-
-	bool NavigateTo(FVector TargetLocation) override;
-
-	virtual bool IsManualPilot() override;
-
-	virtual bool IsAutoPilot() override;
-
-	virtual bool IsDocked() override;
-
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const override;
 
 	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const;
@@ -158,73 +82,7 @@ public:
 
 	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
-	/*----------------------------------------------------
-		Docking
-	----------------------------------------------------*/
 
-	virtual bool DockAt(IFlareSpacecraftInterface* TargetStation) override;
-
-	/** Confirm that the docking sequence has completed */
-	virtual void ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId);
-
-	virtual bool Undock() override;
-
-	virtual IFlareSpacecraftInterface* GetDockStation() override;
-
-	virtual bool HasAvailableDock(IFlareSpacecraftInterface* Ship) const override;
-
-
-	/*----------------------------------------------------
-		Navigation commands and helpers
-	----------------------------------------------------*/
-
-	/** Brake (linear) */
-	void PushCommandLinearBrake();
-
-	/** Brake (angular) */
-	void PushCommandAngularBrake();
-
-	/** Go there */
-	void PushCommandLocation(const FVector& Location, bool Precise = false);
-
-	/** Turn this way */
-	void PushCommandRotation(const FVector& RotationTarget, const FVector& LocalShipAxis);
-
-	/** Dock to this */
-	void PushCommandDock(const FFlareDockingInfo& DockingInfo);
-
-	/** Enqueue an autopilot command */
-	void PushCommand(const FFlareShipCommandData& Command);
-
-	/** Clear the current autopilot command */
-	void ClearCurrentCommand();
-
-	/** Abort all the current pushed autopilot commands */
-	void AbortAllCommands();
-
-	/** Get the dock offset from the origin of the ship */
-	virtual FVector GetDockLocation();
-
-	/** Compute the path from OriginLocation to TargetLocation */
-	virtual bool ComputePath(TArray<FVector>& Commands, TArray<AActor*>& Colliders, FVector OriginLocation, FVector TargetLocation, float ShipSize);
-
-	/** Update collision data for pathfinding */
-	virtual void UpdateColliders();
-
-	/** Make sure this point is not in a path collider */
-	virtual bool IsPointColliding(FVector Candidate, AActor* Ignore);
-
-	/*----------------------------------------------------
-		Docking
-	----------------------------------------------------*/
-
-	virtual TArray<IFlareSpacecraftInterface*> GetDockedShips() override;
-
-	virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship) override;
-
-	virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId) override;
-
-	virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId) override;
 
 	/*----------------------------------------------------
 		Pilot
@@ -235,47 +93,11 @@ public:
 protected:
 
 	/*----------------------------------------------------
-		Internal attitude control
-	----------------------------------------------------*/
-
-	/** Manually update the current linear attitude */
-	void UpdateLinearAttitudeManual(float DeltaSeconds);
-
-	/** Automatically update the current linear attitude */
-	void UpdateLinearAttitudeAuto(float DeltaSeconds, float MaxVelocity);
-
-	/** Brake */
-	void UpdateLinearBraking(float DeltaSeconds);
-
-	/** Manually update the current angular attitude */
-	void UpdateAngularAttitudeManual(float DeltaSeconds);
-
-	/** Automatically update the current angular attitude */
-	void UpdateAngularAttitudeAuto(float DeltaSeconds);
-
-	/** Brake */
-	void UpdateAngularBraking(float DeltaSeconds);
-
-	/*----------------------------------------------------
-		Physics
-	----------------------------------------------------*/
-
-	/** Update the attitude control */
-	void PhysicSubTick(float DeltaSeconds);
-
-	/** Update the ship's center of mass */
-	void UpdateCOM();
-
-
-	/*----------------------------------------------------
 		Damage system
 	----------------------------------------------------*/
 
 	/** Our ship killed another ship */
 	virtual void OnEnemyKilled(IFlareSpacecraftInterface* Enemy);
-
-
-
 
 public:
 
@@ -327,6 +149,10 @@ public:
 
 	virtual void ZoomOut();
 
+	virtual void StartFire();
+
+	virtual void StopFire();
+
 	virtual void FaceForward();
 
 	virtual void FaceBackward();
@@ -338,11 +164,6 @@ public:
 	virtual void BoostOff();
 
 	virtual void ForceManual();
-
-	virtual void StartFire();
-
-	virtual void StopFire();
-
 
 protected:
 
@@ -382,70 +203,30 @@ protected:
 		Regular data
 	----------------------------------------------------*/
 
-	// Configuration properties
-	float                                    AngularDeadAngle;
-	float                                    AngularInputDeadRatio;
-	float                                    AngularMaxVelocity; // degree/s
-	float                                    AngularAccelerationRate;
-	float                                    LinearDeadDistance;
-	float                                    LinearMaxVelocity; // m/s
-	float                                    LinearMaxDockingVelocity; // m/s
-	float                                    NegligibleSpeedRatio;
-
 	// Dynamic gameplay data
-	TEnumAsByte <EFlareShipStatus::Type>     Status;
+
 	bool                                     ExternalCamera;
 	bool                                     FiringPressed;
 	bool                                     CombatMode;
 	bool                                     IsPiloted;
 
-	// Navigation
-	TArray <AActor*>                         PathColliders;
-	TQueue <FFlareShipCommandData>           CommandData;
+public:
 
-	// Manual pilot
-	FVector                                  ManualAngularVelocity; // In local space
-	FVector                                  ManualLinearVelocity;
-	bool                                     ManualOrbitalBoost;
-	FVector2D                                MouseOffset;
-
-	// Physics simulation
-	FVector                                  LinearTargetVelocity;
-	FVector                                  AngularTargetVelocity;
-	FVector                                  COM;
-
+	// Manual player pilot
+	FVector2D                                PlayerMouseOffset;
+	FVector                                  PlayerManualAngularVelocity; // In local space
+	FVector                                  PlayerManualLinearVelocity;
+	bool                                     PlayerManualOrbitalBoost;
+	float                                    AngularInputDeadRatio;
 
 public:
 
 	/*----------------------------------------------------
-		Getters (Attitude)
-	----------------------------------------------------*/
-
-	/**
-	 * Return linear velocity in meters
-	 */
-	FVector GetLinearVelocity() const;
-
-	/**
-	 * Return the maximum current (with damages) trust the ship can provide in a specific axis.
-	 * Engines : List of engine to use to compute the max thrust
-	 * Axis : Axis of the thurst
-	 * WithObitalEngines : if false, ignore orbitals engines
-	 */
-	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, bool WithOrbitalEngines) const;
-
-	/**
-	 * Return the maximum torque the ship can provide in a specific axis.
-	 * Engines : List of engine to use to compute the max thrust
-	 * TorqueDirection : Axis of the torque
-	 * WithDamages : if true, use current thrust value and not theorical thrust value
-	 */
-	float GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueDirection, bool WithDamages) const;
-
-
-	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
+
+	/** Return linear velocity in meters */
+	FVector GetLinearVelocity() const;
 
 	inline FFlareSpacecraftDescription* GetDescription() const
 	{
@@ -477,16 +258,6 @@ public:
 		return ShipCockit;
 	}
 
-	inline EFlareShipStatus::Type GetCommandType() const
-	{
-		return Status;
-	}
-
-	inline bool IsBoosting() const
-	{
-		return ManualOrbitalBoost;
-	}
-
 	inline bool IsExternalCamera() const
 	{
 		return ExternalCamera;
@@ -502,33 +273,13 @@ public:
 		return IsPiloted;
 	}
 
-	inline float GetAngularAccelerationRate() const
+	inline UFlareShipPilot* GetPilot() const
 	{
-		return AngularAccelerationRate;
-	}
-
-	inline float GetAngularMaxVelocity() const
-	{
-		return AngularMaxVelocity;
-	}
-
-	inline float GetLinearMaxVelocity() const
-	{
-		return LinearMaxVelocity;
-	}
-
-	inline float GetLinearMaxBoostingVelocity() const
-	{
-		return LinearMaxVelocity * 1000;
-	}
-
-	inline EFlareShipStatus::Type GetStatus() const
-	{
-		return Status;
+		return Pilot;
 	}
 
 	inline FVector2D GetMouseOffset() const
 	{
-		return MouseOffset;
+		return PlayerMouseOffset;
 	}
 };
