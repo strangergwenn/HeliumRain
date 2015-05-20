@@ -175,7 +175,7 @@ public:
 	void UpdateLinearAttitudeManual(float DeltaSeconds);
 
 	/** Automatically update the current linear attitude */
-	bool UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, float MaxVelocity);
+	bool UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity);
 
 	/** Brake */
 	void UpdateLinearBraking(float DeltaSeconds);
@@ -188,6 +188,10 @@ public:
 
 	/** Brake */
 	void UpdateAngularBraking(float DeltaSeconds);
+
+	/** Return the angular velocity need to align the local ship axis to the target axis */
+	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const;
+
 
 	/*----------------------------------------------------
 		Physics

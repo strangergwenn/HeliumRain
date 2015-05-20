@@ -13,6 +13,7 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 {
 	ReactionTime = FMath::FRandRange(0.2, 0.3);
 	TimeUntilNextReaction = 0;
+	WaitTime = 0;
 	PilotTargetLocation = FVector::ZeroVector;
 	PilotTargetShip = NULL;
 	PilotTargetStation = NULL;
@@ -348,14 +349,23 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 {
+
 	if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_Docked)
 	{
-		// Let's undock
-		Ship->GetNavigationSystem()->Undock();
+		if(WaitTime < 10)
+		{
+			WaitTime += ReactionTime;
+		}
+		else
+		{
+			// Let's undock
+			Ship->GetNavigationSystem()->Undock();
 
-		// Swap target station
-		PilotLastTargetStation = PilotTargetStation;
-		PilotTargetStation = NULL;
+			// Swap target station
+			PilotLastTargetStation = PilotTargetStation;
+			PilotTargetStation = NULL;
+			WaitTime = 0;
+		}
 
 		return;
 	}

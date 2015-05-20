@@ -123,6 +123,7 @@ protected:
 	float                                ReactionTime;
 	float                                TimeUntilNextReaction;
 	FVector                              PilotTargetLocation;
+	float								 WaitTime;
 	AFlareSpacecraft*                          PilotTargetShip;
 	AFlareSpacecraft*                          PilotTargetStation;
 	AFlareSpacecraft*                          PilotLastTargetStation;

@@ -65,7 +65,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 		{
 			if (CurrentCommand.Type == EFlareCommandDataType::CDT_Location)
 			{
-				if(UpdateLinearAttitudeAuto(DeltaSeconds, CurrentCommand.LocationTarget, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity)))
+				if(UpdateLinearAttitudeAuto(DeltaSeconds, CurrentCommand.LocationTarget, FVector::ZeroVector, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity)))
 				{
 					ClearCurrentCommand();
 				}
@@ -177,8 +177,8 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 	// Try undocking
 	if (IsDocked())
 	{
-		// Enable physics
-		Spacecraft->Airframe->SetSimulatePhysics(true);
+		// Detach from station
+		Spacecraft->DetachRootComponentFromParent(true);
 
 		// Evacuate
 		GetDockStation()->GetDockingSystem()->ReleaseDock(Spacecraft, Data->DockedAt);
@@ -202,7 +202,7 @@ IFlareSpacecraftInterface* UFlareSpacecraftNavigationSystem::GetDockStation()
 {
 	if (IsDocked())
 	{
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		for (TActorIterator<AActor> ActorItr(Spacecraft->GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(*ActorItr);
 			if (Station && *Station->GetName() == Data->DockedTo)
@@ -217,17 +217,17 @@ IFlareSpacecraftInterface* UFlareSpacecraftNavigationSystem::GetDockStation()
 static float GetApproachDockToDockLateralDistanceLimit(float Distance)
 {
 	// Approch cone :
-	//  At 5 m -> 1 m
-	//  At 500 m -> 100 m
-	return Distance / 5;
+	//  At 1 m -> 0.5 m
+	//  At 100 m -> 50 m
+	return Distance / 2;
 }
 
 static float GetApproachVelocityLimit(float Distance)
 {
 	// Approch cone :
-	//  At 5 m -> 1 m/s
-	//  At 500 m -> 100 m/s
-	return Distance / 5;
+	//  At 1 m -> 1 m/s
+	//  At 100 m -> 100 m/s
+	return Distance;
 }
 
 
@@ -257,19 +257,19 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 		//TODO LOG
 		return;
 	}
-	FLOG("==============DockingAutopilot==============");
+	//FLOG("==============DockingAutopilot==============");
 
-	float DockingDockToDockDistanceLimit = 1; // 1 cm of linear distance to dock
-	float FinalApproachDockToDockDistanceLimit = 500; // 5 m of linear distance
-	float ApproachDockToDockDistanceLimit = 50000; // 500 m approch distance
+	float DockingDockToDockDistanceLimit = 20; // 20 cm of linear distance to dock
+	float FinalApproachDockToDockDistanceLimit = 100; // 1 m of linear distance
+	float ApproachDockToDockDistanceLimit = 10000; // 100 m approch distance
 
-	float FinalApproachDockToDockLateralDistanceLimit = 500; // 1 m of linear lateral distance
+	float FinalApproachDockToDockLateralDistanceLimit = 50; // 50 cm of linear lateral distance
 
 	float DockingAngleLimit = 1; // 1° of angle error to dock
 	float FinalApproachAngleLimit = 10;// 10° of angle error to dock
 
 	float DockingVelocityLimit = 30; // 0.3 m/s
-	float FinalApproachVelocityLimit = 1; // 1 m/s
+	float FinalApproachVelocityLimit = 100; // 1 m/s
 
 	float DockingLateralVelocityLimit = 10; // 10 cm/s
 	float FinalApproachLateralVelocityLimit = 50; // 0.5 m/s
@@ -280,13 +280,14 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 	FVector ShipDockAxis = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1, 0, 0)); // Ship docking port are always at front
 	FVector ShipDockLocation = GetDockLocation();
-	FVector ShipDockOffset = GetDockOffset();
+	FVector ShipDockOffset = ShipDockLocation - Spacecraft->GetActorLocation();
 	FVector ShipAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
 
 
 
 
 	FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);
+	FVector StationCOM = DockStation->Airframe->GetBodyInstance()->GetCOMPosition();
 	FVector StationDockAxis = DockStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(StationDockInfo.LocalAxis);
 	FVector StationDockLocation =  DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
 	FVector StationDockOffset = StationDockLocation - DockStation->GetActorLocation();
@@ -297,29 +298,39 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	float DockToDockDistance = DockToDockDeltaLocation.Size();
 
 	// The linear velocity of the docking port induced by the station or ship rotation
-	FVector ShipDockSelfRotationInductedLinearVelocity = (PI /  180.f) * FVector::CrossProduct(ShipAngularVelocity, ShipDockOffset);
+	FVector ShipDockSelfRotationInductedLinearVelocity = (PI /  180.f) * FVector::CrossProduct(ShipAngularVelocity, ShipDockLocation-COM);
 	FVector ShipDockLinearVelocity = ShipDockSelfRotationInductedLinearVelocity + Spacecraft->GetLinearVelocity() * 100;
 
-	FVector StationDockSelfRotationInductedLinearVelocity = (PI /  180.f) * FVector::CrossProduct(StationAngularVelocity, StationDockOffset);
+	FVector StationDockSelfRotationInductedLinearVelocity = (PI /  180.f) * FVector::CrossProduct(StationAngularVelocity, StationDockLocation- StationCOM);
 	FVector StationDockLinearVelocity = StationDockSelfRotationInductedLinearVelocity + DockStation->GetLinearVelocity() * 100;
+
+	float InAxisDistance = FVector::DotProduct(DockToDockDeltaLocation, -StationDockAxis);
+	FVector RotationInductedLinearVelocityAtShipDistance = (PI /  180.f) * FVector::CrossProduct(StationAngularVelocity, (StationDockLocation - StationCOM).GetUnsafeNormal() * (InAxisDistance + (StationDockLocation - StationCOM).Size()));
+	FVector LinearVelocityAtShipDistance = RotationInductedLinearVelocityAtShipDistance + DockStation->GetLinearVelocity() * 100;
+
 
 	FVector RelativeDockToDockLinearVelocity = StationDockLinearVelocity - ShipDockLinearVelocity;
 	float DockToDockAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(-ShipDockAxis, StationDockAxis)));
 
-	// Angular velocity must be opposite
-	FVector RelativeDockAngularVelocity = ShipAngularVelocity + StationAngularVelocity;
+	// Angular velocity must be the same
+	FVector RelativeDockAngularVelocity = ShipAngularVelocity - StationAngularVelocity;
 
-
+/*
 	FLOGV("ShipLocation=%s", *(Spacecraft->GetActorLocation().ToString()));
+
 	FLOGV("ShipDockAxis=%s", *ShipDockAxis.ToString());
 	FLOGV("ShipDockOffset=%s", *ShipDockOffset.ToString());
 	FLOGV("ShipDockLocation=%s", *ShipDockLocation.ToString());
+	FLOGV("ShipAngularVelocity=%s", *ShipAngularVelocity.ToString());
 
 	FLOGV("StationLocation=%s", *(DockStation->GetActorLocation().ToString()));
+	FLOGV("StationCOM=%s", *StationCOM.ToString());
 	FLOGV("LocalAxis=%s", *(StationDockInfo.LocalAxis.ToString()));
 	FLOGV("StationDockAxis=%s", *StationDockAxis.ToString());
 	FLOGV("StationDockOffset=%s", *StationDockOffset.ToString());
 	FLOGV("StationDockLocation=%s", *StationDockLocation.ToString());
+	FLOGV("StationAngularVelocity=%s", *StationAngularVelocity.ToString());
+
 	FLOGV("DockToDockDeltaLocation=%s", *DockToDockDeltaLocation.ToString());
 	FLOGV("DockToDockDistance=%f", DockToDockDistance);
 
@@ -329,55 +340,67 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	FLOGV("StationDockLinearVelocity=%s", *StationDockLinearVelocity.ToString());
 
 	FLOGV("RelativeDockToDockLinearVelocity=%s", *RelativeDockToDockLinearVelocity.ToString());
-	FLOGV("RelativeDockAngularVelocity=%s", *RelativeDockAngularVelocity.ToString());
+
+
+	FLOGV("RotationInductedLinearVelocityAtShipDistance=%s", *RotationInductedLinearVelocityAtShipDistance.ToString());
+	FLOGV("LinearVelocityAtShipDistance=%s", *LinearVelocityAtShipDistance.ToString());
+	FLOGV("InAxisDistance=%f", InAxisDistance);
 
 	FLOGV("DockToDockAngle=%f", DockToDockAngle);
-
-	DrawDebugSphere(Spacecraft->GetWorld(), ShipDockLocation, 100, 12, FColor::Red, false,0.03);
-	DrawDebugSphere(Spacecraft->GetWorld(), StationDockLocation, 100, 12, FColor::Blue, false,0.03);
+*/
+	//DrawDebugSphere(Spacecraft->GetWorld(), ShipDockLocation, 100, 12, FColor::Red, false,0.03);
+	//DrawDebugSphere(Spacecraft->GetWorld(), StationDockLocation, 100, 12, FColor::Blue, false,0.03);
 	// Output
 	float MaxVelocity = 0;
 	FVector LocationTarget = StationDockLocation - ShipDockOffset;
-	FLOGV("Initial LocationTarget=%s", *LocationTarget.ToString());
-
+	FVector AxisTarget = -StationDockAxis;
+	FVector AngularVelocityTarget = StationAngularVelocity;
+	FVector VelocityTarget = LinearVelocityAtShipDistance - ShipDockSelfRotationInductedLinearVelocity;
+	/*FLOGV("Initial LocationTarget=%s", *LocationTarget.ToString());
+	FLOGV("Initial AxisTarget=%s", *AxisTarget.ToString());
+	FLOGV("Initial AngularVelocityTarget=%s", *AngularVelocityTarget.ToString());
+	FLOGV("Initial VelocityTarget=%s", *VelocityTarget.ToString());
+*/
 	// First find the current docking phase
 
 	// Check if dockable
 	bool OkForDocking = true;
 	if (DockToDockDistance > DockingDockToDockDistanceLimit)
 	{
-		FLOG("OkForDocking ? Too far");
+		/*FLOG("OkForDocking ? Too far");
+		FLOGV("  - limit= %f", DockingDockToDockDistanceLimit);
+		FLOGV("  - distance= %f", DockToDockDistance);*/
 		// Too far
 		OkForDocking = false;
 	}
 	else if (DockToDockAngle > DockingAngleLimit)
 	{
-		FLOG("OkForDocking ? Not aligned");
+		//FLOG("OkForDocking ? Not aligned");
 		// Not aligned
 		OkForDocking = false;
 	}
 	else if (RelativeDockToDockLinearVelocity.Size() > DockingVelocityLimit)
 	{
-		FLOG("OkForDocking ? Too fast");
+		//FLOG("OkForDocking ? Too fast");
 		// Too fast
 		OkForDocking = false;
 	}
 	else if (FVector::VectorPlaneProject(RelativeDockToDockLinearVelocity, StationDockAxis).Size()  > DockingLateralVelocityLimit)
 	{
-		FLOG("OkForDocking ? Too much lateral velocity");
+		//FLOG("OkForDocking ? Too much lateral velocity");
 		// Too much lateral velocity
 		OkForDocking = false;
 	}
 	else if (RelativeDockAngularVelocity.Size() > DockingAngularVelocityLimit)
 	{
-		FLOG("OkForDocking ? Too much angular velocity");
+		//FLOG("OkForDocking ? Too much angular velocity");
 		// Too much angular velocity
 		OkForDocking = false;
 	}
 
 	if (OkForDocking)
 	{
-		FLOG("-> OK for docking");
+		//FLOG("-> OK for docking");
 		ConfirmDock(DockStation, DockId);
 		return;
 	}
@@ -386,44 +409,46 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	// Not dockable, check if in final approch
 	if (DockToDockDistance > FinalApproachDockToDockDistanceLimit)
 	{
-		FLOG("InFinalApproach ? Too far");
+		//FLOG("InFinalApproach ? Too far");
 		// Too far
 		InFinalApproach = false;
 	}
 	else if (FVector::VectorPlaneProject(DockToDockDeltaLocation, StationDockAxis).Size() > FinalApproachDockToDockLateralDistanceLimit)
 	{
-		FLOG("InFinalApproach ? Too far in lateral axis");
+		//FLOG("InFinalApproach ? Too far in lateral axis");
 		// Too far in lateral axis
 		InFinalApproach = false;
 	}
 	else if (DockToDockAngle > FinalApproachAngleLimit)
 	{
-		FLOG("InFinalApproach ? Not aligned");
+		//FLOG("InFinalApproach ? Not aligned");
 		// Not aligned
 		InFinalApproach = false;
 	}
 	else if (RelativeDockToDockLinearVelocity.Size() > FinalApproachVelocityLimit)
 	{
-		FLOG("InFinalApproach ? Too fast");
+		/*FLOG("InFinalApproach ? Too fast");
+		FLOGV("  - limit= %f", FinalApproachVelocityLimit);
+		FLOGV("  - velocity= %f", RelativeDockToDockLinearVelocity.Size());*/
 		// Too fast
 		InFinalApproach = false;
 	}
 	else if (FVector::VectorPlaneProject(RelativeDockToDockLinearVelocity, StationDockAxis).Size()  > FinalApproachLateralVelocityLimit)
 	{
-		FLOG("InFinalApproach ? Too much lateral velocity");
+		//FLOG("InFinalApproach ? Too much lateral velocity");
 		// Too much lateral velocity
 		InFinalApproach = false;
 	}
 	else if (RelativeDockAngularVelocity.Size() > FinalApproachAngularVelocityLimit)
 	{
-		FLOG("InFinalApproach ? Too much angular velocity");
+		//FLOG("InFinalApproach ? Too much angular velocity");
 		// Too much angular velocity
 		InFinalApproach = false;
 	}
 
 	if (InFinalApproach)
 	{
-		FLOG("-> In final approach");
+		//FLOG("-> In final approach");
 		MaxVelocity = DockingVelocityLimit / 200;
 	}
 	else
@@ -432,24 +457,24 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 		// Not in final approch, check if in approch
 		if (DockToDockDistance > ApproachDockToDockDistanceLimit)
 		{
-			FLOG("InApproch ? Too far");
+			//FLOG("InApproch ? Too far");
 			// Too far
 			InApproach = false;
 		}
 		else if (FVector::VectorPlaneProject(DockToDockDeltaLocation, StationDockAxis).Size() > GetApproachDockToDockLateralDistanceLimit(DockToDockDistance))
 		{
-			FLOG("InApproch ? Too far in lateral axis");
+			/*FLOG("InApproch ? Too far in lateral axis");
 			FLOGV("  - limit= %f", GetApproachDockToDockLateralDistanceLimit(DockToDockDistance));
-			FLOGV("  - distance= %f", FVector::VectorPlaneProject(DockToDockDeltaLocation, StationDockAxis).Size());
+			FLOGV("  - distance= %f", FVector::VectorPlaneProject(DockToDockDeltaLocation, StationDockAxis).Size());*/
 
 			// Too far in lateral axis
 			InApproach = false;
 		}
 		else if (RelativeDockToDockLinearVelocity.Size() > GetApproachVelocityLimit(DockToDockDistance))
 		{
-			FLOG("InApproch ? Too fast");
+			/*FLOG("InApproch ? Too fast");
 			FLOGV("  - limit= %f",  GetApproachVelocityLimit(DockToDockDistance));
-			FLOGV("  - velocity= %f", RelativeDockToDockLinearVelocity.Size());
+			FLOGV("  - velocity= %f", RelativeDockToDockLinearVelocity.Size());*/
 
 			// Too fast
 			InApproach = false;
@@ -457,30 +482,40 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 		if(InApproach)
 		{
-			FLOG("-> In approach");
+			//FLOG("-> In approach");
 			MaxVelocity = GetApproachVelocityLimit(DockToDockDistance) / 200 ;
 			LocationTarget += StationDockAxis * (FinalApproachDockToDockDistanceLimit / 2);
-			FLOGV("Location offset=%s", *((StationDockAxis * (FinalApproachDockToDockDistanceLimit / 2)).ToString()));
+			//FLOGV("Location offset=%s", *((StationDockAxis * (FinalApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
 		else
 		{
-			FLOG("-> Rendez-vous");
+			//FLOG("-> Rendez-vous");
 			MaxVelocity = LinearMaxVelocity;
 			LocationTarget += StationDockAxis * (ApproachDockToDockDistanceLimit / 2);
-			FLOGV("Location offset=%s", *((StationDockAxis * (ApproachDockToDockDistanceLimit / 2)).ToString()));
+			AxisTarget = LocationTarget - ShipDockLocation;
+			AngularVelocityTarget = FVector::ZeroVector;
+			//FLOGV("Location offset=%s", *((StationDockAxis * (ApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
 	}
-	FLOGV("MaxVelocity=%f", MaxVelocity);
+	/*FLOGV("MaxVelocity=%f", MaxVelocity);
 	FLOGV("LocationTarget=%s", *LocationTarget.ToString());
+	FLOGV("AxisTarget=%s", *AxisTarget.ToString());
+	FLOGV("AngularVelocityTarget=%s", *AngularVelocityTarget.ToString());
+	FLOGV("VelocityTarget=%s", *VelocityTarget.ToString());
 
 
 	DrawDebugSphere(Spacecraft->GetWorld(), LocationTarget, 100, 12, FColor::Green, false,0.03);
-
+*/
 	//UpdateLinearAttitudeAuto(DeltaSeconds, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity));
 	//UpdateAngularAttitudeAuto(DeltaSeconds);
 
 	// Not in approach, just go to the docking entrance point
-	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, MaxVelocity);
+	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity);
+	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
+
+	/*FLOGV("AngularTargetVelocity=%s", *AngularTargetVelocity.ToString());
+	FLOGV("LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
+*/
 	// TODO refactor to get the position in parameter
 }
 
@@ -496,9 +531,14 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* Do
 	Data->DockedTo = *DockStation->_getUObject()->GetName();
 	Data->DockedAt = DockId;
 
-	// Disable physics, reset speed
-	LinearMaxVelocity = Description->LinearMaxVelocity;
-	Spacecraft->Airframe->SetSimulatePhysics(false);
+
+	// Attach to station
+	AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(DockStation);
+	if(Station)
+	{
+		Spacecraft->AttachRootComponentToActor(Station,"", EAttachLocation::KeepWorldPosition, true);
+	}
+
 
 	// Cut engines
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
@@ -666,7 +706,7 @@ bool UFlareSpacecraftNavigationSystem::ComputePath(TArray<FVector>& Path, TArray
 void UFlareSpacecraftNavigationSystem::UpdateColliders()
 {
 	PathColliders.Empty();
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	for (TActorIterator<AActor> ActorItr(Spacecraft->GetWorld()); ActorItr; ++ActorItr)
 	{
 		FVector Unused;
 		FVector ColliderExtent;
@@ -749,7 +789,7 @@ void UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeManual(float DeltaSec
 	LinearTargetVelocity = Spacecraft->GetLinearVelocity() + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(Spacecraft->PlayerManualLinearVelocity);
 }
 
-bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, float MaxVelocity)
+bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity)
 {
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 
@@ -758,7 +798,7 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 	DeltaPositionDirection.Normalize();
 	float Distance = FMath::Max(0.0f, DeltaPosition.Size() - LinearDeadDistance);
 
-	FVector DeltaVelocity = -Spacecraft->GetLinearVelocity();
+	FVector DeltaVelocity = TargetVelocity - Spacecraft->GetLinearVelocity();
 	FVector DeltaVelocityAxis = DeltaVelocity;
 	DeltaVelocityAxis.Normalize();
 
@@ -783,7 +823,7 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 
 	if (DistanceToStop > Distance)
 	{
-		RelativeResultSpeed = FVector::ZeroVector;
+		RelativeResultSpeed = TargetVelocity;
 	}
 	else
 	{
@@ -792,15 +832,19 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 
 		RelativeResultSpeed = DeltaPositionDirection;
 		RelativeResultSpeed *= MaxPreciseSpeed;
+		RelativeResultSpeed += TargetVelocity;
+		/*FLOGV("DeltaPositionDirection %s", *DeltaPositionDirection.ToString());
+		FLOGV("MaxPreciseSpeed %f", MaxPreciseSpeed);
+		FLOGV("TargetVelocity %s", *TargetVelocity.ToString());*/
 	}
 
 	// Under this distance we consider the variation negligible, and ensure null delta + null speed
 	if (Distance < LinearDeadDistance && DeltaVelocity.Size() < NegligibleSpeedRatio * MaxVelocity)
 	{
-		//Spacecraft->Airframe->SetPhysicsLinearVelocity(FVector::ZeroVector, false); // TODO remove
-		LinearTargetVelocity = FVector::ZeroVector;
+		LinearTargetVelocity = TargetVelocity;
 		return true;
 	}
+	//FLOGV("RelativeResultSpeed %s", *RelativeResultSpeed.ToString());
 	LinearTargetVelocity = RelativeResultSpeed;
 	return false;
 }
@@ -894,6 +938,62 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeco
 		RelativeResultSpeed = FVector::ZeroVector;
 	}
 	AngularTargetVelocity = RelativeResultSpeed;
+}
+
+
+FVector UFlareSpacecraftNavigationSystem::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const
+{
+	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+
+	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+	FVector WorldShipAxis = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalShipAxis);
+
+	WorldShipAxis.Normalize();
+	TargetAxis.Normalize();
+
+	FVector RotationDirection = FVector::CrossProduct(WorldShipAxis, TargetAxis);
+	RotationDirection.Normalize();
+	float Dot = FVector::DotProduct(WorldShipAxis, TargetAxis);
+	float angle = FMath::RadiansToDegrees(FMath::Acos(Dot));
+
+	FVector DeltaVelocity = TargetAngularVelocity - AngularVelocity;
+	FVector DeltaVelocityAxis = DeltaVelocity;
+	DeltaVelocityAxis.Normalize();
+
+	float TimeToFinalVelocity;
+
+	if (FMath::IsNearlyZero(DeltaVelocity.SizeSquared()))
+	{
+		TimeToFinalVelocity = 0;
+	}
+	else {
+		FVector SimpleAcceleration = DeltaVelocityAxis * GetAngularAccelerationRate();
+		// Scale with damages
+		float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, true) / GetTotalMaxTorqueInAxis(Engines, DeltaVelocityAxis, false);
+		FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
+
+		FVector Acceleration = DamagedSimpleAcceleration;
+		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(DamagedSimpleAcceleration, RotationDirection));
+
+		TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
+	}
+
+	float AngleToStop = (DeltaVelocity.Size() / 2) * (FMath::Max(TimeToFinalVelocity,DeltaSeconds));
+
+	FVector RelativeResultSpeed;
+
+	if (AngleToStop > angle) {
+		RelativeResultSpeed = TargetAngularVelocity;
+	}
+	else
+	{
+		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / (DeltaSeconds * 0.75f), GetAngularMaxVelocity());
+
+		RelativeResultSpeed = RotationDirection;
+		RelativeResultSpeed *= MaxPreciseSpeed;
+	}
+
+	return RelativeResultSpeed;
 }
 
 void UFlareSpacecraftNavigationSystem::UpdateAngularBraking(float DeltaSeconds)
