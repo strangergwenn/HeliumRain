@@ -55,7 +55,7 @@ void UFlareSpacecraftDockingSystem::Start()
 
 			// Fill info
 			FFlareDockingInfo Info;
-			Info.LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(FVector(1,0,0));
+			Info.LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1,0,0)));
 			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
 			Info.DockId = Count;
 			Info.Station = Spacecraft;

@@ -334,7 +334,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	FLOGV("DockToDockAngle=%f", DockToDockAngle);
 
 	DrawDebugSphere(Spacecraft->GetWorld(), ShipDockLocation, 100, 12, FColor::Red, false,0.03);
-	DrawDebugSphere(Spacecraft->GetWorld(), StationDockOffset, 100, 12, FColor::Blue, false,0.03);
+	DrawDebugSphere(Spacecraft->GetWorld(), StationDockLocation, 100, 12, FColor::Blue, false,0.03);
 	// Output
 	float MaxVelocity = 0;
 	FVector LocationTarget = StationDockLocation - ShipDockOffset;
