@@ -68,6 +68,8 @@ public:
 
 	virtual bool HasAvailableDock(IFlareSpacecraftInterface* Ship) const;
 
+	virtual int GetDockCount() const;
+
 protected:
 
 	/*----------------------------------------------------

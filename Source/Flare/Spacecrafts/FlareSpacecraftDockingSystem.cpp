@@ -137,6 +137,11 @@ bool UFlareSpacecraftDockingSystem::HasAvailableDock(IFlareSpacecraftInterface* 
 	return false;
 }
 
+int UFlareSpacecraftDockingSystem::GetDockCount() const
+{
+	return DockingSlots.Num();
+}
+
 FFlareDockingInfo UFlareSpacecraftDockingSystem::GetDockInfo(int32 DockId)
 {
 	return DockingSlots[DockId];

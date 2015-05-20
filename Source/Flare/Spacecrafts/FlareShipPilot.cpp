@@ -614,7 +614,7 @@ TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 	{
 		// Ship
 		AFlareSpacecraft* StationCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (StationCandidate && StationCandidate->IsStation())
+		if (StationCandidate && StationCandidate->GetDockingSystem()->GetDockCount() > 0)
 		{
 
 			if (StationCandidate->GetCompany() != Ship->GetCompany())
