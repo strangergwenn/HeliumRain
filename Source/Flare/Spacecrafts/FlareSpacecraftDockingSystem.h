@@ -70,6 +70,10 @@ public:
 
 	virtual int GetDockCount() const;
 
+	virtual bool IsGrantedShip(IFlareSpacecraftInterface* ShipCanditate) const;
+
+	virtual bool IsDockedShip(IFlareSpacecraftInterface* ShipCanditate) const;
+
 protected:
 
 	/*----------------------------------------------------

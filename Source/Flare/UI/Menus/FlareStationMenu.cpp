@@ -141,7 +141,7 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 
 	CurrentStationTarget = Target;
 	SetVisibility(EVisibility::Visible);
-	ObjectActionMenu->SetStation(Target);
+	ObjectActionMenu->SetSpacecraft(Target);
 	ObjectActionMenu->Show();
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());

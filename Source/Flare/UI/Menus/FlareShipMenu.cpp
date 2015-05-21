@@ -297,7 +297,7 @@ void SFlareShipMenu::LoadTargetShip()
 		}
 		else
 		{
-			ObjectActionMenu->SetShip(CurrentShipTarget);
+			ObjectActionMenu->SetSpacecraft(CurrentShipTarget);
 			ObjectActionMenu->Show();
 			ObjectName->SetVisibility(EVisibility::Visible);
 			ObjectDescription->SetVisibility(EVisibility::Visible);

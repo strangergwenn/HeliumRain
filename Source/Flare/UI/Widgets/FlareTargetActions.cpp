@@ -231,10 +231,8 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 void SFlareTargetActions::SetCompany(UFlareCompany* Target)
 {
 	TargetCompany = Target;
-	TargetStationDesc = NULL;
-	TargetStation = NULL;
-	TargetShipDesc = NULL;
-	TargetShip = NULL;
+	TargetSpacecraft = NULL;
+	TargetSpacecraftDesc = NULL;
 	ShipStatus->SetTargetShip(NULL);
 
 	// Get the save data info to retrieve the class data
@@ -246,25 +244,22 @@ void SFlareTargetActions::SetCompany(UFlareCompany* Target)
 	}
 }
 
-void SFlareTargetActions::SetStation(IFlareSpacecraftInterface* Target)
+void SFlareTargetActions::SetSpacecraft(IFlareSpacecraftInterface* Target)
 {
 	TargetCompany = NULL;
-	TargetStation = Target;
-	TargetShipDesc = NULL;
-	TargetShip = NULL;
-	ShipStatus->SetTargetShip(NULL);
+	TargetSpacecraft = Target;
+	ShipStatus->SetTargetShip(Target);
 
 	// Get the save data info to retrieve the class data
 	if (Target && PC)
 	{
-		// Data
 		TargetCompany = Target->GetCompany();
 		CompanyFlag->SetCompany(TargetCompany);
 		TargetName = Target->_getUObject()->GetName();
 		FFlareSpacecraftSave* SaveData = Target->Save();
 		if (SaveData)
 		{
-			TargetStationDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
+			TargetSpacecraftDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
 		}
 
 		// Are we docked here
@@ -282,28 +277,6 @@ void SFlareTargetActions::SetStation(IFlareSpacecraftInterface* Target)
 		{
 			UndockButton->SetVisibility(Docked ? EVisibility::Visible : EVisibility::Collapsed);
 			DockButton->SetVisibility(Docked ? EVisibility::Collapsed : EVisibility::Visible);
-		}
-	}
-}
-
-void SFlareTargetActions::SetShip(IFlareSpacecraftInterface* Target)
-{
-	TargetCompany = NULL;
-	TargetShip = Target;
-	TargetStation = NULL;
-	TargetStationDesc = NULL;
-	ShipStatus->SetTargetShip(Target);
-
-	// Get the save data info to retrieve the class data
-	if (Target && PC)
-	{
-		TargetCompany = Target->GetCompany();
-		CompanyFlag->SetCompany(TargetCompany);
-		TargetName = Target->_getUObject()->GetName();
-		FFlareSpacecraftSave* SaveData = Target->Save();
-		if (SaveData)
-		{
-			TargetShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
 		}
 	}
 }
@@ -330,21 +303,15 @@ void SFlareTargetActions::Show()
 	}
 	else
 	{
-		if (TargetStation)
+		if (TargetSpacecraft)
 		{
 			CompanyContainer->SetVisibility(EVisibility::Collapsed);
-			StationContainer->SetVisibility(EVisibility::Visible);
-			ShipContainer->SetVisibility(EVisibility::Collapsed);
-			StationInspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
-		}
-		else if (TargetShip)
-		{
-			CompanyContainer->SetVisibility(EVisibility::Collapsed);
-			StationContainer->SetVisibility(EVisibility::Collapsed);
+			StationContainer->SetVisibility(TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
 			ShipContainer->SetVisibility(EVisibility::Visible);
 			ShipInspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
+			StationInspectButton->SetVisibility(TargetSpacecraft->IsStation() ? EVisibility::Collapsed : EVisibility::Visible);
 
-			if (TargetShip != PC->GetShipPawn() && TargetShip->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
+			if (TargetSpacecraft != PC->GetShipPawn() && !TargetSpacecraft->IsStation() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
 			{
 				ShipFlyButton->SetVisibility(EVisibility::Visible);
 			}
@@ -365,9 +332,8 @@ void SFlareTargetActions::Show()
 void SFlareTargetActions::Hide()
 {
 	TargetCompany = NULL;
-	TargetShip = NULL;
-	TargetStation = NULL;
-	TargetShipDesc = NULL;
+	TargetSpacecraft = NULL;
+	TargetSpacecraftDesc = NULL;
 	SetVisibility(EVisibility::Collapsed);
 }
 
@@ -380,13 +346,9 @@ void SFlareTargetActions::OnInspect()
 {
 	if (PC)
 	{
-		if (TargetStation)
+		if (TargetSpacecraft)
 		{
-			Cast<AFlareHUD>(PC->GetHUD())->OpenMenu(EFlareMenu::MENU_Station, TargetStation);
-		}
-		else if (TargetShip)
-		{
-			Cast<AFlareHUD>(PC->GetHUD())->OpenMenu(EFlareMenu::MENU_Ship, TargetShip);
+			Cast<AFlareHUD>(PC->GetHUD())->OpenMenu(TargetSpacecraft->IsStation() ? EFlareMenu::MENU_Station : EFlareMenu::MENU_Ship, TargetSpacecraft);
 		}
 		else if (TargetCompany)
 		{
@@ -397,25 +359,25 @@ void SFlareTargetActions::OnInspect()
 
 void SFlareTargetActions::OnFly()
 {
-	if (PC && TargetShip)
+	if (PC && TargetSpacecraft && !TargetSpacecraft->IsStation())
 	{
-		PC->FlyShip(Cast<AFlareSpacecraft>(TargetShip));
+		PC->FlyShip(Cast<AFlareSpacecraft>(TargetSpacecraft));
 		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
 	}
 }
 
 void SFlareTargetActions::OnDockAt()
 {
-	if (PC && TargetStation)
+	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
-		PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetStation);
+		PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetSpacecraft);
 		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
 	}
 }
 
 void SFlareTargetActions::OnUndock()
 {
-	if (PC && TargetStation)
+	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
 		PC->GetShipPawn()->GetNavigationSystem()->Undock();
 		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
@@ -439,13 +401,9 @@ FText SFlareTargetActions::GetDescription() const
 	FText DefaultText = LOCTEXT("Default", "UNKNOWN OBJECT");
 
 	// Description builder
-	if (TargetStationDesc)
+	if (TargetSpacecraftDesc)
 	{
-		return FText::FromString(TargetStationDesc->Name.ToString() + " " + ClassText.ToString());
-	}
-	else if (TargetShipDesc)
-	{
-		return FText::FromString(TargetShipDesc->Name.ToString() + " " + ClassText.ToString());
+		return FText::FromString(TargetSpacecraftDesc->Name.ToString() + " " + ClassText.ToString());
 	}
 	else if (TargetCompany)
 	{
@@ -456,13 +414,9 @@ FText SFlareTargetActions::GetDescription() const
 
 const FSlateBrush* SFlareTargetActions::GetIcon() const
 {
-	if (TargetStationDesc)
+	if (TargetSpacecraftDesc)
 	{
-		return &TargetStationDesc->MeshPreviewBrush;
-	}
-	else if (TargetShipDesc)
-	{
-		return &TargetShipDesc->MeshPreviewBrush;
+		return &TargetSpacecraftDesc->MeshPreviewBrush;
 	}
 	else if (TargetCompany)
 	{
@@ -473,13 +427,9 @@ const FSlateBrush* SFlareTargetActions::GetIcon() const
 
 const FSlateBrush* SFlareTargetActions::GetClassIcon() const
 {
-	if (TargetStationDesc)
+	if (TargetSpacecraftDesc)
 	{
-		return IFlareSpacecraftInterface::GetIcon(TargetStationDesc);
-	}
-	else if (TargetShipDesc)
-	{
-		return IFlareSpacecraftInterface::GetIcon(TargetShipDesc);
+		return IFlareSpacecraftInterface::GetIcon(TargetSpacecraftDesc);
 	}
 	else if (TargetCompany)
 	{

@@ -307,29 +307,8 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	}
 
 	// Anticollision
-	AFlareSpacecraft* NearestShip = GetNearestShip();
+	LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AttackAngle);
 
-	if(NearestShip)
-	{
-		FVector DeltaLocation = NearestShip->GetActorLocation() - Ship->GetActorLocation();
-		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *4) / 100.f; // Distance in meters
-
-
-
-
-		if (Distance < 100.f)
-		{
-
-			FQuat AvoidQuat = FQuat(DeltaLocation.GetUnsafeNormal(), AttackAngle);
-			FVector Avoid =  AvoidQuat.RotateVector(FVector(0,0,NearestShip->GetMeshScale() *4. / 100. ));
-
-
-
-			// Below 100m begin avoidance maneuver
-			float Alpha = 1 - Distance/100.f;
-			LinearTargetVelocity = LinearTargetVelocity * (1.f - Alpha) + Alpha * ((Avoid - DeltaLocation) .GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity());
-		}
-	}
 
 
 	// Find friend barycenter
@@ -432,11 +411,44 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		}
 	}
 
+	// Anticollision
+	LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AttackAngle);
+
 	// Turn to destination
 	if (! LinearTargetVelocity.IsZero())
 	{
 		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1.f, 0.f, 0.f) , LinearTargetVelocity.GetUnsafeNormal(),FVector(0.f, 0.f, 0.f), DeltaSeconds);
 	}
+}
+
+
+FVector UFlareShipPilot::AnticollisionCorrection(FVector InitialVelocity, float PreferedAttackAngle) const
+{
+	AFlareSpacecraft* NearestShip = GetNearestShip(true);
+
+	if(NearestShip)
+	{
+		FVector DeltaLocation = NearestShip->GetActorLocation() - Ship->GetActorLocation();
+		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *4) / 100.f; // Distance in meters
+
+
+
+
+		if (Distance < 100.f)
+		{
+
+			FQuat AvoidQuat = FQuat(DeltaLocation.GetUnsafeNormal(), PreferedAttackAngle);
+			FVector Avoid =  AvoidQuat.RotateVector(FVector(0,0,NearestShip->GetMeshScale() *4. / 100. ));
+
+
+
+			// Below 100m begin avoidance maneuver
+			float Alpha = 1 - Distance/100.f;
+			return InitialVelocity * (1.f - Alpha) + Alpha * ((Avoid - DeltaLocation) .GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+		}
+	}
+
+	return InitialVelocity;
 }
 
 /*----------------------------------------------------
@@ -487,7 +499,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly) con
 	return NearestHostileShip;
 }
 
-AFlareSpacecraft* UFlareShipPilot::GetNearestShip() const
+AFlareSpacecraft* UFlareShipPilot::GetNearestShip(bool IgnoreDockingShip) const
 {
 	// For now an host ship is a the nearest host ship with the following critera:
 	// - Alive or not
@@ -505,6 +517,18 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestShip() const
 		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
 		if (ShipCandidate && ShipCandidate != Ship)
 		{
+			if(IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate) && ShipCandidate->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
+			{
+				// Alive and powered granted ship are not dangerous for collision
+				continue;
+			}
+
+			if(IgnoreDockingShip && Ship->GetDockingSystem()->IsDockedShip(ShipCandidate))
+			{
+				// Docked shipship are not dangerous for collision, even if they are dead or offlline
+				continue;
+			}
+
 			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
 			if(NearestShip == NULL || DistanceSquared < MinDistanceSquared)
 			{

@@ -147,5 +147,32 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::GetDockInfo(int32 DockId)
 	return DockingSlots[DockId];
 }
 
+bool UFlareSpacecraftDockingSystem::IsGrantedShip(IFlareSpacecraftInterface* ShipCanditate) const
+{
+	for (int32 i = 0; i < DockingSlots.Num(); i++)
+	{
+		if (DockingSlots[i].Granted && DockingSlots[i].Ship == ShipCanditate)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+bool UFlareSpacecraftDockingSystem::IsDockedShip(IFlareSpacecraftInterface* ShipCanditate) const
+{
+	for (int32 i = 0; i < DockingSlots.Num(); i++)
+	{
+		if (DockingSlots[i].Occupied && DockingSlots[i].Ship == ShipCanditate)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 #undef LOCTEXT_NAMESPACE

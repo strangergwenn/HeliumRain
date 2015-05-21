@@ -19,6 +19,7 @@ UFlareSpacecraftNavigationSystem::UFlareSpacecraftNavigationSystem(const class F
 	, LinearMaxDockingVelocity(10)
 	, NegligibleSpeedRatio(0.0005)
 {
+	AnticollisionAngle = FMath::FRandRange(0, 360);
 }
 
 
@@ -218,8 +219,8 @@ static float GetApproachDockToDockLateralDistanceLimit(float Distance)
 {
 	// Approch cone :
 	//  At 1 m -> 0.5 m
-	//  At 100 m -> 50 m
-	return Distance / 2;
+	//  At 200 m -> 50 m
+	return Distance / 4 + 0.25;
 }
 
 static float GetApproachVelocityLimit(float Distance)
@@ -309,6 +310,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	FVector LinearVelocityAtShipDistance = RotationInductedLinearVelocityAtShipDistance + DockStation->GetLinearVelocity() * 100;
 
 
+	AFlareSpacecraft* AnticollisionDockStation = DockStation;
 	FVector RelativeDockToDockLinearVelocity = StationDockLinearVelocity - ShipDockLinearVelocity;
 	float DockToDockAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(-ShipDockAxis, StationDockAxis)));
 
@@ -494,6 +496,8 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 			LocationTarget += StationDockAxis * (ApproachDockToDockDistanceLimit / 2);
 			AxisTarget = LocationTarget - ShipDockLocation;
 			AngularVelocityTarget = FVector::ZeroVector;
+			// During rendez-vous avoid the station
+			AnticollisionDockStation = NULL;
 			//FLOGV("Location offset=%s", *((StationDockAxis * (ApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
 	}
@@ -512,6 +516,8 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	// Not in approach, just go to the docking entrance point
 	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity);
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
+
+	LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AnticollisionDockStation);
 
 	/*FLOGV("AngularTargetVelocity=%s", *AngularTargetVelocity.ToString());
 	FLOGV("LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
@@ -771,6 +777,72 @@ bool UFlareSpacecraftNavigationSystem::NavigateTo(FVector TargetLocation)
 	// Failed
 	FLOG("AFlareSpacecraft::NavigateTo failed : no path found");
 	return false;
+}
+
+FVector UFlareSpacecraftNavigationSystem::AnticollisionCorrection(FVector InitialVelocity,  AFlareSpacecraft* DockingStation) const
+{
+	AFlareSpacecraft* NearestShip = GetNearestShip(DockingStation);
+
+	if(NearestShip)
+	{
+		FVector DeltaLocation = NearestShip->GetActorLocation() - Spacecraft->GetActorLocation();
+		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *4) / 100.f; // Distance in meters
+
+
+
+
+		if (Distance < 50.f)
+		{
+
+			FQuat AvoidQuat = FQuat(DeltaLocation.GetUnsafeNormal(), AnticollisionAngle);
+			FVector Avoid =  AvoidQuat.RotateVector(FVector(0,0,NearestShip->GetMeshScale() *4. / 50. ));
+
+
+
+			// Below 100m begin avoidance maneuver
+			float Alpha = 1 - Distance/50.f;
+			return InitialVelocity * (1.f - Alpha) + Alpha * ((Avoid - DeltaLocation) .GetUnsafeNormal() * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity());
+		}
+	}
+
+	return InitialVelocity;
+}
+
+AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecraft* DockingStation) const
+{
+	// For now an host ship is a the nearest host ship with the following critera:
+	// - Alive or not
+	// - From any company
+	// - Is the nearest
+	// - Is not me
+
+	FVector PilotLocation = Spacecraft->GetActorLocation();
+	float MinDistanceSquared = -1;
+	AFlareSpacecraft* NearestShip = NULL;
+
+	for (TActorIterator<AActor> ActorItr(Spacecraft->GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Ship
+		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+		if (ShipCandidate && ShipCandidate != Spacecraft && ShipCandidate != DockingStation)
+		{
+
+			if(DockingStation && (DockingStation->GetDockingSystem()->IsGrantedShip(ShipCandidate) || DockingStation->GetDockingSystem()->IsDockedShip(ShipCandidate)))
+			{
+				// Ignore ship docked or docking at the same station
+				continue;
+			}
+
+			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
+
+			if(NearestShip == NULL || DistanceSquared < MinDistanceSquared)
+			{
+				MinDistanceSquared = DistanceSquared;
+				NearestShip = ShipCandidate;
+			}
+		}
+	}
+	return NearestShip;
 }
 
 /*----------------------------------------------------

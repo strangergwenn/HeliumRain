@@ -43,11 +43,8 @@ public:
 	/** Set a company as content */
 	void SetCompany(UFlareCompany* Target);
 
-	/** Set a station as content */
-	void SetStation(IFlareSpacecraftInterface* Target);
-
-	/** Set a ship as content */
-	void SetShip(IFlareSpacecraftInterface* Target);
+	/** Set a spacecraft as content */
+	void SetSpacecraft(IFlareSpacecraftInterface* Target);
 
 	/** Set the no-inspect mode */
 	void SetNoInspect(bool NewState);
@@ -111,11 +108,9 @@ protected:
 	bool                              MinimizedMode;
 
 	// Target data
-	UFlareCompany*                    TargetCompany;
-	IFlareSpacecraftInterface*              TargetStation;
-	FFlareSpacecraftDescription*            TargetStationDesc;
-	IFlareSpacecraftInterface*              TargetShip;
-	FFlareSpacecraftDescription*            TargetShipDesc;
+	UFlareCompany*                    TargetCompany;	
+	IFlareSpacecraftInterface*              TargetSpacecraft;
+	FFlareSpacecraftDescription*            TargetSpacecraftDesc;
 	FString                           TargetName;
 
 	// Slate data

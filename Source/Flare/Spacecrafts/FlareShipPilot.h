@@ -61,7 +61,7 @@ protected:
 	/**
 	 * Return the nearest ship, alive or not
 	 */
-	virtual AFlareSpacecraft* GetNearestShip() const;
+	virtual AFlareSpacecraft* GetNearestShip(bool IgnoreDockingShip) const;
 
 	/**
 	* Return the nearest station where docking is available
@@ -78,6 +78,8 @@ protected:
 
 	/** Return true if the ship is dangerous */
 	virtual bool IsShipDangerous(AFlareSpacecraft* ShipCandidate) const;
+
+	virtual FVector AnticollisionCorrection(FVector InitialVelocity, float PreferedAttackAngle) const;
 
 public:
 

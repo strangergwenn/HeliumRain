@@ -108,14 +108,7 @@ void SFlareShipInstanceInfo::SetActionsVisible(bool State)
 	if (State)
 	{
 		ListContainer->SetVisibility(EVisibility::Collapsed);
-		if (Ship->IsStation())
-		{
-			ActionContainer->SetStation(Ship);
-		}
-		else
-		{
-			ActionContainer->SetShip(Ship);
-		}
+		ActionContainer->SetSpacecraft(Ship);
 		ActionContainer->Show();
 	}
 	else
