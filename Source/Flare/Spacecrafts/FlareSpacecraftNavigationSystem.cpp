@@ -218,17 +218,17 @@ IFlareSpacecraftInterface* UFlareSpacecraftNavigationSystem::GetDockStation()
 static float GetApproachDockToDockLateralDistanceLimit(float Distance)
 {
 	// Approch cone :
-	//  At 1 m -> 0.5 m
-	//  At 200 m -> 50 m
-	return Distance / 4 + 0.25;
+	//  At 1 m -> 1 m
+	//  At 100 m -> 25 m
+	return Distance / 4 + 75;
 }
 
 static float GetApproachVelocityLimit(float Distance)
 {
 	// Approch cone :
-	//  At 1 m -> 1 m/s
-	//  At 100 m -> 100 m/s
-	return Distance;
+	//  At 1 m -> 5 m/s
+	//  At 100 m -> 40 m/s
+	return Distance / 2.5 + 460;
 }
 
 
@@ -264,16 +264,17 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	float FinalApproachDockToDockDistanceLimit = 100; // 1 m of linear distance
 	float ApproachDockToDockDistanceLimit = 10000; // 100 m approch distance
 
-	float FinalApproachDockToDockLateralDistanceLimit = 50; // 50 cm of linear lateral distance
+	float FinalApproachDockToDockLateralDistanceLimit = 100; // 50 cm of linear lateral distance
 
 	float DockingAngleLimit = 1; // 1° of angle error to dock
 	float FinalApproachAngleLimit = 10;// 10° of angle error to dock
 
-	float DockingVelocityLimit = 30; // 0.3 m/s
-	float FinalApproachVelocityLimit = 100; // 1 m/s
+	float DockingVelocityLimit = 100; // 1 m/s
+	float FinalApproachVelocityLimit = 500; // 5 m/s
 
 	float DockingLateralVelocityLimit = 10; // 10 cm/s
 	float FinalApproachLateralVelocityLimit = 50; // 0.5 m/s
+	float ApproachLateralVelocityLimit = 1000; // 10 m/s
 
 	float DockingAngularVelocityLimit = 5; // 5 °/s
 	float FinalApproachAngularVelocityLimit = 10; // 10 °/s
@@ -494,10 +495,14 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 			//FLOG("-> Rendez-vous");
 			MaxVelocity = LinearMaxVelocity;
 			LocationTarget += StationDockAxis * (ApproachDockToDockDistanceLimit / 2);
-			AxisTarget = LocationTarget - ShipDockLocation;
-			AngularVelocityTarget = FVector::ZeroVector;
+			if(DockToDockDistance > ApproachDockToDockDistanceLimit)
+			{
+				AxisTarget = LocationTarget - ShipDockLocation;
+				AngularVelocityTarget = FVector::ZeroVector;
+			}
 			// During rendez-vous avoid the station
 			AnticollisionDockStation = NULL;
+
 			//FLOGV("Location offset=%s", *((StationDockAxis * (ApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
 	}
@@ -517,7 +522,11 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity);
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
 
-	LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AnticollisionDockStation);
+	if(AnticollisionDockStation == NULL)
+	{
+		// During docking, lets the others avoid me
+		LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AnticollisionDockStation);
+	}
 
 	/*FLOGV("AngularTargetVelocity=%s", *AngularTargetVelocity.ToString());
 	FLOGV("LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
