@@ -109,20 +109,16 @@ protected:
 
 	// Target data
 	UFlareCompany*                    TargetCompany;	
-	IFlareSpacecraftInterface*              TargetSpacecraft;
-	FFlareSpacecraftDescription*            TargetSpacecraftDesc;
+	IFlareSpacecraftInterface*        TargetSpacecraft;
+	FFlareSpacecraftDescription*      TargetSpacecraftDesc;
 	FString                           TargetName;
 
 	// Slate data
-	TSharedPtr<SHorizontalBox>        CompanyContainer;
-	TSharedPtr<SHorizontalBox>        StationContainer;
-	TSharedPtr<SHorizontalBox>        ShipContainer;
-	TSharedPtr<SFlareButton>          StationInspectButton;
-	TSharedPtr<SFlareShipStatus>      ShipStatus;
-	TSharedPtr<SFlareButton>          ShipInspectButton;
-	TSharedPtr<SFlareButton>          ShipFlyButton;
+	TSharedPtr<SFlareButton>          InspectButton;
+	TSharedPtr<SFlareButton>          FlyButton;
 	TSharedPtr<SFlareButton>          DockButton;
 	TSharedPtr<SFlareButton>          UndockButton;
+	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
 
 };

@@ -144,68 +144,18 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			]
 		]
 
-		// Company menu container
+		// General prupose container
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		[
-			SAssignNew(CompanyContainer, SHorizontalBox)
+			SNew(SHorizontalBox)
 
-			// Inspect a company
+			// Inspect
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SNew(SFlareButton)
-				.Text(LOCTEXT("CompanyInspect", "INSPECT"))
-				.OnClicked(this, &SFlareTargetActions::OnInspect)
-			]
-		]
-		
-		// Station menu container
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		[
-			SAssignNew(StationContainer, SHorizontalBox)
-
-			// Inspect a station
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SAssignNew(StationInspectButton, SFlareButton)
-				.Text(LOCTEXT("StationInspect", "INSPECT ST"))
-				.OnClicked(this, &SFlareTargetActions::OnInspect)
-			]
-
-			// Dock at this station
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SAssignNew(DockButton, SFlareButton)
-				.Text(LOCTEXT("StationDock", "DOCK HERE"))
-				.OnClicked(this, &SFlareTargetActions::OnDockAt)
-			]
-
-			// Dock at this station
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SAssignNew(UndockButton, SFlareButton)
-				.Text(LOCTEXT("StationUnDock", "UNDOCK"))
-				.OnClicked(this, &SFlareTargetActions::OnUndock)
-			]
-		]
-
-		// Ship menu container
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		[
-			SAssignNew(ShipContainer, SHorizontalBox)
-
-			// Inspect a ship
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SAssignNew(ShipInspectButton, SFlareButton)
-				.Text(LOCTEXT("ShipInspect", "INSPECT"))
+				SAssignNew(InspectButton, SFlareButton)
+				.Text(LOCTEXT("Inspect", "INSPECT"))
 				.OnClicked(this, &SFlareTargetActions::OnInspect)
 			]
 
@@ -213,9 +163,27 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SAssignNew(ShipFlyButton, SFlareButton)
+				SAssignNew(FlyButton, SFlareButton)
 				.Text(LOCTEXT("ShipFly", "FLY"))
 				.OnClicked(this, &SFlareTargetActions::OnFly)
+			]
+			
+			// Dock here
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SAssignNew(DockButton, SFlareButton)
+				.Text(LOCTEXT("Dock", "DOCK HERE"))
+				.OnClicked(this, &SFlareTargetActions::OnDockAt)
+			]
+
+			// Undock
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SAssignNew(UndockButton, SFlareButton)
+				.Text(LOCTEXT("Undock", "UNDOCK"))
+				.OnClicked(this, &SFlareTargetActions::OnUndock)
 			]
 		]
 	];
@@ -297,34 +265,42 @@ void SFlareTargetActions::Show()
 
 	if (MinimizedMode)
 	{
-		CompanyContainer->SetVisibility(EVisibility::Collapsed);
-		StationContainer->SetVisibility(EVisibility::Collapsed);
-		ShipContainer->SetVisibility(EVisibility::Collapsed);
+		InspectButton->SetVisibility(EVisibility::Collapsed);
+		FlyButton->SetVisibility(EVisibility::Collapsed);
+		DockButton->SetVisibility(EVisibility::Collapsed);
+		UndockButton->SetVisibility(EVisibility::Collapsed);
 	}
 	else
 	{
 		if (TargetSpacecraft)
 		{
-			CompanyContainer->SetVisibility(EVisibility::Collapsed);
-			StationContainer->SetVisibility(TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
-			ShipContainer->SetVisibility(EVisibility::Visible);
-			ShipInspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
-			StationInspectButton->SetVisibility(TargetSpacecraft->IsStation() ? EVisibility::Collapsed : EVisibility::Visible);
+			// Useful data
+			UFlareSpacecraftDockingSystem* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
+			bool OwnedAndNotSelf = TargetSpacecraft != PC->GetShipPawn() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 
-			if (TargetSpacecraft != PC->GetShipPawn() && !TargetSpacecraft->IsStation() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
+			// Button states
+			InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
+			DockButton->SetVisibility(OwnedAndNotSelf && TargetDockingSystem->GetDockCount() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
+			UndockButton->SetVisibility(TargetDockingSystem->IsDockedShip(PC->GetShipPawn()) ? EVisibility::Visible : EVisibility::Collapsed);
+
+			// Flyable ships
+			if (OwnedAndNotSelf && !TargetSpacecraft->IsStation())
 			{
-				ShipFlyButton->SetVisibility(EVisibility::Visible);
+				FlyButton->SetVisibility(EVisibility::Visible);
 			}
 			else
 			{
-				ShipFlyButton->SetVisibility(EVisibility::Collapsed);
+				FlyButton->SetVisibility(EVisibility::Collapsed);
 			}
 		}
+
+		// Company
 		else if (TargetCompany)
 		{
-			CompanyContainer->SetVisibility(EVisibility::Visible);
-			StationContainer->SetVisibility(EVisibility::Collapsed);
-			ShipContainer->SetVisibility(EVisibility::Collapsed);
+			InspectButton->SetVisibility(EVisibility::Collapsed);
+			FlyButton->SetVisibility(EVisibility::Collapsed);
+			DockButton->SetVisibility(EVisibility::Collapsed);
+			UndockButton->SetVisibility(EVisibility::Collapsed);
 		}
 	}
 }
