@@ -504,7 +504,11 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 		
 		for (int32 i = 0; i < ShipDescription->TurretSlots.Num(); i++)
 		{
-			// TODO TURRETS
+			FFlareSpacecraftComponentSave ComponentData;
+			ComponentData.ComponentIdentifier = FName("weapon-hades");
+			ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
+			ComponentData.Damage = 0.f;
+			ShipData.Components.Add(ComponentData);
 		}
 		
 		for (int32 i = 0; i < ShipDescription->InternalComponentSlots.Num(); i++)

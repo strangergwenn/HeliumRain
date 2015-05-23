@@ -105,20 +105,29 @@ struct FFlareSpacecraftComponentGunCharacteristics
 {
 	GENERATED_USTRUCT_BODY()
 
-	// Is a gun.
+	/** Is a gun  */
 	UPROPERTY(EditAnywhere, Category = Content) bool IsGun;
 
-	// Shell energy in KJ
+	/** Shell energy in KJ */
 	UPROPERTY(EditAnywhere, Category = Content) float AmmoPower;
 
-	// Weapon firerate in ammo/min
+	/** Weapon firerate in ammo/min */
 	UPROPERTY(EditAnywhere, Category = Content) float AmmoRate;
 
-	// Weapon ammo velocity in m/s
+	/** Weapon ammo velocity in m/s */
 	UPROPERTY(EditAnywhere, Category = Content) float AmmoVelocity;
 
-	// Weapon ammo max capacity
+	/** Weapon ammo max capacity */
 	UPROPERTY(EditAnywhere, Category = Content) int32 AmmoCapacity;
+
+	/** Weapon barrel count */
+	UPROPERTY(EditAnywhere, Category = Content) int32 GunCount;
+
+	/** Alterned fire. If true, the gun don't fire at same time */
+	UPROPERTY(EditAnywhere, Category = Content) bool AlternedFire;
+
+	/** If true, the gun fire one shell at each fire activation */
+	UPROPERTY(EditAnywhere, Category = Content) bool SemiAutomaticFire;
 
 	/** Sound played on impact */
 	UPROPERTY(EditAnywhere, Category = Content) USoundCue* ImpactSound;
@@ -140,6 +149,47 @@ struct FFlareSpacecraftComponentGunCharacteristics
 
 	/** Decal used when an explosion hit a ship */
 	UPROPERTY(EditAnywhere, Category = Content) UMaterialInterface* ExplosionMaterial;
+};
+
+/** Turret characteristic */
+USTRUCT()
+struct FFlareSpacecraftComponentTurretCharacteristics
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Is a turret */
+	UPROPERTY(EditAnywhere, Category = Content) bool IsTurret;
+
+	/** Turret base angular velocity */
+	UPROPERTY(EditAnywhere, Category = Content) float TurretAngularVelocity;
+
+	/** Turret barrels angular velocity */
+	UPROPERTY(EditAnywhere, Category = Content) float BarrelsAngularVelocity;
+
+	/** Turret max angle. If >= 180 full rotation is possible */
+	UPROPERTY(EditAnywhere, Category = Content) float TurretMaxAngle;
+
+	/** Turret min angle. If <= -180 full rotation is possible */
+	UPROPERTY(EditAnywhere, Category = Content) float TurretMinAngle;
+
+	/** Turret barrels max angle.  If >= 180 full rotation is possible */
+	UPROPERTY(EditAnywhere, Category = Content) float BarrelsMaxAngle;
+
+	/** Turret barrels min angle. If <= -180 full rotation is possible */
+	UPROPERTY(EditAnywhere, Category = Content) float BarrelsMinAngle;
+
+	/** Turret mesh */
+	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* TurretMesh;
+
+	/** Barrel mesh */
+	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* BarrelsMesh;
+
+	/** Sound played on turret rotation */
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* TurretRotationSound;
+
+	/** Sound played on barrel rotation*/
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* BarrelRotationSound;
+
 };
 
 /** Ship component attribute save data */
@@ -221,11 +271,14 @@ struct FFlareSpacecraftComponentDescription
 	/** General characteristic structure */
 	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentGeneralCharacteristics GeneralCharacteristics;
 
-	/** General characteristic structure */
+	/** Engine characteristic structure */
 	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentEngineCharacteristics EngineCharacteristics;
 
-	/** General characteristic structure */
+	/** Gun characteristic structure */
 	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentGunCharacteristics GunCharacteristics;
+
+	/** Turret characteristic structure */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentTurretCharacteristics TurretCharacteristics;
 };
 
 
