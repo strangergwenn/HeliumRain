@@ -42,9 +42,13 @@ public:
 
 	virtual FVector GetFireAxis() const;
 
-	virtual FVector GetMuzzleLocation(int bunIndex) const;
+	virtual FVector GetMuzzleLocation(int GunIndex) const;
 
 	virtual int GetGunCount() const;
+
+	virtual bool IsTurret() const;
+
+	virtual bool IsSafeToFire(int GunIndex) const;
 
 protected:
 

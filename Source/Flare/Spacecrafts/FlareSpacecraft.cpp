@@ -177,16 +177,24 @@ void AFlareSpacecraft::SetCombatMode(bool NewState)
 }
 
 // TODO move in helper class
+
+
 FVector AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay) const
+{
+	return GetAimPosition(TargettingShip->GetActorLocation(), TargettingShip->GetLinearVelocity() * 100, BulletSpeed, PredictionDelay);
+}
+
+
+FVector AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay) const
 {
 	//Relative Target Speed
 	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
 	FVector TargetLocation = GetActorLocation() + TargetVelocity * PredictionDelay;
-	FVector BulletLocation = TargettingShip->GetActorLocation() + TargettingShip->GetLinearVelocity() * 100 * PredictionDelay;
+	FVector BulletLocation = GunLocation + GunVelocity * PredictionDelay;
 
 	// Find the relative speed in the axis of target
 	FVector TargetDirection = (TargetLocation - BulletLocation).GetUnsafeNormal();
-	FVector BonusVelocity = TargettingShip->GetLinearVelocity() * 100;
+	FVector BonusVelocity = GunVelocity;
 	float BonusVelocityInTargetAxis = FVector::DotProduct(TargetDirection, BonusVelocity);
 	float EffectiveBulletSpeed = BulletSpeed * 100.f + BonusVelocityInTargetAxis;
 
@@ -701,7 +709,10 @@ void AFlareSpacecraft::StartFire()
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
-			WeaponList[i]->StartFire();
+			if (!WeaponList[i]->IsTurret())
+			{
+				WeaponList[i]->StartFire();
+			}
 		}
 	}
 }
@@ -712,7 +723,10 @@ void AFlareSpacecraft::StopFire()
 	{
 		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
-			WeaponList[i]->StopFire();
+			if (!WeaponList[i]->IsTurret())
+			{
+				WeaponList[i]->StopFire();
+			}
 		}
 	}
 }

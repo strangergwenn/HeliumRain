@@ -27,6 +27,10 @@ void UFlareTurret::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	// TODO Save angles
 	TurretAngle = 0;
 	BarrelAngle = 0;
+
+	// Initialize pilot
+	Pilot = NewObject<UFlareTurretPilot>(this, UFlareTurretPilot::StaticClass());
+	Pilot->Initialize(&(Data->Pilot), Company, this);
 }
 
 
@@ -76,20 +80,42 @@ void UFlareTurret::SetupComponentMesh()
 
 void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
+	FVector AimDirection = FVector::ZeroVector;
+	if (Pilot)
+	{
+
+		Pilot->TickPilot(DeltaTime);
+		//FLOGV("Pilot exist WantFire %d", Pilot->IsWantFire());
+		if(Pilot->IsWantFire())
+		{
+			StartFire();
+		}
+		else
+		{
+			StopFire();
+		}
+		AimDirection = Pilot->GetTargetAimAxis();
+		//FLOGV("Pilot AimDirection %s", *AimDirection.ToString());
+	}
+
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FVector AimDirection = FVector(1,0,0);
 
 	if(TurretComponent && ComponentDescription)
 	{
 
-		FVector LocalTurretAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
+		float TargetTurretAngle = 0;
+		if(AimDirection != FVector::ZeroVector)
+		{
+			FVector LocalTurretAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
 
-	/*	FLOG("==================");
-		FLOGV("AimDirection %s", *AimDirection.ToString());
-		FLOGV("LocalTurretAimDirection %s", *LocalTurretAimDirection.ToString());
-*/
-		float TargetTurretAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
+		/*	FLOG("==================");
+			FLOGV("AimDirection %s", *AimDirection.ToString());
+			FLOGV("LocalTurretAimDirection %s", *LocalTurretAimDirection.ToString());
+		*/
+			TargetTurretAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
+		}
+		//FLOGV("TargetTurretAngle %f", TargetTurretAngle);
 		//float TargetBarrelAngle = FMath::RadiansToDegrees(FMath::Atan2(LocalAimDirection.Z, FMath::Sqrt(FMath::Square(LocalAimDirection.X) + FMath::Square(LocalAimDirection.Y))) + 180);
 		//float TargetBarrelAngle = - FMath::RadiansToDegrees(FMath::Atan2(LocalAimDirection.X, LocalAimDirection.Z)) + 90;
 
@@ -131,17 +157,23 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 	if (BarrelComponent)
 	{
 
-		FVector LocalBarrelAimDirection;
-		if (TurretComponent)
-		{
-			LocalBarrelAimDirection = TurretComponent->GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
-		}
-		else
-		{
-			LocalBarrelAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
-		}
+		float TargetBarrelAngle = 0;
 
-		float TargetBarrelAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
+		if(AimDirection != FVector::ZeroVector)
+		{
+			FVector LocalBarrelAimDirection;
+			if (TurretComponent)
+			{
+				LocalBarrelAimDirection = TurretComponent->GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
+			}
+			else
+			{
+				LocalBarrelAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
+			}
+
+			TargetBarrelAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
+		}
+		//FLOGV("TargetBarrelAngle %f", TargetBarrelAngle);
 
 		/*FLOGV("TargetBarrelAngle %f", TargetBarrelAngle);
 
@@ -221,8 +253,14 @@ FVector UFlareTurret::GetFireAxis() const
 	}
 }
 
+FVector UFlareTurret::GetIdleAxis() const
+{
+	// Ship front
+	return Spacecraft->Airframe->GetComponentRotation().RotateVector(FVector(1, 0, 0));
+}
 
-FVector UFlareTurret::GetMuzzleLocation(int muzzleIndex) const
+
+FVector UFlareTurret::GetMuzzleLocation(int GunIndex) const
 {
 	const UStaticMeshComponent* GunComponent = this;
 	if (BarrelComponent)
@@ -240,6 +278,100 @@ FVector UFlareTurret::GetMuzzleLocation(int muzzleIndex) const
 	}
 	else
 	{
-		return GunComponent->GetSocketLocation(FName(*(FString("Muzzle") + FString::FromInt(muzzleIndex))));
+		return GunComponent->GetSocketLocation(FName(*(FString("Muzzle") + FString::FromInt(GunIndex))));
 	}
+}
+
+FVector UFlareTurret::GetTurretBaseLocation() const
+{
+	if (BarrelComponent)
+	{
+		return BarrelComponent->GetComponentLocation();
+	}
+	else if (TurretComponent)
+	{
+		return TurretComponent->GetComponentLocation();
+	}
+	return GetComponentLocation();
+}
+
+bool UFlareTurret::IsSafeToFire(int GunIndex) const
+{
+	FVector FiringLocation = GetMuzzleLocation(GunIndex);
+	FVector FiringDirection = GetFireAxis();
+	FVector TargetLocation = FiringLocation + FiringDirection * 100000;
+
+	FHitResult HitResult(ForceInit);
+	if (Trace(FiringLocation, TargetLocation, HitResult))
+	{
+		if (HitResult.Actor.IsValid() && HitResult.Actor == Spacecraft)
+		{
+			FLOG("!!!!!!!!!Not safe to fire !");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool UFlareTurret::Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const
+{
+	FCollisionQueryParams TraceParams(FName(TEXT("Shell Trace")), true, NULL);
+	TraceParams.bTraceComplex = true;
+	//TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = false;
+
+	//Re-initialize hit info
+	HitOut = FHitResult(ForceInit);
+
+	ECollisionChannel CollisionChannel = (ECollisionChannel) (ECC_WorldStatic | ECC_WorldDynamic | ECC_Pawn);
+
+	//Trace!
+	GetWorld()->LineTraceSingleByChannel(
+		HitOut,		//result
+		Start,	//start
+		End , //end
+		CollisionChannel, //collision channel
+		TraceParams
+	);
+
+	//Hit any Actor?
+	return (HitOut.GetActor() != NULL) ;
+}
+
+bool UFlareTurret::IsReacheableAxis(FVector TargetAxis) const
+{
+	if(TurretComponent && ComponentDescription)
+	{
+
+		FVector LocalTurretAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetAxis);
+		float TargetTurretAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
+
+		if(TargetTurretAngle > ComponentDescription->TurretCharacteristics.TurretMaxAngle
+				|| TargetTurretAngle < ComponentDescription->TurretCharacteristics.TurretMinAngle)
+		{
+			return false;
+		}
+	}
+
+	if (BarrelComponent && ComponentDescription)
+	{
+
+		FVector LocalBarrelAimDirection;
+		if (TurretComponent)
+		{
+			LocalBarrelAimDirection = TurretComponent->GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetAxis);
+		}
+		else
+		{
+			LocalBarrelAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetAxis);
+		}
+
+		float TargetBarrelAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
+		if(TargetBarrelAngle > ComponentDescription->TurretCharacteristics.BarrelsMaxAngle
+				|| TargetBarrelAngle < ComponentDescription->TurretCharacteristics.BarrelsMinAngle)
+		{
+			return false;
+		}
+	}
+	return true;
 }

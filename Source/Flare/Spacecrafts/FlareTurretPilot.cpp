@@ -1,0 +1,218 @@
+
+#include "../Flare.h"
+
+#include "FlareTurretPilot.h"
+#include "FlareSpacecraft.h"
+
+/*----------------------------------------------------
+	Constructor
+----------------------------------------------------*/
+
+UFlareTurretPilot::UFlareTurretPilot(const class FObjectInitializer& PCIP)
+	: Super(PCIP)
+{
+	ReactionTime = FMath::FRandRange(0.005, 0.01);
+	TimeUntilNextReaction = 0;
+	PilotTargetShip = NULL;
+}
+
+
+/*----------------------------------------------------
+	Gameplay events
+----------------------------------------------------*/
+
+
+void UFlareTurretPilot::Initialize(const FFlareTurretPilotSave* Data, UFlareCompany* Company, UFlareTurret* OwnerTurret)
+{
+	// Main data
+	Turret = OwnerTurret;
+	PlayerCompany = Company;
+
+	// Setup properties
+	if (Data)
+	{
+		TurretPilotData = *Data;
+	}
+}
+
+void UFlareTurretPilot::TickPilot(float DeltaSeconds)
+{
+	if (TimeUntilNextReaction > 0)
+	{
+		TimeUntilNextReaction -= DeltaSeconds;
+		return;
+	}
+	else
+	{
+		TimeUntilNextReaction = ReactionTime;
+	}
+
+
+	AimAxis = FVector::ZeroVector;
+	WantFire = false;
+
+
+	AFlareSpacecraft* OldPilotTargetShip = PilotTargetShip;
+
+	FVector TurretLocation = Turret->GetTurretBaseLocation();
+
+	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
+	if(!PilotTargetShip ||
+			!PilotTargetShip->GetDamageSystem()->IsAlive() ||
+			(PilotTargetShip->GetActorLocation() - TurretLocation).Size() > 120000 ||
+			PilotTargetShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0
+			|| (PilotTargetShip && !Turret->IsReacheableAxis((PilotTargetShip->GetActorLocation() - TurretLocation).GetUnsafeNormal())))
+	{
+		PilotTargetShip = GetNearestHostileShip(true, true, 120000);
+	}
+
+	// No dangerous ship, try not dangerous ships
+	if(!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(false, true, 120000);
+	}
+
+	// No dangerous ship, try not dangerous ships
+	if(!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(false, false, 120000);
+	}
+
+	if(PilotTargetShip)
+	{
+
+		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
+
+		float PredictionDelay = ReactionTime - DeltaSeconds;
+		float AmmoVelocity = Turret->GetAmmoVelocity();
+		FVector TurretVelocity = 100 * Turret->GetSpacecraft()->GetLinearVelocity();
+		FVector PredictedFireTargetLocation = (PilotTargetShip->GetAimPosition(TurretLocation, TurretVelocity / 100, AmmoVelocity, PredictionDelay));
+
+
+		AimAxis = (PredictedFireTargetLocation - TurretLocation).GetUnsafeNormal();
+		FLOGV("Have target AimAxis=", * AimAxis.ToString());
+
+
+		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
+		FVector DeltaLocation = (PilotTargetShip->GetActorLocation()-TurretLocation) / 100.f;
+		float Distance = DeltaLocation.Size(); // Distance in meters
+
+		// If at range and aligned fire on the target
+		//TODO increase tolerance if target is near
+		if(Distance < (DangerousTarget ? 1200.f : 600.f) + 4 * TargetSize)
+		{
+			FLOG("Near enough");
+			FVector FireAxis = Turret->GetFireAxis();
+
+
+			for(int GunIndex = 0; GunIndex < Turret->GetGunCount(); GunIndex++)
+			{
+				FVector MuzzleLocation = Turret->GetMuzzleLocation(GunIndex);
+
+				// Compute target Axis for each gun
+				FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(MuzzleLocation, TurretVelocity , AmmoVelocity, 0) - MuzzleLocation).GetUnsafeNormal();
+				FLOGV("Gun %d FireTargetAxis=", GunIndex, *FireTargetAxis.ToString());
+
+				float AngularPrecisionDot = FVector::DotProduct(FireTargetAxis, FireAxis);
+				float AngularPrecision = FMath::Acos(AngularPrecisionDot);
+				float AngularSize = FMath::Atan(TargetSize / Distance);
+
+				FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
+				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);
+				if(AngularPrecision < (DangerousTarget ? AngularSize * 2 : AngularSize * 1))
+				{
+					WantFire = true;
+					break;
+				}
+			}
+		}
+
+		if(Turret->GetSpacecraft()->GetDamageSystem()->GetTemperature() > Turret->GetSpacecraft()->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
+		{
+			// TODO Fire on dangerous target
+			WantFire = false;
+		}
+	}
+}
+
+/*----------------------------------------------------
+	Helpers
+----------------------------------------------------*/
+
+AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, bool ReachableOnly, float MaxDistance) const
+{
+	// For now an host ship is a the nearest host ship with the following critera:
+	// - Alive
+	// - Is dangerous if needed
+	// - From another company
+	// - Is the nearest
+
+	FVector PilotLocation = Turret->GetTurretBaseLocation();
+	float MaxDot = 0;
+	AFlareSpacecraft* NearestHostileShip = NULL;
+	FVector FireAxis = Turret->GetFireAxis();
+
+
+	for (TActorIterator<AActor> ActorItr(Turret->GetSpacecraft()->GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Ship
+		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+		if (ShipCandidate)
+		{
+			if (!ShipCandidate->GetDamageSystem()->IsAlive())
+			{
+				continue;
+			}
+
+			if (DangerousOnly && !IsShipDangerous(ShipCandidate))
+			{
+				continue;
+			}
+
+			if (PlayerCompany->GetHostility(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+			{
+				continue;
+			}
+
+			float Distance = (PilotLocation - ShipCandidate->GetActorLocation()).Size();
+			if (Distance > MaxDistance)
+			{
+				continue;
+			}
+
+			FVector TargetAxis = (ShipCandidate->GetActorLocation()- PilotLocation).GetUnsafeNormal();
+
+			if(ReachableOnly && !Turret->IsReacheableAxis(TargetAxis))
+			{
+				continue;
+			}
+			float Dot = FVector::DotProduct(TargetAxis, FireAxis);
+
+			if (NearestHostileShip == NULL || Dot > MaxDot)
+			{
+				MaxDot = Dot;
+				NearestHostileShip = ShipCandidate;
+			}
+		}
+	}
+	return NearestHostileShip;
+}
+
+bool UFlareTurretPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
+{
+	return ShipCandidate->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+}
+
+/*----------------------------------------------------
+	Pilot Output
+----------------------------------------------------*/
+
+FVector UFlareTurretPilot::GetTargetAimAxis() const
+{
+	return AimAxis;
+}
+
+bool UFlareTurretPilot::IsWantFire() const
+{
+	return WantFire;
+}

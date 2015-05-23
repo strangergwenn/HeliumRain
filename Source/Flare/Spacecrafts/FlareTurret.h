@@ -2,6 +2,7 @@
 
 #include "FlareSpacecraftComponent.h"
 #include "FlareWeapon.h"
+#include "FlareTurretPilot.h"
 #include "FlareTurret.generated.h"
 
 
@@ -26,7 +27,18 @@ public:
 
 	virtual FVector GetFireAxis() const;
 
-	virtual FVector GetMuzzleLocation(int bunIndex) const;
+	virtual FVector GetIdleAxis() const;
+
+	virtual FVector GetMuzzleLocation(int GunIndex) const;
+
+	virtual FVector GetTurretBaseLocation() const;
+
+	virtual bool IsSafeToFire(int GunIndex) const;
+
+	virtual bool IsReacheableAxis(FVector TargetAxis) const;
+
+	// TODO Put in help with FlareShell::Trace
+	bool Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const;
 
 protected:
 
@@ -35,9 +47,13 @@ protected:
 	----------------------------------------------------*/
 	/** Mesh component */
 	UPROPERTY()
-
 	UStaticMeshComponent*                    TurretComponent;
+	UPROPERTY()
 	UStaticMeshComponent*                    BarrelComponent;
+
+	// Pilot object
+	UPROPERTY()
+	UFlareTurretPilot*                               Pilot;
 
 
 	float                                    TurretAngle;

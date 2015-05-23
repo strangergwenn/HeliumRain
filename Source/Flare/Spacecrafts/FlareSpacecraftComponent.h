@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine.h"
+#include "FlareTurretPilot.h"
 #include "FlareSpacecraftComponent.generated.h"
 
 class AFlareSpacecraftPawn;
@@ -226,6 +227,10 @@ struct FFlareSpacecraftComponentSave
 	/** Component attributes */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareSpacecraftComponentAttributeSave> Attributes;
+
+	/** Pilot */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareTurretPilotSave Pilot;
 };
 
 
@@ -453,4 +458,13 @@ protected:
 
 	UPROPERTY()		UParticleSystem*                        DestroyedEffectTemplate;
 
+	public:
+
+		/*----------------------------------------------------
+			Getters
+		----------------------------------------------------*/
+	virtual AFlareSpacecraft* GetSpacecraft() const
+	{
+		return Spacecraft;
+	}
 };

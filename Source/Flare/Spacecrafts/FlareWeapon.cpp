@@ -95,10 +95,16 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered() && Spacecraft && !Spacecraft->GetDamageSystem()->HasPowerOutage())
 	{
-		for(int i =0; i < ComponentDescription->GunCharacteristics.GunCount; i++)
+		for(int GunIndex =0; GunIndex < ComponentDescription->GunCharacteristics.GunCount; GunIndex++)
 		{
+			if(!IsSafeToFire(GunIndex))
+			{
+				// Avoid to fire itself
+				continue;
+			}
+
 			// Get firing data
-			FVector FiringLocation = GetMuzzleLocation(i);
+			FVector FiringLocation = GetMuzzleLocation(GunIndex);
 
 			float Vibration = (1.f- GetDamageRatio()) * 0.05;
 			FVector Imprecision = FVector(FMath::FRandRange(0.f, Vibration), FMath::FRandRange(0.f, Vibration), FMath::FRandRange(0.f, Vibration));
@@ -193,4 +199,15 @@ FVector UFlareWeapon::GetMuzzleLocation(int muzzleIndex) const
 int UFlareWeapon::GetGunCount() const
 {
 	return ComponentDescription->GunCharacteristics.GunCount;
+}
+
+bool UFlareWeapon::IsTurret() const
+{
+	return ComponentDescription->TurretCharacteristics.IsTurret;
+}
+
+bool UFlareWeapon::IsSafeToFire(int GunIndex) const
+{
+	// Only turret are unsafe
+	return true;
 }

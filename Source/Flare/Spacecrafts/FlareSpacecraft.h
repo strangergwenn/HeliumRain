@@ -56,6 +56,9 @@ public:
 	/** Extrapolate the position of a ship for a given targetting ship */
 	virtual FVector GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay) const;
 
+	/** Extrapolate the position of a ship for a given gun */
+	FVector GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay) const;
+
 	/*----------------------------------------------------
 		Ship interface
 	----------------------------------------------------*/
