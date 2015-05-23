@@ -24,6 +24,10 @@ public:
 
 	void SetupComponentMesh() override;
 
+	virtual FVector GetFireAxis() const;
+
+	virtual FVector GetMuzzleLocation(int bunIndex) const;
+
 protected:
 
 	/*----------------------------------------------------
@@ -38,6 +42,7 @@ protected:
 
 	float                                    TurretAngle;
 	float                                    BarrelAngle;
+	// TODO Save
 
 public:
 

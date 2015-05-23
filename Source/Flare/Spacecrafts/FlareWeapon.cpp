@@ -95,40 +95,44 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered() && Spacecraft && !Spacecraft->GetDamageSystem()->HasPowerOutage())
 	{
-		// Get firing data
-		FVector FiringLocation = GetSocketLocation(FName("Muzzle"));
-
-		float Vibration = (1.f- GetDamageRatio()) * 0.05;
-		FVector Imprecision = FVector(0, FMath::FRandRange(0.f, Vibration), 0).RotateAngleAxis(FMath::FRandRange(0.f, 360), FVector(1, 0, 0));
-
-		FVector FiringDirection = GetComponentRotation().RotateVector(FVector(1, 0, 0) + Imprecision);
-		FVector FiringVelocity = GetPhysicsLinearVelocity();
-
-		// Create a shell
-		AFlareShell* Shell = GetWorld()->SpawnActor<AFlareShell>(
-			AFlareShell::StaticClass(),
-			FiringLocation,
-			FRotator::ZeroRotator,
-			ProjectileSpawnParams);
-
-		// Fire it. Tracer ammo every bullets
-		Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity, true);
-		if(FiringEffect)
+		for(int i =0; i < ComponentDescription->GunCharacteristics.GunCount; i++)
 		{
-			FiringEffect->ActivateSystem();
+			// Get firing data
+			FVector FiringLocation = GetMuzzleLocation(i);
+
+			float Vibration = (1.f- GetDamageRatio()) * 0.05;
+			FVector Imprecision = FVector(FMath::FRandRange(0.f, Vibration), FMath::FRandRange(0.f, Vibration), FMath::FRandRange(0.f, Vibration));
+
+			FVector FiringDirection = (GetFireAxis() + Imprecision).GetUnsafeNormal();
+			FVector FiringVelocity = GetPhysicsLinearVelocity();
+
+			// Create a shell
+			AFlareShell* Shell = GetWorld()->SpawnActor<AFlareShell>(
+				AFlareShell::StaticClass(),
+				FiringLocation,
+				FRotator::ZeroRotator,
+				ProjectileSpawnParams);
+
+			// Fire it. Tracer ammo every bullets
+			Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity, true);
+			if(FiringEffect)
+			{
+				FiringEffect->ActivateSystem();
+			}
+
+			// Play sound
+			if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
+			{
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation(), 1, 1);
+			}
+
+			// Update data
+			CurrentAmmo--;
 		}
 
-		// Play sound
-		if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
-		{
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation(), 1, 1);
-		}
-
-		// Update data
 		// If damage the firerate is randomly reduced to a min of 10 times normal value
 		float DamageDelay = FMath::Square(1.f- GetDamageRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
 		TimeSinceLastShell = -DamageDelay;
-		CurrentAmmo--;
 	}
 }
 
@@ -168,3 +172,25 @@ void UFlareWeapon::RefillAmmo()
 	CurrentAmmo = MaxAmmo;
 }
 
+FVector UFlareWeapon::GetFireAxis() const
+{
+	return GetComponentRotation().RotateVector(FVector(1, 0, 0));
+}
+
+FVector UFlareWeapon::GetMuzzleLocation(int muzzleIndex) const
+{
+	if (ComponentDescription->GunCharacteristics.GunCount == 1)
+	{
+		return GetSocketLocation(FName("Muzzle"));
+	}
+	else
+	{
+		return GetSocketLocation(FName(*(FString("Muzzle") + FString::FromInt(muzzleIndex))));
+	}
+
+}
+
+int UFlareWeapon::GetGunCount() const
+{
+	return ComponentDescription->GunCharacteristics.GunCount;
+}

@@ -40,6 +40,11 @@ public:
 	/** Reset the current ammo to max ammo.	*/
 	virtual void RefillAmmo();
 
+	virtual FVector GetFireAxis() const;
+
+	virtual FVector GetMuzzleLocation(int bunIndex) const;
+
+	virtual int GetGunCount() const;
 
 protected:
 

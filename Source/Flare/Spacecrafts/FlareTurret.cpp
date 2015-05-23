@@ -204,3 +204,42 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		BarrelComponent->SetRelativeRotation(FRotator(BarrelAngle, 0, 0));
 	}
 }
+
+FVector UFlareTurret::GetFireAxis() const
+{
+	if (BarrelComponent)
+	{
+		return BarrelComponent->GetComponentRotation().RotateVector(FVector(1, 0, 0));
+	}
+	else if (TurretComponent)
+	{
+		return TurretComponent->GetComponentRotation().RotateVector(FVector(1, 0, 0));
+	}
+	else
+	{
+		return Super::GetFireAxis();
+	}
+}
+
+
+FVector UFlareTurret::GetMuzzleLocation(int muzzleIndex) const
+{
+	const UStaticMeshComponent* GunComponent = this;
+	if (BarrelComponent)
+	{
+		GunComponent = BarrelComponent;
+	}
+	else if (TurretComponent)
+	{
+		GunComponent = TurretComponent;
+	}
+
+	if (ComponentDescription->GunCharacteristics.GunCount <= 1)
+	{
+		return GunComponent->GetSocketLocation(FName("Muzzle"));
+	}
+	else
+	{
+		return GunComponent->GetSocketLocation(FName(*(FString("Muzzle") + FString::FromInt(muzzleIndex))));
+	}
+}
