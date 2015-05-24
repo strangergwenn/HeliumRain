@@ -37,7 +37,7 @@ void UFlareTurretPilot::Initialize(const FFlareTurretPilotSave* Data, UFlareComp
 
 void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 {
-	if (TimeUntilNextReaction > 0)
+	/*if (TimeUntilNextReaction > 0)
 	{
 		TimeUntilNextReaction -= DeltaSeconds;
 		return;
@@ -45,7 +45,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	else
 	{
 		TimeUntilNextReaction = ReactionTime;
-	}
+	}*/
 
 
 	AimAxis = FVector::ZeroVector;
@@ -57,7 +57,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	FVector TurretLocation = Turret->GetTurretBaseLocation();
 
 	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
-	if(!PilotTargetShip ||
+	/*if(!PilotTargetShip ||
 			!PilotTargetShip->GetDamageSystem()->IsAlive() ||
 			(PilotTargetShip->GetActorLocation() - TurretLocation).Size() > 120000 ||
 			PilotTargetShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0
@@ -70,7 +70,9 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	if(!PilotTargetShip)
 	{
 		PilotTargetShip = GetNearestHostileShip(false, true, 120000);
-	}
+	}*/
+
+	PilotTargetShip = GetNearestHostileShip(false, true, 120000);
 
 	// No dangerous ship, try not dangerous ships
 	if(!PilotTargetShip)
@@ -83,14 +85,15 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
 
-		float PredictionDelay = ReactionTime - DeltaSeconds;
+		//float PredictionDelay = ReactionTime - DeltaSeconds;
+		float PredictionDelay = 0;
 		float AmmoVelocity = Turret->GetAmmoVelocity();
 		FVector TurretVelocity = 100 * Turret->GetSpacecraft()->GetLinearVelocity();
 		FVector PredictedFireTargetLocation = (PilotTargetShip->GetAimPosition(TurretLocation, TurretVelocity / 100, AmmoVelocity, PredictionDelay));
 
 
 		AimAxis = (PredictedFireTargetLocation - TurretLocation).GetUnsafeNormal();
-		FLOGV("Have target AimAxis=", * AimAxis.ToString());
+		FLOGV("%s Have target AimAxis=%s",*Turret->GetReadableName(),  * AimAxis.ToString());
 
 
 		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
@@ -111,16 +114,20 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 				// Compute target Axis for each gun
 				FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(MuzzleLocation, TurretVelocity , AmmoVelocity, 0) - MuzzleLocation).GetUnsafeNormal();
-				FLOGV("Gun %d FireTargetAxis=", GunIndex, *FireTargetAxis.ToString());
+				FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
+				FLOGV("Gun %d FireTargetAxis=%s", GunIndex, *FireTargetAxis.ToString());
 
 				float AngularPrecisionDot = FVector::DotProduct(FireTargetAxis, FireAxis);
 				float AngularPrecision = FMath::Acos(AngularPrecisionDot);
 				float AngularSize = FMath::Atan(TargetSize / Distance);
 
+				FLOGV("Gun %d Distance=%f", GunIndex, Distance);
+				FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
 				FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);
-				if(AngularPrecision < (DangerousTarget ? AngularSize * 2 : AngularSize * 1))
+				if(AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
+					FLOG("Want Fire");
 					WantFire = true;
 					break;
 				}
@@ -131,6 +138,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		{
 			// TODO Fire on dangerous target
 			WantFire = false;
+			FLOG("Want Fire but too hot");
 		}
 	}
 }

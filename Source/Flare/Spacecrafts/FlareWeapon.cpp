@@ -140,6 +140,24 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		float DamageDelay = FMath::Square(1.f- GetDamageRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
 		TimeSinceLastShell = -DamageDelay;
 	}
+	else if(Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && IsTurret())
+	{
+		FLOG("!!!!!Failed to fire...");
+		if(!(GetDamageRatio() > 0.f))
+		{
+			FLOG("... because of damages");
+		}
+
+		if(!(IsPowered()))
+		{
+			FLOG("... because of power");
+		}
+
+		if(!(Spacecraft && !Spacecraft->GetDamageSystem()->HasPowerOutage()))
+		{
+			FLOG("... because of power outage");
+		}
+	}
 }
 
 void UFlareWeapon::SetupComponentMesh()

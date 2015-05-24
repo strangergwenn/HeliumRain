@@ -98,7 +98,6 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		//FLOGV("Pilot AimDirection %s", *AimDirection.ToString());
 	}
 
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 
 	if(TurretComponent && ComponentDescription)
@@ -234,7 +233,16 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 	//	FLOGV("BarrelAngle after move %f", BarrelAngle);
 
 		BarrelComponent->SetRelativeRotation(FRotator(BarrelAngle, 0, 0));
+
+		if(FMath::Abs(BarrelAngleDiff) <= ComponentDescription->TurretCharacteristics.BarrelsAngularVelocity * DeltaTime) {
+
+			FLOGV("Mouvement end: AimDirection %s", *AimDirection.ToString());
+			FLOGV("               Control fire axis %s", *GetFireAxis().ToString());
+		}
 	}
+
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
 }
 
 FVector UFlareTurret::GetFireAxis() const
