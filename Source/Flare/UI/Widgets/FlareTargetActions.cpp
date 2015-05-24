@@ -229,23 +229,6 @@ void SFlareTargetActions::SetSpacecraft(IFlareSpacecraftInterface* Target)
 		{
 			TargetSpacecraftDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
 		}
-
-		// Are we docked here
-		bool Docked = false;
-		if (PC->GetShipPawn()->GetNavigationSystem()->IsDocked())
-		{
-			if (PC->GetShipPawn()->GetNavigationSystem()->GetDockStation() == Target)
-			{
-				Docked = true;
-			}
-		}
-
-		// Docking
-		if (!MinimizedMode)
-		{
-			UndockButton->SetVisibility(Docked ? EVisibility::Visible : EVisibility::Collapsed);
-			DockButton->SetVisibility(Docked ? EVisibility::Collapsed : EVisibility::Visible);
-		}
 	}
 }
 
@@ -277,11 +260,13 @@ void SFlareTargetActions::Show()
 			// Useful data
 			UFlareSpacecraftDockingSystem* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
 			bool OwnedAndNotSelf = TargetSpacecraft != PC->GetShipPawn() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
+			bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
+			bool CanDock = OwnedAndNotSelf && TargetDockingSystem->GetDockCount() > 0 && !IsDocked;
 
 			// Button states
 			InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
-			DockButton->SetVisibility(OwnedAndNotSelf && TargetDockingSystem->GetDockCount() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
-			UndockButton->SetVisibility(TargetDockingSystem->IsDockedShip(PC->GetShipPawn()) ? EVisibility::Visible : EVisibility::Collapsed);
+			DockButton->SetVisibility(CanDock ? EVisibility::Visible : EVisibility::Collapsed);
+			UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
 
 			// Flyable ships
 			if (OwnedAndNotSelf && !TargetSpacecraft->IsStation())
