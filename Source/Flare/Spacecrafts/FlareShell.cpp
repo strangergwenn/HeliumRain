@@ -30,6 +30,8 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 	ShellDescription = Description;
 	TracerShell = Tracer;
 	ParentWeapon = Weapon;
+	Armed = false;
+	MinEffectiveDistance = 0.f;
 	float AmmoVelocity = 0.f;
 	// Get the power from description
 	if (Description)
@@ -117,6 +119,7 @@ void AFlareShell::Tick(float DeltaSeconds)
 
 					FVector ShellDirection = ShellVelocity.GetUnsafeNormal();
 					FVector CandidateOffset = ShipCandidate->GetActorLocation() - ActorLocation;
+					FVector NextCandidateOffset = ShipCandidate->GetActorLocation() - NextActorLocation;
 
 					// Min distance
 					float MinDistance = FVector::CrossProduct(CandidateOffset, ShellDirection).Size() / ShellDirection.Size();
@@ -133,13 +136,25 @@ void AFlareShell::Tick(float DeltaSeconds)
 						MinDistance = CandidateOffset.Size();
 					}
 
-					// Check if need to detonnate
-					float EffectiveDistance = MinDistance - ShipCandidate->GetMeshScale();
+					bool MinInFuture = false;
+					// Check if the min distance is not in the future
+					if(FVector::DotProduct(NextCandidateOffset, ShellDirection) > 0)
+					{
+						// The target is before the shell
+						MinDistance = NextCandidateOffset.Size();
+						MinInFuture = true;
+					}
+
+
 
 					float DistanceToMinDistancePoint;
 					if(CandidateOffset.Size() == MinDistance)
 					{
 						DistanceToMinDistancePoint = 0;
+					}
+					else if(NextCandidateOffset.Size() == MinDistance)
+					{
+						DistanceToMinDistancePoint = (NextActorLocation - ActorLocation).Size();
 					}
 					else
 					{
@@ -154,12 +169,9 @@ void AFlareShell::Tick(float DeltaSeconds)
 					FLOGV("End Distance %f",(NextActorLocation - ShipCandidate->GetActorLocation()).Size());
 */
 
-					if(DistanceToMinDistancePoint > (NextActorLocation - ActorLocation).Size())
-					{
-						FLOG("In future, wait");
-						// In future
-						continue;
-					}
+					// Check if need to detonnate
+					float EffectiveDistance = MinDistance - ShipCandidate->GetMeshScale();
+
 
 					if (EffectiveDistance < ShellDescription->GunCharacteristics.FuzeMinDistanceThresold *100)
 					{
@@ -180,13 +192,28 @@ void AFlareShell::Tick(float DeltaSeconds)
 
 						DetonateAt(DetonatePoint);
 					}
-					else if (EffectiveDistance < ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
+					else if(Armed && EffectiveDistance > MinEffectiveDistance)
 					{
-					//	FLOGV("Detonate because min distance reach EffectiveDistance=%f FuzeMaxDistanceThresold=%f", EffectiveDistance, ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
+						// We are armed and the distance as increase, detonate at nearest point
 						FVector DetonatePoint = ActorLocation + ShellDirection * DistanceToMinDistancePoint;
-					//	FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
 						DetonateAt(DetonatePoint);
-
+					}
+					else if(EffectiveDistance < ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
+					{
+						if(MinInFuture)
+						{
+							// In activation zone but we will be near in future, arm the fuze
+							Armed = true;
+							MinEffectiveDistance = EffectiveDistance;
+						}
+						else
+						{
+							// In activation zone and the min distance is reach in this step, detonate
+						//	FLOGV("Detonate because min distance reach EffectiveDistance=%f FuzeMaxDistanceThresold=%f", EffectiveDistance, ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
+							FVector DetonatePoint = ActorLocation + ShellDirection * DistanceToMinDistancePoint;
+						//	FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
+							DetonateAt(DetonatePoint);
+						}
 					}
 				}
 			}
@@ -447,7 +474,10 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 						if (Spacecraft)
 						{
 							// TODO Make common with onImpact
-							Spacecraft->GetDamageSystem()->ApplyDamage(ShellDescription->GunCharacteristics.AmmoPower, ShellDescription->GunCharacteristics.AmmoDamageRadius, BestHitResult.Location);
+
+							float FragmentPowerEffet = FMath::FRandRange(0.f, 2.f);
+							float FragmentRangeEffet = FMath::FRandRange(0.5f, 1.5f);
+							Spacecraft->GetDamageSystem()->ApplyDamage( FragmentPowerEffet * ShellDescription->GunCharacteristics.AmmoPower, FragmentRangeEffet  * ShellDescription->GunCharacteristics.AmmoDamageRadius, BestHitResult.Location);
 
 
 							// Play sound

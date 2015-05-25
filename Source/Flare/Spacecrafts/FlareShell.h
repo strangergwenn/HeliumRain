@@ -73,6 +73,8 @@ protected:
 	int32 ShellPower;
 	float ShellMass;
 	bool TracerShell;
+	bool Armed;
+	float MinEffectiveDistance;
 
 	UFlareWeapon* ParentWeapon;
 
