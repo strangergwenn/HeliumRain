@@ -111,9 +111,9 @@ void AFlareShell::Tick(float DeltaSeconds)
 						continue;
 					}
 
-					FLOG("=================");
+					/*FLOG("=================");
 					FLOGV("Proximity fuze near ship for %s",*GetHumanReadableName());
-
+*/
 
 					FVector ShellDirection = ShellVelocity.GetUnsafeNormal();
 					FVector CandidateOffset = ShipCandidate->GetActorLocation() - ActorLocation;
@@ -146,13 +146,13 @@ void AFlareShell::Tick(float DeltaSeconds)
 						DistanceToMinDistancePoint = FMath::Sqrt(CandidateOffset.SizeSquared() - FMath::Square(MinDistance));
 					}
 
-					FLOGV("ShipCandidate->GetMeshScale() %f",ShipCandidate->GetMeshScale());
+				/*	FLOGV("ShipCandidate->GetMeshScale() %f",ShipCandidate->GetMeshScale());
 					FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
 					FLOGV("Step distance %f",(NextActorLocation - ActorLocation).Size());
 					FLOGV("MinDistance %f",MinDistance);
 					FLOGV("Start Distance %f",(ActorLocation - ShipCandidate->GetActorLocation()).Size());
 					FLOGV("End Distance %f",(NextActorLocation - ShipCandidate->GetActorLocation()).Size());
-
+*/
 
 					if(DistanceToMinDistancePoint > (NextActorLocation - ActorLocation).Size())
 					{
@@ -164,27 +164,27 @@ void AFlareShell::Tick(float DeltaSeconds)
 					if (EffectiveDistance < ShellDescription->GunCharacteristics.FuzeMinDistanceThresold *100)
 					{
 						// Detonate because of too near. Find the detonate point.
-						FLOGV("Detonate because too near EffectiveDistance=%f FuzeMinDistanceThresold=%f", EffectiveDistance, ShellDescription->GunCharacteristics.FuzeMinDistanceThresold *100)
+					//	FLOGV("Detonate because too near EffectiveDistance=%f FuzeMinDistanceThresold=%f", EffectiveDistance, ShellDescription->GunCharacteristics.FuzeMinDistanceThresold *100)
 
 
 
 						float MinThresoldDistance = ShellDescription->GunCharacteristics.FuzeMinDistanceThresold *100 + ShipCandidate->GetMeshScale();
 
-						FLOGV("MinThresoldDistance %f",MinThresoldDistance);
+					//	FLOGV("MinThresoldDistance %f",MinThresoldDistance);
 						float DistanceToMinThresoldDistancePoint = FMath::Sqrt(FMath::Square(MinThresoldDistance) - FMath::Square(MinDistance));
-						FLOGV("DistanceToMinThresoldDistancePoint %f",DistanceToMinThresoldDistancePoint);
+					//	FLOGV("DistanceToMinThresoldDistancePoint %f",DistanceToMinThresoldDistancePoint);
 
 						float DistanceToDetonatePoint = DistanceToMinDistancePoint - DistanceToMinThresoldDistancePoint;
-						FLOGV("DistanceToDetonatePoint %f",DistanceToDetonatePoint);
+					//	FLOGV("DistanceToDetonatePoint %f",DistanceToDetonatePoint);
 						FVector DetonatePoint = ActorLocation + ShellDirection * DistanceToDetonatePoint;
 
 						DetonateAt(DetonatePoint);
 					}
 					else if (EffectiveDistance < ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
 					{
-						FLOGV("Detonate because min distance reach EffectiveDistance=%f FuzeMaxDistanceThresold=%f", EffectiveDistance, ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
+					//	FLOGV("Detonate because min distance reach EffectiveDistance=%f FuzeMaxDistanceThresold=%f", EffectiveDistance, ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
 						FVector DetonatePoint = ActorLocation + ShellDirection * DistanceToMinDistancePoint;
-						FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
+					//	FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
 						DetonateAt(DetonatePoint);
 
 					}
@@ -336,10 +336,10 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 
 void AFlareShell::DetonateAt(FVector DetonatePoint)
 {
-	FLOG("-------------");
+	/*FLOG("-------------");
 	FLOGV("Detonate at %s",*DetonatePoint.ToString());
 	FLOGV("AmmoExplosionRadius %f",ShellDescription->GunCharacteristics.AmmoExplosionRadius * 100);
-	if(ShellDescription && ShellDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	if(ShellDescription && ShellDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)*/
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this,
 			ExplosionEffectTemplate,
@@ -359,18 +359,18 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 				float CandidateDistance = CandidateOffset.Size();
 				float CandidateSize = ShipCandidate->GetMeshScale();
 
-				FLOGV("CandidateDistance %f",CandidateDistance);
-				FLOGV("CandidateSize %f",CandidateSize);
+				/*FLOGV("CandidateDistance %f",CandidateDistance);
+				FLOGV("CandidateSize %f",CandidateSize);*/
 
 				if(CandidateDistance > ShellDescription->GunCharacteristics.AmmoExplosionRadius * 100 + CandidateSize)
 				{
-					FLOG("Too far");
+					//FLOG("Too far");
 					continue;
 				}
 
 				//DrawDebugSphere(ParentWeapon->GetSpacecraft()->GetWorld(), ShipCandidate->GetActorLocation(), CandidateSize, 12, FColor::Magenta, true);
 
-				FLOGV("CandidateOffset at %s",*CandidateOffset.ToString());
+				//FLOGV("CandidateOffset at %s",*CandidateOffset.ToString());
 
 				// Find exposed surface
 				//Apparent radius
@@ -388,17 +388,17 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 
 				int FragmentCount = ShellDescription->GunCharacteristics.AmmoFragmentCount * ExposedSurfaceRatio;
 
-				FLOGV("ApparentRadius %f",ApparentRadius);
+				/*FLOGV("ApparentRadius %f",ApparentRadius);
 				FLOGV("Angle %f",FMath::RadiansToDegrees(Angle));
 				FLOGV("ExposedSurface %f",ExposedSurface);
 				FLOGV("TotalSurface %f",TotalSurface);
 				FLOGV("ExposedSurfaceRatio %f",ExposedSurfaceRatio);
-				FLOGV("FragmentCount %d",FragmentCount);
+				FLOGV("FragmentCount %d",FragmentCount);*/
 
 
 				TArray<UActorComponent*> Components = ShipCandidate->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
-				FLOGV("Component cont %d",Components.Num());
+				//FLOGV("Component cont %d",Components.Num());
 				for(int i = 0; i < FragmentCount; i ++)
 				{
 
@@ -428,7 +428,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 
 								}
 
-								FLOGV("Fragment %d hit %s at a distance=%f",i, *Component->GetReadableName(), HitDistance);
+								//FLOGV("Fragment %d hit %s at a distance=%f",i, *Component->GetReadableName(), HitDistance);
 								HasHit = true;
 							}
 						}
