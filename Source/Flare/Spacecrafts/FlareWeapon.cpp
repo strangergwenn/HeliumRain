@@ -142,7 +142,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 	}
 	else if(Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && IsTurret())
 	{
-		FLOG("!!!!!Failed to fire...");
+		/*FLOG("!!!!!Failed to fire...");
 		if(!(GetDamageRatio() > 0.f))
 		{
 			FLOG("... because of damages");
@@ -156,7 +156,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		if(!(Spacecraft && !Spacecraft->GetDamageSystem()->HasPowerOutage()))
 		{
 			FLOG("... because of power outage");
-		}
+		}*/
 	}
 }
 
@@ -229,3 +229,13 @@ bool UFlareWeapon::IsSafeToFire(int GunIndex) const
 	// Only turret are unsafe
 	return true;
 }
+
+float UFlareWeapon::GetAimRadius() const
+{
+	if(ComponentDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	{
+		return ComponentDescription->GunCharacteristics.FuzeMaxDistanceThresold;
+	}
+	return 0;
+}
+

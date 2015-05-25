@@ -29,6 +29,7 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 {
 	ShellDescription = Description;
 	TracerShell = Tracer;
+	ParentWeapon = Weapon;
 	float AmmoVelocity = 0.f;
 	// Get the power from description
 	if (Description)
@@ -40,6 +41,7 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 		DamageSound = Description->GunCharacteristics.DamageSound;
 
 		ExplosionEffectTemplate = Description->GunCharacteristics.ExplosionEffect;
+		ImpactEffectTemplate = Description->GunCharacteristics.ImpactEffect;
 		FlightEffectsTemplate = Description->GunCharacteristics.TracerEffect;
 
 		ExplosionEffectMaterial = Description->GunCharacteristics.ExplosionMaterial;
@@ -75,12 +77,123 @@ void AFlareShell::Tick(float DeltaSeconds)
 	SetActorLocation(NextActorLocation, false);
 	SetActorRotation(ShellVelocity.Rotation());
 
-	FHitResult HitResult(ForceInit);
-	if (Trace(ActorLocation, NextActorLocation, HitResult))
+	if(ShellDescription)
 	{
-		OnImpact(HitResult, ShellVelocity);
+		if(ShellDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Contact)
+		{
+			FHitResult HitResult(ForceInit);
+			if (Trace(ActorLocation, NextActorLocation, HitResult))
+			{
+				OnImpact(HitResult, ShellVelocity);
+			}
+		}
+		else if(ShellDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+		{
+
+			FVector Center = (NextActorLocation + ActorLocation) / 2;
+			float NearThresoldSquared = FMath::Square(100000); // 1km
+			for (TActorIterator<AActor> ActorItr(ParentWeapon->GetSpacecraft()->GetWorld()); ActorItr; ++ActorItr)
+			{
+
+				// Ship
+				AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+				if (ShipCandidate)
+				{
+					if(ShipCandidate == ParentWeapon->GetSpacecraft())
+					{
+						//Ignore parent spacecraft
+						continue;
+					}
+
+					// First check if near to filter distant ship
+					if((Center - ShipCandidate->GetActorLocation()).SizeSquared() > NearThresoldSquared)
+					{
+						continue;
+					}
+
+					FLOG("=================");
+					FLOGV("Proximity fuze near ship for %s",*GetHumanReadableName());
+
+
+					FVector ShellDirection = ShellVelocity.GetUnsafeNormal();
+					FVector CandidateOffset = ShipCandidate->GetActorLocation() - ActorLocation;
+
+					// Min distance
+					float MinDistance = FVector::CrossProduct(CandidateOffset, ShellDirection).Size() / ShellDirection.Size();
+					if(MinDistance > ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100 + ShipCandidate->GetMeshScale())
+					{
+						// Too far
+						continue;
+					}
+
+					// Check if the min distance is not in the past
+					if(FVector::DotProduct(CandidateOffset, ShellDirection) < 0)
+					{
+						// The target is behind the shell
+						MinDistance = CandidateOffset.Size();
+					}
+
+					// Check if need to detonnate
+					float EffectiveDistance = MinDistance - ShipCandidate->GetMeshScale();
+
+					float DistanceToMinDistancePoint;
+					if(CandidateOffset.Size() == MinDistance)
+					{
+						DistanceToMinDistancePoint = 0;
+					}
+					else
+					{
+						DistanceToMinDistancePoint = FMath::Sqrt(CandidateOffset.SizeSquared() - FMath::Square(MinDistance));
+					}
+
+					FLOGV("ShipCandidate->GetMeshScale() %f",ShipCandidate->GetMeshScale());
+					FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
+					FLOGV("Step distance %f",(NextActorLocation - ActorLocation).Size());
+					FLOGV("MinDistance %f",MinDistance);
+					FLOGV("Start Distance %f",(ActorLocation - ShipCandidate->GetActorLocation()).Size());
+					FLOGV("End Distance %f",(NextActorLocation - ShipCandidate->GetActorLocation()).Size());
+
+
+					if(DistanceToMinDistancePoint > (NextActorLocation - ActorLocation).Size())
+					{
+						FLOG("In future, wait");
+						// In future
+						continue;
+					}
+
+					if (EffectiveDistance < ShellDescription->GunCharacteristics.FuzeMinDistanceThresold *100)
+					{
+						// Detonate because of too near. Find the detonate point.
+						FLOGV("Detonate because too near EffectiveDistance=%f FuzeMinDistanceThresold=%f", EffectiveDistance, ShellDescription->GunCharacteristics.FuzeMinDistanceThresold *100)
+
+
+
+						float MinThresoldDistance = ShellDescription->GunCharacteristics.FuzeMinDistanceThresold *100 + ShipCandidate->GetMeshScale();
+
+						FLOGV("MinThresoldDistance %f",MinThresoldDistance);
+						float DistanceToMinThresoldDistancePoint = FMath::Sqrt(FMath::Square(MinThresoldDistance) - FMath::Square(MinDistance));
+						FLOGV("DistanceToMinThresoldDistancePoint %f",DistanceToMinThresoldDistancePoint);
+
+						float DistanceToDetonatePoint = DistanceToMinDistancePoint - DistanceToMinThresoldDistancePoint;
+						FLOGV("DistanceToDetonatePoint %f",DistanceToDetonatePoint);
+						FVector DetonatePoint = ActorLocation + ShellDirection * DistanceToDetonatePoint;
+
+						DetonateAt(DetonatePoint);
+					}
+					else if (EffectiveDistance < ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
+					{
+						FLOGV("Detonate because min distance reach EffectiveDistance=%f FuzeMaxDistanceThresold=%f", EffectiveDistance, ShellDescription->GunCharacteristics.FuzeMaxDistanceThresold *100)
+						FVector DetonatePoint = ActorLocation + ShellDirection * DistanceToMinDistancePoint;
+						FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
+						DetonateAt(DetonatePoint);
+
+					}
+				}
+			}
+		}
 	}
 }
+
 
 void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVelocity)
 {
@@ -129,7 +242,8 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(HitResult.Actor.Get());
 		if (Spacecraft)
 		{
-			Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, 0.75f, HitResult.Location);
+			// TODO Shell distance
+			Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, ShellDescription->GunCharacteristics.AmmoDamageRadius, HitResult.Location);
 			
 			// Play sound
 			AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
@@ -190,6 +304,14 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		// Keep bouncing
 		else
 		{
+			UGameplayStatics::SpawnEmitterAttached(
+				ImpactEffectTemplate,
+				Target,
+				NAME_None,
+				HitResult.Location,
+				HitResult.ImpactNormal.Rotation(),
+				EAttachLocation::KeepWorldPosition,
+				true);
 			DestroyProjectile = false;
 			float RemainingEnergy = ShellEnergy - AbsorbedEnergy;
 			float RemainingVelocity = FMath::Sqrt(2 * RemainingEnergy * 1000 / ShellMass);
@@ -210,6 +332,149 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 	{
 		Destroy();
 	}
+}
+
+void AFlareShell::DetonateAt(FVector DetonatePoint)
+{
+	FLOG("-------------");
+	FLOGV("Detonate at %s",*DetonatePoint.ToString());
+	FLOGV("AmmoExplosionRadius %f",ShellDescription->GunCharacteristics.AmmoExplosionRadius * 100);
+	if(ShellDescription && ShellDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this,
+			ExplosionEffectTemplate,
+			DetonatePoint);
+
+		// TODO Arm time to avoid to hit allied
+
+		//DrawDebugSphere(ParentWeapon->GetSpacecraft()->GetWorld(), DetonatePoint, ShellDescription->GunCharacteristics.AmmoExplosionRadius * 100, 12, FColor::Red, true);
+		for (TActorIterator<AActor> ActorItr(ParentWeapon->GetSpacecraft()->GetWorld()); ActorItr; ++ActorItr)
+		{
+			// Ship
+			AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+			if (ShipCandidate)
+			{
+				// First check if in radius area
+				FVector CandidateOffset = ShipCandidate->GetActorLocation() - DetonatePoint;
+				float CandidateDistance = CandidateOffset.Size();
+				float CandidateSize = ShipCandidate->GetMeshScale();
+
+				FLOGV("CandidateDistance %f",CandidateDistance);
+				FLOGV("CandidateSize %f",CandidateSize);
+
+				if(CandidateDistance > ShellDescription->GunCharacteristics.AmmoExplosionRadius * 100 + CandidateSize)
+				{
+					FLOG("Too far");
+					continue;
+				}
+
+				//DrawDebugSphere(ParentWeapon->GetSpacecraft()->GetWorld(), ShipCandidate->GetActorLocation(), CandidateSize, 12, FColor::Magenta, true);
+
+				FLOGV("CandidateOffset at %s",*CandidateOffset.ToString());
+
+				// Find exposed surface
+				//Apparent radius
+				float ApparentRadius = FMath::Sqrt(FMath::Square(CandidateDistance) + FMath::Square(CandidateSize));
+
+				float Angle = FMath::Acos(CandidateDistance/ApparentRadius);
+
+				//DrawDebugSphere(ParentWeapon->GetSpacecraft()->GetWorld(), DetonatePoint, ApparentRadius, 12, FColor::Yellow, true);
+
+				float ExposedSurface = 2 * PI * ApparentRadius * (ApparentRadius - CandidateDistance);
+				float TotalSurface = 4 * PI * FMath::Square(ApparentRadius);
+
+				float ExposedSurfaceRatio = ExposedSurface / TotalSurface;
+
+
+				int FragmentCount = ShellDescription->GunCharacteristics.AmmoFragmentCount * ExposedSurfaceRatio;
+
+				FLOGV("ApparentRadius %f",ApparentRadius);
+				FLOGV("Angle %f",FMath::RadiansToDegrees(Angle));
+				FLOGV("ExposedSurface %f",ExposedSurface);
+				FLOGV("TotalSurface %f",TotalSurface);
+				FLOGV("ExposedSurfaceRatio %f",ExposedSurfaceRatio);
+				FLOGV("FragmentCount %d",FragmentCount);
+
+
+				TArray<UActorComponent*> Components = ShipCandidate->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+
+				FLOGV("Component cont %d",Components.Num());
+				for(int i = 0; i < FragmentCount; i ++)
+				{
+
+					FVector HitDirection = FMath::VRandCone(CandidateOffset, Angle);
+
+					bool HasHit = false;
+					FHitResult BestHitResult;
+					float BestHitDistance;
+
+					for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+					{
+						UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+						if(Component)
+						{
+							FHitResult HitResult(ForceInit);
+							FCollisionQueryParams TraceParams(FName(TEXT("Fragment Trace")), true, this);
+							TraceParams.bTraceComplex = true;
+							TraceParams.bReturnPhysicalMaterial = false;
+							Component->LineTraceComponent(HitResult, DetonatePoint, DetonatePoint + HitDirection * 2* CandidateDistance, TraceParams);
+
+							if(HitResult.Actor.IsValid()){
+								float HitDistance = (HitResult.Location - DetonatePoint).Size();
+								if(!HasHit || HitDistance < BestHitDistance)
+								{
+									BestHitDistance = HitDistance;
+									BestHitResult = HitResult;
+
+								}
+
+								FLOGV("Fragment %d hit %s at a distance=%f",i, *Component->GetReadableName(), HitDistance);
+								HasHit = true;
+							}
+						}
+
+					}
+
+					if(!HasHit)
+					{
+						//DrawDebugLine(ParentWeapon->GetSpacecraft()->GetWorld(), DetonatePoint, DetonatePoint + HitDirection * ShellDescription->GunCharacteristics.AmmoExplosionRadius * 100, FColor::Blue, true);
+					}
+					else
+					{
+						//DrawDebugLine(ParentWeapon->GetSpacecraft()->GetWorld(), DetonatePoint, BestHitResult.Location, FColor::Green, true);
+
+						AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(BestHitResult.Actor.Get());
+						if (Spacecraft)
+						{
+							// TODO Make common with onImpact
+							Spacecraft->GetDamageSystem()->ApplyDamage(ShellDescription->GunCharacteristics.AmmoPower, ShellDescription->GunCharacteristics.AmmoDamageRadius, BestHitResult.Location);
+
+
+							// Play sound
+							AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
+							if (ShipBase && ShipBase->IsLocallyControlled())
+							{
+								UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, BestHitResult.Location, 1, 1);
+							}
+						}
+
+						UGameplayStatics::SpawnEmitterAttached(
+							ImpactEffectTemplate,
+							BestHitResult.GetComponent(),
+							NAME_None,
+							BestHitResult.Location,
+							BestHitResult.ImpactNormal.Rotation(),
+							EAttachLocation::KeepWorldPosition,
+							true);
+					}
+
+
+				}
+			}
+		}
+
+	}
+	Destroy();
 }
 
 bool AFlareShell::Trace(const FVector& Start, const FVector& End, FHitResult& HitOut)

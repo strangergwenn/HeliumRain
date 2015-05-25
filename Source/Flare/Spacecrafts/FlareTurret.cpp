@@ -236,8 +236,8 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 		if(FMath::Abs(BarrelAngleDiff) <= ComponentDescription->TurretCharacteristics.BarrelsAngularVelocity * DeltaTime) {
 
-			FLOGV("Mouvement end: AimDirection %s", *AimDirection.ToString());
-			FLOGV("               Control fire axis %s", *GetFireAxis().ToString());
+			/*FLOGV("Mouvement end: AimDirection %s", *AimDirection.ToString());
+			FLOGV("               Control fire axis %s", *GetFireAxis().ToString());*/
 		}
 	}
 

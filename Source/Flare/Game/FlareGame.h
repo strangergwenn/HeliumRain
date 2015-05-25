@@ -75,6 +75,10 @@ public:
 	UFUNCTION(exec)
 	AFlareSpacecraft* CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance);
 
+	/** Create ships in the level for a specific company identified by its short name*/
+	UFUNCTION(exec)
+	void CreateShipsInCompany(FName ShipClass, FName CompanyShortName, float Distance, int32 Count);
+
 	/** Create a ship in the level  for a specific company */
 	AFlareSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
 

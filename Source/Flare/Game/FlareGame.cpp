@@ -420,6 +420,42 @@ AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName Company
 	return ShipPawn;
 }
 
+void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, float Distance, int32 Count)
+{
+	AFlareSpacecraft* ShipPawn = NULL;
+	FVector TargetPosition = FVector::ZeroVector;
+	FVector BaseShift = FVector::ZeroVector;
+
+	// Get target position
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
+		if (ExistingShipPawn)
+		{
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
+			BaseShift = ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(0, 1, 0)); // 100m
+		}
+	}
+
+	// Find company
+	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+	{
+		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+		if (Company && Company->GetShortName() == CompanyShortName)
+		{
+			for(int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
+			{
+				FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1:-1);
+				CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition + Shift);
+			}
+
+			break;
+		}
+	}
+}
+
+
 AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
 {
 	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);

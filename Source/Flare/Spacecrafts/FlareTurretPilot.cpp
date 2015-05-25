@@ -74,10 +74,20 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 	PilotTargetShip = GetNearestHostileShip(false, true, 120000);
 
+	if(!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(false, false, 500000);
+	}
+
 	// No dangerous ship, try not dangerous ships
 	if(!PilotTargetShip)
 	{
 		PilotTargetShip = GetNearestHostileShip(false, false, 120000);
+	}
+
+	if(!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(false, false, 500000);
 	}
 
 	if(PilotTargetShip)
@@ -93,18 +103,18 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 
 		AimAxis = (PredictedFireTargetLocation - TurretLocation).GetUnsafeNormal();
-		FLOGV("%s Have target AimAxis=%s",*Turret->GetReadableName(),  * AimAxis.ToString());
+		/*FLOGV("%s Have target AimAxis=%s",*Turret->GetReadableName(),  * AimAxis.ToString());
+*/
 
-
-		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
+		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f + Turret->GetAimRadius(); // Radius in meters
 		FVector DeltaLocation = (PilotTargetShip->GetActorLocation()-TurretLocation) / 100.f;
 		float Distance = DeltaLocation.Size(); // Distance in meters
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(Distance < (DangerousTarget ? 1200.f : 600.f) + 4 * TargetSize)
+		if(Distance < (DangerousTarget ? 10000.f : 5000.f) + 4 * TargetSize)
 		{
-			FLOG("Near enough");
+			//FLOG("Near enough");
 			FVector FireAxis = Turret->GetFireAxis();
 
 
@@ -114,20 +124,20 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 				// Compute target Axis for each gun
 				FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(MuzzleLocation, TurretVelocity , AmmoVelocity, 0) - MuzzleLocation).GetUnsafeNormal();
-				FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
+				/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
 				FLOGV("Gun %d FireTargetAxis=%s", GunIndex, *FireTargetAxis.ToString());
-
+*/
 				float AngularPrecisionDot = FVector::DotProduct(FireTargetAxis, FireAxis);
 				float AngularPrecision = FMath::Acos(AngularPrecisionDot);
 				float AngularSize = FMath::Atan(TargetSize / Distance);
 
-				FLOGV("Gun %d Distance=%f", GunIndex, Distance);
+			/*	FLOGV("Gun %d Distance=%f", GunIndex, Distance);
 				FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
 				FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
-				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);
+				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if(AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
-					FLOG("Want Fire");
+					/*FLOG("Want Fire");*/
 					WantFire = true;
 					break;
 				}
@@ -138,7 +148,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		{
 			// TODO Fire on dangerous target
 			WantFire = false;
-			FLOG("Want Fire but too hot");
+			/*FLOG("Want Fire but too hot");*/
 		}
 	}
 }

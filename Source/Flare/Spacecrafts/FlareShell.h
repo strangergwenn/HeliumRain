@@ -25,6 +25,8 @@ public:
 	UFUNCTION()
 	void OnImpact(const FHitResult& HitResult, const FVector& ImpactVelocity);
 
+	virtual void DetonateAt(FVector DetonatePoint);
+
 	bool Trace(const FVector& Start, const FVector& End, FHitResult& HitOut);
 
 protected:
@@ -49,6 +51,10 @@ protected:
 	UPROPERTY()
 	UParticleSystem*                         ExplosionEffectTemplate;
 
+	/** Special effects on impact */
+	UPROPERTY()
+	UParticleSystem*                         ImpactEffectTemplate;
+
 	/** Special effects on flight */
 	UPROPERTY()
 	UParticleSystem*                         FlightEffectsTemplate;
@@ -67,5 +73,7 @@ protected:
 	int32 ShellPower;
 	float ShellMass;
 	bool TracerShell;
+
+	UFlareWeapon* ParentWeapon;
 
 };

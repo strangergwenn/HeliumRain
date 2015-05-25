@@ -280,7 +280,7 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 		SetStaticMesh(ComponentDescription->Mesh);
 		SetMaterial(0, ComponentDescription->Mesh->GetMaterial(0));
 	}
-	else
+	else if (ComponentDescription && !ComponentDescription->Mesh)
 	{
 		bVisible = false;
 	}

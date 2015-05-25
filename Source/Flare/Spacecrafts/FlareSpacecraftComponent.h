@@ -60,6 +60,29 @@ namespace EFlareLightStatus
 	};
 }
 
+/** Shell fuze type */
+UENUM()
+namespace EFlareShellFuzeType
+{
+	enum Type
+	{
+		Contact, // The shell explode on contact
+		Proximity, // The shell explode near the target
+	};
+}
+
+/** Shell damage type */
+UENUM()
+namespace EFlareShellDamageType
+{
+	enum Type
+	{
+		HighExplosive, // Explosion send shell pieces around at hight velocity.
+		ArmourPiercing, // Not explosive shell, The damage are done by kinetic energy. Classique bullets.
+		HEAT, // Heat Explosive Anti Tank. The explosion is focalized in a hot beam of metal melting armor.
+	};
+}
+
 /** Component general characteristic */
 USTRUCT()
 struct FFlareSpacecraftComponentGeneralCharacteristics
@@ -109,8 +132,20 @@ struct FFlareSpacecraftComponentGunCharacteristics
 	/** Is a gun  */
 	UPROPERTY(EditAnywhere, Category = Content) bool IsGun;
 
-	/** Shell energy in KJ */
+	/** Damage type */
+	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlareShellDamageType::Type> DamageType;
+
+	/** Shell (or fragment) energy in KJ */
 	UPROPERTY(EditAnywhere, Category = Content) float AmmoPower;
+
+	/** Shell fragment count (for HE shell) */
+	UPROPERTY(EditAnywhere, Category = Content) int32 AmmoFragmentCount;
+
+	/** Ammo damage radius */
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoDamageRadius;
+
+	/** Ammo explosion effective radius (for HE shell) */
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoExplosionRadius;
 
 	/** Weapon firerate in ammo/min */
 	UPROPERTY(EditAnywhere, Category = Content) float AmmoRate;
@@ -130,6 +165,15 @@ struct FFlareSpacecraftComponentGunCharacteristics
 	/** If true, the gun fire one shell at each fire activation */
 	UPROPERTY(EditAnywhere, Category = Content) bool SemiAutomaticFire;
 
+	/** Damage type */
+	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlareShellFuzeType::Type> FuzeType;
+
+	/** If proximity fuse, below this distance the shell will explode */
+	UPROPERTY(EditAnywhere, Category = Content) float FuzeMinDistanceThresold;
+
+	/** If proximity fuse, above this distance the shell will no trig*/
+	UPROPERTY(EditAnywhere, Category = Content) float FuzeMaxDistanceThresold;
+
 	/** Sound played on impact */
 	UPROPERTY(EditAnywhere, Category = Content) USoundCue* ImpactSound;
 
@@ -141,6 +185,9 @@ struct FFlareSpacecraftComponentGunCharacteristics
 
 	/** Effect shown with a shell explode */
 	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ExplosionEffect;
+
+	/** Effect shown with a shell or a fragment impact a target */
+	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ImpactEffect;
 
 	/** Effect used when firing */
 	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* FiringEffect;
