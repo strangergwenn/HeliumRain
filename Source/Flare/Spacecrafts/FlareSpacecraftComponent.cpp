@@ -503,6 +503,10 @@ void UFlareSpacecraftComponent::UpdatePowerSources(TArray<UFlareSpacecraftCompon
 	}
 }
 
+float UFlareSpacecraftComponent::GetUsableRatio() const
+{
+	return GetDamageRatio() * (IsPowered() ? 1 : 0) * (Spacecraft && Spacecraft->GetDamageSystem()->HasPowerOutage() ? 0 : 1);
+}
 
 float UFlareSpacecraftComponent::GetHeatProduction() const
 {
@@ -511,7 +515,7 @@ float UFlareSpacecraftComponent::GetHeatProduction() const
 
 float UFlareSpacecraftComponent::GetHeatSinkSurface() const
 {
-	return HeatSinkSurface * (0.1 +  9 * GetDamageRatio() * (IsPowered() ? 1 : 0) * (Spacecraft && Spacecraft->GetDamageSystem()->HasPowerOutage() ? 0 : 1) / 10);
+	return HeatSinkSurface * (0.1 +  9 * GetUsableRatio() / 10);
 }
 
 bool UFlareSpacecraftComponent::IsHeatSink() const

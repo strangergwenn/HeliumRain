@@ -95,7 +95,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered() && Spacecraft && !Spacecraft->GetDamageSystem()->HasPowerOutage())
+	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetUsableRatio() > 0.f)
 	{
 		if (ComponentDescription->GunCharacteristics.AlternedFire)
 		{

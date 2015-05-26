@@ -444,6 +444,8 @@ public:
 	/** Return true if is a generator (broken or not) */
 	virtual bool IsGenerator() const;
 
+	virtual float GetUsableRatio() const;
+
 	/** Return the current amount of heat production in KW */
 	virtual float GetHeatProduction() const;
 

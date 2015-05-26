@@ -58,6 +58,7 @@ protected:
 
 	float                                    TurretAngle;
 	float                                    BarrelAngle;
+	FVector  								 AimDirection;
 	// TODO Save
 
 public:

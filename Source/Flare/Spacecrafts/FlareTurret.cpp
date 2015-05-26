@@ -27,6 +27,7 @@ void UFlareTurret::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	// TODO Save angles
 	TurretAngle = 0;
 	BarrelAngle = 0;
+	AimDirection = FVector::ZeroVector;
 
 	// Initialize pilot
 	Pilot = NewObject<UFlareTurretPilot>(this, UFlareTurretPilot::StaticClass());
@@ -80,8 +81,8 @@ void UFlareTurret::SetupComponentMesh()
 
 void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
-	FVector AimDirection = FVector::ZeroVector;
-	if (Pilot)
+
+	if (Spacecraft->GetDamageSystem()->IsAlive() && Pilot)
 	{
 
 		Pilot->TickPilot(DeltaTime);
@@ -98,146 +99,75 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		//FLOGV("Pilot AimDirection %s", *AimDirection.ToString());
 	}
 
-
-
-	if(TurretComponent && ComponentDescription)
+	if(Spacecraft->GetDamageSystem()->IsAlive() && GetUsableRatio() > 0)
 	{
 
-		float TargetTurretAngle = 0;
-		if(AimDirection != FVector::ZeroVector)
+		if(TurretComponent && ComponentDescription)
 		{
-			FVector LocalTurretAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
 
-		/*	FLOG("==================");
-			FLOGV("AimDirection %s", *AimDirection.ToString());
-			FLOGV("LocalTurretAimDirection %s", *LocalTurretAimDirection.ToString());
-		*/
-			TargetTurretAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
-		}
-		//FLOGV("TargetTurretAngle %f", TargetTurretAngle);
-		//float TargetBarrelAngle = FMath::RadiansToDegrees(FMath::Atan2(LocalAimDirection.Z, FMath::Sqrt(FMath::Square(LocalAimDirection.X) + FMath::Square(LocalAimDirection.Y))) + 180);
-		//float TargetBarrelAngle = - FMath::RadiansToDegrees(FMath::Atan2(LocalAimDirection.X, LocalAimDirection.Z)) + 90;
-
-	/*	FLOGV("TargetTurretAngle %f", TargetTurretAngle);
-
-		FLOGV("Atan2 Y,X= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
-		FLOGV("Atan2 X,Y= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.X, LocalTurretAimDirection.Y)));
-		FLOGV("Atan2 Z,X= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Z, LocalTurretAimDirection.X)));
-		FLOGV("Atan2 X,Z= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.X, LocalTurretAimDirection.Z)));
-		FLOGV("Atan2 Y,Z= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.Z)));
-		FLOGV("Atan2 Z,Y= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Z, LocalTurretAimDirection.Y)));
-*/
-		// Clamp movements
-		TargetTurretAngle = FMath::Clamp(TargetTurretAngle, ComponentDescription->TurretCharacteristics.TurretMinAngle, ComponentDescription->TurretCharacteristics.TurretMaxAngle);
-
-	//	FLOGV("TargetTurretAngle after clamp %f", TargetTurretAngle);
-
-
-		float TurretAngleDiff = FMath::UnwindDegrees(TargetTurretAngle - TurretAngle);
-
-		/*FLOGV("TurretAngleDiff %f", TurretAngleDiff);
-		FLOGV("BarrelsMinAngle %f", ComponentDescription->TurretCharacteristics.TurretMinAngle);
-		FLOGV("BarrelsMaxAngle %f", ComponentDescription->TurretCharacteristics.TurretMaxAngle);
-		FLOGV("BarrelsAngularVelocity %f", ComponentDescription->TurretCharacteristics.TurretAngularVelocity);
-
-*/
-		if(FMath::Abs(TurretAngleDiff) <= ComponentDescription->TurretCharacteristics.TurretAngularVelocity * DeltaTime) {
-			TurretAngle = TargetTurretAngle;
-		} else if(TurretAngleDiff < 0) {
-			TurretAngle -= ComponentDescription->TurretCharacteristics.TurretAngularVelocity * DeltaTime;
-		} else {
-			TurretAngle += ComponentDescription->TurretCharacteristics.TurretAngularVelocity * DeltaTime;
-		}
-	//	FLOGV("TurretAngle after move %f", TurretAngle);
-
-		TurretComponent->SetRelativeRotation(FRotator(0, TurretAngle, 0));
-	}
-
-	if (BarrelComponent)
-	{
-
-		float TargetBarrelAngle = 0;
-
-		if(AimDirection != FVector::ZeroVector)
-		{
-			FVector LocalBarrelAimDirection;
-			if (TurretComponent)
+			float TargetTurretAngle = 0;
+			if(AimDirection != FVector::ZeroVector)
 			{
-				LocalBarrelAimDirection = TurretComponent->GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
-			}
-			else
-			{
-				LocalBarrelAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
+				FVector LocalTurretAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
+				TargetTurretAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
 			}
 
-			TargetBarrelAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
-		}
-		//FLOGV("TargetBarrelAngle %f", TargetBarrelAngle);
+			// Clamp movements
+			TargetTurretAngle = FMath::Clamp(TargetTurretAngle, ComponentDescription->TurretCharacteristics.TurretMinAngle, ComponentDescription->TurretCharacteristics.TurretMaxAngle);
 
-		/*FLOGV("TargetBarrelAngle %f", TargetBarrelAngle);
+			float UsableTurretVelocity = GetUsableRatio() * ComponentDescription->TurretCharacteristics.TurretAngularVelocity;
 
-		FLOGV("Atan2 Y,X= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Y, LocalBarrelAimDirection.X)));
-		FLOGV("Atan2 X,Y= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.X, LocalBarrelAimDirection.Y)));
-		FLOGV("Atan2 Z,X= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
-		FLOGV("Atan2 X,Z= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.X, LocalBarrelAimDirection.Z)));
-		FLOGV("Atan2 Y,Z= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Y, LocalBarrelAimDirection.Z)));
-		FLOGV("Atan2 Z,Y= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.Y)));
-*/
-		//float temp = TargetBarrelAngle;
-		// Clamp movements
-		TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, ComponentDescription->TurretCharacteristics.BarrelsMinAngle, ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
+			float TurretAngleDiff = FMath::UnwindDegrees(TargetTurretAngle - TurretAngle);
 
-	//	FLOGV("TargetBarrelAngle after clamp %f", TargetBarrelAngle);
+			if(FMath::Abs(TurretAngleDiff) <= UsableTurretVelocity * DeltaTime) {
+				TurretAngle = TargetTurretAngle;
+			} else if(TurretAngleDiff < 0) {
+				TurretAngle -= UsableTurretVelocity * DeltaTime;
+			} else {
+				TurretAngle += UsableTurretVelocity * DeltaTime;
+			}
 
-		// TODO Add ship specific bound
-
-		float BarrelAngleDiff = FMath::UnwindDegrees(TargetBarrelAngle - BarrelAngle);
-
-
-	/*	FLOGV("BarrelAngleDiff %f", BarrelAngleDiff);
-		FLOGV("BarrelsMinAngle %f", ComponentDescription->TurretCharacteristics.BarrelsMinAngle);
-		FLOGV("BarrelsMaxAngle %f", ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
-		FLOGV("BarrelsAngularVelocity %f", ComponentDescription->TurretCharacteristics.BarrelsAngularVelocity);
-*/
-		//float temp2 = BarrelAngle;
-		if(FMath::Abs(BarrelAngleDiff) <= ComponentDescription->TurretCharacteristics.BarrelsAngularVelocity * DeltaTime) {
-			BarrelAngle = TargetBarrelAngle;
-		} else if(BarrelAngleDiff < 0) {
-			BarrelAngle -= ComponentDescription->TurretCharacteristics.BarrelsAngularVelocity * DeltaTime;
-		} else {
-			BarrelAngle += ComponentDescription->TurretCharacteristics.BarrelsAngularVelocity * DeltaTime;
+			TurretComponent->SetRelativeRotation(FRotator(0, TurretAngle, 0));
 		}
 
-		/*if(BarrelAngle != temp2)
+		if (BarrelComponent)
 		{
-			FLOG("==================");
-			FLOGV("AimDirection %s", *AimDirection.ToString());
-			FLOGV("LocalBarrelAimDirection %s", *LocalBarrelAimDirection.ToString());
 
-			FLOGV("BarrelAngle before move %f", temp2);
-			FLOGV("TargetBarrelAngle %f", temp);
+			float TargetBarrelAngle = 0;
 
-			FLOGV("Atan2 Y,X= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Y, LocalBarrelAimDirection.X)));
-			FLOGV("Atan2 X,Y= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.X, LocalBarrelAimDirection.Y)));
-			FLOGV("Atan2 Z,X= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
-			FLOGV("Atan2 X,Z= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.X, LocalBarrelAimDirection.Z)));
-			FLOGV("Atan2 Y,Z= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Y, LocalBarrelAimDirection.Z)));
-			FLOGV("Atan2 Z,Y= %f", FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.Y)));
-			FLOGV("TargetBarrelAngle after clamp %f", TargetBarrelAngle);
-			FLOGV("BarrelAngleDiff %f", BarrelAngleDiff);
-			FLOGV("BarrelsMinAngle %f", ComponentDescription->TurretCharacteristics.BarrelsMinAngle);
-			FLOGV("BarrelsMaxAngle %f", ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
-			FLOGV("BarrelsAngularVelocity %f", ComponentDescription->TurretCharacteristics.BarrelsAngularVelocity);
-			FLOGV("BarrelAngle after move %f", BarrelAngle);
-		}*/
-	//	FLOGV("BarrelAngle after move %f", BarrelAngle);
+			if(AimDirection != FVector::ZeroVector)
+			{
+				FVector LocalBarrelAimDirection;
+				if (TurretComponent)
+				{
+					LocalBarrelAimDirection = TurretComponent->GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
+				}
+				else
+				{
+					LocalBarrelAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(AimDirection);
+				}
 
-		BarrelComponent->SetRelativeRotation(FRotator(BarrelAngle, 0, 0));
+				TargetBarrelAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
+			}
 
-		if(FMath::Abs(BarrelAngleDiff) <= ComponentDescription->TurretCharacteristics.BarrelsAngularVelocity * DeltaTime) {
+			// Clamp movements
+			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, ComponentDescription->TurretCharacteristics.BarrelsMinAngle, ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
 
-			/*FLOGV("Mouvement end: AimDirection %s", *AimDirection.ToString());
-			FLOGV("               Control fire axis %s", *GetFireAxis().ToString());*/
+
+			// TODO Add ship specific bound
+
+			float UsableBarrelsVelocity = GetUsableRatio() * ComponentDescription->TurretCharacteristics.TurretAngularVelocity;
+			float BarrelAngleDiff = FMath::UnwindDegrees(TargetBarrelAngle - BarrelAngle);
+
+			if(FMath::Abs(BarrelAngleDiff) <= UsableBarrelsVelocity * DeltaTime) {
+				BarrelAngle = TargetBarrelAngle;
+			} else if(BarrelAngleDiff < 0) {
+				BarrelAngle -= UsableBarrelsVelocity * DeltaTime;
+			} else {
+				BarrelAngle += UsableBarrelsVelocity * DeltaTime;
+			}
+			BarrelComponent->SetRelativeRotation(FRotator(BarrelAngle, 0, 0));
+
 		}
 	}
 

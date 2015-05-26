@@ -52,7 +52,7 @@ float UFlareEngine::GetEffectiveAlpha() const
 {
 	if (Spacecraft)
 	{
-		return ExhaustAlpha * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Spacecraft->GetDamageSystem()->HasPowerOutage() ? 0 : 1);
+		return ExhaustAlpha * GetUsableRatio();
 	}
 	else
 	{
@@ -86,7 +86,7 @@ float UFlareEngine::GetMaxThrust() const
 {
 	if (Spacecraft)
 	{
-		return MaxThrust * GetDamageRatio() * (IsPowered() ? 1 : 0)  * (Spacecraft->GetDamageSystem()->HasPowerOutage() ? 0 : 1);
+		return MaxThrust * GetUsableRatio();
 	}
 	else
 	{
