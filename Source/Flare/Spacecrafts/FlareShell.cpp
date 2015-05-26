@@ -340,14 +340,14 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 
 				int FragmentCount =  FMath::RandRange(0,2) + ShellDescription->GunCharacteristics.AmmoFragmentCount * ExposedSurfaceRatio;
 
-				FLOGV("CandidateDistance %f",CandidateDistance);
+				/*FLOGV("CandidateDistance %f",CandidateDistance);
 				FLOGV("CandidateSize %f",CandidateSize);
 				FLOGV("ApparentRadius %f",ApparentRadius);
 				FLOGV("Angle %f",FMath::RadiansToDegrees(Angle));
 				FLOGV("ExposedSurface %f",ExposedSurface);
 				FLOGV("TotalSurface %f",TotalSurface);
 				FLOGV("ExposedSurfaceRatio %f",ExposedSurfaceRatio);
-				FLOGV("FragmentCount %d",FragmentCount);
+				FLOGV("FragmentCount %d",FragmentCount);*/
 
 
 				TArray<UActorComponent*> Components = ShipCandidate->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
@@ -464,6 +464,10 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	{
 		Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, ImpactRadius, ImpactLocation);
 
+		// Physics impulse
+		Spacecraft->Airframe->AddImpulseAtLocation( 10000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
+
+
 		// Play sound
 		AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
 		if (ShipBase && ShipBase->IsLocallyControlled())
@@ -499,12 +503,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 
 	if (ShipComponent && ShipComponent->IsVisibleByPlayer())
 	{
-		// Physics impulse
-		UMeshComponent* PhysMesh = Cast<UMeshComponent>(ShipComponent);
-		if (PhysMesh)
-		{
-			PhysMesh->AddImpulseAtLocation( 10 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
-		}
+
 
 		UGameplayStatics::SpawnEmitterAttached(
 			ImpactEffectTemplate,
