@@ -360,7 +360,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 
 					bool HasHit = false;
 					FHitResult BestHitResult;
-					float BestHitDistance;
+					float BestHitDistance = 0;
 
 					for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 					{
@@ -379,7 +379,6 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 								{
 									BestHitDistance = HitDistance;
 									BestHitResult = HitResult;
-
 								}
 
 								//FLOGV("Fragment %d hit %s at a distance=%f",i, *Component->GetReadableName(), HitDistance);
