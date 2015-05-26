@@ -5,6 +5,7 @@
 #include "FlareTurretPilot.h"
 #include "FlareTurret.generated.h"
 
+class UFlareSpacecraftSubComponent;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareTurret : public UFlareWeapon
@@ -37,6 +38,8 @@ public:
 
 	virtual bool IsReacheableAxis(FVector TargetAxis) const;
 
+	virtual void GetBoundingSphere(FVector& Location, float& Radius) override;
+
 	// TODO Put in help with FlareShell::Trace
 	bool Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const;
 
@@ -47,9 +50,9 @@ protected:
 	----------------------------------------------------*/
 	/** Mesh component */
 	UPROPERTY()
-	UStaticMeshComponent*                    TurretComponent;
+	UFlareSpacecraftSubComponent*                    TurretComponent;
 	UPROPERTY()
-	UStaticMeshComponent*                    BarrelComponent;
+	UFlareSpacecraftSubComponent*                    BarrelComponent;
 
 	// Pilot object
 	UPROPERTY()

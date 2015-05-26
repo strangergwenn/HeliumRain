@@ -43,14 +43,15 @@ void UFlareTurret::SetupComponentMesh()
 	if (Spacecraft && ComponentDescription && ComponentDescription->TurretCharacteristics.TurretMesh)
 	{
 
-		TurretComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), TEXT("TurretMesh"));
+		TurretComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass(), TEXT("TurretMesh"));
 		 if(TurretComponent)
 		 {
+			TurretComponent->SetParentSpacecraftComponent(this);
 			TurretComponent->RegisterComponent();
 			TurretComponent->AttachTo(this);
 			TurretComponent->SetStaticMesh(ComponentDescription->TurretCharacteristics.TurretMesh);
 			TurretComponent->SetMaterial(0, ComponentDescription->TurretCharacteristics.TurretMesh->GetMaterial(0));
-			// TODO Material customization
+			TurretComponent->Initialize(NULL, PlayerCompany, Spacecraft, false);
 		}
 	}
 
@@ -58,9 +59,10 @@ void UFlareTurret::SetupComponentMesh()
 	if (Spacecraft && ComponentDescription && ComponentDescription->TurretCharacteristics.BarrelsMesh)
 	{
 
-		BarrelComponent = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass() , TEXT("BarrelMesh"));
+		BarrelComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass() , TEXT("BarrelMesh"));
 		 if (BarrelComponent)
 		 {
+			 BarrelComponent->SetParentSpacecraftComponent(this);
 			BarrelComponent->RegisterComponent();
 			if (TurretComponent)
 			{
@@ -312,4 +314,17 @@ bool UFlareTurret::IsReacheableAxis(FVector TargetAxis) const
 		}
 	}
 	return true;
+}
+
+
+void UFlareTurret::GetBoundingSphere(FVector& Location, float& SphereRadius)
+{
+	if(TurretComponent)
+	{
+		TurretComponent->GetBoundingSphere(Location, SphereRadius);
+	}
+	else
+	{
+		Super::GetBoundingSphere(Location, SphereRadius);
+	}
 }
