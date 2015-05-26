@@ -3,6 +3,7 @@
 #include "FlareSpacecraftComponent.h"
 #include "FlareWeapon.generated.h"
 
+class AFlareShell;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareWeapon : public UFlareSpacecraftComponent
@@ -53,6 +54,12 @@ public:
 	/** Return the aim need minimum radius. 0 if not proximity fuze */
 	virtual float GetAimRadius() const;
 
+	virtual bool FireGun(int GunIndex);
+
+	virtual void ConfigureShellFuze(AFlareShell* Shell);
+
+	virtual void SetTarget(AActor *NewTarget);
+
 protected:
 
 	/*----------------------------------------------------
@@ -71,6 +78,8 @@ protected:
 	UPROPERTY()
 	UParticleSystemComponent*   FiringEffect;
 
+	UPROPERTY()
+	AActor *                    Target;
 	// Weapon properties
 	float                       FiringRate;
 	float                       FiringPeriod;
@@ -82,7 +91,7 @@ protected:
 	bool                        Firing;
 	float                       TimeSinceLastShell;
 	int32                       CurrentAmmo;
-
+	int                         LastFiredGun;
 
 public:
 

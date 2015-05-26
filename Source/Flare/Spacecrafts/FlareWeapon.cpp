@@ -12,6 +12,7 @@
 UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, FiringEffect(NULL)
+	, Target(NULL)
 	, FiringRate(0)
 	, MaxAmmo(0)
 	, Firing(false)
@@ -58,6 +59,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	// Additional properties
 	CurrentAmmo = MaxAmmo - FiredAmmo;
 	FiringPeriod = 1 / (FiringRate / 60);
+	LastFiredGun = -1;
 
 	if (FiringEffect == NULL && FiringEffectTemplate)
 	{
@@ -95,69 +97,110 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetDamageRatio() > 0.f && IsPowered() && Spacecraft && !Spacecraft->GetDamageSystem()->HasPowerOutage())
 	{
-		for(int GunIndex =0; GunIndex < ComponentDescription->GunCharacteristics.GunCount; GunIndex++)
+		if (ComponentDescription->GunCharacteristics.AlternedFire)
 		{
-			if(!IsSafeToFire(GunIndex))
+			LastFiredGun = (LastFiredGun + 1 ) % ComponentDescription->GunCharacteristics.GunCount;
+			FireGun(LastFiredGun);
+		}
+		else
+		{
+			for(int GunIndex = 0; GunIndex < ComponentDescription->GunCharacteristics.GunCount; GunIndex++)
 			{
-				// Avoid to fire itself
-				continue;
+				FireGun(GunIndex);
 			}
-
-			// Get firing data
-			FVector FiringLocation = GetMuzzleLocation(GunIndex);
-
-			float Vibration = (1.f- GetDamageRatio()) * 0.05;
-			FVector Imprecision = FVector(FMath::FRandRange(0.f, Vibration), FMath::FRandRange(0.f, Vibration), FMath::FRandRange(0.f, Vibration));
-
-			FVector FiringDirection = (GetFireAxis() + Imprecision).GetUnsafeNormal();
-			FVector FiringVelocity = GetPhysicsLinearVelocity();
-
-			// Create a shell
-			AFlareShell* Shell = GetWorld()->SpawnActor<AFlareShell>(
-				AFlareShell::StaticClass(),
-				FiringLocation,
-				FRotator::ZeroRotator,
-				ProjectileSpawnParams);
-
-			// Fire it. Tracer ammo every bullets
-			Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity, true);
-			if(FiringEffect)
-			{
-				FiringEffect->ActivateSystem();
-			}
-
-			// Play sound
-			if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
-			{
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation(), 1, 1);
-			}
-
-			// Update data
-			CurrentAmmo--;
 		}
 
 		// If damage the firerate is randomly reduced to a min of 10 times normal value
 		float DamageDelay = FMath::Square(1.f- GetDamageRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
 		TimeSinceLastShell = -DamageDelay;
 	}
-	else if(Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && IsTurret())
+}
+
+
+bool UFlareWeapon::FireGun(int GunIndex)
+{
+	if(!IsSafeToFire(GunIndex))
 	{
-		/*FLOG("!!!!!Failed to fire...");
-		if(!(GetDamageRatio() > 0.f))
-		{
-			FLOG("... because of damages");
-		}
-
-		if(!(IsPowered()))
-		{
-			FLOG("... because of power");
-		}
-
-		if(!(Spacecraft && !Spacecraft->GetDamageSystem()->HasPowerOutage()))
-		{
-			FLOG("... because of power outage");
-		}*/
+		// Avoid to fire itself
+		return false;
 	}
+
+	// Get firing data
+	FVector FiringLocation = GetMuzzleLocation(GunIndex);
+	float Imprecision  = FMath::DegreesToRadians(ComponentDescription->GunCharacteristics.AmmoPrecision  + 3.f *(1 - GetDamageRatio()));
+
+	FVector FiringDirection = FMath::VRandCone(GetFireAxis(), Imprecision);
+	FVector FiringVelocity = GetPhysicsLinearVelocity();
+
+	// Create a shell
+	AFlareShell* Shell = GetWorld()->SpawnActor<AFlareShell>(
+		AFlareShell::StaticClass(),
+		FiringLocation,
+		FRotator::ZeroRotator,
+		ProjectileSpawnParams);
+
+	// Fire it. Tracer ammo every bullets
+	Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity, true);
+
+	//Configure fuze if needed
+	ConfigureShellFuze(Shell);
+
+	if(FiringEffect)
+	{
+		FiringEffect->ActivateSystem();
+	}
+
+	// Play sound
+	if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation(), 1, 1);
+	}
+
+	// Update data
+	CurrentAmmo--;
+	return true;
+}
+
+void UFlareWeapon::ConfigureShellFuze(AFlareShell* Shell)
+{
+	if(ComponentDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	{
+		float SecurityRadius = 	ComponentDescription->GunCharacteristics.AmmoExplosionRadius + Spacecraft->GetMeshScale() / 100;
+		float SecurityDelay = SecurityRadius / ComponentDescription->GunCharacteristics.AmmoVelocity;
+		float ActiveTime = 10;
+
+		if(Target)
+		{
+			FVector TargetOffset = Target->GetActorLocation() - Spacecraft->GetActorLocation();
+			float EstimatedDistance = TargetOffset .Size() / 100;
+
+			FVector FiringVelocity = Spacecraft->GetLinearVelocity();
+			FVector TargetVelocity = FVector::ZeroVector;
+			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Target->GetRootComponent());
+			if(RootComponent)
+			{
+				TargetVelocity = RootComponent->GetPhysicsLinearVelocity() / 100;
+			}
+
+			FVector RelativeFiringVelocity = FiringVelocity - TargetVelocity;
+
+			float RelativeFiringVelocityInAxis = FVector::DotProduct(RelativeFiringVelocity, TargetOffset.GetUnsafeNormal());
+
+			float EstimatedRelativeVelocity = ComponentDescription->GunCharacteristics.AmmoVelocity + RelativeFiringVelocityInAxis;
+			float EstimatedFlightTime = EstimatedDistance / EstimatedRelativeVelocity;
+
+			float NeededSecurityDelay = EstimatedFlightTime * 0.5;
+			SecurityDelay = FMath::Max(SecurityDelay, NeededSecurityDelay);
+			ActiveTime = EstimatedFlightTime * 1.5 - SecurityDelay;
+		}
+
+		Shell->SetFuzeTimer(SecurityDelay, ActiveTime);
+	}
+}
+
+void UFlareWeapon::SetTarget(AActor *NewTarget)
+{
+	Target = NewTarget;
 }
 
 void UFlareWeapon::SetupComponentMesh()

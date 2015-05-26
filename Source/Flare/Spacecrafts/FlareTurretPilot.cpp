@@ -56,38 +56,22 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 	FVector TurretLocation = Turret->GetTurretBaseLocation();
 
-	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
-	/*if(!PilotTargetShip ||
-			!PilotTargetShip->GetDamageSystem()->IsAlive() ||
-			(PilotTargetShip->GetActorLocation() - TurretLocation).Size() > 120000 ||
-			PilotTargetShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0
-			|| (PilotTargetShip && !Turret->IsReacheableAxis((PilotTargetShip->GetActorLocation() - TurretLocation).GetUnsafeNormal())))
+	PilotTargetShip = GetNearestHostileShip(true, true, 1200000);
+
+	if(!PilotTargetShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(true, true, 120000);
+		PilotTargetShip = GetNearestHostileShip(true, false, 5000000);
 	}
 
 	// No dangerous ship, try not dangerous ships
 	if(!PilotTargetShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(false, true, 120000);
-	}*/
-
-	PilotTargetShip = GetNearestHostileShip(false, true, 120000);
-
-	if(!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 500000);
-	}
-
-	// No dangerous ship, try not dangerous ships
-	if(!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 120000);
+		PilotTargetShip = GetNearestHostileShip(false, false, 1200000);
 	}
 
 	if(!PilotTargetShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 500000);
+		PilotTargetShip = GetNearestHostileShip(false, false, 5000000);
 	}
 
 	if(PilotTargetShip)
@@ -106,7 +90,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		/*FLOGV("%s Have target AimAxis=%s",*Turret->GetReadableName(),  * AimAxis.ToString());
 */
 
-		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f + Turret->GetAimRadius(); // Radius in meters
+		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f + Turret->GetAimRadius() * 2; // Radius in meters
 		FVector DeltaLocation = (PilotTargetShip->GetActorLocation()-TurretLocation) / 100.f;
 		float Distance = DeltaLocation.Size(); // Distance in meters
 
@@ -137,6 +121,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if(AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
+					Turret->SetTarget(PilotTargetShip);
 					/*FLOG("Want Fire");*/
 					WantFire = true;
 					break;
@@ -164,6 +149,13 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 	// - Is dangerous if needed
 	// - From another company
 	// - Is the nearest
+
+	float SecurityRadius = 0;
+
+	if(Turret->GetDescription()->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	{
+		 SecurityRadius = Turret->GetDescription()->GunCharacteristics.AmmoExplosionRadius + Turret->GetSpacecraft()->GetMeshScale() / 100;
+	}
 
 	FVector PilotLocation = Turret->GetTurretBaseLocation();
 	float MaxDot = 0;
@@ -193,6 +185,11 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 			}
 
 			float Distance = (PilotLocation - ShipCandidate->GetActorLocation()).Size();
+			if(Distance < SecurityRadius * 100)
+			{
+				continue;
+			}
+
 			if (Distance > MaxDistance)
 			{
 				continue;

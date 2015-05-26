@@ -153,6 +153,12 @@ struct FFlareSpacecraftComponentGunCharacteristics
 	/** Weapon ammo velocity in m/s */
 	UPROPERTY(EditAnywhere, Category = Content) float AmmoVelocity;
 
+	/** Weapon ammo range before disappear in meter */
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoRange;
+
+	/** Weapon ammo precision in ° */
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoPrecision;
+
 	/** Weapon ammo max capacity */
 	UPROPERTY(EditAnywhere, Category = Content) int32 AmmoCapacity;
 
@@ -513,5 +519,11 @@ protected:
 	virtual AFlareSpacecraft* GetSpacecraft() const
 	{
 		return Spacecraft;
+	}
+
+
+	virtual const FFlareSpacecraftComponentDescription* GetDescription() const
+	{
+		return ComponentDescription;
 	}
 };

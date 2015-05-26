@@ -29,6 +29,11 @@ public:
 
 	bool Trace(const FVector& Start, const FVector& End, FHitResult& HitOut);
 
+	virtual float ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* ImpactComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius);
+
+	virtual void SetFuzeTimer(float TargetSecureTime, float TargetActiveTime);
+
+	virtual void CheckFuze(FVector ActorLocation, FVector NextActorLocation);
 protected:
 
 	/*----------------------------------------------------
@@ -75,6 +80,8 @@ protected:
 	bool TracerShell;
 	bool Armed;
 	float MinEffectiveDistance;
+	float SecureTime;
+	float ActiveTime;
 
 	UFlareWeapon* ParentWeapon;
 
