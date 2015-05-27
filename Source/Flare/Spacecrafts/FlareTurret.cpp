@@ -153,7 +153,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			}
 
 			// Clamp movements
-			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, ComponentDescription->TurretCharacteristics.BarrelsMinAngle, ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
+			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, GetMinLimitAtAngle(TurretAngle), ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
 
 
 			// TODO Add ship specific bound
@@ -280,11 +280,12 @@ bool UFlareTurret::Trace(const FVector& Start, const FVector& End, FHitResult& H
 
 bool UFlareTurret::IsReacheableAxis(FVector TargetAxis) const
 {
+	float TargetTurretAngle = 0;
 	if(TurretComponent && ComponentDescription)
 	{
 
 		FVector LocalTurretAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetAxis);
-		float TargetTurretAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
+		TargetTurretAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
 
 		if(TargetTurretAngle > ComponentDescription->TurretCharacteristics.TurretMaxAngle
 				|| TargetTurretAngle < ComponentDescription->TurretCharacteristics.TurretMinAngle)
@@ -308,13 +309,65 @@ bool UFlareTurret::IsReacheableAxis(FVector TargetAxis) const
 
 		float TargetBarrelAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
 		if(TargetBarrelAngle > ComponentDescription->TurretCharacteristics.BarrelsMaxAngle
-				|| TargetBarrelAngle < ComponentDescription->TurretCharacteristics.BarrelsMinAngle)
+				|| TargetBarrelAngle < GetMinLimitAtAngle(TargetTurretAngle))
 		{
 			return false;
 		}
+
+
+
+
 	}
 	return true;
 }
+
+static inline int PositiveModulo(int i, int n) {
+	return (i % n + n) % n;
+}
+
+float UFlareTurret::GetMinLimitAtAngle(float Angle) const
+{
+	float BarrelsMinAngle = ComponentDescription->TurretCharacteristics.BarrelsMinAngle;
+
+	//Fine Local slot check
+	for (int32 i = 0; i < Spacecraft->GetDescription()->TurretSlots.Num(); i++)
+	{
+		// TODO optimize and store that in cache
+		if(Spacecraft->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+		{
+			int LimitStepCount = Spacecraft->GetDescription()->TurretSlots[i].TurretBarrelsAngleLimit.Num();
+
+
+			if(LimitStepCount > 0)
+			{
+				float StepAngle = 360.f / (float) LimitStepCount;
+
+
+				float AngleInStep = Angle / StepAngle;
+				int NearestStep = FMath::FloorToInt(AngleInStep + 0.5f);
+				int SecondNearestStep;
+				if (AngleInStep > NearestStep)
+				{
+					SecondNearestStep = NearestStep+1;
+				}
+				else
+				{
+					SecondNearestStep = NearestStep-1;
+				}
+
+				float Ratio = FMath::Abs(Angle - NearestStep * StepAngle) /  StepAngle;
+
+				float LocalMin = Spacecraft->GetDescription()->TurretSlots[i].TurretBarrelsAngleLimit[PositiveModulo(NearestStep, LimitStepCount)] * (1.f - Ratio)
+									+ Spacecraft->GetDescription()->TurretSlots[i].TurretBarrelsAngleLimit[PositiveModulo(SecondNearestStep,LimitStepCount)] * Ratio;
+
+				BarrelsMinAngle = FMath::Max(BarrelsMinAngle, LocalMin);
+			}
+		}
+
+	}
+	return BarrelsMinAngle;
+}
+
 
 
 void UFlareTurret::GetBoundingSphere(FVector& Location, float& SphereRadius)

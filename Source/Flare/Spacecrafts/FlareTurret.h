@@ -38,6 +38,8 @@ public:
 
 	virtual bool IsReacheableAxis(FVector TargetAxis) const;
 
+	virtual float GetMinLimitAtAngle(float Angle) const;
+
 	virtual void GetBoundingSphere(FVector& Location, float& Radius) override;
 
 	// TODO Put in help with FlareShell::Trace

@@ -82,6 +82,10 @@ struct FFlareSpacecraftSlotDescription
 
 	/** Component description can be empty if configurable slot */
 	UPROPERTY(EditAnywhere, Category = Content) FName ComponentIdentifier;
+
+	/** Turret angle limits. The number of value indicate indicate the angular between each limit. For exemple 4 value are for 0°, 90°, -90° and 180°? */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<float> TurretBarrelsAngleLimit;
 };
 
 
