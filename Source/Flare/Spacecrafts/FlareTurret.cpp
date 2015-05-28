@@ -52,6 +52,7 @@ void UFlareTurret::SetupComponentMesh()
 			TurretComponent->SetStaticMesh(ComponentDescription->TurretCharacteristics.TurretMesh);
 			TurretComponent->SetMaterial(0, ComponentDescription->TurretCharacteristics.TurretMesh->GetMaterial(0));
 			TurretComponent->Initialize(NULL, PlayerCompany, Spacecraft, false);
+			Spacecraft->AddOwnedComponent(TurretComponent);
 		}
 	}
 
@@ -74,7 +75,7 @@ void UFlareTurret::SetupComponentMesh()
 			}
 			BarrelComponent->SetStaticMesh(ComponentDescription->TurretCharacteristics.BarrelsMesh);
 			BarrelComponent->SetMaterial(0, ComponentDescription->TurretCharacteristics.BarrelsMesh->GetMaterial(0));
-			// TODO Material customization
+			Spacecraft->AddOwnedComponent(BarrelComponent);
 		}
 	}
 }
@@ -372,12 +373,9 @@ float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 
 void UFlareTurret::GetBoundingSphere(FVector& Location, float& SphereRadius)
 {
-	if(TurretComponent)
+	Super::GetBoundingSphere(Location, SphereRadius);
+	if(TurretComponent || BarrelComponent)
 	{
-		TurretComponent->GetBoundingSphere(Location, SphereRadius);
-	}
-	else
-	{
-		Super::GetBoundingSphere(Location, SphereRadius);
+		SphereRadius = 0;
 	}
 }

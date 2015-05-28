@@ -108,6 +108,9 @@ void UFlareSpacecraftDamageSystem::Start()
 	// Init alive status
 	WasAlive = IsAlive();
 
+	// Reload components
+	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+
 	TArray<UFlareSpacecraftComponent*> PowerSources;
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{

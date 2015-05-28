@@ -19,6 +19,9 @@ public:
 
 	float GetRemainingArmorAtLocation(FVector Location) override;
 
+	virtual void ApplyDamage(float Energy) override;
+
+
 	protected:
 
 		/*----------------------------------------------------
