@@ -259,6 +259,19 @@ struct FFlareSpacecraftComponentAttributeSave
 	UPROPERTY(EditAnywhere, Category = Save) float AttributeValue;
 };
 
+/** Ship component turret save data */
+USTRUCT()
+struct FFlareSpacecraftComponentTurretSave
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Attribute name */
+	UPROPERTY(EditAnywhere, Category = Save) float TurretAngle;
+
+	/** Attribute value */
+	UPROPERTY(EditAnywhere, Category = Save) float BarrelsAngle;
+};
+
 /** Ship component save data */
 USTRUCT()
 struct FFlareSpacecraftComponentSave
@@ -280,6 +293,11 @@ struct FFlareSpacecraftComponentSave
 	/** Component attributes */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareSpacecraftComponentAttributeSave> Attributes;
+
+
+	/** Component turret data*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareSpacecraftComponentTurretSave Turret;
 
 	/** Pilot */
 	UPROPERTY(EditAnywhere, Category = Save)

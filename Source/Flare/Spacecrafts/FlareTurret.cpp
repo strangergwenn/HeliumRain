@@ -24,9 +24,6 @@ UFlareTurret::UFlareTurret(const class FObjectInitializer& PCIP)
 void UFlareTurret::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
-	// TODO Save angles
-	TurretAngle = 0;
-	BarrelAngle = 0;
 	AimDirection = FVector::ZeroVector;
 
 	// Initialize pilot
@@ -120,17 +117,17 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 			float UsableTurretVelocity = GetUsableRatio() * ComponentDescription->TurretCharacteristics.TurretAngularVelocity;
 
-			float TurretAngleDiff = FMath::UnwindDegrees(TargetTurretAngle - TurretAngle);
+			float TurretAngleDiff = FMath::UnwindDegrees(TargetTurretAngle - ShipComponentData.Turret.TurretAngle);
 
 			if(FMath::Abs(TurretAngleDiff) <= UsableTurretVelocity * DeltaTime) {
-				TurretAngle = TargetTurretAngle;
+				ShipComponentData.Turret.TurretAngle = TargetTurretAngle;
 			} else if(TurretAngleDiff < 0) {
-				TurretAngle -= UsableTurretVelocity * DeltaTime;
+				ShipComponentData.Turret.TurretAngle -= UsableTurretVelocity * DeltaTime;
 			} else {
-				TurretAngle += UsableTurretVelocity * DeltaTime;
+				ShipComponentData.Turret.TurretAngle += UsableTurretVelocity * DeltaTime;
 			}
 
-			TurretComponent->SetRelativeRotation(FRotator(0, TurretAngle, 0));
+			TurretComponent->SetRelativeRotation(FRotator(0, ShipComponentData.Turret.TurretAngle, 0));
 		}
 
 		if (BarrelComponent)
@@ -154,22 +151,22 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			}
 
 			// Clamp movements
-			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, GetMinLimitAtAngle(TurretAngle), ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
+			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, GetMinLimitAtAngle(ShipComponentData.Turret.TurretAngle), ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
 
 
 			// TODO Add ship specific bound
 
 			float UsableBarrelsVelocity = GetUsableRatio() * ComponentDescription->TurretCharacteristics.TurretAngularVelocity;
-			float BarrelAngleDiff = FMath::UnwindDegrees(TargetBarrelAngle - BarrelAngle);
+			float BarrelAngleDiff = FMath::UnwindDegrees(TargetBarrelAngle - ShipComponentData.Turret.BarrelsAngle);
 
 			if(FMath::Abs(BarrelAngleDiff) <= UsableBarrelsVelocity * DeltaTime) {
-				BarrelAngle = TargetBarrelAngle;
+				ShipComponentData.Turret.BarrelsAngle = TargetBarrelAngle;
 			} else if(BarrelAngleDiff < 0) {
-				BarrelAngle -= UsableBarrelsVelocity * DeltaTime;
+				ShipComponentData.Turret.BarrelsAngle -= UsableBarrelsVelocity * DeltaTime;
 			} else {
-				BarrelAngle += UsableBarrelsVelocity * DeltaTime;
+				ShipComponentData.Turret.BarrelsAngle += UsableBarrelsVelocity * DeltaTime;
 			}
-			BarrelComponent->SetRelativeRotation(FRotator(BarrelAngle, 0, 0));
+			BarrelComponent->SetRelativeRotation(FRotator(ShipComponentData.Turret.BarrelsAngle, 0, 0));
 
 		}
 	}

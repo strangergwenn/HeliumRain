@@ -60,11 +60,7 @@ protected:
 	UPROPERTY()
 	UFlareTurretPilot*                               Pilot;
 
-
-	float                                    TurretAngle;
-	float                                    BarrelAngle;
 	FVector  								 AimDirection;
-	// TODO Save
 
 public:
 

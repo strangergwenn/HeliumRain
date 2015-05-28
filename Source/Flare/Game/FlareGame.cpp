@@ -543,6 +543,8 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 			FFlareSpacecraftComponentSave ComponentData;
 			ComponentData.ComponentIdentifier = FName("weapon-hades");
 			ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
+			ComponentData.Turret.BarrelsAngle = 0;
+			ComponentData.Turret.TurretAngle = 0;
 			ComponentData.Damage = 0.f;
 			ShipData.Components.Add(ComponentData);
 		}
