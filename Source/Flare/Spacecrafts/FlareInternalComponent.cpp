@@ -22,6 +22,10 @@ UFlareInternalComponent::UFlareInternalComponent(const class FObjectInitializer&
 void UFlareInternalComponent::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
+	if (!ComponentDescription)
+	{
+		FLOGV("!!! Internal component %s is not correctly mapped :", *(this->GetReadableName()));
+	}
 }
 
 FFlareSpacecraftComponentSave* UFlareInternalComponent::Save()
