@@ -3,10 +3,10 @@
 #include "FlareSpacecraftPawn.h"
 #include "FlareWeapon.h"
 #include "FlareSpacecraftInterface.h"
-#include "FlareSpacecraftDamageSystem.h"
-#include "FlareSpacecraftNavigationSystem.h"
-#include "FlareSpacecraftDockingSystem.h"
-#include "FlareSpacecraftWeaponsSystem.h"
+#include "Subsystems/FlareSpacecraftDamageSystem.h"
+#include "Subsystems/FlareSpacecraftNavigationSystem.h"
+#include "Subsystems/FlareSpacecraftDockingSystem.h"
+#include "Subsystems/FlareSpacecraftWeaponsSystem.h"
 #include "FlareSpacecraft.generated.h"
 
 /** Ship class */

@@ -2,10 +2,10 @@
 
 #include "../Game/FlareCompany.h"
 #include "FlareShipPilot.h"
-#include "FlareSpacecraftDamageSystem.h"
-#include "FlareSpacecraftNavigationSystem.h"
-#include "FlareSpacecraftDockingSystem.h"
-#include "FlareSpacecraftWeaponsSystem.h"
+#include "Subsystems/FlareSpacecraftDamageSystem.h"
+#include "Subsystems/FlareSpacecraftNavigationSystem.h"
+#include "Subsystems/FlareSpacecraftDockingSystem.h"
+#include "Subsystems/FlareSpacecraftWeaponsSystem.h"
 #include "FlareSpacecraftInterface.generated.h"
 
 struct FFlareSpacecraftComponentSave;

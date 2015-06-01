@@ -1,9 +1,9 @@
 
-#include "../Flare.h"
+#include "../../Flare.h"
 
 #include "FlareSpacecraftDockingSystem.h"
-#include "FlareStationDock.h"
-#include "FlareSpacecraft.h"
+#include "../FlareStationDock.h"
+#include "../FlareSpacecraft.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftDockingSystem"
 

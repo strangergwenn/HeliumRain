@@ -1,8 +1,8 @@
 
-#include "../Flare.h"
+#include "../../Flare.h"
 
 #include "FlareSpacecraftWeaponsSystem.h"
-#include "FlareSpacecraft.h"
+#include "../FlareSpacecraft.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftWeaponsSystem"
 
