@@ -22,11 +22,11 @@ const FSlateBrush* IFlareSpacecraftInterface::GetIcon(FFlareSpacecraftDescriptio
 {
 	if (Characteristic)
 	{
-		if (Characteristic->OrbitalEngineCount == 0) // Station
+		if (IFlareSpacecraftInterface::IsStation(Characteristic))
 		{
 			return FFlareStyleSet::GetIcon("SS");
 		}
-		else if ((Characteristic->GunSlots.Num() +  Characteristic->TurretSlots.Num()) > 0) // Military
+		else if (IFlareSpacecraftInterface::IsMilitary(Characteristic))
 		{
 			if (Characteristic->Size == EFlarePartSize::S)
 			{
@@ -58,4 +58,14 @@ const FSlateBrush* IFlareSpacecraftInterface::GetIcon(FFlareSpacecraftDescriptio
 		}
 	}
 	return NULL;
+}
+
+bool IFlareSpacecraftInterface::IsStation(FFlareSpacecraftDescription* SpacecraftDesc)
+{
+	return SpacecraftDesc->OrbitalEngineCount == 0;
+}
+
+bool IFlareSpacecraftInterface::IsMilitary(FFlareSpacecraftDescription* SpacecraftDesc)
+{
+	return SpacecraftDesc->GunSlots.Num() > 0 || SpacecraftDesc->TurretSlots.Num() > 0;
 }

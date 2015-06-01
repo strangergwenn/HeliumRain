@@ -387,12 +387,12 @@ UFlareCompany* AFlareSpacecraft::GetCompany()
 
 bool AFlareSpacecraft::IsMilitary()
 {
-	return (ShipDescription->GunSlots.Num() + ShipDescription->TurretSlots.Num()) > 0;
+	return IFlareSpacecraftInterface::IsMilitary(ShipDescription);
 }
 
 bool AFlareSpacecraft::IsStation()
 {
-	return ShipDescription->OrbitalEngineCount == 0;
+	return IFlareSpacecraftInterface::IsStation(ShipDescription);
 }
 
 UFlareSpacecraftDamageSystem* AFlareSpacecraft::GetDamageSystem() const

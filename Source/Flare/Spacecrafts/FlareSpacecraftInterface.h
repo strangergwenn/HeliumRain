@@ -111,9 +111,6 @@ struct FFlareSpacecraftDescription
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlarePartSize::Type> Size;
 
-	/** Ship status */
-	UPROPERTY(EditAnywhere, Category = Content) bool Military;
-
 	/** Number of RCS */
 	UPROPERTY(EditAnywhere, Category = Save) int32 RCSCount;
 
@@ -215,4 +212,7 @@ public:
 	/** Get a Slate brush */
 	static const FSlateBrush* GetIcon(FFlareSpacecraftDescription* Characteristic);
 
+	static bool IsStation(FFlareSpacecraftDescription* SpacecraftDesc);
+
+	static bool IsMilitary(FFlareSpacecraftDescription* SpacecraftDesc);
 };

@@ -581,11 +581,11 @@ FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 	// Spacecraft
 	if (SpacecraftDesc)
 	{
-		if (SpacecraftDesc->OrbitalEngineCount == 0) // TODO use Spacecraft helper
+		if (IFlareSpacecraftInterface::IsStation(SpacecraftDesc))
 		{
 			Immatriculation += "ST";
 		}
-		else if (SpacecraftDesc->Military)
+		else if (IFlareSpacecraftInterface::IsMilitary(SpacecraftDesc))
 		{
 			Immatriculation += "M";
 		}
