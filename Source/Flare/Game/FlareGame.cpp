@@ -593,8 +593,9 @@ FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 		{
 			Immatriculation += "C";
 		}
-		Immatriculation += EFlarePartSize::ToString(SpacecraftDesc->Size);
+		Immatriculation += EFlarePartSize::ToString(SpacecraftDesc->Size) + "-"+FText::FromString(SpacecraftDesc->ImmatriculationCode);
 	}
+
 
 	// Company
 	Immatriculation += "-";

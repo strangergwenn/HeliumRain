@@ -104,6 +104,9 @@ struct FFlareSpacecraftDescription
 	/** Ship description */
 	UPROPERTY(EditAnywhere, Category = Content) FText Description;
 
+	/** Ship description */
+	UPROPERTY(EditAnywhere, Category = Content) FText ImmatriculationCode;
+
 	/** Ship cost */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
 
