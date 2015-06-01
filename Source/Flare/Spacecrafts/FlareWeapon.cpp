@@ -42,14 +42,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 		FiringSound = ComponentDescription->GunCharacteristics.FiringSound;
 		FiringEffectTemplate = ComponentDescription->GunCharacteristics.FiringEffect;
 
-		for (int32 i = 0; i < ShipComponentData.Attributes.Num(); i++)
-		{
-			FFlareSpacecraftComponentAttributeSave FiredAmmoAttribute;
-			if(ShipComponentData.Attributes[i].AttributeIdentifier == FName("weapon-fired-ammo"))
-			{
-				FiredAmmo = ShipComponentData.Attributes[i].AttributeValue;
-			}
-		}
+		FiredAmmo = ShipComponentData.Weapon.FiredAmmo;
 	}
 
 	// Spawn properties
@@ -79,13 +72,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 FFlareSpacecraftComponentSave* UFlareWeapon::Save()
 {
-	float FiredAmmo = MaxAmmo - CurrentAmmo;
-	FFlareSpacecraftComponentAttributeSave FiredAmmoAttribute;
-	FiredAmmoAttribute.AttributeIdentifier = FName("weapon-fired-ammo");
-	FiredAmmoAttribute.AttributeValue = FiredAmmo;
-	// TODO implement correct attibute insert method
-	ShipComponentData.Attributes.Empty();
-	ShipComponentData.Attributes.Add(FiredAmmoAttribute);
+	ShipComponentData.Weapon.FiredAmmo =  MaxAmmo - CurrentAmmo;
 
 	return Super::Save();
 }

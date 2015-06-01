@@ -535,6 +535,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 			ComponentData.ComponentIdentifier = FName("weapon-eradicator");
 			ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
 			ComponentData.Damage = 0.f;
+			ComponentData.Weapon.FiredAmmo = 0;
 			ShipData.Components.Add(ComponentData);
 		}
 		
@@ -545,6 +546,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 			ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
 			ComponentData.Turret.BarrelsAngle = 0;
 			ComponentData.Turret.TurretAngle = 0;
+			ComponentData.Weapon.FiredAmmo = 0;
 			ComponentData.Damage = 0.f;
 			ShipData.Components.Add(ComponentData);
 		}
