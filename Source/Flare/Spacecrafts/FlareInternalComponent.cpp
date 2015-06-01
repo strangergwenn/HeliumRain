@@ -11,6 +11,7 @@ UFlareInternalComponent::UFlareInternalComponent(const class FObjectInitializer&
 	: Super(PCIP)
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	HasFlickeringLights = false;
 }
 
 

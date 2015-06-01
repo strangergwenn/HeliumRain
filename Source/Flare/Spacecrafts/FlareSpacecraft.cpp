@@ -2,7 +2,6 @@
 #include "../Flare.h"
 
 #include "FlareSpacecraft.h"
-#include "FlareAirframe.h"
 #include "FlareOrbitalEngine.h"
 #include "FlareRCS.h"
 #include "FlareWeapon.h"
@@ -26,7 +25,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	, AngularInputDeadRatio(0.0025)
 {
 	// Create static mesh component
-	Airframe = PCIP.CreateDefaultSubobject<UFlareAirframe>(this, TEXT("Airframe"));
+	Airframe = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("Airframe"));
 	Airframe->SetSimulatePhysics(true);
 	RootComponent = Airframe;
 

@@ -24,7 +24,7 @@ public:
 
 	/** Airframe component */
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-	class UFlareAirframe* Airframe;
+	class UFlareSpacecraftComponent* Airframe;
 
 
 public:

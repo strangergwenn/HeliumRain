@@ -14,6 +14,7 @@ UFlareTurret::UFlareTurret(const class FObjectInitializer& PCIP)
 	, TurretComponent(NULL)
 	, BarrelComponent(NULL)
 {
+	HasFlickeringLights = false;
 }
 
 

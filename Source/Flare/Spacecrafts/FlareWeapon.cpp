@@ -18,6 +18,7 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	, Firing(false)
 {
 	HasLocalHeatEffect = true;
+	HasFlickeringLights = false;
 }
 
 

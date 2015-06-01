@@ -39,7 +39,7 @@ UFlareSpacecraftComponent::UFlareSpacecraftComponent(const class FObjectInitiali
 	// Lighting settins
 	bAffectDynamicIndirectLighting = false;
 	bAffectDistanceFieldLighting = false;
-	HasFlickeringLights = false;
+	HasFlickeringLights = true;
 }
 
 
@@ -351,15 +351,24 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 
 float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
 {
-	if (!ComponentDescription || (ComponentDescription->ArmorHitPoints == 0.0f && ComponentDescription->HitPoints == 0.0f))
+	if (!ComponentDescription)
 	{
-		// Not destructible
-		return -1.0f;
+		if (Spacecraft)
+		{
+			UFlareInternalComponent* Component = Spacecraft->GetInternalComponentAtLocation(Location);
+			if (Component)
+			{
+				return Component->GetRemainingArmorAtLocation(Location);
+			}
+		}
 	}
-	else
+	else if(ComponentDescription->ArmorHitPoints != 0.0f || ComponentDescription->HitPoints != 0.0f)
 	{
 		return FMath::Max(0.0f, ComponentDescription->ArmorHitPoints - ShipComponentData.Damage);
 	}
+
+	// Not destructible
+	return -1.0f;
 }
 
 void UFlareSpacecraftComponent::ApplyDamage(float Energy)
@@ -426,6 +435,17 @@ float UFlareSpacecraftComponent::GetMaxGeneratedPower() const
 
 float UFlareSpacecraftComponent::GetAvailablePower() const
 {
+	if(!ComponentDescription && Spacecraft)
+	{
+		UFlareSpacecraftComponent* Cockpit = Spacecraft->GetCockpit();
+
+		if (Cockpit)
+		{
+			Cockpit->UpdatePower();
+			return Cockpit->GetAvailablePower();
+		}
+	}
+
 	return Power*GetDamageRatio();
 }
 

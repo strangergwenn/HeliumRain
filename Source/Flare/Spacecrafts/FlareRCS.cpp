@@ -11,6 +11,7 @@
 UFlareRCS::UFlareRCS(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
+	HasFlickeringLights = false;
 }
 
 
