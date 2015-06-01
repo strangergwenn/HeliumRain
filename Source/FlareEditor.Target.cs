@@ -21,5 +21,6 @@ public class FlareEditorTarget : TargetRules
 		)
 	{
 		OutExtraModuleNames.Add("Flare");
+        OutExtraModuleNames.Add("FlareLoadingScreen");
 	}
 }
