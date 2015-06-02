@@ -359,6 +359,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	FVector AxisTarget = -StationDockAxis;
 	FVector AngularVelocityTarget = StationAngularVelocity;
 	FVector VelocityTarget = LinearVelocityAtShipDistance - ShipDockSelfRotationInductedLinearVelocity;
+	bool Anticollision = true;
 	/*FLOGV("Initial LocationTarget=%s", *LocationTarget.ToString());
 	FLOGV("Initial AxisTarget=%s", *AxisTarget.ToString());
 	FLOGV("Initial AngularVelocityTarget=%s", *AngularVelocityTarget.ToString());
@@ -501,10 +502,11 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 				AngularVelocityTarget = FVector::ZeroVector;
 			}
 			// During rendez-vous avoid the station if not in axis
-			if(FVector::DotProduct((LocationTarget - ShipDockLocation).GetUnsafeNormal(), StationDockAxis) < 0.9)
+			if(FVector::DotProduct((ShipDockLocation - ShipDockLocation).GetUnsafeNormal(), StationDockAxis) < 0.5)
 			{
 				AnticollisionDockStation = NULL;
 			}
+			Anticollision = false;
 
 			//FLOGV("Location offset=%s", *((StationDockAxis * (ApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
@@ -525,7 +527,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity);
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
 
-	if(AnticollisionDockStation == NULL)
+	if(Anticollision)
 	{
 		// During docking, lets the others avoid me
 		LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AnticollisionDockStation);
