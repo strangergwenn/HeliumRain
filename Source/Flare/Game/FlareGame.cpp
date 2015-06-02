@@ -459,6 +459,11 @@ void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, f
 AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
 {
 	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
+
+	if(!Desc) {
+		Desc = GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
+	}
+
 	if(Desc) {
 		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
 	}
@@ -468,6 +473,11 @@ AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifie
 AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)
 {
 	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
+
+	if(!Desc) {
+		Desc = GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
+	}
+
 	if(Desc) {
 		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
 	}
