@@ -58,6 +58,7 @@ void UFlareSpacecraftDockingSystem::Start()
 			Info.LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1,0,0)));
 			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
 			Info.DockId = Count;
+			Info.DockSize = Component->DockSize;
 			Info.Station = Spacecraft;
 			Info.Granted = false;
 			Info.Occupied = false;
@@ -69,21 +70,47 @@ void UFlareSpacecraftDockingSystem::Start()
 	}
 }
 
-FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInterface* Ship)
+bool UFlareSpacecraftDockingSystem::HasCompatibleDock(IFlareSpacecraftInterface* Ship) const
+{
+	for (int32 i = 0; i < DockingSlots.Num(); i++)
+	{
+		if (DockingSlots[i].DockSize == Ship->GetSize())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInterface* Ship, FVector PreferredLocation)
 {
 	FLOGV("UFlareSpacecraftDockingSystem::RequestDock ('%s')", *Ship->_getUObject()->GetName());
 
-	// Looking for slot
+	int32 BestIndex = -1;
+	float BestDistance = 0;
+
+	// Looking for nearest available slot
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
-		if (!DockingSlots[i].Granted)
+		if (!DockingSlots[i].Granted && DockingSlots[i].DockSize == Ship->GetSize())
 		{
-			FLOGV("UFlareSpacecraftDockingSystem::RequestDock : found valid dock %d", i);
-			DockingSlots[i].Granted = true;
-			DockingSlots[i].Ship = Ship;
-			return DockingSlots[i];
+			float DockDistance = (Spacecraft->Airframe->GetComponentToWorld().TransformPosition(DockingSlots[i].LocalLocation) - PreferredLocation).Size();
+			if(BestIndex < 0 || DockDistance < BestDistance)
+			{
+				BestDistance = DockDistance;
+				BestIndex = i;
+			}
 		}
 	}
+
+	if(BestIndex >=0)
+	{
+		FLOGV("UFlareSpacecraftDockingSystem::RequestDock : found valid dock %d", BestIndex);
+		DockingSlots[BestIndex].Granted = true;
+		DockingSlots[BestIndex].Ship = Ship;
+		return DockingSlots[BestIndex];
+	}
+
 	// Default values
 	FFlareDockingInfo Info;
 	Info.Granted = false;

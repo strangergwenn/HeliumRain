@@ -71,6 +71,8 @@ public:
 
 	virtual UFlareCompany* GetCompany() override;
 
+	virtual EFlarePartSize::Type GetSize() override;
+
 	virtual bool IsMilitary() override;
 
 	virtual bool IsStation() override;

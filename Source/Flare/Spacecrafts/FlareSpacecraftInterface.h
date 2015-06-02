@@ -183,6 +183,9 @@ public:
 	/** Get the parent company */
 	virtual UFlareCompany* GetCompany() = 0;
 
+	/** Get the ship size class */
+	virtual EFlarePartSize::Type GetSize() = 0;
+
 	/** Check if this is a military ship */
 	virtual bool IsMilitary() = 0;
 

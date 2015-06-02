@@ -9,6 +9,7 @@ struct FFlareDockingInfo
 	bool                      Granted;
 	bool                      Occupied;
 	int32                     DockId;
+	EFlarePartSize::Type      DockSize;
 	IFlareSpacecraftInterface*   Station;
 	IFlareSpacecraftInterface*      Ship;
 
@@ -55,7 +56,7 @@ public:
 	virtual TArray<IFlareSpacecraftInterface*> GetDockedShips();
 
 	/** Request a docking point */
-	virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship);
+	virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship, FVector PreferredLocation);
 
 	/** Cancel docking */
 	virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId);
@@ -67,6 +68,8 @@ public:
 	virtual FFlareDockingInfo GetDockInfo(int32 DockId);
 
 	virtual bool HasAvailableDock(IFlareSpacecraftInterface* Ship) const;
+
+	virtual bool HasCompatibleDock(IFlareSpacecraftInterface* Ship) const;
 
 	virtual int GetDockCount() const;
 

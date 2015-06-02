@@ -169,6 +169,9 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	}
 
 	UPrimitiveComponent* OtherRoot = Cast<UPrimitiveComponent>(Other->GetRootComponent());
+	if (!OtherRoot) {
+		return;
+	}
 
 	// Relative velocity
 	FVector DeltaVelocity = ((OtherRoot->GetPhysicsLinearVelocity() - Spacecraft->Airframe->GetPhysicsLinearVelocity()) / 100);

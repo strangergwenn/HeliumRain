@@ -384,6 +384,12 @@ UFlareCompany* AFlareSpacecraft::GetCompany()
 	return Company;
 }
 
+EFlarePartSize::Type AFlareSpacecraft::GetSize()
+{
+	return ShipDescription->Size;
+}
+
+
 bool AFlareSpacecraft::IsMilitary()
 {
 	return IFlareSpacecraftInterface::IsMilitary(ShipDescription);

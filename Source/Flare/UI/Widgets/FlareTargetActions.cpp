@@ -261,7 +261,7 @@ void SFlareTargetActions::Show()
 			UFlareSpacecraftDockingSystem* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
 			bool OwnedAndNotSelf = TargetSpacecraft != PC->GetShipPawn() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 			bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
-			bool CanDock = OwnedAndNotSelf && TargetDockingSystem->GetDockCount() > 0 && !IsDocked;
+			bool CanDock = OwnedAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
 
 			// Button states
 			InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);

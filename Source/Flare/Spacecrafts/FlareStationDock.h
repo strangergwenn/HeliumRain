@@ -10,5 +10,7 @@ class UFlareStationDock : public UFlareSpacecraftComponent
 public:
 
 	GENERATED_UCLASS_BODY()
-		
+
+	/** Dock size */
+	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlarePartSize::Type> DockSize;
 };

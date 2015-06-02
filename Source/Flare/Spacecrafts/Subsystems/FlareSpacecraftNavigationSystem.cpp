@@ -155,7 +155,7 @@ void UFlareSpacecraftNavigationSystem::SetAngularAccelerationRate(float Accelera
 bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetStation)
 {
 	FLOG("AFlareSpacecraft::DockAt");
-	FFlareDockingInfo DockingInfo = TargetStation->GetDockingSystem()->RequestDock(Spacecraft);
+	FFlareDockingInfo DockingInfo = TargetStation->GetDockingSystem()->RequestDock(Spacecraft, Spacecraft->GetActorLocation());
 
 	// Try to dock
 	if (DockingInfo.Granted)
@@ -500,8 +500,11 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 				AxisTarget = LocationTarget - ShipDockLocation;
 				AngularVelocityTarget = FVector::ZeroVector;
 			}
-			// During rendez-vous avoid the station
-			AnticollisionDockStation = NULL;
+			// During rendez-vous avoid the station if not in axis
+			if(FVector::DotProduct((LocationTarget - ShipDockLocation).GetUnsafeNormal(), StationDockAxis) < 0.9)
+			{
+				AnticollisionDockStation = NULL;
+			}
 
 			//FLOGV("Location offset=%s", *((StationDockAxis * (ApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
