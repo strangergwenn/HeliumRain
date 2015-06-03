@@ -246,19 +246,6 @@ struct FFlareSpacecraftComponentTurretCharacteristics
 
 };
 
-/** Ship component attribute save data */
-USTRUCT()
-struct FFlareSpacecraftComponentAttributeSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Attribute name */
-	UPROPERTY(EditAnywhere, Category = Save) FName AttributeIdentifier;
-
-	/** Attribute value */
-	UPROPERTY(EditAnywhere, Category = Save) float AttributeValue;
-};
-
 /** Ship component turret save data */
 USTRUCT()
 struct FFlareSpacecraftComponentTurretSave
@@ -300,11 +287,6 @@ struct FFlareSpacecraftComponentSave
 	/** Taken damages */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float Damage;
-
-	/** Component attributes */
-	/*UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareSpacecraftComponentAttributeSave> Attributes;*/
-
 
 	/** Component turret data*/
 	UPROPERTY(EditAnywhere, Category = Save)
