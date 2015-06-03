@@ -108,6 +108,21 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		NavigationSystem->TickSystem(DeltaSeconds);
 		WeaponsSystem->TickSystem(DeltaSeconds);
 		DamageSystem->TickSystem(DeltaSeconds);
+
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+		if (PC)
+		{
+			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+			if(PlayerShip && !GetDamageSystem()->IsAlive())
+			{
+				float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
+				if(Distance > 500000)
+				{
+					// 5 km
+					Destroy();
+				}
+			}
+		}
 	}
 }
 
