@@ -43,6 +43,8 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 		FiringEffectTemplate = ComponentDescription->GunCharacteristics.FiringEffect;
 
 		FiredAmmo = ShipComponentData.Weapon.FiredAmmo;
+
+
 	}
 
 	// Spawn properties
