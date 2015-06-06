@@ -407,6 +407,20 @@ void AFlareHUD::ToggleHUD()
 	SetHUDVisibility(HUDVisible);
 }
 
+void AFlareHUD::SetWheelMenu(bool State)
+{
+	WheelIsOpen = State;
+
+	if (WheelIsOpen)
+	{
+		MouseMenu->Open();
+	}
+	else
+	{
+		MouseMenu->Close();
+	}
+}
+
 void AFlareHUD::SetHUDVisibility(bool Visibility)
 {
 	Visibility = Visibility && !MenuIsOpen;
@@ -433,6 +447,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 
 		// Create menus
 		SAssignNew(HUDMenu, SFlareHUDMenu).OwnerHUD(this);
+		SAssignNew(MouseMenu, SFlareMouseMenu).OwnerHUD(this);
 		SAssignNew(Dashboard, SFlareDashboard).OwnerHUD(this);
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).OwnerHUD(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).OwnerHUD(this);
@@ -448,6 +463,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 
 		// Register menus at their Z-Index
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(HUDMenu.ToSharedRef()),          0);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MouseMenu.ToSharedRef()),        5);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OverlayContainer.ToSharedRef()), 10);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);

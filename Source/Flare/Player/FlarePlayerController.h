@@ -122,6 +122,12 @@ public:
 	/** Quick switch to another ship */
 	virtual void QuickSwitch();
 
+	/** Open the wheel menu */
+	virtual void WheelPressed();
+
+	/** Close the wheel menu */
+	virtual void WheelReleased();
+
 	/** Test method 1 */
 	virtual void Test1();
 

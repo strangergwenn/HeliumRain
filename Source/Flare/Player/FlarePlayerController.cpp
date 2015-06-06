@@ -407,6 +407,9 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleHUD", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleHUD);
 	InputComponent->BindAction("QuickSwitch", EInputEvent::IE_Released, this, &AFlarePlayerController::QuickSwitch);
 
+	InputComponent->BindAction("Wheel", EInputEvent::IE_Pressed, this, &AFlarePlayerController::WheelPressed);
+	InputComponent->BindAction("Wheel", EInputEvent::IE_Released, this, &AFlarePlayerController::WheelReleased);
+
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
 }
@@ -527,6 +530,16 @@ void AFlarePlayerController::QuickSwitch()
 	{
 		FLOG("AFlarePlayerController::QuickSwitch : no ships in company !");
 	}
+}
+
+void AFlarePlayerController::WheelPressed()
+{
+	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(true);
+}
+
+void AFlarePlayerController::WheelReleased()
+{
+	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(false);
 }
 
 void AFlarePlayerController::Test1()

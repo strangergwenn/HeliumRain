@@ -5,6 +5,7 @@
 #include "../Spacecrafts/FlareSpacecraftPawn.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareHUDMenu.h"
+#include "../UI/Menus/FlareMouseMenu.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareStationMenu.h"
@@ -70,6 +71,9 @@ public:
 
 	/** Toggle the HUD's presence */
 	void ToggleHUD();
+
+	/** Set the wheel menu state */
+	void SetWheelMenu(bool State);
 
 	/** Decide if the HUD is displayed or not */
 	void SetHUDVisibility(bool Visibility);
@@ -147,9 +151,10 @@ protected:
 	// Settings
 	float                                   CombatMouseRadius;
 	bool                                    HUDVisible;
+	bool                                    MenuIsOpen;
+	bool                                    WheelIsOpen;
 
 	// Fade-to-black system
-	bool                                    MenuIsOpen;
 	bool                                    IsInteractive;
 	bool                                    FadeFromBlack;
 	float                                   FadeDuration;
@@ -158,6 +163,7 @@ protected:
 
 	// Menus
 	TSharedPtr<SFlareHUDMenu>               HUDMenu;
+	TSharedPtr<SFlareMouseMenu>             MouseMenu;
 	TSharedPtr<SOverlay>                    OverlayContainer;
 	TSharedPtr<SFlareDashboard>             Dashboard;
 	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;
@@ -204,6 +210,12 @@ public:
 	{
 		return ContextMenuPosition;
 	}
+
+	bool IsMenuOpen() const
+	{
+		return MenuIsOpen;
+	}
+
 
 	/*----------------------------------------------------
 		Slate
