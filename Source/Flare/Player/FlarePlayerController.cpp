@@ -534,11 +534,13 @@ void AFlarePlayerController::QuickSwitch()
 
 void AFlarePlayerController::WheelPressed()
 {
+	// TODO mouse toggle
 	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(true);
 }
 
 void AFlarePlayerController::WheelReleased()
 {
+	// TODO mouse toggle
 	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(false);
 }
 

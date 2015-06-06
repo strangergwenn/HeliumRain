@@ -17,7 +17,7 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	OwnerHUD = InArgs._OwnerHUD;
 	PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	WidgetCount = 0;
-	WidgetDistance = 300;
+	WidgetDistance = 200;
 	WidgetSize = 100;
 	SetVisibility(EVisibility::Hidden);
 	
@@ -30,7 +30,8 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 		SAssignNew(HUDCanvas, SCanvas)
 	];
 
-
+	// Layout
+	AddWidget();
 	AddWidget();
 	AddWidget();
 	AddWidget();
@@ -41,23 +42,12 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareMouseMenu::Open()
-{
-	FLOG("SFlareMouseMenu::Open");
-	SetVisibility(EVisibility::HitTestInvisible);
-}
-
-void SFlareMouseMenu::Close()
-{
-	FLOG("SFlareMouseMenu::Close");
-	SetVisibility(EVisibility::Hidden);
-}
-
 void SFlareMouseMenu::AddWidget()
 {
 	// Update data
 	int32 Index = WidgetCount;
 	WidgetCount++;
+	// TODO arbitrary image and callback store
 
 	// Add widget
 	HUDCanvas->AddSlot()
@@ -68,6 +58,26 @@ void SFlareMouseMenu::AddWidget()
 			.Image(FFlareStyleSet::GetIcon("HUD_Power"))
 			.ColorAndOpacity(this, &SFlareMouseMenu::GetWidgetColor, Index)
 		];
+}
+
+void SFlareMouseMenu::Open()
+{
+	FLOG("SFlareMouseMenu::Open");
+	InitialMousePosition = PC->GetMousePosition();
+
+	SetVisibility(EVisibility::HitTestInvisible);
+}
+
+void SFlareMouseMenu::Close()
+{
+	if (HasSelection())
+	{
+		int32 Index = GetSelectedIndex();
+		FLOGV("SFlareMouseMenu::Close : index %d", Index);
+		// TODO insert action here depending on Index
+	}
+
+	SetVisibility(EVisibility::Hidden);
 }
 
 
@@ -81,7 +91,8 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 
 	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
-	MousePos = PC->GetMousePosition();
+
+	MouseOffset = PC->GetMousePosition() - InitialMousePosition;
 }
 
 FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
@@ -93,9 +104,7 @@ FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
 
 FVector2D SFlareMouseMenu::GetWidgetSize(int32 Index) const
 {
-	FVector2D BaseSize = FVector2D(WidgetSize, 100);
-	float Colinearity = GetColinearity(Index);
-	return (1 + 0.5 * Colinearity) * BaseSize;
+	return FVector2D(WidgetSize, WidgetSize);
 }
 
 FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
@@ -109,7 +118,7 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 	}
 	else
 	{
-		Color.A = 0.5 + 0.5 * Colinearity;
+		Color.A = 0.3 + 0.7 * Colinearity;
 	}
 
 	return Color;
@@ -127,10 +136,42 @@ FVector2D SFlareMouseMenu::GetDirection(int32 Index) const
 
 float SFlareMouseMenu::GetColinearity(int32 Index) const
 {
+	FVector2D MouseDirection = MouseOffset;
+	MouseDirection.Normalize();
+
 	FVector2D WidgetDirection = GetDirection(Index);
-	FVector2D MouseDirection = MousePos - ViewportCenter;
+	WidgetDirection.Normalize();
 
 	float Colinearity = FVector2D::DotProduct(MouseDirection, WidgetDirection);
-	return FMath::Clamp(Colinearity / 10000, 0.0f, 1.0f);
+	return FMath::Clamp(Colinearity, 0.0f, 1.0f);
 }
 
+bool SFlareMouseMenu::HasSelection() const
+{
+	return (MouseOffset).Size() > WidgetDistance / 2;
+}
+
+int32 SFlareMouseMenu::GetSelectedIndex() const
+{
+	int32 BestIndex = -1;
+	float BestColinearity = -1;
+
+	FVector2D MouseDirection = MouseOffset;
+	MouseDirection.Normalize();
+
+	for (int32 Index = 0; Index < WidgetCount; Index++)
+	{
+		FVector2D WidgetDirection = GetDirection(Index);
+		WidgetDirection.Normalize();
+
+		float Colinearity = FVector2D::DotProduct(MouseDirection, WidgetDirection);
+
+		if (Colinearity > BestColinearity)
+		{
+			BestColinearity = Colinearity;
+			BestIndex = Index;
+		}
+	}
+
+	return BestIndex;
+}

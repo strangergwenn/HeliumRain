@@ -66,6 +66,12 @@ protected:
 	/** Get colinearity */
 	float GetColinearity(int32 Index) const;
 
+	/** Check if a widget has been selected */
+	bool HasSelection() const;
+
+	/** Get the slected index */
+	int32 GetSelectedIndex() const;
+
 
 protected:
 
@@ -87,7 +93,8 @@ protected:
 
 	// HUD data
 	FVector2D                            ViewportCenter;
-	FVector2D                            MousePos;
+	FVector2D                            InitialMousePosition;
+	FVector2D                            MouseOffset;
 	int32                                WidgetCount;
 	int32                                WidgetDistance;
 	int32                                WidgetSize;
