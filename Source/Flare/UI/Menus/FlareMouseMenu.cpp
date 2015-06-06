@@ -13,13 +13,18 @@
 
 void SFlareMouseMenu::Construct(const FArguments& InArgs)
 {
-	// Data
-	OwnerHUD = InArgs._OwnerHUD;
-	PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-	WidgetCount = 0;
+	// Setup
 	WidgetDistance = 200;
 	WidgetSize = 100;
+	AnimTime = 0.10f;
+
+	// Init
+	OwnerHUD = InArgs._OwnerHUD;
+	PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	SetVisibility(EVisibility::Hidden);
+	CurrentTime = 0.0f;
+	WidgetCount = 0;
+	IsOpen = false;
 	
 	// Structure
 	ChildSlot
@@ -62,14 +67,18 @@ void SFlareMouseMenu::AddWidget()
 
 void SFlareMouseMenu::Open()
 {
-	FLOG("SFlareMouseMenu::Open");
+	IsOpen = true;
 	InitialMousePosition = PC->GetMousePosition();
-
 	SetVisibility(EVisibility::HitTestInvisible);
+	if (CurrentTime < 0 || CurrentTime > AnimTime)
+	{
+		CurrentTime = 0;
+	}
 }
 
 void SFlareMouseMenu::Close()
 {
+	// Result extraction
 	if (HasSelection())
 	{
 		int32 Index = GetSelectedIndex();
@@ -77,7 +86,12 @@ void SFlareMouseMenu::Close()
 		// TODO insert action here depending on Index
 	}
 
-	SetVisibility(EVisibility::Hidden);
+	// State data
+	IsOpen = false;
+	if (CurrentTime < 0 || CurrentTime > AnimTime)
+	{
+		CurrentTime = AnimTime;
+	}
 }
 
 
@@ -89,22 +103,29 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
+	// Viewport data
 	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
-
 	MouseOffset = PC->GetMousePosition() - InitialMousePosition;
+
+	// Time data
+	CurrentTime += IsOpen ? InDeltaTime : -InDeltaTime;
+	if (!IsOpen && CurrentTime > AnimTime)
+	{
+		SetVisibility(EVisibility::Hidden);
+	}
 }
 
 FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
 {
-	FVector2D WidgetDirection = GetDirection(Index);
-	FVector2D ConstantOffset = FVector2D(-WidgetSize, -WidgetSize) / 2;
-	return ViewportCenter + ConstantOffset + WidgetDirection;
+	return ViewportCenter - GetWidgetSize(Index) / 2 + GetDirection(Index);;
 }
 
 FVector2D SFlareMouseMenu::GetWidgetSize(int32 Index) const
 {
-	return FVector2D(WidgetSize, WidgetSize);
+	FVector2D BaseSize(WidgetSize, WidgetSize);
+	float AnimAlpha = FMath::Clamp(CurrentTime / AnimTime, 0.0f, 1.0f);
+	return BaseSize * AnimAlpha;
 }
 
 FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const

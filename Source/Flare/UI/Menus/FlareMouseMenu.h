@@ -91,13 +91,18 @@ protected:
 	TSharedPtr<SFlareSubsystemStatus>    SectorStatus;
 	TSharedPtr<SCanvas>                  HUDCanvas;
 
+	// HUD settings
+	int32                                WidgetDistance;
+	int32                                WidgetSize;
+	float                                AnimTime;
+
 	// HUD data
 	FVector2D                            ViewportCenter;
 	FVector2D                            InitialMousePosition;
 	FVector2D                            MouseOffset;
 	int32                                WidgetCount;
-	int32                                WidgetDistance;
-	int32                                WidgetSize;
+	float                                CurrentTime;
+	float                                IsOpen;
 
 
 };
