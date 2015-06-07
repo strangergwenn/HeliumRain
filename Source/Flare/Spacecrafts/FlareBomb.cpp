@@ -1,5 +1,6 @@
 
 #include "../Flare.h"
+#include "FlareBombComponent.h"
 #include "FlareBomb.h"
 
 
@@ -9,19 +10,20 @@
 
 AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
+	FLOG("AFlareBomb");
 	// Mesh data
-	BombComp = PCIP.CreateDefaultSubobject<UFlareBombComponent>(this);
+	BombComp = PCIP.CreateDefaultSubobject<UFlareBombComponent>(this, TEXT("Root"));
 	BombComp->bTraceComplexOnMove = true;
-	BombComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	BombComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BombComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	BombComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	BombComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	BombComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	BombComp->LDMaxDrawDistance = 100000; // 1km
+	BombComp->SetSimulatePhysics(true);
 	RootComponent = BombComp;
 
 	// Settings
-	FlightEffects = NULL;
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 }
@@ -34,10 +36,9 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 void AFlareBomb::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	BombComp->OnProjectileBounce.AddDynamic(this, &AFlareProjectile::OnImpact);
 }
 
-void AFlareBomb::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity)
+void AFlareBomb::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponentDescription* Description)
 {
 	ParentWeapon = Weapon;
 	WeaponDescription = Description;
@@ -45,26 +46,14 @@ void AFlareBomb::Initialize(UFlareWeapon* Weapon, const FFlareShipComponentDescr
 	// Get the power from description
 	if (Description)
 	{
-
-		//void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerSpacecraftPawn, bool IsInMenu)
-		{*/
-
-		ShellComp->SetStaticMesh(Description->);
-		
-		for (int32 i = 0; i < ShellDescription->Characteristics.Num(); i++)
-		{
-			const FFlareShipComponentCharacteristic& Characteristic = ShellDescription->Characteristics[i];
-			switch (Characteristic.CharacteristicType)
-			{
-				case EFlarePartCharacteristicType::AmmoPower:
-					ShellPower = Characteristic.CharacteristicValue;
-					break;
-			}
-		}
+		FFlareSpacecraftComponentSave ComponentData;
+		ComponentData.ComponentIdentifier = Description->Identifier;
+		BombComp->Initialize(&ComponentData, Weapon->GetSpacecraft()->GetCompany(), Weapon->GetSpacecraft(), false);
 	}
 }
 
-void AFlareBomb::OnImpact(const FHitResult& HitResult, const FVector& HitVelocity)
+void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Destroy();
+	FLOG("AFlareBomb Hit");
+	//Destroy();
 }

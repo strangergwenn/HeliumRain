@@ -3,6 +3,7 @@
 #include "FlareWeapon.h"
 #include "FlareBomb.generated.h"
 
+class UFlareBombComponent;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class AFlareBomb : public AActor
@@ -20,11 +21,9 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	/** Properties setup */
-	void Initialize(class UFlareWeapon* Weapon, const FFlareShipComponentDescription* Description);
+	void Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponentDescription* Description);
 
-	/** Impact happened */
-	UFUNCTION()
-	void OnImpact(const FHitResult& HitResult, const FVector& ImpactVelocity);
+	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 
 protected:
@@ -35,10 +34,7 @@ protected:
 
 	/** Mesh component */
 	UPROPERTY()
-	UFlareSpacecraftComponent*               BombComp;
-
-	UPROPERTY()
-	const FFlareShipComponentDescription*    WeaponDescription;
+	UFlareBombComponent*               BombComp;
 
 	UPROPERTY()
 	UFlareWeapon*                            ParentWeapon;
@@ -52,4 +48,5 @@ protected:
 	UMaterialInterface*                      ExplosionEffectMaterial;
 
 
+	const FFlareSpacecraftComponentDescription*    WeaponDescription;
 };

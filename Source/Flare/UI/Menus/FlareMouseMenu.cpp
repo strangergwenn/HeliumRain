@@ -262,3 +262,5 @@ void SFlareMouseMenu::SetAnimDirection(bool Opening)
 		CurrentTime = Opening ? 0 : AnimTime;
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

@@ -3,6 +3,7 @@
 #include "FlareWeapon.h"
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
+#include "FlareBomb.h"
 
 
 /*----------------------------------------------------
@@ -30,21 +31,62 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 
+	FLOG("UFlareWeapon::Initialize");
+
 	float FiredAmmo = 0;
 
 	// Setup properties
 	if (ComponentDescription)
 	{
-		FiringRate = ComponentDescription->GunCharacteristics.AmmoRate;
-		MaxAmmo = ComponentDescription->GunCharacteristics.AmmoCapacity;
-		AmmoVelocity = ComponentDescription->GunCharacteristics.AmmoVelocity;
+		FiringRate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoRate;
+		MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+		AmmoVelocity = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
 
-		FiringSound = ComponentDescription->GunCharacteristics.FiringSound;
-		FiringEffectTemplate = ComponentDescription->GunCharacteristics.FiringEffect;
+		FiringSound = ComponentDescription->WeaponCharacteristics.FiringSound;
+		FiringEffectTemplate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.FiringEffect;
 
 		FiredAmmo = ShipComponentData.Weapon.FiredAmmo;
 
+		FLOGV("UFlareWeapon::Initialize IsBomb ? %d", ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb);
 
+		if(ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+		{
+			FLOGV("IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
+
+
+			UStaticMeshSocket* BombHardpoint = ComponentDescription->WeaponCharacteristics.BombCharacteristics.BombMesh->FindSocket("Hardpoint");
+			FLOGV("BombHardpoint RelativeLocation=%s", *BombHardpoint->RelativeLocation.ToString());
+
+			for(int BombIndex = FiredAmmo; BombIndex < ComponentDescription->WeaponCharacteristics.AmmoCapacity ; BombIndex++)
+			{
+				// Get data
+				FVector HardpointLocation;
+				FRotator HardpointRotation;
+
+				FName HardpointName = FName(*(FString("Hardpoint") + FString::FromInt(BombIndex)));
+
+				FTransform HardPointWorldTransform = GetSocketTransform(HardpointName);
+
+				GetSocketWorldLocationAndRotation(HardpointName, HardpointLocation, HardpointRotation);
+
+
+				FLOGV("Bomb %d HardpointName=%s", BombIndex, *HardpointName.ToString());
+				FLOGV("Bomb %d HardpointLocation=%s", BombIndex, *HardpointLocation.ToString());
+				FLOGV("Bomb %d HardpointRotation=%s", BombIndex, *HardpointRotation.ToString());
+
+				FVector BombLocation = HardPointWorldTransform.TransformPosition(-BombHardpoint->RelativeLocation);
+
+				FLOGV("Bomb %d BombLocation=%s", BombIndex, *BombLocation.ToString());
+
+				// Spawn parameters
+				FActorSpawnParameters Params;
+				Params.bNoFail = true;
+
+				AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, HardPointWorldTransform.Rotator() , Params);
+				Bomb->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
+				Bomb->Initialize(this, ComponentDescription);
+			}
+		}
 	}
 
 	// Spawn properties
@@ -70,6 +112,9 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 		FiringEffect->DeactivateSystem();
 		FiringEffect->SetTickGroup(ETickingGroup::TG_PostPhysics);
 	}
+
+	// If bomb, spawn bombs
+
 }
 
 FFlareSpacecraftComponentSave* UFlareWeapon::Save()
@@ -87,14 +132,14 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetUsableRatio() > 0.f)
 	{
-		if (ComponentDescription->GunCharacteristics.AlternedFire)
+		if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.AlternedFire)
 		{
-			LastFiredGun = (LastFiredGun + 1 ) % ComponentDescription->GunCharacteristics.GunCount;
+			LastFiredGun = (LastFiredGun + 1 ) % ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount;
 			FireGun(LastFiredGun);
 		}
 		else
 		{
-			for(int GunIndex = 0; GunIndex < ComponentDescription->GunCharacteristics.GunCount; GunIndex++)
+			for(int GunIndex = 0; GunIndex < ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount; GunIndex++)
 			{
 				FireGun(GunIndex);
 			}
@@ -117,7 +162,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 
 	// Get firing data
 	FVector FiringLocation = GetMuzzleLocation(GunIndex);
-	float Imprecision  = FMath::DegreesToRadians(ComponentDescription->GunCharacteristics.AmmoPrecision  + 3.f *(1 - GetDamageRatio()));
+	float Imprecision  = FMath::DegreesToRadians(ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoPrecision  + 3.f *(1 - GetDamageRatio()));
 
 	FVector FiringDirection = FMath::VRandCone(GetFireAxis(), Imprecision);
 	FVector FiringVelocity = GetPhysicsLinearVelocity();
@@ -153,10 +198,10 @@ bool UFlareWeapon::FireGun(int GunIndex)
 
 void UFlareWeapon::ConfigureShellFuze(AFlareShell* Shell)
 {
-	if(ComponentDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	if(ComponentDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
 	{
-		float SecurityRadius = 	ComponentDescription->GunCharacteristics.AmmoExplosionRadius + Spacecraft->GetMeshScale() / 100;
-		float SecurityDelay = SecurityRadius / ComponentDescription->GunCharacteristics.AmmoVelocity;
+		float SecurityRadius = 	ComponentDescription->WeaponCharacteristics.AmmoExplosionRadius + Spacecraft->GetMeshScale() / 100;
+		float SecurityDelay = SecurityRadius / ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
 		float ActiveTime = 10;
 
 		if(Target)
@@ -176,7 +221,7 @@ void UFlareWeapon::ConfigureShellFuze(AFlareShell* Shell)
 
 			float RelativeFiringVelocityInAxis = FVector::DotProduct(RelativeFiringVelocity, TargetOffset.GetUnsafeNormal());
 
-			float EstimatedRelativeVelocity = ComponentDescription->GunCharacteristics.AmmoVelocity + RelativeFiringVelocityInAxis;
+			float EstimatedRelativeVelocity = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity + RelativeFiringVelocityInAxis;
 			float EstimatedFlightTime = EstimatedDistance / EstimatedRelativeVelocity;
 
 			float NeededSecurityDelay = EstimatedFlightTime * 0.5;
@@ -236,7 +281,7 @@ FVector UFlareWeapon::GetFireAxis() const
 
 FVector UFlareWeapon::GetMuzzleLocation(int muzzleIndex) const
 {
-	if (ComponentDescription->GunCharacteristics.GunCount == 1)
+	if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount == 1)
 	{
 		return GetSocketLocation(FName("Muzzle"));
 	}
@@ -249,12 +294,12 @@ FVector UFlareWeapon::GetMuzzleLocation(int muzzleIndex) const
 
 int UFlareWeapon::GetGunCount() const
 {
-	return ComponentDescription->GunCharacteristics.GunCount;
+	return ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount;
 }
 
 bool UFlareWeapon::IsTurret() const
 {
-	return ComponentDescription->TurretCharacteristics.IsTurret;
+	return ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret;
 }
 
 bool UFlareWeapon::IsSafeToFire(int GunIndex) const
@@ -265,9 +310,9 @@ bool UFlareWeapon::IsSafeToFire(int GunIndex) const
 
 float UFlareWeapon::GetAimRadius() const
 {
-	if(ComponentDescription->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	if(ComponentDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
 	{
-		return ComponentDescription->GunCharacteristics.FuzeMaxDistanceThresold;
+		return ComponentDescription->WeaponCharacteristics.FuzeMaxDistanceThresold;
 	}
 	return 0;
 }
