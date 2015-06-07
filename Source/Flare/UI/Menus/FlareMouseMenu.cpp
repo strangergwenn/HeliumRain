@@ -14,8 +14,8 @@
 void SFlareMouseMenu::Construct(const FArguments& InArgs)
 {
 	// Setup
-	WidgetDistance = 200;
-	WidgetSize = 100;
+	WidgetDistance = 192;
+	WidgetSize = 96;
 	AnimTime = 0.10f;
 
 	// Init
@@ -144,7 +144,7 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 
 FVector2D SFlareMouseMenu::GetDirection(int32 Index) const
 {
-	return FVector2D(WidgetDistance, 0).GetRotated((Index * 360.0f) / (float)WidgetCount);
+	return FVector2D(0, -WidgetDistance).GetRotated((Index * 360.0f) / (float)WidgetCount);
 }
 
 float SFlareMouseMenu::GetColinearity(int32 Index) const

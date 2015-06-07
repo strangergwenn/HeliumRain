@@ -771,7 +771,7 @@ void AFlareSpacecraft::Brake()
 {
 	if (NavigationSystem->IsManualPilot())
 	{
-		// TODO
+		NavigationSystem->PushCommandLinearBrake();
 	}
 }
 

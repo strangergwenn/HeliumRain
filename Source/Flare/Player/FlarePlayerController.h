@@ -134,6 +134,15 @@ public:
 	/** Test method 2 */
 	virtual void Test2();
 
+	/** Align to the ship's speed */
+	void AlignToSpeed();
+
+	/** Align to the ship's reverse speed */
+	void AlignToReverse();
+
+	/** Brake */
+	void Brake();
+
 
 protected:
 

@@ -339,8 +339,9 @@ void AFlarePlayerController::SetupMenu()
 		HUD->SetupMenu(PlayerData);
 
 		// Setup mouse menu
-		HUD->GetMouseMenu()->AddWidget("HUD_Power", FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Test1));
-		HUD->GetMouseMenu()->AddWidget("HUD_Power", FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Test2));
+		HUD->GetMouseMenu()->AddWidget("Mouse_Align", FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
+		HUD->GetMouseMenu()->AddWidget("Mouse_Reverse", FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));
+		HUD->GetMouseMenu()->AddWidget("Mouse_Brake", FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
 	}
 }
 
@@ -561,6 +562,33 @@ void AFlarePlayerController::Test1()
 void AFlarePlayerController::Test2()
 {
 	Notify(FText::FromString("I am Test2"));
+}
+
+void AFlarePlayerController::AlignToSpeed()
+{
+	if (ShipPawn)
+	{
+		ShipPawn->ForceManual();
+		ShipPawn->FaceForward();
+	}
+}
+
+void AFlarePlayerController::AlignToReverse()
+{
+	if (ShipPawn)
+	{
+		ShipPawn->ForceManual();
+		ShipPawn->FaceBackward();
+	}
+}
+
+void AFlarePlayerController::Brake()
+{
+	if (ShipPawn)
+	{
+		ShipPawn->ForceManual();
+		ShipPawn->Brake();
+	}
 }
 
 
