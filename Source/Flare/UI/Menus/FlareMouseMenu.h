@@ -6,6 +6,9 @@
 #include "../Widgets/FlareSubsystemStatus.h"
 
 
+DECLARE_DELEGATE(FFlareMouseMenuClicked)
+
+
 class SFlareMouseMenu : public SCompoundWidget
 {
 	/*----------------------------------------------------
@@ -28,14 +31,17 @@ public:
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
 
+	/** Add a widget */
+	void AddWidget(FString Icon, FFlareMouseMenuClicked Action);
+
+	/** Remove all widgets */
+	void ClearWidgets();
+
 	/** Open the menu */
 	void Open();
 
 	/** Hide the menu */
 	void Close();
-
-	/** Add a widget */
-	void AddWidget();
 
 
 protected:
@@ -72,6 +78,9 @@ protected:
 	/** Get the slected index */
 	int32 GetSelectedIndex() const;
 
+	/** Reset the current opening/closing animation */
+	void SetAnimDirection(bool Opening);
+
 
 protected:
 
@@ -97,6 +106,7 @@ protected:
 	float                                AnimTime;
 
 	// HUD data
+	TArray<FFlareMouseMenuClicked>       Actions;
 	FVector2D                            ViewportCenter;
 	FVector2D                            InitialMousePosition;
 	FVector2D                            MouseOffset;

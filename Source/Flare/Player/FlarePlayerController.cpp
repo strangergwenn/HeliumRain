@@ -331,8 +331,17 @@ void AFlarePlayerController::SetupMenu()
 	FVector SpawnLocation(5000000 * FVector(1, 1, 1));
 	MenuPawn = GetWorld()->SpawnActor<AFlareMenuPawn>(GetGame()->GetMenuPawnClass(), SpawnLocation, FRotator::ZeroRotator);
 
-	// Signal the menu to setup as well
-	Cast<AFlareHUD>(GetHUD())->SetupMenu(PlayerData);
+	// Setup HUD
+	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
+	if (HUD)
+	{
+		// Signal the menu to setup as well
+		HUD->SetupMenu(PlayerData);
+
+		// Setup mouse menu
+		HUD->GetMouseMenu()->AddWidget("HUD_Power", FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Test1));
+		HUD->GetMouseMenu()->AddWidget("HUD_Power", FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Test2));
+	}
 }
 
 void AFlarePlayerController::OnEnterMenu()

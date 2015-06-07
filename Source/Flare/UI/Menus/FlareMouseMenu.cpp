@@ -34,12 +34,6 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	[
 		SAssignNew(HUDCanvas, SCanvas)
 	];
-
-	// Layout
-	AddWidget();
-	AddWidget();
-	AddWidget();
-	AddWidget();
 }
 
 
@@ -47,12 +41,12 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareMouseMenu::AddWidget()
+void SFlareMouseMenu::AddWidget(FString Icon, FFlareMouseMenuClicked Action)
 {
 	// Update data
 	int32 Index = WidgetCount;
 	WidgetCount++;
-	// TODO arbitrary image and callback store
+	Actions.Add(Action);
 
 	// Add widget
 	HUDCanvas->AddSlot()
@@ -60,20 +54,22 @@ void SFlareMouseMenu::AddWidget()
 		.Size(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetSize, Index)))
 		[
 			SNew(SImage)
-			.Image(FFlareStyleSet::GetIcon("HUD_Power"))
+			.Image(FFlareStyleSet::GetIcon(Icon))
 			.ColorAndOpacity(this, &SFlareMouseMenu::GetWidgetColor, Index)
 		];
 }
 
+void SFlareMouseMenu::ClearWidgets()
+{
+	HUDCanvas->ClearChildren();
+	Actions.Empty();
+}
+
 void SFlareMouseMenu::Open()
 {
-	IsOpen = true;
 	InitialMousePosition = PC->GetMousePosition();
 	SetVisibility(EVisibility::HitTestInvisible);
-	if (CurrentTime < 0 || CurrentTime > AnimTime)
-	{
-		CurrentTime = 0;
-	}
+	SetAnimDirection(true);
 }
 
 void SFlareMouseMenu::Close()
@@ -83,15 +79,11 @@ void SFlareMouseMenu::Close()
 	{
 		int32 Index = GetSelectedIndex();
 		FLOGV("SFlareMouseMenu::Close : index %d", Index);
-		// TODO insert action here depending on Index
+		Actions[Index].ExecuteIfBound();
 	}
 
 	// State data
-	IsOpen = false;
-	if (CurrentTime < 0 || CurrentTime > AnimTime)
-	{
-		CurrentTime = AnimTime;
-	}
+	SetAnimDirection(false);
 }
 
 
@@ -195,4 +187,13 @@ int32 SFlareMouseMenu::GetSelectedIndex() const
 	}
 
 	return BestIndex;
+}
+
+void SFlareMouseMenu::SetAnimDirection(bool Opening)
+{
+	IsOpen = Opening;
+	if (CurrentTime < 0 || CurrentTime > AnimTime)
+	{
+		CurrentTime = Opening ? 0 : AnimTime;
+	}
 }

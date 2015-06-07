@@ -216,6 +216,11 @@ public:
 		return MenuIsOpen;
 	}
 
+	TSharedPtr<SFlareMouseMenu> GetMouseMenu() const
+	{
+		return MouseMenu;
+	}
+
 
 	/*----------------------------------------------------
 		Slate
