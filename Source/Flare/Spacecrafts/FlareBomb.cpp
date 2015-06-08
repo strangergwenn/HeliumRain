@@ -16,11 +16,11 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 	BombComp->bTraceComplexOnMove = true;
 	BombComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BombComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-	BombComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	BombComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
-	BombComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	BombComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Ignore);
+	BombComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+	BombComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	BombComp->LDMaxDrawDistance = 100000; // 1km
-	BombComp->SetSimulatePhysics(true);
+	BombComp->SetSimulatePhysics(false);
 	RootComponent = BombComp;
 
 	// Settings

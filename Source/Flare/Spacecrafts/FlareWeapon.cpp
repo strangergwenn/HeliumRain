@@ -74,15 +74,34 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 				FLOGV("Bomb %d HardpointLocation=%s", BombIndex, *HardpointLocation.ToString());
 				FLOGV("Bomb %d HardpointRotation=%s", BombIndex, *HardpointRotation.ToString());
 
+				UStaticMeshSocket* Hardpoint = StaticMesh->FindSocket(HardpointName);
+				FMatrix SocketMatrix;
+				Hardpoint->GetSocketMatrix(SocketMatrix, this);
+
+				FLOGV("Bomb %d RelativeLocation=%s", BombIndex, *(Hardpoint->RelativeLocation.ToString()));
+				FLOGV("Bomb %d RelativeRotation=%s", BombIndex, *(Hardpoint->RelativeRotation.ToString()));
+
+
+
+
 				FVector BombLocation = HardPointWorldTransform.TransformPosition(-BombHardpoint->RelativeLocation);
 
 				FLOGV("Bomb %d BombLocation=%s", BombIndex, *BombLocation.ToString());
+
+				BombLocation = SocketMatrix.TransformPosition(-BombHardpoint->RelativeLocation);
+
+				FLOGV("Bomb %d BombLocation2=%s", BombIndex, *BombLocation.ToString());
+
+
+				FLOGV("Bomb %d HardPointWorldTransform.Rotator()=%s", BombIndex, *(HardPointWorldTransform.Rotator().ToString()));
+				FLOGV("Bomb %d SocketMatrix.Rotator()=%s", BombIndex, *(SocketMatrix.Rotator().ToString()));
+
 
 				// Spawn parameters
 				FActorSpawnParameters Params;
 				Params.bNoFail = true;
 
-				AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, HardPointWorldTransform.Rotator() , Params);
+				AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, HardPointWorldTransform.Rotator(), Params);
 				Bomb->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
 				Bomb->Initialize(this, ComponentDescription);
 			}

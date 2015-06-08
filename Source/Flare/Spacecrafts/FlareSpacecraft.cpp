@@ -129,7 +129,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-
+	FLOG("AFlareSpacecraft Hit");
 	DamageSystem->OnCollision(Other, HitLocation, HitNormal);
 }
 
