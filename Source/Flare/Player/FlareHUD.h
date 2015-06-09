@@ -216,6 +216,11 @@ public:
 		return MenuIsOpen;
 	}
 
+	bool IsWheelOpen() const
+	{
+		return WheelIsOpen;
+	}
+
 	TSharedPtr<SFlareMouseMenu> GetMouseMenu() const
 	{
 		return MouseMenu;

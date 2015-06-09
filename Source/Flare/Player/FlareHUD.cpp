@@ -76,7 +76,7 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// Mouse control
-	if (PC)
+	if (PC && !WheelIsOpen)
 	{
 		FVector2D MousePos = PC->GetMousePosition();
 		FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());

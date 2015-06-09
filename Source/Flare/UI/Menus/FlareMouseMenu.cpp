@@ -123,7 +123,6 @@ FVector2D SFlareMouseMenu::GetWidgetSize(int32 Index) const
 FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 {
 	FLinearColor Color = FLinearColor::White;
-	float Colinearity = GetColinearity(Index);
 
 	if (OwnerHUD->IsMenuOpen())
 	{
@@ -131,7 +130,9 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 	}
 	else
 	{
-		Color.A = 0.3 + 0.7 * Colinearity;
+		float Colinearity = GetColinearity(Index);
+		float DistanceRatio = FMath::Clamp(2 * (MouseOffset.Size() / WidgetDistance - 0.5f), 0.0f, 1.0f);
+		Color.A = 0.3 + 0.7 * Colinearity * DistanceRatio;
 	}
 
 	return Color;
