@@ -180,7 +180,7 @@ protected:
 
 
 	/*----------------------------------------------------
-		Private data
+		Gameplay data
 	----------------------------------------------------*/
 
 	/** Dust effect template */
@@ -191,22 +191,26 @@ protected:
 	UPROPERTY()
 	UParticleSystemComponent*                DustEffect;
 
+	/** Player save structure */
 	UPROPERTY()
-	FFlarePlayerSave PlayerData;
+	FFlarePlayerSave                         PlayerData;
 
+	/** Player pawn used inside menus */
 	UPROPERTY()
-	AFlareMenuPawn* MenuPawn;
+	AFlareMenuPawn*                          MenuPawn;
 
+	/** Currently flown ship */
 	UPROPERTY()
-	AFlareSpacecraft* ShipPawn;
+	AFlareSpacecraft*                        ShipPawn;
 
+	/** Player owned company */
 	UPROPERTY()
-	UFlareCompany* Company;
+	UFlareCompany*                           Company;
 
-	bool   CombatMode;
-	bool   ExternalCamera;
-
-	int32 QuickSwitchNextOffset;
+	// Various gameplay data
+	bool                                     CombatMode;
+	bool                                     ExternalCamera;
+	int32                                    QuickSwitchNextOffset;
 
 
 public:

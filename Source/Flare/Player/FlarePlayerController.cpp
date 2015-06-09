@@ -210,9 +210,9 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	CombatMode = false;
 	SetExternalCamera(true, true);
 	ShipPawn->EnablePilot(false);
-
 	QuickSwitchNextOffset = 0;
 
+	// Setup power sound
 	FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
 	if(ShipDescription)
 	{
@@ -223,6 +223,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 		PowerSound->SetSound(NULL);
 	}
 
+	// Setup orbital engine sound
 	FFlareSpacecraftComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
 	if(EngineDescription)
 	{
@@ -233,6 +234,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 		EngineSound->SetSound(NULL);
 	}
 
+	// Setup RCS sound
 	FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
 	if(RCSDescription)
 	{
