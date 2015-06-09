@@ -51,6 +51,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 		if(ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
 		{
+			FiringPeriod =  0;
 			FLOGV("IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
 
 
@@ -136,7 +137,21 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 				AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, Rotation.Rotator(), Params);
 				Bomb->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
 				Bomb->Initialize(this, ComponentDescription);
+
+				Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(GetSpacecraft(), true);
+				GetSpacecraft()->Airframe->IgnoreActorWhenMoving(Bomb, true);
+				for(int i = 0; i < Bombs.Num(); i++)
+				{
+					Cast<class UPrimitiveComponent>(Bombs[i]->GetRootComponent())->IgnoreActorWhenMoving(Bomb, true);
+					Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(Bombs[i], true);
+				}
+
+				Bombs.Add(Bomb);
 			}
+		}
+		else
+		{
+			FiringPeriod =  1.f / (FiringRate / 60.f);
 		}
 	}
 
@@ -147,7 +162,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 	// Additional properties
 	CurrentAmmo = MaxAmmo - FiredAmmo;
-	FiringPeriod = 1 / (FiringRate / 60);
+
 	LastFiredGun = -1;
 
 	if (FiringEffect == NULL && FiringEffectTemplate)
@@ -181,32 +196,54 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell > FiringPeriod && GetUsableRatio() > 0.f)
+	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f)
 	{
-		if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.AlternedFire)
+		FLOGV("%s Try Firing", *GetReadableName());
+
+		if(ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
 		{
-			LastFiredGun = (LastFiredGun + 1 ) % ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount;
-			FireGun(LastFiredGun);
-		}
-		else
-		{
-			for(int GunIndex = 0; GunIndex < ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount; GunIndex++)
+			if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.AlternedFire)
 			{
-				FireGun(GunIndex);
+				LastFiredGun = (LastFiredGun + 1 ) % ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount;
+				FireGun(LastFiredGun);
 			}
+			else
+			{
+				for(int GunIndex = 0; GunIndex < ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount; GunIndex++)
+				{
+					FireGun(GunIndex);
+				}
+			}
+		}
+		else if(ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+		{
+			FireBomb();
 		}
 
 		// If damage the firerate is randomly reduced to a min of 10 times normal value
 		float DamageDelay = FMath::Square(1.f- GetDamageRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
 		TimeSinceLastShell = -DamageDelay;
+
+		if(FiringPeriod == 0){
+			Firing = false;
+		}
+	} else if( Firing)
+	{
+		FLOGV("%s TimeSinceLastShell=%f", *GetReadableName(), TimeSinceLastShell);
+		FLOGV("%s FiringPeriod=%f", *GetReadableName(), FiringPeriod);
+		FLOGV("%s GetUsableRatio()=%f", *GetReadableName(), GetUsableRatio());
+		FLOGV("%s CurrentAmmo=%f", *GetReadableName(), CurrentAmmo);
 	}
 }
 
 
 bool UFlareWeapon::FireGun(int GunIndex)
 {
+	FLOGV("%s Fire gun", *GetReadableName());
+
 	if(!IsSafeToFire(GunIndex))
 	{
+		FLOGV("%s Not secure", *GetReadableName());
 		// Avoid to fire itself
 		return false;
 	}
@@ -241,8 +278,17 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	{
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation(), 1, 1);
 	}
+	FLOGV("%s Fired", *GetReadableName());
 
 	// Update data
+	CurrentAmmo--;
+	return true;
+}
+
+bool UFlareWeapon::FireBomb()
+{
+	AFlareBomb* Bomb = Bombs.Pop();
+	Bomb->Drop();
 	CurrentAmmo--;
 	return true;
 }
@@ -296,11 +342,13 @@ void UFlareWeapon::SetupComponentMesh()
 
 void UFlareWeapon::StartFire()
 {
+	FLOGV("%s Start Fire", *GetReadableName());
 	Firing = true;
 }
 
 void UFlareWeapon::StopFire()
 {
+	FLOGV("%s Stop Fire", *GetReadableName());
 	Firing = false;
 }
 

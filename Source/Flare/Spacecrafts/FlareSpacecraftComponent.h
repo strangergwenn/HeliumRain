@@ -470,7 +470,7 @@ public:
 	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy);
 
 	/** Return the remaining hit points ratio. 1 for no damage, 0 for destroyed */
-	float GetDamageRatio(bool WithArmor = false) const;
+	virtual float GetDamageRatio(bool WithArmor = false) const;
 
 	/** Return true if the ship component is destroyed */
 	virtual bool IsDestroyed() const;

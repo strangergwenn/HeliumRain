@@ -4,6 +4,7 @@
 #include "FlareWeapon.generated.h"
 
 class AFlareShell;
+class AFlareBomb;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareWeapon : public UFlareSpacecraftComponent
@@ -56,6 +57,8 @@ public:
 
 	virtual bool FireGun(int GunIndex);
 
+	virtual bool FireBomb();
+
 	virtual void ConfigureShellFuze(AFlareShell* Shell);
 
 	virtual void SetTarget(AActor *NewTarget);
@@ -86,6 +89,9 @@ protected:
 	float                       AmmoVelocity;
 	int32                       MaxAmmo;
 	FActorSpawnParameters       ProjectileSpawnParams;
+
+	UPROPERTY()
+	TArray<AFlareBomb*>         Bombs;
 
 	// State
 	bool                        Firing;

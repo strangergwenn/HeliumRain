@@ -31,3 +31,8 @@ UStaticMesh* UFlareBombComponent::GetMesh(bool PresentationMode) const
 	return Super::GetMesh(PresentationMode);
 }
 
+
+float UFlareBombComponent::GetDamageRatio(bool WithArmor) const
+{
+	return 1.0;
+}
