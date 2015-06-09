@@ -97,11 +97,43 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 				FLOGV("Bomb %d SocketMatrix.Rotator()=%s", BombIndex, *(SocketMatrix.Rotator().ToString()));
 
 
+
+				float Roll = 0;
+
+				bool NegativeZScale = RelativeScale3D.Z < 0;
+
+				FLOGV("Bomb %d NegativeZScale=%d", BombIndex, NegativeZScale);
+				FLOGV("Bomb %d RelativeScale3D=%s", BombIndex, *RelativeScale3D.ToString());
+
+				if(BombIndex == 0)
+				{
+					Roll = 90;
+				}
+				else if(BombIndex == 1)
+				{
+					Roll = -90;
+				}
+				else if(BombIndex == 2)
+				{
+					Roll = (NegativeZScale ? 180 : 0);
+				}
+
+				FTransform LocalRotation(FRotator(0,0,Roll));
+
+				FLOGV("Bomb %d Roll=%f", Roll);
+
+
+				FTransform Rotation = LocalRotation * ComponentToWorld;
+
+
+				FLOGV("Bomb %d LocalRotation.Rotator()=%s", BombIndex, *(LocalRotation.Rotator().ToString()));
+				FLOGV("Bomb %d Rotation.Rotator()=%s", BombIndex, *(Rotation.Rotator().ToString()));
+
 				// Spawn parameters
 				FActorSpawnParameters Params;
 				Params.bNoFail = true;
 
-				AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, HardPointWorldTransform.Rotator(), Params);
+				AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, Rotation.Rotator(), Params);
 				Bomb->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
 				Bomb->Initialize(this, ComponentDescription);
 			}
