@@ -95,13 +95,13 @@ TSharedRef< FSlateStyleSet > FFlareStyleSet::Create()
 		);
 
 	Style.Set("Flare.Title2", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato300", 24))
+		.SetFont(TTF_FONT("Lato500", 20))
 		.SetColorAndOpacity(WhiteColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);
 
 	Style.Set("Flare.Title2Inverted", FTextBlockStyle()
-		.SetFont(TTF_FONT("Lato300", 24))
+		.SetFont(TTF_FONT("Lato500", 20))
 		.SetColorAndOpacity(BlackColor)
 		.SetShadowColorAndOpacity(FLinearColor::Black)
 		);

@@ -35,6 +35,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Left)
 		[
 			SNew(SBorder)
+			.Padding(FMargin(0))
 			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
 			[
 				SNew(SScrollBox)
@@ -45,7 +46,6 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 					// Menu title
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
 						SNew(SHorizontalBox)
 
@@ -65,24 +65,22 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 						]
 					]
 
-					// Section title
-					+ SVerticalBox::Slot()
-					.Padding(FMargin(10))
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("Overview", "OVERVIEW"))
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-					]
-
 					// Action box for this station
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
 						SAssignNew(ObjectActionMenu, SFlareTargetActions)
 						.Player(PC)
 						.NoInspect(true)
+					]
+
+					// Object name
+					+ SVerticalBox::Slot()
+					.Padding(FMargin(20))
+					.AutoHeight()
+					[
+						SAssignNew(ObjectName, STextBlock)
+						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
 					]
 
 					// Object description
@@ -158,6 +156,7 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 			FFlareSpacecraftDescription* Desc = PC->GetGame()->GetSpacecraftCatalog()->Get(Data->Identifier);
 			if (Desc)
 			{
+				ObjectName->SetText(FText::FromString(Desc->Name.ToString()));
 				ObjectDescription->SetText(Desc->Description);
 				PC->GetMenuPawn()->ShowShip(Desc, Data);
 			}

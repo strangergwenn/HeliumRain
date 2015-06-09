@@ -17,7 +17,7 @@ class SFlareItemArray : public SCompoundWidget
 	: _ItemStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
 	, _ContainerStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle"))
 	, _LineSize(1)
-	, _ItemMargin(FMargin(2))
+	, _ItemMargin(FMargin(0))
 	{}
 
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)

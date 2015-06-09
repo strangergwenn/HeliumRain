@@ -312,6 +312,7 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	CompanyData.CustomizationBasePaintColorIndex = 0;
 	CompanyData.CustomizationPaintColorIndex = 4;
 	CompanyData.CustomizationOverlayColorIndex = FMath::RandRange(1, 15);
+	CompanyData.CustomizationLightColorIndex = CompanyData.CustomizationOverlayColorIndex;
 	CompanyData.CustomizationPatternIndex = 0;
 
 	// Create company

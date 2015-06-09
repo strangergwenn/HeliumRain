@@ -84,6 +84,12 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 		PartCost = InArgs._Description->Cost;
 	}
 	SetOwned(InArgs._IsOwned);
+
+	// Minimized
+	if (InArgs._IsMinimized)
+	{
+		Details->SetVisibility(EVisibility::Collapsed);
+	}
 }
 
 

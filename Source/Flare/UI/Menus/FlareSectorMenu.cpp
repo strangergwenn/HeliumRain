@@ -35,6 +35,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Left)
 		[
 			SNew(SBorder)
+			.Padding(FMargin(0))
 			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
 			[
 				SNew(SScrollBox)
@@ -45,7 +46,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					// Object name
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
 						SNew(SHorizontalBox)
 

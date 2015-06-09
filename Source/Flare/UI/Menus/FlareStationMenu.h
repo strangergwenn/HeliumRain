@@ -71,6 +71,7 @@ protected:
 	
 	// Menu components
 	TSharedPtr<SFlareTargetActions>    ObjectActionMenu;
+	TSharedPtr<STextBlock>             ObjectName;
 	TSharedPtr<STextBlock>             ObjectDescription;
 	TSharedPtr<SFlareShipList>         ShipList;
 

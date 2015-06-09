@@ -31,7 +31,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 		// Section title
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(10))
+		.Padding(FMargin(20))
 		[
 			SNew(STextBlock)
 			.Text(InArgs._Title)
@@ -41,7 +41,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 		// Box
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(10))
+		.Padding(FMargin(0, 10))
 		[
 			SAssignNew(TargetList, SListView< TSharedPtr<FInterfaceContainer> >)
 			.ListItemsSource(&TargetListData)

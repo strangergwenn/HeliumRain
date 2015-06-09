@@ -13,10 +13,13 @@ class SFlarePartInfo : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlarePartInfo)
 	: _IsOwned(false)
+	, _IsMinimized(false)
 	, _ShowOwnershipInfo(false)
 	{}
 
 	SLATE_ARGUMENT(bool, IsOwned)
+
+	SLATE_ARGUMENT(bool, IsMinimized)
 
 	SLATE_ARGUMENT(bool, ShowOwnershipInfo)
 
@@ -46,6 +49,7 @@ public:
 
 	/** Add data for a single characteristic to an horizontal box */
 	static void AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers);
+
 
 protected:
 

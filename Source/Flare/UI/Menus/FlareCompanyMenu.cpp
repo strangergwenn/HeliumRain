@@ -37,6 +37,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SNew(SBorder)
+			.Padding(FMargin(0))
 			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
 			[
 				SNew(SScrollBox)
@@ -47,7 +48,6 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					// Object name
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
 						SNew(SHorizontalBox)
 
@@ -67,19 +67,8 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 						]
 					]
 
-					// Title
-					+ SVerticalBox::Slot()
-					.Padding(FMargin(10))
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("Overview", "OVERVIEW"))
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-					]
-
 					// Company info
 					+ SVerticalBox::Slot()
-					.Padding(FMargin(10))
 					.AutoHeight()
 					[
 						SAssignNew(ActionMenu, SFlareTargetActions)
@@ -87,9 +76,19 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 						.MinimizedMode(true)
 					]
 
+					// Title
+					+ SVerticalBox::Slot()
+					.Padding(FMargin(20))
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("Colors", "COLORS"))
+						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+					]
+
 					// Color picker
 					+ SVerticalBox::Slot()
-					.Padding(FMargin(10))
+					.Padding(FMargin(0, 10))
 					.AutoHeight()
 					[
 						SAssignNew(ColorBox, SFlareColorPanel).OwnerHUD(OwnerHUD)

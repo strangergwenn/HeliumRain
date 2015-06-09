@@ -35,7 +35,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Left)
 		[
 			SNew(SBorder)
-			.HAlign(HAlign_Center)
+			.Padding(FMargin(0))
 			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
 			[
 				SNew(SScrollBox)
@@ -46,7 +46,6 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					// Menu title
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
 						SNew(SHorizontalBox)
 
@@ -66,23 +65,22 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						]
 					]
 
-					// Object name
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(FMargin(10))
-					[
-						SAssignNew(ObjectName, STextBlock)
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-					]
-
 					// Action box
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
 						SAssignNew(ObjectActionMenu, SFlareTargetActions)
 						.Player(PC)
 						.NoInspect(true)
+					]
+
+					// Object name
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(FMargin(20))
+					[
+						SAssignNew(ObjectName, STextBlock)
+						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
 					]
 
 					// Object description
@@ -108,18 +106,16 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					// Ship customization panel
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
-					.HAlign(HAlign_Left)
 					[
 						SAssignNew(ShipCustomizationBox, SVerticalBox)
 
 						// Section title
 						+ SVerticalBox::Slot()
-						.Padding(FMargin(0, 20))
+						.Padding(FMargin(20))
 						.AutoHeight()
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("ShipPartsEngines", "ENGINES"))
+							.Text(LOCTEXT("ShipParts", "COMPONENTS"))
 							.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
 						]
 
@@ -127,60 +123,45 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						[
-							SAssignNew(EngineButton, SFlareButton)
-							.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButton")
-							.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
-							.OnClicked(this, &SFlareShipMenu::ShowEngines)
+							SNew(SHorizontalBox)
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SAssignNew(EngineButton, SFlareButton)
+								.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
+								.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
+								.OnClicked(this, &SFlareShipMenu::ShowEngines)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SAssignNew(RCSButton, SFlareButton)
+								.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
+								.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
+								.OnClicked(this, &SFlareShipMenu::ShowRCSs)
+							]
+
+							// Weapon group
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SAssignNew(WeaponButtonBox, SHorizontalBox)
+							]
 						]
 
-						// Section title
-						+ SVerticalBox::Slot()
-						.Padding(FMargin(0, 20))
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("ShipPartsRCS", "ATTITUDE CONTROL"))
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-						]
-
-						// RCS
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SAssignNew(RCSButton, SFlareButton)
-							.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButton")
-							.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
-							.OnClicked(this, &SFlareShipMenu::ShowRCSs)
-						]
-
-						// Section title
-						+ SVerticalBox::Slot()
-						.Padding(FMargin(0, 20))
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("ShipPartsWeapons", "WEAPONS"))
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
-						]
-
-						// Weapon group
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SAssignNew(WeaponButtonBox, SVerticalBox)
-						]
 					]
 
 					// Ship part customization panel
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(10))
 					[
 						SAssignNew(ShipPartCustomizationBox, SVerticalBox)
 
 						// Section title
 						+ SVerticalBox::Slot()
-						.Padding(FMargin(0, 20))
+						.Padding(FMargin(10))
 						.AutoHeight()
 						[
 							SAssignNew(ShipPartPickerTitle, STextBlock)
@@ -280,27 +261,20 @@ void SFlareShipMenu::LoadTargetShip()
 	{
 		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 
+		// Get the description data
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
 		if (ShipDesc)
 		{
-			ObjectName->SetText(LOCTEXT("Overview", "OVERVIEW"));
+			ObjectName->SetText(FText::FromString(ShipDesc->Name.ToString()));
 			ObjectDescription->SetText(ShipDesc->Description);
 			PC->GetMenuPawn()->ShowShip(ShipDesc, CurrentShipData);
 		}
 
-
 		// Make the right box visible
-		if (CanEdit)
-		{
-			ObjectName->SetVisibility(EVisibility::Collapsed);
-			ObjectDescription->SetVisibility(EVisibility::Collapsed);
-		}
-		else
+		if (!CanEdit)
 		{
 			ObjectActionMenu->SetSpacecraft(CurrentShipTarget);
 			ObjectActionMenu->Show();
-			ObjectName->SetVisibility(EVisibility::Visible);
-			ObjectDescription->SetVisibility(EVisibility::Visible);
 		}
 		ShipPartCustomizationBox->SetVisibility(EVisibility::Collapsed);
 		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
@@ -316,47 +290,45 @@ void SFlareShipMenu::LoadTargetShip()
 		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
 		{
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
-			if(ComponentDescription->Type == EFlarePartType::Weapon)
+			if (ComponentDescription->Type == EFlarePartType::Weapon)
 			{
-				
 				WeaponButtonBox->AddSlot()
-					.AutoHeight()
+					.AutoWidth()
 					[
 						SAssignNew(Temp, SFlareButton)
-						.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButton")
+						.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
 						.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 						.OnClicked(this, &SFlareShipMenu::ShowWeapons, TSharedPtr<int32>(new int32(WeaponCount)))
 					];
+
 				Temp->GetContainer()->SetContent(SNew(SFlarePartInfo)
 					.IsOwned(true)
+					.IsMinimized(true)
 					.Description(Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier)));
 				WeaponCount++;
 			} 
-			else if(ComponentDescription->Type == EFlarePartType::RCS) {
+			else if(ComponentDescription->Type == EFlarePartType::RCS)
+			{
 				RCSIdentifier = ComponentDescription->Identifier;
 			}
-			else if(ComponentDescription->Type == EFlarePartType::OrbitalEngine) {
+			else if(ComponentDescription->Type == EFlarePartType::OrbitalEngine)
+			{
 				OrbitalEngineIdentifier = ComponentDescription->Identifier;
 			}
 		}
 
-		if (WeaponCount > 0)
-		{
-			WeaponButtonBox->SetVisibility(EVisibility::Visible);
-		}
-		else
-		{
-			WeaponButtonBox->SetVisibility(EVisibility::Collapsed);
-		}
+		WeaponButtonBox->SetVisibility(WeaponCount > 0 ? EVisibility::Visible : EVisibility::Collapsed);
 		
 		// Add orbital engine button
 		EngineButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
 			.IsOwned(true)
+			.IsMinimized(true)
 			.Description(Catalog->Get(OrbitalEngineIdentifier)));
 
 		// Add RCS button
 		RCSButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
 			.IsOwned(true)
+			.IsMinimized(true)
 			.Description(Catalog->Get(RCSIdentifier)));
 
 	}
@@ -384,7 +356,6 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 
 	// Make the right box visible
 	ObjectActionMenu->Hide();
-	ObjectName->SetVisibility(EVisibility::Visible);
 	ObjectDescription->SetVisibility(EVisibility::Visible);
 	ShipPartCustomizationBox->SetVisibility(EVisibility::Visible);
 	PartCharacteristicBox->SetVisibility(EVisibility::Visible);

@@ -118,12 +118,12 @@ protected:
 	TSharedPtr<SFlareButton>           RCSButton;
 
 	// Ship weapons
-	TSharedPtr<SVerticalBox>           WeaponButtonBox;
+	TSharedPtr<SHorizontalBox>         WeaponButtonBox;
 	int32                              CurrentWeaponIndex;
 
 	/** List of parts being shown right now */
 	UPROPERTY()
-	TArray< FFlareSpacecraftComponentDescription* >                        PartListData;
+	TArray< FFlareSpacecraftComponentDescription* >               PartListData;
 	TArray< TSharedPtr<FInterfaceContainer> >                     PartListDataShared;
 	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >    PartList;
 

@@ -107,6 +107,12 @@ inline void UFlareCompany::SetOverlayColorIndex(int32 Index)
 	UpdateCompanyCustomization();
 }
 
+inline void UFlareCompany::SetLightColorIndex(int32 Index)
+{
+	CompanyData.CustomizationLightColorIndex = Index;
+	UpdateCompanyCustomization();
+}
+
 inline void UFlareCompany::SetPatternIndex(int32 Index)
 {
 	CompanyData.CustomizationPatternIndex = Index;
@@ -142,13 +148,14 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 	FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(GetBasePaintColorIndex());
 	FLinearColor PaintColor = GetGame()->GetCustomizationCatalog()->GetColor(GetPaintColorIndex());
 	FLinearColor OverlayColor = GetGame()->GetCustomizationCatalog()->GetColor(GetOverlayColorIndex());
+	FLinearColor LightColor = GetGame()->GetCustomizationCatalog()->GetColor(GetLightColorIndex());
 	UTexture2D* Pattern = GetGame()->GetCustomizationCatalog()->GetPattern(GetPatternIndex());
 
 	// Apply settings to the material instance
 	Mat->SetVectorParameterValue("BasePaintColor", BasePaintColor);
 	Mat->SetVectorParameterValue("PaintColor", PaintColor);
 	Mat->SetVectorParameterValue("OverlayColor", OverlayColor);
-	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(OverlayColor));
+	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
 	Mat->SetTextureParameterValue("PaintPattern", Pattern);
 }
 

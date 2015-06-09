@@ -36,8 +36,11 @@ public:
 	/** Chose a color for the paint */
 	void OnPaintColorPicked(int32 Index);
 
-	/** Chose a color for the lights */
+	/** Chose a color for the overlay */
 	void OnOverlayColorPicked(int32 Index);
+
+	/** Chose a color for the lights */
+	void OnLightColorPicked(int32 Index);
 
 	/** Chose a pattern */
 	void OnPatternPicked(int32 Index);
@@ -59,6 +62,8 @@ protected:
 	TSharedPtr<SFlareDropList> PaintColorPicker;
 
 	TSharedPtr<SFlareDropList> OverlayColorPicker;
+
+	TSharedPtr<SFlareDropList> LightColorPicker;
 
 	TSharedPtr<SFlareDropList> BaseColorPicker;
 	

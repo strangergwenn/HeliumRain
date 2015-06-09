@@ -55,6 +55,10 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CustomizationOverlayColorIndex;
 
+	/** Lights color index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CustomizationLightColorIndex;
+
 	/** Pattern index in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CustomizationPatternIndex;
@@ -109,8 +113,11 @@ public:
 	/** Set the color of ship paint */
 	inline void SetPaintColorIndex(int32 Index);
 
-	/** Set the color of ship lights */
+	/** Set the color of ship overlays */
 	inline void SetOverlayColorIndex(int32 Index);
+
+	/** Set the color of ship lights */
+	inline void SetLightColorIndex(int32 Index);
 
 	/** Set the pattern index for ship paint */
 	inline void SetPatternIndex(int32 Index);
@@ -179,6 +186,11 @@ public:
 	inline int32 GetOverlayColorIndex() const
 	{
 		return CompanyData.CustomizationOverlayColorIndex;
+	}
+
+	inline int32 GetLightColorIndex() const
+	{
+		return CompanyData.CustomizationLightColorIndex;
 	}
 
 	inline int32 GetPatternIndex() const
