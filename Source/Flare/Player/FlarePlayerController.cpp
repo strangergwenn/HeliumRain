@@ -73,7 +73,13 @@ void AFlarePlayerController::BeginPlay()
 void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
-	bShowMouseCursor = !CombatMode;
+
+	// Mouse cursor
+	bool NewShowMouseCursor = !CombatMode;
+	if (NewShowMouseCursor != bShowMouseCursor)
+	{
+		bShowMouseCursor = NewShowMouseCursor;
+	}
 
 	// Spawn dust effects if they are not already here
 	if (!DustEffect && ShipPawn)
@@ -394,13 +400,12 @@ FVector2D AFlarePlayerController::GetMousePosition()
 
 void AFlarePlayerController::ResetMousePosition()
 {
-	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
-	if (LocalPlayer && LocalPlayer->ViewportClient)
-	{
-		FViewport* Viewport = LocalPlayer->ViewportClient->Viewport;
-		FVector2D ViewportSize = Viewport->GetSizeXY();
-		Viewport->SetMouse(ViewportSize.X / 2, ViewportSize.Y / 2);
-	}
+	auto& App = FSlateApplication::Get();
+	FVector2D CursorPos = App.GetCursorPos();
+	App.SetCursorPos(CursorPos + FVector2D(0, 1));
+	App.OnMouseMove();
+	App.SetCursorPos(CursorPos);
+	App.OnMouseMove();
 }
 
 
