@@ -29,6 +29,8 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual float GetParentDistance() const;
+
 protected:
 
 	/*----------------------------------------------------
@@ -38,6 +40,10 @@ protected:
 	/** Mesh component */
 	UPROPERTY()
 	UFlareBombComponent*               BombComp;
+
+	/** Damage sound */
+	UPROPERTY()
+	USoundCue*                               DamageSound;
 
 	UPROPERTY()
 	UFlareWeapon*                            ParentWeapon;
@@ -52,4 +58,8 @@ protected:
 
 
 	const FFlareSpacecraftComponentDescription*    WeaponDescription;
+
+	bool										Dropped;
+	bool										Activated;
+	float									DropParentDistance;
 };

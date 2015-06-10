@@ -382,6 +382,8 @@ void UFlareSpacecraftComponent::ApplyDamage(float Energy)
 		ShipComponentData.Damage += Energy;
 		float StateAfterDamage = GetDamageRatio();
 
+		FLOGV("Component %s. Apply Energy=%f", *(GetReadableName()), Energy);
+
 		// No more armor, power outage risk
 		if (Spacecraft && IsGenerator() && StateAfterDamage < 1.0 && StateBeforeDamage > 0)
 		{

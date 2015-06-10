@@ -51,13 +51,101 @@ void AFlareBomb::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponen
 		FFlareSpacecraftComponentSave ComponentData;
 		ComponentData.ComponentIdentifier = Description->Identifier;
 		BombComp->Initialize(&ComponentData, Weapon->GetSpacecraft()->GetCompany(), Weapon->GetSpacecraft(), false);
+
+		DamageSound = Description->WeaponCharacteristics.DamageSound;
+
+		ExplosionEffectTemplate = Description->WeaponCharacteristics.ExplosionEffect;
+		ExplosionEffectMaterial = Description->WeaponCharacteristics.GunCharacteristics.ExplosionMaterial;
+
 	}
+
+	Activated = false;
+	Dropped = false;
 }
 
 void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
+	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 	FLOG("AFlareBomb Hit");
-	//Destroy();
+
+	if (Other && OtherComp)
+	{
+		if(Other == ParentWeapon->GetSpacecraft())
+		{
+			// Avoid auto hit
+			return;
+		}
+
+
+		AFlareBomb* BombCandidate = Cast<AFlareBomb>(Other);
+		if(BombCandidate)
+		{
+			// Avoid bomb hit
+			return;
+		}
+
+		// Spawn penetration effect
+		if(ExplosionEffectTemplate)
+		{
+		UGameplayStatics::SpawnEmitterAttached(
+			ExplosionEffectTemplate,
+			OtherComp,
+			NAME_None,
+			HitLocation,
+			HitNormal.Rotation(),
+			EAttachLocation::KeepWorldPosition,
+			true);
+		}
+
+		//TODO Explosion radius
+
+		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(Other);
+		if (Spacecraft)
+		{
+			Spacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower , WeaponDescription->WeaponCharacteristics.AmmoDamageRadius, HitLocation);
+
+			// Physics impulse
+			Spacecraft->Airframe->AddImpulseAtLocation( 5000	 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius * -HitNormal, HitLocation);
+
+
+			// Play sound
+			AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
+			if (ShipBase && ShipBase->IsLocallyControlled())
+			{
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound, HitLocation, 1, 1);
+			}
+		}
+
+		UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(OtherComp);
+		// Spawn impact decal
+		if (ShipComponent && ShipComponent->IsVisibleByPlayer() && ExplosionEffectMaterial)
+		{
+			// FX data
+			float DecalSize = FMath::FRandRange(60, 90);
+
+			UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
+				ExplosionEffectMaterial,
+				DecalSize * FVector(1, 1, 1),
+				ShipComponent,
+				NAME_None,
+				HitLocation,
+				HitNormal.Rotation(),
+				EAttachLocation::KeepWorldPosition);
+
+			// Instanciate and configure the decal material
+			UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);
+			UMaterialInstanceDynamic* DecalMaterialInst = UMaterialInstanceDynamic::Create(DecalMaterial, GetWorld());
+			if (DecalMaterialInst)
+			{
+				DecalMaterialInst->SetScalarParameterValue("RandomParameter", FMath::FRandRange(1, 0));
+				Decal->SetMaterial(0, DecalMaterialInst);
+			}
+		}
+
+		Destroy();
+	}
+
+
 }
 
 void AFlareBomb::Drop()
@@ -80,11 +168,41 @@ void AFlareBomb::Drop()
 	BombComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
 	BombComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);*/
 	//BombComp->SetSimulatePhysics(true);
+
+
+	DropParentDistance = GetParentDistance();
+	Dropped = true;
+
 }
 
 
 void AFlareBomb::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	//FLOG("AFlareBomb Tick");
+
+
+	if(Dropped && !Activated)
+	{
+		FLOG("AFlareBomb Tick Dropped && !Activated");
+		FLOGV("AFlareBomb DropParentDistance=%f", DropParentDistance);
+		FLOGV("AFlareBomb GetParentDistance()=%f", GetParentDistance());
+		if(GetParentDistance() > DropParentDistance + 10)
+		{
+			// Activate after 30 cm
+
+			SetActorEnableCollision(true);
+			Activated = true;
+		}
+	}
+
+
+
+}
+
+
+float AFlareBomb::GetParentDistance() const
+{
+	FLOGV("AFlareBomb GetParentDistance GetComponentLocation()=%s GetActorLocation()=%s", *ParentWeapon->GetComponentLocation().ToString(), *GetActorLocation().ToString());
+
+	return (ParentWeapon->GetComponentLocation() - GetActorLocation()).Size();
 }
