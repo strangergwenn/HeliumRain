@@ -34,8 +34,6 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 
 		OutBrushes.Add(&ButtonBackground);
 		OutBrushes.Add(&ButtonActiveBackground);
-		OutBrushes.Add(&ButtonBorder);
-		OutBrushes.Add(&ButtonActiveBorder);
 		OutBrushes.Add(&ButtonDecorator);
 		OutBrushes.Add(&ButtonActiveDecorator);
 
