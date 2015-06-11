@@ -32,14 +32,5 @@ public:
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
 
-
-protected:
-
-	/*----------------------------------------------------
-		Private data
-	----------------------------------------------------*/
-
-	const FFlareContainerStyle* ContainerStyle;
-
-
+	
 };

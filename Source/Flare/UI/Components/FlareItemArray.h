@@ -15,14 +15,12 @@ class SFlareItemArray : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareItemArray)
 	: _ItemStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
-	, _ContainerStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle"))
 	, _LineSize(1)
 	, _ItemMargin(FMargin(0))
 	{}
 
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)
 	SLATE_STYLE_ARGUMENT(FFlareButtonStyle, ItemStyle)
-	SLATE_STYLE_ARGUMENT(FFlareContainerStyle, ContainerStyle)
 
 	SLATE_ARGUMENT(int32, LineSize)
 	SLATE_ARGUMENT(FMargin, ItemMargin)
@@ -70,7 +68,6 @@ protected:
 	FFlareItemPicked OnItemPickedCallback;
 
 	const FFlareButtonStyle* ItemStyle;
-	const FFlareContainerStyle* ContainerStyle;
 
 	TSharedPtr<SGridPanel> WidgetGrid;
 

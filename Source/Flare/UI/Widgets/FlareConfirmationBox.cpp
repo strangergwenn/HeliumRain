@@ -9,8 +9,7 @@
 
 void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 {
-	// Temporary data
-	const FFlareContainerStyle* ContainerStyle = InArgs._ContainerStyle;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Create the layout
 	ChildSlot
@@ -26,7 +25,6 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		[
 			SNew(SFlareButton)
 			.Text(InArgs._CancelText)
-			.ContainerStyle(ContainerStyle)
 			.OnClicked(InArgs._OnCancelled)
 		]
 
@@ -36,7 +34,6 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(ConfirmButton, SFlareButton)
 			.ButtonStyle(FFlareStyleSet::Get(), "/Style/BuyButton")
-			.ContainerStyle(ContainerStyle)
 			.OnClicked(InArgs._OnConfirmed)
 		]
 	];
@@ -52,7 +49,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(InArgs._ConfirmText)
-			.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+			.TextStyle(&Theme.TextFont)
 		]
 
 		// Cost icon
@@ -72,7 +69,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SAssignNew(CostLabel, STextBlock)
-			.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+			.TextStyle(&Theme.TextFont)
 		]
 	);
 

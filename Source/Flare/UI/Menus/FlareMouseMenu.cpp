@@ -127,7 +127,8 @@ FVector2D SFlareMouseMenu::GetWidgetSize(int32 Index) const
 
 FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 {
-	FLinearColor Color = FLinearColor::White;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = Theme.NeutralColor;
 
 	if (OwnerHUD->IsMenuOpen())
 	{

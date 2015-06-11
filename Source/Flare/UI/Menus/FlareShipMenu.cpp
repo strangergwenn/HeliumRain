@@ -21,7 +21,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 	OwnerHUD = InArgs._OwnerHUD;
 	TSharedPtr<SFlareButton> BackButton;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-	const FFlareContainerStyle* DefaultContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
 	// Build structure
 	ChildSlot
@@ -36,7 +36,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SBorder)
 			.Padding(FMargin(0))
-			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
+			.BorderImage(&Theme.BackgroundBrush)
 			[
 				SNew(SScrollBox)
 				+ SScrollBox::Slot()
@@ -61,7 +61,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.Text(this, &SFlareShipMenu::GetTitleText)
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
+							.TextStyle(&Theme.TitleFont)
 						]
 					]
 
@@ -80,7 +80,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.Padding(FMargin(20))
 					[
 						SAssignNew(ObjectName, STextBlock)
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+						.TextStyle(&Theme.SubTitleFont)
 					]
 
 					// Object description
@@ -89,7 +89,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(ObjectDescription, STextBlock)
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+						.TextStyle(&Theme.TextFont)
 						.WrapTextAt(600)
 					]
 
@@ -116,7 +116,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.Text(LOCTEXT("ShipParts", "COMPONENTS"))
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+							.TextStyle(&Theme.SubTitleFont)
 						]
 
 						// Engine group
@@ -130,7 +130,6 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 							[
 								SAssignNew(EngineButton, SFlareButton)
 								.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
-								.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 								.OnClicked(this, &SFlareShipMenu::ShowEngines)
 							]
 
@@ -139,7 +138,6 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 							[
 								SAssignNew(RCSButton, SFlareButton)
 								.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
-								.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 								.OnClicked(this, &SFlareShipMenu::ShowRCSs)
 							]
 
@@ -166,7 +164,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(ShipPartPickerTitle, STextBlock)
 							.Text(LOCTEXT("ShipParts", "AVAILABLE COMPONENTS"))
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+							.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
 						]
 
 						// Ship part picker
@@ -203,7 +201,6 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SAssignNew(BackButton, SFlareButton)
-			.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 			.ButtonStyle(FFlareStyleSet::Get(), "/Style/BackToDashboardButton")
 			.OnClicked(this, &SFlareShipMenu::OnDashboardClicked)
 		]
@@ -297,7 +294,6 @@ void SFlareShipMenu::LoadTargetShip()
 					[
 						SAssignNew(Temp, SFlareButton)
 						.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
-						.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 						.OnClicked(this, &SFlareShipMenu::ShowWeapons, TSharedPtr<int32>(new int32(WeaponCount)))
 					];
 

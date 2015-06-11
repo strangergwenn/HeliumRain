@@ -11,7 +11,6 @@ class SFlareConfirmationBox : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareConfirmationBox)
-	: _ContainerStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle"))
 	{}
 
 	SLATE_EVENT(FFlareButtonClicked, OnConfirmed)
@@ -19,9 +18,7 @@ class SFlareConfirmationBox : public SCompoundWidget
 
 	SLATE_ARGUMENT(FText, CancelText)
 	SLATE_ARGUMENT(FText, ConfirmText)
-
-	SLATE_STYLE_ARGUMENT(FFlareContainerStyle, ContainerStyle)
-	
+			
 	SLATE_END_ARGS()
 
 

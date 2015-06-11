@@ -10,6 +10,7 @@
 void SFlarePartInfo::Construct(const FArguments& InArgs)
 {
 	ShowOwnershipInfo = InArgs._ShowOwnershipInfo;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Create the layout
 	ChildSlot
@@ -43,7 +44,7 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text(InArgs._Description->Name)
-					.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+					.TextStyle(&Theme.NameFont)
 				]
 
 				// Cost icon
@@ -62,7 +63,7 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(CostLabel, STextBlock)
-					.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+					.TextStyle(&Theme.TextFont)
 				]
 			]
 
@@ -178,6 +179,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers)
 {
 	TSharedPtr<SVerticalBox> TempBox;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	Box->AddSlot().HAlign(HAlign_Fill)
 		[
@@ -206,7 +208,7 @@ void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, F
 				[
 					SNew(STextBlock)
 					.Text(FText::FromString(Value))
-					.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+					.TextStyle(&Theme.NameFont)
 				]
 			]
 		];
@@ -219,7 +221,7 @@ void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, F
 			[
 				SNew(STextBlock)
 				.Text(FText::FromString(Label))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.SmallText")
+				.TextStyle(&Theme.SmallFont)
 			];
 	}
 }

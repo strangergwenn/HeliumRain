@@ -25,8 +25,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 
 	// Style
-	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
-	const FFlareContainerStyle* InvertedContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvertedContainerStyle");
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Structure
 	ChildSlot
@@ -51,7 +50,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SBorder)
 				.HAlign(HAlign_Center)
-				.BorderImage(&ContainerStyle->BackgroundBrush)
+				.BorderImage(&Theme.BackgroundBrush)
 				.BorderBackgroundColor(this, &SFlareHUDMenu::GetOverheatBackgroundColor)
 				[
 					SNew(SHorizontalBox)
@@ -71,7 +70,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
+						.TextStyle(&Theme.TitleFont)
 						.Text(LOCTEXT("Overheating", "OVERHEATING"))
 						.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
 					]
@@ -84,7 +83,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SBorder)
 				.HAlign(HAlign_Center)
-				.BorderImage(&ContainerStyle->BackgroundBrush)
+				.BorderImage(&Theme.BackgroundBrush)
 				.BorderBackgroundColor(this, &SFlareHUDMenu::GetOutageBackgroundColor)
 				[
 					SNew(SHorizontalBox)
@@ -104,7 +103,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
+						.TextStyle(&Theme.TitleFont)
 						.Text(LOCTEXT("PowerOutage", "POWER OUTAGE"))
 						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 					]
@@ -242,13 +241,15 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
 {
-	FLinearColor Color = FFlareStyleSet::GetEnemyColor();
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	
+	FLinearColor Color = Theme.EnemyColor;
 	float Ratio = FMath::Clamp(TimeSinceOverheatChanged / PresentationFlashTime, 0.0f, 1.0f);
 	Color.A *= (Overheating ? Ratio : (1 - Ratio));
 
 	if (Text)
 	{
-		Color.A *= 0.7;
+		Color.A *= Theme.DefaultAlpha;
 	}
 
 	return Color;
@@ -256,20 +257,22 @@ FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
 
 FSlateColor SFlareHUDMenu::GetOverheatBackgroundColor() const
 {
-	FLinearColor Color = FLinearColor::White;
+	FLinearColor Color = FFlareStyleSet::GetDefaultTheme().NeutralColor;
 	Color.A = GetOverheatColor(true).GetSpecifiedColor().A;
 	return Color;
 }
 
 FSlateColor SFlareHUDMenu::GetOutageColor(bool Text) const
 {
-	FLinearColor Color = FLinearColor::White;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	FLinearColor Color = Theme.NeutralColor;
 	float Ratio = FMath::Clamp(TimeSinceOutageChanged / PresentationFlashTime, 0.0f, 1.0f);
 	Color.A *= (PowerOutage ? Ratio : (1 - Ratio));
 
 	if (Text)
 	{
-		Color.A *= 0.7;
+		Color.A *= Theme.DefaultAlpha;
 	}
 
 	return Color;
@@ -277,7 +280,7 @@ FSlateColor SFlareHUDMenu::GetOutageColor(bool Text) const
 
 FSlateColor SFlareHUDMenu::GetOutageBackgroundColor() const
 {
-	FLinearColor Color = FLinearColor::White;
+	FLinearColor Color = FFlareStyleSet::GetDefaultTheme().NeutralColor;
 	Color.A = GetOutageColor(true).GetSpecifiedColor().A;
 	return Color;
 }

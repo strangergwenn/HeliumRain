@@ -12,8 +12,7 @@
 void SFlareShipInfo::Construct(const FArguments& InArgs)
 {
 	ShowOwnershipInfo = InArgs._ShowOwnershipInfo;
-
-	// Ship data
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	const FFlareSpacecraftSave* CurrentShipData = InArgs._Ship->Save();
 	const FFlareSpacecraftDescription* Description = InArgs._Player->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
 
@@ -49,7 +48,7 @@ void SFlareShipInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.Text(FText::FromString(InArgs._Ship->_getUObject()->GetName()))
-					.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+					.TextStyle(&Theme.SubTitleFont)
 				]
 
 				// Cost icon
@@ -68,7 +67,7 @@ void SFlareShipInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(CostLabel, STextBlock)
-					.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+					.TextStyle(&Theme.TextFont)
 				]
 			]
 

@@ -17,8 +17,6 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	TargetStation = NULL;
 	OwnerHUD = InArgs._OwnerHUD;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/ContextMenuButtonStyle");
-	const FTextBlockStyle* TextStyle = &FFlareStyleSet::Get().GetWidgetStyle<FTextBlockStyle>("Flare.Title1Inverted");
 
 	// Structure
 	ChildSlot
@@ -44,7 +42,6 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 			.AutoHeight()
 			[
 				SAssignNew(MinimizedButton, SFlareButton)
-				.ContainerStyle(ContainerStyle)
 				.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
 				.ButtonStyle(FFlareStyleSet::Get(), "/Style/ContextMenuButton")
 			]
@@ -55,7 +52,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	MinimizedButton->GetContainer()->SetContent(
 		SNew(STextBlock)
 		.Text(this, &SFlareContextMenu::GetLegendText)
-		.TextStyle(TextStyle)
+		.TextStyle(&FFlareStyleSet::GetDefaultTheme().InvertedTitleFont)
 		.Justification(ETextJustify::Center)
 	);
 }

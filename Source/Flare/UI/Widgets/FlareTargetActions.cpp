@@ -16,17 +16,18 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 	NoInspect = InArgs._NoInspect;
 	MinimizedMode = InArgs._MinimizedMode;
 	AFlareGame* Game = InArgs._Player->GetGame();
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/ActionButton");
 
 	// Container style
-	const FFlareContainerStyle* ContainerStyle;
+	const FSlateBrush* BackgroundBrush;
 	if (InArgs._Translucent)
 	{
-		ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvisibleContainerStyle");
+		BackgroundBrush = &Theme.InvisibleBrush;
 	}
 	else
 	{
-		ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
+		BackgroundBrush = &Theme.BackgroundBrush;
 	}
 
 	// Create the layout
@@ -46,7 +47,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			[
 				SNew(SBorder)
 				.VAlign(VAlign_Center)
-				.BorderImage(&ContainerStyle->BackgroundBrush)
+				.BorderImage(BackgroundBrush)
 				[
 					SNew(SHorizontalBox)
 			
@@ -78,7 +79,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 							[
 								SNew(STextBlock)
 								.Text(this, &SFlareTargetActions::GetName)
-								.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+								.TextStyle(&Theme.NameFont)
 							]
 
 							// Status
@@ -111,7 +112,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 							[
 								SNew(STextBlock)
 								.Text(this, &SFlareTargetActions::GetCompanyName)
-								.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+								.TextStyle(&Theme.TextFont)
 							]
 						]
 
@@ -128,7 +129,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 							[
 								SNew(STextBlock)
 								.Text(this, &SFlareTargetActions::GetDescription)
-								.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+								.TextStyle(&Theme.TextFont)
 							]
 						]
 					]

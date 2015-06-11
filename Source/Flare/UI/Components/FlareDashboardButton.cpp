@@ -14,7 +14,6 @@ void SFlareDashboardButton::Construct(const FArguments& InArgs)
 		.Toggle(false)
 		.OnClicked(InArgs._OnClicked)
 		.ButtonStyle(FFlareStyleSet::Get(), "/Style/DashboardButton")
-		.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 	);
 
 	// Content
@@ -37,7 +36,7 @@ void SFlareDashboardButton::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		[
 			SNew(STextBlock)
-			.TextStyle(&FFlareStyleSet::Get().GetWidgetStyle<FTextBlockStyle>("Flare.Text"))
+			.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
 			.Text(InArgs._Text)
 		]
 	);

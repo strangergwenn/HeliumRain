@@ -11,7 +11,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 {
 	IsSelected = false;
 	ButtonStyle = InArgs._ButtonStyle;
-	ContainerStyle = InArgs._ContainerStyle;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	STableRow< TSharedPtr<FInterfaceContainer> >::Construct(
 		STableRow< TSharedPtr<FInterfaceContainer> >::FArguments()
@@ -27,7 +27,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 			[
 				// Button background
 				SNew(SBorder)
-				.Padding(ContainerStyle->BorderPadding)
+				.Padding(Theme.ContentPadding)
 				.BorderImage(this, &SFlareListItem::GetBackgroundBrush)
 				[
 					SNew(SHorizontalBox)
@@ -52,7 +52,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 					.VAlign(VAlign_Center)
 					[
 						SNew(SBorder)
-						.Padding(ContainerStyle->BorderPadding)
+						.Padding(Theme.ContentPadding)
 						.BorderImage(this, &SFlareListItem::GetBackgroundBrush)
 						[
 							SNew(SImage)
@@ -72,12 +72,14 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 
 const FSlateBrush* SFlareListItem::GetDecoratorBrush() const
 {
-	return (IsSelected ? &ButtonStyle->ActiveDecoratorBrush : &ButtonStyle->DecoratorBrush);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return (IsSelected ? &Theme.ButtonActiveDecorator : &Theme.ButtonDecorator);
 }
 
 const FSlateBrush* SFlareListItem::GetBackgroundBrush() const
 {
-	return (IsHovered() ? &ContainerStyle->ActiveBackgroundBrush : &ContainerStyle->BackgroundBrush);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
 }
 
 void SFlareListItem::SetSelected(bool Selected)

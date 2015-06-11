@@ -21,8 +21,8 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 	Company = NULL;
 	OwnerHUD = InArgs._OwnerHUD;
 	TSharedPtr<SFlareButton> BackButton;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-	const FFlareContainerStyle* DefaultContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
 	
 	// Build structure
 	ChildSlot
@@ -38,7 +38,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SBorder)
 			.Padding(FMargin(0))
-			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
+			.BorderImage(&Theme.BackgroundBrush)
 			[
 				SNew(SScrollBox)
 				+ SScrollBox::Slot()
@@ -63,7 +63,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.Text(LOCTEXT("Title", "COMPANY"))
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
+							.TextStyle(&Theme.TitleFont)
 						]
 					]
 
@@ -83,7 +83,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.Text(LOCTEXT("Colors", "COLORS"))
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+						.TextStyle(&Theme.SubTitleFont)
 					]
 
 					// Color picker
@@ -112,7 +112,6 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SAssignNew(BackButton, SFlareButton)
-			.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 			.ButtonStyle(FFlareStyleSet::Get(), "/Style/BackToDashboardButton")
 			.OnClicked(this, &SFlareCompanyMenu::OnDashboardClicked)
 		]

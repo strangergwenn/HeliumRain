@@ -14,23 +14,19 @@
 
 void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 {
-	// Data
+	// Args
 	TargetShip = NULL;
 	TargetComponent = NULL;
 	DisplayType = InArgs._Type;
 	SubsystemType = InArgs._Subsystem;
 
-	// Effect data
+	// Settings
 	Health = 1.0f;
 	ComponentHealth = 1.0f;
 	HealthDropFlashTime = 2.0f;
 	TimeSinceFlash = HealthDropFlashTime;
-
-	// Style
-	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/HUDIndicatorIcon");
-	const FFlareContainerStyle* ContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
-	const FFlareContainerStyle* InvertedContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/InvertedContainerStyle");
-
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	
 	// Structure
 	ChildSlot
 	.VAlign(VAlign_Top)
@@ -44,12 +40,12 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		[
 			// Content box
 			SNew(SBox)
-			.WidthOverride(ButtonStyle->Width)
-			.HeightOverride(ButtonStyle->Height)
+			.WidthOverride(Theme.LargeButtonWidth)
+			.HeightOverride(Theme.LargeButtonHeight)
 			[
 				// Background
 				SNew(SBorder)
-				.BorderImage(&ContainerStyle->BackgroundBrush)
+				.BorderImage(&Theme.BackgroundBrush)
 				.Visibility(this, &SFlareSubsystemStatus::IsIconVisible)
 				.Padding(FMargin(5, 0))
 				[
@@ -66,13 +62,13 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		[
 			// Background
 			SNew(SBorder)
-			.BorderImage(&InvertedContainerStyle->BackgroundBrush)
+			.BorderImage(&Theme.InvertedBrush)
 			.BorderBackgroundColor(this, &::SFlareSubsystemStatus::GetFlashColor)
 			.Padding(FMargin(5, 0))
 			[
 				SNew(STextBlock)
 				.Text(this, &SFlareSubsystemStatus::GetTypeText)
-				.TextStyle(FFlareStyleSet::Get(), "Flare.VerySmallTextInverted")
+				.TextStyle(&Theme.InvertedSmallFont)
 				.Justification(ETextJustify::Center)
 			]
 		]
@@ -83,12 +79,12 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		[
 			// Background
 			SNew(SBorder)
-			.BorderImage(&ContainerStyle->BackgroundBrush)
+			.BorderImage(&Theme.BackgroundBrush)
 			.Padding(FMargin(5, 0))
 			[
 				SNew(STextBlock)
 				.Text(this, &SFlareSubsystemStatus::GetStatusText)
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+				.TextStyle(&Theme.TextFont)
 				.Justification(ETextJustify::Center)
 			]
 		]
@@ -166,9 +162,10 @@ FSlateColor SFlareSubsystemStatus::GetIconColor() const
 
 FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 {
-	FLinearColor FlashColor = FFlareStyleSet::GetEnemyColor();
+	FLinearColor FlashColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
+	FLinearColor NeutralColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
 	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
-	return FMath::Lerp(FlashColor, FLinearColor::White, Ratio);
+	return FMath::Lerp(FlashColor, NeutralColor, Ratio);
 }
 
 FText SFlareSubsystemStatus::GetStatusText() const

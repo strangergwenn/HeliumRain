@@ -2,7 +2,6 @@
 
 #include "../../Flare.h"
 #include "../Style/FlareButtonWidgetStyle.h"
-#include "../Style/FlareContainerWidgetStyle.h"
 
 
 DECLARE_DELEGATE(FFlareButtonClicked)
@@ -16,8 +15,6 @@ class SFlareButton : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareButton)
 		: _Toggle(false)
-		, _TextStyle(&FFlareStyleSet::Get().GetWidgetStyle<FTextBlockStyle>("Flare.Text"))
-		, _ContainerStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle"))
 		, _ButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
 		, _Color(FLinearColor::White)
 	{}
@@ -26,9 +23,7 @@ class SFlareButton : public SCompoundWidget
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
 	SLATE_ARGUMENT(FText, Text)
-	SLATE_STYLE_ARGUMENT(FTextBlockStyle, TextStyle)
 
-	SLATE_STYLE_ARGUMENT(FFlareContainerStyle, ContainerStyle)
 	SLATE_STYLE_ARGUMENT(FFlareButtonStyle, ButtonStyle)
 
 	SLATE_ATTRIBUTE(FSlateColor, Color)
@@ -73,15 +68,12 @@ protected:
 	// State data
 	bool                           IsToggle;
 	bool                           IsPressed;
-
-	// Style data
-	const FFlareContainerStyle*    ContainerStyle;
-	const FFlareButtonStyle*       ButtonStyle;
-
+	
 	// Slate data
 	FFlareButtonClicked            OnClicked;
 	TSharedPtr<SBorder>            InnerContainer;
 	TAttribute<FSlateColor>        Color;
+	const FFlareButtonStyle*       ButtonStyle;
 
 
 public:

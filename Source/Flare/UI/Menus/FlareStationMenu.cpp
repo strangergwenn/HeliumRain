@@ -20,8 +20,8 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 	// Data
 	OwnerHUD = InArgs._OwnerHUD;
 	TSharedPtr<SFlareButton> BackButton;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
-	const FFlareContainerStyle* DefaultContainerStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle");
 	
 	// Build structure
 	ChildSlot
@@ -36,7 +36,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SBorder)
 			.Padding(FMargin(0))
-			.BorderImage(&DefaultContainerStyle->BackgroundBrush)
+			.BorderImage(&Theme.BackgroundBrush)
 			[
 				SNew(SScrollBox)
 				+ SScrollBox::Slot()
@@ -61,7 +61,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.Text(LOCTEXT("Title", "STATION"))
-							.TextStyle(FFlareStyleSet::Get(), "Flare.Title1")
+							.TextStyle(&Theme.TitleFont)
 						]
 					]
 
@@ -80,7 +80,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(ObjectName, STextBlock)
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+						.TextStyle(&Theme.SubTitleFont)
 					]
 
 					// Object description
@@ -89,7 +89,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(ObjectDescription, STextBlock)
-						.TextStyle(FFlareStyleSet::Get(), "Flare.Text")
+						.TextStyle(&Theme.TextFont)
 						.WrapTextAt(600)
 					]
 
@@ -111,7 +111,6 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SAssignNew(BackButton, SFlareButton)
-			.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 			.ButtonStyle(FFlareStyleSet::Get(), "/Style/BackToDashboardButton")
 			.OnClicked(this, &SFlareStationMenu::OnDashboardClicked)
 		]

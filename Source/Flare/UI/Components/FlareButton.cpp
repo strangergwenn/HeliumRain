@@ -11,12 +11,12 @@ void SFlareButton::Construct(const FArguments& InArgs)
 {
 	// Initial setup
 	IsPressed = false;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Arguments
 	IsToggle = InArgs._Toggle;
 	OnClicked = InArgs._OnClicked;
 	ButtonStyle = InArgs._ButtonStyle;
-	ContainerStyle = InArgs._ContainerStyle;
 	Color = InArgs._Color;
 
 	ChildSlot
@@ -37,7 +37,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 			[
 				// Button background
 				SNew(SBorder)
-				.Padding(ContainerStyle->BorderPadding)
+				.Padding(Theme.ButtonBorderPadding)
 				.BorderImage(this, &SFlareButton::GetBackgroundBrush)
 				.BorderBackgroundColor(this, &SFlareButton::GetMainColor)
 				[
@@ -49,7 +49,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 						SAssignNew(InnerContainer, SBorder)
 						.HAlign(HAlign_Left)
 						.VAlign(VAlign_Center)
-						.Padding(ButtonStyle->ContentPadding)
+						.Padding(Theme.ButtonPadding)
 						.BorderImage(new FSlateNoResource)
 					]
 
@@ -72,7 +72,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	{
 		InnerContainer->SetContent(
 			SNew(STextBlock)
-			.TextStyle(InArgs._TextStyle)
+			.TextStyle(&Theme.TextFont)
 			.Text(InArgs._Text)
 		);
 	}
@@ -105,13 +105,14 @@ bool SFlareButton::IsActive() const
 
 const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 {
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	if (IsToggle)
 	{
-		return (IsPressed ? &ButtonStyle->ActiveDecoratorBrush : &ButtonStyle->DecoratorBrush);
+		return (IsPressed ? &Theme.ButtonActiveDecorator : &Theme.ButtonDecorator);
 	}
 	else if (IsPressed)
 	{
-		return &ButtonStyle->ActiveDecoratorBrush;
+		return &Theme.ButtonActiveDecorator;
 	}
 	else
 	{
@@ -121,7 +122,8 @@ const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 
 const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 {
-	return (IsHovered() ? &ContainerStyle->ActiveBackgroundBrush : &ContainerStyle->BackgroundBrush);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
 }
 
 FSlateColor SFlareButton::GetMainColor() const

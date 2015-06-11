@@ -14,7 +14,6 @@ void SFlareItemArray::Construct(const FArguments& InArgs)
 	LineSize = InArgs._LineSize;
 	ItemMargin = InArgs._ItemMargin;
 	ItemStyle = InArgs._ItemStyle;
-	ContainerStyle = InArgs._ContainerStyle;
 	OnItemPickedCallback = InArgs._OnItemPicked;
 	
 	// Grid object
@@ -35,7 +34,6 @@ void SFlareItemArray::AddItem(const TSharedRef< SWidget >& InContent)
 			SAssignNew(Temp, SFlareButton)
 			.Toggle(true)
 			.ButtonStyle(ItemStyle)
-			.ContainerStyle(ContainerStyle)
 			.OnClicked(this, &SFlareItemArray::OnItemPicked, TSharedPtr<int32>(new int32(CurrentIndex)))
 		];
 

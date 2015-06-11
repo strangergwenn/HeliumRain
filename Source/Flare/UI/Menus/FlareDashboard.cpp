@@ -19,6 +19,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	// Data
 	OwnerHUD = InArgs._OwnerHUD;
 	TSharedPtr<SFlareButton> BackButton;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 
 	// Build structure
@@ -77,7 +78,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SAssignNew(BackButton, SFlareButton)
-			.ContainerStyle(FFlareStyleSet::Get(), "/Style/InvisibleContainerStyle")
 			.ButtonStyle(FFlareStyleSet::Get(), "/Style/BackToDashboardButton")
 			.OnClicked(this, &SFlareDashboard::OnExit)
 		]
@@ -91,7 +91,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(STextBlock)
 		.Text(LOCTEXT("CompanyMenuTitle", "COMPANY"))
-		.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+		.TextStyle(&Theme.SubTitleFont)
 	];
 	CompanyBox->AddSlot()
 	.AutoHeight()
@@ -118,7 +118,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(STextBlock)
 		.Text(LOCTEXT("StationMenuTitle", "STATION"))
-		.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+		.TextStyle(&Theme.SubTitleFont)
 	];
 	StationBox->AddSlot()
 	.AutoHeight()
@@ -153,7 +153,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(STextBlock)
 		.Text(LOCTEXT("UniverseMenuTitle", "UNIVERSE"))
-		.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+		.TextStyle(&Theme.SubTitleFont)
 	];
 	UniverseBox->AddSlot()
 	.AutoHeight()
@@ -188,7 +188,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(STextBlock)
 		.Text(LOCTEXT("SettingsMenuTitle", "SETTINGS"))
-		.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+		.TextStyle(&Theme.SubTitleFont)
 	];
 	SettingsBox->AddSlot()
 	.AutoHeight()

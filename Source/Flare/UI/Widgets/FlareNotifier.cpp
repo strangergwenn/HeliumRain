@@ -12,12 +12,12 @@
 void SFlareNotifier::Construct(const FArguments& InArgs)
 {
 	// Data
-	OwnerHUD = InArgs._OwnerHUD;
 	NotificationIndex = 0;
 	NotificationTimeout = 10;
 	NotificationScroll = 200;
 	NotificationEnterTime = 0.5;
 	NotificationExitTime = 0.5;
+	OwnerHUD = InArgs._OwnerHUD;
 
 	// Create the layout
 	ChildSlot
@@ -33,7 +33,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(LOCTEXT("Watermark", "DEVELOPMENT BUILD"))
-			.TextStyle(FFlareStyleSet::Get(), "Flare.VerySmallText")
+			.TextStyle(&FFlareStyleSet::GetDefaultTheme().SmallFont)
 		]
 
 		// Actual content
@@ -105,7 +105,7 @@ void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMen
 		[
 			SNew(STextBlock)
 			.Text(Text)
-			.TextStyle(&FFlareStyleSet::Get(), "Flare.Text")
+			.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
 			.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
 		]
 	);
@@ -180,7 +180,7 @@ FMargin SFlareNotifier::GetNotificationMargin(int32 Index) const
 
 FSlateColor SFlareNotifier::GetNotificationColor(int32 Index) const
 {
-	FLinearColor Result = FLinearColor::White;
+	FLinearColor Result = FFlareStyleSet::GetDefaultTheme().NeutralColor;
 
 	for (auto& NotificationEntry : NotificationData)
 	{

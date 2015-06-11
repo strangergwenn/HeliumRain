@@ -59,7 +59,7 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.Text(FText::FromString(Target->GetName()))
-				.TextStyle(FFlareStyleSet::Get(), "Flare.Title3")
+				.TextStyle(&FFlareStyleSet::GetDefaultTheme().NameFont)
 			]
 
 			// Status

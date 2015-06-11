@@ -2,6 +2,7 @@
 
 #include "SlateBasics.h"
 #include "SlateGameResources.h"
+#include "FlareWidgetStyleCatalog.h"
 
 
 class FFlareStyleSet
@@ -28,23 +29,17 @@ public:
 	/** Setup resources (internal) */
 	static TSharedRef< FSlateStyleSet > Create();
 
+	/** Get the game's default theme */
+	static const FFlareStyleCatalog& GetDefaultTheme()
+	{
+		return FFlareStyleSet::Get().GetWidgetStyle<FFlareStyleCatalog>("/Style/DefaultTheme");
+	}
+
 	/** Get an icon */
 	static const FSlateBrush* GetIcon(FString Name)
 	{
 		FString Path = "/Brushes/SB_Icon_" + Name;
 		return FFlareStyleSet::Get().GetBrush(*Path);
-	}
-
-	/** Get the color for enemies */
-	static FLinearColor GetEnemyColor()
-	{
-		return (FLinearColor::Red).Desaturate(0.05);
-	}
-
-	/** Get the color for friendlies */
-	static FLinearColor GetFriendlyColor()
-	{
-		return (FLinearColor::Green).Desaturate(0.05);
 	}
 
 

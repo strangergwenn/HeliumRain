@@ -35,7 +35,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(InArgs._Title)
-			.TextStyle(FFlareStyleSet::Get(), "Flare.Title2")
+			.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
 		]
 
 		// Box

@@ -43,12 +43,10 @@ class SFlareListItem : public STableRow< TSharedPtr<FInterfaceContainer> >
 	SLATE_BEGIN_ARGS(SFlareListItem)
 		: _Content()
 		, _ButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/PartButton"))
-		, _ContainerStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareContainerStyle>("/Style/DefaultContainerStyle"))
 	{}
 
 	SLATE_DEFAULT_SLOT(FArguments, Content)
 	SLATE_STYLE_ARGUMENT(FFlareButtonStyle, ButtonStyle)
-	SLATE_STYLE_ARGUMENT(FFlareContainerStyle, ContainerStyle)
 
 	SLATE_END_ARGS()
 
@@ -86,7 +84,6 @@ protected:
 	bool IsSelected;
 
 	const FFlareButtonStyle* ButtonStyle;
-	const FFlareContainerStyle* ContainerStyle;
 
 	UPROPERTY()
 	TSharedPtr<SBorder> InnerContainer;

@@ -49,15 +49,6 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDPropulsionIcon = HUDPropulsionIconObj.Object;
 	HUDRCSIcon = HUDRCSIconObj.Object;
 	HUDWeaponIcon = HUDWeaponIconObj.Object;
-
-	// Dynamic data
-	FadeTimer = FadeDuration;
-	HudColorNeutral = FLinearColor::White;
-	HudColorFriendly = FFlareStyleSet::GetFriendlyColor();
-	HudColorEnemy = FFlareStyleSet::GetEnemyColor();
-	HudColorNeutral.A = 0.7;
-	HudColorFriendly.A = 0.7;
-	HudColorEnemy.A = 0.7;
 }
 
 
@@ -67,6 +58,15 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 void AFlareHUD::BeginPlay()
 {
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	HudColorNeutral = Theme.NeutralColor;
+	HudColorFriendly = Theme.FriendlyColor;
+	HudColorEnemy = Theme.EnemyColor;
+	HudColorNeutral.A = Theme.DefaultAlpha;
+	HudColorFriendly.A = Theme.DefaultAlpha;
+	HudColorEnemy.A = Theme.DefaultAlpha;
+
+	FadeTimer = FadeDuration;
 	Super::BeginPlay();
 }
 
@@ -357,7 +357,7 @@ void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFla
 FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, float Health, UTexture2D* Texture)
 {
 	FLinearColor Color = FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
-	Color.A = 0.7;
+	Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 	DrawHUDIcon(Position, IconSize, Texture, Color);
 	return Position + IconSize * FVector2D(1, 0);
 }
