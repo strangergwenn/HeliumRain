@@ -135,8 +135,14 @@ struct FFlareSpacecraftComponentBombCharacteristics
 	/** Bomb mesh */
 	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* BombMesh;
 
-	/** Time before armed */
-	UPROPERTY(EditAnywhere, Category = Content) float ActivationTime;
+	/** Distance before armed */
+	UPROPERTY(EditAnywhere, Category = Content) float ActivationDistance;
+
+	/** Bomb forward velocity in m/s */
+	UPROPERTY(EditAnywhere, Category = Content) float DropLinearVelocity;
+
+	/** Bomb angular velocity in °/s */
+	UPROPERTY(EditAnywhere, Category = Content) float DropAngularVelocity;
 };
 
 /** Gun characteristic */

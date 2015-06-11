@@ -153,11 +153,14 @@ void AFlareBomb::Drop()
 	FLOG("AFlareBomb Drop");
 	DetachRootComponentFromParent(true);
 
-	FVector FrontVector = BombComp->ComponentToWorld.TransformVector(FVector(120,0,0));
+	FVector FrontVector = BombComp->ComponentToWorld.TransformVector(FVector(1,0,0));
+
+
+
 
 	// Spin to stabilize
-	BombComp->SetPhysicsAngularVelocity(FrontVector);
-	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity());
+	BombComp->SetPhysicsAngularVelocity(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
+	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity() + FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity * 100);
 	//BombComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	FLOGV("AFlareBomb FrontVector=%s", *FrontVector.ToString());
@@ -186,7 +189,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		FLOG("AFlareBomb Tick Dropped && !Activated");
 		FLOGV("AFlareBomb DropParentDistance=%f", DropParentDistance);
 		FLOGV("AFlareBomb GetParentDistance()=%f", GetParentDistance());
-		if(GetParentDistance() > DropParentDistance + 10)
+		if(GetParentDistance() > DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance/100)
 		{
 			// Activate after 30 cm
 
