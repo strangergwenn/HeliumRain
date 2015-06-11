@@ -1,7 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareSubsystemStatus.h"
-#include "../Components/FlareButton.h"
+#include "../Components/FlareLargeButton.h"
 #include "../../Spacecrafts/FlareWeapon.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
 
@@ -25,46 +25,42 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 	HealthDropFlashTime = 2.0f;
 	TimeSinceFlash = HealthDropFlashTime;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	
+
+	// Icon
+	const FSlateBrush* Icon = NULL;
+	switch (SubsystemType)
+	{
+		case EFlareSubsystem::SYS_Temperature:   Icon = FFlareStyleSet::GetIcon("HUD_Temperature");  break;
+		case EFlareSubsystem::SYS_Propulsion:    Icon = FFlareStyleSet::GetIcon("HUD_Propulsion");   break;
+		case EFlareSubsystem::SYS_RCS:           Icon = FFlareStyleSet::GetIcon("HUD_RCS");          break;
+		case EFlareSubsystem::SYS_LifeSupport:   Icon = FFlareStyleSet::GetIcon("HUD_LifeSupport");  break;
+		case EFlareSubsystem::SYS_Power:         Icon = FFlareStyleSet::GetIcon("HUD_Power");        break;
+		case EFlareSubsystem::SYS_Weapon:        Icon = FFlareStyleSet::GetIcon("HUD_Shell");        break;
+	}
+
+	// Text
+	FText Text;
+	switch (SubsystemType)
+	{
+		case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "COOLING");      break;
+		case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "ENGINES");       break;
+		case EFlareSubsystem::SYS_RCS:           Text = LOCTEXT("SYS_RCS", "RCS");                  break;
+		case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "CREW");         break;
+		case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "POWER");              break;
+		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "WEAPONS");           break;
+	}
+
 	// Structure
 	ChildSlot
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Center)
 	[
-		SNew(SVerticalBox)
-
-		// Icon
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		[
-			// Content box
-			SNew(SBox)
-			.WidthOverride(Theme.LargeButtonWidth)
-			.HeightOverride(Theme.LargeButtonHeight)
-			[
-				// Background
-				SNew(SBorder)
-				.Padding(Theme.LargeButtonPadding)
-				.BorderImage(&Theme.LargeButtonBackground)
-				.BorderBackgroundColor(this, &SFlareSubsystemStatus::GetHighlightColor)
-				[
-					SNew(SImage)
-					.Image(this, &SFlareSubsystemStatus::GetIcon)
-					.ColorAndOpacity(this, &SFlareSubsystemStatus::GetIconColor)
-				]
-			]
-		]
-
-		// Subsystem type
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(STextBlock)
-			.Text(this, &SFlareSubsystemStatus::GetTypeText)
-			.TextStyle(&Theme.SmallFont)
-			.Justification(ETextJustify::Center)
-		]
+		SNew(SFlareLargeButton)
+		.Clickable(false)
+		.Icon(Icon)
+		.Text(Text)
+		.IconColor(this, &SFlareSubsystemStatus::GetIconColor)
+		.HighlightColor(this, &SFlareSubsystemStatus::GetHighlightColor)
 	];
 }
 
@@ -110,21 +106,6 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	{
 		Health = 1;
 	}
-}
-
-const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
-{
-	switch (SubsystemType)
-	{
-		case EFlareSubsystem::SYS_Temperature:   return FFlareStyleSet::GetIcon("HUD_Temperature");
-		case EFlareSubsystem::SYS_Propulsion:    return FFlareStyleSet::GetIcon("HUD_Propulsion");
-		case EFlareSubsystem::SYS_RCS:           return FFlareStyleSet::GetIcon("HUD_RCS");
-		case EFlareSubsystem::SYS_LifeSupport:   return FFlareStyleSet::GetIcon("HUD_LifeSupport");
-		case EFlareSubsystem::SYS_Power:         return FFlareStyleSet::GetIcon("HUD_Power");
-		case EFlareSubsystem::SYS_Weapon:        return FFlareStyleSet::GetIcon("HUD_Shell");
-	}
-
-	return NULL;
 }
 
 FSlateColor SFlareSubsystemStatus::GetHighlightColor() const
@@ -205,22 +186,6 @@ FText SFlareSubsystemStatus::GetStatusText() const
 		}
 
 		return FText::FromString(Text);
-	}
-
-	return FText::FromString("");
-}
-
-FText SFlareSubsystemStatus::GetTypeText() const
-{
-	// Subsystem display
-	switch (SubsystemType)
-	{
-		case EFlareSubsystem::SYS_Temperature:   return LOCTEXT("SYS_Temperature", "COOLING");
-		case EFlareSubsystem::SYS_Propulsion:    return LOCTEXT("SYS_Propulsion",  "ENGINES");
-		case EFlareSubsystem::SYS_RCS:           return LOCTEXT("SYS_RCS",         "RCS");
-		case EFlareSubsystem::SYS_LifeSupport:   return LOCTEXT("SYS_LifeSupport", "CREW");
-		case EFlareSubsystem::SYS_Power:         return LOCTEXT("SYS_Power",       "POWER");
-		case EFlareSubsystem::SYS_Weapon:        return LOCTEXT("SYS_Weapon",      "WEAPONS");
 	}
 
 	return FText::FromString("");

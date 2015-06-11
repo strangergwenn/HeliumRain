@@ -43,10 +43,7 @@ protected:
 	----------------------------------------------------*/
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-	
-	/** Get the current icon */
-	const FSlateBrush* GetIcon() const;
-	
+		
 	/** Get the current circling color */
 	FSlateColor GetHighlightColor() const;
 
@@ -55,9 +52,6 @@ protected:
 
 	/** Get the current status string */
 	FText GetStatusText() const;
-
-	/** Get the subsystem type string */
-	FText GetTypeText() const;
 
 
 protected:
