@@ -152,7 +152,6 @@ protected:
 	float                                   CombatMouseRadius;
 	bool                                    HUDVisible;
 	bool                                    MenuIsOpen;
-	bool                                    WheelIsOpen;
 
 	// Fade-to-black system
 	bool                                    IsInteractive;
@@ -218,7 +217,7 @@ public:
 
 	bool IsWheelOpen() const
 	{
-		return WheelIsOpen;
+		return MouseMenu->IsOpen();
 	}
 
 	TSharedPtr<SFlareMouseMenu> GetMouseMenu() const

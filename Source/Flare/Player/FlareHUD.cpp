@@ -76,7 +76,7 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// Mouse control
-	if (PC && !WheelIsOpen)
+	if (PC && !MouseMenu->IsOpen())
 	{
 		FVector2D MousePos = PC->GetMousePosition();
 		FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
@@ -129,7 +129,7 @@ void AFlareHUD::DrawHUD()
 	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
 	// Draw designators and context menu
-	if (!MenuIsOpen)
+	if (!MenuIsOpen && !IsWheelOpen())
 	{
 		// Draw ship designators and markers
 		FoundTargetUnderMouse = false;
@@ -179,7 +179,7 @@ void AFlareHUD::DrawHUD()
 	}
 
 	// Update HUD materials
-	if (PC && Ship && !MenuIsOpen)
+	if (PC && Ship && !MenuIsOpen && !IsWheelOpen())
 	{
 		// Get HUD data
 		FVector2D ScreenPosition;
@@ -409,9 +409,7 @@ void AFlareHUD::ToggleHUD()
 
 void AFlareHUD::SetWheelMenu(bool State)
 {
-	WheelIsOpen = State;
-
-	if (WheelIsOpen)
+	if (State)
 	{
 		MouseMenu->Open();
 	}

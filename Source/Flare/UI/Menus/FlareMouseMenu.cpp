@@ -24,7 +24,7 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	SetVisibility(EVisibility::Hidden);
 	CurrentTime = 0.0f;
 	WidgetCount = 0;
-	IsOpen = false;
+	IsOpening = false;
 	
 	// Structure
 	ChildSlot
@@ -86,6 +86,11 @@ void SFlareMouseMenu::Close()
 	SetAnimDirection(false);
 }
 
+bool SFlareMouseMenu::IsOpen()
+{
+	return (CurrentTime > 0);
+}
+
 
 /*----------------------------------------------------
 	Callbacks
@@ -101,8 +106,8 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 	MouseOffset = PC->GetMousePosition() - InitialMousePosition;
 
 	// Time data
-	CurrentTime += IsOpen ? InDeltaTime : -InDeltaTime;
-	if (!IsOpen && CurrentTime > AnimTime)
+	CurrentTime += IsOpening ? InDeltaTime : -InDeltaTime;
+	if (!IsOpen())
 	{
 		SetVisibility(EVisibility::Hidden);
 	}
@@ -192,7 +197,7 @@ int32 SFlareMouseMenu::GetSelectedIndex() const
 
 void SFlareMouseMenu::SetAnimDirection(bool Opening)
 {
-	IsOpen = Opening;
+	IsOpening = Opening;
 	if (CurrentTime < 0 || CurrentTime > AnimTime)
 	{
 		CurrentTime = Opening ? 0 : AnimTime;

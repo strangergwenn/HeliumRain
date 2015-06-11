@@ -43,6 +43,9 @@ public:
 	/** Hide the menu */
 	void Close();
 
+	/** Check if the menu is open */
+	bool IsOpen();
+
 
 protected:
 
@@ -112,7 +115,7 @@ protected:
 	FVector2D                            MouseOffset;
 	int32                                WidgetCount;
 	float                                CurrentTime;
-	float                                IsOpen;
+	float                                IsOpening;
 
 
 };

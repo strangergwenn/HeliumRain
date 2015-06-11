@@ -79,11 +79,13 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	bool NewShowMouseCursor = (!CombatMode && !HUD->IsWheelOpen());
 	if (NewShowMouseCursor != bShowMouseCursor)
 	{
+		// Set the mouse status
 		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
 		bShowMouseCursor = NewShowMouseCursor;
+		ResetMousePosition();
 
 		// Force focus to UI
-		if (NewShowMouseCursor)
+		if (NewShowMouseCursor || HUD->IsWheelOpen())
 		{
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);
@@ -95,9 +97,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 			FInputModeGameOnly InputMode;
 			SetInputMode(InputMode);
 		}
-
-		auto& App = FSlateApplication::Get();
-		App.SetAllUserFocusToGameViewport();
 	}
 
 	// Spawn dust effects if they are not already here
@@ -203,7 +202,6 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 	{
 		CombatMode = false;
 		ShipPawn->SetCombatMode(false);
-		ResetMousePosition();
 	}
 
 	// If something changed...
@@ -383,7 +381,6 @@ void AFlarePlayerController::OnEnterMenu()
 		{
 			CombatMode = false;
 			ShipPawn->SetCombatMode(false);
-			ResetMousePosition();
 		}
 	}
 }
@@ -425,6 +422,7 @@ void AFlarePlayerController::ResetMousePosition()
 	App.OnMouseMove();
 	App.SetCursorPos(CursorPos);
 	App.OnMouseMove();
+	App.SetAllUserFocusToGameViewport();
 }
 
 
@@ -483,10 +481,6 @@ void AFlarePlayerController::ToggleCombat()
 		CombatMode = !CombatMode;
 		ShipPawn->SetCombatMode(CombatMode);
 		SetExternalCamera(false, true);
-		if(!CombatMode)
-		{
-			ResetMousePosition();
-		}
 	}
 }
 
@@ -576,7 +570,6 @@ void AFlarePlayerController::WheelPressed()
 void AFlarePlayerController::WheelReleased()
 {
 	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(false);
-	ResetMousePosition();
 }
 
 void AFlarePlayerController::Test1()
