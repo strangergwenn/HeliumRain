@@ -73,12 +73,31 @@ void AFlarePlayerController::BeginPlay()
 void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
+	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
 
 	// Mouse cursor
-	bool NewShowMouseCursor = !CombatMode;
+	bool NewShowMouseCursor = (!CombatMode && !HUD->IsWheelOpen());
 	if (NewShowMouseCursor != bShowMouseCursor)
 	{
+		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
 		bShowMouseCursor = NewShowMouseCursor;
+
+		// Force focus to UI
+		if (NewShowMouseCursor)
+		{
+			FInputModeGameAndUI InputMode;
+			SetInputMode(InputMode);
+		}
+
+		// Force focus to game
+		else
+		{
+			FInputModeGameOnly InputMode;
+			SetInputMode(InputMode);
+		}
+
+		auto& App = FSlateApplication::Get();
+		App.SetAllUserFocusToGameViewport();
 	}
 
 	// Spawn dust effects if they are not already here
@@ -551,14 +570,13 @@ void AFlarePlayerController::QuickSwitch()
 
 void AFlarePlayerController::WheelPressed()
 {
-	// TODO mouse toggle
 	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(true);
 }
 
 void AFlarePlayerController::WheelReleased()
 {
-	// TODO mouse toggle
 	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(false);
+	ResetMousePosition();
 }
 
 void AFlarePlayerController::Test1()
