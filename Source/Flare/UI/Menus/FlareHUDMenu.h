@@ -63,17 +63,16 @@ protected:
 	TWeakObjectPtr<class AFlareHUD>      OwnerHUD;
 
 	// Menu components
-	TSharedPtr<SFlareSubsystemStatus>    SpeedStatus;
 	TSharedPtr<SFlareSubsystemStatus>    TemperatureStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PowerStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PropulsionStatus;
 	TSharedPtr<SFlareSubsystemStatus>    RCSStatus;
 	TSharedPtr<SFlareSubsystemStatus>    LifeSupportStatus;
+	TSharedPtr<SFlareSubsystemStatus>    WeaponStatus;
 	TSharedPtr<SHorizontalBox>           WeaponContainer;
-	TSharedPtr<SFlareSubsystemStatus>    SectorStatus;
 
 	// Target data
-	IFlareSpacecraftInterface*                 TargetShip;
+	IFlareSpacecraftInterface*           TargetShip;
 	bool                                 Overheating;
 	bool                                 Burning;
 	bool                                 PowerOutage;

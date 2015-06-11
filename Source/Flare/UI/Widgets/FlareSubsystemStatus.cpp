@@ -17,7 +17,6 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 	// Args
 	TargetShip = NULL;
 	TargetComponent = NULL;
-	DisplayType = InArgs._Type;
 	SubsystemType = InArgs._Subsystem;
 
 	// Settings
@@ -45,9 +44,9 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 			[
 				// Background
 				SNew(SBorder)
-				.BorderImage(&Theme.BackgroundBrush)
-				.Visibility(this, &SFlareSubsystemStatus::IsIconVisible)
-				.Padding(FMargin(5, 0))
+				.Padding(Theme.LargeButtonPadding)
+				.BorderImage(&Theme.LargeButtonBackground)
+				.BorderBackgroundColor(this, &SFlareSubsystemStatus::GetHighlightColor)
 				[
 					SNew(SImage)
 					.Image(this, &SFlareSubsystemStatus::GetIcon)
@@ -59,34 +58,12 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		// Subsystem type
 		+ SVerticalBox::Slot()
 		.AutoHeight()
+		.Padding(Theme.ContentPadding)
 		[
-			// Background
-			SNew(SBorder)
-			.BorderImage(&Theme.InvertedBrush)
-			.BorderBackgroundColor(this, &::SFlareSubsystemStatus::GetFlashColor)
-			.Padding(FMargin(5, 0))
-			[
-				SNew(STextBlock)
-				.Text(this, &SFlareSubsystemStatus::GetTypeText)
-				.TextStyle(&Theme.InvertedSmallFont)
-				.Justification(ETextJustify::Center)
-			]
-		]
-
-		// Status string
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		[
-			// Background
-			SNew(SBorder)
-			.BorderImage(&Theme.BackgroundBrush)
-			.Padding(FMargin(5, 0))
-			[
-				SNew(STextBlock)
-				.Text(this, &SFlareSubsystemStatus::GetStatusText)
-				.TextStyle(&Theme.TextFont)
-				.Justification(ETextJustify::Center)
-			]
+			SNew(STextBlock)
+			.Text(this, &SFlareSubsystemStatus::GetTypeText)
+			.TextStyle(&Theme.SmallFont)
+			.Justification(ETextJustify::Center)
 		]
 	];
 }
@@ -115,7 +92,7 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	
-	if (TargetShip && DisplayType == EFlareInfoDisplay::ID_Subsystem)
+	if (TargetShip)
 	{
 		// Update health
 		float NewHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType, true);
@@ -135,11 +112,6 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	}
 }
 
-EVisibility SFlareSubsystemStatus::IsIconVisible() const
-{
-	return (DisplayType == EFlareInfoDisplay::ID_Subsystem) ? EVisibility::Visible : EVisibility::Hidden;
-}
-
 const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
 {
 	switch (SubsystemType)
@@ -155,15 +127,18 @@ const FSlateBrush* SFlareSubsystemStatus::GetIcon() const
 	return NULL;
 }
 
-FSlateColor SFlareSubsystemStatus::GetIconColor() const
+FSlateColor SFlareSubsystemStatus::GetHighlightColor() const
 {
-	return FLinearColor(FColor::MakeRedToGreenColorFromScalar(ComponentHealth)).Desaturate(0.05);
+	FLinearColor NormalColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
+	FLinearColor DamageColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
+	return FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
 }
 
-FSlateColor SFlareSubsystemStatus::GetFlashColor() const
+FSlateColor SFlareSubsystemStatus::GetIconColor() const
 {
 	FLinearColor FlashColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
 	FLinearColor NeutralColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
+
 	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
 	return FMath::Lerp(FlashColor, NeutralColor, Ratio);
 }
@@ -174,7 +149,7 @@ FText SFlareSubsystemStatus::GetStatusText() const
 	AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(TargetShip);
 
 	// Subsystem display
-	if (Ship && DisplayType == EFlareInfoDisplay::ID_Subsystem)
+	if (Ship)
 	{
 		FString Text;
 
@@ -232,47 +207,20 @@ FText SFlareSubsystemStatus::GetStatusText() const
 		return FText::FromString(Text);
 	}
 
-	// Speed display
-	else if (Ship && DisplayType == EFlareInfoDisplay::ID_Speed)
-	{
-		return FText::FromString(FString::FromInt(Ship->GetLinearVelocity().Size()) + " m/s");
-	}
-
-	// Sector display
-	else if (DisplayType == EFlareInfoDisplay::ID_Sector)
-	{
-		return FText::FromString("Nema D43");
-	}
-
 	return FText::FromString("");
 }
 
 FText SFlareSubsystemStatus::GetTypeText() const
 {
 	// Subsystem display
-	if (DisplayType == EFlareInfoDisplay::ID_Subsystem)
+	switch (SubsystemType)
 	{
-		switch (SubsystemType)
-		{
-			case EFlareSubsystem::SYS_Temperature:   return LOCTEXT("SYS_Temperature", "COOLING");
-			case EFlareSubsystem::SYS_Propulsion:    return LOCTEXT("SYS_Propulsion",  "MAIN ENGINES");
-			case EFlareSubsystem::SYS_RCS:           return LOCTEXT("SYS_RCS",         "RCS");
-			case EFlareSubsystem::SYS_LifeSupport:   return LOCTEXT("SYS_LifeSupport", "LIFE SUPPORT");
-			case EFlareSubsystem::SYS_Power:         return LOCTEXT("SYS_Power",       "POWER");
-			case EFlareSubsystem::SYS_Weapon:        return LOCTEXT("SYS_Weapon",      "WEAPON");
-		}
-	}
-
-	// Speed display
-	else if (DisplayType == EFlareInfoDisplay::ID_Speed)
-	{
-		return LOCTEXT("ShipSpeed", "SHIP SPEED");
-	}
-
-	// Sector display
-	else if (DisplayType == EFlareInfoDisplay::ID_Sector)
-	{
-		return LOCTEXT("Sector", "SECTOR");
+		case EFlareSubsystem::SYS_Temperature:   return LOCTEXT("SYS_Temperature", "COOLING");
+		case EFlareSubsystem::SYS_Propulsion:    return LOCTEXT("SYS_Propulsion",  "ENGINES");
+		case EFlareSubsystem::SYS_RCS:           return LOCTEXT("SYS_RCS",         "RCS");
+		case EFlareSubsystem::SYS_LifeSupport:   return LOCTEXT("SYS_LifeSupport", "CREW");
+		case EFlareSubsystem::SYS_Power:         return LOCTEXT("SYS_Power",       "POWER");
+		case EFlareSubsystem::SYS_Weapon:        return LOCTEXT("SYS_Weapon",      "WEAPONS");
 	}
 
 	return FText::FromString("");

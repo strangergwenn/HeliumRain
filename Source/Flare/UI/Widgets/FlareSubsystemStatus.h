@@ -3,21 +3,6 @@
 #include "../../Flare.h"
 #include "../../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../../Spacecrafts/FlareSpacecraftComponent.h"
-#include "FlareSubsystemStatus.generated.h"
-
-
-/** Possible display targets for the subsystem display widgets */
-UENUM()
-namespace EFlareInfoDisplay
-{
-	enum Type
-	{
-		ID_Subsystem,
-		ID_Spacer,
-		ID_Speed,
-		ID_Sector
-	};
-}
 
 
 class SFlareSubsystemStatus : public SCompoundWidget
@@ -27,11 +12,9 @@ class SFlareSubsystemStatus : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareSubsystemStatus)
-		: _Type(EFlareInfoDisplay::ID_Subsystem)
-		, _Subsystem(EFlareSubsystem::SYS_None)
+		: _Subsystem(EFlareSubsystem::SYS_None)
 	{}
 
-	SLATE_ARGUMENT(EFlareInfoDisplay::Type, Type)
 	SLATE_ARGUMENT(EFlareSubsystem::Type, Subsystem)
 	
 	SLATE_END_ARGS()
@@ -60,18 +43,15 @@ protected:
 	----------------------------------------------------*/
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-
-	/** Is this icon visible ? */
-	EVisibility IsIconVisible() const;
-
+	
 	/** Get the current icon */
 	const FSlateBrush* GetIcon() const;
+	
+	/** Get the current circling color */
+	FSlateColor GetHighlightColor() const;
 
 	/** Get the current icon color */
 	FSlateColor GetIconColor() const;
-
-	/** Get the current flash color */
-	FSlateColor GetFlashColor() const;
 
 	/** Get the current status string */
 	FText GetStatusText() const;
@@ -87,10 +67,9 @@ protected:
 	----------------------------------------------------*/
 
 	// Indicator data
-	TEnumAsByte<EFlareInfoDisplay::Type>    DisplayType;
 	TEnumAsByte<EFlareSubsystem::Type>      SubsystemType;
-	IFlareSpacecraftInterface*                    TargetShip;
-	UFlareSpacecraftComponent*                    TargetComponent;
+	IFlareSpacecraftInterface*              TargetShip;
+	UFlareSpacecraftComponent*              TargetComponent;
 
 	// Health management
 	float                                   Health;

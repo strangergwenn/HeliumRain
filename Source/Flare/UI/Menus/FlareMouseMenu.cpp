@@ -138,7 +138,7 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 	{
 		float Colinearity = GetColinearity(Index);
 		float DistanceRatio = FMath::Clamp(2 * (MouseOffset.Size() / WidgetDistance - 0.5f), 0.0f, 1.0f);
-		Color.A = 0.3 + 0.7 * Colinearity * DistanceRatio;
+		Color.A = (1 - Theme.DefaultAlpha) + Theme.DefaultAlpha * Colinearity * DistanceRatio;
 	}
 
 	return Color;

@@ -117,12 +117,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Bottom)
 		[
 			SNew(SHorizontalBox)
-
-			+ SHorizontalBox::Slot().AutoWidth()
-			[
-				SAssignNew(SpeedStatus, SFlareSubsystemStatus).Type(EFlareInfoDisplay::ID_Speed)
-			]
-
+			
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
 				SAssignNew(TemperatureStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Temperature)
@@ -150,15 +145,13 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SAssignNew(WeaponContainer, SHorizontalBox)
-			]
-
-			+ SHorizontalBox::Slot().AutoWidth()
-			[
-				SAssignNew(SectorStatus, SFlareSubsystemStatus).Type(EFlareInfoDisplay::ID_Sector)
+				SAssignNew(WeaponStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Weapon)
 			]
 		]
 	];
+
+	// TODO : WEAPON SELECTION
+	//SAssignNew(WeaponContainer, SHorizontalBox)
 }
 
 
@@ -170,24 +163,25 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 {
 	// Set targets
 	TargetShip = Target;
-	SpeedStatus->SetTargetShip(Target);
 	TemperatureStatus->SetTargetShip(Target);
 	PowerStatus->SetTargetShip(Target);
 	PropulsionStatus->SetTargetShip(Target);
 	RCSStatus->SetTargetShip(Target);
 	LifeSupportStatus->SetTargetShip(Target);
-	SectorStatus->SetTargetShip(Target);
+	WeaponStatus->SetTargetShip(Target);
 	AFlareSpacecraft* PlayerShip = Cast<AFlareSpacecraft>(Target);
 
+	// Update weapon list
 	if (PlayerShip)
 	{
-		// Update weapon list
-		TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponList();
-		TSharedPtr<SFlareSubsystemStatus> Temp;
-		WeaponContainer->ClearChildren();
+		// TODO : WEAPON SELECTION
+
+		//TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponList();
+		//TSharedPtr<SFlareSubsystemStatus> Temp;
+		//WeaponContainer->ClearChildren();
 
 		// Add weapon indicators
-		for (int32 i = 0; i < WeaponList.Num(); i++)
+		/*for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
 			WeaponContainer->AddSlot()
 				.AutoWidth()
@@ -198,7 +192,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 			Temp->SetTargetShip(PlayerShip);
 			Temp->SetTargetComponent(WeaponList[i]);
 		}
-		WeaponContainer->SetVisibility(EVisibility::Visible);
+		WeaponContainer->SetVisibility(EVisibility::Visible);*/
 	}
 }
 
@@ -218,6 +212,7 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 		// Overheating status
 		TimeSinceOverheatChanged += InDeltaTime;
+
 		// Alert the player if the ship is near the overheat temperature
 		bool NewOverheating = (TargetShip->GetDamageSystem()->GetTemperature() > TargetShip->GetDamageSystem()->GetOverheatTemperature() * 0.95);
 		if (NewOverheating != Overheating)
