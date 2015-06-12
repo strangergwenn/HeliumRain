@@ -33,6 +33,12 @@ public:
 	/** Add a widget */
 	void AddWidget(FString Icon, FText Legend, FFlareMouseMenuClicked Action);
 
+	/** Add a widget for the "default" action */
+	void AddDefaultWidget(FString Icon, FText Legend);
+
+	/** Add a widget for the "default" action */
+	void AddDefaultWidget(FString Icon, FText Legend, FFlareMouseMenuClicked Action);
+	
 	/** Remove all widgets */
 	void ClearWidgets();
 
@@ -67,6 +73,9 @@ protected:
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
+
+	/** Add a widget */
+	void AddWidgetInternal(FString Icon, FText Legend, int32 Index);
 
 	/** Get the widget's direction */
 	FVector2D GetDirection(int32 Index) const;
@@ -107,11 +116,13 @@ protected:
 	float                                AnimTime;
 
 	// HUD data
+	FFlareMouseMenuClicked               DefaultAction;
 	TArray<FFlareMouseMenuClicked>       Actions;
 	FVector2D                            ViewportCenter;
 	FVector2D                            InitialMousePosition;
 	FVector2D                            MouseOffset;
 	int32                                WidgetCount;
+	int32                                SelectedWidget;
 	float                                CurrentTime;
 	float                                IsOpening;
 

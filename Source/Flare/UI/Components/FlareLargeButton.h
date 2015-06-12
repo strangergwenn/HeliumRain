@@ -15,6 +15,7 @@ class SFlareLargeButton : public SCompoundWidget
 		, _ShowText(true)
 		, _IconColor(FLinearColor::White)
 		, _HighlightColor(FLinearColor::White)
+		, _TextColor(FLinearColor::White)
 	{}
 
 	SLATE_ARGUMENT(bool, Clickable)
@@ -26,6 +27,7 @@ class SFlareLargeButton : public SCompoundWidget
 	
 	SLATE_ATTRIBUTE(FSlateColor, IconColor)
 	SLATE_ATTRIBUTE(FSlateColor, HighlightColor)
+	SLATE_ATTRIBUTE(FSlateColor, TextColor)
 	
 	SLATE_END_ARGS()
 
@@ -57,6 +59,7 @@ protected:
 	FFlareButtonClicked            OnClicked;
 	TAttribute<FSlateColor>        IconColor;
 	TAttribute<FSlateColor>        HighlightColor;
+	TAttribute<FSlateColor>        TextColor;
 	TSharedPtr<STextBlock>         Text;
 
 

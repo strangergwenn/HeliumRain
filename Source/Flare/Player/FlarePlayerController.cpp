@@ -364,7 +364,8 @@ void AFlarePlayerController::SetupMenu()
 		HUD->SetupMenu(PlayerData);
 
 		// Setup mouse menu
-		HUD->GetMouseMenu()->AddWidget("Mouse_Align", LOCTEXT("Align", "FOWARD"), 
+		HUD->GetMouseMenu()->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "CANCEL"));
+		HUD->GetMouseMenu()->AddWidget("Mouse_Align", LOCTEXT("Align", "FORWARD"), 
 			FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
 		HUD->GetMouseMenu()->AddWidget("Mouse_Reverse", LOCTEXT("Reverse", "REVERSE"),
 			FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));

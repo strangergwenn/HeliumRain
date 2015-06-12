@@ -44,35 +44,34 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 
 void SFlareMouseMenu::AddWidget(FString Icon, FText Legend, FFlareMouseMenuClicked Action)
 {
-	// Update data
 	int32 Index = WidgetCount;
 	WidgetCount++;
 	Actions.Add(Action);
 
-	// Add widget
-	HUDCanvas->AddSlot()
-		.VAlign(VAlign_Center)
-		.HAlign(HAlign_Center)
-		.Position(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetPosition, Index)))
-		.Size(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetSize, Index)))
-		[
-			SNew(SFlareLargeButton)
-			.Clickable(false)
-			.Text(Legend)
-			.Icon(FFlareStyleSet::GetIcon(Icon))
-			.HighlightColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
-			.IconColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
-		];
+	AddWidgetInternal(Icon, Legend, Index);
+}
+
+void SFlareMouseMenu::AddDefaultWidget(FString Icon, FText Legend)
+{
+	AddWidgetInternal(Icon, Legend, -1);
+}
+
+void SFlareMouseMenu::AddDefaultWidget(FString Icon, FText Legend, FFlareMouseMenuClicked Action)
+{
+	DefaultAction = Action;
+	AddWidgetInternal(Icon, Legend, -1);
 }
 
 void SFlareMouseMenu::ClearWidgets()
 {
 	HUDCanvas->ClearChildren();
 	Actions.Empty();
+	DefaultAction.Unbind();
 }
 
 void SFlareMouseMenu::Open()
 {
+	SelectedWidget = 1000; // Arbitrary large value
 	InitialMousePosition = PC->GetMousePosition();
 	SetVisibility(EVisibility::HitTestInvisible);
 	SetAnimDirection(true);
@@ -86,6 +85,13 @@ void SFlareMouseMenu::Close()
 		int32 Index = GetSelectedIndex();
 		FLOGV("SFlareMouseMenu::Close : index %d", Index);
 		Actions[Index].ExecuteIfBound();
+		SelectedWidget = Index;
+	}
+	else
+	{
+		FLOGV("SFlareMouseMenu::Close : no action taken");
+		DefaultAction.ExecuteIfBound();
+		SelectedWidget = -1;
 	}
 
 	// State data
@@ -121,7 +127,7 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 
 FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
 {
-	return ViewportCenter - GetWidgetSize(Index) / 2 + GetDirection(Index);;
+	return ViewportCenter + GetDirection(Index);
 }
 
 FVector2D SFlareMouseMenu::GetWidgetSize(int32 Index) const
@@ -141,10 +147,32 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 	}
 	else
 	{
+		// Compute basic data
 		float Colinearity = GetColinearity(Index);
 		float DistanceRatio = FMath::Clamp(2 * (MouseOffset.Size() / WidgetDistance - 0.5f), 0.0f, 1.0f);
+		if (Index < 0)
+		{
+			DistanceRatio = 1.0f - DistanceRatio;
+			Colinearity = 1.0f;
+		}
+
+		// Compute the alpha based on the widget's position and state
+		float OperatorAlpha = Colinearity * DistanceRatio;
+		if (SelectedWidget < WidgetCount)
+		{
+			if (Index == SelectedWidget)
+			{
+				OperatorAlpha = 1.0f;
+			}
+			else
+			{
+				OperatorAlpha = 0.0f;
+			}
+		}
+
+		// Update the alpha to account for animation
 		float AnimAlpha = FMath::Clamp(CurrentTime / AnimTime, 0.0f, 1.0f);
-		Color.A = AnimAlpha * (1 - Theme.DefaultAlpha) + Theme.DefaultAlpha * Colinearity * DistanceRatio;
+		Color.A = AnimAlpha * ((1.0f - Theme.DefaultAlpha) + Theme.DefaultAlpha * OperatorAlpha);
 	}
 
 	return Color;
@@ -155,9 +183,34 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 	Helpers
 ----------------------------------------------------*/
 
+void SFlareMouseMenu::AddWidgetInternal(FString Icon, FText Legend, int32 Index)
+{
+	HUDCanvas->AddSlot()
+		.VAlign(VAlign_Center)
+		.HAlign(HAlign_Center)
+		.Position(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetPosition, Index)))
+		.Size(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetSize, Index)))
+		[
+			SNew(SFlareLargeButton)
+			.Clickable(false)
+			.Text(Legend)
+			.Icon(FFlareStyleSet::GetIcon(Icon))
+			.HighlightColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			.IconColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			.TextColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+		];
+}
+
 FVector2D SFlareMouseMenu::GetDirection(int32 Index) const
 {
-	return FVector2D(0, -WidgetDistance).GetRotated((Index * 360.0f) / (float)WidgetCount);
+	if (Index >= 0)
+	{
+		return FVector2D(0, -WidgetDistance).GetRotated((Index * 360.0f) / (float)WidgetCount);
+	}
+	else
+	{
+		return FVector2D::ZeroVector;
+	}
 }
 
 float SFlareMouseMenu::GetColinearity(int32 Index) const
@@ -181,7 +234,6 @@ int32 SFlareMouseMenu::GetSelectedIndex() const
 {
 	int32 BestIndex = -1;
 	float BestColinearity = -1;
-
 	FVector2D MouseDirection = MouseOffset;
 	MouseDirection.Normalize();
 

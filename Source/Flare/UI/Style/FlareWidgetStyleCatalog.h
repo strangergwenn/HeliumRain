@@ -87,9 +87,10 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = LargeButtons) FSlateBrush LargeButtonBackground;
 	UPROPERTY(EditAnywhere, Category = LargeButtons) FSlateBrush LargeButtonActiveBackground;
 	UPROPERTY(EditAnywhere, Category = LargeButtons) FMargin LargeButtonPadding;
+	UPROPERTY(EditAnywhere, Category = LargeButtons) FMargin LargeButtonTextPadding;
 	UPROPERTY(EditAnywhere, Category = LargeButtons) int32 LargeButtonWidth;
 	UPROPERTY(EditAnywhere, Category = LargeButtons) int32 LargeButtonHeight;
-	
+		
 	
 };
 

@@ -110,18 +110,18 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 
 FSlateColor SFlareSubsystemStatus::GetHighlightColor() const
 {
-	FLinearColor NormalColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
-	FLinearColor DamageColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
-	return FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
-}
-
-FSlateColor SFlareSubsystemStatus::GetIconColor() const
-{
 	FLinearColor FlashColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
 	FLinearColor NeutralColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
 
 	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
 	return FMath::Lerp(FlashColor, NeutralColor, Ratio);
+}
+
+FSlateColor SFlareSubsystemStatus::GetIconColor() const
+{
+	FLinearColor NormalColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
+	FLinearColor DamageColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
+	return FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
 }
 
 FText SFlareSubsystemStatus::GetStatusText() const
