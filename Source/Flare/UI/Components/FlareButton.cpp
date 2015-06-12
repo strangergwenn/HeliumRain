@@ -57,7 +57,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.HAlign(HAlign_Right)
-					.VAlign(VAlign_Center)
+					.VAlign(VAlign_Fill)
 					[
 						SNew(SImage)
 						.Image(this, &SFlareButton::GetDecoratorBrush)

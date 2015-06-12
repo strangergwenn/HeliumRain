@@ -27,7 +27,6 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 			[
 				// Button background
 				SNew(SBorder)
-				.Padding(Theme.ContentPadding)
 				.BorderImage(this, &SFlareListItem::GetBackgroundBrush)
 				[
 					SNew(SHorizontalBox)
@@ -38,7 +37,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 						SAssignNew(InnerContainer, SBorder)
 						.HAlign(HAlign_Fill)
 						.VAlign(VAlign_Top)
-						.Padding(ButtonStyle->ContentPadding)
+						.Padding(Theme.ContentPadding)
 						.BorderImage(new FSlateNoResource)
 						[
 							InArgs._Content.Widget
@@ -49,10 +48,9 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.HAlign(HAlign_Right)
-					.VAlign(VAlign_Center)
+					.VAlign(VAlign_Fill)
 					[
 						SNew(SBorder)
-						.Padding(Theme.ContentPadding)
 						.BorderImage(this, &SFlareListItem::GetBackgroundBrush)
 						[
 							SNew(SImage)
