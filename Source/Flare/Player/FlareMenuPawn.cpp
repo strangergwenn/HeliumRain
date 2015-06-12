@@ -116,12 +116,14 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	SlideInOutOffset = SlideInOutSideOffset;
 	SetSlideDirection(true);
 
+	CurrentShip->StartPresentation();
+
 	// UI
 	if (ShipData)
 	{
 		CurrentShip->Load(*ShipData);
 	}
-	CurrentShip->StartPresentation();
+
 }
 /*
 void AFlareMenuPawn::ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData)

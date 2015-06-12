@@ -325,7 +325,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	UpdateCustomization();
 
 	// Re-dock if we were docked
-	if (ShipData.DockedTo != NAME_None)
+	if (ShipData.DockedTo != NAME_None && !IsPresentationMode())
 	{
 		FLOGV("AFlareSpacecraft::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)

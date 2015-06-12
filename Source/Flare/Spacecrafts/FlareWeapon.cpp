@@ -33,10 +33,17 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 	FLOG("UFlareWeapon::Initialize");
 
+	// Destroy attached bombs
+	for(int i = 0; i < Bombs.Num(); i++)
+	{
+		Bombs[i]->Destroy();
+	}
+	Bombs.Empty();
+
 	int32 FiredAmmo = 0;
 
 	// Setup properties
-	if (ComponentDescription)
+	if (ComponentDescription && Spacecraft)
 	{
 		FiringRate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoRate;
 		MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
@@ -55,7 +62,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 			FLOGV("IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
 
 
-			UStaticMeshSocket* BombHardpoint = ComponentDescription->WeaponCharacteristics.BombCharacteristics.BombMesh->FindSocket("Hardpoint");
+			UStaticMeshSocket* BombHardpoint = ComponentDescription->Mesh->FindSocket("Hardpoint");
 			FLOGV("BombHardpoint RelativeLocation=%s", *BombHardpoint->RelativeLocation.ToString());
 
 			for(int BombIndex = FiredAmmo; BombIndex < ComponentDescription->WeaponCharacteristics.AmmoCapacity ; BombIndex++)
@@ -416,3 +423,27 @@ float UFlareWeapon::GetAimRadius() const
 	return 0;
 }
 
+UStaticMesh* UFlareWeapon::GetMesh(bool PresentationMode) const
+{
+	if(!PresentationMode && ComponentDescription && ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+	{
+		return ComponentDescription->WeaponCharacteristics.BombCharacteristics.BombMesh;
+	}
+	return Super::GetMesh(PresentationMode);
+}
+
+
+
+void UFlareWeapon::OnAttachmentChanged()
+{
+
+	if (!AttachParent)
+	{
+		// Destroy attached bombs
+		for(int i = 0; i < Bombs.Num(); i++)
+		{
+			Bombs[i]->Destroy();
+		}
+		Bombs.Empty();
+	}
+}

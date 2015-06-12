@@ -63,6 +63,8 @@ public:
 
 	virtual void SetTarget(AActor *NewTarget);
 
+	virtual void OnAttachmentChanged();
+
 protected:
 
 	/*----------------------------------------------------
@@ -124,5 +126,7 @@ public:
 	{
 		return Firing && CurrentAmmo > 0;
 	}
+
+	virtual UStaticMesh* GetMesh(bool PresentationMode) const;
 
 };

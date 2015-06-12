@@ -61,6 +61,8 @@ void AFlareBomb::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponen
 
 	}
 
+	SetActorScale3D(ParentWeapon->GetSpacecraft()->GetActorScale3D());
+
 	Activated = false;
 	Dropped = false;
 }

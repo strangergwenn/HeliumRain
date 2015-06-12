@@ -274,7 +274,7 @@ bool UFlareSpacecraftComponent::IsVisibleByPlayer()
 
 void UFlareSpacecraftComponent::SetupComponentMesh()
 {
-	UStaticMesh* Mesh = GetMesh(false);
+	UStaticMesh* Mesh = GetMesh(!(Spacecraft));
 
 	// Set the mesh
 	if (ComponentDescription && Mesh)
