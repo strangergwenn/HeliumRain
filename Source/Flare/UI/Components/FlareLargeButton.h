@@ -12,7 +12,6 @@ class SFlareLargeButton : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareLargeButton)
 		: _Clickable(true)
-		, _ShowText(true)
 		, _IconColor(FLinearColor::White)
 		, _HighlightColor(FLinearColor::White)
 		, _TextColor(FLinearColor::White)
@@ -21,7 +20,6 @@ class SFlareLargeButton : public SCompoundWidget
 	SLATE_ARGUMENT(bool, Clickable)
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
-	SLATE_ARGUMENT(bool, ShowText)
 	SLATE_ARGUMENT(FText, Text)
 	SLATE_ARGUMENT(const FSlateBrush*, Icon);
 	
