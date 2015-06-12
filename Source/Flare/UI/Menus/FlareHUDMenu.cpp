@@ -296,7 +296,15 @@ TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
 FSlateColor SFlareHUDMenu::GetTemperatureColor() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor Color = (Temperature > 0.9 * OverheatTemperature ? Theme.EnemyColor : Theme.NeutralColor);
+	float Distance = Temperature - 0.9f * OverheatTemperature;
+	float Ratio = FMath::Clamp(FMath::Abs(Distance) / 10.0f, 0.0f, 1.0f);
+
+	if (Distance < 0)
+	{
+		Ratio = 0.0f;
+	}
+
+	FLinearColor Color = FMath::Lerp(Theme.NeutralColor, Theme.EnemyColor, Ratio);
 	Color.A = Theme.DefaultAlpha;
 	return Color;
 }
@@ -304,8 +312,15 @@ FSlateColor SFlareHUDMenu::GetTemperatureColor() const
 FSlateColor SFlareHUDMenu::GetTemperatureColorNoAlpha() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor Color = (Temperature > 0.9 * OverheatTemperature ? Theme.EnemyColor : Theme.NeutralColor);
-	return Color;
+	float Distance = Temperature - 0.9f * OverheatTemperature;
+	float Ratio = FMath::Clamp(FMath::Abs(Distance) / 10.0f, 0.0f, 1.0f);
+
+	if (Distance < 0)
+	{
+		Ratio = 0.0f;
+	}
+
+	return FMath::Lerp(Theme.NeutralColor, Theme.EnemyColor, Ratio);
 }
 
 FText SFlareHUDMenu::GetTemperature() const
@@ -329,13 +344,6 @@ FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
 	return Color;
 }
 
-FSlateColor SFlareHUDMenu::GetOverheatBackgroundColor() const
-{
-	FLinearColor Color = FFlareStyleSet::GetDefaultTheme().NeutralColor;
-	Color.A = GetOverheatColor(true).GetSpecifiedColor().A;
-	return Color;
-}
-
 FSlateColor SFlareHUDMenu::GetOutageColor(bool Text) const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -349,13 +357,6 @@ FSlateColor SFlareHUDMenu::GetOutageColor(bool Text) const
 		Color.A *= Theme.DefaultAlpha;
 	}
 
-	return Color;
-}
-
-FSlateColor SFlareHUDMenu::GetOutageBackgroundColor() const
-{
-	FLinearColor Color = FFlareStyleSet::GetDefaultTheme().NeutralColor;
-	Color.A = GetOutageColor(true).GetSpecifiedColor().A;
 	return Color;
 }
 

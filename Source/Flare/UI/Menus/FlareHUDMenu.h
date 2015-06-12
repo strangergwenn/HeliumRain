@@ -51,16 +51,10 @@ protected:
 
 	/** Get the color and alpha of the overheating warning */
 	FSlateColor GetOverheatColor(bool Text) const;
-
-	/** Get the color multiplier of the background behind overheat text */
-	FSlateColor GetOverheatBackgroundColor() const;
-
+	
 	/** Get the color and alpha of the Outage warning */
 	FSlateColor GetOutageColor(bool Text) const;
-
-	/** Get the color multiplier of the background behind overheat text */
-	FSlateColor GetOutageBackgroundColor() const;
-
+	
 	/** Get the text for the outage duration */
 	FText GetOutageText() const;
 
