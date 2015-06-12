@@ -75,19 +75,6 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 
 
 /*----------------------------------------------------
-	Interaction
-----------------------------------------------------*/
-
-void SFlareLargeButton::Show()
-{
-}
-
-void SFlareLargeButton::Hide()
-{
-}
-
-
-/*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
 

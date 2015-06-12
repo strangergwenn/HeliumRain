@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareMouseMenu.h"
+#include "../Components/FlareLargeButton.h"
 #include "../../Player/FlarePlayerController.h"
 
 
@@ -15,8 +16,8 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 {
 	// Setup
 	WidgetDistance = 192;
-	WidgetSize = 96;
-	AnimTime = 0.10f;
+	WidgetSize = 150;
+	AnimTime = 0.20f;
 
 	// Init
 	OwnerHUD = InArgs._OwnerHUD;
@@ -41,7 +42,7 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareMouseMenu::AddWidget(FString Icon, FFlareMouseMenuClicked Action)
+void SFlareMouseMenu::AddWidget(FString Icon, FText Legend, FFlareMouseMenuClicked Action)
 {
 	// Update data
 	int32 Index = WidgetCount;
@@ -50,12 +51,17 @@ void SFlareMouseMenu::AddWidget(FString Icon, FFlareMouseMenuClicked Action)
 
 	// Add widget
 	HUDCanvas->AddSlot()
+		.VAlign(VAlign_Center)
+		.HAlign(HAlign_Center)
 		.Position(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetPosition, Index)))
 		.Size(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetSize, Index)))
 		[
-			SNew(SImage)
-			.Image(FFlareStyleSet::GetIcon(Icon))
-			.ColorAndOpacity(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			SNew(SFlareLargeButton)
+			.Clickable(false)
+			.Text(Legend)
+			.Icon(FFlareStyleSet::GetIcon(Icon))
+			.HighlightColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			.IconColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
 		];
 }
 
@@ -121,8 +127,7 @@ FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
 FVector2D SFlareMouseMenu::GetWidgetSize(int32 Index) const
 {
 	FVector2D BaseSize(WidgetSize, WidgetSize);
-	float AnimAlpha = FMath::Clamp(CurrentTime / AnimTime, 0.0f, 1.0f);
-	return BaseSize * AnimAlpha;
+	return BaseSize;
 }
 
 FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
@@ -138,7 +143,8 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 	{
 		float Colinearity = GetColinearity(Index);
 		float DistanceRatio = FMath::Clamp(2 * (MouseOffset.Size() / WidgetDistance - 0.5f), 0.0f, 1.0f);
-		Color.A = (1 - Theme.DefaultAlpha) + Theme.DefaultAlpha * Colinearity * DistanceRatio;
+		float AnimAlpha = FMath::Clamp(CurrentTime / AnimTime, 0.0f, 1.0f);
+		Color.A = AnimAlpha * (1 - Theme.DefaultAlpha) + Theme.DefaultAlpha * Colinearity * DistanceRatio;
 	}
 
 	return Color;

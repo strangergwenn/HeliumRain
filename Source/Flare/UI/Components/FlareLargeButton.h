@@ -38,16 +38,7 @@ public:
 
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
-
-	/** Show the button */
-	void Show();
-
-	/** Hide the button */
-	void Hide();
-
-	/** Get the toggle state */
-	bool IsActive() const;
-	
+		
 	/** Brush callback */
 	const FSlateBrush* GetBackgroundBrush() const;
 	

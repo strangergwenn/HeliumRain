@@ -3,7 +3,6 @@
 #include "../../Flare.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
-#include "../Widgets/FlareSubsystemStatus.h"
 
 
 DECLARE_DELEGATE(FFlareMouseMenuClicked)
@@ -32,7 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Add a widget */
-	void AddWidget(FString Icon, FFlareMouseMenuClicked Action);
+	void AddWidget(FString Icon, FText Legend, FFlareMouseMenuClicked Action);
 
 	/** Remove all widgets */
 	void ClearWidgets();
@@ -100,7 +99,6 @@ protected:
 	AFlarePlayerController*              PC;
 
 	// HUD content
-	TSharedPtr<SFlareSubsystemStatus>    SectorStatus;
 	TSharedPtr<SCanvas>                  HUDCanvas;
 
 	// HUD settings
