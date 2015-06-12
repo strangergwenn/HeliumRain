@@ -80,6 +80,16 @@ public:
 		return WeaponDescriptionList[Index];
 	}
 
+	inline int32 GetActiveWeaponGroupIndex() const
+	{
+		return ActiveWeaponGroupIndex;
+	}
+
+	inline FFlareWeaponGroup* GetActiveWeaponGroup() const
+	{
+		return ActiveWeaponGroup;
+	}
+
 	inline TArray<UFlareWeapon*>& GetWeaponList()
 	{
 		return WeaponList;

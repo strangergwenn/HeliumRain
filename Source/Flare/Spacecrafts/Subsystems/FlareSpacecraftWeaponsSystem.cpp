@@ -42,7 +42,7 @@ void UFlareSpacecraftWeaponsSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft
 
 inline static bool ConstPredicate (const FFlareWeaponGroup& ip1, const FFlareWeaponGroup& ip2)
  {
-	 return (ip1.Description->WeaponCharacteristics.Order > ip2.Description->WeaponCharacteristics.Order);
+	 return (ip1.Description->WeaponCharacteristics.Order < ip2.Description->WeaponCharacteristics.Order);
  }
 
 void UFlareSpacecraftWeaponsSystem::Start()

@@ -539,16 +539,33 @@ void SFlareShipMenu::OnPartConfirmed()
 		// Edit the correct save data property
 		FFlareSpacecraftComponentDescription* PartDesc = PartListData[CurrentPartIndex];
 		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+		int32 WeaponCount = 0;
 		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
 		{
+			bool UpdatePart = false;
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
-			if(ComponentDescription->Type == PartDesc->Type)
+
+			if (ComponentDescription->Type == PartDesc->Type)
+			{
+				if (ComponentDescription->Type == EFlarePartType::Weapon)
+				{
+					if (WeaponCount == CurrentWeaponIndex)
+					{
+						UpdatePart = true;
+					}
+					WeaponCount ++;
+				}
+				else
+				{
+					UpdatePart = true;
+
+				}
+			}
+
+			if (UpdatePart)
 			{
 				CurrentShipData->Components[i].ComponentIdentifier = PartDesc->Identifier;
 			}
-			
-			//TODO Fix CurrentWeaponIndex
-			
 		}
 		
 		// Update the world ship if it exists

@@ -39,8 +39,8 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 		Bombs[i]->Destroy();
 	}
 	Bombs.Empty();
+	CurrentAmmo = 0;
 
-	int32 FiredAmmo = 0;
 
 	// Setup properties
 	if (ComponentDescription && Spacecraft)
@@ -52,7 +52,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 		FiringSound = ComponentDescription->WeaponCharacteristics.FiringSound;
 		FiringEffectTemplate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.FiringEffect;
 
-		FiredAmmo = ShipComponentData.Weapon.FiredAmmo;
+		CurrentAmmo = MaxAmmo - ShipComponentData.Weapon.FiredAmmo;
 
 		FLOGV("UFlareWeapon::Initialize IsBomb ? %d", ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb);
 
@@ -60,101 +60,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 		{
 			FiringPeriod =  0;
 			FLOGV("IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
-
-
-			UStaticMeshSocket* BombHardpoint = ComponentDescription->Mesh->FindSocket("Hardpoint");
-			FLOGV("BombHardpoint RelativeLocation=%s", *BombHardpoint->RelativeLocation.ToString());
-
-			for(int BombIndex = FiredAmmo; BombIndex < ComponentDescription->WeaponCharacteristics.AmmoCapacity ; BombIndex++)
-			{
-				// Get data
-				FVector HardpointLocation;
-				FRotator HardpointRotation;
-
-				FName HardpointName = FName(*(FString("Hardpoint") + FString::FromInt(BombIndex)));
-
-				FTransform HardPointWorldTransform = GetSocketTransform(HardpointName);
-
-				GetSocketWorldLocationAndRotation(HardpointName, HardpointLocation, HardpointRotation);
-
-
-				FLOGV("Bomb %d HardpointName=%s", BombIndex, *HardpointName.ToString());
-				FLOGV("Bomb %d HardpointLocation=%s", BombIndex, *HardpointLocation.ToString());
-				FLOGV("Bomb %d HardpointRotation=%s", BombIndex, *HardpointRotation.ToString());
-
-				UStaticMeshSocket* Hardpoint = StaticMesh->FindSocket(HardpointName);
-				FMatrix SocketMatrix;
-				Hardpoint->GetSocketMatrix(SocketMatrix, this);
-
-				FLOGV("Bomb %d RelativeLocation=%s", BombIndex, *(Hardpoint->RelativeLocation.ToString()));
-				FLOGV("Bomb %d RelativeRotation=%s", BombIndex, *(Hardpoint->RelativeRotation.ToString()));
-
-
-
-
-				FVector BombLocation = HardPointWorldTransform.TransformPosition(-BombHardpoint->RelativeLocation);
-
-				FLOGV("Bomb %d BombLocation=%s", BombIndex, *BombLocation.ToString());
-
-				BombLocation = SocketMatrix.TransformPosition(-BombHardpoint->RelativeLocation);
-
-				FLOGV("Bomb %d BombLocation2=%s", BombIndex, *BombLocation.ToString());
-
-
-				FLOGV("Bomb %d HardPointWorldTransform.Rotator()=%s", BombIndex, *(HardPointWorldTransform.Rotator().ToString()));
-				FLOGV("Bomb %d SocketMatrix.Rotator()=%s", BombIndex, *(SocketMatrix.Rotator().ToString()));
-
-
-
-				float Roll = 0;
-
-				bool NegativeZScale = RelativeScale3D.Z < 0;
-
-				FLOGV("Bomb %d NegativeZScale=%d", BombIndex, NegativeZScale);
-				FLOGV("Bomb %d RelativeScale3D=%s", BombIndex, *RelativeScale3D.ToString());
-
-				if(BombIndex == 0)
-				{
-					Roll = 90;
-				}
-				else if(BombIndex == 1)
-				{
-					Roll = -90;
-				}
-				else if(BombIndex == 2)
-				{
-					Roll = (NegativeZScale ? 180 : 0);
-				}
-
-				FTransform LocalRotation(FRotator(0,0,Roll));
-
-				FLOGV("Bomb %d Roll=%f", Roll);
-
-
-				FTransform Rotation = LocalRotation * ComponentToWorld;
-
-
-				FLOGV("Bomb %d LocalRotation.Rotator()=%s", BombIndex, *(LocalRotation.Rotator().ToString()));
-				FLOGV("Bomb %d Rotation.Rotator()=%s", BombIndex, *(Rotation.Rotator().ToString()));
-
-				// Spawn parameters
-				FActorSpawnParameters Params;
-				Params.bNoFail = true;
-
-				AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, Rotation.Rotator(), Params);
-				Bomb->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
-				Bomb->Initialize(this, ComponentDescription);
-
-				Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(GetSpacecraft(), true);
-				GetSpacecraft()->Airframe->IgnoreActorWhenMoving(Bomb, true);
-				for(int i = 0; i < Bombs.Num(); i++)
-				{
-					Cast<class UPrimitiveComponent>(Bombs[i]->GetRootComponent())->IgnoreActorWhenMoving(Bomb, true);
-					Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(Bombs[i], true);
-				}
-
-				Bombs.Add(Bomb);
-			}
+			FillBombs();
 		}
 		else
 		{
@@ -168,7 +74,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	ProjectileSpawnParams.bNoCollisionFail = true;
 
 	// Additional properties
-	CurrentAmmo = MaxAmmo - FiredAmmo;
+
 
 	LastFiredGun = -1;
 
@@ -295,8 +201,12 @@ bool UFlareWeapon::FireGun(int GunIndex)
 bool UFlareWeapon::FireBomb()
 {
 	AFlareBomb* Bomb = Bombs.Pop();
-	Bomb->Drop();
-	CurrentAmmo--;
+	if(Bomb)
+	{
+		// TODO refill
+		Bomb->Drop();
+		CurrentAmmo--;
+	}
 	return true;
 }
 
@@ -378,6 +288,108 @@ void UFlareWeapon::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
 void UFlareWeapon::RefillAmmo()
 {
 	CurrentAmmo = MaxAmmo;
+	if(ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+	{
+		FillBombs();
+	}
+}
+
+void UFlareWeapon::FillBombs()
+{
+	UStaticMeshSocket* BombHardpoint = ComponentDescription->Mesh->FindSocket("Hardpoint");
+	FLOGV("BombHardpoint RelativeLocation=%s", *BombHardpoint->RelativeLocation.ToString());
+	int CurrentBombCount = Bombs.Num();
+
+	for(int BombIndex = CurrentBombCount; BombIndex < CurrentAmmo ; BombIndex++)
+	{
+		// Get data
+		FVector HardpointLocation;
+		FRotator HardpointRotation;
+
+		FName HardpointName = FName(*(FString("Hardpoint") + FString::FromInt(BombIndex)));
+
+		FTransform HardPointWorldTransform = GetSocketTransform(HardpointName);
+
+		GetSocketWorldLocationAndRotation(HardpointName, HardpointLocation, HardpointRotation);
+
+
+		FLOGV("Bomb %d HardpointName=%s", BombIndex, *HardpointName.ToString());
+		FLOGV("Bomb %d HardpointLocation=%s", BombIndex, *HardpointLocation.ToString());
+		FLOGV("Bomb %d HardpointRotation=%s", BombIndex, *HardpointRotation.ToString());
+
+		UStaticMeshSocket* Hardpoint = StaticMesh->FindSocket(HardpointName);
+		FMatrix SocketMatrix;
+		Hardpoint->GetSocketMatrix(SocketMatrix, this);
+
+		FLOGV("Bomb %d RelativeLocation=%s", BombIndex, *(Hardpoint->RelativeLocation.ToString()));
+		FLOGV("Bomb %d RelativeRotation=%s", BombIndex, *(Hardpoint->RelativeRotation.ToString()));
+
+
+
+
+		FVector BombLocation = HardPointWorldTransform.TransformPosition(-BombHardpoint->RelativeLocation);
+
+		FLOGV("Bomb %d BombLocation=%s", BombIndex, *BombLocation.ToString());
+
+		BombLocation = SocketMatrix.TransformPosition(-BombHardpoint->RelativeLocation);
+
+		FLOGV("Bomb %d BombLocation2=%s", BombIndex, *BombLocation.ToString());
+
+
+		FLOGV("Bomb %d HardPointWorldTransform.Rotator()=%s", BombIndex, *(HardPointWorldTransform.Rotator().ToString()));
+		FLOGV("Bomb %d SocketMatrix.Rotator()=%s", BombIndex, *(SocketMatrix.Rotator().ToString()));
+
+
+
+		float Roll = 0;
+
+		bool NegativeZScale = RelativeScale3D.Z < 0;
+
+		FLOGV("Bomb %d NegativeZScale=%d", BombIndex, NegativeZScale);
+		FLOGV("Bomb %d RelativeScale3D=%s", BombIndex, *RelativeScale3D.ToString());
+
+		if(BombIndex == 0)
+		{
+			Roll = 90;
+		}
+		else if(BombIndex == 1)
+		{
+			Roll = -90;
+		}
+		else if(BombIndex == 2)
+		{
+			Roll = (NegativeZScale ? 180 : 0);
+		}
+
+		FTransform LocalRotation(FRotator(0,0,Roll));
+
+		FLOGV("Bomb %d Roll=%f", Roll);
+
+
+		FTransform Rotation = LocalRotation * ComponentToWorld;
+
+
+		FLOGV("Bomb %d LocalRotation.Rotator()=%s", BombIndex, *(LocalRotation.Rotator().ToString()));
+		FLOGV("Bomb %d Rotation.Rotator()=%s", BombIndex, *(Rotation.Rotator().ToString()));
+
+		// Spawn parameters
+		FActorSpawnParameters Params;
+		Params.bNoFail = true;
+
+		AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, Rotation.Rotator(), Params);
+		Bomb->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
+		Bomb->Initialize(this, ComponentDescription);
+
+		Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(GetSpacecraft(), true);
+		GetSpacecraft()->Airframe->IgnoreActorWhenMoving(Bomb, true);
+		for(int i = 0; i < Bombs.Num(); i++)
+		{
+			Cast<class UPrimitiveComponent>(Bombs[i]->GetRootComponent())->IgnoreActorWhenMoving(Bomb, true);
+			Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(Bombs[i], true);
+		}
+
+		Bombs.Add(Bomb);
+	}
 }
 
 FVector UFlareWeapon::GetFireAxis() const

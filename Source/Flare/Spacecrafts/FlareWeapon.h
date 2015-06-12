@@ -65,6 +65,8 @@ public:
 
 	virtual void OnAttachmentChanged();
 
+	virtual void FillBombs();
+
 protected:
 
 	/*----------------------------------------------------
