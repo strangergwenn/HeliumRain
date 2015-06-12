@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../Components/FlareLargeButton.h"
 #include "../Widgets/FlareShipStatus.h"
 #include "../Widgets/FlareTargetActions.h"
 
@@ -52,10 +53,7 @@ protected:
 
 	/** Get the current position */
 	FMargin GetContextMenuPosition() const;
-
-	/** Get the current legend text */
-	FText GetLegendText() const;
-
+	
 
 protected:
 
@@ -66,14 +64,9 @@ protected:
 	/** HUD reference */
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareHUD>   OwnerHUD;
-
-	// Widget data
-	TSharedPtr<SFlareShipStatus>      ShipStatus;
-	TSharedPtr<SVerticalBox>          Container;
-	
+		
 	// State data
-	TSharedPtr<SFlareButton>          MinimizedButton;
-	IFlareSpacecraftInterface*           TargetStation;
-	IFlareSpacecraftInterface*              TargetShip;
+	IFlareSpacecraftInterface*        TargetStation;
+	IFlareSpacecraftInterface*        TargetShip;
 	
 };

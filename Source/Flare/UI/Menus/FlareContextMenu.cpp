@@ -27,34 +27,12 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 		.BorderImage(FCoreStyle::Get().GetBrush("NoBrush"))
 		.Padding(this, &SFlareContextMenu::GetContextMenuPosition)
 		[
-			SAssignNew(Container, SVerticalBox)
-
-			// Status
-			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Center)
-			[
-				SAssignNew(ShipStatus, SFlareShipStatus)
-				.Center(true)
-			]
-
-			// Button
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SAssignNew(MinimizedButton, SFlareButton)
-				.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
-				.ButtonStyle(FFlareStyleSet::Get(), "/Style/ContextMenuButton")
-			]
+			SNew(SFlareLargeButton)
+			.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
+			.Icon(FFlareStyleSet::GetIcon("DesignatorContextButton"))
+			.Text(LOCTEXT("Inspect", "INSPECT"))
 		]
 	];
-
-	// Legend
-	MinimizedButton->GetContainer()->SetContent(
-		SNew(STextBlock)
-		.Text(this, &SFlareContextMenu::GetLegendText)
-		.TextStyle(&FFlareStyleSet::GetDefaultTheme().InvertedTitleFont)
-		.Justification(ETextJustify::Center)
-	);
 }
 
 
@@ -66,16 +44,12 @@ void SFlareContextMenu::SetStation(IFlareSpacecraftInterface* Target)
 {
 	TargetStation = Target;
 	TargetShip = NULL;
-	ShipStatus->SetTargetShip(NULL);
-	ShipStatus->SetVisibility(EVisibility::Hidden);
 }
 
 void SFlareContextMenu::SetShip(IFlareSpacecraftInterface* Target)
 {
 	TargetShip = Target;
 	TargetStation = NULL;
-	ShipStatus->SetTargetShip(Target);
-	ShipStatus->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareContextMenu::Show()
@@ -105,17 +79,12 @@ void SFlareContextMenu::OpenTargetMenu()
 	Internal
 ----------------------------------------------------*/
 
-FText SFlareContextMenu::GetLegendText() const
-{
-	return FText::FromString("+");
-}
-
 FMargin SFlareContextMenu::GetContextMenuPosition() const
 {
 	FVector2D Pos = OwnerHUD->GetContextMenuLocation();
 
-	Pos.X -= Container->GetDesiredSize().X / 2;
-	Pos.Y -= 90;
+	Pos.X -= 48;
+	Pos.Y -= 48;
 
 	return FMargin(Pos.X, Pos.Y, 0, 0);
 }
