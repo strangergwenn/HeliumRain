@@ -39,6 +39,15 @@ protected:
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
+	/** Get the ratio of temperature in the "minimal / max acceptable" range */
+	TOptional<float> GetTemperatureProgress() const;
+
+	/** Get the color of the temperature bar */
+	FSlateColor GetTemperatureColor() const;
+
+	/** Get the current temperature */
+	FText GetTemperature() const;
+
 	/** Get the color and alpha of the overheating warning */
 	FSlateColor GetOverheatColor(bool Text) const;
 
@@ -76,6 +85,8 @@ protected:
 
 	// Target data
 	IFlareSpacecraftInterface*           TargetShip;
+	float                                Temperature;
+	float                                OverheatTemperature;
 	bool                                 Overheating;
 	bool                                 Burning;
 	bool                                 PowerOutage;

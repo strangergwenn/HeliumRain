@@ -43,6 +43,52 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SVerticalBox)
 
+			// Overheating progress bar
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
+			[
+				SNew(SHorizontalBox)
+				
+				// Icon
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SImage)
+					.Image(FFlareStyleSet::GetIcon("Temperature"))
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+				]
+
+				// Bar
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.MinDesiredWidth(500)
+					.HAlign(HAlign_Fill)
+					.VAlign(VAlign_Center)
+					[
+						SNew(SProgressBar)
+						.Style(&Theme.TemperatureBarStyle)
+						.Percent(this, &SFlareHUDMenu::GetTemperatureProgress)
+						.FillColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+					]
+				]
+
+				// Text
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.NameFont)
+					.Text(this, &SFlareHUDMenu::GetTemperature)
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+				]
+			]
+	
 			// Overheating box
 			+ SVerticalBox::Slot()
 			.Padding(FMargin(0, 100))
@@ -228,6 +274,8 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 		// Overheating status
 		TimeSinceOverheatChanged += InDeltaTime;
+		Temperature = TargetShip->GetDamageSystem()->GetTemperature();
+		OverheatTemperature = TargetShip->GetDamageSystem()->GetOverheatTemperature();
 
 		// Alert the player if the ship is near the overheat temperature
 		bool NewOverheating = (TargetShip->GetDamageSystem()->GetTemperature() > TargetShip->GetDamageSystem()->GetOverheatTemperature() * 0.95);
@@ -238,7 +286,6 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 		Overheating = NewOverheating;
 		Burning = (TargetShip->GetDamageSystem()->GetTemperature() > TargetShip->GetDamageSystem()->GetBurnTemperature());
 
-
 		// Outage status
 		TimeSinceOutageChanged += InDeltaTime;
 		bool NewPowerOutage = TargetShip->GetDamageSystem()->HasPowerOutage();
@@ -248,6 +295,26 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 		}
 		PowerOutage = NewPowerOutage;
 	}
+}
+
+TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
+{
+	float WidgetMin = 700.0f;
+	float WidgetRange = OverheatTemperature - WidgetMin;
+	return ((Temperature - WidgetMin) / WidgetRange);
+}
+
+FSlateColor SFlareHUDMenu::GetTemperatureColor() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = (Temperature > 0.9 * OverheatTemperature ? Theme.EnemyColor : Theme.NeutralColor);
+	Color.A = Theme.DefaultAlpha;
+	return Color;
+}
+
+FText SFlareHUDMenu::GetTemperature() const
+{
+	return FText::FromString(FString::FromInt(Temperature) + " K");
 }
 
 FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const

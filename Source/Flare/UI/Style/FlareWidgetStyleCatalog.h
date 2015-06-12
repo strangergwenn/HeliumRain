@@ -90,7 +90,11 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = LargeButtons) FMargin LargeButtonTextPadding;
 	UPROPERTY(EditAnywhere, Category = LargeButtons) int32 LargeButtonWidth;
 	UPROPERTY(EditAnywhere, Category = LargeButtons) int32 LargeButtonHeight;
-		
+
+	// Progress bars
+	UPROPERTY(EditAnywhere, Category = ProgressBars) FProgressBarStyle ProgressBarStyle;
+	UPROPERTY(EditAnywhere, Category = ProgressBars) FProgressBarStyle TemperatureBarStyle;
+	
 	
 };
 
