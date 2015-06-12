@@ -233,7 +233,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	// Update weapon list
 	if (PlayerShip)
 	{
-		TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponList();
+		TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponsSystem()->GetWeaponList();
 		TSharedPtr<SFlareSubsystemStatus> Temp;
 		WeaponContainer->ClearChildren();
 

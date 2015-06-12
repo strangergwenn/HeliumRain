@@ -136,6 +136,12 @@ public:
 
 	virtual void FireRelease();
 
+	virtual void ActivateWeaponGroup1();
+
+	virtual void ActivateWeaponGroup2();
+
+	virtual void ActivateWeaponGroup3();
+
 	virtual void MousePositionInput(FVector2D Val);
 
 	virtual void ThrustInput(float Val);
@@ -153,10 +159,6 @@ public:
 	virtual void ZoomIn();
 
 	virtual void ZoomOut();
-
-	virtual void StartFire();
-
-	virtual void StopFire();
 
 	virtual void FaceForward();
 
@@ -181,10 +183,6 @@ protected:
 	FFlareSpacecraftDescription*                   ShipDescription;
 	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
 	FFlareSpacecraftComponentDescription*          RCSDescription;
-
-	// Weapon components and descriptions
-	TArray <UFlareWeapon*>                   WeaponList;
-	TArray <FFlareSpacecraftComponentDescription*> WeaponDescriptionList;
 
 	// Lifesupport status
 	UPROPERTY()
@@ -246,16 +244,6 @@ public:
 	inline FFlareSpacecraftComponentDescription* GetRCSDescription() const
 	{
 		return RCSDescription;
-	}
-
-	inline FFlareSpacecraftComponentDescription* GetWeaponDescription(int32 Index) const
-	{
-		return WeaponDescriptionList[Index];
-	}
-
-	inline TArray<UFlareWeapon*>& GetWeaponList()
-	{
-		return WeaponList;
 	}
 
 	virtual UFlareSpacecraftComponent* GetCockpit() const override

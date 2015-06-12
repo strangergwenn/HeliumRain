@@ -59,8 +59,11 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
 	// Update Camera
+
 	if (!ExternalCamera && CombatMode)
 	{
+		//TODO depend of Active weapon
+		/*
 		//TODO Only for played ship, in Ship class
 		if (CombatMode)
 		{
@@ -93,6 +96,9 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			SetCameraPitch(0);
 			SetCameraYaw(0);
 		}
+		*/
+		SetCameraPitch(0);
+		SetCameraYaw(0);
 	}
 
 
@@ -151,7 +157,8 @@ void AFlareSpacecraft::SetExternalCamera(bool NewState)
 	// Stop firing
 	if (NewState)
 	{
-		StopFire();
+		// TODO new control mode
+		GetWeaponsSystem()->StopFire();
 		BoostOff();
 	}
 
@@ -180,14 +187,13 @@ void AFlareSpacecraft::SetExternalCamera(bool NewState)
 
 void AFlareSpacecraft::SetCombatMode(bool NewState)
 {
+	// TODO remove combat mode
+
 	CombatMode = NewState;
 	PlayerMouseOffset = FVector2D(0,0);
 	MousePositionInput(PlayerMouseOffset);
 
-	if (!NewState && FiringPressed)
-	{
-		StopFire();
-	}
+	GetWeaponsSystem()->ActivateWeapons(NewState);
 }
 
 // TODO move in helper class
@@ -236,9 +242,7 @@ FVector AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocit
 
 void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 {
-	// Clear previous data
-	WeaponList.Empty();
-	WeaponDescriptionList.Empty();
+
 
 	// Update local data
 	ShipData = Data;
@@ -309,27 +313,11 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 			SetOrbitalEngineDescription(ComponentDescription);
 		}
 
-		// If this is a weapon, add to weapon list.
-		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Component);
-		if (Weapon)
-		{
-			WeaponList.Add(Weapon);
-		}
 
 		// Find the cockpit
 		if(ComponentDescription->GeneralCharacteristics.LifeSupport)
 		{
 			ShipCockit = Component;
-		}
-	}
-
-	// Load weapon descriptions
-	for (int32 i = 0; i < Data.Components.Num(); i++)
-	{
-		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(Data.Components[i].ComponentIdentifier);
-		if (ComponentDescription->Type == EFlarePartType::Weapon)
-		{
-			WeaponDescriptionList.Add(ComponentDescription);
 		}
 	}
 
@@ -592,6 +580,10 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 
 	InputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::FirePress);
 	InputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &AFlareSpacecraft::FireRelease);
+
+	InputComponent->BindAction("WeaponGroup1", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup1);
+	InputComponent->BindAction("WeaponGroup2", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup2);
+	InputComponent->BindAction("WeaponGroup3", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup3);
 }
 
 void AFlareSpacecraft::FirePress()
@@ -600,7 +592,8 @@ void AFlareSpacecraft::FirePress()
 
 	if (CombatMode)
 	{
-		StartFire();
+		// TODO new control mode
+		GetWeaponsSystem()->StartFire();
 	}
 }
 
@@ -610,8 +603,27 @@ void AFlareSpacecraft::FireRelease()
 
 	if (CombatMode)
 	{
-		StopFire();
+		// TODO new control mode
+		GetWeaponsSystem()->StopFire();
 	}
+}
+
+void AFlareSpacecraft::ActivateWeaponGroup1()
+{
+	FLOG("ActivateWeaponGroup1");
+	GetWeaponsSystem()->ActivateWeaponGroup(0);
+}
+
+void AFlareSpacecraft::ActivateWeaponGroup2()
+{
+	FLOG("ActivateWeaponGroup2");
+	GetWeaponsSystem()->ActivateWeaponGroup(1);
+}
+
+void AFlareSpacecraft::ActivateWeaponGroup3()
+{
+	FLOG("ActivateWeaponGroup3");
+	GetWeaponsSystem()->ActivateWeaponGroup(2);
 }
 
 void AFlareSpacecraft::MousePositionInput(FVector2D Val)
@@ -719,35 +731,6 @@ void AFlareSpacecraft::ZoomOut()
 	if (ExternalCamera)
 	{
 		StepCameraDistance(false);
-	}
-}
-
-
-void AFlareSpacecraft::StartFire()
-{
-	if (GetDamageSystem()->IsAlive() && (IsPiloted || !ExternalCamera))
-	{
-		for (int32 i = 0; i < WeaponList.Num(); i++)
-		{
-			if (!WeaponList[i]->IsTurret())
-			{
-				WeaponList[i]->StartFire();
-			}
-		}
-	}
-}
-
-void AFlareSpacecraft::StopFire()
-{
-	if (GetDamageSystem()->IsAlive() && (IsPiloted || !ExternalCamera))
-	{
-		for (int32 i = 0; i < WeaponList.Num(); i++)
-		{
-			if (!WeaponList[i]->IsTurret())
-			{
-				WeaponList[i]->StopFire();
-			}
-		}
 	}
 }
 

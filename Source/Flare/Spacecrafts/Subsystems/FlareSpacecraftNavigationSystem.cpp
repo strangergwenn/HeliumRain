@@ -42,12 +42,14 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 			if (Spacecraft->GetPilot()->IsWantFire())
 			{
 				// TODO in weapons system
-				Spacecraft->StartFire();
+				// TODO new control mode
+				Spacecraft->GetWeaponsSystem()->StartFire();
 			}
 			else
 			{
 				// TODO in weapons system
-				Spacecraft->StopFire();
+				// TODO new control mode
+				Spacecraft->GetWeaponsSystem()->StopFire();
 			}
 		}
 		else

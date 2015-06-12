@@ -33,7 +33,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 	FLOG("UFlareWeapon::Initialize");
 
-	float FiredAmmo = 0;
+	int32 FiredAmmo = 0;
 
 	// Setup properties
 	if (ComponentDescription)

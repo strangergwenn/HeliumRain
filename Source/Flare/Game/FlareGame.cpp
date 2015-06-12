@@ -543,7 +543,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 		for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
 		{
 			FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = FName("weapon-wyrm");
+			ComponentData.ComponentIdentifier = FName("weapon-eradicator");
 			ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
 			ComponentData.Damage = 0.f;
 			ComponentData.Weapon.FiredAmmo = 0;

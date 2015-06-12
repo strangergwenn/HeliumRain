@@ -89,7 +89,7 @@ void SFlareMouseMenu::Close()
 	}
 	else
 	{
-		FLOGV("SFlareMouseMenu::Close : no action taken");
+		FLOG("SFlareMouseMenu::Close : no action taken");
 		DefaultAction.ExecuteIfBound();
 		SelectedWidget = -1;
 	}

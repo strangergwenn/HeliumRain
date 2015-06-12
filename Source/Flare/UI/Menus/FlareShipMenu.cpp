@@ -451,7 +451,7 @@ void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponIndex)
 	{
 		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
 		PC->GetGame()->GetShipPartsCatalog()->GetWeaponList(PartListData, Ship->GetDescription()->Size);
-		UpdatePartList(Ship->GetWeaponDescription(CurrentWeaponIndex));
+		UpdatePartList(Ship->GetWeaponsSystem()->GetWeaponDescription(CurrentWeaponIndex));
 	}
 }
 

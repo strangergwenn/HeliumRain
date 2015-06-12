@@ -21,6 +21,8 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 	BombComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);*/
 	BombComp->LDMaxDrawDistance = 100000; // 1km*/
 	BombComp->SetSimulatePhysics(true);
+	BombComp->SetLinearDamping(0);
+	BombComp->SetAngularDamping(0);
 	RootComponent = BombComp;
 
 	SetActorEnableCollision(false);

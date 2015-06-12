@@ -238,6 +238,12 @@ struct FFlareSpacecraftComponentWeaponCharacteristics
 	/** Is a weapon */
 	UPROPERTY(EditAnywhere, Category = Content) bool IsWeapon;
 
+	/** Weapon order in weapon groups */
+	UPROPERTY(EditAnywhere, Category = Content) int32 Order;
+
+	/** Alterned weapons. If true, all the weapons don't fire at same time */
+	UPROPERTY(EditAnywhere, Category = Content) bool AlternedWeapon;
+
 	/** Damage type */
 	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlareShellDamageType::Type> DamageType;
 
@@ -545,7 +551,7 @@ protected:
 	UMaterialInstanceDynamic*               EffectMaterial;
 
 	// Component description and data
-	const FFlareSpacecraftComponentDescription*   ComponentDescription;
+	FFlareSpacecraftComponentDescription*   ComponentDescription;
 	FFlareSpacecraftComponentSave                 ShipComponentData;
 
 	// General state
@@ -582,7 +588,7 @@ protected:
 	}
 
 
-	virtual const FFlareSpacecraftComponentDescription* GetDescription() const
+	virtual FFlareSpacecraftComponentDescription* GetDescription() const
 	{
 		return ComponentDescription;
 	}
