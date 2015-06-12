@@ -51,6 +51,9 @@ protected:
 	/** Get the color multiplier of the background behind overheat text */
 	FSlateColor GetOutageBackgroundColor() const;
 
+	/** Get the text for the outage duration */
+	FText GetOutageText() const;
+
 
 protected:
 

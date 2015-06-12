@@ -49,10 +49,7 @@ protected:
 
 	/** Get the current icon color */
 	FSlateColor GetIconColor() const;
-
-	/** Get the current status string */
-	FText GetStatusText() const;
-
+	
 
 protected:
 

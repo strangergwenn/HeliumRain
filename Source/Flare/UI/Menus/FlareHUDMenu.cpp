@@ -86,25 +86,41 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 				.BorderImage(&Theme.BackgroundBrush)
 				.BorderBackgroundColor(this, &SFlareHUDMenu::GetOutageBackgroundColor)
 				[
-					SNew(SHorizontalBox)
+					SNew(SVerticalBox)
 
-					// Outage icon
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					[
-						SNew(SImage)
-						.Image(FFlareStyleSet::GetIcon("HUD_Power"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, false)
-					]
+						SNew(SHorizontalBox)
 
-					// Outage text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.VAlign(VAlign_Center)
+						// Outage icon
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SImage)
+							.Image(FFlareStyleSet::GetIcon("HUD_Power"))
+							.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, false)
+						]
+
+						// Outage text
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.VAlign(VAlign_Center)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TitleFont)
+							.Text(LOCTEXT("PowerOutage", "POWER OUTAGE"))
+							.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
+						]
+					]
+			
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Center)
 					[
 						SNew(STextBlock)
-						.TextStyle(&Theme.TitleFont)
-						.Text(LOCTEXT("PowerOutage", "POWER OUTAGE"))
+						.Text(this, &SFlareHUDMenu::GetOutageText)
+						.TextStyle(&Theme.SubTitleFont)
 						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 					]
 				]
@@ -280,5 +296,16 @@ FSlateColor SFlareHUDMenu::GetOutageBackgroundColor() const
 	return Color;
 }
 
+FText SFlareHUDMenu::GetOutageText() const
+{
+	if (TargetShip)
+	{
+		return FText::FromString(LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(TargetShip->GetDamageSystem()->GetPowerOutageDuration() + 1) + " s");
+	}
+	else
+	{
+		return FText::FromString("");
+	}
+}
 
 #undef LOCTEXT_NAMESPACE
