@@ -35,6 +35,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDRCSIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_RCS.TX_Icon_RCS"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
 
+	// Load content (font)
+	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj             (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
+
 	// Set content (general icons)
 	HUDReticleIcon = HUDReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
@@ -49,6 +52,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDPropulsionIcon = HUDPropulsionIconObj.Object;
 	HUDRCSIcon = HUDRCSIconObj.Object;
 	HUDWeaponIcon = HUDWeaponIconObj.Object;
+
+	// Set content (font)
+	HUDFont = HUDFontObj.Object;
 }
 
 
@@ -191,6 +197,12 @@ void AFlareHUD::DrawHUD()
 		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
 		{
 			DrawHUDIcon(ScreenPosition, 24, HUDReticleIcon, HudColorNeutral, true);
+
+			FString VelocityText = FString::FromInt(ShipVelocity.Size() / 100) + FString(" m/s");
+			FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
+
+			DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
+			DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
 		}
 
 		// Draw nose

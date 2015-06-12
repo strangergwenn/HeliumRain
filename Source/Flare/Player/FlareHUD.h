@@ -65,10 +65,7 @@ public:
 	/*----------------------------------------------------
 		Interaction
 	----------------------------------------------------*/
-
-	/** Get the current context menu position */
-	FVector GetContextMenuPosition() const;
-
+	
 	/** Toggle the HUD's presence */
 	void ToggleHUD();
 
@@ -193,6 +190,9 @@ protected:
 	UTexture2D*                             HUDPropulsionIcon;
 	UTexture2D*                             HUDRCSIcon;
 	UTexture2D*                             HUDWeaponIcon;
+
+	// Font
+	UFont*                                  HUDFont;
 	
 	// Context menu
 	TSharedPtr<SFlareContextMenu>           ContextMenu;
