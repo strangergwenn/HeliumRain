@@ -19,7 +19,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	Overheating = false;
 	Burning = false;
 	PowerOutage = false;
-	PresentationFlashTime = 1.0f;
+	PresentationFlashTime = 0.2f;
 	TimeSinceOverheatChanged = PresentationFlashTime;
 	TimeSinceOutageChanged = PresentationFlashTime;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
@@ -58,7 +58,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SImage)
 					.Image(FFlareStyleSet::GetIcon("Temperature"))
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
 				]
 
 				// Bar
@@ -73,7 +73,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 						SNew(SProgressBar)
 						.Style(&Theme.TemperatureBarStyle)
 						.Percent(this, &SFlareHUDMenu::GetTemperatureProgress)
-						.FillColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+						.FillColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
 					]
 				]
 
@@ -91,84 +91,73 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	
 			// Overheating box
 			+ SVerticalBox::Slot()
-			.Padding(FMargin(0, 100))
 			.AutoHeight()
+			.HAlign(HAlign_Center)
 			[
-				SNew(SBorder)
-				.HAlign(HAlign_Center)
-				.BorderImage(&Theme.BackgroundBrush)
-				.BorderBackgroundColor(this, &SFlareHUDMenu::GetOverheatBackgroundColor)
+				SNew(SHorizontalBox)
+
+				// Overheating icon
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
 				[
-					SNew(SHorizontalBox)
+					SNew(SImage)
+					.Image(FFlareStyleSet::GetIcon("HUD_Temperature"))
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, false)
+				]
 
-					// Overheating icon
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SImage)
-						.Image(FFlareStyleSet::GetIcon("HUD_Temperature"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, false)
-					]
-
-					// Overheating text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TitleFont)
-						.Text(LOCTEXT("Overheating", "OVERHEATING"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
-					]
+				// Overheating text
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TitleFont)
+					.Text(LOCTEXT("Overheating", "OVERHEATING"))
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
 				]
 			]
 
 			// Outage box
 			+ SVerticalBox::Slot()
 			.AutoHeight()
+			.HAlign(HAlign_Center)
 			[
-				SNew(SBorder)
-				.HAlign(HAlign_Center)
-				.BorderImage(&Theme.BackgroundBrush)
-				.BorderBackgroundColor(this, &SFlareHUDMenu::GetOutageBackgroundColor)
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
-					SNew(SVerticalBox)
+					SNew(SHorizontalBox)
 
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					// Outage icon
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					[
-						SNew(SHorizontalBox)
-
-						// Outage icon
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SImage)
-							.Image(FFlareStyleSet::GetIcon("HUD_Power"))
-							.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, false)
-						]
-
-						// Outage text
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.VAlign(VAlign_Center)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TitleFont)
-							.Text(LOCTEXT("PowerOutage", "POWER OUTAGE"))
-							.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
-						]
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("HUD_Power"))
+						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, false)
 					]
-			
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.HAlign(HAlign_Center)
+
+					// Outage text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.Text(this, &SFlareHUDMenu::GetOutageText)
-						.TextStyle(&Theme.SubTitleFont)
+						.TextStyle(&Theme.TitleFont)
+						.Text(LOCTEXT("PowerOutage", "POWER OUTAGE"))
 						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 					]
+				]
+			
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Center)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareHUDMenu::GetOutageText)
+					.TextStyle(&Theme.SubTitleFont)
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 				]
 			]
 		]
@@ -309,6 +298,13 @@ FSlateColor SFlareHUDMenu::GetTemperatureColor() const
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor Color = (Temperature > 0.9 * OverheatTemperature ? Theme.EnemyColor : Theme.NeutralColor);
 	Color.A = Theme.DefaultAlpha;
+	return Color;
+}
+
+FSlateColor SFlareHUDMenu::GetTemperatureColorNoAlpha() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = (Temperature > 0.9 * OverheatTemperature ? Theme.EnemyColor : Theme.NeutralColor);
 	return Color;
 }
 

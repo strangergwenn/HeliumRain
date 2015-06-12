@@ -44,6 +44,7 @@ protected:
 
 	/** Get the color of the temperature bar */
 	FSlateColor GetTemperatureColor() const;
+	FSlateColor GetTemperatureColorNoAlpha() const;
 
 	/** Get the current temperature */
 	FText GetTemperature() const;
