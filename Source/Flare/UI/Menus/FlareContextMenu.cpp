@@ -27,7 +27,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 		.BorderImage(FCoreStyle::Get().GetBrush("NoBrush"))
 		.Padding(this, &SFlareContextMenu::GetContextMenuPosition)
 		[
-			SNew(SFlareLargeButton)
+			SNew(SFlareRoundButton)
 			.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
 			.Icon(FFlareStyleSet::GetIcon("DesignatorContextButton"))
 			.Text(LOCTEXT("Inspect", "INSPECT"))

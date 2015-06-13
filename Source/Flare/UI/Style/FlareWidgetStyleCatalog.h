@@ -37,8 +37,8 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&ButtonDecorator);
 		OutBrushes.Add(&ButtonActiveDecorator);
 
-		OutBrushes.Add(&LargeButtonBackground);
-		OutBrushes.Add(&LargeButtonActiveBackground);
+		OutBrushes.Add(&RoundButtonBackground);
+		OutBrushes.Add(&RoundButtonActiveBackground);
 	}
 
 
@@ -84,12 +84,12 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Buttons) int32 ButtonHeight;
 
 	// Large button style
-	UPROPERTY(EditAnywhere, Category = LargeButtons) FSlateBrush LargeButtonBackground;
-	UPROPERTY(EditAnywhere, Category = LargeButtons) FSlateBrush LargeButtonActiveBackground;
-	UPROPERTY(EditAnywhere, Category = LargeButtons) FMargin LargeButtonPadding;
-	UPROPERTY(EditAnywhere, Category = LargeButtons) FMargin LargeButtonTextPadding;
-	UPROPERTY(EditAnywhere, Category = LargeButtons) int32 LargeButtonWidth;
-	UPROPERTY(EditAnywhere, Category = LargeButtons) int32 LargeButtonHeight;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonBackground;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonActiveBackground;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FMargin RoundButtonPadding;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FMargin RoundButtonTextPadding;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) int32 RoundButtonWidth;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) int32 RoundButtonHeight;
 
 	// Progress bars
 	UPROPERTY(EditAnywhere, Category = ProgressBars) FProgressBarStyle ProgressBarStyle;

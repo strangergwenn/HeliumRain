@@ -4,13 +4,13 @@
 #include "FlareButton.h"
 
 
-class SFlareLargeButton : public SCompoundWidget
+class SFlareRoundButton : public SCompoundWidget
 {
 	/*----------------------------------------------------
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareLargeButton)
+	SLATE_BEGIN_ARGS(SFlareRoundButton)
 		: _Clickable(true)
 		, _ShowText(true)
 		, _IconColor(FLinearColor::White)
@@ -19,12 +19,11 @@ class SFlareLargeButton : public SCompoundWidget
 	{}
 
 	SLATE_ARGUMENT(bool, Clickable)
+	SLATE_ARGUMENT(bool, ShowText)
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
-	SLATE_ARGUMENT(bool, ShowText)
 	SLATE_ATTRIBUTE(FText, Text)
-	SLATE_ARGUMENT(const FSlateBrush*, Icon);
-	
+	SLATE_ATTRIBUTE(const FSlateBrush*, Icon);
 	SLATE_ATTRIBUTE(FSlateColor, IconColor)
 	SLATE_ATTRIBUTE(FSlateColor, HighlightColor)
 	SLATE_ATTRIBUTE(FSlateColor, TextColor)
@@ -57,10 +56,15 @@ protected:
 	// Data
 	bool                           IsClickable;
 	FFlareButtonClicked            OnClicked;
+
+	// Attributes
 	TAttribute<FText>              Text;
+	TAttribute<const FSlateBrush*> Icon;
 	TAttribute<FSlateColor>        IconColor;
 	TAttribute<FSlateColor>        HighlightColor;
 	TAttribute<FSlateColor>        TextColor;
+
+	// SLate data
 	TSharedPtr<STextBlock>         TextBlock;
 
 

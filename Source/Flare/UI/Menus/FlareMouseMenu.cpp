@@ -1,7 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareMouseMenu.h"
-#include "../Components/FlareLargeButton.h"
+#include "../Components/FlareRoundButton.h"
 #include "../../Player/FlarePlayerController.h"
 
 
@@ -191,7 +191,7 @@ void SFlareMouseMenu::AddWidgetInternal(FString Icon, FText Legend, int32 Index)
 		.Position(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetPosition, Index)))
 		.Size(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetSize, Index)))
 		[
-			SNew(SFlareLargeButton)
+			SNew(SFlareRoundButton)
 			.Clickable(false)
 			.Text(Legend)
 			.Icon(FFlareStyleSet::GetIcon(Icon))

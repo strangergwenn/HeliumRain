@@ -1,7 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareSubsystemStatus.h"
-#include "../Components/FlareLargeButton.h"
+#include "../Components/FlareRoundButton.h"
 #include "../../Spacecrafts/FlareWeapon.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
 
@@ -43,7 +43,7 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Center)
 	[
-		SNew(SFlareLargeButton)
+		SNew(SFlareRoundButton)
 		.Clickable(false)
 		.Icon(Icon)
 		.Text(this, &SFlareSubsystemStatus::GetText)

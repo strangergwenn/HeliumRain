@@ -1,13 +1,13 @@
 
 #include "../../Flare.h"
-#include "FlareLargeButton.h"
+#include "FlareRoundButton.h"
 
 
 /*----------------------------------------------------
 	Construct
 ----------------------------------------------------*/
 
-void SFlareLargeButton::Construct(const FArguments& InArgs)
+void SFlareRoundButton::Construct(const FArguments& InArgs)
 {
 	// Arguments
 	IsClickable = InArgs._Clickable;
@@ -15,6 +15,7 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 	IconColor = InArgs._IconColor;
 	HighlightColor = InArgs._HighlightColor;
 	TextColor = InArgs._TextColor;
+	Icon = InArgs._Icon;
 	Text = InArgs._Text;
 
 	// Setup
@@ -32,24 +33,24 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 		[
 			// Image box
 			SNew(SBox)
-			.WidthOverride(Theme.LargeButtonWidth)
-			.HeightOverride(Theme.LargeButtonHeight)
+			.WidthOverride(Theme.RoundButtonWidth)
+			.HeightOverride(Theme.RoundButtonHeight)
 			[
 				// Button (behaviour only, no display)
 				SNew(SButton)
-				.OnClicked(this, &SFlareLargeButton::OnButtonClicked)
+				.OnClicked(this, &SFlareRoundButton::OnButtonClicked)
 				.ContentPadding(FMargin(0))
 				.ButtonStyle(FCoreStyle::Get(), "NoBorder")
 				[
 					// Background
 					SNew(SBorder)
-					.Padding(Theme.LargeButtonPadding)
-					.BorderImage(&Theme.LargeButtonBackground)
+					.Padding(Theme.RoundButtonPadding)
+					.BorderImage(&Theme.RoundButtonBackground)
 					.BorderBackgroundColor(HighlightColor)
 					[
 						// Icon
 						SNew(SImage)
-						.Image(InArgs._Icon)
+						.Image(Icon)
 						.ColorAndOpacity(IconColor)
 					]
 				]
@@ -59,7 +60,7 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 		// Button text
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(Theme.LargeButtonTextPadding)
+		.Padding(Theme.RoundButtonTextPadding)
 		[
 			SAssignNew(TextBlock, STextBlock)
 			.Text(Text)
@@ -81,13 +82,13 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 	Callbacks
 ----------------------------------------------------*/
 
-const FSlateBrush* SFlareLargeButton::GetBackgroundBrush() const
+const FSlateBrush* SFlareRoundButton::GetBackgroundBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	return (IsHovered() && IsClickable ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
 }
 
-FReply SFlareLargeButton::OnButtonClicked()
+FReply SFlareRoundButton::OnButtonClicked()
 {
 	if (IsClickable && OnClicked.IsBound())
 	{
