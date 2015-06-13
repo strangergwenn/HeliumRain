@@ -67,6 +67,12 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 			.ColorAndOpacity(TextColor)
 		]
 	];
+
+	// Text management
+	if (!InArgs._ShowText)
+	{
+		Text->SetVisibility(EVisibility::Collapsed);
+	}
 }
 
 
