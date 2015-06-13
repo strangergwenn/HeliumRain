@@ -33,7 +33,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(LOCTEXT("Watermark", "DEVELOPMENT BUILD"))
-			.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
+			.TextStyle(&FFlareStyleSet::GetDefaultTheme().SmallFont)
 		]
 
 		// Actual content

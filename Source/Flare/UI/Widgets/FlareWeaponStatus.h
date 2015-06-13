@@ -41,18 +41,29 @@ protected:
 	/** Get the Weapon's name */
 	FText GetText() const;
 
-	/** Get the current text color */
+	/** Get the circle's color */
+	FSlateColor GetHighlightColor() const;
+
+	/** Get the current icon color */
 	FSlateColor GetIconColor() const;
 
 	/** Get the current text color */
 	FSlateColor GetTextColor() const;
-	
+
+	/** Get the current text shadow color */
+	FLinearColor GetShadowColor() const;
+
 
 protected:
 
 	/*----------------------------------------------------
 		Private data
 	----------------------------------------------------*/
+
+	// State data
+	float                                   CurrentAlpha;
+	float                                   FadeInTime;
+	float                                   FadeOutTime;
 
 	// Target data
 	IFlareSpacecraftInterface*              TargetShip;

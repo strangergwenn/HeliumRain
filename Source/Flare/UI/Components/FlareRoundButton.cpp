@@ -74,6 +74,7 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 			.TextStyle(&Theme.SmallFont)
 			.Justification(ETextJustify::Center)
 			.ColorAndOpacity(TextColor)
+			.ShadowColorAndOpacity(this, &SFlareRoundButton::GetShadowColor)
 		]
 	];
 
@@ -118,6 +119,15 @@ FSlateColor SFlareRoundButton::GetInvertedBackgroundColor() const
 	}
 
 	return FSlateColor(Color);
+}
+
+FLinearColor SFlareRoundButton::GetShadowColor() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = Theme.InvertedColor;
+	FLinearColor AlphaColor = TextColor.Get().GetSpecifiedColor();
+	Color.A = AlphaColor.A;
+	return Color;
 }
 
 FReply SFlareRoundButton::OnButtonClicked()

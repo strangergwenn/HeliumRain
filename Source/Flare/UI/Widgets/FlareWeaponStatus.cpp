@@ -18,6 +18,11 @@ void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 	TargetShip = InArgs._TargetShip;
 	TargetWeapon = InArgs._TargetWeapon;
 
+	// Setup
+	CurrentAlpha = 0;
+	FadeInTime = 0.2f;
+	FadeOutTime = 1.0f;
+
 	// Content
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	const FSlateBrush* Icon = FFlareStyleSet::GetIcon("Mouse_Nothing_Black");
@@ -42,7 +47,8 @@ void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 			.ShowText(false)
 			.InvertedBackground(true)
 			.Icon(Icon)
-			.HighlightColor(this, &SFlareWeaponStatus::GetIconColor)
+			.IconColor(this, &SFlareWeaponStatus::GetIconColor)
+			.HighlightColor(this, &SFlareWeaponStatus::GetHighlightColor)
 		]
 		
 		// Text
@@ -55,6 +61,7 @@ void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 			.TextStyle(&Theme.SmallFont)
 			.Text(this, &SFlareWeaponStatus::GetText)
 			.ColorAndOpacity(this, &SFlareWeaponStatus::GetTextColor)
+			.ShadowColorAndOpacity(this, &SFlareWeaponStatus::GetShadowColor)
 		]
 	];
 }
@@ -68,13 +75,29 @@ void SFlareWeaponStatus::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
+	// Get the animation parameters
+	float IsSelected = false;
+	float IsSelecting = true;  // TODO : IS THE PLAYER PICKING A WEAPON ?
 	if (TargetWeapon)
 	{
-		// TODO INC/DEC SELECTION ALPHA
+		// Get the selection state for this weapon
+		IsSelected = true; // TODO : IS THIS THE PLAYER'S WEAPON GROUP ?
+	}
+
+	// Update animation state
+	if (IsSelected || IsSelecting)
+	{
+		CurrentAlpha += InDeltaTime / FadeInTime;
+		if (!IsSelected)
+		{
+			CurrentAlpha = FMath::Clamp(CurrentAlpha, 0.0f, 0.5f);
+		}
 	}
 	else
 	{
+		CurrentAlpha -= InDeltaTime / FadeOutTime;
 	}
+	CurrentAlpha = FMath::Clamp(CurrentAlpha, 0.0f, 1.0f);
 }
 
 FText SFlareWeaponStatus::GetText() const
@@ -87,7 +110,7 @@ FText SFlareWeaponStatus::GetText() const
 		
 		FString NameInfo = TargetWeapon->GetDescription()->Name.ToString();
 		FString CountInfo = FString::FromInt(1) + "x "; // TODO GET COUNT
-		FString AmmoInfo = FString::FromInt(TargetWeapon->GetCurrentAmmo()) + LOCTEXT("Rounds", " rounds").ToString(); // TODO GET GROUP COUNT
+		FString AmmoInfo = FString::FromInt(TargetWeapon->GetCurrentAmmo()) + " " + LOCTEXT("Rounds", "rounds").ToString(); // TODO GET GROUP COUNT
 		FString HealthInfo = FString::FromInt(100 * ComponentHealth) + "%";
 
 		Text = FText::FromString(CountInfo + NameInfo + "\n" + AmmoInfo/* + "\n" + HealthInfo*/);
@@ -96,18 +119,25 @@ FText SFlareWeaponStatus::GetText() const
 	return Text;
 }
 
-FSlateColor SFlareWeaponStatus::GetIconColor() const
+FSlateColor SFlareWeaponStatus::GetHighlightColor() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.NeutralColor;
 	FLinearColor DamageColor = Theme.EnemyColor;
 
 	// TODO GET HEALTH & LERP
-	// FLinearColor DamageColor FMath::Lerp(NormalColor, DamageColor, Health);
+	FLinearColor Color = NormalColor;
+	// FLinearColor Color = FMath::Lerp(NormalColor, DamageColor, Health);
 
-	// TODO SELECTION ALPHA
-	// DamageColor.A *= ...
+	// Update alpha
+	Color.A *= Theme.DefaultAlpha * CurrentAlpha;
+	return Color;
+}
 
+FSlateColor SFlareWeaponStatus::GetIconColor() const
+{
+	FLinearColor NormalColor = FLinearColor::White;
+	NormalColor.A *= CurrentAlpha;
 	return NormalColor;
 }
 
@@ -115,7 +145,15 @@ FSlateColor SFlareWeaponStatus::GetTextColor() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.NeutralColor;
-	NormalColor.A = Theme.DefaultAlpha;
+	NormalColor.A *= Theme.DefaultAlpha * CurrentAlpha;
+	return NormalColor;
+}
+
+FLinearColor SFlareWeaponStatus::GetShadowColor() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.InvertedColor;
+	NormalColor.A *= Theme.DefaultAlpha * CurrentAlpha;
 	return NormalColor;
 }
 

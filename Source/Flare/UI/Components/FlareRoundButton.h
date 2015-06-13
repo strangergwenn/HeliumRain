@@ -48,6 +48,9 @@ public:
 	/** Get the color to use for the inverted background */
 	FSlateColor GetInvertedBackgroundColor() const;
 
+	/** Get the shadow color */
+	FLinearColor GetShadowColor() const;
+
 	/** Mouse clicked */
 	FReply OnButtonClicked();
 
