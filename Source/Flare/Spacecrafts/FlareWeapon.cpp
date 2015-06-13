@@ -441,6 +441,12 @@ UStaticMesh* UFlareWeapon::GetMesh(bool PresentationMode) const
 	{
 		return ComponentDescription->WeaponCharacteristics.BombCharacteristics.BombMesh;
 	}
+
+	if(!PresentationMode && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
+	{
+		return NULL;
+	}
+
 	return Super::GetMesh(PresentationMode);
 }
 
