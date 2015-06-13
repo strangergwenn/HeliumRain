@@ -22,7 +22,7 @@ class SFlareLargeButton : public SCompoundWidget
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
 	SLATE_ARGUMENT(bool, ShowText)
-	SLATE_ARGUMENT(FText, Text)
+	SLATE_ATTRIBUTE(FText, Text)
 	SLATE_ARGUMENT(const FSlateBrush*, Icon);
 	
 	SLATE_ATTRIBUTE(FSlateColor, IconColor)
@@ -57,10 +57,11 @@ protected:
 	// Data
 	bool                           IsClickable;
 	FFlareButtonClicked            OnClicked;
+	TAttribute<FText>              Text;
 	TAttribute<FSlateColor>        IconColor;
 	TAttribute<FSlateColor>        HighlightColor;
 	TAttribute<FSlateColor>        TextColor;
-	TSharedPtr<STextBlock>         Text;
+	TSharedPtr<STextBlock>         TextBlock;
 
 
 };

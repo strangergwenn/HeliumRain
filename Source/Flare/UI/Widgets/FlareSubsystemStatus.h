@@ -44,11 +44,14 @@ protected:
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 		
-	/** Get the current circling color */
-	FSlateColor GetHighlightColor() const;
+	/** Get the subsystem's name */
+	FText GetText() const;
 
-	/** Get the current icon color */
-	FSlateColor GetIconColor() const;
+	/** Get the current health color */
+	FSlateColor GetHealthColor() const;
+
+	/** Get the current flash color */
+	FSlateColor GetFlashColor() const;
 	
 
 protected:

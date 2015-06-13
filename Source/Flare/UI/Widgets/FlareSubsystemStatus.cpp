@@ -21,7 +21,7 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 
 	// Settings
 	Health = 1.0f;
-	ComponentHealth = 1.0f;
+	ComponentHealth = 0.0f;
 	HealthDropFlashTime = 2.0f;
 	TimeSinceFlash = HealthDropFlashTime;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -37,19 +37,7 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		case EFlareSubsystem::SYS_Power:         Icon = FFlareStyleSet::GetIcon("HUD_Power");        break;
 		case EFlareSubsystem::SYS_Weapon:        Icon = FFlareStyleSet::GetIcon("HUD_Shell");        break;
 	}
-
-	// Text
-	FText Text;
-	switch (SubsystemType)
-	{
-		case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "COOLING");      break;
-		case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "ENGINES");       break;
-		case EFlareSubsystem::SYS_RCS:           Text = LOCTEXT("SYS_RCS", "RCS");                  break;
-		case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "CREW");         break;
-		case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "POWER");              break;
-		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "WEAPONS");           break;
-	}
-
+	
 	// Structure
 	ChildSlot
 	.VAlign(VAlign_Top)
@@ -58,9 +46,9 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		SNew(SFlareLargeButton)
 		.Clickable(false)
 		.Icon(Icon)
-		.Text(Text)
-		.IconColor(this, &SFlareSubsystemStatus::GetIconColor)
-		.HighlightColor(this, &SFlareSubsystemStatus::GetHighlightColor)
+		.Text(this, &SFlareSubsystemStatus::GetText)
+		.HighlightColor(this, &SFlareSubsystemStatus::GetHealthColor)
+		.TextColor(this, &SFlareSubsystemStatus::GetFlashColor)
 	];
 }
 
@@ -84,6 +72,25 @@ void SFlareSubsystemStatus::SetTargetComponent(UFlareSpacecraftComponent* Target
 	Callbacks
 ----------------------------------------------------*/
 
+FText SFlareSubsystemStatus::GetText() const
+{
+	FText Text;
+
+	switch (SubsystemType)
+	{
+		case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "COOLING");      break;
+		case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "ENGINES");       break;
+		case EFlareSubsystem::SYS_RCS:           Text = LOCTEXT("SYS_RCS", "RCS");                  break;
+		case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "CREW");         break;
+		case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "POWER");              break;
+		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "WEAPONS");           break;
+	}
+
+	Text = FText::FromString(Text.ToString() + "\n" + FString::FromInt(100 * ComponentHealth) + "%");
+
+	return Text;
+}
+
 void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
@@ -96,11 +103,11 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 
 		// Update flash
 		TimeSinceFlash += InDeltaTime;
-		if (NewHealth < Health)
+		if (NewHealth < 0.98 * Health)
 		{
 			TimeSinceFlash = 0;
+			Health = NewHealth;
 		}
-		Health = NewHealth;
 	}
 	else
 	{
@@ -108,20 +115,20 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	}
 }
 
-FSlateColor SFlareSubsystemStatus::GetHighlightColor() const
+FSlateColor SFlareSubsystemStatus::GetHealthColor() const
+{
+	FLinearColor NormalColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
+	FLinearColor DamageColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
+	return FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
+}
+
+FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 {
 	FLinearColor FlashColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
 	FLinearColor NeutralColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
 
 	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
 	return FMath::Lerp(FlashColor, NeutralColor, Ratio);
-}
-
-FSlateColor SFlareSubsystemStatus::GetIconColor() const
-{
-	FLinearColor NormalColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
-	FLinearColor DamageColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
-	return FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
 }
 
 

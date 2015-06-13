@@ -15,6 +15,7 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 	IconColor = InArgs._IconColor;
 	HighlightColor = InArgs._HighlightColor;
 	TextColor = InArgs._TextColor;
+	Text = InArgs._Text;
 
 	// Setup
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -60,8 +61,8 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.Padding(Theme.LargeButtonTextPadding)
 		[
-			SAssignNew(Text, STextBlock)
-			.Text(InArgs._Text)
+			SAssignNew(TextBlock, STextBlock)
+			.Text(Text)
 			.TextStyle(&Theme.SmallFont)
 			.Justification(ETextJustify::Center)
 			.ColorAndOpacity(TextColor)
@@ -71,7 +72,7 @@ void SFlareLargeButton::Construct(const FArguments& InArgs)
 	// Text management
 	if (!InArgs._ShowText)
 	{
-		Text->SetVisibility(EVisibility::Collapsed);
+		TextBlock->SetVisibility(EVisibility::Collapsed);
 	}
 }
 
