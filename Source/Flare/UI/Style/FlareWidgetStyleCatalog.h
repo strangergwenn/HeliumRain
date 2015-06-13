@@ -37,8 +37,11 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&ButtonDecorator);
 		OutBrushes.Add(&ButtonActiveDecorator);
 
-		OutBrushes.Add(&RoundButtonBackground);
-		OutBrushes.Add(&RoundButtonActiveBackground);
+		OutBrushes.Add(&RoundButtonCircle);
+		OutBrushes.Add(&RoundButtonActiveCircle);
+		OutBrushes.Add(&RoundButtonInvertedCircle);
+		OutBrushes.Add(&RoundButtonInvertedActiveCircle);
+		OutBrushes.Add(&RoundButtonInvertedBackground);
 	}
 
 
@@ -84,8 +87,11 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Buttons) int32 ButtonHeight;
 
 	// Large button style
-	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonBackground;
-	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonActiveBackground;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonCircle;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonActiveCircle;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonInvertedCircle;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonInvertedActiveCircle;
+	UPROPERTY(EditAnywhere, Category = RoundButtons) FSlateBrush RoundButtonInvertedBackground;
 	UPROPERTY(EditAnywhere, Category = RoundButtons) FMargin RoundButtonPadding;
 	UPROPERTY(EditAnywhere, Category = RoundButtons) FMargin RoundButtonTextPadding;
 	UPROPERTY(EditAnywhere, Category = RoundButtons) int32 RoundButtonWidth;

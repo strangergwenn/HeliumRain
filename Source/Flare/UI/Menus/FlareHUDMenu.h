@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
 #include "../Widgets/FlareSubsystemStatus.h"
+#include "../Widgets/FlareWeaponStatus.h"
 
 
 class SFlareHUDMenu : public SCompoundWidget
@@ -76,7 +77,7 @@ protected:
 	TSharedPtr<SFlareSubsystemStatus>    RCSStatus;
 	TSharedPtr<SFlareSubsystemStatus>    LifeSupportStatus;
 	TSharedPtr<SFlareSubsystemStatus>    WeaponStatus;
-	TSharedPtr<SHorizontalBox>           WeaponContainer;
+	TSharedPtr<SVerticalBox>             WeaponContainer;
 
 	// Target data
 	IFlareSpacecraftInterface*           TargetShip;

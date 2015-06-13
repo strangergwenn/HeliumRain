@@ -72,25 +72,6 @@ void SFlareSubsystemStatus::SetTargetComponent(UFlareSpacecraftComponent* Target
 	Callbacks
 ----------------------------------------------------*/
 
-FText SFlareSubsystemStatus::GetText() const
-{
-	FText Text;
-
-	switch (SubsystemType)
-	{
-		case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "COOLING");      break;
-		case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "ENGINES");       break;
-		case EFlareSubsystem::SYS_RCS:           Text = LOCTEXT("SYS_RCS", "RCS");                  break;
-		case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "CREW");         break;
-		case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "POWER");              break;
-		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "WEAPONS");           break;
-	}
-
-	Text = FText::FromString(Text.ToString() + "\n" + FString::FromInt(100 * ComponentHealth) + "%");
-
-	return Text;
-}
-
 void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
@@ -115,20 +96,40 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	}
 }
 
+FText SFlareSubsystemStatus::GetText() const
+{
+	FText Text;
+
+	switch (SubsystemType)
+	{
+		case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "COOLING");      break;
+		case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "ENGINES");       break;
+		case EFlareSubsystem::SYS_RCS:           Text = LOCTEXT("SYS_RCS", "RCS");                  break;
+		case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "CREW");         break;
+		case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "POWER");              break;
+		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "WEAPONS");           break;
+	}
+
+	return FText::FromString(Text.ToString() + "\n" + FString::FromInt(100 * ComponentHealth) + "%");
+}
+
 FSlateColor SFlareSubsystemStatus::GetHealthColor() const
 {
-	FLinearColor NormalColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
-	FLinearColor DamageColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.NeutralColor;
+	FLinearColor DamageColor = Theme.EnemyColor;
+
 	return FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
 }
 
 FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 {
-	FLinearColor FlashColor = FFlareStyleSet::GetDefaultTheme().EnemyColor;
-	FLinearColor NeutralColor = FFlareStyleSet::GetDefaultTheme().NeutralColor;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.NeutralColor;
+	FLinearColor DamageColor = Theme.EnemyColor;
 
 	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
-	return FMath::Lerp(FlashColor, NeutralColor, Ratio);
+	return FMath::Lerp(DamageColor, NormalColor, Ratio);
 }
 
 

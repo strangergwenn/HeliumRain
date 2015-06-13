@@ -47,7 +47,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
+			.VAlign(VAlign_Top)
 			[
 				SNew(SHorizontalBox)
 				
@@ -162,8 +162,18 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			]
 		]
 
-		// Main (bottom) panel
+		// Weapon panel
 		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Bottom)
+		.Padding(FMargin(0, 0, 0, 100))
+		[
+			SAssignNew(WeaponContainer, SVerticalBox)
+		]
+
+		// Status panel
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Bottom)
 		[
@@ -200,9 +210,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			]
 		]
 	];
-
-	// TODO : WEAPON SELECTION
-	//SAssignNew(WeaponContainer, SHorizontalBox)
 }
 
 
@@ -221,29 +228,37 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	LifeSupportStatus->SetTargetShip(Target);
 	WeaponStatus->SetTargetShip(Target);
 	AFlareSpacecraft* PlayerShip = Cast<AFlareSpacecraft>(Target);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Update weapon list
 	if (PlayerShip)
 	{
-		// TODO : WEAPON SELECTION
-
-		//TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponList();
-		//TSharedPtr<SFlareSubsystemStatus> Temp;
-		//WeaponContainer->ClearChildren();
+		TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponList();
+		TSharedPtr<SFlareSubsystemStatus> Temp;
+		WeaponContainer->ClearChildren();
 
 		// Add weapon indicators
-		/*for (int32 i = 0; i < WeaponList.Num(); i++)
+		for (int32 i = 0; i < WeaponList.Num(); i++)
 		{
 			WeaponContainer->AddSlot()
-				.AutoWidth()
-				[
-					SAssignNew(Temp, SFlareSubsystemStatus)
-					.Subsystem(EFlareSubsystem::SYS_Weapon)
-				];
-			Temp->SetTargetShip(PlayerShip);
-			Temp->SetTargetComponent(WeaponList[i]);
+			.AutoHeight()
+			[
+				SNew(SFlareWeaponStatus)
+				.TargetShip(PlayerShip)
+				.TargetWeapon(WeaponList[i])
+			];
 		}
-		WeaponContainer->SetVisibility(EVisibility::Visible);*/
+
+		// No weapon
+		WeaponContainer->AddSlot()
+		.AutoHeight()
+		[
+			SNew(SFlareWeaponStatus)
+			.TargetShip(PlayerShip)
+			.TargetWeapon(NULL)
+		];
+
+		WeaponContainer->SetVisibility(EVisibility::Visible);
 	}
 }
 
@@ -288,7 +303,7 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
 {
-	float WidgetMin = 700.0f;
+	float WidgetMin = 500.0f;
 	float WidgetRange = OverheatTemperature - WidgetMin;
 	return ((Temperature - WidgetMin) / WidgetRange);
 }

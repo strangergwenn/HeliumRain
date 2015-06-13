@@ -12,6 +12,7 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 	// Arguments
 	IsClickable = InArgs._Clickable;
 	OnClicked = InArgs._OnClicked;
+	InvertedBackground = InArgs._InvertedBackground;
 	IconColor = InArgs._IconColor;
 	HighlightColor = InArgs._HighlightColor;
 	TextColor = InArgs._TextColor;
@@ -42,16 +43,22 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 				.ContentPadding(FMargin(0))
 				.ButtonStyle(FCoreStyle::Get(), "NoBorder")
 				[
-					// Background
+					// Inverted background
 					SNew(SBorder)
-					.Padding(Theme.RoundButtonPadding)
-					.BorderImage(&Theme.RoundButtonBackground)
-					.BorderBackgroundColor(HighlightColor)
+					.BorderImage(&Theme.RoundButtonInvertedBackground)
+					.BorderBackgroundColor(this, &SFlareRoundButton::GetInvertedBackgroundColor)
 					[
-						// Icon
-						SNew(SImage)
-						.Image(Icon)
-						.ColorAndOpacity(IconColor)
+						// Background
+						SNew(SBorder)
+						.Padding(Theme.RoundButtonPadding)
+						.BorderImage(this, &SFlareRoundButton::GetBackgroundBrush)
+						.BorderBackgroundColor(HighlightColor)
+						[
+							// Icon
+							SNew(SImage)
+							.Image(Icon)
+							.ColorAndOpacity(IconColor)
+						]
 					]
 				]
 			]
@@ -85,7 +92,32 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 const FSlateBrush* SFlareRoundButton::GetBackgroundBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	return (IsHovered() && IsClickable ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
+
+	if (InvertedBackground)
+	{
+		return (IsHovered() && IsClickable ? &Theme.RoundButtonInvertedActiveCircle : &Theme.RoundButtonInvertedCircle);
+	}
+	else
+	{
+		return (IsHovered() && IsClickable ? &Theme.RoundButtonActiveCircle : &Theme.RoundButtonCircle);
+	}
+}
+
+FSlateColor SFlareRoundButton::GetInvertedBackgroundColor() const
+{
+	FLinearColor Color = FLinearColor::White;
+
+	if (InvertedBackground)
+	{
+		FLinearColor AlphaColor = HighlightColor.Get().GetSpecifiedColor();
+		Color.A = AlphaColor.A;
+	}
+	else
+	{
+		Color.A = 0;
+	}
+
+	return FSlateColor(Color);
 }
 
 FReply SFlareRoundButton::OnButtonClicked()

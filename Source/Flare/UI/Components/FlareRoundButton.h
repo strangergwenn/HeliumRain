@@ -13,6 +13,7 @@ class SFlareRoundButton : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareRoundButton)
 		: _Clickable(true)
 		, _ShowText(true)
+		, _InvertedBackground(false)
 		, _IconColor(FLinearColor::White)
 		, _HighlightColor(FLinearColor::White)
 		, _TextColor(FLinearColor::White)
@@ -20,6 +21,7 @@ class SFlareRoundButton : public SCompoundWidget
 
 	SLATE_ARGUMENT(bool, Clickable)
 	SLATE_ARGUMENT(bool, ShowText)
+	SLATE_ARGUMENT(bool, InvertedBackground)
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
 	SLATE_ATTRIBUTE(FText, Text)
@@ -43,6 +45,9 @@ public:
 	/** Brush callback */
 	const FSlateBrush* GetBackgroundBrush() const;
 	
+	/** Get the color to use for the inverted background */
+	FSlateColor GetInvertedBackgroundColor() const;
+
 	/** Mouse clicked */
 	FReply OnButtonClicked();
 
@@ -55,6 +60,7 @@ protected:
 
 	// Data
 	bool                           IsClickable;
+	bool                           InvertedBackground;
 	FFlareButtonClicked            OnClicked;
 
 	// Attributes
