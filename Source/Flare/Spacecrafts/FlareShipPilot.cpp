@@ -451,6 +451,11 @@ FVector UFlareShipPilot::AnticollisionCorrection(FVector InitialVelocity, float 
 	return InitialVelocity;
 }
 
+int32 UFlareShipPilot::GetPreferedWeaponGroup() const
+{
+	return 0;
+}
+
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/

@@ -99,6 +99,9 @@ public:
 	/** Is pilot want to fire */
 	virtual bool IsWantFire() const;
 
+	/** Pilot weapon selection */
+	virtual int32 GetPreferedWeaponGroup() const;
+
 protected:
 
 	/*----------------------------------------------------

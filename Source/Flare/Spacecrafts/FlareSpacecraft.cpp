@@ -251,7 +251,10 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	Pilot = NewObject<UFlareShipPilot>(this, UFlareShipPilot::StaticClass());
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
 
-	StateManager = NewObject<UFlareSpacecraftStateManager>(this, UFlareSpacecraftStateManager::StaticClass());
+	if(!StateManager)
+	{
+		StateManager = NewObject<UFlareSpacecraftStateManager>(this, UFlareSpacecraftStateManager::StaticClass());
+	}
 	StateManager->Initialize(this);
 
 	DamageSystem->Start();

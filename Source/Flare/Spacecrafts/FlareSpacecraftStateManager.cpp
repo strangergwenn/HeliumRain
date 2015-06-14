@@ -14,7 +14,7 @@ UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectIn
 {
 	// Pilot
 	IsPiloted = true;
-	LastWeaponType = EFlareWeaponGroupType::WG_NONE;
+
 }
 
 void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft)
@@ -29,6 +29,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	ExternalCameraYaw = 0;
 	// TODO Don't copy SpacecraftPawn
 	ExternalCameraDistance = 4 * Spacecraft->GetMeshScale();
+	LastWeaponType = EFlareWeaponGroupType::WG_NONE;
 }
 
 /*----------------------------------------------------
@@ -43,6 +44,15 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	if (Spacecraft->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
 	{
 		Spacecraft->GetPilot()->TickPilot(DeltaSeconds);
+		int32 PreferedWeaponGroup = Spacecraft->GetPilot()->GetPreferedWeaponGroup();
+		if(PreferedWeaponGroup >= 0)
+		{
+			Spacecraft->GetWeaponsSystem()->ActivateWeaponGroup(PreferedWeaponGroup);
+		}
+		else
+		{
+			Spacecraft->GetWeaponsSystem()->DesactivateWeapons();
+		}
 	}
 
 	// Player inputs
