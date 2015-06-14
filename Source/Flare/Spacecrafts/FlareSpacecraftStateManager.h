@@ -63,6 +63,8 @@ public:
 	virtual FVector GetAngularTargetVelocity() const;
 	virtual bool IsUseOrbitalBoost() const;
 	virtual bool IsWantFire() const;
+	virtual bool IsWantCursor() const;
+	virtual bool IsWantContextMenu() const;
 
 protected:
 

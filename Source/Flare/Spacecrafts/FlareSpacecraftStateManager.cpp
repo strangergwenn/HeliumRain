@@ -355,3 +355,41 @@ bool UFlareSpacecraftStateManager::IsWantFire() const
 		}
 	}
 }
+
+bool UFlareSpacecraftStateManager::IsWantCursor() const
+{
+	if (ExternalCamera)
+	{
+		return true;
+	}
+	else
+	{
+		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+		{
+			case EFlareWeaponGroupType::WG_NONE:
+			case EFlareWeaponGroupType::WG_TURRET:
+				return true;
+			case EFlareWeaponGroupType::WG_BOMB:
+			case EFlareWeaponGroupType::WG_GUN:
+				return false;
+			default:
+				return true;
+		}
+	}
+}
+
+bool UFlareSpacecraftStateManager::IsWantContextMenu() const
+{
+	switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+	{
+		case EFlareWeaponGroupType::WG_NONE:
+			return true;
+		case EFlareWeaponGroupType::WG_TURRET:
+		case EFlareWeaponGroupType::WG_BOMB:
+		case EFlareWeaponGroupType::WG_GUN:
+			return false;
+		default:
+			return true;
+	}
+}
+

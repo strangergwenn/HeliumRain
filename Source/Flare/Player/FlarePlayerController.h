@@ -214,7 +214,6 @@ protected:
 	UFlareCompany*                           Company;
 
 	// Various gameplay data
-	bool                                     CombatMode;
 	bool                                     ExternalCamera;
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;

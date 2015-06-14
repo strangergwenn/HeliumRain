@@ -17,7 +17,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	: Super(PCIP)
 	, DustEffect(NULL)
 	, Company(NULL)
-	, CombatMode(false)
 	, WeaponSwitchTime(5.0f)
 	, TimeSinceWeaponSwitch(0)
 {
@@ -78,13 +77,24 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
 	TimeSinceWeaponSwitch += DeltaSeconds;
 
+	if(ShipPawn)
+	{
+		Cast<AFlareHUD>(GetHUD())->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
+	}
+
 	// Mouse cursor
-	bool NewShowMouseCursor = (!CombatMode && !HUD->IsWheelOpen());
+	bool NewShowMouseCursor = !HUD->IsWheelOpen();
+	if(ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
+	{
+		NewShowMouseCursor = false;
+	}
+
 	if (NewShowMouseCursor != bShowMouseCursor)
 	{
 		// Set the mouse status
 		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
 		bShowMouseCursor = NewShowMouseCursor;
+
 		ResetMousePosition();
 
 		// Force focus to UI
@@ -210,7 +220,6 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 		}
 
 		// Update camera 
-		Cast<AFlareHUD>(GetHUD())->SetInteractive(!CombatMode);
 		ExternalCamera = NewState;
 	}
 }
@@ -226,9 +235,9 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	// Fly the new ship
 	Possess(Ship);
 	ShipPawn = Ship;
-	CombatMode = false;
 	SetExternalCamera(true, true);
 	ShipPawn->GetStateManager()->EnablePilot(false);
+	ShipPawn->GetWeaponsSystem()->DesactivateWeapons();
 	QuickSwitchNextOffset = 0;
 
 	// Setup power sound
@@ -481,10 +490,8 @@ void AFlarePlayerController::ToggleCombat()
 {
 	if (ShipPawn && ShipPawn->IsMilitary() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
-		FLOGV("AFlarePlayerController::ToggleCombat : new state is %d", !CombatMode);
-		CombatMode = !CombatMode;
-		// TODO refactor
-		ShipPawn->GetWeaponsSystem()->ActivateWeapons(CombatMode);
+		FLOG("AFlarePlayerController::ToggleCombat");
+		ShipPawn->GetWeaponsSystem()->ToogleWeaponActivation();
 		SetExternalCamera(false, true);
 	}
 }
