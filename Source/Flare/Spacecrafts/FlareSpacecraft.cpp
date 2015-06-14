@@ -479,6 +479,7 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAction("LeftMouse", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::LeftMousePress);
 	InputComponent->BindAction("LeftMouse", EInputEvent::IE_Released, this, &AFlareSpacecraft::LeftMouseRelease);
 
+	InputComponent->BindAction("DesactivateWeapon", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::DesactivateWeapon);
 	InputComponent->BindAction("WeaponGroup1", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup1);
 	InputComponent->BindAction("WeaponGroup2", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup2);
 	InputComponent->BindAction("WeaponGroup3", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup3);
@@ -495,6 +496,16 @@ void AFlareSpacecraft::LeftMousePress()
 void AFlareSpacecraft::LeftMouseRelease()
 {
 	StateManager->SetPlayerLeftMouse(false);
+}
+
+void AFlareSpacecraft::DesactivateWeapon()
+{
+	if (!StateManager->IsPilotMode())
+	{
+		FLOG("AFlareSpacecraft::DesactivateWeapon");
+		GetPC()->SetSelectingWeapon();
+		GetWeaponsSystem()->DesactivateWeapons();
+	}
 }
 
 void AFlareSpacecraft::ActivateWeaponGroup1()

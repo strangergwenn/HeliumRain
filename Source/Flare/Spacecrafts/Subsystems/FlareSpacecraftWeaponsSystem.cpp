@@ -172,13 +172,8 @@ void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
 	{
 		ActiveWeaponGroupIndex = Index;
 		ActiveWeaponGroup = WeaponGroupList[Index];
+		LastActiveWeaponGroupIndex = ActiveWeaponGroupIndex;
 	}
-	else
-	{
-		ActiveWeaponGroup = NULL;
-		ActiveWeaponGroupIndex = -1;
-	}
-	LastActiveWeaponGroupIndex = ActiveWeaponGroupIndex;
 }
 
 void UFlareSpacecraftWeaponsSystem::ActivateWeapons(bool Activate)
