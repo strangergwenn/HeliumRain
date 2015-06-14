@@ -26,6 +26,8 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 	// Style
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.NeutralColor;
+	NormalColor.A = Theme.DefaultAlpha;
 
 	// Structure
 	ChildSlot
@@ -42,6 +44,19 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SNew(SVerticalBox)
+
+			// Info text
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Top)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SAssignNew(InfoText, STextBlock)
+				.TextStyle(&Theme.SmallFont)
+				.Text(this, &SFlareHUDMenu::GetInfoText)
+				.ColorAndOpacity(NormalColor)
+			]
 
 			// Overheating progress bar
 			+ SVerticalBox::Slot()
@@ -87,7 +102,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.NameFont)
-						.Text(this, &SFlareHUDMenu::GetTemperature)
+						.Text(this, &SFlareHUDMenu::GetTemperatureText)
 						.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
 					]
 				]
@@ -275,6 +290,31 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 	}
 }
 
+FText SFlareHUDMenu::GetInfoText() const
+{
+	FText ShipText;
+	FText InfoText = LOCTEXT("Controls", "mode");
+	FText ModeText;
+	FText SectorText = LOCTEXT("TODOTEXT", "Nema A19");
+
+	if (TargetShip)
+	{
+		ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
+		EFlareWeaponGroupType::Type WeaponType = TargetShip->GetWeaponsSystem()->GetActiveWeaponType();
+
+		switch (WeaponType)
+		{
+			case EFlareWeaponGroupType::WG_NONE:    ModeText = LOCTEXT("Navigation", "Navigation");      break;
+			case EFlareWeaponGroupType::WG_GUN:     ModeText = LOCTEXT("Fighter", "Fighter");            break;
+			case EFlareWeaponGroupType::WG_BOMB:    ModeText = LOCTEXT("Bomber", "Bomber");              break;
+			case EFlareWeaponGroupType::WG_TURRET:
+			default:                                ModeText = LOCTEXT("CapitalShip", "Capital ship");   break;
+		}
+	}
+
+	return FText::FromString(ShipText.ToString() + " - " + ModeText.ToString() + " " + InfoText.ToString() + " - " + SectorText.ToString());
+}
+
 TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
 {
 	float WidgetMin = 500.0f;
@@ -312,7 +352,7 @@ FSlateColor SFlareHUDMenu::GetTemperatureColorNoAlpha() const
 	return FMath::Lerp(Theme.NeutralColor, Theme.EnemyColor, Ratio);
 }
 
-FText SFlareHUDMenu::GetTemperature() const
+FText SFlareHUDMenu::GetTemperatureText() const
 {
 	return FText::FromString(FString::Printf(TEXT("%4s K"), *FString::FromInt(Temperature)));
 }

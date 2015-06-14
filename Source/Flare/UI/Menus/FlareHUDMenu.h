@@ -40,6 +40,9 @@ protected:
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
+	/** Get the current information to show */
+	FText GetInfoText() const;
+
 	/** Get the ratio of temperature in the "minimal / max acceptable" range */
 	TOptional<float> GetTemperatureProgress() const;
 
@@ -48,7 +51,7 @@ protected:
 	FSlateColor GetTemperatureColorNoAlpha() const;
 
 	/** Get the current temperature */
-	FText GetTemperature() const;
+	FText GetTemperatureText() const;
 
 	/** Get the color and alpha of the overheating warning */
 	FSlateColor GetOverheatColor(bool Text) const;
@@ -71,6 +74,7 @@ protected:
 	TWeakObjectPtr<class AFlareHUD>      OwnerHUD;
 
 	// Menu components
+	TSharedPtr<STextBlock>               InfoText;
 	TSharedPtr<SFlareSubsystemStatus>    TemperatureStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PowerStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PropulsionStatus;
