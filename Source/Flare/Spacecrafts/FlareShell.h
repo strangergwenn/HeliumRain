@@ -74,8 +74,7 @@ protected:
 	// Shell data
 	FVector                                  ShellVelocity;
 	const FFlareSpacecraftComponentDescription*    ShellDescription;
-	FVector                                  LastLocation;
-	int32 ShellPower;
+	FVector                                  LastLocation;	
 	float ShellMass;
 	bool TracerShell;
 	bool Armed;

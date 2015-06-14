@@ -38,7 +38,7 @@ void UFlareTurret::SetupComponentMesh()
 	Super::SetupComponentMesh();
 
 	// Turret Mesh
-	if (Spacecraft && ComponentDescription && ComponentDescription->TurretCharacteristics.TurretMesh)
+	if (Spacecraft && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh)
 	{
 
 		TurretComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass(), TEXT("TurretMesh"));
@@ -47,15 +47,15 @@ void UFlareTurret::SetupComponentMesh()
 			TurretComponent->SetParentSpacecraftComponent(this);
 			TurretComponent->RegisterComponent();
 			TurretComponent->AttachTo(this);
-			TurretComponent->SetStaticMesh(ComponentDescription->TurretCharacteristics.TurretMesh);
-			TurretComponent->SetMaterial(0, ComponentDescription->TurretCharacteristics.TurretMesh->GetMaterial(0));
+			TurretComponent->SetStaticMesh(ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh);
+			TurretComponent->SetMaterial(0, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh->GetMaterial(0));
 			TurretComponent->Initialize(NULL, PlayerCompany, Spacecraft, false);
 			Spacecraft->AddOwnedComponent(TurretComponent);
 		}
 	}
 
 	// Barrel Mesh
-	if (Spacecraft && ComponentDescription && ComponentDescription->TurretCharacteristics.BarrelsMesh)
+	if (Spacecraft && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh)
 	{
 
 		BarrelComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass() , TEXT("BarrelMesh"));
@@ -71,8 +71,8 @@ void UFlareTurret::SetupComponentMesh()
 			{
 				BarrelComponent->AttachTo(this);
 			}
-			BarrelComponent->SetStaticMesh(ComponentDescription->TurretCharacteristics.BarrelsMesh);
-			BarrelComponent->SetMaterial(0, ComponentDescription->TurretCharacteristics.BarrelsMesh->GetMaterial(0));
+			BarrelComponent->SetStaticMesh(ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh);
+			BarrelComponent->SetMaterial(0, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh->GetMaterial(0));
 			Spacecraft->AddOwnedComponent(BarrelComponent);
 		}
 	}
@@ -114,9 +114,9 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			}
 
 			// Clamp movements
-			TargetTurretAngle = FMath::Clamp(TargetTurretAngle, ComponentDescription->TurretCharacteristics.TurretMinAngle, ComponentDescription->TurretCharacteristics.TurretMaxAngle);
+			TargetTurretAngle = FMath::Clamp(TargetTurretAngle, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMinAngle, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMaxAngle);
 
-			float UsableTurretVelocity = GetUsableRatio() * ComponentDescription->TurretCharacteristics.TurretAngularVelocity;
+			float UsableTurretVelocity = GetUsableRatio() * ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretAngularVelocity;
 
 			float TurretAngleDiff = FMath::UnwindDegrees(TargetTurretAngle - ShipComponentData.Turret.TurretAngle);
 
@@ -152,12 +152,12 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			}
 
 			// Clamp movements
-			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, GetMinLimitAtAngle(ShipComponentData.Turret.TurretAngle), ComponentDescription->TurretCharacteristics.BarrelsMaxAngle);
+			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, GetMinLimitAtAngle(ShipComponentData.Turret.TurretAngle), ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMaxAngle);
 
 
 			// TODO Add ship specific bound
 
-			float UsableBarrelsVelocity = GetUsableRatio() * ComponentDescription->TurretCharacteristics.TurretAngularVelocity;
+			float UsableBarrelsVelocity = GetUsableRatio() * ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretAngularVelocity;
 			float BarrelAngleDiff = FMath::UnwindDegrees(TargetBarrelAngle - ShipComponentData.Turret.BarrelsAngle);
 
 			if(FMath::Abs(BarrelAngleDiff) <= UsableBarrelsVelocity * DeltaTime) {
@@ -211,7 +211,7 @@ FVector UFlareTurret::GetMuzzleLocation(int GunIndex) const
 		GunComponent = TurretComponent;
 	}
 
-	if (ComponentDescription->GunCharacteristics.GunCount <= 1)
+	if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount <= 1)
 	{
 		return GunComponent->GetSocketLocation(FName("Muzzle"));
 	}
@@ -286,8 +286,8 @@ bool UFlareTurret::IsReacheableAxis(FVector TargetAxis) const
 		FVector LocalTurretAimDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetAxis);
 		TargetTurretAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalTurretAimDirection.Y, LocalTurretAimDirection.X)));
 
-		if(TargetTurretAngle > ComponentDescription->TurretCharacteristics.TurretMaxAngle
-				|| TargetTurretAngle < ComponentDescription->TurretCharacteristics.TurretMinAngle)
+		if(TargetTurretAngle > ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMaxAngle
+				|| TargetTurretAngle < ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMinAngle)
 		{
 			return false;
 		}
@@ -307,7 +307,7 @@ bool UFlareTurret::IsReacheableAxis(FVector TargetAxis) const
 		}
 
 		float TargetBarrelAngle = FMath::UnwindDegrees(FMath::RadiansToDegrees(FMath::Atan2(LocalBarrelAimDirection.Z, LocalBarrelAimDirection.X)));
-		if(TargetBarrelAngle > ComponentDescription->TurretCharacteristics.BarrelsMaxAngle
+		if(TargetBarrelAngle > ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMaxAngle
 				|| TargetBarrelAngle < GetMinLimitAtAngle(TargetTurretAngle))
 		{
 			return false;
@@ -326,7 +326,7 @@ static inline int PositiveModulo(int i, int n) {
 
 float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 {
-	float BarrelsMinAngle = ComponentDescription->TurretCharacteristics.BarrelsMinAngle;
+	float BarrelsMinAngle = ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMinAngle;
 
 	//Fine Local slot check
 	for (int32 i = 0; i < Spacecraft->GetDescription()->TurretSlots.Num(); i++)

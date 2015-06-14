@@ -90,7 +90,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		return;
 	}
 
-	TArray<UFlareWeapon*> Weapons = Ship->GetWeaponList();
+	TArray<UFlareWeapon*> Weapons = Ship->GetWeaponsSystem()->GetWeaponList();
 	float AmmoVelocity = 100;
 	if (Weapons.Num() > 0)
 	{
@@ -449,6 +449,11 @@ FVector UFlareShipPilot::AnticollisionCorrection(FVector InitialVelocity, float 
 	}
 
 	return InitialVelocity;
+}
+
+int32 UFlareShipPilot::GetPreferedWeaponGroup() const
+{
+	return 0;
 }
 
 /*----------------------------------------------------

@@ -116,12 +116,14 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	SlideInOutOffset = SlideInOutSideOffset;
 	SetSlideDirection(true);
 
+	CurrentShip->StartPresentation();
+
 	// UI
 	if (ShipData)
 	{
 		CurrentShip->Load(*ShipData);
 	}
-	CurrentShip->StartPresentation();
+
 }
 /*
 void AFlareMenuPawn::ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData)
@@ -250,9 +252,6 @@ void AFlareMenuPawn::SetSlideDirection(bool GoUp)
 void AFlareMenuPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
 	check(InputComponent);
-
-	InputComponent->BindAxis("MouseInputY", this, &AFlareMenuPawn::PitchInput);
-	InputComponent->BindAxis("MouseInputX", this, &AFlareMenuPawn::YawInput);
 }
 
 void AFlareMenuPawn::PitchInput(float Val)

@@ -26,6 +26,8 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 	// Style
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.NeutralColor;
+	NormalColor.A = Theme.DefaultAlpha;
 
 	// Structure
 	ChildSlot
@@ -54,7 +56,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 				// Icon
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
-				.Padding(Theme.ContentPadding)
+				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(SImage)
 					.Image(FFlareStyleSet::GetIcon("Temperature"))
@@ -79,75 +81,61 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 				// Text
 				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
+				.Padding(Theme.SmallContentPadding)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.NameFont)
-					.Text(this, &SFlareHUDMenu::GetTemperature)
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+					SNew(SBox)
+					.MinDesiredWidth(100)
+					.Padding(Theme.SmallContentPadding)
+					.VAlign(VAlign_Top)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(this, &SFlareHUDMenu::GetTemperatureText)
+						.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+					]
 				]
+			]
+
+			// Info text
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Top)
+			[
+				SAssignNew(InfoText, STextBlock)
+				.TextStyle(&Theme.NameFont)
+				.Text(this, &SFlareHUDMenu::GetInfoText)
+				.ColorAndOpacity(NormalColor)
 			]
 	
 			// Overheating box
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Center)
+			.Padding(Theme.ContentPadding)
 			[
-				SNew(SHorizontalBox)
-
-				// Overheating icon
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SImage)
-					.Image(FFlareStyleSet::GetIcon("HUD_Temperature"))
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, false)
-				]
-
-				// Overheating text
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TitleFont)
-					.Text(LOCTEXT("Overheating", "OVERHEATING"))
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
-				]
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(LOCTEXT("Overheating", "OVERHEATING !"))
+				.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
 			]
 
 			// Outage box
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Center)
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(SVerticalBox)
 
 				+ SVerticalBox::Slot()
 				.AutoHeight()
+				.HAlign(HAlign_Center)
 				[
-					SNew(SHorizontalBox)
-
-					// Outage icon
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SImage)
-						.Image(FFlareStyleSet::GetIcon("HUD_Power"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, false)
-					]
-
-					// Outage text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TitleFont)
-						.Text(LOCTEXT("PowerOutage", "POWER OUTAGE"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
-					]
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("PowerOutage", "POWER OUTAGE !"))
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 				]
 			
 				+ SVerticalBox::Slot()
@@ -230,22 +218,25 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	AFlareSpacecraft* PlayerShip = Cast<AFlareSpacecraft>(Target);
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
+	// Is this a civilian ship ?
+	WeaponStatus->SetVisibility(Target->IsMilitary() ? EVisibility::Visible : EVisibility::Hidden);
+
 	// Update weapon list
 	if (PlayerShip)
 	{
-		TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponList();
+		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
 		TSharedPtr<SFlareSubsystemStatus> Temp;
 		WeaponContainer->ClearChildren();
 
 		// Add weapon indicators
-		for (int32 i = 0; i < WeaponList.Num(); i++)
+		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
 		{
 			WeaponContainer->AddSlot()
 			.AutoHeight()
 			[
 				SNew(SFlareWeaponStatus)
-				.TargetShip(PlayerShip)
-				.TargetWeapon(WeaponList[i])
+				.PlayerShip(PlayerShip)
+				.TargetWeaponGroupIndex(i)
 			];
 		}
 
@@ -254,8 +245,8 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 		.AutoHeight()
 		[
 			SNew(SFlareWeaponStatus)
-			.TargetShip(PlayerShip)
-			.TargetWeapon(NULL)
+			.PlayerShip(PlayerShip)
+			.TargetWeaponGroupIndex(-1)
 		];
 
 		WeaponContainer->SetVisibility(EVisibility::Visible);
@@ -301,6 +292,31 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 	}
 }
 
+FText SFlareHUDMenu::GetInfoText() const
+{
+	FText ShipText;
+	FText InfoTextValue = LOCTEXT("Controls", "mode");
+	FText ModeText;
+	FText SectorText = LOCTEXT("TODOTEXT", "Nema A19");
+
+	if (TargetShip)
+	{
+		ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
+		EFlareWeaponGroupType::Type WeaponType = TargetShip->GetWeaponsSystem()->GetActiveWeaponType();
+
+		switch (WeaponType)
+		{
+			case EFlareWeaponGroupType::WG_NONE:    ModeText = LOCTEXT("Navigation", "Navigation");      break;
+			case EFlareWeaponGroupType::WG_GUN:     ModeText = LOCTEXT("Fighter", "Fighter");            break;
+			case EFlareWeaponGroupType::WG_BOMB:    ModeText = LOCTEXT("Bomber", "Bomber");              break;
+			case EFlareWeaponGroupType::WG_TURRET:
+			default:                                ModeText = LOCTEXT("CapitalShip", "Capital ship");   break;
+		}
+	}
+
+	return FText::FromString(ShipText.ToString() + " - " + ModeText.ToString() + " " + InfoTextValue.ToString() + " - " + SectorText.ToString());
+}
+
 TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
 {
 	float WidgetMin = 500.0f;
@@ -338,9 +354,9 @@ FSlateColor SFlareHUDMenu::GetTemperatureColorNoAlpha() const
 	return FMath::Lerp(Theme.NeutralColor, Theme.EnemyColor, Ratio);
 }
 
-FText SFlareHUDMenu::GetTemperature() const
+FText SFlareHUDMenu::GetTemperatureText() const
 {
-	return FText::FromString(FString::FromInt(Temperature) + " K");
+	return FText::FromString(FString::Printf(TEXT("%4s K"), *FString::FromInt(Temperature)));
 }
 
 FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
@@ -379,7 +395,7 @@ FText SFlareHUDMenu::GetOutageText() const
 {
 	if (TargetShip)
 	{
-		return FText::FromString(LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(TargetShip->GetDamageSystem()->GetPowerOutageDuration() + 1) + " s");
+		return FText::FromString(LOCTEXT("PwBackIn", "Power back in ").ToString() + FString::FromInt(TargetShip->GetDamageSystem()->GetPowerOutageDuration() + 1) + "...");
 	}
 	else
 	{

@@ -129,7 +129,9 @@ FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 	FLinearColor DamageColor = Theme.EnemyColor;
 
 	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
-	return FMath::Lerp(DamageColor, NormalColor, Ratio);
+	FLinearColor Result = FMath::Lerp(DamageColor, NormalColor, Ratio);
+	Result.A = Theme.DefaultAlpha;
+	return Result;
 }
 
 

@@ -7,6 +7,7 @@
 #include "Subsystems/FlareSpacecraftNavigationSystem.h"
 #include "Subsystems/FlareSpacecraftDockingSystem.h"
 #include "Subsystems/FlareSpacecraftWeaponsSystem.h"
+#include "FlareSpacecraftStateManager.h"
 #include "FlareSpacecraft.generated.h"
 
 /** Ship class */
@@ -47,12 +48,6 @@ public:
 		Player interface
 	----------------------------------------------------*/
 
-	/** Activate or deactivate the exterbal camera */
-	virtual void SetExternalCamera(bool NewState);
-
-	/** Switch to combat mode */
-	virtual void SetCombatMode(bool NewState);
-
 	/** Extrapolate the position of a ship for a given targetting ship */
 	virtual FVector GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay) const;
 
@@ -88,13 +83,6 @@ public:
 	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
 
-
-	/*----------------------------------------------------
-		Pilot
-	----------------------------------------------------*/
-
-	virtual void EnablePilot(bool EnablePilot);
-
 protected:
 
 	/*----------------------------------------------------
@@ -103,6 +91,7 @@ protected:
 
 	/** Our ship killed another ship */
 	virtual void OnEnemyKilled(IFlareSpacecraftInterface* Enemy);
+
 
 public:
 
@@ -132,11 +121,21 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	virtual void FirePress();
+	virtual void LeftMousePress();
 
-	virtual void FireRelease();
+	virtual void LeftMouseRelease();
 
-	virtual void MousePositionInput(FVector2D Val);
+	virtual void DeactivateWeapon();
+
+	virtual void ActivateWeaponGroup1();
+
+	virtual void ActivateWeaponGroup2();
+
+	virtual void ActivateWeaponGroup3();
+
+	virtual void NextWeapon();
+
+	virtual void PreviousWeapon();
 
 	virtual void ThrustInput(float Val);
 
@@ -154,10 +153,6 @@ public:
 
 	virtual void ZoomOut();
 
-	virtual void StartFire();
-
-	virtual void StopFire();
-
 	virtual void FaceForward();
 
 	virtual void FaceBackward();
@@ -170,6 +165,7 @@ public:
 
 	virtual void ForceManual();
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -181,10 +177,6 @@ protected:
 	FFlareSpacecraftDescription*                   ShipDescription;
 	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
 	FFlareSpacecraftComponentDescription*          RCSDescription;
-
-	// Weapon components and descriptions
-	TArray <UFlareWeapon*>                   WeaponList;
-	TArray <FFlareSpacecraftComponentDescription*> WeaponDescriptionList;
 
 	// Lifesupport status
 	UPROPERTY()
@@ -203,26 +195,10 @@ protected:
 	UFlareSpacecraftDockingSystem*                 DockingSystem;
 	UPROPERTY()
 	UFlareSpacecraftWeaponsSystem*                 WeaponsSystem;
+	UPROPERTY()
+	UFlareSpacecraftStateManager*				   StateManager;
 
-	/*----------------------------------------------------
-		Regular data
-	----------------------------------------------------*/
 
-	// Dynamic gameplay data
-
-	bool                                     ExternalCamera;
-	bool                                     FiringPressed;
-	bool                                     CombatMode;
-	bool                                     IsPiloted;
-
-public:
-
-	// Manual player pilot
-	FVector2D                                PlayerMouseOffset;
-	FVector                                  PlayerManualAngularVelocity; // In local space
-	FVector                                  PlayerManualLinearVelocity;
-	bool                                     PlayerManualOrbitalBoost;
-	float                                    AngularInputDeadRatio;
 
 public:
 
@@ -248,43 +224,18 @@ public:
 		return RCSDescription;
 	}
 
-	inline FFlareSpacecraftComponentDescription* GetWeaponDescription(int32 Index) const
-	{
-		return WeaponDescriptionList[Index];
-	}
-
-	inline TArray<UFlareWeapon*>& GetWeaponList()
-	{
-		return WeaponList;
-	}
-
 	virtual UFlareSpacecraftComponent* GetCockpit() const override
 	{
 		return ShipCockit;
 	}
 
-	inline bool IsExternalCamera() const
+	inline UFlareSpacecraftStateManager* GetStateManager()
 	{
-		return ExternalCamera;
-	}
-
-	inline bool IsCombatMode() const
-	{
-		return CombatMode;
-	}
-
-	inline bool IsPilotMode() const
-	{
-		return IsPiloted;
+		return StateManager;
 	}
 
 	inline UFlareShipPilot* GetPilot() const
 	{
 		return Pilot;
-	}
-
-	inline FVector2D GetMouseOffset() const
-	{
-		return PlayerMouseOffset;
 	}
 };

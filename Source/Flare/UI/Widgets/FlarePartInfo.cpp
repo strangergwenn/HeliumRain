@@ -139,21 +139,39 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 		ShowHelpers);
 
 	// Gun
-	if(Desc->GunCharacteristics.IsGun)
+	if(Desc->WeaponCharacteristics.IsWeapon)
 	{
+		FString Power = "";
+		switch(Desc->WeaponCharacteristics.DamageType)
+		{
+			case EFlareShellDamageType::ArmourPiercing:
+				Power = FString::FromInt(Desc->WeaponCharacteristics.GunCharacteristics.KineticEnergy);
+				break;
+			case EFlareShellDamageType::HEAT:
+				Power = FString::FromInt(Desc->WeaponCharacteristics.ExplosionPower);
+				break;
+		case EFlareShellDamageType::HighExplosive:
+			Power = FString::FromInt(Desc->WeaponCharacteristics.AmmoFragmentCount) + " x " + FString::FromInt(Desc->WeaponCharacteristics.ExplosionPower);
+			break;
+		}
+
 		AddCharacteristicToBlock(Box,
 			"Power",
-			FString::FromInt(Desc->GunCharacteristics.AmmoPower) + " kJ",
+			Power + " kJ",
 			FFlareStyleSet::GetIcon("Shell"),
 			ShowHelpers);
-		AddCharacteristicToBlock(Box,
-			"Rate of fire",
-			FString::FromInt(Desc->GunCharacteristics.AmmoRate) + " rpm",
-			FFlareStyleSet::GetIcon("Rate"),
-			ShowHelpers);
+
+		if(Desc->WeaponCharacteristics.GunCharacteristics.IsGun)
+		{
+			AddCharacteristicToBlock(Box,
+				"Rate of fire",
+				FString::FromInt(Desc->WeaponCharacteristics.GunCharacteristics.AmmoRate) + " rpm",
+				FFlareStyleSet::GetIcon("Rate"),
+				ShowHelpers);
+		}
 		AddCharacteristicToBlock(Box,
 			"Magazine",
-			FString::FromInt(Desc->GunCharacteristics.AmmoCapacity),
+			FString::FromInt(Desc->WeaponCharacteristics.AmmoCapacity),
 			FFlareStyleSet::GetIcon("Ammo"),
 			ShowHelpers);
 	}

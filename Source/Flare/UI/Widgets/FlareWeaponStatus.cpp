@@ -15,20 +15,26 @@
 void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 {
 	// Args
-	TargetShip = InArgs._TargetShip;
-	TargetWeapon = InArgs._TargetWeapon;
+	PlayerShip = InArgs._PlayerShip;
+	TargetWeaponGroupIndex = InArgs._TargetWeaponGroupIndex;
 
 	// Setup
+	ComponentHealth = 1.0;
 	CurrentAlpha = 0;
-	FadeInTime = 0.2f;
+	FadeInTime = 0.5f;
 	FadeOutTime = 1.0f;
 
 	// Content
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	const FSlateBrush* Icon = FFlareStyleSet::GetIcon("Mouse_Nothing_Black");
-	if (TargetWeapon)
+	if (PlayerShip && TargetWeaponGroupIndex >= 0)
 	{
-		Icon = &TargetWeapon->GetDescription()->MeshPreviewBrush;
+		TargetWeaponGroup = PlayerShip->GetWeaponsSystem()->GetWeaponGroup(TargetWeaponGroupIndex);
+		Icon = &TargetWeaponGroup->Description->MeshPreviewBrush;
+	}
+	else
+	{
+		TargetWeaponGroup = NULL;
 	}
 	
 	// Structure
@@ -75,21 +81,43 @@ void SFlareWeaponStatus::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	// Get the animation parameters
+	// Get the selection state for this weapon
 	float IsSelected = false;
-	float IsSelecting = true;  // TODO : IS THE PLAYER PICKING A WEAPON ?
-	if (TargetWeapon)
+	float IsSelecting = false;
+	if (PlayerShip)
 	{
-		// Get the selection state for this weapon
-		IsSelected = true; // TODO : IS THIS THE PLAYER'S WEAPON GROUP ?
+		IsSelected = (PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex() == TargetWeaponGroupIndex);
+		AFlarePlayerController* PC = PlayerShip->GetPC();
+		if (PC)
+		{
+			IsSelecting = PC->IsSelectingWeapon();
+		}
+	}
+
+	// Health
+	if (PlayerShip && TargetWeaponGroupIndex >= 0)
+	{
+		ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(TargetWeaponGroupIndex);
+	}
+	else
+	{
+		ComponentHealth = 1.0;
 	}
 
 	// Update animation state
-	if (IsSelected || IsSelecting)
+	if (IsSelected)
 	{
 		CurrentAlpha += InDeltaTime / FadeInTime;
-		if (!IsSelected)
+	}
+	else if (IsSelecting)
+	{
+		if (CurrentAlpha >= 0.5f)
 		{
+			CurrentAlpha -= InDeltaTime / FadeOutTime;
+		}
+		else
+		{
+			CurrentAlpha += InDeltaTime / FadeInTime;
 			CurrentAlpha = FMath::Clamp(CurrentAlpha, 0.0f, 0.5f);
 		}
 	}
@@ -104,16 +132,28 @@ FText SFlareWeaponStatus::GetText() const
 {
 	FText Text;
 
-	if (TargetWeapon)
+	if (TargetWeaponGroup)
 	{
-		float ComponentHealth = 1.0f; // TODO GET VALUE
-		
-		FString NameInfo = TargetWeapon->GetDescription()->Name.ToString();
-		FString CountInfo = FString::FromInt(1) + "x "; // TODO GET COUNT
-		FString AmmoInfo = FString::FromInt(TargetWeapon->GetCurrentAmmo()) + " " + LOCTEXT("Rounds", "rounds").ToString(); // TODO GET GROUP COUNT
+		// Generic info
+		FString NameInfo = TargetWeaponGroup->Description->Name.ToString();
+		FString CountInfo = FString::FromInt(TargetWeaponGroup->Weapons.Num()) + "x ";
 		FString HealthInfo = FString::FromInt(100 * ComponentHealth) + "%";
 
-		Text = FText::FromString(CountInfo + NameInfo + "\n" + AmmoInfo/* + "\n" + HealthInfo*/);
+		// Get ammo count
+		int32 RemainingAmmo = 0;
+		for (int32 i = 0; i < TargetWeaponGroup->Weapons.Num(); i++)
+		{
+			if(TargetWeaponGroup->Weapons[i]->GetDamageRatio() <= 0.)
+			{
+				// Don't count ammo from destroyed components
+				continue;
+			}
+			RemainingAmmo += TargetWeaponGroup->Weapons[i]->GetCurrentAmmo();
+		}
+		FString AmmoInfo = FString::FromInt(RemainingAmmo) + " " + LOCTEXT("Rounds", "rounds").ToString();
+
+		// Final string
+		Text = FText::FromString(CountInfo + NameInfo + "\n" + AmmoInfo + "\n" + HealthInfo);
 	}
 
 	return Text;
@@ -125,11 +165,8 @@ FSlateColor SFlareWeaponStatus::GetHighlightColor() const
 	FLinearColor NormalColor = Theme.NeutralColor;
 	FLinearColor DamageColor = Theme.EnemyColor;
 
-	// TODO GET HEALTH & LERP
-	FLinearColor Color = NormalColor;
-	// FLinearColor Color = FMath::Lerp(NormalColor, DamageColor, Health);
-
 	// Update alpha
+	FLinearColor Color = FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
 	Color.A *= Theme.DefaultAlpha * CurrentAlpha;
 	return Color;
 }

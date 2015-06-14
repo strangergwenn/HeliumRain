@@ -125,6 +125,28 @@ struct FFlareSpacecraftComponentEngineCharacteristics
 
 /** Gun characteristic */
 USTRUCT()
+struct FFlareSpacecraftComponentBombCharacteristics
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Is a gun  */
+	UPROPERTY(EditAnywhere, Category = Content) bool IsBomb;
+
+	/** Bomb mesh */
+	UPROPERTY(EditAnywhere, Category = Content) UStaticMesh* BombMesh;
+
+	/** Distance before armed */
+	UPROPERTY(EditAnywhere, Category = Content) float ActivationDistance;
+
+	/** Bomb forward velocity in m/s */
+	UPROPERTY(EditAnywhere, Category = Content) float DropLinearVelocity;
+
+	/** Bomb angular velocity in °/s */
+	UPROPERTY(EditAnywhere, Category = Content) float DropAngularVelocity;
+};
+
+/** Gun characteristic */
+USTRUCT()
 struct FFlareSpacecraftComponentGunCharacteristics
 {
 	GENERATED_USTRUCT_BODY()
@@ -132,20 +154,8 @@ struct FFlareSpacecraftComponentGunCharacteristics
 	/** Is a gun  */
 	UPROPERTY(EditAnywhere, Category = Content) bool IsGun;
 
-	/** Damage type */
-	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlareShellDamageType::Type> DamageType;
-
-	/** Shell (or fragment) energy in KJ */
-	UPROPERTY(EditAnywhere, Category = Content) float AmmoPower;
-
-	/** Shell fragment count (for HE shell) */
-	UPROPERTY(EditAnywhere, Category = Content) int32 AmmoFragmentCount;
-
-	/** Ammo damage radius */
-	UPROPERTY(EditAnywhere, Category = Content) float AmmoDamageRadius;
-
-	/** Ammo explosion effective radius (for HE shell) */
-	UPROPERTY(EditAnywhere, Category = Content) float AmmoExplosionRadius;
+	/** Shell kinetic energy in KJ */
+	UPROPERTY(EditAnywhere, Category = Content) float KineticEnergy;
 
 	/** Weapon firerate in ammo/min */
 	UPROPERTY(EditAnywhere, Category = Content) float AmmoRate;
@@ -159,9 +169,6 @@ struct FFlareSpacecraftComponentGunCharacteristics
 	/** Weapon ammo precision in ° */
 	UPROPERTY(EditAnywhere, Category = Content) float AmmoPrecision;
 
-	/** Weapon ammo max capacity */
-	UPROPERTY(EditAnywhere, Category = Content) int32 AmmoCapacity;
-
 	/** Weapon barrel count */
 	UPROPERTY(EditAnywhere, Category = Content) int32 GunCount;
 
@@ -170,30 +177,6 @@ struct FFlareSpacecraftComponentGunCharacteristics
 
 	/** If true, the gun fire one shell at each fire activation */
 	UPROPERTY(EditAnywhere, Category = Content) bool SemiAutomaticFire;
-
-	/** Damage type */
-	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlareShellFuzeType::Type> FuzeType;
-
-	/** If proximity fuse, below this distance the shell will explode */
-	UPROPERTY(EditAnywhere, Category = Content) float FuzeMinDistanceThresold;
-
-	/** If proximity fuse, above this distance the shell will no trig*/
-	UPROPERTY(EditAnywhere, Category = Content) float FuzeMaxDistanceThresold;
-
-	/** Sound played on impact */
-	UPROPERTY(EditAnywhere, Category = Content) USoundCue* ImpactSound;
-
-	/** Sound played on damage */
-	UPROPERTY(EditAnywhere, Category = Content) USoundCue* DamageSound;
-
-	/** Sound played when firing */
-	UPROPERTY(EditAnywhere, Category = Content) USoundCue* FiringSound;
-
-	/** Effect shown with a shell explode */
-	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ExplosionEffect;
-
-	/** Effect shown with a shell or a fragment impact a target */
-	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ImpactEffect;
 
 	/** Effect used when firing */
 	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* FiringEffect;
@@ -243,6 +226,74 @@ struct FFlareSpacecraftComponentTurretCharacteristics
 
 	/** Sound played on barrel rotation*/
 	UPROPERTY(EditAnywhere, Category = Content) USoundCue* BarrelRotationSound;
+
+};
+
+/** Weapon characteristics */
+USTRUCT()
+struct FFlareSpacecraftComponentWeaponCharacteristics
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Is a weapon */
+	UPROPERTY(EditAnywhere, Category = Content) bool IsWeapon;
+
+	/** Weapon order in weapon groups */
+	UPROPERTY(EditAnywhere, Category = Content) int32 Order;
+
+	/** Alterned weapons. If true, all the weapons don't fire at same time */
+	UPROPERTY(EditAnywhere, Category = Content) bool AlternedWeapon;
+
+	/** Damage type */
+	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlareShellDamageType::Type> DamageType;
+
+	/** Explosion (or fragment) energy in KJ */
+	UPROPERTY(EditAnywhere, Category = Content) float ExplosionPower;
+
+	/** Shell fragment count (for HE shell) */
+	UPROPERTY(EditAnywhere, Category = Content) int32 AmmoFragmentCount;
+
+	/** Ammo damage radius */
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoDamageRadius;
+
+	/** Ammo explosion effective radius (for HE shell) */
+	UPROPERTY(EditAnywhere, Category = Content) float AmmoExplosionRadius;
+
+	/** Weapon ammo max capacity */
+	UPROPERTY(EditAnywhere, Category = Content) int32 AmmoCapacity;
+
+	/** Damage type */
+	UPROPERTY(EditAnywhere, Category = Content) TEnumAsByte<EFlareShellFuzeType::Type> FuzeType;
+
+	/** If proximity fuse, below this distance the shell will explode */
+	UPROPERTY(EditAnywhere, Category = Content) float FuzeMinDistanceThresold;
+
+	/** If proximity fuse, above this distance the shell will no trig*/
+	UPROPERTY(EditAnywhere, Category = Content) float FuzeMaxDistanceThresold;
+
+	/** Sound played on impact */
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* ImpactSound;
+
+	/** Sound played on damage */
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* DamageSound;
+
+	/** Sound played when firing */
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* FiringSound;
+
+	/** Effect shown with a shell explode */
+	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ExplosionEffect;
+
+	/** Effect shown with a shell or a fragment impact a target */
+	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ImpactEffect;
+
+	/** Gun characteristic structure */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentGunCharacteristics GunCharacteristics;
+
+	/** Turret characteristic structure */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentTurretCharacteristics TurretCharacteristics;
+
+	/** Bomb characteristic structure */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentBombCharacteristics BombCharacteristics;
 
 };
 
@@ -347,11 +398,9 @@ struct FFlareSpacecraftComponentDescription
 	/** Engine characteristic structure */
 	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentEngineCharacteristics EngineCharacteristics;
 
-	/** Gun characteristic structure */
-	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentGunCharacteristics GunCharacteristics;
+	/** Weapon characteristic structure */
+	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentWeaponCharacteristics WeaponCharacteristics;
 
-	/** Turret characteristic structure */
-	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentTurretCharacteristics TurretCharacteristics;
 };
 
 
@@ -433,7 +482,7 @@ public:
 	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy);
 
 	/** Return the remaining hit points ratio. 1 for no damage, 0 for destroyed */
-	float GetDamageRatio(bool WithArmor = false) const;
+	virtual float GetDamageRatio(bool WithArmor = false) const;
 
 	/** Return true if the ship component is destroyed */
 	virtual bool IsDestroyed() const;
@@ -502,7 +551,7 @@ protected:
 	UMaterialInstanceDynamic*               EffectMaterial;
 
 	// Component description and data
-	const FFlareSpacecraftComponentDescription*   ComponentDescription;
+	FFlareSpacecraftComponentDescription*   ComponentDescription;
 	FFlareSpacecraftComponentSave                 ShipComponentData;
 
 	// General state
@@ -539,8 +588,13 @@ protected:
 	}
 
 
-	virtual const FFlareSpacecraftComponentDescription* GetDescription() const
+	virtual FFlareSpacecraftComponentDescription* GetDescription() const
 	{
 		return ComponentDescription;
+	}
+
+	virtual UStaticMesh* GetMesh(bool PresentationMode) const
+	{
+		return (ComponentDescription ? ComponentDescription->Mesh : NULL);
 	}
 };

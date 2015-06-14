@@ -152,9 +152,9 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 
 	float SecurityRadius = 0;
 
-	if(Turret->GetDescription()->GunCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	if(Turret->GetDescription()->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
 	{
-		 SecurityRadius = Turret->GetDescription()->GunCharacteristics.AmmoExplosionRadius + Turret->GetSpacecraft()->GetMeshScale() / 100;
+		 SecurityRadius = Turret->GetDescription()->WeaponCharacteristics.AmmoExplosionRadius + Turret->GetSpacecraft()->GetMeshScale() / 100;
 	}
 
 	FVector PilotLocation = Turret->GetTurretBaseLocation();

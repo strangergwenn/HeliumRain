@@ -34,27 +34,17 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 	// Manual pilot
 	if (IsManualPilot() && Spacecraft->GetDamageSystem()->IsAlive())
 	{
-		if (Spacecraft->IsPilotMode())
+		LinearTargetVelocity = Spacecraft->GetStateManager()->GetLinearTargetVelocity();
+		AngularTargetVelocity = Spacecraft->GetStateManager()->GetAngularTargetVelocity();
+		UseOrbitalBoost = Spacecraft->GetStateManager()->IsUseOrbitalBoost();
+
+		if (Spacecraft->GetStateManager()->IsWantFire())
 		{
-			LinearTargetVelocity = Spacecraft->GetPilot()->GetLinearTargetVelocity();
-			AngularTargetVelocity = Spacecraft->GetPilot()->GetAngularTargetVelocity();
-			UseOrbitalBoost = Spacecraft->GetPilot()->IsUseOrbitalBoost();
-			if (Spacecraft->GetPilot()->IsWantFire())
-			{
-				// TODO in weapons system
-				Spacecraft->StartFire();
-			}
-			else
-			{
-				// TODO in weapons system
-				Spacecraft->StopFire();
-			}
+			Spacecraft->GetWeaponsSystem()->StartFire();
 		}
 		else
 		{
-			UpdateLinearAttitudeManual(DeltaSeconds);
-			UpdateAngularAttitudeManual(DeltaSeconds);
-			UseOrbitalBoost = Spacecraft->PlayerManualOrbitalBoost;
+			Spacecraft->GetWeaponsSystem()->StopFire();
 		}
 	}
 
@@ -578,7 +568,7 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* Do
 void UFlareSpacecraftNavigationSystem::PushCommandLinearBrake()
 {
 	FFlareShipCommandData Command;
-	Command.Type = EFlareCommandDataType::CDT_Location;
+	Command.Type = EFlareCommandDataType::CDT_BrakeLocation;
 	PushCommand(Command);
 }
 
@@ -863,17 +853,6 @@ AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecr
 	Attitude control : linear version
 ----------------------------------------------------*/
 
-void UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeManual(float DeltaSeconds)
-{
-	// Manual orbital boost
-	if (Spacecraft->PlayerManualOrbitalBoost)
-	{
-		Spacecraft->PlayerManualLinearVelocity = GetLinearMaxBoostingVelocity() * FVector(1, 0, 0);
-	}
-
-	// Add velocity command to current velocity
-	LinearTargetVelocity = Spacecraft->GetLinearVelocity() + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(Spacecraft->PlayerManualLinearVelocity);
-}
 
 bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity)
 {
@@ -938,7 +917,7 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds)
 {
 	LinearTargetVelocity = FVector::ZeroVector;
-	FVector LinearVelocity = Spacecraft->WorldToLocal(Spacecraft->Airframe->GetPhysicsLinearVelocity());
+	FVector LinearVelocity = Spacecraft->Airframe->GetPhysicsLinearVelocity();
 
 	// Null speed detection
 	if (LinearVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
@@ -952,11 +931,6 @@ void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds)
 /*----------------------------------------------------
 	Attitude control : angular version
 ----------------------------------------------------*/
-
-void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeManual(float DeltaSeconds)
-{
-	AngularTargetVelocity = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(Spacecraft->PlayerManualAngularVelocity);
-}
 
 void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeconds)
 {

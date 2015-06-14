@@ -94,6 +94,12 @@ public:
 	/** Reset the mouse to the center of the screen */
 	void ResetMousePosition();
 
+	/** Signal that we are selecting weapons */
+	void SetSelectingWeapon();
+
+	/** id we select a weapon recently ? */
+	bool IsSelectingWeapon() const;
+
 
 	/*----------------------------------------------------
 		Input
@@ -142,6 +148,13 @@ public:
 
 	/** Brake */
 	void Brake();
+
+	/** Move hidden cursor */
+	virtual void MouseInputX(float Val);
+
+	/** Move hidden cursor */
+	virtual void MouseInputY(float Val);
+
 
 
 protected:
@@ -208,9 +221,10 @@ protected:
 	UFlareCompany*                           Company;
 
 	// Various gameplay data
-	bool                                     CombatMode;
 	bool                                     ExternalCamera;
 	int32                                    QuickSwitchNextOffset;
+	float                                    WeaponSwitchTime;
+	float                                    TimeSinceWeaponSwitch;
 
 
 public:

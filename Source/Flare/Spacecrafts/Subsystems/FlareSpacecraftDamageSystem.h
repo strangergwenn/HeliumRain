@@ -57,6 +57,9 @@ public:
 
 	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false) const;
 
+	virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor = false) const;
+
+
 	virtual bool IsAlive() const;
 
 	virtual bool IsPowered() const;

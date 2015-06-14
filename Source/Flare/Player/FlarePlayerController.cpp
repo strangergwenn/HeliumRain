@@ -17,7 +17,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	: Super(PCIP)
 	, DustEffect(NULL)
 	, Company(NULL)
-	, CombatMode(false)
+	, WeaponSwitchTime(5.0f)
+	, TimeSinceWeaponSwitch(0)
 {
 	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
@@ -74,21 +75,57 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
+	TimeSinceWeaponSwitch += DeltaSeconds;
+
+	if(ShipPawn)
+	{
+		Cast<AFlareHUD>(GetHUD())->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
+	}
+
+
 
 	// Mouse cursor
-	bool NewShowMouseCursor = (!CombatMode && !HUD->IsWheelOpen());
+	bool NewShowMouseCursor = !HUD->IsWheelOpen() ;
+	if(!HUD->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
+	{
+		NewShowMouseCursor = false;
+	}
+
 	if (NewShowMouseCursor != bShowMouseCursor)
 	{
 		// Set the mouse status
 		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
 		bShowMouseCursor = NewShowMouseCursor;
+
 		ResetMousePosition();
+
+#if PLATFORM_LINUX
+		// This code fix missing cursor bug but cause focus regression.
+		if (NewShowMouseCursor)
+		{
+			FInputModeGameOnly InputMode;
+			SetInputMode(InputMode);
+		}
+#endif
 
 		// Force focus to UI
 		if (NewShowMouseCursor || HUD->IsWheelOpen())
 		{
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);
+
+			if(!NewShowMouseCursor)
+			{
+				ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >( Player );
+
+				UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport();
+				TSharedPtr<SViewport> ViewportWidget = GameViewportClient->GetGameViewportWidget();
+				if (ViewportWidget.IsValid())
+				{
+					TSharedRef<SViewport> ViewportWidgetRef = ViewportWidget.ToSharedRef();
+					LocalPlayer->GetSlateOperations().UseHighPrecisionMouseMovement(ViewportWidgetRef);
+				}
+			}
 		}
 
 		// Force focus to game
@@ -197,24 +234,16 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 		NewState = true;
 	}
 
-	// Abort combat if we are going to external
-	if (NewState && CombatMode)
-	{
-		CombatMode = false;
-		ShipPawn->SetCombatMode(false);
-	}
-
 	// If something changed...
 	if (ExternalCamera != NewState || Force)
 	{		
 		// Send the camera order to the ship
 		if (ShipPawn)
 		{
-			ShipPawn->SetExternalCamera(NewState);
+			ShipPawn->GetStateManager()->SetExternalCamera(NewState);
 		}
 
 		// Update camera 
-		Cast<AFlareHUD>(GetHUD())->SetInteractive(!CombatMode);
 		ExternalCamera = NewState;
 	}
 }
@@ -224,15 +253,15 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	// Reset the current ship to auto
 	if (ShipPawn)
 	{
-		ShipPawn->EnablePilot(true);
+		ShipPawn->GetStateManager()->EnablePilot(true);
 	}
 
 	// Fly the new ship
 	Possess(Ship);
 	ShipPawn = Ship;
-	CombatMode = false;
 	SetExternalCamera(true, true);
-	ShipPawn->EnablePilot(false);
+	ShipPawn->GetStateManager()->EnablePilot(false);
+	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	QuickSwitchNextOffset = 0;
 
 	// Setup power sound
@@ -380,12 +409,6 @@ void AFlarePlayerController::OnEnterMenu()
 	{
 		ClientPlaySound(OnSound);
 		Possess(MenuPawn);
-
-		if (CombatMode)
-		{
-			CombatMode = false;
-			ShipPawn->SetCombatMode(false);
-		}
 	}
 }
 
@@ -429,6 +452,16 @@ void AFlarePlayerController::ResetMousePosition()
 	App.SetAllUserFocusToGameViewport();
 }
 
+void AFlarePlayerController::SetSelectingWeapon()
+{
+	TimeSinceWeaponSwitch = 0;
+}
+
+bool AFlarePlayerController::IsSelectingWeapon() const
+{
+	return (TimeSinceWeaponSwitch < WeaponSwitchTime);
+}
+
 
 /*----------------------------------------------------
 	Input
@@ -448,15 +481,19 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Pressed, this, &AFlarePlayerController::WheelPressed);
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Released, this, &AFlarePlayerController::WheelReleased);
 
-	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
+	InputComponent->BindAxis("MouseInputX", this, &AFlarePlayerController::MouseInputX);
+	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
+
+
+	InputComponent-> BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
 }
 
 void AFlarePlayerController::MousePositionInput(FVector2D Val)
 {
-	if (ShipPawn && !CombatMode)
+	if (ShipPawn)
 	{
-		ShipPawn->MousePositionInput(Val);
+		ShipPawn->GetStateManager()->SetPlayerMousePosition(Val);
 	}
 }
 
@@ -481,18 +518,17 @@ void AFlarePlayerController::ToggleCombat()
 {
 	if (ShipPawn && ShipPawn->IsMilitary() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
-		FLOGV("AFlarePlayerController::ToggleCombat : new state is %d", !CombatMode);
-		CombatMode = !CombatMode;
-		ShipPawn->SetCombatMode(CombatMode);
+		FLOG("AFlarePlayerController::ToggleCombat");
+		ShipPawn->GetWeaponsSystem()->ToogleWeaponActivation();
 		SetExternalCamera(false, true);
 	}
 }
 
 void AFlarePlayerController::TogglePilot()
 {
-	bool NewState = !ShipPawn->IsPilotMode();
+	bool NewState = !ShipPawn->GetStateManager()->IsPilotMode();
 	FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
-	ShipPawn->EnablePilot(NewState);
+	ShipPawn->GetStateManager()->EnablePilot(NewState);
 }
 
 void AFlarePlayerController::ToggleHUD()
@@ -574,6 +610,40 @@ void AFlarePlayerController::WheelPressed()
 void AFlarePlayerController::WheelReleased()
 {
 	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(false);
+}
+
+void AFlarePlayerController::MouseInputX(float Val)
+{
+	if(Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
+	{
+		return;
+	}
+
+	if(Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
+	{
+		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(Val, 0));
+	}
+	else if(ShipPawn)
+	{
+		ShipPawn->YawInput(Val);
+	}
+}
+
+void AFlarePlayerController::MouseInputY(float Val)
+{
+	if(Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
+	{
+		return;
+	}
+
+	if(Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
+	{
+		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(0, -Val));
+	}
+	else if(ShipPawn)
+	{
+		ShipPawn->PitchInput(Val);
+	}
 }
 
 void AFlarePlayerController::Test1()

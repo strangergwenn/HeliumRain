@@ -274,13 +274,15 @@ bool UFlareSpacecraftComponent::IsVisibleByPlayer()
 
 void UFlareSpacecraftComponent::SetupComponentMesh()
 {
+	UStaticMesh* Mesh = GetMesh(!(Spacecraft));
+
 	// Set the mesh
-	if (ComponentDescription && ComponentDescription->Mesh)
+	if (ComponentDescription && Mesh)
 	{
-		SetStaticMesh(ComponentDescription->Mesh);
-		SetMaterial(0, ComponentDescription->Mesh->GetMaterial(0));
+		SetStaticMesh(Mesh);
+		SetMaterial(0, Mesh->GetMaterial(0));
 	}
-	else if (ComponentDescription && !ComponentDescription->Mesh)
+	else if (ComponentDescription && !Mesh)
 	{
 		bVisible = false;
 	}
@@ -379,6 +381,8 @@ void UFlareSpacecraftComponent::ApplyDamage(float Energy)
 		float StateBeforeDamage = GetDamageRatio();
 		ShipComponentData.Damage += Energy;
 		float StateAfterDamage = GetDamageRatio();
+
+		FLOGV("Component %s. Apply Energy=%f", *(GetReadableName()), Energy);
 
 		// No more armor, power outage risk
 		if (Spacecraft && IsGenerator() && StateAfterDamage < 1.0 && StateBeforeDamage > 0)

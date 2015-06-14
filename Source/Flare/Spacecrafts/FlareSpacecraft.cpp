@@ -22,7 +22,6 @@
 
 AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
-	, AngularInputDeadRatio(0.0025)
 {
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("Airframe"));
@@ -37,9 +36,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	// Dock info
 	ShipData.DockedTo = NAME_None;
 	ShipData.DockedAt = -1;
-
-	// Pilot
-	IsPiloted = true;
 }
 
 
@@ -54,55 +50,12 @@ void AFlareSpacecraft::BeginPlay()
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);
 
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
-	// Update Camera
-	if (!ExternalCamera && CombatMode)
-	{
-		//TODO Only for played ship, in Ship class
-		if (CombatMode)
-		{
-			TArray<UFlareWeapon*> Weapons = GetWeaponList();
-			if (Weapons.Num() > 0)
-			{
-				float AmmoVelocity = Weapons[0]->GetAmmoVelocity();
-				FRotator ShipAttitude = GetActorRotation();
-				FVector ShipVelocity = 100.f * GetLinearVelocity();
-
-				// Bullet velocity
-				FVector BulletVelocity = ShipAttitude.Vector();
-				BulletVelocity.Normalize();
-				BulletVelocity *= 100.f * AmmoVelocity; // TODO get from projectile
-
-
-				FVector BulletDirection = (ShipVelocity + BulletVelocity).GetUnsafeNormal();
-
-				FVector LocalBulletDirection = Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(BulletDirection);
-
-				float Pitch = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Z));
-				float Yaw = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Y));
-
-				SetCameraPitch(Pitch);
-				SetCameraYaw(Yaw);
-			}
-		}
-		else
-		{
-			SetCameraPitch(0);
-			SetCameraYaw(0);
-		}
-	}
-
-
 	if (!IsPresentationMode())
 	{
-
-		if (GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
-		{
-			Pilot->TickPilot(DeltaSeconds);
-		}
+		StateManager->Tick(DeltaSeconds);
 
 		DockingSystem->TickSystem(DeltaSeconds);
 		NavigationSystem->TickSystem(DeltaSeconds);
@@ -124,12 +77,15 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			}
 		}
 	}
+
+	// The FlareSpacecraftPawn do the camera effective update in its Tick so call it after camera order update
+	Super::Tick(DeltaSeconds);
 }
 
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-
+	FLOG("AFlareSpacecraft Hit");
 	DamageSystem->OnCollision(Other, HitLocation, HitNormal);
 }
 
@@ -146,49 +102,6 @@ void AFlareSpacecraft::Destroyed()
 	Player interface
 ----------------------------------------------------*/
 
-void AFlareSpacecraft::SetExternalCamera(bool NewState)
-{
-	// Stop firing
-	if (NewState)
-	{
-		StopFire();
-		BoostOff();
-	}
-
-	// Reset rotations
-	ExternalCamera = NewState;
-	SetCameraPitch(0);
-	SetCameraYaw(0);
-
-	// Reset controls
-	PlayerManualLinearVelocity = FVector::ZeroVector;
-	PlayerManualAngularVelocity = FVector::ZeroVector;
-
-	// Put the camera at the right spot
-	if (ExternalCamera)
-	{
-		SetCameraLocalPosition(FVector::ZeroVector);
-		SetCameraDistance(CameraMaxDistance * GetMeshScale());
-	}
-	else
-	{
-		FVector CameraOffset = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
-		SetCameraDistance(0);
-		SetCameraLocalPosition(CameraOffset);
-	}
-}
-
-void AFlareSpacecraft::SetCombatMode(bool NewState)
-{
-	CombatMode = NewState;
-	PlayerMouseOffset = FVector2D(0,0);
-	MousePositionInput(PlayerMouseOffset);
-
-	if (!NewState && FiringPressed)
-	{
-		StopFire();
-	}
-}
 
 // TODO move in helper class
 
@@ -236,9 +149,7 @@ FVector AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocit
 
 void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 {
-	// Clear previous data
-	WeaponList.Empty();
-	WeaponDescriptionList.Empty();
+
 
 	// Update local data
 	ShipData = Data;
@@ -309,12 +220,6 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 			SetOrbitalEngineDescription(ComponentDescription);
 		}
 
-		// If this is a weapon, add to weapon list.
-		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Component);
-		if (Weapon)
-		{
-			WeaponList.Add(Weapon);
-		}
 
 		// Find the cockpit
 		if(ComponentDescription->GeneralCharacteristics.LifeSupport)
@@ -323,21 +228,11 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		}
 	}
 
-	// Load weapon descriptions
-	for (int32 i = 0; i < Data.Components.Num(); i++)
-	{
-		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(Data.Components[i].ComponentIdentifier);
-		if (ComponentDescription->Type == EFlarePartType::Weapon)
-		{
-			WeaponDescriptionList.Add(ComponentDescription);
-		}
-	}
-
 	// Customization
 	UpdateCustomization();
 
 	// Re-dock if we were docked
-	if (ShipData.DockedTo != NAME_None)
+	if (ShipData.DockedTo != NAME_None && !IsPresentationMode())
 	{
 		FLOGV("AFlareSpacecraft::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
@@ -355,6 +250,12 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	// Initialize pilot
 	Pilot = NewObject<UFlareShipPilot>(this, UFlareShipPilot::StaticClass());
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
+
+	if(!StateManager)
+	{
+		StateManager = NewObject<UFlareSpacecraftStateManager>(this, UFlareSpacecraftStateManager::StaticClass());
+	}
+	StateManager->Initialize(this);
 
 	DamageSystem->Start();
 	NavigationSystem->Start();
@@ -460,18 +361,6 @@ UFlareInternalComponent* AFlareSpacecraft::GetInternalComponentAtLocation(FVecto
 	return ClosestComponent;
 }
 
-/*----------------------------------------------------
-		Pilot
-----------------------------------------------------*/
-
-void AFlareSpacecraft::EnablePilot(bool PilotEnabled)
-{
-	FLOGV("EnablePilot %d", PilotEnabled);
-	IsPiloted = PilotEnabled;
-	BoostOff();
-}
-
-
 
 /*----------------------------------------------------
 	Customization
@@ -539,7 +428,7 @@ void AFlareSpacecraft::OnDocked()
 
 	// Signal the PC
 	AFlarePlayerController* PC = GetPC();
-	if (PC && !ExternalCamera)
+	if (PC && !StateManager->IsExternalCamera())
 	{
 		PC->SetExternalCamera(true);
 	}
@@ -575,10 +464,6 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAxis("MoveHorizontalInput", this, &AFlareSpacecraft::MoveHorizontalInput);
 
 	InputComponent->BindAxis("RollInput", this, &AFlareSpacecraft::RollInput);
-	InputComponent->BindAxis("PitchInput", this, &AFlareSpacecraft::PitchInput);
-	InputComponent->BindAxis("YawInput", this, &AFlareSpacecraft::YawInput);
-	InputComponent->BindAxis("MouseInputY", this, &AFlareSpacecraft::PitchInput);
-	InputComponent->BindAxis("MouseInputX", this, &AFlareSpacecraft::YawInput);
 
 	InputComponent->BindAction("ZoomIn", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomIn);
 	InputComponent->BindAction("ZoomOut", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomOut);
@@ -590,170 +475,147 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAction("Boost", EInputEvent::IE_Released, this, &AFlareSpacecraft::BoostOff);
 	InputComponent->BindAction("Manual", EInputEvent::IE_Released, this, &AFlareSpacecraft::ForceManual);
 
-	InputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::FirePress);
-	InputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &AFlareSpacecraft::FireRelease);
+	InputComponent->BindAction("LeftMouse", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::LeftMousePress);
+	InputComponent->BindAction("LeftMouse", EInputEvent::IE_Released, this, &AFlareSpacecraft::LeftMouseRelease);
+
+	InputComponent->BindAction("DeactivateWeapon", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::DeactivateWeapon);
+	InputComponent->BindAction("WeaponGroup1", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup1);
+	InputComponent->BindAction("WeaponGroup2", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup2);
+	InputComponent->BindAction("WeaponGroup3", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup3);
+
+	InputComponent->BindAction("NextWeapon", EInputEvent::IE_Released, this, &AFlareSpacecraft::NextWeapon);
+	InputComponent->BindAction("PreviousWeapon", EInputEvent::IE_Released, this, &AFlareSpacecraft::PreviousWeapon);
 }
 
-void AFlareSpacecraft::FirePress()
+void AFlareSpacecraft::LeftMousePress()
 {
-	FiringPressed = true;
+	StateManager->SetPlayerLeftMouse(true);
+}
 
-	if (CombatMode)
+void AFlareSpacecraft::LeftMouseRelease()
+{
+	StateManager->SetPlayerLeftMouse(false);
+}
+
+void AFlareSpacecraft::DeactivateWeapon()
+{
+	if (!StateManager->IsPilotMode())
 	{
-		StartFire();
+		FLOG("AFlareSpacecraft::DeactivateWeapon");
+		GetPC()->SetSelectingWeapon();
+		GetWeaponsSystem()->DeactivateWeapons();
 	}
 }
 
-void AFlareSpacecraft::FireRelease()
+void AFlareSpacecraft::ActivateWeaponGroup1()
 {
-	FiringPressed = false;
-
-	if (CombatMode)
+	if (!StateManager->IsPilotMode())
 	{
-		StopFire();
+		FLOG("AFlareSpacecraft::ActivateWeaponGroup1");
+		GetPC()->SetSelectingWeapon();
+		GetWeaponsSystem()->ActivateWeaponGroup(0);
 	}
 }
 
-void AFlareSpacecraft::MousePositionInput(FVector2D Val)
+void AFlareSpacecraft::ActivateWeaponGroup2()
 {
-	if (!ExternalCamera)
+	if (!StateManager->IsPilotMode())
 	{
-		if (FiringPressed  || CombatMode)
+		FLOG("AFlareSpacecraft::ActivateWeaponGroup2");
+		GetPC()->SetSelectingWeapon();
+		GetWeaponsSystem()->ActivateWeaponGroup(1);
+	}
+}
+
+void AFlareSpacecraft::ActivateWeaponGroup3()
+{
+	if (!StateManager->IsPilotMode())
+	{
+		FLOG("AFlareSpacecraft::ActivateWeaponGroup3");
+		GetPC()->SetSelectingWeapon();
+		GetWeaponsSystem()->ActivateWeaponGroup(2);
+	}
+}
+
+void AFlareSpacecraft::NextWeapon()
+{
+	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
+	if (WeaponSystems && !StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
+	{
+		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
+		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
+		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
+
+		GetPC()->SetSelectingWeapon();
+		WeaponSystems->ActivateWeaponGroup(CurrentIndex);
+	}
+}
+
+void AFlareSpacecraft::PreviousWeapon()
+{
+	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
+	if (WeaponSystems && !StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
+	{
+		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
+		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount() - 1);
+		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
+
+		GetPC()->SetSelectingWeapon();
+		if (CurrentIndex >= 0)
 		{
-			float DistanceToCenter = FMath::Sqrt(FMath::Square(Val.X) + FMath::Square(Val.Y));
-
-			// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
-			float CompensatedDistance = FMath::Clamp(1. + (DistanceToCenter - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.);
-			float Angle = FMath::Atan2(Val.Y, Val.X);
-
-			PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * NavigationSystem->GetAngularMaxVelocity();
-			PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * NavigationSystem->GetAngularMaxVelocity();
+			WeaponSystems->ActivateWeaponGroup(CurrentIndex);
 		}
 		else
 		{
-			PlayerManualAngularVelocity.Z = 0;
-			PlayerManualAngularVelocity.Y = 0;
+			WeaponSystems->DeactivateWeapons();
 		}
 	}
 }
 
 void AFlareSpacecraft::ThrustInput(float Val)
 {
-	if (!ExternalCamera)
-	{
-		PlayerManualLinearVelocity.X = Val * NavigationSystem->GetLinearMaxVelocity();
-	}
+	StateManager->SetPlayerXLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 
 void AFlareSpacecraft::MoveVerticalInput(float Val)
 {
-	if (!ExternalCamera)
-	{
-		PlayerManualLinearVelocity.Z = NavigationSystem->GetLinearMaxVelocity() * Val;
-	}
+	StateManager->SetPlayerZLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 
 void AFlareSpacecraft::MoveHorizontalInput(float Val)
 {
-	if (!ExternalCamera)
-	{
-		PlayerManualLinearVelocity.Y = NavigationSystem->GetLinearMaxVelocity() * Val;
-	}
+	StateManager->SetPlayerYLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 
 void AFlareSpacecraft::RollInput(float Val)
 {
-	if (!ExternalCamera)
-	{
-		PlayerManualAngularVelocity.X = - Val * NavigationSystem->GetAngularMaxVelocity();
-	}
+	StateManager->SetPlayerRollAngularVelocity(- Val * NavigationSystem->GetAngularMaxVelocity());
 }
 
 void AFlareSpacecraft::PitchInput(float Val)
 {
-	if (ExternalCamera)
-	{
-		FRotator CurrentRot = WorldToLocal(CameraContainerPitch->GetComponentRotation().Quaternion()).Rotator();
-		SetCameraPitch(CurrentRot.Pitch + Val * CameraPanSpeed);
-	}
-	else if (CombatMode)
-	{
-		PlayerMouseOffset.Y -= FMath::Sign(Val) * FMath::Pow(FMath::Abs(Val),1.3) * 0.05; // TODO Config sensibility
-		if(PlayerMouseOffset.Size() > 1)
-		{
-			PlayerMouseOffset /= PlayerMouseOffset.Size();
-		}
-		MousePositionInput(PlayerMouseOffset);
-
-	}
+	StateManager->SetPlayerMouseOffset(FVector2D(0, Val), true);
 }
 
 void AFlareSpacecraft::YawInput(float Val)
 {
-	if (ExternalCamera)
-	{
-		FRotator CurrentRot = WorldToLocal(CameraContainerPitch->GetComponentRotation().Quaternion()).Rotator();
-		SetCameraYaw(CurrentRot.Yaw + Val * CameraPanSpeed);
-	}
-	else if (CombatMode)
-	{
-		PlayerMouseOffset.X += FMath::Sign(Val) * FMath::Pow(FMath::Abs(Val),1.3) * 0.05; // TODO Config sensibility
-		if(PlayerMouseOffset.Size() > 1)
-		{
-			PlayerMouseOffset /= PlayerMouseOffset.Size();
-		}
-		MousePositionInput(PlayerMouseOffset);
-	}
+	StateManager->SetPlayerMouseOffset(FVector2D(Val, 0), true);
 }
 
 void AFlareSpacecraft::ZoomIn()
 {
-	if (ExternalCamera)
-	{
-		StepCameraDistance(true);
-	}
+	StateManager->ExternalCameraZoom(true);
 }
 
 void AFlareSpacecraft::ZoomOut()
 {
-	if (ExternalCamera)
-	{
-		StepCameraDistance(false);
-	}
-}
-
-
-void AFlareSpacecraft::StartFire()
-{
-	if (GetDamageSystem()->IsAlive() && (IsPiloted || !ExternalCamera))
-	{
-		for (int32 i = 0; i < WeaponList.Num(); i++)
-		{
-			if (!WeaponList[i]->IsTurret())
-			{
-				WeaponList[i]->StartFire();
-			}
-		}
-	}
-}
-
-void AFlareSpacecraft::StopFire()
-{
-	if (GetDamageSystem()->IsAlive() && (IsPiloted || !ExternalCamera))
-	{
-		for (int32 i = 0; i < WeaponList.Num(); i++)
-		{
-			if (!WeaponList[i]->IsTurret())
-			{
-				WeaponList[i]->StopFire();
-			}
-		}
-	}
+	StateManager->ExternalCameraZoom(false);
 }
 
 void AFlareSpacecraft::FaceForward()
 {
-	if (NavigationSystem->IsManualPilot())
+	// TODO do better
+	if (!StateManager->IsExternalCamera() && !StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
 		NavigationSystem->PushCommandRotation(Airframe->GetPhysicsLinearVelocity(), FVector(1,0,0));
 	}
@@ -761,7 +623,8 @@ void AFlareSpacecraft::FaceForward()
 
 void AFlareSpacecraft::FaceBackward()
 {
-	if (NavigationSystem->IsManualPilot())
+	// TODO do better
+	if (!StateManager->IsExternalCamera() &&!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
 		NavigationSystem->PushCommandRotation((-Airframe->GetPhysicsLinearVelocity()), FVector(1, 0, 0));
 	}
@@ -769,7 +632,8 @@ void AFlareSpacecraft::FaceBackward()
 
 void AFlareSpacecraft::Brake()
 {
-	if (NavigationSystem->IsManualPilot())
+	// TODO do better
+	if (!StateManager->IsExternalCamera() && !StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
 		NavigationSystem->PushCommandLinearBrake();
 	}
@@ -777,20 +641,18 @@ void AFlareSpacecraft::Brake()
 
 void AFlareSpacecraft::BoostOn()
 {
-	if (NavigationSystem->IsManualPilot() && !ExternalCamera)
-	{
-		PlayerManualOrbitalBoost = true;
-	}
+	StateManager->SetPlayerOrbitalBoost(true);
 }
 
 void AFlareSpacecraft::BoostOff()
 {
-	PlayerManualOrbitalBoost = false;
+	StateManager->SetPlayerOrbitalBoost(false);
 }
 
 void AFlareSpacecraft::ForceManual()
 {
-	if (NavigationSystem->GetStatus() != EFlareShipStatus::SS_Docked)
+	// TODO do better
+	if (!StateManager->IsExternalCamera() && !StateManager->IsPilotMode() && NavigationSystem->GetStatus() != EFlareShipStatus::SS_Docked)
 	{
 		NavigationSystem->AbortAllCommands();
 	}

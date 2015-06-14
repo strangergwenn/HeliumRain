@@ -165,8 +165,21 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 		TArray<IFlareSpacecraftInterface*> DockedShips = Target->GetDockingSystem()->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
 		{
+			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(DockedShips[i]);
+
+			if(Spacecraft)
+			{
+				FLOGV("SFlareStationMenu::Enter %s", *Spacecraft->GetName());
+			}
+			else
+			{
+				FLOG("SFlareStationMenu::Enter not spacecraft");
+			}
+
+			FLOGV("SFlareStationMenu::Enter GetDamageSystem %x", DockedShips[i]->GetDamageSystem());
 			if (DockedShips[i]->GetDamageSystem()->IsAlive())
 			{
+				FLOG("SFlareStationMenu::Enter Alive");
 				ShipList->AddShip(DockedShips[i]);
 			}
 		}
