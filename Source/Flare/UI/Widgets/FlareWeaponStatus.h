@@ -14,7 +14,7 @@ class SFlareWeaponStatus : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareWeaponStatus)
 	{}
 
-	SLATE_ARGUMENT(IFlareSpacecraftInterface*, TargetShip)
+	SLATE_ARGUMENT(AFlareSpacecraft*, PlayerShip)
 	SLATE_ARGUMENT(int32, TargetWeaponGroupIndex)
 	
 	SLATE_END_ARGS()
@@ -67,7 +67,7 @@ protected:
 	float                                   FadeOutTime;
 
 	// Target data
-	IFlareSpacecraftInterface*              TargetShip;
+	AFlareSpacecraft*                       PlayerShip;
 	FFlareWeaponGroup*                      TargetWeaponGroup;
 	int32                                   TargetWeaponGroupIndex;
 

@@ -82,6 +82,7 @@ public:
 
 	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -90,6 +91,7 @@ protected:
 
 	/** Our ship killed another ship */
 	virtual void OnEnemyKilled(IFlareSpacecraftInterface* Enemy);
+
 
 public:
 
@@ -161,6 +163,7 @@ public:
 
 	virtual void ForceManual();
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -193,11 +196,7 @@ protected:
 	UPROPERTY()
 	UFlareSpacecraftStateManager*				   StateManager;
 
-	/*----------------------------------------------------
-		Regular data
-	----------------------------------------------------*/
 
-public:
 
 public:
 

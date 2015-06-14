@@ -15,7 +15,7 @@
 void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 {
 	// Args
-	TargetShip = InArgs._TargetShip;
+	PlayerShip = InArgs._PlayerShip;
 	TargetWeaponGroupIndex = InArgs._TargetWeaponGroupIndex;
 
 	// Setup
@@ -27,9 +27,9 @@ void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 	// Content
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	const FSlateBrush* Icon = FFlareStyleSet::GetIcon("Mouse_Nothing_Black");
-	if (TargetShip && TargetWeaponGroupIndex >= 0)
+	if (PlayerShip && TargetWeaponGroupIndex >= 0)
 	{
-		TargetWeaponGroup = TargetShip->GetWeaponsSystem()->GetWeaponGroup(TargetWeaponGroupIndex);
+		TargetWeaponGroup = PlayerShip->GetWeaponsSystem()->GetWeaponGroup(TargetWeaponGroupIndex);
 		Icon = &TargetWeaponGroup->Description->MeshPreviewBrush;
 	}
 	else
@@ -81,14 +81,17 @@ void SFlareWeaponStatus::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	// Get selection state for the player
-	float IsSelecting = true; // TODO
-
 	// Get the selection state for this weapon
 	float IsSelected = false;
-	if (TargetShip)
+	float IsSelecting = false;
+	if (PlayerShip)
 	{
-		IsSelected = (TargetShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex() == TargetWeaponGroupIndex);
+		IsSelected = (PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex() == TargetWeaponGroupIndex);
+		AFlarePlayerController* PC = PlayerShip->GetPC();
+		if (PC)
+		{
+			IsSelecting = PC->IsSelectingWeapon();
+		}
 	}
 
 	// Health

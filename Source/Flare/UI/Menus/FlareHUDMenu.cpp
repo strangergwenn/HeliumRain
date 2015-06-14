@@ -244,7 +244,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 			.AutoHeight()
 			[
 				SNew(SFlareWeaponStatus)
-				.TargetShip(PlayerShip)
+				.PlayerShip(PlayerShip)
 				.TargetWeaponGroupIndex(i)
 			];
 		}
@@ -254,7 +254,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 		.AutoHeight()
 		[
 			SNew(SFlareWeaponStatus)
-			.TargetShip(PlayerShip)
+			.PlayerShip(PlayerShip)
 			.TargetWeaponGroupIndex(-1)
 		];
 

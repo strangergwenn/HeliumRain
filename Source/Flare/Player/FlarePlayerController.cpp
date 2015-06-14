@@ -18,6 +18,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, DustEffect(NULL)
 	, Company(NULL)
 	, CombatMode(false)
+	, WeaponSwitchTime(5.0f)
+	, TimeSinceWeaponSwitch(0)
 {
 	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
@@ -74,6 +76,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
+	TimeSinceWeaponSwitch += DeltaSeconds;
 
 	// Mouse cursor
 	bool NewShowMouseCursor = (!CombatMode && !HUD->IsWheelOpen());
@@ -414,6 +417,16 @@ void AFlarePlayerController::ResetMousePosition()
 	App.SetCursorPos(CursorPos);
 	App.OnMouseMove();
 	App.SetAllUserFocusToGameViewport();
+}
+
+void AFlarePlayerController::SetSelectingWeapon()
+{
+	TimeSinceWeaponSwitch = 0;
+}
+
+bool AFlarePlayerController::IsSelectingWeapon() const
+{
+	return (TimeSinceWeaponSwitch < WeaponSwitchTime);
 }
 
 

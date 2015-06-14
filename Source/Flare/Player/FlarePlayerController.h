@@ -94,6 +94,12 @@ public:
 	/** Reset the mouse to the center of the screen */
 	void ResetMousePosition();
 
+	/** Signal that we are selecting weapons */
+	void SetSelectingWeapon();
+
+	/** id we select a weapon recently ? */
+	bool IsSelectingWeapon() const;
+
 
 	/*----------------------------------------------------
 		Input
@@ -211,6 +217,8 @@ protected:
 	bool                                     CombatMode;
 	bool                                     ExternalCamera;
 	int32                                    QuickSwitchNextOffset;
+	float                                    WeaponSwitchTime;
+	float                                    TimeSinceWeaponSwitch;
 
 
 public:
