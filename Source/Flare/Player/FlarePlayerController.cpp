@@ -82,6 +82,8 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		Cast<AFlareHUD>(GetHUD())->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 	}
 
+
+
 	// Mouse cursor
 	bool NewShowMouseCursor = !HUD->IsWheelOpen();
 	if(ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
@@ -98,7 +100,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		ResetMousePosition();
 
 		// Force focus to UI
-		if (NewShowMouseCursor || HUD->IsWheelOpen())
+		if (NewShowMouseCursor)
 		{
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);
@@ -457,7 +459,11 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Pressed, this, &AFlarePlayerController::WheelPressed);
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Released, this, &AFlarePlayerController::WheelReleased);
 
-	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
+	InputComponent->BindAxis("MouseInputX", this, &AFlarePlayerController::MouseInputX);
+	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
+
+
+	InputComponent-> BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
 }
 
@@ -582,6 +588,30 @@ void AFlarePlayerController::WheelPressed()
 void AFlarePlayerController::WheelReleased()
 {
 	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(false);
+}
+
+void AFlarePlayerController::MouseInputX(float Val)
+{
+	if(Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
+	{
+		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(Val, 0));
+	}
+	else if(ShipPawn)
+	{
+		ShipPawn->YawInput(Val);
+	}
+}
+
+void AFlarePlayerController::MouseInputY(float Val)
+{
+	if(Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
+	{
+		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(0, -Val));
+	}
+	else if(ShipPawn)
+	{
+		ShipPawn->PitchInput(Val);
+	}
 }
 
 void AFlarePlayerController::Test1()

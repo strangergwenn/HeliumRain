@@ -184,13 +184,11 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 
 void UFlareSpacecraftStateManager::SetPlayerMousePosition(FVector2D Val)
 {
-	FLOGV("SetPlayerMousePosition=%s", *Val.ToString());
 	PlayerMousePosition = Val;
 }
 
 void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Relative)
 {
-	FLOGV("SetPlayerMouseOffset=%s relative=%d", *Val.ToString(), Relative);
 	if (Relative)
 	{
 		if(ExternalCamera)
@@ -200,17 +198,28 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 		}
 		else
 		{
-			FLOGV("PlayerMouseOffset before=%s", *PlayerMouseOffset.ToString());
-			float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X),1.3) * 0.05; // TODO Config sensibility
-			float Y = - FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y),1.3) * 0.05;
-
-			PlayerMouseOffset += FVector2D(X,Y);
-			FLOGV("PlayerMouseOffset after=%s", *PlayerMouseOffset.ToString());
-			if(PlayerMouseOffset.Size() > 1)
+			//FLOG("SetPlayerMouseOffset");
+			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
+			if(!PC)
 			{
-				PlayerMouseOffset /= PlayerMouseOffset.Size();
+			//	FLOG("No PC");
+				return;
 			}
-			FLOGV("PlayerMouseOffset clamped=%s", *PlayerMouseOffset.ToString());
+			AFlareHUD* HUD = Cast<AFlareHUD>(PC->GetHUD());
+			//FLOGV("HUD->IsWheelOpen() %d", HUD->IsWheelOpen());
+
+			if (!HUD->IsWheelOpen())
+			{
+
+				float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X),1.3) * 0.05; // TODO Config sensibility
+				float Y = - FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y),1.3) * 0.05;
+
+				PlayerMouseOffset += FVector2D(X,Y);
+				if(PlayerMouseOffset.Size() > 1)
+				{
+					PlayerMouseOffset /= PlayerMouseOffset.Size();
+				}
+			}
 		}
 	}
 	else
@@ -221,13 +230,11 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 
 void UFlareSpacecraftStateManager::SetPlayerLeftMouse(bool Val)
 {
-	FLOGV("SetPlayerLeftMouse=%d", Val);
 	PlayerLeftMousePressed = Val;
 }
 
 void UFlareSpacecraftStateManager::ExternalCameraZoom(bool ZoomIn)
 {
-	FLOGV("ExternalCameraZoom=%d", ZoomIn);
 	if (ExternalCamera)
 	{
 	// TODO don't duplicate with Spacecraft Pawn
@@ -244,31 +251,26 @@ void UFlareSpacecraftStateManager::ExternalCameraZoom(bool ZoomIn)
 
 void UFlareSpacecraftStateManager::SetPlayerOrbitalBoost(bool Val)
 {
-	FLOGV("SetPlayerOrbitalBoost=%d", Val);
 	PlayerManualOrbitalBoost = Val;
 }
 
 void UFlareSpacecraftStateManager::SetPlayerXLinearVelocity(float Val)
 {
-	FLOGV("SetPlayerXLinearVelocity=%f", Val);
 	PlayerManualLinearVelocity.X = Val;
 }
 
 void UFlareSpacecraftStateManager::SetPlayerYLinearVelocity(float Val)
 {
-	FLOGV("SetPlayerYLinearVelocity=%f", Val);
 	PlayerManualLinearVelocity.Y = Val;
 }
 
 void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
 {
-	FLOGV("SetPlayerZLinearVelocity=%f", Val);
 	PlayerManualLinearVelocity.Z = Val;
 }
 
 void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocity(float Val)
 {
-	FLOGV("SetPlayerRollAngularVelocity=%f", Val);
 	PlayerManualAngularVelocity.X = Val;
 }
 

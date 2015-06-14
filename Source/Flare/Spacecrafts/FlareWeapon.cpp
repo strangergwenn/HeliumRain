@@ -140,12 +140,6 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		if(FiringPeriod == 0){
 			Firing = false;
 		}
-	} else if( Firing)
-	{
-		FLOGV("%s TimeSinceLastShell=%f", *GetReadableName(), TimeSinceLastShell);
-		FLOGV("%s FiringPeriod=%f", *GetReadableName(), FiringPeriod);
-		FLOGV("%s GetUsableRatio()=%f", *GetReadableName(), GetUsableRatio());
-		FLOGV("%s CurrentAmmo=%f", *GetReadableName(), CurrentAmmo);
 	}
 }
 

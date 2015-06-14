@@ -72,6 +72,9 @@ public:
 	/** Set the wheel menu state */
 	void SetWheelMenu(bool State);
 
+	/** Move wheel menu cursor */
+	void SetWheelCursorMove(FVector2D Move);
+
 	/** Decide if the HUD is displayed or not */
 	void SetHUDVisibility(bool Visibility);
 

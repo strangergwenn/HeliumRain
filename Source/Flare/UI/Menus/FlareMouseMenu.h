@@ -51,6 +51,8 @@ public:
 	/** Check if the menu is open */
 	bool IsOpen();
 
+	/** Move wheel cursor */
+	void SetWheelCursorMove(FVector2D Move);
 
 protected:
 
@@ -119,7 +121,6 @@ protected:
 	FFlareMouseMenuClicked               DefaultAction;
 	TArray<FFlareMouseMenuClicked>       Actions;
 	FVector2D                            ViewportCenter;
-	FVector2D                            InitialMousePosition;
 	FVector2D                            MouseOffset;
 	int32                                WidgetCount;
 	int32                                SelectedWidget;

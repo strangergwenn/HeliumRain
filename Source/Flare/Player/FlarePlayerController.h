@@ -149,6 +149,13 @@ public:
 	/** Brake */
 	void Brake();
 
+	/** Move hidden cursor */
+	virtual void MouseInputX(float Val);
+
+	/** Move hidden cursor */
+	virtual void MouseInputY(float Val);
+
+
 
 protected:
 

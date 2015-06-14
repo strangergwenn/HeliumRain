@@ -72,7 +72,7 @@ void SFlareMouseMenu::ClearWidgets()
 void SFlareMouseMenu::Open()
 {
 	SelectedWidget = 1000; // Arbitrary large value
-	InitialMousePosition = PC->GetMousePosition();
+	MouseOffset = FVector2D::ZeroVector;
 	SetVisibility(EVisibility::HitTestInvisible);
 	SetAnimDirection(true);
 }
@@ -115,7 +115,6 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 	// Viewport data
 	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
-	MouseOffset = PC->GetMousePosition() - InitialMousePosition;
 
 	// Time data
 	CurrentTime += IsOpening ? InDeltaTime : -InDeltaTime;
@@ -124,6 +123,16 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 		SetVisibility(EVisibility::Hidden);
 	}
 }
+
+void SFlareMouseMenu::SetWheelCursorMove(FVector2D Move)
+{
+	MouseOffset += Move * 15; // Wheel menu sensibility
+	if(MouseOffset.Size() > WidgetDistance)
+	{
+		MouseOffset /= MouseOffset.Size() / (float) WidgetDistance;
+	}
+}
+
 
 FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
 {

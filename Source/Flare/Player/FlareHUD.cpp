@@ -431,6 +431,11 @@ void AFlareHUD::SetWheelMenu(bool State)
 	}
 }
 
+void AFlareHUD::SetWheelCursorMove(FVector2D Move)
+{
+	MouseMenu->SetWheelCursorMove(Move);
+}
+
 void AFlareHUD::SetHUDVisibility(bool Visibility)
 {
 	Visibility = Visibility && !MenuIsOpen;

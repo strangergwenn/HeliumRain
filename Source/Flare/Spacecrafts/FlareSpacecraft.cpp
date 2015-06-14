@@ -464,10 +464,6 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAxis("MoveHorizontalInput", this, &AFlareSpacecraft::MoveHorizontalInput);
 
 	InputComponent->BindAxis("RollInput", this, &AFlareSpacecraft::RollInput);
-	InputComponent->BindAxis("PitchInput", this, &AFlareSpacecraft::PitchInput);
-	InputComponent->BindAxis("YawInput", this, &AFlareSpacecraft::YawInput);
-	InputComponent->BindAxis("MouseInputY", this, &AFlareSpacecraft::PitchInput);
-	InputComponent->BindAxis("MouseInputX", this, &AFlareSpacecraft::YawInput);
 
 	InputComponent->BindAction("ZoomIn", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomIn);
 	InputComponent->BindAction("ZoomOut", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomOut);

@@ -252,9 +252,6 @@ void AFlareMenuPawn::SetSlideDirection(bool GoUp)
 void AFlareMenuPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
 	check(InputComponent);
-
-	InputComponent->BindAxis("MouseInputY", this, &AFlareMenuPawn::PitchInput);
-	InputComponent->BindAxis("MouseInputX", this, &AFlareMenuPawn::YawInput);
 }
 
 void AFlareMenuPawn::PitchInput(float Val)
