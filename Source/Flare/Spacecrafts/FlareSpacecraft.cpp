@@ -526,23 +526,34 @@ void AFlareSpacecraft::ActivateWeaponGroup3()
 
 void AFlareSpacecraft::NextWeapon()
 {
-	if (!StateManager->IsPilotMode())
+	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
+	if (WeaponSystems && !StateManager->IsPilotMode())
 	{
-		int32 CurrentIndex = GetWeaponsSystem()->GetActiveWeaponGroupIndex() + 1;
-		CurrentIndex = FMath::Clamp(CurrentIndex, 0, GetWeaponsSystem()->GetWeaponGroupCount());
+		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
+		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount());
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
-		GetWeaponsSystem()->ActivateWeaponGroup(CurrentIndex);
+
+		WeaponSystems->ActivateWeaponGroup(CurrentIndex);
 	}
 }
 
 void AFlareSpacecraft::PreviousWeapon()
 {
-	if (!StateManager->IsPilotMode())
+	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
+	if (WeaponSystems && !StateManager->IsPilotMode())
 	{
-		int32 CurrentIndex = GetWeaponsSystem()->GetActiveWeaponGroupIndex() - 1;
-		CurrentIndex = FMath::Clamp(CurrentIndex, 0, GetWeaponsSystem()->GetWeaponGroupCount());
+		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
+		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount());
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
-		GetWeaponsSystem()->ActivateWeaponGroup(CurrentIndex);
+
+		if (CurrentIndex >= 0)
+		{
+			WeaponSystems->ActivateWeaponGroup(CurrentIndex);
+		}
+		else
+		{
+			WeaponSystems->DesactivateWeapons();
+		}
 	}
 }
 
