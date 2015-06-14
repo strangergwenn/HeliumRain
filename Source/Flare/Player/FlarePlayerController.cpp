@@ -99,18 +99,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 		ResetMousePosition();
 
-		if (NewShowMouseCursor)
-		{
-			FInputModeGameOnly InputMode;
-			SetInputMode(InputMode);
-		}
-		else
-		{
-			FInputModeGameAndUI InputMode;
-			SetInputMode(InputMode);
-		}
-
-
 		// Force focus to UI
 		if (NewShowMouseCursor || HUD->IsWheelOpen())
 		{
