@@ -293,7 +293,7 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 FText SFlareHUDMenu::GetInfoText() const
 {
 	FText ShipText;
-	FText InfoText = LOCTEXT("Controls", "mode");
+	FText InfoTextValue = LOCTEXT("Controls", "mode");
 	FText ModeText;
 	FText SectorText = LOCTEXT("TODOTEXT", "Nema A19");
 
@@ -312,7 +312,7 @@ FText SFlareHUDMenu::GetInfoText() const
 		}
 	}
 
-	return FText::FromString(ShipText.ToString() + " - " + ModeText.ToString() + " " + InfoText.ToString() + " - " + SectorText.ToString());
+	return FText::FromString(ShipText.ToString() + " - " + ModeText.ToString() + " " + InfoTextValue.ToString() + " - " + SectorText.ToString());
 }
 
 TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
