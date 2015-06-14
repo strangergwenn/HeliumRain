@@ -98,7 +98,7 @@ void UFlareSpacecraftWeaponsSystem::Start()
 		FFlareWeaponGroup* WeaponGroup = WeaponGroupList[GroupIndex];
 
 		FLOGV("Group %d : component=%s", GroupIndex, *WeaponGroup->Description->Identifier.ToString())
-		FLOGV("Group %d : type=%d", GroupIndex,  WeaponGroup->Type.GetValue());
+		FLOGV("Group %d : type=%d", GroupIndex, (int32)WeaponGroup->Type.GetValue());
 		FLOGV("Group %d : count=%d", GroupIndex, WeaponGroup->Weapons.Num());
 		int MinAmmo = 0;
 		int MinAmmoIndex = -1;

@@ -349,6 +349,8 @@ bool UFlareSpacecraftStateManager::IsWantFire() const
 				case EFlareWeaponGroupType::WG_BOMB:
 				case EFlareWeaponGroupType::WG_GUN:
 					return PlayerLeftMousePressed;
+				default:
+					return false;
 			}
 		}
 	}
