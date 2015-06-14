@@ -361,6 +361,22 @@ float UFlareSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Typ
 	return Health;
 }
 
+float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor) const
+{
+	 FFlareWeaponGroup* WeaponGroup = Spacecraft->GetWeaponsSystem()->GetWeaponGroup(GroupIndex);
+	 float Health = 0.0;
+
+	 float Total = 0.f;
+	 for (int32 ComponentIndex = 0; ComponentIndex < WeaponGroup->Weapons.Num(); ComponentIndex++)
+	 {
+		 UFlareWeapon* Weapon = Cast<UFlareWeapon>(WeaponGroup->Weapons[ComponentIndex]);
+		 Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*(Weapon->GetCurrentAmmo() > 0 ? 1 : 0);
+	 }
+	 Health = Total/WeaponGroup->Weapons.Num();
+
+	 return Health;
+}
+
 float UFlareSpacecraftDamageSystem::GetTemperature() const
 {
 	return Data->Heat / Description->HeatCapacity;

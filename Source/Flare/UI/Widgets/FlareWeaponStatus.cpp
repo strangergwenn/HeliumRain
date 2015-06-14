@@ -95,7 +95,14 @@ void SFlareWeaponStatus::Tick(const FGeometry& AllottedGeometry, const double In
 	}
 
 	// Health
-	ComponentHealth = 1.0f; // TODO
+	if (PlayerShip && TargetWeaponGroupIndex >= 0)
+	{
+		ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(TargetWeaponGroupIndex);
+	}
+	else
+	{
+		ComponentHealth = 1.0;
+	}
 
 	// Update animation state
 	if (IsSelected)
