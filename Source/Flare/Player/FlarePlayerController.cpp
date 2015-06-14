@@ -116,6 +116,19 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		{
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);
+
+			if(!NewShowMouseCursor)
+			{
+				ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >( Player );
+
+				UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport();
+				TSharedPtr<SViewport> ViewportWidget = GameViewportClient->GetGameViewportWidget();
+				if (ViewportWidget.IsValid())
+				{
+					TSharedRef<SViewport> ViewportWidgetRef = ViewportWidget.ToSharedRef();
+					LocalPlayer->GetSlateOperations().UseHighPrecisionMouseMovement(ViewportWidgetRef);
+				}
+			}
 		}
 
 		// Force focus to game
