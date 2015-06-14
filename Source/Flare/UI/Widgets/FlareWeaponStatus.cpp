@@ -21,8 +21,8 @@ void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 	// Setup
 	ComponentHealth = 1.0;
 	CurrentAlpha = 0;
-	FadeInTime = 1.0f;
-	FadeOutTime = 2.0f;
+	FadeInTime = 0.5f;
+	FadeOutTime = 1.0f;
 
 	// Content
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();

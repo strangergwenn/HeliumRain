@@ -527,7 +527,7 @@ void AFlareSpacecraft::ActivateWeaponGroup3()
 void AFlareSpacecraft::NextWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
-	if (WeaponSystems && !StateManager->IsPilotMode())
+	if (WeaponSystems && !StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
@@ -540,7 +540,7 @@ void AFlareSpacecraft::NextWeapon()
 void AFlareSpacecraft::PreviousWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
-	if (WeaponSystems && !StateManager->IsPilotMode())
+	if (WeaponSystems && !StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount() - 1);
