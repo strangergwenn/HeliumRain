@@ -143,6 +143,11 @@ FText SFlareWeaponStatus::GetText() const
 		int32 RemainingAmmo = 0;
 		for (int32 i = 0; i < TargetWeaponGroup->Weapons.Num(); i++)
 		{
+			if(TargetWeaponGroup->Weapons[i]->GetDamageRatio() <= 0.)
+			{
+				// Don't count ammo from destroyed components
+				continue;
+			}
 			RemainingAmmo += TargetWeaponGroup->Weapons[i]->GetCurrentAmmo();
 		}
 		FString AmmoInfo = FString::FromInt(RemainingAmmo) + " " + LOCTEXT("Rounds", "rounds").ToString();
