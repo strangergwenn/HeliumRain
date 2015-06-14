@@ -253,13 +253,11 @@ void UFlareWeapon::SetupComponentMesh()
 
 void UFlareWeapon::StartFire()
 {
-	FLOGV("%s Start Fire", *GetReadableName());
 	Firing = true;
 }
 
 void UFlareWeapon::StopFire()
 {
-	FLOGV("%s Stop Fire", *GetReadableName());
 	Firing = false;
 }
 
