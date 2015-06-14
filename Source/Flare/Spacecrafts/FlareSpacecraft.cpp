@@ -482,6 +482,9 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAction("WeaponGroup1", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup1);
 	InputComponent->BindAction("WeaponGroup2", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup2);
 	InputComponent->BindAction("WeaponGroup3", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::ActivateWeaponGroup3);
+
+	InputComponent->BindAction("NextWeapon", EInputEvent::IE_Released, this, &AFlareSpacecraft::NextWeapon);
+	InputComponent->BindAction("PreviousWeapon", EInputEvent::IE_Released, this, &AFlareSpacecraft::PreviousWeapon);
 }
 
 void AFlareSpacecraft::LeftMousePress()
@@ -498,7 +501,7 @@ void AFlareSpacecraft::ActivateWeaponGroup1()
 {
 	if (!StateManager->IsPilotMode())
 	{
-		FLOG("ActivateWeaponGroup1");
+		FLOG("AFlareSpacecraft::ActivateWeaponGroup1");
 		GetWeaponsSystem()->ActivateWeaponGroup(0);
 	}
 }
@@ -507,7 +510,7 @@ void AFlareSpacecraft::ActivateWeaponGroup2()
 {
 	if (!StateManager->IsPilotMode())
 	{
-		FLOG("ActivateWeaponGroup2");
+		FLOG("AFlareSpacecraft::ActivateWeaponGroup2");
 		GetWeaponsSystem()->ActivateWeaponGroup(1);
 	}
 }
@@ -516,8 +519,30 @@ void AFlareSpacecraft::ActivateWeaponGroup3()
 {
 	if (!StateManager->IsPilotMode())
 	{
-		FLOG("ActivateWeaponGroup3");
+		FLOG("AFlareSpacecraft::ActivateWeaponGroup3");
 		GetWeaponsSystem()->ActivateWeaponGroup(2);
+	}
+}
+
+void AFlareSpacecraft::NextWeapon()
+{
+	if (!StateManager->IsPilotMode())
+	{
+		int32 CurrentIndex = GetWeaponsSystem()->GetActiveWeaponGroupIndex() + 1;
+		CurrentIndex = FMath::Clamp(CurrentIndex, 0, GetWeaponsSystem()->GetWeaponGroupCount());
+		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
+		GetWeaponsSystem()->ActivateWeaponGroup(CurrentIndex);
+	}
+}
+
+void AFlareSpacecraft::PreviousWeapon()
+{
+	if (!StateManager->IsPilotMode())
+	{
+		int32 CurrentIndex = GetWeaponsSystem()->GetActiveWeaponGroupIndex() - 1;
+		CurrentIndex = FMath::Clamp(CurrentIndex, 0, GetWeaponsSystem()->GetWeaponGroupCount());
+		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
+		GetWeaponsSystem()->ActivateWeaponGroup(CurrentIndex);
 	}
 }
 

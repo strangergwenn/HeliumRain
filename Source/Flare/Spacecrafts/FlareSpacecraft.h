@@ -129,6 +129,10 @@ public:
 
 	virtual void ActivateWeaponGroup3();
 
+	virtual void NextWeapon();
+
+	virtual void PreviousWeapon();
+
 	virtual void ThrustInput(float Val);
 
 	virtual void MoveVerticalInput(float Val);

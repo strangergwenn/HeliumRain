@@ -105,6 +105,11 @@ public:
 		return WeaponGroupList;
 	}
 
+	inline int32 GetWeaponGroupCount()
+	{
+		return WeaponGroupList.Num();
+	}
+
 
 protected:
 
