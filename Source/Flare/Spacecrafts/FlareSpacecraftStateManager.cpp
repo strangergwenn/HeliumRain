@@ -51,7 +51,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		}
 		else
 		{
-			Spacecraft->GetWeaponsSystem()->DesactivateWeapons();
+			Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
 		}
 	}
 

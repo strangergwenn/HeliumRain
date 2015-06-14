@@ -261,7 +261,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	ShipPawn = Ship;
 	SetExternalCamera(true, true);
 	ShipPawn->GetStateManager()->EnablePilot(false);
-	ShipPawn->GetWeaponsSystem()->DesactivateWeapons();
+	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	QuickSwitchNextOffset = 0;
 
 	// Setup power sound

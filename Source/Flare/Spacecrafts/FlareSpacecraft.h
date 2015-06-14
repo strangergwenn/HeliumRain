@@ -125,7 +125,7 @@ public:
 
 	virtual void LeftMouseRelease();
 
-	virtual void DesactivateWeapon();
+	virtual void DeactivateWeapon();
 
 	virtual void ActivateWeaponGroup1();
 

@@ -69,7 +69,7 @@ public:
 	virtual void ToogleWeaponActivation();
 
 	virtual void ActivateWeapons();
-	virtual void DesactivateWeapons();
+	virtual void DeactivateWeapons();
 
 	virtual int32 GetGroupByWeaponIdentifer(FName Identifier) const;
 

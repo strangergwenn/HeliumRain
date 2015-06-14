@@ -183,7 +183,7 @@ void UFlareSpacecraftWeaponsSystem::ActivateWeapons(bool Activate)
 	}
 	else
 	{
-		DesactivateWeapons();
+		DeactivateWeapons();
 	}
 }
 
@@ -192,7 +192,7 @@ void UFlareSpacecraftWeaponsSystem::ActivateWeapons()
 	ActivateWeaponGroup(LastActiveWeaponGroupIndex);
 }
 
-void UFlareSpacecraftWeaponsSystem::DesactivateWeapons()
+void UFlareSpacecraftWeaponsSystem::DeactivateWeapons()
 {
 	StopFire();
 	 ActiveWeaponGroup = NULL;
@@ -207,7 +207,7 @@ void UFlareSpacecraftWeaponsSystem::ToogleWeaponActivation()
 	}
 	else
 	{
-		DesactivateWeapons();
+		DeactivateWeapons();
 	}
 }
 
