@@ -242,7 +242,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 		WeaponContainer->ClearChildren();
 
 		// Add weapon indicators
-		for (int32 i = 0; i < WeaponGroupList.Num(); i++)
+		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
 		{
 			WeaponContainer->AddSlot()
 			.AutoHeight()
