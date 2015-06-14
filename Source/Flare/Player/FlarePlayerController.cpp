@@ -614,6 +614,11 @@ void AFlarePlayerController::WheelReleased()
 
 void AFlarePlayerController::MouseInputX(float Val)
 {
+	if(Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
+	{
+		return;
+	}
+
 	if(Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
 	{
 		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(Val, 0));
@@ -626,6 +631,11 @@ void AFlarePlayerController::MouseInputX(float Val)
 
 void AFlarePlayerController::MouseInputY(float Val)
 {
+	if(Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
+	{
+		return;
+	}
+
 	if(Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
 	{
 		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(0, -Val));
