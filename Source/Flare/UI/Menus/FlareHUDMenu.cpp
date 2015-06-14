@@ -45,19 +45,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SVerticalBox)
 
-			// Info text
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Top)
-			.Padding(Theme.SmallContentPadding)
-			[
-				SAssignNew(InfoText, STextBlock)
-				.TextStyle(&Theme.SmallFont)
-				.Text(this, &SFlareHUDMenu::GetInfoText)
-				.ColorAndOpacity(NormalColor)
-			]
-
 			// Overheating progress bar
 			+ SVerticalBox::Slot()
 			.AutoHeight()
@@ -69,7 +56,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 				// Icon
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
-				.Padding(Theme.ContentPadding)
+				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(SImage)
 					.Image(FFlareStyleSet::GetIcon("Temperature"))
@@ -94,11 +81,12 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 				// Text
 				+ SHorizontalBox::Slot()
-				.Padding(Theme.ContentPadding)
+				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(SBox)
 					.MinDesiredWidth(100)
-					.VAlign(VAlign_Center)
+					.Padding(Theme.SmallContentPadding)
+					.VAlign(VAlign_Top)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.NameFont)
@@ -107,11 +95,24 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					]
 				]
 			]
+
+			// Info text
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Top)
+			[
+				SAssignNew(InfoText, STextBlock)
+				.TextStyle(&Theme.NameFont)
+				.Text(this, &SFlareHUDMenu::GetInfoText)
+				.ColorAndOpacity(NormalColor)
+			]
 	
 			// Overheating box
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Center)
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.SubTitleFont)
@@ -123,6 +124,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Center)
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(SVerticalBox)
 
