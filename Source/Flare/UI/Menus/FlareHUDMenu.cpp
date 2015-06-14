@@ -98,27 +98,10 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			.AutoHeight()
 			.HAlign(HAlign_Center)
 			[
-				SNew(SHorizontalBox)
-
-				// Overheating icon
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SImage)
-					.Image(FFlareStyleSet::GetIcon("HUD_Temperature"))
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, false)
-				]
-
-				// Overheating text
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TitleFont)
-					.Text(LOCTEXT("Overheating", "OVERHEATING"))
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
-				]
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(LOCTEXT("Overheating", "OVERHEATING !"))
+				.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
 			]
 
 			// Outage box
@@ -130,28 +113,12 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 				+ SVerticalBox::Slot()
 				.AutoHeight()
+				.HAlign(HAlign_Center)
 				[
-					SNew(SHorizontalBox)
-
-					// Outage icon
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SImage)
-						.Image(FFlareStyleSet::GetIcon("HUD_Power"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, false)
-					]
-
-					// Outage text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TitleFont)
-						.Text(LOCTEXT("PowerOutage", "POWER OUTAGE"))
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
-					]
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("PowerOutage", "POWER OUTAGE !"))
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 				]
 			
 				+ SVerticalBox::Slot()
@@ -233,6 +200,9 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	WeaponStatus->SetTargetShip(Target);
 	AFlareSpacecraft* PlayerShip = Cast<AFlareSpacecraft>(Target);
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Is this a civilian ship ?
+	WeaponStatus->SetVisibility(Target->IsMilitary() ? EVisibility::Visible : EVisibility::Hidden);
 
 	// Update weapon list
 	if (PlayerShip)
@@ -383,7 +353,7 @@ FText SFlareHUDMenu::GetOutageText() const
 {
 	if (TargetShip)
 	{
-		return FText::FromString(LOCTEXT("PwBackIn", "Back in ").ToString() + FString::FromInt(TargetShip->GetDamageSystem()->GetPowerOutageDuration() + 1) + " s");
+		return FText::FromString(LOCTEXT("PwBackIn", "Power back in ").ToString() + FString::FromInt(TargetShip->GetDamageSystem()->GetPowerOutageDuration() + 1) + "...");
 	}
 	else
 	{
