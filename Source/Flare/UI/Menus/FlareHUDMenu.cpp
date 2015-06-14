@@ -79,13 +79,17 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 
 				// Text
 				+ SHorizontalBox::Slot()
-				.AutoWidth()
 				.Padding(Theme.ContentPadding)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.NameFont)
-					.Text(this, &SFlareHUDMenu::GetTemperature)
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+					SNew(SBox)
+					.MinDesiredWidth(100)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(this, &SFlareHUDMenu::GetTemperature)
+						.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+					]
 				]
 			]
 	
@@ -340,7 +344,7 @@ FSlateColor SFlareHUDMenu::GetTemperatureColorNoAlpha() const
 
 FText SFlareHUDMenu::GetTemperature() const
 {
-	return FText::FromString(FString::FromInt(Temperature) + " K");
+	return FText::FromString(FString::Printf(TEXT("%4s K"), *FString::FromInt(Temperature)));
 }
 
 FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
