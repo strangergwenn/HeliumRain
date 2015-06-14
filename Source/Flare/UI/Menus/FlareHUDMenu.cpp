@@ -233,19 +233,19 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	// Update weapon list
 	if (PlayerShip)
 	{
-		TArray<UFlareWeapon*> WeaponList = PlayerShip->GetWeaponsSystem()->GetWeaponList();
+		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
 		TSharedPtr<SFlareSubsystemStatus> Temp;
 		WeaponContainer->ClearChildren();
 
 		// Add weapon indicators
-		for (int32 i = 0; i < WeaponList.Num(); i++)
+		for (int32 i = 0; i < WeaponGroupList.Num(); i++)
 		{
 			WeaponContainer->AddSlot()
 			.AutoHeight()
 			[
 				SNew(SFlareWeaponStatus)
 				.TargetShip(PlayerShip)
-				.TargetWeapon(WeaponList[i])
+				.TargetWeaponGroupIndex(i)
 			];
 		}
 
@@ -255,7 +255,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 		[
 			SNew(SFlareWeaponStatus)
 			.TargetShip(PlayerShip)
-			.TargetWeapon(NULL)
+			.TargetWeaponGroupIndex(-1)
 		];
 
 		WeaponContainer->SetVisibility(EVisibility::Visible);

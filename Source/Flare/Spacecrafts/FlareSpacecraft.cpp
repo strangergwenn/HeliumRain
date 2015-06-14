@@ -530,7 +530,7 @@ void AFlareSpacecraft::NextWeapon()
 	if (WeaponSystems && !StateManager->IsPilotMode())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
-		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount());
+		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
 
 		WeaponSystems->ActivateWeaponGroup(CurrentIndex);
@@ -543,7 +543,7 @@ void AFlareSpacecraft::PreviousWeapon()
 	if (WeaponSystems && !StateManager->IsPilotMode())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
-		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount());
+		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount() - 1);
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
 
 		if (CurrentIndex >= 0)
