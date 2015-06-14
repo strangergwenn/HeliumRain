@@ -99,6 +99,15 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 		ResetMousePosition();
 
+#if PLATFORM_LINUX
+		// This code fix missing cursor bug but cause focus regression.
+		if (NewShowMouseCursor)
+		{
+			FInputModeGameOnly InputMode;
+			SetInputMode(InputMode);
+		}
+#endif
+
 		// Force focus to UI
 		if (NewShowMouseCursor || HUD->IsWheelOpen())
 		{
