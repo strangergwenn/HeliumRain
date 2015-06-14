@@ -197,20 +197,13 @@ void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
 		NewState = true;
 	}
 
-	// Abort combat if we are going to external
-	if (NewState && CombatMode)
-	{
-		CombatMode = false;
-		ShipPawn->SetCombatMode(false);
-	}
-
 	// If something changed...
 	if (ExternalCamera != NewState || Force)
 	{		
 		// Send the camera order to the ship
 		if (ShipPawn)
 		{
-			ShipPawn->SetExternalCamera(NewState);
+			ShipPawn->GetStateManager()->SetExternalCamera(NewState);
 		}
 
 		// Update camera 
@@ -224,7 +217,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	// Reset the current ship to auto
 	if (ShipPawn)
 	{
-		ShipPawn->EnablePilot(true);
+		ShipPawn->GetStateManager()->EnablePilot(true);
 	}
 
 	// Fly the new ship
@@ -232,7 +225,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	ShipPawn = Ship;
 	CombatMode = false;
 	SetExternalCamera(true, true);
-	ShipPawn->EnablePilot(false);
+	ShipPawn->GetStateManager()->EnablePilot(false);
 	QuickSwitchNextOffset = 0;
 
 	// Setup power sound
@@ -380,12 +373,6 @@ void AFlarePlayerController::OnEnterMenu()
 	{
 		ClientPlaySound(OnSound);
 		Possess(MenuPawn);
-
-		if (CombatMode)
-		{
-			CombatMode = false;
-			ShipPawn->SetCombatMode(false);
-		}
 	}
 }
 
@@ -454,9 +441,9 @@ void AFlarePlayerController::SetupInputComponent()
 
 void AFlarePlayerController::MousePositionInput(FVector2D Val)
 {
-	if (ShipPawn && !CombatMode)
+	if (ShipPawn)
 	{
-		ShipPawn->MousePositionInput(Val);
+		ShipPawn->GetStateManager()->SetPlayerMousePosition(Val);
 	}
 }
 
@@ -483,16 +470,17 @@ void AFlarePlayerController::ToggleCombat()
 	{
 		FLOGV("AFlarePlayerController::ToggleCombat : new state is %d", !CombatMode);
 		CombatMode = !CombatMode;
-		ShipPawn->SetCombatMode(CombatMode);
+		// TODO refactor
+		ShipPawn->GetWeaponsSystem()->ActivateWeapons(CombatMode);
 		SetExternalCamera(false, true);
 	}
 }
 
 void AFlarePlayerController::TogglePilot()
 {
-	bool NewState = !ShipPawn->IsPilotMode();
+	bool NewState = !ShipPawn->GetStateManager()->IsPilotMode();
 	FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
-	ShipPawn->EnablePilot(NewState);
+	ShipPawn->GetStateManager()->EnablePilot(NewState);
 }
 
 void AFlarePlayerController::ToggleHUD()

@@ -185,4 +185,9 @@ private:
 		}
 	}
 
+	inline float GetCameraPanSpeed() const
+	{
+		return CameraPanSpeed;
+	}
+
 };

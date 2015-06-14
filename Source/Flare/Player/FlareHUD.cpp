@@ -157,7 +157,7 @@ void AFlareHUD::DrawHUD()
 				}
 
 				// Draw search markers
-				if (Ship->IsCombatMode() && ShouldDrawSearchMarker)
+				if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE && ShouldDrawSearchMarker)
 				{
 					FVector Direction = ShipBase->GetActorLocation() - Ship->GetActorLocation();
 					if (Direction.Size() < FocusDistance)
@@ -206,16 +206,16 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Draw nose
-		if (!Ship->IsExternalCamera())
+		if (!Ship->GetStateManager()->IsExternalCamera())
 		{
-			DrawHUDIcon(ViewportSize / 2, 24, Ship->IsCombatMode() ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
+			DrawHUDIcon(ViewportSize / 2, 24, Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
 		}
 
 		// Draw combat mouse pointer
-		if (Ship->IsCombatMode())
+		if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 		{
 			// Compute clamped mouse position
-			FVector2D MousePosDelta = CombatMouseRadius * Ship->GetMouseOffset();
+			FVector2D MousePosDelta = CombatMouseRadius * Ship->GetStateManager()->GetPlayerMouseOffset();
 			FVector MousePosDelta3D = FVector(MousePosDelta.X, MousePosDelta.Y, 0);
 			MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
 			MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);
@@ -312,7 +312,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 
 			// Combat helper
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
-			if (Ship && Ship->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->IsCombatMode())
+			if (Ship && Ship->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
 				TArray<UFlareWeapon*> Weapons = PlayerShip->GetWeaponsSystem()->GetWeaponList();
 				if (Weapons.Num() > 0)

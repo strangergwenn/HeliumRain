@@ -175,17 +175,11 @@ public:
 		Internal attitude control
 	----------------------------------------------------*/
 
-	/** Manually update the current linear attitude */
-	void UpdateLinearAttitudeManual(float DeltaSeconds);
-
 	/** Automatically update the current linear attitude */
 	bool UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity);
 
 	/** Brake */
 	void UpdateLinearBraking(float DeltaSeconds);
-
-	/** Manually update the current angular attitude */
-	void UpdateAngularAttitudeManual(float DeltaSeconds);
 
 	/** Automatically update the current angular attitude */
 	void UpdateAngularAttitudeAuto(float DeltaSeconds);

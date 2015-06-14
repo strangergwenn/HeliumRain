@@ -73,7 +73,7 @@ public:
 
 	virtual int32 GetGroupByWeaponIdentifer(FName Identifier) const;
 
-	EFlareWeaponGroupType::Type getActiveWeaponType();
+	EFlareWeaponGroupType::Type GetActiveWeaponType();
 
 	inline FFlareSpacecraftComponentDescription* GetWeaponDescription(int32 Index) const
 	{

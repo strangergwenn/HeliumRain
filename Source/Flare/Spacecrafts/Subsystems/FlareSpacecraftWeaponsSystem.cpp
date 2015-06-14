@@ -228,5 +228,14 @@ int32 UFlareSpacecraftWeaponsSystem::GetGroupByWeaponIdentifer(FName Identifier)
 	return -1;
 }
 
+EFlareWeaponGroupType::Type UFlareSpacecraftWeaponsSystem::GetActiveWeaponType()
+{
+	if(ActiveWeaponGroup)
+	{
+		return ActiveWeaponGroup->Type;
+	}
+	return EFlareWeaponGroupType::WG_NONE;
+}
+
 
 #undef LOCTEXT_NAMESPACE
