@@ -40,6 +40,9 @@ public:
 		HUD library
 	----------------------------------------------------*/
 
+	/** Draw speed indicator */
+	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation);
+
 	/** Draw a designator block around a ship */
 	bool DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase);
 
@@ -150,11 +153,19 @@ protected:
 
 	// Settings
 	float                                   CombatMouseRadius;
+	float                                   FocusDistance;
+	int32                                   IconSize;
+
+	// General data
+	FVector2D                               ViewportSize;
 	bool                                    HUDVisible;
 	bool                                    MenuIsOpen;
+	bool                                    IsInteractive;
+	FLinearColor                            HudColorNeutral;
+	FLinearColor                            HudColorFriendly;
+	FLinearColor                            HudColorEnemy;
 
 	// Fade-to-black system
-	bool                                    IsInteractive;
 	bool                                    FadeFromBlack;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
@@ -177,10 +188,8 @@ protected:
 	bool                                    FoundTargetUnderMouse;
 
 	// Designator content
-	FLinearColor                            HudColorNeutral;
-	FLinearColor                            HudColorFriendly;
-	FLinearColor                            HudColorEnemy;
 	UTexture2D*                             HUDReticleIcon;
+	UTexture2D*                             HUDBackReticleIcon;
 	UTexture2D*                             HUDAimIcon;
 	UTexture2D*                             HUDAimHelperIcon;
 	UTexture2D*                             HUDNoseIcon;

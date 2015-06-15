@@ -22,6 +22,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 {
 	// Load content (general icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj      (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBackReticleIconObj  (TEXT("/Game/Gameplay/HUD/TX_BackReticle.TX_BackReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj          (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj    (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj         (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
@@ -40,6 +41,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Set content (general icons)
 	HUDReticleIcon = HUDReticleIconObj.Object;
+	HUDBackReticleIcon = HUDBackReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
 	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
 	HUDNoseIcon = HUDNoseIconObj.Object;
@@ -55,6 +57,10 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Set content (font)
 	HUDFont = HUDFontObj.Object;
+
+	// Settings
+	FocusDistance = 1000000;
+	IconSize = 24;
 }
 
 
@@ -78,14 +84,14 @@ void AFlareHUD::BeginPlay()
 
 void AFlareHUD::Tick(float DeltaSeconds)
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	Super::Tick(DeltaSeconds);
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
 	// Mouse control
 	if (PC && !MouseMenu->IsOpen())
 	{
 		FVector2D MousePos = PC->GetMousePosition();
-		FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 		FVector2D ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
 		MousePos = 2 * ((MousePos - ViewportCenter) / ViewportSize);
 		PC->MousePositionInput(MousePos);
@@ -129,10 +135,8 @@ void AFlareHUD::DrawHUD()
 	}
 
 	// Initial data
-	float FocusDistance = 1000000;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	AFlareSpacecraft* Ship = PC->GetShipPawn();
-	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 
 	// Draw designators and context menu
 	if (!MenuIsOpen && !IsWheelOpen())
@@ -171,7 +175,7 @@ void AFlareHUD::DrawHUD()
 						// Draw
 						FLinearColor Color = GetHostilityColor(PC, ShipBase);
 						FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
-						DrawHUDIconRotated(ViewportSize / 2 + ScreenspacePosition, 24, HUDCombatMouseIcon, Color, Position3D.Rotation().Yaw);
+						DrawHUDIconRotated(ViewportSize / 2 + ScreenspacePosition, IconSize, HUDCombatMouseIcon, Color, Position3D.Rotation().Yaw);
 					}
 				}
 			}
@@ -187,28 +191,14 @@ void AFlareHUD::DrawHUD()
 	// Update HUD materials
 	if (PC && Ship && !MenuIsOpen && !IsWheelOpen())
 	{
-		// Get HUD data
-		FVector2D ScreenPosition;
-		int32 HelperScale = ViewportSize.Y;
-		FVector ShipVelocity = 100 * Ship->GetLinearVelocity();
-
-		// Draw inertial vector
-		FVector EndPoint = Ship->GetActorLocation() + FocusDistance * ShipVelocity;
-		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition) && ShipVelocity.Size() >= 100)
-		{
-			DrawHUDIcon(ScreenPosition, 24, HUDReticleIcon, HudColorNeutral, true);
-
-			FString VelocityText = FString::FromInt(ShipVelocity.Size() / 100) + FString(" m/s");
-			FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
-
-			DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
-			DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
-		}
-
+		// Draw inertial vectors
+		DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetLinearVelocity() * 100, LOCTEXT("Forward", "FWD"));
+		DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetLinearVelocity() * 100, LOCTEXT("Backward", "BWD"));
+		
 		// Draw nose
 		if (!Ship->GetStateManager()->IsExternalCamera())
 		{
-			DrawHUDIcon(ViewportSize / 2, 24, Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
+			DrawHUDIcon(ViewportSize / 2, IconSize, Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
 		}
 
 		// Draw combat mouse pointer
@@ -228,7 +218,7 @@ void AFlareHUD::DrawHUD()
 			// Draw
 			FLinearColor PointerColor = HudColorNeutral;
 			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
-			DrawHUDIconRotated(ViewportSize / 2 + MousePosDelta, 24, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
+			DrawHUDIconRotated(ViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
 		}
 	}
 }
@@ -237,11 +227,45 @@ void AFlareHUD::DrawHUD()
 	HUD library
 ----------------------------------------------------*/
 
+void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation)
+{
+	// Get HUD data
+	FVector2D ScreenPosition;
+	int32 SpeedMS = Speed.Size() / 100.0f;
+
+	// Draw inertial vector
+	FVector EndPoint = Object->GetActorLocation() + FocusDistance * Speed;
+	if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
+	{
+		// Clamp the drawing
+		int32 ScreenBorderDistance = 100;
+		if (ScreenPosition.X > ViewportSize.X - ScreenBorderDistance || ScreenPosition.X < ScreenBorderDistance
+		 || ScreenPosition.Y > ViewportSize.Y - ScreenBorderDistance || ScreenPosition.Y < ScreenBorderDistance)
+		{
+			return;
+		}
+
+		// Label
+		FString IndicatorText = Designation.ToString();
+		FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
+		DrawText(IndicatorText, IndicatorPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
+		DrawText(IndicatorText, IndicatorPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+
+		// Icon
+		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
+
+		// Speed 
+		FString VelocityText = FString::FromInt(SpeedMS) + FString(" m/s");
+		FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
+		DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
+		DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+	}
+}
+
 bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 {
 	// Calculation data
 	FVector2D ScreenPosition;
-	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = ShipBase->GetActorLocation();
@@ -254,7 +278,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 		float Distance = (TargetLocation - PlayerLocation).Size();
 		float ApparentAngle = FMath::RadiansToDegrees(FMath::Atan(ShipSize / Distance));
 		float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * ViewportSize.X;
-		FVector2D ObjectSize = FMath::Min(0.8f * Size, 500.0f) * FVector2D(1, 1);
+		FVector2D ObjectSize = FMath::Min(0.8f * Size, 400.0f) * FVector2D(1, 1);
 
 		// Check if the mouse is there
 		FVector2D MousePos = PC->GetMousePosition();
@@ -291,7 +315,6 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 		else if ((Ship && Ship->GetDamageSystem()->IsAlive()) || !Ship)
 		{
 			float CornerSize = 8;
-			float IconSize = 24;
 
 			// Draw designator corners
 			FLinearColor Color = GetHostilityColor(PC, ShipBase);
@@ -321,7 +344,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 					if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, AmmoVelocity, 0.0), ScreenPosition))
 					{
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Ship);
-						DrawHUDIcon(ScreenPosition, 24, HUDAimHelperIcon, HUDAimHelperColor, true);
+						DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
 					}
 				}
 			}
