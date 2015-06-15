@@ -194,7 +194,7 @@ void AFlareHUD::DrawHUD()
 
 		// Draw inertial vector
 		FVector EndPoint = Ship->GetActorLocation() + FocusDistance * ShipVelocity;
-		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
+		if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition) && ShipVelocity.Size() >= 100)
 		{
 			DrawHUDIcon(ScreenPosition, 24, HUDReticleIcon, HudColorNeutral, true);
 

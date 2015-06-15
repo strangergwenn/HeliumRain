@@ -163,22 +163,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Sector))
 		.OnClicked(this, &SFlareDashboard::OnOpenSector)
 	];
-	UniverseBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareDashboardButton)
-		.Text(LOCTEXT("Orbit", "Orbit map"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Orbit))
-		.OnClicked(this, &SFlareDashboard::OnOpenOrbit)
-	];
-	UniverseBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareDashboardButton)
-		.Text(LOCTEXT("Encyclopedia", "Encyclopedia"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Encyclopedia))
-		.OnClicked(this, &SFlareDashboard::OnOpenEncyclopedia)
-	];
 
 	// Settings box
 	SettingsBox->AddSlot()
@@ -189,22 +173,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		SNew(STextBlock)
 		.Text(LOCTEXT("SettingsMenuTitle", "SETTINGS"))
 		.TextStyle(&Theme.SubTitleFont)
-	];
-	SettingsBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareDashboardButton)
-		.Text(LOCTEXT("Help", "Help"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Help))
-		.OnClicked(this, &SFlareDashboard::OnOpenHelp)
-	];
-	SettingsBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareDashboardButton)
-		.Text(LOCTEXT("Settings", "Settings"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Settings))
-		.OnClicked(this, &SFlareDashboard::OnOpenSettings)
 	];
 	SettingsBox->AddSlot()
 	.AutoHeight()

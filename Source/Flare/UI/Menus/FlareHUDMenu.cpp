@@ -222,7 +222,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	WeaponStatus->SetVisibility(Target->IsMilitary() ? EVisibility::Visible : EVisibility::Hidden);
 
 	// Update weapon list
-	if (PlayerShip)
+	if (PlayerShip && PlayerShip->IsMilitary())
 	{
 		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
 		TSharedPtr<SFlareSubsystemStatus> Temp;
@@ -250,6 +250,10 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 		];
 
 		WeaponContainer->SetVisibility(EVisibility::Visible);
+	}
+	else
+	{
+		WeaponContainer->SetVisibility(EVisibility::Hidden);
 	}
 }
 
