@@ -509,7 +509,7 @@ void AFlareSpacecraft::DeactivateWeapon()
 
 void AFlareSpacecraft::ActivateWeaponGroup1()
 {
-	if (!StateManager->IsPilotMode())
+	if (!StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
 	{
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup1");
 		GetPC()->SetSelectingWeapon();
@@ -519,7 +519,7 @@ void AFlareSpacecraft::ActivateWeaponGroup1()
 
 void AFlareSpacecraft::ActivateWeaponGroup2()
 {
-	if (!StateManager->IsPilotMode())
+	if (!StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
 	{
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup2");
 		GetPC()->SetSelectingWeapon();
@@ -529,7 +529,7 @@ void AFlareSpacecraft::ActivateWeaponGroup2()
 
 void AFlareSpacecraft::ActivateWeaponGroup3()
 {
-	if (!StateManager->IsPilotMode())
+	if (!StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
 	{
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup3");
 		GetPC()->SetSelectingWeapon();
