@@ -85,7 +85,7 @@ public:
 	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
 
 	/** Show a notification to the user */
-	void Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo);
+	void Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo);
 
 	/** Notify the HUD the played ship has changed */
 	void OnTargetShipChanged();

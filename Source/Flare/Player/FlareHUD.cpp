@@ -532,11 +532,11 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 	}
 }
 
-void AFlareHUD::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void AFlareHUD::Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	if (Notifier.IsValid())
 	{
-		Notifier->Notify(Text, Type, TargetMenu, TargetInfo);
+		Notifier->Notify(Text, Info, Type, TargetMenu, TargetInfo);
 	}
 }
 

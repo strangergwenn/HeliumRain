@@ -56,7 +56,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	// Add button
 	TSharedPtr<SWidget> TempContainer;
@@ -87,24 +87,41 @@ void SFlareNotifier::Notify(FText Text, EFlareNotification::Type Type, EFlareMen
 	// Fill button
 	TempButton->GetContainer()->SetContent
 	(
-		SNew(SHorizontalBox)
+		SNew(SVerticalBox)
 
-		// Icon
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
+		// Header
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
-			SNew(SImage)
-			.Image(Icon)
-			.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+			SNew(SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SImage)
+				.Image(Icon)
+				.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+			]
+
+			// Text
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(FMargin(10, 5))
+			[
+				SNew(STextBlock)
+				.Text(Text)
+				.TextStyle(&FFlareStyleSet::GetDefaultTheme().NameFont)
+				.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+			]
 		]
 
-		// Text
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(FMargin(10, 5))
+		// Info
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
 			SNew(STextBlock)
-			.Text(Text)
+			.Text(Info)
 			.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
 			.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
 		]

@@ -301,7 +301,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	if (Ship)
 	{
 		FString Text = LOCTEXT("Flying", "Now flying").ToString();
-		Notify(FText::FromString(Text + " " + FString(*Ship->GetName())));
+		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with the N key.");
+		Notify(FText::FromString(Text + " " + FString(*Ship->GetName())), Info);
 	}
 
 
@@ -373,10 +374,10 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 	Menus
 ----------------------------------------------------*/
 
-void AFlarePlayerController::Notify(FText Text, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void AFlarePlayerController::Notify(FText Title, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
-	Cast<AFlareHUD>(GetHUD())->Notify(Text, Type, TargetMenu, TargetInfo);
-	FLOGV("AFlarePlayerController::Notify : '%s'", *Text.ToString());
+	Cast<AFlareHUD>(GetHUD())->Notify(Title, Info, Type, TargetMenu, TargetInfo);
+	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
 }
 
 void AFlarePlayerController::SetupMenu()
@@ -648,12 +649,12 @@ void AFlarePlayerController::MouseInputY(float Val)
 
 void AFlarePlayerController::Test1()
 {
-	Notify(FText::FromString("I am Test1"), EFlareNotification::NT_Trading, EFlareMenu::MENU_Dashboard);
+	Notify(FText::FromString("The cake is a lie"), FText::FromString("This is a test of the explanation system."), EFlareNotification::NT_Trading, EFlareMenu::MENU_Dashboard);
 }
 
 void AFlarePlayerController::Test2()
 {
-	Notify(FText::FromString("I am Test2"));
+	Notify(FText::FromString("I am a beautiful butterfly"), FText::FromString("This is a longer, more full of explanation test of the explanation system."));
 }
 
 void AFlarePlayerController::AlignToSpeed()
