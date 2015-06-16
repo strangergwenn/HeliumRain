@@ -90,6 +90,11 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		}
 		break;
 		case EFlareWeaponGroupType::WG_BOMB:
+		{
+			FVector LinearVelocityAxis = Spacecraft->GetLinearVelocity().GetUnsafeNormal();
+			PlayerManualAngularVelocity = Spacecraft->GetPilot()->GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearVelocityAxis, FVector::ZeroVector, DeltaSeconds);
+		}
+		break;
 		case EFlareWeaponGroupType::WG_GUN:
 			{
 			float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
@@ -288,15 +293,53 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 		}
 		else
 		{
-			FVector LocalPlayerManualLinearVelocity = PlayerManualLinearVelocity;
-			// Manual orbital boost
-			if (PlayerManualOrbitalBoost)
+			switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 			{
-				LocalPlayerManualLinearVelocity = Spacecraft->GetNavigationSystem()->GetLinearMaxBoostingVelocity() * FVector(1, 0, 0);
+				case EFlareWeaponGroupType::WG_BOMB:
+				{
+					float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
+
+					// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
+					float CompensatedDistance = FMath::Clamp(1. + (DistanceToCenter - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.);
+					float Angle = FMath::Atan2(PlayerMouseOffset.Y, PlayerMouseOffset.X);
+
+					float Weight = 0.01 * Spacecraft->GetLinearVelocity().Size();
+
+					float Z = CompensatedDistance * FMath::Cos(Angle) * Weight;
+					float Y = CompensatedDistance * FMath::Sin(Angle) * Weight;
+
+					FVector LocalVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(Spacecraft->GetLinearVelocity());
+					FVector LocalTargetVelocity = LocalVelocity.RotateAngleAxis(Z, FVector(0,0,1)).RotateAngleAxis(Y, FVector(0,1,0));
+
+					if(PlayerManualLinearVelocity.X > 0 || PlayerManualOrbitalBoost)
+					{
+						LocalTargetVelocity = 1.1 * LocalTargetVelocity;
+					}
+					else if(PlayerManualLinearVelocity.X < 0)
+					{
+						LocalTargetVelocity = 0.9 * LocalTargetVelocity;
+					}
+
+					return  Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalTargetVelocity);
+				}
+				break;
+				case EFlareWeaponGroupType::WG_TURRET:
+				case EFlareWeaponGroupType::WG_NONE:
+				case EFlareWeaponGroupType::WG_GUN:
+				default:
+				{
+					FVector LocalPlayerManualLinearVelocity = PlayerManualLinearVelocity;
+					// Manual orbital boost
+					if (PlayerManualOrbitalBoost)
+					{
+						LocalPlayerManualLinearVelocity = Spacecraft->GetNavigationSystem()->GetLinearMaxBoostingVelocity() * FVector(1, 0, 0);
+					}
+
+					// Add velocity command to current velocity
+					return Spacecraft->GetLinearVelocity() + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerManualLinearVelocity);
+				}
 			}
 
-			// Add velocity command to current velocity
-			return Spacecraft->GetLinearVelocity() + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerManualLinearVelocity);
 		}
 	}
 }
@@ -315,7 +358,21 @@ FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
 		}
 		else
 		{
-			return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(PlayerManualAngularVelocity);
+			switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+			{
+				case EFlareWeaponGroupType::WG_BOMB:
+				{
+					return  PlayerManualAngularVelocity;
+				}
+				break;
+				case EFlareWeaponGroupType::WG_TURRET:
+				case EFlareWeaponGroupType::WG_NONE:
+				case EFlareWeaponGroupType::WG_GUN:
+				default:
+				{
+					return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(PlayerManualAngularVelocity);
+				}
+			}
 		}
 	}
 }

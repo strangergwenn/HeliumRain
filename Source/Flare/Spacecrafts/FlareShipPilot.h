@@ -49,6 +49,7 @@ protected:
 
 	virtual void CargoPilot(float DeltaSeconds);
 
+public:
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
