@@ -59,7 +59,7 @@ public:
 	void UpdateBackgroundColor(float HueShift, float Luminosity);
 
 
-protected:
+public:
 	
 	/*----------------------------------------------------
 		Input methods

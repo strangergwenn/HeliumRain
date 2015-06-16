@@ -617,6 +617,10 @@ void AFlarePlayerController::MouseInputX(float Val)
 {
 	if(Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
 	{
+		if(MenuPawn)
+		{
+			MenuPawn->YawInput(Val);
+		}
 		return;
 	}
 
@@ -634,6 +638,10 @@ void AFlarePlayerController::MouseInputY(float Val)
 {
 	if(Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
 	{
+		if(MenuPawn)
+		{
+			MenuPawn->PitchInput(Val);
+		}
 		return;
 	}
 
