@@ -363,53 +363,53 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 	return true;
 }
 
-void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor)
+void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor)
 {
-	ObjectSize = FMath::Max(ObjectSize, IconSize * FVector2D::UnitVector);
+	ObjectSize = FMath::Max(ObjectSize, DesignatorIconSize * FVector2D::UnitVector);
 
 	DrawTexture(HUDDesignatorCornerTexture,
-		Position.X + (ObjectSize.X + IconSize) * MainOffset.X / 2,
-		Position.Y + (ObjectSize.Y + IconSize) * MainOffset.Y / 2,
-		IconSize, IconSize, 0, 0, 1, 1,
+		Position.X + (ObjectSize.X + DesignatorIconSize) * MainOffset.X / 2,
+		Position.Y + (ObjectSize.Y + DesignatorIconSize) * MainOffset.Y / 2,
+		DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1,
 		HudColor,
 		BLEND_Translucent, 1.0f, false,
 		Rotation);
 }
 
-void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship)
+void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
-	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature), HUDTemperatureIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power), HUDPowerIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS), HUDRCSIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature), HUDTemperatureIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power), HUDPowerIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS), HUDRCSIcon);
 
 	if (Ship->IsMilitary())
 	{
-		DrawHUDDesignatorStatusIcon(Position, IconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
+		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
 	}
 }
 
-FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, float Health, UTexture2D* Texture)
+FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float DesignatorIconSize, float Health, UTexture2D* Texture)
 {
 	FLinearColor Color = FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
 	Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
-	DrawHUDIcon(Position, IconSize, Texture, Color);
-	return Position + IconSize * FVector2D(1, 0);
+	DrawHUDIcon(Position, DesignatorIconSize, Texture, Color);
+	return Position + DesignatorIconSize * FVector2D(1, 0);
 }
 
-void AFlareHUD::DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, bool Center)
+void AFlareHUD::DrawHUDIcon(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, bool Center)
 {
 	if (Center)
 	{
-		Position -= (IconSize / 2) * FVector2D::UnitVector;
+		Position -= (DesignatorIconSize / 2) * FVector2D::UnitVector;
 	}
-	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color);
+	DrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color);
 }
 
-void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, float Rotation)
+void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, float Rotation)
 {
-	Position -= (IconSize / 2) * FVector2D::UnitVector;
-	DrawTexture(Texture, Position.X, Position.Y, IconSize, IconSize, 0, 0, 1, 1, Color,
+	Position -= (DesignatorIconSize / 2) * FVector2D::UnitVector;
+	DrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color,
 		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
 }
 
