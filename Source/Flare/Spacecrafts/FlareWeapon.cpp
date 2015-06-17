@@ -111,7 +111,6 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f)
 	{
-		FLOGV("%s Try Firing", *GetReadableName());
 
 		if(ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
 		{
@@ -146,8 +145,6 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 bool UFlareWeapon::FireGun(int GunIndex)
 {
-	FLOGV("%s Fire gun", *GetReadableName());
-
 	if(!IsSafeToFire(GunIndex))
 	{
 		FLOGV("%s Not secure", *GetReadableName());
@@ -185,7 +182,6 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	{
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation(), 1, 1);
 	}
-	FLOGV("%s Fired", *GetReadableName());
 
 	// Update data
 	CurrentAmmo--;

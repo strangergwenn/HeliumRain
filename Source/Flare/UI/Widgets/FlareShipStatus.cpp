@@ -97,21 +97,7 @@ FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
 {
 	if (TargetShip)
 	{
-		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(TargetShip);
-
-		if(Spacecraft)
-		{
-			FLOGV("GetIconColor %s", *Spacecraft->GetName());
-		}
-		else
-		{
-			FLOG("GetIconColor not spacecraft");
-		}
-
-		FLOGV("GetIconColor GetDamageSystem %x", TargetShip->GetDamageSystem());
-
 		float Health = TargetShip->GetDamageSystem()->GetSubsystemHealth(Type);
-		FLOGV("GetIconColor Health %f", Health);
 		return FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
 	}
 	return FLinearColor::Black;
