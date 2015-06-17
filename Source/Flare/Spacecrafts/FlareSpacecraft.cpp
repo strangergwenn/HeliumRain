@@ -247,6 +247,13 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		}
 	}
 
+	// If not rcs, add passive stabilization
+	if(ShipDescription->RCSCount == 0)
+	{
+		Airframe->SetLinearDamping(0.1);
+		Airframe->SetAngularDamping(0.1);
+	}
+
 	// Initialize pilot
 	Pilot = NewObject<UFlareShipPilot>(this, UFlareShipPilot::StaticClass());
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
