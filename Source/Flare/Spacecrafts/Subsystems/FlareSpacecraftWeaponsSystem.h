@@ -127,6 +127,8 @@ protected:
 	int32                                            LastActiveWeaponGroupIndex;
 	int32                                            ActiveWeaponGroupIndex;
 	FFlareWeaponGroup*                               ActiveWeaponGroup;
+	bool                                             WantFire;
+	bool                                             Armed;
 
 
 

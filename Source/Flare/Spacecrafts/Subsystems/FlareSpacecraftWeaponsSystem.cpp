@@ -30,6 +30,46 @@ UFlareSpacecraftWeaponsSystem::~UFlareSpacecraftWeaponsSystem()
 
 void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 {
+	if(!ActiveWeaponGroup)
+	{
+		return;
+	}
+
+	switch (ActiveWeaponGroup->Type) {
+	case EFlareWeaponGroupType::WG_GUN:
+		for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
+		{
+			if (WantFire)
+			{
+				ActiveWeaponGroup->Weapons[i]->StartFire();
+			}
+			else
+			{
+				ActiveWeaponGroup->Weapons[i]->StopFire();
+			}
+		}
+
+		break;
+	case EFlareWeaponGroupType::WG_BOMB:
+		if(Armed && WantFire)
+		{
+			Armed = false;
+			int32 FireWeaponIndex = (ActiveWeaponGroup->LastFiredWeaponIndex+1) % ActiveWeaponGroup->Weapons.Num();
+			ActiveWeaponGroup->Weapons[FireWeaponIndex]->StartFire();
+			ActiveWeaponGroup->LastFiredWeaponIndex = FireWeaponIndex;
+		}
+		else if (!WantFire)
+		{
+			Armed = true;
+		}
+
+	case EFlareWeaponGroupType::WG_NONE:
+	case EFlareWeaponGroupType::WG_TURRET:
+	default:
+		break;
+	}
+
+
 }
 
 void UFlareSpacecraftWeaponsSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft, FFlareSpacecraftSave* OwnerData)
@@ -123,46 +163,25 @@ void UFlareSpacecraftWeaponsSystem::Start()
 	ActiveWeaponGroupIndex = -1;
 	ActiveWeaponGroup = NULL;
 	LastActiveWeaponGroupIndex = 0;
+	WantFire = false;
 }
 
 
 
 void UFlareSpacecraftWeaponsSystem::StartFire()
 {
-	// TODO new control modes
-	//if (Spacecraft->GetDamageSystem()->IsAlive() && (IsPiloted || !ExternalCamera))
-	//{
 	if(ActiveWeaponGroup && ActiveWeaponGroup->Type != EFlareWeaponGroupType::WG_TURRET)
 	{
-
-		// TODO semi auto and alterned fire
-
-		// Handle broken ammo
-
-		for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
-		{
-			ActiveWeaponGroup->Weapons[i]->StartFire();
-		}
+		WantFire = true;
 	}
-	//}
 }
 
 void UFlareSpacecraftWeaponsSystem::StopFire()
 {
-	// TODO new control modes
-	//if (Spacecraft->GetDamageSystem()->IsAlive() && (IsPiloted || !ExternalCamera))
-	//{
 	if(ActiveWeaponGroup && ActiveWeaponGroup->Type != EFlareWeaponGroupType::WG_TURRET)
 	{
-		// TODO semi auto and alterned fire
-
-
-		for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
-		{
-			ActiveWeaponGroup->Weapons[i]->StopFire();
-		}
+		WantFire = false;
 	}
-	//}
 }
 
 void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
@@ -173,6 +192,7 @@ void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
 		ActiveWeaponGroupIndex = Index;
 		ActiveWeaponGroup = WeaponGroupList[Index];
 		LastActiveWeaponGroupIndex = ActiveWeaponGroupIndex;
+		Armed = false;
 	}
 }
 
