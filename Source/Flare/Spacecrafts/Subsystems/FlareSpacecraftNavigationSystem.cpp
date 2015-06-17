@@ -1089,7 +1089,8 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 			FVector FrontDirection = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
 			MaxVelocity = FVector::DotProduct(LinearTargetVelocity.GetUnsafeNormal(), FrontDirection) * GetLinearMaxBoostingVelocity();
 		}
-		LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(MaxVelocity);
+		// If overspeed, clamp 1% speed per second
+		LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(FMath::Max(MaxVelocity, LinearTargetVelocity.Size() * 0.99f * DeltaSeconds));
 
 		// Linear physics
 		FVector DeltaV = LinearTargetVelocity - Spacecraft->GetLinearVelocity();

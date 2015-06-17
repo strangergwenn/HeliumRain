@@ -10,7 +10,7 @@
 
 UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
-	, AngularInputDeadRatio(0.0025)
+	, AngularInputDeadRatio(0.025)
 {
 	// Pilot
 	IsPiloted = true;
@@ -303,7 +303,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 					float CompensatedDistance = FMath::Clamp(1. + (DistanceToCenter - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.);
 					float Angle = FMath::Atan2(PlayerMouseOffset.Y, PlayerMouseOffset.X);
 
-					float Weight = 0.01 * Spacecraft->GetLinearVelocity().Size();
+					float Weight = 0.02 * Spacecraft->GetLinearVelocity().Size();
 
 					float Z = CompensatedDistance * FMath::Cos(Angle) * Weight;
 					float Y = CompensatedDistance * FMath::Sin(Angle) * Weight;
@@ -313,11 +313,11 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 
 					if(PlayerManualLinearVelocity.X > 0 || PlayerManualOrbitalBoost)
 					{
-						LocalTargetVelocity = 1.1 * LocalTargetVelocity;
+						LocalTargetVelocity = 1.11 * LocalTargetVelocity;
 					}
 					else if(PlayerManualLinearVelocity.X < 0)
 					{
-						LocalTargetVelocity = 0.9 * LocalTargetVelocity;
+						LocalTargetVelocity = 0.99 * LocalTargetVelocity;
 					}
 
 					return  Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalTargetVelocity);
