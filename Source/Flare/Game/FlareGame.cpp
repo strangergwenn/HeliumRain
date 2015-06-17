@@ -187,11 +187,16 @@ AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
 			if (Ship)
 			{
 				Ship->Load(ShipData);
+
+				 UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
+
+				RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
+				RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 			}
-			 UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
-			
-			RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
-			RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
+			else
+			{
+				FLOG("AFlareGame::LoadShip fail to create AFlareSpacecraft");
+			}
 		}
 		else
 		{

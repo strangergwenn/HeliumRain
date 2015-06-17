@@ -355,7 +355,10 @@ void AFlarePlayerController::PossessCurrentShip()
 	}
 
 	// Possess the ship
-	FlyShip(ShipPawn);
+	if(ShipPawn)
+	{
+		FlyShip(ShipPawn);
+	}
 
 	// Destroy the old pawn
 	if (DefaultPawn)
