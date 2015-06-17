@@ -89,6 +89,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	// Update Alive status
 	if (WasAlive && !IsAlive())
 	{
+
 		WasAlive = false;
 		OnControlLost();
 	}
@@ -105,8 +106,7 @@ void UFlareSpacecraftDamageSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft,
 
 void UFlareSpacecraftDamageSystem::Start()
 {
-	// Init alive status
-	WasAlive = IsAlive();
+
 
 	// Reload components
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
@@ -129,6 +129,9 @@ void UFlareSpacecraftDamageSystem::Start()
 		Component->UpdatePowerSources(&PowerSources);
 	}
 	UpdatePower();
+
+	// Init alive status
+	WasAlive = IsAlive();
 }
 
 
