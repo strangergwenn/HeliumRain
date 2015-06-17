@@ -111,6 +111,9 @@ public:
 	}
 
 
+	virtual void StopAllWeapons();
+
+
 protected:
 
 

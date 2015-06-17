@@ -164,24 +164,27 @@ void UFlareSpacecraftWeaponsSystem::Start()
 	ActiveWeaponGroup = NULL;
 	LastActiveWeaponGroupIndex = 0;
 	WantFire = false;
+	StopAllWeapons();
+}
+
+void UFlareSpacecraftWeaponsSystem::StopAllWeapons()
+{
+	for (int32 WeaponIndex = 0; WeaponIndex < WeaponList.Num(); WeaponIndex++)
+	{
+		WeaponList[WeaponIndex]->StopFire();
+	}
 }
 
 
 
 void UFlareSpacecraftWeaponsSystem::StartFire()
 {
-	if(ActiveWeaponGroup && ActiveWeaponGroup->Type != EFlareWeaponGroupType::WG_TURRET)
-	{
 		WantFire = true;
-	}
 }
 
 void UFlareSpacecraftWeaponsSystem::StopFire()
 {
-	if(ActiveWeaponGroup && ActiveWeaponGroup->Type != EFlareWeaponGroupType::WG_TURRET)
-	{
 		WantFire = false;
-	}
 }
 
 void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
@@ -189,6 +192,7 @@ void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
 
 	if(Index >= 0 && Index < WeaponGroupList.Num())
 	{
+		StopAllWeapons();
 		ActiveWeaponGroupIndex = Index;
 		ActiveWeaponGroup = WeaponGroupList[Index];
 		LastActiveWeaponGroupIndex = ActiveWeaponGroupIndex;
@@ -215,6 +219,7 @@ void UFlareSpacecraftWeaponsSystem::ActivateWeapons()
 void UFlareSpacecraftWeaponsSystem::DeactivateWeapons()
 {
 	StopFire();
+	StopAllWeapons();
 	 ActiveWeaponGroup = NULL;
 	 ActiveWeaponGroupIndex = -1;
 }
