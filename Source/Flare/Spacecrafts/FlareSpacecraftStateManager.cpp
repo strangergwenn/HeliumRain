@@ -116,6 +116,17 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 
 void UFlareSpacecraftStateManager::UpdateCamera()
 {
+	AFlarePlayerController* PC = Spacecraft->GetPC();
+	if(PC)
+	{
+		PC->PlayerCameraManager->SetFOV(90);
+
+		if(Cast<AFlareHUD>(PC->GetHUD())->IsMenuOpen())
+		{
+			return;
+		}
+	}
+
 	if(ExternalCamera)
 	{
 		Spacecraft->SetCameraPitch(ExternalCameraPitch);
@@ -129,10 +140,22 @@ void UFlareSpacecraftStateManager::UpdateCamera()
 		{
 			case EFlareWeaponGroupType::WG_NONE:
 			case EFlareWeaponGroupType::WG_TURRET:
+				// Camera to front
+				Spacecraft->SetCameraPitch(0);
+				Spacecraft->SetCameraYaw(0);
+				break;
+
 			case EFlareWeaponGroupType::WG_BOMB:
 				// Camera to front
 				Spacecraft->SetCameraPitch(0);
 				Spacecraft->SetCameraYaw(0);
+
+				if(PC)
+				{
+					PC->PlayerCameraManager->SetFOV(45);
+				}
+
+
 			break;
 			case EFlareWeaponGroupType::WG_GUN:
 				// Camera to bullet direction
