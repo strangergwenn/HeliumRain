@@ -337,14 +337,27 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 			if (Ship && Ship->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
-				TArray<UFlareWeapon*> Weapons = PlayerShip->GetWeaponsSystem()->GetWeaponList();
-				if (Weapons.Num() > 0)
+				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+				if (WeaponGroup)
 				{
-					float AmmoVelocity = Weapons[0]->GetAmmoVelocity();
-					if (PC->ProjectWorldLocationToScreen(Ship->GetAimPosition(PlayerShip, AmmoVelocity, 0.0), ScreenPosition))
+					float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
+					FVector AmmoIntersectionLocation;
+					float InterceptTime = Ship->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
+
+					if (InterceptTime > 0 && PC->ProjectWorldLocationToScreen(AmmoIntersectionLocation, ScreenPosition))
 					{
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Ship);
 						DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
+
+						if(PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
+						{
+							// Time display
+							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
+							FVector2D TimePosition = ScreenPosition - ViewportSize / 2 + FVector2D(0, -21);
+
+							DrawText(TimeText, TimePosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
+							DrawText(TimeText, TimePosition, HUDFont, FVector2D::UnitVector, HUDAimHelperColor);
+						}
 					}
 				}
 			}
