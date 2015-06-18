@@ -25,10 +25,19 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 	PlayerManualLinearVelocity = FVector::ZeroVector;
 	PlayerManualAngularVelocity = FVector::ZeroVector;
+
+	InternalCameraPitch = 0;
+	InternalCameraYaw = 0;
+	InternalCameraPitchTarget = 0;
+	InternalCameraYawTarget = 0;
+
 	ExternalCameraPitch = 0;
 	ExternalCameraYaw = 0;
+	ExternalCameraPitchTarget = 0;
+	ExternalCameraYawTarget = 0;
 	// TODO Don't copy SpacecraftPawn
 	ExternalCameraDistance = 4 * Spacecraft->GetMeshScale();
+	ExternalCameraDistanceTarget = ExternalCameraDistance;
 	LastWeaponType = EFlareWeaponGroupType::WG_NONE;
 }
 
@@ -110,11 +119,11 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	}
 
 	// Update Camera
-	UpdateCamera();
+	UpdateCamera(DeltaSeconds);
 }
 
 
-void UFlareSpacecraftStateManager::UpdateCamera()
+void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 {
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	if(PC)
@@ -127,6 +136,11 @@ void UFlareSpacecraftStateManager::UpdateCamera()
 
 	if(ExternalCamera)
 	{
+		float Speed = FMath::Clamp(DeltaSeconds * 4, 0.f, 1.f);
+		ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
+		ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
+		ExternalCameraDistance = ExternalCameraDistance * (1 - Speed) + ExternalCameraDistanceTarget * Speed;
+
 		Spacecraft->SetCameraPitch(ExternalCameraPitch);
 		Spacecraft->SetCameraYaw(FMath::UnwindDegrees(ExternalCameraYaw));
 		Spacecraft->SetCameraDistance(ExternalCameraDistance);
@@ -139,8 +153,8 @@ void UFlareSpacecraftStateManager::UpdateCamera()
 			case EFlareWeaponGroupType::WG_NONE:
 			case EFlareWeaponGroupType::WG_TURRET:
 				// Camera to front
-				Spacecraft->SetCameraPitch(0);
-				Spacecraft->SetCameraYaw(0);
+				InternalCameraYawTarget = 0;
+				InternalCameraPitchTarget = 0;
 				break;
 
 			case EFlareWeaponGroupType::WG_BOMB:
@@ -183,11 +197,17 @@ void UFlareSpacecraftStateManager::UpdateCamera()
 				{
 					Yaw = -30;
 				}
+				InternalCameraYawTarget = Yaw;
+				InternalCameraPitchTarget = Pitch;
 
-				Spacecraft->SetCameraPitch(Pitch);
-				Spacecraft->SetCameraYaw(Yaw);
 			break;
 		}
+
+		float Speed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
+		InternalCameraYaw = InternalCameraYaw * (1 - Speed) + InternalCameraYawTarget * Speed;
+		InternalCameraPitch = InternalCameraPitch * (1 - Speed) + InternalCameraPitchTarget * Speed;
+		Spacecraft->SetCameraPitch(InternalCameraPitch);
+		Spacecraft->SetCameraYaw(InternalCameraYaw);
 	}
 	//TODO Camera smoothing
 
@@ -228,8 +248,8 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 	{
 		if(ExternalCamera)
 		{
-			ExternalCameraYaw += Val.X * Spacecraft->GetCameraPanSpeed();
-			ExternalCameraPitch += Val.Y * Spacecraft->GetCameraPanSpeed();
+			ExternalCameraYawTarget += Val.X * Spacecraft->GetCameraPanSpeed();
+			ExternalCameraPitchTarget += Val.Y * Spacecraft->GetCameraPanSpeed();
 		}
 		else
 		{
@@ -280,7 +300,7 @@ void UFlareSpacecraftStateManager::ExternalCameraZoom(bool ZoomIn)
 	float Offset = Scale * (ZoomIn ? -0.5 : 0.5);
 
 	// Move camera
-	ExternalCameraDistance = FMath::Clamp(ExternalCameraDistance + Offset, LimitNear, LimitFar);
+	ExternalCameraDistanceTarget = FMath::Clamp(ExternalCameraDistance + Offset, LimitNear, LimitFar);
 	}
 }
 

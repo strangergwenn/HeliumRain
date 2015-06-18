@@ -20,7 +20,7 @@ public:
 
 	virtual void Tick(float DeltaSeconds);
 
-	virtual void UpdateCamera();
+	virtual void UpdateCamera(float DeltaSeconds);
 
 	virtual void EnablePilot(bool EnablePilot);
 
@@ -80,6 +80,16 @@ protected:
 	float                                    ExternalCameraPitch;
 	float                                    ExternalCameraYaw;
 	float                                    ExternalCameraDistance;
+	float									 ExternalCameraPitchTarget;
+	float									 ExternalCameraYawTarget;
+	float									 ExternalCameraDistanceTarget;
+
+	float									 InternalCameraPitch;
+	float									 InternalCameraYaw;
+	float									 InternalCameraPitchTarget;
+	float									 InternalCameraYawTarget;
+
+
 
 	EFlareWeaponGroupType::Type              LastWeaponType;
 
