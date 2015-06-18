@@ -1101,7 +1101,6 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 		{
 			FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, UseOrbitalBoost).Size() / Spacecraft->Airframe->GetMass();
 			FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
-
 			Spacecraft->Airframe->SetPhysicsLinearVelocity(ClampedAcceleration * DeltaSeconds * 100, true); // Multiply by 100 because UE4 works in cm
 		}
 
@@ -1115,11 +1114,15 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 			FVector SimpleAcceleration = DeltaAngularVAxis * AngularAccelerationRate;
 
 			// Scale with damages
-			float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, true) / GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, false);
-			FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
-			FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.GetClampedToMaxSize(DeltaAngularV.Size() / DeltaSeconds);
+			float TotalMaxTorqueInAxis = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, false);
+			if(!FMath::IsNearlyZero(TotalMaxTorqueInAxis))
+			{
+				float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, true) / TotalMaxTorqueInAxis;
+				FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
+				FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.GetClampedToMaxSize(DeltaAngularV.Size() / DeltaSeconds);
 
-			Spacecraft->Airframe->SetPhysicsAngularVelocity(ClampedSimplifiedAcceleration  * DeltaSeconds, true);
+				Spacecraft->Airframe->SetPhysicsAngularVelocity(ClampedSimplifiedAcceleration  * DeltaSeconds, true);
+			}
 		}
 
 		// Update engine alpha
