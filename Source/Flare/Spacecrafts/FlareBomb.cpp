@@ -108,9 +108,13 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 		{
 			Spacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower , WeaponDescription->WeaponCharacteristics.AmmoDamageRadius, HitLocation);
 
-			// Physics impulse
-			Spacecraft->Airframe->AddImpulseAtLocation( 5000	 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius * -HitNormal, HitLocation);
 
+			float ImpulseForce = 3000 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius;
+
+			FVector ImpulseDirection = (HitLocation - GetActorLocation()).GetUnsafeNormal();
+
+			// Physics impulse
+			Spacecraft->Airframe->AddImpulseAtLocation( ImpulseForce * ImpulseDirection, HitLocation);
 
 			// Play sound
 			AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
