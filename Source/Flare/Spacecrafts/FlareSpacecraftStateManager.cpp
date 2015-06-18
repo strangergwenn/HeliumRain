@@ -119,8 +119,6 @@ void UFlareSpacecraftStateManager::UpdateCamera()
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	if(PC)
 	{
-		PC->PlayerCameraManager->SetFOV(90);
-
 		if(Cast<AFlareHUD>(PC->GetHUD())->IsMenuOpen())
 		{
 			return;
@@ -146,17 +144,6 @@ void UFlareSpacecraftStateManager::UpdateCamera()
 				break;
 
 			case EFlareWeaponGroupType::WG_BOMB:
-				// Camera to front
-				Spacecraft->SetCameraPitch(0);
-				Spacecraft->SetCameraYaw(0);
-
-				if(PC)
-				{
-					PC->PlayerCameraManager->SetFOV(45);
-				}
-
-
-			break;
 			case EFlareWeaponGroupType::WG_GUN:
 				// Camera to bullet direction
 
@@ -174,8 +161,28 @@ void UFlareSpacecraftStateManager::UpdateCamera()
 
 				FVector LocalBulletDirection = Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(BulletDirection);
 
+
+
 				float Pitch = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Z));
 				float Yaw = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Y));
+
+				if (Pitch > 30)
+				{
+					Pitch = 30;
+				}
+				else if (Pitch < -30)
+				{
+					Pitch = -30;
+				}
+
+				if (Yaw > 30)
+				{
+					Yaw = 30;
+				}
+				else if (Yaw < -30)
+				{
+					Yaw = -30;
+				}
 
 				Spacecraft->SetCameraPitch(Pitch);
 				Spacecraft->SetCameraYaw(Yaw);
