@@ -47,7 +47,6 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	{
 		FiringRate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoRate;
 		MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
-		AmmoVelocity = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
 
 		FiringSound = ComponentDescription->WeaponCharacteristics.FiringSound;
 		FiringEffectTemplate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.FiringEffect;
@@ -58,12 +57,14 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 		if(ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
 		{
+			AmmoVelocity = ComponentDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity;
 			FiringPeriod =  0;
 			FLOGV("IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
 			FillBombs();
 		}
 		else
 		{
+			AmmoVelocity = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
 			FiringPeriod =  1.f / (FiringRate / 60.f);
 		}
 	}
