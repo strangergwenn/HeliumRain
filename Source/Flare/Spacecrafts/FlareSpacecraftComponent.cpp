@@ -358,6 +358,12 @@ float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
 		if (Spacecraft)
 		{
 			UFlareInternalComponent* Component = Spacecraft->GetInternalComponentAtLocation(Location);
+			if(Component == this)
+			{
+				FLOGV("!!! GetRemainingArmorAtLocation loop ! %s may not be correctly bind to its description", *Component->GetReadableName());
+				return -1;
+			}
+
 			if (Component)
 			{
 				return Component->GetRemainingArmorAtLocation(Location);
