@@ -106,13 +106,13 @@ void AFlareSpacecraft::Destroyed()
 // TODO move in helper class
 
 
-FVector AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay) const
+float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
-	return GetAimPosition(TargettingShip->GetActorLocation(), TargettingShip->GetLinearVelocity() * 100, BulletSpeed, PredictionDelay);
+	return GetAimPosition(TargettingShip->GetActorLocation(), TargettingShip->GetLinearVelocity() * 100, BulletSpeed, PredictionDelay, ResultPosition);
 }
 
 
-FVector AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay) const
+float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
 	//Relative Target Speed
 	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
@@ -127,6 +127,12 @@ FVector AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocit
 
 	float Divisor = FMath::Square(EffectiveBulletSpeed) - TargetVelocity.SizeSquared();
 
+	if(EffectiveBulletSpeed < 0 || FMath::IsNearlyZero(Divisor))
+	{
+		// Intersect at an infinite time
+		return -1;
+	}
+
 	float A = -1;
 	float B = 2 * (TargetVelocity.X * (TargetLocation.X - BulletLocation.X) + TargetVelocity.Y * (TargetLocation.Y - BulletLocation.Y) + TargetVelocity.Z * (TargetLocation.Z - BulletLocation.Z)) / Divisor;
 	float C = (TargetLocation - BulletLocation).SizeSquared() / Divisor;
@@ -136,11 +142,22 @@ FVector AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocit
 	float InterceptTime1 = (- B - FMath::Sqrt(Delta)) / (2 * A);
 	float InterceptTime2 = (- B + FMath::Sqrt(Delta)) / (2 * A);
 
-	float InterceptTime = FMath::Max(InterceptTime1, InterceptTime2);
+	float InterceptTime;
+	if(InterceptTime1 > 0 && InterceptTime2 > 0)
+	{
+		InterceptTime = FMath::Min(InterceptTime1, InterceptTime2);
+	}
+	else
+	{
+		InterceptTime = FMath::Max(InterceptTime1, InterceptTime2);
+	}
 
-	FVector InterceptLocation = TargetLocation + TargetVelocity * InterceptTime;
-
-	return InterceptLocation;
+	if(InterceptTime > 0)
+	{
+		FVector InterceptLocation = TargetLocation + TargetVelocity * InterceptTime;
+		*ResultPosition = InterceptLocation;
+	}
+	return InterceptTime;
 }
 
 /*----------------------------------------------------

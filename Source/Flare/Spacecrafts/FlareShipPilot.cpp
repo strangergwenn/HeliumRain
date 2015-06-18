@@ -157,8 +157,30 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		FVector PredictedTargetAxis = PredictedDeltaLocation.GetUnsafeNormal();
 		float PredictedDistance = PredictedDeltaLocation.Size(); // Distance in meters
 
-		FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, 0) - Ship->GetActorLocation()).GetUnsafeNormal();
-		FVector PredictedFireTargetAxis = (PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, PredictionDelay) - PredictedShipLocation).GetUnsafeNormal();
+		FVector AmmoIntersectionLocation;
+		float AmmoIntersectionTime = PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, 0, &AmmoIntersectionLocation);
+		FVector FireTargetAxis;
+		if (AmmoIntersectionTime > 0)
+		{
+			FireTargetAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
+		}
+		else
+		{
+			FireTargetAxis = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).GetUnsafeNormal();
+		}
+
+
+		FVector AmmoIntersectionPredictedLocation;
+		float AmmoIntersectionPredictedTime = PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
+		FVector PredictedFireTargetAxis;
+		if (AmmoIntersectionPredictedTime > 0)
+		{
+			PredictedFireTargetAxis = (AmmoIntersectionPredictedLocation - PredictedShipLocation).GetUnsafeNormal();
+		}
+		else
+		{
+			PredictedFireTargetAxis = (PredictedDeltaLocation* 100.f - PredictedShipLocation).GetUnsafeNormal();
+		}
 
 		FRotator ShipAttitude = Ship->GetActorRotation();
 
@@ -269,7 +291,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(Distance < (DangerousTarget ? 600.f : 300.f) + 4 * TargetSize)
+		if(AmmoIntersectionTime > 0 && AmmoIntersectionTime < 1.5)
 		{
 			//FLOGV("is at fire range=%f", Distance);
 			// TODO Use BulletDirection instead of LocalNose

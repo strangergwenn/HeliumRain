@@ -83,7 +83,19 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		float PredictionDelay = 0;
 		float AmmoVelocity = Turret->GetAmmoVelocity();
 		FVector TurretVelocity = 100 * Turret->GetSpacecraft()->GetLinearVelocity();
-		FVector PredictedFireTargetLocation = (PilotTargetShip->GetAimPosition(TurretLocation, TurretVelocity / 100, AmmoVelocity, PredictionDelay));
+
+
+		FVector AmmoIntersectionPredictedLocation;
+		float AmmoIntersectionPredictedTime = PilotTargetShip->GetAimPosition(TurretLocation, TurretVelocity / 100, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
+		FVector PredictedFireTargetLocation;
+		if (AmmoIntersectionPredictedTime > 0)
+		{
+			PredictedFireTargetLocation = AmmoIntersectionPredictedLocation;
+		}
+		else
+		{
+			PredictedFireTargetLocation = PilotTargetShip->GetActorLocation();
+		}
 
 
 		AimAxis = (PredictedFireTargetLocation - TurretLocation).GetUnsafeNormal();
@@ -96,7 +108,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(Distance < (DangerousTarget ? 10000.f : 5000.f) + 4 * TargetSize)
+		if(AmmoIntersectionPredictedTime > 0 && AmmoIntersectionPredictedTime < 10.f)
 		{
 			//FLOG("Near enough");
 			FVector FireAxis = Turret->GetFireAxis();
@@ -107,7 +119,14 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				FVector MuzzleLocation = Turret->GetMuzzleLocation(GunIndex);
 
 				// Compute target Axis for each gun
-				FVector FireTargetAxis = (PilotTargetShip->GetAimPosition(MuzzleLocation, TurretVelocity , AmmoVelocity, 0) - MuzzleLocation).GetUnsafeNormal();
+				FVector AmmoIntersectionLocation;
+				float AmmoIntersectionTime = PilotTargetShip->GetAimPosition(MuzzleLocation, TurretVelocity , AmmoVelocity, 0, &AmmoIntersectionLocation);
+				if(AmmoIntersectionTime < 0)
+				{
+					// No ammo intersection, don't fire
+					continue;
+				}
+				FVector FireTargetAxis = (AmmoIntersectionLocation - MuzzleLocation).GetUnsafeNormal();
 				/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
 				FLOGV("Gun %d FireTargetAxis=%s", GunIndex, *FireTargetAxis.ToString());
 */
