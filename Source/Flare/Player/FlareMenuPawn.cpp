@@ -88,6 +88,31 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	{
 		CurrentStation->SetActorLocation(GetActorLocation() + CurrentShipOffset + SlideInDelta);
 	}
+
+
+
+	//Camera
+	float Speed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
+	ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
+
+	SetCameraPitch(ExternalCameraPitch);
+
+	float LastExternalCameraYaw = ExternalCameraYaw;
+	ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
+	FRotator DeltaRot = FRotator::MakeFromEuler(FVector(0, 0, ExternalCameraYaw - LastExternalCameraYaw));
+
+	if (CurrentShip)
+	{
+		CurrentShip->AddActorLocalRotation(DeltaRot);
+	}
+	else if (CurrentStation)
+	{
+		CurrentStation->AddActorLocalRotation(DeltaRot);
+	}
+	else
+	{
+		PartContainer->AddLocalRotation(DeltaRot);
+	}
 }
 
 
@@ -123,7 +148,6 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	{
 		CurrentShip->Load(*ShipData);
 	}
-
 }
 /*
 void AFlareMenuPawn::ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData)
@@ -214,6 +238,8 @@ void AFlareMenuPawn::ResetContent(bool Unsafe)
 	
 	// Setup panning
 	SetCameraPitch(-CameraMaxPitch / 2);
+	ExternalCameraPitchTarget = -CameraMaxPitch / 2;
+	ExternalCameraPitch = ExternalCameraPitchTarget;
 	SetCameraDistance(DisplayDistance);
 }
 
@@ -258,25 +284,14 @@ void AFlareMenuPawn::PitchInput(float Val)
 {
 	if (Val)
 	{
-		FRotator CurrentRot = CameraContainerPitch->GetComponentRotation();
-		SetCameraPitch(CurrentRot.Pitch + CameraPanSpeed * Val);
+		ExternalCameraPitchTarget += CameraPanSpeed * Val;
 	}
 }
 
 void AFlareMenuPawn::YawInput(float Val)
 {
-	FRotator DeltaRot = FRotator::MakeFromEuler(-CameraPanSpeed * FVector(0, 0, Val));
-
-	if (CurrentShip)
+	if(Val)
 	{
-		CurrentShip->AddActorLocalRotation(DeltaRot);
-	}
-	else if (CurrentStation)
-	{
-		CurrentStation->AddActorLocalRotation(DeltaRot);
-	}
-	else
-	{
-		PartContainer->AddLocalRotation(DeltaRot);
+		ExternalCameraYawTarget += - CameraPanSpeed * Val;
 	}
 }

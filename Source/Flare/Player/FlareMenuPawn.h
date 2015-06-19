@@ -136,6 +136,12 @@ protected:
 	float                      SlideInOutCurrentTime;
 	FVector                    SlideInOutOffset;
 
+	// Camera
+	float                      ExternalCameraPitch;
+	float                      ExternalCameraPitchTarget;
+	float                      ExternalCameraYaw;
+	float                      ExternalCameraYawTarget;
+
 
 public:
 
