@@ -389,7 +389,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 					FVector LocalTargetVelocity = LocalVelocity.RotateAngleAxis(Z, FVector(0,0,1)).RotateAngleAxis(Y, FVector(0,1,0));
 
 
-					FLOG("----GetLinearTargetVelocity");
+					/*FLOG("----GetLinearTargetVelocity");
 					FLOGV("PlayerMouseOffset.X %f",PlayerMouseOffset.X);
 					FLOGV("PlayerMouseOffset.Y %f",PlayerMouseOffset.Y);
 					FLOGV("ClampedMaxAngle %f",ClampedMaxAngle);
@@ -401,7 +401,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 					FLOGV("VelocityMaxOffset %f",VelocityMaxOffset);
 					FLOGV("LocalTargetVelocity %s",*LocalTargetVelocity.ToString());
 
-					FLOGV("PlayerManualLinearVelocity.X %f",PlayerManualLinearVelocity.X);
+					FLOGV("PlayerManualLinearVelocity.X %f",PlayerManualLinearVelocity.X);*/
 
 					bool KeepVelocity = true;
 
@@ -416,19 +416,19 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 						KeepVelocity = false;
 					}
 
-					FLOGV("LocalTargetVelocity2 %s",*LocalTargetVelocity.ToString());
+					//FLOGV("LocalTargetVelocity2 %s",*LocalTargetVelocity.ToString());
 
 
 					FVector WorldTargetVelocity = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalTargetVelocity);
 					if(KeepVelocity)
 					{
-						FLOGV("KeepVelocity WorldTargetVelocity %s",*WorldTargetVelocity.ToString());
-						FLOGV("KeepVelocity WorldTargetVelocity.Size %f",WorldTargetVelocity.Size());
+						//FLOGV("KeepVelocity WorldTargetVelocity %s",*WorldTargetVelocity.ToString());
+						//FLOGV("KeepVelocity WorldTargetVelocity.Size %f",WorldTargetVelocity.Size());
 						WorldTargetVelocity = WorldTargetVelocity.GetUnsafeNormal() * Velocity;
 					}
 
-					FLOGV("WorldTargetVelocity %s",*WorldTargetVelocity.ToString());
-					FLOGV("WorldTargetVelocity.Size %f",WorldTargetVelocity.Size());
+					//FLOGV("WorldTargetVelocity %s",*WorldTargetVelocity.ToString());
+					//FLOGV("WorldTargetVelocity.Size %f",WorldTargetVelocity.Size());
 
 					return  WorldTargetVelocity;
 				}
