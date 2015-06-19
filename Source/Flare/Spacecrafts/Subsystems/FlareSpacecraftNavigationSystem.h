@@ -231,6 +231,7 @@ protected:
 	float                                    AnticollisionAngle;
 
 	// Physics simulation
+	float                                    AccelerationRatioTarget;
 	FVector                                  LinearTargetVelocity;
 	FVector                                  AngularTargetVelocity;
 	bool                                     UseOrbitalBoost;

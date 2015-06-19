@@ -61,6 +61,7 @@ public:
 	// Output
 	virtual FVector GetLinearTargetVelocity() const;
 	virtual FVector GetAngularTargetVelocity() const;
+	virtual float GetAccelerationRatioTarget() const;
 	virtual bool IsUseOrbitalBoost() const;
 	virtual bool IsWantFire() const;
 	virtual bool IsWantCursor() const;

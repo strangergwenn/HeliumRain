@@ -37,6 +37,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 		LinearTargetVelocity = Spacecraft->GetStateManager()->GetLinearTargetVelocity();
 		AngularTargetVelocity = Spacecraft->GetStateManager()->GetAngularTargetVelocity();
 		UseOrbitalBoost = Spacecraft->GetStateManager()->IsUseOrbitalBoost();
+		AccelerationRatioTarget = Spacecraft->GetStateManager()->GetAccelerationRatioTarget();
 
 		if (Spacecraft->GetStateManager()->IsWantFire())
 		{
@@ -914,12 +915,14 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 	}
 	//FLOGV("RelativeResultSpeed %s", *RelativeResultSpeed.ToString());
 	LinearTargetVelocity = RelativeResultSpeed;
+	AccelerationRatioTarget = 1.f;
 	return false;
 }
 
 void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds)
 {
 	LinearTargetVelocity = FVector::ZeroVector;
+	AccelerationRatioTarget = 1.f;
 	FVector LinearVelocity = Spacecraft->Airframe->GetPhysicsLinearVelocity();
 
 	// Null speed detection
@@ -1099,7 +1102,9 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 
 		if (!DeltaV.IsNearlyZero())
 		{
-			FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, UseOrbitalBoost).Size() / Spacecraft->Airframe->GetMass();
+			FVector Acceleration = AccelerationRatioTarget * DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, UseOrbitalBoost).Size() / Spacecraft->Airframe->GetMass();
+
+
 			FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
 			Spacecraft->Airframe->SetPhysicsLinearVelocity(ClampedAcceleration * DeltaSeconds * 100, true); // Multiply by 100 because UE4 works in cm
 		}
