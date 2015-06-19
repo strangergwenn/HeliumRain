@@ -197,7 +197,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		FLOG("AFlareBomb Tick Dropped && !Activated");
 		FLOGV("AFlareBomb DropParentDistance=%f", DropParentDistance);
 		FLOGV("AFlareBomb GetParentDistance()=%f", GetParentDistance());
-		if(GetParentDistance() > DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance/100)
+		if(GetParentDistance() > DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance*100)
 		{
 			// Activate after 30 cm
 
