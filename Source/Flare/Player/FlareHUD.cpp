@@ -191,9 +191,24 @@ void AFlareHUD::DrawHUD()
 	// Update HUD materials
 	if (PC && Ship && !MenuIsOpen && !IsWheelOpen())
 	{
-		// Draw inertial vectors
-		DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetLinearVelocity() * 100, LOCTEXT("Forward", "FWD"));
-		DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetLinearVelocity() * 100, LOCTEXT("Backward", "BWD"));
+
+		if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
+		{
+			// Draw inertial vectors
+			DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetLinearVelocity() * 100, LOCTEXT("Forward", "FWD"));
+			DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetLinearVelocity() * 100, LOCTEXT("Backward", "BWD"));
+		}
+		else
+		{
+			// Speed
+			int32 SpeedMS = Ship->GetLinearVelocity().Size();
+			FString VelocityText = FString::FromInt(SpeedMS) + FString(" m/s");
+			FVector2D VelocityPosition = ViewportSize / 2 + FVector2D(42, 0);
+
+			VelocityPosition = FVector2D(42, 0);
+			DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
+			DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+		}
 		
 		// Draw nose
 		if (!Ship->GetStateManager()->IsExternalCamera())
@@ -353,7 +368,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 						{
 							// Time display
 							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
-							FVector2D TimePosition = ScreenPosition - ViewportSize / 2 + FVector2D(0, -21);
+							FVector2D TimePosition = ScreenPosition - ViewportSize / 2 - FVector2D(42,0);
 
 							DrawText(TimeText, TimePosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
 							DrawText(TimeText, TimePosition, HUDFont, FVector2D::UnitVector, HUDAimHelperColor);
