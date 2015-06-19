@@ -14,11 +14,6 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 	// Mesh data
 	BombComp = PCIP.CreateDefaultSubobject<UFlareBombComponent>(this, TEXT("Root"));
 	BombComp->bTraceComplexOnMove = true;
-	//BombComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	/*BombComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-	BombComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Ignore);
-	BombComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
-	BombComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);*/
 	BombComp->LDMaxDrawDistance = 100000; // 1km*/
 	BombComp->SetSimulatePhysics(true);
 	BombComp->SetLinearDamping(0);
@@ -44,8 +39,6 @@ void AFlareBomb::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponen
 {
 	ParentWeapon = Weapon;
 	WeaponDescription = Description;
-
-	//BombComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Get the power from description
 	if (Description)
@@ -163,23 +156,9 @@ void AFlareBomb::Drop()
 
 	FVector FrontVector = BombComp->ComponentToWorld.TransformVector(FVector(1,0,0));
 
-
-
-
 	// Spin to stabilize
 	BombComp->SetPhysicsAngularVelocity(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
 	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity() + FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity * 100);
-	//BombComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	FLOGV("AFlareBomb FrontVector=%s", *FrontVector.ToString());
-
-	/*BombComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	BombComp->SetCollisionResponseToAllChannels(ECR_Block);
-	BombComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	BombComp->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block);
-	BombComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);*/
-	//BombComp->SetSimulatePhysics(true);
-
 
 	DropParentDistance = GetParentDistance();
 	Dropped = true;
@@ -191,29 +170,19 @@ void AFlareBomb::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-
 	if(Dropped && !Activated)
 	{
-		FLOG("AFlareBomb Tick Dropped && !Activated");
-		FLOGV("AFlareBomb DropParentDistance=%f", DropParentDistance);
-		FLOGV("AFlareBomb GetParentDistance()=%f", GetParentDistance());
 		if(GetParentDistance() > DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance*100)
 		{
-			// Activate after 30 cm
-
+			// Activate after few centimeters
 			SetActorEnableCollision(true);
 			Activated = true;
 		}
 	}
-
-
-
 }
 
 
 float AFlareBomb::GetParentDistance() const
 {
-	FLOGV("AFlareBomb GetParentDistance GetComponentLocation()=%s GetActorLocation()=%s", *ParentWeapon->GetComponentLocation().ToString(), *GetActorLocation().ToString());
-
 	return (ParentWeapon->GetComponentLocation() - GetActorLocation()).Size();
 }
