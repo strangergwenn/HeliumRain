@@ -395,15 +395,6 @@ void AFlarePlayerController::SetupMenu()
 	{
 		// Signal the menu to setup as well
 		HUD->SetupMenu(PlayerData);
-
-		// Setup mouse menu
-		HUD->GetMouseMenu()->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "CANCEL"));
-		HUD->GetMouseMenu()->AddWidget("Mouse_Align", LOCTEXT("Align", "FORWARD"), 
-			FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
-		HUD->GetMouseMenu()->AddWidget("Mouse_Reverse", LOCTEXT("Backward", "BACKWARD"),
-			FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));
-		HUD->GetMouseMenu()->AddWidget("Mouse_Brake", LOCTEXT("Brake", "BRAKE"),
-			FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
 	}
 }
 
@@ -608,7 +599,32 @@ void AFlarePlayerController::QuickSwitch()
 
 void AFlarePlayerController::WheelPressed()
 {
-	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(true);
+	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
+	if (HUD)
+	{
+		// If in menu or wheel menu, no wheel menu
+		if(HUD->IsMenuOpen() || HUD->IsWheelOpen())
+		{
+			return;
+		}
+
+		// Setup mouse menu
+		HUD->GetMouseMenu()->ClearWidgets();
+		HUD->GetMouseMenu()->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "CANCEL"));
+
+		if(ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
+		{
+			HUD->GetMouseMenu()->AddWidget("Mouse_Align", LOCTEXT("Align", "FORWARD"),
+				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
+			HUD->GetMouseMenu()->AddWidget("Mouse_Reverse", LOCTEXT("Backward", "BACKWARD"),
+				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));
+
+		}
+		HUD->GetMouseMenu()->AddWidget("Mouse_Brake", LOCTEXT("Brake", "BRAKE"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
+
+		HUD->SetWheelMenu(true);
+	}
 }
 
 void AFlarePlayerController::WheelReleased()
