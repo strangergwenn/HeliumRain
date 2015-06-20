@@ -594,6 +594,11 @@ void UFlareSpacecraftNavigationSystem::PushCommandLocation(const FVector& Locati
 
 void UFlareSpacecraftNavigationSystem::PushCommandRotation(const FVector& RotationTarget, const FVector& LocalShipAxis)
 {
+	if(RotationTarget.IsNearlyZero() || LocalShipAxis.IsNearlyZero())
+	{
+		return;
+	}
+
 	FFlareShipCommandData Command;
 	Command.Type = EFlareCommandDataType::CDT_Rotation;
 	Command.RotationTarget = RotationTarget;
@@ -955,6 +960,11 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeco
 	TargetAxis.Normalize();
 
 	FVector RotationDirection = FVector::CrossProduct(WorldShipAxis, TargetAxis);
+	if(RotationDirection.IsNearlyZero())
+	{
+		RotationDirection=FVector(0,0,1);
+	}
+
 	RotationDirection.Normalize();
 	float Dot = FVector::DotProduct(WorldShipAxis, TargetAxis);
 	float angle = FMath::RadiansToDegrees(FMath::Acos(Dot));
