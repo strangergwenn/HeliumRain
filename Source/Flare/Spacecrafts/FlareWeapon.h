@@ -67,6 +67,7 @@ public:
 
 	virtual void FillBombs();
 
+	virtual FText GetSlotName() const;
 protected:
 
 	/*----------------------------------------------------

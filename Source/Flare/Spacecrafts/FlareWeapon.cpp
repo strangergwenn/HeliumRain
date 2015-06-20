@@ -152,6 +152,8 @@ bool UFlareWeapon::FireGun(int GunIndex)
 		return false;
 	}
 
+	FLOGV("Fire gun %s", *GetSlotName().ToString());
+
 	// Get firing data
 	FVector FiringLocation = GetMuzzleLocation(GunIndex);
 	float Imprecision  = FMath::DegreesToRadians(ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoPrecision  + 3.f *(1 - GetDamageRatio()));
@@ -453,3 +455,34 @@ void UFlareWeapon::OnAttachmentChanged()
 		Bombs.Empty();
 	}
 }
+
+
+FText UFlareWeapon::GetSlotName() const
+{
+	//Find Local slot check
+	if(ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
+	{
+		for (int32 i = 0; i < Spacecraft->GetDescription()->TurretSlots.Num(); i++)
+		{
+				// TODO optimize and store that in cache
+				if(Spacecraft->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+				{
+					return Spacecraft->GetDescription()->TurretSlots[i].SlotName;
+				}
+		}
+	}
+	else
+	{
+		for (int32 i = 0; i < Spacecraft->GetDescription()->GunSlots.Num(); i++)
+		{
+			// TODO optimize and store that in cache
+			if(Spacecraft->GetDescription()->GunSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+			{
+				return Spacecraft->GetDescription()->GunSlots[i].SlotName;
+			}
+		}
+	}
+
+	return FText::FromString("");
+}
+

@@ -83,6 +83,9 @@ struct FFlareSpacecraftSlotDescription
 	/** Component description can be empty if configurable slot */
 	UPROPERTY(EditAnywhere, Category = Content) FName ComponentIdentifier;
 
+	/** Component slot name */
+	UPROPERTY(EditAnywhere, Category = Content) FText SlotName;
+
 	/** Size of the slot  */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TEnumAsByte<EFlarePartSize::Type> Size;
