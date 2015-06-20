@@ -2,6 +2,7 @@
 
 #include "GameFramework/GameMode.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Spacecrafts/FlareBomb.h"
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../Data/FlareCustomizationCatalog.h"
@@ -41,6 +42,10 @@ public:
 
 	/** Spawn a ship from save data */
 	virtual AFlareSpacecraft* LoadShip(const FFlareSpacecraftSave& ShipData);
+
+	/** Spawn a bomb from save data */
+	virtual AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
+
 
 	/** Save the world to this save file */
 	virtual bool SaveWorld(AFlarePlayerController* PC, FString SaveFile);

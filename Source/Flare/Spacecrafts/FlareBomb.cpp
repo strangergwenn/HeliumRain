@@ -35,29 +35,43 @@ void AFlareBomb::PostInitializeComponents()
 	Super::PostInitializeComponents();
 }
 
-void AFlareBomb::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponentDescription* Description)
+void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 {
 	ParentWeapon = Weapon;
-	WeaponDescription = Description;
+	WeaponDescription = Weapon->GetDescription();
 
 	// Get the power from description
-	if (Description)
+	if (WeaponDescription)
 	{
 		FFlareSpacecraftComponentSave ComponentData;
-		ComponentData.ComponentIdentifier = Description->Identifier;
+		ComponentData.ComponentIdentifier = WeaponDescription->Identifier;
 		BombComp->Initialize(&ComponentData, Weapon->GetSpacecraft()->GetCompany(), Weapon->GetSpacecraft(), false);
 
-		DamageSound = Description->WeaponCharacteristics.DamageSound;
+		DamageSound = WeaponDescription->WeaponCharacteristics.DamageSound;
 
-		ExplosionEffectTemplate = Description->WeaponCharacteristics.ExplosionEffect;
-		ExplosionEffectMaterial = Description->WeaponCharacteristics.GunCharacteristics.ExplosionMaterial;
+		ExplosionEffectTemplate = WeaponDescription->WeaponCharacteristics.ExplosionEffect;
+		ExplosionEffectMaterial = WeaponDescription->WeaponCharacteristics.GunCharacteristics.ExplosionMaterial;
 
 	}
 
 	SetActorScale3D(ParentWeapon->GetSpacecraft()->GetActorScale3D());
 
-	Activated = false;
-	Dropped = false;
+	if(Data)
+	{
+		BombData = *Data;
+	}
+	else
+	{
+		BombData.Activated = false;
+		BombData.Dropped = false;
+		BombData.LifeTime = 0;
+		BombData.DropParentDistance = 0;
+	}
+
+	if(BombData.Activated)
+	{
+		SetActorEnableCollision(true);
+	}
 }
 
 void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
@@ -160,9 +174,9 @@ void AFlareBomb::Drop()
 	BombComp->SetPhysicsAngularVelocity(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
 	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity() + FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity * 100);
 
-	DropParentDistance = GetParentDistance();
-	Dropped = true;
-	LifeTime = 0;
+	BombData.DropParentDistance = GetParentDistance();
+	BombData.Dropped = true;
+	BombData.LifeTime = 0;
 
 }
 
@@ -171,19 +185,19 @@ void AFlareBomb::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(Dropped && !Activated)
+	if(BombData.Dropped && !BombData.Activated)
 	{
-		if(GetParentDistance() > DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance*100)
+		if(GetParentDistance() > BombData.DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance*100)
 		{
 			// Activate after few centimeters
 			SetActorEnableCollision(true);
-			Activated = true;
+			BombData.Activated = true;
 		}
 	}
 
-	if(Dropped && Activated)
+	if(BombData.Dropped && BombData.Activated)
 	{
-		LifeTime += DeltaSeconds;
+		BombData.LifeTime += DeltaSeconds;
 	}
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
@@ -193,7 +207,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		if(PlayerShip)
 		{
 			float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-			if(Distance > 500000 && LifeTime > 30)
+			if(Distance > 500000 && BombData.LifeTime > 30)
 			{
 				// 5 km and 30s
 				Destroy();
@@ -207,4 +221,18 @@ void AFlareBomb::Tick(float DeltaSeconds)
 float AFlareBomb::GetParentDistance() const
 {
 	return (ParentWeapon->GetComponentLocation() - GetActorLocation()).Size();
+}
+
+FFlareBombSave* AFlareBomb::Save()
+{
+	// Physical data
+	BombData.Location = GetActorLocation();
+	BombData.Rotation = GetActorRotation();
+	BombData.LinearVelocity = BombComp->GetPhysicsLinearVelocity();
+	BombData.AngularVelocity = BombComp->GetPhysicsAngularVelocity();
+
+	BombData.ParentSpacecraft = ParentWeapon->GetSpacecraft()->GetName();
+	BombData.WeaponSlotIdentifier = ParentWeapon->SlotIdentifier;
+
+	return &BombData;
 }

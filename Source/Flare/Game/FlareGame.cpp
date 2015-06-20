@@ -143,6 +143,12 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 			LoadShip(Save->ShipData[i]);
 		}
 
+		// Load all bombs
+		for (int32 i = 0; i < Save->BombData.Num(); i++)
+		{
+			LoadBomb(Save->BombData[i]);
+		}
+
 		return true;
 	}
 
@@ -211,6 +217,73 @@ AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
 	return Ship;
 }
 
+AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
+{
+	AFlareBomb* Bomb = NULL;
+	FLOG("AFlareGame::LoadBomb");
+
+	AFlareSpacecraft* ParentSpacecraft = NULL;
+
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+		if(SpacecraftCandidate && SpacecraftCandidate->GetName() == BombData.ParentSpacecraft)
+		{
+			ParentSpacecraft = SpacecraftCandidate;
+			break;
+		}
+	}
+
+	if (ParentSpacecraft)
+	{
+		UFlareWeapon* ParentWeapon = NULL;
+		TArray<UActorComponent*> Components = ParentSpacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+		for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+		{
+			UFlareWeapon* WeaponCandidate = Cast<UFlareWeapon>(Components[ComponentIndex]);
+			if(WeaponCandidate && WeaponCandidate->SlotIdentifier == BombData.WeaponSlotIdentifier)
+			{
+
+				ParentWeapon = WeaponCandidate;
+				break;
+			}
+		}
+
+		if (ParentWeapon)
+		{
+			// Spawn parameters
+			FActorSpawnParameters Params;
+			Params.bNoFail = true;
+
+			// Create and configure the ship
+			Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombData.Location, BombData.Rotation, Params);
+			if (Bomb)
+			{
+				Bomb->Initialize(&BombData, ParentWeapon);
+
+				UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Bomb->GetRootComponent());
+
+				RootComponent->SetPhysicsLinearVelocity(BombData.LinearVelocity, false);
+				RootComponent->SetPhysicsAngularVelocity(BombData.AngularVelocity, false);
+			}
+			else
+			{
+				FLOG("AFlareGame::LoadBomb fail to create AFlareBom");
+			}
+		}
+		else
+		{
+			FLOG("AFlareGame::LoadBomb failed (no parent weapon)");
+		}
+	}
+	else
+	{
+		FLOG("AFlareGame::LoadBomb failed (no parent ship)");
+	}
+
+	return Bomb;
+}
+
 bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 {
 	FLOGV("AFlareGame::SaveWorld : saving to '%s'", *SaveFile);
@@ -259,6 +332,19 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 				FLOGV("AFlareGame::SaveWorld : saving company ('%s')", *Company->GetName());
 				FFlareCompanySave* TempData = Company->Save();
 				Save->CompanyData.Add(*TempData);
+			}
+		}
+
+		for (TObjectIterator<AFlareBomb> ObjectItr; ObjectItr; ++ObjectItr)
+		{
+			AFlareBomb* Bomb = Cast<AFlareBomb>(*ObjectItr);
+
+			// Company
+			if (Bomb && Bomb->IsDropped())
+			{
+				FLOGV("AFlareGame::SaveWorld : saving bomb ('%s')", *Bomb->GetName());
+				FFlareBombSave* TempData = Bomb->Save();
+				Save->BombData.Add(*TempData);
 			}
 		}
 

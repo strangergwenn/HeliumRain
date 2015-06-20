@@ -5,7 +5,6 @@
 #include "FlareShell.h"
 #include "FlareBomb.h"
 
-
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -367,7 +366,7 @@ void UFlareWeapon::FillBombs()
 
 		AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, Rotation.Rotator(), Params);
 		Bomb->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
-		Bomb->Initialize(this, ComponentDescription);
+		Bomb->Initialize(NULL, this);
 
 		Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(GetSpacecraft(), true);
 		GetSpacecraft()->Airframe->IgnoreActorWhenMoving(Bomb, true);
