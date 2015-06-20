@@ -190,4 +190,14 @@ private:
 		return CameraPanSpeed;
 	}
 
+	inline float GetCameraMaxPitch() const
+	{
+		return CameraMaxPitch;
+	}
+
+	inline float GetCameraMaxYaw() const
+	{
+		return CameraMaxYaw;
+	}
+
 };

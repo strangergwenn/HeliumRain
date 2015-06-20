@@ -31,13 +31,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	InternalCameraPitchTarget = 0;
 	InternalCameraYawTarget = 0;
 
-	ExternalCameraPitch = 0;
-	ExternalCameraYaw = 0;
-	ExternalCameraPitchTarget = 0;
-	ExternalCameraYawTarget = 0;
-	// TODO Don't copy SpacecraftPawn
-	ExternalCameraDistance = 4 * Spacecraft->GetMeshScale();
-	ExternalCameraDistanceTarget = ExternalCameraDistance;
+	ResetExternalCamera();
 	LastWeaponType = EFlareWeaponGroupType::WG_NONE;
 }
 
@@ -139,6 +133,9 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 	{
 		float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
 		ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
+
+		ExternalCameraPitchTarget = FMath::Clamp(ExternalCameraPitchTarget, -Spacecraft->GetCameraMaxPitch(), Spacecraft->GetCameraMaxPitch());
+
 		ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
 		ExternalCameraDistance = ExternalCameraDistance * (1 - Speed) + ExternalCameraDistanceTarget * Speed;
 
@@ -228,6 +225,7 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	// Put the camera at the right spot
 	if (ExternalCamera)
 	{
+		ResetExternalCamera();
 		Spacecraft->SetCameraLocalPosition(FVector::ZeroVector);
 	}
 	else
@@ -613,5 +611,16 @@ bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 		default:
 			return true;
 	}
+}
+
+void UFlareSpacecraftStateManager::ResetExternalCamera()
+{
+	ExternalCameraPitch = 0;
+	ExternalCameraYaw = 0;
+	ExternalCameraPitchTarget = 0;
+	ExternalCameraYawTarget = 0;
+	// TODO Don't copy SpacecraftPawn
+	ExternalCameraDistance = 4 * Spacecraft->GetMeshScale();
+	ExternalCameraDistanceTarget = ExternalCameraDistance;
 }
 

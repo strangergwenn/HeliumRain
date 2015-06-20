@@ -93,6 +93,7 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 
 	//Camera
 	float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
+	ExternalCameraPitchTarget = FMath::Clamp(ExternalCameraPitchTarget, -GetCameraMaxPitch(), GetCameraMaxPitch());
 	ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
 
 	SetCameraPitch(ExternalCameraPitch);
