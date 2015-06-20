@@ -150,7 +150,7 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 
 			LocalTemperature = Spacecraft->GetDamageSystem()->GetTemperature();
 		}
-		SetTemperature(LocalTemperature);
+		SetTemperature(Spacecraft->IsPresentationMode() ? 290 : LocalTemperature);
 
 	}
 }
