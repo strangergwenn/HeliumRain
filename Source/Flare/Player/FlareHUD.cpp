@@ -195,13 +195,13 @@ void AFlareHUD::DrawHUD()
 		if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
 		{
 			// Draw inertial vectors
-			DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetLinearVelocity() * 100, LOCTEXT("Forward", "FWD"));
-			DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetLinearVelocity() * 100, LOCTEXT("Backward", "BWD"));
+			DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"));
+			DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"));
 		}
 		else
 		{
 			// Speed
-			int32 SpeedMS = Ship->GetLinearVelocity().Size();
+			int32 SpeedMS = Ship->GetSmoothedLinearVelocity().Size();
 			FString VelocityText = FString::FromInt(SpeedMS) + FString(" m/s");
 			FVector2D VelocityPosition = ViewportSize / 2 + FVector2D(42, 0);
 
@@ -246,7 +246,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 {
 	// Get HUD data
 	FVector2D ScreenPosition;
-	int32 SpeedMS = Speed.Size() / 100.0f;
+	int32 SpeedMS = (Speed.Size() + 10.) / 100.0f;
 
 	// Draw inertial vector
 	FVector EndPoint = Object->GetActorLocation() + FocusDistance * Speed;

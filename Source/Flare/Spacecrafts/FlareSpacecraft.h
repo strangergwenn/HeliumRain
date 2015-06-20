@@ -178,6 +178,8 @@ protected:
 	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
 	FFlareSpacecraftComponentDescription*          RCSDescription;
 
+	FVector                                        SmoothedVelocity;
+
 	// Lifesupport status
 	UPROPERTY()
 	UFlareSpacecraftComponent*                     ShipCockit;
@@ -237,5 +239,10 @@ public:
 	inline UFlareShipPilot* GetPilot() const
 	{
 		return Pilot;
+	}
+
+	inline FVector GetSmoothedLinearVelocity() const
+	{
+		return SmoothedVelocity;
 	}
 };

@@ -76,6 +76,9 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				}
 			}
 		}
+
+		float SmoothedVelocityChangeSpeed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
+		SmoothedVelocity = SmoothedVelocity * (1 - SmoothedVelocityChangeSpeed) + GetLinearVelocity() * SmoothedVelocityChangeSpeed;
 	}
 
 	// The FlareSpacecraftPawn do the camera effective update in its Tick so call it after camera order update
@@ -285,6 +288,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	NavigationSystem->Start();
 	DockingSystem->Start();
 	WeaponsSystem->Start();
+	SmoothedVelocity = GetLinearVelocity();
 }
 
 FFlareSpacecraftSave* AFlareSpacecraft::Save()
