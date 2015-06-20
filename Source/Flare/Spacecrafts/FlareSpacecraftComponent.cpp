@@ -188,7 +188,7 @@ void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* 
 		}
 
 		// Destroyed component
-		if (Spacecraft && GetDamageRatio() <= 0)
+		if (Spacecraft && GetDamageRatio() <= 0 && !Spacecraft->IsPresentationMode())
 		{
 			StartDestroyedEffects();
 		}
