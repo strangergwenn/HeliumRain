@@ -57,7 +57,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 		{
 			if (CurrentCommand.Type == EFlareCommandDataType::CDT_Location)
 			{
-				if(UpdateLinearAttitudeAuto(DeltaSeconds, CurrentCommand.LocationTarget, FVector::ZeroVector, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity)))
+				if(UpdateLinearAttitudeAuto(DeltaSeconds, CurrentCommand.LocationTarget, FVector::ZeroVector, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity), 1.0))
 				{
 					ClearCurrentCommand();
 				}
@@ -213,8 +213,8 @@ static float GetApproachDockToDockLateralDistanceLimit(float Distance)
 {
 	// Approch cone :
 	//  At 1 m -> 1 m
-	//  At 100 m -> 25 m
-	return Distance / 4 + 75;
+	//  At 100 m -> 5 m
+	return Distance / 20 + 95;
 }
 
 static float GetApproachVelocityLimit(float Distance)
@@ -353,7 +353,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	FVector AxisTarget = -StationDockAxis;
 	FVector AngularVelocityTarget = StationAngularVelocity;
 	FVector VelocityTarget = LinearVelocityAtShipDistance - ShipDockSelfRotationInductedLinearVelocity;
-	bool Anticollision = true;
+	bool Anticollision = false;
 	/*FLOGV("Initial LocationTarget=%s", *LocationTarget.ToString());
 	FLOGV("Initial AxisTarget=%s", *AxisTarget.ToString());
 	FLOGV("Initial AngularVelocityTarget=%s", *AngularVelocityTarget.ToString());
@@ -500,7 +500,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 			{
 				AnticollisionDockStation = NULL;
 			}
-			Anticollision = false;
+			Anticollision = true;
 
 			//FLOGV("Location offset=%s", *((StationDockAxis * (ApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
@@ -518,7 +518,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	//UpdateAngularAttitudeAuto(DeltaSeconds);
 
 	// Not in approach, just go to the docking entrance point
-	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity);
+	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.25);
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
 
 	if(Anticollision)
@@ -799,7 +799,7 @@ FVector UFlareSpacecraftNavigationSystem::AnticollisionCorrection(FVector Initia
 	if(NearestShip)
 	{
 		FVector DeltaLocation = NearestShip->GetActorLocation() - Spacecraft->GetActorLocation();
-		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *4) / 100.f; // Distance in meters
+		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *2) / 100.f; // Distance in meters
 
 
 
@@ -863,7 +863,7 @@ AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecr
 ----------------------------------------------------*/
 
 
-bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity)
+bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity, float SecurityRatio)
 {
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 
@@ -888,7 +888,7 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 		FVector Acceleration = GetTotalMaxThrustInAxis(Engines, DeltaVelocityAxis, false) / Spacecraft->Airframe->GetMass();
 		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, DeltaPositionDirection));
 
-		TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
+		TimeToFinalVelocity = (DeltaVelocity.Size() / (SecurityRatio * AccelerationInAngleAxis));
 	}
 
 	float DistanceToStop = (DeltaVelocity.Size() / 2) * (TimeToFinalVelocity + DeltaSeconds);

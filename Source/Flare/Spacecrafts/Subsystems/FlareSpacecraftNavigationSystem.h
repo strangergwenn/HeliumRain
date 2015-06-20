@@ -176,7 +176,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Automatically update the current linear attitude */
-	bool UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity);
+	bool UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity, float SecurityRatio);
 
 	/** Brake */
 	void UpdateLinearBraking(float DeltaSeconds);
