@@ -24,7 +24,6 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	SetVisibility(EVisibility::Hidden);
 	CurrentTime = 0.0f;
-	WidgetCount = 0;
 	IsOpening = false;
 	
 	// Structure
@@ -44,8 +43,7 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 
 void SFlareMouseMenu::AddWidget(FString Icon, FText Legend, FFlareMouseMenuClicked Action)
 {
-	int32 Index = WidgetCount;
-	WidgetCount++;
+	int32 Index = Actions.Num();
 	Actions.Add(Action);
 
 	AddWidgetInternal(Icon, Legend, Index);
@@ -167,7 +165,7 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 
 		// Compute the alpha based on the widget's position and state
 		float OperatorAlpha = Colinearity * DistanceRatio;
-		if (SelectedWidget < WidgetCount)
+		if (SelectedWidget < Actions.Num())
 		{
 			if (Index == SelectedWidget)
 			{
@@ -214,7 +212,7 @@ FVector2D SFlareMouseMenu::GetDirection(int32 Index) const
 {
 	if (Index >= 0)
 	{
-		return FVector2D(0, -WidgetDistance).GetRotated((Index * 360.0f) / (float)WidgetCount);
+		return FVector2D(0, -WidgetDistance).GetRotated((Index * 360.0f) / (float)Actions.Num());
 	}
 	else
 	{
@@ -246,7 +244,7 @@ int32 SFlareMouseMenu::GetSelectedIndex() const
 	FVector2D MouseDirection = MouseOffset;
 	MouseDirection.Normalize();
 
-	for (int32 Index = 0; Index < WidgetCount; Index++)
+	for (int32 Index = 0; Index < Actions.Num(); Index++)
 	{
 		FVector2D WidgetDirection = GetDirection(Index);
 		WidgetDirection.Normalize();

@@ -122,7 +122,6 @@ protected:
 	TArray<FFlareMouseMenuClicked>       Actions;
 	FVector2D                            ViewportCenter;
 	FVector2D                            MouseOffset;
-	int32                                WidgetCount;
 	int32                                SelectedWidget;
 	float                                CurrentTime;
 	float                                IsOpening;
