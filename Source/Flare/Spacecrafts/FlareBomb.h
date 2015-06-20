@@ -59,7 +59,8 @@ protected:
 
 	const FFlareSpacecraftComponentDescription*    WeaponDescription;
 
-	bool										Dropped;
-	bool										Activated;
+	bool									Dropped;
+	bool									Activated;
 	float									DropParentDistance;
+	float								    LifeTime;
 };

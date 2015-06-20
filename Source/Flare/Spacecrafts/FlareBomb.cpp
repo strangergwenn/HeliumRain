@@ -162,6 +162,7 @@ void AFlareBomb::Drop()
 
 	DropParentDistance = GetParentDistance();
 	Dropped = true;
+	LifeTime = 0;
 
 }
 
@@ -179,6 +180,27 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			Activated = true;
 		}
 	}
+
+	if(Dropped && Activated)
+	{
+		LifeTime += DeltaSeconds;
+	}
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+		if(PlayerShip)
+		{
+			float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
+			if(Distance > 500000 && LifeTime > 30)
+			{
+				// 5 km and 30s
+				Destroy();
+			}
+		}
+	}
+
 }
 
 
