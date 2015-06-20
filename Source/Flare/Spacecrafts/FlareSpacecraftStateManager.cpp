@@ -137,7 +137,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 	if(ExternalCamera)
 	{
-		float Speed = FMath::Clamp(DeltaSeconds * 4, 0.f, 1.f);
+		float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
 		ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
 		ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
 		ExternalCameraDistance = ExternalCameraDistance * (1 - Speed) + ExternalCameraDistanceTarget * Speed;
