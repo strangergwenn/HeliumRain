@@ -265,7 +265,7 @@ void UFlareSpacecraftDamageSystem::OnElectricDamage(float DamageRatio)
 	}
 }
 
-float UFlareSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor) const
+float UFlareSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor, bool WithAmmo) const
 {
 	float Health = 0.f;
 
@@ -341,7 +341,7 @@ float UFlareSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Typ
 			for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
 			{
 				UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
-				Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*(Weapon->GetCurrentAmmo() > 0 ? 1 : 0);
+				Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*((Weapon->GetCurrentAmmo() > 0 || !WithAmmo) ? 1 : 0);
 			}
 			Health = Total/Weapons.Num();
 		}
@@ -367,7 +367,7 @@ float UFlareSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Typ
 	return Health;
 }
 
-float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor) const
+float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor, bool WithAmmo) const
 {
 	 FFlareWeaponGroup* WeaponGroup = Spacecraft->GetWeaponsSystem()->GetWeaponGroup(GroupIndex);
 	 float Health = 0.0;
@@ -376,7 +376,7 @@ float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool 
 	 for (int32 ComponentIndex = 0; ComponentIndex < WeaponGroup->Weapons.Num(); ComponentIndex++)
 	 {
 		 UFlareWeapon* Weapon = Cast<UFlareWeapon>(WeaponGroup->Weapons[ComponentIndex]);
-		 Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*(Weapon->GetCurrentAmmo() > 0 ? 1 : 0);
+		 Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*((Weapon->GetCurrentAmmo() > 0 || !WithAmmo) ? 1 : 0);
 	 }
 	 Health = Total/WeaponGroup->Weapons.Num();
 

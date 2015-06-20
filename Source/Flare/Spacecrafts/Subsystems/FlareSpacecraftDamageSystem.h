@@ -55,9 +55,9 @@ public:
 
 	virtual float GetBurnTemperature() const { return 1500; }
 
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false) const;
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false, bool WithAmmo = false) const;
 
-	virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor = false) const;
+	virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor = false, bool WithAmmo = true) const;
 
 
 	virtual bool IsAlive() const;
