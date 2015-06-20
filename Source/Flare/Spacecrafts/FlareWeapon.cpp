@@ -109,7 +109,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f)
+	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetDamageSystem()->AddReferencedObjects(IsAlive())
 	{
 
 		if(ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
@@ -151,8 +151,6 @@ bool UFlareWeapon::FireGun(int GunIndex)
 		// Avoid to fire itself
 		return false;
 	}
-
-	FLOGV("Fire gun %s", *GetSlotName().ToString());
 
 	// Get firing data
 	FVector FiringLocation = GetMuzzleLocation(GunIndex);
