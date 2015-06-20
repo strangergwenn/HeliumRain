@@ -250,7 +250,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 
 	// Draw inertial vector
 	FVector EndPoint = Object->GetActorLocation() + FocusDistance * Speed;
-	if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition))
+	if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition) && SpeedMS > 1)
 	{
 		// Clamp the drawing
 		int32 ScreenBorderDistance = 100;
