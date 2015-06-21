@@ -330,7 +330,6 @@ TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
 
 FSlateColor SFlareHUDMenu::GetTemperatureColor() const
 {
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	float Distance = Temperature - 0.9f * OverheatTemperature;
 	float Ratio = FMath::Clamp(FMath::Abs(Distance) / 10.0f, 0.0f, 1.0f);
 
@@ -339,14 +338,11 @@ FSlateColor SFlareHUDMenu::GetTemperatureColor() const
 		Ratio = 0.0f;
 	}
 
-	FLinearColor Color = FMath::Lerp(Theme.NeutralColor, Theme.EnemyColor, Ratio);
-	Color.A = Theme.DefaultAlpha;
-	return Color;
+	return FFlareStyleSet::GetHealthColor(1 - Ratio, true);
 }
 
 FSlateColor SFlareHUDMenu::GetTemperatureColorNoAlpha() const
 {
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	float Distance = Temperature - 0.9f * OverheatTemperature;
 	float Ratio = FMath::Clamp(FMath::Abs(Distance) / 10.0f, 0.0f, 1.0f);
 
@@ -355,7 +351,7 @@ FSlateColor SFlareHUDMenu::GetTemperatureColorNoAlpha() const
 		Ratio = 0.0f;
 	}
 
-	return FMath::Lerp(Theme.NeutralColor, Theme.EnemyColor, Ratio);
+	return FFlareStyleSet::GetHealthColor(1 - Ratio, false);
 }
 
 FText SFlareHUDMenu::GetTemperatureText() const

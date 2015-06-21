@@ -56,3 +56,17 @@ TSharedRef< FSlateStyleSet > FFlareStyleSet::Create()
 
 	return StyleRef;
 }
+
+FLinearColor FFlareStyleSet::GetHealthColor(float Health, bool WithAlpha)
+{
+	const FFlareStyleCatalog& Theme = GetDefaultTheme();
+	FLinearColor NormalColor = Theme.NeutralColor;
+	FLinearColor DamageColor = Theme.EnemyColor;
+
+	FLinearColor Color = FMath::Lerp(DamageColor, NormalColor, Health);
+	if (WithAlpha)
+	{
+		Color.A *= Theme.DefaultAlpha;
+	}
+	return Color;
+}
