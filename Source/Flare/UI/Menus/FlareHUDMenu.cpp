@@ -299,26 +299,39 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 FText SFlareHUDMenu::GetInfoText() const
 {
 	FText ShipText;
-	FText InfoTextValue = LOCTEXT("Controls", "mode");
 	FText ModeText;
 	FText SectorText = LOCTEXT("TODOTEXT", "Nema A19");
+	FText AutopilotText;
 
 	if (TargetShip)
 	{
 		ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
-		EFlareWeaponGroupType::Type WeaponType = TargetShip->GetWeaponsSystem()->GetActiveWeaponType();
 
-		switch (WeaponType)
+		if (TargetShip->GetNavigationSystem()->IsDocked())
 		{
-			case EFlareWeaponGroupType::WG_NONE:    ModeText = LOCTEXT("Navigation", "Navigation");      break;
-			case EFlareWeaponGroupType::WG_GUN:     ModeText = LOCTEXT("Fighter", "Fighter");            break;
-			case EFlareWeaponGroupType::WG_BOMB:    ModeText = LOCTEXT("Bomber", "Bomber");              break;
-			case EFlareWeaponGroupType::WG_TURRET:
-			default:                                ModeText = LOCTEXT("CapitalShip", "Capital ship");   break;
+			ModeText = LOCTEXT("Docked", "Docked");
+		}
+		else
+		{
+			EFlareWeaponGroupType::Type WeaponType = TargetShip->GetWeaponsSystem()->GetActiveWeaponType();
+
+			switch (WeaponType)
+			{
+				case EFlareWeaponGroupType::WG_NONE:    ModeText = LOCTEXT("Navigation", "Navigation mode");      break;
+				case EFlareWeaponGroupType::WG_GUN:     ModeText = LOCTEXT("Fighter", "Fighter mode");            break;
+				case EFlareWeaponGroupType::WG_BOMB:    ModeText = LOCTEXT("Bomber", "Bomber mode");              break;
+				case EFlareWeaponGroupType::WG_TURRET:
+				default:                                ModeText = LOCTEXT("CapitalShip", "Capital ship mode");   break;
+			}
+
+			if (TargetShip->GetNavigationSystem()->IsAutoPilot())
+			{
+				AutopilotText = LOCTEXT("AUTOPILOT", " (Autopilot)");
+			}
 		}
 	}
 
-	return FText::FromString(ShipText.ToString() + " - " + ModeText.ToString() + " " + InfoTextValue.ToString() + " - " + SectorText.ToString());
+	return FText::FromString(ShipText.ToString() + " - " + ModeText.ToString() + AutopilotText.ToString() + " - " + SectorText.ToString());
 }
 
 TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
