@@ -164,7 +164,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		if (BarrelComponent)
 		{
 
-			float TargetBarrelAngle = 0;
+			float TargetBarrelAngle = 15;
 
 			if (AimDirection != FVector::ZeroVector)
 			{
