@@ -413,7 +413,6 @@ void AFlarePlayerController::OnExitMenu()
 	{
 		ClientPlaySound(OffSound);
 		Possess(ShipPawn);
-		SetExternalCamera(false);
 	}
 }
 
