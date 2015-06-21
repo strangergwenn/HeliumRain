@@ -64,7 +64,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_BrakeLocation)
 			{
-				UpdateLinearBraking(DeltaSeconds);
+				UpdateLinearBraking(DeltaSeconds, CurrentCommand.VelocityTarget);
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Rotation)
 			{
@@ -569,10 +569,11 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* Do
 	Navigation commands and helpers
 ----------------------------------------------------*/
 
-void UFlareSpacecraftNavigationSystem::PushCommandLinearBrake()
+void UFlareSpacecraftNavigationSystem::PushCommandLinearBrake(const FVector& VelocityTarget)
 {
 	FFlareShipCommandData Command;
 	Command.Type = EFlareCommandDataType::CDT_BrakeLocation;
+	Command.VelocityTarget = VelocityTarget;
 	PushCommand(Command);
 }
 
@@ -924,16 +925,16 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 	return false;
 }
 
-void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds)
+void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds, FVector TargetVelocity)
 {
-	LinearTargetVelocity = FVector::ZeroVector;
+	LinearTargetVelocity = TargetVelocity;
 	AccelerationRatioTarget = 1.f;
-	FVector LinearVelocity = Spacecraft->Airframe->GetPhysicsLinearVelocity();
+	FVector DeltaLinearVelocity = TargetVelocity*100 - Spacecraft->Airframe->GetPhysicsLinearVelocity();
 
 	// Null speed detection
-	if (LinearVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
+	if (DeltaLinearVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
 	{
-		Spacecraft->Airframe->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
+		Spacecraft->Airframe->SetAllPhysicsLinearVelocity(TargetVelocity*100);
 		ClearCurrentCommand();
 	}
 }

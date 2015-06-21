@@ -648,7 +648,7 @@ void AFlareSpacecraft::ZoomOut()
 void AFlareSpacecraft::FaceForward()
 {
 	// TODO do better
-	if (!StateManager->IsExternalCamera() && !StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
+	if (!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
 		NavigationSystem->PushCommandRotation(Airframe->GetPhysicsLinearVelocity(), FVector(1,0,0));
 	}
@@ -657,7 +657,7 @@ void AFlareSpacecraft::FaceForward()
 void AFlareSpacecraft::FaceBackward()
 {
 	// TODO do better
-	if (!StateManager->IsExternalCamera() &&!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
+	if (!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
 		NavigationSystem->PushCommandRotation((-Airframe->GetPhysicsLinearVelocity()), FVector(1, 0, 0));
 	}
@@ -665,10 +665,15 @@ void AFlareSpacecraft::FaceBackward()
 
 void AFlareSpacecraft::Brake()
 {
+	BrakeToVelocity();
+}
+
+void AFlareSpacecraft::BrakeToVelocity(const FVector& VelocityTarget)
+{
 	// TODO do better
-	if (!StateManager->IsExternalCamera() && !StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
+	if (!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
-		NavigationSystem->PushCommandLinearBrake();
+		NavigationSystem->PushCommandLinearBrake(VelocityTarget);
 	}
 }
 
@@ -685,7 +690,7 @@ void AFlareSpacecraft::BoostOff()
 void AFlareSpacecraft::ForceManual()
 {
 	// TODO do better
-	if (!StateManager->IsExternalCamera() && !StateManager->IsPilotMode() && NavigationSystem->GetStatus() != EFlareShipStatus::SS_Docked)
+	if (!StateManager->IsPilotMode() && NavigationSystem->GetStatus() != EFlareShipStatus::SS_Docked)
 	{
 		NavigationSystem->AbortAllCommands();
 	}

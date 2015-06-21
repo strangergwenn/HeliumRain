@@ -159,6 +159,9 @@ public:
 	/** Brake */
 	void Brake();
 
+	/** Match speed with nearest spacecraft */
+	void MatchSpeedWithNearestSpacecraft();
+
 	/** Open the upgrade menu */
 	void UpgradeShip();
 

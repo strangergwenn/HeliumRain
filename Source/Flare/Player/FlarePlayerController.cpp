@@ -472,7 +472,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
 
 
-	InputComponent-> BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
+	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
 }
 
@@ -679,6 +679,11 @@ void AFlarePlayerController::WheelPressed()
 			}
 			HUD->GetMouseMenu()->AddWidget("Mouse_Brake", LOCTEXT("Brake", "BRAKE"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
+			HUD->GetMouseMenu()->AddWidget("Mouse_MatchSpeed", LOCTEXT("Match speed with nearest spacecraft", "MATCH_SPEED"),
+				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::MatchSpeedWithNearestSpacecraft));
+
+
+
 		}
 
 		HUD->SetWheelMenu(true);
@@ -714,6 +719,37 @@ void AFlarePlayerController::Brake()
 	{
 		ShipPawn->ForceManual();
 		ShipPawn->Brake();
+	}
+}
+
+void AFlarePlayerController::MatchSpeedWithNearestSpacecraft()
+{
+	if (ShipPawn)
+	{
+		AFlareSpacecraft* TargetSpacecraft = NULL;
+		float TargetDistance = 0;
+		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			AFlareSpacecraft* ShipBase = Cast<AFlareSpacecraft>(*ActorItr);
+			if (ShipBase && ShipBase != ShipPawn)
+			{
+				FVector2D ScreenPosition;
+				if (ProjectWorldLocationToScreen(ShipBase->GetActorLocation(), ScreenPosition))
+				{
+					float Distance = (ShipBase->GetActorLocation() - ShipPawn->GetActorLocation()).Size();
+					if(!TargetSpacecraft || Distance < TargetDistance)
+					{
+						TargetSpacecraft = ShipBase;
+						TargetDistance = Distance;
+					}
+				}
+			}
+		}
+		if(TargetSpacecraft)
+		{
+			ShipPawn->ForceManual();
+			ShipPawn->BrakeToVelocity(TargetSpacecraft->GetLinearVelocity());
+		}
 	}
 }
 

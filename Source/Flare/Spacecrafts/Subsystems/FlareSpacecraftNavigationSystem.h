@@ -57,6 +57,7 @@ struct FFlareShipCommandData
 
 	bool PreciseApproach;
 	FVector LocationTarget;
+	FVector VelocityTarget;
 	FVector RotationTarget;
 	FVector LocalShipAxis;
 
@@ -127,7 +128,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Brake (linear) */
-	void PushCommandLinearBrake();
+	void PushCommandLinearBrake(const FVector& VelocityTarget = FVector::ZeroVector);
 
 	/** Brake (angular) */
 	void PushCommandAngularBrake();
@@ -179,7 +180,7 @@ public:
 	bool UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity, float SecurityRatio);
 
 	/** Brake */
-	void UpdateLinearBraking(float DeltaSeconds);
+	void UpdateLinearBraking(float DeltaSeconds, FVector TargetVelocity);
 
 	/** Automatically update the current angular attitude */
 	void UpdateAngularAttitudeAuto(float DeltaSeconds);

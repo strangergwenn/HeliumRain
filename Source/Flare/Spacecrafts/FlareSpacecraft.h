@@ -159,6 +159,8 @@ public:
 
 	virtual void Brake();
 
+	virtual void BrakeToVelocity(const FVector& VelocityTarget = FVector::ZeroVector);
+
 	virtual void BoostOn();
 
 	virtual void BoostOff();
