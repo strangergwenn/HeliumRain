@@ -56,7 +56,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 
 	SetActorScale3D(ParentWeapon->GetSpacecraft()->GetActorScale3D());
 
-	if(Data)
+	if (Data)
 	{
 		BombData = *Data;
 	}
@@ -68,7 +68,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 		BombData.DropParentDistance = 0;
 	}
 
-	if(BombData.Activated)
+	if (BombData.Activated)
 	{
 		SetActorEnableCollision(true);
 	}
@@ -81,7 +81,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 
 	if (Other && OtherComp)
 	{
-		if(Other == ParentWeapon->GetSpacecraft())
+		if (Other == ParentWeapon->GetSpacecraft())
 		{
 			// Avoid auto hit
 			return;
@@ -89,14 +89,14 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 
 
 		AFlareBomb* BombCandidate = Cast<AFlareBomb>(Other);
-		if(BombCandidate)
+		if (BombCandidate)
 		{
 			// Avoid bomb hit
 			return;
 		}
 
 		// Spawn penetration effect
-		if(ExplosionEffectTemplate)
+		if (ExplosionEffectTemplate)
 		{
 		UGameplayStatics::SpawnEmitterAttached(
 			ExplosionEffectTemplate,
@@ -185,9 +185,9 @@ void AFlareBomb::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(BombData.Dropped && !BombData.Activated)
+	if (BombData.Dropped && !BombData.Activated)
 	{
-		if(GetParentDistance() > BombData.DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance*100)
+		if (GetParentDistance() > BombData.DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance*100)
 		{
 			// Activate after few centimeters
 			SetActorEnableCollision(true);
@@ -195,7 +195,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		}
 	}
 
-	if(BombData.Dropped && BombData.Activated)
+	if (BombData.Dropped && BombData.Activated)
 	{
 		BombData.LifeTime += DeltaSeconds;
 	}
@@ -204,10 +204,10 @@ void AFlareBomb::Tick(float DeltaSeconds)
 	if (PC)
 	{
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
-		if(PlayerShip)
+		if (PlayerShip)
 		{
 			float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-			if(Distance > 500000 && BombData.LifeTime > 30)
+			if (Distance > 500000 && BombData.LifeTime > 30)
 			{
 				// 5 km and 30s
 				Destroy();

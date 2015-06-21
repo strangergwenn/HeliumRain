@@ -77,7 +77,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
 	TimeSinceWeaponSwitch += DeltaSeconds;
 
-	if(ShipPawn)
+	if (ShipPawn)
 	{
 		Cast<AFlareHUD>(GetHUD())->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 	}
@@ -86,7 +86,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 	// Mouse cursor
 	bool NewShowMouseCursor = !HUD->IsWheelOpen() ;
-	if(!HUD->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
+	if (!HUD->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
 	}
@@ -114,7 +114,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);
 
-			if(!NewShowMouseCursor)
+			if (!NewShowMouseCursor)
 			{
 				ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >( Player );
 
@@ -266,7 +266,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 
 	// Setup power sound
 	FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
-	if(ShipDescription)
+	if (ShipDescription)
 	{
 		PowerSound->SetSound(ShipDescription->PowerSound);
 	}
@@ -277,7 +277,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 
 	// Setup orbital engine sound
 	FFlareSpacecraftComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
-	if(EngineDescription)
+	if (EngineDescription)
 	{
 		EngineSound->SetSound(EngineDescription->EngineCharacteristics.EngineSound);
 	}
@@ -288,7 +288,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 
 	// Setup RCS sound
 	FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
-	if(RCSDescription)
+	if (RCSDescription)
 	{
 		RCSSound->SetSound(RCSDescription->EngineCharacteristics.EngineSound);
 	}
@@ -355,7 +355,7 @@ void AFlarePlayerController::PossessCurrentShip()
 	}
 
 	// Possess the ship
-	if(ShipPawn)
+	if (ShipPawn)
 	{
 		FlyShip(ShipPawn);
 	}
@@ -603,7 +603,7 @@ void AFlarePlayerController::WheelPressed()
 	if (HUD)
 	{
 		// If in menu or wheel menu, no wheel menu
-		if(HUD->IsMenuOpen() || HUD->IsWheelOpen())
+		if (HUD->IsMenuOpen() || HUD->IsWheelOpen())
 		{
 			return;
 		}
@@ -612,7 +612,7 @@ void AFlarePlayerController::WheelPressed()
 		HUD->GetMouseMenu()->ClearWidgets();
 		HUD->GetMouseMenu()->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "CANCEL"));
 
-		if(ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
+		if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
 		{
 			HUD->GetMouseMenu()->AddWidget("Mouse_Align", LOCTEXT("Align", "FORWARD"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
@@ -622,7 +622,7 @@ void AFlarePlayerController::WheelPressed()
 		}
 		HUD->GetMouseMenu()->AddWidget("Mouse_Brake", LOCTEXT("Brake", "BRAKE"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
-
+		 
 		HUD->SetWheelMenu(true);
 	}
 }
@@ -634,20 +634,20 @@ void AFlarePlayerController::WheelReleased()
 
 void AFlarePlayerController::MouseInputX(float Val)
 {
-	if(Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
+	if (Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
 	{
-		if(MenuPawn)
+		if (MenuPawn)
 		{
 			MenuPawn->YawInput(Val);
 		}
 		return;
 	}
 
-	if(Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
+	if (Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
 	{
 		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(Val, 0));
 	}
-	else if(ShipPawn)
+	else if (ShipPawn)
 	{
 		ShipPawn->YawInput(Val);
 	}
@@ -655,20 +655,20 @@ void AFlarePlayerController::MouseInputX(float Val)
 
 void AFlarePlayerController::MouseInputY(float Val)
 {
-	if(Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
+	if (Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
 	{
-		if(MenuPawn)
+		if (MenuPawn)
 		{
 			MenuPawn->PitchInput(Val);
 		}
 		return;
 	}
 
-	if(Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
+	if (Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
 	{
 		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(0, -Val));
 	}
-	else if(ShipPawn)
+	else if (ShipPawn)
 	{
 		ShipPawn->PitchInput(Val);
 	}

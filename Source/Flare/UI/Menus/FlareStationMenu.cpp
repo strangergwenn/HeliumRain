@@ -167,7 +167,7 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 		{
 			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(DockedShips[i]);
 
-			if(Spacecraft)
+			if (Spacecraft)
 			{
 				FLOGV("SFlareStationMenu::Enter %s", *Spacecraft->GetName());
 			}

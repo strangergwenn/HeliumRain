@@ -66,10 +66,10 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		if (PC)
 		{
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
-			if(PlayerShip && !GetDamageSystem()->IsAlive())
+			if (PlayerShip && !GetDamageSystem()->IsAlive())
 			{
 				float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-				if(Distance > 500000)
+				if (Distance > 500000)
 				{
 					// 5 km
 					Destroy();
@@ -130,7 +130,7 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 
 	float Divisor = FMath::Square(EffectiveBulletSpeed) - TargetVelocity.SizeSquared();
 
-	if(EffectiveBulletSpeed < 0 || FMath::IsNearlyZero(Divisor))
+	if (EffectiveBulletSpeed < 0 || FMath::IsNearlyZero(Divisor))
 	{
 		// Intersect at an infinite time
 		return -1;
@@ -146,7 +146,7 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 	float InterceptTime2 = (- B + FMath::Sqrt(Delta)) / (2 * A);
 
 	float InterceptTime;
-	if(InterceptTime1 > 0 && InterceptTime2 > 0)
+	if (InterceptTime1 > 0 && InterceptTime2 > 0)
 	{
 		InterceptTime = FMath::Min(InterceptTime1, InterceptTime2);
 	}
@@ -155,7 +155,7 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 		InterceptTime = FMath::Max(InterceptTime1, InterceptTime2);
 	}
 
-	if(InterceptTime > 0)
+	if (InterceptTime > 0)
 	{
 		FVector InterceptLocation = TargetLocation + TargetVelocity * InterceptTime;
 		*ResultPosition = InterceptLocation;
@@ -242,7 +242,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 
 		// Find the cockpit
-		if(ComponentDescription->GeneralCharacteristics.LifeSupport)
+		if (ComponentDescription->GeneralCharacteristics.LifeSupport)
 		{
 			ShipCockit = Component;
 		}
@@ -268,7 +268,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	}
 
 	// If not rcs, add passive stabilization
-	if(ShipDescription->RCSCount == 0)
+	if (ShipDescription->RCSCount == 0)
 	{
 		Airframe->SetLinearDamping(0.1);
 		Airframe->SetAngularDamping(0.1);
@@ -278,7 +278,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	Pilot = NewObject<UFlareShipPilot>(this, UFlareShipPilot::StaticClass());
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
 
-	if(!StateManager)
+	if (!StateManager)
 	{
 		StateManager = NewObject<UFlareSpacecraftStateManager>(this, UFlareSpacecraftStateManager::StaticClass());
 	}
@@ -307,7 +307,8 @@ FFlareSpacecraftSave* AFlareSpacecraft::Save()
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 		FFlareSpacecraftComponentSave* ComponentSave = Component->Save();
 
-		if (ComponentSave) {
+		if (ComponentSave)
+		{
 			ShipData.Components.Add(*ComponentSave);
 		}
 	}
@@ -380,7 +381,7 @@ UFlareInternalComponent* AFlareSpacecraft::GetInternalComponentAtLocation(FVecto
 		InternalComponent->GetBoundingSphere(ComponentLocation, ComponentSize);
 
 		float Distance = (ComponentLocation - Location).Size() - ComponentSize;
-		if(Distance < MinDistance)
+		if (Distance < MinDistance)
 		{
 			ClosestComponent = InternalComponent;
 			MinDistance = Distance;

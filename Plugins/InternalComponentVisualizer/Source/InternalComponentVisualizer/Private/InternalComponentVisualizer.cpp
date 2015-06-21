@@ -12,10 +12,10 @@ class FFlareInternalComponentVisualizer : public FComponentVisualizer
 public:
 	virtual void DrawVisualization( const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI ) override
 	{
-		if(View->Family->EngineShowFlags.LightRadius)
+		if (View->Family->EngineShowFlags.LightRadius)
 		{
 			const UFlareInternalComponent* InternalComponent = Cast<const UFlareInternalComponent>(Component);
-			if(InternalComponent != NULL)
+			if (InternalComponent != NULL)
 			{
 				FTransform TM = InternalComponent->ComponentToWorld;
 				TM.RemoveScaling();

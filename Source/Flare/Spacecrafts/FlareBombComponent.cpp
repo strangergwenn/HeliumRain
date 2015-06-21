@@ -21,7 +21,7 @@ UFlareBombComponent::UFlareBombComponent(const class FObjectInitializer& PCIP)
 
 UStaticMesh* UFlareBombComponent::GetMesh(bool PresentationMode) const
 {
-	if(ComponentDescription)
+	if (ComponentDescription)
 	{
 		FLOGV("UFlareBombComponent::GetMesh OK %s", *this->GetReadableName());
 		return ComponentDescription->Mesh;

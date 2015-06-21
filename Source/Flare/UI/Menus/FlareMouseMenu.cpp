@@ -125,7 +125,7 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 void SFlareMouseMenu::SetWheelCursorMove(FVector2D Move)
 {
 	MouseOffset += Move * 15; // Wheel menu sensibility
-	if(MouseOffset.Size() > WidgetDistance)
+	if (MouseOffset.Size() > WidgetDistance)
 	{
 		MouseOffset /= MouseOffset.Size() / (float) WidgetDistance;
 	}

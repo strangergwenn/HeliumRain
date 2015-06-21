@@ -30,43 +30,44 @@ UFlareSpacecraftWeaponsSystem::~UFlareSpacecraftWeaponsSystem()
 
 void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 {
-	if(!ActiveWeaponGroup)
+	if (!ActiveWeaponGroup)
 	{
 		return;
 	}
 
-	switch (ActiveWeaponGroup->Type) {
-	case EFlareWeaponGroupType::WG_GUN:
-		for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
-		{
-			if (WantFire)
+	switch (ActiveWeaponGroup->Type)
+	{
+		case EFlareWeaponGroupType::WG_GUN:
+			for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
 			{
-				ActiveWeaponGroup->Weapons[i]->StartFire();
+				if (WantFire)
+				{
+					ActiveWeaponGroup->Weapons[i]->StartFire();
+				}
+				else
+				{
+					ActiveWeaponGroup->Weapons[i]->StopFire();
+				}
 			}
-			else
+
+			break;
+		case EFlareWeaponGroupType::WG_BOMB:
+			if (Armed && WantFire)
 			{
-				ActiveWeaponGroup->Weapons[i]->StopFire();
+				Armed = false;
+				int32 FireWeaponIndex = (ActiveWeaponGroup->LastFiredWeaponIndex+1) % ActiveWeaponGroup->Weapons.Num();
+				ActiveWeaponGroup->Weapons[FireWeaponIndex]->StartFire();
+				ActiveWeaponGroup->LastFiredWeaponIndex = FireWeaponIndex;
 			}
-		}
+			else if (!WantFire)
+			{
+				Armed = true;
+			}
 
-		break;
-	case EFlareWeaponGroupType::WG_BOMB:
-		if(Armed && WantFire)
-		{
-			Armed = false;
-			int32 FireWeaponIndex = (ActiveWeaponGroup->LastFiredWeaponIndex+1) % ActiveWeaponGroup->Weapons.Num();
-			ActiveWeaponGroup->Weapons[FireWeaponIndex]->StartFire();
-			ActiveWeaponGroup->LastFiredWeaponIndex = FireWeaponIndex;
-		}
-		else if (!WantFire)
-		{
-			Armed = true;
-		}
-
-	case EFlareWeaponGroupType::WG_NONE:
-	case EFlareWeaponGroupType::WG_TURRET:
-	default:
-		break;
+		case EFlareWeaponGroupType::WG_NONE:
+		case EFlareWeaponGroupType::WG_TURRET:
+		default:
+			break;
 	}
 
 
@@ -146,7 +147,7 @@ void UFlareSpacecraftWeaponsSystem::Start()
 		for (int32 WeaponIndex = 0; WeaponIndex < WeaponGroup->Weapons.Num(); WeaponIndex++)
 		{
 			int32 CurrentAmmo = WeaponGroup->Weapons[WeaponIndex]->GetCurrentAmmo();
-			if(MinAmmoIndex == -1 || CurrentAmmo < MinAmmo)
+			if (MinAmmoIndex == -1 || CurrentAmmo < MinAmmo)
 			{
 				MinAmmo = CurrentAmmo;
 				MinAmmoIndex = WeaponIndex;
@@ -190,7 +191,7 @@ void UFlareSpacecraftWeaponsSystem::StopFire()
 void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
 {
 
-	if(Index >= 0 && Index < WeaponGroupList.Num())
+	if (Index >= 0 && Index < WeaponGroupList.Num())
 	{
 		StopAllWeapons();
 		ActiveWeaponGroupIndex = Index;
@@ -202,7 +203,8 @@ void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
 
 void UFlareSpacecraftWeaponsSystem::ActivateWeapons(bool Activate)
 {
-	if(Activate) {
+	if (Activate)
+	{
 		ActivateWeapons();
 	}
 	else
@@ -240,7 +242,7 @@ int32 UFlareSpacecraftWeaponsSystem::GetGroupByWeaponIdentifer(FName Identifier)
 {
 	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 	{
-		if(WeaponGroupList[GroupIndex]->Description->Identifier == Identifier)
+		if (WeaponGroupList[GroupIndex]->Description->Identifier == Identifier)
 		{
 			return GroupIndex;
 		}
@@ -250,7 +252,7 @@ int32 UFlareSpacecraftWeaponsSystem::GetGroupByWeaponIdentifer(FName Identifier)
 
 EFlareWeaponGroupType::Type UFlareSpacecraftWeaponsSystem::GetActiveWeaponType()
 {
-	if(ActiveWeaponGroup)
+	if (ActiveWeaponGroup)
 	{
 		return ActiveWeaponGroup->Type;
 	}

@@ -95,7 +95,7 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInt
 		if (!DockingSlots[i].Granted && DockingSlots[i].DockSize == Ship->GetSize())
 		{
 			float DockDistance = (Spacecraft->Airframe->GetComponentToWorld().TransformPosition(DockingSlots[i].LocalLocation) - PreferredLocation).Size();
-			if(BestIndex < 0 || DockDistance < BestDistance)
+			if (BestIndex < 0 || DockDistance < BestDistance)
 			{
 				BestDistance = DockDistance;
 				BestIndex = i;
@@ -103,7 +103,7 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInt
 		}
 	}
 
-	if(BestIndex >=0)
+	if (BestIndex >=0)
 	{
 		FLOGV("UFlareSpacecraftDockingSystem::RequestDock : found valid dock %d", BestIndex);
 		DockingSlots[BestIndex].Granted = true;

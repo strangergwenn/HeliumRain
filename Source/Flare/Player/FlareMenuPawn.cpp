@@ -291,7 +291,7 @@ void AFlareMenuPawn::PitchInput(float Val)
 
 void AFlareMenuPawn::YawInput(float Val)
 {
-	if(Val)
+	if (Val)
 	{
 		ExternalCameraYawTarget += - CameraPanSpeed * Val;
 	}

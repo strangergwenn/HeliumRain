@@ -57,7 +57,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 		{
 			if (CurrentCommand.Type == EFlareCommandDataType::CDT_Location)
 			{
-				if(UpdateLinearAttitudeAuto(DeltaSeconds, CurrentCommand.LocationTarget, FVector::ZeroVector, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity), 1.0))
+				if (UpdateLinearAttitudeAuto(DeltaSeconds, CurrentCommand.LocationTarget, FVector::ZeroVector, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity), 1.0))
 				{
 					ClearCurrentCommand();
 				}
@@ -247,7 +247,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 
 	AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(DockStationInterface);
-	if(!DockStation)
+	if (!DockStation)
 	{
 		//TODO LOG
 		return;
@@ -478,7 +478,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 			InApproach = false;
 		}
 
-		if(InApproach)
+		if (InApproach)
 		{
 			//FLOG("-> In approach");
 			MaxVelocity = GetApproachVelocityLimit(DockToDockDistance) / 200 ;
@@ -490,13 +490,13 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 			//FLOG("-> Rendez-vous");
 			MaxVelocity = LinearMaxVelocity;
 			LocationTarget += StationDockAxis * (ApproachDockToDockDistanceLimit / 2);
-			if(DockToDockDistance > ApproachDockToDockDistanceLimit)
+			if (DockToDockDistance > ApproachDockToDockDistanceLimit)
 			{
 				AxisTarget = LocationTarget - ShipDockLocation;
 				AngularVelocityTarget = FVector::ZeroVector;
 			}
 			// During rendez-vous avoid the station if not in axis
-			if(FVector::DotProduct((ShipDockLocation - ShipDockLocation).GetUnsafeNormal(), StationDockAxis) < 0.5)
+			if (FVector::DotProduct((ShipDockLocation - ShipDockLocation).GetUnsafeNormal(), StationDockAxis) < 0.5)
 			{
 				AnticollisionDockStation = NULL;
 			}
@@ -521,7 +521,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.25);
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
 
-	if(Anticollision)
+	if (Anticollision)
 	{
 		// During docking, lets the others avoid me
 		LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AnticollisionDockStation);
@@ -548,7 +548,7 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* Do
 
 	// Attach to station
 	AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(DockStation);
-	if(Station)
+	if (Station)
 	{
 		Spacecraft->AttachRootComponentToActor(Station,"", EAttachLocation::KeepWorldPosition, true);
 	}
@@ -594,7 +594,7 @@ void UFlareSpacecraftNavigationSystem::PushCommandLocation(const FVector& Locati
 
 void UFlareSpacecraftNavigationSystem::PushCommandRotation(const FVector& RotationTarget, const FVector& LocalShipAxis)
 {
-	if(RotationTarget.IsNearlyZero() || LocalShipAxis.IsNearlyZero())
+	if (RotationTarget.IsNearlyZero() || LocalShipAxis.IsNearlyZero())
 	{
 		return;
 	}
@@ -796,7 +796,7 @@ FVector UFlareSpacecraftNavigationSystem::AnticollisionCorrection(FVector Initia
 {
 	AFlareSpacecraft* NearestShip = GetNearestShip(DockingStation);
 
-	if(NearestShip)
+	if (NearestShip)
 	{
 		FVector DeltaLocation = NearestShip->GetActorLocation() - Spacecraft->GetActorLocation();
 		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *2) / 100.f; // Distance in meters
@@ -840,7 +840,7 @@ AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecr
 		if (ShipCandidate && ShipCandidate != Spacecraft && ShipCandidate != DockingStation)
 		{
 
-			if(DockingStation && (DockingStation->GetDockingSystem()->IsGrantedShip(ShipCandidate) || DockingStation->GetDockingSystem()->IsDockedShip(ShipCandidate)))
+			if (DockingStation && (DockingStation->GetDockingSystem()->IsGrantedShip(ShipCandidate) || DockingStation->GetDockingSystem()->IsDockedShip(ShipCandidate)))
 			{
 				// Ignore ship docked or docking at the same station
 				continue;
@@ -848,7 +848,7 @@ AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecr
 
 			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
 
-			if(NearestShip == NULL || DistanceSquared < MinDistanceSquared)
+			if (NearestShip == NULL || DistanceSquared < MinDistanceSquared)
 			{
 				MinDistanceSquared = DistanceSquared;
 				NearestShip = ShipCandidate;
@@ -960,7 +960,7 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeco
 	TargetAxis.Normalize();
 
 	FVector RotationDirection = FVector::CrossProduct(WorldShipAxis, TargetAxis);
-	if(RotationDirection.IsNearlyZero())
+	if (RotationDirection.IsNearlyZero())
 	{
 		RotationDirection=FVector(0,0,1);
 	}
@@ -995,10 +995,12 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeco
 
 	FVector RelativeResultSpeed;
 
-	if (AngleToStop > angle) {
+	if (AngleToStop > angle)
+	{
 		RelativeResultSpeed = FVector::ZeroVector;
 	}
-	else {
+	else
+	{
 
 		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / DeltaSeconds, AngularMaxVelocity);
 
@@ -1130,7 +1132,7 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 
 			// Scale with damages
 			float TotalMaxTorqueInAxis = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, false);
-			if(!FMath::IsNearlyZero(TotalMaxTorqueInAxis))
+			if (!FMath::IsNearlyZero(TotalMaxTorqueInAxis))
 			{
 				float DamageRatio = GetTotalMaxTorqueInAxis(Engines, DeltaAngularVAxis, true) / TotalMaxTorqueInAxis;
 				FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
@@ -1148,10 +1150,14 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 			float LinearAlpha = 0;
 			float AngularAlpha = 0;
 
-			if (Spacecraft->IsPresentationMode()) {
+			if (Spacecraft->IsPresentationMode())
+			{
 				LinearAlpha = true;
-			} else if (!DeltaV.IsNearlyZero()) {
-				if (!(!UseOrbitalBoost && Engine->IsA(UFlareOrbitalEngine::StaticClass()))) {
+			}
+			else if (!DeltaV.IsNearlyZero())
+			{
+				if (!(!UseOrbitalBoost && Engine->IsA(UFlareOrbitalEngine::StaticClass())))
+				{
 					LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis);
 				}
 			}
@@ -1160,7 +1166,8 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 			FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
 			TorqueDirection.Normalize();
 
-			if (!DeltaAngularV.IsNearlyZero() && !Engine->IsA(UFlareOrbitalEngine::StaticClass())) {
+			if (!DeltaAngularV.IsNearlyZero() && !Engine->IsA(UFlareOrbitalEngine::StaticClass()))
+			{
 				AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
 			}
 
@@ -1222,7 +1229,8 @@ float UFlareSpacecraftNavigationSystem::GetTotalMaxTorqueInAxis(TArray<UActorCom
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
 		// Ignore orbital engines for torque computation
-		if (Engine->IsA(UFlareOrbitalEngine::StaticClass())) {
+		if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
+		{
 		  continue;
 		}
 
@@ -1241,10 +1249,11 @@ float UFlareSpacecraftNavigationSystem::GetTotalMaxTorqueInAxis(TArray<UActorCom
 		FVector TorqueDirection = FVector::CrossProduct(EngineOffset, WorldThrustAxis);
 		TorqueDirection.Normalize();
 
-		float ratio = FVector::DotProduct(TorqueAxis, TorqueDirection);
+		float Ratio = FVector::DotProduct(TorqueAxis, TorqueDirection);
 
-		if (ratio > 0) {
-			TotalMaxTorque += FVector::CrossProduct(EngineOffset, WorldThrustAxis).Size() * MaxThrust * ratio;
+		if (Ratio > 0)
+		{
+			TotalMaxTorque += FVector::CrossProduct(EngineOffset, WorldThrustAxis).Size() * MaxThrust * Ratio;
 		}
 
 	}

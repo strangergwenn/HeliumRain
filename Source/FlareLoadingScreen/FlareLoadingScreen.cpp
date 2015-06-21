@@ -40,7 +40,7 @@ class SFlareLoadingScreen : public SCompoundWidget
 
 public:
 
-	SLATE_BEGIN_ARGS(SFlareLoadingScreen) {}
+	SLATE_BEGIN_ARGS(SFlareLoadingScreen){}
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs)

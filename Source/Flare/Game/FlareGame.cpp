@@ -227,7 +227,7 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
 		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if(SpacecraftCandidate && SpacecraftCandidate->GetName() == BombData.ParentSpacecraft)
+		if (SpacecraftCandidate && SpacecraftCandidate->GetName() == BombData.ParentSpacecraft)
 		{
 			ParentSpacecraft = SpacecraftCandidate;
 			break;
@@ -241,7 +241,7 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 		for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 		{
 			UFlareWeapon* WeaponCandidate = Cast<UFlareWeapon>(Components[ComponentIndex]);
-			if(WeaponCandidate && WeaponCandidate->SlotIdentifier == BombData.WeaponSlotIdentifier)
+			if (WeaponCandidate && WeaponCandidate->SlotIdentifier == BombData.WeaponSlotIdentifier)
 			{
 
 				ParentWeapon = WeaponCandidate;
@@ -536,7 +536,7 @@ void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, f
 		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
 		if (Company && Company->GetShortName() == CompanyShortName)
 		{
-			for(int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
+			for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
 			{
 				FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1:-1);
 				CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition + Shift);
@@ -552,11 +552,13 @@ AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifie
 {
 	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
 
-	if(!Desc) {
+	if (!Desc)
+	{
 		Desc = GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
 	}
 
-	if(Desc) {
+	if (Desc)
+	{
 		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
 	}
 	return NULL;
@@ -566,11 +568,13 @@ AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIde
 {
 	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
 
-	if(!Desc) {
+	if (!Desc)
+	{
 		Desc = GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
 	}
 
-	if(Desc) {
+	if (Desc)
+	{
 		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
 	}
 	return NULL;
@@ -754,14 +758,14 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 	}
 
 
-	for(int32 ShipIndex = 0; ShipIndex < ShipClass1Count; ShipIndex++)
+	for (int32 ShipIndex = 0; ShipIndex < ShipClass1Count; ShipIndex++)
 	{
 		FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1:-1);
 		CreateShip(ShipClass1, Company1Identifier, BasePosition + BaseOffset + Shift);
 		CreateShip(ShipClass1, Company2Identifier, BasePosition - BaseOffset - Shift);
 	}
 
-	for(int32 ShipIndex = 0; ShipIndex < ShipClass2Count; ShipIndex++)
+	for (int32 ShipIndex = 0; ShipIndex < ShipClass2Count; ShipIndex++)
 	{
 		FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1:-1);
 		CreateShip(ShipClass2, Company1Identifier, BasePosition + BaseOffset + Shift + BaseDeep);

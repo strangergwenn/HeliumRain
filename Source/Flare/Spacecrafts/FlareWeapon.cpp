@@ -33,7 +33,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	FLOG("UFlareWeapon::Initialize");
 
 	// Destroy attached bombs
-	for(int i = 0; i < Bombs.Num(); i++)
+	for (int i = 0; i < Bombs.Num(); i++)
 	{
 		Bombs[i]->Destroy();
 	}
@@ -54,7 +54,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 		FLOGV("UFlareWeapon::Initialize IsBomb ? %d", ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb);
 
-		if(ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+		if (ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
 		{
 			AmmoVelocity = ComponentDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity;
 			FiringPeriod =  0;
@@ -120,13 +120,13 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			}
 			else
 			{
-				for(int GunIndex = 0; GunIndex < ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount; GunIndex++)
+				for (int GunIndex = 0; GunIndex < ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount; GunIndex++)
 				{
 					FireGun(GunIndex);
 				}
 			}
 		}
-		else if(ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+		else if (ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
 		{
 			FireBomb();
 		}
@@ -135,7 +135,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		float DamageDelay = FMath::Square(1.f- GetDamageRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
 		TimeSinceLastShell = -DamageDelay;
 
-		if(FiringPeriod == 0){
+		if (FiringPeriod == 0){
 			Firing = false;
 		}
 	}
@@ -144,7 +144,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 bool UFlareWeapon::FireGun(int GunIndex)
 {
-	if(!IsSafeToFire(GunIndex))
+	if (!IsSafeToFire(GunIndex))
 	{
 		FLOGV("%s Not secure", *GetReadableName());
 		// Avoid to fire itself
@@ -171,7 +171,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	//Configure fuze if needed
 	ConfigureShellFuze(Shell);
 
-	if(FiringEffect)
+	if (FiringEffect)
 	{
 		FiringEffect->ActivateSystem();
 	}
@@ -190,7 +190,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 bool UFlareWeapon::FireBomb()
 {
 	AFlareBomb* Bomb = Bombs.Pop();
-	if(Bomb)
+	if (Bomb)
 	{
 		// TODO refill
 		Bomb->Drop();
@@ -201,13 +201,13 @@ bool UFlareWeapon::FireBomb()
 
 void UFlareWeapon::ConfigureShellFuze(AFlareShell* Shell)
 {
-	if(ComponentDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	if (ComponentDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
 	{
 		float SecurityRadius = 	ComponentDescription->WeaponCharacteristics.AmmoExplosionRadius + Spacecraft->GetMeshScale() / 100;
 		float SecurityDelay = SecurityRadius / ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
 		float ActiveTime = 10;
 
-		if(Target)
+		if (Target)
 		{
 			FVector TargetOffset = Target->GetActorLocation() - Spacecraft->GetActorLocation();
 			float EstimatedDistance = TargetOffset .Size() / 100;
@@ -215,7 +215,7 @@ void UFlareWeapon::ConfigureShellFuze(AFlareShell* Shell)
 			FVector FiringVelocity = Spacecraft->GetLinearVelocity();
 			FVector TargetVelocity = FVector::ZeroVector;
 			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Target->GetRootComponent());
-			if(RootComponent)
+			if (RootComponent)
 			{
 				TargetVelocity = RootComponent->GetPhysicsLinearVelocity() / 100;
 			}
@@ -266,7 +266,7 @@ void UFlareWeapon::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
 {
 	Super::ApplyHeatDamage(OverheatEnergy, BurnEnergy);
 	// Apply damage only if the player has fire recently, so can't fire due to cooldown
-	if(TimeSinceLastShell <= FiringPeriod)
+	if (TimeSinceLastShell <= FiringPeriod)
 	{
 		ApplyDamage(OverheatEnergy);
 	}
@@ -275,7 +275,7 @@ void UFlareWeapon::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
 void UFlareWeapon::RefillAmmo()
 {
 	CurrentAmmo = MaxAmmo;
-	if(ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+	if (ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
 	{
 		FillBombs();
 	}
@@ -287,7 +287,7 @@ void UFlareWeapon::FillBombs()
 	FLOGV("BombHardpoint RelativeLocation=%s", *BombHardpoint->RelativeLocation.ToString());
 	int CurrentBombCount = Bombs.Num();
 
-	for(int BombIndex = CurrentBombCount; BombIndex < CurrentAmmo ; BombIndex++)
+	for (int BombIndex = CurrentBombCount; BombIndex < CurrentAmmo ; BombIndex++)
 	{
 		// Get data
 		FVector HardpointLocation;
@@ -335,15 +335,15 @@ void UFlareWeapon::FillBombs()
 		FLOGV("Bomb %d NegativeZScale=%d", BombIndex, NegativeZScale);
 		FLOGV("Bomb %d RelativeScale3D=%s", BombIndex, *RelativeScale3D.ToString());
 
-		if(BombIndex == 0)
+		if (BombIndex == 0)
 		{
 			Roll = 90;
 		}
-		else if(BombIndex == 1)
+		else if (BombIndex == 1)
 		{
 			Roll = -90;
 		}
-		else if(BombIndex == 2)
+		else if (BombIndex == 2)
 		{
 			Roll = (NegativeZScale ? 180 : 0);
 		}
@@ -369,7 +369,7 @@ void UFlareWeapon::FillBombs()
 
 		Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(GetSpacecraft(), true);
 		GetSpacecraft()->Airframe->IgnoreActorWhenMoving(Bomb, true);
-		for(int i = 0; i < Bombs.Num(); i++)
+		for (int i = 0; i < Bombs.Num(); i++)
 		{
 			Cast<class UPrimitiveComponent>(Bombs[i]->GetRootComponent())->IgnoreActorWhenMoving(Bomb, true);
 			Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(Bombs[i], true);
@@ -415,7 +415,7 @@ bool UFlareWeapon::IsSafeToFire(int GunIndex) const
 
 float UFlareWeapon::GetAimRadius() const
 {
-	if(ComponentDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	if (ComponentDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
 	{
 		return ComponentDescription->WeaponCharacteristics.FuzeMaxDistanceThresold;
 	}
@@ -424,12 +424,12 @@ float UFlareWeapon::GetAimRadius() const
 
 UStaticMesh* UFlareWeapon::GetMesh(bool PresentationMode) const
 {
-	if(!PresentationMode && ComponentDescription && ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+	if (!PresentationMode && ComponentDescription && ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
 	{
 		return ComponentDescription->WeaponCharacteristics.BombCharacteristics.BombMesh;
 	}
 
-	if(!PresentationMode && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
+	if (!PresentationMode && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
 	{
 		return NULL;
 	}
@@ -445,7 +445,7 @@ void UFlareWeapon::OnAttachmentChanged()
 	if (!AttachParent)
 	{
 		// Destroy attached bombs
-		for(int i = 0; i < Bombs.Num(); i++)
+		for (int i = 0; i < Bombs.Num(); i++)
 		{
 			Bombs[i]->Destroy();
 		}
@@ -457,12 +457,12 @@ void UFlareWeapon::OnAttachmentChanged()
 FText UFlareWeapon::GetSlotName() const
 {
 	//Find Local slot check
-	if(ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
+	if (ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
 	{
 		for (int32 i = 0; i < Spacecraft->GetDescription()->TurretSlots.Num(); i++)
 		{
 				// TODO optimize and store that in cache
-				if(Spacecraft->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+				if (Spacecraft->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
 				{
 					return Spacecraft->GetDescription()->TurretSlots[i].SlotName;
 				}
@@ -473,7 +473,7 @@ FText UFlareWeapon::GetSlotName() const
 		for (int32 i = 0; i < Spacecraft->GetDescription()->GunSlots.Num(); i++)
 		{
 			// TODO optimize and store that in cache
-			if(Spacecraft->GetDescription()->GunSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+			if (Spacecraft->GetDescription()->GunSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
 			{
 				return Spacecraft->GetDescription()->GunSlots[i].SlotName;
 			}

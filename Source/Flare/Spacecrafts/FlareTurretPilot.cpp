@@ -58,23 +58,23 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 	PilotTargetShip = GetNearestHostileShip(true, true, 1200000);
 
-	if(!PilotTargetShip)
+	if (!PilotTargetShip)
 	{
 		PilotTargetShip = GetNearestHostileShip(true, false, 5000000);
 	}
 
 	// No dangerous ship, try not dangerous ships
-	if(!PilotTargetShip)
+	if (!PilotTargetShip)
 	{
 		PilotTargetShip = GetNearestHostileShip(false, false, 1200000);
 	}
 
-	if(!PilotTargetShip)
+	if (!PilotTargetShip)
 	{
 		PilotTargetShip = GetNearestHostileShip(false, false, 5000000);
 	}
 
-	if(PilotTargetShip)
+	if (PilotTargetShip)
 	{
 
 		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
@@ -108,20 +108,20 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(AmmoIntersectionPredictedTime > 0 && AmmoIntersectionPredictedTime < 10.f)
+		if (AmmoIntersectionPredictedTime > 0 && AmmoIntersectionPredictedTime < 10.f)
 		{
 			//FLOG("Near enough");
 			FVector FireAxis = Turret->GetFireAxis();
 
 
-			for(int GunIndex = 0; GunIndex < Turret->GetGunCount(); GunIndex++)
+			for (int GunIndex = 0; GunIndex < Turret->GetGunCount(); GunIndex++)
 			{
 				FVector MuzzleLocation = Turret->GetMuzzleLocation(GunIndex);
 
 				// Compute target Axis for each gun
 				FVector AmmoIntersectionLocation;
 				float AmmoIntersectionTime = PilotTargetShip->GetAimPosition(MuzzleLocation, TurretVelocity , AmmoVelocity, 0, &AmmoIntersectionLocation);
-				if(AmmoIntersectionTime < 0)
+				if (AmmoIntersectionTime < 0)
 				{
 					// No ammo intersection, don't fire
 					continue;
@@ -138,7 +138,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
 				FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
-				if(AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
+				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
 					Turret->SetTarget(PilotTargetShip);
 					/*FLOG("Want Fire");*/
@@ -148,7 +148,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 			}
 		}
 
-		if(Turret->GetSpacecraft()->GetDamageSystem()->GetTemperature() > Turret->GetSpacecraft()->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
+		if (Turret->GetSpacecraft()->GetDamageSystem()->GetTemperature() > Turret->GetSpacecraft()->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
 		{
 			// TODO Fire on dangerous target
 			WantFire = false;
@@ -171,7 +171,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 
 	float SecurityRadius = 0;
 
-	if(Turret->GetDescription()->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+	if (Turret->GetDescription()->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
 	{
 		 SecurityRadius = Turret->GetDescription()->WeaponCharacteristics.AmmoExplosionRadius + Turret->GetSpacecraft()->GetMeshScale() / 100;
 	}
@@ -204,7 +204,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 			}
 
 			float Distance = (PilotLocation - ShipCandidate->GetActorLocation()).Size();
-			if(Distance < SecurityRadius * 100)
+			if (Distance < SecurityRadius * 100)
 			{
 				continue;
 			}
@@ -216,7 +216,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 
 			FVector TargetAxis = (ShipCandidate->GetActorLocation()- PilotLocation).GetUnsafeNormal();
 
-			if(ReachableOnly && !Turret->IsReacheableAxis(TargetAxis))
+			if (ReachableOnly && !Turret->IsReacheableAxis(TargetAxis))
 			{
 				continue;
 			}

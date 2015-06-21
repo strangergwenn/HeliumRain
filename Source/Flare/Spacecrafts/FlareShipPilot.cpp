@@ -27,7 +27,7 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 
 void UFlareShipPilot::TickPilot(float DeltaSeconds)
 {
-	if(Ship->IsStation())
+	if (Ship->IsStation())
 	{
 		// No pilot for stations
 		return;
@@ -115,18 +115,18 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 
 	// Begin to find a new target only if the pilot has currently no alive target or the target is too far or not dangerous
-	if(!PilotTargetShip || !PilotTargetShip->GetDamageSystem()->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 60000 || PilotTargetShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
+	if (!PilotTargetShip || !PilotTargetShip->GetDamageSystem()->IsAlive() || (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > 60000 || PilotTargetShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) <=0  )
 	{
 		PilotTargetShip = GetNearestHostileShip(true);
 	}
 
 	// No dangerous ship, try not dangerous ships
-	if(!PilotTargetShip)
+	if (!PilotTargetShip)
 	{
 		PilotTargetShip = GetNearestHostileShip(false);
 	}
 
-	if(PilotTargetShip && OldPilotTargetShip != PilotTargetShip)
+	if (PilotTargetShip && OldPilotTargetShip != PilotTargetShip)
 	{
 		AttackPhase = 0;
 		AttackAngle = FMath::FRandRange(0, 360);
@@ -134,7 +134,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		AttackDistance = FMath::FRandRange(50, 100) + TargetSize;
 	}
 
-	if(PilotTargetShip)
+	if (PilotTargetShip)
 	{
 		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
 
@@ -229,7 +229,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 		if (AttackPhase == 0)
 		{
-			if(FVector::DotProduct(DeltaLocation, DeltaVelocity) < 0)
+			if (FVector::DotProduct(DeltaLocation, DeltaVelocity) < 0)
 			{
 				// Target is approching, prepare attack
 				AttackPhase = 1;
@@ -240,7 +240,8 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 				LinearTargetVelocity = PredictedFireTargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			}
 
-			if(Distance < SecurityDistance) {
+			if (Distance < SecurityDistance)
+			{
 				AttackPhase = 1;
 			}
 
@@ -248,7 +249,8 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 		if (AttackPhase == 1)
 		{
-			if(LastTargetDistance < Distance) {
+			if (LastTargetDistance < Distance)
+			{
 				// Target is passed
 				AttackPhase = 2;
 			}
@@ -273,10 +275,13 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 		if (AttackPhase == 2)
 		{
-			if(Distance > SecurityDistance) {
+			if (Distance > SecurityDistance)
+			{
 				// Security distance reach
 				AttackPhase = 0;
-			} else {
+			}
+			else
+			{
 				if (DangerousTarget)
 				{
 					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
@@ -291,7 +296,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
-		if(AmmoIntersectionTime > 0 && AmmoIntersectionTime < 1.5)
+		if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < 1.5)
 		{
 			//FLOGV("is at fire range=%f", Distance);
 			// TODO Use BulletDirection instead of LocalNose
@@ -310,13 +315,13 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 			*/
 
-			if(AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
+			if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 			{
 				WantFire = true;
 			}
 		}
 
-		if(Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
+		if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
 		{
 			// TODO Fire on dangerous target
 			WantFire = false;
@@ -342,7 +347,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 
 	// Manage orbital boost
-	if(Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
+	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
 	{
 		UseOrbitalBoost = false;
 	}
@@ -353,7 +358,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 	if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_Docked)
 	{
-		if(WaitTime < 10)
+		if (WaitTime < 10)
 		{
 			WaitTime += ReactionTime;
 		}
@@ -397,7 +402,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 			if (Distance < 1000)
 			{
-				if(!Ship->GetNavigationSystem()->DockAt(PilotTargetStation))
+				if (!Ship->GetNavigationSystem()->DockAt(PilotTargetStation))
 				{
 					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 				}
@@ -426,7 +431,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 			UseOrbitalBoost = true;
 		}
 
-		if(Distance > 1000 && Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.95)
+		if (Distance > 1000 && Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.95)
 		{
 			// Too hot and no imminent danger
 			UseOrbitalBoost = false;
@@ -448,7 +453,7 @@ FVector UFlareShipPilot::AnticollisionCorrection(FVector InitialVelocity, float 
 {
 	AFlareSpacecraft* NearestShip = GetNearestShip(true);
 
-	if(NearestShip)
+	if (NearestShip)
 	{
 		FVector DeltaLocation = NearestShip->GetActorLocation() - Ship->GetActorLocation();
 		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *4) / 100.f; // Distance in meters
@@ -544,20 +549,20 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestShip(bool IgnoreDockingShip) const
 		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
 		if (ShipCandidate && ShipCandidate != Ship)
 		{
-			if(IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate) && ShipCandidate->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
+			if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate) && ShipCandidate->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
 			{
 				// Alive and powered granted ship are not dangerous for collision
 				continue;
 			}
 
-			if(IgnoreDockingShip && Ship->GetDockingSystem()->IsDockedShip(ShipCandidate))
+			if (IgnoreDockingShip && Ship->GetDockingSystem()->IsDockedShip(ShipCandidate))
 			{
 				// Docked shipship are not dangerous for collision, even if they are dead or offlline
 				continue;
 			}
 
 			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
-			if(NearestShip == NULL || DistanceSquared < MinDistanceSquared)
+			if (NearestShip == NULL || DistanceSquared < MinDistanceSquared)
 			{
 				MinDistanceSquared = DistanceSquared;
 				NearestShip = ShipCandidate;

@@ -170,12 +170,14 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	// If the other actor is a projectile, specific weapon damage code is done in the projectile hit
 	// handler: in this case we ignore the collision
 	AFlareShell* OtherProjectile = Cast<AFlareShell>(Other);
-	if (OtherProjectile) {
+	if (OtherProjectile)
+	{
 		return;
 	}
 
 	UPrimitiveComponent* OtherRoot = Cast<UPrimitiveComponent>(Other->GetRootComponent());
-	if (!OtherRoot) {
+	if (!OtherRoot)
+	{
 		return;
 	}
 

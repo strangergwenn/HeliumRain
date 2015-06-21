@@ -162,7 +162,7 @@ void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* 
 	PlayerCompany = Company;
 
 	Spacecraft = Cast<AFlareSpacecraft>(SpacecraftPawn);
-	if(Spacecraft)
+	if (Spacecraft)
 	{
 		LocalTemperature = Spacecraft->GetDamageSystem()->GetTemperature();
 	}
@@ -358,7 +358,7 @@ float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
 		if (Spacecraft)
 		{
 			UFlareInternalComponent* Component = Spacecraft->GetInternalComponentAtLocation(Location);
-			if(Component == this)
+			if (Component == this)
 			{
 				FLOGV("!!! GetRemainingArmorAtLocation loop ! %s may not be correctly bind to its description", *Component->GetReadableName());
 				return -1;
@@ -370,7 +370,7 @@ float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
 			}
 		}
 	}
-	else if(ComponentDescription->ArmorHitPoints != 0.0f || ComponentDescription->HitPoints != 0.0f)
+	else if (ComponentDescription->ArmorHitPoints != 0.0f || ComponentDescription->HitPoints != 0.0f)
 	{
 		return FMath::Max(0.0f, ComponentDescription->ArmorHitPoints - ShipComponentData.Damage);
 	}
@@ -445,7 +445,7 @@ float UFlareSpacecraftComponent::GetMaxGeneratedPower() const
 
 float UFlareSpacecraftComponent::GetAvailablePower() const
 {
-	if(!ComponentDescription && Spacecraft)
+	if (!ComponentDescription && Spacecraft)
 	{
 		UFlareSpacecraftComponent* Cockpit = Spacecraft->GetCockpit();
 

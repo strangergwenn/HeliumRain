@@ -139,7 +139,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 		ShowHelpers);
 
 	// Gun
-	if(Desc->WeaponCharacteristics.IsWeapon)
+	if (Desc->WeaponCharacteristics.IsWeapon)
 	{
 		FString Power = "";
 		switch(Desc->WeaponCharacteristics.DamageType)
@@ -161,7 +161,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 			FFlareStyleSet::GetIcon("Shell"),
 			ShowHelpers);
 
-		if(Desc->WeaponCharacteristics.GunCharacteristics.IsGun)
+		if (Desc->WeaponCharacteristics.GunCharacteristics.IsGun)
 		{
 			AddCharacteristicToBlock(Box,
 				"Rate of fire",
@@ -176,9 +176,9 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 			ShowHelpers);
 	}
 
-	if(Desc->EngineCharacteristics.IsEngine)
+	if (Desc->EngineCharacteristics.IsEngine)
 	{
-		if(Desc->EngineCharacteristics.AngularAccelerationRate > 0)
+		if (Desc->EngineCharacteristics.AngularAccelerationRate > 0)
 		{
 			AddCharacteristicToBlock(Box,
 				"Turn rating",

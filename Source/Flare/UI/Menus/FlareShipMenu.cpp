@@ -303,11 +303,11 @@ void SFlareShipMenu::LoadTargetShip()
 					.Description(Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier)));
 				WeaponCount++;
 			} 
-			else if(ComponentDescription->Type == EFlarePartType::RCS)
+			else if (ComponentDescription->Type == EFlarePartType::RCS)
 			{
 				RCSIdentifier = ComponentDescription->Identifier;
 			}
-			else if(ComponentDescription->Type == EFlarePartType::OrbitalEngine)
+			else if (ComponentDescription->Type == EFlarePartType::OrbitalEngine)
 			{
 				OrbitalEngineIdentifier = ComponentDescription->Identifier;
 			}
