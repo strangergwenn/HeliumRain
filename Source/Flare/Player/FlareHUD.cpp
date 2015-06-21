@@ -293,7 +293,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 		float Distance = (TargetLocation - PlayerLocation).Size();
 		float ApparentAngle = FMath::RadiansToDegrees(FMath::Atan(ShipSize / Distance));
 		float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * ViewportSize.X;
-		FVector2D ObjectSize = FMath::Min(0.8f * Size, 400.0f) * FVector2D(1, 1);
+		FVector2D ObjectSize = FMath::Min(0.66f * Size, 300.0f) * FVector2D(1, 1);
 
 		// Check if the mouse is there
 		FVector2D MousePos = PC->GetMousePosition();
@@ -329,7 +329,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 		// Draw the HUD designator
 		else if ((Ship && Ship->GetDamageSystem()->IsAlive()) || !Ship)
 		{
-			float CornerSize = 8;
+			float CornerSize = 12;
 
 			// Draw designator corners
 			FLinearColor Color = GetHostilityColor(PC, ShipBase);
@@ -341,7 +341,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 			// Draw the status
 			if (Ship && !Ship->IsStation() && ObjectSize.X > IconSize)
 			{
-				int32 NumberOfIcons = Ship->IsMilitary() ? 5 : 4;
+				int32 NumberOfIcons = Ship->IsMilitary() ? 3 : 2;
 				FVector2D StatusPos = ScreenPosition - ObjectSize / 2;
 				StatusPos.X += 0.5 * (ObjectSize.X - NumberOfIcons * IconSize);
 				StatusPos.Y -= (IconSize + 0.5 * CornerSize);
@@ -406,10 +406,8 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 
 void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Temperature), HUDTemperatureIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power), HUDPowerIcon);
 	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS), HUDRCSIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDRCSIcon);
 
 	if (Ship->IsMilitary())
 	{

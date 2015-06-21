@@ -722,7 +722,7 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 {
 	FVector BasePosition = FVector::ZeroVector;
 	FVector BaseOffset = FVector(1.f, 0.f, 0.f) * Distance / 50.f; // Half the distance in cm
-	FVector BaseShift =  FVector(0.f, 3000.f, 0.f) ;  // 30 m
+	FVector BaseShift =  FVector(0.f, 10000.f, 0.f) ;  // 100 m
 	FVector BaseDeep = FVector(10000.f, 0.f, 0.f); // 100 m
 
 	FName Company1Identifier;
