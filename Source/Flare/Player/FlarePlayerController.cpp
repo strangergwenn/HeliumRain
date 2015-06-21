@@ -226,25 +226,18 @@ void AFlarePlayerController::UpdateSound(UAudioComponent* SoundComp, float Volum
 	}
 }
 
-void AFlarePlayerController::SetExternalCamera(bool NewState, bool Force)
+void AFlarePlayerController::SetExternalCamera(bool NewState)
 {
-	// No internal camera when docked
-	if (ShipPawn && ShipPawn->GetNavigationSystem()->IsDocked())
+	if (ShipPawn)
 	{
-		NewState = true;
-	}
-
-	// If something changed...
-	if (ExternalCamera != NewState || Force)
-	{		
-		// Send the camera order to the ship
-		if (ShipPawn)
+		// No internal camera when docked
+		if (ShipPawn && ShipPawn->GetNavigationSystem()->IsDocked())
 		{
-			ShipPawn->GetStateManager()->SetExternalCamera(NewState);
+			NewState = true;
 		}
 
-		// Update camera 
-		ExternalCamera = NewState;
+		// Send the camera order to the ship
+		ShipPawn->GetStateManager()->SetExternalCamera(NewState);
 	}
 }
 
@@ -259,7 +252,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	// Fly the new ship
 	Possess(Ship);
 	ShipPawn = Ship;
-	SetExternalCamera(true, true);
+	SetExternalCamera(true);
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	QuickSwitchNextOffset = 0;
@@ -493,7 +486,10 @@ void AFlarePlayerController::MousePositionInput(FVector2D Val)
 
 void AFlarePlayerController::ToggleCamera()
 {
-	SetExternalCamera(!ExternalCamera);
+	if(ShipPawn)
+	{
+		SetExternalCamera(!ShipPawn->GetStateManager()->IsExternalCamera());
+	}
 }
 
 void AFlarePlayerController::ToggleMenu()
@@ -514,7 +510,7 @@ void AFlarePlayerController::ToggleCombat()
 	{
 		FLOG("AFlarePlayerController::ToggleCombat");
 		ShipPawn->GetWeaponsSystem()->ToogleWeaponActivation();
-		SetExternalCamera(false, true);
+		SetExternalCamera(false);
 	}
 }
 

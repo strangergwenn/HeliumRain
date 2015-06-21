@@ -43,7 +43,7 @@ public:
 	virtual void UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume);
 
 	/** Activate or deactivate the exterbal camera */
-	virtual void SetExternalCamera(bool NewState, bool Force = false);
+	virtual void SetExternalCamera(bool NewState);
 
 	/** Fly this ship */
 	virtual void FlyShip(AFlareSpacecraft* Ship);
@@ -231,7 +231,6 @@ protected:
 	UFlareCompany*                           Company;
 
 	// Various gameplay data
-	bool                                     ExternalCamera;
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
