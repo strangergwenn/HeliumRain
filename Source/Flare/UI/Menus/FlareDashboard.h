@@ -63,18 +63,6 @@ protected:
 	/** Open the sector map */
 	void OnOpenSector();
 
-	/** Open the universe map */
-	void OnOpenOrbit();
-
-	/** Open the encyclopedia */
-	void OnOpenEncyclopedia();
-
-	/** Open the help menu */
-	void OnOpenHelp();
-
-	/** Open the settings menu */
-	void OnOpenSettings();
-
 	/** Quit the game */
 	void OnQuitGame();
 

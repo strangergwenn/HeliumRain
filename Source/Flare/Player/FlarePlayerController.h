@@ -128,17 +128,27 @@ public:
 	/** Quick switch to another ship */
 	virtual void QuickSwitch();
 
-	/** Open the wheel menu */
-	virtual void WheelPressed();
+	/** Move hidden cursor */
+	virtual void MouseInputX(float Val);
 
-	/** Close the wheel menu */
-	virtual void WheelReleased();
-
+	/** Move hidden cursor */
+	virtual void MouseInputY(float Val);
+	
 	/** Test method 1 */
 	virtual void Test1();
 
 	/** Test method 2 */
 	virtual void Test2();
+
+	/*----------------------------------------------------
+		Wheel menu
+	----------------------------------------------------*/
+
+	/** Open the wheel menu */
+	virtual void WheelPressed();
+
+	/** Close the wheel menu */
+	virtual void WheelReleased();
 
 	/** Align to the ship's speed */
 	void AlignToSpeed();
@@ -149,11 +159,11 @@ public:
 	/** Brake */
 	void Brake();
 
-	/** Move hidden cursor */
-	virtual void MouseInputX(float Val);
+	/** Open the upgrade menu */
+	void UpgradeShip();
 
-	/** Move hidden cursor */
-	virtual void MouseInputY(float Val);
+	/** Undock */
+	void UndockShip();
 
 
 

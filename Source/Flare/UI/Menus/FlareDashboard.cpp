@@ -272,26 +272,6 @@ void SFlareDashboard::OnOpenSector()
 	OwnerHUD->OpenMenu(EFlareMenu::MENU_Sector);
 }
 
-void SFlareDashboard::OnOpenOrbit()
-{
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Orbit);
-}
-
-void SFlareDashboard::OnOpenEncyclopedia()
-{
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Encyclopedia);
-}
-
-void SFlareDashboard::OnOpenHelp()
-{
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Help);
-}
-
-void SFlareDashboard::OnOpenSettings()
-{
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Settings);
-}
-
 void SFlareDashboard::OnQuitGame()
 {
 	OwnerHUD->OpenMenu(EFlareMenu::MENU_Quit);
