@@ -165,13 +165,8 @@ FText SFlareWeaponStatus::GetText() const
 
 FSlateColor SFlareWeaponStatus::GetHighlightColor() const
 {
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor NormalColor = Theme.NeutralColor;
-	FLinearColor DamageColor = Theme.EnemyColor;
-
-	// Update alpha
-	FLinearColor Color = FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
-	Color.A *= Theme.DefaultAlpha * CurrentAlpha;
+	FLinearColor Color = FFlareStyleSet::GetHealthColor(ComponentHealth, true);
+	Color.A *= CurrentAlpha;
 	return Color;
 }
 

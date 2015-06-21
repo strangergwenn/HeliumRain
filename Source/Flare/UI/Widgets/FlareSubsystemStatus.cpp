@@ -79,7 +79,7 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	if (TargetShip)
 	{
 		// Update health
-		float NewHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType, true);
+		float NewHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType, true, false);
 		ComponentHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType);
 
 		// Update flash
@@ -115,23 +115,12 @@ FText SFlareSubsystemStatus::GetText() const
 
 FSlateColor SFlareSubsystemStatus::GetHealthColor() const
 {
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor NormalColor = Theme.NeutralColor;
-	FLinearColor DamageColor = Theme.EnemyColor;
-
-	return FMath::Lerp(DamageColor, NormalColor, ComponentHealth);
+	return FFlareStyleSet::GetHealthColor(ComponentHealth, false);
 }
 
 FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 {
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor NormalColor = Theme.NeutralColor;
-	FLinearColor DamageColor = Theme.EnemyColor;
-
-	float Ratio = FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f);
-	FLinearColor Result = FMath::Lerp(DamageColor, NormalColor, Ratio);
-	Result.A = Theme.DefaultAlpha;
-	return Result;
+	return FFlareStyleSet::GetHealthColor(FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f), true);
 }
 
 

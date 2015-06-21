@@ -42,6 +42,21 @@ public:
 		return FFlareStyleSet::Get().GetBrush(*Path);
 	}
 
+	/** Get a color for the current health of something */
+	static FLinearColor GetHealthColor(float Health, bool WithAlpha = false)
+	{
+		const FFlareStyleCatalog& Theme = GetDefaultTheme();
+		FLinearColor NormalColor = Theme.NeutralColor;
+		FLinearColor DamageColor = Theme.EnemyColor;
+
+		FLinearColor Color = FMath::Lerp(DamageColor, NormalColor, Health);
+		if (WithAlpha)
+		{
+			Color.A *= Theme.DefaultAlpha;
+		}
+		return Color;
+	}
+
 
 protected:
 

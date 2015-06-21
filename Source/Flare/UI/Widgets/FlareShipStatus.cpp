@@ -97,8 +97,8 @@ FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
 {
 	if (TargetShip)
 	{
-		float Health = TargetShip->GetDamageSystem()->GetSubsystemHealth(Type);
-		return FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
+		float Health = TargetShip->GetDamageSystem()->GetSubsystemHealth(Type, false, true);
+		return FFlareStyleSet::GetHealthColor(Health, false);
 	}
 	return FLinearColor::Black;
 }
