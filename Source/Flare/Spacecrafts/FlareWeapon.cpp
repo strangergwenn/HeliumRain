@@ -108,7 +108,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f/* && Spacecraft->GetDamageSystem()->AddReferencedObjects(IsAlive())*/)
+	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetDamageSystem()->IsAlive())
 	{
 		if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
 		{
