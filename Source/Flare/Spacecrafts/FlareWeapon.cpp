@@ -74,10 +74,12 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	ProjectileSpawnParams.bNoCollisionFail = true;
 
 	// Additional properties
-
-
 	LastFiredGun = -1;
+	SetupFiringEffects();
+}
 
+void UFlareWeapon::SetupFiringEffects()
+{
 	if (FiringEffect == NULL && FiringEffectTemplate)
 	{
 		FiringEffect = UGameplayStatics::SpawnEmitterAttached(
@@ -91,9 +93,6 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 		FiringEffect->DeactivateSystem();
 		FiringEffect->SetTickGroup(ETickingGroup::TG_PostPhysics);
 	}
-
-	// If bomb, spawn bombs
-
 }
 
 FFlareSpacecraftComponentSave* UFlareWeapon::Save()
@@ -144,17 +143,16 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 bool UFlareWeapon::FireGun(int GunIndex)
 {
+	// Avoid firing itself
 	if (!IsSafeToFire(GunIndex))
 	{
 		FLOGV("%s Not secure", *GetReadableName());
-		// Avoid to fire itself
 		return false;
 	}
 
 	// Get firing data
 	FVector FiringLocation = GetMuzzleLocation(GunIndex);
 	float Imprecision  = FMath::DegreesToRadians(ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoPrecision  + 3.f *(1 - GetDamageRatio()));
-
 	FVector FiringDirection = FMath::VRandCone(GetFireAxis(), Imprecision);
 	FVector FiringVelocity = GetPhysicsLinearVelocity();
 
@@ -167,14 +165,8 @@ bool UFlareWeapon::FireGun(int GunIndex)
 
 	// Fire it. Tracer ammo every bullets
 	Shell->Initialize(this, ComponentDescription, FiringDirection, FiringVelocity, true);
-
-	//Configure fuze if needed
 	ConfigureShellFuze(Shell);
-
-	if (FiringEffect)
-	{
-		FiringEffect->ActivateSystem();
-	}
+	ShowFiringEffects(GunIndex);
 
 	// Play sound
 	if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
@@ -185,6 +177,14 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	// Update data
 	CurrentAmmo--;
 	return true;
+}
+
+void UFlareWeapon::ShowFiringEffects(int GunIndex)
+{
+	if (FiringEffect)
+	{
+		FiringEffect->ActivateSystem();
+	}
 }
 
 bool UFlareWeapon::FireBomb()

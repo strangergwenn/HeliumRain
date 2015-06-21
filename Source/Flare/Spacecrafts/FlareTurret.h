@@ -22,6 +22,8 @@ public:
 
 	void Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu) override;
 
+	virtual void SetupFiringEffects() override;
+
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	void SetupComponentMesh() override;
@@ -42,14 +44,18 @@ public:
 
 	virtual void GetBoundingSphere(FVector& Location, float& Radius) override;
 
+	virtual void ShowFiringEffects(int GunIndex) override;
+
 	// TODO Put in help with FlareShell::Trace
 	bool Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const;
+
 
 protected:
 
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
+
 	/** Mesh component */
 	UPROPERTY()
 	UFlareSpacecraftSubComponent*                    TurretComponent;
@@ -60,7 +66,11 @@ protected:
 	UPROPERTY()
 	UFlareTurretPilot*                               Pilot;
 
-	FVector  								 AimDirection;
+	TArray<UParticleSystemComponent*>                FiringEffects;
+
+	// General data
+	FVector  								         AimDirection;
+
 
 public:
 

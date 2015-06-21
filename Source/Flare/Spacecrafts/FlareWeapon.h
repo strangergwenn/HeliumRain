@@ -21,6 +21,9 @@ public:
 
 	void Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu) override;
 
+	/** Setup this weapon's effects */
+	virtual void SetupFiringEffects();
+
 	virtual FFlareSpacecraftComponentSave* Save() override;
 
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
@@ -56,6 +59,9 @@ public:
 	virtual float GetAimRadius() const;
 
 	virtual bool FireGun(int GunIndex);
+
+	/** Show the special effects on firing */
+	virtual void ShowFiringEffects(int GunIndex);
 
 	virtual bool FireBomb();
 

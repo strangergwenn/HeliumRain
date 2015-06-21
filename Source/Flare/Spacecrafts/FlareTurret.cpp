@@ -32,6 +32,31 @@ void UFlareTurret::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	Pilot->Initialize(&(Data->Pilot), Company, this);
 }
 
+void UFlareTurret::SetupFiringEffects()
+{
+	if (FiringEffect == NULL && FiringEffectTemplate)
+	{
+		FiringEffects.Empty();
+
+		for (int32 i = 0; i < ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount; i++)
+		{
+			// Create the effect
+			UParticleSystemComponent* TempFiringEffect = UGameplayStatics::SpawnEmitterAttached(
+				FiringEffectTemplate,
+				this,
+				NAME_None,
+				GetMuzzleLocation(i),
+				GetComponentRotation(),
+				EAttachLocation::KeepWorldPosition,
+				false);
+
+			// Additional setup
+			TempFiringEffect->DeactivateSystem();
+			TempFiringEffect->SetTickGroup(ETickingGroup::TG_PostPhysics);
+			FiringEffects.Add(TempFiringEffect);
+		}
+	}
+}
 
 void UFlareTurret::SetupComponentMesh()
 {
@@ -373,13 +398,19 @@ float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 	return BarrelsMinAngle;
 }
 
-
-
 void UFlareTurret::GetBoundingSphere(FVector& Location, float& SphereRadius)
 {
 	Super::GetBoundingSphere(Location, SphereRadius);
 	if (TurretComponent || BarrelComponent)
 	{
 		SphereRadius = 0;
+	}
+}
+
+void UFlareTurret::ShowFiringEffects(int GunIndex)
+{
+	if (FiringEffects[GunIndex])
+	{
+		FiringEffects[GunIndex]->ActivateSystem();
 	}
 }
