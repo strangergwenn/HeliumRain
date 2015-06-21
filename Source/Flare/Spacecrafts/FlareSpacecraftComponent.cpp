@@ -251,7 +251,7 @@ void UFlareSpacecraftComponent::GetBoundingSphere(FVector& Location, float& Radi
 
 	FVector LocalBoxCenter = (Max + Min) /2;
 
-	Radius = (Max - LocalBoxCenter).Size();
+	Radius = (Max - LocalBoxCenter).GetMax();
 	Location = GetComponentToWorld().TransformPosition(LocalBoxCenter);
 }
 

@@ -437,12 +437,12 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 
 	// Check armor peneration
 	int32 PenetrateArmor = false;
-	float PenerationIncidenceLimit = 0.6f;
+	float PenerationIncidenceLimit = 0.7f;
 	if (Incidence > PenerationIncidenceLimit)
 	{
 		PenetrateArmor = true; // No ricochet
 	}
-	else if (RemainingArmor >= 0 && Incidence * ImpactPower > RemainingArmor)
+	else if (RemainingArmor == 0)
 	{
 		PenetrateArmor = true; // Armor destruction
 	}
