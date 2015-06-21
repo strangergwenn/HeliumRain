@@ -195,8 +195,8 @@ void AFlareHUD::DrawHUD()
 		if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
 		{
 			// Draw inertial vectors
-			DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"));
-			DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"));
+			DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
+			DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"), true);
 		}
 		else
 		{
@@ -242,7 +242,7 @@ void AFlareHUD::DrawHUD()
 	HUD library
 ----------------------------------------------------*/
 
-void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation)
+void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert)
 {
 	// Get HUD data
 	FVector2D ScreenPosition;
@@ -270,7 +270,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
 
 		// Speed 
-		FString VelocityText = FString::FromInt(SpeedMS) + FString(" m/s");
+		FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
 		FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
 		DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
 		DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);

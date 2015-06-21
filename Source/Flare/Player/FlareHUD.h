@@ -41,7 +41,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Draw speed indicator */
-	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation);
+	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert);
 
 	/** Draw a designator block around a ship */
 	bool DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase);
