@@ -43,7 +43,7 @@ void UFlareTurret::SetupFiringEffects()
 			// Create the effect
 			UParticleSystemComponent* TempFiringEffect = UGameplayStatics::SpawnEmitterAttached(
 				FiringEffectTemplate,
-				this,
+				BarrelComponent,
 				NAME_None,
 				GetMuzzleLocation(i),
 				GetComponentRotation(),

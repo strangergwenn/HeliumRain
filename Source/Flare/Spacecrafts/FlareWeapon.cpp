@@ -80,6 +80,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 void UFlareWeapon::SetupFiringEffects()
 {
+	// TODO Handle multiple muzzle has for turrets
 	if (FiringEffect == NULL && FiringEffectTemplate)
 	{
 		FiringEffect = UGameplayStatics::SpawnEmitterAttached(
