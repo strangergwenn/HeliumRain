@@ -265,6 +265,21 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		}
 		else
 		{
+			if(ShellDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
+			{
+				AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(HitResult.Actor.Get());
+				if (Spacecraft)
+				{
+					Spacecraft->GetDamageSystem()->ApplyDamage(ShellDescription->WeaponCharacteristics.ExplosionPower , ShellDescription->WeaponCharacteristics.AmmoDamageRadius, HitResult.Location);
+
+					float ImpulseForce = 3000 * ShellDescription->WeaponCharacteristics.ExplosionPower * ShellDescription->WeaponCharacteristics.AmmoDamageRadius;
+					FVector ImpulseDirection = (HitResult.Location - GetActorLocation()).GetUnsafeNormal();
+
+					// Physics impulse
+					Spacecraft->Airframe->AddImpulseAtLocation( ImpulseForce * ImpulseDirection, HitResult.Location);
+				}
+			}
+
 			// Spawn penetration effect
 			UGameplayStatics::SpawnEmitterAttached(
 				ExplosionEffectTemplate,
