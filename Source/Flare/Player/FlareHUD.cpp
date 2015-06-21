@@ -33,7 +33,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDTemperatureIconObj  (TEXT("/Game/Slate/Icons/TX_Icon_Temperature.TX_Icon_Temperature"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPowerIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Power.TX_Icon_Power"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPropulsionIconObj   (TEXT("/Game/Slate/Icons/TX_Icon_Propulsion.TX_Icon_Propulsion"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDRCSIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_RCS.TX_Icon_RCS"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHealthIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_LifeSupport.TX_Icon_LifeSupport"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
 
 	// Load content (font)
@@ -52,7 +52,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDTemperatureIcon = HUDTemperatureIconObj.Object;
 	HUDPowerIcon = HUDPowerIconObj.Object;
 	HUDPropulsionIcon = HUDPropulsionIconObj.Object;
-	HUDRCSIcon = HUDRCSIconObj.Object;
+	HUDHealthIcon = HUDHealthIconObj.Object;
 	HUDWeaponIcon = HUDWeaponIconObj.Object;
 
 	// Set content (font)
@@ -407,7 +407,7 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
 	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDRCSIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDHealthIcon);
 
 	if (Ship->IsMilitary())
 	{

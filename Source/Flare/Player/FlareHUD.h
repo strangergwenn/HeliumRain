@@ -200,7 +200,7 @@ protected:
 	UTexture2D*                             HUDTemperatureIcon;
 	UTexture2D*                             HUDPowerIcon;
 	UTexture2D*                             HUDPropulsionIcon;
-	UTexture2D*                             HUDRCSIcon;
+	UTexture2D*                             HUDHealthIcon;
 	UTexture2D*                             HUDWeaponIcon;
 
 	// Font
