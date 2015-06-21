@@ -233,13 +233,13 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	{
 		ResetExternalCamera();
 		Spacecraft->SetCameraLocalPosition(FVector::ZeroVector);
+		Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
 	}
 	else
 	{
 		FVector CameraOffset = Spacecraft->WorldToLocal(Spacecraft->Airframe->GetSocketLocation(FName("Camera")) - Spacecraft->GetActorLocation());
 		Spacecraft->SetCameraDistance(0);
 		Spacecraft->SetCameraLocalPosition(CameraOffset);
-		Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
 	}
 }
 
