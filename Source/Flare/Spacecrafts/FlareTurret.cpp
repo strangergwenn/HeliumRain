@@ -202,6 +202,12 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		}
 	}
 
+	if(Spacecraft->IsPresentationMode())
+	{
+		TurretComponent->SetRelativeRotation(FRotator(0, 0, 0));
+		BarrelComponent->SetRelativeRotation(FRotator(15, 0, 0));
+	}
+
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 }
