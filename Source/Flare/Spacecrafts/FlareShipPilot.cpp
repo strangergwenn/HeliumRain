@@ -70,6 +70,7 @@ void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany*
 	{
 		ShipPilotData = *Data;
 	}
+	AttackAngle = FMath::FRandRange(0, 360);
 }
 
 /*----------------------------------------------------
@@ -257,7 +258,8 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			else
 			{
 				FQuat AttackDistanceQuat = FQuat(TargetAxis, AttackAngle);
-				FVector AttackMargin =  AttackDistanceQuat.RotateVector(FVector(0,0,AttackDistance));
+				FVector TopVector = Ship->GetActorRotation().RotateVector(FVector(0,0,AttackDistance));
+				FVector AttackMargin =  AttackDistanceQuat.RotateVector(TopVector);
 
 				if (Distance > SecurityDistance || DangerousTarget)
 				{
@@ -456,22 +458,17 @@ FVector UFlareShipPilot::AnticollisionCorrection(FVector InitialVelocity, float 
 	if (NearestShip)
 	{
 		FVector DeltaLocation = NearestShip->GetActorLocation() - Ship->GetActorLocation();
-		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *4) / 100.f; // Distance in meters
-
-
-
+		float Distance = FMath::Max(0.0f, (DeltaLocation.Size() - NearestShip->GetMeshScale() *4) / 100.f); // Distance in meters
 
 		if (Distance < 100.f)
 		{
-
 			FQuat AvoidQuat = FQuat(DeltaLocation.GetUnsafeNormal(), PreferedAttackAngle);
-			FVector Avoid =  AvoidQuat.RotateVector(FVector(0,0,NearestShip->GetMeshScale() *4. / 100. ));
-
-
+			FVector TopVector = Ship->GetActorRotation().RotateVector(FVector(0,0,NearestShip->GetMeshScale()));
+			FVector Avoid =  AvoidQuat.RotateVector(TopVector);
 
 			// Below 100m begin avoidance maneuver
 			float Alpha = 1 - Distance/100.f;
-			return InitialVelocity * (1.f - Alpha) + Alpha * ((Avoid - DeltaLocation) .GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+			return InitialVelocity * (1.f - Alpha) + Alpha * ((4* (1.f - Alpha) * Avoid.GetUnsafeNormal() - DeltaLocation.GetUnsafeNormal()).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity());
 		}
 	}
 
