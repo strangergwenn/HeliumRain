@@ -56,7 +56,7 @@ public:
 	bool IsDuplicate(const FText& OtherText, const EFlareMenu::Type OtherMenu) const;
 
 	/** Complete this notification */
-	void Finish();
+	void Finish(bool Now = true);
 
 	
 	/*----------------------------------------------------
@@ -89,6 +89,7 @@ protected:
 	----------------------------------------------------*/
 
 	// Settings
+	float                                NotificationFinishTime;
 	float                                NotificationTimeout;
 	float                                NotificationScroll;
 	float                                NotificationEnterTime;

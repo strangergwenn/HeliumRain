@@ -39,7 +39,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Typ
 	if (NotificationData.Num() > 0 && NotificationData.Last()->IsDuplicate(Text, TargetMenu))
 	{
 		FLOG("SFlareNotifier::Notify : deleting previous because it's duplicate");
-		NotificationData.Last()->Finish();
+		NotificationData.Last()->Finish(false);
 	}
 
 	// Add notification

@@ -13,6 +13,7 @@
 void SFlareNotification::Construct(const FArguments& InArgs)
 {
 	// Settings
+	NotificationFinishTime = 2.0;
 	NotificationTimeout = 10;
 	NotificationScroll = 150;
 	NotificationEnterTime = 0.4;
@@ -141,9 +142,11 @@ bool SFlareNotification::IsDuplicate(const FText& OtherText, const EFlareMenu::T
 	}
 }
 
-void SFlareNotification::Finish()
+void SFlareNotification::Finish(bool Now)
 {
-	Lifetime = FMath::Max(Lifetime, NotificationTimeout - NotificationExitTime);
+	// 1s to finish quietly
+	float Timeout = NotificationTimeout - (Now ? NotificationExitTime : NotificationFinishTime);
+	Lifetime = FMath::Max(Lifetime, Timeout);
 }
 
 
