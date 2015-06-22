@@ -52,6 +52,12 @@ public:
 	/** Can we safely delete this ? */
 	bool IsFinished() const;
 
+	/** Check if this notification is similar to... */
+	bool IsDuplicate(const FText& OtherText, const EFlareMenu::Type OtherMenu) const;
+
+	/** Complete this notification */
+	void Finish();
+
 	
 	/*----------------------------------------------------
 		Callbacks
@@ -96,6 +102,7 @@ protected:
 	float                                Lifetime;
 	TEnumAsByte<EFlareMenu::Type>        TargetMenu;
 	void*                                TargetInfo;
+	FText                                Text;
 
 	// Fade data
 	TSharedPtr<SButton>                  Button;

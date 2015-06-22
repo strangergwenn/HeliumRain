@@ -35,8 +35,15 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 
 void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
-	TSharedPtr<SFlareNotification> NotificationEntry;
+	// Make sure it's unique
+	if (NotificationData.Num() > 0 && NotificationData.Last()->IsDuplicate(Text, TargetMenu))
+	{
+		FLOG("SFlareNotifier::Notify : deleting previous because it's duplicate");
+		NotificationData.Last()->Finish();
+	}
 
+	// Add notification
+	TSharedPtr<SFlareNotification> NotificationEntry;
 	NotificationContainer->InsertSlot(0)
 	.AutoHeight()
 	[
@@ -49,6 +56,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Typ
 		.TargetInfo(TargetInfo)
 	];
 
+	// Store a reference to it
 	NotificationData.Add(NotificationEntry);
 }
 

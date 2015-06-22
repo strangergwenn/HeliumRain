@@ -28,6 +28,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	LastHeight = 0;
 	CurrentAlpha = 0;
 	CurrentMargin = 0;
+	Text = InArgs._Text;
 	OwnerHUD = InArgs._OwnerHUD;
 	TargetMenu = InArgs._TargetMenu;
 	TargetInfo = InArgs._TargetInfo;
@@ -114,9 +115,35 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	SetVisibility(EVisibility::Visible);
 }
 
+
+/*----------------------------------------------------
+	Interaction
+----------------------------------------------------*/
+
 bool SFlareNotification::IsFinished() const
 {
 	return (Lifetime >= NotificationTimeout);
+}
+
+bool SFlareNotification::IsDuplicate(const FText& OtherText, const EFlareMenu::Type OtherMenu) const
+{
+	if (OtherMenu == TargetMenu)
+	{
+		// Same menu and same n first characters is considered "same notification"
+		int Length = 10;
+		FString Ours = Text.ToString().Left(Length);
+		FString Other = OtherText.ToString().Left(Length);
+		return (Ours.Compare(Other) == 0);
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void SFlareNotification::Finish()
+{
+	Lifetime = FMath::Max(Lifetime, NotificationTimeout - NotificationExitTime);
 }
 
 
@@ -205,7 +232,7 @@ FReply SFlareNotification::OnNotificationClicked()
 	}
 
 	// Set the lifetime to "almost done"
-	Lifetime = FMath::Max(Lifetime, NotificationTimeout - NotificationExitTime);
+	Finish();
 	return FReply::Handled();
 }
 
