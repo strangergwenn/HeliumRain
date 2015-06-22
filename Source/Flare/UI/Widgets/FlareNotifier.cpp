@@ -58,74 +58,84 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 
 void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
-	// Add button
+	// Data
 	TSharedPtr<SWidget> TempContainer;
-	TSharedPtr<SFlareButton> TempButton;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor ShadowColor = FLinearColor::Black;
+	ShadowColor.A = 0;
+	int32 NotificatioNWidth = 400;
+	int32 NotificationTextWidth = NotificatioNWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
+
+	// Add button
 	NotificationContainer->InsertSlot(0)
-		.AutoHeight()
+	.AutoHeight()
+	[
+		SAssignNew(TempContainer, SBox)
+		.Padding(this, &SFlareNotifier::GetNotificationMargin, NotificationIndex)
 		[
-			SAssignNew(TempContainer, SBox)
-			.Padding(this, &SFlareNotifier::GetNotificationMargin, NotificationIndex)
+			SNew(SButton)
+			.ContentPadding(FMargin(0))
+			.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+			.OnClicked(this, &SFlareNotifier::OnNotificationClicked, NotificationIndex)
 			[
-				SAssignNew(TempButton, SFlareButton)
-				.Color(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
-				.OnClicked(this, &SFlareNotifier::OnNotificationClicked, NotificationIndex)
-				.ButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/BuyButton"))
-			]
-		];
+				SNew(SHorizontalBox)
+					
+				// Icon
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.WidthOverride(10)
+					[
+						SNew(SImage)
+						.Image(&Theme.InvertedBrush)
+						.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex, Type)
+					]
+				]
 
-	// Get icon
-	const FSlateBrush* Icon = NULL;
-	switch (Type)
-	{
-		case EFlareNotification::NT_General:  Icon = FFlareStyleSet::GetIcon("Owned");       break;
-		case EFlareNotification::NT_Help:     Icon = FFlareStyleSet::GetIcon("Help_Notif");  break;
-		case EFlareNotification::NT_Military: Icon = FFlareStyleSet::GetIcon("Shell_Notif"); break;
-		case EFlareNotification::NT_Trading:  Icon = FFlareStyleSet::GetIcon("Cost");        break;
-	}
+				// Text
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.WidthOverride(NotificatioNWidth)
+					[
+						SNew(SBorder)
+						.BorderImage(&Theme.BackgroundBrush)
+						.BorderBackgroundColor(this, &SFlareNotifier::GetNotificationBackgroundColor, NotificationIndex)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SVerticalBox)
 
-	// Fill button
-	TempButton->GetContainer()->SetContent
-	(
-		SNew(SVerticalBox)
+							// Header
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SNew(STextBlock)
+								.Text(Text)
+								.WrapTextAt(NotificationTextWidth)
+								.TextStyle(&FFlareStyleSet::GetDefaultTheme().NameFont)
+								.ColorAndOpacity(this, &SFlareNotifier::GetNotificationTextColor, NotificationIndex)
+								.ShadowColorAndOpacity(ShadowColor)
+							]
 
-		// Header
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		[
-			SNew(SHorizontalBox)
-
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage)
-				.Image(Icon)
-				.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
-			]
-
-			// Text
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(FMargin(10, 5))
-			[
-				SNew(STextBlock)
-				.Text(Text)
-				.TextStyle(&FFlareStyleSet::GetDefaultTheme().NameFont)
-				.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
+							// Info
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SNew(STextBlock)
+								.Text(Info)
+								.WrapTextAt(NotificationTextWidth)
+								.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
+								.ColorAndOpacity(this, &SFlareNotifier::GetNotificationTextColor, NotificationIndex)
+								.ShadowColorAndOpacity(ShadowColor)
+							]
+						]
+					]
+				]
 			]
 		]
-
-		// Info
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		[
-			SNew(STextBlock)
-			.Text(Info)
-			.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
-			.ColorAndOpacity(this, &SFlareNotifier::GetNotificationColor, NotificationIndex)
-		]
-	);
+	];
 
 	// Configure notification
 	FFlareNotificationData NotificationEntry;
@@ -195,26 +205,39 @@ FMargin SFlareNotifier::GetNotificationMargin(int32 Index) const
 	return FMargin(0, TopMargin, 0, BottomMargin);
 }
 
-FSlateColor SFlareNotifier::GetNotificationColor(int32 Index) const
+FSlateColor SFlareNotifier::GetNotificationColor(int32 Index, EFlareNotification::Type Type) const
 {
-	FLinearColor Result = FFlareStyleSet::GetDefaultTheme().NeutralColor;
-
-	for (auto& NotificationEntry : NotificationData)
+	// Get color
+	FLinearColor Result;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	switch (Type)
 	{
-		if (NotificationEntry.Index == Index)
-		{
-			// Find the new color
-			float RemainingTime = NotificationTimeout - NotificationEntry.Lifetime - NotificationExitTime;
-			float Alpha = FMath::Clamp(RemainingTime / NotificationExitTime, 0.0f, 1.0f);
-			Result.A = FMath::InterpEaseOut(0.0f, 0.7f, Alpha, 2);
-			break;
-		}
+		case EFlareNotification::NT_General:  Result = Theme.ObjectiveColor; break;
+		case EFlareNotification::NT_Help:     Result = Theme.InfoColor;      break;
+		case EFlareNotification::NT_Military: Result = Theme.CombatColor;    break;
+		case EFlareNotification::NT_Trading:  Result = Theme.TradingColor;   break;
 	}
 
+	// Update alpha and return
+	Result.A = GetNotificationAlpha(Index) * FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 	return Result;
 }
 
-void SFlareNotifier::OnNotificationClicked(int32 Index)
+FSlateColor SFlareNotifier::GetNotificationTextColor(int32 Index) const
+{
+	FLinearColor Result = FFlareStyleSet::GetDefaultTheme().NeutralColor;
+	Result.A = GetNotificationAlpha(Index) * FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
+	return Result;
+}
+
+FSlateColor SFlareNotifier::GetNotificationBackgroundColor(int32 Index) const
+{
+	FLinearColor Result = FFlareStyleSet::GetDefaultTheme().NeutralColor;
+	Result.A = GetNotificationAlpha(Index);
+	return Result;
+}
+
+FReply SFlareNotifier::OnNotificationClicked(int32 Index)
 {
 	for (auto& NotificationEntry : NotificationData)
 	{
@@ -231,7 +254,31 @@ void SFlareNotifier::OnNotificationClicked(int32 Index)
 			break;
 		}
 	}
+
+	return FReply::Handled();
 }
 
+/*----------------------------------------------------
+	Helpers
+----------------------------------------------------*/
+
+float SFlareNotifier::GetNotificationAlpha(int32 Index) const
+{
+	float Result = 1.0f;
+
+	for (auto& NotificationEntry : NotificationData)
+	{
+		if (NotificationEntry.Index == Index)
+		{
+			// Find the new color
+			float RemainingTime = NotificationTimeout - NotificationEntry.Lifetime - NotificationExitTime;
+			float Alpha = FMath::Clamp(RemainingTime / NotificationExitTime, 0.0f, 1.0f);
+			Result = FMath::InterpEaseOut(0.0f, 1.0f, Alpha, 2);
+			break;
+		}
+	}
+
+	return Result;
+}
 
 #undef LOCTEXT_NAMESPACE

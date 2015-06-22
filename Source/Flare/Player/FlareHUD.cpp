@@ -496,7 +496,6 @@ void AFlareHUD::SetHUDVisibility(bool Visibility)
 	FLOGV("AFlareHUD::SetHUDVisibility : new state is %d", Visibility);
 	HUDMenu->SetVisibility(Visibility ? EVisibility::Visible : EVisibility::Collapsed);
 	ContextMenu->SetVisibility(Visibility ? EVisibility::Visible : EVisibility::Collapsed);
-	Notifier->SetVisibility(Visibility ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed);
 }
 
 void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
@@ -667,7 +666,6 @@ void AFlareHUD::OpenDashboard()
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	Dashboard->Enter();
 }
@@ -676,7 +674,6 @@ void AFlareHUD::InspectCompany(UFlareCompany* Target)
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	if (Target == NULL)
 	{
@@ -689,7 +686,6 @@ void AFlareHUD::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	if (Target == NULL)
 	{
@@ -702,7 +698,6 @@ void AFlareHUD::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditabl
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	OverlayContainer->SetVisibility(EVisibility::Hidden);
 
 	AFlareSpacecraft* PlayerShip = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
 
@@ -717,8 +712,6 @@ void AFlareHUD::OpenSector()
 {
 	ResetMenu();
 	SetMenuPawn(true);
-	OverlayContainer->SetVisibility(EVisibility::Hidden);
-
 	SectorMenu->Enter();
 }
 
@@ -727,7 +720,6 @@ void AFlareHUD::ExitMenu()
 	ResetMenu();
 	SetMenuPawn(false);
 	SetHUDVisibility(HUDVisible);
-	OverlayContainer->SetVisibility(EVisibility::Visible);
 }
 
 

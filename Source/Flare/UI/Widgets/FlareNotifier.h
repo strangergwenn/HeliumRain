@@ -82,10 +82,24 @@ public:
 	FMargin GetNotificationMargin(int32 Index) const;
 
 	/** Get the current color */
-	FSlateColor GetNotificationColor(int32 Index) const;
+	FSlateColor GetNotificationColor(int32 Index, EFlareNotification::Type Type) const;
+
+	/** Get the current text color */
+	FSlateColor GetNotificationTextColor(int32 Index) const;
+
+	/** Get the current background color */
+	FSlateColor GetNotificationBackgroundColor(int32 Index) const;
 
 	/** We clicked something */
-	void OnNotificationClicked(int32 Index);
+	FReply OnNotificationClicked(int32 Index);
+
+
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
+
+	/** Get the fading value of this notification */
+	float GetNotificationAlpha(int32 Index) const;
 
 
 protected:
