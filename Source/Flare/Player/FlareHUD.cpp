@@ -18,7 +18,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, CombatMouseRadius(100)
 	, HUDVisible(true)
 	, MenuIsOpen(false)
-	, FadeDuration(0.15)
+	, FadeDuration(0.25)
 {
 	// Load content (general icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj      (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
@@ -78,8 +78,8 @@ void AFlareHUD::BeginPlay()
 	HudColorFriendly.A = Theme.DefaultAlpha;
 	HudColorEnemy.A = Theme.DefaultAlpha;
 
-	FadeTimer = FadeDuration;
 	Super::BeginPlay();
+	FadeIn();
 }
 
 void AFlareHUD::Tick(float DeltaSeconds)
