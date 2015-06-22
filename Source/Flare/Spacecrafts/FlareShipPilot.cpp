@@ -150,7 +150,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	{
 		FLOGV("%s target %s",  *Ship->GetName(),  *PilotTargetShip->GetName());
 		EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
-		FLOGV("%s WeaponType %d",  *Ship->GetName(),  WeaponType);
+		FLOGV("%s WeaponType %d",  *Ship->GetName(), (WeaponType - EFlareWeaponGroupType::WG_NONE));
 		if(WeaponType == EFlareWeaponGroupType::WG_GUN)
 		{
 			FighterPilot(DeltaSeconds);
