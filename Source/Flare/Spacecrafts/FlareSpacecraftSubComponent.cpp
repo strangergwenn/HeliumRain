@@ -24,6 +24,13 @@ void UFlareSpacecraftSubComponent::SetParentSpacecraftComponent(UFlareSpacecraft
 }
 
 
+void UFlareSpacecraftSubComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	SetHealth(ParentComponent->GetDamageRatio());
+	SetTemperature(ParentComponent->GetSpacecraft()->IsPresentationMode() ? 290 : ParentComponent->GetLocalTemperature());
+}
 
 float UFlareSpacecraftSubComponent::GetRemainingArmorAtLocation(FVector Location)
 {

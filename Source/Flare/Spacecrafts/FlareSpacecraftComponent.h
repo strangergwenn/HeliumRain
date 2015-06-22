@@ -563,7 +563,7 @@ protected:
 	// Heat state
 	float                                   HeatSinkSurface; // Maximum heat surface in m^2
 	float                                   HeatProduction; // Maxiumum heat production, in KW
-	bool                                    HasLocalHeatEffect; // Is component temperature vary localy
+	bool                                    LocalHeatEffect; // Is component temperature vary localy
 	float                                   LocalTemperature;
 
 	// Light flickering state
@@ -596,5 +596,15 @@ protected:
 	virtual UStaticMesh* GetMesh(bool PresentationMode) const
 	{
 		return (ComponentDescription ? ComponentDescription->Mesh : NULL);
+	}
+
+	virtual bool HasLocalHeatEffect() const
+	{
+		return LocalHeatEffect;
+	}
+
+	virtual float GetLocalTemperature() const
+	{
+		return LocalTemperature;
 	}
 };

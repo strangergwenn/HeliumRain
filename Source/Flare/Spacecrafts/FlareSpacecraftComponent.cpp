@@ -21,7 +21,7 @@ UFlareSpacecraftComponent::UFlareSpacecraftComponent(const class FObjectInitiali
 	, DestroyedEffects(NULL)
 	, ComponentMaterial(NULL)
 	, ComponentDescription(NULL)
-	, HasLocalHeatEffect(false)
+	, LocalHeatEffect(false)
 	, LocalTemperature(0)
 	, LightFlickeringStatus(EFlareLightStatus::Lit)
 	, TimeLeftUntilFlicker(0)
@@ -136,7 +136,7 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 	// Need even if no ComponentDescription to heat airframes
 	if (Spacecraft)
 	{
-		if (HasLocalHeatEffect && HeatProduction > 0.f)
+		if (LocalHeatEffect && HeatProduction > 0.f)
 		{
 			float Alpha = GetHeatProduction() / HeatProduction;
 			float TargetTemperature = (1.f- Alpha) * (Spacecraft->GetDamageSystem()->GetTemperature() * 0.3f)
