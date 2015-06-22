@@ -293,9 +293,9 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	// Inform the player
 	if (Ship)
 	{
-		FString Text = LOCTEXT("Flying", "Now flying").ToString();
+		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " + FString(*Ship->GetName()));
 		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with the N key.");
-		Notify(FText::FromString(Text + " " + FString(*Ship->GetName())), Info);
+		Notify(Text, Info, EFlareNotification::NT_Help);
 	}
 
 
@@ -372,8 +372,8 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 
 void AFlarePlayerController::Notify(FText Title, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
-	Cast<AFlareHUD>(GetHUD())->Notify(Title, Info, Type, TargetMenu, TargetInfo);
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
+	Cast<AFlareHUD>(GetHUD())->Notify(Title, Info, Type, TargetMenu, TargetInfo);
 }
 
 void AFlarePlayerController::SetupMenu()
