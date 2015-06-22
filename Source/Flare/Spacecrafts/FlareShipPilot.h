@@ -49,6 +49,12 @@ protected:
 
 	virtual void CargoPilot(float DeltaSeconds);
 
+	virtual void FighterPilot(float DeltaSeconds);
+
+	virtual void BomberPilot(float DeltaSeconds);
+
+	virtual void IdlePilot(float DeltaSeconds);
+
 public:
 	/*----------------------------------------------------
 		Helpers
@@ -57,7 +63,7 @@ public:
 	/**
 	 * Return the nearest hostile alive ship
 	 */
-	virtual AFlareSpacecraft* GetNearestHostileShip(bool DangerousOnly) const;
+	virtual AFlareSpacecraft* GetNearestHostileShip(bool DangerousOnly, EFlarePartSize::Type Size) const;
 
 	/**
 	 * Return the nearest ship, alive or not
@@ -80,7 +86,9 @@ public:
 	/** Return true if the ship is dangerous */
 	virtual bool IsShipDangerous(AFlareSpacecraft* ShipCandidate) const;
 
-	virtual FVector AnticollisionCorrection(FVector InitialVelocity, float PreferedAttackAngle) const;
+	virtual void FindBestHostileTarget();
+
+	virtual FVector AnticollisionCorrection(FVector InitialVelocity, float PreferedAttackAngle, AFlareSpacecraft* SpacecraftToIgnore = NULL) const;
 
 public:
 
@@ -136,6 +144,11 @@ protected:
 
 	float AttackAngle;
 	float AttackDistance;
-	float AttackPhase;
+	float MaxFollowDistance;
+	int32 AttackPhase;
 	float LastTargetDistance;
+	int32 SelectedWeaponGroupIndex;
+	bool LockTarget;
+	bool LastWantFire;
+	float TimeBeforeNextDrop;
 };

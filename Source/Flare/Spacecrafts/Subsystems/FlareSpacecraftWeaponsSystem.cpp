@@ -191,7 +191,7 @@ void UFlareSpacecraftWeaponsSystem::StopFire()
 void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
 {
 
-	if (Index >= 0 && Index < WeaponGroupList.Num())
+	if (Index >= 0 && Index < WeaponGroupList.Num() && ActiveWeaponGroupIndex != Index)
 	{
 		StopAllWeapons();
 		ActiveWeaponGroupIndex = Index;
@@ -259,5 +259,16 @@ EFlareWeaponGroupType::Type UFlareSpacecraftWeaponsSystem::GetActiveWeaponType()
 	return EFlareWeaponGroupType::WG_NONE;
 }
 
+bool UFlareSpacecraftWeaponsSystem::HasUsableWeaponType(EFlareWeaponGroupType::Type Type) const
+{
+	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
+	{
+		if (WeaponGroupList[GroupIndex]->Type == Type && Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, false, true))
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 #undef LOCTEXT_NAMESPACE
