@@ -6,8 +6,6 @@
 #include "../../Player/FlareHUD.h"
 #include "../../Player/FlarePlayerController.h"
 
-#include "../Components/FlareDashboardButton.h"
-
 #define LOCTEXT_NAMESPACE "FlareSectorList"
 
 

@@ -4,7 +4,7 @@
 #include "../../Player/FlarePlayerController.h"
 
 #include "../Components/FlareButton.h"
-#include "../Components/FlareDashboardButton.h"
+#include "../Components/FlareRoundButton.h"
 
 
 class SFlareDashboard : public SCompoundWidget

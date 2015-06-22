@@ -5,12 +5,10 @@
 #include "../Spacecrafts/FlareSpacecraftPawn.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareHUDMenu.h"
-#include "../UI/Menus/FlareMouseMenu.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareStationMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
-#include "../UI/Menus/FlareContextMenu.h"
 #include "../UI/Widgets/FlareNotifier.h"
 #include "FlareHUD.generated.h"
 
