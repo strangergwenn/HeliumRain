@@ -19,7 +19,6 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 {
 	// Data
 	OwnerHUD = InArgs._OwnerHUD;
-	TSharedPtr<SFlareButton> BackButton;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	
@@ -110,14 +109,11 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Right)
 		.VAlign(VAlign_Top)
 		[
-			SAssignNew(BackButton, SFlareButton)
-			.ButtonStyle(FFlareStyleSet::Get(), "/Style/BackToDashboardButton")
+			SNew(SFlareRoundButton)
+			.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit))
 			.OnClicked(this, &SFlareStationMenu::OnDashboardClicked)
 		]
 	];
-
-	// Dashboard button
-	BackButton->GetContainer()->SetContent(SNew(SImage).Image(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit)));
 }
 
 

@@ -17,7 +17,6 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 	MinimizedMode = InArgs._MinimizedMode;
 	AFlareGame* Game = InArgs._Player->GetGame();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	const FFlareButtonStyle* ButtonStyle = &FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/ActionButton");
 
 	// Container style
 	const FSlateBrush* BackgroundBrush;
@@ -42,8 +41,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		[
 			SNew(SBox)
-			.WidthOverride(ButtonStyle->Width)
-			.HeightOverride(ButtonStyle->Height)
+			.WidthOverride(600)
 			[
 				SNew(SBorder)
 				.VAlign(VAlign_Center)

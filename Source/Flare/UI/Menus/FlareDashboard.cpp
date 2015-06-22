@@ -18,7 +18,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 {
 	// Data
 	OwnerHUD = InArgs._OwnerHUD;
-	TSharedPtr<SFlareButton> BackButton;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 
@@ -77,8 +76,8 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		.AutoWidth()
 		[
-			SAssignNew(BackButton, SFlareButton)
-			.ButtonStyle(FFlareStyleSet::Get(), "/Style/BackToDashboardButton")
+			SNew(SFlareRoundButton)
+			.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit))
 			.OnClicked(this, &SFlareDashboard::OnExit)
 		]
 	];
@@ -182,9 +181,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Quit))
 		.OnClicked(this, &SFlareDashboard::OnQuitGame)
 	];
-
-	// Dashboard close button
-	BackButton->GetContainer()->SetContent(SNew(SImage).Image(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit)));
 }
 
 
