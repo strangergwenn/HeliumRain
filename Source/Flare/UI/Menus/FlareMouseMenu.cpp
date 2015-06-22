@@ -16,7 +16,7 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 {
 	// Setup
 	WidgetDistance = 192;
-	WidgetSize = 150;
+	WidgetSize = 200;
 	AnimTime = 0.20f;
 
 	// Init

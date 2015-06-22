@@ -672,17 +672,21 @@ void AFlarePlayerController::WheelPressed()
 		{
 			if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
 			{
-				HUD->GetMouseMenu()->AddWidget("Mouse_Align", LOCTEXT("Align", "FORWARD"),
+				HUD->GetMouseMenu()->AddWidget("Mouse_Align", LOCTEXT("Align", "Forward"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
-				HUD->GetMouseMenu()->AddWidget("Mouse_Reverse", LOCTEXT("Backward", "BACKWARD"),
+			}
+
+			HUD->GetMouseMenu()->AddWidget("Mouse_Brake", LOCTEXT("Brake", "Brake"),
+				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
+
+			if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
+			{
+				HUD->GetMouseMenu()->AddWidget("Mouse_Reverse", LOCTEXT("Backward", "Backward"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));
 			}
-			HUD->GetMouseMenu()->AddWidget("Mouse_Brake", LOCTEXT("Brake", "BRAKE"),
-				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
-			HUD->GetMouseMenu()->AddWidget("Mouse_MatchSpeed", LOCTEXT("Match speed with nearest spacecraft", "MATCH_SPEED"),
+
+			HUD->GetMouseMenu()->AddWidget("Mouse_MatchSpeed", LOCTEXT("MatchSpeed", "Match speed with nearest spacecraft"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::MatchSpeedWithNearestSpacecraft));
-
-
 
 		}
 

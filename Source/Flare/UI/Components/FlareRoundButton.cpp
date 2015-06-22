@@ -71,6 +71,7 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(TextBlock, STextBlock)
 			.Text(Text)
+			.WrapTextAt(Theme.RoundButtonWidth)
 			.TextStyle(&Theme.SmallFont)
 			.Justification(ETextJustify::Center)
 			.ColorAndOpacity(TextColor)
