@@ -121,7 +121,10 @@ protected:
 
 	/** Show the config menu for a specific station */
 	virtual void InspectStation(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
-	
+
+	/** Open the sector menu */
+	virtual void OpenSector();
+
 	/** Exit the menu */
 	virtual void ExitMenu();
 

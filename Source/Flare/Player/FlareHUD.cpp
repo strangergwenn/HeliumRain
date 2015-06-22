@@ -641,6 +641,10 @@ void AFlareHUD::ProcessFadeTarget()
 		case EFlareMenu::MENU_ShipConfig:
 			InspectShip(static_cast<IFlareSpacecraftInterface*>(FadeTargetData), true);
 			break;
+		
+		case EFlareMenu::MENU_Sector:
+			OpenSector();
+			break;
 
 		case EFlareMenu::MENU_Station:
 			InspectStation(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
@@ -719,6 +723,13 @@ void AFlareHUD::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditabl
 		Target = PlayerShip->GetNavigationSystem()->GetDockStation();
 	}
 	StationMenu->Enter(Target);
+}
+
+void AFlareHUD::OpenSector()
+{
+	ResetMenu();
+	SetMenuPawn(true);
+	SectorMenu->Enter();
 }
 
 void AFlareHUD::ExitMenu()
