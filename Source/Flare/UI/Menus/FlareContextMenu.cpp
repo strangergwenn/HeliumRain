@@ -30,7 +30,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 			SNew(SFlareRoundButton)
 			.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
 			.Icon(FFlareStyleSet::GetIcon("DesignatorContextButton"))
-			.Text(LOCTEXT("Inspect", "INSPECT"))
+			.Text(this, &SFlareContextMenu::GetText)
 		]
 	];
 }
@@ -42,6 +42,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 
 void SFlareContextMenu::SetStation(IFlareSpacecraftInterface* Target)
 {
+	// TODO M4 GWENN : ONLY ONE MENU FOR BOTH STATIONS AND SHIPS
 	TargetStation = Target;
 	TargetShip = NULL;
 }
@@ -87,6 +88,28 @@ FMargin SFlareContextMenu::GetContextMenuPosition() const
 	Pos.Y -= 48;
 
 	return FMargin(Pos.X, Pos.Y, 0, 0);
+}
+
+FText SFlareContextMenu::GetText() const
+{
+	FText Result;
+	AFlareSpacecraft* Candidate = NULL;
+
+	if (TargetShip)
+	{
+		Candidate = Cast<AFlareSpacecraft>(TargetShip);
+	}
+	else if (TargetStation)
+	{
+		Candidate = Cast<AFlareSpacecraft>(TargetStation);
+	}
+
+	if (Candidate)
+	{
+		Result = FText::FromString(Candidate->GetName());
+	}
+
+	return Result;
 }
 
 #undef LOCTEXT_NAMESPACE

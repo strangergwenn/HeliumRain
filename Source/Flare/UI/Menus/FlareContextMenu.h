@@ -54,6 +54,9 @@ protected:
 	/** Get the current position */
 	FMargin GetContextMenuPosition() const;
 	
+	/** Get the current button label */
+	FText GetText() const;
+
 
 protected:
 
