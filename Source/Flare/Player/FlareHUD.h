@@ -77,7 +77,7 @@ public:
 	void SetWheelCursorMove(FVector2D Move);
 
 	/** Decide if the HUD is displayed or not */
-	void SetHUDVisibility(bool Visibility);
+	void UpdateHUDVisibility();
 
 	/** Construct the Slate menu interface */
 	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
@@ -113,15 +113,15 @@ protected:
 	/** Open the company menu */
 	virtual void InspectCompany(UFlareCompany* Target);
 
+	/** Fly this ship */
+	virtual void FlyShip(AFlareSpacecraft* Target);
+
 	/** Show the config menu for a specific ship */
 	virtual void InspectShip(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
 
 	/** Show the config menu for a specific station */
 	virtual void InspectStation(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
-
-	/** Open the sector menu */
-	virtual void OpenSector();
-
+	
 	/** Exit the menu */
 	virtual void ExitMenu();
 

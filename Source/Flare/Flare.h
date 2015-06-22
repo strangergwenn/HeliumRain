@@ -19,15 +19,12 @@ namespace EFlareMenu
 		MENU_None,
 		MENU_Dashboard,
 		MENU_Company,
+		MENU_FlyShip,
 		MENU_Ship,
 		MENU_ShipConfig,
 		MENU_Station,
 		MENU_Undock,
 		MENU_Sector,
-		MENU_Orbit,
-		MENU_Encyclopedia,
-		MENU_Help,
-		MENU_Settings,
 		MENU_Quit,
 		MENU_Exit
 	};

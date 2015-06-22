@@ -469,7 +469,7 @@ FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpac
 void AFlareHUD::ToggleHUD()
 {
 	HUDVisible = !HUDVisible;
-	SetHUDVisibility(HUDVisible);
+	UpdateHUDVisibility();
 }
 
 void AFlareHUD::SetWheelMenu(bool State)
@@ -489,13 +489,13 @@ void AFlareHUD::SetWheelCursorMove(FVector2D Move)
 	MouseMenu->SetWheelCursorMove(Move);
 }
 
-void AFlareHUD::SetHUDVisibility(bool Visibility)
+void AFlareHUD::UpdateHUDVisibility()
 {
-	Visibility = Visibility && !MenuIsOpen;
+	bool NewVisibility = HUDVisible && !MenuIsOpen;
 
-	FLOGV("AFlareHUD::SetHUDVisibility : new state is %d", Visibility);
-	HUDMenu->SetVisibility(Visibility ? EVisibility::Visible : EVisibility::Collapsed);
-	ContextMenu->SetVisibility(Visibility ? EVisibility::Visible : EVisibility::Collapsed);
+	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
+	HUDMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
+	ContextMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
@@ -558,7 +558,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		}
 
 		// Visibility
-		SetHUDVisibility(HUDVisible);
+		UpdateHUDVisibility();
 	}
 }
 
@@ -577,7 +577,8 @@ void AFlareHUD::OnTargetShipChanged()
 	if (PC)
 	{
 		HUDMenu->SetTargetShip(PC->GetShipPawn());
-		SetHUDVisibility(HUDVisible);
+		MenuIsOpen = false;
+		UpdateHUDVisibility();
 	}
 }
 
@@ -629,16 +630,16 @@ void AFlareHUD::ProcessFadeTarget()
 			InspectCompany(static_cast<UFlareCompany*>(FadeTargetData));
 			break;
 
+		case EFlareMenu::MENU_FlyShip:
+			FlyShip(static_cast<AFlareSpacecraft*>(FadeTargetData));
+			break;
+
 		case EFlareMenu::MENU_Ship:
 			InspectShip(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_ShipConfig:
 			InspectShip(static_cast<IFlareSpacecraftInterface*>(FadeTargetData), true);
-			break;
-
-		case EFlareMenu::MENU_Sector:
-			OpenSector();
 			break;
 
 		case EFlareMenu::MENU_Station:
@@ -682,6 +683,18 @@ void AFlareHUD::InspectCompany(UFlareCompany* Target)
 	CompanyMenu->Enter(Target);
 }
 
+void AFlareHUD::FlyShip(AFlareSpacecraft* Target)
+{
+	ExitMenu();
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC && Target)
+	{
+		PC->FlyShip(Target);
+		OnTargetShipChanged();
+	}
+}
+
 void AFlareHUD::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
 	ResetMenu();
@@ -708,18 +721,11 @@ void AFlareHUD::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditabl
 	StationMenu->Enter(Target);
 }
 
-void AFlareHUD::OpenSector()
-{
-	ResetMenu();
-	SetMenuPawn(true);
-	SectorMenu->Enter();
-}
-
 void AFlareHUD::ExitMenu()
 {
 	ResetMenu();
 	SetMenuPawn(false);
-	SetHUDVisibility(HUDVisible);
+	UpdateHUDVisibility();
 }
 
 
@@ -745,7 +751,7 @@ void AFlareHUD::ResetMenu()
 
 	FadeIn();
 	HUDMenu->SetTargetShip(PC->GetShipPawn());
-	SetHUDVisibility(HUDVisible);
+	UpdateHUDVisibility();
 }
 
 void AFlareHUD::FadeIn()
@@ -792,14 +798,9 @@ const FSlateBrush* AFlareHUD::GetMenuIcon(EFlareMenu::Type MenuType)
 	case EFlareMenu::MENU_Station:        return FFlareStyleSet::GetIcon("Station");
 	case EFlareMenu::MENU_Undock:         return FFlareStyleSet::GetIcon("Undock");
 	case EFlareMenu::MENU_Sector:         return FFlareStyleSet::GetIcon("Sector");
-	case EFlareMenu::MENU_Orbit:          return FFlareStyleSet::GetIcon("Universe");
-	case EFlareMenu::MENU_Encyclopedia:   return FFlareStyleSet::GetIcon("Encyclopedia");
-	case EFlareMenu::MENU_Help:           return FFlareStyleSet::GetIcon("Help");
-	case EFlareMenu::MENU_Settings:       return FFlareStyleSet::GetIcon("Settings");
 	case EFlareMenu::MENU_Quit:           return FFlareStyleSet::GetIcon("Quit");
 	case EFlareMenu::MENU_Exit:           return FFlareStyleSet::GetIcon("Close");
 
-	case EFlareMenu::MENU_None:
 	default:
 		return NULL;
 	}

@@ -294,11 +294,9 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	if (Ship)
 	{
 		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " + FString(*Ship->GetName()));
-		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with the N key.");
+		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
 		Notify(Text, Info, EFlareNotification::NT_Help);
 	}
-
-
 }
 
 void AFlarePlayerController::PrepareForExit()
@@ -551,7 +549,11 @@ void AFlarePlayerController::QuickSwitch()
 		{
 			OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
 			AFlareSpacecraft* Candidate = Cast<AFlareSpacecraft>(CompanyShips[OffsetIndex]);
-			if (Candidate && Candidate != ShipPawn && Candidate->GetDamageSystem()->IsAlive() && Candidate->IsMilitary() && Candidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
+
+			if (Candidate && Candidate != ShipPawn
+			 && Candidate->GetDamageSystem()->IsAlive()
+			 && Candidate->IsMilitary() 
+			 && Candidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
 			{
 				SeletedCandidate = Candidate;
 				break;
@@ -577,9 +579,8 @@ void AFlarePlayerController::QuickSwitch()
 		if (SeletedCandidate)
 		{
 			FLOG("AFlarePlayerController::QuickSwitch : found new ship");
-			FlyShip(SeletedCandidate);
 			QuickSwitchNextOffset = OffsetIndex + 1;
-			Cast<AFlareHUD>(GetHUD())->OnTargetShipChanged();
+			Cast<AFlareHUD>(GetHUD())->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
 		}
 		else
 		{
