@@ -22,6 +22,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	Spacecraft = ParentSpacecraft;
 	PlayerMousePosition = FVector2D(0,0);
 	PlayerMouseOffset = FVector2D(0,0);
+	ExternalCamera = true;
 
 	PlayerManualLinearVelocity = FVector::ZeroVector;
 	PlayerManualAngularVelocity = FVector::ZeroVector;
@@ -96,7 +97,6 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		{
 				FVector LinearVelocityAxis = Spacecraft->GetLinearVelocity().GetUnsafeNormal();
 				PlayerManualAngularVelocity = Spacecraft->GetPilot()->GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearVelocityAxis, FVector::ZeroVector, DeltaSeconds);
-
 		}
 		break;
 		case EFlareWeaponGroupType::WG_GUN:

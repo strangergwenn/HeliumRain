@@ -252,7 +252,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	// Fly the new ship
 	Possess(Ship);
 	ShipPawn = Ship;
-	SetExternalCamera(true);
+	SetExternalCamera(false);
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	QuickSwitchNextOffset = 0;
