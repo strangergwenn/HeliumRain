@@ -4,8 +4,8 @@
 #include "../../Spacecrafts/FlareSpacecraft.h"
 #include "../Widgets/FlareSubsystemStatus.h"
 #include "../Widgets/FlareWeaponStatus.h"
-#include "../UI/Widgets/FlareMouseMenu.h"
-#include "../UI/Widgets/FlareContextMenu.h"
+#include "../Widgets/FlareMouseMenu.h"
+#include "../Widgets/FlareContextMenu.h"
 
 
 class SFlareHUDMenu : public SCompoundWidget
