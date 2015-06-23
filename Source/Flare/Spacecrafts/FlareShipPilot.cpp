@@ -507,17 +507,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 	DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + Ship->GetLinearVelocity() * 100, FColor::Green, false, ReactionTime);
 
-	if(Ship->GetLinearVelocity().IsNearlyZero())
-	{
-		AngularTargetVelocity = FVector::ZeroVector;
-	}
-	else
-	{
-		FVector LinearVelocityAxis = Ship->GetLinearVelocity().GetUnsafeNormal();
-		FLOGV("%s LinearVelocityAxis %s",  *Ship->GetName(), *LinearVelocityAxis.ToString());
-		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearVelocityAxis, FVector::ZeroVector, DeltaSeconds);
-		FLOGV("%s AngularTargetVelocity %s",  *Ship->GetName(), *AngularTargetVelocity.ToString());
-	}
+
 
 
 	LinearTargetVelocity = FVector::ZeroVector;
@@ -538,11 +528,14 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// 2 - Withdraw : target is passed, wait a security distance to attack again
 
 	float ChargeDistance = 1000;
-	float DropTime = 4;
-	float EvadeTime = 2;
+	float AlignTime = 12;
+	float DropTime = 5;
+	float EvadeTime = 2.5;
 	float SecurityDistance = 1500;
 	UseOrbitalBoost = false;
 	bool ClearTarget = false;
+	bool AlignToSpeed = false;
+	bool HardBoost = false;
 
 	FLOGV("%s AttackPhase %d",  *Ship->GetName(), AttackPhase);
 	if (AttackPhase == 0)
@@ -558,6 +551,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		{
 			LinearTargetVelocity = TargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), TargetAxis, FVector::ZeroVector, DeltaSeconds);
+			UseOrbitalBoost = true;
 			FLOGV("%s Goto target %s",  *Ship->GetName(), *LinearTargetVelocity.ToString());
 		}
 	}
@@ -574,6 +568,8 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 		DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
 
+		AlignToSpeed = true;
+
 		if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < DropTime)
 		{
 			FLOGV("%s AmmoIntersectionTime < DropTime => phase 2",  *Ship->GetName());
@@ -582,11 +578,12 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			LastWantFire = false;
 			TimeBeforeNextDrop = 0;
 		}
-		else if(AmmoIntersectionTime > 0 && AmmoIntersectionTime < DropTime * 2)
+		else if(AmmoIntersectionTime > 0 && AmmoIntersectionTime < AlignTime)
 		{
 			FVector ChargeAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
-			LinearTargetVelocity = ChargeAxis * Ship->GetLinearVelocity().Size() * 1.2;
+			LinearTargetVelocity = ChargeAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			UseOrbitalBoost = true;
+			HardBoost = true;
 			FLOGV("%s ChargeAxis %s",  *Ship->GetName(), *ChargeAxis.ToString());
 			FLOGV("%s Charge target %s",  *Ship->GetName(), *LinearTargetVelocity.ToString());
 		}
@@ -609,19 +606,20 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		FVector ChargeAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
 		DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
 
+		AlignToSpeed = true;
 
 		FLOGV("%s AmmoIntersectionLocation %s",  *Ship->GetName(), *AmmoIntersectionLocation.ToString());
 		FLOGV("%s AmmoIntersectionTime %f",  *Ship->GetName(), AmmoIntersectionTime);
 		FLOGV("%s AmmoVelocity %f",  *Ship->GetName(), AmmoVelocity);
 
 
-		if (AmmoIntersectionTime < EvadeTime || FVector::DotProduct(FrontVector, ChargeAxis) < 0.6)
+		if (AmmoIntersectionTime < EvadeTime || FVector::DotProduct(FrontVector, ChargeAxis) < 0.6 || AmmoIntersectionTime > AlignTime)
 		{
 			// Security distance reach
 			FLOGV("%s AmmoIntersectionTime < EvadeTime => phase3",  *Ship->GetName());
 			AttackPhase = 3;
 		}
-		else if(FVector::DotProduct(FrontVector, ChargeAxis) > 0.9)
+		else if(FVector::DotProduct(FrontVector, ChargeAxis) > 0.9 && AmmoIntersectionTime < DropTime)
 		{
 			FLOGV("%s TimeBeforeNextDrop %f", *Ship->GetName(), TimeBeforeNextDrop);
 			if(TimeBeforeNextDrop > 0)
@@ -637,14 +635,14 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 				LastWantFire = WantFire;
 				if(WantFire)
 				{
-					TimeBeforeNextDrop = 0.30;
+					TimeBeforeNextDrop = 0.50;
 				}
 			}
 
 
 			FLOGV("%s WantFire %d",  *Ship->GetName(), WantFire);
 
-			LinearTargetVelocity = ChargeAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 1.2;
+			LinearTargetVelocity = ChargeAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			FLOGV("%s ChargeAxis %s",  *Ship->GetName(), *ChargeAxis.ToString());
 			FLOGV("%s Charge target %s",  *Ship->GetName(), *LinearTargetVelocity.ToString());
 		}
@@ -664,7 +662,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		}
 		else if (FVector::DotProduct(DeltaLocation, DeltaVelocity) < 0)
 		{
-
+			AlignToSpeed = true;
 			FQuat AvoidQuat = FQuat(DeltaLocation.GetUnsafeNormal(), AttackAngle);
 			FVector TopVector = Ship->GetActorRotation().RotateVector(FVector(0,0,PilotTargetShip->GetMeshScale()));
 			FVector Avoid =  AvoidQuat.RotateVector(TopVector);
@@ -678,6 +676,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		else
 		{
 			UseOrbitalBoost = true;
+			HardBoost = true;
 			LinearTargetVelocity = -TargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 2;
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), -TargetAxis, FVector::ZeroVector, DeltaSeconds);
 			FLOGV("%s Run from target %s",  *Ship->GetName(), *LinearTargetVelocity.ToString());
@@ -689,6 +688,35 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 	DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + LinearTargetVelocity * 100, FColor::Red, false, ReactionTime);
 
+	if(AlignToSpeed)
+	{
+		if(Ship->GetLinearVelocity().IsNearlyZero())
+		{
+			AngularTargetVelocity = FVector::ZeroVector;
+		}
+		else
+		{
+			FVector LinearVelocityAxis = Ship->GetLinearVelocity().GetUnsafeNormal();
+			FLOGV("%s LinearVelocityAxis %s",  *Ship->GetName(), *LinearVelocityAxis.ToString());
+			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearVelocityAxis, FVector::ZeroVector, DeltaSeconds);
+			FLOGV("%s AngularTargetVelocity %s",  *Ship->GetName(), *AngularTargetVelocity.ToString());
+		}
+	}
+	else
+	{
+		if(LinearTargetVelocity.IsNearlyZero())
+		{
+			AngularTargetVelocity = FVector::ZeroVector;
+		}
+		else
+		{
+			FVector LinearTargetVelocityAxis = LinearTargetVelocity.GetUnsafeNormal();
+			FLOGV("%s LinearTargetVelocityAxis %s",  *Ship->GetName(), *LinearTargetVelocityAxis.ToString());
+			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocityAxis, FVector::ZeroVector, DeltaSeconds);
+			FLOGV("%s AngularTargetVelocity %s",  *Ship->GetName(), *AngularTargetVelocity.ToString());
+		}
+	}
+
 	if(ClearTarget)
 	{
 		PilotTargetShip = NULL;
@@ -696,7 +724,11 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// TODO ignore target
 
 
-
+	// Manage orbital boost
+	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
+	{
+		UseOrbitalBoost = false;
+	}
 
 
 	// Manage orbital boost
