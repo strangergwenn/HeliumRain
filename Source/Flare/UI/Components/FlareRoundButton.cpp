@@ -31,6 +31,7 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 		// Container
 		+ SVerticalBox::Slot()
 		.AutoHeight()
+		.HAlign(HAlign_Center)
 		[
 			// Image box
 			SNew(SBox)
@@ -45,6 +46,7 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 				[
 					// Inverted background
 					SNew(SBorder)
+					.Padding(FMargin(0))
 					.BorderImage(&Theme.RoundButtonInvertedBackground)
 					.BorderBackgroundColor(this, &SFlareRoundButton::GetInvertedBackgroundColor)
 					[
@@ -71,7 +73,7 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(TextBlock, STextBlock)
 			.Text(Text)
-			.WrapTextAt(Theme.RoundButtonWidth)
+			.WrapTextAt(Theme.RoundButtonWidth + Theme.RoundButtonPadding.Left + Theme.RoundButtonPadding.Right - Theme.RoundButtonTextPadding.Left - Theme.RoundButtonTextPadding.Right)
 			.TextStyle(&Theme.SmallFont)
 			.Justification(ETextJustify::Center)
 			.ColorAndOpacity(TextColor)

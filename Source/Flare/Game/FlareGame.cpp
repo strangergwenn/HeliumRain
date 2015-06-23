@@ -684,36 +684,15 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 {
 	FString Immatriculation;
+	CurrentImmatriculationIndex++;
 	FFlareSpacecraftDescription* SpacecraftDesc = SpacecraftCatalog->Get(TargetClass);
 
-	// Spacecraft
-	if (SpacecraftDesc)
-	{
-		if (IFlareSpacecraftInterface::IsStation(SpacecraftDesc))
-		{
-			Immatriculation += "ST";
-		}
-		else if (IFlareSpacecraftInterface::IsMilitary(SpacecraftDesc))
-		{
-			Immatriculation += "M";
-		}
-		else
-		{
-			Immatriculation += "C";
-		}
-		Immatriculation += EFlarePartSize::ToString(SpacecraftDesc->Size) + "-" + SpacecraftDesc->ImmatriculationCode.ToString();
-	}
-
-
-	// Company
-	Immatriculation += "-";
+	// Build the result
 	Immatriculation += Company.ToString();
+	Immatriculation += "-";
+	Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString();
+	Immatriculation += FString::Printf(TEXT("-%04d"), CurrentImmatriculationIndex);
 
-	// ID
-	CurrentImmatriculationIndex++;
-	Immatriculation += FString::Printf(TEXT("-%06d"), CurrentImmatriculationIndex);
-
-	// Return
 	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
 	return FName(*Immatriculation);
 }

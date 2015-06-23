@@ -102,12 +102,12 @@ FText SFlareSubsystemStatus::GetText() const
 
 	switch (SubsystemType)
 	{
-		case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "COOLING");      break;
-		case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "ENGINES");       break;
+		case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "Cooling");      break;
+		case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "Engines");       break;
 		case EFlareSubsystem::SYS_RCS:           Text = LOCTEXT("SYS_RCS", "RCS");                  break;
-		case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "CREW");         break;
-		case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "POWER");              break;
-		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "WEAPONS");           break;
+		case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "Crew");         break;
+		case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "Power");              break;
+		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "Weapons");           break;
 	}
 
 	return FText::FromString(Text.ToString() + "\n" + FString::FromInt(100 * ComponentHealth) + "%");

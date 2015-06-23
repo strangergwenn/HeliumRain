@@ -657,14 +657,14 @@ void AFlarePlayerController::WheelPressed()
 	{
 		// Setup mouse menu
 		HUD->GetMouseMenu()->ClearWidgets();
-		HUD->GetMouseMenu()->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "CANCEL"));
+		HUD->GetMouseMenu()->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "Cancel"));
 
 		// Docked controls
 		if (ShipPawn->GetNavigationSystem()->IsDocked())
 		{
-			HUD->GetMouseMenu()->AddWidget("ShipUpgrade", LOCTEXT("Upgrade", "UPGRADE"),
+			HUD->GetMouseMenu()->AddWidget("ShipUpgrade", LOCTEXT("Upgrade", "Upgrade"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UpgradeShip));
-			HUD->GetMouseMenu()->AddWidget("Undock", LOCTEXT("Undock", "UNDOCK"),
+			HUD->GetMouseMenu()->AddWidget("Undock", LOCTEXT("Undock", "Undock"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UndockShip));
 		}
 
