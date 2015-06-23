@@ -93,6 +93,13 @@ public:
 	/** Create a ship or station in the level  for a specific company */
 	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
 
+	/** Set the default weapon for new created ship */
+	UFUNCTION(exec)
+	void SetDefaultWeapon(FName NewDefaultWeaponIdentifier);
+
+	/** Set the default turret for new created ship */
+	UFUNCTION(exec)
+	void SetDefaultTurret(FName NewDefaultTurretIdentifier);
 
 	/** Build a unique immatriculation string for this object */
 	FName Immatriculate(FName Company, FName TargetClass);
@@ -138,6 +145,8 @@ protected:
 	UPROPERTY()
 	TArray<UFlareCompany*> Companies;
 
+	FName DefaultWeaponIdentifer;
+	FName DefaultTurretIdentifer;
 
 public:
 

@@ -17,6 +17,8 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	// Game classes
 	HUDClass = AFlareHUD::StaticClass();
 	PlayerControllerClass = AFlarePlayerController::StaticClass();
+	DefaultWeaponIdentifer = FName("weapon-eradicator");
+	DefaultTurretIdentifer = FName("weapon-hades");
 
 	// Menu pawn
 	static ConstructorHelpers::FObjectFinder<UBlueprint> MenuPawnBPClass(TEXT("/Game/Gameplay/Menu/BP_MenuPawn"));
@@ -638,7 +640,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 		for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
 		{
 			FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = FName("weapon-eradicator");
+			ComponentData.ComponentIdentifier = DefaultWeaponIdentifer;
 			ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
 			ComponentData.Damage = 0.f;
 			ComponentData.Weapon.FiredAmmo = 0;
@@ -648,7 +650,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 		for (int32 i = 0; i < ShipDescription->TurretSlots.Num(); i++)
 		{
 			FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = FName("weapon-hades");
+			ComponentData.ComponentIdentifier = DefaultTurretIdentifer;
 			ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
 			ComponentData.Turret.BarrelsAngle = 0;
 			ComponentData.Turret.TurretAngle = 0;
@@ -679,6 +681,34 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 	}
 
 	return ShipPawn;
+}
+
+void AFlareGame::SetDefaultWeapon(FName NewDefaultWeaponIdentifier)
+{
+	FFlareSpacecraftComponentDescription* ComponentDescription = ShipPartsCatalog->Get(NewDefaultWeaponIdentifier);
+
+	if(ComponentDescription && ComponentDescription->WeaponCharacteristics.IsWeapon)
+	{
+		DefaultWeaponIdentifer = NewDefaultWeaponIdentifier;
+	}
+	else
+	{
+		FLOGV("Bad weapon identifier: %s", *NewDefaultWeaponIdentifier.ToString())
+	}
+}
+
+void AFlareGame::SetDefaultTurret(FName NewDefaultTurretIdentifier)
+{
+	FFlareSpacecraftComponentDescription* ComponentDescription = ShipPartsCatalog->Get(NewDefaultTurretIdentifier);
+
+	if(ComponentDescription && ComponentDescription->WeaponCharacteristics.IsWeapon && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
+	{
+		DefaultTurretIdentifer = NewDefaultTurretIdentifier;
+	}
+	else
+	{
+		FLOGV("Bad weapon identifier: %s", *NewDefaultTurretIdentifier.ToString())
+	}
 }
 
 FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
