@@ -527,7 +527,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// 3 - Drop : Drop util its not safe to stay
 	// 2 - Withdraw : target is passed, wait a security distance to attack again
 
-	float ChargeDistance = 1000;
+	float ChargeDistance = 15 * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 	float AlignTime = 12;
 	float DropTime = 5;
 	float EvadeTime = 2.5;
