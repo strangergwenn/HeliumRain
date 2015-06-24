@@ -243,7 +243,7 @@ void AFlarePlayerController::SetExternalCamera(bool NewState)
 	}
 }
 
-void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
+void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 {
 	// Reset the current ship to auto
 	if (ShipPawn)
@@ -252,7 +252,10 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	}
 
 	// Fly the new ship
-	Possess(Ship);
+	if(PossessNow)
+	{
+		Possess(Ship);
+	}
 	ShipPawn = Ship;
 	SetExternalCamera(false);
 	ShipPawn->GetStateManager()->EnablePilot(false);

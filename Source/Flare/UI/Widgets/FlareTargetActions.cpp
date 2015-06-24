@@ -321,7 +321,7 @@ void SFlareTargetActions::OnFly()
 {
 	if (PC && TargetSpacecraft && !TargetSpacecraft->IsStation())
 	{
-		PC->FlyShip(Cast<AFlareSpacecraft>(TargetSpacecraft));
+		PC->FlyShip(Cast<AFlareSpacecraft>(TargetSpacecraft), false);
 		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
 	}
 }

@@ -47,7 +47,7 @@ public:
 	virtual void SetExternalCamera(bool NewState);
 
 	/** Fly this ship */
-	virtual void FlyShip(AFlareSpacecraft* Ship);
+	virtual void FlyShip(AFlareSpacecraft* Ship, bool PossessNow = true);
 
 	/** The world is ending. Literally. */
 	virtual void PrepareForExit();
