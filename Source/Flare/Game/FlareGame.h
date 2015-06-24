@@ -104,6 +104,10 @@ public:
 	/** Build a unique immatriculation string for this object */
 	FName Immatriculate(FName Company, FName TargetClass);
 
+	void InitCapitalShipNameDatabase();
+
+	FName PickCapitalShipName();
+
 	/** Create 2 fleets for 2 companies At a defined distance */
 	UFUNCTION(exec)
 	void CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count);
@@ -140,6 +144,12 @@ protected:
 
 	/** Immatriculation index */
 	int32 CurrentImmatriculationIndex;
+
+
+	TArray<FName> AvailableImmatriculationNameList;
+	TArray<FName> BaseImmatriculationNameList;
+	int32 CurrentImmatriculationNameIndex;
+
 
 	/** Comapnies */
 	UPROPERTY()

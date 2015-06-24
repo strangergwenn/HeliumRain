@@ -13,6 +13,7 @@
 AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CurrentImmatriculationIndex(0)
+	, CurrentImmatriculationNameIndex(0)
 {
 	// Game classes
 	HUDClass = AFlareHUD::StaticClass();
@@ -123,6 +124,7 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 		// Load
 		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
+		CurrentImmatriculationNameIndex = Save->CurrentImmatriculationNameIndex;
 
 		// Load all companies
 		for (int32 i = 0; i < Save->CompanyData.Num(); i++)
@@ -298,6 +300,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 		PC->Save(Save->PlayerData);
 		Save->ShipData.Empty();
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
+		Save->CurrentImmatriculationNameIndex = CurrentImmatriculationNameIndex;
 
 		// Save all physical ships
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
@@ -599,6 +602,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 		ShipData.Identifier = ShipDescription->Identifier;
 		ShipData.Heat = 600 * ShipDescription->HeatCapacity;
 		ShipData.PowerOutageDelay = 0;
+		ShipData.PowerOutageAcculumator = 0;
 
 		FName RCSIdentifier;
 		FName OrbitalEngineIdentifier;
@@ -721,11 +725,70 @@ FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 	Immatriculation += Company.ToString();
 	Immatriculation += "-";
 	Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString();
-	Immatriculation += FString::Printf(TEXT("-%04d"), CurrentImmatriculationIndex);
+	if(SpacecraftDesc->Size == EFlarePartSize::L)
+	{
+		Immatriculation += FString::Printf(TEXT("-%s"), *PickCapitalShipName().ToString());
+	}
+	else
+	{
+		Immatriculation += FString::Printf(TEXT("-%04d"), CurrentImmatriculationIndex);
+	}
 
 	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
 	return FName(*Immatriculation);
 }
+
+FName AFlareGame::PickCapitalShipName()
+{
+	FLOG("AFlareGame::PickCapitalShipName");
+	// Refill available name list
+	if(AvailableImmatriculationNameList.Num() == 0)
+	{
+		CurrentImmatriculationNameIndex++;
+		if(BaseImmatriculationNameList.Num() == 0)
+		{
+			InitCapitalShipNameDatabase();
+		}
+
+		for(int i = 0; i < BaseImmatriculationNameList.Num(); i++)
+		{
+			FString ImmatriculationName = BaseImmatriculationNameList[i].ToString();
+			if(CurrentImmatriculationNameIndex > 1)
+			{
+				ImmatriculationName += FString::Printf(TEXT("-%d"), CurrentImmatriculationNameIndex);
+			}
+			AvailableImmatriculationNameList.Add(FName(*ImmatriculationName));
+		}
+	}
+
+	int32 PickIndex = FMath::RandRange(0,AvailableImmatriculationNameList.Num()-1);
+
+	FLOGV("AFlareGame::PickCapitalShipName PickIndex=%d", PickIndex);
+
+	FName PickName = AvailableImmatriculationNameList[PickIndex];
+	AvailableImmatriculationNameList.RemoveAt(PickIndex);
+	FLOGV("AFlareGame::PickCapitalShipName PickName=%s", *PickName.ToString());
+	return PickName;
+}
+
+void AFlareGame::InitCapitalShipNameDatabase()
+{
+	BaseImmatriculationNameList.Empty();
+	BaseImmatriculationNameList.Add("Revenge");
+	BaseImmatriculationNameList.Add("Sovereign");
+	BaseImmatriculationNameList.Add("Stalker");
+	BaseImmatriculationNameList.Add("Leviathan");
+	BaseImmatriculationNameList.Add("Resolve");
+	BaseImmatriculationNameList.Add("Explorer");
+	BaseImmatriculationNameList.Add("Arrow");
+	BaseImmatriculationNameList.Add("Intruder");
+	BaseImmatriculationNameList.Add("Goliath");
+	BaseImmatriculationNameList.Add("Shrike");
+	BaseImmatriculationNameList.Add("Thunder");
+	BaseImmatriculationNameList.Add("Enterprise");
+	BaseImmatriculationNameList.Add("Sahara");
+}
+
 
 void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count)
 {
