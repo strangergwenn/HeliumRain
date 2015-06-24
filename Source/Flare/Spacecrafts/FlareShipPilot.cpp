@@ -505,7 +505,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 	FLOGV("%s GetLinearVelocity %s",  *Ship->GetName(), *(Ship->GetLinearVelocity()).ToString());
 
-	DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + Ship->GetLinearVelocity() * 100, FColor::Green, false, ReactionTime);
+	//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + Ship->GetLinearVelocity() * 100, FColor::Green, false, ReactionTime);
 
 
 
@@ -527,15 +527,19 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// 3 - Drop : Drop util its not safe to stay
 	// 2 - Withdraw : target is passed, wait a security distance to attack again
 
+	float WeigthCoef = FMath::Sqrt(Ship->Airframe->GetMass()) / FMath::Sqrt(5425.f); // 1 for ghoul
+
 	float ChargeDistance = 15 * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 	float AlignTime = 12;
-	float DropTime = 5;
-	float EvadeTime = 2.5;
+	float DropTime = 5 * WeigthCoef ;
+	float EvadeTime = 2.5 * WeigthCoef;
+	float TimeBetweenDrop = 0.50 * WeigthCoef;
 	float SecurityDistance = 1500;
 	UseOrbitalBoost = false;
 	bool ClearTarget = false;
 	bool AlignToSpeed = false;
 	bool HardBoost = false;
+	bool Anticollision = true;
 
 	FLOGV("%s AttackPhase %d",  *Ship->GetName(), AttackPhase);
 	if (AttackPhase == 0)
@@ -566,7 +570,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		FLOGV("%s AmmoIntersectionTime %f",  *Ship->GetName(), AmmoIntersectionTime);
 		FLOGV("%s AmmoVelocity %f",  *Ship->GetName(), AmmoVelocity);
 
-		DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
+		//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
 
 		AlignToSpeed = true;
 
@@ -584,6 +588,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			LinearTargetVelocity = ChargeAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			UseOrbitalBoost = true;
 			HardBoost = true;
+			Anticollision = false;
 			FLOGV("%s ChargeAxis %s",  *Ship->GetName(), *ChargeAxis.ToString());
 			FLOGV("%s Charge target %s",  *Ship->GetName(), *LinearTargetVelocity.ToString());
 		}
@@ -604,8 +609,9 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		float AmmoIntersectionTime = PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 		FVector FrontVector = Ship->GetActorRotation().RotateVector(FVector(1,0,0));
 		FVector ChargeAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
-		DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
+		//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
 
+		Anticollision = false;
 		AlignToSpeed = true;
 
 		FLOGV("%s AmmoIntersectionLocation %s",  *Ship->GetName(), *AmmoIntersectionLocation.ToString());
@@ -635,7 +641,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 				LastWantFire = WantFire;
 				if(WantFire)
 				{
-					TimeBeforeNextDrop = 0.50;
+					TimeBeforeNextDrop = TimeBetweenDrop;
 				}
 			}
 
@@ -650,8 +656,8 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 	if (AttackPhase == 3)
 	{
-		FVector DeltaVelocity = PilotTargetShip->GetLinearVelocity() - Ship->GetLinearVelocity() / 100.;
-
+		FVector DeltaVelocity = (PilotTargetShip->GetLinearVelocity() - Ship->GetLinearVelocity()) / 100.;
+		FLOGV("%s DeltaVelocity %s",  *Ship->GetName(), *DeltaVelocity.ToString());
 		if (Distance > SecurityDistance)
 		{
 			FLOGV("%s Distance > SecurityDistance => phase0",  *Ship->GetName());
@@ -672,6 +678,8 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			FLOGV("%s TopVector %s",  *Ship->GetName(), *TopVector.ToString());
 			FLOGV("%s Avoid %s",  *Ship->GetName(), *Avoid.ToString());
 			FLOGV("%s Escape target %s",  *Ship->GetName(), *LinearTargetVelocity.ToString());
+			UseOrbitalBoost = true;
+			HardBoost = true;
 		}
 		else
 		{
@@ -684,9 +692,12 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	}
 
 	// Anticollision
-	LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AttackAngle, PilotTargetShip);
+	if(Anticollision)
+	{
+		LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AttackAngle, PilotTargetShip);
+	}
 
-	DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + LinearTargetVelocity * 100, FColor::Red, false, ReactionTime);
+	//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + LinearTargetVelocity * 100, FColor::Red, false, ReactionTime);
 
 	if(AlignToSpeed)
 	{
