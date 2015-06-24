@@ -81,7 +81,8 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 
 	if (Other && OtherComp)
 	{
-		if (Other == ParentWeapon->GetSpacecraft())
+		//TODO Investigate on NULL ParentWeapon
+		if (!ParentWeapon || Other == ParentWeapon->GetSpacecraft())
 		{
 			// Avoid auto hit
 			return;
@@ -231,8 +232,12 @@ FFlareBombSave* AFlareBomb::Save()
 	BombData.LinearVelocity = BombComp->GetPhysicsLinearVelocity();
 	BombData.AngularVelocity = BombComp->GetPhysicsAngularVelocity();
 
-	BombData.ParentSpacecraft = ParentWeapon->GetSpacecraft()->GetName();
-	BombData.WeaponSlotIdentifier = ParentWeapon->SlotIdentifier;
+	//TODO Investigate on NULL ParentWeapon
+	if(ParentWeapon)
+	{
+		BombData.ParentSpacecraft = ParentWeapon->GetSpacecraft()->GetName();
+		BombData.WeaponSlotIdentifier = ParentWeapon->SlotIdentifier;
+	}
 
 	return &BombData;
 }
