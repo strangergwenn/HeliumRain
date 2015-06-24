@@ -52,6 +52,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	RCSSound->bAutoActivate = false;
 	RCSSound->bAutoDestroy = false;
 	RCSSoundFadeSpeed = 5.0;
+	QuickSwitchNextOffset = 0;
 }
 
 
@@ -256,7 +257,6 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship)
 	SetExternalCamera(false);
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
-	QuickSwitchNextOffset = 0;
 
 	// Setup power sound
 	FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
