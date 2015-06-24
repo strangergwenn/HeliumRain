@@ -81,6 +81,8 @@ public:
 
 	virtual float GetParentDistance() const;
 
+	virtual void SetPause(bool Paused);
+
 protected:
 
 	/*----------------------------------------------------
@@ -111,6 +113,8 @@ protected:
 
 	FFlareBombSave                          BombData;
 
+	bool                                    Paused;
+
 public:
 
 	/*----------------------------------------------------
@@ -120,5 +124,10 @@ public:
 	inline bool IsDropped() const
 	{
 		return BombData.Dropped;
+	}
+
+	inline bool IsPaused()
+	{
+		return Paused;
 	}
 };

@@ -36,6 +36,8 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	// Dock info
 	ShipData.DockedTo = NAME_None;
 	ShipData.DockedAt = -1;
+
+	Paused = false;
 }
 
 
@@ -50,7 +52,6 @@ void AFlareSpacecraft::BeginPlay()
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
-
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
 	if (!IsPresentationMode())
@@ -100,6 +101,29 @@ void AFlareSpacecraft::Destroyed()
 	}
 }
 
+void AFlareSpacecraft::SetPause(bool Pause)
+{
+	if(Paused == Pause)
+	{
+		return;
+	}
+	Paused = Pause;
+
+	CustomTimeDilation = (Paused ? 0.f : 1.0);
+	if(Paused)
+	{
+		Save();
+		FLOGV("%s save linear velocity : %s", *GetName(), *ShipData.LinearVelocity.ToString());
+	}
+	Airframe->SetSimulatePhysics(!Paused);
+
+	if(!Paused)
+	{
+		FLOGV("%s restore linear velocity : %s", *GetName(), *ShipData.LinearVelocity.ToString());
+		Airframe->SetPhysicsLinearVelocity(ShipData.LinearVelocity);
+		Airframe->SetPhysicsAngularVelocity(ShipData.AngularVelocity);
+	}
+}
 
 /*----------------------------------------------------
 	Player interface
@@ -704,6 +728,7 @@ FVector AFlareSpacecraft::GetLinearVelocity() const
 {
 	return Airframe->GetPhysicsLinearVelocity() / 100;
 }
+
 
 
 #undef LOCTEXT_NAMESPACE

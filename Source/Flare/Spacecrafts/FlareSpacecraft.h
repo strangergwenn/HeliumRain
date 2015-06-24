@@ -44,6 +44,8 @@ public:
 
 	virtual void OnDocked();
 
+	virtual void SetPause(bool Pause);
+
 	/*----------------------------------------------------
 		Player interface
 	----------------------------------------------------*/
@@ -202,7 +204,7 @@ protected:
 	UPROPERTY()
 	UFlareSpacecraftStateManager*				   StateManager;
 
-
+	bool                                           Paused;
 
 public:
 
@@ -246,5 +248,10 @@ public:
 	inline FVector GetSmoothedLinearVelocity() const
 	{
 		return SmoothedVelocity;
+	}
+
+	inline bool IsPaused()
+	{
+		return Paused;
 	}
 };

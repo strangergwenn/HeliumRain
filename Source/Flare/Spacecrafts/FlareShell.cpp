@@ -557,3 +557,8 @@ void AFlareShell::SetFuzeTimer(float TargetSecureTime, float TargetActiveTime)
 	SecureTime = TargetSecureTime;
 	ActiveTime = TargetActiveTime;
 }
+
+void AFlareShell::SetPause(bool Pause)
+{
+	CustomTimeDilation = (Pause ? 0.f : 1.0);
+}

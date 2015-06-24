@@ -23,6 +23,7 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 	SetActorEnableCollision(false);
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
+	Paused = false;
 }
 
 
@@ -240,4 +241,30 @@ FFlareBombSave* AFlareBomb::Save()
 	}
 
 	return &BombData;
+}
+
+void AFlareBomb::SetPause(bool Pause)
+{
+	if(Paused == Pause)
+	{
+		return;
+	}
+	Paused = Pause;
+
+	CustomTimeDilation = (Paused ? 0.f : 1.0);
+	if(Paused)
+	{
+		Save();
+	}
+	BombComp->SetSimulatePhysics(!Paused);
+
+	if(!Paused)
+	{
+		BombComp->SetPhysicsLinearVelocity(BombData.LinearVelocity);
+		BombComp->SetPhysicsAngularVelocity(BombData.AngularVelocity);
+		if(!BombData.Dropped && ParentWeapon)
+		{
+			AttachRootComponentToActor(ParentWeapon->GetSpacecraft(),"", EAttachLocation::KeepWorldPosition, true);
+		}
+	}
 }

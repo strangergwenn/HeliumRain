@@ -21,6 +21,8 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void SetPause(bool Pause);
+
 	/** Impact happened */
 	UFUNCTION()
 	void OnImpact(const FHitResult& HitResult, const FVector& ImpactVelocity);
