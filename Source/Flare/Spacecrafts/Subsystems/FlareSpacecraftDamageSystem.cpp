@@ -254,16 +254,18 @@ void UFlareSpacecraftDamageSystem::OnElectricDamage(float DamageRatio)
 	float PowerRatio = AvailablePower/MaxPower;
 
 
-	//FLOGV("OnElectricDamage initial PowerOutageDelay=%f, DamageRatio=%f, PowerRatio=%f", ShipData.PowerOutageDelay, DamageRatio, PowerRatio);
+	//FLOGV("OnElectricDamage initial PowerOutageDelay=%f, PowerOutageAcculumator=%f, DamageRatio=%f, PowerRatio=%f", Data->PowerOutageDelay, Data->PowerOutageAcculumator, DamageRatio, PowerRatio);
 
-	// The outage probability depend on global available power ratio
-	if (FMath::FRand() > PowerRatio)
+
+	Data->PowerOutageAcculumator += DamageRatio * 2.f;
+	if (!Data->PowerOutageDelay)
 	{
-		// The outage duration depend on the relative amount of damage the component just receive
-		// This avoid very long outage if multiple small collision.
-		// Between 10 and 20s of outage if component one shot
-		Data->PowerOutageDelay += DamageRatio *  FMath::FRandRange(10, 20 * (1.f - PowerRatio));
-		UpdatePower();
+		if(FMath::FRand() > 1.f + PowerRatio / 2.f - Data->PowerOutageAcculumator / 2.f)
+		{
+			Data->PowerOutageDelay += FMath::FRandRange(1, 5) /  (2 * PowerRatio);
+			Data->PowerOutageAcculumator = -Data->PowerOutageAcculumator * PowerRatio;
+			UpdatePower();
+		}
 	}
 }
 
