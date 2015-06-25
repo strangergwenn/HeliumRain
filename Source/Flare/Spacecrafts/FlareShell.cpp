@@ -276,7 +276,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 					FVector ImpulseDirection = (HitResult.Location - GetActorLocation()).GetUnsafeNormal();
 
 					// Physics impulse
-					Spacecraft->Airframe->AddImpulseAtLocation( ImpulseForce * ImpulseDirection, HitResult.Location);
+					Spacecraft->Airframe->AddImpulseAtLocation( ShellVelocity.GetUnsafeNormal(), HitResult.Location);
 				}
 			}
 
