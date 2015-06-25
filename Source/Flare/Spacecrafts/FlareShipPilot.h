@@ -53,6 +53,8 @@ protected:
 
 	virtual void BomberPilot(float DeltaSeconds);
 
+	virtual void FlagShipPilot(float DeltaSeconds);
+
 	virtual void IdlePilot(float DeltaSeconds);
 
 public:

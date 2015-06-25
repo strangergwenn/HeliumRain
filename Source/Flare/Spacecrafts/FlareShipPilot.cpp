@@ -115,8 +115,8 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	if (!PilotTargetShip // No target
 			|| !PilotTargetShip->GetDamageSystem()->IsAlive() // Target dead
 			|| (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > MaxFollowDistance * 100 // Target too far
-			|| SelectedWeaponGroupIndex == -1  // No selected weapon
-			|| ( !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0))  // Selected weapon not usable
+			|| (Ship->GetSize() == EFlarePartSize::S && SelectedWeaponGroupIndex == -1)  // No selected weapon
+			|| (Ship->GetSize() == EFlarePartSize::S && !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0))  // Selected weapon not usable
 	{
 //		if(PilotTargetShip == NULL)
 //		{
@@ -150,7 +150,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	TimeUntilNextComponentSwitch-=ReactionTime;
 
 
-	if (PilotTargetShip && SelectedWeaponGroupIndex >= 0)
+	if (Ship->GetSize() == EFlarePartSize::S && PilotTargetShip && SelectedWeaponGroupIndex >= 0)
 	{
 		if(TimeUntilNextComponentSwitch <= 0 && !LockTarget)
 		{
@@ -178,9 +178,10 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			//FLOGV("%s Select new target component %s ", *Ship->GetName(), *PilotTargetComponent->GetReadableName());
 		}
 
-//		FLOGV("%s target %s",  *Ship->GetName(),  *PilotTargetShip->GetName());
+
+		FLOGV("%s target %s",  *Ship->GetName(),  *PilotTargetShip->GetName());
 		EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
-//		FLOGV("%s WeaponType %d",  *Ship->GetName(), (WeaponType - EFlareWeaponGroupType::WG_NONE));
+		FLOGV("%s WeaponType %d",  *Ship->GetName(), (WeaponType - EFlareWeaponGroupType::WG_NONE));
 		if(WeaponType == EFlareWeaponGroupType::WG_GUN)
 		{
 			FighterPilot(DeltaSeconds);
@@ -190,8 +191,14 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		{
 			BomberPilot(DeltaSeconds);
 			Idle = false;
-		}
+		}	
 	}
+	else if (Ship->GetSize() == EFlarePartSize::L && PilotTargetShip)
+	{
+		FlagShipPilot(DeltaSeconds);
+		Idle = false;
+	}
+
 
 	if(Idle)
 	{
@@ -805,8 +812,18 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 {
-//	FLOGV("%s IdlePilot",  *Ship->GetName());
+	//FLOGV("%s IdlePilot",  *Ship->GetName());
 	// TODO find better
+
+
+	// If there is ennemy fly away
+
+
+	// If not, find a leader and follow it
+
+
+	// If is the leader, find a location in a 10 km radius and patrol
+
 
 	AngularTargetVelocity = FVector::ZeroVector;
 	LinearTargetVelocity = - Ship->GetActorLocation().GetClampedToMaxSize(Ship->GetNavigationSystem()->GetLinearMaxVelocity());
@@ -829,10 +846,94 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	UseOrbitalBoost = false;
 }
 
+void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
+{
+	//FLOGV("%s FlagShipPilot",  *Ship->GetName());
+
+	// Go to a random point at 1000 m from the target
+
+	// If at less than 50 m from this point, get another random point
+
+	// If the target to farther than 2000 to the target point, change point
+
+	float TargetLocationToTargetShipDistance = (PilotTargetLocation - PilotTargetShip->GetActorLocation()).Size();
+	float TargetLocationToShipDistance = (PilotTargetLocation - Ship->GetActorLocation()).Size();
+
+	//FLOGV("%s FlagShipPilot PilotTargetLocation %s",  *Ship->GetName(), *PilotTargetLocation.ToString());
+	//FLOGV("%s FlagShipPilot TargetLocationToTargetShipDistance %f",  *Ship->GetName(), TargetLocationToTargetShipDistance);
+	//FLOGV("%s FlagShipPilot TargetLocationToShipDistance %f",  *Ship->GetName(), TargetLocationToShipDistance);
+
+	bool NewTargetLocation = false;
+	if(TargetLocationToTargetShipDistance > 200000)
+	{
+		// Target location too far from target ship
+		NewTargetLocation = true;
+	}
+	else if(TargetLocationToShipDistance < 50000)
+	{
+		// Near to target location
+		NewTargetLocation = true;
+	}
+
+
+	//FLOGV("%s FlagShipPilot NewTargetLocation %d",  *Ship->GetName(), NewTargetLocation);
+	if(NewTargetLocation || PilotTargetLocation.IsZero())
+	{
+
+		PilotTargetLocation = FMath::VRand() * 100000 + PilotTargetShip->GetActorLocation();
+		//FLOGV("%s FlagShipPilot NewTargetLocation %d",  *Ship->GetName(), NewTargetLocation);
+	}
+
+
+	AngularTargetVelocity = FVector::ZeroVector;
+	LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+
+	// TODO Bomb avoid
+
+	// Anticollision
+	LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AttackAngle);
+
+
+	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocity, FVector::ZeroVector, DeltaSeconds);
+
+
+	//FLOGV("%s FlagShipPilot LinearTargetVelocity %s",  *Ship->GetName(), *LinearTargetVelocity.ToString());
+
+
+	FVector FrontAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
+
+	//FLOGV("%s FlagShipPilot FVector::DotProduct(FrontAxis, LinearTargetVelocity.GetUnsafeNormal()) %f",  *Ship->GetName(), FVector::DotProduct(FrontAxis, LinearTargetVelocity.GetUnsafeNormal()));
+
+
+	if(FVector::DotProduct(FrontAxis, LinearTargetVelocity.GetUnsafeNormal()) > 0.9 && (LinearTargetVelocity - Ship->Airframe->GetPhysicsLinearVelocity()).Size() > 500)
+	{
+		UseOrbitalBoost = true;
+	}
+
+
+
+
+	// Find friend barycenter
+	// Go to friend barycenter
+	// If near
+		// Turn to opposite from barycentre
+	// else
+		// Turn to direction
+
+	WantFire = false;
+	// Manage orbital boost
+	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.9)
+	{
+		UseOrbitalBoost = false;
+	}
+}
+
+
+
 void UFlareShipPilot::FindBestHostileTarget()
 {
 
-//	FLOGV("%s FindBestHostileTarget",  *Ship->GetName());
+	//FLOGV("%s FindBestHostileTarget",  *Ship->GetName());
 	// TODO S or L ship dispatch
 
 	AFlareSpacecraft* TargetCandidate = NULL;
@@ -857,6 +958,18 @@ void UFlareShipPilot::FindBestHostileTarget()
 		}
 	}
 
+	if(!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
+	{
+		//TODO if has AA turret, follow S
+		//FLOGV("%s Has turret",  *Ship->GetName());
+		TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::L);
+		if(!TargetCandidate)
+		{
+			//FLOGV("%s no S target search L",  *Ship->GetName());
+			TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::S);
+		}
+	}
+
 	// Then search non dangerous target
 
 	if(!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_BOMB))
@@ -875,7 +988,7 @@ void UFlareShipPilot::FindBestHostileTarget()
 
 	if (TargetCandidate)
 	{
-//		FLOGV("%s Candidate found %s",  *Ship->GetName(), *TargetCandidate->GetName());
+		//FLOGV("%s Candidate found %s",  *Ship->GetName(), *TargetCandidate->GetName());
 		PilotTargetShip = TargetCandidate;
 		AttackPhase = 0;
 		AttackAngle = FMath::FRandRange(0, 360);
