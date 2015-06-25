@@ -36,9 +36,5 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	int32 CurrentImmatriculationIndex;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	int32 CurrentImmatriculationNameIndex;
-
 };
 

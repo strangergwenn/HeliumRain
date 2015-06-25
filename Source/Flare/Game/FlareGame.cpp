@@ -13,7 +13,6 @@
 AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CurrentImmatriculationIndex(0)
-	, CurrentImmatriculationNameIndex(0)
 {
 	// Game classes
 	HUDClass = AFlareHUD::StaticClass();
@@ -124,7 +123,6 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 		// Load
 		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
-		CurrentImmatriculationNameIndex = Save->CurrentImmatriculationNameIndex;
 
 		// Load all companies
 		for (int32 i = 0; i < Save->CompanyData.Num(); i++)
@@ -300,7 +298,6 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 		PC->Save(Save->PlayerData);
 		Save->ShipData.Empty();
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
-		Save->CurrentImmatriculationNameIndex = CurrentImmatriculationNameIndex;
 
 		// Save all physical ships
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
@@ -597,8 +594,8 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 		ShipData.Location = TargetPosition;
 		ShipData.Rotation = FRotator::ZeroRotator;
 		ShipData.LinearVelocity = FVector::ZeroVector;
-		ShipData.AngularVelocity = FVector::ZeroVector; 
-		ShipData.Name = Immatriculate(Company->GetShortName(), ShipDescription->Identifier);
+		ShipData.AngularVelocity = FVector::ZeroVector;
+		Immatriculate(Company->GetShortName(), ShipDescription->Identifier, &ShipData);
 		ShipData.Identifier = ShipDescription->Identifier;
 		ShipData.Heat = 600 * ShipDescription->HeatCapacity;
 		ShipData.PowerOutageDelay = 0;
@@ -715,9 +712,10 @@ void AFlareGame::SetDefaultTurret(FName NewDefaultTurretIdentifier)
 	}
 }
 
-FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
+void AFlareGame::Immatriculate(FName Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave)
 {
 	FString Immatriculation;
+	FString NickName;
 	CurrentImmatriculationIndex++;
 	FFlareSpacecraftDescription* SpacecraftDesc = SpacecraftCatalog->Get(TargetClass);
 
@@ -725,50 +723,104 @@ FName AFlareGame::Immatriculate(FName Company, FName TargetClass)
 	Immatriculation += Company.ToString();
 	Immatriculation += "-";
 	Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString();
+
 	if(SpacecraftDesc->Size == EFlarePartSize::L)
 	{
-		Immatriculation += FString::Printf(TEXT("-%s"), *PickCapitalShipName().ToString());
+		NickName = PickCapitalShipName().ToString();
 	}
 	else
 	{
-		Immatriculation += FString::Printf(TEXT("-%04d"), CurrentImmatriculationIndex);
+		NickName = FString::Printf(TEXT("%04d"), CurrentImmatriculationIndex);
 	}
 
+	Immatriculation += FString::Printf(TEXT("-%s"), *NickName);
+
 	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
-	return FName(*Immatriculation);
+	SpacecraftSave->Name = FName(*Immatriculation);
+	SpacecraftSave->NickName = FName(*NickName);
+}
+
+// convertToRoman:
+//   In:  val: value to convert.
+//        res: buffer to hold result.
+//   Out: n/a
+//   Cav: caller responsible for buffer size.
+
+static FString ConvertToRoman(unsigned int val)
+{
+	FString Roman;
+
+	const char *huns[] = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
+	const char *tens[] = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+	const char *ones[] = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+	int size []  = { 0,   1,    2,    3,     2,   1,    2,     3,      4,    2};
+
+	//  Add 'M' until we drop below 1000.
+	while (val >= 1000) {
+		Roman += FString("M");
+		val -= 1000;
+	}
+
+	// Add each of the correct elements, adjusting as we go.
+
+	Roman += FString(huns[val/100]);
+	val = val % 100;
+	Roman += FString(tens[val/10]);
+	val = val % 10;
+	Roman += FString(ones[val]);
+	return Roman;
 }
 
 FName AFlareGame::PickCapitalShipName()
 {
-	FLOG("AFlareGame::PickCapitalShipName");
-	// Refill available name list
-	if(AvailableImmatriculationNameList.Num() == 0)
+	if(BaseImmatriculationNameList.Num() == 0)
 	{
-		CurrentImmatriculationNameIndex++;
-		if(BaseImmatriculationNameList.Num() == 0)
-		{
-			InitCapitalShipNameDatabase();
-		}
-
-		for(int i = 0; i < BaseImmatriculationNameList.Num(); i++)
-		{
-			FString ImmatriculationName = BaseImmatriculationNameList[i].ToString();
-			if(CurrentImmatriculationNameIndex > 1)
-			{
-				ImmatriculationName += FString::Printf(TEXT("-%d"), CurrentImmatriculationNameIndex);
-			}
-			AvailableImmatriculationNameList.Add(FName(*ImmatriculationName));
-		}
+		InitCapitalShipNameDatabase();
 	}
+	int32 PickIndex = FMath::RandRange(0,BaseImmatriculationNameList.Num()-1);
 
-	int32 PickIndex = FMath::RandRange(0,AvailableImmatriculationNameList.Num()-1);
+	FName BaseName = BaseImmatriculationNameList[PickIndex];
 
-	FLOGV("AFlareGame::PickCapitalShipName PickIndex=%d", PickIndex);
+	// Check unicity
+	bool Unique;
+	int32 NameIncrement = 1;
+	FName CandidateName;
+	do
+	{
+		Unique = true;
+		FLOGV("Pass %d with %s", NameIncrement, *CandidateName.ToString());
+		FString Suffix;
+		if(NameIncrement > 1)
+		{
+			FString Roman = ConvertToRoman(NameIncrement);
+			FLOGV("ConvertToRoman %s", *Roman);
+			Suffix = FString("-") + Roman;
+		}
+		else
+		{
+			Suffix = FString("");
+		}
+		FLOGV("Suffix %s", *Suffix);
 
-	FName PickName = AvailableImmatriculationNameList[PickIndex];
-	AvailableImmatriculationNameList.RemoveAt(PickIndex);
-	FLOGV("AFlareGame::PickCapitalShipName PickName=%s", *PickName.ToString());
-	return PickName;
+		CandidateName = FName(*(BaseName.ToString()+Suffix));
+		FLOGV("CandidateName %s", *CandidateName.ToString());
+
+		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+			if(SpacecraftCandidate && SpacecraftCandidate->GetNickName() == CandidateName)
+			{
+				FLOGV("Not unique %s", *CandidateName.ToString());
+				Unique = false;
+				break;
+			}
+		}
+		NameIncrement++;
+	} while(!Unique);
+
+	FLOGV("OK for %s", *CandidateName.ToString());
+
+	return CandidateName;
 }
 
 void AFlareGame::InitCapitalShipNameDatabase()

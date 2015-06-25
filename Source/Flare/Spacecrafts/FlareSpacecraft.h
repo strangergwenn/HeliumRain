@@ -220,6 +220,11 @@ public:
 		return ShipDescription;
 	}
 
+	inline FName GetNickName() const
+	{
+		return ShipData.NickName;
+	}
+
 	inline FFlareSpacecraftComponentDescription* GetOrbitalEngineDescription() const
 	{
 		return OrbitalEngineDescription;

@@ -102,7 +102,7 @@ public:
 	void SetDefaultTurret(FName NewDefaultTurretIdentifier);
 
 	/** Build a unique immatriculation string for this object */
-	FName Immatriculate(FName Company, FName TargetClass);
+	void Immatriculate(FName Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave);
 
 	void InitCapitalShipNameDatabase();
 
@@ -145,11 +145,7 @@ protected:
 	/** Immatriculation index */
 	int32 CurrentImmatriculationIndex;
 
-
-	TArray<FName> AvailableImmatriculationNameList;
 	TArray<FName> BaseImmatriculationNameList;
-	int32 CurrentImmatriculationNameIndex;
-
 
 	/** Comapnies */
 	UPROPERTY()
