@@ -443,26 +443,52 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	//TODO increase tolerance if target is near
 	if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < 1.5)
 	{
-		//FLOGV("is at fire range=%f", Distance);
-		// TODO Use BulletDirection instead of LocalNose
-		FVector WorldShipAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(BulletDirection);
-		float AngularPrecisionDot = FVector::DotProduct(FireTargetAxis, WorldShipAxis);
-
-		float AngularPrecision = FMath::Acos(AngularPrecisionDot);
-		float AngularSize = FMath::Atan(TargetSize / Distance);
-
-	/*	FLOGV("WorldShipAxis=%s", *WorldShipAxis.ToString());
-		FLOGV("FireTargetAxis=%s", *FireTargetAxis.ToString());
-		FLOGV("TargetSize=%f", TargetSize);
-		FLOGV("Distance=%f", Distance);
-
-		FLOGV("AngularPrecisionDot=%f", AngularPrecisionDot);
-
-		*/
-
-		if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
+		FVector FireAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
+		TArray <UFlareWeapon*> Weapons = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons;
+		for (int WeaponIndex = 0; WeaponIndex < Weapons.Num(); WeaponIndex++)
 		{
-			WantFire = true;
+			UFlareWeapon* Weapon = Weapons[WeaponIndex];
+			if(Weapon->GetUsableRatio() <= 0)
+			{
+				continue;
+			}
+
+			for (int GunIndex = 0; GunIndex < Weapon->GetGunCount(); GunIndex++)
+			{
+				FVector MuzzleLocation = Weapon->GetMuzzleLocation(GunIndex);
+
+				// Compute target Axis for each gun
+				FVector GunAmmoIntersectionLocation;
+				float GunAmmoIntersectionTime = PilotTargetShip->GetAimPosition(MuzzleLocation, ShipVelocity , AmmoVelocity, 0, &GunAmmoIntersectionLocation);
+				if (GunAmmoIntersectionTime < 0)
+				{
+					// No ammo intersection, don't fire
+					continue;
+				}
+				FVector GunFireTargetAxis = (GunAmmoIntersectionLocation - MuzzleLocation - AmmoIntersectionPredictedTime * ShipVelocity).GetUnsafeNormal();
+				/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
+				FLOGV("Gun %d GunFireTargetAxis=%s", GunIndex, *GunFireTargetAxis.ToString());
+	*/
+				float AngularPrecisionDot = FVector::DotProduct(GunFireTargetAxis, FireAxis);
+				float AngularPrecision = FMath::Acos(AngularPrecisionDot);
+				float AngularSize = FMath::Atan(TargetSize / Distance);
+
+			/*	FLOGV("Gun %d Distance=%f", GunIndex, Distance);
+				FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
+				FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
+				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
+				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
+				{
+					Weapon->SetTarget(PilotTargetShip);
+					/*FLOG("Want Fire");*/
+					WantFire = true;
+					break;
+				}
+			}
+			if(WantFire)
+			{
+				break;
+			}
 		}
 	}
 
