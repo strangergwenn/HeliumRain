@@ -846,8 +846,8 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 {
 	FVector BasePosition = FVector::ZeroVector;
 	FVector BaseOffset = FVector(1.f, 0.f, 0.f) * Distance / 50.f; // Half the distance in cm
-	FVector BaseShift =  FVector(0.f, 10000.f, 0.f) ;  // 100 m
-	FVector BaseDeep = FVector(10000.f, 0.f, 0.f); // 100 m
+	FVector BaseShift =  FVector(0.f, 30000.f, 0.f) ;  // 100 m
+	FVector BaseDeep = FVector(30000.f, 0.f, 0.f); // 100 m
 
 	FName Company1Identifier;
 	FName Company2Identifier;
@@ -876,8 +876,8 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 		{
 			BasePosition = ExistingShipPawn->GetActorLocation();
 			BaseOffset = ExistingShipPawn->GetActorRotation().RotateVector(Distance * 50.f * FVector(1, 0, 0)); // Half the distance in cm
-			BaseDeep = ExistingShipPawn->GetActorRotation().RotateVector(FVector(10000.f, 0, 0)); // 100 m in cm
-			BaseShift = ExistingShipPawn->GetActorRotation().RotateVector(FVector(0, 3000.f, 0)); // 30 m in cm
+			BaseDeep = ExistingShipPawn->GetActorRotation().RotateVector(FVector(30000.f, 0, 0)); // 100 m in cm
+			BaseShift = ExistingShipPawn->GetActorRotation().RotateVector(FVector(0, 30000.f, 0)); // 300 m in cm
 		}
 	}
 
