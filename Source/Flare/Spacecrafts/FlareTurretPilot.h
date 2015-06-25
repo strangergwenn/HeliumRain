@@ -44,7 +44,7 @@ public:
 
 protected:
 
-	AFlareSpacecraft* GetNearestHostileShip(bool DangerousOnly, bool ReachableOnly, float MaxDistance) const;
+	AFlareSpacecraft* GetNearestHostileShip(bool DangerousOnly, bool ReachableOnly, float MaxDistance, EFlarePartSize::Type PreferredType) const;
 
 
 public:

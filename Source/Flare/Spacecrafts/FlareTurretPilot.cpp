@@ -56,22 +56,56 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 	FVector TurretLocation = Turret->GetTurretBaseLocation();
 
-	PilotTargetShip = GetNearestHostileShip(true, true, 1200000);
+	EFlarePartSize::Type PreferredShipSize;
+	EFlarePartSize::Type SecondaryShipSize;
+	if(Turret->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
+	{
+		PreferredShipSize = EFlarePartSize::L;
+		SecondaryShipSize = EFlarePartSize::S;
+	}
+	else
+	{
+		PreferredShipSize = EFlarePartSize::S;
+		SecondaryShipSize = EFlarePartSize::L;
+	}
+
+
+	PilotTargetShip = GetNearestHostileShip(true, true, 1200000,PreferredShipSize);
 
 	if (!PilotTargetShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(true, false, 5000000);
+		PilotTargetShip = GetNearestHostileShip(true, false, 5000000, PreferredShipSize);
+	}
+
+	if (!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(true, true, 1200000,SecondaryShipSize);
+	}
+
+	if (!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(true, false, 5000000, SecondaryShipSize);
 	}
 
 	// No dangerous ship, try not dangerous ships
 	if (!PilotTargetShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 1200000);
+		PilotTargetShip = GetNearestHostileShip(false, false, 1200000, PreferredShipSize);
 	}
 
 	if (!PilotTargetShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 5000000);
+		PilotTargetShip = GetNearestHostileShip(false, false, 5000000, PreferredShipSize);
+	}
+
+	if (!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(false, false, 1200000, SecondaryShipSize);
+	}
+
+	if (!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(false, false, 5000000, SecondaryShipSize);
 	}
 
 	if (PilotTargetShip)
@@ -161,7 +195,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	Helpers
 ----------------------------------------------------*/
 
-AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, bool ReachableOnly, float MaxDistance) const
+AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, bool ReachableOnly, float MaxDistance, EFlarePartSize::Type PreferredType) const
 {
 	// For now an host ship is a the nearest host ship with the following critera:
 	// - Alive
@@ -197,6 +231,12 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 			{
 				continue;
 			}
+			if (ShipCandidate->GetSize() != PreferredType)
+			{
+				continue;
+			}
+
+
 
 			if (PlayerCompany->GetHostility(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
 			{

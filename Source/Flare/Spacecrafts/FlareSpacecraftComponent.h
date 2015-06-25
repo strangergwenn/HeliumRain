@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine.h"
+#include "FlareSpacecraftTypes.h"
 #include "FlareTurretPilot.h"
 #include "FlareSpacecraftComponent.generated.h"
 
@@ -9,18 +10,7 @@ class AFlareSpacecraft;
 class UFlareCompany;
 
 
-/** Part size values */
-UENUM()
-namespace EFlarePartSize
-{
-	enum Type
-	{
-		S,
-		M,
-		L,
-		Num
-	};
-}
+
 namespace EFlarePartSize
 {
 	inline FString ToString(EFlarePartSize::Type EnumValue)
