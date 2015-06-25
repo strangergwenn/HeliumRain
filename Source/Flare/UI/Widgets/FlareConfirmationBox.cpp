@@ -33,8 +33,9 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Right)
 		[
 			SAssignNew(ConfirmButton, SFlareButton)
-			.ButtonStyle(FFlareStyleSet::Get(), "/Style/BuyButton")
 			.OnClicked(InArgs._OnConfirmed)
+			.Width(3)
+			.Height(1)
 		]
 	];
 

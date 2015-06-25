@@ -75,7 +75,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 
 					// Object name
 					+ SVerticalBox::Slot()
-					.Padding(FMargin(20))
+					.Padding(Theme.TitlePadding)
 					.AutoHeight()
 					[
 						SAssignNew(ObjectName, STextBlock)
@@ -84,7 +84,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 
 					// Object description
 					+ SVerticalBox::Slot()
-					.Padding(FMargin(10))
+					.Padding(Theme.ContentPadding)
 					.AutoHeight()
 					[
 						SAssignNew(ObjectDescription, STextBlock)

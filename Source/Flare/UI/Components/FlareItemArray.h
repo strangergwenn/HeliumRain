@@ -14,16 +14,16 @@ class SFlareItemArray : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareItemArray)
-	: _ItemStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
-	, _LineSize(1)
-	, _ItemMargin(FMargin(0))
+		: _LineSize(1)
+		, _Width(3)
+		, _Height(2)
 	{}
 
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)
-	SLATE_STYLE_ARGUMENT(FFlareButtonStyle, ItemStyle)
 
 	SLATE_ARGUMENT(int32, LineSize)
-	SLATE_ARGUMENT(FMargin, ItemMargin)
+	SLATE_ARGUMENT(int32, Width)
+	SLATE_ARGUMENT(int32, Height)
 	
 	SLATE_END_ARGS()
 
@@ -59,18 +59,15 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	int32 CurrentIndex;
-
-	int32 LineSize;
-
-	FMargin ItemMargin;
-
-	FFlareItemPicked OnItemPickedCallback;
-
-	const FFlareButtonStyle* ItemStyle;
-
-	TSharedPtr<SGridPanel> WidgetGrid;
-
+	// Data
+	FFlareItemPicked                   OnItemPickedCallback;
+	int32                              CurrentIndex;
+	int32                              LineSize;
+	int32                              Width;
+	int32                              Height;
+	
+	// Slate data
+	TSharedPtr<SGridPanel>             WidgetGrid;
 	TArray< TSharedPtr<SFlareButton> > ContentArray;
 	
 

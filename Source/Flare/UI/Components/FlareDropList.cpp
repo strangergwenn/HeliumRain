@@ -12,8 +12,6 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 	// Data
 	IsDropped = false;
 	LineSize = InArgs._LineSize;
-	ItemMargin = InArgs._ItemMargin;
-	ItemStyle = InArgs._ItemStyle;
 	OnItemPickedCallback = InArgs._OnItemPicked;
 	
 	// Layout
@@ -26,8 +24,9 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		[
 			SAssignNew(HeaderButton, SFlareButton)
-			.ButtonStyle(InArgs._HeaderStyle)
 			.OnClicked(this, &SFlareDropList::OnHeaderClicked)
+			.Width(InArgs._HeaderWidth)
+			.Height(InArgs._HeaderHeight)
 		]
 
 		// Item picker below
@@ -36,8 +35,9 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(ItemArray, SFlareItemArray)
 			.OnItemPicked(this, &SFlareDropList::OnItemPicked)
-			.ItemStyle(ItemStyle)
 			.LineSize(LineSize)
+			.Width(InArgs._ItemWidth)
+			.Height(InArgs._ItemHeight)
 		]
 	];
 

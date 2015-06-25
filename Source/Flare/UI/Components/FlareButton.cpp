@@ -16,9 +16,11 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	// Arguments
 	IsToggle = InArgs._Toggle;
 	OnClicked = InArgs._OnClicked;
-	ButtonStyle = InArgs._ButtonStyle;
 	Color = InArgs._Color;
+	int32 Width = InArgs._Width * Theme.ButtonWidth;
+	int32 Height = InArgs._Height * Theme.ButtonHeight;
 
+	// Structure
 	ChildSlot
 	.VAlign(VAlign_Center)
 	.HAlign(HAlign_Center)
@@ -31,8 +33,8 @@ void SFlareButton::Construct(const FArguments& InArgs)
 		[
 			// Central content box
 			SNew(SBox)
-			.WidthOverride(ButtonStyle->Width)
-			.HeightOverride(ButtonStyle->Height)
+			.WidthOverride(Width)
+			.HeightOverride(Height)
 			.Padding(FMargin(0))
 			[
 				// Button background

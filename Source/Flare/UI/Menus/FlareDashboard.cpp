@@ -36,7 +36,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			SNew(SScrollBox)
 
 			+ SScrollBox::Slot()
-			.Padding(FMargin(10))
 			[
 				SNew(SHorizontalBox)
 
@@ -84,7 +83,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 
 	// Company box
 	CompanyBox->AddSlot()
-	.Padding(FMargin(10))
 	.HAlign(HAlign_Center)
 	.AutoHeight()
 	[
@@ -111,7 +109,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 
 	// Station box
 	StationBox->AddSlot()
-	.Padding(FMargin(10))
 	.HAlign(HAlign_Center)
 	.AutoHeight()
 	[
@@ -146,7 +143,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 
 	// Universe box
 	UniverseBox->AddSlot()
-	.Padding(FMargin(10))
 	.HAlign(HAlign_Center)
 	.AutoHeight()
 	[
@@ -165,7 +161,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 
 	// Settings box
 	SettingsBox->AddSlot()
-	.Padding(FMargin(10))
 	.HAlign(HAlign_Center)
 	.AutoHeight()
 	[

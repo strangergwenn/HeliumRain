@@ -33,8 +33,6 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(PatternPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnPatternPicked)
-			.ItemStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
-			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
 		]
 		
 		// Base paint picker
@@ -42,9 +40,9 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(BasePaintColorPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnBasePaintColorPicked)
-			.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
-			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
 			.LineSize(3)
+			.ItemWidth(1)
+			.ItemHeight(1)
 		]
 		
 		// Paint picker
@@ -52,9 +50,9 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(PaintColorPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnPaintColorPicked)
-			.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
-			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
 			.LineSize(3)
+			.ItemWidth(1)
+			.ItemHeight(1)
 		]
 		
 		// Overlay picker
@@ -62,9 +60,9 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(OverlayColorPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnOverlayColorPicked)
-			.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
-			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
 			.LineSize(3)
+			.ItemWidth(1)
+			.ItemHeight(1)
 		]
 		
 		// Light picker
@@ -72,9 +70,9 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(LightColorPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnLightColorPicked)
-			.ItemStyle(FFlareStyleSet::Get(), "/Style/ColorButton")
-			.HeaderStyle(FFlareStyleSet::Get(), "/Style/PatternButton")
 			.LineSize(3)
+			.ItemWidth(1)
+			.ItemHeight(1)
 		]
 	];
 

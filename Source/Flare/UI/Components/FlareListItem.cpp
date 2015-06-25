@@ -9,10 +9,13 @@
 
 void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView)
 {
-	IsSelected = false;
-	ButtonStyle = InArgs._ButtonStyle;
+	// Args
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	int32 Width = InArgs._Width * Theme.ButtonWidth;
+	int32 Height = InArgs._Height * Theme.ButtonHeight;
+	IsSelected = false;
 
+	// Structure
 	STableRow< TSharedPtr<FInterfaceContainer> >::Construct(
 		STableRow< TSharedPtr<FInterfaceContainer> >::FArguments()
 		.Style(FFlareStyleSet::Get(), "Flare.TableRow")
@@ -20,8 +23,8 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 		[
 			// Central content box
 			SNew(SBox)
-			.WidthOverride(ButtonStyle->Width)
-			.MinDesiredHeight(ButtonStyle->Height)
+			.WidthOverride(Width)
+			.MinDesiredHeight(Height)
 			.Padding(FMargin(0))
 			.VAlign(VAlign_Top)
 			[

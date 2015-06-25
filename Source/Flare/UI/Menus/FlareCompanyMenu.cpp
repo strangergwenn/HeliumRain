@@ -77,7 +77,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 
 					// Title
 					+ SVerticalBox::Slot()
-					.Padding(FMargin(20))
+					.Padding(Theme.TitlePadding)
 					.AutoHeight()
 					[
 						SNew(STextBlock)
@@ -87,7 +87,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 
 					// Color picker
 					+ SVerticalBox::Slot()
-					.Padding(FMargin(0, 10))
+					.Padding(Theme.ContentPadding)
 					.AutoHeight()
 					[
 						SAssignNew(ColorBox, SFlareColorPanel).OwnerHUD(OwnerHUD)

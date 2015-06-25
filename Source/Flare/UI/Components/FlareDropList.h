@@ -14,18 +14,20 @@ class SFlareDropList : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareDropList)
-	: _HeaderStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
-	, _ItemStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
-	, _LineSize(1)
-	, _ItemMargin(FMargin(2))
+		: _LineSize(1)
+		, _HeaderWidth(3)
+		, _HeaderHeight(2)
+		, _ItemWidth(3)
+		, _ItemHeight(2)
 	{}
 
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)
-	SLATE_STYLE_ARGUMENT(FFlareButtonStyle, HeaderStyle)
-	SLATE_STYLE_ARGUMENT(FFlareButtonStyle, ItemStyle)
 
 	SLATE_ARGUMENT(int32, LineSize)
-	SLATE_ARGUMENT(FMargin, ItemMargin)
+	SLATE_ARGUMENT(int32, HeaderWidth)
+	SLATE_ARGUMENT(int32, HeaderHeight)
+	SLATE_ARGUMENT(int32, ItemWidth)
+	SLATE_ARGUMENT(int32, ItemHeight)
 	
 	SLATE_END_ARGS()
 
@@ -67,20 +69,14 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 	
-	bool IsDropped;
-
-	int32 LineSize;
-
-	FMargin ItemMargin;
-
-	FFlareItemPicked OnItemPickedCallback;
-
-	const FFlareButtonStyle* ItemStyle;
-
-	TSharedPtr<SFlareButton> HeaderButton;
-
-	TSharedPtr<SFlareItemArray> ItemArray;
-
+	// Data
+	bool                          IsDropped;
+	int32                         LineSize;
+	FFlareItemPicked              OnItemPickedCallback;
+	
+	// Slate data
+	TSharedPtr<SFlareButton>      HeaderButton;
+	TSharedPtr<SFlareItemArray>   ItemArray;
 	TArray< TSharedRef<SWidget> > ContentArray;
 	
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../Style/FlareButtonWidgetStyle.h"
 
 
 DECLARE_DELEGATE(FFlareButtonClicked)
@@ -15,18 +14,18 @@ class SFlareButton : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareButton)
 		: _Toggle(false)
-		, _ButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FFlareButtonStyle>("/Style/DefaultButton"))
 		, _Color(FLinearColor::White)
+		, _Width(5)
+		, _Height(1)
 	{}
 
-	SLATE_ARGUMENT(bool, Toggle)
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
-
 	SLATE_ARGUMENT(FText, Text)
 
-	SLATE_STYLE_ARGUMENT(FFlareButtonStyle, ButtonStyle)
-
+	SLATE_ARGUMENT(bool, Toggle)
 	SLATE_ATTRIBUTE(FSlateColor, Color)
+	SLATE_ARGUMENT(int32, Width)
+	SLATE_ARGUMENT(int32, Height)
 	
 	SLATE_END_ARGS()
 
@@ -73,7 +72,6 @@ protected:
 	FFlareButtonClicked            OnClicked;
 	TSharedPtr<SBorder>            InnerContainer;
 	TAttribute<FSlateColor>        Color;
-	const FFlareButtonStyle*       ButtonStyle;
 
 
 public:

@@ -34,7 +34,7 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 			// Title and cost
 			+ SVerticalBox::Slot()
 			.VAlign(VAlign_Top)
-			.Padding(FMargin(10))
+			.Padding(Theme.TitlePadding)
 			.AutoHeight()
 			[
 				SNew(SHorizontalBox)

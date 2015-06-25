@@ -12,8 +12,8 @@ void SFlareItemArray::Construct(const FArguments& InArgs)
 	// Data
 	CurrentIndex = 0;
 	LineSize = InArgs._LineSize;
-	ItemMargin = InArgs._ItemMargin;
-	ItemStyle = InArgs._ItemStyle;
+	Width = InArgs._Width;
+	Height = InArgs._Height;
 	OnItemPickedCallback = InArgs._OnItemPicked;
 	
 	// Grid object
@@ -26,15 +26,16 @@ void SFlareItemArray::Construct(const FArguments& InArgs)
 void SFlareItemArray::AddItem(const TSharedRef< SWidget >& InContent)
 {
 	TSharedPtr<SFlareButton> Temp;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Create button
 	WidgetGrid->AddSlot(CurrentIndex % LineSize, CurrentIndex / LineSize)
-		.Padding(ItemMargin)
 		[
 			SAssignNew(Temp, SFlareButton)
-			.Toggle(true)
-			.ButtonStyle(ItemStyle)
 			.OnClicked(this, &SFlareItemArray::OnItemPicked, TSharedPtr<int32>(new int32(CurrentIndex)))
+			.Toggle(true)
+			.Width(Width)
+			.Height(Height)
 		];
 
 	// Fill content

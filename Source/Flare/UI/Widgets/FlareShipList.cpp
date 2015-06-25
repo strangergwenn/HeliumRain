@@ -17,6 +17,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 {
 	// Data
 	OwnerHUD = InArgs._OwnerHUD;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
 	
 	// Build structure
@@ -29,7 +30,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 		// Section title
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(20))
+		.Padding(Theme.TitlePadding)
 		[
 			SNew(STextBlock)
 			.Text(InArgs._Title)
@@ -39,7 +40,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 		// Box
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(0, 10))
+		.Padding(Theme.ContentPadding)
 		[
 			SAssignNew(TargetList, SListView< TSharedPtr<FInterfaceContainer> >)
 			.ListItemsSource(&TargetListData)
@@ -82,7 +83,8 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 	if (Item->ShipInterfacePtr)
 	{
 		return SNew(SFlareListItem, OwnerTable)
-			.ButtonStyle(&FFlareStyleSet::Get(), "/Style/ShipInstanceButton")
+			.Width(5)
+			.Height(1)
 			.Content()
 			[
 				SNew(SFlareShipInstanceInfo)

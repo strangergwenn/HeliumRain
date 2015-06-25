@@ -76,7 +76,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					// Object name
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(20))
+					.Padding(Theme.TitlePadding)
 					[
 						SAssignNew(ObjectName, STextBlock)
 						.TextStyle(&Theme.SubTitleFont)
@@ -84,7 +84,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 
 					// Object description
 					+ SVerticalBox::Slot()
-					.Padding(FMargin(10))
+					.Padding(Theme.ContentPadding)
 					.AutoHeight()
 					[
 						SAssignNew(ObjectDescription, STextBlock)
@@ -97,7 +97,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Fill)
 					.VAlign(VAlign_Center)
 					.AutoHeight()
-					.Padding(FMargin(10))
+					.Padding(Theme.ContentPadding)
 					[
 						SAssignNew(PartCharacteristicBox, SHorizontalBox)
 					]
@@ -110,7 +110,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 
 						// Section title
 						+ SVerticalBox::Slot()
-						.Padding(FMargin(20))
+						.Padding(Theme.TitlePadding)
 						.AutoHeight()
 						[
 							SNew(STextBlock)
@@ -128,16 +128,18 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 							.AutoWidth()
 							[
 								SAssignNew(EngineButton, SFlareButton)
-								.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
 								.OnClicked(this, &SFlareShipMenu::ShowEngines)
+								.Width(2)
+								.Height(2)
 							]
 
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
 							[
 								SAssignNew(RCSButton, SFlareButton)
-								.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
 								.OnClicked(this, &SFlareShipMenu::ShowRCSs)
+								.Width(2)
+								.Height(2)
 							]
 
 							// Weapon group
@@ -158,7 +160,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 
 						// Section title
 						+ SVerticalBox::Slot()
-						.Padding(FMargin(10))
+						.Padding(Theme.TitlePadding)
 						.AutoHeight()
 						[
 							SAssignNew(ShipPartPickerTitle, STextBlock)
@@ -179,7 +181,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 
 						// Button box
 						+ SVerticalBox::Slot()
-						.Padding(FMargin(0, 10, 0, 0))
+						.Padding(Theme.ContentPadding)
 						.AutoHeight()
 						[
 							SAssignNew(BuyConfirmation, SFlareConfirmationBox)
@@ -289,8 +291,9 @@ void SFlareShipMenu::LoadTargetShip()
 					.AutoWidth()
 					[
 						SAssignNew(Temp, SFlareButton)
-						.ButtonStyle(FFlareStyleSet::Get(), "/Style/PartButtonMinimized")
 						.OnClicked(this, &SFlareShipMenu::ShowWeapons, TSharedPtr<int32>(new int32(WeaponCount)))
+						.Width(5)
+						.Height(2)
 					];
 
 				Temp->GetContainer()->SetContent(SNew(SFlarePartInfo)
@@ -458,7 +461,8 @@ TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceCont
 
 	// Create the row
 	TSharedRef<ITableRow> res = SAssignNew(TempWidget, SFlareListItem, OwnerTable)
-		.ButtonStyle(&FFlareStyleSet::Get(), "/Style/PartButton")
+		.Width(5)
+		.Height(2)
 		.Content()
 		[
 			SAssignNew(Temp, SFlarePartInfo)
