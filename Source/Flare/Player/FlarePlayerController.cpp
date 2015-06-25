@@ -18,7 +18,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	: Super(PCIP)
 	, DustEffect(NULL)
 	, Company(NULL)
-	, WeaponSwitchTime(5.0f)
+	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
 {
 	// Mouse
@@ -300,6 +300,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " + FString(*Ship->GetName()));
 		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
 		Notify(Text, Info, EFlareNotification::NT_Help);
+		SetSelectingWeapon();
 	}
 }
 
