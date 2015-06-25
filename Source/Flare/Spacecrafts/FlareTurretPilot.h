@@ -1,10 +1,10 @@
 #pragma once
-
 #include "FlareTurretPilot.generated.h"
 
 class UFlareTurret;
 class UFlareCompany;
 class AFlareSpacecraft;
+class UFlareSpacecraftComponent;
 
 /** Turret pilot save data */
 USTRUCT()
@@ -46,6 +46,7 @@ protected:
 
 	AFlareSpacecraft* GetNearestHostileShip(bool DangerousOnly, bool ReachableOnly, float MaxDistance, EFlarePartSize::Type PreferredType) const;
 
+	virtual UFlareSpacecraftComponent* GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft);
 
 public:
 
@@ -85,5 +86,7 @@ protected:
 	// Pilot brain TODO save in save
 	float                                ReactionTime;
 	float                                TimeUntilNextReaction;
-	AFlareSpacecraft*                          PilotTargetShip;
+	float                                TimeUntilNextComponentSwitch;
+	AFlareSpacecraft*                    PilotTargetShip;
+	UFlareSpacecraftComponent*			 PilotTargetComponent;
 };

@@ -1,4 +1,4 @@
-;
+
 #include "../Flare.h"
 #include "FlareSpacecraftSubComponent.h"
 

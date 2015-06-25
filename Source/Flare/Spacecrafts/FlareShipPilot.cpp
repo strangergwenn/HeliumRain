@@ -146,8 +146,38 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 //	FLOGV("%s Target %x",  *Ship->GetName(), PilotTargetShip);
 	bool Idle = true;
+
+	TimeUntilNextComponentSwitch-=ReactionTime;
+
+
 	if (PilotTargetShip && SelectedWeaponGroupIndex >= 0)
 	{
+		if(TimeUntilNextComponentSwitch <= 0 && !LockTarget)
+		{
+			//FLOGV("%s Switch because of timeout", *Ship->GetName());
+			PilotTargetComponent = NULL;
+		}
+		else if(PilotTargetComponent)
+		{
+			if(PilotTargetComponent->GetSpacecraft() != PilotTargetShip)
+			{
+				//FLOGV("%s Switch because the component %s is not in the target ship", *Ship->GetName(), *PilotTargetComponent->GetReadableName());
+				PilotTargetComponent = NULL;
+			}
+			else if(PilotTargetComponent->GetDamageRatio() <=0)
+			{
+				//FLOGV("%s Switch because the component %s is destroyed", *Ship->GetName(), *PilotTargetComponent->GetReadableName());
+				PilotTargetComponent = NULL;
+			}
+		}
+
+		if(!PilotTargetComponent)
+		{
+			PilotTargetComponent = GetRandomTargetComponent(PilotTargetShip);
+			TimeUntilNextComponentSwitch = 5;
+			//FLOGV("%s Select new target component %s ", *Ship->GetName(), *PilotTargetComponent->GetReadableName());
+		}
+
 //		FLOGV("%s target %s",  *Ship->GetName(),  *PilotTargetShip->GetName());
 		EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
 //		FLOGV("%s WeaponType %d",  *Ship->GetName(), (WeaponType - EFlareWeaponGroupType::WG_NONE));
@@ -276,8 +306,8 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 {
-	float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity();
-	FLOGV("%s FighterPilot AmmoVelocity %f",  *Ship->GetName(), AmmoVelocity);
+	float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
+	//FLOGV("%s FighterPilot AmmoVelocity %f",  *Ship->GetName(), AmmoVelocity);
 
 	bool DangerousTarget = IsShipDangerous(PilotTargetShip);
 
@@ -285,7 +315,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	// The pilot have a target, track and kill it
 
 	FVector LocalNose = FVector(1.f, 0.f, 0.f);
-	FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
+	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()) / 100.f;
 	float Distance = DeltaLocation.Size(); // Distance in meters
 	float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
 	FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
@@ -295,13 +325,14 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	// Use position prediction
 	float PredictionDelay = ReactionTime - DeltaSeconds;
 	FVector PredictedShipLocation = Ship->GetActorLocation() + ShipVelocity * PredictionDelay;
-	FVector PredictedPilotTargetShipLocation = PilotTargetShip->GetActorLocation() + PilotTargetShipVelocity * PredictionDelay;
+	FVector PredictedPilotTargetShipLocation = PilotTargetComponent->GetComponentLocation() + PilotTargetShipVelocity * PredictionDelay;
 	FVector PredictedDeltaLocation = (PredictedPilotTargetShipLocation - PredictedShipLocation) / 100.f;
 	FVector PredictedTargetAxis = PredictedDeltaLocation.GetUnsafeNormal();
 	float PredictedDistance = PredictedDeltaLocation.Size(); // Distance in meters
 
 	FVector AmmoIntersectionLocation;
-	float AmmoIntersectionTime = PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, 0, &AmmoIntersectionLocation);
+	float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), ShipVelocity, AmmoVelocity, 0, &AmmoIntersectionLocation);
+
 	FVector FireTargetAxis;
 	if (AmmoIntersectionTime > 0)
 	{
@@ -309,12 +340,12 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	}
 	else
 	{
-		FireTargetAxis = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).GetUnsafeNormal();
+		FireTargetAxis = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()).GetUnsafeNormal();
 	}
 
 
 	FVector AmmoIntersectionPredictedLocation;
-	float AmmoIntersectionPredictedTime = PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
+	float AmmoIntersectionPredictedTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), ShipVelocity, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
 	FVector PredictedFireTargetAxis;
 	if (AmmoIntersectionPredictedTime > 0)
 	{
@@ -331,7 +362,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	// Bullet velocity
 	FVector BulletVelocity = ShipAttitude.Vector();
 	BulletVelocity.Normalize();
-	BulletVelocity *= 100 * AmmoVelocity;
+	BulletVelocity *= AmmoVelocity;
 
 	FVector BulletDirection = Ship->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector((ShipVelocity + BulletVelocity)).GetUnsafeNormal();
 
@@ -459,7 +490,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 				// Compute target Axis for each gun
 				FVector GunAmmoIntersectionLocation;
-				float GunAmmoIntersectionTime = PilotTargetShip->GetAimPosition(MuzzleLocation, ShipVelocity , AmmoVelocity, 0, &GunAmmoIntersectionLocation);
+				float GunAmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), MuzzleLocation, ShipVelocity, AmmoVelocity, 0, &GunAmmoIntersectionLocation);
 				if (GunAmmoIntersectionTime < 0)
 				{
 					// No ammo intersection, don't fire
@@ -539,7 +570,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	LinearTargetVelocity = FVector::ZeroVector;
 
 
-	FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
+	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()) / 100.f;
 	FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
 	float Distance = DeltaLocation.Size(); // Distance in meters
 
@@ -589,8 +620,8 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	if (AttackPhase == 1)
 	{
 		FVector AmmoIntersectionLocation;
-		float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity();
-		float AmmoIntersectionTime = PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
+		float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
+		float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), Ship->Airframe->GetPhysicsLinearVelocity(), AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
 //		FLOGV("%s AmmoIntersectionLocation %s",  *Ship->GetName(), *AmmoIntersectionLocation.ToString());
 //		FLOGV("%s AmmoIntersectionTime %f",  *Ship->GetName(), AmmoIntersectionTime);
@@ -631,8 +662,8 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	if (AttackPhase == 2)
 	{
 		FVector AmmoIntersectionLocation;
-		float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity();
-		float AmmoIntersectionTime = PilotTargetShip->GetAimPosition(Ship, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
+		float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
+		float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), Ship->Airframe->GetPhysicsLinearVelocity(), AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 		FVector FrontVector = Ship->GetActorRotation().RotateVector(FVector(1,0,0));
 		FVector ChargeAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
 		//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
@@ -1122,6 +1153,45 @@ TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 bool UFlareShipPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
 {
 	return ShipCandidate->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+}
+
+UFlareSpacecraftComponent* UFlareShipPilot::GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft)
+{
+	TArray<UFlareSpacecraftComponent*> ComponentSelection;
+
+	TArray<UActorComponent*> Components = TargetSpacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+
+		if(Component->GetDescription() && Component->GetDamageRatio() > 0)
+		{
+			ComponentSelection.Add(Component);
+		}
+	}
+
+	if(ComponentSelection.Num() == 0)
+	{
+		return TargetSpacecraft->GetCockpit();
+	}
+	else
+	{
+		while(true)
+		{
+			UFlareSpacecraftComponent* Component = ComponentSelection[FMath::RandRange(0, ComponentSelection.Num()-1)];
+
+			UFlareRCS* RCS = Cast<UFlareRCS>(Component);
+			if(RCS)
+			{
+				if(FMath::FRand() > 0.25)
+				{
+					continue;
+				}
+			}
+			return Component;
+		}
+
+	}
 }
 
 /*----------------------------------------------------

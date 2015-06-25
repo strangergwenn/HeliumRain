@@ -90,6 +90,8 @@ public:
 
 	virtual FVector AnticollisionCorrection(FVector InitialVelocity, float PreferedAttackAngle, AFlareSpacecraft* SpacecraftToIgnore = NULL) const;
 
+	virtual UFlareSpacecraftComponent* GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft);
+
 public:
 
 	/*----------------------------------------------------
@@ -141,6 +143,7 @@ protected:
 	AFlareSpacecraft*                          PilotTargetShip;
 	AFlareSpacecraft*                          PilotTargetStation;
 	AFlareSpacecraft*                          PilotLastTargetStation;
+	UFlareSpacecraftComponent*			 PilotTargetComponent;
 
 	float AttackAngle;
 	float AttackDistance;
@@ -151,4 +154,6 @@ protected:
 	bool LockTarget;
 	bool LastWantFire;
 	float TimeBeforeNextDrop;
+	float                                TimeUntilNextComponentSwitch;
+
 };

@@ -3,6 +3,7 @@
 
 #include "FlareTurretPilot.h"
 #include "FlareSpacecraft.h"
+#include "FlareSpacecraftComponent.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -108,19 +109,51 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		PilotTargetShip = GetNearestHostileShip(false, false, 5000000, SecondaryShipSize);
 	}
 
+	TimeUntilNextComponentSwitch-=ReactionTime;
+
 	if (PilotTargetShip)
 	{
+		if(TimeUntilNextComponentSwitch <= 0)
+		{
+			//FLOGV("%s Switch because of timeout", *Turret->GetReadableName());
+			PilotTargetComponent = NULL;
+		}
+		else if(PilotTargetComponent)
+		{
+			if(PilotTargetComponent->GetSpacecraft() != PilotTargetShip)
+			{
+				//FLOGV("%s Switch because the component %s is not in the target ship", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
+				PilotTargetComponent = NULL;
+			}
+			else if(PilotTargetComponent->GetDamageRatio() <=0)
+			{
+				//FLOGV("%s Switch because the component %s is destroyed", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
+				PilotTargetComponent = NULL;
+
+			}
+		}
+
+		if(!PilotTargetComponent)
+		{
+			PilotTargetComponent = GetRandomTargetComponent(PilotTargetShip);
+			TimeUntilNextComponentSwitch = 10;
+			//FLOGV("%s Select new target component %s ", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
+		}
+
 
 		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
 
 		//float PredictionDelay = ReactionTime - DeltaSeconds;
 		float PredictionDelay = 0;
-		float AmmoVelocity = Turret->GetAmmoVelocity();
+		float AmmoVelocity = Turret->GetAmmoVelocity() * 100;
 		FVector TurretVelocity = 100 * Turret->GetSpacecraft()->GetLinearVelocity();
 
 
 		FVector AmmoIntersectionPredictedLocation;
-		float AmmoIntersectionPredictedTime = PilotTargetShip->GetAimPosition(TurretLocation, TurretVelocity / 100, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
+
+
+
+		float AmmoIntersectionPredictedTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), TurretLocation, TurretVelocity, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
 		FVector PredictedFireTargetLocation;
 		if (AmmoIntersectionPredictedTime > 0)
 		{
@@ -128,20 +161,27 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		}
 		else
 		{
-			PredictedFireTargetLocation = PilotTargetShip->GetActorLocation();
+			PredictedFireTargetLocation = PilotTargetComponent->GetComponentLocation();
 		}
 
 
 		AimAxis = (PredictedFireTargetLocation - TurretLocation).GetUnsafeNormal();
 		/*FLOGV("%s Have target AimAxis=%s",*Turret->GetReadableName(),  * AimAxis.ToString());
-*/
+		FLOGV("%s AmmoIntersectionPredictedTime=%f",*Turret->GetReadableName(),  AmmoIntersectionPredictedTime);
+		FLOGV("%s AmmoVelocity=%f",*Turret->GetReadableName(),  AmmoVelocity);*/
+
+
 
 		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f + Turret->GetAimRadius() * 2; // Radius in meters
-		FVector DeltaLocation = (PilotTargetShip->GetActorLocation()-TurretLocation) / 100.f;
+		FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation()-TurretLocation) / 100.f;
 		float Distance = DeltaLocation.Size(); // Distance in meters
+
+		//FLOGV("%s Distance=%f",*Turret->GetReadableName(),  Distance);
 
 		// If at range and aligned fire on the target
 		//TODO increase tolerance if target is near
+
+
 		if (AmmoIntersectionPredictedTime > 0 && AmmoIntersectionPredictedTime < 10.f)
 		{
 			//FLOG("Near enough");
@@ -154,7 +194,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 				// Compute target Axis for each gun
 				FVector AmmoIntersectionLocation;
-				float AmmoIntersectionTime = PilotTargetShip->GetAimPosition(MuzzleLocation, TurretVelocity , AmmoVelocity, 0, &AmmoIntersectionLocation);
+				float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), MuzzleLocation, TurretVelocity , AmmoVelocity, 0, &AmmoIntersectionLocation);
 				if (AmmoIntersectionTime < 0)
 				{
 					// No ammo intersection, don't fire
@@ -162,20 +202,20 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				}
 				FVector FireTargetAxis = (AmmoIntersectionLocation - MuzzleLocation - AmmoIntersectionPredictedTime * TurretVelocity).GetUnsafeNormal();
 				/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
-				FLOGV("Gun %d FireTargetAxis=%s", GunIndex, *FireTargetAxis.ToString());
-*/
+				FLOGV("Gun %d FireTargetAxis=%s", GunIndex, *FireTargetAxis.ToString());*/
+
 				float AngularPrecisionDot = FVector::DotProduct(FireTargetAxis, FireAxis);
 				float AngularPrecision = FMath::Acos(AngularPrecisionDot);
 				float AngularSize = FMath::Atan(TargetSize / Distance);
 
-			/*	FLOGV("Gun %d Distance=%f", GunIndex, Distance);
+				/*FLOGV("Gun %d Distance=%f", GunIndex, Distance);
 				FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
 				FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
 					Turret->SetTarget(PilotTargetShip);
-					/*FLOG("Want Fire");*/
+					//FLOG("Want Fire");
 					WantFire = true;
 					break;
 				}
@@ -276,6 +316,46 @@ bool UFlareTurretPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
 {
 	return ShipCandidate->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
 }
+
+UFlareSpacecraftComponent* UFlareTurretPilot::GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft)
+{
+	TArray<UFlareSpacecraftComponent*> ComponentSelection;
+
+	TArray<UActorComponent*> Components = TargetSpacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+
+		if(Component->GetDescription() && Component->GetDamageRatio() > 0)
+		{
+			ComponentSelection.Add(Component);
+		}
+	}
+
+	if(ComponentSelection.Num() == 0)
+	{
+		return TargetSpacecraft->GetCockpit();
+	}
+	else
+	{
+		while(true)
+		{
+			UFlareSpacecraftComponent* Component = ComponentSelection[FMath::RandRange(0, ComponentSelection.Num()-1)];
+
+			UFlareRCS* RCS = Cast<UFlareRCS>(Component);
+			if(RCS)
+			{
+				if(FMath::FRand() > 0.25)
+				{
+					continue;
+				}
+			}
+			return Component;
+		}
+
+	}
+}
+
 
 /*----------------------------------------------------
 	Pilot Output

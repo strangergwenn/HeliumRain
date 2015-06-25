@@ -141,6 +141,8 @@ float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float B
 
 float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
+	//TODO : use helper
+
 	//Relative Target Speed
 	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
 	FVector TargetLocation = GetActorLocation() + TargetVelocity * PredictionDelay;
