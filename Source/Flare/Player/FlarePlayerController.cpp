@@ -84,8 +84,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		Cast<AFlareHUD>(GetHUD())->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 	}
 
-
-
 	// Mouse cursor
 	bool NewShowMouseCursor = !HUD->IsWheelOpen() ;
 	if (!HUD->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())

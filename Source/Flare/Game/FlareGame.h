@@ -93,6 +93,11 @@ public:
 	/** Create a ship or station in the level  for a specific company */
 	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
 
+	/** Create 2 fleets for 2 companies At a defined distance */
+	UFUNCTION(exec)
+		void CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count);
+
+
 	/** Set the default weapon for new created ship */
 	UFUNCTION(exec)
 	void SetDefaultWeapon(FName NewDefaultWeaponIdentifier);
@@ -101,16 +106,17 @@ public:
 	UFUNCTION(exec)
 	void SetDefaultTurret(FName NewDefaultTurretIdentifier);
 
+
+	/*----------------------------------------------------
+		Immatriculations
+	----------------------------------------------------*/
+
 	/** Build a unique immatriculation string for this object */
-	void Immatriculate(FName Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave);
+	void Immatriculate(UFlareCompany* Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave);
 
 	void InitCapitalShipNameDatabase();
 
 	FName PickCapitalShipName();
-
-	/** Create 2 fleets for 2 companies At a defined distance */
-	UFUNCTION(exec)
-	void CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count);
 
 protected:
 
