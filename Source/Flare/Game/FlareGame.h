@@ -1,14 +1,18 @@
 #pragma once
 
 #include "GameFramework/GameMode.h"
+
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareBomb.h"
-#include "../Data/FlareSpacecraftCatalog.h"
-#include "../Data/FlareSpacecraftComponentsCatalog.h"
-#include "../Data/FlareCustomizationCatalog.h"
 #include "../Player/FlareMenuPawn.h"
 #include "FlarePlanetarium.h"
 #include "FlareCompany.h"
+
+#include "../Data/FlareSpacecraftCatalog.h"
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
+#include "../Data/FlareCustomizationCatalog.h"
+#include "../Data/FlareAsteroidCatalog.h"
+
 #include "FlareGame.generated.h"
 
 
@@ -34,6 +38,18 @@ public:
 		Save
 	----------------------------------------------------*/
 
+	/** Create a new world from scratch */
+	virtual void CreateWorld(AFlarePlayerController* PC);
+
+	/** Create a station in the level  for a specific company */
+	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition);
+
+	/** Create a ship in the level  for a specific company */
+	AFlareSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
+
+	/** Create a ship or station in the level  for a specific company */
+	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
+
 	/** Load the world from this save file */
 	virtual bool LoadWorld(AFlarePlayerController* PC, FString SaveFile);
 
@@ -46,23 +62,17 @@ public:
 	/** Spawn a bomb from save data */
 	virtual AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 
-
 	/** Save the world to this save file */
 	virtual bool SaveWorld(AFlarePlayerController* PC, FString SaveFile);
 
 
 	/*----------------------------------------------------
-		Creation tools
+		Creation command line
 	----------------------------------------------------*/
-
-	/** Create a new world from scratch */
-	virtual void CreateWorld(AFlarePlayerController* PC);
-
 
 	/** Create a company */
 	UFUNCTION(exec)
 	UFlareCompany* CreateCompany(FString CompanyName);
-
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
@@ -84,19 +94,9 @@ public:
 	UFUNCTION(exec)
 	void CreateShipsInCompany(FName ShipClass, FName CompanyShortName, float Distance, int32 Count);
 
-	/** Create a ship in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
-
-	/** Create a station in the level  for a specific company */
-	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition);
-
-	/** Create a ship or station in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
-
 	/** Create 2 fleets for 2 companies At a defined distance */
 	UFUNCTION(exec)
-		void CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count);
-
+	void CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count);
 
 	/** Set the default weapon for new created ship */
 	UFUNCTION(exec)
@@ -114,9 +114,12 @@ public:
 	/** Build a unique immatriculation string for this object */
 	void Immatriculate(UFlareCompany* Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave);
 
+	/** Fill the database with capital ship names */
 	void InitCapitalShipNameDatabase();
 
+	/** Get a capship name */
 	FName PickCapitalShipName();
+
 
 protected:
 
@@ -136,6 +139,15 @@ protected:
 	UPROPERTY()
 	AFlarePlanetarium* Planetarium;
 
+	/** Companies */
+	UPROPERTY()
+	TArray<UFlareCompany*> Companies;
+
+
+	/*----------------------------------------------------
+		Catalogs
+	----------------------------------------------------*/
+
 	/** Reference to all available ship models */
 	UPROPERTY()
 	UFlareSpacecraftCatalog* SpacecraftCatalog;
@@ -148,17 +160,23 @@ protected:
 	UPROPERTY()
 	UFlareCustomizationCatalog* CustomizationCatalog;
 
+	/** Reference to asteroid data */
+	UPROPERTY()
+	UFlareAsteroidCatalog* AsteroidCatalog;
+
+
+	/*----------------------------------------------------
+		Immatriculation and creation data
+	----------------------------------------------------*/
+
 	/** Immatriculation index */
 	int32 CurrentImmatriculationIndex;
 
 	TArray<FName> BaseImmatriculationNameList;
 
-	/** Comapnies */
-	UPROPERTY()
-	TArray<UFlareCompany*> Companies;
-
 	FName DefaultWeaponIdentifer;
 	FName DefaultTurretIdentifer;
+
 
 public:
 
@@ -197,6 +215,11 @@ public:
 	inline UFlareCustomizationCatalog* GetCustomizationCatalog() const
 	{
 		return CustomizationCatalog;
+	}
+
+	inline UFlareAsteroidCatalog* GetAsteroidCatalog() const
+	{
+		return AsteroidCatalog;
 	}
 
 
