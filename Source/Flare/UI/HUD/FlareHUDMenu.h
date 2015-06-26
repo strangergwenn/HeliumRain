@@ -2,10 +2,10 @@
 
 #include "../../Flare.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
-#include "../Widgets/FlareSubsystemStatus.h"
-#include "../Widgets/FlareWeaponStatus.h"
-#include "../Widgets/FlareMouseMenu.h"
-#include "../Widgets/FlareContextMenu.h"
+#include "../HUD/FlareSubsystemStatus.h"
+#include "../HUD/FlareWeaponStatus.h"
+#include "../HUD/FlareMouseMenu.h"
+#include "../HUD/FlareContextMenu.h"
 
 
 class SFlareHUDMenu : public SCompoundWidget
