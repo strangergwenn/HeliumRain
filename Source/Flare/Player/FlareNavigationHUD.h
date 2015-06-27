@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GameFramework/HUD.h"
-#include "FlareHUD.h"
+#include "FlareMenuManager.h"
 #include "../UI/HUD/FlareHUDMenu.h"
 #include "../UI/HUD/FlareContextMenu.h"
 #include "FlareNavigationHUD.generated.h"
@@ -9,7 +9,7 @@
 
 /** Navigation HUD */
 UCLASS()
-class AFlareNavigationHUD : public AFlareHUD
+class AFlareNavigationHUD : public AFlareMenuManager
 {
 public:
 

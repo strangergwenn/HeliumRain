@@ -4,7 +4,7 @@
 #include "../../Player/FlarePlayerController.h"
 
 
-#define LOCTEXT_NAMESPACE "FlareHUDMenu"
+#define LOCTEXT_NAMESPACE "FlareMenuManagerMenu"
 
 
 /*----------------------------------------------------
@@ -14,7 +14,7 @@
 void SFlareHUDMenu::Construct(const FArguments& InArgs)
 {
 	// Data
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 	TargetShip = NULL;
 	Overheating = false;
 	Burning = false;
@@ -22,7 +22,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	PresentationFlashTime = 0.2f;
 	TimeSinceOverheatChanged = PresentationFlashTime;
 	TimeSinceOutageChanged = PresentationFlashTime;
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 
 	// Style
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();

@@ -3,7 +3,7 @@
 #include "FlareStationMenu.h"
 #include "../Widgets/FlarePartInfo.h"
 #include "../../Game/FlareGame.h"
-#include "../../Player/FlareHUD.h"
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -18,9 +18,9 @@
 void SFlareStationMenu::Construct(const FArguments& InArgs)
 {
 	// Data
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	
 	// Build structure
 	ChildSlot
@@ -51,7 +51,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
-							SNew(SImage).Image(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Station))
+							SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Station))
 						]
 
 						+ SHorizontalBox::Slot()
@@ -97,7 +97,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(ShipList, SFlareShipList)
-						.OwnerHUD(OwnerHUD)
+						.MenuManager(MenuManager)
 						.Title(LOCTEXT("DockedShips", "DOCKED SHIPS"))
 					]
 				]
@@ -110,7 +110,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SNew(SFlareRoundButton)
-			.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit))
+			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit))
 			.OnClicked(this, &SFlareStationMenu::OnDashboardClicked)
 		]
 	];
@@ -137,7 +137,7 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 	ObjectActionMenu->SetSpacecraft(Target);
 	ObjectActionMenu->Show();
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	if (PC && Target)
 	{
 		// Menu
@@ -199,7 +199,7 @@ void SFlareStationMenu::Exit()
 
 void SFlareStationMenu::OnDashboardClicked()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Dashboard);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
 }
 
 #undef LOCTEXT_NAMESPACE

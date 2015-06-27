@@ -3,7 +3,7 @@
 #include "FlareShipList.h"
 
 #include "../../Game/FlareGame.h"
-#include "../../Player/FlareHUD.h"
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareSectorList"
@@ -16,9 +16,9 @@
 void SFlareShipList::Construct(const FArguments& InArgs)
 {
 	// Data
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	
 	// Build structure
 	ChildSlot
@@ -78,7 +78,7 @@ void SFlareShipList::Reset()
 
 TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 
 	if (Item->ShipInterfacePtr)
 	{

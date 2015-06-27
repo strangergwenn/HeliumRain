@@ -3,7 +3,7 @@
 #include "FlareGame.h"
 #include "FlareSaveGame.h"
 #include "FlareAsteroid.h"
-#include "../Player/FlareHUD.h"
+#include "../Player/FlareMenuManager.h"
 #include "../Player/FlareNavigationHUD.h"
 #include "../Player/FlarePlayerController.h"
 

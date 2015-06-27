@@ -15,7 +15,7 @@ class SFlareStationMenu : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareStationMenu){}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, OwnerHUD)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	
 	SLATE_END_ARGS()
 
@@ -63,7 +63,7 @@ protected:
 
 	/** HUD reference */
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD> OwnerHUD;
+	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 
 	/** Target station to use */
 	UPROPERTY()

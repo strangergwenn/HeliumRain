@@ -20,8 +20,8 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	AnimTime = 0.20f;
 
 	// Init
-	OwnerHUD = InArgs._OwnerHUD;
-	PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	MenuManager = InArgs._MenuManager;
+	PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	SetVisibility(EVisibility::Hidden);
 	CurrentTime = 0.0f;
 	IsOpening = false;
@@ -148,7 +148,7 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor Color = Theme.NeutralColor;
 
-	if (OwnerHUD->IsMenuOpen())
+	if (MenuManager->IsMenuOpen())
 	{
 		Color.A = 0;
 	}

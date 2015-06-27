@@ -4,7 +4,7 @@
 #include "../Components/FlareNotification.h"
 
 
-class AFlareHUD;
+class AFlareMenuManager;
 
 
 class SFlareNotifier : public SCompoundWidget
@@ -16,7 +16,7 @@ class SFlareNotifier : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareNotifier)
 	{}
 
-	SLATE_ARGUMENT(AFlareHUD*, OwnerHUD)
+	SLATE_ARGUMENT(AFlareMenuManager*, MenuManager)
 
 	SLATE_END_ARGS()
 
@@ -54,7 +54,7 @@ protected:
 
 	/** HUD reference */
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD>      OwnerHUD;
+	TWeakObjectPtr<class AFlareMenuManager>      MenuManager;
 
 	// Slate data
 	TArray< TSharedPtr<SFlareNotification> > NotificationData;

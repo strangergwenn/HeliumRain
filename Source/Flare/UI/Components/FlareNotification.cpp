@@ -1,7 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareNotification.h"
-#include "../../Player/FlareHUD.h"
+#include "../../Player/FlareMenuManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareNotification"
 
@@ -30,7 +30,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	CurrentAlpha = 0;
 	CurrentMargin = 0;
 	Text = InArgs._Text;
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 	TargetMenu = InArgs._TargetMenu;
 	TargetInfo = InArgs._TargetInfo;
 	FLOGV("SFlareNotification::Construct : notifying '%s'", *InArgs._Text.ToString());
@@ -231,7 +231,7 @@ FReply SFlareNotification::OnNotificationClicked()
 	// Call if necessary
 	if (TargetMenu != EFlareMenu::MENU_None)
 	{
-		OwnerHUD->OpenMenu(TargetMenu, TargetInfo);
+		MenuManager->OpenMenu(TargetMenu, TargetInfo);
 	}
 
 	// Set the lifetime to "almost done"

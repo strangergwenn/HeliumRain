@@ -16,9 +16,9 @@
 void SFlareMainMenu::Construct(const FArguments& InArgs)
 {
 	// Data
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 
 	// Build structure
 	ChildSlot
@@ -48,7 +48,7 @@ void SFlareMainMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	if (PC)
 	{
 	}

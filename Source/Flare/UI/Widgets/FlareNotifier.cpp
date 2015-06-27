@@ -12,7 +12,7 @@
 void SFlareNotifier::Construct(const FArguments& InArgs)
 {
 	// Data
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 
 	// Create the layout
 	ChildSlot
@@ -48,7 +48,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Typ
 	.AutoHeight()
 	[
 		SAssignNew(NotificationEntry, SFlareNotification)
-		.OwnerHUD(OwnerHUD.Get())
+		.MenuManager(MenuManager.Get())
 		.Text(Text)
 		.Info(Info)
 		.Type(Type)

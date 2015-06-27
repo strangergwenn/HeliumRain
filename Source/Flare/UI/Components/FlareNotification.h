@@ -4,7 +4,7 @@
 #include "FlareNotification.generated.h"
 
 
-class AFlareHUD;
+class AFlareMenuManager;
 
 
 /** Possible notification types */
@@ -30,7 +30,7 @@ class SFlareNotification : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareNotification)
 	{}
 
-	SLATE_ARGUMENT(AFlareHUD*, OwnerHUD)
+	SLATE_ARGUMENT(AFlareMenuManager*, MenuManager)
 	SLATE_ARGUMENT(EFlareNotification::Type, Type)
 	SLATE_ARGUMENT(FText, Text)
 	SLATE_ARGUMENT(FText, Info)
@@ -97,7 +97,7 @@ protected:
 
 	/** HUD reference */
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD>      OwnerHUD;
+	TWeakObjectPtr<class AFlareMenuManager>      MenuManager;
 
 	// Gameplay
 	float                                Lifetime;

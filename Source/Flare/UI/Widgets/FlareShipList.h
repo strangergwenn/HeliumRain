@@ -14,7 +14,7 @@ class SFlareShipList : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareShipList){}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, OwnerHUD)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 
 	SLATE_ARGUMENT(FText, Title)
 	
@@ -65,7 +65,7 @@ protected:
 
 	// HUD reference
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD>    OwnerHUD;
+	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 
 	// Menu components
 	TSharedPtr<SFlareListItem>                                   PreviousSelection;

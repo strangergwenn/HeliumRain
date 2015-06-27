@@ -17,7 +17,7 @@ class SFlareShipMenu : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareShipMenu){}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, OwnerHUD)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	
 	SLATE_END_ARGS()
 
@@ -95,7 +95,7 @@ protected:
 
 	/** HUD reference */
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD> OwnerHUD;
+	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 
 	/** Target ship to use for customization */
 	UPROPERTY()

@@ -15,7 +15,7 @@ class SFlareDashboard : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareDashboard){}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, OwnerHUD)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	
 	SLATE_END_ARGS()
 
@@ -78,7 +78,7 @@ protected:
 
 	/** HUD reference */
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD> OwnerHUD;
+	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 
 	// Widgets
 	TSharedPtr<SVerticalBox> CompanyBox;

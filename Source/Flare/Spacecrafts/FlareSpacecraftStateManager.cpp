@@ -123,7 +123,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	if (PC)
 	{
-		if (Cast<AFlareHUD>(PC->GetHUD())->IsMenuOpen())
+		if (Cast<AFlareMenuManager>(PC->GetHUD())->IsMenuOpen())
 		{
 			return;
 		}

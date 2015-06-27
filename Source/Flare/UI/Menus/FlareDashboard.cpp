@@ -2,7 +2,7 @@
 #include "../../Flare.h"
 #include "FlareDashboard.h"
 #include "../../Game/FlareGame.h"
-#include "../../Player/FlareHUD.h"
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -17,9 +17,9 @@
 void SFlareDashboard::Construct(const FArguments& InArgs)
 {
 	// Data
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 
 	// Build structure
 	ChildSlot
@@ -76,7 +76,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SNew(SFlareRoundButton)
-			.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit))
+			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit))
 			.OnClicked(this, &SFlareDashboard::OnExit)
 		]
 	];
@@ -95,7 +95,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("InspectCompany", "Company"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Company))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company))
 		.OnClicked(this, &SFlareDashboard::OnInspectCompany)
 	];
 	CompanyBox->AddSlot()
@@ -103,7 +103,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("InspectShip", "Ship"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Ship))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Ship))
 		.OnClicked(this, &SFlareDashboard::OnInspectShip)
 	];
 
@@ -121,7 +121,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("InspectStation", "Station"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Station))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Station))
 		.OnClicked(this, &SFlareDashboard::OnInspectStation)
 	];
 	StationBox->AddSlot()
@@ -129,7 +129,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("UpgradeShip", "Upgrade ship"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_ShipConfig))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_ShipConfig))
 		.OnClicked(this, &SFlareDashboard::OnConfigureShip)
 	];
 	StationBox->AddSlot()
@@ -137,7 +137,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("Undock", "Undock"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Undock))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Undock))
 		.OnClicked(this, &SFlareDashboard::OnUndock)
 	];
 
@@ -155,7 +155,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("Sector", "Sector map"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Sector))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
 		.OnClicked(this, &SFlareDashboard::OnOpenSector)
 	];
 
@@ -173,7 +173,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("Quit", "Quit game"))
-		.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Quit))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit))
 		.OnClicked(this, &SFlareDashboard::OnQuitGame)
 	];
 }
@@ -195,7 +195,7 @@ void SFlareDashboard::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	if (PC)
 	{
 		AFlareSpacecraft* Ship = PC->GetShipPawn();
@@ -220,52 +220,52 @@ void SFlareDashboard::Exit()
 
 void SFlareDashboard::OnExit()
 {
-	OwnerHUD->CloseMenu();
+	MenuManager->CloseMenu();
 }
 
 void SFlareDashboard::OnInspectCompany()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Company);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
 }
 
 void SFlareDashboard::OnInspectShip()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Ship);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Ship);
 }
 
 void SFlareDashboard::OnInspectStation()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Station);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Station);
 }
 
 void SFlareDashboard::OnConfigureShip()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_ShipConfig);
+	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig);
 }
 
 void SFlareDashboard::OnUndock()
 {
 	// Ask to undock, and close the menu
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	if (PC)
 	{
 		AFlareSpacecraft* Ship = PC->GetShipPawn();
 		if (Ship)
 		{
 			Ship->GetNavigationSystem()->Undock();
-			Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
+			Cast<AFlareMenuManager>(PC->GetHUD())->CloseMenu();
 		}
 	}
 }
 
 void SFlareDashboard::OnOpenSector()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Sector);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Sector);
 }
 
 void SFlareDashboard::OnQuitGame()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Quit);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
 }
 
 #undef LOCTEXT_NAMESPACE

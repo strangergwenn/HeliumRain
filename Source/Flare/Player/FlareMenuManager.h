@@ -9,12 +9,12 @@
 #include "../UI/Menus/FlareStationMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
 #include "../UI/Widgets/FlareNotifier.h"
-#include "FlareHUD.generated.h"
+#include "FlareMenuManager.generated.h"
 
 
 /** Main HUD class (container for HUD and menus) */
 UCLASS()
-class FLARE_API AFlareHUD : public AHUD
+class FLARE_API AFlareMenuManager : public AHUD
 {
 public:
 

@@ -4,7 +4,7 @@
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareOrbitalEngine.h"
 #include "../Spacecrafts/FlareShell.h"
-#include "FlareHUD.h"
+#include "FlareMenuManager.h"
 #include "FlareNavigationHUD.h"
 #include "EngineUtils.h"
 
@@ -386,13 +386,8 @@ void AFlarePlayerController::SetupMenu()
 	FVector SpawnLocation(5000000 * FVector(1, 1, 1));
 	MenuPawn = GetWorld()->SpawnActor<AFlareMenuPawn>(GetGame()->GetMenuPawnClass(), SpawnLocation, FRotator::ZeroRotator);
 
-	// Setup HUD
-	AFlareHUD* HUD = GetNavigationHUD();
-	if (HUD)
-	{
-		// Signal the menu to setup as well
-		HUD->SetupMenu(PlayerData);
-	}
+	// Signal the menu to setup as well
+	GetMenuManager()->SetupMenu(PlayerData);
 }
 
 void AFlarePlayerController::OnEnterMenu()

@@ -82,8 +82,8 @@ void AFlareNavigationHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 	if (GEngine->IsValidLowLevel())
 	{
 		// Create HUD menus
-		SAssignNew(HUDMenu, SFlareHUDMenu).OwnerHUD(this);
-		SAssignNew(MouseMenu, SFlareMouseMenu).OwnerHUD(this);
+		SAssignNew(HUDMenu, SFlareHUDMenu).MenuManager(this);
+		SAssignNew(MouseMenu, SFlareMouseMenu).MenuManager(this);
 
 		// Context menu
 		SAssignNew(ContextMenuContainer, SOverlay)
@@ -91,7 +91,7 @@ void AFlareNavigationHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			[
-				SAssignNew(ContextMenu, SFlareContextMenu).OwnerHUD(this)
+				SAssignNew(ContextMenu, SFlareContextMenu).MenuManager(this)
 			];
 
 		// Register menus at their Z-Index

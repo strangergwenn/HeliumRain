@@ -3,7 +3,7 @@
 #include "FlareSectorMenu.h"
 
 #include "../../Game/FlareGame.h"
-#include "../../Player/FlareHUD.h"
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareSectorMenu"
@@ -16,9 +16,9 @@
 void SFlareSectorMenu::Construct(const FArguments& InArgs)
 {
 	// Data
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	
 	// Build structure
 	ChildSlot
@@ -49,7 +49,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
-							SNew(SImage).Image(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Sector))
+							SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
 						]
 
 						+ SHorizontalBox::Slot()
@@ -67,7 +67,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(ShipList, SFlareShipList)
-						.OwnerHUD(OwnerHUD)
+						.MenuManager(MenuManager)
 						.Title(LOCTEXT("SectorTargetListTitle", "OBJECTS IN SECTOR"))
 					]
 				]
@@ -80,7 +80,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SNew(SFlareRoundButton)
-			.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit))
+			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit))
 			.OnClicked(this, &SFlareSectorMenu::OnDashboardClicked)
 		]
 	];
@@ -103,7 +103,7 @@ void SFlareSectorMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	if (PC)
 	{
 		PC->GetMenuPawn()->UpdateBackgroundColor(0.15, 0.15);
@@ -136,7 +136,7 @@ void SFlareSectorMenu::Exit()
 
 void SFlareSectorMenu::OnDashboardClicked()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Dashboard);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
 }
 
 #undef LOCTEXT_NAMESPACE

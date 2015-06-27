@@ -1,43 +1,43 @@
 
 #include "../Flare.h"
-#include "FlareHUD.h"
+#include "FlareMenuManager.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../FlareLoadingScreen/FlareLoadingScreen.h"
 
 
-#define LOCTEXT_NAMESPACE "FlareHUD"
+#define LOCTEXT_NAMESPACE "FlareMenuManager"
 
 
 /*----------------------------------------------------
 	Setup
 ----------------------------------------------------*/
 
-AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
+AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, MenuIsOpen(false)
 	, FadeDuration(0.25)
 {
 }
 
-void AFlareHUD::BeginPlay()
+void AFlareMenuManager::BeginPlay()
 {
 	Super::BeginPlay();
 	FadeIn();
 }
 
-void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
+void AFlareMenuManager::SetupMenu(FFlarePlayerSave& PlayerData)
 {
 	if (GEngine->IsValidLowLevel())
 	{
 		// Menus
-		SAssignNew(Notifier, SFlareNotifier).OwnerHUD(this).Visibility(EVisibility::SelfHitTestInvisible);
-		SAssignNew(MainMenu, SFlareMainMenu).OwnerHUD(this);
-		SAssignNew(Dashboard, SFlareDashboard).OwnerHUD(this);
-		SAssignNew(CompanyMenu, SFlareCompanyMenu).OwnerHUD(this);
-		SAssignNew(ShipMenu, SFlareShipMenu).OwnerHUD(this);
-		SAssignNew(StationMenu, SFlareStationMenu).OwnerHUD(this);
-		SAssignNew(SectorMenu, SFlareSectorMenu).OwnerHUD(this);
+		SAssignNew(Notifier, SFlareNotifier).MenuManager(this).Visibility(EVisibility::SelfHitTestInvisible);
+		SAssignNew(MainMenu, SFlareMainMenu).MenuManager(this);
+		SAssignNew(Dashboard, SFlareDashboard).MenuManager(this);
+		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
+		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
+		SAssignNew(StationMenu, SFlareStationMenu).MenuManager(this);
+		SAssignNew(SectorMenu, SFlareSectorMenu).MenuManager(this);
 
 		// Fader
 		SAssignNew(Fader, SBorder)
@@ -71,7 +71,7 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 	Menu interaction
 ----------------------------------------------------*/
 
-void AFlareHUD::Tick(float DeltaSeconds)
+void AFlareMenuManager::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
@@ -104,7 +104,7 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	}
 }
 
-void AFlareHUD::OpenMenu(EFlareMenu::Type Target, void* Data)
+void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 {
 	MenuIsOpen = true;
 	FadeOut();
@@ -112,7 +112,7 @@ void AFlareHUD::OpenMenu(EFlareMenu::Type Target, void* Data)
 	FadeTargetData = Data;
 }
 
-void AFlareHUD::CloseMenu(bool HardClose)
+void AFlareMenuManager::CloseMenu(bool HardClose)
 {
 	if (MenuIsOpen)
 	{
@@ -128,12 +128,12 @@ void AFlareHUD::CloseMenu(bool HardClose)
 	MenuIsOpen = false;
 }
 
-bool AFlareHUD::IsMenuOpen() const
+bool AFlareMenuManager::IsMenuOpen() const
 {
 	return MenuIsOpen;
 }
 
-void AFlareHUD::ShowLoadingScreen()
+void AFlareMenuManager::ShowLoadingScreen()
 {
 	IFlareLoadingScreenModule* LoadingScreenModule = FModuleManager::LoadModulePtr<IFlareLoadingScreenModule>("FlareLoadingScreen");
 	if (LoadingScreenModule)
@@ -142,7 +142,7 @@ void AFlareHUD::ShowLoadingScreen()
 	}
 }
 
-void AFlareHUD::Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void AFlareMenuManager::Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	if (Notifier.IsValid())
 	{
@@ -150,7 +150,7 @@ void AFlareHUD::Notify(FText Text, FText Info, EFlareNotification::Type Type, EF
 	}
 }
 
-const FSlateBrush* AFlareHUD::GetMenuIcon(EFlareMenu::Type MenuType)
+const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType)
 {
 	switch (MenuType)
 	{
@@ -174,7 +174,7 @@ const FSlateBrush* AFlareHUD::GetMenuIcon(EFlareMenu::Type MenuType)
 	Menu management
 ----------------------------------------------------*/
 
-void AFlareHUD::ResetMenu()
+void AFlareMenuManager::ResetMenu()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
@@ -192,19 +192,19 @@ void AFlareHUD::ResetMenu()
 	FadeIn();
 }
 
-void AFlareHUD::FadeIn()
+void AFlareMenuManager::FadeIn()
 {
 	FadeFromBlack = true;
 	FadeTimer = 0;
 }
 
-void AFlareHUD::FadeOut()
+void AFlareMenuManager::FadeOut()
 {
 	FadeFromBlack = false;
 	FadeTimer = 0;
 }
 
-void AFlareHUD::ProcessFadeTarget()
+void AFlareMenuManager::ProcessFadeTarget()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
@@ -260,7 +260,7 @@ void AFlareHUD::ProcessFadeTarget()
 	Callbacks
 ----------------------------------------------------*/
 
-void AFlareHUD::OpenDashboard()
+void AFlareMenuManager::OpenDashboard()
 {
 	ResetMenu();
 	GetPC()->OnEnterMenu();
@@ -268,7 +268,7 @@ void AFlareHUD::OpenDashboard()
 	Dashboard->Enter();
 }
 
-void AFlareHUD::InspectCompany(UFlareCompany* Target)
+void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
 {
 	ResetMenu();
 	GetPC()->OnEnterMenu();
@@ -280,7 +280,7 @@ void AFlareHUD::InspectCompany(UFlareCompany* Target)
 	CompanyMenu->Enter(Target);
 }
 
-void AFlareHUD::FlyShip(AFlareSpacecraft* Target)
+void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
 {
 	ExitMenu();
 
@@ -291,7 +291,7 @@ void AFlareHUD::FlyShip(AFlareSpacecraft* Target)
 	}
 }
 
-void AFlareHUD::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
+void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
 	ResetMenu();
 	GetPC()->OnEnterMenu();
@@ -303,7 +303,7 @@ void AFlareHUD::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
 	ShipMenu->Enter(Target, IsEditable);
 }
 
-void AFlareHUD::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditable)
+void AFlareMenuManager::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
 	ResetMenu();
 	GetPC()->OnEnterMenu();
@@ -317,14 +317,14 @@ void AFlareHUD::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditabl
 	StationMenu->Enter(Target);
 }
 
-void AFlareHUD::OpenSector()
+void AFlareMenuManager::OpenSector()
 {
 	ResetMenu();
 	GetPC()->OnEnterMenu();
 	SectorMenu->Enter();
 }
 
-void AFlareHUD::ExitMenu()
+void AFlareMenuManager::ExitMenu()
 {
 	ResetMenu();
 	GetPC()->OnExitMenu();

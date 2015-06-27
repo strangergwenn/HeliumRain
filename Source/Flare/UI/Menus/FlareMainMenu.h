@@ -1,9 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Player/FlareHUD.h"
-#include "../../Player/FlarePlayerController.h"
-
+#include "../../Player/FlareMenuManager.h"
 #include "../Components/FlareButton.h"
 
 
@@ -15,7 +13,7 @@ class SFlareMainMenu : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareMainMenu){}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, OwnerHUD)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	
 	SLATE_END_ARGS()
 
@@ -57,7 +55,7 @@ protected:
 
 	/** HUD reference */
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD> OwnerHUD;
+	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 		
 
 };

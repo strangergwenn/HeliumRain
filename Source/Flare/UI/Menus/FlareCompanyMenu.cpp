@@ -3,7 +3,7 @@
 #include "FlareStationMenu.h"
 #include "../Widgets/FlarePartInfo.h"
 #include "../../Game/FlareGame.h"
-#include "../../Player/FlareHUD.h"
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -19,9 +19,9 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 {
 	// Data
 	Company = NULL;
-	OwnerHUD = InArgs._OwnerHUD;
+	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	
 	// Build structure
 	ChildSlot
@@ -53,7 +53,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
-							SNew(SImage).Image(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Company))
+							SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company))
 						]
 
 						+ SHorizontalBox::Slot()
@@ -90,7 +90,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					.AutoHeight()
 					[
-						SAssignNew(ColorBox, SFlareColorPanel).OwnerHUD(OwnerHUD)
+						SAssignNew(ColorBox, SFlareColorPanel).MenuManager(MenuManager)
 					]
 
 					// Object list
@@ -98,7 +98,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(ShipList, SFlareShipList)
-						.OwnerHUD(OwnerHUD)
+						.MenuManager(MenuManager)
 						.Title(LOCTEXT("Property", "PROPERTY"))
 					]
 				]
@@ -111,7 +111,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SNew(SFlareRoundButton)
-			.Icon(AFlareHUD::GetMenuIcon(EFlareMenu::MENU_Exit))
+			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit))
 			.OnClicked(this, &SFlareCompanyMenu::OnDashboardClicked)
 		]
 	];
@@ -140,7 +140,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	ActionMenu->Show();
 	SetVisibility(EVisibility::Visible);
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(OwnerHUD->GetOwner());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
 	if (PC && Target)
 	{
 		// Menu
@@ -200,7 +200,7 @@ FString SFlareCompanyMenu::GetCompanyName() const
 
 void SFlareCompanyMenu::OnDashboardClicked()
 {
-	OwnerHUD->OpenMenu(EFlareMenu::MENU_Dashboard);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
 }
 
 

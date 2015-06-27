@@ -7,7 +7,7 @@
 #include "FlarePlayerController.generated.h"
 
 
-class AFlareHUD;
+class AFlareMenuManager;
 class AFlareNavigationHUD;
 
 
@@ -285,9 +285,9 @@ public:
 		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
 	}
 
-	inline AFlareHUD* GetMenuManager() const
+	inline AFlareMenuManager* GetMenuManager() const
 	{
-		return Cast<AFlareHUD>(GetHUD());
+		return Cast<AFlareMenuManager>(GetHUD());
 	}
 
 	inline AFlareNavigationHUD* GetNavigationHUD() const
