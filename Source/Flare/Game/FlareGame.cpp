@@ -15,6 +15,7 @@
 AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CurrentImmatriculationIndex(0)
+	, LoadedOrCreated(false)
 {
 	// Game classes
 	HUDClass = AFlareHUD::StaticClass();
@@ -124,6 +125,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 
 	// Load
 	PC->Load(PlayerData);
+	LoadedOrCreated = true;
 	PC->OnLoadComplete();
 }
 
@@ -307,6 +309,7 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 			LoadAsteroid(Save->AsteroidData[i]);
 		}
 
+		LoadedOrCreated = true;
 		PC->OnLoadComplete();
 		return true;
 	}

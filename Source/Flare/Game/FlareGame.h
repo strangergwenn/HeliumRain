@@ -183,6 +183,7 @@ protected:
 	FName                                    DefaultTurretIdentifer;
 
 	FString                                  CurrentSaveFile;
+	bool                                     LoadedOrCreated;
 
 
 public:
@@ -229,5 +230,9 @@ public:
 		return AsteroidCatalog;
 	}
 
+	inline bool IsLoadedOrCreated() const
+	{
+		return LoadedOrCreated;
+	}
 
 };
