@@ -87,17 +87,6 @@ void AFlareGame::PostLogin(APlayerController* Player)
 {
 	FLOG("AFlareGame::PostLogin");
 	Super::PostLogin(Player);
-
-	// TODO : move to PC on main menu commands
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
-	if (PC)
-	{
-		bool WorldLoaded = LoadWorld(PC, "DefaultSave");
-		if (!WorldLoaded)
-		{
-			CreateWorld(PC);
-		}
-	}
 }
 
 void AFlareGame::Logout(AController* Player)
@@ -135,6 +124,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 
 	// Load
 	PC->Load(PlayerData);
+	PC->OnLoadComplete();
 }
 
 AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)

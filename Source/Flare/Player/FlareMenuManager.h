@@ -137,9 +137,14 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	AFlarePlayerController* GetPC()
+	inline AFlarePlayerController* GetPC() const
 	{
 		return Cast<AFlarePlayerController>(GetOwner());
+	}
+
+	inline AFlareGame* GetGame() const
+	{
+		return GetPC()->GetGame();
 	}
 
 

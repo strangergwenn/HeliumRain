@@ -61,9 +61,24 @@ void SFlareMainMenu::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
-void SFlareMainMenu::OnStartGame() const
+void SFlareMainMenu::OnStartGame()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, MenuManager->GetPC()->GetShipPawn());
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	AFlareGame* Game = MenuManager->GetGame();
+
+	if (PC && Game)
+	{
+		// Load the world
+		bool WorldLoaded = Game->LoadWorld(PC, "DefaultSave");
+		if (!WorldLoaded)
+		{
+			Game->CreateWorld(PC);
+		}
+
+		// Go to the ship
+		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, PC->GetShipPawn());
+	}
+
 }
 
 

@@ -44,7 +44,7 @@ protected:
 	----------------------------------------------------*/
 
 	/** Start the game */
-	void OnStartGame() const;
+	void OnStartGame();
 
 
 protected:
