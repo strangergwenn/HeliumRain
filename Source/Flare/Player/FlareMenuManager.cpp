@@ -20,7 +20,7 @@ AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 {
 }
 
-void AFlareMenuManager::SetupMenu(FFlarePlayerSave& PlayerData)
+void AFlareMenuManager::SetupMenu()
 {
 	if (GEngine->IsValidLowLevel())
 	{
@@ -53,7 +53,7 @@ void AFlareMenuManager::SetupMenu(FFlarePlayerSave& PlayerData)
 		// Setup menus
 		MainMenu->Setup();
 		Dashboard->Setup();
-		CompanyMenu->Setup(PlayerData);
+		CompanyMenu->Setup();
 		ShipMenu->Setup();
 		StationMenu->Setup();
 		SectorMenu->Setup();

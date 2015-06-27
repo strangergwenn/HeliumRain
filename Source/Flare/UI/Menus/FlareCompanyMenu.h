@@ -29,7 +29,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Setup the widget */
-	void Setup(FFlarePlayerSave& PlayerData);
+	void Setup();
 
 	/** Enter this menu */
 	void Enter(UFlareCompany* Target);

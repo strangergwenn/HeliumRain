@@ -358,7 +358,7 @@ void AFlarePlayerController::SetupMenu()
 	MenuManager = GetWorld()->SpawnActor<AFlareMenuManager>(AFlareMenuManager::StaticClass(), SpawnInfo);
 
 	// Setup menus and HUD
-	MenuManager->SetupMenu(PlayerData);
+	MenuManager->SetupMenu();
 	GetNavHUD()->Setup(MenuManager);
 
 	// Destroy the old pawn

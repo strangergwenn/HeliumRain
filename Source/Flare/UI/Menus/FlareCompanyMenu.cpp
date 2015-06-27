@@ -122,10 +122,9 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareCompanyMenu::Setup(FFlarePlayerSave& PlayerData)
+void SFlareCompanyMenu::Setup()
 {
 	SetEnabled(false);
-	ColorBox->Setup(PlayerData);
 	SetVisibility(EVisibility::Hidden);	
 }
 
@@ -143,6 +142,11 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC && Target)
 	{
+		// Colors
+		FFlarePlayerSave Data;
+		PC->Save(Data);
+		ColorBox->Setup(Data);
+
 		// Menu
 		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
 		PC->GetMenuPawn()->SetHorizontalOffset(100);

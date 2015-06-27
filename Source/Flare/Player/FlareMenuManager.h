@@ -25,7 +25,7 @@ public:
 	----------------------------------------------------*/
 		
 	/** Construct the Slate menu interface */
-	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
+	virtual void SetupMenu();
 
 
 	/*----------------------------------------------------
