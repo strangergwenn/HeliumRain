@@ -23,9 +23,7 @@ public:
 	/*----------------------------------------------------
 		Setup
 	----------------------------------------------------*/
-
-	virtual void BeginPlay() override;
-	
+		
 	/** Construct the Slate menu interface */
 	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData);
 
@@ -44,6 +42,9 @@ public:
 	
 	/** Is a menu open */
 	bool IsMenuOpen() const;
+
+	/** Is a menu being opened or closed */
+	bool IsSwitchingMenu() const;
 
 	/** Start the loading screen */
 	void ShowLoadingScreen();
@@ -77,6 +78,9 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
+
+	/** Open the main menu */
+	virtual void OpenMainMenu();
 
 	/** Open the main menu */
 	virtual void OpenDashboard();

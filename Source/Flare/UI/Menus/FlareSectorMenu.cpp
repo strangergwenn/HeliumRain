@@ -106,8 +106,6 @@ void SFlareSectorMenu::Enter()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		PC->GetMenuPawn()->UpdateBackgroundColor(0.15, 0.15);
-
 		for (TActorIterator<AActor> ActorItr(PC->GetWorld()); ActorItr; ++ActorItr)
 		{
 			// Ship

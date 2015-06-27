@@ -317,6 +317,7 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 			LoadAsteroid(Save->AsteroidData[i]);
 		}
 
+		PC->OnLoadComplete();
 		return true;
 	}
 

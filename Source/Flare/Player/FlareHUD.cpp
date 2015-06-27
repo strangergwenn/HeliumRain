@@ -173,9 +173,8 @@ void AFlareHUD::UpdateHUDVisibility()
 
 	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
 	HUDMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
-	ContextMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
+	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }
-
 
 
 /*----------------------------------------------------
@@ -195,7 +194,7 @@ void AFlareHUD::DrawHUD()
 	AFlareSpacecraft* Ship = PC->GetShipPawn();
 
 	// Draw designators and context menu
-	if (!MenuManager->IsMenuOpen() && !IsMouseMenuOpen())
+	if (!MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu() && !IsMouseMenuOpen())
 	{
 		// Draw ship designators and markers
 		FoundTargetUnderMouse = false;
@@ -245,18 +244,16 @@ void AFlareHUD::DrawHUD()
 	}
 
 	// Update HUD materials
-	if (PC && Ship && !MenuManager->IsMenuOpen() && !IsMouseMenuOpen())
+	if (PC && Ship && !MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu() && !IsMouseMenuOpen())
 	{
-
+		// Draw inertial vectors
 		if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
 		{
-			// Draw inertial vectors
 			DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
 			DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"), true);
 		}
 		else
 		{
-			// Speed
 			int32 SpeedMS = Ship->GetSmoothedLinearVelocity().Size();
 			FString VelocityText = FString::FromInt(SpeedMS) + FString(" m/s");
 			FVector2D VelocityPosition = ViewportSize / 2 + FVector2D(42, 0);

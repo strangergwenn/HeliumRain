@@ -142,7 +142,6 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 	{
 		// Menu
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
-		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.8);
 
 		// Load station data
 		FFlareSpacecraftSave* Data = Target->Save();

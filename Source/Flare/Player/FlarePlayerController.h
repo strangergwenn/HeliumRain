@@ -63,11 +63,11 @@ public:
 	/** Load the player from a save file */
 	virtual void Load(const FFlarePlayerSave& Data);
 
+	/** Get the ship pawn from the game */
+	virtual void OnLoadComplete();
+
 	/** Save the player to a save file */
 	virtual void Save(FFlarePlayerSave& Data);
-
-	/** Take control of our current ship and remove the old pawn */
-	virtual void PossessCurrentShip();
 
 	/** Set the player's company */
 	virtual void SetCompany(UFlareCompany* NewCompany);

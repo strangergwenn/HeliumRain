@@ -234,7 +234,6 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	if (PC)
 	{
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
-		PC->GetMenuPawn()->UpdateBackgroundColor(0.1, 1.0);
 	}
 
 	SetVisibility(EVisibility::Visible);

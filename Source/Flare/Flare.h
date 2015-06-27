@@ -17,6 +17,7 @@ namespace EFlareMenu
 	enum Type
 	{
 		MENU_None,
+		MENU_Main,
 		MENU_Dashboard,
 		MENU_Company,
 		MENU_FlyShip,

@@ -26,6 +26,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Fill)
 	[
 		SNew(SFlareButton)
+		.Text(LOCTEXT("Start", "Start game"))
 		.OnClicked(this, &SFlareMainMenu::OnStartGame)
 	];
 
@@ -47,11 +48,6 @@ void SFlareMainMenu::Enter()
 	FLOG("SFlareMainMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC)
-	{
-	}
 }
 
 void SFlareMainMenu::Exit()
@@ -67,7 +63,7 @@ void SFlareMainMenu::Exit()
 
 void SFlareMainMenu::OnStartGame() const
 {
-
+	MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, MenuManager->GetPC()->GetShipPawn());
 }
 
 

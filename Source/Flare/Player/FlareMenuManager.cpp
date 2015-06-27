@@ -20,12 +20,6 @@ AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 {
 }
 
-void AFlareMenuManager::BeginPlay()
-{
-	Super::BeginPlay();
-	FadeIn();
-}
-
 void AFlareMenuManager::SetupMenu(FFlarePlayerSave& PlayerData)
 {
 	if (GEngine->IsValidLowLevel())
@@ -133,6 +127,11 @@ bool AFlareMenuManager::IsMenuOpen() const
 	return MenuIsOpen;
 }
 
+bool AFlareMenuManager::IsSwitchingMenu() const
+{
+	return (Fader->GetVisibility() == EVisibility::Visible);
+}
+
 void AFlareMenuManager::ShowLoadingScreen()
 {
 	IFlareLoadingScreenModule* LoadingScreenModule = FModuleManager::LoadModulePtr<IFlareLoadingScreenModule>("FlareLoadingScreen");
@@ -178,6 +177,7 @@ void AFlareMenuManager::ResetMenu()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
+	MainMenu->Exit();
 	Dashboard->Exit();
 	CompanyMenu->Exit();
 	ShipMenu->Exit();
@@ -210,6 +210,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 
 	switch (FadeTarget)
 	{
+		case EFlareMenu::MENU_Main:
+			OpenMainMenu();
+			break;
+
 		case EFlareMenu::MENU_Dashboard:
 			OpenDashboard();
 			break;
@@ -262,11 +266,17 @@ void AFlareMenuManager::ProcessFadeTarget()
 	Callbacks
 ----------------------------------------------------*/
 
+void AFlareMenuManager::OpenMainMenu()
+{
+	ResetMenu();
+	GetPC()->OnEnterMenu();
+	MainMenu->Enter();
+}
+
 void AFlareMenuManager::OpenDashboard()
 {
 	ResetMenu();
 	GetPC()->OnEnterMenu();
-
 	Dashboard->Enter();
 }
 

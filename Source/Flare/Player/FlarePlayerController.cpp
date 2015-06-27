@@ -65,13 +65,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// Menus
 	SetupMenu();
-
-	// Load our ship
-	PossessCurrentShip();
-	SetExternalCamera(false);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 
 
@@ -306,22 +301,8 @@ void AFlarePlayerController::Load(const FFlarePlayerSave& Data)
 	Company = GetGame()->FindCompany(Data.CompanyIdentifier);
 }
 
-void AFlarePlayerController::Save(FFlarePlayerSave& Data)
+void AFlarePlayerController::OnLoadComplete()
 {
-	if (ShipPawn)
-	{
-		PlayerData.CurrentShipName = ShipPawn->GetName();
-	}
-	Data = PlayerData;
-}
-
-void AFlarePlayerController::PossessCurrentShip()
-{
-	// Save the default pawn
-	APawn* DefaultPawn = GetPawn();
-	ShipPawn = NULL;
-
-	// Look for the ship in the game
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
 		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
@@ -332,18 +313,15 @@ void AFlarePlayerController::PossessCurrentShip()
 			break;
 		}
 	}
+}
 
-	// Possess the ship
+void AFlarePlayerController::Save(FFlarePlayerSave& Data)
+{
 	if (ShipPawn)
 	{
-		FlyShip(ShipPawn);
+		PlayerData.CurrentShipName = ShipPawn->GetName();
 	}
-
-	// Destroy the old pawn
-	if (DefaultPawn)
-	{
-		DefaultPawn->Destroy();
-	}
+	Data = PlayerData;
 }
 
 void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
@@ -364,9 +342,13 @@ void AFlarePlayerController::Notify(FText Title, FText Info, EFlareNotification:
 
 void AFlarePlayerController::SetupMenu()
 {
+	// Save the default pawn
+	APawn* DefaultPawn = GetPawn();
+
 	// Spawn the menu pawn at an arbitrarily large location
 	FVector SpawnLocation(5000000 * FVector(1, 1, 1));
 	MenuPawn = GetWorld()->SpawnActor<AFlareMenuPawn>(GetGame()->GetMenuPawnClass(), SpawnLocation, FRotator::ZeroRotator);
+	Possess(MenuPawn);
 	
 	// Spawn the menu manager
 	FActorSpawnParameters SpawnInfo;
@@ -378,6 +360,13 @@ void AFlarePlayerController::SetupMenu()
 	// Setup menus and HUD
 	MenuManager->SetupMenu(PlayerData);
 	GetNavHUD()->Setup(MenuManager);
+
+	// Destroy the old pawn
+	if (DefaultPawn)
+	{
+		DefaultPawn->Destroy();
+	}
+	GetNavHUD()->UpdateHUDVisibility();
 }
 
 void AFlarePlayerController::OnEnterMenu()
@@ -412,6 +401,8 @@ void AFlarePlayerController::OnEnterMenu()
 			}
 		}
 	}
+
+	GetNavHUD()->UpdateHUDVisibility();
 }
 
 void AFlarePlayerController::OnExitMenu()
