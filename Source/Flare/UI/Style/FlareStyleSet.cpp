@@ -61,9 +61,23 @@ FLinearColor FFlareStyleSet::GetHealthColor(float Health, bool WithAlpha)
 {
 	const FFlareStyleCatalog& Theme = GetDefaultTheme();
 	FLinearColor NormalColor = Theme.NeutralColor;
-	FLinearColor DamageColor = Theme.EnemyColor;
+	FLinearColor MidColor = Theme.MidDamageColor;
+	FLinearColor DamageColor = Theme.DamageColor;
+	FLinearColor Color;
 
-	FLinearColor Color = FMath::Lerp(DamageColor, NormalColor, Health);
+	// Interpolate the damage color
+	if (Health > 0.5)
+	{
+		float HealthHigh = 2 * (Health - 0.5);
+		Color = FMath::Lerp(MidColor, NormalColor, HealthHigh);
+	}
+	else
+	{
+		float HealthLow = 2 * Health;
+		Color = FMath::Lerp(DamageColor, MidColor, HealthLow);
+	}
+
+	// Add alpha if asked for
 	if (WithAlpha)
 	{
 		Color.A *= Theme.DefaultAlpha;

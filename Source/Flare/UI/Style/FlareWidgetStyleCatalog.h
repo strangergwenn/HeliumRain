@@ -61,6 +61,8 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 
 	// Colors
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor EnemyColor;
+	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor DamageColor;
+	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor MidDamageColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor FriendlyColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor NeutralColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor InvertedColor;

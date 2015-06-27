@@ -120,7 +120,13 @@ FSlateColor SFlareSubsystemStatus::GetHealthColor() const
 
 FSlateColor SFlareSubsystemStatus::GetFlashColor() const
 {
-	return FFlareStyleSet::GetHealthColor(FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f), true);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.NeutralColor;
+	FLinearColor DamageColor = Theme.EnemyColor;
+
+	FLinearColor Color = FMath::Lerp(DamageColor, NormalColor, FMath::Clamp(TimeSinceFlash / HealthDropFlashTime, 0.0f, 1.0f));
+	Color.A *= Theme.DefaultAlpha;
+	return Color;
 }
 
 

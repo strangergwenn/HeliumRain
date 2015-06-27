@@ -419,7 +419,7 @@ FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float Desig
 {
 	if (Health < 0.95f)
 	{
-		FLinearColor Color = FLinearColor(FColor::MakeRedToGreenColorFromScalar(Health)).Desaturate(0.05);
+		FLinearColor Color = FFlareStyleSet::GetHealthColor(Health);
 		Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 		DrawHUDIcon(Position, DesignatorIconSize, Texture, Color);
 	}
