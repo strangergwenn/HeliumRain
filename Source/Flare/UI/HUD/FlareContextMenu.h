@@ -15,7 +15,8 @@ class SFlareContextMenu : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareContextMenu)
 	{}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareNavigationHUD>, MenuManager)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, HUD)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	
 	SLATE_END_ARGS()
 
@@ -64,12 +65,12 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	/** HUD reference */
-	UPROPERTY()
-	TWeakObjectPtr<class AFlareNavigationHUD> MenuManager;
+	// Gameplay data
+	TWeakObjectPtr<class AFlareHUD>            HUD;
+	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 		
 	// State data
-	IFlareSpacecraftInterface*        TargetStation;
-	IFlareSpacecraftInterface*        TargetShip;
+	IFlareSpacecraftInterface*                 TargetStation;
+	IFlareSpacecraftInterface*                 TargetShip;
 	
 };

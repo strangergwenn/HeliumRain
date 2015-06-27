@@ -1,5 +1,6 @@
 
 #include "../../Flare.h"
+#include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
 #include "FlareContextMenu.h"
 
@@ -15,8 +16,8 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	// Data
 	TargetShip = NULL;
 	TargetStation = NULL;
+	HUD = InArgs._HUD;
 	MenuManager = InArgs._MenuManager;
-	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	// Structure
 	ChildSlot
@@ -82,7 +83,7 @@ void SFlareContextMenu::OpenTargetMenu()
 
 FMargin SFlareContextMenu::GetContextMenuPosition() const
 {
-	FVector2D Pos = MenuManager->GetContextMenuLocation();
+	FVector2D Pos = HUD->GetContextMenuLocation();
 
 	Pos.X -= 48;
 	Pos.Y -= 48;

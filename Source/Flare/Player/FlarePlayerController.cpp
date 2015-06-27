@@ -5,7 +5,7 @@
 #include "../Spacecrafts/FlareOrbitalEngine.h"
 #include "../Spacecrafts/FlareShell.h"
 #include "FlareMenuManager.h"
-#include "FlareNavigationHUD.h"
+#include "FlareHUD.h"
 #include "EngineUtils.h"
 
 
@@ -78,7 +78,7 @@ void AFlarePlayerController::BeginPlay()
 void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
-	AFlareNavigationHUD* HUD = GetNavigationHUD();
+	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
 
 	if (ShipPawn)
@@ -88,7 +88,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 	// Mouse cursor
 	bool NewShowMouseCursor = !HUD->IsMouseMenuOpen() ;
-	if (!HUD->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
+	if (!MenuManager->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
 	}
@@ -252,7 +252,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	}
 
 	// Fly the new ship
-	if(PossessNow)
+	if (PossessNow)
 	{
 		Possess(Ship);
 	}
@@ -263,44 +263,26 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 
 	// Setup power sound
 	FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
-	if (ShipDescription)
-	{
-		PowerSound->SetSound(ShipDescription->PowerSound);
-	}
-	else
-	{
-		PowerSound->SetSound(NULL);
-	}
+	PowerSound->SetSound(ShipDescription ? ShipDescription->PowerSound : NULL);
 
 	// Setup orbital engine sound
 	FFlareSpacecraftComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
-	if (EngineDescription)
-	{
-		EngineSound->SetSound(EngineDescription->EngineCharacteristics.EngineSound);
-	}
-	else
-	{
-		EngineSound->SetSound(NULL);
-	}
+	EngineSound->SetSound(EngineDescription ? EngineDescription->EngineCharacteristics.EngineSound : NULL);
 
 	// Setup RCS sound
 	FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
-	if (RCSDescription)
-	{
-		RCSSound->SetSound(RCSDescription->EngineCharacteristics.EngineSound);
-	}
-	else
-	{
-		RCSSound->SetSound(NULL);
-	}
+	RCSSound->SetSound(RCSDescription ? RCSDescription->EngineCharacteristics.EngineSound : NULL);
 
 	// Inform the player
 	if (Ship)
 	{
+		// Notification
 		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " + FString(*Ship->GetName()));
 		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
 		Notify(Text, Info, EFlareNotification::NT_Help);
-		GetNavigationHUD()->OnTargetShipChanged();
+
+		// HUD update
+		GetNavHUD()->OnTargetShipChanged();
 		SetSelectingWeapon();
 	}
 }
@@ -309,7 +291,7 @@ void AFlarePlayerController::PrepareForExit()
 {
 	if (IsInMenu())
 	{
-		GetMenuManager()->CloseMenu(true);
+		MenuManager->CloseMenu(true);
 	}
 }
 
@@ -377,7 +359,7 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 void AFlarePlayerController::Notify(FText Title, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
-	GetNavigationHUD()->Notify(Title, Info, Type, TargetMenu, TargetInfo);
+	MenuManager->Notify(Title, Info, Type, TargetMenu, TargetInfo);
 }
 
 void AFlarePlayerController::SetupMenu()
@@ -385,9 +367,17 @@ void AFlarePlayerController::SetupMenu()
 	// Spawn the menu pawn at an arbitrarily large location
 	FVector SpawnLocation(5000000 * FVector(1, 1, 1));
 	MenuPawn = GetWorld()->SpawnActor<AFlareMenuPawn>(GetGame()->GetMenuPawnClass(), SpawnLocation, FRotator::ZeroRotator);
+	
+	// Spawn the menu manager
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.Owner = this;
+	SpawnInfo.Instigator = Instigator;
+	SpawnInfo.ObjectFlags |= RF_Transient;
+	MenuManager = GetWorld()->SpawnActor<AFlareMenuManager>(AFlareMenuManager::StaticClass(), SpawnInfo);
 
-	// Signal the menu to setup as well
-	GetMenuManager()->SetupMenu(PlayerData);
+	// Setup menus and HUD
+	MenuManager->SetupMenu(PlayerData);
+	GetNavHUD()->Setup(MenuManager);
 }
 
 void AFlarePlayerController::OnEnterMenu()
@@ -431,7 +421,7 @@ void AFlarePlayerController::OnExitMenu()
 		ClientPlaySound(OffSound);
 		Possess(ShipPawn);
 
-		//Unpause all gameplay actors
+		// Unpause all gameplay actors
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
@@ -456,6 +446,8 @@ void AFlarePlayerController::OnExitMenu()
 			}
 		}
 	}
+	
+	GetNavHUD()->UpdateHUDVisibility();
 }
 
 bool AFlarePlayerController::IsInMenu()
@@ -545,11 +537,11 @@ void AFlarePlayerController::ToggleMenu()
 {
 	if (IsInMenu())
 	{
-		GetMenuManager()->CloseMenu();
+		MenuManager->CloseMenu();
 	}
 	else
 	{
-		GetMenuManager()->OpenMenu(EFlareMenu::MENU_Dashboard);
+		MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
 	}
 }
 
@@ -575,7 +567,7 @@ void AFlarePlayerController::ToggleHUD()
 	if (!IsInMenu())
 	{
 		FLOG("AFlarePlayerController::ToggleHUD");
-		GetNavigationHUD()->ToggleHUD();
+		GetNavHUD()->ToggleHUD();
 	}
 	else
 	{
@@ -631,7 +623,7 @@ void AFlarePlayerController::QuickSwitch()
 		{
 			FLOG("AFlarePlayerController::QuickSwitch : found new ship");
 			QuickSwitchNextOffset = OffsetIndex + 1;
-			GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
+			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
 		}
 		else
 		{
@@ -646,7 +638,7 @@ void AFlarePlayerController::QuickSwitch()
 
 void AFlarePlayerController::MouseInputX(float Val)
 {
-	if (GetNavigationHUD()->IsMenuOpen())
+	if (MenuManager->IsMenuOpen())
 	{
 		if (MenuPawn)
 		{
@@ -655,9 +647,9 @@ void AFlarePlayerController::MouseInputX(float Val)
 		return;
 	}
 
-	if (GetNavigationHUD()->IsMouseMenuOpen())
+	if (GetNavHUD()->IsMouseMenuOpen())
 	{
-		GetNavigationHUD()->SetWheelCursorMove(FVector2D(Val, 0));
+		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
 	}
 	else if (ShipPawn)
 	{
@@ -667,7 +659,7 @@ void AFlarePlayerController::MouseInputX(float Val)
 
 void AFlarePlayerController::MouseInputY(float Val)
 {
-	if (GetNavigationHUD()->IsMenuOpen())
+	if (MenuManager->IsMenuOpen())
 	{
 		if (MenuPawn)
 		{
@@ -676,9 +668,9 @@ void AFlarePlayerController::MouseInputY(float Val)
 		return;
 	}
 
-	if (GetNavigationHUD()->IsMouseMenuOpen())
+	if (GetNavHUD()->IsMouseMenuOpen())
 	{
-		GetNavigationHUD()->SetWheelCursorMove(FVector2D(0, -Val));
+		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
 	}
 	else if (ShipPawn)
 	{
@@ -703,19 +695,20 @@ void AFlarePlayerController::Test2()
 
 void AFlarePlayerController::WheelPressed()
 {
-	AFlareNavigationHUD* HUD = GetNavigationHUD();
-	if (HUD && !HUD->IsMenuOpen() && !HUD->IsMouseMenuOpen())
+	if (MenuManager && !MenuManager->IsMenuOpen() && !GetNavHUD()->IsMouseMenuOpen())
 	{
+		TSharedPtr<SFlareMouseMenu> MouseMenu = GetNavHUD()->GetMouseMenu();
+
 		// Setup mouse menu
-		HUD->GetMouseMenu()->ClearWidgets();
-		HUD->GetMouseMenu()->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "Cancel"));
+		MouseMenu->ClearWidgets();
+		MouseMenu->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "Cancel"));
 
 		// Docked controls
 		if (ShipPawn->GetNavigationSystem()->IsDocked())
 		{
-			HUD->GetMouseMenu()->AddWidget("ShipUpgrade", LOCTEXT("Upgrade", "Upgrade"),
+			MouseMenu->AddWidget("ShipUpgrade", LOCTEXT("Upgrade", "Upgrade"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UpgradeShip));
-			HUD->GetMouseMenu()->AddWidget("Undock", LOCTEXT("Undock", "Undock"),
+			MouseMenu->AddWidget("Undock", LOCTEXT("Undock", "Undock"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UndockShip));
 		}
 
@@ -724,16 +717,16 @@ void AFlarePlayerController::WheelPressed()
 		{
 			if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
 			{
-				HUD->GetMouseMenu()->AddWidget("Mouse_Align", LOCTEXT("Align", "Forward"),
+				MouseMenu->AddWidget("Mouse_Align", LOCTEXT("Align", "Forward"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
 			}
 
-			HUD->GetMouseMenu()->AddWidget("Mouse_Brake", LOCTEXT("Brake", "Brake"),
+			MouseMenu->AddWidget("Mouse_Brake", LOCTEXT("Brake", "Brake"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
 
 			if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
 			{
-				HUD->GetMouseMenu()->AddWidget("Mouse_Reverse", LOCTEXT("Backward", "Backward"),
+				MouseMenu->AddWidget("Mouse_Reverse", LOCTEXT("Backward", "Backward"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));
 			}
 
@@ -741,24 +734,24 @@ void AFlarePlayerController::WheelPressed()
 			if (Nearest)
 			{
 				FText Text = FText::FromString(LOCTEXT("MatchSpeed", "Match speed with ").ToString() + Nearest->GetName());
-				HUD->GetMouseMenu()->AddWidget("Mouse_MatchSpeed", Text,
+				MouseMenu->AddWidget("Mouse_MatchSpeed", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::MatchSpeedWithNearestSpacecraft));
 			}
 			else
 			{
-				HUD->GetMouseMenu()->AddWidget("Mouse_LookAt", LOCTEXT("FindNearest", "Look at nearest spacecraft"),
+				MouseMenu->AddWidget("Mouse_LookAt", LOCTEXT("FindNearest", "Look at nearest spacecraft"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::LookAtNearestSpacecraft));
 			}
 
 		}
 
-		HUD->SetWheelMenu(true);
+		GetNavHUD()->SetWheelMenu(true);
 	}
 }
 
 void AFlarePlayerController::WheelReleased()
 {
-	GetNavigationHUD()->SetWheelMenu(false);
+	GetNavHUD()->SetWheelMenu(false);
 }
 
 void AFlarePlayerController::AlignToSpeed()
@@ -849,7 +842,7 @@ void AFlarePlayerController::LookAtNearestSpacecraft()
 
 void AFlarePlayerController::UpgradeShip()
 {
-	GetMenuManager()->OpenMenu(EFlareMenu::MENU_ShipConfig);
+	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig);
 }
 
 void AFlarePlayerController::UndockShip()

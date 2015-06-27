@@ -4,7 +4,7 @@
 #include "FlareSaveGame.h"
 #include "FlareAsteroid.h"
 #include "../Player/FlareMenuManager.h"
-#include "../Player/FlareNavigationHUD.h"
+#include "../Player/FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 
 
@@ -17,7 +17,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	, CurrentImmatriculationIndex(0)
 {
 	// Game classes
-	HUDClass = AFlareNavigationHUD::StaticClass();
+	HUDClass = AFlareHUD::StaticClass();
 	PlayerControllerClass = AFlarePlayerController::StaticClass();
 	DefaultWeaponIdentifer = FName("weapon-eradicator");
 	DefaultTurretIdentifer = FName("weapon-artemis");

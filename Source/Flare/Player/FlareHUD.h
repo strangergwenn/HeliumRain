@@ -4,12 +4,12 @@
 #include "FlareMenuManager.h"
 #include "../UI/HUD/FlareHUDMenu.h"
 #include "../UI/HUD/FlareContextMenu.h"
-#include "FlareNavigationHUD.generated.h"
+#include "FlareHUD.generated.h"
 
 
 /** Navigation HUD */
 UCLASS()
-class AFlareNavigationHUD : public AFlareMenuManager
+class AFlareHUD : public AHUD
 {
 public:
 
@@ -23,7 +23,8 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void SetupMenu(struct FFlarePlayerSave& PlayerData) override;
+	/** Setup the HUD */
+	virtual void Setup(AFlareMenuManager* NewMenuManager);
 
 
 	/*----------------------------------------------------
@@ -44,6 +45,9 @@ public:
 
 	/** Notify the HUD the played ship has changed */
 	void OnTargetShipChanged();
+
+	/** Decide if the HUD is displayed or not */
+	void UpdateHUDVisibility();
 
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -81,18 +85,6 @@ protected:
 	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target);
 
 
-	/*----------------------------------------------------
-		Internal methods
-	----------------------------------------------------*/
-	
-	virtual void ProcessFadeTarget() override;
-
-	virtual void ExitMenu() override;
-
-	/** Decide if the HUD is displayed or not */
-	void UpdateHUDVisibility();
-
-
 protected:
 
 	/*----------------------------------------------------
@@ -108,6 +100,7 @@ protected:
 	FLinearColor                            HudColorEnemy;
 
 	// General data
+	AFlareMenuManager*                      MenuManager;
 	bool                                    HUDVisible;
 	bool                                    IsInteractive;
 	bool                                    FoundTargetUnderMouse;

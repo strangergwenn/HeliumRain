@@ -1,6 +1,6 @@
 
 #include "../Flare.h"
-#include "FlareNavigationHUD.h"
+#include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
 
@@ -12,7 +12,7 @@
 	Setup
 ----------------------------------------------------*/
 
-AFlareNavigationHUD::AFlareNavigationHUD(const class FObjectInitializer& PCIP)
+AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CombatMouseRadius(100)
 	, HUDVisible(true)
@@ -60,7 +60,7 @@ AFlareNavigationHUD::AFlareNavigationHUD(const class FObjectInitializer& PCIP)
 	IconSize = 24;
 }
 
-void AFlareNavigationHUD::BeginPlay()
+void AFlareHUD::BeginPlay()
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -75,15 +75,15 @@ void AFlareNavigationHUD::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AFlareNavigationHUD::SetupMenu(FFlarePlayerSave& PlayerData)
+void AFlareHUD::Setup(AFlareMenuManager* NewMenuManager)
 {
-	Super::SetupMenu(PlayerData);
+	MenuManager = NewMenuManager;
 
 	if (GEngine->IsValidLowLevel())
 	{
 		// Create HUD menus
-		SAssignNew(HUDMenu, SFlareHUDMenu).MenuManager(this);
-		SAssignNew(MouseMenu, SFlareMouseMenu).MenuManager(this);
+		SAssignNew(HUDMenu, SFlareHUDMenu).MenuManager(MenuManager);
+		SAssignNew(MouseMenu, SFlareMouseMenu).MenuManager(MenuManager);
 
 		// Context menu
 		SAssignNew(ContextMenuContainer, SOverlay)
@@ -91,7 +91,9 @@ void AFlareNavigationHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			[
-				SAssignNew(ContextMenu, SFlareContextMenu).MenuManager(this)
+				SAssignNew(ContextMenu, SFlareContextMenu)
+				.HUD(this)
+				.MenuManager(MenuManager)
 			];
 
 		// Register menus at their Z-Index
@@ -111,18 +113,18 @@ void AFlareNavigationHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 	HUD interaction
 ----------------------------------------------------*/
 
-void AFlareNavigationHUD::ToggleHUD()
+void AFlareHUD::ToggleHUD()
 {
 	HUDVisible = !HUDVisible;
 	UpdateHUDVisibility();
 }
 
-void AFlareNavigationHUD::SetInteractive(bool Status)
+void AFlareHUD::SetInteractive(bool Status)
 {
 	IsInteractive = Status;
 }
 
-void AFlareNavigationHUD::SetWheelMenu(bool State)
+void AFlareHUD::SetWheelMenu(bool State)
 {
 	if (State)
 	{
@@ -134,12 +136,12 @@ void AFlareNavigationHUD::SetWheelMenu(bool State)
 	}
 }
 
-void AFlareNavigationHUD::SetWheelCursorMove(FVector2D Move)
+void AFlareHUD::SetWheelCursorMove(FVector2D Move)
 {
 	MouseMenu->SetWheelCursorMove(Move);
 }
 
-void AFlareNavigationHUD::Tick(float DeltaSeconds)
+void AFlareHUD::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
@@ -155,23 +157,32 @@ void AFlareNavigationHUD::Tick(float DeltaSeconds)
 	}
 }
 
-void AFlareNavigationHUD::OnTargetShipChanged()
+void AFlareHUD::OnTargetShipChanged()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && PC->GetShipPawn())
 	{
 		HUDMenu->SetTargetShip(PC->GetShipPawn());
-		MenuIsOpen = false;
 		UpdateHUDVisibility();
 	}
 }
+
+void AFlareHUD::UpdateHUDVisibility()
+{
+	bool NewVisibility = HUDVisible && !MenuManager->IsMenuOpen();
+
+	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
+	HUDMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
+	ContextMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
 
 
 /*----------------------------------------------------
 	HUD drawing
 ----------------------------------------------------*/
 
-void AFlareNavigationHUD::DrawHUD()
+void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
 	if (!HUDVisible)
@@ -184,7 +195,7 @@ void AFlareNavigationHUD::DrawHUD()
 	AFlareSpacecraft* Ship = PC->GetShipPawn();
 
 	// Draw designators and context menu
-	if (!MenuIsOpen && !IsMouseMenuOpen())
+	if (!MenuManager->IsMenuOpen() && !IsMouseMenuOpen())
 	{
 		// Draw ship designators and markers
 		FoundTargetUnderMouse = false;
@@ -234,7 +245,7 @@ void AFlareNavigationHUD::DrawHUD()
 	}
 
 	// Update HUD materials
-	if (PC && Ship && !MenuIsOpen && !IsMouseMenuOpen())
+	if (PC && Ship && !MenuManager->IsMenuOpen() && !IsMouseMenuOpen())
 	{
 
 		if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
@@ -283,7 +294,7 @@ void AFlareNavigationHUD::DrawHUD()
 	}
 }
 
-void AFlareNavigationHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert)
+void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert)
 {
 	// Get HUD data
 	FVector2D ScreenPosition;
@@ -318,7 +329,7 @@ void AFlareNavigationHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, 
 	}
 }
 
-bool AFlareNavigationHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
+bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 {
 	// Calculation data
 	FVector2D ScreenPosition;
@@ -432,7 +443,7 @@ bool AFlareNavigationHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 	return true;
 }
 
-void AFlareNavigationHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor)
+void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor)
 {
 	ObjectSize = FMath::Max(ObjectSize, DesignatorIconSize * FVector2D::UnitVector);
 
@@ -445,7 +456,7 @@ void AFlareNavigationHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D 
 		Rotation);
 }
 
-void AFlareNavigationHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
+void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
 	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
 	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDHealthIcon);
@@ -456,7 +467,7 @@ void AFlareNavigationHUD::DrawHUDDesignatorStatus(FVector2D Position, float Desi
 	}
 }
 
-FVector2D AFlareNavigationHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float DesignatorIconSize, float Health, UTexture2D* Texture)
+FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float DesignatorIconSize, float Health, UTexture2D* Texture)
 {
 	if (Health < 0.95f)
 	{
@@ -468,7 +479,7 @@ FVector2D AFlareNavigationHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, f
 	return Position + DesignatorIconSize * FVector2D(1, 0);
 }
 
-void AFlareNavigationHUD::DrawHUDIcon(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, bool Center)
+void AFlareHUD::DrawHUDIcon(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, bool Center)
 {
 	if (Center)
 	{
@@ -477,14 +488,14 @@ void AFlareNavigationHUD::DrawHUDIcon(FVector2D Position, float DesignatorIconSi
 	DrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color);
 }
 
-void AFlareNavigationHUD::DrawHUDIconRotated(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, float Rotation)
+void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, float Rotation)
 {
 	Position -= (DesignatorIconSize / 2) * FVector2D::UnitVector;
 	DrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color,
 		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
 }
 
-FLinearColor AFlareNavigationHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target)
+FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target)
 {
 	EFlareHostility::Type Hostility = Target->GetPlayerHostility();
 	switch (Hostility)
@@ -500,32 +511,6 @@ FLinearColor AFlareNavigationHUD::GetHostilityColor(AFlarePlayerController* PC, 
 		default:
 			return HudColorNeutral;
 	}
-}
-
-
-/*----------------------------------------------------
-	Internal methods
-----------------------------------------------------*/
-
-void AFlareNavigationHUD::ProcessFadeTarget()
-{
-	Super::ProcessFadeTarget();
-	UpdateHUDVisibility();
-}
-
-void AFlareNavigationHUD::ExitMenu()
-{
-	Super::ExitMenu();
-	UpdateHUDVisibility();
-}
-
-void AFlareNavigationHUD::UpdateHUDVisibility()
-{
-	bool NewVisibility = HUDVisible && !MenuIsOpen;
-
-	FLOGV("AFlareNavigationHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
-	HUDMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
-	ContextMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 

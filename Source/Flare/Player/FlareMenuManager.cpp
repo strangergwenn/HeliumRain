@@ -251,8 +251,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 	}
 
-	FadeTarget = EFlareMenu::MENU_None;
+	// Reset everything
 	FadeTargetData = NULL;
+	FadeTarget = EFlareMenu::MENU_None;
+	GetPC()->GetNavHUD()->UpdateHUDVisibility();
 }
 
 
@@ -288,6 +290,7 @@ void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
 	if (PC && Target)
 	{
 		PC->FlyShip(Target);
+		MenuIsOpen = false;
 	}
 }
 

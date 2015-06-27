@@ -8,7 +8,7 @@
 
 
 class AFlareMenuManager;
-class AFlareNavigationHUD;
+class AFlareHUD;
 
 
 /** Game save data */
@@ -144,6 +144,7 @@ public:
 	/** Test method 2 */
 	virtual void Test2();
 
+
 	/*----------------------------------------------------
 		Wheel menu
 	----------------------------------------------------*/
@@ -177,7 +178,6 @@ public:
 
 	/** Undock */
 	void UndockShip();
-
 
 
 protected:
@@ -243,6 +243,10 @@ protected:
 	UPROPERTY()
 	UFlareCompany*                           Company;
 
+	/** Menu management */
+	UPROPERTY()
+	AFlareMenuManager*                       MenuManager;
+
 	// Various gameplay data
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
@@ -287,12 +291,12 @@ public:
 
 	inline AFlareMenuManager* GetMenuManager() const
 	{
-		return Cast<AFlareMenuManager>(GetHUD());
+		return MenuManager;
 	}
 
-	inline AFlareNavigationHUD* GetNavigationHUD() const
+	inline AFlareHUD* GetNavHUD() const
 	{
-		return Cast<AFlareNavigationHUD>(GetHUD());
+		return Cast<AFlareHUD>(GetHUD());
 	}
 
 };

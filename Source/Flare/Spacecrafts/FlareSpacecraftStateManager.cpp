@@ -2,7 +2,9 @@
 #include "../Flare.h"
 
 #include "FlareSpacecraftStateManager.h"
+#include "../Player/FlarePlayerController.h"
 #include "FlareSpacecraft.h"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -60,8 +62,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	}
 
 	// Player inputs
-	if (LastWeaponType == EFlareWeaponGroupType::WG_NONE
-			&& (CurrentWeaponType == EFlareWeaponGroupType::WG_GUN || CurrentWeaponType == EFlareWeaponGroupType::WG_BOMB ))
+	if (LastWeaponType == EFlareWeaponGroupType::WG_NONE && (CurrentWeaponType == EFlareWeaponGroupType::WG_GUN || CurrentWeaponType == EFlareWeaponGroupType::WG_BOMB ))
 	{
 		// Axis input mode start, reset mouse offset
 		SetPlayerMouseOffset(FVector2D(0,0), false);
@@ -123,7 +124,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	if (PC)
 	{
-		if (Cast<AFlareMenuManager>(PC->GetHUD())->IsMenuOpen())
+		if (PC->GetMenuManager()->IsMenuOpen())
 		{
 			return;
 		}
@@ -260,7 +261,7 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 		else
 		{
 			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
-			if (PC && !PC->GetNavigationHUD()->IsMouseMenuOpen())
+			if (PC && !PC->GetNavHUD()->IsMouseMenuOpen())
 			{
 				float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X),1.3) * 0.05; // TODO Config sensibility
 				float Y = - FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y),1.3) * 0.05;

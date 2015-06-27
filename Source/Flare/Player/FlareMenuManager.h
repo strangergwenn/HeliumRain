@@ -1,7 +1,5 @@
 #pragma once
 
-#include "GameFramework/HUD.h"
-#include "../Spacecrafts/FlareSpacecraftPawn.h"
 #include "../UI/Menus/FlareMainMenu.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
@@ -43,7 +41,7 @@ public:
 
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
-
+	
 	/** Is a menu open */
 	bool IsMenuOpen() const;
 
