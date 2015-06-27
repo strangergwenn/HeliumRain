@@ -285,7 +285,7 @@ public:
 		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
 	}
 
-	inline AFlareHUD* GetMenuHUD() const
+	inline AFlareHUD* GetMenuManager() const
 	{
 		return Cast<AFlareHUD>(GetHUD());
 	}

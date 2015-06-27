@@ -84,6 +84,10 @@ protected:
 	/*----------------------------------------------------
 		Internal methods
 	----------------------------------------------------*/
+	
+	virtual void ProcessFadeTarget() override;
+
+	virtual void ExitMenu() override;
 
 	/** Decide if the HUD is displayed or not */
 	void UpdateHUDVisibility();

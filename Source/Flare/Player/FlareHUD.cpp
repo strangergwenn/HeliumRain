@@ -38,7 +38,14 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		SAssignNew(ShipMenu, SFlareShipMenu).OwnerHUD(this);
 		SAssignNew(StationMenu, SFlareStationMenu).OwnerHUD(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).OwnerHUD(this);
-		
+
+		// Fader
+		SAssignNew(Fader, SBorder)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"));
+		Fader->SetVisibility(EVisibility::Hidden);
+
 		// Register menus at their Z-Index
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
@@ -48,13 +55,6 @@ void AFlareHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
-
-		// Fader
-		SAssignNew(Fader, SBorder)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"));
-		Fader->SetVisibility(EVisibility::Hidden);
 
 		// Setup menus
 		MainMenu->Setup();

@@ -309,7 +309,7 @@ void AFlarePlayerController::PrepareForExit()
 {
 	if (IsInMenu())
 	{
-		GetNavigationHUD()->CloseMenu(true);
+		GetMenuManager()->CloseMenu(true);
 	}
 }
 
@@ -550,11 +550,11 @@ void AFlarePlayerController::ToggleMenu()
 {
 	if (IsInMenu())
 	{
-		GetMenuHUD()->CloseMenu();
+		GetMenuManager()->CloseMenu();
 	}
 	else
 	{
-		GetMenuHUD()->OpenMenu(EFlareMenu::MENU_Dashboard);
+		GetMenuManager()->OpenMenu(EFlareMenu::MENU_Dashboard);
 	}
 }
 
@@ -636,7 +636,7 @@ void AFlarePlayerController::QuickSwitch()
 		{
 			FLOG("AFlarePlayerController::QuickSwitch : found new ship");
 			QuickSwitchNextOffset = OffsetIndex + 1;
-			GetMenuHUD()->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
+			GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
 		}
 		else
 		{
@@ -854,7 +854,7 @@ void AFlarePlayerController::LookAtNearestSpacecraft()
 
 void AFlarePlayerController::UpgradeShip()
 {
-	GetMenuHUD()->OpenMenu(EFlareMenu::MENU_ShipConfig);
+	GetMenuManager()->OpenMenu(EFlareMenu::MENU_ShipConfig);
 }
 
 void AFlarePlayerController::UndockShip()

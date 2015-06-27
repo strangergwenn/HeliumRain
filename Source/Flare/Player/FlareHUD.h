@@ -73,7 +73,7 @@ protected:
 	void FadeOut();
 	
 	/** After a fading process has completed, proceed */
-	void ProcessFadeTarget();
+	virtual void ProcessFadeTarget();
 
 
 	/*----------------------------------------------------

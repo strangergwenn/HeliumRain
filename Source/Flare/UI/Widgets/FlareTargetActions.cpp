@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareTargetActions.h"
+#include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareTargetActions"
 
@@ -308,11 +309,11 @@ void SFlareTargetActions::OnInspect()
 	{
 		if (TargetSpacecraft)
 		{
-			PC->GetMenuHUD()->OpenMenu(TargetSpacecraft->IsStation() ? EFlareMenu::MENU_Station : EFlareMenu::MENU_Ship, TargetSpacecraft);
+			PC->GetMenuManager()->OpenMenu(TargetSpacecraft->IsStation() ? EFlareMenu::MENU_Station : EFlareMenu::MENU_Ship, TargetSpacecraft);
 		}
 		else if (TargetCompany)
 		{
-			PC->GetMenuHUD()->OpenMenu(EFlareMenu::MENU_Company, TargetCompany);
+			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Company, TargetCompany);
 		}
 	}
 }
@@ -321,8 +322,7 @@ void SFlareTargetActions::OnFly()
 {
 	if (PC && TargetSpacecraft && !TargetSpacecraft->IsStation())
 	{
-		PC->FlyShip(Cast<AFlareSpacecraft>(TargetSpacecraft), false);
-		PC->GetMenuHUD()->CloseMenu();
+		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
 	}
 }
 
@@ -331,7 +331,7 @@ void SFlareTargetActions::OnDockAt()
 	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
 		PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetSpacecraft);
-		PC->GetMenuHUD()->CloseMenu();
+		PC->GetMenuManager()->CloseMenu();
 	}
 }
 
@@ -340,7 +340,7 @@ void SFlareTargetActions::OnUndock()
 	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
 		PC->GetShipPawn()->GetNavigationSystem()->Undock();
-		PC->GetMenuHUD()->CloseMenu();
+		PC->GetMenuManager()->CloseMenu();
 	}
 }
 

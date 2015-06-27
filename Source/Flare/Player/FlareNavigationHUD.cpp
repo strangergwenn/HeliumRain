@@ -77,6 +77,8 @@ void AFlareNavigationHUD::BeginPlay()
 
 void AFlareNavigationHUD::SetupMenu(FFlarePlayerSave& PlayerData)
 {
+	Super::SetupMenu(PlayerData);
+
 	if (GEngine->IsValidLowLevel())
 	{
 		// Create HUD menus
@@ -504,6 +506,18 @@ FLinearColor AFlareNavigationHUD::GetHostilityColor(AFlarePlayerController* PC, 
 /*----------------------------------------------------
 	Internal methods
 ----------------------------------------------------*/
+
+void AFlareNavigationHUD::ProcessFadeTarget()
+{
+	Super::ProcessFadeTarget();
+	UpdateHUDVisibility();
+}
+
+void AFlareNavigationHUD::ExitMenu()
+{
+	Super::ExitMenu();
+	UpdateHUDVisibility();
+}
 
 void AFlareNavigationHUD::UpdateHUDVisibility()
 {
