@@ -19,7 +19,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	// Build structure
 	ChildSlot
@@ -195,7 +195,7 @@ void SFlareDashboard::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		AFlareSpacecraft* Ship = PC->GetShipPawn();
@@ -246,7 +246,7 @@ void SFlareDashboard::OnConfigureShip()
 void SFlareDashboard::OnUndock()
 {
 	// Ask to undock, and close the menu
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		AFlareSpacecraft* Ship = PC->GetShipPawn();

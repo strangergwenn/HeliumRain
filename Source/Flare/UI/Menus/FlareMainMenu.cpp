@@ -18,7 +18,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	// Build structure
 	ChildSlot
@@ -48,7 +48,7 @@ void SFlareMainMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 	}

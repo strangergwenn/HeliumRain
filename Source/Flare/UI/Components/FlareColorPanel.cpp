@@ -120,7 +120,7 @@ void SFlareColorPanel::Setup(FFlarePlayerSave& PlayerData)
 
 void SFlareColorPanel::OnBasePaintColorPicked(int32 Index)
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnBasePaintColorPicked %d", Index);
@@ -131,7 +131,7 @@ void SFlareColorPanel::OnBasePaintColorPicked(int32 Index)
 
 void SFlareColorPanel::OnPaintColorPicked(int32 Index)
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnPaintColorPicked %d", Index);
@@ -142,7 +142,7 @@ void SFlareColorPanel::OnPaintColorPicked(int32 Index)
 
 void SFlareColorPanel::OnOverlayColorPicked(int32 Index)
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnOverlayColorPicked %d", Index);
@@ -153,7 +153,7 @@ void SFlareColorPanel::OnOverlayColorPicked(int32 Index)
 
 void SFlareColorPanel::OnLightColorPicked(int32 Index)
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnLightColorPicked %d", Index);
@@ -164,7 +164,7 @@ void SFlareColorPanel::OnLightColorPicked(int32 Index)
 
 void SFlareColorPanel::OnPatternPicked(int32 Index)
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnPatternPicked %d", Index);

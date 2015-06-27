@@ -16,7 +16,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	TargetShip = NULL;
 	TargetStation = NULL;
 	MenuManager = InArgs._MenuManager;
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	// Structure
 	ChildSlot

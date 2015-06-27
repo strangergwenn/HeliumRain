@@ -21,7 +21,7 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 
 	// Init
 	MenuManager = InArgs._MenuManager;
-	PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	PC = MenuManager->GetPC();
 	SetVisibility(EVisibility::Hidden);
 	CurrentTime = 0.0f;
 	IsOpening = false;

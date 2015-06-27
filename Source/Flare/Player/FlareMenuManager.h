@@ -128,6 +128,9 @@ protected:
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
 	void*                                   FadeTargetData;
 
+
+public:
+
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/

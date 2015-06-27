@@ -19,7 +19,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 {
 	// Data
 	MenuManager = InArgs._MenuManager;
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
 	// Build structure
@@ -230,7 +230,7 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	LoadTargetShip();
 
 	// Move the viewer to the right
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
@@ -251,7 +251,7 @@ void SFlareShipMenu::Exit()
 
 void SFlareShipMenu::LoadTargetShip()
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
@@ -333,7 +333,7 @@ void SFlareShipMenu::LoadTargetShip()
 void SFlareShipMenu::LoadPart(FName InternalName)
 {
 	// Spawn the part
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get(InternalName);
@@ -418,7 +418,7 @@ void SFlareShipMenu::ShowRCSs()
 {
 	PartListData.Empty();
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
@@ -431,7 +431,7 @@ void SFlareShipMenu::ShowEngines()
 {
 	PartListData.Empty();
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
@@ -445,7 +445,7 @@ void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponIndex)
 	PartListData.Empty();
 	CurrentWeaponIndex = *WeaponIndex;
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
@@ -489,7 +489,7 @@ TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceCont
 void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo)
 {
 	int32 Index = PartListData.Find(Item->PartDescription);
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	if (PC && Item->PartDescription && Index != CurrentPartIndex)
 	{
@@ -531,7 +531,7 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 
 void SFlareShipMenu::OnPartConfirmed()
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		CurrentEquippedPartIndex = CurrentPartIndex;

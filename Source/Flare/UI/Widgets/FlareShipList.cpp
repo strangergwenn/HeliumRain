@@ -18,7 +18,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	
 	// Build structure
 	ChildSlot
@@ -78,7 +78,7 @@ void SFlareShipList::Reset()
 
 TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	if (Item->ShipInterfacePtr)
 	{

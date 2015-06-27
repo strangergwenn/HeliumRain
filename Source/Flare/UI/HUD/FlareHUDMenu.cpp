@@ -22,7 +22,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	PresentationFlashTime = 0.2f;
 	TimeSinceOverheatChanged = PresentationFlashTime;
 	TimeSinceOutageChanged = PresentationFlashTime;
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	// Style
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();

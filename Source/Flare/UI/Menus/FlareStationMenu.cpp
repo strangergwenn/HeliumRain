@@ -20,7 +20,7 @@ void SFlareStationMenu::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	
 	// Build structure
 	ChildSlot
@@ -137,7 +137,7 @@ void SFlareStationMenu::Enter(IFlareSpacecraftInterface* Target)
 	ObjectActionMenu->SetSpacecraft(Target);
 	ObjectActionMenu->Show();
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(MenuManager->GetOwner());
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC && Target)
 	{
 		// Menu
