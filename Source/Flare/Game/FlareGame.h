@@ -66,7 +66,7 @@ public:
 	virtual AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 
 	/** Save the world to this save file */
-	virtual bool SaveWorld(AFlarePlayerController* PC, FString SaveFile);
+	virtual bool SaveWorld(AFlarePlayerController* PC);
 
 
 	/*----------------------------------------------------
@@ -136,19 +136,19 @@ protected:
 
 	/** The default pawn class used by players. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameMode)
-	TSubclassOf<class AFlareMenuPawn> MenuPawnClass;
+	TSubclassOf<class AFlareMenuPawn>        MenuPawnClass;
 
 	/** Planetary system class */
 	UPROPERTY(EditAnywhere, Category = GameMode)
-	TSubclassOf<class AFlarePlanetarium> PlanetariumClass;
+	TSubclassOf<class AFlarePlanetarium>     PlanetariumClass;
 
 	/** Planetary system */
 	UPROPERTY()
-	AFlarePlanetarium* Planetarium;
+	AFlarePlanetarium*                       Planetarium;
 
 	/** Companies */
 	UPROPERTY()
-	TArray<UFlareCompany*> Companies;
+	TArray<UFlareCompany*>                   Companies;
 
 
 	/*----------------------------------------------------
@@ -157,32 +157,32 @@ protected:
 
 	/** Reference to all available ship models */
 	UPROPERTY()
-	UFlareSpacecraftCatalog* SpacecraftCatalog;
+	UFlareSpacecraftCatalog*                 SpacecraftCatalog;
 
 	/** Reference to all available ship parts */
 	UPROPERTY()
-	UFlareSpacecraftComponentsCatalog* ShipPartsCatalog;
+	UFlareSpacecraftComponentsCatalog*       ShipPartsCatalog;
 
 	/** Reference to colors and patterns */
 	UPROPERTY()
-	UFlareCustomizationCatalog* CustomizationCatalog;
+	UFlareCustomizationCatalog*              CustomizationCatalog;
 
 	/** Reference to asteroid data */
 	UPROPERTY()
-	UFlareAsteroidCatalog* AsteroidCatalog;
+	UFlareAsteroidCatalog*                   AsteroidCatalog;
 
 
 	/*----------------------------------------------------
-		Immatriculation and creation data
+		Immatriculation and save data
 	----------------------------------------------------*/
 
-	/** Immatriculation index */
-	int32 CurrentImmatriculationIndex;
+	int32                                    CurrentImmatriculationIndex;
+	TArray<FName>                            BaseImmatriculationNameList;
 
-	TArray<FName> BaseImmatriculationNameList;
+	FName                                    DefaultWeaponIdentifer;
+	FName                                    DefaultTurretIdentifer;
 
-	FName DefaultWeaponIdentifer;
-	FName DefaultTurretIdentifer;
+	FString                                  CurrentSaveFile;
 
 
 public:

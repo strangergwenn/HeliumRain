@@ -87,7 +87,7 @@ void AFlareGame::PostLogin(APlayerController* Player)
 	FLOG("AFlareGame::PostLogin");
 	Super::PostLogin(Player);
 
-	// Load the world from save, create a new one if no save was found
+	// TODO : move to PC on main menu commands
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 	if (PC)
 	{
@@ -105,7 +105,7 @@ void AFlareGame::Logout(AController* Player)
 
 	// Save the world, literally
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
-	SaveWorld(PC, "DefaultSave");
+	SaveWorld(PC);
 	PC->PrepareForExit();
 
 	Super::Logout(Player);
@@ -315,6 +315,7 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 			LoadAsteroid(Save->AsteroidData[i]);
 		}
 
+		CurrentSaveFile = SaveFile;
 		return true;
 	}
 
@@ -458,9 +459,9 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 	return Bomb;
 }
 
-bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
+bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 {
-	FLOGV("AFlareGame::SaveWorld : saving to '%s'", *SaveFile);
+	FLOGV("AFlareGame::SaveWorld : saving to '%s'", *CurrentSaveFile);
 	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
 
 	// Save process
@@ -529,7 +530,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 		}
 
 		// Save
-		UGameplayStatics::SaveGameToSlot(Save, SaveFile, 0);
+		UGameplayStatics::SaveGameToSlot(Save, CurrentSaveFile, 0);
 		return true;
 	}
 
