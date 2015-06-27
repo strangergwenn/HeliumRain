@@ -1,11 +1,14 @@
 #pragma once
 
 #include "../Flare.h"
-#include "FlareHUD.h"
-#include "FlareMenuPawn.h"
-#include "../UI/Components/FlareNotification.h"
 #include "../Game/FlareGame.h"
+#include "FlareMenuPawn.h"
+#include "../UI/Widgets/FlareNotifier.h"
 #include "FlarePlayerController.generated.h"
+
+
+class AFlareHUD;
+class AFlareNavigationHUD;
 
 
 /** Game save data */
@@ -282,6 +285,15 @@ public:
 		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
 	}
 
+	inline AFlareHUD* GetMenuHUD() const
+	{
+		return Cast<AFlareHUD>(GetHUD());
+	}
+
+	inline AFlareNavigationHUD* GetNavigationHUD() const
+	{
+		return Cast<AFlareNavigationHUD>(GetHUD());
+	}
 
 };
 

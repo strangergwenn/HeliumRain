@@ -15,7 +15,7 @@ class SFlareContextMenu : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareContextMenu)
 	{}
 
-	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareHUD>, OwnerHUD)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareNavigationHUD>, OwnerHUD)
 	
 	SLATE_END_ARGS()
 
@@ -66,7 +66,7 @@ protected:
 
 	/** HUD reference */
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareHUD>   OwnerHUD;
+	TWeakObjectPtr<class AFlareNavigationHUD> OwnerHUD;
 		
 	// State data
 	IFlareSpacecraftInterface*        TargetStation;

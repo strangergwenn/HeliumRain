@@ -308,11 +308,11 @@ void SFlareTargetActions::OnInspect()
 	{
 		if (TargetSpacecraft)
 		{
-			Cast<AFlareHUD>(PC->GetHUD())->OpenMenu(TargetSpacecraft->IsStation() ? EFlareMenu::MENU_Station : EFlareMenu::MENU_Ship, TargetSpacecraft);
+			PC->GetMenuHUD()->OpenMenu(TargetSpacecraft->IsStation() ? EFlareMenu::MENU_Station : EFlareMenu::MENU_Ship, TargetSpacecraft);
 		}
 		else if (TargetCompany)
 		{
-			Cast<AFlareHUD>(PC->GetHUD())->OpenMenu(EFlareMenu::MENU_Company, TargetCompany);
+			PC->GetMenuHUD()->OpenMenu(EFlareMenu::MENU_Company, TargetCompany);
 		}
 	}
 }
@@ -322,7 +322,7 @@ void SFlareTargetActions::OnFly()
 	if (PC && TargetSpacecraft && !TargetSpacecraft->IsStation())
 	{
 		PC->FlyShip(Cast<AFlareSpacecraft>(TargetSpacecraft), false);
-		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
+		PC->GetMenuHUD()->CloseMenu();
 	}
 }
 
@@ -331,7 +331,7 @@ void SFlareTargetActions::OnDockAt()
 	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
 		PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetSpacecraft);
-		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
+		PC->GetMenuHUD()->CloseMenu();
 	}
 }
 
@@ -340,7 +340,7 @@ void SFlareTargetActions::OnUndock()
 	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
 		PC->GetShipPawn()->GetNavigationSystem()->Undock();
-		Cast<AFlareHUD>(PC->GetHUD())->CloseMenu();
+		PC->GetMenuHUD()->CloseMenu();
 	}
 }
 

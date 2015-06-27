@@ -259,19 +259,9 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 		}
 		else
 		{
-			//FLOG("SetPlayerMouseOffset");
 			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
-			if (!PC)
+			if (PC && !PC->GetNavigationHUD()->IsMouseMenuOpen())
 			{
-			//	FLOG("No PC");
-				return;
-			}
-			AFlareHUD* HUD = Cast<AFlareHUD>(PC->GetHUD());
-			//FLOGV("HUD->IsWheelOpen() %d", HUD->IsWheelOpen());
-
-			if (!HUD->IsWheelOpen())
-			{
-
 				float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X),1.3) * 0.05; // TODO Config sensibility
 				float Y = - FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y),1.3) * 0.05;
 

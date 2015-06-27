@@ -4,6 +4,8 @@
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareOrbitalEngine.h"
 #include "../Spacecrafts/FlareShell.h"
+#include "FlareHUD.h"
+#include "FlareNavigationHUD.h"
 #include "EngineUtils.h"
 
 
@@ -63,12 +65,12 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// Load our ship
-	PossessCurrentShip();
 
 	// Menus
 	SetupMenu();
+
+	// Load our ship
+	PossessCurrentShip();
 	SetExternalCamera(false);
 }
 
@@ -76,16 +78,16 @@ void AFlarePlayerController::BeginPlay()
 void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
-	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
+	AFlareNavigationHUD* HUD = GetNavigationHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
 
 	if (ShipPawn)
 	{
-		Cast<AFlareHUD>(GetHUD())->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
+		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 	}
 
 	// Mouse cursor
-	bool NewShowMouseCursor = !HUD->IsWheelOpen() ;
+	bool NewShowMouseCursor = !HUD->IsMouseMenuOpen() ;
 	if (!HUD->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
@@ -109,7 +111,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 #endif
 
 		// Force focus to UI
-		if (NewShowMouseCursor || HUD->IsWheelOpen())
+		if (NewShowMouseCursor || HUD->IsMouseMenuOpen())
 		{
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);
@@ -298,6 +300,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " + FString(*Ship->GetName()));
 		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
 		Notify(Text, Info, EFlareNotification::NT_Help);
+		GetNavigationHUD()->OnTargetShipChanged();
 		SetSelectingWeapon();
 	}
 }
@@ -306,7 +309,7 @@ void AFlarePlayerController::PrepareForExit()
 {
 	if (IsInMenu())
 	{
-		Cast<AFlareHUD>(GetHUD())->CloseMenu(true);
+		GetNavigationHUD()->CloseMenu(true);
 	}
 }
 
@@ -374,7 +377,7 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 void AFlarePlayerController::Notify(FText Title, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
-	Cast<AFlareHUD>(GetHUD())->Notify(Title, Info, Type, TargetMenu, TargetInfo);
+	GetNavigationHUD()->Notify(Title, Info, Type, TargetMenu, TargetInfo);
 }
 
 void AFlarePlayerController::SetupMenu()
@@ -384,7 +387,7 @@ void AFlarePlayerController::SetupMenu()
 	MenuPawn = GetWorld()->SpawnActor<AFlareMenuPawn>(GetGame()->GetMenuPawnClass(), SpawnLocation, FRotator::ZeroRotator);
 
 	// Setup HUD
-	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
+	AFlareHUD* HUD = GetNavigationHUD();
 	if (HUD)
 	{
 		// Signal the menu to setup as well
@@ -537,7 +540,7 @@ void AFlarePlayerController::MousePositionInput(FVector2D Val)
 
 void AFlarePlayerController::ToggleCamera()
 {
-	if(ShipPawn)
+	if (ShipPawn)
 	{
 		SetExternalCamera(!ShipPawn->GetStateManager()->IsExternalCamera());
 	}
@@ -547,11 +550,11 @@ void AFlarePlayerController::ToggleMenu()
 {
 	if (IsInMenu())
 	{
-		Cast<AFlareHUD>(GetHUD())->CloseMenu();
+		GetMenuHUD()->CloseMenu();
 	}
 	else
 	{
-		Cast<AFlareHUD>(GetHUD())->OpenMenu(EFlareMenu::MENU_Dashboard);
+		GetMenuHUD()->OpenMenu(EFlareMenu::MENU_Dashboard);
 	}
 }
 
@@ -577,7 +580,7 @@ void AFlarePlayerController::ToggleHUD()
 	if (!IsInMenu())
 	{
 		FLOG("AFlarePlayerController::ToggleHUD");
-		Cast<AFlareHUD>(GetHUD())->ToggleHUD();
+		GetNavigationHUD()->ToggleHUD();
 	}
 	else
 	{
@@ -633,7 +636,7 @@ void AFlarePlayerController::QuickSwitch()
 		{
 			FLOG("AFlarePlayerController::QuickSwitch : found new ship");
 			QuickSwitchNextOffset = OffsetIndex + 1;
-			Cast<AFlareHUD>(GetHUD())->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
+			GetMenuHUD()->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
 		}
 		else
 		{
@@ -648,7 +651,7 @@ void AFlarePlayerController::QuickSwitch()
 
 void AFlarePlayerController::MouseInputX(float Val)
 {
-	if (Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
+	if (GetNavigationHUD()->IsMenuOpen())
 	{
 		if (MenuPawn)
 		{
@@ -657,9 +660,9 @@ void AFlarePlayerController::MouseInputX(float Val)
 		return;
 	}
 
-	if (Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
+	if (GetNavigationHUD()->IsMouseMenuOpen())
 	{
-		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(Val, 0));
+		GetNavigationHUD()->SetWheelCursorMove(FVector2D(Val, 0));
 	}
 	else if (ShipPawn)
 	{
@@ -669,7 +672,7 @@ void AFlarePlayerController::MouseInputX(float Val)
 
 void AFlarePlayerController::MouseInputY(float Val)
 {
-	if (Cast<AFlareHUD>(GetHUD())->IsMenuOpen())
+	if (GetNavigationHUD()->IsMenuOpen())
 	{
 		if (MenuPawn)
 		{
@@ -678,9 +681,9 @@ void AFlarePlayerController::MouseInputY(float Val)
 		return;
 	}
 
-	if (Cast<AFlareHUD>(GetHUD())->IsWheelOpen())
+	if (GetNavigationHUD()->IsMouseMenuOpen())
 	{
-		Cast<AFlareHUD>(GetHUD())->SetWheelCursorMove(FVector2D(0, -Val));
+		GetNavigationHUD()->SetWheelCursorMove(FVector2D(0, -Val));
 	}
 	else if (ShipPawn)
 	{
@@ -705,8 +708,8 @@ void AFlarePlayerController::Test2()
 
 void AFlarePlayerController::WheelPressed()
 {
-	AFlareHUD* HUD = Cast<AFlareHUD>(GetHUD());
-	if (HUD && !HUD->IsMenuOpen() && !HUD->IsWheelOpen())
+	AFlareNavigationHUD* HUD = GetNavigationHUD();
+	if (HUD && !HUD->IsMenuOpen() && !HUD->IsMouseMenuOpen())
 	{
 		// Setup mouse menu
 		HUD->GetMouseMenu()->ClearWidgets();
@@ -760,7 +763,7 @@ void AFlarePlayerController::WheelPressed()
 
 void AFlarePlayerController::WheelReleased()
 {
-	Cast<AFlareHUD>(GetHUD())->SetWheelMenu(false);
+	GetNavigationHUD()->SetWheelMenu(false);
 }
 
 void AFlarePlayerController::AlignToSpeed()
@@ -851,7 +854,7 @@ void AFlarePlayerController::LookAtNearestSpacecraft()
 
 void AFlarePlayerController::UpgradeShip()
 {
-	Cast<AFlareHUD>(GetHUD())->OpenMenu(EFlareMenu::MENU_ShipConfig);
+	GetMenuHUD()->OpenMenu(EFlareMenu::MENU_ShipConfig);
 }
 
 void AFlarePlayerController::UndockShip()
