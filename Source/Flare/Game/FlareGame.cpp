@@ -273,6 +273,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 {
 	FLOGV("AFlareGame::LoadWorld : loading from %s", *SaveFile);
+	CurrentSaveFile = SaveFile;
 	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
 
 	// Load from save
@@ -315,7 +316,6 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 			LoadAsteroid(Save->AsteroidData[i]);
 		}
 
-		CurrentSaveFile = SaveFile;
 		return true;
 	}
 

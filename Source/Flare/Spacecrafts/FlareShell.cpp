@@ -484,9 +484,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	// Spawn impact decal
 	if (ShipComponent && ShipComponent->IsVisibleByPlayer())
 	{
-		// FX data
 		float DecalSize = FMath::FRandRange(60, 90);
-
 		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
 			ExplosionEffectMaterial,
 			DecalSize * FVector(1, 1, 1),
@@ -506,10 +504,9 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 		}
 	}
 
-	if (ShipComponent && ShipComponent->IsVisibleByPlayer())
+	// Apply FX
+	if (ShipComponent)
 	{
-
-
 		UGameplayStatics::SpawnEmitterAttached(
 			ImpactEffectTemplate,
 			ShipComponent,
