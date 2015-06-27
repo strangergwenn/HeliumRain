@@ -160,8 +160,14 @@ public:
 	/** Brake */
 	void Brake();
 
+	/** Get the nearest spacecraft */
+	AFlareSpacecraft* GetNearestSpacecraft(bool OnScreenRequired = false);
+
 	/** Match speed with nearest spacecraft */
 	void MatchSpeedWithNearestSpacecraft();
+
+	/** Find the nearest spacecraft */
+	void LookAtNearestSpacecraft();
 
 	/** Open the upgrade menu */
 	void UpgradeShip();
