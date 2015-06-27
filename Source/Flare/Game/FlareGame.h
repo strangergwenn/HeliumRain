@@ -56,6 +56,9 @@ public:
 	/** Spawn a company from save data */
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
 
+	/** Spawn an asteroid from save data */
+	virtual AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
+
 	/** Spawn a ship from save data */
 	virtual AFlareSpacecraft* LoadShip(const FFlareSpacecraftSave& ShipData);
 
@@ -105,6 +108,10 @@ public:
 	/** Set the default turret for new created ship */
 	UFUNCTION(exec)
 	void SetDefaultTurret(FName NewDefaultTurretIdentifier);
+
+	/** Add an asteroid to the world */
+	UFUNCTION(exec)
+	void CreateAsteroid(int32 ID);
 
 
 	/*----------------------------------------------------

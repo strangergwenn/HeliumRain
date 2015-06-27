@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "FlareGame.h"
 #include "FlareSaveGame.h"
+#include "FlareAsteroid.h"
 #include "../Player/FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 
@@ -18,7 +19,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	HUDClass = AFlareHUD::StaticClass();
 	PlayerControllerClass = AFlarePlayerController::StaticClass();
 	DefaultWeaponIdentifer = FName("weapon-eradicator");
-	DefaultTurretIdentifer = FName("weapon-hades");
+	DefaultTurretIdentifer = FName("weapon-artemis");
 
 	// Menu pawn
 	static ConstructorHelpers::FObjectFinder<UBlueprint> MenuPawnBPClass(TEXT("/Game/Gameplay/Menu/BP_MenuPawn"));
@@ -308,6 +309,12 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 			LoadBomb(Save->BombData[i]);
 		}
 
+		// Load all asteroids
+		for (int32 i = 0; i < Save->AsteroidData.Num(); i++)
+		{
+			LoadAsteroid(Save->AsteroidData[i]);
+		}
+
 		return true;
 	}
 
@@ -332,6 +339,16 @@ UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
 	return Company;
 }
 
+AFlareAsteroid* AFlareGame::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
+{
+	FActorSpawnParameters Params;
+	Params.bNoFail = true;
+
+	AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), AsteroidData.Location, AsteroidData.Rotation, Params);
+	Asteroid->Load(AsteroidData);
+	return Asteroid;
+}
+
 AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
 {
 	AFlareSpacecraft* Ship = NULL;
@@ -352,9 +369,7 @@ AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
 			if (Ship)
 			{
 				Ship->Load(ShipData);
-
-				 UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
-
+				UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
 				RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
 				RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 			}
@@ -462,6 +477,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 			// Tentative casts
 			AFlareMenuPawn* MenuPawn = PC->GetMenuPawn();
 			AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
+			AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(*ActorItr);
 
 			// Ship
 			if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentShip()))
@@ -478,14 +494,20 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 				FFlareSpacecraftSave* TempData = Ship->Save();
 				Save->StationData.Add(*TempData);
 			}
+
+			// Asteroid
+			else if (Asteroid)
+			{
+				FLOGV("AFlareGame::SaveWorld : saving asteroid ('%s')", *Asteroid->GetName());
+				FFlareAsteroidSave* TempData = Asteroid->Save();
+				Save->AsteroidData.Add(*TempData);
+			}
 		}
 
-		// Save all UObjects
+		// Companies
 		for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
 		{
 			UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
-
-			// Company
 			if (Company)
 			{
 				FLOGV("AFlareGame::SaveWorld : saving company ('%s')", *Company->GetName());
@@ -494,11 +516,10 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC, FString SaveFile)
 			}
 		}
 
+		// Bombs
 		for (TObjectIterator<AFlareBomb> ObjectItr; ObjectItr; ++ObjectItr)
 		{
 			AFlareBomb* Bomb = Cast<AFlareBomb>(*ObjectItr);
-
-			// Company
 			if (Bomb && Bomb->IsDropped())
 			{
 				FLOGV("AFlareGame::SaveWorld : saving bomb ('%s')", *Bomb->GetName());
@@ -745,7 +766,7 @@ void AFlareGame::SetDefaultWeapon(FName NewDefaultWeaponIdentifier)
 {
 	FFlareSpacecraftComponentDescription* ComponentDescription = ShipPartsCatalog->Get(NewDefaultWeaponIdentifier);
 
-	if(ComponentDescription && ComponentDescription->WeaponCharacteristics.IsWeapon)
+	if (ComponentDescription && ComponentDescription->WeaponCharacteristics.IsWeapon)
 	{
 		DefaultWeaponIdentifer = NewDefaultWeaponIdentifier;
 	}
@@ -759,13 +780,39 @@ void AFlareGame::SetDefaultTurret(FName NewDefaultTurretIdentifier)
 {
 	FFlareSpacecraftComponentDescription* ComponentDescription = ShipPartsCatalog->Get(NewDefaultTurretIdentifier);
 
-	if(ComponentDescription && ComponentDescription->WeaponCharacteristics.IsWeapon && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
+	if (ComponentDescription && ComponentDescription->WeaponCharacteristics.IsWeapon && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
 	{
 		DefaultTurretIdentifer = NewDefaultTurretIdentifier;
 	}
 	else
 	{
 		FLOGV("Bad weapon identifier: %s", *NewDefaultTurretIdentifier.ToString())
+	}
+}
+
+void AFlareGame::CreateAsteroid(int32 ID)
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+
+	if (PC)
+	{
+		// Location
+		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
+		FVector TargetPosition = FVector::ZeroVector;
+		if (ExistingShipPawn)
+		{
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
+		}
+
+		// Spawn parameters
+		FActorSpawnParameters Params;
+		Params.bNoFail = true;
+		FFlareAsteroidSave Data;
+		Data.AsteroidMeshID = ID;
+
+		// Spawn and setup
+		AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), TargetPosition, FRotator::ZeroRotator, Params);
+		Asteroid->Load(Data);
 	}
 }
 
@@ -846,7 +893,7 @@ static FString ConvertToRoman(unsigned int val)
 
 FName AFlareGame::PickCapitalShipName()
 {
-	if(BaseImmatriculationNameList.Num() == 0)
+	if (BaseImmatriculationNameList.Num() == 0)
 	{
 		InitCapitalShipNameDatabase();
 	}
@@ -863,7 +910,7 @@ FName AFlareGame::PickCapitalShipName()
 		Unique = true;
 		FLOGV("Pass %d with %s", NameIncrement, *CandidateName.ToString());
 		FString Suffix;
-		if(NameIncrement > 1)
+		if (NameIncrement > 1)
 		{
 			FString Roman = ConvertToRoman(NameIncrement);
 			FLOGV("ConvertToRoman %s", *Roman);
@@ -881,7 +928,7 @@ FName AFlareGame::PickCapitalShipName()
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-			if(SpacecraftCandidate && SpacecraftCandidate->GetNickName() == CandidateName)
+			if (SpacecraftCandidate && SpacecraftCandidate->GetNickName() == CandidateName)
 			{
 				FLOGV("Not unique %s", *CandidateName.ToString());
 				Unique = false;

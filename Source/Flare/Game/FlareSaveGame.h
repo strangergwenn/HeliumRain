@@ -35,6 +35,9 @@ public:
 	TArray<FFlareBombSave> BombData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareAsteroidSave> AsteroidData;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
 	int32 CurrentImmatriculationIndex;
 };
 
