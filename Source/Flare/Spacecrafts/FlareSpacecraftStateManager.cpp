@@ -222,7 +222,7 @@ void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
 void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 {
 	// If nothing changed...
-	if(ExternalCamera == NewState)
+	if (ExternalCamera == NewState)
 	{
 		return;
 	}

@@ -59,7 +59,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 	EFlarePartSize::Type PreferredShipSize;
 	EFlarePartSize::Type SecondaryShipSize;
-	if(Turret->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
+	if (Turret->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
 	{
 		PreferredShipSize = EFlarePartSize::L;
 		SecondaryShipSize = EFlarePartSize::S;
@@ -113,19 +113,19 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 	if (PilotTargetShip)
 	{
-		if(TimeUntilNextComponentSwitch <= 0)
+		if (TimeUntilNextComponentSwitch <= 0)
 		{
 			//FLOGV("%s Switch because of timeout", *Turret->GetReadableName());
 			PilotTargetComponent = NULL;
 		}
-		else if(PilotTargetComponent)
+		else if (PilotTargetComponent)
 		{
-			if(PilotTargetComponent->GetSpacecraft() != PilotTargetShip)
+			if (PilotTargetComponent->GetSpacecraft() != PilotTargetShip)
 			{
 				//FLOGV("%s Switch because the component %s is not in the target ship", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
 				PilotTargetComponent = NULL;
 			}
-			else if(PilotTargetComponent->GetDamageRatio() <=0)
+			else if (PilotTargetComponent->GetDamageRatio() <=0)
 			{
 				//FLOGV("%s Switch because the component %s is destroyed", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
 				PilotTargetComponent = NULL;
@@ -133,7 +133,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 			}
 		}
 
-		if(!PilotTargetComponent)
+		if (!PilotTargetComponent)
 		{
 			PilotTargetComponent = GetRandomTargetComponent(PilotTargetShip);
 			TimeUntilNextComponentSwitch = 10;
@@ -326,13 +326,13 @@ UFlareSpacecraftComponent* UFlareTurretPilot::GetRandomTargetComponent(AFlareSpa
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 
-		if(Component->GetDescription() && Component->GetDamageRatio() > 0)
+		if (Component->GetDescription() && Component->GetDamageRatio() > 0)
 		{
 			ComponentSelection.Add(Component);
 		}
 	}
 
-	if(ComponentSelection.Num() == 0)
+	if (ComponentSelection.Num() == 0)
 	{
 		return TargetSpacecraft->GetCockpit();
 	}
@@ -343,9 +343,9 @@ UFlareSpacecraftComponent* UFlareTurretPilot::GetRandomTargetComponent(AFlareSpa
 			UFlareSpacecraftComponent* Component = ComponentSelection[FMath::RandRange(0, ComponentSelection.Num()-1)];
 
 			UFlareRCS* RCS = Cast<UFlareRCS>(Component);
-			if(RCS)
+			if (RCS)
 			{
-				if(FMath::FRand() > 0.25)
+				if (FMath::FRand() > 0.25)
 				{
 					continue;
 				}

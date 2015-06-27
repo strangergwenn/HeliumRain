@@ -103,21 +103,21 @@ void AFlareSpacecraft::Destroyed()
 
 void AFlareSpacecraft::SetPause(bool Pause)
 {
-	if(Paused == Pause)
+	if (Paused == Pause)
 	{
 		return;
 	}
 	Paused = Pause;
 
 	CustomTimeDilation = (Paused ? 0.f : 1.0);
-	if(Paused)
+	if (Paused)
 	{
 		Save();
 		FLOGV("%s save linear velocity : %s", *GetName(), *ShipData.LinearVelocity.ToString());
 	}
 	Airframe->SetSimulatePhysics(!Paused);
 
-	if(!Paused)
+	if (!Paused)
 	{
 		FLOGV("%s restore linear velocity : %s", *GetName(), *ShipData.LinearVelocity.ToString());
 		Airframe->SetPhysicsLinearVelocity(ShipData.LinearVelocity);

@@ -234,7 +234,7 @@ FFlareBombSave* AFlareBomb::Save()
 	BombData.AngularVelocity = BombComp->GetPhysicsAngularVelocity();
 
 	//TODO Investigate on NULL ParentWeapon
-	if(ParentWeapon)
+	if (ParentWeapon)
 	{
 		BombData.ParentSpacecraft = ParentWeapon->GetSpacecraft()->GetName();
 		BombData.WeaponSlotIdentifier = ParentWeapon->SlotIdentifier;
@@ -245,24 +245,24 @@ FFlareBombSave* AFlareBomb::Save()
 
 void AFlareBomb::SetPause(bool Pause)
 {
-	if(Paused == Pause)
+	if (Paused == Pause)
 	{
 		return;
 	}
 	Paused = Pause;
 
 	CustomTimeDilation = (Paused ? 0.f : 1.0);
-	if(Paused)
+	if (Paused)
 	{
 		Save();
 	}
 	BombComp->SetSimulatePhysics(!Paused);
 
-	if(!Paused)
+	if (!Paused)
 	{
 		BombComp->SetPhysicsLinearVelocity(BombData.LinearVelocity);
 		BombComp->SetPhysicsAngularVelocity(BombData.AngularVelocity);
-		if(!BombData.Dropped && ParentWeapon)
+		if (!BombData.Dropped && ParentWeapon)
 		{
 			AttachRootComponentToActor(ParentWeapon->GetSpacecraft(),"", EAttachLocation::KeepWorldPosition, true);
 		}

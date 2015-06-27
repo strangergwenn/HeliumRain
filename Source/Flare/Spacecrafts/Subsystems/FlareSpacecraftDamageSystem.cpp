@@ -260,7 +260,7 @@ void UFlareSpacecraftDamageSystem::OnElectricDamage(float DamageRatio)
 	Data->PowerOutageAcculumator += DamageRatio * 2.f;
 	if (!Data->PowerOutageDelay)
 	{
-		if(FMath::FRand() > 1.f + PowerRatio / 2.f - Data->PowerOutageAcculumator / 2.f)
+		if (FMath::FRand() > 1.f + PowerRatio / 2.f - Data->PowerOutageAcculumator / 2.f)
 		{
 			Data->PowerOutageDelay += FMath::FRandRange(1, 5) /  (2 * PowerRatio);
 			Data->PowerOutageAcculumator = -Data->PowerOutageAcculumator * PowerRatio;

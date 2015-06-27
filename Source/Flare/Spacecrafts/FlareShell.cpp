@@ -265,7 +265,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		}
 		else
 		{
-			if(ShellDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
+			if (ShellDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
 			{
 				AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(HitResult.Actor.Get());
 				if (Spacecraft)

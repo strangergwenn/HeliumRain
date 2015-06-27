@@ -391,21 +391,21 @@ void AFlarePlayerController::OnEnterMenu()
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-			if(SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
+			if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
 			{
 				FLOGV("Pause %s", *SpacecraftCandidate->GetName());
 				SpacecraftCandidate->SetPause(true);
 			}
 
 			AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-			if(BombCandidate)
+			if (BombCandidate)
 			{
 				FLOGV("Pause %s", *BombCandidate->GetName());
 				BombCandidate->SetPause(true);
 			}
 
 			AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-			if(ShellCandidate)
+			if (ShellCandidate)
 			{
 				FLOGV("Pause %s", *ShellCandidate->GetName());
 				ShellCandidate->SetPause(true);
@@ -425,21 +425,21 @@ void AFlarePlayerController::OnExitMenu()
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-			if(SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
+			if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
 			{
 				FLOGV("UnPause %s", *SpacecraftCandidate->GetName());
 				SpacecraftCandidate->SetPause(false);
 			}
 
 			AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-			if(BombCandidate)
+			if (BombCandidate)
 			{
 				FLOGV("UnPause %s", *BombCandidate->GetName());
 				BombCandidate->SetPause(false);
 			}
 
 			AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-			if(ShellCandidate)
+			if (ShellCandidate)
 			{
 				FLOGV("UnPause %s", *ShellCandidate->GetName());
 				ShellCandidate->SetPause(false);
