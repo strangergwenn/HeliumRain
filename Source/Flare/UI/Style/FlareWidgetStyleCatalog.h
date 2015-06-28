@@ -86,6 +86,8 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	// Default button style
 	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonBackground;
 	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonActiveBackground;
+	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonInvertedBackground;
+	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonInvertedActiveBackground;
 	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonDecorator;
 	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonActiveDecorator;
 	UPROPERTY(EditAnywhere, Category = Buttons) FMargin ButtonPadding;

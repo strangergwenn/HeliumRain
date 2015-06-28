@@ -46,6 +46,15 @@ protected:
 	/** Get a save slot's description */
 	FText GetText(int32 Index) const;
 
+	/** Get the main image for a save slot */
+	const FSlateBrush* GetSaveIcon(int32 Index) const;
+
+	/** Get a button text */
+	FText GetButtonText(int32 Index) const;
+
+	/** Get a button icon */
+	const FSlateBrush* GetButtonIcon(int32 Index) const;
+
 	/** Start the game */
 	void OnOpenSlot(TSharedPtr<int32> Index);
 

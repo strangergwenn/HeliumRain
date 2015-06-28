@@ -13,7 +13,8 @@ class SFlareButton : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareButton)
-		: _Toggle(false)
+		: _InvertedBackground(false)
+		, _Toggle(false)
 		, _Color(FLinearColor::White)
 		, _Width(5)
 		, _Height(1)
@@ -24,6 +25,7 @@ class SFlareButton : public SCompoundWidget
 	SLATE_ATTRIBUTE(FText, Text)
 	SLATE_ATTRIBUTE(FSlateColor, Color)
 
+	SLATE_ARGUMENT(bool, InvertedBackground)
 	SLATE_ARGUMENT(bool, Toggle)
 	SLATE_ARGUMENT(int32, Width)
 	SLATE_ARGUMENT(int32, Height)
@@ -66,6 +68,7 @@ protected:
 	----------------------------------------------------*/
 
 	// State data
+	bool                           InvertedBackground;
 	bool                           IsToggle;
 	bool                           IsPressed;
 	

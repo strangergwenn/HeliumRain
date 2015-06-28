@@ -47,11 +47,11 @@ public:
 	{
 		// Get brush data
 		static const FName LoadingScreenName(TEXT("/Engine/EngineResources/Black.Black"));
-		static const FName ThrobberImageName(TEXT("/Game/Slate/Icons/TX_Icon_Universe.TX_Icon_Universe"));
+		static const FName ThrobberImageName(TEXT("/Game/Slate/Images/TX_Image_LargeButtonInvertedBackground.TX_Image_LargeButtonInvertedBackground"));
 
 		// Create textures
 		LoadingScreenBrush = MakeShareable(new FFlareLoadingScreenBrush(LoadingScreenName, FVector2D(1920, 1080)));
-		ThrobberBrush = MakeShareable(new FFlareLoadingScreenBrush(ThrobberImageName, FVector2D(256, 256)));
+		ThrobberBrush = MakeShareable(new FFlareLoadingScreenBrush(ThrobberImageName, FVector2D(64, 64)));
 
 		// Structure
 		ChildSlot
@@ -93,7 +93,7 @@ public:
 				[
 					SNew(SThrobber)
 					.PieceImage(ThrobberBrush.Get())
-					.NumPieces(1)
+					.NumPieces(5)
 				]
 			]
 		];
@@ -104,6 +104,8 @@ private:
 	// Slate data
 	TSharedPtr<FSlateDynamicImageBrush> ThrobberBrush;
 	TSharedPtr<FSlateDynamicImageBrush> LoadingScreenBrush;
+
+
 };
 
 

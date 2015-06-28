@@ -11,6 +11,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 {
 	// Initial setup
 	IsPressed = false;
+	InvertedBackground = InArgs._InvertedBackground;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Arguments
@@ -108,6 +109,7 @@ bool SFlareButton::IsActive() const
 const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
 	if (IsToggle)
 	{
 		return (IsPressed ? &Theme.ButtonActiveDecorator : &Theme.ButtonDecorator);
@@ -125,7 +127,15 @@ const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
+	
+	if (InvertedBackground)
+	{
+		return (IsHovered() ? &Theme.ButtonInvertedActiveBackground : &Theme.ButtonInvertedBackground);
+	}
+	else
+	{
+		return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
+	}
 }
 
 FSlateColor SFlareButton::GetMainColor() const
