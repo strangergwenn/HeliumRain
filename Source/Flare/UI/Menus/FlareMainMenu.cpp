@@ -31,6 +31,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
+	.Padding(FMargin(30))
 	[
 		SNew(SVerticalBox)
 
@@ -38,7 +39,6 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Top)
-		.Padding(FMargin(50))
 		[
 			SNew(SHorizontalBox)
 
@@ -61,9 +61,37 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			]
 		]
 
+		// Save slots
 		+ SVerticalBox::Slot()
+		.Padding(FMargin(0, 50))
 		[
 			SAssignNew(Temp, SHorizontalBox)
+		]
+
+		// Actions
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Bottom)
+		[
+			SNew(SHorizontalBox)
+
+			+ SHorizontalBox::Slot()
+			.Padding(FMargin(20, 0))
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Settings", "Settings"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings))
+				.OnClicked(this, &SFlareMainMenu::OnOpenSettings)
+			]
+
+			+ SHorizontalBox::Slot()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Quit", "Quit game"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit))
+				.OnClicked(this, &SFlareMainMenu::OnQuitGame)
+			]
 		]
 	];
 
@@ -276,9 +304,17 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 		// Go to the ship
 		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, PC->GetShipPawn());
 	}
-
 }
 
+void SFlareMainMenu::OnOpenSettings()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
+}
+
+void SFlareMainMenu::OnQuitGame()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
+}
 
 #undef LOCTEXT_NAMESPACE
 

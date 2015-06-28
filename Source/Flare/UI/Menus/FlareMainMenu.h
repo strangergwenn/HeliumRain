@@ -58,6 +58,12 @@ protected:
 	/** Start the game */
 	void OnOpenSlot(TSharedPtr<int32> Index);
 
+	/** Open the settings menu */
+	void OnOpenSettings();
+
+	/** Quit the game */
+	void OnQuitGame();
+
 
 protected:
 

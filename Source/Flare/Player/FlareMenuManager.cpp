@@ -160,6 +160,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_Station:        return FFlareStyleSet::GetIcon("Station");
 		case EFlareMenu::MENU_Undock:         return FFlareStyleSet::GetIcon("Undock");
 		case EFlareMenu::MENU_Sector:         return FFlareStyleSet::GetIcon("Sector");
+		case EFlareMenu::MENU_Settings:       return FFlareStyleSet::GetIcon("Settings");
 		case EFlareMenu::MENU_Quit:           return FFlareStyleSet::GetIcon("Quit");
 		case EFlareMenu::MENU_Exit:           return FFlareStyleSet::GetIcon("Close");
 
