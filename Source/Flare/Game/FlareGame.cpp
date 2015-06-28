@@ -263,8 +263,9 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 	return ShipPawn;
 }
 
-UFlareSaveGame* AFlareGame::LoadSaveFile(FString SaveFile)
+UFlareSaveGame* AFlareGame::LoadSaveFile(int32 Index)
 {
+	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
 	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
 	{
 		UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
@@ -277,11 +278,11 @@ UFlareSaveGame* AFlareGame::LoadSaveFile(FString SaveFile)
 	}
 }
 
-bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
+bool AFlareGame::LoadWorld(AFlarePlayerController* PC, int32 Index)
 {
-	FLOGV("AFlareGame::LoadWorld : loading from %s", *SaveFile);
-	CurrentSaveFile = SaveFile;
-	UFlareSaveGame* Save = LoadSaveFile(SaveFile);
+	FLOGV("AFlareGame::LoadWorld : loading from slot %d", Index);
+	UFlareSaveGame* Save = LoadSaveFile(Index);
+	CurrentSaveIndex = Index;
 
 	// Load from save
 	if (PC && Save)
@@ -330,7 +331,7 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 	// No file existing
 	else
 	{
-		FLOGV("AFlareGame::LoadWorld : could lot load %s", *SaveFile);
+		FLOGV("AFlareGame::LoadWorld : could lot load slot %d", Index);
 		return false;
 	}
 }
@@ -469,7 +470,7 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 
 bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 {
-	FLOGV("AFlareGame::SaveWorld : saving to '%s'", *CurrentSaveFile);
+	FLOGV("AFlareGame::SaveWorld : saving to slot %d", CurrentSaveIndex);
 	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
 
 	// Save process
@@ -538,7 +539,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 		}
 
 		// Save
-		UGameplayStatics::SaveGameToSlot(Save, CurrentSaveFile, 0);
+		UGameplayStatics::SaveGameToSlot(Save, "SaveSlot" + FString::FromInt(CurrentSaveIndex), 0);
 		return true;
 	}
 

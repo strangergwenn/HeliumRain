@@ -47,7 +47,7 @@ protected:
 	FText GetText(int32 Index) const;
 
 	/** Start the game */
-	void OnStartGame();
+	void OnOpenSlot(TSharedPtr<int32> Index);
 
 
 protected:
@@ -55,6 +55,8 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
+
+	int32                                      SaveSlotCount;
 
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 

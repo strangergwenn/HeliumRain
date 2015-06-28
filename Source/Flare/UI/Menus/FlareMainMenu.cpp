@@ -20,42 +20,52 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
+	TSharedPtr<SHorizontalBox> Temp;
+	SaveSlotCount = 5;
 
 	// Build structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SHorizontalBox)
-
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
+		SNew(SVerticalBox)
+		+ SVerticalBox::Slot()
 		[
-			SNew(SFlareButton)
-			.Text(this, &SFlareMainMenu::GetText, 0)
-			.OnClicked(this, &SFlareMainMenu::OnOpenSlot, TSharedPtr<int32>(new int32(0)))
+			SNew(STextBlock)
+			.TextStyle(&Theme.TitleFont)
+			.Text(LOCTEXT("MainMenu", "HELIUM RAIN"))
 		]
 
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
+		+ SVerticalBox::Slot()
 		[
-			SNew(SFlareButton)
-			.Text(this, &SFlareMainMenu::GetText, 1)
-			.OnClicked(this, &SFlareMainMenu::OnOpenSlot, TSharedPtr<int32>(new int32(1)))
-		]
-
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
-		[
-			SNew(SFlareButton)
-			.Text(this, &SFlareMainMenu::GetText, 2)
-			.OnClicked(this, &SFlareMainMenu::OnOpenSlot, TSharedPtr<int32>(new int32(2)))
+			SAssignNew(Temp, SHorizontalBox)
 		]
 	];
 
+	// Add save slots
+	for (int32 Index = 1; Index <= SaveSlotCount; Index++)
+	{
+		Temp->AddSlot()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(FText::FromString(LOCTEXT("Slot", "Save slot ").ToString() + FString::FromInt(Index)))
+				]
+
+				+ SVerticalBox::Slot()
+				[
+					SNew(SFlareButton)
+					.Text(this, &SFlareMainMenu::GetText, Index)
+					.OnClicked(this, &SFlareMainMenu::OnOpenSlot, TSharedPtr<int32>(new int32(Index)))
+				]
+			];
+	}
 }
 
 
@@ -73,23 +83,18 @@ void SFlareMainMenu::Enter()
 {
 	FLOG("SFlareMainMenu::Enter");
 
-	int32 Index = 0;
-	bool KeepLooking = true;
-
 	// Look for existing saves
-	while (KeepLooking)
+	for (int32 Index = 1; Index <= SaveSlotCount; Index++)
 	{
-		FString SlotName = "SaveSlot" + FString::FromInt(Index);
-		UFlareSaveGame* Save = AFlareGame::LoadSaveFile(SlotName);
+		UFlareSaveGame* Save = AFlareGame::LoadSaveFile(Index);
 		if (Save)
 		{
-			FLOGV("SFlareMainMenu::Enter : found valid save data in '%s'", *SlotName);
+			FLOGV("SFlareMainMenu::Enter : found valid save data in slot %d", Index);
 			SaveSlots.Add(Save);
-			Index++;
 		}
 		else
 		{
-			KeepLooking = false;
+			SaveSlots.Add(NULL);
 		}
 	}
 	FLOG("SFlareMainMenu::Enter : all slots found");
@@ -111,9 +116,11 @@ void SFlareMainMenu::Exit()
 
 FText SFlareMainMenu::GetText(int32 Index) const
 {
-	if (Index < SaveSlots.Num() && SaveSlots[Index])
+	int32 RealIndex = Index - 1;
+
+	if (RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
 	{
-		return FText::FromString(SaveSlots[Index]->PlayerData.CurrentShipName);
+		return FText::FromString(SaveSlots[RealIndex]->PlayerData.CurrentShipName);
 	}
 	else
 	{
@@ -129,7 +136,7 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 	if (PC && Game)
 	{
 		// Load the world
-		bool WorldLoaded = Game->LoadWorld(PC, "SaveSlot" + FString::FromInt(*Index));
+		bool WorldLoaded = Game->LoadWorld(PC, *Index);
 		if (!WorldLoaded)
 		{
 			Game->CreateWorld(PC);

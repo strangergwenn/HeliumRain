@@ -55,10 +55,10 @@ public:
 	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
 
 	/** Load a game save */
-	static UFlareSaveGame* LoadSaveFile(FString SaveFile);
+	static UFlareSaveGame* LoadSaveFile(int32 Index);
 
 	/** Load the world from this save file */
-	virtual bool LoadWorld(AFlarePlayerController* PC, FString SaveFile);
+	virtual bool LoadWorld(AFlarePlayerController* PC, int32 Index);
 
 	/** Spawn a company from save data */
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
@@ -189,7 +189,7 @@ protected:
 	FName                                    DefaultWeaponIdentifer;
 	FName                                    DefaultTurretIdentifer;
 
-	FString                                  CurrentSaveFile;
+	int32                                    CurrentSaveIndex;
 	bool                                     LoadedOrCreated;
 
 
