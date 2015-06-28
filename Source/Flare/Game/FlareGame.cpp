@@ -263,17 +263,30 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 	return ShipPawn;
 }
 
+UFlareSaveGame* AFlareGame::LoadSaveFile(FString SaveFile)
+{
+	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
+	{
+		UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
+		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
+		return Save;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 bool AFlareGame::LoadWorld(AFlarePlayerController* PC, FString SaveFile)
 {
 	FLOGV("AFlareGame::LoadWorld : loading from %s", *SaveFile);
 	CurrentSaveFile = SaveFile;
-	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
+	UFlareSaveGame* Save = LoadSaveFile(SaveFile);
 
 	// Load from save
-	if (PC && Save && UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
+	if (PC && Save)
 	{
 		// Load
-		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
 
 		// Load all companies

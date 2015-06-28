@@ -5,6 +5,7 @@
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareBomb.h"
 #include "../Player/FlareMenuPawn.h"
+
 #include "FlarePlanetarium.h"
 #include "FlareCompany.h"
 
@@ -14,6 +15,9 @@
 #include "../Data/FlareAsteroidCatalog.h"
 
 #include "FlareGame.generated.h"
+
+
+class UFlareSaveGame;
 
 
 UCLASS()
@@ -49,6 +53,9 @@ public:
 
 	/** Create a ship or station in the level  for a specific company */
 	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
+
+	/** Load a game save */
+	static UFlareSaveGame* LoadSaveFile(FString SaveFile);
 
 	/** Load the world from this save file */
 	virtual bool LoadWorld(AFlarePlayerController* PC, FString SaveFile);

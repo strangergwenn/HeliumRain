@@ -70,7 +70,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	];
 
 	// Construct text content if we need to
-	if (!InArgs._Text.IsEmpty())
+	if (InArgs._Text.IsBound())
 	{
 		InnerContainer->SetContent(
 			SNew(STextBlock)

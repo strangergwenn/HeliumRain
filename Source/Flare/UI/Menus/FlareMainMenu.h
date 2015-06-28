@@ -43,6 +43,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Get a save slot's description */
+	FText GetText(int32 Index) const;
+
 	/** Start the game */
 	void OnStartGame();
 
@@ -53,9 +56,9 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	/** HUD reference */
-	UPROPERTY()
-	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
-		
+	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+
+	TArray<UFlareSaveGame*>                    SaveSlots;
+
 
 };

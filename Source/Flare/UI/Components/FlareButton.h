@@ -20,10 +20,11 @@ class SFlareButton : public SCompoundWidget
 	{}
 
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
-	SLATE_ARGUMENT(FText, Text)
+
+	SLATE_ATTRIBUTE(FText, Text)
+	SLATE_ATTRIBUTE(FSlateColor, Color)
 
 	SLATE_ARGUMENT(bool, Toggle)
-	SLATE_ATTRIBUTE(FSlateColor, Color)
 	SLATE_ARGUMENT(int32, Width)
 	SLATE_ARGUMENT(int32, Height)
 	
