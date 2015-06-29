@@ -817,6 +817,11 @@ void AFlareGame::CreateAsteroid(int32 ID)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
+	if(ID >= GetAsteroidCatalog()->Asteroids.Num())
+	{
+		FLOGV("Astroid create fail : Asteroid max ID is %d", GetAsteroidCatalog()->Asteroids.Num() -1);
+		return;
+	}
 	if (PC)
 	{
 		// Location
