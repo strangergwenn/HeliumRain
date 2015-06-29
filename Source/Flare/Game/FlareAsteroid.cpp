@@ -12,7 +12,7 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 {
 	// Mesh data
 	GetStaticMeshComponent()->bTraceComplexOnMove = true;
-	GetStaticMeshComponent()->LDMaxDrawDistance = 100000; // 1km
+	//GetStaticMeshComponent()->LDMaxDrawDistance = 1000000; // 10km
 	GetStaticMeshComponent()->SetSimulatePhysics(true);
 	GetStaticMeshComponent()->SetLinearDamping(0);
 	GetStaticMeshComponent()->SetAngularDamping(0);
