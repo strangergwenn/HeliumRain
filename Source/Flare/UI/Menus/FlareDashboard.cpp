@@ -26,155 +26,152 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SHorizontalBox)
+		SNew(SVerticalBox)
 
-		// UI
-		+ SHorizontalBox::Slot()
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SImage)
+				.Image(FFlareStyleSet::GetIcon("Sector"))
+			]
+
+			// Title
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Center)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TitleFont)
+				.Text(LOCTEXT("Dashboard", "DASHBOARD"))
+			]
+
+			// Ship
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("InspectShip", "Ship"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Ship, true))
+				.OnClicked(this, &SFlareDashboard::OnInspectShip)
+			]
+
+			// Ship upgrade
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("UpgradeShip", "Upgrade ship"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_ShipConfig, true))
+				.OnClicked(this, &SFlareDashboard::OnConfigureShip)
+				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
+			]
+
+			// Station
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("InspectStation", "Station"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Station, true))
+				.OnClicked(this, &SFlareDashboard::OnInspectStation)
+				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
+			]
+
+			// Undock
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Undock", "Undock"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Undock, true))
+				.OnClicked(this, &SFlareDashboard::OnUndock)
+				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
+			]
+
+			// Company
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("InspectCompany", "Company"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
+				.OnClicked(this, &SFlareDashboard::OnInspectCompany)
+			]
+
+			// Quit
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("SaveQuit", "Save and quit"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
+				.OnClicked(this, &SFlareDashboard::OnMainMenu)
+			]
+		]
+
+		// Separator
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(200, 40))
+		[
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
+
+		// Object list
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
 			SNew(SScrollBox)
-
 			+ SScrollBox::Slot()
 			[
 				SNew(SHorizontalBox)
 
-				// Company
+				// Owned
 				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Center)
+				.Padding(Theme.ContentPadding)
 				[
-					SAssignNew(CompanyBox, SVerticalBox)
+					SAssignNew(OwnedShipList, SFlareShipList)
+					.MenuManager(MenuManager)
+					.Title(LOCTEXT("DashboardMyListTitle", "OWNED SPACECRAFTS IN SECTOR"))
 				]
 
-				// Station
+				// Others
 				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Center)
+				.Padding(Theme.ContentPadding)
 				[
-					SAssignNew(StationBox, SVerticalBox)
-				]
-
-				// Universe
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Center)
-				[
-					SAssignNew(UniverseBox, SVerticalBox)
-				]
-
-				// Settings
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Center)
-				[
-					SAssignNew(SettingsBox, SVerticalBox)
+					SAssignNew(OtherShipList, SFlareShipList)
+					.MenuManager(MenuManager)
+					.Title(LOCTEXT("DashboardOtherListTitle", "OTHER SPACECRAFTS IN SECTOR"))
 				]
 			]
 		]
-
-		// Dashboard button
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Top)
-		.AutoWidth()
-		[
-			SNew(SFlareRoundButton)
-			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
-			.OnClicked(this, &SFlareDashboard::OnExit)
-		]
-	];
-
-	// Company box
-	CompanyBox->AddSlot()
-	.HAlign(HAlign_Center)
-	.AutoHeight()
-	[
-		SNew(STextBlock)
-		.Text(LOCTEXT("CompanyMenuTitle", "COMPANY"))
-		.TextStyle(&Theme.SubTitleFont)
-	];
-	CompanyBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareRoundButton)
-		.Text(LOCTEXT("InspectCompany", "Company"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
-		.OnClicked(this, &SFlareDashboard::OnInspectCompany)
-	];
-	CompanyBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareRoundButton)
-		.Text(LOCTEXT("InspectShip", "Ship"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Ship, true))
-		.OnClicked(this, &SFlareDashboard::OnInspectShip)
-	];
-
-	// Station box
-	StationBox->AddSlot()
-	.HAlign(HAlign_Center)
-	.AutoHeight()
-	[
-		SNew(STextBlock)
-		.Text(LOCTEXT("StationMenuTitle", "STATION"))
-		.TextStyle(&Theme.SubTitleFont)
-	];
-	StationBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareRoundButton)
-		.Text(LOCTEXT("InspectStation", "Station"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Station, true))
-		.OnClicked(this, &SFlareDashboard::OnInspectStation)
-	];
-	StationBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareRoundButton)
-		.Text(LOCTEXT("UpgradeShip", "Upgrade ship"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_ShipConfig, true))
-		.OnClicked(this, &SFlareDashboard::OnConfigureShip)
-	];
-	StationBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareRoundButton)
-		.Text(LOCTEXT("Undock", "Undock"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Undock, true))
-		.OnClicked(this, &SFlareDashboard::OnUndock)
-	];
-
-	// Universe box
-	UniverseBox->AddSlot()
-	.HAlign(HAlign_Center)
-	.AutoHeight()
-	[
-		SNew(STextBlock)
-		.Text(LOCTEXT("UniverseMenuTitle", "UNIVERSE"))
-		.TextStyle(&Theme.SubTitleFont)
-	];
-	UniverseBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareRoundButton)
-		.Text(LOCTEXT("Sector", "Sector map"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector, true))
-		.OnClicked(this, &SFlareDashboard::OnOpenSector)
-	];
-
-	// Settings box
-	SettingsBox->AddSlot()
-	.HAlign(HAlign_Center)
-	.AutoHeight()
-	[
-		SNew(STextBlock)
-		.Text(LOCTEXT("SettingsMenuTitle", "SETTINGS"))
-		.TextStyle(&Theme.SubTitleFont)
-	];
-	SettingsBox->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SFlareRoundButton)
-		.Text(LOCTEXT("Quit", "Quit game"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit, true))
-		.OnClicked(this, &SFlareDashboard::OnQuitGame)
 	];
 }
 
@@ -195,19 +192,39 @@ void SFlareDashboard::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	// Find all ships here
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		AFlareSpacecraft* Ship = PC->GetShipPawn();
-		if (Ship)
+		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+		for (TActorIterator<AActor> ActorItr(PC->GetWorld()); ActorItr; ++ActorItr)
 		{
-			StationBox->SetVisibility(Ship->GetNavigationSystem()->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
+			AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
+			{
+				// Owned ship
+				if (PlayerShip && ShipCandidate->GetCompany() == PlayerShip->GetCompany())
+				{
+					OwnedShipList->AddShip(ShipCandidate);
+				}
+
+				// other
+				else
+				{
+					OtherShipList->AddShip(ShipCandidate);
+				}
+			}
 		}
 	}
+
+	OwnedShipList->RefreshList();
+	OtherShipList->RefreshList();
 }
 
 void SFlareDashboard::Exit()
 {
+	OwnedShipList->Reset();
+	OtherShipList->Reset();
 	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 }
@@ -217,14 +234,24 @@ void SFlareDashboard::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
+EVisibility SFlareDashboard::GetDockedVisibility() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		AFlareSpacecraft* Ship = PC->GetShipPawn();
+		if (Ship)
+		{
+			return (Ship->GetNavigationSystem()->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
+		}
+	}
+
+	return EVisibility::Collapsed;
+}
+
 void SFlareDashboard::OnExit()
 {
 	MenuManager->CloseMenu();
-}
-
-void SFlareDashboard::OnInspectCompany()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
 }
 
 void SFlareDashboard::OnInspectShip()
@@ -232,9 +259,19 @@ void SFlareDashboard::OnInspectShip()
 	MenuManager->OpenMenu(EFlareMenu::MENU_Ship);
 }
 
+void SFlareDashboard::OnInspectCompany()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
+}
+
 void SFlareDashboard::OnInspectStation()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Station);
+}
+
+void SFlareDashboard::OnMainMenu()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 
 void SFlareDashboard::OnConfigureShip()
@@ -252,7 +289,7 @@ void SFlareDashboard::OnUndock()
 		if (Ship)
 		{
 			Ship->GetNavigationSystem()->Undock();
-			Cast<AFlareMenuManager>(PC->GetHUD())->CloseMenu();
+			MenuManager->CloseMenu();
 		}
 	}
 }

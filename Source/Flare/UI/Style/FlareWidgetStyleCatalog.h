@@ -56,6 +56,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush InvisibleBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush SeparatorBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin TitlePadding;
+	UPROPERTY(EditAnywhere, Category = Main) FMargin TitleButtonPadding;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin ContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin SmallContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) float DefaultAlpha;

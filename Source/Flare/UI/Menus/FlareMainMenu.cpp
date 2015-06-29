@@ -44,12 +44,11 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(SImage)
-				.Image(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Icon_HeliumRain"))
+				.Image(FFlareStyleSet::GetIcon("HeliumRain"))
 			]
 
 			// Title
 			+ SHorizontalBox::Slot()
-			.AutoWidth()
 			.VAlign(VAlign_Center)
 			.Padding(Theme.ContentPadding)
 			[
@@ -62,7 +61,8 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Bottom)
-			.Padding(FMargin(20, 0))
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Settings", "Settings"))
@@ -74,6 +74,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
@@ -86,7 +87,6 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		// Separator
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.HAlign(HAlign_Fill)
 		.Padding(FMargin(200, 40))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)

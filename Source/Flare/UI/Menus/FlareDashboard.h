@@ -5,6 +5,7 @@
 
 #include "../Components/FlareButton.h"
 #include "../Components/FlareRoundButton.h"
+#include "../Widgets/FlareShipList.h"
 
 
 class SFlareDashboard : public SCompoundWidget
@@ -45,11 +46,17 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
-	/** Inspect the company */
-	void OnInspectCompany();
+	/** Are we docked */
+	EVisibility GetDockedVisibility() const;
 
 	/** Inspect the current ship */
 	void OnInspectShip();
+
+	/** Inspect the company */
+	void OnInspectCompany();
+
+	/** Back to the main menu */
+	void OnMainMenu();
 
 	/** Inspect the current station */
 	void OnInspectStation();
@@ -76,15 +83,12 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	/** HUD reference */
-	UPROPERTY()
+	// HUD reference
 	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 
 	// Widgets
-	TSharedPtr<SVerticalBox> CompanyBox;
-	TSharedPtr<SVerticalBox> StationBox;
-	TSharedPtr<SVerticalBox> UniverseBox;
-	TSharedPtr<SVerticalBox> SettingsBox;
+	TSharedPtr<SFlareShipList>              OwnedShipList;
+	TSharedPtr<SFlareShipList>              OtherShipList;
 	
 
 };
