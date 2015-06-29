@@ -96,18 +96,22 @@ FText SFlareContextMenu::GetText() const
 	FText Result;
 	AFlareSpacecraft* Candidate = NULL;
 
-	if (TargetShip)
-	{
-		Candidate = Cast<AFlareSpacecraft>(TargetShip);
-	}
-	else if (TargetStation)
-	{
-		Candidate = Cast<AFlareSpacecraft>(TargetStation);
-	}
 
-	if (Candidate)
+	if(GetVisibility() == EVisibility::Visible)
 	{
-		Result = FText::FromString(Candidate->GetName());
+		if (TargetShip)
+		{
+			Candidate = Cast<AFlareSpacecraft>(TargetShip);
+		}
+		else if (TargetStation)
+		{
+			Candidate = Cast<AFlareSpacecraft>(TargetStation);
+		}
+
+		if (Candidate)
+		{
+			Result = FText::FromString(Candidate->GetName());
+		}
 	}
 
 	return Result;
