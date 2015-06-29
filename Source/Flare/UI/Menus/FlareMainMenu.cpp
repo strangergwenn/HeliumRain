@@ -83,9 +83,17 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			]
 		]
 
+		// Separator
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Fill)
+		.Padding(FMargin(200, 40))
+		[
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
+
 		// Save slots
 		+ SVerticalBox::Slot()
-		.Padding(FMargin(0, 50))
 		[
 			SAssignNew(Temp, SHorizontalBox)
 		]
