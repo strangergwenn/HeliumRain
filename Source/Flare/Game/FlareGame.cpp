@@ -822,14 +822,17 @@ void AFlareGame::CreateAsteroid(int32 ID)
 		FLOGV("Astroid create fail : Asteroid max ID is %d", GetAsteroidCatalog()->Asteroids.Num() -1);
 		return;
 	}
+
 	if (PC)
 	{
+
+
 		// Location
 		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 		FVector TargetPosition = FVector::ZeroVector;
 		if (ExistingShipPawn)
 		{
-			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
+			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(20000 * FVector(1, 0, 0));
 		}
 
 		// Spawn parameters
@@ -837,6 +840,8 @@ void AFlareGame::CreateAsteroid(int32 ID)
 		Params.bNoFail = true;
 		FFlareAsteroidSave Data;
 		Data.AsteroidMeshID = ID;
+		Data.LinearVelocity = FVector::ZeroVector;
+		Data.AngularVelocity = FVector::ZeroVector;
 
 		// Spawn and setup
 		AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), TargetPosition, FRotator::ZeroRotator, Params);
