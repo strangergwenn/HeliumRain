@@ -814,36 +814,114 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 {
 	//FLOGV("%s IdlePilot",  *Ship->GetName());
 	// TODO find better
-
+	UseOrbitalBoost = false;
 
 	// If there is ennemy fly away
+	PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::S);
+	if (!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::L);
+	}
 
+	// If enemy near, run away !
+	if (PilotTargetShip)
+	{
 
-	// If not, find a leader and follow it
+		FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
+		float Distance = DeltaLocation.Size(); // Distance in meters
 
+		// There is at least one hostile enemy
+		if (Distance < 10000)
+		{
+			Ship->ForceManual(); // TODO make independant command channel
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 
-	// If is the leader, find a location in a 10 km radius and patrol
+			UseOrbitalBoost = true;
+		}
 
+		if (Distance > 2000 && Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.95)
+		{
+			// Too hot and no imminent danger
+			UseOrbitalBoost = false;
+		}
+	}
+	else
+	{
+		// If not, find a leader
+		AFlareSpacecraft* LeaderShip = Ship;
+
+		for(int ShipIndex = 0; ShipIndex < Ship->GetCompany()->GetCompanyShips().Num() ; ShipIndex++)
+		{
+			AFlareSpacecraft* CandidateShip = Cast<AFlareSpacecraft>(Ship->GetCompany()->GetCompanyShips()[ShipIndex]);
+
+			if(!CandidateShip || Ship == CandidateShip)
+			{
+				continue;
+			}
+
+			if(LeaderShip->GetSize() == CandidateShip->GetSize())
+			{
+				if(LeaderShip->GetName() > CandidateShip->GetName())
+				{
+					LeaderShip = CandidateShip;
+					continue;
+				}
+			}
+			else if(CandidateShip->GetSize() == EFlarePartSize::L)
+			{
+				LeaderShip = CandidateShip;
+				continue;
+			}
+		}
+
+		// If is the leader, find a location in a 10 km radius and patrol
+		if(LeaderShip == Ship)
+		{
+			// Go to a random point at 10000 m from the center
+
+			// If at less than 500 m from this point, get another random point
+
+			float TargetLocationToShipDistance = (PilotTargetLocation - Ship->GetActorLocation()).Size();
+
+			if (TargetLocationToShipDistance < 50000 || PilotTargetLocation.IsZero())
+			{
+				PilotTargetLocation = FMath::VRand() * 1000000;
+			}
+			LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 0.8;
+
+		}
+		else
+		{
+			// Follow the leader
+			float FollowRadius = 50000 + FMath::Pow(Ship->GetCompany()->GetCompanyShips().Num() * 3 * FMath::Pow(20000, 3),1/3.);
+			if((LeaderShip->GetActorLocation() - Ship->GetActorLocation()).Size() < FollowRadius)
+			{
+				LinearTargetVelocity = LeaderShip->GetLinearVelocity();
+			}
+			else
+			{
+				LinearTargetVelocity = (LeaderShip->GetActorLocation() - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+
+			}
+		}
+
+	}
 
 	AngularTargetVelocity = FVector::ZeroVector;
-	LinearTargetVelocity = - Ship->GetActorLocation().GetClampedToMaxSize(Ship->GetNavigationSystem()->GetLinearMaxVelocity());
 
+
+
+
+	// Turn to destination
+	if (! LinearTargetVelocity.IsZero())
+	{
+		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocity, FVector::ZeroVector, DeltaSeconds);
+	}
 
 	// Anticollision
 	LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AttackAngle);
 
 
-
-	// Find friend barycenter
-	// Go to friend barycenter
-	// If near
-		// Turn to opposite from barycentre
-	// else
-		// Turn to direction
-
-	WantFire = false;
-	// Manage orbital boost
-	UseOrbitalBoost = false;
 }
 
 void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
