@@ -40,7 +40,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 						SAssignNew(InnerContainer, SBorder)
 						.HAlign(HAlign_Fill)
 						.VAlign(VAlign_Top)
-						.Padding(Theme.ButtonBorderPadding)
+						.Padding(Theme.ButtonPadding)
 						.BorderImage(new FSlateNoResource)
 						[
 							InArgs._Content.Widget

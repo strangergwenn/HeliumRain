@@ -76,7 +76,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SNew(SFlareRoundButton)
-			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit))
+			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 			.OnClicked(this, &SFlareDashboard::OnExit)
 		]
 	];
@@ -95,7 +95,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("InspectCompany", "Company"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
 		.OnClicked(this, &SFlareDashboard::OnInspectCompany)
 	];
 	CompanyBox->AddSlot()
@@ -103,7 +103,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("InspectShip", "Ship"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Ship))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Ship, true))
 		.OnClicked(this, &SFlareDashboard::OnInspectShip)
 	];
 
@@ -121,7 +121,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("InspectStation", "Station"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Station))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Station, true))
 		.OnClicked(this, &SFlareDashboard::OnInspectStation)
 	];
 	StationBox->AddSlot()
@@ -129,7 +129,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("UpgradeShip", "Upgrade ship"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_ShipConfig))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_ShipConfig, true))
 		.OnClicked(this, &SFlareDashboard::OnConfigureShip)
 	];
 	StationBox->AddSlot()
@@ -137,7 +137,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("Undock", "Undock"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Undock))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Undock, true))
 		.OnClicked(this, &SFlareDashboard::OnUndock)
 	];
 
@@ -155,7 +155,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("Sector", "Sector map"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector, true))
 		.OnClicked(this, &SFlareDashboard::OnOpenSector)
 	];
 
@@ -173,7 +173,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 	[
 		SNew(SFlareRoundButton)
 		.Text(LOCTEXT("Quit", "Quit game"))
-		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit, true))
 		.OnClicked(this, &SFlareDashboard::OnQuitGame)
 	];
 }

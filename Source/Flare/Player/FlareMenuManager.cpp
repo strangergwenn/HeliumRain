@@ -149,24 +149,30 @@ void AFlareMenuManager::Notify(FText Text, FText Info, EFlareNotification::Type 
 	}
 }
 
-const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType)
+const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion)
 {
+	FString Path;
+
 	switch (MenuType)
 	{
-		case EFlareMenu::MENU_Dashboard:      return FFlareStyleSet::GetIcon("Dashboard");
-		case EFlareMenu::MENU_Company:        return FFlareStyleSet::GetIcon("Company");
-		case EFlareMenu::MENU_Ship:           return FFlareStyleSet::GetIcon("Ship");
-		case EFlareMenu::MENU_ShipConfig:     return FFlareStyleSet::GetIcon("ShipUpgrade");
-		case EFlareMenu::MENU_Station:        return FFlareStyleSet::GetIcon("Station");
-		case EFlareMenu::MENU_Undock:         return FFlareStyleSet::GetIcon("Undock");
-		case EFlareMenu::MENU_Sector:         return FFlareStyleSet::GetIcon("Sector");
-		case EFlareMenu::MENU_Settings:       return FFlareStyleSet::GetIcon("Settings");
-		case EFlareMenu::MENU_Quit:           return FFlareStyleSet::GetIcon("Quit");
-		case EFlareMenu::MENU_Exit:           return FFlareStyleSet::GetIcon("Close");
-
-		default:
-			return NULL;
+		case EFlareMenu::MENU_Dashboard:      Path = "Dashboard";    break;
+		case EFlareMenu::MENU_Company:        Path = "Company";      break;
+		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
+		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
+		case EFlareMenu::MENU_Station:        Path = "Station";      break;
+		case EFlareMenu::MENU_Undock:         Path = "Undock";       break;
+		case EFlareMenu::MENU_Sector:         Path = "Sector";       break;
+		case EFlareMenu::MENU_Settings:       Path = "Settings";     break;
+		case EFlareMenu::MENU_Quit:           Path = "Quit";         break;
+		case EFlareMenu::MENU_Exit:           Path = "Close";        break;
 	}
+
+	if (ButtonVersion)
+	{
+		Path += "_Button";
+	}
+
+	return FFlareStyleSet::GetIcon(Path);
 }
 
 

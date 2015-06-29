@@ -49,6 +49,9 @@ protected:
 	/** Get the main image for a save slot */
 	const FSlateBrush* GetSaveIcon(int32 Index) const;
 
+	/** Is the delete button visible ? */
+	EVisibility GetDeleteButtonVisibility(int32 Index) const;
+
 	/** Get a button text */
 	FText GetButtonText(int32 Index) const;
 
@@ -58,11 +61,25 @@ protected:
 	/** Start the game */
 	void OnOpenSlot(TSharedPtr<int32> Index);
 
+	/** Delete a game */
+	void OnDeleteSlot(TSharedPtr<int32> Index);
+
 	/** Open the settings menu */
 	void OnOpenSettings();
 
 	/** Quit the game */
 	void OnQuitGame();
+
+
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
+
+	/** Update all slot contents */
+	void UpdateSaveSlots();
+
+	/** Is this an existing game */
+	bool IsExistingGame(int32 Index) const;
 
 
 protected:

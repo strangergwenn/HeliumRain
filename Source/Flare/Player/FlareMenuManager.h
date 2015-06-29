@@ -53,7 +53,7 @@ public:
 	void Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo);
 
 	/** Get a Slate icon brush */
-	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType);
+	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
 
 
 protected:

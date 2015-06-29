@@ -127,7 +127,7 @@ FSlateColor SFlareRoundButton::GetInvertedBackgroundColor() const
 FLinearColor SFlareRoundButton::GetShadowColor() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor Color = Theme.InvertedColor;
+	FLinearColor Color = Theme.SmallFont.ShadowColorAndOpacity;
 	FLinearColor AlphaColor = TextColor.Get().GetSpecifiedColor();
 	Color.A = AlphaColor.A;
 	return Color;

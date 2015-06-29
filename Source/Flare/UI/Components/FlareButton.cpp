@@ -11,10 +11,10 @@ void SFlareButton::Construct(const FArguments& InArgs)
 {
 	// Initial setup
 	IsPressed = false;
-	InvertedBackground = InArgs._InvertedBackground;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Arguments
+	Icon = InArgs._Icon;
 	IsToggle = InArgs._Toggle;
 	OnClicked = InArgs._OnClicked;
 	Color = InArgs._Color;
@@ -32,52 +32,120 @@ void SFlareButton::Construct(const FArguments& InArgs)
 		.ContentPadding(FMargin(0))
 		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
 		[
-			// Central content box
-			SNew(SBox)
-			.WidthOverride(Width)
-			.HeightOverride(Height)
-			.Padding(FMargin(0))
+			SNew(SVerticalBox)
+
+			// Upper border
+			+ SVerticalBox::Slot()
+			.AutoHeight()
 			[
-				// Button background
-				SNew(SBorder)
-				.Padding(Theme.ButtonBorderPadding)
-				.BorderImage(this, &SFlareButton::GetBackgroundBrush)
-				.BorderBackgroundColor(this, &SFlareButton::GetMainColor)
+				SNew(SImage).Image(&Theme.ButtonBorderBrush)
+			]
+
+			// Main line
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				// Left border
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Fill)
 				[
-					SNew(SHorizontalBox)
+					SNew(SImage).Image(&Theme.ButtonBorderBrush)
+				]
 
-					// Content box and inner container
-					+ SHorizontalBox::Slot()
+				// Main content box
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.WidthOverride(Width)
+					.HeightOverride(Height)
+					.Padding(FMargin(0))
 					[
-						SAssignNew(InnerContainer, SBorder)
-						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Center)
-						.Padding(Theme.ButtonPadding)
-						.BorderImage(new FSlateNoResource)
-					]
+						// Button background
+						SNew(SBorder)
+						.Padding(FMargin(0))
+						.BorderImage(this, &SFlareButton::GetBackgroundBrush)
+						.BorderBackgroundColor(this, &SFlareButton::GetMainColor)
+						[
+							SNew(SHorizontalBox)
 
-					// Toggle light
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Right)
-					.VAlign(VAlign_Fill)
-					[
-						SNew(SImage)
-						.Image(this, &SFlareButton::GetDecoratorBrush)
+							// Content box and inner container
+							+ SHorizontalBox::Slot()
+							[
+								SAssignNew(InnerContainer, SBorder)
+								.HAlign(HAlign_Left)
+								.VAlign(VAlign_Center)
+								.Padding(Theme.ButtonPadding)
+								.BorderImage(new FSlateNoResource)
+							]
+
+							// Toggle light
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.HAlign(HAlign_Right)
+							.VAlign(VAlign_Fill)
+							[
+								SNew(SImage)
+								.Image(this, &SFlareButton::GetDecoratorBrush)
+							]
+						]
 					]
 				]
+
+				// Right border
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Fill)
+				[
+					SNew(SImage).Image(&Theme.ButtonBorderBrush)
+				]
+			]
+
+			// Lower border
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SNew(SImage).Image(&Theme.ButtonBorderBrush)
 			]
 		]
 	];
 
 	// Construct text content if we need to
-	if (InArgs._Text.IsBound())
+	if (InArgs._Text.IsSet())
 	{
+		TSharedPtr<SVerticalBox> IconBox;
+
 		InnerContainer->SetContent(
-			SNew(STextBlock)
-			.TextStyle(&Theme.TextFont)
-			.Text(InArgs._Text)
+			SNew(SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(FMargin(0, 0, 10, 0))
+			[
+				SAssignNew(IconBox, SVerticalBox)
+			]
+
+			// Text
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(InArgs._Text)
+			]
 		);
+
+		if (Icon.IsSet())
+		{
+			IconBox->AddSlot()
+				.VAlign(VAlign_Center)
+				[
+					SNew(SImage).Image(Icon)
+				];
+		}
 	}
 	else
 	{
@@ -127,15 +195,7 @@ const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	
-	if (InvertedBackground)
-	{
-		return (IsHovered() ? &Theme.ButtonInvertedActiveBackground : &Theme.ButtonInvertedBackground);
-	}
-	else
-	{
-		return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
-	}
+	return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
 }
 
 FSlateColor SFlareButton::GetMainColor() const

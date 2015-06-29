@@ -278,6 +278,19 @@ UFlareSaveGame* AFlareGame::LoadSaveFile(int32 Index)
 	}
 }
 
+bool AFlareGame::DeleteSaveFile(int32 Index)
+{
+	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
+	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
+	{
+		return UGameplayStatics::DeleteGameInSlot(SaveFile, 0);
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool AFlareGame::LoadWorld(AFlarePlayerController* PC, int32 Index)
 {
 	FLOGV("AFlareGame::LoadWorld : loading from slot %d", Index);

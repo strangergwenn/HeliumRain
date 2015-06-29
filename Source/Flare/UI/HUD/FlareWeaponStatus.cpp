@@ -188,7 +188,7 @@ FSlateColor SFlareWeaponStatus::GetTextColor() const
 FLinearColor SFlareWeaponStatus::GetShadowColor() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor NormalColor = Theme.InvertedColor;
+	FLinearColor NormalColor = Theme.SmallFont.ShadowColorAndOpacity;
 	NormalColor.A *= Theme.DefaultAlpha * CurrentAlpha;
 	return NormalColor;
 }

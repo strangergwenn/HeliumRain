@@ -57,6 +57,9 @@ public:
 	/** Load a game save */
 	static UFlareSaveGame* LoadSaveFile(int32 Index);
 
+	/** Remove a game save */
+	static bool DeleteSaveFile(int32 Index);
+
 	/** Load the world from this save file */
 	virtual bool LoadWorld(AFlarePlayerController* PC, int32 Index);
 

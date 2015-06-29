@@ -21,32 +21,27 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	TSharedPtr<SHorizontalBox> Temp;
-	SaveSlotCount = 5;
+	SaveSlotCount = 3;
 	Initialized = false;
-
-	// Alpha color
-	FLinearColor AlphaColor = FLinearColor::White;
-	AlphaColor.A = Theme.DefaultAlpha;
 
 	// Build structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
-	.Padding(FMargin(30))
 	[
 		SNew(SVerticalBox)
 
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(SHorizontalBox)
 
 			// Icon
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
-			.Padding(FMargin(20))
 			[
 				SNew(SImage)
 				.Image(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Icon_HeliumRain"))
@@ -54,11 +49,37 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 
 			// Title
 			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			.VAlign(VAlign_Center)
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TitleFont)
 				.Text(LOCTEXT("MainMenu", "HELIUM RAIN"))
+			]
+
+			// Settings
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(FMargin(20, 0))
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Settings", "Settings"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings, true))
+				.OnClicked(this, &SFlareMainMenu::OnOpenSettings)
+			]
+
+			// Quit
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Quit", "Quit game"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit, true))
+				.OnClicked(this, &SFlareMainMenu::OnQuitGame)
 			]
 		]
 
@@ -68,116 +89,83 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(Temp, SHorizontalBox)
 		]
-
-		// Actions
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Bottom)
-		[
-			SNew(SHorizontalBox)
-
-			+ SHorizontalBox::Slot()
-			.Padding(FMargin(20, 0))
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Settings", "Settings"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings))
-				.OnClicked(this, &SFlareMainMenu::OnOpenSettings)
-			]
-
-			+ SHorizontalBox::Slot()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Quit", "Quit game"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit))
-				.OnClicked(this, &SFlareMainMenu::OnQuitGame)
-			]
-		]
 	];
 
 	// Add save slots
 	for (int32 Index = 1; Index <= SaveSlotCount; Index++)
 	{
-		TSharedPtr<SFlareButton> TempButton;
+		TSharedPtr<int32> IndexPtr(new int32(Index));
 
 		Temp->AddSlot()
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Top)
 		[
-			SNew(SBorder)
-			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"))
-			.BorderBackgroundColor(AlphaColor)
+			SNew(SVerticalBox)
+
+			// Slot N°
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
 			[
-				SNew(SVerticalBox)
-
-				// Slot N°
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SubTitleFont)
-					.Text(FText::FromString(FString::FromInt(Index)))
-				]
-
-				// Company emblem
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Center)
-					[
-						SNew(SImage)
-						.Image(this, &SFlareMainMenu::GetSaveIcon, Index)
-					]
-				]
-
-				// Description
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareMainMenu::GetText, Index)
-				]
-
-				// Launch
-				+ SVerticalBox::Slot()
-				.HAlign(HAlign_Left)
-				.VAlign(VAlign_Center)
-				.AutoHeight()
-				[
-					SAssignNew(TempButton, SFlareButton)
-					.OnClicked(this, &SFlareMainMenu::OnOpenSlot, TSharedPtr<int32>(new int32(Index)))
-					.Width(6)
-					.Height(1)
-				]
-			]
-		];
-
-		// Add button content
-		TempButton->GetContainer()->SetContent(
-			SNew(SHorizontalBox)
-
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage)
-				.Image(this, &SFlareMainMenu::GetButtonIcon, Index)
+				SNew(STextBlock)
+				.TextStyle(&Theme.TitleFont)
+				.Text(FText::FromString(FString::FromInt(Index) + "/"))
 			]
 
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
+			// Company emblem
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Center)
+				[
+					SNew(SImage)
+					.Image(this, &SFlareMainMenu::GetSaveIcon, Index)
+				]
+			]
+
+			// Description
+			+ SVerticalBox::Slot()
+			.AutoHeight()
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TextFont)
-				.Text(this, &SFlareMainMenu::GetButtonText, Index)
+				.Text(this, &SFlareMainMenu::GetText, Index)
 			]
-		);
+
+			// Launch
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Center)
+			.AutoHeight()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(this, &SFlareMainMenu::GetButtonText, Index)
+				.Icon(this, &SFlareMainMenu::GetButtonIcon, Index)
+				.OnClicked(this, &SFlareMainMenu::OnOpenSlot, IndexPtr)
+				.Width(5)
+				.Height(1)
+			]
+
+			// Delete
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Center)
+			.AutoHeight()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("Delete", "Delete game"))
+				.Icon(FFlareStyleSet::GetIcon("Delete"))
+				.OnClicked(this, &SFlareMainMenu::OnDeleteSlot, IndexPtr)
+				.Width(5)
+				.Height(1)
+				.Visibility(this, &SFlareMainMenu::GetDeleteButtonVisibility, Index)
+			]
+		];
 	}
 }
 
@@ -195,26 +183,8 @@ void SFlareMainMenu::Setup()
 void SFlareMainMenu::Enter()
 {
 	FLOG("SFlareMainMenu::Enter");
-	SaveSlots.Empty();
-
-	// Look for existing saves
-	for (int32 Index = 1; Index <= SaveSlotCount; Index++)
-	{
-		UFlareSaveGame* Save = AFlareGame::LoadSaveFile(Index);
-		if (Save)
-		{
-			FLOGV("SFlareMainMenu::Enter : found valid save data in slot %d", Index);
-			SaveSlots.Add(Save);
-		}
-		else
-		{
-			SaveSlots.Add(NULL);
-		}
-	}
-	FLOG("SFlareMainMenu::Enter : all slots found");
-
+	UpdateSaveSlots();
 	SetEnabled(true);
-	Initialized = true;
 	SetVisibility(EVisibility::Visible);
 }
 
@@ -232,63 +202,39 @@ void SFlareMainMenu::Exit()
 
 FText SFlareMainMenu::GetText(int32 Index) const
 {
-	int32 RealIndex = Index - 1;
-
-	if (Initialized && RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
+	if (IsExistingGame(Index - 1))
 	{
-		FFlarePlayerSave& PlayerData = SaveSlots[RealIndex]->PlayerData;
+		FFlarePlayerSave& PlayerData = SaveSlots[Index - 1]->PlayerData;
 
 		FString CompanyString = LOCTEXT("Company", "Company : ").ToString() + PlayerData.CompanyIdentifier.ToString();
 		FString ShipString = LOCTEXT("Flying", "Player ship : ").ToString() + PlayerData.CurrentShipName;
 
-		return FText::FromString(CompanyString + "\n" + ShipString);
+		return FText::FromString(CompanyString + "\n" + ShipString + "\n");
 	}
 	else
 	{
-		return FText::FromString("");
+		return FText::FromString("\n\n");
 	}
 }
 
 const FSlateBrush* SFlareMainMenu::GetSaveIcon(int32 Index) const
 {
-	int32 RealIndex = Index - 1;
+	return (IsExistingGame(Index - 1) ? FFlareStyleSet::GetIcon("Company") : FFlareStyleSet::GetIcon("HeliumRain"));
+}
 
-	if (Initialized && RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
-	{
-		return FFlareStyleSet::GetIcon("Company");
-	}
-	else
-	{
-		return FFlareStyleSet::GetIcon("HeliumRain");
-	}
+EVisibility SFlareMainMenu::GetDeleteButtonVisibility(int32 Index) const
+{
+	return (IsExistingGame(Index - 1) ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 FText SFlareMainMenu::GetButtonText(int32 Index) const
 {
-	int32 RealIndex = Index - 1;
-
-	if (Initialized && RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
-	{
-		return LOCTEXT("Load", "Load saved game");
-	}
-	else
-	{
-		return LOCTEXT("Create", "Start a new game");
-	}
+	return (IsExistingGame(Index - 1) ? LOCTEXT("Load", "Load game") : LOCTEXT("Create", "New game"));
 }
 
 const FSlateBrush* SFlareMainMenu::GetButtonIcon(int32 Index) const
 {
-	int32 RealIndex = Index - 1;
-
-	if (Initialized && RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
-	{
-		return FFlareStyleSet::GetIcon("Load");
-	}
-	else
-	{
-		return FFlareStyleSet::GetIcon("New");
-	}
+	return (IsExistingGame(Index - 1) ? FFlareStyleSet::GetIcon("Load") : FFlareStyleSet::GetIcon("New"));
 }
 
 void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
@@ -310,6 +256,12 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 	}
 }
 
+void SFlareMainMenu::OnDeleteSlot(TSharedPtr<int32> Index)
+{
+	AFlareGame::DeleteSaveFile(*Index);
+	UpdateSaveSlots();
+}
+
 void SFlareMainMenu::OnOpenSettings()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
@@ -319,6 +271,39 @@ void SFlareMainMenu::OnQuitGame()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
 }
+
+
+/*----------------------------------------------------
+	Helpers
+----------------------------------------------------*/
+
+void SFlareMainMenu::UpdateSaveSlots()
+{
+	SaveSlots.Empty();
+
+	for (int32 Index = 1; Index <= SaveSlotCount; Index++)
+	{
+		UFlareSaveGame* Save = AFlareGame::LoadSaveFile(Index);
+		if (Save)
+		{
+			FLOGV("SFlareMainMenu::UpdateSaveSlots : found valid save data in slot %d", Index);
+			SaveSlots.Add(Save);
+		}
+		else
+		{
+			SaveSlots.Add(NULL);
+		}
+	}
+
+	FLOG("SFlareMainMenu::UpdateSaveSlots : all slots found");
+	Initialized = true;
+}
+
+bool SFlareMainMenu::IsExistingGame(int32 Index) const
+{
+	return Initialized && Index < SaveSlots.Num() && SaveSlots[Index];
+}
+
 
 #undef LOCTEXT_NAMESPACE
 

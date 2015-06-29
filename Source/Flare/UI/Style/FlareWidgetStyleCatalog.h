@@ -30,12 +30,12 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&BackgroundBrush);
 		OutBrushes.Add(&InvertedBrush);
 		OutBrushes.Add(&InvisibleBrush);
-		OutBrushes.Add(&BorderBrush);
 
 		OutBrushes.Add(&ButtonBackground);
 		OutBrushes.Add(&ButtonActiveBackground);
 		OutBrushes.Add(&ButtonDecorator);
 		OutBrushes.Add(&ButtonActiveDecorator);
+		OutBrushes.Add(&ButtonBorderBrush);
 
 		OutBrushes.Add(&RoundButtonCircle);
 		OutBrushes.Add(&RoundButtonActiveCircle);
@@ -53,7 +53,6 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush BackgroundBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush InvertedBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush InvisibleBrush;
-	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush BorderBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin TitlePadding;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin ContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin SmallContentPadding;
@@ -65,7 +64,6 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor MidDamageColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor FriendlyColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor NeutralColor;
-	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor InvertedColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor ObjectiveColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor TradingColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor CombatColor;
@@ -86,12 +84,10 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	// Default button style
 	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonBackground;
 	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonActiveBackground;
-	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonInvertedBackground;
-	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonInvertedActiveBackground;
 	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonDecorator;
 	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonActiveDecorator;
+	UPROPERTY(EditAnywhere, Category = Buttons) FSlateBrush ButtonBorderBrush;
 	UPROPERTY(EditAnywhere, Category = Buttons) FMargin ButtonPadding;
-	UPROPERTY(EditAnywhere, Category = Buttons) FMargin ButtonBorderPadding;
 	UPROPERTY(EditAnywhere, Category = Buttons) int32 ButtonWidth;
 	UPROPERTY(EditAnywhere, Category = Buttons) int32 ButtonHeight;
 
