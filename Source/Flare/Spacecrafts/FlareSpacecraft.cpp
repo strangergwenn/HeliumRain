@@ -451,6 +451,25 @@ void AFlareSpacecraft::UpdateCustomization()
 	Super::UpdateCustomization();
 
 	Airframe->UpdateCustomization();
+
+	// Customize decal materials
+	TArray<UActorComponent*> Components = GetComponentsByClass(UDecalComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UDecalComponent* Component = Cast<UDecalComponent>(Components[ComponentIndex]);
+		if (Component)
+		{
+			if (!DecalMaterial)
+			{
+				DecalMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), GetWorld());
+			}
+			if (Company && DecalMaterial)
+			{
+				Company->CustomizeComponentMaterial(DecalMaterial);
+				Component->SetMaterial(0, DecalMaterial);
+			}
+		}
+	}
 }
 
 void AFlareSpacecraft::StartPresentation()

@@ -192,6 +192,10 @@ protected:
 	UPROPERTY()
 	UFlareShipPilot*                               Pilot;
 
+	// Decal material
+	UPROPERTY()
+	UMaterialInstanceDynamic*                      DecalMaterial;
+
 	// Systems
 	UPROPERTY()
 	UFlareSpacecraftDamageSystem*                  DamageSystem;
