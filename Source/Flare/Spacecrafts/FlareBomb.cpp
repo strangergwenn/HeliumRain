@@ -113,6 +113,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 		//TODO Explosion radius
 
 		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(Other);
+		AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(Other);
 		if (Spacecraft)
 		{
 			Spacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower , WeaponDescription->WeaponCharacteristics.AmmoDamageRadius, HitLocation);
@@ -131,6 +132,15 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 			{
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound, HitLocation, 1, 1);
 			}
+		}
+		else if(Asteroid)
+		{
+			float ImpulseForce = 3000 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius;
+
+			FVector ImpulseDirection = (HitLocation - GetActorLocation()).GetUnsafeNormal();
+
+			// Physics impulse
+			Asteroid->GetStaticMeshComponent()->AddImpulseAtLocation( ImpulseForce * ImpulseDirection, HitLocation);
 		}
 
 		UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(OtherComp);

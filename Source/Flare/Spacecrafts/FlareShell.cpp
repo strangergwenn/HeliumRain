@@ -268,16 +268,24 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 			if (ShellDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
 			{
 				AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(HitResult.Actor.Get());
+				AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(HitResult.Actor.Get());
 				if (Spacecraft)
 				{
 					Spacecraft->GetDamageSystem()->ApplyDamage(ShellDescription->WeaponCharacteristics.ExplosionPower , ShellDescription->WeaponCharacteristics.AmmoDamageRadius, HitResult.Location);
 
 					float ImpulseForce = 3000 * ShellDescription->WeaponCharacteristics.ExplosionPower * ShellDescription->WeaponCharacteristics.AmmoDamageRadius;
-					FVector ImpulseDirection = (HitResult.Location - GetActorLocation()).GetUnsafeNormal();
 
 					// Physics impulse
 					Spacecraft->Airframe->AddImpulseAtLocation( ShellVelocity.GetUnsafeNormal(), HitResult.Location);
 				}
+				else if(Asteroid)
+				{
+					float ImpulseForce = 3000 * ShellDescription->WeaponCharacteristics.ExplosionPower * ShellDescription->WeaponCharacteristics.AmmoDamageRadius;
+
+					// Physics impulse
+					Asteroid->GetStaticMeshComponent()->AddImpulseAtLocation( ShellVelocity.GetUnsafeNormal(), HitResult.Location);
+				}
+
 			}
 
 			// Spawn penetration effect
@@ -465,6 +473,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	// Hit a component : damage in KJ
 	float AbsorbedEnergy = (PenetrateArmor ? ImpactPower : FMath::Square(Incidence) * ImpactPower);
 	AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(ActorToDamage);
+	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(ActorToDamage);
 	if (Spacecraft)
 	{
 		Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, ImpactRadius, ImpactLocation);
@@ -479,6 +488,11 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 		{
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation, 1, 1);
 		}
+	}
+	else if(Asteroid)
+	{
+		// Physics impulse
+		Asteroid->GetStaticMeshComponent()->AddImpulseAtLocation( 5000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
 	}
 
 	// Spawn impact decal
