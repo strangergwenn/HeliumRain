@@ -50,6 +50,7 @@ public:
 	/** Save the asteroid to a save file */
 	virtual FFlareAsteroidSave* Save();
 
+	virtual void SetPause(bool Paused);
 
 protected:
 
@@ -58,6 +59,5 @@ protected:
 	----------------------------------------------------*/
 	
 	FFlareAsteroidSave                          AsteroidData;
-	
-
+	bool                                    Paused;
 };

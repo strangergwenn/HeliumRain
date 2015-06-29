@@ -21,6 +21,7 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
 	SetMobility(EComponentMobility::Movable);
+	Paused = false;
 }
 
 
@@ -49,4 +50,26 @@ FFlareAsteroidSave* AFlareAsteroid::Save()
 	AsteroidData.AngularVelocity = GetStaticMeshComponent()->GetPhysicsAngularVelocity();
 	
 	return &AsteroidData;
+}
+
+void AFlareAsteroid::SetPause(bool Pause)
+{
+	if (Paused == Pause)
+	{
+		return;
+	}
+	Paused = Pause;
+
+	CustomTimeDilation = (Paused ? 0.f : 1.0);
+	if (Paused)
+	{
+		Save();
+	}
+	GetStaticMeshComponent()->SetSimulatePhysics(!Paused);
+
+	if (!Paused)
+	{
+		GetStaticMeshComponent()->SetPhysicsLinearVelocity(AsteroidData.LinearVelocity);
+		GetStaticMeshComponent()->SetPhysicsAngularVelocity(AsteroidData.AngularVelocity);
+	}
 }

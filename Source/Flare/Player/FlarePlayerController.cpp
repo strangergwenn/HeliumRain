@@ -399,6 +399,13 @@ void AFlarePlayerController::OnEnterMenu()
 				FLOGV("Pause %s", *ShellCandidate->GetName());
 				ShellCandidate->SetPause(true);
 			}
+
+			AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
+			if (AsteroidCandidate)
+			{
+				FLOGV("Pause %s", *AsteroidCandidate->GetName());
+				AsteroidCandidate->SetPause(true);
+			}
 		}
 	}
 
@@ -434,6 +441,13 @@ void AFlarePlayerController::OnExitMenu()
 			{
 				FLOGV("UnPause %s", *ShellCandidate->GetName());
 				ShellCandidate->SetPause(false);
+			}
+
+			AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
+			if (AsteroidCandidate)
+			{
+				FLOGV("UnPause %s", *AsteroidCandidate->GetName());
+				AsteroidCandidate->SetPause(false);
 			}
 		}
 	}
