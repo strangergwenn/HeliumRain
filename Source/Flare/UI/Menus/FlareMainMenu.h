@@ -71,6 +71,8 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
+	bool                                       Initialized;
+
 	int32                                      SaveSlotCount;
 
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;

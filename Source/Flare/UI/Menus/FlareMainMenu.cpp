@@ -22,6 +22,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	TSharedPtr<SHorizontalBox> Temp;
 	SaveSlotCount = 5;
+	Initialized = false;
 
 	// Alpha color
 	FLinearColor AlphaColor = FLinearColor::White;
@@ -194,6 +195,7 @@ void SFlareMainMenu::Setup()
 void SFlareMainMenu::Enter()
 {
 	FLOG("SFlareMainMenu::Enter");
+	SaveSlots.Empty();
 
 	// Look for existing saves
 	for (int32 Index = 1; Index <= SaveSlotCount; Index++)
@@ -212,12 +214,14 @@ void SFlareMainMenu::Enter()
 	FLOG("SFlareMainMenu::Enter : all slots found");
 
 	SetEnabled(true);
+	Initialized = true;
 	SetVisibility(EVisibility::Visible);
 }
 
 void SFlareMainMenu::Exit()
 {
 	SetEnabled(false);
+	Initialized = false;
 	SetVisibility(EVisibility::Hidden);
 }
 
@@ -230,7 +234,7 @@ FText SFlareMainMenu::GetText(int32 Index) const
 {
 	int32 RealIndex = Index - 1;
 
-	if (RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
+	if (Initialized && RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
 	{
 		FFlarePlayerSave& PlayerData = SaveSlots[RealIndex]->PlayerData;
 
@@ -249,7 +253,7 @@ const FSlateBrush* SFlareMainMenu::GetSaveIcon(int32 Index) const
 {
 	int32 RealIndex = Index - 1;
 
-	if (RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
+	if (Initialized && RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
 	{
 		return FFlareStyleSet::GetIcon("Company");
 	}
@@ -263,7 +267,7 @@ FText SFlareMainMenu::GetButtonText(int32 Index) const
 {
 	int32 RealIndex = Index - 1;
 
-	if (RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
+	if (Initialized && RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
 	{
 		return LOCTEXT("Load", "Load saved game");
 	}
@@ -277,7 +281,7 @@ const FSlateBrush* SFlareMainMenu::GetButtonIcon(int32 Index) const
 {
 	int32 RealIndex = Index - 1;
 
-	if (RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
+	if (Initialized && RealIndex < SaveSlots.Num() && SaveSlots[RealIndex])
 	{
 		return FFlareStyleSet::GetIcon("Load");
 	}
