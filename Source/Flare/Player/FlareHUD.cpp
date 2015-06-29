@@ -184,14 +184,14 @@ void AFlareHUD::UpdateHUDVisibility()
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
-	if (!HUDVisible)
+
+	// Initial data and checks
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	AFlareSpacecraft* Ship = PC->GetShipPawn();
+	if (!HUDVisible || !Ship || !Ship->GetDamageSystem()->IsAlive())
 	{
 		return;
 	}
-
-	// Initial data
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	AFlareSpacecraft* Ship = PC->GetShipPawn();
 
 	// Draw designators and context menu
 	if (!MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu() && !IsMouseMenuOpen())
