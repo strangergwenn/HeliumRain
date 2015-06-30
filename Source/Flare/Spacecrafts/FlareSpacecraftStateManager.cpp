@@ -70,6 +70,11 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	LastWeaponType = CurrentWeaponType;
 
 
+	if(!IsPiloted && (PlayerManualOrbitalBoost || !PlayerManualLinearVelocity.IsZero()))
+	{
+		Spacecraft->ForceManual();
+	}
+
 	// Control
 	switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 	{
