@@ -6,6 +6,7 @@
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
+#include "../Spacecrafts/FlareShell.h"
 
 
 /*----------------------------------------------------
@@ -666,6 +667,34 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 
 void AFlareGame::DeleteWorld()
 {
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
+		{
+			SpacecraftCandidate->Destroy();
+		}
+
+		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
+		if (BombCandidate)
+		{
+			BombCandidate->Destroy();
+		}
+
+		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
+		if (ShellCandidate)
+		{
+			ShellCandidate->Destroy();
+		}
+
+		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
+		if (AsteroidCandidate)
+		{
+			AsteroidCandidate->Destroy();
+		}
+	}
+
+	Companies.Empty();
 }
 
 
