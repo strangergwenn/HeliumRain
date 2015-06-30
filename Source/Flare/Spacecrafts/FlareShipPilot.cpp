@@ -892,7 +892,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 			if (TargetLocationToShipDistance < 50000 || PilotTargetLocation.IsZero())
 			{
-				PilotTargetLocation = FMath::VRand() * 1000000;
+				PilotTargetLocation = FMath::VRand() * FMath::FRand() * 1000000;
 			}
 			LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 0.8;
 
@@ -965,7 +965,7 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	if (NewTargetLocation || PilotTargetLocation.IsZero())
 	{
 
-		PilotTargetLocation = FMath::VRand() * 100000 + PilotTargetShip->GetActorLocation();
+		PilotTargetLocation = FMath::VRand() * FMath::FRand() * 100000 + PilotTargetShip->GetActorLocation();
 		//FLOGV("%s FlagShipPilot NewTargetLocation %d",  *Ship->GetName(), NewTargetLocation);
 	}
 
