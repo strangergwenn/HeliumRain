@@ -503,7 +503,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 			AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(*ActorItr);
 
 			// Ship
-			if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentShip()))
+			if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
 			{
 				FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetName());
 				FFlareSpacecraftSave* TempData = Ship->Save();
@@ -511,7 +511,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 			}
 
 			// Station
-			else if (Ship && Ship->GetDescription() && Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentStation()))
+			else if (Ship && Ship->GetDescription() && Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
 			{
 				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Ship->GetName());
 				FFlareSpacecraftSave* TempData = Ship->Save();

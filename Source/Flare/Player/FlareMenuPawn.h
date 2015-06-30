@@ -117,13 +117,9 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 	
-	/** Ship reference */
+	/** Spacecraft reference */
 	UPROPERTY()
-	AFlareSpacecraft*                CurrentShip;
-
-	/** Station reference */
-	UPROPERTY()
-	AFlareSpacecraft*             CurrentStation;
+	AFlareSpacecraft*                CurrentSpacecraft;
 
 	// Part data
 	FVector                    CurrentPartOffsetA;
@@ -154,15 +150,8 @@ public:
 		return Cast<AFlarePlayerController>(GetController());
 	}
 
-	inline AFlareSpacecraft* GetCurrentShip()
+	inline AFlareSpacecraft* GetCurrentSpacecraft()
 	{
-		return CurrentShip;
+		return CurrentSpacecraft;
 	}
-
-	inline AFlareSpacecraft* GetCurrentStation()
-	{
-		return CurrentStation;
-	}
-
-
 };

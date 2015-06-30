@@ -16,7 +16,7 @@ AFlareMenuPawn::AFlareMenuPawn(const class FObjectInitializer& PCIP)
 	, SlideInOutUpOffset(0, 0, -2000)
 	, SlideInOutSideOffset(0, 2000, 0)
 	, SlideInOutTime(0.4)
-	, CurrentShip(NULL)
+	, CurrentSpacecraft(NULL)
 	, SlideFromAToB(true)
 	, SlideDirection(1)
 {
@@ -78,18 +78,10 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	CurrentPartB->SetRelativeLocation(CurrentPartOffsetB + (SlideFromAToB ? SlideInDelta : SlideOutDelta));
 
 	// Ship sliding
-	if (CurrentShip)
+	if (CurrentSpacecraft)
 	{
-		CurrentShip->SetActorLocation(GetActorLocation() + CurrentShipOffset + SlideInDelta);
+		CurrentSpacecraft->SetActorLocation(GetActorLocation() + CurrentShipOffset + SlideInDelta);
 	}
-
-	// Station sliding
-	if (CurrentStation)
-	{
-		CurrentStation->SetActorLocation(GetActorLocation() + CurrentShipOffset + SlideInDelta);
-	}
-
-
 
 	//Camera
 	float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
@@ -102,13 +94,9 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
 	FRotator DeltaRot = FRotator::MakeFromEuler(FVector(0, 0, ExternalCameraYaw - LastExternalCameraYaw));
 
-	if (CurrentShip)
+	if (CurrentSpacecraft)
 	{
-		CurrentShip->AddActorLocalRotation(DeltaRot);
-	}
-	else if (CurrentStation)
-	{
-		CurrentStation->AddActorLocalRotation(DeltaRot);
+		CurrentSpacecraft->AddActorLocalRotation(DeltaRot);
 	}
 	else
 	{
@@ -127,57 +115,29 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	ResetContent();
 
 	// Spawn and setup the ship
-	CurrentShip = GetWorld()->SpawnActor<AFlareSpacecraft>(ShipDesc->Template->GeneratedClass);
-	CurrentShip->AttachRootComponentToActor(this, NAME_None, EAttachLocation::SnapToTarget);
+	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(ShipDesc->Template->GeneratedClass);
+	CurrentSpacecraft->AttachRootComponentToActor(this, NAME_None, EAttachLocation::SnapToTarget);
 
 	// Setup rotation and scale
-	CurrentShip->SetActorScale3D(FVector(1, 1, 1));
-	float Scale = DisplaySize / CurrentShip->GetMeshScale();
-	FLOGV("DS=%f, MS=%f, S=%f", DisplaySize, CurrentShip->GetMeshScale(), Scale);
-	CurrentShip->SetActorScale3D(Scale * FVector(1, 1, 1));
-	CurrentShip->SetActorRelativeRotation(FRotator(0, InitialYaw, 0));
+	CurrentSpacecraft->SetActorScale3D(FVector(1, 1, 1));
+	float Scale = DisplaySize / CurrentSpacecraft->GetMeshScale();
+	FLOGV("DS=%f, MS=%f, S=%f", DisplaySize, CurrentSpacecraft->GetMeshScale(), Scale);
+	CurrentSpacecraft->SetActorScale3D(Scale * FVector(1, 1, 1));
+	CurrentSpacecraft->SetActorRelativeRotation(FRotator(0, InitialYaw, 0));
 
 	// Slide
 	SlideInOutCurrentTime = 0.0f;
 	SlideInOutOffset = SlideInOutSideOffset;
 	SetSlideDirection(true);
 
-	CurrentShip->StartPresentation();
+	CurrentSpacecraft->StartPresentation();
 
 	// UI
 	if (ShipData)
 	{
-		CurrentShip->Load(*ShipData);
+		CurrentSpacecraft->Load(*ShipData);
 	}
 }
-/*
-void AFlareMenuPawn::ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData)
-{
-	// Clean up
-	ResetContent();
-
-	// Spawn and setup the station
-	CurrentStation = GetWorld()->SpawnActor<AFlareStation>(StationDesc->Template->GeneratedClass);
-	CurrentStation->AttachRootComponentToActor(this, NAME_None, EAttachLocation::SnapToTarget);
-
-	// Setup rotation and scale
-	CurrentStation->SetActorScale3D(FVector(1, 1, 1));
-	float Scale = DisplaySize / CurrentStation->GetMeshScale();
-	CurrentStation->SetActorScale3D(Scale * FVector(1, 1, 1));
-	CurrentStation->SetActorRelativeRotation(FRotator(0, InitialYaw, 0));
-
-	// Slide
-	SlideInOutCurrentTime = 0.0f;
-	SlideInOutOffset = SlideInOutSideOffset;
-	SetSlideDirection(true);
-
-	// UI
-	if (StationData)
-	{
-		CurrentStation->Load(*StationData);
-	}
-	CurrentStation->StartPresentation();
-}*/
 
 void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDesc)
 {
@@ -220,17 +180,10 @@ void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDe
 void AFlareMenuPawn::ResetContent(bool Unsafe)
 {
 	// Delete ship if existing
-	if (CurrentShip && !Unsafe)
+	if (CurrentSpacecraft && !Unsafe)
 	{
-		CurrentShip->Destroy();
-		CurrentShip = NULL;
-	}
-
-	// Delete station if existing
-	if (CurrentStation && !Unsafe)
-	{
-		CurrentStation->Destroy();
-		CurrentStation = NULL;
+		CurrentSpacecraft->Destroy();
+		CurrentSpacecraft = NULL;
 	}
 
 	// Hide parts
@@ -246,13 +199,9 @@ void AFlareMenuPawn::ResetContent(bool Unsafe)
 
 void AFlareMenuPawn::UpdateCustomization()
 {
-	if (CurrentShip)
+	if (CurrentSpacecraft)
 	{
-		CurrentShip->UpdateCustomization();
-	}
-	if (CurrentStation)
-	{
-		CurrentStation->UpdateCustomization();
+		CurrentSpacecraft->UpdateCustomization();
 	}
 	else
 	{
