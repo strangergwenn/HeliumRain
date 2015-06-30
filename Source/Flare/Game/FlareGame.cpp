@@ -664,6 +664,10 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 	}
 }
 
+void AFlareGame::DeleteWorld()
+{
+}
+
 
 /*----------------------------------------------------
 	Creation tools

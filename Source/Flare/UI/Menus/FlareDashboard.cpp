@@ -272,7 +272,11 @@ void SFlareDashboard::OnInspectStation()
 void SFlareDashboard::OnMainMenu()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
+
 	PC->GetGame()->SaveWorld(PC);
+	PC->GetGame()->DeleteWorld();
+
+	MenuManager->FlushNotifications();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 

@@ -38,6 +38,9 @@ public:
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo);
 
+	/** Remvoe all notifications from the screen */
+	void FlushNotifications();
+
 
 	/*----------------------------------------------------
 		Callbacks

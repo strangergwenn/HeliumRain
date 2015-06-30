@@ -52,6 +52,9 @@ public:
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo);
 
+	/** Remvoe all notifications from the screen */
+	void FlushNotifications();
+
 	/** Get a Slate icon brush */
 	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
 

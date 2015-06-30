@@ -149,6 +149,14 @@ void AFlareMenuManager::Notify(FText Text, FText Info, EFlareNotification::Type 
 	}
 }
 
+void AFlareMenuManager::FlushNotifications()
+{
+	if (Notifier.IsValid())
+	{
+		Notifier->FlushNotifications();
+	}
+}
+
 const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion)
 {
 	FString Path;

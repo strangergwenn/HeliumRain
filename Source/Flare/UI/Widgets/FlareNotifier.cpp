@@ -60,6 +60,14 @@ void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Typ
 	NotificationData.Add(NotificationEntry);
 }
 
+void SFlareNotifier::FlushNotifications()
+{
+	for (auto& NotificationEntry : NotificationData)
+	{
+		NotificationEntry->Finish();
+	}
+}
+
 
 /*----------------------------------------------------
 	Callbacks

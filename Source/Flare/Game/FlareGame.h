@@ -77,7 +77,6 @@ public:
 	bool DeleteSaveSlot(int32 Index);
 
 
-
 	/*----------------------------------------------------
 		Save
 	----------------------------------------------------*/
@@ -111,6 +110,9 @@ public:
 
 	/** Save the world to this save file */
 	virtual bool SaveWorld(AFlarePlayerController* PC);
+
+	/** Delete the world */
+	virtual void DeleteWorld();
 
 
 	/*----------------------------------------------------

@@ -213,6 +213,7 @@ FText SFlareMainMenu::GetText(int32 Index) const
 	{
 		const FFlareSaveSlotInfo& SaveSlotInfo = Game->GetSaveSlotInfo(Index);
 
+		// Build info strings
 		FString CompanyString = SaveSlotInfo.CompanyName.ToString();
 		FString ShipString = FString::FromInt(SaveSlotInfo.CompanyShipCount) + " ";
 		ShipString += (SaveSlotInfo.CompanyShipCount == 1 ? LOCTEXT("Ship", "ship").ToString() : LOCTEXT("Ships", "ships").ToString());
@@ -228,19 +229,7 @@ FText SFlareMainMenu::GetText(int32 Index) const
 
 const FSlateBrush* SFlareMainMenu::GetSaveIcon(int32 Index) const
 {
-	if (Game->DoesSaveSlotExist(Index))
-	{
-		const FFlareSaveSlotInfo& Slot = Game->GetSaveSlotInfo(Index);
-
-		if (!Slot.Emblem->IsValidLowLevel())
-		{
-			FLOGV("FAIL %d", Index);
-			FLOGV("FAIL %s", *Slot.Emblem->GetName());
-			FLOGV("FAIL %d", Slot.CompanyMoney);
-		}
-		return &Slot.EmblemBrush;
-	}
-	return FFlareStyleSet::GetIcon("Help");
+	return (Game->DoesSaveSlotExist(Index) ? &(Game->GetSaveSlotInfo(Index).EmblemBrush) : FFlareStyleSet::GetIcon("Help"));
 }
 
 EVisibility SFlareMainMenu::GetDeleteButtonVisibility(int32 Index) const
