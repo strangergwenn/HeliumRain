@@ -20,6 +20,22 @@
 class UFlareSaveGame;
 
 
+USTRUCT()
+struct FFlareSaveSlotInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY() UFlareSaveGame*            Save;
+	UPROPERTY() UMaterialInstanceDynamic*  Emblem;
+
+	FSlateBrush                EmblemBrush;
+
+	int32                      CompanyShipCount;
+	int32                      CompanyMoney;
+	FText                      CompanyName;
+};
+
+
 UCLASS()
 class FLARE_API AFlareGame : public AGameMode
 {
@@ -39,6 +55,30 @@ public:
 
 
 	/*----------------------------------------------------
+		Save slots
+	----------------------------------------------------*/
+
+	/** Load metadata for all save slots */
+	void ReadAllSaveSlots();
+
+	/** Get the number of save slots */
+	int32 GetSaveSlotCount() const;
+
+	/** Is this an existing save slot ? */
+	bool DoesSaveSlotExist(int32 Index) const;
+
+	/** Get metadata for this save slot */
+	const FFlareSaveSlotInfo& GetSaveSlotInfo(int32 Index);
+
+	/** Load a game save */
+	UFlareSaveGame* ReadSaveSlot(int32 Index);
+
+	/** Remove a game save */
+	bool DeleteSaveSlot(int32 Index);
+
+
+
+	/*----------------------------------------------------
 		Save
 	----------------------------------------------------*/
 
@@ -53,12 +93,6 @@ public:
 
 	/** Create a ship or station in the level  for a specific company */
 	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
-
-	/** Load a game save */
-	static UFlareSaveGame* LoadSaveFile(int32 Index);
-
-	/** Remove a game save */
-	static bool DeleteSaveFile(int32 Index);
 
 	/** Load the world from this save file */
 	virtual bool LoadWorld(AFlarePlayerController* PC, int32 Index);
@@ -194,6 +228,10 @@ protected:
 
 	int32                                    CurrentSaveIndex;
 	bool                                     LoadedOrCreated;
+	int32                                    SaveSlotCount;
+
+	UPROPERTY()
+	TArray<FFlareSaveSlotInfo>               SaveSlots;
 
 
 public:

@@ -16,6 +16,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CurrentImmatriculationIndex(0)
 	, LoadedOrCreated(false)
+	, SaveSlotCount(3)
 {
 	// Game classes
 	HUDClass = AFlareHUD::StaticClass();
@@ -100,6 +101,133 @@ void AFlareGame::Logout(AController* Player)
 	PC->PrepareForExit();
 
 	Super::Logout(Player);
+}
+
+
+/*----------------------------------------------------
+	Save slots
+----------------------------------------------------*/
+
+void AFlareGame::ReadAllSaveSlots()
+{
+	// Setup
+	SaveSlots.Empty();
+	FVector2D EmblemSize = 128 * FVector2D::UnitVector;
+	UMaterial* BaseEmblemMaterial = Cast<UMaterial>(FFlareStyleSet::GetIcon("CompanyEmblem")->GetResourceObject());
+
+	// Get all saves
+	for (int32 Index = 1; Index <= SaveSlotCount; Index++)
+	{
+		FFlareSaveSlotInfo SaveSlotInfo;
+		SaveSlotInfo.EmblemBrush.ImageSize = EmblemSize;
+		UFlareSaveGame* Save = AFlareGame::ReadSaveSlot(Index);
+		SaveSlotInfo.Save = Save;
+
+		if (Save)
+		{
+			// Basic setup
+			UFlareCustomizationCatalog* Catalog = GetCustomizationCatalog();
+			FLOGV("AFlareGame::ReadAllSaveSlots : found valid save data in slot %d", Index);
+
+			// Count player ships
+			SaveSlotInfo.CompanyShipCount = 0;
+			for (int32 ShipIndex = 0; ShipIndex < Save->ShipData.Num(); ShipIndex++)
+			{
+				const FFlareSpacecraftSave& Spacecraft = Save->ShipData[ShipIndex];
+				if (Spacecraft.CompanyIdentifier == Save->PlayerData.CompanyIdentifier)
+				{
+					SaveSlotInfo.CompanyShipCount++;
+				}
+			}
+
+			// Find company
+			FFlareCompanySave* PlayerCompany = NULL;
+			for (int32 CompanyIndex = 0; CompanyIndex < Save->CompanyData.Num(); CompanyIndex++)
+			{
+				const FFlareCompanySave& Company = Save->CompanyData[CompanyIndex];
+				if (Company.Identifier == Save->PlayerData.CompanyIdentifier)
+				{
+					PlayerCompany = &(Save->CompanyData[CompanyIndex]);
+				}
+			}
+
+			// Company info
+			if (PlayerCompany)
+			{
+				// Money and general infos
+				SaveSlotInfo.CompanyMoney = PlayerCompany->Money;
+				SaveSlotInfo.CompanyName = FText::FromString(PlayerCompany->Name);
+
+				// Emblem material
+				SaveSlotInfo.Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
+				SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(PlayerCompany->CustomizationBasePaintColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(PlayerCompany->CustomizationPaintColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(PlayerCompany->CustomizationOverlayColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(PlayerCompany->CustomizationLightColorIndex));
+
+				// Create the brush dynamically
+				SaveSlotInfo.EmblemBrush.SetResourceObject(SaveSlotInfo.Emblem);
+			}
+		}
+		else
+		{
+			SaveSlotInfo.Save = NULL;
+			SaveSlotInfo.Emblem = NULL;
+			SaveSlotInfo.EmblemBrush = FSlateNoResource();
+			SaveSlotInfo.CompanyShipCount = 0;
+			SaveSlotInfo.CompanyMoney = 0;
+			SaveSlotInfo.CompanyName = FText::FromString("");
+		}
+
+		SaveSlots.Add(SaveSlotInfo);
+	}
+
+	FLOG("AFlareGame::ReadAllSaveSlots : all slots found");
+}
+
+int32 AFlareGame::GetSaveSlotCount() const
+{
+	return SaveSlotCount;
+}
+
+bool AFlareGame::DoesSaveSlotExist(int32 Index) const
+{
+	int32 RealIndex = Index - 1;
+	return RealIndex < SaveSlots.Num() && SaveSlots[RealIndex].Save;
+}
+
+const FFlareSaveSlotInfo& AFlareGame::GetSaveSlotInfo(int32 Index)
+{
+	int32 RealIndex = Index - 1;
+	return SaveSlots[RealIndex];
+}
+
+UFlareSaveGame* AFlareGame::ReadSaveSlot(int32 Index)
+{
+	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
+	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
+	{
+		UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
+		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
+		return Save;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+bool AFlareGame::DeleteSaveSlot(int32 Index)
+{
+	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
+	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
+	{
+		return UGameplayStatics::DeleteGameInSlot(SaveFile, 0);
+	}
+	else
+	{
+		return false;
+	}
 }
 
 
@@ -263,38 +391,10 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 	return ShipPawn;
 }
 
-UFlareSaveGame* AFlareGame::LoadSaveFile(int32 Index)
-{
-	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
-	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
-	{
-		UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
-		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
-		return Save;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-bool AFlareGame::DeleteSaveFile(int32 Index)
-{
-	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
-	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
-	{
-		return UGameplayStatics::DeleteGameInSlot(SaveFile, 0);
-	}
-	else
-	{
-		return false;
-	}
-}
-
 bool AFlareGame::LoadWorld(AFlarePlayerController* PC, int32 Index)
 {
 	FLOGV("AFlareGame::LoadWorld : loading from slot %d", Index);
-	UFlareSaveGame* Save = LoadSaveFile(Index);
+	UFlareSaveGame* Save = ReadSaveSlot(Index);
 	CurrentSaveIndex = Index;
 
 	// Load from save

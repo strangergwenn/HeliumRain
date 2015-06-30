@@ -35,72 +35,67 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Left)
 		.AutoWidth()
 		[
-			SNew(SBorder)
-			.Padding(FMargin(0))
-			.BorderImage(&Theme.BackgroundBrush)
+			SNew(SScrollBox)
+			+ SScrollBox::Slot()
 			[
-				SNew(SScrollBox)
-				+ SScrollBox::Slot()
+				SNew(SVerticalBox)
+
+				// Object name
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
-					SNew(SVerticalBox)
+					SNew(SHorizontalBox)
 
-					// Object name
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					[
-						SNew(SHorizontalBox)
-
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company))
-						]
-
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.AutoWidth()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("Title", "COMPANY"))
-							.TextStyle(&Theme.TitleFont)
-						]
+						SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company))
 					]
 
-					// Company info
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SAssignNew(ActionMenu, SFlareTargetActions)
-						.Player(PC)
-						.MinimizedMode(true)
-					]
-
-					// Title
-					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
-					.AutoHeight()
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.AutoWidth()
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("Colors", "COLORS"))
-						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("Title", "COMPANY"))
+						.TextStyle(&Theme.TitleFont)
 					]
+				]
 
-					// Color picker
-					+ SVerticalBox::Slot()
-					.Padding(Theme.ContentPadding)
-					.AutoHeight()
-					[
-						SAssignNew(ColorBox, SFlareColorPanel).MenuManager(MenuManager)
-					]
+				// Company info
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(ActionMenu, SFlareTargetActions)
+					.Player(PC)
+					.MinimizedMode(true)
+				]
 
-					// Object list
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SAssignNew(ShipList, SFlareShipList)
-						.MenuManager(MenuManager)
-						.Title(LOCTEXT("Property", "PROPERTY"))
-					]
+				// Title
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("Colors", "COLORS"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Color picker
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SAssignNew(ColorBox, SFlareColorPanel).MenuManager(MenuManager)
+				]
+
+				// Object list
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(ShipList, SFlareShipList)
+					.MenuManager(MenuManager)
+					.Title(LOCTEXT("Property", "PROPERTY"))
 				]
 			]
 		]

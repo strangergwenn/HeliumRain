@@ -3,27 +3,9 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "SlateMaterialBrush.h"
-#include "FlareMainMenu.generated.h"
 
 
-class UFlareSaveGame;
 class AFlareMenuManager;
-
-
-USTRUCT()
-struct FFlareSaveSlotInfo
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY() UFlareSaveGame*            Save;
-	UPROPERTY() UMaterialInstanceDynamic*  Emblem;
-
-	FSlateBrush                EmblemBrush;
-
-	int32                      CompanyShipCount;
-	int32                      CompanyMoney;
-	FText                      CompanyName;
-};
 
 
 class SFlareMainMenu : public SCompoundWidget
@@ -92,17 +74,6 @@ protected:
 	void OnQuitGame();
 
 
-	/*----------------------------------------------------
-		Helpers
-	----------------------------------------------------*/
-
-	/** Update all slot contents */
-	void UpdateSaveSlots();
-
-	/** Is this an existing game */
-	bool IsExistingGame(int32 Index) const;
-
-
 protected:
 
 	/*----------------------------------------------------
@@ -111,12 +82,10 @@ protected:
 
 	bool                                       Initialized;
 
-	int32                                      SaveSlotCount;
-
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 	TSharedPtr<SHorizontalBox>                 SaveBox;
 
-	TArray<FFlareSaveSlotInfo>                 SaveSlots;
+	AFlareGame*                                Game;
 
 
 };
