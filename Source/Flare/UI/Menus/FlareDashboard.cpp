@@ -40,8 +40,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SNew(SImage)
-				.Image(FFlareStyleSet::GetIcon("Sector"))
+				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
 			]
 
 			// Title

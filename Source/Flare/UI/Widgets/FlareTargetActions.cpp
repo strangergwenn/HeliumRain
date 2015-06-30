@@ -44,107 +44,102 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			SNew(SBox)
 			.WidthOverride(600)
 			[
-				SNew(SBorder)
-				.VAlign(VAlign_Center)
-				.BorderImage(BackgroundBrush)
-				[
-					SNew(SHorizontalBox)
+				SNew(SHorizontalBox)
 			
-					// Data block
-					+ SHorizontalBox::Slot()
+				// Data block
+				+ SHorizontalBox::Slot()
+				[
+					SNew(SVerticalBox)
+
+					// Main line
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					[
-						SNew(SVerticalBox)
+						SNew(SHorizontalBox)
 
-						// Main line
-						+ SVerticalBox::Slot()
-						.AutoHeight()
+						// Class icon
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(FMargin(8))
+						.VAlign(VAlign_Center)
 						[
-							SNew(SHorizontalBox)
-
-							// Class icon
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(FMargin(8))
-							.VAlign(VAlign_Center)
-							[
-								SNew(SImage).Image(this, &SFlareTargetActions::GetClassIcon)
-							]
-
-							// Ship name
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(FMargin(10))
-							.VAlign(VAlign_Center)
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareTargetActions::GetName)
-								.TextStyle(&Theme.NameFont)
-							]
-
-							// Status
-							+ SHorizontalBox::Slot()
-							.HAlign(HAlign_Right)
-							[
-								SAssignNew(ShipStatus, SFlareShipStatus)
-							]
+							SNew(SImage).Image(this, &SFlareTargetActions::GetClassIcon)
 						]
 
-						// Company line
-						+ SVerticalBox::Slot()
-						.AutoHeight()
+						// Ship name
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(FMargin(10))
+						.VAlign(VAlign_Center)
 						[
-							SNew(SHorizontalBox)
-
-							// Company flag
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(FMargin(8))
-							[
-								SAssignNew(CompanyFlag, SFlareCompanyFlag)
-								.Player(InArgs._Player)
-							]
-
-							// Company name
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(FMargin(8))
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareTargetActions::GetCompanyName)
-								.TextStyle(&Theme.TextFont)
-							]
+							SNew(STextBlock)
+							.Text(this, &SFlareTargetActions::GetName)
+							.TextStyle(&Theme.NameFont)
 						]
 
-						// Ship info line
-						+ SVerticalBox::Slot()
-						.AutoHeight()
+						// Status
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Right)
 						[
-							SNew(SHorizontalBox)
+							SAssignNew(ShipStatus, SFlareShipStatus)
+						]
+					]
+
+					// Company line
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Company flag
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(FMargin(8))
+						[
+							SAssignNew(CompanyFlag, SFlareCompanyFlag)
+							.Player(InArgs._Player)
+						]
+
+						// Company name
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(FMargin(8))
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareTargetActions::GetCompanyName)
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Ship info line
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
 							
-							// Ship class
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(FMargin(8))
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareTargetActions::GetDescription)
-								.TextStyle(&Theme.TextFont)
-							]
+						// Ship class
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(FMargin(8))
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareTargetActions::GetDescription)
+							.TextStyle(&Theme.TextFont)
 						]
 					]
+				]
 
-					// Icon
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Right)
-					[
-						SNew(SImage).Image(this, &SFlareTargetActions::GetIcon)
-					]
+				// Icon
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.HAlign(HAlign_Right)
+				[
+					SNew(SImage).Image(this, &SFlareTargetActions::GetIcon)
 				]
 			]
 		]
 
-		// General prupose container
+		// General purpose container
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		[

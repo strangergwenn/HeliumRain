@@ -42,8 +42,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SNew(SImage)
-				.Image(FFlareStyleSet::GetIcon("HeliumRain"))
+				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main))
 			]
 
 			// Title
@@ -250,9 +249,7 @@ const FSlateBrush* SFlareMainMenu::GetButtonIcon(int32 Index) const
 void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	AFlareGame* Game = MenuManager->GetGame();
-
-	if (PC && Game)
+	if (PC)
 	{
 		// Load the world
 		bool WorldLoaded = Game->LoadWorld(PC, *Index);
