@@ -55,6 +55,8 @@ public:
 	/** The world is ending. Literally. */
 	virtual void PrepareForExit();
 
+	virtual void SetWorldPause(bool Pause);
+
 
 	/*----------------------------------------------------
 		Data management

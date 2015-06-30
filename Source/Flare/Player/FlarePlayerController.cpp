@@ -310,9 +310,11 @@ void AFlarePlayerController::OnLoadComplete()
 		{
 			FLOGV("AFlarePlayerController::PossessCurrentShip : Found player ship '%s'", *PlayerData.CurrentShipName);
 			ShipPawn = Ship;
+			ShipPawn->GetStateManager()->EnablePilot(false);
 			break;
 		}
 	}
+	SetWorldPause(true);
 }
 
 void AFlarePlayerController::Save(FFlarePlayerSave& Data)
@@ -377,36 +379,7 @@ void AFlarePlayerController::OnEnterMenu()
 		Possess(MenuPawn);
 
 		//Pause all gameplay actors
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-		{
-			AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-			if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
-			{
-				FLOGV("Pause %s", *SpacecraftCandidate->GetName());
-				SpacecraftCandidate->SetPause(true);
-			}
-
-			AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-			if (BombCandidate)
-			{
-				FLOGV("Pause %s", *BombCandidate->GetName());
-				BombCandidate->SetPause(true);
-			}
-
-			AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-			if (ShellCandidate)
-			{
-				FLOGV("Pause %s", *ShellCandidate->GetName());
-				ShellCandidate->SetPause(true);
-			}
-
-			AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
-			if (AsteroidCandidate)
-			{
-				FLOGV("Pause %s", *AsteroidCandidate->GetName());
-				AsteroidCandidate->SetPause(true);
-			}
-		}
+		SetWorldPause(true);
 	}
 
 	GetNavHUD()->UpdateHUDVisibility();
@@ -420,39 +393,42 @@ void AFlarePlayerController::OnExitMenu()
 		Possess(ShipPawn);
 
 		// Unpause all gameplay actors
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		SetWorldPause(false);
+	}
+
+	GetNavHUD()->UpdateHUDVisibility();
+}
+
+void AFlarePlayerController::SetWorldPause(bool Pause)
+{
+	FLOGV("SetPause world %d", Pause);
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
 		{
-			AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-			if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
-			{
-				FLOGV("UnPause %s", *SpacecraftCandidate->GetName());
-				SpacecraftCandidate->SetPause(false);
-			}
 
-			AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-			if (BombCandidate)
-			{
-				FLOGV("UnPause %s", *BombCandidate->GetName());
-				BombCandidate->SetPause(false);
-			}
+			SpacecraftCandidate->SetPause(Pause);
+		}
 
-			AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-			if (ShellCandidate)
-			{
-				FLOGV("UnPause %s", *ShellCandidate->GetName());
-				ShellCandidate->SetPause(false);
-			}
+		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
+		if (BombCandidate)
+		{
+			BombCandidate->SetPause(Pause);
+		}
 
-			AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
-			if (AsteroidCandidate)
-			{
-				FLOGV("UnPause %s", *AsteroidCandidate->GetName());
-				AsteroidCandidate->SetPause(false);
-			}
+		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
+		if (ShellCandidate)
+		{
+			ShellCandidate->SetPause(Pause);
+		}
+
+		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
+		if (AsteroidCandidate)
+		{
+			AsteroidCandidate->SetPause(Pause);
 		}
 	}
-	
-	GetNavHUD()->UpdateHUDVisibility();
 }
 
 bool AFlarePlayerController::IsInMenu()
