@@ -25,6 +25,10 @@ struct FFlareAsteroidSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector AngularVelocity;
 
+	/** Asteroid scale */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector Scale;
+
 	/** Content identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 AsteroidMeshID;

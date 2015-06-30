@@ -974,10 +974,12 @@ void AFlareGame::CreateAsteroid(int32 ID)
 		FFlareAsteroidSave Data;
 		Data.AsteroidMeshID = ID;
 		Data.LinearVelocity = FVector::ZeroVector;
-		Data.AngularVelocity = FVector::ZeroVector;
+		Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
+		Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.9,1.1);
+		FRotator Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
 
 		// Spawn and setup
-		AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), TargetPosition, FRotator::ZeroRotator, Params);
+		AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), TargetPosition, Rotation, Params);
 		Asteroid->Load(Data);
 	}
 }
