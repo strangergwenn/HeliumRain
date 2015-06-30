@@ -113,13 +113,13 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	if (Paused)
 	{
 		Save();
-		FLOGV("%s save linear velocity : %s", *GetName(), *ShipData.LinearVelocity.ToString());
+		FLOGV("%s save linear velocity : %s", *GetImmatriculation(), *ShipData.LinearVelocity.ToString());
 	}
 	Airframe->SetSimulatePhysics(!Paused);
 
 	if (!Paused)
 	{
-		FLOGV("%s restore linear velocity : %s", *GetName(), *ShipData.LinearVelocity.ToString());
+		FLOGV("%s restore linear velocity : %s", *GetImmatriculation(), *ShipData.LinearVelocity.ToString());
 		Airframe->SetPhysicsLinearVelocity(ShipData.LinearVelocity);
 		Airframe->SetPhysicsAngularVelocity(ShipData.AngularVelocity);
 	}
@@ -199,9 +199,8 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	// Update local data
 	ShipData = Data;
-	ShipData.Name = FName(*GetName());
 
-		// Load ship description
+	// Load ship description
 	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
 	FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(Data.Identifier);
 	SetShipDescription(Desc);
@@ -284,9 +283,9 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(*ActorItr);
-			if (Station && *Station->GetName() == ShipData.DockedTo)
+			if (Station && *Station->GetImmatriculation() == ShipData.DockedTo)
 			{
-				FLOGV("AFlareSpacecraft::Load : Found dock station '%s'", *Station->GetName());
+				FLOGV("AFlareSpacecraft::Load : Found dock station '%s'", *Station->GetImmatriculation());
 				NavigationSystem->ConfirmDock(Station, ShipData.DockedAt);
 				break;
 			}
@@ -750,6 +749,10 @@ FVector AFlareSpacecraft::GetLinearVelocity() const
 	return Airframe->GetPhysicsLinearVelocity() / 100;
 }
 
+FString AFlareSpacecraft::GetImmatriculation() const
+{
+	return ShipData.Immatriculation.ToString();
+}
 
 
 #undef LOCTEXT_NAMESPACE

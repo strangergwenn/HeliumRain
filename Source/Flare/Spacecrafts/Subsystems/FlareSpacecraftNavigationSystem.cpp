@@ -206,7 +206,7 @@ IFlareSpacecraftInterface* UFlareSpacecraftNavigationSystem::GetDockStation()
 		for (TActorIterator<AActor> ActorItr(Spacecraft->GetWorld()); ActorItr; ++ActorItr)
 		{
 			AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(*ActorItr);
-			if (Station && *Station->GetName() == Data->DockedTo)
+			if (Station && *Station->GetImmatriculation() == Data->DockedTo)
 			{
 				return Station;
 			}
@@ -548,7 +548,7 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* Do
 	// Set as docked
 	DockStation->GetDockingSystem()->Dock(Spacecraft, DockId);
 	SetStatus(EFlareShipStatus::SS_Docked);
-	Data->DockedTo = *DockStation->_getUObject()->GetName();
+	Data->DockedTo = *DockStation->GetImmatriculation();
 	Data->DockedAt = DockId;
 
 

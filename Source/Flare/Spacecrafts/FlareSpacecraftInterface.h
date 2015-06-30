@@ -32,9 +32,9 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector AngularVelocity;
 
-	/** Ship name. Readable for the player */
+	/** Ship immatriculation. Readable for the player */
 	UPROPERTY(EditAnywhere, Category = Save)
-	FName Name;
+	FName Immatriculation;
 
 	/** Ship nickname. Readable for the player */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -202,6 +202,8 @@ public:
 
 	/** Get the ship size class */
 	virtual EFlarePartSize::Type GetSize() = 0;
+
+	virtual FString GetImmatriculation() const = 0;
 
 	/** Check if this is a military ship */
 	virtual bool IsMilitary() = 0;

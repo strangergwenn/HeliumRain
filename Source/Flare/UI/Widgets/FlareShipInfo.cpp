@@ -47,7 +47,7 @@ void SFlareShipInfo::Construct(const FArguments& InArgs)
 				+ SHorizontalBox::Slot()
 				[
 					SNew(STextBlock)
-					.Text(FText::FromString(InArgs._Ship->_getUObject()->GetName()))
+					.Text(FText::FromString(InArgs._Ship->GetImmatriculation()))
 					.TextStyle(&Theme.SubTitleFont)
 				]
 

@@ -14,7 +14,7 @@ bool PilotHelper::CheckFriendlyFire(UWorld* World, UFlareCompany* MyCompany, FVe
 		if (ShipCandidate)
 		{
 
-			//FLOGV("  check %s", *ShipCandidate->GetName());
+			//FLOGV("  check %s", *ShipCandidate->GetImmatriculation());
 
 			if (MyCompany->GetHostility(ShipCandidate->GetCompany()) == EFlareHostility::Hostile)
 			{

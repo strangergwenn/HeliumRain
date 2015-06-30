@@ -255,7 +255,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 
 	// Player ship
 	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
-	PlayerData.CurrentShipName = ShipPawn->GetName();
+	PlayerData.CurrentShipName = ShipPawn->GetImmatriculation();
 
 	// Load
 	PC->Load(PlayerData);
@@ -391,7 +391,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 
 		// Create the ship
 		ShipPawn = LoadShip(ShipData);
-		FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetName(), *TargetPosition.ToString());
+		FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetImmatriculation(), *TargetPosition.ToString());
 	}
 
 	return ShipPawn;
@@ -481,7 +481,7 @@ AFlareAsteroid* AFlareGame::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
 AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
 {
 	AFlareSpacecraft* Ship = NULL;
-	FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Name.ToString());
+	FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Immatriculation.ToString());
 
 	if (SpacecraftCatalog)
 	{
@@ -490,7 +490,6 @@ AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
 		{
 			// Spawn parameters
 			FActorSpawnParameters Params;
-			Params.Name = ShipData.Name;
 			Params.bNoFail = true;
 
 			// Create and configure the ship
@@ -530,7 +529,7 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
 		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (SpacecraftCandidate && SpacecraftCandidate->GetName() == BombData.ParentSpacecraft)
+		if (SpacecraftCandidate && SpacecraftCandidate->GetImmatriculation() == BombData.ParentSpacecraft)
 		{
 			ParentSpacecraft = SpacecraftCandidate;
 			break;
@@ -611,7 +610,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 			// Ship
 			if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
 			{
-				FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetName());
+				FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetImmatriculation());
 				FFlareSpacecraftSave* TempData = Ship->Save();
 				Save->ShipData.Add(*TempData);
 			}
@@ -619,7 +618,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 			// Station
 			else if (Ship && Ship->GetDescription() && Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
 			{
-				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Ship->GetName());
+				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Ship->GetImmatriculation());
 				FFlareSpacecraftSave* TempData = Ship->Save();
 				Save->StationData.Add(*TempData);
 			}
@@ -1031,7 +1030,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 
 	// Update data
 	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
-	SpacecraftSave->Name = FName(*Immatriculation);
+	SpacecraftSave->Immatriculation = FName(*Immatriculation);
 	SpacecraftSave->NickName = FName(*NickName);
 }
 

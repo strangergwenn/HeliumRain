@@ -246,7 +246,7 @@ FFlareBombSave* AFlareBomb::Save()
 	//TODO Investigate on NULL ParentWeapon
 	if (ParentWeapon)
 	{
-		BombData.ParentSpacecraft = ParentWeapon->GetSpacecraft()->GetName();
+		BombData.ParentSpacecraft = ParentWeapon->GetSpacecraft()->GetImmatriculation();
 		BombData.WeaponSlotIdentifier = ParentWeapon->SlotIdentifier;
 	}
 

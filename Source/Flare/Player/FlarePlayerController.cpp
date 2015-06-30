@@ -272,7 +272,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	if (Ship)
 	{
 		// Notification
-		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " + FString(*Ship->GetName()));
+		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " + FString(*Ship->GetImmatriculation()));
 		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
 		Notify(Text, Info, EFlareNotification::NT_Help);
 
@@ -306,7 +306,7 @@ void AFlarePlayerController::OnLoadComplete()
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
 		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
-		if (Ship && Ship->GetName() == PlayerData.CurrentShipName)
+		if (Ship && Ship->GetImmatriculation() == PlayerData.CurrentShipName)
 		{
 			FLOGV("AFlarePlayerController::PossessCurrentShip : Found player ship '%s'", *PlayerData.CurrentShipName);
 			ShipPawn = Ship;
@@ -321,7 +321,7 @@ void AFlarePlayerController::Save(FFlarePlayerSave& Data)
 {
 	if (ShipPawn)
 	{
-		PlayerData.CurrentShipName = ShipPawn->GetName();
+		PlayerData.CurrentShipName = ShipPawn->GetImmatriculation();
 	}
 	Data = PlayerData;
 }
@@ -725,7 +725,7 @@ void AFlarePlayerController::WheelPressed()
 			AFlareSpacecraft* Nearest = GetNearestSpacecraft(true);
 			if (Nearest)
 			{
-				FText Text = FText::FromString(LOCTEXT("MatchSpeed", "Match speed with ").ToString() + Nearest->GetName());
+				FText Text = FText::FromString(LOCTEXT("MatchSpeed", "Match speed with ").ToString() + Nearest->GetImmatriculation());
 				MouseMenu->AddWidget("Mouse_MatchSpeed", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::MatchSpeedWithNearestSpacecraft));
 			}
@@ -800,7 +800,7 @@ AFlareSpacecraft* AFlarePlayerController::GetNearestSpacecraft(bool OnScreenRequ
 
 	if (TargetSpacecraft)
 	{
-		FLOGV("AFlarePlayerController::GetNearestSpacecraft : Found %s", *TargetSpacecraft->GetName());
+		FLOGV("AFlarePlayerController::GetNearestSpacecraft : Found %s", *TargetSpacecraft->GetImmatriculation());
 	}
 	return TargetSpacecraft;
 }

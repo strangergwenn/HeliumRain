@@ -205,7 +205,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	// the damage sphere. There is a linear decrease of damage with a minumum of 0 if the 2 sphere
 	// only touch.
 
-	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetName()), Radius, *Location.ToString());
+	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation()), Radius, *Location.ToString());
 	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
 	bool IsAliveBeforeDamage = IsAlive();

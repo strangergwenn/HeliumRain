@@ -207,7 +207,7 @@ void SFlareTargetActions::SetSpacecraft(IFlareSpacecraftInterface* Target)
 	{
 		TargetCompany = Target->GetCompany();
 		CompanyFlag->SetCompany(TargetCompany);
-		TargetName = Target->_getUObject()->GetName();
+		TargetName = Target->GetImmatriculation();
 		FFlareSpacecraftSave* SaveData = Target->Save();
 		if (SaveData)
 		{

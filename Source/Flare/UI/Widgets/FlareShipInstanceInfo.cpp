@@ -17,12 +17,10 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 	Ship = InArgs._Ship;
 	ShipData = NULL;
 	ShipDescription = NULL;
-	UObject* Target = NULL;
 	const FSlateBrush* Icon = NULL;
 	UFlareCompany* Company = NULL;
 	AFlareGame* Game = InArgs._Player->GetGame();
 
-	Target = Ship->_getUObject();
 	ShipData = Ship->Save();
 	ShipDescription = InArgs._Player->GetGame()->GetSpacecraftCatalog()->Get(ShipData->Identifier);
 
@@ -58,7 +56,7 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Center)
 			[
 				SNew(STextBlock)
-				.Text(FText::FromString(Target->GetName()))
+				.Text(FText::FromString(Ship->GetImmatriculation()))
 				.TextStyle(&FFlareStyleSet::GetDefaultTheme().NameFont)
 			]
 

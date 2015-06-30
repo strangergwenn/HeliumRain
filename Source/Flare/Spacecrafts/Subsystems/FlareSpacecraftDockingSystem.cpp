@@ -84,7 +84,7 @@ bool UFlareSpacecraftDockingSystem::HasCompatibleDock(IFlareSpacecraftInterface*
 
 FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInterface* Ship, FVector PreferredLocation)
 {
-	FLOGV("UFlareSpacecraftDockingSystem::RequestDock ('%s')", *Ship->_getUObject()->GetName());
+	FLOGV("UFlareSpacecraftDockingSystem::RequestDock ('%s')", *Ship->GetImmatriculation());
 
 	int32 BestIndex = -1;
 	float BestDistance = 0;
@@ -120,7 +120,7 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInt
 
 void UFlareSpacecraftDockingSystem::ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId)
 {
-	FLOGV("UFlareSpacecraftDockingSystem::ReleaseDock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
+	FLOGV("UFlareSpacecraftDockingSystem::ReleaseDock %d ('%s')", DockId, *Ship->GetImmatriculation());
 	DockingSlots[DockId].Granted = false;
 	DockingSlots[DockId].Occupied = false;
 	DockingSlots[DockId].Ship = NULL;
@@ -128,7 +128,7 @@ void UFlareSpacecraftDockingSystem::ReleaseDock(IFlareSpacecraftInterface* Ship,
 
 void UFlareSpacecraftDockingSystem::Dock(IFlareSpacecraftInterface* Ship, int32 DockId)
 {
-	FLOGV("UFlareSpacecraftDockingSystem::Dock %d ('%s')", DockId, *Ship->_getUObject()->GetName());
+	FLOGV("UFlareSpacecraftDockingSystem::Dock %d ('%s')", DockId, *Ship->GetImmatriculation());
 	DockingSlots[DockId].Granted = true;
 	DockingSlots[DockId].Occupied = true;
 	DockingSlots[DockId].Ship = Ship;
