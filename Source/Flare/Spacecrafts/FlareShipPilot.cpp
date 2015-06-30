@@ -179,9 +179,9 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		}
 
 
-		FLOGV("%s target %s",  *Ship->GetName(),  *PilotTargetShip->GetName());
+		//FLOGV("%s target %s",  *Ship->GetName(),  *PilotTargetShip->GetName());
 		EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
-		FLOGV("%s WeaponType %d",  *Ship->GetName(), (WeaponType - EFlareWeaponGroupType::WG_NONE));
+		//FLOGV("%s WeaponType %d",  *Ship->GetName(), (WeaponType - EFlareWeaponGroupType::WG_NONE));
 		if (WeaponType == EFlareWeaponGroupType::WG_GUN)
 		{
 			FighterPilot(DeltaSeconds);
@@ -517,10 +517,17 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
-					Weapon->SetTarget(PilotTargetShip);
-					/*FLOG("Want Fire");*/
-					WantFire = true;
-					break;
+					if(!PilotHelper::CheckFriendlyFire(Ship->GetWorld(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
+					{
+						Weapon->SetTarget(PilotTargetShip);
+						/*FLOG("Want Fire");*/
+						WantFire = true;
+						break;
+					}
+					else
+					{
+						FLOG("Friendly fire avoidance");
+					}
 				}
 			}
 			if (WantFire)

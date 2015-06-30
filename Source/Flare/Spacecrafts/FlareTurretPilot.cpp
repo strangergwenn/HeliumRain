@@ -1,6 +1,7 @@
 
 #include "../Flare.h"
 
+#include "FlarePilotHelper.h"
 #include "FlareTurretPilot.h"
 #include "FlareSpacecraft.h"
 #include "FlareSpacecraftComponent.h"
@@ -214,10 +215,17 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
-					Turret->SetTarget(PilotTargetShip);
-					//FLOG("Want Fire");
-					WantFire = true;
-					break;
+					if(!PilotHelper::CheckFriendlyFire(Turret->GetSpacecraft()->GetWorld(), PlayerCompany, MuzzleLocation, TurretVelocity, AmmoVelocity, FireTargetAxis, AmmoIntersectionTime, Turret->GetAimRadius()))
+					{
+						Turret->SetTarget(PilotTargetShip);
+
+						WantFire = true;
+						break;
+					}
+					else
+					{
+						FLOG("Friendly fire avoidance");
+					}
 				}
 			}
 		}
