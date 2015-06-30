@@ -265,7 +265,15 @@ void SFlareDashboard::OnInspectCompany()
 
 void SFlareDashboard::OnInspectStation()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Station);
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		AFlareSpacecraft* Ship = PC->GetShipPawn();
+		if (Ship)
+		{
+			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Ship->GetNavigationSystem()->GetDockStation());
+		}
+	}
 }
 
 void SFlareDashboard::OnMainMenu()

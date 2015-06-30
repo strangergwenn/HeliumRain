@@ -60,6 +60,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FMargin ContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin SmallContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) float DefaultAlpha;
+	UPROPERTY(EditAnywhere, Category = Main) int32 ContentWidth;
 
 	// Colors
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor EnemyColor;

@@ -14,8 +14,7 @@
 void SFlareContextMenu::Construct(const FArguments& InArgs)
 {
 	// Data
-	TargetShip = NULL;
-	TargetStation = NULL;
+	TargetSpacecraft = NULL;
 	HUD = InArgs._HUD;
 	MenuManager = InArgs._MenuManager;
 
@@ -41,17 +40,9 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareContextMenu::SetStation(IFlareSpacecraftInterface* Target)
+void SFlareContextMenu::SetSpacecraft(IFlareSpacecraftInterface* Target)
 {
-	// TODO M4 GWENN : ONLY ONE MENU FOR BOTH STATIONS AND SHIPS
-	TargetStation = Target;
-	TargetShip = NULL;
-}
-
-void SFlareContextMenu::SetShip(IFlareSpacecraftInterface* Target)
-{
-	TargetShip = Target;
-	TargetStation = NULL;
+	TargetSpacecraft = Target;
 }
 
 void SFlareContextMenu::Show()
@@ -66,13 +57,9 @@ void SFlareContextMenu::Hide()
 
 void SFlareContextMenu::OpenTargetMenu()
 {
-	if (TargetShip)
+	if (TargetSpacecraft)
 	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Ship, TargetShip);
-	}
-	else if (TargetStation)
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Station, TargetStation);
+		MenuManager->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
 	}
 }
 
@@ -97,17 +84,12 @@ FText SFlareContextMenu::GetText() const
 	AFlareSpacecraft* Candidate = NULL;
 
 
-	if(GetVisibility() == EVisibility::Visible)
+	if (GetVisibility() == EVisibility::Visible)
 	{
-		if (TargetShip)
+		if (TargetSpacecraft)
 		{
-			Candidate = Cast<AFlareSpacecraft>(TargetShip);
+			Candidate = Cast<AFlareSpacecraft>(TargetSpacecraft);
 		}
-		else if (TargetStation)
-		{
-			Candidate = Cast<AFlareSpacecraft>(TargetStation);
-		}
-
 		if (Candidate)
 		{
 			Result = FText::FromString(Candidate->GetName());

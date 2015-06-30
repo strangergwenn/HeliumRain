@@ -27,178 +27,202 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SHorizontalBox)
+		SNew(SVerticalBox)
 
-		// UI
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Left)
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SImage).Image(this, &SFlareShipMenu::GetTitleIcon)
+			]
+
+			// Title
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Center)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TitleFont)
+				.Text(this, &SFlareShipMenu::GetTitleText)
+			]
+
+			// Quit
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Dashboard", "Dashboard"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector, true))
+				.OnClicked(this, &SFlareShipMenu::OnDashboardClicked)
+			]
+		]
+
+		// Separator
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(200, 40))
+		[
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
+		
+		// Content
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
 			SNew(SScrollBox)
+
 			+ SScrollBox::Slot()
+			.HAlign(HAlign_Left)
 			[
-				SNew(SVerticalBox)
-
-				// Menu title
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SHorizontalBox)
-
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SImage).Image(this, &SFlareShipMenu::GetIconBrush)
-					]
-
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.AutoWidth()
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareShipMenu::GetTitleText)
-						.TextStyle(&Theme.TitleFont)
-					]
-				]
-
-				// Action box
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SAssignNew(ObjectActionMenu, SFlareTargetActions)
-					.Player(PC)
-					.NoInspect(true)
-				]
-
-				// Object name
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				[
-					SAssignNew(ObjectName, STextBlock)
-					.TextStyle(&Theme.SubTitleFont)
-				]
-
-				// Object description
-				+ SVerticalBox::Slot()
-				.Padding(Theme.ContentPadding)
-				.AutoHeight()
-				[
-					SAssignNew(ObjectDescription, STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(600)
-				]
-
-				// Ship part characteristics
-				+ SVerticalBox::Slot()
+				SNew(SBox)
 				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Center)
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
+				.WidthOverride(Theme.ContentWidth)
 				[
-					SAssignNew(PartCharacteristicBox, SHorizontalBox)
-				]
+					SNew(SVerticalBox)
 
-				// Ship customization panel
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SAssignNew(ShipCustomizationBox, SVerticalBox)
-
-					// Section title
+					// Action box
 					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
 					.AutoHeight()
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("ShipParts", "COMPONENTS"))
+						SAssignNew(ObjectActionMenu, SFlareTargetActions)
+						.Player(PC)
+						.NoInspect(true)
+					]
+
+					// Object name
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SAssignNew(ObjectName, STextBlock)
 						.TextStyle(&Theme.SubTitleFont)
 					]
 
-					// Engine group
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(EngineButton, SFlareButton)
-							.OnClicked(this, &SFlareShipMenu::ShowEngines)
-							.Width(2)
-							.Height(2)
-						]
-
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(RCSButton, SFlareButton)
-							.OnClicked(this, &SFlareShipMenu::ShowRCSs)
-							.Width(2)
-							.Height(2)
-						]
-
-						// Weapon group
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(WeaponButtonBox, SHorizontalBox)
-						]
-					]
-
-				]
-
-				// Ship part customization panel
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SAssignNew(ShipPartCustomizationBox, SVerticalBox)
-
-					// Section title
-					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
-					.AutoHeight()
-					[
-						SAssignNew(ShipPartPickerTitle, STextBlock)
-						.Text(LOCTEXT("ShipParts", "AVAILABLE COMPONENTS"))
-						.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
-					]
-
-					// Ship part picker
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SAssignNew(PartList, SListView< TSharedPtr<FInterfaceContainer> >)
-						.ListItemsSource(&PartListDataShared)
-						.SelectionMode(ESelectionMode::Single)
-						.OnGenerateRow(this, &SFlareShipMenu::GeneratePartInfo)
-						.OnSelectionChanged(this, &SFlareShipMenu::OnPartPicked)
-					]
-
-					// Button box
+					// Object description
 					+ SVerticalBox::Slot()
 					.Padding(Theme.ContentPadding)
 					.AutoHeight()
 					[
-						SAssignNew(BuyConfirmation, SFlareConfirmationBox)
-						.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSACTION"))
-						.CancelText(LOCTEXT("BackTopShip", "BACK TO SHIP"))
-						.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
-						.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)
+						SAssignNew(ObjectDescription, STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(Theme.ContentWidth)
+					]
+
+					// Ship part characteristics
+					+ SVerticalBox::Slot()
+					.VAlign(VAlign_Center)
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(PartCharacteristicBox, SHorizontalBox)
+					]
+
+					// Ship customization panel
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SAssignNew(ShipCustomizationBox, SVerticalBox)
+			
+						// Components
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Engines
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.TitleButtonPadding)
+							[
+								SNew(SFlareRoundButton)
+								.OnClicked(this, &SFlareShipMenu::ShowEngines)
+								.Icon(this, &SFlareShipMenu::GetEngineIcon)
+								.Text(this, &SFlareShipMenu::GetEngineText)
+								.InvertedBackground(true)
+							]
+
+							// RCS
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.TitleButtonPadding)
+							[
+								SNew(SFlareRoundButton)
+								.OnClicked(this, &SFlareShipMenu::ShowRCSs)
+								.Icon(this, &SFlareShipMenu::GetRCSIcon)
+								.Text(this, &SFlareShipMenu::GetRCSText)
+								.InvertedBackground(true)
+							]
+
+							// Weapons
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SAssignNew(WeaponButtonBox, SHorizontalBox)
+							]
+						]
+					]
+
+					// Ship part customization panel
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SAssignNew(ShipPartCustomizationBox, SVerticalBox)
+
+						// Section title
+						+ SVerticalBox::Slot()
+						.Padding(Theme.TitlePadding)
+						.AutoHeight()
+						[
+							SAssignNew(ShipPartPickerTitle, STextBlock)
+							.Text(LOCTEXT("ShipParts", "AVAILABLE COMPONENTS"))
+							.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+						]
+
+						// Ship part picker
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SAssignNew(PartList, SListView< TSharedPtr<FInterfaceContainer> >)
+							.ListItemsSource(&PartListDataShared)
+							.SelectionMode(ESelectionMode::Single)
+							.OnGenerateRow(this, &SFlareShipMenu::GeneratePartInfo)
+							.OnSelectionChanged(this, &SFlareShipMenu::OnPartPicked)
+						]
+
+						// Button box
+						+ SVerticalBox::Slot()
+						.Padding(Theme.ContentPadding)
+						.AutoHeight()
+						[
+							SAssignNew(BuyConfirmation, SFlareConfirmationBox)
+							.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSACTION"))
+							.CancelText(LOCTEXT("BackTopShip", "BACK TO SHIP"))
+							.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
+							.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)
+						]
+					]
+
+					// Object list
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SAssignNew(ShipList, SFlareShipList)
+						.MenuManager(MenuManager)
+						.Title(LOCTEXT("DockedShips", "DOCKED SHIPS"))
 					]
 				]
 			]
-		]
-
-		// Dashboard button
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Top)
-		.AutoWidth()
-		[
-			SNew(SFlareRoundButton)
-			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit))
-			.OnClicked(this, &SFlareShipMenu::OnDashboardClicked)
 		]
 	];
 }
@@ -212,6 +236,9 @@ void SFlareShipMenu::Setup()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
+
+	RCSDescription = NULL;
+	EngineDescription = NULL;
 }
 
 void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
@@ -222,7 +249,7 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	CanEdit = IsEditable;
 	CurrentShipTarget = Target;
 	CurrentShipData = Target->Save();
-	LoadTargetShip();
+	LoadTargetSpacecraft();
 
 	// Move the viewer to the right
 	AFlarePlayerController* PC = MenuManager->GetPC();
@@ -230,6 +257,23 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	{
 		PC->GetMenuPawn()->SetHorizontalOffset(100);
 	}
+
+	// Fill the docking data
+	TArray<IFlareSpacecraftInterface*> DockedShips = Target->GetDockingSystem()->GetDockedShips();
+	for (int32 i = 0; i < DockedShips.Num(); i++)
+	{
+		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(DockedShips[i]);
+
+		if (Spacecraft)
+		{
+			FLOGV("SFlareShipMenu::Enter %s", *Spacecraft->GetName());
+		}
+		if (DockedShips[i]->GetDamageSystem()->IsAlive())
+		{
+			ShipList->AddShip(DockedShips[i]);
+		}
+	}
+	ShipList->RefreshList();
 
 	SetVisibility(EVisibility::Visible);
 }
@@ -240,26 +284,16 @@ void SFlareShipMenu::Exit()
 	ObjectActionMenu->Hide();
 	PartListData.Empty();
 	PartList->RequestListRefresh();
+	ShipList->Reset();
 	SetVisibility(EVisibility::Hidden);
 }
 
-void SFlareShipMenu::LoadTargetShip()
+void SFlareShipMenu::LoadTargetSpacecraft()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
-
-		// Get the description data
-		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
-		if (ShipDesc)
-		{
-			ObjectName->SetText(FText::FromString(ShipDesc->Name.ToString()));
-			ObjectDescription->SetText(ShipDesc->Description);
-			PC->GetMenuPawn()->ShowShip(ShipDesc, CurrentShipData);
-		}
-
-		// Make the right box visible
+		// Make the right boxes visible
 		if (!CanEdit)
 		{
 			ObjectActionMenu->SetSpacecraft(CurrentShipTarget);
@@ -269,59 +303,59 @@ void SFlareShipMenu::LoadTargetShip()
 		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
 		ShipCustomizationBox->SetVisibility(EVisibility::Visible);
 
-		// Add weapon slots buttons
+		// Get the description data
+		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
+		if (ShipDesc)
+		{
+			ObjectName->SetText(FText::FromString(ShipDesc->Name.ToString()));
+			ObjectDescription->SetText(ShipDesc->Description);
+			PC->GetMenuPawn()->ShowShip(ShipDesc, CurrentShipData);
+		}
+
+		// Reset weapon data
 		int32 WeaponCount = 0;
-		TSharedPtr<SFlareButton> Temp;
 		WeaponButtonBox->ClearChildren();
-		FName OrbitalEngineIdentifier;
-		FName RCSIdentifier;
+		WeaponDescriptions.Empty();
 		
+		// Setup component descriptions
 		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
 		{
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
+
 			if (ComponentDescription->Type == EFlarePartType::Weapon)
 			{
+				// Register the weapon data
+				TSharedPtr<int32> IndexPtr(new int32(WeaponCount));
+				WeaponDescriptions.Add(Catalog->Get(ComponentDescription->Identifier));
+				WeaponCount++;
+
+				// Add the button itself
 				WeaponButtonBox->AddSlot()
 					.AutoWidth()
+					.Padding(FFlareStyleSet::GetDefaultTheme().TitleButtonPadding)
+					.VAlign(VAlign_Top)
 					[
-						SAssignNew(Temp, SFlareButton)
-						.OnClicked(this, &SFlareShipMenu::ShowWeapons, TSharedPtr<int32>(new int32(WeaponCount)))
-						.Width(5)
-						.Height(2)
+						SNew(SFlareRoundButton)
+						.OnClicked(this, &SFlareShipMenu::ShowWeapons, IndexPtr)
+						.Icon(this, &SFlareShipMenu::GetWeaponIcon, IndexPtr)
+						.Text(this, &SFlareShipMenu::GetWeaponText, IndexPtr)
+						.InvertedBackground(true)
 					];
 
-				Temp->GetContainer()->SetContent(SNew(SFlarePartInfo)
-					.IsOwned(true)
-					.IsMinimized(true)
-					.Description(Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier)));
-				WeaponCount++;
 			} 
 			else if (ComponentDescription->Type == EFlarePartType::RCS)
 			{
-				RCSIdentifier = ComponentDescription->Identifier;
+				RCSDescription = Catalog->Get(ComponentDescription->Identifier);
 			}
 			else if (ComponentDescription->Type == EFlarePartType::OrbitalEngine)
 			{
-				OrbitalEngineIdentifier = ComponentDescription->Identifier;
+				EngineDescription = Catalog->Get(ComponentDescription->Identifier);
 			}
 		}
 
 		WeaponButtonBox->SetVisibility(WeaponCount > 0 ? EVisibility::Visible : EVisibility::Collapsed);
-		
-		// Add orbital engine button
-		EngineButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
-			.IsOwned(true)
-			.IsMinimized(true)
-			.Description(Catalog->Get(OrbitalEngineIdentifier)));
-
-		// Add RCS button
-		RCSButton->GetContainer()->SetContent(SNew(SFlarePartInfo)
-			.IsOwned(true)
-			.IsMinimized(true)
-			.Description(Catalog->Get(RCSIdentifier)));
-
 	}
-
 }
 
 void SFlareShipMenu::LoadPart(FName InternalName)
@@ -381,32 +415,115 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 
 
 /*----------------------------------------------------
-	Callbacks
+	Content callbacks
 ----------------------------------------------------*/
 
-const FSlateBrush* SFlareShipMenu::GetIconBrush() const
+const FSlateBrush* SFlareShipMenu::GetTitleIcon() const
 {
-	if (CanEdit)
-	{
-		return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_ShipConfig);
-	}
-	else
-	{
-		return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Ship);
-	}
+	return AFlareMenuManager::GetMenuIcon(CanEdit ? EFlareMenu::MENU_ShipConfig : EFlareMenu::MENU_Ship);
 }
 
 FText SFlareShipMenu::GetTitleText() const
 {
-	if (CanEdit)
-	{
-		return LOCTEXT("ShipConfigMenuTitle", "SHIP UPGRADE");
-	}
-	else
-	{
-		return LOCTEXT("ShipMenuTitle", "SHIP");
-	}
+	return (CanEdit ? LOCTEXT("ShipConfigMenuTitle", "SHIP UPGRADE") : LOCTEXT("ShipMenuTitle", "SHIP"));
 }
+
+const FSlateBrush* SFlareShipMenu::GetRCSIcon() const
+{
+	return (RCSDescription ? &RCSDescription->MeshPreviewBrush : NULL);
+}
+
+FText SFlareShipMenu::GetRCSText() const
+{
+	FText Result;
+
+	if (RCSDescription)
+	{
+		Result = RCSDescription->Name;
+	}
+
+	return Result;
+}
+
+const FSlateBrush* SFlareShipMenu::GetEngineIcon() const
+{
+	return (EngineDescription ? &EngineDescription->MeshPreviewBrush : NULL);
+}
+
+FText SFlareShipMenu::GetEngineText() const
+{
+	FText Result;
+
+	if (EngineDescription)
+	{
+		Result = EngineDescription->Name;
+	}
+
+	return Result;
+}
+
+const FSlateBrush* SFlareShipMenu::GetWeaponIcon(TSharedPtr<int32> Index) const
+{
+	if (*Index < WeaponDescriptions.Num())
+	{
+		FFlareSpacecraftComponentDescription* Desc = WeaponDescriptions[*Index];
+		return (Desc ? &Desc->MeshPreviewBrush : NULL);
+	}
+	return NULL;
+}
+
+FText SFlareShipMenu::GetWeaponText(TSharedPtr<int32> Index) const
+{
+	FText Result;
+
+	if (*Index < WeaponDescriptions.Num())
+	{
+		FFlareSpacecraftComponentDescription* Desc = WeaponDescriptions[*Index];
+		if (Desc)
+		{
+			Result = Desc->Name;
+		}
+	}
+
+	return Result;
+}
+
+TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
+{
+	TSharedPtr<SFlarePartInfo> Temp;
+	TSharedPtr<SFlareListItem> TempWidget;
+
+	// Create the row
+	TSharedRef<ITableRow> res = SAssignNew(TempWidget, SFlareListItem, OwnerTable)
+		.Width(5)
+		.Height(2)
+		.Content()
+		[
+			SAssignNew(Temp, SFlarePartInfo)
+			.Description(Item->PartDescription)
+			.ShowOwnershipInfo(true)
+		];
+
+	// Update the selection to force select the first item
+	int32 Index = PartListData.Find(Item->PartDescription);
+	if (Index == CurrentEquippedPartIndex)
+	{
+		Temp->SetOwned(true);
+		TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(TempWidget);
+		if (ItemWidget.IsValid())
+		{
+			ItemWidget->SetSelected(true);
+			PreviousSelection = ItemWidget;
+		}
+	}
+
+	return res;
+}
+
+
+/*----------------------------------------------------
+	Action callbacks
+----------------------------------------------------*/
 
 void SFlareShipMenu::ShowRCSs()
 {
@@ -446,38 +563,6 @@ void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponIndex)
 		PC->GetGame()->GetShipPartsCatalog()->GetWeaponList(PartListData, Ship->GetDescription()->Size);
 		UpdatePartList(Ship->GetWeaponsSystem()->GetWeaponDescription(CurrentWeaponIndex));
 	}
-}
-
-TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
-{
-	TSharedPtr<SFlarePartInfo> Temp;
-	TSharedPtr<SFlareListItem> TempWidget;
-
-	// Create the row
-	TSharedRef<ITableRow> res = SAssignNew(TempWidget, SFlareListItem, OwnerTable)
-		.Width(5)
-		.Height(2)
-		.Content()
-		[
-			SAssignNew(Temp, SFlarePartInfo)
-			.Description(Item->PartDescription)
-			.ShowOwnershipInfo(true)
-		];
-
-	// Update the selection to force select the first item
-	int32 Index = PartListData.Find(Item->PartDescription);
-	if (Index == CurrentEquippedPartIndex)
-	{
-		Temp->SetOwned(true);
-		TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(TempWidget);
-		if (ItemWidget.IsValid())
-		{
-			ItemWidget->SetSelected(true);
-			PreviousSelection = ItemWidget;
-		}
-	}
-
-	return res;
 }
 
 void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo)
@@ -570,14 +655,14 @@ void SFlareShipMenu::OnPartConfirmed()
 
 		// Get back to the ship config
 		BuyConfirmation->Hide();
-		LoadTargetShip();
+		LoadTargetSpacecraft();
 	}
 }
 
 void SFlareShipMenu::OnPartCancelled()
 {
 	BuyConfirmation->Hide();
-	LoadTargetShip();
+	LoadTargetSpacecraft();
 }
 
 void SFlareShipMenu::OnDashboardClicked()

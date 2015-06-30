@@ -26,7 +26,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Fill)
 	[
 		SNew(SBox)
-		.WidthOverride(15 * Theme.ButtonWidth + 25)
+		.WidthOverride(Theme.ContentWidth)
 		[
 			SNew(SVerticalBox)
 

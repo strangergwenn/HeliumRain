@@ -31,7 +31,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		[
 			SNew(SBox)
-			.WidthOverride(15 * Theme.ButtonWidth)
+			.WidthOverride(Theme.ContentWidth)
 			[
 				SNew(SHorizontalBox)
 			

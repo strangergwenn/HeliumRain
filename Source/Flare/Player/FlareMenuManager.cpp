@@ -30,7 +30,6 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(Dashboard, SFlareDashboard).MenuManager(this);
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
-		SAssignNew(StationMenu, SFlareStationMenu).MenuManager(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).MenuManager(this);
 
 		// Fader
@@ -45,7 +44,6 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StationMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
@@ -55,7 +53,6 @@ void AFlareMenuManager::SetupMenu()
 		Dashboard->Setup();
 		CompanyMenu->Setup();
 		ShipMenu->Setup();
-		StationMenu->Setup();
 		SectorMenu->Setup();
 	}
 }
@@ -167,8 +164,8 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_Dashboard:      Path = "Dashboard";    break;
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;
 		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
-		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
 		case EFlareMenu::MENU_Station:        Path = "Station";      break;
+		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
 		case EFlareMenu::MENU_Undock:         Path = "Undock";       break;
 		case EFlareMenu::MENU_Sector:         Path = "Sector";       break;
 		case EFlareMenu::MENU_Settings:       Path = "Settings";     break;
@@ -197,7 +194,6 @@ void AFlareMenuManager::ResetMenu()
 	Dashboard->Exit();
 	CompanyMenu->Exit();
 	ShipMenu->Exit();
-	StationMenu->Exit();
 	SectorMenu->Exit();
 
 	if (PC)
@@ -252,10 +248,6 @@ void AFlareMenuManager::ProcessFadeTarget()
 		
 		case EFlareMenu::MENU_Sector:
 			OpenSector();
-			break;
-
-		case EFlareMenu::MENU_Station:
-			InspectStation(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Quit:
@@ -330,20 +322,6 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 		Target = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
 	}
 	ShipMenu->Enter(Target, IsEditable);
-}
-
-void AFlareMenuManager::InspectStation(IFlareSpacecraftInterface* Target, bool IsEditable)
-{
-	ResetMenu();
-	GetPC()->OnEnterMenu();
-
-	AFlareSpacecraft* PlayerShip = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
-
-	if (Target == NULL && PlayerShip && PlayerShip->GetNavigationSystem()->IsDocked())
-	{
-		Target = PlayerShip->GetNavigationSystem()->GetDockStation();
-	}
-	StationMenu->Enter(Target);
 }
 
 void AFlareMenuManager::OpenSector()

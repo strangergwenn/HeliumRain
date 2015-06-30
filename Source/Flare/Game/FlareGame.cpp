@@ -191,6 +191,11 @@ int32 AFlareGame::GetSaveSlotCount() const
 	return SaveSlotCount;
 }
 
+int32 AFlareGame::GetCurrentSaveSlot() const
+{
+	return CurrentSaveIndex;
+}
+
 bool AFlareGame::DoesSaveSlotExist(int32 Index) const
 {
 	int32 RealIndex = Index - 1;

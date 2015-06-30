@@ -64,6 +64,9 @@ public:
 	/** Get the number of save slots */
 	int32 GetSaveSlotCount() const;
 
+	/** Get the current save slot number */
+	int32 GetCurrentSaveSlot() const;
+
 	/** Is this an existing save slot ? */
 	bool DoesSaveSlotExist(int32 Index) const;
 

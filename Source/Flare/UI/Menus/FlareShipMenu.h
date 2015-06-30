@@ -40,8 +40,8 @@ public:
 	/** Exit this menu */
 	void Exit();
 
-	/** Go to the ship view */
-	void LoadTargetShip();
+	/** Load a spacecraft data and setup the interface */
+	void LoadTargetSpacecraft();
 
 	/** Load a ship */
 	void LoadPart(FName InternalName);
@@ -53,14 +53,40 @@ public:
 protected:
 
 	/*----------------------------------------------------
-		Callbacks
+		Content callbacks
 	----------------------------------------------------*/
 
-	/** Brush callback */
-	const FSlateBrush* GetIconBrush() const;
+	/** Title icon callback */
+	const FSlateBrush* GetTitleIcon() const;
 
 	/** Title callback */
 	FText GetTitleText() const;
+
+	/** Get a Slate brush for the RCS icon */
+	const FSlateBrush* GetRCSIcon() const;
+
+	/** RCS callback */
+	FText GetRCSText() const;
+
+	/** Get a Slate brush for the engine icon */
+	const FSlateBrush* GetEngineIcon() const;
+
+	/** Engine callback */
+	FText GetEngineText() const;
+
+	/** Get a Slate brush for the weapon icons */
+	const FSlateBrush* GetWeaponIcon(TSharedPtr<int32> Index) const;
+
+	/** Weapon callback */
+	FText GetWeaponText(TSharedPtr<int32> Index) const;
+
+	/** Part list generator */
+	TSharedRef<ITableRow> GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
+
+
+	/*----------------------------------------------------
+		Action callbacks
+	----------------------------------------------------*/
 
 	/** Show engines */
 	void ShowEngines();
@@ -70,9 +96,6 @@ protected:
 
 	/** Show weapons */
 	void ShowWeapons(TSharedPtr<int32> WeaponIndex);
-
-	/** Part list generator */
-	TSharedRef<ITableRow> GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
 
 	/** Chose a part */
 	void OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
@@ -99,27 +122,31 @@ protected:
 
 	/** Target ship to use for customization */
 	UPROPERTY()
-	IFlareSpacecraftInterface* CurrentShipTarget;
+	IFlareSpacecraftInterface*         CurrentShipTarget;
 
 	/** Save data for the ship currently being customized */
 	UPROPERTY()
-	FFlareSpacecraftSave* CurrentShipData;
-
+	FFlareSpacecraftSave*              CurrentShipData;
 
 	// Main UI
 	bool                               CanEdit;
 	TSharedPtr<STextBlock>             ObjectName;
 	TSharedPtr<STextBlock>             ObjectDescription;
 	TSharedPtr<SFlareTargetActions>    ObjectActionMenu;
+	TSharedPtr<SFlareShipList>         ShipList;
 
 	// Ship UI
 	TSharedPtr<SVerticalBox>           ShipCustomizationBox;
-	TSharedPtr<SFlareButton>           EngineButton;
-	TSharedPtr<SFlareButton>           RCSButton;
+
+	// Ship data
+	FFlareSpacecraftComponentDescription*           RCSDescription;
+	FFlareSpacecraftComponentDescription*           EngineDescription;
+	TArray<FFlareSpacecraftComponentDescription*>   WeaponDescriptions;
 
 	// Ship weapons
 	TSharedPtr<SHorizontalBox>         WeaponButtonBox;
 	int32                              CurrentWeaponIndex;
+
 
 	/** List of parts being shown right now */
 	UPROPERTY()

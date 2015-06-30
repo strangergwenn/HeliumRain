@@ -360,14 +360,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 			// If ship, set data
 			if (Ship)
 			{
-				if (Ship->IsStation())
-				{
-					ContextMenu->SetStation(Ship);
-				}
-				else
-				{
-					ContextMenu->SetShip(Ship);
-				}
+				ContextMenu->SetSpacecraft(Ship);
 				if (Ship->GetDamageSystem()->IsAlive())
 				{
 					ContextMenu->Show();

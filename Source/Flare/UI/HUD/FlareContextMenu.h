@@ -31,11 +31,8 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set a station as content */
-	void SetStation(IFlareSpacecraftInterface* Target);
-
-	/** Set a ship as content */
-	void SetShip(IFlareSpacecraftInterface* Target);
-
+	void SetSpacecraft(IFlareSpacecraftInterface* Target);
+	
 	/** Show the menu */
 	void Show();
 
@@ -70,7 +67,6 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 		
 	// State data
-	IFlareSpacecraftInterface*                 TargetStation;
-	IFlareSpacecraftInterface*                 TargetShip;
+	IFlareSpacecraftInterface*                 TargetSpacecraft;
 	
 };
