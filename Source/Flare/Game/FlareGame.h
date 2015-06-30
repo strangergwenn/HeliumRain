@@ -247,9 +247,9 @@ public:
 
 	inline UFlareCompany* FindCompany(FName Identifier) const
 	{
-		for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+		for(int i = 0; i < Companies.Num(); i++)
 		{
-			UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+			UFlareCompany* Company = Companies[i];
 			if (Company && Company->GetIdentifier() == Identifier)
 			{
 				return Company;

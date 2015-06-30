@@ -633,9 +633,9 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 		}
 
 		// Companies
-		for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+		for(int i = 0; i < Companies.Num(); i++)
 		{
-			UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+			UFlareCompany* Company = Companies[i];
 			if (Company)
 			{
 				FLOGV("AFlareGame::SaveWorld : saving company ('%s')", *Company->GetName());
@@ -772,9 +772,9 @@ AFlareSpacecraft* AFlareGame::CreateStationInCompany(FName StationClass, FName C
 	}
 
 	// Find company
-	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+	for(int i = 0; i < Companies.Num(); i++)
 	{
-		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+		UFlareCompany* Company = Companies[i];
 		if (Company && Company->GetShortName() == CompanyShortName)
 		{
 			StationPawn = CreateStation(StationClass, Company->GetIdentifier(), TargetPosition);
@@ -822,9 +822,9 @@ AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName Company
 	}
 
 	// Find company
-	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+	for(int i = 0; i < Companies.Num(); i++)
 	{
-		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+		UFlareCompany* Company = Companies[i];
 		if (Company && Company->GetShortName() == CompanyShortName)
 		{
 			ShipPawn = CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition);
@@ -853,9 +853,9 @@ void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, f
 	}
 
 	// Find company
-	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+	for(int i = 0; i < Companies.Num(); i++)
 	{
-		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+		UFlareCompany* Company = Companies[i];
 		if (Company && Company->GetShortName() == CompanyShortName)
 		{
 			for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
@@ -879,9 +879,9 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 	FName Company1Identifier;
 	FName Company2Identifier;
 
-	for (TObjectIterator<UFlareCompany> ObjectItr; ObjectItr; ++ObjectItr)
+	for(int i = 0; i < Companies.Num(); i++)
 	{
-		UFlareCompany* Company = Cast<UFlareCompany>(*ObjectItr);
+		UFlareCompany* Company = Companies[i];
 		if (Company && Company->GetShortName() == Company1)
 		{
 			Company1Identifier = Company->GetIdentifier();
