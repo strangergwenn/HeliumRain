@@ -110,7 +110,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SVerticalBox)
 
-			// Slot N°
+			// Slot NÂ°
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(Theme.TitlePadding)
@@ -315,9 +315,9 @@ void SFlareMainMenu::UpdateSaveSlots()
 
 			// Count player ships
 			SaveSlotInfo.CompanyShipCount = 0;
-			for (int32 Index = 0; Index < Save->ShipData.Num(); Index++)
+			for (int32 ShipIndex = 0; ShipIndex < Save->ShipData.Num(); ShipIndex++)
 			{
-				const FFlareSpacecraftSave& Spacecraft = Save->ShipData[Index];
+				const FFlareSpacecraftSave& Spacecraft = Save->ShipData[ShipIndex];
 
 				if (Spacecraft.CompanyIdentifier == Save->PlayerData.CompanyIdentifier)
 				{
