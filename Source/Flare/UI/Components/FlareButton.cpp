@@ -77,7 +77,6 @@ void SFlareButton::Construct(const FArguments& InArgs)
 								SAssignNew(InnerContainer, SBorder)
 								.HAlign(HAlign_Left)
 								.VAlign(VAlign_Center)
-								.Padding(Theme.ButtonPadding)
 								.BorderImage(new FSlateNoResource)
 							]
 
@@ -117,6 +116,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	{
 		TSharedPtr<SVerticalBox> IconBox;
 
+		InnerContainer->SetPadding(Theme.ButtonPadding);
 		InnerContainer->SetContent(
 			SNew(SHorizontalBox)
 

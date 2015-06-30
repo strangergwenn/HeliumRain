@@ -19,14 +19,12 @@ class SFlareTargetActions : public SCompoundWidget
 		: _Player(NULL)
 		, _NoInspect(false)
 		, _MinimizedMode(false)
-		, _Translucent(false)
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
 
 	SLATE_ARGUMENT(bool, NoInspect)
 	SLATE_ARGUMENT(bool, MinimizedMode)
-	SLATE_ARGUMENT(bool, Translucent)
 
 	SLATE_END_ARGS()
 

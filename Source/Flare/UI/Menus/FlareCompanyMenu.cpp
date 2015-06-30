@@ -28,86 +28,90 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SHorizontalBox)
+		SNew(SVerticalBox)
 
-		// UI container
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Left)
-		.AutoWidth()
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
 		[
-			SNew(SScrollBox)
-			+ SScrollBox::Slot()
+			SNew(SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			[
-				SNew(SVerticalBox)
+				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company))
+			]
 
-				// Object name
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SHorizontalBox)
+			// Title
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Center)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TitleFont)
+				.Text(LOCTEXT("Title", "COMPANY"))
+			]
 
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company))
-					]
-
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.AutoWidth()
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("Title", "COMPANY"))
-						.TextStyle(&Theme.TitleFont)
-					]
-				]
-
-				// Company info
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SAssignNew(ActionMenu, SFlareTargetActions)
-					.Player(PC)
-					.MinimizedMode(true)
-				]
-
-				// Title
-				+ SVerticalBox::Slot()
-				.Padding(Theme.TitlePadding)
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("Colors", "COLORS"))
-					.TextStyle(&Theme.SubTitleFont)
-				]
-
-				// Color picker
-				+ SVerticalBox::Slot()
-				.Padding(Theme.ContentPadding)
-				.AutoHeight()
-				[
-					SAssignNew(ColorBox, SFlareColorPanel).MenuManager(MenuManager)
-				]
-
-				// Object list
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SAssignNew(ShipList, SFlareShipList)
-					.MenuManager(MenuManager)
-					.Title(LOCTEXT("Property", "PROPERTY"))
-				]
+			// Quit
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Dashboard", "Dashboard"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector, true))
+				.OnClicked(this, &SFlareCompanyMenu::OnDashboardClicked)
 			]
 		]
 
-		// Dashboard button
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Top)
+		// Separator
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(200, 40))
 		[
-			SNew(SFlareRoundButton)
-			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit))
-			.OnClicked(this, &SFlareCompanyMenu::OnDashboardClicked)
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
+		
+		// Company info
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SAssignNew(ActionMenu, SFlareTargetActions)
+			.Player(PC)
+			.MinimizedMode(true)
+		]
+
+		// Title
+		+ SVerticalBox::Slot()
+		.Padding(Theme.TitlePadding)
+		.AutoHeight()
+		[
+			SNew(STextBlock)
+			.Text(LOCTEXT("Colors", "COLORS"))
+			.TextStyle(&Theme.SubTitleFont)
+		]
+
+		// Color picker
+		+ SVerticalBox::Slot()
+		.Padding(Theme.ContentPadding)
+		.AutoHeight()
+		[
+			SAssignNew(ColorBox, SFlareColorPanel).MenuManager(MenuManager)
+		]
+
+		// Object list
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Left)
+		[
+			SAssignNew(ShipList, SFlareShipList)
+			.MenuManager(MenuManager)
+			.Title(LOCTEXT("Property", "PROPERTY"))
 		]
 	];
 }

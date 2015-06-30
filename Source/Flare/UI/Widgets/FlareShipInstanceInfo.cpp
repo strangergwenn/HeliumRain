@@ -90,7 +90,6 @@ void SFlareShipInstanceInfo::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(ActionContainer, SFlareTargetActions)
 			.Player(InArgs._Player)
-			.Translucent(true)
 		]
 	];
 

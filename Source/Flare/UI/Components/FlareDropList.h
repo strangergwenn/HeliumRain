@@ -16,9 +16,9 @@ class SFlareDropList : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareDropList)
 		: _LineSize(1)
 		, _HeaderWidth(3)
-		, _HeaderHeight(2)
+		, _HeaderHeight(1)
 		, _ItemWidth(3)
-		, _ItemHeight(2)
+		, _ItemHeight(1)
 	{}
 
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)

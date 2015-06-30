@@ -667,6 +667,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 
 void AFlareGame::DeleteWorld()
 {
+	FLOG("AFlareGame::DeleteWorld");
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
 		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);

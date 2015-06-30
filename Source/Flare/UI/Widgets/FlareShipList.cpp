@@ -22,31 +22,36 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 	
 	// Build structure
 	ChildSlot
-	.HAlign(HAlign_Fill)
+	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SVerticalBox)
-
-		// Section title
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.TitlePadding)
+		SNew(SBox)
+		.WidthOverride(15 * Theme.ButtonWidth + 25)
 		[
-			SNew(STextBlock)
-			.Text(InArgs._Title)
-			.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
-		]
+			SNew(SVerticalBox)
 
-		// Box
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		[
-			SAssignNew(TargetList, SListView< TSharedPtr<FInterfaceContainer> >)
-			.ListItemsSource(&TargetListData)
-			.SelectionMode(ESelectionMode::Single)
-			.OnGenerateRow(this, &SFlareShipList::GenerateTargetInfo)
-			.OnSelectionChanged(this, &SFlareShipList::OnTargetSelected)
+			// Section title
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			[
+				SNew(STextBlock)
+				.Text(InArgs._Title)
+				.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+			]
+
+			// Box
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Fill)
+			[
+				SAssignNew(TargetList, SListView< TSharedPtr<FInterfaceContainer> >)
+				.ListItemsSource(&TargetListData)
+				.SelectionMode(ESelectionMode::Single)
+				.OnGenerateRow(this, &SFlareShipList::GenerateTargetInfo)
+				.OnSelectionChanged(this, &SFlareShipList::OnTargetSelected)
+			]
 		]
 	];
 }

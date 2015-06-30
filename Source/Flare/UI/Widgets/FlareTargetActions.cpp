@@ -18,22 +18,11 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 	MinimizedMode = InArgs._MinimizedMode;
 	AFlareGame* Game = InArgs._Player->GetGame();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	// Container style
-	const FSlateBrush* BackgroundBrush;
-	if (InArgs._Translucent)
-	{
-		BackgroundBrush = &Theme.InvisibleBrush;
-	}
-	else
-	{
-		BackgroundBrush = &Theme.BackgroundBrush;
-	}
-
+	
 	// Create the layout
 	ChildSlot
 	.VAlign(VAlign_Fill)
-	.HAlign(HAlign_Fill)
+	.HAlign(HAlign_Left)
 	[
 		SNew(SVerticalBox)
 
@@ -42,7 +31,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		[
 			SNew(SBox)
-			.WidthOverride(600)
+			.WidthOverride(15 * Theme.ButtonWidth)
 			[
 				SNew(SHorizontalBox)
 			

@@ -23,7 +23,7 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	ChildSlot
-	.VAlign(VAlign_Center)
+	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Center)
 	[
 		SNew(SVerticalBox)

@@ -30,6 +30,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 			[
 				// Button background
 				SNew(SBorder)
+				.Padding(FMargin(0))
 				.BorderImage(this, &SFlareListItem::GetBackgroundBrush)
 				[
 					SNew(SHorizontalBox)
@@ -40,7 +41,6 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 						SAssignNew(InnerContainer, SBorder)
 						.HAlign(HAlign_Fill)
 						.VAlign(VAlign_Top)
-						.Padding(Theme.ButtonPadding)
 						.BorderImage(new FSlateNoResource)
 						[
 							InArgs._Content.Widget
