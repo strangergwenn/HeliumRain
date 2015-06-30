@@ -140,7 +140,7 @@ TArray<IFlareSpacecraftInterface*> UFlareSpacecraftDockingSystem::GetDockedShips
 
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
-		if (DockingSlots[i].Granted)
+		if (DockingSlots[i].Granted && DockingSlots[i].Occupied)
 		{
 			FLOGV("UFlareSpacecraftDockingSystem::GetDockedShips : found valid dock %d", i);
 			Result.AddUnique(DockingSlots[i].Ship);
