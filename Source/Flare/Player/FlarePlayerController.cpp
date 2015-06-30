@@ -348,7 +348,7 @@ void AFlarePlayerController::SetupMenu()
 	APawn* DefaultPawn = GetPawn();
 
 	// Spawn the menu pawn at an arbitrarily large location
-	FVector SpawnLocation(5000000 * FVector(1, 1, 1));
+	FVector SpawnLocation(1000000 * FVector(-1, -1, -1));
 	MenuPawn = GetWorld()->SpawnActor<AFlareMenuPawn>(GetGame()->GetMenuPawnClass(), SpawnLocation, FRotator::ZeroRotator);
 	Possess(MenuPawn);
 	
