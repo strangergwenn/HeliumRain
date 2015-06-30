@@ -145,12 +145,18 @@ void UFlareSpacecraftNavigationSystem::SetAngularAccelerationRate(float Accelera
 
 bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetStation)
 {
+
 	FLOG("AFlareSpacecraft::DockAt");
 	FFlareDockingInfo DockingInfo = TargetStation->GetDockingSystem()->RequestDock(Spacecraft, Spacecraft->GetActorLocation());
 
 	// Try to dock
 	if (DockingInfo.Granted)
 	{
+		if(IsDocked())
+		{
+			Undock();
+		}
+
 		FLOG("AFlareSpacecraft::DockAt : access granted");
 		PushCommandDock(DockingInfo);
 		return true;
