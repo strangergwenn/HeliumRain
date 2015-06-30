@@ -695,6 +695,7 @@ void AFlareGame::DeleteWorld()
 	}
 
 	Companies.Empty();
+	LoadedOrCreated = false;
 }
 
 
