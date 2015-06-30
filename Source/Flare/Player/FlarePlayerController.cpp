@@ -698,9 +698,9 @@ void AFlarePlayerController::WheelPressed()
 		// Docked controls
 		if (ShipPawn->GetNavigationSystem()->IsDocked())
 		{
-			MouseMenu->AddWidget("ShipUpgrade", LOCTEXT("Upgrade", "Upgrade"),
+			MouseMenu->AddWidget("ShipUpgrade_Button", LOCTEXT("Upgrade", "Upgrade"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UpgradeShip));
-			MouseMenu->AddWidget("Undock", LOCTEXT("Undock", "Undock"),
+			MouseMenu->AddWidget("Undock_Button", LOCTEXT("Undock", "Undock"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UndockShip));
 		}
 
