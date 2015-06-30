@@ -62,6 +62,9 @@ protected:
 	/** Title callback */
 	FText GetTitleText() const;
 
+	/** Is it a station */
+	EVisibility GetEngineVisibility() const;
+
 	/** Get a Slate brush for the RCS icon */
 	const FSlateBrush* GetRCSIcon() const;
 

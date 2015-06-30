@@ -150,6 +150,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 								.Icon(this, &SFlareShipMenu::GetEngineIcon)
 								.Text(this, &SFlareShipMenu::GetEngineText)
 								.InvertedBackground(true)
+								.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
 							]
 
 							// RCS
@@ -162,6 +163,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 								.Icon(this, &SFlareShipMenu::GetRCSIcon)
 								.Text(this, &SFlareShipMenu::GetRCSText)
 								.InvertedBackground(true)
+								.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
 							]
 
 							// Weapons
@@ -237,6 +239,7 @@ void SFlareShipMenu::Setup()
 	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 
+	CurrentShipTarget = NULL;
 	RCSDescription = NULL;
 	EngineDescription = NULL;
 }
@@ -280,11 +283,16 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 
 void SFlareShipMenu::Exit()
 {
-	SetEnabled(false);
 	ObjectActionMenu->Hide();
 	PartListData.Empty();
 	PartList->RequestListRefresh();
 	ShipList->Reset();
+
+	CurrentShipTarget = NULL;
+	RCSDescription = NULL;
+	EngineDescription = NULL;
+
+	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 }
 
@@ -426,6 +434,11 @@ const FSlateBrush* SFlareShipMenu::GetTitleIcon() const
 FText SFlareShipMenu::GetTitleText() const
 {
 	return (CanEdit ? LOCTEXT("ShipConfigMenuTitle", "SHIP UPGRADE") : LOCTEXT("ShipMenuTitle", "SHIP"));
+}
+
+EVisibility SFlareShipMenu::GetEngineVisibility() const
+{
+	return (CurrentShipTarget && !CurrentShipTarget->IsStation() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 const FSlateBrush* SFlareShipMenu::GetRCSIcon() const
