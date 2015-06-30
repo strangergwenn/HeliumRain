@@ -67,12 +67,6 @@ protected:
 	/** Undock */
 	void OnUndock();
 
-	/** Open the sector map */
-	void OnOpenSector();
-
-	/** Quit the game */
-	void OnQuitGame();
-
 	/** Close the dashboard */
 	void OnExit();
 

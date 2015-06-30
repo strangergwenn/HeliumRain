@@ -271,6 +271,8 @@ void SFlareDashboard::OnInspectStation()
 
 void SFlareDashboard::OnMainMenu()
 {
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	PC->GetGame()->SaveWorld(PC);
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 
@@ -294,15 +296,6 @@ void SFlareDashboard::OnUndock()
 	}
 }
 
-void SFlareDashboard::OnOpenSector()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Sector);
-}
-
-void SFlareDashboard::OnQuitGame()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
-}
 
 #undef LOCTEXT_NAMESPACE
 

@@ -4,6 +4,7 @@
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
 #include "../../Player/FlareMenuPawn.h"
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
 
@@ -20,7 +21,6 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	TSharedPtr<SHorizontalBox> Temp;
 	SaveSlotCount = 3;
 	Initialized = false;
 
@@ -95,7 +95,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		// Save slots
 		+ SVerticalBox::Slot()
 		[
-			SAssignNew(Temp, SHorizontalBox)
+			SAssignNew(SaveBox, SHorizontalBox)
 		]
 	];
 
@@ -104,7 +104,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	{
 		TSharedPtr<int32> IndexPtr(new int32(Index));
 
-		Temp->AddSlot()
+		SaveBox->AddSlot()
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Top)
 		[
@@ -200,6 +200,9 @@ void SFlareMainMenu::Exit()
 {
 	SetEnabled(false);
 	Initialized = false;
+
+	SaveSlots.Empty();
+
 	SetVisibility(EVisibility::Hidden);
 }
 
@@ -212,22 +215,23 @@ FText SFlareMainMenu::GetText(int32 Index) const
 {
 	if (IsExistingGame(Index - 1))
 	{
-		FFlarePlayerSave& PlayerData = SaveSlots[Index - 1]->PlayerData;
+		const FFlareSaveSlotInfo& SaveSlotInfo = SaveSlots[Index - 1];
 
-		FString CompanyString = LOCTEXT("Company", "Company : ").ToString() + PlayerData.CompanyIdentifier.ToString();
-		FString ShipString = LOCTEXT("Flying", "Player ship : ").ToString() + PlayerData.CurrentShipName;
+		FString CompanyString = SaveSlotInfo.CompanyName.ToString();
+		FString ShipString = FString::FromInt(SaveSlotInfo.CompanyShipCount) + " " + LOCTEXT("Ships", "ships").ToString();
+		FString MoneyString = FString::FromInt(SaveSlotInfo.CompanyMoney) + " " + LOCTEXT("Credits", "credits").ToString();
 
-		return FText::FromString(CompanyString + "\n" + ShipString + "\n");
+		return FText::FromString(CompanyString + "\n" + ShipString + "\n" + MoneyString + "\n");
 	}
 	else
 	{
-		return FText::FromString("\n\n");
+		return FText::FromString("\n\n\n");
 	}
 }
 
 const FSlateBrush* SFlareMainMenu::GetSaveIcon(int32 Index) const
 {
-	return (IsExistingGame(Index - 1) ? FFlareStyleSet::GetIcon("Company") : FFlareStyleSet::GetIcon("HeliumRain"));
+	return (IsExistingGame(Index - 1) ? &SaveSlots[Index - 1].EmblemBrush : FFlareStyleSet::GetIcon("HeliumRain"));
 }
 
 EVisibility SFlareMainMenu::GetDeleteButtonVisibility(int32 Index) const
@@ -287,20 +291,64 @@ void SFlareMainMenu::OnQuitGame()
 
 void SFlareMainMenu::UpdateSaveSlots()
 {
+	// Setup
 	SaveSlots.Empty();
+	FVector2D EmblemSize = 128 * FVector2D::UnitVector;
+	UMaterial* BaseEmblemMaterial = Cast<UMaterial>(FFlareStyleSet::GetIcon("CompanyEmblem")->GetResourceObject());
 
+	// Get all saves
 	for (int32 Index = 1; Index <= SaveSlotCount; Index++)
 	{
+		FFlareSaveSlotInfo SaveSlotInfo;
+		SaveSlotInfo.EmblemBrush.ImageSize = EmblemSize;
 		UFlareSaveGame* Save = AFlareGame::LoadSaveFile(Index);
+		SaveSlotInfo.Save = Save;
+
 		if (Save)
 		{
+			// Basic setup
+			AFlareGame* Game = MenuManager->GetPC()->GetGame();
+			FFlareCompanySave& Company = Save->CompanyData[0];
+			UFlareCustomizationCatalog* Catalog = Game->GetCustomizationCatalog();
+			SaveSlotInfo.CompanyName = LOCTEXT("Company", "Mining Syndicate");
 			FLOGV("SFlareMainMenu::UpdateSaveSlots : found valid save data in slot %d", Index);
-			SaveSlots.Add(Save);
+
+			// Count player ships
+			SaveSlotInfo.CompanyShipCount = 0;
+			for (int32 Index = 0; Index < Save->ShipData.Num(); Index++)
+			{
+				const FFlareSpacecraftSave& Spacecraft = Save->ShipData[Index];
+
+				if (Spacecraft.CompanyIdentifier == Save->PlayerData.CompanyIdentifier)
+				{
+					SaveSlotInfo.CompanyShipCount++;
+				}
+			}
+
+			// Money
+			SaveSlotInfo.CompanyMoney = 50000;
+
+			// Emblem material
+			SaveSlotInfo.Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, Game->GetWorld());
+			SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Company.CustomizationBasePaintColorIndex));
+			SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Company.CustomizationPaintColorIndex));
+			SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Company.CustomizationOverlayColorIndex));
+			SaveSlotInfo.Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(Company.CustomizationLightColorIndex));
+
+			// Create the brush dynamically
+			SaveSlotInfo.EmblemBrush.SetResourceObject(SaveSlotInfo.Emblem);
 		}
 		else
 		{
-			SaveSlots.Add(NULL);
+			SaveSlotInfo.Save = NULL;
+			SaveSlotInfo.Emblem = NULL;
+			SaveSlotInfo.EmblemBrush = FSlateNoResource();
+			SaveSlotInfo.CompanyShipCount = 0;
+			SaveSlotInfo.CompanyMoney = 0;
+			SaveSlotInfo.CompanyName = FText::FromString("");
 		}
+
+		SaveSlots.Add(SaveSlotInfo);
 	}
 
 	FLOG("SFlareMainMenu::UpdateSaveSlots : all slots found");
@@ -309,7 +357,7 @@ void SFlareMainMenu::UpdateSaveSlots()
 
 bool SFlareMainMenu::IsExistingGame(int32 Index) const
 {
-	return Initialized && Index < SaveSlots.Num() && SaveSlots[Index];
+	return Initialized && Index < SaveSlots.Num() && SaveSlots[Index].Save;
 }
 
 

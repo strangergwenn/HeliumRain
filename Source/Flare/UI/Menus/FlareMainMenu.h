@@ -1,8 +1,27 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Player/FlareMenuManager.h"
 #include "../Components/FlareButton.h"
+#include "SlateMaterialBrush.h"
+#include "FlareMainMenu.generated.h"
+
+
+class UFlareSaveGame;
+class AFlareMenuManager;
+
+
+USTRUCT()
+struct FFlareSaveSlotInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UFlareSaveGame*            Save;
+	UMaterialInstanceDynamic*  Emblem;
+	FSlateBrush                EmblemBrush;
+	int32                      CompanyShipCount;
+	int32                      CompanyMoney;
+	FText                      CompanyName;
+};
 
 
 class SFlareMainMenu : public SCompoundWidget
@@ -93,8 +112,9 @@ protected:
 	int32                                      SaveSlotCount;
 
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+	TSharedPtr<SHorizontalBox>                 SaveBox;
 
-	TArray<UFlareSaveGame*>                    SaveSlots;
+	TArray<FFlareSaveSlotInfo>                 SaveSlots;
 
 
 };
