@@ -266,17 +266,17 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 	float FinalApproachDockToDockLateralDistanceLimit = 100; // 50 cm of linear lateral distance
 
-	float DockingAngleLimit = 1; // 1° of angle error to dock
+	float DockingAngleLimit = 2; // 1° of angle error to dock
 	float FinalApproachAngleLimit = 10;// 10° of angle error to dock
 
-	float DockingVelocityLimit = 100; // 1 m/s
+	float DockingVelocityLimit = 200; // 1 m/s
 	float FinalApproachVelocityLimit = 500; // 5 m/s
 
-	float DockingLateralVelocityLimit = 10; // 10 cm/s
+	float DockingLateralVelocityLimit = 20; // 10 cm/s
 	float FinalApproachLateralVelocityLimit = 50; // 0.5 m/s
 	float ApproachLateralVelocityLimit = 1000; // 10 m/s
 
-	float DockingAngularVelocityLimit = 5; // 5 °/s
+	float DockingAngularVelocityLimit = 10; // 5 °/s
 	float FinalApproachAngularVelocityLimit = 10; // 10 °/s
 
 
