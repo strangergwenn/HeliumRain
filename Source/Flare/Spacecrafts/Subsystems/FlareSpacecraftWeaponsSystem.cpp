@@ -91,8 +91,11 @@ void UFlareSpacecraftWeaponsSystem::Start()
 	// Clear previous data
 	WeaponList.Empty();
 	WeaponDescriptionList.Empty();
+	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
+	{
+		delete WeaponGroupList[GroupIndex];
+	}
 	WeaponGroupList.Empty();
-
 
 	TArray<UActorComponent*> Weapons = Spacecraft->GetComponentsByClass(UFlareWeapon::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
