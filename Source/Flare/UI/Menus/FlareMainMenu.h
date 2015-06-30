@@ -15,9 +15,11 @@ struct FFlareSaveSlotInfo
 {
 	GENERATED_USTRUCT_BODY()
 
-	UFlareSaveGame*            Save;
-	UMaterialInstanceDynamic*  Emblem;
+	UPROPERTY() UFlareSaveGame*            Save;
+	UPROPERTY() UMaterialInstanceDynamic*  Emblem;
+
 	FSlateBrush                EmblemBrush;
+
 	int32                      CompanyShipCount;
 	int32                      CompanyMoney;
 	FText                      CompanyName;

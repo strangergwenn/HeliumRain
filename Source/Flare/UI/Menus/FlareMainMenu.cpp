@@ -218,7 +218,8 @@ FText SFlareMainMenu::GetText(int32 Index) const
 		const FFlareSaveSlotInfo& SaveSlotInfo = SaveSlots[Index - 1];
 
 		FString CompanyString = SaveSlotInfo.CompanyName.ToString();
-		FString ShipString = FString::FromInt(SaveSlotInfo.CompanyShipCount) + " " + LOCTEXT("Ships", "ships").ToString();
+		FString ShipString = FString::FromInt(SaveSlotInfo.CompanyShipCount) + " ";
+		ShipString += (SaveSlotInfo.CompanyShipCount == 1 ? LOCTEXT("Ship", "ship").ToString() : LOCTEXT("Ships", "ships").ToString());
 		FString MoneyString = FString::FromInt(SaveSlotInfo.CompanyMoney) + " " + LOCTEXT("Credits", "credits").ToString();
 
 		return FText::FromString(CompanyString + "\n" + ShipString + "\n" + MoneyString + "\n");
@@ -231,7 +232,7 @@ FText SFlareMainMenu::GetText(int32 Index) const
 
 const FSlateBrush* SFlareMainMenu::GetSaveIcon(int32 Index) const
 {
-	return (IsExistingGame(Index - 1) ? &SaveSlots[Index - 1].EmblemBrush : FFlareStyleSet::GetIcon("HeliumRain"));
+	return (IsExistingGame(Index - 1) ? &SaveSlots[Index - 1].EmblemBrush : FFlareStyleSet::GetIcon("Help"));
 }
 
 EVisibility SFlareMainMenu::GetDeleteButtonVisibility(int32 Index) const
@@ -308,9 +309,7 @@ void SFlareMainMenu::UpdateSaveSlots()
 		{
 			// Basic setup
 			AFlareGame* Game = MenuManager->GetPC()->GetGame();
-			FFlareCompanySave& Company = Save->CompanyData[0];
 			UFlareCustomizationCatalog* Catalog = Game->GetCustomizationCatalog();
-			SaveSlotInfo.CompanyName = LOCTEXT("Company", "Mining Syndicate");
 			FLOGV("SFlareMainMenu::UpdateSaveSlots : found valid save data in slot %d", Index);
 
 			// Count player ships
@@ -318,25 +317,40 @@ void SFlareMainMenu::UpdateSaveSlots()
 			for (int32 ShipIndex = 0; ShipIndex < Save->ShipData.Num(); ShipIndex++)
 			{
 				const FFlareSpacecraftSave& Spacecraft = Save->ShipData[ShipIndex];
-
 				if (Spacecraft.CompanyIdentifier == Save->PlayerData.CompanyIdentifier)
 				{
 					SaveSlotInfo.CompanyShipCount++;
 				}
 			}
 
-			// Money
-			SaveSlotInfo.CompanyMoney = 50000;
+			// Find company
+			FFlareCompanySave* PlayerCompany = NULL;
+			for (int32 CompanyIndex = 0; CompanyIndex < Save->CompanyData.Num(); CompanyIndex++)
+			{
+				const FFlareCompanySave& Company = Save->CompanyData[CompanyIndex];
+				if (Company.Identifier == Save->PlayerData.CompanyIdentifier)
+				{
+					PlayerCompany = &(Save->CompanyData[CompanyIndex]);
+				}
+			}
 
-			// Emblem material
-			SaveSlotInfo.Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, Game->GetWorld());
-			SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Company.CustomizationBasePaintColorIndex));
-			SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Company.CustomizationPaintColorIndex));
-			SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Company.CustomizationOverlayColorIndex));
-			SaveSlotInfo.Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(Company.CustomizationLightColorIndex));
+			// Company info
+			if (PlayerCompany)
+			{
+				// Money and general infos
+				SaveSlotInfo.CompanyMoney = PlayerCompany->Money;
+				SaveSlotInfo.CompanyName = FText::FromString(PlayerCompany->Name);
 
-			// Create the brush dynamically
-			SaveSlotInfo.EmblemBrush.SetResourceObject(SaveSlotInfo.Emblem);
+				// Emblem material
+				SaveSlotInfo.Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, Game->GetWorld());
+				SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(PlayerCompany->CustomizationBasePaintColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(PlayerCompany->CustomizationPaintColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(PlayerCompany->CustomizationOverlayColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(PlayerCompany->CustomizationLightColorIndex));
+
+				// Create the brush dynamically
+				SaveSlotInfo.EmblemBrush.SetResourceObject(SaveSlotInfo.Emblem);
+			}
 		}
 		else
 		{
