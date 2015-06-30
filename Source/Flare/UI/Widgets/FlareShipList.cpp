@@ -38,6 +38,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 				SNew(STextBlock)
 				.Text(InArgs._Title)
 				.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+				.Visibility(this, &SFlareShipList::GetTitleVisibility)
 			]
 
 			// Box
@@ -80,6 +81,11 @@ void SFlareShipList::Reset()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+EVisibility SFlareShipList::GetTitleVisibility() const
+{
+	return (TargetListData.Num() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
+}
 
 TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {

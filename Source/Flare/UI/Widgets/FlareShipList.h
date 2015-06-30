@@ -30,9 +30,6 @@ public:
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
 
-	/** Add a new station to the list */
-	void AddStation(IFlareSpacecraftInterface* StationCandidate);
-
 	/** Add a new ship to the list */
 	void AddShip(IFlareSpacecraftInterface* ShipCandidate);
 	
@@ -48,6 +45,9 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
+
+	/** Title visibility */
+	EVisibility GetTitleVisibility() const;
 
 	/** Target item generator */
 	TSharedRef<ITableRow> GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
