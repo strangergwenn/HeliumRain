@@ -147,6 +147,9 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		[
 			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
+
 			+ SScrollBox::Slot()
 			[
 				SNew(SHorizontalBox)

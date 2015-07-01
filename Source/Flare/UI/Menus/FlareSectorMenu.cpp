@@ -36,6 +36,9 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			.BorderImage(&Theme.BackgroundBrush)
 			[
 				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+
 				+ SScrollBox::Slot()
 				[
 					SNew(SVerticalBox)

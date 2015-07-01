@@ -64,6 +64,8 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FMargin SmallContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) float DefaultAlpha;
 	UPROPERTY(EditAnywhere, Category = Main) int32 ContentWidth;
+	UPROPERTY(EditAnywhere, Category = Main) FScrollBoxStyle ScrollBoxStyle;
+	UPROPERTY(EditAnywhere, Category = Main) FScrollBarStyle ScrollBarStyle;
 
 	// Lists
 	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListBackground;

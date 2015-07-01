@@ -80,6 +80,8 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		[
 			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
 
 			+ SScrollBox::Slot()
 			.HAlign(HAlign_Left)
