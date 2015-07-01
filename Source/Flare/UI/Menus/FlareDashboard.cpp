@@ -143,9 +143,8 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
 
-		// Object list
+		// Content block
 		+ SVerticalBox::Slot()
-		.AutoHeight()
 		[
 			SNew(SScrollBox)
 			+ SScrollBox::Slot()

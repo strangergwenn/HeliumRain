@@ -78,151 +78,151 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 		
 		// Content
 		+ SVerticalBox::Slot()
-		.AutoHeight()
 		[
 			SNew(SScrollBox)
 
 			+ SScrollBox::Slot()
 			.HAlign(HAlign_Left)
 			[
-				SNew(SBox)
-				.HAlign(HAlign_Fill)
-				.WidthOverride(Theme.ContentWidth)
+				SNew(SVerticalBox)
+
+				// Action box
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
 				[
-					SNew(SVerticalBox)
+					SAssignNew(ObjectActionMenu, SFlareTargetActions)
+					.Player(PC)
+					.NoInspect(true)
+				]
 
-					// Action box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SAssignNew(ObjectActionMenu, SFlareTargetActions)
-						.Player(PC)
-						.NoInspect(true)
-					]
+				// Object name
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SAssignNew(ObjectName, STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+				]
 
-					// Object name
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.TitlePadding)
-					[
-						SAssignNew(ObjectName, STextBlock)
-						.TextStyle(&Theme.SubTitleFont)
-					]
+				// Object description
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SAssignNew(ObjectDescription, STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.WrapTextAt(Theme.ContentWidth)
+				]
 
-					// Object description
-					+ SVerticalBox::Slot()
-					.Padding(Theme.ContentPadding)
-					.AutoHeight()
-					[
-						SAssignNew(ObjectDescription, STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(Theme.ContentWidth)
-					]
-
-					// Ship part characteristics
-					+ SVerticalBox::Slot()
-					.VAlign(VAlign_Center)
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
+				// Ship part characteristics
+				+ SVerticalBox::Slot()
+				.VAlign(VAlign_Center)
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.HAlign(HAlign_Fill)
+					.WidthOverride(Theme.ContentWidth)
 					[
 						SAssignNew(PartCharacteristicBox, SHorizontalBox)
 					]
+				]
 
-					// Ship customization panel
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SAssignNew(ShipCustomizationBox, SVerticalBox)
+				// Ship customization panel
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(ShipCustomizationBox, SVerticalBox)
 			
-						// Components
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(SHorizontalBox)
-
-							// Engines
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(Theme.TitleButtonPadding)
-							[
-								SNew(SFlareRoundButton)
-								.OnClicked(this, &SFlareShipMenu::ShowEngines)
-								.Icon(this, &SFlareShipMenu::GetEngineIcon)
-								.Text(this, &SFlareShipMenu::GetEngineText)
-								.InvertedBackground(true)
-								.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
-							]
-
-							// RCS
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(Theme.TitleButtonPadding)
-							[
-								SNew(SFlareRoundButton)
-								.OnClicked(this, &SFlareShipMenu::ShowRCSs)
-								.Icon(this, &SFlareShipMenu::GetRCSIcon)
-								.Text(this, &SFlareShipMenu::GetRCSText)
-								.InvertedBackground(true)
-								.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
-							]
-
-							// Weapons
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SAssignNew(WeaponButtonBox, SHorizontalBox)
-							]
-						]
-					]
-
-					// Ship part customization panel
+					// Components
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					[
-						SAssignNew(ShipPartCustomizationBox, SVerticalBox)
+						SNew(SHorizontalBox)
 
-						// Section title
-						+ SVerticalBox::Slot()
-						.Padding(Theme.TitlePadding)
-						.AutoHeight()
+						// Engines
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.TitleButtonPadding)
 						[
-							SAssignNew(ShipPartPickerTitle, STextBlock)
-							.Text(LOCTEXT("ShipParts", "AVAILABLE COMPONENTS"))
-							.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+							SNew(SFlareRoundButton)
+							.OnClicked(this, &SFlareShipMenu::ShowEngines)
+							.Icon(this, &SFlareShipMenu::GetEngineIcon)
+							.Text(this, &SFlareShipMenu::GetEngineText)
+							.InvertedBackground(true)
+							.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
 						]
 
-						// Ship part picker
-						+ SVerticalBox::Slot()
-						.AutoHeight()
+						// RCS
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.TitleButtonPadding)
 						[
-							SAssignNew(PartList, SListView< TSharedPtr<FInterfaceContainer> >)
-							.ListItemsSource(&PartListDataShared)
-							.SelectionMode(ESelectionMode::Single)
-							.OnGenerateRow(this, &SFlareShipMenu::GeneratePartInfo)
-							.OnSelectionChanged(this, &SFlareShipMenu::OnPartPicked)
+							SNew(SFlareRoundButton)
+							.OnClicked(this, &SFlareShipMenu::ShowRCSs)
+							.Icon(this, &SFlareShipMenu::GetRCSIcon)
+							.Text(this, &SFlareShipMenu::GetRCSText)
+							.InvertedBackground(true)
+							.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
 						]
 
-						// Button box
-						+ SVerticalBox::Slot()
-						.Padding(Theme.ContentPadding)
-						.AutoHeight()
+						// Weapons
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
 						[
-							SAssignNew(BuyConfirmation, SFlareConfirmationBox)
-							.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSACTION"))
-							.CancelText(LOCTEXT("BackTopShip", "BACK TO SHIP"))
-							.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
-							.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)
+							SAssignNew(WeaponButtonBox, SHorizontalBox)
 						]
 					]
+				]
 
-					// Object list
+				// Ship part customization panel
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(ShipPartCustomizationBox, SVerticalBox)
+
+					// Section title
+					+ SVerticalBox::Slot()
+					.Padding(Theme.TitlePadding)
+					.AutoHeight()
+					[
+						SAssignNew(ShipPartPickerTitle, STextBlock)
+						.Text(LOCTEXT("ShipParts", "AVAILABLE COMPONENTS"))
+						.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+					]
+
+					// Ship part picker
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					[
-						SAssignNew(ShipList, SFlareShipList)
-						.MenuManager(MenuManager)
-						.Title(LOCTEXT("DockedShips", "DOCKED SHIPS"))
+						SAssignNew(PartList, SListView< TSharedPtr<FInterfaceContainer> >)
+						.ListItemsSource(&PartListDataShared)
+						.SelectionMode(ESelectionMode::Single)
+						.OnGenerateRow(this, &SFlareShipMenu::GeneratePartInfo)
+						.OnSelectionChanged(this, &SFlareShipMenu::OnPartPicked)
 					]
+
+					// Button box
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.AutoHeight()
+					[
+						SAssignNew(BuyConfirmation, SFlareConfirmationBox)
+						.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSACTION"))
+						.CancelText(LOCTEXT("BackTopShip", "BACK TO SHIP"))
+						.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
+						.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)
+					]
+				]
+
+				// Object list
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(ShipList, SFlareShipList)
+					.MenuManager(MenuManager)
+					.Title(LOCTEXT("DockedShips", "DOCKED SHIPS"))
 				]
 			]
 		]
