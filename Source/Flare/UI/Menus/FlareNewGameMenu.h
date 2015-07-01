@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareColorPanel.h"
 #include "SlateMaterialBrush.h"
 
 
@@ -56,9 +57,17 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 	
-	AFlareGame*                                Game;
-	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+	// Game data
+	AFlareGame*                              Game;
+	TWeakObjectPtr<class AFlareMenuManager>  MenuManager;
+	
+	// Slate widgets
+	TSharedPtr<SEditableText>                CompanyName;
+	TSharedPtr<SFlareColorPanel>             ColorBox;
 
-	int32                                      SlotIndex;
+	// Scenario data
+	TSharedPtr<STextComboBox>                ScenarioSelector;
+	TArray<TSharedPtr<FString>>              ScenarioList;
+
 
 };

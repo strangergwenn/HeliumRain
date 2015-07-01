@@ -672,12 +672,18 @@ void AFlarePlayerController::MouseInputY(float Val)
 
 void AFlarePlayerController::Test1()
 {
-	Notify(FText::FromString("The cake is a lie"), FText::FromString("This is a test of the explanation system."), EFlareNotification::NT_Trading, EFlareMenu::MENU_Dashboard);
+	if (GetGame()->IsLoadedOrCreated())
+	{
+		Notify(FText::FromString("The cake is a lie"), FText::FromString("This is a test of the explanation system."), EFlareNotification::NT_Trading, EFlareMenu::MENU_Dashboard);
+	}
 }
 
 void AFlarePlayerController::Test2()
 {
-	Notify(FText::FromString("I am a beautiful butterfly"), FText::FromString("This is a longer, more full of explanation test of the explanation system."));
+	if (GetGame()->IsLoadedOrCreated())
+	{
+		Notify(FText::FromString("I am a beautiful butterfly"), FText::FromString("This is a longer, more full of explanation test of the explanation system."));
+	}
 }
 
 
@@ -687,7 +693,7 @@ void AFlarePlayerController::Test2()
 
 void AFlarePlayerController::WheelPressed()
 {
-	if (MenuManager && !MenuManager->IsMenuOpen() && !GetNavHUD()->IsMouseMenuOpen())
+	if (GetGame()->IsLoadedOrCreated() && MenuManager && !MenuManager->IsMenuOpen() && !GetNavHUD()->IsMouseMenuOpen())
 	{
 		TSharedPtr<SFlareMouseMenu> MouseMenu = GetNavHUD()->GetMouseMenu();
 
@@ -743,7 +749,10 @@ void AFlarePlayerController::WheelPressed()
 
 void AFlarePlayerController::WheelReleased()
 {
-	GetNavHUD()->SetWheelMenu(false);
+	if (GetGame()->IsLoadedOrCreated())
+	{
+		GetNavHUD()->SetWheelMenu(false);
+	}
 }
 
 void AFlarePlayerController::AlignToSpeed()

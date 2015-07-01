@@ -67,10 +67,6 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FScrollBoxStyle ScrollBoxStyle;
 	UPROPERTY(EditAnywhere, Category = Main) FScrollBarStyle ScrollBarStyle;
 
-	// Lists
-	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListBackground;
-	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListActiveBackground;
-
 	// Colors
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor EnemyColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor DamageColor;
@@ -118,8 +114,15 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	// Progress bars
 	UPROPERTY(EditAnywhere, Category = ProgressBars) FProgressBarStyle ProgressBarStyle;
 	UPROPERTY(EditAnywhere, Category = ProgressBars) FProgressBarStyle TemperatureBarStyle;
+
+	// Lists
+	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListBackground;
+	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListActiveBackground;
 	
-	
+	// Advanced widgets
+	UPROPERTY(EditAnywhere, Category = Advanced) FEditableTextStyle TextInputStyle;
+	UPROPERTY(EditAnywhere, Category = Advanced) FComboBoxStyle ComboBoxStyle;
+
 };
 
 

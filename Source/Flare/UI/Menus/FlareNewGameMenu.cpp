@@ -3,9 +3,9 @@
 #include "FlareNewGameMenu.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
-#include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "STextComboBox.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareNewGameMenu"
@@ -21,6 +21,15 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
+
+	// Game starts
+	ScenarioList.Add(MakeShareable(new FString(TEXT("Peaceful"))));
+	ScenarioList.Add(MakeShareable(new FString(TEXT("Threatened"))));
+	ScenarioList.Add(MakeShareable(new FString(TEXT("Aggressive"))));
+
+	// Color
+	FLinearColor Color = Theme.NeutralColor;
+	Color.A = Theme.DefaultAlpha;
 
 	// Build structure
 	ChildSlot
@@ -74,14 +83,67 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 			.TextStyle(&Theme.SubTitleFont)
 		]
 
-		// UI
+		// Main form
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.Padding(Theme.ContentPadding)
+		.HAlign(HAlign_Center)
 		[
-			SNew(SFlareButton)
-			.Text(LOCTEXT("Start", "Start the game"))
-			.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
+			SNew(SBox)
+			.WidthOverride(Theme.ContentWidth / 2)
+			.HAlign(HAlign_Fill)
+			[
+				SNew(SVerticalBox)
+				
+				// Company name
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SNew(SBorder)
+					.BorderImage(&Theme.BackgroundBrush)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(CompanyName, SEditableText)
+						.Text(LOCTEXT("CompanyName", "Player Inc"))
+						.Style(&Theme.TextInputStyle)
+					]
+				]
+
+				//// Color picker
+				//+ SVerticalBox::Slot()
+				//.Padding(Theme.ContentPadding)
+				//.AutoHeight()
+				//[
+				//	SAssignNew(ColorBox, SFlareColorPanel)
+				//	.MenuManager(MenuManager)
+				//]
+
+				// Scenario
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SAssignNew(ScenarioSelector, STextComboBox)
+					.OptionsSource(&ScenarioList)
+					.InitiallySelectedItem(ScenarioList[0])
+					.ComboBoxStyle(&Theme.ComboBoxStyle)
+					.Font(Theme.TextFont.Font)
+					.ColorAndOpacity(Color)
+				]
+
+				// Start
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Right)
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("Start", "Start the game"))
+					.Icon(FFlareStyleSet::GetIcon("Load"))
+					.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
+				]
+			]
 		]
 	];
 
@@ -103,6 +165,14 @@ void SFlareNewGameMenu::Enter()
 	FLOG("SFlareNewGameMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		FFlarePlayerSave Data;
+		PC->Save(Data);
+		//ColorBox->Setup(Data);
+	}
 }
 
 void SFlareNewGameMenu::Exit()
@@ -121,6 +191,12 @@ void SFlareNewGameMenu::OnLaunch()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC && Game)
 	{
+		// Get data
+		FString CompanyNameData = CompanyName->GetText().ToString().ToUpper().Left(60);
+		int32 ScenarioIndex = ScenarioList.Find(ScenarioSelector->GetSelectedItem());
+		FLOGV("SFlareNewGameMenu::OnLaunch : '%s', scenario %d", *CompanyNameData, ScenarioIndex);
+
+		// Launch
 		Game->CreateWorld(PC);
 		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, PC->GetShipPawn());
 	}
