@@ -53,6 +53,7 @@ protected:
 	----------------------------------------------------*/
 	
 	/** Resource pointer */
+	UPROPERTY()
 	static TSharedPtr<FSlateStyleSet> Instance;
 
 
