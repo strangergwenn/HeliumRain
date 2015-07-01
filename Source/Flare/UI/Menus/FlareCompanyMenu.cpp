@@ -71,7 +71,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		// Separator
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(200, 40))
+		.Padding(FMargin(200, 30))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
@@ -83,14 +83,25 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			+ SScrollBox::Slot()
 			[
 				SNew(SVerticalBox)
+				
+				// Company name
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareCompanyMenu::GetCompanyName)
+					.TextStyle(&Theme.SubTitleFont)
+				]
 
 				// Company info
 				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				[
-					SAssignNew(ActionMenu, SFlareTargetActions)
-					.Player(PC)
-					.MinimizedMode(true)
+					SNew(STextBlock)
+					.Text(this, &SFlareCompanyMenu::GetCompanyInfo)
+					.TextStyle(&Theme.TextFont)
 				]
 
 				// Title
@@ -108,7 +119,8 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				[
-					SAssignNew(ColorBox, SFlareColorPanel).MenuManager(MenuManager)
+					SAssignNew(ColorBox, SFlareColorPanel)
+					.MenuManager(MenuManager)
 				]
 
 				// Object list
@@ -143,8 +155,6 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 	// Company data
 	Company = Target;
-	ActionMenu->SetCompany(Target);
-	ActionMenu->Show();
 	SetVisibility(EVisibility::Visible);
 
 	AFlarePlayerController* PC = MenuManager->GetPC();
@@ -157,7 +167,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 		// Menu
 		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
-		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -50));
+		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 		
 		// Station list
@@ -197,16 +207,28 @@ void SFlareCompanyMenu::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
-FString SFlareCompanyMenu::GetCompanyName() const
+FText SFlareCompanyMenu::GetCompanyName() const
 {
+	FText Result;
+
 	if (Company)
 	{
-		return Company->GetCompanyName();
+		Result = FText::FromString(Company->GetCompanyName());
 	}
-	else
+
+	return Result;
+}
+
+FText SFlareCompanyMenu::GetCompanyInfo() const
+{
+	FText Result;
+
+	if (Company)
 	{
-		return FString("<undefined>");
+		Result = Company->GetInfoText();
 	}
+
+	return Result;
 }
 
 void SFlareCompanyMenu::OnDashboardClicked()

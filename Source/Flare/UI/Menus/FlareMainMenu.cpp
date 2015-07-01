@@ -85,7 +85,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		// Separator
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(200, 40))
+		.Padding(FMargin(200, 30))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
@@ -218,7 +218,7 @@ FText SFlareMainMenu::GetText(int32 Index) const
 		ShipString += (SaveSlotInfo.CompanyShipCount == 1 ? LOCTEXT("Ship", "ship").ToString() : LOCTEXT("Ships", "ships").ToString());
 		FString MoneyString = FString::FromInt(SaveSlotInfo.CompanyMoney) + " " + LOCTEXT("Credits", "credits").ToString();
 
-		return FText::FromString(CompanyString + "\n" + ShipString + "\n" + MoneyString + "\n");
+		return FText::FromString(CompanyString + "\n" + MoneyString + "\n" + ShipString + "\n");
 	}
 	else
 	{

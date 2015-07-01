@@ -5,6 +5,10 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 
+
+#define LOCTEXT_NAMESPACE "FlareCompany"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -54,6 +58,7 @@ void UFlareCompany::Unregister(IFlareSpacecraftInterface* Ship)
 	}
 }
 
+
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
@@ -82,6 +87,26 @@ EFlareHostility::Type UFlareCompany::GetHostility(UFlareCompany* TargetCompany) 
 	}
 
 	return EFlareHostility::Neutral;
+}
+
+FText UFlareCompany::GetInfoText()
+{
+	// Static text
+	FText ShipText = LOCTEXT("Ship", "ship");
+	FText ShipsText = LOCTEXT("Ships", "ships");
+	FText StationText = LOCTEXT("Station", "station");
+	FText StationsText = LOCTEXT("Stations", "stations");
+	FText MoneyText = LOCTEXT("Money", "credits");
+
+	// Dynamic data
+	int32 ShipCount = GetCompanyShips().Num();
+	int32 StationCount = GetCompanyStations().Num();
+	FString MoneyDescriptionString = FString::FromInt(GetMoney()) + " " + MoneyText.ToString();
+	FString ShipDescriptionString = FString::FromInt(ShipCount) + " " + (ShipCount != 1 ? ShipsText : ShipText).ToString();
+	FString StationDescriptionString = FString::FromInt(StationCount) + " " + (StationCount != 1 ? StationsText : StationText).ToString();
+
+	// Build
+	return FText::FromString(MoneyDescriptionString + "\n" + StationDescriptionString + "\n" + ShipDescriptionString);
 }
 
 
@@ -167,3 +192,6 @@ FLinearColor UFlareCompany::NormalizeColor(FLinearColor Col) const
 {
 	return FLinearColor(FVector(Col.R, Col.G, Col.B) / Col.GetLuminance());
 }
+
+
+#undef LOCTEXT_NAMESPACE

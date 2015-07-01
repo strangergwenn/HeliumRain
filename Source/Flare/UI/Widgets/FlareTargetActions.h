@@ -37,10 +37,7 @@ public:
 
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
-
-	/** Set a company as content */
-	void SetCompany(UFlareCompany* Target);
-
+	
 	/** Set a spacecraft as content */
 	void SetSpacecraft(IFlareSpacecraftInterface* Target);
 
@@ -89,10 +86,10 @@ public:
 
 	/** Get the target class icon */
 	const FSlateBrush* GetClassIcon() const;
-	
+
 	/** Get the company name */
 	FText GetCompanyName() const;
-
+	
 
 protected:
 
@@ -105,8 +102,7 @@ protected:
 	bool                              NoInspect;
 	bool                              MinimizedMode;
 
-	// Target data
-	UFlareCompany*                    TargetCompany;	
+	// Target data	
 	IFlareSpacecraftInterface*        TargetSpacecraft;
 	FFlareSpacecraftDescription*      TargetSpacecraftDesc;
 	FString                           TargetName;

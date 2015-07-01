@@ -92,6 +92,7 @@ public:
 	/** Un-register a ship or a station*/
 	virtual void Unregister(IFlareSpacecraftInterface* Ship);
 
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -101,6 +102,9 @@ public:
 
 	/** Check if we are friend or foe toward this target company */
 	virtual EFlareHostility::Type GetHostility(UFlareCompany* TargetCompany) const;
+
+	/** Get an info string for this company save */
+	virtual FText GetInfoText();
 
 
 	/*----------------------------------------------------
@@ -142,8 +146,8 @@ protected:
 	----------------------------------------------------*/
 
 	// Gameplay data
-	FFlareCompanySave                 CompanyData;
-	TArray<IFlareSpacecraftInterface*>   CompanyStations;
+	FFlareCompanySave                       CompanyData;
+	TArray<IFlareSpacecraftInterface*>      CompanyStations;
 	TArray<IFlareSpacecraftInterface*>      CompanyShips;
 
 
@@ -196,6 +200,11 @@ public:
 	inline int32 GetPatternIndex() const
 	{
 		return CompanyData.CustomizationPatternIndex;
+	}
+
+	inline int32 GetMoney() const
+	{
+		return CompanyData.Money;
 	}
 
 	inline TArray<IFlareSpacecraftInterface*>& GetCompanyStations()

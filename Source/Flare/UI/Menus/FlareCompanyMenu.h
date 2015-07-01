@@ -43,9 +43,12 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-	
+
 	/** Get the company name */
-	FString GetCompanyName() const;
+	FText GetCompanyName() const;
+
+	/** Get the company info */
+	FText GetCompanyInfo() const;
 
 	/** Go back to the dahsboard */
 	void OnDashboardClicked();
@@ -57,17 +60,15 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	/** HUD reference */
-	UPROPERTY()
-	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
+	// Menu manager
+	TWeakObjectPtr<class AFlareMenuManager>  MenuManager;
 
 	// Gameplay data
-	UFlareCompany*                     Company;
+	UFlareCompany*                           Company;
 
 	// Menu data
-	TSharedPtr<SFlareTargetActions>    ActionMenu;
-	TSharedPtr<SFlareColorPanel>       ColorBox;
-	TSharedPtr<SFlareShipList>         ShipList;
+	TSharedPtr<SFlareColorPanel>             ColorBox;
+	TSharedPtr<SFlareShipList>               ShipList;
 
 
 };

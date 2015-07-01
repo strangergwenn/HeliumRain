@@ -184,33 +184,15 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareTargetActions::SetCompany(UFlareCompany* Target)
-{
-	TargetCompany = Target;
-	TargetSpacecraft = NULL;
-	TargetSpacecraftDesc = NULL;
-	ShipStatus->SetTargetShip(NULL);
-
-	// Get the save data info to retrieve the class data
-	if (Target && PC)
-	{
-		// Data
-		CompanyFlag->SetCompany(Target);
-		TargetName = Target->GetName();
-	}
-}
-
 void SFlareTargetActions::SetSpacecraft(IFlareSpacecraftInterface* Target)
 {
-	TargetCompany = NULL;
 	TargetSpacecraft = Target;
 	ShipStatus->SetTargetShip(Target);
 
 	// Get the save data info to retrieve the class data
 	if (Target && PC)
 	{
-		TargetCompany = Target->GetCompany();
-		CompanyFlag->SetCompany(TargetCompany);
+		CompanyFlag->SetCompany(Target->GetCompany());
 		TargetName = Target->GetImmatriculation();
 		FFlareSpacecraftSave* SaveData = Target->Save();
 		if (SaveData)
@@ -266,21 +248,11 @@ void SFlareTargetActions::Show()
 				FlyButton->SetVisibility(EVisibility::Collapsed);
 			}
 		}
-
-		// Company
-		else if (TargetCompany)
-		{
-			InspectButton->SetVisibility(EVisibility::Collapsed);
-			FlyButton->SetVisibility(EVisibility::Collapsed);
-			DockButton->SetVisibility(EVisibility::Collapsed);
-			UndockButton->SetVisibility(EVisibility::Collapsed);
-		}
 	}
 }
 
 void SFlareTargetActions::Hide()
 {
-	TargetCompany = NULL;
 	TargetSpacecraft = NULL;
 	TargetSpacecraftDesc = NULL;
 	SetVisibility(EVisibility::Collapsed);
@@ -293,16 +265,9 @@ void SFlareTargetActions::Hide()
 
 void SFlareTargetActions::OnInspect()
 {
-	if (PC)
+	if (PC && TargetSpacecraft)
 	{
-		if (TargetSpacecraft)
-		{
-			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
-		}
-		else if (TargetCompany)
-		{
-			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Company, TargetCompany);
-		}
+		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
 	}
 }
 
@@ -353,10 +318,7 @@ FText SFlareTargetActions::GetDescription() const
 	{
 		return FText::FromString(TargetSpacecraftDesc->Name.ToString() + " " + ClassText.ToString());
 	}
-	else if (TargetCompany)
-	{
-		return LOCTEXT("Company", "COMPANY");
-	}
+
 	return DefaultText;
 }
 
@@ -365,10 +327,6 @@ const FSlateBrush* SFlareTargetActions::GetIcon() const
 	if (TargetSpacecraftDesc)
 	{
 		return &TargetSpacecraftDesc->MeshPreviewBrush;
-	}
-	else if (TargetCompany)
-	{
-		return NULL;
 	}
 	return NULL;
 }
@@ -379,35 +337,34 @@ const FSlateBrush* SFlareTargetActions::GetClassIcon() const
 	{
 		return IFlareSpacecraftInterface::GetIcon(TargetSpacecraftDesc);
 	}
-	else if (TargetCompany)
-	{
-		return FFlareStyleSet::GetIcon("CompanySmall");
-	}
 	return NULL;
 }
 
 FText SFlareTargetActions::GetCompanyName() const
 {
-	if (TargetCompany)
+	if (TargetSpacecraft)
 	{
-		// Static text
-		FText ShipText = LOCTEXT("Ship", "ship");
-		FText ShipsText = LOCTEXT("Ships", "ships");
-		FText StationText = LOCTEXT("Station", "station");
-		FText StationsText = LOCTEXT("Stations", "stations");
-		FText MoneyText = LOCTEXT("Money", "credits");
+		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
 
-		// Dynamic data
-		int32 ShipCount = TargetCompany->GetCompanyShips().Num();
-		int32 StationCount = TargetCompany->GetCompanyStations().Num();
-		FString ShipDescriptionString = FString::FromInt(ShipCount) + " " + (ShipCount > 1 ? ShipsText : ShipText).ToString();
-		FString StationDescriptionString = FString::FromInt(StationCount) + " " + (StationCount > 1 ? StationsText : StationText).ToString();
-		return FText::FromString((TargetCompany->GetCompanyName() + " (" + StationDescriptionString + ", " + ShipDescriptionString + ")"));
+		if (TargetCompany)
+		{
+			// Static text
+			FText ShipText = LOCTEXT("Ship", "ship");
+			FText ShipsText = LOCTEXT("Ships", "ships");
+			FText StationText = LOCTEXT("Station", "station");
+			FText StationsText = LOCTEXT("Stations", "stations");
+			FText MoneyText = LOCTEXT("Money", "credits");
+
+			// Dynamic data
+			int32 ShipCount = TargetCompany->GetCompanyShips().Num();
+			int32 StationCount = TargetCompany->GetCompanyStations().Num();
+			FString ShipDescriptionString = FString::FromInt(ShipCount) + " " + (ShipCount > 1 ? ShipsText : ShipText).ToString();
+			FString StationDescriptionString = FString::FromInt(StationCount) + " " + (StationCount > 1 ? StationsText : StationText).ToString();
+			return FText::FromString((TargetCompany->GetCompanyName() + " (" + StationDescriptionString + ", " + ShipDescriptionString + ")"));
+		}
 	}
-	else
-	{
-		return LOCTEXT("Abandoned", "ABANDONED OBJECT");
-	}
+
+	return FText();
 }
 
 
