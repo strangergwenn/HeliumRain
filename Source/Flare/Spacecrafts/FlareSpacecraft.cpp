@@ -91,6 +91,14 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 	FLOG("AFlareSpacecraft Hit");
 	DamageSystem->OnCollision(Other, HitLocation, HitNormal);
+
+	// If hit, check if the is a docking in progress. If yes, check if the ship is correctly aligned
+	AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(Other);
+	if(OtherSpacecraft)
+	{
+		// The other actor is a spacecraft, check if it's not the station we want to dock to.
+		GetNavigationSystem()->CheckCollisionDocking(OtherSpacecraft);
+	}
 }
 
 void AFlareSpacecraft::Destroyed()

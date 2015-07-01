@@ -231,6 +231,100 @@ static float GetApproachVelocityLimit(float Distance)
 	return Distance / 2.5 + 460;
 }
 
+void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* DockingCandidate)
+{
+	if (IsAutoPilot())
+	{
+		FFlareShipCommandData CurrentCommand;
+		if (CommandData.Peek(CurrentCommand))
+		{
+			if (CurrentCommand.Type == EFlareCommandDataType::CDT_Dock)
+			{
+				// We are in a automatic docking process
+				AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(CurrentCommand.ActionTarget);
+				if(DockStation != DockingCandidate)
+				{
+					// The hit spacecraft is not the docking target station
+					return;
+				}
+
+				// Check dock alignement
+
+				// TODO Put to external constants
+				float DockingAngleLimit = 2; // 1° of angle error to dock
+				float DockingVelocityLimit = 200; // 1 m/s
+				float DockingLateralVelocityLimit = 20; // 10 cm/s
+				float DockingAngularVelocityLimit = 10; // 5 °/s
+
+				int32 DockId = CurrentCommand.ActionTargetParam;
+
+				FVector ShipAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector ShipDockLocation = GetDockLocation();
+
+				FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);
+				FVector StationCOM = DockStation->Airframe->GetBodyInstance()->GetCOMPosition();
+
+				FVector StationAngularVelocity = DockStation->Airframe->GetPhysicsAngularVelocity();
+				FVector StationDockLocation =  DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
+				FVector StationDockSelfRotationInductedLinearVelocity = (PI /  180.f) * FVector::CrossProduct(StationAngularVelocity, StationDockLocation- StationCOM);
+
+				FVector ShipDockSelfRotationInductedLinearVelocity = (PI /  180.f) * FVector::CrossProduct(ShipAngularVelocity, ShipDockLocation-COM);
+
+				FVector StationDockLinearVelocity = StationDockSelfRotationInductedLinearVelocity + DockStation->GetLinearVelocity() * 100;
+				FVector ShipDockLinearVelocity = ShipDockSelfRotationInductedLinearVelocity + Spacecraft->GetLinearVelocity() * 100;
+
+
+
+				FVector ShipDockAxis = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1, 0, 0)); // Ship docking port are always at front
+				FVector StationDockAxis = DockStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(StationDockInfo.LocalAxis);
+				float DockToDockAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(-ShipDockAxis, StationDockAxis)));
+				FVector RelativeDockToDockLinearVelocity = StationDockLinearVelocity - ShipDockLinearVelocity;
+
+
+				// Angular velocity must be the same
+				FVector RelativeDockAngularVelocity = ShipAngularVelocity - StationAngularVelocity;
+
+
+				// Check if dockable
+				bool OkForDocking = true;
+				if (DockToDockAngle > DockingAngleLimit)
+				{
+					//FLOG("OkForDocking ? Not aligned");
+					// Not aligned
+					OkForDocking = false;
+				}
+				else if (RelativeDockToDockLinearVelocity.Size() > DockingVelocityLimit)
+				{
+					//FLOG("OkForDocking ? Too fast");
+					// Too fast
+					OkForDocking = false;
+				}
+				else if (FVector::VectorPlaneProject(RelativeDockToDockLinearVelocity, StationDockAxis).Size()  > DockingLateralVelocityLimit)
+				{
+					//FLOG("OkForDocking ? Too much lateral velocity");
+					// Too much lateral velocity
+					OkForDocking = false;
+				}
+				else if (RelativeDockAngularVelocity.Size() > DockingAngularVelocityLimit)
+				{
+					//FLOG("OkForDocking ? Too much angular velocity");
+					// Too much angular velocity
+					OkForDocking = false;
+				}
+
+				if (OkForDocking)
+				{
+					// All is ok for docking, perform dock
+					//FLOG("  Ok for docking after hit");
+					ConfirmDock(DockStation, DockId);
+					return;
+				}
+
+			}
+		}
+	}
+}
+
 
 void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterface* DockStationInterface, int32 DockId, float DeltaSeconds)
 {

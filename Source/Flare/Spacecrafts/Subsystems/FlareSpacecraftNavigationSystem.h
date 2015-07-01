@@ -119,6 +119,9 @@ public:
 	/** Confirm that the docking sequence has completed */
 	virtual void ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId);
 
+	/** Check if the colliding spacecraft is not the station we want to dock to */
+	virtual void CheckCollisionDocking(AFlareSpacecraft* DockingCandidate);
+
 	virtual bool Undock();
 
 	virtual IFlareSpacecraftInterface* GetDockStation();
