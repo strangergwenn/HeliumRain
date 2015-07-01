@@ -3,7 +3,7 @@
 #include "../Flare.h"
 #include "../Game/FlareGame.h"
 #include "FlareMenuPawn.h"
-#include "../UI/Widgets/FlareNotifier.h"
+#include "../UI/Components/FlareNotifier.h"
 #include "FlarePlayerController.generated.h"
 
 

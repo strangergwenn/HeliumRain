@@ -5,7 +5,7 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
-#include "../Widgets/FlarePartInfo.h"
+#include "../Components/FlarePartInfo.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareShipMenu"

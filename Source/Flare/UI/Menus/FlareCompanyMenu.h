@@ -3,7 +3,7 @@
 #include "../../Flare.h"
 #include "../../Game/FlareCompany.h"
 #include "../Components/FlareColorPanel.h"
-#include "../Widgets/FlareShipList.h"
+#include "../Components/FlareShipList.h"
 
 
 class SFlareCompanyMenu : public SCompoundWidget

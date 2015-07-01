@@ -2,8 +2,8 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareRoundButton.h"
-#include "../Widgets/FlareShipStatus.h"
-#include "../Widgets/FlareSpacecraftInfo.h"
+#include "../Components/FlareShipStatus.h"
+#include "../Components/FlareSpacecraftInfo.h"
 
 
 class SFlareContextMenu : public SCompoundWidget

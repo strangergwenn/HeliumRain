@@ -6,7 +6,7 @@
 #include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
-#include "../UI/Widgets/FlareNotifier.h"
+#include "../UI/Components/FlareNotifier.h"
 #include "FlareMenuManager.generated.h"
 
 

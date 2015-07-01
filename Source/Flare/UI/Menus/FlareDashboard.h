@@ -5,7 +5,7 @@
 
 #include "../Components/FlareButton.h"
 #include "../Components/FlareRoundButton.h"
-#include "../Widgets/FlareShipList.h"
+#include "../Components/FlareShipList.h"
 
 
 class SFlareDashboard : public SCompoundWidget

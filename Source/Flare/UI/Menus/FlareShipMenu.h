@@ -3,10 +3,10 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareListItem.h"
-#include "../Widgets/FlareConfirmationBox.h"
+#include "../Components/FlareConfirmationBox.h"
 #include "../../Spacecrafts/FlareSpacecraftComponent.h"
 #include "../../Player/FlarePlayerController.h"
-#include "../Widgets/FlareSpacecraftInfo.h"
+#include "../Components/FlareSpacecraftInfo.h"
 
 
 class SFlareShipMenu : public SCompoundWidget
