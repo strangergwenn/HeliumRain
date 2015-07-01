@@ -13,8 +13,8 @@ void SFlareShipInfo::Construct(const FArguments& InArgs)
 {
 	ShowOwnershipInfo = InArgs._ShowOwnershipInfo;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	const FFlareSpacecraftSave* CurrentShipData = InArgs._Ship->Save();
-	const FFlareSpacecraftDescription* Description = InArgs._Player->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
+	const FFlareSpacecraftSave* TargetSpacecraftData = InArgs._Ship->Save();
+	const FFlareSpacecraftDescription* Description = InArgs._Player->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 
 	// Create the layout
 	ChildSlot

@@ -239,7 +239,7 @@ void SFlareShipMenu::Setup()
 	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 
-	CurrentShipTarget = NULL;
+	TargetSpacecraft = NULL;
 	RCSDescription = NULL;
 	EngineDescription = NULL;
 }
@@ -250,8 +250,8 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	SetEnabled(true);
 
 	CanEdit = IsEditable;
-	CurrentShipTarget = Target;
-	CurrentShipData = Target->Save();
+	TargetSpacecraft = Target;
+	TargetSpacecraftData = Target->Save();
 	LoadTargetSpacecraft();
 
 	// Move the viewer to the right
@@ -288,7 +288,7 @@ void SFlareShipMenu::Exit()
 	PartList->RequestListRefresh();
 	ShipList->Reset();
 
-	CurrentShipTarget = NULL;
+	TargetSpacecraft = NULL;
 	RCSDescription = NULL;
 	EngineDescription = NULL;
 
@@ -304,7 +304,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		// Make the right boxes visible
 		if (!CanEdit)
 		{
-			ObjectActionMenu->SetSpacecraft(CurrentShipTarget);
+			ObjectActionMenu->SetSpacecraft(TargetSpacecraft);
 			ObjectActionMenu->Show();
 		}
 		ShipPartCustomizationBox->SetVisibility(EVisibility::Collapsed);
@@ -313,12 +313,12 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 
 		// Get the description data
 		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
-		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(CurrentShipData->Identifier);
+		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 		if (ShipDesc)
 		{
 			ObjectName->SetText(FText::FromString(ShipDesc->Name.ToString()));
 			ObjectDescription->SetText(ShipDesc->Description);
-			PC->GetMenuPawn()->ShowShip(ShipDesc, CurrentShipData);
+			PC->GetMenuPawn()->ShowShip(ShipDesc, TargetSpacecraftData);
 		}
 
 		// Reset weapon data
@@ -327,9 +327,9 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		WeaponDescriptions.Empty();
 		
 		// Setup component descriptions
-		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
+		for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
 		{
-			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetSpacecraftData->Components[i].ComponentIdentifier);
 
 			if (ComponentDescription->Type == EFlarePartType::Weapon)
 			{
@@ -428,17 +428,31 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 
 const FSlateBrush* SFlareShipMenu::GetTitleIcon() const
 {
-	return AFlareMenuManager::GetMenuIcon(CanEdit ? EFlareMenu::MENU_ShipConfig : EFlareMenu::MENU_Ship);
+	if (TargetSpacecraft && TargetSpacecraft->IsStation())
+	{
+		return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Station);
+	}
+	else
+	{
+		return AFlareMenuManager::GetMenuIcon(CanEdit ? EFlareMenu::MENU_ShipConfig : EFlareMenu::MENU_Ship);
+	}
 }
 
 FText SFlareShipMenu::GetTitleText() const
 {
-	return (CanEdit ? LOCTEXT("ShipConfigMenuTitle", "SHIP UPGRADE") : LOCTEXT("ShipMenuTitle", "SHIP"));
+	if (TargetSpacecraft && TargetSpacecraft->IsStation())
+	{
+		return  LOCTEXT("StationMenuTitle", "STATION");
+	}
+	else
+	{
+		return (CanEdit ? LOCTEXT("ShipConfigMenuTitle", "SHIP UPGRADE") : LOCTEXT("ShipMenuTitle", "SHIP"));
+	}
 }
 
 EVisibility SFlareShipMenu::GetEngineVisibility() const
 {
-	return (CurrentShipTarget && !CurrentShipTarget->IsStation() ? EVisibility::Visible : EVisibility::Collapsed);
+	return (TargetSpacecraft && !TargetSpacecraft->IsStation() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 const FSlateBrush* SFlareShipMenu::GetRCSIcon() const
@@ -545,7 +559,7 @@ void SFlareShipMenu::ShowRCSs()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(TargetSpacecraft);
 		PC->GetGame()->GetShipPartsCatalog()->GetRCSList(PartListData, Ship->GetDescription()->Size);
 		UpdatePartList(Ship->GetRCSDescription());
 	}
@@ -558,7 +572,7 @@ void SFlareShipMenu::ShowEngines()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(TargetSpacecraft);
 		PC->GetGame()->GetShipPartsCatalog()->GetEngineList(PartListData, Ship->GetDescription()->Size);
 		UpdatePartList(Ship->GetOrbitalEngineDescription());
 	}
@@ -572,7 +586,7 @@ void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponIndex)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CurrentShipTarget);
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(TargetSpacecraft);
 		PC->GetGame()->GetShipPartsCatalog()->GetWeaponList(PartListData, Ship->GetDescription()->Size);
 		UpdatePartList(Ship->GetWeaponsSystem()->GetWeaponDescription(CurrentWeaponIndex));
 	}
@@ -632,10 +646,10 @@ void SFlareShipMenu::OnPartConfirmed()
 		FFlareSpacecraftComponentDescription* PartDesc = PartListData[CurrentPartIndex];
 		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 		int32 WeaponCount = 0;
-		for (int32 i = 0; i < CurrentShipData->Components.Num(); i++)
+		for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
 		{
 			bool UpdatePart = false;
-			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(CurrentShipData->Components[i].ComponentIdentifier);
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetSpacecraftData->Components[i].ComponentIdentifier);
 
 			if (ComponentDescription->Type == PartDesc->Type)
 			{
@@ -656,14 +670,14 @@ void SFlareShipMenu::OnPartConfirmed()
 
 			if (UpdatePart)
 			{
-				CurrentShipData->Components[i].ComponentIdentifier = PartDesc->Identifier;
+				TargetSpacecraftData->Components[i].ComponentIdentifier = PartDesc->Identifier;
 			}
 		}
 		
 		// Update the world ship if it exists
-		if (CurrentShipTarget)
+		if (TargetSpacecraft)
 		{
-			CurrentShipTarget->Load(*CurrentShipData);
+			TargetSpacecraft->Load(*TargetSpacecraftData);
 		}
 
 		// Get back to the ship config

@@ -119,55 +119,42 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	/** HUD reference */
-	UPROPERTY()
-	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
+	// Menu manager
+	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
+	
+	//  UI
+	bool                                            CanEdit;
+	TSharedPtr<STextBlock>                          ObjectName;
+	TSharedPtr<STextBlock>                          ObjectDescription;
+	TSharedPtr<SFlareTargetActions>                 ObjectActionMenu;
+	TSharedPtr<SFlareShipList>                      ShipList;
+	TSharedPtr<SVerticalBox>                        ShipCustomizationBox;
+	TSharedPtr<SHorizontalBox>                      WeaponButtonBox;
 
-	/** Target ship to use for customization */
-	UPROPERTY()
-	IFlareSpacecraftInterface*         CurrentShipTarget;
-
-	/** Save data for the ship currently being customized */
-	UPROPERTY()
-	FFlareSpacecraftSave*              CurrentShipData;
-
-	// Main UI
-	bool                               CanEdit;
-	TSharedPtr<STextBlock>             ObjectName;
-	TSharedPtr<STextBlock>             ObjectDescription;
-	TSharedPtr<SFlareTargetActions>    ObjectActionMenu;
-	TSharedPtr<SFlareShipList>         ShipList;
-
-	// Ship UI
-	TSharedPtr<SVerticalBox>           ShipCustomizationBox;
-
-	// Ship data
+	// Spacecraft data
+	IFlareSpacecraftInterface*                      TargetSpacecraft;
+	FFlareSpacecraftSave*                           TargetSpacecraftData;
 	FFlareSpacecraftComponentDescription*           RCSDescription;
 	FFlareSpacecraftComponentDescription*           EngineDescription;
 	TArray<FFlareSpacecraftComponentDescription*>   WeaponDescriptions;
-
-	// Ship weapons
-	TSharedPtr<SHorizontalBox>         WeaponButtonBox;
-	int32                              CurrentWeaponIndex;
-
-
-	/** List of parts being shown right now */
-	UPROPERTY()
+	int32                                           CurrentWeaponIndex;
+	
+	// List of parts being shown right now 
 	TArray< FFlareSpacecraftComponentDescription* >               PartListData;
 	TArray< TSharedPtr<FInterfaceContainer> >                     PartListDataShared;
 	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >    PartList;
 
 	// Parts list UI
-	TSharedPtr<SFlareListItem>         PreviousSelection;
-	TSharedPtr<SVerticalBox>           ShipPartCustomizationBox;
-	TSharedPtr<STextBlock>             ShipPartPickerTitle;
-	TSharedPtr<SFlareConfirmationBox>  BuyConfirmation;
-	TSharedPtr<SHorizontalBox>         PartCharacteristicBox;
+	TSharedPtr<SFlareListItem>                      PreviousSelection;
+	TSharedPtr<SVerticalBox>                        ShipPartCustomizationBox;
+	TSharedPtr<STextBlock>                          ShipPartPickerTitle;
+	TSharedPtr<SFlareConfirmationBox>               BuyConfirmation;
+	TSharedPtr<SHorizontalBox>                      PartCharacteristicBox;
 
 	// Part list data
-	int32                              CurrentPartIndex;
-	int32                              CurrentEquippedPartIndex;
-	int32                              ShipPartIndex;
+	int32                                           CurrentPartIndex;
+	int32                                           CurrentEquippedPartIndex;
+	int32                                           ShipPartIndex;
 	
 
 };

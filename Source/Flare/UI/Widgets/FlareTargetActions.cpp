@@ -293,7 +293,7 @@ void SFlareTargetActions::OnInspect()
 	{
 		if (TargetSpacecraft)
 		{
-			PC->GetMenuManager()->OpenMenu(TargetSpacecraft->IsStation() ? EFlareMenu::MENU_Station : EFlareMenu::MENU_Ship, TargetSpacecraft);
+			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
 		}
 		else if (TargetCompany)
 		{
