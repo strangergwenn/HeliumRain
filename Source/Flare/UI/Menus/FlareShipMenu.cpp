@@ -63,8 +63,21 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Dashboard", "Dashboard"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector, true))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Dashboard, true))
 				.OnClicked(this, &SFlareShipMenu::OnDashboardClicked)
+			]
+
+			// Close
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Close", "Close"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.OnClicked(this, &SFlareShipMenu::OnExit)
 			]
 		]
 
@@ -709,6 +722,11 @@ void SFlareShipMenu::OnPartCancelled()
 void SFlareShipMenu::OnDashboardClicked()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+}
+
+void SFlareShipMenu::OnExit()
+{
+	MenuManager->CloseMenu();
 }
 
 #undef LOCTEXT_NAMESPACE

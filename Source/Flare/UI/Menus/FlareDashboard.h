@@ -52,22 +52,22 @@ protected:
 	/** Inspect the current ship */
 	void OnInspectShip();
 
+	/** Configure the current ship */
+	void OnConfigureShip();
+
+	/** Go to orbit */
+	void OnOrbit();
+
+	/** Undock */
+	void OnUndock();
+
 	/** Inspect the company */
 	void OnInspectCompany();
 
 	/** Back to the main menu */
 	void OnMainMenu();
 
-	/** Inspect the current station */
-	void OnInspectStation();
-
-	/** Configure the current ship */
-	void OnConfigureShip();
-
-	/** Undock */
-	void OnUndock();
-
-	/** Close the dashboard */
+	/** Close the menu */
 	void OnExit();
 
 

@@ -63,8 +63,21 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Dashboard", "Dashboard"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector, true))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Dashboard, true))
 				.OnClicked(this, &SFlareCompanyMenu::OnDashboardClicked)
+			]
+
+			// Close
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Close", "Close"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.OnClicked(this, &SFlareCompanyMenu::OnExit)
 			]
 		]
 
@@ -237,6 +250,11 @@ FText SFlareCompanyMenu::GetCompanyInfo() const
 void SFlareCompanyMenu::OnDashboardClicked()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+}
+
+void SFlareCompanyMenu::OnExit()
+{
+	MenuManager->CloseMenu();
 }
 
 

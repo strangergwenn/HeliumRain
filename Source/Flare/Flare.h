@@ -26,6 +26,7 @@ namespace EFlareMenu
 		MENU_Station,
 		MENU_Undock,
 		MENU_Sector,
+		MENU_Orbit,
 		MENU_Settings,
 		MENU_Quit,
 		MENU_Exit

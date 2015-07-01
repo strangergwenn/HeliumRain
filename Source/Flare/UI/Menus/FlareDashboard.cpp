@@ -40,7 +40,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
-				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
+				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Dashboard))
 			]
 
 			// Title
@@ -52,6 +52,50 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.TextStyle(&Theme.TitleFont)
 				.Text(LOCTEXT("Dashboard", "DASHBOARD"))
 			]
+
+			// Quit
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("SaveQuit", "Save and quit"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
+				.OnClicked(this, &SFlareDashboard::OnMainMenu)
+			]
+
+			// Close
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Close", "Close"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.OnClicked(this, &SFlareDashboard::OnExit)
+			]
+		]
+
+		// Separator
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(200, 30))
+		[
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
+
+		// Action list
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
 
 			// Ship
 			+ SHorizontalBox::Slot()
@@ -80,7 +124,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
 			]
 
-			// Station
+			// Orbit
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Bottom)
@@ -88,10 +132,9 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("InspectStation", "Station"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Station, true))
-				.OnClicked(this, &SFlareDashboard::OnInspectStation)
-				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
+				.Text(LOCTEXT("GoOrbit", "Orbital map"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit, true))
+				.OnClicked(this, &SFlareDashboard::OnOrbit)
 			]
 
 			// Undock
@@ -120,27 +163,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
 				.OnClicked(this, &SFlareDashboard::OnInspectCompany)
 			]
-
-			// Quit
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("SaveQuit", "Save and quit"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
-				.OnClicked(this, &SFlareDashboard::OnMainMenu)
-			]
-		]
-
-		// Separator
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(200, 30))
-		[
-			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
 
 		// Content block
@@ -250,48 +272,19 @@ EVisibility SFlareDashboard::GetDockedVisibility() const
 	return EVisibility::Collapsed;
 }
 
-void SFlareDashboard::OnExit()
-{
-	MenuManager->CloseMenu();
-}
-
 void SFlareDashboard::OnInspectShip()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Ship);
 }
 
-void SFlareDashboard::OnInspectCompany()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
-}
-
-void SFlareDashboard::OnInspectStation()
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC)
-	{
-		AFlareSpacecraft* Ship = PC->GetShipPawn();
-		if (Ship)
-		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Ship->GetNavigationSystem()->GetDockStation());
-		}
-	}
-}
-
-void SFlareDashboard::OnMainMenu()
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-
-	PC->GetGame()->SaveWorld(PC);
-	PC->GetGame()->DeleteWorld();
-
-	MenuManager->FlushNotifications();
-	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
-}
-
 void SFlareDashboard::OnConfigureShip()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig);
+}
+
+void SFlareDashboard::OnOrbit()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 }
 
 void SFlareDashboard::OnUndock()
@@ -307,6 +300,27 @@ void SFlareDashboard::OnUndock()
 			MenuManager->CloseMenu();
 		}
 	}
+}
+
+void SFlareDashboard::OnInspectCompany()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
+}
+
+void SFlareDashboard::OnMainMenu()
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	PC->GetGame()->SaveWorld(PC);
+	PC->GetGame()->DeleteWorld();
+
+	MenuManager->FlushNotifications();
+	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+}
+
+void SFlareDashboard::OnExit()
+{
+	MenuManager->CloseMenu();
 }
 
 

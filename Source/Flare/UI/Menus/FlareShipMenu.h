@@ -111,6 +111,9 @@ protected:
 
 	/** Go back to the dahsboard */
 	void OnDashboardClicked();
+
+	/** Close the menu */
+	void OnExit();
 	
 
 protected:
