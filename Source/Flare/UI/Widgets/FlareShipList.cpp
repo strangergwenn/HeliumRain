@@ -94,13 +94,15 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 	if (Item->ShipInterfacePtr)
 	{
 		return SNew(SFlareListItem, OwnerTable)
-			.Width(5)
-			.Height(1)
+			.Width(15)
+			.Height(2)
 			.Content()
 			[
-				SNew(SFlareShipInstanceInfo)
+				SNew(SFlareSpacecraftInfo)
 				.Player(PC)
-				.Ship(Item->ShipInterfacePtr)
+				.Spacecraft(Item->ShipInterfacePtr)
+				.Minimized(true)
+				.Visible(true)
 			];
 	}
 	else
@@ -121,16 +123,14 @@ void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESel
 	// Update selection
 	if (PreviousSelection.IsValid())
 	{
-		TSharedRef<SFlareShipInstanceInfo> ShipInfoWidget = StaticCastSharedRef<SFlareShipInstanceInfo>(PreviousSelection->GetContainer()->GetContent());
-		ShipInfoWidget->SetActionsVisible(false);
-
+		TSharedRef<SFlareSpacecraftInfo> ShipInfoWidget = StaticCastSharedRef<SFlareSpacecraftInfo>(PreviousSelection->GetContainer()->GetContent());
+		ShipInfoWidget->SetMinimized(true);
 		PreviousSelection->SetSelected(false);
 	}
 	if (ItemWidget.IsValid())
 	{
-		TSharedRef<SFlareShipInstanceInfo> ShipInfoWidget = StaticCastSharedRef<SFlareShipInstanceInfo>(ItemWidget->GetContainer()->GetContent());
-		ShipInfoWidget->SetActionsVisible(true);
-
+		TSharedRef<SFlareSpacecraftInfo> ShipInfoWidget = StaticCastSharedRef<SFlareSpacecraftInfo>(ItemWidget->GetContainer()->GetContent());
+		ShipInfoWidget->SetMinimized(false);
 		ItemWidget->SetSelected(true);
 		PreviousSelection = ItemWidget;
 	}

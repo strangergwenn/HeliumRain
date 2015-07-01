@@ -2,8 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareListItem.h"
-#include "../Widgets/FlareShipInstanceInfo.h"
-#include "../Widgets/FlareTargetActions.h"
+#include "../Widgets/FlareSpacecraftInfo.h"
 #include "../Widgets/FlareShipList.h"
 
 

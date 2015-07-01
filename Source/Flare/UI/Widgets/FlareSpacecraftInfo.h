@@ -9,22 +9,26 @@
 #include "../../Game/FlareCompany.h"
 
 
-class SFlareTargetActions : public SCompoundWidget
+class SFlareSpacecraftInfo : public SCompoundWidget
 {
 	/*----------------------------------------------------
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareTargetActions)
+	SLATE_BEGIN_ARGS(SFlareSpacecraftInfo)
 		: _Player(NULL)
+		, _Spacecraft(NULL)
 		, _NoInspect(false)
-		, _MinimizedMode(false)
+		, _Minimized(false)
+		, _Visible(false)
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
+	SLATE_ARGUMENT(IFlareSpacecraftInterface*, Spacecraft)
 
 	SLATE_ARGUMENT(bool, NoInspect)
-	SLATE_ARGUMENT(bool, MinimizedMode)
+	SLATE_ARGUMENT(bool, Minimized)
+	SLATE_ARGUMENT(bool, Visible)
 
 	SLATE_END_ARGS()
 
@@ -100,7 +104,7 @@ protected:
 	// Game data
 	AFlarePlayerController*           PC;
 	bool                              NoInspect;
-	bool                              MinimizedMode;
+	bool                              Minimized;
 
 	// Target data	
 	IFlareSpacecraftInterface*        TargetSpacecraft;

@@ -6,7 +6,7 @@
 #include "../Widgets/FlareConfirmationBox.h"
 #include "../../Spacecrafts/FlareSpacecraftComponent.h"
 #include "../../Player/FlarePlayerController.h"
-#include "../Widgets/FlareTargetActions.h"
+#include "../Widgets/FlareSpacecraftInfo.h"
 
 
 class SFlareShipMenu : public SCompoundWidget
@@ -127,7 +127,7 @@ protected:
 	TSharedPtr<STextBlock>                          ObjectName;
 	TSharedPtr<STextBlock>                          ObjectClassName;
 	TSharedPtr<STextBlock>                          ObjectDescription;
-	TSharedPtr<SFlareTargetActions>                 ObjectActionMenu;
+	TSharedPtr<SFlareSpacecraftInfo>                 ObjectActionMenu;
 	TSharedPtr<SFlareShipList>                      ShipList;
 	TSharedPtr<SVerticalBox>                        ShipCustomizationBox;
 	TSharedPtr<SHorizontalBox>                      WeaponButtonBox;

@@ -102,7 +102,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
 				[
-					SAssignNew(ObjectActionMenu, SFlareTargetActions)
+					SAssignNew(ObjectActionMenu, SFlareSpacecraftInfo)
 					.Player(PC)
 					.NoInspect(true)
 				]

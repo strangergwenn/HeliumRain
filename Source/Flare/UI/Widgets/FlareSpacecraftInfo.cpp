@@ -1,27 +1,27 @@
 
 #include "../../Flare.h"
-#include "FlareTargetActions.h"
+#include "FlareSpacecraftInfo.h"
 #include "../../Player/FlarePlayerController.h"
 
-#define LOCTEXT_NAMESPACE "FlareTargetActions"
+#define LOCTEXT_NAMESPACE "FlareSpacecraftInfo"
 
 
 /*----------------------------------------------------
 	Construct
 ----------------------------------------------------*/
 
-void SFlareTargetActions::Construct(const FArguments& InArgs)
+void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 {
 	// Data
 	PC = InArgs._Player;
 	NoInspect = InArgs._NoInspect;
-	MinimizedMode = InArgs._MinimizedMode;
+	Minimized = InArgs._Minimized;
 	AFlareGame* Game = InArgs._Player->GetGame();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
 	// Create the layout
 	ChildSlot
-	.VAlign(VAlign_Fill)
+	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Left)
 	[
 		SNew(SVerticalBox)
@@ -52,7 +52,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 						.Padding(FMargin(8))
 						.VAlign(VAlign_Center)
 						[
-							SNew(SImage).Image(this, &SFlareTargetActions::GetClassIcon)
+							SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetClassIcon)
 						]
 
 						// Ship name
@@ -62,7 +62,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 						.VAlign(VAlign_Center)
 						[
 							SNew(STextBlock)
-							.Text(this, &SFlareTargetActions::GetName)
+							.Text(this, &SFlareSpacecraftInfo::GetName)
 							.TextStyle(&Theme.NameFont)
 						]
 
@@ -95,7 +95,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 						.Padding(FMargin(8))
 						[
 							SNew(STextBlock)
-							.Text(this, &SFlareTargetActions::GetCompanyName)
+							.Text(this, &SFlareSpacecraftInfo::GetCompanyName)
 							.TextStyle(&Theme.TextFont)
 						]
 					]
@@ -112,7 +112,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 						.Padding(FMargin(8))
 						[
 							SNew(STextBlock)
-							.Text(this, &SFlareTargetActions::GetDescription)
+							.Text(this, &SFlareSpacecraftInfo::GetDescription)
 							.TextStyle(&Theme.TextFont)
 						]
 					]
@@ -123,7 +123,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				.HAlign(HAlign_Right)
 				[
-					SNew(SImage).Image(this, &SFlareTargetActions::GetIcon)
+					SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetIcon)
 				]
 			]
 		]
@@ -140,7 +140,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(InspectButton, SFlareButton)
 				.Text(LOCTEXT("Inspect", "INSPECT"))
-				.OnClicked(this, &SFlareTargetActions::OnInspect)
+				.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
 				.Width(4)
 			]
 
@@ -150,7 +150,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(FlyButton, SFlareButton)
 				.Text(LOCTEXT("ShipFly", "FLY"))
-				.OnClicked(this, &SFlareTargetActions::OnFly)
+				.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
 				.Width(4)
 			]
 			
@@ -160,7 +160,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(DockButton, SFlareButton)
 				.Text(LOCTEXT("Dock", "DOCK HERE"))
-				.OnClicked(this, &SFlareTargetActions::OnDockAt)
+				.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
 				.Width(4)
 			]
 
@@ -170,13 +170,25 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(UndockButton, SFlareButton)
 				.Text(LOCTEXT("Undock", "UNDOCK"))
-				.OnClicked(this, &SFlareTargetActions::OnUndock)
+				.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
 				.Width(4)
 			]
 		]
 	];
 
-	Hide();
+	// Setup
+	if (InArgs._Spacecraft)
+	{
+		SetSpacecraft(InArgs._Spacecraft);
+	}
+	if (InArgs._Visible && TargetSpacecraft)
+	{
+		Show();
+	}
+	else
+	{
+		Hide();
+	}
 }
 
 
@@ -184,7 +196,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareTargetActions::SetSpacecraft(IFlareSpacecraftInterface* Target)
+void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 {
 	TargetSpacecraft = Target;
 	ShipStatus->SetTargetShip(Target);
@@ -202,56 +214,58 @@ void SFlareTargetActions::SetSpacecraft(IFlareSpacecraftInterface* Target)
 	}
 }
 
-void SFlareTargetActions::SetNoInspect(bool NewState)
+void SFlareSpacecraftInfo::SetNoInspect(bool NewState)
 {
 	NoInspect = NewState;
 }
 
-void SFlareTargetActions::SetMinimized(bool NewState)
+void SFlareSpacecraftInfo::SetMinimized(bool NewState)
 {
-	MinimizedMode = NewState;
+	Minimized = NewState;
+
+	if (GetVisibility() == EVisibility::Visible)
+	{
+		Show();
+	}
 }
 
-void SFlareTargetActions::Show()
+void SFlareSpacecraftInfo::Show()
 {
 	SetVisibility(EVisibility::Visible);
 
-	if (MinimizedMode)
+	if (Minimized)
 	{
 		InspectButton->SetVisibility(EVisibility::Collapsed);
 		FlyButton->SetVisibility(EVisibility::Collapsed);
 		DockButton->SetVisibility(EVisibility::Collapsed);
 		UndockButton->SetVisibility(EVisibility::Collapsed);
 	}
-	else
+	else if (TargetSpacecraft)
 	{
-		if (TargetSpacecraft)
+		// Useful data
+		UFlareSpacecraftDockingSystem* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
+		bool OwnedAndNotSelf = TargetSpacecraft != PC->GetShipPawn() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
+		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
+		bool CanDock = OwnedAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
+
+		// Button states
+		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
+		DockButton->SetVisibility(CanDock ? EVisibility::Visible : EVisibility::Collapsed);
+		UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
+
+		// Flyable ships
+		if (OwnedAndNotSelf && !TargetSpacecraft->IsStation())
 		{
-			// Useful data
-			UFlareSpacecraftDockingSystem* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
-			bool OwnedAndNotSelf = TargetSpacecraft != PC->GetShipPawn() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
-			bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
-			bool CanDock = OwnedAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
-
-			// Button states
-			InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
-			DockButton->SetVisibility(CanDock ? EVisibility::Visible : EVisibility::Collapsed);
-			UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
-
-			// Flyable ships
-			if (OwnedAndNotSelf && !TargetSpacecraft->IsStation())
-			{
-				FlyButton->SetVisibility(EVisibility::Visible);
-			}
-			else
-			{
-				FlyButton->SetVisibility(EVisibility::Collapsed);
-			}
+			FlyButton->SetVisibility(EVisibility::Visible);
+		}
+		else
+		{
+			FlyButton->SetVisibility(EVisibility::Collapsed);
 		}
 	}
 }
 
-void SFlareTargetActions::Hide()
+void SFlareSpacecraftInfo::Hide()
 {
 	TargetSpacecraft = NULL;
 	TargetSpacecraftDesc = NULL;
@@ -263,7 +277,7 @@ void SFlareTargetActions::Hide()
 	Callbacks
 ----------------------------------------------------*/
 
-void SFlareTargetActions::OnInspect()
+void SFlareSpacecraftInfo::OnInspect()
 {
 	if (PC && TargetSpacecraft)
 	{
@@ -271,7 +285,7 @@ void SFlareTargetActions::OnInspect()
 	}
 }
 
-void SFlareTargetActions::OnFly()
+void SFlareSpacecraftInfo::OnFly()
 {
 	if (PC && TargetSpacecraft && !TargetSpacecraft->IsStation())
 	{
@@ -279,7 +293,7 @@ void SFlareTargetActions::OnFly()
 	}
 }
 
-void SFlareTargetActions::OnDockAt()
+void SFlareSpacecraftInfo::OnDockAt()
 {
 	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
@@ -288,7 +302,7 @@ void SFlareTargetActions::OnDockAt()
 	}
 }
 
-void SFlareTargetActions::OnUndock()
+void SFlareSpacecraftInfo::OnUndock()
 {
 	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
@@ -302,12 +316,12 @@ void SFlareTargetActions::OnUndock()
 	Content
 ----------------------------------------------------*/
 
-FText SFlareTargetActions::GetName() const
+FText SFlareSpacecraftInfo::GetName() const
 {
 	return FText::FromString(TargetName);
 }
 
-FText SFlareTargetActions::GetDescription() const
+FText SFlareSpacecraftInfo::GetDescription() const
 {
 	// Common text
 	FText ClassText = LOCTEXT("Class", "CLASS");
@@ -322,7 +336,7 @@ FText SFlareTargetActions::GetDescription() const
 	return DefaultText;
 }
 
-const FSlateBrush* SFlareTargetActions::GetIcon() const
+const FSlateBrush* SFlareSpacecraftInfo::GetIcon() const
 {
 	if (TargetSpacecraftDesc)
 	{
@@ -331,7 +345,7 @@ const FSlateBrush* SFlareTargetActions::GetIcon() const
 	return NULL;
 }
 
-const FSlateBrush* SFlareTargetActions::GetClassIcon() const
+const FSlateBrush* SFlareSpacecraftInfo::GetClassIcon() const
 {
 	if (TargetSpacecraftDesc)
 	{
@@ -340,7 +354,7 @@ const FSlateBrush* SFlareTargetActions::GetClassIcon() const
 	return NULL;
 }
 
-FText SFlareTargetActions::GetCompanyName() const
+FText SFlareSpacecraftInfo::GetCompanyName() const
 {
 	if (TargetSpacecraft)
 	{

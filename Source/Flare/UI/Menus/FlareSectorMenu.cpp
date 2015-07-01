@@ -31,48 +31,43 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Left)
 		[
-			SNew(SBorder)
-			.Padding(FMargin(0))
-			.BorderImage(&Theme.BackgroundBrush)
+			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+			+ SScrollBox::Slot()
 			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
+				SNew(SVerticalBox)
 
-				+ SScrollBox::Slot()
+				// Object name
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
-					SNew(SVerticalBox)
+					SNew(SHorizontalBox)
 
-					// Object name
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					[
-						SNew(SHorizontalBox)
-
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
-						]
-
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.AutoWidth()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("Sector", "SECTOR MAP"))
-							.TextStyle(&FFlareStyleSet::GetDefaultTheme().TitleFont)
-						]
+						SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
 					]
 
-					// Object list
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.AutoWidth()
 					[
-						SAssignNew(ShipList, SFlareShipList)
-						.MenuManager(MenuManager)
-						.Title(LOCTEXT("SectorTargetListTitle", "OBJECTS IN SECTOR"))
+						SNew(STextBlock)
+						.Text(LOCTEXT("Sector", "SECTOR MAP"))
+						.TextStyle(&FFlareStyleSet::GetDefaultTheme().TitleFont)
 					]
+				]
+
+				// Object list
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(ShipList, SFlareShipList)
+					.MenuManager(MenuManager)
+					.Title(LOCTEXT("SectorTargetListTitle", "OBJECTS IN SECTOR"))
 				]
 			]
 		]

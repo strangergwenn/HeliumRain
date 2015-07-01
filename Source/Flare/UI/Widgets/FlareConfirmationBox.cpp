@@ -34,7 +34,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(ConfirmButton, SFlareButton)
 			.OnClicked(InArgs._OnConfirmed)
-			.Width(3)
+			.Width(8)
 			.Height(1)
 		]
 	];
@@ -47,6 +47,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(STextBlock)
 			.Text(InArgs._ConfirmText)
@@ -57,7 +58,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Right)
 		.VAlign(VAlign_Center)
-		.Padding(FMargin(5, 0))
+		.Padding(Theme.ContentPadding)
 		.AutoWidth()
 		[
 			SNew(SImage).Image(FFlareStyleSet::GetIcon("Cost"))
@@ -66,7 +67,8 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		// Cost amount
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Top)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
 		.AutoWidth()
 		[
 			SAssignNew(CostLabel, STextBlock)
