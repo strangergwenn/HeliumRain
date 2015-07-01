@@ -45,6 +45,9 @@ protected:
 	/** Get the current information to show */
 	FText GetInfoText() const;
 
+	/** Get the current secondary information to show */
+	FText GetLowerInfoText() const;
+
 	/** Get the ratio of temperature in the "minimal / max acceptable" range */
 	TOptional<float> GetTemperatureProgress() const;
 
@@ -77,6 +80,7 @@ protected:
 
 	// Menu components
 	TSharedPtr<STextBlock>               InfoText;
+	TSharedPtr<STextBlock>               LowerInfoText;
 	TSharedPtr<SFlareSubsystemStatus>    TemperatureStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PowerStatus;
 	TSharedPtr<SFlareSubsystemStatus>    PropulsionStatus;

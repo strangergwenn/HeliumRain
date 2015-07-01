@@ -107,6 +107,18 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 				.Text(this, &SFlareHUDMenu::GetInfoText)
 				.ColorAndOpacity(NormalColor)
 			]
+
+			// Info text 2
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Top)
+			[
+				SAssignNew(LowerInfoText, STextBlock)
+				.TextStyle(&Theme.NameFont)
+				.Text(this, &SFlareHUDMenu::GetLowerInfoText)
+				.ColorAndOpacity(NormalColor)
+			]
 	
 			// Overheating box
 			+ SVerticalBox::Slot()
@@ -317,11 +329,11 @@ FText SFlareHUDMenu::GetInfoText() const
 
 			switch (WeaponType)
 			{
-				case EFlareWeaponGroupType::WG_NONE:    ModeText = LOCTEXT("Navigation", "Navigation mode");      break;
-				case EFlareWeaponGroupType::WG_GUN:     ModeText = LOCTEXT("Fighter", "Fighter mode");            break;
-				case EFlareWeaponGroupType::WG_BOMB:    ModeText = LOCTEXT("Bomber", "Bomber mode");              break;
-				case EFlareWeaponGroupType::WG_TURRET:
-				default:                                ModeText = LOCTEXT("CapitalShip", "Capital ship mode");   break;
+			case EFlareWeaponGroupType::WG_NONE:    ModeText = LOCTEXT("Navigation", "Navigation mode");      break;
+			case EFlareWeaponGroupType::WG_GUN:     ModeText = LOCTEXT("Fighter", "Fighter mode");            break;
+			case EFlareWeaponGroupType::WG_BOMB:    ModeText = LOCTEXT("Bomber", "Bomber mode");              break;
+			case EFlareWeaponGroupType::WG_TURRET:
+			default:                                ModeText = LOCTEXT("CapitalShip", "Capital ship mode");   break;
 			}
 
 			if (TargetShip->GetNavigationSystem()->IsAutoPilot())
@@ -332,6 +344,25 @@ FText SFlareHUDMenu::GetInfoText() const
 	}
 
 	return FText::FromString(ShipText.ToString() + " - " + ModeText.ToString() + AutopilotText.ToString() + " - " + SectorText.ToString());
+}
+
+FText SFlareHUDMenu::GetLowerInfoText() const
+{
+	FText Info;
+
+	if (TargetShip)
+	{
+		UFlareSpacecraftNavigationSystem* Nav = TargetShip->GetNavigationSystem();
+		FFlareShipCommandData Command = Nav->GetCurrentCommand();
+
+		if (Command.Type == EFlareCommandDataType::CDT_Dock)
+		{
+			AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
+			Info = FText::FromString(LOCTEXT("DockingTo", "Docking to").ToString() + " " + Target->GetImmatriculation());
+		}
+	}
+
+	return Info;
 }
 
 TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const

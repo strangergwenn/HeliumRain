@@ -645,6 +645,13 @@ void UFlareSpacecraftNavigationSystem::ClearCurrentCommand()
 	}
 }
 
+FFlareShipCommandData UFlareSpacecraftNavigationSystem::GetCurrentCommand()
+{
+	FFlareShipCommandData CurrentCommand;
+	CommandData.Peek(CurrentCommand);
+	return CurrentCommand;
+}
+
 void UFlareSpacecraftNavigationSystem::AbortAllCommands()
 {
 	FFlareShipCommandData Command;

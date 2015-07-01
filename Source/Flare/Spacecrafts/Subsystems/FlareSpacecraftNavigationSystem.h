@@ -148,6 +148,9 @@ public:
 	/** Clear the current autopilot command */
 	void ClearCurrentCommand();
 
+	/** Get the current command */
+	FFlareShipCommandData GetCurrentCommand();
+
 	/** Abort all the current pushed autopilot commands */
 	void AbortAllCommands();
 
