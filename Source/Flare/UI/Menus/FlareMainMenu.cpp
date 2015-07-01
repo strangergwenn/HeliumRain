@@ -92,8 +92,20 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 
 		// Save slots
 		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
 			SAssignNew(SaveBox, SHorizontalBox)
+		]
+
+		// Build info
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Bottom)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString("Flare / Development build / " + FString(__DATE__)))
+			.TextStyle(&Theme.SmallFont)
 		]
 	];
 
