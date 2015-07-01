@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../UI/Menus/FlareMainMenu.h"
+#include "../UI/Menus/FlarenewGameMenu.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
@@ -84,6 +85,9 @@ protected:
 	/** Open the main menu */
 	virtual void OpenMainMenu();
 
+	/** Open the new game menu */
+	virtual void OpenNewGameMenu();
+
 	/** Open the main menu */
 	virtual void OpenDashboard();
 
@@ -119,6 +123,7 @@ protected:
 	// Menus
 	TSharedPtr<SFlareNotifier>              Notifier;
 	TSharedPtr<SFlareMainMenu>              MainMenu;
+	TSharedPtr<SFlareNewGameMenu>           NewGameMenu;
 	TSharedPtr<SFlareDashboard>             Dashboard;
 	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;
 	TSharedPtr<SFlareShipMenu>              ShipMenu;

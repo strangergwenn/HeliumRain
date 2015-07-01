@@ -196,6 +196,12 @@ int32 AFlareGame::GetCurrentSaveSlot() const
 	return CurrentSaveIndex;
 }
 
+void AFlareGame::SetCurrentSlot(int32 Index)
+{
+	FLOGV("AFlareGame::SetCurrentSlot : now using slot %d", Index);
+	CurrentSaveIndex = Index;
+}
+
 bool AFlareGame::DoesSaveSlotExist(int32 Index) const
 {
 	int32 RealIndex = Index - 1;
@@ -397,11 +403,10 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 	return ShipPawn;
 }
 
-bool AFlareGame::LoadWorld(AFlarePlayerController* PC, int32 Index)
+bool AFlareGame::LoadWorld(AFlarePlayerController* PC)
 {
-	FLOGV("AFlareGame::LoadWorld : loading from slot %d", Index);
-	UFlareSaveGame* Save = ReadSaveSlot(Index);
-	CurrentSaveIndex = Index;
+	FLOGV("AFlareGame::LoadWorld : loading from slot %d", CurrentSaveIndex);
+	UFlareSaveGame* Save = ReadSaveSlot(CurrentSaveIndex);
 
 	// Load from save
 	if (PC && Save)
@@ -450,7 +455,7 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC, int32 Index)
 	// No file existing
 	else
 	{
-		FLOGV("AFlareGame::LoadWorld : could lot load slot %d", Index);
+		FLOGV("AFlareGame::LoadWorld : could lot load slot %d", CurrentSaveIndex);
 		return false;
 	}
 }
@@ -588,6 +593,12 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 
 bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 {
+	if (!IsLoadedOrCreated())
+	{
+		FLOG("AFlareGame::SaveWorld : no game loaded, aborting");
+		return false;
+	}
+
 	FLOGV("AFlareGame::SaveWorld : saving to slot %d", CurrentSaveIndex);
 	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
 
@@ -633,7 +644,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 		}
 
 		// Companies
-		for(int i = 0; i < Companies.Num(); i++)
+		for (int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
 			if (Company)

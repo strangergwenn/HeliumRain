@@ -21,7 +21,6 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
-	Initialized = false;
 
 	// Build structure
 	ChildSlot
@@ -88,6 +87,17 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		.Padding(FMargin(200, 30))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
+
+		// Info
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(Theme.ContentPadding)
+		.HAlign(HAlign_Center)
+		[
+			SNew(STextBlock)
+			.Text(LOCTEXT("SaveSlotHint", "Pick a save slot to start the game."))
+			.TextStyle(&Theme.SubTitleFont)
 		]
 
 		// Save slots
@@ -209,7 +219,6 @@ void SFlareMainMenu::Enter()
 void SFlareMainMenu::Exit()
 {
 	SetEnabled(false);
-	Initialized = false;
 	SetVisibility(EVisibility::Hidden);
 }
 
@@ -261,17 +270,22 @@ const FSlateBrush* SFlareMainMenu::GetButtonIcon(int32 Index) const
 void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC)
+	if (PC && Game)
 	{
+		Game->SetCurrentSlot(*Index);
+
 		// Load the world
-		bool WorldLoaded = Game->LoadWorld(PC, *Index);
-		if (!WorldLoaded)
+		if (Game->DoesSaveSlotExist(*Index))
 		{
-			Game->CreateWorld(PC);
+			Game->LoadWorld(PC);
+			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, PC->GetShipPawn());
 		}
 
-		// Go to the ship
-		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, PC->GetShipPawn());
+		// Create the world
+		else
+		{
+			MenuManager->OpenMenu(EFlareMenu::MENU_NewGame);
+		}
 	}
 }
 

@@ -67,6 +67,9 @@ public:
 	/** Get the current save slot number */
 	int32 GetCurrentSaveSlot() const;
 
+	/** Set the current slot to use for loading or creating a game */
+	void SetCurrentSlot(int32 Index);
+
 	/** Is this an existing save slot ? */
 	bool DoesSaveSlotExist(int32 Index) const;
 
@@ -97,7 +100,7 @@ public:
 	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
 
 	/** Load the world from this save file */
-	virtual bool LoadWorld(AFlarePlayerController* PC, int32 Index);
+	virtual bool LoadWorld(AFlarePlayerController* PC);
 
 	/** Spawn a company from save data */
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);

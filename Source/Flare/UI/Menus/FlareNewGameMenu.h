@@ -8,13 +8,13 @@
 class AFlareMenuManager;
 
 
-class SFlareMainMenu : public SCompoundWidget
+class SFlareNewGameMenu : public SCompoundWidget
 {
 	/*----------------------------------------------------
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareMainMenu){}
+	SLATE_BEGIN_ARGS(SFlareNewGameMenu){}
 
 	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	
@@ -45,33 +45,9 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-
-	/** Get a save slot's description */
-	FText GetText(int32 Index) const;
-
-	/** Get the main image for a save slot */
-	const FSlateBrush* GetSaveIcon(int32 Index) const;
-
-	/** Is the delete button visible ? */
-	EVisibility GetDeleteButtonVisibility(int32 Index) const;
-
-	/** Get a button text */
-	FText GetButtonText(int32 Index) const;
-
-	/** Get a button icon */
-	const FSlateBrush* GetButtonIcon(int32 Index) const;
-
+	
 	/** Start the game */
-	void OnOpenSlot(TSharedPtr<int32> Index);
-
-	/** Delete a game */
-	void OnDeleteSlot(TSharedPtr<int32> Index);
-
-	/** Open the settings menu */
-	void OnOpenSettings();
-
-	/** Quit the game */
-	void OnQuitGame();
+	void OnLaunch();
 
 
 protected:
@@ -79,11 +55,10 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-
-	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+	
 	AFlareGame*                                Game;
+	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 
-	TSharedPtr<SHorizontalBox>                 SaveBox;
-
+	int32                                      SlotIndex;
 
 };

@@ -27,6 +27,7 @@ void AFlareMenuManager::SetupMenu()
 		// Menus
 		SAssignNew(Notifier, SFlareNotifier).MenuManager(this).Visibility(EVisibility::SelfHitTestInvisible);
 		SAssignNew(MainMenu, SFlareMainMenu).MenuManager(this);
+		SAssignNew(NewGameMenu, SFlareNewGameMenu).MenuManager(this);
 		SAssignNew(Dashboard, SFlareDashboard).MenuManager(this);
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
@@ -41,6 +42,7 @@ void AFlareMenuManager::SetupMenu()
 
 		// Register menus at their Z-Index
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),         50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(NewGameMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
@@ -50,6 +52,7 @@ void AFlareMenuManager::SetupMenu()
 
 		// Setup menus
 		MainMenu->Setup();
+		NewGameMenu->Setup();
 		Dashboard->Setup();
 		CompanyMenu->Setup();
 		ShipMenu->Setup();
@@ -161,6 +164,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 	switch (MenuType)
 	{
 		case EFlareMenu::MENU_Main:           Path = "HeliumRain";   break;
+		case EFlareMenu::MENU_NewGame:        Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_Dashboard:      Path = "Sector";       break;
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;
 		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
@@ -192,6 +196,7 @@ void AFlareMenuManager::ResetMenu()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
 	MainMenu->Exit();
+	NewGameMenu->Exit();
 	Dashboard->Exit();
 	CompanyMenu->Exit();
 	ShipMenu->Exit();
@@ -225,6 +230,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 	{
 		case EFlareMenu::MENU_Main:
 			OpenMainMenu();
+			break;
+
+		case EFlareMenu::MENU_NewGame:
+			OpenNewGameMenu();
 			break;
 
 		case EFlareMenu::MENU_Dashboard:
@@ -280,6 +289,13 @@ void AFlareMenuManager::OpenMainMenu()
 	ResetMenu();
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
+}
+
+void AFlareMenuManager::OpenNewGameMenu()
+{
+	ResetMenu();
+	GetPC()->OnEnterMenu();
+	NewGameMenu->Enter();
 }
 
 void AFlareMenuManager::OpenDashboard()
