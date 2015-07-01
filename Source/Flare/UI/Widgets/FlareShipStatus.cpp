@@ -103,7 +103,7 @@ void SFlareShipStatus::SetTargetShip(IFlareSpacecraftInterface* Target)
 
 FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
 {
-	if (TargetShip)
+	if (TargetShip && !TargetShip->IsStation())
 	{
 		float Health = TargetShip->GetDamageSystem()->GetSubsystemHealth(Type, false, true);
 		return FFlareStyleSet::GetHealthColor(Health, false);

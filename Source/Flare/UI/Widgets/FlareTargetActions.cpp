@@ -141,6 +141,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 				SAssignNew(InspectButton, SFlareButton)
 				.Text(LOCTEXT("Inspect", "INSPECT"))
 				.OnClicked(this, &SFlareTargetActions::OnInspect)
+				.Width(4)
 			]
 
 			// Fly this ship
@@ -150,6 +151,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 				SAssignNew(FlyButton, SFlareButton)
 				.Text(LOCTEXT("ShipFly", "FLY"))
 				.OnClicked(this, &SFlareTargetActions::OnFly)
+				.Width(4)
 			]
 			
 			// Dock here
@@ -159,6 +161,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 				SAssignNew(DockButton, SFlareButton)
 				.Text(LOCTEXT("Dock", "DOCK HERE"))
 				.OnClicked(this, &SFlareTargetActions::OnDockAt)
+				.Width(4)
 			]
 
 			// Undock
@@ -168,6 +171,7 @@ void SFlareTargetActions::Construct(const FArguments& InArgs)
 				SAssignNew(UndockButton, SFlareButton)
 				.Text(LOCTEXT("Undock", "UNDOCK"))
 				.OnClicked(this, &SFlareTargetActions::OnUndock)
+				.Width(4)
 			]
 		]
 	];

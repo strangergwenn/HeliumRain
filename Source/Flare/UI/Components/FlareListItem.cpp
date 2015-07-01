@@ -40,7 +40,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 					[
 						SAssignNew(InnerContainer, SBorder)
 						.HAlign(HAlign_Fill)
-						.VAlign(VAlign_Top)
+						.VAlign(VAlign_Fill)
 						.BorderImage(new FSlateNoResource)
 						[
 							InArgs._Content.Widget
@@ -80,7 +80,7 @@ const FSlateBrush* SFlareListItem::GetDecoratorBrush() const
 const FSlateBrush* SFlareListItem::GetBackgroundBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
+	return (IsHovered() ? &Theme.ListActiveBackground : &Theme.ListBackground);
 }
 
 void SFlareListItem::SetSelected(bool Selected)

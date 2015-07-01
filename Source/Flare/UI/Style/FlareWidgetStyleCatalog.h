@@ -32,6 +32,9 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&InvisibleBrush);
 		OutBrushes.Add(&SeparatorBrush);
 
+		OutBrushes.Add(&ListBackground);
+		OutBrushes.Add(&ListActiveBackground);
+
 		OutBrushes.Add(&ButtonBackground);
 		OutBrushes.Add(&ButtonActiveBackground);
 		OutBrushes.Add(&ButtonDecorator);
@@ -61,6 +64,10 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FMargin SmallContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) float DefaultAlpha;
 	UPROPERTY(EditAnywhere, Category = Main) int32 ContentWidth;
+
+	// Lists
+	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListBackground;
+	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListActiveBackground;
 
 	// Colors
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor EnemyColor;
