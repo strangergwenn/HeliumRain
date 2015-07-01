@@ -71,7 +71,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 		// Separator
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(200, 40))
+		.Padding(FMargin(200, 30))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
@@ -86,6 +86,15 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 
+				// Object name
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SAssignNew(ObjectName, STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
 				// Action box
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -96,12 +105,12 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.NoInspect(true)
 				]
 
-				// Object name
+				// Object class
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.TitlePadding)
 				[
-					SAssignNew(ObjectName, STextBlock)
+					SAssignNew(ObjectClassName, STextBlock)
 					.TextStyle(&Theme.SubTitleFont)
 				]
 
@@ -258,7 +267,7 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -50));
+		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
 	}
 
 	// Fill the docking data
@@ -307,6 +316,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 			ObjectActionMenu->SetSpacecraft(TargetSpacecraft);
 			ObjectActionMenu->Show();
 		}
+		ObjectName->SetVisibility(EVisibility::Visible);
 		ShipPartCustomizationBox->SetVisibility(EVisibility::Collapsed);
 		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
 		ShipCustomizationBox->SetVisibility(EVisibility::Visible);
@@ -316,7 +326,8 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 		if (ShipDesc)
 		{
-			ObjectName->SetText(FText::FromString(ShipDesc->Name.ToString()));
+			ObjectName->SetText(FText::FromString(TargetSpacecraft->GetImmatriculation()));
+			ObjectClassName->SetText(FText::FromString(ShipDesc->Name.ToString()));
 			ObjectDescription->SetText(ShipDesc->Description);
 			PC->GetMenuPawn()->ShowShip(ShipDesc, TargetSpacecraftData);
 		}
@@ -376,7 +387,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 		if (PartDesc)
 		{
 			// Show part
-			ObjectName->SetText(PartDesc->Name);
+			ObjectClassName->SetText(PartDesc->Name);
 			ObjectDescription->SetText(PartDesc->Description);
 			PC->GetMenuPawn()->ShowPart(PartDesc);
 
@@ -387,6 +398,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 
 	// Make the right box visible
 	ObjectActionMenu->Hide();
+	ObjectName->SetVisibility(EVisibility::Collapsed);
 	ObjectDescription->SetVisibility(EVisibility::Visible);
 	ShipPartCustomizationBox->SetVisibility(EVisibility::Visible);
 	PartCharacteristicBox->SetVisibility(EVisibility::Visible);

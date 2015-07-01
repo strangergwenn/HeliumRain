@@ -138,7 +138,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		// Separator
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(200, 40))
+		.Padding(FMargin(200, 30))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]

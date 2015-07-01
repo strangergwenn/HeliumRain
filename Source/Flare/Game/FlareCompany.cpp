@@ -89,7 +89,7 @@ EFlareHostility::Type UFlareCompany::GetHostility(UFlareCompany* TargetCompany) 
 	return EFlareHostility::Neutral;
 }
 
-FText UFlareCompany::GetInfoText()
+FText UFlareCompany::GetInfoText(bool Minimized)
 {
 	// Static text
 	FText ShipText = LOCTEXT("Ship", "ship");
@@ -106,7 +106,14 @@ FText UFlareCompany::GetInfoText()
 	FString StationDescriptionString = FString::FromInt(StationCount) + " " + (StationCount != 1 ? StationsText : StationText).ToString();
 
 	// Build
-	return FText::FromString(MoneyDescriptionString + "\n" + StationDescriptionString + "\n" + ShipDescriptionString);
+	if (Minimized)
+	{
+		return FText::FromString(GetCompanyName() + " (" + MoneyDescriptionString + ", " + ShipDescriptionString + ")");
+	}
+	else
+	{
+		return FText::FromString(MoneyDescriptionString + "\n" + ShipDescriptionString + "\n" + StationDescriptionString);
+	}
 }
 
 

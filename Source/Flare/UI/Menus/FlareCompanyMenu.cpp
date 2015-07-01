@@ -225,7 +225,7 @@ FText SFlareCompanyMenu::GetCompanyInfo() const
 
 	if (Company)
 	{
-		Result = Company->GetInfoText();
+		Result = Company->GetInfoText(false);
 	}
 
 	return Result;

@@ -125,6 +125,7 @@ protected:
 	//  UI
 	bool                                            CanEdit;
 	TSharedPtr<STextBlock>                          ObjectName;
+	TSharedPtr<STextBlock>                          ObjectClassName;
 	TSharedPtr<STextBlock>                          ObjectDescription;
 	TSharedPtr<SFlareTargetActions>                 ObjectActionMenu;
 	TSharedPtr<SFlareShipList>                      ShipList;

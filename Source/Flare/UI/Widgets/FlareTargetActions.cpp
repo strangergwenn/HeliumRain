@@ -348,19 +348,7 @@ FText SFlareTargetActions::GetCompanyName() const
 
 		if (TargetCompany)
 		{
-			// Static text
-			FText ShipText = LOCTEXT("Ship", "ship");
-			FText ShipsText = LOCTEXT("Ships", "ships");
-			FText StationText = LOCTEXT("Station", "station");
-			FText StationsText = LOCTEXT("Stations", "stations");
-			FText MoneyText = LOCTEXT("Money", "credits");
-
-			// Dynamic data
-			int32 ShipCount = TargetCompany->GetCompanyShips().Num();
-			int32 StationCount = TargetCompany->GetCompanyStations().Num();
-			FString ShipDescriptionString = FString::FromInt(ShipCount) + " " + (ShipCount > 1 ? ShipsText : ShipText).ToString();
-			FString StationDescriptionString = FString::FromInt(StationCount) + " " + (StationCount > 1 ? StationsText : StationText).ToString();
-			return FText::FromString((TargetCompany->GetCompanyName() + " (" + StationDescriptionString + ", " + ShipDescriptionString + ")"));
+			return TargetCompany->GetInfoText(true);
 		}
 	}
 

@@ -104,7 +104,7 @@ public:
 	virtual EFlareHostility::Type GetHostility(UFlareCompany* TargetCompany) const;
 
 	/** Get an info string for this company save */
-	virtual FText GetInfoText();
+	virtual FText GetInfoText(bool Minimized);
 
 
 	/*----------------------------------------------------
