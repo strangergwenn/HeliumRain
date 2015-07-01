@@ -157,7 +157,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 		// Menu
 		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
-		PC->GetMenuPawn()->SetHorizontalOffset(100);
+		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -50));
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 		
 		// Station list

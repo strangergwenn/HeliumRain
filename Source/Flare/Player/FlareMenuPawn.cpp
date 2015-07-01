@@ -210,9 +210,9 @@ void AFlareMenuPawn::UpdateCustomization()
 	}
 }
 
-void AFlareMenuPawn::SetHorizontalOffset(float Offset)
+void AFlareMenuPawn::SetCameraOffset(FVector2D Offset)
 {
-	CameraContainerYaw->SetRelativeLocation(FVector(0, -Offset, 0));
+	SetCameraLocalPosition(FVector(0, -Offset.X, -Offset.Y));
 }
 
 void AFlareMenuPawn::SetSlideDirection(bool GoUp)

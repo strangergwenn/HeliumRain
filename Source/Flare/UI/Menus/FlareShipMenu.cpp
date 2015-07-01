@@ -258,7 +258,7 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		PC->GetMenuPawn()->SetHorizontalOffset(100);
+		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -50));
 	}
 
 	// Fill the docking data

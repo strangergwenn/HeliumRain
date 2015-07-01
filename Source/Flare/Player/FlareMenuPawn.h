@@ -30,10 +30,7 @@ public:
 
 	/** Load a new ship to visualize */
 	void ShowShip(const FFlareSpacecraftDescription* ShipDesc, const FFlareSpacecraftSave* ShipData);
-
-	/** Load a new station to visualize */
-	//void ShowStation(const FFlareStationDescription* StationDesc, const FFlareStationSave* StationData);
-
+	
 	/** Load a new part to visualize */
 	void ShowPart(const FFlareSpacecraftComponentDescription* PartDesc);
 
@@ -48,8 +45,8 @@ public:
 	/** Remove all parts and go back to the original setup */
 	void ResetContent(bool Unsafe = false);
 
-	/** Move the camera on X */
-	void SetHorizontalOffset(float Offset);
+	/** Move the camera */
+	void SetCameraOffset(FVector2D Offset);
 
 	/** Set the way parts slide in the browser */
 	void SetSlideDirection(bool GoUp);
