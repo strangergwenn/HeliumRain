@@ -260,11 +260,11 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
 	PC->SetCompany(Company);
 
-
 	switch(ScenarioIndex)
 	{
 		case -1: // Empty
 			InitEmptyScenario(&PlayerData);
+		break;
 		case 0: // Peaceful
 			InitPeacefulScenario(&PlayerData);
 		break;
