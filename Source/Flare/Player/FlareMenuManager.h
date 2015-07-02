@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UI/Menus/FlareMainMenu.h"
-#include "../UI/Menus/FlarenewGameMenu.h"
+#include "../UI/Menus/FlareNewGameMenu.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
