@@ -866,7 +866,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 				continue;
 			}
 
-			if(LeaderShip->GetSize() == CandidateShip->GetSize())
+			if(LeaderShip->Airframe->GetMass() == CandidateShip->Airframe->GetMass())
 			{
 				if(LeaderShip->GetImmatriculation() > CandidateShip->GetImmatriculation())
 				{
@@ -874,6 +874,9 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 					continue;
 				}
 			}
+
+
+
 			else if(CandidateShip->GetSize() == EFlarePartSize::L)
 			{
 				LeaderShip = CandidateShip;
