@@ -124,6 +124,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Right)
 				[
 					SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetIcon)
+					.Visibility(InArgs._NoInspect ? EVisibility::Hidden : EVisibility::Visible)
 				]
 			]
 		]
