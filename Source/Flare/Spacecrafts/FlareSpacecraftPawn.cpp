@@ -226,6 +226,7 @@ AFlareGame* AFlareSpacecraftPawn::GetGame() const
 
 float AFlareSpacecraftPawn::GetMeshScale() const
 {
+	// TODO check diameter/radius usage
 	FVector Origin;
 	FVector Extent;
 	FBox Box = GetComponentsBoundingBox();
