@@ -18,7 +18,7 @@
 
 
 class UFlareSaveGame;
-
+struct FFlarePlayerSave;
 
 USTRUCT()
 struct FFlareSaveSlotInfo
@@ -88,16 +88,29 @@ public:
 	----------------------------------------------------*/
 
 	/** Create a new world from scratch */
-	virtual void CreateWorld(AFlarePlayerController* PC);
+	virtual void CreateWorld(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex);
+
+	/** Init world with empty scenario */
+	virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
+
+	/** Init world with peaceful scenario */
+	virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
+
+	/** Init world with threatened scenario */
+	virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData);
+
+	/** Init world with aggresve scenario */
+	virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData);
+
 
 	/** Create a station in the level  for a specific company */
-	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition);
+	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
 	/** Create a ship in the level  for a specific company */
 	AFlareSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
 
 	/** Create a ship or station in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition);
+	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
 	/** Load the world from this save file */
 	virtual bool LoadWorld(AFlarePlayerController* PC);
@@ -164,6 +177,9 @@ public:
 	/** Add an asteroid to the world */
 	UFUNCTION(exec)
 	void CreateAsteroid(int32 ID);
+
+	/** Add an asteroid to the world at a specific location */
+	void CreateAsteroidAt(int32 ID, FVector Location);
 
 
 	/*----------------------------------------------------

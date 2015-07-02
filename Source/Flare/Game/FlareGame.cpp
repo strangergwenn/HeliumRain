@@ -247,21 +247,34 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 	Save
 ----------------------------------------------------*/
 
-void AFlareGame::CreateWorld(AFlarePlayerController* PC)
+void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex)
 {
+	FLOGV("CreateWorld ScenarioIndex %d", ScenarioIndex);
+	FLOGV("CreateWorld CompanyName %s", *CompanyName);
+
+
 	FFlarePlayerSave PlayerData;
 
 	// Player company
-	UFlareCompany* Company = CreateCompany("Player Inc");
+	UFlareCompany* Company = CreateCompany(CompanyName);
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
 	PC->SetCompany(Company);
 
-	// Enemy
-	CreateCompany("Evil Corp");
 
-	// Player ship
-	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
-	PlayerData.CurrentShipName = ShipPawn->GetImmatriculation();
+	switch(ScenarioIndex)
+	{
+		case -1: // Empty
+			InitEmptyScenario(&PlayerData);
+		case 0: // Peaceful
+			InitPeacefulScenario(&PlayerData);
+		break;
+		case 1: // Threatened
+			InitThreatenedScenario(&PlayerData);
+		break;
+		case 2: // Aggressive
+			InitAggresiveScenario(&PlayerData);
+		break;
+	}
 
 	// Load
 	PC->Load(PlayerData);
@@ -269,7 +282,79 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC)
 	PC->OnLoadComplete();
 }
 
-AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition)
+void AFlareGame::InitEmptyScenario(FFlarePlayerSave* PlayerData)
+{
+	// Enemy
+	CreateCompany("Evil Corp");
+
+	// Player ship
+	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
+	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
+}
+
+
+void AFlareGame::InitPeacefulScenario(FFlarePlayerSave* PlayerData)
+{
+	// Player ship
+	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
+	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
+
+
+	CreateStation("station-hub", PlayerData->CompanyIdentifier, FVector(100000, 3000, 6000), FRotator(12, -166,36));
+	CreateStation("station-outpost", PlayerData->CompanyIdentifier, FVector(150000, -10000, -4000), FRotator(93,-154 ,-45));
+	CreateStation("station-outpost", PlayerData->CompanyIdentifier, FVector(-80000, -40000, -2000), FRotator(-98, -47,37));
+
+
+	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(-202600, -65900, -64660));
+	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(213890, 97140, -122440));
+	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(281160, 20594, -31270));
+	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(-195700, -93880, 271180));
+	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(88900, -103630, 222380));
+
+	CreateAsteroidAt(0, FVector(29040,7698,-3808));
+	CreateAsteroidAt(1, FVector(64105,15792,-28780));
+	CreateAsteroidAt(2, FVector(12845,25071,-10792));
+
+	FVector BaseFleetLocation = FVector(-59940, 275780, 75350);
+
+	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BaseFleetLocation);
+	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(0, 20000, 0));
+	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(0, -20000, 0));
+	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(10000, -15000, 0));
+	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(10000, 15000, 0));
+	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-10000, -15000, 0));
+	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-10000, 15000, 0));
+
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(20000, 0, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(18000, -10000, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(18000, 10000, 0));
+
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-20000, -10000, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-20000, 10000, 0));
+}
+
+
+void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData)
+{
+	// Enemy
+	CreateCompany("Evil Corp");
+
+	// Player ship
+	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
+	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
+}
+
+void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData)
+{
+	// Enemy
+	CreateCompany("Evil Corp");
+
+	// Player ship
+	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
+	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
+}
+
+AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {
 	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
 
@@ -280,7 +365,7 @@ AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIde
 
 	if (Desc)
 	{
-		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
+		return CreateShip(Desc, CompanyIdentifier, TargetPosition, TargetRotation);
 	}
 	return NULL;
 }
@@ -301,7 +386,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifie
 	return NULL;
 }
 
-AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition)
+AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {
 	AFlareSpacecraft* ShipPawn = NULL;
 	UFlareCompany* Company = FindCompany(CompanyIdentifier);
@@ -311,7 +396,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 		// Default data
 		FFlareSpacecraftSave ShipData;
 		ShipData.Location = TargetPosition;
-		ShipData.Rotation = FRotator::ZeroRotator;
+		ShipData.Rotation = TargetRotation;
 		ShipData.LinearVelocity = FVector::ZeroVector;
 		ShipData.AngularVelocity = FVector::ZeroVector;
 		Immatriculate(Company, ShipDescription->Identifier, &ShipData);
@@ -967,12 +1052,6 @@ void AFlareGame::CreateAsteroid(int32 ID)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
-	if(ID >= GetAsteroidCatalog()->Asteroids.Num())
-	{
-		FLOGV("Astroid create fail : Asteroid max ID is %d", GetAsteroidCatalog()->Asteroids.Num() -1);
-		return;
-	}
-
 	if (PC)
 	{
 
@@ -985,20 +1064,32 @@ void AFlareGame::CreateAsteroid(int32 ID)
 			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(20000 * FVector(1, 0, 0));
 		}
 
-		// Spawn parameters
-		FActorSpawnParameters Params;
-		Params.bNoFail = true;
-		FFlareAsteroidSave Data;
-		Data.AsteroidMeshID = ID;
-		Data.LinearVelocity = FVector::ZeroVector;
-		Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
-		Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.9,1.1);
-		FRotator Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
-
-		// Spawn and setup
-		AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), TargetPosition, Rotation, Params);
-		Asteroid->Load(Data);
+		CreateAsteroidAt(ID, TargetPosition);
 	}
+}
+
+void AFlareGame::CreateAsteroidAt(int32 ID, FVector Location)
+{
+	if(ID >= GetAsteroidCatalog()->Asteroids.Num())
+	{
+		FLOGV("Astroid create fail : Asteroid max ID is %d", GetAsteroidCatalog()->Asteroids.Num() -1);
+		return;
+	}
+
+	// Spawn parameters
+	FActorSpawnParameters Params;
+	Params.bNoFail = true;
+	FFlareAsteroidSave Data;
+	Data.AsteroidMeshID = ID;
+	Data.LinearVelocity = FVector::ZeroVector;
+	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
+	Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.9,1.1);
+	FRotator Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
+
+	// Spawn and setup
+	AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), Location, Rotation, Params);
+	Asteroid->Load(Data);
+
 }
 
 
