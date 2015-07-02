@@ -892,7 +892,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 			if (TargetLocationToShipDistance < 50000 || PilotTargetLocation.IsZero())
 			{
-				PilotTargetLocation = FMath::VRand() * FMath::FRand() * 1000000;
+				PilotTargetLocation = FMath::VRand() * FMath::FRand() * 400000;
 			}
 			LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 0.8;
 
