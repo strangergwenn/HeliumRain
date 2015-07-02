@@ -156,7 +156,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	}
 }
 
-void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitLocation, FVector HitNormal)
+void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitLocation, FVector NormalImpulse)
 {
 	// If receive hit from over actor, like a ship we must apply collision damages.
 	// The applied damage energy is 0.2% of the kinetic energy of the other actor. The kinetic
@@ -185,16 +185,96 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	FVector DeltaVelocity = ((OtherRoot->GetPhysicsLinearVelocity() - Spacecraft->Airframe->GetPhysicsLinearVelocity()) / 100);
 
 	// Compute the relative velocity in the impact axis then compute kinetic energy
-	float ImpactSpeed = FVector::DotProduct(DeltaVelocity, HitNormal);
-	float ImpactMass = OtherRoot->GetMass();
-	float ImpactEnergy = 0.5 * ImpactMass * FMath::Square(ImpactSpeed) * 0.001; // In KJ
+	/*float ImpactSpeed = DeltaVelocity.Size();
+	float ImpactMass = FMath::Min(Spacecraft->Airframe->GetMass(), OtherRoot->GetMass());
+	*/
 
-	// Convert only 0.2% of the energy as damages and make vary de damage radius with the damage:
-	// minimum 20cm and about 1 meter for 20KJ of damage (about the damages provide by a bullet)
-	float Energy = ImpactEnergy / 500;
-	float  Radius = 0.2 + FMath::Sqrt(Energy) * 0.22;
+	//200 m /s -> 6301.873047 * 20000 -> 300 / 2 damage
 
-	ApplyDamage(Energy, Radius, HitLocation);
+
+	float ImpactMass = Spacecraft->Airframe->GetMass();
+	float ImpactSpeed = NormalImpulse.Size() / (ImpactMass * 100.f);
+	float ImpactEnergy = ImpactMass * ImpactSpeed / 8402.f;
+
+	float  Radius = 0.2 + FMath::Sqrt(ImpactEnergy) * 0.11;
+	//FLOGV("OnCollision %s", *Spacecraft->GetImmatriculation());
+	//FLOGV("  OtherRoot->GetPhysicsLinearVelocity()=%s", *OtherRoot->GetPhysicsLinearVelocity().ToString());
+	//FLOGV("  OtherRoot->GetPhysicsLinearVelocity().Size()=%f", OtherRoot->GetPhysicsLinearVelocity().Size());
+	//FLOGV("  Spacecraft->Airframe->GetPhysicsLinearVelocity()=%s", *Spacecraft->Airframe->GetPhysicsLinearVelocity().ToString());
+	//FLOGV("  Spacecraft->Airframe->GetPhysicsLinearVelocity().Size()=%f", Spacecraft->Airframe->GetPhysicsLinearVelocity().Size());
+	//FLOGV("  dot=%f", FVector::DotProduct(DeltaVelocity.GetUnsafeNormal(), HitNormal.GetUnsafeNormal()));
+	/*FLOGV("  DeltaVelocity=%s", *DeltaVelocity.ToString());
+	FLOGV("  ImpactSpeed=%f", ImpactSpeed);
+	FLOGV("  ImpactMass=%f", ImpactMass);
+	FLOGV("  ImpactEnergy=%f", ImpactEnergy);
+	FLOGV("  Radius=%f", Radius);*/
+
+
+
+	bool HasHit = false;
+	FHitResult BestHitResult;
+	float BestHitDistance = 0;
+
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+		if (Component)
+		{
+			FHitResult HitResult(ForceInit);
+			FCollisionQueryParams TraceParams(FName(TEXT("Fragment Trace")), true);
+			TraceParams.bTraceComplex = true;
+			TraceParams.bReturnPhysicalMaterial = false;
+			Component->LineTraceComponent(HitResult, HitLocation, HitLocation + Spacecraft->GetLinearVelocity().GetUnsafeNormal() * 10000, TraceParams);
+
+			if (HitResult.Actor.IsValid()){
+				float HitDistance = (HitResult.Location - HitLocation).Size();
+				if (!HasHit || HitDistance < BestHitDistance)
+				{
+					BestHitDistance = HitDistance;
+					BestHitResult = HitResult;
+				}
+
+				//FLOGV("Collide hit %s at a distance=%f", *Component->GetReadableName(), HitDistance);
+				HasHit = true;
+			}
+		}
+
+	}
+
+	if (HasHit)
+	{
+		//DrawDebugLine(Spacecraft->GetWorld(), HitLocation, BestHitResult.Location, FColor::Magenta, true);
+	}
+	else
+	{
+		int32 BestComponentIndex = -1;
+		BestHitDistance = 0;
+
+		for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+		{
+			UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+			if (Component)
+			{
+				float ComponentDistance = (Component->GetComponentLocation() - HitLocation).Size();
+				if(BestComponentIndex == -1 || BestHitDistance > ComponentDistance)
+				{
+					BestComponentIndex = ComponentIndex;
+					BestHitDistance = ComponentDistance;
+				}
+			}
+		}
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[BestComponentIndex]);
+
+
+		FCollisionQueryParams TraceParams(FName(TEXT("Fragment Trace")), true);
+		TraceParams.bTraceComplex = true;
+		TraceParams.bReturnPhysicalMaterial = false;
+		Component->LineTraceComponent(BestHitResult, HitLocation, Component->GetComponentLocation(), TraceParams);
+		//DrawDebugLine(Spacecraft->GetWorld(), HitLocation, BestHitResult.Location, FColor::Yellow, true);
+
+
+	}
+	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location);
 }
 
 void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location)
@@ -206,7 +286,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	// only touch.
 
 	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation()), Radius, *Location.ToString());
-	//DrawDebugSphere(GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
+	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
 	bool IsAliveBeforeDamage = IsAlive();
 
@@ -220,6 +300,8 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 
 		float Distance = (ComponentLocation - Location).Size() / 100.0f;
 		float IntersectDistance =  Radius + ComponentSize/100 - Distance;
+
+		//DrawDebugSphere(Spacecraft->GetWorld(), ComponentLocation, ComponentSize, 12, FColor::Green, true);
 
 		// Hit this component
 		if (IntersectDistance > 0)

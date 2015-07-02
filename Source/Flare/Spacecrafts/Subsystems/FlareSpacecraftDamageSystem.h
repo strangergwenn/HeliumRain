@@ -79,7 +79,7 @@ public:
 	/** Method call if a electric component had been damaged */
 	virtual void OnElectricDamage(float DamageRatio);
 
-	virtual void OnCollision(class AActor* Other, FVector HitLocation, FVector HitNormal);
+	virtual void OnCollision(class AActor* Other, FVector HitLocation, FVector NormalImpulse);
 
 	virtual void ApplyDamage(float Energy, float Radius, FVector Location);
 

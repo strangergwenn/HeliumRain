@@ -130,7 +130,6 @@ bool UFlareSpacecraftNavigationSystem::IsDocked()
 
 void UFlareSpacecraftNavigationSystem::SetStatus(EFlareShipStatus::Type NewStatus)
 {
-	FLOGV("AFlareSpacecraft::SetStatus %d", NewStatus - EFlareShipStatus::SS_Manual);
 	Status = NewStatus;
 }
 

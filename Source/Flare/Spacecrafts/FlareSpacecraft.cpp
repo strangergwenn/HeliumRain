@@ -88,9 +88,38 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// ghoul 10m/s -> asteroid : 5919376.500000
+	// ghoul 10m/s -> outpost  : 8190371.000000
+	// ghoul 10m/s -> hub : 4157000.750000 + 4161034.500000 =                                                        8318035.25
+	// ghoul 10m/s -> asteroid 0 : 5320989.500000 + 1186121.500000 + 920986.437500 =                                 7428097.4375
+
+	// ghoul 20m/s -> asteroid 0 : 13991330.000000 + 1485886.250000 =                                               15477216.25
+	// ghoul 20m/s -> outpost : 59829.214844 + 159081.968750  + 513187.187500  + 1729557.875000 + 16334147.000000 = 18795803.246094
+	// ghoul 20m/s -> hub : 9352049.000000 8732764.000000 =                                                         18084813.0
+
+	// orca 10m/s -> hub : 8604104.000000 + 12141461.000000 =                                                       20745565.0
+	// dragon 10m/s -> hub :7552520.500000 + 148669488.000000 =                                                    156222008.5
+	// invader 10m/s -> hub :                                                                                      425907776.000000
+
+	// ghoul 6301.873047            13 19.930628237551
+	// orca 19790.914062            10 48.2368290322174
+	// dragon 136862.984375         11 41.4482092543008
+	// invader 530312.250000        8 03.1264146736191
+
+
+   // ghoul 20m/s	                                2455.970812449119
+   // ghoul 50m/s	20529212.000000 + 20547770.000000    =  41076982.0 / 6301.873047 65.18 m/s
+
+   // ghoul 100 m/s 40483100.000000 + 40519540.000000                    =  81002640.0 / 6301.873047 128 53 m/s
+
+   // 2190338.000000  + 394164960.000000 + 142830160.000000 + 482529472.000000 = 1021714930.0 / 530312.250000 =
+
+
+	//DrawDebugSphere(GetWorld(), Hit.Location, 10, 12, FColor::Blue, true);
+
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-	FLOG("AFlareSpacecraft Hit");
-	DamageSystem->OnCollision(Other, HitLocation, HitNormal);
+	//FLOGV("AFlareSpacecraft Hit  Mass %f NormalImpulse %s NormalImpulse.Size() %f", Airframe->GetMass(), *NormalImpulse.ToString(), NormalImpulse.Size());
+	DamageSystem->OnCollision(Other, HitLocation, NormalImpulse);
 
 	// If hit, check if the is a docking in progress. If yes, check if the ship is correctly aligned
 	AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(Other);
