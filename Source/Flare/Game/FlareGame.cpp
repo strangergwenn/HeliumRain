@@ -333,6 +333,47 @@ void AFlareGame::InitPeacefulScenario(FFlarePlayerSave* PlayerData)
 	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-20000, 10000, 0));
 }
 
+void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData)
+{
+
+	CreateStation("station-hub", PlayerData->CompanyIdentifier, FVector(10000, -3000, -6000), FRotator(6, -16, 36));
+
+	FVector BaseAllyFleetLocation = FVector(-50000, 0, 50);
+
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -10000, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -20000, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -30000, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -40000, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, 10000, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, 20000, 0));
+	AFlareSpacecraft* ShipPawn = CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, 30000, 0));
+	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, 40000, 0));
+
+	// Player ship
+	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
+
+
+	// Enemy
+	UFlareCompany* UglyPirates= CreateCompany("Ugly pirates");
+
+	FVector BaseEnemyFleetLocation = FVector(600000, 0, -50);
+	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 0, 0));
+	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -10000, 0));
+	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -20000, 0));
+	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -30000, 0));
+	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 10000, 0));
+	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 20000, 0));
+	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 30000, 0));
+
+	// Bombers
+	float BomberDistance = 800000;
+
+	SetDefaultWeapon(FName("weapon-wyrm"));
+	CreateShip("ship-orca", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, 0, 0));
+	CreateShip("ship-orca", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, -20000, 0));
+	CreateShip("ship-orca", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance	, 20000, 0));
+}
+
 
 void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData)
 {
@@ -344,15 +385,6 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData)
 	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
 }
 
-void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData)
-{
-	// Enemy
-	CreateCompany("Evil Corp");
-
-	// Player ship
-	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
-	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
-}
 
 AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {
