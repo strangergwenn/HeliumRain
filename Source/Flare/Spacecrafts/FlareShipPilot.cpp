@@ -540,8 +540,13 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	}
 
 
-	// Anticollision
-	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
+	// Manage orbital boost
+	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
+	{
+		UseOrbitalBoost = false;
+	}
+
+
 
 
 
@@ -553,11 +558,23 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		// Turn to direction
 
 
-	// Manage orbital boost
-	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
+
+
+	float TimeSinceDamage = Ship->GetDamageSystem()->GetTimeSinceLastExternalDamage();
+	//FLOGV("%s Pilot TimeSinceDamage %f", *Ship->GetImmatriculation(), TimeSinceDamage);
+
+	if(TimeSinceDamage < 5.)
 	{
-		UseOrbitalBoost = false;
+		UseOrbitalBoost = true;
+		FVector NoseAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
+		//FLOGV("%s Pilot LinearTargetVelocity %s", *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
+		LinearTargetVelocity = LinearTargetVelocity.GetUnsafeNormal() * 0.5 + NoseAxis * 0.5 *  Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 3.0;
+		//FLOGV("%s Pilot After boost LinearTargetVelocity %s", *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 	}
+
+	// Anticollision
+	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
+
 
 	if (ClearTarget)
 	{

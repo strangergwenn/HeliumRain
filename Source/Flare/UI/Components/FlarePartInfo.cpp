@@ -144,7 +144,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 		FString Power = "";
 		switch(Desc->WeaponCharacteristics.DamageType)
 		{
-			case EFlareShellDamageType::ArmourPiercing:
+			case EFlareShellDamageType::ArmorPiercing:
 				Power = FString::FromInt(Desc->WeaponCharacteristics.GunCharacteristics.KineticEnergy);
 				break;
 			case EFlareShellDamageType::HEAT:

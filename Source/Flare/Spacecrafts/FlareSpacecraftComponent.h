@@ -68,7 +68,7 @@ namespace EFlareShellDamageType
 	enum Type
 	{
 		HighExplosive, // Explosion send shell pieces around at hight velocity.
-		ArmourPiercing, // Not explosive shell, The damage are done by kinetic energy. Classique bullets.
+		ArmorPiercing, // Not explosive shell, The damage are done by kinetic energy. Classique bullets.
 		HEAT, // Heat Explosive Anti Tank. The explosion is focalized in a hot beam of metal melting armor.
 	};
 }
@@ -569,9 +569,9 @@ protected:
 
 	public:
 
-		/*----------------------------------------------------
-			Getters
-		----------------------------------------------------*/
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
 	virtual AFlareSpacecraft* GetSpacecraft() const
 	{
 		return Spacecraft;

@@ -251,7 +251,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		float ShellEnergy = 0.5f * ShellMass * ImpactVelocity.SizeSquared() / 1000; // Damage in KJ
 		
 
-		float AbsorbedEnergy = ApplyDamage(HitResult.Actor.Get(), HitResult.GetComponent(), HitResult.Location, ImpactVelocityAxis, HitResult.ImpactNormal, ShellEnergy, ShellDescription->WeaponCharacteristics.AmmoDamageRadius);
+		float AbsorbedEnergy = ApplyDamage(HitResult.Actor.Get(), HitResult.GetComponent(), HitResult.Location, ImpactVelocityAxis, HitResult.ImpactNormal, ShellEnergy, ShellDescription->WeaponCharacteristics.AmmoDamageRadius, EFlareDamage::DAM_ArmorPiercing);
 		bool Richochet = (AbsorbedEnergy < ShellEnergy);
 
 		if (Richochet)
@@ -271,7 +271,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 				AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(HitResult.Actor.Get());
 				if (Spacecraft)
 				{
-					Spacecraft->GetDamageSystem()->ApplyDamage(ShellDescription->WeaponCharacteristics.ExplosionPower , ShellDescription->WeaponCharacteristics.AmmoDamageRadius, HitResult.Location);
+					Spacecraft->GetDamageSystem()->ApplyDamage(ShellDescription->WeaponCharacteristics.ExplosionPower , ShellDescription->WeaponCharacteristics.AmmoDamageRadius, HitResult.Location, EFlareDamage::DAM_HEAT);
 
 					float ImpulseForce = 3000 * ShellDescription->WeaponCharacteristics.ExplosionPower * ShellDescription->WeaponCharacteristics.AmmoDamageRadius;
 
@@ -420,7 +420,8 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 										, HitDirection
 										, BestHitResult.ImpactNormal
 										, FragmentPowerEffet * ShellDescription->WeaponCharacteristics.ExplosionPower
-										, FragmentRangeEffet  * ShellDescription->WeaponCharacteristics.AmmoDamageRadius);
+										, FragmentRangeEffet  * ShellDescription->WeaponCharacteristics.AmmoDamageRadius
+										, EFlareDamage::DAM_HighExplosive);
 
 							// Play sound
 							AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
@@ -440,7 +441,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 	Destroy();
 }
 
-float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius)
+float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius, EFlareDamage::Type DamageType)
 {
 	float Incidence = FVector::DotProduct(ImpactNormal, -ImpactAxis);
 	float RemainingArmor = -1; // Negative value means undestructible
@@ -476,7 +477,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(ActorToDamage);
 	if (Spacecraft)
 	{
-		Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, ImpactRadius, ImpactLocation);
+		Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, ImpactRadius, ImpactLocation, DamageType);
 
 		// Physics impulse
 		Spacecraft->Airframe->AddImpulseAtLocation( 5000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);

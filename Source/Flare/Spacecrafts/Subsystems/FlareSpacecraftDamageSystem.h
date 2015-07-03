@@ -21,6 +21,21 @@ namespace EFlareSubsystem
 	};
 }
 
+/** Damage Type */
+UENUM()
+namespace EFlareDamage
+{
+	enum Type
+	{
+		DAM_None,
+		DAM_Collision,
+		DAM_Overheat,
+		DAM_HighExplosive,
+		DAM_ArmorPiercing,
+		DAM_HEAT,
+	};
+}
+
 /** Spacecraft damage system class */
 UCLASS()
 class FLARE_API UFlareSpacecraftDamageSystem : public UObject
@@ -81,7 +96,7 @@ public:
 
 	virtual void OnCollision(class AActor* Other, FVector HitLocation, FVector NormalImpulse);
 
-	virtual void ApplyDamage(float Energy, float Radius, FVector Location);
+	virtual void ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType);
 
 
 
@@ -102,4 +117,14 @@ protected:
 	FFlareSpacecraftDescription*                    Description;
 	TArray<UActorComponent*>                        Components;
 	bool                                            WasAlive; // True if was alive at the last tick
+	float											TimeSinceLastExternalDamage;
+
+public:
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+	virtual float GetTimeSinceLastExternalDamage() const
+	{
+		return TimeSinceLastExternalDamage;
+	}
 };

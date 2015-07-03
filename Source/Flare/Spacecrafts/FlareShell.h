@@ -31,7 +31,7 @@ public:
 
 	bool Trace(const FVector& Start, const FVector& End, FHitResult& HitOut);
 
-	virtual float ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* ImpactComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius);
+	virtual float ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* ImpactComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius, EFlareDamage::Type DamageType);
 
 	virtual void SetFuzeTimer(float TargetSecureTime, float TargetActiveTime);
 

@@ -93,6 +93,8 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		WasAlive = false;
 		OnControlLost();
 	}
+
+	TimeSinceLastExternalDamage += DeltaSeconds;
 }
 
 void UFlareSpacecraftDamageSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft, FFlareSpacecraftSave* OwnerData)
@@ -132,6 +134,7 @@ void UFlareSpacecraftDamageSystem::Start()
 
 	// Init alive status
 	WasAlive = IsAlive();
+	TimeSinceLastExternalDamage = 10000;
 }
 
 
@@ -277,10 +280,10 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 
 
 	}
-	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location);
+	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location, EFlareDamage::DAM_Collision);
 }
 
-void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location)
+void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType)
 {
 	// The damages are applied to all component touching the sphere defined by the radius and the
 	// location in parameter.
@@ -320,6 +323,20 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 
 	// Heat the ship
 	Data->Heat += Energy;
+
+	switch (DamageType) {
+	case EFlareDamage::DAM_ArmorPiercing:
+	case EFlareDamage::DAM_HighExplosive:
+	case EFlareDamage::DAM_HEAT:
+		//FLOGV("%s Reset TimeSinceLastExternalDamage", *Spacecraft->GetImmatriculation());
+		TimeSinceLastExternalDamage = 0;
+		break;
+	case EFlareDamage::DAM_Collision:
+	case EFlareDamage::DAM_Overheat:
+	default:
+		// Don't reset timer
+		break;
+	}
 }
 
 void UFlareSpacecraftDamageSystem::OnElectricDamage(float DamageRatio)
