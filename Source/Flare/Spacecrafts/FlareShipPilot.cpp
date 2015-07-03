@@ -407,7 +407,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	// 0 - Prepare attack : change velocity to approch the target
 	// 1 - Attacking : target is approching
 	// 2 - Withdraw : target is passed, wait a security distance to attack again
-	float SecurityDistance = (DangerousTarget ? 600: 300) + TargetSize * 4;
+	float SecurityDistance = (DangerousTarget ? 1200: 800) + TargetSize * 4;
 	bool ClearTarget = false;
 	if (AttackPhase == 0)
 	{
@@ -420,6 +420,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		else
 		{
 			LinearTargetVelocity = PredictedFireTargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			UseOrbitalBoost = true;
 		}
 
 		if (Distance < SecurityDistance)
@@ -431,7 +432,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	if (AttackPhase == 1)
 	{
-		if (LastTargetDistance < Distance)
+		if (LastTargetDistance < Distance) // TODO : check if I can't use dot product
 		{
 			// Target is passed
 			AttackPhase = 2;
@@ -442,15 +443,13 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 			FVector TopVector = Ship->GetActorRotation().RotateVector(FVector(0,0,AttackDistance));
 			FVector AttackMargin =  AttackDistanceQuat.RotateVector(TopVector);
 
+
+			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+
 			if (Distance > SecurityDistance || DangerousTarget)
 			{
-				LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+				UseOrbitalBoost = true;
 			}
-			else
-			{
-				LinearTargetVelocity = PilotTargetShip->GetLinearVelocity() + (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity() / 4.0;
-			}
-			UseOrbitalBoost = true;
 		}
 
 		LastTargetDistance = Distance;
@@ -466,14 +465,10 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 		else
 		{
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			if (DangerousTarget)
 			{
-				LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 				UseOrbitalBoost = true;
-			}
-			else
-			{
-				LinearTargetVelocity = PilotTargetShip->GetLinearVelocity() - DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity() / 4.0 ;
 			}
 		}
 	}
