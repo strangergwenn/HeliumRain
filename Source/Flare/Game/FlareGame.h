@@ -181,7 +181,9 @@ public:
 	UFUNCTION(exec)
 	void CreateAsteroid(int32 ID);
 
-
+	/** Empty the world. Let only the current played ship and its company */
+	UFUNCTION(exec)
+	virtual void EmptyWorld();
 
 	/*----------------------------------------------------
 		Immatriculations

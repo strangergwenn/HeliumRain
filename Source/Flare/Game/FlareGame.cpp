@@ -1100,6 +1100,58 @@ void AFlareGame::CreateAsteroid(int32 ID)
 	}
 }
 
+void AFlareGame::EmptyWorld()
+{
+	FLOG("AFlareGame::EmptyWorld");
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+
+	AFlareSpacecraft* CurrentPlayedShip = NULL;
+
+	if (PC)
+	{
+		// Current played ship
+		CurrentPlayedShip = PC->GetShipPawn();
+	}
+
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode() && SpacecraftCandidate != CurrentPlayedShip)
+		{
+			SpacecraftCandidate->Destroy();
+		}
+
+		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
+		if (BombCandidate)
+		{
+			BombCandidate->Destroy();
+		}
+
+		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
+		if (ShellCandidate)
+		{
+			ShellCandidate->Destroy();
+		}
+
+		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
+		if (AsteroidCandidate)
+		{
+			AsteroidCandidate->Destroy();
+		}
+	}
+
+	UFlareCompany* CurrentShipCompany = NULL;
+
+	if(CurrentPlayedShip)
+	{
+		CurrentShipCompany = CurrentPlayedShip->GetCompany();
+	}
+
+	Companies.Empty();
+	Companies.Add(CurrentShipCompany);
+}
+
 void AFlareGame::CreateAsteroidAt(int32 ID, FVector Location)
 {
 	if(ID >= GetAsteroidCatalog()->Asteroids.Num())
