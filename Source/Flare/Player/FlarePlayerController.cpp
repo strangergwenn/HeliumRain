@@ -380,6 +380,7 @@ void AFlarePlayerController::OnEnterMenu()
 
 		//Pause all gameplay actors
 		SetWorldPause(true);
+		MenuPawn->SetActorHiddenInGame(false);
 	}
 
 	GetNavHUD()->UpdateHUDVisibility();
@@ -389,11 +390,15 @@ void AFlarePlayerController::OnExitMenu()
 {
 	if (IsInMenu())
 	{
+		MenuPawn->SetActorHiddenInGame(true);
+		// Unpause all gameplay actors
+		SetWorldPause(false);
+
+
 		ClientPlaySound(OffSound);
 		Possess(ShipPawn);
 
-		// Unpause all gameplay actors
-		SetWorldPause(false);
+
 	}
 
 	GetNavHUD()->UpdateHUDVisibility();

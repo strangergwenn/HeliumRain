@@ -145,6 +145,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 		return;
 	}
 	Paused = Pause;
+	SetActorHiddenInGame(Paused);
 
 	CustomTimeDilation = (Paused ? 0.f : 1.0);
 	if (Paused)

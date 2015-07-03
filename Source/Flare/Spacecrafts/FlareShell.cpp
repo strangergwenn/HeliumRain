@@ -571,5 +571,6 @@ void AFlareShell::SetFuzeTimer(float TargetSecureTime, float TargetActiveTime)
 
 void AFlareShell::SetPause(bool Pause)
 {
+	SetActorHiddenInGame(Pause);
 	CustomTimeDilation = (Pause ? 0.f : 1.0);
 }
