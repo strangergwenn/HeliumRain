@@ -1158,7 +1158,12 @@ FVector UFlareShipPilot::AnticollisionCorrection(FVector InitialVelocity, float 
 		UStaticMeshComponent* StaticMeshComponent = NULL;
 
 		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode() && SpacecraftCandidate != Ship)
+		if (SpacecraftCandidate
+				&& !SpacecraftCandidate->IsPresentationMode()
+				&& SpacecraftCandidate != Ship
+				&& SpacecraftCandidate != SpacecraftToIgnore
+				&& !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate)
+				&& !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate))
 		{
 			//FLOGV("  -> test SpacecraftCandidate %s", *SpacecraftCandidate->GetImmatriculation());
 			StaticMeshComponent = SpacecraftCandidate->Airframe;
