@@ -112,6 +112,9 @@ public:
 	/** Create a ship or station in the level  for a specific company */
 	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
+	/** Add an asteroid to the world at a specific location */
+	void CreateAsteroidAt(int32 ID, FVector Location);
+
 	/** Load the world from this save file */
 	virtual bool LoadWorld(AFlarePlayerController* PC);
 
@@ -178,8 +181,6 @@ public:
 	UFUNCTION(exec)
 	void CreateAsteroid(int32 ID);
 
-	/** Add an asteroid to the world at a specific location */
-	void CreateAsteroidAt(int32 ID, FVector Location);
 
 
 	/*----------------------------------------------------
