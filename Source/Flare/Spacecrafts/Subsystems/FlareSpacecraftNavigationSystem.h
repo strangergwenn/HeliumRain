@@ -174,8 +174,6 @@ public:
 
 	virtual bool NavigateTo(FVector TargetLocation);
 
-	virtual FVector AnticollisionCorrection(FVector InitialVelocity, AFlareSpacecraft* DockingStation) const;
-
 	virtual AFlareSpacecraft* GetNearestShip(AFlareSpacecraft* DockingStation) const;
 
 	/*----------------------------------------------------

@@ -90,8 +90,6 @@ public:
 
 	virtual void FindBestHostileTarget();
 
-	virtual FVector AnticollisionCorrection(FVector InitialVelocity, float PreferedAttackAngle, AFlareSpacecraft* SpacecraftToIgnore = NULL) const;
-
 	virtual UFlareSpacecraftComponent* GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft);
 
 public:

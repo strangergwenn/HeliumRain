@@ -623,7 +623,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	if (Anticollision)
 	{
 		// During docking, lets the others avoid me
-		LinearTargetVelocity = AnticollisionCorrection(LinearTargetVelocity, AnticollisionDockStation);
+		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, AnticollisionDockStation);
 	}
 
 	/*FLOGV("AngularTargetVelocity=%s", *AngularTargetVelocity.ToString());
@@ -897,35 +897,6 @@ bool UFlareSpacecraftNavigationSystem::NavigateTo(FVector TargetLocation)
 	// Failed
 	FLOG("AFlareSpacecraft::NavigateTo failed : no path found");
 	return false;
-}
-
-FVector UFlareSpacecraftNavigationSystem::AnticollisionCorrection(FVector InitialVelocity,  AFlareSpacecraft* DockingStation) const
-{
-	AFlareSpacecraft* NearestShip = GetNearestShip(DockingStation);
-
-	if (NearestShip)
-	{
-		FVector DeltaLocation = NearestShip->GetActorLocation() - Spacecraft->GetActorLocation();
-		float Distance = FMath::Abs(DeltaLocation.Size() - NearestShip->GetMeshScale() *2) / 100.f; // Distance in meters
-
-
-
-
-		if (Distance < 50.f)
-		{
-
-			FQuat AvoidQuat = FQuat(DeltaLocation.GetUnsafeNormal(), AnticollisionAngle);
-			FVector Avoid =  AvoidQuat.RotateVector(FVector(0,0,NearestShip->GetMeshScale() *4. / 50. ));
-
-
-
-			// Below 100m begin avoidance maneuver
-			float Alpha = 1 - Distance/50.f;
-			return InitialVelocity * (1.f - Alpha) + Alpha * ((Avoid - DeltaLocation) .GetUnsafeNormal() * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity());
-		}
-	}
-
-	return InitialVelocity;
 }
 
 AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecraft* DockingStation) const
