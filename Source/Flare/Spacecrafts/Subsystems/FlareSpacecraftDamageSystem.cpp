@@ -154,6 +154,9 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			LOCTEXT("ShipDestroyedInfo", "You can switch to nearby ships with N."),
 			EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
 	}
+
+	Spacecraft->GetNavigationSystem()->Undock();
+	Spacecraft->GetNavigationSystem()->AbortAllCommands();
 }
 
 void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitLocation, FVector NormalImpulse)
