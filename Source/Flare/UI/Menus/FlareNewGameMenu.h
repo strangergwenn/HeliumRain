@@ -50,6 +50,15 @@ protected:
 	/** Start the game */
 	void OnLaunch();
 
+	/** Get the combo line headline */
+	FText OnGetCurrentComboLine() const;
+
+	/** Generate a combo box line */
+	TSharedRef<SWidget> OnGenerateComboLine(TSharedPtr<FString> Item);
+
+	/** Combo line selection changed */
+	void OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo);
+
 
 protected:
 
@@ -58,16 +67,16 @@ protected:
 	----------------------------------------------------*/
 	
 	// Game data
-	AFlareGame*                              Game;
-	TWeakObjectPtr<class AFlareMenuManager>  MenuManager;
+	AFlareGame*                                 Game;
+	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
 	
 	// Slate widgets
-	TSharedPtr<SEditableText>                CompanyName;
-	TSharedPtr<SFlareColorPanel>             ColorBox;
+	TSharedPtr<SEditableText>                   CompanyName;
+	TSharedPtr<SFlareColorPanel>                ColorBox;
 
 	// Scenario data
-	TSharedPtr<STextComboBox>                ScenarioSelector;
-	TArray<TSharedPtr<FString>>              ScenarioList;
+	TSharedPtr<SComboBox<TSharedPtr<FString> >> ScenarioSelector;
+	TArray<TSharedPtr<FString>>                 ScenarioList;
 
 
 };

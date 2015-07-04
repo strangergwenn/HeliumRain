@@ -110,26 +110,32 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				//// Color picker
-				//+ SVerticalBox::Slot()
-				//.Padding(Theme.ContentPadding)
-				//.AutoHeight()
-				//[
-				//	SAssignNew(ColorBox, SFlareColorPanel)
-				//	.MenuManager(MenuManager)
-				//]
+				// Color picker
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SAssignNew(ColorBox, SFlareColorPanel)
+					.MenuManager(MenuManager)
+				]
 
 				// Scenario
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
 				[
-					SAssignNew(ScenarioSelector, STextComboBox)
+					SAssignNew(ScenarioSelector, SComboBox<TSharedPtr<FString>>)
 					.OptionsSource(&ScenarioList)
 					.InitiallySelectedItem(ScenarioList[0])
+					.OnGenerateWidget(this, &SFlareNewGameMenu::OnGenerateComboLine)
+					.OnSelectionChanged(this, &SFlareNewGameMenu::OnComboLineSelectionChanged)
 					.ComboBoxStyle(&Theme.ComboBoxStyle)
-					.Font(Theme.TextFont.Font)
-					.ColorAndOpacity(Color)
+					.ForegroundColor(FLinearColor::Red)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareNewGameMenu::OnGetCurrentComboLine)
+						.TextStyle(&Theme.TextFont)
+					]
 				]
 
 				// Start
@@ -171,7 +177,7 @@ void SFlareNewGameMenu::Enter()
 	{
 		FFlarePlayerSave Data;
 		PC->Save(Data);
-		//ColorBox->Setup(Data);
+		ColorBox->Setup(Data);
 	}
 }
 
@@ -201,6 +207,26 @@ void SFlareNewGameMenu::OnLaunch()
 		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, PC->GetShipPawn());
 	}
 }
+
+FText SFlareNewGameMenu::OnGetCurrentComboLine() const
+{
+	TSharedPtr<FString> Item = ScenarioSelector->GetSelectedItem();
+	return Item.IsValid() ? FText::FromString(*Item) : FText::FromString(*ScenarioList[0]);
+}
+
+TSharedRef<SWidget> SFlareNewGameMenu::OnGenerateComboLine(TSharedPtr<FString> Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(STextBlock)
+	.Text(FText::FromString(*Item))
+	.TextStyle(&Theme.TextFont);
+}
+
+void SFlareNewGameMenu::OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo)
+{
+}
+
 
 
 #undef LOCTEXT_NAMESPACE
