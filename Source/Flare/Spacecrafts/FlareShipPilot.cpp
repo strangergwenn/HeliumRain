@@ -1115,6 +1115,18 @@ void UFlareShipPilot::FindBestHostileTarget()
 			TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::L);
 		}
 	}
+	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
+	{
+		//TODO if has AA turret, follow S
+		//FLOGV("%s Has turret",  *Ship->GetImmatriculation());
+		TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::L);
+		if (!TargetCandidate)
+		{
+			//FLOGV("%s no S target search L",  *Ship->GetImmatriculation());
+			TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::S);
+		}
+	}
+
 
 	if (TargetCandidate)
 	{
