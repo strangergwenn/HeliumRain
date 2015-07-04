@@ -67,7 +67,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 		// Separator
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(200, 30))
+		.Padding(FMargin(200, 20))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]

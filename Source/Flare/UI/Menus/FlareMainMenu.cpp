@@ -84,7 +84,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		// Separator
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(200, 30))
+		.Padding(FMargin(200, 20))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
@@ -297,7 +297,8 @@ void SFlareMainMenu::OnDeleteSlot(TSharedPtr<int32> Index)
 
 void SFlareMainMenu::OnOpenSettings()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
+	MenuManager->Notify(LOCTEXT("Unavailable", "Unavailable feature !"), LOCTEXT("Info", "The full game will release later :)"));
+	//MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
 }
 
 void SFlareMainMenu::OnQuitGame()

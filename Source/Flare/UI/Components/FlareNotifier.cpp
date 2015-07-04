@@ -20,7 +20,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Right)
 	[
 		SNew(SBox)
-		.HeightOverride(700)
+		.HeightOverride(900)
 		.VAlign(VAlign_Bottom)
 		[
 			SAssignNew(NotificationContainer, SVerticalBox)

@@ -50,7 +50,7 @@ public:
 	void ShowLoadingScreen();
 
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo);
+	void Notify(FText Text, FText Info, EFlareNotification::Type Type = EFlareNotification::NT_General, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL);
 
 	/** Remvoe all notifications from the screen */
 	void FlushNotifications();

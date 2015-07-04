@@ -83,7 +83,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		// Separator
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(200, 30))
+		.Padding(FMargin(200, 20))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
@@ -284,7 +284,9 @@ void SFlareDashboard::OnConfigureShip()
 
 void SFlareDashboard::OnOrbit()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+	// TODO M4
+	MenuManager->Notify(LOCTEXT("Unavailable", "Unavailable feature !"), LOCTEXT("Info", "The full game will release later :)"));
+	//MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 }
 
 void SFlareDashboard::OnUndock()
