@@ -980,7 +980,7 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 {
 	//FLOGV("%s FlagShipPilot",  *Ship->GetImmatriculation());
 
-	// Go to a random point at 1000 m from the target
+	// Go to a random point at 800 m from the target
 
 	// If at less than 50 m from this point, get another random point
 
@@ -1010,7 +1010,7 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	if (NewTargetLocation || PilotTargetLocation.IsZero())
 	{
 
-		PilotTargetLocation = FMath::VRand() * FMath::FRand() * 100000 + PilotTargetShip->GetActorLocation();
+		PilotTargetLocation = FMath::VRand() * FMath::FRand() * 80000 + PilotTargetShip->GetActorLocation();
 		//FLOGV("%s FlagShipPilot NewTargetLocation %d",  *Ship->GetImmatriculation(), NewTargetLocation);
 	}
 
