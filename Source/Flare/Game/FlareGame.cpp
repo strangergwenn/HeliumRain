@@ -317,14 +317,20 @@ void AFlareGame::InitPeacefulScenario(FFlarePlayerSave* PlayerData)
 
 	FVector BaseFleetLocation = FVector(-59940, 275780, 75350);
 
+	SetDefaultTurret(FName("weapon-hades-heat"));
 	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BaseFleetLocation);
+
+	SetDefaultTurret(FName("weapon-artemis"));
 	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(0, 20000, 0));
 	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(0, -20000, 0));
+
+	SetDefaultWeapon(FName("weapon-wyrm"));
 	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(10000, -15000, 0));
 	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(10000, 15000, 0));
 	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-10000, -15000, 0));
 	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-10000, 15000, 0));
 
+	SetDefaultWeapon(FName("weapon-eradicator"));
 	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(20000, 0, 0));
 	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(18000, -10000, 0));
 	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(18000, 10000, 0));
@@ -340,6 +346,7 @@ void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData)
 
 	FVector BaseAllyFleetLocation = FVector(-50000, 0, 50);
 
+	SetDefaultWeapon(FName("weapon-eradicator"));
 	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -10000, 0));
 	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -20000, 0));
 	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -30000, 0));
@@ -354,35 +361,159 @@ void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData)
 
 
 	// Enemy
-	UFlareCompany* UglyPirates= CreateCompany("Ugly pirates");
+	UFlareCompany* MiningSyndicate= CreateCompany("Mining Syndicate");
 
 	FVector BaseEnemyFleetLocation = FVector(600000, 0, -50);
-	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 0, 0));
-	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -10000, 0));
-	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -20000, 0));
-	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -30000, 0));
-	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 10000, 0));
-	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 20000, 0));
-	CreateShip("ship-ghoul", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 30000, 0));
+
+	SetDefaultWeapon(FName("weapon-eradicator"));
+	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 0, 0));
+	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -10000, 0));
+	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -20000, 0));
+	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -30000, 0));
+	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 10000, 0));
+	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 20000, 0));
+	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 30000, 0));
 
 	// Bombers
 	float BomberDistance = 800000;
 
 	SetDefaultWeapon(FName("weapon-wyrm"));
-	CreateShip("ship-orca", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, 0, 0));
-	CreateShip("ship-orca", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, -20000, 0));
-	CreateShip("ship-orca", UglyPirates->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance	, 20000, 0));
+	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, 0, 0));
+	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, -20000, 0));
+	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance	, 20000, 0));
 }
 
 
 void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData)
 {
-	// Enemy
-	CreateCompany("Evil Corp");
 
-	// Player ship
-	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
-	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
+	// The goal is to attack an heavily defended enemy base
+
+	// A third neutral company have few station and a fleet and will attack you after the  hostile fleet
+
+
+	// The player army have this composition :
+
+	// - 16 Ghoul/Eradicator to destroy enemy fighter un 2 wave (0km / 2 km)
+	// - 8 bombers to destroy enemy invader quickly (3 km)
+	// - 1 support invader (refill and repair) : HEAT/Hades (8 km)
+	// - 2 attack dragon : 1 AA/Artemis and 1 Hades (4 km but slow)
+
+	// The Alliance Shipbuiding base have :
+
+	// - 3 Hub station
+	// - 6 Outpost
+	// - 8 asteroid
+	// - 5 omen
+
+	// - 10 Ghoul/Eradicator
+	// - 3 Orca/Eradicator
+	// - 1 Invader/Artemis
+	// - 2 Dragon/Hades HEAT
+
+
+	// The Helix have a small base at 8 km
+
+	// - 1 Hub station
+	// - 2 Outpost
+	// - 1 asteroid
+	// - 3 omen
+
+	// But small but powerfull army
+	// - 5 Orca/Eradicator
+	// - 1 Invader/Hades HEAT
+	// - 1 Dragon/Hades
+
+	// The Helix team will attack when the Alliance is destroyed
+
+
+	// Companies
+	UFlareCompany* AllianceShipbuilding = CreateCompany("Alliance Shipbuilding");
+	UFlareCompany* Helix = CreateCompany("Helix");
+
+
+	// AllianceShipbuilding base
+	FVector BaseAllianceShipbuildingBaseLocation = FVector(0, 0, 0);
+	CreateStation("station-hub", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation + FVector(0, 0, 0), FRotator(-92, 166, -11));
+	CreateStation("station-hub", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation + FVector(110944, -1156, 159247), FRotator(12, 139, 119));
+	CreateStation("station-hub", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation + FVector(104117, 171446, 153713), FRotator(63, 57, -68));
+	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation + FVector(97886, -53237, -23485), FRotator(93,-154 ,-45));
+	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(-122594, -22054, -74239), FRotator(-165, -111, 84));
+	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(-79444, -36365, -73637), FRotator(36, -74, 14));
+	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(40752, -91781, -158555), FRotator(97, -2, -152));
+	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(163550, -139760, -25490), FRotator(134, 132, -153));
+
+	CreateAsteroidAt(0, FVector(73107, 74094, 97755));
+	CreateAsteroidAt(1, FVector(12946, 18884, 23809));
+	CreateAsteroidAt(2, FVector(-51672, 87149, -52379));
+	CreateAsteroidAt(0, FVector(93095, 92590, 32988));
+	CreateAsteroidAt(1, FVector(85846, 24798, -770));
+	CreateAsteroidAt(2, FVector(19864, -61543, 88115));
+	CreateAsteroidAt(0, FVector(128166, 76403, 149982));
+	CreateAsteroidAt(1, FVector(-148056, -145663, 126968));
+
+
+
+	// AllianceShipbuilding fleet
+	FVector BaseAllianceShipbuildingFleetLocation = FVector(300000, 200000, 50000);
+
+	SetDefaultWeapon(FName("weapon-eradicator"));
+	for(int i = 0; i < 5; i++)
+	{
+		CreateShip("ship-ghoul", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(10000 * i , 0, 30000));
+		CreateShip("ship-ghoul", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(10000 * i , 10000, -10000));
+	}
+
+	SetDefaultWeapon(FName("weapon-eradicator"));
+	for(int i = 0; i < 3; i++)
+	{
+		CreateShip("ship-orca", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(10000 * i , -10000, 5000));
+	}
+
+	SetDefaultTurret(FName("weapon-artemis"));
+	CreateShip("ship-invader", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(0, -30000, -200000));
+	SetDefaultTurret(FName("weapon-hades-heat"));
+	CreateShip("ship-dragon", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(20000, -30000, 15000));
+	CreateShip("ship-dragon", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(40000, -30000, 15000));
+
+
+
+	// Player army
+	FVector BasePlayerFleetLocation = FVector(-800000, 0, 0);
+
+	SetDefaultWeapon(FName("weapon-eradicator"));
+
+	for(int i = -4; i < 4; i++) // 8
+	{
+		CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(0 , 8000 * i, -5000));
+	}
+
+	for(int i = -4; i < 4; i++) // 8
+	{
+		AFlareSpacecraft* ShipPawn = CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-100000, 10000 * i , 5000));
+		if( i == 0)
+		{
+			// Player ship
+			PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
+		}
+	}
+	SetDefaultWeapon(FName("weapon-wyrm"));
+	for(int i = -4; i < 4; i++) // 8
+	{
+		CreateShip("ship-orca", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector( -300000, 30000 * i, 0));
+	}
+
+
+	SetDefaultTurret(FName("weapon-hades-heat"));
+	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-600000, 30000, 10000));
+
+	SetDefaultTurret(FName("weapon-artemis"));
+	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-600000, -30000, -9000));
+
+	SetDefaultTurret(FName("weapon-hades-heat"));
+	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-800000, 0, 20000));
+
+
 }
 
 
