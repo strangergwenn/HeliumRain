@@ -155,6 +155,11 @@ bool UFlareSpacecraftDockingSystem::HasAvailableDock(IFlareSpacecraftInterface* 
 	// Looking for slot
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
+		if (DockingSlots[i].DockSize != Ship->GetSize())
+		{
+			continue;
+		}
+
 		if (!DockingSlots[i].Granted)
 		{
 			return true;
