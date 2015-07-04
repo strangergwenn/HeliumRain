@@ -944,7 +944,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		else
 		{
 			// Follow the leader
-			float FollowRadius = 50000 + FMath::Pow(Ship->GetCompany()->GetCompanyShips().Num() * 3 * FMath::Pow(20000, 3),1/3.);
+			float FollowRadius = 50000 + FMath::Pow(Ship->GetCompany()->GetCompanyShips().Num() * 3 * FMath::Pow(10000, 3),1/3.);
 			if((LeaderShip->GetActorLocation() - Ship->GetActorLocation()).Size() < FollowRadius)
 			{
 				LinearTargetVelocity = LeaderShip->GetLinearVelocity();
