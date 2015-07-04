@@ -148,7 +148,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 		if (ShipComponent && ShipComponent->IsVisibleByPlayer() && ExplosionEffectMaterial)
 		{
 			// FX data
-			float DecalSize = FMath::FRandRange(60, 90);
+			float DecalSize = FMath::FRandRange(50, 150);
 
 			UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
 				ExplosionEffectMaterial,
