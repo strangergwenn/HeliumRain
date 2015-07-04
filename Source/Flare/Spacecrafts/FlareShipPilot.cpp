@@ -1110,10 +1110,7 @@ void UFlareShipPilot::FindBestHostileTarget()
 	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_GUN))
 	{
 		TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::S);
-		if (!TargetCandidate)
-		{
-			TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::L);
-		}
+		// Don't attack L not dangerous target with gun
 	}
 	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
 	{
