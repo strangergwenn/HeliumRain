@@ -111,13 +111,13 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				]
 
 				// Color picker
-				+ SVerticalBox::Slot()
-				.Padding(Theme.ContentPadding)
-				.AutoHeight()
-				[
-					SAssignNew(ColorBox, SFlareColorPanel)
-					.MenuManager(MenuManager)
-				]
+				//+ SVerticalBox::Slot()
+				//.Padding(Theme.ContentPadding)
+				//.AutoHeight()
+				//[
+				//	SAssignNew(ColorBox, SFlareColorPanel)
+				//	.MenuManager(MenuManager)
+				//]
 
 				// Scenario
 				+ SVerticalBox::Slot()
@@ -177,7 +177,7 @@ void SFlareNewGameMenu::Enter()
 	{
 		FFlarePlayerSave Data;
 		PC->Save(Data);
-		ColorBox->Setup(Data);
+		//ColorBox->Setup(Data);
 	}
 }
 
