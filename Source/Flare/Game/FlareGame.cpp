@@ -258,6 +258,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 	// Player company
 	UFlareCompany* Company = CreateCompany(CompanyName);
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
+	PlayerData.ScenarioId = ScenarioIndex;
 	PC->SetCompany(Company);
 
 	switch(ScenarioIndex)
@@ -397,7 +398,7 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 	// The player army have this composition :
 
 	// - 16 Ghoul/Eradicator to destroy enemy fighter un 2 wave (0km / 2 km)
-	// - 8 bombers to destroy enemy invader quickly (3 km)
+	// - 10 bombers to destroy enemy invader quickly (3 km)
 	// - 1 support invader (refill and repair) : HEAT/Hades (8 km)
 	// - 2 attack dragon : 1 AA/Artemis and 1 Hades (4 km but slow)
 
@@ -445,14 +446,14 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(40752, -91781, -158555), FRotator(97, -2, -152));
 	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(163550, -139760, -25490), FRotator(134, 132, -153));
 
-	CreateAsteroidAt(0, FVector(73107, 74094, 97755));
-	CreateAsteroidAt(1, FVector(12946, 18884, 23809));
-	CreateAsteroidAt(2, FVector(-51672, 87149, -52379));
-	CreateAsteroidAt(0, FVector(93095, 92590, 32988));
-	CreateAsteroidAt(1, FVector(85846, 24798, -770));
-	CreateAsteroidAt(2, FVector(19864, -61543, 88115));
-	CreateAsteroidAt(0, FVector(128166, 76403, 149982));
-	CreateAsteroidAt(1, FVector(-148056, -145663, 126968));
+	CreateAsteroidAt(0, BaseAllianceShipbuildingBaseLocation + FVector(73107, 74094, 97755));
+	CreateAsteroidAt(1, BaseAllianceShipbuildingBaseLocation + FVector(12946, 18884, 23809));
+	CreateAsteroidAt(2, BaseAllianceShipbuildingBaseLocation + FVector(-51672, 87149, -52379));
+	CreateAsteroidAt(0, BaseAllianceShipbuildingBaseLocation + FVector(93095, 92590, 32988));
+	CreateAsteroidAt(1, BaseAllianceShipbuildingBaseLocation + FVector(85846, 24798, -770));
+	CreateAsteroidAt(2, BaseAllianceShipbuildingBaseLocation + FVector(19864, -61543, 88115));
+	CreateAsteroidAt(0, BaseAllianceShipbuildingBaseLocation + FVector(128166, 76403, 149982));
+	CreateAsteroidAt(1, BaseAllianceShipbuildingBaseLocation + FVector(-148056, -145663, 126968));
 
 
 
@@ -480,8 +481,31 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 
 
 
+	// Helix base
+	FVector BaseHelixBaseLocation = FVector(-300000, 100000, 600000);
+	CreateStation("station-hub", Helix->GetIdentifier(), BaseHelixBaseLocation + FVector(0, 0, 0), FRotator(154, 142, 123));
+	CreateStation("station-outpost", Helix->GetIdentifier(), BaseHelixBaseLocation + FVector(-12639, 47480, 3364), FRotator(42, -147, 13));
+	CreateStation("station-outpost", Helix->GetIdentifier(), BaseHelixBaseLocation +  FVector(4274, 40997, 44388), FRotator(37, 27, -175));
+
+	CreateAsteroidAt(0, BaseHelixBaseLocation	+ FVector(25491, -38851, -26195));
+
+	// Helix fleet
+	FVector BaseHelixFleetLocation = BaseHelixBaseLocation + FVector(100000, 0, 0);
+	SetDefaultWeapon(FName("weapon-eradicator"));
+	for(int i = 0; i < 5; i++)
+	{
+		CreateShip("ship-orca", Helix->GetIdentifier() , BaseHelixFleetLocation + FVector(10000 * i , -10000, 5000));
+	}
+
+
+	SetDefaultTurret(FName("weapon-hades-heat"));
+	CreateShip("ship-invader", Helix->GetIdentifier() , BaseHelixFleetLocation + FVector(0, -30000, -200000));
+	SetDefaultTurret(FName("weapon-hades"));
+	CreateShip("ship-dragon", Helix->GetIdentifier() , BaseHelixFleetLocation + FVector(20000, -30000, 15000));
+
+
 	// Player army
-	FVector BasePlayerFleetLocation = FVector(-800000, 0, 0);
+	FVector BasePlayerFleetLocation = FVector(-600000, -200000, -50000);
 
 	SetDefaultWeapon(FName("weapon-eradicator"));
 
@@ -500,7 +524,7 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 		}
 	}
 	SetDefaultWeapon(FName("weapon-wyrm"));
-	for(int i = -4; i < 4; i++) // 8
+	for(int i = -5; i < 5; i++) // 8
 	{
 		CreateShip("ship-orca", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector( -300000, 30000 * i, 0));
 	}
@@ -515,7 +539,7 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 	SetDefaultTurret(FName("weapon-hades-heat"));
 	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-800000, 0, 20000));
 
-
+	DeclareWar(PlayerCompany->GetShortName(), AllianceShipbuilding->GetShortName());
 }
 
 
@@ -1328,8 +1352,9 @@ void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
 		}
 	}
 
-	if(Company1 && Company2)
+	if(Company1 && Company2 && Company1 != Company2)
 	{
+		FLOGV("Declare war between %s and %s", *Company1->GetCompanyName(), *Company2->GetCompanyName());
 		Company1->SetHostilityTo(Company2, true);
 		Company2->SetHostilityTo(Company1, true);
 	}

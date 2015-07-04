@@ -25,6 +25,8 @@ struct FFlarePlayerSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName CompanyIdentifier;
 
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 ScenarioId;
 };
 
 

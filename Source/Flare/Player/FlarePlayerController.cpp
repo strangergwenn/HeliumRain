@@ -199,6 +199,49 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		EngineSoundVolume = 0;
 		RCSSoundVolume = 0;
 	}
+
+
+	// TODO MOVE
+	if(PlayerData.ScenarioId == 2)
+	{
+		TArray<UFlareCompany*> Companies = GetGame()->GetCompanies();
+		UFlareCompany* HelixCompany = NULL;
+		bool DeclareWar = false;
+		for(int i = 0; i < Companies.Num(); i++)
+		{
+			UFlareCompany* CompanyCandidate = Companies[i];
+
+			if(CompanyCandidate->GetShortName() == "hel")
+			{
+				HelixCompany = CompanyCandidate;
+			}
+			else if(CompanyCandidate->GetShortName() == "all")
+			{
+				int StationCount = 0;
+
+				for(int j = 0; j < CompanyCandidate->GetCompanyStations().Num(); j++)
+				{
+					AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(CompanyCandidate->GetCompanyStations()[j]);
+					if(Station->GetDamageSystem()->IsAlive())
+					{
+						StationCount++;
+					}
+				}
+				if(StationCount < 8) // One station has been destroyed
+				{
+					DeclareWar = true;
+				}
+			}
+		}
+
+		if(HelixCompany && DeclareWar)
+		{
+			if(HelixCompany->GetPlayerHostility() != EFlareHostility::Hostile)
+			{
+				GetGame()->DeclareWar(HelixCompany->GetShortName(), Company->GetShortName());
+			}
+		}
+	}
 }
 
 void AFlarePlayerController::UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume)

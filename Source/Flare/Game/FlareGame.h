@@ -187,11 +187,11 @@ public:
 
 	/** Make war between two company */
 	UFUNCTION(exec)
-	virtual void DeclareWar(FName Company1ShortName, FName Company2ShortName);
+	void DeclareWar(FName Company1ShortName, FName Company2ShortName);
 
 	/** Make peace two company */
 	UFUNCTION(exec)
-	virtual void MakePeace(FName Company1ShortName, FName Company2ShortName);
+	void MakePeace(FName Company1ShortName, FName Company2ShortName);
 
 	/*----------------------------------------------------
 		Immatriculations
@@ -286,6 +286,11 @@ public:
 			}
 		}
 		return NULL;
+	}
+
+	inline TArray<UFlareCompany*> GetCompanies() const
+	{
+		return Companies;
 	}
 
 	inline UClass* GetMenuPawnClass() const
