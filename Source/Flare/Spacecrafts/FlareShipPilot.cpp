@@ -102,7 +102,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 0.25)
 	{
 		// Go repair or refill ammo
-		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation();
+		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
 		if (TargetStation)
 		{
 			if (Ship->GetNavigationSystem()->DockAt(TargetStation))
@@ -848,7 +848,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 1)
 	{
 		// Go repair or refill ammo
-		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation();
+		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
 		if (TargetStation)
 		{
 			if (Ship->GetNavigationSystem()->DockAt(TargetStation))
@@ -926,7 +926,17 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 			if (TargetLocationToShipDistance < 50000 || PilotTargetLocation.IsZero())
 			{
-				PilotTargetLocation = FMath::VRand() * FMath::FRand() * 400000;
+				FVector PatrolCenter = FVector::ZeroVector;
+
+				// Use random station
+				AFlareSpacecraft* NearestStation =  GetNearestAvailableStation(true);
+
+				if(NearestStation)
+				{
+					PatrolCenter = NearestStation->GetActorLocation();
+				}
+
+				PilotTargetLocation = PatrolCenter + FMath::VRand() * FMath::FRand() * 400000;
 			}
 			LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 0.8;
 
@@ -1303,7 +1313,7 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 }
 
 
-AFlareSpacecraft* UFlareShipPilot::GetNearestAvailableStation() const
+AFlareSpacecraft* UFlareShipPilot::GetNearestAvailableStation(bool RealStation) const
 {
 	FVector PilotLocation = Ship->GetActorLocation();
 	float MinDistanceSquared = -1;
@@ -1313,15 +1323,19 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestAvailableStation() const
 	{
 		// Ship
 		AFlareSpacecraft* StationCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (StationCandidate && StationCandidate->IsStation())
+		if (StationCandidate && StationCandidate != Ship)
 		{
-
-			if (StationCandidate->GetCompany() != Ship->GetCompany())
+			if (!StationCandidate->GetDockingSystem()->HasAvailableDock(Ship))
 			{
 				continue;
 			}
 
-			if (!StationCandidate->GetDockingSystem()->HasAvailableDock(Ship))
+			if(RealStation && !StationCandidate->IsStation())
+			{
+				continue;
+			}
+
+			if (StationCandidate->GetCompany() != Ship->GetCompany())
 			{
 				continue;
 			}

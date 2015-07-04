@@ -75,7 +75,7 @@ public:
 	/**
 	* Return the nearest station where docking is available
 	*/
-	virtual AFlareSpacecraft* GetNearestAvailableStation() const;
+	virtual AFlareSpacecraft* GetNearestAvailableStation(bool RealStation) const;
 
 	/** Return all friendly station in the sector */
 	virtual TArray<AFlareSpacecraft*> GetFriendlyStations() const;
