@@ -95,8 +95,11 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		return;
 	}
 
-	// Ship is hs, go repair and refill
-	if (Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) <= 0)
+	// Weapon is hs, go repair and refill
+	if (Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) < 0.15
+		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, true) < 0.5
+		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 0.5
+		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 0.25)
 	{
 		// Go repair or refill ammo
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation();
