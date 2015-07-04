@@ -269,10 +269,10 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 			InitPeacefulScenario(&PlayerData);
 		break;
 		case 1: // Threatened
-			InitThreatenedScenario(&PlayerData);
+			InitThreatenedScenario(&PlayerData, Company);
 		break;
 		case 2: // Aggressive
-			InitAggresiveScenario(&PlayerData);
+			InitAggresiveScenario(&PlayerData, Company);
 		break;
 	}
 
@@ -339,7 +339,7 @@ void AFlareGame::InitPeacefulScenario(FFlarePlayerSave* PlayerData)
 	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-20000, 10000, 0));
 }
 
-void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData)
+void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany)
 {
 
 	CreateStation("station-hub", PlayerData->CompanyIdentifier, FVector(10000, -3000, -6000), FRotator(6, -16, 36));
@@ -381,10 +381,12 @@ void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData)
 	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, 0, 0));
 	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, -20000, 0));
 	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance	, 20000, 0));
+
+	DeclareWar(PlayerCompany->GetShortName(), MiningSyndicate->GetShortName());
 }
 
 
-void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData)
+void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany)
 {
 
 	// The goal is to attack an heavily defended enemy base
@@ -1307,6 +1309,57 @@ void AFlareGame::CreateAsteroidAt(int32 ID, FVector Location)
 
 }
 
+void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
+{
+	UFlareCompany* Company1 = NULL;
+	UFlareCompany* Company2 = NULL;
+
+	for(int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		if (Company && Company->GetShortName() == Company1ShortName)
+		{
+			Company1 = Company;
+		}
+
+		if (Company && Company->GetShortName() == Company2ShortName)
+		{
+			Company2 = Company;
+		}
+	}
+
+	if(Company1 && Company2)
+	{
+		Company1->SetHostilityTo(Company2, true);
+		Company2->SetHostilityTo(Company1, true);
+	}
+}
+
+void AFlareGame::MakePeace(FName Company1ShortName, FName Company2ShortName)
+{
+	UFlareCompany* Company1 = NULL;
+	UFlareCompany* Company2 = NULL;
+
+	for(int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		if (Company && Company->GetShortName() == Company1ShortName)
+		{
+			Company1 = Company;
+		}
+
+		if (Company && Company->GetShortName() == Company2ShortName)
+		{
+			Company2 = Company;
+		}
+	}
+
+	if(Company1 && Company2)
+	{
+		Company1->SetHostilityTo(Company2, false);
+		Company2->SetHostilityTo(Company1, false);
+	}
+}
 
 /*----------------------------------------------------
 	Immatriculations

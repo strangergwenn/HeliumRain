@@ -63,6 +63,10 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CustomizationPatternIndex;
 
+	/** Pattern index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FName> HostileCompanies;
+
 };
 
 
@@ -101,7 +105,9 @@ public:
 	virtual EFlareHostility::Type GetPlayerHostility() const;
 
 	/** Check if we are friend or foe toward this target company */
-	virtual EFlareHostility::Type GetHostility(UFlareCompany* TargetCompany) const;
+	virtual EFlareHostility::Type GetHostility(const UFlareCompany* TargetCompany) const;
+
+	virtual void SetHostilityTo(const UFlareCompany* TargetCompany, bool Hostile);
 
 	/** Get an info string for this company save */
 	virtual FText GetInfoText(bool Minimized);
@@ -149,7 +155,6 @@ protected:
 	FFlareCompanySave                       CompanyData;
 	TArray<IFlareSpacecraftInterface*>      CompanyStations;
 	TArray<IFlareSpacecraftInterface*>      CompanyShips;
-
 
 public:
 

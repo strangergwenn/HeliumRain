@@ -69,24 +69,39 @@ EFlareHostility::Type UFlareCompany::GetPlayerHostility() const
 
 	if (PC)
 	{
-		return GetHostility(PC->GetCompany());
+		return PC->GetCompany()->GetHostility(this);
 	}
 
 	return EFlareHostility::Neutral;
 }
 
-EFlareHostility::Type UFlareCompany::GetHostility(UFlareCompany* TargetCompany) const
+EFlareHostility::Type UFlareCompany::GetHostility(const UFlareCompany* TargetCompany) const
 {
 	if (TargetCompany == this)
 	{
 		return EFlareHostility::Owned;
 	}
-	else if (TargetCompany && true)// TODO hostility
+	else if (TargetCompany && CompanyData.HostileCompanies.Contains(TargetCompany->GetIdentifier()))
 	{
 		return EFlareHostility::Hostile;
 	}
 
 	return EFlareHostility::Neutral;
+}
+
+void UFlareCompany::SetHostilityTo(const UFlareCompany* TargetCompany, bool Hostile)
+{
+	if (TargetCompany && TargetCompany != this)
+	{
+		if(Hostile)
+		{
+			CompanyData.HostileCompanies.AddUnique(TargetCompany->GetIdentifier());
+		}
+		else
+		{
+			CompanyData.HostileCompanies.Remove(TargetCompany->GetIdentifier());
+		}
+	}
 }
 
 FText UFlareCompany::GetInfoText(bool Minimized)

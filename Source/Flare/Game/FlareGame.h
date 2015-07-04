@@ -97,10 +97,10 @@ public:
 	virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
 
 	/** Init world with threatened scenario */
-	virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData);
+	virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
 	/** Init world with aggresve scenario */
-	virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData);
+	virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
 
 	/** Create a station in the level  for a specific company */
@@ -184,6 +184,14 @@ public:
 	/** Empty the world. Let only the current played ship and its company */
 	UFUNCTION(exec)
 	virtual void EmptyWorld();
+
+	/** Make war between two company */
+	UFUNCTION(exec)
+	virtual void DeclareWar(FName Company1ShortName, FName Company2ShortName);
+
+	/** Make peace two company */
+	UFUNCTION(exec)
+	virtual void MakePeace(FName Company1ShortName, FName Company2ShortName);
 
 	/*----------------------------------------------------
 		Immatriculations
