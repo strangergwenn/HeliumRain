@@ -240,8 +240,11 @@ FFlareBombSave* AFlareBomb::Save()
 	// Physical data
 	BombData.Location = GetActorLocation();
 	BombData.Rotation = GetActorRotation();
-	BombData.LinearVelocity = BombComp->GetPhysicsLinearVelocity();
-	BombData.AngularVelocity = BombComp->GetPhysicsAngularVelocity();
+	if(!Paused)
+	{
+		BombData.LinearVelocity = BombComp->GetPhysicsLinearVelocity();
+		BombData.AngularVelocity = BombComp->GetPhysicsAngularVelocity();
+	}
 
 	//TODO Investigate on NULL ParentWeapon
 	if (ParentWeapon)
@@ -259,17 +262,18 @@ void AFlareBomb::SetPause(bool Pause)
 	{
 		return;
 	}
-	Paused = Pause;
-	SetActorHiddenInGame(Paused);
 
-	CustomTimeDilation = (Paused ? 0.f : 1.0);
-	if (Paused)
+	CustomTimeDilation = (Pause ? 0.f : 1.0);
+	if (Pause)
 	{
-		Save();
+		Save(); // Save must be performed with the old pause state
 	}
-	BombComp->SetSimulatePhysics(!Paused);
+	BombComp->SetSimulatePhysics(!Pause);
 
-	if (!Paused)
+	Paused = Pause;
+	SetActorHiddenInGame(Pause);
+
+	if (!Pause)
 	{
 		BombComp->SetPhysicsLinearVelocity(BombData.LinearVelocity);
 		BombComp->SetPhysicsAngularVelocity(BombData.AngularVelocity);

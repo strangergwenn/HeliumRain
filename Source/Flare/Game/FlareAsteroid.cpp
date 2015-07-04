@@ -47,8 +47,11 @@ FFlareAsteroidSave* AFlareAsteroid::Save()
 	// Physical data
 	AsteroidData.Location = GetActorLocation();
 	AsteroidData.Rotation = GetActorRotation();
-	AsteroidData.LinearVelocity = GetStaticMeshComponent()->GetPhysicsLinearVelocity();
-	AsteroidData.AngularVelocity = GetStaticMeshComponent()->GetPhysicsAngularVelocity();
+	if(!Paused)
+	{
+		AsteroidData.LinearVelocity = GetStaticMeshComponent()->GetPhysicsLinearVelocity();
+		AsteroidData.AngularVelocity = GetStaticMeshComponent()->GetPhysicsAngularVelocity();
+	}
 	
 	return &AsteroidData;
 }
@@ -59,17 +62,21 @@ void AFlareAsteroid::SetPause(bool Pause)
 	{
 		return;
 	}
-	Paused = Pause;
-	SetActorHiddenInGame(Paused);
 
-	CustomTimeDilation = (Paused ? 0.f : 1.0);
-	if (Paused)
+
+
+	CustomTimeDilation = (Pause ? 0.f : 1.0);
+	if (Pause)
 	{
-		Save();
+		Save(); // Save must be performed with the old pause state
 	}
-	GetStaticMeshComponent()->SetSimulatePhysics(!Paused);
 
-	if (!Paused)
+	GetStaticMeshComponent()->SetSimulatePhysics(!Pause);
+
+	Paused = Pause;
+	SetActorHiddenInGame(Pause);
+
+	if (!Pause)
 	{
 		GetStaticMeshComponent()->SetPhysicsLinearVelocity(AsteroidData.LinearVelocity);
 		GetStaticMeshComponent()->SetPhysicsAngularVelocity(AsteroidData.AngularVelocity);

@@ -144,18 +144,19 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	{
 		return;
 	}
-	Paused = Pause;
-	SetActorHiddenInGame(Paused);
 
-	CustomTimeDilation = (Paused ? 0.f : 1.0);
-	if (Paused)
+	CustomTimeDilation = (Pause ? 0.f : 1.0);
+	if (Pause)
 	{
-		Save();
+		Save(); // Save must be performed with the old pause state
 		FLOGV("%s save linear velocity : %s", *GetImmatriculation(), *ShipData.LinearVelocity.ToString());
 	}
-	Airframe->SetSimulatePhysics(!Paused);
+	Airframe->SetSimulatePhysics(!Pause);
 
-	if (!Paused)
+	Paused = Pause;
+	SetActorHiddenInGame(Pause);
+
+	if (!Pause)
 	{
 		FLOGV("%s restore linear velocity : %s", *GetImmatriculation(), *ShipData.LinearVelocity.ToString());
 		Airframe->SetPhysicsLinearVelocity(ShipData.LinearVelocity);
@@ -359,8 +360,11 @@ FFlareSpacecraftSave* AFlareSpacecraft::Save()
 	// Physical data
 	ShipData.Location = GetActorLocation();
 	ShipData.Rotation = GetActorRotation();
-	ShipData.LinearVelocity = Airframe->GetPhysicsLinearVelocity();
-	ShipData.AngularVelocity = Airframe->GetPhysicsAngularVelocity();
+	if(!IsPaused())
+	{
+		ShipData.LinearVelocity = Airframe->GetPhysicsLinearVelocity();
+		ShipData.AngularVelocity = Airframe->GetPhysicsAngularVelocity();
+	}
 
 	// Save all components datas
 	ShipData.Components.Empty();
