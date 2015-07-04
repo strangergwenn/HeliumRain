@@ -161,6 +161,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 		FLOGV("%s restore linear velocity : %s", *GetImmatriculation(), *ShipData.LinearVelocity.ToString());
 		Airframe->SetPhysicsLinearVelocity(ShipData.LinearVelocity);
 		Airframe->SetPhysicsAngularVelocity(ShipData.AngularVelocity);
+		SmoothedVelocity = GetLinearVelocity();
 	}
 }
 
