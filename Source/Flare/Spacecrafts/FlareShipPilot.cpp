@@ -839,6 +839,27 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	// TODO find better
 	UseOrbitalBoost = false;
 
+
+	// If damaged repair
+	if (Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) < 1
+		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, true) < 1
+		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, true) < 1
+		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 1
+		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 1)
+	{
+		// Go repair or refill ammo
+		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation();
+		if (TargetStation)
+		{
+			if (Ship->GetNavigationSystem()->DockAt(TargetStation))
+			{
+				PilotTargetShip = NULL;
+				// Ok let dock
+				return;
+			}
+		}
+	}
+
 	// If there is ennemy fly away
 	PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::S);
 	if (!PilotTargetShip)
