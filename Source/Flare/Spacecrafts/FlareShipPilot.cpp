@@ -903,7 +903,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 				continue;
 			}
 
-			if(LeaderShip->Airframe->GetMass() > CandidateShip->Airframe->GetMass())
+			if(LeaderShip->Airframe->GetMass() < CandidateShip->Airframe->GetMass())
 			{
 				LeaderShip = CandidateShip;
 				continue;
