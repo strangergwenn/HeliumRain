@@ -136,10 +136,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	// Spawn dust effects if they are not already here
 	if (!DustEffect && ShipPawn)
 	{
-		DustEffect = UGameplayStatics::SpawnEmitterAttached(
-			DustEffectTemplate,
-			ShipPawn->GetRootComponent(),
-			NAME_None);
+		DustEffect = UGameplayStatics::SpawnEmitterAtLocation(this, DustEffectTemplate, FVector::ZeroVector);
 	}
 
 	// Update dust effects
