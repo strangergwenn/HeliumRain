@@ -403,10 +403,21 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase)
 
 					if (InterceptTime > 0 && PC->ProjectWorldLocationToScreen(AmmoIntersectionLocation, ScreenPosition))
 					{
+						// Get some more data
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Ship);
-						DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
+						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
+						bool FighterTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_GUN && Ship->GetSize() == EFlarePartSize::L;
+						bool BomberTargettingSmall = WeaponType == EFlareWeaponGroupType::WG_BOMB && Ship->GetSize() == EFlarePartSize::S;
+						bool BomberTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_BOMB && Ship->GetSize() == EFlarePartSize::L;
 
-						if (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB && Ship->GetSize() == EFlarePartSize::L)
+						// Draw helper if it makes sense
+						if (!FighterTargettingLarge && !BomberTargettingSmall)
+						{
+							DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
+						}
+
+						// Bomber UI
+						if (BomberTargettingLarge)
 						{
 							// Time display
 							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
