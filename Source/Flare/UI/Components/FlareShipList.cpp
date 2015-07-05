@@ -75,6 +75,7 @@ void SFlareShipList::RefreshList()
 void SFlareShipList::Reset()
 {
 	TargetListData.Empty();
+	TargetList->RequestListRefresh();
 }
 
 
