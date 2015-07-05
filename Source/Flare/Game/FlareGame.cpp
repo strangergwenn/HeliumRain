@@ -399,7 +399,7 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 
 	// - 16 Ghoul/Eradicator to destroy enemy fighter un 2 wave (0km / 2 km)
 	// - 10 bombers to destroy enemy invader quickly (3 km)
-	// - 1 support invader (refill and repair) : HEAT/Hades (8 km)
+	// - 2 support invader (refill and repair) : HEAT/Hades (8 km)
 	// - 2 attack dragon : 1 AA/Artemis and 1 Hades (4 km but slow)
 
 	// The Alliance Shipbuiding base have :
@@ -423,7 +423,7 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 	// - 3 omen
 
 	// But small but powerfull army
-	// - 5 Orca/Eradicator
+	// - 8 Orca/Eradicator
 	// - 1 Invader/Hades HEAT
 	// - 1 Dragon/Hades
 
@@ -492,7 +492,7 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 	// Helix fleet
 	FVector BaseHelixFleetLocation = BaseHelixBaseLocation + FVector(100000, 0, 0);
 	SetDefaultWeapon(FName("weapon-eradicator"));
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 8; i++)
 	{
 		CreateShip("ship-orca", Helix->GetIdentifier() , BaseHelixFleetLocation + FVector(10000 * i , -10000, 5000));
 	}
@@ -526,18 +526,19 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 	SetDefaultWeapon(FName("weapon-wyrm"));
 	for(int i = -5; i < 5; i++) // 8
 	{
-		CreateShip("ship-orca", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector( -300000, 30000 * i, 0));
+		CreateShip("ship-orca", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector( -300000 - 10000 * FMath::Abs(i), 30000 * i, 0));
 	}
 
 
-	SetDefaultTurret(FName("weapon-hades-heat"));
-	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-600000, 30000, 10000));
+	SetDefaultTurret(FName("weapon-hades"));
+	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-600000, -30000, 10000));
 
 	SetDefaultTurret(FName("weapon-artemis"));
-	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-600000, -30000, -9000));
+	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-600000, 30000, -9000));
 
 	SetDefaultTurret(FName("weapon-hades-heat"));
 	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-800000, 0, 20000));
+	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-700000, 200000, 20000));
 
 	DeclareWar(PlayerCompany->GetShortName(), AllianceShipbuilding->GetShortName());
 }
