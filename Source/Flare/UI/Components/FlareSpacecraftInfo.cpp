@@ -66,6 +66,17 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.NameFont)
 						]
 
+						// Ship class
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(FMargin(12))
+						.VAlign(VAlign_Center)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareSpacecraftInfo::GetDescription)
+							.TextStyle(&Theme.TextFont)
+						]
+
 						// Status
 						+ SHorizontalBox::Slot()
 						.HAlign(HAlign_Right)
@@ -96,23 +107,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.Text(this, &SFlareSpacecraftInfo::GetCompanyName)
-							.TextStyle(&Theme.TextFont)
-						]
-					]
-
-					// Ship info line
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-							
-						// Ship class
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(FMargin(8))
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSpacecraftInfo::GetDescription)
 							.TextStyle(&Theme.TextFont)
 						]
 					]
@@ -325,13 +319,12 @@ FText SFlareSpacecraftInfo::GetName() const
 FText SFlareSpacecraftInfo::GetDescription() const
 {
 	// Common text
-	FText ClassText = LOCTEXT("Class", "CLASS");
 	FText DefaultText = LOCTEXT("Default", "UNKNOWN OBJECT");
 
 	// Description builder
 	if (TargetSpacecraftDesc)
 	{
-		return FText::FromString(TargetSpacecraftDesc->Name.ToString() + " " + ClassText.ToString());
+		return FText::FromString("(" + TargetSpacecraftDesc->Name.ToString() + ")");
 	}
 
 	return DefaultText;
