@@ -9,6 +9,9 @@
 #include "../Spacecrafts/FlareShell.h"
 
 
+#define LOCTEXT_NAMESPACE "FlareGame"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -1339,7 +1342,7 @@ void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
 	UFlareCompany* Company1 = NULL;
 	UFlareCompany* Company2 = NULL;
 
-	for(int i = 0; i < Companies.Num(); i++)
+	for (int i = 0; i < Companies.Num(); i++)
 	{
 		UFlareCompany* Company = Companies[i];
 		if (Company && Company->GetShortName() == Company1ShortName)
@@ -1353,11 +1356,18 @@ void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
 		}
 	}
 
-	if(Company1 && Company2 && Company1 != Company2)
+	if (Company1 && Company2 && Company1 != Company2)
 	{
 		FLOGV("Declare war between %s and %s", *Company1->GetCompanyName(), *Company2->GetCompanyName());
 		Company1->SetHostilityTo(Company2, true);
 		Company2->SetHostilityTo(Company1, true);
+		
+		// Notify war 
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+		FText WarString = LOCTEXT("War", "War has been declared");
+		FText WarStringInfo = FText::FromString(Company1->GetCompanyName() + ", " + Company2->GetCompanyName() + " " 
+			+ LOCTEXT("WarInfo", "are now at war").ToString());
+		PC->Notify(WarString, WarStringInfo, EFlareNotification::NT_Military);
 	}
 }
 
@@ -1530,3 +1540,6 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Add("Enterprise");
 	BaseImmatriculationNameList.Add("Sahara");
 }
+
+
+#undef LOCTEXT_NAMESPACE
