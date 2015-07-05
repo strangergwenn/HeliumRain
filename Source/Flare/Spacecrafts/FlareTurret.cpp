@@ -281,7 +281,7 @@ bool UFlareTurret::IsSafeToFire(int GunIndex) const
 	{
 		if (HitResult.Actor.IsValid() && HitResult.Actor == Spacecraft)
 		{
-			FLOG("!!!!!!!!!Not safe to fire !");
+			//FLOG("!!!!!!!!!Not safe to fire !");
 			return false;
 		}
 	}

@@ -10,7 +10,7 @@
 
 AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
-	FLOG("AFlareBomb");
+	//FLOG("AFlareBomb");
 	// Mesh data
 	BombComp = PCIP.CreateDefaultSubobject<UFlareBombComponent>(this, TEXT("Root"));
 	BombComp->bTraceComplexOnMove = true;

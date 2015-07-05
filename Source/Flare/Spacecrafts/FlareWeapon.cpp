@@ -285,7 +285,7 @@ void UFlareWeapon::RefillAmmo()
 void UFlareWeapon::FillBombs()
 {
 	UStaticMeshSocket* BombHardpoint = ComponentDescription->Mesh->FindSocket("Hardpoint");
-	FLOGV("BombHardpoint RelativeLocation=%s", *BombHardpoint->RelativeLocation.ToString());
+	//FLOGV("BombHardpoint RelativeLocation=%s", *BombHardpoint->RelativeLocation.ToString());
 	int CurrentBombCount = Bombs.Num();
 
 	for (int BombIndex = CurrentBombCount; BombIndex < CurrentAmmo ; BombIndex++)
@@ -301,31 +301,31 @@ void UFlareWeapon::FillBombs()
 		GetSocketWorldLocationAndRotation(HardpointName, HardpointLocation, HardpointRotation);
 
 
-		FLOGV("Bomb %d HardpointName=%s", BombIndex, *HardpointName.ToString());
+		/*FLOGV("Bomb %d HardpointName=%s", BombIndex, *HardpointName.ToString());
 		FLOGV("Bomb %d HardpointLocation=%s", BombIndex, *HardpointLocation.ToString());
-		FLOGV("Bomb %d HardpointRotation=%s", BombIndex, *HardpointRotation.ToString());
+		FLOGV("Bomb %d HardpointRotation=%s", BombIndex, *HardpointRotation.ToString());*/
 
 		UStaticMeshSocket* Hardpoint = StaticMesh->FindSocket(HardpointName);
 		FMatrix SocketMatrix;
 		Hardpoint->GetSocketMatrix(SocketMatrix, this);
 
-		FLOGV("Bomb %d RelativeLocation=%s", BombIndex, *(Hardpoint->RelativeLocation.ToString()));
-		FLOGV("Bomb %d RelativeRotation=%s", BombIndex, *(Hardpoint->RelativeRotation.ToString()));
+		/*FLOGV("Bomb %d RelativeLocation=%s", BombIndex, *(Hardpoint->RelativeLocation.ToString()));
+		FLOGV("Bomb %d RelativeRotation=%s", BombIndex, *(Hardpoint->RelativeRotation.ToString()));*/
 
 
 
 
 		FVector BombLocation = HardPointWorldTransform.TransformPosition(-BombHardpoint->RelativeLocation);
 
-		FLOGV("Bomb %d BombLocation=%s", BombIndex, *BombLocation.ToString());
+		//FLOGV("Bomb %d BombLocation=%s", BombIndex, *BombLocation.ToString());
 
 		BombLocation = SocketMatrix.TransformPosition(-BombHardpoint->RelativeLocation);
 
-		FLOGV("Bomb %d BombLocation2=%s", BombIndex, *BombLocation.ToString());
+		//FLOGV("Bomb %d BombLocation2=%s", BombIndex, *BombLocation.ToString());
 
 
-		FLOGV("Bomb %d HardPointWorldTransform.Rotator()=%s", BombIndex, *(HardPointWorldTransform.Rotator().ToString()));
-		FLOGV("Bomb %d SocketMatrix.Rotator()=%s", BombIndex, *(SocketMatrix.Rotator().ToString()));
+		//FLOGV("Bomb %d HardPointWorldTransform.Rotator()=%s", BombIndex, *(HardPointWorldTransform.Rotator().ToString()));
+		//FLOGV("Bomb %d SocketMatrix.Rotator()=%s", BombIndex, *(SocketMatrix.Rotator().ToString()));
 
 
 
@@ -333,8 +333,8 @@ void UFlareWeapon::FillBombs()
 
 		bool NegativeZScale = RelativeScale3D.Z < 0;
 
-		FLOGV("Bomb %d NegativeZScale=%d", BombIndex, NegativeZScale);
-		FLOGV("Bomb %d RelativeScale3D=%s", BombIndex, *RelativeScale3D.ToString());
+		//FLOGV("Bomb %d NegativeZScale=%d", BombIndex, NegativeZScale);
+		//FLOGV("Bomb %d RelativeScale3D=%s", BombIndex, *RelativeScale3D.ToString());
 
 		if (BombIndex == 0)
 		{
@@ -351,14 +351,14 @@ void UFlareWeapon::FillBombs()
 
 		FTransform LocalRotation(FRotator(0,0,Roll));
 
-		FLOGV("Bomb %d Roll=%f", Roll);
+		//FLOGV("Bomb %d Roll=%f", Roll);
 
 
 		FTransform Rotation = LocalRotation * ComponentToWorld;
 
 
-		FLOGV("Bomb %d LocalRotation.Rotator()=%s", BombIndex, *(LocalRotation.Rotator().ToString()));
-		FLOGV("Bomb %d Rotation.Rotator()=%s", BombIndex, *(Rotation.Rotator().ToString()));
+		//FLOGV("Bomb %d LocalRotation.Rotator()=%s", BombIndex, *(LocalRotation.Rotator().ToString()));
+		//FLOGV("Bomb %d Rotation.Rotator()=%s", BombIndex, *(Rotation.Rotator().ToString()));
 
 		// Spawn parameters
 		FActorSpawnParameters Params;

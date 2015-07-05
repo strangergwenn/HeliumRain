@@ -224,7 +224,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 					}
 					else
 					{
-						FLOG("Friendly fire avoidance");
+						//FLOG("Friendly fire avoidance");
 					}
 				}
 			}
