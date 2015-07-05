@@ -71,7 +71,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Close", "Close"))
+				.Text(LOCTEXT("Cancel", "Cancel"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 				.OnClicked(this, &SFlareNewGameMenu::OnExit)
 			]
