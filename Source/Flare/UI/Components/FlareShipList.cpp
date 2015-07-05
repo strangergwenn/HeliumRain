@@ -69,6 +69,61 @@ void SFlareShipList::AddShip(IFlareSpacecraftInterface* ShipCandidate)
 
 void SFlareShipList::RefreshList()
 {
+	struct FSortBySize
+	{
+		FORCEINLINE bool operator()(const TSharedPtr<FInterfaceContainer> PtrA, const TSharedPtr<FInterfaceContainer> PtrB) const
+		{
+			check(PtrA.IsValid());
+			check(PtrB.IsValid());
+			IFlareSpacecraftInterface* A = PtrA->ShipInterfacePtr;
+			IFlareSpacecraftInterface* B = PtrB->ShipInterfacePtr;
+
+			if (A->IsStation())
+			{
+				if (B->IsStation())
+				{
+					return A->GetDockingSystem()->GetDockCount() > B->GetDockingSystem()->GetDockCount();
+				}
+				else
+				{
+					return true;
+				}
+			}
+			else if (B->IsStation())
+			{
+				return false;
+			}
+			else
+			{
+				if (A->GetSize() > B->GetSize())
+				{
+					return true;
+				}
+				else if (A->GetSize() < B->GetSize())
+				{
+					return false;
+				}
+				else if (A->IsMilitary())
+				{
+					if (!B->IsMilitary())
+					{
+						return true;
+					}
+					else
+					{
+						return A->GetWeaponsSystem()->GetWeaponGroupCount() > B->GetWeaponsSystem()->GetWeaponGroupCount();
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return false;
+		}
+	};
+
+	TargetListData.Sort(FSortBySize());
 	TargetList->RequestListRefresh();
 }
 
