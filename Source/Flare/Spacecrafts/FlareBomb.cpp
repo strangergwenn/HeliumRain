@@ -157,7 +157,8 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 				NAME_None,
 				HitLocation,
 				HitNormal.Rotation(),
-				EAttachLocation::KeepWorldPosition);
+				EAttachLocation::KeepWorldPosition,
+				120);
 
 			// Instanciate and configure the decal material
 			UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);

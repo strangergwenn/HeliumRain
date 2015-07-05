@@ -507,7 +507,8 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 			NAME_None,
 			ImpactLocation,
 			ImpactNormal.Rotation(),
-			EAttachLocation::KeepWorldPosition);
+			EAttachLocation::KeepWorldPosition,
+			120);
 
 		// Instanciate and configure the decal material
 		UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);
