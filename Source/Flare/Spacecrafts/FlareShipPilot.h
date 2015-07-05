@@ -140,9 +140,13 @@ protected:
 	float                                TimeUntilNextReaction;
 	FVector                              PilotTargetLocation;
 	float								 WaitTime;
+	UPROPERTY()
 	AFlareSpacecraft*                          PilotTargetShip;
+	UPROPERTY()
 	AFlareSpacecraft*                          PilotTargetStation;
+	UPROPERTY()
 	AFlareSpacecraft*                          PilotLastTargetStation;
+	UPROPERTY()
 	UFlareSpacecraftComponent*			 PilotTargetComponent;
 
 	float AttackAngle;
