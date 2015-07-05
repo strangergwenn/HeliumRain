@@ -62,6 +62,19 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				.TextStyle(&Theme.TitleFont)
 				.Text(LOCTEXT("NewGame", "NEW GAME"))
 			]
+
+			// Close
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Close", "Close"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.OnClicked(this, &SFlareNewGameMenu::OnExit)
+			]
 		]
 
 		// Separator
@@ -130,7 +143,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					.OnGenerateWidget(this, &SFlareNewGameMenu::OnGenerateComboLine)
 					.OnSelectionChanged(this, &SFlareNewGameMenu::OnComboLineSelectionChanged)
 					.ComboBoxStyle(&Theme.ComboBoxStyle)
-					.ForegroundColor(FLinearColor::Red)
+					.ForegroundColor(FLinearColor::White)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareNewGameMenu::OnGetCurrentComboLine)
@@ -195,7 +208,7 @@ void SFlareNewGameMenu::Exit()
 void SFlareNewGameMenu::OnLaunch()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC && Game)
+	if (PC && Game && !Game->IsLoadedOrCreated())
 	{
 		// Get data
 		FString CompanyNameData = CompanyName->GetText().ToString().ToUpper().Left(60);
@@ -226,6 +239,12 @@ TSharedRef<SWidget> SFlareNewGameMenu::OnGenerateComboLine(TSharedPtr<FString> I
 void SFlareNewGameMenu::OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo)
 {
 }
+
+void SFlareNewGameMenu::OnExit()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+}
+
 
 
 
