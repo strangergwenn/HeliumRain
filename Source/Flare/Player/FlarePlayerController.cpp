@@ -430,15 +430,17 @@ void AFlarePlayerController::OnExitMenu()
 {
 	if (IsInMenu())
 	{
+		// Quit menu
 		MenuPawn->SetActorHiddenInGame(true);
+		ClientPlaySound(OffSound);
+
 		// Unpause all gameplay actors
 		SetWorldPause(false);
 
-
-		ClientPlaySound(OffSound);
+		// Fly the ship
 		Possess(ShipPawn);
-
-
+		GetNavHUD()->OnTargetShipChanged();
+		SetSelectingWeapon();
 	}
 
 	GetNavHUD()->UpdateHUDVisibility();
