@@ -134,10 +134,10 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		// If damage the firerate is randomly reduced to a min of 10 times normal value
 		float DamageDelay = FMath::Square(1.f- GetDamageRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
 		TimeSinceLastShell = -DamageDelay;
+	}
 
-		if (FiringPeriod == 0){
-			Firing = false;
-		}
+	if (FiringPeriod == 0){
+		Firing = false;
 	}
 }
 
