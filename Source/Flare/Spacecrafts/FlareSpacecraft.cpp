@@ -150,7 +150,9 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	{
 		Save(); // Save must be performed with the old pause state
 		FLOGV("%s save linear velocity : %s", *GetImmatriculation(), *ShipData.LinearVelocity.ToString());
+
 	}
+
 	Airframe->SetSimulatePhysics(!Pause);
 
 	Paused = Pause;
@@ -236,7 +238,10 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 {
 
-
+	if(!IsPresentationMode())
+	{
+		Airframe->SetSimulatePhysics(true);
+	}
 	// Update local data
 	ShipData = Data;
 
@@ -354,6 +359,11 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	DockingSystem->Start();
 	WeaponsSystem->Start();
 	SmoothedVelocity = GetLinearVelocity();
+
+	if(IsPaused())
+	{
+		Airframe->SetSimulatePhysics(false);
+	}
 }
 
 FFlareSpacecraftSave* AFlareSpacecraft::Save()
