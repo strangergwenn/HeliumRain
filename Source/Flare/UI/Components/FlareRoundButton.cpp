@@ -21,6 +21,8 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 
 	// Setup
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = Theme.NeutralColor;
+	Color.A = Theme.DefaultAlpha;
 
 	ChildSlot
 	.VAlign(VAlign_Top)
@@ -43,6 +45,19 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 				.OnClicked(this, &SFlareRoundButton::OnButtonClicked)
 				.ContentPadding(FMargin(0))
 				.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+				.ToolTip(
+
+					// Tooltip overlay
+					SNew(SToolTip)
+					.BorderImage(&Theme.BackgroundBrush)
+					[
+						SNew(STextBlock)
+						.Text(InArgs._ToolTipText)
+						.Font(Theme.SmallFont.Font)
+						.ColorAndOpacity(Color)
+						.WrapTextAt(Theme.ContentWidth / 2.0f)
+					]
+				)
 				[
 					// Inverted background
 					SNew(SBorder)

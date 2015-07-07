@@ -22,6 +22,7 @@ class SFlareButton : public SCompoundWidget
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
 	SLATE_ATTRIBUTE(FText, Text)
+	SLATE_ATTRIBUTE(FText, ToolTipText)
 	SLATE_ATTRIBUTE(const FSlateBrush*, Icon);
 	SLATE_ATTRIBUTE(FSlateColor, Color)
 

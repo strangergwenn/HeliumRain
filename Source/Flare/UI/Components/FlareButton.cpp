@@ -21,6 +21,10 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	int32 Width = InArgs._Width * Theme.ButtonWidth;
 	int32 Height = InArgs._Height * Theme.ButtonHeight;
 
+	// Text color for tooltips
+	FLinearColor Color = Theme.NeutralColor;
+	Color.A = Theme.DefaultAlpha;
+
 	// Structure
 	ChildSlot
 	.VAlign(VAlign_Center)
@@ -31,6 +35,19 @@ void SFlareButton::Construct(const FArguments& InArgs)
 		.OnClicked(this, &SFlareButton::OnButtonClicked)
 		.ContentPadding(FMargin(0))
 		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+		.ToolTip(
+
+			// Tooltip overlay
+			SNew(SToolTip)
+			.BorderImage(&Theme.BackgroundBrush)
+			[
+				SNew(STextBlock)
+				.Text(InArgs._ToolTipText)
+				.Font(Theme.SmallFont.Font)
+				.ColorAndOpacity(Color)
+				.WrapTextAt(Theme.ContentWidth / 2.0f)
+			]
+		)
 		[
 			SNew(SVerticalBox)
 
