@@ -72,6 +72,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Cancel", "Cancel"))
+				.ToolTipText(LOCTEXT("CancelInfo", "Cancel and go back to the main menu"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 				.OnClicked(this, &SFlareNewGameMenu::OnExit)
 			]
@@ -159,6 +160,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SFlareButton)
 					.Text(LOCTEXT("Start", "Start the game"))
+					.ToolTipText(LOCTEXT("StartInfo", "Confirm the creation of a new game and start playing"))
 					.Icon(FFlareStyleSet::GetIcon("Load"))
 					.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
 				]

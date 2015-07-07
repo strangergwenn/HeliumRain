@@ -63,6 +63,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Dashboard", "Dashboard"))
+				.ToolTipText(LOCTEXT("DashboardInfo", "Go back to the dashboard"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Dashboard, true))
 				.OnClicked(this, &SFlareShipMenu::OnDashboardClicked)
 			]
@@ -76,6 +77,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Close", "Close"))
+				.ToolTipText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 				.OnClicked(this, &SFlareShipMenu::OnExit)
 			]
@@ -174,6 +176,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareShipMenu::ShowEngines)
 							.Icon(this, &SFlareShipMenu::GetEngineIcon)
 							.Text(this, &SFlareShipMenu::GetEngineText)
+							.ToolTipText(LOCTEXT("EngineInfo", "Inspect the current orbital engines"))
 							.InvertedBackground(true)
 							.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
 						]
@@ -187,6 +190,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareShipMenu::ShowRCSs)
 							.Icon(this, &SFlareShipMenu::GetRCSIcon)
 							.Text(this, &SFlareShipMenu::GetRCSText)
+							.ToolTipText(LOCTEXT("RCSInfo", "Inspect the current RCS thrusters"))
 							.InvertedBackground(true)
 							.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
 						]
@@ -374,6 +378,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 						.OnClicked(this, &SFlareShipMenu::ShowWeapons, IndexPtr)
 						.Icon(this, &SFlareShipMenu::GetWeaponIcon, IndexPtr)
 						.Text(this, &SFlareShipMenu::GetWeaponText, IndexPtr)
+						.ToolTipText(LOCTEXT("WeaponInfo", "Inspect this weapon system"))
 						.InvertedBackground(true)
 					];
 

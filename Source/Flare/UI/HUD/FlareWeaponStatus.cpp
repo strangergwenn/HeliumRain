@@ -51,6 +51,7 @@ void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 		[
 			SNew(SFlareRoundButton)
 			.ShowText(false)
+			.ToolTipText(LOCTEXT("WeaponGroupInfo", "You can switch weapon groups by using the mouse wheel"))
 			.InvertedBackground(true)
 			.Icon(Icon)
 			.IconColor(this, &SFlareWeaponStatus::GetIconColor)

@@ -63,6 +63,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Settings", "Settings"))
+				.ToolTipText(LOCTEXT("SettingsInfo", "Open the system settings"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings, true))
 				.OnClicked(this, &SFlareMainMenu::OnOpenSettings)
 			]
@@ -76,6 +77,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Quit", "Quit game"))
+				.ToolTipText(LOCTEXT("QuitInfo", "Quit the game and go back to the OS desktop"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit, true))
 				.OnClicked(this, &SFlareMainMenu::OnQuitGame)
 			]
@@ -172,6 +174,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareButton)
 				.Text(this, &SFlareMainMenu::GetButtonText, Index)
+				.ToolTipText(LOCTEXT("StartGameInfo", "Start playing"))
 				.Icon(this, &SFlareMainMenu::GetButtonIcon, Index)
 				.OnClicked(this, &SFlareMainMenu::OnOpenSlot, IndexPtr)
 				.Width(5)
@@ -187,6 +190,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareButton)
 				.Text(LOCTEXT("Delete", "Delete game"))
+				.ToolTipText(LOCTEXT("DeleteInfo", "Delete this game forever without backup"))
 				.Icon(FFlareStyleSet::GetIcon("Delete"))
 				.OnClicked(this, &SFlareMainMenu::OnDeleteSlot, IndexPtr)
 				.Width(5)

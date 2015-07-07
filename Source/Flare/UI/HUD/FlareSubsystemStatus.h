@@ -47,6 +47,9 @@ protected:
 	/** Get the subsystem's name */
 	FText GetText() const;
 
+	/** Get the subsystem's tooltip text */
+	FText GetInfoText() const;
+
 	/** Get the current health color */
 	FSlateColor GetHealthColor() const;
 

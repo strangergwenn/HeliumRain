@@ -63,6 +63,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Dashboard", "Dashboard"))
+				.ToolTipText(LOCTEXT("DashboardInfo", "Go back to the dashboard"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Dashboard, true))
 				.OnClicked(this, &SFlareCompanyMenu::OnDashboardClicked)
 			]
@@ -76,6 +77,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Close", "Close"))
+				.ToolTipText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 				.OnClicked(this, &SFlareCompanyMenu::OnExit)
 			]

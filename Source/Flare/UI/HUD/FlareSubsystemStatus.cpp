@@ -47,6 +47,7 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		.Clickable(false)
 		.Icon(Icon)
 		.Text(this, &SFlareSubsystemStatus::GetText)
+		.ToolTipText(this, &SFlareSubsystemStatus::GetInfoText)
 		.HighlightColor(this, &SFlareSubsystemStatus::GetHealthColor)
 		.TextColor(this, &SFlareSubsystemStatus::GetFlashColor)
 	];
@@ -111,6 +112,35 @@ FText SFlareSubsystemStatus::GetText() const
 	}
 
 	return FText::FromString(Text.ToString() + "\n" + FString::FromInt(100 * ComponentHealth) + "%");
+}
+
+FText SFlareSubsystemStatus::GetInfoText() const
+{
+	FText Text;
+
+	switch (SubsystemType)
+	{
+		case EFlareSubsystem::SYS_Temperature:
+			Text = LOCTEXT("SYS_TemperatureInfo", "The cooling subsystem ensures that your ship doesn't overheat and burn.");
+			break;
+		case EFlareSubsystem::SYS_Propulsion:    
+			Text = LOCTEXT("SYS_PropulsionInfo", "Orbital engines are required for orbital travel and can be used in combat to boost the spacecraft. They produce a lot of heat.");
+			break;
+		case EFlareSubsystem::SYS_RCS:           
+			Text = LOCTEXT("SYS_RCSInfo", "The Reaction Control System is responsible for moving and turning the ship around in space. They produce little heat.");
+			break;
+		case EFlareSubsystem::SYS_LifeSupport:   
+			Text = LOCTEXT("SYS_LifeSupportInfo", "The life support system needs to stay intact and powered in order for the crew to survive.");
+			break;
+		case EFlareSubsystem::SYS_Power:        
+			Text = LOCTEXT("SYS_PowerInfo", "The power subsystem feeds energy to every system on your ship, including propulsion, weapons or life support.");
+			break;
+		case EFlareSubsystem::SYS_Weapon:        
+			Text = LOCTEXT("SYS_WeaponInfo", "Weapons can be used to damage other spacecrafts. They produce a lot of heat.");         
+			break;
+	}
+
+	return Text;
 }
 
 FSlateColor SFlareSubsystemStatus::GetHealthColor() const
