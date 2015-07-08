@@ -22,8 +22,8 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	int32 Height = InArgs._Height * Theme.ButtonHeight;
 
 	// Text color for tooltips
-	FLinearColor Color = Theme.NeutralColor;
-	Color.A = Theme.DefaultAlpha;
+	FLinearColor TextColor = Theme.NeutralColor;
+	TextColor.A = Theme.DefaultAlpha;
 
 	// Structure
 	ChildSlot
@@ -44,7 +44,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 				SNew(STextBlock)
 				.Text(InArgs._ToolTipText)
 				.Font(Theme.SmallFont.Font)
-				.ColorAndOpacity(Color)
+				.ColorAndOpacity(TextColor)
 				.WrapTextAt(Theme.ContentWidth / 2.0f)
 			]
 		)
