@@ -99,13 +99,8 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 			}
 		}
 		break;
-		case EFlareWeaponGroupType::WG_BOMB:
-		{
-				FVector LinearVelocityAxis = Spacecraft->GetLinearVelocity().GetUnsafeNormal();
-				PlayerManualAngularVelocity = Spacecraft->GetPilot()->GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearVelocityAxis, FVector::ZeroVector, DeltaSeconds);
-		}
-		break;
 		case EFlareWeaponGroupType::WG_GUN:
+		case EFlareWeaponGroupType::WG_BOMB:
 			{
 			float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
 
@@ -156,12 +151,11 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		{
 			case EFlareWeaponGroupType::WG_NONE:
 			case EFlareWeaponGroupType::WG_TURRET:
+			case EFlareWeaponGroupType::WG_BOMB:
 				// Camera to front
 				InternalCameraYawTarget = 0;
 				InternalCameraPitchTarget = 0;
 				break;
-
-			case EFlareWeaponGroupType::WG_BOMB:
 			case EFlareWeaponGroupType::WG_GUN:
 				// Camera to bullet direction
 
@@ -341,96 +335,10 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 	{
 		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 		{
-			case EFlareWeaponGroupType::WG_BOMB:
-			{
-				float Angle = FMath::Atan2(PlayerMouseOffset.Y, PlayerMouseOffset.X);
-				FVector LocalVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(Spacecraft->GetLinearVelocity());
-				float Velocity = Spacecraft->GetLinearVelocity().Size();
-
-				if (Velocity < 5)
-				{
-					// Small velocity
-					if (FMath::IsNearlyZero(Velocity))
-					{
-						return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(6,0,0));
-					}
-					else
-					{
-						return Spacecraft->GetLinearVelocity().GetUnsafeNormal() * 6;
-					}
-				}
-
-				float MaxAngle = 5;
-				float ClampedMaxAngle;
-
-				if (!FMath::IsNearlyZero(PlayerManualLinearVelocity.X) || PlayerManualOrbitalBoost)
-				{
-					float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
-					// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
-					float CompensatedDistance = FMath::Clamp(1. + (DistanceToCenter - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.);
-					ClampedMaxAngle = FMath::RadiansToDegrees(FMath::Asin(CompensatedDistance * FMath::Sin(FMath::DegreesToRadians(MaxAngle))));
-				}
-				else
-				{
-					ClampedMaxAngle = MaxAngle;
-				}
-
-
-				float Z = ClampedMaxAngle * FMath::Cos(Angle);
-				float Y = ClampedMaxAngle * FMath::Sin(Angle);
-
-				float VelocityMaxOffset = Velocity * FMath::Sin(FMath::DegreesToRadians(MaxAngle));
-
-				FVector LocalTargetVelocity = LocalVelocity.RotateAngleAxis(Z, FVector(0,0,1)).RotateAngleAxis(Y, FVector(0,1,0));
-
-
-				/*FLOG("----GetLinearTargetVelocity");
-				FLOGV("PlayerMouseOffset.X %f",PlayerMouseOffset.X);
-				FLOGV("PlayerMouseOffset.Y %f",PlayerMouseOffset.Y);
-				FLOGV("ClampedMaxAngle %f",ClampedMaxAngle);
-				FLOGV("Angle %f",Angle);
-				FLOGV("LocalVelocity %s",*LocalVelocity.ToString());
-				FLOGV("Velocity %f",Velocity);
-				FLOGV("Z %f",Z);
-				FLOGV("Y %f",Y);
-				FLOGV("VelocityMaxOffset %f",VelocityMaxOffset);
-				FLOGV("LocalTargetVelocity %s",*LocalTargetVelocity.ToString());
-
-				FLOGV("PlayerManualLinearVelocity.X %f",PlayerManualLinearVelocity.X);*/
-
-				bool KeepVelocity = true;
-
-				if (PlayerManualLinearVelocity.X > 0 || PlayerManualOrbitalBoost)
-				{
-					LocalTargetVelocity +=  LocalVelocity.GetUnsafeNormal() * VelocityMaxOffset;
-					KeepVelocity = false;
-				}
-				else if (PlayerManualLinearVelocity.X < 0)
-				{
-					LocalTargetVelocity -=  LocalVelocity.GetUnsafeNormal() * VelocityMaxOffset;
-					KeepVelocity = false;
-				}
-
-				//FLOGV("LocalTargetVelocity2 %s",*LocalTargetVelocity.ToString());
-
-
-				FVector WorldTargetVelocity = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalTargetVelocity);
-				if (KeepVelocity)
-				{
-					//FLOGV("KeepVelocity WorldTargetVelocity %s",*WorldTargetVelocity.ToString());
-					//FLOGV("KeepVelocity WorldTargetVelocity.Size %f",WorldTargetVelocity.Size());
-					WorldTargetVelocity = WorldTargetVelocity.GetUnsafeNormal() * Velocity;
-				}
-
-				//FLOGV("WorldTargetVelocity %s",*WorldTargetVelocity.ToString());
-				//FLOGV("WorldTargetVelocity.Size %f",WorldTargetVelocity.Size());
-
-				return  WorldTargetVelocity;
-			}
-			break;
 			case EFlareWeaponGroupType::WG_TURRET:
 			case EFlareWeaponGroupType::WG_NONE:
 			case EFlareWeaponGroupType::WG_GUN:
+			case EFlareWeaponGroupType::WG_BOMB:
 			default:
 			{
 				FVector LocalPlayerManualLinearVelocity = PlayerManualLinearVelocity;
@@ -458,10 +366,6 @@ FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
 		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 		{
 			case EFlareWeaponGroupType::WG_BOMB:
-			{
-				return  PlayerManualAngularVelocity;
-			}
-			break;
 			case EFlareWeaponGroupType::WG_TURRET:
 			case EFlareWeaponGroupType::WG_NONE:
 			case EFlareWeaponGroupType::WG_GUN:
@@ -490,20 +394,6 @@ float UFlareSpacecraftStateManager::GetAccelerationRatioTarget() const
 			switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 			{
 				case EFlareWeaponGroupType::WG_BOMB:
-				{
-					if (!FMath::IsNearlyZero(PlayerManualLinearVelocity.X) || PlayerManualOrbitalBoost || Spacecraft->GetLinearVelocity().Size() < 5)
-					{
-						return 1.;
-					}
-					else
-					{
-						float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
-						// Compensation curve = 1 + (input-1)/(1-AngularInputDeadRatio)
-						float CompensatedDistance = FMath::Clamp(1. + (DistanceToCenter - 1. ) / (1. - AngularInputDeadRatio) , 0., 1.);
-						return CompensatedDistance;
-					}
-				}
-				break;
 				case EFlareWeaponGroupType::WG_TURRET:
 				case EFlareWeaponGroupType::WG_NONE:
 				case EFlareWeaponGroupType::WG_GUN:

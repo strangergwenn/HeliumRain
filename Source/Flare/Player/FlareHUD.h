@@ -110,6 +110,7 @@ protected:
 	UTexture2D*                             HUDReticleIcon;
 	UTexture2D*                             HUDBackReticleIcon;
 	UTexture2D*                             HUDAimIcon;
+	UTexture2D*                             HUDBombAimIcon;
 	UTexture2D*                             HUDAimHelperIcon;
 	UTexture2D*                             HUDNoseIcon;
 	UTexture2D*                             HUDCombatMouseIcon;

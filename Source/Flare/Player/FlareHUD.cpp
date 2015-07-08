@@ -21,6 +21,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj      (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBackReticleIconObj  (TEXT("/Game/Gameplay/HUD/TX_BackReticle.TX_BackReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj          (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombAimIconObj      (TEXT("/Game/Gameplay/HUD/TX_BombAim.TX_BombAim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj    (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj         (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj  (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
@@ -40,6 +41,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDReticleIcon = HUDReticleIconObj.Object;
 	HUDBackReticleIcon = HUDBackReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
+	HUDBombAimIcon = HUDBombAimIconObj.Object;
 	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
 	HUDNoseIcon = HUDNoseIconObj.Object;
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
@@ -247,26 +249,37 @@ void AFlareHUD::DrawHUD()
 	if (PC && Ship && !MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu() && !IsMouseMenuOpen())
 	{
 		// Draw inertial vectors
-		if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
-		{
-			DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
-			DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"), true);
-		}
-		else
-		{
-			int32 SpeedMS = Ship->GetSmoothedLinearVelocity().Size();
-			FString VelocityText = FString::FromInt(SpeedMS) + FString(" m/s");
-			FVector2D VelocityPosition = ViewportSize / 2 + FVector2D(42, 0);
+		DrawSpeed(PC, Ship, HUDReticleIcon, Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
+		DrawSpeed(PC, Ship, HUDBackReticleIcon, -Ship->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"), true);
 
-			VelocityPosition = FVector2D(42, 0);
-			DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
-			DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
-		}
-		
 		// Draw nose
 		if (!Ship->GetStateManager()->IsExternalCamera())
 		{
-			DrawHUDIcon(ViewportSize / 2, IconSize, Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
+			DrawHUDIcon(ViewportSize / 2, IconSize, Ship->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
+		}
+
+		// Draw bomb marker
+		if(Ship->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
+		{
+
+			float AmmoVelocity = Ship->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetAmmoVelocity();
+			FRotator ShipAttitude = Ship->GetActorRotation();
+			FVector ShipVelocity = 100.f * Ship->GetLinearVelocity();
+
+			// Bomb velocity
+			FVector BombVelocity = ShipAttitude.Vector();
+			BombVelocity.Normalize();
+			BombVelocity *= 100.f * AmmoVelocity;
+
+			FVector BombDirection = (ShipVelocity + BombVelocity).GetUnsafeNormal();
+			FVector BombTarget = Ship->GetActorLocation() + BombDirection * 1000000;
+
+			FVector2D ScreenPosition;
+			if (PC->ProjectWorldLocationToScreen(BombTarget, ScreenPosition))
+			{
+				// Icon
+				DrawHUDIcon(ScreenPosition, IconSize, HUDBombAimIcon, HudColorNeutral, true);
+			}
 		}
 
 		// Draw combat mouse pointer
