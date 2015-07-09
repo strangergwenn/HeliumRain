@@ -908,17 +908,20 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 				continue;
 			}
 
-			if(LeaderShip->Airframe->GetMass() < CandidateShip->Airframe->GetMass())
+            if(LeaderShip->Airframe->GetMass() == CandidateShip->Airframe->GetMass())
 			{
-				LeaderShip = CandidateShip;
-				continue;
+                if(LeaderShip->GetImmatriculation() < CandidateShip->GetImmatriculation())
+                {
+                    continue;
+                }
 			}
+            else if(LeaderShip->Airframe->GetMass() > CandidateShip->Airframe->GetMass())
+            {
+                continue;
+            }
 
-			if(LeaderShip->GetImmatriculation() > CandidateShip->GetImmatriculation())
-			{
-				LeaderShip = CandidateShip;
-				continue;
-			}
+
+            LeaderShip = CandidateShip;
 		}
 
 		// If is the leader, find a location in a 10 km radius and patrol
@@ -946,12 +949,13 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 			}
 			LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 0.8;
 
-			//FLOGV("Leader ship LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
+            //FLOGV("%s Leader ship LinearTargetVelocity=%s", *LeaderShip->GetImmatriculation(), *LinearTargetVelocity.ToString());
+            //FLOGV("%s Leader ship LinearTargetVelocity.Size=%f", *LeaderShip->GetImmatriculation(), LinearTargetVelocity.Size());
 
 		}
 		else
 		{
-			//FLOGV("%s leader is %s", *Ship->GetImmatriculation(), *LeaderShip->GetImmatriculation());
+            //FLOGV("%s leader is %s", *Ship->GetImmatriculation(), *LeaderShip->GetImmatriculation());
 			// Follow the leader
 			float FollowRadius = 50000 + FMath::Pow(Ship->GetCompany()->GetCompanyShips().Num() * 3 * FMath::Pow(10000, 3),1/3.);
 			if((LeaderShip->GetActorLocation() - Ship->GetActorLocation()).Size() < FollowRadius)
@@ -981,7 +985,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
 
-	//FLOGV("%s Leader ship LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
+    //FLOGV("%s Leader ship LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
 }
 
 void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
