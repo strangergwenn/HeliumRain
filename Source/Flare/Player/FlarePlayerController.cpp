@@ -67,6 +67,10 @@ void AFlarePlayerController::BeginPlay()
 	Super::BeginPlay();
 	SetupMenu();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+
+	StartObjective(FText::FromString("Use objectives to make the game better"), FText::FromString("There is no alternative"));
+	SetObjectiveProgress(0.1);
+	SetObjectiveTarget(FVector::ZeroVector);
 }
 
 
@@ -516,6 +520,70 @@ void AFlarePlayerController::SetSelectingWeapon()
 bool AFlarePlayerController::IsSelectingWeapon() const
 {
 	return (TimeSinceWeaponSwitch < WeaponSwitchTime);
+}
+
+
+/*----------------------------------------------------
+	Objectives
+----------------------------------------------------*/
+
+void AFlarePlayerController::StartObjective(FText Name, FText Info)
+{
+	CurrentObjective.Set = true;
+	CurrentObjective.Name = Name;
+	CurrentObjective.Info = Info;
+
+	SetObjectiveProgress(0);
+}
+
+void AFlarePlayerController::SetObjectiveTarget(AActor* Actor)
+{
+	CurrentObjective.Target = Actor;
+	CurrentObjective.Location = FVector::ZeroVector;
+}
+
+void AFlarePlayerController::SetObjectiveTarget(FVector Location)
+{
+	CurrentObjective.Target = NULL;
+	CurrentObjective.Location = Location;
+}
+
+void AFlarePlayerController::SetObjectiveProgress(float Ratio)
+{
+	CurrentObjective.Progress = Ratio;
+}
+
+void AFlarePlayerController::CompleteObjective()
+{
+	SetObjectiveProgress(1);
+
+	CurrentObjective.Set = false;
+}
+
+bool AFlarePlayerController::HasObjective() const
+{
+	return CurrentObjective.Set;
+}
+
+const FFlarePlayerObjective* AFlarePlayerController::GetCurrentObjective() const
+{
+	return (CurrentObjective.Set? &CurrentObjective : NULL);
+}
+
+FVector AFlarePlayerController::GetObjectiveLocation() const
+{
+	if (!CurrentObjective.Set)
+	{
+		return FVector::ZeroVector;
+	}
+	else if (CurrentObjective.Target)
+	{
+		return CurrentObjective.Target->GetActorLocation();
+	}
+	else
+	{
+		return CurrentObjective.Location;
+	}
 }
 
 

@@ -24,6 +24,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombAimIconObj      (TEXT("/Game/Gameplay/HUD/TX_BombAim.TX_BombAim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj    (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj         (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj    (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj  (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 
@@ -44,6 +45,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDBombAimIcon = HUDBombAimIconObj.Object;
 	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
 	HUDNoseIcon = HUDNoseIconObj.Object;
+	HUDObjectiveIcon = HUDObjectiveIconObj.Object;
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 
@@ -70,9 +72,11 @@ void AFlareHUD::BeginPlay()
 	HudColorNeutral = Theme.NeutralColor;
 	HudColorFriendly = Theme.FriendlyColor;
 	HudColorEnemy = Theme.EnemyColor;
+	HudColorObjective = Theme.ObjectiveColor;
 	HudColorNeutral.A = Theme.DefaultAlpha;
 	HudColorFriendly.A = Theme.DefaultAlpha;
 	HudColorEnemy.A = Theme.DefaultAlpha;
+	HudColorObjective.A = Theme.DefaultAlpha;
 
 	Super::BeginPlay();
 }
@@ -220,20 +224,7 @@ void AFlareHUD::DrawHUD()
 				// Draw search markers
 				if (Ship->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE && ShouldDrawSearchMarker)
 				{
-					FVector Direction = ShipBase->GetActorLocation() - Ship->GetActorLocation();
-					if (Direction.Size() < FocusDistance)
-					{
-						// Compute position
-						FVector LocalDirection = Ship->GetRootComponent()->GetComponentToWorld().GetRotation().Inverse().RotateVector(Direction);
-						FVector2D ScreenspacePosition = FVector2D(LocalDirection.Y, -LocalDirection.Z);
-						ScreenspacePosition.Normalize();
-						ScreenspacePosition *= 1.2 * CombatMouseRadius;
-
-						// Draw
-						FLinearColor Color = GetHostilityColor(PC, ShipBase);
-						FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
-						DrawHUDIconRotated(ViewportSize / 2 + ScreenspacePosition, IconSize, HUDCombatMouseIcon, Color, Position3D.Rotation().Yaw);
-					}
+					DrawSearchArrow(ShipBase->GetActorLocation(), GetHostilityColor(PC, ShipBase), FocusDistance);
 				}
 			}
 		}
@@ -258,8 +249,34 @@ void AFlareHUD::DrawHUD()
 			DrawHUDIcon(ViewportSize / 2, IconSize, Ship->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
 		}
 
+		// Draw objective
+		if (PC->HasObjective())
+		{
+			FVector2D ScreenPosition;
+			FVector ObjectiveLocation = PC->GetObjectiveLocation();
+			DrawSearchArrow(ObjectiveLocation, HudColorObjective);
+
+			if (PC->ProjectWorldLocationToScreen(ObjectiveLocation, ScreenPosition))
+			{
+				if (IsInScreen(ScreenPosition))
+				{
+					// Draw icon
+					DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, HudColorNeutral, true);
+
+					// TODO : function that takes a location and returns a nice distance-from-ship string like "45 m" or "1,2 km"
+					float Distance = (ObjectiveLocation - Ship->GetActorLocation()).Size() / 100;
+					FString ObjectiveText = FString::FromInt(Distance) + FString(" m");
+
+					// Draw distance
+					ScreenPosition -= ViewportSize / 2 + FVector2D(0, IconSize);
+					DrawText(ObjectiveText, ScreenPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
+					DrawText(ObjectiveText, ScreenPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+				}
+			}
+		}
+
 		// Draw bomb marker
-		if(Ship->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
+		if (Ship->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
 		{
 
 			float AmmoVelocity = Ship->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetAmmoVelocity();
@@ -314,28 +331,44 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 	FVector EndPoint = Object->GetActorLocation() + FocusDistance * Speed;
 	if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition) && SpeedMS > 1)
 	{
-		// Clamp the drawing
-		int32 ScreenBorderDistance = 100;
-		if (ScreenPosition.X > ViewportSize.X - ScreenBorderDistance || ScreenPosition.X < ScreenBorderDistance
-		 || ScreenPosition.Y > ViewportSize.Y - ScreenBorderDistance || ScreenPosition.Y < ScreenBorderDistance)
+		if (IsInScreen(ScreenPosition))
 		{
-			return;
+			// Label
+			FString IndicatorText = Designation.ToString();
+			FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
+			DrawText(IndicatorText, IndicatorPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
+			DrawText(IndicatorText, IndicatorPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+
+			// Icon
+			DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
+
+			// Speed 
+			FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
+			FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
+			DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
+			DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
 		}
+	}
+}
 
-		// Label
-		FString IndicatorText = Designation.ToString();
-		FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
-		DrawText(IndicatorText, IndicatorPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
-		DrawText(IndicatorText, IndicatorPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, float MaxDistance)
+{
+	// Data
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	AFlareSpacecraft* Ship = PC->GetShipPawn();
+	FVector Direction = TargetLocation - Ship->GetActorLocation();
 
-		// Icon
-		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
+	if (Direction.Size() < MaxDistance)
+	{
+		// Compute position
+		FVector LocalDirection = Ship->GetRootComponent()->GetComponentToWorld().GetRotation().Inverse().RotateVector(Direction);
+		FVector2D ScreenspacePosition = FVector2D(LocalDirection.Y, -LocalDirection.Z);
+		ScreenspacePosition.Normalize();
+		ScreenspacePosition *= 1.2 * CombatMouseRadius;
 
-		// Speed 
-		FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
-		FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
-		DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
-		DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+		// Draw
+		FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
+		DrawHUDIconRotated(ViewportSize / 2 + ScreenspacePosition, IconSize, HUDCombatMouseIcon, Color, Position3D.Rotation().Yaw);
 	}
 }
 
@@ -509,6 +542,20 @@ void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float DesignatorIconSize,
 		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
 }
 
+bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const
+{
+	int32 ScreenBorderDistance = 100;
+
+	if (ScreenPosition.X > ViewportSize.X - ScreenBorderDistance || ScreenPosition.X < ScreenBorderDistance
+	 || ScreenPosition.Y > ViewportSize.Y - ScreenBorderDistance || ScreenPosition.Y < ScreenBorderDistance)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
 FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target)
 {
 	EFlareHostility::Type Hostility = Target->GetPlayerHostility();

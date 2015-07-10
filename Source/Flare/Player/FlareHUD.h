@@ -63,6 +63,9 @@ protected:
 	/** Draw speed indicator */
 	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert);
 
+	/** Draw a search arrow */
+	void DrawSearchArrow(FVector TargetLocation, FLinearColor Color, float MaxDistance = 10000000);
+
 	/** Draw a designator block around a ship */
 	bool DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase);
 
@@ -81,6 +84,9 @@ protected:
 	/** Draw an icon */
 	void DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, float Rotation);
 
+	/** Is this position inside the viewport + border */
+	bool IsInScreen(FVector2D ScreenPosition) const;
+
 	/** Get the appropriate hostility color */
 	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target);
 
@@ -98,6 +104,7 @@ protected:
 	FLinearColor                            HudColorNeutral;
 	FLinearColor                            HudColorFriendly;
 	FLinearColor                            HudColorEnemy;
+	FLinearColor                            HudColorObjective;
 
 	// General data
 	AFlareMenuManager*                      MenuManager;
@@ -113,6 +120,7 @@ protected:
 	UTexture2D*                             HUDBombAimIcon;
 	UTexture2D*                             HUDAimHelperIcon;
 	UTexture2D*                             HUDNoseIcon;
+	UTexture2D*                             HUDObjectiveIcon;
 	UTexture2D*                             HUDCombatMouseIcon;
 	UTexture2D*                             HUDDesignatorCornerTexture;
 

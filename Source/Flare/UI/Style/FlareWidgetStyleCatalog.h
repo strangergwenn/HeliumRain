@@ -111,15 +111,12 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = RoundButtons) int32 RoundButtonWidth;
 	UPROPERTY(EditAnywhere, Category = RoundButtons) int32 RoundButtonHeight;
 
-	// Progress bars
-	UPROPERTY(EditAnywhere, Category = ProgressBars) FProgressBarStyle ProgressBarStyle;
-	UPROPERTY(EditAnywhere, Category = ProgressBars) FProgressBarStyle TemperatureBarStyle;
-
 	// Lists
 	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListBackground;
 	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListActiveBackground;
 	
 	// Advanced widgets
+	UPROPERTY(EditAnywhere, Category = Advanced) FProgressBarStyle ProgressBarStyle;
 	UPROPERTY(EditAnywhere, Category = Advanced) FEditableTextStyle TextInputStyle;
 	UPROPERTY(EditAnywhere, Category = Advanced) FComboBoxStyle ComboBoxStyle;
 

@@ -1,6 +1,8 @@
 
 #include "../../Flare.h"
 #include "FlareHUDMenu.h"
+#include "../Components/FlareObjectiveInfo.h"
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
 
@@ -73,7 +75,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Center)
 					[
 						SNew(SProgressBar)
-						.Style(&Theme.TemperatureBarStyle)
+						.Style(&Theme.ProgressBarStyle)
 						.Percent(this, &SFlareHUDMenu::GetTemperatureProgress)
 						.FillColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
 					]
@@ -95,70 +97,81 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					]
 				]
 			]
+		]
 
-			// Info text
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Top)
-			[
-				SAssignNew(InfoText, STextBlock)
-				.TextStyle(&Theme.NameFont)
-				.Text(this, &SFlareHUDMenu::GetInfoText)
-				.ColorAndOpacity(NormalColor)
-			]
+		// Info text
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		[
+			SAssignNew(InfoText, STextBlock)
+			.TextStyle(&Theme.NameFont)
+			.Text(this, &SFlareHUDMenu::GetInfoText)
+			.ColorAndOpacity(NormalColor)
+		]
 
-			// Info text 2
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Top)
-			[
-				SAssignNew(LowerInfoText, STextBlock)
-				.TextStyle(&Theme.NameFont)
-				.Text(this, &SFlareHUDMenu::GetLowerInfoText)
-				.ColorAndOpacity(NormalColor)
-			]
+		// Info text 2
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		[
+			SAssignNew(LowerInfoText, STextBlock)
+			.TextStyle(&Theme.NameFont)
+			.Text(this, &SFlareHUDMenu::GetLowerInfoText)
+			.ColorAndOpacity(NormalColor)
+		]
+		
+		// Objective
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Top)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SFlareObjectiveInfo)
+			.PC(PC)
+			.Visibility(EVisibility::SelfHitTestInvisible)
+		]
 	
-			// Overheating box
+		// Overheating box
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SubTitleFont)
+			.Text(LOCTEXT("Overheating", "OVERHEATING !"))
+			.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
+		]
+
+		// Outage box
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SVerticalBox)
+
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Center)
-			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.SubTitleFont)
-				.Text(LOCTEXT("Overheating", "OVERHEATING !"))
-				.ColorAndOpacity(this, &SFlareHUDMenu::GetOverheatColor, true)
+				.Text(LOCTEXT("PowerOutage", "POWER OUTAGE !"))
+				.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 			]
-
-			// Outage box
+			
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Center)
-			.Padding(Theme.ContentPadding)
 			[
-				SNew(SVerticalBox)
-
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Center)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SubTitleFont)
-					.Text(LOCTEXT("PowerOutage", "POWER OUTAGE !"))
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
-				]
-			
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Center)
-				[
-					SNew(STextBlock)
-					.Text(this, &SFlareHUDMenu::GetOutageText)
-					.TextStyle(&Theme.SubTitleFont)
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
-				]
+				SNew(STextBlock)
+				.Text(this, &SFlareHUDMenu::GetOutageText)
+				.TextStyle(&Theme.SubTitleFont)
+				.ColorAndOpacity(this, &SFlareHUDMenu::GetOutageColor, true)
 			]
 		]
 

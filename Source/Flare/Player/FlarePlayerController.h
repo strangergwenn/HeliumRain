@@ -11,6 +11,21 @@ class AFlareMenuManager;
 class AFlareHUD;
 
 
+/** Player objective data */
+USTRUCT()
+struct FFlarePlayerObjective
+{
+	GENERATED_USTRUCT_BODY()
+
+	bool                        Set;
+	FText                       Name;
+	FText                       Info;
+	AActor*                     Target;
+	FVector                     Location;
+	float                       Progress;
+};
+
+
 /** Game save data */
 USTRUCT()
 struct FFlarePlayerSave
@@ -107,6 +122,35 @@ public:
 
 	/** id we select a weapon recently ? */
 	bool IsSelectingWeapon() const;
+
+
+	/*----------------------------------------------------
+		Objectives
+	----------------------------------------------------*/
+
+	/** Start a new objective */
+	void StartObjective(FText Name, FText Info);
+
+	/** Set the current target */
+	void SetObjectiveTarget(AActor* Actor);
+
+	/** Set the current target */
+	void SetObjectiveTarget(FVector Location);
+
+	/** Set the progress from 0 to 1 */
+	void SetObjectiveProgress(float Ratio);
+
+	/** Finalize the objective */
+	void CompleteObjective();
+
+	/** Check if there is an objective yet */
+	bool HasObjective() const;
+
+	/** Get the raw objective data */
+	const FFlarePlayerObjective* GetCurrentObjective() const;
+
+	/** Get the objective location */
+	FVector GetObjectiveLocation() const;
 
 
 	/*----------------------------------------------------
@@ -251,6 +295,10 @@ protected:
 	UPROPERTY()
 	AFlareMenuManager*                       MenuManager;
 
+	/* Objective */
+	UPROPERTY()
+	FFlarePlayerObjective                    CurrentObjective;
+
 	// Various gameplay data
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
@@ -260,7 +308,7 @@ protected:
 public:
 
 	/*----------------------------------------------------
-		Get & Set
+		Getters for game classes
 	----------------------------------------------------*/
 
 	inline UFlareCompany* GetCompany() const
@@ -281,16 +329,6 @@ public:
 	inline AFlareGame* GetGame() const
 	{
 		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-	}
-
-	inline FLinearColor GetOverlayColor() const
-	{
-		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetOverlayColorIndex());
-	}
-
-	inline FLinearColor GetColor() const
-	{
-		return GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
 	}
 
 	inline AFlareMenuManager* GetMenuManager() const
