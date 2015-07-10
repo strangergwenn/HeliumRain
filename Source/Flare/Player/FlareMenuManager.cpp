@@ -32,6 +32,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).MenuManager(this);
+		SAssignNew(OrbitMenu, SFlareOrbitalMenu).MenuManager(this);
 
 		// Fader
 		SAssignNew(Fader, SBorder)
@@ -47,6 +48,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
 
@@ -57,6 +59,7 @@ void AFlareMenuManager::SetupMenu()
 		CompanyMenu->Setup();
 		ShipMenu->Setup();
 		SectorMenu->Setup();
+		OrbitMenu->Setup();
 	}
 }
 
@@ -201,6 +204,7 @@ void AFlareMenuManager::ResetMenu()
 	CompanyMenu->Exit();
 	ShipMenu->Exit();
 	SectorMenu->Exit();
+	OrbitMenu->Exit();
 
 	if (PC)
 	{
@@ -255,9 +259,13 @@ void AFlareMenuManager::ProcessFadeTarget()
 		case EFlareMenu::MENU_ShipConfig:
 			InspectShip(static_cast<IFlareSpacecraftInterface*>(FadeTargetData), true);
 			break;
-		
+
 		case EFlareMenu::MENU_Sector:
 			OpenSector();
+			break;
+
+		case EFlareMenu::MENU_Orbit:
+			OpenOrbit();
 			break;
 
 		case EFlareMenu::MENU_Quit:
@@ -346,6 +354,13 @@ void AFlareMenuManager::OpenSector()
 	ResetMenu();
 	GetPC()->OnEnterMenu();
 	SectorMenu->Enter();
+}
+
+void AFlareMenuManager::OpenOrbit()
+{
+	ResetMenu();
+	GetPC()->OnEnterMenu();
+	OrbitMenu->Enter();
 }
 
 void AFlareMenuManager::ExitMenu()

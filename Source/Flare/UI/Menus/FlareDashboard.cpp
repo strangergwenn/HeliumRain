@@ -291,9 +291,8 @@ void SFlareDashboard::OnConfigureShip()
 
 void SFlareDashboard::OnOrbit()
 {
-	// TODO M4
-	MenuManager->Notify(LOCTEXT("Unavailable", "Unavailable feature !"), LOCTEXT("Info", "The full game will be released later :)"));
-	//MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+	//MenuManager->Notify(LOCTEXT("Unavailable", "Unavailable feature !"), LOCTEXT("Info", "The full game will be released later :)"));
+	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 }
 
 void SFlareDashboard::OnUndock()
