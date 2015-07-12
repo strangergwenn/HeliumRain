@@ -126,6 +126,97 @@ void SFlareOrbitalMenu::Exit()
 
 
 /*----------------------------------------------------
+	Drawing
+----------------------------------------------------*/
+
+int32 SFlareOrbitalMenu::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+{
+	FVector2D PlanetCenter = ClippingRect.GetSize() / 2;
+
+	DrawOrbitPath(AllottedGeometry, ClippingRect, OutDrawElements, LayerId, PlanetCenter, 200, 0, 200, 360);
+
+	DrawOrbitPath(AllottedGeometry, ClippingRect, OutDrawElements, LayerId, PlanetCenter, 250, 0, 300, 360);
+
+	DrawOrbitPath(AllottedGeometry, ClippingRect, OutDrawElements, LayerId, PlanetCenter, 350, -90, 300, 90);
+
+	return SCompoundWidget::OnPaint(Args, AllottedGeometry, ClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+}
+
+void SFlareOrbitalMenu::DrawOrbitPath(const FGeometry& AllottedGeometry, const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
+                                      FVector2D PlanetCenter, int32 RadiusA, int32 AngleA, int32 RadiusB, int32 AngleB) const
+{
+	// Setup initial data
+	float InitialDistance = AngleB - AngleA;
+	int32 InitialAngleA = AngleA;
+	int32 DrawnDistance = 0;
+	int32 DrawnSegments = 0;
+	int32 MaxAngleInSegment = 30;
+
+	// Get the rendering parametrs
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor WireColor = Theme.NeutralColor;
+	WireColor.A = Theme.DefaultAlpha;
+
+	// Compute initial points
+	float X, Y;
+	FMath::PolarToCartesian(RadiusA, FMath::DegreesToRadians(AngleA), X, Y);
+	FVector2D PointA = FVector2D(X, Y);
+	FMath::PolarToCartesian(RadiusB, FMath::DegreesToRadians(AngleB), X, Y);
+	FVector2D PointB = FVector2D(X, Y);
+
+	// Draw a series of segments until the path has been done.
+	do
+	{
+		// Compute intermediate angles
+		int32 CurrentAngleA = AngleA + DrawnSegments * MaxAngleInSegment;
+		int32 CurrentAngleB = FMath::Min(CurrentAngleA + MaxAngleInSegment, AngleB);
+		float CurrentAngleARad = FMath::DegreesToRadians(CurrentAngleA);
+		float CurrentAngleBRad = FMath::DegreesToRadians(CurrentAngleB);
+		
+		// Polar equation of an ellipse : point A
+		float CurrentRadiusA = (RadiusA * RadiusB) / FMath::Sqrt(
+			FMath::Square(RadiusB * FMath::Cos(CurrentAngleARad)) +
+			FMath::Square(RadiusA * FMath::Sin(CurrentAngleARad))
+			);
+		FMath::PolarToCartesian(CurrentRadiusA, FMath::DegreesToRadians(CurrentAngleA), X, Y);
+		FVector2D CurrentPointA = FVector2D(X, Y);
+
+		// Polar equation of an ellipse : point B
+		float CurrentRadiusB = (RadiusA * RadiusB) / FMath::Sqrt(
+			FMath::Square(RadiusB * FMath::Cos(CurrentAngleBRad)) +
+			FMath::Square(RadiusA * FMath::Sin(CurrentAngleBRad))
+			);
+		FMath::PolarToCartesian(CurrentRadiusB, FMath::DegreesToRadians(CurrentAngleB), X, Y);
+		FVector2D CurrentPointB = FVector2D(X, Y);
+
+		// Compute intermediate tangents
+		float TangentLength = FMath::Sqrt(2) * ((CurrentAngleB - CurrentAngleA) / 90.0f);
+		FVector2D CurrentTangentA = TangentLength * FVector2D(-CurrentPointA.Y, CurrentPointA.X);
+		FVector2D CurrentTangentB = TangentLength * FVector2D(-CurrentPointB.Y, CurrentPointB.X);
+
+		// Draw
+		FSlateDrawElement::MakeDrawSpaceSpline(
+			OutDrawElements,
+			LayerId,
+			PlanetCenter + CurrentPointA,
+			CurrentTangentA,
+			PlanetCenter + CurrentPointB,
+			CurrentTangentB,
+			ClippingRect,
+			5,
+			ESlateDrawEffect::None,
+			WireColor
+			);
+		
+		// Finish
+		DrawnDistance += (CurrentAngleB - CurrentAngleA);
+		DrawnSegments++;
+	}
+	while (DrawnDistance < InitialDistance);
+}
+
+
+/*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
 

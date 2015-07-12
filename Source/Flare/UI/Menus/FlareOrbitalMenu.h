@@ -41,6 +41,17 @@ public:
 protected:
 
 	/*----------------------------------------------------
+		Drawing
+	----------------------------------------------------*/
+
+	int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
+
+	/** Draw an orbit path between two points */
+	void DrawOrbitPath(const FGeometry& AllottedGeometry, const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
+	                   FVector2D PlanetCenter, int32 RadiusA, int32 AngleA, int32 RadiusB, int32 AngleB) const;
+
+
+	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
 
