@@ -179,6 +179,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_Settings:       Path = "Settings";     break;
 		case EFlareMenu::MENU_Quit:           Path = "Quit";         break;
 		case EFlareMenu::MENU_Exit:           Path = "Close";        break;
+		default:                              Path = "Empty";
 	}
 
 	if (ButtonVersion)

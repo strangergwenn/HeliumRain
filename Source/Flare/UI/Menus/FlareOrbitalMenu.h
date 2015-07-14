@@ -47,8 +47,15 @@ protected:
 	int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
 	/** Draw an orbit path between two points */
-	void DrawOrbitPath(const FGeometry& AllottedGeometry, const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
+	void DrawOrbitPath(const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
 	                   FVector2D PlanetCenter, int32 RadiusA, int32 AngleA, int32 RadiusB, int32 AngleB) const;
+
+	/** Draw a 90° arc */
+	void DrawOrbitSegment(const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
+		FVector2D PlanetCenter, FVector2D PointA, FVector2D TangentA, FVector2D PointB, FVector2D TangentB) const;
+
+	/** Get a position from polar coordinates */
+	inline FVector2D GetPositionFromPolar(int32 Radius, int32 Angle) const;
 
 
 	/*----------------------------------------------------
@@ -60,6 +67,9 @@ protected:
 
 	/** Exit this menu */
 	void OnExit();
+
+	/** Open a sector */
+	void OnOpenSector(TSharedPtr<int32> Index);
 
 
 protected:
