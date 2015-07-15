@@ -65,6 +65,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	SpacecraftCatalog = ConstructorStatics.SpacecraftCatalog.Object;
 	ShipPartsCatalog = ConstructorStatics.ShipPartsCatalog.Object;
 	CustomizationCatalog = ConstructorStatics.CustomizationCatalog.Object;
+	AsteroidCatalog = ConstructorStatics.AsteroidCatalog.Object;
 	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
 }
 
