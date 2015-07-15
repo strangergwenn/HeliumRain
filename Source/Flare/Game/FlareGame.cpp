@@ -49,12 +49,14 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 		ConstructorHelpers::FObjectFinder<UFlareSpacecraftComponentsCatalog> ShipPartsCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
 
 		FConstructorStatics()
 			: SpacecraftCatalog(TEXT("/Game/Gameplay/Catalog/SpacecraftCatalog"))
 			, ShipPartsCatalog(TEXT("/Game/Gameplay/Catalog/ShipPartsCatalog"))
 			, CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
 			, AsteroidCatalog(TEXT("/Game/Gameplay/Catalog/AsteroidCatalog"))
+			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
 		{}
 	};
 	static FConstructorStatics ConstructorStatics;
@@ -63,7 +65,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	SpacecraftCatalog = ConstructorStatics.SpacecraftCatalog.Object;
 	ShipPartsCatalog = ConstructorStatics.ShipPartsCatalog.Object;
 	CustomizationCatalog = ConstructorStatics.CustomizationCatalog.Object;
-	AsteroidCatalog = ConstructorStatics.AsteroidCatalog.Object;
+	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
 }
 
 
@@ -75,6 +77,35 @@ void AFlareGame::StartPlay()
 {
 	FLOG("AFlareGame::StartPlay");
 	Super::StartPlay();
+
+	// Create company emblems
+	if (CompanyCatalog)
+	{
+		const TArray<FFlareCompanyInfo>& Companies = CompanyCatalog->Companies;
+		UFlareCustomizationCatalog* Catalog = GetCustomizationCatalog();
+
+		for (int32 Index = 0; Index < Companies.Num(); Index++)
+		{
+			// Create the parameter
+			FVector2D EmblemSize = 128 * FVector2D::UnitVector;
+			UMaterial* BaseEmblemMaterial = Cast<UMaterial>(FFlareStyleSet::GetIcon("CompanyEmblem")->GetResourceObject());
+			UMaterialInstanceDynamic* Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
+			
+			// Setup the material
+			Emblem->SetTextureParameterValue("Emblem", Companies[Index].Emblem);
+			Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Companies[Index].CustomizationBasePaintColorIndex));
+			Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Companies[Index].CustomizationPaintColorIndex));
+			Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Companies[Index].CustomizationOverlayColorIndex));
+			Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(Companies[Index].CustomizationLightColorIndex));
+			CompanyEmblems.Add(Emblem);
+
+			// Create the brush dynamically
+			FSlateBrush EmblemBrush;
+			EmblemBrush.ImageSize = EmblemSize;
+			EmblemBrush.SetResourceObject(Emblem);
+			CompanyEmblemBrushes.Add(EmblemBrush);
+		}
+	}
 
 	// Spawn planet
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);

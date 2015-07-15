@@ -13,6 +13,7 @@
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Data/FlareAsteroidCatalog.h"
+#include "../Data/FlareCompanyCatalog.h"
 
 #include "FlareGame.generated.h"
 
@@ -193,6 +194,7 @@ public:
 	UFUNCTION(exec)
 	void MakePeace(FName Company1ShortName, FName Company2ShortName);
 
+
 	/*----------------------------------------------------
 		Immatriculations
 	----------------------------------------------------*/
@@ -250,6 +252,18 @@ protected:
 	UPROPERTY()
 	UFlareAsteroidCatalog*                   AsteroidCatalog;
 
+	/** Reference to company data */
+	UPROPERTY()
+	UFlareCompanyCatalog*                    CompanyCatalog;
+
+	/** Company emblems */
+	UPROPERTY()
+	TArray<UMaterialInstanceDynamic*>        CompanyEmblems;
+
+	/** Company emblem brushes */
+	UPROPERTY()
+	TArray<FSlateBrush>                      CompanyEmblemBrushes;
+
 
 	/*----------------------------------------------------
 		Immatriculation and save data
@@ -288,6 +302,16 @@ public:
 		return NULL;
 	}
 
+	inline const FFlareCompanyInfo* GetCompanyInfo(int32 Index) const
+	{
+		return (CompanyCatalog ? &CompanyCatalog->Companies[Index] : NULL);
+	}
+
+	inline const FSlateBrush* GetCompanyEmblem(int32 Index) const
+	{
+		return ((Index < CompanyEmblemBrushes.Num()) ? &CompanyEmblemBrushes[Index] : NULL);
+	}
+
 	inline TArray<UFlareCompany*> GetCompanies() const
 	{
 		return Companies;
@@ -316,6 +340,11 @@ public:
 	inline UFlareAsteroidCatalog* GetAsteroidCatalog() const
 	{
 		return AsteroidCatalog;
+	}
+
+	inline UFlareCompanyCatalog* GetCompanyCatalog() const
+	{
+		return CompanyCatalog;
 	}
 
 	inline bool IsLoadedOrCreated() const

@@ -70,6 +70,47 @@ struct FFlareCompanySave
 };
 
 
+/** Catalog data */
+USTRUCT()
+struct FFlareCompanyInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Name */
+	UPROPERTY(EditAnywhere, Category = Company)
+	FString Name;
+
+	/** Short name */
+	UPROPERTY(EditAnywhere, Category = Company)
+	FName ShortName;
+
+	/** Emblem */
+	UPROPERTY(EditAnywhere, Category = Company)
+	UTexture2D* Emblem;
+
+	/** Base color index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CustomizationBasePaintColorIndex;
+	
+	/** Paint color index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CustomizationPaintColorIndex;
+
+	/** Lights color index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CustomizationOverlayColorIndex;
+
+	/** Lights color index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CustomizationLightColorIndex;
+
+	/** Pattern index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CustomizationPatternIndex;
+
+};
+
+
 class AFlareGame;
 class IFlareSpacecraftInterface;
 
