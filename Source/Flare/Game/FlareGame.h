@@ -312,6 +312,11 @@ public:
 		return ((Index < CompanyEmblemBrushes.Num()) ? &CompanyEmblemBrushes[Index] : NULL);
 	}
 
+	inline const int32 GetCompanyCount() const
+	{
+		return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);
+	}
+
 	inline TArray<UFlareCompany*> GetCompanies() const
 	{
 		return Companies;
