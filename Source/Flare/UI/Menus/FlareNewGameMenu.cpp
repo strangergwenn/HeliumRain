@@ -219,8 +219,8 @@ void SFlareNewGameMenu::OnLaunch()
 		FLOGV("SFlareNewGameMenu::OnLaunch : '%s', scenario %d", *CompanyNameData, ScenarioIndex);
 
 		// Launch
-		Game->CreateWorld(PC, CompanyNameData, ScenarioIndex);
-		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, PC->GetShipPawn());
+		Game->CreateGame(PC, CompanyNameData, ScenarioIndex);
+		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
 	}
 }
 

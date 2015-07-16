@@ -52,7 +52,7 @@ public:
 	FLinearColor GetShadowColor() const;
 
 	/** Get the progress bar */
-	TOptional<float> SFlareObjectiveInfo::GetProgress() const;
+	TOptional<float> GetProgress() const;
 
 
 protected:

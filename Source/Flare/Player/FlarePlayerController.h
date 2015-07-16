@@ -2,6 +2,7 @@
 
 #include "../Flare.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareSaveGame.h"
 #include "FlareMenuPawn.h"
 #include "../UI/Components/FlareNotifier.h"
 #include "FlarePlayerController.generated.h"
@@ -9,43 +10,6 @@
 
 class AFlareMenuManager;
 class AFlareHUD;
-
-
-/** Player objective data */
-USTRUCT()
-struct FFlarePlayerObjective
-{
-	GENERATED_USTRUCT_BODY()
-
-	bool                        Set;
-	FText                       Name;
-	FText                       Info;
-	AActor*                     Target;
-	FVector                     Location;
-	float                       Progress;
-};
-
-
-/** Game save data */
-USTRUCT()
-struct FFlarePlayerSave
-{
-	GENERATED_USTRUCT_BODY()
-	
-	/** UObject name of the currently possessed ship */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FString CurrentShipName;
-
-	/** Chosen scenario */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 ScenarioId;
-
-	/** Identifier of the company */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName CompanyIdentifier;
-
-};
-
 
 UCLASS(MinimalAPI)
 class AFlarePlayerController : public APlayerController
@@ -96,6 +60,11 @@ public:
 	/** Set the player's company */
 	virtual void SetCompany(UFlareCompany* NewCompany);
 	
+	/** Call a sector is activated */
+	virtual void OnSectorActivated();
+
+	/** Call a sector is deactivated */
+	virtual void OnSectorDeactivated();
 
 	/*----------------------------------------------------
 		Menus

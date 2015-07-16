@@ -18,7 +18,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	Game = MenuManager->GetPC()->GetGame();
+	Game = MenuManager->GetGame();
 
 	// Build structure
 	ChildSlot
@@ -111,8 +111,7 @@ void SFlareLeaderboardMenu::Enter()
 	// Reset data
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	AFlareGame* Game = MenuManager->GetGame();
-	const TArray<UFlareCompany*>& Companies = Game->GetCompanies();
+	const TArray<UFlareCompany*>& Companies = Game->GetGameWorld()->GetCompanies();
 	
 	// Add companies
 	CompanyListData.Empty();

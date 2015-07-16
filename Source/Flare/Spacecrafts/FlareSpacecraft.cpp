@@ -267,7 +267,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	WeaponsSystem->Initialize(this, &ShipData);
 
 	// Look for parent company
-	SetOwnerCompany(GetGame()->FindCompany(Data.CompanyIdentifier));
+	SetOwnerCompany(GetGame()->GetGameWorld()->FindCompany(Data.CompanyIdentifier));
 
 	// Initialize components
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
@@ -324,6 +324,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	// Re-dock if we were docked
 	if (ShipData.DockedTo != NAME_None && !IsPresentationMode())
 	{
+		// TODO use sector iterator
 		FLOGV("AFlareSpacecraft::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{

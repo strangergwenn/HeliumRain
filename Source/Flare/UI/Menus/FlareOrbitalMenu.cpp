@@ -108,33 +108,11 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.Padding(Theme.ContentPadding)
 		[
-			SNew(SHorizontalBox)
-
-			+ SHorizontalBox::Slot()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Sector 1", "Sector 1"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, TSharedPtr<int32>(new int32(1)))
-			]
-
-			+ SHorizontalBox::Slot()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Sector 2", "Sector 2"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, TSharedPtr<int32>(new int32(2)))
-			]
-
-			+ SHorizontalBox::Slot()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Sector 3", "Sector 3"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, TSharedPtr<int32>(new int32(3)))
-			]
+			SAssignNew(SectorsBox, SHorizontalBox)
 		]
 	];
+
+
 
 }
 
@@ -154,12 +132,32 @@ void SFlareOrbitalMenu::Enter()
 	FLOG("SFlareOrbitalMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+
+	Game->DeactivateSector(MenuManager->GetPC());
+
+	// Add sectors slots
+	for (int32 SectorIndex = 0; SectorIndex < Game->GetGameWorld()->GetSectors().Num(); SectorIndex++)
+	{
+		TSharedPtr<int32> IndexPtr(new int32(SectorIndex));
+
+		UFlareSimulatedSector* Sector = Game->GetGameWorld()->GetSectors()[SectorIndex];
+
+		SectorsBox->AddSlot()
+		[
+			SNew(SFlareRoundButton)
+			.Text(FText::FromString(Sector->GetSectorName()))
+			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
+			.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
+		];
+	}
 }
 
 void SFlareOrbitalMenu::Exit()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
+
+	SectorsBox->ClearChildren();
 }
 
 
@@ -276,8 +274,8 @@ void SFlareOrbitalMenu::OnMainMenu()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	PC->GetGame()->SaveWorld(PC);
-	PC->GetGame()->DeleteWorld();
+	PC->GetGame()->SaveGame(PC);
+	PC->GetGame()->UnloadGame();
 
 	MenuManager->FlushNotifications();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
@@ -291,7 +289,13 @@ void SFlareOrbitalMenu::OnExit()
 
 void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 {
-	// Fred
+	UFlareSimulatedSector* Sector = Game->GetGameWorld()->GetSectors()[*Index];
+
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		Game->ActivateSector(PC, Sector);
+	}
 }
 
 

@@ -194,11 +194,11 @@ public:
 	/** Save the ship to a save file */
 	virtual FFlareSpacecraftSave* Save() = 0;
 
-	/** Set the parent company */
-	virtual void SetOwnerCompany(UFlareCompany* Company) = 0;
-
 	/** Get the parent company */
 	virtual UFlareCompany* GetCompany() = 0;
+
+	/** Get the ship nick name */
+	virtual FName GetNickName() const = 0;
 
 	/** Get the ship size class */
 	virtual EFlarePartSize::Type GetSize() = 0;
@@ -210,13 +210,6 @@ public:
 
 	/** Check if this is a station ship */
 	virtual bool IsStation() = 0;
-
-	/** Get the closest internal component */
-	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const = 0;
-
-	/** Return cockpit, if present */
-	virtual UFlareSpacecraftComponent* GetCockpit() const = 0;
-
 
 	/*----------------------------------------------------
 		Sub system

@@ -25,6 +25,8 @@ UFlareCompany::UFlareCompany(const FObjectInitializer& ObjectInitializer)
 
 void UFlareCompany::Load(const FFlareCompanySave& Data)
 {
+	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
+
 	CompanyData = Data;
 	CompanyData.Identifier = FName(*GetName());
 	CompanyDescription = NULL;
@@ -76,7 +78,7 @@ void UFlareCompany::Unregister(IFlareSpacecraftInterface* Ship)
 
 EFlareHostility::Type UFlareCompany::GetPlayerHostility() const
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOuter()->GetWorld()->GetFirstPlayerController());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
 
 	if (PC)
 	{

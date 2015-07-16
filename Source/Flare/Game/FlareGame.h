@@ -8,6 +8,8 @@
 
 #include "FlarePlanetarium.h"
 #include "FlareCompany.h"
+#include "FlareWorld.h"
+#include "FlareSector.h"
 
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
@@ -54,6 +56,9 @@ public:
 
 	virtual void Logout(AController* Player) override;
 
+	virtual void ActivateSector(AController* Player,UFlareSimulatedSector* Sector);
+
+	virtual void DeactivateSector(AController* Player);
 
 	/*----------------------------------------------------
 		Save slots
@@ -88,62 +93,29 @@ public:
 		Save
 	----------------------------------------------------*/
 
-	/** Create a new world from scratch */
-	virtual void CreateWorld(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex);
-
-	/** Init world with empty scenario */
-	virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
-
-	/** Init world with peaceful scenario */
-	virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
-
-	/** Init world with threatened scenario */
-	virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
-
-	/** Init world with aggresve scenario */
-	virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
-
+	/** Create a new game from scratch */
+	virtual void CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex);
 
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);
 
-	/** Create a station in the level  for a specific company */
-	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
-
-	/** Create a ship in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
-
-	/** Create a ship or station in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
-
-	/** Add an asteroid to the world at a specific location */
-	void CreateAsteroidAt(int32 ID, FVector Location);
-
-	/** Load the world from this save file */
-	virtual bool LoadWorld(AFlarePlayerController* PC);
-
-	/** Spawn a company from save data */
-	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
-
-	/** Spawn an asteroid from save data */
-	virtual AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
-
-	/** Spawn a ship from save data */
-	virtual AFlareSpacecraft* LoadShip(const FFlareSpacecraftSave& ShipData);
-
-	/** Spawn a bomb from save data */
-	virtual AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
+    /** Load the game from this save file */
+    virtual bool LoadGame(AFlarePlayerController* PC);
 
 	/** Save the world to this save file */
-	virtual bool SaveWorld(AFlarePlayerController* PC);
+	virtual bool SaveGame(AFlarePlayerController* PC);
 
-	/** Delete the world */
-	virtual void DeleteWorld();
+	/** Unload the game*/
+	virtual void UnloadGame();
 
 
 	/*----------------------------------------------------
 		Creation command line
 	----------------------------------------------------*/
+
+	/** Create a ship in a sector for the current player*/
+	UFUNCTION(exec)
+	UFlareSimulatedSpacecraft* CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier);
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
@@ -181,9 +153,9 @@ public:
 	UFUNCTION(exec)
 	void CreateAsteroid(int32 ID);
 
-	/** Empty the world. Let only the current played ship and its company */
+	/** Empty the active sector. Let only the current played ship */
 	UFUNCTION(exec)
-	virtual void EmptyWorld();
+	virtual void EmptySector();
 
 	/** Make war between two company */
 	UFUNCTION(exec)
@@ -192,6 +164,14 @@ public:
 	/** Make peace two company */
 	UFUNCTION(exec)
 	void MakePeace(FName Company1ShortName, FName Company2ShortName);
+
+	/** Force sector activation */
+	UFUNCTION(exec)
+	void ForceSectorActivation(FName SectorIdentifier);
+
+	/** Force sector deactivation */
+	UFUNCTION(exec)
+	void ForceSectorDeactivation();
 
 
 	/*----------------------------------------------------
@@ -226,9 +206,13 @@ protected:
 	UPROPERTY()
 	AFlarePlanetarium*                       Planetarium;
 
-	/** Companies */
+    /** World */
+    UPROPERTY()
+    UFlareWorld*                   World;
+
+	/** Active sector */
 	UPROPERTY()
-	TArray<UFlareCompany*>                   Companies;
+	UFlareSector*                   ActiveSector;
 
 
 	/*----------------------------------------------------
@@ -271,8 +255,8 @@ protected:
 	int32                                    CurrentImmatriculationIndex;
 	TArray<FName>                            BaseImmatriculationNameList;
 
-	FName                                    DefaultWeaponIdentifer;
-	FName                                    DefaultTurretIdentifer;
+	FName                                    DefaultWeaponIdentifier;
+	FName                                    DefaultTurretIdentifier;
 
 	int32                                    CurrentSaveIndex;
 	bool                                     LoadedOrCreated;
@@ -288,17 +272,14 @@ public:
 		Get & Set
 	----------------------------------------------------*/
 
-	inline UFlareCompany* FindCompany(FName Identifier) const
+	inline UFlareWorld* GetGameWorld() const
 	{
-		for(int i = 0; i < Companies.Num(); i++)
-		{
-			UFlareCompany* Company = Companies[i];
-			if (Company && Company->GetIdentifier() == Identifier)
-			{
-				return Company;
-			}
-		}
-		return NULL;
+		return World;
+	}
+
+	inline UFlareSector* GetActiveSector() const
+	{
+		return ActiveSector;
 	}
 
 	inline const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const
@@ -313,11 +294,6 @@ public:
 	inline const int32 GetCompanyCatalogCount() const
 	{
 		return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);
-	}
-
-	inline TArray<UFlareCompany*> GetCompanies() const
-	{
-		return Companies;
 	}
 
 	inline UClass* GetMenuPawnClass() const
@@ -353,6 +329,16 @@ public:
 	inline bool IsLoadedOrCreated() const
 	{
 		return LoadedOrCreated;
+	}
+
+	inline FName GetDefaultWeaponIdentifier() const
+	{
+		return DefaultWeaponIdentifier;
+	}
+
+	inline FName GetDefaultTurretIdentifier() const
+	{
+		return DefaultTurretIdentifier;
 	}
 
 };

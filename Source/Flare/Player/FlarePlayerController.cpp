@@ -203,7 +203,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 
 	// TODO MOVE
-	if(PlayerData.ScenarioId == 2)
+	/*if(PlayerData.ScenarioId == 2)
 	{
 		TArray<UFlareCompany*> Companies = GetGame()->GetCompanies();
 		UFlareCompany* HelixCompany = NULL;
@@ -242,7 +242,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 				GetGame()->DeclareWar(HelixCompany->GetShortName(), Company->GetShortName());
 			}
 		}
-	}
+	}*/
 }
 
 void AFlarePlayerController::UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume)
@@ -347,7 +347,7 @@ void AFlarePlayerController::SetCompanyDescription(const FFlareCompanyDescriptio
 void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 {
 	PlayerData = SavePlayerData;
-	Company = GetGame()->FindCompany(PlayerData.CompanyIdentifier);
+	Company = GetGame()->GetGameWorld()->FindCompany(PlayerData.CompanyIdentifier);
 }
 
 void AFlarePlayerController::OnLoadComplete()
@@ -365,6 +365,16 @@ void AFlarePlayerController::OnLoadComplete()
 	}
 	SetWorldPause(true);
 	Company->UpdateCompanyCustomization();
+}
+
+void AFlarePlayerController::OnSectorActivated()
+{
+	QuickSwitch();
+}
+
+void AFlarePlayerController::OnSectorDeactivated()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 }
 
 void AFlarePlayerController::Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData)

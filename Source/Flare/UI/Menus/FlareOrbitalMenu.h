@@ -50,7 +50,7 @@ protected:
 	void DrawOrbitPath(const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
 	                   FVector2D PlanetCenter, int32 RadiusA, int32 AngleA, int32 RadiusB, int32 AngleB) const;
 
-	/** Draw a 90° arc */
+	/** Draw a 90Â° arc */
 	void DrawOrbitSegment(const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
 		FVector2D PlanetCenter, FVector2D PointA, FVector2D TangentA, FVector2D PointB, FVector2D TangentB) const;
 
@@ -85,4 +85,5 @@ protected:
 	AFlareGame*                                 Game;
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
 	
+	TSharedPtr<SHorizontalBox>                  SectorsBox;
 };

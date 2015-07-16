@@ -64,7 +64,7 @@ public:
 
 	virtual FFlareSpacecraftSave* Save() override;
 
-	virtual void SetOwnerCompany(UFlareCompany* Company) override;
+	virtual void SetOwnerCompany(UFlareCompany* Company);
 
 	virtual UFlareCompany* GetCompany() override;
 
@@ -76,7 +76,7 @@ public:
 
 	virtual bool IsStation() override;
 
-	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const override;
+	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
 
 	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const;
 
@@ -226,7 +226,7 @@ public:
 		return ShipDescription;
 	}
 
-	inline FName GetNickName() const
+	inline FName GetNickName() const override
 	{
 		return ShipData.NickName;
 	}
@@ -241,7 +241,7 @@ public:
 		return RCSDescription;
 	}
 
-	virtual UFlareSpacecraftComponent* GetCockpit() const override
+	virtual UFlareSpacecraftComponent* GetCockpit() const
 	{
 		return ShipCockit;
 	}
