@@ -167,23 +167,29 @@ void AFlareGame::ReadAllSaveSlots()
 
 			// Count player ships
 			SaveSlotInfo.CompanyShipCount = 0;
-			for (int32 ShipIndex = 0; ShipIndex < Save->ShipData.Num(); ShipIndex++)
-			{
-				const FFlareSpacecraftSave& Spacecraft = Save->ShipData[ShipIndex];
-				if (Spacecraft.CompanyIdentifier == Save->PlayerData.CompanyIdentifier)
-				{
-					SaveSlotInfo.CompanyShipCount++;
-				}
-			}
+
+            for (int32 SectorIndex = 0; SectorIndex <  Save->WorldData.SectorData.Num(); SectorIndex++)
+            {
+                FFlareSectorSave* SectorSave = &Save->WorldData.SectorData[SectorIndex];
+
+                for (int32 ShipIndex = 0; ShipIndex < SectorSave->ShipData.Num(); ShipIndex++)
+                {
+                    const FFlareSpacecraftSave& Spacecraft = SectorSave->ShipData[ShipIndex];
+                    if (Spacecraft.CompanyIdentifier == Save->PlayerData.CompanyIdentifier)
+                    {
+                        SaveSlotInfo.CompanyShipCount++;
+                    }
+                }
+            }
 
 			// Find company
 			FFlareCompanySave* PlayerCompany = NULL;
-			for (int32 CompanyIndex = 0; CompanyIndex < Save->CompanyData.Num(); CompanyIndex++)
+            for (int32 CompanyIndex = 0; CompanyIndex < Save->WorldData.CompanyData.Num(); CompanyIndex++)
 			{
-				const FFlareCompanySave& Company = Save->CompanyData[CompanyIndex];
+                const FFlareCompanySave& Company = Save->WorldData.CompanyData[CompanyIndex];
 				if (Company.Identifier == Save->PlayerData.CompanyIdentifier)
 				{
-					PlayerCompany = &(Save->CompanyData[CompanyIndex]);
+                    PlayerCompany = &(Save->WorldData.CompanyData[CompanyIndex]);
 				}
 			}
 
@@ -336,264 +342,6 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 	PC->OnLoadComplete();
 }
 
-void AFlareGame::InitEmptyScenario(FFlarePlayerSave* PlayerData)
-{
-	// Player ship
-	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
-	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
-}
-
-
-void AFlareGame::InitPeacefulScenario(FFlarePlayerSave* PlayerData)
-{
-	// Player ship
-	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
-	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
-
-
-	CreateStation("station-hub", PlayerData->CompanyIdentifier, FVector(100000, 3000, 6000), FRotator(12, -166,36));
-	CreateStation("station-outpost", PlayerData->CompanyIdentifier, FVector(150000, -10000, -4000), FRotator(93,-154 ,-45));
-	CreateStation("station-outpost", PlayerData->CompanyIdentifier, FVector(-80000, -40000, -2000), FRotator(-98, -47,37));
-
-
-	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(-202600, -65900, -64660));
-	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(213890, 97140, -122440));
-	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(281160, 20594, -31270));
-	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(-195700, -93880, 271180));
-	CreateShip("ship-omen", PlayerData->CompanyIdentifier , FVector(88900, -103630, 222380));
-
-	CreateAsteroidAt(0, FVector(29040,7698,-3808));
-	CreateAsteroidAt(1, FVector(64105,15792,-28780));
-	CreateAsteroidAt(2, FVector(12845,25071,-10792));
-
-	FVector BaseFleetLocation = FVector(-59940, 275780, 75350);
-
-	SetDefaultTurret(FName("weapon-hades-heat"));
-	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BaseFleetLocation);
-
-	SetDefaultTurret(FName("weapon-artemis"));
-	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(0, 20000, 0));
-	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(0, -20000, 0));
-
-	SetDefaultWeapon(FName("weapon-wyrm"));
-	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(10000, -15000, 0));
-	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(10000, 15000, 0));
-	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-10000, -15000, 0));
-	CreateShip("ship-orca", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-10000, 15000, 0));
-
-	SetDefaultWeapon(FName("weapon-eradicator"));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(20000, 0, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(18000, -10000, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(18000, 10000, 0));
-
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-20000, -10000, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseFleetLocation + FVector(-20000, 10000, 0));
-}
-
-void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany)
-{
-
-	CreateStation("station-hub", PlayerData->CompanyIdentifier, FVector(10000, -3000, -6000), FRotator(6, -16, 36));
-
-	FVector BaseAllyFleetLocation = FVector(-50000, 0, 50);
-
-	SetDefaultWeapon(FName("weapon-eradicator"));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -10000, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -20000, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -30000, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, -40000, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, 10000, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, 20000, 0));
-	AFlareSpacecraft* ShipPawn = CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, 30000, 0));
-	CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BaseAllyFleetLocation + FVector(0, 40000, 0));
-
-	// Player ship
-	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
-
-
-	// Enemy
-	UFlareCompany* MiningSyndicate = Companies[0];
-
-	FVector BaseEnemyFleetLocation = FVector(600000, 0, -50);
-
-	SetDefaultWeapon(FName("weapon-eradicator"));
-	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 0, 0));
-	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -10000, 0));
-	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -20000, 0));
-	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, -30000, 0));
-	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 10000, 0));
-	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 20000, 0));
-	CreateShip("ship-ghoul", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(0, 30000, 0));
-
-	// Bombers
-	float BomberDistance = 800000;
-
-	SetDefaultWeapon(FName("weapon-wyrm"));
-	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, 0, 0));
-	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance, -20000, 0));
-	CreateShip("ship-orca", MiningSyndicate->GetIdentifier() , BaseEnemyFleetLocation + FVector(BomberDistance	, 20000, 0));
-
-	DeclareWar(PlayerCompany->GetShortName(), MiningSyndicate->GetShortName());
-}
-
-
-void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany)
-{
-
-	// The goal is to attack an heavily defended enemy base
-
-	// A third neutral company have few station and a fleet and will attack you after the  hostile fleet
-
-
-	// The player army have this composition :
-
-	// - 16 Ghoul/Eradicator to destroy enemy fighter un 2 wave (0km / 2 km)
-	// - 10 bombers to destroy enemy invader quickly (3 km)
-	// - 2 support invader (refill and repair) : HEAT/Hades (8 km)
-	// - 2 attack dragon : 1 AA/Artemis and 1 Hades (4 km but slow)
-
-	// The Alliance Shipbuiding base have :
-
-	// - 3 Hub station
-	// - 6 Outpost
-	// - 8 asteroid
-	// - 5 omen
-
-	// - 10 Ghoul/Eradicator
-	// - 3 Orca/Eradicator
-	// - 1 Invader/Artemis
-	// - 2 Dragon/Hades HEAT
-
-
-	// The Helix have a small base at 8 km
-
-	// - 1 Hub station
-	// - 2 Outpost
-	// - 1 asteroid
-	// - 3 omen
-
-	// But small but powerfull army
-	// - 8 Orca/Eradicator
-	// - 1 Invader/Hades HEAT
-	// - 1 Dragon/Hades
-
-	// The Helix team will attack when the Alliance is destroyed
-
-
-	// Companies
-	UFlareCompany* Helix = Companies[1];
-	UFlareCompany* Sunwatch = Companies[2];
-
-
-	// Sunwatch base
-	FVector BaseSunwatchBaseLocation = FVector(0, 0, 0);
-	CreateStation("station-hub", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation + FVector(0, 0, 0), FRotator(-92, 166, -11));
-	CreateStation("station-hub", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation + FVector(110944, -1156, 159247), FRotator(12, 139, 119));
-	CreateStation("station-hub", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation + FVector(104117, 171446, 153713), FRotator(63, 57, -68));
-	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation + FVector(97886, -53237, -23485), FRotator(93,-154 ,-45));
-	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation +  FVector(-122594, -22054, -74239), FRotator(-165, -111, 84));
-	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation +  FVector(-79444, -36365, -73637), FRotator(36, -74, 14));
-	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation +  FVector(40752, -91781, -158555), FRotator(97, -2, -152));
-	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation +  FVector(163550, -139760, -25490), FRotator(134, 132, -153));
-
-	CreateAsteroidAt(0, BaseSunwatchBaseLocation + FVector(73107, 74094, 97755));
-	CreateAsteroidAt(1, BaseSunwatchBaseLocation + FVector(12946, 18884, 23809));
-	CreateAsteroidAt(2, BaseSunwatchBaseLocation + FVector(-51672, 87149, -52379));
-	CreateAsteroidAt(0, BaseSunwatchBaseLocation + FVector(93095, 92590, 32988));
-	CreateAsteroidAt(1, BaseSunwatchBaseLocation + FVector(85846, 24798, -770));
-	CreateAsteroidAt(2, BaseSunwatchBaseLocation + FVector(19864, -61543, 88115));
-	CreateAsteroidAt(0, BaseSunwatchBaseLocation + FVector(128166, 76403, 149982));
-	CreateAsteroidAt(1, BaseSunwatchBaseLocation + FVector(-148056, -145663, 126968));
-
-
-
-	// Sunwatch fleet
-	FVector BaseSunwatchFleetLocation = FVector(300000, 200000, 50000);
-
-	SetDefaultWeapon(FName("weapon-eradicator"));
-	for(int i = 0; i < 5; i++)
-	{
-		CreateShip("ship-ghoul", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(10000 * i , 0, 30000));
-		CreateShip("ship-ghoul", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(10000 * i , 10000, -10000));
-	}
-
-	SetDefaultWeapon(FName("weapon-eradicator"));
-	for(int i = 0; i < 3; i++)
-	{
-		CreateShip("ship-orca", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(10000 * i , -10000, 5000));
-	}
-
-	SetDefaultTurret(FName("weapon-artemis"));
-	CreateShip("ship-invader", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(0, -30000, -200000));
-	SetDefaultTurret(FName("weapon-hades-heat"));
-	CreateShip("ship-dragon", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(20000, -30000, 15000));
-	CreateShip("ship-dragon", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(40000, -30000, 15000));
-
-
-
-	// Helix base
-	FVector BaseHelixBaseLocation = FVector(-300000, 100000, 600000);
-	CreateStation("station-hub", Helix->GetIdentifier(), BaseHelixBaseLocation + FVector(0, 0, 0), FRotator(154, 142, 123));
-	CreateStation("station-outpost", Helix->GetIdentifier(), BaseHelixBaseLocation + FVector(-12639, 47480, 3364), FRotator(42, -147, 13));
-	CreateStation("station-outpost", Helix->GetIdentifier(), BaseHelixBaseLocation +  FVector(4274, 40997, 44388), FRotator(37, 27, -175));
-
-	CreateAsteroidAt(0, BaseHelixBaseLocation	+ FVector(25491, -38851, -26195));
-
-	// Helix fleet
-	FVector BaseHelixFleetLocation = BaseHelixBaseLocation + FVector(100000, 0, 0);
-	SetDefaultWeapon(FName("weapon-eradicator"));
-	for(int i = 0; i < 8; i++)
-	{
-		CreateShip("ship-orca", Helix->GetIdentifier() , BaseHelixFleetLocation + FVector(10000 * i , -10000, 5000));
-	}
-
-
-	SetDefaultTurret(FName("weapon-hades-heat"));
-	CreateShip("ship-invader", Helix->GetIdentifier() , BaseHelixFleetLocation + FVector(0, -30000, -200000));
-	SetDefaultTurret(FName("weapon-hades"));
-	CreateShip("ship-dragon", Helix->GetIdentifier() , BaseHelixFleetLocation + FVector(20000, -30000, 15000));
-
-
-	// Player army
-	FVector BasePlayerFleetLocation = FVector(-600000, -200000, -50000);
-
-	SetDefaultWeapon(FName("weapon-eradicator"));
-
-	for(int i = -4; i < 4; i++) // 8
-	{
-		CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(0 , 8000 * i, -5000));
-	}
-
-	for(int i = -4; i < 4; i++) // 8
-	{
-		AFlareSpacecraft* ShipPawn = CreateShip("ship-ghoul", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-100000, 10000 * i , 5000));
-		if( i == 0)
-		{
-			// Player ship
-			PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
-		}
-	}
-	SetDefaultWeapon(FName("weapon-wyrm"));
-	for(int i = -5; i < 5; i++) // 8
-	{
-		CreateShip("ship-orca", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector( -300000 - 10000 * FMath::Abs(i), 30000 * i, 0));
-	}
-
-
-	SetDefaultTurret(FName("weapon-hades"));
-	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-600000, -30000, 10000));
-
-	SetDefaultTurret(FName("weapon-artemis"));
-	CreateShip("ship-dragon", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-600000, 30000, -9000));
-
-	SetDefaultTurret(FName("weapon-hades-heat"));
-	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-800000, 0, 20000));
-	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-700000, 200000, 20000));
-
-	DeclareWar(PlayerCompany->GetShortName(), Sunwatch->GetShortName());
-}
-
-
 AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {
 	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
@@ -626,109 +374,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifie
 	return NULL;
 }
 
-AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
-{
-	AFlareSpacecraft* ShipPawn = NULL;
-	UFlareCompany* Company = FindCompany(CompanyIdentifier);
-
-	if (ShipDescription && Company)
-	{
-		// Default data
-		FFlareSpacecraftSave ShipData;
-		ShipData.Location = TargetPosition;
-		ShipData.Rotation = TargetRotation;
-		ShipData.LinearVelocity = FVector::ZeroVector;
-		ShipData.AngularVelocity = FVector::ZeroVector;
-		Immatriculate(Company, ShipDescription->Identifier, &ShipData);
-		ShipData.Identifier = ShipDescription->Identifier;
-		ShipData.Heat = 600 * ShipDescription->HeatCapacity;
-		ShipData.PowerOutageDelay = 0;
-		ShipData.PowerOutageAcculumator = 0;
-
-		FName RCSIdentifier;
-		FName OrbitalEngineIdentifier;
-
-		// Size selector
-		if (ShipDescription->Size == EFlarePartSize::S)
-		{
-			RCSIdentifier = FName("rcs-piranha");
-			OrbitalEngineIdentifier = FName("engine-octopus");
-		}
-		else if (ShipDescription->Size == EFlarePartSize::L)
-		{
-			RCSIdentifier = FName("rcs-rift");
-			OrbitalEngineIdentifier = FName("pod-surtsey");
-		}
-		else
-		{
-			// TODO
-		}
-
-		for (int32 i = 0; i < ShipDescription->RCSCount; i++)
-		{
-			FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = RCSIdentifier;
-			ComponentData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
-			ComponentData.Damage = 0.f;
-			ShipData.Components.Add(ComponentData);
-		}
-
-		for (int32 i = 0; i < ShipDescription->OrbitalEngineCount; i++)
-		{
-			FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
-			ComponentData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
-			ComponentData.Damage = 0.f;
-			ShipData.Components.Add(ComponentData);
-		}
-
-		for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
-		{
-			FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = DefaultWeaponIdentifer;
-			ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
-			ComponentData.Damage = 0.f;
-			ComponentData.Weapon.FiredAmmo = 0;
-			ShipData.Components.Add(ComponentData);
-		}
-
-		for (int32 i = 0; i < ShipDescription->TurretSlots.Num(); i++)
-		{
-			FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = DefaultTurretIdentifer;
-			ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
-			ComponentData.Turret.BarrelsAngle = 0;
-			ComponentData.Turret.TurretAngle = 0;
-			ComponentData.Weapon.FiredAmmo = 0;
-			ComponentData.Damage = 0.f;
-			ShipData.Components.Add(ComponentData);
-		}
-
-		for (int32 i = 0; i < ShipDescription->InternalComponentSlots.Num(); i++)
-		{
-			FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = ShipDescription->InternalComponentSlots[i].ComponentIdentifier;
-			ComponentData.ShipSlotIdentifier = ShipDescription->InternalComponentSlots[i].SlotIdentifier;
-			ComponentData.Damage = 0.f;
-			ShipData.Components.Add(ComponentData);
-		}
-
-		// Init pilot
-		ShipData.Pilot.Identifier = "chewie";
-		ShipData.Pilot.Name = "Chewbaca";
-
-		// Init company
-		ShipData.CompanyIdentifier = CompanyIdentifier;
-
-		// Create the ship
-		ShipPawn = LoadShip(ShipData);
-		FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetImmatriculation(), *TargetPosition.ToString());
-	}
-
-	return ShipPawn;
-}
-
-bool AFlareGame::LoadWorld(AFlarePlayerController* PC)
+bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 {
 	FLOGV("AFlareGame::LoadWorld : loading from slot %d", CurrentSaveIndex);
 	UFlareSaveGame* Save = ReadSaveSlot(CurrentSaveIndex);
@@ -736,42 +382,18 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC)
 	// Load from save
 	if (PC && Save)
 	{
+		PC->SetCompanyDescription(Save->PlayerCompanyDescription);
+
+        // Create the new world
+        World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
+        World->Load(Save->WorldData);
+
 		// Load
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
 
-		// Load all companies
-		PC->SetCompanyDescription(Save->PlayerCompanyDescription);
-		for (int32 i = 0; i < Save->CompanyData.Num(); i++)
-		{
-			LoadCompany(Save->CompanyData[i]);
-		}
-
+        // TODO check if load is ok for ship event before the PC load
 		// Load the player
 		PC->Load(Save->PlayerData);
-
-		// Load all stations
-		for (int32 i = 0; i < Save->StationData.Num(); i++)
-		{
-			LoadShip(Save->StationData[i]);
-		}
-
-		// Load all ships
-		for (int32 i = 0; i < Save->ShipData.Num(); i++)
-		{
-			LoadShip(Save->ShipData[i]);
-		}
-
-		// Load all bombs
-		for (int32 i = 0; i < Save->BombData.Num(); i++)
-		{
-			LoadBomb(Save->BombData[i]);
-		}
-
-		// Load all asteroids
-		for (int32 i = 0; i < Save->AsteroidData.Num(); i++)
-		{
-			LoadAsteroid(Save->AsteroidData[i]);
-		}
 
 		LoadedOrCreated = true;
 		PC->OnLoadComplete();
@@ -784,137 +406,6 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC)
 		FLOGV("AFlareGame::LoadWorld : could lot load slot %d", CurrentSaveIndex);
 		return false;
 	}
-}
-
-UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
-{
-	UFlareCompany* Company = NULL;
-
-	// Create the new company
-	Company = NewObject<UFlareCompany>(this, UFlareCompany::StaticClass(), CompanyData.Identifier);
-	Company->Load(CompanyData);
-	Companies.AddUnique(Company);
-	FLOGV("AFlareGame::LoadCompany : loaded '%s'", *Company->GetCompanyName());
-
-	return Company;
-}
-
-AFlareAsteroid* AFlareGame::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
-{
-	FActorSpawnParameters Params;
-	Params.bNoFail = true;
-
-	AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), AsteroidData.Location, AsteroidData.Rotation, Params);
-	Asteroid->Load(AsteroidData);
-	return Asteroid;
-}
-
-AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
-{
-	AFlareSpacecraft* Ship = NULL;
-	FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Immatriculation.ToString());
-
-	if (SpacecraftCatalog)
-	{
-		FFlareSpacecraftDescription* Desc = SpacecraftCatalog->Get(ShipData.Identifier);
-		if (Desc)
-		{
-			// Spawn parameters
-			FActorSpawnParameters Params;
-			Params.bNoFail = true;
-
-			// Create and configure the ship
-			Ship = GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
-			if (Ship)
-			{
-				Ship->Load(ShipData);
-				UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
-				RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
-				RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
-			}
-			else
-			{
-				FLOG("AFlareGame::LoadShip fail to create AFlareSpacecraft");
-			}
-		}
-		else
-		{
-			FLOG("AFlareGame::LoadShip failed (no description available)");
-		}
-	}
-	else
-	{
-		FLOG("AFlareGame::LoadShip failed (no catalog data)");
-	}
-
-	return Ship;
-}
-
-AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
-{
-	AFlareBomb* Bomb = NULL;
-	FLOG("AFlareGame::LoadBomb");
-
-	AFlareSpacecraft* ParentSpacecraft = NULL;
-
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (SpacecraftCandidate && SpacecraftCandidate->GetImmatriculation() == BombData.ParentSpacecraft)
-		{
-			ParentSpacecraft = SpacecraftCandidate;
-			break;
-		}
-	}
-
-	if (ParentSpacecraft)
-	{
-		UFlareWeapon* ParentWeapon = NULL;
-		TArray<UActorComponent*> Components = ParentSpacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-		for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-		{
-			UFlareWeapon* WeaponCandidate = Cast<UFlareWeapon>(Components[ComponentIndex]);
-			if (WeaponCandidate && WeaponCandidate->SlotIdentifier == BombData.WeaponSlotIdentifier)
-			{
-
-				ParentWeapon = WeaponCandidate;
-				break;
-			}
-		}
-
-		if (ParentWeapon)
-		{
-			// Spawn parameters
-			FActorSpawnParameters Params;
-			Params.bNoFail = true;
-
-			// Create and configure the ship
-			Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombData.Location, BombData.Rotation, Params);
-			if (Bomb)
-			{
-				Bomb->Initialize(&BombData, ParentWeapon);
-
-				UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Bomb->GetRootComponent());
-
-				RootComponent->SetPhysicsLinearVelocity(BombData.LinearVelocity, false);
-				RootComponent->SetPhysicsAngularVelocity(BombData.AngularVelocity, false);
-			}
-			else
-			{
-				FLOG("AFlareGame::LoadBomb fail to create AFlareBom");
-			}
-		}
-		else
-		{
-			FLOG("AFlareGame::LoadBomb failed (no parent weapon)");
-		}
-	}
-	else
-	{
-		FLOG("AFlareGame::LoadBomb failed (no parent ship)");
-	}
-
-	return Bomb;
 }
 
 bool AFlareGame::SaveWorld(AFlarePlayerController* PC)

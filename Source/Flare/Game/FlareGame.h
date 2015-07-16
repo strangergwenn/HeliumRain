@@ -8,6 +8,7 @@
 
 #include "FlarePlanetarium.h"
 #include "FlareCompany.h"
+#include "FlareWorld.h"
 
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
@@ -91,48 +92,14 @@ public:
 	/** Create a new world from scratch */
 	virtual void CreateWorld(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex);
 
-	/** Init world with empty scenario */
-	virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
-
-	/** Init world with peaceful scenario */
-	virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
-
-	/** Init world with threatened scenario */
-	virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
-
-	/** Init world with aggresve scenario */
-	virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
-
-
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);
-
-	/** Create a station in the level  for a specific company */
-	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
-
-	/** Create a ship in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
-
-	/** Create a ship or station in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
 	/** Add an asteroid to the world at a specific location */
 	void CreateAsteroidAt(int32 ID, FVector Location);
 
-	/** Load the world from this save file */
-	virtual bool LoadWorld(AFlarePlayerController* PC);
-
-	/** Spawn a company from save data */
-	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
-
-	/** Spawn an asteroid from save data */
-	virtual AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
-
-	/** Spawn a ship from save data */
-	virtual AFlareSpacecraft* LoadShip(const FFlareSpacecraftSave& ShipData);
-
-	/** Spawn a bomb from save data */
-	virtual AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
+    /** Load the game from this save file */
+    virtual bool LoadGame(AFlarePlayerController* PC);
 
 	/** Save the world to this save file */
 	virtual bool SaveWorld(AFlarePlayerController* PC);
@@ -226,9 +193,9 @@ protected:
 	UPROPERTY()
 	AFlarePlanetarium*                       Planetarium;
 
-	/** Companies */
-	UPROPERTY()
-	TArray<UFlareCompany*>                   Companies;
+    /** World */
+    UPROPERTY()
+    UFlareWorld*                   World;
 
 
 	/*----------------------------------------------------
@@ -288,19 +255,6 @@ public:
 		Get & Set
 	----------------------------------------------------*/
 
-	inline UFlareCompany* FindCompany(FName Identifier) const
-	{
-		for(int i = 0; i < Companies.Num(); i++)
-		{
-			UFlareCompany* Company = Companies[i];
-			if (Company && Company->GetIdentifier() == Identifier)
-			{
-				return Company;
-			}
-		}
-		return NULL;
-	}
-
 	inline const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const
 	{
 		return (CompanyCatalog ? &CompanyCatalog->Companies[Index] : NULL);
@@ -316,11 +270,6 @@ public:
 	inline const int32 GetCompanyCatalogCount() const
 	{
 		return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);
-	}
-
-	inline TArray<UFlareCompany*> GetCompanies() const
-	{
-		return Companies;
 	}
 
 	inline UClass* GetMenuPawnClass() const

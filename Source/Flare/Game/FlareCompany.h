@@ -42,6 +42,8 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FName> HostileCompanies;
 
+
+
 };
 
 

@@ -1,10 +1,44 @@
 #pragma once
 
-#include "../Player/FlarePlayerController.h"
-#include "../Spacecrafts/FlareSpacecraftInterface.h"
-#include "../Spacecrafts/FlareBomb.h"
 #include "FlareCompany.h"
+#include "FlareWorld.h"
+
 #include "FlareSaveGame.generated.h"
+
+
+
+/** Player objective data */
+USTRUCT()
+struct FFlarePlayerObjective
+{
+	GENERATED_USTRUCT_BODY()
+
+	bool                        Set;
+	FText                       Name;
+	FText                       Info;
+	AActor*                     Target;
+	FVector                     Location;
+	float                       Progress;
+};
+
+/** Game save data */
+USTRUCT()
+struct FFlarePlayerSave
+{
+    GENERATED_USTRUCT_BODY()
+
+    /** UObject name of the currently possessed ship */
+    UPROPERTY(EditAnywhere, Category = Save)
+    FString CurrentShipName;
+
+	/** Chosen scenario */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 ScenarioId;
+
+    /** Identifier of the company */
+    UPROPERTY(EditAnywhere, Category = Save)
+    FName CompanyIdentifier;
+};
 
 
 UCLASS()
@@ -25,20 +59,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	FFlareCompanyDescription PlayerCompanyDescription;
 
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareSpacecraftSave> ShipData;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareSpacecraftSave> StationData;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareCompanySave> CompanyData;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareBombSave> BombData;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareAsteroidSave> AsteroidData;
+    UPROPERTY(VisibleAnywhere, Category = Save)
+    FFlareWorldSave WorldData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	int32 CurrentImmatriculationIndex;
