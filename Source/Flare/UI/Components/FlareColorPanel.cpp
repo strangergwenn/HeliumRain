@@ -124,7 +124,7 @@ void SFlareColorPanel::OnBasePaintColorPicked(int32 Index)
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnBasePaintColorPicked %d", Index);
-		PC->GetCompany()->SetBasePaintColorIndex(Index);
+		PC->SetBasePaintColorIndex(Index);
 		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }
@@ -135,7 +135,7 @@ void SFlareColorPanel::OnPaintColorPicked(int32 Index)
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnPaintColorPicked %d", Index);
-		PC->GetCompany()->SetPaintColorIndex(Index);
+		PC->SetPaintColorIndex(Index);
 		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }
@@ -146,7 +146,7 @@ void SFlareColorPanel::OnOverlayColorPicked(int32 Index)
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnOverlayColorPicked %d", Index);
-		PC->GetCompany()->SetOverlayColorIndex(Index);
+		PC->SetOverlayColorIndex(Index);
 		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }
@@ -157,7 +157,7 @@ void SFlareColorPanel::OnLightColorPicked(int32 Index)
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnLightColorPicked %d", Index);
-		PC->GetCompany()->SetLightColorIndex(Index);
+		PC->SetLightColorIndex(Index);
 		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }
@@ -168,7 +168,7 @@ void SFlareColorPanel::OnPatternPicked(int32 Index)
 	if (PC)
 	{
 		FLOGV("SFlareColorPanel::OnPatternPicked %d", Index);
-		PC->GetCompany()->SetPatternIndex(Index);
+		PC->SetPatternIndex(Index);
 		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }

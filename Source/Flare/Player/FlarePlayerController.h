@@ -36,12 +36,14 @@ struct FFlarePlayerSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FString CurrentShipName;
 
+	/** Chosen scenario */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 ScenarioId;
+
 	/** Identifier of the company */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName CompanyIdentifier;
 
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 ScenarioId;
 };
 
 
@@ -79,14 +81,17 @@ public:
 		Data management
 	----------------------------------------------------*/
 
+	/** Load the company info */
+	virtual void SetCompanyDescription(const FFlareCompanyDescription& SaveCompanyData);
+
 	/** Load the player from a save file */
-	virtual void Load(const FFlarePlayerSave& Data);
+	virtual void Load(const FFlarePlayerSave& SavePlayerData);
 
 	/** Get the ship pawn from the game */
 	virtual void OnLoadComplete();
 
 	/** Save the player to a save file */
-	virtual void Save(FFlarePlayerSave& Data);
+	virtual void Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData);
 
 	/** Set the player's company */
 	virtual void SetCompany(UFlareCompany* NewCompany);
@@ -151,6 +156,26 @@ public:
 
 	/** Get the objective location */
 	FVector GetObjectiveLocation() const;
+
+
+	/*----------------------------------------------------
+		Customization
+	----------------------------------------------------*/
+
+	/** Set the color of engine exhausts */
+	inline void SetBasePaintColorIndex(int32 Index);
+
+	/** Set the color of ship paint */
+	inline void SetPaintColorIndex(int32 Index);
+
+	/** Set the color of ship overlays */
+	inline void SetOverlayColorIndex(int32 Index);
+
+	/** Set the color of ship lights */
+	inline void SetLightColorIndex(int32 Index);
+
+	/** Set the pattern index for ship paint */
+	inline void SetPatternIndex(int32 Index);
 
 
 	/*----------------------------------------------------
@@ -279,6 +304,10 @@ protected:
 	UPROPERTY()
 	FFlarePlayerSave                         PlayerData;
 
+	/** Company data */
+	UPROPERTY()
+	FFlareCompanyDescription                 CompanyData;
+
 	/** Player pawn used inside menus */
 	UPROPERTY()
 	AFlareMenuPawn*                          MenuPawn;
@@ -295,10 +324,10 @@ protected:
 	UPROPERTY()
 	AFlareMenuManager*                       MenuManager;
 
-	/* Objective */
+	/** Objective */
 	UPROPERTY()
 	FFlarePlayerObjective                    CurrentObjective;
-
+	
 	// Various gameplay data
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
@@ -314,6 +343,11 @@ public:
 	inline UFlareCompany* GetCompany() const
 	{
 		return Company;
+	}
+
+	inline const FFlareCompanyDescription* GetCompanyDescription() const
+	{
+		return &CompanyData;
 	}
 
 	inline AFlareMenuPawn* GetMenuPawn() const

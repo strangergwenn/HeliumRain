@@ -104,6 +104,9 @@ public:
 	virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
 
+	/** Create a company */
+	UFlareCompany* CreateCompany(int32 CatalogIdentifier);
+
 	/** Create a station in the level  for a specific company */
 	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
@@ -141,10 +144,6 @@ public:
 	/*----------------------------------------------------
 		Creation command line
 	----------------------------------------------------*/
-
-	/** Create a company */
-	UFUNCTION(exec)
-	UFlareCompany* CreateCompany(FString CompanyName);
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
@@ -302,17 +301,19 @@ public:
 		return NULL;
 	}
 
-	inline const FFlareCompanyInfo* GetCompanyInfo(int32 Index) const
+	inline const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const
 	{
 		return (CompanyCatalog ? &CompanyCatalog->Companies[Index] : NULL);
 	}
+
+	inline const FFlareCompanyDescription* GetPlayerCompanyDescription() const;
 
 	inline const FSlateBrush* GetCompanyEmblem(int32 Index) const
 	{
 		return ((Index < CompanyEmblemBrushes.Num()) ? &CompanyEmblemBrushes[Index] : NULL);
 	}
 
-	inline const int32 GetCompanyCount() const
+	inline const int32 GetCompanyCatalogCount() const
 	{
 		return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);
 	}

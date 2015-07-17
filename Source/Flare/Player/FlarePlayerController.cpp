@@ -339,10 +339,15 @@ void AFlarePlayerController::PrepareForExit()
 	Data management
 ----------------------------------------------------*/
 
-void AFlarePlayerController::Load(const FFlarePlayerSave& Data)
+void AFlarePlayerController::SetCompanyDescription(const FFlareCompanyDescription& SaveCompanyData)
 {
-	PlayerData = Data;
-	Company = GetGame()->FindCompany(Data.CompanyIdentifier);
+	CompanyData = SaveCompanyData;
+}
+
+void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
+{
+	PlayerData = SavePlayerData;
+	Company = GetGame()->FindCompany(PlayerData.CompanyIdentifier);
 }
 
 void AFlarePlayerController::OnLoadComplete()
@@ -359,15 +364,17 @@ void AFlarePlayerController::OnLoadComplete()
 		}
 	}
 	SetWorldPause(true);
+	Company->UpdateCompanyCustomization();
 }
 
-void AFlarePlayerController::Save(FFlarePlayerSave& Data)
+void AFlarePlayerController::Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData)
 {
 	if (ShipPawn)
 	{
 		PlayerData.CurrentShipName = ShipPawn->GetImmatriculation();
 	}
-	Data = PlayerData;
+	SavePlayerData = PlayerData;
+	SaveCompanyData = CompanyData;
 }
 
 void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
@@ -584,6 +591,41 @@ FVector AFlarePlayerController::GetObjectiveLocation() const
 	{
 		return CurrentObjective.Location;
 	}
+}
+
+
+/*----------------------------------------------------
+	Customization
+----------------------------------------------------*/
+
+inline void AFlarePlayerController::SetBasePaintColorIndex(int32 Index)
+{
+	CompanyData.CustomizationBasePaintColorIndex = Index;
+	Company->UpdateCompanyCustomization();
+}
+
+inline void AFlarePlayerController::SetPaintColorIndex(int32 Index)
+{
+	CompanyData.CustomizationPaintColorIndex = Index;
+	Company->UpdateCompanyCustomization();
+}
+
+inline void AFlarePlayerController::SetOverlayColorIndex(int32 Index)
+{
+	CompanyData.CustomizationOverlayColorIndex = Index;
+	Company->UpdateCompanyCustomization();
+}
+
+inline void AFlarePlayerController::SetLightColorIndex(int32 Index)
+{
+	CompanyData.CustomizationLightColorIndex = Index;
+	Company->UpdateCompanyCustomization();
+}
+
+inline void AFlarePlayerController::SetPatternIndex(int32 Index)
+{
+	CompanyData.CustomizationPatternIndex = Index;
+	Company->UpdateCompanyCustomization();
 }
 
 

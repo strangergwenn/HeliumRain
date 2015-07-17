@@ -180,7 +180,8 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	{
 		// Colors
 		FFlarePlayerSave Data;
-		PC->Save(Data);
+		FFlareCompanyDescription Unused;
+		PC->Save(Data, Unused);
 		ColorBox->Setup(Data);
 
 		// Menu

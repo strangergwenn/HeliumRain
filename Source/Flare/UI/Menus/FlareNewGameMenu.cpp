@@ -191,7 +191,8 @@ void SFlareNewGameMenu::Enter()
 	if (PC)
 	{
 		FFlarePlayerSave Data;
-		PC->Save(Data);
+		FFlareCompanyDescription Unused;
+		PC->Save(Data, Unused);
 		//ColorBox->Setup(Data);
 	}
 }

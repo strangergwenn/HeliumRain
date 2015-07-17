@@ -27,6 +27,17 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 {
 	CompanyData = Data;
 	CompanyData.Identifier = FName(*GetName());
+	CompanyDescription = NULL;
+
+	// Player description ID is -1
+	if (Data.CatalogIdentifier >= 0)
+	{
+		CompanyDescription = GetGame()->GetCompanyDescription(Data.CatalogIdentifier);
+	}
+	else
+	{
+		CompanyDescription = GetGame()->GetPlayerCompanyDescription();
+	}
 }
 
 FFlareCompanySave* UFlareCompany::Save()
@@ -135,36 +146,6 @@ FText UFlareCompany::GetInfoText(bool Minimized)
 /*----------------------------------------------------
 	Customization
 ----------------------------------------------------*/
-
-inline void UFlareCompany::SetBasePaintColorIndex(int32 Index)
-{
-	CompanyData.CustomizationBasePaintColorIndex = Index;
-	UpdateCompanyCustomization();
-}
-
-inline void UFlareCompany::SetPaintColorIndex(int32 Index)
-{
-	CompanyData.CustomizationPaintColorIndex = Index;
-	UpdateCompanyCustomization();
-}
-
-inline void UFlareCompany::SetOverlayColorIndex(int32 Index)
-{
-	CompanyData.CustomizationOverlayColorIndex = Index;
-	UpdateCompanyCustomization();
-}
-
-inline void UFlareCompany::SetLightColorIndex(int32 Index)
-{
-	CompanyData.CustomizationLightColorIndex = Index;
-	UpdateCompanyCustomization();
-}
-
-inline void UFlareCompany::SetPatternIndex(int32 Index)
-{
-	CompanyData.CustomizationPatternIndex = Index;
-	UpdateCompanyCustomization();
-}
 
 void UFlareCompany::UpdateCompanyCustomization()
 {

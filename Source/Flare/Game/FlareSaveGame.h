@@ -18,9 +18,12 @@ public:
 	/*----------------------------------------------------
 		Public data
 	----------------------------------------------------*/
-	
+
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	FFlarePlayerSave PlayerData;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	FFlareCompanyDescription PlayerCompanyDescription;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareSpacecraftSave> ShipData;

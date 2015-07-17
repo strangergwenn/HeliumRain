@@ -82,7 +82,7 @@ void AFlareGame::StartPlay()
 	// Create company emblems
 	if (CompanyCatalog)
 	{
-		const TArray<FFlareCompanyInfo>& Companies = CompanyCatalog->Companies;
+		const TArray<FFlareCompanyDescription>& Companies = CompanyCatalog->Companies;
 		UFlareCustomizationCatalog* Catalog = GetCustomizationCatalog();
 
 		for (int32 Index = 0; Index < Companies.Num(); Index++)
@@ -190,16 +190,18 @@ void AFlareGame::ReadAllSaveSlots()
 			// Company info
 			if (PlayerCompany)
 			{
+				const FFlareCompanyDescription* Desc = &Save->PlayerCompanyDescription;
+
 				// Money and general infos
 				SaveSlotInfo.CompanyMoney = PlayerCompany->Money;
-				SaveSlotInfo.CompanyName = FText::FromString(PlayerCompany->Name);
+				SaveSlotInfo.CompanyName = FText::FromString(Desc->Name);
 
 				// Emblem material
 				SaveSlotInfo.Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
-				SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(PlayerCompany->CustomizationBasePaintColorIndex));
-				SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(PlayerCompany->CustomizationPaintColorIndex));
-				SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(PlayerCompany->CustomizationOverlayColorIndex));
-				SaveSlotInfo.Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(PlayerCompany->CustomizationLightColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Desc->CustomizationBasePaintColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Desc->CustomizationPaintColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Desc->CustomizationOverlayColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(Desc->CustomizationLightColorIndex));
 
 				// Create the brush dynamically
 				SaveSlotInfo.EmblemBrush.SetResourceObject(SaveSlotInfo.Emblem);
@@ -287,11 +289,21 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 	FLOGV("CreateWorld ScenarioIndex %d", ScenarioIndex);
 	FLOGV("CreateWorld CompanyName %s", *CompanyName);
 
-
-	FFlarePlayerSave PlayerData;
+	// Setup the player company description
+	FFlareCompanyDescription CompanyData;
+	CompanyData.Name = CompanyName;
+	CompanyData.ShortName = *FString("PLY");
+	CompanyData.Emblem = NULL;
+	CompanyData.CustomizationBasePaintColorIndex = 0;
+	CompanyData.CustomizationPaintColorIndex = 3;
+	CompanyData.CustomizationOverlayColorIndex = 6;
+	CompanyData.CustomizationLightColorIndex = 13;
+	CompanyData.CustomizationPatternIndex = 1;
+	PC->SetCompanyDescription(CompanyData);
 
 	// Player company
-	UFlareCompany* Company = CreateCompany(CompanyName);
+	FFlarePlayerSave PlayerData;
+	UFlareCompany* Company = CreateCompany(-1);
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
 	PlayerData.ScenarioId = ScenarioIndex;
 	PC->SetCompany(Company);
@@ -321,7 +333,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 void AFlareGame::InitEmptyScenario(FFlarePlayerSave* PlayerData)
 {
 	// Enemy
-	CreateCompany("Evil Corp");
+	CreateCompany(0);
 
 	// Player ship
 	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
@@ -397,7 +409,7 @@ void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareComp
 
 
 	// Enemy
-	UFlareCompany* MiningSyndicate= CreateCompany("Mining Syndicate");
+	UFlareCompany* MiningSyndicate= CreateCompany(1);
 
 	FVector BaseEnemyFleetLocation = FVector(600000, 0, -50);
 
@@ -466,8 +478,8 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 
 
 	// Companies
-	UFlareCompany* AllianceShipbuilding = CreateCompany("Alliance Shipbuilding");
-	UFlareCompany* Helix = CreateCompany("Helix");
+	UFlareCompany* AllianceShipbuilding = CreateCompany(2);
+	UFlareCompany* Helix = CreateCompany(3);
 
 
 	// AllianceShipbuilding base
@@ -725,6 +737,7 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC)
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
 
 		// Load all companies
+		PC->SetCompanyDescription(Save->PlayerCompanyDescription);
 		for (int32 i = 0; i < Save->CompanyData.Num(); i++)
 		{
 			LoadCompany(Save->CompanyData[i]);
@@ -773,12 +786,12 @@ bool AFlareGame::LoadWorld(AFlarePlayerController* PC)
 UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
 {
 	UFlareCompany* Company = NULL;
-	FLOGV("AFlareGame::LoadCompany ('%s')", *CompanyData.Name);
 
 	// Create the new company
 	Company = NewObject<UFlareCompany>(this, UFlareCompany::StaticClass(), CompanyData.Identifier);
 	Company->Load(CompanyData);
 	Companies.AddUnique(Company);
+	FLOGV("AFlareGame::LoadCompany : loaded '%s'", *Company->GetCompanyName());
 
 	return Company;
 }
@@ -916,7 +929,7 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 	if (PC && Save)
 	{
 		// Save the player
-		PC->Save(Save->PlayerData);
+		PC->Save(Save->PlayerData, Save->PlayerCompanyDescription);
 		Save->ShipData.Empty();
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
 
@@ -1029,7 +1042,7 @@ void AFlareGame::DeleteWorld()
 	Creation tools
 ----------------------------------------------------*/
 
-UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
+UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 {
 	UFlareCompany* Company = NULL;
 	FFlareCompanySave CompanyData;
@@ -1037,17 +1050,11 @@ UFlareCompany* AFlareGame::CreateCompany(FString CompanyName)
 	// Generate identifier
 	CurrentImmatriculationIndex++;
 	FString Immatriculation = FString::Printf(TEXT("CPNY-%06d"), CurrentImmatriculationIndex);
+	CompanyData.Identifier = *Immatriculation;
 
 	// Generate arbitrary save data
-	CompanyData.Name = CompanyName.ToUpper();
-	CompanyData.ShortName = *CompanyName.Left(3).ToUpper();
-	CompanyData.Identifier = *Immatriculation;
+	CompanyData.CatalogIdentifier = CatalogIdentifier;
 	CompanyData.Money = 100000;
-	CompanyData.CustomizationBasePaintColorIndex = 0;
-	CompanyData.CustomizationPaintColorIndex = 4;
-	CompanyData.CustomizationOverlayColorIndex = FMath::RandRange(1, 15);
-	CompanyData.CustomizationLightColorIndex = CompanyData.CustomizationOverlayColorIndex;
-	CompanyData.CustomizationPatternIndex = 0;
 
 	// Create company
 	Company = LoadCompany(CompanyData);
@@ -1571,6 +1578,17 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Add("Thunder");
 	BaseImmatriculationNameList.Add("Enterprise");
 	BaseImmatriculationNameList.Add("Sahara");
+}
+
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+inline const FFlareCompanyDescription* AFlareGame::GetPlayerCompanyDescription() const
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	return PC->GetCompanyDescription();
 }
 
 

@@ -17,6 +17,6 @@ public:
 	
 	/** Company data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareCompanyInfo> Companies;
+	TArray<FFlareCompanyDescription> Companies;
 
 };

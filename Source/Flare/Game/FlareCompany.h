@@ -25,43 +25,18 @@ struct FFlareCompanySave
 {
 	GENERATED_USTRUCT_BODY()
 		
-	/** Name */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FString Name;
-
-	/** Short name */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName ShortName;
-
 	/** Save identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Identifier;
+
+	/** Index of the company description in the catalog, or -1 if player */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CatalogIdentifier;
 
 
 	/** Money money money / Always funny / In a rich men's world */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 Money;
-
-
-	/** Base color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationBasePaintColorIndex;
-	
-	/** Paint color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationPaintColorIndex;
-
-	/** Lights color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationOverlayColorIndex;
-
-	/** Lights color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationLightColorIndex;
-
-	/** Pattern index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationPatternIndex;
 
 	/** Pattern index in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -72,7 +47,7 @@ struct FFlareCompanySave
 
 /** Catalog data */
 USTRUCT()
-struct FFlareCompanyInfo
+struct FFlareCompanyDescription
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -157,22 +132,7 @@ public:
 	/*----------------------------------------------------
 		Customization
 	----------------------------------------------------*/
-
-	/** Set the color of engine exhausts */
-	inline void SetBasePaintColorIndex(int32 Index);
-
-	/** Set the color of ship paint */
-	inline void SetPaintColorIndex(int32 Index);
-
-	/** Set the color of ship overlays */
-	inline void SetOverlayColorIndex(int32 Index);
-
-	/** Set the color of ship lights */
-	inline void SetLightColorIndex(int32 Index);
-
-	/** Set the pattern index for ship paint */
-	inline void SetPatternIndex(int32 Index);
-
+	
 	/** Update all ships and stations */
 	virtual void UpdateCompanyCustomization();
 
@@ -193,9 +153,11 @@ protected:
 	----------------------------------------------------*/
 
 	// Gameplay data
+	const FFlareCompanyDescription*         CompanyDescription;
 	FFlareCompanySave                       CompanyData;
 	TArray<IFlareSpacecraftInterface*>      CompanyStations;
 	TArray<IFlareSpacecraftInterface*>      CompanyShips;
+
 
 public:
 
@@ -213,39 +175,51 @@ public:
 		return CompanyData.Identifier;
 	}
 
+	inline const FFlareCompanyDescription* GetDescription() const
+	{
+		return CompanyDescription;
+	}
+
 	inline FString GetCompanyName() const
 	{
-		return CompanyData.Name;
+		check(CompanyDescription);
+		return CompanyDescription->Name;
 	}
 
 	inline FName GetShortName() const
 	{
-		return CompanyData.ShortName;
+		check(CompanyDescription);
+		return CompanyDescription->ShortName;
 	}
 
 	inline int32 GetBasePaintColorIndex() const
 	{
-		return CompanyData.CustomizationBasePaintColorIndex;
+		check(CompanyDescription);
+		return CompanyDescription->CustomizationBasePaintColorIndex;
 	}
 
 	inline int32 GetPaintColorIndex() const
 	{
-		return CompanyData.CustomizationPaintColorIndex;
+		check(CompanyDescription);
+		return CompanyDescription->CustomizationPaintColorIndex;
 	}
 
 	inline int32 GetOverlayColorIndex() const
 	{
-		return CompanyData.CustomizationOverlayColorIndex;
+		check(CompanyDescription);
+		return CompanyDescription->CustomizationOverlayColorIndex;
 	}
 
 	inline int32 GetLightColorIndex() const
 	{
-		return CompanyData.CustomizationLightColorIndex;
+		check(CompanyDescription);
+		return CompanyDescription->CustomizationLightColorIndex;
 	}
 
 	inline int32 GetPatternIndex() const
 	{
-		return CompanyData.CustomizationPatternIndex;
+		check(CompanyDescription);
+		return CompanyDescription->CustomizationPatternIndex;
 	}
 
 	inline int32 GetMoney() const
