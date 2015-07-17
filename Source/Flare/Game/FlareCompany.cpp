@@ -178,6 +178,7 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 	FLinearColor OverlayColor = GetGame()->GetCustomizationCatalog()->GetColor(GetOverlayColorIndex());
 	FLinearColor LightColor = GetGame()->GetCustomizationCatalog()->GetColor(GetLightColorIndex());
 	UTexture2D* Pattern = GetGame()->GetCustomizationCatalog()->GetPattern(GetPatternIndex());
+	UTexture2D* Emblem = CompanyDescription->Emblem;
 
 	// Apply settings to the material instance
 	Mat->SetVectorParameterValue("BasePaintColor", BasePaintColor);
@@ -185,6 +186,7 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 	Mat->SetVectorParameterValue("OverlayColor", OverlayColor);
 	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
 	Mat->SetTextureParameterValue("PaintPattern", Pattern);
+	Mat->SetTextureParameterValue("Emblem", Emblem);
 }
 
 void UFlareCompany::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)
