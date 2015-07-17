@@ -289,11 +289,17 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 	FLOGV("CreateWorld ScenarioIndex %d", ScenarioIndex);
 	FLOGV("CreateWorld CompanyName %s", *CompanyName);
 
-	// Setup the player company description
+	// Create companies
+	for (int32 Index = 0; Index < GetCompanyCatalogCount(); Index++)
+	{
+		CreateCompany(Index);
+	}
+
+	// Manually setup the player company before creating it
 	FFlareCompanyDescription CompanyData;
 	CompanyData.Name = CompanyName;
 	CompanyData.ShortName = *FString("PLY");
-	CompanyData.Emblem = NULL;
+	CompanyData.Emblem = NULL; // TODO
 	CompanyData.CustomizationBasePaintColorIndex = 0;
 	CompanyData.CustomizationPaintColorIndex = 3;
 	CompanyData.CustomizationOverlayColorIndex = 6;
@@ -332,9 +338,6 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 
 void AFlareGame::InitEmptyScenario(FFlarePlayerSave* PlayerData)
 {
-	// Enemy
-	CreateCompany(0);
-
 	// Player ship
 	AFlareSpacecraft* ShipPawn = CreateShipForMe(FName("ship-ghoul"));
 	PlayerData->CurrentShipName = ShipPawn->GetImmatriculation();
@@ -409,7 +412,7 @@ void AFlareGame::InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareComp
 
 
 	// Enemy
-	UFlareCompany* MiningSyndicate= CreateCompany(1);
+	UFlareCompany* MiningSyndicate = Companies[0];
 
 	FVector BaseEnemyFleetLocation = FVector(600000, 0, -50);
 
@@ -478,53 +481,53 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 
 
 	// Companies
-	UFlareCompany* AllianceShipbuilding = CreateCompany(2);
-	UFlareCompany* Helix = CreateCompany(3);
+	UFlareCompany* Helix = Companies[1];
+	UFlareCompany* Sunwatch = Companies[2];
 
 
-	// AllianceShipbuilding base
-	FVector BaseAllianceShipbuildingBaseLocation = FVector(0, 0, 0);
-	CreateStation("station-hub", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation + FVector(0, 0, 0), FRotator(-92, 166, -11));
-	CreateStation("station-hub", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation + FVector(110944, -1156, 159247), FRotator(12, 139, 119));
-	CreateStation("station-hub", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation + FVector(104117, 171446, 153713), FRotator(63, 57, -68));
-	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation + FVector(97886, -53237, -23485), FRotator(93,-154 ,-45));
-	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(-122594, -22054, -74239), FRotator(-165, -111, 84));
-	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(-79444, -36365, -73637), FRotator(36, -74, 14));
-	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(40752, -91781, -158555), FRotator(97, -2, -152));
-	CreateStation("station-outpost", AllianceShipbuilding->GetIdentifier(), BaseAllianceShipbuildingBaseLocation +  FVector(163550, -139760, -25490), FRotator(134, 132, -153));
+	// Sunwatch base
+	FVector BaseSunwatchBaseLocation = FVector(0, 0, 0);
+	CreateStation("station-hub", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation + FVector(0, 0, 0), FRotator(-92, 166, -11));
+	CreateStation("station-hub", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation + FVector(110944, -1156, 159247), FRotator(12, 139, 119));
+	CreateStation("station-hub", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation + FVector(104117, 171446, 153713), FRotator(63, 57, -68));
+	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation + FVector(97886, -53237, -23485), FRotator(93,-154 ,-45));
+	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation +  FVector(-122594, -22054, -74239), FRotator(-165, -111, 84));
+	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation +  FVector(-79444, -36365, -73637), FRotator(36, -74, 14));
+	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation +  FVector(40752, -91781, -158555), FRotator(97, -2, -152));
+	CreateStation("station-outpost", Sunwatch->GetIdentifier(), BaseSunwatchBaseLocation +  FVector(163550, -139760, -25490), FRotator(134, 132, -153));
 
-	CreateAsteroidAt(0, BaseAllianceShipbuildingBaseLocation + FVector(73107, 74094, 97755));
-	CreateAsteroidAt(1, BaseAllianceShipbuildingBaseLocation + FVector(12946, 18884, 23809));
-	CreateAsteroidAt(2, BaseAllianceShipbuildingBaseLocation + FVector(-51672, 87149, -52379));
-	CreateAsteroidAt(0, BaseAllianceShipbuildingBaseLocation + FVector(93095, 92590, 32988));
-	CreateAsteroidAt(1, BaseAllianceShipbuildingBaseLocation + FVector(85846, 24798, -770));
-	CreateAsteroidAt(2, BaseAllianceShipbuildingBaseLocation + FVector(19864, -61543, 88115));
-	CreateAsteroidAt(0, BaseAllianceShipbuildingBaseLocation + FVector(128166, 76403, 149982));
-	CreateAsteroidAt(1, BaseAllianceShipbuildingBaseLocation + FVector(-148056, -145663, 126968));
+	CreateAsteroidAt(0, BaseSunwatchBaseLocation + FVector(73107, 74094, 97755));
+	CreateAsteroidAt(1, BaseSunwatchBaseLocation + FVector(12946, 18884, 23809));
+	CreateAsteroidAt(2, BaseSunwatchBaseLocation + FVector(-51672, 87149, -52379));
+	CreateAsteroidAt(0, BaseSunwatchBaseLocation + FVector(93095, 92590, 32988));
+	CreateAsteroidAt(1, BaseSunwatchBaseLocation + FVector(85846, 24798, -770));
+	CreateAsteroidAt(2, BaseSunwatchBaseLocation + FVector(19864, -61543, 88115));
+	CreateAsteroidAt(0, BaseSunwatchBaseLocation + FVector(128166, 76403, 149982));
+	CreateAsteroidAt(1, BaseSunwatchBaseLocation + FVector(-148056, -145663, 126968));
 
 
 
-	// AllianceShipbuilding fleet
-	FVector BaseAllianceShipbuildingFleetLocation = FVector(300000, 200000, 50000);
+	// Sunwatch fleet
+	FVector BaseSunwatchFleetLocation = FVector(300000, 200000, 50000);
 
 	SetDefaultWeapon(FName("weapon-eradicator"));
 	for(int i = 0; i < 5; i++)
 	{
-		CreateShip("ship-ghoul", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(10000 * i , 0, 30000));
-		CreateShip("ship-ghoul", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(10000 * i , 10000, -10000));
+		CreateShip("ship-ghoul", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(10000 * i , 0, 30000));
+		CreateShip("ship-ghoul", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(10000 * i , 10000, -10000));
 	}
 
 	SetDefaultWeapon(FName("weapon-eradicator"));
 	for(int i = 0; i < 3; i++)
 	{
-		CreateShip("ship-orca", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(10000 * i , -10000, 5000));
+		CreateShip("ship-orca", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(10000 * i , -10000, 5000));
 	}
 
 	SetDefaultTurret(FName("weapon-artemis"));
-	CreateShip("ship-invader", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(0, -30000, -200000));
+	CreateShip("ship-invader", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(0, -30000, -200000));
 	SetDefaultTurret(FName("weapon-hades-heat"));
-	CreateShip("ship-dragon", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(20000, -30000, 15000));
-	CreateShip("ship-dragon", AllianceShipbuilding->GetIdentifier() , BaseAllianceShipbuildingFleetLocation + FVector(40000, -30000, 15000));
+	CreateShip("ship-dragon", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(20000, -30000, 15000));
+	CreateShip("ship-dragon", Sunwatch->GetIdentifier() , BaseSunwatchFleetLocation + FVector(40000, -30000, 15000));
 
 
 
@@ -587,7 +590,7 @@ void AFlareGame::InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompa
 	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-800000, 0, 20000));
 	CreateShip("ship-invader", PlayerData->CompanyIdentifier , BasePlayerFleetLocation + FVector(-700000, 200000, 20000));
 
-	DeclareWar(PlayerCompany->GetShortName(), AllianceShipbuilding->GetShortName());
+	DeclareWar(PlayerCompany->GetShortName(), Sunwatch->GetShortName());
 }
 
 
