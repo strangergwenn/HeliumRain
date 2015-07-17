@@ -257,6 +257,11 @@ public:
 		Get & Set
 	----------------------------------------------------*/
 
+	inline UFlareWorld* GetGameWorld() const
+	{
+		return World;
+	}
+
 	inline const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const
 	{
 		return (CompanyCatalog ? &CompanyCatalog->Companies[Index] : NULL);

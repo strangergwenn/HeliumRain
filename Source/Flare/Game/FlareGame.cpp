@@ -915,7 +915,6 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Add("Sahara");
 }
 
-
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
@@ -925,6 +924,5 @@ inline const FFlareCompanyDescription* AFlareGame::GetPlayerCompanyDescription()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	return PC->GetCompanyDescription();
 }
-
 
 #undef LOCTEXT_NAMESPACE

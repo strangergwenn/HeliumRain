@@ -2,9 +2,12 @@
 
 #include "Object.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Spacecrafts/FlareBomb.h"
+#include "FlareAsteroid.h"
 #include "FlareSector.generated.h"
 
 class UFlareSimulatedSector;
+class AFlareGame;
 
 UCLASS()
 class FLARE_API UFlareSector : public UObject
@@ -31,6 +34,12 @@ public:
 
 	virtual void EmptySector();
 
+	AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
+
+	AFlareSpacecraft* LoadShip(const FFlareSpacecraftSave& ShipData);
+
+	AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
+
 protected:
 
     /*----------------------------------------------------
@@ -38,7 +47,11 @@ protected:
     ----------------------------------------------------*/
     TArray<AFlareSpacecraft*>      SectorStations;
     TArray<AFlareSpacecraft*>      SectorShips;
+	TArray<AFlareAsteroid*>      SectorAsteroids;
+	TArray<AFlareBomb*>      SectorBombs;
+
     UFlareSimulatedSector*                   Sector;
+	AFlareGame*                   Game;
 
 public:
 

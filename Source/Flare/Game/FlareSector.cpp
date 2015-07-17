@@ -1,67 +1,70 @@
 #include "../Flare.h"
+#include "FlareGame.h"
 #include "FlareSector.h"
 
 // TODO rework
 
 
-AFlareAsteroid* AFlareGame::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
+AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
 {
     FActorSpawnParameters Params;
     Params.bNoFail = true;
 
-    AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), AsteroidData.Location, AsteroidData.Rotation, Params);
+	AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), AsteroidData.Location, AsteroidData.Rotation, Params);
     Asteroid->Load(AsteroidData);
+
+	// TODO Check double add
+	SectorAsteroids.Add(Asteroid);
     return Asteroid;
 }
 
-AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
+// TODO rename spacecraft
+AFlareSpacecraft* UFlareSector::LoadShip(const FFlareSpacecraftSave& ShipData)
 {
     AFlareSpacecraft* Ship = NULL;
     FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Immatriculation.ToString());
 
-    if (SpacecraftCatalog)
-    {
-        FFlareSpacecraftDescription* Desc = SpacecraftCatalog->Get(ShipData.Identifier);
-        if (Desc)
-        {
-            // Spawn parameters
-            FActorSpawnParameters Params;
-            Params.bNoFail = true;
+	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipData.Identifier);
+	if (Desc)
+	{
+		// Spawn parameters
+		FActorSpawnParameters Params;
+		Params.bNoFail = true;
 
-            // Create and configure the ship
-            Ship = GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
-            if (Ship)
-            {
-                Ship->Load(ShipData);
-                UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
-                RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
-                RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
-            }
-            else
-            {
-                FLOG("AFlareGame::LoadShip fail to create AFlareSpacecraft");
-            }
-        }
-        else
-        {
-            FLOG("AFlareGame::LoadShip failed (no description available)");
-        }
-    }
-    else
-    {
-        FLOG("AFlareGame::LoadShip failed (no catalog data)");
-    }
+		// Create and configure the ship
+		Ship = GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
+		if (Ship)
+		{
+			Ship->Load(ShipData);
+			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
+			RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
+			RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
+
+			// TODO Dispatch stations
+			SectorShips.Add(Ship);
+		}
+		else
+		{
+			FLOG("AFlareGame::LoadShip fail to create AFlareSpacecraft");
+		}
+	}
+	else
+	{
+		FLOG("AFlareGame::LoadShip failed (no description available)");
+	}
+
 
     return Ship;
 }
 
-AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
+AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
 {
     AFlareBomb* Bomb = NULL;
     FLOG("AFlareGame::LoadBomb");
 
     AFlareSpacecraft* ParentSpacecraft = NULL;
 
+	// TODO iterate on SectorShips
     for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
     {
         AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
@@ -103,6 +106,8 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 
                 RootComponent->SetPhysicsLinearVelocity(BombData.LinearVelocity, false);
                 RootComponent->SetPhysicsAngularVelocity(BombData.AngularVelocity, false);
+
+				SectorBombs.Add(Bomb);
             }
             else
             {
@@ -124,13 +129,13 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 
 
 
-AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+AFlareSpacecraft* UFlareSector::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {
-	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
+	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(StationClass);
 
 	if (!Desc)
 	{
-		Desc = GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
+		Desc = Game->GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
 	}
 
 	if (Desc)
@@ -140,13 +145,13 @@ AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIde
 	return NULL;
 }
 
-AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
+AFlareSpacecraft* UFlareSector::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
 {
-	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
+	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipClass);
 
 	if (!Desc)
 	{
-		Desc = GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
+		Desc = Game->GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
 	}
 
 	if (Desc)
@@ -157,10 +162,10 @@ AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifie
 }
 
 
-AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {
     AFlareSpacecraft* ShipPawn = NULL;
-    UFlareCompany* Company = World->FindCompany(CompanyIdentifier);
+	UFlareCompany* Company = Game->GetGameWorld()->FindCompany(CompanyIdentifier);
 
     if (ShipDescription && Company)
     {
@@ -170,7 +175,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
         ShipData.Rotation = TargetRotation;
         ShipData.LinearVelocity = FVector::ZeroVector;
         ShipData.AngularVelocity = FVector::ZeroVector;
-        Immatriculate(Company, ShipDescription->Identifier, &ShipData);
+		Game->Immatriculate(Company, ShipDescription->Identifier, &ShipData);
         ShipData.Identifier = ShipDescription->Identifier;
         ShipData.Heat = 600 * ShipDescription->HeatCapacity;
         ShipData.PowerOutageDelay = 0;
@@ -263,7 +268,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
 // TODO Save
 static void Save()
 {
-	// Save all physical ships
+	/*// Save all physical ships
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
 		// Tentative casts
@@ -294,7 +299,7 @@ static void Save()
 			FFlareAsteroidSave* TempData = Asteroid->Save();
 			Save->AsteroidData.Add(*TempData);
 		}
-	}
+	}*/
 }
 
 
