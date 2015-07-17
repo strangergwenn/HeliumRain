@@ -3,6 +3,7 @@
 #include "FlareGame.h"
 #include "FlareSaveGame.h"
 #include "FlareAsteroid.h"
+
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
@@ -133,7 +134,7 @@ void AFlareGame::Logout(AController* Player)
 
 	// Save the world, literally
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
-	SaveWorld(PC);
+	SaveGame(PC);
 	PC->PrepareForExit();
 
 	Super::Logout(Player);
@@ -290,6 +291,7 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 	Save
 ----------------------------------------------------*/
 
+// TODO Rename as CreateGame
 void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex)
 {
 	FLOGV("CreateWorld ScenarioIndex %d", ScenarioIndex);
@@ -320,7 +322,8 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 	PlayerData.ScenarioId = ScenarioIndex;
 	PC->SetCompany(Company);
 
-	switch(ScenarioIndex)
+	// TODO Later with world init
+	/*switch(ScenarioIndex)
 	{
 		case -1: // Empty
 			InitEmptyScenario(&PlayerData);
@@ -334,44 +337,12 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 		case 2: // Aggressive
 			InitAggresiveScenario(&PlayerData, Company);
 		break;
-	}
+	}*/
 
 	// Load
 	PC->Load(PlayerData);
 	LoadedOrCreated = true;
 	PC->OnLoadComplete();
-}
-
-AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
-{
-	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
-
-	if (!Desc)
-	{
-		Desc = GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
-	}
-
-	if (Desc)
-	{
-		return CreateShip(Desc, CompanyIdentifier, TargetPosition, TargetRotation);
-	}
-	return NULL;
-}
-
-AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
-{
-	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
-
-	if (!Desc)
-	{
-		Desc = GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
-	}
-
-	if (Desc)
-	{
-		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
-	}
-	return NULL;
 }
 
 bool AFlareGame::LoadGame(AFlarePlayerController* PC)
@@ -408,15 +379,15 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 	}
 }
 
-bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
+bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 {
 	if (!IsLoadedOrCreated())
 	{
-		FLOG("AFlareGame::SaveWorld : no game loaded, aborting");
+		FLOG("AFlareGame::SaveGame : no game loaded, aborting");
 		return false;
 	}
 
-	FLOGV("AFlareGame::SaveWorld : saving to slot %d", CurrentSaveIndex);
+	FLOGV("AFlareGame::SaveGame : saving to slot %d", CurrentSaveIndex);
 	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
 
 	// Save process
@@ -424,65 +395,8 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 	{
 		// Save the player
 		PC->Save(Save->PlayerData, Save->PlayerCompanyDescription);
-		Save->ShipData.Empty();
+		Save->WorldData = *World->Save();
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
-
-		// Save all physical ships
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-		{
-			// Tentative casts
-			AFlareMenuPawn* MenuPawn = PC->GetMenuPawn();
-			AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
-			AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(*ActorItr);
-
-			// Ship
-			if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
-			{
-				FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetImmatriculation());
-				FFlareSpacecraftSave* TempData = Ship->Save();
-				Save->ShipData.Add(*TempData);
-			}
-
-			// Station
-			else if (Ship && Ship->GetDescription() && Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
-			{
-				FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Ship->GetImmatriculation());
-				FFlareSpacecraftSave* TempData = Ship->Save();
-				Save->StationData.Add(*TempData);
-			}
-
-			// Asteroid
-			else if (Asteroid)
-			{
-				FLOGV("AFlareGame::SaveWorld : saving asteroid ('%s')", *Asteroid->GetName());
-				FFlareAsteroidSave* TempData = Asteroid->Save();
-				Save->AsteroidData.Add(*TempData);
-			}
-		}
-
-		// Companies
-		for (int i = 0; i < Companies.Num(); i++)
-		{
-			UFlareCompany* Company = Companies[i];
-			if (Company)
-			{
-				FLOGV("AFlareGame::SaveWorld : saving company ('%s')", *Company->GetName());
-				FFlareCompanySave* TempData = Company->Save();
-				Save->CompanyData.Add(*TempData);
-			}
-		}
-
-		// Bombs
-		for (TObjectIterator<AFlareBomb> ObjectItr; ObjectItr; ++ObjectItr)
-		{
-			AFlareBomb* Bomb = Cast<AFlareBomb>(*ObjectItr);
-			if (Bomb && Bomb->IsDropped())
-			{
-				FLOGV("AFlareGame::SaveWorld : saving bomb ('%s')", *Bomb->GetName());
-				FFlareBombSave* TempData = Bomb->Save();
-				Save->BombData.Add(*TempData);
-			}
-		}
 
 		// Save
 		UGameplayStatics::SaveGameToSlot(Save, "SaveSlot" + FString::FromInt(CurrentSaveIndex), 0);
@@ -492,42 +406,19 @@ bool AFlareGame::SaveWorld(AFlarePlayerController* PC)
 	// No PC
 	else
 	{
-		FLOG("AFlareGame::SaveWorld failed");
+		FLOG("AFlareGame::SaveGame failed");
 		return false;
 	}
 }
 
-void AFlareGame::DeleteWorld()
+void AFlareGame::UnloadGame()
 {
-	FLOG("AFlareGame::DeleteWorld");
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
-		{
-			SpacecraftCandidate->Destroy();
-		}
+	FLOG("AFlareGame::UnloadGame");
 
-		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-		if (BombCandidate)
-		{
-			BombCandidate->Destroy();
-		}
+	// TODO Destroy active sector
 
-		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-		if (ShellCandidate)
-		{
-			ShellCandidate->Destroy();
-		}
-
-		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
-		if (AsteroidCandidate)
-		{
-			AsteroidCandidate->Destroy();
-		}
-	}
-
-	Companies.Empty();
+	ActiveSector = NULL;
+	World = NULL;
 	LoadedOrCreated = false;
 }
 
@@ -538,6 +429,12 @@ void AFlareGame::DeleteWorld()
 
 UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 {
+	if(!World)
+	{
+		FLOG("AFlareGame::CreateCompany failed: no loaded world");
+		return NULL;
+	}
+
 	UFlareCompany* Company = NULL;
 	FFlareCompanySave CompanyData;
 
@@ -551,7 +448,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.Money = 100000;
 
 	// Create company
-	Company = LoadCompany(CompanyData);
+	Company = World->LoadCompany(CompanyData);
 	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());
 
 	return Company;
@@ -559,6 +456,12 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 
 AFlareSpacecraft* AFlareGame::CreateStationForMe(FName StationClass)
 {
+	if(!ActiveSector)
+	{
+		FLOG("AFlareGame::CreateStationForMe failed: no active sector");
+		return NULL;
+	}
+
 	AFlareSpacecraft* StationPawn = NULL;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
@@ -572,13 +475,19 @@ AFlareSpacecraft* AFlareGame::CreateStationForMe(FName StationClass)
 			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
 		}
 
-		StationPawn = CreateStation(StationClass, PC->GetCompany()->GetIdentifier(), TargetPosition);
+		StationPawn = ActiveSector->CreateStation(StationClass, PC->GetCompany()->GetIdentifier(), TargetPosition);
 	}
 	return StationPawn;
 }
 
 AFlareSpacecraft* AFlareGame::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
 {
+	if(!ActiveSector)
+	{
+		FLOG("AFlareGame::CreateStationInCompany failed: no active sector");
+		return NULL;
+	}
+
 	AFlareSpacecraft* StationPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
 
@@ -593,21 +502,23 @@ AFlareSpacecraft* AFlareGame::CreateStationInCompany(FName StationClass, FName C
 		}
 	}
 
-	// Find company
-	for(int i = 0; i < Companies.Num(); i++)
+	UFlareCompany* Company = World->FindCompanyByShortName(CompanyShortName);
+	if(Company)
 	{
-		UFlareCompany* Company = Companies[i];
-		if (Company && Company->GetShortName() == CompanyShortName)
-		{
-			StationPawn = CreateStation(StationClass, Company->GetIdentifier(), TargetPosition);
-			break;
-		}
+		StationPawn = ActiveSector->CreateStation(StationClass, Company->GetIdentifier(), TargetPosition);
 	}
+
 	return StationPawn;
 } 
 
 AFlareSpacecraft* AFlareGame::CreateShipForMe(FName ShipClass)
 {
+	if(!ActiveSector)
+	{
+		FLOG("AFlareGame::CreateShipForMe failed: no active sector");
+		return NULL;
+	}
+
 	AFlareSpacecraft* ShipPawn = NULL;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
@@ -621,7 +532,7 @@ AFlareSpacecraft* AFlareGame::CreateShipForMe(FName ShipClass)
 			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
 		}
 
-		ShipPawn = CreateShip(ShipClass, PC->GetCompany()->GetIdentifier(), TargetPosition);
+		ShipPawn = ActiveSector->CreateShip(ShipClass, PC->GetCompany()->GetIdentifier(), TargetPosition);
 	}
 	return ShipPawn;
 }
@@ -629,6 +540,12 @@ AFlareSpacecraft* AFlareGame::CreateShipForMe(FName ShipClass)
 
 AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance)
 {
+	if(!ActiveSector)
+	{
+		FLOG("AFlareGame::CreateShipInCompany failed: no active sector");
+		return NULL;
+	}
+
 	AFlareSpacecraft* ShipPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
 
@@ -643,22 +560,22 @@ AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName Company
 		}
 	}
 
-	// Find company
-	for(int i = 0; i < Companies.Num(); i++)
+	UFlareCompany* Company = World->FindCompanyByShortName(CompanyShortName);
+	if(Company)
 	{
-		UFlareCompany* Company = Companies[i];
-		if (Company && Company->GetShortName() == CompanyShortName)
-		{
-			ShipPawn = CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition);
-			break;
-		}
+		ShipPawn = ActiveSector->CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition);
 	}
 	return ShipPawn;
 }
 
 void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, float Distance, int32 Count)
 {
-	AFlareSpacecraft* ShipPawn = NULL;
+	if(!ActiveSector)
+	{
+		FLOG("AFlareGame::CreateShipsInCompany failed: no active sector");
+		return;
+	}
+
 	FVector TargetPosition = FVector::ZeroVector;
 	FVector BaseShift = FVector::ZeroVector;
 
@@ -674,25 +591,25 @@ void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, f
 		}
 	}
 
-	// Find company
-	for(int i = 0; i < Companies.Num(); i++)
+	UFlareCompany* Company = World->FindCompanyByShortName(CompanyShortName);
+	if(Company)
 	{
-		UFlareCompany* Company = Companies[i];
-		if (Company && Company->GetShortName() == CompanyShortName)
-		{
 			for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
 			{
 				FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1:-1);
-				CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition + Shift);
+				ActiveSector->CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition + Shift);
 			}
-
-			break;
-		}
 	}
 }
 
 void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count)
 {
+	if(!ActiveSector)
+	{
+		FLOG("AFlareGame::CreateQuickBattle failed: no active sector");
+		return;
+	}
+
 	FVector BasePosition = FVector::ZeroVector;
 	FVector BaseOffset = FVector(1.f, 0.f, 0.f) * Distance / 50.f; // Half the distance in cm
 	FVector BaseShift = FVector(0.f, 30000.f, 0.f);  // 100 m
@@ -701,20 +618,19 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 	FName Company1Identifier;
 	FName Company2Identifier;
 
-	for(int i = 0; i < Companies.Num(); i++)
-	{
-		UFlareCompany* Company = Companies[i];
-		if (Company && Company->GetShortName() == Company1)
-		{
-			Company1Identifier = Company->GetIdentifier();
-		}
+	UFlareCompany* Company;
 
-		if (Company && Company->GetShortName() == Company2)
-		{
-			Company2Identifier = Company->GetIdentifier();
-		}
+	Company = World->FindCompanyByShortName(Company1);
+	if(Company)
+	{
+		Company1Identifier = Company->GetIdentifier();
 	}
 
+	Company = World->FindCompanyByShortName(Company2);
+	if(Company)
+	{
+		Company2Identifier = Company->GetIdentifier();
+	}
 
 	// Get target position
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
@@ -734,15 +650,15 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 	for (int32 ShipIndex = 0; ShipIndex < ShipClass1Count; ShipIndex++)
 	{
 		FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1 : -1);
-		CreateShip(ShipClass1, Company1Identifier, BasePosition + BaseOffset + Shift);
-		CreateShip(ShipClass1, Company2Identifier, BasePosition - BaseOffset - Shift);
+		ActiveSector->CreateShip(ShipClass1, Company1Identifier, BasePosition + BaseOffset + Shift);
+		ActiveSector->CreateShip(ShipClass1, Company2Identifier, BasePosition - BaseOffset - Shift);
 	}
 
 	for (int32 ShipIndex = 0; ShipIndex < ShipClass2Count; ShipIndex++)
 	{
 		FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1 : -1);
-		CreateShip(ShipClass2, Company1Identifier, BasePosition + BaseOffset + Shift + BaseDeep);
-		CreateShip(ShipClass2, Company2Identifier, BasePosition - BaseOffset - Shift - BaseDeep);
+		ActiveSector->CreateShip(ShipClass2, Company1Identifier, BasePosition + BaseOffset + Shift + BaseDeep);
+		ActiveSector->CreateShip(ShipClass2, Company2Identifier, BasePosition - BaseOffset - Shift - BaseDeep);
 	}
 }
 
@@ -776,11 +692,16 @@ void AFlareGame::SetDefaultTurret(FName NewDefaultTurretIdentifier)
 
 void AFlareGame::CreateAsteroid(int32 ID)
 {
+	if(!ActiveSector)
+	{
+		FLOG("AFlareGame::CreateAsteroid failed: no active sector");
+		return;
+	}
+
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
 	if (PC)
 	{
-
 
 		// Location
 		AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
@@ -790,104 +711,32 @@ void AFlareGame::CreateAsteroid(int32 ID)
 			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(20000 * FVector(1, 0, 0));
 		}
 
-		CreateAsteroidAt(ID, TargetPosition);
+		ActiveSector->CreateAsteroidAt(ID, TargetPosition);
 	}
 }
 
-void AFlareGame::EmptyWorld()
+void AFlareGame::EmptySector()
 {
-	FLOG("AFlareGame::EmptyWorld");
-
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-
-	AFlareSpacecraft* CurrentPlayedShip = NULL;
-
-	if (PC)
+	FLOG("AFlareGame::EmptySector");
+	if(!ActiveSector)
 	{
-		// Current played ship
-		CurrentPlayedShip = PC->GetShipPawn();
-	}
-
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode() && SpacecraftCandidate != CurrentPlayedShip)
-		{
-			SpacecraftCandidate->Destroy();
-		}
-
-		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-		if (BombCandidate)
-		{
-			BombCandidate->Destroy();
-		}
-
-		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-		if (ShellCandidate)
-		{
-			ShellCandidate->Destroy();
-		}
-
-		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
-		if (AsteroidCandidate)
-		{
-			AsteroidCandidate->Destroy();
-		}
-	}
-
-	UFlareCompany* CurrentShipCompany = NULL;
-
-	if(CurrentPlayedShip)
-	{
-		CurrentShipCompany = CurrentPlayedShip->GetCompany();
-	}
-
-	Companies.Empty();
-	Companies.Add(CurrentShipCompany);
-}
-
-void AFlareGame::CreateAsteroidAt(int32 ID, FVector Location)
-{
-	if(ID >= GetAsteroidCatalog()->Asteroids.Num())
-	{
-		FLOGV("Astroid create fail : Asteroid max ID is %d", GetAsteroidCatalog()->Asteroids.Num() -1);
+		FLOG("AFlareGame::EmptySector failed: no active sector");
 		return;
 	}
 
-	// Spawn parameters
-	FActorSpawnParameters Params;
-	Params.bNoFail = true;
-	FFlareAsteroidSave Data;
-	Data.AsteroidMeshID = ID;
-	Data.LinearVelocity = FVector::ZeroVector;
-	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
-	Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.9,1.1);
-	FRotator Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
-
-	// Spawn and setup
-	AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), Location, Rotation, Params);
-	Asteroid->Load(Data);
-
+	ActiveSector->EmptySector();
 }
 
 void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
 {
-	UFlareCompany* Company1 = NULL;
-	UFlareCompany* Company2 = NULL;
-
-	for (int i = 0; i < Companies.Num(); i++)
+	if(!World)
 	{
-		UFlareCompany* Company = Companies[i];
-		if (Company && Company->GetShortName() == Company1ShortName)
-		{
-			Company1 = Company;
-		}
-
-		if (Company && Company->GetShortName() == Company2ShortName)
-		{
-			Company2 = Company;
-		}
+		FLOG("AFlareGame::DeclareWar failed: no loaded world");
+		return;
 	}
+
+	UFlareCompany* Company1 = World->FindCompanyByShortName(Company1ShortName);
+	UFlareCompany* Company2 = World->FindCompanyByShortName(Company2ShortName);
 
 	if (Company1 && Company2 && Company1 != Company2)
 	{
@@ -906,22 +755,14 @@ void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
 
 void AFlareGame::MakePeace(FName Company1ShortName, FName Company2ShortName)
 {
-	UFlareCompany* Company1 = NULL;
-	UFlareCompany* Company2 = NULL;
-
-	for(int i = 0; i < Companies.Num(); i++)
+	if(!World)
 	{
-		UFlareCompany* Company = Companies[i];
-		if (Company && Company->GetShortName() == Company1ShortName)
-		{
-			Company1 = Company;
-		}
-
-		if (Company && Company->GetShortName() == Company2ShortName)
-		{
-			Company2 = Company;
-		}
+		FLOG("AFlareGame::MakePeace failed: no loaded world");
+		return;
 	}
+
+	UFlareCompany* Company1 = World->FindCompanyByShortName(Company1ShortName);
+	UFlareCompany* Company2 = World->FindCompanyByShortName(Company2ShortName);
 
 	if(Company1 && Company2)
 	{

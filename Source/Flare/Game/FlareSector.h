@@ -7,7 +7,7 @@
 class UFlareSimulatedSector;
 
 UCLASS()
-class FLARE_API UFlareActiveSector : public UObject
+class FLARE_API UFlareSector : public UObject
 {
     GENERATED_UCLASS_BODY()
 
@@ -26,6 +26,10 @@ public:
     /** Create a ship or station in the level  for a specific company */
     AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
+	/** Add an asteroid to the world at a specific location */
+	void CreateAsteroidAt(int32 ID, FVector Location);
+
+	virtual void EmptySector();
 
 protected:
 

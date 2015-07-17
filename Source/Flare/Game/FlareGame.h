@@ -9,6 +9,7 @@
 #include "FlarePlanetarium.h"
 #include "FlareCompany.h"
 #include "FlareWorld.h"
+#include "FlareSector.h"
 
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
@@ -95,17 +96,14 @@ public:
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);
 
-	/** Add an asteroid to the world at a specific location */
-	void CreateAsteroidAt(int32 ID, FVector Location);
-
     /** Load the game from this save file */
     virtual bool LoadGame(AFlarePlayerController* PC);
 
 	/** Save the world to this save file */
-	virtual bool SaveWorld(AFlarePlayerController* PC);
+	virtual bool SaveGame(AFlarePlayerController* PC);
 
-	/** Delete the world */
-	virtual void DeleteWorld();
+	/** Unload the game*/
+	virtual void UnloadGame();
 
 
 	/*----------------------------------------------------
@@ -148,9 +146,9 @@ public:
 	UFUNCTION(exec)
 	void CreateAsteroid(int32 ID);
 
-	/** Empty the world. Let only the current played ship and its company */
+	/** Empty the active sector. Let only the current played ship */
 	UFUNCTION(exec)
-	virtual void EmptyWorld();
+	virtual void EmptySector();
 
 	/** Make war between two company */
 	UFUNCTION(exec)
@@ -196,6 +194,10 @@ protected:
     /** World */
     UPROPERTY()
     UFlareWorld*                   World;
+
+	/** Active sector */
+	UPROPERTY()
+	UFlareSector*                   ActiveSector;
 
 
 	/*----------------------------------------------------

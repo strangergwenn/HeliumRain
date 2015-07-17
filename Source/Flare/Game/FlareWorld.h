@@ -87,6 +87,20 @@ public:
 		return NULL;
 	}
 
+	inline UFlareCompany* FindCompanyByShortName(FName CompanyShortName) const
+	{
+		// Find company
+		for(int i = 0; i < Companies.Num(); i++)
+		{
+			UFlareCompany* Company = Companies[i];
+			if (Company && Company->GetShortName() == CompanyShortName)
+			{
+				return Company;
+			}
+		}
+		return NULL;
+	}
+
 	inline TArray<UFlareCompany*> GetCompanies() const
 	{
 		return Companies;

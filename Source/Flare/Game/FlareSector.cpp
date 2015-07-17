@@ -123,6 +123,40 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 }
 
 
+
+AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+{
+	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
+
+	if (!Desc)
+	{
+		Desc = GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
+	}
+
+	if (Desc)
+	{
+		return CreateShip(Desc, CompanyIdentifier, TargetPosition, TargetRotation);
+	}
+	return NULL;
+}
+
+AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
+{
+	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
+
+	if (!Desc)
+	{
+		Desc = GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
+	}
+
+	if (Desc)
+	{
+		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
+	}
+	return NULL;
+}
+
+
 AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {
     AFlareSpacecraft* ShipPawn = NULL;
@@ -223,4 +257,156 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
     }
 
     return ShipPawn;
+}
+
+
+// TODO Save
+static void Save()
+{
+	// Save all physical ships
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Tentative casts
+		AFlareMenuPawn* MenuPawn = PC->GetMenuPawn();
+		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
+		AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(*ActorItr);
+
+		// Ship
+		if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
+		{
+			FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetImmatriculation());
+			FFlareSpacecraftSave* TempData = Ship->Save();
+			Save->ShipData.Add(*TempData);
+		}
+
+		// Station
+		else if (Ship && Ship->GetDescription() && Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
+		{
+			FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Ship->GetImmatriculation());
+			FFlareSpacecraftSave* TempData = Ship->Save();
+			Save->StationData.Add(*TempData);
+		}
+
+		// Asteroid
+		else if (Asteroid)
+		{
+			FLOGV("AFlareGame::SaveWorld : saving asteroid ('%s')", *Asteroid->GetName());
+			FFlareAsteroidSave* TempData = Asteroid->Save();
+			Save->AsteroidData.Add(*TempData);
+		}
+	}
+}
+
+
+// TODO
+void AFlareGame::DeleteSector()
+{
+	FLOG("AFlareGame::DeleteWorld");
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
+		{
+			SpacecraftCandidate->Destroy();
+		}
+
+		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
+		if (BombCandidate)
+		{
+			BombCandidate->Destroy();
+		}
+
+		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
+		if (ShellCandidate)
+		{
+			ShellCandidate->Destroy();
+		}
+
+		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
+		if (AsteroidCandidate)
+		{
+			AsteroidCandidate->Destroy();
+		}
+	}
+
+	Companies.Empty();
+	LoadedOrCreated = false;
+}
+
+
+void AFlareSector::CreateAsteroidAt(int32 ID, FVector Location)
+{
+	if(ID >= GetAsteroidCatalog()->Asteroids.Num())
+	{
+		FLOGV("Astroid create fail : Asteroid max ID is %d", GetAsteroidCatalog()->Asteroids.Num() -1);
+		return;
+	}
+
+	// Spawn parameters
+	FActorSpawnParameters Params;
+	Params.bNoFail = true;
+	FFlareAsteroidSave Data;
+	Data.AsteroidMeshID = ID;
+	Data.LinearVelocity = FVector::ZeroVector;
+	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
+	Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.9,1.1);
+	FRotator Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
+
+	// Spawn and setup
+	AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), Location, Rotation, Params);
+	Asteroid->Load(Data);
+
+}
+
+void AFlareSector::EmptySector()
+{
+	FLOG("AFlareGame::EmptySector");
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+
+	AFlareSpacecraft* CurrentPlayedShip = NULL;
+
+	if (PC)
+	{
+		// Current played ship
+		CurrentPlayedShip = PC->GetShipPawn();
+	}
+
+	// TODO don't use iterator
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode() && SpacecraftCandidate != CurrentPlayedShip)
+		{
+			SpacecraftCandidate->Destroy();
+		}
+
+		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
+		if (BombCandidate)
+		{
+			BombCandidate->Destroy();
+		}
+
+		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
+		if (ShellCandidate)
+		{
+			ShellCandidate->Destroy();
+		}
+
+		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
+		if (AsteroidCandidate)
+		{
+			AsteroidCandidate->Destroy();
+		}
+	}
+
+	UFlareCompany* CurrentShipCompany = NULL;
+
+	if(CurrentPlayedShip)
+	{
+		CurrentShipCompany = CurrentPlayedShip->GetCompany();
+	}
+
+	Companies.Empty();
+	Companies.Add(CurrentShipCompany);
 }

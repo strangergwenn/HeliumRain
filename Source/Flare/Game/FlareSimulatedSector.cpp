@@ -5,6 +5,7 @@
 // TODO rework
 
 
+
 AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
 {
     AFlareSpacecraft* Ship = NULL;
@@ -46,6 +47,37 @@ AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
     return Ship;
 }
 
+AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+{
+	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
+
+	if (!Desc)
+	{
+		Desc = GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
+	}
+
+	if (Desc)
+	{
+		return CreateShip(Desc, CompanyIdentifier, TargetPosition, TargetRotation);
+	}
+	return NULL;
+}
+
+AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
+{
+	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
+
+	if (!Desc)
+	{
+		Desc = GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
+	}
+
+	if (Desc)
+	{
+		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
+	}
+	return NULL;
+}
 
 AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {

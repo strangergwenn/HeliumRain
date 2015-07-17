@@ -176,3 +176,37 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 
     return Bomb;
 }
+
+
+// TODO Save
+FFlareWorldSave* UFlareWorld::Save()
+{
+	WorldData.CompanyData.Empty();
+	WorldData.SectorData.Empty();
+
+	// Companies
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		if (Company)
+		{
+			FLOGV("UFlareWorld::Save : saving company ('%s')", *Company->GetName());
+			FFlareCompanySave* TempData = Company->Save();
+			WorldData.CompanyData.Add(*TempData);
+		}
+	}
+
+	// Sectors
+	for (int i = 0; i < Sectors.Num(); i++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[i];
+		if (Company)
+		{
+			FLOGV("UFlareWorld::Save : saving sector ('%s')", *Company->GetName());
+			FFlareSectorSave* TempData = Sector->Save();
+			WorldData.SectorData.Add(*TempData);
+		}
+	}
+
+	return &WorldData;
+}
