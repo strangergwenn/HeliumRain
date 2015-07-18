@@ -5,6 +5,7 @@
 #include "FlareSimulatedSector.generated.h"
 
 class UFlareSimulatedSpacecraft;
+class UFlareGame;
 struct FFlarePlayerSave;
 
 /** Sector knowledge status */
@@ -82,17 +83,18 @@ public:
     UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
 
+
     /** Init world with empty scenario */
-    virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
+	//virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
 
     /** Init world with peaceful scenario */
-    virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
+	//virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
 
     /** Init world with threatened scenario */
-    virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
+	//virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
     /** Init world with aggresve scenario */
-    virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
+	//virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
 
 
@@ -106,6 +108,8 @@ protected:
     FFlareSectorSave                       SectorData;
     TArray<UFlareSimulatedSpacecraft*>      SectorStations;
     TArray<UFlareSimulatedSpacecraft*>      SectorShips;
+
+	AFlareGame*                   Game;
 
 public:
 

@@ -1,59 +1,62 @@
 
 #include "../Flare.h"
 #include "FlareSimulatedSector.h"
+#include "FlareGame.h"
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
-// TODO rework
 
+/*----------------------------------------------------
+	Constructor
+----------------------------------------------------*/
 
-
-AFlareSpacecraft* AFlareGame::LoadShip(const FFlareSpacecraftSave& ShipData)
+UFlareSimulatedSector::UFlareSimulatedSector(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
-    AFlareSpacecraft* Ship = NULL;
-    FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Immatriculation.ToString());
-
-    if (SpacecraftCatalog)
-    {
-        FFlareSpacecraftDescription* Desc = SpacecraftCatalog->Get(ShipData.Identifier);
-        if (Desc)
-        {
-            // Spawn parameters
-            FActorSpawnParameters Params;
-            Params.bNoFail = true;
-
-            // Create and configure the ship
-            Ship = GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
-            if (Ship)
-            {
-                Ship->Load(ShipData);
-                UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
-                RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
-                RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
-            }
-            else
-            {
-                FLOG("AFlareGame::LoadShip fail to create AFlareSpacecraft");
-            }
-        }
-        else
-        {
-            FLOG("AFlareGame::LoadShip failed (no description available)");
-        }
-    }
-    else
-    {
-        FLOG("AFlareGame::LoadShip failed (no catalog data)");
-    }
-
-    return Ship;
 }
 
-AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+
+void UFlareSimulatedSector::Load(const FFlareSectorSave& Data)
 {
-	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(StationClass);
+	SectorData = Data;
+	// TODO
+}
+
+
+FFlareSectorSave* UFlareSimulatedSector::Save()
+{
+	return &SectorData;
+}
+
+
+
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData)
+{
+	UFlareSimulatedSpacecraft* Spacecraft = NULL;
+	FLOGV("AFlareGame::LoadSpacecraft ('%s')", *SpacecraftData.Immatriculation.ToString());
+
+	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(SpacecraftData.Identifier);
+	if (Desc)
+	{
+		Spacecraft = NewObject<UFlareSimulatedSpacecraft>(this, UFlareSimulatedSpacecraft::StaticClass());
+		Spacecraft->Load(SpacecraftData);
+		// TODO station/ship dispatch
+		SectorShips.Add(Spacecraft);
+	}
+	else
+	{
+		FLOG("UFlareSimulatedSector::LoadSpacecraft failed (no description available)");
+	}
+
+	return Spacecraft;
+}
+
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+{
+	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(StationClass);
 
 	if (!Desc)
 	{
-		Desc = GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
+		Desc = Game->GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
 	}
 
 	if (Desc)
@@ -63,13 +66,13 @@ AFlareSpacecraft* AFlareGame::CreateStation(FName StationClass, FName CompanyIde
 	return NULL;
 }
 
-AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
 {
-	FFlareSpacecraftDescription* Desc = GetSpacecraftCatalog()->Get(ShipClass);
+	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipClass);
 
 	if (!Desc)
 	{
-		Desc = GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
+		Desc = Game->GetSpacecraftCatalog()->Get(FName(*("ship-" + ShipClass.ToString())));
 	}
 
 	if (Desc)
@@ -79,10 +82,10 @@ AFlareSpacecraft* AFlareGame::CreateShip(FName ShipClass, FName CompanyIdentifie
 	return NULL;
 }
 
-AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
 {
-    AFlareSpacecraft* ShipPawn = NULL;
-    UFlareCompany* Company = World->FindCompany(CompanyIdentifier);
+	UFlareSimulatedSpacecraft* Spacecraft = NULL;
+	UFlareCompany* Company = Game->GetGameWorld()->FindCompany(CompanyIdentifier);
 
     if (ShipDescription && Company)
     {
@@ -92,7 +95,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
         ShipData.Rotation = TargetRotation;
         ShipData.LinearVelocity = FVector::ZeroVector;
         ShipData.AngularVelocity = FVector::ZeroVector;
-        Immatriculate(Company, ShipDescription->Identifier, &ShipData);
+		Game->Immatriculate(Company, ShipDescription->Identifier, &ShipData);
         ShipData.Identifier = ShipDescription->Identifier;
         ShipData.Heat = 600 * ShipDescription->HeatCapacity;
         ShipData.PowerOutageDelay = 0;
@@ -138,7 +141,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
         for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
         {
             FFlareSpacecraftComponentSave ComponentData;
-            ComponentData.ComponentIdentifier = DefaultWeaponIdentifer;
+			ComponentData.ComponentIdentifier = Game->GetDefaultWeaponIdentifier();
             ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
             ComponentData.Damage = 0.f;
             ComponentData.Weapon.FiredAmmo = 0;
@@ -148,7 +151,7 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
         for (int32 i = 0; i < ShipDescription->TurretSlots.Num(); i++)
         {
             FFlareSpacecraftComponentSave ComponentData;
-            ComponentData.ComponentIdentifier = DefaultTurretIdentifer;
+			ComponentData.ComponentIdentifier = Game->GetDefaultTurretIdentifier();
             ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
             ComponentData.Turret.BarrelsAngle = 0;
             ComponentData.Turret.TurretAngle = 0;
@@ -174,10 +177,10 @@ AFlareSpacecraft* AFlareGame::CreateShip(FFlareSpacecraftDescription* ShipDescri
         ShipData.CompanyIdentifier = CompanyIdentifier;
 
         // Create the ship
-        ShipPawn = LoadShip(ShipData);
-        FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetImmatriculation(), *TargetPosition.ToString());
+		Spacecraft = LoadSpacecraft(ShipData);
+		FLOGV("UFlareSimulatedSector::CreateShip : Created ship '%s' at %s", *Spacecraft->GetImmatriculation(), *TargetPosition.ToString());
     }
 
-    return ShipPawn;
+	return Spacecraft;
 }
 

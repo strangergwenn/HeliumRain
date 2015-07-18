@@ -107,7 +107,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 void SFlareColorPanel::Setup(FFlarePlayerSave& PlayerData)
 {
 	AFlareGame* Game = Cast<AFlareGame>(MenuManager->GetWorld()->GetAuthGameMode());
-	UFlareCompany* Company = Game->FindCompany(PlayerData.CompanyIdentifier);
+	UFlareCompany* Company = Game->GetGameWorld()->FindCompany(PlayerData.CompanyIdentifier);
 	if (Company)
 	{
 		BasePaintColorPicker->SetSelectedIndex(Company->GetBasePaintColorIndex());

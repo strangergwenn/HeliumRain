@@ -7,45 +7,49 @@
     Constructor
 ----------------------------------------------------*/
 
+UFlareWorld::UFlareWorld(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
 
 void UFlareWorld::Load(const FFlareWorldSave& Data)
 {
-    FLOGV("UFlareWorld::Load");
+	FLOG("UFlareWorld::Load");
     WorldData = Data;
 
     // Load all companies
     for (int32 i = 0; i < WorldData.CompanyData.Num(); i++)
     {
-        LoadCompany(Save->CompanyData[i]);
+		LoadCompany(WorldData.CompanyData[i]);
     }
 
-    // Load all stations
+   /* // Load all stations
     for (int32 i = 0; i < WorldData.StationData.Num(); i++)
     {
-        LoadShip(Save->StationData[i]);
+		LoadShip(WorldData->StationData[i]);
     }
 
     // Load all ships
     for (int32 i = 0; i < WorldData.ShipData.Num(); i++)
     {
-        LoadShip(Save->ShipData[i]);
+		LoadShip(WorldData->ShipData[i]);
     }
 
     // Load all bombs
     for (int32 i = 0; i < WorldData.BombData.Num(); i++)
     {
-        LoadBomb(Save->BombData[i]);
+		LoadBomb(WorldData->BombData[i]);
     }
 
     // Load all asteroids
     for (int32 i = 0; i < WorldData.AsteroidData.Num(); i++)
     {
-        LoadAsteroid(Save->AsteroidData[i]);
-    }
+		LoadAsteroid(WorldData->AsteroidData[i]);
+	}*/
 }
 
 
-UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
+UFlareCompany* UFlareWorld::LoadCompany(const FFlareCompanySave& CompanyData)
 {
     UFlareCompany* Company = NULL;
 
@@ -54,11 +58,11 @@ UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
     Company->Load(CompanyData);
     Companies.AddUnique(Company);
 
-	FLOGV("AFlareGame::LoadCompany : loaded '%s'", *Company->GetCompanyName());
+	FLOGV("UFlareWorld::LoadCompany : loaded '%s'", *Company->GetCompanyName());
 
     return Company;
 }
-
+/*
 AFlareAsteroid* AFlareGame::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
 {
     FActorSpawnParameters Params;
@@ -176,7 +180,7 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 
     return Bomb;
 }
-
+*/
 
 // TODO Save
 FFlareWorldSave* UFlareWorld::Save()
@@ -200,9 +204,9 @@ FFlareWorldSave* UFlareWorld::Save()
 	for (int i = 0; i < Sectors.Num(); i++)
 	{
 		UFlareSimulatedSector* Sector = Sectors[i];
-		if (Company)
+		if (Sector)
 		{
-			FLOGV("UFlareWorld::Save : saving sector ('%s')", *Company->GetName());
+			FLOGV("UFlareWorld::Save : saving sector ('%s')", *Sector->GetName());
 			FFlareSectorSave* TempData = Sector->Save();
 			WorldData.SectorData.Add(*TempData);
 		}

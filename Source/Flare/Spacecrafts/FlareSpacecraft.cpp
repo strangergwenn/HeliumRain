@@ -267,7 +267,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	WeaponsSystem->Initialize(this, &ShipData);
 
 	// Look for parent company
-	SetOwnerCompany(GetGame()->FindCompany(Data.CompanyIdentifier));
+	SetOwnerCompany(GetGame()->GetGameWorld()->FindCompany(Data.CompanyIdentifier));
 
 	// Initialize components
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());

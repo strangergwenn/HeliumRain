@@ -276,8 +276,8 @@ void SFlareOrbitalMenu::OnMainMenu()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	PC->GetGame()->SaveWorld(PC);
-	PC->GetGame()->DeleteWorld();
+	PC->GetGame()->SaveGame(PC);
+	PC->GetGame()->UnloadGame();
 
 	MenuManager->FlushNotifications();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);

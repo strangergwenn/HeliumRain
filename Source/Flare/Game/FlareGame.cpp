@@ -26,8 +26,8 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	// Game classes
 	HUDClass = AFlareHUD::StaticClass();
 	PlayerControllerClass = AFlarePlayerController::StaticClass();
-	DefaultWeaponIdentifer = FName("weapon-eradicator");
-	DefaultTurretIdentifer = FName("weapon-artemis");
+	DefaultWeaponIdentifier = FName("weapon-eradicator");
+	DefaultTurretIdentifier = FName("weapon-artemis");
 
 	// Menu pawn
 	static ConstructorHelpers::FObjectFinder<UBlueprint> MenuPawnBPClass(TEXT("/Game/Gameplay/Menu/BP_MenuPawn"));
@@ -668,7 +668,7 @@ void AFlareGame::SetDefaultWeapon(FName NewDefaultWeaponIdentifier)
 
 	if (ComponentDescription && ComponentDescription->WeaponCharacteristics.IsWeapon)
 	{
-		DefaultWeaponIdentifer = NewDefaultWeaponIdentifier;
+		DefaultWeaponIdentifier = NewDefaultWeaponIdentifier;
 	}
 	else
 	{
@@ -682,7 +682,7 @@ void AFlareGame::SetDefaultTurret(FName NewDefaultTurretIdentifier)
 
 	if (ComponentDescription && ComponentDescription->WeaponCharacteristics.IsWeapon && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
 	{
-		DefaultTurretIdentifer = NewDefaultTurretIdentifier;
+		DefaultTurretIdentifier = NewDefaultTurretIdentifier;
 	}
 	else
 	{

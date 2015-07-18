@@ -240,8 +240,8 @@ protected:
 	int32                                    CurrentImmatriculationIndex;
 	TArray<FName>                            BaseImmatriculationNameList;
 
-	FName                                    DefaultWeaponIdentifer;
-	FName                                    DefaultTurretIdentifer;
+	FName                                    DefaultWeaponIdentifier;
+	FName                                    DefaultTurretIdentifier;
 
 	int32                                    CurrentSaveIndex;
 	bool                                     LoadedOrCreated;
@@ -312,6 +312,16 @@ public:
 	inline bool IsLoadedOrCreated() const
 	{
 		return LoadedOrCreated;
+	}
+
+	inline FName GetDefaultWeaponIdentifier() const
+	{
+		return DefaultWeaponIdentifier;
+	}
+
+	inline FName GetDefaultTurretIdentifier() const
+	{
+		return DefaultTurretIdentifier;
 	}
 
 };

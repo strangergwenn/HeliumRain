@@ -5,6 +5,15 @@
 // TODO rework
 
 
+/*----------------------------------------------------
+	Constructor
+----------------------------------------------------*/
+
+UFlareSector::UFlareSector(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
 AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
 {
     FActorSpawnParameters Params;
@@ -221,7 +230,7 @@ AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDesc
         for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
         {
             FFlareSpacecraftComponentSave ComponentData;
-            ComponentData.ComponentIdentifier = DefaultWeaponIdentifer;
+			ComponentData.ComponentIdentifier = Game->GetDefaultWeaponIdentifier();
             ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
             ComponentData.Damage = 0.f;
             ComponentData.Weapon.FiredAmmo = 0;
@@ -231,7 +240,7 @@ AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDesc
         for (int32 i = 0; i < ShipDescription->TurretSlots.Num(); i++)
         {
             FFlareSpacecraftComponentSave ComponentData;
-            ComponentData.ComponentIdentifier = DefaultTurretIdentifer;
+			ComponentData.ComponentIdentifier = Game->GetDefaultTurretIdentifier();
             ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
             ComponentData.Turret.BarrelsAngle = 0;
             ComponentData.Turret.TurretAngle = 0;
@@ -304,6 +313,7 @@ static void Save()
 
 
 // TODO
+/*
 void AFlareGame::DeleteSector()
 {
 	FLOG("AFlareGame::DeleteWorld");
@@ -337,13 +347,13 @@ void AFlareGame::DeleteSector()
 	Companies.Empty();
 	LoadedOrCreated = false;
 }
+*/
 
-
-void AFlareSector::CreateAsteroidAt(int32 ID, FVector Location)
+void UFlareSector::CreateAsteroidAt(int32 ID, FVector Location)
 {
-	if(ID >= GetAsteroidCatalog()->Asteroids.Num())
+	if(ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
 	{
-		FLOGV("Astroid create fail : Asteroid max ID is %d", GetAsteroidCatalog()->Asteroids.Num() -1);
+		FLOGV("Astroid create fail : Asteroid max ID is %d", Game->GetAsteroidCatalog()->Asteroids.Num() -1);
 		return;
 	}
 
@@ -363,9 +373,9 @@ void AFlareSector::CreateAsteroidAt(int32 ID, FVector Location)
 
 }
 
-void AFlareSector::EmptySector()
+void UFlareSector::EmptySector()
 {
-	FLOG("AFlareGame::EmptySector");
+	FLOG("UFlareSector::EmptySector");
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
@@ -404,14 +414,4 @@ void AFlareSector::EmptySector()
 			AsteroidCandidate->Destroy();
 		}
 	}
-
-	UFlareCompany* CurrentShipCompany = NULL;
-
-	if(CurrentPlayedShip)
-	{
-		CurrentShipCompany = CurrentPlayedShip->GetCompany();
-	}
-
-	Companies.Empty();
-	Companies.Add(CurrentShipCompany);
 }
