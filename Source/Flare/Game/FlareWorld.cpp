@@ -24,6 +24,12 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 		LoadCompany(WorldData.CompanyData[i]);
     }
 
+	// Load all sectors
+	for (int32 i = 0; i < WorldData.SectorData.Num(); i++)
+	{
+		LoadSector(WorldData.SectorData[i]);
+	}
+
    /* // Load all stations
     for (int32 i = 0; i < WorldData.StationData.Num(); i++)
     {
@@ -63,6 +69,21 @@ UFlareCompany* UFlareWorld::LoadCompany(const FFlareCompanySave& CompanyData)
 
     return Company;
 }
+
+UFlareSimulatedSector* UFlareWorld::LoadSector(const FFlareSectorSave& SectorData)
+{
+	UFlareSimulatedSector* Sector = NULL;
+
+	// Create the new company
+	Sector = NewObject<UFlareSimulatedSector>(this, UFlareSimulatedSector::StaticClass(), SectorData.Identifier);
+	Sector->Load(SectorData);
+	Sectors.AddUnique(Sector);
+
+	FLOGV("UFlareWorld::LoadSector : loaded '%s'", *Sector->GetSectorName());
+
+	return Sector;
+}
+
 /*
 AFlareAsteroid* AFlareGame::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
 {

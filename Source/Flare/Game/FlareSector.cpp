@@ -14,6 +14,104 @@ UFlareSector::UFlareSector(const FObjectInitializer& ObjectInitializer)
 {
 }
 
+/*----------------------------------------------------
+  Save
+----------------------------------------------------*/
+
+void UFlareSector::Load(const FFlareSectorSave& Data)
+{
+	Destroy();
+
+	Game = Cast<AFlareGame>(GetOuter());
+	SectorData = Data;
+
+	for(int i = 0 ; i < SectorData.AsteroidData.Num(); i++)
+	{
+		LoadAsteroid(SectorData.AsteroidData[i]);
+	}
+
+	for(int i = 0 ; i < SectorData.ShipData.Num(); i++)
+	{
+		LoadShip(SectorData.ShipData[i]);
+	}
+
+	for(int i = 0 ; i < SectorData.StationData.Num(); i++)
+	{
+		LoadShip(SectorData.StationData[i]);
+	}
+
+	for(int i = 0 ; i < SectorData.BombData.Num(); i++)
+	{
+		LoadBomb(SectorData.BombData[i]);
+	}
+}
+
+FFlareSectorSave* UFlareSector::Save()
+{
+	SectorData.ShipData.Empty();
+	SectorData.StationData.Empty();
+	SectorData.BombData.Empty();
+	SectorData.AsteroidData.Empty();
+
+	for(int i = 0 ; i < SectorShips.Num(); i++)
+	{
+		SectorData.ShipData.Add(*SectorShips[i]->Save());
+	}
+
+	for(int i = 0 ; i < SectorStations.Num(); i++)
+	{
+		SectorData.StationData.Add(*SectorStations[i]->Save());
+	}
+
+	for(int i = 0 ; i < SectorBombs.Num(); i++)
+	{
+		SectorData.BombData.Add(*SectorBombs[i]->Save());
+	}
+
+	for(int i = 0 ; i < SectorAsteroids.Num(); i++)
+	{
+		SectorData.AsteroidData.Add(*SectorAsteroids[i]->Save());
+	}
+
+	return &SectorData;
+}
+
+void UFlareSector::Destroy()
+{
+	for(int i = 0 ; i < SectorShips.Num(); i++)
+	{
+		SectorShips[i]->Destroy();
+	}
+
+	for(int i = 0 ; i < SectorStations.Num(); i++)
+	{
+		SectorStations[i]->Destroy();
+	}
+
+	for(int i = 0 ; i < SectorBombs.Num(); i++)
+	{
+		SectorBombs[i]->Destroy();
+	}
+
+	for(int i = 0 ; i < SectorAsteroids.Num(); i++)
+	{
+		SectorAsteroids[i]->Destroy();
+	}
+
+	SectorShips.Empty();
+	SectorStations.Empty();
+	SectorBombs.Empty();
+	SectorAsteroids.Empty();
+
+	Game = NULL;
+}
+
+
+/*----------------------------------------------------
+	Gameplay
+----------------------------------------------------*/
+
+
 AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
 {
     FActorSpawnParameters Params;
@@ -49,8 +147,14 @@ AFlareSpacecraft* UFlareSector::LoadShip(const FFlareSpacecraftSave& ShipData)
 			RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
 			RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 
-			// TODO Dispatch stations
-			SectorShips.Add(Ship);
+			if(Ship->IsStation())
+			{
+				SectorStations.Add(Ship);
+			}
+			else
+			{
+				SectorShips.Add(Ship);
+			}
 		}
 		else
 		{
@@ -272,82 +376,6 @@ AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDesc
 
     return ShipPawn;
 }
-
-
-// TODO Save
-static void Save()
-{
-	/*// Save all physical ships
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		// Tentative casts
-		AFlareMenuPawn* MenuPawn = PC->GetMenuPawn();
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
-		AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(*ActorItr);
-
-		// Ship
-		if (Ship && Ship->GetDescription() && !Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
-		{
-			FLOGV("AFlareGame::SaveWorld : saving ship ('%s')", *Ship->GetImmatriculation());
-			FFlareSpacecraftSave* TempData = Ship->Save();
-			Save->ShipData.Add(*TempData);
-		}
-
-		// Station
-		else if (Ship && Ship->GetDescription() && Ship->IsStation() && (MenuPawn == NULL || Ship != MenuPawn->GetCurrentSpacecraft()))
-		{
-			FLOGV("AFlareGame::SaveWorld : saving station ('%s')", *Ship->GetImmatriculation());
-			FFlareSpacecraftSave* TempData = Ship->Save();
-			Save->StationData.Add(*TempData);
-		}
-
-		// Asteroid
-		else if (Asteroid)
-		{
-			FLOGV("AFlareGame::SaveWorld : saving asteroid ('%s')", *Asteroid->GetName());
-			FFlareAsteroidSave* TempData = Asteroid->Save();
-			Save->AsteroidData.Add(*TempData);
-		}
-	}*/
-}
-
-
-// TODO
-/*
-void AFlareGame::DeleteSector()
-{
-	FLOG("AFlareGame::DeleteWorld");
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
-		{
-			SpacecraftCandidate->Destroy();
-		}
-
-		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-		if (BombCandidate)
-		{
-			BombCandidate->Destroy();
-		}
-
-		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-		if (ShellCandidate)
-		{
-			ShellCandidate->Destroy();
-		}
-
-		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
-		if (AsteroidCandidate)
-		{
-			AsteroidCandidate->Destroy();
-		}
-	}
-
-	Companies.Empty();
-	LoadedOrCreated = false;
-}
-*/
 
 void UFlareSector::CreateAsteroidAt(int32 ID, FVector Location)
 {

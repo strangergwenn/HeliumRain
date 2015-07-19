@@ -42,6 +42,9 @@ public:
 	/** Spawn a company from save data */
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
 
+	/** Spawn a sector from save data */
+	UFlareSimulatedSector* LoadSector(const FFlareSectorSave& SectorData);
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -97,6 +100,19 @@ public:
 			if (Company && Company->GetShortName() == CompanyShortName)
 			{
 				return Company;
+			}
+		}
+		return NULL;
+	}
+
+	inline UFlareSimulatedSector* FindSector(FName Identifier) const
+	{
+		for(int i = 0; i < Sectors.Num(); i++)
+		{
+			UFlareSimulatedSector* Sector = Sectors[i];
+			if (Sector && Sector->GetIdentifier() == Identifier)
+			{
+				return Sector;
 			}
 		}
 		return NULL;

@@ -141,6 +141,48 @@ void AFlareGame::Logout(AController* Player)
 }
 
 
+void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sector)
+{
+	if(ActiveSector)
+	{
+		if(ActiveSector->GetIdentifier() == Sector->GetIdentifier())
+		{
+			// Sector to activate is already active
+			return;
+		}
+
+		DeactivateSector(Player);
+	}
+
+	// Create the new sector
+	ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
+	ActiveSector->Load(*Sector->Save());
+
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
+	PC->OnSectorActivated();
+}
+
+void AFlareGame::DeactivateSector(AController* Player)
+{
+	if(ActiveSector)
+	{
+		FFlareSectorSave* SectorData = ActiveSector->Save();
+		ActiveSector->Destroy();
+		ActiveSector = NULL;
+
+		UFlareSimulatedSector* Sector = World->FindSector(SectorData->Identifier);
+		if(!Sector)
+		{
+			FLOGV("ERROR: no simulated sector match for active sector '%s'", *SectorData->Identifier.ToString());
+		}
+		Sector->Load(*SectorData);
+
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
+		PC->OnSectorDeactivated();
+	}
+}
+
 /*----------------------------------------------------
 	Save slots
 ----------------------------------------------------*/
@@ -795,6 +837,45 @@ void AFlareGame::MakePeace(FName Company1ShortName, FName Company2ShortName)
 	{
 		Company1->SetHostilityTo(Company2, false);
 		Company2->SetHostilityTo(Company1, false);
+	}
+}
+
+
+void AFlareGame::ForceSectorActivation(FName SectorIdentifier)
+{
+	if(!World)
+	{
+		FLOG("AFlareGame::ForceSectorActivation failed: no loaded world");
+		return;
+	}
+
+	UFlareSimulatedSector* Sector = World->FindSector(SectorIdentifier);
+
+	if(!Sector)
+	{
+		FLOGV("AFlareGame::ForceSectorActivation failed: no sector with id '%s'", *SectorIdentifier.ToString());
+		return;
+	}
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		ActivateSector(PC, Sector);
+	}
+}
+
+void AFlareGame::ForceSectorDeactivation()
+{
+	if(!World)
+	{
+		FLOG("AFlareGame::ForceSectorDeactivation failed: no loaded world");
+		return;
+	}
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC)
+	{
+		DeactivateSector(PC);
 	}
 }
 

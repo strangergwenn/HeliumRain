@@ -60,10 +60,10 @@ public:
         Save
     ----------------------------------------------------*/
 
-    /** Load the company from a save file */
+	/** Load the sector from a save file */
     virtual void Load(const FFlareSectorSave& Data);
 
-    /** Save the company to a save file */
+	/** Save the sector to a save file */
     virtual FFlareSectorSave* Save();
 
     /** Spawn a simulated spacecraft from save data */

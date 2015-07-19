@@ -56,6 +56,9 @@ public:
 
 	virtual void Logout(AController* Player) override;
 
+	virtual void ActivateSector(AController* Player,UFlareSimulatedSector* Sector);
+
+	virtual void DeactivateSector(AController* Player);
 
 	/*----------------------------------------------------
 		Save slots
@@ -157,6 +160,14 @@ public:
 	/** Make peace two company */
 	UFUNCTION(exec)
 	void MakePeace(FName Company1ShortName, FName Company2ShortName);
+
+	/** Force sector activation */
+	UFUNCTION(exec)
+	void ForceSectorActivation(FName SectorIdentifier);
+
+	/** Force sector deactivation */
+	UFUNCTION(exec)
+	void ForceSectorDeactivation();
 
 
 	/*----------------------------------------------------
@@ -260,6 +271,11 @@ public:
 	inline UFlareWorld* GetGameWorld() const
 	{
 		return World;
+	}
+
+	inline UFlareSector* GetActiveSector() const
+	{
+		return ActiveSector;
 	}
 
 	inline const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const

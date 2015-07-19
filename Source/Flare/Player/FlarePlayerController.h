@@ -60,6 +60,11 @@ public:
 	/** Set the player's company */
 	virtual void SetCompany(UFlareCompany* NewCompany);
 	
+	/** Call a sector is activated */
+	virtual void OnSectorActivated();
+
+	/** Call a sector is deactivated */
+	virtual void OnSectorDeactivated();
 
 	/*----------------------------------------------------
 		Menus

@@ -367,6 +367,16 @@ void AFlarePlayerController::OnLoadComplete()
 	Company->UpdateCompanyCustomization();
 }
 
+void AFlarePlayerController::OnSectorActivated()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip);
+}
+
+void AFlarePlayerController::OnSectorDeactivated()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+}
+
 void AFlarePlayerController::Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData)
 {
 	if (ShipPawn)
