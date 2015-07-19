@@ -192,6 +192,8 @@ public:
 		return CompanyDescription->ShortName;
 	}
 
+	const FSlateBrush* GetEmblem() const;
+
 	inline int32 GetBasePaintColorIndex() const
 	{
 		check(CompanyDescription);

@@ -199,4 +199,14 @@ FLinearColor UFlareCompany::NormalizeColor(FLinearColor Col) const
 }
 
 
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+const FSlateBrush* UFlareCompany::GetEmblem() const
+{
+	return GetGame()->GetCompanyEmblem(CompanyData.CatalogIdentifier);
+}
+
+
 #undef LOCTEXT_NAMESPACE
