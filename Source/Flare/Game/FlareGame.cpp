@@ -292,10 +292,37 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 ----------------------------------------------------*/
 
 // TODO Rename as CreateGame
-void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex)
+void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex)
 {
-	FLOGV("CreateWorld ScenarioIndex %d", ScenarioIndex);
-	FLOGV("CreateWorld CompanyName %s", *CompanyName);
+	FLOGV("CreateGame ScenarioIndex %d", ScenarioIndex);
+	FLOGV("CreateGame CompanyName %s", *CompanyName);
+
+	// Create the new world
+	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
+	FFlareWorldSave WorldData;
+	{
+		FFlareSectorSave SectorData;
+		SectorData.Identifier = "nema1";
+		SectorData.Name = "Nema 1";
+		WorldData.SectorData.Add(SectorData);
+	}
+
+	{
+		FFlareSectorSave SectorData;
+		SectorData.Identifier = "nema2";
+		SectorData.Name = "Nema 2";
+		WorldData.SectorData.Add(SectorData);
+	}
+
+	{
+		FFlareSectorSave SectorData;
+		SectorData.Identifier = "nema3";
+		SectorData.Name = "Nema 3";
+		WorldData.SectorData.Add(SectorData);
+	}
+
+	World->Load(WorldData);
+
 
 	// Create companies
 	for (int32 Index = 0; Index < GetCompanyCatalogCount(); Index++)

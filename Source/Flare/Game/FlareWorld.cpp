@@ -15,6 +15,7 @@ UFlareWorld::UFlareWorld(const FObjectInitializer& ObjectInitializer)
 void UFlareWorld::Load(const FFlareWorldSave& Data)
 {
 	FLOG("UFlareWorld::Load");
+	Game = Cast<AFlareGame>(GetOuter());
     WorldData = Data;
 
     // Load all companies
@@ -54,7 +55,7 @@ UFlareCompany* UFlareWorld::LoadCompany(const FFlareCompanySave& CompanyData)
     UFlareCompany* Company = NULL;
 
     // Create the new company
-    Company = NewObject<UFlareCompany>(this, UFlareCompany::StaticClass(), CompanyData.Identifier);
+	Company = NewObject<UFlareCompany>(this, UFlareCompany::StaticClass(), CompanyData.Identifier);
     Company->Load(CompanyData);
     Companies.AddUnique(Company);
 

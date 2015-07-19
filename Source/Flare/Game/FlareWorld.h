@@ -62,6 +62,8 @@ protected:
 	/** Companies */
 	UPROPERTY()
 	TArray<UFlareCompany*>                Companies;
+
+	AFlareGame*                             Game;
 public:
 
 	/*----------------------------------------------------
@@ -70,9 +72,8 @@ public:
 
 	AFlareGame* GetGame() const
 	{
-		return Cast<AFlareGame>(GetOuter()->GetWorld()->GetAuthGameMode());
+		return Game;
 	}
-
 
 	inline UFlareCompany* FindCompany(FName Identifier) const
 	{

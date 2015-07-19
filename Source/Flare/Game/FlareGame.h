@@ -90,8 +90,8 @@ public:
 		Save
 	----------------------------------------------------*/
 
-	/** Create a new world from scratch */
-	virtual void CreateWorld(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex);
+	/** Create a new game from scratch */
+	virtual void CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex);
 
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);

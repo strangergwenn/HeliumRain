@@ -282,7 +282,8 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 		if (Game->DoesSaveSlotExist(*Index))
 		{
 			Game->LoadGame(PC);
-			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, PC->GetShipPawn());
+			// TODO if active sector, fly ship
+			MenuManager->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
 		}
 
 		// Create the world

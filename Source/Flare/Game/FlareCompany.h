@@ -160,6 +160,7 @@ protected:
 	TArray<IFlareSpacecraftInterface*>      CompanyStations;
 	TArray<IFlareSpacecraftInterface*>      CompanyShips;
 
+	AFlareGame*                             Game;
 
 public:
 
@@ -169,7 +170,7 @@ public:
 
 	AFlareGame* GetGame() const
 	{
-		return Cast<AFlareGame>(GetOuter()->GetWorld()->GetAuthGameMode());
+		return Game;
 	}
 
 	inline FName GetIdentifier() const

@@ -25,6 +25,8 @@ UFlareCompany::UFlareCompany(const FObjectInitializer& ObjectInitializer)
 
 void UFlareCompany::Load(const FFlareCompanySave& Data)
 {
+	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
+
 	CompanyData = Data;
 	CompanyData.Identifier = FName(*GetName());
 	CompanyDescription = NULL;
