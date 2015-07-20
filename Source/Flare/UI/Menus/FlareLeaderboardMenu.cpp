@@ -75,12 +75,20 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
 
-		// Content
-		/*+ SVerticalBox::Slot()
+		// Company list
+		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.Padding(Theme.ContentPadding)
 		[
-		]*/
+			SNew(SBox)
+			.WidthOverride(Theme.ContentWidth)
+			[
+				SAssignNew(CompanyList, SListView< TSharedPtr<FInterfaceContainer> >)
+				.ListItemsSource(&CompanyListData)
+				.SelectionMode(ESelectionMode::Single)
+				.OnGenerateRow(this, &SFlareLeaderboardMenu::GenerateCompanyInfo)
+			]
+		]
 	];
 
 }
@@ -99,8 +107,20 @@ void SFlareLeaderboardMenu::Setup()
 void SFlareLeaderboardMenu::Enter()
 {
 	FLOG("SFlareLeaderboardMenu::Enter");
+
+	// Reset data
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+	AFlareGame* Game = MenuManager->GetGame();
+	const TArray<UFlareCompany*>& Companies = Game->GetCompanies();
+	
+	// Add companies
+	CompanyListData.Empty();
+	for (int32 Index = 0; Index < Companies.Num(); Index++)
+	{
+		CompanyListData.AddUnique(FInterfaceContainer::New(Companies[Index]));
+	}
+	CompanyList->RequestListRefresh();
 }
 
 void SFlareLeaderboardMenu::Exit()
@@ -113,6 +133,36 @@ void SFlareLeaderboardMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+TSharedRef<ITableRow> SFlareLeaderboardMenu::GenerateCompanyInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
+{
+	// Item data
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	const FFlareCompanyDescription* Desc = Item->CompanyPtr->GetDescription();
+	const FSlateBrush* Emblem = Item->CompanyPtr->GetEmblem();
+
+	// Widget structure
+	return SNew(SFlareListItem, OwnerTable)
+		.Content()
+		[
+			SNew(SHorizontalBox)
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SImage)
+				.Image(Emblem)
+			]
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(STextBlock)
+				.Text(Desc->Name)
+				.TextStyle(&Theme.NameFont)
+			]
+		];
+}
 
 void SFlareLeaderboardMenu::OnExit()
 {

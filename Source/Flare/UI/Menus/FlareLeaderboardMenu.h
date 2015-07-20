@@ -44,7 +44,10 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-	
+
+	/** Target item generator */
+	TSharedRef<ITableRow> GenerateCompanyInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
+
 	/** Exit this menu */
 	void OnExit();
 
@@ -56,7 +59,12 @@ protected:
 	----------------------------------------------------*/
 	
 	// Game data
-	AFlareGame*                                 Game;
-	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
+	AFlareGame*                                Game;
+	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 	
+	// Slate data
+	TArray< TSharedPtr<FInterfaceContainer> >                   CompanyListData;
+	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >  CompanyList;
+
+
 };

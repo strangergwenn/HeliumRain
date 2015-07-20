@@ -106,6 +106,8 @@ void AFlareGame::StartPlay()
 			EmblemBrush.SetResourceObject(Emblem);
 			CompanyEmblemBrushes.Add(EmblemBrush);
 		}
+
+		// TODO : do it for the player too
 	}
 
 	// Spawn planet
