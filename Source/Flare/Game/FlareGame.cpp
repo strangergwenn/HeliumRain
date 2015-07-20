@@ -363,6 +363,13 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 		WorldData.SectorData.Add(SectorData);
 	}
 
+	{
+		FFlareSectorSave SectorData;
+		SectorData.Identifier = "nema4";
+		SectorData.Name = "Nema 4";
+		WorldData.SectorData.Add(SectorData);
+	}
+
 	World->Load(WorldData);
 
 
@@ -484,8 +491,7 @@ void AFlareGame::UnloadGame()
 {
 	FLOG("AFlareGame::UnloadGame");
 
-	// TODO Destroy active sector
-
+	ActiveSector->Destroy();
 	ActiveSector = NULL;
 	World = NULL;
 	LoadedOrCreated = false;

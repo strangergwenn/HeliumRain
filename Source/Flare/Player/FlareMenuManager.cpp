@@ -106,6 +106,11 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 
 void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 {
+	if(FadeTarget == Target && FadeTargetData == Data)
+	{
+		return;
+	}
+
 	MenuIsOpen = true;
 	FadeOut();
 	FadeTarget = Target;
