@@ -1594,5 +1594,25 @@ inline const FFlareCompanyDescription* AFlareGame::GetPlayerCompanyDescription()
 	return PC->GetCompanyDescription();
 }
 
+inline const FSlateBrush* AFlareGame::GetCompanyEmblem(int32 Index) const
+{
+	// Player company
+	if (Index == -1)
+	{
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+		Index = Companies.Find(PC->GetCompany());
+	}
+
+	// General case
+	if (Index >= 0 && Index < CompanyEmblemBrushes.Num())
+	{
+		return &CompanyEmblemBrushes[Index];
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 
 #undef LOCTEXT_NAMESPACE
