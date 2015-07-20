@@ -7,6 +7,7 @@
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
 #include "../UI/Menus/FlareOrbitalMenu.h"
+#include "../UI/Menus/FlareLeaderboardMenu.h"
 #include "../UI/Components/FlareNotifier.h"
 #include "FlareMenuManager.generated.h"
 
@@ -107,6 +108,9 @@ protected:
 	/** Open the orbital menu */
 	virtual void OpenOrbit();
 
+	/** Open the company menu */
+	virtual void OpenLeaderboard();
+
 	/** Exit the menu */
 	virtual void ExitMenu();
 
@@ -133,6 +137,7 @@ protected:
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
 	TSharedPtr<SFlareSectorMenu>            SectorMenu;
 	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
+	TSharedPtr<SFlareLeaderboardMenu>       LeaderboardMenu;
 
 	// Menu target data
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;

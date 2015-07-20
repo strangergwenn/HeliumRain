@@ -33,6 +33,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).MenuManager(this);
 		SAssignNew(OrbitMenu, SFlareOrbitalMenu).MenuManager(this);
+		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
 
 		// Fader
 		SAssignNew(Fader, SBorder)
@@ -49,6 +50,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),        50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),  50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
 
@@ -60,6 +62,7 @@ void AFlareMenuManager::SetupMenu()
 		ShipMenu->Setup();
 		SectorMenu->Setup();
 		OrbitMenu->Setup();
+		LeaderboardMenu->Setup();
 	}
 }
 
@@ -170,6 +173,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_NewGame:        Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_Dashboard:      Path = "Sector";       break;
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;
+		case EFlareMenu::MENU_Leaderboard:    Path = "Company";      break;
 		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
 		case EFlareMenu::MENU_Station:        Path = "Station";      break;
 		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
@@ -206,6 +210,7 @@ void AFlareMenuManager::ResetMenu()
 	ShipMenu->Exit();
 	SectorMenu->Exit();
 	OrbitMenu->Exit();
+	LeaderboardMenu->Exit();
 
 	if (PC)
 	{
@@ -267,6 +272,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 
 		case EFlareMenu::MENU_Orbit:
 			OpenOrbit();
+			break;
+
+		case EFlareMenu::MENU_Leaderboard:
+			OpenLeaderboard();
 			break;
 
 		case EFlareMenu::MENU_Quit:
@@ -362,6 +371,13 @@ void AFlareMenuManager::OpenOrbit()
 	ResetMenu();
 	GetPC()->OnEnterMenu();
 	OrbitMenu->Enter();
+}
+
+void AFlareMenuManager::OpenLeaderboard()
+{
+	ResetMenu();
+	GetPC()->OnEnterMenu();
+	LeaderboardMenu->Enter();
 }
 
 void AFlareMenuManager::ExitMenu()

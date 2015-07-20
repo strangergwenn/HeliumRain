@@ -62,6 +62,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Open the company leaderboard */
+	void OnOpenLeaderboard();
+
 	/** Back to the main menu */
 	void OnMainMenu();
 

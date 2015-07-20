@@ -4,7 +4,6 @@
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
-#include "STextComboBox.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareOrbitalMenu"
@@ -51,6 +50,20 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				SNew(STextBlock)
 				.TextStyle(&Theme.TitleFont)
 				.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
+			]
+
+			// Quit
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Leaderboard", "Leaderboard"))
+				.ToolTipText(LOCTEXT("LeaderboardInfo", "Take a look at the companies"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
+				.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
 			]
 
 			// Quit
@@ -254,6 +267,11 @@ inline FVector2D SFlareOrbitalMenu::GetPositionFromPolar(int32 Radius, int32 Ang
 	Callbacks
 ----------------------------------------------------*/
 
+void SFlareOrbitalMenu::OnOpenLeaderboard()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Leaderboard);
+}
+
 void SFlareOrbitalMenu::OnMainMenu()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
@@ -267,7 +285,7 @@ void SFlareOrbitalMenu::OnMainMenu()
 
 void SFlareOrbitalMenu::OnExit()
 {
-	// TODO is it useful ?
+	// TODO : Remove this + button once sectors can be opened with OnOpenSector
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 
