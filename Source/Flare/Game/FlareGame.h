@@ -113,6 +113,10 @@ public:
 		Creation command line
 	----------------------------------------------------*/
 
+	/** Create a ship in a sector for the current player*/
+	UFUNCTION(exec)
+	UFlareSimulatedSpacecraft* CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier);
+
 	/** Create a station in the level */
 	UFUNCTION(exec)
 	AFlareSpacecraft* CreateStationForMe(FName StationClass);

@@ -14,16 +14,40 @@ UFlareSimulatedSector::UFlareSimulatedSector(const FObjectInitializer& ObjectIni
 {
 }
 
-
 void UFlareSimulatedSector::Load(const FFlareSectorSave& Data)
 {
-	SectorData = Data;
-	// TODO
-}
+	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
 
+	SectorData = Data;
+	SectorShips.Empty();
+	SectorStations.Empty();
+
+	for(int i = 0 ; i < SectorData.ShipData.Num(); i++)
+	{
+		LoadSpacecraft(SectorData.ShipData[i]);
+	}
+
+	for(int i = 0 ; i < SectorData.StationData.Num(); i++)
+	{
+		LoadSpacecraft(SectorData.StationData[i]);
+	}
+}
 
 FFlareSectorSave* UFlareSimulatedSector::Save()
 {
+	SectorData.ShipData.Empty();
+	SectorData.StationData.Empty();
+
+	for(int i = 0 ; i < SectorShips.Num(); i++)
+	{
+		SectorData.ShipData.Add(*SectorShips[i]->Save());
+	}
+
+	for(int i = 0 ; i < SectorStations.Num(); i++)
+	{
+		SectorData.StationData.Add(*SectorStations[i]->Save());
+	}
+
 	return &SectorData;
 }
 

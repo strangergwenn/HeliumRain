@@ -369,7 +369,7 @@ void AFlarePlayerController::OnLoadComplete()
 
 void AFlarePlayerController::OnSectorActivated()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip);
+	QuickSwitch();
 }
 
 void AFlarePlayerController::OnSectorDeactivated()

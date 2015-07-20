@@ -143,8 +143,10 @@ void AFlareGame::Logout(AController* Player)
 
 void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sector)
 {
+	FLOGV("AFlareGame::ActivateSector %s", *Sector->GetSectorName());
 	if(ActiveSector)
 	{
+		FLOG("AFlareGame::ActivateSector has active sector");
 		if(ActiveSector->GetIdentifier() == Sector->GetIdentifier())
 		{
 			// Sector to activate is already active
@@ -154,13 +156,34 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		DeactivateSector(Player);
 	}
 
-	// Create the new sector
-	ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
-	ActiveSector->Load(*Sector->Save());
 
+	FLOGV("AFlareGame::ActivateSector ship count %d", Sector->GetSectorShips().Num());
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
-	PC->OnSectorActivated();
+	bool PlayerHasShip = false;
+	for(int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
+		FLOGV("AFlareGame::ActivateSector ship %s", *Ship->GetImmatriculation());
+		FLOGV(" %d", (Ship->GetCompany()->GetPlayerHostility() + 0));
+
+		if(Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
+		{
+			FLOG("  my ship");
+			PlayerHasShip = true;
+			break;
+		}
+	}
+
+	FLOGV("PlayerHasShip %d", PlayerHasShip);
+	if(PlayerHasShip)
+	{
+		// Create the new sector
+		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
+		ActiveSector->Load(*Sector->Save());
+
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
+		PC->OnSectorActivated();
+	}
 }
 
 void AFlareGame::DeactivateSector(AController* Player)
@@ -528,6 +551,37 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 
 	return Company;
 }
+
+UFlareSimulatedSpacecraft* AFlareGame::CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier)
+{
+	if(!World)
+	{
+		FLOG("AFlareGame::CreateShipForMeInSector failed: no world");
+		return NULL;
+	}
+
+	UFlareSimulatedSpacecraft* ShipPawn = NULL;
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+
+	UFlareSimulatedSector* Sector = World->FindSector(SectorIdentifier);
+
+	if(!Sector)
+	{
+		FLOGV("AFlareGame::CreateShipForMeInSector failed: no sector '%s'", *SectorIdentifier.ToString());
+		return NULL;
+	}
+
+	// Parent company
+	if (PC && PC->GetCompany())
+	{
+		// TODO, avoid to spawn on a existing ship
+		FVector TargetPosition = FVector::ZeroVector;
+
+		ShipPawn = Sector->CreateShip(ShipClass, PC->GetCompany()->GetIdentifier(), TargetPosition);
+	}
+	return ShipPawn;
+}
+
 
 AFlareSpacecraft* AFlareGame::CreateStationForMe(FName StationClass)
 {

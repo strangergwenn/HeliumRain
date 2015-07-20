@@ -1,6 +1,10 @@
 
 #include "../Flare.h"
+#include "../Game/FlareSimulatedSector.h"
+#include "../Game/FlareGame.h"
+#include "../Game/FlareWorld.h"
 #include "FlareSimulatedSpacecraft.h"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -14,6 +18,8 @@ UFlareSimulatedSpacecraft::UFlareSimulatedSpacecraft(const FObjectInitializer& O
 
 void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 {
+	Game = Cast<UFlareSimulatedSector>(GetOuter())->GetGame();
+
 	SpacecraftData = Data;
 
 	// Load spacecraft description
@@ -28,8 +34,7 @@ FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 
 UFlareCompany* UFlareSimulatedSpacecraft::GetCompany()
 {
-	// TODO
-	return NULL;
+	return Game->GetGameWorld()->FindCompany(SpacecraftData.CompanyIdentifier);
 }
 
 

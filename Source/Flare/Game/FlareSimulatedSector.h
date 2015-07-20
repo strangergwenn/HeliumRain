@@ -119,7 +119,7 @@ public:
 
     AFlareGame* GetGame() const
     {
-        return Cast<AFlareGame>(GetOuter()->GetWorld()->GetAuthGameMode());
+		return Game;
     }
 
     inline FName GetIdentifier() const
