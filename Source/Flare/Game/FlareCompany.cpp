@@ -134,7 +134,7 @@ FText UFlareCompany::GetInfoText(bool Minimized)
 	// Build
 	if (Minimized)
 	{
-		return FText::FromString(GetCompanyName() + " (" + MoneyDescriptionString + ", " + ShipDescriptionString + ")");
+		return FText::FromString(GetCompanyName().ToString() + " (" + MoneyDescriptionString + ", " + ShipDescriptionString + ")");
 	}
 	else
 	{

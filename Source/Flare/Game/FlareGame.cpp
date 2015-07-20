@@ -194,7 +194,7 @@ void AFlareGame::ReadAllSaveSlots()
 
 				// Money and general infos
 				SaveSlotInfo.CompanyMoney = PlayerCompany->Money;
-				SaveSlotInfo.CompanyName = FText::FromString(Desc->Name);
+				SaveSlotInfo.CompanyName = Desc->Name;
 
 				// Emblem material
 				SaveSlotInfo.Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
@@ -297,7 +297,7 @@ void AFlareGame::CreateWorld(AFlarePlayerController* PC, FString CompanyName, in
 
 	// Manually setup the player company before creating it
 	FFlareCompanyDescription CompanyData;
-	CompanyData.Name = CompanyName;
+	CompanyData.Name = FText::FromString(CompanyName);
 	CompanyData.ShortName = *FString("PLY");
 	CompanyData.Emblem = NULL; // TODO
 	CompanyData.CustomizationBasePaintColorIndex = 0;
@@ -794,7 +794,7 @@ UFlareCompany* AFlareGame::LoadCompany(const FFlareCompanySave& CompanyData)
 	Company = NewObject<UFlareCompany>(this, UFlareCompany::StaticClass(), CompanyData.Identifier);
 	Company->Load(CompanyData);
 	Companies.AddUnique(Company);
-	FLOGV("AFlareGame::LoadCompany : loaded '%s'", *Company->GetCompanyName());
+	FLOGV("AFlareGame::LoadCompany : loaded '%s'", *Company->GetCompanyName().ToString());
 
 	return Company;
 }
@@ -1400,14 +1400,14 @@ void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
 
 	if (Company1 && Company2 && Company1 != Company2)
 	{
-		FLOGV("Declare war between %s and %s", *Company1->GetCompanyName(), *Company2->GetCompanyName());
+		FLOGV("Declare war between %s and %s", *Company1->GetCompanyName().ToString(), *Company2->GetCompanyName().ToString());
 		Company1->SetHostilityTo(Company2, true);
 		Company2->SetHostilityTo(Company1, true);
 		
 		// Notify war 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 		FText WarString = LOCTEXT("War", "War has been declared");
-		FText WarStringInfo = FText::FromString(Company1->GetCompanyName() + ", " + Company2->GetCompanyName() + " " 
+		FText WarStringInfo = FText::FromString(Company1->GetCompanyName().ToString() + ", " + Company2->GetCompanyName().ToString() + " "
 			+ LOCTEXT("WarInfo", "are now at war").ToString());
 		PC->Notify(WarString, WarStringInfo, EFlareNotification::NT_Military);
 	}

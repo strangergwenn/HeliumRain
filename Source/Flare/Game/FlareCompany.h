@@ -53,7 +53,7 @@ struct FFlareCompanyDescription
 
 	/** Name */
 	UPROPERTY(EditAnywhere, Category = Company)
-	FString Name;
+	FText Name;
 
 	/** Short name */
 	UPROPERTY(EditAnywhere, Category = Company)
@@ -180,7 +180,7 @@ public:
 		return CompanyDescription;
 	}
 
-	inline FString GetCompanyName() const
+	inline FText GetCompanyName() const
 	{
 		check(CompanyDescription);
 		return CompanyDescription->Name;

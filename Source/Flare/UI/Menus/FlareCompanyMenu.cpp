@@ -232,7 +232,7 @@ FText SFlareCompanyMenu::GetCompanyName() const
 
 	if (Company)
 	{
-		Result = FText::FromString(Company->GetCompanyName());
+		Result = Company->GetCompanyName();
 	}
 
 	return Result;
