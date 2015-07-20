@@ -30,6 +30,17 @@ public:
 		, PartDescription(InPtr)
 	{}
 	FFlareSpacecraftComponentDescription* PartDescription;
+
+	// Company info
+	static TSharedPtr<FInterfaceContainer> New(UFlareCompany* InObject)
+	{
+		return MakeShareable(new FInterfaceContainer(InObject));
+	}
+	FInterfaceContainer(UFlareCompany* InPtr)
+		: ShipInterfacePtr(NULL)
+		, CompanyPtr(InPtr)
+	{}
+	UFlareCompany* CompanyPtr;
 };
 
 
