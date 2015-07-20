@@ -98,10 +98,17 @@ void UFlareSector::Destroy()
 		SectorAsteroids[i]->Destroy();
 	}
 
+	for(int i = 0 ; i < SectorShells.Num(); i++)
+	{
+		SectorShells[i]->Destroy();
+	}
+
+
 	SectorShips.Empty();
 	SectorStations.Empty();
 	SectorBombs.Empty();
 	SectorAsteroids.Empty();
+	SectorShells.Empty();
 
 	Game = NULL;
 }
@@ -117,7 +124,7 @@ AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidDat
     FActorSpawnParameters Params;
     Params.bNoFail = true;
 
-	AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), AsteroidData.Location, AsteroidData.Rotation, Params);
+	AFlareAsteroid* Asteroid = Game->GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), AsteroidData.Location, AsteroidData.Rotation, Params);
     Asteroid->Load(AsteroidData);
 
 	// TODO Check double add
@@ -139,7 +146,7 @@ AFlareSpacecraft* UFlareSector::LoadShip(const FFlareSpacecraftSave& ShipData)
 		Params.bNoFail = true;
 
 		// Create and configure the ship
-		Ship = GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
+		Ship = Game->GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
 		if (Ship)
 		{
 			Ship->Load(ShipData);
@@ -210,7 +217,7 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
             Params.bNoFail = true;
 
             // Create and configure the ship
-            Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombData.Location, BombData.Rotation, Params);
+			Bomb = Game->GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombData.Location, BombData.Rotation, Params);
             if (Bomb)
             {
                 Bomb->Initialize(&BombData, ParentWeapon);
@@ -280,8 +287,11 @@ AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDesc
     AFlareSpacecraft* ShipPawn = NULL;
 	UFlareCompany* Company = Game->GetGameWorld()->FindCompany(CompanyIdentifier);
 
+	FLOG("UFlareSector::CreateShip");
+
     if (ShipDescription && Company)
     {
+		FLOG("UFlareSector::CreateShip ShipDescription && Company");
         // Default data
         FFlareSpacecraftSave ShipData;
         ShipData.Location = TargetPosition;
@@ -396,7 +406,7 @@ void UFlareSector::CreateAsteroidAt(int32 ID, FVector Location)
 	FRotator Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
 
 	// Spawn and setup
-	AFlareAsteroid* Asteroid = GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), Location, Rotation, Params);
+	AFlareAsteroid* Asteroid = Game->GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), Location, Rotation, Params);
 	Asteroid->Load(Data);
 
 }
@@ -405,7 +415,7 @@ void UFlareSector::EmptySector()
 {
 	FLOG("UFlareSector::EmptySector");
 
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
 
 	AFlareSpacecraft* CurrentPlayedShip = NULL;
 
@@ -414,6 +424,38 @@ void UFlareSector::EmptySector()
 		// Current played ship
 		CurrentPlayedShip = PC->GetShipPawn();
 	}
+
+
+	for(int i = 0 ; i < SectorShips.Num(); i++)
+	{
+		if (SectorShips[i] != CurrentPlayedShip)
+		{
+			SectorShips[i]->Destroy();
+		}
+	}
+
+	for(int i = 0 ; i < SectorStations.Num(); i++)
+	{
+		SectorStations[i]->Destroy();
+	}
+
+	for(int i = 0 ; i < SectorBombs.Num(); i++)
+	{
+		SectorBombs[i]->Destroy();
+	}
+
+	for(int i = 0 ; i < SectorAsteroids.Num(); i++)
+	{
+		SectorAsteroids[i]->Destroy();
+	}
+
+	for(int i = 0 ; i < SectorShells.Num(); i++)
+	{
+		SectorShells[i]->Destroy();
+	}
+
+
+
 
 	// TODO don't use iterator
 	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)

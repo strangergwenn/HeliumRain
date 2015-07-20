@@ -63,6 +63,8 @@ protected:
 	TArray<AFlareSpacecraft*>      SectorShips;
 	TArray<AFlareAsteroid*>      SectorAsteroids;
 	TArray<AFlareBomb*>      SectorBombs;
+	TArray<AFlareShell*>      SectorShells;
+
 
 	FFlareSectorSave        SectorData;
 	AFlareGame*                   Game;

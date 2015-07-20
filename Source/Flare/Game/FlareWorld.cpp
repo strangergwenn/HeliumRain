@@ -1,6 +1,7 @@
 
 #include "../Flare.h"
 #include "FlareWorld.h"
+#include "FlareSector.h"
 
 
 /*----------------------------------------------------
@@ -205,7 +206,7 @@ AFlareBomb* AFlareGame::LoadBomb(const FFlareBombSave& BombData)
 */
 
 // TODO Save
-FFlareWorldSave* UFlareWorld::Save()
+FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 {
 	WorldData.CompanyData.Empty();
 	WorldData.SectorData.Empty();
@@ -214,24 +215,29 @@ FFlareWorldSave* UFlareWorld::Save()
 	for (int i = 0; i < Companies.Num(); i++)
 	{
 		UFlareCompany* Company = Companies[i];
-		if (Company)
-		{
-			FLOGV("UFlareWorld::Save : saving company ('%s')", *Company->GetName());
-			FFlareCompanySave* TempData = Company->Save();
-			WorldData.CompanyData.Add(*TempData);
-		}
+
+		FLOGV("UFlareWorld::Save : saving company ('%s')", *Company->GetName());
+		FFlareCompanySave* TempData = Company->Save();
+		WorldData.CompanyData.Add(*TempData);
 	}
 
 	// Sectors
 	for (int i = 0; i < Sectors.Num(); i++)
 	{
 		UFlareSimulatedSector* Sector = Sectors[i];
-		if (Sector)
+		FLOGV("UFlareWorld::Save : saving sector ('%s')", *Sector->GetName());
+
+		FFlareSectorSave* TempData;
+		if (ActiveSector && Sector->GetIdentifier() == ActiveSector->GetIdentifier())
 		{
-			FLOGV("UFlareWorld::Save : saving sector ('%s')", *Sector->GetName());
-			FFlareSectorSave* TempData = Sector->Save();
-			WorldData.SectorData.Add(*TempData);
+			FLOG("  sector saved as active sector");
+			TempData = ActiveSector->Save();
 		}
+		else
+		{
+			TempData = Sector->Save();
+		}
+		WorldData.SectorData.Add(*TempData);
 	}
 
 	return &WorldData;

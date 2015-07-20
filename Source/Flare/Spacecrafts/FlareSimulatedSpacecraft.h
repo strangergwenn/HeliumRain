@@ -71,4 +71,9 @@ public:
     /*----------------------------------------------------
         Getters
     ----------------------------------------------------*/
+
+	inline FName GetNickName() const override
+	{
+		return SpacecraftData.NickName;
+	}
 };

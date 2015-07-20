@@ -8,7 +8,7 @@
 #include "../Player/FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareShell.h"
-
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 
@@ -375,7 +375,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	// Manually setup the player company before creating it
 	FFlareCompanyDescription CompanyData;
 	CompanyData.Name = CompanyName;
-	CompanyData.ShortName = *FString("PLY");
+	CompanyData.ShortName = *FString("PLY"); // TODO : Extract better short name
 	CompanyData.Emblem = NULL; // TODO
 	CompanyData.CustomizationBasePaintColorIndex = 0;
 	CompanyData.CustomizationPaintColorIndex = 3;
@@ -464,7 +464,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 	{
 		// Save the player
 		PC->Save(Save->PlayerData, Save->PlayerCompanyDescription);
-		Save->WorldData = *World->Save();
+		Save->WorldData = *World->Save(ActiveSector);
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
 
 		// Save
@@ -609,6 +609,7 @@ AFlareSpacecraft* AFlareGame::CreateShipForMe(FName ShipClass)
 
 AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance)
 {
+	FLOG("AFlareGame::CreateShipInCompany");
 	if(!ActiveSector)
 	{
 		FLOG("AFlareGame::CreateShipInCompany failed: no active sector");
@@ -628,11 +629,20 @@ AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName Company
 			TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
 		}
 	}
+	else
+	{
+		FLOG("UFlareSector::CreateShipInCompany failed : No player controller");
+	}
 
 	UFlareCompany* Company = World->FindCompanyByShortName(CompanyShortName);
 	if(Company)
 	{
+		FLOG("UFlareSector::CreateShipInCompany 2");
 		ShipPawn = ActiveSector->CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition);
+	}
+	else
+	{
+		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *CompanyShortName.ToString());
 	}
 	return ShipPawn;
 }
@@ -970,31 +980,34 @@ FName AFlareGame::PickCapitalShipName()
 	do
 	{
 		Unique = true;
-		FLOGV("Pass %d with %s", NameIncrement, *CandidateName.ToString());
 		FString Suffix;
 		if (NameIncrement > 1)
 		{
 			FString Roman = ConvertToRoman(NameIncrement);
-			FLOGV("ConvertToRoman %s", *Roman);
 			Suffix = FString("-") + Roman;
 		}
 		else
 		{
 			Suffix = FString("");
 		}
-		FLOGV("Suffix %s", *Suffix);
 
 		CandidateName = FName(*(BaseName.ToString()+Suffix));
-		FLOGV("CandidateName %s", *CandidateName.ToString());
 
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		// Browse all existing ships the check if the name is unique
+		// TODO check ship in travel (not in a sector with travels will be implemented)
+		for(int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
 		{
-			AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-			if (SpacecraftCandidate && SpacecraftCandidate->GetNickName() == CandidateName)
+			UFlareSimulatedSector* Sector = World->GetSectors()[SectorIndex];
+
+			for(int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 			{
-				FLOGV("Not unique %s", *CandidateName.ToString());
-				Unique = false;
-				break;
+				UFlareSimulatedSpacecraft* SpacecraftCandidate = Sector->GetSectorShips()[ShipIndex];
+				if (SpacecraftCandidate && SpacecraftCandidate->GetNickName() == CandidateName)
+				{
+					FLOGV("Not unique %s", *CandidateName.ToString());
+					Unique = false;
+					break;
+				}
 			}
 		}
 		NameIncrement++;

@@ -27,6 +27,8 @@ AFlareShell::AFlareShell(const class FObjectInitializer& PCIP) : Super(PCIP)
 
 void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity, bool Tracer)
 {
+	// TODO Register the projectile in the sector
+
 	ShellDescription = Description;
 	TracerShell = Tracer;
 	ParentWeapon = Weapon;

@@ -6,6 +6,8 @@
 #include "FlareCompany.h"
 #include "FlareWorld.generated.h"
 
+class UFlareSector;
+
 
 /** World save data */
 USTRUCT()
@@ -37,7 +39,7 @@ public:
 	virtual void Load(const FFlareWorldSave& Data);
 
 	/** Save the company to a save file */
-	virtual FFlareWorldSave* Save();
+	virtual FFlareWorldSave* Save(UFlareSector* ActiveSector);
 
 	/** Spawn a company from save data */
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
@@ -78,6 +80,11 @@ public:
 		return Game;
 	}
 
+	inline TArray<UFlareSimulatedSector*>& GetSectors()
+	{
+		return Sectors;
+	}
+
 	inline UFlareCompany* FindCompany(FName Identifier) const
 	{
 		for(int i = 0; i < Companies.Num(); i++)
@@ -93,12 +100,15 @@ public:
 
 	inline UFlareCompany* FindCompanyByShortName(FName CompanyShortName) const
 	{
+		FLOGV("FindCompanyByShortName %s",*CompanyShortName.ToString());
 		// Find company
 		for(int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
+			FLOGV("  %s",*Company->GetShortName().ToString());
 			if (Company && Company->GetShortName() == CompanyShortName)
 			{
+				FLOG("  OK");
 				return Company;
 			}
 		}

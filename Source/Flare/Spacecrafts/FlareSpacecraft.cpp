@@ -324,6 +324,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	// Re-dock if we were docked
 	if (ShipData.DockedTo != NAME_None && !IsPresentationMode())
 	{
+		// TODO use sector iterator
 		FLOGV("AFlareSpacecraft::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
 		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
