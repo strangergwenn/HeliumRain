@@ -4,6 +4,7 @@
 #include "Object.h"
 #include "FlareSimulatedSector.h"
 #include "FlareCompany.h"
+#include "Planetarium/FlareSimulatedPlanetarium.h"
 #include "FlareWorld.generated.h"
 
 class UFlareSector;
@@ -68,7 +69,11 @@ protected:
 	UPROPERTY()
 	TArray<UFlareCompany*>                Companies;
 
+	UPROPERTY()
+	UFlareSimulatedPlanetarium*			Planetarium;
+
 	AFlareGame*                             Game;
+
 public:
 
 	/*----------------------------------------------------
@@ -78,6 +83,11 @@ public:
 	AFlareGame* GetGame() const
 	{
 		return Game;
+	}
+
+	inline UFlareSimulatedPlanetarium* GetPlanerarium()
+	{
+		return Planetarium;
 	}
 
 	inline TArray<UFlareSimulatedSector*>& GetSectors()

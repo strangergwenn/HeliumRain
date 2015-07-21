@@ -31,6 +31,10 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 		LoadSector(WorldData.SectorData[i]);
 	}
 
+	// Init planetarium
+	Planetarium = NewObject<UFlareSimulatedPlanetarium>(this, UFlareSimulatedPlanetarium::StaticClass());
+	Planetarium->Load();
+
    /* // Load all stations
     for (int32 i = 0; i < WorldData.StationData.Num(); i++)
     {

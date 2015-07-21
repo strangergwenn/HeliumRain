@@ -4,6 +4,7 @@
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareOrbitalEngine.h"
 #include "../Spacecrafts/FlareShell.h"
+#include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "FlareMenuManager.h"
 #include "FlareHUD.h"
 #include "EngineUtils.h"
@@ -57,6 +58,46 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	QuickSwitchNextOffset = 0;
 }
 
+static int64 WorldTime = 0;
+
+void static DrawCelestialBody(FFlareCelestialBody* Body, FVector BaseLocation, int Deep, UWorld* World);
+
+void static DrawCelestialBody(FFlareCelestialBody* Body, FVector BaseLocation, int Deep, UWorld* World)
+{
+	float DistanceScaleRatio = 100./1000000;
+	float RadiusScaleRatio = 100./70000;
+	FVector Location = BaseLocation + Body->RelativeLocation;
+	FColor Color;
+	switch(Deep)
+	{
+		case 0:
+			Color = FColor::Yellow;
+		break;
+		case 1:
+		Color = FColor::Green;
+		break;
+		case 2:
+			Color = FColor::Blue;
+		break;
+		default:
+		Color = FColor::Red;
+	}
+
+	DrawDebugSphere(World, Location * DistanceScaleRatio, Body->Radius * RadiusScaleRatio, 32, Color, false);
+
+	FVector RotationOffset = 100 * FVector(
+				FMath::Cos(FMath::DegreesToRadians(Body->RotationAngle)),
+				FMath::Sin(FMath::DegreesToRadians(Body->RotationAngle)),
+				0.0);
+	DrawDebugLine(World, Location * DistanceScaleRatio, Location * DistanceScaleRatio + RotationOffset, Color, true, 20.f);
+
+
+	for(int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
+	{
+		FFlareCelestialBody* CelestialBody = &Body->Sattelites[SatteliteIndex];
+		DrawCelestialBody(CelestialBody, Location, Deep + 1, World);
+	}
+}
 
 /*----------------------------------------------------
 	Gameplay
@@ -199,6 +240,13 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		PowerSoundVolume = 0;
 		EngineSoundVolume = 0;
 		RCSSoundVolume = 0;
+	}
+
+	if(GetGame() && GetGame()->GetGameWorld())
+	{
+		FFlareCelestialBody Planetarium = GetGame()->GetGameWorld()->GetPlanerarium()->GetSnapShot(WorldTime);
+		DrawCelestialBody(&Planetarium, FVector::ZeroVector, 0, GetWorld());
+		WorldTime += (int64) (DeltaSeconds * (float) (3600 * 24));
 	}
 
 
