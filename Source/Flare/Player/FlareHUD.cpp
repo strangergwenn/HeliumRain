@@ -254,7 +254,11 @@ void AFlareHUD::DrawHUD()
 		{
 			FVector2D ScreenPosition;
 			FVector ObjectiveLocation = PC->GetObjectiveLocation();
-			DrawSearchArrow(ObjectiveLocation, HudColorObjective);
+
+			if (!Ship->GetStateManager()->IsExternalCamera())
+			{
+				DrawSearchArrow(ObjectiveLocation, HudColorObjective);
+			}
 
 			if (PC->ProjectWorldLocationToScreen(ObjectiveLocation, ScreenPosition))
 			{
