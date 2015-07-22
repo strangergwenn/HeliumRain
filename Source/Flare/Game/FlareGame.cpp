@@ -80,35 +80,14 @@ void AFlareGame::StartPlay()
 	FLOG("AFlareGame::StartPlay");
 	Super::StartPlay();
 
-	// Create company emblems
+	// Add competitor's emblems
 	if (CompanyCatalog)
 	{
 		const TArray<FFlareCompanyDescription>& Companies = CompanyCatalog->Companies;
-		UFlareCustomizationCatalog* Catalog = GetCustomizationCatalog();
-
 		for (int32 Index = 0; Index < Companies.Num(); Index++)
 		{
-			// Create the parameter
-			FVector2D EmblemSize = 128 * FVector2D::UnitVector;
-			UMaterial* BaseEmblemMaterial = Cast<UMaterial>(FFlareStyleSet::GetIcon("CompanyEmblem")->GetResourceObject());
-			UMaterialInstanceDynamic* Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
-			
-			// Setup the material
-			Emblem->SetTextureParameterValue("Emblem", Companies[Index].Emblem);
-			Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Companies[Index].CustomizationBasePaintColorIndex));
-			Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Companies[Index].CustomizationPaintColorIndex));
-			Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Companies[Index].CustomizationOverlayColorIndex));
-			Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(Companies[Index].CustomizationLightColorIndex));
-			CompanyEmblems.Add(Emblem);
-
-			// Create the brush dynamically
-			FSlateBrush EmblemBrush;
-			EmblemBrush.ImageSize = EmblemSize;
-			EmblemBrush.SetResourceObject(Emblem);
-			CompanyEmblemBrushes.Add(EmblemBrush);
+			AddEmblem(&Companies[Index]);
 		}
-
-		// TODO : do it for the player too
 	}
 
 	// Spawn planet
@@ -459,14 +438,13 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
         // Create the new world
         World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
         World->Load(Save->WorldData);
-
-		// Load
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
-
+		
         // TODO check if load is ok for ship event before the PC load
+
 		// Load the player
 		PC->Load(Save->PlayerData);
-
+		AddEmblem(PC->GetCompanyDescription());
 		LoadedOrCreated = true;
 		PC->OnLoadComplete();
 		return true;
@@ -1100,6 +1078,35 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Add("Enterprise");
 	BaseImmatriculationNameList.Add("Sahara");
 }
+
+
+/*----------------------------------------------------
+	Customization
+----------------------------------------------------*/
+
+void AFlareGame::AddEmblem(const FFlareCompanyDescription* Company)
+{
+	// Create the parameter
+	FVector2D EmblemSize = 128 * FVector2D::UnitVector;
+	UMaterial* BaseEmblemMaterial = Cast<UMaterial>(FFlareStyleSet::GetIcon("CompanyEmblem")->GetResourceObject());
+	UMaterialInstanceDynamic* Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
+	UFlareCustomizationCatalog* Catalog = GetCustomizationCatalog();
+
+	// Setup the material
+	Emblem->SetTextureParameterValue("Emblem", Company->Emblem);
+	Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Company->CustomizationBasePaintColorIndex));
+	Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Company->CustomizationPaintColorIndex));
+	Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Company->CustomizationOverlayColorIndex));
+	Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(Company->CustomizationLightColorIndex));
+	CompanyEmblems.Add(Emblem);
+
+	// Create the brush dynamically
+	FSlateBrush EmblemBrush;
+	EmblemBrush.ImageSize = EmblemSize;
+	EmblemBrush.SetResourceObject(Emblem);
+	CompanyEmblemBrushes.Add(EmblemBrush);
+}
+
 
 /*----------------------------------------------------
 	Getters

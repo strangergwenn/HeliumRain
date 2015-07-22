@@ -79,14 +79,28 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.Padding(Theme.ContentPadding)
+		.HAlign(HAlign_Center)
 		[
-			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth)
+			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+
+			+ SScrollBox::Slot()
 			[
-				SAssignNew(CompanyList, SListView< TSharedPtr<FInterfaceContainer> >)
-				.ListItemsSource(&CompanyListData)
-				.SelectionMode(ESelectionMode::Single)
-				.OnGenerateRow(this, &SFlareLeaderboardMenu::GenerateCompanyInfo)
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				[
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Fill)
+					[
+						SAssignNew(CompanyList, SListView< TSharedPtr<FInterfaceContainer> >)
+						.ListItemsSource(&CompanyListData)
+						.SelectionMode(ESelectionMode::Single)
+						.OnGenerateRow(this, &SFlareLeaderboardMenu::GenerateCompanyInfo)
+					]
+				]
 			]
 		]
 	];
@@ -155,10 +169,11 @@ TSharedRef<ITableRow> SFlareLeaderboardMenu::GenerateCompanyInfo(TSharedPtr<FInt
 
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
 				.Text(Desc->Name)
-				.TextStyle(&Theme.NameFont)
+				.TextStyle(&Theme.SubTitleFont)
 			]
 		];
 }

@@ -269,6 +269,14 @@ protected:
 public:
 
 	/*----------------------------------------------------
+		Customization
+	----------------------------------------------------*/
+
+	/** Add a new emblem for this company - Be careful to respect the array indexes */
+	void AddEmblem(const FFlareCompanyDescription* Company);
+
+
+	/*----------------------------------------------------
 		Get & Set
 	----------------------------------------------------*/
 
