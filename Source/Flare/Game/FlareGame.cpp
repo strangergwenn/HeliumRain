@@ -146,10 +146,10 @@ void AFlareGame::Logout(AController* Player)
 void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sector)
 {
 	FLOGV("AFlareGame::ActivateSector %s", *Sector->GetSectorName());
-	if(ActiveSector)
+	if (ActiveSector)
 	{
 		FLOG("AFlareGame::ActivateSector has active sector");
-		if(ActiveSector->GetIdentifier() == Sector->GetIdentifier())
+		if (ActiveSector->GetIdentifier() == Sector->GetIdentifier())
 		{
 			// Sector to activate is already active
 			return;
@@ -168,7 +168,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		FLOGV("AFlareGame::ActivateSector ship %s", *Ship->GetImmatriculation());
 		FLOGV(" %d", (Ship->GetCompany()->GetPlayerHostility() + 0));
 
-		if(Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
+		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
 		{
 			FLOG("  my ship");
 			PlayerHasShip = true;
@@ -177,7 +177,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 	}
 
 	FLOGV("PlayerHasShip %d", PlayerHasShip);
-	if(PlayerHasShip)
+	if (PlayerHasShip)
 	{
 		// Create the new sector
 		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
@@ -190,14 +190,14 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 
 void AFlareGame::DeactivateSector(AController* Player)
 {
-	if(ActiveSector)
+	if (ActiveSector)
 	{
 		FFlareSectorSave* SectorData = ActiveSector->Save();
 		ActiveSector->Destroy();
 		ActiveSector = NULL;
 
 		UFlareSimulatedSector* Sector = World->FindSector(SectorData->Identifier);
-		if(!Sector)
+		if (!Sector)
 		{
 			FLOGV("ERROR: no simulated sector match for active sector '%s'", *SectorData->Identifier.ToString());
 		}
@@ -516,8 +516,11 @@ void AFlareGame::UnloadGame()
 {
 	FLOG("AFlareGame::UnloadGame");
 
-	ActiveSector->Destroy();
-	ActiveSector = NULL;
+	if (ActiveSector)
+	{
+		ActiveSector->Destroy();
+		ActiveSector = NULL;
+	}
 	World = NULL;
 	LoadedOrCreated = false;
 }
@@ -529,7 +532,7 @@ void AFlareGame::UnloadGame()
 
 UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 {
-	if(!World)
+	if (!World)
 	{
 		FLOG("AFlareGame::CreateCompany failed: no loaded world");
 		return NULL;
@@ -556,7 +559,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 
 UFlareSimulatedSpacecraft* AFlareGame::CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier)
 {
-	if(!World)
+	if (!World)
 	{
 		FLOG("AFlareGame::CreateShipForMeInSector failed: no world");
 		return NULL;
@@ -567,7 +570,7 @@ UFlareSimulatedSpacecraft* AFlareGame::CreateShipForMeInSector(FName ShipClass, 
 
 	UFlareSimulatedSector* Sector = World->FindSector(SectorIdentifier);
 
-	if(!Sector)
+	if (!Sector)
 	{
 		FLOGV("AFlareGame::CreateShipForMeInSector failed: no sector '%s'", *SectorIdentifier.ToString());
 		return NULL;
@@ -587,7 +590,7 @@ UFlareSimulatedSpacecraft* AFlareGame::CreateShipForMeInSector(FName ShipClass, 
 
 AFlareSpacecraft* AFlareGame::CreateStationForMe(FName StationClass)
 {
-	if(!ActiveSector)
+	if (!ActiveSector)
 	{
 		FLOG("AFlareGame::CreateStationForMe failed: no active sector");
 		return NULL;
@@ -613,7 +616,7 @@ AFlareSpacecraft* AFlareGame::CreateStationForMe(FName StationClass)
 
 AFlareSpacecraft* AFlareGame::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
 {
-	if(!ActiveSector)
+	if (!ActiveSector)
 	{
 		FLOG("AFlareGame::CreateStationInCompany failed: no active sector");
 		return NULL;
@@ -634,7 +637,7 @@ AFlareSpacecraft* AFlareGame::CreateStationInCompany(FName StationClass, FName C
 	}
 
 	UFlareCompany* Company = World->FindCompanyByShortName(CompanyShortName);
-	if(Company)
+	if (Company)
 	{
 		StationPawn = ActiveSector->CreateStation(StationClass, Company->GetIdentifier(), TargetPosition);
 	}
@@ -644,7 +647,7 @@ AFlareSpacecraft* AFlareGame::CreateStationInCompany(FName StationClass, FName C
 
 AFlareSpacecraft* AFlareGame::CreateShipForMe(FName ShipClass)
 {
-	if(!ActiveSector)
+	if (!ActiveSector)
 	{
 		FLOG("AFlareGame::CreateShipForMe failed: no active sector");
 		return NULL;
@@ -672,7 +675,7 @@ AFlareSpacecraft* AFlareGame::CreateShipForMe(FName ShipClass)
 AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance)
 {
 	FLOG("AFlareGame::CreateShipInCompany");
-	if(!ActiveSector)
+	if (!ActiveSector)
 	{
 		FLOG("AFlareGame::CreateShipInCompany failed: no active sector");
 		return NULL;
@@ -697,7 +700,7 @@ AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName Company
 	}
 
 	UFlareCompany* Company = World->FindCompanyByShortName(CompanyShortName);
-	if(Company)
+	if (Company)
 	{
 		FLOG("UFlareSector::CreateShipInCompany 2");
 		ShipPawn = ActiveSector->CreateShip(ShipClass, Company->GetIdentifier(), TargetPosition);
@@ -711,7 +714,7 @@ AFlareSpacecraft* AFlareGame::CreateShipInCompany(FName ShipClass, FName Company
 
 void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, float Distance, int32 Count)
 {
-	if(!ActiveSector)
+	if (!ActiveSector)
 	{
 		FLOG("AFlareGame::CreateShipsInCompany failed: no active sector");
 		return;
@@ -733,7 +736,7 @@ void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, f
 	}
 
 	UFlareCompany* Company = World->FindCompanyByShortName(CompanyShortName);
-	if(Company)
+	if (Company)
 	{
 			for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
 			{
@@ -745,7 +748,7 @@ void AFlareGame::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, f
 
 void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count)
 {
-	if(!ActiveSector)
+	if (!ActiveSector)
 	{
 		FLOG("AFlareGame::CreateQuickBattle failed: no active sector");
 		return;
@@ -762,13 +765,13 @@ void AFlareGame::CreateQuickBattle(float Distance, FName Company1, FName Company
 	UFlareCompany* Company;
 
 	Company = World->FindCompanyByShortName(Company1);
-	if(Company)
+	if (Company)
 	{
 		Company1Identifier = Company->GetIdentifier();
 	}
 
 	Company = World->FindCompanyByShortName(Company2);
-	if(Company)
+	if (Company)
 	{
 		Company2Identifier = Company->GetIdentifier();
 	}
@@ -833,7 +836,7 @@ void AFlareGame::SetDefaultTurret(FName NewDefaultTurretIdentifier)
 
 void AFlareGame::CreateAsteroid(int32 ID)
 {
-	if(!ActiveSector)
+	if (!ActiveSector)
 	{
 		FLOG("AFlareGame::CreateAsteroid failed: no active sector");
 		return;
@@ -859,7 +862,7 @@ void AFlareGame::CreateAsteroid(int32 ID)
 void AFlareGame::EmptySector()
 {
 	FLOG("AFlareGame::EmptySector");
-	if(!ActiveSector)
+	if (!ActiveSector)
 	{
 		FLOG("AFlareGame::EmptySector failed: no active sector");
 		return;
@@ -870,7 +873,7 @@ void AFlareGame::EmptySector()
 
 void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
 {
-	if(!World)
+	if (!World)
 	{
 		FLOG("AFlareGame::DeclareWar failed: no loaded world");
 		return;
@@ -896,7 +899,7 @@ void AFlareGame::DeclareWar(FName Company1ShortName, FName Company2ShortName)
 
 void AFlareGame::MakePeace(FName Company1ShortName, FName Company2ShortName)
 {
-	if(!World)
+	if (!World)
 	{
 		FLOG("AFlareGame::MakePeace failed: no loaded world");
 		return;
@@ -905,7 +908,7 @@ void AFlareGame::MakePeace(FName Company1ShortName, FName Company2ShortName)
 	UFlareCompany* Company1 = World->FindCompanyByShortName(Company1ShortName);
 	UFlareCompany* Company2 = World->FindCompanyByShortName(Company2ShortName);
 
-	if(Company1 && Company2)
+	if (Company1 && Company2)
 	{
 		Company1->SetHostilityTo(Company2, false);
 		Company2->SetHostilityTo(Company1, false);
@@ -915,7 +918,7 @@ void AFlareGame::MakePeace(FName Company1ShortName, FName Company2ShortName)
 
 void AFlareGame::ForceSectorActivation(FName SectorIdentifier)
 {
-	if(!World)
+	if (!World)
 	{
 		FLOG("AFlareGame::ForceSectorActivation failed: no loaded world");
 		return;
@@ -923,7 +926,7 @@ void AFlareGame::ForceSectorActivation(FName SectorIdentifier)
 
 	UFlareSimulatedSector* Sector = World->FindSector(SectorIdentifier);
 
-	if(!Sector)
+	if (!Sector)
 	{
 		FLOGV("AFlareGame::ForceSectorActivation failed: no sector with id '%s'", *SectorIdentifier.ToString());
 		return;
@@ -938,7 +941,7 @@ void AFlareGame::ForceSectorActivation(FName SectorIdentifier)
 
 void AFlareGame::ForceSectorDeactivation()
 {
-	if(!World)
+	if (!World)
 	{
 		FLOG("AFlareGame::ForceSectorDeactivation failed: no loaded world");
 		return;
