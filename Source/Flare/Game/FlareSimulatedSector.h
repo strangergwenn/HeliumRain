@@ -74,13 +74,13 @@ public:
     ----------------------------------------------------*/
 
     /** Create a station in the level  for a specific company */
-    UFlareSimulatedSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
+	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
     /** Create a ship in the level  for a specific company */
-    UFlareSimulatedSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
+	UFlareSimulatedSpacecraft* CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
 
-    /** Create a ship or station in the level  for a specific company */
-    UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
+	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
+	UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator);
 
 
 

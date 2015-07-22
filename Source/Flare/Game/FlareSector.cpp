@@ -249,7 +249,7 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
 
 
 
-AFlareSpacecraft* UFlareSector::CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+AFlareSpacecraft* UFlareSector::CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
 {
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(StationClass);
 
@@ -260,12 +260,12 @@ AFlareSpacecraft* UFlareSector::CreateStation(FName StationClass, FName CompanyI
 
 	if (Desc)
 	{
-		return CreateShip(Desc, CompanyIdentifier, TargetPosition, TargetRotation);
+		return CreateShip(Desc, Company, TargetPosition, TargetRotation);
 	}
 	return NULL;
 }
 
-AFlareSpacecraft* UFlareSector::CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition)
+AFlareSpacecraft* UFlareSector::CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition)
 {
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipClass);
 
@@ -276,113 +276,110 @@ AFlareSpacecraft* UFlareSector::CreateShip(FName ShipClass, FName CompanyIdentif
 
 	if (Desc)
 	{
-		return CreateShip(Desc, CompanyIdentifier, TargetPosition);
+		return CreateShip(Desc, Company, TargetPosition);
 	}
 	return NULL;
 }
 
 
-AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation)
+AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
 {
     AFlareSpacecraft* ShipPawn = NULL;
-	UFlareCompany* Company = Game->GetGameWorld()->FindCompany(CompanyIdentifier);
-
 	FLOG("UFlareSector::CreateShip");
 
-    if (ShipDescription && Company)
-    {
-		FLOG("UFlareSector::CreateShip ShipDescription && Company");
-        // Default data
-        FFlareSpacecraftSave ShipData;
-        ShipData.Location = TargetPosition;
-        ShipData.Rotation = TargetRotation;
-        ShipData.LinearVelocity = FVector::ZeroVector;
-        ShipData.AngularVelocity = FVector::ZeroVector;
-		Game->Immatriculate(Company, ShipDescription->Identifier, &ShipData);
-        ShipData.Identifier = ShipDescription->Identifier;
-        ShipData.Heat = 600 * ShipDescription->HeatCapacity;
-        ShipData.PowerOutageDelay = 0;
-        ShipData.PowerOutageAcculumator = 0;
 
-        FName RCSIdentifier;
-        FName OrbitalEngineIdentifier;
+	FLOG("UFlareSector::CreateShip ShipDescription && Company");
+	// Default data
+	FFlareSpacecraftSave ShipData;
+	ShipData.Location = TargetPosition;
+	ShipData.Rotation = TargetRotation;
+	ShipData.LinearVelocity = FVector::ZeroVector;
+	ShipData.AngularVelocity = FVector::ZeroVector;
+	Game->Immatriculate(Company, ShipDescription->Identifier, &ShipData);
+	ShipData.Identifier = ShipDescription->Identifier;
+	ShipData.Heat = 600 * ShipDescription->HeatCapacity;
+	ShipData.PowerOutageDelay = 0;
+	ShipData.PowerOutageAcculumator = 0;
 
-        // Size selector
-        if (ShipDescription->Size == EFlarePartSize::S)
-        {
-            RCSIdentifier = FName("rcs-piranha");
-            OrbitalEngineIdentifier = FName("engine-octopus");
-        }
-        else if (ShipDescription->Size == EFlarePartSize::L)
-        {
-            RCSIdentifier = FName("rcs-rift");
-            OrbitalEngineIdentifier = FName("pod-surtsey");
-        }
-        else
-        {
-            // TODO
-        }
+	FName RCSIdentifier;
+	FName OrbitalEngineIdentifier;
 
-        for (int32 i = 0; i < ShipDescription->RCSCount; i++)
-        {
-            FFlareSpacecraftComponentSave ComponentData;
-            ComponentData.ComponentIdentifier = RCSIdentifier;
-            ComponentData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
-            ComponentData.Damage = 0.f;
-            ShipData.Components.Add(ComponentData);
-        }
+	// Size selector
+	if (ShipDescription->Size == EFlarePartSize::S)
+	{
+		RCSIdentifier = FName("rcs-piranha");
+		OrbitalEngineIdentifier = FName("engine-octopus");
+	}
+	else if (ShipDescription->Size == EFlarePartSize::L)
+	{
+		RCSIdentifier = FName("rcs-rift");
+		OrbitalEngineIdentifier = FName("pod-surtsey");
+	}
+	else
+	{
+		// TODO
+	}
 
-        for (int32 i = 0; i < ShipDescription->OrbitalEngineCount; i++)
-        {
-            FFlareSpacecraftComponentSave ComponentData;
-            ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
-            ComponentData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
-            ComponentData.Damage = 0.f;
-            ShipData.Components.Add(ComponentData);
-        }
+	for (int32 i = 0; i < ShipDescription->RCSCount; i++)
+	{
+		FFlareSpacecraftComponentSave ComponentData;
+		ComponentData.ComponentIdentifier = RCSIdentifier;
+		ComponentData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
+		ComponentData.Damage = 0.f;
+		ShipData.Components.Add(ComponentData);
+	}
 
-        for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
-        {
-            FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = Game->GetDefaultWeaponIdentifier();
-            ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
-            ComponentData.Damage = 0.f;
-            ComponentData.Weapon.FiredAmmo = 0;
-            ShipData.Components.Add(ComponentData);
-        }
+	for (int32 i = 0; i < ShipDescription->OrbitalEngineCount; i++)
+	{
+		FFlareSpacecraftComponentSave ComponentData;
+		ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
+		ComponentData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
+		ComponentData.Damage = 0.f;
+		ShipData.Components.Add(ComponentData);
+	}
 
-        for (int32 i = 0; i < ShipDescription->TurretSlots.Num(); i++)
-        {
-            FFlareSpacecraftComponentSave ComponentData;
-			ComponentData.ComponentIdentifier = Game->GetDefaultTurretIdentifier();
-            ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
-            ComponentData.Turret.BarrelsAngle = 0;
-            ComponentData.Turret.TurretAngle = 0;
-            ComponentData.Weapon.FiredAmmo = 0;
-            ComponentData.Damage = 0.f;
-            ShipData.Components.Add(ComponentData);
-        }
+	for (int32 i = 0; i < ShipDescription->GunSlots.Num(); i++)
+	{
+		FFlareSpacecraftComponentSave ComponentData;
+		ComponentData.ComponentIdentifier = Game->GetDefaultWeaponIdentifier();
+		ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
+		ComponentData.Damage = 0.f;
+		ComponentData.Weapon.FiredAmmo = 0;
+		ShipData.Components.Add(ComponentData);
+	}
 
-        for (int32 i = 0; i < ShipDescription->InternalComponentSlots.Num(); i++)
-        {
-            FFlareSpacecraftComponentSave ComponentData;
-            ComponentData.ComponentIdentifier = ShipDescription->InternalComponentSlots[i].ComponentIdentifier;
-            ComponentData.ShipSlotIdentifier = ShipDescription->InternalComponentSlots[i].SlotIdentifier;
-            ComponentData.Damage = 0.f;
-            ShipData.Components.Add(ComponentData);
-        }
+	for (int32 i = 0; i < ShipDescription->TurretSlots.Num(); i++)
+	{
+		FFlareSpacecraftComponentSave ComponentData;
+		ComponentData.ComponentIdentifier = Game->GetDefaultTurretIdentifier();
+		ComponentData.ShipSlotIdentifier = ShipDescription->TurretSlots[i].SlotIdentifier;
+		ComponentData.Turret.BarrelsAngle = 0;
+		ComponentData.Turret.TurretAngle = 0;
+		ComponentData.Weapon.FiredAmmo = 0;
+		ComponentData.Damage = 0.f;
+		ShipData.Components.Add(ComponentData);
+	}
 
-        // Init pilot
-        ShipData.Pilot.Identifier = "chewie";
-        ShipData.Pilot.Name = "Chewbaca";
+	for (int32 i = 0; i < ShipDescription->InternalComponentSlots.Num(); i++)
+	{
+		FFlareSpacecraftComponentSave ComponentData;
+		ComponentData.ComponentIdentifier = ShipDescription->InternalComponentSlots[i].ComponentIdentifier;
+		ComponentData.ShipSlotIdentifier = ShipDescription->InternalComponentSlots[i].SlotIdentifier;
+		ComponentData.Damage = 0.f;
+		ShipData.Components.Add(ComponentData);
+	}
 
-        // Init company
-        ShipData.CompanyIdentifier = CompanyIdentifier;
+	// Init pilot
+	ShipData.Pilot.Identifier = "chewie";
+	ShipData.Pilot.Name = "Chewbaca";
 
-        // Create the ship
-        ShipPawn = LoadShip(ShipData);
-        FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetImmatriculation(), *TargetPosition.ToString());
-    }
+	// Init company
+	ShipData.CompanyIdentifier = Company->GetIdentifier();
+
+	// Create the ship
+	ShipPawn = LoadShip(ShipData);
+	FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetImmatriculation(), *TargetPosition.ToString());
+
 
     return ShipPawn;
 }

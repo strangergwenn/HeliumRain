@@ -35,13 +35,13 @@ public:
 	----------------------------------------------------*/
 
 	/** Create a station in the level  for a specific company */
-	AFlareSpacecraft* CreateStation(FName StationClass, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
+	AFlareSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
 	/** Create a ship in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FName ShipClass, FName CompanyIdentifier, FVector TargetPosition);
+	AFlareSpacecraft* CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
 
-	/** Create a ship or station in the level  for a specific company */
-	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, FName CompanyIdentifier, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
+	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
+	AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
 	/** Add an asteroid to the world at a specific location */
 	void CreateAsteroidAt(int32 ID, FVector Location);
