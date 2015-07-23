@@ -5,6 +5,7 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../Components/FlareObjectiveInfo.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareDashboard"
@@ -93,18 +94,26 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		// Action list
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.HAlign(HAlign_Center)
+		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Center)
 		.Padding(Theme.ContentPadding)
 		[
 			SNew(SHorizontalBox)
+
+			// Objective
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SFlareObjectiveInfo).PC(PC)
+			]
 
 			// Ship
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Bottom)
 			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("InspectShip", "Ship"))
@@ -130,7 +139,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 
 			// Orbit
 			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
+			.HAlign(HAlign_Center)
 			.VAlign(VAlign_Bottom)
 			.Padding(Theme.TitleButtonPadding)
 			.AutoWidth()
@@ -144,7 +153,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 
 			// Undock
 			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
+			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Bottom)
 			.Padding(Theme.TitleButtonPadding)
 			.AutoWidth()
@@ -159,10 +168,9 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 
 			// Company
 			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
+			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Bottom)
 			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("InspectCompany", "Company"))
