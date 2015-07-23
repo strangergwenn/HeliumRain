@@ -167,9 +167,9 @@ void SFlareOrbitalMenu::Exit()
 
 int32 SFlareOrbitalMenu::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
-	FVector2D PlanetCenter = ClippingRect.GetSize() / 2;
+	//FVector2D PlanetCenter = ClippingRect.GetSize() / 2;
 
-	DrawOrbitPath(ClippingRect, OutDrawElements, LayerId, PlanetCenter, 200, 0, 200, 360);
+	//DrawOrbitPath(ClippingRect, OutDrawElements, LayerId, PlanetCenter, 200, 0, 200, 360);
 
 	//DrawOrbitPath(ClippingRect, OutDrawElements, LayerId, PlanetCenter, 350, 45, 300, 225);
 
