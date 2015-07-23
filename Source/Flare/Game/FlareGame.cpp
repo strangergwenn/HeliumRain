@@ -531,7 +531,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 
 	// Generate arbitrary save data
 	CompanyData.CatalogIdentifier = CatalogIdentifier;
-	CompanyData.Money = 100000;
+	CompanyData.Money = FMath::RandRange(5, 10) * 10000;
 
 	// Create company
 	Company = World->LoadCompany(CompanyData);

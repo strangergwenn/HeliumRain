@@ -133,6 +133,18 @@ void SFlareLeaderboardMenu::Enter()
 	{
 		CompanyListData.AddUnique(FInterfaceContainer::New(Companies[Index]));
 	}
+
+	// Sorting rules
+	struct FSortByMoney
+	{
+		FORCEINLINE bool operator()(const TSharedPtr<FInterfaceContainer> PtrA, const TSharedPtr<FInterfaceContainer> PtrB) const
+		{
+			return (PtrA->CompanyPtr->GetMoney() > PtrB->CompanyPtr->GetMoney());
+		}
+	};
+
+	// Sort
+	CompanyListData.Sort(FSortByMoney());
 	CompanyList->RequestListRefresh();
 }
 
