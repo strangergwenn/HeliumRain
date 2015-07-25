@@ -173,6 +173,14 @@ public:
 	UFUNCTION(exec)
 	void ForceSectorDeactivation();
 
+	/** Get world time */
+	UFUNCTION(exec)
+	int64 GetWorldTime();
+
+	/** Set world time */
+	UFUNCTION(exec)
+	void SetWorldTime(int64 Time);
+
 
 	/*----------------------------------------------------
 		Immatriculations

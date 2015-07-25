@@ -57,7 +57,7 @@ void UFlareSimulatedPlanetarium::Load()
 		NemaMoon1.Mass = 1.3e23;
 		NemaMoon1.Radius = 2600;
 		NemaMoon1.RotationVelocity = -0.03;
-		NemaMoon1.OrbitDistance = 420000;
+		NemaMoon1.OrbitDistance = 320000;
 		Nema.Sattelites.Add(NemaMoon1);
 
 		FFlareCelestialBody NemaMoon2;
@@ -66,7 +66,7 @@ void UFlareSimulatedPlanetarium::Load()
 		NemaMoon2.Mass = 5.3e23;
 		NemaMoon2.Radius = 4600;
 		NemaMoon2.RotationVelocity = 0.003;
-		NemaMoon2.OrbitDistance = 671000;
+		NemaMoon2.OrbitDistance = 571000;
 		Nema.Sattelites.Add(NemaMoon2);
 
 		FFlareCelestialBody NemaMoon3;
@@ -75,7 +75,7 @@ void UFlareSimulatedPlanetarium::Load()
 		NemaMoon3.Mass = 0.9e23;
 		NemaMoon3.Radius = 2000;
 		NemaMoon3.RotationVelocity = 0.05;
-		NemaMoon3.OrbitDistance = 1070000;
+		NemaMoon3.OrbitDistance = 870000;
 		Nema.Sattelites.Add(NemaMoon3);
 	}
 	Sun.Sattelites.Add(Nema);
