@@ -433,7 +433,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 
 bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 {
-	FLOGV("AFlareGame::LoadWorld : loading from slot %d", CurrentSaveIndex);
+	FLOGV("AFlareGame::LoadGame : loading from slot %d", CurrentSaveIndex);
 	UFlareSaveGame* Save = ReadSaveSlot(CurrentSaveIndex);
 
 	// Load from save
@@ -443,6 +443,10 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 
         // Create the new world
         World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
+
+		FLOGV("AFlareGame::LoadGame time=%lld", Save->WorldData.Time);
+		FLOGV("AFlareGame::LoadGame time2=%f", Save->WorldData.Time2);
+
         World->Load(Save->WorldData);
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
 		
@@ -483,6 +487,9 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 		Save->WorldData = *World->Save(ActiveSector);
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
 
+
+		FLOGV("AFlareGame::SaveGame time=%lld", Save->WorldData.Time);
+		FLOGV("AFlareGame::SaveGame time=%f", Save->WorldData.Time2);
 		// Save
 		UGameplayStatics::SaveGameToSlot(Save, "SaveSlot" + FString::FromInt(CurrentSaveIndex), 0);
 		return true;
@@ -937,6 +944,29 @@ void AFlareGame::ForceSectorDeactivation()
 		DeactivateSector(PC);
 	}
 }
+
+
+int64 AFlareGame::GetWorldTime()
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::GetWorldTime failed: no loaded world");
+		return 0;
+	}
+	FLOGV("World time: %lld", World->GetTime());
+	return World->GetTime();
+}
+
+void AFlareGame::SetWorldTime(int64 Time)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::SetWorldTime failed: no loaded world");
+		return;
+	}
+	World->ForceTime(Time);
+}
+
 
 /*----------------------------------------------------
 	Immatriculations

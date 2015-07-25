@@ -16,14 +16,17 @@ struct FFlareWorldSave
 {
 	GENERATED_USTRUCT_BODY()
 
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32                    Time;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	float                    Time2;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareCompanySave> CompanyData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareSectorSave> SectorData;
-
-	int64                    Time;
 
 };
 
@@ -49,6 +52,9 @@ public:
 
 	/** Spawn a sector from save data */
 	UFlareSimulatedSector* LoadSector(const FFlareSectorSave& SectorData);
+
+	/** Force new time */
+	virtual void ForceTime(int64 Time);
 
 	/*----------------------------------------------------
 		Gameplay
