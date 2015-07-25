@@ -23,9 +23,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	Game = MenuManager->GetPC()->GetGame();
 
 	// Game starts
-	ScenarioList.Add(MakeShareable(new FString(TEXT("Peaceful"))));
-	ScenarioList.Add(MakeShareable(new FString(TEXT("Threatened"))));
-	ScenarioList.Add(MakeShareable(new FString(TEXT("Aggressive"))));
+	ScenarioList.Add(MakeShareable(new FString(TEXT("Fighter"))));
 
 	// Color
 	FLinearColor Color = Theme.NeutralColor;
@@ -152,6 +150,18 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
+				// Tutorial
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Right)
+				[
+					SAssignNew(TutorialButton, SFlareButton)
+					.Text(LOCTEXT("Tutorial", "Play tutorial"))
+					.ToolTipText(LOCTEXT("TutorialInfo", "Start with a few tutorial missions"))
+					.Toggle(true)
+				]
+
 				// Start
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -219,7 +229,7 @@ void SFlareNewGameMenu::OnLaunch()
 		FLOGV("SFlareNewGameMenu::OnLaunch : '%s', scenario %d", *CompanyNameData, ScenarioIndex);
 
 		// Launch
-		Game->CreateGame(PC, CompanyNameData, ScenarioIndex);
+		Game->CreateGame(PC, CompanyNameData, ScenarioIndex, TutorialButton->IsActive());
 		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
 	}
 }

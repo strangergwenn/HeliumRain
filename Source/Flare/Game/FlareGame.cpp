@@ -338,7 +338,7 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 ----------------------------------------------------*/
 
 // TODO Rename as CreateGame
-void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex)
+void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex, bool PlayTutorial)
 {
 	FLOGV("CreateGame ScenarioIndex %d", ScenarioIndex);
 	FLOGV("CreateGame CompanyName %s", *CompanyName);

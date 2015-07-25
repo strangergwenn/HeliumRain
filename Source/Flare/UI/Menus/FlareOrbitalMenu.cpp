@@ -79,20 +79,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
 				.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
 			]
-			
-			// Close
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Close", "Close"))
-				.ToolTipText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnExit)
-			]
 		]
 
 		// Separator
@@ -111,9 +97,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			SAssignNew(SectorsBox, SHorizontalBox)
 		]
 	];
-
-
-
 }
 
 

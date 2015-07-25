@@ -94,7 +94,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Create a new game from scratch */
-	virtual void CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex);
+	virtual void CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex, bool PlayTutorial);
 
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);

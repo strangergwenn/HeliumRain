@@ -76,6 +76,7 @@ protected:
 	// Slate widgets
 	TSharedPtr<SEditableText>                   CompanyName;
 	TSharedPtr<SFlareColorPanel>                ColorBox;
+	TSharedPtr<SFlareButton>                    TutorialButton;
 
 	// Scenario data
 	TSharedPtr<SComboBox<TSharedPtr<FString> >> ScenarioSelector;
