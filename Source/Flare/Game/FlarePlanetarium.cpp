@@ -111,6 +111,8 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FVector Off
 	FLOGV("MoveCelestialBody %s Location = %s", *Body->Name, *Location.ToString());
 	FLOGV("MoveCelestialBody %s AlignedLocation = %s", *Body->Name, *AlignedLocation.ToString());
 
+	SunDirection.Normalize();
+
 	// Find the celestial body component
 	TArray<UActorComponent*> Components = GetComponents();
 	UStaticMeshComponent* BodyComponent = NULL;
