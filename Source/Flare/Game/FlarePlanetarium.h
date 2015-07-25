@@ -1,6 +1,8 @@
 #pragma once
 
+#include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "FlarePlanetarium.generated.h"
+
 
 struct FFlareCelestialBody;
 
@@ -41,5 +43,15 @@ protected:
 	----------------------------------------------------*/
 
 	AStaticMeshActor* Sky;
+	UDirectionalLightComponent* Light;
+
+	int64 CurrentTime;
+
+	FFlareCelestialBody Sun;
+
+	float SunOcclusion;
+
+	float SunAnglularRadius;
+	float SunPhase;
 
 };
