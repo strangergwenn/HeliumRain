@@ -54,20 +54,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("Dashboard", "DASHBOARD"))
 			]
 
-			// Quit
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("SaveQuit", "Save and quit"))
-				.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
-				.OnClicked(this, &SFlareDashboard::OnMainMenu)
-			]
-
 			// Close
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
@@ -321,17 +307,6 @@ void SFlareDashboard::OnUndock()
 void SFlareDashboard::OnInspectCompany()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
-}
-
-void SFlareDashboard::OnMainMenu()
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-
-	PC->GetGame()->SaveGame(PC);
-	PC->GetGame()->UnloadGame();
-
-	MenuManager->FlushNotifications();
-	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 
 void SFlareDashboard::OnExit()

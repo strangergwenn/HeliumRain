@@ -63,10 +63,7 @@ protected:
 
 	/** Inspect the company */
 	void OnInspectCompany();
-
-	/** Back to the main menu */
-	void OnMainMenu();
-
+	
 	/** Close the menu */
 	void OnExit();
 
