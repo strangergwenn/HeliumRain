@@ -241,7 +241,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FVector Off
 
 				//OcclusionRatio = ((SunAnglularRadius + AngularRadius) + FMath::Max(SunAnglularRadius, AngularRadius) - FMath::Min(SunAnglularRadius, AngularRadius)) / (2 * CenterAngularDistance);
 			}
-			FLOGV("MoveCelestialBody %s OcclusionRatio = %f", *Body->Name, OcclusionRatio);
+			//FLOGV("MoveCelestialBody %s OcclusionRatio = %f", *Body->Name, OcclusionRatio);
 
 			//Now, find the surface occlusion
 			float SunAngularSurface = PI*FMath::Square(SunAnglularRadius);
