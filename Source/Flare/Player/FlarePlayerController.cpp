@@ -204,7 +204,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 	if(GetGame() && GetGame()->GetGameWorld())
 	{
-		Accumulator += DeltaSeconds * 100;
+		Accumulator += DeltaSeconds;
 		while(Accumulator > 0)
 		{
 			GetGame()->GetGameWorld()->Simulate(1);
