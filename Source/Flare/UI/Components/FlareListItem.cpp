@@ -74,7 +74,7 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 const FSlateBrush* SFlareListItem::GetDecoratorBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	return (IsSelected ? &Theme.ButtonActiveDecorator : &Theme.ButtonDecorator);
+	return (IsSelected ? &Theme.ButtonActiveDecorator : &Theme.InvisibleBrush);
 }
 
 const FSlateBrush* SFlareListItem::GetBackgroundBrush() const
