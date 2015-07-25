@@ -37,7 +37,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	}
 
 	// Planetary system
-	static ConstructorHelpers::FObjectFinder<UBlueprint> PlanetariumBPClass(TEXT("/Game/Environment/BP_Planetarium"));
+	static ConstructorHelpers::FObjectFinder<UBlueprint> PlanetariumBPClass(TEXT("/Game/Environment/BP_Planetarium2"));
 	if (PlanetariumBPClass.Object != NULL)
 	{
 		PlanetariumClass = (UClass*)PlanetariumBPClass.Object->GeneratedClass;
@@ -92,7 +92,7 @@ void AFlareGame::StartPlay()
 
 	// Spawn planet
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	if (Planetarium)
+	/*if (Planetarium)
 	{
 		Planetarium->SetAltitude(10000);
 		Planetarium->SetSunRotation(100);
@@ -100,7 +100,7 @@ void AFlareGame::StartPlay()
 	else
 	{
 		FLOG("AFlareGame::StartPlay failed (no planetarium)");
-	}
+	}*/
 }
 
 void AFlareGame::PostLogin(APlayerController* Player)
@@ -346,6 +346,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	// Create the new world
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
 	FFlareWorldSave WorldData;
+	WorldData.Time = 0; // TODO find cool value
 	{
 		FFlareSectorSave SectorData;
 		SectorData.Identifier = "start";

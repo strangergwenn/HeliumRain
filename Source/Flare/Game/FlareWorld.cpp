@@ -246,3 +246,9 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 
 	return &WorldData;
 }
+
+/** Simulate world during a specific duration */
+void UFlareWorld::Simulate(long Duration)
+{
+	WorldData.Time += Duration;
+}

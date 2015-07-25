@@ -2,6 +2,7 @@
 
 #include "FlarePlanetarium.generated.h"
 
+struct FFlareCelestialBody;
 
 UCLASS()
 class FLARE_API AFlarePlanetarium : public AActor
@@ -9,6 +10,10 @@ class FLARE_API AFlarePlanetarium : public AActor
 public:
 
 	GENERATED_UCLASS_BODY()
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	void MoveCelestialBody(FFlareCelestialBody* Body, FVector Offset, float AngleOffset, FVector SunDirection);
 
 	/*----------------------------------------------------
 		Public events
@@ -29,6 +34,12 @@ public:
 	/** Set the rotation of the current system, in degrees */
 	UFUNCTION(BlueprintImplementableEvent)
 	virtual void SetSectorRotation(int32 RotationDegrees);
-	
+
+protected:
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	AStaticMeshActor* Sky;
 
 };

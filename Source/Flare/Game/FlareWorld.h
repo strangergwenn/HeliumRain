@@ -23,6 +23,8 @@ struct FFlareWorldSave
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareSectorSave> SectorData;
 
+	int64                    Time;
+
 };
 
 UCLASS()
@@ -51,6 +53,9 @@ public:
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
+
+	/** Simulate world during a specific duration */
+	void Simulate(long Duration);
 
 protected:
 
@@ -93,6 +98,11 @@ public:
 	inline TArray<UFlareSimulatedSector*>& GetSectors()
 	{
 		return Sectors;
+	}
+
+	inline int64 GetTime()
+	{
+		return WorldData.Time;
 	}
 
 	inline UFlareCompany* FindCompany(FName Identifier) const
