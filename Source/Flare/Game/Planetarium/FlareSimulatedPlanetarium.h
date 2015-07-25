@@ -14,6 +14,9 @@ struct FFlareCelestialBody
 	/** Name */
 	FString Name;
 
+	/** Name */
+	FString Identifier;
+
 	/** Mass of the celestial body. In kg */
 	float Mass;
 
@@ -36,6 +39,9 @@ struct FFlareCelestialBody
 	/** Current celestial body location relative to its parent celestial body*/
 	FVector RelativeLocation;
 
+	/** Current celestial body location relative to its the root star*/
+	FVector AbsoluteLocation;
+
 	/** Current celestial body self rotation angle*/
 	float RotationAngle;
 
@@ -56,6 +62,15 @@ public:
 	/** Load the planetarium */
 	virtual FFlareCelestialBody GetSnapShot(int64 Time);
 
+	/** Get relative location of a body orbiting around its parent */
+	virtual FVector GetRelativeLocation(FFlareCelestialBody* ParentBody, int64 Time, float OrbitDistance, float Mass, float InitialPhase);
+
+	/** Return the celestial body with the given identifier */
+	FFlareCelestialBody* FindCelestialBody(FString BodyIdentifier);
+
+	/** Return the celestial body with the given identifier in the given body tree */
+	FFlareCelestialBody* FindCelestialBody(FFlareCelestialBody* Body, FString BodyIdentifier);
+
 protected:
 
 	void ComputeCelestialBodyLocation(FFlareCelestialBody* ParentBody, FFlareCelestialBody* Body, int64 time);
@@ -65,7 +80,7 @@ protected:
 	----------------------------------------------------*/
 	AFlareGame*                   Game;
 
-	FFlareCelestialBody           Star;
+	FFlareCelestialBody           Sun;
 
 public:
 

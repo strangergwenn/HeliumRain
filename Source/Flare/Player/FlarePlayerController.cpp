@@ -65,7 +65,8 @@ void static DrawCelestialBody(FFlareCelestialBody* Body, FVector BaseLocation, i
 void static DrawCelestialBody(FFlareCelestialBody* Body, FVector BaseLocation, int Deep, UWorld* World)
 {
 	float DistanceScaleRatio = 100./1000000;
-	float RadiusScaleRatio = 100./70000;
+	//float RadiusScaleRatio = 100./70000;
+	float RadiusScaleRatio = 100./1000000;
 	FVector Location = BaseLocation + Body->RelativeLocation;
 	FColor Color;
 	switch(Deep)
@@ -83,13 +84,13 @@ void static DrawCelestialBody(FFlareCelestialBody* Body, FVector BaseLocation, i
 		Color = FColor::Red;
 	}
 
-	DrawDebugSphere(World, Location * DistanceScaleRatio, Body->Radius * RadiusScaleRatio, 32, Color, false);
+	//DrawDebugSphere(World, Location * DistanceScaleRatio, Body->Radius * RadiusScaleRatio, 32, Color, false);
 
 	FVector RotationOffset = 100 * FVector(
 				FMath::Cos(FMath::DegreesToRadians(Body->RotationAngle)),
 				FMath::Sin(FMath::DegreesToRadians(Body->RotationAngle)),
 				0.0);
-	DrawDebugLine(World, Location * DistanceScaleRatio, Location * DistanceScaleRatio + RotationOffset, Color, true, 20.f);
+	DrawDebugLine(World, Location * DistanceScaleRatio, Location * DistanceScaleRatio + RotationOffset, Color, false);
 
 
 	for(int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
@@ -245,9 +246,14 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	if(GetGame() && GetGame()->GetGameWorld())
 	{
 		FFlareCelestialBody Planetarium = GetGame()->GetGameWorld()->GetPlanerarium()->GetSnapShot(WorldTime);
-		DrawCelestialBody(&Planetarium, FVector::ZeroVector, 0, GetWorld());
-		WorldTime += (int64) (DeltaSeconds * (float) (3600 * 24));
+		DrawCelestialBody(&Planetarium, FVector(1000000*10,0,0), 0, GetWorld());
+		WorldTime += (int64) (DeltaSeconds * (float) (3600));
+
+		GetGame()->GetGameWorld()->Simulate(DeltaSeconds * (float) (3600));
 	}
+
+
+
 
 
 	// TODO MOVE
