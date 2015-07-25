@@ -73,6 +73,7 @@ void AFlarePlayerController::BeginPlay()
 	SetObjectiveTarget(FVector::ZeroVector);
 }
 
+static float Accumulator = 0;
 
 void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 {
@@ -203,7 +204,13 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 	if(GetGame() && GetGame()->GetGameWorld())
 	{
-		GetGame()->GetGameWorld()->Simulate(DeltaSeconds * (float) (360));
+		Accumulator += DeltaSeconds;
+		while(Accumulator > 0)
+		{
+			GetGame()->GetGameWorld()->Simulate(1);
+			//DeltaSeconds * (float) (360)
+			Accumulator -= 1;
+		}
 	}
 
 
