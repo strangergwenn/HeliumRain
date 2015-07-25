@@ -35,18 +35,6 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 				[
 					SNew(SHorizontalBox)
 
-					// Content box and inner container
-					+ SHorizontalBox::Slot()
-					[
-						SAssignNew(InnerContainer, SBorder)
-						.HAlign(HAlign_Fill)
-						.VAlign(VAlign_Fill)
-						.BorderImage(new FSlateNoResource)
-						[
-							InArgs._Content.Widget
-						]
-					]
-
 					// Toggle light
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
@@ -58,6 +46,18 @@ void SFlareListItem::Construct(const FArguments& InArgs, const TSharedRef<STable
 						[
 							SNew(SImage)
 							.Image(this, &SFlareListItem::GetDecoratorBrush)
+						]
+					]
+
+					// Content box and inner container
+					+ SHorizontalBox::Slot()
+					[
+						SAssignNew(InnerContainer, SBorder)
+						.HAlign(HAlign_Fill)
+						.VAlign(VAlign_Fill)
+						.BorderImage(new FSlateNoResource)
+						[
+							InArgs._Content.Widget
 						]
 					]
 				]

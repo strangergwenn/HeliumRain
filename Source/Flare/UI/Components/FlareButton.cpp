@@ -88,15 +88,6 @@ void SFlareButton::Construct(const FArguments& InArgs)
 						[
 							SNew(SHorizontalBox)
 
-							// Content box and inner container
-							+ SHorizontalBox::Slot()
-							[
-								SAssignNew(InnerContainer, SBorder)
-								.HAlign(HAlign_Left)
-								.VAlign(VAlign_Center)
-								.BorderImage(new FSlateNoResource)
-							]
-
 							// Toggle light
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
@@ -105,6 +96,15 @@ void SFlareButton::Construct(const FArguments& InArgs)
 							[
 								SNew(SImage)
 								.Image(this, &SFlareButton::GetDecoratorBrush)
+							]
+
+							// Content box and inner container
+							+ SHorizontalBox::Slot()
+							[
+								SAssignNew(InnerContainer, SBorder)
+								.HAlign(HAlign_Left)
+								.VAlign(VAlign_Center)
+								.BorderImage(new FSlateNoResource)
 							]
 						]
 					]
