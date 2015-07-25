@@ -9,6 +9,9 @@
 #define LOCTEXT_NAMESPACE "FlareMenuManager"
 
 
+AFlareMenuManager* AFlareMenuManager::Singleton;
+
+
 /*----------------------------------------------------
 	Setup
 ----------------------------------------------------*/
@@ -22,10 +25,11 @@ AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 
 void AFlareMenuManager::SetupMenu()
 {
+	Singleton = this;
+
 	if (GEngine->IsValidLowLevel())
 	{
-		// Menus
-		SAssignNew(Notifier, SFlareNotifier).MenuManager(this).Visibility(EVisibility::SelfHitTestInvisible);
+		// Create regular menus
 		SAssignNew(MainMenu, SFlareMainMenu).MenuManager(this);
 		SAssignNew(NewGameMenu, SFlareNewGameMenu).MenuManager(this);
 		SAssignNew(Dashboard, SFlareDashboard).MenuManager(this);
@@ -35,6 +39,12 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(OrbitMenu, SFlareOrbitalMenu).MenuManager(this);
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
 
+		// Notifier
+		SAssignNew(Notifier, SFlareNotifier).MenuManager(this).Visibility(EVisibility::SelfHitTestInvisible);
+
+		// Tooltip
+		SAssignNew(Tooltip, SFlareTooltip);
+
 		// Fader
 		SAssignNew(Fader, SBorder)
 			.HAlign(HAlign_Fill)
@@ -42,7 +52,7 @@ void AFlareMenuManager::SetupMenu()
 			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"));
 		Fader->SetVisibility(EVisibility::Hidden);
 
-		// Register menus at their Z-Index
+		// Register regular menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(NewGameMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
@@ -51,10 +61,13 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),  50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         90);
+
+		// Register special menus
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         80);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),          90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
 
-		// Setup menus
+		// Setup regular menus
 		MainMenu->Setup();
 		NewGameMenu->Setup();
 		Dashboard->Setup();
@@ -167,6 +180,17 @@ void AFlareMenuManager::FlushNotifications()
 		Notifier->FlushNotifications();
 	}
 }
+
+void AFlareMenuManager::ShowTooltip(SWidget* TargetWidget, FText Content)
+{
+	Tooltip->ShowTooltip(TargetWidget, Content);
+}
+
+void AFlareMenuManager::HideTooltip(SWidget* TargetWidget)
+{
+	Tooltip->HideTooltip(TargetWidget);
+}
+
 
 const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion)
 {

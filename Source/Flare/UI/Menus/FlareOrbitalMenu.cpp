@@ -61,7 +61,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Leaderboard", "Leaderboard"))
-				.ToolTipText(LOCTEXT("LeaderboardInfo", "Take a look at the companies"))
+				.HelpText(LOCTEXT("LeaderboardInfo", "Take a look at the companies"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
 				.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
 			]
@@ -75,7 +75,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("SaveQuit", "Save and quit"))
-				.ToolTipText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
+				.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
 				.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
 			]

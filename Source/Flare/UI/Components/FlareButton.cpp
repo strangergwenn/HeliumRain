@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareButton.h"
+#include "../../Player/FlareMenuManager.h"
 
 
 /*----------------------------------------------------
@@ -9,7 +10,7 @@
 
 void SFlareButton::Construct(const FArguments& InArgs)
 {
-	// Initial setup
+	// Setup
 	IsPressed = false;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -18,13 +19,10 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	IsToggle = InArgs._Toggle;
 	OnClicked = InArgs._OnClicked;
 	Color = InArgs._Color;
+	HelpText = InArgs._HelpText;
 	int32 Width = InArgs._Width * Theme.ButtonWidth;
 	int32 Height = InArgs._Height * Theme.ButtonHeight;
-
-	// Text color for tooltips
-	FLinearColor TextColor = Theme.NeutralColor;
-	TextColor.A = Theme.DefaultAlpha;
-
+	
 	// Structure
 	ChildSlot
 	.VAlign(VAlign_Center)
@@ -35,19 +33,6 @@ void SFlareButton::Construct(const FArguments& InArgs)
 		.OnClicked(this, &SFlareButton::OnButtonClicked)
 		.ContentPadding(FMargin(0))
 		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-		.ToolTip(
-
-			// Tooltip overlay
-			SNew(SToolTip)
-			.BorderImage(&Theme.BackgroundBrush)
-			[
-				SNew(STextBlock)
-				.Text(InArgs._ToolTipText)
-				.Font(Theme.SmallFont.Font)
-				.ColorAndOpacity(TextColor)
-				.WrapTextAt(Theme.ContentWidth / 2.0f)
-			]
-		)
 		[
 			SNew(SVerticalBox)
 
@@ -190,6 +175,28 @@ bool SFlareButton::IsActive() const
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+void SFlareButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	SWidget::OnMouseEnter(MyGeometry, MouseEvent);
+
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	if (MenuManager)
+	{
+		MenuManager->ShowTooltip(this, HelpText.Get());
+	}
+}
+
+void SFlareButton::OnMouseLeave(const FPointerEvent& MouseEvent)
+{
+	SWidget::OnMouseLeave(MouseEvent);
+
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	if (MenuManager)
+	{
+		MenuManager->HideTooltip(this);
+	}
+}
 
 const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 {

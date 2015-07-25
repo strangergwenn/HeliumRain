@@ -27,7 +27,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SNew(SFlareButton)
-			.ToolTipText(LOCTEXT("Cancel", "Cancel"))
+			.HelpText(LOCTEXT("Cancel", "Cancel"))
 			.Text(InArgs._CancelText)
 			.OnClicked(InArgs._OnCancelled)
 		]
@@ -37,7 +37,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Right)
 		[
 			SAssignNew(ConfirmButton, SFlareButton)
-			.ToolTipText(LOCTEXT("Confirm", "Confirm"))
+			.HelpText(LOCTEXT("Confirm", "Confirm"))
 			.OnClicked(InArgs._OnConfirmed)
 			.Width(8)
 			.Height(1)

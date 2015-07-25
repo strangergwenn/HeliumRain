@@ -61,7 +61,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Close", "Close"))
-				.ToolTipText(LOCTEXT("CloseInfo", "Close the menu and go back to the orbital menu"))
+				.HelpText(LOCTEXT("CloseInfo", "Close the menu and go back to the orbital menu"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 				.OnClicked(this, &SFlareLeaderboardMenu::OnExit)
 			]

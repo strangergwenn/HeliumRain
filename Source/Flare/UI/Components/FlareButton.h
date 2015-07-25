@@ -19,12 +19,11 @@ class SFlareButton : public SCompoundWidget
 		, _Height(1)
 	{}
 
-	SLATE_EVENT(FFlareButtonClicked, OnClicked)
-
 	SLATE_ATTRIBUTE(FText, Text)
-	SLATE_ATTRIBUTE(FText, ToolTipText)
+	SLATE_ATTRIBUTE(FText, HelpText)
 	SLATE_ATTRIBUTE(const FSlateBrush*, Icon);
 	SLATE_ATTRIBUTE(FSlateColor, Color)
+	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
 	SLATE_ARGUMENT(bool, Toggle)
 	SLATE_ARGUMENT(int32, Width)
@@ -48,6 +47,17 @@ public:
 	/** Get the toggle state */
 	bool IsActive() const;
 
+
+	/*----------------------------------------------------
+		Callbacks
+	----------------------------------------------------*/
+
+	/** Mouse entered (tooltip) */
+	virtual void OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+
+	/** Mouse left (tooltip) */
+	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
+
 	/** Brush callback */
 	const FSlateBrush* GetDecoratorBrush() const;
 
@@ -66,7 +76,7 @@ protected:
 	/*----------------------------------------------------
 		Private data
 	----------------------------------------------------*/
-
+	
 	// State data
 	bool                           IsToggle;
 	bool                           IsPressed;
@@ -76,6 +86,7 @@ protected:
 	TSharedPtr<SBorder>            InnerContainer;
 	TAttribute<const FSlateBrush*> Icon;
 	TAttribute<FSlateColor>        Color;
+	TAttribute<FText>              HelpText;
 
 
 public:

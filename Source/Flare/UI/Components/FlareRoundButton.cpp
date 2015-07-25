@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareRoundButton.h"
+#include "../../Player/FlareMenuManager.h"
 
 
 /*----------------------------------------------------
@@ -9,6 +10,9 @@
 
 void SFlareRoundButton::Construct(const FArguments& InArgs)
 {
+	// Setup
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
 	// Arguments
 	IsClickable = InArgs._Clickable;
 	OnClicked = InArgs._OnClicked;
@@ -16,13 +20,9 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 	IconColor = InArgs._IconColor;
 	HighlightColor = InArgs._HighlightColor;
 	TextColor = InArgs._TextColor;
+	HelpText = InArgs._HelpText;
 	Icon = InArgs._Icon;
 	Text = InArgs._Text;
-
-	// Setup
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor Color = Theme.NeutralColor;
-	Color.A = Theme.DefaultAlpha;
 
 	ChildSlot
 	.VAlign(VAlign_Top)
@@ -45,19 +45,6 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 				.OnClicked(this, &SFlareRoundButton::OnButtonClicked)
 				.ContentPadding(FMargin(0))
 				.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-				.ToolTip(
-
-					// Tooltip overlay
-					SNew(SToolTip)
-					.BorderImage(&Theme.BackgroundBrush)
-					[
-						SNew(STextBlock)
-						.Text(InArgs._ToolTipText)
-						.Font(Theme.SmallFont.Font)
-						.ColorAndOpacity(Color)
-						.WrapTextAt(Theme.ContentWidth / 2.0f)
-					]
-				)
 				[
 					// Inverted background
 					SNew(SBorder)
@@ -107,6 +94,28 @@ void SFlareRoundButton::Construct(const FArguments& InArgs)
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+void SFlareRoundButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	SWidget::OnMouseEnter(MyGeometry, MouseEvent);
+
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	if (MenuManager)
+	{
+		MenuManager->ShowTooltip(this, HelpText.Get());
+	}
+}
+
+void SFlareRoundButton::OnMouseLeave(const FPointerEvent& MouseEvent)
+{
+	SWidget::OnMouseLeave(MouseEvent);
+
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	if (MenuManager)
+	{
+		MenuManager->HideTooltip(this);
+	}
+}
 
 const FSlateBrush* SFlareRoundButton::GetBackgroundBrush() const
 {

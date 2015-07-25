@@ -11,25 +11,25 @@ class SFlareRoundButton : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareRoundButton)
-		: _Clickable(true)
-		, _ShowText(true)
-		, _InvertedBackground(false)
-		, _IconColor(FLinearColor::White)
+		: _IconColor(FLinearColor::White)
 		, _HighlightColor(FLinearColor::White)
 		, _TextColor(FLinearColor::White)
+		, _Clickable(true)
+		, _ShowText(true)
+		, _InvertedBackground(false)
 	{}
 
-	SLATE_ARGUMENT(bool, Clickable)
-	SLATE_ARGUMENT(bool, ShowText)
-	SLATE_ARGUMENT(bool, InvertedBackground)
-	SLATE_EVENT(FFlareButtonClicked, OnClicked)
-
 	SLATE_ATTRIBUTE(FText, Text)
-	SLATE_ATTRIBUTE(FText, ToolTipText)
+	SLATE_ATTRIBUTE(FText, HelpText)
 	SLATE_ATTRIBUTE(const FSlateBrush*, Icon);
 	SLATE_ATTRIBUTE(FSlateColor, IconColor)
 	SLATE_ATTRIBUTE(FSlateColor, HighlightColor)
 	SLATE_ATTRIBUTE(FSlateColor, TextColor)
+	SLATE_EVENT(FFlareButtonClicked, OnClicked)
+
+	SLATE_ARGUMENT(bool, Clickable)
+	SLATE_ARGUMENT(bool, ShowText)
+	SLATE_ARGUMENT(bool, InvertedBackground)
 	
 	SLATE_END_ARGS()
 
@@ -42,7 +42,18 @@ public:
 
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
-		
+
+
+	/*----------------------------------------------------
+		Callbacks
+	----------------------------------------------------*/
+
+	/** Mouse entered (tooltip) */
+	virtual void OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+
+	/** Mouse left (tooltip) */
+	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
+
 	/** Brush callback */
 	const FSlateBrush* GetBackgroundBrush() const;
 	
@@ -61,7 +72,7 @@ protected:
 	/*----------------------------------------------------
 		Private data
 	----------------------------------------------------*/
-
+	
 	// Data
 	bool                           IsClickable;
 	bool                           InvertedBackground;
@@ -73,8 +84,9 @@ protected:
 	TAttribute<FSlateColor>        IconColor;
 	TAttribute<FSlateColor>        HighlightColor;
 	TAttribute<FSlateColor>        TextColor;
+	TAttribute<FText>              HelpText;
 
-	// SLate data
+	// Slate data
 	TSharedPtr<STextBlock>         TextBlock;
 
 

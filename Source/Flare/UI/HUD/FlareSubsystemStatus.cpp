@@ -47,7 +47,7 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 		.Clickable(false)
 		.Icon(Icon)
 		.Text(this, &SFlareSubsystemStatus::GetText)
-		.ToolTipText(this, &SFlareSubsystemStatus::GetInfoText)
+		.HelpText(this, &SFlareSubsystemStatus::GetInfoText)
 		.HighlightColor(this, &SFlareSubsystemStatus::GetHealthColor)
 		.TextColor(this, &SFlareSubsystemStatus::GetFlashColor)
 	];

@@ -8,6 +8,7 @@
 #include "../UI/Menus/FlareSectorMenu.h"
 #include "../UI/Menus/FlareOrbitalMenu.h"
 #include "../UI/Menus/FlareLeaderboardMenu.h"
+#include "../UI/Components/FlareTooltip.h"
 #include "../UI/Components/FlareNotifier.h"
 #include "FlareMenuManager.generated.h"
 
@@ -59,6 +60,12 @@ public:
 
 	/** Get a Slate icon brush */
 	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
+
+	/** Start displaying the tooltip */
+	void ShowTooltip(SWidget* TargetWidget, FText Content);
+
+	/** Stop displaying the tooltip */
+	void HideTooltip(SWidget* TargetWidget);
 
 
 protected:
@@ -121,14 +128,18 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 	
+	// Singleton pointer, because we reference this class from the entire world
+	static AFlareMenuManager*               Singleton;
+
 	// General data
 	bool                                    MenuIsOpen;
 	bool                                    FadeFromBlack;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
 	TSharedPtr<SBorder>                     Fader;
-	
+
 	// Menus
+	TSharedPtr<SFlareTooltip>               Tooltip;
 	TSharedPtr<SFlareNotifier>              Notifier;
 	TSharedPtr<SFlareMainMenu>              MainMenu;
 	TSharedPtr<SFlareNewGameMenu>           NewGameMenu;
@@ -138,7 +149,7 @@ protected:
 	TSharedPtr<SFlareSectorMenu>            SectorMenu;
 	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
 	TSharedPtr<SFlareLeaderboardMenu>       LeaderboardMenu;
-
+	
 	// Menu target data
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
 	void*                                   FadeTargetData;
@@ -158,6 +169,11 @@ public:
 	inline AFlareGame* GetGame() const
 	{
 		return GetPC()->GetGame();
+	}
+
+	static inline AFlareMenuManager* GetSingleton()
+	{
+		return Singleton;
 	}
 
 

@@ -63,7 +63,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("SaveQuit", "Save and quit"))
-				.ToolTipText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
+				.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
 				.OnClicked(this, &SFlareDashboard::OnMainMenu)
 			]
@@ -77,7 +77,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Close", "Close"))
-				.ToolTipText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
+				.HelpText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 				.OnClicked(this, &SFlareDashboard::OnExit)
 			]
@@ -117,7 +117,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("InspectShip", "Ship"))
-				.ToolTipText(LOCTEXT("InspectShipInfo", "Inspect your current ship"))
+				.HelpText(LOCTEXT("InspectShipInfo", "Inspect your current ship"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Ship, true))
 				.OnClicked(this, &SFlareDashboard::OnInspectShip)
 			]
@@ -131,7 +131,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("UpgradeShip", "Upgrade ship"))
-				.ToolTipText(LOCTEXT("UpgradeShipInfo", "Upgrade your current ship"))
+				.HelpText(LOCTEXT("UpgradeShipInfo", "Upgrade your current ship"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_ShipConfig, true))
 				.OnClicked(this, &SFlareDashboard::OnConfigureShip)
 				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
@@ -146,7 +146,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("GoOrbit", "Orbital map"))
-				.ToolTipText(LOCTEXT("GoOrbitInfo", "Exit the navigation mode and go back to the orbital map"))
+				.HelpText(LOCTEXT("GoOrbitInfo", "Exit the navigation mode and go back to the orbital map"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit, true))
 				.OnClicked(this, &SFlareDashboard::OnOrbit)
 			]
@@ -160,7 +160,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Undock", "Undock"))
-				.ToolTipText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
+				.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Undock, true))
 				.OnClicked(this, &SFlareDashboard::OnUndock)
 				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
@@ -174,7 +174,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("InspectCompany", "Company"))
-				.ToolTipText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
+				.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
 				.OnClicked(this, &SFlareDashboard::OnInspectCompany)
 			]

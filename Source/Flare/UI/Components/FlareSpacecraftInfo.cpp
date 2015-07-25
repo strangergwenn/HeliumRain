@@ -135,7 +135,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(InspectButton, SFlareButton)
 				.Text(LOCTEXT("Inspect", "INSPECT"))
-				.ToolTipText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
+				.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
 				.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
 				.Width(4)
 			]
@@ -146,7 +146,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(FlyButton, SFlareButton)
 				.Text(LOCTEXT("ShipFly", "FLY"))
-				.ToolTipText(LOCTEXT("ShipFlyInfo", "Take command of this spacecraft"))
+				.HelpText(LOCTEXT("ShipFlyInfo", "Take command of this spacecraft"))
 				.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
 				.Width(4)
 			]
@@ -157,7 +157,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(DockButton, SFlareButton)
 				.Text(LOCTEXT("Dock", "DOCK HERE"))
-				.ToolTipText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
+				.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
 				.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
 				.Width(4)
 			]
@@ -168,7 +168,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(UndockButton, SFlareButton)
 				.Text(LOCTEXT("Undock", "UNDOCK"))
-				.ToolTipText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
+				.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
 				.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
 				.Width(4)
 			]
