@@ -82,15 +82,17 @@ void SFlareTooltip::HideTooltip(SWidget* TargetWidget)
 
 FSlateColor SFlareTooltip::GetTooltipColor() const
 {
-	FLinearColor Color = FLinearColor::White;
-	Color.A = TooltipCurrentAlpha;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = Theme.NameFont.ColorAndOpacity.GetSpecifiedColor();
+	Color.A *= TooltipCurrentAlpha;
 	return Color;
 }
 
 FLinearColor SFlareTooltip::GetTooltipShadowColor() const
 {
-	FLinearColor Color = FLinearColor::White;
-	Color.A = TooltipCurrentAlpha;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = Theme.NameFont.ColorAndOpacity.GetSpecifiedColor();
+	Color.A *= TooltipCurrentAlpha;
 	return Color;
 }
 
