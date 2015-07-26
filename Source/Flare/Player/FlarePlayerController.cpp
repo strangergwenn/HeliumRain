@@ -792,6 +792,8 @@ void AFlarePlayerController::QuickSwitch()
 			{
 				FLOG("AFlarePlayerController::QuickSwitch : found new ship");
 				QuickSwitchNextOffset = OffsetIndex + 1;
+				//Disable pilot during the switch
+				SeletedCandidate->GetStateManager()->EnablePilot(false);
 				MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
 			}
 			else
