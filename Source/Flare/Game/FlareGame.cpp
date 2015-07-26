@@ -346,7 +346,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	// Create the new world
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
 	FFlareWorldSave WorldData;
-	WorldData.Time = 4728856; // TODO find cool value
+	WorldData.Time = 475856;
 	{
 		FFlareSectorSave SectorData;
 		SectorData.Identifier = "start";
