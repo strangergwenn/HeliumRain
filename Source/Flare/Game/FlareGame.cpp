@@ -92,15 +92,6 @@ void AFlareGame::StartPlay()
 
 	// Spawn planet
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	/*if (Planetarium)
-	{
-		Planetarium->SetAltitude(10000);
-		Planetarium->SetSunRotation(100);
-	}
-	else
-	{
-		FLOG("AFlareGame::StartPlay failed (no planetarium)");
-	}*/
 }
 
 void AFlareGame::PostLogin(APlayerController* Player)
@@ -351,13 +342,20 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 		FFlareSectorSave SectorData;
 		SectorData.Identifier = "start";
 		SectorData.Name = "Nema 1";
+		SectorData.Orbit.CelestialBodyIdentifier = "planet-nema";
+		SectorData.Orbit.Altitude = 10000;
+		SectorData.Orbit.Phase = 0;
 		WorldData.SectorData.Add(SectorData);
+
 	}
 
 	{
 		FFlareSectorSave SectorData;
 		SectorData.Identifier = "nema2";
 		SectorData.Name = "Nema 2";
+		SectorData.Orbit.CelestialBodyIdentifier = "planet-nema";
+		SectorData.Orbit.Altitude = 10000;
+		SectorData.Orbit.Phase = 30;
 		WorldData.SectorData.Add(SectorData);
 	}
 
@@ -365,6 +363,9 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 		FFlareSectorSave SectorData;
 		SectorData.Identifier = "nema3";
 		SectorData.Name = "Nema 3";
+		SectorData.Orbit.CelestialBodyIdentifier = "planet-nema";
+		SectorData.Orbit.Altitude = 100000;
+		SectorData.Orbit.Phase = 20;
 		WorldData.SectorData.Add(SectorData);
 	}
 
@@ -372,6 +373,19 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 		FFlareSectorSave SectorData;
 		SectorData.Identifier = "nema4";
 		SectorData.Name = "Nema 4";
+		SectorData.Orbit.CelestialBodyIdentifier = "planet-nema";
+		SectorData.Orbit.Altitude = 100000;
+		SectorData.Orbit.Phase = 60;
+		WorldData.SectorData.Add(SectorData);
+	}
+
+	{
+		FFlareSectorSave SectorData;
+		SectorData.Identifier = "nema-moon1-1";
+		SectorData.Name = "Nema Moon 1 - 1";
+		SectorData.Orbit.CelestialBodyIdentifier = "moon-nema1";
+		SectorData.Orbit.Altitude = 1000;
+		SectorData.Orbit.Phase = 00;
 		WorldData.SectorData.Add(SectorData);
 	}
 
@@ -421,6 +435,10 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 
 	FLOG("CreateGame create initial ship");
 	World->FindSector("start")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
+	World->FindSector("nema2")->CreateShip("ship-orca", Company, FVector::ZeroVector);
+	World->FindSector("nema3")->CreateShip("ship-dragon", Company, FVector::ZeroVector);
+	World->FindSector("nema4")->CreateShip("ship-invader", Company, FVector::ZeroVector);
+	World->FindSector("nema-moon1-1")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
 
 
 	// Load

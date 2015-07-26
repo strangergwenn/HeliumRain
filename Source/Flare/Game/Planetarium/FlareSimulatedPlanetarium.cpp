@@ -82,12 +82,12 @@ void UFlareSimulatedPlanetarium::Load()
 }
 
 
-FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FString BodyIdentifier)
+FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FName BodyIdentifier)
 {
 	return FindCelestialBody(&Sun, BodyIdentifier);
 }
 
-FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FFlareCelestialBody* Body, FString BodyIdentifier)
+FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FFlareCelestialBody* Body, FName BodyIdentifier)
 {
 	if(Body->Identifier == BodyIdentifier)
 	{

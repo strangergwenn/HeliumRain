@@ -80,6 +80,11 @@ public:
 		return Game;
 	}
 
+	FFlareSectorSave* GetData()
+	{
+		return &SectorData;
+	}
+
 	inline FName GetIdentifier() const
 	{
 		return SectorData.Identifier;

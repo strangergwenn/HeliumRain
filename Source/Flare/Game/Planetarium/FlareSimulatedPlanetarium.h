@@ -15,7 +15,7 @@ struct FFlareCelestialBody
 	FString Name;
 
 	/** Name */
-	FString Identifier;
+	FName Identifier;
 
 	/** Mass of the celestial body. In kg */
 	float Mass;
@@ -66,10 +66,10 @@ public:
 	virtual FVector GetRelativeLocation(FFlareCelestialBody* ParentBody, int64 Time, float OrbitDistance, float Mass, float InitialPhase);
 
 	/** Return the celestial body with the given identifier */
-	FFlareCelestialBody* FindCelestialBody(FString BodyIdentifier);
+	FFlareCelestialBody* FindCelestialBody(FName BodyIdentifier);
 
 	/** Return the celestial body with the given identifier in the given body tree */
-	FFlareCelestialBody* FindCelestialBody(FFlareCelestialBody* Body, FString BodyIdentifier);
+	FFlareCelestialBody* FindCelestialBody(FFlareCelestialBody* Body, FName BodyIdentifier);
 
 protected:
 

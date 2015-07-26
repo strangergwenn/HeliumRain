@@ -33,13 +33,14 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 
 		if (World)
 		{
-			if(CurrentTime == World->GetTime())
+			if(CurrentTime == World->GetTime() && CurrentSector == Game->GetActiveSector()->GetIdentifier())
 			{
 				// Already up-to-date
 				return;
 			}
 
 			CurrentTime = World->GetTime();
+			CurrentSector = Game->GetActiveSector()->GetIdentifier();
 
 			if (Sky == NULL)
 			{
@@ -69,18 +70,17 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 				}
 			}
 
-
-			FVector BaseOffset = FVector(1000000*10,0,0);
 			Sun = World->GetPlanerarium()->GetSnapShot(World->GetTime());
 
-
 			// Draw Player
-			FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody("planet-nema"); // TODO use active sector parent planet
+			FFlareOrbitSectorSave PlayerOrbit = Game->GetActiveSector()->GetData()->Orbit;
+
+
+			FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody(PlayerOrbit.CelestialBodyIdentifier);
 			if (CurrentParent)
 			{
-				float DistanceScaleRatio = 100./10000;
 				FVector ParentLocation = CurrentParent->AbsoluteLocation;
-				FVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), 200000, 0, 0); // TODO use sector phase and distance
+				FVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), PlayerOrbit.Altitude + CurrentParent->Radius, 0, PlayerOrbit.Phase);
 			/*	FLOGV("Nema location = %s", *CurrentParent->AbsoluteLocation.ToString());
 				FLOGV("PlayerLocation = %s", *PlayerLocation.ToString());
 				FLOGV("Player relative = %s", *(World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), 100000, 0, 0)).ToString());
@@ -131,7 +131,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 			}
 			else
 			{
-				FLOG("Error: Failed to find the current sector: 'planet-nema' in planetarium");
+				FLOGV("Error: Failed to find the current sector: '%s' in planetarium", *(PlayerOrbit.CelestialBodyIdentifier.ToString()));
 			}
 		}
 	}
@@ -174,7 +174,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FVector Off
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UStaticMeshComponent* ComponentCandidate = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
-		if(ComponentCandidate && ComponentCandidate->GetName() == Body->Identifier)
+		if(ComponentCandidate && ComponentCandidate->GetName() == Body->Identifier.ToString()	)
 		{
 			BodyComponent = ComponentCandidate;
 			break;
@@ -206,7 +206,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FVector Off
 	}
 	else
 	{
-		FLOGV("ERROR: No planetarium component for '%s' celestial body", *Body->Identifier);
+		FLOGV("ERROR: No planetarium component for '%s' celestial body", *(Body->Identifier.ToString()));
 	}
 
 	/*DrawDebugLine(GetWorld(), FVector(0, 0, 0), AlignedLocation * 100000, FColor::Blue, false, 1.f);

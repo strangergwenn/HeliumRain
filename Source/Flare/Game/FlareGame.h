@@ -298,6 +298,11 @@ public:
 		return ActiveSector;
 	}
 
+	inline AFlarePlanetarium* GetPlanetarium() const
+	{
+		return Planetarium;
+	}
+
 	inline const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const
 	{
 		return (CompanyCatalog ? &CompanyCatalog->Companies[Index] : NULL);

@@ -46,6 +46,7 @@ protected:
 	UDirectionalLightComponent* Light;
 
 	int64 CurrentTime;
+	FName CurrentSector;
 
 	FFlareCelestialBody Sun;
 
@@ -53,5 +54,15 @@ protected:
 
 	float SunAnglularRadius;
 	float SunPhase;
+
+public:
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+		float GetSunOcclusion() const
+		{
+			return SunOcclusion;
+		}
 
 };

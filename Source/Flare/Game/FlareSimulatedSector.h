@@ -20,6 +20,24 @@ namespace EFlareSectorKnowledge
     };
 }
 
+/** Sector save data */
+USTRUCT()
+struct FFlareOrbitSectorSave
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Parent celestial body identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName CelestialBodyIdentifier;
+
+	/** Orbit altitude */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float Altitude;
+
+	/** Orbit phase */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float Phase;
+};
 
 /** Sector save data */
 USTRUCT()
@@ -31,9 +49,13 @@ struct FFlareSectorSave
     UPROPERTY(EditAnywhere, Category = Save)
     FString Name;
 
-    /** Save identifier */
+	/** Sector identifier */
     UPROPERTY(EditAnywhere, Category = Save)
     FName Identifier;
+
+	/** OrbitProperties */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareOrbitSectorSave      Orbit;
 
     UPROPERTY(VisibleAnywhere, Category = Save)
     TArray<FFlareSpacecraftSave> ShipData;
@@ -130,6 +152,11 @@ public:
     {
         return SectorData.Identifier;
     }
+
+	inline FFlareOrbitSectorSave* GetOrbitProperties()
+	{
+		return &SectorData.Orbit;
+	}
 
     inline FString GetSectorName() const
     {
