@@ -106,7 +106,11 @@ protected:
 
     // Gameplay data
     FFlareSectorSave                       SectorData;
+
+	UPROPERTY()
     TArray<UFlareSimulatedSpacecraft*>      SectorStations;
+
+	UPROPERTY()
     TArray<UFlareSimulatedSpacecraft*>      SectorShips;
 
 	AFlareGame*                   Game;
