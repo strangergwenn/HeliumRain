@@ -3,6 +3,7 @@
 
 #include "FlareSpacecraftDamageSystem.h"
 #include "../FlareSpacecraft.h"
+#include "../../Game/FlareGame.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftDamageSystem"
 
@@ -37,8 +38,8 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	}
 
 	// Add a part of sun radiation to ship heat production
-	// Sun flow is 3.094KW/m^2 and keep only half.
-	HeatProduction += HeatSinkSurface * 3.094 * 0.5;
+	// Sun flow is 3.094KW/m^2 and keep only half and modulate 90% by sun occlusion
+	HeatProduction += HeatSinkSurface * 3.094 * 0.5 * (1 - 0.9 * Spacecraft->GetGame()->GetPlanetarium()->GetSunOcclusion());
 
 	// Heat up
 	Data->Heat += HeatProduction * DeltaSeconds;
