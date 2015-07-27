@@ -16,6 +16,7 @@
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Data/FlareAsteroidCatalog.h"
 #include "../Data/FlareCompanyCatalog.h"
+#include "../Data/FlareSectorCatalog.h"
 
 #include "FlareGame.generated.h"
 
@@ -247,6 +248,10 @@ protected:
 	UPROPERTY()
 	UFlareCompanyCatalog*                    CompanyCatalog;
 
+	/** Reference to all sector descriptions */
+	UPROPERTY()
+	UFlareSectorCatalog*                 SectorCatalog;
+
 	/** Company emblems */
 	UPROPERTY()
 	TArray<UMaterialInstanceDynamic*>        CompanyEmblems;
@@ -325,6 +330,11 @@ public:
 	inline UFlareSpacecraftCatalog* GetSpacecraftCatalog() const
 	{
 		return SpacecraftCatalog;
+	}
+
+	inline UFlareSectorCatalog* GetSectorCatalog() const
+	{
+		return SectorCatalog;
 	}
 
 	inline UFlareSpacecraftComponentsCatalog* GetShipPartsCatalog() const

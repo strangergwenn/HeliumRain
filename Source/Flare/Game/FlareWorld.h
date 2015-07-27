@@ -51,7 +51,7 @@ public:
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);
 
 	/** Spawn a sector from save data */
-	UFlareSimulatedSector* LoadSector(const FFlareSectorSave& SectorData);
+	UFlareSimulatedSector* LoadSector(const FFlareSectorDescription* Description, const FFlareSectorSave& SectorData, const FFlareSectorOrbitParameters& OrbitParameters);
 
 	/** Force new time */
 	virtual void ForceTime(int64 Time);

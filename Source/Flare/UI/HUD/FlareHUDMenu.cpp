@@ -325,12 +325,14 @@ FText SFlareHUDMenu::GetInfoText() const
 {
 	FText ShipText;
 	FText ModeText;
-	FText SectorText = LOCTEXT("TODOTEXT", "Nema A19");
+	FText SectorText;
 	FText AutopilotText;
 
 	if (TargetShip)
 	{
 		ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
+
+		SectorText = FText::FromString(Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName());
 
 		if (TargetShip->GetNavigationSystem()->IsDocked())
 		{

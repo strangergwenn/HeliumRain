@@ -22,7 +22,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Load the sector from a save file */
-	virtual void Load(const FFlareSectorSave& Data);
+	virtual void Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sector);
 
 	/** Save the sector to a save file */
 	virtual FFlareSectorSave* Save();
@@ -68,6 +68,7 @@ protected:
 
 	FFlareSectorSave        SectorData;
 	AFlareGame*                   Game;
+	UFlareSimulatedSector*        SimulatedSector;
 
 public:
 
@@ -88,6 +89,11 @@ public:
 	inline FName GetIdentifier() const
 	{
 		return SectorData.Identifier;
+	}
+
+	inline UFlareSimulatedSector* GetSimulatedSector()
+	{
+		return SimulatedSector;
 	}
 
 };

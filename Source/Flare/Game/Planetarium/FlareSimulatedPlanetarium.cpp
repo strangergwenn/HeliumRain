@@ -30,22 +30,12 @@ void UFlareSimulatedPlanetarium::Load()
 	Sun.AbsoluteLocation = FVector::ZeroVector;
 	Sun.RotationAngle = 0;
 
-	// Small Hot planet
-	FFlareCelestialBody SmallHotPlanet;
-	SmallHotPlanet.Name = "Small Hot Planet";
-	SmallHotPlanet.Identifier = "planet-shp";
-	SmallHotPlanet.Mass = 330e21;
-	SmallHotPlanet.Radius = 2439;
-	SmallHotPlanet.RotationVelocity = 0.0003;
-	SmallHotPlanet.OrbitDistance = 57000000;
-	Sun.Sattelites.Add(SmallHotPlanet);
-
 	// Nema
 
 	FFlareCelestialBody Nema;
 	{
 		Nema.Name = "Nema";
-		Nema.Identifier = "planet-nema";
+		Nema.Identifier = "nema";
 		Nema.Mass = 8.421e26;
 		Nema.Radius = 69586;
 		Nema.RotationVelocity = 0.0037254354102635744;
@@ -53,7 +43,7 @@ void UFlareSimulatedPlanetarium::Load()
 
 		FFlareCelestialBody NemaMoon1;
 		NemaMoon1.Name = "Nema Moon 1";
-		NemaMoon1.Identifier = "moon-nema1";
+		NemaMoon1.Identifier = "moon1";
 		NemaMoon1.Mass = 1.3e23;
 		NemaMoon1.Radius = 2600;
 		NemaMoon1.RotationVelocity = -0.03;
@@ -62,7 +52,7 @@ void UFlareSimulatedPlanetarium::Load()
 
 		FFlareCelestialBody NemaMoon2;
 		NemaMoon2.Name = "Nema Moon 2";
-		NemaMoon2.Identifier = "moon-nema2";
+		NemaMoon2.Identifier = "moon2";
 		NemaMoon2.Mass = 5.3e23;
 		NemaMoon2.Radius = 4600;
 		NemaMoon2.RotationVelocity = 0.003;
@@ -71,7 +61,7 @@ void UFlareSimulatedPlanetarium::Load()
 
 		FFlareCelestialBody NemaMoon3;
 		NemaMoon3.Name = "Nema Moon 3";
-		NemaMoon3.Identifier = "moon-nema3";
+		NemaMoon3.Identifier = "moon3";
 		NemaMoon3.Mass = 0.9e23;
 		NemaMoon3.Radius = 2000;
 		NemaMoon3.RotationVelocity = 0.05;

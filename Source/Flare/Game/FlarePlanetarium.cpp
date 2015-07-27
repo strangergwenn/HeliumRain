@@ -73,14 +73,14 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 			Sun = World->GetPlanerarium()->GetSnapShot(World->GetTime());
 
 			// Draw Player
-			FFlareOrbitSectorSave PlayerOrbit = Game->GetActiveSector()->GetData()->Orbit;
+			FFlareSectorOrbitParameters* PlayerOrbit = Game->GetActiveSector()->GetSimulatedSector()->GetOrbitParameters();
 
 
-			FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody(PlayerOrbit.CelestialBodyIdentifier);
+			FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody(PlayerOrbit->CelestialBodyIdentifier);
 			if (CurrentParent)
 			{
 				FVector ParentLocation = CurrentParent->AbsoluteLocation;
-				FVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), PlayerOrbit.Altitude + CurrentParent->Radius, 0, PlayerOrbit.Phase);
+				FVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), PlayerOrbit->Altitude + CurrentParent->Radius, 0, PlayerOrbit->Phase);
 			/*	FLOGV("Nema location = %s", *CurrentParent->AbsoluteLocation.ToString());
 				FLOGV("PlayerLocation = %s", *PlayerLocation.ToString());
 				FLOGV("Player relative = %s", *(World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), 100000, 0, 0)).ToString());
@@ -131,7 +131,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 			}
 			else
 			{
-				FLOGV("Error: Failed to find the current sector: '%s' in planetarium", *(PlayerOrbit.CelestialBodyIdentifier.ToString()));
+				FLOGV("Error: Failed to find the current sector: '%s' in planetarium", *(PlayerOrbit->CelestialBodyIdentifier.ToString()));
 			}
 		}
 	}

@@ -14,11 +14,14 @@ UFlareSimulatedSector::UFlareSimulatedSector(const FObjectInitializer& ObjectIni
 {
 }
 
-void UFlareSimulatedSector::Load(const FFlareSectorSave& Data)
+void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, const FFlareSectorSave& Data, const FFlareSectorOrbitParameters& OrbitParameters)
 {
 	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
 
+
 	SectorData = Data;
+	SectorDescription = Description;
+	SectorOrbitParameters = OrbitParameters;
 	SectorShips.Empty();
 	SectorStations.Empty();
 
@@ -208,5 +211,32 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 
 
 	return Spacecraft;
+}
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+
+FString UFlareSimulatedSector::GetSectorName() const
+{
+	if (SectorData.GivenName.Len())
+	{
+		return SectorData.GivenName;
+	}
+	else if (SectorDescription->Name.Len())
+	{
+		return SectorDescription->Name;
+	}
+	else
+	{
+		return GetSectorCode();
+	}
+}
+
+FString UFlareSimulatedSector::GetSectorCode() const
+{
+	// TODO cache
+	return SectorOrbitParameters.CelestialBodyIdentifier.ToString() + "-" + FString::FromInt(SectorOrbitParameters.Altitude) + "-" + FString::FromInt(SectorOrbitParameters.Phase);
 }
 

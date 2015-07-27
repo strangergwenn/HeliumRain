@@ -51,6 +51,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareSectorCatalog> SectorCatalog;
 
 		FConstructorStatics()
 			: SpacecraftCatalog(TEXT("/Game/Gameplay/Catalog/SpacecraftCatalog"))
@@ -58,6 +59,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 			, CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
 			, AsteroidCatalog(TEXT("/Game/Gameplay/Catalog/AsteroidCatalog"))
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
+			, SectorCatalog(TEXT("/Game/Gameplay/Catalog/SectorCatalog"))
 		{}
 	};
 	static FConstructorStatics ConstructorStatics;
@@ -68,6 +70,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	CustomizationCatalog = ConstructorStatics.CustomizationCatalog.Object;
 	AsteroidCatalog = ConstructorStatics.AsteroidCatalog.Object;
 	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
+	SectorCatalog = ConstructorStatics.SectorCatalog.Object;
 }
 
 
@@ -151,7 +154,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 	{
 		// Create the new sector
 		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
-		ActiveSector->Load(*Sector->Save());
+		ActiveSector->Load(*Sector->Save(), Sector);
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 		PC->OnSectorActivated();
@@ -171,7 +174,7 @@ void AFlareGame::DeactivateSector(AController* Player)
 		{
 			FLOGV("ERROR: no simulated sector match for active sector '%s'", *SectorData->Identifier.ToString());
 		}
-		Sector->Load(*SectorData);
+		Sector->Load(Sector->GetDescription(), *SectorData, *Sector->GetOrbitParameters());
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 		PC->OnSectorDeactivated();
@@ -338,7 +341,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
 	FFlareWorldSave WorldData;
 	WorldData.Time = 475856;
-	{
+	/*{
 		FFlareSectorSave SectorData;
 		SectorData.Identifier = "start";
 		SectorData.Name = "Nema 1";
@@ -387,7 +390,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 		SectorData.Orbit.Altitude = 1000;
 		SectorData.Orbit.Phase = 00;
 		WorldData.SectorData.Add(SectorData);
-	}
+	}*/
 
 	World->Load(WorldData);
 
@@ -434,11 +437,11 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	}*/
 
 	FLOG("CreateGame create initial ship");
-	World->FindSector("start")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
-	World->FindSector("nema2")->CreateShip("ship-orca", Company, FVector::ZeroVector);
-	World->FindSector("nema3")->CreateShip("ship-dragon", Company, FVector::ZeroVector);
-	World->FindSector("nema4")->CreateShip("ship-invader", Company, FVector::ZeroVector);
-	World->FindSector("nema-moon1-1")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
+	World->FindSector("nema-50k-10")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
+	World->FindSector("nema-10k-30")->CreateShip("ship-orca", Company, FVector::ZeroVector);
+	World->FindSector("nema-50k-0")->CreateShip("ship-dragon", Company, FVector::ZeroVector);
+	World->FindSector("moon1-5000-0")->CreateShip("ship-invader", Company, FVector::ZeroVector);
+
 
 
 	// Load

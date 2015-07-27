@@ -1,6 +1,8 @@
 
 #include "../Flare.h"
+
 #include "FlareWorld.h"
+#include "FlareGame.h"
 #include "FlareSector.h"
 
 
@@ -25,10 +27,45 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 		LoadCompany(WorldData.CompanyData[i]);
     }
 
-	// Load all sectors
-	for (int32 i = 0; i < WorldData.SectorData.Num(); i++)
+	for (int32 OrbitalBodyIndex = 0; OrbitalBodyIndex < Game->GetSectorCatalog()->OrbitalBodies.Num(); OrbitalBodyIndex++)
 	{
-		LoadSector(WorldData.SectorData[i]);
+		FFlareSectorCelestialBodyDescription* SectorCelestialBodyDescription = &Game->GetSectorCatalog()->OrbitalBodies[OrbitalBodyIndex];
+		for (int32 OrbitIndex = 0; OrbitIndex < SectorCelestialBodyDescription->Orbits.Num(); OrbitIndex++)
+		{
+			FFlareSectorOrbitDescription* SectorOrbitDescription = &SectorCelestialBodyDescription->Orbits[OrbitIndex];
+			for (int32 SectorIndex = 0; SectorIndex < SectorOrbitDescription->Sectors.Num(); SectorIndex++)
+			{
+				const FFlareSectorDescription* SectorDescription = &SectorOrbitDescription->Sectors[SectorIndex];
+
+				// Find save if exist
+				FFlareSectorSave* SectorSave = NULL;
+				for (int32 i = 0; i < WorldData.SectorData.Num(); i++)
+				{
+					if(WorldData.SectorData[i].Identifier == SectorDescription->Identifier)
+					{
+						// Old save found
+						SectorSave = &WorldData.SectorData[i];
+						break;
+					}
+				}
+
+				FFlareSectorSave NewSectorData;
+				if(!SectorSave)
+				{
+					// No save, init new sector
+					NewSectorData.GivenName = "";
+					NewSectorData.Identifier = SectorDescription->Identifier;
+					SectorSave = &NewSectorData;
+				}
+
+				FFlareSectorOrbitParameters OrbitParameters;
+				OrbitParameters.CelestialBodyIdentifier = SectorCelestialBodyDescription->CelestialBodyIdentifier;
+				OrbitParameters.Altitude = SectorOrbitDescription->Altitude;
+				OrbitParameters.Phase = SectorDescription->Phase;
+
+				LoadSector(SectorDescription, *SectorSave, OrbitParameters);
+			}
+		}
 	}
 
 	// Init planetarium
@@ -75,13 +112,15 @@ UFlareCompany* UFlareWorld::LoadCompany(const FFlareCompanySave& CompanyData)
     return Company;
 }
 
-UFlareSimulatedSector* UFlareWorld::LoadSector(const FFlareSectorSave& SectorData)
+
+
+UFlareSimulatedSector* UFlareWorld::LoadSector(const FFlareSectorDescription* Description, const FFlareSectorSave& SectorData, const FFlareSectorOrbitParameters& OrbitParameters)
 {
 	UFlareSimulatedSector* Sector = NULL;
 
 	// Create the new company
 	Sector = NewObject<UFlareSimulatedSector>(this, UFlareSimulatedSector::StaticClass(), SectorData.Identifier);
-	Sector->Load(SectorData);
+	Sector->Load(Description, SectorData, OrbitParameters);
 	Sectors.AddUnique(Sector);
 
 	FLOGV("UFlareWorld::LoadSector : loaded '%s'", *Sector->GetSectorName());

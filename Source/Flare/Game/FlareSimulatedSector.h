@@ -2,6 +2,8 @@
 #pragma once
 
 #include "Object.h"
+#include "../Spacecrafts/FlareBomb.h"
+#include "FlareAsteroid.h"
 #include "FlareSimulatedSector.generated.h"
 
 class UFlareSimulatedSpacecraft;
@@ -20,12 +22,69 @@ namespace EFlareSectorKnowledge
     };
 }
 
-/** Sector save data */
+
+
+/** Sector description */
 USTRUCT()
-struct FFlareOrbitSectorSave
+struct FFlareSectorDescription
 {
 	GENERATED_USTRUCT_BODY()
 
+	/** Name */
+	UPROPERTY(EditAnywhere, Category = Sector)
+	FString Name;
+
+	/** Sector identifier */
+	UPROPERTY(EditAnywhere, Category = Sector)
+	FName Identifier;
+
+	/** Orbit phase */
+	UPROPERTY(EditAnywhere, Category = Sector)
+	float Phase;
+
+	/** Peaceful sector */
+	UPROPERTY(EditAnywhere, Category = Sector)
+	bool Peaceful;
+};
+
+/** Sector orbit description */
+USTRUCT()
+struct FFlareSectorOrbitDescription
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Orbit altitude */
+	UPROPERTY(EditAnywhere, Category = Sector)
+	float Altitude;
+
+
+	/** Orbit altitude */
+	UPROPERTY(EditAnywhere, Category = Sector)
+	TArray<FFlareSectorDescription> Sectors;
+};
+
+
+/** Sector celestial body description */
+USTRUCT()
+struct FFlareSectorCelestialBodyDescription
+{
+	GENERATED_USTRUCT_BODY()
+	/** Parent celestial body identifier */
+	UPROPERTY(EditAnywhere, Category = Sector)
+	FName CelestialBodyIdentifier;
+
+
+	/** Orbit altitude */
+	UPROPERTY(EditAnywhere, Category = Sector)
+	TArray<FFlareSectorOrbitDescription> Orbits;
+};
+
+
+/** Sector orbit parameters */
+USTRUCT()
+struct FFlareSectorOrbitParameters
+{
+	GENERATED_USTRUCT_BODY()
 	/** Parent celestial body identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName CelestialBodyIdentifier;
@@ -39,23 +98,21 @@ struct FFlareOrbitSectorSave
 	float Phase;
 };
 
+
+
 /** Sector save data */
 USTRUCT()
 struct FFlareSectorSave
 {
     GENERATED_USTRUCT_BODY()
 
-    /** Name */
+	/** Given Name */
     UPROPERTY(EditAnywhere, Category = Save)
-    FString Name;
+	FString GivenName;
 
 	/** Sector identifier */
     UPROPERTY(EditAnywhere, Category = Save)
     FName Identifier;
-
-	/** OrbitProperties */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FFlareOrbitSectorSave      Orbit;
 
     UPROPERTY(VisibleAnywhere, Category = Save)
     TArray<FFlareSpacecraftSave> ShipData;
@@ -83,7 +140,7 @@ public:
     ----------------------------------------------------*/
 
 	/** Load the sector from a save file */
-    virtual void Load(const FFlareSectorSave& Data);
+	virtual void Load(const FFlareSectorDescription* Description, const FFlareSectorSave& Data, const FFlareSectorOrbitParameters& OrbitParameters);
 
 	/** Save the sector to a save file */
     virtual FFlareSectorSave* Save();
@@ -127,7 +184,7 @@ protected:
     ----------------------------------------------------*/
 
     // Gameplay data
-    FFlareSectorSave                       SectorData;
+	FFlareSectorSave                        SectorData;
 
 	UPROPERTY()
     TArray<UFlareSimulatedSpacecraft*>      SectorStations;
@@ -135,7 +192,9 @@ protected:
 	UPROPERTY()
     TArray<UFlareSimulatedSpacecraft*>      SectorShips;
 
-	AFlareGame*                   Game;
+	AFlareGame*                             Game;
+	FFlareSectorOrbitParameters             SectorOrbitParameters;
+	const FFlareSectorDescription*                SectorDescription;
 
 public:
 
@@ -153,15 +212,19 @@ public:
         return SectorData.Identifier;
     }
 
-	inline FFlareOrbitSectorSave* GetOrbitProperties()
+	inline const FFlareSectorDescription* GetDescription() const
 	{
-		return &SectorData.Orbit;
+		return SectorDescription;
 	}
 
-    inline FString GetSectorName() const
-    {
-        return SectorData.Name;
-    }
+	inline FFlareSectorOrbitParameters* GetOrbitParameters()
+	{
+		return &SectorOrbitParameters;
+	}
+
+	FString GetSectorName() const;
+
+	FString GetSectorCode() const;
 
     inline TArray<UFlareSimulatedSpacecraft*>& GetSectorStations()
     {
