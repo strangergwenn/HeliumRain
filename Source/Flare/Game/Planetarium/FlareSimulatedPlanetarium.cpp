@@ -2,6 +2,7 @@
 #include "FlareSimulatedPlanetarium.h"
 #include "../FlareGame.h"
 
+const FPreciseVector FPreciseVector::ZeroVector = FPreciseVector();
 
 /*----------------------------------------------------
 	Constructor
@@ -26,8 +27,8 @@ void UFlareSimulatedPlanetarium::Load()
 	Sun.Radius = 739886*2; // TODO fix in spec
 	Sun.RotationVelocity = 0;
 	Sun.OrbitDistance = 0;
-	Sun.RelativeLocation = FVector::ZeroVector;
-	Sun.AbsoluteLocation = FVector::ZeroVector;
+	Sun.RelativeLocation = FPreciseVector::ZeroVector;
+	Sun.AbsoluteLocation = FPreciseVector::ZeroVector;
 	Sun.RotationAngle = 0;
 
 	// Nema
@@ -103,25 +104,25 @@ FFlareCelestialBody UFlareSimulatedPlanetarium::GetSnapShot(int64 Time)
 	return Sun;
 }
 
-FVector UFlareSimulatedPlanetarium::GetRelativeLocation(FFlareCelestialBody* ParentBody, int64 Time, float OrbitDistance, float Mass, float InitialPhase)
+FPreciseVector UFlareSimulatedPlanetarium::GetRelativeLocation(FFlareCelestialBody* ParentBody, int64 Time, double OrbitDistance, double Mass, double InitialPhase)
 {
 	// TODO extract the constant
-	float G = 6.674e-11; // Gravitational constant
+	double G = 6.674e-11; // Gravitational constant
 
-	float MassSum = ParentBody->Mass + Mass;
-	float OrbitalVelocity = FMath::Sqrt(G * ((MassSum) / (1000 * OrbitDistance)));
+	double MassSum = ParentBody->Mass + Mass;
+	double OrbitalVelocity = FPreciseMath::Sqrt(G * ((MassSum) / (1000 * OrbitDistance)));
 
-	float OrbitalCircumference = 2 * PI * 1000 * OrbitDistance;
+	double OrbitalCircumference = 2 * PI * 1000 * OrbitDistance;
 	int64 RevolutionTime = (int64) (OrbitalCircumference / OrbitalVelocity);
 
 	int64 CurrentRevolutionTime = Time % RevolutionTime;
 
-	float Phase = (360 * (float) CurrentRevolutionTime / (float) RevolutionTime) + InitialPhase;
+	double Phase = (360 * (double) CurrentRevolutionTime / (double) RevolutionTime) + InitialPhase;
 
 
-	FVector RelativeLocation = OrbitDistance * FVector(FMath::Cos(FMath::DegreesToRadians(Phase)),
+	FPreciseVector RelativeLocation = OrbitDistance * FPreciseVector(FPreciseMath::Cos(FPreciseMath::DegreesToRadians(Phase)),
 			0,
-			FMath::Sin(FMath::DegreesToRadians(Phase)));
+			FPreciseMath::Sin(FPreciseMath::DegreesToRadians(Phase)));
 
 
 	return RelativeLocation;

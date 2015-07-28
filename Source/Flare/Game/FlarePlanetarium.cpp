@@ -79,25 +79,24 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 			FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody(PlayerOrbit->CelestialBodyIdentifier);
 			if (CurrentParent)
 			{
-				FVector ParentLocation = CurrentParent->AbsoluteLocation;
-				FVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), PlayerOrbit->Altitude + CurrentParent->Radius, 0, PlayerOrbit->Phase);
-			/*	FLOGV("Nema location = %s", *CurrentParent->AbsoluteLocation.ToString());
+				FPreciseVector ParentLocation = CurrentParent->AbsoluteLocation;
+				FPreciseVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), PlayerOrbit->Altitude + CurrentParent->Radius, 0, PlayerOrbit->Phase);
+				FLOGV("Parent location = %s", *CurrentParent->AbsoluteLocation.ToString());
 				FLOGV("PlayerLocation = %s", *PlayerLocation.ToString());
-				FLOGV("Player relative = %s", *(World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), 100000, 0, 0)).ToString());
-				DrawDebugLine(GetWorld(), FVector(1000, 0 ,0), FVector(- 1000, 0 ,0), FColor::Red, false);
+	/*			DrawDebugLine(GetWorld(), FVector(1000, 0 ,0), FVector(- 1000, 0 ,0), FColor::Red, false);
 				DrawDebugLine(GetWorld(), FVector(0, 1000 ,0), FVector(0,- 1000 ,0), FColor::Green, false);
 				DrawDebugLine(GetWorld(), FVector(0, 0, 900), FVector(0, 0, -1000), FColor::Blue, false);
 				DrawDebugLine(GetWorld(), FVector(0, 0, 900), FVector(0, 0, 1000), FColor::Cyan, false);
 */
-				FVector DeltaLocation = ParentLocation - PlayerLocation;
-				FVector SunDeltaLocation = Sun.AbsoluteLocation - PlayerLocation;
+				FPreciseVector DeltaLocation = ParentLocation - PlayerLocation;
+				FPreciseVector SunDeltaLocation = Sun.AbsoluteLocation - PlayerLocation;
 
 				float AngleOffset =  90 + FMath::RadiansToDegrees(FMath::Atan2(DeltaLocation.Z,DeltaLocation.X));
-			/*	FLOGV("DeltaLocation = %s", *DeltaLocation.ToString());
+				FLOGV("DeltaLocation = %s", *DeltaLocation.ToString());
 				FLOGV("FMath::Atan2(DeltaLocation.Y,DeltaLocation.X)  = %f", FMath::Atan2(DeltaLocation.Z,DeltaLocation.X));
 				FLOGV("AngleOffset  = %f", AngleOffset);
-*/
-				FVector SunDirection = -(SunDeltaLocation.RotateAngleAxis(AngleOffset, FVector(0,1,0))).GetUnsafeNormal();
+
+				FPreciseVector SunDirection = -(SunDeltaLocation.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0))).GetUnsafeNormal();
 
 				// Reset sun occlusion;
 				SunOcclusion = 0;
@@ -137,37 +136,37 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 	}
 }
 
-void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FVector Offset, float AngleOffset, FVector SunDirection)
+void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection)
 {
 
 	//float BaseDistance = 1e9;
-	float BaseDistance = 1e7;
+	double BaseDistance = 1e7;
 
 
 
-	float DistanceScaleRatio = 100./10000;
+	double DistanceScaleRatio = 100./10000;
 	//float RadiusScaleRatio = 100./70000;
-	float RadiusScaleRatio = 100./10000;
-	FVector Location = Offset + Body->AbsoluteLocation;
-	FVector AlignedLocation = Location.RotateAngleAxis(AngleOffset, FVector(0,1,0));
+	double RadiusScaleRatio = 100./10000;
+	FPreciseVector Location = Offset + Body->AbsoluteLocation;
+	FPreciseVector AlignedLocation = Location.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0));
 
 
-	float AngularRadius = FMath::Asin(Body->Radius / AlignedLocation.Size());
+	double AngularRadius = FMath::Asin(Body->Radius / AlignedLocation.Size());
 
-	float DisplayDistance = BaseDistance + AlignedLocation.Size() / 100;
-
-
-	float VisibleRadius = FMath::Sin(AngularRadius) * DisplayDistance;
+	double DisplayDistance = BaseDistance + AlignedLocation.Size() / 100;
 
 
-	/*FLOGV("VisibleAngle %s VisibleAngle = %f", *Body->Name, VisibleAngle);
-	FLOGV("VisibleRadius %s VisibleRadius = %f", *Body->Name, VisibleRadius);
-	FLOGV("DisplayDistance %s DisplayDistance = %f", *Body->Name, DisplayDistance);
+	double VisibleRadius = FMath::Sin(AngularRadius) * DisplayDistance;
+
+
+	FLOGV("MoveCelestialBody %s VisibleRadius = %f", *Body->Name, VisibleRadius);
+	FLOGV("MoveCelestialBody %s AngularRadius = %f", *Body->Name, AngularRadius);
+	FLOGV("MoveCelestialBody %s DisplayDistance = %f", *Body->Name, DisplayDistance);
 
 
 	FLOGV("MoveCelestialBody %s Location = %s", *Body->Name, *Location.ToString());
 	FLOGV("MoveCelestialBody %s AlignedLocation = %s", *Body->Name, *AlignedLocation.ToString());
-*/
+
 	// Find the celestial body component
 	TArray<UActorComponent*> Components = GetComponents();
 	UStaticMeshComponent* BodyComponent = NULL;
@@ -183,9 +182,9 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FVector Off
 
 	if (BodyComponent)
 	{
-		BodyComponent->SetRelativeLocation(DisplayDistance * AlignedLocation.GetUnsafeNormal());
+		BodyComponent->SetRelativeLocation((DisplayDistance * AlignedLocation.GetUnsafeNormal()).ToVector());
 		float Scale = VisibleRadius / 512; // Mesh size is 1024;
-		BodyComponent->SetRelativeScale3D(FVector(Scale));
+		BodyComponent->SetRelativeScale3D(FPreciseVector(Scale).ToVector());
 
 		//BodyComponent->SetRelativeRotation(FRotator(90, Body->RotationAngle + AngleOffset ,0));
 		//BodyComponent->SetRelativeRotation(FRotator(0, -90 ,0));
@@ -202,7 +201,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FVector Off
 			ComponentMaterial = UMaterialInstanceDynamic::Create(BodyComponent->GetMaterial(0) , GetWorld());
 			BodyComponent->SetMaterial(0, ComponentMaterial);
 		}
-		ComponentMaterial->SetVectorParameterValue("SunDirection", SunDirection);
+		ComponentMaterial->SetVectorParameterValue("SunDirection", SunDirection.ToVector());
 	}
 	else
 	{

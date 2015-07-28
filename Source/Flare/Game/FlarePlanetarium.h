@@ -15,7 +15,7 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	void MoveCelestialBody(FFlareCelestialBody* Body, FVector Offset, float AngleOffset, FVector SunDirection);
+	void MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection);
 
 	/*----------------------------------------------------
 		Public events
@@ -50,17 +50,17 @@ protected:
 
 	FFlareCelestialBody Sun;
 
-	float SunOcclusion;
+	double SunOcclusion;
 
-	float SunAnglularRadius;
-	float SunPhase;
+	double SunAnglularRadius;
+	double SunPhase;
 
 public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
 
-		float GetSunOcclusion() const
+		double GetSunOcclusion() const
 		{
 			return SunOcclusion;
 		}
