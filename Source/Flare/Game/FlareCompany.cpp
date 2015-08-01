@@ -41,10 +41,23 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	{
 		CompanyDescription = GetGame()->GetPlayerCompanyDescription();
 	}
+
+	// Load all travels
+	for (int32 i = 0; i < CompanyData.Fleets.Num(); i++)
+	{
+		LoadFleet(CompanyData.Fleets[i]);
+	}
 }
 
 FFlareCompanySave* UFlareCompany::Save()
 {
+	CompanyData.Fleets.Empty();
+
+	for(int i = 0 ; i < CompanyFleets.Num(); i++)
+	{
+		CompanyData.Fleets.Add(*CompanyFleets[i]->Save());
+	}
+
 	return &CompanyData;
 }
 
@@ -58,6 +71,8 @@ void UFlareCompany::Register(UFlareSimulatedSpacecraft* Ship)
 	{
 		CompanyShips.AddUnique(Ship);
 	}
+
+	CompanySpacecrafts.AddUnique(Ship);
 }
 
 void UFlareCompany::Unregister(UFlareSimulatedSpacecraft* Ship)
@@ -70,6 +85,8 @@ void UFlareCompany::Unregister(UFlareSimulatedSpacecraft* Ship)
 	{
 		CompanyShips.Remove(Ship);
 	}
+
+	CompanySpacecrafts.Remove(Ship);
 }
 
 
@@ -145,6 +162,36 @@ FText UFlareCompany::GetInfoText(bool Minimized)
 	}
 }
 
+UFlareFleet* UFlareCompany::CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector)
+{
+	// Create the fleet
+	FFlareFleetSave FleetData;
+	FleetData.Identifier = FName(*(GetIdentifier().ToString() + "-" + FString::FromInt(CompanyData.FleetImmatriculationIndex++)));
+	FleetData.Name = FleetName;
+	UFlareFleet* Fleet = LoadFleet(FleetData);
+	FleetSector->AddFleet(Fleet);
+	return Fleet;
+}
+
+
+UFlareFleet* UFlareCompany::LoadFleet(const FFlareFleetSave& FleetData)
+{
+	UFlareFleet* Fleet = NULL;
+
+	// Create the new travel
+	Fleet = NewObject<UFlareFleet>(this, UFlareFleet::StaticClass());
+	Fleet->Load(FleetData);
+	CompanyFleets.AddUnique(Fleet);
+
+	FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetName());
+
+	return Fleet;
+}
+
+void UFlareCompany::RemoveFleet(UFlareFleet* Fleet)
+{
+	CompanyFleets.Remove(Fleet);
+}
 
 /*----------------------------------------------------
 	Customization
@@ -199,6 +246,19 @@ FLinearColor UFlareCompany::NormalizeColor(FLinearColor Col) const
 const FSlateBrush* UFlareCompany::GetEmblem() const
 {
 	return GetGame()->GetCompanyEmblem(CompanyData.CatalogIdentifier);
+}
+
+UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraftByImmatriculation(FString ShipImmatriculation)
+{
+	for(int i = 0; i < CompanySpacecrafts.Num(); i++)
+	{
+		if (CompanySpacecrafts[i]->GetImmatriculation() == ShipImmatriculation)
+		{
+			return CompanySpacecrafts[i];
+		}
+	}
+
+	return NULL;
 }
 
 

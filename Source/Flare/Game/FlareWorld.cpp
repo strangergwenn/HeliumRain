@@ -4,6 +4,8 @@
 #include "FlareWorld.h"
 #include "FlareGame.h"
 #include "FlareSector.h"
+#include "FlareTravel.h"
+#include "FlareFleet.h"
 
 
 /*----------------------------------------------------
@@ -27,6 +29,7 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 		LoadCompany(WorldData.CompanyData[i]);
     }
 
+	// Load sectors
 	for (int32 OrbitalBodyIndex = 0; OrbitalBodyIndex < Game->GetSectorCatalog()->OrbitalBodies.Num(); OrbitalBodyIndex++)
 	{
 		FFlareSectorCelestialBodyDescription* SectorCelestialBodyDescription = &Game->GetSectorCatalog()->OrbitalBodies[OrbitalBodyIndex];
@@ -68,6 +71,12 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 		}
 	}
 
+	// Load all travels
+	for (int32 i = 0; i < WorldData.TravelData.Num(); i++)
+	{
+		LoadTravel(WorldData.TravelData[i]);
+	}
+
 	// Init planetarium
 	Planetarium = NewObject<UFlareSimulatedPlanetarium>(this, UFlareSimulatedPlanetarium::StaticClass());
 	Planetarium->Load();
@@ -93,7 +102,7 @@ UFlareSimulatedSector* UFlareWorld::LoadSector(const FFlareSectorDescription* De
 {
 	UFlareSimulatedSector* Sector = NULL;
 
-	// Create the new company
+	// Create the new sector
 	Sector = NewObject<UFlareSimulatedSector>(this, UFlareSimulatedSector::StaticClass(), SectorData.Identifier);
 	Sector->Load(Description, SectorData, OrbitParameters);
 	Sectors.AddUnique(Sector);
@@ -104,10 +113,26 @@ UFlareSimulatedSector* UFlareWorld::LoadSector(const FFlareSectorDescription* De
 }
 
 
+UFlareTravel* UFlareWorld::LoadTravel(const FFlareTravelSave& TravelData)
+{
+	UFlareTravel* Travel = NULL;
+
+	// Create the new travel
+	Travel = NewObject<UFlareTravel>(this, UFlareTravel::StaticClass());
+	Travel->Load(TravelData);
+	Travels.AddUnique(Travel);
+
+	FLOGV("UFlareWorld::LoadTravel : loaded travel for fleet '%s'", *Travel->GetFleet()->GetName());
+
+	return Travel;
+}
+
+
 FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 {
 	WorldData.CompanyData.Empty();
 	WorldData.SectorData.Empty();
+	WorldData.TravelData.Empty();
 
 	// Companies
 	for (int i = 0; i < Companies.Num(); i++)
@@ -138,6 +163,16 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 		WorldData.SectorData.Add(*TempData);
 	}
 
+	// Travels
+	for (int i = 0; i < Travels.Num(); i++)
+	{
+		UFlareTravel* Travel = Travels[i];
+
+		FLOGV("UFlareWorld::Save : saving travel for ('%s')", *Travel->GetFleet()->GetFleetName());
+		FFlareTravelSave* TempData = Travel->Save();
+		WorldData.TravelData.Add(*TempData);
+	}
+
 	return &WorldData;
 }
 
@@ -146,8 +181,39 @@ void UFlareWorld::Simulate(long Duration)
 {
 	WorldData.Time += Duration;
 	WorldData.Time2 = WorldData.Time;
+
+
+
+	for(int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex--)
+	{
+		Travels[TravelIndex]->Simulate(Duration);
+	}
+
+	// Process events
 }
 
+
+UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
+{
+	if(TravelingFleet->IsTraveling())
+	{
+		FLOGV("StartTravel fail to make fleet '%s' travel : already travelling", *TravelingFleet->GetFleetName());
+	}
+
+	// Make the fleet exit the sector
+	UFlareSimulatedSector* OriginSector = TravelingFleet->GetCurrentSector();
+	OriginSector->RetireFleet(TravelingFleet);
+
+
+
+	// Create the travel
+	FFlareTravelSave TravelData;
+	TravelData.FleetIdentifier = TravelingFleet->GetIdentifier();
+	TravelData.OriginSectorIdentifier = OriginSector->GetIdentifier();
+	TravelData.DestinationSectorIdentifier = DestinationSector->GetIdentifier();
+	TravelData.DepartureTime = GetTime();
+	return LoadTravel(TravelData);
+}
 
 void UFlareWorld::ForceTime(int64 Time)
 {

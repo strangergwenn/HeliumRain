@@ -4,10 +4,12 @@
 #include "Object.h"
 #include "FlareSimulatedSector.h"
 #include "FlareCompany.h"
+#include "FlareTravel.h"
 #include "Planetarium/FlareSimulatedPlanetarium.h"
 #include "FlareWorld.generated.h"
 
 class UFlareSector;
+class UFlareFleet;
 
 
 /** World save data */
@@ -28,6 +30,8 @@ struct FFlareWorldSave
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareSectorSave> SectorData;
 
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareTravelSave> TravelData;
 };
 
 UCLASS()
@@ -53,6 +57,8 @@ public:
 	/** Spawn a sector from save data */
 	UFlareSimulatedSector* LoadSector(const FFlareSectorDescription* Description, const FFlareSectorSave& SectorData, const FFlareSectorOrbitParameters& OrbitParameters);
 
+	UFlareTravel* LoadTravel(const FFlareTravelSave& TravelData);
+
 	/** Force new time */
 	virtual void ForceTime(int64 Time);
 
@@ -62,6 +68,8 @@ public:
 
 	/** Simulate world during a specific duration */
 	void Simulate(long Duration);
+
+	UFlareTravel* StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector);
 
 protected:
 
@@ -79,6 +87,9 @@ protected:
 	/** Companies */
 	UPROPERTY()
 	TArray<UFlareCompany*>                Companies;
+
+	UPROPERTY()
+	TArray<UFlareTravel*>                Travels;
 
 	UPROPERTY()
 	UFlareSimulatedPlanetarium*			Planetarium;
@@ -116,7 +127,7 @@ public:
 		for(int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
-			if (Company && Company->GetIdentifier() == Identifier)
+			if (Company->GetIdentifier() == Identifier)
 			{
 				return Company;
 			}
@@ -132,7 +143,7 @@ public:
 		{
 			UFlareCompany* Company = Companies[i];
 			FLOGV("  %s",*Company->GetShortName().ToString());
-			if (Company && Company->GetShortName() == CompanyShortName)
+			if (Company->GetShortName() == CompanyShortName)
 			{
 				FLOG("  OK");
 				return Company;
@@ -146,9 +157,37 @@ public:
 		for(int i = 0; i < Sectors.Num(); i++)
 		{
 			UFlareSimulatedSector* Sector = Sectors[i];
-			if (Sector && Sector->GetIdentifier() == Identifier)
+			if (Sector->GetIdentifier() == Identifier)
 			{
 				return Sector;
+			}
+		}
+		return NULL;
+	}
+
+	inline UFlareFleet* FindFleet(FName Identifier) const
+	{
+		for(int i = 0; i < Companies.Num(); i++)
+		{
+			UFlareCompany* Company = Companies[i];
+			UFlareFleet* Fleet = Company->FindFleet(Identifier);
+			if (Fleet)
+			{
+				return Fleet;
+			}
+		}
+		return NULL;
+	}
+
+	UFlareSimulatedSpacecraft* FindSpacecraftByImmatriculation(FString ShipImmatriculation)
+	{
+		for(int i = 0; i < Companies.Num(); i++)
+		{
+			UFlareCompany* Company = Companies[i];
+			UFlareSimulatedSpacecraft* Spacecraft = Company->FindSpacecraftByImmatriculation(ShipImmatriculation);
+			if (Spacecraft)
+			{
+				return Spacecraft;
 			}
 		}
 		return NULL;

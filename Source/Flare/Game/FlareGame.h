@@ -182,6 +182,30 @@ public:
 	UFUNCTION(exec)
 	void SetWorldTime(int64 Time);
 
+	/** Start travel. Not possible during travelling */
+	UFUNCTION(exec)
+	void StartTravel(FName FleetIdentifier, FName SectorIdentifier);
+
+	/** Create a fleet */
+	UFUNCTION(exec)
+	void CreateFleet(FString FleetName, FString FirstShipImmatriculation);
+
+	/** Disband a fleet. Not possible during travelling */
+	UFUNCTION(exec)
+	void DisbandFleet(FName FleetIdentifier);
+
+	/** Add a ship to a fleet. Not possible during travelling*/
+	UFUNCTION(exec)
+	void AddToFleet(FName FleetIdentifier, FString ShipImmatriculation);
+
+	/** Remove a ship from a fleet. Not possible during travelling*/
+	UFUNCTION(exec)
+	void RemoveFromFleet(FName FleetIdentifier, FString ShipImmatriculation);
+
+	/** Merge fleet 2 in fleet 1. Not possible during travelling*/
+	UFUNCTION(exec)
+	void MergeFleets(FName Fleet1Identifier, FName Fleet2Identifier);
+
 
 	/*----------------------------------------------------
 		Immatriculations

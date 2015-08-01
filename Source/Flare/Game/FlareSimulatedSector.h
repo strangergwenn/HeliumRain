@@ -126,6 +126,8 @@ struct FFlareSectorSave
     UPROPERTY(VisibleAnywhere, Category = Save)
     TArray<FFlareAsteroidSave> AsteroidData;
 
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FName> FleetIdentifiers;
 };
 
 UCLASS()
@@ -161,6 +163,15 @@ public:
 	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
 	UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator);
 
+	/** Add the fleet and its ships from the sector */
+	void AddFleet(UFlareFleet* Fleet);
+
+	/** Remove the fleet but let its ships in the sector */
+	void DisbandFleet(UFlareFleet* Fleet);
+
+	/** Retire the fleet and its ships from the sector */
+	void RetireFleet(UFlareFleet* Fleet);
+
 
 
     /** Init world with empty scenario */
@@ -191,6 +202,9 @@ protected:
 
 	UPROPERTY()
     TArray<UFlareSimulatedSpacecraft*>      SectorShips;
+
+	UPROPERTY()
+	TArray<UFlareFleet*>                    SectorFleets;
 
 	AFlareGame*                             Game;
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
