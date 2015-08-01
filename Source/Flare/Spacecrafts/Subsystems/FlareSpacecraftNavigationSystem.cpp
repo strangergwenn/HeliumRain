@@ -202,9 +202,10 @@ IFlareSpacecraftInterface* UFlareSpacecraftNavigationSystem::GetDockStation()
 {
 	if (IsDocked())
 	{
-		for (TActorIterator<AActor> ActorItr(Spacecraft->GetWorld()); ActorItr; ++ActorItr)
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Spacecraft->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 		{
-			AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(*ActorItr);
+			AFlareSpacecraft* Station = Spacecraft->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
 			if (Station && *Station->GetImmatriculation() == Data->DockedTo)
 			{
 				return Station;
@@ -772,78 +773,7 @@ FVector UFlareSpacecraftNavigationSystem::GetDockOffset()
 	return Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(GetDockLocation());
 }
 
-bool UFlareSpacecraftNavigationSystem::ComputePath(TArray<FVector>& Path, TArray<AActor*>& PossibleColliders, FVector OriginLocation, FVector TargetLocation, float ShipSize)
-{
-	// Travel information
-	float TravelLength;
-	FVector TravelDirection;
-	FVector Travel = TargetLocation - OriginLocation;
-	Travel.ToDirectionAndLength(TravelDirection, TravelLength);
 
-	for (int32 i = 0; i < PossibleColliders.Num(); i++)
-	{
-		// Get collider info
-		FVector ColliderLocation;
-		FVector ColliderExtent;
-		PossibleColliders[i]->GetActorBounds(true, ColliderLocation, ColliderExtent);
-		float ColliderSize = ShipSize + ColliderExtent.Size();
-
-		// Colliding : split the travel
-		if (FMath::LineSphereIntersection(OriginLocation, TravelDirection, TravelLength, ColliderLocation, ColliderSize))
-		{
-			//DrawDebugSphere(GetWorld(), ColliderLocation, ColliderSize, 12, FColor::Blue, true);
-
-			// Get an orthogonal plane
-			FPlane TravelOrthoPlane = FPlane(ColliderLocation, TargetLocation - ColliderLocation);
-			FVector IntersectedLocation = FMath::LinePlaneIntersection(OriginLocation, TargetLocation, TravelOrthoPlane);
-
-			// Relocate intersection inside the sphere
-			FVector Intersector = IntersectedLocation - ColliderLocation;
-			Intersector.Normalize();
-			IntersectedLocation = ColliderLocation + Intersector * ColliderSize;
-
-			// Collisions
-			bool IsColliding = IsPointColliding(IntersectedLocation, PossibleColliders[i]);
-			//DrawDebugPoint(GetWorld(), IntersectedLocation, 8, IsColliding ? FColor::Red : FColor::Green, true);
-
-			// Dead end, go back
-			if (IsColliding)
-			{
-				return false;
-			}
-
-			// Split travel
-			else
-			{
-				Path.Add(IntersectedLocation);
-				PossibleColliders.RemoveAt(i, 1);
-				bool FirstPartOK = ComputePath(Path, PossibleColliders, OriginLocation, IntersectedLocation, ShipSize);
-				bool SecondPartOK = ComputePath(Path, PossibleColliders, IntersectedLocation, TargetLocation, ShipSize);
-				return FirstPartOK && SecondPartOK;
-			}
-
-		}
-	}
-
-	// No collision found
-	return true;
-}
-
-void UFlareSpacecraftNavigationSystem::UpdateColliders()
-{
-	PathColliders.Empty();
-	for (TActorIterator<AActor> ActorItr(Spacecraft->GetWorld()); ActorItr; ++ActorItr)
-	{
-		FVector Unused;
-		FVector ColliderExtent;
-		ActorItr->GetActorBounds(true, Unused, ColliderExtent);
-
-		if (ColliderExtent.Size() < 100000 && ActorItr->IsRootComponentMovable())
-		{
-			PathColliders.Add(*ActorItr);
-		}
-	}
-}
 
 bool UFlareSpacecraftNavigationSystem::IsPointColliding(FVector Candidate, AActor* Ignore)
 {
@@ -862,43 +792,6 @@ bool UFlareSpacecraftNavigationSystem::IsPointColliding(FVector Candidate, AActo
 	return false;
 }
 
-bool UFlareSpacecraftNavigationSystem::NavigateTo(FVector TargetLocation)
-{
-	// Pathfinding data
-	TArray<FVector> Path;
-	FVector Unused;
-	FVector ShipExtent;
-	FVector Temp = Spacecraft->GetActorLocation();
-
-	// Prepare data
-	FLOG("AFlareSpacecraft::NavigateTo");
-	Spacecraft->GetActorBounds(true, Unused, ShipExtent);
-	UpdateColliders();
-
-	// Compute path
-	if (ComputePath(Path, PathColliders, Temp, TargetLocation, ShipExtent.Size()))
-	{
-		FLOGV("AFlareSpacecraft::NavigateTo : generating path (%d stops)", Path.Num());
-
-		// Generate commands for travel
-		for (int32 i = 0; i < Path.Num(); i++)
-		{
-			PushCommandRotation((Path[i] - Temp), FVector(1,0,0)); // Front
-			PushCommandLocation(Path[i]);
-			Temp = Path[i];
-		}
-
-		// Move toward objective for pre-final approach
-		PushCommandRotation((TargetLocation - Temp), FVector(1,0,0));
-		PushCommandLocation(TargetLocation);
-		return true;
-	}
-
-	// Failed
-	FLOG("AFlareSpacecraft::NavigateTo failed : no path found");
-	return false;
-}
-
 AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecraft* DockingStation) const
 {
 	// For now an host ship is a the nearest host ship with the following critera:
@@ -911,11 +804,11 @@ AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecr
 	float MinDistanceSquared = -1;
 	AFlareSpacecraft* NearestShip = NULL;
 
-	for (TActorIterator<AActor> ActorItr(Spacecraft->GetWorld()); ActorItr; ++ActorItr)
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Spacecraft->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 	{
-		// Ship
-		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (ShipCandidate && ShipCandidate != Spacecraft && ShipCandidate != DockingStation)
+		AFlareSpacecraft* ShipCandidate = Spacecraft->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
+		if (ShipCandidate != Spacecraft && ShipCandidate != DockingStation)
 		{
 
 			if (DockingStation && (DockingStation->GetDockingSystem()->IsGrantedShip(ShipCandidate) || DockingStation->GetDockingSystem()->IsDockedShip(ShipCandidate)))

@@ -9,6 +9,7 @@
 
 class UFlareSimulatedSector;
 class AFlareGame;
+class AFlareAsteroid;
 
 UCLASS()
 class FLARE_API UFlareSector : public UObject
@@ -54,16 +55,29 @@ public:
 
 	AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 
+	/** Un-register a ship or a station*/
+	virtual void Unregister(AFlareSpacecraft* Spacecraft);
+
+	virtual void SetPause(bool Pause);
+
 protected:
 
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
+	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorStations;
+	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorShips;
+	UPROPERTY()
+	TArray<AFlareSpacecraft*>      SectorSpacecrafts;
+	UPROPERTY()
 	TArray<AFlareAsteroid*>      SectorAsteroids;
+	UPROPERTY()
 	TArray<AFlareBomb*>      SectorBombs;
+	UPROPERTY()
 	TArray<AFlareShell*>      SectorShells;
+	// TODO shell register
 
 
 	FFlareSectorSave        SectorData;
@@ -86,6 +100,10 @@ public:
 		return &SectorData;
 	}
 
+	TArray<AFlareSpacecraft*> GetCompanyShips(UFlareCompany* Company);
+
+	TArray<AFlareSpacecraft*> GetCompanySpacecrafts(UFlareCompany* Company);
+
 	inline FName GetIdentifier() const
 	{
 		return SectorData.Identifier;
@@ -95,5 +113,21 @@ public:
 	{
 		return SimulatedSector;
 	}
+
+	inline TArray<AFlareSpacecraft*>& GetSpacecrafts()
+	{
+		return SectorSpacecrafts;
+	}
+
+	inline TArray<AFlareSpacecraft*>& GetStations()
+	{
+		return SectorStations;
+	}
+
+	inline TArray<AFlareAsteroid*>& GetAsteroids()
+	{
+		return SectorAsteroids;
+	}
+
 
 };

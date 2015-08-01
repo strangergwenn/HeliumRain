@@ -66,8 +66,8 @@ protected:
 	/** Draw a search arrow */
 	void DrawSearchArrow(FVector TargetLocation, FLinearColor Color, float MaxDistance = 10000000);
 
-	/** Draw a designator block around a ship */
-	bool DrawHUDDesignator(AFlareSpacecraftPawn* ShipBase);
+	/** Draw a designator block around a spacecraft */
+	bool DrawHUDDesignator(AFlareSpacecraft*Spacecraft);
 
 	/** Draw a designator corner */
 	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor);

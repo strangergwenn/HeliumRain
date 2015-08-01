@@ -215,7 +215,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
-					if(!PilotHelper::CheckFriendlyFire(Turret->GetSpacecraft()->GetWorld(), PlayerCompany, MuzzleLocation, TurretVelocity, AmmoVelocity, FireTargetAxis, AmmoIntersectionTime, Turret->GetAimRadius()))
+					if(!PilotHelper::CheckFriendlyFire(Turret->GetSpacecraft()->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, TurretVelocity, AmmoVelocity, FireTargetAxis, AmmoIntersectionTime, Turret->GetAimRadius()))
 					{
 						Turret->SetTarget(PilotTargetShip);
 
@@ -264,58 +264,54 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 	FVector FireAxis = Turret->GetFireAxis();
 
 
-	for (TActorIterator<AActor> ActorItr(Turret->GetSpacecraft()->GetWorld()); ActorItr; ++ActorItr)
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Turret->GetSpacecraft()->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 	{
-		// Ship
-		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (ShipCandidate)
+		AFlareSpacecraft* ShipCandidate = Turret->GetSpacecraft()->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
+		if (!ShipCandidate->GetDamageSystem()->IsAlive())
 		{
-			if (!ShipCandidate->GetDamageSystem()->IsAlive())
-			{
-				continue;
-			}
-
-			if (DangerousOnly && !IsShipDangerous(ShipCandidate))
-			{
-				continue;
-			}
-			if (ShipCandidate->GetSize() != PreferredType)
-			{
-				continue;
-			}
-
-
-
-			if (PlayerCompany->GetHostility(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
-			{
-				continue;
-			}
-
-			float Distance = (PilotLocation - ShipCandidate->GetActorLocation()).Size();
-			if (Distance < SecurityRadius * 100)
-			{
-				continue;
-			}
-
-			if (Distance > MaxDistance)
-			{
-				continue;
-			}
-
-			FVector TargetAxis = (ShipCandidate->GetActorLocation()- PilotLocation).GetUnsafeNormal();
-
-			if (ReachableOnly && !Turret->IsReacheableAxis(TargetAxis))
-			{
-				continue;
-			}
-			float Dot = FVector::DotProduct(TargetAxis, FireAxis);
-
-			if (NearestHostileShip == NULL || Dot > MaxDot)
-			{
-				MaxDot = Dot;
-				NearestHostileShip = ShipCandidate;
-			}
+			continue;
 		}
+
+		if (DangerousOnly && !IsShipDangerous(ShipCandidate))
+		{
+			continue;
+		}
+		if (ShipCandidate->GetSize() != PreferredType)
+		{
+			continue;
+		}
+
+		if (PlayerCompany->GetHostility(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		{
+			continue;
+		}
+
+		float Distance = (PilotLocation - ShipCandidate->GetActorLocation()).Size();
+		if (Distance < SecurityRadius * 100)
+		{
+			continue;
+		}
+
+		if (Distance > MaxDistance)
+		{
+			continue;
+		}
+
+		FVector TargetAxis = (ShipCandidate->GetActorLocation()- PilotLocation).GetUnsafeNormal();
+
+		if (ReachableOnly && !Turret->IsReacheableAxis(TargetAxis))
+		{
+			continue;
+		}
+		float Dot = FVector::DotProduct(TargetAxis, FireAxis);
+
+		if (NearestHostileShip == NULL || Dot > MaxDot)
+		{
+			MaxDot = Dot;
+			NearestHostileShip = ShipCandidate;
+		}
+
 	}
 	return NearestHostileShip;
 }

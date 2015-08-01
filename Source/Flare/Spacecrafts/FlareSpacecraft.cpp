@@ -134,7 +134,7 @@ void AFlareSpacecraft::Destroyed()
 {
 	if (Company)
 	{
-		Company->Unregister(this);
+		GetGame()->GetActiveSector()->Unregister(this);
 	}
 }
 
@@ -326,10 +326,12 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	{
 		// TODO use sector iterator
 		FLOGV("AFlareSpacecraft::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 		{
-			AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(*ActorItr);
-			if (Station && *Station->GetImmatriculation() == ShipData.DockedTo)
+			AFlareSpacecraft* Station = GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
+			if (*Station->GetImmatriculation() == ShipData.DockedTo)
 			{
 				FLOGV("AFlareSpacecraft::Load : Found dock station '%s'", *Station->GetImmatriculation());
 				NavigationSystem->ConfirmDock(Station, ShipData.DockedAt);
@@ -400,7 +402,6 @@ void AFlareSpacecraft::SetOwnerCompany(UFlareCompany* NewCompany)
 	SetCompany(NewCompany);
 	ShipData.CompanyIdentifier = NewCompany->GetIdentifier();
 	Airframe->Initialize(NULL, Company, this);
-	NewCompany->Register(this);
 }
 
 UFlareCompany* AFlareSpacecraft::GetCompany()

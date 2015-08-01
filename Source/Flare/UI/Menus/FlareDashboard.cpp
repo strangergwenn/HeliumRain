@@ -220,14 +220,15 @@ void SFlareDashboard::Enter()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
-		for (TActorIterator<AActor> ActorItr(PC->GetWorld()); ActorItr; ++ActorItr)
+
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < PC->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 		{
-			AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
+			AFlareSpacecraft* ShipCandidate = PC->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
+			if (ShipCandidate->GetDamageSystem()->IsAlive())
 			{
 				// Owned ship
-				if (PlayerShip && ShipCandidate->GetCompany() == PlayerShip->GetCompany())
+				if (ShipCandidate->GetCompany() == PC->GetCompany())
 				{
 					OwnedShipList->AddShip(ShipCandidate);
 				}

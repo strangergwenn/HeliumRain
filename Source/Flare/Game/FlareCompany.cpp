@@ -3,8 +3,9 @@
 #include "FlareGame.h"
 #include "FlareCompany.h"
 #include "../Player/FlarePlayerController.h"
+#include "FlareSector.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
-
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 #define LOCTEXT_NAMESPACE "FlareCompany"
 
@@ -47,7 +48,7 @@ FFlareCompanySave* UFlareCompany::Save()
 	return &CompanyData;
 }
 
-void UFlareCompany::Register(IFlareSpacecraftInterface* Ship)
+void UFlareCompany::Register(UFlareSimulatedSpacecraft* Ship)
 {
 	if (Ship->IsStation())
 	{
@@ -59,7 +60,7 @@ void UFlareCompany::Register(IFlareSpacecraftInterface* Ship)
 	}
 }
 
-void UFlareCompany::Unregister(IFlareSpacecraftInterface* Ship)
+void UFlareCompany::Unregister(UFlareSimulatedSpacecraft* Ship)
 {
 	if (Ship->IsStation())
 	{
@@ -151,23 +152,13 @@ FText UFlareCompany::GetInfoText(bool Minimized)
 
 void UFlareCompany::UpdateCompanyCustomization()
 {
-	// Update ships
-	for (int32 i = 0; i < CompanyShips.Num(); i++)
+	// Update spacecraft if there is an active sector
+	UFlareSector* ActiveSector = Game->GetActiveSector();
+	if(ActiveSector)
 	{
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(CompanyShips[i]);
-		if (Ship)
+		for (int32 i = 0; i < ActiveSector->GetSpacecrafts().Num(); i++)
 		{
-			Ship->UpdateCustomization();
-		}
-	}
-
-	// Update stations
-	for (int32 i = 0; i < CompanyStations.Num(); i++)
-	{
-		AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(CompanyStations[i]);
-		if (Station)
-		{
-			Station->UpdateCustomization();
+			ActiveSector->GetSpacecrafts()[i]->UpdateCustomization();
 		}
 	}
 }

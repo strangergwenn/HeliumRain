@@ -519,7 +519,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
-					if(!PilotHelper::CheckFriendlyFire(Ship->GetWorld(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
+					if(!PilotHelper::CheckFriendlyFire(Ship->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
 					{
 						Weapon->SetTarget(PilotTargetShip);
 						/*FLOG("Want Fire");*/
@@ -899,11 +899,14 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		// If not, find a leader
 		AFlareSpacecraft* LeaderShip = Ship;
 
-		for(int ShipIndex = 0; ShipIndex < Ship->GetCompany()->GetCompanyShips().Num() ; ShipIndex++)
-		{
-			AFlareSpacecraft* CandidateShip = Cast<AFlareSpacecraft>(Ship->GetCompany()->GetCompanyShips()[ShipIndex]);
 
-			if(!CandidateShip || Ship == CandidateShip)
+		TArray<AFlareSpacecraft*> Spacecrafts = Ship->GetGame()->GetActiveSector()->GetCompanySpacecrafts(Ship->GetCompany());
+
+		for(int ShipIndex = 0; ShipIndex < Spacecrafts.Num() ; ShipIndex++)
+		{
+			AFlareSpacecraft* CandidateShip = Spacecrafts[ShipIndex];
+
+			if(Ship == CandidateShip)
 			{
 				continue;
 			}
@@ -1201,39 +1204,37 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly, EFl
 	float MinDistanceSquared = -1;
 	AFlareSpacecraft* NearestHostileShip = NULL;
 
-	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Ship->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 	{
-		// Ship
-		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (ShipCandidate)
+		AFlareSpacecraft* ShipCandidate = Ship->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
+		if (!ShipCandidate->GetDamageSystem()->IsAlive())
 		{
-			if (!ShipCandidate->GetDamageSystem()->IsAlive())
-			{
-				continue;
-			}
-
-			if (ShipCandidate->GetSize() != Size)
-			{
-				continue;
-			}
-
-			if (DangerousOnly && !IsShipDangerous(ShipCandidate))
-			{
-				continue;
-			}
-
-			if (Ship->GetCompany()->GetHostility(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
-			{
-				continue;
-			}
-
-			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
-			if (NearestHostileShip == NULL || DistanceSquared < MinDistanceSquared)
-			{
-				MinDistanceSquared = DistanceSquared;
-				NearestHostileShip = ShipCandidate;
-			}
+			continue;
 		}
+
+		if (ShipCandidate->GetSize() != Size)
+		{
+			continue;
+		}
+
+		if (DangerousOnly && !IsShipDangerous(ShipCandidate))
+		{
+			continue;
+		}
+
+		if (Ship->GetCompany()->GetHostility(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		{
+			continue;
+		}
+
+		float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
+		if (NearestHostileShip == NULL || DistanceSquared < MinDistanceSquared)
+		{
+			MinDistanceSquared = DistanceSquared;
+			NearestHostileShip = ShipCandidate;
+		}
+
 	}
 	return NearestHostileShip;
 }
@@ -1250,30 +1251,32 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestShip(bool IgnoreDockingShip) const
 	float MinDistanceSquared = -1;
 	AFlareSpacecraft* NearestShip = NULL;
 
-	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Ship->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 	{
-		// Ship
-		AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (ShipCandidate && ShipCandidate != Ship)
+		AFlareSpacecraft* ShipCandidate = Ship->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
+		if (ShipCandidate == Ship)
 		{
-			if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate) && ShipCandidate->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
-			{
-				// Alive and powered granted ship are not dangerous for collision
-				continue;
-			}
+			continue;
+		}
 
-			if (IgnoreDockingShip && Ship->GetDockingSystem()->IsDockedShip(ShipCandidate))
-			{
-				// Docked shipship are not dangerous for collision, even if they are dead or offlline
-				continue;
-			}
+		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate) && ShipCandidate->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
+		{
+			// Alive and powered granted ship are not dangerous for collision
+			continue;
+		}
 
-			float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
-			if (NearestShip == NULL || DistanceSquared < MinDistanceSquared)
-			{
-				MinDistanceSquared = DistanceSquared;
-				NearestShip = ShipCandidate;
-			}
+		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsDockedShip(ShipCandidate))
+		{
+			// Docked shipship are not dangerous for collision, even if they are dead or offlline
+			continue;
+		}
+
+		float DistanceSquared = (PilotLocation - ShipCandidate->GetActorLocation()).SizeSquared();
+		if (NearestShip == NULL || DistanceSquared < MinDistanceSquared)
+		{
+			MinDistanceSquared = DistanceSquared;
+			NearestShip = ShipCandidate;
 		}
 	}
 	return NearestShip;
@@ -1341,34 +1344,37 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestAvailableStation(bool RealStation) 
 	float MinDistanceSquared = -1;
 	AFlareSpacecraft* NearestStation = NULL;
 
-	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Ship->GetGame()->GetActiveSector()->GetStations().Num(); SpacecraftIndex++)
 	{
-		// Ship
-		AFlareSpacecraft* StationCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (StationCandidate && StationCandidate != Ship)
+		AFlareSpacecraft* StationCandidate = Ship->GetGame()->GetActiveSector()->GetStations()[SpacecraftIndex];
+
+		if (StationCandidate == Ship)
 		{
-			if (!StationCandidate->GetDockingSystem()->HasAvailableDock(Ship))
-			{
-				continue;
-			}
-
-			if(RealStation && !StationCandidate->IsStation())
-			{
-				continue;
-			}
-
-			if (StationCandidate->GetCompany() != Ship->GetCompany())
-			{
-				continue;
-			}
-
-			float DistanceSquared = (PilotLocation - StationCandidate->GetActorLocation()).SizeSquared();
-			if (NearestStation == NULL || DistanceSquared < MinDistanceSquared)
-			{
-				MinDistanceSquared = DistanceSquared;
-				NearestStation = StationCandidate;
-			}
+			continue;
 		}
+
+		if (!StationCandidate->GetDockingSystem()->HasAvailableDock(Ship))
+		{
+			continue;
+		}
+
+		if(RealStation && !StationCandidate->IsStation())
+		{
+			continue;
+		}
+
+		if (StationCandidate->GetCompany() != Ship->GetCompany())
+		{
+			continue;
+		}
+
+		float DistanceSquared = (PilotLocation - StationCandidate->GetActorLocation()).SizeSquared();
+		if (NearestStation == NULL || DistanceSquared < MinDistanceSquared)
+		{
+			MinDistanceSquared = DistanceSquared;
+			NearestStation = StationCandidate;
+		}
+
 	}
 	return NearestStation;
 }
@@ -1377,11 +1383,11 @@ TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 {
 	TArray<AFlareSpacecraft*> FriendlyStations;
 
-	for (TActorIterator<AActor> ActorItr(Ship->GetWorld()); ActorItr; ++ActorItr)
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Ship->GetGame()->GetActiveSector()->GetStations().Num(); SpacecraftIndex++)
 	{
-		// Ship
-		AFlareSpacecraft* StationCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (StationCandidate && StationCandidate->GetDockingSystem()->GetDockCount() > 0)
+		AFlareSpacecraft* StationCandidate = Ship->GetGame()->GetActiveSector()->GetStations()[SpacecraftIndex];
+
+		if (StationCandidate->GetDockingSystem()->GetDockCount() > 0)
 		{
 
 			if (StationCandidate->GetCompany() != Ship->GetCompany())

@@ -104,10 +104,10 @@ void SFlareSectorMenu::Enter()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		for (TActorIterator<AActor> ActorItr(PC->GetWorld()); ActorItr; ++ActorItr)
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < PC->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 		{
-			// Ship
-			AFlareSpacecraft* ShipCandidate = Cast<AFlareSpacecraft>(*ActorItr);
+			AFlareSpacecraft* ShipCandidate = PC->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
 			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
 			{
 				ShipList->AddShip(ShipCandidate);

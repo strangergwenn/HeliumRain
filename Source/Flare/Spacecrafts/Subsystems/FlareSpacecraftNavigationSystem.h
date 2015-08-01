@@ -163,16 +163,8 @@ public:
 	/** Get the dock world location */
 	virtual FVector GetDockLocation();
 
-	/** Compute the path from OriginLocation to TargetLocation */
-	virtual bool ComputePath(TArray<FVector>& Commands, TArray<AActor*>& Colliders, FVector OriginLocation, FVector TargetLocation, float ShipSize);
-
-	/** Update collision data for pathfinding */
-	virtual void UpdateColliders();
-
 	/** Make sure this point is not in a path collider */
 	virtual bool IsPointColliding(FVector Candidate, AActor* Ignore);
-
-	virtual bool NavigateTo(FVector TargetLocation);
 
 	virtual AFlareSpacecraft* GetNearestShip(AFlareSpacecraft* DockingStation) const;
 
