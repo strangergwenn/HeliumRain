@@ -212,52 +212,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 			Accumulator -= 1;
 		}
 	}
-
-
-
-
-
-	// TODO MOVE
-	/*if(PlayerData.ScenarioId == 2)
-	{
-		TArray<UFlareCompany*> Companies = GetGame()->GetCompanies();
-		UFlareCompany* HelixCompany = NULL;
-		bool DeclareWar = false;
-		for(int i = 0; i < Companies.Num(); i++)
-		{
-			UFlareCompany* CompanyCandidate = Companies[i];
-
-			if(CompanyCandidate->GetShortName() == "hel")
-			{
-				HelixCompany = CompanyCandidate;
-			}
-			else if(CompanyCandidate->GetShortName() == "all")
-			{
-				int StationCount = 0;
-
-				for(int j = 0; j < CompanyCandidate->GetCompanyStations().Num(); j++)
-				{
-					AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(CompanyCandidate->GetCompanyStations()[j]);
-					if(Station->GetDamageSystem()->IsAlive())
-					{
-						StationCount++;
-					}
-				}
-				if(StationCount < 8) // One station has been destroyed
-				{
-					DeclareWar = true;
-				}
-			}
-		}
-
-		if(HelixCompany && DeclareWar)
-		{
-			if(HelixCompany->GetPlayerHostility() != EFlareHostility::Hostile)
-			{
-				GetGame()->DeclareWar(HelixCompany->GetShortName(), Company->GetShortName());
-			}
-		}
-	}*/
 }
 
 void AFlarePlayerController::UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume)
@@ -367,17 +321,6 @@ void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 
 void AFlarePlayerController::OnLoadComplete()
 {
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(*ActorItr);
-		if (Ship && Ship->GetImmatriculation() == PlayerData.CurrentShipName)
-		{
-			FLOGV("AFlarePlayerController::PossessCurrentShip : Found player ship '%s'", *PlayerData.CurrentShipName);
-			ShipPawn = Ship;
-			ShipPawn->GetStateManager()->EnablePilot(false);
-			break;
-		}
-	}
 	SetWorldPause(true);
 	Company->UpdateCompanyCustomization();
 }
@@ -485,32 +428,9 @@ void AFlarePlayerController::OnExitMenu()
 void AFlarePlayerController::SetWorldPause(bool Pause)
 {
 	FLOGV("SetPause world %d", Pause);
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	if(GetGame()->GetActiveSector())
 	{
-		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode())
-		{
-
-			SpacecraftCandidate->SetPause(Pause);
-		}
-
-		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-		if (BombCandidate)
-		{
-			BombCandidate->SetPause(Pause);
-		}
-
-		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-		if (ShellCandidate)
-		{
-			ShellCandidate->SetPause(Pause);
-		}
-
-		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
-		if (AsteroidCandidate)
-		{
-			AsteroidCandidate->SetPause(Pause);
-		}
+		GetGame()->GetActiveSector()->SetPause(Pause);
 	}
 }
 
@@ -745,10 +665,10 @@ void AFlarePlayerController::QuickSwitch()
 {
 	FLOG("AFlarePlayerController::QuickSwitch");
 
-	if (Company)
+	if (GetGame()->GetActiveSector() && Company)
 	{
 
-		TArray<IFlareSpacecraftInterface*>& CompanyShips = Company->GetCompanyShips();
+		TArray<AFlareSpacecraft*> CompanyShips = GetGame()->GetActiveSector()->GetCompanyShips(Company);
 
 		if (CompanyShips.Num())
 		{
@@ -757,13 +677,12 @@ void AFlarePlayerController::QuickSwitch()
 			AFlareSpacecraft* SeletedCandidate = NULL;
 
 			// First loop in military armed alive ships
-			for (int32 i = 0; i < CompanyShips.Num(); i++)
+			for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
 			{
-				OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
-				AFlareSpacecraft* Candidate = Cast<AFlareSpacecraft>(CompanyShips[OffsetIndex]);
+				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
+				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
 
-				if (Candidate && Candidate != ShipPawn
-					&& Candidate->GetDamageSystem()->IsAlive()
+				if (Candidate->GetDamageSystem()->IsAlive()
 					&& Candidate->IsMilitary()
 					&& Candidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
 				{
@@ -775,10 +694,10 @@ void AFlarePlayerController::QuickSwitch()
 			// If not, loop in all alive ships
 			if (!SeletedCandidate)
 			{
-				for (int32 i = 0; i < CompanyShips.Num(); i++)
+				for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
 				{
-					OffsetIndex = (i + QuickSwitchOffset) % CompanyShips.Num();
-					AFlareSpacecraft* Candidate = Cast<AFlareSpacecraft>(CompanyShips[OffsetIndex]);
+					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
+					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
 					if (Candidate && Candidate != ShipPawn && Candidate->GetDamageSystem()->IsAlive())
 					{
 						SeletedCandidate = Candidate;
@@ -972,18 +891,19 @@ AFlareSpacecraft* AFlarePlayerController::GetNearestSpacecraft(bool OnScreenRequ
 	if (ShipPawn)
 	{
 		float TargetDistance = 0;
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		TArray<AFlareSpacecraft*> CompanySpacecrafs = GetGame()->GetActiveSector()->GetCompanySpacecrafts(Company);
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafs.Num(); SpacecraftIndex++)
 		{
-			AFlareSpacecraft* ShipBase = Cast<AFlareSpacecraft>(*ActorItr);
-			if (ShipBase && ShipBase != ShipPawn)
+			AFlareSpacecraft* Spacecraft = CompanySpacecrafs[SpacecraftIndex];
+			if (Spacecraft && Spacecraft != ShipPawn)
 			{
-				float Distance = (ShipBase->GetActorLocation() - ShipPawn->GetActorLocation()).Size();
+				float Distance = (Spacecraft->GetActorLocation() - ShipPawn->GetActorLocation()).Size();
 				if (!TargetSpacecraft || Distance < TargetDistance)
 				{
 					FVector2D ScreenPosition;
-					if (!OnScreenRequired || ProjectWorldLocationToScreen(ShipBase->GetActorLocation(), ScreenPosition))
+					if (!OnScreenRequired || ProjectWorldLocationToScreen(Spacecraft->GetActorLocation(), ScreenPosition))
 					{
-						TargetSpacecraft = ShipBase;
+						TargetSpacecraft = Spacecraft;
 						TargetDistance = Distance;
 					}
 				}

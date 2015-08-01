@@ -1,6 +1,7 @@
 #include "../Flare.h"
 #include "FlareGame.h"
 #include "FlareSector.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
 
 // TODO rework
 
@@ -79,14 +80,9 @@ FFlareSectorSave* UFlareSector::Save()
 
 void UFlareSector::Destroy()
 {
-	for(int i = 0 ; i < SectorShips.Num(); i++)
+	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
-		SectorShips[i]->Destroy();
-	}
-
-	for(int i = 0 ; i < SectorStations.Num(); i++)
-	{
-		SectorStations[i]->Destroy();
+		SectorSpacecrafts[i]->Destroy();
 	}
 
 	for(int i = 0 ; i < SectorBombs.Num(); i++)
@@ -104,7 +100,7 @@ void UFlareSector::Destroy()
 		SectorShells[i]->Destroy();
 	}
 
-
+	SectorSpacecrafts.Empty();
 	SectorShips.Empty();
 	SectorStations.Empty();
 	SectorBombs.Empty();
@@ -163,6 +159,7 @@ AFlareSpacecraft* UFlareSector::LoadShip(const FFlareSpacecraftSave& ShipData)
 			{
 				SectorShips.Add(Ship);
 			}
+			SectorSpacecrafts.Add(Ship);
 		}
 		else
 		{
@@ -185,11 +182,10 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
 
     AFlareSpacecraft* ParentSpacecraft = NULL;
 
-	// TODO iterate on SectorShips
-    for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-    {
-        AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-        if (SpacecraftCandidate && SpacecraftCandidate->GetImmatriculation() == BombData.ParentSpacecraft)
+	for(int i = 0 ; i < SectorShips.Num(); i++)
+	{
+		AFlareSpacecraft* SpacecraftCandidate = SectorShips[i];
+		if (SpacecraftCandidate->GetImmatriculation() == BombData.ParentSpacecraft)
         {
             ParentSpacecraft = SpacecraftCandidate;
             break;
@@ -423,18 +419,12 @@ void UFlareSector::EmptySector()
 		CurrentPlayedShip = PC->GetShipPawn();
 	}
 
-
-	for(int i = 0 ; i < SectorShips.Num(); i++)
+	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
-		if (SectorShips[i] != CurrentPlayedShip)
+		if (SectorSpacecrafts[i] != CurrentPlayedShip)
 		{
-			SectorShips[i]->Destroy();
+			SectorSpacecrafts[i]->Destroy();
 		}
-	}
-
-	for(int i = 0 ; i < SectorStations.Num(); i++)
-	{
-		SectorStations[i]->Destroy();
 	}
 
 	for(int i = 0 ; i < SectorBombs.Num(); i++)
@@ -452,34 +442,79 @@ void UFlareSector::EmptySector()
 		SectorShells[i]->Destroy();
 	}
 
+	SectorSpacecrafts.Empty();
+	SectorShips.Empty();
+	SectorStations.Empty();
+	SectorBombs.Empty();
+	SectorAsteroids.Empty();
+	SectorShells.Empty();
 
+	SectorSpacecrafts.Add(CurrentPlayedShip);
+	SectorShips.Add(CurrentPlayedShip);
 
+}
 
-	// TODO don't use iterator
-	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+void UFlareSector::Unregister(AFlareSpacecraft* Spacecraft)
+{
+	SectorSpacecrafts.Remove(Spacecraft);
+	SectorShips.Remove(Spacecraft);
+	SectorStations.Remove(Spacecraft);
+}
+
+void UFlareSector::SetPause(bool Pause)
+{
+	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
-		AFlareSpacecraft* SpacecraftCandidate = Cast<AFlareSpacecraft>(*ActorItr);
-		if (SpacecraftCandidate && !SpacecraftCandidate->IsPresentationMode() && SpacecraftCandidate != CurrentPlayedShip)
-		{
-			SpacecraftCandidate->Destroy();
-		}
+		SectorSpacecrafts[i]->SetPause(Pause);
+	}
 
-		AFlareBomb* BombCandidate = Cast<AFlareBomb>(*ActorItr);
-		if (BombCandidate)
-		{
-			BombCandidate->Destroy();
-		}
+	for(int i = 0 ; i < SectorBombs.Num(); i++)
+	{
+		SectorBombs[i]->SetPause(Pause);
+	}
 
-		AFlareShell* ShellCandidate = Cast<AFlareShell>(*ActorItr);
-		if (ShellCandidate)
-		{
-			ShellCandidate->Destroy();
-		}
+	for(int i = 0 ; i < SectorAsteroids.Num(); i++)
+	{
+		SectorAsteroids[i]->SetPause(Pause);
+	}
 
-		AFlareAsteroid* AsteroidCandidate = Cast<AFlareAsteroid>(*ActorItr);
-		if (AsteroidCandidate)
+	for(int i = 0 ; i < SectorShells.Num(); i++)
+	{
+		SectorShells[i]->SetPause(Pause);
+	}
+}
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+
+TArray<AFlareSpacecraft*> UFlareSector::GetCompanyShips(UFlareCompany* Company)
+{
+	TArray<AFlareSpacecraft*> CompanyShips;
+	// TODO Cache
+
+	for(int i = 0 ; i < SectorShips.Num(); i++)
+	{
+		if (SectorShips[i]->GetCompany() == Company)
 		{
-			AsteroidCandidate->Destroy();
+			CompanyShips.Add(SectorShips[i]);
 		}
 	}
+	return CompanyShips;
+}
+
+TArray<AFlareSpacecraft*> UFlareSector::GetCompanySpacecrafts(UFlareCompany* Company)
+{
+	TArray<AFlareSpacecraft*> CompanySpacecrafts;
+	// TODO Cache
+
+	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	{
+		if (SectorSpacecrafts[i]->GetCompany() == Company)
+		{
+			CompanySpacecrafts.Add(SectorSpacecrafts[i]);
+		}
+	}
+	return CompanySpacecrafts;
 }
