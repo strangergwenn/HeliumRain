@@ -561,7 +561,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	// Generate arbitrary save data
 	CompanyData.CatalogIdentifier = CatalogIdentifier;
 	CompanyData.Money = FMath::RandRange(5, 10) * 10000;
-
+	CompanyData.FleetImmatriculationIndex = 0;
 	// Create company
 	Company = World->LoadCompany(CompanyData);
 	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());
@@ -987,6 +987,150 @@ void AFlareGame::SetWorldTime(int64 Time)
 	}
 	World->ForceTime(Time);
 }
+
+void AFlareGame::StartTravel(FName FleetIdentifier, FName SectorIdentifier)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::StartTravel failed: no loaded world");
+		return;
+	}
+
+	UFlareFleet* Fleet = World->FindFleet(FleetIdentifier);
+	if (!Fleet)
+	{
+		FLOGV("AFlareGame::StartTravel failed: no fleet with id '%s'", *FleetIdentifier.ToString());
+		return;
+	}
+
+	UFlareSimulatedSector* Sector = World->FindSector(SectorIdentifier);
+
+	if (!Sector)
+	{
+		FLOGV("AFlareGame::StartTravel failed: no sector with id '%s'", *SectorIdentifier.ToString());
+		return;
+	}
+
+	World->StartTravel(Fleet, Sector);
+}
+
+void AFlareGame::CreateFleet(FString FleetName, FString FirstShipImmatriculation)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::CreateFleet failed: no loaded world");
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraftByImmatriculation(FirstShipImmatriculation);
+	if (!Ship)
+	{
+		FLOGV("AFlareGame::CreateFleet failed: no Ship with immatriculation '%s'", *FirstShipImmatriculation);
+		return;
+	}
+
+
+	UFlareCompany* FleetCompany = Ship->GetCompany();
+	UFlareSimulatedSector* FleetSector = Ship->GetCurrentSector();
+
+
+	UFlareFleet* Fleet = FleetCompany->CreateFleet(FleetName, FleetSector);
+	Fleet->AddShip(Ship);
+}
+
+void AFlareGame::DisbandFleet(FName FleetIdentifier)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::DisbandFleet failed: no loaded world");
+		return;
+	}
+
+	UFlareFleet* Fleet = World->FindFleet(FleetIdentifier);
+	if (!Fleet)
+	{
+		FLOGV("AFlareGame::DisbandFleet failed: no fleet with id '%s'", *FleetIdentifier.ToString());
+		return;
+	}
+
+	Fleet->Disband();
+}
+
+
+void AFlareGame::AddToFleet(FName FleetIdentifier, FString ShipImmatriculation)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::AddToFleet failed: no loaded world");
+		return;
+	}
+
+	UFlareFleet* Fleet = World->FindFleet(FleetIdentifier);
+	if (!Fleet)
+	{
+		FLOGV("AFlareGame::AddToFleet failed: no fleet with id '%s'", *FleetIdentifier.ToString());
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraftByImmatriculation(ShipImmatriculation);
+	if (!Ship)
+	{
+		FLOGV("AFlareGame::AddToFleet failed: no Ship with immatriculation '%s'", *ShipImmatriculation);
+		return;
+	}
+	Fleet->AddShip(Ship);
+}
+
+
+void AFlareGame::RemoveFromFleet(FName FleetIdentifier, FString ShipImmatriculation)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::RemoveFromFleet failed: no loaded world");
+		return;
+	}
+
+	UFlareFleet* Fleet = World->FindFleet(FleetIdentifier);
+	if (!Fleet)
+	{
+		FLOGV("AFlareGame::RemoveFromFleet failed: no fleet with id '%s'", *FleetIdentifier.ToString());
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraftByImmatriculation(ShipImmatriculation);
+	if (!Ship)
+	{
+		FLOGV("AFlareGame::RemoveFromFleet failed: no Ship with immatriculation '%s'", *ShipImmatriculation);
+		return;
+	}
+	Fleet->RemoveShip(Ship);
+}
+
+void AFlareGame::MergeFleets(FName Fleet1Identifier, FName Fleet2Identifier)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::MergeFleets failed: no loaded world");
+		return;
+	}
+
+	UFlareFleet* Fleet1 = World->FindFleet(Fleet1Identifier);
+	if (!Fleet1)
+	{
+		FLOGV("AFlareGame::MergeFleets failed: no fleet with id '%s'", *Fleet1Identifier.ToString());
+		return;
+	}
+
+	UFlareFleet* Fleet2 = World->FindFleet(Fleet2Identifier);
+	if (!Fleet2)
+	{
+		FLOGV("AFlareGame::MergeFleets failed: no fleet with id '%s'", *Fleet2Identifier.ToString());
+		return;
+	}
+
+	Fleet1->Merge(Fleet2);
+}
+
 
 
 /*----------------------------------------------------

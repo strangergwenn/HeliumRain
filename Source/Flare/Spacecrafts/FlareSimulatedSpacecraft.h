@@ -6,6 +6,8 @@
 #include "FlareSimulatedSpacecraft.generated.h"
 
 class UFlareGame;
+class UFlareSimulatedSector;
+class UFlareFleet;
 
 UCLASS()
 class FLARE_API UFlareSimulatedSpacecraft : public UObject, public IFlareSpacecraftInterface
@@ -54,6 +56,16 @@ public:
         Gameplay
     ----------------------------------------------------*/
 
+	virtual void SetCurrentSector(UFlareSimulatedSector* Sector)
+	{
+		CurrentSector = Sector;
+	}
+
+	virtual void SetCurrentFleet(UFlareFleet* Fleet)
+	{
+		CurrentFleet = Fleet;
+	}
+
 protected:
 
     /*----------------------------------------------------
@@ -66,6 +78,9 @@ protected:
 
 	AFlareGame*                   Game;
 
+	UFlareFleet*                   CurrentFleet;
+	UFlareSimulatedSector*        CurrentSector;
+
 public:
 
     /*----------------------------------------------------
@@ -75,5 +90,17 @@ public:
 	inline FName GetNickName() const override
 	{
 		return SpacecraftData.NickName;
+	}
+
+	/** Return null if traveling */
+	inline UFlareSimulatedSector* GetCurrentSector()
+	{
+		return CurrentSector;
+	}
+
+	/** Return null if not in a fleet */
+	inline UFlareFleet* GetCurrentFleet()
+	{
+		return CurrentFleet;
 	}
 };

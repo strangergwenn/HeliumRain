@@ -2,8 +2,11 @@
 #pragma once
 
 #include "Object.h"
+#include "FlareFleet.h"
 #include "FlareCompany.generated.h"
 
+
+class UFlareFleet;
 
 /** Hostility status */
 UENUM()
@@ -38,12 +41,17 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 Money;
 
-	/** Pattern index in the customization catalog */
+	/** Hostile companies */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FName> HostileCompanies;
 
 
+	/** Company fleets */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareFleetSave> Fleets;
 
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 FleetImmatriculationIndex;
 };
 
 
@@ -130,6 +138,13 @@ public:
 	/** Get an info string for this company save */
 	virtual FText GetInfoText(bool Minimized);
 
+	virtual UFlareFleet* CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector);
+
+	UFlareFleet* LoadFleet(const FFlareFleetSave& FleetData);
+
+	virtual void RemoveFleet(UFlareFleet* Fleet);
+
+
 
 	/*----------------------------------------------------
 		Customization
@@ -159,6 +174,11 @@ protected:
 	FFlareCompanySave                       CompanyData;
 	TArray<UFlareSimulatedSpacecraft*>      CompanyStations;
 	TArray<UFlareSimulatedSpacecraft*>      CompanyShips;
+	TArray<UFlareSimulatedSpacecraft*>      CompanySpacecrafts;
+
+	UPROPERTY()
+	TArray<UFlareFleet*>                    CompanyFleets;
+
 
 	AFlareGame*                             Game;
 
@@ -241,5 +261,20 @@ public:
 	{
 		return CompanyShips;
 	}
+
+	UFlareFleet* FindFleet(FName Identifier) const
+	{
+		for(int i = 0; i < CompanyFleets.Num(); i++)
+		{
+			if (CompanyFleets[i]->GetIdentifier() == Identifier)
+			{
+				return CompanyFleets[i];
+			}
+		}
+		return NULL;
+	}
+
+	UFlareSimulatedSpacecraft* FindSpacecraftByImmatriculation(FString ShipImmatriculation);
+
 
 };
