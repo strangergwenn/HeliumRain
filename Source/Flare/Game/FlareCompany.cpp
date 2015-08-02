@@ -186,6 +186,7 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 	Mat->SetVectorParameterValue("BasePaintColor", BasePaintColor);
 	Mat->SetVectorParameterValue("PaintColor", PaintColor);
 	Mat->SetVectorParameterValue("OverlayColor", OverlayColor);
+	Mat->SetVectorParameterValue("LightColor", LightColor);
 	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
 	Mat->SetTextureParameterValue("PaintPattern", Pattern);
 	Mat->SetTextureParameterValue("Emblem", Emblem);
