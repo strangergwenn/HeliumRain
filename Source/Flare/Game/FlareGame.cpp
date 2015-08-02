@@ -37,7 +37,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	}
 
 	// Planetary system
-	static ConstructorHelpers::FObjectFinder<UBlueprint> PlanetariumBPClass(TEXT("/Game/Environment/BP_Planetarium2"));
+	static ConstructorHelpers::FObjectFinder<UBlueprint> PlanetariumBPClass(TEXT("/Game/Environment/BP_Planetarium"));
 	if (PlanetariumBPClass.Object != NULL)
 	{
 		PlanetariumClass = (UClass*)PlanetariumBPClass.Object->GeneratedClass;
