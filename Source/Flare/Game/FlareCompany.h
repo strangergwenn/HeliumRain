@@ -3,6 +3,7 @@
 
 #include "Object.h"
 #include "FlareFleet.h"
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "FlareCompany.generated.h"
 
 
@@ -45,6 +46,11 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FName> HostileCompanies;
 
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareSpacecraftSave> ShipData;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareSpacecraftSave> StationData;
 
 	/** Company fleets */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -116,11 +122,10 @@ public:
 	/** Save the company to a save file */
 	virtual FFlareCompanySave* Save();
 
-	/** Register a ship or a station*/
-	virtual void Register(UFlareSimulatedSpacecraft* Ship);
+	/** Spawn a simulated spacecraft from save data */
+	virtual UFlareSimulatedSpacecraft* LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData);
 
-	/** Un-register a ship or a station*/
-	virtual void Unregister(UFlareSimulatedSpacecraft* Ship);
+	virtual UFlareFleet* LoadFleet(const FFlareFleetSave& FleetData);
 
 
 	/*----------------------------------------------------
@@ -140,10 +145,15 @@ public:
 
 	virtual UFlareFleet* CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector);
 
-	UFlareFleet* LoadFleet(const FFlareFleetSave& FleetData);
 
 	virtual void RemoveFleet(UFlareFleet* Fleet);
 
+/*
+virtual void Register(UFlareSimulatedSpacecraft* Ship);
+
+
+virtual void Unregister(UFlareSimulatedSpacecraft* Ship);
+*/
 
 
 	/*----------------------------------------------------
@@ -274,7 +284,7 @@ public:
 		return NULL;
 	}
 
-	UFlareSimulatedSpacecraft* FindSpacecraftByImmatriculation(FString ShipImmatriculation);
+	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation);
 
 
 };

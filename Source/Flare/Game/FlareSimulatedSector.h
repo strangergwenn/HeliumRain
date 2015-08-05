@@ -114,11 +114,11 @@ struct FFlareSectorSave
     UPROPERTY(EditAnywhere, Category = Save)
     FName Identifier;
 
-    UPROPERTY(VisibleAnywhere, Category = Save)
+	/*UPROPERTY(VisibleAnywhere, Category = Save)
     TArray<FFlareSpacecraftSave> ShipData;
 
     UPROPERTY(VisibleAnywhere, Category = Save)
-    TArray<FFlareSpacecraftSave> StationData;
+	TArray<FFlareSpacecraftSave> StationData;*/
 
     UPROPERTY(VisibleAnywhere, Category = Save)
     TArray<FFlareBombSave> BombData;
@@ -128,6 +128,9 @@ struct FFlareSectorSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> FleetIdentifiers;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FName> SpacecraftIdentifiers;
 };
 
 UCLASS()
@@ -147,8 +150,6 @@ public:
 	/** Save the sector to a save file */
     virtual FFlareSectorSave* Save();
 
-    /** Spawn a simulated spacecraft from save data */
-    virtual UFlareSimulatedSpacecraft* LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData);
 
     /*----------------------------------------------------
         Gameplay

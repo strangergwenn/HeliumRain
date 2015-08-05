@@ -188,7 +188,7 @@ public:
 
 	/** Create a fleet */
 	UFUNCTION(exec)
-	void CreateFleet(FString FleetName, FString FirstShipImmatriculation);
+	void CreateFleet(FString FleetName, FName FirstShipImmatriculation);
 
 	/** Disband a fleet. Not possible during travelling */
 	UFUNCTION(exec)
@@ -196,11 +196,11 @@ public:
 
 	/** Add a ship to a fleet. Not possible during travelling*/
 	UFUNCTION(exec)
-	void AddToFleet(FName FleetIdentifier, FString ShipImmatriculation);
+	void AddToFleet(FName FleetIdentifier, FName ShipImmatriculation);
 
 	/** Remove a ship from a fleet. Not possible during travelling*/
 	UFUNCTION(exec)
-	void RemoveFromFleet(FName FleetIdentifier, FString ShipImmatriculation);
+	void RemoveFromFleet(FName FleetIdentifier, FName ShipImmatriculation);
 
 	/** Merge fleet 2 in fleet 1. Not possible during travelling*/
 	UFUNCTION(exec)

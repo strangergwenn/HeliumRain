@@ -9,6 +9,7 @@ class UFlareSimulatedSpacecraft;
 class AFlareGame;
 class UFlareCompany;
 class UFlareTravel;
+struct FFlareSpacecraftSave;
 
 /** Fleet save data */
 USTRUCT()
@@ -26,7 +27,7 @@ struct FFlareFleetSave
 
 	/** Fleet ships */
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FString> ShipImmatriculations;
+	TArray<FName> ShipImmatriculations;
 };
 
 UCLASS()

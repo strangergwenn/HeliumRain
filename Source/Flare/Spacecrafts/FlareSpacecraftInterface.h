@@ -1,14 +1,14 @@
 #pragma once
 
-#include "../Game/FlareCompany.h"
 #include "FlareShipPilot.h"
+#include "FlareSpacecraftComponent.h"
 #include "Subsystems/FlareSpacecraftDamageSystem.h"
 #include "Subsystems/FlareSpacecraftNavigationSystem.h"
 #include "Subsystems/FlareSpacecraftDockingSystem.h"
 #include "Subsystems/FlareSpacecraftWeaponsSystem.h"
 #include "FlareSpacecraftInterface.generated.h"
 
-struct FFlareSpacecraftComponentSave;
+class UFlareCompany;
 
 /** Spacecraft save data */
 USTRUCT()
@@ -203,7 +203,7 @@ public:
 	/** Get the ship size class */
 	virtual EFlarePartSize::Type GetSize() = 0;
 
-	virtual FString GetImmatriculation() const = 0;
+	virtual FName GetImmatriculation() const = 0;
 
 	/** Check if this is a military ship */
 	virtual bool IsMilitary() = 0;

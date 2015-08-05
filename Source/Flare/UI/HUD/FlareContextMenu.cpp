@@ -92,7 +92,7 @@ FText SFlareContextMenu::GetText() const
 		}
 		if (Candidate)
 		{
-			Result = FText::FromString(Candidate->GetImmatriculation());
+			Result = FText::FromString(Candidate->GetImmatriculation().ToString());
 		}
 	}
 

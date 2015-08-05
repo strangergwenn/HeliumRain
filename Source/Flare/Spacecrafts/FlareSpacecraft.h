@@ -70,7 +70,7 @@ public:
 
 	virtual EFlarePartSize::Type GetSize() override;
 
-	virtual FString GetImmatriculation() const override;
+	virtual FName GetImmatriculation() const override;
 
 	virtual bool IsMilitary() override;
 

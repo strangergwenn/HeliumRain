@@ -32,7 +32,7 @@ public:
 	/** Get the ship size class */
 	virtual EFlarePartSize::Type GetSize() override;
 
-	virtual FString GetImmatriculation() const override;
+	virtual FName GetImmatriculation() const override;
 
 	/** Check if this is a military ship */
 	virtual bool IsMilitary() override;

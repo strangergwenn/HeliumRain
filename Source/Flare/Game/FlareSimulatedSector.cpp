@@ -28,61 +28,9 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	SectorStations.Empty();
 	SectorFleets.Empty();
 
-	for(int i = 0 ; i < SectorData.ShipData.Num(); i++)
+	for(int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
-		LoadSpacecraft(SectorData.ShipData[i]);
-	}
-
-	for(int i = 0 ; i < SectorData.StationData.Num(); i++)
-	{
-		LoadSpacecraft(SectorData.StationData[i]);
-	}
-
-	for(int i = 0 ; i < SectorData.FleetIdentifiers.Num(); i++)
-	{
-		UFlareFleet* Fleet = Game->GetGameWorld()->FindFleet(SectorData.FleetIdentifiers[i]);
-		SectorFleets.Add(Fleet);
-		Fleet->SetCurrentSector(this);
-	}
-}
-
-FFlareSectorSave* UFlareSimulatedSector::Save()
-{
-	SectorData.ShipData.Empty();
-	SectorData.StationData.Empty();
-	SectorData.FleetIdentifiers.Empty();
-
-	for(int i = 0 ; i < SectorShips.Num(); i++)
-	{
-		SectorData.ShipData.Add(*SectorShips[i]->Save());
-	}
-
-	for(int i = 0 ; i < SectorStations.Num(); i++)
-	{
-		SectorData.StationData.Add(*SectorStations[i]->Save());
-	}
-
-	for(int i = 0 ; i < SectorFleets.Num(); i++)
-	{
-		SectorData.FleetIdentifiers.Add(SectorFleets[i]->GetIdentifier());
-	}
-
-	return &SectorData;
-}
-
-
-
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData)
-{
-	UFlareSimulatedSpacecraft* Spacecraft = NULL;
-	FLOGV("AFlareGame::LoadSpacecraft ('%s')", *SpacecraftData.Immatriculation.ToString());
-
-	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(SpacecraftData.Identifier);
-	if (Desc)
-	{
-		Spacecraft = NewObject<UFlareSimulatedSpacecraft>(this, UFlareSimulatedSpacecraft::StaticClass());
-		Spacecraft->Load(SpacecraftData);
-
+		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
 		if(Spacecraft->IsStation())
 		{
 			SectorStations.Add(Spacecraft);
@@ -94,13 +42,39 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::LoadSpacecraft(const FFlareSpa
 
 		Spacecraft->SetCurrentSector(this);
 	}
-	else
+
+
+	for(int i = 0 ; i < SectorData.FleetIdentifiers.Num(); i++)
 	{
-		FLOG("UFlareSimulatedSector::LoadSpacecraft failed (no description available)");
+		UFlareFleet* Fleet = Game->GetGameWorld()->FindFleet(SectorData.FleetIdentifiers[i]);
+		SectorFleets.Add(Fleet);
+		Fleet->SetCurrentSector(this);
+	}
+}
+
+FFlareSectorSave* UFlareSimulatedSector::Save()
+{
+	SectorData.SpacecraftIdentifiers.Empty();
+	SectorData.FleetIdentifiers.Empty();
+
+	for(int i = 0 ; i < SectorShips.Num(); i++)
+	{
+		SectorData.SpacecraftIdentifiers.Add(SectorShips[i]->GetImmatriculation());
 	}
 
-	return Spacecraft;
+	for(int i = 0 ; i < SectorStations.Num(); i++)
+	{
+		SectorData.SpacecraftIdentifiers.Add(SectorStations[i]->GetImmatriculation());
+	}
+
+	for(int i = 0 ; i < SectorFleets.Num(); i++)
+	{
+		SectorData.FleetIdentifiers.Add(SectorFleets[i]->GetIdentifier());
+	}
+
+	return &SectorData;
 }
+
 
 UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
 {
@@ -231,8 +205,19 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	ShipData.CompanyIdentifier = Company->GetIdentifier();
 
 	// Create the ship
-	Spacecraft = LoadSpacecraft(ShipData);
-	FLOGV("UFlareSimulatedSector::CreateShip : Created ship '%s' at %s", *Spacecraft->GetImmatriculation(), *TargetPosition.ToString());
+	Spacecraft = Company->LoadSpacecraft(ShipData);
+	if(Spacecraft->IsStation())
+	{
+		SectorStations.Add(Spacecraft);
+	}
+	else
+	{
+		SectorShips.Add(Spacecraft);
+	}
+
+	Spacecraft->SetCurrentSector(this);
+
+	FLOGV("UFlareSimulatedSector::CreateShip : Created ship '%s' at %s", *Spacecraft->GetImmatriculation().ToString(), *TargetPosition.ToString());
 
 
 	return Spacecraft;
@@ -271,7 +256,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 		Fleet->GetShips()[ShipIndex]->SetCurrentSector(NULL);
 		if(SectorShips.Remove(Fleet->GetShips()[ShipIndex]) == 0)
 		{
-			FLOGV("ERROR: RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation(), *GetSectorName())
+			FLOGV("ERROR: RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation().ToString(), *GetSectorName())
 		}
 	}
 }

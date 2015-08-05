@@ -42,7 +42,19 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 		CompanyDescription = GetGame()->GetPlayerCompanyDescription();
 	}
 
-	// Load all travels
+
+	for(int i = 0 ; i < CompanyData.ShipData.Num(); i++)
+	{
+		LoadSpacecraft(CompanyData.ShipData[i]);
+	}
+
+	for(int i = 0 ; i < CompanyData.StationData.Num(); i++)
+	{
+		LoadSpacecraft(CompanyData.StationData[i]);
+	}
+
+
+	// Load all fleets
 	for (int32 i = 0; i < CompanyData.Fleets.Num(); i++)
 	{
 		LoadFleet(CompanyData.Fleets[i]);
@@ -60,19 +72,10 @@ FFlareCompanySave* UFlareCompany::Save()
 
 	return &CompanyData;
 }
-
+/*
 void UFlareCompany::Register(UFlareSimulatedSpacecraft* Ship)
 {
-	if (Ship->IsStation())
-	{
-		CompanyStations.AddUnique(Ship);
-	}
-	else
-	{
-		CompanyShips.AddUnique(Ship);
-	}
 
-	CompanySpacecrafts.AddUnique(Ship);
 }
 
 void UFlareCompany::Unregister(UFlareSimulatedSpacecraft* Ship)
@@ -87,7 +90,7 @@ void UFlareCompany::Unregister(UFlareSimulatedSpacecraft* Ship)
 	}
 
 	CompanySpacecrafts.Remove(Ship);
-}
+}*/
 
 
 /*----------------------------------------------------
@@ -169,6 +172,7 @@ UFlareFleet* UFlareCompany::CreateFleet(FString FleetName, UFlareSimulatedSector
 	FleetData.Identifier = FName(*(GetIdentifier().ToString() + "-" + FString::FromInt(CompanyData.FleetImmatriculationIndex++)));
 	FleetData.Name = FleetName;
 	UFlareFleet* Fleet = LoadFleet(FleetData);
+	Fleet->SetCurrentSector(FleetSector);
 	FleetSector->AddFleet(Fleet);
 	return Fleet;
 }
@@ -192,6 +196,39 @@ void UFlareCompany::RemoveFleet(UFlareFleet* Fleet)
 {
 	CompanyFleets.Remove(Fleet);
 }
+
+UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData)
+{
+	UFlareSimulatedSpacecraft* Spacecraft = NULL;
+	FLOGV("UFlareCompany::LoadSpacecraft ('%s')", *SpacecraftData.Immatriculation.ToString());
+
+	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(SpacecraftData.Identifier);
+	if (Desc)
+	{
+		Spacecraft = NewObject<UFlareSimulatedSpacecraft>(this, UFlareSimulatedSpacecraft::StaticClass());
+		Spacecraft->Load(SpacecraftData);
+
+
+		if ((Spacecraft)->IsStation())
+		{
+			CompanyStations.AddUnique((Spacecraft));
+		}
+		else
+		{
+			CompanyShips.AddUnique((Spacecraft));
+		}
+
+		CompanySpacecrafts.AddUnique((Spacecraft));
+	}
+	else
+	{
+		FLOG("UFlareCompany::LoadSpacecraft failed (no description available)");
+	}
+
+	return Spacecraft;
+}
+
+
 
 /*----------------------------------------------------
 	Customization
@@ -248,7 +285,7 @@ const FSlateBrush* UFlareCompany::GetEmblem() const
 	return GetGame()->GetCompanyEmblem(CompanyData.CatalogIdentifier);
 }
 
-UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraftByImmatriculation(FString ShipImmatriculation)
+UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculation)
 {
 	for(int i = 0; i < CompanySpacecrafts.Num(); i++)
 	{

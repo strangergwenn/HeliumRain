@@ -204,7 +204,7 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	float ImpactEnergy = ImpactMass * ImpactSpeed / 8402.f;
 
 	float  Radius = 0.2 + FMath::Sqrt(ImpactEnergy) * 0.11;
-	//FLOGV("OnCollision %s", *Spacecraft->GetImmatriculation());
+	//FLOGV("OnCollision %s", *Spacecraft->GetImmatriculation().ToString());
 	//FLOGV("  OtherRoot->GetPhysicsLinearVelocity()=%s", *OtherRoot->GetPhysicsLinearVelocity().ToString());
 	//FLOGV("  OtherRoot->GetPhysicsLinearVelocity().Size()=%f", OtherRoot->GetPhysicsLinearVelocity().Size());
 	//FLOGV("  Spacecraft->Airframe->GetPhysicsLinearVelocity()=%s", *Spacecraft->Airframe->GetPhysicsLinearVelocity().ToString());
@@ -292,7 +292,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	// the damage sphere. There is a linear decrease of damage with a minumum of 0 if the 2 sphere
 	// only touch.
 
-	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation()), Radius, *Location.ToString());
+	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation().ToString()), Radius, *Location.ToString());
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
 	bool IsAliveBeforeDamage = IsAlive();
@@ -329,7 +329,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	case EFlareDamage::DAM_ArmorPiercing:
 	case EFlareDamage::DAM_HighExplosive:
 	case EFlareDamage::DAM_HEAT:
-		//FLOGV("%s Reset TimeSinceLastExternalDamage", *Spacecraft->GetImmatriculation());
+		//FLOGV("%s Reset TimeSinceLastExternalDamage", *Spacecraft->GetImmatriculation().ToString());
 		TimeSinceLastExternalDamage = 0;
 		break;
 	case EFlareDamage::DAM_Collision:

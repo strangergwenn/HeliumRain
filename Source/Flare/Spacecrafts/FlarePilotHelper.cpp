@@ -15,7 +15,6 @@ bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompa
 		if (SpacecraftCandidate)
 		{
 
-			//FLOGV("  check %s", *ShipCandidate->GetImmatriculation());
 
 			if (MyCompany->GetHostility(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile)
 			{
@@ -75,10 +74,6 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	float MostDangerousHitTime = 0;
 	float MostDangerousInterCollisionTravelTime = 0;
 
-	//FLOGV("%s Anticollision", *Ship->GetImmatriculation());
-	//FLOGV("  CurrentVelocity=%s", *CurrentVelocity.ToString());
-	//FLOGV("  CurrentLocation=%s", *CurrentLocation.ToString());
-
 	UFlareSector* ActiveSector = Ship->GetGame()->GetActiveSector();
 
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex++)
@@ -90,7 +85,6 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 				&& !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate)
 				&& !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate))
 		{
-			//FLOGV("  -> test SpacecraftCandidate %s", *SpacecraftCandidate->GetImmatriculation());
 			CheckRelativeDangerosity(SpacecraftCandidate, CurrentLocation, CurrentSize, SpacecraftCandidate->Airframe, CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
 		}
 	}
@@ -107,7 +101,6 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 
 	if(MostDangerousCandidateActor)
 	{
-		//FLOGV("%s Anticollision", *Ship->GetImmatriculation());
 		UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(MostDangerousCandidateActor->GetRootComponent());
 
 		//FVector DeltaVelocity = CurrentVelocity - StaticMeshComponent->GetPhysicsLinearVelocity();

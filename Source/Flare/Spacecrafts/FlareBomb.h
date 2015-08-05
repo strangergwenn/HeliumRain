@@ -33,7 +33,7 @@ struct FFlareBombSave
 
 	/** Parent weapon spacecraft */
 	UPROPERTY(EditAnywhere, Category = Save)
-	FString ParentSpacecraft;
+	FName ParentSpacecraft;
 
 	/** Activated */
 	UPROPERTY(EditAnywhere, Category = Save)

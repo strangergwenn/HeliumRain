@@ -32,14 +32,10 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 		LoadAsteroid(SectorData.AsteroidData[i]);
 	}
 
-	for(int i = 0 ; i < SectorData.ShipData.Num(); i++)
+	for(int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
-		LoadShip(SectorData.ShipData[i]);
-	}
-
-	for(int i = 0 ; i < SectorData.StationData.Num(); i++)
-	{
-		LoadShip(SectorData.StationData[i]);
+		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
+		LoadSpacecraft(*Spacecraft->Save());
 	}
 
 	for(int i = 0 ; i < SectorData.BombData.Num(); i++)
@@ -48,21 +44,17 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 	}
 }
 
-FFlareSectorSave* UFlareSector::Save()
+FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftData)
 {
-	SectorData.ShipData.Empty();
-	SectorData.StationData.Empty();
+	SectorData.SpacecraftIdentifiers.Empty();
 	SectorData.BombData.Empty();
 	SectorData.AsteroidData.Empty();
 
-	for(int i = 0 ; i < SectorShips.Num(); i++)
+	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
-		SectorData.ShipData.Add(*SectorShips[i]->Save());
-	}
-
-	for(int i = 0 ; i < SectorStations.Num(); i++)
-	{
-		SectorData.StationData.Add(*SectorStations[i]->Save());
+		FFlareSpacecraftSave* SpacecraftSave = SectorShips[i]->Save();
+		SectorData.SpacecraftIdentifiers.Add(SpacecraftSave->Immatriculation);
+		SpacecraftData.Add(*SpacecraftSave);
 	}
 
 	for(int i = 0 ; i < SectorBombs.Num(); i++)
@@ -129,11 +121,10 @@ AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidDat
     return Asteroid;
 }
 
-// TODO rename spacecraft
-AFlareSpacecraft* UFlareSector::LoadShip(const FFlareSpacecraftSave& ShipData)
+AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipData)
 {
-    AFlareSpacecraft* Ship = NULL;
-    FLOGV("AFlareGame::LoadShip ('%s')", *ShipData.Immatriculation.ToString());
+	AFlareSpacecraft* Spacecraft = NULL;
+	FLOGV("AFlareGame::LoadSpacecraft ('%s')", *ShipData.Immatriculation.ToString());
 
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipData.Identifier);
 	if (Desc)
@@ -143,36 +134,36 @@ AFlareSpacecraft* UFlareSector::LoadShip(const FFlareSpacecraftSave& ShipData)
 		Params.bNoFail = true;
 
 		// Create and configure the ship
-		Ship = Game->GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
-		if (Ship)
+		Spacecraft = Game->GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
+		if (Spacecraft)
 		{
-			Ship->Load(ShipData);
-			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
+			Spacecraft->Load(ShipData);
+			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Spacecraft->GetRootComponent());
 			RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
 			RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 
-			if(Ship->IsStation())
+			if(Spacecraft->IsStation())
 			{
-				SectorStations.Add(Ship);
+				SectorStations.Add(Spacecraft);
 			}
 			else
 			{
-				SectorShips.Add(Ship);
+				SectorShips.Add(Spacecraft);
 			}
-			SectorSpacecrafts.Add(Ship);
+			SectorSpacecrafts.Add(Spacecraft);
 		}
 		else
 		{
-			FLOG("AFlareGame::LoadShip fail to create AFlareSpacecraft");
+			FLOG("AFlareGame::LoadSpacecraft fail to create AFlareSpacecraft");
 		}
 	}
 	else
 	{
-		FLOG("AFlareGame::LoadShip failed (no description available)");
+		FLOG("AFlareGame::LoadSpacecraft failed (no description available)");
 	}
 
 
-    return Ship;
+	return Spacecraft;
 }
 
 AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
@@ -374,8 +365,8 @@ AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDesc
 	ShipData.CompanyIdentifier = Company->GetIdentifier();
 
 	// Create the ship
-	ShipPawn = LoadShip(ShipData);
-	FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetImmatriculation(), *TargetPosition.ToString());
+	ShipPawn = LoadSpacecraft(ShipData);
+	FLOGV("AFlareGame::CreateShip : Created ship '%s' at %s", *ShipPawn->GetImmatriculation().ToString(), *TargetPosition.ToString());
 
 
     return ShipPawn;
