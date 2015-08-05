@@ -29,7 +29,7 @@ struct FFlarePlayerSave
 
     /** UObject name of the currently possessed ship */
     UPROPERTY(EditAnywhere, Category = Save)
-    FString CurrentShipName;
+	FName CurrentShipName;
 
 	/** Chosen scenario */
 	UPROPERTY(EditAnywhere, Category = Save)

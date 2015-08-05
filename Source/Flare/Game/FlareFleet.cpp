@@ -49,7 +49,7 @@ void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 		FLOGV("Fleet Merge fail: '%s' is the sector '%s' but '%s' is the sector '%s'",
 			  *GetFleetName(),
 			  *GetCurrentSector()->GetSectorName(),
-			  *Ship->GetImmatriculation(),
+			  *Ship->GetImmatriculation().ToString(),
 			  *Ship->GetCurrentSector()->GetSectorName());
 		return;
 	}
@@ -147,7 +147,7 @@ void UFlareFleet::InitShipList()
 		FleetShips.Empty();
 		for(int ShipIndex = 0; ShipIndex < FleetData.ShipImmatriculations.Num(); ShipIndex++)
 		{
-			UFlareSimulatedSpacecraft* Ship = FleetCompany->FindSpacecraftByImmatriculation(FleetData.ShipImmatriculations[ShipIndex]);
+			UFlareSimulatedSpacecraft* Ship = FleetCompany->FindSpacecraft(FleetData.ShipImmatriculations[ShipIndex]);
 			Ship->SetCurrentFleet(this);
 			FleetShips.Add(Ship);
 		}

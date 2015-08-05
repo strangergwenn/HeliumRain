@@ -3,6 +3,7 @@
 #include "FlareSpacecraftWeaponsSystem.generated.h"
 
 class AFlareSpacecraft;
+class UFlareWeapon;
 
 /** Status of the ship */
 UENUM()

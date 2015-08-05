@@ -71,6 +71,8 @@ public:
 
 	UFlareTravel* StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector);
 
+	virtual void DeleteTravel(UFlareTravel* Travel);
+
 protected:
 
 	/*----------------------------------------------------
@@ -179,12 +181,12 @@ public:
 		return NULL;
 	}
 
-	UFlareSimulatedSpacecraft* FindSpacecraftByImmatriculation(FString ShipImmatriculation)
+	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation)
 	{
 		for(int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
-			UFlareSimulatedSpacecraft* Spacecraft = Company->FindSpacecraftByImmatriculation(ShipImmatriculation);
+			UFlareSimulatedSpacecraft* Spacecraft = Company->FindSpacecraft(ShipImmatriculation);
 			if (Spacecraft)
 			{
 				return Spacecraft;

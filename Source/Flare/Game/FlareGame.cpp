@@ -138,7 +138,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 	for(int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-		FLOGV("AFlareGame::ActivateSector ship %s", *Ship->GetImmatriculation());
+		FLOGV("AFlareGame::ActivateSector ship %s", *Ship->GetImmatriculation().ToString());
 		FLOGV(" %d", (Ship->GetCompany()->GetPlayerHostility() + 0));
 
 		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
@@ -165,15 +165,25 @@ void AFlareGame::DeactivateSector(AController* Player)
 {
 	if (ActiveSector)
 	{
-		FFlareSectorSave* SectorData = ActiveSector->Save();
+		TArray<FFlareSpacecraftSave> SpacecraftData;
+		FFlareSectorSave* SectorData = ActiveSector->Save(SpacecraftData);
 		ActiveSector->Destroy();
 		ActiveSector = NULL;
 
+		//Reload  spacecrafts
+		for(int i = 0 ; i < SpacecraftData.Num(); i++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = GetGameWorld()->FindSpacecraft(SpacecraftData[i].Immatriculation);
+			Spacecraft->Load(SpacecraftData[i]);
+		}
+
+		// Reload sector
 		UFlareSimulatedSector* Sector = World->FindSector(SectorData->Identifier);
 		if (!Sector)
 		{
 			FLOGV("ERROR: no simulated sector match for active sector '%s'", *SectorData->Identifier.ToString());
 		}
+
 		Sector->Load(Sector->GetDescription(), *SectorData, *Sector->GetOrbitParameters());
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
@@ -209,21 +219,7 @@ void AFlareGame::ReadAllSaveSlots()
 			// Count player ships
 			SaveSlotInfo.CompanyShipCount = 0;
 
-            for (int32 SectorIndex = 0; SectorIndex <  Save->WorldData.SectorData.Num(); SectorIndex++)
-            {
-                FFlareSectorSave* SectorSave = &Save->WorldData.SectorData[SectorIndex];
-
-                for (int32 ShipIndex = 0; ShipIndex < SectorSave->ShipData.Num(); ShipIndex++)
-                {
-                    const FFlareSpacecraftSave& Spacecraft = SectorSave->ShipData[ShipIndex];
-                    if (Spacecraft.CompanyIdentifier == Save->PlayerData.CompanyIdentifier)
-                    {
-                        SaveSlotInfo.CompanyShipCount++;
-                    }
-                }
-            }
-
-			// Find company
+			// Find player company and count ships
 			FFlareCompanySave* PlayerCompany = NULL;
             for (int32 CompanyIndex = 0; CompanyIndex < Save->WorldData.CompanyData.Num(); CompanyIndex++)
 			{
@@ -231,6 +227,7 @@ void AFlareGame::ReadAllSaveSlots()
 				if (Company.Identifier == Save->PlayerData.CompanyIdentifier)
 				{
                     PlayerCompany = &(Save->WorldData.CompanyData[CompanyIndex]);
+					SaveSlotInfo.CompanyShipCount = Save->WorldData.CompanyData[CompanyIndex].ShipData.Num();
 				}
 			}
 
@@ -1014,7 +1011,7 @@ void AFlareGame::StartTravel(FName FleetIdentifier, FName SectorIdentifier)
 	World->StartTravel(Fleet, Sector);
 }
 
-void AFlareGame::CreateFleet(FString FleetName, FString FirstShipImmatriculation)
+void AFlareGame::CreateFleet(FString FleetName, FName FirstShipImmatriculation)
 {
 	if (!World)
 	{
@@ -1022,10 +1019,10 @@ void AFlareGame::CreateFleet(FString FleetName, FString FirstShipImmatriculation
 		return;
 	}
 
-	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraftByImmatriculation(FirstShipImmatriculation);
+	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraft(FirstShipImmatriculation);
 	if (!Ship)
 	{
-		FLOGV("AFlareGame::CreateFleet failed: no Ship with immatriculation '%s'", *FirstShipImmatriculation);
+		FLOGV("AFlareGame::CreateFleet failed: no Ship with immatriculation '%s'", *FirstShipImmatriculation.ToString());
 		return;
 	}
 
@@ -1057,7 +1054,7 @@ void AFlareGame::DisbandFleet(FName FleetIdentifier)
 }
 
 
-void AFlareGame::AddToFleet(FName FleetIdentifier, FString ShipImmatriculation)
+void AFlareGame::AddToFleet(FName FleetIdentifier, FName ShipImmatriculation)
 {
 	if (!World)
 	{
@@ -1072,17 +1069,17 @@ void AFlareGame::AddToFleet(FName FleetIdentifier, FString ShipImmatriculation)
 		return;
 	}
 
-	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraftByImmatriculation(ShipImmatriculation);
+	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraft(ShipImmatriculation);
 	if (!Ship)
 	{
-		FLOGV("AFlareGame::AddToFleet failed: no Ship with immatriculation '%s'", *ShipImmatriculation);
+		FLOGV("AFlareGame::AddToFleet failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
 	Fleet->AddShip(Ship);
 }
 
 
-void AFlareGame::RemoveFromFleet(FName FleetIdentifier, FString ShipImmatriculation)
+void AFlareGame::RemoveFromFleet(FName FleetIdentifier, FName ShipImmatriculation)
 {
 	if (!World)
 	{
@@ -1097,10 +1094,10 @@ void AFlareGame::RemoveFromFleet(FName FleetIdentifier, FString ShipImmatriculat
 		return;
 	}
 
-	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraftByImmatriculation(ShipImmatriculation);
+	UFlareSimulatedSpacecraft* Ship = World->FindSpacecraft(ShipImmatriculation);
 	if (!Ship)
 	{
-		FLOGV("AFlareGame::RemoveFromFleet failed: no Ship with immatriculation '%s'", *ShipImmatriculation);
+		FLOGV("AFlareGame::RemoveFromFleet failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
 	Fleet->RemoveShip(Ship);

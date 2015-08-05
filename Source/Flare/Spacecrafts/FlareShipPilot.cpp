@@ -81,8 +81,6 @@ void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany*
 ----------------------------------------------------*/
 void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 {
-//	FLOGV("%s MilitaryPilot",  *Ship->GetImmatriculation());
-
 	if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_Docked)
 	{
 		// Let's undock
@@ -101,12 +99,10 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 0.5
 		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 0.25)
 	{
-		//FLOGV("%s has weapon hs", *Ship->GetImmatriculation())
 		// Go repair or refill ammo
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
 		if (TargetStation)
 		{
-			//FLOGV("  select station", *TargetStation->GetImmatriculation())
 			if (Ship->GetNavigationSystem()->DockAt(TargetStation))
 			{
 				//FLOG("  dock")
@@ -150,7 +146,6 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		FindBestHostileTarget();
 	}
 
-//	FLOGV("%s Target %x",  *Ship->GetImmatriculation(), PilotTargetShip);
 	bool Idle = true;
 
 	TimeUntilNextComponentSwitch-=ReactionTime;
@@ -160,19 +155,16 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	{
 		if (TimeUntilNextComponentSwitch <= 0 && !LockTarget)
 		{
-			//FLOGV("%s Switch because of timeout", *Ship->GetImmatriculation());
 			PilotTargetComponent = NULL;
 		}
 		else if (PilotTargetComponent)
 		{
 			if (PilotTargetComponent->GetSpacecraft() != PilotTargetShip)
 			{
-				//FLOGV("%s Switch because the component %s is not in the target ship", *Ship->GetImmatriculation(), *PilotTargetComponent->GetReadableName());
 				PilotTargetComponent = NULL;
 			}
 			else if (PilotTargetComponent->GetDamageRatio() <=0)
 			{
-				//FLOGV("%s Switch because the component %s is destroyed", *Ship->GetImmatriculation(), *PilotTargetComponent->GetReadableName());
 				PilotTargetComponent = NULL;
 			}
 		}
@@ -181,13 +173,10 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		{
 			PilotTargetComponent = GetRandomTargetComponent(PilotTargetShip);
 			TimeUntilNextComponentSwitch = 5;
-			//FLOGV("%s Select new target component %s ", *Ship->GetImmatriculation(), *PilotTargetComponent->GetReadableName());
 		}
 
 
-		//FLOGV("%s target %s",  *Ship->GetImmatriculation(),  *PilotTargetShip->GetImmatriculation());
 		EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
-		//FLOGV("%s WeaponType %d",  *Ship->GetImmatriculation(), (WeaponType - EFlareWeaponGroupType::WG_NONE));
 		if (WeaponType == EFlareWeaponGroupType::WG_GUN)
 		{
 			FighterPilot(DeltaSeconds);
@@ -321,7 +310,6 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 {
 	float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
-	//FLOGV("%s FighterPilot AmmoVelocity %f",  *Ship->GetImmatriculation(), AmmoVelocity);
 
 	bool DangerousTarget = IsShipDangerous(PilotTargetShip);
 
@@ -552,10 +540,6 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		UseOrbitalBoost = false;
 	}
 
-
-
-
-
 	// Find friend barycenter
 	// Go to friend barycenter
 	// If near
@@ -563,19 +547,13 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	// else
 		// Turn to direction
 
-
-
-
 	float TimeSinceDamage = Ship->GetDamageSystem()->GetTimeSinceLastExternalDamage();
-	//FLOGV("%s Pilot TimeSinceDamage %f", *Ship->GetImmatriculation(), TimeSinceDamage);
 
 	if(TimeSinceDamage < 5.)
 	{
 		UseOrbitalBoost = true;
 		FVector NoseAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
-		//FLOGV("%s Pilot LinearTargetVelocity %s", *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 		LinearTargetVelocity = LinearTargetVelocity.GetUnsafeNormal() * 0.5 + NoseAxis * 0.5 *  Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 3.0;
-		//FLOGV("%s Pilot After boost LinearTargetVelocity %s", *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 	}
 
 	// Anticollision
@@ -590,26 +568,12 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 {
-	//FLOGV("%s BomberPilot",  *Ship->GetImmatriculation());
-	// TODO
-
-	//FLOGV("%s GetLinearVelocity %s",  *Ship->GetImmatriculation(), *(Ship->GetLinearVelocity()).ToString());
-
-	//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + Ship->GetLinearVelocity() * 100, FColor::Green, false, ReactionTime);
-
-
-
-
 	LinearTargetVelocity = FVector::ZeroVector;
 
 
 	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()) / 100.f;
 	FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
 	float Distance = DeltaLocation.Size(); // Distance in meters
-
-	//FLOGV("%s DeltaLocation %s",  *Ship->GetImmatriculation(), *DeltaLocation.ToString());
-	//FLOGV("%s TargetAxis %s",  *Ship->GetImmatriculation(), *TargetAxis.ToString());
-	//FLOGV("%s Distance %f",  *Ship->GetImmatriculation(), Distance);
 
 	// Attack Phases
 	// 0 - Prepare attack : change velocity to approch the target
@@ -631,12 +595,10 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	bool HardBoost = false;
 	bool Anticollision = true;
 
-	//FLOGV("%s AttackPhase %d",  *Ship->GetImmatriculation(), AttackPhase);
 	if (AttackPhase == 0)
 	{
 		if (Distance < ChargeDistance)
 		{
-			//FLOGV("%s Distance < ChargeDistance => phase 1",  *Ship->GetImmatriculation());
 			// Target is approching, prepare attack
 			AttackPhase = 1;
 			LockTarget = true;
@@ -646,7 +608,6 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			LinearTargetVelocity = TargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), TargetAxis, FVector::ZeroVector, DeltaSeconds);
 			UseOrbitalBoost = true;
-			//FLOGV("%s Goto target %s",  *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 		}
 	}
 
@@ -656,17 +617,10 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
 		float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), Ship->Airframe->GetPhysicsLinearVelocity(), AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
-//		FLOGV("%s AmmoIntersectionLocation %s",  *Ship->GetImmatriculation(), *AmmoIntersectionLocation.ToString());
-//		FLOGV("%s AmmoIntersectionTime %f",  *Ship->GetImmatriculation(), AmmoIntersectionTime);
-//		FLOGV("%s AmmoVelocity %f",  *Ship->GetImmatriculation(), AmmoVelocity);
-
-		//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
-
 		AlignToSpeed = true;
 
 		if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < DropTime)
 		{
-//			FLOGV("%s AmmoIntersectionTime < DropTime => phase 2",  *Ship->GetImmatriculation());
 			// Near enougt
 			AttackPhase = 2;
 			LastWantFire = false;
@@ -679,14 +633,10 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			UseOrbitalBoost = true;
 			HardBoost = true;
 			Anticollision = false;
-//			FLOGV("%s ChargeAxis %s",  *Ship->GetImmatriculation(), *ChargeAxis.ToString());
-//			FLOGV("%s Charge target %s",  *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 		}
 		else
 		{
 			LinearTargetVelocity = TargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
-
-//			FLOGV("%s Goto target %s",  *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 		}
 
 		LastTargetDistance = Distance;
@@ -704,30 +654,21 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		Anticollision = false;
 		AlignToSpeed = true;
 
-//		FLOGV("%s AmmoIntersectionLocation %s",  *Ship->GetImmatriculation(), *AmmoIntersectionLocation.ToString());
-//		FLOGV("%s AmmoIntersectionTime %f",  *Ship->GetImmatriculation(), AmmoIntersectionTime);
-//		FLOGV("%s AmmoVelocity %f",  *Ship->GetImmatriculation(), AmmoVelocity);
-
-
 		if (AmmoIntersectionTime < EvadeTime || FVector::DotProduct(FrontVector, ChargeAxis) < 0.6 || AmmoIntersectionTime > AlignTime)
 		{
 			// Security distance reach
-//			FLOGV("%s AmmoIntersectionTime < EvadeTime => phase3",  *Ship->GetImmatriculation());
 			AttackPhase = 3;
 		}
 		else if (FVector::DotProduct(FrontVector, ChargeAxis) > 0.9 && AmmoIntersectionTime < DropTime)
 		{
-//			FLOGV("%s TimeBeforeNextDrop %f", *Ship->GetImmatriculation(), TimeBeforeNextDrop);
 			if (TimeBeforeNextDrop > 0)
 			{
 				TimeBeforeNextDrop -= ReactionTime;
-//				FLOGV("%s Reduce time to  %f",*Ship->GetImmatriculation(),  TimeBeforeNextDrop);
 			}
 			else
 			{
 
 				WantFire = !LastWantFire;
-//				FLOGV("%s WantFire=%d LastWantFire=%d",*Ship->GetImmatriculation(),  WantFire, LastWantFire);
 				LastWantFire = WantFire;
 				if (WantFire)
 				{
@@ -735,22 +676,15 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 				}
 			}
 
-
-//			FLOGV("%s WantFire %d",  *Ship->GetImmatriculation(), WantFire);
-
 			LinearTargetVelocity = ChargeAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
-//			FLOGV("%s ChargeAxis %s",  *Ship->GetImmatriculation(), *ChargeAxis.ToString());
-//			FLOGV("%s Charge target %s",  *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 		}
 	}
 
 	if (AttackPhase == 3)
 	{
 		FVector DeltaVelocity = (PilotTargetShip->GetLinearVelocity() - Ship->GetLinearVelocity()) / 100.;
-//		FLOGV("%s DeltaVelocity %s",  *Ship->GetImmatriculation(), *DeltaVelocity.ToString());
 		if (Distance > SecurityDistance)
 		{
-//			FLOGV("%s Distance > SecurityDistance => phase0",  *Ship->GetImmatriculation());
 			// Security distance reach
 			AttackPhase = 0;
 			ClearTarget = true;
@@ -764,10 +698,6 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			FVector Avoid =  AvoidQuat.RotateVector(TopVector);
 
 			LinearTargetVelocity = Avoid.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
-//			FLOGV("%s AttackAngle %f",  *Ship->GetImmatriculation(), AttackAngle);
-//			FLOGV("%s TopVector %s",  *Ship->GetImmatriculation(), *TopVector.ToString());
-//			FLOGV("%s Avoid %s",  *Ship->GetImmatriculation(), *Avoid.ToString());
-//			FLOGV("%s Escape target %s",  *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 			UseOrbitalBoost = true;
 			HardBoost = true;
 		}
@@ -777,7 +707,6 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			HardBoost = true;
 			LinearTargetVelocity = -TargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 2;
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), -TargetAxis, FVector::ZeroVector, DeltaSeconds);
-//			FLOGV("%s Run from target %s",  *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
 		}
 	}
 
@@ -798,9 +727,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		else
 		{
 			FVector LinearVelocityAxis = Ship->GetLinearVelocity().GetUnsafeNormal();
-//			FLOGV("%s LinearVelocityAxis %s",  *Ship->GetImmatriculation(), *LinearVelocityAxis.ToString());
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearVelocityAxis, FVector::ZeroVector, DeltaSeconds);
-//			FLOGV("%s AngularTargetVelocity %s",  *Ship->GetImmatriculation(), *AngularTargetVelocity.ToString());
 		}
 	}
 	else
@@ -812,9 +739,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		else
 		{
 			FVector LinearTargetVelocityAxis = LinearTargetVelocity.GetUnsafeNormal();
-//			FLOGV("%s LinearTargetVelocityAxis %s",  *Ship->GetImmatriculation(), *LinearTargetVelocityAxis.ToString());
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocityAxis, FVector::ZeroVector, DeltaSeconds);
-//			FLOGV("%s AngularTargetVelocity %s",  *Ship->GetImmatriculation(), *AngularTargetVelocity.ToString());
 		}
 	}
 
@@ -838,7 +763,6 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 {
-	//FLOGV("%s IdlePilot",  *Ship->GetImmatriculation());
 	// TODO find better
 	UseOrbitalBoost = false;
 
@@ -873,7 +797,6 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	// If enemy near, run away !
 	if (PilotTargetShip)
 	{
-		//FLOGV("%s find enemy %s", *Ship->GetImmatriculation(), *PilotTargetShip->GetImmatriculation());
 		FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
 		float Distance = DeltaLocation.Size(); // Distance in meters
 
@@ -894,8 +817,6 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	}
 	else
 	{
-		//FLOGV("%s find a leader", *Ship->GetImmatriculation());
-
 		// If not, find a leader
 		AFlareSpacecraft* LeaderShip = Ship;
 
@@ -951,14 +872,9 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 				PilotTargetLocation = PatrolCenter + FMath::VRand() * FMath::FRand() * 400000;
 			}
 			LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 0.8;
-
-            //FLOGV("%s Leader ship LinearTargetVelocity=%s", *LeaderShip->GetImmatriculation(), *LinearTargetVelocity.ToString());
-            //FLOGV("%s Leader ship LinearTargetVelocity.Size=%f", *LeaderShip->GetImmatriculation(), LinearTargetVelocity.Size());
-
 		}
 		else
 		{
-            //FLOGV("%s leader is %s", *Ship->GetImmatriculation(), *LeaderShip->GetImmatriculation());
 			// Follow the leader
 			float FollowRadius = 50000 + FMath::Pow(Ship->GetCompany()->GetCompanyShips().Num() * 3 * FMath::Pow(10000, 3),1/3.);
 			if((LeaderShip->GetActorLocation() - Ship->GetActorLocation()).Size() < FollowRadius)
@@ -993,8 +909,6 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 {
-	//FLOGV("%s FlagShipPilot",  *Ship->GetImmatriculation());
-
 	// Go to a random point at 800 m from the target
 
 	// If at less than 50 m from this point, get another random point
@@ -1003,10 +917,6 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 	float TargetLocationToTargetShipDistance = (PilotTargetLocation - PilotTargetShip->GetActorLocation()).Size();
 	float TargetLocationToShipDistance = (PilotTargetLocation - Ship->GetActorLocation()).Size();
-
-	//FLOGV("%s FlagShipPilot PilotTargetLocation %s",  *Ship->GetImmatriculation(), *PilotTargetLocation.ToString());
-	//FLOGV("%s FlagShipPilot TargetLocationToTargetShipDistance %f",  *Ship->GetImmatriculation(), TargetLocationToTargetShipDistance);
-	//FLOGV("%s FlagShipPilot TargetLocationToShipDistance %f",  *Ship->GetImmatriculation(), TargetLocationToShipDistance);
 
 	bool NewTargetLocation = false;
 	if (TargetLocationToTargetShipDistance > 200000)
@@ -1021,12 +931,10 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	}
 
 
-	//FLOGV("%s FlagShipPilot NewTargetLocation %d",  *Ship->GetImmatriculation(), NewTargetLocation);
 	if (NewTargetLocation || PilotTargetLocation.IsZero())
 	{
 
 		PilotTargetLocation = FMath::VRand() * FMath::FRand() * 80000 + PilotTargetShip->GetActorLocation();
-		//FLOGV("%s FlagShipPilot NewTargetLocation %d",  *Ship->GetImmatriculation(), NewTargetLocation);
 	}
 
 
@@ -1041,22 +949,12 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocity, FVector::ZeroVector, DeltaSeconds);
 
-
-	//FLOGV("%s FlagShipPilot LinearTargetVelocity %s",  *Ship->GetImmatriculation(), *LinearTargetVelocity.ToString());
-
-
 	FVector FrontAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
-
-	//FLOGV("%s FlagShipPilot FVector::DotProduct(FrontAxis, LinearTargetVelocity.GetUnsafeNormal()) %f",  *Ship->GetImmatriculation(), FVector::DotProduct(FrontAxis, LinearTargetVelocity.GetUnsafeNormal()));
-
 
 	if (FVector::DotProduct(FrontAxis, LinearTargetVelocity.GetUnsafeNormal()) > 0.9 && (LinearTargetVelocity - Ship->Airframe->GetPhysicsLinearVelocity()).Size() > 500)
 	{
 		UseOrbitalBoost = true;
 	}
-
-
-
 
 	// Find friend barycenter
 	// Go to friend barycenter
@@ -1077,8 +975,6 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 void UFlareShipPilot::FindBestHostileTarget()
 {
-
-	//FLOGV("%s FindBestHostileTarget",  *Ship->GetImmatriculation());
 	// TODO S or L ship dispatch
 
 	AFlareSpacecraft* TargetCandidate = NULL;
@@ -1088,17 +984,14 @@ void UFlareShipPilot::FindBestHostileTarget()
 
 	if (Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_BOMB))
 	{
-//		FLOGV("%s Has Bomb",  *Ship->GetImmatriculation());
 		TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::L);
 	}
 
 	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_GUN))
 	{
-//		FLOGV("%s Has Gun",  *Ship->GetImmatriculation());
 		TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::S);
 		if (!TargetCandidate)
 		{
-//			FLOGV("%s no S target search L",  *Ship->GetImmatriculation());
 			TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::L);
 		}
 	}
@@ -1106,11 +999,9 @@ void UFlareShipPilot::FindBestHostileTarget()
 	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
 	{
 		//TODO if has AA turret, follow S
-		//FLOGV("%s Has turret",  *Ship->GetImmatriculation());
 		TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::L);
 		if (!TargetCandidate)
 		{
-			//FLOGV("%s no S target search L",  *Ship->GetImmatriculation());
 			TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::S);
 		}
 	}
@@ -1130,11 +1021,9 @@ void UFlareShipPilot::FindBestHostileTarget()
 	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
 	{
 		//TODO if has AA turret, follow S
-		//FLOGV("%s Has turret",  *Ship->GetImmatriculation());
 		TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::L);
 		if (!TargetCandidate)
 		{
-			//FLOGV("%s no S target search L",  *Ship->GetImmatriculation());
 			TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::S);
 		}
 	}
@@ -1142,7 +1031,6 @@ void UFlareShipPilot::FindBestHostileTarget()
 
 	if (TargetCandidate)
 	{
-		//FLOGV("%s Candidate found %s",  *Ship->GetImmatriculation(), *TargetCandidate->GetImmatriculation());
 		PilotTargetShip = TargetCandidate;
 		AttackPhase = 0;
 		AttackAngle = FMath::FRandRange(0, 360);
@@ -1177,7 +1065,6 @@ void UFlareShipPilot::FindBestHostileTarget()
 				BestScore = Score;
 			}
 		}
-//		FLOGV("%s Candidate SelectedWeaponGroupIndex %d",  *Ship->GetImmatriculation(), SelectedWeaponGroupIndex);
 	}
 }
 

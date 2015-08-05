@@ -149,7 +149,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	if (Pause)
 	{
 		Save(); // Save must be performed with the old pause state
-		FLOGV("%s save linear velocity : %s", *GetImmatriculation(), *ShipData.LinearVelocity.ToString());
+		FLOGV("%s save linear velocity : %s", *GetImmatriculation().ToString(), *ShipData.LinearVelocity.ToString());
 
 	}
 
@@ -160,7 +160,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 
 	if (!Pause)
 	{
-		FLOGV("%s restore linear velocity : %s", *GetImmatriculation(), *ShipData.LinearVelocity.ToString());
+		FLOGV("%s restore linear velocity : %s", *GetImmatriculation().ToString(), *ShipData.LinearVelocity.ToString());
 		Airframe->SetPhysicsLinearVelocity(ShipData.LinearVelocity);
 		Airframe->SetPhysicsAngularVelocity(ShipData.AngularVelocity);
 		SmoothedVelocity = GetLinearVelocity();
@@ -331,9 +331,9 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		{
 			AFlareSpacecraft* Station = GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
 
-			if (*Station->GetImmatriculation() == ShipData.DockedTo)
+			if (Station->GetImmatriculation() == ShipData.DockedTo)
 			{
-				FLOGV("AFlareSpacecraft::Load : Found dock station '%s'", *Station->GetImmatriculation());
+				FLOGV("AFlareSpacecraft::Load : Found dock station '%s'", *Station->GetImmatriculation().ToString());
 				NavigationSystem->ConfirmDock(Station, ShipData.DockedAt);
 				break;
 			}
@@ -804,9 +804,9 @@ FVector AFlareSpacecraft::GetLinearVelocity() const
 	return Airframe->GetPhysicsLinearVelocity() / 100;
 }
 
-FString AFlareSpacecraft::GetImmatriculation() const
+FName AFlareSpacecraft::GetImmatriculation() const
 {
-	return ShipData.Immatriculation.ToString();
+	return ShipData.Immatriculation;
 }
 
 

@@ -64,6 +64,7 @@ protected:
 	TArray<UFlareSimulatedSpacecraft*>      TravelShips;
 
 	UFlareFleet*      Fleet;
+	UFlareSimulatedSector*      DestinationSector;
 
 
 	FFlareTravelSave        TravelData;

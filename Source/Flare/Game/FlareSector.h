@@ -26,7 +26,7 @@ public:
 	virtual void Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sector);
 
 	/** Save the sector to a save file */
-	virtual FFlareSectorSave* Save();
+	virtual FFlareSectorSave* Save(TArray<FFlareSpacecraftSave>& SpacecraftData);
 
 	/** Destroy the sector */
 	virtual void Destroy();
@@ -51,7 +51,7 @@ public:
 
 	AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
 
-	AFlareSpacecraft* LoadShip(const FFlareSpacecraftSave& ShipData);
+	AFlareSpacecraft* LoadSpacecraft(const FFlareSpacecraftSave& ShipData);
 
 	AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 

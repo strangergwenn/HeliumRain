@@ -345,7 +345,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 		if (ShipDesc)
 		{
-			ObjectName->SetText(FText::FromString(TargetSpacecraft->GetImmatriculation()));
+			ObjectName->SetText(FText::FromString(TargetSpacecraft->GetImmatriculation().ToString()));
 			ObjectClassName->SetText(FText::FromString(ShipDesc->Name.ToString()));
 			ObjectDescription->SetText(ShipDesc->Description);
 			PC->GetMenuPawn()->ShowShip(ShipDesc, TargetSpacecraftData);

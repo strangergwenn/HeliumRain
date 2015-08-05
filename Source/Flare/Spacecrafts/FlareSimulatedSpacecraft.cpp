@@ -18,7 +18,7 @@ UFlareSimulatedSpacecraft::UFlareSimulatedSpacecraft(const FObjectInitializer& O
 
 void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 {
-	Game = Cast<UFlareSimulatedSector>(GetOuter())->GetGame();
+	Game = Cast<UFlareCompany>(GetOuter())->GetGame();
 
 	SpacecraftData = Data;
 
@@ -53,9 +53,9 @@ bool UFlareSimulatedSpacecraft::IsStation()
 	return IFlareSpacecraftInterface::IsStation(SpacecraftDescription);
 }
 
-FString UFlareSimulatedSpacecraft::GetImmatriculation() const
+FName UFlareSimulatedSpacecraft::GetImmatriculation() const
 {
-	return SpacecraftData.Immatriculation.ToString();
+	return SpacecraftData.Immatriculation;
 }
 
 

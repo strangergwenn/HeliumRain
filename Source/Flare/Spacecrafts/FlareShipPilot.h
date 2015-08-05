@@ -1,9 +1,11 @@
 #pragma once
 
+#include "FlareSpacecraftTypes.h"
 #include "FlareShipPilot.generated.h"
 
 class AFlareSpacecraft;
 class IFlareSpacecraftInterface;
+class UFlareSpacecraftComponent;
 
 /** Ship component save data */
 USTRUCT()

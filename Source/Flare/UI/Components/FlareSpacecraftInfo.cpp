@@ -204,7 +204,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 	if (Target && PC)
 	{
 		CompanyFlag->SetCompany(Target->GetCompany());
-		TargetName = Target->GetImmatriculation();
+		TargetName = Target->GetImmatriculation().ToString();
 		FFlareSpacecraftSave* SaveData = Target->Save();
 		if (SaveData)
 		{

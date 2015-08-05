@@ -18,6 +18,17 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 {
 	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
 	TravelData = Data;
+	TravelShips.Empty();
+
+	Fleet = Game->GetGameWorld()->FindFleet(TravelData.FleetIdentifier);
+	DestinationSector = Game->GetGameWorld()->FindSector(TravelData.DestinationSectorIdentifier);
+
+	for(int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
+	{
+		TravelShips.Add(Fleet->GetShips()[ShipIndex]);
+	}
+
+	Fleet->SetCurrentTravel(this);
 }
 
 FFlareTravelSave* UFlareTravel::Save()
@@ -42,5 +53,8 @@ void UFlareTravel::Simulate(long Duration)
 
 void UFlareTravel::EndTravel()
 {
+	Fleet->SetCurrentSector(DestinationSector);
+	DestinationSector->AddFleet(Fleet);
 
+	Game->GetGameWorld()->DeleteTravel(this);
 }
