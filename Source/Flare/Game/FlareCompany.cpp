@@ -64,10 +64,22 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 FFlareCompanySave* UFlareCompany::Save()
 {
 	CompanyData.Fleets.Empty();
+	CompanyData.ShipData.Empty();
+	CompanyData.StationData.Empty();
 
 	for(int i = 0 ; i < CompanyFleets.Num(); i++)
 	{
 		CompanyData.Fleets.Add(*CompanyFleets[i]->Save());
+	}
+
+	for(int i = 0 ; i < CompanyShips.Num(); i++)
+	{
+		CompanyData.ShipData.Add(*CompanyShips[i]->Save());
+	}
+
+	for(int i = 0 ; i < CompanyStations.Num(); i++)
+	{
+		CompanyData.StationData.Add(*CompanyStations[i]->Save());
 	}
 
 	return &CompanyData;

@@ -7,6 +7,7 @@
 #include "FlareSimulatedSector.generated.h"
 
 class UFlareSimulatedSpacecraft;
+class UFlareFleet;
 class UFlareGame;
 struct FFlarePlayerSave;
 
@@ -139,7 +140,6 @@ class FLARE_API UFlareSimulatedSector : public UObject
     GENERATED_UCLASS_BODY()
 
 public:
-
     /*----------------------------------------------------
         Save
     ----------------------------------------------------*/
@@ -198,13 +198,10 @@ protected:
     // Gameplay data
 	FFlareSectorSave                        SectorData;
 
-	UPROPERTY()
     TArray<UFlareSimulatedSpacecraft*>      SectorStations;
 
-	UPROPERTY()
     TArray<UFlareSimulatedSpacecraft*>      SectorShips;
 
-	UPROPERTY()
 	TArray<UFlareFleet*>                    SectorFleets;
 
 	AFlareGame*                             Game;
@@ -250,5 +247,10 @@ public:
     {
         return SectorShips;
     }
+
+	inline TArray<UFlareFleet*>& GetSectorFleets()
+	{
+		return SectorFleets;
+	}
 
 };

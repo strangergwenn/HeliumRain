@@ -81,10 +81,22 @@ public:
 		return Game;
 	}
 
+	UFlareSimulatedSector* GetDestinationSector()
+	{
+		return DestinationSector;
+	}
+
 	UFlareFleet* GetFleet()
 	{
 		return Fleet;
 	}
+
+	int64 GetDepartureTime()
+	{
+		return TravelData.DepartureTime;
+	}
+
+	int64 GetElapsedTime();
 
 	FFlareTravelSave* GetData()
 	{

@@ -19,10 +19,7 @@ struct FFlareWorldSave
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, Category = Save)
-	int32                    Time;
-
-	UPROPERTY(EditAnywhere, Category = Save)
-	float                    Time2;
+	int64                    Time;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareCompanySave> CompanyData;
@@ -59,19 +56,20 @@ public:
 
 	UFlareTravel* LoadTravel(const FFlareTravelSave& TravelData);
 
-	/** Force new time */
-	virtual void ForceTime(int64 Time);
-
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
 
 	/** Simulate world during a specific duration */
-	void Simulate(long Duration);
+	void Simulate(int64 Duration);
 
 	UFlareTravel* StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector);
 
 	virtual void DeleteTravel(UFlareTravel* Travel);
+
+	/** Force new time */
+	virtual void ForceTime(int64 Time);
+
 
 protected:
 
@@ -119,6 +117,11 @@ public:
 		return Sectors;
 	}
 
+	inline TArray<UFlareTravel*>& GetTravels()
+	{
+		return Travels;
+	}
+
 	inline int64 GetTime()
 	{
 		return WorldData.Time;
@@ -139,15 +142,12 @@ public:
 
 	inline UFlareCompany* FindCompanyByShortName(FName CompanyShortName) const
 	{
-		FLOGV("FindCompanyByShortName %s",*CompanyShortName.ToString());
 		// Find company
 		for(int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
-			FLOGV("  %s",*Company->GetShortName().ToString());
 			if (Company->GetShortName() == CompanyShortName)
 			{
-				FLOG("  OK");
 				return Company;
 			}
 		}

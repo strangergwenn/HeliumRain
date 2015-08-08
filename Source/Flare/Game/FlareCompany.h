@@ -182,8 +182,11 @@ protected:
 	// Gameplay data
 	const FFlareCompanyDescription*         CompanyDescription;
 	FFlareCompanySave                       CompanyData;
+	UPROPERTY()
 	TArray<UFlareSimulatedSpacecraft*>      CompanyStations;
+	UPROPERTY()
 	TArray<UFlareSimulatedSpacecraft*>      CompanyShips;
+	UPROPERTY()
 	TArray<UFlareSimulatedSpacecraft*>      CompanySpacecrafts;
 
 	UPROPERTY()
@@ -271,6 +274,17 @@ public:
 	{
 		return CompanyShips;
 	}
+
+	inline TArray<UFlareSimulatedSpacecraft*>& GetCompanySpacecrafts()
+	{
+		return CompanySpacecrafts;
+	}
+
+	inline TArray<UFlareFleet*>& GetCompanyFleets()
+	{
+		return CompanyFleets;
+	}
+
 
 	UFlareFleet* FindFleet(FName Identifier) const
 	{

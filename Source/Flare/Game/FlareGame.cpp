@@ -463,7 +463,6 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
         World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
 
 		FLOGV("AFlareGame::LoadGame time=%lld", Save->WorldData.Time);
-		FLOGV("AFlareGame::LoadGame time2=%f", Save->WorldData.Time2);
 
         World->Load(Save->WorldData);
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
@@ -507,7 +506,6 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 
 
 		FLOGV("AFlareGame::SaveGame time=%lld", Save->WorldData.Time);
-		FLOGV("AFlareGame::SaveGame time=%f", Save->WorldData.Time2);
 		// Save
 		UGameplayStatics::SaveGameToSlot(Save, "SaveSlot" + FString::FromInt(CurrentSaveIndex), 0);
 		return true;
@@ -985,6 +983,17 @@ void AFlareGame::SetWorldTime(int64 Time)
 	World->ForceTime(Time);
 }
 
+
+void AFlareGame::Simulate(int64 Duration)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::Simulate failed: no loaded world");
+		return;
+	}
+	World->Simulate(Duration);
+}
+
 void AFlareGame::StartTravel(FName FleetIdentifier, FName SectorIdentifier)
 {
 	if (!World)
@@ -1128,6 +1137,201 @@ void AFlareGame::MergeFleets(FName Fleet1Identifier, FName Fleet2Identifier)
 	Fleet1->Merge(Fleet2);
 }
 
+
+void AFlareGame::PrintCompanyList()
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::PrintCompanyList failed: no loaded world");
+		return;
+	}
+
+
+	FLOGV("> PrintCompanyList: %d companies", World->GetCompanies().Num());
+
+	for(int i = 0; i < World->GetCompanies().Num(); i++)
+	{
+		UFlareCompany* Company = World->GetCompanies()[i];
+		FLOGV("%2d - %s: %s (%s)", i, *Company->GetIdentifier().ToString(), *Company->GetCompanyName().ToString(), *Company->GetShortName().ToString());
+	}
+}
+
+
+void AFlareGame::PrintCompany(FName CompanyShortName)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::PrintCompany failed: no loaded world");
+		return;
+	}
+
+	UFlareCompany* Company = World->FindCompanyByShortName(CompanyShortName);
+	if (!Company)
+	{
+		FLOGV("AFlareGame::PrintCompany failed: no company with short name '%s'", * CompanyShortName.ToString());
+		return;
+	}
+
+	FLOGV("> PrintCompany: %s - %s (%s)", *Company->GetIdentifier().ToString(), *Company->GetCompanyName().ToString(), *Company->GetShortName().ToString());
+
+	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();
+	FLOGV("  > %d fleets", CompanyFleets.Num());
+	for(int i = 0; i < CompanyFleets.Num(); i++)
+	{
+		UFlareFleet* Fleet = CompanyFleets[i];
+		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName());
+	}
+
+	TArray<UFlareSimulatedSpacecraft*> CompanySpacecrafts = Company->GetCompanySpacecrafts();
+	FLOGV("  > %d spacecrafts (%d ships and %d stations)", CompanySpacecrafts.Num(), Company->GetCompanyShips().Num(), Company->GetCompanyStations().Num());
+	for(int i = 0; i < CompanySpacecrafts.Num(); i++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = CompanySpacecrafts[i];
+		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
+	}
+}
+
+void AFlareGame::PrintCompanyByIndex(int32 Index)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::PrintCompanyByIndex failed: no loaded world");
+		return;
+	}
+
+	TArray<UFlareCompany*> Companies = World->GetCompanies();
+	if(Index < 0 || Index > Companies.Num() -1)
+	{
+		FLOGV("AFlareGame::PrintCompanyByIndex failed: invalid index %d, with %d companies.", Index, Companies.Num());
+		return;
+	}
+
+	PrintCompany(Companies[Index]->GetShortName());
+}
+
+
+
+void AFlareGame::PrintSectorList()
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::PrintSectorList failed: no loaded world");
+		return;
+	}
+
+
+	FLOGV("> PrintSectorList: %d sectors", World->GetSectors().Num());
+
+	for(int i = 0; i < World->GetSectors().Num(); i++)
+	{
+		UFlareSimulatedSector* Sector = World->GetSectors()[i];
+		FLOGV("%2d - %s: %s (%s)", i, *Sector->GetIdentifier().ToString(), *Sector->GetSectorName(), *Sector->GetSectorCode());
+	}
+}
+
+
+void AFlareGame::PrintSector(FName SectorIdentifier)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::PrintCompany failed: no loaded world");
+		return;
+	}
+
+	UFlareSimulatedSector* Sector = World->FindSector(SectorIdentifier);
+	if (!Sector)
+	{
+		FLOGV("AFlareGame::PrintSector failed: no sector with identifier '%s'", * SectorIdentifier.ToString());
+		return;
+	}
+
+	FLOGV("> PrintSector: %s - %s (%s)", *Sector->GetIdentifier().ToString(), *Sector->GetSectorName(), *Sector->GetSectorCode());
+
+	TArray<UFlareFleet*> SectorFleets = Sector->GetSectorFleets();
+	FLOGV("  > %d fleets", SectorFleets.Num());
+	for(int i = 0; i < SectorFleets.Num(); i++)
+	{
+		UFlareFleet* Fleet = SectorFleets[i];
+		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName());
+	}
+
+	TArray<UFlareSimulatedSpacecraft*> SectorShips = Sector->GetSectorShips();
+	FLOGV("  > %d ships", SectorShips.Num());
+	for(int i = 0; i < SectorShips.Num(); i++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = SectorShips[i];
+		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
+	}
+
+	TArray<UFlareSimulatedSpacecraft*> SectorStations = Sector->GetSectorStations();
+	FLOGV("  > %d stations", SectorStations.Num());
+	for(int i = 0; i < SectorStations.Num(); i++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = SectorStations[i];
+		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
+	}
+}
+
+
+void AFlareGame::PrintSectorByIndex(int32 Index)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::PrintSectorByIndex failed: no loaded world");
+		return;
+	}
+
+	TArray<UFlareSimulatedSector*> Sectors= World->GetSectors();
+	if(Index < 0 || Index > Sectors.Num() -1)
+	{
+		FLOGV("AFlareGame::PrintSectorByIndex failed: invalid index %d, with %d sectors.", Index, Sectors.Num());
+		return;
+	}
+
+	PrintSector(Sectors[Index]->GetIdentifier());
+}
+
+
+void AFlareGame::PrintTravelList()
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::PrintTravelList failed: no loaded world");
+		return;
+	}
+
+
+	FLOGV("> PrintTravelList: %d travels", World->GetTravels().Num());
+
+	for(int i = 0; i < World->GetTravels().Num(); i++)
+	{
+		UFlareTravel* Travel = World->GetTravels()[i];
+		FLOGV("%2d - %s to %s	", i, *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName());
+	}
+}
+
+
+void AFlareGame::PrintTravelByIndex(int32 Index)
+{
+	if (!World)
+	{
+		FLOG("AFlareGame::PrintTravelByIndex failed: no loaded world");
+		return;
+	}
+
+	TArray<UFlareTravel*>Travels= World->GetTravels();
+	if(Index < 0 || Index > Travels.Num() -1)
+	{
+		FLOGV("AFlareGame::PrintTravelByIndex failed: invalid index %d, with %d travels.", Index, Travels.Num());
+		return;
+	}
+
+	UFlareTravel* Travel = World->GetTravels()[Index];
+	FLOGV("> PrintTravel %s to %s", *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName());
+	FLOGV("  - Departure time: %lld s", Travel->GetDepartureTime());
+	FLOGV("  - Elapsed time: %lld s", Travel->GetElapsedTime());
+
+}
 
 
 /*----------------------------------------------------

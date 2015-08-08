@@ -182,6 +182,10 @@ public:
 	UFUNCTION(exec)
 	void SetWorldTime(int64 Time);
 
+	/** Simulate a world duration */
+	UFUNCTION(exec)
+	void Simulate(int64 Duration);
+
 	/** Start travel. Not possible during travelling */
 	UFUNCTION(exec)
 	void StartTravel(FName FleetIdentifier, FName SectorIdentifier);
@@ -205,6 +209,31 @@ public:
 	/** Merge fleet 2 in fleet 1. Not possible during travelling*/
 	UFUNCTION(exec)
 	void MergeFleets(FName Fleet1Identifier, FName Fleet2Identifier);
+
+	UFUNCTION(exec)
+	void PrintCompanyList();
+
+	UFUNCTION(exec)
+	void PrintCompany(FName CompanyShortName);
+
+	UFUNCTION(exec)
+	void PrintCompanyByIndex(int32 Index);
+
+	UFUNCTION(exec)
+	void PrintSectorList();
+
+	UFUNCTION(exec)
+	void PrintSector(FName SectorIdentifier);
+
+	UFUNCTION(exec)
+	void PrintSectorByIndex(int32 Index);
+
+	UFUNCTION(exec)
+	void PrintTravelList();
+
+	UFUNCTION(exec)
+	void PrintTravelByIndex(int32 Index);
+
 
 
 	/*----------------------------------------------------

@@ -245,6 +245,7 @@ void UFlareSimulatedSector::DisbandFleet(UFlareFleet* Fleet)
 
 void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 {
+	FLOGV("UFlareSimulatedSector::RetireFleet %s", *Fleet->GetFleetName());
 	if(SectorFleets.Remove(Fleet) == 0)
 	{
 		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName())

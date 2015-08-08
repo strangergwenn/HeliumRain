@@ -56,5 +56,12 @@ void UFlareTravel::EndTravel()
 	Fleet->SetCurrentSector(DestinationSector);
 	DestinationSector->AddFleet(Fleet);
 
+	// Place correctly new ships to avoid collision
+
 	Game->GetGameWorld()->DeleteTravel(this);
+}
+
+int64 UFlareTravel::GetElapsedTime()
+{
+	return Game->GetGameWorld()->GetTime() - TravelData.DepartureTime;
 }

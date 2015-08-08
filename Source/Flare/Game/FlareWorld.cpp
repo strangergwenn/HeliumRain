@@ -135,15 +135,17 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 	WorldData.TravelData.Empty();
 
 	TArray<FFlareSpacecraftSave> SpacecraftData;
-	ActiveSector->Save(SpacecraftData);
-
-	//Reload  spacecrafts. Have to be done before companies save
-	for(int i = 0 ; i < SpacecraftData.Num(); i++)
+	if(ActiveSector)
 	{
-		UFlareSimulatedSpacecraft* Spacecraft = FindSpacecraft(SpacecraftData[i].Immatriculation);
-		Spacecraft->Load(SpacecraftData[i]);
-	}
+		ActiveSector->Save(SpacecraftData);
 
+		//Reload  spacecrafts. Have to be done before companies save
+		for(int i = 0 ; i < SpacecraftData.Num(); i++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = FindSpacecraft(SpacecraftData[i].Immatriculation);
+			Spacecraft->Load(SpacecraftData[i]);
+		}
+	}
 
 	// Companies
 	for (int i = 0; i < Companies.Num(); i++)
@@ -188,20 +190,32 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 }
 
 
-void UFlareWorld::Simulate(long Duration)
+void UFlareWorld::Simulate(int64 Duration)
 {
 	WorldData.Time += Duration;
-	WorldData.Time2 = WorldData.Time;
 
-
-
-	for(int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex--)
+	for(int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
 	{
 		Travels[TravelIndex]->Simulate(Duration);
 	}
 
 	// Process events
 }
+
+
+
+void UFlareWorld::ForceTime(int64 Time)
+{
+	int64 TimeJump = Time - WorldData.Time;
+	WorldData.Time = Time;
+	if(TimeJump > 0)
+	{
+		Simulate(TimeJump);
+	}
+
+
+}
+
 
 
 UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
@@ -231,9 +245,4 @@ void UFlareWorld::DeleteTravel(UFlareTravel* Travel)
 	FLOGV("UFlareWorld::DeleteTravel : remove travel for fleet '%s'", *Travel->GetFleet()->GetName());
 
 	Travels.Remove(Travel);
-}
-
-void UFlareWorld::ForceTime(int64 Time)
-{
-	WorldData.Time = Time;
 }
