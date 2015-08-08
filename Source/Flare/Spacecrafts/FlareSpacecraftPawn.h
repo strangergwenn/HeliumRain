@@ -80,7 +80,7 @@ public:
 
 	/** We are now in presentation mode */
 	UFUNCTION(BlueprintImplementableEvent)
-	virtual void PresentationModeStarted();
+	void PresentationModeStarted();
 
 
 	/*----------------------------------------------------
