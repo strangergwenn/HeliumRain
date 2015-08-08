@@ -114,8 +114,14 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	// Clean up
 	ResetContent();
 
+	// Spawn parameters
+	FActorSpawnParameters Params;
+	Params.bNoFail = true;
+	Params.Instigator = this;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 	// Spawn and setup the ship
-	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(ShipDesc->Template->GeneratedClass);
+	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(ShipDesc->Template->GeneratedClass, Params);
 	CurrentSpacecraft->AttachRootComponentToActor(this, NAME_None, EAttachLocation::SnapToTarget);
 
 	// Setup rotation and scale
