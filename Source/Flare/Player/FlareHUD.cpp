@@ -207,26 +207,27 @@ void AFlareHUD::DrawHUD()
 		// Draw ship designators and markers
 		FoundTargetUnderMouse = false;
 
-
-		for(int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
+		for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 		{
 			AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
+			if (Spacecraft != PlayerShip)
+			{
+				// Draw designators
+				bool ShouldDrawSearchMarker;
+				if (PC->LineOfSightTo(Spacecraft))
+				{
+					ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
+				}
+				else
+				{
+					ShouldDrawSearchMarker = Spacecraft->GetDamageSystem()->IsAlive();
+				}
 
-			// Draw designators
-			bool ShouldDrawSearchMarker;
-			if (PC->LineOfSightTo(Spacecraft))
-			{
-				ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
-			}
-			else
-			{
-				ShouldDrawSearchMarker = Spacecraft->GetDamageSystem()->IsAlive();
-			}
-
-			// Draw search markers
-			if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE && ShouldDrawSearchMarker)
-			{
-				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
+				// Draw search markers
+				if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE && ShouldDrawSearchMarker)
+				{
+					DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
+				}
 			}
 		}
 
