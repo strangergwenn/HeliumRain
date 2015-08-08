@@ -435,7 +435,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 
 	FLOG("CreateGame create initial ship");
 	World->FindSector("nema-50k-10")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
-	World->FindSector("nema-10k-30")->CreateShip("ship-orca", Company, FVector::ZeroVector);
+	World->FindSector("nema-10k-30")->CreateShip("ship-atlas", Company, FVector::ZeroVector);
 	World->FindSector("nema-50k-0")->CreateShip("ship-dragon", Company, FVector::ZeroVector);
 	World->FindSector("moon1-1k-0")->CreateShip("ship-invader", Company, FVector::ZeroVector);
 
