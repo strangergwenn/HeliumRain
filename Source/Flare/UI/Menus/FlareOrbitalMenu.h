@@ -62,6 +62,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Inspect the company */
+	void OnInspectCompany();
+
 	/** Open the company leaderboard */
 	void OnOpenLeaderboard();
 

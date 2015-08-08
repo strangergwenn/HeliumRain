@@ -52,7 +52,20 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
 			]
 
-			// Quit
+			// Company
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("InspectCompany", "Company"))
+				.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
+				.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
+			]
+
+			// Leaderboard
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Bottom)
@@ -247,6 +260,11 @@ inline FVector2D SFlareOrbitalMenu::GetPositionFromPolar(int32 Radius, int32 Ang
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+void SFlareOrbitalMenu::OnInspectCompany()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
+}
 
 void SFlareOrbitalMenu::OnOpenLeaderboard()
 {

@@ -36,6 +36,9 @@ public:
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
+	/** Ensure that we don't display empty widgets */
+	EVisibility GetVisibility() const;
+
 	/** Get the current objective name */
 	FText GetName() const;
 

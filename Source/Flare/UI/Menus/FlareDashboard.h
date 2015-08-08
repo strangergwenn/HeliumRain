@@ -60,9 +60,6 @@ protected:
 
 	/** Undock */
 	void OnUndock();
-
-	/** Inspect the company */
-	void OnInspectCompany();
 	
 	/** Close the menu */
 	void OnExit();

@@ -35,6 +35,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 			SNew(SBox)
 			.VAlign(VAlign_Center)
 			.HAlign(HAlign_Left)
+			.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
 			[
 				SNew(SImage)
 				.Image(FFlareStyleSet::GetIcon("Objective"))
@@ -48,6 +49,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 		[
 			SNew(SBox)
 			.WidthOverride(ObjectiveInfoWidth)
+			.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
 			[
 				SNew(SVerticalBox)
 
@@ -105,6 +107,11 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 
 	CurrentFadeTime = FMath::Clamp(CurrentFadeTime + Delta, 0.0f, 1.0f);
 	CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, CurrentFadeTime, 2);
+}
+
+EVisibility SFlareObjectiveInfo::GetVisibility() const
+{
+	return PC->HasObjective() ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 FText SFlareObjectiveInfo::GetName() const

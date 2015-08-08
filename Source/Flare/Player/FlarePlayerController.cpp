@@ -68,9 +68,9 @@ void AFlarePlayerController::BeginPlay()
 	SetupMenu();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 
-	StartObjective(FText::FromString("Use objectives to make the game better"), FText::FromString("There is no alternative"));
-	SetObjectiveProgress(0.1);
-	SetObjectiveTarget(FVector::ZeroVector);
+	//StartObjective(FText::FromString("Use objectives to make the game better"), FText::FromString("There is no alternative"));
+	//SetObjectiveProgress(0.1);
+	//SetObjectiveTarget(FVector::ZeroVector);
 }
 
 static float Accumulator = 0;

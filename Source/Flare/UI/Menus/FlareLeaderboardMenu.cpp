@@ -77,23 +77,22 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 
 		// Company list
 		+ SVerticalBox::Slot()
-		.AutoHeight()
 		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		[
 			SNew(SScrollBox)
 			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
 
 			+ SScrollBox::Slot()
 			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				[
-					SNew(SVerticalBox)
+				SNew(SVerticalBox)
 
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.HAlign(HAlign_Fill)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth)
 					[
 						SAssignNew(CompanyList, SListView< TSharedPtr<FInterfaceContainer> >)
 						.ListItemsSource(&CompanyListData)

@@ -54,47 +54,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("Dashboard", "DASHBOARD"))
 			]
 
-			// Close
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Close", "Close"))
-				.HelpText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
-				.OnClicked(this, &SFlareDashboard::OnExit)
-			]
-		]
-
-		// Separator
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(200, 20))
-		[
-			SNew(SImage).Image(&Theme.SeparatorBrush)
-		]
-
-		// Action list
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Objective
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SFlareObjectiveInfo).PC(PC)
-			]
-
 			// Ship
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
@@ -137,32 +96,45 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.OnClicked(this, &SFlareDashboard::OnOrbit)
 			]
 
-			// Undock
+			// Close
 			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
+			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Bottom)
 			.Padding(Theme.TitleButtonPadding)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Undock", "Undock"))
-				.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Undock, true))
-				.OnClicked(this, &SFlareDashboard::OnUndock)
-				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
+				.Text(LOCTEXT("Close", "Close"))
+				.HelpText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.OnClicked(this, &SFlareDashboard::OnExit)
 			]
+		]
 
-			// Company
+		// Separator
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(200, 20))
+		[
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
+
+		// Action list
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
+
+			// Objective
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
+			.Padding(Theme.ContentPadding)
 			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("InspectCompany", "Company"))
-				.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
-				.OnClicked(this, &SFlareDashboard::OnInspectCompany)
+				SNew(SFlareObjectiveInfo).PC(PC)
 			]
 		]
 
@@ -302,11 +274,6 @@ void SFlareDashboard::OnUndock()
 			MenuManager->CloseMenu();
 		}
 	}
-}
-
-void SFlareDashboard::OnInspectCompany()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
 }
 
 void SFlareDashboard::OnExit()
