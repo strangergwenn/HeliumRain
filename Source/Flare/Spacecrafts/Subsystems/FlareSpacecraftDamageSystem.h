@@ -1,44 +1,15 @@
 #pragma once
+#include "FlareSpacecraftDamageSystemInterface.h"
 #include "FlareSpacecraftDamageSystem.generated.h"
 
 class AFlareSpacecraft;
 struct FFlareSpacecraftSave;
 struct FFlareSpacecraftDescription;
 
-/** Possible subsystems targets */
-UENUM()
-namespace EFlareSubsystem
-{
-	enum Type
-	{
-		SYS_None,
-		SYS_Temperature,
-		SYS_Propulsion,
-		SYS_RCS,
-		SYS_LifeSupport,
-		SYS_Power,
-		SYS_Weapon,
-	};
-}
-
-/** Damage Type */
-UENUM()
-namespace EFlareDamage
-{
-	enum Type
-	{
-		DAM_None,
-		DAM_Collision,
-		DAM_Overheat,
-		DAM_HighExplosive,
-		DAM_ArmorPiercing,
-		DAM_HEAT,
-	};
-}
 
 /** Spacecraft damage system class */
 UCLASS()
-class FLARE_API UFlareSpacecraftDamageSystem : public UObject
+class FLARE_API UFlareSpacecraftDamageSystem : public UObject, public IFlareSpacecraftDamageSystemInterface
 {
 
 public:

@@ -1,32 +1,15 @@
 #pragma once
 
+#include "FlareSpacecraftDockingSystemInterface.h"
 #include "FlareSpacecraftDockingSystem.generated.h"
 
 class AFlareSpacecraft;
 
-struct FFlareDockingInfo
-{
-	bool                      Granted;
-	bool                      Occupied;
-	int32                     DockId;
-	EFlarePartSize::Type      DockSize;
-	IFlareSpacecraftInterface*   Station;
-	IFlareSpacecraftInterface*      Ship;
 
-	FVector                   LocalAxis;
-	FVector                   LocalLocation;
-
-	FFlareDockingInfo()
-		: Granted(false)
-		, Occupied(false)
-		, DockId(-1)
-		, Station(NULL)
-	{}
-};
 
 /** Spacecraft docking system class */
 UCLASS()
-class FLARE_API UFlareSpacecraftDockingSystem : public UObject
+class FLARE_API UFlareSpacecraftDockingSystem : public UObject, public IFlareSpacecraftDockingSystemInterface
 {
 
 public:

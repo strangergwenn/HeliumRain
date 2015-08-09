@@ -59,25 +59,25 @@ FName UFlareSimulatedSpacecraft::GetImmatriculation() const
 }
 
 
-UFlareSpacecraftDamageSystem* UFlareSimulatedSpacecraft::GetDamageSystem() const
+IFlareSpacecraftDamageSystemInterface* UFlareSimulatedSpacecraft::GetDamageSystem() const
 {
 	// TODO
 	return NULL;
 }
 
-UFlareSpacecraftNavigationSystem* UFlareSimulatedSpacecraft::GetNavigationSystem() const
+IFlareSpacecraftNavigationSystemInterface* UFlareSimulatedSpacecraft::GetNavigationSystem() const
 {
 	// TODO
 	return NULL;
 }
 
-UFlareSpacecraftDockingSystem* UFlareSimulatedSpacecraft::GetDockingSystem() const
+IFlareSpacecraftDockingSystemInterface* UFlareSimulatedSpacecraft::GetDockingSystem() const
 {
 	// TODO
 	return NULL;
 }
 
-UFlareSpacecraftWeaponsSystem* UFlareSimulatedSpacecraft::GetWeaponsSystem() const
+IFlareSpacecraftWeaponsSystemInterface* UFlareSimulatedSpacecraft::GetWeaponsSystem() const
 {
 	// TODO
 	return NULL;

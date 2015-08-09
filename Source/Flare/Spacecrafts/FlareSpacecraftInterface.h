@@ -9,6 +9,10 @@
 #include "FlareSpacecraftInterface.generated.h"
 
 class UFlareCompany;
+class IFlareSpacecraftDamageSystemInterface;
+class IFlareSpacecraftNavigationSystemInterface;
+class IFlareSpacecraftWeaponsSystemInterface;
+class IFlareSpacecraftDockingSystemInterface;
 
 /** Spacecraft save data */
 USTRUCT()
@@ -215,13 +219,13 @@ public:
 		Sub system
 	----------------------------------------------------*/
 
-	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const = 0;
+	virtual IFlareSpacecraftDamageSystemInterface* GetDamageSystem() const = 0;
 
-	virtual UFlareSpacecraftNavigationSystem* GetNavigationSystem() const = 0;
+	virtual IFlareSpacecraftNavigationSystemInterface* GetNavigationSystem() const = 0;
 
-	virtual UFlareSpacecraftDockingSystem* GetDockingSystem() const = 0;
+	virtual IFlareSpacecraftDockingSystemInterface* GetDockingSystem() const = 0;
 
-	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const = 0;
+	virtual IFlareSpacecraftWeaponsSystemInterface* GetWeaponsSystem() const = 0;
 
 	/*----------------------------------------------------
 		Content

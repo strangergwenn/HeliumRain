@@ -242,7 +242,7 @@ void SFlareSpacecraftInfo::Show()
 	else if (TargetSpacecraft)
 	{
 		// Useful data
-		UFlareSpacecraftDockingSystem* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
+		IFlareSpacecraftDockingSystemInterface* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
 		bool OwnedAndNotSelf = TargetSpacecraft != PC->GetShipPawn() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
 		bool CanDock = OwnedAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;

@@ -367,7 +367,7 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 
 	if (TargetShip)
 	{
-		UFlareSpacecraftNavigationSystem* Nav = TargetShip->GetNavigationSystem();
+		IFlareSpacecraftNavigationSystemInterface* Nav = TargetShip->GetNavigationSystem();
 		FFlareShipCommandData Command = Nav->GetCurrentCommand();
 
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)

@@ -253,7 +253,7 @@ int32 UFlareSpacecraftWeaponsSystem::GetGroupByWeaponIdentifer(FName Identifier)
 	return -1;
 }
 
-EFlareWeaponGroupType::Type UFlareSpacecraftWeaponsSystem::GetActiveWeaponType()
+EFlareWeaponGroupType::Type UFlareSpacecraftWeaponsSystem::GetActiveWeaponType() const
 {
 	if (ActiveWeaponGroup)
 	{

@@ -1,76 +1,16 @@
 #pragma once
 #include "FlareSpacecraftDockingSystem.h"
+#include "FlareSpacecraftNavigationSystemInterface.h"
 #include "FlareSpacecraftNavigationSystem.generated.h"
 
 class AFlareSpacecraft;
 
 
-/** Status of the ship */
-UENUM()
-namespace EFlareShipStatus
-{
-	enum Type
-	{
-		SS_Manual,
-		SS_AutoPilot,
-		SS_Docked
-	};
-}
-namespace EFlareShipStatus
-{
-	inline FString ToString(EFlareShipStatus::Type EnumValue)
-	{
-		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlareShipStatus"), true);
-		return EnumPtr->GetEnumName(EnumValue);
-	}
-}
 
-
-/** Type of command */
-UENUM()
-namespace EFlareCommandDataType
-{
-	enum Type
-	{
-		CDT_None,
-		CDT_Location,
-		CDT_Rotation,
-		CDT_BrakeLocation,
-		CDT_BrakeRotation,
-		CDT_Dock
-	};
-}
-namespace EFlareCommandDataType
-{
-	inline FString ToString(EFlareCommandDataType::Type EnumValue)
-	{
-		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlareCommandDataType"), true);
-		return EnumPtr->GetEnumName(EnumValue);
-	}
-}
-
-
-/** Structure holding all data for a single command */
-struct FFlareShipCommandData
-{
-	TEnumAsByte <EFlareCommandDataType::Type> Type;
-
-	bool PreciseApproach;
-	FVector LocationTarget;
-	FVector VelocityTarget;
-	FVector RotationTarget;
-	FVector LocalShipAxis;
-
-	UPROPERTY()
-	AActor* ActionTarget;
-
-	int32 ActionTargetParam;
-
-};
 
 /** Spacecraft navigation system class */
 UCLASS()
-class FLARE_API UFlareSpacecraftNavigationSystem : public UObject
+class FLARE_API UFlareSpacecraftNavigationSystem : public UObject, public IFlareSpacecraftNavigationSystemInterface
 {
 
 public:

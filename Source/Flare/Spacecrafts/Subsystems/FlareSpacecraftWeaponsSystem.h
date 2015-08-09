@@ -1,22 +1,10 @@
 #pragma once
 
+#include "FlareSpacecraftWeaponsSystemInterface.h"
 #include "FlareSpacecraftWeaponsSystem.generated.h"
 
 class AFlareSpacecraft;
 class UFlareWeapon;
-
-/** Status of the ship */
-UENUM()
-namespace EFlareWeaponGroupType
-{
-	enum Type
-	{
-		WG_NONE,
-		WG_GUN,
-		WG_BOMB,
-		WG_TURRET
-	};
-}
 
 /** Structure holding all data for a weapon group */
 struct FFlareWeaponGroup
@@ -31,7 +19,7 @@ struct FFlareWeaponGroup
 
 /** Spacecraft weapons system class */
 UCLASS()
-class FLARE_API UFlareSpacecraftWeaponsSystem : public UObject
+class FLARE_API UFlareSpacecraftWeaponsSystem : public UObject, public IFlareSpacecraftWeaponsSystemInterface
 {
 
 public:
@@ -76,7 +64,7 @@ public:
 
 	virtual bool HasUsableWeaponType(EFlareWeaponGroupType::Type Type) const;
 
-	EFlareWeaponGroupType::Type GetActiveWeaponType();
+	EFlareWeaponGroupType::Type GetActiveWeaponType() const;
 
 	inline FFlareSpacecraftComponentDescription* GetWeaponDescription(int32 Index) const
 	{
@@ -108,7 +96,7 @@ public:
 		return WeaponGroupList;
 	}
 
-	inline int32 GetWeaponGroupCount()
+	virtual int32 GetWeaponGroupCount() const override
 	{
 		return WeaponGroupList.Num();
 	}

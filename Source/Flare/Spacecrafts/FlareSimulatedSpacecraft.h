@@ -44,13 +44,13 @@ public:
 		Sub system
 	----------------------------------------------------*/
 
-	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const override;
+	virtual IFlareSpacecraftDamageSystemInterface* GetDamageSystem() const override;
 
-	virtual UFlareSpacecraftNavigationSystem* GetNavigationSystem() const override;
+	virtual IFlareSpacecraftNavigationSystemInterface* GetNavigationSystem() const override;
 
-	virtual UFlareSpacecraftDockingSystem* GetDockingSystem() const override;
+	virtual IFlareSpacecraftDockingSystemInterface* GetDockingSystem() const override;
 
-	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const override;
+	virtual IFlareSpacecraftWeaponsSystemInterface* GetWeaponsSystem() const override;
 
     /*----------------------------------------------------
         Gameplay
