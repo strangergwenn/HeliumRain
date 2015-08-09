@@ -204,6 +204,9 @@ public:
 	/** Get the ship nick name */
 	virtual FName GetNickName() const = 0;
 
+	/** Get the ship description*/
+	virtual FFlareSpacecraftDescription* GetDescription() const = 0;
+
 	/** Get the ship size class */
 	virtual EFlarePartSize::Type GetSize() = 0;
 

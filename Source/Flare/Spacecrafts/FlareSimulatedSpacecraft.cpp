@@ -24,6 +24,23 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	// Load spacecraft description
 	SpacecraftDescription = Game->GetSpacecraftCatalog()->Get(Data.Identifier);
+
+	// Initialize damage system
+	DamageSystem = NewObject<UFlareSimulatedSpacecraftDamageSystem>(this, UFlareSimulatedSpacecraftDamageSystem::StaticClass());
+	DamageSystem->Initialize(this, &SpacecraftData);
+
+	// Initialize navigation system
+	NavigationSystem = NewObject<UFlareSimulatedSpacecraftNavigationSystem>(this, UFlareSimulatedSpacecraftNavigationSystem::StaticClass());
+	NavigationSystem->Initialize(this, &SpacecraftData);
+
+	// Initialize docking system
+	DockingSystem = NewObject<UFlareSimulatedSpacecraftDockingSystem>(this, UFlareSimulatedSpacecraftDockingSystem::StaticClass());
+	DockingSystem->Initialize(this, &SpacecraftData);
+
+	// Initialize weapons system
+	WeaponsSystem = NewObject<UFlareSimulatedSpacecraftWeaponsSystem>(this, UFlareSimulatedSpacecraftWeaponsSystem::StaticClass());
+	WeaponsSystem->Initialize(this, &SpacecraftData);
+
 }
 
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
@@ -58,27 +75,22 @@ FName UFlareSimulatedSpacecraft::GetImmatriculation() const
 	return SpacecraftData.Immatriculation;
 }
 
-
-IFlareSpacecraftDamageSystemInterface* UFlareSimulatedSpacecraft::GetDamageSystem() const
+UFlareSimulatedSpacecraftDamageSystem* UFlareSimulatedSpacecraft::GetDamageSystem() const
 {
-	// TODO
-	return NULL;
+	return DamageSystem;
 }
 
-IFlareSpacecraftNavigationSystemInterface* UFlareSimulatedSpacecraft::GetNavigationSystem() const
+UFlareSimulatedSpacecraftNavigationSystem* UFlareSimulatedSpacecraft::GetNavigationSystem() const
 {
-	// TODO
-	return NULL;
+	return NavigationSystem;
 }
 
-IFlareSpacecraftDockingSystemInterface* UFlareSimulatedSpacecraft::GetDockingSystem() const
+UFlareSimulatedSpacecraftDockingSystem* UFlareSimulatedSpacecraft::GetDockingSystem() const
 {
-	// TODO
-	return NULL;
+	return DockingSystem;
 }
 
-IFlareSpacecraftWeaponsSystemInterface* UFlareSimulatedSpacecraft::GetWeaponsSystem() const
+UFlareSimulatedSpacecraftWeaponsSystem* UFlareSimulatedSpacecraft::GetWeaponsSystem() const
 {
-	// TODO
-	return NULL;
+	return WeaponsSystem;
 }

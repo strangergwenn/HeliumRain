@@ -3,6 +3,10 @@
 
 #include "Object.h"
 #include "FlareSpacecraftInterface.h"
+#include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
+#include "Subsystems/FlareSimulatedSpacecraftNavigationSystem.h"
+#include "Subsystems/FlareSimulatedSpacecraftDockingSystem.h"
+#include "Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
 #include "FlareSimulatedSpacecraft.generated.h"
 
 class UFlareGame;
@@ -44,13 +48,13 @@ public:
 		Sub system
 	----------------------------------------------------*/
 
-	virtual IFlareSpacecraftDamageSystemInterface* GetDamageSystem() const override;
+	virtual UFlareSimulatedSpacecraftDamageSystem* GetDamageSystem() const override;
 
-	virtual IFlareSpacecraftNavigationSystemInterface* GetNavigationSystem() const override;
+	virtual UFlareSimulatedSpacecraftNavigationSystem* GetNavigationSystem() const override;
 
-	virtual IFlareSpacecraftDockingSystemInterface* GetDockingSystem() const override;
+	virtual UFlareSimulatedSpacecraftDockingSystem* GetDockingSystem() const override;
 
-	virtual IFlareSpacecraftWeaponsSystemInterface* GetWeaponsSystem() const override;
+	virtual UFlareSimulatedSpacecraftWeaponsSystem* GetWeaponsSystem() const override;
 
     /*----------------------------------------------------
         Gameplay
@@ -81,6 +85,16 @@ protected:
 	UFlareFleet*                   CurrentFleet;
 	UFlareSimulatedSector*        CurrentSector;
 
+	// Systems
+	UPROPERTY()
+	UFlareSimulatedSpacecraftDamageSystem*                  DamageSystem;
+	UPROPERTY()
+	UFlareSimulatedSpacecraftNavigationSystem*              NavigationSystem;
+	UPROPERTY()
+	UFlareSimulatedSpacecraftDockingSystem*                 DockingSystem;
+	UPROPERTY()
+	UFlareSimulatedSpacecraftWeaponsSystem*                 WeaponsSystem;
+
 public:
 
     /*----------------------------------------------------
@@ -103,4 +117,10 @@ public:
 	{
 		return CurrentFleet;
 	}
+
+	inline FFlareSpacecraftDescription* GetDescription() const
+	{
+		return SpacecraftDescription;
+	}
+
 };

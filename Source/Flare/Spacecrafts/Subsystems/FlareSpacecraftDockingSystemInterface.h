@@ -48,16 +48,16 @@ public:
 		virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship, FVector PreferredLocation) = 0;
 
 		/** Cancel docking */
-		virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId);
+		virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId) = 0;
 
 		/** Confirm the docking from external ship */
-		virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId);
+		virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId) = 0;
 
-		virtual int GetDockCount() const;
+		virtual int GetDockCount() const = 0;
 
-		virtual bool HasCompatibleDock(IFlareSpacecraftInterface* Ship) const;
+		virtual bool HasCompatibleDock(IFlareSpacecraftInterface* Ship) const = 0;
 
-		virtual bool IsDockedShip(IFlareSpacecraftInterface* ShipCanditate) const;
+		virtual bool IsDockedShip(IFlareSpacecraftInterface* ShipCanditate) const = 0;
 
 
 };
