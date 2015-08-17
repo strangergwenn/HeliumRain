@@ -159,7 +159,7 @@ void UFlareSimulatedPlanetarium::ComputeCelestialBodyLocation(FFlareCelestialBod
 				0);*/
 	}
 
-	Body->RotationAngle = Body->RotationVelocity * Time;
+	Body->RotationAngle = FPreciseMath::UnwindDegrees(Body->RotationVelocity * Time);
 
 	for(int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
 	{

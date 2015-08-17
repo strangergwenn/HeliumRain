@@ -39,6 +39,22 @@ struct FPreciseMath
 	{
 		return 1.0 / sqrt( F );
 	}
+
+	/** Utility to ensure angle is between +/- 180 degrees by unwinding. */
+	static double UnwindDegrees(double A)
+	{
+		while(A > 180.)
+		{
+			A -= 360.;
+		}
+
+		while(A < -180.)
+		{
+			A += 360.;
+		}
+
+		return A;
+	}
 };
 
 /**
