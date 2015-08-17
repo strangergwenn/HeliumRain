@@ -618,7 +618,7 @@ void AFlarePlayerController::ToggleCamera()
 
 void AFlarePlayerController::ToggleMenu()
 {
-	if (GetGame()->IsLoadedOrCreated())
+	if (GetGame()->IsLoadedOrCreated() && GetGame()->GetActiveSector())
 	{
 		if (IsInMenu())
 		{

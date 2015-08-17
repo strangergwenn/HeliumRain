@@ -54,32 +54,18 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("Title", "COMPANY"))
 			]
 
-			// Quit
+			// Orbit
 			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
+			.HAlign(HAlign_Center)
 			.VAlign(VAlign_Bottom)
 			.Padding(Theme.TitleButtonPadding)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Dashboard", "Dashboard"))
-				.HelpText(LOCTEXT("DashboardInfo", "Go back to the dashboard"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Dashboard, true))
-				.OnClicked(this, &SFlareCompanyMenu::OnDashboardClicked)
-			]
-
-			// Close
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Close", "Close"))
-				.HelpText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
-				.OnClicked(this, &SFlareCompanyMenu::OnExit)
+				.Text(LOCTEXT("GoOrbit", "Orbital map"))
+				.HelpText(LOCTEXT("GoOrbitInfo", "Exit the company menu and go back to the orbital map"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit, true))
+				.OnClicked(this, &SFlareCompanyMenu::OnOrbit)
 			]
 		]
 
@@ -250,16 +236,9 @@ FText SFlareCompanyMenu::GetCompanyInfo() const
 	return Result;
 }
 
-void SFlareCompanyMenu::OnDashboardClicked()
+void SFlareCompanyMenu::OnOrbit()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 }
-
-void SFlareCompanyMenu::OnExit()
-{
-	MenuManager->CloseMenu();
-}
-
-
 
 #undef LOCTEXT_NAMESPACE

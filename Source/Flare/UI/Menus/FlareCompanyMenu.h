@@ -50,12 +50,8 @@ protected:
 	/** Get the company info */
 	FText GetCompanyInfo() const;
 
-	/** Go back to the dahsboard */
-	void OnDashboardClicked();
-
-	/** Close the menu */
-	void OnExit();
-
+	/** Go back to the orbital map */
+	void OnOrbit();
 
 protected:
 
