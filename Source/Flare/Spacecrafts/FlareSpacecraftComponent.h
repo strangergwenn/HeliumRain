@@ -585,7 +585,7 @@ protected:
 
 	virtual UStaticMesh* GetMesh(bool PresentationMode) const
 	{
-		return (ComponentDescription ? ComponentDescription->Mesh : NULL);
+		return (ComponentDescription && ComponentDescription->Mesh ? ComponentDescription->Mesh : StaticMesh);
 	}
 
 	virtual bool HasLocalHeatEffect() const

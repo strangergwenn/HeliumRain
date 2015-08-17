@@ -36,5 +36,16 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	float Radius;
 
+
+public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	virtual UStaticMesh* GetMesh(bool PresentationMode) const override
+	{
+		return NULL;
+	}
 };
 
