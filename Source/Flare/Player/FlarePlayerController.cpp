@@ -584,6 +584,7 @@ void AFlarePlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("ToggleCamera", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCamera);
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
+	InputComponent->BindAction("BackMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::BackMenu);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
 	InputComponent->BindAction("TooglePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePilot);
 	InputComponent->BindAction("ToggleHUD", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleHUD);
@@ -628,6 +629,16 @@ void AFlarePlayerController::ToggleMenu()
 		{
 			MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
 		}
+	}
+}
+
+void AFlarePlayerController::BackMenu()
+{
+	FLOG("AFlarePlayerController::BackMenu");
+	if (IsInMenu())
+	{
+		FLOG("AFlarePlayerController::BackMenu IsInMenu");
+		MenuManager->Back();
 	}
 }
 

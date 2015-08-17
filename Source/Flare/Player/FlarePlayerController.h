@@ -162,6 +162,9 @@ public:
 	/** Toggle the dashboard */
 	virtual void ToggleMenu();
 
+	/** Send back to menu */
+	virtual void BackMenu();
+
 	/** Toggle the combat mode */
 	virtual void ToggleCombat();
 

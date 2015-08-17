@@ -43,6 +43,9 @@ public:
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
 	
+	/** Return to top menu */
+	void Back();
+
 	/** Is a menu open */
 	bool IsMenuOpen() const;
 
@@ -137,6 +140,7 @@ protected:
 	float                                   FadeDuration;
 	float                                   FadeTimer;
 	TSharedPtr<SBorder>                     Fader;
+	TEnumAsByte<EFlareMenu::Type>           CurrentMenu;
 
 	// Menus
 	TSharedPtr<SFlareTooltip>               Tooltip;
@@ -150,6 +154,7 @@ protected:
 	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
 	TSharedPtr<SFlareLeaderboardMenu>       LeaderboardMenu;
 	
+
 	// Menu target data
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
 	void*                                   FadeTargetData;

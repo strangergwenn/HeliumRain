@@ -76,6 +76,8 @@ void AFlareMenuManager::SetupMenu()
 		SectorMenu->Setup();
 		OrbitMenu->Setup();
 		LeaderboardMenu->Setup();
+
+		CurrentMenu = EFlareMenu::MENU_None;
 	}
 }
 
@@ -145,6 +147,52 @@ void AFlareMenuManager::CloseMenu(bool HardClose)
 	}
 	MenuIsOpen = false;
 }
+
+void AFlareMenuManager::Back()
+{
+	FLOG("AFlareMenuManager::Back");
+	if (MenuIsOpen)
+	{
+		FLOGV("AFlareMenuManager::Back MenuIsOpen %d", (int) CurrentMenu);
+		switch (CurrentMenu)
+		{
+			case EFlareMenu::MENU_NewGame:
+				OpenMenu(EFlareMenu::MENU_Main);
+				break;
+
+			case EFlareMenu::MENU_Dashboard:
+				OpenMenu(EFlareMenu::MENU_Exit);
+				break;
+
+			case EFlareMenu::MENU_Company:
+				OpenMenu(EFlareMenu::MENU_Orbit);
+				break;
+
+			case EFlareMenu::MENU_Ship:
+				OpenMenu(EFlareMenu::MENU_Dashboard);
+				break;
+
+			case EFlareMenu::MENU_ShipConfig:
+				OpenMenu(EFlareMenu::MENU_Dashboard);
+				break;
+			case EFlareMenu::MENU_Sector:
+				OpenMenu(EFlareMenu::MENU_Exit);
+				break;
+			case EFlareMenu::MENU_Leaderboard:
+				OpenMenu(EFlareMenu::MENU_Orbit);
+				break;
+			case EFlareMenu::MENU_Main:
+			case EFlareMenu::MENU_FlyShip:
+			case EFlareMenu::MENU_Orbit:
+			case EFlareMenu::MENU_Quit:
+			case EFlareMenu::MENU_Exit:
+			case EFlareMenu::MENU_None:
+			default:
+				break;
+		}
+	}
+}
+
 
 bool AFlareMenuManager::IsMenuOpen() const
 {
@@ -259,6 +307,7 @@ void AFlareMenuManager::FadeOut()
 {
 	FadeFromBlack = false;
 	FadeTimer = 0;
+	CurrentMenu = EFlareMenu::MENU_None;
 }
 
 void AFlareMenuManager::ProcessFadeTarget()
@@ -334,6 +383,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 void AFlareMenuManager::OpenMainMenu()
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
 }
@@ -341,6 +391,7 @@ void AFlareMenuManager::OpenMainMenu()
 void AFlareMenuManager::OpenNewGameMenu()
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_NewGame;
 	GetPC()->OnEnterMenu();
 	NewGameMenu->Enter();
 }
@@ -348,6 +399,7 @@ void AFlareMenuManager::OpenNewGameMenu()
 void AFlareMenuManager::OpenDashboard()
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Dashboard;
 	GetPC()->OnEnterMenu();
 	Dashboard->Enter();
 }
@@ -355,6 +407,7 @@ void AFlareMenuManager::OpenDashboard()
 void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Company;
 	GetPC()->OnEnterMenu();
 
 	if (Target == NULL)
@@ -379,6 +432,7 @@ void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
 void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Ship;
 	GetPC()->OnEnterMenu();
 
 	if (Target == NULL)
@@ -391,6 +445,7 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 void AFlareMenuManager::OpenSector()
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
 	SectorMenu->Enter();
 }
@@ -398,6 +453,7 @@ void AFlareMenuManager::OpenSector()
 void AFlareMenuManager::OpenOrbit()
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Orbit;
 	GetPC()->OnEnterMenu();
 	OrbitMenu->Enter();
 }
@@ -405,6 +461,7 @@ void AFlareMenuManager::OpenOrbit()
 void AFlareMenuManager::OpenLeaderboard()
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Leaderboard;
 	GetPC()->OnEnterMenu();
 	LeaderboardMenu->Enter();
 }
@@ -412,6 +469,7 @@ void AFlareMenuManager::OpenLeaderboard()
 void AFlareMenuManager::ExitMenu()
 {
 	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_None;
 	GetPC()->OnExitMenu();
 }
 
