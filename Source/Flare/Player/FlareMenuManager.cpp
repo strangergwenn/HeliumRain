@@ -161,7 +161,7 @@ void AFlareMenuManager::Back()
 				break;
 
 			case EFlareMenu::MENU_Dashboard:
-				OpenMenu(EFlareMenu::MENU_Exit);
+				CloseMenu();
 				break;
 
 			case EFlareMenu::MENU_Company:
@@ -176,7 +176,7 @@ void AFlareMenuManager::Back()
 				OpenMenu(EFlareMenu::MENU_Dashboard);
 				break;
 			case EFlareMenu::MENU_Sector:
-				OpenMenu(EFlareMenu::MENU_Exit);
+				CloseMenu();
 				break;
 			case EFlareMenu::MENU_Leaderboard:
 				OpenMenu(EFlareMenu::MENU_Orbit);
