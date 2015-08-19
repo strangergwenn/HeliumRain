@@ -196,8 +196,10 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		FTransform BaseRotation = FTransform(FRotator(0, 0 ,90));
 		FTransform TimeRotation = FTransform(FRotator(0, Body->RotationAngle + AngleOffset, 0));
 
-		FRotator Rotation = (TimeRotation * BaseRotation).Rotator();
-		//FLOGV("MoveCelestialBody %s Rotation = %s", *Body->Name, *Rotation.ToString());
+		FQuat Rotation = (TimeRotation * BaseRotation).GetRotation();
+
+		// TODO Rotation float time interpolation
+		BodyComponent->SetRelativeRotation(FQuat::Identity);
 		BodyComponent->SetRelativeRotation(Rotation);
 
 		UMaterialInstanceDynamic* ComponentMaterial = Cast<UMaterialInstanceDynamic>(BodyComponent->GetMaterial(0));
