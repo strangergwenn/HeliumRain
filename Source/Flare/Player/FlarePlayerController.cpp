@@ -1,6 +1,7 @@
 
 #include "../Flare.h"
 #include "FlarePlayerController.h"
+#include "../Game/FlareGameTools.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareOrbitalEngine.h"
 #include "../Spacecrafts/FlareShell.h"
@@ -24,6 +25,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
 {
+	CheatClass = UFlareGameTools::StaticClass();
+
 	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
 	DustEffectTemplate = DustEffectTemplateObj.Object;
@@ -65,6 +68,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	EnableCheats();
 	SetupMenu();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 

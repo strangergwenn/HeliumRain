@@ -7,6 +7,7 @@
 #include "../Player/FlareMenuPawn.h"
 
 #include "FlarePlanetarium.h"
+#include "FlareGameTools.h"
 #include "FlareCompany.h"
 #include "FlareWorld.h"
 #include "FlareSector.h"
@@ -110,129 +111,7 @@ public:
 	virtual void UnloadGame();
 
 
-	/*----------------------------------------------------
-		Creation command line
-	----------------------------------------------------*/
 
-	/** Create a ship in a sector for the current player*/
-	UFUNCTION(exec)
-	UFlareSimulatedSpacecraft* CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier);
-
-	/** Create a station in the level */
-	UFUNCTION(exec)
-	AFlareSpacecraft* CreateStationForMe(FName StationClass);
-
-	/** Create a station in the level */
-	UFUNCTION(exec)
-	AFlareSpacecraft* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
-
-	/** Create a ship in the level for the current player*/
-	UFUNCTION(exec)
-	AFlareSpacecraft* CreateShipForMe(FName ShipClass);
-
-	/** Create a ship in the level for a specific company identified by its short name*/
-	UFUNCTION(exec)
-	AFlareSpacecraft* CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance);
-
-	/** Create ships in the level for a specific company identified by its short name*/
-	UFUNCTION(exec)
-	void CreateShipsInCompany(FName ShipClass, FName CompanyShortName, float Distance, int32 Count);
-
-	/** Create 2 fleets for 2 companies At a defined distance */
-	UFUNCTION(exec)
-	void CreateQuickBattle(float Distance, FName Company1, FName Company2, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count);
-
-	/** Set the default weapon for new created ship */
-	UFUNCTION(exec)
-	void SetDefaultWeapon(FName NewDefaultWeaponIdentifier);
-
-	/** Set the default turret for new created ship */
-	UFUNCTION(exec)
-	void SetDefaultTurret(FName NewDefaultTurretIdentifier);
-
-	/** Add an asteroid to the world */
-	UFUNCTION(exec)
-	void CreateAsteroid(int32 ID);
-
-	/** Empty the active sector. Let only the current played ship */
-	UFUNCTION(exec)
-	virtual void EmptySector();
-
-	/** Make war between two company */
-	UFUNCTION(exec)
-	void DeclareWar(FName Company1ShortName, FName Company2ShortName);
-
-	/** Make peace two company */
-	UFUNCTION(exec)
-	void MakePeace(FName Company1ShortName, FName Company2ShortName);
-
-	/** Force sector activation */
-	UFUNCTION(exec)
-	void ForceSectorActivation(FName SectorIdentifier);
-
-	/** Force sector deactivation */
-	UFUNCTION(exec)
-	void ForceSectorDeactivation();
-
-	/** Get world time */
-	UFUNCTION(exec)
-	int64 GetWorldTime();
-
-	/** Set world time */
-	UFUNCTION(exec)
-	void SetWorldTime(int64 Time);
-
-	/** Simulate a world duration */
-	UFUNCTION(exec)
-	void Simulate(int64 Duration);
-
-	/** Start travel. Not possible during travelling */
-	UFUNCTION(exec)
-	void StartTravel(FName FleetIdentifier, FName SectorIdentifier);
-
-	/** Create a fleet */
-	UFUNCTION(exec)
-	void CreateFleet(FString FleetName, FName FirstShipImmatriculation);
-
-	/** Disband a fleet. Not possible during travelling */
-	UFUNCTION(exec)
-	void DisbandFleet(FName FleetIdentifier);
-
-	/** Add a ship to a fleet. Not possible during travelling*/
-	UFUNCTION(exec)
-	void AddToFleet(FName FleetIdentifier, FName ShipImmatriculation);
-
-	/** Remove a ship from a fleet. Not possible during travelling*/
-	UFUNCTION(exec)
-	void RemoveFromFleet(FName FleetIdentifier, FName ShipImmatriculation);
-
-	/** Merge fleet 2 in fleet 1. Not possible during travelling*/
-	UFUNCTION(exec)
-	void MergeFleets(FName Fleet1Identifier, FName Fleet2Identifier);
-
-	UFUNCTION(exec)
-	void PrintCompanyList();
-
-	UFUNCTION(exec)
-	void PrintCompany(FName CompanyShortName);
-
-	UFUNCTION(exec)
-	void PrintCompanyByIndex(int32 Index);
-
-	UFUNCTION(exec)
-	void PrintSectorList();
-
-	UFUNCTION(exec)
-	void PrintSector(FName SectorIdentifier);
-
-	UFUNCTION(exec)
-	void PrintSectorByIndex(int32 Index);
-
-	UFUNCTION(exec)
-	void PrintTravelList();
-
-	UFUNCTION(exec)
-	void PrintTravelByIndex(int32 Index);
 
 
 
@@ -331,6 +210,8 @@ protected:
 	UPROPERTY()
 	TArray<FFlareSaveSlotInfo>               SaveSlots;
 
+	//UPROPERTY()
+	//UFlareGameTools*    					 GameTools;
 
 public:
 
@@ -423,6 +304,16 @@ public:
 	inline FName GetDefaultTurretIdentifier() const
 	{
 		return DefaultTurretIdentifier;
+	}
+
+	inline void SetDefaultWeaponIdentifier(FName Identifier)
+	{
+		DefaultWeaponIdentifier = Identifier;
+	}
+
+	inline void SetDefaultTurretIdentifier(FName Identifier)
+	{
+		DefaultTurretIdentifier = Identifier;
 	}
 
 };
