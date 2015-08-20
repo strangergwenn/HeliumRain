@@ -53,7 +53,6 @@ public:
 	void Simulate(int64 Duration);
 
 
-
 	/*----------------------------------------------------
 		Company tools
 	----------------------------------------------------*/
@@ -75,11 +74,9 @@ public:
 	UFUNCTION(exec)
 	void PrintCompanyByIndex(int32 Index);
 
-
 	/*----------------------------------------------------
 		Fleet tools
 	----------------------------------------------------*/
-
 
 	/** Create a fleet */
 	UFUNCTION(exec)
