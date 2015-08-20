@@ -235,8 +235,7 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
     return Bomb;
 }
 
-
-
+/*
 AFlareSpacecraft* UFlareSector::CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
 {
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(StationClass);
@@ -443,7 +442,8 @@ void UFlareSector::EmptySector()
 	SectorSpacecrafts.Add(CurrentPlayedShip);
 	SectorShips.Add(CurrentPlayedShip);
 
-}
+}*/
+
 
 void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft)
 {

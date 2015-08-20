@@ -532,12 +532,15 @@ void UFlareGameTools::PrintSectorByIndex(int32 Index)
 
 AFlareSpacecraft* UFlareGameTools::CreateStationForMe(FName StationClass)
 {
+
 	if (!GetActiveSector())
 	{
 		FLOG("AFlareGame::CreateStationForMe failed: no active sector");
 		return NULL;
 	}
 
+	// TODO
+	/*
 	AFlareSpacecraft* StationPawn = NULL;
 	AFlarePlayerController* PC = GetPC();
 
@@ -550,7 +553,8 @@ AFlareSpacecraft* UFlareGameTools::CreateStationForMe(FName StationClass)
 
 	StationPawn = GetActiveSector()->CreateStation(StationClass, PC->GetCompany(), TargetPosition);
 
-	return StationPawn;
+	return StationPawn;*/
+	return NULL;
 }
 
 AFlareSpacecraft* UFlareGameTools::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
@@ -561,6 +565,8 @@ AFlareSpacecraft* UFlareGameTools::CreateStationInCompany(FName StationClass, FN
 		return NULL;
 	}
 
+	//TODO
+	/*
 	AFlareSpacecraft* StationPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
 
@@ -581,9 +587,11 @@ AFlareSpacecraft* UFlareGameTools::CreateStationInCompany(FName StationClass, FN
 	}
 
 	return StationPawn;
+	*/
+	return NULL;
 }
 
-AFlareSpacecraft* UFlareGameTools::CreateShipForMe(FName ShipClass)
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMe(FName ShipClass)
 {
 	if (!GetActiveSector())
 	{
@@ -591,9 +599,8 @@ AFlareSpacecraft* UFlareGameTools::CreateShipForMe(FName ShipClass)
 		return NULL;
 	}
 
-	AFlareSpacecraft* ShipPawn = NULL;
 	AFlarePlayerController* PC = GetPC();
-
+	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 	FVector TargetPosition = FVector::ZeroVector;
@@ -602,9 +609,19 @@ AFlareSpacecraft* UFlareGameTools::CreateShipForMe(FName ShipClass)
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
 	}
 
-	ShipPawn = GetActiveSector()->CreateShip(ShipClass, PC->GetCompany(), TargetPosition);
+	GetGame()->DeactivateSector(PC);
 
-	return ShipPawn;
+	UFlareSimulatedSpacecraft* NewShip= NULL;
+
+	// TODO Spawn preference
+	/*TArray<FFlareSpawnTemplate> SpawnPreferences;
+	FFlareRaySpawnTemplate Ray(TargetPosition, ExistingShipPawn->GetActorForwardVector());
+	SpawnPreferences.Add(Ray);*/
+
+	NewShip = ActiveSector->CreateShip(ShipClass, PC->GetCompany(), TargetPosition);
+	GetGame()->ActivateSector(PC, ActiveSector);
+
+	return NewShip;
 }
 
 
@@ -617,6 +634,8 @@ AFlareSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass, FName Co
 		return NULL;
 	}
 
+	//TODO
+	/*
 	AFlareSpacecraft* ShipPawn = NULL;
 	FVector TargetPosition = FVector::ZeroVector;
 
@@ -639,6 +658,8 @@ AFlareSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass, FName Co
 		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *CompanyShortName.ToString());
 	}
 	return ShipPawn;
+	*/
+	return NULL;
 }
 
 void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortName, float Distance, int32 Count)
@@ -649,6 +670,8 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 		return;
 	}
 
+	//TODO
+	/*
 	FVector TargetPosition = FVector::ZeroVector;
 	FVector BaseShift = FVector::ZeroVector;
 
@@ -670,6 +693,7 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 				GetActiveSector()->CreateShip(ShipClass, Company, TargetPosition + Shift);
 			}
 	}
+	*/
 }
 
 void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FName Company2Name, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count)
@@ -680,6 +704,8 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 		return;
 	}
 
+	//TODO
+	/*
 	FVector BasePosition = FVector::ZeroVector;
 	FVector BaseOffset = FVector(1.f, 0.f, 0.f) * Distance / 50.f; // Half the distance in cm
 	FVector BaseShift = FVector(0.f, 30000.f, 0.f);  // 100 m
@@ -727,6 +753,7 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 		GetActiveSector()->CreateShip(ShipClass2, Company1, BasePosition + BaseOffset + Shift + BaseDeep);
 		GetActiveSector()->CreateShip(ShipClass2, Company2, BasePosition - BaseOffset - Shift - BaseDeep);
 	}
+	*/
 }
 
 
@@ -739,6 +766,8 @@ void UFlareGameTools::CreateAsteroid(int32 ID)
 		return;
 	}
 
+	//TODO
+	/*
 	AFlarePlayerController* PC = GetPC();
 
 	// Location
@@ -750,6 +779,7 @@ void UFlareGameTools::CreateAsteroid(int32 ID)
 	}
 
 	GetActiveSector()->CreateAsteroidAt(ID, TargetPosition);
+	*/
 }
 
 void UFlareGameTools::EmptySector()
@@ -761,11 +791,11 @@ void UFlareGameTools::EmptySector()
 		return;
 	}
 
+	//TODO
+	/*
 	GetActiveSector()->EmptySector();
+	*/
 }
-
-
-
 
 void UFlareGameTools::PrintCompanyList()
 {

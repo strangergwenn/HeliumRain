@@ -144,7 +144,7 @@ public:
 
 	/** Create a ship in the level for the current player*/
 	UFUNCTION(exec)
-	AFlareSpacecraft* CreateShipForMe(FName ShipClass);
+	UFlareSimulatedSpacecraft* CreateShipForMe(FName ShipClass);
 
 	/** Create a ship in the level for a specific company identified by its short name*/
 	UFUNCTION(exec)
