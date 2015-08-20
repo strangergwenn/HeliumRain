@@ -73,7 +73,10 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				if (Distance > 500000)
 				{
 					// 5 km
-					Destroy();
+					if (Company)
+					{
+						GetGame()->GetActiveSector()->DestroySpacecraft(this);
+					}
 				}
 			}
 		}
@@ -132,10 +135,6 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 void AFlareSpacecraft::Destroyed()
 {
-	if (Company)
-	{
-		GetGame()->GetActiveSector()->Unregister(this);
-	}
 }
 
 void AFlareSpacecraft::SetPause(bool Pause)

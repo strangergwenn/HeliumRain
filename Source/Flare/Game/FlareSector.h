@@ -55,8 +55,8 @@ public:
 
 	AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 
-	/** Un-register a ship or a station*/
-	virtual void Unregister(AFlareSpacecraft* Spacecraft);
+	/** Destroy a ship or a station*/
+	virtual void DestroySpacecraft(AFlareSpacecraft* Spacecraft);
 
 	virtual void SetPause(bool Pause);
 

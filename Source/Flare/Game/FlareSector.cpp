@@ -445,11 +445,12 @@ void UFlareSector::EmptySector()
 
 }
 
-void UFlareSector::Unregister(AFlareSpacecraft* Spacecraft)
+void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft)
 {
 	SectorSpacecrafts.Remove(Spacecraft);
 	SectorShips.Remove(Spacecraft);
 	SectorStations.Remove(Spacecraft);
+	Spacecraft->Destroy();
 }
 
 void UFlareSector::SetPause(bool Pause)
