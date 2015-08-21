@@ -8,7 +8,7 @@ class UFlareSector;
 class AFlareGame;
 
 UCLASS(Within=PlayerController)
-class ENGINE_API UFlareGameTools : public UCheatManager
+class UFlareGameTools : public UCheatManager
 {
 public:
 
