@@ -339,57 +339,6 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
 	FFlareWorldSave WorldData;
 	WorldData.Time = 475856;
-	/*{
-		FFlareSectorSave SectorData;
-		SectorData.Identifier = "start";
-		SectorData.Name = "Nema 1";
-		SectorData.Orbit.CelestialBodyIdentifier = "planet-nema";
-		SectorData.Orbit.Altitude = 10000;
-		SectorData.Orbit.Phase = 0;
-		WorldData.SectorData.Add(SectorData);
-
-	}
-
-	{
-		FFlareSectorSave SectorData;
-		SectorData.Identifier = "nema2";
-		SectorData.Name = "Nema 2";
-		SectorData.Orbit.CelestialBodyIdentifier = "planet-nema";
-		SectorData.Orbit.Altitude = 10000;
-		SectorData.Orbit.Phase = 30;
-		WorldData.SectorData.Add(SectorData);
-	}
-
-	{
-		FFlareSectorSave SectorData;
-		SectorData.Identifier = "nema3";
-		SectorData.Name = "Nema 3";
-		SectorData.Orbit.CelestialBodyIdentifier = "planet-nema";
-		SectorData.Orbit.Altitude = 100000;
-		SectorData.Orbit.Phase = 20;
-		WorldData.SectorData.Add(SectorData);
-	}
-
-	{
-		FFlareSectorSave SectorData;
-		SectorData.Identifier = "nema4";
-		SectorData.Name = "Nema 4";
-		SectorData.Orbit.CelestialBodyIdentifier = "planet-nema";
-		SectorData.Orbit.Altitude = 100000;
-		SectorData.Orbit.Phase = 60;
-		WorldData.SectorData.Add(SectorData);
-	}
-
-	{
-		FFlareSectorSave SectorData;
-		SectorData.Identifier = "nema-moon1-1";
-		SectorData.Name = "Nema Moon 1 - 1";
-		SectorData.Orbit.CelestialBodyIdentifier = "moon-nema1";
-		SectorData.Orbit.Altitude = 1000;
-		SectorData.Orbit.Phase = 00;
-		WorldData.SectorData.Add(SectorData);
-	}*/
-
 	World->Load(WorldData);
 
 	// Create companies
@@ -438,7 +387,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	World->FindSector("nema-50k-10")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
 	World->FindSector("nema-10k-30")->CreateShip("ship-atlas", Company, FVector::ZeroVector);
 	World->FindSector("nema-50k-0")->CreateShip("ship-dragon", Company, FVector::ZeroVector);
-	World->FindSector("moon1-1k-0")->CreateShip("ship-invader", Company, FVector::ZeroVector);
+	World->FindSector("anka-1k-0")->CreateShip("ship-omen", Company, FVector::ZeroVector);
 
 
 

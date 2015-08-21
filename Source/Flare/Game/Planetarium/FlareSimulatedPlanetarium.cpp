@@ -42,32 +42,32 @@ void UFlareSimulatedPlanetarium::Load()
 		Nema.RotationVelocity = 0.0037254354102635744;
 		Nema.OrbitDistance = 110491584;
 
-		FFlareCelestialBody NemaMoon1;
-		NemaMoon1.Name = "Nema Moon 1";
-		NemaMoon1.Identifier = "moon1";
-		NemaMoon1.Mass = 1.3e23;
-		NemaMoon1.Radius = 2600;
-		NemaMoon1.RotationVelocity = -0.03;
-		NemaMoon1.OrbitDistance = 320000;
-		Nema.Sattelites.Add(NemaMoon1);
+		FFlareCelestialBody Anka;
+		Anka.Name = "Anka";
+		Anka.Identifier = "anka";
+		Anka.Mass = 1.3e23;
+		Anka.Radius = 2600;
+		Anka.RotationVelocity = -0.03;
+		Anka.OrbitDistance = 320000;
+		Nema.Sattelites.Add(Anka);
 
-		FFlareCelestialBody NemaMoon2;
-		NemaMoon2.Name = "Nema Moon 2";
-		NemaMoon2.Identifier = "moon2";
-		NemaMoon2.Mass = 5.3e23;
-		NemaMoon2.Radius = 4600;
-		NemaMoon2.RotationVelocity = 0.003;
-		NemaMoon2.OrbitDistance = 571000;
-		Nema.Sattelites.Add(NemaMoon2);
+		FFlareCelestialBody Ariadne;
+		Ariadne.Name = "Ariadne";
+		Ariadne.Identifier = "ariadne";
+		Ariadne.Mass = 5.3e23;
+		Ariadne.Radius = 4600;
+		Ariadne.RotationVelocity = 0.003;
+		Ariadne.OrbitDistance = 571000;
+		Nema.Sattelites.Add(Ariadne);
 
-		FFlareCelestialBody NemaMoon3;
-		NemaMoon3.Name = "Nema Moon 3";
-		NemaMoon3.Identifier = "moon3";
-		NemaMoon3.Mass = 0.9e23;
-		NemaMoon3.Radius = 2000;
-		NemaMoon3.RotationVelocity = 0.05;
-		NemaMoon3.OrbitDistance = 870000;
-		Nema.Sattelites.Add(NemaMoon3);
+		FFlareCelestialBody Asta;
+		Asta.Name = "Asta";
+		Asta.Identifier = "asta";
+		Asta.Mass = 0.9e23;
+		Asta.Radius = 2000;
+		Asta.RotationVelocity = 0.05;
+		Asta.OrbitDistance = 870000;
+		Nema.Sattelites.Add(Asta);
 	}
 	Sun.Sattelites.Add(Nema);
 }
