@@ -32,10 +32,24 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 		LoadAsteroid(SectorData.AsteroidData[i]);
 	}
 
+	// Load safe location ships
 	for(int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
-		LoadSpacecraft(*Spacecraft->Save());
+		if(Spacecraft->Save()->SafeLocation)
+		{
+			LoadSpacecraft(*Spacecraft->Save());
+		}
+	}
+
+	// Load unsafe location ships
+	for(int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
+		if(!Spacecraft->Save()->SafeLocation)
+		{
+			LoadSpacecraft(*Spacecraft->Save());
+		}
 	}
 
 	for(int i = 0 ; i < SectorData.BombData.Num(); i++)
@@ -151,6 +165,37 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 				SectorShips.Add(Spacecraft);
 			}
 			SectorSpacecrafts.Add(Spacecraft);
+
+
+			if(!ShipData.SafeLocation)
+			{
+				// Secure location
+
+				float RandomLocationRadius = 0;
+				float RandomLocationRadiusIncrement = 1000; // 10m
+				float EffectiveDistance = -1;
+				FVector Location = ShipData.Location;
+
+				while(EffectiveDistance < 0 && RandomLocationRadius < RandomLocationRadiusIncrement * 1000)
+				{
+					Location += FMath::VRand() * RandomLocationRadius;
+
+					// Check if location is secure
+					float Size = Spacecraft->GetMeshScale();
+
+
+					float NearestDistance;
+					if(GetNearestBody(Location, &NearestDistance, true, Spacecraft) == NULL)
+					{
+						// No other ship.
+						break;
+					}
+					EffectiveDistance = NearestDistance - Size;
+
+					RandomLocationRadius += RandomLocationRadiusIncrement;
+				}
+				Spacecraft->SetActorLocation(Location);
+			}
 		}
 		else
 		{
@@ -474,6 +519,42 @@ void UFlareSector::SetPause(bool Pause)
 	{
 		SectorShells[i]->SetPause(Pause);
 	}
+}
+
+
+AActor* UFlareSector::GetNearestBody(FVector Location, float* NearestDistance, bool IncludeSize, AActor* ActorToIgnore)
+{
+	AActor* NearestCandidateActor = NULL;
+	float NearestCandidateActorDistance = 0;
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
+	{
+		AFlareSpacecraft* SpacecraftCandidate = GetSpacecrafts()[SpacecraftIndex];
+		float Distance = FVector::Dist(SpacecraftCandidate->GetActorLocation(), Location) - SpacecraftCandidate->GetMeshScale();
+		if(SpacecraftCandidate != ActorToIgnore && (!NearestCandidateActor || NearestCandidateActorDistance > Distance))
+		{
+			NearestCandidateActor = SpacecraftCandidate;
+			NearestCandidateActorDistance = Distance;
+		}
+	}
+
+	for (int32 AsteroidIndex = 0; AsteroidIndex < GetAsteroids().Num(); AsteroidIndex++)
+	{
+		AFlareAsteroid* AsteroidCandidate = GetAsteroids()[AsteroidIndex];
+
+		FBox CandidateBox = AsteroidCandidate->GetComponentsBoundingBox();
+		float CandidateSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
+
+		float Distance = FVector::Dist(AsteroidCandidate->GetActorLocation(), Location) - CandidateSize;
+		if(AsteroidCandidate != ActorToIgnore && (!NearestCandidateActor || NearestCandidateActorDistance > Distance))
+		{
+			NearestCandidateActor = AsteroidCandidate;
+			NearestCandidateActorDistance = Distance;
+		}
+	}
+
+	*NearestDistance = NearestCandidateActorDistance;
+	return NearestCandidateActor;
 }
 
 /*----------------------------------------------------

@@ -60,6 +60,8 @@ public:
 
 	virtual void SetPause(bool Pause);
 
+	AActor* GetNearestBody(FVector Location, float* NearestDistance, bool IncludeSize = true, AActor* ActorToIgnore = NULL);
+
 protected:
 
 	/*----------------------------------------------------

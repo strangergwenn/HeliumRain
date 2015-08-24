@@ -28,6 +28,10 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FRotator Rotation;
 
+	/** The current location of the ship is safe. */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool SafeLocation;
+
 	/** Ship linear velocity */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector LinearVelocity;

@@ -243,6 +243,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	}
 	// Update local data
 	ShipData = Data;
+	ShipData.SafeLocation = true;
 
 	// Load ship description
 	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();

@@ -123,6 +123,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	ShipData.Rotation = TargetRotation;
 	ShipData.LinearVelocity = FVector::ZeroVector;
 	ShipData.AngularVelocity = FVector::ZeroVector;
+	ShipData.SafeLocation = false;
 	Game->Immatriculate(Company, ShipDescription->Identifier, &ShipData);
 	ShipData.Identifier = ShipDescription->Identifier;
 	ShipData.Heat = 600 * ShipDescription->HeatCapacity;
