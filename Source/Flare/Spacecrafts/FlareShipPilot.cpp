@@ -832,6 +832,11 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 				continue;
 			}
 
+			if(!CandidateShip->IsMilitary())
+			{
+				continue;
+			}
+
             if(LeaderShip->Airframe->GetMass() == CandidateShip->Airframe->GetMass())
 			{
                 if(LeaderShip->GetImmatriculation() < CandidateShip->GetImmatriculation())
