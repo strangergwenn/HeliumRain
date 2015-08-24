@@ -246,7 +246,7 @@ void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 
 
 	// Keep only most imminent hit
-	if(!MostDangerousCandidateActor || *MostDangerousHitTime > TimeToMinDistance)
+	if(!*MostDangerousCandidateActor || *MostDangerousHitTime > TimeToMinDistance)
 	{
 		//FLOG("  > Canditade is the most dangerous candidate");
 		*MostDangerousCandidateActor = CandidateActor;

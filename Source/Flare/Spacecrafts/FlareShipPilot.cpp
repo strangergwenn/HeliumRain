@@ -3,6 +3,7 @@
 
 #include "FlareShipPilot.h"
 #include "FlareSpacecraft.h"
+#include "FlarePilotHelper.h"
 
 /*----------------------------------------------------
 	Constructor
