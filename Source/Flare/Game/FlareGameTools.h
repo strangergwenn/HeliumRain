@@ -140,7 +140,7 @@ public:
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	AFlareSpacecraft* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
+	UFlareSimulatedSpacecraft* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
 
 	/** Create a ship in the level for the current player*/
 	UFUNCTION(exec)

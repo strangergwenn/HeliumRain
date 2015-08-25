@@ -627,7 +627,7 @@ AFlareSpacecraft* UFlareGameTools::CreateStationForMe(FName StationClass)
 	return NULL;
 }
 
-AFlareSpacecraft* UFlareGameTools::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
 {
 	if (!GetActiveSector())
 	{
@@ -635,30 +635,32 @@ AFlareSpacecraft* UFlareGameTools::CreateStationInCompany(FName StationClass, FN
 		return NULL;
 	}
 
-	//TODO
-	/*
-	AFlareSpacecraft* StationPawn = NULL;
-	FVector TargetPosition = FVector::ZeroVector;
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if(!Company)
+	{
+		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *CompanyShortName.ToString());
+		return NULL;
+	}
 
-	// Get target position
 	AFlarePlayerController* PC = GetPC();
+	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
+	FVector TargetPosition = FVector::ZeroVector;
 	if (ExistingShipPawn)
 	{
-		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
+		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(1, 0, 0));
 	}
 
+	GetGame()->DeactivateSector(PC);
 
-	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
-	if (Company)
-	{
-		StationPawn = GetActiveSector()->CreateStation(StationClass, Company, TargetPosition);
-	}
+	UFlareSimulatedSpacecraft* NewStation= NULL;
 
-	return StationPawn;
-	*/
-	return NULL;
+	NewStation = ActiveSector->CreateStation(StationClass, Company, TargetPosition);
+
+	GetGame()->ActivateSector(PC, ActiveSector);
+
+	return NewStation;
 }
 
 UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMe(FName ShipClass)
