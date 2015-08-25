@@ -136,7 +136,7 @@ public:
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	AFlareSpacecraft* CreateStationForMe(FName StationClass);
+	UFlareSimulatedSpacecraft* CreateStationForMe(FName StationClass);
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
@@ -148,7 +148,7 @@ public:
 
 	/** Create a ship in the level for a specific company identified by its short name*/
 	UFUNCTION(exec)
-	AFlareSpacecraft* CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance);
+	UFlareSimulatedSpacecraft* CreateShipInCompany(FName ShipClass, FName CompanyShortName, float Distance);
 
 	/** Create ships in the level for a specific company identified by its short name*/
 	UFUNCTION(exec)
