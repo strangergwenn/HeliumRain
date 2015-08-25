@@ -591,3 +591,15 @@ TArray<AFlareSpacecraft*> UFlareSector::GetCompanySpacecrafts(UFlareCompany* Com
 	}
 	return CompanySpacecrafts;
 }
+
+AFlareSpacecraft* UFlareSector::FindSpacecraft(FName Immatriculation)
+{
+	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	{
+		if (SectorSpacecrafts[i]->GetImmatriculation() == Immatriculation)
+		{
+			return SectorSpacecrafts[i];
+		}
+	}
+	return NULL;
+}

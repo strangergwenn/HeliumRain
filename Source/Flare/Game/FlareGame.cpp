@@ -172,10 +172,21 @@ void AFlareGame::DeactivateSector(AController* Player)
 {
 	if (ActiveSector)
 	{
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
+
+		FName LastFlownShip = "";
+
+		if(PC->GetShipPawn())
+		{
+			LastFlownShip = PC->GetShipPawn()->GetImmatriculation();
+		}
+
 		TArray<FFlareSpacecraftSave> SpacecraftData;
 		FFlareSectorSave* SectorData = ActiveSector->Save(SpacecraftData);
 		ActiveSector->Destroy();
 		ActiveSector = NULL;
+
+		SectorData->LastFlownShip = LastFlownShip;
 
 		//Reload  spacecrafts
 		for(int i = 0 ; i < SpacecraftData.Num(); i++)
@@ -193,7 +204,7 @@ void AFlareGame::DeactivateSector(AController* Player)
 
 		Sector->Load(Sector->GetDescription(), *SectorData, *Sector->GetOrbitParameters());
 
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
+
 		PC->OnSectorDeactivated();
 	}
 }

@@ -332,7 +332,30 @@ void AFlarePlayerController::OnLoadComplete()
 
 void AFlarePlayerController::OnSectorActivated()
 {
-	QuickSwitch();
+	FLOGV("OnSectorActivated LastFlownShip=%s", *GetGame()->GetActiveSector()->GetData()->LastFlownShip.ToString());
+	bool CandidateFound = false;
+
+
+
+	if(GetGame()->GetActiveSector()->GetData()->LastFlownShip != "")
+	{
+		FLOG("OnSectorActivated not null last ship");
+		AFlareSpacecraft* Candidate = GetGame()->GetActiveSector()->FindSpacecraft(GetGame()->GetActiveSector()->GetData()->LastFlownShip);
+		if(Candidate)
+		{
+			FLOG("OnSectorActivated last ship found");
+			CandidateFound = true;
+			//Disable pilot during the switch
+			Candidate->GetStateManager()->EnablePilot(false);
+			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Candidate);
+		}
+	}
+
+	if(!CandidateFound)
+	{
+		FLOG("OnSectorActivated no candidate");
+		QuickSwitch();
+	}
 }
 
 void AFlarePlayerController::OnSectorDeactivated()
@@ -342,10 +365,6 @@ void AFlarePlayerController::OnSectorDeactivated()
 
 void AFlarePlayerController::Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData)
 {
-	if (ShipPawn)
-	{
-		PlayerData.CurrentShipName = ShipPawn->GetImmatriculation();
-	}
 	SavePlayerData = PlayerData;
 	SaveCompanyData = CompanyData;
 }

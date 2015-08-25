@@ -132,6 +132,10 @@ struct FFlareSectorSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> SpacecraftIdentifiers;
+
+	/** Last flown identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName LastFlownShip;
 };
 
 UCLASS()

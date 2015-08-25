@@ -27,10 +27,6 @@ struct FFlarePlayerSave
 {
     GENERATED_USTRUCT_BODY()
 
-    /** UObject name of the currently possessed ship */
-    UPROPERTY(EditAnywhere, Category = Save)
-	FName CurrentShipName;
-
 	/** Chosen scenario */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 ScenarioId;

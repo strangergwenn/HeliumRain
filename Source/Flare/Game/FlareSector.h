@@ -106,6 +106,8 @@ public:
 
 	TArray<AFlareSpacecraft*> GetCompanySpacecrafts(UFlareCompany* Company);
 
+	AFlareSpacecraft* FindSpacecraft(FName Immatriculation);
+
 	inline FName GetIdentifier() const
 	{
 		return SectorData.Identifier;
