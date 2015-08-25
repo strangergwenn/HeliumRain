@@ -73,6 +73,9 @@ protected:
 	/** Quit the game */
 	void OnQuitGame();
 
+	/** Quit the game */
+	void OnQuitGameConfirmed();
+
 
 protected:
 

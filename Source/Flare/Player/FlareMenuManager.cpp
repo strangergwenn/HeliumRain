@@ -42,6 +42,9 @@ void AFlareMenuManager::SetupMenu()
 		// Notifier
 		SAssignNew(Notifier, SFlareNotifier).MenuManager(this).Visibility(EVisibility::SelfHitTestInvisible);
 
+		// Confirmation overlay
+		SAssignNew(Confirmation, SFlareConfirmationOverlay).MenuManager(this);
+
 		// Tooltip
 		SAssignNew(Tooltip, SFlareTooltip);
 
@@ -64,6 +67,7 @@ void AFlareMenuManager::SetupMenu()
 
 		// Register special menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         80);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Confirmation.ToSharedRef()),     80);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),          90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
 
@@ -210,6 +214,14 @@ void AFlareMenuManager::ShowLoadingScreen()
 	if (LoadingScreenModule)
 	{
 		LoadingScreenModule->StartInGameLoadingScreen();
+	}
+}
+
+void AFlareMenuManager::Confirm(FText Text, FSimpleDelegate OnConfirmed)
+{
+	if (Confirmation.IsValid())
+	{
+		Confirmation->Confirm(Text, OnConfirmed);
 	}
 }
 

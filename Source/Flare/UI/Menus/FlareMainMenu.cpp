@@ -308,6 +308,11 @@ void SFlareMainMenu::OnOpenSettings()
 
 void SFlareMainMenu::OnQuitGame()
 {
+	MenuManager->Confirm(LOCTEXT("ConfirmExit", "Do you really want to exit the game ?"), FSimpleDelegate::CreateSP(this, &SFlareMainMenu::OnQuitGameConfirmed));
+}
+
+void SFlareMainMenu::OnQuitGameConfirmed()
+{
 	MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
 }
 

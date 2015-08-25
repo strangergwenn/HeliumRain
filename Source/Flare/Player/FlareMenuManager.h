@@ -10,6 +10,7 @@
 #include "../UI/Menus/FlareLeaderboardMenu.h"
 #include "../UI/Components/FlareTooltip.h"
 #include "../UI/Components/FlareNotifier.h"
+#include "../UI/Components/FlareConfirmationOverlay.h"
 #include "FlareMenuManager.generated.h"
 
 
@@ -60,6 +61,9 @@ public:
 
 	/** Remvoe all notifications from the screen */
 	void FlushNotifications();
+
+	/** Show the confirmation overlay */
+	void Confirm(FText Text, FSimpleDelegate OnConfirmed);
 
 	/** Get a Slate icon brush */
 	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
@@ -145,6 +149,7 @@ protected:
 	// Menus
 	TSharedPtr<SFlareTooltip>               Tooltip;
 	TSharedPtr<SFlareNotifier>              Notifier;
+	TSharedPtr<SFlareConfirmationOverlay>   Confirmation;
 	TSharedPtr<SFlareMainMenu>              MainMenu;
 	TSharedPtr<SFlareNewGameMenu>           NewGameMenu;
 	TSharedPtr<SFlareDashboard>             Dashboard;
