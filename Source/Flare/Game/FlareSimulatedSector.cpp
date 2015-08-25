@@ -224,6 +224,25 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	return Spacecraft;
 }
 
+void UFlareSimulatedSector::CreateAsteroid(int32 ID, FVector Location)
+{
+	if(ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
+	{
+		FLOGV("Astroid create fail : Asteroid max ID is %d", Game->GetAsteroidCatalog()->Asteroids.Num() -1);
+		return;
+	}
+
+	FFlareAsteroidSave Data;
+	Data.AsteroidMeshID = ID;
+	Data.LinearVelocity = FVector::ZeroVector;
+	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
+	Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.9,1.1);
+	Data.Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
+	Data.Location = Location;
+
+	SectorData.AsteroidData.Add(Data);
+}
+
 void UFlareSimulatedSector::AddFleet(UFlareFleet* Fleet)
 {
 	SectorFleets.Add(Fleet);

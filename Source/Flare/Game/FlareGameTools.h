@@ -162,10 +162,6 @@ public:
 	UFUNCTION(exec)
 	void CreateAsteroid(int32 ID);
 
-	/** Empty the active sector. Let only the current played ship */
-	UFUNCTION(exec)
-	virtual void EmptySector();
-
 	/*----------------------------------------------------
 		Getter
 	----------------------------------------------------*/

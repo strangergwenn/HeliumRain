@@ -792,36 +792,24 @@ void UFlareGameTools::CreateAsteroid(int32 ID)
 		return;
 	}
 
-	//TODO
-	/*
-	AFlarePlayerController* PC = GetPC();
 
-	// Location
+	AFlarePlayerController* PC = GetPC();
+	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
+
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 	FVector TargetPosition = FVector::ZeroVector;
 	if (ExistingShipPawn)
 	{
-		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(20000 * FVector(1, 0, 0));
+		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(200 * FVector(100, 0, 0));
 	}
 
-	GetActiveSector()->CreateAsteroidAt(ID, TargetPosition);
-	*/
+	GetGame()->DeactivateSector(PC);
+
+	ActiveSector->CreateAsteroid(ID, TargetPosition);
+
+	GetGame()->ActivateSector(PC, ActiveSector);
 }
 
-void UFlareGameTools::EmptySector()
-{
-	FLOG("AFlareGame::EmptySector");
-	if (!GetActiveSector())
-	{
-		FLOG("AFlareGame::EmptySector failed: no active sector");
-		return;
-	}
-
-	//TODO
-	/*
-	GetActiveSector()->EmptySector();
-	*/
-}
 
 void UFlareGameTools::PrintCompanyList()
 {

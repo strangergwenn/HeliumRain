@@ -164,6 +164,9 @@ public:
 	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
 	UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator);
 
+	/** Create an asteroid */
+	void CreateAsteroid(int32 ID, FVector Location);
+
 	/** Add the fleet and its ships from the sector */
 	void AddFleet(UFlareFleet* Fleet);
 
