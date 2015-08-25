@@ -119,6 +119,12 @@ void AFlareGame::Logout(AController* Player)
 
 void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sector)
 {
+	if(!Sector)
+	{
+		// No sector to activate
+		return;
+	}
+
 	FLOGV("AFlareGame::ActivateSector %s", *Sector->GetSectorName());
 	if (ActiveSector)
 	{
