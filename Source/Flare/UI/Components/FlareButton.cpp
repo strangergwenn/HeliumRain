@@ -140,12 +140,13 @@ void SFlareButton::Construct(const FArguments& InArgs)
 			]
 		);
 
-		if (Icon.IsSet())
+		if (Icon.IsSet() || IsToggle)
 		{
 			IconBox->AddSlot()
 				.VAlign(VAlign_Center)
 				[
-					SNew(SImage).Image(Icon)
+					SNew(SImage)
+					.Image(this, &SFlareButton::GetIconBrush)
 				];
 		}
 	}
@@ -209,6 +210,22 @@ const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 	else if (IsPressed)
 	{
 		return &Theme.ButtonActiveDecorator;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+const FSlateBrush* SFlareButton::GetIconBrush() const
+{
+	if (Icon.IsSet())
+	{
+		return Icon.Get();
+	}
+	else if (IsToggle)
+	{
+		return (IsPressed ? FFlareStyleSet::GetIcon("OK") : FFlareStyleSet::GetIcon("Disabled"));
 	}
 	else
 	{

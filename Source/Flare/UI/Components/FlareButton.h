@@ -62,6 +62,9 @@ public:
 	const FSlateBrush* GetDecoratorBrush() const;
 
 	/** Brush callback*/
+	const FSlateBrush* GetIconBrush() const;
+
+	/** Brush callback*/
 	const FSlateBrush* GetBackgroundBrush() const;
 
 	/** Color callback */

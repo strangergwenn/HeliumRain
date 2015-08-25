@@ -178,6 +178,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 		]
 	];
 
+	TutorialButton->SetActive(true);
 }
 
 
