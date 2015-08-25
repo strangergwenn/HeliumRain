@@ -70,6 +70,8 @@ public:
 		CurrentFleet = Fleet;
 	}
 
+	virtual void InvalidateLocation();
+
 protected:
 
     /*----------------------------------------------------

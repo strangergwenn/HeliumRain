@@ -137,6 +137,10 @@ void UFlareFleet::SetCurrentTravel(UFlareTravel* Travel)
 	CurrentSector = NULL;
 	CurrentTravel = Travel;
 	InitShipList();
+	for(int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	{
+		FleetShips[ShipIndex]->InvalidateLocation();
+	}
 }
 
 void UFlareFleet::InitShipList()

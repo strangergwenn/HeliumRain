@@ -94,3 +94,9 @@ UFlareSimulatedSpacecraftWeaponsSystem* UFlareSimulatedSpacecraft::GetWeaponsSys
 {
 	return WeaponsSystem;
 }
+
+void UFlareSimulatedSpacecraft::InvalidateLocation()
+{
+	SpacecraftData.Location = FVector::ZeroVector;
+	SpacecraftData.SafeLocation = false;
+}
