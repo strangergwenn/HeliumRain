@@ -681,12 +681,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMe(FName ShipClass)
 
 	GetGame()->DeactivateSector(PC);
 
-	UFlareSimulatedSpacecraft* NewShip= NULL;
-
-	// TODO Spawn preference
-	/*TArray<FFlareSpawnTemplate> SpawnPreferences;
-	FFlareRaySpawnTemplate Ray(TargetPosition, ExistingShipPawn->GetActorForwardVector());
-	SpawnPreferences.Add(Ray);*/
+	UFlareSimulatedSpacecraft* NewShip = NULL;
 
 	NewShip = ActiveSector->CreateShip(ShipClass, PC->GetCompany(), TargetPosition);
 	GetGame()->ActivateSector(PC, ActiveSector);
