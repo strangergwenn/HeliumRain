@@ -704,30 +704,32 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 		return;
 	}
 
-	//TODO
-	/*
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if(!Company)
+	{
+		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *CompanyShortName.ToString());
+		return;
+	}
+
+	AFlarePlayerController* PC = GetPC();
+	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
+
+	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 	FVector TargetPosition = FVector::ZeroVector;
-	FVector BaseShift = FVector::ZeroVector;
-
-
-	AFlareSpacecraft* ExistingShipPawn = GetPC()->GetShipPawn();
 	if (ExistingShipPawn)
 	{
-		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * 100 * FVector(1, 0, 0));
-		BaseShift = ExistingShipPawn->GetActorRotation().RotateVector(10000 * FVector(0, 1, 0)); // 100m
+		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
+	GetGame()->DeactivateSector(PC);
 
-	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
-	if (Company)
+	for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
 	{
-			for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
-			{
-				FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1:-1);
-				GetActiveSector()->CreateShip(ShipClass, Company, TargetPosition + Shift);
-			}
+		ActiveSector->CreateShip(ShipClass, Company, TargetPosition);
 	}
-	*/
+
+	GetGame()->ActivateSector(PC, ActiveSector);
+
 }
 
 void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FName Company2Name, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count)
@@ -738,58 +740,48 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 		return;
 	}
 
-	//TODO
-	/*
-	FVector BasePosition = FVector::ZeroVector;
-	FVector BaseOffset = FVector(1.f, 0.f, 0.f) * Distance / 50.f; // Half the distance in cm
-	FVector BaseShift = FVector(0.f, 30000.f, 0.f);  // 100 m
-	FVector BaseDeep = FVector(30000.f, 0.f, 0.f); // 100 m
-
-	UFlareCompany* Company1 = NULL;
-	UFlareCompany* Company2 = NULL;
-
-	Company1 = GetGameWorld()->FindCompanyByShortName(Company1Name);
-	if (!Company1)
+	UFlareCompany* Company1 = GetGameWorld()->FindCompanyByShortName(Company1Name);
+	if(!Company1)
 	{
-		FLOGV("AFlareGame::CreateQuickBattle failed: no company named '%s'", *Company1Name.ToString());
+		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *Company1Name.ToString());
 		return;
 	}
 
-	Company2 = GetGameWorld()->FindCompanyByShortName(Company2Name);
-	if (!Company2)
+	UFlareCompany* Company2 = GetGameWorld()->FindCompanyByShortName(Company2Name);
+	if(!Company2)
 	{
-		FLOGV("AFlareGame::CreateQuickBattle failed: no company named '%s'", *Company2Name.ToString());
+		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *Company2Name.ToString());
 		return;
 	}
 
-	// Get target position
 	AFlarePlayerController* PC = GetPC();
+	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
+	FVector TargetPosition1 = FVector::ZeroVector;
+	FVector TargetPosition2 = FVector::ZeroVector;
 	if (ExistingShipPawn)
 	{
-		BasePosition = ExistingShipPawn->GetActorLocation();
-		BaseOffset = ExistingShipPawn->GetActorRotation().RotateVector(Distance * 50.f * FVector(1, 0, 0)); // Half the distance in cm
-		BaseDeep = ExistingShipPawn->GetActorRotation().RotateVector(FVector(30000.f, 0, 0)); // 100 m in cm
-		BaseShift = ExistingShipPawn->GetActorRotation().RotateVector(FVector(0, 30000.f, 0)); // 300 m in cm
+		TargetPosition1 = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance / 2.f * FVector(100, 0, 0));
+		TargetPosition2 = ExistingShipPawn->GetActorLocation() - ExistingShipPawn->GetActorRotation().RotateVector(Distance / 2.f * FVector(100, 0, 0));
 	}
+
+	GetGame()->DeactivateSector(PC);
 
 	for (int32 ShipIndex = 0; ShipIndex < ShipClass1Count; ShipIndex++)
 	{
-		FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1 : -1);
-		GetActiveSector()->CreateShip(ShipClass1, Company1, BasePosition + BaseOffset + Shift);
-		GetActiveSector()->CreateShip(ShipClass1, Company2, BasePosition - BaseOffset - Shift);
+		ActiveSector->CreateShip(ShipClass1, Company1, TargetPosition1);
+		ActiveSector->CreateShip(ShipClass1, Company2, TargetPosition2);
 	}
 
 	for (int32 ShipIndex = 0; ShipIndex < ShipClass2Count; ShipIndex++)
 	{
-		FVector Shift = (BaseShift * (ShipIndex + 1) / 2) * (ShipIndex % 2 == 0 ? 1 : -1);
-		GetActiveSector()->CreateShip(ShipClass2, Company1, BasePosition + BaseOffset + Shift + BaseDeep);
-		GetActiveSector()->CreateShip(ShipClass2, Company2, BasePosition - BaseOffset - Shift - BaseDeep);
+		ActiveSector->CreateShip(ShipClass2, Company1, TargetPosition1);
+		ActiveSector->CreateShip(ShipClass2, Company2, TargetPosition2);
 	}
-	*/
-}
 
+	GetGame()->ActivateSector(PC, ActiveSector);
+}
 
 
 void UFlareGameTools::CreateAsteroid(int32 ID)
