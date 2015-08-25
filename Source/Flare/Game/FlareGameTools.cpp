@@ -103,6 +103,13 @@ void UFlareGameTools::SetWorldTime(int64 Time)
 		FLOG("AFlareGame::SetWorldTime failed: no loaded world");
 		return;
 	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::SetWorldTime failed: a sector is active");
+		return;
+	}
+
 	GetGameWorld()->ForceTime(Time);
 }
 
@@ -114,6 +121,13 @@ void UFlareGameTools::Simulate(int64 Duration)
 		FLOG("AFlareGame::Simulate failed: no loaded world");
 		return;
 	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::Simulate failed: a sector is active");
+		return;
+	}
+
 	GetGameWorld()->Simulate(Duration);
 }
 
@@ -127,6 +141,12 @@ void UFlareGameTools::DeclareWar(FName Company1ShortName, FName Company2ShortNam
 	if (!GetGameWorld())
 	{
 		FLOG("AFlareGame::DeclareWar failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::DeclareWar failed: a sector is active");
 		return;
 	}
 
@@ -155,6 +175,13 @@ void UFlareGameTools::MakePeace(FName Company1ShortName, FName Company2ShortName
 		FLOG("AFlareGame::MakePeace failed: no loaded world");
 		return;
 	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::MakePeace failed: a sector is active");
+		return;
+	}
+
 
 	UFlareCompany* Company1 = GetGameWorld()->FindCompanyByShortName(Company1ShortName);
 	UFlareCompany* Company2 = GetGameWorld()->FindCompanyByShortName(Company2ShortName);
@@ -231,6 +258,12 @@ void UFlareGameTools::CreateFleet(FString FleetName, FName FirstShipImmatriculat
 		return;
 	}
 
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::CreateFleet failed: a sector is active");
+		return;
+	}
+
 	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(FirstShipImmatriculation);
 	if (!Ship)
 	{
@@ -255,6 +288,12 @@ void UFlareGameTools::DisbandFleet(FName FleetIdentifier)
 		return;
 	}
 
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::DisbandFleet failed: a sector is active");
+		return;
+	}
+
 	UFlareFleet* Fleet = GetGameWorld()->FindFleet(FleetIdentifier);
 	if (!Fleet)
 	{
@@ -271,6 +310,12 @@ void UFlareGameTools::AddToFleet(FName FleetIdentifier, FName ShipImmatriculatio
 	if (!GetGameWorld())
 	{
 		FLOG("AFlareGame::AddToFleet failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::AddToFleet failed: a sector is active");
 		return;
 	}
 
@@ -299,6 +344,12 @@ void UFlareGameTools::RemoveFromFleet(FName FleetIdentifier, FName ShipImmatricu
 		return;
 	}
 
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::RemoveFromFleet failed: a sector is active");
+		return;
+	}
+
 	UFlareFleet* Fleet = GetGameWorld()->FindFleet(FleetIdentifier);
 	if (!Fleet)
 	{
@@ -320,6 +371,12 @@ void UFlareGameTools::MergeFleets(FName Fleet1Identifier, FName Fleet2Identifier
 	if (!GetGameWorld())
 	{
 		FLOG("AFlareGame::MergeFleets failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::MergeFleets failed: a sector is active");
 		return;
 	}
 
@@ -349,6 +406,12 @@ void UFlareGameTools::StartTravel(FName FleetIdentifier, FName SectorIdentifier)
 	if (!GetGameWorld())
 	{
 		FLOG("AFlareGame::StartTravel failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::StartTravel failed: a sector is active");
 		return;
 	}
 
@@ -423,6 +486,13 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipCl
 		FLOG("AFlareGame::CreateShipForMeInSector failed: no world");
 		return NULL;
 	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::CreateStationForMe failed: a sector is active");
+		return NULL;
+	}
+
 
 	UFlareSimulatedSpacecraft* ShipPawn = NULL;
 	AFlarePlayerController* PC = GetPC();
