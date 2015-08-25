@@ -14,6 +14,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	InfoText.Set(LOCTEXT("AreYouSureInfo", "Please confirm this action."));
 
 	// Create the layout
 	ChildSlot
@@ -23,52 +24,64 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 		SNew(SBox)
 		[
 			SNew(SBorder)
-			.HAlign(HAlign_Center)
-			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Fill)
+			.Padding(FMargin(0, 10))
 			.BorderImage(&Theme.BackgroundBrush)
 			[
-				SNew(SVerticalBox)
-
-				// Title
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+				SNew(SBorder)
+				.HAlign(HAlign_Center)
+				.Padding(Theme.ContentPadding)
+				.BorderImage(&Theme.BackgroundBrush)
 				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("AreYouSure", "ARE YOU SURE ?"))
-					.TextStyle(&Theme.TitleFont)
-				]
+					SNew(SVerticalBox)
 
-				// Info text
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.Text(InfoText)
-					.TextStyle(&Theme.SubTitleFont)
-				]
-
-				// Buttons
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SHorizontalBox)
-
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
 					[
-						SNew(SFlareButton)
-						.Text(LOCTEXT("Confirm", "Confirm"))
-						.HelpText(LOCTEXT("ConfirmInfo", "Confirm this action"))
-						.OnClicked(this, &SFlareConfirmationOverlay::OnConfirmed)
+						SNew(STextBlock)
+						.Text(LOCTEXT("AreYouSure", "ARE YOU SURE ?"))
+						.TextStyle(&Theme.TitleFont)
+						.Justification(ETextJustify::Center)
 					]
 
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
+					// Info text
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
 					[
-						SNew(SFlareButton)
-						.Text(LOCTEXT("Cancel", "Cancel"))
-						.HelpText(LOCTEXT("CancelInfo", "Cancel this action"))
-						.OnClicked(this, &SFlareConfirmationOverlay::OnCancelled)
+						SNew(STextBlock)
+						.Text(InfoText)
+						.TextStyle(&Theme.SubTitleFont)
+						.Justification(ETextJustify::Center)
+					]
+
+					// Buttons
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("Confirm", "Confirm"))
+							.HelpText(LOCTEXT("ConfirmInfo", "Confirm this action"))
+							.Icon(FFlareStyleSet::GetIcon("OK"))
+							.OnClicked(this, &SFlareConfirmationOverlay::OnConfirmed)
+						]
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("Cancel", "Cancel"))
+							.HelpText(LOCTEXT("CancelInfo", "Cancel this action"))
+							.Icon(FFlareStyleSet::GetIcon("Delete"))
+							.OnClicked(this, &SFlareConfirmationOverlay::OnCancelled)
+						]
 					]
 				]
 			]
@@ -85,7 +98,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 
 void SFlareConfirmationOverlay::Confirm(FText Text, FSimpleDelegate OnConfirmed)
 {
-	InfoText = Text;
+	InfoText.Set(Text);
 	OnConfirmedCB = OnConfirmed;
 	SetVisibility(EVisibility::Visible);
 }

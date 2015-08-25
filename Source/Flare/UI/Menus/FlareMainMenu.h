@@ -67,14 +67,14 @@ protected:
 	/** Delete a game */
 	void OnDeleteSlot(TSharedPtr<int32> Index);
 
+	/** Delete a game */
+	void OnDeleteSlotConfirmed();
+
 	/** Open the settings menu */
 	void OnOpenSettings();
 
 	/** Quit the game */
 	void OnQuitGame();
-
-	/** Quit the game */
-	void OnQuitGameConfirmed();
 
 
 protected:
@@ -88,5 +88,6 @@ protected:
 
 	TSharedPtr<SHorizontalBox>                 SaveBox;
 
+	int32                                      SaveSlotToDelete;
 
 };

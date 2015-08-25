@@ -21,6 +21,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
+	SaveSlotToDelete = -1;
 
 	// Build structure
 	ChildSlot
@@ -183,14 +184,14 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 
 			// Delete
 			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Center)
-			.AutoHeight()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SFlareButton)
-				.Text(LOCTEXT("Delete", "Delete game"))
-				.HelpText(LOCTEXT("DeleteInfo", "Delete this game forever without backup"))
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Center)
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("Delete", "Delete game"))
+				.HelpText(LOCTEXT("DeleteInfo", "Delete this game, forever, without backup !"))
 				.Icon(FFlareStyleSet::GetIcon("Delete"))
 				.OnClicked(this, &SFlareMainMenu::OnDeleteSlot, IndexPtr)
 				.Width(5)
@@ -296,8 +297,18 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 
 void SFlareMainMenu::OnDeleteSlot(TSharedPtr<int32> Index)
 {
-	Game->DeleteSaveSlot(*Index);
-	Game->ReadAllSaveSlots();
+	SaveSlotToDelete = *Index;
+	MenuManager->Confirm(LOCTEXT("ConfirmExit", "Do you really want to delete this save slot ?"), FSimpleDelegate::CreateSP(this, &SFlareMainMenu::OnDeleteSlotConfirmed));
+}
+
+void SFlareMainMenu::OnDeleteSlotConfirmed()
+{
+	if (SaveSlotToDelete >= 0)
+	{
+		Game->DeleteSaveSlot(SaveSlotToDelete);
+		Game->ReadAllSaveSlots();
+		SaveSlotToDelete = -1;
+	}
 }
 
 void SFlareMainMenu::OnOpenSettings()
@@ -307,11 +318,6 @@ void SFlareMainMenu::OnOpenSettings()
 }
 
 void SFlareMainMenu::OnQuitGame()
-{
-	MenuManager->Confirm(LOCTEXT("ConfirmExit", "Do you really want to exit the game ?"), FSimpleDelegate::CreateSP(this, &SFlareMainMenu::OnQuitGameConfirmed));
-}
-
-void SFlareMainMenu::OnQuitGameConfirmed()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
 }
