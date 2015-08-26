@@ -14,7 +14,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	InfoText.Set(LOCTEXT("AreYouSureInfo", "Please confirm this action."));
+	InfoText = LOCTEXT("AreYouSureInfo", "Please confirm this action.");
 
 	// Create the layout
 	ChildSlot
@@ -52,7 +52,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
-						.Text(InfoText)
+						.Text(this, &SFlareConfirmationOverlay::GetText)
 						.TextStyle(&Theme.SubTitleFont)
 						.Justification(ETextJustify::Center)
 					]
@@ -99,7 +99,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 
 void SFlareConfirmationOverlay::Confirm(FText Text, FSimpleDelegate OnConfirmed)
 {
-	InfoText.Set(Text);
+	InfoText = Text;
 	OnConfirmedCB = OnConfirmed;
 	SetVisibility(EVisibility::Visible);
 }
@@ -112,6 +112,11 @@ void SFlareConfirmationOverlay::Confirm(FText Text, FSimpleDelegate OnConfirmed)
 void SFlareConfirmationOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+}
+
+FText SFlareConfirmationOverlay::GetText() const
+{
+	return InfoText;
 }
 
 void SFlareConfirmationOverlay::OnConfirmed()

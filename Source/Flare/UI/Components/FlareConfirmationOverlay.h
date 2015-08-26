@@ -45,6 +45,9 @@ public:
 	
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
+	/** Get the info text */
+	FText GetText() const;
+
 	/** Confirmed action */
 	void OnConfirmed();
 
@@ -63,7 +66,7 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>      MenuManager;
 
 	// Slate data
-	TAttribute<FText>                            InfoText;
+	FText                                        InfoText;
 	FSimpleDelegate                              OnConfirmedCB;
 
 
