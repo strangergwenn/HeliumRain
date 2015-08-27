@@ -31,6 +31,7 @@ void AFlareMenuManager::SetupMenu()
 	{
 		// Create regular menus
 		SAssignNew(MainMenu, SFlareMainMenu).MenuManager(this);
+		SAssignNew(SettingsMenu, SFlareSettingsMenu).MenuManager(this);
 		SAssignNew(NewGameMenu, SFlareNewGameMenu).MenuManager(this);
 		SAssignNew(Dashboard, SFlareDashboard).MenuManager(this);
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
@@ -57,6 +58,7 @@ void AFlareMenuManager::SetupMenu()
 
 		// Register regular menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),         50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SettingsMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(NewGameMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
@@ -73,6 +75,7 @@ void AFlareMenuManager::SetupMenu()
 
 		// Setup regular menus
 		MainMenu->Setup();
+		SettingsMenu->Setup();
 		NewGameMenu->Setup();
 		Dashboard->Setup();
 		CompanyMenu->Setup();
@@ -163,7 +166,9 @@ void AFlareMenuManager::Back()
 			case EFlareMenu::MENU_NewGame:
 				OpenMenu(EFlareMenu::MENU_Main);
 				break;
-
+			case EFlareMenu::MENU_Settings:
+				OpenMenu(EFlareMenu::MENU_Main);
+				break;
 			case EFlareMenu::MENU_Dashboard:
 				CloseMenu();
 				break;
@@ -293,6 +298,7 @@ void AFlareMenuManager::ResetMenu()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
 	MainMenu->Exit();
+	SettingsMenu->Exit();
 	NewGameMenu->Exit();
 	Dashboard->Exit();
 	CompanyMenu->Exit();
@@ -331,7 +337,9 @@ void AFlareMenuManager::ProcessFadeTarget()
 		case EFlareMenu::MENU_Main:
 			OpenMainMenu();
 			break;
-
+		case EFlareMenu::MENU_Settings:
+			OpenSettingsMenu();
+			break;
 		case EFlareMenu::MENU_NewGame:
 			OpenNewGameMenu();
 			break;
@@ -398,6 +406,14 @@ void AFlareMenuManager::OpenMainMenu()
 	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
+}
+
+void AFlareMenuManager::OpenSettingsMenu()
+{
+	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Settings;
+	GetPC()->OnEnterMenu();
+	SettingsMenu->Enter();
 }
 
 void AFlareMenuManager::OpenNewGameMenu()
