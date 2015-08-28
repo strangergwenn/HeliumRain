@@ -419,7 +419,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		// Draw the HUD designator
 		else if (Spacecraft->GetDamageSystem()->IsAlive())
 		{
-			float CornerSize = 12;
+			float CornerSize = 6;
 
 			// Draw designator corners
 			FLinearColor Color = GetHostilityColor(PC, Spacecraft);
