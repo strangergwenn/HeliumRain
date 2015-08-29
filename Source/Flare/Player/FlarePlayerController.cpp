@@ -332,19 +332,18 @@ void AFlarePlayerController::OnLoadComplete()
 
 void AFlarePlayerController::OnSectorActivated()
 {
-	FLOGV("OnSectorActivated LastFlownShip=%s", *GetGame()->GetActiveSector()->GetData()->LastFlownShip.ToString());
+	FLOGV("AFlarePlayerController::OnSectorActivated LastFlownShip=%s", *GetGame()->GetActiveSector()->GetData()->LastFlownShip.ToString());
 	bool CandidateFound = false;
-
-
 
 	if(GetGame()->GetActiveSector()->GetData()->LastFlownShip != "")
 	{
-		FLOG("OnSectorActivated not null last ship");
+		FLOG("AFlarePlayerController::OnSectorActivated not null last ship");
 		AFlareSpacecraft* Candidate = GetGame()->GetActiveSector()->FindSpacecraft(GetGame()->GetActiveSector()->GetData()->LastFlownShip);
 		if(Candidate)
 		{
-			FLOG("OnSectorActivated last ship found");
+			FLOG("AFlarePlayerController::OnSectorActivated last ship found");
 			CandidateFound = true;
+
 			//Disable pilot during the switch
 			Candidate->GetStateManager()->EnablePilot(false);
 			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Candidate);
@@ -353,13 +352,14 @@ void AFlarePlayerController::OnSectorActivated()
 
 	if(!CandidateFound)
 	{
-		FLOG("OnSectorActivated no candidate");
+		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
 		QuickSwitch();
 	}
 }
 
 void AFlarePlayerController::OnSectorDeactivated()
 {
+	ShipPawn = NULL;
 	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 }
 
