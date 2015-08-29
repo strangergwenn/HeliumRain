@@ -151,7 +151,7 @@ bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetS
 	// Try to dock
 	if (DockingInfo.Granted)
 	{
-		if(IsDocked())
+		if (IsDocked())
 		{
 			Undock();
 		}
@@ -242,7 +242,7 @@ void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* D
 			{
 				// We are in a automatic docking process
 				AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(CurrentCommand.ActionTarget);
-				if(DockStation != DockingCandidate)
+				if (DockStation != DockingCandidate)
 				{
 					// The hit spacecraft is not the docking target station
 					return;
@@ -332,24 +332,24 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	// - Rendez-vous : go at the entrance of the docking corridor.
 	//     Its a large sphere  in front of the dock with a speed limit. During
 	//     the approch phase the ship can go as phase is as he want.
-	//
+	// 
 	// - Approch (500 m): The ship advance in the approch corridor and try to keep itself
 	//    near the dock axis an align th ship.
 	//    The approch corridor is a cone with speed limitation more and more strict
 	//    approching the station. There is a prefered  speed and a limit speed. If
 	//    the limit speed is reach, the ship must abord and return to the entrance
 	//    of the docking corridor. The is also a angular limit.
-	//
+	// 
 	// - Final Approch (5 m) : The ship slowly advance and wait for the docking trying to keep
 	//    the speed and alignement.
-	//
+	// 
 	// - Docking : As soon as the ship is in the docking limits, the ship is attached to the station
 
 
 	AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(DockStationInterface);
 	if (!DockStation)
 	{
-		//TODO LOG
+		// TODO LOG
 		return;
 	}
 	//FLOG("==============DockingAutopilot==============");
@@ -445,8 +445,8 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 	FLOGV("DockToDockAngle=%f", DockToDockAngle);
 */
-	//DrawDebugSphere(Spacecraft->GetWorld(), ShipDockLocation, 100, 12, FColor::Red, false,0.03);
-	//DrawDebugSphere(Spacecraft->GetWorld(), StationDockLocation, 100, 12, FColor::Blue, false,0.03);
+	// DrawDebugSphere(Spacecraft->GetWorld(), ShipDockLocation, 100, 12, FColor::Red, false,0.03);
+	// DrawDebugSphere(Spacecraft->GetWorld(), StationDockLocation, 100, 12, FColor::Blue, false,0.03);
 	// Output
 	float MaxVelocity = 0;
 	FVector LocationTarget = StationDockLocation - ShipDockOffset;
@@ -614,8 +614,8 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 	DrawDebugSphere(Spacecraft->GetWorld(), LocationTarget, 100, 12, FColor::Green, false,0.03);
 */
-	//UpdateLinearAttitudeAuto(DeltaSeconds, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity));
-	//UpdateAngularAttitudeAuto(DeltaSeconds);
+	// UpdateLinearAttitudeAuto(DeltaSeconds, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity));
+	// UpdateAngularAttitudeAuto(DeltaSeconds);
 
 	// Not in approach, just go to the docking entrance point
 	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.25);

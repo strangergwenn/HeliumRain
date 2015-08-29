@@ -210,8 +210,8 @@ protected:
 	UPROPERTY()
 	TArray<FFlareSaveSlotInfo>               SaveSlots;
 
-	//UPROPERTY()
-	//UFlareGameTools*    					 GameTools;
+	// UPROPERTY()
+	// UFlareGameTools*    					 GameTools;
 
 public:
 

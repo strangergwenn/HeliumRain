@@ -214,7 +214,7 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 
 	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();
 	FLOGV("  > %d fleets", CompanyFleets.Num());
-	for(int i = 0; i < CompanyFleets.Num(); i++)
+	for (int i = 0; i < CompanyFleets.Num(); i++)
 	{
 		UFlareFleet* Fleet = CompanyFleets[i];
 		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName());
@@ -222,7 +222,7 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 
 	TArray<UFlareSimulatedSpacecraft*> CompanySpacecrafts = Company->GetCompanySpacecrafts();
 	FLOGV("  > %d spacecrafts (%d ships and %d stations)", CompanySpacecrafts.Num(), Company->GetCompanyShips().Num(), Company->GetCompanyStations().Num());
-	for(int i = 0; i < CompanySpacecrafts.Num(); i++)
+	for (int i = 0; i < CompanySpacecrafts.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = CompanySpacecrafts[i];
 		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
@@ -238,7 +238,7 @@ void UFlareGameTools::PrintCompanyByIndex(int32 Index)
 	}
 
 	TArray<UFlareCompany*> Companies = GetGameWorld()->GetCompanies();
-	if(Index < 0 || Index > Companies.Num() -1)
+	if (Index < 0 || Index > Companies.Num() -1)
 	{
 		FLOGV("AFlareGame::PrintCompanyByIndex failed: invalid index %d, with %d companies.", Index, Companies.Num());
 		return;
@@ -447,7 +447,7 @@ void UFlareGameTools::PrintTravelList()
 
 	FLOGV("> PrintTravelList: %d travels", GetGameWorld()->GetTravels().Num());
 
-	for(int i = 0; i < GetGameWorld()->GetTravels().Num(); i++)
+	for (int i = 0; i < GetGameWorld()->GetTravels().Num(); i++)
 	{
 		UFlareTravel* Travel = GetGameWorld()->GetTravels()[i];
 		FLOGV("%2d - %s to %s	", i, *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName());
@@ -464,7 +464,7 @@ void UFlareGameTools::PrintTravelByIndex(int32 Index)
 	}
 
 	TArray<UFlareTravel*>Travels= GetGameWorld()->GetTravels();
-	if(Index < 0 || Index > Travels.Num() -1)
+	if (Index < 0 || Index > Travels.Num() -1)
 	{
 		FLOGV("AFlareGame::PrintTravelByIndex failed: invalid index %d, with %d travels.", Index, Travels.Num());
 		return;
@@ -525,7 +525,7 @@ void UFlareGameTools::PrintSectorList()
 
 	FLOGV("> PrintSectorList: %d sectors", GetGameWorld()->GetSectors().Num());
 
-	for(int i = 0; i < GetGameWorld()->GetSectors().Num(); i++)
+	for (int i = 0; i < GetGameWorld()->GetSectors().Num(); i++)
 	{
 		UFlareSimulatedSector* Sector = GetGameWorld()->GetSectors()[i];
 		FLOGV("%2d - %s: %s (%s)", i, *Sector->GetIdentifier().ToString(), *Sector->GetSectorName(), *Sector->GetSectorCode());
@@ -552,7 +552,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 
 	TArray<UFlareFleet*> SectorFleets = Sector->GetSectorFleets();
 	FLOGV("  > %d fleets", SectorFleets.Num());
-	for(int i = 0; i < SectorFleets.Num(); i++)
+	for (int i = 0; i < SectorFleets.Num(); i++)
 	{
 		UFlareFleet* Fleet = SectorFleets[i];
 		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName());
@@ -560,7 +560,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 
 	TArray<UFlareSimulatedSpacecraft*> SectorShips = Sector->GetSectorShips();
 	FLOGV("  > %d ships", SectorShips.Num());
-	for(int i = 0; i < SectorShips.Num(); i++)
+	for (int i = 0; i < SectorShips.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = SectorShips[i];
 		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
@@ -568,7 +568,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 
 	TArray<UFlareSimulatedSpacecraft*> SectorStations = Sector->GetSectorStations();
 	FLOGV("  > %d stations", SectorStations.Num());
-	for(int i = 0; i < SectorStations.Num(); i++)
+	for (int i = 0; i < SectorStations.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = SectorStations[i];
 		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
@@ -585,7 +585,7 @@ void UFlareGameTools::PrintSectorByIndex(int32 Index)
 	}
 
 	TArray<UFlareSimulatedSector*> Sectors= GetGameWorld()->GetSectors();
-	if(Index < 0 || Index > Sectors.Num() -1)
+	if (Index < 0 || Index > Sectors.Num() -1)
 	{
 		FLOGV("AFlareGame::PrintSectorByIndex failed: invalid index %d, with %d sectors.", Index, Sectors.Num());
 		return;
@@ -620,7 +620,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName Station
 	}
 
 	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
-	if(!Company)
+	if (!Company)
 	{
 		FLOGV("UFlareSector::CreateStationInCompany failed : No company named '%s'", *CompanyShortName.ToString());
 		return NULL;
@@ -670,7 +670,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 	}
 
 	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
-	if(!Company)
+	if (!Company)
 	{
 		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *CompanyShortName.ToString());
 		return NULL;
@@ -705,7 +705,7 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 	}
 
 	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
-	if(!Company)
+	if (!Company)
 	{
 		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *CompanyShortName.ToString());
 		return;
@@ -741,14 +741,14 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 	}
 
 	UFlareCompany* Company1 = GetGameWorld()->FindCompanyByShortName(Company1Name);
-	if(!Company1)
+	if (!Company1)
 	{
 		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *Company1Name.ToString());
 		return;
 	}
 
 	UFlareCompany* Company2 = GetGameWorld()->FindCompanyByShortName(Company2Name);
-	if(!Company2)
+	if (!Company2)
 	{
 		FLOGV("UFlareSector::CreateShipInCompany failed : No company named '%s'", *Company2Name.ToString());
 		return;
@@ -822,7 +822,7 @@ void UFlareGameTools::PrintCompanyList()
 
 	FLOGV("> PrintCompanyList: %d companies", GetGameWorld()->GetCompanies().Num());
 
-	for(int i = 0; i < GetGameWorld()->GetCompanies().Num(); i++)
+	for (int i = 0; i < GetGameWorld()->GetCompanies().Num(); i++)
 	{
 		UFlareCompany* Company = GetGameWorld()->GetCompanies()[i];
 		FLOGV("%2d - %s: %s (%s)", i, *Company->GetIdentifier().ToString(), *Company->GetCompanyName().ToString(), *Company->GetShortName().ToString());

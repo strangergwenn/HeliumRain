@@ -70,7 +70,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	LastWeaponType = CurrentWeaponType;
 
 
-	if(!IsPiloted && (PlayerManualOrbitalBoost || !PlayerManualLinearVelocity.IsZero()))
+	if (!IsPiloted && (PlayerManualOrbitalBoost || !PlayerManualLinearVelocity.IsZero()))
 	{
 		Spacecraft->ForceManual();
 	}
@@ -207,7 +207,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		Spacecraft->SetCameraPitch(InternalCameraPitch);
 		Spacecraft->SetCameraYaw(InternalCameraYaw);
 	}
-	//TODO Camera smoothing
+	// TODO Camera smoothing
 
 }
 

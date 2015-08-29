@@ -288,7 +288,7 @@ public:
 
 	UFlareFleet* FindFleet(FName Identifier) const
 	{
-		for(int i = 0; i < CompanyFleets.Num(); i++)
+		for (int i = 0; i < CompanyFleets.Num(); i++)
 		{
 			if (CompanyFleets[i]->GetIdentifier() == Identifier)
 			{

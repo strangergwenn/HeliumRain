@@ -21,9 +21,9 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 
 	AFlareGame* Game =  Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 
-	if(Game)
+	if (Game)
 	{
-		if(!Game->GetActiveSector())
+		if (!Game->GetActiveSector())
 		{
 			// No active sector, do nothing
 			return;
@@ -33,7 +33,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 
 		if (World)
 		{
-			if(CurrentTime == World->GetTime() && CurrentSector == Game->GetActiveSector()->GetIdentifier())
+			if (CurrentTime == World->GetTime() && CurrentSector == Game->GetActiveSector()->GetIdentifier())
 			{
 				// Already up-to-date
 				return;
@@ -62,7 +62,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 				for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 				{
 					UDirectionalLightComponent* LightCandidate = Cast<UDirectionalLightComponent>(Components[ComponentIndex]);
-					if(LightCandidate)
+					if (LightCandidate)
 					{
 						Light = LightCandidate;
 						break;
@@ -139,13 +139,13 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection)
 {
 
-	//float BaseDistance = 1e9;
+	// float BaseDistance = 1e9;
 	double BaseDistance = 1e7;
 
 
 
 	double DistanceScaleRatio = 100./10000;
-	//float RadiusScaleRatio = 100./70000;
+	// float RadiusScaleRatio = 100./70000;
 	double RadiusScaleRatio = 100./10000;
 	FPreciseVector Location = Offset + Body->AbsoluteLocation;
 	FPreciseVector AlignedLocation = Location.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0));
@@ -173,7 +173,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UStaticMeshComponent* ComponentCandidate = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
-		if(ComponentCandidate && ComponentCandidate->GetName() == Body->Identifier.ToString()	)
+		if (ComponentCandidate && ComponentCandidate->GetName() == Body->Identifier.ToString()	)
 		{
 			BodyComponent = ComponentCandidate;
 			break;
@@ -186,8 +186,8 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		float Scale = VisibleRadius / 512; // Mesh size is 1024;
 		BodyComponent->SetRelativeScale3D(FPreciseVector(Scale).ToVector());
 
-		//BodyComponent->SetRelativeRotation(FRotator(90, Body->RotationAngle + AngleOffset ,0));
-		//BodyComponent->SetRelativeRotation(FRotator(0, -90 ,0));
+		// BodyComponent->SetRelativeRotation(FRotator(90, Body->RotationAngle + AngleOffset ,0));
+		// BodyComponent->SetRelativeRotation(FRotator(0, -90 ,0));
 
 		/*FLOGV("MoveCelestialBody %s Body->RotationAngle = %f", *Body->Name, Body->RotationAngle);
 		FLOGV("MoveCelestialBody %s AngleOffset = %f", *Body->Name, AngleOffset);
@@ -203,7 +203,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		BodyComponent->SetRelativeRotation(Rotation);
 
 		UMaterialInstanceDynamic* ComponentMaterial = Cast<UMaterialInstanceDynamic>(BodyComponent->GetMaterial(0));
-		if(!ComponentMaterial)
+		if (!ComponentMaterial)
 		{
 			ComponentMaterial = UMaterialInstanceDynamic::Create(BodyComponent->GetMaterial(0) , GetWorld());
 			BodyComponent->SetMaterial(0, ComponentMaterial);
@@ -220,7 +220,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 	DrawDebugLine(GetWorld(), FVector(0, 0, 0), AlignedLocation.RotateAngleAxis(-FMath::RadiansToDegrees(AngularRadius), FVector(0,1,0)) * 100000, FColor::Green, false, 1.f);
 */
 	// Compute sun occlusion
-	if(Body != &Sun)
+	if (Body != &Sun)
 	{
 		float BodyPhase =  FMath::UnwindRadians(FMath::Atan2(AlignedLocation.Z, AlignedLocation.X));
 
@@ -230,12 +230,12 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		float AngleSum = (SunAnglularRadius + AngularRadius);
 		float AngleDiff = FMath::Abs(SunAnglularRadius - AngularRadius);
 
-		if(CenterAngularDistance < AngleSum)
+		if (CenterAngularDistance < AngleSum)
 		{
 			// There is occlusion
 			float OcclusionRatio;
 
-			if(CenterAngularDistance < AngleDiff)
+			if (CenterAngularDistance < AngleDiff)
 			{
 				// Maximum occlusion
 				OcclusionRatio = 1.0;
@@ -245,11 +245,11 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 				// Partial occlusion
 				OcclusionRatio = (AngleSum - CenterAngularDistance) / (2* FMath::Min(SunAnglularRadius, AngularRadius));
 
-				//OcclusionRatio = ((SunAnglularRadius + AngularRadius) + FMath::Max(SunAnglularRadius, AngularRadius) - FMath::Min(SunAnglularRadius, AngularRadius)) / (2 * CenterAngularDistance);
+				// OcclusionRatio = ((SunAnglularRadius + AngularRadius) + FMath::Max(SunAnglularRadius, AngularRadius) - FMath::Min(SunAnglularRadius, AngularRadius)) / (2 * CenterAngularDistance);
 			}
 			//FLOGV("MoveCelestialBody %s OcclusionRatio = %f", *Body->Name, OcclusionRatio);
 
-			//Now, find the surface occlusion
+			// Now, find the surface occlusion
 			float SunAngularSurface = PI*FMath::Square(SunAnglularRadius);
 			float MaxOcclusionAngularSurface = PI*FMath::Square(FMath::Min(SunAnglularRadius, AngularRadius));
 			float MaxOcclusion = MaxOcclusionAngularSurface/SunAngularSurface;
@@ -267,7 +267,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 			FLOGV("MoveCelestialBody %s Occlusion = %f", *Body->Name, Occlusion);*/
 
 
-			if(Occlusion > SunOcclusion)
+			if (Occlusion > SunOcclusion)
 			{
 				// Keep only best occlusion
 				SunOcclusion = Occlusion;
@@ -281,7 +281,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		SunPhase = FMath::UnwindRadians(FMath::Atan2(AlignedLocation.Z, AlignedLocation.X));
 	}
 
-	for(int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
+	for (int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
 	{
 		FFlareCelestialBody* CelestialBody = &Body->Sattelites[SatteliteIndex];
 		MoveCelestialBody(CelestialBody, Offset, AngleOffset, SunDirection);

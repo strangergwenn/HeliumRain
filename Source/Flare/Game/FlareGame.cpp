@@ -95,7 +95,7 @@ void AFlareGame::StartPlay()
 
 	// Spawn planet
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	//GameTools = GetWorld()->SpawnActor<AFlareGameTools>(AFlareGameTools::StaticClass());
+	// GameTools = GetWorld()->SpawnActor<AFlareGameTools>(AFlareGameTools::StaticClass());
 }
 
 void AFlareGame::PostLogin(APlayerController* Player)
@@ -119,7 +119,7 @@ void AFlareGame::Logout(AController* Player)
 
 void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sector)
 {
-	if(!Sector)
+	if (!Sector)
 	{
 		// No sector to activate
 		return;
@@ -142,7 +142,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 	FLOGV("AFlareGame::ActivateSector ship count %d", Sector->GetSectorShips().Num());
 
 	bool PlayerHasShip = false;
-	for(int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+	for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
 		FLOGV("AFlareGame::ActivateSector ship %s", *Ship->GetImmatriculation().ToString());
@@ -176,7 +176,7 @@ void AFlareGame::DeactivateSector(AController* Player)
 
 		FName LastFlownShip = "";
 
-		if(PC->GetShipPawn())
+		if (PC->GetShipPawn())
 		{
 			LastFlownShip = PC->GetShipPawn()->GetImmatriculation();
 		}
@@ -188,8 +188,8 @@ void AFlareGame::DeactivateSector(AController* Player)
 
 		SectorData->LastFlownShip = LastFlownShip;
 
-		//Reload  spacecrafts
-		for(int i = 0 ; i < SpacecraftData.Num(); i++)
+		// Reload  spacecrafts
+		for (int i = 0 ; i < SpacecraftData.Num(); i++)
 		{
 			UFlareSimulatedSpacecraft* Spacecraft = GetGameWorld()->FindSpacecraft(SpacecraftData[i].Immatriculation);
 			Spacecraft->Load(SpacecraftData[i]);
@@ -635,11 +635,11 @@ FName AFlareGame::PickCapitalShipName()
 
 		// Browse all existing ships the check if the name is unique
 		// TODO check ship in travel (not in a sector with travels will be implemented)
-		for(int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
+		for (int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
 		{
 			UFlareSimulatedSector* Sector = World->GetSectors()[SectorIndex];
 
-			for(int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+			for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 			{
 				UFlareSimulatedSpacecraft* SpacecraftCandidate = Sector->GetSectorShips()[ShipIndex];
 				if (SpacecraftCandidate && SpacecraftCandidate->GetNickName() == CandidateName)

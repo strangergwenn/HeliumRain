@@ -28,10 +28,10 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	SectorStations.Empty();
 	SectorFleets.Empty();
 
-	for(int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
+	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
-		if(Spacecraft->IsStation())
+		if (Spacecraft->IsStation())
 		{
 			SectorStations.Add(Spacecraft);
 		}
@@ -44,7 +44,7 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	}
 
 
-	for(int i = 0 ; i < SectorData.FleetIdentifiers.Num(); i++)
+	for (int i = 0 ; i < SectorData.FleetIdentifiers.Num(); i++)
 	{
 		UFlareFleet* Fleet = Game->GetGameWorld()->FindFleet(SectorData.FleetIdentifiers[i]);
 		SectorFleets.Add(Fleet);
@@ -57,17 +57,17 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 	SectorData.SpacecraftIdentifiers.Empty();
 	SectorData.FleetIdentifiers.Empty();
 
-	for(int i = 0 ; i < SectorShips.Num(); i++)
+	for (int i = 0 ; i < SectorShips.Num(); i++)
 	{
 		SectorData.SpacecraftIdentifiers.Add(SectorShips[i]->GetImmatriculation());
 	}
 
-	for(int i = 0 ; i < SectorStations.Num(); i++)
+	for (int i = 0 ; i < SectorStations.Num(); i++)
 	{
 		SectorData.SpacecraftIdentifiers.Add(SectorStations[i]->GetImmatriculation());
 	}
 
-	for(int i = 0 ; i < SectorFleets.Num(); i++)
+	for (int i = 0 ; i < SectorFleets.Num(); i++)
 	{
 		SectorData.FleetIdentifiers.Add(SectorFleets[i]->GetIdentifier());
 	}
@@ -207,7 +207,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 
 	// Create the ship
 	Spacecraft = Company->LoadSpacecraft(ShipData);
-	if(Spacecraft->IsStation())
+	if (Spacecraft->IsStation())
 	{
 		SectorStations.Add(Spacecraft);
 	}
@@ -226,7 +226,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 
 void UFlareSimulatedSector::CreateAsteroid(int32 ID, FVector Location)
 {
-	if(ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
+	if (ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
 	{
 		FLOGV("Astroid create fail : Asteroid max ID is %d", Game->GetAsteroidCatalog()->Asteroids.Num() -1);
 		return;
@@ -247,7 +247,7 @@ void UFlareSimulatedSector::AddFleet(UFlareFleet* Fleet)
 {
 	SectorFleets.Add(Fleet);
 
-	for(int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
+	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
 		Fleet->GetShips()[ShipIndex]->SetCurrentSector(this);
 		SectorShips.AddUnique(Fleet->GetShips()[ShipIndex]);
@@ -256,7 +256,7 @@ void UFlareSimulatedSector::AddFleet(UFlareFleet* Fleet)
 
 void UFlareSimulatedSector::DisbandFleet(UFlareFleet* Fleet)
 {
-	if(SectorFleets.Remove(Fleet) == 0)
+	if (SectorFleets.Remove(Fleet) == 0)
 	{
 		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName())
 		return;
@@ -266,16 +266,16 @@ void UFlareSimulatedSector::DisbandFleet(UFlareFleet* Fleet)
 void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 {
 	FLOGV("UFlareSimulatedSector::RetireFleet %s", *Fleet->GetFleetName());
-	if(SectorFleets.Remove(Fleet) == 0)
+	if (SectorFleets.Remove(Fleet) == 0)
 	{
 		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName())
 		return;
 	}
 
-	for(int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
+	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
 		Fleet->GetShips()[ShipIndex]->SetCurrentSector(NULL);
-		if(SectorShips.Remove(Fleet->GetShips()[ShipIndex]) == 0)
+		if (SectorShips.Remove(Fleet->GetShips()[ShipIndex]) == 0)
 		{
 			FLOGV("ERROR: RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation().ToString(), *GetSectorName())
 		}

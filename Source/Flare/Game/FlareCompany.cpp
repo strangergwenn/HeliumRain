@@ -43,12 +43,12 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	}
 
 
-	for(int i = 0 ; i < CompanyData.ShipData.Num(); i++)
+	for (int i = 0 ; i < CompanyData.ShipData.Num(); i++)
 	{
 		LoadSpacecraft(CompanyData.ShipData[i]);
 	}
 
-	for(int i = 0 ; i < CompanyData.StationData.Num(); i++)
+	for (int i = 0 ; i < CompanyData.StationData.Num(); i++)
 	{
 		LoadSpacecraft(CompanyData.StationData[i]);
 	}
@@ -67,17 +67,17 @@ FFlareCompanySave* UFlareCompany::Save()
 	CompanyData.ShipData.Empty();
 	CompanyData.StationData.Empty();
 
-	for(int i = 0 ; i < CompanyFleets.Num(); i++)
+	for (int i = 0 ; i < CompanyFleets.Num(); i++)
 	{
 		CompanyData.Fleets.Add(*CompanyFleets[i]->Save());
 	}
 
-	for(int i = 0 ; i < CompanyShips.Num(); i++)
+	for (int i = 0 ; i < CompanyShips.Num(); i++)
 	{
 		CompanyData.ShipData.Add(*CompanyShips[i]->Save());
 	}
 
-	for(int i = 0 ; i < CompanyStations.Num(); i++)
+	for (int i = 0 ; i < CompanyStations.Num(); i++)
 	{
 		CompanyData.StationData.Add(*CompanyStations[i]->Save());
 	}
@@ -139,7 +139,7 @@ void UFlareCompany::SetHostilityTo(const UFlareCompany* TargetCompany, bool Host
 {
 	if (TargetCompany && TargetCompany != this)
 	{
-		if(Hostile)
+		if (Hostile)
 		{
 			CompanyData.HostileCompanies.AddUnique(TargetCompany->GetIdentifier());
 		}
@@ -250,7 +250,7 @@ void UFlareCompany::UpdateCompanyCustomization()
 {
 	// Update spacecraft if there is an active sector
 	UFlareSector* ActiveSector = Game->GetActiveSector();
-	if(ActiveSector)
+	if (ActiveSector)
 	{
 		for (int32 i = 0; i < ActiveSector->GetSpacecrafts().Num(); i++)
 		{
@@ -300,7 +300,7 @@ const FSlateBrush* UFlareCompany::GetEmblem() const
 
 UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculation)
 {
-	for(int i = 0; i < CompanySpacecrafts.Num(); i++)
+	for (int i = 0; i < CompanySpacecrafts.Num(); i++)
 	{
 		if (CompanySpacecrafts[i]->GetImmatriculation() == ShipImmatriculation)
 		{

@@ -127,7 +127,7 @@ void AFlareShell::CheckFuze(FVector ActorLocation, FVector NextActorLocation)
 
 		if (ShipCandidate == ParentWeapon->GetSpacecraft())
 		{
-			//Ignore parent spacecraft
+			// Ignore parent spacecraft
 			continue;
 		}
 
@@ -199,12 +199,12 @@ void AFlareShell::CheckFuze(FVector ActorLocation, FVector NextActorLocation)
 
 			float MinThresoldDistance = ShellDescription->WeaponCharacteristics.FuzeMinDistanceThresold *100 + ShipCandidate->GetMeshScale();
 
-		//	FLOGV("MinThresoldDistance %f",MinThresoldDistance);
+		// 	FLOGV("MinThresoldDistance %f",MinThresoldDistance);
 			float DistanceToMinThresoldDistancePoint = FMath::Sqrt(FMath::Square(MinThresoldDistance) - FMath::Square(MinDistance));
-		//	FLOGV("DistanceToMinThresoldDistancePoint %f",DistanceToMinThresoldDistancePoint);
+		// 	FLOGV("DistanceToMinThresoldDistancePoint %f",DistanceToMinThresoldDistancePoint);
 
 			float DistanceToDetonatePoint = DistanceToMinDistancePoint - DistanceToMinThresoldDistancePoint;
-		//	FLOGV("DistanceToDetonatePoint %f",DistanceToDetonatePoint);
+		// 	FLOGV("DistanceToDetonatePoint %f",DistanceToDetonatePoint);
 			FVector DetonatePoint = ActorLocation + ShellDirection * DistanceToDetonatePoint;
 
 			DetonateAt(DetonatePoint);
@@ -227,7 +227,7 @@ void AFlareShell::CheckFuze(FVector ActorLocation, FVector NextActorLocation)
 			{
 				// In activation zone and the min distance is reach in this step, detonate
 				FVector DetonatePoint = ActorLocation + ShellDirection * DistanceToMinDistancePoint;
-			//	FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
+			// 	FLOGV("DistanceToMinDistancePoint %f",DistanceToMinDistancePoint);
 				DetonateAt(DetonatePoint);
 			}
 		}
@@ -278,7 +278,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 					// Physics impulse
 					Spacecraft->Airframe->AddImpulseAtLocation( ShellVelocity.GetUnsafeNormal(), HitResult.Location);
 				}
-				else if(Asteroid)
+				else if (Asteroid)
 				{
 					float ImpulseForce = 1000 * ShellDescription->WeaponCharacteristics.ExplosionPower * ShellDescription->WeaponCharacteristics.AmmoDamageRadius;
 
@@ -334,17 +334,17 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 				continue;
 			}
 
-			//DrawDebugSphere(ParentWeapon->GetSpacecraft()->GetWorld(), ShipCandidate->GetActorLocation(), CandidateSize, 12, FColor::Magenta, true);
+			// DrawDebugSphere(ParentWeapon->GetSpacecraft()->GetWorld(), ShipCandidate->GetActorLocation(), CandidateSize, 12, FColor::Magenta, true);
 
 			//FLOGV("CandidateOffset at %s",*CandidateOffset.ToString());
 
 			// Find exposed surface
-			//Apparent radius
+			// Apparent radius
 			float ApparentRadius = FMath::Sqrt(FMath::Square(CandidateDistance) + FMath::Square(CandidateSize));
 
 			float Angle = FMath::Acos(CandidateDistance/ApparentRadius);
 
-			//DrawDebugSphere(ParentWeapon->GetSpacecraft()->GetWorld(), DetonatePoint, ApparentRadius, 12, FColor::Yellow, true);
+			// DrawDebugSphere(ParentWeapon->GetSpacecraft()->GetWorld(), DetonatePoint, ApparentRadius, 12, FColor::Yellow, true);
 
 			float ExposedSurface = 2 * PI * ApparentRadius * (ApparentRadius - CandidateDistance);
 			float TotalSurface = 4 * PI * FMath::Square(ApparentRadius);
@@ -404,7 +404,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 
 				if (HasHit)
 				{
-					//DrawDebugLine(ParentWeapon->GetSpacecraft()->GetWorld(), DetonatePoint, BestHitResult.Location, FColor::Green, true);
+					// DrawDebugLine(ParentWeapon->GetSpacecraft()->GetWorld(), DetonatePoint, BestHitResult.Location, FColor::Green, true);
 
 					AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(BestHitResult.Actor.Get());
 					if (Spacecraft)
@@ -486,7 +486,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation, 1, 1);
 		}
 	}
-	else if(Asteroid)
+	else if (Asteroid)
 	{
 		// Physics impulse
 		Asteroid->GetStaticMeshComponent()->AddImpulseAtLocation( 5000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
@@ -536,28 +536,28 @@ bool AFlareShell::Trace(const FVector& Start, const FVector& End, FHitResult& Hi
 {
 	FCollisionQueryParams TraceParams(FName(TEXT("Shell Trace")), true, this);
 	TraceParams.bTraceComplex = true;
-	//TraceParams.bTraceAsyncScene = true;
+	// TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 
-	//Ignore Actors
+	// Ignore Actors
 	TraceParams.AddIgnoredActor(this);
 	TraceParams.AddIgnoredActor(ParentWeapon->GetSpacecraft());
 
-	//Re-initialize hit info
+	// Re-initialize hit info
 	HitOut = FHitResult(ForceInit);
 
 	ECollisionChannel CollisionChannel = (ECollisionChannel) (ECC_WorldStatic | ECC_WorldDynamic | ECC_Pawn);
 
-	//Trace!
+	// Trace!
 	GetWorld()->LineTraceSingleByChannel(
-		HitOut,		//result
-		Start,	//start
-		End , //end
-		CollisionChannel, //collision channel
+		HitOut,		// result
+		Start,	// start
+		End , // end
+		CollisionChannel, // collision channel
 		TraceParams
 	);
 
-	//Hit any Actor?
+	// Hit any Actor?
 	return (HitOut.GetActor() != NULL) ;
 }
 

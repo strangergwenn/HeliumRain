@@ -27,32 +27,32 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 	SectorData = Data;
 	SimulatedSector = Sector;
 
-	for(int i = 0 ; i < SectorData.AsteroidData.Num(); i++)
+	for (int i = 0 ; i < SectorData.AsteroidData.Num(); i++)
 	{
 		LoadAsteroid(SectorData.AsteroidData[i]);
 	}
 
 	// Load safe location ships
-	for(int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
+	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
-		if(Spacecraft->Save()->SafeLocation)
+		if (Spacecraft->Save()->SafeLocation)
 		{
 			LoadSpacecraft(*Spacecraft->Save());
 		}
 	}
 
 	// Load unsafe location ships
-	for(int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
+	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
-		if(!Spacecraft->Save()->SafeLocation)
+		if (!Spacecraft->Save()->SafeLocation)
 		{
 			LoadSpacecraft(*Spacecraft->Save());
 		}
 	}
 
-	for(int i = 0 ; i < SectorData.BombData.Num(); i++)
+	for (int i = 0 ; i < SectorData.BombData.Num(); i++)
 	{
 		LoadBomb(SectorData.BombData[i]);
 	}
@@ -64,19 +64,19 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 	SectorData.BombData.Empty();
 	SectorData.AsteroidData.Empty();
 
-	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
 		FFlareSpacecraftSave* SpacecraftSave = SectorShips[i]->Save();
 		SectorData.SpacecraftIdentifiers.Add(SpacecraftSave->Immatriculation);
 		SpacecraftData.Add(*SpacecraftSave);
 	}
 
-	for(int i = 0 ; i < SectorBombs.Num(); i++)
+	for (int i = 0 ; i < SectorBombs.Num(); i++)
 	{
 		SectorData.BombData.Add(*SectorBombs[i]->Save());
 	}
 
-	for(int i = 0 ; i < SectorAsteroids.Num(); i++)
+	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorData.AsteroidData.Add(*SectorAsteroids[i]->Save());
 	}
@@ -86,22 +86,22 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 
 void UFlareSector::Destroy()
 {
-	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
 		SectorSpacecrafts[i]->Destroy();
 	}
 
-	for(int i = 0 ; i < SectorBombs.Num(); i++)
+	for (int i = 0 ; i < SectorBombs.Num(); i++)
 	{
 		SectorBombs[i]->Destroy();
 	}
 
-	for(int i = 0 ; i < SectorAsteroids.Num(); i++)
+	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorAsteroids[i]->Destroy();
 	}
 
-	for(int i = 0 ; i < SectorShells.Num(); i++)
+	for (int i = 0 ; i < SectorShells.Num(); i++)
 	{
 		SectorShells[i]->Destroy();
 	}
@@ -156,7 +156,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 			RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
 			RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 
-			if(Spacecraft->IsStation())
+			if (Spacecraft->IsStation())
 			{
 				SectorStations.Add(Spacecraft);
 			}
@@ -167,7 +167,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 			SectorSpacecrafts.Add(Spacecraft);
 
 
-			if(!ShipData.SafeLocation)
+			if (!ShipData.SafeLocation)
 			{
 				// Secure location
 
@@ -185,7 +185,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 
 
 					float NearestDistance;
-					if(GetNearestBody(Location, &NearestDistance, true, Spacecraft) == NULL)
+					if (GetNearestBody(Location, &NearestDistance, true, Spacecraft) == NULL)
 					{
 						// No other ship.
 						break;
@@ -218,7 +218,7 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
 
     AFlareSpacecraft* ParentSpacecraft = NULL;
 
-	for(int i = 0 ; i < SectorShips.Num(); i++)
+	for (int i = 0 ; i < SectorShips.Num(); i++)
 	{
 		AFlareSpacecraft* SpacecraftCandidate = SectorShips[i];
 		if (SpacecraftCandidate->GetImmatriculation() == BombData.ParentSpacecraft)
@@ -418,7 +418,7 @@ AFlareSpacecraft* UFlareSector::CreateShip(FFlareSpacecraftDescription* ShipDesc
 
 void UFlareSector::CreateAsteroidAt(int32 ID, FVector Location)
 {
-	if(ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
+	if (ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
 	{
 		FLOGV("Astroid create fail : Asteroid max ID is %d", Game->GetAsteroidCatalog()->Asteroids.Num() -1);
 		return;
@@ -454,7 +454,7 @@ void UFlareSector::EmptySector()
 		CurrentPlayedShip = PC->GetShipPawn();
 	}
 
-	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
 		if (SectorSpacecrafts[i] != CurrentPlayedShip)
 		{
@@ -462,17 +462,17 @@ void UFlareSector::EmptySector()
 		}
 	}
 
-	for(int i = 0 ; i < SectorBombs.Num(); i++)
+	for (int i = 0 ; i < SectorBombs.Num(); i++)
 	{
 		SectorBombs[i]->Destroy();
 	}
 
-	for(int i = 0 ; i < SectorAsteroids.Num(); i++)
+	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorAsteroids[i]->Destroy();
 	}
 
-	for(int i = 0 ; i < SectorShells.Num(); i++)
+	for (int i = 0 ; i < SectorShells.Num(); i++)
 	{
 		SectorShells[i]->Destroy();
 	}
@@ -500,22 +500,22 @@ void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft)
 
 void UFlareSector::SetPause(bool Pause)
 {
-	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
 		SectorSpacecrafts[i]->SetPause(Pause);
 	}
 
-	for(int i = 0 ; i < SectorBombs.Num(); i++)
+	for (int i = 0 ; i < SectorBombs.Num(); i++)
 	{
 		SectorBombs[i]->SetPause(Pause);
 	}
 
-	for(int i = 0 ; i < SectorAsteroids.Num(); i++)
+	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorAsteroids[i]->SetPause(Pause);
 	}
 
-	for(int i = 0 ; i < SectorShells.Num(); i++)
+	for (int i = 0 ; i < SectorShells.Num(); i++)
 	{
 		SectorShells[i]->SetPause(Pause);
 	}
@@ -531,7 +531,7 @@ AActor* UFlareSector::GetNearestBody(FVector Location, float* NearestDistance, b
 	{
 		AFlareSpacecraft* SpacecraftCandidate = GetSpacecrafts()[SpacecraftIndex];
 		float Distance = FVector::Dist(SpacecraftCandidate->GetActorLocation(), Location) - SpacecraftCandidate->GetMeshScale();
-		if(SpacecraftCandidate != ActorToIgnore && (!NearestCandidateActor || NearestCandidateActorDistance > Distance))
+		if (SpacecraftCandidate != ActorToIgnore && (!NearestCandidateActor || NearestCandidateActorDistance > Distance))
 		{
 			NearestCandidateActor = SpacecraftCandidate;
 			NearestCandidateActorDistance = Distance;
@@ -546,7 +546,7 @@ AActor* UFlareSector::GetNearestBody(FVector Location, float* NearestDistance, b
 		float CandidateSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
 
 		float Distance = FVector::Dist(AsteroidCandidate->GetActorLocation(), Location) - CandidateSize;
-		if(AsteroidCandidate != ActorToIgnore && (!NearestCandidateActor || NearestCandidateActorDistance > Distance))
+		if (AsteroidCandidate != ActorToIgnore && (!NearestCandidateActor || NearestCandidateActorDistance > Distance))
 		{
 			NearestCandidateActor = AsteroidCandidate;
 			NearestCandidateActorDistance = Distance;
@@ -567,7 +567,7 @@ TArray<AFlareSpacecraft*> UFlareSector::GetCompanyShips(UFlareCompany* Company)
 	TArray<AFlareSpacecraft*> CompanyShips;
 	// TODO Cache
 
-	for(int i = 0 ; i < SectorShips.Num(); i++)
+	for (int i = 0 ; i < SectorShips.Num(); i++)
 	{
 		if (SectorShips[i]->GetCompany() == Company)
 		{
@@ -582,7 +582,7 @@ TArray<AFlareSpacecraft*> UFlareSector::GetCompanySpacecrafts(UFlareCompany* Com
 	TArray<AFlareSpacecraft*> CompanySpacecrafts;
 	// TODO Cache
 
-	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
 		if (SectorSpacecrafts[i]->GetCompany() == Company)
 		{
@@ -594,7 +594,7 @@ TArray<AFlareSpacecraft*> UFlareSector::GetCompanySpacecrafts(UFlareCompany* Com
 
 AFlareSpacecraft* UFlareSector::FindSpacecraft(FName Immatriculation)
 {
-	for(int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
 		if (SectorSpacecrafts[i]->GetImmatriculation() == Immatriculation)
 		{

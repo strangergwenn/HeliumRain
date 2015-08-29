@@ -118,7 +118,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
    // 2190338.000000  + 394164960.000000 + 142830160.000000 + 482529472.000000 = 1021714930.0 / 530312.250000 =
 
 
-	//DrawDebugSphere(GetWorld(), Hit.Location, 10, 12, FColor::Blue, true);
+	// DrawDebugSphere(GetWorld(), Hit.Location, 10, 12, FColor::Blue, true);
 
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 	//FLOGV("AFlareSpacecraft Hit  Mass %f NormalImpulse %s NormalImpulse.Size() %f", Airframe->GetMass(), *NormalImpulse.ToString(), NormalImpulse.Size());
@@ -126,7 +126,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 	// If hit, check if the is a docking in progress. If yes, check if the ship is correctly aligned
 	AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(Other);
-	if(OtherSpacecraft)
+	if (OtherSpacecraft)
 	{
 		// The other actor is a spacecraft, check if it's not the station we want to dock to.
 		GetNavigationSystem()->CheckCollisionDocking(OtherSpacecraft);
@@ -182,9 +182,9 @@ float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float B
 
 float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
-	//TODO : use helper
+	// TODO : use helper
 
-	//Relative Target Speed
+	// Relative Target Speed
 	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
 	FVector TargetLocation = GetActorLocation() + TargetVelocity * PredictionDelay;
 	FVector BulletLocation = GunLocation + GunVelocity * PredictionDelay;
@@ -237,7 +237,7 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 {
 
-	if(!IsPresentationMode())
+	if (!IsPresentationMode())
 	{
 		Airframe->SetSimulatePhysics(true);
 	}
@@ -363,7 +363,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	WeaponsSystem->Start();
 	SmoothedVelocity = GetLinearVelocity();
 
-	if(IsPaused())
+	if (IsPaused())
 	{
 		Airframe->SetSimulatePhysics(false);
 	}
@@ -374,7 +374,7 @@ FFlareSpacecraftSave* AFlareSpacecraft::Save()
 	// Physical data
 	ShipData.Location = GetActorLocation();
 	ShipData.Rotation = GetActorRotation();
-	if(!IsPaused())
+	if (!IsPaused())
 	{
 		ShipData.LinearVelocity = Airframe->GetPhysicsLinearVelocity();
 		ShipData.AngularVelocity = Airframe->GetPhysicsAngularVelocity();

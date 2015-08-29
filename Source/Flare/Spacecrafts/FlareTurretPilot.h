@@ -78,7 +78,7 @@ protected:
 	// Component description
 	FFlareTurretPilotSave                       TurretPilotData;
 
-	//Output commands
+	// Output commands
 	bool                                      WantFire;
 	FVector                                   AimAxis;
 

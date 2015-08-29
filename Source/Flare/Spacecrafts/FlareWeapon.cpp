@@ -457,7 +457,7 @@ void UFlareWeapon::OnAttachmentChanged()
 
 FText UFlareWeapon::GetSlotName() const
 {
-	//Find Local slot check
+	// Find Local slot check
 	if (ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
 	{
 		for (int32 i = 0; i < Spacecraft->GetDescription()->TurretSlots.Num(); i++)

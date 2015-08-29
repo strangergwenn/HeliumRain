@@ -183,16 +183,16 @@ public:
 
 
     /** Init world with empty scenario */
-	//virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
+	// virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
 
     /** Init world with peaceful scenario */
-	//virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
+	// virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
 
     /** Init world with threatened scenario */
-	//virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
+	// virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
     /** Init world with aggresve scenario */
-	//virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
+	// virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
 
 

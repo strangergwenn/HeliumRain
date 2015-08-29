@@ -283,7 +283,6 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 		if (Game->DoesSaveSlotExist(*Index))
 		{
 			Game->LoadGame(PC);
-			// TODO if active sector, fly ship
 			MenuManager->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
 		}
 

@@ -23,7 +23,7 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 	Fleet = Game->GetGameWorld()->FindFleet(TravelData.FleetIdentifier);
 	DestinationSector = Game->GetGameWorld()->FindSector(TravelData.DestinationSectorIdentifier);
 
-	for(int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
+	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
 		TravelShips.Add(Fleet->GetShips()[ShipIndex]);
 	}
@@ -45,7 +45,7 @@ void UFlareTravel::Simulate(long Duration)
 {
 	long TravelDuration = 3600;
 
-	if((Game->GetGameWorld()->GetTime() - TravelData.DepartureTime) > TravelDuration)
+	if ((Game->GetGameWorld()->GetTime() - TravelData.DepartureTime) > TravelDuration)
 	{
 		EndTravel();
 	}

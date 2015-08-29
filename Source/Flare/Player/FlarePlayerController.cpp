@@ -73,9 +73,9 @@ void AFlarePlayerController::BeginPlay()
 	SetupMenu();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 
-	//StartObjective(FText::FromString("Use objectives to make the game better"), FText::FromString("There is no alternative"));
-	//SetObjectiveProgress(0.1);
-	//SetObjectiveTarget(FVector::ZeroVector);
+	// StartObjective(FText::FromString("Use objectives to make the game better"), FText::FromString("There is no alternative"));
+	// SetObjectiveProgress(0.1);
+	// SetObjectiveTarget(FVector::ZeroVector);
 }
 
 static float Accumulator = 0;
@@ -207,13 +207,13 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		RCSSoundVolume = 0;
 	}
 
-	if(GetGame() && GetGame()->GetGameWorld())
+	if (GetGame() && GetGame()->GetGameWorld())
 	{
 		Accumulator += DeltaSeconds;
 		while(Accumulator > 0)
 		{
 			GetGame()->GetGameWorld()->Simulate(1);
-			//DeltaSeconds * (float) (360)
+			// DeltaSeconds * (float) (360)
 			Accumulator -= 1;
 		}
 	}
@@ -335,22 +335,22 @@ void AFlarePlayerController::OnSectorActivated()
 	FLOGV("AFlarePlayerController::OnSectorActivated LastFlownShip=%s", *GetGame()->GetActiveSector()->GetData()->LastFlownShip.ToString());
 	bool CandidateFound = false;
 
-	if(GetGame()->GetActiveSector()->GetData()->LastFlownShip != "")
+	if (GetGame()->GetActiveSector()->GetData()->LastFlownShip != "")
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated not null last ship");
 		AFlareSpacecraft* Candidate = GetGame()->GetActiveSector()->FindSpacecraft(GetGame()->GetActiveSector()->GetData()->LastFlownShip);
-		if(Candidate)
+		if (Candidate)
 		{
 			FLOG("AFlarePlayerController::OnSectorActivated last ship found");
 			CandidateFound = true;
 
-			//Disable pilot during the switch
+			// Disable pilot during the switch
 			Candidate->GetStateManager()->EnablePilot(false);
 			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Candidate);
 		}
 	}
 
-	if(!CandidateFound)
+	if (!CandidateFound)
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
 		QuickSwitch();
@@ -421,7 +421,7 @@ void AFlarePlayerController::OnEnterMenu()
 		ClientPlaySound(OnSound);
 		Possess(MenuPawn);
 
-		//Pause all gameplay actors
+		// Pause all gameplay actors
 		SetWorldPause(true);
 		MenuPawn->SetActorHiddenInGame(false);
 	}
@@ -452,7 +452,7 @@ void AFlarePlayerController::OnExitMenu()
 void AFlarePlayerController::SetWorldPause(bool Pause)
 {
 	FLOGV("SetPause world %d", Pause);
-	if(GetGame()->GetActiveSector())
+	if (GetGame()->GetActiveSector())
 	{
 		GetGame()->GetActiveSector()->SetPause(Pause);
 	}
@@ -746,7 +746,7 @@ void AFlarePlayerController::QuickSwitch()
 			{
 				FLOG("AFlarePlayerController::QuickSwitch : found new ship");
 				QuickSwitchNextOffset = OffsetIndex + 1;
-				//Disable pilot during the switch
+				// Disable pilot during the switch
 				SeletedCandidate->GetStateManager()->EnablePilot(false);
 				MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
 			}
@@ -812,7 +812,7 @@ void AFlarePlayerController::Test1()
 {
 	if (GetGame()->IsLoadedOrCreated())
 	{
-		Notify(FText::FromString("The cake is a lie"), FText::FromString("This is a test of the explanation system."), EFlareNotification::NT_Trading, EFlareMenu::MENU_Dashboard);
+		Notify(FText::FromString("AFlarePlayerController::Test1"), FText::FromString("AFlarePlayerController::Test1"));
 	}
 }
 
@@ -820,7 +820,7 @@ void AFlarePlayerController::Test2()
 {
 	if (GetGame()->IsLoadedOrCreated())
 	{
-		Notify(FText::FromString("I am a beautiful butterfly"), FText::FromString("This is a longer, more full of explanation test of the explanation system."));
+		Notify(FText::FromString("AFlarePlayerController::Test2"), FText::FromString("AFlarePlayerController::Test2"));
 	}
 }
 

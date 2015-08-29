@@ -133,7 +133,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound, HitLocation, 1, 1);
 			}
 		}
-		else if(Asteroid)
+		else if (Asteroid)
 		{
 			float ImpulseForce = 1000 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius;
 
@@ -241,13 +241,13 @@ FFlareBombSave* AFlareBomb::Save()
 	// Physical data
 	BombData.Location = GetActorLocation();
 	BombData.Rotation = GetActorRotation();
-	if(!Paused)
+	if (!Paused)
 	{
 		BombData.LinearVelocity = BombComp->GetPhysicsLinearVelocity();
 		BombData.AngularVelocity = BombComp->GetPhysicsAngularVelocity();
 	}
 
-	//TODO Investigate on NULL ParentWeapon
+	// TODO Investigate on NULL ParentWeapon
 	if (ParentWeapon)
 	{
 		BombData.ParentSpacecraft = ParentWeapon->GetSpacecraft()->GetImmatriculation();

@@ -292,24 +292,24 @@ bool UFlareTurret::Trace(const FVector& Start, const FVector& End, FHitResult& H
 {
 	FCollisionQueryParams TraceParams(FName(TEXT("Shell Trace")), true, NULL);
 	TraceParams.bTraceComplex = true;
-	//TraceParams.bTraceAsyncScene = true;
+	// TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 
-	//Re-initialize hit info
+	// Re-initialize hit info
 	HitOut = FHitResult(ForceInit);
 
 	ECollisionChannel CollisionChannel = (ECollisionChannel) (ECC_WorldStatic | ECC_WorldDynamic | ECC_Pawn);
 
-	//Trace!
+	// Trace!
 	GetWorld()->LineTraceSingleByChannel(
-		HitOut,		//result
-		Start,	//start
-		End , //end
-		CollisionChannel, //collision channel
+		HitOut,		// result
+		Start,	// start
+		End , // end
+		CollisionChannel, // collision channel
 		TraceParams
 	);
 
-	//Hit any Actor?
+	// Hit any Actor?
 	return (HitOut.GetActor() != NULL) ;
 }
 
@@ -365,7 +365,7 @@ float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 {
 	float BarrelsMinAngle = ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMinAngle;
 
-	//Fine Local slot check
+	// Fine Local slot check
 	for (int32 i = 0; i < Spacecraft->GetDescription()->TurretSlots.Num(); i++)
 	{
 		// TODO optimize and store that in cache

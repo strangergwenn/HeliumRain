@@ -130,7 +130,7 @@ protected:
 	// Component description
 	FFlareShipPilotSave                       ShipPilotData;
 
-	//Output commands
+	// Output commands
 	bool                                      UseOrbitalBoost;
 	bool                                      WantFire;
 	FVector                                   LinearTargetVelocity;

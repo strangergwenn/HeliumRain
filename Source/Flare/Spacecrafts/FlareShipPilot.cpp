@@ -121,26 +121,26 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			|| (Ship->GetSize() == EFlarePartSize::S && SelectedWeaponGroupIndex == -1)  // No selected weapon
 			|| (Ship->GetSize() == EFlarePartSize::S && !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0))  // Selected weapon not usable
 	{
-//		if (PilotTargetShip == NULL)
-//		{
-//			FLOG("Switch target because no current target");
-//		}
-//		else if (!PilotTargetShip->GetDamageSystem()->IsAlive())
-//		{
-//			FLOG("Switch target because current target is dead");
-//		}
-//		else if ((PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > MaxFollowDistance * 100)
-//		{
-//			FLOGV("Switch target because current target is too far %f > %f", (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size(), (MaxFollowDistance * 100));
-//		}
-//		else if (SelectedWeaponGroupIndex == -1)
-//		{
-//			FLOG("Switch target because no selected weapon");
-//		}
-//		else if (( !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0))
-//		{
-//			FLOG("Switch target because selected weapon is not usable");
-//		}
+// 		if (PilotTargetShip == NULL)
+// 		{
+// 			FLOG("Switch target because no current target");
+// 		}
+// 		else if (!PilotTargetShip->GetDamageSystem()->IsAlive())
+// 		{
+// 			FLOG("Switch target because current target is dead");
+// 		}
+// 		else if ((PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > MaxFollowDistance * 100)
+// 		{
+// 			FLOGV("Switch target because current target is too far %f > %f", (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size(), (MaxFollowDistance * 100));
+// 		}
+// 		else if (SelectedWeaponGroupIndex == -1)
+// 		{
+// 			FLOG("Switch target because no selected weapon");
+// 		}
+// 		else if (( !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0))
+// 		{
+// 			FLOG("Switch target because selected weapon is not usable");
+// 		}
 
 		PilotTargetShip = NULL;
 		SelectedWeaponGroupIndex = -1;
@@ -374,12 +374,12 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	FVector PredictedTargetAngularVelocity = - 180 / (PI * PredictedDistance) * FVector::CrossProduct(DeltaVelocity, PredictedTargetAxis);
 
-	//TargetAngularVelocity = FVector(0,0,0);
+	// TargetAngularVelocity = FVector(0,0,0);
 
 	// First allow align nose to target bullet interception point
 	// TODO Use BulletDirection instead of LocalNose
-	//AngularTargetVelocity = GetAngularVelocityToAlignAxis(LocalNose, FireTargetAxis, DeltaSeconds);
-	//TODO find target angular velocity
+	// AngularTargetVelocity = GetAngularVelocityToAlignAxis(LocalNose, FireTargetAxis, DeltaSeconds);
+	// TODO find target angular velocity
 
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(BulletDirection, PredictedFireTargetAxis, PredictedTargetAngularVelocity, DeltaSeconds);
 
@@ -469,7 +469,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	}
 
 	// If at range and aligned fire on the target
-	//TODO increase tolerance if target is near
+	// TODO increase tolerance if target is near
 	if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < 1.5)
 	{
 		FVector FireAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
@@ -508,7 +508,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
-					if(!PilotHelper::CheckFriendlyFire(Ship->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
+					if (!PilotHelper::CheckFriendlyFire(Ship->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
 					{
 						Weapon->SetTarget(PilotTargetShip);
 						/*FLOG("Want Fire");*/
@@ -550,7 +550,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	float TimeSinceDamage = Ship->GetDamageSystem()->GetTimeSinceLastExternalDamage();
 
-	if(TimeSinceDamage < 5.)
+	if (TimeSinceDamage < 5.)
 	{
 		UseOrbitalBoost = true;
 		FVector NoseAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
@@ -650,7 +650,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), Ship->Airframe->GetPhysicsLinearVelocity(), AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 		FVector FrontVector = Ship->GetActorRotation().RotateVector(FVector(1,0,0));
 		FVector ChargeAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
-		//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
+		// DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
 
 		Anticollision = false;
 		AlignToSpeed = true;
@@ -717,7 +717,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, PilotTargetShip);
 	}
 
-	//DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + LinearTargetVelocity * 100, FColor::Red, false, ReactionTime);
+	// DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + LinearTargetVelocity * 100, FColor::Red, false, ReactionTime);
 
 	if (AlignToSpeed)
 	{
@@ -824,28 +824,28 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 		TArray<AFlareSpacecraft*> Spacecrafts = Ship->GetGame()->GetActiveSector()->GetCompanySpacecrafts(Ship->GetCompany());
 
-		for(int ShipIndex = 0; ShipIndex < Spacecrafts.Num() ; ShipIndex++)
+		for (int ShipIndex = 0; ShipIndex < Spacecrafts.Num() ; ShipIndex++)
 		{
 			AFlareSpacecraft* CandidateShip = Spacecrafts[ShipIndex];
 
-			if(Ship == CandidateShip)
+			if (Ship == CandidateShip)
 			{
 				continue;
 			}
 
-			if(!CandidateShip->IsMilitary())
+			if (!CandidateShip->IsMilitary())
 			{
 				continue;
 			}
 
-            if(LeaderShip->Airframe->GetMass() == CandidateShip->Airframe->GetMass())
+            if (LeaderShip->Airframe->GetMass() == CandidateShip->Airframe->GetMass())
 			{
-                if(LeaderShip->GetImmatriculation() < CandidateShip->GetImmatriculation())
+                if (LeaderShip->GetImmatriculation() < CandidateShip->GetImmatriculation())
                 {
                     continue;
                 }
 			}
-            else if(LeaderShip->Airframe->GetMass() > CandidateShip->Airframe->GetMass())
+            else if (LeaderShip->Airframe->GetMass() > CandidateShip->Airframe->GetMass())
             {
                 continue;
             }
@@ -855,7 +855,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		}
 
 		// If is the leader, find a location in a 10 km radius and patrol
-		if(LeaderShip == Ship)
+		if (LeaderShip == Ship)
 		{
 			// Go to a random point at 10000 m from the center
 
@@ -870,7 +870,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 				// Use random station
 				AFlareSpacecraft* NearestStation =  GetNearestAvailableStation(true);
 
-				if(NearestStation)
+				if (NearestStation)
 				{
 					PatrolCenter = NearestStation->GetActorLocation();
 				}
@@ -883,7 +883,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		{
 			// Follow the leader
 			float FollowRadius = 50000 + FMath::Pow(Ship->GetCompany()->GetCompanyShips().Num() * 3 * FMath::Pow(10000, 3),1/3.);
-			if((LeaderShip->GetActorLocation() - Ship->GetActorLocation()).Size() < FollowRadius)
+			if ((LeaderShip->GetActorLocation() - Ship->GetActorLocation()).Size() < FollowRadius)
 			{
 				LinearTargetVelocity = LeaderShip->GetLinearVelocity();
 			}
@@ -1004,7 +1004,7 @@ void UFlareShipPilot::FindBestHostileTarget()
 
 	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
 	{
-		//TODO if has AA turret, follow S
+		// TODO if has AA turret, follow S
 		TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::L);
 		if (!TargetCandidate)
 		{
@@ -1026,7 +1026,7 @@ void UFlareShipPilot::FindBestHostileTarget()
 	}
 	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
 	{
-		//TODO if has AA turret, follow S
+		// TODO if has AA turret, follow S
 		TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::L);
 		if (!TargetCandidate)
 		{
@@ -1050,7 +1050,7 @@ void UFlareShipPilot::FindBestHostileTarget()
 
 		float BestScore = 0;
 
-		for(int WeaponGroupIndex=0; WeaponGroupIndex < Ship->GetWeaponsSystem()->GetWeaponGroupCount(); WeaponGroupIndex++)
+		for (int WeaponGroupIndex=0; WeaponGroupIndex < Ship->GetWeaponsSystem()->GetWeaponGroupCount(); WeaponGroupIndex++)
 		{
 			float Score = Ship->GetDamageSystem()->GetWeaponGroupHealth(WeaponGroupIndex, false, true);
 			switch(Ship->GetWeaponsSystem()->GetWeaponGroup(WeaponGroupIndex)->Type)
@@ -1251,7 +1251,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestAvailableStation(bool RealStation) 
 			continue;
 		}
 
-		if(RealStation && !StationCandidate->IsStation())
+		if (RealStation && !StationCandidate->IsStation())
 		{
 			continue;
 		}

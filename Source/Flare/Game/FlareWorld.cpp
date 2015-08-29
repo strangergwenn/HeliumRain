@@ -44,7 +44,7 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 				FFlareSectorSave* SectorSave = NULL;
 				for (int32 i = 0; i < WorldData.SectorData.Num(); i++)
 				{
-					if(WorldData.SectorData[i].Identifier == SectorDescription->Identifier)
+					if (WorldData.SectorData[i].Identifier == SectorDescription->Identifier)
 					{
 						// Old save found
 						SectorSave = &WorldData.SectorData[i];
@@ -53,7 +53,7 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 				}
 
 				FFlareSectorSave NewSectorData;
-				if(!SectorSave)
+				if (!SectorSave)
 				{
 					// No save, init new sector
 					NewSectorData.GivenName = "";
@@ -135,12 +135,12 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 	WorldData.TravelData.Empty();
 
 	TArray<FFlareSpacecraftSave> SpacecraftData;
-	if(ActiveSector)
+	if (ActiveSector)
 	{
 		ActiveSector->Save(SpacecraftData);
 
-		//Reload  spacecrafts. Have to be done before companies save
-		for(int i = 0 ; i < SpacecraftData.Num(); i++)
+		// Reload  spacecrafts. Have to be done before companies save
+		for (int i = 0 ; i < SpacecraftData.Num(); i++)
 		{
 			UFlareSimulatedSpacecraft* Spacecraft = FindSpacecraft(SpacecraftData[i].Immatriculation);
 			Spacecraft->Load(SpacecraftData[i]);
@@ -194,7 +194,7 @@ void UFlareWorld::Simulate(int64 Duration)
 {
 	WorldData.Time += Duration;
 
-	for(int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
+	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
 	{
 		Travels[TravelIndex]->Simulate(Duration);
 	}
@@ -208,7 +208,7 @@ void UFlareWorld::ForceTime(int64 Time)
 {
 	int64 TimeJump = Time - WorldData.Time;
 	WorldData.Time = Time;
-	if(TimeJump > 0)
+	if (TimeJump > 0)
 	{
 		Simulate(TimeJump);
 	}
@@ -220,7 +220,7 @@ void UFlareWorld::ForceTime(int64 Time)
 
 UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
 {
-	if(TravelingFleet->IsTraveling())
+	if (TravelingFleet->IsTraveling())
 	{
 		FLOGV("StartTravel fail to make fleet '%s' travel : already travelling", *TravelingFleet->GetFleetName());
 	}

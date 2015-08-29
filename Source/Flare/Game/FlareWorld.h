@@ -129,7 +129,7 @@ public:
 
 	inline UFlareCompany* FindCompany(FName Identifier) const
 	{
-		for(int i = 0; i < Companies.Num(); i++)
+		for (int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
 			if (Company->GetIdentifier() == Identifier)
@@ -143,7 +143,7 @@ public:
 	inline UFlareCompany* FindCompanyByShortName(FName CompanyShortName) const
 	{
 		// Find company
-		for(int i = 0; i < Companies.Num(); i++)
+		for (int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
 			if (Company->GetShortName() == CompanyShortName)
@@ -156,7 +156,7 @@ public:
 
 	inline UFlareSimulatedSector* FindSector(FName Identifier) const
 	{
-		for(int i = 0; i < Sectors.Num(); i++)
+		for (int i = 0; i < Sectors.Num(); i++)
 		{
 			UFlareSimulatedSector* Sector = Sectors[i];
 			if (Sector->GetIdentifier() == Identifier)
@@ -169,7 +169,7 @@ public:
 
 	inline UFlareFleet* FindFleet(FName Identifier) const
 	{
-		for(int i = 0; i < Companies.Num(); i++)
+		for (int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
 			UFlareFleet* Fleet = Company->FindFleet(Identifier);
@@ -183,7 +183,7 @@ public:
 
 	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation)
 	{
-		for(int i = 0; i < Companies.Num(); i++)
+		for (int i = 0; i < Companies.Num(); i++)
 		{
 			UFlareCompany* Company = Companies[i];
 			UFlareSimulatedSpacecraft* Spacecraft = Company->FindSpacecraft(ShipImmatriculation);

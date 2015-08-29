@@ -38,13 +38,13 @@ bool UFlareFleet::IsTraveling()
 
 void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 {
-	if(IsTraveling())
+	if (IsTraveling())
 	{
 		FLOGV("Fleet Disband fail: '%s' is travelling", *GetFleetName());
 		return;
 	}
 
-	if(GetCurrentSector() != Ship->GetCurrentSector())
+	if (GetCurrentSector() != Ship->GetCurrentSector())
 	{
 		FLOGV("Fleet Merge fail: '%s' is the sector '%s' but '%s' is the sector '%s'",
 			  *GetFleetName(),
@@ -55,7 +55,7 @@ void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 	}
 
 	UFlareFleet* OldFleet = Ship->GetCurrentFleet();
-	if(OldFleet)
+	if (OldFleet)
 	{
 		OldFleet->RemoveShip(Ship);
 	}
@@ -68,7 +68,7 @@ void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 
 void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship)
 {
-	if(IsTraveling())
+	if (IsTraveling())
 	{
 		FLOGV("Fleet RemoveShip fail: '%s' is travelling", *GetFleetName());
 		return;
@@ -82,7 +82,7 @@ void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship)
 /** Remove all ship from the fleet and delete it. Not possible during travel */
 void UFlareFleet::Disband()
 {
-	if(IsTraveling())
+	if (IsTraveling())
 	{
 		FLOGV("Fleet Disband fail: '%s' is travelling", *GetFleetName());
 		return;
@@ -95,19 +95,19 @@ void UFlareFleet::Disband()
 
 void UFlareFleet::Merge(UFlareFleet* Fleet)
 {
-	if(Fleet->IsTraveling())
+	if (Fleet->IsTraveling())
 	{
 		FLOGV("Fleet Merge fail: '%s' is travelling", *Fleet->GetFleetName());
 		return;
 	}
 
-	if(IsTraveling())
+	if (IsTraveling())
 	{
 		FLOGV("Fleet Merge fail: '%s' is travelling", *GetFleetName());
 		return;
 	}
 
-	if(GetCurrentSector() != Fleet->GetCurrentSector())
+	if (GetCurrentSector() != Fleet->GetCurrentSector())
 	{
 		FLOGV("Fleet Merge fail: '%s' is the sector '%s' but '%s' is the sector '%s'",
 			  *GetFleetName(),
@@ -119,7 +119,7 @@ void UFlareFleet::Merge(UFlareFleet* Fleet)
 
 	TArray<UFlareSimulatedSpacecraft*> Ships = Fleet->GetShips();
 	Fleet->Disband();
-	for(int ShipIndex = 0; ShipIndex < Ships.Num(); ShipIndex++)
+	for (int ShipIndex = 0; ShipIndex < Ships.Num(); ShipIndex++)
 	{
 		AddShip(Ships[ShipIndex]);
 	}
@@ -137,7 +137,7 @@ void UFlareFleet::SetCurrentTravel(UFlareTravel* Travel)
 	CurrentSector = NULL;
 	CurrentTravel = Travel;
 	InitShipList();
-	for(int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
 	{
 		FleetShips[ShipIndex]->InvalidateLocation();
 	}
@@ -145,11 +145,11 @@ void UFlareFleet::SetCurrentTravel(UFlareTravel* Travel)
 
 void UFlareFleet::InitShipList()
 {
-	if(!IsShipListLoaded)
+	if (!IsShipListLoaded)
 	{
 		IsShipListLoaded = true;
 		FleetShips.Empty();
-		for(int ShipIndex = 0; ShipIndex < FleetData.ShipImmatriculations.Num(); ShipIndex++)
+		for (int ShipIndex = 0; ShipIndex < FleetData.ShipImmatriculations.Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = FleetCompany->FindSpacecraft(FleetData.ShipImmatriculations[ShipIndex]);
 			Ship->SetCurrentFleet(this);

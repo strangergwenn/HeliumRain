@@ -47,7 +47,7 @@ FFlareAsteroidSave* AFlareAsteroid::Save()
 	// Physical data
 	AsteroidData.Location = GetActorLocation();
 	AsteroidData.Rotation = GetActorRotation();
-	if(!Paused)
+	if (!Paused)
 	{
 		AsteroidData.LinearVelocity = GetStaticMeshComponent()->GetPhysicsLinearVelocity();
 		AsteroidData.AngularVelocity = GetStaticMeshComponent()->GetPhysicsAngularVelocity();

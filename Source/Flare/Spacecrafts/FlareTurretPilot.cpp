@@ -144,7 +144,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
 
-		//float PredictionDelay = ReactionTime - DeltaSeconds;
+		// float PredictionDelay = ReactionTime - DeltaSeconds;
 		float PredictionDelay = 0;
 		float AmmoVelocity = Turret->GetAmmoVelocity() * 100;
 		FVector TurretVelocity = 100 * Turret->GetSpacecraft()->GetLinearVelocity();
@@ -180,7 +180,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		//FLOGV("%s Distance=%f",*Turret->GetReadableName(),  Distance);
 
 		// If at range and aligned fire on the target
-		//TODO increase tolerance if target is near
+		// TODO increase tolerance if target is near
 
 
 		if (AmmoIntersectionPredictedTime > 0 && AmmoIntersectionPredictedTime < 10.f)
@@ -215,7 +215,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
 				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
-					if(!PilotHelper::CheckFriendlyFire(Turret->GetSpacecraft()->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, TurretVelocity, AmmoVelocity, FireTargetAxis, AmmoIntersectionTime, Turret->GetAimRadius()))
+					if (!PilotHelper::CheckFriendlyFire(Turret->GetSpacecraft()->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, TurretVelocity, AmmoVelocity, FireTargetAxis, AmmoIntersectionTime, Turret->GetAimRadius()))
 					{
 						Turret->SetTarget(PilotTargetShip);
 

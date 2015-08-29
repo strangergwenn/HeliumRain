@@ -80,16 +80,16 @@ FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FName BodyIde
 
 FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FFlareCelestialBody* Body, FName BodyIdentifier)
 {
-	if(Body->Identifier == BodyIdentifier)
+	if (Body->Identifier == BodyIdentifier)
 	{
 		return Body;
 	}
 
-	for(int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
+	for (int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
 	{
 		FFlareCelestialBody* CelestialBody = &Body->Sattelites[SatteliteIndex];
 		FFlareCelestialBody* Result = FindCelestialBody(CelestialBody, BodyIdentifier);
-		if(Result)
+		if (Result)
 		{
 			return Result;
 		}
@@ -131,7 +131,7 @@ FPreciseVector UFlareSimulatedPlanetarium::GetRelativeLocation(FFlareCelestialBo
 
 void UFlareSimulatedPlanetarium::ComputeCelestialBodyLocation(FFlareCelestialBody* ParentBody, FFlareCelestialBody* Body, int64 Time)
 {
-	if(ParentBody)
+	if (ParentBody)
 	{
 	/*	// TODO extract the constant
 		float G = 6.674e-11; // Gravitational constant
@@ -161,7 +161,7 @@ void UFlareSimulatedPlanetarium::ComputeCelestialBodyLocation(FFlareCelestialBod
 
 	Body->RotationAngle = FPreciseMath::UnwindDegrees(Body->RotationVelocity * Time);
 
-	for(int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
+	for (int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
 	{
 		FFlareCelestialBody* CelestialBody = &Body->Sattelites[SatteliteIndex];
 		ComputeCelestialBodyLocation(Body, CelestialBody, Time);

@@ -13,7 +13,7 @@ float SpacecraftHelper::GetIntersectionPosition(FVector TargetLocation, FVector 
 	FLOGV("  SourceVelocity=%s",*SourceVelocity.ToString());
 	FLOGV("  ProjectileSpeed=%f",ProjectileSpeed);*/
 
-	//Relative Target Speed
+	// Relative Target Speed
 	FVector PredictedTargetLocation = TargetLocation + TargetVelocity * PredictionDelay;
 	FVector BulletLocation = SourceLocation + SourceVelocity * PredictionDelay;
 
