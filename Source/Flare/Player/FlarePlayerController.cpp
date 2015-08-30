@@ -159,9 +159,13 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		ViewRotation.Normalize();
 		ViewLocation += ViewRotation.RotateVector(500 * FVector(1, 0, 0));
 
-		FVector Direction = ShipPawn->GetLinearVelocity();
-		Direction.Normalize();
+		FVector Velocity = ShipPawn->GetLinearVelocity();
+		FLinearColor Color = FLinearColor::White;
+		Color.R= FMath::Clamp(Velocity.Size() / 100, 0.0f, 1.0f);
+		DustEffect->SetColorParameter("Intensity", Color);
 
+		FVector Direction = Velocity;
+		Direction.Normalize();
 		DustEffect->SetWorldLocation(ViewLocation);
 		DustEffect->SetVectorParameter("Direction", -Direction);
 	}
