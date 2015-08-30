@@ -51,13 +51,19 @@ protected:
 	FText OnGetCurrentComboLine() const;
 
 	/** Generate a combo box line */
-	TSharedRef<SWidget> OnGenerateComboLine(TSharedPtr<FString> Item);
+	TSharedRef<SWidget> OnGenerateComboLine(TSharedPtr<FScreenResolutionRHI> Item);
 
 	/** Combo line selection changed */
-	void OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo);
+	void OnComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo);
+
+	void OnFullscreenToggle();
+
+	void OnVSyncToggle();
 
 	/** Exit this menu */
 	void OnExit();
+
+	void UpdateResolution();
 
 
 protected:
@@ -75,8 +81,8 @@ protected:
 	TSharedPtr<SFlareButton>                    VSyncButton;
 
 	// Resolution data
-	TSharedPtr<SComboBox<TSharedPtr<FString> >> ResolutionSelector;
-	TArray<TSharedPtr<FString>>                 ResolutionList;
+	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;
+	TArray<TSharedPtr<FScreenResolutionRHI>>                 ResolutionList;
 
 
 };

@@ -23,7 +23,33 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	Game = MenuManager->GetPC()->GetGame();
 
 	// Game starts
-	ResolutionList.Add(MakeShareable(new FString(TEXT("1920x1080"))));
+
+
+	//const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+
+
+	FIntPoint Resolution = MyGameSettings->GetScreenResolution();
+
+
+
+	FLOGV("Resolution: %s", *Resolution.ToString());
+	FScreenResolutionArray Resolutions;
+	TSharedPtr<FScreenResolutionRHI> InitialResolution = MakeShareable(new FScreenResolutionRHI());
+	InitialResolution->Width = Resolution.X;
+	InitialResolution->Height = Resolution.Y;
+
+	if (RHIGetAvailableResolutions(Resolutions, true))
+	{
+		for (const FScreenResolutionRHI& EachResolution : Resolutions)
+		{
+			ResolutionList.Insert(MakeShareable(new FScreenResolutionRHI(EachResolution)),0);
+		}
+	}
+	else
+	{
+		FLOG("Screen Resolutions could not be obtained");
+	}
 
 	// Color
 	FLinearColor Color = Theme.NeutralColor;
@@ -112,7 +138,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
 				[
-					SAssignNew(ResolutionSelector, SComboBox<TSharedPtr<FString>>)
+					SAssignNew(ResolutionSelector, SComboBox<TSharedPtr<FScreenResolutionRHI>>)
 					.OptionsSource(&ResolutionList)
 					.InitiallySelectedItem(ResolutionList[0])
 					.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateComboLine)
@@ -136,23 +162,29 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("Fullscreen", "Fullscreen"))
 					.HelpText(LOCTEXT("FullscreenInfo", "Enable fullscreen"))
 					.Toggle(true)
+					.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
 				]
 
-			// Fullscreen
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Right)
-			[
-				SAssignNew(VSyncButton, SFlareButton)
-				.Text(LOCTEXT("V-sync", "V-sync"))
-				.HelpText(LOCTEXT("VSyncInfo", "Enable v-sync"))
-				.Toggle(true)
-			]
-			]
+				// VSync
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Right)
+				[
+					SAssignNew(VSyncButton, SFlareButton)
+					.Text(LOCTEXT("V-sync", "V-sync"))
+					.HelpText(LOCTEXT("VSyncInfo", "Enable v-sync"))
+					.Toggle(true)
+					.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
+				]
+				]
 		]
 	];
 
+
+	// TODO Load current config
+	FullscreenButton->SetActive(false);
+	VSyncButton->SetActive(false);
 }
 
 
@@ -196,22 +228,66 @@ void SFlareSettingsMenu::Exit()
 
 FText SFlareSettingsMenu::OnGetCurrentComboLine() const
 {
-	//TSharedPtr<FString> Item = ScenarioSelector->GetSelectedItem();
+	TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
+
+	//return ResolutionSelector->GetSelectedItem();
+
 	//return Item.IsValid() ? FText::FromString(*Item) : FText::FromString(*ResolutionList[0]);
-	return FText::FromString("1920x1080");
+	return Item.IsValid() ? FText::FromString(FString::Printf(TEXT("%dx%d"), Item->Width, Item->Height)) : FText::FromString("");
 }
 
-TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateComboLine(TSharedPtr<FString> Item)
+TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateComboLine(TSharedPtr<FScreenResolutionRHI> Item)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	return SNew(STextBlock)
-	.Text(FText::FromString(*Item))
+	.Text(FText::FromString(FString::Printf(TEXT("%dx%d"), Item->Width, Item->Height)))
 	.TextStyle(&Theme.TextFont);
 }
 
-void SFlareSettingsMenu::OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo)
+void SFlareSettingsMenu::OnComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo)
 {
+	UpdateResolution();
+}
+
+void SFlareSettingsMenu::OnFullscreenToggle()
+{
+	UpdateResolution();
+}
+
+void SFlareSettingsMenu::UpdateResolution()
+{
+	if(GEngine)
+	{
+		UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+
+
+		FIntPoint Resolution = MyGameSettings->GetScreenResolution();
+		FLOGV("GetScreenResolution: %s", *Resolution.ToString());
+
+		TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
+
+		MyGameSettings->SetScreenResolution(FIntPoint(Item->Width, Item->Height));
+		MyGameSettings->SetFullscreenMode(FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed);
+		MyGameSettings->RequestResolutionChange(Item->Width, Item->Height, FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed, false);
+
+		MyGameSettings->ConfirmVideoMode();
+		MyGameSettings->ApplyNonResolutionSettings();
+		MyGameSettings->SaveSettings();
+	}
+}
+
+void SFlareSettingsMenu::OnVSyncToggle()
+{
+	if(VSyncButton->IsActive())
+	{
+		FLOG("Enable vsync")
+	}
+	else
+	{
+		FLOG("Disable vsync")
+	}
+
 }
 
 void SFlareSettingsMenu::OnExit()
