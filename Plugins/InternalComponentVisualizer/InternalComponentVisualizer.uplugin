@@ -15,7 +15,7 @@
     [
         {
             "Name" : "InternalComponentVisualizer",
-            "Type" : "Developer",
+            "Type" : "Editor",
             "LoadingPhase" : "PostEngineInit"
         }
     ]
