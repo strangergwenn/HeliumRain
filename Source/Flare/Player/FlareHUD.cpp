@@ -275,8 +275,8 @@ void AFlareHUD::DrawHUD()
 
 					// Draw distance
 					ScreenPosition -= ViewportSize / 2 + FVector2D(0, IconSize);
-					DrawText(ObjectiveText, ScreenPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
-					DrawText(ObjectiveText, ScreenPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+					DrawText(ObjectiveText, ScreenPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
+					DrawText(ObjectiveText, ScreenPosition, HUDFont, FVector2D::UnitVector, FColor::White);
 				}
 			}
 		}
@@ -342,8 +342,8 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 			// Label
 			FString IndicatorText = Designation.ToString();
 			FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
-			DrawText(IndicatorText, IndicatorPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
-			DrawText(IndicatorText, IndicatorPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+			DrawText(IndicatorText, IndicatorPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
+			DrawText(IndicatorText, IndicatorPosition, HUDFont, FVector2D::UnitVector, FColor::White);
 
 			// Icon
 			DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
@@ -351,8 +351,8 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 			// Speed 
 			FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
 			FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
-			DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
-			DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FLinearColor::White);
+			DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
+			DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FColor::White);
 		}
 	}
 }
@@ -471,8 +471,8 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
 							FVector2D TimePosition = ScreenPosition - ViewportSize / 2 - FVector2D(42,0);
 
-							DrawText(TimeText, TimePosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FLinearColor::Black);
-							DrawText(TimeText, TimePosition, HUDFont, FVector2D::UnitVector, HUDAimHelperColor);
+							DrawText(TimeText, TimePosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
+							DrawText(TimeText, TimePosition, HUDFont, FVector2D::UnitVector, HUDAimHelperColor.ToFColor(true));
 						}
 					}
 				}
