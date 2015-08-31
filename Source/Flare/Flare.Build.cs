@@ -13,6 +13,7 @@ public class Flare : ModuleRules
 				"Engine",
 				"OnlineSubsystem",
 				"OnlineSubsystemUtils",
+                "RHI"
 			}
         );
 
