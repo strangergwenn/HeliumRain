@@ -48,13 +48,15 @@ protected:
 	----------------------------------------------------*/
 
 	/** Get the combo line headline */
-	FText OnGetCurrentComboLine() const;
+	FText OnGetCurrentResolutionComboLine() const;
 
 	/** Generate a combo box line */
-	TSharedRef<SWidget> OnGenerateComboLine(TSharedPtr<FScreenResolutionRHI> Item);
+	TSharedRef<SWidget> OnGenerateResolutionComboLine(TSharedPtr<FScreenResolutionRHI> Item);
 
 	/** Combo line selection changed */
-	void OnComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo);
+	void OnResolutionComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo);
+
+	void OnTextureQualitySliderChanged(float Value);
 
 	void OnFullscreenToggle();
 
@@ -63,7 +65,14 @@ protected:
 	/** Exit this menu */
 	void OnExit();
 
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
+
+
 	void UpdateResolution();
+
+	FText GetTextureQualityLabel(int32 Value);
 
 
 protected:
@@ -79,6 +88,8 @@ protected:
 	// Slate widgets
 	TSharedPtr<SFlareButton>                    FullscreenButton;
 	TSharedPtr<SFlareButton>                    VSyncButton;
+	TSharedPtr<SSlider>                         TextureQualitySlider;
+	TSharedPtr<STextBlock>	        			TextureQualityLabel;
 
 	// Resolution data
 	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;

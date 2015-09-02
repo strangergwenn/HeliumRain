@@ -64,6 +64,14 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 		CurrentResolutionIndex = 0;
 	}
 
+	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
+	float CurrentSupersamplingRatio = (MyGameSettings->ScalabilityQuality.ResolutionQuality - 100.f)  / 100.f;
+
+
+	FLOGV("MyGameSettings->ScalabilityQuality.TextureQuality=%d CurrentTextureQualityRatio=%f", MyGameSettings->ScalabilityQuality.TextureQuality, CurrentTextureQualityRatio);
+	FLOGV("MyGameSettings->ScalabilityQuality.ResolutionQuality=%d CurrentSupersamplingRatio=%f", MyGameSettings->ScalabilityQuality.ResolutionQuality, CurrentTextureQualityRatio);
+
+
 	// Color
 	FLinearColor Color = Theme.NeutralColor;
 	Color.A = Theme.DefaultAlpha;
@@ -130,7 +138,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Center)
 		[
 			SNew(STextBlock)
-			.Text(LOCTEXT("GraphicsSettingsHint", "Graphics."))
+			.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
 			.TextStyle(&Theme.SubTitleFont)
 		]
 
@@ -154,13 +162,13 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					SAssignNew(ResolutionSelector, SComboBox<TSharedPtr<FScreenResolutionRHI>>)
 					.OptionsSource(&ResolutionList)
 					.InitiallySelectedItem(ResolutionList[CurrentResolutionIndex])
-					.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateComboLine)
-					.OnSelectionChanged(this, &SFlareSettingsMenu::OnComboLineSelectionChanged)
+					.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateResolutionComboLine)
+					.OnSelectionChanged(this, &SFlareSettingsMenu::OnResolutionComboLineSelectionChanged)
 					.ComboBoxStyle(&Theme.ComboBoxStyle)
 					.ForegroundColor(FLinearColor::White)
 					[
 						SNew(STextBlock)
-						.Text(this, &SFlareSettingsMenu::OnGetCurrentComboLine)
+						.Text(this, &SFlareSettingsMenu::OnGetCurrentResolutionComboLine)
 						.TextStyle(&Theme.TextFont)
 					]
 				]
@@ -190,7 +198,41 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Toggle(true)
 					.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
 				]
+
+				// Texture quality box
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SHorizontalBox)
+
+					// Texture quality slider
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(TextureQualitySlider, SSlider)
+							.Value(CurrentTextureQualityRatio)
+							.Style(&Theme.SliderStyle)
+							.OnValueChanged(this, &SFlareSettingsMenu::OnTextureQualitySliderChanged)
+					]
+
+					// Texture quality label
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(48)
+						[
+							SAssignNew(TextureQualityLabel, STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(GetTextureQualityLabel(MyGameSettings->ScalabilityQuality.TextureQuality))
+						]
+					]
+
 				]
+			]
 		]
 	];
 
@@ -237,7 +279,7 @@ void SFlareSettingsMenu::Exit()
 ----------------------------------------------------*/
 
 
-FText SFlareSettingsMenu::OnGetCurrentComboLine() const
+FText SFlareSettingsMenu::OnGetCurrentResolutionComboLine() const
 {
 	TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
 
@@ -247,7 +289,7 @@ FText SFlareSettingsMenu::OnGetCurrentComboLine() const
 	return Item.IsValid() ? FText::FromString(FString::Printf(TEXT("%dx%d"), Item->Width, Item->Height)) : FText::FromString("");
 }
 
-TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateComboLine(TSharedPtr<FScreenResolutionRHI> Item)
+TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateResolutionComboLine(TSharedPtr<FScreenResolutionRHI> Item)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -256,7 +298,7 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateComboLine(TSharedPtr<FScreenRe
 	.TextStyle(&Theme.TextFont);
 }
 
-void SFlareSettingsMenu::OnComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo)
+void SFlareSettingsMenu::OnResolutionComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo)
 {
 	UpdateResolution();
 }
@@ -265,6 +307,50 @@ void SFlareSettingsMenu::OnFullscreenToggle()
 {
 	UpdateResolution();
 }
+
+void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
+{
+	int32 Step = 3;
+	int32 StepValue = FMath::RoundToInt(Step * Value);
+	TextureQualitySlider->SetValue((float)StepValue / (float)Step);
+
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	FLOGV("Set Texture quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.TextureQuality);
+
+	if(MyGameSettings->ScalabilityQuality.TextureQuality != StepValue)
+	{
+		MyGameSettings->ScalabilityQuality.TextureQuality = StepValue;
+		MyGameSettings->ApplySettings();
+		TextureQualityLabel->SetText(GetTextureQualityLabel(StepValue));
+	}
+}
+
+
+void SFlareSettingsMenu::OnVSyncToggle()
+{
+	if(VSyncButton->IsActive())
+	{
+		FLOG("Enable vsync")
+
+	}
+	else
+	{
+		FLOG("Disable vsync")
+	}
+
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	MyGameSettings->SetVSyncEnabled(VSyncButton->IsActive());
+	MyGameSettings->ApplySettings();
+}
+
+void SFlareSettingsMenu::OnExit()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+}
+/*----------------------------------------------------
+	Helpers
+----------------------------------------------------*/
+
 
 void SFlareSettingsMenu::UpdateResolution()
 {
@@ -289,30 +375,21 @@ void SFlareSettingsMenu::UpdateResolution()
 	}
 }
 
-void SFlareSettingsMenu::OnVSyncToggle()
+FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value)
 {
-	if(VSyncButton->IsActive())
+	switch(Value)
 	{
-		FLOG("Enable vsync")
-
+		case 1:
+			return LOCTEXT("TextureQualityLow", "Low");
+		case 2:
+			return LOCTEXT("TextureQualityMedium", "Medium");
+		case 3:
+			return LOCTEXT("TextureQualityHigh", "High");
+		case 0:
+		default:
+			return LOCTEXT("TextureQualityVeryLow", "Very low");
 	}
-	else
-	{
-		FLOG("Disable vsync")
-	}
-
-	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	MyGameSettings->SetVSyncEnabled(VSyncButton->IsActive());
-	MyGameSettings->ConfirmVideoMode();
-	MyGameSettings->ApplySettings();
 }
-
-void SFlareSettingsMenu::OnExit()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
-}
-
-
 
 
 #undef LOCTEXT_NAMESPACE
