@@ -34,9 +34,11 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	FLOGV("MyGameSettings->ScalabilityQuality.AntiAliasingQuality=%d CurrentAntiAliasingQualityRatio=%f", MyGameSettings->ScalabilityQuality.AntiAliasingQuality, CurrentAntiAliasingQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.PostProcessQuality=%d CurrentPostProcessQualityRatio=%f", MyGameSettings->ScalabilityQuality.PostProcessQuality, CurrentPostProcessQualityRatio);
 
-	// Color
+	// General data
 	FLinearColor Color = Theme.NeutralColor;
 	Color.A = Theme.DefaultAlpha;
+	int32 LabelSize = 200;
+	int32 ValueSize = 80;
 
 	// Build structure
 	ChildSlot
@@ -135,7 +137,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Center)
 				[
 					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth / 1.5)
+					.WidthOverride(Theme.ContentWidth)
 					.HAlign(HAlign_Fill)
 					[
 						SNew(SVerticalBox)
@@ -166,7 +168,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(FullscreenButton, SFlareButton)
 							.Text(LOCTEXT("Fullscreen", "Fullscreen"))
-							.HelpText(LOCTEXT("FullscreenInfo", "Fullscreen"))
+							.HelpText(LOCTEXT("FullscreenInfo", "Show the game in full screen"))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
 						]
@@ -178,8 +180,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						.HAlign(HAlign_Right)
 						[
 							SAssignNew(VSyncButton, SFlareButton)
-							.Text(LOCTEXT("V-sync", "V-sync"))
-							.HelpText(LOCTEXT("VSyncInfo", "Enable V-Sync"))
+							.Text(LOCTEXT("V-sync", "V-Sync"))
+							.HelpText(LOCTEXT("VSyncInfo", "Vertical synchronization ensures that every image is consistent, even with low performance."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
 						]
@@ -197,10 +199,10 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(150)
+								.WidthOverride(LabelSize)
 								[
 									SNew(STextBlock)
-									.Text(LOCTEXT("TextureLabel", "Textures"))
+									.Text(LOCTEXT("TextureLabel", "Texture quality"))
 									.TextStyle(&Theme.TextFont)
 								]
 							]
@@ -222,7 +224,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(80)
+								.WidthOverride(ValueSize)
 								[
 									SAssignNew(TextureQualityLabel, STextBlock)
 									.TextStyle(&Theme.TextFont)
@@ -244,10 +246,10 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(150)
+								.WidthOverride(LabelSize)
 								[
 									SNew(STextBlock)
-									.Text(LOCTEXT("EffectsLabel", "Effects"))
+									.Text(LOCTEXT("EffectsLabel", "Effects quality"))
 									.TextStyle(&Theme.TextFont)
 								]
 							]
@@ -269,7 +271,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(80)
+								.WidthOverride(ValueSize)
 								[
 									SAssignNew(EffectsQualityLabel, STextBlock)
 									.TextStyle(&Theme.TextFont)
@@ -291,10 +293,10 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(150)
+								.WidthOverride(LabelSize)
 								[
 									SNew(STextBlock)
-									.Text(LOCTEXT("AntiAliasingLabel", "Anti-Aliasing"))
+									.Text(LOCTEXT("AntiAliasingLabel", "Anti-aliasing quality"))
 									.TextStyle(&Theme.TextFont)
 								]
 							]
@@ -316,7 +318,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(80)
+								.WidthOverride(ValueSize)
 								[
 									SAssignNew(AntiAliasingQualityLabel, STextBlock)
 									.TextStyle(&Theme.TextFont)
@@ -338,10 +340,10 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(150)
+								.WidthOverride(LabelSize)
 								[
 									SNew(STextBlock)
-									.Text(LOCTEXT("PostProcessLabel", "Post Process"))
+									.Text(LOCTEXT("PostProcessLabel", "Post-processing quality"))
 									.TextStyle(&Theme.TextFont)
 								]
 							]
@@ -363,7 +365,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(80)
+								.WidthOverride(ValueSize)
 								[
 									SAssignNew(PostProcessQualityLabel, STextBlock)
 									.TextStyle(&Theme.TextFont)
@@ -380,7 +382,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(SupersamplingButton, SFlareButton)
 							.Text(LOCTEXT("Supersampling", "Supersampling"))
-							.HelpText(LOCTEXT("SupersamplingInfo", "Enable Supersampling"))
+							.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the game at double the resolution. This is a very demanding feature."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
 						]
