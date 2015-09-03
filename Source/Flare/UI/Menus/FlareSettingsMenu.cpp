@@ -21,49 +21,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
-
-	// Game starts
-
-
-	//const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
 
-
-	FIntPoint Resolution = MyGameSettings->GetScreenResolution();
-
-
-
-	FLOGV("Resolution: %s", *Resolution.ToString());
-	FScreenResolutionArray Resolutions;
-	int CurrentResolutionIndex = -1;
-
-	if (RHIGetAvailableResolutions(Resolutions, true))
-	{
-		for (const FScreenResolutionRHI& EachResolution : Resolutions)
-		{
-			ResolutionList.Insert(MakeShareable(new FScreenResolutionRHI(EachResolution)),0);
-
-			if (Resolution.X == EachResolution.Width && Resolution.Y == EachResolution.Height)
-			{
-				CurrentResolutionIndex = ResolutionList.Num() -1 ;
-			}
-		}
-	}
-	else
-	{
-		FLOG("Screen Resolutions could not be obtained");
-	}
-
-	if (CurrentResolutionIndex < 0)
-	{
-		TSharedPtr<FScreenResolutionRHI> InitialResolution = MakeShareable(new FScreenResolutionRHI());
-		InitialResolution->Width = Resolution.X;
-		InitialResolution->Height = Resolution.Y;
-
-		ResolutionList.Insert(InitialResolution,0);
-		CurrentResolutionIndex = 0;
-	}
-
+	// Current settings
 	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
 	float CurrentEffectsQualityRatio = MyGameSettings->ScalabilityQuality.EffectsQuality / 3.f;
 	float CurrentAntiAliasingQualityRatio = MyGameSettings->ScalabilityQuality.AntiAliasingQuality / 3.f;
@@ -73,7 +33,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	FLOGV("MyGameSettings->ScalabilityQuality.EffectsQuality=%d CurrentEffectsQualityRatio=%f", MyGameSettings->ScalabilityQuality.EffectsQuality, CurrentEffectsQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.AntiAliasingQuality=%d CurrentAntiAliasingQualityRatio=%f", MyGameSettings->ScalabilityQuality.AntiAliasingQuality, CurrentAntiAliasingQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.PostProcessQuality=%d CurrentPostProcessQualityRatio=%f", MyGameSettings->ScalabilityQuality.PostProcessQuality, CurrentPostProcessQualityRatio);
-
 
 	// Color
 	FLinearColor Color = Theme.NeutralColor;
@@ -120,8 +79,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Back", "Back"))
-				.HelpText(LOCTEXT("BakcInfo", "Go back to the main menu"))
-				.Icon(FFlareStyleSet::GetIcon("Ok"))
+				.HelpText(LOCTEXT("BackInfo", "Go back to the main menu"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 				.OnClicked(this, &SFlareSettingsMenu::OnExit)
 			]
 		]
@@ -136,11 +95,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 
 		// Main form
 		+ SVerticalBox::Slot()
-		.AutoHeight()
 		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		[
-
 			SNew(SScrollBox)
 			.Style(&Theme.ScrollBoxStyle)
 			.ScrollBarStyle(&Theme.ScrollBarStyle)
@@ -153,11 +110,22 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Center)
+				.HAlign(HAlign_Left)
 				[
 					SNew(STextBlock)
 					.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
 					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Subtitle
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(LOCTEXT("AutoApply", "Changes will be applied and saved automatically."))
 				]
 
 				// Graphic form
@@ -179,7 +147,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(ResolutionSelector, SComboBox<TSharedPtr<FScreenResolutionRHI>>)
 							.OptionsSource(&ResolutionList)
-							.InitiallySelectedItem(ResolutionList[CurrentResolutionIndex])
 							.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateResolutionComboLine)
 							.OnSelectionChanged(this, &SFlareSettingsMenu::OnResolutionComboLineSelectionChanged)
 							.ComboBoxStyle(&Theme.ComboBoxStyle)
@@ -199,7 +166,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(FullscreenButton, SFlareButton)
 							.Text(LOCTEXT("Fullscreen", "Fullscreen"))
-							.HelpText(LOCTEXT("FullscreenInfo", "Enable fullscreen"))
+							.HelpText(LOCTEXT("FullscreenInfo", "Fullscreen"))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
 						]
@@ -212,7 +179,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(VSyncButton, SFlareButton)
 							.Text(LOCTEXT("V-sync", "V-sync"))
-							.HelpText(LOCTEXT("VSyncInfo", "Enable v-sync"))
+							.HelpText(LOCTEXT("VSyncInfo", "Enable V-Sync"))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
 						]
@@ -244,9 +211,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SAssignNew(TextureQualitySlider, SSlider)
-									.Value(CurrentTextureQualityRatio)
-									.Style(&Theme.SliderStyle)
-									.OnValueChanged(this, &SFlareSettingsMenu::OnTextureQualitySliderChanged)
+								.Value(CurrentTextureQualityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnTextureQualitySliderChanged)
 							]
 
 							// Texture quality label
@@ -291,9 +258,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SAssignNew(EffectsQualitySlider, SSlider)
-									.Value(CurrentEffectsQualityRatio)
-									.Style(&Theme.SliderStyle)
-									.OnValueChanged(this, &SFlareSettingsMenu::OnEffectsQualitySliderChanged)
+								.Value(CurrentEffectsQualityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnEffectsQualitySliderChanged)
 							]
 
 							// Effects quality label
@@ -327,7 +294,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 								.WidthOverride(150)
 								[
 									SNew(STextBlock)
-									.Text(LOCTEXT("AntiAliasingLabel", "Anti Aliasing"))
+									.Text(LOCTEXT("AntiAliasingLabel", "Anti-Aliasing"))
 									.TextStyle(&Theme.TextFont)
 								]
 							]
@@ -338,9 +305,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SAssignNew(AntiAliasingQualitySlider, SSlider)
-									.Value(CurrentAntiAliasingQualityRatio)
-									.Style(&Theme.SliderStyle)
-									.OnValueChanged(this, &SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged)
+								.Value(CurrentAntiAliasingQualityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged)
 							]
 
 							// AntiAliasing quality label
@@ -379,16 +346,15 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 								]
 							]
 
-
 							// PostProcess quality slider
 							+ SHorizontalBox::Slot()
 							.VAlign(VAlign_Center)
 							.Padding(Theme.ContentPadding)
 							[
 								SAssignNew(PostProcessQualitySlider, SSlider)
-									.Value(CurrentPostProcessQualityRatio)
-									.Style(&Theme.SliderStyle)
-									.OnValueChanged(this, &SFlareSettingsMenu::OnPostProcessQualitySliderChanged)
+								.Value(CurrentPostProcessQualityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnPostProcessQualitySliderChanged)
 							]
 
 							// PostProcess quality label
@@ -443,17 +409,11 @@ void SFlareSettingsMenu::Setup()
 void SFlareSettingsMenu::Enter()
 {
 	FLOG("SFlareSettingsMenu::Enter");
+
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC)
-	{
-		FFlarePlayerSave Data;
-		FFlareCompanyDescription Unused;
-		PC->Save(Data, Unused);
-		//ColorBox->Setup(Data);
-	}
+	
+	FillResolutionList();
 }
 
 void SFlareSettingsMenu::Exit()
@@ -467,14 +427,9 @@ void SFlareSettingsMenu::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
-
 FText SFlareSettingsMenu::OnGetCurrentResolutionComboLine() const
 {
 	TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
-
-	//return ResolutionSelector->GetSelectedItem();
-
-	//return Item.IsValid() ? FText::FromString(*Item) : FText::FromString(*ResolutionList[0]);
 	return Item.IsValid() ? FText::FromString(FString::Printf(TEXT("%dx%d"), Item->Width, Item->Height)) : FText::FromString("");
 }
 
@@ -504,12 +459,12 @@ void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
 	TextureQualitySlider->SetValue((float)StepValue / (float)Step);
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FLOGV("Set Texture quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.TextureQuality);
+	FLOGV("SFlareSettingsMenu::OnTextureQualitySliderChanged : Set Texture quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.TextureQuality);
 
-	if(MyGameSettings->ScalabilityQuality.TextureQuality != StepValue)
+	if (MyGameSettings->ScalabilityQuality.TextureQuality != StepValue)
 	{
 		MyGameSettings->ScalabilityQuality.TextureQuality = StepValue;
-		MyGameSettings->ApplySettings();
+		MyGameSettings->ApplySettings(false);
 		TextureQualityLabel->SetText(GetTextureQualityLabel(StepValue));
 	}
 }
@@ -521,12 +476,12 @@ void SFlareSettingsMenu::OnEffectsQualitySliderChanged(float Value)
 	EffectsQualitySlider->SetValue((float)StepValue / (float)Step);
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FLOGV("Set Effects quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.EffectsQuality);
+	FLOGV("SFlareSettingsMenu::OnEffectsQualitySliderChanged : Set Effects quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.EffectsQuality);
 
-	if(MyGameSettings->ScalabilityQuality.EffectsQuality != StepValue)
+	if (MyGameSettings->ScalabilityQuality.EffectsQuality != StepValue)
 	{
 		MyGameSettings->ScalabilityQuality.EffectsQuality = StepValue;
-		MyGameSettings->ApplySettings();
+		MyGameSettings->ApplySettings(false);
 		EffectsQualityLabel->SetText(GetEffectsQualityLabel(StepValue));
 	}
 }
@@ -540,12 +495,12 @@ void SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged(float Value)
 	int32 AAValue = StepValue;
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FLOGV("Set AntiAliasing quality to %d (current is %d)", AAValue, MyGameSettings->ScalabilityQuality.AntiAliasingQuality);
+	FLOGV("SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged : set AntiAliasing quality to %d (current is %d)", AAValue, MyGameSettings->ScalabilityQuality.AntiAliasingQuality);
 
-	if(MyGameSettings->ScalabilityQuality.AntiAliasingQuality != AAValue)
+	if (MyGameSettings->ScalabilityQuality.AntiAliasingQuality != AAValue)
 	{
 		MyGameSettings->ScalabilityQuality.AntiAliasingQuality = AAValue;
-		MyGameSettings->ApplySettings();
+		MyGameSettings->ApplySettings(false);
 		AntiAliasingQualityLabel->SetText(GetAntiAliasingQualityLabel(AAValue));
 	}
 }
@@ -557,52 +512,47 @@ void SFlareSettingsMenu::OnPostProcessQualitySliderChanged(float Value)
 	PostProcessQualitySlider->SetValue((float)StepValue / (float)Step);
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FLOGV("Set PostProcess quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.PostProcessQuality);
+	FLOGV("SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged : set PostProcess quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.PostProcessQuality);
 
-	if(MyGameSettings->ScalabilityQuality.PostProcessQuality != StepValue)
+	if (MyGameSettings->ScalabilityQuality.PostProcessQuality != StepValue)
 	{
 		MyGameSettings->ScalabilityQuality.PostProcessQuality = StepValue;
-		MyGameSettings->ApplySettings();
+		MyGameSettings->ApplySettings(false);
 		PostProcessQualityLabel->SetText(GetPostProcessQualityLabel(StepValue));
 	}
 }
 
 void SFlareSettingsMenu::OnVSyncToggle()
 {
-	if(VSyncButton->IsActive())
+	if (VSyncButton->IsActive())
 	{
-		FLOG("Enable vsync")
-
+		FLOG("SFlareSettingsMenu::OnVSyncToggle : Enable vsync")
 	}
 	else
 	{
-		FLOG("Disable vsync")
+		FLOG("SFlareSettingsMenu::OnVSyncToggle : Disable vsync")
 	}
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
 	MyGameSettings->SetVSyncEnabled(VSyncButton->IsActive());
-	MyGameSettings->ApplySettings();
+	MyGameSettings->ApplySettings(false);
 }
 
 void SFlareSettingsMenu::OnSupersamplingToggle()
 {
-	if(SupersamplingButton->IsActive())
+	if (SupersamplingButton->IsActive())
 	{
-		FLOG("Enable supersampling")
-
+		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Enable supersampling")
 	}
 	else
 	{
-		FLOG("Disable supersampling")
+		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Disable supersampling")
 	}
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-
-
 	IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ScreenPercentage"));
 	CVar->Set((SupersamplingButton->IsActive() ? 200 : 100), ECVF_SetByScalability);
-
-	MyGameSettings->ApplySettings();
+	MyGameSettings->ApplySettings(false);
 
 	//FLOGV("MyGameSettings->ScalabilityQuality.ResolutionQuality %d", MyGameSettings->ScalabilityQuality.ResolutionQuality);
 
@@ -612,35 +562,81 @@ void SFlareSettingsMenu::OnExit()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
+
+
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/
 
+void SFlareSettingsMenu::FillResolutionList()
+{
+	// Get the current res
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	FIntPoint Resolution = MyGameSettings->GetScreenResolution();
+	FLOGV("SFlareSettingsMenu::FillResolutionList : current resolution is %s", *Resolution.ToString());
+
+	// Setup the list data
+	ResolutionList.Empty();
+	FScreenResolutionArray Resolutions;
+	int CurrentResolutionIndex = -1;
+
+	// Get all resolution settings
+	if (RHIGetAvailableResolutions(Resolutions, true))
+	{
+		for (const FScreenResolutionRHI& EachResolution : Resolutions)
+		{
+			ResolutionList.Insert(MakeShareable(new FScreenResolutionRHI(EachResolution)), 0);
+
+			if (Resolution.X == EachResolution.Width && Resolution.Y == EachResolution.Height)
+			{
+				CurrentResolutionIndex = ResolutionList.Num() - 1;
+			}
+		}
+	}
+	else
+	{
+		FLOG("SFlareSettingsMenu::FillResolutionList : screen resolutions could not be obtained");
+	}
+
+	// Didn't find our current res...
+	if (CurrentResolutionIndex < 0)
+	{
+		TSharedPtr<FScreenResolutionRHI> InitialResolution = MakeShareable(new FScreenResolutionRHI());
+		InitialResolution->Width = Resolution.X;
+		InitialResolution->Height = Resolution.Y;
+
+		ResolutionList.Insert(InitialResolution, 0);
+		CurrentResolutionIndex = 0;
+	}
+
+	// Update the list
+	ResolutionSelector->SetSelectedItem(ResolutionList[CurrentResolutionIndex]);
+	ResolutionSelector->RefreshOptions();
+}
 
 void SFlareSettingsMenu::UpdateResolution()
 {
-	if(GEngine)
+	if (GEngine)
 	{
 		UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-
-
 		FIntPoint Resolution = MyGameSettings->GetScreenResolution();
-		FLOGV("GetScreenResolution: %s", *Resolution.ToString());
+		FLOGV("SFlareSettingsMenu::UpdateResolution : current resolution is %s", *Resolution.ToString());
 
 		TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
+		FLOGV("SFlareSettingsMenu::UpdateResolution : new resolution is %dx%d", Item->Width, Item->Height);
 
 		MyGameSettings->SetScreenResolution(FIntPoint(Item->Width, Item->Height));
 		MyGameSettings->SetFullscreenMode(FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed);
 		MyGameSettings->RequestResolutionChange(Item->Width, Item->Height, FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed, false);
 
 		MyGameSettings->ConfirmVideoMode();
-		MyGameSettings->ApplySettings();
+		MyGameSettings->ApplySettings(false);
 		/*MyGameSettings->ApplyNonResolutionSettings();
 		MyGameSettings->SaveSettings();*/
 	}
 }
 
-FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value)
+FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value) const
 {
 	switch(Value)
 	{
@@ -652,11 +648,11 @@ FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value)
 			return LOCTEXT("TextureQualityHigh", "High");
 		case 0:
 		default:
-			return LOCTEXT("TextureQualityVeryLow", "Very low");
+			return LOCTEXT("TextureQualityVeryLow", "Very Low");
 	}
 }
 
-FText SFlareSettingsMenu::GetEffectsQualityLabel(int32 Value)
+FText SFlareSettingsMenu::GetEffectsQualityLabel(int32 Value) const
 {
 	switch(Value)
 	{
@@ -668,11 +664,11 @@ FText SFlareSettingsMenu::GetEffectsQualityLabel(int32 Value)
 			return LOCTEXT("EffectsQualityHigh", "High");
 		case 0:
 		default:
-			return LOCTEXT("EffectsQualityVeryLow", "Very low");
+			return LOCTEXT("EffectsQualityVeryLow", "Very Low");
 	}
 }
 
-FText SFlareSettingsMenu::GetAntiAliasingQualityLabel(int32 Value)
+FText SFlareSettingsMenu::GetAntiAliasingQualityLabel(int32 Value) const
 {
 	switch(Value)
 	{
@@ -688,7 +684,7 @@ FText SFlareSettingsMenu::GetAntiAliasingQualityLabel(int32 Value)
 	}
 }
 
-FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value)
+FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
 {
 	switch(Value)
 	{
@@ -700,7 +696,7 @@ FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value)
 			return LOCTEXT("PostProcessQualityHigh", "High");
 		case 0:
 		default:
-			return LOCTEXT("PostProcessQualityVeryLow", "Very low");
+			return LOCTEXT("PostProcessQualityVeryLow", "Very Low");
 	}
 }
 

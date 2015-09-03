@@ -77,13 +77,16 @@ protected:
 		Helpers
 	----------------------------------------------------*/
 
+	/** Get all resolutions */
+	void FillResolutionList();
 
+	/** Update the current game state after a resolution change */
 	void UpdateResolution();
 
-	FText GetTextureQualityLabel(int32 Value);
-	FText GetEffectsQualityLabel(int32 Value);
-	FText GetAntiAliasingQualityLabel(int32 Value);
-	FText GetPostProcessQualityLabel(int32 Value);
+	FText GetTextureQualityLabel(int32 Value) const;
+	FText GetEffectsQualityLabel(int32 Value) const;
+	FText GetAntiAliasingQualityLabel(int32 Value) const;
+	FText GetPostProcessQualityLabel(int32 Value) const;
 
 
 protected:
@@ -111,7 +114,7 @@ protected:
 
 	// Resolution data
 	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;
-	TArray<TSharedPtr<FScreenResolutionRHI>>                 ResolutionList;
+	TArray<TSharedPtr<FScreenResolutionRHI>>                ResolutionList;
 
 
 };
