@@ -65,11 +65,14 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	}
 
 	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
-	float CurrentSupersamplingRatio = (MyGameSettings->ScalabilityQuality.ResolutionQuality - 100.f)  / 100.f;
-
+	float CurrentEffectsQualityRatio = MyGameSettings->ScalabilityQuality.EffectsQuality / 3.f;
+	float CurrentAntiAliasingQualityRatio = MyGameSettings->ScalabilityQuality.AntiAliasingQuality / 3.f;
+	float CurrentPostProcessQualityRatio = MyGameSettings->ScalabilityQuality.PostProcessQuality / 3.f;
 
 	FLOGV("MyGameSettings->ScalabilityQuality.TextureQuality=%d CurrentTextureQualityRatio=%f", MyGameSettings->ScalabilityQuality.TextureQuality, CurrentTextureQualityRatio);
-	FLOGV("MyGameSettings->ScalabilityQuality.ResolutionQuality=%d CurrentSupersamplingRatio=%f", MyGameSettings->ScalabilityQuality.ResolutionQuality, CurrentTextureQualityRatio);
+	FLOGV("MyGameSettings->ScalabilityQuality.EffectsQuality=%d CurrentEffectsQualityRatio=%f", MyGameSettings->ScalabilityQuality.EffectsQuality, CurrentEffectsQualityRatio);
+	FLOGV("MyGameSettings->ScalabilityQuality.AntiAliasingQuality=%d CurrentAntiAliasingQualityRatio=%f", MyGameSettings->ScalabilityQuality.AntiAliasingQuality, CurrentAntiAliasingQualityRatio);
+	FLOGV("MyGameSettings->ScalabilityQuality.PostProcessQuality=%d CurrentPostProcessQualityRatio=%f", MyGameSettings->ScalabilityQuality.PostProcessQuality, CurrentPostProcessQualityRatio);
 
 
 	// Color
@@ -131,106 +134,291 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
 
-		// Info
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		.HAlign(HAlign_Center)
-		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
-			.TextStyle(&Theme.SubTitleFont)
-		]
-
 		// Main form
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		[
-			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth / 2)
-			.HAlign(HAlign_Fill)
+
+			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+			+ SScrollBox::Slot()
 			[
 				SNew(SVerticalBox)
 
-				// Resolution
+				// Info
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Center)
 				[
-					SAssignNew(ResolutionSelector, SComboBox<TSharedPtr<FScreenResolutionRHI>>)
-					.OptionsSource(&ResolutionList)
-					.InitiallySelectedItem(ResolutionList[CurrentResolutionIndex])
-					.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateResolutionComboLine)
-					.OnSelectionChanged(this, &SFlareSettingsMenu::OnResolutionComboLineSelectionChanged)
-					.ComboBoxStyle(&Theme.ComboBoxStyle)
-					.ForegroundColor(FLinearColor::White)
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareSettingsMenu::OnGetCurrentResolutionComboLine)
-						.TextStyle(&Theme.TextFont)
-					]
+					SNew(STextBlock)
+					.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
+					.TextStyle(&Theme.SubTitleFont)
 				]
 
-				// Fullscreen
+				// Graphic form
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Right)
+				.HAlign(HAlign_Center)
 				[
-					SAssignNew(FullscreenButton, SFlareButton)
-					.Text(LOCTEXT("Fullscreen", "Fullscreen"))
-					.HelpText(LOCTEXT("FullscreenInfo", "Enable fullscreen"))
-					.Toggle(true)
-					.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
-				]
-
-				// VSync
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Right)
-				[
-					SAssignNew(VSyncButton, SFlareButton)
-					.Text(LOCTEXT("V-sync", "V-sync"))
-					.HelpText(LOCTEXT("VSyncInfo", "Enable v-sync"))
-					.Toggle(true)
-					.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
-				]
-
-				// Texture quality box
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SHorizontalBox)
-
-					// Texture quality slider
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.Padding(Theme.ContentPadding)
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth / 1.5)
+					.HAlign(HAlign_Fill)
 					[
-						SAssignNew(TextureQualitySlider, SSlider)
-							.Value(CurrentTextureQualityRatio)
-							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnTextureQualitySliderChanged)
-					]
+						SNew(SVerticalBox)
 
-					// Texture quality label
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(48)
+						// Resolution
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(TextureQualityLabel, STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(GetTextureQualityLabel(MyGameSettings->ScalabilityQuality.TextureQuality))
+							SAssignNew(ResolutionSelector, SComboBox<TSharedPtr<FScreenResolutionRHI>>)
+							.OptionsSource(&ResolutionList)
+							.InitiallySelectedItem(ResolutionList[CurrentResolutionIndex])
+							.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateResolutionComboLine)
+							.OnSelectionChanged(this, &SFlareSettingsMenu::OnResolutionComboLineSelectionChanged)
+							.ComboBoxStyle(&Theme.ComboBoxStyle)
+							.ForegroundColor(FLinearColor::White)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareSettingsMenu::OnGetCurrentResolutionComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+
+						// Fullscreen
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Right)
+						[
+							SAssignNew(FullscreenButton, SFlareButton)
+							.Text(LOCTEXT("Fullscreen", "Fullscreen"))
+							.HelpText(LOCTEXT("FullscreenInfo", "Enable fullscreen"))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
+						]
+
+						// VSync
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Right)
+						[
+							SAssignNew(VSyncButton, SFlareButton)
+							.Text(LOCTEXT("V-sync", "V-sync"))
+							.HelpText(LOCTEXT("VSyncInfo", "Enable v-sync"))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
+						]
+
+						// Texture quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+
+							// Texture quality text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(150)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("TextureLabel", "Textures"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// Texture quality slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(TextureQualitySlider, SSlider)
+									.Value(CurrentTextureQualityRatio)
+									.Style(&Theme.SliderStyle)
+									.OnValueChanged(this, &SFlareSettingsMenu::OnTextureQualitySliderChanged)
+							]
+
+							// Texture quality label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(80)
+								[
+									SAssignNew(TextureQualityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetTextureQualityLabel(MyGameSettings->ScalabilityQuality.TextureQuality))
+								]
+							]
+						]
+
+						// Effets quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+
+							// Effects quality text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(150)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("EffectsLabel", "Effects"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// Effects quality slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(EffectsQualitySlider, SSlider)
+									.Value(CurrentEffectsQualityRatio)
+									.Style(&Theme.SliderStyle)
+									.OnValueChanged(this, &SFlareSettingsMenu::OnEffectsQualitySliderChanged)
+							]
+
+							// Effects quality label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(80)
+								[
+									SAssignNew(EffectsQualityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetEffectsQualityLabel(MyGameSettings->ScalabilityQuality.EffectsQuality))
+								]
+							]
+						]
+
+						// AntiAliasing quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+
+							// Anti aliasing quality text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(150)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("AntiAliasingLabel", "Anti Aliasing"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// AntiAliasing quality slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(AntiAliasingQualitySlider, SSlider)
+									.Value(CurrentAntiAliasingQualityRatio)
+									.Style(&Theme.SliderStyle)
+									.OnValueChanged(this, &SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged)
+							]
+
+							// AntiAliasing quality label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(80)
+								[
+									SAssignNew(AntiAliasingQualityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetAntiAliasingQualityLabel(MyGameSettings->ScalabilityQuality.AntiAliasingQuality))
+								]
+							]
+						]
+
+						// PostProcess quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+
+							// PostProcess quality text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(150)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("PostProcessLabel", "Post Process"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+
+							// PostProcess quality slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(PostProcessQualitySlider, SSlider)
+									.Value(CurrentPostProcessQualityRatio)
+									.Style(&Theme.SliderStyle)
+									.OnValueChanged(this, &SFlareSettingsMenu::OnPostProcessQualitySliderChanged)
+							]
+
+							// PostProcess quality label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(80)
+								[
+									SAssignNew(PostProcessQualityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetPostProcessQualityLabel(MyGameSettings->ScalabilityQuality.PostProcessQuality))
+								]
+							]
+						]
+
+						// Supersampling
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Right)
+						[
+							SAssignNew(SupersamplingButton, SFlareButton)
+							.Text(LOCTEXT("Supersampling", "Supersampling"))
+							.HelpText(LOCTEXT("SupersamplingInfo", "Enable Supersampling"))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
 						]
 					]
-
 				]
 			]
 		]
@@ -238,6 +426,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
+	SupersamplingButton->SetActive(MyGameSettings->ScalabilityQuality.ResolutionQuality > 100);
 }
 
 
@@ -325,6 +514,58 @@ void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
 	}
 }
 
+void SFlareSettingsMenu::OnEffectsQualitySliderChanged(float Value)
+{
+	int32 Step = 3;
+	int32 StepValue = FMath::RoundToInt(Step * Value);
+	EffectsQualitySlider->SetValue((float)StepValue / (float)Step);
+
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	FLOGV("Set Effects quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.EffectsQuality);
+
+	if(MyGameSettings->ScalabilityQuality.EffectsQuality != StepValue)
+	{
+		MyGameSettings->ScalabilityQuality.EffectsQuality = StepValue;
+		MyGameSettings->ApplySettings();
+		EffectsQualityLabel->SetText(GetEffectsQualityLabel(StepValue));
+	}
+}
+
+void SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged(float Value)
+{
+	int32 Step = 3;
+	int32 StepValue = FMath::RoundToInt(Step * Value);
+	AntiAliasingQualitySlider->SetValue((float)StepValue / (float)Step);
+
+	int32 AAValue = StepValue;
+
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	FLOGV("Set AntiAliasing quality to %d (current is %d)", AAValue, MyGameSettings->ScalabilityQuality.AntiAliasingQuality);
+
+	if(MyGameSettings->ScalabilityQuality.AntiAliasingQuality != AAValue)
+	{
+		MyGameSettings->ScalabilityQuality.AntiAliasingQuality = AAValue;
+		MyGameSettings->ApplySettings();
+		AntiAliasingQualityLabel->SetText(GetAntiAliasingQualityLabel(AAValue));
+	}
+}
+
+void SFlareSettingsMenu::OnPostProcessQualitySliderChanged(float Value)
+{
+	int32 Step = 3;
+	int32 StepValue = FMath::RoundToInt(Step * Value);
+	PostProcessQualitySlider->SetValue((float)StepValue / (float)Step);
+
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	FLOGV("Set PostProcess quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.PostProcessQuality);
+
+	if(MyGameSettings->ScalabilityQuality.PostProcessQuality != StepValue)
+	{
+		MyGameSettings->ScalabilityQuality.PostProcessQuality = StepValue;
+		MyGameSettings->ApplySettings();
+		PostProcessQualityLabel->SetText(GetPostProcessQualityLabel(StepValue));
+	}
+}
 
 void SFlareSettingsMenu::OnVSyncToggle()
 {
@@ -341,6 +582,30 @@ void SFlareSettingsMenu::OnVSyncToggle()
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
 	MyGameSettings->SetVSyncEnabled(VSyncButton->IsActive());
 	MyGameSettings->ApplySettings();
+}
+
+void SFlareSettingsMenu::OnSupersamplingToggle()
+{
+	if(SupersamplingButton->IsActive())
+	{
+		FLOG("Enable supersampling")
+
+	}
+	else
+	{
+		FLOG("Disable supersampling")
+	}
+
+	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+
+
+	IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ScreenPercentage"));
+	CVar->Set((SupersamplingButton->IsActive() ? 200 : 100), ECVF_SetByScalability);
+
+	MyGameSettings->ApplySettings();
+
+	//FLOGV("MyGameSettings->ScalabilityQuality.ResolutionQuality %d", MyGameSettings->ScalabilityQuality.ResolutionQuality);
+
 }
 
 void SFlareSettingsMenu::OnExit()
@@ -391,6 +656,53 @@ FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value)
 	}
 }
 
+FText SFlareSettingsMenu::GetEffectsQualityLabel(int32 Value)
+{
+	switch(Value)
+	{
+		case 1:
+			return LOCTEXT("EffectsQualityLow", "Low");
+		case 2:
+			return LOCTEXT("EffectsQualityMedium", "Medium");
+		case 3:
+			return LOCTEXT("EffectsQualityHigh", "High");
+		case 0:
+		default:
+			return LOCTEXT("EffectsQualityVeryLow", "Very low");
+	}
+}
+
+FText SFlareSettingsMenu::GetAntiAliasingQualityLabel(int32 Value)
+{
+	switch(Value)
+	{
+		case 1:
+			return LOCTEXT("AntiAliasingQualityLow", "Low");
+		case 2:
+			return LOCTEXT("AntiAliasingQualityMedium", "Medium");
+		case 3:
+			return LOCTEXT("AntiAliasingQualityHigh", "High");
+		case 0:
+		default:
+			return LOCTEXT("AntiAliasingQualityDisabled", "Disabled");		
+	}
+}
+
+FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value)
+{
+	switch(Value)
+	{
+		case 1:
+			return LOCTEXT("PostProcessQualityLow", "Low");
+		case 2:
+			return LOCTEXT("PostProcessQualityMedium", "Medium");
+		case 3:
+			return LOCTEXT("PostProcessQualityHigh", "High");
+		case 0:
+		default:
+			return LOCTEXT("PostProcessQualityVeryLow", "Very low");
+	}
+}
 
 #undef LOCTEXT_NAMESPACE
 

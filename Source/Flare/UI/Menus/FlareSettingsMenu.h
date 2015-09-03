@@ -58,9 +58,17 @@ protected:
 
 	void OnTextureQualitySliderChanged(float Value);
 
+	void OnEffectsQualitySliderChanged(float Value);
+
+	void OnAntiAliasingQualitySliderChanged(float Value);
+
+	void OnPostProcessQualitySliderChanged(float Value);
+
 	void OnFullscreenToggle();
 
 	void OnVSyncToggle();
+
+	void OnSupersamplingToggle();
 
 	/** Exit this menu */
 	void OnExit();
@@ -73,6 +81,9 @@ protected:
 	void UpdateResolution();
 
 	FText GetTextureQualityLabel(int32 Value);
+	FText GetEffectsQualityLabel(int32 Value);
+	FText GetAntiAliasingQualityLabel(int32 Value);
+	FText GetPostProcessQualityLabel(int32 Value);
 
 
 protected:
@@ -88,8 +99,15 @@ protected:
 	// Slate widgets
 	TSharedPtr<SFlareButton>                    FullscreenButton;
 	TSharedPtr<SFlareButton>                    VSyncButton;
+	TSharedPtr<SFlareButton>                    SupersamplingButton;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
+	TSharedPtr<SSlider>                         EffectsQualitySlider;
+	TSharedPtr<SSlider>                         AntiAliasingQualitySlider;
+	TSharedPtr<SSlider>                         PostProcessQualitySlider;
 	TSharedPtr<STextBlock>	        			TextureQualityLabel;
+	TSharedPtr<STextBlock>	        			EffectsQualityLabel;
+	TSharedPtr<STextBlock>	        			AntiAliasingQualityLabel;
+	TSharedPtr<STextBlock>	        			PostProcessQualityLabel;
 
 	// Resolution data
 	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;
