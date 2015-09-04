@@ -574,7 +574,7 @@ void SFlareSettingsMenu::FillResolutionList()
 {
 	// Get the current res
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FIntPoint Resolution = MyGameSettings->GetScreenResolution();
+	FIntPoint Resolution = GEngine->GameViewport->Viewport->GetSizeXY();
 	FLOGV("SFlareSettingsMenu::FillResolutionList : current resolution is %s", *Resolution.ToString());
 
 	// Setup the list data
@@ -587,11 +587,13 @@ void SFlareSettingsMenu::FillResolutionList()
 	{
 		for (const FScreenResolutionRHI& EachResolution : Resolutions)
 		{
-			ResolutionList.Insert(MakeShareable(new FScreenResolutionRHI(EachResolution)), 0);
-
-			if (Resolution.X == EachResolution.Width && Resolution.Y == EachResolution.Height)
+			if (EachResolution.Width >= 1280 && EachResolution.Height>= 720)
 			{
-				CurrentResolutionIndex = ResolutionList.Num() - 1;
+				ResolutionList.Insert(MakeShareable(new FScreenResolutionRHI(EachResolution)), 0);
+				if (Resolution.X == EachResolution.Width && Resolution.Y == EachResolution.Height)
+				{
+					CurrentResolutionIndex = ResolutionList.Num() - 1;
+				}
 			}
 		}
 	}
@@ -621,7 +623,7 @@ void SFlareSettingsMenu::UpdateResolution()
 	if (GEngine)
 	{
 		UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-		FIntPoint Resolution = MyGameSettings->GetScreenResolution();
+		FIntPoint Resolution = GEngine->GameViewport->Viewport->GetSizeXY();
 		FLOGV("SFlareSettingsMenu::UpdateResolution : current resolution is %s", *Resolution.ToString());
 
 		TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
