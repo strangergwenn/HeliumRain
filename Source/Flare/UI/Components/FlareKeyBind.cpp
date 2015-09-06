@@ -69,7 +69,6 @@ void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset, bool bNotify)
 
 		*Key = NewKey;
 		KeyText->SetText(NewKey == FKey() ? FString() : NewKey.ToString());
-		KeyText->SetColorAndOpacity( NewKey == DefaultKey ? FLinearColor::Black : FLinearColor::White);
 		bWaitingForKey = false;
 
 		FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->Show(true);
