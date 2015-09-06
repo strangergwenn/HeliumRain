@@ -678,12 +678,9 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Disable supersampling")
 	}
 
+	GEngine->GameViewport->ConsoleCommand(*FString::Printf(TEXT("r.ScreenPercentage %dx"),(SupersamplingButton->IsActive() ? 200 : 100)));
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ScreenPercentage"));
-	CVar->Set((SupersamplingButton->IsActive() ? 200 : 100), ECVF_SetByScalability);
-	MyGameSettings->ApplySettings(false);
-
-	//FLOGV("MyGameSettings->ScalabilityQuality.ResolutionQuality %d", MyGameSettings->ScalabilityQuality.ResolutionQuality);
+	MyGameSettings->ScalabilityQuality.ResolutionQuality = (SupersamplingButton->IsActive() ? 200 : 100);
 
 }
 
@@ -727,10 +724,7 @@ void SFlareSettingsMenu::FillResolutionList()
 			if (EachResolution.Width >= 1280 && EachResolution.Height>= 720)
 			{
 				ResolutionList.Insert(MakeShareable(new FScreenResolutionRHI(EachResolution)), 0);
-				if (Resolution.X == EachResolution.Width && Resolution.Y == EachResolution.Height)
-				{
-					CurrentResolutionIndex = ResolutionList.Num() - 1;
-				}
+
 			}
 		}
 	}
@@ -738,6 +732,19 @@ void SFlareSettingsMenu::FillResolutionList()
 	{
 		FLOG("SFlareSettingsMenu::FillResolutionList : screen resolutions could not be obtained");
 	}
+
+	for(int i = 0; i < ResolutionList.Num(); i++)
+	{
+
+		// Look for current resolution
+		if (Resolution.X == ResolutionList[i]->Width && Resolution.Y == ResolutionList[i]->Height)
+		{
+			CurrentResolutionIndex = i;
+			break;
+		}
+	}
+
+
 
 	// Didn't find our current res...
 	if (CurrentResolutionIndex < 0)
@@ -759,19 +766,34 @@ void SFlareSettingsMenu::UpdateResolution()
 {
 	if (GEngine)
 	{
-		UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
 		FIntPoint Resolution = GEngine->GameViewport->Viewport->GetSizeXY();
 		FLOGV("SFlareSettingsMenu::UpdateResolution : current resolution is %s", *Resolution.ToString());
 
 		TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
 		FLOGV("SFlareSettingsMenu::UpdateResolution : new resolution is %dx%d", Item->Width, Item->Height);
 
+		FLOGV("SFlareSettingsMenu::UpdateResolution : Need fullscreen ? %d", FullscreenButton->IsActive());
+
+		FString Command = FString::Printf(TEXT("setres %dx%d%s"), Item->Width, Item->Height, FullscreenButton->IsActive() ? TEXT("f") : TEXT("w"));
+		FLOGV("SFlareSettingsMenu::UpdateResolution : Command=%s", *Command);
+
+		GEngine->GameViewport->ConsoleCommand(*Command);
+
+		UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+		MyGameSettings->SetScreenResolution(FIntPoint(Item->Width, Item->Height));
+		MyGameSettings->SetFullscreenMode(FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed);
+		MyGameSettings->ConfirmVideoMode();
+		MyGameSettings->SaveConfig();
+
+		GEngine->SaveConfig();
+
+		/*
 		MyGameSettings->SetScreenResolution(FIntPoint(Item->Width, Item->Height));
 		MyGameSettings->SetFullscreenMode(FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed);
 		MyGameSettings->RequestResolutionChange(Item->Width, Item->Height, FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed, false);
 
 		MyGameSettings->ConfirmVideoMode();
-		MyGameSettings->ApplySettings(false);
+		MyGameSettings->ApplySettings(false);*/
 		/*MyGameSettings->ApplyNonResolutionSettings();
 		MyGameSettings->SaveSettings();*/
 	}
