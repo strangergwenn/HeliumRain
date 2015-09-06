@@ -12,25 +12,9 @@ class FLARE_API SFlareKeyBind : public SButton
 public:
 
 	SLATE_BEGIN_ARGS(SFlareKeyBind)
-		: _TextStyle(&FCoreStyle::Get().GetWidgetStyle< FTextBlockStyle >("NormalText"))
-		, _HAlign(HAlign_Center)
-		, _VAlign(VAlign_Center)
-		, _ContentPadding(FMargin(4.0, 2.0))
-		, _DesiredSizeScale(FVector2D(1, 1))
-		, _ContentScale(FVector2D(1, 1))
-		, _ButtonColorAndOpacity(FLinearColor::White)
-		, _ForegroundColor(FCoreStyle::Get().GetSlateColor("InvertedForeground"))
-		, _Key(nullptr)
+		: _Key(nullptr)
 	{}
 
-	SLATE_STYLE_ARGUMENT(FTextBlockStyle, TextStyle)
-	SLATE_ARGUMENT(EHorizontalAlignment, HAlign)
-	SLATE_ARGUMENT(EVerticalAlignment, VAlign)
-	SLATE_ATTRIBUTE(FMargin, ContentPadding)
-	SLATE_ATTRIBUTE(FVector2D, DesiredSizeScale)
-	SLATE_ATTRIBUTE(FVector2D, ContentScale)
-	SLATE_ATTRIBUTE(FSlateColor, ButtonColorAndOpacity)
-	SLATE_ATTRIBUTE(FSlateColor, ForegroundColor)
 	SLATE_ARGUMENT(TSharedPtr<FKey>, Key)
 	SLATE_ARGUMENT(FKey, DefaultKey)
 	SLATE_EVENT(FOnKeyBindingChanged, OnKeyBindingChanged)

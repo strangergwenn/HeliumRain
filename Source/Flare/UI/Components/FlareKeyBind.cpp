@@ -15,14 +15,13 @@ void SFlareKeyBind::Construct(const FArguments& InArgs)
 {
 	SButton::Construct(SButton::FArguments()
 		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-		.TextStyle(InArgs._TextStyle)
-		.HAlign(InArgs._HAlign)
-		.VAlign(InArgs._VAlign)
-		.ContentPadding(InArgs._ContentPadding)
-		.DesiredSizeScale(InArgs._DesiredSizeScale)
-		.ContentScale(InArgs._ContentScale)
-		.ButtonColorAndOpacity(InArgs._ButtonColorAndOpacity)
-		.ForegroundColor(InArgs._ForegroundColor)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		.ContentPadding(FMargin(0))
+		.DesiredSizeScale(FVector2D(1, 1))
+		.ContentScale(FVector2D(1, 1))
+		.ButtonColorAndOpacity(FLinearColor::White)
+		.ForegroundColor(FCoreStyle::Get().GetSlateColor("InvertedForeground"))
 	);
 
 	DefaultKey = InArgs._DefaultKey;
@@ -47,7 +46,7 @@ void SFlareKeyBind::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset = true, bool bNotify = true)
+void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset, bool bNotify)
 {
 	if (Key.IsValid() )
 	{
@@ -75,7 +74,7 @@ void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset = true, bool bNotify = tr
 	Callbacks
 ----------------------------------------------------*/
 
-FReply SFlareKeyBind::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override
+FReply SFlareKeyBind::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
 	if (bWaitingForKey)
 	{
@@ -85,7 +84,7 @@ FReply SFlareKeyBind::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& In
 	return FReply::Unhandled();
 }
 
-FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override
+FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	if (bWaitingForKey)
 	{
@@ -109,7 +108,7 @@ FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoin
 	return FReply::Unhandled();
 }
 
-FReply SFlareKeyBind::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override
+FReply SFlareKeyBind::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	if (bWaitingForKey)
 	{
@@ -120,7 +119,7 @@ FReply SFlareKeyBind::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEv
 	return FReply::Unhandled();
 }
 
-int32 SFlareKeyBind::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override
+int32 SFlareKeyBind::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 	// Make sure the mouse pointer doesn't leave the button
 	if (bWaitingForKey)
@@ -131,7 +130,7 @@ int32 SFlareKeyBind::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 	return SButton::OnPaint(Args, AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 }
 
-FVector2D SFlareKeyBind::ComputeDesiredSize(float) const override
+FVector2D SFlareKeyBind::ComputeDesiredSize(float) const
 {
 	return FVector2D(200.0f, 46.0f);
 }
