@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareSettingsMenu.h"
+#include "../../Game/FlareGameUserSettings.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
 #include "../../Player/FlareMenuManager.h"
@@ -21,7 +22,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
-	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 
 	// Current settings
 	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
@@ -413,7 +414,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	// Default settings
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
-	SupersamplingButton->SetActive(MyGameSettings->ScalabilityQuality.ResolutionQuality > 100);
+	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
 }
 
 
@@ -678,9 +679,11 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Disable supersampling")
 	}
 
-	GEngine->GameViewport->ConsoleCommand(*FString::Printf(TEXT("r.ScreenPercentage %dx"),(SupersamplingButton->IsActive() ? 200 : 100)));
-	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	MyGameSettings->ScalabilityQuality.ResolutionQuality = (SupersamplingButton->IsActive() ? 200 : 100);
+	//GEngine->GameViewport->ConsoleCommand(*FString::Printf(TEXT("r.ScreenPercentage %dx"),(SupersamplingButton->IsActive() ? 200 : 100)));
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 200 : 100);
+	MyGameSettings->ApplySettings(false);
+	//MyGameSettings->ScalabilityQuality.ResolutionQuality = (SupersamplingButton->IsActive() ? 200 : 100);
 
 }
 
