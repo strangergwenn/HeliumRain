@@ -61,6 +61,7 @@ public:
 		{
 			Key = InArgs._Key;
 			KeyText->SetText(*Key == FKey() ? FString() : Key->ToString());
+			KeyText->SetColorAndOpacity( *Key == DefaultKey ? FLinearColor::Black : FLinearColor::White);
 		}
 		bWaitingForKey = false;
 	}
