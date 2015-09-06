@@ -114,7 +114,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				// Info
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(Theme.ContentPadding)
+				.Padding(Theme.TitlePadding)
 				.HAlign(HAlign_Left)
 				[
 					SNew(STextBlock)
@@ -136,7 +136,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				// Graphic form
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(Theme.ContentPadding)
 				.HAlign(HAlign_Center)
 				[
 					SNew(SBox)
@@ -189,10 +188,22 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
 						]
 
-						// Texture quality box
+						// Supersampling
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Right)
+						[
+							SAssignNew(SupersamplingButton, SFlareButton)
+							.Text(LOCTEXT("Supersampling", "Supersampling"))
+							.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the game at double the resolution. This is a very demanding feature."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
+						]
+
+						// Texture quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						[
 							SNew(SHorizontalBox)
 
@@ -239,7 +250,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						// Effets quality box
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
 						[
 							SNew(SHorizontalBox)
 
@@ -286,7 +296,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						// AntiAliasing quality box
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
 						[
 							SNew(SHorizontalBox)
 
@@ -333,7 +342,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						// PostProcess quality box
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
 						[
 							SNew(SHorizontalBox)
 
@@ -376,27 +384,13 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 								]
 							]
 						]
-
-						// Supersampling
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Right)
-						[
-							SAssignNew(SupersamplingButton, SFlareButton)
-							.Text(LOCTEXT("Supersampling", "Supersampling"))
-							.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the game at double the resolution. This is a very demanding feature."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
-						]
 					]
 				]
-
 
 				// Controls Info
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(Theme.ContentPadding)
+				.Padding(Theme.TitlePadding)
 				.HAlign(HAlign_Left)
 				[
 					SNew(STextBlock)
@@ -429,48 +423,7 @@ TSharedRef<SWidget> SFlareSettingsMenu::BuildKeyBindingBox()
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TSharedPtr<SVerticalBox> KeyboardBox;
 	SAssignNew(KeyboardBox, SVerticalBox)
-
-	// Title section
-	+ SVerticalBox::Slot()
-	.AutoHeight()
-	.Padding(Theme.ContentPadding)
-	[
-		SNew(SHorizontalBox)
-
-		// Action label
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.SmallContentPadding)
-		[
-			SNew(STextBlock)
-			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("ControlSettingsAction", "Action"))
-		]
-
-		// Key 1
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
-			.Padding(Theme.SmallContentPadding)
-		[
-			SNew(STextBlock)
-			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("ControlSettingsKeyBinds", "Key"))
-		]
-
-		// Key 2
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.SmallContentPadding)
-		[
-			SNew(STextBlock)
-			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("ControlSettingsAlternateKeyBinds", "Alternate Key"))
-		]
-	]
-
+	
 	// Key bind list
 	+ SVerticalBox::Slot()
 	.AutoHeight()
@@ -491,6 +444,8 @@ TSharedRef<SWidget> SFlareSettingsMenu::BuildKeyBindingBox()
 				.Padding(FMargin(0, 20, 0, 10))
 				[
 					SNew(SHorizontalBox)
+
+					// Title
 					+ SHorizontalBox::Slot()
 					.HAlign(HAlign_Left)
 					.VAlign(VAlign_Center)
@@ -499,6 +454,28 @@ TSharedRef<SWidget> SFlareSettingsMenu::BuildKeyBindingBox()
 						SNew(STextBlock)
 						.TextStyle(&Theme.NameFont)
 						.Text(FText::FromString(Bind->DisplayName))
+					]
+
+					// Key 1
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Center)
+					.VAlign(VAlign_Center)
+						.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SmallFont)
+						.Text(LOCTEXT("ControlSettingsKeyBinds", "Key"))
+					]
+
+					// Key 2
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Center)
+					.VAlign(VAlign_Center)
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SmallFont)
+						.Text(LOCTEXT("ControlSettingsAlternateKeyBinds", "Alternate Key"))
 					]
 				];
 			}
