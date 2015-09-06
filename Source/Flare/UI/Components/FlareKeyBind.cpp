@@ -13,10 +13,17 @@
 
 void SFlareKeyBind::Construct(const FArguments& InArgs)
 {
+	// Setup
+	bWaitingForKey = false;
+	DefaultKey = InArgs._DefaultKey;
+	OnKeyBindingChanged = InArgs._OnKeyBindingChanged;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Parent constructor
 	SButton::Construct(SButton::FArguments()
 		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
 		.ContentPadding(FMargin(0))
 		.DesiredSizeScale(FVector2D(1, 1))
 		.ContentScale(FVector2D(1, 1))
@@ -24,21 +31,25 @@ void SFlareKeyBind::Construct(const FArguments& InArgs)
 		.ForegroundColor(FCoreStyle::Get().GetSlateColor("InvertedForeground"))
 	);
 
-	DefaultKey = InArgs._DefaultKey;
-	OnKeyBindingChanged = InArgs._OnKeyBindingChanged;
-
+	// Layout
 	ChildSlot
+	[
+		SNew(SBorder)
+		.BorderImage(&Theme.ButtonBackground)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
 		[
 			SAssignNew(KeyText, STextBlock)
-			.TextStyle(InArgs._TextStyle)
-		];
+			.TextStyle(&Theme.TextFont)
+		]
+	];
+
+	// Key data
 	if (InArgs._Key.IsValid())
 	{
 		Key = InArgs._Key;
 		KeyText->SetText(*Key == FKey() ? FString() : Key->ToString());
-		KeyText->SetColorAndOpacity( *Key == DefaultKey ? FLinearColor::Black : FLinearColor::White);
 	}
-	bWaitingForKey = false;
 }
 
 
@@ -48,21 +59,23 @@ void SFlareKeyBind::Construct(const FArguments& InArgs)
 
 void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset, bool bNotify)
 {
-	if (Key.IsValid() )
+	if (Key.IsValid())
 	{
 		FKey CurrentKey = *Key;
 		if (NewKey == *Key && bCanReset)
 		{
 			NewKey = FKey();
 		}
+
 		*Key = NewKey;
 		KeyText->SetText(NewKey == FKey() ? FString() : NewKey.ToString());
 		KeyText->SetColorAndOpacity( NewKey == DefaultKey ? FLinearColor::Black : FLinearColor::White);
 		bWaitingForKey = false;
+
 		FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->Show(true);
 		FSlateApplication::Get().ClearKeyboardFocus(EKeyboardFocusCause::SetDirectly);
 
-		if( bNotify )
+		if (bNotify)
 		{
 			OnKeyBindingChanged.ExecuteIfBound( CurrentKey , NewKey );
 		}
@@ -91,6 +104,7 @@ FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoin
 		SetKey(MouseEvent.GetEffectingButton());
 		return FReply::Handled();
 	}
+
 	else if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
 		// Get the center of the widget so we can lock our mouse there
@@ -100,7 +114,6 @@ FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoin
 		FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->SetPosition(WaitingMousePos.X, WaitingMousePos.Y);
 
 		KeyText->SetText(LOCTEXT("SFlareKeyBindPressAnyKey", "Press a key..."));
-		KeyText->SetColorAndOpacity(FLinearColor(FColor(0,0,255,255)));
 		bWaitingForKey = true;
 		FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->Show(false);
 		return FReply::Handled();

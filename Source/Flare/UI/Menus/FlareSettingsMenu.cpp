@@ -519,17 +519,14 @@ TSharedRef<SWidget> SFlareSettingsMenu::BuildKeyBindingBox()
 						SAssignNew(Bind->KeyWidget, SFlareKeyBind)
 						.Key(Bind->Key)
 						.DefaultKey(Bind->DefaultKey)
-						.TextStyle(&Theme.TextFont)
 						.OnKeyBindingChanged( this, &SFlareSettingsMenu::OnKeyBindingChanged, Bind, true)
 					]
 					+ SHorizontalBox::Slot()
 					.Padding(10.0f, 4.0f, 10.0f, 4.0f)
 					[
 						SAssignNew(Bind->AltKeyWidget, SFlareKeyBind)
-						.ContentPadding(FMargin(4.0f, 4.0f))
 						.Key(Bind->AltKey)
 						.DefaultKey(Bind->DefaultAltKey)
-						.TextStyle(&Theme.TextFont)
 						.OnKeyBindingChanged( this, &SFlareSettingsMenu::OnKeyBindingChanged, Bind, false)
 					]
 				];
