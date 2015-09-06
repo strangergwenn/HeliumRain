@@ -845,7 +845,7 @@ FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
 void SFlareSettingsMenu::CreateBinds()
 {
 	//Piloting
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Piloting", "PILOTING")))->MakeHeader()));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Flying", "FLYING")))->MakeHeader()));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveForward", "Move Forward")))
 		->AddAxisMapping("Thrust", 1.0f)
 		->AddDefaults(EKeys::LeftShift)));
