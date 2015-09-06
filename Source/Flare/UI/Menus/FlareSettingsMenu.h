@@ -118,7 +118,6 @@ protected:
 
 	/** Update the current game state after a resolution change */
 	void UpdateResolution();
-	void GetAllActionKeyBindings();
 
 	FText GetTextureQualityLabel(int32 Value) const;
 	FText GetEffectsQualityLabel(int32 Value) const;

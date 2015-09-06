@@ -688,7 +688,6 @@ void SFlareSettingsMenu::OnVSyncToggle()
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
 	MyGameSettings->SetVSyncEnabled(VSyncButton->IsActive());
 	MyGameSettings->ApplySettings(false);
-	GetAllActionKeyBindings();
 }
 
 void SFlareSettingsMenu::OnSupersamplingToggle()
@@ -718,7 +717,7 @@ void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSh
 
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 	BindingThatChanged->WriteBind();
-	InputSettings->SaveConfig();
+	InputSettings->SaveKeyMappings();
 }
 
 void SFlareSettingsMenu::OnExit()
@@ -941,18 +940,6 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddDefaults(EKeys::H)));
 }
 
-void SFlareSettingsMenu::GetAllActionKeyBindings()
-{
-	const UInputSettings* Settings = GetDefault<UInputSettings>();
-	if(!Settings) return;
-
-	const TArray<FInputActionKeyMapping>& Actions = Settings->ActionMappings;
-	for (const FInputActionKeyMapping& Each : Actions)
-	{
-		FLOGV("ActionName=%s Key=%s Alt=%d Cmd=%d Ctrl=%d Shift=%d", *Each.ActionName.ToString(), *Each.Key.ToString(), Each.bAlt, Each.bCmd, Each.bCtrl, Each.bShift)
-	}
-}
-
 /*----------------------------------------------------
 	FSimpleBind
 ----------------------------------------------------*/
@@ -1081,6 +1068,11 @@ void FSimpleBind::WriteBind()
 	}
 
 	//Set our new keys and readd them
+	TArray<FName> ActionMappingNames;
+	TArray<FName> AxisMappingNames;
+	TArray<float> AxisMappingScales;
+
+
 	for (auto Bind : ActionMappings)
 	{
 		Bind.Key = *Key;
@@ -1090,6 +1082,8 @@ void FSimpleBind::WriteBind()
 			Bind.Key = *AltKey;
 			InputSettings->AddActionMapping(Bind);
 		}
+
+		ActionMappingNames.AddUnique(Bind.ActionName);
 	}
 	for (auto Bind : AxisMappings)
 	{
@@ -1100,6 +1094,9 @@ void FSimpleBind::WriteBind()
 			Bind.Key = *AltKey;
 			InputSettings->AddAxisMapping(Bind);
 		}
+
+		AxisMappingNames.Add(Bind.AxisName);
+		AxisMappingScales.Add(Bind.Scale);
 	}
 
 	for (FName Bind : SpecialBindings)
@@ -1110,6 +1107,20 @@ void FSimpleBind::WriteBind()
 			InputSettings->ConsoleKeys.Add(*Key);
 			InputSettings->ConsoleKeys.Add(*AltKey);
 		}
+	}
+
+	// Reload Mappings
+	ActionMappings.Empty();
+	AxisMappings.Empty();
+
+	for (FName MappingName : ActionMappingNames)
+	{
+		AddActionMapping(MappingName);
+	}
+
+	for (int i = 0; i < AxisMappingNames.Num(); i++)
+	{
+		AddAxisMapping(AxisMappingNames[i], AxisMappingScales[i]);
 	}
 }
 
