@@ -165,6 +165,9 @@ public:
 	/** Send back to menu */
 	virtual void BackMenu();
 
+	/** Open settings menu */
+	virtual void SettingsMenu();
+
 	/** Toggle the combat mode */
 	virtual void ToggleCombat();
 

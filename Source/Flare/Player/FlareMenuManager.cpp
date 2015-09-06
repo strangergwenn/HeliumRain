@@ -133,6 +133,12 @@ void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 		return;
 	}
 
+	if (Target != EFlareMenu::MENU_None && Target != EFlareMenu::MENU_Settings)
+	{
+		LastNonSettingsMenu = Target;
+	}
+
+
 	MenuIsOpen = true;
 	FadeOut();
 	FadeTarget = Target;
@@ -167,7 +173,16 @@ void AFlareMenuManager::Back()
 				OpenMenu(EFlareMenu::MENU_Main);
 				break;
 			case EFlareMenu::MENU_Settings:
-				OpenMenu(EFlareMenu::MENU_Main);
+				FLOGV("AFlareMenuManager::Back MENU_Settings LastNonSettingsMenu %d", (int) LastNonSettingsMenu);
+
+				if (LastNonSettingsMenu == EFlareMenu::MENU_FlyShip || LastNonSettingsMenu == EFlareMenu::MENU_Exit)
+				{
+					CloseMenu();
+				}
+				else
+				{
+					OpenMenu(LastNonSettingsMenu);
+				}
 				break;
 			case EFlareMenu::MENU_Dashboard:
 				CloseMenu();
@@ -297,6 +312,11 @@ void AFlareMenuManager::ResetMenu()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
+	/*if (CurrentMenu != EFlareMenu::MENU_None && CurrentMenu != EFlareMenu::MENU_Settings)
+	{
+		LastNonSettingsMenu = CurrentMenu;
+	}*/
+
 	MainMenu->Exit();
 	SettingsMenu->Exit();
 	NewGameMenu->Exit();
@@ -325,6 +345,10 @@ void AFlareMenuManager::FadeOut()
 {
 	FadeFromBlack = false;
 	FadeTimer = 0;
+	/*if (CurrentMenu != EFlareMenu::MENU_None && CurrentMenu != EFlareMenu::MENU_Settings)
+	{
+		LastNonSettingsMenu = CurrentMenu;
+	}*/
 	CurrentMenu = EFlareMenu::MENU_None;
 }
 

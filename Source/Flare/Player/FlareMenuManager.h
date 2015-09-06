@@ -149,6 +149,7 @@ protected:
 	float                                   FadeTimer;
 	TSharedPtr<SBorder>                     Fader;
 	TEnumAsByte<EFlareMenu::Type>           CurrentMenu;
+	TEnumAsByte<EFlareMenu::Type>           LastNonSettingsMenu;
 
 	// Menus
 	TSharedPtr<SFlareTooltip>               Tooltip;

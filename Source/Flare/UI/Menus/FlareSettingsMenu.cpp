@@ -699,7 +699,7 @@ void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSh
 
 void SFlareSettingsMenu::OnExit()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+	MenuManager->Back();
 }
 
 
@@ -940,6 +940,9 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle HUD", "Toogle HUD")))
 		->AddActionMapping("ToggleHUD")
 		->AddDefaults(EKeys::H)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open settings menu", "Open settings menu")))
+		->AddActionMapping("SettingsMenu")
+		->AddDefaults(EKeys::F10)));
 }
 
 /*----------------------------------------------------
