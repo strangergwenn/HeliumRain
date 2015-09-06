@@ -29,12 +29,10 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	float CurrentEffectsQualityRatio = MyGameSettings->ScalabilityQuality.EffectsQuality / 3.f;
 	float CurrentAntiAliasingQualityRatio = MyGameSettings->ScalabilityQuality.AntiAliasingQuality / 3.f;
 	float CurrentPostProcessQualityRatio = MyGameSettings->ScalabilityQuality.PostProcessQuality / 3.f;
-
 	FLOGV("MyGameSettings->ScalabilityQuality.TextureQuality=%d CurrentTextureQualityRatio=%f", MyGameSettings->ScalabilityQuality.TextureQuality, CurrentTextureQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.EffectsQuality=%d CurrentEffectsQualityRatio=%f", MyGameSettings->ScalabilityQuality.EffectsQuality, CurrentEffectsQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.AntiAliasingQuality=%d CurrentAntiAliasingQualityRatio=%f", MyGameSettings->ScalabilityQuality.AntiAliasingQuality, CurrentAntiAliasingQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.PostProcessQuality=%d CurrentPostProcessQualityRatio=%f", MyGameSettings->ScalabilityQuality.PostProcessQuality, CurrentPostProcessQualityRatio);
-
 
 	CreateBinds();
 
@@ -102,7 +100,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 		// Main form
 		+ SVerticalBox::Slot()
 		.Padding(Theme.ContentPadding)
-		.HAlign(HAlign_Center)
+		.HAlign(HAlign_Left)
 		[
 			SNew(SScrollBox)
 			.Style(&Theme.ScrollBoxStyle)
@@ -538,11 +536,21 @@ void SFlareSettingsMenu::Setup()
 
 void SFlareSettingsMenu::Enter()
 {
+	// Main
 	FLOG("SFlareSettingsMenu::Enter");
-
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	
+
+	// Menu
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
+		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
+		PC->GetMenuPawn()->ShowPart(PartDesc);
+	}
+
+	// Resolutions
 	FillResolutionList();
 }
 
