@@ -4,10 +4,43 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareColorPanel.h"
 #include "SlateMaterialBrush.h"
-
+#include "../Components/FlareKeyBind.h"
 
 class AFlareMenuManager;
 
+struct FSimpleBind
+{
+	FString DisplayName;
+	TSharedPtr<FKey> Key;
+	TSharedPtr<FKey> AltKey;
+	FKey DefaultKey;
+	FKey DefaultAltKey;
+	TSharedPtr<SFlareKeyBind> KeyWidget;
+	TSharedPtr<SFlareKeyBind> AltKeyWidget;
+	bool bHeader;
+
+	explicit FSimpleBind(const FText& InDisplayName);
+
+	TArray<FInputActionKeyMapping> ActionMappings;
+	TArray<FInputAxisKeyMapping> AxisMappings;
+	TArray<FName>  SpecialBindings;
+
+	FSimpleBind* AddActionMapping(const FName& Mapping);
+	FSimpleBind* AddAxisMapping(const FName& Mapping, float Scale);
+	FSimpleBind* AddSpecialBinding(const FName& Mapping);
+	FSimpleBind* AddDefaults(FKey InDefaultKey, FKey InDefaultAltKey = FKey())
+	{
+		DefaultKey = InDefaultKey;
+		DefaultAltKey = InDefaultAltKey;
+		return this;
+	}
+	FSimpleBind* MakeHeader()
+	{
+		bHeader = true;
+		return this;
+	}
+	void WriteBind();
+};
 
 class SFlareSettingsMenu : public SCompoundWidget
 {
@@ -40,6 +73,7 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	TSharedRef<SWidget> BuildKeyBindingBox();
 
 protected:
 
@@ -70,6 +104,8 @@ protected:
 
 	void OnSupersamplingToggle();
 
+	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
+
 	/** Exit this menu */
 	void OnExit();
 
@@ -82,11 +118,14 @@ protected:
 
 	/** Update the current game state after a resolution change */
 	void UpdateResolution();
+	void GetAllActionKeyBindings();
 
 	FText GetTextureQualityLabel(int32 Value) const;
 	FText GetEffectsQualityLabel(int32 Value) const;
 	FText GetAntiAliasingQualityLabel(int32 Value) const;
 	FText GetPostProcessQualityLabel(int32 Value) const;
+
+	void CreateBinds();
 
 
 protected:
@@ -111,6 +150,10 @@ protected:
 	TSharedPtr<STextBlock>	        			EffectsQualityLabel;
 	TSharedPtr<STextBlock>	        			AntiAliasingQualityLabel;
 	TSharedPtr<STextBlock>	        			PostProcessQualityLabel;
+	TSharedPtr<SVerticalBox>                    ControlList;
+
+
+	TArray<TSharedPtr<FSimpleBind> > Binds;
 
 	// Resolution data
 	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;

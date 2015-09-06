@@ -34,6 +34,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	FLOGV("MyGameSettings->ScalabilityQuality.AntiAliasingQuality=%d CurrentAntiAliasingQualityRatio=%f", MyGameSettings->ScalabilityQuality.AntiAliasingQuality, CurrentAntiAliasingQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.PostProcessQuality=%d CurrentPostProcessQualityRatio=%f", MyGameSettings->ScalabilityQuality.PostProcessQuality, CurrentPostProcessQualityRatio);
 
+
+	CreateBinds();
+
 	// General data
 	FLinearColor Color = Theme.NeutralColor;
 	Color.A = Theme.DefaultAlpha;
@@ -388,6 +391,28 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						]
 					]
 				]
+
+
+				// Controls Info
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("ControlsSettingsHint", "Controls"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Controls form
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Center)
+				[
+					BuildKeyBindingBox()
+				]
+
 			]
 		]
 	];
@@ -396,6 +421,125 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	SupersamplingButton->SetActive(MyGameSettings->ScalabilityQuality.ResolutionQuality > 100);
 }
+
+
+TSharedRef<SWidget> SFlareSettingsMenu::BuildKeyBindingBox()
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	TSharedPtr<SVerticalBox> KeyboardBox;
+	SAssignNew(KeyboardBox, SVerticalBox)
+	+ SVerticalBox::Slot()
+	.AutoHeight()
+	.Padding(5.0f, 5.0f, 10.0f, 5.0f)
+	[
+		SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot()
+		.Padding(10.0f, 0.0f, 10.0f, 0.0f)
+		.VAlign(VAlign_Center)
+		.HAlign(HAlign_Center)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SubTitleFont)
+			.Text(LOCTEXT("ControlSettingsAction", "Action"))
+		]
+		+ SHorizontalBox::Slot()
+		.Padding(10.0f, 0.0f, 10.0f, 0.0f)
+		.VAlign(VAlign_Center)
+		.HAlign(HAlign_Center)
+		.FillWidth(1.2f)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SubTitleFont)
+			.Text(LOCTEXT("ControlSettingsKeyBinds", "Key"))
+		]
+		+ SHorizontalBox::Slot()
+		.Padding(10.0f, 0.0f, 10.0f, 0.0f)
+		.VAlign(VAlign_Center)
+		.HAlign(HAlign_Center)
+		.FillWidth(1.2f)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SubTitleFont)
+			.Text(LOCTEXT("ControlSettingsAlternateKeyBinds", "Alternate Key"))
+		]
+	]
+
+	//Key bind list
+
+	+SVerticalBox::Slot()
+	.AutoHeight()
+	.Padding(FMargin(10.0f, 10.0f, 10.0f, 5.0f))
+	[
+		SAssignNew(ControlList, SVerticalBox)
+	];
+
+	if (KeyboardBox.IsValid())
+	{
+		//Create the bind list
+		for (const auto& Bind : Binds)
+		{
+			if (Bind->bHeader)
+			{
+				ControlList->AddSlot()
+				.AutoHeight()
+				.Padding(FMargin(10.0f, 15.0f, 10.0f, 5.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.Padding(10.0f, 0.0f, 10.0f, 0.0f)
+					.VAlign(VAlign_Center)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(FText::FromString(Bind->DisplayName))
+					]
+				];
+			}
+			else
+			{
+				ControlList->AddSlot()
+				.AutoHeight()
+				.Padding(FMargin(10.0f, 4.0f, 10.0f, 4.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.Padding(10.0f, 0.0f, 10.0f, 0.0f)
+					.VAlign(VAlign_Center)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(FText::FromString(Bind->DisplayName))
+					]
+					+ SHorizontalBox::Slot()
+					.Padding(10.0f, 4.0f, 10.0f, 4.0f)
+					[
+						SAssignNew(Bind->KeyWidget, SFlareKeyBind)
+						.Key(Bind->Key)
+						.DefaultKey(Bind->DefaultKey)
+						.TextStyle(&Theme.TextFont)
+						.OnKeyBindingChanged( this, &SFlareSettingsMenu::OnKeyBindingChanged, Bind, true)
+					]
+					+ SHorizontalBox::Slot()
+					.Padding(10.0f, 4.0f, 10.0f, 4.0f)
+					[
+						SAssignNew(Bind->AltKeyWidget, SFlareKeyBind)
+						.ContentPadding(FMargin(4.0f, 4.0f))
+						.Key(Bind->AltKey)
+						.DefaultKey(Bind->DefaultAltKey)
+						.TextStyle(&Theme.TextFont)
+						.OnKeyBindingChanged( this, &SFlareSettingsMenu::OnKeyBindingChanged, Bind, false)
+					]
+				];
+			}
+		}
+	}
+
+	return KeyboardBox.ToSharedRef();
+}
+
 
 
 /*----------------------------------------------------
@@ -538,6 +682,7 @@ void SFlareSettingsMenu::OnVSyncToggle()
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
 	MyGameSettings->SetVSyncEnabled(VSyncButton->IsActive());
 	MyGameSettings->ApplySettings(false);
+	GetAllActionKeyBindings();
 }
 
 void SFlareSettingsMenu::OnSupersamplingToggle()
@@ -558,6 +703,16 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 
 	//FLOGV("MyGameSettings->ScalabilityQuality.ResolutionQuality %d", MyGameSettings->ScalabilityQuality.ResolutionQuality);
 
+}
+
+void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey )
+{
+	// Primary or Alt key changed to a valid state.
+	// TODO Duplicate
+
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	BindingThatChanged->WriteBind();
+	InputSettings->SaveConfig();
 }
 
 void SFlareSettingsMenu::OnExit()
@@ -701,6 +856,258 @@ FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
 		case 0:
 		default:
 			return LOCTEXT("PostProcessQualityVeryLow", "Very Low");
+	}
+}
+
+
+void SFlareSettingsMenu::CreateBinds()
+{
+	//Piloting
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Piloting", "Piloting")))->MakeHeader()));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Move Forward", "Move Forward")))
+		->AddAxisMapping("Thrust", 1.0f)
+		->AddDefaults(EKeys::LeftShift)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Move Backward", "Move Backward")))
+		->AddAxisMapping("Thrust", -1.0f)
+		->AddDefaults(EKeys::LeftControl)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Move Left", "Move Left")))
+		->AddAxisMapping("MoveHorizontalInput", -1.0f)
+		->AddDefaults(EKeys::A)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Move Right", "Move Right")))
+		->AddAxisMapping("MoveHorizontalInput", 1.0f)
+		->AddDefaults(EKeys::D)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Move Up", "Move Up")))
+		->AddAxisMapping("MoveVerticalInput", 1.0f)
+		->AddDefaults(EKeys::W)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Move Down", "Move Down")))
+		->AddAxisMapping("MoveVerticalInput", -1.0f)
+		->AddDefaults(EKeys::S)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Roll CW", "Roll CW")))
+		->AddAxisMapping("RollInput", 1.0f)
+		->AddDefaults(EKeys::E)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Roll CCW", "Roll CCW")))
+		->AddAxisMapping("RollInput", -1.0f)
+		->AddDefaults(EKeys::Q)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Boost", "Boost")))
+		->AddActionMapping("Boost")
+		->AddDefaults(EKeys::SpaceBar)));
+
+	// Auto pilot
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Autopilot", "Autopilot")))->MakeHeader()));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Align Prograde", "Align to Prograde")))
+		->AddActionMapping("FaceForward")
+		->AddDefaults(EKeys::X)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Face Retrograde", "Align Retrograde")))
+		->AddActionMapping("FaceBackward")
+		->AddDefaults(EKeys::Z)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Disengage Autopilot", "Disengage Autopilot")))
+		->AddActionMapping("Manual")
+		->AddDefaults(EKeys::M)));
+
+	// Weapons
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Weapons", "Weapons")))->MakeHeader()));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Deactivate Weapons", "Deactivate Weapons")))
+		->AddActionMapping("DeactivateWeapon")
+		->AddDefaults(EKeys::One)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Activate primary weapons", "Activate primary weapons")))
+		->AddActionMapping("WeaponGroup1")
+		->AddDefaults(EKeys::Two)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Activate secondary weapons", "Activate secondary weapons")))
+		->AddActionMapping("WeaponGroup2")
+		->AddDefaults(EKeys::Three)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Activate tertiary weapons", "Activate tertiary weapons")))
+		->AddActionMapping("WeaponGroup3")
+		->AddDefaults(EKeys::Four)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Toogle Weapons", "Toogle Weapons")))
+		->AddActionMapping("ToggleCombat")
+		->AddDefaults(EKeys::F)));
+
+	//Misc
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Misc", "Misc")))->MakeHeader()));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Quick Ship Switch", "Quick Ship Switch")))
+		->AddActionMapping("QuickSwitch")
+		->AddDefaults(EKeys::N)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Toogle Camera", "Toogle Camera")))
+		->AddActionMapping("ToggleCamera")
+		->AddDefaults(EKeys::C)));
+	Binds.Add(MakeShareable((new FSimpleBind(NSLOCTEXT("KeyBinds", "Toogle HUD", "Toogle HUD")))
+		->AddActionMapping("ToggleHUD")
+		->AddDefaults(EKeys::H)));
+}
+
+void SFlareSettingsMenu::GetAllActionKeyBindings()
+{
+	//Bindings.Empty();
+
+	const UInputSettings* Settings = GetDefault<UInputSettings>();
+	if(!Settings) return;
+
+	const TArray<FInputActionKeyMapping>& Actions = Settings->ActionMappings;
+
+	for(const FInputActionKeyMapping& Each : Actions)
+	{
+		FLOGV("ActionName=%s Key=%s Alt=%d Cmd=%d Ctrl=%d Shift=%d", *Each.ActionName.ToString(), *Each.Key.ToString(), Each.bAlt, Each.bCmd, Each.bCtrl, Each.bShift)
+		//Bindings.Add(FVictoryInput(Each));
+	}
+}
+
+/*----------------------------------------------------
+	FSimpleBind
+----------------------------------------------------*/
+
+
+FSimpleBind::FSimpleBind(const FText& InDisplayName)
+{
+	DisplayName = InDisplayName.ToString();
+	bHeader = false;
+	Key = MakeShareable(new FKey());
+	AltKey = MakeShareable(new FKey());
+}
+FSimpleBind* FSimpleBind::AddActionMapping(const FName& Mapping)
+{
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+
+	bool bFound = false;
+	for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
+	{
+		FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
+		if (Mapping == Action.ActionName && !Action.Key.IsGamepadKey())
+		{
+			ActionMappings.Add(Action);
+
+			//Fill in the first 2 keys we find from the ini
+			if (*Key == FKey())
+			{
+				*Key = Action.Key;
+			}
+			else if (*AltKey == FKey() && Action.Key != *Key)
+			{
+				*AltKey = Action.Key;
+			}
+			bFound = true;
+		}
+	}
+
+	if (!bFound)
+	{
+		FInputActionKeyMapping Action;
+		Action.ActionName = Mapping;
+		ActionMappings.Add(Action);
+	}
+	return this;
+}
+
+FSimpleBind* FSimpleBind::AddAxisMapping(const FName& Mapping, float Scale)
+{
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+
+	bool bFound = false;
+	for (int32 i = 0; i < InputSettings->AxisMappings.Num(); i++)
+	{
+		FInputAxisKeyMapping Axis = InputSettings->AxisMappings[i];
+		if (Mapping == Axis.AxisName && Axis.Scale == Scale && !Axis.Key.IsGamepadKey())
+		{
+			AxisMappings.Add(Axis);
+
+			//Fill in the first 2 keys we find from the ini
+			if (*Key == FKey())
+			{
+				*Key = Axis.Key;
+			}
+			else if (*AltKey == FKey() && Axis.Key != *Key)
+			{
+				*AltKey = Axis.Key;
+			}
+			bFound = true;
+		}
+	}
+
+	if (!bFound)
+	{
+		FInputAxisKeyMapping Action;
+		Action.AxisName = Mapping;
+		Action.Scale = Scale;
+		AxisMappings.Add(Action);
+	}
+	return this;
+}
+
+
+FSimpleBind* FSimpleBind::AddSpecialBinding(const FName& Mapping)
+{
+	if (Mapping == FName(TEXT("Console")))
+	{
+		UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+		if (InputSettings->ConsoleKeys.IsValidIndex(0))
+		{
+			*Key = InputSettings->ConsoleKeys[0];
+		}
+		if (InputSettings->ConsoleKeys.IsValidIndex(1))
+		{
+			*AltKey = InputSettings->ConsoleKeys[1];
+		}
+	}
+
+	SpecialBindings.Add(Mapping);
+
+	return this;
+}
+
+void FSimpleBind::WriteBind()
+{
+	if (bHeader)
+	{
+		return;
+	}
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+
+	// Collapse the keys if the main key is missing.
+	if (*Key == FKey() && *AltKey != FKey())
+	{
+		Key = AltKey;
+		AltKey = MakeShareable(new FKey());
+	}
+
+	//Remove the original bindings
+	for (auto& Bind : ActionMappings)
+	{
+		InputSettings->RemoveActionMapping(Bind);
+	}
+	for (auto& Bind : AxisMappings)
+	{
+		InputSettings->RemoveAxisMapping(Bind);
+	}
+
+	//Set our new keys and readd them
+	for (auto Bind : ActionMappings)
+	{
+		Bind.Key = *Key;
+		InputSettings->AddActionMapping(Bind);
+		if (*AltKey != FKey())
+		{
+			Bind.Key = *AltKey;
+			InputSettings->AddActionMapping(Bind);
+		}
+	}
+	for (auto Bind : AxisMappings)
+	{
+		Bind.Key = *Key;
+		InputSettings->AddAxisMapping(Bind);
+		if (*AltKey != FKey())
+		{
+			Bind.Key = *AltKey;
+			InputSettings->AddAxisMapping(Bind);
+		}
+	}
+
+	for (FName Bind : SpecialBindings)
+	{
+		if (Bind == FName(TEXT("Console")))
+		{
+			InputSettings->ConsoleKeys.Empty();
+			InputSettings->ConsoleKeys.Add(*Key);
+			InputSettings->ConsoleKeys.Add(*AltKey);
+		}
 	}
 }
 
