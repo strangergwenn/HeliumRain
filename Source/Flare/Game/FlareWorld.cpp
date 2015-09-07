@@ -77,6 +77,13 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 		LoadTravel(WorldData.TravelData[i]);
 	}
 
+	// Companies post load
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		Companies[i]->PostLoad();
+	}
+
+
 	// Init planetarium
 	Planetarium = NewObject<UFlareSimulatedPlanetarium>(this, UFlareSimulatedPlanetarium::StaticClass());
 	Planetarium->Load();

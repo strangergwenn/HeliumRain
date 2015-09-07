@@ -132,11 +132,11 @@ void SFlareOrbitalMenu::Enter()
 	Game->DeactivateSector(MenuManager->GetPC());
 
 	// Add sectors slots
-	for (int32 SectorIndex = 0; SectorIndex < Game->GetGameWorld()->GetSectors().Num(); SectorIndex++)
+	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
 	{
 		TSharedPtr<int32> IndexPtr(new int32(SectorIndex));
 
-		UFlareSimulatedSector* Sector = Game->GetGameWorld()->GetSectors()[SectorIndex];
+		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
 
 		SectorsBox->AddSlot()
 		[
@@ -290,7 +290,7 @@ void SFlareOrbitalMenu::OnExit()
 
 void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 {
-	UFlareSimulatedSector* Sector = Game->GetGameWorld()->GetSectors()[*Index];
+	UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[*Index];
 
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)

@@ -61,6 +61,28 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	}
 }
 
+void UFlareCompany::PostLoad()
+{
+	VisitedSectors.Empty();
+	KnownSectors.Empty();
+
+	// Load sector knowledge
+	for (int32 i = 0; i < CompanyData.SectorsKnowledge.Num(); i++)
+	{
+		UFlareSimulatedSector* Sector = GetGame()->GetGameWorld()->FindSector(CompanyData.SectorsKnowledge[i].SectorIdentifier);
+		switch (CompanyData.SectorsKnowledge[i].Knowledge) {
+		case EFlareSectorKnowledge::Visited:
+			VisitedSectors.Add(Sector);
+			// No break
+		case EFlareSectorKnowledge::Known:
+			KnownSectors.Add(Sector);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 FFlareCompanySave* UFlareCompany::Save()
 {
 	CompanyData.Fleets.Empty();
@@ -82,28 +104,31 @@ FFlareCompanySave* UFlareCompany::Save()
 		CompanyData.StationData.Add(*CompanyStations[i]->Save());
 	}
 
+	for (int i = 0 ; i < VisitedSectors.Num(); i++)
+	{
+		FFlareCompanySectorKnowledge SectorKnowledge;
+		SectorKnowledge.Knowledge = EFlareSectorKnowledge::Visited;
+		SectorKnowledge.SectorIdentifier = VisitedSectors[i]->GetIdentifier();
+
+		CompanyData.SectorsKnowledge.Add(SectorKnowledge);
+	}
+
+	for (int i = 0 ; i < KnownSectors.Num(); i++)
+	{
+		// The visited sector are already saved
+		if(!VisitedSectors.Contains(KnownSectors[i]))
+		{
+			FFlareCompanySectorKnowledge SectorKnowledge;
+			SectorKnowledge.Knowledge = EFlareSectorKnowledge::Known;
+			SectorKnowledge.SectorIdentifier = KnownSectors[i]->GetIdentifier();
+
+			CompanyData.SectorsKnowledge.Add(SectorKnowledge);
+		}
+	}
+
+
 	return &CompanyData;
 }
-/*
-void UFlareCompany::Register(UFlareSimulatedSpacecraft* Ship)
-{
-
-}
-
-void UFlareCompany::Unregister(UFlareSimulatedSpacecraft* Ship)
-{
-	if (Ship->IsStation())
-	{
-		CompanyStations.Remove(Ship);
-	}
-	else
-	{
-		CompanyShips.Remove(Ship);
-	}
-
-	CompanySpacecrafts.Remove(Ship);
-}*/
-
 
 /*----------------------------------------------------
 	Gameplay
@@ -240,6 +265,16 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 	return Spacecraft;
 }
 
+void UFlareCompany::DiscoverSector(UFlareSimulatedSector* Sector)
+{
+	KnownSectors.AddUnique(Sector);
+}
+
+void UFlareCompany::VisitSector(UFlareSimulatedSector* Sector)
+{
+	DiscoverSector(Sector);
+	VisitedSectors.AddUnique(Sector);
+}
 
 
 /*----------------------------------------------------

@@ -3,6 +3,7 @@
 
 #include "Object.h"
 #include "FlareFleet.h"
+#include "FlareSimulatedSector.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "FlareCompany.generated.h"
 
@@ -21,6 +22,20 @@ namespace EFlareHostility
 		Owned
 	};
 }
+
+
+/** Company sector knowledge data */
+USTRUCT()
+struct FFlareCompanySectorKnowledge
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName SectorIdentifier;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlareSectorKnowledge::Type> Knowledge;
+};
 
 
 /** Game save data */
@@ -58,6 +73,10 @@ struct FFlareCompanySave
 
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 FleetImmatriculationIndex;
+
+	/** List of known or visited sectors */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareCompanySectorKnowledge> SectorsKnowledge;
 };
 
 
@@ -119,6 +138,9 @@ public:
 	/** Load the company from a save file */
 	virtual void Load(const FFlareCompanySave& Data);
 
+	/** Post Load to perform task needing sectors to be loaded */
+	virtual void PostLoad();
+
 	/** Save the company to a save file */
 	virtual FFlareCompanySave* Save();
 
@@ -145,16 +167,11 @@ public:
 
 	virtual UFlareFleet* CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector);
 
-
 	virtual void RemoveFleet(UFlareFleet* Fleet);
 
-/*
-virtual void Register(UFlareSimulatedSpacecraft* Ship);
+	virtual void DiscoverSector(UFlareSimulatedSector* Sector);
 
-
-virtual void Unregister(UFlareSimulatedSpacecraft* Ship);
-*/
-
+	virtual void VisitSector(UFlareSimulatedSector* Sector);
 
 	/*----------------------------------------------------
 		Customization
@@ -194,6 +211,9 @@ protected:
 
 
 	AFlareGame*                             Game;
+	TArray<UFlareSimulatedSector*>          KnownSectors;
+	TArray<UFlareSimulatedSector*>          VisitedSectors;
+
 
 public:
 
@@ -285,6 +305,15 @@ public:
 		return CompanyFleets;
 	}
 
+	inline TArray<UFlareSimulatedSector*>& GetKnownSectors()
+	{
+		return KnownSectors;
+	}
+
+	inline TArray<UFlareSimulatedSector*>& GetVisitedSectors()
+	{
+		return VisitedSectors;
+	}
 
 	UFlareFleet* FindFleet(FName Identifier) const
 	{
@@ -299,6 +328,5 @@ public:
 	}
 
 	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation);
-
 
 };

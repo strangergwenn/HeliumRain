@@ -60,10 +60,7 @@ public:
         Gameplay
     ----------------------------------------------------*/
 
-	virtual void SetCurrentSector(UFlareSimulatedSector* Sector)
-	{
-		CurrentSector = Sector;
-	}
+	virtual void SetCurrentSector(UFlareSimulatedSector* Sector);
 
 	virtual void SetCurrentFleet(UFlareFleet* Fleet)
 	{

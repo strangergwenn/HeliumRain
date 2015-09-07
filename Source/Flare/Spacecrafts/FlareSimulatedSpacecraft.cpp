@@ -51,6 +51,7 @@ FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 
 UFlareCompany* UFlareSimulatedSpacecraft::GetCompany()
 {
+	// TODO Cache
 	return Game->GetGameWorld()->FindCompany(SpacecraftData.CompanyIdentifier);
 }
 
@@ -99,4 +100,20 @@ void UFlareSimulatedSpacecraft::InvalidateLocation()
 {
 	SpacecraftData.Location = FVector::ZeroVector;
 	SpacecraftData.SafeLocation = false;
+}
+
+/*----------------------------------------------------
+	Gameplay
+----------------------------------------------------*/
+
+
+void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
+{
+	CurrentSector = Sector;
+
+	// Mark the sector as visited
+	if(Sector)
+	{
+		GetCompany()->VisitSector(Sector);
+	}
 }
