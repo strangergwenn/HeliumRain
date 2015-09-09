@@ -2,6 +2,7 @@
 
 #include "FlareCompany.h"
 #include "FlareWorld.h"
+#include "../Quests/FlareQuestManager.h"
 
 #include "FlareSaveGame.generated.h"
 
@@ -34,6 +35,9 @@ struct FFlarePlayerSave
     /** Identifier of the company */
     UPROPERTY(EditAnywhere, Category = Save)
     FName CompanyIdentifier;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareQuestSave		QuestData;
 };
 
 

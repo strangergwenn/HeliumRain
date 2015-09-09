@@ -1,6 +1,24 @@
 #pragma once
 
+#include "FlareQuestManager.h"
 #include "FlareQuest.generated.h"
+
+
+/** Quest action type */
+UENUM()
+namespace EFlareQuestStatus
+{
+	enum Type
+	{
+		AVAILABLE,
+		ACTIVE,
+		SUCCESSFUL,
+		ABANDONNED, // Use ReferenceIdentifier as sector identifier
+		FAILED // Use ReferenceIdentifier as sector identifier
+	};
+}
+
+
 
 /** Quest action type */
 UENUM()
@@ -35,12 +53,12 @@ struct FFlareQuestConditionDescription
 {
 	GENERATED_USTRUCT_BODY()
 
+	UPROPERTY(EditAnywhere, Category = Quest)
+	TEnumAsByte<EFlareQuestCondition::Type> Type;
+
 	/** The condition identifier is usefull only for non stateless condition*/
 	UPROPERTY(EditAnywhere, Category = Quest)
 	FName Identifier;
-
-	UPROPERTY(EditAnywhere, Category = Quest)
-	TEnumAsByte<EFlareQuestCondition::Type> Type;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
 	FName ReferenceIdentifier;
@@ -160,6 +178,55 @@ class FLARE_API UFlareQuest: public UObject
 	GENERATED_UCLASS_BODY()
 
 public:
+	/*----------------------------------------------------
+		Save
+	----------------------------------------------------*/
+
+	/** Load the quest from description file */
+	virtual void Load(const FFlareQuestDescription* Description);
+
+	/** Restore the quest status from a save file */
+	virtual void Restore(const FFlareQuestProgressSave& Data);
+
+	/** Save the quest status to a save file */
+	virtual FFlareQuestProgressSave* Save();
+
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+
+	virtual void SetStatus(EFlareQuestStatus::Type Status);
+
+	/*----------------------------------------------------
+		Callback
+	----------------------------------------------------*/
+
+protected:
+
+   /*----------------------------------------------------
+	   Protected data
+   ----------------------------------------------------*/
+
+	FFlareQuestProgressSave				QuestData;
+	EFlareQuestStatus::Type					QuestStatus;
+
+	const FFlareQuestDescription*            QuestDescription;
+	public:
+
+		/*----------------------------------------------------
+			Getters
+		----------------------------------------------------*/
+
+		inline FName GetIdentifier() const
+		{
+			return QuestDescription->Identifier;
+		}
+
+		inline EFlareQuestStatus::Type GetStatus()
+		{
+			return QuestStatus;
+		}
+
 
 
 };

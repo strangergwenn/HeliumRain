@@ -23,6 +23,8 @@
 
 
 class UFlareSaveGame;
+class UFlareQuestManager;
+class UFlareQuestCatalog;
 struct FFlarePlayerSave;
 
 USTRUCT()
@@ -151,6 +153,10 @@ protected:
     UPROPERTY()
     UFlareWorld*                   World;
 
+	/** Quest manager*/
+	UPROPERTY()
+	UFlareQuestManager*                   QuestManager;
+
 	/** Active sector */
 	UPROPERTY()
 	UFlareSector*                   ActiveSector;
@@ -183,6 +189,10 @@ protected:
 	/** Reference to all sector descriptions */
 	UPROPERTY()
 	UFlareSectorCatalog*                 SectorCatalog;
+
+	/** Reference to all quests*/
+	UPROPERTY()
+	UFlareQuestCatalog*                 QuestCatalog;
 
 	/** Company emblems */
 	UPROPERTY()
@@ -242,6 +252,11 @@ public:
 		return Planetarium;
 	}
 
+	inline UFlareQuestManager* GetQuestManager() const
+	{
+		return QuestManager;
+	}
+
 	inline const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const
 	{
 		return (CompanyCatalog ? &CompanyCatalog->Companies[Index] : NULL);
@@ -289,6 +304,11 @@ public:
 	inline UFlareCompanyCatalog* GetCompanyCatalog() const
 	{
 		return CompanyCatalog;
+	}
+
+	inline UFlareQuestCatalog* GetQuestCatalog() const
+	{
+		return QuestCatalog;
 	}
 
 	inline bool IsLoadedOrCreated() const

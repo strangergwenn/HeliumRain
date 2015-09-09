@@ -3,6 +3,7 @@
 #include "FlareQuestManager.generated.h"
 
 class UFlareQuest;
+class AFlareGame;
 class UFlareSimulatedSpacecraft;
 
 
@@ -44,7 +45,10 @@ struct FFlareQuestSave
 	FName SelectedQuest;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareQuestProgressSave> ShipData;
+	TArray<FFlareQuestProgressSave> QuestProgresses;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FName> SuccessfulQuests;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> AbandonnedQuests;
@@ -61,13 +65,21 @@ class FLARE_API UFlareQuestManager: public UObject
 	GENERATED_UCLASS_BODY()
 
 public:
+   /*----------------------------------------------------
+	   Save
+   ----------------------------------------------------*/
 
 	/** Load the quests status from a save file */
 	virtual void Load(const FFlareQuestSave& Data);
 
+	/** Save the quests status to a save file */
+	virtual FFlareQuestSave* Save();
+
    /*----------------------------------------------------
-	   Triggers
+	   Callback
    ----------------------------------------------------*/
+
+	void LoadCallbacks(UFlareQuest* Quest);
 
 	void OnFlyShip(UFlareSimulatedSpacecraft* Ship);
 
@@ -78,14 +90,30 @@ protected:
    ----------------------------------------------------*/
 
 	UPROPERTY()
-	TArray<UFlareQuest*> AvailableQuests;
+	TArray<UFlareQuest*>	AvailableQuests;
 
 	UPROPERTY()
-	TArray<UFlareQuest*> CurrentQuests;
+	TArray<UFlareQuest*>	CurrentQuests;
 
 	UPROPERTY()
-	TArray<UFlareQuest*> OldQuests;
+	TArray<UFlareQuest*>	OldQuests;
 
-	UFlareQuest* SelectedQuest;
-	TArray<UFlareQuest*> FlyShipTriggerQuests;
+	UFlareQuest*			SelectedQuest;
+	TArray<UFlareQuest*>	FlyShipCallback;
+
+	FFlareQuestSave			QuestData;
+
+	AFlareGame*             Game;
+
+	public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	AFlareGame* GetGame() const
+	{
+		return Game;
+	}
+
 };

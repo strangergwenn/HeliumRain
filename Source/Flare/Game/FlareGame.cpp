@@ -9,6 +9,8 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareShell.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../Quests/FlareQuestManager.h"
+#include "../Data/FlareQuestCatalog.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 
@@ -52,6 +54,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareSectorCatalog> SectorCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareQuestCatalog> QuestCatalog;
 
 		FConstructorStatics()
 			: SpacecraftCatalog(TEXT("/Game/Gameplay/Catalog/SpacecraftCatalog"))
@@ -60,6 +63,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 			, AsteroidCatalog(TEXT("/Game/Gameplay/Catalog/AsteroidCatalog"))
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
 			, SectorCatalog(TEXT("/Game/Gameplay/Catalog/SectorCatalog"))
+			, QuestCatalog(TEXT("/Game/Gameplay/Catalog/QuestCatalog"))
 		{}
 	};
 	static FConstructorStatics ConstructorStatics;
@@ -71,6 +75,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	AsteroidCatalog = ConstructorStatics.AsteroidCatalog.Object;
 	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
 	SectorCatalog = ConstructorStatics.SectorCatalog.Object;
+	QuestCatalog = ConstructorStatics.QuestCatalog.Object;
 }
 
 
@@ -408,6 +413,9 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	// Load
 	PC->Load(PlayerData);
 
+	// Init the quest manager
+	QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());
+	QuestManager->Load(PlayerData.QuestData);
 
 	LoadedOrCreated = true;
 	PC->OnLoadComplete();
@@ -463,6 +471,11 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 		// Load the player
 		PC->Load(Save->PlayerData);
 		AddEmblem(PC->GetCompanyDescription());
+
+		// Init the quest manager
+		QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());
+		QuestManager->Load(Save->PlayerData.QuestData);
+
 		LoadedOrCreated = true;
 		PC->OnLoadComplete();
 		return true;
@@ -494,6 +507,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 		PC->Save(Save->PlayerData, Save->PlayerCompanyDescription);
 		Save->WorldData = *World->Save(ActiveSector);
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
+		Save->PlayerData.QuestData = *QuestManager->Save();
 
 
 		FLOGV("AFlareGame::SaveGame time=%lld", Save->WorldData.Time);
