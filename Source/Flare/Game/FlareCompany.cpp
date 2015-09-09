@@ -88,6 +88,7 @@ FFlareCompanySave* UFlareCompany::Save()
 	CompanyData.Fleets.Empty();
 	CompanyData.ShipData.Empty();
 	CompanyData.StationData.Empty();
+	CompanyData.SectorsKnowledge.Empty();
 
 	for (int i = 0 ; i < CompanyFleets.Num(); i++)
 	{
