@@ -214,6 +214,14 @@ void AFlareGame::DeactivateSector(AController* Player)
 	}
 }
 
+void AFlareGame::Tick(float DeltaSeconds)
+{
+	if(QuestManager)
+	{
+		QuestManager->OnTick(DeltaSeconds);
+	}
+}
+
 /*----------------------------------------------------
 	Save slots
 ----------------------------------------------------*/

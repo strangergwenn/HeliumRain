@@ -4,7 +4,21 @@
 
 class UFlareQuest;
 class AFlareGame;
-class UFlareSimulatedSpacecraft;
+class AFlareSpacecraft;
+
+
+/** Quest callback type */
+UENUM()
+namespace EFlareQuestCallback
+{
+	enum Type
+	{
+		TICK, // Trig the quest at each tick
+		FLY_SHIP // Trig the quest when a ship is flyed
+	};
+}
+
+
 
 
 /** Quest current step status save data */
@@ -81,7 +95,11 @@ public:
 
 	void LoadCallbacks(UFlareQuest* Quest);
 
-	void OnFlyShip(UFlareSimulatedSpacecraft* Ship);
+	void ClearCallbacks(UFlareQuest* Quest);
+
+	void OnFlyShip(AFlareSpacecraft* Ship);
+
+	void OnTick(float DeltaSeconds);
 
 protected:
 
@@ -100,6 +118,7 @@ protected:
 
 	UFlareQuest*			SelectedQuest;
 	TArray<UFlareQuest*>	FlyShipCallback;
+	TArray<UFlareQuest*>	TickCallback;
 
 	FFlareQuestSave			QuestData;
 

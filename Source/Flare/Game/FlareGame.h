@@ -64,6 +64,8 @@ public:
 
 	virtual void DeactivateSector(AController* Player);
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	/*----------------------------------------------------
 		Save slots
 	----------------------------------------------------*/

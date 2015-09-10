@@ -201,6 +201,14 @@ public:
 		Callback
 	----------------------------------------------------*/
 
+	virtual TArray<EFlareQuestCallback::Type> GetCurrentCallbacks();
+
+	virtual TArray<EFlareQuestCallback::Type> GetConditionCallbacks(const FFlareQuestConditionDescription* Condition);
+
+	virtual void OnFlyShip(AFlareSpacecraft* Ship);
+
+	virtual void OnTick(float DeltaSeconds);
+
 protected:
 
    /*----------------------------------------------------
@@ -227,6 +235,7 @@ protected:
 			return QuestStatus;
 		}
 
+		const FFlareSharedQuestCondition* FindSharedCondition(FName SharedConditionIdentifier);
 
 
 };

@@ -301,6 +301,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		// HUD update
 		GetNavHUD()->OnTargetShipChanged();
 		SetSelectingWeapon();
+
+		GetGame()->GetQuestManager()->OnFlyShip(Ship);
 	}
 }
 

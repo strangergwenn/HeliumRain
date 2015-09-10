@@ -120,17 +120,51 @@ FFlareQuestSave* UFlareQuestManager::Save()
 }
 
 /*----------------------------------------------------
-	Save
+	Callback
 ----------------------------------------------------*/
 
 void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 {
-	//TODO
+	ClearCallbacks(Quest);
+
+	TArray<EFlareQuestCallback::Type> Callbacks = Quest->GetCurrentCallbacks();
+
+	for (int i = 0; i < Callbacks.Num(); i++)
+	{
+		switch(Callbacks[i])
+		{
+			case EFlareQuestCallback::FLY_SHIP:
+				FlyShipCallback.Add(Quest);
+				break;
+			case EFlareQuestCallback::TICK:
+				TickCallback.Add(Quest);
+				break;
+			default:
+				FLOGV("Bad callback type %d for quest %s", (int) (Callbacks[i] + 0), *Quest->GetIdentifier().ToString());
+		}
+	}
 }
 
-void UFlareQuestManager::OnFlyShip(UFlareSimulatedSpacecraft* Ship)
+void UFlareQuestManager::ClearCallbacks(UFlareQuest* Quest)
 {
-	//TODO
+	TickCallback.Remove(Quest);
+	FlyShipCallback.Remove(Quest);
+}
+
+void UFlareQuestManager::OnTick(float DeltaSeconds)
+{
+	for (int i = 0; i < TickCallback.Num(); i++)
+	{
+		TickCallback[i]->OnTick(DeltaSeconds);
+	}
+}
+
+void UFlareQuestManager::OnFlyShip(AFlareSpacecraft* Ship)
+{
+	for (int i = 0; i < FlyShipCallback.Num(); i++)
+	{
+		FlyShipCallback[i]->OnFlyShip(Ship);
+	}
 }
 
 
