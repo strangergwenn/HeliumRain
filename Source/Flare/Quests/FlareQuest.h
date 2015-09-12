@@ -207,7 +207,7 @@ struct FFlareQuestDescription
 
 	/** Quest of shard conditions */
 	UPROPERTY(EditAnywhere, Category = Quest)
-	TArray<FFlareSharedQuestCondition> SharedCondition;
+	TArray<FFlareSharedQuestCondition> SharedConditions;
 
 	/** Fail actions */
 	UPROPERTY(EditAnywhere, Category = Quest)

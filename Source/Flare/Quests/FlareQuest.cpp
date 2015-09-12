@@ -299,8 +299,10 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 	case EFlareQuestAction::PRINT_MESSAGE:
 		for (int i = 0; i < Action->MessagesParameter.Num(); i++)
 		{
-			// TODO
-			FLOGV("TODO: Quest message: %s", *Action->MessagesParameter[i].Text);
+			// Quest message notification
+			FText Text = FText::FromString(GetQuestName());
+			FText Info = FText::FromString(Action->MessagesParameter[i].Text);
+			QuestManager->GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest);
 		}
 		break;
 	default:
@@ -475,11 +477,11 @@ void UFlareQuest::OnQuestStatusChanged(UFlareQuest* Quest)
 
 const FFlareSharedQuestCondition* UFlareQuest::FindSharedCondition(FName SharedConditionIdentifier)
 {
-	for (int SharedConditionIndex = 0; SharedConditionIndex < QuestDescription->SharedCondition.Num(); SharedConditionIndex++)
+	for (int SharedConditionIndex = 0; SharedConditionIndex < QuestDescription->SharedConditions.Num(); SharedConditionIndex++)
 	{
-		if(QuestDescription->SharedCondition[SharedConditionIndex].Identifier == SharedConditionIdentifier)
+		if(QuestDescription->SharedConditions[SharedConditionIndex].Identifier == SharedConditionIdentifier)
 		{
-			return &QuestDescription->SharedCondition[SharedConditionIndex];
+			return &QuestDescription->SharedConditions[SharedConditionIndex];
 		}
 	}
 
