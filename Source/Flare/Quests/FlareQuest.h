@@ -20,14 +20,31 @@ namespace EFlareQuestStatus
 
 
 
+/** Quest category type */
+UENUM()
+namespace EFlareQuestCategory
+{
+	enum Type
+	{
+		TUTORIAL,
+		HISTORY,
+		ACHIEVEMENT,
+		SECONDARY
+	};
+}
+
 /** Quest action type */
 UENUM()
 namespace EFlareQuestAction
 {
 	enum Type
 	{
-		DISCOVER_SECTOR, // Use ReferenceIdentifier as sector identifier
-		VISIT_SECTOR // Use ReferenceIdentifier as sector identifier
+		/** Use Identifier1  as sector identifier*/
+		DISCOVER_SECTOR,
+		/** Use Identifier1  as sector identifier*/
+		VISIT_SECTOR,
+		/** Use MessagesParameter  as text*/
+		PRINT_MESSAGE
 	};
 }
 
@@ -38,12 +55,20 @@ namespace EFlareQuestCondition
 {
 	enum Type
 	{
-		SHARED_CONDITION, // Use ReferenceIdentifier as shared condition identifier
-		VALIDATE, // Juste need to validate the step
-		FLYING_SHIP, // Use ReferenceIdentifier as the ship class if need to fly a specific ship class
-		SHIP_ALIVE,// Use ReferenceIdentifier as the ship taf if need to track a specific ship
-		SHIP_MIN_COLLINEAR_VELOCITY, // Use velocity as min velocity
-		SHIP_MAX_COLLINEAR_VELOCITY // Use velocity as max velocity
+		/** Use Identifier1 as shared condition identifier*/
+		SHARED_CONDITION,
+		/** Use Identifier1 as the ship class if need to fly a specific ship class*/
+		FLYING_SHIP,
+		/** Use Identifier1 as the ship taf if need to track a specific ship*/
+		SHIP_ALIVE,
+		/** Use FloatParam1 as min velocity */
+		SHIP_MIN_COLLINEAR_VELOCITY,
+		/** Use FloatParam1 as max velocity */
+		SHIP_MAX_COLLINEAR_VELOCITY,
+		/** Use Identifier1 as reference quest identifier */
+		QUEST_SUCCESSFUL,
+		/** Use Identifier1 as reference quest identifier */
+		QUEST_FAILED
 	};
 }
 
@@ -58,13 +83,13 @@ struct FFlareQuestConditionDescription
 
 	/** The condition identifier is usefull only for non stateless condition*/
 	UPROPERTY(EditAnywhere, Category = Quest)
-	FName Identifier;
+	FName ConditionIdentifier;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
-	FName ReferenceIdentifier;
+	FName Identifier1;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
-	float Velocity;
+	float FloatParam1;
 };
 
 
@@ -81,6 +106,18 @@ struct FFlareSharedQuestCondition
 	TArray<FFlareQuestConditionDescription> Conditions;
 };
 
+/** Quest message */
+USTRUCT()
+struct FFlareQuestMessage
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(EditAnywhere, Category = Quest)
+	FString Text;
+
+	UPROPERTY(EditAnywhere, Category = Quest)
+	bool WaitAck;
+};
+
 /** Quest condition */
 USTRUCT()
 struct FFlareQuestActionDescription
@@ -90,7 +127,10 @@ struct FFlareQuestActionDescription
 	TEnumAsByte<EFlareQuestAction::Type> Type;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
-	FName ReferenceIdentifier;
+	FName Identifier1;
+
+	UPROPERTY(EditAnywhere, Category = Quest)
+	TArray<FFlareQuestMessage> MessagesParameter;
 };
 
 
@@ -151,7 +191,7 @@ struct FFlareQuestDescription
 
 	/** Is tutorial quests. Will not be displayed if tutorial is disabled */
 	UPROPERTY(EditAnywhere, Category = Quest)
-	bool IsTutorial;
+	TEnumAsByte<EFlareQuestCategory::Type> Category;
 
 	/** Can be reset by the player if he want to play again the quest from the begining */
 	UPROPERTY(EditAnywhere, Category = Quest)
@@ -168,6 +208,14 @@ struct FFlareQuestDescription
 	/** Quest of shard conditions */
 	UPROPERTY(EditAnywhere, Category = Quest)
 	TArray<FFlareSharedQuestCondition> SharedCondition;
+
+	/** Fail actions */
+	UPROPERTY(EditAnywhere, Category = Quest)
+	TArray<FFlareQuestActionDescription> FailActions;
+
+	/** Success actions (public) */
+	UPROPERTY(EditAnywhere, Category = Quest)
+	TArray<FFlareQuestActionDescription> SuccessActions;
 };
 
 
@@ -197,6 +245,26 @@ public:
 
 	virtual void SetStatus(EFlareQuestStatus::Type Status);
 
+	virtual void UpdateState();
+
+	virtual void EndStep();
+
+	virtual void NextStep();
+
+	virtual void Success();
+
+	virtual void Fail();
+
+	virtual void Activate();
+
+	virtual bool CheckConditions(const TArray<FFlareQuestConditionDescription>& Conditions);
+
+	virtual bool CheckCondition(const FFlareQuestConditionDescription* Condition);
+
+	virtual void PerformActions(const TArray<FFlareQuestActionDescription>& Actions);
+
+	virtual void PerformAction(const FFlareQuestActionDescription* Action);
+
 	/*----------------------------------------------------
 		Callback
 	----------------------------------------------------*/
@@ -205,9 +273,13 @@ public:
 
 	virtual TArray<EFlareQuestCallback::Type> GetConditionCallbacks(const FFlareQuestConditionDescription* Condition);
 
+	virtual void AddConditionCallbacks(TArray<EFlareQuestCallback::Type>& Callbacks, const TArray<FFlareQuestConditionDescription>& Conditions);
+
 	virtual void OnFlyShip(AFlareSpacecraft* Ship);
 
 	virtual void OnTick(float DeltaSeconds);
+
+	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
 
 protected:
 
@@ -219,6 +291,9 @@ protected:
 	EFlareQuestStatus::Type					QuestStatus;
 
 	const FFlareQuestDescription*            QuestDescription;
+	const FFlareQuestStepDescription*            CurrentStepDescription;
+	UFlareQuestManager*					QuestManager;
+
 	public:
 
 		/*----------------------------------------------------
@@ -237,5 +312,8 @@ protected:
 
 		const FFlareSharedQuestCondition* FindSharedCondition(FName SharedConditionIdentifier);
 
-
+		inline const FFlareQuestStepDescription* GetCurrentStepDescription()
+		{
+			return CurrentStepDescription;
+		}
 };

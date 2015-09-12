@@ -261,6 +261,11 @@ public:
 		return SmoothedVelocity;
 	}
 
+	inline FVector GetFrontVector() const
+	{
+		return GetActorRotation().RotateVector(FVector(1,0,0));
+	}
+
 	inline bool IsPaused()
 	{
 		return Paused;

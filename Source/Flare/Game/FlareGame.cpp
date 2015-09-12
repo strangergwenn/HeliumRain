@@ -359,11 +359,12 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 	Save
 ----------------------------------------------------*/
 
-// TODO Rename as CreateGame
 void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex, bool PlayTutorial)
 {
 	FLOGV("CreateGame ScenarioIndex %d", ScenarioIndex);
 	FLOGV("CreateGame CompanyName %s", *CompanyName);
+
+	PlayerController = PC;
 
 	// Create the new world
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
@@ -459,7 +460,10 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 {
 	FLOGV("AFlareGame::LoadGame : loading from slot %d", CurrentSaveIndex);
+	PlayerController = PC;
+
 	UFlareSaveGame* Save = ReadSaveSlot(CurrentSaveIndex);
+
 
 	// Load from save
 	if (PC && Save)

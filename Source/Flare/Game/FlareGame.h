@@ -163,6 +163,7 @@ protected:
 	UPROPERTY()
 	UFlareSector*                   ActiveSector;
 
+	AFlarePlayerController*			PlayerController;
 
 	/*----------------------------------------------------
 		Catalogs
@@ -242,6 +243,11 @@ public:
 	inline UFlareWorld* GetGameWorld() const
 	{
 		return World;
+	}
+
+	AFlarePlayerController* GetPC() const
+	{
+		return PlayerController;
 	}
 
 	inline UFlareSector* GetActiveSector() const

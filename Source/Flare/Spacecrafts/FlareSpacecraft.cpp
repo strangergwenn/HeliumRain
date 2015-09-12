@@ -799,6 +799,7 @@ void AFlareSpacecraft::ForceManual()
 		Getters
 ----------------------------------------------------*/
 
+/** Linear velocity, in m/s in world reference*/
 FVector AFlareSpacecraft::GetLinearVelocity() const
 {
 	return Airframe->GetPhysicsLinearVelocity() / 100;

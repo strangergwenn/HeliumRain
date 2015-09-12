@@ -14,7 +14,8 @@ namespace EFlareQuestCallback
 	enum Type
 	{
 		TICK, // Trig the quest at each tick
-		FLY_SHIP // Trig the quest when a ship is flyed
+		FLY_SHIP, // Trig the quest when a ship is flyed
+		QUEST // Trig when a quest status change
 	};
 }
 
@@ -93,13 +94,22 @@ public:
 	   Callback
    ----------------------------------------------------*/
 
-	void LoadCallbacks(UFlareQuest* Quest);
+	virtual void LoadCallbacks(UFlareQuest* Quest);
 
-	void ClearCallbacks(UFlareQuest* Quest);
+	virtual void ClearCallbacks(UFlareQuest* Quest);
 
-	void OnFlyShip(AFlareSpacecraft* Ship);
+	virtual void OnFlyShip(AFlareSpacecraft* Ship);
 
-	void OnTick(float DeltaSeconds);
+	virtual void OnTick(float DeltaSeconds);
+
+	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
+
+	virtual void OnQuestSuccess(UFlareQuest* Quest);
+
+	virtual void OnQuestFail(UFlareQuest* Quest);
+
+	virtual void OnQuestActivation(UFlareQuest* Quest);
+
 
 protected:
 
@@ -111,7 +121,7 @@ protected:
 	TArray<UFlareQuest*>	AvailableQuests;
 
 	UPROPERTY()
-	TArray<UFlareQuest*>	CurrentQuests;
+	TArray<UFlareQuest*>	ActiveQuests;
 
 	UPROPERTY()
 	TArray<UFlareQuest*>	OldQuests;
@@ -119,6 +129,7 @@ protected:
 	UFlareQuest*			SelectedQuest;
 	TArray<UFlareQuest*>	FlyShipCallback;
 	TArray<UFlareQuest*>	TickCallback;
+	TArray<UFlareQuest*>	QuestCallback;
 
 	FFlareQuestSave			QuestData;
 
@@ -130,9 +141,15 @@ protected:
 		Getters
 	----------------------------------------------------*/
 
-	AFlareGame* GetGame() const
+	inline AFlareGame* GetGame() const
 	{
 		return Game;
 	}
+
+
+	bool IsQuestSuccesfull(FName QuestIdentifier);
+
+	bool IsQuestFailed(FName QuestIdentifier);
+
 
 };

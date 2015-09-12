@@ -2,6 +2,7 @@
 #include "Flare.h"
 #include "../Game/FlareGame.h"
 #include "../Data/FlareQuestCatalog.h"
+#include "../Data/FlareQuestCatalogEntry.h"
 #include "FlareQuestManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestManager"
@@ -37,7 +38,7 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 	for (int QuestIndex = 0; QuestIndex <Game->GetQuestCatalog()->Quests.Num(); QuestIndex++)
 	{
 
-		FFlareQuestDescription* QuestDescription = &Game->GetQuestCatalog()->Quests[QuestIndex];
+		FFlareQuestDescription* QuestDescription = &(Game->GetQuestCatalog()->Quests[QuestIndex]->Data);
 
 		// Create the quest
 		UFlareQuest* Quest = NewObject<UFlareQuest>(this, UFlareQuest::StaticClass());
@@ -90,9 +91,9 @@ FFlareQuestSave* UFlareQuestManager::Save()
 
 	QuestData.SelectedQuest = (SelectedQuest ? SelectedQuest->GetIdentifier() : NAME_None);
 
-	for (int QuestIndex = 0; QuestIndex < CurrentQuests.Num(); QuestIndex++)
+	for (int QuestIndex = 0; QuestIndex < ActiveQuests.Num(); QuestIndex++)
 	{
-		UFlareQuest* Quest = CurrentQuests[QuestIndex];
+		UFlareQuest* Quest = ActiveQuests[QuestIndex];
 		FFlareQuestProgressSave* QuestProgressSave = Quest->Save();
 		QuestData.QuestProgresses.Add(*QuestProgressSave);
 	}
@@ -139,6 +140,9 @@ void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 			case EFlareQuestCallback::TICK:
 				TickCallback.Add(Quest);
 				break;
+		case EFlareQuestCallback::QUEST:
+				QuestCallback.Add(Quest);
+				break;
 			default:
 				FLOGV("Bad callback type %d for quest %s", (int) (Callbacks[i] + 0), *Quest->GetIdentifier().ToString());
 		}
@@ -165,6 +169,86 @@ void UFlareQuestManager::OnFlyShip(AFlareSpacecraft* Ship)
 	{
 		FlyShipCallback[i]->OnFlyShip(Ship);
 	}
+}
+
+void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
+{
+	LoadCallbacks(Quest);
+
+	for (int i = 0; i < QuestCallback.Num(); i++)
+	{
+		QuestCallback[i]->OnQuestStatusChanged(Quest);
+	}
+}
+
+void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
+{
+	FLOGV("Quest %s is now successful", *Quest->GetIdentifier().ToString())
+	ActiveQuests.Remove(Quest);
+	OldQuests.Add(Quest);
+	OnQuestStatusChanged(Quest);
+}
+
+void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
+{
+	FLOGV("Quest %s is now failed", *Quest->GetIdentifier().ToString())
+	ActiveQuests.Remove(Quest);
+	OldQuests.Add(Quest);
+	OnQuestStatusChanged(Quest);
+}
+
+void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
+{
+	FLOGV("Quest %s is now active", *Quest->GetIdentifier().ToString())
+	AvailableQuests.Remove(Quest);
+	ActiveQuests.Add(Quest);
+	OnQuestStatusChanged(Quest);
+}
+
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+
+bool UFlareQuestManager::IsQuestSuccesfull(FName QuestIdentifier)
+{
+	for (int QuestIndex = 0; QuestIndex < OldQuests.Num(); QuestIndex++)
+	{
+		UFlareQuest* Quest = OldQuests[QuestIndex];
+		if (Quest->GetIdentifier() == QuestIdentifier)
+		{
+			if (Quest->GetStatus() == EFlareQuestStatus::SUCCESSFUL)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
+bool UFlareQuestManager::IsQuestFailed(FName QuestIdentifier)
+{
+	for (int QuestIndex = 0; QuestIndex < OldQuests.Num(); QuestIndex++)
+	{
+		UFlareQuest* Quest = OldQuests[QuestIndex];
+		if (Quest->GetIdentifier() == QuestIdentifier)
+		{
+			if (Quest->GetStatus() == EFlareQuestStatus::FAILED)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	return false;
 }
 
 
