@@ -323,9 +323,7 @@ void UFlareQuest::StartObjectiveTracking()
 	}
 
 	TrackObjectives = true;
-
-
-	// SetObjectiveTarget(FVector::ZeroVector);
+	UpdateObjectiveTracker();
 }
 
 void UFlareQuest::StopObjectiveTracking()

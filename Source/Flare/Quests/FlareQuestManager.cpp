@@ -29,10 +29,10 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 
 	QuestData = Data;
 
-	TArray<FName> CurrentQuestIdentifiers;
+	TArray<FName> ActiveQuestIdentifiers;
 	for (int QuestProgressIndex = 0; QuestProgressIndex <Data.QuestProgresses.Num(); QuestProgressIndex++)
 	{
-		CurrentQuestIdentifiers.Add(Data.QuestProgresses[QuestProgressIndex].QuestIdentifier);
+		ActiveQuestIdentifiers.Add(Data.QuestProgresses[QuestProgressIndex].QuestIdentifier);
 	}
 
 	// Load quests
@@ -53,11 +53,11 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 		Quest->Load(QuestDescription);
 
 		// Find quest status
-		int QuestProgressIndex = CurrentQuestIdentifiers.IndexOfByKey(QuestDescription->Identifier);
+		int QuestProgressIndex = ActiveQuestIdentifiers.IndexOfByKey(QuestDescription->Identifier);
 		if (QuestProgressIndex != INDEX_NONE)
 		{
 			// Current quests
-			AvailableQuests.Add(Quest);
+			ActiveQuests.Add(Quest);
 			Quest->Restore(Data.QuestProgresses[QuestProgressIndex]);
 			if (Data.SelectedQuest == QuestDescription->Identifier)
 			{
@@ -86,6 +86,10 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 		}
 
 		LoadCallbacks(Quest);
+	}
+	if(!SelectedQuest)
+	{
+		AutoSelectQuest();
 	}
 }
 
@@ -198,11 +202,13 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	FLOGV("Quest %s is now successful", *Quest->GetIdentifier().ToString())
 	ActiveQuests.Remove(Quest);
 	OldQuests.Add(Quest);
-	OnQuestStatusChanged(Quest);
 	if(Quest == SelectedQuest)
 	{
 		AutoSelectQuest();
 	}
+
+	OnQuestStatusChanged(Quest);
+
 }
 
 void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
@@ -210,11 +216,12 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	FLOGV("Quest %s is now failed", *Quest->GetIdentifier().ToString())
 	ActiveQuests.Remove(Quest);
 	OldQuests.Add(Quest);
-	OnQuestStatusChanged(Quest);
+
 	if(Quest == SelectedQuest)
 	{
 		AutoSelectQuest();
 	}
+	OnQuestStatusChanged(Quest);
 }
 
 void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
@@ -222,11 +229,12 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	FLOGV("Quest %s is now active", *Quest->GetIdentifier().ToString())
 	AvailableQuests.Remove(Quest);
 	ActiveQuests.Add(Quest);
-	OnQuestStatusChanged(Quest);
+
 	if(!SelectedQuest)
 	{
 		SelectQuest(Quest);
 	}
+	OnQuestStatusChanged(Quest);
 }
 
 
@@ -236,6 +244,7 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 
 void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
 {
+	FLOGV("Select quest %s", *Quest->GetIdentifier().ToString());
 	if (!IsQuestActive(Quest->GetIdentifier()))
 	{
 		FLOGV("ERROR: Fail to select quest %s. The quest to select must be active", *Quest->GetIdentifier().ToString());
