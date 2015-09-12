@@ -326,9 +326,9 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 			// Use trigger conditions
 			AddConditionCallbacks(Callbacks, QuestDescription->Triggers);
 
-			if(Callbacks.Contains(EFlareQuestCallback::TICK))
+			if(Callbacks.Contains(EFlareQuestCallback::TICK_FLYING))
 			{
-				FLOGV("WARNING: The quest %s need a TICK callback as trigger", *GetIdentifier().ToString());
+				FLOGV("WARNING: The quest %s need a TICK_FLYING callback as trigger", *GetIdentifier().ToString());
 			}
 			break;
 		case EFlareQuestStatus::ACTIVE:
@@ -388,7 +388,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
 		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
 		case EFlareQuestCondition::SHIP_ALIVE:
-			Callbacks.AddUnique(EFlareQuestCallback::TICK);
+			Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 			break;
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:
 		case EFlareQuestCondition::QUEST_FAILED:

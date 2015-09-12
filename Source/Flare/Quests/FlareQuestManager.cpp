@@ -137,8 +137,8 @@ void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 			case EFlareQuestCallback::FLY_SHIP:
 				FlyShipCallback.Add(Quest);
 				break;
-			case EFlareQuestCallback::TICK:
-				TickCallback.Add(Quest);
+			case EFlareQuestCallback::TICK_FLYING:
+				TickFlying.Add(Quest);
 				break;
 		case EFlareQuestCallback::QUEST:
 				QuestCallback.Add(Quest);
@@ -151,15 +151,19 @@ void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 
 void UFlareQuestManager::ClearCallbacks(UFlareQuest* Quest)
 {
-	TickCallback.Remove(Quest);
+	TickFlying.Remove(Quest);
 	FlyShipCallback.Remove(Quest);
 }
 
 void UFlareQuestManager::OnTick(float DeltaSeconds)
 {
-	for (int i = 0; i < TickCallback.Num(); i++)
+	if(GetGame()->GetActiveSector())
 	{
-		TickCallback[i]->OnTick(DeltaSeconds);
+		// Tick TickFlying callback only if there is an active sector
+		for (int i = 0; i < TickFlying.Num(); i++)
+		{
+			TickFlying[i]->OnTick(DeltaSeconds);
+		}
 	}
 }
 
