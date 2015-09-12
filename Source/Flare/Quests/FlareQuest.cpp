@@ -347,7 +347,7 @@ void UFlareQuest::UpdateObjectiveTracker()
 
 	QuestManager->GetGame()->GetPC()->CompleteObjective();
 
-	FText Name = FText::FromString(QuestDescription->Description);
+	FText Name = FText::FromString(GetQuestName());
 	FText Infos = FText::FromString("");
 	if(GetCurrentStepDescription())
 	{

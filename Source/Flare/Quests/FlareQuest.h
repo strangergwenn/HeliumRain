@@ -317,6 +317,11 @@ protected:
 			return QuestDescription->Identifier;
 		}
 
+		inline FString GetQuestName() const
+		{
+			return QuestDescription->Name;
+		}
+
 		inline EFlareQuestStatus::Type GetStatus()
 		{
 			return QuestStatus;

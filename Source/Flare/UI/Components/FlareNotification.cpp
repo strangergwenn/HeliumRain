@@ -195,6 +195,7 @@ FSlateColor SFlareNotification::GetNotificationColor(EFlareNotification::Type Ty
 		case EFlareNotification::NT_General:  Result = Theme.ObjectiveColor; break;
 		case EFlareNotification::NT_Help:     Result = Theme.InfoColor;      break;
 		case EFlareNotification::NT_Military: Result = Theme.CombatColor;    break;
+		case EFlareNotification::NT_Quest:	  Result = Theme.QuestColor;     break;
 		case EFlareNotification::NT_Trading:  Result = Theme.TradingColor;   break;
 	}
 

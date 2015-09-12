@@ -16,7 +16,8 @@ namespace EFlareNotification
 		NT_General,
 		NT_Help,
 		NT_Trading,
-		NT_Military
+		NT_Military,
+		NT_Quest
 	};
 }
 

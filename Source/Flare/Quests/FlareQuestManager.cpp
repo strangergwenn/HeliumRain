@@ -202,6 +202,12 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	FLOGV("Quest %s is now successful", *Quest->GetIdentifier().ToString())
 	ActiveQuests.Remove(Quest);
 	OldQuests.Add(Quest);
+
+	// Quest successful notification
+	FText Text = FText::FromString(LOCTEXT("Quest successful", "Quest successful").ToString());
+	FText Info = FText::FromString(Quest->GetQuestName());
+	GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest);
+
 	if(Quest == SelectedQuest)
 	{
 		AutoSelectQuest();
@@ -217,6 +223,11 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	ActiveQuests.Remove(Quest);
 	OldQuests.Add(Quest);
 
+	// Quest failed notification
+	FText Text = FText::FromString(LOCTEXT("Quest failed", "Quest failed").ToString());
+	FText Info = FText::FromString(Quest->GetQuestName());
+	GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest);
+
 	if(Quest == SelectedQuest)
 	{
 		AutoSelectQuest();
@@ -229,6 +240,11 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	FLOGV("Quest %s is now active", *Quest->GetIdentifier().ToString())
 	AvailableQuests.Remove(Quest);
 	ActiveQuests.Add(Quest);
+
+	// New quest notification
+	FText Text = FText::FromString(LOCTEXT("New quest", "New quest available").ToString());
+	FText Info = FText::FromString(Quest->GetQuestName());
+	GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest);
 
 	if(!SelectedQuest)
 	{
