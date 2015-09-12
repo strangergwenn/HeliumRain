@@ -113,6 +113,13 @@ public:
 
 	virtual void OnQuestActivation(UFlareQuest* Quest);
 
+	/*----------------------------------------------------
+		Quest management
+	----------------------------------------------------*/
+
+	virtual void SelectQuest(UFlareQuest* Quest);
+
+	virtual void AutoSelectQuest();
 
 protected:
 
@@ -149,6 +156,12 @@ protected:
 		return Game;
 	}
 
+	inline UFlareQuest* GetSelectedQuest()
+	{
+		return SelectedQuest;
+	}
+
+	bool IsQuestActive(FName QuestIdentifier);
 
 	bool IsQuestSuccesfull(FName QuestIdentifier);
 

@@ -12,7 +12,8 @@
 ----------------------------------------------------*/
 
 UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+	: Super(ObjectInitializer),
+	  TrackObjectives(false)
 {
 }
 
@@ -100,6 +101,7 @@ void UFlareQuest::UpdateState()
 						}
 					}
 				}
+				UpdateObjectiveTracker();
 			}
 			break;
 		}
@@ -305,9 +307,59 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 		FLOGV("ERROR: PerformAction not implemented for action type %d", (int)(Action->Type +0));
 		break;
 	}
-// TODO
 
 }
+
+
+/*----------------------------------------------------
+	Objective tracking
+----------------------------------------------------*/
+
+void UFlareQuest::StartObjectiveTracking()
+{
+	if(TrackObjectives)
+	{
+		return; // No change
+	}
+
+	TrackObjectives = true;
+
+
+	// SetObjectiveTarget(FVector::ZeroVector);
+}
+
+void UFlareQuest::StopObjectiveTracking()
+{
+	if(!TrackObjectives)
+	{
+		return; // No change
+	}
+
+	TrackObjectives = false;
+	QuestManager->GetGame()->GetPC()->CompleteObjective();
+}
+
+
+void UFlareQuest::UpdateObjectiveTracker()
+{
+	if(!TrackObjectives)
+	{
+		return;
+	}
+
+	QuestManager->GetGame()->GetPC()->CompleteObjective();
+
+	FText Name = FText::FromString(QuestDescription->Description);
+	FText Infos = FText::FromString("");
+	if(GetCurrentStepDescription())
+	{
+		Infos = FText::FromString(GetCurrentStepDescription()->StepDescription);
+	}
+
+	QuestManager->GetGame()->GetPC()->StartObjective(Name, Infos);
+	QuestManager->GetGame()->GetPC()->SetObjectiveProgress(1.0);
+}
+
 
 /*----------------------------------------------------
 	Callback

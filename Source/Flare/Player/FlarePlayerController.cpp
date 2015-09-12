@@ -72,10 +72,6 @@ void AFlarePlayerController::BeginPlay()
 	EnableCheats();
 	SetupMenu();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
-
-	// StartObjective(FText::FromString("Use objectives to make the game better"), FText::FromString("There is no alternative"));
-	// SetObjectiveProgress(0.1);
-	// SetObjectiveTarget(FVector::ZeroVector);
 }
 
 static float Accumulator = 0;
@@ -514,25 +510,35 @@ void AFlarePlayerController::StartObjective(FText Name, FText Info)
 	CurrentObjective.Set = true;
 	CurrentObjective.Name = Name;
 	CurrentObjective.Info = Info;
+	CurrentObjective.HasTarget = false;
+	CurrentObjective.HasProgress = false;
 
 	SetObjectiveProgress(0);
 }
 
 void AFlarePlayerController::SetObjectiveTarget(AActor* Actor)
 {
+	CurrentObjective.HasTarget = true;
 	CurrentObjective.Target = Actor;
 	CurrentObjective.Location = FVector::ZeroVector;
 }
 
 void AFlarePlayerController::SetObjectiveTarget(FVector Location)
 {
+	CurrentObjective.HasTarget = true;
 	CurrentObjective.Target = NULL;
 	CurrentObjective.Location = Location;
 }
 
 void AFlarePlayerController::SetObjectiveProgress(float Ratio)
 {
+	CurrentObjective.HasProgress = true;
 	CurrentObjective.Progress = Ratio;
+}
+
+void AFlarePlayerController::SetObjectiveProgressSuffix(FText ProgressSuffix)
+{
+	CurrentObjective.ProgressSuffix = ProgressSuffix;
 }
 
 void AFlarePlayerController::CompleteObjective()

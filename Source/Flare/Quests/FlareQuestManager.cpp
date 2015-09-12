@@ -3,6 +3,7 @@
 #include "../Game/FlareGame.h"
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareQuestCatalogEntry.h"
+#include "../Player/FlarePlayerController.h"
 #include "FlareQuestManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestManager"
@@ -60,7 +61,7 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 			Quest->Restore(Data.QuestProgresses[QuestProgressIndex]);
 			if (Data.SelectedQuest == QuestDescription->Identifier)
 			{
-				SelectedQuest = Quest;
+				SelectQuest(Quest);
 			}
 		}
 		else if (Data.SuccessfulQuests.Contains(QuestDescription->Identifier))
@@ -198,6 +199,10 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	ActiveQuests.Remove(Quest);
 	OldQuests.Add(Quest);
 	OnQuestStatusChanged(Quest);
+	if(Quest == SelectedQuest)
+	{
+		AutoSelectQuest();
+	}
 }
 
 void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
@@ -206,6 +211,10 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	ActiveQuests.Remove(Quest);
 	OldQuests.Add(Quest);
 	OnQuestStatusChanged(Quest);
+	if(Quest == SelectedQuest)
+	{
+		AutoSelectQuest();
+	}
 }
 
 void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
@@ -214,13 +223,67 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	AvailableQuests.Remove(Quest);
 	ActiveQuests.Add(Quest);
 	OnQuestStatusChanged(Quest);
+	if(!SelectedQuest)
+	{
+		SelectQuest(Quest);
+	}
 }
 
+
+/*----------------------------------------------------
+	Quest management
+----------------------------------------------------*/
+
+void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
+{
+	if (!IsQuestActive(Quest->GetIdentifier()))
+	{
+		FLOGV("ERROR: Fail to select quest %s. The quest to select must be active", *Quest->GetIdentifier().ToString());
+		return;
+	}
+
+	if(SelectedQuest)
+	{
+		SelectedQuest->StopObjectiveTracking();
+	}
+
+	SelectedQuest = Quest;
+	SelectedQuest->StartObjectiveTracking();
+}
+
+void UFlareQuestManager::AutoSelectQuest()
+{
+	if(ActiveQuests.Num()> 1)
+	{
+		SelectQuest(ActiveQuests[0]);
+	}
+	else
+	{
+		if(SelectedQuest)
+		{
+			SelectedQuest->StopObjectiveTracking();
+		}
+		SelectedQuest = NULL;
+	}
+
+}
 
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
 
+bool UFlareQuestManager::IsQuestActive(FName QuestIdentifier)
+{
+	for (int QuestIndex = 0; QuestIndex < ActiveQuests.Num(); QuestIndex++)
+	{
+		UFlareQuest* Quest = ActiveQuests[QuestIndex];
+		if (Quest->GetIdentifier() == QuestIdentifier)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 bool UFlareQuestManager::IsQuestSuccesfull(FName QuestIdentifier)
 {

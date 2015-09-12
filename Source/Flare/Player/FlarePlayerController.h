@@ -114,6 +114,8 @@ public:
 	/** Set the progress from 0 to 1 */
 	void SetObjectiveProgress(float Ratio);
 
+	void SetObjectiveProgressSuffix(FText ProgressSuffix);
+
 	/** Finalize the objective */
 	void CompleteObjective();
 

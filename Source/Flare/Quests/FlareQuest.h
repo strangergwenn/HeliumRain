@@ -266,6 +266,16 @@ public:
 	virtual void PerformAction(const FFlareQuestActionDescription* Action);
 
 	/*----------------------------------------------------
+		Objective tracking
+	----------------------------------------------------*/
+
+	virtual void StartObjectiveTracking();
+
+	virtual void StopObjectiveTracking();
+
+	virtual void UpdateObjectiveTracker();
+
+	/*----------------------------------------------------
 		Callback
 	----------------------------------------------------*/
 
@@ -287,12 +297,14 @@ protected:
 	   Protected data
    ----------------------------------------------------*/
 
-	FFlareQuestProgressSave				QuestData;
+	FFlareQuestProgressSave					QuestData;
 	EFlareQuestStatus::Type					QuestStatus;
 
-	const FFlareQuestDescription*            QuestDescription;
-	const FFlareQuestStepDescription*            CurrentStepDescription;
-	UFlareQuestManager*					QuestManager;
+	const FFlareQuestDescription*			QuestDescription;
+	const FFlareQuestStepDescription*		CurrentStepDescription;
+	UFlareQuestManager*						QuestManager;
+
+	bool									TrackObjectives;
 
 	public:
 

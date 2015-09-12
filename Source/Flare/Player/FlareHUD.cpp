@@ -252,9 +252,10 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Draw objective
-		if (PC->HasObjective())
+		if (PC->HasObjective() && PC->GetCurrentObjective()->HasTarget)
 		{
 			FVector2D ScreenPosition;
+
 			FVector ObjectiveLocation = PC->GetObjectiveLocation();
 
 			if (!PlayerShip->GetStateManager()->IsExternalCamera())

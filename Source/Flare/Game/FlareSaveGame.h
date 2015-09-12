@@ -17,9 +17,14 @@ struct FFlarePlayerObjective
 	bool                        Set;
 	FText                       Name;
 	FText                       Info;
+
+	bool						HasTarget;
 	AActor*                     Target;
 	FVector                     Location;
+
+	bool						HasProgress;
 	float                       Progress;
+	FText						ProgressSuffix;
 };
 
 /** Game save data */
