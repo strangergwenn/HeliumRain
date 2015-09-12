@@ -40,6 +40,13 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 
 		FFlareQuestDescription* QuestDescription = &(Game->GetQuestCatalog()->Quests[QuestIndex]->Data);
 
+		if(QuestDescription->Category == EFlareQuestCategory::TUTORIAL && !QuestData.PlayTutorial)
+		{
+			// Skip tutorial quests.
+			continue;
+		}
+
+
 		// Create the quest
 		UFlareQuest* Quest = NewObject<UFlareQuest>(this, UFlareQuest::StaticClass());
 		Quest->Load(QuestDescription);

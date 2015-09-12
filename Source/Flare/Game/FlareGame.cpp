@@ -395,6 +395,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	UFlareCompany* Company = CreateCompany(-1);
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
 	PlayerData.ScenarioId = ScenarioIndex;
+	PlayerData.QuestData.PlayTutorial = PlayTutorial;
 	PC->SetCompany(Company);
 
 	// TODO Later with world init

@@ -13,7 +13,7 @@ namespace EFlareQuestCallback
 {
 	enum Type
 	{
-		TICK, // Trig the quest at each tick
+		TICK_FLYING, // Trig the quest at each tick
 		FLY_SHIP, // Trig the quest when a ship is flyed
 		QUEST // Trig when a quest status change
 	};
@@ -70,6 +70,9 @@ struct FFlareQuestSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> FailedQuests;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	bool PlayTutorial;
 };
 
 
@@ -128,7 +131,7 @@ protected:
 
 	UFlareQuest*			SelectedQuest;
 	TArray<UFlareQuest*>	FlyShipCallback;
-	TArray<UFlareQuest*>	TickCallback;
+	TArray<UFlareQuest*>	TickFlying;
 	TArray<UFlareQuest*>	QuestCallback;
 
 	FFlareQuestSave			QuestData;
