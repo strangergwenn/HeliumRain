@@ -42,6 +42,7 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 		if(!QuestData.SuccessfullSteps.Contains(QuestDescription->Steps[StepIndex].Identifier))
 		{
 			CurrentStepDescription = &QuestDescription->Steps[StepIndex];
+			break;
 		}
 	}
 }
