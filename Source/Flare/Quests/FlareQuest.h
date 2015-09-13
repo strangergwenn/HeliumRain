@@ -265,6 +265,8 @@ public:
 
 	virtual void PerformAction(const FFlareQuestActionDescription* Action);
 
+	virtual FString FormatTags(FString Message);
+
 	/*----------------------------------------------------
 		Objective tracking
 	----------------------------------------------------*/

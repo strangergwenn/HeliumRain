@@ -299,9 +299,13 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 	case EFlareQuestAction::PRINT_MESSAGE:
 		for (int i = 0; i < Action->MessagesParameter.Num(); i++)
 		{
+			//Replace tags in quests text
+			FString MessageString = FormatTags(Action->MessagesParameter[i].Text);
+
+
 			// Quest message notification
 			FText Text = FText::FromString(GetQuestName());
-			FText Info = FText::FromString(Action->MessagesParameter[i].Text);
+			FText Info = FText::FromString(MessageString);
 			QuestManager->GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest, 0.0f);
 		}
 		break;
@@ -310,6 +314,109 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 		break;
 	}
 
+}
+
+FString UFlareQuest::FormatTags(FString Message)
+{
+	FString MessageString = Message;
+
+	// Replace input tags
+	bool Found = false;
+
+	// input-axis
+	do {
+		Found = false;
+		FString StartTag = TEXT("<input-axis:");
+		FString EndTag = TEXT(">");
+
+		int StartIndex = MessageString.Find(StartTag);
+		if (StartIndex > 0)
+		{
+			int EndIndex = MessageString.Find(EndTag,ESearchCase::CaseSensitive, ESearchDir::FromStart, StartIndex);
+			if (EndIndex > 0)
+			{
+				// Tag found, replace it.
+				Found = true;
+
+				FString TagValue = MessageString.Mid(StartIndex + StartTag.Len(), EndIndex - (StartIndex + StartTag.Len()));
+
+				FString AxisString;
+				FString ScaleString;
+				TagValue.Split(",", &AxisString, &ScaleString);
+				float Scale = FCString::Atof(*ScaleString);
+				FName AxisName = FName(*AxisString);
+
+				FString Mapping;
+
+				UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+
+				for (int32 i = 0; i < InputSettings->AxisMappings.Num(); i++)
+				{
+					FInputAxisKeyMapping Axis = InputSettings->AxisMappings[i];
+					if (Axis.AxisName == AxisName && Axis.Scale == Scale && !Axis.Key.IsGamepadKey())
+					{
+						Mapping = Axis.Key.ToString();
+					}
+				}
+
+
+				FString TagString = TEXT("<")+ Mapping + TEXT(">");
+
+				MessageString = MessageString.Left(StartIndex) + TagString + MessageString.RightChop(EndIndex+1);
+			}
+			else
+			{
+				FLOGV("ERROR None closed tag at offset %d for quest %s: %s", StartIndex, *GetIdentifier().ToString(), *MessageString);
+			}
+		}
+
+	} while(Found);
+
+	// input-action
+	do {
+		Found = false;
+		FString StartTag = TEXT("<input-action:");
+		FString EndTag = TEXT(">");
+
+		int StartIndex = MessageString.Find(StartTag);
+		if (StartIndex > 0)
+		{
+			int EndIndex = MessageString.Find(EndTag,ESearchCase::CaseSensitive, ESearchDir::FromStart, StartIndex);
+			if (EndIndex > 0)
+			{
+				// Tag found, replace it.
+				Found = true;
+
+				FString TagValue = MessageString.Mid(StartIndex + StartTag.Len(), EndIndex - (StartIndex + StartTag.Len()));
+
+				FName ActionName = FName(*TagValue);
+
+				FString Mapping;
+
+				UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+
+				for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
+				{
+					FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
+					if (Action.ActionName == ActionName&& !Action.Key.IsGamepadKey())
+					{
+						Mapping = Action.Key.ToString();
+					}
+				}
+
+				FString TagString = TEXT("<")+ Mapping + TEXT(">");
+
+				MessageString = MessageString.Left(StartIndex) + TagString + MessageString.RightChop(EndIndex+1);
+			}
+			else
+			{
+				FLOGV("ERROR None closed tag at offset %d for quest %s: %s", StartIndex, *GetIdentifier().ToString(), *MessageString);
+			}
+		}
+
+	} while(Found);
+
+	return MessageString;
 }
 
 
