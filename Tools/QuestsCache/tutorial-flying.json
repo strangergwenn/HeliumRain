@@ -1,0 +1,402 @@
+{
+	Identifier: "tutorial-flying"
+	Name: "Spaceship flying tutorial"
+	Description: "Learn how to pilot a ship"
+	Ended Description: ""
+	Category: TUTORIAL
+	Resettable: true
+
+	Triggers: [
+		{
+			Type: FLYING_SHIP
+		}
+	]
+
+	Steps: [
+		{
+			Identifier: "go-forward"
+			Step Description: "Go forward"
+			End Conditions: [
+				{
+					Type: SHIP_MIN_COLLINEAR_VELOCITY
+					Float Param 1: 30.0
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"We will start going forward. The spaceships have a lot of small engine named RCS (Reaction Control System) allowing them to accelerate in all direction. To go forward press <input-axis:Thrust,1.0> slightly. You can modify the key binding in the settings (<input-action:SettingsMenu>)"
+					]
+
+				}
+			]
+		}
+		{
+			Identifier: "go-backward"
+			Step Description: "Go backward"
+			End Conditions: [
+				{
+					Type: SHIP_MAX_COLLINEAR_VELOCITY
+					Float Param 1: -20.0
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"In space as there is not air to brake you, your spaceship will keep is velicity and direction if you don't use your engines. Keep in mind that braking will need as many energy as accelerate so it can take a long time if you go very fast.\n Now  you will brake and go backward. Press <input-axis:Thrust,-1.0> few instants."
+					]
+
+				}
+			]
+		}
+		{
+			Identifier: "boost"
+			Step Description: "Boost"
+			End Conditions: [
+				{
+					Type: SHIP_MIN_COLLINEAR_VELOCITY
+					Float Param 1: 120.0
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"In addition of your small RCS your spaceship have one or more bigger engine. The main usage of theses engines is to navigate between orbitals sector but they can be use to give you a quick boost. Using your orbital engine can overheat your spaceship quickly so be carrefull using it. New press <input-action:Boost> to boost."
+					]
+
+				}
+			]
+		}
+		{
+			Identifier: "brake"
+			Step Description: "Brake"
+			End Conditions: [
+				{
+					Type: SHIP_MAX_COLLINEAR_VELOCITY
+					Float Param 1: 0.1
+				}
+				{
+					Type: SHIP_MIN_COLLINEAR_VELOCITY
+					Float Param 1: -0.1
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"If you go faster than a certain limite, your spaceship's autopilot system will try to use your RCS to lower the speed to a raisonable value to keep you close to the current sector orbital speed. Only the boost permet to reach highter speed: this is very useful for emergencies.\n Your autopilot have more feature. For exemple it can brake your spacecraft to 0m/s (relative to the sector orbital velocity). Use the wheel menu <Middle Mouse> to brake."
+					]
+				}
+			]
+		}
+		
+		{
+			Identifier: "pitch-up"
+			Step Description: "Pitch up"
+			End Conditions: [
+				{
+					Type: SHIP_MIN_PITCH_VELOCITY
+					Float Param 1: 10
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"You can use your RCS system to make rotate your spaceship. As soon as you stop to give rotation command, the autopilot will try to stabilize your spaceship. Click on the top or bottom par of the screen to pitch."
+					]
+				}
+			]
+		}
+		
+		{
+			Identifier: "pitch-down"
+			Step Description: "Pitch down"
+			End Conditions: [
+				{
+					Type: SHIP_MAX_PITCH_VELOCITY
+					Float Param 1: -10
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+		}
+		
+		{
+			Identifier: "yaw-left"
+			Step Description: "Yaw left"
+			End Conditions: [
+				{
+					Type: SHIP_MIN_YAW_VELOCITY
+					Float Param 1: 10
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"You can also rotate your ship in the yaw axis. Click at the left or right part of the screen to yaw."
+					]
+				}
+			]
+		}
+		
+		{
+			Identifier: "yaw-right"
+			Step Description: "Yaw right"
+			End Conditions: [
+				{
+					Type: SHIP_MAX_YAW_VELOCITY
+					Float Param 1: -10
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+		}
+		
+		{
+			Identifier: "roll-left"
+			Step Description: "Roll left"
+			End Conditions: [
+				{
+					Type: SHIP_MIN_ROLL_VELOCITY
+					Float Param 1: 10
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"Then, for the last axis, you can roll your spacescraft using <input-axis:RollInput,1.0> and <input-axis:RollInput,-1.0>."
+					]
+				}
+			]
+		}
+		
+		{
+			Identifier: "roll-right"
+			Step Description: "Roll right"
+			End Conditions: [
+				{
+					Type: SHIP_MAX_ROLL_VELOCITY
+					Float Param 1: -10
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+		}
+		
+		{
+			Identifier: "forward"
+			Step Description: "Forward again"
+			End Conditions: [
+				{
+					Type: SHIP_MIN_COLLINEAR_VELOCITY
+					Float Param 1: 20
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"Go forward again."
+					]
+				}
+			]
+		}
+		
+		{
+			Identifier: "prograde"
+			Step Description: "Prograde vector"
+			End Conditions: [
+				{
+					Type: SHIP_MIN_COLLINEARITY
+					Float Param 1: 0.5
+				}
+				{
+					Type: SHIP_MAX_COLLINEARITY
+					Float Param 1: 0.9
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+				{
+					Type: SHIP_MIN_VELOCITY
+					Float Param 1: 20
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"Now rotate your ship a little. The white circle is no more at the center of the center of the screen. This is your prograde vector. It indicate the direction of your ship : has there is no air in space, it's not necessary to be aerodynamic and keep the nose of the spaceship in the direction for the movement. Rotating your ship don't change your linear velocity. The prograde indicator is very useful because it show exactly were you are going to pass : if there if a distant static obstacle under your prograde vector you will finish to collide with it."
+					]
+				}
+			]
+		}
+		
+		{
+			Identifier: "follow-path"
+			Step Description: "Follow path"
+			End Conditions: [
+				{
+					Type: SHIP_FOLLOW_RELATIVE_WAYPOINTS
+					Vector List Param : (1000, 100, 300),  (1500, 400, 300),  (2000, 400, 000),  (2500, 600, 200),  (3000, 800, 400)
+					Float List Param : 10, 10, 10, 10, 10
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"You can also use the prograde vector to follow a path with precision. Follow this waypoint using your RCS linear translations using <input-axis:MoveHorizontalInput,1.0>, <input-axis:MoveHorizontalInput,-1.0>, <input-axis:MoveVerticalInput,1.0> and <input-axis:MoveVerticalInput,-1.0>."
+					]
+				}
+			]
+		}
+		
+		{
+			Identifier: "face-forward"
+			Step Description: "Face forward"
+			End Conditions: [
+				{
+					Type: SHIP_MIN_COLLINEARITY
+					Float Param 1: 0.99
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"If your are desoriented and you want to face the direction where you go, you can ask your autopilot to face the prograde vector pressing <input-action:FaceForward> or using the wheel menu."
+					]
+				}
+			]
+		}
+		
+		{
+			Identifier: "face-backward"
+			Step Description: "Face backward"
+			End Conditions: [
+				{
+					Type: SHIP_MAX_COLLINEARITY
+					Float Param 1: -0.99
+				}
+			]
+			Enabled Conditions: [
+				{
+					Type: SHARED_CONDITION
+					Identifier 1: "fly-ship"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"You can also face the retrograde vector (the opposite direction to the prograde vector, and also the direction were you come from) pressing <input-action:FaceBackward> or using the wheel menu. This can be usefull to perform an emergency brake : using your boost facing the retrograde vector will kill your velocity very quickly."
+					]
+				}
+			]
+			End Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"Congratulations, you just finish the spaceship flying tutorial. Don't hesitate to take a while to get familiar these controls flying between the stations of this sector."
+					]
+				}
+			]
+		}
+	]
+
+	Shared Conditions: [
+		{
+			Identifier: "fly-ship"
+			Conditions: [
+				{
+					Type: FLYING_SHIP
+				}
+				{
+					Type: SHIP_ALIVE
+				}
+			]
+		}
+	]
+}
