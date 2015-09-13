@@ -32,7 +32,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"We will start going forward. The spaceships have a lot of small engine named RCS (Reaction Control System) allowing them to accelerate in all direction. To go forward press <input-axis:Thrust,1.0> slightly. You can modify the key binding in the settings (<input-action:SettingsMenu>)"
+						"We will start going forward. The spaceships have a lot of small engine named RCS (Reaction Control System) allowing them to accelerate in all direction. To go forward press <input-axis:Thrust,1.0> slightly. You can modify the key binding in the settings (<input-action:SettingsMenu>)."
 					]
 
 				}
@@ -57,7 +57,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"In space as there is not air to brake you, your spaceship will keep is velicity and direction if you don't use your engines. Keep in mind that braking will need as many energy as accelerate so it can take a long time if you go very fast.\n Now  you will brake and go backward. Press <input-axis:Thrust,-1.0> few instants."
+						"In space as there is not air to brake you, your spaceship will keep its velocity and direction if you don't use your engines. Keep in mind that braking will need as many energy as accelerate so it can take a long time if you go very fast.<br>Now  you will brake and go backward. Press <input-axis:Thrust,-1.0> few instants."
 					]
 
 				}
@@ -111,7 +111,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"If you go faster than a certain limite, your spaceship's autopilot system will try to use your RCS to lower the speed to a raisonable value to keep you close to the current sector orbital speed. Only the boost permet to reach highter speed: this is very useful for emergencies.\n Your autopilot have more feature. For exemple it can brake your spacecraft to 0m/s (relative to the sector orbital velocity). Use the wheel menu <Middle Mouse> to brake."
+						"If you go faster than a certain limite, your spaceship's autopilot system will try to use your RCS to lower the speed to a raisonable value to keep you close to the current sector orbital speed. Only the boost permet to reach highter speed: this is very useful for emergencies.<br> Your autopilot have more feature. For exemple it can brake your spacecraft to 0m/s (relative to the sector orbital velocity). Use the wheel menu <Middle Mouse> to brake."
 					]
 				}
 			]
