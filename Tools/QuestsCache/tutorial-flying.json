@@ -123,7 +123,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MAX_PITCH_VELOCITY
-					Float Param 1: -20
+					Float Param 1: -10
 				}
 			]
 			Enabled Conditions: [
@@ -148,7 +148,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MIN_PITCH_VELOCITY
-					Float Param 1: 20
+					Float Param 1: 10
 				}
 			]
 			Enabled Conditions: [
@@ -165,7 +165,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MAX_YAW_VELOCITY
-					Float Param 1: -20
+					Float Param 1: -10
 				}
 			]
 			Enabled Conditions: [
@@ -190,7 +190,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MIN_YAW_VELOCITY
-					Float Param 1: 20
+					Float Param 1: 10
 				}
 			]
 			Enabled Conditions: [
@@ -220,7 +220,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"Then, for the last axis, you can roll your spacescraft using <input-axis:RollInput,1.0> and <input-axis:RollInput,-1.0>."
+						"Then, for the last axis, you can roll your spacescraft using <input-axis:RollInput,-1.0> and <input-axis:RollInput,1.0>."
 					]
 				}
 			]
@@ -295,7 +295,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"Now rotate your ship a little. The white circle is no more at the center of the center of the screen. This is your prograde vector. It indicate the direction of your ship : has there is no air in space, it's not necessary to be aerodynamic and keep the nose of the spaceship in the direction for the movement. Rotating your ship don't change your linear velocity.<br>The prograde indicator is very useful because it show exactly were you are going to pass : if there if a distant static obstacle under your prograde vector you will finish to collide with it."
+						"Now rotate your ship a little. The white circle is no more at the center of the screen. This is your prograde vector. It indicate the direction of your ship's trajectory : as there is no air in space, it's not necessary to be aerodynamic and to keep the nose of the spaceship in the direction for the movement. Rotating your ship don't change your linear velocity.<br>The prograde indicator is very useful because it show exactly were you are going to pass : if there if a distant static obstacle under your prograde vector you will finish to collide with it."
 					]
 				}
 			]
@@ -307,7 +307,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_FOLLOW_RELATIVE_WAYPOINTS
-					Vector List Param : (1000, 100, 300),  (1500, 400, 300),  (2000, 400, 0),  (2500, 600, 200),  (3000, 800, 400)
+					Vector List Param : (2000, 50, 150),  (2500, 200, 150),  (3000, 200, 0),  (3500, 300, 100),  (4000, 400, 200)
 					Float List Param : 10, 10, 10, 10, 10
 				}
 			]
@@ -321,7 +321,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"You can also use the prograde vector to follow a path with precision. Follow this waypoint using your RCS linear translations using <input-axis:MoveHorizontalInput,1.0>, <input-axis:MoveHorizontalInput,-1.0>, <input-axis:MoveVerticalInput,1.0> and <input-axis:MoveVerticalInput,-1.0>."
+						"You can also use the prograde vector to follow a path with precision. Follow this waypoint using your RCS linear translations using <input-axis:MoveHorizontalInput,1.0>, <input-axis:MoveHorizontalInput,-1.0>, <input-axis:MoveVerticalInput,1.0> and <input-axis:MoveVerticalInput,-1.0>.<br>For this step, you can toogle the external camera (<input-action:ToggleCamera>) to see your RCS working during your trajectory corrections."
 					]
 				}
 			]
@@ -333,7 +333,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MIN_COLLINEARITY
-					Float Param 1: 0.99
+					Float Param 1: 0.9999
 				}
 			]
 			Enabled Conditions: [
@@ -358,7 +358,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MAX_COLLINEARITY
-					Float Param 1: -0.99
+					Float Param 1: -0.9999
 				}
 			]
 			Enabled Conditions: [
@@ -371,7 +371,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"You can also face the retrograde vector (the opposite direction to the prograde vector, and also the direction were you come from) pressing <input-action:FaceBackward> or using the wheel menu. This can be usefull to perform an emergency brake : using your boost facing the retrograde vector will kill your velocity very quickly."
+						"You can also face the retrograde vector (the opposite direction to the prograde vector, and also the direction were you come from) pressing <input-action:FaceBackward> or using the wheel menu.<br>This can be usefull to perform an emergency brake : using your boost facing the retrograde vector will kill your velocity very quickly."
 					]
 				}
 			]
