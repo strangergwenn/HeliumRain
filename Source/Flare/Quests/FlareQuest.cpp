@@ -173,9 +173,9 @@ void UFlareQuest::Fail()
 void UFlareQuest::Activate()
 {
 	SetStatus(EFlareQuestStatus::ACTIVE);
+	QuestManager->OnQuestActivation(this);
 	// Activate next step
 	NextStep();
-	QuestManager->OnQuestActivation(this);
 }
 
 bool UFlareQuest::CheckConditions(const TArray<FFlareQuestConditionDescription>& Conditions)
