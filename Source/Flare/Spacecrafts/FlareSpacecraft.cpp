@@ -547,7 +547,7 @@ void AFlareSpacecraft::OnEnemyKilled(IFlareSpacecraftInterface* Enemy)
 	AFlarePlayerController* PC = GetPC();
 	if (PC)
 	{
-		PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"), LOCTEXT("SkillKilledInfo", "You destroyed an anemy ship !"), EFlareNotification::NT_Military);
+		PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"), LOCTEXT("SkillKilledInfo", "You destroyed an enemy ship !"), FName("ship-killed"), EFlareNotification::NT_Military);
 	}
 }
 

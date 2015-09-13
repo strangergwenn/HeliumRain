@@ -115,7 +115,7 @@ void UFlareQuest::EndStep()
 	QuestData.SuccessfullSteps.Add(StepDescription->Identifier);
 	FLOGV("Quest %s step %s end", *GetIdentifier().ToString(), *StepDescription->Identifier.ToString());
 
-	SendQuestNotification(StepDescription->StepDescription + ": Done");
+	SendQuestNotification(StepDescription->StepDescription + ": Done", NAME_None);
 
 	PerformActions(StepDescription->EndActions);
 
@@ -394,7 +394,7 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 			//Replace tags in quests text
 			FString MessageString = FormatTags(Action->MessagesParameter[i].Text);
 
-			SendQuestNotification(MessageString);
+			SendQuestNotification(MessageString, FName(*(FString("quest-")+GetIdentifier().ToString()+"-message")));
 		}
 		break;
 	default:
@@ -509,13 +509,13 @@ FString UFlareQuest::FormatTags(FString Message)
 
 
 
-void UFlareQuest::SendQuestNotification(FString Message)
+void UFlareQuest::SendQuestNotification(FString Message, FName Tag)
 {
 	FText Text = FText::FromString(GetQuestName());
 	FText Info = FText::FromString(Message);
 	float Duration = 5 + Message.Len() / 10.0f;
-
-	QuestManager->GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest, Duration);
+	FLOGV("Send quest notification: %s", *Message);
+	QuestManager->GetGame()->GetPC()->Notify(Text, Info, Tag, EFlareNotification::NT_Quest, Duration);
 }
 
 /*----------------------------------------------------

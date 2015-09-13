@@ -292,7 +292,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		// Notification
 		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " +Ship->GetImmatriculation().ToString());
 		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
-		Notify(Text, Info, EFlareNotification::NT_Help);
+		Notify(Text, Info, "flying-info", EFlareNotification::NT_Help);
 
 		// HUD update
 		GetNavHUD()->OnTargetShipChanged();
@@ -381,10 +381,10 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 	Menus
 ----------------------------------------------------*/
 
-void AFlarePlayerController::Notify(FText Title, FText Info, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
-	MenuManager->Notify(Title, Info, Type, Timeout, TargetMenu, TargetInfo);
+	MenuManager->Notify(Title, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
 }
 
 void AFlarePlayerController::SetupMenu()
@@ -831,7 +831,7 @@ void AFlarePlayerController::Test1()
 {
 	if (GetGame()->IsLoadedOrCreated())
 	{
-		Notify(FText::FromString("AFlarePlayerController::Test1"), FText::FromString("AFlarePlayerController::Test1"));
+		Notify(FText::FromString("AFlarePlayerController::Test1"), FText::FromString("AFlarePlayerController::Test1"), NAME_None);
 	}
 }
 
@@ -839,7 +839,7 @@ void AFlarePlayerController::Test2()
 {
 	if (GetGame()->IsLoadedOrCreated())
 	{
-		Notify(FText::FromString("AFlarePlayerController::Test2"), FText::FromString("AFlarePlayerController::Test2"));
+		Notify(FText::FromString("AFlarePlayerController::Test2"), FText::FromString("AFlarePlayerController::Test2"), NAME_None);
 	}
 }
 

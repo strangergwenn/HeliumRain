@@ -36,7 +36,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo);
+	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo);
 
 	/** Remvoe all notifications from the screen */
 	void FlushNotifications();

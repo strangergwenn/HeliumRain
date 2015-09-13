@@ -71,7 +71,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, EFlareNotification::Type Type = EFlareNotification::NT_General, float Timeout = 10.0f, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL);
+	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_General, float Timeout = 5.0f, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL);
 
 	/** Spawn the menu pawn and prepare the UI */
 	virtual void SetupMenu();

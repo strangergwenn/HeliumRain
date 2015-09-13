@@ -33,13 +33,20 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
-	// Make sure it's unique
-	if (NotificationData.Num() > 0 && NotificationData.Last()->IsDuplicate(Text, TargetMenu))
+	// Remove notification with the same tag.
+
+	if(Tag != NAME_None)
 	{
-		FLOG("SFlareNotifier::Notify : deleting previous because it's duplicate");
-		NotificationData.Last()->Finish(false);
+		for(int Index = 0; Index < NotificationData.Num(); Index++)
+		{
+			if(NotificationData[Index]->IsDuplicate(Tag))
+			{
+				FLOG("SFlareNotifier::Notify : deleting previous because it's duplicate");
+				NotificationData[Index]->Finish(false);
+			}
+		}
 	}
 
 	// Add notification
@@ -52,6 +59,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Typ
 		.Text(Text)
 		.Info(Info)
 		.Type(Type)
+		.Tag(Tag)
 		.Timeout(Timeout)
 		.TargetMenu(TargetMenu)
 		.TargetInfo(TargetInfo)

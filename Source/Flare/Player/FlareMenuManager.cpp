@@ -245,11 +245,11 @@ void AFlareMenuManager::Confirm(FText Text, FSimpleDelegate OnConfirmed)
 	}
 }
 
-void AFlareMenuManager::Notify(FText Text, FText Info, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	if (Notifier.IsValid())
 	{
-		Notifier->Notify(Text, Info, Type, Timeout, TargetMenu, TargetInfo);
+		Notifier->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
 	}
 }
 

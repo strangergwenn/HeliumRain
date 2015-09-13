@@ -35,6 +35,7 @@ class SFlareNotification : public SCompoundWidget
 	SLATE_ARGUMENT(EFlareNotification::Type, Type)
 	SLATE_ARGUMENT(FText, Text)
 	SLATE_ARGUMENT(FText, Info)
+	SLATE_ARGUMENT(FName, Tag)
 	SLATE_ARGUMENT(float, Timeout)
 	SLATE_ARGUMENT(EFlareMenu::Type, TargetMenu)
 	SLATE_ARGUMENT(void*, TargetInfo)
@@ -55,7 +56,7 @@ public:
 	bool IsFinished() const;
 
 	/** Check if this notification is similar to... */
-	bool IsDuplicate(const FText& OtherText, const EFlareMenu::Type OtherMenu) const;
+	bool IsDuplicate(const FName& OtherTag) const;
 
 	/** Complete this notification */
 	void Finish(bool Now = true);
@@ -106,6 +107,7 @@ protected:
 	TEnumAsByte<EFlareMenu::Type>        TargetMenu;
 	void*                                TargetInfo;
 	FText                                Text;
+	FName                                Tag;
 
 	// Fade data
 	TSharedPtr<SButton>                  Button;

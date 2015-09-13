@@ -156,6 +156,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		PC->Notify(
 			LOCTEXT("ShipDestroyed", "Your ship has been destroyed !"),
 			LOCTEXT("ShipDestroyedInfo", "You can switch to nearby ships with N."),
+			FName("ship-destroyed"),
 			EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
 	}
 

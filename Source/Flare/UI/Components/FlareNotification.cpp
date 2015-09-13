@@ -32,6 +32,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	TargetMenu = InArgs._TargetMenu;
 	TargetInfo = InArgs._TargetInfo;
+	Tag = InArgs._Tag;
 	NotificationTimeout = InArgs._Timeout;
 	FLOGV("SFlareNotification::Construct : notifying '%s'", *InArgs._Text.ToString());
 
@@ -126,20 +127,9 @@ bool SFlareNotification::IsFinished() const
 	return (NotificationTimeout > 0 && Lifetime >= NotificationTimeout);
 }
 
-bool SFlareNotification::IsDuplicate(const FText& OtherText, const EFlareMenu::Type OtherMenu) const
+bool SFlareNotification::IsDuplicate(const FName& OtherTag) const
 {
-	if (OtherMenu == TargetMenu)
-	{
-		// Same menu and same n first characters is considered "same notification"
-		int Length = 10;
-		FString Ours = Text.ToString().Left(Length);
-		FString Other = OtherText.ToString().Left(Length);
-		return (Ours.Compare(Other) == 0);
-	}
-	else
-	{
-		return false;
-	}
+	return (OtherTag == Tag);
 }
 
 void SFlareNotification::Finish(bool Now)

@@ -206,7 +206,7 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	// Quest successful notification
 	FText Text = FText::FromString(LOCTEXT("Quest successful", "Quest successful").ToString());
 	FText Info = FText::FromString(Quest->GetQuestName());
-	GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest);
+	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
 
 	if(Quest == SelectedQuest)
 	{
@@ -226,7 +226,7 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	// Quest failed notification
 	FText Text = FText::FromString(LOCTEXT("Quest failed", "Quest failed").ToString());
 	FText Info = FText::FromString(Quest->GetQuestName());
-	GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest);
+	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
 
 	if(Quest == SelectedQuest)
 	{
@@ -244,7 +244,7 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	// New quest notification
 	FText Text = FText::FromString(LOCTEXT("New quest", "New quest available").ToString());
 	FText Info = FText::FromString(Quest->GetQuestName());
-	GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest);
+	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
 
 	if(!SelectedQuest)
 	{
