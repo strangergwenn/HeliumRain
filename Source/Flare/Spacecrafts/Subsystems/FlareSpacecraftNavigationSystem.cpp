@@ -742,6 +742,7 @@ void UFlareSpacecraftNavigationSystem::ClearCurrentCommand()
 FFlareShipCommandData UFlareSpacecraftNavigationSystem::GetCurrentCommand()
 {
 	FFlareShipCommandData CurrentCommand;
+	CurrentCommand.Type = EFlareCommandDataType::CDT_None;
 	CommandData.Peek(CurrentCommand);
 	return CurrentCommand;
 }
