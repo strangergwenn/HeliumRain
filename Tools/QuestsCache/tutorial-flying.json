@@ -122,8 +122,8 @@
 			Step Description: "Pitch up"
 			End Conditions: [
 				{
-					Type: SHIP_MIN_PITCH_VELOCITY
-					Float Param 1: 10
+					Type: SHIP_MAX_PITCH_VELOCITY
+					Float Param 1: -20
 				}
 			]
 			Enabled Conditions: [
@@ -136,7 +136,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"You can use your RCS system to make rotate your spaceship. As soon as you stop to give rotation command, the autopilot will try to stabilize your spaceship. Click on the top or bottom par of the screen to pitch."
+						"You can use your RCS system to make rotate your spaceship. As soon as you stop to give rotation command, the autopilot will try to stabilize your spaceship. Click on the top or bottom part of the screen to pitch."
 					]
 				}
 			]
@@ -147,8 +147,8 @@
 			Step Description: "Pitch down"
 			End Conditions: [
 				{
-					Type: SHIP_MAX_PITCH_VELOCITY
-					Float Param 1: -10
+					Type: SHIP_MIN_PITCH_VELOCITY
+					Float Param 1: 20
 				}
 			]
 			Enabled Conditions: [
@@ -164,8 +164,8 @@
 			Step Description: "Yaw left"
 			End Conditions: [
 				{
-					Type: SHIP_MIN_YAW_VELOCITY
-					Float Param 1: 10
+					Type: SHIP_MAX_YAW_VELOCITY
+					Float Param 1: -20
 				}
 			]
 			Enabled Conditions: [
@@ -189,8 +189,8 @@
 			Step Description: "Yaw right"
 			End Conditions: [
 				{
-					Type: SHIP_MAX_YAW_VELOCITY
-					Float Param 1: -10
+					Type: SHIP_MIN_YAW_VELOCITY
+					Float Param 1: 20
 				}
 			]
 			Enabled Conditions: [
@@ -207,7 +207,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MIN_ROLL_VELOCITY
-					Float Param 1: 10
+					Float Param 1: 20
 				}
 			]
 			Enabled Conditions: [
@@ -232,7 +232,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MAX_ROLL_VELOCITY
-					Float Param 1: -10
+					Float Param 1: -20
 				}
 			]
 			Enabled Conditions: [
@@ -244,7 +244,7 @@
 		}
 		
 		{
-			Identifier: "forward"
+			Identifier: "forward-again"
 			Step Description: "Forward again"
 			End Conditions: [
 				{
@@ -274,11 +274,11 @@
 			End Conditions: [
 				{
 					Type: SHIP_MIN_COLLINEARITY
-					Float Param 1: 0.5
+					Float Param 1: 0.8
 				}
 				{
 					Type: SHIP_MAX_COLLINEARITY
-					Float Param 1: 0.9
+					Float Param 1: 0.95
 				}
 			]
 			Enabled Conditions: [
@@ -295,7 +295,7 @@
 				{
 					Type: PRINT_MESSAGE
 					Messages Parameters : [
-						"Now rotate your ship a little. The white circle is no more at the center of the center of the screen. This is your prograde vector. It indicate the direction of your ship : has there is no air in space, it's not necessary to be aerodynamic and keep the nose of the spaceship in the direction for the movement. Rotating your ship don't change your linear velocity. The prograde indicator is very useful because it show exactly were you are going to pass : if there if a distant static obstacle under your prograde vector you will finish to collide with it."
+						"Now rotate your ship a little. The white circle is no more at the center of the center of the screen. This is your prograde vector. It indicate the direction of your ship : has there is no air in space, it's not necessary to be aerodynamic and keep the nose of the spaceship in the direction for the movement. Rotating your ship don't change your linear velocity.<br>The prograde indicator is very useful because it show exactly were you are going to pass : if there if a distant static obstacle under your prograde vector you will finish to collide with it."
 					]
 				}
 			]
@@ -307,7 +307,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_FOLLOW_RELATIVE_WAYPOINTS
-					Vector List Param : (1000, 100, 300),  (1500, 400, 300),  (2000, 400, 000),  (2500, 600, 200),  (3000, 800, 400)
+					Vector List Param : (1000, 100, 300),  (1500, 400, 300),  (2000, 400, 0),  (2500, 600, 200),  (3000, 800, 400)
 					Float List Param : 10, 10, 10, 10, 10
 				}
 			]
