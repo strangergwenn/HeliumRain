@@ -61,10 +61,28 @@ namespace EFlareQuestCondition
 		FLYING_SHIP,
 		/** Use Identifier1 as the ship taf if need to track a specific ship*/
 		SHIP_ALIVE,
-		/** Use FloatParam1 as min velocity */
+		/** Use FloatParam1 as velocity */
 		SHIP_MIN_COLLINEAR_VELOCITY,
-		/** Use FloatParam1 as max velocity */
+		/** Use FloatParam1 as velocity */
 		SHIP_MAX_COLLINEAR_VELOCITY,
+		/** Use FloatParam1 as angular velocity*/
+		SHIP_MIN_PITCH_VELOCITY,
+		/** Use FloatParam1 as angular velocity*/
+		SHIP_MAX_PITCH_VELOCITY,
+		/** Use FloatParam1 as angular velocity*/
+		SHIP_MIN_YAW_VELOCITY,
+		/** Use FloatParam1 as angular velocity*/
+		SHIP_MAX_YAW_VELOCITY,
+		/** Use FloatParam1 as angular velocity*/
+		SHIP_MIN_ROLL_VELOCITY,
+		/** Use FloatParam1 as angular velocity*/
+		SHIP_MAX_ROLL_VELOCITY,
+		/** Use FloatParam1 as dot product value*/
+		SHIP_MIN_COLLINEARITY,
+		/** Use FloatParam1 as dot product value*/
+		SHIP_MAX_COLLINEARITY,
+		/** Use FloatListParam as radius in meter and VectorListParam as relative target location */
+		SHIP_FOLLOW_RELATIVE_WAYPOINTS,
 		/** Use Identifier1 as reference quest identifier */
 		QUEST_SUCCESSFUL,
 		/** Use Identifier1 as reference quest identifier */
@@ -90,6 +108,12 @@ struct FFlareQuestConditionDescription
 
 	UPROPERTY(EditAnywhere, Category = Quest)
 	float FloatParam1;
+
+	UPROPERTY(EditAnywhere, Category = Quest)
+	TArray<float> FloatListParam;
+
+	UPROPERTY(EditAnywhere, Category = Quest)
+	TArray<FVector> VectorListParam;
 };
 
 

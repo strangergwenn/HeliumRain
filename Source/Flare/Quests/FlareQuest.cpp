@@ -239,6 +239,96 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 				Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) < Condition->FloatParam1);
 			}
 			break;
+		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				if (Spacecraft->GetLinearVelocity().IsNearlyZero())
+				{
+					Status = false;
+				}
+				else
+				{
+					Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity().GetUnsafeNormal(), Spacecraft->GetFrontVector()) > Condition->FloatParam1);
+				}
+			}
+			break;
+		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				if (Spacecraft->GetLinearVelocity().IsNearlyZero())
+				{
+					Status = false;
+				}
+				else
+				{
+					Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity().GetUnsafeNormal(), Spacecraft->GetFrontVector()) < Condition->FloatParam1);
+				}
+			}
+			break;
+		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+				Status = (LocalAngularVelocity.Y > Condition->FloatParam1);
+			}
+			break;
+		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+				Status = (LocalAngularVelocity.Y < Condition->FloatParam1);
+			}
+			break;
+		case EFlareQuestCondition::SHIP_MIN_YAW_VELOCITY:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+				Status = (LocalAngularVelocity.Z > Condition->FloatParam1);
+			}
+			break;
+		case EFlareQuestCondition::SHIP_MAX_YAW_VELOCITY:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+				Status = (LocalAngularVelocity.Z < Condition->FloatParam1);
+			}
+			break;
+		case EFlareQuestCondition::SHIP_MIN_ROLL_VELOCITY:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+				Status = (LocalAngularVelocity.X > Condition->FloatParam1);
+			}
+			break;
+		case EFlareQuestCondition::SHIP_MAX_ROLL_VELOCITY:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+				Status = (LocalAngularVelocity.X < Condition->FloatParam1);
+			}
+			break;
+		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				// TODO
+				FLOG("TODO: SHIP_FOLLOW_RELATIVE_WAYPOINTS");
+			}
+			break;
 		case EFlareQuestCondition::SHIP_ALIVE:
 			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
 			{
@@ -554,6 +644,15 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 			break;
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
 		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
+		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
+		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
+		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
+		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
+		case EFlareQuestCondition::SHIP_MIN_YAW_VELOCITY:
+		case EFlareQuestCondition::SHIP_MAX_YAW_VELOCITY:
+		case EFlareQuestCondition::SHIP_MIN_ROLL_VELOCITY:
+		case EFlareQuestCondition::SHIP_MAX_ROLL_VELOCITY:
+		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
 		case EFlareQuestCondition::SHIP_ALIVE:
 			Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 			break;
