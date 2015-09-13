@@ -381,10 +381,10 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 	Menus
 ----------------------------------------------------*/
 
-void AFlarePlayerController::Notify(FText Title, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void AFlarePlayerController::Notify(FText Title, FText Info, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
-	MenuManager->Notify(Title, Info, Type, TargetMenu, TargetInfo);
+	MenuManager->Notify(Title, Info, Type, Timeout, TargetMenu, TargetInfo);
 }
 
 void AFlarePlayerController::SetupMenu()

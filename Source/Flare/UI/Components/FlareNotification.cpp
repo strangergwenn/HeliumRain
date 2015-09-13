@@ -13,11 +13,10 @@
 void SFlareNotification::Construct(const FArguments& InArgs)
 {
 	// Settings
-	NotificationFinishTime = 2.0;
-	NotificationTimeout = 10;
+	NotificationFinishDuration = 2.0;
 	NotificationScroll = 150;
-	NotificationEnterTime = 0.4;
-	NotificationExitTime = 0.7;
+	NotificationEnterDuration = 0.4;
+	NotificationExitDuration = 0.7;
 	int32 NotificatioNWidth = 400;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 NotificationTextWidth = NotificatioNWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
@@ -33,6 +32,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	TargetMenu = InArgs._TargetMenu;
 	TargetInfo = InArgs._TargetInfo;
+	NotificationTimeout = InArgs._Timeout;
 	FLOGV("SFlareNotification::Construct : notifying '%s'", *InArgs._Text.ToString());
 
 	// Create the layout
@@ -123,7 +123,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 
 bool SFlareNotification::IsFinished() const
 {
-	return (Lifetime >= NotificationTimeout);
+	return (NotificationTimeout > 0 && Lifetime >= NotificationTimeout);
 }
 
 bool SFlareNotification::IsDuplicate(const FText& OtherText, const EFlareMenu::Type OtherMenu) const
@@ -145,8 +145,15 @@ bool SFlareNotification::IsDuplicate(const FText& OtherText, const EFlareMenu::T
 void SFlareNotification::Finish(bool Now)
 {
 	// 1s to finish quietly
-	float Timeout = NotificationTimeout - (Now ? NotificationExitTime : NotificationFinishTime);
-	Lifetime = FMath::Max(Lifetime, Timeout);
+	if (NotificationTimeout == 0)
+	{
+		NotificationTimeout  = Lifetime + (Now ? NotificationExitDuration : NotificationFinishDuration);
+	}
+	else
+	{
+		float Timeout = NotificationTimeout - (Now ? NotificationExitDuration : NotificationFinishDuration);
+		Lifetime = FMath::Max(Lifetime, Timeout);
+	}
 }
 
 
@@ -161,9 +168,9 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 	// Update lifetime
 	Lifetime += InDeltaTime;
 	float Ease = 2;
-	float AnimationTime = NotificationExitTime / 2;
-	float TimeToFade = NotificationTimeout - Lifetime - 2 * AnimationTime;
-	float TimeToRemove = NotificationTimeout - Lifetime - AnimationTime;
+	float AnimationTime = NotificationExitDuration / 2;
+	float TimeToFade = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime - 2 * AnimationTime : 2 * AnimationTime);
+	float TimeToRemove = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime - AnimationTime : AnimationTime);
 
 	// Disappear if finished
 	if (TimeToFade <= 0 && Button->GetVisibility() == EVisibility::Visible)
@@ -173,10 +180,10 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 	}
 
 	// Update render data
-	if (Lifetime <= NotificationEnterTime)
+	if (Lifetime <= NotificationEnterDuration)
 	{
-		CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(Lifetime / NotificationEnterTime, 0.0f, 1.0f), Ease);
-		CurrentMargin = NotificationScroll * FMath::InterpEaseOut(1.0f, 0.0f, FMath::Clamp(Lifetime / NotificationEnterTime, 0.0f, 1.0f), Ease);
+		CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(Lifetime / NotificationEnterDuration, 0.0f, 1.0f), Ease);
+		CurrentMargin = NotificationScroll * FMath::InterpEaseOut(1.0f, 0.0f, FMath::Clamp(Lifetime / NotificationEnterDuration, 0.0f, 1.0f), Ease);
 	}
 	else
 	{

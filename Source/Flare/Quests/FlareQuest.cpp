@@ -302,7 +302,7 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 			// Quest message notification
 			FText Text = FText::FromString(GetQuestName());
 			FText Info = FText::FromString(Action->MessagesParameter[i].Text);
-			QuestManager->GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest);
+			QuestManager->GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest, 0.0f);
 		}
 		break;
 	default:

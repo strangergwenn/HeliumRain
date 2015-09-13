@@ -33,7 +33,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Type, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
 {
 	// Make sure it's unique
 	if (NotificationData.Num() > 0 && NotificationData.Last()->IsDuplicate(Text, TargetMenu))
@@ -52,6 +52,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, EFlareNotification::Type Typ
 		.Text(Text)
 		.Info(Info)
 		.Type(Type)
+		.Timeout(Timeout)
 		.TargetMenu(TargetMenu)
 		.TargetInfo(TargetInfo)
 	];

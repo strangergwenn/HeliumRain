@@ -35,6 +35,7 @@ class SFlareNotification : public SCompoundWidget
 	SLATE_ARGUMENT(EFlareNotification::Type, Type)
 	SLATE_ARGUMENT(FText, Text)
 	SLATE_ARGUMENT(FText, Info)
+	SLATE_ARGUMENT(float, Timeout)
 	SLATE_ARGUMENT(EFlareMenu::Type, TargetMenu)
 	SLATE_ARGUMENT(void*, TargetInfo)
 
@@ -90,11 +91,11 @@ protected:
 	----------------------------------------------------*/
 
 	// Settings
-	float                                NotificationFinishTime;
+	float                                NotificationFinishDuration;
 	float                                NotificationTimeout;
 	float                                NotificationScroll;
-	float                                NotificationEnterTime;
-	float                                NotificationExitTime;
+	float                                NotificationEnterDuration;
+	float                                NotificationExitDuration;
 
 	/** HUD reference */
 	UPROPERTY()
