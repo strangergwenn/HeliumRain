@@ -307,8 +307,8 @@
 			End Conditions: [
 				{
 					Type: SHIP_FOLLOW_RELATIVE_WAYPOINTS
-					Vector List Param : (2000, 50, 150),  (2500, 200, 150),  (3000, 200, 0),  (3500, 300, 100),  (4000, 400, 200)
-					Float List Param : 10, 10, 10, 10, 10
+					Vector List Param : (2000, 50, 150),  (2500, 200, 150),  (3000, 200, 0),  (3500, 250, 100),  (4000, 400, 200)
+					Float List Param : 30, 30, 30, 30, 30
 				}
 			]
 			Enabled Conditions: [
