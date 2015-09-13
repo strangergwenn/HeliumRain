@@ -32,6 +32,8 @@ struct FFlareQuestStepProgressSave
 	FName ConditionIdentifier;
 
 	int32 CurrentProgression;
+
+	FTransform InitialTransform;
 };
 
 /** Quest progress status save data */

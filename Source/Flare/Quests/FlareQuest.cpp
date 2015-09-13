@@ -326,8 +326,42 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
 			{
 				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				// TODO
-				FLOG("TODO: SHIP_FOLLOW_RELATIVE_WAYPOINTS");
+
+				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
+
+				if(!ProgressSave)
+				{
+					ProgressSave = CreateStepProgressSave(Condition);
+					ProgressSave->CurrentProgression = 0;
+					ProgressSave->InitialTransform = Spacecraft->Airframe->GetComponentTransform();
+				}
+
+				FVector InitialLocation = ProgressSave->InitialTransform.GetTranslation();
+				FVector RelativeTargetLocation = Condition->VectorListParam[ProgressSave->CurrentProgression] * 100;
+				FVector WorldTargetLocation = InitialLocation + ProgressSave->InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
+
+
+				float MaxDistance = Condition->FloatListParam[ProgressSave->CurrentProgression] * 100;
+
+
+				if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
+				{
+					// Near enougth to the target !
+					if (ProgressSave->CurrentProgression + 2 <= Condition->VectorListParam.Num())
+					{
+						// Progress.
+						ProgressSave->CurrentProgression++;
+
+						SendQuestNotification("Waypoint reach. " + FString::FromInt(Condition->VectorListParam.Num() -ProgressSave->CurrentProgression) + " left." ,
+											  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")));
+					}
+					else
+					{
+						// All waypoint reach
+						Status = true;
+					}
+
+				}
 			}
 			break;
 		case EFlareQuestCondition::SHIP_ALIVE:
@@ -566,6 +600,29 @@ void UFlareQuest::UpdateObjectiveTracker()
 
 	QuestManager->GetGame()->GetPC()->StartObjective(Name, Infos);
 	QuestManager->GetGame()->GetPC()->SetObjectiveProgress(1.0);
+
+	// Add navigation point if needed
+	if(GetCurrentStepDescription())
+	{
+		for (int ConditionIndex = 0; ConditionIndex < GetCurrentStepDescription()->EndConditions.Num(); ConditionIndex++)
+		{
+			const FFlareQuestConditionDescription* ConditionDescription = &GetCurrentStepDescription()->EndConditions[ConditionIndex];
+			if(ConditionDescription->Type == EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS)
+			{
+				// It need navigation point. Get current point coordinate.
+				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(ConditionDescription);
+
+				if(ProgressSave)
+				{
+					FVector InitialLocation = ProgressSave->InitialTransform.GetTranslation();
+					FVector RelativeTargetLocation = ConditionDescription->VectorListParam[ProgressSave->CurrentProgression] * 100; // In cm
+					FVector WorldTargetLocation = InitialLocation + ProgressSave->InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
+					QuestManager->GetGame()->GetPC()->SetObjectiveTarget(WorldTargetLocation);
+				}
+			}
+		}
+	}
+
 }
 
 
@@ -579,7 +636,6 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 	TArray<EFlareQuestCallback::Type> Callbacks;
 
 	// TODO Cache and return reference
-
 	switch(QuestStatus)
 	{
 		case EFlareQuestStatus::AVAILABLE:
@@ -707,5 +763,44 @@ const FFlareSharedQuestCondition* UFlareQuest::FindSharedCondition(FName SharedC
 	return NULL;
 }
 
+FFlareQuestStepProgressSave* UFlareQuest::GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition)
+{
+	// TODO check double condition
+	if(Condition)
+	{
+		FName SaveId = FName(*FString::FromInt(Condition->Type + 0));
+		if(Condition->ConditionIdentifier != NAME_None)
+		{
+			SaveId = Condition->ConditionIdentifier;
+		}
+		for(int ProgressIndex = 0; ProgressIndex < QuestData.CurrentStepProgress.Num(); ProgressIndex++)
+		{
+			if(QuestData.CurrentStepProgress[ProgressIndex].ConditionIdentifier == SaveId)
+			{
+				return &QuestData.CurrentStepProgress[ProgressIndex];
+			}
+		}
+
+	}
+
+
+	return NULL;
+}
+
+FFlareQuestStepProgressSave* UFlareQuest::CreateStepProgressSave(const FFlareQuestConditionDescription* Condition)
+{
+	FName SaveId = FName(*FString::FromInt(Condition->Type + 0));
+	if(Condition->ConditionIdentifier != NAME_None)
+	{
+		SaveId = Condition->ConditionIdentifier;
+	}
+
+	FFlareQuestStepProgressSave NewSave;
+	NewSave.ConditionIdentifier = SaveId;
+	NewSave.CurrentProgression = 0;
+	NewSave.InitialTransform = FTransform::Identity;
+	QuestData.CurrentStepProgress.Add(NewSave);
+	return &QuestData.CurrentStepProgress.Last();
+}
 
 #undef LOCTEXT_NAMESPACE

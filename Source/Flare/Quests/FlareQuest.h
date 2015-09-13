@@ -293,6 +293,8 @@ public:
 
 	virtual void SendQuestNotification(FString Message, FName Tag);
 
+	virtual FFlareQuestStepProgressSave* CreateStepProgressSave(const FFlareQuestConditionDescription* Condition);
+
 	/*----------------------------------------------------
 		Objective tracking
 	----------------------------------------------------*/
@@ -361,4 +363,6 @@ protected:
 		{
 			return CurrentStepDescription;
 		}
+
+		FFlareQuestStepProgressSave* GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition);
 };
