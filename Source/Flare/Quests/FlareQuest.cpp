@@ -505,6 +505,8 @@ FString UFlareQuest::FormatTags(FString Message)
 
 	} while(Found);
 
+	MessageString = MessageString.Replace(TEXT("<br>"), TEXT("\n"));
+
 	return MessageString;
 }
 
