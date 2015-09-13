@@ -267,6 +267,8 @@ public:
 
 	virtual FString FormatTags(FString Message);
 
+	virtual void SendQuestNotification(FString Message);
+
 	/*----------------------------------------------------
 		Objective tracking
 	----------------------------------------------------*/

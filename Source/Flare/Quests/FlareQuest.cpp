@@ -115,6 +115,8 @@ void UFlareQuest::EndStep()
 	QuestData.SuccessfullSteps.Add(StepDescription->Identifier);
 	FLOGV("Quest %s step %s end", *GetIdentifier().ToString(), *StepDescription->Identifier.ToString());
 
+	SendQuestNotification(StepDescription->StepDescription + ": Done");
+
 	PerformActions(StepDescription->EndActions);
 
 	CurrentStepDescription = NULL;
@@ -302,11 +304,7 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 			//Replace tags in quests text
 			FString MessageString = FormatTags(Action->MessagesParameter[i].Text);
 
-
-			// Quest message notification
-			FText Text = FText::FromString(GetQuestName());
-			FText Info = FText::FromString(MessageString);
-			QuestManager->GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest, 0.0f);
+			SendQuestNotification(MessageString);
 		}
 		break;
 	default:
@@ -419,6 +417,16 @@ FString UFlareQuest::FormatTags(FString Message)
 	return MessageString;
 }
 
+
+
+void UFlareQuest::SendQuestNotification(FString Message)
+{
+	FText Text = FText::FromString(GetQuestName());
+	FText Info = FText::FromString(Message);
+	float Duration = 5 + Message.Len() / 10.0f;
+
+	QuestManager->GetGame()->GetPC()->Notify(Text, Info, EFlareNotification::NT_Quest, Duration);
+}
 
 /*----------------------------------------------------
 	Objective tracking
