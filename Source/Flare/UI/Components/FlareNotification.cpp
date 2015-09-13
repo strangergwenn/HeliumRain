@@ -25,11 +25,13 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 
 	// Args and state
 	Lifetime = 0;
+	ForcedLife = false;
 	LastHeight = 0;
 	CurrentAlpha = 0;
 	CurrentMargin = 0;
 	Text = InArgs._Text;
 	MenuManager = InArgs._MenuManager;
+	Notifier = InArgs._Notifier;
 	TargetMenu = InArgs._TargetMenu;
 	TargetInfo = InArgs._TargetInfo;
 	Tag = InArgs._Tag;
@@ -144,6 +146,7 @@ void SFlareNotification::Finish(bool Now)
 		float Timeout = NotificationTimeout - (Now ? NotificationExitDuration : NotificationFinishDuration);
 		Lifetime = FMath::Max(Lifetime, Timeout);
 	}
+	ForcedLife = true;
 }
 
 
@@ -155,12 +158,15 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	// Update lifetime
-	Lifetime += InDeltaTime;
+	// Update lifetime only if lifetime is forced or if this the first notification
+	if(Notifier->IsFirstNotification(this) || ForcedLife || Lifetime <= NotificationEnterDuration)
+	{
+		Lifetime += InDeltaTime;
+	}
 	float Ease = 2;
 	float AnimationTime = NotificationExitDuration / 2;
 	float TimeToFade = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime - 2 * AnimationTime : 2 * AnimationTime);
-	float TimeToRemove = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime - AnimationTime : AnimationTime);
+	float TimeToRemove = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime : AnimationTime);
 
 	// Disappear if finished
 	if (TimeToFade <= 0 && Button->GetVisibility() == EVisibility::Visible)

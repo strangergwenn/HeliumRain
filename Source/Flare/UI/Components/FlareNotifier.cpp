@@ -56,6 +56,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 	[
 		SAssignNew(NotificationEntry, SFlareNotification)
 		.MenuManager(MenuManager.Get())
+		.Notifier(this)
 		.Text(Text)
 		.Info(Info)
 		.Type(Type)
@@ -107,5 +108,20 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 	}
 }
 
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+bool SFlareNotifier::IsFirstNotification(SFlareNotification* Notification)
+{
+	for(int i = 0; i < NotificationData.Num(); i++)
+	{
+		if(!NotificationData[i]->IsFinished())
+		{
+			return NotificationData[i].Get() == Notification;
+		}
+	}
+	return false;
+}
 
 #undef LOCTEXT_NAMESPACE

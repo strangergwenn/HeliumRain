@@ -63,5 +63,12 @@ protected:
 	TArray< TSharedPtr<SFlareNotification> > NotificationData;
 	TSharedPtr<SVerticalBox>             NotificationContainer;
 
+public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	virtual bool IsFirstNotification(SFlareNotification* Notification);
 
 };
