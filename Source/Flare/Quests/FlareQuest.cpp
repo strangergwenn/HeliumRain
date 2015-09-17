@@ -645,6 +645,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 																	 " m/s");
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
+				// TODO from initial velocity
 				ObjectiveCondition.Progress = FMath::Clamp(Velocity, 0.0f, Condition->FloatParam1);
 				ObjectiveCondition.MaxProgress = Condition->FloatParam1;
 				ObjectiveData->ConditionList.Add(ObjectiveCondition);
@@ -668,7 +669,110 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 																	 " m/s");
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
+				// TODO from initial velocity
 				ObjectiveCondition.Progress = FMath::Clamp(Velocity * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
+				ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
+				ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			}
+			break;
+		}
+		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
+		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
+		{
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+
+				FFlarePlayerObjectiveCondition ObjectiveCondition;
+				FString Direction;
+				if(Condition->FloatParam1 > 0)
+				{
+					Direction = "down";
+				}
+				else
+				{
+					Direction = "up";
+				}
+				ObjectiveCondition.InitialLabel = FText::FromString(FString("Pitch at least at ") +
+															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
+															" \xB0/s "+Direction);
+
+				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Y)) +
+																	 " \xB0/s");
+				ObjectiveCondition.Counter = 0;
+				ObjectiveCondition.MaxCounter = 0;
+
+				ObjectiveCondition.Progress = FMath::Clamp(LocalAngularVelocity.Y * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
+				ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
+				ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			}
+			break;
+		}
+		case EFlareQuestCondition::SHIP_MAX_YAW_VELOCITY:
+		case EFlareQuestCondition::SHIP_MIN_YAW_VELOCITY:
+		{
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+
+				FFlarePlayerObjectiveCondition ObjectiveCondition;
+				FString Direction;
+				if(Condition->FloatParam1 > 0)
+				{
+					Direction = "right";
+				}
+				else
+				{
+					Direction = "left";
+				}
+				ObjectiveCondition.InitialLabel = FText::FromString(FString("Yaw at least at ") +
+															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
+															" \xB0/s "+Direction);
+
+				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Z)) +
+																	 " \xB0/s");
+				ObjectiveCondition.Counter = 0;
+				ObjectiveCondition.MaxCounter = 0;
+
+				ObjectiveCondition.Progress = FMath::Clamp(LocalAngularVelocity.Z * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
+				ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
+				ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			}
+			break;
+		}
+		case EFlareQuestCondition::SHIP_MAX_ROLL_VELOCITY:
+		case EFlareQuestCondition::SHIP_MIN_ROLL_VELOCITY:
+		{
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+
+				FFlarePlayerObjectiveCondition ObjectiveCondition;
+				FString Direction;
+				if(Condition->FloatParam1 > 0)
+				{
+					Direction = "left";
+				}
+				else
+				{
+					Direction = "right";
+				}
+				ObjectiveCondition.InitialLabel = FText::FromString(FString("Roll at least at ") +
+															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
+															" \xB0/s "+Direction);
+
+				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.X)) +
+																	 " \xB0/s");
+				ObjectiveCondition.Counter = 0;
+				ObjectiveCondition.MaxCounter = 0;
+
+				ObjectiveCondition.Progress = FMath::Clamp(LocalAngularVelocity.X * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
 				ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
 				ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			}
@@ -684,7 +788,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveCondition.Counter = 0;
 			ObjectiveCondition.MaxCounter = Condition->VectorListParam.Num();
 			ObjectiveCondition.Progress = 0;
-			ObjectiveCondition.MaxProgress = 0;
+			ObjectiveCondition.MaxProgress = Condition->VectorListParam.Num();
 
 
 
@@ -694,7 +798,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			if(ProgressSave)
 			{
 				ObjectiveCondition.Counter = ProgressSave->CurrentProgression;
-
+				ObjectiveCondition.Progress = ProgressSave->CurrentProgression;
 				for(int TargetIndex = 0; TargetIndex < Condition->VectorListParam.Num(); TargetIndex++)
 				{
 					FFlarePlayerObjectiveTarget ObjectiveTarget;

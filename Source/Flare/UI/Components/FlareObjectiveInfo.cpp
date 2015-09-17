@@ -325,13 +325,10 @@ EVisibility SFlareObjectiveInfo::GetProgressVisibility(int32 ConditionIndex) con
 
 	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
 
-	FLOGV("GetProgressVisibility Condition->MaxProgress %f", Condition->MaxProgress);
-
 	if(Condition->MaxProgress == 0)
 	{
 		return EVisibility::Collapsed;
 	}
-	FLOG("GetProgressVisibility OK");
 
 	return EVisibility::Visible;
 }
