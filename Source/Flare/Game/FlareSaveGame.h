@@ -6,25 +6,56 @@
 
 #include "FlareSaveGame.generated.h"
 
+/** Player objective condition data */
+USTRUCT()
+struct FFlarePlayerObjectiveCondition
+{
+	GENERATED_USTRUCT_BODY()
 
+	FText                       InitialLabel;
+	FText						TerminalLabel;
+
+	float                       Progress;
+	float                       MaxProgress;
+	int32                       Counter;
+	int32                       MaxCounter;
+};
+
+/** Player objective target data */
+USTRUCT()
+struct FFlarePlayerObjectiveTarget
+{
+	GENERATED_USTRUCT_BODY()
+
+	AActor*                     Actor;
+	FVector                     Location;
+	float						Radius;
+	bool						Active;
+};
 
 /** Player objective data */
+USTRUCT()
+struct FFlarePlayerObjectiveData
+{
+	GENERATED_USTRUCT_BODY()
+
+	FText                       Name;
+	FText                       Description;
+
+	TArray<FFlarePlayerObjectiveTarget> TargetList;
+	TArray<FFlarePlayerObjectiveCondition> ConditionList;
+};
+
+
+/** Player objective */
 USTRUCT()
 struct FFlarePlayerObjective
 {
 	GENERATED_USTRUCT_BODY()
 
 	bool                        Set;
-	FText                       Name;
-	FText                       Info;
-
-	bool						HasTarget;
-	AActor*                     Target;
-	FVector                     Location;
-
-	bool						HasProgress;
-	float                       Progress;
-	FText						ProgressSuffix;
+	FFlarePlayerObjectiveData   Data;
+	int32						Version;
 };
 
 /** Game save data */

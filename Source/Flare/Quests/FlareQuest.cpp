@@ -121,6 +121,10 @@ void UFlareQuest::EndStep()
 	PerformActions(StepDescription->EndActions);
 
 	CurrentStepDescription = NULL;
+	if(TrackObjectives)
+	{
+		QuestManager->GetGame()->GetPC()->CompleteObjective();
+	}
 
 	// Activate next step
 	NextStep();
@@ -173,9 +177,9 @@ void UFlareQuest::Fail()
 void UFlareQuest::Activate()
 {
 	SetStatus(EFlareQuestStatus::ACTIVE);
-	QuestManager->OnQuestActivation(this);
 	// Activate next step
 	NextStep();
+	QuestManager->OnQuestActivation(this);
 }
 
 bool UFlareQuest::CheckConditions(const TArray<FFlareQuestConditionDescription>& Conditions)
@@ -567,6 +571,7 @@ void UFlareQuest::StartObjectiveTracking()
 	}
 
 	TrackObjectives = true;
+	QuestManager->GetGame()->GetPC()->CompleteObjective();
 	UpdateObjectiveTracker();
 }
 
@@ -589,7 +594,6 @@ void UFlareQuest::UpdateObjectiveTracker()
 		return;
 	}
 
-	QuestManager->GetGame()->GetPC()->CompleteObjective();
 
 	FText Name = FText::FromString(GetQuestName());
 	FText Infos = FText::FromString("");
@@ -598,33 +602,125 @@ void UFlareQuest::UpdateObjectiveTracker()
 		Infos = FText::FromString(GetCurrentStepDescription()->StepDescription);
 	}
 
-	QuestManager->GetGame()->GetPC()->StartObjective(Name, Infos);
-	QuestManager->GetGame()->GetPC()->SetObjectiveProgress(1.0);
+	FFlarePlayerObjectiveData Objective;
+	Objective.Name = Name;
+	Objective.Description = Infos;
 
-	// Add navigation point if needed
 	if(GetCurrentStepDescription())
 	{
-		for (int ConditionIndex = 0; ConditionIndex < GetCurrentStepDescription()->EndConditions.Num(); ConditionIndex++)
-		{
-			const FFlareQuestConditionDescription* ConditionDescription = &GetCurrentStepDescription()->EndConditions[ConditionIndex];
-			if(ConditionDescription->Type == EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS)
-			{
-				// It need navigation point. Get current point coordinate.
-				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(ConditionDescription);
-
-				if(ProgressSave)
-				{
-					FVector InitialLocation = ProgressSave->InitialTransform.GetTranslation();
-					FVector RelativeTargetLocation = ConditionDescription->VectorListParam[ProgressSave->CurrentProgression] * 100; // In cm
-					FVector WorldTargetLocation = InitialLocation + ProgressSave->InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
-					QuestManager->GetGame()->GetPC()->SetObjectiveTarget(WorldTargetLocation);
-				}
-			}
-		}
+		AddConditionObjectives(&Objective, GetCurrentStepDescription()->EndConditions);
 	}
 
+	QuestManager->GetGame()->GetPC()->StartObjective(Name, Objective);
 }
 
+void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, const TArray<FFlareQuestConditionDescription>& Conditions)
+{
+	for (int ConditionIndex = 0; ConditionIndex < Conditions.Num(); ConditionIndex++)
+	{
+		const FFlareQuestConditionDescription* Condition = &Conditions[ConditionIndex];
+
+		switch (Condition->Type) {
+		case EFlareQuestCondition::SHARED_CONDITION:
+		{
+			const FFlareSharedQuestCondition* SharedCondition = FindSharedCondition(Condition->Identifier1);
+			if(SharedCondition)
+			{
+				AddConditionObjectives(ObjectiveData, SharedCondition->Conditions);
+			}
+			break;
+		}
+		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
+		{
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				float Velocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
+
+				FFlarePlayerObjectiveCondition ObjectiveCondition;
+				ObjectiveCondition.InitialLabel = FText::FromString(FString("Reach at least ") +
+																	FString::FromInt((int)(Condition->FloatParam1)) +
+																	" m/s forward");
+				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(Velocity)) +
+																	 " m/s");
+				ObjectiveCondition.Counter = 0;
+				ObjectiveCondition.MaxCounter = 0;
+				ObjectiveCondition.Progress = FMath::Clamp(Velocity, 0.0f, Condition->FloatParam1);
+				ObjectiveCondition.MaxProgress = Condition->FloatParam1;
+				ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			}
+
+
+			break;
+		}
+		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
+		{
+			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			{
+				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+				float Velocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
+
+				FFlarePlayerObjectiveCondition ObjectiveCondition;
+				ObjectiveCondition.InitialLabel = FText::FromString(FString("Reach at most ") +
+																	FString::FromInt((int)(Condition->FloatParam1)) +
+																	" m/s forward");
+				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(Velocity)) +
+																	 " m/s");
+				ObjectiveCondition.Counter = 0;
+				ObjectiveCondition.MaxCounter = 0;
+				ObjectiveCondition.Progress = FMath::Clamp(Velocity * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
+				ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
+				ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			}
+			break;
+		}
+
+		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
+		{
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = FText::FromString(TEXT("Follow waypoints"));
+			ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = Condition->VectorListParam.Num();
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 0;
+
+
+
+			// It need navigation point. Get current point coordinate.
+			FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
+
+			if(ProgressSave)
+			{
+				ObjectiveCondition.Counter = ProgressSave->CurrentProgression;
+
+				for(int TargetIndex = 0; TargetIndex < Condition->VectorListParam.Num(); TargetIndex++)
+				{
+					FFlarePlayerObjectiveTarget ObjectiveTarget;
+					ObjectiveTarget.Actor = NULL;
+					ObjectiveTarget.Active = (ProgressSave->CurrentProgression == TargetIndex);
+					ObjectiveTarget.Radius = Condition->FloatListParam[TargetIndex];
+
+					FVector InitialLocation = ProgressSave->InitialTransform.GetTranslation();
+					FVector RelativeTargetLocation = Condition->VectorListParam[TargetIndex] * 100; // In cm
+					FVector WorldTargetLocation = InitialLocation + ProgressSave->InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
+
+					ObjectiveTarget.Location = WorldTargetLocation;
+					ObjectiveData->TargetList.Add(ObjectiveTarget);
+				}
+			}
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			break;
+		}
+		default:
+			FLOGV("ERROR: UpdateObjectiveTracker not implemented for condition type %d", (int)(Condition->Type +0));
+			break;
+		}
+
+	}
+}
 
 /*----------------------------------------------------
 	Callback

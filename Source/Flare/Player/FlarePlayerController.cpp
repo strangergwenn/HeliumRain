@@ -59,6 +59,9 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	RCSSound->bAutoDestroy = false;
 	RCSSoundFadeSpeed = 5.0;
 	QuickSwitchNextOffset = 0;
+
+	CurrentObjective.Set = false;
+	CurrentObjective.Version = 0;
 }
 
 /*----------------------------------------------------
@@ -505,46 +508,21 @@ bool AFlarePlayerController::IsSelectingWeapon() const
 	Objectives
 ----------------------------------------------------*/
 
-void AFlarePlayerController::StartObjective(FText Name, FText Info)
+void AFlarePlayerController::StartObjective(FText Name, FFlarePlayerObjectiveData Data)
 {
-	CurrentObjective.Set = true;
-	CurrentObjective.Name = Name;
-	CurrentObjective.Info = Info;
-	CurrentObjective.HasTarget = false;
-	CurrentObjective.HasProgress = false;
+	if (!CurrentObjective.Set)
+	{
+		CurrentObjective.Set = true;
+		CurrentObjective.Version++;
+	}
 
-	SetObjectiveProgress(0);
-}
+	CurrentObjective.Data = Data;
 
-void AFlarePlayerController::SetObjectiveTarget(AActor* Actor)
-{
-	CurrentObjective.HasTarget = true;
-	CurrentObjective.Target = Actor;
-	CurrentObjective.Location = FVector::ZeroVector;
-}
 
-void AFlarePlayerController::SetObjectiveTarget(FVector Location)
-{
-	CurrentObjective.HasTarget = true;
-	CurrentObjective.Target = NULL;
-	CurrentObjective.Location = Location;
-}
-
-void AFlarePlayerController::SetObjectiveProgress(float Ratio)
-{
-	CurrentObjective.HasProgress = true;
-	CurrentObjective.Progress = Ratio;
-}
-
-void AFlarePlayerController::SetObjectiveProgressSuffix(FText ProgressSuffix)
-{
-	CurrentObjective.ProgressSuffix = ProgressSuffix;
 }
 
 void AFlarePlayerController::CompleteObjective()
 {
-	SetObjectiveProgress(1);
-
 	CurrentObjective.Set = false;
 }
 
@@ -557,23 +535,6 @@ const FFlarePlayerObjective* AFlarePlayerController::GetCurrentObjective() const
 {
 	return (CurrentObjective.Set? &CurrentObjective : NULL);
 }
-
-FVector AFlarePlayerController::GetObjectiveLocation() const
-{
-	if (!CurrentObjective.Set)
-	{
-		return FVector::ZeroVector;
-	}
-	else if (CurrentObjective.Target)
-	{
-		return CurrentObjective.Target->GetActorLocation();
-	}
-	else
-	{
-		return CurrentObjective.Location;
-	}
-}
-
 
 /*----------------------------------------------------
 	Customization

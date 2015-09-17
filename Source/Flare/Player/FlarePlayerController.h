@@ -11,6 +11,9 @@
 class AFlareMenuManager;
 class AFlareHUD;
 
+
+
+
 UCLASS(MinimalAPI)
 class AFlarePlayerController : public APlayerController
 {
@@ -103,18 +106,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Start a new objective */
-	void StartObjective(FText Name, FText Info);
-
-	/** Set the current target */
-	void SetObjectiveTarget(AActor* Actor);
-
-	/** Set the current target */
-	void SetObjectiveTarget(FVector Location);
-
-	/** Set the progress from 0 to 1 */
-	void SetObjectiveProgress(float Ratio);
-
-	void SetObjectiveProgressSuffix(FText ProgressSuffix);
+	void StartObjective(FText Name, FFlarePlayerObjectiveData Data);
 
 	/** Finalize the objective */
 	void CompleteObjective();
@@ -124,9 +116,6 @@ public:
 
 	/** Get the raw objective data */
 	const FFlarePlayerObjective* GetCurrentObjective() const;
-
-	/** Get the objective location */
-	FVector GetObjectiveLocation() const;
 
 
 	/*----------------------------------------------------

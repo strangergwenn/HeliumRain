@@ -17,6 +17,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 	CurrentAlpha = 1;
 	ObjectiveEnterTime = 0.5;
 	CurrentFadeTime = 0;
+	LastObjectiveVersion = -1;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 ObjectiveInfoWidth = 400;
 	int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
@@ -66,28 +67,25 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 					.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
 				]
 
-				// Progress bar
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SProgressBar)
-					.Style(&Theme.ProgressBarStyle)
-					.Percent(this, &SFlareObjectiveInfo::GetProgress)
-					.FillColorAndOpacity(this, &SFlareObjectiveInfo::GetColor)
-				]
-
-				// Info
+				// Description
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.Text(this, &SFlareObjectiveInfo::GetInfo)
+					.Text(this, &SFlareObjectiveInfo::GetDescription)
 					.WrapTextAt(ObjectiveInfoTextWidth)
 					.TextStyle(&Theme.TextFont)
 					.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
 					.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+				]
+
+				// Conditions
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SAssignNew(ConditionBox, SVerticalBox)
 				]
 			]
 		]
@@ -107,6 +105,100 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 
 	CurrentFadeTime = FMath::Clamp(CurrentFadeTime + Delta, 0.0f, 1.0f);
 	CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, CurrentFadeTime, 2);
+
+	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+
+	if(Objective && Objective->Version != LastObjectiveVersion)
+	{
+		// Update structure
+		LastObjectiveVersion = Objective->Version;
+		ConditionBox->ClearChildren();
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+		int32 ObjectiveInfoWidth = 400;
+		int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
+
+		for(int ConditionIndex = 0; ConditionIndex < Objective->Data.ConditionList.Num(); ConditionIndex++)
+		{
+			// Update structure
+			const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+
+			ConditionBox->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SVerticalBox)
+
+				// Step description
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareObjectiveInfo::GetInitialLabel, ConditionIndex)
+					.WrapTextAt(ObjectiveInfoTextWidth)
+					.TextStyle(&Theme.TextFont)
+					.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
+					.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+				]
+
+				// Step progress
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SHorizontalBox)
+
+					//Progress bar
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(ObjectiveInfoWidth/2)
+						.Visibility(this, &SFlareObjectiveInfo::GetProgressVisibility, ConditionIndex)
+						[
+							SNew(SProgressBar)
+							.Style(&Theme.ProgressBarStyle)
+							.Percent(this, &SFlareObjectiveInfo::GetProgress, ConditionIndex)
+							.FillColorAndOpacity(this, &SFlareObjectiveInfo::GetColor)
+						]
+					]
+
+					// Counter
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareObjectiveInfo::GetCounter, ConditionIndex)
+						.WrapTextAt(ObjectiveInfoTextWidth)
+						.TextStyle(&Theme.TextFont)
+						.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
+						.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+						.Visibility(this, &SFlareObjectiveInfo::GetCounterVisibility, ConditionIndex)
+					]
+
+					// terminal text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareObjectiveInfo::GetTerminalLabel, ConditionIndex)
+						.WrapTextAt(ObjectiveInfoTextWidth)
+						.TextStyle(&Theme.TextFont)
+						.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
+						.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+					]
+				]
+			];
+
+
+
+		}
+
+	}
+
 }
 
 EVisibility SFlareObjectiveInfo::GetVisibility() const
@@ -117,14 +209,67 @@ EVisibility SFlareObjectiveInfo::GetVisibility() const
 FText SFlareObjectiveInfo::GetName() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Name : FText::FromString(""));
+	return (Objective ? Objective->Data.Name : FText::FromString(""));
 }
 
-FText SFlareObjectiveInfo::GetInfo() const
+FText SFlareObjectiveInfo::GetDescription() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Info : FText::FromString(""));
+	return (Objective ? Objective->Data.Description : FText::FromString(""));
 }
+
+FText SFlareObjectiveInfo::GetInitialLabel(int32 ConditionIndex) const
+{
+	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
+				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText::FromString(""));
+}
+
+FText SFlareObjectiveInfo::GetTerminalLabel(int32 ConditionIndex) const
+{
+	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
+				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText::FromString(""));
+}
+
+FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
+{
+	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+
+	if(!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	{
+		return FText::FromString("");
+	}
+
+	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+
+	if(Condition->MaxCounter == 0)
+	{
+		return FText::FromString("");
+	}
+
+	return  FText::FromString(FString::FromInt(Condition->Counter) + "/" + FString::FromInt(Condition->MaxCounter));
+}
+
+EVisibility SFlareObjectiveInfo::GetCounterVisibility(int32 ConditionIndex) const
+{
+	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+
+	if(!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	{
+		return EVisibility::Collapsed;
+	}
+
+	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+
+	if(Condition->MaxCounter == 0)
+	{
+		return EVisibility::Collapsed;
+	}
+
+	return EVisibility::Visible;
+}
+
 
 FSlateColor SFlareObjectiveInfo::GetColor() const
 {
@@ -150,10 +295,46 @@ FLinearColor SFlareObjectiveInfo::GetShadowColor() const
 	return NormalColor;
 }
 
-TOptional<float> SFlareObjectiveInfo::GetProgress() const
+TOptional<float> SFlareObjectiveInfo::GetProgress(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Progress : 0);
+
+	if(!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	{
+		return 0;
+	}
+
+	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+
+	if(Condition->MaxProgress == 0)
+	{
+		return 0;
+	}
+
+	return Condition->Progress / Condition->MaxProgress;
 }
+
+EVisibility SFlareObjectiveInfo::GetProgressVisibility(int32 ConditionIndex) const
+{
+	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+
+	if(!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	{
+		return EVisibility::Collapsed;
+	}
+
+	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+
+	FLOGV("GetProgressVisibility Condition->MaxProgress %f", Condition->MaxProgress);
+
+	if(Condition->MaxProgress == 0)
+	{
+		return EVisibility::Collapsed;
+	}
+	FLOG("GetProgressVisibility OK");
+
+	return EVisibility::Visible;
+}
+
 
 #undef LOCTEXT_NAMESPACE

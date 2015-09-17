@@ -42,8 +42,16 @@ public:
 	/** Get the current objective name */
 	FText GetName() const;
 
-	/** Get the current objective info text */
-	FText GetInfo() const;
+	/** Get the current objective description text */
+	FText GetDescription() const;
+
+	FText GetInitialLabel(int32 ConditionIndex) const;
+
+	FText GetTerminalLabel(int32 ConditionIndex) const;
+
+	FText GetCounter(int32 ConditionIndex) const;
+
+	EVisibility GetCounterVisibility(int32 ConditionIndex) const;
 
 	/** Get the current color */
 	FSlateColor GetColor() const;
@@ -55,7 +63,9 @@ public:
 	FLinearColor GetShadowColor() const;
 
 	/** Get the progress bar */
-	TOptional<float> GetProgress() const;
+	TOptional<float> GetProgress(int32 ConditionIndex) const;
+
+	EVisibility GetProgressVisibility(int32 ConditionIndex) const;
 
 
 protected:
@@ -67,11 +77,13 @@ protected:
 	/** Player reference */
 	UPROPERTY()
 	TWeakObjectPtr<class AFlarePlayerController>    PC;
+	TSharedPtr<SVerticalBox>				        ConditionBox;
 
 	// Data
 	float                                           ObjectiveEnterTime;
 	float                                           CurrentFadeTime;
 	float                                           CurrentAlpha;
+	int32                                           LastObjectiveVersion;
 
 
 };

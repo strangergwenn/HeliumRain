@@ -242,6 +242,7 @@ struct FFlareQuestDescription
 	TArray<FFlareQuestActionDescription> SuccessActions;
 };
 
+struct FFlarePlayerObjectiveData;
 
 /** Quest */
 UCLASS()
@@ -304,6 +305,8 @@ public:
 	virtual void StopObjectiveTracking();
 
 	virtual void UpdateObjectiveTracker();
+
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, const TArray<FFlareQuestConditionDescription>& Conditions);
 
 	/*----------------------------------------------------
 		Callback

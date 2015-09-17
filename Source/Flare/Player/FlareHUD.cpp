@@ -252,32 +252,37 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Draw objective
-		if (PC->HasObjective() && PC->GetCurrentObjective()->HasTarget)
+		if (PC->HasObjective() && PC->GetCurrentObjective()->Data.TargetList.Num() > 0)
 		{
 			FVector2D ScreenPosition;
 
-			FVector ObjectiveLocation = PC->GetObjectiveLocation();
-
-			if (!PlayerShip->GetStateManager()->IsExternalCamera())
+			for(int TargetIndex = 0; TargetIndex < PC->GetCurrentObjective()->Data.TargetList.Num(); TargetIndex++)
 			{
-				DrawSearchArrow(ObjectiveLocation, HudColorObjective);
-			}
 
-			if (PC->ProjectWorldLocationToScreen(ObjectiveLocation, ScreenPosition))
-			{
-				if (IsInScreen(ScreenPosition))
+				const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->Data.TargetList[TargetIndex];
+				FVector ObjectiveLocation = Target->Location;
+
+				if (!PlayerShip->GetStateManager()->IsExternalCamera())
 				{
-					// Draw icon
-					DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, HudColorNeutral, true);
+					DrawSearchArrow(ObjectiveLocation, HudColorObjective);
+				}
 
-					// TODO : function that takes a location and returns a nice distance-from-ship string like "45 m" or "1,2 km"
-					float Distance = (ObjectiveLocation - PlayerShip->GetActorLocation()).Size() / 100;
-					FString ObjectiveText = FString::FromInt(Distance) + FString(" m");
+				if (PC->ProjectWorldLocationToScreen(ObjectiveLocation, ScreenPosition))
+				{
+					if (IsInScreen(ScreenPosition))
+					{
+						// Draw icon
+						DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, HudColorNeutral, true);
 
-					// Draw distance
-					ScreenPosition -= ViewportSize / 2 + FVector2D(0, IconSize);
-					DrawText(ObjectiveText, ScreenPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
-					DrawText(ObjectiveText, ScreenPosition, HUDFont, FVector2D::UnitVector, FColor::White);
+						// TODO : function that takes a location and returns a nice distance-from-ship string like "45 m" or "1,2 km"
+						float Distance = (ObjectiveLocation - PlayerShip->GetActorLocation()).Size() / 100;
+						FString ObjectiveText = FString::FromInt(Distance) + FString(" m");
+
+						// Draw distance
+						ScreenPosition -= ViewportSize / 2 + FVector2D(0, IconSize);
+						DrawText(ObjectiveText, ScreenPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
+						DrawText(ObjectiveText, ScreenPosition, HUDFont, FVector2D::UnitVector, FColor::White);
+					}
 				}
 			}
 		}
