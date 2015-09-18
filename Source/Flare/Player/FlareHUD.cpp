@@ -261,28 +261,47 @@ void AFlareHUD::DrawHUD()
 
 				const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->Data.TargetList[TargetIndex];
 				FVector ObjectiveLocation = Target->Location;
+				FLinearColor InactiveColor = HudColorNeutral;
+				InactiveColor.A = 0.25;
+				FColor InactiveTextColor = FColor::White;
+				InactiveTextColor.A = 64;
 
-				if (!PlayerShip->GetStateManager()->IsExternalCamera())
-				{
-					DrawSearchArrow(ObjectiveLocation, HudColorObjective);
-				}
+				bool ShouldDrawMarker = false;
 
 				if (PC->ProjectWorldLocationToScreen(ObjectiveLocation, ScreenPosition))
 				{
 					if (IsInScreen(ScreenPosition))
 					{
-						// Draw icon
-						DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, HudColorNeutral, true);
 
-						// TODO : function that takes a location and returns a nice distance-from-ship string like "45 m" or "1,2 km"
+						// Draw icon
+						DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, (Target->Active ? HudColorNeutral : InactiveColor), true);
+
 						float Distance = (ObjectiveLocation - PlayerShip->GetActorLocation()).Size() / 100;
-						FString ObjectiveText = FString::FromInt(Distance) + FString(" m");
+						FString ObjectiveText = FormatDistance(Distance);
 
 						// Draw distance
-						ScreenPosition -= ViewportSize / 2 + FVector2D(0, IconSize);
-						DrawText(ObjectiveText, ScreenPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
-						DrawText(ObjectiveText, ScreenPosition, HUDFont, FVector2D::UnitVector, FColor::White);
+						FVector2D CenterScreenPosition = ScreenPosition - ViewportSize / 2 + FVector2D(0, IconSize);
+						DrawText(ObjectiveText, CenterScreenPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
+						DrawText(ObjectiveText, CenterScreenPosition, HUDFont, FVector2D::UnitVector, (Target->Active ? FColor::White : InactiveTextColor));
 					}
+
+					// Tell the HUD to draw the search marker only if we are outside this
+					ShouldDrawMarker = (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.GetMin() / 3));
+					FLOGV("ScreenPosition=%s ViewportSize=%s, ViewportSize.Size=%f, Distance=%f, draw=%d",
+						  *ScreenPosition.ToString(),
+						  *ViewportSize.ToString(),
+						  ViewportSize.Size(),
+						  FVector2D::Distance(ScreenPosition, ViewportSize / 2),
+						  ShouldDrawMarker);
+				}
+				else
+				{
+					ShouldDrawMarker = true;
+				}
+
+				if (ShouldDrawMarker && !PlayerShip->GetStateManager()->IsExternalCamera() && Target->Active)
+				{
+					DrawSearchArrow(ObjectiveLocation, HudColorObjective);
 				}
 			}
 		}
@@ -329,6 +348,27 @@ void AFlareHUD::DrawHUD()
 			FLinearColor PointerColor = HudColorNeutral;
 			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
 			DrawHUDIconRotated(ViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
+		}
+	}
+}
+
+FString AFlareHUD::FormatDistance(float Distance)
+{
+	if (Distance < 1000)
+	{
+		return FString::FromInt(Distance) + FString(" m");
+	}
+	else
+	{
+		int Kilometers = ((int) Distance)/1000;
+		if (Kilometers < 10)
+		{
+			int Hectometer = ((int)(Distance - Kilometers * 1000)) / 100;
+			return FString::FromInt(Kilometers) +"." + FString::FromInt(Hectometer)+ FString(" km");
+		}
+		else
+		{
+			return FString::FromInt(Kilometers) + FString(" km");
 		}
 	}
 }
@@ -485,7 +525,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 
 			// Tell the HUD to draw the search marker only if we are outside this
-			return (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.Size() / 3));
+			return (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.GetMin() / 3));
 		}
 	}
 

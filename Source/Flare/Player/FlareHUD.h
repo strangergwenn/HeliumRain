@@ -60,6 +60,9 @@ public:
 
 protected:
 
+	/** Format a distance in meter */
+	FString FormatDistance(float Distance);
+
 	/** Draw speed indicator */
 	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert);
 
