@@ -234,14 +234,34 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
 			{
 				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) > Condition->FloatParam1);
+				float CollinearVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
+
+				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
+				if (!ProgressSave)
+				{
+					ProgressSave = CreateStepProgressSave(Condition);
+					ProgressSave->CurrentProgression = 0;
+					ProgressSave->InitialVelocity = CollinearVelocity;
+				}
+
+				Status = CollinearVelocity > Condition->FloatParam1;
 			}
 			break;
 		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
 			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
 			{
 				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) < Condition->FloatParam1);
+				float CollinearVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
+
+				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
+				if (!ProgressSave)
+				{
+					ProgressSave = CreateStepProgressSave(Condition);
+					ProgressSave->CurrentProgression = 0;
+					ProgressSave->InitialVelocity = CollinearVelocity;
+				}
+
+				Status = CollinearVelocity < Condition->FloatParam1;
 			}
 			break;
 		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
@@ -645,9 +665,18 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 																	 " m/s");
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
-				// TODO from initial velocity
-				ObjectiveCondition.Progress = FMath::Clamp(Velocity, 0.0f, Condition->FloatParam1);
-				ObjectiveCondition.MaxProgress = Condition->FloatParam1;
+
+				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
+				if (ProgressSave)
+				{
+					ObjectiveCondition.MaxProgress = FMath::Abs(ProgressSave->InitialVelocity - Condition->FloatParam1);
+					ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - Condition->FloatParam1);
+					if(Velocity > Condition->FloatParam1)
+					{
+						ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
+					}
+				}
+
 				ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			}
 
@@ -669,9 +698,18 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 																	 " m/s");
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
-				// TODO from initial velocity
-				ObjectiveCondition.Progress = FMath::Clamp(Velocity * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
-				ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
+
+				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
+				if (ProgressSave)
+				{
+					ObjectiveCondition.MaxProgress = FMath::Abs(ProgressSave->InitialVelocity - Condition->FloatParam1);
+					ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - Condition->FloatParam1);
+					if(Velocity < Condition->FloatParam1)
+					{
+						ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
+					}
+				}
+
 				ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			}
 			break;
@@ -697,10 +735,10 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				}
 				ObjectiveCondition.InitialLabel = FText::FromString(FString("Pitch at least at ") +
 															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
-															" \xB0/s "+Direction);
+															" deg/s "+Direction);
 
 				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Y)) +
-																	 " \xB0/s");
+																	 " deg/s");
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
 
@@ -731,10 +769,10 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				}
 				ObjectiveCondition.InitialLabel = FText::FromString(FString("Yaw at least at ") +
 															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
-															" \xB0/s "+Direction);
+															" deg/s "+Direction);
 
 				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Z)) +
-																	 " \xB0/s");
+																	 " deg/s");
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
 
@@ -765,10 +803,10 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				}
 				ObjectiveCondition.InitialLabel = FText::FromString(FString("Roll at least at ") +
 															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
-															" \xB0/s "+Direction);
+															" deg/s "+Direction);
 
 				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.X)) +
-																	 " \xB0/s");
+																	 " deg/s");
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
 
@@ -778,7 +816,12 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			}
 			break;
 		}
-
+		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
+			GenerateConditionCollinearityObjective(ObjectiveData, EFlareQuestCondition::SHIP_MAX_COLLINEARITY, Condition->FloatParam1);
+			break;
+		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
+			GenerateConditionCollinearityObjective(ObjectiveData, EFlareQuestCondition::SHIP_MIN_COLLINEARITY, Condition->FloatParam1);
+			break;
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
 		{
 
@@ -801,6 +844,11 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				ObjectiveCondition.Progress = ProgressSave->CurrentProgression;
 				for(int TargetIndex = 0; TargetIndex < Condition->VectorListParam.Num(); TargetIndex++)
 				{
+					if(TargetIndex < ProgressSave->CurrentProgression)
+					{
+						// Don't show old target
+						continue;
+					}
 					FFlarePlayerObjectiveTarget ObjectiveTarget;
 					ObjectiveTarget.Actor = NULL;
 					ObjectiveTarget.Active = (ProgressSave->CurrentProgression == TargetIndex);
@@ -825,6 +873,65 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 
 	}
 }
+
+void UFlareQuest::GenerateConditionCollinearityObjective(FFlarePlayerObjectiveData* ObjectiveData, EFlareQuestCondition::Type ConditionType, float TargetCollinearity)
+{
+	if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+	{
+		AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
+		float Alignment = 1;
+		if (!Spacecraft->GetLinearVelocity().IsNearlyZero())
+		{
+			Alignment = FVector::DotProduct(Spacecraft->GetLinearVelocity().GetUnsafeNormal(), Spacecraft->GetFrontVector());
+		}
+
+		float AlignmentAngle = FMath::RadiansToDegrees(FMath::Acos(Alignment));
+		float TargetAlignmentAngle = FMath::RadiansToDegrees(FMath::Acos(TargetCollinearity));
+
+		FFlarePlayerObjectiveCondition ObjectiveCondition;
+		ObjectiveCondition.MaxProgress = 1.0f;
+		FString MostOrLeast;
+		if (ConditionType == EFlareQuestCondition::SHIP_MAX_COLLINEARITY)
+		{
+			MostOrLeast = "least";
+
+			if (AlignmentAngle > TargetAlignmentAngle)
+			{
+				ObjectiveCondition.Progress = 1.0;
+			}
+			else
+			{
+				ObjectiveCondition.Progress = AlignmentAngle/TargetAlignmentAngle;
+			}
+
+		}
+		else
+		{
+			MostOrLeast = "most";
+
+			if (AlignmentAngle < TargetAlignmentAngle)
+			{
+				ObjectiveCondition.Progress = 1.0;
+			}
+			else
+			{
+				ObjectiveCondition.Progress = (180 - AlignmentAngle) / (180 - TargetAlignmentAngle);
+			}
+
+		}
+
+
+		ObjectiveCondition.InitialLabel = FText::FromString(FString("Misalign your nose and your prograde vector by at ") + MostOrLeast + " " +
+															FString::FromInt((int)(TargetAlignmentAngle)) +
+															" degrees");
+		ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(AlignmentAngle)) +
+															 " degrees");
+		ObjectiveCondition.Counter = 0;
+		ObjectiveCondition.MaxCounter = 0;
+		ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	}
+}
+
 
 /*----------------------------------------------------
 	Callback

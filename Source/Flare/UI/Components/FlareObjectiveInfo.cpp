@@ -131,7 +131,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 				// Step description
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(Theme.ContentPadding)
+				//.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
 					.Text(this, &SFlareObjectiveInfo::GetInitialLabel, ConditionIndex)
@@ -144,14 +144,14 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 				// Step progress
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(Theme.ContentPadding)
+				//.Padding(Theme.ContentPadding)
 				[
 					SNew(SHorizontalBox)
 
 					//Progress bar
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					.Padding(Theme.ContentPadding)
+					//.Padding(Theme.ContentPadding)
 					[
 						SNew(SBox)
 						.WidthOverride(ObjectiveInfoWidth/2)
@@ -167,7 +167,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 					// Counter
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					.Padding(Theme.ContentPadding)
+					//.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareObjectiveInfo::GetCounter, ConditionIndex)
@@ -181,7 +181,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 					// terminal text
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					.Padding(Theme.ContentPadding)
+					//.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareObjectiveInfo::GetTerminalLabel, ConditionIndex)

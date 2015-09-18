@@ -34,6 +34,7 @@ struct FFlareQuestStepProgressSave
 	int32 CurrentProgression;
 
 	FTransform InitialTransform;
+	float      InitialVelocity;
 };
 
 /** Quest progress status save data */

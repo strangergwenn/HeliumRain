@@ -308,6 +308,8 @@ public:
 
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, const TArray<FFlareQuestConditionDescription>& Conditions);
 
+	virtual void GenerateConditionCollinearityObjective(FFlarePlayerObjectiveData* ObjectiveData, EFlareQuestCondition::Type ConditionType, float TargetCollinearity);
+
 	/*----------------------------------------------------
 		Callback
 	----------------------------------------------------*/
