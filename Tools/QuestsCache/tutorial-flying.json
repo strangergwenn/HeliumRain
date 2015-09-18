@@ -123,7 +123,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MAX_PITCH_VELOCITY
-					Float Param 1: -10
+					Float Param 1: -60
 				}
 			]
 			Enabled Conditions: [
@@ -148,7 +148,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MIN_PITCH_VELOCITY
-					Float Param 1: 10
+					Float Param 1: 60
 				}
 			]
 			Enabled Conditions: [
@@ -165,7 +165,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MAX_YAW_VELOCITY
-					Float Param 1: -10
+					Float Param 1: -60
 				}
 			]
 			Enabled Conditions: [
@@ -190,7 +190,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MIN_YAW_VELOCITY
-					Float Param 1: 10
+					Float Param 1: 60
 				}
 			]
 			Enabled Conditions: [
@@ -207,7 +207,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MIN_ROLL_VELOCITY
-					Float Param 1: 20
+					Float Param 1: 60
 				}
 			]
 			Enabled Conditions: [
@@ -232,7 +232,7 @@
 			End Conditions: [
 				{
 					Type: SHIP_MAX_ROLL_VELOCITY
-					Float Param 1: -20
+					Float Param 1: -60
 				}
 			]
 			Enabled Conditions: [
