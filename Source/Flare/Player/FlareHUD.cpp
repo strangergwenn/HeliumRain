@@ -287,12 +287,6 @@ void AFlareHUD::DrawHUD()
 
 					// Tell the HUD to draw the search marker only if we are outside this
 					ShouldDrawMarker = (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.GetMin() / 3));
-					FLOGV("ScreenPosition=%s ViewportSize=%s, ViewportSize.Size=%f, Distance=%f, draw=%d",
-						  *ScreenPosition.ToString(),
-						  *ViewportSize.ToString(),
-						  ViewportSize.Size(),
-						  FVector2D::Distance(ScreenPosition, ViewportSize / 2),
-						  ShouldDrawMarker);
 				}
 				else
 				{
