@@ -100,6 +100,11 @@ public:
         Getters
     ----------------------------------------------------*/
 
+	inline AFlareGame* GetGame() const
+	{
+		return Game;
+	}
+
 	inline FName GetNickName() const override
 	{
 		return SpacecraftData.NickName;

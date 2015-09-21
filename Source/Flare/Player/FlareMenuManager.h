@@ -121,7 +121,7 @@ protected:
 	virtual void InspectShip(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
 
 	/** Open the sector menu */
-	virtual void OpenSector();
+	virtual void OpenSector(UFlareSimulatedSector* Sector);
 
 	/** Open the orbital menu */
 	virtual void OpenOrbit();

@@ -182,6 +182,8 @@ public:
 
 	int RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
+	void SetShipToFly(UFlareSimulatedSpacecraft* Ship);
+
     /** Init world with empty scenario */
 	// virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
 

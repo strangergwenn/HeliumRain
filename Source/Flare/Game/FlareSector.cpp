@@ -81,6 +81,7 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 		FFlareSpacecraftSave* SpacecraftSave = SectorSpacecrafts[i]->Save();
 		SectorData.SpacecraftIdentifiers.Add(SpacecraftSave->Immatriculation);
 		SpacecraftData.Add(*SpacecraftSave);
+		// TODO delete spacecraft
 	}
 
 	for (int i = 0 ; i < SectorBombs.Num(); i++)
