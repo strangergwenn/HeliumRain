@@ -78,8 +78,8 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Top)
 		[
 			SNew(SFlareRoundButton)
-			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit))
-			.OnClicked(this, &SFlareSectorMenu::OnDashboardClicked)
+			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+			.OnClicked(this, &SFlareSectorMenu::OnBackClicked)
 		]
 	];
 }
@@ -95,23 +95,20 @@ void SFlareSectorMenu::Setup()
 	SetVisibility(EVisibility::Hidden);
 }
 
-void SFlareSectorMenu::Enter()
+void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 {
 	FLOG("SFlareSectorMenu::Enter");
+	TargetSector = Sector;
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC)
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
 	{
-		for (int32 SpacecraftIndex = 0; SpacecraftIndex < PC->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
-		{
-			AFlareSpacecraft* ShipCandidate = PC->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+		UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorShips()[SpacecraftIndex];
 
-			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
-			{
-				ShipList->AddShip(ShipCandidate);
-			}
+		if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
+		{
+			ShipList->AddShip(ShipCandidate);
 		}
 	}
 
@@ -130,9 +127,9 @@ void SFlareSectorMenu::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
-void SFlareSectorMenu::OnDashboardClicked()
+void SFlareSectorMenu::OnBackClicked()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+	MenuManager->Back();
 }
 
 #undef LOCTEXT_NAMESPACE

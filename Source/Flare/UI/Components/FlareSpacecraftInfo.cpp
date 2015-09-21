@@ -288,7 +288,18 @@ void SFlareSpacecraftInfo::OnFly()
 {
 	if (PC && TargetSpacecraft && !TargetSpacecraft->IsStation())
 	{
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
+		// Check if a simulated spacecraft
+		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
+
+		if(SimulatedSpacecraft)
+		{
+			SimulatedSpacecraft->GetCurrentSector()->SetShipToFly(SimulatedSpacecraft);
+			PC->GetGame()->ActivateSector(PC, SimulatedSpacecraft->GetCurrentSector());
+		}
+		else
+		{
+			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
+		}
 	}
 }
 

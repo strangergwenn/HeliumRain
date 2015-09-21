@@ -1,6 +1,10 @@
 
 #include "../../Flare.h"
 
+#include "../FlareSpacecraftInterface.h"
+#include "../FlareSimulatedSpacecraft.h"
+#include "../FlareSpacecraftComponent.h"
+#include "../../Game/FlareGame.h"
 #include "FlareSimulatedSpacecraftDamageSystem.h"
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraftDamageSystem"
@@ -51,8 +55,7 @@ float UFlareSimulatedSpacecraftDamageSystem::GetPowerOutageDuration() const
 
 float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor, bool WithAmmo) const
 {
-	// TODO replace mock
-	return 1;
+	return 1.0f;
 }
 
 float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
@@ -61,6 +64,5 @@ float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
 	return 400;
 
 }
-
 
 #undef LOCTEXT_NAMESPACE

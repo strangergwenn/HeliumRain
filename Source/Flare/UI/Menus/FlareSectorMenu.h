@@ -32,7 +32,7 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter();
+	void Enter(UFlareSimulatedSector* Sector);
 
 	/** Exit this menu */
 	void Exit();
@@ -44,8 +44,8 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 	
-	/** Go back to the dahsboard */
-	void OnDashboardClicked();
+	/** Go back to the previous menu*/
+	void OnBackClicked();
 
 
 protected:
@@ -60,6 +60,6 @@ protected:
 
 	// Menu components
 	TSharedPtr<SFlareShipList>         ShipList;
-
+	UFlareSimulatedSector*                      TargetSector;
 
 };

@@ -223,7 +223,7 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	AFlareGame* GetGame() const
+	inline AFlareGame* GetGame() const
 	{
 		return Game;
 	}

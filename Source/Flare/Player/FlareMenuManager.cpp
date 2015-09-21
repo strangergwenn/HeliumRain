@@ -389,7 +389,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Sector:
-			OpenSector();
+			OpenSector(static_cast<UFlareSimulatedSector*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Orbit:
@@ -494,12 +494,12 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 	ShipMenu->Enter(Target, IsEditable);
 }
 
-void AFlareMenuManager::OpenSector()
+void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
 {
 	ResetMenu();
 	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
-	SectorMenu->Enter();
+	SectorMenu->Enter(Sector);
 }
 
 void AFlareMenuManager::OpenOrbit()

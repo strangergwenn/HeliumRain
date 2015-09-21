@@ -291,12 +291,13 @@ void SFlareOrbitalMenu::OnExit()
 void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 {
 	UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[*Index];
-
-	AFlarePlayerController* PC = MenuManager->GetPC();
+	MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Sector);
+	/*AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		Game->ActivateSector(PC, Sector);
-	}
+
+		//Game->ActivateSector(PC, Sector);
+	}*/
 }
 
 
