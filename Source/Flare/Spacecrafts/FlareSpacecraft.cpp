@@ -121,6 +121,13 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	// DrawDebugSphere(GetWorld(), Hit.Location, 10, 12, FColor::Blue, true);
 
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+
+	if(!Other)
+	{
+		// Colliding a kill pending actor
+		return;
+	}
+
 	//FLOGV("AFlareSpacecraft Hit  Mass %f NormalImpulse %s NormalImpulse.Size() %f", Airframe->GetMass(), *NormalImpulse.ToString(), NormalImpulse.Size());
 	DamageSystem->OnCollision(Other, HitLocation, NormalImpulse);
 
