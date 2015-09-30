@@ -298,14 +298,15 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		}
 	}
 
-	// Anticollision
-	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
-
 	// Turn to destination
 	if (! LinearTargetVelocity.IsZero())
 	{
 		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1.f, 0.f, 0.f) , LinearTargetVelocity.GetUnsafeNormal(),FVector(0.f, 0.f, 0.f), DeltaSeconds);
 	}
+
+	// Anticollision
+	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
+
 }
 
 void UFlareShipPilot::FighterPilot(float DeltaSeconds)
@@ -711,11 +712,6 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		}
 	}
 
-	// Anticollision
-	if (Anticollision)
-	{
-		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, PilotTargetShip);
-	}
 
 	// DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + LinearTargetVelocity * 100, FColor::Red, false, ReactionTime);
 
@@ -743,6 +739,13 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocityAxis, FVector::ZeroVector, DeltaSeconds);
 		}
 	}
+
+	// Anticollision
+	if (Anticollision)
+	{
+		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, PilotTargetShip);
+	}
+
 
 	if (ClearTarget)
 	{
