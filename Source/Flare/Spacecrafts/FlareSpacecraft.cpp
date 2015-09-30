@@ -173,6 +173,29 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	}
 }
 
+
+void AFlareSpacecraft::Redock()
+{
+	// Re-dock if we were docked
+	if (ShipData.DockedTo != NAME_None && !IsPresentationMode())
+	{
+		// TODO use sector iterator
+		FLOGV("AFlareSpacecraft::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
+
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
+		{
+			AFlareSpacecraft* Station = GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
+			if (Station->GetImmatriculation() == ShipData.DockedTo)
+			{
+				FLOGV("AFlareSpacecraft::Load : Found dock station '%s'", *Station->GetImmatriculation().ToString());
+				NavigationSystem->ConfirmDock(Station, ShipData.DockedAt);
+				break;
+			}
+		}
+	}
+}
+
 /*----------------------------------------------------
 	Player interface
 ----------------------------------------------------*/
@@ -328,24 +351,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	// Customization
 	UpdateCustomization();
 
-	// Re-dock if we were docked
-	if (ShipData.DockedTo != NAME_None && !IsPresentationMode())
-	{
-		// TODO use sector iterator
-		FLOGV("AFlareSpacecraft::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
-
-		for (int32 SpacecraftIndex = 0; SpacecraftIndex < GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
-		{
-			AFlareSpacecraft* Station = GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
-
-			if (Station->GetImmatriculation() == ShipData.DockedTo)
-			{
-				FLOGV("AFlareSpacecraft::Load : Found dock station '%s'", *Station->GetImmatriculation().ToString());
-				NavigationSystem->ConfirmDock(Station, ShipData.DockedAt);
-				break;
-			}
-		}
-	}
+	Redock();
 
 	// If not rcs, add passive stabilization
 	if (ShipDescription->RCSCount == 0)

@@ -46,6 +46,8 @@ public:
 
 	virtual void SetPause(bool Pause);
 
+	virtual void Redock();
+
 	/*----------------------------------------------------
 		Player interface
 	----------------------------------------------------*/

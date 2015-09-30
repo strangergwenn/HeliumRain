@@ -32,7 +32,7 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 		LoadAsteroid(SectorData.AsteroidData[i]);
 	}
 
-	// Load safe location ships
+	// Load safe location spacecrafts
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
@@ -42,7 +42,7 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 		}
 	}
 
-	// Load unsafe location ships
+	// Load unsafe location spacecrafts
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
@@ -50,6 +50,12 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 		{
 			LoadSpacecraft(*Spacecraft->Save());
 		}
+	}
+
+	// Check docking once all spacecraft are loaded
+	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	{
+		SectorSpacecrafts[i]->Redock();
 	}
 
 	for (int i = 0 ; i < SectorData.BombData.Num(); i++)
