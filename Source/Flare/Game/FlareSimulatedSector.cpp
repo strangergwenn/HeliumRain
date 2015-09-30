@@ -275,13 +275,17 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
 		Fleet->GetShips()[ShipIndex]->SetCurrentSector(NULL);
-		if (SectorShips.Remove(Fleet->GetShips()[ShipIndex]) == 0)
+		if (RemoveSpacecraft(Fleet->GetShips()[ShipIndex]) == 0)
 		{
 			FLOGV("ERROR: RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation().ToString(), *GetSectorName())
 		}
 	}
 }
 
+int UFlareSimulatedSector::RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	return SectorShips.Remove(Spacecraft);
+}
 
 /*----------------------------------------------------
 	Getters

@@ -266,6 +266,24 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 	return Spacecraft;
 }
 
+void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	FLOGV("UFlareCompany::DestroySpacecraft remove %s from company %s", *Spacecraft->GetImmatriculation().ToString(), *GetCompanyName().ToString());
+
+	CompanySpacecrafts.Remove(Spacecraft);
+	CompanyStations.Remove(Spacecraft);
+	CompanyShips.Remove(Spacecraft);
+	if(Spacecraft->GetCurrentFleet())
+	{
+		Spacecraft->GetCurrentFleet()->RemoveShip(Spacecraft);
+	}
+
+	if(Spacecraft->GetCurrentSector())
+	{
+		Spacecraft->GetCurrentSector()->RemoveSpacecraft(Spacecraft);
+	}
+}
+
 void UFlareCompany::DiscoverSector(UFlareSimulatedSector* Sector)
 {
 	KnownSectors.AddUnique(Sector);

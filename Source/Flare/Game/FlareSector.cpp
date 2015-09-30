@@ -66,6 +66,12 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 
 	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
+		if(!SectorSpacecrafts[i]->GetDamageSystem()->IsAlive())
+		{
+			// Don't save destroyed ships
+			FLOGV("UFlareSector::Save Don't save %s", *SectorSpacecrafts[i]->GetImmatriculation().ToString());
+			continue;
+		}
 		FFlareSpacecraftSave* SpacecraftSave = SectorSpacecrafts[i]->Save();
 		SectorData.SpacecraftIdentifiers.Add(SpacecraftSave->Immatriculation);
 		SpacecraftData.Add(*SpacecraftSave);
@@ -88,7 +94,15 @@ void UFlareSector::Destroy()
 {
 	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
-		SectorSpacecrafts[i]->Destroy();
+		if(!SectorSpacecrafts[i]->GetDamageSystem()->IsAlive())
+		{
+			// Remove from world
+			DestroySpacecraft(SectorSpacecrafts[i], true);
+		}
+		else
+		{
+			SectorSpacecrafts[i]->Destroy();
+		}
 	}
 
 	for (int i = 0 ; i < SectorBombs.Num(); i++)
@@ -491,11 +505,20 @@ void UFlareSector::EmptySector()
 }*/
 
 
-void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft)
+void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying)
 {
-	SectorSpacecrafts.Remove(Spacecraft);
-	SectorShips.Remove(Spacecraft);
-	SectorStations.Remove(Spacecraft);
+	FLOGV("UFlareSector::DestroySpacecraft %s", *Spacecraft->GetImmatriculation().ToString());
+
+	if(!Destroying)
+	{
+		SectorSpacecrafts.Remove(Spacecraft);
+		SectorShips.Remove(Spacecraft);
+		SectorStations.Remove(Spacecraft);
+	}
+
+	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Game->GetGameWorld()->FindSpacecraft(Spacecraft->GetImmatriculation());
+	SimulatedSpacecraft->GetCompany()->DestroySpacecraft(SimulatedSpacecraft);
+
 	Spacecraft->Destroy();
 }
 

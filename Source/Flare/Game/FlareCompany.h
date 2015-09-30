@@ -169,6 +169,8 @@ public:
 
 	virtual void RemoveFleet(UFlareFleet* Fleet);
 
+	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
+
 	virtual void DiscoverSector(UFlareSimulatedSector* Sector);
 
 	virtual void VisitSector(UFlareSimulatedSector* Sector);

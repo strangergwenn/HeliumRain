@@ -180,7 +180,7 @@ public:
 	/** Retire the fleet and its ships from the sector */
 	void RetireFleet(UFlareFleet* Fleet);
 
-
+	int RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
     /** Init world with empty scenario */
 	// virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);

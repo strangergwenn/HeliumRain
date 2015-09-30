@@ -56,7 +56,7 @@ public:
 	AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 
 	/** Destroy a ship or a station*/
-	virtual void DestroySpacecraft(AFlareSpacecraft* Spacecraft);
+	virtual void DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying = false);
 
 	virtual void SetPause(bool Pause);
 
