@@ -62,6 +62,18 @@ void UFlareTurret::SetupComponentMesh()
 {
 	Super::SetupComponentMesh();
 
+	if(TurretComponent)
+	{
+		TurretComponent->DestroyComponent();
+		TurretComponent = NULL;
+	}
+
+	if(BarrelComponent)
+	{
+		BarrelComponent->DestroyComponent();
+		BarrelComponent = NULL;
+	}
+
 	// Turret Mesh
 	if (Spacecraft && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh)
 	{
