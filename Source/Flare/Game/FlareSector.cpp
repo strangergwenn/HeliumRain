@@ -146,10 +146,11 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 		// Spawn parameters
 		FActorSpawnParameters Params;
 		Params.bNoFail = true;
+		Params.bNoCollisionFail = true;
 
 		// Create and configure the ship
 		Spacecraft = Game->GetWorld()->SpawnActor<AFlareSpacecraft>(Desc->Template->GeneratedClass, ShipData.Location, ShipData.Rotation, Params);
-		if (Spacecraft)
+		if (Spacecraft && !Spacecraft->IsPendingKillPending())
 		{
 			Spacecraft->Load(ShipData);
 			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Spacecraft->GetRootComponent());
