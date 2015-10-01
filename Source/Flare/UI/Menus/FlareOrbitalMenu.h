@@ -37,6 +37,7 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	virtual void Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime );
 
 protected:
 
@@ -57,6 +58,7 @@ protected:
 	/** Get a position from polar coordinates */
 	inline FVector2D GetPositionFromPolar(int32 Radius, int32 Angle) const;
 
+	void UpdateMap();
 
 	/*----------------------------------------------------
 		Callbacks
@@ -89,4 +91,5 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
 	
 	TSharedPtr<SHorizontalBox>                  SectorsBox;
+	int64                                       LastUpdateTime;
 };
