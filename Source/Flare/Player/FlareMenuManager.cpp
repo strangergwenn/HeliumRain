@@ -200,7 +200,7 @@ void AFlareMenuManager::Back()
 				OpenMenu(EFlareMenu::MENU_Dashboard);
 				break;
 			case EFlareMenu::MENU_Sector:
-				CloseMenu();
+				OpenMenu(EFlareMenu::MENU_Orbit);
 				break;
 			case EFlareMenu::MENU_Leaderboard:
 				OpenMenu(EFlareMenu::MENU_Orbit);
