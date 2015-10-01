@@ -463,6 +463,33 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 	}
 }
 
+UFlareFleet* AFlarePlayerController::GetSelectedFleet()
+{
+
+	if(GetCompany()->GetCompanyFleets().Num() >= 1)
+	{
+		// TODO add complete fleet selection
+		return GetCompany()->GetCompanyFleets()[0];
+	}
+	else if (GetCompany()->GetCompanyShips().Num() > 0)
+	{
+		// TODO add complete fleet management instead of automatic fleet creation
+
+		UFlareSimulatedSpacecraft* Ship = GetCompany()->GetCompanyShips()[0];
+
+		if(Ship->GetCurrentSector())
+		{
+			UFlareFleet* NewFleet = GetCompany()->CreateFleet("Automatic fleet", Ship->GetCurrentSector());
+			NewFleet->AddShip(Ship);
+			return NewFleet;
+		}
+	}
+
+	return NULL;
+
+}
+
+
 bool AFlarePlayerController::IsInMenu()
 {
 	return (GetPawn() == MenuPawn);
