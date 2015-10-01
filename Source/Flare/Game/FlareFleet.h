@@ -95,6 +95,11 @@ public:
 		return FleetData.Name;
 	}
 
+	UFlareCompany* GetFleetCompany() const
+	{
+		return FleetCompany;
+	}
+
 	FName GetIdentifier() const
 	{
 		return FleetData.Identifier;

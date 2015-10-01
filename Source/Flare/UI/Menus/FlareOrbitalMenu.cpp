@@ -109,6 +109,12 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(SectorsBox, SHorizontalBox)
 		]
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(Theme.ContentPadding)
+		[
+			SAssignNew(TravelsBox, SVerticalBox)
+		]
 	];
 }
 
@@ -140,6 +146,7 @@ void SFlareOrbitalMenu::Exit()
 	SetVisibility(EVisibility::Hidden);
 
 	SectorsBox->ClearChildren();
+	TravelsBox->ClearChildren();
 }
 
 void SFlareOrbitalMenu::Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime )
@@ -147,6 +154,8 @@ void SFlareOrbitalMenu::Tick( const FGeometry& AllottedGeometry, const double In
 	if(IsEnabled() && LastUpdateTime != MenuManager->GetGame()->GetGameWorld()->GetTime())
 	{
 		UpdateMap();
+		UpdateTravels();
+		LastUpdateTime = MenuManager->GetGame()->GetGameWorld()->GetTime();
 	}
 }
 
@@ -281,8 +290,29 @@ void SFlareOrbitalMenu::UpdateMap()
 			.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
 		];
 	}
+}
 
-	LastUpdateTime = MenuManager->GetGame()->GetGameWorld()->GetTime();
+void SFlareOrbitalMenu::UpdateTravels()
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	TravelsBox->ClearChildren();
+	// Add travels slots
+	for (int32 TravelIndex = 0; TravelIndex < MenuManager->GetGame()->GetGameWorld()->GetTravels().Num(); TravelIndex++)
+	{
+		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->GetTravels()[TravelIndex];
+		if(Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
+		{
+			FString TravelText = FString::Printf(TEXT("Travel to %s: %d seconds remaining."), *Travel->GetDestinationSector()->GetSectorName(), Travel->GetRemainingTravelDuration());
+
+			TravelsBox->AddSlot()
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(FText::FromString(TravelText))
+			];
+
+		}
+	}
 }
 
 

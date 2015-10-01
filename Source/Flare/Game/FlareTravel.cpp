@@ -43,9 +43,7 @@ FFlareTravelSave* UFlareTravel::Save()
 
 void UFlareTravel::Simulate(long Duration)
 {
-	long TravelDuration = 5;
-
-	if ((Game->GetGameWorld()->GetTime() - TravelData.DepartureTime) > TravelDuration)
+	if (GetRemainingTravelDuration() <= 0)
 	{
 		EndTravel();
 	}
@@ -64,4 +62,11 @@ void UFlareTravel::EndTravel()
 int64 UFlareTravel::GetElapsedTime()
 {
 	return Game->GetGameWorld()->GetTime() - TravelData.DepartureTime;
+}
+
+int64 UFlareTravel::GetRemainingTravelDuration()
+{
+	long TravelDuration = 5;
+
+	return TravelDuration - GetElapsedTime();
 }

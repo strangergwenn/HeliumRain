@@ -55,6 +55,7 @@ public:
 
 	void Simulate(long Duration);
 
+	int64 GetRemainingTravelDuration();
 
 protected:
 

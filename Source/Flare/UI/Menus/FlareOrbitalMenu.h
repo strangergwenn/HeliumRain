@@ -60,6 +60,8 @@ protected:
 
 	void UpdateMap();
 
+	void UpdateTravels();
+
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
@@ -91,5 +93,6 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
 	
 	TSharedPtr<SHorizontalBox>                  SectorsBox;
+	TSharedPtr<SVerticalBox>                  TravelsBox;
 	int64                                       LastUpdateTime;
 };
