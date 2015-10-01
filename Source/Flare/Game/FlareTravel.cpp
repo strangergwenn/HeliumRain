@@ -43,7 +43,7 @@ FFlareTravelSave* UFlareTravel::Save()
 
 void UFlareTravel::Simulate(long Duration)
 {
-	long TravelDuration = 3600;
+	long TravelDuration = 5;
 
 	if ((Game->GetGameWorld()->GetTime() - TravelData.DepartureTime) > TravelDuration)
 	{
