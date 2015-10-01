@@ -131,21 +131,7 @@ void SFlareOrbitalMenu::Enter()
 
 	Game->DeactivateSector(MenuManager->GetPC());
 
-	// Add sectors slots
-	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
-	{
-		TSharedPtr<int32> IndexPtr(new int32(SectorIndex));
-
-		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
-
-		SectorsBox->AddSlot()
-		[
-			SNew(SFlareRoundButton)
-			.Text(FText::FromString(Sector->GetSectorName()))
-			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
-			.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
-		];
-	}
+	UpdateMap();
 }
 
 void SFlareOrbitalMenu::Exit()
@@ -154,6 +140,14 @@ void SFlareOrbitalMenu::Exit()
 	SetVisibility(EVisibility::Hidden);
 
 	SectorsBox->ClearChildren();
+}
+
+void SFlareOrbitalMenu::Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime )
+{
+	if(IsEnabled() && LastUpdateTime != MenuManager->GetGame()->GetGameWorld()->GetTime())
+	{
+		UpdateMap();
+	}
 }
 
 
@@ -256,6 +250,41 @@ inline FVector2D SFlareOrbitalMenu::GetPositionFromPolar(int32 Radius, int32 Ang
 	FMath::PolarToCartesian(Radius, FMath::DegreesToRadians(Angle), X, Y);
 	return FVector2D(X, Y);
 }
+
+void SFlareOrbitalMenu::UpdateMap()
+{
+	SectorsBox->ClearChildren();
+	// Add sectors slots
+	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+	{
+		TSharedPtr<int32> IndexPtr(new int32(SectorIndex));
+
+		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
+
+		FString	SectorTitle = Sector->GetSectorName();
+
+		if(Sector->GetSectorShips().Num() > 0)
+		{
+			SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " ship" +(Sector->GetSectorShips().Num() > 1 ? "s": "");
+		}
+
+		if(Sector->GetSectorStations().Num() > 0)
+		{
+			SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " station" +(Sector->GetSectorStations().Num() > 1 ? "s": "");
+		}
+
+		SectorsBox->AddSlot()
+		[
+			SNew(SFlareRoundButton)
+			.Text(FText::FromString(SectorTitle))
+			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
+			.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
+		];
+	}
+
+	LastUpdateTime = MenuManager->GetGame()->GetGameWorld()->GetTime();
+}
+
 
 /*----------------------------------------------------
 	Callbacks
