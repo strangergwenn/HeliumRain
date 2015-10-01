@@ -225,7 +225,7 @@ UFlareFleet* UFlareCompany::LoadFleet(const FFlareFleetSave& FleetData)
 	Fleet->Load(FleetData);
 	CompanyFleets.AddUnique(Fleet);
 
-	FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetName());
+	FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetFleetName());
 
 	return Fleet;
 }
