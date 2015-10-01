@@ -61,6 +61,20 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
+				// Travel here
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Right)
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("Travel", "Travel"))
+					.HelpText(LOCTEXT("TravelInfo", "Start travel with selected fleet with this sector as destination"))
+					.Icon(FFlareStyleSet::GetIcon("Travel"))
+					.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
+					//TODO disable if no selected fleet
+				]
+
 				// Object list
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -130,6 +144,16 @@ void SFlareSectorMenu::Exit()
 void SFlareSectorMenu::OnBackClicked()
 {
 	MenuManager->Back();
+}
+
+void SFlareSectorMenu::OnTravelHereClicked()
+{
+	UFlareFleet* SelectedFleet = MenuManager->GetGame()->GetPC()->GetSelectedFleet();
+	if(SelectedFleet)
+	{
+		MenuManager->GetGame()->GetGameWorld()->StartTravel(SelectedFleet, TargetSector);
+		MenuManager->Back();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

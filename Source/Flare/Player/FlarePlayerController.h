@@ -43,6 +43,7 @@ public:
 
 	virtual void SetWorldPause(bool Pause);
 
+	virtual UFlareFleet* GetSelectedFleet();
 
 	/*----------------------------------------------------
 		Data management

@@ -47,6 +47,9 @@ protected:
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 
+	/** Move the selected fleet here */
+	void OnTravelHereClicked();
+
 
 protected:
 
