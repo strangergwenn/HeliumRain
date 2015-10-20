@@ -59,6 +59,10 @@ namespace EFlareQuestCondition
 		SHARED_CONDITION,
 		/** Use Identifier1 as the ship class if need to fly a specific ship class*/
 		FLYING_SHIP,
+		/** Use Identifier1 as the sector identifier*/
+		SECTOR_VISITED,
+		/** Use Identifier1 as the sector identifier*/
+		SECTOR_ACTIVE,
 		/** Use Identifier1 as the ship taf if need to track a specific ship*/
 		SHIP_ALIVE,
 		/** Use FloatParam1 as velocity */
@@ -282,9 +286,9 @@ public:
 
 	virtual void Activate();
 
-	virtual bool CheckConditions(const TArray<FFlareQuestConditionDescription>& Conditions);
+	virtual bool CheckConditions(const TArray<FFlareQuestConditionDescription>& Conditions, bool EmptyResult);
 
-	virtual bool CheckCondition(const FFlareQuestConditionDescription* Condition);
+	virtual bool CheckCondition(const FFlareQuestConditionDescription* Condition, bool EmptyResult);
 
 	virtual void PerformActions(const TArray<FFlareQuestActionDescription>& Actions);
 
@@ -322,9 +326,14 @@ public:
 
 	virtual void OnFlyShip(AFlareSpacecraft* Ship);
 
+	virtual void OnSectorActivation(UFlareSimulatedSector* Sector);
+
+	virtual void OnSectorVisited(UFlareSimulatedSector* Sector);
+
 	virtual void OnTick(float DeltaSeconds);
 
 	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
+
 
 protected:
 

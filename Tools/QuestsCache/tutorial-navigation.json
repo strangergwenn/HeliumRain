@@ -1,0 +1,68 @@
+{
+	Identifier: "tutorial-navigation"
+	Name: "Orbital navigation tutorial"
+	Description: "Learn how to navigate between orbital sectors"
+	Ended Description: ""
+	Category: TUTORIAL
+	Resettable: true
+
+	Triggers: [
+		{
+			Type: QUEST_SUCCESFUL
+		}
+	]
+
+	Steps: [
+		{
+			Identifier: "travel"
+			Step Description: "Start travel to Surface Touch"
+			End Conditions: [
+				{
+					Type: SECTOR_VISITED
+					Identifier 1: "surface-touch"
+				}
+			]
+			Init Actions: [
+				{
+					Type: DISCOVER_SECTOR
+					Identifier 1: "surface-touch"
+				}
+			
+			
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"To start a travel, return to the orbital menu then select the destination sector : Surface touch. Then click on the Travel button.<br>Wait the travel to end."
+					]
+
+				}
+			]
+		}
+		{
+			Identifier: "activate"
+			Step Description: "Fly at Surface Touch"
+			End Conditions: [
+				{
+					Type: SECTOR_ACTIVE
+					Identifier 1: "surface-touch"
+				}
+			]
+			Init Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"Now you can open the sector menu for Surface touch : the ship arrived at destination. Fly it now."
+					]	
+				}
+			]
+			End Actions: [
+				{
+					Type: PRINT_MESSAGE
+					Messages Parameters : [
+						"You now kwow how to travel between sectors."
+					]
+				}
+			]
+		}
+	]
+}

@@ -293,6 +293,10 @@ void UFlareCompany::VisitSector(UFlareSimulatedSector* Sector)
 {
 	DiscoverSector(Sector);
 	VisitedSectors.AddUnique(Sector);
+	if (GetGame()->GetQuestManager())
+	{
+		GetGame()->GetQuestManager()->OnSectorVisited(Sector);
+	}
 }
 
 
