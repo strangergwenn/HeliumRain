@@ -51,7 +51,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 				.TextStyle(&Theme.TitleFont)
 				.Text(LOCTEXT("Leaderboard", "LEADERBOARD"))
 			]
-			
+
 			// Close
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
@@ -60,9 +60,9 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Close", "Close"))
-				.HelpText(LOCTEXT("CloseInfo", "Close the menu and go back to the orbital menu"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.Text(LOCTEXT("GoOrbit", "Orbital map"))
+				.HelpText(LOCTEXT("GoOrbitInfo", "Exit the company menu and go back to the orbital map"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit, true))
 				.OnClicked(this, &SFlareLeaderboardMenu::OnExit)
 			]
 		]
