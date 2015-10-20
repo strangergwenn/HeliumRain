@@ -69,7 +69,7 @@ void UFlareQuest::UpdateState()
 	{
 		case EFlareQuestStatus::AVAILABLE:
 		{
-			bool ConditionsStatus = CheckConditions(QuestDescription->Triggers);
+			bool ConditionsStatus = CheckConditions(QuestDescription->Triggers, true);
 			if(ConditionsStatus)
 			{
 				Activate();
@@ -81,20 +81,20 @@ void UFlareQuest::UpdateState()
 			const FFlareQuestStepDescription* StepDescription = GetCurrentStepDescription();
 			if(StepDescription)
 			{
-				bool StepEnabled = CheckConditions(StepDescription->EnabledConditions);
+				bool StepEnabled = CheckConditions(StepDescription->EnabledConditions, true);
 				if(StepEnabled)
 				{
-					bool StepFailed = CheckConditions(StepDescription->FailConditions);
+					bool StepFailed = CheckConditions(StepDescription->FailConditions, false);
 					if(StepFailed)
 					{
 						Fail();
 					}
 					else
 					{
-						bool StepBlocked = CheckConditions(StepDescription->BlockConditions);
+						bool StepBlocked = CheckConditions(StepDescription->BlockConditions, false);
 						if(!StepBlocked)
 						{
-							bool StepEnded = CheckConditions(StepDescription->EndConditions);
+							bool StepEnded = CheckConditions(StepDescription->EndConditions, true);
 							if(StepEnded){
 								// This step ended go to next step
 								EndStep();
@@ -182,16 +182,16 @@ void UFlareQuest::Activate()
 	QuestManager->OnQuestActivation(this);
 }
 
-bool UFlareQuest::CheckConditions(const TArray<FFlareQuestConditionDescription>& Conditions)
+bool UFlareQuest::CheckConditions(const TArray<FFlareQuestConditionDescription>& Conditions, bool EmptyResult)
 {
 	if (Conditions.Num() == 0)
 	{
-		return false;
+		return EmptyResult;
 	}
 
 	for (int ConditionIndex = 0; ConditionIndex < Conditions.Num(); ConditionIndex++)
 	{
-		if (!CheckCondition(&Conditions[ConditionIndex]))
+		if (!CheckCondition(&Conditions[ConditionIndex], EmptyResult))
 		{
 			return false;
 		}
@@ -200,7 +200,7 @@ bool UFlareQuest::CheckConditions(const TArray<FFlareQuestConditionDescription>&
 	return true;
 }
 
-bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Condition)
+bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Condition, bool EmptyResult)
 {
 	bool Status = false;
 
@@ -211,7 +211,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 			const FFlareSharedQuestCondition* SharedCondition = FindSharedCondition(Condition->Identifier1);
 			if(SharedCondition)
 			{
-				Status = CheckConditions(SharedCondition->Conditions);
+				Status = CheckConditions(SharedCondition->Conditions, EmptyResult);
 			}
 			break;
 		}
@@ -228,6 +228,19 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 					// The flyed ship is the right kind of ship
 					Status = true;
 				}
+			}
+			break;
+		case EFlareQuestCondition::SECTOR_ACTIVE:
+			if (QuestManager->GetGame()->GetActiveSector() && QuestManager->GetGame()->GetActiveSector()->GetSimulatedSector()->GetIdentifier() == Condition->Identifier1)
+			{
+					Status = true;
+			}
+			break;
+		case EFlareQuestCondition::SECTOR_VISITED:
+			if (QuestManager->GetGame()->GetPC()->GetCompany()->GetVisitedSectors().Contains(
+						QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1)))
+			{
+					Status = true;
 			}
 			break;
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
@@ -866,6 +879,10 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
 		}
+		case EFlareQuestCondition::SECTOR_VISITED:
+			break;
+		case EFlareQuestCondition::SECTOR_ACTIVE:
+			break;
 		default:
 			FLOGV("ERROR: UpdateObjectiveTracker not implemented for condition type %d", (int)(Condition->Type +0));
 			break;
@@ -961,6 +978,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 			if(StepDescription)
 			{
 				AddConditionCallbacks(Callbacks, StepDescription->EnabledConditions);
+				AddConditionCallbacks(Callbacks, StepDescription->EndConditions);
 				AddConditionCallbacks(Callbacks, StepDescription->FailConditions);
 				AddConditionCallbacks(Callbacks, StepDescription->BlockConditions);
 			}
@@ -992,8 +1010,8 @@ void UFlareQuest::AddConditionCallbacks(TArray<EFlareQuestCallback::Type>& Callb
 
 TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlareQuestConditionDescription* Condition)
 {
-	TArray<EFlareQuestCallback::Type> Callbacks;
 
+	TArray<EFlareQuestCallback::Type> Callbacks;
 	switch(Condition->Type)
 	{
 		case EFlareQuestCondition::SHARED_CONDITION:
@@ -1007,6 +1025,12 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 		}
 		case EFlareQuestCondition::FLYING_SHIP:
 			Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
+			break;
+		case EFlareQuestCondition::SECTOR_VISITED:
+			Callbacks.AddUnique(EFlareQuestCallback::SECTOR_VISITED);
+			break;
+		case EFlareQuestCondition::SECTOR_ACTIVE:
+			Callbacks.AddUnique(EFlareQuestCallback::SECTOR_ACTIVE);
 			break;
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
 		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
@@ -1049,6 +1073,17 @@ void UFlareQuest::OnQuestStatusChanged(UFlareQuest* Quest)
 {
 	UpdateState();
 }
+
+void UFlareQuest::OnSectorActivation(UFlareSimulatedSector* Sector)
+{
+	UpdateState();
+}
+
+void UFlareQuest::OnSectorVisited(UFlareSimulatedSector* Sector)
+{
+	UpdateState();
+}
+
 
 
 /*----------------------------------------------------

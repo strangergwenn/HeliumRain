@@ -171,6 +171,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 		PC->OnSectorActivated();
 	}
+	GetQuestManager()->OnSectorActivation(Sector);
 }
 
 void AFlareGame::DeactivateSector(AController* Player)

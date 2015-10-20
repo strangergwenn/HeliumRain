@@ -86,6 +86,7 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 		}
 
 		LoadCallbacks(Quest);
+		Quest->UpdateState();
 	}
 	if(!SelectedQuest)
 	{
@@ -150,9 +151,15 @@ void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 				FlyShipCallback.Add(Quest);
 				break;
 			case EFlareQuestCallback::TICK_FLYING:
-				TickFlying.Add(Quest);
+				TickFlyingCallback.Add(Quest);
 				break;
-		case EFlareQuestCallback::QUEST:
+			case EFlareQuestCallback::SECTOR_VISITED:
+				SectorVisitedCallback.Add(Quest);
+				break;
+			case EFlareQuestCallback::SECTOR_ACTIVE:
+				SectorActiveCallback.Add(Quest);
+				break;
+			case EFlareQuestCallback::QUEST:
 				QuestCallback.Add(Quest);
 				break;
 			default:
@@ -163,7 +170,7 @@ void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 
 void UFlareQuestManager::ClearCallbacks(UFlareQuest* Quest)
 {
-	TickFlying.Remove(Quest);
+	TickFlyingCallback.Remove(Quest);
 	FlyShipCallback.Remove(Quest);
 }
 
@@ -172,9 +179,9 @@ void UFlareQuestManager::OnTick(float DeltaSeconds)
 	if(GetGame()->GetActiveSector())
 	{
 		// Tick TickFlying callback only if there is an active sector
-		for (int i = 0; i < TickFlying.Num(); i++)
+		for (int i = 0; i < TickFlyingCallback.Num(); i++)
 		{
-			TickFlying[i]->OnTick(DeltaSeconds);
+			TickFlyingCallback[i]->OnTick(DeltaSeconds);
 		}
 	}
 }
@@ -186,6 +193,24 @@ void UFlareQuestManager::OnFlyShip(AFlareSpacecraft* Ship)
 		FlyShipCallback[i]->OnFlyShip(Ship);
 	}
 }
+
+void UFlareQuestManager::OnSectorActivation(UFlareSimulatedSector* Sector)
+{
+	for (int i = 0; i < SectorActiveCallback.Num(); i++)
+	{
+		SectorActiveCallback[i]->OnSectorActivation(Sector);
+	}
+}
+
+void UFlareQuestManager::OnSectorVisited(UFlareSimulatedSector* Sector)
+{
+	for (int i = 0; i < SectorVisitedCallback.Num(); i++)
+	{
+		SectorVisitedCallback[i]->OnSectorVisited(Sector);
+	}
+}
+
+
 
 void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
 {

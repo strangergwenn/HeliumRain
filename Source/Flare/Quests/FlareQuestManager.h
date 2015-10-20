@@ -14,6 +14,8 @@ namespace EFlareQuestCallback
 	enum Type
 	{
 		TICK_FLYING, // Trig the quest at each tick
+		SECTOR_VISITED, // Trig when a sector is visited
+		SECTOR_ACTIVE, // Trig when a sector is activated
 		FLY_SHIP, // Trig the quest when a ship is flyed
 		QUEST // Trig when a quest status change
 	};
@@ -106,6 +108,10 @@ public:
 
 	virtual void OnFlyShip(AFlareSpacecraft* Ship);
 
+	virtual void OnSectorActivation(UFlareSimulatedSector* Sector);
+
+	virtual void OnSectorVisited(UFlareSimulatedSector* Sector);
+
 	virtual void OnTick(float DeltaSeconds);
 
 	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
@@ -115,6 +121,7 @@ public:
 	virtual void OnQuestFail(UFlareQuest* Quest);
 
 	virtual void OnQuestActivation(UFlareQuest* Quest);
+
 
 	/*----------------------------------------------------
 		Quest management
@@ -140,8 +147,11 @@ protected:
 	TArray<UFlareQuest*>	OldQuests;
 
 	UFlareQuest*			SelectedQuest;
+	// TODO Use map structure
 	TArray<UFlareQuest*>	FlyShipCallback;
-	TArray<UFlareQuest*>	TickFlying;
+	TArray<UFlareQuest*>	SectorVisitedCallback;
+	TArray<UFlareQuest*>	SectorActiveCallback;
+	TArray<UFlareQuest*>	TickFlyingCallback;
 	TArray<UFlareQuest*>	QuestCallback;
 
 	FFlareQuestSave			QuestData;
