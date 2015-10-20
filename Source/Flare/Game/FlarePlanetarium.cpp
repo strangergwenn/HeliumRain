@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "FlarePlanetarium.h"
 #include "FlareGame.h"
+#include "../Player/FlarePlayerController.h"
 
 
 /*----------------------------------------------------
@@ -12,35 +13,28 @@ AFlarePlanetarium::AFlarePlanetarium(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	PrimaryActorTick.bCanEverTick = true;
-	CurrentTime = -1;
 }
 
 void AFlarePlanetarium::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	AFlareGame* Game =  Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+	SmoothTime += DeltaSeconds * 10;
 
-	if (Game)
+	if (GetGame())
 	{
-		if (!Game->GetActiveSector())
+		if (!GetGame()->GetActiveSector())
 		{
 			// No active sector, do nothing
 			return;
 		}
 
-		UFlareWorld* World = Game->GetGameWorld();
+		UFlareWorld* World = GetGame()->GetGameWorld();
 
 		if (World)
 		{
-			if (CurrentTime == World->GetTime() && CurrentSector == Game->GetActiveSector()->GetIdentifier())
-			{
-				// Already up-to-date
-				return;
-			}
-
-			CurrentTime = World->GetTime();
-			CurrentSector = Game->GetActiveSector()->GetIdentifier();
+			float LocalTime = GetGame()->GetActiveSector()->GetLocalTime();
+			CurrentSector = GetGame()->GetActiveSector()->GetIdentifier();
 
 			if (Sky == NULL)
 			{
@@ -70,17 +64,19 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 				}
 			}
 
-			Sun = World->GetPlanerarium()->GetSnapShot(World->GetTime());
+			Sun = World->GetPlanerarium()->GetSnapShot(LocalTime, SmoothTime);
 
 			// Draw Player
-			FFlareSectorOrbitParameters* PlayerOrbit = Game->GetActiveSector()->GetSimulatedSector()->GetOrbitParameters();
+			FFlareSectorOrbitParameters* PlayerOrbit = GetGame()->GetActiveSector()->GetSimulatedSector()->GetOrbitParameters();
 
 
 			FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody(PlayerOrbit->CelestialBodyIdentifier);
 			if (CurrentParent)
 			{
 				FPreciseVector ParentLocation = CurrentParent->AbsoluteLocation;
-				FPreciseVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, World->GetTime(), PlayerOrbit->Altitude + CurrentParent->Radius, 0, PlayerOrbit->Phase);
+
+				double DistanceToParentCenter = CurrentParent->Radius + PlayerOrbit->Altitude;
+				FPreciseVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, LocalTime, SmoothTime, DistanceToParentCenter, 0, PlayerOrbit->Phase);
 				/*FLOGV("Parent location = %s", *CurrentParent->AbsoluteLocation.ToString());
 				FLOGV("PlayerLocation = %s", *PlayerLocation.ToString());*/
 	/*			DrawDebugLine(GetWorld(), FVector(1000, 0 ,0), FVector(- 1000, 0 ,0), FColor::Red, false);
@@ -138,22 +134,15 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 
 void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection)
 {
-
-	// float BaseDistance = 1e9;
 	double BaseDistance = 1e7;
 
-
-
-	double DistanceScaleRatio = 100./10000;
-	// float RadiusScaleRatio = 100./70000;
-	double RadiusScaleRatio = 100./10000;
 	FPreciseVector Location = Offset + Body->AbsoluteLocation;
 	FPreciseVector AlignedLocation = Location.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0));
 
 
 	double AngularRadius = FMath::Asin(Body->Radius / AlignedLocation.Size());
 
-	double DisplayDistance = BaseDistance + AlignedLocation.Size() / 100;
+	double DisplayDistance = FMath::Sin(AngularRadius) * BaseDistance / 5 + BaseDistance + AlignedLocation.Size() / 10;
 
 
 	double VisibleRadius = FMath::Sin(AngularRadius) * DisplayDistance;
@@ -182,7 +171,12 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 
 	if (BodyComponent)
 	{
-		BodyComponent->SetRelativeLocation((DisplayDistance * AlignedLocation.GetUnsafeNormal()).ToVector());
+		FVector PlayerShipLocation = FVector::ZeroVector;
+		if(GetGame()->GetPC()->GetShipPawn())
+		{
+			PlayerShipLocation = GetGame()->GetPC()->GetShipPawn()->GetActorLocation();
+		}
+		BodyComponent->SetRelativeLocation((DisplayDistance * AlignedLocation.GetUnsafeNormal()).ToVector() + PlayerShipLocation);
 		float Scale = VisibleRadius / 512; // Mesh size is 1024;
 		BodyComponent->SetRelativeScale3D(FPreciseVector(Scale).ToVector());
 
@@ -286,6 +280,12 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		FFlareCelestialBody* CelestialBody = &Body->Sattelites[SatteliteIndex];
 		MoveCelestialBody(CelestialBody, Offset, AngleOffset, SunDirection);
 	}
+}
+
+void AFlarePlanetarium::ResetTime()
+{
+	FLOGV("AFlarePlanetarium::ResetTime from %f", SmoothTime);
+	SmoothTime = 0;
 }
 
 

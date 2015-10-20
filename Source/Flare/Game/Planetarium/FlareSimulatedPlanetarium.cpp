@@ -98,13 +98,13 @@ FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FFlareCelesti
 	return NULL;
 }
 
-FFlareCelestialBody UFlareSimulatedPlanetarium::GetSnapShot(int64 Time)
+FFlareCelestialBody UFlareSimulatedPlanetarium::GetSnapShot(int64 Time, float SmoothTime)
 {
-	ComputeCelestialBodyLocation(NULL, &Sun, Time);
+	ComputeCelestialBodyLocation(NULL, &Sun, Time, SmoothTime);
 	return Sun;
 }
 
-FPreciseVector UFlareSimulatedPlanetarium::GetRelativeLocation(FFlareCelestialBody* ParentBody, int64 Time, double OrbitDistance, double Mass, double InitialPhase)
+FPreciseVector UFlareSimulatedPlanetarium::GetRelativeLocation(FFlareCelestialBody* ParentBody, int64 Time, float SmoothTime, double OrbitDistance, double Mass, double InitialPhase)
 {
 	// TODO extract the constant
 	double G = 6.674e-11; // Gravitational constant
@@ -115,9 +115,9 @@ FPreciseVector UFlareSimulatedPlanetarium::GetRelativeLocation(FFlareCelestialBo
 	double OrbitalCircumference = 2 * PI * 1000 * OrbitDistance;
 	int64 RevolutionTime = (int64) (OrbitalCircumference / OrbitalVelocity);
 
-	int64 CurrentRevolutionTime = Time % RevolutionTime;
+	double CurrentRevolutionTime = fmod(((double) (Time % RevolutionTime) + SmoothTime), (double) RevolutionTime);
 
-	double Phase = (360 * (double) CurrentRevolutionTime / (double) RevolutionTime) + InitialPhase;
+	double Phase = (360 * CurrentRevolutionTime / (double) RevolutionTime) + InitialPhase;
 
 
 	FPreciseVector RelativeLocation = OrbitDistance * FPreciseVector(FPreciseMath::Cos(FPreciseMath::DegreesToRadians(Phase)),
@@ -129,41 +129,18 @@ FPreciseVector UFlareSimulatedPlanetarium::GetRelativeLocation(FFlareCelestialBo
 }
 
 
-void UFlareSimulatedPlanetarium::ComputeCelestialBodyLocation(FFlareCelestialBody* ParentBody, FFlareCelestialBody* Body, int64 Time)
+void UFlareSimulatedPlanetarium::ComputeCelestialBodyLocation(FFlareCelestialBody* ParentBody, FFlareCelestialBody* Body, int64 Time, float SmoothTime)
 {
 	if (ParentBody)
 	{
-	/*	// TODO extract the constant
-		float G = 6.674e-11; // Gravitational constant
-
-		float MassSum = ParentBody->Mass + Body->Mass;
-		float Distance = 1000 * Body->OrbitDistance;
-		float SquareVelocity = G * (MassSum / Distance);
-		float FragmentedOrbitalVelocity = FMath::Sqrt(SquareVelocity);
-
-		float OrbitalVelocity = FMath::Sqrt(G * ((ParentBody->Mass + Body->Mass) / (1000 * Body->OrbitDistance)));
-
-		OrbitalVelocity = FragmentedOrbitalVelocity;
-
-		float OrbitalCircumference = 2 * PI * 1000 * Body->OrbitDistance;
-		int64 RevolutionTime = (int64) (OrbitalCircumference / OrbitalVelocity);
-
-		int64 CurrentRevolutionTime = Time % RevolutionTime;
-
-		float Phase = 360 * (float) CurrentRevolutionTime / (float) RevolutionTime;
-*/
-		Body->RelativeLocation = GetRelativeLocation(ParentBody, Time, Body->OrbitDistance, Body->Mass, 0);
+		Body->RelativeLocation = GetRelativeLocation(ParentBody, Time, SmoothTime, Body->OrbitDistance, Body->Mass, 0);
 		Body->AbsoluteLocation = ParentBody->AbsoluteLocation + Body->RelativeLocation;
-		/*Body->RelativeLocation = Body->OrbitDistance * FVector(FMath::Cos(FMath::DegreesToRadians(Phase)),
-				FMath::Sin(FMath::DegreesToRadians(Phase)),
-				0);*/
 	}
 
-	Body->RotationAngle = FPreciseMath::UnwindDegrees(Body->RotationVelocity * Time);
-
+	Body->RotationAngle = FPreciseMath::UnwindDegrees(Body->RotationVelocity * Time) + Body->RotationVelocity * SmoothTime;
 	for (int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
 	{
 		FFlareCelestialBody* CelestialBody = &Body->Sattelites[SatteliteIndex];
-		ComputeCelestialBodyLocation(Body, CelestialBody, Time);
+		ComputeCelestialBodyLocation(Body, CelestialBody, Time, SmoothTime);
 	}
 }

@@ -26,6 +26,7 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 	Game = Cast<AFlareGame>(GetOuter());
 	SectorData = Data;
 	SimulatedSector = Sector;
+	LocalTime = SectorData.LocalTime;
 
 	for (int i = 0 ; i < SectorData.AsteroidData.Num(); i++)
 	{
@@ -94,6 +95,7 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 		SectorData.AsteroidData.Add(*SectorAsteroids[i]->Save());
 	}
 
+	SectorData.LocalTime = LocalTime + GetGame()->GetPlanetarium()->GetSmoothTime();
 	return &SectorData;
 }
 

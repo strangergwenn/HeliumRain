@@ -166,7 +166,13 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 	{
 		// Create the new sector
 		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
-		ActiveSector->Load(*Sector->Save(), Sector);
+		FFlareSectorSave* SectorData = Sector->Save();
+		if (SectorData->LocalTime < GetGameWorld()->GetTime())
+		{
+			SectorData->LocalTime = GetGameWorld()->GetTime();
+		}
+		Planetarium->ResetTime();
+		ActiveSector->Load(*SectorData, Sector);
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 		PC->OnSectorActivated();

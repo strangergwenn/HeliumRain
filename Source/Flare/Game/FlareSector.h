@@ -85,6 +85,7 @@ protected:
 	FFlareSectorSave        SectorData;
 	AFlareGame*                   Game;
 	UFlareSimulatedSector*        SimulatedSector;
+	int64						  LocalTime;
 
 public:
 
@@ -133,5 +134,9 @@ public:
 		return SectorAsteroids;
 	}
 
+	inline int64 GetLocalTime()
+	{
+		return LocalTime;
+	}
 
 };

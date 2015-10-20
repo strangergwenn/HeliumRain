@@ -58,6 +58,7 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 					// No save, init new sector
 					NewSectorData.GivenName = "";
 					NewSectorData.Identifier = SectorDescription->Identifier;
+					NewSectorData.LocalTime = 0;
 					SectorSave = &NewSectorData;
 				}
 

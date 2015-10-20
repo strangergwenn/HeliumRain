@@ -136,6 +136,10 @@ struct FFlareSectorSave
 	/** Last flown identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName LastFlownShip;
+
+	/** Local sector time. */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 LocalTime;
 };
 
 UCLASS()

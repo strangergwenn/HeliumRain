@@ -209,17 +209,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		EngineSoundVolume = 0;
 		RCSSoundVolume = 0;
 	}
-
-	if (GetGame() && GetGame()->GetGameWorld())
-	{
-		Accumulator += DeltaSeconds;
-		while(Accumulator > 0)
-		{
-			GetGame()->GetGameWorld()->Simulate(1);
-			// DeltaSeconds * (float) (360)
-			Accumulator -= 1;
-		}
-	}
 }
 
 void AFlarePlayerController::UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume)

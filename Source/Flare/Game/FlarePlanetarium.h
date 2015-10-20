@@ -17,6 +17,8 @@ public:
 
 	void MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection);
 
+	void ResetTime();
+
 	/*----------------------------------------------------
 		Public events
 	----------------------------------------------------*/
@@ -46,7 +48,6 @@ protected:
 	AStaticMeshActor* Sky;
 	UDirectionalLightComponent* Light;
 
-	int64 CurrentTime;
 	FName CurrentSector;
 
 	FFlareCelestialBody Sun;
@@ -56,14 +57,26 @@ protected:
 	double SunAnglularRadius;
 	double SunPhase;
 
+	float SmoothTime;
+
 public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
 
+		inline AFlareGame* GetGame() const
+		{
+			return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+		}
+
 		double GetSunOcclusion() const
 		{
 			return SunOcclusion;
+		}
+
+		inline float GetSmoothTime()
+		{
+			return SmoothTime;
 		}
 
 };

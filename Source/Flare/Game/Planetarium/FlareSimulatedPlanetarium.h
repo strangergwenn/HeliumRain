@@ -225,10 +225,10 @@ public:
 
 
 	/** Load the planetarium */
-	virtual FFlareCelestialBody GetSnapShot(int64 Time);
+	virtual FFlareCelestialBody GetSnapShot(int64 Time, float SmoothTime);
 
 	/** Get relative location of a body orbiting around its parent */
-	virtual FPreciseVector GetRelativeLocation(FFlareCelestialBody* ParentBody, int64 Time, double OrbitDistance, double Mass, double InitialPhase);
+	virtual FPreciseVector GetRelativeLocation(FFlareCelestialBody* ParentBody, int64 Time, float SmoothTime, double OrbitDistance, double Mass, double InitialPhase);
 
 	/** Return the celestial body with the given identifier */
 	FFlareCelestialBody* FindCelestialBody(FName BodyIdentifier);
@@ -238,7 +238,7 @@ public:
 
 protected:
 
-	void ComputeCelestialBodyLocation(FFlareCelestialBody* ParentBody, FFlareCelestialBody* Body, int64 time);
+	void ComputeCelestialBodyLocation(FFlareCelestialBody* ParentBody, FFlareCelestialBody* Body, int64 time, float SmoothTime);
 
 	/*----------------------------------------------------
 		Protected data
