@@ -151,118 +151,22 @@ void SFlareOrbitalMenu::Exit()
 
 void SFlareOrbitalMenu::Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime )
 {
-	if(IsEnabled() && LastUpdateTime != MenuManager->GetGame()->GetGameWorld()->GetTime())
+	if (IsEnabled() && MenuManager.IsValid())
 	{
-		UpdateMap();
-		UpdateTravels();
-		LastUpdateTime = MenuManager->GetGame()->GetGameWorld()->GetTime();
+		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
+
+		if (GameWorld && LastUpdateTime != GameWorld->GetTime())
+		{
+			UpdateTravels();
+			LastUpdateTime = GameWorld->GetTime();
+		}
 	}
-}
-
-
-/*----------------------------------------------------
-	Drawing
-----------------------------------------------------*/
-
-int32 SFlareOrbitalMenu::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
-{
-	//FVector2D PlanetCenter = ClippingRect.GetSize() / 2;
-
-	//DrawOrbitPath(ClippingRect, OutDrawElements, LayerId, PlanetCenter, 200, 0, 200, 360);
-
-	//DrawOrbitPath(ClippingRect, OutDrawElements, LayerId, PlanetCenter, 350, 45, 300, 225);
-
-	//DrawOrbitPath(ClippingRect, OutDrawElements, LayerId, PlanetCenter, 350, -90, 300, 90);
-
-	return SCompoundWidget::OnPaint(Args, AllottedGeometry, ClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
-}
-
-void SFlareOrbitalMenu::DrawOrbitPath(const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
-	FVector2D PlanetCenter, int32 RadiusA, int32 AngleA, int32 RadiusB, int32 AngleB) const
-{
-	// Setup initial data
-	float InitialDistance = AngleB - AngleA;
-	int32 InitialAngleA = AngleA;
-	int32 DrawnDistance = 0;
-	int32 DrawnSegments = 0;
-	int32 MaxAngleInSegment = 90;
-	
-	// Compute initial points
-	FVector2D PointA = GetPositionFromPolar(RadiusA, AngleA);
-	FVector2D PointB = GetPositionFromPolar(RadiusB, AngleB);
-
-	// Draw a series of segments until the path has been done.
-	do
-	{
-		// Compute intermediate angles
-		int32 CurrentAngleA = AngleA + DrawnSegments * MaxAngleInSegment;
-		int32 CurrentAngleB = FMath::Min(CurrentAngleA + MaxAngleInSegment, AngleB);
-		float CurrentAngleARad = FMath::DegreesToRadians(CurrentAngleA - InitialAngleA);
-		float CurrentAngleBRad = FMath::DegreesToRadians(CurrentAngleB - InitialAngleA);
-
-		// Polar equation of an ellipse : point A
-		float CurrentRadiusA = (RadiusA * RadiusB) / FMath::Sqrt(
-			FMath::Square(RadiusB * FMath::Cos(CurrentAngleARad)) +
-			FMath::Square(RadiusA * FMath::Sin(CurrentAngleARad))
-			);
-		FVector2D CurrentPointA = GetPositionFromPolar(CurrentRadiusA, CurrentAngleA);;
-
-		// Polar equation of an ellipse : point B
-		float CurrentRadiusB = (RadiusA * RadiusB) / FMath::Sqrt(
-			FMath::Square(RadiusB * FMath::Cos(CurrentAngleBRad)) +
-			FMath::Square(RadiusA * FMath::Sin(CurrentAngleBRad))
-			);
-		FVector2D CurrentPointB = GetPositionFromPolar(CurrentRadiusB, CurrentAngleB);
-
-		// Tangents vary depending on the angle and ellipse parameters
-		float TangentSubdivisionRatio = ((CurrentAngleB - CurrentAngleA) / 90.0f);
-		float TangentLength = TangentSubdivisionRatio * FMath::Sqrt(2);// *(1 + 0.3 * FMath::Sin((PI * (CurrentAngleA - InitialAngleA)) / 180));
-
-		 // Compute intermediate tangents
-		FVector2D CurrentTangentA = TangentLength * FVector2D(-CurrentPointA.Y, CurrentPointA.X);
-		FVector2D CurrentTangentB = TangentLength * FVector2D(-CurrentPointB.Y, CurrentPointB.X);
-		
-		// Draw
-		DrawOrbitSegment(ClippingRect, OutDrawElements, LayerId, PlanetCenter, CurrentPointA, CurrentTangentA, CurrentPointB, CurrentTangentB);
-		DrawnDistance += (CurrentAngleB - CurrentAngleA);
-		DrawnSegments++;
-
-	} while (DrawnDistance < InitialDistance);
-}
-
-void SFlareOrbitalMenu::DrawOrbitSegment(const FSlateRect& ClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId,
-	FVector2D PlanetCenter, FVector2D PointA, FVector2D TangentA, FVector2D PointB, FVector2D TangentB) const
-{
-	// Get the rendering parametrs
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor WireColor = Theme.NeutralColor;
-	WireColor.A = Theme.DefaultAlpha;
-	
-	// Draw
-	FSlateDrawElement::MakeDrawSpaceSpline(
-		OutDrawElements,
-		LayerId,
-		PlanetCenter + PointA,
-		TangentA,
-		PlanetCenter + PointB,
-		TangentB,
-		ClippingRect,
-		8,
-		ESlateDrawEffect::None,
-		WireColor
-		);
-}
-
-inline FVector2D SFlareOrbitalMenu::GetPositionFromPolar(int32 Radius, int32 Angle) const
-{
-	float X, Y;
-	FMath::PolarToCartesian(Radius, FMath::DegreesToRadians(Angle), X, Y);
-	return FVector2D(X, Y);
 }
 
 void SFlareOrbitalMenu::UpdateMap()
 {
 	SectorsBox->ClearChildren();
+
 	// Add sectors slots
 	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
 	{
@@ -296,6 +200,7 @@ void SFlareOrbitalMenu::UpdateTravels()
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TravelsBox->ClearChildren();
+
 	// Add travels slots
 	for (int32 TravelIndex = 0; TravelIndex < MenuManager->GetGame()->GetGameWorld()->GetTravels().Num(); TravelIndex++)
 	{
@@ -334,17 +239,11 @@ void SFlareOrbitalMenu::OnMainMenu()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	PC->GetGame()->SaveGame(PC);
-	PC->GetGame()->UnloadGame();
-
 	MenuManager->FlushNotifications();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
-}
 
-void SFlareOrbitalMenu::OnExit()
-{
-	// TODO : Remove this + button once sectors can be opened with OnOpenSector
-	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+	PC->GetGame()->SaveGame(PC);
+	PC->GetGame()->UnloadGame();
 }
 
 void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
