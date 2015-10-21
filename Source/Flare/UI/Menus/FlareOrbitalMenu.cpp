@@ -182,7 +182,6 @@ void SFlareOrbitalMenu::Tick( const FGeometry& AllottedGeometry, const double In
 
 void SFlareOrbitalMenu::UpdateMap()
 {
-	AFlareGame* Game = MenuManager->GetGame();
 	UpdateMapForBody(NemaBox, &Game->GetSectorCatalog()->OrbitalBodies[0]);
 	UpdateMapForBody(AnkaBox, &Game->GetSectorCatalog()->OrbitalBodies[1]);
 }
