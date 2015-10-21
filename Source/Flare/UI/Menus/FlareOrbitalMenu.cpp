@@ -154,6 +154,8 @@ void SFlareOrbitalMenu::Enter()
 
 	Game->DeactivateSector(MenuManager->GetPC());
 
+	MenuManager->GetPC()->GetMenuPawn()->UpdateBackgroundColor(0, 0.02, 0.9);
+
 	UpdateMap();
 }
 

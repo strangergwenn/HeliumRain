@@ -201,6 +201,9 @@ void AFlareMenuPawn::ResetContent(bool Unsafe)
 	ExternalCameraPitchTarget = -CameraMaxPitch / 2;
 	ExternalCameraPitch = ExternalCameraPitchTarget;
 	SetCameraDistance(DisplayDistance);
+
+	// Emit the material settings
+	UpdateBackgroundColor(0.1, 0.8, 0);
 }
 
 void AFlareMenuPawn::UpdateCustomization()
