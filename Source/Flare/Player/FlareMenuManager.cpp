@@ -282,7 +282,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_NewGame:        Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_Dashboard:      Path = "Sector";       break;
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;
-		case EFlareMenu::MENU_Leaderboard:    Path = "Company";      break;
+		case EFlareMenu::MENU_Leaderboard:    Path = "Leaderboard";  break;
 		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
 		case EFlareMenu::MENU_Station:        Path = "Station";      break;
 		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
