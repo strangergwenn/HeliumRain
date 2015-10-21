@@ -3,7 +3,6 @@
 #include "FlarePlanetaryBox.h"
 
 
-
 void SFlarePlanetaryBox::Construct(const SFlarePlanetaryBox::FArguments& InArgs)
 {
 	Radius = 200;
@@ -51,68 +50,9 @@ void SFlarePlanetaryBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FA
 	}
 }
 
-/**
-* Helper to ComputeDesiredSize().
-*
-* @param Orientation   Template parameters that controls the orientation in which the children are layed out
-* @param Children      The children whose size we want to assess in a horizontal or vertical arrangement.
-*
-* @return The size desired by the children given an orientation.
-*/
-template<EOrientation Orientation>
-static FVector2D ComputeDesiredSizeForBox(const TPanelChildren<SFlarePlanetaryBox::FSlot>& Children)
-{
-	// The desired size of this panel is the total size desired by its children plus any margins specified in this panel.
-	// The layout along the panel's axis is describe dy the SizeParam, while the perpendicular layout is described by the
-	// alignment property.
-	FVector2D MyDesiredSize(0, 0);
-	for (int32 ChildIndex = 0; ChildIndex < Children.Num(); ++ChildIndex)
-	{
-		const SFlarePlanetaryBox::FSlot& CurChild = Children[ChildIndex];
-		const FVector2D& CurChildDesiredSize = CurChild.GetWidget()->GetDesiredSize();
-		if (CurChild.GetWidget()->GetVisibility() != EVisibility::Collapsed)
-		{
-			if (Orientation == Orient_Vertical)
-			{
-				// For a vertical panel, we want to find the maximum desired width (including margin).
-				// That will be the desired width of the whole panel.
-				MyDesiredSize.X = FMath::Max(MyDesiredSize.X, CurChildDesiredSize.X + CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Horizontal>());
-
-				// Clamp to the max size if it was specified
-				float FinalChildDesiredSize = CurChildDesiredSize.Y;
-				float MaxSize = CurChild.MaxSize.Get();
-				if (MaxSize > 0)
-				{
-					FinalChildDesiredSize = FMath::Min(MaxSize, FinalChildDesiredSize);
-				}
-
-				MyDesiredSize.Y += FinalChildDesiredSize + CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Vertical>();
-			}
-			else
-			{
-				// A horizontal panel is just a sideways vertical panel: the axes are swapped.
-
-				MyDesiredSize.Y = FMath::Max(MyDesiredSize.Y, CurChildDesiredSize.Y + CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Vertical>());
-
-				// Clamp to the max size if it was specified
-				float FinalChildDesiredSize = CurChildDesiredSize.X;
-				float MaxSize = CurChild.MaxSize.Get();
-				if (MaxSize > 0)
-				{
-					FinalChildDesiredSize = FMath::Min(MaxSize, FinalChildDesiredSize);
-				}
-
-				MyDesiredSize.X += FinalChildDesiredSize + CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Horizontal>();
-			}
-		}
-	}
-
-	return MyDesiredSize;
-}
-
 FVector2D SFlarePlanetaryBox::ComputeDesiredSize(float) const
 {
-	return ComputeDesiredSizeForBox<Orient_Horizontal>(this->Children);
+	return 2 * FVector2D(Radius, Radius);
 }
 
 FChildren* SFlarePlanetaryBox::GetChildren()
