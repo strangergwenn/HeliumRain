@@ -426,6 +426,13 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	World->FindSector("first-light")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
 
 
+	if (!PlayerData.QuestData.PlayTutorial)
+	{
+		for(int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
+		{
+			Company->DiscoverSector(World->GetSectors()[SectorIndex]);
+		}
+	}
 
 	// Load
 	PC->Load(PlayerData);
