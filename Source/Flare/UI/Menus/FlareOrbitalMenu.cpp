@@ -10,7 +10,7 @@
 
 
 /*----------------------------------------------------
-	Construct
+Construct
 ----------------------------------------------------*/
 
 void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
@@ -22,122 +22,122 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 
 	// Build structure
 	ChildSlot
-	.HAlign(HAlign_Fill)
-	.VAlign(VAlign_Fill)
-	[
-		SNew(SBorder)
-		.BorderImage(FFlareStyleSet::GetImage("OrbitBackground"))
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
+		[
+			SNew(SBorder)
+			.BorderImage(FFlareStyleSet::GetImage("OrbitBackground"))
 		[
 			SNew(SVerticalBox)
 
 			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SHorizontalBox)
+		.AutoHeight()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
 
-				// Icon
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit))
-				]
-
-				// Title
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TitleFont)
-					.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
-				]
-
-				// Company
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Bottom)
-				.Padding(Theme.TitleButtonPadding)
-				[
-					SNew(SFlareRoundButton)
-					.Text(LOCTEXT("InspectCompany", "Company"))
-					.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
-					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
-					.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
-				]
-
-				// Leaderboard
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Bottom)
-				.Padding(Theme.TitleButtonPadding)
-				.AutoWidth()
-				[
-					SNew(SFlareRoundButton)
-					.Text(LOCTEXT("Leaderboard", "Leaderboard"))
-					.HelpText(LOCTEXT("LeaderboardInfo", "Take a look at the companies"))
-					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
-					.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
-				]
-
-				// Quit
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Bottom)
-				.Padding(Theme.TitleButtonPadding)
-				.AutoWidth()
-				[
-					SNew(SFlareRoundButton)
-					.Text(LOCTEXT("SaveQuit", "Save and quit"))
-					.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
-					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
-					.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
-				]
-			]
-
-			// Separator
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(FMargin(200, 20))
-			[
-				SNew(SImage).Image(&Theme.SeparatorBrush)
-			]
-
-			// Travels
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			[
-				SAssignNew(TravelsBox, SVerticalBox)
-			]
-
-			// Planetarium
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			[
-				SNew(SHorizontalBox)
-
-				+ SHorizontalBox::Slot()
-				[
-					SAssignNew(NemaBox, SFlarePlanetaryBox)
-				]
-
-				+ SHorizontalBox::Slot()
-				[
-					SAssignNew(AnkaBox, SFlarePlanetaryBox)
-				]
-			]
+			// Icon
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit))
 		]
-	];
+
+	// Title
+	+ SHorizontalBox::Slot()
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TitleFont)
+		.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
+		]
+
+	// Company
+	+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Bottom)
+		.Padding(Theme.TitleButtonPadding)
+		[
+			SNew(SFlareRoundButton)
+			.Text(LOCTEXT("InspectCompany", "Company"))
+		.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
+		.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
+		]
+
+	// Leaderboard
+	+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Bottom)
+		.Padding(Theme.TitleButtonPadding)
+		.AutoWidth()
+		[
+			SNew(SFlareRoundButton)
+			.Text(LOCTEXT("Leaderboard", "Leaderboard"))
+		.HelpText(LOCTEXT("LeaderboardInfo", "Take a look at the companies"))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
+		.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
+		]
+
+	// Quit
+	+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Bottom)
+		.Padding(Theme.TitleButtonPadding)
+		.AutoWidth()
+		[
+			SNew(SFlareRoundButton)
+			.Text(LOCTEXT("SaveQuit", "Save and quit"))
+		.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
+		.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
+		.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
+		]
+		]
+
+	// Separator
+	+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(200, 20))
+		[
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
+
+	// Travels
+	+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(Theme.ContentPadding)
+		[
+			SAssignNew(TravelsBox, SVerticalBox)
+		]
+
+	// Planetarium
+	+ SVerticalBox::Slot()
+		.Padding(Theme.ContentPadding)
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
+		[
+			SNew(SHorizontalBox)
+
+			+ SHorizontalBox::Slot()
+		[
+			SAssignNew(NemaBox, SFlarePlanetaryBox)
+		]
+
+	+ SHorizontalBox::Slot()
+		[
+			SAssignNew(AnkaBox, SFlarePlanetaryBox)
+		]
+		]
+		]
+		];
 }
 
 
 /*----------------------------------------------------
-	Interaction
+Interaction
 ----------------------------------------------------*/
 
 void SFlareOrbitalMenu::Setup()
@@ -154,7 +154,7 @@ void SFlareOrbitalMenu::Enter()
 
 	Game->DeactivateSector(MenuManager->GetPC());
 
-	MenuManager->GetPC()->GetMenuPawn()->UpdateBackgroundColor(0, 0.02, 0.9);
+	MenuManager->GetPC()->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.025, 0.8);
 
 	UpdateMap();
 }
@@ -168,7 +168,7 @@ void SFlareOrbitalMenu::Exit()
 	TravelsBox->ClearChildren();
 }
 
-void SFlareOrbitalMenu::Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime )
+void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	if (IsEnabled() && MenuManager.IsValid())
 	{
@@ -197,11 +197,11 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 
 	// Add the name
 	Map->AddSlot()
-	[
-		SNew(STextBlock)
-		.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+		[
+			SNew(STextBlock)
+			.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
 		.Text(Body->CelestialBodyName)
-	];
+		];
 
 	// Add the sectors
 	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
@@ -224,12 +224,12 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 			}
 
 			Map->AddSlot()
-			[
-				SNew(SFlareRoundButton)
-				.Text(FText::FromString(SectorTitle))
+				[
+					SNew(SFlareRoundButton)
+					.Text(FText::FromString(SectorTitle))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
 				.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
-			];
+				];
 		}
 	}
 }
@@ -243,16 +243,16 @@ void SFlareOrbitalMenu::UpdateTravels()
 	for (int32 TravelIndex = 0; TravelIndex < MenuManager->GetGame()->GetGameWorld()->GetTravels().Num(); TravelIndex++)
 	{
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->GetTravels()[TravelIndex];
-		if(Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
+		if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 		{
 			FString TravelText = FString::Printf(TEXT("Travel to %s: %d seconds remaining."), *Travel->GetDestinationSector()->GetSectorName(), Travel->GetRemainingTravelDuration());
 
 			TravelsBox->AddSlot()
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
 				.Text(FText::FromString(TravelText))
-			];
+				];
 
 		}
 	}
@@ -260,7 +260,7 @@ void SFlareOrbitalMenu::UpdateTravels()
 
 
 /*----------------------------------------------------
-	Callbacks
+Callbacks
 ----------------------------------------------------*/
 
 void SFlareOrbitalMenu::OnInspectCompany()
@@ -292,7 +292,7 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 	if (PC)
 	{
 
-		//Game->ActivateSector(PC, Sector);
+	//Game->ActivateSector(PC, Sector);
 	}*/
 }
 
