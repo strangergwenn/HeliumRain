@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../Components/FlarePlanetaryBox.h"
 
 
 class AFlareMenuManager;
@@ -48,6 +49,9 @@ protected:
 	/** Update the map with new data from the planetarium */
 	void UpdateMap();
 
+	/** Update the map for a specific celestial body */
+	void UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, const FFlareSectorCelestialBodyDescription* Body);
+
 	/** Update the list of current travels */
 	void UpdateTravels();
 
@@ -68,6 +72,12 @@ protected:
 	/** Open a sector */
 	void OnOpenSector(TSharedPtr<int32> Index);
 
+	/** Get a widget's position on the screen */
+	FVector2D GetWidgetPosition(int32 Index) const;
+
+	/** Get a widget's size on the screen */
+	FVector2D GetWidgetSize(int32 Index) const;
+
 
 protected:
 
@@ -78,8 +88,12 @@ protected:
 	// Game data
 	AFlareGame*                                 Game;
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
-	
-	TSharedPtr<SHorizontalBox>                  SectorsBox;
-	TSharedPtr<SVerticalBox>                  TravelsBox;
 	int64                                       LastUpdateTime;
+
+	// Components
+	TSharedPtr<SFlarePlanetaryBox>              NemaBox;
+	TSharedPtr<SFlarePlanetaryBox>              AstaBox;
+	TSharedPtr<SFlarePlanetaryBox>              AnkaBox;
+	TSharedPtr<SFlarePlanetaryBox>              AriadneBox;
+	TSharedPtr<SVerticalBox>                    TravelsBox;
 };

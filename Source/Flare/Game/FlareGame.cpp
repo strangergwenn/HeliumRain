@@ -423,7 +423,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	}*/
 
 	FLOG("CreateGame create initial ship");
-	World->FindSector("helix-city")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
+	World->FindSector("first-light")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
 
 
 

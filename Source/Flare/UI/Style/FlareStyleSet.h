@@ -42,6 +42,13 @@ public:
 		return FFlareStyleSet::Get().GetBrush(*Path);
 	}
 
+	/** Get an image */
+	static const FSlateBrush* GetImage(FString Name)
+	{
+		FString Path = "/Brushes/SB_" + Name;
+		return FFlareStyleSet::Get().GetBrush(*Path);
+	}
+
 	/** Get a color for the current health of something */
 	static FLinearColor GetHealthColor(float Health, bool WithAlpha = false);
 

@@ -25,95 +25,112 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
+		SNew(SBorder)
+		.BorderImage(FFlareStyleSet::GetImage("OrbitBackground"))
 		[
-			SNew(SHorizontalBox)
+			SNew(SVerticalBox)
 
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit))
-			]
-
-			// Title
-			+ SHorizontalBox::Slot()
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Center)
 			.Padding(Theme.ContentPadding)
 			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
+				SNew(SHorizontalBox)
+
+				// Icon
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit))
+				]
+
+				// Title
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TitleFont)
+					.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
+				]
+
+				// Company
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
+				.VAlign(VAlign_Bottom)
+				.Padding(Theme.TitleButtonPadding)
+				[
+					SNew(SFlareRoundButton)
+					.Text(LOCTEXT("InspectCompany", "Company"))
+					.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
+					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
+					.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
+				]
+
+				// Leaderboard
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
+				.VAlign(VAlign_Bottom)
+				.Padding(Theme.TitleButtonPadding)
+				.AutoWidth()
+				[
+					SNew(SFlareRoundButton)
+					.Text(LOCTEXT("Leaderboard", "Leaderboard"))
+					.HelpText(LOCTEXT("LeaderboardInfo", "Take a look at the companies"))
+					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
+					.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
+				]
+
+				// Quit
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
+				.VAlign(VAlign_Bottom)
+				.Padding(Theme.TitleButtonPadding)
+				.AutoWidth()
+				[
+					SNew(SFlareRoundButton)
+					.Text(LOCTEXT("SaveQuit", "Save and quit"))
+					.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
+					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
+					.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
+				]
 			]
 
-			// Company
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
+			// Separator
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(FMargin(200, 20))
 			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("InspectCompany", "Company"))
-				.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
+				SNew(SImage).Image(&Theme.SeparatorBrush)
 			]
 
-			// Leaderboard
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
+			// Travels
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
 			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Leaderboard", "Leaderboard"))
-				.HelpText(LOCTEXT("LeaderboardInfo", "Take a look at the companies"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
+				SAssignNew(TravelsBox, SVerticalBox)
 			]
 
-			// Quit
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
+			// Planetarium
+			+ SVerticalBox::Slot()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
 			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("SaveQuit", "Save and quit"))
-				.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
+				SNew(SHorizontalBox)
+
+				+ SHorizontalBox::Slot()
+				[
+					SAssignNew(NemaBox, SFlarePlanetaryBox)
+				]
+
+				+ SHorizontalBox::Slot()
+				[
+					SAssignNew(AnkaBox, SFlarePlanetaryBox)
+				]
 			]
-		]
-
-		// Separator
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(200, 20))
-		[
-			SNew(SImage).Image(&Theme.SeparatorBrush)
-		]
-
-		// Content
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		[
-			SAssignNew(SectorsBox, SHorizontalBox)
-		]
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		[
-			SAssignNew(TravelsBox, SVerticalBox)
 		]
 	];
 }
@@ -145,7 +162,7 @@ void SFlareOrbitalMenu::Exit()
 	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
 
-	SectorsBox->ClearChildren();
+	NemaBox->ClearChildren();
 	TravelsBox->ClearChildren();
 }
 
@@ -165,34 +182,54 @@ void SFlareOrbitalMenu::Tick( const FGeometry& AllottedGeometry, const double In
 
 void SFlareOrbitalMenu::UpdateMap()
 {
-	SectorsBox->ClearChildren();
+	AFlareGame* Game = MenuManager->GetGame();
+	UpdateMapForBody(NemaBox, &Game->GetSectorCatalog()->OrbitalBodies[0]);
+	UpdateMapForBody(AnkaBox, &Game->GetSectorCatalog()->OrbitalBodies[1]);
+}
 
-	// Add sectors slots
+void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, const FFlareSectorCelestialBodyDescription* Body)
+{
+	// Setup the planetary map
+	Map->SetPlanetImage(&Body->CelestialBodyPicture);
+	Map->SetRadius(Body->CelestialBodyRadiusOnMap);
+	Map->ClearChildren();
+
+	// Add the name
+	Map->AddSlot()
+	[
+		SNew(STextBlock)
+		.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+		.Text(Body->CelestialBodyName)
+	];
+
+	// Add the sectors
 	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
 	{
 		TSharedPtr<int32> IndexPtr(new int32(SectorIndex));
-
 		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
 
-		FString	SectorTitle = Sector->GetSectorName();
-
-		if(Sector->GetSectorShips().Num() > 0)
+		if (Sector->GetOrbitParameters()->CelestialBodyIdentifier == Body->CelestialBodyIdentifier)
 		{
-			SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " ship" +(Sector->GetSectorShips().Num() > 1 ? "s": "");
-		}
+			FString	SectorTitle = Sector->GetSectorName();
 
-		if(Sector->GetSectorStations().Num() > 0)
-		{
-			SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " station" +(Sector->GetSectorStations().Num() > 1 ? "s": "");
-		}
+			if (Sector->GetSectorShips().Num() > 0)
+			{
+				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " ship" + (Sector->GetSectorShips().Num() > 1 ? "s" : "");
+			}
 
-		SectorsBox->AddSlot()
-		[
-			SNew(SFlareRoundButton)
-			.Text(FText::FromString(SectorTitle))
-			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
-			.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
-		];
+			if (Sector->GetSectorStations().Num() > 0)
+			{
+				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " station" + (Sector->GetSectorStations().Num() > 1 ? "s" : "");
+			}
+
+			Map->AddSlot()
+			[
+				SNew(SFlareRoundButton)
+				.Text(FText::FromString(SectorTitle))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
+				.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
+			];
+		}
 	}
 }
 
@@ -258,6 +295,17 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 	}*/
 }
 
+FVector2D SFlareOrbitalMenu::GetWidgetPosition(int32 Index) const
+{
+	return FVector2D(1920, 1080) / 2;
+}
+
+FVector2D SFlareOrbitalMenu::GetWidgetSize(int32 Index) const
+{
+	int WidgetSize = 200;
+	FVector2D BaseSize(WidgetSize, WidgetSize);
+	return BaseSize;
+}
 
 #undef LOCTEXT_NAMESPACE
 

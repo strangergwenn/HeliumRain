@@ -32,21 +32,22 @@ struct FFlareSectorDescription
 	GENERATED_USTRUCT_BODY()
 
 	/** Name */
-	UPROPERTY(EditAnywhere, Category = Sector)
+	UPROPERTY(EditAnywhere, Category = Content)
 	FString Name;
 
 	/** Sector identifier */
-	UPROPERTY(EditAnywhere, Category = Sector)
+	UPROPERTY(EditAnywhere, Category = Content)
 	FName Identifier;
 
 	/** Orbit phase */
-	UPROPERTY(EditAnywhere, Category = Sector)
+	UPROPERTY(EditAnywhere, Category = Content)
 	float Phase;
 
 	/** Peaceful sector */
-	UPROPERTY(EditAnywhere, Category = Sector)
+	UPROPERTY(EditAnywhere, Category = Content)
 	bool Peaceful;
 };
+
 
 /** Sector orbit description */
 USTRUCT()
@@ -55,12 +56,11 @@ struct FFlareSectorOrbitDescription
 	GENERATED_USTRUCT_BODY()
 
 	/** Orbit altitude */
-	UPROPERTY(EditAnywhere, Category = Sector)
+	UPROPERTY(EditAnywhere, Category = Content)
 	float Altitude;
 
-
 	/** Orbit altitude */
-	UPROPERTY(EditAnywhere, Category = Sector)
+	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareSectorDescription> Sectors;
 };
 
@@ -70,13 +70,25 @@ USTRUCT()
 struct FFlareSectorCelestialBodyDescription
 {
 	GENERATED_USTRUCT_BODY()
+		
 	/** Parent celestial body identifier */
-	UPROPERTY(EditAnywhere, Category = Sector)
+	UPROPERTY(EditAnywhere, Category = Content)
 	FName CelestialBodyIdentifier;
 
+	/** Name of the celestial body */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FText CelestialBodyName;
+
+	/** Celestial body radius in pixels on the orbital map */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int32 CelestialBodyRadiusOnMap;
+
+	/** Celestial body image */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FSlateBrush CelestialBodyPicture;
 
 	/** Orbit altitude */
-	UPROPERTY(EditAnywhere, Category = Sector)
+	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareSectorOrbitDescription> Orbits;
 };
 
