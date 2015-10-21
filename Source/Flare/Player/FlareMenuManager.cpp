@@ -237,6 +237,16 @@ void AFlareMenuManager::ShowLoadingScreen()
 	}
 }
 
+void AFlareMenuManager::UseLightBackground()
+{
+	GetPC()->GetMenuPawn()->UseLightBackground();
+}
+
+void AFlareMenuManager::UseDarkBackground()
+{
+	GetPC()->GetMenuPawn()->UseDarkBackground();
+}
+
 void AFlareMenuManager::Confirm(FText Text, FSimpleDelegate OnConfirmed)
 {
 	if (Confirmation.IsValid())

@@ -203,7 +203,7 @@ void AFlareMenuPawn::ResetContent(bool Unsafe)
 	SetCameraDistance(DisplayDistance);
 
 	// Emit the material settings
-	UpdateBackgroundColor(0.1, 0.8, 0);
+	UseLightBackground();
 }
 
 void AFlareMenuPawn::UpdateCustomization()
@@ -227,6 +227,16 @@ void AFlareMenuPawn::SetCameraOffset(FVector2D Offset)
 void AFlareMenuPawn::SetSlideDirection(bool GoUp)
 {
 	SlideDirection = GoUp ? 1 : -1;
+}
+
+void AFlareMenuPawn::UseLightBackground()
+{
+	UpdateBackgroundColor(0.1, 0.8, 0);
+}
+
+void AFlareMenuPawn::UseDarkBackground()
+{
+	UpdateBackgroundColor(0.1, 0.03, 0.8);
 }
 
 

@@ -149,13 +149,13 @@ void SFlareOrbitalMenu::Setup()
 void SFlareOrbitalMenu::Enter()
 {
 	FLOG("SFlareOrbitalMenu::Enter");
+
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+	MenuManager->UseDarkBackground();
 
 	Game->DeactivateSector(MenuManager->GetPC());
-
-	MenuManager->GetPC()->GetMenuPawn()->UpdateBackgroundColor(0.1, 0.03, 0.8);
-
+	
 	UpdateMap();
 }
 

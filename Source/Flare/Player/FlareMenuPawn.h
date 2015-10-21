@@ -51,6 +51,12 @@ public:
 	/** Set the way parts slide in the browser */
 	void SetSlideDirection(bool GoUp);
 
+	/** Start using the light background setting */
+	void UseLightBackground();
+
+	/** Start using the dark background setting */
+	void UseDarkBackground();
+
 	/** Change the background color */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Flare")
 	void UpdateBackgroundColor(float HueShift, float Luminosity, float Desaturation);

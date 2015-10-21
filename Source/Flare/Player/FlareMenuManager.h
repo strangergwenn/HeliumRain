@@ -57,6 +57,12 @@ public:
 	/** Start the loading screen */
 	void ShowLoadingScreen();
 
+	/** Start using the light background setting */
+	void UseLightBackground();
+
+	/** Start using the dark background setting */
+	void UseDarkBackground();
+
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_General, float Timeout = 5, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL);
 

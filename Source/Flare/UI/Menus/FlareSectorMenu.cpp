@@ -25,11 +25,60 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SHorizontalBox)
+		SNew(SVerticalBox)
+
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
+			]
+
+			// Title
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Center)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TitleFont)
+				.Text(LOCTEXT("Sector", "SECTOR MAP"))
+			]
+
+			// Close
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("GoOrbit", "Orbital map"))
+				.HelpText(LOCTEXT("GoOrbitInfo", "Exit the sector menu and go back to the orbital map"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit, true))
+				.OnClicked(this, &SFlareSectorMenu::OnBackClicked)
+			]
+		]
+
+		// Separator
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(200, 20))
+		[
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
 
 		// UI container
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Left)
+		+ SVerticalBox::Slot()
+		.Padding(Theme.ContentPadding)
+		.HAlign(HAlign_Center)
 		[
 			SNew(SScrollBox)
 			.Style(&Theme.ScrollBoxStyle)
@@ -38,29 +87,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			+ SScrollBox::Slot()
 			[
 				SNew(SVerticalBox)
-
-				// Object name
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SHorizontalBox)
-
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector))
-					]
-
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.AutoWidth()
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("Sector", "SECTOR MAP"))
-						.TextStyle(&FFlareStyleSet::GetDefaultTheme().TitleFont)
-					]
-				]
-
+				
 				// Travel here
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -85,16 +112,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				]
 			]
 		]
-
-		// Dashboard button
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Top)
-		[
-			SNew(SFlareRoundButton)
-			.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
-			.OnClicked(this, &SFlareSectorMenu::OnBackClicked)
-		]
 	];
 }
 
@@ -112,9 +129,11 @@ void SFlareSectorMenu::Setup()
 void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 {
 	FLOG("SFlareSectorMenu::Enter");
-	TargetSector = Sector;
+
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+
+	TargetSector = Sector;
 
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
 	{
