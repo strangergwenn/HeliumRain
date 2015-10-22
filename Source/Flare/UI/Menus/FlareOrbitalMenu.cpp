@@ -77,8 +77,8 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SNew(SFlareRoundButton)
-					.Text(LOCTEXT("Leaderboard", "Leaderboard"))
-					.HelpText(LOCTEXT("LeaderboardInfo", "Take a look at the companies"))
+					.Text(LOCTEXT("Leaderboard", "Competition"))
+					.HelpText(LOCTEXT("LeaderboardInfo", "Take a closer look at all the companies"))
 					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
 					.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
 				]

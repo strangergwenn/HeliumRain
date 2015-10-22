@@ -135,7 +135,11 @@ FSlateColor SFlareSectorButton::GetBorderColor() const
 
 	if (Sector)
 	{
-		if (PlayerCompany->GetVisitedSectors().Find(Sector) == -1)
+		if (Sector->GetOrbitParameters()->CelestialBodyIdentifier == "anka")
+		{
+			Color = Theme.EnemyColor;
+		}
+		else if (PlayerCompany->GetVisitedSectors().Find(Sector) == -1)
 		{
 			Color = Theme.UnknownColor;
 		}

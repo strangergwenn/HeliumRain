@@ -49,7 +49,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("Leaderboard", "LEADERBOARD"))
+				.Text(LOCTEXT("Leaderboard", "COMPETITION"))
 			]
 
 			// Close
@@ -61,7 +61,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("GoOrbit", "Orbital map"))
-				.HelpText(LOCTEXT("GoOrbitInfo", "Exit the company menu and go back to the orbital map"))
+				.HelpText(LOCTEXT("GoOrbitInfo", "Go back to the orbital map"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit, true))
 				.OnClicked(this, &SFlareLeaderboardMenu::OnExit)
 			]
