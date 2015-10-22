@@ -126,10 +126,22 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(NemaBox, SFlarePlanetaryBox)
 				]
-
 				+ SHorizontalBox::Slot()
 				[
 					SAssignNew(AnkaBox, SFlarePlanetaryBox)
+				]
+				+ SHorizontalBox::Slot()
+				[
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					[
+						SAssignNew(AstaBox, SFlarePlanetaryBox)
+					]
+					+ SVerticalBox::Slot()
+					[
+						SAssignNew(AriadneBox, SFlarePlanetaryBox)
+					]
 				]
 			]
 		]
@@ -187,6 +199,8 @@ void SFlareOrbitalMenu::UpdateMap()
 {
 	UpdateMapForBody(NemaBox, &Game->GetSectorCatalog()->OrbitalBodies[0]);
 	UpdateMapForBody(AnkaBox, &Game->GetSectorCatalog()->OrbitalBodies[1]);
+	UpdateMapForBody(AstaBox, &Game->GetSectorCatalog()->OrbitalBodies[2]);
+	UpdateMapForBody(AriadneBox, &Game->GetSectorCatalog()->OrbitalBodies[3]);
 }
 
 void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, const FFlareSectorCelestialBodyDescription* Body)
