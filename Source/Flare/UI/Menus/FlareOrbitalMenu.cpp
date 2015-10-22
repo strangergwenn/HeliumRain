@@ -4,6 +4,7 @@
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../Components/FlareSectorButton.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareOrbitalMenu"
@@ -211,23 +212,11 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 
 		if (Sector->GetOrbitParameters()->CelestialBodyIdentifier == Body->CelestialBodyIdentifier)
 		{
-			FString	SectorTitle = Sector->GetSectorName();
-
-			if (Sector->GetSectorShips().Num() > 0)
-			{
-				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " ship" + (Sector->GetSectorShips().Num() > 1 ? "s" : "");
-			}
-
-			if (Sector->GetSectorStations().Num() > 0)
-			{
-				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " station" + (Sector->GetSectorStations().Num() > 1 ? "s" : "");
-			}
-
 			Map->AddSlot()
 			[
-				SNew(SFlareRoundButton)
-				.Text(FText::FromString(SectorTitle))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_None, true))
+				SNew(SFlareSectorButton)
+				.Sector(Sector)
+				.PlayerCompany(MenuManager->GetPC()->GetCompany())
 				.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
 			];
 		}

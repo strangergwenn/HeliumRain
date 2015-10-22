@@ -46,6 +46,10 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&RoundButtonInvertedCircle);
 		OutBrushes.Add(&RoundButtonInvertedActiveCircle);
 		OutBrushes.Add(&RoundButtonInvertedBackground);
+
+		OutBrushes.Add(&SectorButtonBorder);
+		OutBrushes.Add(&SectorButtonBackground);
+		OutBrushes.Add(&SectorButtonActiveBackground);
 	}
 
 
@@ -72,7 +76,9 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor DamageColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor MidDamageColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor FriendlyColor;
+	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor DisputedColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor NeutralColor;
+	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor UnknownColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor ObjectiveColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor TradingColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor CombatColor;
@@ -111,6 +117,15 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = RoundButtons) FMargin RoundButtonTextPadding;
 	UPROPERTY(EditAnywhere, Category = RoundButtons) int32 RoundButtonWidth;
 	UPROPERTY(EditAnywhere, Category = RoundButtons) int32 RoundButtonHeight;
+
+	// Sector button style
+	UPROPERTY(EditAnywhere, Category = SectorButtons) FSlateBrush SectorButtonBorder;
+	UPROPERTY(EditAnywhere, Category = SectorButtons) FSlateBrush SectorButtonBackground;
+	UPROPERTY(EditAnywhere, Category = SectorButtons) FSlateBrush SectorButtonActiveBackground;
+	UPROPERTY(EditAnywhere, Category = SectorButtons) FMargin SectorButtonPadding;
+	UPROPERTY(EditAnywhere, Category = SectorButtons) FMargin SectorButtonTextPadding;
+	UPROPERTY(EditAnywhere, Category = SectorButtons) int32 SectorButtonWidth;
+	UPROPERTY(EditAnywhere, Category = SectorButtons) int32 SectorButtonHeight;
 
 	// Lists
 	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListBackground;
