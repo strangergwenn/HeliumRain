@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareOrbitalMenu.h"
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareGameTools.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../Components/FlareSectorButton.h"
@@ -263,7 +264,7 @@ void SFlareOrbitalMenu::UpdateTravels()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->GetTravels()[TravelIndex];
 		if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 		{
-			FString TravelText = FString::Printf(TEXT("Travel to %s: %d seconds remaining."), *Travel->GetDestinationSector()->GetSectorName(), Travel->GetRemainingTravelDuration());
+			FString TravelText = FString::Printf(TEXT("Travel to %s: %s remaining."), *Travel->GetDestinationSector()->GetSectorName(), *UFlareGameTools::FormatTime(Travel->GetRemainingTravelDuration(), 1));
 
 			TravelsBox->AddSlot()
 			[

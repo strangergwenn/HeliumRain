@@ -4,6 +4,7 @@
 #include "FlareTravel.h"
 #include "FlareWorld.h"
 #include "FlareGame.h"
+#include "FlareGameTools.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -13,6 +14,8 @@ UFlareTravel::UFlareTravel(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
+
+static int64 DebugTravelDuration;
 
 void UFlareTravel::Load(const FFlareTravelSave& Data)
 {
@@ -29,6 +32,16 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 	}
 
 	Fleet->SetCurrentTravel(this);
+
+	DebugTravelDuration = 0;
+	while(DebugTravelDuration == 0)
+	{
+		DebugTravelDuration = (FMath::FRand() > 0.16666 ? 0 : FMath::RandRange(1,50)) * UFlareGameTools::YEAR_IN_SECONDS +
+							  (FMath::FRand() > 0.2 ? 0: FMath::RandRange(1,365)) * UFlareGameTools::DAY_IN_SECONDS +
+							  (FMath::FRand() > 0.25 ? 0: FMath::RandRange(1,24)) * UFlareGameTools::HOUR_IN_SECONDS +
+							  (FMath::FRand() > 0.333 ? 0 : FMath::RandRange(1,60)) * UFlareGameTools::MINUTE_IN_SECONDS +
+							  (FMath::FRand() > 0.5 ? 0 : FMath::RandRange(1,60));
+	}
 }
 
 FFlareTravelSave* UFlareTravel::Save()
@@ -66,7 +79,7 @@ int64 UFlareTravel::GetElapsedTime()
 
 int64 UFlareTravel::GetRemainingTravelDuration()
 {
-	long TravelDuration = 5;
+	long TravelDuration = DebugTravelDuration;
 
 	return TravelDuration - GetElapsedTime();
 }

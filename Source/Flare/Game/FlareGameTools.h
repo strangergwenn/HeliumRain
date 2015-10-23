@@ -163,6 +163,17 @@ public:
 	void CreateAsteroid(int32 ID);
 
 	/*----------------------------------------------------
+		Helper
+	----------------------------------------------------*/
+
+	static const int64 MINUTE_IN_SECONDS = 60;
+	static const int64 HOUR_IN_SECONDS = 60 * MINUTE_IN_SECONDS;
+	static const int64 DAY_IN_SECONDS = 24 * HOUR_IN_SECONDS;
+	static const int64 YEAR_IN_SECONDS = 365 * DAY_IN_SECONDS;
+
+	static FString FormatTime(int64 Time, int Deep);
+
+	/*----------------------------------------------------
 		Getter
 	----------------------------------------------------*/
 

@@ -810,7 +810,6 @@ void UFlareGameTools::CreateAsteroid(int32 ID)
 	GetGame()->ActivateSector(PC, ActiveSector);
 }
 
-
 void UFlareGameTools::PrintCompanyList()
 {
 	if (!GetGameWorld())
@@ -829,6 +828,96 @@ void UFlareGameTools::PrintCompanyList()
 	}
 }
 
+/*----------------------------------------------------
+	Helper
+----------------------------------------------------*/
+
+FString UFlareGameTools::FormatTime(int64 Time, int Deep)
+{
+	if (Time < MINUTE_IN_SECONDS)
+	{
+		return FString::FromInt(Time) + (Time > 2 ? FString(LOCTEXT("seconds", " seconds").ToString()) : FString(LOCTEXT("second", " second").ToString()));
+	}
+	else if (Time < HOUR_IN_SECONDS)
+	{
+		int64 Minutes = Time / MINUTE_IN_SECONDS;
+		int64 RemainingSeconds = Time % MINUTE_IN_SECONDS;
+
+		FString MinutesString;
+
+		if(Minutes > 0)
+		{
+			MinutesString += FString::FromInt(Minutes) + (Minutes > 2 ? FString(LOCTEXT("minutes", " minutes").ToString()) : FString(LOCTEXT("minute", " minute").ToString()));
+		}
+
+		if (Deep > 0 && RemainingSeconds > 0)
+		{
+			MinutesString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+		}
+
+		return MinutesString;
+	}
+	else if (Time < DAY_IN_SECONDS)
+	{
+		int64 Hours = Time / HOUR_IN_SECONDS;
+		int64 RemainingSeconds = Time % HOUR_IN_SECONDS;
+		int64 RemainingMinutes = RemainingSeconds / MINUTE_IN_SECONDS;
+
+		FString HoursString;
+
+		if(Hours > 0)
+		{
+			HoursString += FString::FromInt(Hours) + (Hours > 2 ? FString(LOCTEXT("hours", " hours").ToString()) : FString(LOCTEXT("hour", " hour").ToString()));
+		}
+
+		if (Deep > 0 && RemainingMinutes > 0)
+		{
+			HoursString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+		}
+
+		return HoursString;
+	}
+	else if (Time < YEAR_IN_SECONDS)
+	{
+		int64 Days = Time / DAY_IN_SECONDS;
+		int64 RemainingSeconds = Time % DAY_IN_SECONDS;
+		int64 RemainingHours = RemainingSeconds / HOUR_IN_SECONDS;
+
+		FString DaysString;
+
+		if(Days > 0)
+		{
+			DaysString += FString::FromInt(Days) + (Days > 2 ? FString(LOCTEXT("days", " days").ToString()) : FString(LOCTEXT("day", " day").ToString()));
+		}
+
+		if (Deep > 0 && RemainingHours > 0)
+		{
+			DaysString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+		}
+
+		return DaysString;
+	}
+	else
+	{
+		int64 Years = Time / YEAR_IN_SECONDS;
+		int64 RemainingSeconds = Time % YEAR_IN_SECONDS;
+		int64 RemainingDays = RemainingSeconds / DAY_IN_SECONDS;
+
+		FString YearsString;
+
+		if(Years > 0)
+		{
+			YearsString += FString::FromInt(Years) + (Years > 2 ? FString(LOCTEXT("years", " years").ToString()) : FString(LOCTEXT("year", " year").ToString()));
+		}
+
+		if (Deep > 0 && RemainingDays > 0)
+		{
+			YearsString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+		}
+
+		return YearsString;
+	}
+}
 
 /*----------------------------------------------------
 	Getter
