@@ -230,22 +230,23 @@ UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimula
 {
 	if (TravelingFleet->IsTraveling())
 	{
-		FLOGV("StartTravel fail to make fleet '%s' travel : already travelling", *TravelingFleet->GetFleetName());
+		TravelingFleet->GetCurrentTravel()->ChangeDestination(DestinationSector);
+		return TravelingFleet->GetCurrentTravel();
 	}
+	else
+	{
+		// Make the fleet exit the sector
+		UFlareSimulatedSector* OriginSector = TravelingFleet->GetCurrentSector();
+		OriginSector->RetireFleet(TravelingFleet);
 
-	// Make the fleet exit the sector
-	UFlareSimulatedSector* OriginSector = TravelingFleet->GetCurrentSector();
-	OriginSector->RetireFleet(TravelingFleet);
-
-
-
-	// Create the travel
-	FFlareTravelSave TravelData;
-	TravelData.FleetIdentifier = TravelingFleet->GetIdentifier();
-	TravelData.OriginSectorIdentifier = OriginSector->GetIdentifier();
-	TravelData.DestinationSectorIdentifier = DestinationSector->GetIdentifier();
-	TravelData.DepartureTime = GetTime();
-	return LoadTravel(TravelData);
+		// Create the travel
+		FFlareTravelSave TravelData;
+		TravelData.FleetIdentifier = TravelingFleet->GetIdentifier();
+		TravelData.OriginSectorIdentifier = OriginSector->GetIdentifier();
+		TravelData.DestinationSectorIdentifier = DestinationSector->GetIdentifier();
+		TravelData.DepartureTime = GetTime();
+		return LoadTravel(TravelData);
+	}
 }
 
 void UFlareWorld::DeleteTravel(UFlareTravel* Travel)

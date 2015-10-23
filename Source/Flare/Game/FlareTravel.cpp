@@ -70,3 +70,13 @@ int64 UFlareTravel::GetRemainingTravelDuration()
 
 	return TravelDuration - GetElapsedTime();
 }
+
+void UFlareTravel::ChangeDestination(UFlareSimulatedSector* NewDestinationSector)
+{
+	DestinationSector = NewDestinationSector;
+
+	TravelData.DestinationSectorIdentifier = DestinationSector->GetIdentifier();
+	// Reset travel duration
+	// TODO intelligent travel remaining duration change
+	TravelData.DepartureTime = Game->GetGameWorld()->GetTime();
+}

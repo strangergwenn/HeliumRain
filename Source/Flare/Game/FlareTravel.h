@@ -57,6 +57,8 @@ public:
 
 	int64 GetRemainingTravelDuration();
 
+	void ChangeDestination(UFlareSimulatedSector* NewDestinationSector);
+
 protected:
 
 	void EndTravel();
