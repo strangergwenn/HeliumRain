@@ -177,8 +177,6 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 		{
 			Spacecraft->Load(ShipData);
 			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Spacecraft->GetRootComponent());
-			RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
-			RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 
 			if (Spacecraft->IsStation())
 			{
@@ -219,6 +217,13 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					RandomLocationRadius += RandomLocationRadiusIncrement;
 				}
 				Spacecraft->SetActorLocation(Location);
+				RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
+				RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
+			}
+			else
+			{
+				RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
+				RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 			}
 		}
 		else
