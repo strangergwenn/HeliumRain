@@ -170,6 +170,7 @@ void SFlareOrbitalMenu::Enter()
 	Game->DeactivateSector(MenuManager->GetPC());
 	
 	UpdateMap();
+	UpdateTravels();
 }
 
 void SFlareOrbitalMenu::Exit()
