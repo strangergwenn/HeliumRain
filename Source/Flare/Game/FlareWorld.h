@@ -31,6 +31,17 @@ struct FFlareWorldSave
 	TArray<FFlareTravelSave> TravelData;
 };
 
+
+/** World event data */
+USTRUCT()
+struct FFlareWorldEvent
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64                    Time;
+};
+
 UCLASS()
 class FLARE_API UFlareWorld: public UObject
 {
@@ -63,6 +74,9 @@ public:
 	/** Simulate world during a specific duration */
 	void Simulate(int64 Duration);
 
+	/** Simulate world from now to the next event */
+	void FastForward();
+
 	UFlareTravel* StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector);
 
 	virtual void DeleteTravel(UFlareTravel* Travel);
@@ -70,6 +84,8 @@ public:
 	/** Force new time */
 	virtual void ForceTime(int64 Time);
 
+	/** Generate all the next events in the world. If PointOfView is set, return the next event this company known */
+	TArray<FFlareWorldEvent> GenerateEvents(UFlareCompany* PointOfView = NULL);
 
 protected:
 

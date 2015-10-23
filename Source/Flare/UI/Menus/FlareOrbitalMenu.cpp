@@ -144,6 +144,20 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					]
 				]
 			]
+
+			// Fast forward here
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Right)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("Fast forward", "Fast forward"))
+				.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the new event"))
+				.Icon(FFlareStyleSet::GetIcon("FastForward"))
+				.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+			]
+
 		]
 	];
 }
@@ -292,6 +306,14 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 {
 	UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[*Index];
 	MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Sector);
+}
+
+void SFlareOrbitalMenu::OnFastForwardClicked()
+{
+	MenuManager->GetGame()->GetGameWorld()->FastForward();
+
+	UpdateMap();
+	UpdateTravels();
 }
 
 FVector2D SFlareOrbitalMenu::GetWidgetPosition(int32 Index) const

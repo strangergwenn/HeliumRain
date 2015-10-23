@@ -210,7 +210,27 @@ void UFlareWorld::Simulate(int64 Duration)
 	// Process events
 }
 
+void UFlareWorld::FastForward()
+{
+	TArray<FFlareWorldEvent> NextEvents = GenerateEvents();
 
+	if(NextEvents.Num() == 0)
+	{
+		// Nothing will append in futur
+		return;
+	}
+
+	FFlareWorldEvent& NextEvent = NextEvents[0];
+
+	if(NextEvent.Time <= WorldData.Time)
+	{
+		FLOGV("Fast forward fail: next event is in the past. Current time is %ld but next event time %ld", WorldData.Time, NextEvent.Time);
+		return;
+	}
+
+	int64 TimeJump = NextEvent.Time - WorldData.Time;
+	Simulate(TimeJump);
+}
 
 void UFlareWorld::ForceTime(int64 Time)
 {
@@ -224,6 +244,29 @@ void UFlareWorld::ForceTime(int64 Time)
 
 }
 
+inline static bool EventTimeComparator (const FFlareWorldEvent& ip1, const FFlareWorldEvent& ip2)
+ {
+	 return (ip1.Time < ip2.Time);
+ }
+
+TArray<FFlareWorldEvent> UFlareWorld::GenerateEvents(UFlareCompany* PointOfView)
+{
+	TArray<FFlareWorldEvent> NextEvents;
+
+	// TODO Implements PointOfView
+
+	// Generate travel events
+	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
+	{
+		FFlareWorldEvent TravelEvent;
+
+		TravelEvent.Time = WorldData.Time + Travels[TravelIndex]->GetRemainingTravelDuration();
+		NextEvents.Add(TravelEvent);
+	}
+
+	NextEvents.Sort(&EventTimeComparator);
+	return NextEvents;
+}
 
 
 UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
