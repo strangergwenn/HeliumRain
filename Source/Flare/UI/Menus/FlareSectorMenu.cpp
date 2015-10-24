@@ -99,7 +99,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
 					.Icon(FFlareStyleSet::GetIcon("Travel"))
 					.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
-					//TODO disable if no selected fleet
+					.Visibility(this, &SFlareSectorMenu::GetTravelVisibility)
 				]
 
 				// Object list
@@ -159,6 +159,20 @@ void SFlareSectorMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+EVisibility SFlareSectorMenu::GetTravelVisibility() const
+{
+	UFlareFleet* CurrentFleet = MenuManager->GetPC()->GetSelectedFleet();
+
+	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector)
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
 
 void SFlareSectorMenu::OnBackClicked()
 {

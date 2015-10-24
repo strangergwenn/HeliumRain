@@ -43,7 +43,10 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-	
+
+	/** Visibility setting for the travel button */
+	EVisibility GetTravelVisibility() const;
+
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 

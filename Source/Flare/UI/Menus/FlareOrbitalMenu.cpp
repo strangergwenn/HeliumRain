@@ -5,6 +5,7 @@
 #include "../../Game/FlareGameTools.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Spacecrafts/FlareSpacecraft.h"
 #include "../Components/FlareSectorButton.h"
 
 
@@ -110,13 +111,13 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			// Travels
 			+ SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding(Theme.ContentPadding)
 			[
 				SNew(SHorizontalBox)
 
-				// list of current travels
+				// List of current travels
 				+ SHorizontalBox::Slot()
 				.HAlign(HAlign_Left)
+				.Padding(Theme.ContentPadding)
 				[
 					SAssignNew(TravelsBox, SVerticalBox)
 				]
@@ -124,12 +125,28 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				// Fast forward
 				+ SHorizontalBox::Slot()
 				.HAlign(HAlign_Right)
+				.Padding(Theme.ContentPadding)
 				[
 					SNew(SFlareButton)
-					.Text(LOCTEXT("Fast forward", "Fast forward"))
+					.Text(LOCTEXT("FastForward", "Fast forward"))
 					.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
 					.Icon(FFlareStyleSet::GetIcon("FastForward"))
 					.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+					.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
+				]
+
+				// Fly current ship
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("FlyCurrent", "Fly current ship"))
+					.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
+					.Icon(FFlareStyleSet::GetIcon("Travel"))
+					.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
+					.Visibility(this, &SFlareOrbitalMenu::GetFlyCurrentShipVisibility)
 				]
 			]
 
@@ -286,6 +303,34 @@ void SFlareOrbitalMenu::UpdateTravels()
 	Callbacks
 ----------------------------------------------------*/
 
+EVisibility SFlareOrbitalMenu::GetFastForwardVisibility() const
+{
+	UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
+
+	if (GameWorld && GameWorld->GetTravels().Num() > 0)
+	{
+		// TODO ALPHA : show the button during station/ship constructions as well
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
+
+EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
+{
+	// TODO M4 : add getlastflownship()
+	if (true)
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
+
 void SFlareOrbitalMenu::OnInspectCompany()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
@@ -319,6 +364,17 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 
 	UpdateMap();
 	UpdateTravels();
+}
+
+void SFlareOrbitalMenu::OnFlyCurrentShipClicked()
+{
+	// TODO M4 : add getlastflownship()
+	AFlareSpacecraft* TargetSpacecraft = NULL;
+
+	if (TargetSpacecraft)
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
+	}
 }
 
 FVector2D SFlareOrbitalMenu::GetWidgetPosition(int32 Index) const

@@ -445,7 +445,8 @@ void AFlarePlayerController::OnExitMenu()
 
 void AFlarePlayerController::SetWorldPause(bool Pause)
 {
-	FLOGV("SetPause world %d", Pause);
+	FLOGV("AFlarePlayerController::SetWorldPause world %d", Pause);
+
 	if (GetGame()->GetActiveSector())
 	{
 		GetGame()->GetActiveSector()->SetPause(Pause);
@@ -454,19 +455,24 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 
 UFlareFleet* AFlarePlayerController::GetSelectedFleet()
 {
+	if (!GetCompany())
+	{
+		return NULL;
+	}
 
-	if(GetCompany()->GetCompanyFleets().Num() >= 1)
+	else if (GetCompany()->GetCompanyFleets().Num() >= 1)
 	{
 		// TODO add complete fleet selection
 		return GetCompany()->GetCompanyFleets()[0];
 	}
+
 	else if (GetCompany()->GetCompanyShips().Num() > 0)
 	{
 		// TODO add complete fleet management instead of automatic fleet creation
 
 		UFlareSimulatedSpacecraft* Ship = GetCompany()->GetCompanyShips()[0];
 
-		if(Ship->GetCurrentSector())
+		if (Ship->GetCurrentSector())
 		{
 			UFlareFleet* NewFleet = GetCompany()->CreateFleet("Automatic fleet", Ship->GetCurrentSector());
 			NewFleet->AddShip(Ship);
@@ -475,7 +481,6 @@ UFlareFleet* AFlarePlayerController::GetSelectedFleet()
 	}
 
 	return NULL;
-
 }
 
 
@@ -533,8 +538,6 @@ void AFlarePlayerController::StartObjective(FText Name, FFlarePlayerObjectiveDat
 	}
 
 	CurrentObjective.Data = Data;
-
-
 }
 
 void AFlarePlayerController::CompleteObjective()

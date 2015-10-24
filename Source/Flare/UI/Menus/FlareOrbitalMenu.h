@@ -60,6 +60,12 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Visibility setting for the fast-forward feature */
+	EVisibility GetFastForwardVisibility() const;
+
+	/** Visibility setting for the fly-current-ship feature */
+	EVisibility GetFlyCurrentShipVisibility() const;
+
 	/** Inspect the company */
 	void OnInspectCompany();
 
@@ -80,6 +86,10 @@ protected:
 
 	/** Fast forward to the next event */
 	void OnFastForwardClicked();
+
+	/** Fly the last flown ship */
+	void OnFlyCurrentShipClicked();
+
 
 protected:
 

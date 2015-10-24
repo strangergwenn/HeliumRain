@@ -41,9 +41,12 @@ public:
 	/** The world is ending. Literally. */
 	virtual void PrepareForExit();
 
+	/** Set the pause state */
 	virtual void SetWorldPause(bool Pause);
 
+	/** Get the currently selected fleet */
 	virtual UFlareFleet* GetSelectedFleet();
+
 
 	/*----------------------------------------------------
 		Data management
@@ -69,6 +72,7 @@ public:
 
 	/** Call a sector is deactivated */
 	virtual void OnSectorDeactivated();
+
 
 	/*----------------------------------------------------
 		Menus
