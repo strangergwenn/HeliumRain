@@ -48,9 +48,9 @@ void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 	{
 		FLOGV("Fleet Merge fail: '%s' is the sector '%s' but '%s' is the sector '%s'",
 			  *GetFleetName(),
-			  *GetCurrentSector()->GetSectorName(),
+			  *GetCurrentSector()->GetSectorName().ToString(),
 			  *Ship->GetImmatriculation().ToString(),
-			  *Ship->GetCurrentSector()->GetSectorName());
+			  *Ship->GetCurrentSector()->GetSectorName().ToString());
 		return;
 	}
 
@@ -111,9 +111,9 @@ void UFlareFleet::Merge(UFlareFleet* Fleet)
 	{
 		FLOGV("Fleet Merge fail: '%s' is the sector '%s' but '%s' is the sector '%s'",
 			  *GetFleetName(),
-			  *GetCurrentSector()->GetSectorName(),
+			  *GetCurrentSector()->GetSectorName().ToString(),
 			  *Fleet->GetFleetName(),
-			  *Fleet->GetCurrentSector()->GetSectorName());
+			  *Fleet->GetCurrentSector()->GetSectorName().ToString());
 		return;
 	}
 

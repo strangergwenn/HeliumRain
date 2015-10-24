@@ -214,11 +214,11 @@ void SFlareCompanyMenu::Exit()
 
 FText SFlareCompanyMenu::GetCompanyName() const
 {
-	FText Result;
+	FText Result = LOCTEXT("Company", "COMPANY : ");
 
 	if (Company)
 	{
-		Result = Company->GetCompanyName();
+		Result = FText::FromString(Result.ToString() + Company->GetCompanyName().ToString());
 	}
 
 	return Result;

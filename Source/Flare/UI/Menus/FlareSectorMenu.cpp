@@ -87,12 +87,22 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			+ SScrollBox::Slot()
 			[
 				SNew(SVerticalBox)
+
+				// Sector name
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSectorMenu::GetSectorName)
+					.TextStyle(&Theme.SubTitleFont)
+				]
 				
 				// Travel here
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Right)
+				.HAlign(HAlign_Left)
 				[
 					SNew(SFlareButton)
 					.Text(LOCTEXT("Travel", "Travel"))
@@ -139,7 +149,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	{
 		UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorShips()[SpacecraftIndex];
 
-		if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
+		if (ShipCandidate && (ShipCandidate->IsStation() || ShipCandidate->GetDamageSystem()->IsAlive()))
 		{
 			ShipList->AddShip(ShipCandidate);
 		}
@@ -159,6 +169,18 @@ void SFlareSectorMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+FText SFlareSectorMenu::GetSectorName() const
+{
+	FText Result = LOCTEXT("Sector", "SECTOR : ");
+
+	if (TargetSector)
+	{
+		Result = FText::FromString(Result.ToString() + TargetSector->GetSectorName().ToString());
+	}
+
+	return Result;
+}
 
 EVisibility SFlareSectorMenu::GetTravelVisibility() const
 {

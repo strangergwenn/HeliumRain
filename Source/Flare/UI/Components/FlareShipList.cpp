@@ -22,8 +22,8 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 	
 	// Build structure
 	ChildSlot
-	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Fill)
+	.HAlign(HAlign_Left)
 	[
 		SNew(SBox)
 		.WidthOverride(Theme.ContentWidth)
@@ -34,11 +34,11 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(Theme.TitlePadding)
+			.HAlign(HAlign_Left)
 			[
 				SNew(STextBlock)
 				.Text(InArgs._Title)
 				.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
-				.Visibility(this, &SFlareShipList::GetTitleVisibility)
 			]
 
 			// Box
@@ -137,11 +137,6 @@ void SFlareShipList::Reset()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
-
-EVisibility SFlareShipList::GetTitleVisibility() const
-{
-	return (TargetListData.Num() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
-}
 
 TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {

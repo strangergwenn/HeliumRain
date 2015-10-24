@@ -258,7 +258,7 @@ void UFlareSimulatedSector::DisbandFleet(UFlareFleet* Fleet)
 {
 	if (SectorFleets.Remove(Fleet) == 0)
 	{
-		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName())
+		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName().ToString())
 		return;
 	}
 }
@@ -268,7 +268,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 	FLOGV("UFlareSimulatedSector::RetireFleet %s", *Fleet->GetFleetName());
 	if (SectorFleets.Remove(Fleet) == 0)
 	{
-		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName())
+		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName().ToString())
 		return;
 	}
 
@@ -277,7 +277,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 		Fleet->GetShips()[ShipIndex]->SetCurrentSector(NULL);
 		if (RemoveSpacecraft(Fleet->GetShips()[ShipIndex]) == 0)
 		{
-			FLOGV("ERROR: RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation().ToString(), *GetSectorName())
+			FLOGV("ERROR: RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation().ToString(), *GetSectorName().ToString())
 		}
 	}
 }
@@ -292,24 +292,24 @@ void UFlareSimulatedSector::SetShipToFly(UFlareSimulatedSpacecraft* Ship)
 	SectorData.LastFlownShip = Ship->GetImmatriculation();
 }
 
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
 
-
-FString UFlareSimulatedSector::GetSectorName() const
+FText UFlareSimulatedSector::GetSectorName() const
 {
-	if (SectorData.GivenName.Len())
+	if (SectorData.GivenName.ToString().Len())
 	{
 		return SectorData.GivenName;
 	}
-	else if (SectorDescription->Name.Len())
+	else if (SectorDescription->Name.ToString().Len())
 	{
 		return SectorDescription->Name;
 	}
 	else
 	{
-		return GetSectorCode();
+		return FText::FromString(GetSectorCode());
 	}
 }
 

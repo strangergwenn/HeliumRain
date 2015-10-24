@@ -450,7 +450,7 @@ void UFlareGameTools::PrintTravelList()
 	for (int i = 0; i < GetGameWorld()->GetTravels().Num(); i++)
 	{
 		UFlareTravel* Travel = GetGameWorld()->GetTravels()[i];
-		FLOGV("%2d - %s to %s	", i, *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName());
+		FLOGV("%2d - %s to %s	", i, *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName().ToString());
 	}
 }
 
@@ -471,7 +471,7 @@ void UFlareGameTools::PrintTravelByIndex(int32 Index)
 	}
 
 	UFlareTravel* Travel = GetGameWorld()->GetTravels()[Index];
-	FLOGV("> PrintTravel %s to %s", *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName());
+	FLOGV("> PrintTravel %s to %s", *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName().ToString());
 	FLOGV("  - Departure time: %lld s", Travel->GetDepartureTime());
 	FLOGV("  - Elapsed time: %lld s", Travel->GetElapsedTime());
 
@@ -528,7 +528,7 @@ void UFlareGameTools::PrintSectorList()
 	for (int i = 0; i < GetGameWorld()->GetSectors().Num(); i++)
 	{
 		UFlareSimulatedSector* Sector = GetGameWorld()->GetSectors()[i];
-		FLOGV("%2d - %s: %s (%s)", i, *Sector->GetIdentifier().ToString(), *Sector->GetSectorName(), *Sector->GetSectorCode());
+		FLOGV("%2d - %s: %s (%s)", i, *Sector->GetIdentifier().ToString(), *Sector->GetSectorName().ToString(), *Sector->GetSectorCode());
 	}
 }
 
@@ -548,7 +548,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 		return;
 	}
 
-	FLOGV("> PrintSector: %s - %s (%s)", *Sector->GetIdentifier().ToString(), *Sector->GetSectorName(), *Sector->GetSectorCode());
+	FLOGV("> PrintSector: %s - %s (%s)", *Sector->GetIdentifier().ToString(), *Sector->GetSectorName().ToString(), *Sector->GetSectorCode());
 
 	TArray<UFlareFleet*> SectorFleets = Sector->GetSectorFleets();
 	FLOGV("  > %d fleets", SectorFleets.Num());

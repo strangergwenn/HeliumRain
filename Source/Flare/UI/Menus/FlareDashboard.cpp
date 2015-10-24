@@ -152,6 +152,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				// Owned
 				+ SHorizontalBox::Slot()
 				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Right)
 				[
 					SAssignNew(OwnedShipList, SFlareShipList)
 					.MenuManager(MenuManager)
@@ -161,6 +162,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				// Others
 				+ SHorizontalBox::Slot()
 				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
 				[
 					SAssignNew(OtherShipList, SFlareShipList)
 					.MenuManager(MenuManager)

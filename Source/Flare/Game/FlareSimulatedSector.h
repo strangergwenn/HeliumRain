@@ -48,7 +48,7 @@ struct FFlareSectorDescription
 
 	/** Name */
 	UPROPERTY(EditAnywhere, Category = Content)
-	FString Name;
+	FText Name;
 
 	/** Sector identifier */
 	UPROPERTY(EditAnywhere, Category = Content)
@@ -136,7 +136,7 @@ struct FFlareSectorSave
 
 	/** Given Name */
     UPROPERTY(EditAnywhere, Category = Save)
-	FString GivenName;
+	FText GivenName;
 
 	/** Sector identifier */
     UPROPERTY(EditAnywhere, Category = Save)
@@ -273,7 +273,8 @@ public:
 		return &SectorOrbitParameters;
 	}
 
-	FString GetSectorName() const;
+	/** Get the name of this sector */
+	FText GetSectorName() const;
 
 	FString GetSectorCode() const;
 

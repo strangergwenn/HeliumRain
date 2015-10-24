@@ -233,6 +233,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				// Object list
 				+ SVerticalBox::Slot()
 				.AutoHeight()
+				.HAlign(HAlign_Left)
 				[
 					SAssignNew(ShipList, SFlareShipList)
 					.MenuManager(MenuManager)
@@ -331,7 +332,8 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 		if (ShipDesc)
 		{
-			ObjectName->SetText(FText::FromString(TargetSpacecraft->GetImmatriculation().ToString()));
+			FString Prefix = (TargetSpacecraft->IsStation() ? LOCTEXT("Station", "STATION : ") : LOCTEXT("Ship", "SHIP : ")).ToString();
+			ObjectName->SetText(FText::FromString(Prefix + TargetSpacecraft->GetImmatriculation().ToString()));
 			ObjectClassName->SetText(FText::FromString(ShipDesc->Name.ToString()));
 			ObjectDescription->SetText(ShipDesc->Description);
 			PC->GetMenuPawn()->ShowShip(ShipDesc, TargetSpacecraftData);

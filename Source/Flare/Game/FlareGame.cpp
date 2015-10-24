@@ -130,7 +130,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		return;
 	}
 
-	FLOGV("AFlareGame::ActivateSector %s", *Sector->GetSectorName());
+	FLOGV("AFlareGame::ActivateSector %s", *Sector->GetSectorName().ToString());
 	if (ActiveSector)
 	{
 		FLOG("AFlareGame::ActivateSector has active sector");

@@ -56,7 +56,7 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 				if (!SectorSave)
 				{
 					// No save, init new sector
-					NewSectorData.GivenName = "";
+					NewSectorData.GivenName = FText::FromString("");
 					NewSectorData.Identifier = SectorDescription->Identifier;
 					NewSectorData.LocalTime = 0;
 					SectorSave = &NewSectorData;
@@ -115,7 +115,7 @@ UFlareSimulatedSector* UFlareWorld::LoadSector(const FFlareSectorDescription* De
 	Sector->Load(Description, SectorData, OrbitParameters);
 	Sectors.AddUnique(Sector);
 
-	FLOGV("UFlareWorld::LoadSector : loaded '%s'", *Sector->GetSectorName());
+	FLOGV("UFlareWorld::LoadSector : loaded '%s'", *Sector->GetSectorName().ToString());
 
 	return Sector;
 }

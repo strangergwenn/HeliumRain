@@ -47,6 +47,9 @@ protected:
 	/** Visibility setting for the travel button */
 	EVisibility GetTravelVisibility() const;
 
+	/** Get the sector's name */
+	FText GetSectorName() const;
+
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 
@@ -65,7 +68,7 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 
 	// Menu components
-	TSharedPtr<SFlareShipList>         ShipList;
-	UFlareSimulatedSector*                      TargetSector;
+	TSharedPtr<SFlareShipList>                 ShipList;
+	UFlareSimulatedSector*                     TargetSector;
 
 };

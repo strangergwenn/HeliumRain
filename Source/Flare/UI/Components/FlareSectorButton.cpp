@@ -103,7 +103,7 @@ FText SFlareSectorButton::GetSectorText() const
 
 	if (Sector)
 	{
-		FString	SectorTitle = Sector->GetSectorName();
+		FString	SectorTitle = Sector->GetSectorName().ToString();
 
 		if(PlayerCompany->HasVisitedSector(Sector))
 		{

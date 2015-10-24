@@ -44,10 +44,7 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-
-	/** Title visibility */
-	EVisibility GetTitleVisibility() const;
-
+	
 	/** Target item generator */
 	TSharedRef<ITableRow> GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
 
