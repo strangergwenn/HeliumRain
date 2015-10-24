@@ -1002,7 +1002,15 @@ void AFlarePlayerController::UndockShip()
 
 UFlareSimulatedSpacecraft* AFlarePlayerController::GetLastFlownShip()
 {
-	return GetGame()->GetGameWorld()->FindSpacecraft(PlayerData.LastFlownShipIdentifier);
+	UFlareWorld* GameWorld = GetGame()->GetGameWorld();
+	if (GameWorld)
+	{
+		return GameWorld->FindSpacecraft(PlayerData.LastFlownShipIdentifier);
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 
