@@ -217,10 +217,12 @@ public:
 	virtual FName GetImmatriculation() const = 0;
 
 	/** Check if this is a military ship */
-	virtual bool IsMilitary() = 0;
+	virtual bool IsMilitary() const = 0;
 
 	/** Check if this is a station ship */
-	virtual bool IsStation() = 0;
+	virtual bool IsStation() const = 0;
+
+	virtual bool CanBeFlown() const = 0;
 
 	/*----------------------------------------------------
 		Sub system

@@ -428,12 +428,12 @@ EFlarePartSize::Type AFlareSpacecraft::GetSize()
 }
 
 
-bool AFlareSpacecraft::IsMilitary()
+bool AFlareSpacecraft::IsMilitary() const
 {
 	return IFlareSpacecraftInterface::IsMilitary(ShipDescription);
 }
 
-bool AFlareSpacecraft::IsStation()
+bool AFlareSpacecraft::IsStation() const
 {
 	return IFlareSpacecraftInterface::IsStation(ShipDescription);
 }

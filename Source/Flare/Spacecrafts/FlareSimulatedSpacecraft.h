@@ -39,10 +39,10 @@ public:
 	virtual FName GetImmatriculation() const override;
 
 	/** Check if this is a military ship */
-	virtual bool IsMilitary() override;
+	virtual bool IsMilitary() const override;
 
 	/** Check if this is a station ship */
-	virtual bool IsStation() override;
+	virtual bool IsStation() const override;
 
 	/*----------------------------------------------------
 		Sub system
@@ -68,6 +68,11 @@ public:
 	}
 
 	virtual void InvalidateLocation();
+
+	virtual bool CanBeFlown() const override
+	{
+		return !IsStation() && (CurrentSector != NULL);
+	}
 
 protected:
 

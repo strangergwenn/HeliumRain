@@ -61,12 +61,12 @@ EFlarePartSize::Type UFlareSimulatedSpacecraft::GetSize()
 	return SpacecraftDescription->Size;
 }
 
-bool UFlareSimulatedSpacecraft::IsMilitary()
+bool UFlareSimulatedSpacecraft::IsMilitary() const
 {
 	return IFlareSpacecraftInterface::IsMilitary(SpacecraftDescription);
 }
 
-bool UFlareSimulatedSpacecraft::IsStation()
+bool UFlareSimulatedSpacecraft::IsStation() const
 {
 	return IFlareSpacecraftInterface::IsStation(SpacecraftDescription);
 }

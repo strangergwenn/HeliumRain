@@ -74,9 +74,9 @@ public:
 
 	virtual FName GetImmatriculation() const override;
 
-	virtual bool IsMilitary() override;
+	virtual bool IsMilitary() const override;
 
-	virtual bool IsStation() override;
+	virtual bool IsStation() const override;
 
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
 
@@ -88,6 +88,10 @@ public:
 
 	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
+	virtual bool CanBeFlown() const override
+	{
+		return !IsStation();
+	}
 
 protected:
 
