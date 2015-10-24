@@ -404,7 +404,6 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
 	PlayerData.ScenarioId = ScenarioIndex;
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
-	PlayerData.LastFlownShipIdentifier = NAME_None;
 	PC->SetCompany(Company);
 
 	// TODO Later with world init
@@ -425,8 +424,8 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	}*/
 
 	FLOG("CreateGame create initial ship");
-	World->FindSector("first-light")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
-
+	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
+	PlayerData.LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 
 	if (!PlayerData.QuestData.PlayTutorial)
 	{
