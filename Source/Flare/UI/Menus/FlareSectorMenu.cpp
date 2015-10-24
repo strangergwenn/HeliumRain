@@ -96,7 +96,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SFlareButton)
 					.Text(LOCTEXT("Travel", "Travel"))
-					.HelpText(LOCTEXT("TravelInfo", "Start travel with selected fleet with this sector as destination"))
+					.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
 					.Icon(FFlareStyleSet::GetIcon("Travel"))
 					.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
 					//TODO disable if no selected fleet
