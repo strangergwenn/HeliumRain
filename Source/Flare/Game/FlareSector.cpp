@@ -13,6 +13,7 @@
 UFlareSector::UFlareSector(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	SectorRepartitionCache = false;
 }
 
 /*----------------------------------------------------
@@ -42,6 +43,8 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 			LoadSpacecraft(*Spacecraft->Save());
 		}
 	}
+
+	SectorRepartitionCache = false;
 
 	// Load unsafe location spacecrafts
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
@@ -640,4 +643,29 @@ AFlareSpacecraft* UFlareSector::FindSpacecraft(FName Immatriculation)
 		}
 	}
 	return NULL;
+}
+
+
+void UFlareSector::GenerateSectorRepartitionCache()
+{
+	if(!SectorRepartitionCache)
+	{
+		SectorRepartitionCache = true;
+		SectorRadius = 0.0f;
+		SectorCenter = FVector::ZeroVector;
+
+		// TODO compute better center and radius including sector content
+	}
+}
+
+FVector UFlareSector::GetSectorCenter()
+{
+	GenerateSectorRepartitionCache();
+	return SectorCenter;
+}
+
+float UFlareSector::GetSectorRadius()
+{
+	GenerateSectorRepartitionCache();
+	return SectorRadius;
 }

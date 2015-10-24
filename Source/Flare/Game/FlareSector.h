@@ -82,11 +82,13 @@ protected:
 	// TODO shell register
 
 
-	FFlareSectorSave        SectorData;
+	FFlareSectorSave              SectorData;
 	AFlareGame*                   Game;
 	UFlareSimulatedSector*        SimulatedSector;
 	int64						  LocalTime;
-
+	bool						  SectorRepartitionCache;
+	FVector                       SectorCenter;
+	float                         SectorRadius;
 public:
 
 	/*----------------------------------------------------
@@ -138,5 +140,11 @@ public:
 	{
 		return LocalTime;
 	}
+
+	void GenerateSectorRepartitionCache();
+
+	FVector GetSectorCenter();
+
+	float GetSectorRadius();
 
 };
