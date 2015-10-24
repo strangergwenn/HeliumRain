@@ -24,6 +24,21 @@ namespace EFlareSectorKnowledge
 	};
 }
 
+/** Sector friendlyness status */
+UENUM()
+namespace EFlareSectorFriendlyness
+{
+	enum Type
+	{
+		NotVisited, /** The company have not visited the sector yet */
+		Neutral, /** The sector have neither friendly spacecraft nor hostile spacecraft */
+		Friendly, /** The sector have only friendly spacecraft */
+		Contested, /** The sector have both friendly and hostile spacecraft */
+		Hostile /** The sector have only hostile spacecraft */
+	};
+}
+
+
 
 /** Sector description */
 USTRUCT()
@@ -199,7 +214,6 @@ public:
 	int RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
 	void SetShipToFly(UFlareSimulatedSpacecraft* Ship);
-
     /** Init world with empty scenario */
 	// virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
 
@@ -277,5 +291,7 @@ public:
 	{
 		return SectorFleets;
 	}
+
+	EFlareSectorFriendlyness::Type GetSectorFriendlyness(UFlareCompany* Company) const;
 
 };

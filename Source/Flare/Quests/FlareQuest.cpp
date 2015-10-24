@@ -237,8 +237,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 			}
 			break;
 		case EFlareQuestCondition::SECTOR_VISITED:
-			if (QuestManager->GetGame()->GetPC()->GetCompany()->GetVisitedSectors().Contains(
-						QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1)))
+			if (QuestManager->GetGame()->GetPC()->GetCompany()->HasVisitedSector(QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1)))
 			{
 					Status = true;
 			}

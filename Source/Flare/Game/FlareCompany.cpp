@@ -369,5 +369,9 @@ UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculati
 	return NULL;
 }
 
+bool UFlareCompany::HasVisitedSector(const UFlareSimulatedSector* Sector) const
+{
+	return VisitedSectors.Contains(Sector);
+}
 
 #undef LOCTEXT_NAMESPACE

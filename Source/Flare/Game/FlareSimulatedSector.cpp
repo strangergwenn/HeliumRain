@@ -319,3 +319,57 @@ FString UFlareSimulatedSector::GetSectorCode() const
 	return SectorOrbitParameters.CelestialBodyIdentifier.ToString() + "-" + FString::FromInt(SectorOrbitParameters.Altitude) + "-" + FString::FromInt(SectorOrbitParameters.Phase);
 }
 
+EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFlareCompany* Company) const
+{
+	if (!Company->HasVisitedSector(this))
+	{
+		return EFlareSectorFriendlyness::NotVisited;
+	}
+
+	if (SectorShips.Num() == 0 && SectorStations.Num() == 0)
+	{
+		return EFlareSectorFriendlyness::Neutral;
+	}
+
+	int HostileSpacecraftCount = 0;
+	int FriendlySpacecraftCount = 0;
+
+	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorShips.Num(); SpacecraftIndex++)
+	{
+		if (SectorShips[SpacecraftIndex]->GetCompany() == Company)
+		{
+			FriendlySpacecraftCount++;
+		}
+		else
+		{
+			HostileSpacecraftCount++;
+		}
+	}
+
+	for (int SpacecraftIndex = 0 ; SpacecraftIndex< SectorStations.Num(); SpacecraftIndex++)
+	{
+		if (SectorStations[SpacecraftIndex]->GetCompany() == Company)
+		{
+			FriendlySpacecraftCount++;
+		}
+		else
+		{
+			HostileSpacecraftCount++;
+		}
+	}
+
+	if (FriendlySpacecraftCount > 0 && HostileSpacecraftCount > 0)
+	{
+		return EFlareSectorFriendlyness::Contested;
+	}
+
+	if (FriendlySpacecraftCount > 0)
+	{
+		return EFlareSectorFriendlyness::Friendly;
+	}
+	else
+	{
+		return EFlareSectorFriendlyness::Hostile;
+	}
+}
+

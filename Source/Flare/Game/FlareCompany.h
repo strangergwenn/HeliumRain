@@ -331,4 +331,6 @@ public:
 
 	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation);
 
+	bool HasVisitedSector(const UFlareSimulatedSector* Sector) const;
+
 };

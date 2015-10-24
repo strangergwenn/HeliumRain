@@ -105,14 +105,17 @@ FText SFlareSectorButton::GetSectorText() const
 	{
 		FString	SectorTitle = Sector->GetSectorName();
 
-		if (Sector->GetSectorShips().Num() > 0)
+		if(PlayerCompany->HasVisitedSector(Sector))
 		{
-			SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " ship" + (Sector->GetSectorShips().Num() > 1 ? "s" : "");
-		}
+			if (Sector->GetSectorShips().Num() > 0)
+			{
+				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " ship" + (Sector->GetSectorShips().Num() > 1 ? "s" : "");
+			}
 
-		if (Sector->GetSectorStations().Num() > 0)
-		{
-			SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " station" + (Sector->GetSectorStations().Num() > 1 ? "s" : "");
+			if (Sector->GetSectorStations().Num() > 0)
+			{
+				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " station" + (Sector->GetSectorStations().Num() > 1 ? "s" : "");
+			}
 		}
 
 		SectorText = FText::FromString(SectorTitle);
@@ -135,17 +138,23 @@ FSlateColor SFlareSectorButton::GetBorderColor() const
 
 	if (Sector)
 	{
-		if (Sector->GetOrbitParameters()->CelestialBodyIdentifier == "anka")
+		switch(Sector->GetSectorFriendlyness(PlayerCompany))
 		{
-			Color = Theme.EnemyColor;
-		}
-		else if (PlayerCompany->GetVisitedSectors().Find(Sector) == -1)
-		{
-			Color = Theme.UnknownColor;
-		}
-		else
-		{
-			Color = Theme.NeutralColor;
+			case EFlareSectorFriendlyness::NotVisited:
+				Color = Theme.UnknownColor;
+				break;
+			case EFlareSectorFriendlyness::Neutral:
+				Color = Theme.NeutralColor;
+				break;
+			case EFlareSectorFriendlyness::Friendly:
+				Color = Theme.FriendlyColor;
+				break;
+			case EFlareSectorFriendlyness::Contested:
+				Color = Theme.DisputedColor;
+				break;
+			case EFlareSectorFriendlyness::Hostile:
+				Color = Theme.EnemyColor;
+				break;
 		}
 	}
 
