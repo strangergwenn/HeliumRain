@@ -62,6 +62,15 @@ protected:
 	/** Title callback */
 	FText GetTitleText() const;
 
+	/** Get the text to show for the exit button */
+	FText GetExitText() const;
+
+	/** Get tge info tetx for the exit button */
+	FText GetExitInfoText() const;
+
+	/** Get the icon for the exit button */
+	const FSlateBrush* GetExitIcon() const;
+
 	/** Is it a station */
 	EVisibility GetEngineVisibility() const;
 
@@ -108,9 +117,6 @@ protected:
 
 	/** Cancelled a part */
 	void OnPartCancelled();
-
-	/** Go back to the dahsboard */
-	void OnDashboardClicked();
 
 	/** Close the menu */
 	void OnExit();
