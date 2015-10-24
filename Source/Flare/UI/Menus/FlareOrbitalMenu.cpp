@@ -306,30 +306,35 @@ void SFlareOrbitalMenu::UpdateTravels()
 
 EVisibility SFlareOrbitalMenu::GetFastForwardVisibility() const
 {
-	UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
+	if (IsEnabled())
+	{
+		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
 
-	if (GameWorld && GameWorld->GetTravels().Num() > 0)
-	{
-		// TODO ALPHA : show the button during station/ship constructions as well
-		return EVisibility::Visible;
+		if (GameWorld && GameWorld->GetTravels().Num() > 0)
+		{
+			// TODO ALPHA : show the button during station/ship constructions as well
+			return EVisibility::Visible;
+		}
+
 	}
-	else
-	{
-		return EVisibility::Collapsed;
-	}
+
+	return EVisibility::Collapsed;
 }
 
 EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
 {
-	// TODO M4 : add getlastflownship()
-	if (true)
+	if (IsEnabled())
 	{
-		return EVisibility::Visible;
+		UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
+
+		// TODO can fly
+		if (CurrentShip)
+		{
+			return EVisibility::Visible;
+		}
 	}
-	else
-	{
-		return EVisibility::Collapsed;
-	}
+
+	return EVisibility::Collapsed;
 }
 
 void SFlareOrbitalMenu::OnInspectCompany()
@@ -369,12 +374,13 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 
 void SFlareOrbitalMenu::OnFlyCurrentShipClicked()
 {
-	// TODO M4 : add getlastflownship()
-	AFlareSpacecraft* TargetSpacecraft = NULL;
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	UFlareSimulatedSpacecraft* CurrentShip = PC->GetLastFlownShip();
 
-	if (TargetSpacecraft)
+	if (CurrentShip)
 	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
+		CurrentShip->GetCurrentSector()->SetShipToFly(CurrentShip);
+		PC->GetGame()->ActivateSector(PC, CurrentShip->GetCurrentSector());
 	}
 }
 
