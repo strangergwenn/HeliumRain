@@ -327,8 +327,7 @@ EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
 	{
 		UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
 
-		// TODO can fly
-		if (CurrentShip)
+		if (CurrentShip && CurrentShip->CanBeFlown())
 		{
 			return EVisibility::Visible;
 		}

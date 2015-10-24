@@ -253,7 +253,7 @@ void SFlareSpacecraftInfo::Show()
 		UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
 
 		// Flyable ships
-		if (OwnedAndNotSelf &&  TargetSpacecraft->CanBeFlown())
+		if (OwnedAndNotSelf && TargetSpacecraft->CanBeFlown())
 		{
 			FlyButton->SetVisibility(EVisibility::Visible);
 		}
