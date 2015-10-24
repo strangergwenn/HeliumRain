@@ -216,6 +216,8 @@ void SFlareMainMenu::Setup()
 void SFlareMainMenu::Enter()
 {
 	FLOG("SFlareMainMenu::Enter");
+	Game->UnloadGame();
+
 	Game->ReadAllSaveSlots();
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);

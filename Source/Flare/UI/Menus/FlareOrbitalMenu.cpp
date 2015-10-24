@@ -355,8 +355,7 @@ void SFlareOrbitalMenu::OnMainMenu()
 	MenuManager->FlushNotifications();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 
-	PC->GetGame()->SaveGame(PC);
-	PC->GetGame()->UnloadGame();
+	Game->SaveGame(PC);
 }
 
 void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
