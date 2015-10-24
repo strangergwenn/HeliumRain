@@ -205,7 +205,6 @@ void SFlareOrbitalMenu::Enter()
 	SetVisibility(EVisibility::Visible);
 	MenuManager->UseDarkBackground();
 
-
 	UpdateMap();
 	UpdateTravels();
 }
@@ -216,6 +215,9 @@ void SFlareOrbitalMenu::Exit()
 	SetVisibility(EVisibility::Hidden);
 
 	NemaBox->ClearChildren();
+	AnkaBox->ClearChildren();
+	AstaBox->ClearChildren();
+	AriadneBox->ClearChildren();
 	TravelsBox->ClearChildren();
 }
 
