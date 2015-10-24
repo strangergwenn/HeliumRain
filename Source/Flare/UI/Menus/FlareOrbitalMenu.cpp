@@ -112,7 +112,25 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.AutoHeight()
 			.Padding(Theme.ContentPadding)
 			[
-				SAssignNew(TravelsBox, SVerticalBox)
+				SNew(SHorizontalBox)
+
+				// list of current travels
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Left)
+				[
+					SAssignNew(TravelsBox, SVerticalBox)
+				]
+
+				// Fast forward
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("Fast forward", "Fast forward"))
+					.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
+					.Icon(FFlareStyleSet::GetIcon("FastForward"))
+					.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+				]
 			]
 
 			// Planetarium
@@ -145,20 +163,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					]
 				]
 			]
-
-			// Fast forward here
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Right)
-			[
-				SNew(SFlareButton)
-				.Text(LOCTEXT("Fast forward", "Fast forward"))
-				.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the new event"))
-				.Icon(FFlareStyleSet::GetIcon("FastForward"))
-				.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
-			]
-
 		]
 	];
 }
