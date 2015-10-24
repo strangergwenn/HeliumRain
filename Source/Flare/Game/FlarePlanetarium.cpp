@@ -19,7 +19,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	SmoothTime += DeltaSeconds * 10;
+	SmoothTime += DeltaSeconds * 1.0f;
 
 	if (GetGame())
 	{
