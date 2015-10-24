@@ -74,6 +74,10 @@ struct FFlarePlayerSave
 
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareQuestSave		QuestData;
+
+	/** Identifier of the last flown ship */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName LastFlownShipIdentifier;
 };
 
 

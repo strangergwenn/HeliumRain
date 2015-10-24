@@ -368,6 +368,10 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 	Company = NewCompany;
 }
 
+void AFlarePlayerController::SetLastFlownShip(FName LastFlownShipIdentifier)
+{
+	PlayerData.LastFlownShipIdentifier = LastFlownShipIdentifier;
+}
 
 /*----------------------------------------------------
 	Menus
@@ -990,6 +994,15 @@ void AFlarePlayerController::UndockShip()
 	{
 		ShipPawn->GetNavigationSystem()->Undock();
 	}
+}
+
+/*----------------------------------------------------
+	Getters for game classes
+----------------------------------------------------*/
+
+UFlareSimulatedSpacecraft* AFlarePlayerController::GetLastFlownShip()
+{
+	return GetGame()->GetGameWorld()->FindSpacecraft(PlayerData.LastFlownShipIdentifier);
 }
 
 

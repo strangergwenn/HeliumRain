@@ -199,6 +199,7 @@ void AFlareGame::DeactivateSector(AController* Player)
 		ActiveSector = NULL;
 
 		SectorData->LastFlownShip = LastFlownShip;
+		PC->SetLastFlownShip(LastFlownShip);
 
 		// Reload  spacecrafts
 		for (int i = 0 ; i < SpacecraftData.Num(); i++)
@@ -403,6 +404,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	PlayerData.CompanyIdentifier = Company->GetIdentifier();
 	PlayerData.ScenarioId = ScenarioIndex;
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
+	PlayerData.LastFlownShipIdentifier = NAME_None;
 	PC->SetCompany(Company);
 
 	// TODO Later with world init

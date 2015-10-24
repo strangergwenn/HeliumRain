@@ -73,6 +73,7 @@ public:
 	/** Call a sector is deactivated */
 	virtual void OnSectorDeactivated();
 
+	void SetLastFlownShip(FName LastFlownShipIdentifier);
 
 	/*----------------------------------------------------
 		Menus
@@ -346,5 +347,8 @@ public:
 		return Cast<AFlareHUD>(GetHUD());
 	}
 
+	/** Return the last flown ship.
+	 * Return NULL if no last flown ship, or if it is destroyed */
+	UFlareSimulatedSpacecraft* GetLastFlownShip();
 };
 
