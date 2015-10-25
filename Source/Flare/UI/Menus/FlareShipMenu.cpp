@@ -422,7 +422,9 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 
 	if (CanEdit)
 	{
+		FLOGV("SFlareShipMenu::UpdatePartList : looking for %s", *SelectItem->Name.ToString());
 		int32 Index = PartListData.Find(SelectItem);
+
 		ShipPartIndex = Index;
 		CurrentPartIndex = Index;
 		CurrentEquippedPartIndex = Index;
@@ -615,9 +617,23 @@ void SFlareShipMenu::ShowRCSs()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(TargetSpacecraft);
-		PC->GetGame()->GetShipPartsCatalog()->GetRCSList(PartListData, Ship->GetDescription()->Size);
-		UpdatePartList(Ship->GetRCSDescription());
+		FFlareSpacecraftComponentDescription* PartDesc = NULL;
+		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+
+		// Browse all the parts in the save until we find the right one
+		for (int32 Index = 0; Index < TargetSpacecraftData->Components.Num(); Index++)
+		{
+			FFlareSpacecraftComponentDescription* Desc = Catalog->Get(TargetSpacecraftData->Components[Index].ComponentIdentifier);
+			if (Desc && Desc->Type == EFlarePartType::RCS)
+			{
+				PartDesc = Desc;
+				break;
+			}
+		}
+
+		Catalog->GetRCSList(PartListData, TargetSpacecraft->GetDescription()->Size);
+		FLOGV("SFlareShipMenu::ShowRCSs : %d parts", PartListData.Num());
+		UpdatePartList(PartDesc);
 	}
 }
 
@@ -628,9 +644,23 @@ void SFlareShipMenu::ShowEngines()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(TargetSpacecraft);
-		PC->GetGame()->GetShipPartsCatalog()->GetEngineList(PartListData, Ship->GetDescription()->Size);
-		UpdatePartList(Ship->GetOrbitalEngineDescription());
+		FFlareSpacecraftComponentDescription* PartDesc = NULL;
+		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+		
+		// Browse all the parts in the save until we find the right one
+		for (int32 Index = 0; Index < TargetSpacecraftData->Components.Num(); Index++)
+		{
+			FFlareSpacecraftComponentDescription* Desc = Catalog->Get(TargetSpacecraftData->Components[Index].ComponentIdentifier);
+			if (Desc && Desc->Type == EFlarePartType::OrbitalEngine)
+			{
+				PartDesc = Desc;
+				break;
+			}
+		}
+
+		Catalog->GetEngineList(PartListData, TargetSpacecraft->GetDescription()->Size);
+		FLOGV("SFlareShipMenu::ShowEngines : %d parts", PartListData.Num());
+		UpdatePartList(PartDesc);
 	}
 }
 
@@ -642,9 +672,31 @@ void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponIndex)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		AFlareSpacecraft* Ship = Cast<AFlareSpacecraft>(TargetSpacecraft);
-		PC->GetGame()->GetShipPartsCatalog()->GetWeaponList(PartListData, Ship->GetDescription()->Size);
-		UpdatePartList(Ship->GetWeaponsSystem()->GetWeaponDescription(CurrentWeaponIndex));
+		int32 CurrentSearchIndex = 0;
+		FFlareSpacecraftComponentDescription* PartDesc = NULL;
+		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+
+		// Browse all the parts in the save until we find the right one
+		for (int32 Index = 0; Index < TargetSpacecraftData->Components.Num(); Index++)
+		{
+			FFlareSpacecraftComponentDescription* Desc = Catalog->Get(TargetSpacecraftData->Components[Index].ComponentIdentifier);
+			if (Desc && Desc->Type == EFlarePartType::Weapon)
+			{
+				if (CurrentSearchIndex == CurrentWeaponIndex)
+				{
+					PartDesc = Desc;
+					break;
+				}
+				else
+				{
+					CurrentSearchIndex++;
+				}
+			}
+		}
+
+		Catalog->GetWeaponList(PartListData, TargetSpacecraft->GetDescription()->Size);
+		FLOGV("SFlareShipMenu::ShowWeapons : %d parts", PartListData.Num());
+		UpdatePartList(PartDesc);
 	}
 }
 

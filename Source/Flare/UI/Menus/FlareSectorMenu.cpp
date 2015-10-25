@@ -49,7 +49,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("Sector", "SECTOR MAP"))
+				.Text(LOCTEXT("Sector", "SECTOR INFO"))
 			]
 
 			// Close
@@ -215,6 +215,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 void SFlareSectorMenu::Exit()
 {
 	SetEnabled(false);
+	TargetSector = NULL;
 	OwnedShipList->Reset();
 	OtherShipList->Reset();
 	SetVisibility(EVisibility::Hidden);

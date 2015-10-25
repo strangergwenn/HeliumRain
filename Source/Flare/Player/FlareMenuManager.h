@@ -1,18 +1,22 @@
 #pragma once
 
-#include "../UI/Menus/FlareMainMenu.h"
-#include "../UI/Menus/FlareSettingsMenu.h"
-#include "../UI/Menus/FlareNewGameMenu.h"
-#include "../UI/Menus/FlareDashboard.h"
-#include "../UI/Menus/FlareCompanyMenu.h"
-#include "../UI/Menus/FlareShipMenu.h"
-#include "../UI/Menus/FlareSectorMenu.h"
-#include "../UI/Menus/FlareOrbitalMenu.h"
-#include "../UI/Menus/FlareLeaderboardMenu.h"
 #include "../UI/Components/FlareTooltip.h"
 #include "../UI/Components/FlareNotifier.h"
 #include "../UI/Components/FlareConfirmationOverlay.h"
 #include "FlareMenuManager.generated.h"
+
+
+class SFlareMainMenu;
+class SFlareSettingsMenu;
+class SFlareNewGameMenu;
+class SFlareDashboard;
+class SFlareCompanyMenu;
+class SFlareShipMenu;
+class SFlareSectorMenu;
+class SFlareOrbitalMenu;
+class SFlareLeaderboardMenu;
+
+class AFlarePlayerController;
 
 
 /** Main HUD class (container for HUD and menus) */
@@ -188,10 +192,7 @@ public:
 		return Cast<AFlarePlayerController>(GetOwner());
 	}
 
-	inline AFlareGame* GetGame() const
-	{
-		return GetPC()->GetGame();
-	}
+	inline AFlareGame* GetGame() const;
 
 	static inline AFlareMenuManager* GetSingleton()
 	{

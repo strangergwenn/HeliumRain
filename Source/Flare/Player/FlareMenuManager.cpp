@@ -1,6 +1,15 @@
 
 #include "../Flare.h"
 #include "FlareMenuManager.h"
+#include "../UI/Menus/FlareMainMenu.h"
+#include "../UI/Menus/FlareSettingsMenu.h"
+#include "../UI/Menus/FlareNewGameMenu.h"
+#include "../UI/Menus/FlareDashboard.h"
+#include "../UI/Menus/FlareCompanyMenu.h"
+#include "../UI/Menus/FlareShipMenu.h"
+#include "../UI/Menus/FlareSectorMenu.h"
+#include "../UI/Menus/FlareOrbitalMenu.h"
+#include "../UI/Menus/FlareLeaderboardMenu.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../FlareLoadingScreen/FlareLoadingScreen.h"
@@ -427,6 +436,11 @@ void AFlareMenuManager::ProcessFadeTarget()
 	FadeTargetData = NULL;
 	FadeTarget = EFlareMenu::MENU_None;
 	GetPC()->GetNavHUD()->UpdateHUDVisibility();
+}
+
+inline AFlareGame* AFlareMenuManager::GetGame() const
+{
+	return GetPC()->GetGame();
 }
 
 
