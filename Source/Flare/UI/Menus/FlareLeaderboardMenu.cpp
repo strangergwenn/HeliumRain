@@ -165,6 +165,7 @@ TSharedRef<ITableRow> SFlareLeaderboardMenu::GenerateCompanyInfo(TSharedPtr<FInt
 	.Content()
 	[
 		SNew(SFlareCompanyInfo)
+		.Player(MenuManager->GetPC())
 		.Company(Item->CompanyPtr)
 	];
 }

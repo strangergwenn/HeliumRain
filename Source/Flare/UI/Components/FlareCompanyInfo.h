@@ -4,6 +4,7 @@
 
 
 class UFlareCompany;
+class AFlarePlayerController;
 
 
 class SFlareCompanyInfo : public SCompoundWidget
@@ -13,9 +14,11 @@ class SFlareCompanyInfo : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareCompanyInfo)
-		: _Company(NULL)
+		: _Player(NULL)
+		, _Company(NULL)
 	{}
 
+	SLATE_ARGUMENT(AFlarePlayerController*, Player)
 	SLATE_ARGUMENT(UFlareCompany*, Company)
 	
 	SLATE_END_ARGS()
@@ -51,6 +54,9 @@ protected:
 	/** Get the company info text */
 	FText GetCompanyInfo() const;
 
+	/** Get the hostility data towards us, from this company */
+	FText GetCompanyHostility() const;
+
 	/** Get the company emblem */
 	const FSlateBrush* GetCompanyEmblem() const;
 
@@ -62,7 +68,8 @@ protected:
 	----------------------------------------------------*/
 
 	// Game data
-	UFlareCompany*                    Company;
+	AFlarePlayerController*                    Player;
+	UFlareCompany*                             Company;
 
 
 };

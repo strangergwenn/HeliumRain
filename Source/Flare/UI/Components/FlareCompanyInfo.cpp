@@ -14,6 +14,7 @@
 void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 {
 	// Data
+	Player = InArgs._Player;
 	Company = InArgs._Company;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
@@ -22,38 +23,54 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Left)
 	[
-		SNew(SHorizontalBox)
-
-		// Emblem
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
+		SNew(SBox)
+		.WidthOverride(Theme.ContentWidth)
+		.HAlign(HAlign_Fill)
 		[
-			SNew(SImage)
-			.Image(this, &SFlareCompanyInfo::GetCompanyEmblem)
-		]
+			SNew(SHorizontalBox)
 
-		// Data
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SVerticalBox)
-				
-			// Name
-			+ SVerticalBox::Slot()
-			.AutoHeight()
+			// Emblem
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
 			[
-				SNew(STextBlock)
-				.Text(this, &SFlareCompanyInfo::GetCompanyName)
-				.TextStyle(&Theme.SubTitleFont)
+				SNew(SImage)
+				.Image(this, &SFlareCompanyInfo::GetCompanyEmblem)
 			]
 
 			// Data
-			+ SVerticalBox::Slot()
-			.AutoHeight()
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SVerticalBox)
+				
+				// Name
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareCompanyInfo::GetCompanyName)
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Data
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareCompanyInfo::GetCompanyInfo)
+					.TextStyle(&Theme.TextFont)
+				]
+			]
+
+			// Hostility
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
-				.Text(this, &SFlareCompanyInfo::GetCompanyInfo)
+				.Text(this, &SFlareCompanyInfo::GetCompanyHostility)
 				.TextStyle(&Theme.TextFont)
 			]
 		]
@@ -103,6 +120,37 @@ FText SFlareCompanyInfo::GetCompanyInfo() const
 		FString MoneyString = FString::FromInt(Company->GetMoney()) + " " + LOCTEXT("Credits", "credits").ToString();
 
 		return FText::FromString(MoneyString + "\n" + StationString + "\n" + ShipString);
+	}
+
+	return Result;
+}
+
+FText SFlareCompanyInfo::GetCompanyHostility() const
+{
+	FText Result;
+
+	if (Company)
+	{
+		EFlareHostility::Type Hostiliy = Company->GetPlayerHostility();
+
+		switch (Hostiliy)
+		{
+			case EFlareHostility::Friendly:
+				Result = LOCTEXT("Allied", "Allied");
+				break;
+
+			case EFlareHostility::Hostile:
+				Result = LOCTEXT("Hostile", "Hostile");
+				break;
+
+			case EFlareHostility::Neutral:
+				Result = LOCTEXT("Neutral", "Neutral");
+				break;
+
+			case EFlareHostility::Owned:
+			default:
+				break;
+		}
 	}
 
 	return Result;

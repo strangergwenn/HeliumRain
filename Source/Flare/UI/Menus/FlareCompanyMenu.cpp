@@ -104,6 +104,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				[
 					SAssignNew(CompanyInfo, SFlareCompanyInfo)
+					.Player(PC)
 				]
 
 				// Title
