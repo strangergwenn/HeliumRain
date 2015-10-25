@@ -245,13 +245,13 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 
 	// Is this a civilian ship ?
 	WeaponStatus->SetVisibility(Target->IsMilitary() ? EVisibility::Visible : EVisibility::Hidden);
+	WeaponContainer->ClearChildren();
 
 	// Update weapon list
 	if (PlayerShip && PlayerShip->IsMilitary())
 	{
 		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
 		TSharedPtr<SFlareSubsystemStatus> Temp;
-		WeaponContainer->ClearChildren();
 
 		// Add weapon indicators
 		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
