@@ -68,6 +68,9 @@ public:
 	/** Fly the current target */
 	void OnFly();
 
+	/** Select the current target */
+	void OnSelect();
+
 	/** Try to dock at the target station */
 	void OnDockAt();
 
@@ -114,6 +117,7 @@ protected:
 	// Slate data
 	TSharedPtr<SFlareButton>          InspectButton;
 	TSharedPtr<SFlareButton>          FlyButton;
+	TSharedPtr<SFlareButton>          SelectButton;
 	TSharedPtr<SFlareButton>          DockButton;
 	TSharedPtr<SFlareButton>          UndockButton;
 	TSharedPtr<SFlareShipStatus>      ShipStatus;

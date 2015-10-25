@@ -150,6 +150,17 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
 				.Width(4)
 			]
+
+			// Select this ship
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SAssignNew(SelectButton, SFlareButton)
+				.Text(LOCTEXT("ShipSelect", "SELECT"))
+				.HelpText(LOCTEXT("ShipSelectInfo", "Select this ship"))
+				.OnClicked(this, &SFlareSpacecraftInfo::OnSelect)
+				.Width(4)
+			]
 			
 			// Dock here
 			+ SHorizontalBox::Slot()
@@ -236,6 +247,7 @@ void SFlareSpacecraftInfo::Show()
 	{
 		InspectButton->SetVisibility(EVisibility::Collapsed);
 		FlyButton->SetVisibility(EVisibility::Collapsed);
+		SelectButton->SetVisibility(EVisibility::Collapsed);
 		DockButton->SetVisibility(EVisibility::Collapsed);
 		UndockButton->SetVisibility(EVisibility::Collapsed);
 	}
@@ -256,10 +268,12 @@ void SFlareSpacecraftInfo::Show()
 		if (OwnedAndNotSelf && TargetSpacecraft->CanBeFlown())
 		{
 			FlyButton->SetVisibility(EVisibility::Visible);
+			SelectButton->SetVisibility(EVisibility::Visible);
 		}
 		else
 		{
 			FlyButton->SetVisibility(EVisibility::Collapsed);
+			SelectButton->SetVisibility(EVisibility::Collapsed);
 		}
 	}
 }
@@ -286,7 +300,7 @@ void SFlareSpacecraftInfo::OnInspect()
 
 void SFlareSpacecraftInfo::OnFly()
 {
-	if (PC && TargetSpacecraft && !TargetSpacecraft->IsStation())
+	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown())
 	{
 		// Check if a simulated spacecraft
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
@@ -300,6 +314,23 @@ void SFlareSpacecraftInfo::OnFly()
 		{
 			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
 		}
+	}
+}
+
+void SFlareSpacecraftInfo::OnSelect()
+{
+	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown())
+	{
+		// Check if a simulated spacecraft
+		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
+
+		if(!SimulatedSpacecraft)
+		{
+			SimulatedSpacecraft = PC->GetGame()->GetGameWorld()->FindSpacecraft(TargetSpacecraft->GetImmatriculation());
+		}
+
+		PC->SelectFleet(SimulatedSpacecraft->GetCurrentFleet());
+		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit);
 	}
 }
 
