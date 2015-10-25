@@ -44,7 +44,10 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-	
+
+	/** Show a "no objects" text when the data is empty */
+	EVisibility GetNoObjectsVisibility() const;
+
 	/** Target item generator */
 	TSharedRef<ITableRow> GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
 

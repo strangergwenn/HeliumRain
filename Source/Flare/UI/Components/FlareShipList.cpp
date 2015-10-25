@@ -41,6 +41,18 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 				.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
 			]
 
+			// Section title
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("Nothing", "No objects."))
+				.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
+				.Visibility(this, &SFlareShipList::GetNoObjectsVisibility)
+			]
+
 			// Box
 			+ SVerticalBox::Slot()
 			.AutoHeight()
@@ -137,6 +149,11 @@ void SFlareShipList::Reset()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+EVisibility SFlareShipList::GetNoObjectsVisibility() const
+{
+	return (TargetListData.Num() > 0 ? EVisibility::Collapsed : EVisibility::Visible);
+}
 
 TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {

@@ -156,11 +156,21 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 
 	TargetSector = Sector;
 
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* StationCandidate = Sector->GetSectorStations()[SpacecraftIndex];
+
+		if (StationCandidate)
+		{
+			ShipList->AddShip(StationCandidate);
+		}
+	}
+
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
 	{
 		UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorShips()[SpacecraftIndex];
 
-		if (ShipCandidate && (ShipCandidate->IsStation() || ShipCandidate->GetDamageSystem()->IsAlive()))
+		if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
 		{
 			ShipList->AddShip(ShipCandidate);
 		}

@@ -209,8 +209,8 @@ TSharedRef<ITableRow> SFlareLeaderboardMenu::GenerateCompanyInfo(TSharedPtr<FInt
 				.AutoHeight()
 				[
 					SNew(STextBlock)
-					.Text(FText::FromString(MoneyString + " - " + ShipString + " - " + StationString))
-					.TextStyle(&Theme.NameFont)
+					.Text(FText::FromString(MoneyString + "\n" + StationString + "\n" + ShipString))
+					.TextStyle(&Theme.TextFont)
 				]
 			]
 		];

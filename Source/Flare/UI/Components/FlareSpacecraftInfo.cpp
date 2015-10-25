@@ -371,7 +371,7 @@ FText SFlareSpacecraftInfo::GetCompanyName() const
 
 		if (TargetCompany)
 		{
-			return TargetCompany->GetInfoText(true);
+			return FText::FromString(LOCTEXT("OwnedBy", "Owned by ").ToString() + TargetCompany->GetInfoText(true).ToString());
 		}
 	}
 
