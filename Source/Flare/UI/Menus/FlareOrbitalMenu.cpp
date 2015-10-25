@@ -122,6 +122,18 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SVerticalBox)
 					
+					// Selected fleet
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareOrbitalMenu::GetSelectedFleet)
+					]
+
+
 					// Travels
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -417,6 +429,22 @@ FVector2D SFlareOrbitalMenu::GetWidgetSize(int32 Index) const
 	int WidgetSize = 200;
 	FVector2D BaseSize(WidgetSize, WidgetSize);
 	return BaseSize;
+}
+
+FText SFlareOrbitalMenu::GetSelectedFleet() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	UFlareFleet* SelectedFleet = PC->GetSelectedFleet();
+
+	if (SelectedFleet)
+	{
+		return FText::FromString(LOCTEXT("SelectedFleet", "Selected ship: ").ToString() + SelectedFleet->GetShips()[0]->GetImmatriculation().ToString());
+	}
+	else
+	{
+		return LOCTEXT("NoSelectedFleet", "No selected ship");
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -84,6 +84,9 @@ protected:
 	/** Get a widget's size on the screen */
 	FVector2D GetWidgetSize(int32 Index) const;
 
+	/** Get the selected fleet name */
+	FText GetSelectedFleet() const;
+
 	/** Fast forward to the next event */
 	void OnFastForwardClicked();
 
