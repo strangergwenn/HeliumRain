@@ -162,8 +162,8 @@ public:
 
 	virtual void SetHostilityTo(const UFlareCompany* TargetCompany, bool Hostile);
 
-	/** Get an info string for this company save */
-	virtual FText GetInfoText(bool Minimized);
+	/** Get an info string for this company */
+	virtual FText GetShortInfoText();
 
 	virtual UFlareFleet* CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector);
 

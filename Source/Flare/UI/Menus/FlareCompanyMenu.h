@@ -4,6 +4,7 @@
 #include "../../Game/FlareCompany.h"
 #include "../Components/FlareColorPanel.h"
 #include "../Components/FlareShipList.h"
+#include "../Components/FlareCompanyInfo.h"
 
 
 class SFlareCompanyMenu : public SCompoundWidget
@@ -46,12 +47,10 @@ protected:
 
 	/** Get the company name */
 	FText GetCompanyName() const;
-
-	/** Get the company info */
-	FText GetCompanyInfo() const;
-
+	
 	/** Go back to the orbital map */
 	void OnOrbit();
+
 
 protected:
 
@@ -68,6 +67,7 @@ protected:
 	// Menu data
 	TSharedPtr<SFlareColorPanel>             ColorBox;
 	TSharedPtr<SFlareShipList>               ShipList;
+	TSharedPtr<SFlareCompanyInfo>            CompanyInfo;
 
 
 };

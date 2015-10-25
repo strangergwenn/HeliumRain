@@ -176,31 +176,20 @@ void UFlareCompany::SetHostilityTo(const UFlareCompany* TargetCompany, bool Host
 	}
 }
 
-FText UFlareCompany::GetInfoText(bool Minimized)
+FText UFlareCompany::GetShortInfoText()
 {
 	// Static text
 	FText ShipText = LOCTEXT("Ship", "ship");
 	FText ShipsText = LOCTEXT("Ships", "ships");
-	FText StationText = LOCTEXT("Station", "station");
-	FText StationsText = LOCTEXT("Stations", "stations");
 	FText MoneyText = LOCTEXT("Money", "credits");
 
 	// Dynamic data
 	int32 ShipCount = GetCompanyShips().Num();
-	int32 StationCount = GetCompanyStations().Num();
 	FString MoneyDescriptionString = FString::FromInt(GetMoney()) + " " + MoneyText.ToString();
 	FString ShipDescriptionString = FString::FromInt(ShipCount) + " " + (ShipCount != 1 ? ShipsText : ShipText).ToString();
-	FString StationDescriptionString = FString::FromInt(StationCount) + " " + (StationCount != 1 ? StationsText : StationText).ToString();
 
 	// Build
-	if (Minimized)
-	{
-		return FText::FromString(GetCompanyName().ToString() + " (" + MoneyDescriptionString + ", " + ShipDescriptionString + ")");
-	}
-	else
-	{
-		return FText::FromString(MoneyDescriptionString + "\n" + ShipDescriptionString + "\n" + StationDescriptionString);
-	}
+	return FText::FromString(GetCompanyName().ToString() + " (" + MoneyDescriptionString + ", " + ShipDescriptionString + ")");
 }
 
 UFlareFleet* UFlareCompany::CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector)

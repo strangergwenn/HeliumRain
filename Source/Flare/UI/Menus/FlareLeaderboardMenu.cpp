@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareLeaderboardMenu.h"
+#include "../Components/FlareCompanyInfo.h"
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
@@ -160,60 +161,12 @@ void SFlareLeaderboardMenu::Exit()
 
 TSharedRef<ITableRow> SFlareLeaderboardMenu::GenerateCompanyInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
-	// Item data
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	const FFlareCompanyDescription* Desc = Item->CompanyPtr->GetDescription();
-	const FSlateBrush* Emblem = Item->CompanyPtr->GetEmblem();
-
-	// Info string
-	int32 CompanyShipCount = Item->CompanyPtr->GetCompanyShips().Num();
-	int32 CompanyStationCount = Item->CompanyPtr->GetCompanyStations().Num();
-	FString ShipString = FString::FromInt(CompanyShipCount) + " ";
-	FString StationString = FString::FromInt(CompanyStationCount) + " ";
-	ShipString += (CompanyShipCount == 1 ? LOCTEXT("Ship", "ship").ToString() : LOCTEXT("Ships", "ships").ToString());
-	StationString += (CompanyStationCount == 1 ? LOCTEXT("Station", "station").ToString() : LOCTEXT("Stations", "stations").ToString());
-	FString MoneyString = FString::FromInt(Item->CompanyPtr->GetMoney()) + " " + LOCTEXT("Credits", "credits").ToString();
-
-	// Widget structure
 	return SNew(SFlareListItem, OwnerTable)
-		.Content()
-		[
-			SNew(SHorizontalBox)
-
-			// Emblem
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage)
-				.Image(Emblem)
-			]
-
-			// Data
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SVerticalBox)
-				
-				// Name
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.Text(Desc->Name)
-					.TextStyle(&Theme.SubTitleFont)
-				]
-
-				// Data
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.Text(FText::FromString(MoneyString + "\n" + StationString + "\n" + ShipString))
-					.TextStyle(&Theme.TextFont)
-				]
-			]
-		];
+	.Content()
+	[
+		SNew(SFlareCompanyInfo)
+		.Company(Item->CompanyPtr)
+	];
 }
 
 void SFlareLeaderboardMenu::OnExit()

@@ -36,6 +36,8 @@ public:
 	void Construct(const FArguments& InArgs);
 
 
+protected:
+
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/

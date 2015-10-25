@@ -103,9 +103,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				[
-					SNew(STextBlock)
-					.Text(this, &SFlareCompanyMenu::GetCompanyInfo)
-					.TextStyle(&Theme.TextFont)
+					SAssignNew(CompanyInfo, SFlareCompanyInfo)
 				]
 
 				// Title
@@ -160,6 +158,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	// Company data
 	Company = Target;
 	SetVisibility(EVisibility::Visible);
+	CompanyInfo->SetCompany(Company);
 
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC && Target)
@@ -219,18 +218,6 @@ FText SFlareCompanyMenu::GetCompanyName() const
 	if (Company)
 	{
 		Result = FText::FromString(Result.ToString() + Company->GetCompanyName().ToString());
-	}
-
-	return Result;
-}
-
-FText SFlareCompanyMenu::GetCompanyInfo() const
-{
-	FText Result;
-
-	if (Company)
-	{
-		Result = Company->GetInfoText(false);
 	}
 
 	return Result;
