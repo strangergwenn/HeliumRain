@@ -97,6 +97,17 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					.Text(this, &SFlareSectorMenu::GetSectorName)
 					.TextStyle(&Theme.SubTitleFont)
 				]
+
+				// Sector description
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSectorMenu::GetSectorDescription)
+					.TextStyle(&Theme.TextFont)
+					.WrapTextAt(Theme.ContentWidth)
+				]
 				
 				// Travel here
 				+ SVerticalBox::Slot()
@@ -177,6 +188,18 @@ FText SFlareSectorMenu::GetSectorName() const
 	if (TargetSector)
 	{
 		Result = FText::FromString(Result.ToString() + TargetSector->GetSectorName().ToString());
+	}
+
+	return Result;
+}
+
+FText SFlareSectorMenu::GetSectorDescription() const
+{
+	FText Result;
+
+	if (TargetSector)
+	{
+		Result = TargetSector->GetSectorDescription();
 	}
 
 	return Result;

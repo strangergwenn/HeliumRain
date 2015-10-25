@@ -50,6 +50,10 @@ struct FFlareSectorDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	FText Name;
 
+	/** Description */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FText Description;
+
 	/** Sector identifier */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FName Identifier;
@@ -245,7 +249,8 @@ protected:
 
 	AFlareGame*                             Game;
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
-	const FFlareSectorDescription*                SectorDescription;
+	const FFlareSectorDescription*          SectorDescription;
+
 
 public:
 
@@ -275,6 +280,9 @@ public:
 
 	/** Get the name of this sector */
 	FText GetSectorName() const;
+
+	/** Get the description of this sector */
+	FText GetSectorDescription() const;
 
 	FString GetSectorCode() const;
 

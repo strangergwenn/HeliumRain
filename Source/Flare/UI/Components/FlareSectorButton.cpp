@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareSectorButton.h"
 #include "../../Game/FlareCompany.h"
+#include "../../Game/FlareSimulatedSector.h"
 #include "../../Player/FlareMenuManager.h"
 
 
@@ -80,9 +81,9 @@ void SFlareSectorButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointe
 	SWidget::OnMouseEnter(MyGeometry, MouseEvent);
 
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
-	if (MenuManager)
+	if (MenuManager && Sector)
 	{
-		MenuManager->ShowTooltip(this, GetSectorText());
+		MenuManager->ShowTooltip(this, Sector->GetSectorDescription());
 	}
 }
 

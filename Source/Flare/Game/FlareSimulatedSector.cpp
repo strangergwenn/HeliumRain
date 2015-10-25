@@ -313,6 +313,11 @@ FText UFlareSimulatedSector::GetSectorName() const
 	}
 }
 
+FText UFlareSimulatedSector::GetSectorDescription() const
+{
+	return SectorDescription->Description;
+}
+
 FString UFlareSimulatedSector::GetSectorCode() const
 {
 	// TODO cache
