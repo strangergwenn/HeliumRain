@@ -236,6 +236,15 @@ public:
 	/** Return the celestial body with the given identifier in the given body tree */
 	FFlareCelestialBody* FindCelestialBody(FFlareCelestialBody* Body, FName BodyIdentifier);
 
+	/** Return the parent of the given celestial body */
+	FFlareCelestialBody* FindParent(FFlareCelestialBody* Body);
+
+	/** Return the parent of the given celestial body in the given root tree*/
+	FFlareCelestialBody* FindParent(FFlareCelestialBody* Body, FFlareCelestialBody* Root);
+
+	/** Return true if the target body is sattelite of the parent body */
+	bool IsSatellite(FFlareCelestialBody* Body, FFlareCelestialBody* Parent);
+
 protected:
 
 	void ComputeCelestialBodyLocation(FFlareCelestialBody* ParentBody, FFlareCelestialBody* Body, int64 time, float SmoothTime);

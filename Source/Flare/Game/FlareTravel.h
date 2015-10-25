@@ -59,6 +59,26 @@ public:
 
 	void ChangeDestination(UFlareSimulatedSector* NewDestinationSector);
 
+	void GenerateTravelDuration();
+
+	FFlareSectorOrbitParameters ComputeCurrentTravelLocation();
+
+	double ComputeSphereOfInfluenceAltitude(FFlareCelestialBody* CelestialBody);
+
+	int64 ComputePhaseTravelDuration(FFlareCelestialBody* CelestialBody, double Altitude, double OriginPhase, double DestinationPhase);
+
+	int64 ComputeAltitudeTravelDuration(FFlareCelestialBody* OriginCelestialBody, double OriginAltitude, FFlareCelestialBody* DestinationCelestialBody, double DestinationAltitude);
+
+	double ComputeAltitudeTravelDistance(double OriginAltitude, double DestinationAltitude);
+
+	double ComputeAltitudeTravelToSoiDistance(FFlareCelestialBody* CelestialBody, double Altitude);
+
+	double ComputeAltitudeTravelToMoonDistance(FFlareCelestialBody* ParentCelestialBody, double Altitude, FFlareCelestialBody*MoonCelestialBody);
+
+	double ComputeAltitudeTravelMoonToMoonDistance(FFlareCelestialBody* OriginCelestialBody, FFlareCelestialBody* DestinationCelestialBody);
+
+	FFlareSectorOrbitParameters ComputeAltitudeTravelLocation(FFlareCelestialBody* CelestialBody, double OriginAltitude, double DestinationAltitude, int64 ElapsedTime);
+
 protected:
 
 	void EndTravel();
@@ -66,12 +86,13 @@ protected:
 
 	TArray<UFlareSimulatedSpacecraft*>      TravelShips;
 
-	UFlareFleet*      Fleet;
-	UFlareSimulatedSector*      DestinationSector;
+	UFlareFleet*                            Fleet;
+	UFlareSimulatedSector*                  DestinationSector;
 
 
-	FFlareTravelSave        TravelData;
-	AFlareGame*                   Game;
+	FFlareTravelSave                        TravelData;
+	AFlareGame*                             Game;
+	int64                                   TravelDuration;
 
 public:
 

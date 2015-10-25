@@ -23,6 +23,10 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 	Game = Cast<AFlareGame>(GetOuter());
     WorldData = Data;
 
+	// Init planetarium
+	Planetarium = NewObject<UFlareSimulatedPlanetarium>(this, UFlareSimulatedPlanetarium::StaticClass());
+	Planetarium->Load();
+
     // Load all companies
     for (int32 i = 0; i < WorldData.CompanyData.Num(); i++)
     {
@@ -83,11 +87,6 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 	{
 		Companies[i]->PostLoad();
 	}
-
-
-	// Init planetarium
-	Planetarium = NewObject<UFlareSimulatedPlanetarium>(this, UFlareSimulatedPlanetarium::StaticClass());
-	Planetarium->Load();
 }
 
 

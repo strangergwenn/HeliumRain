@@ -123,11 +123,11 @@ struct FFlareSectorOrbitParameters
 
 	/** Orbit altitude */
 	UPROPERTY(EditAnywhere, Category = Save)
-	float Altitude;
+	double Altitude;
 
 	/** Orbit phase */
 	UPROPERTY(EditAnywhere, Category = Save)
-	float Phase;
+	double Phase;
 };
 
 

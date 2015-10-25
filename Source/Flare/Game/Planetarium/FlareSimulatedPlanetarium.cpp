@@ -98,6 +98,49 @@ FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FFlareCelesti
 	return NULL;
 }
 
+FFlareCelestialBody* UFlareSimulatedPlanetarium::FindParent(FFlareCelestialBody* Body)
+{
+	if(&Sun == Body)
+	{
+		return NULL;
+	}
+
+	return FindParent(Body, &Sun);
+}
+
+FFlareCelestialBody* UFlareSimulatedPlanetarium::FindParent(FFlareCelestialBody* Body, FFlareCelestialBody* Root)
+{
+	if(IsSatellite(Body, Root))
+	{
+		return Root;
+	}
+	else
+	{
+		for (int SatteliteIndex = 0; SatteliteIndex < Root->Sattelites.Num(); SatteliteIndex++)
+		{
+			FFlareCelestialBody* ParentCandidate = FindParent(Body, &Root->Sattelites[SatteliteIndex]);
+			if(ParentCandidate)
+			{
+				return ParentCandidate;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+bool UFlareSimulatedPlanetarium::IsSatellite(FFlareCelestialBody* Body, FFlareCelestialBody* Parent)
+{
+	for (int SatteliteIndex = 0; SatteliteIndex < Parent->Sattelites.Num(); SatteliteIndex++)
+	{
+		if(&Parent->Sattelites[SatteliteIndex] == Body)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 FFlareCelestialBody UFlareSimulatedPlanetarium::GetSnapShot(int64 Time, float SmoothTime)
 {
 	ComputeCelestialBodyLocation(NULL, &Sun, Time, SmoothTime);
