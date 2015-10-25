@@ -52,7 +52,6 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CatalogIdentifier;
 
-
 	/** Money money money / Always funny / In a rich men's world */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 Money;
@@ -147,6 +146,7 @@ public:
 	/** Spawn a simulated spacecraft from save data */
 	virtual UFlareSimulatedSpacecraft* LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData);
 
+	/** Load a fleet from save */
 	virtual UFlareFleet* LoadFleet(const FFlareFleetSave& FleetData);
 
 
@@ -160,20 +160,27 @@ public:
 	/** Check if we are friend or foe toward this target company */
 	virtual EFlareHostility::Type GetHostility(const UFlareCompany* TargetCompany) const;
 
+	/** Set whether this company is hostile to an other company */
 	virtual void SetHostilityTo(const UFlareCompany* TargetCompany, bool Hostile);
 
 	/** Get an info string for this company */
 	virtual FText GetShortInfoText();
 
+	/** Create a new fleet in a sector */
 	virtual UFlareFleet* CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector);
 
+	/** Destroy a fleet */
 	virtual void RemoveFleet(UFlareFleet* Fleet);
 
+	/** Destroy a spacecraft */
 	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
+	/** Set a sector discovered */
 	virtual void DiscoverSector(UFlareSimulatedSector* Sector);
 
+	/** Set a sector visited */
 	virtual void VisitSector(UFlareSimulatedSector* Sector);
+
 
 	/*----------------------------------------------------
 		Customization
@@ -201,16 +208,18 @@ protected:
 	// Gameplay data
 	const FFlareCompanyDescription*         CompanyDescription;
 	FFlareCompanySave                       CompanyData;
+
 	UPROPERTY()
 	TArray<UFlareSimulatedSpacecraft*>      CompanyStations;
+
 	UPROPERTY()
 	TArray<UFlareSimulatedSpacecraft*>      CompanyShips;
+
 	UPROPERTY()
 	TArray<UFlareSimulatedSpacecraft*>      CompanySpacecrafts;
 
 	UPROPERTY()
 	TArray<UFlareFleet*>                    CompanyFleets;
-
 
 	AFlareGame*                             Game;
 	TArray<UFlareSimulatedSector*>          KnownSectors;

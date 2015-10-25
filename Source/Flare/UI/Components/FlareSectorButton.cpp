@@ -6,6 +6,9 @@
 #include "../../Player/FlareMenuManager.h"
 
 
+#define LOCTEXT_NAMESPACE "FlareSectorButton"
+
+
 /*----------------------------------------------------
 	Construct
 ----------------------------------------------------*/
@@ -101,21 +104,24 @@ void SFlareSectorButton::OnMouseLeave(const FPointerEvent& MouseEvent)
 FText SFlareSectorButton::GetSectorText() const
 {
 	FText SectorText;
-
+	
 	if (Sector)
 	{
 		FString	SectorTitle = Sector->GetSectorName().ToString();
 
-		if(PlayerCompany->HasVisitedSector(Sector))
+		if (PlayerCompany->HasVisitedSector(Sector))
 		{
+			FString ShipString = (Sector->GetSectorShips().Num() == 1 ? LOCTEXT("Ship", "ship").ToString() : LOCTEXT("Ships", "ships").ToString());
+			FString StationString = (Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "station").ToString() : LOCTEXT("Stations", "stations").ToString());
+
 			if (Sector->GetSectorShips().Num() > 0)
 			{
-				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " ship" + (Sector->GetSectorShips().Num() > 1 ? "s" : "");
+				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " " + ShipString;
 			}
 
 			if (Sector->GetSectorStations().Num() > 0)
 			{
-				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " station" + (Sector->GetSectorStations().Num() > 1 ? "s" : "");
+				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " " + StationString;
 			}
 		}
 
@@ -181,3 +187,6 @@ FReply SFlareSectorButton::OnButtonClicked()
 
 	return FReply::Handled();
 }
+
+
+#undef LOCTEXT_NAMESPACE

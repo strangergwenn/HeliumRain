@@ -127,9 +127,9 @@ FFlareCompanySave* UFlareCompany::Save()
 		}
 	}
 
-
 	return &CompanyData;
 }
+
 
 /*----------------------------------------------------
 	Gameplay

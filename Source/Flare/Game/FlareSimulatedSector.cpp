@@ -337,29 +337,42 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 	}
 
 	int HostileSpacecraftCount = 0;
+	int NeutralSpacecraftCount = 0;
 	int FriendlySpacecraftCount = 0;
 
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorShips.Num(); SpacecraftIndex++)
 	{
-		if (SectorShips[SpacecraftIndex]->GetCompany() == Company)
+		UFlareCompany* OtherCompany = SectorShips[SpacecraftIndex]->GetCompany();
+
+		if (OtherCompany == Company)
 		{
 			FriendlySpacecraftCount++;
 		}
-		else
+		else if (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile)
 		{
 			HostileSpacecraftCount++;
+		}
+		else
+		{
+			NeutralSpacecraftCount++;
 		}
 	}
 
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex< SectorStations.Num(); SpacecraftIndex++)
 	{
-		if (SectorStations[SpacecraftIndex]->GetCompany() == Company)
+		UFlareCompany* OtherCompany = SectorStations[SpacecraftIndex]->GetCompany();
+
+		if (OtherCompany == Company)
 		{
 			FriendlySpacecraftCount++;
 		}
-		else
+		else if (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile)
 		{
 			HostileSpacecraftCount++;
+		}
+		else
+		{
+			NeutralSpacecraftCount++;
 		}
 	}
 
@@ -372,9 +385,13 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 	{
 		return EFlareSectorFriendlyness::Friendly;
 	}
-	else
+	else if (HostileSpacecraftCount > 0)
 	{
 		return EFlareSectorFriendlyness::Hostile;
+	}
+	else
+	{
+		return EFlareSectorFriendlyness::Neutral;
 	}
 }
 
