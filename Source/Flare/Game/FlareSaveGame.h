@@ -78,6 +78,10 @@ struct FFlarePlayerSave
 	/** Identifier of the last flown ship */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName LastFlownShipIdentifier;
+
+	/** Identifier of the selected fleet */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName SelectedFleetIdentifier;
 };
 
 

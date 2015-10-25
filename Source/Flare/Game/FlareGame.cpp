@@ -416,6 +416,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	FLOG("CreateGame create initial ship");
 	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
 	PlayerData.LastFlownShipIdentifier = InitialShip->GetImmatriculation();
+	PlayerData.SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 
 	FLOG("CreateGame create initial ennemy station");
 	World->FindSector("outpost")->CreateStation("station-outpost", World->GetCompanies()[0], FVector::ZeroVector);

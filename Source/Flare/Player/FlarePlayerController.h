@@ -44,6 +44,9 @@ public:
 	/** Set the pause state */
 	virtual void SetWorldPause(bool Pause);
 
+	/** Set the currently selected fleet */
+	void SelectFleet(UFlareFleet* Fleet);
+
 	/** Get the currently selected fleet */
 	virtual UFlareFleet* GetSelectedFleet();
 
@@ -300,6 +303,8 @@ protected:
 	UPROPERTY()
 	FFlarePlayerObjective                    CurrentObjective;
 	
+	UFlareFleet*                             SelectedFleet;
+
 	// Various gameplay data
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;

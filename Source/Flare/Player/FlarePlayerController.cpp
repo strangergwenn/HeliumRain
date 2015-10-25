@@ -315,6 +315,7 @@ void AFlarePlayerController::SetCompanyDescription(const FFlareCompanyDescriptio
 void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 {
 	PlayerData = SavePlayerData;
+	SelectedFleet = GetGame()->GetGameWorld()->FindFleet(PlayerData.SelectedFleetIdentifier);
 	Company = GetGame()->GetGameWorld()->FindCompany(PlayerData.CompanyIdentifier);
 }
 
@@ -359,6 +360,14 @@ void AFlarePlayerController::OnSectorDeactivated()
 
 void AFlarePlayerController::Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData)
 {
+	if (SelectedFleet)
+	{
+		PlayerData.SelectedFleetIdentifier = SelectedFleet->GetIdentifier();
+	}
+	else
+	{
+		PlayerData.SelectedFleetIdentifier = NAME_None;
+	}
 	SavePlayerData = PlayerData;
 	SaveCompanyData = CompanyData;
 }
@@ -457,34 +466,22 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 	}
 }
 
+void AFlarePlayerController::SelectFleet(UFlareFleet* Fleet)
+{
+	if (Fleet == NULL)
+	{
+		FLOG("Select no fleet");
+	}
+	else
+	{
+		FLOGV("Select fleet %s : %s", *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName());
+	}
+	SelectedFleet = Fleet;
+}
+
 UFlareFleet* AFlarePlayerController::GetSelectedFleet()
 {
-	if (!GetCompany())
-	{
-		return NULL;
-	}
-
-	else if (GetCompany()->GetCompanyFleets().Num() >= 1)
-	{
-		// TODO add complete fleet selection
-		return GetCompany()->GetCompanyFleets()[0];
-	}
-
-	else if (GetCompany()->GetCompanyShips().Num() > 0)
-	{
-		// TODO add complete fleet management instead of automatic fleet creation
-
-		UFlareSimulatedSpacecraft* Ship = GetCompany()->GetCompanyShips()[0];
-
-		if (Ship->GetCurrentSector())
-		{
-			UFlareFleet* NewFleet = GetCompany()->CreateFleet("Automatic fleet", Ship->GetCurrentSector());
-			NewFleet->AddShip(Ship);
-			return NewFleet;
-		}
-	}
-
-	return NULL;
+	return SelectedFleet;
 }
 
 
