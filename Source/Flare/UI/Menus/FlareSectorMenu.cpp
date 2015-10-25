@@ -110,7 +110,8 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Left)
 			[
 				SNew(SFlareButton)
-				.Text(LOCTEXT("Travel", "Travel"))
+				.Width(8)
+				.Text(this, &SFlareSectorMenu::GetTravelText)
 				.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
 				.Icon(FFlareStyleSet::GetIcon("Travel"))
 				.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
@@ -226,6 +227,35 @@ void SFlareSectorMenu::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
+FText SFlareSectorMenu::GetTravelText() const
+{
+	FText FlyText = LOCTEXT("Travel", "Travel");
+	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
+
+	if (SelectedFleet)
+	{
+		return FText::FromString(FlyText.ToString() + " " + LOCTEXT("with", "with").ToString() + " " + SelectedFleet->GetName().ToString());
+	}
+	else
+	{
+		return FlyText;
+	}
+}
+
+EVisibility SFlareSectorMenu::GetTravelVisibility() const
+{
+	UFlareFleet* CurrentFleet = MenuManager->GetPC()->GetSelectedFleet();
+
+	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector)
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
+
 FText SFlareSectorMenu::GetSectorName() const
 {
 	FText Result = LOCTEXT("Sector", "SECTOR : ");
@@ -248,20 +278,6 @@ FText SFlareSectorMenu::GetSectorDescription() const
 	}
 
 	return Result;
-}
-
-EVisibility SFlareSectorMenu::GetTravelVisibility() const
-{
-	UFlareFleet* CurrentFleet = MenuManager->GetPC()->GetSelectedFleet();
-
-	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector)
-	{
-		return EVisibility::Visible;
-	}
-	else
-	{
-		return EVisibility::Collapsed;
-	}
 }
 
 void SFlareSectorMenu::OnBackClicked()

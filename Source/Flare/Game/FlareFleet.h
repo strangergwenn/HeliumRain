@@ -51,6 +51,8 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
+	/** Get a name for this fleet (capital ship's name, etc) */
+	FText GetName();
 
 	virtual void AddShip(UFlareSimulatedSpacecraft* Ship);
 

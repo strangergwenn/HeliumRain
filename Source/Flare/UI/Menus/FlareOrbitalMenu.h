@@ -40,6 +40,7 @@ public:
 
 	virtual void Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime );
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -60,11 +61,20 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
-	/** Visibility setting for the fast-forward feature */
-	EVisibility GetFastForwardVisibility() const;
+	/** Get the text for the fly-current-ship button */
+	FText GetFlyCurrentShipText() const;
 
 	/** Visibility setting for the fly-current-ship feature */
 	EVisibility GetFlyCurrentShipVisibility() const;
+
+	/** Get the text for the fly-selected-ship button */
+	FText GetFlySelectedShipText() const;
+
+	/** Visibility setting for the fly-selected-ship feature */
+	EVisibility GetFlySelectedShipVisibility() const;
+
+	/** Visibility setting for the fast-forward feature */
+	EVisibility GetFastForwardVisibility() const;
 
 	/** Inspect the company */
 	void OnInspectCompany();
@@ -83,15 +93,15 @@ protected:
 
 	/** Get a widget's size on the screen */
 	FVector2D GetWidgetSize(int32 Index) const;
-
-	/** Get the selected fleet name */
-	FText GetSelectedFleet() const;
-
+	
 	/** Fast forward to the next event */
 	void OnFastForwardClicked();
 
 	/** Fly the last flown ship */
 	void OnFlyCurrentShipClicked();
+
+	/** Fly the selected ship */
+	void OnFlySelectedShipClicked();
 
 
 protected:

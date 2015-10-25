@@ -26,10 +26,15 @@ FFlareFleetSave* UFlareFleet::Save()
 	return &FleetData;
 }
 
+
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
 
+FText UFlareFleet::GetName()
+{
+	return FText::FromString(GetShips()[0]->GetImmatriculation().ToString());
+}
 
 bool UFlareFleet::IsTraveling()
 {
@@ -158,10 +163,10 @@ void UFlareFleet::InitShipList()
 	}
 }
 
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
-
 
 TArray<UFlareSimulatedSpacecraft*>& UFlareFleet::GetShips()
 {

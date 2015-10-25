@@ -44,6 +44,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Get the travel text */
+	FText GetTravelText() const;
+
 	/** Visibility setting for the travel button */
 	EVisibility GetTravelVisibility() const;
 

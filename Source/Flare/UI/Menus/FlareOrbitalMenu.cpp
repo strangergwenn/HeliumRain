@@ -116,24 +116,12 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SHorizontalBox)
 
-				// Meft column : travels, Nema
+				// Left column : travels, Nema
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
 				[
 					SNew(SVerticalBox)
 					
-					// Selected fleet
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.HAlign(HAlign_Left)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareOrbitalMenu::GetSelectedFleet)
-					]
-
-
 					// Travels
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -177,14 +165,16 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					.HAlign(HAlign_Right)
 					[
-						SNew(SHorizontalBox)
+						SNew(SVerticalBox)
 						
 						// Fast forward
-						+ SHorizontalBox::Slot()
+						+ SVerticalBox::Slot()
 						.HAlign(HAlign_Right)
-						.Padding(Theme.ContentPadding)
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SFlareButton)
+							.Width(8)
 							.Text(LOCTEXT("FastForward", "Fast forward"))
 							.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
 							.Icon(FFlareStyleSet::GetIcon("FastForward"))
@@ -192,14 +182,30 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 							.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
 						]
 
-						// Fly current ship
-						+ SHorizontalBox::Slot()
+						// Fly selected ship
+						+ SVerticalBox::Slot()
 						.HAlign(HAlign_Right)
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SFlareButton)
-							.Text(LOCTEXT("FlyCurrent", "Fly current ship"))
+							.Width(8)
+							.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
+							.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the currently selected ship"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
+							.Visibility(this, &SFlareOrbitalMenu::GetFlySelectedShipVisibility)
+						]
+
+						// Fly last flown
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Right)
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(SFlareButton)
+							.Width(8)
+							.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
 							.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
 							.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
@@ -341,21 +347,19 @@ void SFlareOrbitalMenu::UpdateTravels()
 	Callbacks
 ----------------------------------------------------*/
 
-EVisibility SFlareOrbitalMenu::GetFastForwardVisibility() const
+FText SFlareOrbitalMenu::GetFlyCurrentShipText() const
 {
-	if (IsEnabled())
+	FText FlyText = LOCTEXT("FlyCurrent", "Fly most recent");
+	UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
+
+	if (CurrentShip)
 	{
-		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
-
-		if (GameWorld && GameWorld->GetTravels().Num() > 0)
-		{
-			// TODO ALPHA : show the button during station/ship constructions as well
-			return EVisibility::Visible;
-		}
-
+		return FText::FromString(FlyText.ToString() + " (" + CurrentShip->GetImmatriculation().ToString() + ")");
 	}
-
-	return EVisibility::Collapsed;
+	else
+	{
+		return FlyText;
+	}
 }
 
 EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
@@ -368,6 +372,58 @@ EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
 		{
 			return EVisibility::Visible;
 		}
+	}
+
+	return EVisibility::Collapsed;
+}
+
+FText SFlareOrbitalMenu::GetFlySelectedShipText() const
+{
+	FText FlyText = LOCTEXT("FlyCurrent", "Fly selected ");
+	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
+
+	if (SelectedFleet)
+	{
+		return FText::FromString(FlyText.ToString() + " (" + SelectedFleet->GetName().ToString() + ")");
+	}
+	else
+	{
+		return FlyText;
+	}
+}
+
+EVisibility SFlareOrbitalMenu::GetFlySelectedShipVisibility() const
+{
+	if (IsEnabled())
+	{
+		UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
+
+		if (SelectedFleet)
+		{
+			UFlareSimulatedSpacecraft* CurrentShip = SelectedFleet->GetShips()[0];
+
+			if (CurrentShip && CurrentShip->CanBeFlown())
+			{
+				return EVisibility::Visible;
+			}
+		}
+	}
+
+	return EVisibility::Collapsed;
+}
+
+EVisibility SFlareOrbitalMenu::GetFastForwardVisibility() const
+{
+	if (IsEnabled())
+	{
+		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
+
+		if (GameWorld && GameWorld->GetTravels().Num() > 0)
+		{
+			// TODO ALPHA : show the button during station/ship constructions as well
+			return EVisibility::Visible;
+		}
+
 	}
 
 	return EVisibility::Collapsed;
@@ -419,6 +475,19 @@ void SFlareOrbitalMenu::OnFlyCurrentShipClicked()
 	}
 }
 
+void SFlareOrbitalMenu::OnFlySelectedShipClicked()
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
+	UFlareSimulatedSpacecraft* CurrentShip = SelectedFleet->GetShips()[0];
+
+	if (CurrentShip)
+	{
+		CurrentShip->GetCurrentSector()->SetShipToFly(CurrentShip);
+		PC->GetGame()->ActivateSector(PC, CurrentShip->GetCurrentSector());
+	}
+}
+
 FVector2D SFlareOrbitalMenu::GetWidgetPosition(int32 Index) const
 {
 	return FVector2D(1920, 1080) / 2;
@@ -429,22 +498,6 @@ FVector2D SFlareOrbitalMenu::GetWidgetSize(int32 Index) const
 	int WidgetSize = 200;
 	FVector2D BaseSize(WidgetSize, WidgetSize);
 	return BaseSize;
-}
-
-FText SFlareOrbitalMenu::GetSelectedFleet() const
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-
-	UFlareFleet* SelectedFleet = PC->GetSelectedFleet();
-
-	if (SelectedFleet)
-	{
-		return FText::FromString(LOCTEXT("SelectedFleet", "Selected ship: ").ToString() + SelectedFleet->GetShips()[0]->GetImmatriculation().ToString());
-	}
-	else
-	{
-		return LOCTEXT("NoSelectedFleet", "No selected ship");
-	}
 }
 
 #undef LOCTEXT_NAMESPACE
