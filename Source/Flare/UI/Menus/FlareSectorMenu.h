@@ -71,7 +71,8 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 
 	// Menu components
-	TSharedPtr<SFlareShipList>                 ShipList;
+	TSharedPtr<SFlareShipList>                 OwnedShipList;
+	TSharedPtr<SFlareShipList>                 OtherShipList;
 	UFlareSimulatedSector*                     TargetSector;
 
 };

@@ -80,56 +80,71 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		[
-			SNew(SScrollBox)
-			.Style(&Theme.ScrollBoxStyle)
-			.ScrollBarStyle(&Theme.ScrollBarStyle)
+			SNew(SVerticalBox)
 
-			+ SScrollBox::Slot()
+			// Sector name
+			+ SVerticalBox::Slot()
+			.Padding(Theme.TitlePadding)
+			.AutoHeight()
 			[
-				SNew(SVerticalBox)
+				SNew(STextBlock)
+				.Text(this, &SFlareSectorMenu::GetSectorName)
+				.TextStyle(&Theme.SubTitleFont)
+			]
 
-				// Sector name
-				+ SVerticalBox::Slot()
-				.Padding(Theme.TitlePadding)
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.Text(this, &SFlareSectorMenu::GetSectorName)
-					.TextStyle(&Theme.SubTitleFont)
-				]
-
-				// Sector description
-				+ SVerticalBox::Slot()
-				.Padding(Theme.ContentPadding)
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.Text(this, &SFlareSectorMenu::GetSectorDescription)
-					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(Theme.ContentWidth)
-				]
+			// Sector description
+			+ SVerticalBox::Slot()
+			.Padding(Theme.ContentPadding)
+			.AutoHeight()
+			[
+				SNew(STextBlock)
+				.Text(this, &SFlareSectorMenu::GetSectorDescription)
+				.TextStyle(&Theme.TextFont)
+				.WrapTextAt(Theme.ContentWidth)
+			]
 				
-				// Travel here
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Left)
-				[
-					SNew(SFlareButton)
-					.Text(LOCTEXT("Travel", "Travel"))
-					.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
-					.Icon(FFlareStyleSet::GetIcon("Travel"))
-					.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
-					.Visibility(this, &SFlareSectorMenu::GetTravelVisibility)
-				]
+			// Travel here
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("Travel", "Travel"))
+				.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
+				.Icon(FFlareStyleSet::GetIcon("Travel"))
+				.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
+				.Visibility(this, &SFlareSectorMenu::GetTravelVisibility)
+			]
 
-				// Object list
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+			// Content block
+			+ SVerticalBox::Slot()
+			[
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+				+ SScrollBox::Slot()
 				[
-					SAssignNew(ShipList, SFlareShipList)
-					.MenuManager(MenuManager)
-					.Title(LOCTEXT("SectorTargetListTitle", "OBJECTS IN SECTOR"))
+					SNew(SHorizontalBox)
+
+					// Owned
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Right)
+					[
+						SAssignNew(OwnedShipList, SFlareShipList)
+						.MenuManager(MenuManager)
+						.Title(LOCTEXT("MyListTitle", "OWNED SPACECRAFTS IN SECTOR"))
+					]
+
+					// Others
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Left)
+					[
+						SAssignNew(OtherShipList, SFlareShipList)
+						.MenuManager(MenuManager)
+						.Title(LOCTEXT("OtherListTitle", "OTHER SPACECRAFTS IN SECTOR"))
+					]
 				]
 			]
 		]
@@ -155,34 +170,53 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	SetVisibility(EVisibility::Visible);
 
 	TargetSector = Sector;
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
+	// Add stations
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
 	{
 		UFlareSimulatedSpacecraft* StationCandidate = Sector->GetSectorStations()[SpacecraftIndex];
 
 		if (StationCandidate)
 		{
-			ShipList->AddShip(StationCandidate);
+			if (StationCandidate->GetCompany() == PC->GetCompany())
+			{
+				OwnedShipList->AddShip(StationCandidate);
+			}
+			else
+			{
+				OtherShipList->AddShip(StationCandidate);
+			}
 		}
 	}
 
+	// Add ships
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
 	{
 		UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorShips()[SpacecraftIndex];
 
 		if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
 		{
-			ShipList->AddShip(ShipCandidate);
+			if (ShipCandidate->GetCompany() == PC->GetCompany())
+			{
+				OwnedShipList->AddShip(ShipCandidate);
+			}
+			else
+			{
+				OtherShipList->AddShip(ShipCandidate);
+			}
 		}
 	}
 
-	ShipList->RefreshList();
+	OwnedShipList->RefreshList();
+	OtherShipList->RefreshList();
 }
 
 void SFlareSectorMenu::Exit()
 {
 	SetEnabled(false);
-	ShipList->Reset();
+	OwnedShipList->Reset();
+	OtherShipList->Reset();
 	SetVisibility(EVisibility::Hidden);
 }
 
