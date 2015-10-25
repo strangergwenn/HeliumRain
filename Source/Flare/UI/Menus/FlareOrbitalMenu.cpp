@@ -107,49 +107,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SImage).Image(&Theme.SeparatorBrush)
 			]
-
-			// Travels
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SHorizontalBox)
-
-				// List of current travels
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Left)
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(TravelsBox, SVerticalBox)
-				]
-
-				// Fast forward
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SFlareButton)
-					.Text(LOCTEXT("FastForward", "Fast forward"))
-					.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
-					.Icon(FFlareStyleSet::GetIcon("FastForward"))
-					.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
-					.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
-				]
-
-				// Fly current ship
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SFlareButton)
-					.Text(LOCTEXT("FlyCurrent", "Fly current ship"))
-					.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
-					.Icon(FFlareStyleSet::GetIcon("Travel"))
-					.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
-					.Visibility(this, &SFlareOrbitalMenu::GetFlyCurrentShipVisibility)
-				]
-			]
-
+			
 			// Planetarium
 			+ SVerticalBox::Slot()
 			.Padding(Theme.ContentPadding)
@@ -158,15 +116,31 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SHorizontalBox)
 
+				// Meft column : travels, Nema
 				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
 				[
-					SAssignNew(NemaBox, SFlarePlanetaryBox)
+					SNew(SVerticalBox)
+					
+					// Travels
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(TravelsBox, SVerticalBox)
+					]
+			
+					// Nema
+					+ SVerticalBox::Slot()
+					[
+						SAssignNew(NemaBox, SFlarePlanetaryBox)
+					]
 				]
+
+				// Center column : Asta, Ariadne
 				+ SHorizontalBox::Slot()
-				[
-					SAssignNew(AnkaBox, SFlarePlanetaryBox)
-				]
-				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
 				[
 					SNew(SVerticalBox)
 
@@ -177,6 +151,54 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					+ SVerticalBox::Slot()
 					[
 						SAssignNew(AriadneBox, SFlarePlanetaryBox)
+					]
+				]
+
+				// Right column : buttons, Anka
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				[
+					SNew(SVerticalBox)
+
+					// Travel buttons
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Right)
+					[
+						SNew(SHorizontalBox)
+						
+						// Fast forward
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Right)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("FastForward", "Fast forward"))
+							.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
+							.Icon(FFlareStyleSet::GetIcon("FastForward"))
+							.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+							.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
+						]
+
+						// Fly current ship
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Right)
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("FlyCurrent", "Fly current ship"))
+							.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
+							.Visibility(this, &SFlareOrbitalMenu::GetFlyCurrentShipVisibility)
+						]
+					]
+
+					// Anka
+					+ SVerticalBox::Slot()
+					[
+						SAssignNew(AnkaBox, SFlarePlanetaryBox)
 					]
 				]
 			]
