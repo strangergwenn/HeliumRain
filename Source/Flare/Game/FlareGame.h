@@ -136,29 +136,29 @@ protected:
 
 	/** The default pawn class used by players. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameMode)
-	TSubclassOf<class AFlareMenuPawn>        MenuPawnClass;
+	TSubclassOf<class AFlareMenuPawn>          MenuPawnClass;
 
 	/** Planetary system class */
 	UPROPERTY(EditAnywhere, Category = GameMode)
-	TSubclassOf<class AFlarePlanetarium>     PlanetariumClass;
+	TSubclassOf<class AFlarePlanetarium>       PlanetariumClass;
 
 	/** Planetary system */
 	UPROPERTY()
-	AFlarePlanetarium*                       Planetarium;
+	AFlarePlanetarium*                         Planetarium;
 
     /** World */
     UPROPERTY()
-    UFlareWorld*                   World;
+    UFlareWorld*                               World;
 
 	/** Quest manager*/
 	UPROPERTY()
-	UFlareQuestManager*                   QuestManager;
+	UFlareQuestManager*                        QuestManager;
 
 	/** Active sector */
 	UPROPERTY()
-	UFlareSector*                   ActiveSector;
+	UFlareSector*                              ActiveSector;
 
-	AFlarePlayerController*			PlayerController;
+	AFlarePlayerController*			           PlayerController;
 
 	/*----------------------------------------------------
 		Catalogs
@@ -166,71 +166,53 @@ protected:
 
 	/** Reference to all available ship models */
 	UPROPERTY()
-	UFlareSpacecraftCatalog*                 SpacecraftCatalog;
+	UFlareSpacecraftCatalog*                   SpacecraftCatalog;
 
 	/** Reference to all available ship parts */
 	UPROPERTY()
-	UFlareSpacecraftComponentsCatalog*       ShipPartsCatalog;
+	UFlareSpacecraftComponentsCatalog*         ShipPartsCatalog;
 
 	/** Reference to colors and patterns */
 	UPROPERTY()
-	UFlareCustomizationCatalog*              CustomizationCatalog;
+	UFlareCustomizationCatalog*                CustomizationCatalog;
 
 	/** Reference to asteroid data */
 	UPROPERTY()
-	UFlareAsteroidCatalog*                   AsteroidCatalog;
+	UFlareAsteroidCatalog*                     AsteroidCatalog;
 
 	/** Reference to company data */
 	UPROPERTY()
-	UFlareCompanyCatalog*                    CompanyCatalog;
+	UFlareCompanyCatalog*                      CompanyCatalog;
 
 	/** Reference to all sector descriptions */
 	UPROPERTY()
-	UFlareSectorCatalog*                 SectorCatalog;
+	UFlareSectorCatalog*                       SectorCatalog;
 
 	/** Reference to all quests*/
 	UPROPERTY()
-	UFlareQuestCatalog*                 QuestCatalog;
-
-	/** Company emblems */
-	UPROPERTY()
-	TArray<UMaterialInstanceDynamic*>        CompanyEmblems;
-
-	/** Company emblem brushes */
-	UPROPERTY()
-	TArray<FSlateBrush>                      CompanyEmblemBrushes;
-
+	UFlareQuestCatalog*                        QuestCatalog;
+	
 
 	/*----------------------------------------------------
 		Immatriculation and save data
 	----------------------------------------------------*/
 
-	int32                                    CurrentImmatriculationIndex;
-	TArray<FName>                            BaseImmatriculationNameList;
+	int32                                      CurrentImmatriculationIndex;
+	TArray<FName>                              BaseImmatriculationNameList;
 
-	FName                                    DefaultWeaponIdentifier;
-	FName                                    DefaultTurretIdentifier;
+	FName                                      DefaultWeaponIdentifier;
+	FName                                      DefaultTurretIdentifier;
 
-	int32                                    CurrentSaveIndex;
-	bool                                     LoadedOrCreated;
-	int32                                    SaveSlotCount;
+	int32                                      CurrentSaveIndex;
+	bool                                       LoadedOrCreated;
+	int32                                      SaveSlotCount;
 
 	UPROPERTY()
-	TArray<FFlareSaveSlotInfo>               SaveSlots;
+	TArray<FFlareSaveSlotInfo>                 SaveSlots;
 
-	// UPROPERTY()
-	// UFlareGameTools*    					 GameTools;
 
 public:
-
-	/*----------------------------------------------------
-		Customization
-	----------------------------------------------------*/
-
-	/** Add a new emblem for this company - Be careful to respect the array indexes */
-	void AddEmblem(const FFlareCompanyDescription* Company);
-
-
+	
 	/*----------------------------------------------------
 		Get & Set
 	----------------------------------------------------*/

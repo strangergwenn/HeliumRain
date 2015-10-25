@@ -87,20 +87,9 @@ void AFlareGame::StartPlay()
 {
 	FLOG("AFlareGame::StartPlay");
 	Super::StartPlay();
-
-	// Add competitor's emblems
-	if (CompanyCatalog)
-	{
-		const TArray<FFlareCompanyDescription>& Companies = CompanyCatalog->Companies;
-		for (int32 Index = 0; Index < Companies.Num(); Index++)
-		{
-			AddEmblem(&Companies[Index]);
-		}
-	}
-
-	// Spawn planet
+	
+	// Spawn planetarium
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	// GameTools = GetWorld()->SpawnActor<AFlareGameTools>(AFlareGameTools::StaticClass());
 }
 
 void AFlareGame::PostLogin(APlayerController* Player)
@@ -229,6 +218,7 @@ void AFlareGame::Tick(float DeltaSeconds)
 		QuestManager->OnTick(DeltaSeconds);
 	}
 }
+
 
 /*----------------------------------------------------
 	Save slots
@@ -483,7 +473,6 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 
 	UFlareSaveGame* Save = ReadSaveSlot(CurrentSaveIndex);
 
-
 	// Load from save
 	if (PC && Save)
 	{
@@ -501,7 +490,7 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 
 		// Load the player
 		PC->Load(Save->PlayerData);
-		AddEmblem(PC->GetCompanyDescription());
+		PC->GetCompany()->SetupEmblem();
 
 		// Init the quest manager
 		QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());
@@ -720,34 +709,6 @@ void AFlareGame::InitCapitalShipNameDatabase()
 
 
 /*----------------------------------------------------
-	Customization
-----------------------------------------------------*/
-
-void AFlareGame::AddEmblem(const FFlareCompanyDescription* Company)
-{
-	// Create the parameter
-	FVector2D EmblemSize = 128 * FVector2D::UnitVector;
-	UMaterial* BaseEmblemMaterial = Cast<UMaterial>(FFlareStyleSet::GetIcon("CompanyEmblem")->GetResourceObject());
-	UMaterialInstanceDynamic* Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
-	UFlareCustomizationCatalog* Catalog = GetCustomizationCatalog();
-
-	// Setup the material
-	Emblem->SetTextureParameterValue("Emblem", Company->Emblem);
-	Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Company->CustomizationBasePaintColorIndex));
-	Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Company->CustomizationPaintColorIndex));
-	Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Company->CustomizationOverlayColorIndex));
-	Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(Company->CustomizationLightColorIndex));
-	CompanyEmblems.Add(Emblem);
-
-	// Create the brush dynamically
-	FSlateBrush EmblemBrush;
-	EmblemBrush.ImageSize = EmblemSize;
-	EmblemBrush.SetResourceObject(Emblem);
-	CompanyEmblemBrushes.Add(EmblemBrush);
-}
-
-
-/*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
 
@@ -757,24 +718,5 @@ inline const FFlareCompanyDescription* AFlareGame::GetPlayerCompanyDescription()
 	return PC->GetCompanyDescription();
 }
 
-inline const FSlateBrush* AFlareGame::GetCompanyEmblem(int32 Index) const
-{
-	// Player company
-	if (Index == -1)
-	{
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-		Index = World->GetCompanies().Find(PC->GetCompany());
-	}
-
-	// General case
-	if (Index >= 0 && Index < CompanyEmblemBrushes.Num())
-	{
-		return &CompanyEmblemBrushes[Index];
-	}
-	else
-	{
-		return NULL;
-	}
-}
 
 #undef LOCTEXT_NAMESPACE

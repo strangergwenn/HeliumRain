@@ -27,7 +27,6 @@ UFlareCompany::UFlareCompany(const FObjectInitializer& ObjectInitializer)
 void UFlareCompany::Load(const FFlareCompanySave& Data)
 {
 	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
-
 	CompanyData = Data;
 	CompanyData.Identifier = FName(*GetName());
 	CompanyDescription = NULL;
@@ -42,23 +41,26 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 		CompanyDescription = GetGame()->GetPlayerCompanyDescription();
 	}
 
-
+	// Load ships
 	for (int i = 0 ; i < CompanyData.ShipData.Num(); i++)
 	{
 		LoadSpacecraft(CompanyData.ShipData[i]);
 	}
 
+	// Load stations
 	for (int i = 0 ; i < CompanyData.StationData.Num(); i++)
 	{
 		LoadSpacecraft(CompanyData.StationData[i]);
 	}
-
 
 	// Load all fleets
 	for (int32 i = 0; i < CompanyData.Fleets.Num(); i++)
 	{
 		LoadFleet(CompanyData.Fleets[i]);
 	}
+
+	// Load emblem
+	SetupEmblem();
 }
 
 void UFlareCompany::PostLoad()
@@ -304,6 +306,9 @@ void UFlareCompany::UpdateCompanyCustomization()
 			ActiveSector->GetSpacecrafts()[i]->UpdateCustomization();
 		}
 	}
+
+	// Update the emblem
+	SetupEmblem();
 }
 
 void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
@@ -335,15 +340,35 @@ FLinearColor UFlareCompany::NormalizeColor(FLinearColor Col) const
 	return FLinearColor(FVector(Col.R, Col.G, Col.B) / Col.GetLuminance());
 }
 
+void UFlareCompany::SetupEmblem()
+{
+	// Create the parameter
+	FVector2D EmblemSize = 128 * FVector2D::UnitVector;
+	UMaterial* BaseEmblemMaterial = Cast<UMaterial>(FFlareStyleSet::GetIcon("CompanyEmblem")->GetResourceObject());
+	CompanyEmblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
+	UFlareCustomizationCatalog* Catalog = Game->GetCustomizationCatalog();
+
+	// Setup the material
+	CompanyEmblem->SetTextureParameterValue("Emblem", CompanyDescription->Emblem);
+	CompanyEmblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(CompanyDescription->CustomizationBasePaintColorIndex));
+	CompanyEmblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(CompanyDescription->CustomizationPaintColorIndex));
+	CompanyEmblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(CompanyDescription->CustomizationOverlayColorIndex));
+	CompanyEmblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(CompanyDescription->CustomizationLightColorIndex));
+
+	// Create the brush dynamically
+	CompanyEmblemBrush.ImageSize = EmblemSize;
+	CompanyEmblemBrush.SetResourceObject(CompanyEmblem);
+}
+
+const FSlateBrush* UFlareCompany::GetEmblem() const
+{
+	return &CompanyEmblemBrush;
+}
+
 
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
-
-const FSlateBrush* UFlareCompany::GetEmblem() const
-{
-	return GetGame()->GetCompanyEmblem(CompanyData.CatalogIdentifier);
-}
 
 UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculation)
 {

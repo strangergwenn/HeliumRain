@@ -198,6 +198,12 @@ public:
 	/** Normalize a color */
 	FLinearColor NormalizeColor(FLinearColor Col) const;
 
+	/** Setup the emblem for this company, using the company colors */
+	void SetupEmblem();
+
+	/** Get the company emblem */
+	const FSlateBrush* GetEmblem() const;
+
 
 protected:
 
@@ -220,6 +226,12 @@ protected:
 
 	UPROPERTY()
 	TArray<UFlareFleet*>                    CompanyFleets;
+
+	UPROPERTY()
+	UMaterialInstanceDynamic*               CompanyEmblem;
+
+	UPROPERTY()
+	FSlateBrush                             CompanyEmblemBrush;
 
 	AFlareGame*                             Game;
 	TArray<UFlareSimulatedSector*>          KnownSectors;
@@ -258,8 +270,6 @@ public:
 		check(CompanyDescription);
 		return CompanyDescription->ShortName;
 	}
-
-	const FSlateBrush* GetEmblem() const;
 
 	inline int32 GetBasePaintColorIndex() const
 	{
