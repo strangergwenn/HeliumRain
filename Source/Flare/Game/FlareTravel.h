@@ -18,10 +18,6 @@ struct FFlareTravelSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName OriginSectorIdentifier;
 
-	/** Origin sector parameters (usefull for custom origin) */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FFlareSectorOrbitParameters CustomOriginIdentifier;
-
 	/** Destination sector identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName DestinationSectorIdentifier;
@@ -58,6 +54,8 @@ public:
 	int64 GetRemainingTravelDuration();
 
 	void ChangeDestination(UFlareSimulatedSector* NewDestinationSector);
+
+	bool CanChangeDestination();
 
 	void GenerateTravelDuration();
 

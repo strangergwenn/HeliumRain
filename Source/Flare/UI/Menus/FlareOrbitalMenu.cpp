@@ -328,8 +328,10 @@ void SFlareOrbitalMenu::UpdateTravels()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->GetTravels()[TravelIndex];
 		if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 		{
-			FString TravelText = FString::Printf(TEXT("Travel to %s: %s remaining."),
-				*Travel->GetDestinationSector()->GetSectorName().ToString(), *UFlareGameTools::FormatTime(Travel->GetRemainingTravelDuration(), 1));
+			FString TravelText = FString::Printf(TEXT("%s Travel to %s: %s remaining."),
+				*Travel->GetShips()[0]->GetImmatriculation().ToString(),
+				*Travel->GetDestinationSector()->GetSectorName().ToString(),
+				*UFlareGameTools::FormatTime(Travel->GetRemainingTravelDuration(), 1));
 
 			TravelsBox->AddSlot()
 			[

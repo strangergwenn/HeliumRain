@@ -246,7 +246,7 @@ EVisibility SFlareSectorMenu::GetTravelVisibility() const
 {
 	UFlareFleet* CurrentFleet = MenuManager->GetPC()->GetSelectedFleet();
 
-	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector)
+	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector && !(CurrentFleet->IsTraveling() && !CurrentFleet->GetCurrentTravel()->CanChangeDestination()))
 	{
 		return EVisibility::Visible;
 	}

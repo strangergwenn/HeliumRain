@@ -78,10 +78,9 @@ int64 UFlareTravel::GetRemainingTravelDuration()
 
 void UFlareTravel::ChangeDestination(UFlareSimulatedSector* NewDestinationSector)
 {
-	if(GetElapsedTime() > 0)
+	if(!CanChangeDestination())
 	{
-		TravelData.CustomOriginIdentifier = ComputeCurrentTravelLocation();
-		TravelData.OriginSectorIdentifier = NAME_None;
+		return;
 	}
 
 	DestinationSector = NewDestinationSector;
@@ -93,6 +92,12 @@ void UFlareTravel::ChangeDestination(UFlareSimulatedSector* NewDestinationSector
 	TravelData.DepartureTime = Game->GetGameWorld()->GetTime();
 	GenerateTravelDuration();
 	Simulate(0);
+}
+
+bool UFlareTravel::CanChangeDestination()
+{
+	// Travel not possible once started
+	return GetElapsedTime() <= 0;
 }
 
 void UFlareTravel::GenerateTravelDuration()
@@ -107,18 +112,10 @@ void UFlareTravel::GenerateTravelDuration()
 	FName DestinationCelestialBodyIdentifier;
 
 	UFlareSimulatedSector* OriginSector = Game->GetGameWorld()->FindSector(TravelData.OriginSectorIdentifier);
-	if(OriginSector)
-	{
-		OriginAltitude = OriginSector->GetOrbitParameters()->Altitude;
-		OriginCelestialBodyIdentifier = OriginSector->GetOrbitParameters()->CelestialBodyIdentifier;
-		OriginPhase = OriginSector->GetOrbitParameters()->Phase;
-	}
-	else
-	{
-		OriginAltitude = TravelData.CustomOriginIdentifier.Altitude;
-		OriginCelestialBodyIdentifier = TravelData.CustomOriginIdentifier.CelestialBodyIdentifier;
-		OriginPhase = TravelData.CustomOriginIdentifier.Phase;
-	}
+
+	OriginAltitude = OriginSector->GetOrbitParameters()->Altitude;
+	OriginCelestialBodyIdentifier = OriginSector->GetOrbitParameters()->CelestialBodyIdentifier;
+	OriginPhase = OriginSector->GetOrbitParameters()->Phase;
 
 	DestinationAltitude = DestinationSector->GetOrbitParameters()->Altitude;
 	DestinationCelestialBodyIdentifier = DestinationSector->GetOrbitParameters()->CelestialBodyIdentifier;
@@ -138,114 +135,6 @@ void UFlareTravel::GenerateTravelDuration()
 
 		TravelDuration = ComputeAltitudeTravelDuration(OriginCelestialBody, OriginAltitude, DestinationCelestialBody, DestinationAltitude);
 	}
-}
-
-FFlareSectorOrbitParameters UFlareTravel::ComputeCurrentTravelLocation()
-{
-	FFlareSectorOrbitParameters NewTravelOrigin;
-
-	double OriginAltitude;
-	double OriginPhase;
-	FName OriginCelestialBodyIdentifier;
-	double DestinationAltitude = DestinationSector->GetOrbitParameters()->Altitude;
-	double DestinationPhase = DestinationSector->GetOrbitParameters()->Phase;
-	FName DestinationCelestialBodyIdentifier = DestinationSector->GetOrbitParameters()->CelestialBodyIdentifier;
-
-	UFlareSimulatedSector* OriginSector = Game->GetGameWorld()->FindSector(TravelData.OriginSectorIdentifier);
-	if(OriginSector)
-	{
-		OriginAltitude = OriginSector->GetOrbitParameters()->Altitude;
-		OriginCelestialBodyIdentifier = OriginSector->GetOrbitParameters()->CelestialBodyIdentifier;
-		OriginPhase = OriginSector->GetOrbitParameters()->Phase;
-	}
-	else
-	{
-		OriginAltitude = TravelData.CustomOriginIdentifier.Altitude;
-		OriginCelestialBodyIdentifier = TravelData.CustomOriginIdentifier.CelestialBodyIdentifier;
-		OriginPhase = TravelData.CustomOriginIdentifier.Phase;
-	}
-
-	if (GetElapsedTime() == 0)
-	{
-		NewTravelOrigin.Phase = OriginPhase;
-		NewTravelOrigin.Altitude = OriginAltitude;
-		NewTravelOrigin.CelestialBodyIdentifier = OriginCelestialBodyIdentifier;
-	}
-	else if(OriginCelestialBodyIdentifier == DestinationCelestialBodyIdentifier && OriginAltitude == DestinationAltitude)
-	{
-		// Phase change travel
-		float TravelRatio = (float) GetElapsedTime() / (float) TravelDuration;
-
-		NewTravelOrigin.Phase = OriginPhase + ( FMath::UnwindDegrees(DestinationPhase) - FMath::UnwindDegrees(OriginPhase)) * TravelRatio;
-		NewTravelOrigin.Altitude = OriginAltitude;
-		NewTravelOrigin.CelestialBodyIdentifier = OriginCelestialBodyIdentifier;
-	}
-	else
-	{
-		// Altitude change travel
-		FFlareCelestialBody* OriginCelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
-		FFlareCelestialBody* DestinationCelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(DestinationCelestialBodyIdentifier);
-
-		if (OriginCelestialBody == DestinationCelestialBody)
-		{
-			return ComputeAltitudeTravelLocation(OriginCelestialBody, OriginAltitude, DestinationAltitude, GetElapsedTime());
-		}
-		else if (Game->GetGameWorld()->GetPlanerarium()->IsSatellite(DestinationCelestialBody, OriginCelestialBody))
-		{
-			// Planet to moon
-			int64 FirstPartDuration = ComputeAltitudeTravelToMoonDistance(OriginCelestialBody, OriginAltitude, DestinationCelestialBody) * TRAVEL_DURATION_PER_ALTITUDE_KM;
-			if (FirstPartDuration > GetElapsedTime())
-			{
-				double MoonAltitude = DestinationCelestialBody->OrbitDistance - OriginCelestialBody->Radius;
-				return ComputeAltitudeTravelLocation(OriginCelestialBody, OriginAltitude, MoonAltitude, GetElapsedTime());
-			}
-			else
-			{
-				int64 RemainingDuration = GetElapsedTime() - FirstPartDuration;
-				return ComputeAltitudeTravelLocation(DestinationCelestialBody, ComputeSphereOfInfluenceAltitude(DestinationCelestialBody), DestinationAltitude, RemainingDuration);
-			}
-		}
-		else if (Game->GetGameWorld()->GetPlanerarium()->IsSatellite(OriginCelestialBody, DestinationCelestialBody))
-		{
-			// Moon to planet
-			int64 FirstPartDuration = ComputeAltitudeTravelToSoiDistance(OriginCelestialBody, OriginAltitude) * TRAVEL_DURATION_PER_ALTITUDE_KM;
-			if (FirstPartDuration > GetElapsedTime())
-			{
-				return ComputeAltitudeTravelLocation(OriginCelestialBody, OriginAltitude, ComputeSphereOfInfluenceAltitude(OriginCelestialBody), GetElapsedTime());
-			}
-			else
-			{
-				int64 RemainingDuration = GetElapsedTime() - FirstPartDuration;
-				double MoonAltitude = OriginCelestialBody->OrbitDistance - DestinationCelestialBody->Radius;
-				return ComputeAltitudeTravelLocation(DestinationCelestialBody, MoonAltitude, DestinationAltitude, RemainingDuration);
-			}
-		}
-		else
-		{
-			int64 RemainingDuration = GetElapsedTime();
-			int64 PartDuration = ComputeAltitudeTravelToSoiDistance(OriginCelestialBody, OriginAltitude) * TRAVEL_DURATION_PER_ALTITUDE_KM;
-			if (PartDuration > RemainingDuration)
-			{
-				return ComputeAltitudeTravelLocation(OriginCelestialBody, OriginAltitude, ComputeSphereOfInfluenceAltitude(OriginCelestialBody), RemainingDuration);
-			}
-
-			RemainingDuration -= PartDuration;
-			FFlareCelestialBody* ParentCelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindParent(OriginCelestialBody);
-			double Moon1Altitude = OriginCelestialBody->OrbitDistance - ParentCelestialBody->Radius;
-			double Moon2Altitude = DestinationCelestialBody->OrbitDistance - ParentCelestialBody->Radius;
-
-			PartDuration = ComputeAltitudeTravelDistance(Moon1Altitude, Moon2Altitude) * TRAVEL_DURATION_PER_ALTITUDE_KM;
-			if (PartDuration > RemainingDuration)
-			{
-				return ComputeAltitudeTravelLocation(ParentCelestialBody, Moon1Altitude, Moon2Altitude, RemainingDuration);
-			}
-
-			RemainingDuration -= PartDuration;
-			return ComputeAltitudeTravelLocation(DestinationCelestialBody, ComputeSphereOfInfluenceAltitude(DestinationCelestialBody), DestinationAltitude, RemainingDuration);
-		}
-
-	}
-	return NewTravelOrigin;
 }
 
 double UFlareTravel::ComputeSphereOfInfluenceAltitude(FFlareCelestialBody* CelestialBody)
@@ -322,16 +211,3 @@ double UFlareTravel::ComputeAltitudeTravelMoonToMoonDistance(FFlareCelestialBody
 	return FMath::Abs(DestinationCelestialBody->OrbitDistance - OriginCelestialBody->OrbitDistance);
 }
 
-FFlareSectorOrbitParameters UFlareTravel::ComputeAltitudeTravelLocation(FFlareCelestialBody* CelestialBody, double OriginAltitude, double DestinationAltitude, int64 ElapsedTime)
-{
-	double Altitude = ComputeAltitudeTravelDistance(OriginAltitude, DestinationAltitude);
-	int64 Duration = TRAVEL_DURATION_PER_ALTITUDE_KM * Altitude;
-	float TravelRatio = (float) ElapsedTime / (float) Duration;
-
-	FFlareSectorOrbitParameters OrbitParameters;
-	OrbitParameters.CelestialBodyIdentifier = CelestialBody->Identifier;
-	OrbitParameters.Phase = 0;
-	OrbitParameters.Altitude = OriginAltitude + (DestinationAltitude - OriginAltitude) * TravelRatio;
-
-	return OrbitParameters;
-}
