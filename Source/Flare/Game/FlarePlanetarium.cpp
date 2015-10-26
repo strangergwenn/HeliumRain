@@ -203,6 +203,11 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 			BodyComponent->SetMaterial(0, ComponentMaterial);
 		}
 		ComponentMaterial->SetVectorParameterValue("SunDirection", SunDirection.ToVector());
+
+		if(Body == &Sun)
+		{
+			BodyComponent->SetRelativeRotation(SunDirection.ToVector().Rotation());
+		}
 	}
 	else
 	{
