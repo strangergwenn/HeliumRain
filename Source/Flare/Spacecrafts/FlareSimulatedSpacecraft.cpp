@@ -96,10 +96,9 @@ UFlareSimulatedSpacecraftWeaponsSystem* UFlareSimulatedSpacecraft::GetWeaponsSys
 	return WeaponsSystem;
 }
 
-void UFlareSimulatedSpacecraft::InvalidateLocation()
+void UFlareSimulatedSpacecraft::SetSpawnMode(EFlareSpawnMode::Type SpawnMode)
 {
-	SpacecraftData.Location = FVector::ZeroVector;
-	SpacecraftData.SafeLocation = false;
+	SpacecraftData.SpawnMode = SpawnMode;
 }
 
 /*----------------------------------------------------

@@ -67,7 +67,7 @@ public:
 		CurrentFleet = Fleet;
 	}
 
-	virtual void InvalidateLocation();
+	virtual void SetSpawnMode(EFlareSpawnMode::Type SpawnMode);
 
 	virtual bool CanBeFlown() const override
 	{

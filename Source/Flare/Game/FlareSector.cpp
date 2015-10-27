@@ -38,7 +38,7 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
-		if (Spacecraft->Save()->SafeLocation)
+		if (Spacecraft->Save()->SpawnMode == EFlareSpawnMode::Safe)
 		{
 			LoadSpacecraft(*Spacecraft->Save());
 		}
@@ -50,7 +50,7 @@ void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sec
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
-		if (!Spacecraft->Save()->SafeLocation)
+		if (Spacecraft->Save()->SpawnMode != EFlareSpawnMode::Safe)
 		{
 			LoadSpacecraft(*Spacecraft->Save());
 		}
@@ -192,41 +192,74 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 			SectorSpacecrafts.Add(Spacecraft);
 
 
-			if (!ShipData.SafeLocation)
+			switch(ShipData.SpawnMode)
 			{
-				// Secure location
+				case EFlareSpawnMode::Safe:
+					RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
+					RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
+					break;
+				case EFlareSpawnMode::Spawn:
+					PlaceSpacecraft(Spacecraft, ShipData.Location);
+					RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
+					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
+					break;
+				case EFlareSpawnMode::Travel:
 
-				float RandomLocationRadius = 0;
-				float RandomLocationRadiusIncrement = 1000; // 10m
-				float EffectiveDistance = -1;
-				FVector Location = ShipData.Location;
+					FVector SpawnDirection;
+					TArray<AFlareSpacecraft*> FriendlySpacecrafts = GetCompanySpacecrafts(Spacecraft->GetCompany());
+					FVector FriendlyShipLocationSum = FVector::ZeroVector;
+					int FriendlyShipCount = 0;
 
-				while(EffectiveDistance < 0 && RandomLocationRadius < RandomLocationRadiusIncrement * 1000)
-				{
-					Location += FMath::VRand() * RandomLocationRadius;
-
-					// Check if location is secure
-					float Size = Spacecraft->GetMeshScale();
-
-
-					float NearestDistance;
-					if (GetNearestBody(Location, &NearestDistance, true, Spacecraft) == NULL)
+					for (int SpacecraftIndex = 0 ; SpacecraftIndex < FriendlySpacecrafts.Num(); SpacecraftIndex++)
 					{
-						// No other ship.
-						break;
+						AFlareSpacecraft *SpacecraftCandidate = FriendlySpacecrafts[SpacecraftIndex];
+						if(!SpacecraftCandidate->IsStation() && SpacecraftCandidate != Spacecraft)
+						{
+							FriendlyShipLocationSum += SpacecraftCandidate->GetActorLocation();
+							FriendlyShipCount++;
+						}
 					}
-					EffectiveDistance = NearestDistance - Size;
 
-					RandomLocationRadius += RandomLocationRadiusIncrement;
-				}
-				Spacecraft->SetActorLocation(Location);
-				RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
-				RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
-			}
-			else
-			{
-				RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
-				RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
+					if(FriendlyShipCount == 0)
+					{
+						FVector NotFriendlyShipLocationSum = FVector::ZeroVector;
+						int NotFriendlyShipCount = 0;
+						for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorShips.Num(); SpacecraftIndex++)
+						{
+							AFlareSpacecraft *SpacecraftCandidate = SectorShips[SpacecraftIndex];
+							if(SpacecraftCandidate != Spacecraft && SpacecraftCandidate->GetCompany() != Spacecraft->GetCompany())
+							{
+								NotFriendlyShipLocationSum += SpacecraftCandidate->GetActorLocation();
+								NotFriendlyShipCount++;
+							}
+						}
+
+						if(NotFriendlyShipCount == 0)
+						{
+							SpawnDirection = FMath::VRand();
+						}
+						else
+						{
+							FVector	NotFriendlyShipLocationMean = NotFriendlyShipLocationSum / NotFriendlyShipCount;
+							SpawnDirection = (GetSectorCenter() - NotFriendlyShipLocationMean).GetUnsafeNormal();
+						}
+					}
+					else
+					{
+						FVector	FriendlyShipLocationMean = FriendlyShipLocationSum / FriendlyShipCount;
+						SpawnDirection = (FriendlyShipLocationMean - GetSectorCenter()).GetUnsafeNormal() ;
+					}
+
+					FVector Location = GetSectorCenter() + SpawnDirection * (500000 + GetSectorRadius());
+
+					FVector CenterDirection = (GetSectorCenter() - Location).GetUnsafeNormal();
+					Spacecraft->SetActorRotation(CenterDirection.Rotation());
+
+					PlaceSpacecraft(Spacecraft, Location);
+
+					RootComponent->SetPhysicsLinearVelocity(CenterDirection * 10000, false);
+					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
+					break;
 			}
 		}
 		else
@@ -388,6 +421,33 @@ AActor* UFlareSector::GetNearestBody(FVector Location, float* NearestDistance, b
 	return NearestCandidateActor;
 }
 
+void UFlareSector::PlaceSpacecraft(AFlareSpacecraft* Spacecraft, FVector Location)
+{
+	float RandomLocationRadius = 0;
+	float RandomLocationRadiusIncrement = 1000; // 10m
+	float EffectiveDistance = -1;
+
+	while(EffectiveDistance < 0 && RandomLocationRadius < RandomLocationRadiusIncrement * 1000)
+	{
+		Location += FMath::VRand() * RandomLocationRadius;
+
+		// Check if location is secure
+		float Size = Spacecraft->GetMeshScale();
+
+
+		float NearestDistance;
+		if (GetNearestBody(Location, &NearestDistance, true, Spacecraft) == NULL)
+		{
+			// No other ship.
+			break;
+		}
+		EffectiveDistance = NearestDistance - Size;
+
+		RandomLocationRadius += RandomLocationRadiusIncrement;
+	}
+	Spacecraft->SetActorLocation(Location);
+}
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
@@ -444,7 +504,37 @@ void UFlareSector::GenerateSectorRepartitionCache()
 		SectorRadius = 0.0f;
 		SectorCenter = FVector::ZeroVector;
 
-		// TODO compute better center and radius including sector content
+		int SignificantObjectCount = 0;
+
+		FVector SectorMin = FVector(INFINITY, INFINITY, INFINITY);
+		FVector SectorMax = FVector(-INFINITY, -INFINITY, -INFINITY);
+
+		for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
+		{
+			AFlareSpacecraft *Spacecraft = SectorSpacecrafts[SpacecraftIndex];
+			if(Spacecraft->IsStation())
+			{
+				SectorMin = SectorMin.ComponentMin(Spacecraft->GetActorLocation());
+				SectorMax = SectorMax.ComponentMax(Spacecraft->GetActorLocation());
+				SignificantObjectCount++;
+			}
+		}
+
+		for (int AsteroidsIndex = 0 ; AsteroidsIndex < SectorAsteroids.Num(); AsteroidsIndex++)
+		{
+			AFlareAsteroid* Asteroid = SectorAsteroids[AsteroidsIndex];
+			SectorMin = SectorMin.ComponentMin(Asteroid->GetActorLocation());
+			SectorMax = SectorMax.ComponentMax(Asteroid->GetActorLocation());
+			SignificantObjectCount++;
+		}
+
+		if(SignificantObjectCount > 0)
+		{
+			// At least one station or asteroid in sector
+			FVector BoxSize = SectorMax - SectorMin;
+			SectorRadius = BoxSize.Size() / 2;
+			SectorCenter = (SectorMax + SectorMin) / 2;
+		}
 	}
 }
 

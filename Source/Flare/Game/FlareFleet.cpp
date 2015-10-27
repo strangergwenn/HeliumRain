@@ -152,7 +152,7 @@ void UFlareFleet::SetCurrentTravel(UFlareTravel* Travel)
 	InitShipList();
 	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
 	{
-		FleetShips[ShipIndex]->InvalidateLocation();
+		FleetShips[ShipIndex]->SetSpawnMode(EFlareSpawnMode::Travel);
 	}
 }
 

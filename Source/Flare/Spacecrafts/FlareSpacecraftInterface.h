@@ -14,6 +14,19 @@ class IFlareSpacecraftNavigationSystemInterface;
 class IFlareSpacecraftWeaponsSystemInterface;
 class IFlareSpacecraftDockingSystemInterface;
 
+
+/** Part type values */
+UENUM()
+namespace EFlareSpawnMode
+{
+	enum Type
+	{
+		Safe,
+		Spawn,
+		Travel,
+	};
+}
+
 /** Spacecraft save data */
 USTRUCT()
 struct FFlareSpacecraftSave
@@ -28,9 +41,9 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FRotator Rotation;
 
-	/** The current location of the ship is safe. */
+	/** The spawn mode of the ship. */
 	UPROPERTY(EditAnywhere, Category = Save)
-	bool SafeLocation;
+	TEnumAsByte<EFlareSpawnMode::Type> SpawnMode;
 
 	/** Ship linear velocity */
 	UPROPERTY(EditAnywhere, Category = Save)

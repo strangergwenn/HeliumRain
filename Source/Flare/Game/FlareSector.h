@@ -62,6 +62,8 @@ public:
 
 	AActor* GetNearestBody(FVector Location, float* NearestDistance, bool IncludeSize = true, AActor* ActorToIgnore = NULL);
 
+	void PlaceSpacecraft(AFlareSpacecraft* Spacecraft, FVector Location);
+
 protected:
 
 	/*----------------------------------------------------
