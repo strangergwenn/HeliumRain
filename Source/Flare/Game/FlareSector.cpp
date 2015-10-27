@@ -104,32 +104,32 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 
 void UFlareSector::Destroy()
 {
-	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
-		if(!SectorSpacecrafts[i]->GetDamageSystem()->IsAlive())
+		if(!SectorSpacecrafts[SpacecraftIndex]->GetDamageSystem()->IsAlive())
 		{
 			// Remove from world
-			DestroySpacecraft(SectorSpacecrafts[i], true);
+			DestroySpacecraft(SectorSpacecrafts[SpacecraftIndex], true);
 		}
 		else
 		{
-			SectorSpacecrafts[i]->Destroy();
+			SectorSpacecrafts[SpacecraftIndex]->Destroy();
 		}
 	}
 
-	for (int i = 0 ; i < SectorBombs.Num(); i++)
+	for (int BombIndex = 0 ; BombIndex < SectorBombs.Num(); BombIndex++)
 	{
-		SectorBombs[i]->Destroy();
+		SectorBombs[BombIndex]->Destroy();
 	}
 
-	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
+	for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
 	{
-		SectorAsteroids[i]->Destroy();
+		SectorAsteroids[AsteroidIndex]->Destroy();
 	}
 
-	for (int i = 0 ; i < SectorShells.Num(); i++)
+	for (int ShellIndex = 0 ; ShellIndex < SectorShells.Num(); ShellIndex++)
 	{
-		SectorShells[i]->Destroy();
+		SectorShells[ShellIndex]->Destroy();
 	}
 
 	SectorSpacecrafts.Empty();
