@@ -33,7 +33,15 @@ FFlareFleetSave* UFlareFleet::Save()
 
 FText UFlareFleet::GetName()
 {
-	return FText::FromString(GetShips()[0]->GetImmatriculation().ToString());
+	// TODO Clean with GetFleetName
+	if(GetShips().Num() > 0)
+	{
+		return FText::FromString(GetShips()[0]->GetImmatriculation().ToString());
+	}
+	else
+	{
+		return FText::FromString(GetFleetName());
+	}
 }
 
 bool UFlareFleet::IsTraveling()
