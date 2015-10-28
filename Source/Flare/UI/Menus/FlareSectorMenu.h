@@ -56,6 +56,9 @@ protected:
 	/** Get the sector's description */
 	FText GetSectorDescription() const;
 
+	/** Get the sector's location */
+	FText GetSectorLocation() const;
+
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 

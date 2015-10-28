@@ -103,6 +103,17 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				.WrapTextAt(Theme.ContentWidth)
 			]
 				
+			// Sector location
+			+ SVerticalBox::Slot()
+			.Padding(Theme.ContentPadding)
+			.AutoHeight()
+			[
+				SNew(STextBlock)
+				.Text(this, &SFlareSectorMenu::GetSectorLocation)
+				.TextStyle(&Theme.TextFont)
+				.WrapTextAt(Theme.ContentWidth)
+			]
+
 			// Travel here
 			+ SVerticalBox::Slot()
 			.AutoHeight()
@@ -275,6 +286,27 @@ FText SFlareSectorMenu::GetSectorDescription() const
 	if (TargetSector)
 	{
 		Result = TargetSector->GetSectorDescription();
+	}
+
+	return Result;
+}
+
+FText SFlareSectorMenu::GetSectorLocation() const
+{
+	FText Result;
+
+	if (TargetSector)
+	{
+		FFlareCelestialBody* Body = TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(TargetSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+		FString Location;
+
+		if(Body)
+		{
+			Location += Body->Name + " - Altitude: "+FString::FromInt(TargetSector->GetOrbitParameters()->Altitude) + " km - Phase: "+FString::FromInt(TargetSector->GetOrbitParameters()->Phase)+" deg." ;
+		}
+
+		Result = FText::FromString(Location);
 	}
 
 	return Result;
