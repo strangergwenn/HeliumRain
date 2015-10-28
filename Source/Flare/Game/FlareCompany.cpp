@@ -224,6 +224,11 @@ UFlareFleet* UFlareCompany::LoadFleet(const FFlareFleetSave& FleetData)
 void UFlareCompany::RemoveFleet(UFlareFleet* Fleet)
 {
 	CompanyFleets.Remove(Fleet);
+
+	if(Game->GetPC()->GetSelectedFleet() == Fleet)
+	{
+		Game->GetPC()->SelectFleet(NULL);
+	}
 }
 
 UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData)

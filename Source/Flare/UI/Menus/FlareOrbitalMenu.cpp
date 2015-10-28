@@ -329,7 +329,7 @@ void SFlareOrbitalMenu::UpdateTravels()
 		if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 		{
 			FString TravelText = FString::Printf(TEXT("%s Travel to %s: %s remaining."),
-				*Travel->GetShips()[0]->GetImmatriculation().ToString(),
+				*Travel->GetFleet()->GetName().ToString(),
 				*Travel->GetDestinationSector()->GetSectorName().ToString(),
 				*UFlareGameTools::FormatTime(Travel->GetRemainingTravelDuration(), 1));
 
@@ -400,7 +400,7 @@ EVisibility SFlareOrbitalMenu::GetFlySelectedShipVisibility() const
 	{
 		UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
 
-		if (SelectedFleet)
+		if (SelectedFleet && SelectedFleet->GetShips().Num() > 0)
 		{
 			UFlareSimulatedSpacecraft* CurrentShip = SelectedFleet->GetShips()[0];
 
@@ -481,6 +481,11 @@ void SFlareOrbitalMenu::OnFlySelectedShipClicked()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
+	if(SelectedFleet->GetShips().Num() == 0)
+	{
+		return;
+	}
+
 	UFlareSimulatedSpacecraft* CurrentShip = SelectedFleet->GetShips()[0];
 
 	if (CurrentShip)
