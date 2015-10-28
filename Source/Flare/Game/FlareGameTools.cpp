@@ -133,6 +133,10 @@ void UFlareGameTools::Simulate(int64 Duration)
 	GetGameWorld()->Simulate(Duration);
 }
 
+void UFlareGameTools::SetPlanatariumTimeMultiplier(float Multiplier)
+{
+	GetGame()->GetPlanetarium()->SetTimeMultiplier(Multiplier);
+}
 
 /*----------------------------------------------------
 	Company tools

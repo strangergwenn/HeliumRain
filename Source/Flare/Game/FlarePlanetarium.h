@@ -39,6 +39,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetSectorRotation(int32 RotationDegrees);
 
+	void SetTimeMultiplier(float Multiplier);
 
 protected:
 	/*----------------------------------------------------
@@ -58,6 +59,7 @@ protected:
 	double SunPhase;
 
 	float SmoothTime;
+	float TimeMultiplier;
 
 public:
 	/*----------------------------------------------------

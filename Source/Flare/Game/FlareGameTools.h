@@ -52,6 +52,9 @@ public:
 	UFUNCTION(exec)
 	void Simulate(int64 Duration);
 
+	/** Configure time multiplier for active sector planetarium */
+	UFUNCTION(exec)
+	void SetPlanatariumTimeMultiplier(float Multiplier);
 
 	/*----------------------------------------------------
 		Company tools

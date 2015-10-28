@@ -13,13 +13,14 @@ AFlarePlanetarium::AFlarePlanetarium(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	TimeMultiplier = 1.0;
 }
 
 void AFlarePlanetarium::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	SmoothTime += DeltaSeconds * 1.0f;
+	SmoothTime += DeltaSeconds * TimeMultiplier;
 
 	if (GetGame())
 	{
@@ -292,5 +293,11 @@ void AFlarePlanetarium::ResetTime()
 	FLOGV("AFlarePlanetarium::ResetTime from %f", SmoothTime);
 	SmoothTime = 0;
 }
+
+void AFlarePlanetarium::SetTimeMultiplier(float Multiplier)
+{
+	TimeMultiplier = Multiplier;
+}
+
 
 
