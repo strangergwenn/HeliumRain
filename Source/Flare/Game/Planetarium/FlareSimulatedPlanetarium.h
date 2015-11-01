@@ -177,7 +177,7 @@ struct FFlareCelestialBody
 	----------------------------------------------------*/
 
 	/** Name */
-	FString Name;
+	FText Name;
 
 	/** Name */
 	FName Identifier;

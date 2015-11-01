@@ -4,6 +4,10 @@
 
 const FPreciseVector FPreciseVector::ZeroVector = FPreciseVector();
 
+
+#define LOCTEXT_NAMESPACE "UFlareSimulatedPlanetarium"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -21,7 +25,7 @@ void UFlareSimulatedPlanetarium::Load()
 
 
 	// Init the sun
-	Sun.Name = "Sun";
+	Sun.Name = LOCTEXT("Sun", "Sun");
 	Sun.Identifier = "star-sun";
 	Sun.Mass = 2.472e30;
 	Sun.Radius = 739886*2; // TODO fix in spec
@@ -35,7 +39,7 @@ void UFlareSimulatedPlanetarium::Load()
 
 	FFlareCelestialBody Nema;
 	{
-		Nema.Name = "Nema";
+		Nema.Name = LOCTEXT("Nema", "Nema");
 		Nema.Identifier = "nema";
 		Nema.Mass = 8.421e26;
 		Nema.Radius = 69586;
@@ -43,7 +47,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Nema.OrbitDistance = 110491584;
 
 		FFlareCelestialBody Anka;
-		Anka.Name = "Anka";
+		Anka.Name = LOCTEXT("Anka", "Anka");
 		Anka.Identifier = "anka";
 		Anka.Mass = 1.3e23;
 		Anka.Radius = 2600;
@@ -52,7 +56,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Nema.Sattelites.Add(Anka);
 
 		FFlareCelestialBody Ariadne;
-		Ariadne.Name = "Ariadne";
+		Ariadne.Name = LOCTEXT("Ariadne", "Ariadne");
 		Ariadne.Identifier = "ariadne";
 		Ariadne.Mass = 5.3e23;
 		Ariadne.Radius = 4600;
@@ -61,7 +65,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Nema.Sattelites.Add(Ariadne);
 
 		FFlareCelestialBody Asta;
-		Asta.Name = "Asta";
+		Asta.Name = LOCTEXT("Asta", "Asta");
 		Asta.Identifier = "asta";
 		Asta.Mass = 0.9e23;
 		Asta.Radius = 2000;
@@ -187,3 +191,5 @@ void UFlareSimulatedPlanetarium::ComputeCelestialBodyLocation(FFlareCelestialBod
 		ComputeCelestialBodyLocation(Body, CelestialBody, Time, SmoothTime);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

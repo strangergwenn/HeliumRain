@@ -299,14 +299,11 @@ FText SFlareSectorMenu::GetSectorLocation() const
 	{
 		FFlareCelestialBody* Body = TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(TargetSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
-		FString Location;
 
 		if(Body)
 		{
-			Location += Body->Name + " - Altitude: "+FString::FromInt(TargetSector->GetOrbitParameters()->Altitude) + " km - Phase: "+FString::FromInt(TargetSector->GetOrbitParameters()->Phase)+" deg." ;
+			Result = FText::Format(LOCTEXT("SectorLocation",  "{0} - Altitude: {1} km - Phase: {2}°."), Body->Name, FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude), FText::AsNumber(TargetSector->GetOrbitParameters()->Phase));
 		}
-
-		Result = FText::FromString(Location);
 	}
 
 	return Result;
