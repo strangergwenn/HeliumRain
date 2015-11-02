@@ -500,8 +500,6 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipCl
 	}
 
 
-	UFlareSimulatedSpacecraft* ShipPawn = NULL;
-	AFlarePlayerController* PC = GetPC();
 
 	UFlareSimulatedSector* Sector = GetGameWorld()->FindSector(SectorIdentifier);
 
@@ -511,12 +509,62 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipCl
 		return NULL;
 	}
 
+	AFlarePlayerController* PC = GetPC();
+
 	FVector TargetPosition = FVector::ZeroVector;
-	ShipPawn = Sector->CreateShip(ShipClass, PC->GetCompany(), TargetPosition);
+	UFlareSimulatedSpacecraft* ShipPawn = Sector->CreateShip(ShipClass, PC->GetCompany(), TargetPosition);
 
 	return ShipPawn;
 }
 
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier, FName AttachPoint)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::CreateStationInCompanyAttachedInSector failed: no world");
+		return NULL;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::CreateStationInCompanyAttachedInSector failed: a sector is active");
+		return NULL;
+	}
+
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if (!Company)
+	{
+		FLOGV("AFlareGame::CreateStationInCompanyAttachedInSector failed : No company named '%s'", *CompanyShortName.ToString());
+		return NULL;
+	}
+
+	UFlareSimulatedSector* Sector = GetGameWorld()->FindSector(SectorIdentifier);
+
+	if (!Sector)
+	{
+		FLOGV("AFlareGame::CreateStationInCompanyAttachedInSector failed: no sector '%s'", *SectorIdentifier.ToString());
+		return NULL;
+	}
+
+	bool AttachPointOK = false;
+	for (int AsteroidIndex = 0; AsteroidIndex < Sector->Save()->AsteroidData.Num(); AsteroidIndex++)
+	{
+		if (Sector->Save()->AsteroidData[AsteroidIndex].Identifier == AttachPoint)
+		{
+			AttachPointOK = true;
+			break;
+		}
+	}
+
+	if (!AttachPointOK)
+	{
+		FLOGV("AFlareGame::CreateStationInCompanyAttachedInSector failed: invalid attache point '%s' in sector '%s'", *AttachPoint.ToString(), *SectorIdentifier.ToString());
+		return NULL;
+	}
+
+	UFlareSimulatedSpacecraft* NewStation = Sector->CreateStation(StationClass, Company, FVector::ZeroVector, FRotator::ZeroRotator, AttachPoint);
+	return NewStation;
+}
 
 void UFlareGameTools::PrintSectorList()
 {
@@ -788,7 +836,7 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 }
 
 
-void UFlareGameTools::CreateAsteroid(int32 ID)
+void UFlareGameTools::CreateAsteroid(int32 ID, FName Name)
 {
 	if (!GetActiveSector())
 	{
@@ -809,7 +857,7 @@ void UFlareGameTools::CreateAsteroid(int32 ID)
 
 	GetGame()->DeactivateSector(PC);
 
-	ActiveSector->CreateAsteroid(ID, TargetPosition);
+	ActiveSector->CreateAsteroid(ID, Name, TargetPosition);
 
 	GetGame()->ActivateSector(PC, ActiveSector);
 }

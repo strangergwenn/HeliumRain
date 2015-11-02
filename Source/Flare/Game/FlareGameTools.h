@@ -123,6 +123,10 @@ public:
 	UFUNCTION(exec)
 	UFlareSimulatedSpacecraft* CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier);
 
+	/** Create a station attached to an asteroid in the level */
+	UFUNCTION(exec)
+	UFlareSimulatedSpacecraft* CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier, FName AttachPoint);
+
 	UFUNCTION(exec)
 	void PrintSectorList();
 
@@ -163,7 +167,7 @@ public:
 
 	/** Add an asteroid to the world */
 	UFUNCTION(exec)
-	void CreateAsteroid(int32 ID);
+	void CreateAsteroid(int32 ID, FName Name);
 
 	/*----------------------------------------------------
 		Helper

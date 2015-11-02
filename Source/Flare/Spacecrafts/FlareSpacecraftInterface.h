@@ -93,7 +93,9 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	float PowerOutageAcculumator;
 
-
+	/** If attached to an asteroid, identifier of this asteroid */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName AttachPoint;
 
 	/** Pilot */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -188,6 +190,8 @@ struct FFlareSpacecraftDescription
 	/** Engine Power sound*/
 	UPROPERTY(EditAnywhere, Category = Content) USoundCue* PowerSound;
 
+	/** Need attach point */
+	UPROPERTY(EditAnywhere, Category = Content) bool NeedAttachPoint;
 };
 
 /** Interface wrapper */

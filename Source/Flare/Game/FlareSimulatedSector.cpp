@@ -76,7 +76,7 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 }
 
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation, FName AttachPoint)
 {
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(StationClass);
 
@@ -87,7 +87,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 
 	if (Desc)
 	{
-		return CreateShip(Desc, Company, TargetPosition, TargetRotation);
+		return CreateShip(Desc, Company, TargetPosition, TargetRotation, AttachPoint);
 	}
 	return NULL;
 }
@@ -113,7 +113,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FName ShipClass, UF
 	return NULL;
 }
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation, FName AttachPoint)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
 
@@ -129,6 +129,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	ShipData.Heat = 600 * ShipDescription->HeatCapacity;
 	ShipData.PowerOutageDelay = 0;
 	ShipData.PowerOutageAcculumator = 0;
+	ShipData.AttachPoint = AttachPoint;
 
 	FName RCSIdentifier;
 	FName OrbitalEngineIdentifier;
@@ -235,7 +236,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	return Spacecraft;
 }
 
-void UFlareSimulatedSector::CreateAsteroid(int32 ID, FVector Location)
+void UFlareSimulatedSector::CreateAsteroid(int32 ID, FName Name, FVector Location)
 {
 	if (ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
 	{
@@ -245,6 +246,7 @@ void UFlareSimulatedSector::CreateAsteroid(int32 ID, FVector Location)
 
 	FFlareAsteroidSave Data;
 	Data.AsteroidMeshID = ID;
+	Data.Identifier = Name;
 	Data.LinearVelocity = FVector::ZeroVector;
 	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
 	Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.9,1.1);

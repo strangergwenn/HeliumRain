@@ -9,6 +9,10 @@ struct FFlareAsteroidSave
 {
 	GENERATED_USTRUCT_BODY()
 
+	/** Asteroid identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName Identifier;
+
 	/** Asteroid location */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector Location;

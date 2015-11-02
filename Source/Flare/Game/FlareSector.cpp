@@ -199,7 +199,54 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 					break;
 				case EFlareSpawnMode::Spawn:
-					PlaceSpacecraft(Spacecraft, ShipData.Location);
+					if(Desc->NeedAttachPoint)
+					{
+						AFlareAsteroid* AttachPoint = NULL;
+						for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
+						{
+							AFlareAsteroid* AsteroidCandidate = SectorAsteroids[AsteroidIndex];
+							if(AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
+							{
+								AttachPoint = AsteroidCandidate;
+								break;
+							}
+						}
+						if(AttachPoint)
+						{
+							bool SpacecraftAttachPointLocationFound = false;
+							FVector Position = Spacecraft->GetActorLocation() + FVector(1,0,0);
+							TArray<UActorComponent*> Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+							for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+							{
+								UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+								if (Component->DoesSocketExist(FName("AttachPoint")))
+								{
+									SpacecraftAttachPointLocationFound = true;
+									Position = Component->GetSocketLocation(FName("AttachPoint"));
+									break;
+								}
+							}
+							if(! SpacecraftAttachPointLocationFound)
+							{
+								FLOGV("AFlareGame::LoadSpacecraft failed to find 'AttachPoint' socket on '%s'", *ShipData.Immatriculation.ToString());
+							}
+
+							FBox AttachPointBox = AttachPoint->GetComponentsBoundingBox();
+							float AttachPointSize = FMath::Max(AttachPointBox.GetExtent().Size(), 1.0f);
+
+							FVector StationOffset = Position - Spacecraft->GetActorLocation();
+							FVector StationDirection = StationOffset.GetUnsafeNormal();
+							float AttachDistance = StationOffset.Size() + AttachPointSize;
+
+							FVector StationLocation = AttachPoint->GetActorLocation() + StationDirection * AttachDistance;
+
+							Spacecraft->SetActorLocation(StationLocation);
+						}
+					}
+					else
+					{
+						PlaceSpacecraft(Spacecraft, ShipData.Location);
+					}
 					RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
 					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
 					break;
@@ -260,6 +307,30 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					RootComponent->SetPhysicsLinearVelocity(CenterDirection * 10000, false);
 					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
 					break;
+			}
+
+			if(Desc->NeedAttachPoint)
+			{
+				// Attach the station to the attach point
+				AFlareAsteroid* AttachPoint = NULL;
+				for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
+				{
+					AFlareAsteroid* AsteroidCandidate = SectorAsteroids[AsteroidIndex];
+					if(AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
+					{
+						AttachPoint = AsteroidCandidate;
+						break;
+					}
+				}
+
+				if (AttachPoint)
+				{
+					AttachPoint->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
+				}
+				else
+				{
+					FLOGV("AFlareGame::LoadSpacecraft failed to attach '%s' to attach point '%s'", *ShipData.Immatriculation.ToString(), *ShipData.AttachPoint.ToString());
+				}
 			}
 		}
 		else
