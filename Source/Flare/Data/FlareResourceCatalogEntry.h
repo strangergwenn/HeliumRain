@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Economy/FlareFactory.h"
-#include "FlareResourceCatalog.generated.h"
+#include "../Economy/FlareResource.h"
+#include "FlareResourceCatalogEntry.generated.h"
 
 
 UCLASS()
-class UFlareResourceCatalog : public UDataAsset
+class UFlareResourceCatalogEntry : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 
@@ -15,8 +15,8 @@ public:
 		Public data
 	----------------------------------------------------*/
 
-	/** Resources data */
+	/** Factory data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UFlareResourceCatalogEntry*> Resources;
+	FFlareResourceDescription Data;
 
 };
