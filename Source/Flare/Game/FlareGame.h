@@ -18,6 +18,7 @@
 #include "../Data/FlareAsteroidCatalog.h"
 #include "../Data/FlareCompanyCatalog.h"
 #include "../Data/FlareSectorCatalog.h"
+#include "../Data/FlareResourceCatalog.h"
 
 #include "FlareGame.generated.h"
 
@@ -191,6 +192,10 @@ protected:
 	/** Reference to all quests*/
 	UPROPERTY()
 	UFlareQuestCatalog*                        QuestCatalog;
+
+	/** Reference to all quests*/
+	UPROPERTY()
+	UFlareResourceCatalog*                     ResourceCatalog;
 	
 
 	/*----------------------------------------------------

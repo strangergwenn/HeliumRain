@@ -11,6 +11,7 @@
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Quests/FlareQuestManager.h"
 #include "../Data/FlareQuestCatalog.h"
+#include "../Data/FlareResourceCatalog.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 
@@ -55,6 +56,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareSectorCatalog> SectorCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareQuestCatalog> QuestCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareResourceCatalog> ResourceCatalog;
 
 		FConstructorStatics()
 			: SpacecraftCatalog(TEXT("/Game/Gameplay/Catalog/SpacecraftCatalog"))
@@ -64,6 +66,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
 			, SectorCatalog(TEXT("/Game/Gameplay/Catalog/SectorCatalog"))
 			, QuestCatalog(TEXT("/Game/Gameplay/Catalog/QuestCatalog"))
+			, ResourceCatalog(TEXT("/Game/Gameplay/Catalog/ResourceCatalog"))
 		{}
 	};
 	static FConstructorStatics ConstructorStatics;
@@ -76,6 +79,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
 	SectorCatalog = ConstructorStatics.SectorCatalog.Object;
 	QuestCatalog = ConstructorStatics.QuestCatalog.Object;
+	ResourceCatalog = ConstructorStatics.ResourceCatalog.Object;
 }
 
 
