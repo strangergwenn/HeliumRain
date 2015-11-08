@@ -6,6 +6,7 @@
 #include "Subsystems/FlareSpacecraftNavigationSystem.h"
 #include "Subsystems/FlareSpacecraftDockingSystem.h"
 #include "Subsystems/FlareSpacecraftWeaponsSystem.h"
+#include "../Data/FlareFactoryCatalogEntry.h"
 #include "FlareSpacecraftInterface.generated.h"
 
 class UFlareCompany;
@@ -101,6 +102,13 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareShipPilotSave Pilot;
 
+	/** Cargo bay content */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareCargoSave> Cargo;
+
+	/** Factory states*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareFactorySave> FactoryStates;
 };
 
 
@@ -192,6 +200,14 @@ struct FFlareSpacecraftDescription
 
 	/** Need attach point */
 	UPROPERTY(EditAnywhere, Category = Content) bool NeedAttachPoint;
+
+	/** Cargo bay. List of capacity of each cargo slot */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<uint32> CargoBay;
+
+	/** Factories*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<UFlareFactoryCatalogEntry*> Factories;
 };
 
 /** Interface wrapper */

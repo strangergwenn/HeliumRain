@@ -99,6 +99,8 @@ protected:
 	UPROPERTY()
 	UFlareSimulatedSpacecraftWeaponsSystem*                 WeaponsSystem;
 
+	UPROPERTY()
+	TArray<UFlareFactory*>                                  Factories;
 public:
 
     /*----------------------------------------------------

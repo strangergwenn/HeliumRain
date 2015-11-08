@@ -3,6 +3,21 @@
 #include "FlareResource.generated.h"
 
 
+/** Spacecraft cargo save data */
+USTRUCT()
+struct FFlareCargoSave
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Cargo resource */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ResourceIdentifier;
+
+	/** Cargo quantity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 Quantity;
+};
+
 /** Resource description */
 USTRUCT()
 struct FFlareResourceDescription

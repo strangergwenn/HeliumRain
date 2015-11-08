@@ -201,9 +201,16 @@ void UFlareWorld::Simulate(int64 Duration)
 {
 	WorldData.Time += Duration;
 
+	// Travels
 	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
 	{
 		Travels[TravelIndex]->Simulate(Duration);
+	}
+
+	// Factories
+	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+	{
+		Factories[FactoryIndex]->Simulate(Duration);
 	}
 
 	// Process events
@@ -267,6 +274,22 @@ TArray<FFlareWorldEvent> UFlareWorld::GenerateEvents(UFlareCompany* PointOfView)
 	return NextEvents;
 }
 
+void UFlareWorld::ClearFactories(UFlareSimulatedSpacecraft *ParentSpacecraft)
+{
+	for (int FactoryIndex = Factories.Num() -1 ; FactoryIndex >= 0; FactoryIndex--)
+	{
+		UFlareFactory* Factory = Factories[FactoryIndex];
+		if(Factory->GetParent() == ParentSpacecraft)
+		{
+			Factories.RemoveAt(FactoryIndex);
+		}
+	}
+}
+
+void UFlareWorld::AddFactory(UFlareFactory* Factory)
+{
+	Factories.Add(Factory);
+}
 
 UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
 {

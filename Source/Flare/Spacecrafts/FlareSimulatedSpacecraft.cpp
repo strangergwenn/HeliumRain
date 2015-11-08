@@ -41,10 +41,42 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	WeaponsSystem = NewObject<UFlareSimulatedSpacecraftWeaponsSystem>(this, UFlareSimulatedSpacecraftWeaponsSystem::StaticClass());
 	WeaponsSystem->Initialize(this, &SpacecraftData);
 
+	Game->GetGameWorld()->ClearFactories(this);
+	Factories.Empty();
+
+
+	for(int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+	{
+		FFlareFactorySave FactoryData;
+
+		if (FactoryIndex < SpacecraftData.FactoryStates.Num())
+		{
+			FactoryData = SpacecraftData.FactoryStates[FactoryIndex];
+		}
+		else
+		{
+				FactoryData.Active = true;
+				FactoryData.CostReserved = 0;
+				FactoryData.ProductionBeginTime = GetGame()->GetGameWorld()->GetTime();
+		}
+
+
+		UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
+		Factory->Load(this, &SpacecraftDescription->Factories[FactoryIndex]->Data, FactoryData);
+		Factories.Add(Factory);
+		Game->GetGameWorld()->AddFactory(Factory);
+	}
 }
 
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 {
+	SpacecraftData.FactoryStates.Empty();
+
+	for(int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+	{
+		SpacecraftData.FactoryStates.Add(*Factories[FactoryIndex]->Save());
+	}
+
 	return &SpacecraftData;
 }
 

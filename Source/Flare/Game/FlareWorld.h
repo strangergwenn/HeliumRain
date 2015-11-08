@@ -87,6 +87,12 @@ public:
 	/** Generate all the next events in the world. If PointOfView is set, return the next event this company known */
 	TArray<FFlareWorldEvent> GenerateEvents(UFlareCompany* PointOfView = NULL);
 
+	/** Clear all factories associated to ParentSpacecraft */
+	void ClearFactories(UFlareSimulatedSpacecraft *ParentSpacecraft);
+
+	/** Add a factory to world */
+	void AddFactory(UFlareFactory* Factory);
+
 protected:
 
 	/*----------------------------------------------------
@@ -103,6 +109,10 @@ protected:
 	/** Companies */
 	UPROPERTY()
 	TArray<UFlareCompany*>                Companies;
+
+	/** Factories */
+	UPROPERTY()
+	TArray<UFlareFactory*>                Factories;
 
 	UPROPERTY()
 	TArray<UFlareTravel*>                Travels;

@@ -278,6 +278,7 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 	{
 		Spacecraft->GetCurrentSector()->RemoveSpacecraft(Spacecraft);
 	}
+	GetGame()->GetGameWorld()->ClearFactories(Spacecraft);
 }
 
 void UFlareCompany::DiscoverSector(UFlareSimulatedSector* Sector)

@@ -4,7 +4,26 @@
 #include "../Data/FlareResourceCatalogEntry.h"
 #include "FlareFactory.generated.h"
 
+class UFlareSimulatedSpacecraft;
 
+/** Spacecraft factory save data */
+USTRUCT()
+struct FFlareFactorySave
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Factory is active */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool Active;
+
+	/** Money locked by the factory */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CostReserved;
+
+	/** Timestamp of last production cycle */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 ProductionBeginTime;
+};
 
 /** Factory input or output resource */
 USTRUCT()
@@ -66,5 +85,48 @@ class FLARE_API UFlareFactory : public UObject
 	GENERATED_UCLASS_BODY()
 
 public:
+	/*----------------------------------------------------
+	   Save
+	----------------------------------------------------*/
 
+	/** Load the factory from a save file */
+	virtual void Load(UFlareSimulatedSpacecraft* ParentSpacecraft, const FFlareFactoryDescription* Description, const FFlareFactorySave& Data);
+
+	/** Save the factory to a save file */
+	virtual FFlareFactorySave* Save();
+
+	/*----------------------------------------------------
+	   Gameplay
+	----------------------------------------------------*/
+
+	void Simulate(long Duration);
+
+protected:
+
+	/*----------------------------------------------------
+	   Protected data
+	----------------------------------------------------*/
+
+	// Gameplay data
+	FFlareFactorySave                        FactoryData;
+
+	AFlareGame*                              Game;
+	const FFlareFactoryDescription*          FactoryDescription;
+	UFlareSimulatedSpacecraft*				 Parent;
+
+public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	inline AFlareGame* GetGame() const
+	{
+		return Game;
+	}
+
+	inline UFlareSimulatedSpacecraft* GetParent()
+	{
+		return Parent;
+	}
 };

@@ -3,6 +3,8 @@
 #include "Object.h"
 #include "FlareTravel.generated.h"
 
+struct FFlareCelestialBody;
+
 
 /** Travel save data */
 USTRUCT()

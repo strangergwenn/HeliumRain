@@ -512,7 +512,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipCl
 	AFlarePlayerController* PC = GetPC();
 
 	FVector TargetPosition = FVector::ZeroVector;
-	UFlareSimulatedSpacecraft* ShipPawn = Sector->CreateShip(ShipClass, PC->GetCompany(), TargetPosition);
+	UFlareSimulatedSpacecraft* ShipPawn = Sector->CreateStation(ShipClass, PC->GetCompany(), TargetPosition);
 
 	return ShipPawn;
 }
