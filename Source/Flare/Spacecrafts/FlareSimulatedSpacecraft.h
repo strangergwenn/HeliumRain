@@ -74,6 +74,16 @@ public:
 		return !IsStation() && (CurrentSector != NULL);
 	}
 
+	/*----------------------------------------------------
+		Resources
+	----------------------------------------------------*/
+
+	bool HasResources(FFlareResourceDescription* Resource, uint32 Quantity);
+
+	bool TakeResources(FFlareResourceDescription* Resource, uint32 Quantity);
+
+	bool GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
+
 protected:
 
     /*----------------------------------------------------
@@ -101,6 +111,9 @@ protected:
 
 	UPROPERTY()
 	TArray<UFlareFactory*>                                  Factories;
+
+	UPROPERTY()
+	TArray<FFlareCargo>                                     CargoBay;
 public:
 
     /*----------------------------------------------------
@@ -132,6 +145,11 @@ public:
 	inline FFlareSpacecraftDescription* GetDescription() const
 	{
 		return SpacecraftDescription;
+	}
+
+	TArray<FFlareCargo>* GetCargoBay()
+	{
+		return &CargoBay;
 	}
 
 };

@@ -296,6 +296,23 @@ void UFlareCompany::VisitSector(UFlareSimulatedSector* Sector)
 	}
 }
 
+void UFlareCompany::TakeMoney(uint64 Amount)
+{
+	if(Amount > CompanyData.Money)
+	{
+		FLOGV("Fail to take %llu money from %s (balance: %llu)", Amount, *GetCompanyName().ToString(), CompanyData.Money);
+		CompanyData.Money = 0;
+	}
+	else
+	{
+		CompanyData.Money -= Amount;
+	}
+}
+
+void UFlareCompany::GiveMoney(uint64 Amount)
+{
+	CompanyData.Money += Amount;
+}
 
 /*----------------------------------------------------
 	Customization

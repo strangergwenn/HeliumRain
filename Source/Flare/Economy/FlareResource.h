@@ -2,7 +2,6 @@
 #pragma once
 #include "FlareResource.generated.h"
 
-
 /** Spacecraft cargo save data */
 USTRUCT()
 struct FFlareCargoSave
@@ -43,6 +42,24 @@ struct FFlareResourceDescription
 	/** Resource icon */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FSlateBrush Icon;
+};
+
+/** Spacecraft cargo data */
+USTRUCT()
+struct FFlareCargo
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Cargo resource */
+	FFlareResourceDescription* Resource;
+
+	/** Cargo quantity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 Quantity;
+
+	/** Cargo capacity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 Capacity;
 };
 
 UCLASS()

@@ -54,7 +54,7 @@ struct FFlareCompanySave
 
 	/** Money money money / Always funny / In a rich men's world */
 	UPROPERTY(EditAnywhere, Category = Save)
-	int32 Money;
+	uint64 Money;
 
 	/** Hostile companies */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -181,6 +181,11 @@ public:
 	/** Set a sector visited */
 	virtual void VisitSector(UFlareSimulatedSector* Sector);
 
+	/** Take a money amount from the company */
+	virtual void TakeMoney(uint64 Amount);
+
+	/** Give a money amount to the company */
+	virtual void GiveMoney(uint64 Amount);
 
 	/*----------------------------------------------------
 		Customization

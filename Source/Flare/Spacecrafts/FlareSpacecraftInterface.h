@@ -201,9 +201,13 @@ struct FFlareSpacecraftDescription
 	/** Need attach point */
 	UPROPERTY(EditAnywhere, Category = Content) bool NeedAttachPoint;
 
-	/** Cargo bay. List of capacity of each cargo slot */
+	/** Cargo bay count.*/
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<uint32> CargoBay;
+	uint32 CargoBayCount;
+
+	/** Cargo bay size.*/
+	UPROPERTY(EditAnywhere, Category = Content)
+	uint32 CargoBaySize;
 
 	/** Factories*/
 	UPROPERTY(EditAnywhere, Category = Save)

@@ -18,7 +18,7 @@ struct FFlareFactorySave
 
 	/** Money locked by the factory */
 	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CostReserved;
+	uint32 CostReserved;
 
 	/** Timestamp of last production cycle */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -37,7 +37,7 @@ struct FFlareFactoryResource
 
 	/** Quantity for the resource */
 	UPROPERTY(EditAnywhere, Category = Content)
-	int32 Quantity;
+	uint32 Quantity;
 };
 
 /** Factory description */
@@ -100,6 +100,18 @@ public:
 	----------------------------------------------------*/
 
 	void Simulate(long Duration);
+
+	bool HasInputMoney();
+
+	bool HasInputResources();
+
+	bool HasOutputFreeSpace();
+
+	void BeginProduction();
+
+	void CancelProduction();
+
+	void DoProduction();
 
 protected:
 

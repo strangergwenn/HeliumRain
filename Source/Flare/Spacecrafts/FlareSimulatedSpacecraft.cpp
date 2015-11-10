@@ -148,3 +148,127 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 		GetCompany()->VisitSector(Sector);
 	}
 }
+
+
+/*----------------------------------------------------
+	Resources
+----------------------------------------------------*/
+
+bool UFlareSimulatedSpacecraft::HasResources(FFlareResourceDescription* Resource, uint32 Quantity)
+{
+	int32 PresentQuantity = 0;
+
+
+	if(Quantity == 0)
+	{
+		return true;
+	}
+
+	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo* Cargo = &CargoBay[CargoIndex];
+		if(Cargo->Resource == Resource)
+		{
+			PresentQuantity += Cargo->Quantity;
+			if(PresentQuantity > Quantity)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resource, uint32 Quantity)
+{
+	uint32 QuantityToTake = Quantity;
+
+
+	if(QuantityToTake == 0)
+	{
+		return true;
+	}
+
+	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		if(Cargo.Resource == Resource)
+		{
+			uint32 TakenQuantity = FMath::Min(Cargo.Quantity, QuantityToTake);
+			if(TakenQuantity > 0)
+			{
+				Cargo.Quantity -= TakenQuantity;
+				QuantityToTake -= TakenQuantity;
+
+				if(Cargo.Quantity == 0)
+				{
+					Cargo.Resource = NULL;
+				}
+
+				if(QuantityToTake == 0)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resource, uint32 Quantity)
+{
+	uint32 QuantityToGive = Quantity;
+
+
+	// First pass, fill already existing slots
+	for(int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		if (Resource == Cargo.Resource)
+		{
+			// Same resource
+			uint32 AvailableCapacity = Cargo.Capacity - Cargo.Quantity;
+			uint32 GivenQuantity = FMath::Min(AvailableCapacity, QuantityToGive);
+			if(GivenQuantity > 0)
+			{
+				Cargo.Quantity += GivenQuantity;
+				QuantityToGive -= GivenQuantity;
+
+				if(QuantityToGive == 0)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	// Fill free cargo slots
+	for(int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		if (Cargo.Quantity == 0)
+		{
+			// Empty Cargo
+			uint32 GivenQuantity = FMath::Min(Cargo.Capacity, QuantityToGive);
+			if(GivenQuantity > 0)
+			{
+				Cargo.Quantity += GivenQuantity;
+				Cargo.Resource = Resource;
+
+				QuantityToGive -= GivenQuantity;
+
+				if(QuantityToGive == 0)
+				{
+					return true;
+				}
+			}
+			else
+			{
+				FLOGV("Zero sized cargo bay for %s", *GetImmatriculation().ToString())
+			}
+
+		}
+	}
+
+	return QuantityToGive > 0;
+}
