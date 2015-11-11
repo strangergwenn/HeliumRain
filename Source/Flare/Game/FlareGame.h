@@ -301,6 +301,11 @@ public:
 		return QuestCatalog;
 	}
 
+	inline UFlareResourceCatalog* GetResourceCatalog() const
+	{
+		return ResourceCatalog;
+	}
+
 	inline bool IsLoadedOrCreated() const
 	{
 		return LoadedOrCreated;

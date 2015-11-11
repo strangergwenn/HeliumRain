@@ -66,15 +66,56 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		Factories.Add(Factory);
 		Game->GetGameWorld()->AddFactory(Factory);
 	}
+
+	// Initialize cargo bay
+	CargoBay.Empty();
+	for (int CargoIndex = 0; CargoIndex < SpacecraftDescription->CargoBayCount; CargoIndex++)
+	{
+		FFlareCargo Cargo;
+		Cargo.Resource = NULL;
+		Cargo.Capacity = SpacecraftDescription->CargoBayCapacity;
+		Cargo.Quantity = 0;
+
+		if(CargoIndex < SpacecraftData.Cargo.Num())
+		{
+			// Existing save
+			FFlareCargoSave* CargoSave = &SpacecraftData.Cargo[CargoIndex];
+
+			if (CargoSave->Quantity > 0)
+			{
+				Cargo.Resource = Game->GetResourceCatalog()->Get(CargoSave->ResourceIdentifier);
+				Cargo.Quantity = FMath::Min(CargoSave->Quantity, SpacecraftDescription->CargoBayCapacity);
+			}
+		}
+
+		CargoBay.Add(Cargo);
+	}
+
 }
 
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 {
 	SpacecraftData.FactoryStates.Empty();
-
 	for(int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
 		SpacecraftData.FactoryStates.Add(*Factories[FactoryIndex]->Save());
+	}
+
+	SpacecraftData.Cargo.Empty();
+	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		FFlareCargoSave CargoSave;
+		CargoSave.Quantity = Cargo.Quantity;
+		if(Cargo.Resource != NULL)
+		{
+			CargoSave.ResourceIdentifier = Cargo.Resource->Identifier;
+		}
+		else
+		{
+			CargoSave.ResourceIdentifier = NAME_None;
+		}
+		SpacecraftData.Cargo.Add(CargoSave);
 	}
 
 	return &SpacecraftData;
@@ -170,7 +211,7 @@ bool UFlareSimulatedSpacecraft::HasResources(FFlareResourceDescription* Resource
 		if(Cargo->Resource == Resource)
 		{
 			PresentQuantity += Cargo->Quantity;
-			if(PresentQuantity > Quantity)
+			if(PresentQuantity >= Quantity)
 			{
 				return true;
 			}

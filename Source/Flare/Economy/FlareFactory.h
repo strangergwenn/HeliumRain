@@ -107,7 +107,7 @@ public:
 
 	bool HasOutputFreeSpace();
 
-	void BeginProduction();
+	void BeginProduction(int64 SimulatedTime);
 
 	void CancelProduction();
 

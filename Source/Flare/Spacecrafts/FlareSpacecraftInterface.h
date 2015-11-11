@@ -205,9 +205,9 @@ struct FFlareSpacecraftDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	uint32 CargoBayCount;
 
-	/** Cargo bay size.*/
+	/** Cargo bay capacity.*/
 	UPROPERTY(EditAnywhere, Category = Content)
-	uint32 CargoBaySize;
+	uint32 CargoBayCapacity;
 
 	/** Factories*/
 	UPROPERTY(EditAnywhere, Category = Save)

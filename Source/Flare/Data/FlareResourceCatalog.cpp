@@ -10,3 +10,24 @@ UFlareResourceCatalog::UFlareResourceCatalog(const class FObjectInitializer& PCI
 	: Super(PCIP)
 {
 }
+
+
+/*----------------------------------------------------
+	Data getters
+----------------------------------------------------*/
+
+FFlareResourceDescription* UFlareResourceCatalog::Get(FName Identifier) const
+{
+	auto FindByName = [=](const UFlareResourceCatalogEntry* Candidate)
+	{
+		return Candidate->Data.Identifier == Identifier;
+	};
+
+	UFlareResourceCatalogEntry* const* Entry = Resources.FindByPredicate(FindByName);
+	if (Entry && *Entry)
+	{
+		return &((*Entry)->Data);
+	}
+
+	return NULL;
+}

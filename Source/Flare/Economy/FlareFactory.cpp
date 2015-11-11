@@ -51,7 +51,7 @@ void UFlareFactory::Simulate(long Duration)
 				return;
 			}
 
-			if(FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime < GetGame()->GetGameWorld()->GetTime())
+			if(FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime >= GetGame()->GetGameWorld()->GetTime())
 			{
 				// In production
 				FLOGV("%s : In production", *FactoryDescription->Name.ToString())
@@ -73,7 +73,7 @@ void UFlareFactory::Simulate(long Duration)
 		}
 		else if (HasInputResources() && HasInputMoney())
 		{
-			BeginProduction();
+			BeginProduction(GetGame()->GetGameWorld()->GetTime() - RemainingDuration);
 			FLOGV("%s : Production begin", *FactoryDescription->Name.ToString())
 		}
 		else
@@ -112,7 +112,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 	// First pass, fill already existing slots
 	for(int CargoIndex = 0 ; CargoIndex < CargoBay->Num() ; CargoIndex++)
 	{
-		for(int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= OutputResources.Num() ; ResourceIndex--)
+		for(int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
 		{
 			if (&OutputResources[ResourceIndex].Resource->Data == (*CargoBay)[CargoIndex].Resource)
 			{
@@ -158,11 +158,11 @@ bool UFlareFactory::HasOutputFreeSpace()
 	return OutputResources.Num() == 0;
 }
 
-void UFlareFactory::BeginProduction()
+void UFlareFactory::BeginProduction(int64 SimulatedTime)
 {
 	Parent->GetCompany()->TakeMoney(FactoryDescription->ProductionCost);
 	FactoryData.CostReserved = FactoryDescription->ProductionCost;
-	FactoryData.ProductionBeginTime = GetGame()->GetGameWorld()->GetTime();
+	FactoryData.ProductionBeginTime = SimulatedTime;
 }
 
 void UFlareFactory::CancelProduction()

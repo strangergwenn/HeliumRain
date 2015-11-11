@@ -215,7 +215,7 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 	}
 
 	FLOGV("> PrintCompany: %s - %s (%s)", *Company->GetIdentifier().ToString(), *Company->GetCompanyName().ToString(), *Company->GetShortName().ToString());
-
+	FLOGV("  > %llu $", Company->GetMoney());
 	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();
 	FLOGV("  > %d fleets", CompanyFleets.Num());
 	for (int i = 0; i < CompanyFleets.Num(); i++)
@@ -644,6 +644,136 @@ void UFlareGameTools::PrintSectorByIndex(int32 Index)
 	}
 
 	PrintSector(Sectors[Index]->GetIdentifier());
+}
+
+/*----------------------------------------------------
+	Trade tools
+----------------------------------------------------*/
+
+void UFlareGameTools::PrintCargoBay(FName ShipImmatriculation)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::GiveResources failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::GiveResources failed: a sector is active");
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(ShipImmatriculation);
+	if (!Ship)
+	{
+		FLOGV("AFlareGame::GiveResources failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
+		return;
+	}
+	TArray<FFlareCargo>* CargoBay = Ship->GetCargoBay();
+
+	FLOGV("Cargo bay for '%s' : ", *ShipImmatriculation.ToString());
+	for(int CargoIndex = 0; CargoIndex < CargoBay->Num(); CargoIndex++)
+	{
+		FFlareCargo* Cargo = &(*CargoBay)[CargoIndex];
+		FLOGV("  - %s : %u / %u ", (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, Cargo->Capacity);
+	}
+}
+
+void UFlareGameTools::GiveResources(FName ShipImmatriculation, FName ResourceIdentifier, uint32 Quantity)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::GiveResources failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::GiveResources failed: a sector is active");
+		return;
+	}
+
+	FFlareResourceDescription* Resource = GetGame()->GetResourceCatalog()->Get(ResourceIdentifier);
+	if (!Resource)
+	{
+		FLOGV("AFlareGame::GiveResources failed: no resource with id '%s'", *ResourceIdentifier.ToString());
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(ShipImmatriculation);
+	if (!Ship)
+	{
+		FLOGV("AFlareGame::GiveResources failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
+		return;
+	}
+	Ship->GiveResources(Resource, Quantity);
+}
+
+void UFlareGameTools::TakeResources(FName ShipImmatriculation, FName ResourceIdentifier, uint32 Quantity)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::TakeResources failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::TakeResources failed: a sector is active");
+		return;
+	}
+
+	FFlareResourceDescription* Resource = GetGame()->GetResourceCatalog()->Get(ResourceIdentifier);
+	if (!Resource)
+	{
+		FLOGV("AFlareGame::TakeResources failed: no resource with id '%s'", *ResourceIdentifier.ToString());
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(ShipImmatriculation);
+	if (!Ship)
+	{
+		FLOGV("AFlareGame::TakeResources failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
+		return;
+	}
+	Ship->TakeResources(Resource, Quantity);
+}
+
+void UFlareGameTools::TakeMoney(FName CompanyShortName, uint64 Amount)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::TakeMoney failed: no loaded world");
+		return;
+	}
+
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if (!Company)
+	{
+		FLOGV("AFlareGame::TakeMoney failed: no company with short name '%s'", * CompanyShortName.ToString());
+		return;
+	}
+
+	Company->TakeMoney(Amount);
+}
+
+void UFlareGameTools::GiveMoney(FName CompanyShortName, uint64 Amount)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::GiveMoney failed: no loaded world");
+		return;
+	}
+
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if (!Company)
+	{
+		FLOGV("AFlareGame::GiveMoney failed: no company with short name '%s'", * CompanyShortName.ToString());
+		return;
+	}
+
+	Company->GiveMoney(Amount);
 }
 
 /*----------------------------------------------------

@@ -136,6 +136,25 @@ public:
 	UFUNCTION(exec)
 	void PrintSectorByIndex(int32 Index);
 
+	/*----------------------------------------------------
+		Trade tools
+	----------------------------------------------------*/
+
+	UFUNCTION(exec)
+	void PrintCargoBay(FName ShipImmatriculation);
+
+	UFUNCTION(exec)
+	void GiveResources(FName ShipImmatriculation, FName ResourceIdentifier, uint32 Quantity);
+
+	UFUNCTION(exec)
+	void TakeResources(FName ShipImmatriculation, FName ResourceIdentifier, uint32 Quantity);
+
+	UFUNCTION(exec)
+	void TakeMoney(FName CompanyShortName, uint64 Amount);
+
+	UFUNCTION(exec)
+	void GiveMoney(FName CompanyShortName, uint64 Amount);
+
 
 	/*----------------------------------------------------
 		Active Sector tools

@@ -19,4 +19,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<UFlareResourceCatalogEntry*> Resources;
 
+public:
+
+	/*----------------------------------------------------
+		Public methods
+	----------------------------------------------------*/
+
+	/** Get a resource from identifier */
+	FFlareResourceDescription* Get(FName Identifier) const;
+
 };

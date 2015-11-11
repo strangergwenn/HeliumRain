@@ -306,7 +306,7 @@ public:
 		return CompanyDescription->CustomizationPatternIndex;
 	}
 
-	inline int32 GetMoney() const
+	inline uint64 GetMoney() const
 	{
 		return CompanyData.Money;
 	}
