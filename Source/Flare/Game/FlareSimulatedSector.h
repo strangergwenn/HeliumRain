@@ -12,17 +12,6 @@ class UFlareFleet;
 class UFlareGame;
 struct FFlarePlayerSave;
 
-/** Sector knowledge status */
-UENUM()
-namespace EFlareSectorKnowledge
-{
-	enum Type
-	{
-		Unknown, /** The existence of this sector is unknown */
-		Known, /** The sector is visible on the map but its content is unknown */
-		Visited /** The sector is visited, all static structure are visible */
-	};
-}
 
 /** Sector friendlyness status */
 UENUM()

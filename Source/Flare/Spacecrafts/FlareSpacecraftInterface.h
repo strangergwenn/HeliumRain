@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FlareSpacecraftTypes.h"
 #include "FlareShipPilot.h"
 #include "FlareSpacecraftComponent.h"
 #include "Subsystems/FlareSpacecraftDamageSystem.h"
@@ -15,101 +16,6 @@ class IFlareSpacecraftNavigationSystemInterface;
 class IFlareSpacecraftWeaponsSystemInterface;
 class IFlareSpacecraftDockingSystemInterface;
 
-
-/** Part type values */
-UENUM()
-namespace EFlareSpawnMode
-{
-	enum Type
-	{
-		Safe,
-		Spawn,
-		Travel,
-	};
-}
-
-/** Spacecraft save data */
-USTRUCT()
-struct FFlareSpacecraftSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Ship location */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FVector Location;
-
-	/** Ship rotation */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FRotator Rotation;
-
-	/** The spawn mode of the ship. */
-	UPROPERTY(EditAnywhere, Category = Save)
-	TEnumAsByte<EFlareSpawnMode::Type> SpawnMode;
-
-	/** Ship linear velocity */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FVector LinearVelocity;
-
-	/** Ship angular velocity */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FVector AngularVelocity;
-
-	/** Ship immatriculation. Readable for the player */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName Immatriculation;
-
-	/** Ship nickname. Readable for the player */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName NickName;
-
-	/** Ship catalog identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName Identifier;
-
-	/** Ship company identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName CompanyIdentifier;
-
-	/** Components list */
-	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareSpacecraftComponentSave> Components;
-
-	/** We are docked at this station */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName DockedTo;
-
-	/** We are docked at this specific dock */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 DockedAt;
-
-	/** Accululated heat in KJ */
-	UPROPERTY(EditAnywhere, Category = Save)
-	float Heat;
-
-	/** Duration until the end of the power outage, in seconds */
-	UPROPERTY(EditAnywhere, Category = Save)
-	float PowerOutageDelay;
-
-	/** Pending power outage downtime, in seconds */
-	UPROPERTY(EditAnywhere, Category = Save)
-	float PowerOutageAcculumator;
-
-	/** If attached to an asteroid, identifier of this asteroid */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName AttachPoint;
-
-	/** Pilot */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FFlareShipPilotSave Pilot;
-
-	/** Cargo bay content */
-	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareCargoSave> Cargo;
-
-	/** Factory states*/
-	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareFactorySave> FactoryStates;
-};
 
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */

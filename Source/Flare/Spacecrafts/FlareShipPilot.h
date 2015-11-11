@@ -7,21 +7,6 @@ class AFlareSpacecraft;
 class IFlareSpacecraftInterface;
 class UFlareSpacecraftComponent;
 
-/** Ship component save data */
-USTRUCT()
-struct FFlareShipPilotSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Pilot identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName Identifier;
-
-	/** Pilot name */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FString Name;
-
-};
 
 /** Ship pilot class */
 UCLASS()

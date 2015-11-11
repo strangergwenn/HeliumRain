@@ -3,14 +3,27 @@
 
 #include "Object.h"
 #include "FlareSimulatedSector.h"
-#include "FlareCompany.h"
+#include "FlareGameTypes.h"
 #include "FlareTravel.h"
 #include "Planetarium/FlareSimulatedPlanetarium.h"
 #include "FlareWorld.generated.h"
 
 class UFlareSector;
 class UFlareFleet;
+class UFlareFactory;
+class UFlareCompany;
 
+/** Hostility status */
+UENUM()
+namespace EFlareEventVisibility
+{
+	enum Type
+	{
+		Blocking,
+		Warning,
+		Silent
+	};
+}
 
 /** World save data */
 USTRUCT()
@@ -40,6 +53,9 @@ struct FFlareWorldEvent
 
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64                    Time;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlareEventVisibility::Type>  Visibility;
 };
 
 UCLASS()
@@ -153,73 +169,15 @@ public:
 		return WorldData.Time;
 	}
 
-	inline UFlareCompany* FindCompany(FName Identifier) const
-	{
-		for (int i = 0; i < Companies.Num(); i++)
-		{
-			UFlareCompany* Company = Companies[i];
-			if (Company->GetIdentifier() == Identifier)
-			{
-				return Company;
-			}
-		}
-		return NULL;
-	}
+	UFlareCompany* FindCompany(FName Identifier) const;
 
-	inline UFlareCompany* FindCompanyByShortName(FName CompanyShortName) const
-	{
-		// Find company
-		for (int i = 0; i < Companies.Num(); i++)
-		{
-			UFlareCompany* Company = Companies[i];
-			if (Company->GetShortName() == CompanyShortName)
-			{
-				return Company;
-			}
-		}
-		return NULL;
-	}
+	UFlareCompany* FindCompanyByShortName(FName CompanyShortName) const;
 
-	inline UFlareSimulatedSector* FindSector(FName Identifier) const
-	{
-		for (int i = 0; i < Sectors.Num(); i++)
-		{
-			UFlareSimulatedSector* Sector = Sectors[i];
-			if (Sector->GetIdentifier() == Identifier)
-			{
-				return Sector;
-			}
-		}
-		return NULL;
-	}
+	UFlareSimulatedSector* FindSector(FName Identifier) const;
 
-	inline UFlareFleet* FindFleet(FName Identifier) const
-	{
-		for (int i = 0; i < Companies.Num(); i++)
-		{
-			UFlareCompany* Company = Companies[i];
-			UFlareFleet* Fleet = Company->FindFleet(Identifier);
-			if (Fleet)
-			{
-				return Fleet;
-			}
-		}
-		return NULL;
-	}
+	UFlareFleet* FindFleet(FName Identifier) const;
 
-	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation)
-	{
-		for (int i = 0; i < Companies.Num(); i++)
-		{
-			UFlareCompany* Company = Companies[i];
-			UFlareSimulatedSpacecraft* Spacecraft = Company->FindSpacecraft(ShipImmatriculation);
-			if (Spacecraft)
-			{
-				return Spacecraft;
-			}
-		}
-		return NULL;
-	}
+	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation);
 
 	inline TArray<UFlareCompany*> GetCompanies() const
 	{

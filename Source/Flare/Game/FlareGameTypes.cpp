@@ -1,11 +1,11 @@
 #include "../Flare.h"
-#include "FlareSpacecraftTypes.h"
+#include "FlareGameTypes.h"
 
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
 
-UFlareSpacecraftTypes::UFlareSpacecraftTypes(const FObjectInitializer& ObjectInitializer)
+UFlareGameTypes::UFlareGameTypes(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }

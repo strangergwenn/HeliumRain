@@ -51,10 +51,9 @@ void UFlareFactory::Simulate(long Duration)
 				return;
 			}
 
-			if(FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime >= GetGame()->GetGameWorld()->GetTime())
+			if(FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime > GetGame()->GetGameWorld()->GetTime())
 			{
 				// In production
-				FLOGV("%s : In production", *FactoryDescription->Name.ToString())
 				return;
 			}
 
@@ -67,14 +66,12 @@ void UFlareFactory::Simulate(long Duration)
 			}
 
 			DoProduction();
-			FLOGV("%s : do production", *FactoryDescription->Name.ToString())
 
 			RemainingDuration = GetGame()->GetGameWorld()->GetTime() - (FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime);
 		}
 		else if (HasInputResources() && HasInputMoney())
 		{
 			BeginProduction(GetGame()->GetGameWorld()->GetTime() - RemainingDuration);
-			FLOGV("%s : Production begin", *FactoryDescription->Name.ToString())
 		}
 		else
 		{
@@ -87,7 +84,7 @@ void UFlareFactory::Simulate(long Duration)
 
 bool UFlareFactory::HasInputMoney()
 {
-	return Parent->GetCompany()->GetMoney() > FactoryDescription->ProductionCost;
+	return Parent->GetCompany()->GetMoney() >= FactoryDescription->ProductionCost;
 }
 
 bool UFlareFactory::HasInputResources()
@@ -195,4 +192,26 @@ void UFlareFactory::DoProduction()
 			FLOGV("Fail to give %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
 		}
 	}
+}
+
+FFlareWorldEvent *UFlareFactory::GenerateEvent()
+{
+	if (!FactoryData.Active)
+	{
+		return NULL;
+	}
+
+	// Check if production is running
+	if (FactoryData.CostReserved == FactoryDescription->ProductionCost)
+	{
+		if (!HasOutputFreeSpace())
+		{
+			return NULL;
+		}
+
+		NextEvent.Time = FMath::Max(FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime, GetGame()->GetGameWorld()->GetTime());
+		NextEvent.Visibility = EFlareEventVisibility::Silent;
+		return &NextEvent;
+	}
+	return NULL;
 }

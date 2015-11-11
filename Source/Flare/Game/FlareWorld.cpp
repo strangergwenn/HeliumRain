@@ -218,24 +218,36 @@ void UFlareWorld::Simulate(int64 Duration)
 
 void UFlareWorld::FastForward()
 {
-	TArray<FFlareWorldEvent> NextEvents = GenerateEvents();
+	Simulate(0);
 
-	if(NextEvents.Num() == 0)
+	while(true)
 	{
-		// Nothing will append in futur
-		return;
+		TArray<FFlareWorldEvent> NextEvents = GenerateEvents();
+
+		if(NextEvents.Num() == 0)
+		{
+			// Nothing will append in futur
+			return;
+		}
+
+		FFlareWorldEvent& NextEvent = NextEvents[0];
+
+		if(NextEvent.Time < WorldData.Time)
+		{
+			FLOGV("Fast forward fail: next event is in the past. Current time is %ld but next event time %ld", WorldData.Time, NextEvent.Time);
+			return;
+		}
+
+		int64 TimeJump = NextEvent.Time - WorldData.Time;
+
+		Simulate(TimeJump);
+
+		if(NextEvent.Visibility == EFlareEventVisibility::Blocking)
+		{
+			// End fast forward
+			break;
+		}
 	}
-
-	FFlareWorldEvent& NextEvent = NextEvents[0];
-
-	if(NextEvent.Time <= WorldData.Time)
-	{
-		FLOGV("Fast forward fail: next event is in the past. Current time is %ld but next event time %ld", WorldData.Time, NextEvent.Time);
-		return;
-	}
-
-	int64 TimeJump = NextEvent.Time - WorldData.Time;
-	Simulate(TimeJump);
 }
 
 void UFlareWorld::ForceTime(int64 Time)
@@ -267,10 +279,22 @@ TArray<FFlareWorldEvent> UFlareWorld::GenerateEvents(UFlareCompany* PointOfView)
 		FFlareWorldEvent TravelEvent;
 
 		TravelEvent.Time = WorldData.Time + Travels[TravelIndex]->GetRemainingTravelDuration();
+		TravelEvent.Visibility = EFlareEventVisibility::Blocking;
 		NextEvents.Add(TravelEvent);
 	}
 
+	// Generate factory events
+	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+	{
+		FFlareWorldEvent *FactoryEvent = Factories[FactoryIndex]->GenerateEvent();
+		if(FactoryEvent)
+		{
+			NextEvents.Add(*FactoryEvent);
+		}
+	}
+
 	NextEvents.Sort(&EventTimeComparator);
+
 	return NextEvents;
 }
 
@@ -319,4 +343,76 @@ void UFlareWorld::DeleteTravel(UFlareTravel* Travel)
 	FLOGV("UFlareWorld::DeleteTravel : remove travel for fleet '%s'", *Travel->GetFleet()->GetFleetName());
 
 	Travels.Remove(Travel);
+}
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+UFlareCompany* UFlareWorld::FindCompany(FName Identifier) const
+{
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		if (Company->GetIdentifier() == Identifier)
+		{
+			return Company;
+		}
+	}
+	return NULL;
+}
+
+UFlareCompany* UFlareWorld::FindCompanyByShortName(FName CompanyShortName) const
+{
+	// Find company
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		if (Company->GetShortName() == CompanyShortName)
+		{
+			return Company;
+		}
+	}
+	return NULL;
+}
+
+UFlareSimulatedSector* UFlareWorld::FindSector(FName Identifier) const
+{
+	for (int i = 0; i < Sectors.Num(); i++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[i];
+		if (Sector->GetIdentifier() == Identifier)
+		{
+			return Sector;
+		}
+	}
+	return NULL;
+}
+
+UFlareFleet* UFlareWorld::FindFleet(FName Identifier) const
+{
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		UFlareFleet* Fleet = Company->FindFleet(Identifier);
+		if (Fleet)
+		{
+			return Fleet;
+		}
+	}
+	return NULL;
+}
+
+UFlareSimulatedSpacecraft* UFlareWorld::FindSpacecraft(FName ShipImmatriculation)
+{
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		UFlareSimulatedSpacecraft* Spacecraft = Company->FindSpacecraft(ShipImmatriculation);
+		if (Spacecraft)
+		{
+			return Spacecraft;
+		}
+	}
+	return NULL;
 }

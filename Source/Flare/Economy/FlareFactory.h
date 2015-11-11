@@ -2,28 +2,10 @@
 #pragma once
 #include "FlareResource.h"
 #include "../Data/FlareResourceCatalogEntry.h"
+#include "../Game/FlareWorld.h"
 #include "FlareFactory.generated.h"
 
 class UFlareSimulatedSpacecraft;
-
-/** Spacecraft factory save data */
-USTRUCT()
-struct FFlareFactorySave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Factory is active */
-	UPROPERTY(EditAnywhere, Category = Save)
-	bool Active;
-
-	/** Money locked by the factory */
-	UPROPERTY(EditAnywhere, Category = Save)
-	uint32 CostReserved;
-
-	/** Timestamp of last production cycle */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int64 ProductionBeginTime;
-};
 
 /** Factory input or output resource */
 USTRUCT()
@@ -113,6 +95,8 @@ public:
 
 	void DoProduction();
 
+	FFlareWorldEvent *GenerateEvent();
+
 protected:
 
 	/*----------------------------------------------------
@@ -125,7 +109,7 @@ protected:
 	AFlareGame*                              Game;
 	const FFlareFactoryDescription*          FactoryDescription;
 	UFlareSimulatedSpacecraft*				 Parent;
-
+	FFlareWorldEvent                         NextEvent;
 public:
 
 	/*----------------------------------------------------

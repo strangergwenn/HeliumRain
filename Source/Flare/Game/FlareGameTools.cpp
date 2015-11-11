@@ -654,20 +654,20 @@ void UFlareGameTools::PrintCargoBay(FName ShipImmatriculation)
 {
 	if (!GetGameWorld())
 	{
-		FLOG("AFlareGame::GiveResources failed: no loaded world");
+		FLOG("AFlareGame::PrintCargoBay failed: no loaded world");
 		return;
 	}
 
 	if (GetActiveSector())
 	{
-		FLOG("AFlareGame::GiveResources failed: a sector is active");
+		FLOG("AFlareGame::PrintCargoBay failed: a sector is active");
 		return;
 	}
 
 	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(ShipImmatriculation);
 	if (!Ship)
 	{
-		FLOGV("AFlareGame::GiveResources failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
+		FLOGV("AFlareGame::PrintCargoBay failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
 	TArray<FFlareCargo>* CargoBay = Ship->GetCargoBay();

@@ -6,22 +6,6 @@ class UFlareCompany;
 class AFlareSpacecraft;
 class UFlareSpacecraftComponent;
 
-/** Turret pilot save data */
-USTRUCT()
-struct FFlareTurretPilotSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Pilot identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName Identifier;
-
-	/** Pilot name */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FString Name;
-
-};
-
 /** Turret pilot class */
 UCLASS()
 class FLARE_API UFlareTurretPilot : public UObject

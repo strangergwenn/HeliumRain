@@ -287,62 +287,6 @@ struct FFlareSpacecraftComponentWeaponCharacteristics
 
 };
 
-/** Ship component turret save data */
-USTRUCT()
-struct FFlareSpacecraftComponentTurretSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Attribute name */
-	UPROPERTY(EditAnywhere, Category = Save) float TurretAngle;
-
-	/** Attribute value */
-	UPROPERTY(EditAnywhere, Category = Save) float BarrelsAngle;
-};
-
-/** Ship component weapons save data */
-USTRUCT()
-struct FFlareSpacecraftComponentWeaponSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Attribute name */
-	UPROPERTY(EditAnywhere, Category = Save) int32 FiredAmmo;
-};
-
-
-/** Ship component save data */
-USTRUCT()
-struct FFlareSpacecraftComponentSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Component catalog identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName ComponentIdentifier;
-
-	/** Ship slot identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName ShipSlotIdentifier;
-
-	/** Taken damages */
-	UPROPERTY(EditAnywhere, Category = Save)
-	float Damage;
-
-	/** Component turret data*/
-	UPROPERTY(EditAnywhere, Category = Save)
-	FFlareSpacecraftComponentTurretSave Turret;
-
-	/** Component turret data*/
-	UPROPERTY(EditAnywhere, Category = Save)
-	FFlareSpacecraftComponentWeaponSave Weapon;
-
-	/** Pilot */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FFlareTurretPilotSave Pilot;
-};
-
-
 /** Base description of a ship component */
 USTRUCT()
 struct FFlareSpacecraftComponentDescription
