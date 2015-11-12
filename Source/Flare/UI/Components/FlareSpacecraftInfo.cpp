@@ -110,6 +110,13 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.TextFont)
 						]
 					]
+
+					// Cargo bay block
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SAssignNew(CargoBay, SVerticalBox)
+					]
 				]
 
 				// Icon
@@ -220,6 +227,28 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 		if (SaveData)
 		{
 			TargetSpacecraftDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
+		}
+
+		CargoBay->ClearChildren();
+		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(Target);
+
+		if(SimulatedSpacecraft)
+		{
+			const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+			TArray<FFlareCargo>* SpacecraftCargoBay = SimulatedSpacecraft->GetCargoBay();
+			for(int CargoIndex = 0; CargoIndex < SpacecraftCargoBay->Num() ; CargoIndex++)
+			{
+				FFlareCargo* Cargo = &(*SpacecraftCargoBay)[CargoIndex];
+				FString ResourceString = FString::Printf(TEXT("- %s (%u/%u)"), (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, Cargo->Capacity);
+
+				CargoBay->AddSlot()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::FromString(ResourceString))
+				];
+			}
 		}
 	}
 }

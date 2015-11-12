@@ -122,5 +122,6 @@ protected:
 	TSharedPtr<SFlareButton>          UndockButton;
 	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
+	TSharedPtr<SVerticalBox>          CargoBay;
 
 };
