@@ -230,6 +230,44 @@ bool UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resourc
 		return true;
 	}
 
+	// First pass: take resource from the less full cargo
+	uint32 MinQuantity;
+	FFlareCargo* MinQuantityCargo = NULL;
+
+	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		if(Cargo.Resource == Resource)
+		{
+			if(MinQuantityCargo == NULL || MinQuantity > Cargo.Quantity)
+			{
+				MinQuantityCargo = &Cargo;
+				MinQuantity = Cargo.Quantity;
+			}
+		}
+	}
+
+	if(MinQuantityCargo)
+	{
+		uint32 TakenQuantity = FMath::Min(MinQuantityCargo->Quantity, QuantityToTake);
+		if(TakenQuantity > 0)
+		{
+			MinQuantityCargo->Quantity -= TakenQuantity;
+			QuantityToTake -= TakenQuantity;
+
+			if(MinQuantityCargo->Quantity == 0)
+			{
+				MinQuantityCargo->Resource = NULL;
+			}
+
+			if(QuantityToTake == 0)
+			{
+				return true;
+			}
+		}
+	}
+
+
 	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
