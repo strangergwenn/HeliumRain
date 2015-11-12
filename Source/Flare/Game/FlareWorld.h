@@ -109,6 +109,10 @@ public:
 	/** Add a factory to world */
 	void AddFactory(UFlareFactory* Factory);
 
+	// TODO Check docking capabilities
+	/** Transfert resource from one spacecraft to another spacecraft */
+	bool TransfertResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity);
+
 protected:
 
 	/*----------------------------------------------------

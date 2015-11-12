@@ -177,7 +177,7 @@ void UFlareFactory::DoProduction()
 	for(int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
-		if(!Parent->TakeResources(&Resource->Resource->Data, Resource->Quantity))
+		if(Parent->TakeResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
 		{
 			FLOGV("Fail to take %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
 		}
@@ -187,7 +187,7 @@ void UFlareFactory::DoProduction()
 	for(int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->OutputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->OutputResources[ResourceIndex];
-		if(!Parent->GiveResources(&Resource->Resource->Data, Resource->Quantity))
+		if(Parent->GiveResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
 		{
 			FLOGV("Fail to give %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
 		}

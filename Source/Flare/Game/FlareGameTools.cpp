@@ -776,6 +776,44 @@ void UFlareGameTools::GiveMoney(FName CompanyShortName, uint64 Amount)
 	Company->GiveMoney(Amount);
 }
 
+void UFlareGameTools::TransferResources(FName SourceImmatriculation, FName DestinationImmatriculation, FName ResourceIdentifier, uint32 Quantity)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::TransferResources failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::TransferResources failed: a sector is active");
+		return;
+	}
+
+	FFlareResourceDescription* Resource = GetGame()->GetResourceCatalog()->Get(ResourceIdentifier);
+	if (!Resource)
+	{
+		FLOGV("AFlareGame::TransferResources failed: no resource with id '%s'", *ResourceIdentifier.ToString());
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* SourceSpacecraft = GetGameWorld()->FindSpacecraft(SourceImmatriculation);
+	if (!SourceSpacecraft)
+	{
+		FLOGV("AFlareGame::TransferResources failed: no source spacecraft with immatriculation '%s'", *SourceImmatriculation.ToString());
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* DestinationSpacecraft = GetGameWorld()->FindSpacecraft(DestinationImmatriculation);
+	if (!DestinationSpacecraft)
+	{
+		FLOGV("AFlareGame::TransferResources failed: no destination spacecraft with immatriculation '%s'", *DestinationImmatriculation.ToString());
+		return;
+	}
+
+	GetGameWorld()->TransfertResources(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
+}
+
 /*----------------------------------------------------
 	Active Sector tools
 ----------------------------------------------------*/

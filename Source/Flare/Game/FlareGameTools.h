@@ -155,6 +155,9 @@ public:
 	UFUNCTION(exec)
 	void GiveMoney(FName CompanyShortName, uint64 Amount);
 
+	UFUNCTION(exec)
+	void TransferResources(FName SourceImmatriculation, FName DestinationImmatriculation, FName ResourceIdentifier, uint32 Quantity);
+
 
 	/*----------------------------------------------------
 		Active Sector tools

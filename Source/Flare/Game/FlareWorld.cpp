@@ -345,6 +345,22 @@ void UFlareWorld::DeleteTravel(UFlareTravel* Travel)
 	Travels.Remove(Travel);
 }
 
+bool UFlareWorld::TransfertResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity)
+{
+	// TODO Check docking capabilities
+	bool TransfertOK = true;
+
+	uint32 TakenResources = SourceSpacecraft->TakeResources(Resource, Quantity);
+	uint32 GivenResources = DestinationSpacecraft->GiveResources(Resource, TakenResources);
+	uint32 PaybackResources = TakenResources - GivenResources;
+	if(PaybackResources > 0)
+	{
+		SourceSpacecraft->GiveResources(Resource, PaybackResources);
+	}
+
+	return TransfertOK;
+}
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/

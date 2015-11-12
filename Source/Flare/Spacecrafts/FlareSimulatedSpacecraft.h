@@ -80,9 +80,9 @@ public:
 
 	bool HasResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
-	bool TakeResources(FFlareResourceDescription* Resource, uint32 Quantity);
+	uint32 TakeResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
-	bool GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
+	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
 protected:
 

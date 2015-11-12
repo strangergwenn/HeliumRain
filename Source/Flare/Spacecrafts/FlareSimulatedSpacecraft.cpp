@@ -220,14 +220,14 @@ bool UFlareSimulatedSpacecraft::HasResources(FFlareResourceDescription* Resource
 	return false;
 }
 
-bool UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resource, uint32 Quantity)
+uint32 UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resource, uint32 Quantity)
 {
 	uint32 QuantityToTake = Quantity;
 
 
 	if(QuantityToTake == 0)
 	{
-		return true;
+		return 0;
 	}
 
 	// First pass: take resource from the less full cargo
@@ -262,7 +262,7 @@ bool UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resourc
 
 			if(QuantityToTake == 0)
 			{
-				return true;
+				return Quantity;
 			}
 		}
 	}
@@ -286,15 +286,15 @@ bool UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resourc
 
 				if(QuantityToTake == 0)
 				{
-					return true;
+					return Quantity;
 				}
 			}
 		}
 	}
-	return false;
+	return Quantity - QuantityToTake;
 }
 
-bool UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resource, uint32 Quantity)
+uint32 UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resource, uint32 Quantity)
 {
 	uint32 QuantityToGive = Quantity;
 
@@ -315,7 +315,7 @@ bool UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resourc
 
 				if(QuantityToGive == 0)
 				{
-					return true;
+					return Quantity;
 				}
 			}
 		}
@@ -338,7 +338,7 @@ bool UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resourc
 
 				if(QuantityToGive == 0)
 				{
-					return true;
+					return Quantity;
 				}
 			}
 			else
@@ -349,5 +349,5 @@ bool UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resourc
 		}
 	}
 
-	return QuantityToGive > 0;
+	return Quantity - QuantityToGive;
 }
