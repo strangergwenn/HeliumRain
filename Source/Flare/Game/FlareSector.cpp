@@ -76,7 +76,7 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 
 	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
-		if(!SectorSpacecrafts[i]->GetDamageSystem()->IsAlive())
+		if (!SectorSpacecrafts[i]->GetDamageSystem()->IsAlive())
 		{
 			// Don't save destroyed ships
 			FLOGV("UFlareSector::Save Don't save %s", *SectorSpacecrafts[i]->GetImmatriculation().ToString());
@@ -106,7 +106,7 @@ void UFlareSector::Destroy()
 {
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
-		if(!SectorSpacecrafts[SpacecraftIndex]->GetDamageSystem()->IsAlive())
+		if (!SectorSpacecrafts[SpacecraftIndex]->GetDamageSystem()->IsAlive())
 		{
 			// Remove from world
 			DestroySpacecraft(SectorSpacecrafts[SpacecraftIndex], true);
@@ -199,19 +199,19 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 					break;
 				case EFlareSpawnMode::Spawn:
-					if(Desc->NeedAttachPoint)
+					if (Desc->NeedAttachPoint)
 					{
 						AFlareAsteroid* AttachPoint = NULL;
 						for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
 						{
 							AFlareAsteroid* AsteroidCandidate = SectorAsteroids[AsteroidIndex];
-							if(AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
+							if (AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
 							{
 								AttachPoint = AsteroidCandidate;
 								break;
 							}
 						}
-						if(AttachPoint)
+						if (AttachPoint)
 						{
 							bool SpacecraftAttachPointLocationFound = false;
 							FVector Position = Spacecraft->GetActorLocation() + FVector(1,0,0);
@@ -226,7 +226,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 									break;
 								}
 							}
-							if(! SpacecraftAttachPointLocationFound)
+							if (! SpacecraftAttachPointLocationFound)
 							{
 								FLOGV("AFlareGame::LoadSpacecraft failed to find 'AttachPoint' socket on '%s'", *ShipData.Immatriculation.ToString());
 							}
@@ -260,28 +260,28 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					for (int SpacecraftIndex = 0 ; SpacecraftIndex < FriendlySpacecrafts.Num(); SpacecraftIndex++)
 					{
 						AFlareSpacecraft *SpacecraftCandidate = FriendlySpacecrafts[SpacecraftIndex];
-						if(!SpacecraftCandidate->IsStation() && SpacecraftCandidate != Spacecraft)
+						if (!SpacecraftCandidate->IsStation() && SpacecraftCandidate != Spacecraft)
 						{
 							FriendlyShipLocationSum += SpacecraftCandidate->GetActorLocation();
 							FriendlyShipCount++;
 						}
 					}
 
-					if(FriendlyShipCount == 0)
+					if (FriendlyShipCount == 0)
 					{
 						FVector NotFriendlyShipLocationSum = FVector::ZeroVector;
 						int NotFriendlyShipCount = 0;
 						for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorShips.Num(); SpacecraftIndex++)
 						{
 							AFlareSpacecraft *SpacecraftCandidate = SectorShips[SpacecraftIndex];
-							if(SpacecraftCandidate != Spacecraft && SpacecraftCandidate->GetCompany() != Spacecraft->GetCompany())
+							if (SpacecraftCandidate != Spacecraft && SpacecraftCandidate->GetCompany() != Spacecraft->GetCompany())
 							{
 								NotFriendlyShipLocationSum += SpacecraftCandidate->GetActorLocation();
 								NotFriendlyShipCount++;
 							}
 						}
 
-						if(NotFriendlyShipCount == 0)
+						if (NotFriendlyShipCount == 0)
 						{
 							SpawnDirection = FMath::VRand();
 						}
@@ -309,14 +309,14 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					break;
 			}
 
-			if(Desc->NeedAttachPoint)
+			if (Desc->NeedAttachPoint)
 			{
 				// Attach the station to the attach point
 				AFlareAsteroid* AttachPoint = NULL;
 				for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
 				{
 					AFlareAsteroid* AsteroidCandidate = SectorAsteroids[AsteroidIndex];
-					if(AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
+					if (AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
 					{
 						AttachPoint = AsteroidCandidate;
 						break;
@@ -420,7 +420,7 @@ void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroyi
 {
 	FLOGV("UFlareSector::DestroySpacecraft %s", *Spacecraft->GetImmatriculation().ToString());
 
-	if(!Destroying)
+	if (!Destroying)
 	{
 		SectorSpacecrafts.Remove(Spacecraft);
 		SectorShips.Remove(Spacecraft);
@@ -569,7 +569,7 @@ AFlareSpacecraft* UFlareSector::FindSpacecraft(FName Immatriculation)
 
 void UFlareSector::GenerateSectorRepartitionCache()
 {
-	if(!SectorRepartitionCache)
+	if (!SectorRepartitionCache)
 	{
 		SectorRepartitionCache = true;
 		SectorRadius = 0.0f;
@@ -583,7 +583,7 @@ void UFlareSector::GenerateSectorRepartitionCache()
 		for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 		{
 			AFlareSpacecraft *Spacecraft = SectorSpacecrafts[SpacecraftIndex];
-			if(Spacecraft->IsStation())
+			if (Spacecraft->IsStation())
 			{
 				SectorMin = SectorMin.ComponentMin(Spacecraft->GetActorLocation());
 				SectorMax = SectorMax.ComponentMax(Spacecraft->GetActorLocation());
@@ -599,7 +599,7 @@ void UFlareSector::GenerateSectorRepartitionCache()
 			SignificantObjectCount++;
 		}
 
-		if(SignificantObjectCount > 0)
+		if (SignificantObjectCount > 0)
 		{
 			// At least one station or asteroid in sector
 			FVector BoxSize = SectorMax - SectorMin;

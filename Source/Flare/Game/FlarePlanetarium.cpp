@@ -173,7 +173,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 	if (BodyComponent)
 	{
 		FVector PlayerShipLocation = FVector::ZeroVector;
-		if(GetGame()->GetPC()->GetShipPawn())
+		if (GetGame()->GetPC()->GetShipPawn())
 		{
 			PlayerShipLocation = GetGame()->GetPC()->GetShipPawn()->GetActorLocation();
 		}
@@ -205,7 +205,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		}
 		ComponentMaterial->SetVectorParameterValue("SunDirection", SunDirection.ToVector());
 
-		if(Body == &Sun)
+		if (Body == &Sun)
 		{
 			BodyComponent->SetRelativeRotation(SunDirection.ToVector().Rotation());
 		}

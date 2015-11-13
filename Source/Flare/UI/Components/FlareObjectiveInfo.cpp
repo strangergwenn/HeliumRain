@@ -108,7 +108,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 
-	if(Objective && Objective->Version != LastObjectiveVersion)
+	if (Objective && Objective->Version != LastObjectiveVersion)
 	{
 		// Update structure
 		LastObjectiveVersion = Objective->Version;
@@ -117,7 +117,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 		int32 ObjectiveInfoWidth = 400;
 		int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
 
-		for(int ConditionIndex = 0; ConditionIndex < Objective->Data.ConditionList.Num(); ConditionIndex++)
+		for (int ConditionIndex = 0; ConditionIndex < Objective->Data.ConditionList.Num(); ConditionIndex++)
 		{
 			// Update structure
 			const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
@@ -236,14 +236,14 @@ FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 
-	if(!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
 		return FText::FromString("");
 	}
 
 	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
 
-	if(Condition->MaxCounter == 0)
+	if (Condition->MaxCounter == 0)
 	{
 		return FText::FromString("");
 	}
@@ -255,14 +255,14 @@ EVisibility SFlareObjectiveInfo::GetCounterVisibility(int32 ConditionIndex) cons
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 
-	if(!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
 		return EVisibility::Collapsed;
 	}
 
 	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
 
-	if(Condition->MaxCounter == 0)
+	if (Condition->MaxCounter == 0)
 	{
 		return EVisibility::Collapsed;
 	}
@@ -299,14 +299,14 @@ TOptional<float> SFlareObjectiveInfo::GetProgress(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 
-	if(!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
 		return 0;
 	}
 
 	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
 
-	if(Condition->MaxProgress == 0)
+	if (Condition->MaxProgress == 0)
 	{
 		return 0;
 	}
@@ -318,14 +318,14 @@ EVisibility SFlareObjectiveInfo::GetProgressVisibility(int32 ConditionIndex) con
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 
-	if(!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
 		return EVisibility::Collapsed;
 	}
 
 	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
 
-	if(Condition->MaxProgress == 0)
+	if (Condition->MaxProgress == 0)
 	{
 		return EVisibility::Collapsed;
 	}

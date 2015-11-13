@@ -159,7 +159,7 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
 	// Update lifetime only if lifetime is forced or if this the first notification
-	if(Notifier->IsFirstNotification(this) || ForcedLife || Lifetime <= NotificationEnterDuration)
+	if (Notifier->IsFirstNotification(this) || ForcedLife || Lifetime <= NotificationEnterDuration)
 	{
 		Lifetime += InDeltaTime;
 	}

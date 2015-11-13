@@ -481,7 +481,7 @@ void SFlareOrbitalMenu::OnFlySelectedShipClicked()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
-	if(SelectedFleet->GetShips().Num() == 0)
+	if (SelectedFleet->GetShips().Num() == 0)
 	{
 		return;
 	}

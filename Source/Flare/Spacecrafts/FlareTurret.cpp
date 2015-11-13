@@ -62,13 +62,13 @@ void UFlareTurret::SetupComponentMesh()
 {
 	Super::SetupComponentMesh();
 
-	if(TurretComponent)
+	if (TurretComponent)
 	{
 		TurretComponent->DestroyComponent();
 		TurretComponent = NULL;
 	}
 
-	if(BarrelComponent)
+	if (BarrelComponent)
 	{
 		BarrelComponent->DestroyComponent();
 		BarrelComponent = NULL;

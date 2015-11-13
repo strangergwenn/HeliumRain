@@ -37,11 +37,11 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 {
 	// Remove notification with the same tag.
 
-	if(Tag != NAME_None)
+	if (Tag != NAME_None)
 	{
-		for(int Index = 0; Index < NotificationData.Num(); Index++)
+		for (int Index = 0; Index < NotificationData.Num(); Index++)
 		{
-			if(NotificationData[Index]->IsDuplicate(Tag))
+			if (NotificationData[Index]->IsDuplicate(Tag))
 			{
 				FLOG("SFlareNotifier::Notify : deleting previous because it's duplicate");
 				NotificationData[Index]->Finish(false);
@@ -114,9 +114,9 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 
 bool SFlareNotifier::IsFirstNotification(SFlareNotification* Notification)
 {
-	for(int i = 0; i < NotificationData.Num(); i++)
+	for (int i = 0; i < NotificationData.Num(); i++)
 	{
-		if(!NotificationData[i]->IsFinished())
+		if (!NotificationData[i]->IsFinished())
 		{
 			return NotificationData[i].Get() == Notification;
 		}

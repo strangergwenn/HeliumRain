@@ -744,7 +744,7 @@ void SFlareSettingsMenu::FillResolutionList()
 		FLOG("SFlareSettingsMenu::FillResolutionList : screen resolutions could not be obtained");
 	}
 
-	for(int i = 0; i < ResolutionList.Num(); i++)
+	for (int i = 0; i < ResolutionList.Num(); i++)
 	{
 
 		// Look for current resolution

@@ -34,7 +34,7 @@ FFlareFleetSave* UFlareFleet::Save()
 FText UFlareFleet::GetName()
 {
 	// TODO Clean with GetFleetName
-	if(GetShips().Num() > 0)
+	if (GetShips().Num() > 0)
 	{
 		return FText::FromString(GetShips()[0]->GetImmatriculation().ToString());
 	}

@@ -224,7 +224,7 @@ void UFlareWorld::FastForward()
 	{
 		TArray<FFlareWorldEvent> NextEvents = GenerateEvents();
 
-		if(NextEvents.Num() == 0)
+		if (NextEvents.Num() == 0)
 		{
 			// Nothing will append in futur
 			return;
@@ -232,7 +232,7 @@ void UFlareWorld::FastForward()
 
 		FFlareWorldEvent& NextEvent = NextEvents[0];
 
-		if(NextEvent.Time < WorldData.Time)
+		if (NextEvent.Time < WorldData.Time)
 		{
 			FLOGV("Fast forward fail: next event is in the past. Current time is %ld but next event time %ld", WorldData.Time, NextEvent.Time);
 			return;
@@ -242,7 +242,7 @@ void UFlareWorld::FastForward()
 
 		Simulate(TimeJump);
 
-		if(NextEvent.Visibility == EFlareEventVisibility::Blocking)
+		if (NextEvent.Visibility == EFlareEventVisibility::Blocking)
 		{
 			// End fast forward
 			break;
@@ -287,7 +287,7 @@ TArray<FFlareWorldEvent> UFlareWorld::GenerateEvents(UFlareCompany* PointOfView)
 	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
 		FFlareWorldEvent *FactoryEvent = Factories[FactoryIndex]->GenerateEvent();
-		if(FactoryEvent)
+		if (FactoryEvent)
 		{
 			NextEvents.Add(*FactoryEvent);
 		}
@@ -303,7 +303,7 @@ void UFlareWorld::ClearFactories(UFlareSimulatedSpacecraft *ParentSpacecraft)
 	for (int FactoryIndex = Factories.Num() -1 ; FactoryIndex >= 0; FactoryIndex--)
 	{
 		UFlareFactory* Factory = Factories[FactoryIndex];
-		if(Factory->GetParent() == ParentSpacecraft)
+		if (Factory->GetParent() == ParentSpacecraft)
 		{
 			Factories.RemoveAt(FactoryIndex);
 		}
@@ -353,7 +353,7 @@ bool UFlareWorld::TransfertResources(UFlareSimulatedSpacecraft* SourceSpacecraft
 	uint32 TakenResources = SourceSpacecraft->TakeResources(Resource, Quantity);
 	uint32 GivenResources = DestinationSpacecraft->GiveResources(Resource, TakenResources);
 	uint32 PaybackResources = TakenResources - GivenResources;
-	if(PaybackResources > 0)
+	if (PaybackResources > 0)
 	{
 		SourceSpacecraft->GiveResources(Resource, PaybackResources);
 	}

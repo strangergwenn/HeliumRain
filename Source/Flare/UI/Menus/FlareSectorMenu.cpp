@@ -300,7 +300,7 @@ FText SFlareSectorMenu::GetSectorLocation() const
 		FFlareCelestialBody* Body = TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(TargetSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
 
-		if(Body)
+		if (Body)
 		{
 			Result = FText::Format(LOCTEXT("SectorLocation",  "{0} - Altitude: {1} km - Phase: {2}°."), Body->Name, FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude), FText::AsNumber(TargetSector->GetOrbitParameters()->Phase));
 		}
@@ -317,7 +317,7 @@ void SFlareSectorMenu::OnBackClicked()
 void SFlareSectorMenu::OnTravelHereClicked()
 {
 	UFlareFleet* SelectedFleet = MenuManager->GetGame()->GetPC()->GetSelectedFleet();
-	if(SelectedFleet)
+	if (SelectedFleet)
 	{
 		MenuManager->GetGame()->GetGameWorld()->StartTravel(SelectedFleet, TargetSector);
 		MenuManager->Back();

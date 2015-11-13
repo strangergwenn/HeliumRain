@@ -45,7 +45,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	Factories.Empty();
 
 
-	for(int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+	for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
 	{
 		FFlareFactorySave FactoryData;
 
@@ -76,7 +76,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		Cargo.Capacity = SpacecraftDescription->CargoBayCapacity;
 		Cargo.Quantity = 0;
 
-		if (CargoIndex < SpacecraftData.Cargo.Num())
+		if (CargoIndex < (uint32)SpacecraftData.Cargo.Num())
 		{
 			// Existing save
 			FFlareCargoSave* CargoSave = &SpacecraftData.Cargo[CargoIndex];
@@ -96,18 +96,18 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 {
 	SpacecraftData.FactoryStates.Empty();
-	for(int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
 		SpacecraftData.FactoryStates.Add(*Factories[FactoryIndex]->Save());
 	}
 
 	SpacecraftData.Cargo.Empty();
-	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
 		FFlareCargoSave CargoSave;
 		CargoSave.Quantity = Cargo.Quantity;
-		if(Cargo.Resource != NULL)
+		if (Cargo.Resource != NULL)
 		{
 			CargoSave.ResourceIdentifier = Cargo.Resource->Identifier;
 		}
@@ -184,7 +184,7 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 	CurrentSector = Sector;
 
 	// Mark the sector as visited
-	if(Sector)
+	if (Sector)
 	{
 		GetCompany()->VisitSector(Sector);
 	}
@@ -246,20 +246,20 @@ uint32 UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resou
 		}
 	}
 
-	if(MinQuantityCargo)
+	if (MinQuantityCargo)
 	{
 		uint32 TakenQuantity = FMath::Min(MinQuantityCargo->Quantity, QuantityToTake);
-		if(TakenQuantity > 0)
+		if (TakenQuantity > 0)
 		{
 			MinQuantityCargo->Quantity -= TakenQuantity;
 			QuantityToTake -= TakenQuantity;
 
-			if(MinQuantityCargo->Quantity == 0)
+			if (MinQuantityCargo->Quantity == 0)
 			{
 				MinQuantityCargo->Resource = NULL;
 			}
 
-			if(QuantityToTake == 0)
+			if (QuantityToTake == 0)
 			{
 				return Quantity;
 			}
@@ -267,23 +267,23 @@ uint32 UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resou
 	}
 
 
-	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if(Cargo.Resource == Resource)
+		if (Cargo.Resource == Resource)
 		{
 			uint32 TakenQuantity = FMath::Min(Cargo.Quantity, QuantityToTake);
-			if(TakenQuantity > 0)
+			if (TakenQuantity > 0)
 			{
 				Cargo.Quantity -= TakenQuantity;
 				QuantityToTake -= TakenQuantity;
 
-				if(Cargo.Quantity == 0)
+				if (Cargo.Quantity == 0)
 				{
 					Cargo.Resource = NULL;
 				}
 
-				if(QuantityToTake == 0)
+				if (QuantityToTake == 0)
 				{
 					return Quantity;
 				}
@@ -299,7 +299,7 @@ uint32 UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resou
 
 
 	// First pass, fill already existing slots
-	for(int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
 		if (Resource == Cargo.Resource)
@@ -307,12 +307,12 @@ uint32 UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resou
 			// Same resource
 			uint32 AvailableCapacity = Cargo.Capacity - Cargo.Quantity;
 			uint32 GivenQuantity = FMath::Min(AvailableCapacity, QuantityToGive);
-			if(GivenQuantity > 0)
+			if (GivenQuantity > 0)
 			{
 				Cargo.Quantity += GivenQuantity;
 				QuantityToGive -= GivenQuantity;
 
-				if(QuantityToGive == 0)
+				if (QuantityToGive == 0)
 				{
 					return Quantity;
 				}
@@ -321,21 +321,21 @@ uint32 UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resou
 	}
 
 	// Fill free cargo slots
-	for(int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
 		if (Cargo.Quantity == 0)
 		{
 			// Empty Cargo
 			uint32 GivenQuantity = FMath::Min(Cargo.Capacity, QuantityToGive);
-			if(GivenQuantity > 0)
+			if (GivenQuantity > 0)
 			{
 				Cargo.Quantity += GivenQuantity;
 				Cargo.Resource = Resource;
 
 				QuantityToGive -= GivenQuantity;
 
-				if(QuantityToGive == 0)
+				if (QuantityToGive == 0)
 				{
 					return Quantity;
 				}

@@ -122,7 +122,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
-	if(!Other)
+	if (!Other)
 	{
 		// Colliding a kill pending actor
 		return;

@@ -119,7 +119,7 @@ FFlareCompanySave* UFlareCompany::Save()
 	for (int i = 0 ; i < KnownSectors.Num(); i++)
 	{
 		// The visited sector are already saved
-		if(!VisitedSectors.Contains(KnownSectors[i]))
+		if (!VisitedSectors.Contains(KnownSectors[i]))
 		{
 			FFlareCompanySectorKnowledge SectorKnowledge;
 			SectorKnowledge.Knowledge = EFlareSectorKnowledge::Known;
@@ -225,7 +225,7 @@ void UFlareCompany::RemoveFleet(UFlareFleet* Fleet)
 {
 	CompanyFleets.Remove(Fleet);
 
-	if(Game->GetPC()->GetSelectedFleet() == Fleet)
+	if (Game->GetPC()->GetSelectedFleet() == Fleet)
 	{
 		Game->GetPC()->SelectFleet(NULL);
 	}
@@ -269,12 +269,12 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 	CompanySpacecrafts.Remove(Spacecraft);
 	CompanyStations.Remove(Spacecraft);
 	CompanyShips.Remove(Spacecraft);
-	if(Spacecraft->GetCurrentFleet())
+	if (Spacecraft->GetCurrentFleet())
 	{
 		Spacecraft->GetCurrentFleet()->RemoveShip(Spacecraft);
 	}
 
-	if(Spacecraft->GetCurrentSector())
+	if (Spacecraft->GetCurrentSector())
 	{
 		Spacecraft->GetCurrentSector()->RemoveSpacecraft(Spacecraft);
 	}
@@ -298,7 +298,7 @@ void UFlareCompany::VisitSector(UFlareSimulatedSector* Sector)
 
 void UFlareCompany::TakeMoney(uint64 Amount)
 {
-	if(Amount > CompanyData.Money)
+	if (Amount > CompanyData.Money)
 	{
 		FLOGV("Fail to take %llu money from %s (balance: %llu)", Amount, *GetCompanyName().ToString(), CompanyData.Money);
 		CompanyData.Money = 0;

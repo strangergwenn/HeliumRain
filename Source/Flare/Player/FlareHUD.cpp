@@ -256,7 +256,7 @@ void AFlareHUD::DrawHUD()
 		{
 			FVector2D ScreenPosition;
 
-			for(int TargetIndex = 0; TargetIndex < PC->GetCurrentObjective()->Data.TargetList.Num(); TargetIndex++)
+			for (int TargetIndex = 0; TargetIndex < PC->GetCurrentObjective()->Data.TargetList.Num(); TargetIndex++)
 			{
 
 				const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->Data.TargetList[TargetIndex];

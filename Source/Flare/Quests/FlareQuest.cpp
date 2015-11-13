@@ -37,9 +37,9 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 	QuestStatus = EFlareQuestStatus::ACTIVE;
 
 	// Init current step
-	for(int StepIndex = 0; StepIndex < QuestDescription->Steps.Num(); StepIndex++)
+	for (int StepIndex = 0; StepIndex < QuestDescription->Steps.Num(); StepIndex++)
 	{
-		if(!QuestData.SuccessfullSteps.Contains(QuestDescription->Steps[StepIndex].Identifier))
+		if (!QuestData.SuccessfullSteps.Contains(QuestDescription->Steps[StepIndex].Identifier))
 		{
 			CurrentStepDescription = &QuestDescription->Steps[StepIndex];
 			break;
@@ -70,7 +70,7 @@ void UFlareQuest::UpdateState()
 		case EFlareQuestStatus::AVAILABLE:
 		{
 			bool ConditionsStatus = CheckConditions(QuestDescription->Triggers, true);
-			if(ConditionsStatus)
+			if (ConditionsStatus)
 			{
 				Activate();
 			}
@@ -79,23 +79,23 @@ void UFlareQuest::UpdateState()
 		case EFlareQuestStatus::ACTIVE:
 		{
 			const FFlareQuestStepDescription* StepDescription = GetCurrentStepDescription();
-			if(StepDescription)
+			if (StepDescription)
 			{
 				bool StepEnabled = CheckConditions(StepDescription->EnabledConditions, true);
-				if(StepEnabled)
+				if (StepEnabled)
 				{
 					bool StepFailed = CheckConditions(StepDescription->FailConditions, false);
-					if(StepFailed)
+					if (StepFailed)
 					{
 						Fail();
 					}
 					else
 					{
 						bool StepBlocked = CheckConditions(StepDescription->BlockConditions, false);
-						if(!StepBlocked)
+						if (!StepBlocked)
 						{
 							bool StepEnded = CheckConditions(StepDescription->EndConditions, true);
-							if(StepEnded){
+							if (StepEnded){
 								// This step ended go to next step
 								EndStep();
 							}
@@ -121,7 +121,7 @@ void UFlareQuest::EndStep()
 	PerformActions(StepDescription->EndActions);
 
 	CurrentStepDescription = NULL;
-	if(TrackObjectives)
+	if (TrackObjectives)
 	{
 		QuestManager->GetGame()->GetPC()->CompleteObjective();
 	}
@@ -143,9 +143,9 @@ void UFlareQuest::NextStep()
 	}
 
 	// Find first not done step
-	for(int StepIndex = 0; StepIndex < QuestDescription->Steps.Num(); StepIndex++)
+	for (int StepIndex = 0; StepIndex < QuestDescription->Steps.Num(); StepIndex++)
 	{
-		if(!QuestData.SuccessfullSteps.Contains(QuestDescription->Steps[StepIndex].Identifier))
+		if (!QuestData.SuccessfullSteps.Contains(QuestDescription->Steps[StepIndex].Identifier))
 		{
 			CurrentStepDescription = &QuestDescription->Steps[StepIndex];
 			FLOGV("Quest %s step %s begin", *GetIdentifier().ToString(), *CurrentStepDescription->Identifier.ToString());
@@ -209,7 +209,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 		case EFlareQuestCondition::SHARED_CONDITION:
 		{
 			const FFlareSharedQuestCondition* SharedCondition = FindSharedCondition(Condition->Identifier1);
-			if(SharedCondition)
+			if (SharedCondition)
 			{
 				Status = CheckConditions(SharedCondition->Conditions, EmptyResult);
 			}
@@ -365,7 +365,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 
 				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
 
-				if(!ProgressSave)
+				if (!ProgressSave)
 				{
 					ProgressSave = CreateStepProgressSave(Condition);
 					ProgressSave->CurrentProgression = 0;
@@ -597,7 +597,7 @@ void UFlareQuest::SendQuestNotification(FString Message, FName Tag)
 
 void UFlareQuest::StartObjectiveTracking()
 {
-	if(TrackObjectives)
+	if (TrackObjectives)
 	{
 		return; // No change
 	}
@@ -609,7 +609,7 @@ void UFlareQuest::StartObjectiveTracking()
 
 void UFlareQuest::StopObjectiveTracking()
 {
-	if(!TrackObjectives)
+	if (!TrackObjectives)
 	{
 		return; // No change
 	}
@@ -621,7 +621,7 @@ void UFlareQuest::StopObjectiveTracking()
 
 void UFlareQuest::UpdateObjectiveTracker()
 {
-	if(!TrackObjectives)
+	if (!TrackObjectives)
 	{
 		return;
 	}
@@ -629,7 +629,7 @@ void UFlareQuest::UpdateObjectiveTracker()
 
 	FText Name = FText::FromString(GetQuestName());
 	FText Infos = FText::FromString("");
-	if(GetCurrentStepDescription())
+	if (GetCurrentStepDescription())
 	{
 		Infos = FText::FromString(GetCurrentStepDescription()->StepDescription);
 	}
@@ -638,7 +638,7 @@ void UFlareQuest::UpdateObjectiveTracker()
 	Objective.Name = Name;
 	Objective.Description = Infos;
 
-	if(GetCurrentStepDescription())
+	if (GetCurrentStepDescription())
 	{
 		AddConditionObjectives(&Objective, GetCurrentStepDescription()->EndConditions);
 	}
@@ -656,7 +656,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 		case EFlareQuestCondition::SHARED_CONDITION:
 		{
 			const FFlareSharedQuestCondition* SharedCondition = FindSharedCondition(Condition->Identifier1);
-			if(SharedCondition)
+			if (SharedCondition)
 			{
 				AddConditionObjectives(ObjectiveData, SharedCondition->Conditions);
 			}
@@ -683,7 +683,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				{
 					ObjectiveCondition.MaxProgress = FMath::Abs(ProgressSave->InitialVelocity - Condition->FloatParam1);
 					ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - Condition->FloatParam1);
-					if(Velocity > Condition->FloatParam1)
+					if (Velocity > Condition->FloatParam1)
 					{
 						ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
 					}
@@ -716,7 +716,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				{
 					ObjectiveCondition.MaxProgress = FMath::Abs(ProgressSave->InitialVelocity - Condition->FloatParam1);
 					ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - Condition->FloatParam1);
-					if(Velocity < Condition->FloatParam1)
+					if (Velocity < Condition->FloatParam1)
 					{
 						ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
 					}
@@ -737,7 +737,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
 				FString Direction;
-				if(Condition->FloatParam1 > 0)
+				if (Condition->FloatParam1 > 0)
 				{
 					Direction = "down";
 				}
@@ -771,7 +771,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
 				FString Direction;
-				if(Condition->FloatParam1 > 0)
+				if (Condition->FloatParam1 > 0)
 				{
 					Direction = "right";
 				}
@@ -805,7 +805,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
 				FString Direction;
-				if(Condition->FloatParam1 > 0)
+				if (Condition->FloatParam1 > 0)
 				{
 					Direction = "left";
 				}
@@ -850,13 +850,13 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			// It need navigation point. Get current point coordinate.
 			FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
 
-			if(ProgressSave)
+			if (ProgressSave)
 			{
 				ObjectiveCondition.Counter = ProgressSave->CurrentProgression;
 				ObjectiveCondition.Progress = ProgressSave->CurrentProgression;
-				for(int TargetIndex = 0; TargetIndex < Condition->VectorListParam.Num(); TargetIndex++)
+				for (int TargetIndex = 0; TargetIndex < Condition->VectorListParam.Num(); TargetIndex++)
 				{
-					if(TargetIndex < ProgressSave->CurrentProgression)
+					if (TargetIndex < ProgressSave->CurrentProgression)
 					{
 						// Don't show old target
 						continue;
@@ -965,7 +965,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 			// Use trigger conditions
 			AddConditionCallbacks(Callbacks, QuestDescription->Triggers);
 
-			if(Callbacks.Contains(EFlareQuestCallback::TICK_FLYING))
+			if (Callbacks.Contains(EFlareQuestCallback::TICK_FLYING))
 			{
 				FLOGV("WARNING: The quest %s need a TICK_FLYING callback as trigger", *GetIdentifier().ToString());
 			}
@@ -974,7 +974,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 		 {
 			// Use current step conditions
 			const FFlareQuestStepDescription* StepDescription = GetCurrentStepDescription();
-			if(StepDescription)
+			if (StepDescription)
 			{
 				AddConditionCallbacks(Callbacks, StepDescription->EnabledConditions);
 				AddConditionCallbacks(Callbacks, StepDescription->EndConditions);
@@ -1016,7 +1016,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 		case EFlareQuestCondition::SHARED_CONDITION:
 		{
 			const FFlareSharedQuestCondition* SharedCondition = FindSharedCondition(Condition->Identifier1);
-			if(SharedCondition)
+			if (SharedCondition)
 			{
 				AddConditionCallbacks(Callbacks, SharedCondition->Conditions);
 			}
@@ -1093,7 +1093,7 @@ const FFlareSharedQuestCondition* UFlareQuest::FindSharedCondition(FName SharedC
 {
 	for (int SharedConditionIndex = 0; SharedConditionIndex < QuestDescription->SharedConditions.Num(); SharedConditionIndex++)
 	{
-		if(QuestDescription->SharedConditions[SharedConditionIndex].Identifier == SharedConditionIdentifier)
+		if (QuestDescription->SharedConditions[SharedConditionIndex].Identifier == SharedConditionIdentifier)
 		{
 			return &QuestDescription->SharedConditions[SharedConditionIndex];
 		}
@@ -1107,16 +1107,16 @@ const FFlareSharedQuestCondition* UFlareQuest::FindSharedCondition(FName SharedC
 FFlareQuestStepProgressSave* UFlareQuest::GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition)
 {
 	// TODO check double condition
-	if(Condition)
+	if (Condition)
 	{
 		FName SaveId = FName(*FString::FromInt(Condition->Type + 0));
-		if(Condition->ConditionIdentifier != NAME_None)
+		if (Condition->ConditionIdentifier != NAME_None)
 		{
 			SaveId = Condition->ConditionIdentifier;
 		}
-		for(int ProgressIndex = 0; ProgressIndex < QuestData.CurrentStepProgress.Num(); ProgressIndex++)
+		for (int ProgressIndex = 0; ProgressIndex < QuestData.CurrentStepProgress.Num(); ProgressIndex++)
 		{
-			if(QuestData.CurrentStepProgress[ProgressIndex].ConditionIdentifier == SaveId)
+			if (QuestData.CurrentStepProgress[ProgressIndex].ConditionIdentifier == SaveId)
 			{
 				return &QuestData.CurrentStepProgress[ProgressIndex];
 			}
@@ -1131,7 +1131,7 @@ FFlareQuestStepProgressSave* UFlareQuest::GetCurrentStepProgressSave(const FFlar
 FFlareQuestStepProgressSave* UFlareQuest::CreateStepProgressSave(const FFlareQuestConditionDescription* Condition)
 {
 	FName SaveId = FName(*FString::FromInt(Condition->Type + 0));
-	if(Condition->ConditionIdentifier != NAME_None)
+	if (Condition->ConditionIdentifier != NAME_None)
 	{
 		SaveId = Condition->ConditionIdentifier;
 	}

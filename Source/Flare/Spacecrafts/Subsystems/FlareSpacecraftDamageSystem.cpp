@@ -264,7 +264,7 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 			if (Component)
 			{
 				float ComponentDistance = (Component->GetComponentLocation() - HitLocation).Size();
-				if(BestComponentIndex == -1 || BestHitDistance > ComponentDistance)
+				if (BestComponentIndex == -1 || BestHitDistance > ComponentDistance)
 				{
 					BestComponentIndex = ComponentIndex;
 					BestHitDistance = ComponentDistance;

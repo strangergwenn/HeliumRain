@@ -41,7 +41,7 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 
 		FFlareQuestDescription* QuestDescription = &(Game->GetQuestCatalog()->Quests[QuestIndex]->Data);
 
-		if(QuestDescription->Category == EFlareQuestCategory::TUTORIAL && !QuestData.PlayTutorial)
+		if (QuestDescription->Category == EFlareQuestCategory::TUTORIAL && !QuestData.PlayTutorial)
 		{
 			// Skip tutorial quests.
 			continue;
@@ -88,7 +88,7 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 		LoadCallbacks(Quest);
 		Quest->UpdateState();
 	}
-	if(!SelectedQuest)
+	if (!SelectedQuest)
 	{
 		AutoSelectQuest();
 	}
@@ -176,7 +176,7 @@ void UFlareQuestManager::ClearCallbacks(UFlareQuest* Quest)
 
 void UFlareQuestManager::OnTick(float DeltaSeconds)
 {
-	if(GetGame()->GetActiveSector())
+	if (GetGame()->GetActiveSector())
 	{
 		// Tick TickFlying callback only if there is an active sector
 		for (int i = 0; i < TickFlyingCallback.Num(); i++)
@@ -233,7 +233,7 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	FText Info = FText::FromString(Quest->GetQuestName());
 	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
 
-	if(Quest == SelectedQuest)
+	if (Quest == SelectedQuest)
 	{
 		AutoSelectQuest();
 	}
@@ -253,7 +253,7 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	FText Info = FText::FromString(Quest->GetQuestName());
 	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
 
-	if(Quest == SelectedQuest)
+	if (Quest == SelectedQuest)
 	{
 		AutoSelectQuest();
 	}
@@ -271,7 +271,7 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	FText Info = FText::FromString(Quest->GetQuestName());
 	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
 
-	if(!SelectedQuest)
+	if (!SelectedQuest)
 	{
 		SelectQuest(Quest);
 	}
@@ -292,7 +292,7 @@ void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
 		return;
 	}
 
-	if(SelectedQuest)
+	if (SelectedQuest)
 	{
 		SelectedQuest->StopObjectiveTracking();
 	}
@@ -303,13 +303,13 @@ void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
 
 void UFlareQuestManager::AutoSelectQuest()
 {
-	if(ActiveQuests.Num()> 1)
+	if (ActiveQuests.Num()> 1)
 	{
 		SelectQuest(ActiveQuests[0]);
 	}
 	else
 	{
-		if(SelectedQuest)
+		if (SelectedQuest)
 		{
 			SelectedQuest->StopObjectiveTracking();
 		}

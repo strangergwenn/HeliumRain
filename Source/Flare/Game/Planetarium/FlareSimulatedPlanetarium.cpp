@@ -104,7 +104,7 @@ FFlareCelestialBody* UFlareSimulatedPlanetarium::FindCelestialBody(FFlareCelesti
 
 FFlareCelestialBody* UFlareSimulatedPlanetarium::FindParent(FFlareCelestialBody* Body)
 {
-	if(&Sun == Body)
+	if (&Sun == Body)
 	{
 		return NULL;
 	}
@@ -114,7 +114,7 @@ FFlareCelestialBody* UFlareSimulatedPlanetarium::FindParent(FFlareCelestialBody*
 
 FFlareCelestialBody* UFlareSimulatedPlanetarium::FindParent(FFlareCelestialBody* Body, FFlareCelestialBody* Root)
 {
-	if(IsSatellite(Body, Root))
+	if (IsSatellite(Body, Root))
 	{
 		return Root;
 	}
@@ -123,7 +123,7 @@ FFlareCelestialBody* UFlareSimulatedPlanetarium::FindParent(FFlareCelestialBody*
 		for (int SatteliteIndex = 0; SatteliteIndex < Root->Sattelites.Num(); SatteliteIndex++)
 		{
 			FFlareCelestialBody* ParentCandidate = FindParent(Body, &Root->Sattelites[SatteliteIndex]);
-			if(ParentCandidate)
+			if (ParentCandidate)
 			{
 				return ParentCandidate;
 			}
@@ -137,7 +137,7 @@ bool UFlareSimulatedPlanetarium::IsSatellite(FFlareCelestialBody* Body, FFlareCe
 {
 	for (int SatteliteIndex = 0; SatteliteIndex < Parent->Sattelites.Num(); SatteliteIndex++)
 	{
-		if(&Parent->Sattelites[SatteliteIndex] == Body)
+		if (&Parent->Sattelites[SatteliteIndex] == Body)
 		{
 			return true;
 		}

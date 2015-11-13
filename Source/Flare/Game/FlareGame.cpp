@@ -217,7 +217,7 @@ void AFlareGame::DeactivateSector(AController* Player)
 
 void AFlareGame::Tick(float DeltaSeconds)
 {
-	if(QuestManager)
+	if (QuestManager)
 	{
 		QuestManager->OnTick(DeltaSeconds);
 	}
@@ -427,7 +427,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 
 	if (!PlayerData.QuestData.PlayTutorial)
 	{
-		for(int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
+		for (int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
 		{
 			Company->DiscoverSector(World->GetSectors()[SectorIndex]);
 		}

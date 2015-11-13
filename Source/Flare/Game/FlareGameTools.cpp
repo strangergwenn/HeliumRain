@@ -673,7 +673,7 @@ void UFlareGameTools::PrintCargoBay(FName ShipImmatriculation)
 	TArray<FFlareCargo>* CargoBay = Ship->GetCargoBay();
 
 	FLOGV("Cargo bay for '%s' : ", *ShipImmatriculation.ToString());
-	for(int CargoIndex = 0; CargoIndex < CargoBay->Num(); CargoIndex++)
+	for (int CargoIndex = 0; CargoIndex < CargoBay->Num(); CargoIndex++)
 	{
 		FFlareCargo* Cargo = &(*CargoBay)[CargoIndex];
 		FLOGV("  - %s : %u / %u ", (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, Cargo->Capacity);
@@ -1065,7 +1065,7 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		FString MinutesString;
 
-		if(Minutes > 0)
+		if (Minutes > 0)
 		{
 			MinutesString += FString::FromInt(Minutes) + (Minutes > 2 ? FString(LOCTEXT("minutes", " minutes").ToString()) : FString(LOCTEXT("minute", " minute").ToString()));
 		}
@@ -1085,7 +1085,7 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		FString HoursString;
 
-		if(Hours > 0)
+		if (Hours > 0)
 		{
 			HoursString += FString::FromInt(Hours) + (Hours > 2 ? FString(LOCTEXT("hours", " hours").ToString()) : FString(LOCTEXT("hour", " hour").ToString()));
 		}
@@ -1105,7 +1105,7 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		FString DaysString;
 
-		if(Days > 0)
+		if (Days > 0)
 		{
 			DaysString += FString::FromInt(Days) + (Days > 2 ? FString(LOCTEXT("days", " days").ToString()) : FString(LOCTEXT("day", " day").ToString()));
 		}
@@ -1125,7 +1125,7 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		FString YearsString;
 
-		if(Years > 0)
+		if (Years > 0)
 		{
 			YearsString += FString::FromInt(Years) + (Years > 2 ? FString(LOCTEXT("years", " years").ToString()) : FString(LOCTEXT("year", " year").ToString()));
 		}

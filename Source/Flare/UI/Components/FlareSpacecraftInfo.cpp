@@ -232,12 +232,12 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 		CargoBay->ClearChildren();
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(Target);
 
-		if(SimulatedSpacecraft)
+		if (SimulatedSpacecraft)
 		{
 			const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 			TArray<FFlareCargo>* SpacecraftCargoBay = SimulatedSpacecraft->GetCargoBay();
-			for(int CargoIndex = 0; CargoIndex < SpacecraftCargoBay->Num() ; CargoIndex++)
+			for (int CargoIndex = 0; CargoIndex < SpacecraftCargoBay->Num() ; CargoIndex++)
 			{
 				FFlareCargo* Cargo = &(*SpacecraftCargoBay)[CargoIndex];
 				FString ResourceString = FString::Printf(TEXT("- %s (%u/%u)"), (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, Cargo->Capacity);
@@ -334,7 +334,7 @@ void SFlareSpacecraftInfo::OnFly()
 		// Check if a simulated spacecraft
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 
-		if(SimulatedSpacecraft)
+		if (SimulatedSpacecraft)
 		{
 			SimulatedSpacecraft->GetCurrentSector()->SetShipToFly(SimulatedSpacecraft);
 			PC->GetGame()->ActivateSector(PC, SimulatedSpacecraft->GetCurrentSector());
@@ -353,7 +353,7 @@ void SFlareSpacecraftInfo::OnSelect()
 		// Check if a simulated spacecraft
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 
-		if(!SimulatedSpacecraft)
+		if (!SimulatedSpacecraft)
 		{
 			SimulatedSpacecraft = PC->GetGame()->GetGameWorld()->FindSpacecraft(TargetSpacecraft->GetImmatriculation());
 		}

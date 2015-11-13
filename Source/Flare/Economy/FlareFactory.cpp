@@ -51,7 +51,7 @@ void UFlareFactory::Simulate(long Duration)
 				return;
 			}
 
-			if(FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime > GetGame()->GetGameWorld()->GetTime())
+			if (FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime > GetGame()->GetGameWorld()->GetTime())
 			{
 				// In production
 				return;
@@ -89,10 +89,10 @@ bool UFlareFactory::HasInputMoney()
 
 bool UFlareFactory::HasInputResources()
 {
-	for(int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
-		if(!Parent->HasResources(&Resource->Resource->Data, Resource->Quantity))
+		if (!Parent->HasResources(&Resource->Resource->Data, Resource->Quantity))
 		{
 			return false;
 		}
@@ -107,19 +107,19 @@ bool UFlareFactory::HasOutputFreeSpace()
 	TArray<FFlareFactoryResource> OutputResources = FactoryDescription->OutputResources;
 
 	// First pass, fill already existing slots
-	for(int CargoIndex = 0 ; CargoIndex < CargoBay->Num() ; CargoIndex++)
+	for (int CargoIndex = 0 ; CargoIndex < CargoBay->Num() ; CargoIndex++)
 	{
-		for(int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
+		for (int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
 		{
 			if (&OutputResources[ResourceIndex].Resource->Data == (*CargoBay)[CargoIndex].Resource)
 			{
 				// Same resource
 				uint32 AvailableCapacity = (*CargoBay)[CargoIndex].Capacity - (*CargoBay)[CargoIndex].Quantity;
-				if(AvailableCapacity > 0)
+				if (AvailableCapacity > 0)
 				{
 					OutputResources[ResourceIndex].Quantity -= FMath::Min(AvailableCapacity, OutputResources[ResourceIndex].Quantity);
 
-					if(OutputResources[ResourceIndex].Quantity == 0)
+					if (OutputResources[ResourceIndex].Quantity == 0)
 					{
 						OutputResources.RemoveAt(ResourceIndex);
 					}
@@ -132,20 +132,20 @@ bool UFlareFactory::HasOutputFreeSpace()
 	}
 
 	// Fill free cargo slots
-	for(int CargoIndex = 0 ; CargoIndex < CargoBay->Num() ; CargoIndex++)
+	for (int CargoIndex = 0 ; CargoIndex < CargoBay->Num() ; CargoIndex++)
 	{
-		if(OutputResources.Num() == 0)
+		if (OutputResources.Num() == 0)
 		{
 			// No more resource to try to put
 			break;
 		}
 
-		if((*CargoBay)[CargoIndex].Quantity == 0)
+		if ((*CargoBay)[CargoIndex].Quantity == 0)
 		{
 			// Empty slot, fill it
 			OutputResources[0].Quantity -= FMath::Min((*CargoBay)[CargoIndex].Capacity, OutputResources[0].Quantity);
 
-			if(OutputResources[0].Quantity == 0)
+			if (OutputResources[0].Quantity == 0)
 			{
 				OutputResources.RemoveAt(0);
 			}
@@ -174,20 +174,20 @@ void UFlareFactory::DoProduction()
 	// TODO Give lost money to people
 
 	// Consume input resource
-	for(int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
-		if(Parent->TakeResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
+		if (Parent->TakeResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
 		{
 			FLOGV("Fail to take %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
 		}
 	}
 
 	// Generate output resource
-	for(int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->OutputResources.Num() ; ResourceIndex++)
+	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->OutputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->OutputResources[ResourceIndex];
-		if(Parent->GiveResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
+		if (Parent->GiveResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
 		{
 			FLOGV("Fail to give %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
 		}

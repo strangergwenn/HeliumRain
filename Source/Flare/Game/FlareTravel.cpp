@@ -78,7 +78,7 @@ int64 UFlareTravel::GetRemainingTravelDuration()
 
 void UFlareTravel::ChangeDestination(UFlareSimulatedSector* NewDestinationSector)
 {
-	if(!CanChangeDestination())
+	if (!CanChangeDestination())
 	{
 		return;
 	}
@@ -121,7 +121,7 @@ void UFlareTravel::GenerateTravelDuration()
 	DestinationCelestialBodyIdentifier = DestinationSector->GetOrbitParameters()->CelestialBodyIdentifier;
 	DestinationPhase = DestinationSector->GetOrbitParameters()->Phase;
 
-	if(OriginCelestialBodyIdentifier == DestinationCelestialBodyIdentifier && OriginAltitude == DestinationAltitude)
+	if (OriginCelestialBodyIdentifier == DestinationCelestialBodyIdentifier && OriginAltitude == DestinationAltitude)
 	{
 		// Phase change travel
 		FFlareCelestialBody* CelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
