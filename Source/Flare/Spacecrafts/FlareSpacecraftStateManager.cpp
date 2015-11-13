@@ -3,6 +3,8 @@
 
 #include "FlareSpacecraftStateManager.h"
 #include "../Player/FlarePlayerController.h"
+#include "../Player/FlareMenuManager.h"
+#include "../Player/FlareHUD.h"
 #include "FlareSpacecraft.h"
 
 

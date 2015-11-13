@@ -69,14 +69,14 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	// Initialize cargo bay
 	CargoBay.Empty();
-	for (int CargoIndex = 0; CargoIndex < SpacecraftDescription->CargoBayCount; CargoIndex++)
+	for (uint32 CargoIndex = 0; CargoIndex < SpacecraftDescription->CargoBayCount; CargoIndex++)
 	{
 		FFlareCargo Cargo;
 		Cargo.Resource = NULL;
 		Cargo.Capacity = SpacecraftDescription->CargoBayCapacity;
 		Cargo.Quantity = 0;
 
-		if(CargoIndex < SpacecraftData.Cargo.Num())
+		if (CargoIndex < SpacecraftData.Cargo.Num())
 		{
 			// Existing save
 			FFlareCargoSave* CargoSave = &SpacecraftData.Cargo[CargoIndex];
@@ -197,21 +197,20 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 
 bool UFlareSimulatedSpacecraft::HasResources(FFlareResourceDescription* Resource, uint32 Quantity)
 {
-	int32 PresentQuantity = 0;
+	uint32 PresentQuantity = 0;
 
-
-	if(Quantity == 0)
+	if (Quantity == 0)
 	{
 		return true;
 	}
 
-	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo* Cargo = &CargoBay[CargoIndex];
-		if(Cargo->Resource == Resource)
+		if (Cargo->Resource == Resource)
 		{
 			PresentQuantity += Cargo->Quantity;
-			if(PresentQuantity >= Quantity)
+			if (PresentQuantity >= Quantity)
 			{
 				return true;
 			}
@@ -225,21 +224,21 @@ uint32 UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resou
 	uint32 QuantityToTake = Quantity;
 
 
-	if(QuantityToTake == 0)
+	if (QuantityToTake == 0)
 	{
 		return 0;
 	}
 
 	// First pass: take resource from the less full cargo
-	uint32 MinQuantity;
+	uint32 MinQuantity = 0;
 	FFlareCargo* MinQuantityCargo = NULL;
 
-	for(int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if(Cargo.Resource == Resource)
+		if (Cargo.Resource == Resource)
 		{
-			if(MinQuantityCargo == NULL || MinQuantity > Cargo.Quantity)
+			if (MinQuantityCargo == NULL || MinQuantity > Cargo.Quantity)
 			{
 				MinQuantityCargo = &Cargo;
 				MinQuantity = Cargo.Quantity;
