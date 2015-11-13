@@ -232,7 +232,6 @@ struct FFlareSpacecraftSave
 };
 
 
-
 struct SpacecraftHelper
 {
 	static float GetIntersectionPosition(FVector TargetLocation,

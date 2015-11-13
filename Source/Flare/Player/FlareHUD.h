@@ -9,7 +9,7 @@
 
 /** Navigation HUD */
 UCLASS()
-class AFlareHUD : public AHUD
+class FLARE_API AFlareHUD : public AHUD
 {
 public:
 

@@ -12,8 +12,6 @@ class AFlareMenuManager;
 class AFlareHUD;
 
 
-
-
 UCLASS(MinimalAPI)
 class AFlarePlayerController : public APlayerController
 {
@@ -132,19 +130,19 @@ public:
 	----------------------------------------------------*/
 
 	/** Set the color of engine exhausts */
-	inline void SetBasePaintColorIndex(int32 Index);
+	void SetBasePaintColorIndex(int32 Index);
 
 	/** Set the color of ship paint */
-	inline void SetPaintColorIndex(int32 Index);
+	void SetPaintColorIndex(int32 Index);
 
 	/** Set the color of ship overlays */
-	inline void SetOverlayColorIndex(int32 Index);
+	void SetOverlayColorIndex(int32 Index);
 
 	/** Set the color of ship lights */
-	inline void SetLightColorIndex(int32 Index);
+	void SetLightColorIndex(int32 Index);
 
 	/** Set the pattern index for ship paint */
-	inline void SetPatternIndex(int32 Index);
+	void SetPatternIndex(int32 Index);
 
 
 	/*----------------------------------------------------

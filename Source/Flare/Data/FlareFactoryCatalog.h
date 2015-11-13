@@ -6,7 +6,7 @@
 
 
 UCLASS()
-class UFlareFactoryCatalog : public UDataAsset
+class FLARE_API UFlareFactoryCatalog : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 

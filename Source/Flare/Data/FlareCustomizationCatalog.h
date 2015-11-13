@@ -21,7 +21,7 @@ struct FFlareCustomizationPatternDescription
 
 
 UCLASS()
-class UFlareCustomizationCatalog : public UDataAsset
+class FLARE_API UFlareCustomizationCatalog : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 

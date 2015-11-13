@@ -560,31 +560,31 @@ const FFlarePlayerObjective* AFlarePlayerController::GetCurrentObjective() const
 	Customization
 ----------------------------------------------------*/
 
-inline void AFlarePlayerController::SetBasePaintColorIndex(int32 Index)
+void AFlarePlayerController::SetBasePaintColorIndex(int32 Index)
 {
 	CompanyData.CustomizationBasePaintColorIndex = Index;
 	Company->UpdateCompanyCustomization();
 }
 
-inline void AFlarePlayerController::SetPaintColorIndex(int32 Index)
+void AFlarePlayerController::SetPaintColorIndex(int32 Index)
 {
 	CompanyData.CustomizationPaintColorIndex = Index;
 	Company->UpdateCompanyCustomization();
 }
 
-inline void AFlarePlayerController::SetOverlayColorIndex(int32 Index)
+void AFlarePlayerController::SetOverlayColorIndex(int32 Index)
 {
 	CompanyData.CustomizationOverlayColorIndex = Index;
 	Company->UpdateCompanyCustomization();
 }
 
-inline void AFlarePlayerController::SetLightColorIndex(int32 Index)
+void AFlarePlayerController::SetLightColorIndex(int32 Index)
 {
 	CompanyData.CustomizationLightColorIndex = Index;
 	Company->UpdateCompanyCustomization();
 }
 
-inline void AFlarePlayerController::SetPatternIndex(int32 Index)
+void AFlarePlayerController::SetPatternIndex(int32 Index)
 {
 	CompanyData.CustomizationPatternIndex = Index;
 	Company->UpdateCompanyCustomization();

@@ -6,7 +6,7 @@
 
 
 UCLASS()
-class UFlareSpacecraftCatalog : public UDataAsset
+class FLARE_API UFlareSpacecraftCatalog : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 
