@@ -79,13 +79,19 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	{
 
 		AFlareSpacecraft* TargetCandidate = Turret->GetWeaponGroup()->Target;
+
+
 		if(!TargetCandidate->GetDamageSystem()->IsAlive())
 		{
 			Turret->GetWeaponGroup()->Target = NULL;
 		}
 		else
 		{
-			PilotTargetShip = TargetCandidate;
+			FVector TargetAxis = (TargetCandidate->GetActorLocation()- Turret->GetTurretBaseLocation()).GetUnsafeNormal();
+			if(Turret->IsReacheableAxis(TargetAxis))
+			{
+				PilotTargetShip = TargetCandidate;
+			}
 		}
 	}
 
