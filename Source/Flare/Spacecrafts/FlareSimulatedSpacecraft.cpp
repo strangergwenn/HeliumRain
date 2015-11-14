@@ -350,3 +350,32 @@ uint32 UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resou
 
 	return Quantity - QuantityToGive;
 }
+
+bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft)
+{
+	// Check if both spacecraft are in the same sector
+	if(GetCurrentSector() != OtherSpacecraft->GetCurrentSector())
+	{
+		return false;
+	}
+
+	// Check if spacecraft are not both stations
+	if(IsStation() && OtherSpacecraft->IsStation())
+	{
+		return false;
+	}
+
+	// Check if spacecraft are not both ships
+	if(!IsStation() && !OtherSpacecraft->IsStation())
+	{
+		return false;
+	}
+
+	// Check if both spacecraft are not at war
+	if(GetCompany()->GetHostility(OtherSpacecraft->GetCompany()) == EFlareHostility::Hostile)
+	{
+		return false;
+	}
+
+	return true;
+}

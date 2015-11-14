@@ -84,6 +84,8 @@ public:
 
 	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
+	bool CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft);
+
 protected:
 
     /*----------------------------------------------------

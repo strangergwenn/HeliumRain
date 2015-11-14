@@ -26,6 +26,7 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	SectorOrbitParameters = OrbitParameters;
 	SectorShips.Empty();
 	SectorStations.Empty();
+	SectorSpacecrafts.Empty();
 	SectorFleets.Empty();
 
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
@@ -39,7 +40,7 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 		{
 			SectorShips.Add(Spacecraft);
 		}
-
+		SectorSpacecrafts.Add(Spacecraft);
 		Spacecraft->SetCurrentSector(this);
 	}
 
@@ -57,14 +58,9 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 	SectorData.SpacecraftIdentifiers.Empty();
 	SectorData.FleetIdentifiers.Empty();
 
-	for (int i = 0 ; i < SectorShips.Num(); i++)
+	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
 	{
-		SectorData.SpacecraftIdentifiers.Add(SectorShips[i]->GetImmatriculation());
-	}
-
-	for (int i = 0 ; i < SectorStations.Num(); i++)
-	{
-		SectorData.SpacecraftIdentifiers.Add(SectorStations[i]->GetImmatriculation());
+		SectorData.SpacecraftIdentifiers.Add(SectorSpacecrafts[i]->GetImmatriculation());
 	}
 
 	for (int i = 0 ; i < SectorFleets.Num(); i++)
@@ -216,6 +212,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	{
 		SectorShips.Add(Spacecraft);
 	}
+	SectorSpacecrafts.Add(Spacecraft);
 
 	Spacecraft->SetCurrentSector(this);
 
@@ -264,6 +261,7 @@ void UFlareSimulatedSector::AddFleet(UFlareFleet* Fleet)
 	{
 		Fleet->GetShips()[ShipIndex]->SetCurrentSector(this);
 		SectorShips.AddUnique(Fleet->GetShips()[ShipIndex]);
+		SectorSpacecrafts.AddUnique(Fleet->GetShips()[ShipIndex]);
 	}
 }
 
@@ -297,6 +295,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 
 int UFlareSimulatedSector::RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
+	SectorSpacecrafts.Remove(Spacecraft);
 	return SectorShips.Remove(Spacecraft);
 }
 
@@ -344,7 +343,7 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 		return EFlareSectorFriendlyness::NotVisited;
 	}
 
-	if (SectorShips.Num() == 0 && SectorStations.Num() == 0)
+	if (SectorSpacecrafts.Num() == 0)
 	{
 		return EFlareSectorFriendlyness::Neutral;
 	}
@@ -353,27 +352,9 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 	int NeutralSpacecraftCount = 0;
 	int FriendlySpacecraftCount = 0;
 
-	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorShips.Num(); SpacecraftIndex++)
+	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
-		UFlareCompany* OtherCompany = SectorShips[SpacecraftIndex]->GetCompany();
-
-		if (OtherCompany == Company)
-		{
-			FriendlySpacecraftCount++;
-		}
-		else if (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile)
-		{
-			HostileSpacecraftCount++;
-		}
-		else
-		{
-			NeutralSpacecraftCount++;
-		}
-	}
-
-	for (int SpacecraftIndex = 0 ; SpacecraftIndex< SectorStations.Num(); SpacecraftIndex++)
-	{
-		UFlareCompany* OtherCompany = SectorStations[SpacecraftIndex]->GetCompany();
+		UFlareCompany* OtherCompany = SectorSpacecrafts[SpacecraftIndex]->GetCompany();
 
 		if (OtherCompany == Company)
 		{

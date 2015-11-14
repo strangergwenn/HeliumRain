@@ -65,6 +65,9 @@ public:
 	/** Inspect the current target */
 	void OnInspect();
 
+	/** Trade with the current target */
+	void OnTrade();
+
 	/** Fly the current target */
 	void OnFly();
 
@@ -116,6 +119,7 @@ protected:
 
 	// Slate data
 	TSharedPtr<SFlareButton>          InspectButton;
+	TSharedPtr<SFlareButton>          TradeButton;
 	TSharedPtr<SFlareButton>          FlyButton;
 	TSharedPtr<SFlareButton>          SelectButton;
 	TSharedPtr<SFlareButton>          DockButton;

@@ -8,6 +8,7 @@
 #include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
+#include "../UI/Menus/FlareTradeMenu.h"
 #include "../UI/Menus/FlareOrbitalMenu.h"
 #include "../UI/Menus/FlareLeaderboardMenu.h"
 #include "../Player/FlarePlayerController.h"
@@ -46,6 +47,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).MenuManager(this);
+		SAssignNew(TradeMenu, SFlareTradeMenu).MenuManager(this);
 		SAssignNew(OrbitMenu, SFlareOrbitalMenu).MenuManager(this);
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
 
@@ -73,6 +75,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),  50);
 
@@ -90,6 +93,7 @@ void AFlareMenuManager::SetupMenu()
 		CompanyMenu->Setup();
 		ShipMenu->Setup();
 		SectorMenu->Setup();
+		TradeMenu->Setup();
 		OrbitMenu->Setup();
 		LeaderboardMenu->Setup();
 
@@ -211,6 +215,10 @@ void AFlareMenuManager::Back()
 			case EFlareMenu::MENU_Sector:
 				OpenMenu(EFlareMenu::MENU_Orbit);
 				break;
+			case EFlareMenu::MENU_Trade:
+				OpenMenu(EFlareMenu::MENU_Orbit);
+				// TODO real back
+			break;
 			case EFlareMenu::MENU_Leaderboard:
 				OpenMenu(EFlareMenu::MENU_Orbit);
 				break;
@@ -307,6 +315,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
 		case EFlareMenu::MENU_Undock:         Path = "Undock";       break;
 		case EFlareMenu::MENU_Sector:         Path = "Sector";       break;
+		case EFlareMenu::MENU_Trade:          Path = "Trade";       break;
 		case EFlareMenu::MENU_Orbit:          Path = "Orbit";        break;
 		case EFlareMenu::MENU_Settings:       Path = "Settings";     break;
 		case EFlareMenu::MENU_Quit:           Path = "Quit";         break;
@@ -343,6 +352,7 @@ void AFlareMenuManager::ResetMenu()
 	CompanyMenu->Exit();
 	ShipMenu->Exit();
 	SectorMenu->Exit();
+	TradeMenu->Exit();
 	OrbitMenu->Exit();
 	LeaderboardMenu->Exit();
 
@@ -410,7 +420,9 @@ void AFlareMenuManager::ProcessFadeTarget()
 		case EFlareMenu::MENU_Sector:
 			OpenSector(static_cast<UFlareSimulatedSector*>(FadeTargetData));
 			break;
-
+		case EFlareMenu::MENU_Trade:
+			OpenTrade(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
+			break;
 		case EFlareMenu::MENU_Orbit:
 			OpenOrbit();
 			break;
@@ -525,6 +537,23 @@ void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
 	GetPC()->OnEnterMenu();
 	SectorMenu->Enter(Sector);
 }
+
+void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
+{
+	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Trade;
+	GetPC()->OnEnterMenu();
+
+	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(Spacecraft);
+	if(SimulatedSpacecraft)
+	{
+		TradeMenu->Enter(SimulatedSpacecraft->GetCurrentSector(), SimulatedSpacecraft, NULL);
+		// TODO What append if the cast fail ?
+	}
+
+
+}
+
 
 void AFlareMenuManager::OpenOrbit()
 {

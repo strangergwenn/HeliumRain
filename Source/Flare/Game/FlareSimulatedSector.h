@@ -231,8 +231,8 @@ protected:
 	FFlareSectorSave                        SectorData;
 
     TArray<UFlareSimulatedSpacecraft*>      SectorStations;
-
     TArray<UFlareSimulatedSpacecraft*>      SectorShips;
+	TArray<UFlareSimulatedSpacecraft*>      SectorSpacecrafts;
 
 	TArray<UFlareFleet*>                    SectorFleets;
 
@@ -284,6 +284,11 @@ public:
     {
         return SectorShips;
     }
+
+	inline TArray<UFlareSimulatedSpacecraft*>& GetSectorSpacecrafts()
+	{
+		return SectorSpacecrafts;
+	}
 
 	inline TArray<UFlareFleet*>& GetSectorFleets()
 	{

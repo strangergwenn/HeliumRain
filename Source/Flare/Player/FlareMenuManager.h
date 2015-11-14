@@ -13,6 +13,7 @@ class SFlareDashboard;
 class SFlareCompanyMenu;
 class SFlareShipMenu;
 class SFlareSectorMenu;
+class SFlareTradeMenu;
 class SFlareOrbitalMenu;
 class SFlareLeaderboardMenu;
 
@@ -133,6 +134,9 @@ protected:
 	/** Open the sector menu */
 	virtual void OpenSector(UFlareSimulatedSector* Sector);
 
+	/** Open the trade menu */
+	virtual void OpenTrade(IFlareSpacecraftInterface* Spacecraft);
+
 	/** Open the orbital menu */
 	virtual void OpenOrbit();
 
@@ -172,6 +176,7 @@ protected:
 	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
 	TSharedPtr<SFlareSectorMenu>            SectorMenu;
+	TSharedPtr<SFlareTradeMenu>            TradeMenu;
 	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
 	TSharedPtr<SFlareLeaderboardMenu>       LeaderboardMenu;
 	

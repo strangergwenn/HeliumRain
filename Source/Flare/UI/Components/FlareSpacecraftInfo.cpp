@@ -147,6 +147,17 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.Width(4)
 			]
 
+			// Trade
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SAssignNew(TradeButton, SFlareButton)
+				.Text(LOCTEXT("Trade", "TRADE"))
+				.HelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"))
+				.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
+				.Width(4)
+			]
+
 			// Fly this ship
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
@@ -275,6 +286,7 @@ void SFlareSpacecraftInfo::Show()
 	if (Minimized)
 	{
 		InspectButton->SetVisibility(EVisibility::Collapsed);
+		TradeButton->SetVisibility(EVisibility::Collapsed);
 		FlyButton->SetVisibility(EVisibility::Collapsed);
 		SelectButton->SetVisibility(EVisibility::Collapsed);
 		DockButton->SetVisibility(EVisibility::Collapsed);
@@ -287,9 +299,11 @@ void SFlareSpacecraftInfo::Show()
 		bool OwnedAndNotSelf = TargetSpacecraft != PC->GetShipPawn() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
 		bool CanDock = OwnedAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
+		bool CanTrade = OwnedAndNotSelf && !TargetSpacecraft->IsStation();
 
 		// Button states
 		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
+		TradeButton->SetVisibility(CanTrade ? EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock ? EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
 
@@ -323,7 +337,22 @@ void SFlareSpacecraftInfo::OnInspect()
 {
 	if (PC && TargetSpacecraft)
 	{
+		FLOGV("OnInspect OpenMenu TargetSpacecraft=%p", TargetSpacecraft);
+		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
+		if(SimulatedSpacecraft)
+		{
+			FLOGV("Is UFlareSimulatedSpacecraft Immatriculation=%s parentSector=%p", *SimulatedSpacecraft->GetImmatriculation().ToString(), SimulatedSpacecraft->GetCurrentSector());
+		}
+
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
+	}
+}
+
+void SFlareSpacecraftInfo::OnTrade()
+{
+	if (PC && TargetSpacecraft)
+	{
+		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Trade, TargetSpacecraft);
 	}
 }
 
