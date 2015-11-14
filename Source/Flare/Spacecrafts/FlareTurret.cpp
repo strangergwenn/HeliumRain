@@ -119,6 +119,14 @@ void UFlareTurret::SetupComponentMesh()
 
 void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
+	if (Spacecraft->IsPresentationMode())
+	{
+		TurretComponent->SetRelativeRotation(FRotator(0, 0, 0));
+		BarrelComponent->SetRelativeRotation(FRotator(15, 0, 0));
+
+		Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+		return;
+	}
 
 	if (Spacecraft->GetDamageSystem()->IsAlive() && Pilot)
 	{
@@ -214,14 +222,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		}
 	}
 
-	if (Spacecraft->IsPresentationMode())
-	{
-		TurretComponent->SetRelativeRotation(FRotator(0, 0, 0));
-		BarrelComponent->SetRelativeRotation(FRotator(15, 0, 0));
-	}
-
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
 FVector UFlareTurret::GetFireAxis() const
