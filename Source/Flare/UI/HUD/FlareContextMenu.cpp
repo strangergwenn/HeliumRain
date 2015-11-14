@@ -17,6 +17,8 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	TargetSpacecraft = NULL;
 	HUD = InArgs._HUD;
 	MenuManager = InArgs._MenuManager;
+	IsTargetting = false;
+	PlayerShip = NULL;
 
 	// Structure
 	ChildSlot
@@ -28,8 +30,8 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 		.Padding(this, &SFlareContextMenu::GetContextMenuPosition)
 		[
 			SNew(SFlareRoundButton)
-			.OnClicked(this, &SFlareContextMenu::OpenTargetMenu)
-			.Icon(FFlareStyleSet::GetIcon("DesignatorContextButton"))
+			.OnClicked(this, &SFlareContextMenu::OnClicked)
+			.Icon(this, &SFlareContextMenu::GetIcon)
 			.Text(this, &SFlareContextMenu::GetText)
 		]
 	];
@@ -55,11 +57,21 @@ void SFlareContextMenu::Hide()
 	SetVisibility(EVisibility::Hidden);
 }
 
-void SFlareContextMenu::OpenTargetMenu()
+void SFlareContextMenu::OnClicked()
 {
-	if (TargetSpacecraft)
+	if (TargetSpacecraft && PlayerShip)
 	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
+		if (IsTargetting)
+		{
+			FFlareWeaponGroup* Weapon = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+
+			// TODO Fred
+			//Weapon->SetTarget(TargetSpacecraft);
+		}
+		else
+		{
+			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
+		}
 	}
 }
 
@@ -67,6 +79,25 @@ void SFlareContextMenu::OpenTargetMenu()
 /*----------------------------------------------------
 	Internal
 ----------------------------------------------------*/
+
+void SFlareContextMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	if (IsEnabled() && MenuManager.IsValid())
+	{
+		PlayerShip = MenuManager->GetPC()->GetShipPawn();
+
+		if (PlayerShip && PlayerShip->IsMilitary() && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET)
+		{
+			IsTargetting = true;
+		}
+		else
+		{
+			IsTargetting = false;
+		}
+	}
+}
 
 FMargin SFlareContextMenu::GetContextMenuPosition() const
 {
@@ -78,25 +109,14 @@ FMargin SFlareContextMenu::GetContextMenuPosition() const
 	return FMargin(Pos.X, Pos.Y, 0, 0);
 }
 
+const FSlateBrush* SFlareContextMenu::GetIcon() const
+{
+	return (IsTargetting ? FFlareStyleSet::GetIcon("TargettingContextButton") : FFlareStyleSet::GetIcon("DesignatorContextButton"));
+}
+
 FText SFlareContextMenu::GetText() const
 {
-	FText Result;
-	AFlareSpacecraft* Candidate = NULL;
-
-
-	if (GetVisibility() == EVisibility::Visible)
-	{
-		if (TargetSpacecraft)
-		{
-			Candidate = Cast<AFlareSpacecraft>(TargetSpacecraft);
-		}
-		if (Candidate)
-		{
-			Result = FText::FromString(Candidate->GetImmatriculation().ToString());
-		}
-	}
-
-	return Result;
+	return (IsTargetting ? LOCTEXT("Attack", "Mark as target") : LOCTEXT("Inspect", "Inspect"));
 }
 
 #undef LOCTEXT_NAMESPACE

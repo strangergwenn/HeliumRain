@@ -40,7 +40,7 @@ public:
 	void Hide();
 
 	/** Open the menu associated to the target */
-	void OpenTargetMenu();
+	void OnClicked();
 
 
 protected:
@@ -49,9 +49,14 @@ protected:
 		Internal
 	----------------------------------------------------*/
 
+	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
 	/** Get the current position */
 	FMargin GetContextMenuPosition() const;
 	
+	/** Get the icon brush */
+	const FSlateBrush* GetIcon() const;
+
 	/** Get the current button label */
 	FText GetText() const;
 
@@ -62,11 +67,13 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	// Gameplay data
+	// Menu data
 	TWeakObjectPtr<class AFlareHUD>            HUD;
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 		
-	// State data
+	// Game data
+	bool                                       IsTargetting;
+	AFlareSpacecraft*                          PlayerShip;
 	IFlareSpacecraftInterface*                 TargetSpacecraft;
 	
 };
