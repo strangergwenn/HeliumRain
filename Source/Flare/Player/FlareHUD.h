@@ -126,6 +126,7 @@ protected:
 	UTexture2D*                             HUDObjectiveIcon;
 	UTexture2D*                             HUDCombatMouseIcon;
 	UTexture2D*                             HUDDesignatorCornerTexture;
+	UTexture2D*                             HUDDesignatorSelectionTexture;
 
 	// Ship status content
 	UTexture2D*                             HUDTemperatureIcon;

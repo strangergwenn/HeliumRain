@@ -63,15 +63,18 @@ void SFlareContextMenu::OnClicked()
 	{
 		if (IsTargetting)
 		{
+			UFlareSpacecraftWeaponsSystem* WeaponSystem = PlayerShip->GetWeaponsSystem();
 			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(TargetSpacecraft);
-			if(Spacecraft)
-			{
-				PlayerShip->GetWeaponsSystem()->SetActiveWeaponTarget(Spacecraft);
-			}
-			//FFlareWeaponGroup* Weapon = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+			check(Spacecraft != NULL);
 
-			// TODO Fred
-			//Weapon->SetTarget(TargetSpacecraft);
+			if (Spacecraft != WeaponSystem->GetActiveWeaponTarget())
+			{
+				WeaponSystem->SetActiveWeaponTarget(Spacecraft);
+			}
+			else
+			{
+				WeaponSystem->SetActiveWeaponTarget(NULL);
+			}
 		}
 		else
 		{
@@ -121,7 +124,30 @@ const FSlateBrush* SFlareContextMenu::GetIcon() const
 
 FText SFlareContextMenu::GetText() const
 {
-	return (IsTargetting ? LOCTEXT("Attack", "Mark as target") : LOCTEXT("Inspect", "Inspect"));
+	FText Info = LOCTEXT("Inspect", "Inspect");
+
+	if (TargetSpacecraft && PlayerShip)
+	{
+		if (IsTargetting)
+		{
+			UFlareSpacecraftWeaponsSystem* WeaponSystem = PlayerShip->GetWeaponsSystem();
+			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(TargetSpacecraft);
+			check(Spacecraft != NULL);
+
+			if (Spacecraft != WeaponSystem->GetActiveWeaponTarget())
+			{
+				Info = LOCTEXT("Mark", "Mark as target");
+			}
+			else
+			{
+				Info = LOCTEXT("Clear", "Clear target");
+			}
+		}
+
+		Info = FText::FromString(Info.ToString() + "\n" + TargetSpacecraft->GetImmatriculation().ToString());
+	}
+
+	return Info;
 }
 
 #undef LOCTEXT_NAMESPACE

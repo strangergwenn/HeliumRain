@@ -18,25 +18,26 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, HUDVisible(true)
 {
 	// Load content (general icons)
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj      (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBackReticleIconObj  (TEXT("/Game/Gameplay/HUD/TX_BackReticle.TX_BackReticle"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj          (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombAimIconObj      (TEXT("/Game/Gameplay/HUD/TX_BombAim.TX_BombAim"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj    (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj         (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj    (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj  (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj         (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBackReticleIconObj     (TEXT("/Game/Gameplay/HUD/TX_BackReticle.TX_BackReticle"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj             (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombAimIconObj         (TEXT("/Game/Gameplay/HUD/TX_BombAim.TX_BombAim"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj       (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj            (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj       (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj    (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorSelectionObj (TEXT("/Game/Slate/Icons/TX_Icon_TargettingContextButton.TX_Icon_TargettingContextButton"));
 
 	// Load content (status icons)
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDTemperatureIconObj  (TEXT("/Game/Slate/Icons/TX_Icon_Temperature.TX_Icon_Temperature"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPowerIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Power.TX_Icon_Power"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPropulsionIconObj   (TEXT("/Game/Slate/Icons/TX_Icon_Propulsion.TX_Icon_Propulsion"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHealthIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_LifeSupport.TX_Icon_LifeSupport"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDTemperatureIconObj     (TEXT("/Game/Slate/Icons/TX_Icon_Temperature.TX_Icon_Temperature"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPowerIconObj           (TEXT("/Game/Slate/Icons/TX_Icon_Power.TX_Icon_Power"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPropulsionIconObj      (TEXT("/Game/Slate/Icons/TX_Icon_Propulsion.TX_Icon_Propulsion"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHealthIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_LifeSupport.TX_Icon_LifeSupport"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
 
 	// Load content (font)
-	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj             (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
+	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj                (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
 
 	// Set content (general icons)
 	HUDReticleIcon = HUDReticleIconObj.Object;
@@ -48,6 +49,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDObjectiveIcon = HUDObjectiveIconObj.Object;
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
+	HUDDesignatorSelectionTexture = HUDDesignatorSelectionObj.Object;
 
 	// Set content (status icons)
 	HUDTemperatureIcon = HUDTemperatureIconObj.Object;
@@ -452,7 +454,6 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			FoundTargetUnderMouse = true;
 			ContextMenuPosition = ScreenPosition;
 
-
 			ContextMenu->SetSpacecraft(Spacecraft);
 			if (Spacecraft->GetDamageSystem()->IsAlive())
 			{
@@ -464,9 +465,11 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		else if (Spacecraft->GetDamageSystem()->IsAlive())
 		{
 			float CornerSize = 6;
+			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+			FVector2D CenterPos = ScreenPosition - ObjectSize / 2;
+			FLinearColor Color = GetHostilityColor(PC, Spacecraft);
 
 			// Draw designator corners
-			FLinearColor Color = GetHostilityColor(PC, Spacecraft);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color);
@@ -476,14 +479,20 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			if (!Spacecraft->IsStation() && ObjectSize.X > IconSize)
 			{
 				int32 NumberOfIcons = Spacecraft->IsMilitary() ? 3 : 2;
-				FVector2D StatusPos = ScreenPosition - ObjectSize / 2;
+				FVector2D StatusPos = CenterPos;
 				StatusPos.X += 0.5 * (ObjectSize.X - NumberOfIcons * IconSize);
 				StatusPos.Y -= (IconSize + 0.5 * CornerSize);
 				DrawHUDDesignatorStatus(StatusPos, IconSize, Spacecraft);
 			}
 
+			// Target selection info
+			int32 SelectionSize = FMath::Min(48, (int32)ObjectSize.X);
+			if (Spacecraft == PlayerShip->GetWeaponsSystem()->GetActiveWeaponTarget())
+			{
+				DrawHUDIcon(ScreenPosition, SelectionSize, HUDDesignatorSelectionTexture, Color, true);
+			}
+			
 			// Combat helper
-			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 			if (Spacecraft->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
 				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
