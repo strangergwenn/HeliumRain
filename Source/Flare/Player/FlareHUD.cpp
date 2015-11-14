@@ -436,10 +436,14 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		FVector2D ObjectSize = FMath::Min(0.66f * Size, 300.0f) * FVector2D(1, 1);
 
 		// Check if the mouse is there
+		int ToleranceRange = 3;
 		FVector2D MousePos = PC->GetMousePosition();
 		FVector2D ShipBoxMin = ScreenPosition - ObjectSize / 2;
 		FVector2D ShipBoxMax = ScreenPosition + ObjectSize / 2;
-		bool Hovering = (MousePos.X >= ShipBoxMin.X && MousePos.Y >= ShipBoxMin.Y && MousePos.X <= ShipBoxMax.X && MousePos.Y <= ShipBoxMax.Y);
+		bool Hovering = (MousePos.X + ToleranceRange >= ShipBoxMin.X
+		              && MousePos.Y + ToleranceRange >= ShipBoxMin.Y
+		              && MousePos.X - ToleranceRange <= ShipBoxMax.X
+		              && MousePos.Y - ToleranceRange <= ShipBoxMax.Y);
 
 		// Draw the context menu
 		if (Hovering && !FoundTargetUnderMouse && IsInteractive)
