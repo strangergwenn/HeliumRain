@@ -284,7 +284,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 
 
 /*----------------------------------------------------
-	Callbacks
+	Events
 ----------------------------------------------------*/
 
 void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
@@ -320,6 +320,11 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 		PowerOutage = NewPowerOutage;
 	}
 }
+
+
+/*----------------------------------------------------
+	Callbacks
+----------------------------------------------------*/
 
 FText SFlareHUDMenu::GetInfoText() const
 {

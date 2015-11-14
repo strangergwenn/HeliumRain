@@ -5,7 +5,6 @@
 #include "../HUD/FlareSubsystemStatus.h"
 #include "../HUD/FlareWeaponStatus.h"
 #include "../HUD/FlareMouseMenu.h"
-#include "../HUD/FlareContextMenu.h"
 
 
 class SFlareHUDMenu : public SCompoundWidget
@@ -37,10 +36,15 @@ public:
 protected:
 
 	/*----------------------------------------------------
-		Callbacks
+		Events
 	----------------------------------------------------*/
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
+
+	/*----------------------------------------------------
+		Callbacks
+	----------------------------------------------------*/
 
 	/** Get the current information to show */
 	FText GetInfoText() const;

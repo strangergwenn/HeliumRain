@@ -263,6 +263,8 @@ void SFlareOrbitalMenu::Exit()
 
 void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
 	if (IsEnabled() && MenuManager.IsValid())
 	{
 		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
