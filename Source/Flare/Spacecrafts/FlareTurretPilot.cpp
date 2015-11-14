@@ -2,6 +2,7 @@
 #include "../Flare.h"
 
 #include "FlarePilotHelper.h"
+#include "FlareTurret.h"
 #include "FlareTurretPilot.h"
 #include "FlareSpacecraft.h"
 #include "FlareSpacecraftComponent.h"
@@ -73,6 +74,20 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 
 	PilotTargetShip = GetNearestHostileShip(true, true, 1200000,PreferredShipSize);
+
+	if(Turret->GetWeaponGroup()->Target)
+	{
+
+		AFlareSpacecraft* TargetCandidate = Turret->GetWeaponGroup()->Target;
+		if(!TargetCandidate->GetDamageSystem()->IsAlive())
+		{
+			Turret->GetWeaponGroup()->Target = NULL;
+		}
+		else
+		{
+			PilotTargetShip = TargetCandidate;
+		}
+	}
 
 	if (!PilotTargetShip)
 	{

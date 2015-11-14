@@ -235,7 +235,10 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	{
 		ResetExternalCamera();
 		Spacecraft->SetCameraLocalPosition(FVector::ZeroVector);
-		Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
+		if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		{
+			Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
+		}
 	}
 	else
 	{

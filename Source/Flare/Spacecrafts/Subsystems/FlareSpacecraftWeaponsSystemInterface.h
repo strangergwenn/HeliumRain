@@ -40,4 +40,6 @@ public:
 
 		virtual EFlareWeaponGroupType::Type GetActiveWeaponType() const = 0;
 
+
+
 };

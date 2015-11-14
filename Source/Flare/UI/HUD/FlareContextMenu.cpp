@@ -63,7 +63,12 @@ void SFlareContextMenu::OnClicked()
 	{
 		if (IsTargetting)
 		{
-			FFlareWeaponGroup* Weapon = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(TargetSpacecraft);
+			if(Spacecraft)
+			{
+				PlayerShip->GetWeaponsSystem()->SetActiveWeaponTarget(Spacecraft);
+			}
+			//FFlareWeaponGroup* Weapon = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 
 			// TODO Fred
 			//Weapon->SetTarget(TargetSpacecraft);

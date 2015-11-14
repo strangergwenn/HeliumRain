@@ -5,6 +5,7 @@
 
 class AFlareShell;
 class AFlareBomb;
+struct FFlareWeaponGroup;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareWeapon : public UFlareSpacecraftComponent
@@ -74,6 +75,12 @@ public:
 	virtual void FillBombs();
 
 	virtual FText GetSlotName() const;
+
+	inline void SetWeaponGroup(FFlareWeaponGroup* Group)
+	{
+		WeaponGroup = Group;
+	}
+
 protected:
 
 	/*----------------------------------------------------
@@ -109,7 +116,7 @@ protected:
 	float                       TimeSinceLastShell;
 	int32                       CurrentAmmo;
 	int                         LastFiredGun;
-
+	FFlareWeaponGroup*          WeaponGroup;
 public:
 
 	/*----------------------------------------------------
@@ -137,5 +144,10 @@ public:
 	}
 
 	virtual UStaticMesh* GetMesh(bool PresentationMode) const;
+
+	inline FFlareWeaponGroup* GetWeaponGroup()
+	{
+		return WeaponGroup;
+	}
 
 };

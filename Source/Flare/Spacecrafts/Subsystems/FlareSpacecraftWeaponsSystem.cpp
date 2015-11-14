@@ -125,13 +125,16 @@ void UFlareSpacecraftWeaponsSystem::Start()
 			}
 			WeaponGroup->LastFiredWeaponIndex = 0;
 			WeaponGroup->Weapons.Add(Weapon);
+			WeaponGroup->Target = NULL;
 
+			Weapon->SetWeaponGroup(WeaponGroup);
 			WeaponGroupList.Add(WeaponGroup);
 		}
 		else
 		{
 			FFlareWeaponGroup* WeaponGroup = WeaponGroupList[GroupIndex];
 			WeaponGroup->Weapons.Add(Weapon);
+			Weapon->SetWeaponGroup(WeaponGroup);
 		}
 	}
 
@@ -169,6 +172,23 @@ void UFlareSpacecraftWeaponsSystem::Start()
 	LastActiveWeaponGroupIndex = 0;
 	WantFire = false;
 	StopAllWeapons();
+}
+
+void UFlareSpacecraftWeaponsSystem::SetActiveWeaponTarget(AFlareSpacecraft* Target)
+{
+	if(ActiveWeaponGroup)
+	{
+		ActiveWeaponGroup->Target = Target;
+	}
+}
+
+AFlareSpacecraft* UFlareSpacecraftWeaponsSystem::GetActiveWeaponTarget()
+{
+	if(ActiveWeaponGroup)
+	{
+		return ActiveWeaponGroup->Target;
+	}
+	return NULL;
 }
 
 void UFlareSpacecraftWeaponsSystem::StopAllWeapons()

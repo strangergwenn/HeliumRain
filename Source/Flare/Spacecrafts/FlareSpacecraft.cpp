@@ -642,7 +642,7 @@ void AFlareSpacecraft::DeactivateWeapon()
 {
 	if (!StateManager->IsPilotMode())
 	{
-		StateManager->SetExternalCamera(false);
+		//StateManager->SetExternalCamera(false);
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->DeactivateWeapons();
@@ -653,10 +653,14 @@ void AFlareSpacecraft::ActivateWeaponGroup1()
 {
 	if (!StateManager->IsPilotMode())
 	{
-		StateManager->SetExternalCamera(false);
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup1");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->ActivateWeaponGroup(0);
+
+		if(GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		{
+			StateManager->SetExternalCamera(false);
+		}
 	}
 }
 
@@ -664,10 +668,13 @@ void AFlareSpacecraft::ActivateWeaponGroup2()
 {
 	if (!StateManager->IsPilotMode())
 	{
-		StateManager->SetExternalCamera(false);
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup2");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->ActivateWeaponGroup(1);
+		if(GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		{
+			StateManager->SetExternalCamera(false);
+		}
 	}
 }
 
@@ -675,10 +682,13 @@ void AFlareSpacecraft::ActivateWeaponGroup3()
 {
 	if (!StateManager->IsPilotMode())
 	{
-		StateManager->SetExternalCamera(false);
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup3");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->ActivateWeaponGroup(2);
+		if(GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		{
+			StateManager->SetExternalCamera(false);
+		}
 	}
 }
 

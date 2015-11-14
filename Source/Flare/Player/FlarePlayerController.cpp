@@ -672,7 +672,10 @@ void AFlarePlayerController::ToggleCombat()
 	{
 		FLOG("AFlarePlayerController::ToggleCombat");
 		ShipPawn->GetWeaponsSystem()->ToogleWeaponActivation();
-		SetExternalCamera(false);
+		if(ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		{
+			SetExternalCamera(false);
+		}
 	}
 }
 

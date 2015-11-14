@@ -14,6 +14,7 @@ struct FFlareWeaponGroup
 
 	TArray <UFlareWeapon*>                          Weapons;
 	int32                                           LastFiredWeaponIndex;
+	AFlareSpacecraft*								Target;
 };
 
 
@@ -100,6 +101,11 @@ public:
 	{
 		return WeaponGroupList.Num();
 	}
+
+	virtual void SetActiveWeaponTarget(AFlareSpacecraft* Target);
+
+	virtual AFlareSpacecraft* GetActiveWeaponTarget();
+
 
 
 	virtual void StopAllWeapons();
