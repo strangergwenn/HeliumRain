@@ -130,7 +130,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 			]
 		]
 
-		// General purpose container
+		// General purpose container 1 (full, can always have 3 buttons)
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		[
@@ -144,17 +144,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("Inspect", "INSPECT"))
 				.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
 				.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
-				.Width(4)
-			]
-
-			// Trade
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SAssignNew(TradeButton, SFlareButton)
-				.Text(LOCTEXT("Trade", "TRADE"))
-				.HelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"))
-				.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
 				.Width(4)
 			]
 
@@ -199,6 +188,24 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("Undock", "UNDOCK"))
 				.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
 				.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
+				.Width(4)
+			]
+		]
+
+		// General purpose container (not full)
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SNew(SHorizontalBox)
+
+			// Trade
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SAssignNew(TradeButton, SFlareButton)
+				.Text(LOCTEXT("Trade", "TRADE"))
+				.HelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"))
+				.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
 				.Width(4)
 			]
 		]
