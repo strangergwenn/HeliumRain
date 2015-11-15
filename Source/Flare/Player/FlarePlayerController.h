@@ -1,9 +1,10 @@
 #pragma once
 
 #include "../Flare.h"
+#include "FlareHUD.h"
+#include "FlareMenuPawn.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSaveGame.h"
-#include "FlareMenuPawn.h"
 #include "../UI/Components/FlareNotifier.h"
 #include "FlarePlayerController.generated.h"
 

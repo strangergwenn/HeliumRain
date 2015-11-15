@@ -7,7 +7,6 @@
 #include "../Spacecrafts/FlareShell.h"
 #include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "FlareMenuManager.h"
-#include "FlareHUD.h"
 #include "EngineUtils.h"
 
 

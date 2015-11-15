@@ -1,9 +1,11 @@
 
 #include "../../Flare.h"
 #include "FlareTradeMenu.h"
-
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Player/FlarePlayerController.h"
+#include "../Components/FlareButton.h"
+#include "../Components/FlareRoundButton.h"
 
 #define LOCTEXT_NAMESPACE "FlareTradeMenu"
 
