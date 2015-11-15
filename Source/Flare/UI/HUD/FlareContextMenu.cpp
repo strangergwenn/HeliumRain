@@ -30,6 +30,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 		.Padding(this, &SFlareContextMenu::GetContextMenuPosition)
 		[
 			SNew(SFlareRoundButton)
+			.Visibility(this, &SFlareContextMenu::GetButtonVisibility)
 			.OnClicked(this, &SFlareContextMenu::OnClicked)
 			.Icon(this, &SFlareContextMenu::GetIcon)
 			.Text(this, &SFlareContextMenu::GetText)
@@ -115,6 +116,18 @@ FMargin SFlareContextMenu::GetContextMenuPosition() const
 	Pos.Y -= 48;
 
 	return FMargin(Pos.X, Pos.Y, 0, 0);
+}
+
+EVisibility SFlareContextMenu::GetButtonVisibility() const
+{
+	if (!IsTargetting || TargetSpacecraft->GetCompany()->GetPlayerHostility() <= EFlareHostility::Neutral)
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
 }
 
 const FSlateBrush* SFlareContextMenu::GetIcon() const

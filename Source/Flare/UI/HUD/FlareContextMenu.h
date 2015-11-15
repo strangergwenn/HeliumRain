@@ -53,7 +53,10 @@ protected:
 
 	/** Get the current position */
 	FMargin GetContextMenuPosition() const;
-	
+
+	/** Get the visibility setting for the button */
+	EVisibility GetButtonVisibility() const;
+
 	/** Get the icon brush */
 	const FSlateBrush* GetIcon() const;
 
