@@ -505,7 +505,7 @@ void AFlareSpacecraft::SetRCSDescription(FFlareSpacecraftComponentDescription* D
 	// Find the RCS turn and power rating, since RCSs themselves don't do anything
 	if (Description)
 	{
-		if (Airframe && Description->EngineCharacteristics.AngularAccelerationRate > 0)
+		if (Airframe && Description->EngineCharacteristics.AngularAccelerationRate > 0 && !IsPresentationMode())
 		{
 			float Mass = Airframe->GetMass() / 100000;
 			NavigationSystem->SetAngularAccelerationRate(Description->EngineCharacteristics.AngularAccelerationRate / (60 * Mass));
