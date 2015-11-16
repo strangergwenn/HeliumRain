@@ -422,8 +422,9 @@ EVisibility SFlareOrbitalMenu::GetFastForwardVisibility() const
 	{
 		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
 
-		if (GameWorld && GameWorld->GetTravels().Num() > 0)
+		if (GameWorld && (GameWorld->GetTravels().Num() > 0 || true)) // Not true if there is pending todo event
 		{
+
 			// TODO ALPHA : show the button during station/ship constructions as well
 			return EVisibility::Visible;
 		}

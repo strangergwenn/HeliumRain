@@ -220,7 +220,9 @@ void UFlareWorld::FastForward()
 {
 	Simulate(0);
 
-	while(true)
+	int64 FastForwardEnd = WorldData.Time + 86400;
+
+	while(WorldData.Time < FastForwardEnd)
 	{
 		TArray<FFlareWorldEvent> NextEvents = GenerateEvents();
 
