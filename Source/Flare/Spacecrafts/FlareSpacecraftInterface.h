@@ -43,26 +43,30 @@ struct FFlareSpacecraftSlotDescription
 };
 
 
-/** Catalog data structure for a ship */
+/** Catalog data structure for a spacecraft */
 USTRUCT()
 struct FFlareSpacecraftDescription
 {
 	GENERATED_USTRUCT_BODY()
 
-	/** Ship internal name */
+	/** Spacecraft internal name */
 	UPROPERTY(EditAnywhere, Category = Content) FName Identifier;
 
-	/** Ship name */
+	/** Spacecraft name */
 	UPROPERTY(EditAnywhere, Category = Content) FText Name;
 
-	/** Ship description */
+	/** Spacecraft description */
 	UPROPERTY(EditAnywhere, Category = Content) FText Description;
 
-	/** Ship description */
+	/** Spacecraft description */
 	UPROPERTY(EditAnywhere, Category = Content) FText ImmatriculationCode;
 
-	/** Ship cost */
+	/** Spacecraft cost */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
+
+	/** Spacecraft resources cost*/
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareFactoryResource> ResourcesCost;
 
 	/** Size of the ship components */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -95,10 +99,10 @@ struct FFlareSpacecraftDescription
 	/** Heat capacity un KJ/K */
 	UPROPERTY(EditAnywhere, Category = Content) float HeatCapacity;
 
-	/** Ship mesh name */
+	/** Spacecraft mesh name */
 	UPROPERTY(EditAnywhere, Category = Content) UBlueprint* Template;
 
-	/** Ship mesh preview image */
+	/** Spacecraft mesh preview image */
 	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush MeshPreviewBrush;
 
 	/** Engine Power sound*/

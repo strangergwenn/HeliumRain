@@ -37,6 +37,7 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	void UpdateStationCost();
 
 protected:
 
@@ -65,6 +66,18 @@ protected:
 	/** Move the selected fleet here */
 	void OnTravelHereClicked();
 
+	/** Get the text of a station combo box line*/
+	TSharedRef<SWidget> OnGenerateStationComboLine(UFlareSpacecraftCatalogEntry* Item);
+
+	void OnStationComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo);
+
+	FText OnGetStationCost() const;
+
+	EVisibility GetBuildStationVisibility() const;
+
+	FText OnGetCurrentStationComboLine() const;
+
+	void OnBuildStationClicked();
 
 protected:
 
@@ -81,4 +94,9 @@ protected:
 	TSharedPtr<SFlareShipList>                 OtherShipList;
 	UFlareSimulatedSector*                     TargetSector;
 
+	// Station data
+	TSharedPtr<SComboBox<UFlareSpacecraftCatalogEntry*>> StationSelector;
+	TArray<UFlareSpacecraftCatalogEntry*>                StationList;
+	FText                                                           StationCost;
+	bool                                                            StationBuildable;
 };
