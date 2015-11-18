@@ -445,7 +445,13 @@ FText SFlareSectorMenu::OnGetCurrentStationComboLine() const
 
 void SFlareSectorMenu::OnBuildStationClicked()
 {
-	FLOG("Build station");
+	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
+	if(Item)
+	{
+		FFlareSpacecraftDescription* StationDescription = &Item->Data;
+		TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
+		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

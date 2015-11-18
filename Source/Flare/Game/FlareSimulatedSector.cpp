@@ -403,7 +403,6 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	{
 		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
 
-		// TODO externalize this method in sector class and take company as parameter
 		if(Ship->GetCompany() != Company)
 		{
 			continue;
@@ -432,32 +431,11 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 
 			if(NewResource)
 			{
-				if(Cargo->Resource)
-				{
-					FLOGV("New resources %s for %d units", *Cargo->Resource->Identifier.ToString(), Cargo->Quantity);
-				}
-				else
-				{
-					FLOGV("%s have invalid resource at index %d", *Ship->GetImmatriculation().ToString(), CargoIndex);
-				}
 				FFlareCargo NewResourceCargo;
 				NewResourceCargo.Resource = Cargo->Resource;
 				NewResourceCargo.Quantity = Cargo->Quantity;
 				AvailableResources.Add(NewResourceCargo);
 			}
-		}
-	}
-
-	FLOG("Availables resources:");
-	for(int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
-	{
-		if(AvailableResources[AvailableResourceIndex].Resource)
-		{
-			FLOGV("  - %s: %u",*AvailableResources[AvailableResourceIndex].Resource->Identifier.ToString(), AvailableResources[AvailableResourceIndex].Quantity);
-		}
-		else
-		{
-			FLOGV("  - Invalid resource at index %d", AvailableResourceIndex);
 		}
 	}
 
@@ -474,7 +452,6 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 				ResourceFound = true;
 				if(AvailableResources[AvailableResourceIndex].Quantity < FactoryResource->Quantity)
 				{
-					FLOGV("KO : %s has %u units available but %u needed",*AvailableResources[AvailableResourceIndex].Resource->Identifier.ToString(), AvailableResources[AvailableResourceIndex].Quantity, FactoryResource->Quantity);
 					return false;
 				}
 				break;
@@ -483,10 +460,49 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 
 		if(!ResourceFound)
 		{
-			FLOGV("KO : %s has no units",*FactoryResource->Resource->Data.Identifier.ToString());
 			return false;
 		}
 	}
+
+	return true;
+}
+
+bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
+{
+	if(!CanBuildStation(StationDescription, Company))
+	{
+		FLOGV("Fail to buid station '%s' for company '%s'", *StationDescription->Identifier.ToString(), *Company->GetIdentifier().ToString());
+		return false;
+	}
+
+	// Pay station cost
+	Company->TakeMoney(StationDescription->Cost);
+
+	// Take resource cost
+	for(int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+	{
+		FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
+		uint32 ResourceToTake = FactoryResource->Quantity;
+
+		for(int ShipIndex = 0; ShipIndex < SectorShips.Num() && ResourceToTake > 0; ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
+
+			if(Ship->GetCompany() != Company)
+			{
+				continue;
+			}
+
+			ResourceToTake -= Ship->TakeResources(&(FactoryResource->Resource->Data), ResourceToTake);
+		}
+
+		if(ResourceToTake > 0)
+		{
+			FLOG("WARNING ! Fail to take resource cost for build station a station but CanBuild test succeded");
+		}
+	}
+
+	CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
 
 	return true;
 }

@@ -221,6 +221,8 @@ public:
 
 	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
+	bool BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
+
 protected:
 
     /*----------------------------------------------------
