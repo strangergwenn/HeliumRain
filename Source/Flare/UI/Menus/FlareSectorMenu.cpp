@@ -178,7 +178,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
+					.TextStyle(&Theme.SmallFont)
 					.Text(this, &SFlareSectorMenu::OnGetStationCost)
 				]
 
@@ -310,8 +310,16 @@ void SFlareSectorMenu::UpdateStationCost()
 	{
 		FFlareSpacecraftDescription* StationDescription = &Item->Data;
 
-		StationCost = FText::FromString(FString::Printf(TEXT("%d $"), StationDescription->Cost));
-		StationBuildable = MenuManager->GetPC()->GetCompany()->GetMoney() > StationDescription->Cost;
+		FString StationCostString = FString::Printf(TEXT("%d $"), StationDescription->Cost);
+
+		for(int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+		{
+			FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
+			StationCostString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString());
+		}
+		StationCost = FText::FromString(StationCostString);
+
+		StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 	}
 }
 

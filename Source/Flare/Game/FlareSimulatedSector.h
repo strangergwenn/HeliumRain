@@ -219,7 +219,7 @@ public:
     /** Init world with aggresve scenario */
 	// virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
-
+	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
 protected:
 

@@ -389,3 +389,104 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 	}
 }
 
+bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
+{
+	// Check money cost
+	if(Company->GetMoney() < StationDescription->Cost)
+	{
+		return false;
+	}
+
+	// Compute total available resources
+	TArray<FFlareCargo> AvailableResources;
+	for(int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
+
+		// TODO externalize this method in sector class and take company as parameter
+		if(Ship->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		TArray<FFlareCargo>* CargoBay = Ship->GetCargoBay();
+		for(int CargoIndex = 0; CargoIndex < CargoBay->Num(); CargoIndex++)
+		{
+			FFlareCargo* Cargo = &((*CargoBay)[CargoIndex]);
+
+			if(!Cargo->Resource)
+			{
+				continue;
+			}
+
+			bool NewResource = true;
+			for(int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
+			{
+				if(AvailableResources[AvailableResourceIndex].Resource == Cargo->Resource)
+				{
+					AvailableResources[AvailableResourceIndex].Quantity += Cargo->Quantity;
+					NewResource = false;
+					break;
+				}
+			}
+
+			if(NewResource)
+			{
+				if(Cargo->Resource)
+				{
+					FLOGV("New resources %s for %d units", *Cargo->Resource->Identifier.ToString(), Cargo->Quantity);
+				}
+				else
+				{
+					FLOGV("%s have invalid resource at index %d", *Ship->GetImmatriculation().ToString(), CargoIndex);
+				}
+				FFlareCargo NewResourceCargo;
+				NewResourceCargo.Resource = Cargo->Resource;
+				NewResourceCargo.Quantity = Cargo->Quantity;
+				AvailableResources.Add(NewResourceCargo);
+			}
+		}
+	}
+
+	FLOG("Availables resources:");
+	for(int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
+	{
+		if(AvailableResources[AvailableResourceIndex].Resource)
+		{
+			FLOGV("  - %s: %u",*AvailableResources[AvailableResourceIndex].Resource->Identifier.ToString(), AvailableResources[AvailableResourceIndex].Quantity);
+		}
+		else
+		{
+			FLOGV("  - Invalid resource at index %d", AvailableResourceIndex);
+		}
+	}
+
+	// Check resource cost
+	for(int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+	{
+		FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
+		bool ResourceFound = false;
+
+		for(int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
+		{
+			if(AvailableResources[AvailableResourceIndex].Resource == &(FactoryResource->Resource->Data))
+			{
+				ResourceFound = true;
+				if(AvailableResources[AvailableResourceIndex].Quantity < FactoryResource->Quantity)
+				{
+					FLOGV("KO : %s has %u units available but %u needed",*AvailableResources[AvailableResourceIndex].Resource->Identifier.ToString(), AvailableResources[AvailableResourceIndex].Quantity, FactoryResource->Quantity);
+					return false;
+				}
+				break;
+			}
+		}
+
+		if(!ResourceFound)
+		{
+			FLOGV("KO : %s has no units",*FactoryResource->Resource->Data.Identifier.ToString());
+			return false;
+		}
+	}
+
+	return true;
+}
