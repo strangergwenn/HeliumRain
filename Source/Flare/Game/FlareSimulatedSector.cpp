@@ -408,10 +408,10 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 			continue;
 		}
 
-		TArray<FFlareCargo>* CargoBay = Ship->GetCargoBay();
-		for(int CargoIndex = 0; CargoIndex < CargoBay->Num(); CargoIndex++)
+		TArray<FFlareCargo>& CargoBay = Ship->GetCargoBay();
+		for(int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
 		{
-			FFlareCargo* Cargo = &((*CargoBay)[CargoIndex]);
+			FFlareCargo* Cargo = &(CargoBay[CargoIndex]);
 
 			if(!Cargo->Resource)
 			{

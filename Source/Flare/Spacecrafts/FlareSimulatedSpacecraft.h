@@ -149,9 +149,10 @@ public:
 		return SpacecraftDescription;
 	}
 
-	TArray<FFlareCargo>* GetCargoBay()
+	TArray<FFlareCargo>& GetCargoBay()
 	{
-		return &CargoBay;
+		return CargoBay;
+	}
 	}
 
 	inline FVector GetSpawnLocation() const

@@ -254,10 +254,10 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 		{
 			const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-			TArray<FFlareCargo>* SpacecraftCargoBay = SimulatedSpacecraft->GetCargoBay();
-			for (int CargoIndex = 0; CargoIndex < SpacecraftCargoBay->Num() ; CargoIndex++)
+			TArray<FFlareCargo>& SpacecraftCargoBay = SimulatedSpacecraft->GetCargoBay();
+			for (int CargoIndex = 0; CargoIndex < SpacecraftCargoBay.Num() ; CargoIndex++)
 			{
-				FFlareCargo* Cargo = &(*SpacecraftCargoBay)[CargoIndex];
+				FFlareCargo* Cargo = &SpacecraftCargoBay[CargoIndex];
 				FString ResourceString = FString::Printf(TEXT("- %s (%u/%u)"), (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, Cargo->Capacity);
 
 				CargoBay->AddSlot()

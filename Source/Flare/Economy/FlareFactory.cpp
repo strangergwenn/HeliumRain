@@ -102,19 +102,19 @@ bool UFlareFactory::HasInputResources()
 
 bool UFlareFactory::HasOutputFreeSpace()
 {
-	TArray<FFlareCargo>* CargoBay = Parent->GetCargoBay();
+	TArray<FFlareCargo>& CargoBay = Parent->GetCargoBay();
 
 	TArray<FFlareFactoryResource> OutputResources = FactoryDescription->OutputResources;
 
 	// First pass, fill already existing slots
-	for (int CargoIndex = 0 ; CargoIndex < CargoBay->Num() ; CargoIndex++)
+	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		for (int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
 		{
-			if (&OutputResources[ResourceIndex].Resource->Data == (*CargoBay)[CargoIndex].Resource)
+			if (&OutputResources[ResourceIndex].Resource->Data == CargoBay[CargoIndex].Resource)
 			{
 				// Same resource
-				uint32 AvailableCapacity = (*CargoBay)[CargoIndex].Capacity - (*CargoBay)[CargoIndex].Quantity;
+				uint32 AvailableCapacity = CargoBay[CargoIndex].Capacity - CargoBay[CargoIndex].Quantity;
 				if (AvailableCapacity > 0)
 				{
 					OutputResources[ResourceIndex].Quantity -= FMath::Min(AvailableCapacity, OutputResources[ResourceIndex].Quantity);
@@ -132,7 +132,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 	}
 
 	// Fill free cargo slots
-	for (int CargoIndex = 0 ; CargoIndex < CargoBay->Num() ; CargoIndex++)
+	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		if (OutputResources.Num() == 0)
 		{
@@ -140,10 +140,10 @@ bool UFlareFactory::HasOutputFreeSpace()
 			break;
 		}
 
-		if ((*CargoBay)[CargoIndex].Quantity == 0)
+		if (CargoBay[CargoIndex].Quantity == 0)
 		{
 			// Empty slot, fill it
-			OutputResources[0].Quantity -= FMath::Min((*CargoBay)[CargoIndex].Capacity, OutputResources[0].Quantity);
+			OutputResources[0].Quantity -= FMath::Min(CargoBay[CargoIndex].Capacity, OutputResources[0].Quantity);
 
 			if (OutputResources[0].Quantity == 0)
 			{

@@ -183,10 +183,10 @@ void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft
 		];
 
 
-		TArray<FFlareCargo>* SpacecraftCargoBay = TargetSpacecraft->GetCargoBay();
-		for (int CargoIndex = 0; CargoIndex < SpacecraftCargoBay->Num() ; CargoIndex++)
+		TArray<FFlareCargo>& SpacecraftCargoBay = TargetSpacecraft->GetCargoBay();
+		for (int CargoIndex = 0; CargoIndex < SpacecraftCargoBay.Num() ; CargoIndex++)
 		{
-			FFlareCargo* Cargo = &(*SpacecraftCargoBay)[CargoIndex];
+			FFlareCargo* Cargo = &SpacecraftCargoBay[CargoIndex];
 
 			FString ResourceString = FString::Printf(TEXT("- %s (%u/%u)"), (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, Cargo->Capacity);
 
