@@ -153,6 +153,10 @@ public:
 	{
 		return CargoBay;
 	}
+
+	TArray<UFlareFactory*>& GetFactories()
+	{
+		return Factories;
 	}
 
 	inline FVector GetSpawnLocation() const

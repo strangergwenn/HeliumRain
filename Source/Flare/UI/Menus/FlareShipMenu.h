@@ -95,6 +95,7 @@ protected:
 	/** Part list generator */
 	TSharedRef<ITableRow> GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
 
+	void UpdateFactoryList();
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -165,6 +166,9 @@ protected:
 	int32                                           CurrentPartIndex;
 	int32                                           CurrentEquippedPartIndex;
 	int32                                           ShipPartIndex;
+
+	// Factory list
+	TSharedPtr<SVerticalBox>                        FactoryList;
 	
 
 };

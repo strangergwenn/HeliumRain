@@ -159,6 +159,11 @@ public:
 		return Game;
 	}
 
+	inline const FFlareFactoryDescription*GetDescription() const
+	{
+		return FactoryDescription;
+	}
+
 	inline UFlareSimulatedSpacecraft* GetParent()
 	{
 		return Parent;

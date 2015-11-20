@@ -239,6 +239,13 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.MenuManager(MenuManager)
 					.Title(LOCTEXT("DockedShips", "DOCKED SHIPS"))
 				]
+
+				// Factory list
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(FactoryList, SVerticalBox)
+				]
 			]
 		]
 	];
@@ -294,6 +301,8 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	ShipList->RefreshList();
 
 	SetVisibility(EVisibility::Visible);
+
+	UpdateFactoryList();
 }
 
 void SFlareShipMenu::Exit()
@@ -443,6 +452,31 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 	LoadPart(SelectItem->Identifier);
 }
 
+void SFlareShipMenu::UpdateFactoryList()
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FactoryList->ClearChildren();
+
+	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
+
+	if(SimulatedSpacecraft)
+	{
+		TArray<UFlareFactory*>& Factories = SimulatedSpacecraft->GetFactories();
+
+		for(int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+		{
+			UFlareFactory* Factory = Factories[FactoryIndex];
+			FactoryList->AddSlot()
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(FText::FromString(Factory->GetDescription()->Name.ToString().ToUpper()))
+			];
+		}
+
+	}
+
+}
 
 /*----------------------------------------------------
 	Content callbacks
