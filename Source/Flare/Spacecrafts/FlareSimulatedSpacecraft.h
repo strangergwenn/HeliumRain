@@ -125,7 +125,7 @@ public:
 	inline AFlareGame* GetGame() const
 	{
 		return Game;
-	}
+	}	
 
 	inline FName GetNickName() const override
 	{
@@ -152,6 +152,11 @@ public:
 	TArray<FFlareCargo>* GetCargoBay()
 	{
 		return &CargoBay;
+	}
+
+	inline FVector GetSpawnLocation() const
+	{
+		return SpacecraftData.Location;
 	}
 
 };

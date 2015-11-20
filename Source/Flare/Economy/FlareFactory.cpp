@@ -173,7 +173,7 @@ void UFlareFactory::DoProduction()
 	FactoryData.CostReserved = 0;
 	// TODO Give lost money to people
 
-	// Consume input resource
+	// Consume input resources
 	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
@@ -183,7 +183,7 @@ void UFlareFactory::DoProduction()
 		}
 	}
 
-	// Generate output resource
+	// Generate output resources
 	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->OutputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->OutputResources[ResourceIndex];
@@ -192,6 +192,24 @@ void UFlareFactory::DoProduction()
 			FLOGV("Fail to give %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
 		}
 	}
+
+	// Perform output actions
+	for (int ActionIndex = 0 ; ActionIndex < FactoryDescription->OutputActions.Num() ; ActionIndex++)
+	{
+		const FFlareFactoryAction* Action = &FactoryDescription->OutputActions[ActionIndex];
+		switch(Action->Action)
+		{
+			case EFlareFactoryAction::CreateShip:
+				PerformCreateShipAction(Action);
+				break;
+			case EFlareFactoryAction::DiscoverSector:
+			case EFlareFactoryAction::GainTechnology:
+				// TODO
+			default:
+				FLOGV("Warning ! Not implemented factory action %d", (Action->Action+0));
+		}
+	}
+
 }
 
 FFlareWorldEvent *UFlareFactory::GenerateEvent()
@@ -214,4 +232,21 @@ FFlareWorldEvent *UFlareFactory::GenerateEvent()
 		return &NextEvent;
 	}
 	return NULL;
+}
+
+void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
+{
+	FFlareSpacecraftDescription* ShipDescription = GetGame()->GetSpacecraftCatalog()->Get(Action->Identifier);
+	if(!ShipDescription)
+	{
+		return;
+	}
+
+	UFlareCompany* Company = Parent->GetCompany();
+	FVector SpawnPosition = Parent->GetSpawnLocation();
+
+	for(int Index = 0; Index < Action->Quantity; Index++)
+	{
+		Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
+	}
 }

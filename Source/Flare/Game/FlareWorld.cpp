@@ -242,6 +242,11 @@ void UFlareWorld::FastForward()
 
 		int64 TimeJump = NextEvent.Time - WorldData.Time;
 
+		if(NextEvent.Time > FastForwardEnd)
+		{
+			TimeJump = FastForwardEnd - WorldData.Time;
+		}
+
 		Simulate(TimeJump);
 
 		if (NextEvent.Visibility == EFlareEventVisibility::Blocking)

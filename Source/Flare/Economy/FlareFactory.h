@@ -22,6 +22,38 @@ struct FFlareFactoryResource
 	uint32 Quantity;
 };
 
+/** Factory action type values */
+UENUM()
+namespace EFlareFactoryAction
+{
+	enum Type
+	{
+		CreateShip,
+		GainTechnology,
+		DiscoverSector
+	};
+}
+
+/** Factory output action */
+USTRUCT()
+struct FFlareFactoryAction
+{
+	GENERATED_USTRUCT_BODY()
+	/** Faction action. */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlareFactoryAction::Type> Action;
+
+	/** Generic identifier */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName Identifier;
+
+	/** Quantity for this action */
+	UPROPERTY(EditAnywhere, Category = Content)
+	uint32 Quantity;
+};
+
+
+
 /** Factory description */
 USTRUCT()
 struct FFlareFactoryDescription
@@ -55,6 +87,10 @@ struct FFlareFactoryDescription
 	/** Output resources */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareFactoryResource> OutputResources;
+
+	/** Output actions */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareFactoryAction> OutputActions;
 
 
 	// TODO add output actions
@@ -96,6 +132,8 @@ public:
 	void DoProduction();
 
 	FFlareWorldEvent *GenerateEvent();
+
+	void PerformCreateShipAction(const FFlareFactoryAction* Action);
 
 protected:
 
