@@ -704,6 +704,77 @@ void SFlareShipMenu::UpdateFactoryList()
 					]
 				]
 			];
+
+			for (int ResourceIndex = 0; ResourceIndex < Factory->GetDescription()->OutputResources.Num(); ResourceIndex++)
+			{
+				const FFlareFactoryResource* FactoryResource = &Factory->GetDescription()->OutputResources[ResourceIndex];
+				FFlareResourceDescription* Resource = &FactoryResource->Resource->Data;
+
+				FString LimitStatusString;
+				if(Factory->HasOutputLimit(Resource))
+				{
+					LimitStatusString = FString::Printf(TEXT("limited to %u slots"), Factory->GetOutputLimit(Resource));
+				}
+				else
+				{
+					LimitStatusString = FString(TEXT("no limits"));
+				}
+
+				FactoryList->AddSlot()
+				[
+						SNew(SHorizontalBox)
+
+						// Limit status
+						+ SHorizontalBox::Slot()
+						.VAlign(VAlign_Fill)
+						.AutoWidth()
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SmallFont)
+							.Text(FText::FromString(FString::Printf(TEXT("Limit for %s: %s"),*FactoryResource->Resource->Data.Name.ToString(), *LimitStatusString)))
+						]
+
+						// Limit add
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Visibility(this, &SFlareShipMenu::GetAddLimitButtonVisibility, Factory, Resource)
+							.OnClicked(this, &SFlareShipMenu::OnAddLimitClicked, Factory, Resource)
+							.Text(FText::FromString(TEXT("Add a limit")))
+						]
+
+						// Limit decrease
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Visibility(this, &SFlareShipMenu::GetDecreaseLimitButtonVisibility, Factory, Resource)
+							.OnClicked(this, &SFlareShipMenu::OnDecreaseLimitClicked, Factory, Resource)
+							.Text(FText::FromString(TEXT("-")))
+						]
+
+						// Limit increase
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Visibility(this, &SFlareShipMenu::GetIncreaseLimitButtonVisibility, Factory, Resource)
+							.OnClicked(this, &SFlareShipMenu::OnIncreaseLimitClicked, Factory, Resource)
+							.Text(FText::FromString(TEXT("+")))
+						]
+
+						// Limit clear
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Visibility(this, &SFlareShipMenu::GetClearLimitButtonVisibility, Factory, Resource)
+							.OnClicked(this, &SFlareShipMenu::OnClearLimitClicked, Factory, Resource)
+							.Text(FText::FromString(TEXT("Clear limit")))
+						]
+				].AutoHeight();
+			}
 		}
 
 	}
@@ -733,6 +804,26 @@ EVisibility SFlareShipMenu::GetAddProductionCycleButtonVisibility(UFlareFactory*
 EVisibility SFlareShipMenu::GetRemoveProductionCycleButtonVisibility(UFlareFactory* Factory) const
 {
 	return (!Factory->HasInfiniteCycle() ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetAddLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
+{
+	return (!Factory->HasOutputLimit(Resource) ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetDecreaseLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
+{
+	return (Factory->HasOutputLimit(Resource) ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetIncreaseLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
+{
+	return (Factory->HasOutputLimit(Resource) ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetClearLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
+{
+	return (Factory->HasOutputLimit(Resource) ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 void SFlareShipMenu::OnStartProductionClicked(UFlareFactory* Factory)
@@ -775,6 +866,32 @@ void SFlareShipMenu::OnRemoveProductionCycleClicked(UFlareFactory* Factory)
 	}
 }
 
+void SFlareShipMenu::OnAddLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource)
+{
+	Factory->SetOutputLimit(Resource, 0);
+	UpdateFactoryList();
+}
+
+void SFlareShipMenu::OnDecreaseLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource)
+{
+	if(Factory->GetOutputLimit(Resource) > 0)
+	{
+		Factory->SetOutputLimit(Resource, Factory->GetOutputLimit(Resource) - 1);
+		UpdateFactoryList();
+	}
+}
+
+void SFlareShipMenu::OnIncreaseLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource)
+{
+	Factory->SetOutputLimit(Resource, Factory->GetOutputLimit(Resource) + 1);
+	UpdateFactoryList();
+}
+
+void SFlareShipMenu::OnClearLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource)
+{
+	Factory->ClearOutputLimit(Resource);
+	UpdateFactoryList();
+}
 
 /*----------------------------------------------------
 	Content callbacks

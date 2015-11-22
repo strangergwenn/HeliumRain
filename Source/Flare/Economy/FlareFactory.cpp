@@ -124,6 +124,40 @@ void UFlareFactory::SetCycleCount(uint32 Count)
 	FactoryData.CycleCount = Count;
 }
 
+void UFlareFactory::SetOutputLimit(FFlareResourceDescription* Resource, uint32 MaxSlot)
+{
+	bool ExistingResource = false;
+	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	{
+		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
+		{
+			ExistingResource = true;
+			FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity = MaxSlot;
+			break;
+		}
+	}
+
+	if(!ExistingResource)
+	{
+		FFlareCargoSave NewCargoLimit;
+		NewCargoLimit.ResourceIdentifier = Resource->Identifier;
+		NewCargoLimit.Quantity = MaxSlot;
+		FactoryData.OutputCargoLimit.Add(NewCargoLimit);
+	}
+}
+
+void UFlareFactory::ClearOutputLimit(FFlareResourceDescription* Resource)
+{
+	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	{
+		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
+		{
+			FactoryData.OutputCargoLimit.RemoveAt(CargoLimitIndex);
+			return;
+		}
+	}
+}
+
 bool UFlareFactory::HasCostReserved()
 {
 	if (FactoryData.CostReserved < FactoryDescription->ProductionCost)
@@ -180,9 +214,9 @@ bool UFlareFactory::HasOutputFreeSpace()
 {
 	TArray<FFlareCargo>& CargoBay = Parent->GetCargoBay();
 
-	TArray<FFlareFactoryResource> OutputResources = FactoryDescription->OutputResources;
+	TArray<FFlareFactoryResource> OutputResources = GetLimitedOutputResources();
 
-	// First pass, fill already existing slots
+	// First, fill already existing slots
 	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		for (int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
@@ -341,9 +375,10 @@ void UFlareFactory::DoProduction()
 	}
 
 	// Generate output resources
-	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->OutputResources.Num() ; ResourceIndex++)
+	TArray<FFlareFactoryResource> OutputResources = GetLimitedOutputResources();
+	for (int ResourceIndex = 0 ; ResourceIndex < OutputResources.Num() ; ResourceIndex++)
 	{
-		const FFlareFactoryResource* Resource = &FactoryDescription->OutputResources[ResourceIndex];
+		const FFlareFactoryResource* Resource = &OutputResources[ResourceIndex];
 		if (Parent->GiveResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
 		{
 			FLOGV("Fail to give %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
@@ -420,4 +455,74 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 int64 UFlareFactory::GetRemainingProductionDuration()
 {
 	return FactoryDescription->ProductionTime - FactoryData.ProductedDuration;
+}
+
+TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
+{
+	TArray<FFlareCargo>& CargoBay = Parent->GetCargoBay();
+	TArray<FFlareFactoryResource> OutputResources = FactoryDescription->OutputResources;
+	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	{
+		uint32 MaxCapacity = Parent->GetDescription()->CargoBayCapacity * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
+		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier);
+		uint32 CurrentQuantity = 0;
+		for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
+		{
+			if(CargoBay[CargoIndex].Resource == Resource)
+			{
+				CurrentQuantity += CargoBay[CargoIndex].Quantity;
+			}
+		}
+
+		uint32 MaxAddition;
+
+		if(CurrentQuantity > MaxCapacity)
+		{
+			MaxAddition = 0;
+		}
+		else
+		{
+			MaxAddition = MaxCapacity - CurrentQuantity;
+		}
+
+		for (int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
+		{
+			if (&OutputResources[ResourceIndex].Resource->Data == Resource)
+			{
+				OutputResources[ResourceIndex].Quantity = FMath::Min(MaxAddition, OutputResources[ResourceIndex].Quantity);
+
+				if (OutputResources[ResourceIndex].Quantity == 0)
+				{
+					OutputResources.RemoveAt(ResourceIndex);
+				}
+				break;
+			}
+		}
+	}
+	return OutputResources;
+}
+
+uint32 UFlareFactory::GetOutputLimit(FFlareResourceDescription* Resource)
+{
+	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	{
+		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
+		{
+			return FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
+		}
+	}
+	FLOGV("No output limit for %s", *Resource->Identifier.ToString());
+	return 0;
+}
+
+bool UFlareFactory::HasOutputLimit(FFlareResourceDescription* Resource)
+{
+	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	{
+		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
+		{
+			return true;
+		}
+	}
+	return false;
 }

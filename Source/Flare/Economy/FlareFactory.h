@@ -129,6 +129,10 @@ public:
 
 	void SetCycleCount(uint32 Count);
 
+	void SetOutputLimit(FFlareResourceDescription* Resource, uint32 MaxSlot);
+
+	void ClearOutputLimit(FFlareResourceDescription* Resource);
+
 	bool HasInputMoney();
 
 	bool HasInputResources();
@@ -183,6 +187,8 @@ public:
 
 	int64 GetRemainingProductionDuration();
 
+	TArray<FFlareFactoryResource> GetLimitedOutputResources();
+
 	inline int64 GetProductedDuration()
 	{
 		return FactoryData.ProductedDuration;
@@ -212,4 +218,8 @@ public:
 	{
 		return HasInfiniteCycle() || GetCycleCount() > 0;
 	}
+
+	uint32 GetOutputLimit(FFlareResourceDescription* Resource);
+
+	bool HasOutputLimit(FFlareResourceDescription* Resource);
 };

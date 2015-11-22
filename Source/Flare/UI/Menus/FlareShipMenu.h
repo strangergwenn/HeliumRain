@@ -102,7 +102,10 @@ protected:
 	EVisibility GetStopProductionButtonVisibility(UFlareFactory* Factory) const;
 	EVisibility GetAddProductionCycleButtonVisibility(UFlareFactory* Factory) const;
 	EVisibility GetRemoveProductionCycleButtonVisibility(UFlareFactory* Factory) const;
-
+	EVisibility GetAddLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+	EVisibility GetDecreaseLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+	EVisibility GetIncreaseLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+	EVisibility GetClearLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
 
 	void OnStartProductionClicked(UFlareFactory* Factory);
 	void OnPauseProductionClicked(UFlareFactory* Factory);
@@ -110,6 +113,10 @@ protected:
 	void OnSwitchProductionModeClicked(UFlareFactory* Factory);
 	void OnAddProductionCycleClicked(UFlareFactory* Factory);
 	void OnRemoveProductionCycleClicked(UFlareFactory* Factory);
+	void OnAddLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+	void OnDecreaseLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+	void OnIncreaseLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+	void OnClearLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource);
 
 	/*----------------------------------------------------
 		Action callbacks

@@ -158,6 +158,10 @@ struct FFlareFactorySave
 	/** Factory cycle to produce */
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 CycleCount;
+
+	/** Max slot used for factory output */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareCargoSave> OutputCargoLimit;
 };
 
 /** Spacecraft save data */
