@@ -119,6 +119,12 @@ public:
 
 	void Simulate(int64 Duration);
 
+	void Start();
+
+	void Pause();
+
+	void Stop();
+
 	bool HasInputMoney();
 
 	bool HasInputResources();
@@ -172,4 +178,19 @@ public:
 	}
 
 	int64 GetRemainingProductionDuration();
+
+	inline int64 GetProductedDuration()
+	{
+		return FactoryData.ProductedDuration;
+	}
+
+	inline bool IsActive()
+	{
+		return FactoryData.Active;
+	}
+
+	inline bool IsPaused()
+	{
+		return !FactoryData.Active && FactoryData.ProductedDuration > 0;
+	}
 };

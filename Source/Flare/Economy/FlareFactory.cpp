@@ -77,6 +77,38 @@ void UFlareFactory::Simulate(int64 Duration)
 	}
 }
 
+void UFlareFactory::Start()
+{
+	FactoryData.Active = true;
+
+	// Stop other factories
+	TArray<UFlareFactory*>& Factories = Parent->GetFactories();
+
+	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+	{
+		UFlareFactory* Factory = Factories[FactoryIndex];
+		if(Factory == this)
+		{
+			continue;
+		}
+		else
+		{
+			Factory->Pause();
+		}
+	}
+}
+
+void UFlareFactory::Pause()
+{
+	FactoryData.Active = false;
+}
+
+void UFlareFactory::Stop()
+{
+	FactoryData.Active = false;
+	CancelProduction();
+}
+
 bool UFlareFactory::HasCostReserved()
 {
 	if (FactoryData.CostReserved < FactoryDescription->ProductionCost)

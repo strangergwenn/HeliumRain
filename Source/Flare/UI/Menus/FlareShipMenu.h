@@ -97,6 +97,14 @@ protected:
 
 	void UpdateFactoryList();
 
+	EVisibility GetStartProductionButtonVisibility(UFlareFactory* Factory) const;
+	EVisibility GetPauseProductionButtonVisibility(UFlareFactory* Factory) const;
+	EVisibility GetStopProductionButtonVisibility(UFlareFactory* Factory) const;
+
+	void OnStartProductionClicked(UFlareFactory* Factory);
+	void OnPauseProductionClicked(UFlareFactory* Factory);
+	void OnStopProductionClicked(UFlareFactory* Factory);
+
 	/*----------------------------------------------------
 		Action callbacks
 	----------------------------------------------------*/

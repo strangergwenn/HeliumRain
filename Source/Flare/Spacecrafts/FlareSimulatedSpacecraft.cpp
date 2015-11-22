@@ -55,7 +55,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		}
 		else
 		{
-				FactoryData.Active = true;
+				FactoryData.Active = (FactoryIndex == 0);
 				FactoryData.CostReserved = 0;
 				FactoryData.ProductedDuration = 0;
 		}

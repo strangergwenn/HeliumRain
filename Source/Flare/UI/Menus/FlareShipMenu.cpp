@@ -510,34 +510,50 @@ void SFlareShipMenu::UpdateFactoryList()
 
 			FString ProductionStatusString;
 
-			if (Factory->HasCostReserved())
+			if (Factory->IsActive())
 			{
-				ProductionStatusString = FString::Printf(TEXT("In production, remaining duration: %s."), *UFlareGameTools::FormatTime(Factory->GetRemainingProductionDuration(), 2) );
-
-				if (!Factory->HasOutputFreeSpace())
+				if (Factory->HasCostReserved())
 				{
-					ProductionStatusString += FString(TEXT(" No enough output space."));
+					ProductionStatusString = FString::Printf(TEXT("In production, remaining duration: %s."), *UFlareGameTools::FormatTime(Factory->GetRemainingProductionDuration(), 2) );
+
+					if (!Factory->HasOutputFreeSpace())
+					{
+						ProductionStatusString += FString(TEXT(" No enough output space."));
+					}
 				}
+				else if(Factory->HasInputMoney() && Factory->HasInputResources())
+				{
+					ProductionStatusString = FString::Printf(TEXT("Production will start."));
+				}
+				else
+				{
+					ProductionStatusString = FString::Printf(TEXT("Production cannot start."));
+
+					if (!Factory->HasInputMoney())
+					{
+						ProductionStatusString += FString(TEXT(" No enough money."));
+					}
+
+					if (!Factory->HasInputResources())
+					{
+						ProductionStatusString += FString(TEXT(" No enough resources."));
+					}
+				}
+
+				// Show pause and stop button
 			}
-			else if(Factory->HasInputMoney() && Factory->HasInputResources())
+			else if (Factory->IsPaused())
 			{
-				ProductionStatusString = FString::Printf(TEXT("Production will start."));
+				ProductionStatusString = FString::Printf(TEXT("Production paused, remaining duration: %s."), *UFlareGameTools::FormatTime(Factory->GetRemainingProductionDuration(), 2) );
+
+				// Show start and stop button
 			}
 			else
 			{
-				ProductionStatusString = FString::Printf(TEXT("Production cannot start."));
+				ProductionStatusString = FString(TEXT("Production stopped."));
 
-				if (!Factory->HasInputMoney())
-				{
-					ProductionStatusString += FString(TEXT(" No enough money."));
-				}
-
-				if (!Factory->HasInputResources())
-				{
-					ProductionStatusString += FString(TEXT(" No enough resources."));
-				}
+				// Show start button
 			}
-
 
 			FactoryList->AddSlot()
 			[
@@ -597,11 +613,77 @@ void SFlareShipMenu::UpdateFactoryList()
 					.TextStyle(&Theme.TextFont)
 					.Text(FText::FromString(FString::Printf(TEXT("Production status: %s"), *ProductionStatusString)))
 				]
+
+				// Factory start production button
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SFlareButton)
+					.Visibility(this, &SFlareShipMenu::GetStartProductionButtonVisibility, Factory)
+					.OnClicked(this, &SFlareShipMenu::OnStartProductionClicked, Factory)
+					.Text(FText::FromString(TEXT("Start production")))
+				]
+
+				// Factory pause production button
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SFlareButton)
+					.Visibility(this, &SFlareShipMenu::GetPauseProductionButtonVisibility, Factory)
+					.OnClicked(this, &SFlareShipMenu::OnPauseProductionClicked, Factory)
+					.Text(FText::FromString(TEXT("Pause production")))
+				]
+
+				// Factory stop production button
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SFlareButton)
+					.Visibility(this, &SFlareShipMenu::GetStopProductionButtonVisibility, Factory)
+					.OnClicked(this, &SFlareShipMenu::OnStopProductionClicked, Factory)
+					.Text(FText::FromString(TEXT("Stop production")))
+				]
+
+
+
 			];
 		}
 
 	}
 
+}
+
+EVisibility SFlareShipMenu::GetStartProductionButtonVisibility(UFlareFactory* Factory) const
+{
+	return (!Factory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetPauseProductionButtonVisibility(UFlareFactory* Factory) const
+{
+	return (Factory->IsActive() && Factory->GetProductedDuration() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetStopProductionButtonVisibility(UFlareFactory* Factory) const
+{
+	return (Factory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+void SFlareShipMenu::OnStartProductionClicked(UFlareFactory* Factory)
+{
+	Factory->Start();
+	UpdateFactoryList();
+}
+
+void SFlareShipMenu::OnPauseProductionClicked(UFlareFactory* Factory)
+{
+	Factory->Pause();
+	UpdateFactoryList();
+}
+
+void SFlareShipMenu::OnStopProductionClicked(UFlareFactory* Factory)
+{
+	Factory->Stop();
+	UpdateFactoryList();
 }
 
 /*----------------------------------------------------
