@@ -42,7 +42,12 @@ void UFlareFactory::Simulate(int64 Duration)
 	while (RemainingDuration >= 0)
 	{
 		// Check if production is running
-		if (HasCostReserved())
+		if(!IsNeedProduction())
+		{
+			// Don't produce if not needed
+			return;
+		}
+		else if (HasCostReserved())
 		{
 			int64 ProducedTime = FMath::Min(RemainingDuration, FactoryDescription->ProductionTime - FactoryData.ProductedDuration);
 			FactoryData.ProductedDuration += ProducedTime ;
@@ -107,6 +112,16 @@ void UFlareFactory::Stop()
 {
 	FactoryData.Active = false;
 	CancelProduction();
+}
+
+void UFlareFactory::SetInfiniteCycle(bool Mode)
+{
+	FactoryData.InfiniteCycle = Mode;
+}
+
+void UFlareFactory::SetCycleCount(uint32 Count)
+{
+	FactoryData.CycleCount = Count;
 }
 
 bool UFlareFactory::HasCostReserved()
@@ -353,11 +368,15 @@ void UFlareFactory::DoProduction()
 	}
 
 	FactoryData.ProductedDuration = 0;
+	if(!HasInfiniteCycle())
+	{
+		FactoryData.CycleCount--;
+	}
 }
 
 FFlareWorldEvent *UFlareFactory::GenerateEvent()
 {
-	if (!FactoryData.Active)
+	if (!FactoryData.Active || !IsNeedProduction())
 	{
 		return NULL;
 	}

@@ -100,10 +100,16 @@ protected:
 	EVisibility GetStartProductionButtonVisibility(UFlareFactory* Factory) const;
 	EVisibility GetPauseProductionButtonVisibility(UFlareFactory* Factory) const;
 	EVisibility GetStopProductionButtonVisibility(UFlareFactory* Factory) const;
+	EVisibility GetAddProductionCycleButtonVisibility(UFlareFactory* Factory) const;
+	EVisibility GetRemoveProductionCycleButtonVisibility(UFlareFactory* Factory) const;
+
 
 	void OnStartProductionClicked(UFlareFactory* Factory);
 	void OnPauseProductionClicked(UFlareFactory* Factory);
 	void OnStopProductionClicked(UFlareFactory* Factory);
+	void OnSwitchProductionModeClicked(UFlareFactory* Factory);
+	void OnAddProductionCycleClicked(UFlareFactory* Factory);
+	void OnRemoveProductionCycleClicked(UFlareFactory* Factory);
 
 	/*----------------------------------------------------
 		Action callbacks

@@ -125,6 +125,10 @@ public:
 
 	void Stop();
 
+	void SetInfiniteCycle(bool Mode);
+
+	void SetCycleCount(uint32 Count);
+
 	bool HasInputMoney();
 
 	bool HasInputResources();
@@ -192,5 +196,20 @@ public:
 	inline bool IsPaused()
 	{
 		return !FactoryData.Active && FactoryData.ProductedDuration > 0;
+	}
+
+	inline bool HasInfiniteCycle()
+	{
+		return FactoryData.InfiniteCycle;
+	}
+
+	inline uint32 GetCycleCount()
+	{
+		return FactoryData.CycleCount;
+	}
+
+	inline bool IsNeedProduction()
+	{
+		return HasInfiniteCycle() || GetCycleCount() > 0;
 	}
 };

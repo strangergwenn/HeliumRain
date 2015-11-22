@@ -512,7 +512,11 @@ void SFlareShipMenu::UpdateFactoryList()
 
 			if (Factory->IsActive())
 			{
-				if (Factory->HasCostReserved())
+				if (!Factory->IsNeedProduction())
+				{
+					ProductionStatusString = FString(TEXT("Production not needed."));
+				}
+				else if (Factory->HasCostReserved())
 				{
 					ProductionStatusString = FString::Printf(TEXT("In production, remaining duration: %s."), *UFlareGameTools::FormatTime(Factory->GetRemainingProductionDuration(), 2) );
 
@@ -539,20 +543,24 @@ void SFlareShipMenu::UpdateFactoryList()
 						ProductionStatusString += FString(TEXT(" No enough resources."));
 					}
 				}
-
-				// Show pause and stop button
 			}
 			else if (Factory->IsPaused())
 			{
 				ProductionStatusString = FString::Printf(TEXT("Production paused, remaining duration: %s."), *UFlareGameTools::FormatTime(Factory->GetRemainingProductionDuration(), 2) );
-
-				// Show start and stop button
 			}
 			else
 			{
 				ProductionStatusString = FString(TEXT("Production stopped."));
+			}
 
-				// Show start button
+			FString ProductionCycleStatusString;
+			if(Factory->HasInfiniteCycle())
+			{
+				ProductionCycleStatusString = FString(TEXT("no production limits"));
+			}
+			else
+			{
+				ProductionCycleStatusString = FString::Printf(TEXT("produce %u cycles"), Factory->GetCycleCount());
 			}
 
 			FactoryList->AddSlot()
@@ -614,38 +622,87 @@ void SFlareShipMenu::UpdateFactoryList()
 					.Text(FText::FromString(FString::Printf(TEXT("Production status: %s"), *ProductionStatusString)))
 				]
 
-				// Factory start production button
+				// Factory control
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
-					SNew(SFlareButton)
-					.Visibility(this, &SFlareShipMenu::GetStartProductionButtonVisibility, Factory)
-					.OnClicked(this, &SFlareShipMenu::OnStartProductionClicked, Factory)
-					.Text(FText::FromString(TEXT("Start production")))
+					SNew(SHorizontalBox)
+
+					// Factory start production button
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Visibility(this, &SFlareShipMenu::GetStartProductionButtonVisibility, Factory)
+						.OnClicked(this, &SFlareShipMenu::OnStartProductionClicked, Factory)
+						.Text(FText::FromString(TEXT("Start production")))
+					]
+
+					// Factory pause production button
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Visibility(this, &SFlareShipMenu::GetPauseProductionButtonVisibility, Factory)
+						.OnClicked(this, &SFlareShipMenu::OnPauseProductionClicked, Factory)
+						.Text(FText::FromString(TEXT("Pause production")))
+					]
+
+					// Factory stop production button
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Visibility(this, &SFlareShipMenu::GetStopProductionButtonVisibility, Factory)
+						.OnClicked(this, &SFlareShipMenu::OnStopProductionClicked, Factory)
+						.Text(FText::FromString(TEXT("Stop production")))
+					]
 				]
 
-				// Factory pause production button
+				// Factory production cycle status
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
-					SNew(SFlareButton)
-					.Visibility(this, &SFlareShipMenu::GetPauseProductionButtonVisibility, Factory)
-					.OnClicked(this, &SFlareShipMenu::OnPauseProductionClicked, Factory)
-					.Text(FText::FromString(TEXT("Pause production")))
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::FromString(FString::Printf(TEXT("Production cycle status: %s"), *ProductionCycleStatusString)))
 				]
 
-				// Factory stop production button
+				// Factory mode control
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
-					SNew(SFlareButton)
-					.Visibility(this, &SFlareShipMenu::GetStopProductionButtonVisibility, Factory)
-					.OnClicked(this, &SFlareShipMenu::OnStopProductionClicked, Factory)
-					.Text(FText::FromString(TEXT("Stop production")))
+					SNew(SHorizontalBox)
+
+					// Factory switch mode
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.OnClicked(this, &SFlareShipMenu::OnSwitchProductionModeClicked, Factory)
+						.Text(FText::FromString(TEXT("Switch production mode")))
+					]
+
+					// Factory remove production cycle button
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Visibility(this, &SFlareShipMenu::GetRemoveProductionCycleButtonVisibility, Factory)
+						.OnClicked(this, &SFlareShipMenu::OnRemoveProductionCycleClicked, Factory)
+						.Text(FText::FromString(TEXT("-")))
+					]
+
+					// Factory add production cycle button
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Visibility(this, &SFlareShipMenu::GetAddProductionCycleButtonVisibility, Factory)
+						.OnClicked(this, &SFlareShipMenu::OnAddProductionCycleClicked, Factory)
+						.Text(FText::FromString(TEXT("+")))
+					]
 				]
-
-
-
 			];
 		}
 
@@ -668,6 +725,16 @@ EVisibility SFlareShipMenu::GetStopProductionButtonVisibility(UFlareFactory* Fac
 	return (Factory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
+EVisibility SFlareShipMenu::GetAddProductionCycleButtonVisibility(UFlareFactory* Factory) const
+{
+	return (!Factory->HasInfiniteCycle() ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetRemoveProductionCycleButtonVisibility(UFlareFactory* Factory) const
+{
+	return (!Factory->HasInfiniteCycle() ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
 void SFlareShipMenu::OnStartProductionClicked(UFlareFactory* Factory)
 {
 	Factory->Start();
@@ -685,6 +752,29 @@ void SFlareShipMenu::OnStopProductionClicked(UFlareFactory* Factory)
 	Factory->Stop();
 	UpdateFactoryList();
 }
+
+void SFlareShipMenu::OnSwitchProductionModeClicked(UFlareFactory* Factory)
+{
+	Factory->SetInfiniteCycle(!Factory->HasInfiniteCycle());
+	UpdateFactoryList();
+}
+
+void SFlareShipMenu::OnAddProductionCycleClicked(UFlareFactory* Factory)
+{
+	Factory->SetCycleCount(Factory->GetCycleCount() + 1);
+
+	UpdateFactoryList();
+}
+
+void SFlareShipMenu::OnRemoveProductionCycleClicked(UFlareFactory* Factory)
+{
+	if(Factory->GetCycleCount() > 0)
+	{
+		Factory->SetCycleCount(Factory->GetCycleCount() - 1);
+		UpdateFactoryList();
+	}
+}
+
 
 /*----------------------------------------------------
 	Content callbacks

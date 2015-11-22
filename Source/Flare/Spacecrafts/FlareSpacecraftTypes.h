@@ -150,6 +150,14 @@ struct FFlareFactorySave
 	/** Cumulated production duration for this production cycle */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 ProductedDuration;
+
+	/** Factory production mode */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool InfiniteCycle;
+
+	/** Factory cycle to produce */
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 CycleCount;
 };
 
 /** Spacecraft save data */
