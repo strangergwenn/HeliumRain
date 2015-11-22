@@ -143,6 +143,10 @@ struct FFlareFactorySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 CostReserved;
 
+	/** Resource Reserved by the factory */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareCargoSave> ResourceReserved;
+
 	/** Timestamp of last production cycle */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 ProductionBeginTime;

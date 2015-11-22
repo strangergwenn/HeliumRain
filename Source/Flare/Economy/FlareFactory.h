@@ -78,7 +78,7 @@ struct FFlareFactoryDescription
 
 	/** Cost for 1 production cycle */
 	UPROPERTY(EditAnywhere, Category = Content)
-	int32 ProductionCost;
+	uint32 ProductionCost;
 
 	/** Input resources */
 	UPROPERTY(EditAnywhere, Category = Content)
@@ -124,6 +124,8 @@ public:
 	bool HasInputResources();
 
 	bool HasOutputFreeSpace();
+
+	bool HasCostReserved();
 
 	void BeginProduction(int64 SimulatedTime);
 

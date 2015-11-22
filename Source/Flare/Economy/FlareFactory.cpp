@@ -42,15 +42,8 @@ void UFlareFactory::Simulate(long Duration)
 	while (RemainingDuration >= 0)
 	{
 		// Check if production is running
-		if (FactoryData.CostReserved == FactoryDescription->ProductionCost)
+		if (HasCostReserved())
 		{
-			if (!HasInputResources())
-			{
-				CancelProduction();
-				FLOGV("%s : Production cancel, missing input resources", *FactoryDescription->Name.ToString())
-				return;
-			}
-
 			if (FactoryData.ProductionBeginTime + FactoryDescription->ProductionTime > GetGame()->GetGameWorld()->GetTime())
 			{
 				// In production
@@ -80,6 +73,40 @@ void UFlareFactory::Simulate(long Duration)
 			return;
 		}
 	}
+}
+
+bool UFlareFactory::HasCostReserved()
+{
+	if(FactoryData.CostReserved < FactoryDescription->ProductionCost)
+	{
+		return false;
+	}
+
+	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
+
+		bool ResourceFound = false;
+
+		for(int ReservedResourceIndex = 0; ReservedResourceIndex < FactoryData.ResourceReserved.Num(); ReservedResourceIndex++)
+		{
+			if(FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier ==  Resource->Resource->Data.Identifier)
+			{
+				if(FactoryData.ResourceReserved[ReservedResourceIndex].Quantity < Resource->Quantity)
+				{
+					return false;
+				}
+				ResourceFound = true;
+			}
+		}
+
+		if(!ResourceFound)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool UFlareFactory::HasInputMoney()
@@ -158,6 +185,55 @@ bool UFlareFactory::HasOutputFreeSpace()
 void UFlareFactory::BeginProduction(int64 SimulatedTime)
 {
 	Parent->GetCompany()->TakeMoney(FactoryDescription->ProductionCost);
+
+
+	// Consume input resources
+	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
+		FFlareCargoSave* AlreadyReservedCargo = NULL;
+
+
+		// Check in reserved resources
+		for(int ReservedResourceIndex = 0; ReservedResourceIndex < FactoryData.ResourceReserved.Num(); ReservedResourceIndex++)
+		{
+			if(FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier ==  Resource->Resource->Data.Identifier)
+			{
+				AlreadyReservedCargo = &FactoryData.ResourceReserved[ReservedResourceIndex];
+				break;
+			}
+		}
+
+		uint32 ResourceToTake = Resource->Quantity;
+
+		if(AlreadyReservedCargo)
+		{
+			ResourceToTake -= AlreadyReservedCargo->Quantity;
+		}
+
+		if(ResourceToTake <= 0)
+		{
+			continue;
+		}
+
+		if (Parent->TakeResources(&Resource->Resource->Data, ResourceToTake) < Resource->Quantity)
+		{
+			FLOGV("Fail to take %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
+		}
+
+		if (AlreadyReservedCargo)
+		{
+			AlreadyReservedCargo->Quantity += ResourceToTake;
+		}
+		else
+		{
+			FFlareCargoSave NewReservedResource;
+			NewReservedResource.Quantity = ResourceToTake;
+			NewReservedResource.ResourceIdentifier = Resource->Resource->Data.Identifier;
+			FactoryData.ResourceReserved.Add(NewReservedResource);
+		}
+	}
+
 	FactoryData.CostReserved = FactoryDescription->ProductionCost;
 	FactoryData.ProductionBeginTime = SimulatedTime;
 }
@@ -166,20 +242,51 @@ void UFlareFactory::CancelProduction()
 {
 	Parent->GetCompany()->GiveMoney(FactoryData.CostReserved);
 	FactoryData.CostReserved = 0;
+
+	// Restore reserved resources
+	for(int ReservedResourceIndex = FactoryData.ResourceReserved.Num()-1; ReservedResourceIndex >=0 ; ReservedResourceIndex--)
+	{
+		FFlareResourceDescription*Resource = Game->GetResourceCatalog()->Get(FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier);
+
+		uint32 GivenQuantity = Parent->GiveResources(Resource, FactoryData.ResourceReserved[ReservedResourceIndex].Quantity);
+
+		if(GivenQuantity >= FactoryData.ResourceReserved[ReservedResourceIndex].Quantity)
+		{
+			FactoryData.ResourceReserved.RemoveAt(ReservedResourceIndex);
+		}
+		else
+		{
+			FactoryData.ResourceReserved[ReservedResourceIndex].Quantity -= GivenQuantity;
+		}
+	}
 }
 
 void UFlareFactory::DoProduction()
 {
-	FactoryData.CostReserved = 0;
+	// Pay cost
+	uint32 PaidCost = FMath::Min(FactoryDescription->ProductionCost, FactoryData.CostReserved);
+	FactoryData.CostReserved -= PaidCost;
 	// TODO Give lost money to people
 
-	// Consume input resources
 	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
-		if (Parent->TakeResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
+
+		for(int ReservedResourceIndex = FactoryData.ResourceReserved.Num()-1; ReservedResourceIndex >=0 ; ReservedResourceIndex--)
 		{
-			FLOGV("Fail to take %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
+			if(FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier != Resource->Resource->Data.Identifier)
+			{
+				continue;
+			}
+
+			if(Resource->Quantity >= FactoryData.ResourceReserved[ReservedResourceIndex].Quantity)
+			{
+				FactoryData.ResourceReserved.RemoveAt(ReservedResourceIndex);
+			}
+			else
+			{
+				FactoryData.ResourceReserved[ReservedResourceIndex].Quantity -= Resource->Quantity;
+			}
 		}
 	}
 
