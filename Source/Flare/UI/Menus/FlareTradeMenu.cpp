@@ -157,7 +157,7 @@ void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft
 
 		TArray<UFlareSimulatedSpacecraft*>& SectorSpacecrafts = TargetSector->GetSectorSpacecrafts();
 
-		for(int SpacecraftIndex = 0; SpacecraftIndex <  SectorSpacecrafts.Num(); SpacecraftIndex++)
+		for (int SpacecraftIndex = 0; SpacecraftIndex <  SectorSpacecrafts.Num(); SpacecraftIndex++)
 		{
 			UFlareSimulatedSpacecraft* SpacecraftCandidate = SectorSpacecrafts[SpacecraftIndex];
 			if(! OtherSpacecraft->CanTradeWith(SpacecraftCandidate))

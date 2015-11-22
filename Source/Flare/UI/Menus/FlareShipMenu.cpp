@@ -243,6 +243,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				// Factory list
 				+ SVerticalBox::Slot()
 				.AutoHeight()
+				.HAlign(HAlign_Left)
 				[
 					SAssignNew(FactoryList, SVerticalBox)
 				]
@@ -459,18 +460,143 @@ void SFlareShipMenu::UpdateFactoryList()
 
 	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 
-	if(SimulatedSpacecraft)
+	if (SimulatedSpacecraft)
 	{
 		TArray<UFlareFactory*>& Factories = SimulatedSpacecraft->GetFactories();
 
-		for(int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+		for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Factories[FactoryIndex];
+
+			FString ProductionCostString = FString::Printf(TEXT("%d $"), Factory->GetDescription()->ProductionCost);
+
+			for (int ResourceIndex = 0; ResourceIndex < Factory->GetDescription()->InputResources.Num(); ResourceIndex++)
+			{
+				const FFlareFactoryResource* FactoryResource = &Factory->GetDescription()->InputResources[ResourceIndex];
+				ProductionCostString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString());
+			}
+
+			FString ProductionOutputString;
+			for (int ActionIndex = 0; ActionIndex < Factory->GetDescription()->OutputActions.Num(); ActionIndex++)
+			{
+				const FFlareFactoryAction* FactoryAction = &Factory->GetDescription()->OutputActions[ActionIndex];
+				if (!ProductionOutputString.IsEmpty())
+				{
+					ProductionOutputString += FString(TEXT(", "));
+				}
+
+				switch(FactoryAction->Action)
+				{
+					case EFlareFactoryAction::CreateShip:
+						ProductionOutputString += FString::Printf(TEXT("%u %s"), FactoryAction->Quantity, *MenuManager->GetGame()->GetSpacecraftCatalog()->Get(FactoryAction->Identifier)->Name.ToString());
+						break;
+					case EFlareFactoryAction::DiscoverSector:
+					case EFlareFactoryAction::GainTechnology:
+						// TODO
+					default:
+						FLOGV("Warning ! Not implemented factory action %d", (FactoryAction->Action+0));
+				}
+			}
+
+			for (int ResourceIndex = 0; ResourceIndex < Factory->GetDescription()->OutputResources.Num(); ResourceIndex++)
+			{
+				const FFlareFactoryResource* FactoryResource = &Factory->GetDescription()->OutputResources[ResourceIndex];
+				if (!ProductionOutputString.IsEmpty())
+				{
+					ProductionOutputString += FString(TEXT(", "));
+				}
+				ProductionOutputString += FString::Printf(TEXT("%u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString());
+			}
+
+			FString ProductionStatusString;
+
+			if (Factory->HasCostReserved())
+			{
+				ProductionStatusString = FString::Printf(TEXT("In production, remaining duration: %s."), *UFlareGameTools::FormatTime(Factory->GetRemainingProductionDuration(), 2) );
+
+				if (!Factory->HasOutputFreeSpace())
+				{
+					ProductionStatusString += FString(TEXT(" No enough output space."));
+				}
+			}
+			else if(Factory->HasInputMoney() && Factory->HasInputResources())
+			{
+				ProductionStatusString = FString::Printf(TEXT("Production will start."));
+			}
+			else
+			{
+				ProductionStatusString = FString::Printf(TEXT("Production cannot start."));
+
+				if (!Factory->HasInputMoney())
+				{
+					ProductionStatusString += FString(TEXT(" No enough money."));
+				}
+
+				if (!Factory->HasInputResources())
+				{
+					ProductionStatusString += FString(TEXT(" No enough resources."));
+				}
+			}
+
+
 			FactoryList->AddSlot()
 			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.SubTitleFont)
-				.Text(FText::FromString(Factory->GetDescription()->Name.ToString().ToUpper()))
+				SNew(SVerticalBox)
+
+				// Factory name
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(FText::FromString(Factory->GetDescription()->Name.ToString().ToUpper()))
+				]
+
+				// Factory description
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::FromString(Factory->GetDescription()->Description.ToString()))
+				]
+
+				// Factory production time
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::FromString(FString::Printf(TEXT("Production time: %s"), *UFlareGameTools::FormatTime(Factory->GetDescription()->ProductionTime, 2))))
+				]
+
+				// Factory production cost
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::FromString(FString::Printf(TEXT("Production cost: %s"), *ProductionCostString)))
+				]
+
+				// Factory production output
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::FromString(FString::Printf(TEXT("Production output: %s"), *ProductionOutputString)))
+				]
+
+				// Factory production status
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::FromString(FString::Printf(TEXT("Production status: %s"), *ProductionStatusString)))
+				]
 			];
 		}
 

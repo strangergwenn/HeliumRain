@@ -57,7 +57,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		{
 				FactoryData.Active = true;
 				FactoryData.CostReserved = 0;
-				FactoryData.ProductionBeginTime = GetGame()->GetGameWorld()->GetTime();
+				FactoryData.ProductedDuration = 0;
 		}
 
 

@@ -147,9 +147,9 @@ struct FFlareFactorySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareCargoSave> ResourceReserved;
 
-	/** Timestamp of last production cycle */
+	/** Cumulated production duration for this production cycle */
 	UPROPERTY(EditAnywhere, Category = Save)
-	int64 ProductionBeginTime;
+	int64 ProductedDuration;
 };
 
 /** Spacecraft save data */

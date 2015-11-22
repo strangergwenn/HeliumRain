@@ -117,7 +117,7 @@ public:
 	   Gameplay
 	----------------------------------------------------*/
 
-	void Simulate(long Duration);
+	void Simulate(int64 Duration);
 
 	bool HasInputMoney();
 
@@ -127,7 +127,7 @@ public:
 
 	bool HasCostReserved();
 
-	void BeginProduction(int64 SimulatedTime);
+	void BeginProduction();
 
 	void CancelProduction();
 
@@ -170,4 +170,6 @@ public:
 	{
 		return Parent;
 	}
+
+	int64 GetRemainingProductionDuration();
 };
