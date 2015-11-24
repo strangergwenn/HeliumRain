@@ -89,7 +89,7 @@ void UFlareFactory::Start()
 	// Stop other factories
 	TArray<UFlareFactory*>& Factories = Parent->GetFactories();
 
-	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+	for (int32 FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
 		UFlareFactory* Factory = Factories[FactoryIndex];
 		if(Factory == this)
@@ -127,7 +127,7 @@ void UFlareFactory::SetCycleCount(uint32 Count)
 void UFlareFactory::SetOutputLimit(FFlareResourceDescription* Resource, uint32 MaxSlot)
 {
 	bool ExistingResource = false;
-	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
 		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
 		{
@@ -148,7 +148,7 @@ void UFlareFactory::SetOutputLimit(FFlareResourceDescription* Resource, uint32 M
 
 void UFlareFactory::ClearOutputLimit(FFlareResourceDescription* Resource)
 {
-	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
 		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
 		{
@@ -165,13 +165,13 @@ bool UFlareFactory::HasCostReserved()
 		return false;
 	}
 
-	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
 
 		bool ResourceFound = false;
 
-		for (int ReservedResourceIndex = 0; ReservedResourceIndex < FactoryData.ResourceReserved.Num(); ReservedResourceIndex++)
+		for (int32 ReservedResourceIndex = 0; ReservedResourceIndex < FactoryData.ResourceReserved.Num(); ReservedResourceIndex++)
 		{
 			if (FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier ==  Resource->Resource->Data.Identifier)
 			{
@@ -199,7 +199,7 @@ bool UFlareFactory::HasInputMoney()
 
 bool UFlareFactory::HasInputResources()
 {
-	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
 		if (!Parent->HasResources(&Resource->Resource->Data, Resource->Quantity))
@@ -217,9 +217,9 @@ bool UFlareFactory::HasOutputFreeSpace()
 	TArray<FFlareFactoryResource> OutputResources = GetLimitedOutputResources();
 
 	// First, fill already existing slots
-	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	for (int32 CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
-		for (int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
+		for (int32 ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
 		{
 			if (&OutputResources[ResourceIndex].Resource->Data == CargoBay[CargoIndex].Resource)
 			{
@@ -242,7 +242,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 	}
 
 	// Fill free cargo slots
-	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	for (int32 CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		if (OutputResources.Num() == 0)
 		{
@@ -271,14 +271,14 @@ void UFlareFactory::BeginProduction()
 
 
 	// Consume input resources
-	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
 		FFlareCargoSave* AlreadyReservedCargo = NULL;
 
 
 		// Check in reserved resources
-		for (int ReservedResourceIndex = 0; ReservedResourceIndex < FactoryData.ResourceReserved.Num(); ReservedResourceIndex++)
+		for (int32 ReservedResourceIndex = 0; ReservedResourceIndex < FactoryData.ResourceReserved.Num(); ReservedResourceIndex++)
 		{
 			if (FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier ==  Resource->Resource->Data.Identifier)
 			{
@@ -326,7 +326,7 @@ void UFlareFactory::CancelProduction()
 	FactoryData.CostReserved = 0;
 
 	// Restore reserved resources
-	for (int ReservedResourceIndex = FactoryData.ResourceReserved.Num()-1; ReservedResourceIndex >=0 ; ReservedResourceIndex--)
+	for (int32 ReservedResourceIndex = FactoryData.ResourceReserved.Num()-1; ReservedResourceIndex >=0 ; ReservedResourceIndex--)
 	{
 		FFlareResourceDescription*Resource = Game->GetResourceCatalog()->Get(FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier);
 
@@ -352,11 +352,11 @@ void UFlareFactory::DoProduction()
 	FactoryData.CostReserved -= PaidCost;
 	// TODO Give lost money to people
 
-	for (int ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
 
-		for (int ReservedResourceIndex = FactoryData.ResourceReserved.Num()-1; ReservedResourceIndex >=0 ; ReservedResourceIndex--)
+		for (int32 ReservedResourceIndex = FactoryData.ResourceReserved.Num()-1; ReservedResourceIndex >=0 ; ReservedResourceIndex--)
 		{
 			if (FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier != Resource->Resource->Data.Identifier)
 			{
@@ -376,7 +376,7 @@ void UFlareFactory::DoProduction()
 
 	// Generate output resources
 	TArray<FFlareFactoryResource> OutputResources = GetLimitedOutputResources();
-	for (int ResourceIndex = 0 ; ResourceIndex < OutputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < OutputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &OutputResources[ResourceIndex];
 		if (Parent->GiveResources(&Resource->Resource->Data, Resource->Quantity) < Resource->Quantity)
@@ -386,7 +386,7 @@ void UFlareFactory::DoProduction()
 	}
 
 	// Perform output actions
-	for (int ActionIndex = 0 ; ActionIndex < FactoryDescription->OutputActions.Num() ; ActionIndex++)
+	for (int32 ActionIndex = 0 ; ActionIndex < FactoryDescription->OutputActions.Num() ; ActionIndex++)
 	{
 		const FFlareFactoryAction* Action = &FactoryDescription->OutputActions[ActionIndex];
 		switch(Action->Action)
@@ -442,7 +442,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	UFlareCompany* Company = Parent->GetCompany();
 	FVector SpawnPosition = Parent->GetSpawnLocation();
 
-	for (int Index = 0; Index < Action->Quantity; Index++)
+	for (uint32 Index = 0; Index < Action->Quantity; Index++)
 	{
 		Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
 	}
@@ -461,12 +461,12 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 {
 	TArray<FFlareCargo>& CargoBay = Parent->GetCargoBay();
 	TArray<FFlareFactoryResource> OutputResources = FactoryDescription->OutputResources;
-	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
 		uint32 MaxCapacity = Parent->GetDescription()->CargoBayCapacity * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
 		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier);
 		uint32 CurrentQuantity = 0;
-		for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
+		for (int32 CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 		{
 			if(CargoBay[CargoIndex].Resource == Resource)
 			{
@@ -485,7 +485,7 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 			MaxAddition = MaxCapacity - CurrentQuantity;
 		}
 
-		for (int ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
+		for (int32 ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
 		{
 			if (&OutputResources[ResourceIndex].Resource->Data == Resource)
 			{
@@ -504,7 +504,7 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 
 uint32 UFlareFactory::GetOutputLimit(FFlareResourceDescription* Resource)
 {
-	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
 		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
 		{
@@ -517,7 +517,7 @@ uint32 UFlareFactory::GetOutputLimit(FFlareResourceDescription* Resource)
 
 bool UFlareFactory::HasOutputLimit(FFlareResourceDescription* Resource)
 {
-	for (int CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
+	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
 		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
 		{
