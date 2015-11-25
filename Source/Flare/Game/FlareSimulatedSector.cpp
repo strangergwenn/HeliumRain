@@ -14,6 +14,7 @@
 UFlareSimulatedSector::UFlareSimulatedSector(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	PersistentStationIndex = 0;
 }
 
 void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, const FFlareSectorSave& Data, const FFlareSectorOrbitParameters& OrbitParameters)
@@ -505,4 +506,175 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
 
 	return true;
+}
+
+void UFlareSimulatedSector::SimulateTransport(int64 Duration)
+{
+	// TODO transport capacity
+	uint32 TransportCapacityPerHour = 10;
+
+	FLOGV("SimulateTransport Duration=%lld TransportCapacityPerHour=%u", Duration, TransportCapacityPerHour)
+
+	if(TransportCapacityPerHour == 0)
+	{
+		// No transport
+		return;
+	}
+
+	uint32 TransportCapacity = Duration * TransportCapacityPerHour / 3600.;
+
+	// TODO Store ouput resource from station in overflow to storage
+
+	FLOGV("Initial TransportCapacity=%u", TransportCapacity);
+
+	if(PersistentStationIndex >= SectorStations.Num())
+	{
+		PersistentStationIndex = 0;
+	}
+
+	FLOGV("PersistentStationIndex=%d", PersistentStationIndex);
+
+	// TODO 4 pass:
+	// a first one with the exact quantity
+	// the second with the double
+	// a third with slot alignemnt
+	// a 4th with inactive stations
+
+
+	for (int32 CountIndex = 0 ; CountIndex < SectorStations.Num(); CountIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = SectorStations[PersistentStationIndex];
+		PersistentStationIndex++;
+		if(PersistentStationIndex >= SectorStations.Num())
+		{
+			PersistentStationIndex = 0;
+		}
+
+		FLOGV("Check station %s needs:", *Station->GetImmatriculation().ToString());
+
+
+		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		{
+			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
+
+			FLOGV("  Factory %s : IsActive=%d IsNeedProduction=%d", *Factory->GetDescription()->Name.ToString(), Factory->IsActive(),Factory->IsNeedProduction());
+
+			if(!Factory->IsActive() || !Factory->IsNeedProduction())
+			{
+				FLOG("    No resources needed");
+				// No resources needed
+				break;
+			}
+
+			for(int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
+			{
+				FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
+				uint32 StoredQuantity = Station->GetCargoBayResourceQuantity(Resource);
+				uint32 NeededQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
+				uint32 StorageCapacity = Station->GetCargoBayFreeSpace(Resource);
+				FLOGV("    Resource %s : StoredQuantity=%u NeededQuantity=%u StorageCapacity=%u", *Resource->Name.ToString(), StoredQuantity, NeededQuantity, StorageCapacity);
+
+				if(StoredQuantity < NeededQuantity * 2)
+				{
+					// Do transfert
+					uint32 QuantityToTransfert = FMath::Min(TransportCapacity, NeededQuantity * 2 - StoredQuantity);
+					// TODO check the slot size : for helium quantity to transfert will be 2 but must be 100 (1 slot)
+					QuantityToTransfert = FMath::Min(StorageCapacity, QuantityToTransfert);
+					uint32 TakenResources = TakeUselessRessouce(Resource, QuantityToTransfert);
+					Station->GiveResources(Resource, TakenResources);
+					TransportCapacity -= TakenResources;
+					FLOGV("      Do transfet : QuantityToTransfert=%u TakenResources=%u TransportCapacity=%u", QuantityToTransfert, TakenResources, TransportCapacity);
+
+					if(TransportCapacity == 0)
+					{
+						break;
+					}
+				}
+			}
+
+			if(TransportCapacity == 0)
+			{
+				break;
+			}
+		}
+
+		if(TransportCapacity == 0)
+		{
+			break;
+		}
+	}
+
+	FLOGV("SimulateTransport end TransportCapacity=%u", TransportCapacity);
+}
+
+uint32 UFlareSimulatedSector::TakeUselessRessouce(FFlareResourceDescription* Resource, uint32 QuantityToTake)
+{
+	uint32 RemainingQuantityToTake = QuantityToTake;
+	// First pass: take from station with factory that output the resource
+	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToTake > 0; StationIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+
+		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		{
+			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
+			if(Factory->HasOutputResource(Resource))
+			{
+				uint32 TakenQuatity = Station->TakeResources(Resource, RemainingQuantityToTake);
+				RemainingQuantityToTake -= TakenQuatity;
+				break;
+			}
+		}
+	}
+
+	// Second pass: take from storage station
+	// TODO
+
+	// Third pass: take from station with factory that don't input the resources
+	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToTake > 0; StationIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+		bool NeedResource = false;
+
+		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		{
+			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
+			if(Factory->HasInputResource(Resource))
+			{
+				NeedResource =true;
+				break;
+			}
+		}
+
+		if(!NeedResource)
+		{
+			uint32 TakenQuatity = Station->TakeResources(Resource, RemainingQuantityToTake);
+			RemainingQuantityToTake -= TakenQuatity;
+		}
+	}
+
+	// 4th pass: take from station with factory that don't input the resources
+	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToTake > 0; StationIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+		bool NeedResource = false;
+
+		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		{
+			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
+			if(Factory->IsActive() && Factory->IsNeedProduction() && Factory->HasInputResource(Resource))
+			{
+				NeedResource =true;
+				break;
+			}
+		}
+
+		if(!NeedResource)
+		{
+			uint32 TakenQuatity = Station->TakeResources(Resource, RemainingQuantityToTake);
+			RemainingQuantityToTake -= TakenQuatity;
+		}
+	}
+
+	return QuantityToTake - RemainingQuantityToTake;
 }

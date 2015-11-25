@@ -11,7 +11,7 @@ struct FFlareSpacecraftDescription;
 class UFlareFleet;
 class UFlareGame;
 struct FFlarePlayerSave;
-
+struct FFlareResourceDescription;
 
 /** Sector friendlyness status */
 UENUM()
@@ -223,6 +223,10 @@ public:
 
 	bool BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
+	void SimulateTransport(int64 Duration);
+
+	uint32 TakeUselessRessouce(FFlareResourceDescription* Resource, uint32 QuantityToTake);
+
 protected:
 
     /*----------------------------------------------------
@@ -242,6 +246,7 @@ protected:
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
 	const FFlareSectorDescription*          SectorDescription;
 
+	int32                                   PersistentStationIndex;
 
 public:
 

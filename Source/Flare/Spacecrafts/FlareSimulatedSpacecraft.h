@@ -154,7 +154,11 @@ public:
 		return CargoBay;
 	}
 
-	TArray<UFlareFactory*>& GetFactories()
+	uint32 GetCargoBayResourceQuantity(FFlareResourceDescription* Resource);
+
+	uint32 GetCargoBayFreeSpace(FFlareResourceDescription* Resource);
+
+	inline TArray<UFlareFactory*>& GetFactories()
 	{
 		return Factories;
 	}

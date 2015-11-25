@@ -207,6 +207,12 @@ void UFlareWorld::Simulate(int64 Duration)
 		Travels[TravelIndex]->Simulate(Duration);
 	}
 
+	// Automatic transport
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		Sectors[SectorIndex]->SimulateTransport(Duration);
+	}
+
 	// Factories
 	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{

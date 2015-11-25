@@ -299,6 +299,10 @@ uint32 UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resou
 {
 	uint32 QuantityToGive = Quantity;
 
+	if (QuantityToGive == 0)
+	{
+		return Quantity;
+	}
 
 	// First pass, fill already existing slots
 	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
@@ -380,4 +384,44 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 	}
 
 	return true;
+}
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+uint32 UFlareSimulatedSpacecraft::GetCargoBayResourceQuantity(FFlareResourceDescription* Resource)
+{
+	uint32 Quantity = 0;
+
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		if (Cargo.Resource == Resource)
+		{
+			Quantity += Cargo.Quantity;
+		}
+	}
+
+	return Quantity;
+}
+
+uint32 UFlareSimulatedSpacecraft::GetCargoBayFreeSpace(FFlareResourceDescription* Resource)
+{
+	uint32 Quantity = 0;
+
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		if (Cargo.Resource == NULL)
+		{
+			Quantity += Cargo.Capacity;
+		}
+		else if (Cargo.Resource == Resource)
+		{
+			Quantity += Cargo.Capacity - Cargo.Quantity;
+		}
+	}
+
+	return Quantity;
 }

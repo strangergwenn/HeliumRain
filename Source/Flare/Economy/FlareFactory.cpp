@@ -526,3 +526,48 @@ bool UFlareFactory::HasOutputLimit(FFlareResourceDescription* Resource)
 	}
 	return false;
 }
+
+
+int32 UFlareFactory::GetInputResourcesCount()
+{
+	return FactoryDescription->InputResources.Num();
+}
+
+FFlareResourceDescription* UFlareFactory::GetInputResource(int32 Index)
+{
+	return &FactoryDescription->InputResources[Index].Resource->Data;
+}
+
+uint32 UFlareFactory::GetInputResourceQuantity(int32 Index)
+{
+	return FactoryDescription->InputResources[Index].Quantity;
+}
+
+bool UFlareFactory::HasOutputResource(FFlareResourceDescription* Resource)
+{
+	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->OutputResources.Num() ; ResourceIndex++)
+	{
+		FFlareResourceDescription* ResourceCandidate = &FactoryDescription->OutputResources[ResourceIndex].Resource->Data;
+		if(ResourceCandidate == Resource)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UFlareFactory::HasInputResource(FFlareResourceDescription* Resource)
+{
+	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	{
+		FFlareResourceDescription* ResourceCandidate = &FactoryDescription->InputResources[ResourceIndex].Resource->Data;
+		if(ResourceCandidate == Resource)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+

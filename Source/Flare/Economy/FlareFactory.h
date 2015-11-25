@@ -222,4 +222,14 @@ public:
 	uint32 GetOutputLimit(FFlareResourceDescription* Resource);
 
 	bool HasOutputLimit(FFlareResourceDescription* Resource);
+
+	int32 GetInputResourcesCount();
+
+	FFlareResourceDescription* GetInputResource(int32 Index);
+
+	uint32 GetInputResourceQuantity(int32 Index);
+
+	bool HasOutputResource(FFlareResourceDescription* Resource);
+
+	bool HasInputResource(FFlareResourceDescription* Resource);
 };
