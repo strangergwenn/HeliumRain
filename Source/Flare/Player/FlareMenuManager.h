@@ -197,7 +197,7 @@ public:
 		return Cast<AFlarePlayerController>(GetOwner());
 	}
 
-	inline AFlareGame* GetGame() const;
+	AFlareGame* GetGame() const;
 
 	static inline AFlareMenuManager* GetSingleton()
 	{

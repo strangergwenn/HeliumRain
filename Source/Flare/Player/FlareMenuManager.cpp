@@ -450,7 +450,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 	GetPC()->GetNavHUD()->UpdateHUDVisibility();
 }
 
-inline AFlareGame* AFlareMenuManager::GetGame() const
+AFlareGame* AFlareMenuManager::GetGame() const
 {
 	return GetPC()->GetGame();
 }
