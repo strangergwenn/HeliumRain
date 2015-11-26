@@ -123,6 +123,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
 				.HAlign(HAlign_Right)
+				.VAlign(VAlign_Top)
 				[
 					SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetIcon)
 					.Visibility(InArgs._NoInspect ? EVisibility::Hidden : EVisibility::Visible)
