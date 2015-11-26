@@ -9,7 +9,7 @@
 class UFlareSimulatedSpacecraft;
 struct FFlareSpacecraftDescription;
 class UFlareFleet;
-class UFlareGame;
+class AFlareGame;
 struct FFlarePlayerSave;
 struct FFlareResourceDescription;
 

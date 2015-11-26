@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FlareSpacecraftTypes.h"
+#include "../Game/FlareCompany.h"
 #include "FlareShipPilot.generated.h"
 
 class AFlareSpacecraft;

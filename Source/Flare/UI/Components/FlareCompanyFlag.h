@@ -4,6 +4,8 @@
 #include "../Components/FlareButton.h"
 
 
+class AFlarePlayerController;
+
 class SFlareCompanyFlag : public SCompoundWidget
 {
 	/*----------------------------------------------------

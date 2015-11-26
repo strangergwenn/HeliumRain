@@ -3,6 +3,7 @@
 
 #include "Object.h"
 #include "FlareFleet.h"
+#include "FlareGameTypes.h"
 #include "FlareSimulatedSector.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "FlareCompany.generated.h"

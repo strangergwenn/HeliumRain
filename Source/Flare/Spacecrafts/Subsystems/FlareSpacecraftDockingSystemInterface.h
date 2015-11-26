@@ -2,6 +2,10 @@
 
 #include "FlareSpacecraftDockingSystemInterface.generated.h"
 
+
+class IFlareSpacecraftInterface;
+
+/** Docking data */
 struct FFlareDockingInfo
 {
 	bool                      Granted;

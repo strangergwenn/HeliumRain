@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 
 /** Interface storage structure */
