@@ -32,9 +32,6 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&InvisibleBrush);
 		OutBrushes.Add(&SeparatorBrush);
 
-		OutBrushes.Add(&ListBackground);
-		OutBrushes.Add(&ListActiveBackground);
-
 		OutBrushes.Add(&ButtonBackground);
 		OutBrushes.Add(&ButtonActiveBackground);
 		OutBrushes.Add(&ButtonDecorator);
@@ -50,6 +47,11 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&SectorButtonBorder);
 		OutBrushes.Add(&SectorButtonBackground);
 		OutBrushes.Add(&SectorButtonActiveBackground);
+
+		OutBrushes.Add(&ResourceBackground);
+
+		OutBrushes.Add(&ListBackground);
+		OutBrushes.Add(&ListActiveBackground);
 	}
 
 
@@ -126,6 +128,11 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = SectorButtons) FMargin SectorButtonTextPadding;
 	UPROPERTY(EditAnywhere, Category = SectorButtons) int32 SectorButtonWidth;
 	UPROPERTY(EditAnywhere, Category = SectorButtons) int32 SectorButtonHeight;
+
+	// Resources
+	UPROPERTY(EditAnywhere, Category = Resources) FSlateBrush ResourceBackground;
+	UPROPERTY(EditAnywhere, Category = Resources) int32 ResourceWidth;
+	UPROPERTY(EditAnywhere, Category = Resources) int32 ResourceHeight;
 
 	// Lists
 	UPROPERTY(EditAnywhere, Category = Lists) FSlateBrush ListBackground;

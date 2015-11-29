@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareSpacecraftInfo.h"
+#include "FlareCargoInfo.h"
 #include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftInfo"
@@ -114,8 +115,10 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					// Cargo bay block
 					+ SVerticalBox::Slot()
 					.AutoHeight()
+					.Padding(FMargin(8))
+					.HAlign(HAlign_Left)
 					[
-						SAssignNew(CargoBay, SVerticalBox)
+						SAssignNew(CargoBay, SHorizontalBox)
 					]
 				]
 
@@ -240,6 +243,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 	// Get the save data info to retrieve the class data
 	if (Target && PC)
 	{
+		// Setup basic info
 		CompanyFlag->SetCompany(Target->GetCompany());
 		TargetName = Target->GetImmatriculation().ToString();
 		FFlareSpacecraftSave* SaveData = Target->Save();
@@ -248,24 +252,19 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 			TargetSpacecraftDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
 		}
 
-		CargoBay->ClearChildren();
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(Target);
 
+		// Fill the cargo bay
+		CargoBay->ClearChildren();
 		if (SimulatedSpacecraft)
 		{
-			const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-			TArray<FFlareCargo>& SpacecraftCargoBay = SimulatedSpacecraft->GetCargoBay();
-			for (int CargoIndex = 0; CargoIndex < SpacecraftCargoBay.Num() ; CargoIndex++)
+			for (int CargoIndex = 0; CargoIndex < SimulatedSpacecraft->GetCargoBay().Num() ; CargoIndex++)
 			{
-				FFlareCargo* Cargo = &SpacecraftCargoBay[CargoIndex];
-				FString ResourceString = FString::Printf(TEXT("- %s (%u/%u)"), (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, Cargo->Capacity);
-
 				CargoBay->AddSlot()
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(FText::FromString(ResourceString))
+					SNew(SFlareCargoInfo)
+					.Spacecraft(SimulatedSpacecraft)
+					.CargoIndex(CargoIndex)
 				];
 			}
 		}
