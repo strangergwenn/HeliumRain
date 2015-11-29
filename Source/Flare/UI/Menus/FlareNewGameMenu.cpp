@@ -225,7 +225,7 @@ void SFlareNewGameMenu::OnLaunch()
 	if (PC && Game && !Game->IsLoadedOrCreated())
 	{
 		// Get data
-		FText CompanyNameData = FText::FromString(CompanyName->GetText().ToString().ToUpper().Left(60));
+		FText CompanyNameData = FText::FromString(CompanyName->GetText().ToString().ToUpper().Left(60)); // FString needed here
 		int32 ScenarioIndex = ScenarioList.Find(ScenarioSelector->GetSelectedItem());
 		FLOGV("SFlareNewGameMenu::OnLaunch : '%s', scenario %d", *CompanyNameData.ToString(), ScenarioIndex);
 
@@ -246,7 +246,7 @@ TSharedRef<SWidget> SFlareNewGameMenu::OnGenerateComboLine(TSharedPtr<FString> I
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	return SNew(STextBlock)
-	.Text(FText::FromString(*Item))
+	.Text(FText::FromString(*Item)) // FString needed here
 	.TextStyle(&Theme.TextFont);
 }
 

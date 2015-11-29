@@ -241,7 +241,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 	{
 		// Setup basic info
 		CompanyFlag->SetCompany(Target->GetCompany());
-		TargetName = Target->GetImmatriculation().ToString();
+		TargetName = FText::FromName(Target->GetImmatriculation());
 		FFlareSpacecraftSave* SaveData = Target->Save();
 		if (SaveData)
 		{
@@ -420,7 +420,7 @@ void SFlareSpacecraftInfo::OnUndock()
 
 FText SFlareSpacecraftInfo::GetName() const
 {
-	return FText::FromString(TargetName);
+	return TargetName;
 }
 
 FText SFlareSpacecraftInfo::GetDescription() const

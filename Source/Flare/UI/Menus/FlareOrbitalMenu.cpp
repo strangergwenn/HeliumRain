@@ -330,16 +330,16 @@ void SFlareOrbitalMenu::UpdateTravels()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->GetTravels()[TravelIndex];
 		if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 		{
-			FString TravelText = FString::Printf(TEXT("%s Travel to %s: %s remaining."),
-				*Travel->GetFleet()->GetName().ToString(),
-				*Travel->GetDestinationSector()->GetSectorName().ToString(),
-				*UFlareGameTools::FormatTime(Travel->GetRemainingTravelDuration(), 1));
+			FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} Travel to {1}: {2} remaining."),
+				Travel->GetFleet()->GetName(),
+				Travel->GetDestinationSector()->GetSectorName(),
+				FText::FromString(*UFlareGameTools::FormatTime(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
 
 			TravelsBox->AddSlot()
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TextFont)
-				.Text(FText::FromString(TravelText))
+				.Text(TravelText)
 			];
 
 		}
@@ -358,7 +358,7 @@ FText SFlareOrbitalMenu::GetFlyCurrentShipText() const
 
 	if (CurrentShip)
 	{
-		return FText::FromString(FlyText.ToString() + " (" + CurrentShip->GetImmatriculation().ToString() + ")");
+		return FText::Format(LOCTEXT("FlyRecentFormat", "{0} ({1})"), FlyText, FText::FromName(CurrentShip->GetImmatriculation()));
 	}
 	else
 	{
@@ -388,7 +388,7 @@ FText SFlareOrbitalMenu::GetFlySelectedShipText() const
 
 	if (SelectedFleet)
 	{
-		return FText::FromString(FlyText.ToString() + " (" + SelectedFleet->GetName().ToString() + ")");
+		return FText::Format(LOCTEXT("FlyCurrentFormat", "{0} ({1})"), FlyText, SelectedFleet->GetName());
 	}
 	else
 	{

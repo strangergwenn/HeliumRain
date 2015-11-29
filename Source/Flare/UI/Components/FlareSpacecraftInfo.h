@@ -118,7 +118,7 @@ protected:
 	// Target data	
 	IFlareSpacecraftInterface*        TargetSpacecraft;
 	FFlareSpacecraftDescription*      TargetSpacecraftDesc;
-	FString                           TargetName;
+	FText                             TargetName;
 
 	// Slate data
 	TSharedPtr<SFlareButton>          InspectButton;

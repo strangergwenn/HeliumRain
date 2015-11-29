@@ -111,7 +111,7 @@ FText SFlareSubsystemStatus::GetText() const
 		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "Weapons");           break;
 	}
 
-	return FText::FromString(Text.ToString() + "\n" + FString::FromInt(100 * ComponentHealth) + "%");
+	return FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}\n{1}%"), Text, FText::AsNumber(100 * ComponentHealth));
 }
 
 FText SFlareSubsystemStatus::GetInfoText() const

@@ -338,16 +338,18 @@ void SFlareSectorMenu::UpdateStationCost()
 	if (Item)
 	{
 		FFlareSpacecraftDescription* StationDescription = &Item->Data;
+		FText StationCostText = FText::Format(LOCTEXT("CreditsFormat", "{0} credits"), FText::AsNumber(StationDescription->Cost));
+		FString ResourcesString;
 
-		FString StationCostString = FString::Printf(TEXT("%d credits"), StationDescription->Cost);// TODO LOCTEXT
-
+		// Add resources
 		for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
 		{
 			FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
-			StationCostString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString());// TODO LOCTEXT
+			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString()); // FString needed here
 		}
-		StationCost = FText::FromString(StationCostString);
 
+		// Final text
+		StationCost = FText::Format(LOCTEXT("StationCostFormat", "This station costs {0}{1}."), StationCostText, FText::FromString(ResourcesString));
 		StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 	}
 }
@@ -363,7 +365,7 @@ FText SFlareSectorMenu::GetTravelText() const
 
 	if (SelectedFleet)
 	{
-		return FText::FromString(FlyText.ToString() + " " + LOCTEXT("with", "with").ToString() + " " + SelectedFleet->GetName().ToString());
+		return FText::Format(LOCTEXT("TravelFormat", "{0} with {1}"), FlyText, SelectedFleet->GetName());
 	}
 	else
 	{
@@ -387,11 +389,12 @@ EVisibility SFlareSectorMenu::GetTravelVisibility() const
 
 FText SFlareSectorMenu::GetSectorName() const
 {
-	FText Result = LOCTEXT("Sector", "SECTOR : ");
+	FText Result;
 
 	if (TargetSector)
 	{
-		Result = FText::FromString(Result.ToString() + TargetSector->GetSectorName().ToString().ToUpper());
+		Result = FText::Format(LOCTEXT("Sector", "SECTOR : {0}"),
+			FText::FromString(TargetSector->GetSectorName().ToString().ToUpper())); //FString needed here
 	}
 
 	return Result;
@@ -446,7 +449,7 @@ TSharedRef<SWidget> SFlareSectorMenu::OnGenerateStationComboLine(UFlareSpacecraf
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	return SNew(STextBlock)
-	.Text(FText::FromString(Item->Data.Name.ToString()))
+	.Text(Item->Data.Name)
 	.TextStyle(&Theme.TextFont);
 }
 
@@ -468,7 +471,7 @@ EVisibility SFlareSectorMenu::GetBuildStationVisibility() const
 FText SFlareSectorMenu::OnGetCurrentStationComboLine() const
 {
 	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
-	return Item ? FText::FromString(Item->Data.Name.ToString()) : FText::FromString("Select a station");// TODO LOCTEXT
+	return Item ? Item->Data.Name : LOCTEXT("Select", "Select a station");
 }
 
 void SFlareSectorMenu::OnBuildStationClicked()

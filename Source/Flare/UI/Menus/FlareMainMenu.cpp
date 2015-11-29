@@ -117,7 +117,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		.Padding(Theme.SmallContentPadding)
 		[
 			SNew(STextBlock)
-			.Text(FText::FromString("Flare / Development build / " + FString(__DATE__)))
+			.Text(FText::Format(LOCTEXT("DEVBUILD", "Helium Rain / Development build / {0}"), FText::FromString(__DATE__))) // FString neded here
 			.TextStyle(&Theme.SmallFont)
 		]
 	];
@@ -140,7 +140,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TitleFont)
-				.Text(FText::FromString(FString::FromInt(Index) + "/"))
+				.Text(FText::Format(LOCTEXT("NumberFormat", "{0}/"), FText::AsNumber(Index)))
 			]
 
 			// Company emblem
@@ -236,22 +236,22 @@ void SFlareMainMenu::Exit()
 
 FText SFlareMainMenu::GetText(int32 Index) const
 {
+	FText CompanyText;
+	FText MoneyText;
+	FText ShipText;
+
 	if (Game->DoesSaveSlotExist(Index))
 	{
 		const FFlareSaveSlotInfo& SaveSlotInfo = Game->GetSaveSlotInfo(Index);
 
 		// Build info strings
-		FString CompanyString = SaveSlotInfo.CompanyName.ToString();
-		FString ShipString = FString::FromInt(SaveSlotInfo.CompanyShipCount) + " ";
-		ShipString += (SaveSlotInfo.CompanyShipCount == 1 ? LOCTEXT("Ship", "ship").ToString() : LOCTEXT("Ships", "ships").ToString());
-		FString MoneyString = FString::FromInt(SaveSlotInfo.CompanyMoney) + " " + LOCTEXT("Credits", "credits").ToString();
+		CompanyText = SaveSlotInfo.CompanyName;
+		ShipText = FText::Format(LOCTEXT("ShipInfoFormat", "{0} {1}"),
+			FText::AsNumber(SaveSlotInfo.CompanyShipCount), (SaveSlotInfo.CompanyShipCount == 1 ? LOCTEXT("Ship", "ship") : LOCTEXT("Ships", "ships")));
+		MoneyText = FText::Format(LOCTEXT("Credits", "{0} credits"), FText::AsNumber(SaveSlotInfo.CompanyMoney));
+	}
 
-		return FText::FromString(CompanyString + "\n" + MoneyString + "\n" + ShipString + "\n");
-	}
-	else
-	{
-		return FText::FromString("\n\n\n");
-	}
+	return FText::Format(LOCTEXT("SaveInfoFormat", "{0}\n{1}\n{2}\n"), CompanyText, MoneyText, ShipText);
 }
 
 const FSlateBrush* SFlareMainMenu::GetSaveIcon(int32 Index) const

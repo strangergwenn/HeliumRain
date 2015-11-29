@@ -337,7 +337,7 @@ FText SFlareHUDMenu::GetInfoText() const
 	{
 		ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
 
-		SectorText = FText::FromString(Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName().ToString());
+		SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
 
 		if (TargetShip->GetNavigationSystem()->IsDocked())
 		{
@@ -363,7 +363,7 @@ FText SFlareHUDMenu::GetInfoText() const
 		}
 	}
 
-	return FText::FromString(ShipText.ToString() + " - " + ModeText.ToString() + AutopilotText.ToString() + " - " + SectorText.ToString());
+	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} - {1} {2} - {3}"), ShipText, ModeText, AutopilotText, SectorText);
 }
 
 FText SFlareHUDMenu::GetLowerInfoText() const
@@ -378,7 +378,7 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
 			AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
-			Info = FText::FromString(LOCTEXT("DockingAt", "Docking at").ToString() + " " + Target->GetImmatriculation().ToString());
+			Info = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
 		}
 	}
 
@@ -420,7 +420,7 @@ FSlateColor SFlareHUDMenu::GetTemperatureColorNoAlpha() const
 
 FText SFlareHUDMenu::GetTemperatureText() const
 {
-	return FText::FromString(FString::Printf(TEXT("%4s K"), *FString::FromInt(Temperature)));
+	return FText::Format(LOCTEXT("TemperatureFormat", "{0} K"), FText::AsNumber((int32)Temperature));
 }
 
 FSlateColor SFlareHUDMenu::GetOverheatColor(bool Text) const
@@ -457,14 +457,14 @@ FSlateColor SFlareHUDMenu::GetOutageColor(bool Text) const
 
 FText SFlareHUDMenu::GetOutageText() const
 {
+	FText Result;
+
 	if (TargetShip)
 	{
-		return FText::FromString(LOCTEXT("PwBackIn", "Power back in ").ToString() + FString::FromInt(TargetShip->GetDamageSystem()->GetPowerOutageDuration() + 1) + "...");
+		return FText::Format(LOCTEXT("PwBackInFormat", "Power back in {0}..."), FText::AsNumber(TargetShip->GetDamageSystem()->GetPowerOutageDuration() + 1));
 	}
-	else
-	{
-		return FText::FromString("");
-	}
+
+	return Result;
 }
 
 #undef LOCTEXT_NAMESPACE

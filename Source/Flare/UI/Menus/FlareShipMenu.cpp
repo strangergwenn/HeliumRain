@@ -342,7 +342,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 		if (ShipDesc)
 		{
-			FText Prefix = TargetSpacecraft->IsStation() ? LOCTEXT("Station", "STATION : ") : LOCTEXT("Ship", "SHIP : ");
+			FText Prefix = TargetSpacecraft->IsStation() ? LOCTEXT("Station", "STATION") : LOCTEXT("Ship", "SHIP");
 			FText Immatriculation = FText::FromString(TargetSpacecraft->GetImmatriculation().ToString());
 			ObjectName->SetText(FText::Format(LOCTEXT("ObjectNameFormat", "{0} : {1}"), Prefix, Immatriculation));
 

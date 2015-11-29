@@ -139,11 +139,6 @@ FText SFlareWeaponStatus::GetText() const
 
 	if (TargetWeaponGroup)
 	{
-		// Generic info
-		FString NameInfo = TargetWeaponGroup->Description->Name.ToString();
-		FString CountInfo = FString::FromInt(TargetWeaponGroup->Weapons.Num()) + "x ";
-		FString HealthInfo = FString::FromInt(100 * ComponentHealth) + "%";
-
 		// Get ammo count
 		int32 RemainingAmmo = 0;
 		for (int32 i = 0; i < TargetWeaponGroup->Weapons.Num(); i++)
@@ -155,10 +150,12 @@ FText SFlareWeaponStatus::GetText() const
 			}
 			RemainingAmmo += TargetWeaponGroup->Weapons[i]->GetCurrentAmmo();
 		}
-		FString AmmoInfo = FString::FromInt(RemainingAmmo) + " " + LOCTEXT("Rounds", "rounds").ToString();
 
 		// Final string
-		Text = FText::FromString(CountInfo + NameInfo + "\n" + AmmoInfo + "\n" + HealthInfo);
+		Text = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}x {1}\n{2}\n{3}%"),
+			FText::AsNumber(TargetWeaponGroup->Weapons.Num()), TargetWeaponGroup->Description->Name,
+			FText::Format(LOCTEXT("Rounds", "{0} rounds"), FText::AsNumber(RemainingAmmo)),
+			FText::AsNumber(100 * ComponentHealth));
 	}
 
 	return Text;
