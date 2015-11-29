@@ -72,7 +72,7 @@ void SFlareCargoInfo::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEv
 
 	if (MenuManager)
 	{
-		FText InfoText = Cargo->Resource ? Cargo->Resource->Name : LOCTEXT("EmptyInfo", "Empty bay");
+		FText InfoText = Cargo->Resource ? Cargo->Resource->Description : LOCTEXT("EmptyInfo", "Empty bay");
 		MenuManager->ShowTooltip(this, InfoText);
 	}
 }
