@@ -111,15 +111,18 @@ FText SFlareCompanyInfo::GetCompanyInfo() const
 
 	if (Company)
 	{
-		int32 CompanyShipCount = Company->GetCompanyShips().Num();
+		// Stations
 		int32 CompanyStationCount = Company->GetCompanyStations().Num();
-		FString ShipString = FString::FromInt(CompanyShipCount) + " ";
-		FString StationString = FString::FromInt(CompanyStationCount) + " ";
-		ShipString += (CompanyShipCount == 1 ? LOCTEXT("Ship", "ship").ToString() : LOCTEXT("Ships", "ships").ToString());
-		StationString += (CompanyStationCount == 1 ? LOCTEXT("Station", "station").ToString() : LOCTEXT("Stations", "stations").ToString());
-		FString MoneyString = FString::FromInt(Company->GetMoney()) + " " + LOCTEXT("Credits", "credits").ToString();
+		FText StationText = FText::Format(LOCTEXT("StationInfoFormat", "{0} {1}"),
+			FText::AsNumber(CompanyStationCount), CompanyStationCount == 1 ? LOCTEXT("Station", "station") : LOCTEXT("Stations", "stations"));
 
-		return FText::FromString(MoneyString + "\n" + StationString + "\n" + ShipString);
+		// Ships
+		int32 CompanyShipCount = Company->GetCompanyShips().Num();
+		FText ShipText = FText::Format(LOCTEXT("ShipInfoFormat", "{0} {1}"),
+			FText::AsNumber(CompanyShipCount), CompanyShipCount == 1 ? LOCTEXT("Ship", "ship") : LOCTEXT("Ships", "ships"));
+		
+		// Full string
+		return FText::Format(LOCTEXT("CompanyInfoFormat", "{0} {1}\n{2}\n{3}"), FText::AsNumber(Company->GetMoney()), LOCTEXT("Credits", "credits"), StationText, ShipText);
 	}
 
 	return Result;

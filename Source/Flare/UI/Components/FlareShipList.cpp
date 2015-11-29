@@ -178,7 +178,7 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 		return SNew(SFlareListItem, OwnerTable)
 			.Content()
 			[
-				SNew(STextBlock).Text(FText::FromString("Invalid item"))
+				SNew(STextBlock).Text(LOCTEXT("Invalid", "Invalid item"))
 			];
 	}
 }

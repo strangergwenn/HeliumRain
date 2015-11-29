@@ -291,7 +291,7 @@ void AFlareGame::ReadAllSaveSlots()
 			SaveSlotInfo.EmblemBrush = FSlateNoResource();
 			SaveSlotInfo.CompanyShipCount = 0;
 			SaveSlotInfo.CompanyMoney = 0;
-			SaveSlotInfo.CompanyName = FText::FromString("");
+			SaveSlotInfo.CompanyName = FText();
 		}
 
 		SaveSlots.Add(SaveSlotInfo);
@@ -361,10 +361,10 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 	Save
 ----------------------------------------------------*/
 
-void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int32 ScenarioIndex, bool PlayTutorial)
+void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32 ScenarioIndex, bool PlayTutorial)
 {
-	FLOGV("CreateGame ScenarioIndex %d", ScenarioIndex);
-	FLOGV("CreateGame CompanyName %s", *CompanyName);
+	FLOGV("AFlareGame::CreateGame ScenarioIndex %d", ScenarioIndex);
+	FLOGV("AFlareGame::CreateGame CompanyName %s", *CompanyName.ToString());
 
 	PlayerController = PC;
 
@@ -382,7 +382,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 
 	// Manually setup the player company before creating it
 	FFlareCompanyDescription CompanyData;
-	CompanyData.Name = FText::FromString(CompanyName);
+	CompanyData.Name = CompanyName;
 	CompanyData.ShortName = *FString("PLY"); // TODO : Extract better short name
 	CompanyData.Emblem = NULL; // TODO
 	CompanyData.CustomizationBasePaintColorIndex = 0;
@@ -400,7 +400,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
 	PC->SetCompany(Company);
 
-	// TODO Later with world init
+	// TODO Implement scenarii - Later with world init
 	/*switch(ScenarioIndex)
 	{
 		case -1: // Empty
@@ -417,12 +417,12 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FString CompanyName, int
 		break;
 	}*/
 
-	FLOG("CreateGame create initial ship");
+	FLOG("AFlareGame::CreateGame create initial ship");
 	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
 	PlayerData.LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData.SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 
-	FLOG("CreateGame create initial ennemy station");
+	FLOG("AFlareGame::CreateGame create initial ennemy station");
 	World->FindSector("outpost")->CreateStation("station-outpost", World->GetCompanies()[0], FVector::ZeroVector);
 
 	if (!PlayerData.QuestData.PlayTutorial)

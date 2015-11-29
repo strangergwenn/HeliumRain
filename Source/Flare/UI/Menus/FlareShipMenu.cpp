@@ -342,9 +342,11 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 		if (ShipDesc)
 		{
-			FString Prefix = (TargetSpacecraft->IsStation() ? LOCTEXT("Station", "STATION : ") : LOCTEXT("Ship", "SHIP : ")).ToString();
-			ObjectName->SetText(FText::FromString(Prefix + TargetSpacecraft->GetImmatriculation().ToString()));
-			ObjectClassName->SetText(FText::FromString(ShipDesc->Name.ToString()));
+			FText Prefix = TargetSpacecraft->IsStation() ? LOCTEXT("Station", "STATION : ") : LOCTEXT("Ship", "SHIP : ");
+			FText Immatriculation = FText::FromString(TargetSpacecraft->GetImmatriculation().ToString());
+			ObjectName->SetText(FText::Format(LOCTEXT("ObjectNameFormat", "{0} : {1}"), Prefix, Immatriculation));
+
+			ObjectClassName->SetText(ShipDesc->Name);
 			ObjectDescription->SetText(ShipDesc->Description);
 			PC->GetMenuPawn()->ShowShip(ShipDesc, TargetSpacecraftData);
 		}
@@ -892,6 +894,7 @@ void SFlareShipMenu::OnClearLimitClicked(UFlareFactory* Factory, FFlareResourceD
 	Factory->ClearOutputLimit(Resource);
 	UpdateFactoryList();
 }
+
 
 /*----------------------------------------------------
 	Content callbacks

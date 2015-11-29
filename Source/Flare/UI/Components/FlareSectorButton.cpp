@@ -107,25 +107,26 @@ FText SFlareSectorButton::GetSectorText() const
 	
 	if (Sector)
 	{
-		FString	SectorTitle = Sector->GetSectorName().ToString();
+		FText SectorTitle = Sector->GetSectorName();
+		FText ShipText;
+		FText StationText;
 
 		if (PlayerCompany->HasVisitedSector(Sector))
 		{
-			FString ShipString = (Sector->GetSectorShips().Num() == 1 ? LOCTEXT("Ship", "ship").ToString() : LOCTEXT("Ships", "ships").ToString());
-			FString StationString = (Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "station").ToString() : LOCTEXT("Stations", "stations").ToString());
-
 			if (Sector->GetSectorShips().Num() > 0)
 			{
-				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorShips().Num()) + " " + ShipString;
+				ShipText = Sector->GetSectorShips().Num() == 1 ? LOCTEXT("Ship", "{0} ship") : LOCTEXT("Ships", "{0} ships");
+				ShipText = FText::Format(ShipText, FText::AsNumber(Sector->GetSectorShips().Num()));
 			}
 
 			if (Sector->GetSectorStations().Num() > 0)
 			{
-				SectorTitle += "\n" + FString::FromInt(Sector->GetSectorStations().Num()) + " " + StationString;
+				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} station") : LOCTEXT("Stations", "{0} stations");
+				StationText = FText::Format(StationText, FText::AsNumber(Sector->GetSectorStations().Num()));
 			}
 		}
 
-		SectorText = FText::FromString(SectorTitle);
+		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}\n{2}"), SectorTitle, ShipText, StationText);
 	}
 
 	return SectorText;

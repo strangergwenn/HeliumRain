@@ -431,7 +431,7 @@ FText SFlareSpacecraftInfo::GetDescription() const
 	// Description builder
 	if (TargetSpacecraftDesc)
 	{
-		return FText::FromString("(" + TargetSpacecraftDesc->Name.ToString() + ")");
+		return FText::Format(LOCTEXT("DescriptionFormat", "({0})"), TargetSpacecraftDesc->Name);
 	}
 
 	return DefaultText;
@@ -463,7 +463,8 @@ EVisibility SFlareSpacecraftInfo::GetCompanyLineVisibility() const
 
 		if (TargetCompany && PC && TargetCompany == PC->GetCompany())
 		{
-			return EVisibility::Collapsed;
+			// Not interesting after all
+			//return EVisibility::Collapsed;
 		}
 	}
 
@@ -478,7 +479,7 @@ FText SFlareSpacecraftInfo::GetCompanyName() const
 
 		if (TargetCompany)
 		{
-			return FText::FromString(LOCTEXT("OwnedBy", "Owned by ").ToString() + TargetCompany->GetShortInfoText().ToString());
+			return FText::Format(LOCTEXT("OwnedByFormat", "Owned by {0}"), TargetCompany->GetShortInfoText());
 		}
 	}
 

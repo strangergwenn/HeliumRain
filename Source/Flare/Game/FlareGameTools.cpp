@@ -167,10 +167,9 @@ void UFlareGameTools::DeclareWar(FName Company1ShortName, FName Company2ShortNam
 
 		// Notify war
 		AFlarePlayerController* PC = GetPC();
-		FText WarString = LOCTEXT("War", "War has been declared");
-		FText WarStringInfo = FText::FromString(Company1->GetCompanyName().ToString() + ", " + Company2->GetCompanyName().ToString() + " "
-			+ LOCTEXT("WarInfo", "are now at war").ToString());
-		PC->Notify(WarString, WarStringInfo, NAME_None, EFlareNotification::NT_Military);
+		FText WarText = LOCTEXT("War", "War has been declared");
+		FText WarInfoText = FText::Format(LOCTEXT("WarStringInfoFormat", "{0}, {1} are now at war"), Company1->GetCompanyName(), Company2->GetCompanyName());
+		PC->Notify(WarText, WarInfoText, NAME_None, EFlareNotification::NT_Military);
 	}
 }
 

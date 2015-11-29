@@ -281,7 +281,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	if (Ship)
 	{
 		// Notification
-		FText Text = FText::FromString(LOCTEXT("Flying", "Now flying").ToString() + " " +Ship->GetImmatriculation().ToString());
+		FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetImmatriculation()));
 		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
 		Notify(Text, Info, "flying-info", EFlareNotification::NT_Help);
 
@@ -812,18 +812,10 @@ void AFlarePlayerController::MouseInputY(float Val)
 
 void AFlarePlayerController::Test1()
 {
-	if (GetGame()->IsLoadedOrCreated())
-	{
-		Notify(FText::FromString("AFlarePlayerController::Test1"), FText::FromString("AFlarePlayerController::Test1"), NAME_None);
-	}
 }
 
 void AFlarePlayerController::Test2()
 {
-	if (GetGame()->IsLoadedOrCreated())
-	{
-		Notify(FText::FromString("AFlarePlayerController::Test2"), FText::FromString("AFlarePlayerController::Test2"), NAME_None);
-	}
 }
 
 
@@ -871,7 +863,7 @@ void AFlarePlayerController::WheelPressed()
 			AFlareSpacecraft* Nearest = GetNearestSpacecraft(true);
 			if (Nearest)
 			{
-				FText Text = FText::FromString(LOCTEXT("MatchSpeed", "Match speed with ").ToString() + Nearest->GetImmatriculation().ToString());
+				FText Text = FText::Format(LOCTEXT("MatchSpeedFormat", "Match speed with {0}"), FText::FromName(Nearest->GetImmatriculation()));
 				MouseMenu->AddWidget("Mouse_MatchSpeed", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::MatchSpeedWithNearestSpacecraft));
 			}

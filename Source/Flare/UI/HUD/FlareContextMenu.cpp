@@ -149,15 +149,15 @@ FText SFlareContextMenu::GetText() const
 
 			if (Spacecraft != WeaponSystem->GetActiveWeaponTarget())
 			{
-				Info = LOCTEXT("Mark", "Mark as target");
+				Info = LOCTEXT("Mark", "Mark as target\n {0}");
 			}
 			else
 			{
-				Info = LOCTEXT("Clear", "Clear target");
+				Info = LOCTEXT("Clear", "Clear target\n {0}");
 			}
 		}
 
-		Info = FText::FromString(Info.ToString() + "\n" + TargetSpacecraft->GetImmatriculation().ToString());
+		Info = FText::Format(Info, FText::FromName(TargetSpacecraft->GetImmatriculation()));
 	}
 
 	return Info;

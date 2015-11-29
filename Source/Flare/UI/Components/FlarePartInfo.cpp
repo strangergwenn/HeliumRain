@@ -3,6 +3,9 @@
 #include "FlarePartInfo.h"
 
 
+#define LOCTEXT_NAMESPACE "FlareCompanyInfo"
+
+
 /*----------------------------------------------------
 	Construct
 ----------------------------------------------------*/
@@ -133,45 +136,45 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 
 	// Armor
 	AddCharacteristicToBlock(Box,
-		"Armor",
-		FString::FromInt(Desc->ArmorHitPoints + Desc->HitPoints),
+		LOCTEXT("Armor", "Armor"),
+		FText::AsNumber(Desc->ArmorHitPoints + Desc->HitPoints),
 		FFlareStyleSet::GetIcon("Armor"),
 		ShowHelpers);
 
 	// Gun
 	if (Desc->WeaponCharacteristics.IsWeapon)
 	{
-		FString Power = "";
+		int32 Power = 0;
 		switch(Desc->WeaponCharacteristics.DamageType)
 		{
 			case EFlareShellDamageType::ArmorPiercing:
-				Power = FString::FromInt(Desc->WeaponCharacteristics.GunCharacteristics.KineticEnergy);
+				Power = Desc->WeaponCharacteristics.GunCharacteristics.KineticEnergy;
 				break;
 			case EFlareShellDamageType::HEAT:
-				Power = FString::FromInt(Desc->WeaponCharacteristics.ExplosionPower);
+				Power = Desc->WeaponCharacteristics.ExplosionPower;
 				break;
 		case EFlareShellDamageType::HighExplosive:
-			Power = FString::FromInt(Desc->WeaponCharacteristics.AmmoFragmentCount) + " x " + FString::FromInt(Desc->WeaponCharacteristics.ExplosionPower);
+			Power = Desc->WeaponCharacteristics.AmmoFragmentCount * Desc->WeaponCharacteristics.ExplosionPower;
 			break;
 		}
 
 		AddCharacteristicToBlock(Box,
-			"Power",
-			Power + " kJ",
+			LOCTEXT("Power", "Power"),
+			FText::Format(LOCTEXT("PowerInfoFormat", "{0} kJ"), FText::AsNumber(Power)),
 			FFlareStyleSet::GetIcon("Shell"),
 			ShowHelpers);
 
 		if (Desc->WeaponCharacteristics.GunCharacteristics.IsGun)
 		{
 			AddCharacteristicToBlock(Box,
-				"Rate of fire",
-				FString::FromInt(Desc->WeaponCharacteristics.GunCharacteristics.AmmoRate) + " rpm",
+				LOCTEXT("RateOfFire", "Rate of fire"),
+				FText::Format(LOCTEXT("RateOfFireInfoFormat", "{0} rpm"), FText::AsNumber(Desc->WeaponCharacteristics.GunCharacteristics.AmmoRate)),
 				FFlareStyleSet::GetIcon("Rate"),
 				ShowHelpers);
 		}
 		AddCharacteristicToBlock(Box,
-			"Magazine",
-			FString::FromInt(Desc->WeaponCharacteristics.AmmoCapacity),
+			LOCTEXT("Magazine", "Magazine"),
+			FText::AsNumber(Desc->WeaponCharacteristics.AmmoCapacity),
 			FFlareStyleSet::GetIcon("Ammo"),
 			ShowHelpers);
 	}
@@ -181,20 +184,20 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 		if (Desc->EngineCharacteristics.AngularAccelerationRate > 0)
 		{
 			AddCharacteristicToBlock(Box,
-				"Turn rating",
-				FString::FromInt(Desc->EngineCharacteristics.AngularAccelerationRate),
+				LOCTEXT("TurnRating", "Turn rating"),
+				FText::AsNumber(Desc->EngineCharacteristics.AngularAccelerationRate),
 				FFlareStyleSet::GetIcon("RCS"),
 				ShowHelpers);
 		}
 		AddCharacteristicToBlock(Box,
-			"Thrust",
-			FString::FromInt(Desc->EngineCharacteristics.EnginePower) + " kN",
+			LOCTEXT("Thrust", "Thrust"),
+			FText::Format(LOCTEXT("ThrustInfoFormat", "{0} kN"), FText::AsNumber(Desc->EngineCharacteristics.EnginePower)),
 			FFlareStyleSet::GetIcon("Propulsion"),
 			ShowHelpers);
 	}
 }
 
-void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers)
+void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FText Label, FText Value, const FSlateBrush* Icon, bool ShowHelpers)
 {
 	TSharedPtr<SVerticalBox> TempBox;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -225,7 +228,7 @@ void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, F
 				.AutoHeight()
 				[
 					SNew(STextBlock)
-					.Text(FText::FromString(Value))
+					.Text(Value)
 					.TextStyle(&Theme.NameFont)
 				]
 			]
@@ -238,8 +241,10 @@ void SFlarePartInfo::AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, F
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(FText::FromString(Label))
+				.Text(Label)
 				.TextStyle(&Theme.SmallFont)
 			];
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

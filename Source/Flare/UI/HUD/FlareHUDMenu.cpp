@@ -378,7 +378,7 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
 			AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
-			Info = FText::FromString(LOCTEXT("DockingTo", "Docking to").ToString() + " " + Target->GetImmatriculation().ToString());
+			Info = FText::FromString(LOCTEXT("DockingAt", "Docking at").ToString() + " " + Target->GetImmatriculation().ToString());
 		}
 	}
 

@@ -225,9 +225,9 @@ void SFlareNewGameMenu::OnLaunch()
 	if (PC && Game && !Game->IsLoadedOrCreated())
 	{
 		// Get data
-		FString CompanyNameData = CompanyName->GetText().ToString().ToUpper().Left(60);
+		FText CompanyNameData = FText::FromString(CompanyName->GetText().ToString().ToUpper().Left(60));
 		int32 ScenarioIndex = ScenarioList.Find(ScenarioSelector->GetSelectedItem());
-		FLOGV("SFlareNewGameMenu::OnLaunch : '%s', scenario %d", *CompanyNameData, ScenarioIndex);
+		FLOGV("SFlareNewGameMenu::OnLaunch : '%s', scenario %d", *CompanyNameData.ToString(), ScenarioIndex);
 
 		// Launch
 		Game->CreateGame(PC, CompanyNameData, ScenarioIndex, TutorialButton->IsActive());

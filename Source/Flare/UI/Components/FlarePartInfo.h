@@ -48,7 +48,7 @@ public:
 	static void BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlareSpacecraftComponentDescription* Desc, bool ShowHelpers = true);
 
 	/** Add data for a single characteristic to an horizontal box */
-	static void AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FString Label, FString Value, const FSlateBrush* Icon, bool ShowHelpers);
+	static void AddCharacteristicToBlock(TSharedPtr<SHorizontalBox>& Box, FText Label, FText Value, const FSlateBrush* Icon, bool ShowHelpers);
 
 
 protected:

@@ -94,6 +94,7 @@ public:
 
 	FString GetFleetName() const
 	{
+		// TODO use FText
 		return FleetData.Name;
 	}
 

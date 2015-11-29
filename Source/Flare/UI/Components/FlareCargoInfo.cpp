@@ -125,7 +125,7 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	FFlareCargo* Cargo = &TargetSpacecraft->GetCargoBay()[CargoIndex];
 	check(Cargo);
 
-	return FText::FromString(FString::Printf(TEXT("%u/%u"), Cargo->Quantity, Cargo->Capacity));
+	return FText::FromString(FString::Printf(TEXT("%u/%u"), Cargo->Quantity, Cargo->Capacity)); //FString needed here
 }
 
 #undef LOCTEXT_NAMESPACE

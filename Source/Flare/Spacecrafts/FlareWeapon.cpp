@@ -481,6 +481,6 @@ FText UFlareWeapon::GetSlotName() const
 		}
 	}
 
-	return FText::FromString("");
+	return FText();
 }
 

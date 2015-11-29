@@ -185,13 +185,10 @@ FText UFlareCompany::GetShortInfoText()
 	FText ShipsText = LOCTEXT("Ships", "ships");
 	FText MoneyText = LOCTEXT("Money", "credits");
 
-	// Dynamic data
-	int32 ShipCount = GetCompanyShips().Num();
-	FString MoneyDescriptionString = FString::FromInt(GetMoney()) + " " + MoneyText.ToString();
-	FString ShipDescriptionString = FString::FromInt(ShipCount) + " " + (ShipCount != 1 ? ShipsText : ShipText).ToString();
-
 	// Build
-	return FText::FromString(GetCompanyName().ToString() + " (" + MoneyDescriptionString + ", " + ShipDescriptionString + ")");
+	int32 ShipCount = GetCompanyShips().Num();
+	FText ShipDescriptionText = FText::Format(LOCTEXT("ShipDescriptionFormat", "{0} {1}"), FText::AsNumber(ShipCount), ShipCount != 1 ? ShipsText : ShipText);
+	return FText::Format(LOCTEXT("ShortInfoFormat", "{0} ({1} {2}, {3})"), GetCompanyName(), FText::AsNumber(GetMoney()), MoneyText, ShipDescriptionText);
 }
 
 UFlareFleet* UFlareCompany::CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector)
