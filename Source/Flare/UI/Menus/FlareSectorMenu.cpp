@@ -56,7 +56,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("Sector", "SECTOR INFO"))
+				.Text(LOCTEXT("SectorInfo", "SECTOR INFO"))
 			]
 
 			// Close
@@ -393,7 +393,7 @@ FText SFlareSectorMenu::GetSectorName() const
 
 	if (TargetSector)
 	{
-		Result = FText::Format(LOCTEXT("Sector", "SECTOR : {0}"),
+		Result = FText::Format(LOCTEXT("SectorFormat", "SECTOR : {0}"),
 			FText::FromString(TargetSector->GetSectorName().ToString().ToUpper())); //FString needed here
 	}
 

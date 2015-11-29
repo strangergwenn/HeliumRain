@@ -383,7 +383,7 @@ EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
 
 FText SFlareOrbitalMenu::GetFlySelectedShipText() const
 {
-	FText FlyText = LOCTEXT("FlyCurrent", "Fly selected ");
+	FText FlyText = LOCTEXT("FlySelected", "Fly selected ");
 	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
 
 	if (SelectedFleet)
