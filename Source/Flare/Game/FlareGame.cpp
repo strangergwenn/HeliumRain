@@ -582,14 +582,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	Immatriculation += "-";
 
 	// Class
-	if (IsStation)
-	{
-		Immatriculation += SpacecraftDesc->Name.ToString();
-	}
-	else
-	{
-		Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString();
-	}
+	Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString();
 
 	// Name
 	if (SpacecraftDesc->Size == EFlarePartSize::L && !IsStation)
