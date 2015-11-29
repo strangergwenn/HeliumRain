@@ -22,7 +22,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 	
 	// Init station list
 	UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
-	for(int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
+	for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
 	{
 		StationList.Add(SpacecraftCatalog->StationCatalog[SpacecraftIndex]);
 	}
@@ -89,114 +89,137 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SVerticalBox)
 
-			// Sector name
+			// Header
 			+ SVerticalBox::Slot()
-			.Padding(Theme.TitlePadding)
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.Text(this, &SFlareSectorMenu::GetSectorName)
-				.TextStyle(&Theme.SubTitleFont)
-			]
-
-			// Sector description
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.Text(this, &SFlareSectorMenu::GetSectorDescription)
-				.TextStyle(&Theme.TextFont)
-				.WrapTextAt(Theme.ContentWidth)
-			]
-				
-			// Sector location
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.Text(this, &SFlareSectorMenu::GetSectorLocation)
-				.TextStyle(&Theme.TextFont)
-				.WrapTextAt(Theme.ContentWidth)
-			]
-
-			// Travel here
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Left)
-			[
-				SNew(SFlareButton)
-				.Width(8)
-				.Text(this, &SFlareSectorMenu::GetTravelText)
-				.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
-				.Icon(FFlareStyleSet::GetIcon("Travel"))
-				.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
-				.Visibility(this, &SFlareSectorMenu::GetTravelVisibility)
-			]
-
-			// Station construction
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Left)
 			[
 				SNew(SHorizontalBox)
-
-				// Build station text
+				
+				// Info
 				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
+				.AutoWidth()
 				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(LOCTEXT("BuildStation", "BUILD STATION:"))
-				]
+					SNew(SVerticalBox)
 
-				// Station selection
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(StationSelector, SComboBox<UFlareSpacecraftCatalogEntry*>)
-					.OptionsSource(&StationList)
-					.OnGenerateWidget(this, &SFlareSectorMenu::OnGenerateStationComboLine)
-					.OnSelectionChanged(this, &SFlareSectorMenu::OnStationComboLineSelectionChanged)
-					.ComboBoxStyle(&Theme.ComboBoxStyle)
-					.ForegroundColor(FLinearColor::White)
+					// Sector name
+					+ SVerticalBox::Slot()
+					.Padding(Theme.TitlePadding)
+					.AutoHeight()
 					[
 						SNew(STextBlock)
-						.Text(this, &SFlareSectorMenu::OnGetCurrentStationComboLine)
+						.Text(this, &SFlareSectorMenu::GetSectorName)
+						.TextStyle(&Theme.SubTitleFont)
+					]
+
+					// Sector description
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSectorMenu::GetSectorDescription)
 						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(Theme.ContentWidth)
+					]
+				
+					// Sector location
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSectorMenu::GetSectorLocation)
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(Theme.ContentWidth)
+					]
+
+					// Travel here
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SNew(SFlareButton)
+						.Width(8)
+						.Text(this, &SFlareSectorMenu::GetTravelText)
+						.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+						.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
+						.Visibility(this, &SFlareSectorMenu::GetTravelVisibility)
 					]
 				]
-
-				// Station cost text
+				
+				// Station construction
 				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
 				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Right)
+				.VAlign(VAlign_Top)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SmallFont)
-					.Text(this, &SFlareSectorMenu::OnGetStationCost)
-				]
+					SNew(SBox)
+					.WidthOverride(8 * Theme.ButtonWidth + Theme.ContentPadding.Left + Theme.ContentPadding.Right)
+					[
+						SNew(SVerticalBox)
 
-				// Build station button
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SFlareButton)
-					.Width(8)
-					.Text(LOCTEXT("BuildStationButton", "Build station"))
-					.HelpText(LOCTEXT("BuildStationInfo", "Build a station"))
-					.Icon(FFlareStyleSet::GetIcon("Travel"))
-					.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
-					.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
+						// Build station text
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(LOCTEXT("BuildStation", "BUILD A STATION"))
+						]
+
+						// Station selection
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(StationSelector, SComboBox<UFlareSpacecraftCatalogEntry*>)
+							.OptionsSource(&StationList)
+							.OnGenerateWidget(this, &SFlareSectorMenu::OnGenerateStationComboLine)
+							.OnSelectionChanged(this, &SFlareSectorMenu::OnStationComboLineSelectionChanged)
+							.ComboBoxStyle(&Theme.ComboBoxStyle)
+							.ForegroundColor(FLinearColor::White)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareSectorMenu::OnGetCurrentStationComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+
+						// Station cost text
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareSectorMenu::OnGetStationCost)
+							.WrapTextAt(8 * Theme.ButtonWidth)
+						]
+
+						// Build station button
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(8)
+							.Text(LOCTEXT("BuildStationButton", "Build station"))
+							.HelpText(LOCTEXT("BuildStationInfo", "Build a station"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
+							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
+						]
+					]
 				]
 			]
-
+					
 			// Content block
 			+ SVerticalBox::Slot()
 			[
@@ -298,21 +321,25 @@ void SFlareSectorMenu::Exit()
 {
 	SetEnabled(false);
 	TargetSector = NULL;
+
 	OwnedShipList->Reset();
 	OtherShipList->Reset();
+	StationSelector->ClearSelection();
+	StationBuildable = false;
+
 	SetVisibility(EVisibility::Hidden);
 }
 
 void SFlareSectorMenu::UpdateStationCost()
 {
 	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
-	if(Item)
+	if (Item)
 	{
 		FFlareSpacecraftDescription* StationDescription = &Item->Data;
 
 		FString StationCostString = FString::Printf(TEXT("%d $"), StationDescription->Cost);
 
-		for(int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+		for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
 		{
 			FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
 			StationCostString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString());
@@ -362,7 +389,7 @@ FText SFlareSectorMenu::GetSectorName() const
 
 	if (TargetSector)
 	{
-		Result = FText::FromString(Result.ToString() + TargetSector->GetSectorName().ToString());
+		Result = FText::FromString(Result.ToString() + TargetSector->GetSectorName().ToString().ToUpper());
 	}
 
 	return Result;
@@ -446,7 +473,7 @@ FText SFlareSectorMenu::OnGetCurrentStationComboLine() const
 void SFlareSectorMenu::OnBuildStationClicked()
 {
 	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
-	if(Item)
+	if (Item)
 	{
 		FFlareSpacecraftDescription* StationDescription = &Item->Data;
 		TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
