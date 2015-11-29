@@ -20,7 +20,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 	ChildSlot
 	.HAlign(HAlign_Left)
 	.VAlign(VAlign_Center)
-	.Padding(FMargin(0))
+	.Padding(FMargin(1))
 	[
 		SNew(SBorder)
 		.Padding(FMargin(0))
@@ -38,7 +38,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(STextBlock)
-					.TextStyle(&Theme.SmallFont)
+					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareCargoInfo::GetResourceAcronym)
 				]
 
@@ -47,6 +47,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				.Padding(Theme.SmallContentPadding)
 				.VAlign(VAlign_Bottom)
+				.HAlign(HAlign_Center)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.SmallFont)
@@ -115,7 +116,7 @@ FText SFlareCargoInfo::GetResourceAcronym() const
 	}
 	else
 	{
-		return LOCTEXT("Empty", "Empty");
+		return LOCTEXT("Empty", " ");
 	}
 }
 

@@ -98,7 +98,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				// Info
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
-				.Padding(Theme.ContentPadding)
 				.HAlign(HAlign_Left)
 				.VAlign(VAlign_Top)
 				[
@@ -340,12 +339,12 @@ void SFlareSectorMenu::UpdateStationCost()
 	{
 		FFlareSpacecraftDescription* StationDescription = &Item->Data;
 
-		FString StationCostString = FString::Printf(TEXT("%d $"), StationDescription->Cost);
+		FString StationCostString = FString::Printf(TEXT("%d credits"), StationDescription->Cost);// TODO LOCTEXT
 
 		for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
 		{
 			FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
-			StationCostString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString());
+			StationCostString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString());// TODO LOCTEXT
 		}
 		StationCost = FText::FromString(StationCostString);
 
@@ -418,10 +417,9 @@ FText SFlareSectorMenu::GetSectorLocation() const
 	{
 		FFlareCelestialBody* Body = TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(TargetSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
-
 		if (Body)
 		{
-			Result = FText::Format(LOCTEXT("SectorLocation",  "{0} - Altitude: {1} km - Phase: {2}°."), Body->Name, FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude), FText::AsNumber(TargetSector->GetOrbitParameters()->Phase));
+			Result = FText::Format(LOCTEXT("SectorLocation",  "{0} - Altitude: {1} km - Phase: {2} \u00B0"), Body->Name, FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude), FText::AsNumber(TargetSector->GetOrbitParameters()->Phase));
 		}
 	}
 
@@ -470,7 +468,7 @@ EVisibility SFlareSectorMenu::GetBuildStationVisibility() const
 FText SFlareSectorMenu::OnGetCurrentStationComboLine() const
 {
 	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
-	return Item ? FText::FromString(Item->Data.Name.ToString()) : FText::FromString("Select a station");
+	return Item ? FText::FromString(Item->Data.Name.ToString()) : FText::FromString("Select a station");// TODO LOCTEXT
 }
 
 void SFlareSectorMenu::OnBuildStationClicked()

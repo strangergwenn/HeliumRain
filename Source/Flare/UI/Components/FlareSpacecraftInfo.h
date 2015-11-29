@@ -97,6 +97,9 @@ public:
 	/** Get the target class icon */
 	const FSlateBrush* GetClassIcon() const;
 
+	/** Hide the company line if owned */
+	EVisibility GetCompanyLineVisibility() const;
+
 	/** Get the company name */
 	FText GetCompanyName() const;
 	
