@@ -91,6 +91,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 
 			// Header
 			+ SVerticalBox::Slot()
+			.AutoHeight()
 			[
 				SNew(SHorizontalBox)
 				
@@ -99,6 +100,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				.Padding(Theme.ContentPadding)
 				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Top)
 				[
 					SNew(SVerticalBox)
 
@@ -222,6 +224,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					
 			// Content block
 			+ SVerticalBox::Slot()
+			.VAlign(VAlign_Top)
 			[
 				SNew(SScrollBox)
 				.Style(&Theme.ScrollBoxStyle)
