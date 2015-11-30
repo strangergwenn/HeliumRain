@@ -15,6 +15,7 @@ class SFlareButton : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareButton)
 		: _Color(FLinearColor::White)
 		, _Toggle(false)
+		, _Transparent(false)
 		, _Width(5)
 		, _Height(1)
 	{}
@@ -26,6 +27,7 @@ class SFlareButton : public SCompoundWidget
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
 	SLATE_ARGUMENT(bool, Toggle)
+	SLATE_ARGUMENT(bool, Transparent)
 	SLATE_ARGUMENT(int32, Width)
 	SLATE_ARGUMENT(int32, Height)
 	
@@ -83,6 +85,7 @@ protected:
 	// State data
 	bool                           IsToggle;
 	bool                           IsPressed;
+	bool                           IsTransparent;
 	
 	// Slate data
 	FFlareButtonClicked            OnClicked;

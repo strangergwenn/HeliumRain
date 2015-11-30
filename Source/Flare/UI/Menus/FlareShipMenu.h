@@ -96,28 +96,26 @@ protected:
 	/** Part list generator */
 	TSharedRef<ITableRow> GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
 
+	/** Generate the factory menus */
 	void UpdateFactoryList();
 
-	EVisibility GetStartProductionButtonVisibility(UFlareFactory* Factory) const;
-	EVisibility GetPauseProductionButtonVisibility(UFlareFactory* Factory) const;
-	EVisibility GetStopProductionButtonVisibility(UFlareFactory* Factory) const;
-	EVisibility GetAddProductionCycleButtonVisibility(UFlareFactory* Factory) const;
-	EVisibility GetRemoveProductionCycleButtonVisibility(UFlareFactory* Factory) const;
-	EVisibility GetAddLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
-	EVisibility GetDecreaseLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
-	EVisibility GetIncreaseLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
-	EVisibility GetClearLimitButtonVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+	EVisibility GetStartProductionVisibility(UFlareFactory* Factory) const;
+	EVisibility GetStopProductionVisibility(UFlareFactory* Factory) const;
 
-	void OnStartProductionClicked(UFlareFactory* Factory);
-	void OnPauseProductionClicked(UFlareFactory* Factory);
-	void OnStopProductionClicked(UFlareFactory* Factory);
-	void OnSwitchProductionModeClicked(UFlareFactory* Factory);
-	void OnAddProductionCycleClicked(UFlareFactory* Factory);
-	void OnRemoveProductionCycleClicked(UFlareFactory* Factory);
-	void OnAddLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource);
-	void OnDecreaseLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource);
-	void OnIncreaseLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource);
-	void OnClearLimitClicked(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+	EVisibility GetProductionCyclesLimitVisibility(UFlareFactory* Factory) const;
+	EVisibility GetOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+
+	void OnStartProduction(UFlareFactory* Factory);
+	void OnStopProduction(UFlareFactory* Factory);
+
+	void OnSwitchProductionCyclesLimit(UFlareFactory* Factory);
+	void OnIncreaseProductionCycles(UFlareFactory* Factory);
+	void OnDecreaseProductionCycles(UFlareFactory* Factory);
+
+	void OnSwitchOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+	void OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+	void OnIncreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+
 
 	/*----------------------------------------------------
 		Action callbacks

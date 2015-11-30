@@ -17,6 +17,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	// Arguments
 	Icon = InArgs._Icon;
 	IsToggle = InArgs._Toggle;
+	IsTransparent = InArgs._Transparent;
 	OnClicked = InArgs._OnClicked;
 	Color = InArgs._Color;
 	HelpText = InArgs._HelpText;
@@ -118,7 +119,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	{
 		TSharedPtr<SVerticalBox> IconBox;
 
-		InnerContainer->SetPadding(Theme.ButtonPadding);
+		InnerContainer->SetPadding(IsTransparent ? FMargin(0) : Theme.ButtonPadding);
 		InnerContainer->SetContent(
 			SNew(SHorizontalBox)
 
@@ -203,7 +204,11 @@ const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	if (IsToggle)
+	if (IsTransparent)
+	{
+		return &Theme.InvisibleBrush;
+	}
+	else if (IsToggle)
 	{
 		return (IsPressed ? &Theme.ButtonActiveDecorator : &Theme.ButtonDecorator);
 	}
@@ -236,7 +241,15 @@ const FSlateBrush* SFlareButton::GetIconBrush() const
 const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
+
+	if (IsTransparent)
+	{
+		return (IsHovered() ? &Theme.NearInvisibleBrush : &Theme.InvisibleBrush);
+	}
+	else
+	{
+		return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
+	}
 }
 
 FSlateColor SFlareButton::GetMainColor() const

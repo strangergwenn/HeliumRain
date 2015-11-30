@@ -30,6 +30,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&BackgroundBrush);
 		OutBrushes.Add(&InvertedBrush);
 		OutBrushes.Add(&InvisibleBrush);
+		OutBrushes.Add(&NearInvisibleBrush);
 		OutBrushes.Add(&SeparatorBrush);
 
 		OutBrushes.Add(&ButtonBackground);
@@ -63,6 +64,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush BackgroundBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush InvertedBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush InvisibleBrush;
+	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush NearInvisibleBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush SeparatorBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin TitlePadding;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin TitleButtonPadding;
