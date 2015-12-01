@@ -464,7 +464,7 @@ void SFlareShipMenu::UpdateFactoryList()
 	if (SimulatedSpacecraft)
 	{
 		TArray<UFlareFactory*>& Factories = SimulatedSpacecraft->GetFactories();
-		FText CommaTextReference = LOCTEXT("Comma", ",");
+		FText CommaTextReference = LOCTEXT("Comma", " + ");
 
 		// Iterate on all factories
 		for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
@@ -569,7 +569,7 @@ void SFlareShipMenu::UpdateFactoryList()
 			}
 
 			// Production cycle limiter
-			bool ProductionLimitEnabled = !Factory->HasInfiniteCycle();
+			/*bool ProductionLimitEnabled = !Factory->HasInfiniteCycle();
 			FText ProductionCycleStatusText;
 			if (ProductionLimitEnabled)
 			{
@@ -579,172 +579,176 @@ void SFlareShipMenu::UpdateFactoryList()
 			else
 			{
 				ProductionCycleStatusText = LOCTEXT("ProductionLimitEnable", "Limit production cycles");
-			}
+			}*/
 
 			// Add structure
 			TSharedPtr<SVerticalBox> LimitList;
 			FactoryList->AddSlot()
 			.Padding(Theme.ContentPadding)
 			[
-				SNew(SHorizontalBox)
-
-				// Decorator
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
+				SNew(SBorder)
+				.BorderImage(&Theme.ListActiveBackground)
 				[
-					SNew(SImage)
-					.Image(&Theme.ButtonActiveDecorator)
-				]
+					SNew(SHorizontalBox)
 
-				// Factory data
-				+ SHorizontalBox::Slot()
-				[
-					SNew(SVerticalBox)
-
-					// Factory name
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
+					// Decorator
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(FText::Format(LOCTEXT("FactoryNameFormat", "{0} ({1})"), FText::FromString(Factory->GetDescription()->Name.ToString().ToUpper()), ProductionStatusText))
+						SNew(SImage)
+						.Image(&Theme.ButtonActiveDecorator)
 					]
 
-					// Factory description
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
+					// Factory data
+					+ SHorizontalBox::Slot()
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(Factory->GetDescription()->Description)
-					]
+						SNew(SVerticalBox)
 
-					// Factory production cycle description
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} (in {2})"),
-							ProductionCostText, ProductionOutputText,
-							FText::FromString(*UFlareGameTools::FormatTime(Factory->GetDescription()->ProductionTime, 2)))) // FString needed here
-					]
-			
-					// Factory production status
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SHorizontalBox)
-					
-						// Factory status (left pane)
-						+ SHorizontalBox::Slot()
-						.HAlign(HAlign_Fill)
-						.VAlign(VAlign_Center)
-						.AutoWidth()
+						// Factory name
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
 						[
-							SNew(SVerticalBox)
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(FText::Format(LOCTEXT("FactoryNameFormat", "{0} ({1})"), FText::FromString(Factory->GetDescription()->Name.ToString().ToUpper()), ProductionStatusText))
+						]
 
-							// Progress box
-							+ SVerticalBox::Slot()
-							.AutoHeight()
+						// Factory description
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(Factory->GetDescription()->Description)
+						]
+
+						// Factory production cycle description
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} each {2}"),
+								ProductionCostText, ProductionOutputText,
+								FText::FromString(*UFlareGameTools::FormatTime(Factory->GetDescription()->ProductionTime, 2)))) // FString needed here
+						]
+			
+						// Factory production status
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+					
+							// Factory status (left pane)
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Fill)
+							.VAlign(VAlign_Center)
+							.AutoWidth()
 							[
-								SNew(SHorizontalBox)
+								SNew(SVerticalBox)
 
-								// Factory start production button
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
+								// Progress box
+								+ SVerticalBox::Slot()
+								.AutoHeight()
 								[
-									SNew(SFlareButton)
-									.Visibility(this, &SFlareShipMenu::GetStartProductionVisibility, Factory)
-									.OnClicked(this, &SFlareShipMenu::OnStartProduction, Factory)
-									.Text(FText())
-									.HelpText(LOCTEXT("StartProduction", "Start production"))
-									.Icon(FFlareStyleSet::GetIcon("Load"))
-									.Transparent(true)
-									.Width(1)
-								]
+									SNew(SHorizontalBox)
 
-								// Factory stop production button
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								[
-									SNew(SFlareButton)
-									.Visibility(this, &SFlareShipMenu::GetStopProductionVisibility, Factory)
-									.OnClicked(this, &SFlareShipMenu::OnStopProduction, Factory)
-									.Text(FText())
-									.HelpText(LOCTEXT("StopProduction", "Stop production"))
-									.Icon(FFlareStyleSet::GetIcon("Stop"))
-									.Transparent(true)
-									.Width(1)
-								]
-
-								// Factory progress
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								.Padding(Theme.ContentPadding)
-								[
-									SNew(SBox)
-									.VAlign(VAlign_Center)
-									.HAlign(HAlign_Fill)
-									.WidthOverride(Theme.ContentWidth / 3)
+									// Factory start production button
+									+ SHorizontalBox::Slot()
+									.AutoWidth()
 									[
-										SNew(SProgressBar)
-										.Percent(0.42)
-										.Style(&Theme.ProgressBarStyle)
+										SNew(SFlareButton)
+										.Visibility(this, &SFlareShipMenu::GetStartProductionVisibility, Factory)
+										.OnClicked(this, &SFlareShipMenu::OnStartProduction, Factory)
+										.Text(FText())
+										.HelpText(LOCTEXT("StartProduction", "Start production"))
+										.Icon(FFlareStyleSet::GetIcon("Load"))
+										.Transparent(true)
+										.Width(1)
+									]
+
+									// Factory stop production button
+									+ SHorizontalBox::Slot()
+									.AutoWidth()
+									[
+										SNew(SFlareButton)
+										.Visibility(this, &SFlareShipMenu::GetStopProductionVisibility, Factory)
+										.OnClicked(this, &SFlareShipMenu::OnStopProduction, Factory)
+										.Text(FText())
+										.HelpText(LOCTEXT("StopProduction", "Stop production"))
+										.Icon(FFlareStyleSet::GetIcon("Stop"))
+										.Transparent(true)
+										.Width(1)
+									]
+
+									// Factory progress
+									+ SHorizontalBox::Slot()
+									.AutoWidth()
+									.Padding(Theme.ContentPadding)
+									[
+										SNew(SBox)
+										.VAlign(VAlign_Center)
+										.HAlign(HAlign_Fill)
+										.WidthOverride(Theme.ContentWidth / 3)
+										[
+											SNew(SProgressBar)
+											.Percent(this, &SFlareShipMenu::GetProductionProgress, Factory)
+											.Style(&Theme.ProgressBarStyle)
+										]
 									]
 								]
 							]
-						]
 
-						// Factory limits (right pane)
-						+ SHorizontalBox::Slot()
-						.HAlign(HAlign_Right)
-						[
-							SAssignNew(LimitList, SVerticalBox)
+							// Factory limits (right pane)
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Right)
+							[
+								SAssignNew(LimitList, SVerticalBox)
 
-							//// Factory mode control
-							//+ SVerticalBox::Slot()
-							//.AutoHeight()
-							//.Padding(Theme.SmallContentPadding)
-							//[
-							//	SNew(SHorizontalBox)
+								//// Factory mode control
+								//+ SVerticalBox::Slot()
+								//.AutoHeight()
+								//.Padding(Theme.SmallContentPadding)
+								//[
+								//	SNew(SHorizontalBox)
 
-							//	// Factory switch mode
-							//	+ SHorizontalBox::Slot()
-							//	.AutoWidth()
-							//	[
-							//		SNew(SFlareButton)
-							//		.OnClicked(this, &SFlareShipMenu::OnSwitchProductionCyclesLimit, Factory)
-							//		.Text(ProductionCycleStatusText)
-							//		.Width(ProductionLimitEnabled ? 6 : 8)
-							//	]
+								//	// Factory switch mode
+								//	+ SHorizontalBox::Slot()
+								//	.AutoWidth()
+								//	[
+								//		SNew(SFlareButton)
+								//		.OnClicked(this, &SFlareShipMenu::OnSwitchProductionCyclesLimit, Factory)
+								//		.Text(ProductionCycleStatusText)
+								//		.Width(ProductionLimitEnabled ? 6 : 8)
+								//	]
 
-							//	// Factory remove production cycle button
-							//	+ SHorizontalBox::Slot()
-							//	.AutoWidth()
-							//	[
-							//		SNew(SFlareButton)
-							//		.Visibility(this, &SFlareShipMenu::GetProductionCyclesLimitVisibility, Factory)
-							//		.OnClicked(this, &SFlareShipMenu::OnDecreaseProductionCycles, Factory)
-							//		.Text(FText::FromString(TEXT("-")))
-							//		.Width(1)
-							//	]
+								//	// Factory remove production cycle button
+								//	+ SHorizontalBox::Slot()
+								//	.AutoWidth()
+								//	[
+								//		SNew(SFlareButton)
+								//		.Visibility(this, &SFlareShipMenu::GetProductionCyclesLimitVisibility, Factory)
+								//		.OnClicked(this, &SFlareShipMenu::OnDecreaseProductionCycles, Factory)
+								//		.Text(FText::FromString(TEXT("-")))
+								//		.Width(1)
+								//	]
 
-							//	// Factory add production cycle button
-							//	+ SHorizontalBox::Slot()
-							//	.AutoWidth()
-							//	[
-							//		SNew(SFlareButton)
-							//		.Visibility(this, &SFlareShipMenu::GetProductionCyclesLimitVisibility, Factory)
-							//		.OnClicked(this, &SFlareShipMenu::OnIncreaseProductionCycles, Factory)
-							//		.Text(FText::FromString(TEXT("+")))
-							//		.Width(1)
-							//	]
-							//]
+								//	// Factory add production cycle button
+								//	+ SHorizontalBox::Slot()
+								//	.AutoWidth()
+								//	[
+								//		SNew(SFlareButton)
+								//		.Visibility(this, &SFlareShipMenu::GetProductionCyclesLimitVisibility, Factory)
+								//		.OnClicked(this, &SFlareShipMenu::OnIncreaseProductionCycles, Factory)
+								//		.Text(FText::FromString(TEXT("+")))
+								//		.Width(1)
+								//	]
+								//]
+							]
 						]
 					]
 				]
@@ -762,20 +766,26 @@ void SFlareShipMenu::UpdateFactoryList()
 				FText ProductionCycleStatusText;
 				if (ResourceLimitEnabled)
 				{
-					ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "{0} output limited to {1}"),
-						Resource->Acronym,
-						FText::AsNumber(Factory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetDescription()->CargoBayCapacity));
+					if (Factory->GetOutputLimit(Resource) == 0)
+					{
+						ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "{0} output is dumped"), Resource->Acronym);
+					}
+					else
+					{
+						ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "{0} output limited to {1}"),
+							Resource->Acronym,
+							FText::AsNumber(Factory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetDescription()->CargoBayCapacity));
+					}
 				}
 				else
 				{
-					ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitEnableFormat", "No output limit for {1}"),
-						FText::AsNumber(Factory->GetOutputLimit(Resource)), Resource->Acronym);
+					ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitEnableFormat", "{0} output is unlimited"), Resource->Acronym);
 				}
 
 				// Add a new limiter slot
 				LimitList->AddSlot()
 				.AutoHeight()
-				.HAlign(HAlign_Left)
+				.HAlign(HAlign_Right)
 				[
 					SNew(SHorizontalBox)
 
@@ -785,6 +795,7 @@ void SFlareShipMenu::UpdateFactoryList()
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(SBox)
+						.HAlign(HAlign_Left)
 						.VAlign(VAlign_Center)
 						[
 							SNew(STextBlock)
@@ -798,7 +809,7 @@ void SFlareShipMenu::UpdateFactoryList()
 					.AutoWidth()
 					[
 						SNew(SFlareButton)
-						.Visibility(this, &SFlareShipMenu::GetOutputLimitVisibility, Factory, Resource)
+						.Visibility(this, &SFlareShipMenu::GetDecreaseOutputLimitVisibility, Factory, Resource)
 						.OnClicked(this, &SFlareShipMenu::OnDecreaseOutputLimit, Factory, Resource)
 						.Text(FText::FromString(TEXT("-")))
 						.Transparent(true)
@@ -810,7 +821,7 @@ void SFlareShipMenu::UpdateFactoryList()
 					.AutoWidth()
 					[
 						SNew(SFlareButton)
-						.Visibility(this, &SFlareShipMenu::GetOutputLimitVisibility, Factory, Resource)
+						.Visibility(this, &SFlareShipMenu::GetIncreaseOutputLimitVisibility, Factory, Resource)
 						.OnClicked(this, &SFlareShipMenu::OnIncreaseOutputLimit, Factory, Resource)
 						.Text(FText::FromString(TEXT("+")))
 						.Transparent(true)
@@ -1193,84 +1204,112 @@ void SFlareShipMenu::OnExit()
 	}
 }
 
+
+/*----------------------------------------------------
+	Production callbacks
+----------------------------------------------------*/
+
+TOptional<float> SFlareShipMenu::GetProductionProgress(UFlareFactory* Factory) const
+{
+	check(Factory);
+	return ((float)Factory->GetProductedDuration() / (float)Factory->GetRemainingProductionDuration());
+}
+
 EVisibility SFlareShipMenu::GetStartProductionVisibility(UFlareFactory* Factory) const
 {
+	check(Factory);
 	return (!Factory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 EVisibility SFlareShipMenu::GetStopProductionVisibility(UFlareFactory* Factory) const
 {
+	check(Factory);
 	return (Factory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 }
+//
+//EVisibility SFlareShipMenu::GetProductionCyclesLimitVisibility(UFlareFactory* Factory) const
+//{
+//	check(Factory);
+//	return (!Factory->HasInfiniteCycle() ? EVisibility::Visible : EVisibility::Collapsed);
+//}
 
-EVisibility SFlareShipMenu::GetProductionCyclesLimitVisibility(UFlareFactory* Factory) const
+EVisibility SFlareShipMenu::GetIncreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
 {
-	return (!Factory->HasInfiniteCycle() ? EVisibility::Visible : EVisibility::Collapsed);
+	check(Factory);
+	uint32 MaxOutput = Factory->GetParent()->GetDescription()->CargoBayCount;
+	return (Factory->HasOutputLimit(Resource) && Factory->GetOutputLimit(Resource) < MaxOutput ? EVisibility::Visible : EVisibility::Hidden);
 }
 
-EVisibility SFlareShipMenu::GetOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
+EVisibility SFlareShipMenu::GetDecreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
 {
-	return (Factory->HasOutputLimit(Resource) ? EVisibility::Visible : EVisibility::Collapsed);
+	check(Factory);
+	return (!Factory->HasOutputLimit(Resource) || Factory->GetOutputLimit(Resource) > 0 ? EVisibility::Visible : EVisibility::Hidden);
 }
 
 void SFlareShipMenu::OnStartProduction(UFlareFactory* Factory)
 {
+	check(Factory);
 	Factory->Start();
 	UpdateFactoryList();
 }
 
 void SFlareShipMenu::OnStopProduction(UFlareFactory* Factory)
 {
+	check(Factory);
 	Factory->Stop();
 	UpdateFactoryList();
 }
+//
+//void SFlareShipMenu::OnSwitchProductionCyclesLimit(UFlareFactory* Factory)
+//{
+//	Factory->SetInfiniteCycle(!Factory->HasInfiniteCycle());
+//	UpdateFactoryList();
+//}
+//
+//void SFlareShipMenu::OnIncreaseProductionCycles(UFlareFactory* Factory)
+//{
+//	Factory->SetCycleCount(Factory->GetCycleCount() + 1);
+//	UpdateFactoryList();
+//}
+//
+//void SFlareShipMenu::OnDecreaseProductionCycles(UFlareFactory* Factory)
+//{
+//	if (Factory->GetCycleCount() > 1)
+//	{
+//		Factory->SetCycleCount(Factory->GetCycleCount() - 1);
+//		UpdateFactoryList();
+//	}
+//}
 
-void SFlareShipMenu::OnSwitchProductionCyclesLimit(UFlareFactory* Factory)
+void SFlareShipMenu::OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource)
 {
-	Factory->SetInfiniteCycle(!Factory->HasInfiniteCycle());
-	UpdateFactoryList();
-}
+	check(Factory);
+	uint32 MaxOutput = Factory->GetParent()->GetDescription()->CargoBayCount;
 
-void SFlareShipMenu::OnIncreaseProductionCycles(UFlareFactory* Factory)
-{
-	Factory->SetCycleCount(Factory->GetCycleCount() + 1);
-	UpdateFactoryList();
-}
-
-void SFlareShipMenu::OnDecreaseProductionCycles(UFlareFactory* Factory)
-{
-	if (Factory->GetCycleCount() > 1)
+	if (!Factory->HasOutputLimit(Resource))
 	{
-		Factory->SetCycleCount(Factory->GetCycleCount() - 1);
-		UpdateFactoryList();
+		Factory->SetOutputLimit(Resource, MaxOutput - 1);
 	}
+	else if (Factory->GetOutputLimit(Resource) > 0)
+	{
+		Factory->SetOutputLimit(Resource, Factory->GetOutputLimit(Resource) - 1);
+	}
+	UpdateFactoryList();
 }
 
-void SFlareShipMenu::OnSwitchOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource)
+void SFlareShipMenu::OnIncreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource)
 {
-	if (Factory->HasOutputLimit(Resource))
+	check(Factory);
+	uint32 MaxOutput = Factory->GetParent()->GetDescription()->CargoBayCount;
+
+	if (Factory->GetOutputLimit(Resource) + 1 >= MaxOutput)
 	{
 		Factory->ClearOutputLimit(Resource);
 	}
 	else
 	{
-		Factory->SetOutputLimit(Resource, 1);
+		Factory->SetOutputLimit(Resource, Factory->GetOutputLimit(Resource) + 1);
 	}
-	UpdateFactoryList();
-}
-
-void SFlareShipMenu::OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource)
-{
-	if (Factory->GetOutputLimit(Resource) > 1)
-	{
-		Factory->SetOutputLimit(Resource, Factory->GetOutputLimit(Resource) - 1);
-		UpdateFactoryList();
-	}
-}
-
-void SFlareShipMenu::OnIncreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource)
-{
-	Factory->SetOutputLimit(Resource, Factory->GetOutputLimit(Resource) + 1);
 	UpdateFactoryList();
 }
 

@@ -99,23 +99,6 @@ protected:
 	/** Generate the factory menus */
 	void UpdateFactoryList();
 
-	EVisibility GetStartProductionVisibility(UFlareFactory* Factory) const;
-	EVisibility GetStopProductionVisibility(UFlareFactory* Factory) const;
-
-	EVisibility GetProductionCyclesLimitVisibility(UFlareFactory* Factory) const;
-	EVisibility GetOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
-
-	void OnStartProduction(UFlareFactory* Factory);
-	void OnStopProduction(UFlareFactory* Factory);
-
-	void OnSwitchProductionCyclesLimit(UFlareFactory* Factory);
-	void OnIncreaseProductionCycles(UFlareFactory* Factory);
-	void OnDecreaseProductionCycles(UFlareFactory* Factory);
-
-	void OnSwitchOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
-	void OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
-	void OnIncreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
-
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -141,6 +124,45 @@ protected:
 
 	/** Close the menu */
 	void OnExit();
+	
+
+	/*----------------------------------------------------
+		Production callbacks
+	----------------------------------------------------*/
+
+	/** Get the current progress */
+	TOptional<float> GetProductionProgress(UFlareFactory* Factory) const;
+
+	/** Get the current start visibility */
+	EVisibility GetStartProductionVisibility(UFlareFactory* Factory) const;
+
+	/** Get the current stop visibility */
+	EVisibility GetStopProductionVisibility(UFlareFactory* Factory) const;
+	/*
+	EVisibility GetProductionCyclesLimitVisibility(UFlareFactory* Factory) const;*/
+
+	/** Get the current + visibility */
+	EVisibility GetIncreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+
+	/** Get the current - visibility */
+	EVisibility GetDecreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+
+	/** Start production */
+	void OnStartProduction(UFlareFactory* Factory);
+
+	/** Stop production */
+	void OnStopProduction(UFlareFactory* Factory);
+
+	/*
+	void OnSwitchProductionCyclesLimit(UFlareFactory* Factory);
+	void OnIncreaseProductionCycles(UFlareFactory* Factory);
+	void OnDecreaseProductionCycles(UFlareFactory* Factory);*/
+
+	/** Decrease the output storage limit */
+	void OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+
+	/** Increase the output storage limit */
+	void OnIncreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
 	
 
 protected:
