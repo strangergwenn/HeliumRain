@@ -726,7 +726,8 @@ void SFlareShipMenu::UpdateFactoryList()
 				if (ResourceLimitEnabled)
 				{
 					ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "Limited to {0} {1} (clear)"),
-						FText::AsNumber(Factory->GetOutputLimit(Resource)), Resource->Acronym);
+						FText::AsNumber(Factory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetDescription()->CargoBayCapacity),
+						Resource->Acronym);
 				}
 				else
 				{
