@@ -314,6 +314,8 @@ void SFlareShipMenu::Exit()
 	PartList->RequestListRefresh();
 	ShipList->Reset();
 
+	FactoryList->ClearChildren();
+
 	TargetSpacecraft = NULL;
 	RCSDescription = NULL;
 	EngineDescription = NULL;
@@ -459,7 +461,6 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 void SFlareShipMenu::UpdateFactoryList()
 {
 	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-	FactoryList->ClearChildren();
 
 	// Iterate on all factories
 	if (SimulatedSpacecraft)
@@ -467,16 +468,12 @@ void SFlareShipMenu::UpdateFactoryList()
 		TArray<UFlareFactory*>& Factories = SimulatedSpacecraft->GetFactories();
 		for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 		{
-			TSharedPtr<SFlareFactoryInfo> FactoryInfo;
-
 			FactoryList->AddSlot()
 			[
-				SAssignNew(FactoryInfo, SFlareFactoryInfo)
+				SNew(SFlareFactoryInfo)
 				.Factory(Factories[FactoryIndex])
 				.MenuManager(MenuManager)
 			];
-
-			FactoryInfo->UpdateFactoryLimits();
 		}
 	}
 }

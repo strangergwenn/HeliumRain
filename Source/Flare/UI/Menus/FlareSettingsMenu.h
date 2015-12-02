@@ -6,6 +6,7 @@
 #include "SlateMaterialBrush.h"
 #include "../Components/FlareKeyBind.h"
 
+class AFlareGame;
 class AFlareMenuManager;
 
 struct FSimpleBind

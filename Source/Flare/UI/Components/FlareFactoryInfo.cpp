@@ -186,6 +186,8 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	UpdateFactoryLimits();
 }
 
 
