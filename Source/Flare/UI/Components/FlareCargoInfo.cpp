@@ -138,7 +138,13 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 
 FReply SFlareCargoInfo::OnButtonClicked()
 {
-	OnClicked.ExecuteIfBound();
+	FFlareCargo* Cargo = &TargetSpacecraft->GetCargoBay()[CargoIndex];
+
+	if (Cargo && Cargo->Resource)
+	{
+		OnClicked.ExecuteIfBound();
+	}
+
 	return FReply::Handled();
 }
 

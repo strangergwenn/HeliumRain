@@ -34,7 +34,8 @@ public:
 	/** Enter this menu */
 	void Enter(UFlareSimulatedSector* ParentSector, UFlareSimulatedSpacecraft* LeftSpacecraft, UFlareSimulatedSpacecraft* RightSpacecraft);
 
-	void FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft, TSharedPtr<SVerticalBox> TargetBlock);
+	/** Fill a content pane with the trading information for Target spacecraft to deal with Other */
+	void FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft, TSharedPtr<SHorizontalBox> TargetBlock);
 
 	/** Exit this menu */
 	void Exit();
@@ -45,32 +46,25 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-
-//	/** Get the travel text */
-//	FText GetTravelText() const;
-
-//	/** Visibility setting for the travel button */
-//	EVisibility GetTravelVisibility() const;
-
+	
 	/** Get the title */
 	FText GetTitle() const;
 
-//	/** Get the sector's description */
-//	FText GetSectorDescription() const;
+	/** Get the name of the left spacecraft */
+	FText GetLeftSpacecraftName() const;
 
-//	/** Get the sector's location */
-//	FText GetSectorLocation() const;
-
+	/** Get the name of the right spacecraft */
+	FText GetRightSpacecraftName() const;
+	
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 
-	void OnSelectSpacecraft(UFlareSimulatedSpacecraft*Spacecraft);
+	/** A spacecraft has been selected, hide the list and show the cargo */
+	void OnSelectSpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
+	/** Resources need to be transferred, do it now */
 	void OnTransferResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, TSharedPtr<uint32> Quantity);
-
-//	/** Move the selected fleet here */
-//	void OnTravelHereClicked();
-
+	
 
 protected:
 
@@ -83,8 +77,8 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 
 	// Menu components
-	TSharedPtr<SVerticalBox>                 LeftBlock;
-	TSharedPtr<SVerticalBox>                 RightBlock;
+	TSharedPtr<SHorizontalBox>               LeftCargoBay;
+	TSharedPtr<SHorizontalBox>               RightCargoBay;
 	UFlareSimulatedSector*                   TargetSector;
 	UFlareSimulatedSpacecraft*               TargetLeftSpacecraft;
 	UFlareSimulatedSpacecraft*               TargetRightSpacecraft;

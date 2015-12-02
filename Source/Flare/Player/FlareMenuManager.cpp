@@ -315,7 +315,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
 		case EFlareMenu::MENU_Undock:         Path = "Undock";       break;
 		case EFlareMenu::MENU_Sector:         Path = "Sector";       break;
-		case EFlareMenu::MENU_Trade:          Path = "Trade";       break;
+		case EFlareMenu::MENU_Trade:          Path = "Trade";        break;
 		case EFlareMenu::MENU_Orbit:          Path = "Orbit";        break;
 		case EFlareMenu::MENU_Settings:       Path = "Settings";     break;
 		case EFlareMenu::MENU_Quit:           Path = "Quit";         break;
