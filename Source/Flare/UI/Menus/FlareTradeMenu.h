@@ -1,10 +1,13 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../Components/FlareButton.h"
+#include "../Components/FlareShipList.h"
 
 class UFlareSimulatedSpacecraft;
 class UFlareSimulatedSector;
 struct FFlareResourceDescription;
+
 
 class SFlareTradeMenu : public SCompoundWidget
 {
@@ -60,11 +63,14 @@ protected:
 	void OnBackClicked();
 
 	/** A spacecraft has been selected, hide the list and show the cargo */
-	void OnSelectSpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
+	void OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer);
 
 	/** Resources need to be transferred, do it now */
 	void OnTransferResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, TSharedPtr<uint32> Quantity);
 	
+	/** Go back to choosing a ship to trade with */
+	void OnBackToSelection();
+
 
 protected:
 
@@ -74,12 +80,18 @@ protected:
 
 	// HUD reference
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
 
 	// Menu components
-	TSharedPtr<SHorizontalBox>               LeftCargoBay;
-	TSharedPtr<SHorizontalBox>               RightCargoBay;
-	UFlareSimulatedSector*                   TargetSector;
-	UFlareSimulatedSpacecraft*               TargetLeftSpacecraft;
-	UFlareSimulatedSpacecraft*               TargetRightSpacecraft;
+	TSharedPtr<SFlareShipList>                      ShipList;
+	TSharedPtr<SHorizontalBox>                      LeftCargoBay;
+	TSharedPtr<SHorizontalBox>                      RightCargoBay;
+	TSharedPtr<STextBlock>                          RightShipText;
+	TSharedPtr<SFlareButton>                        BackToShipSelection;
+
+	// Data
+	UFlareSimulatedSector*                          TargetSector;
+	UFlareSimulatedSpacecraft*                      TargetLeftSpacecraft;
+	UFlareSimulatedSpacecraft*                      TargetRightSpacecraft;
+
 };

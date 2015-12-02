@@ -4,7 +4,6 @@
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
-#include "../Components/FlareButton.h"
 #include "../Components/FlareRoundButton.h"
 #include "../Components/FlareCargoInfo.h"
 
@@ -91,7 +90,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 
 				// Left spacecraft aka the current ship
 				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Left)
+				.HAlign(HAlign_Fill)
 				[
 					SNew(SBox)
 					.HAlign(HAlign_Left)
@@ -102,7 +101,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						// Current ship's name
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
+						.Padding(Theme.TitlePadding)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
@@ -113,6 +112,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
 						[
 							SAssignNew(LeftCargoBay, SHorizontalBox)
 						]
@@ -124,7 +124,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Right)
 				[
 					SNew(SBox)
-					.HAlign(HAlign_Left)
+					.HAlign(HAlign_Fill)
 					.WidthOverride(Theme.ContentWidth)
 					[
 						SNew(SVerticalBox)
@@ -132,23 +132,44 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						// Ship's name
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
+						.Padding(Theme.TitlePadding)
 						[
-							SNew(STextBlock)
+							SAssignNew(RightShipText, STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
 							.Text(this, &SFlareTradeMenu::GetRightSpacecraftName)
-							// TODO : Visible only when ship selected else Visibility::Collapsed, use SFlareShipList to select the target
 						]
 				
 						// Ship's cargo
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
 						[
 							SAssignNew(RightCargoBay, SHorizontalBox)
 						]
 
-						// TODO : a button to go back to selecting the ship
+						// Back button
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SAssignNew(BackToShipSelection, SFlareButton)
+							.Text(LOCTEXT("BackToSelection", "Go back to the ship selection"))
+							.Icon(FFlareStyleSet::GetIcon("Stop"))
+							.OnClicked(this, &SFlareTradeMenu::OnBackToSelection)
+							.Width(8)
+						]
+						
+						// Ship selection list
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SAssignNew(ShipList, SFlareShipList)
+							.MenuManager(MenuManager)
+							.Title(LOCTEXT("SelectSpacecraft", "SELECT A SPECACRAFT TO TRADE WITH"))
+							.OnItemSelected(this, &SFlareTradeMenu::OnSpacecraftSelected)
+						]
 					]
 				]
 
@@ -167,6 +188,7 @@ void SFlareTradeMenu::Setup()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
+	ShipList->SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulatedSpacecraft* LeftSpacecraft, UFlareSimulatedSpacecraft* RightSpacecraft)
@@ -176,12 +198,44 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	// Setup targets
 	TargetSector = ParentSector;
 	TargetLeftSpacecraft = LeftSpacecraft;
 	TargetRightSpacecraft = RightSpacecraft;
 
+	// Setup menus
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
 	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
+	
+	// Add stations
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorStations().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* StationCandidate = ParentSector->GetSectorStations()[SpacecraftIndex];
+		if (StationCandidate && StationCandidate != LeftSpacecraft && StationCandidate != RightSpacecraft
+		 && StationCandidate->GetDescription()->CargoBayCount > 0)
+		{
+			ShipList->AddShip(StationCandidate);
+		}
+	}
+
+	// Add ships
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorShips().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* ShipCandidate = ParentSector->GetSectorShips()[SpacecraftIndex];
+		if (ShipCandidate && ShipCandidate != LeftSpacecraft && ShipCandidate != RightSpacecraft
+		 && ShipCandidate->GetDescription()->CargoBayCount > 0
+		 && ShipCandidate->GetDamageSystem()->IsAlive())
+		{
+			ShipList->AddShip(ShipCandidate);
+		}
+	}
+
+	// Setup widgets
+	ShipList->RefreshList();
+	ShipList->SetVisibility(EVisibility::Visible);
+	RightShipText->SetVisibility(EVisibility::Collapsed);
+	BackToShipSelection->SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft, TSharedPtr<SHorizontalBox> CargoBay)
@@ -205,28 +259,6 @@ void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft
 			];
 		}
 	}
-
-	// Target isn't set, show the candidate's list
-	else
-	{
-		TArray<UFlareSimulatedSpacecraft*>& SectorSpacecrafts = TargetSector->GetSectorSpacecrafts();
-
-		for (int32 SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
-		{
-			UFlareSimulatedSpacecraft* SpacecraftCandidate = SectorSpacecrafts[SpacecraftIndex];
-			if (!OtherSpacecraft->CanTradeWith(SpacecraftCandidate))
-			{
-				continue;
-			}
-
-			CargoBay->AddSlot()
-			[
-				SNew(SFlareButton)
-				.Text(FText::FromName(SpacecraftCandidate->GetImmatriculation()))
-				.OnClicked(this, &SFlareTradeMenu::OnSelectSpacecraft, SpacecraftCandidate)
-			];
-		}
-	}
 }
 
 void SFlareTradeMenu::Exit()
@@ -238,6 +270,7 @@ void SFlareTradeMenu::Exit()
 	LeftCargoBay->ClearChildren();
 	RightCargoBay->ClearChildren();
 
+	ShipList->Reset();
 	SetVisibility(EVisibility::Hidden);
 }
 
@@ -278,29 +311,37 @@ FText SFlareTradeMenu::GetRightSpacecraftName() const
 	}
 	else
 	{
-		return LOCTEXT("SelectSpacecraft", "Select a spacecraft to trade with");
+		return LOCTEXT("NoSelectedSpacecraft", "No spacecraft selected");
 	}
 }
-
 
 void SFlareTradeMenu::OnBackClicked()
 {
 	MenuManager->Back();
 }
 
-void SFlareTradeMenu::OnSelectSpacecraft(UFlareSimulatedSpacecraft*Spacecraft)
+void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer)
 {
-	if (TargetLeftSpacecraft)
-	{
-		TargetRightSpacecraft = Spacecraft;
-	}
-	else
-	{
-		TargetLeftSpacecraft = Spacecraft;
-	}
+	UFlareSimulatedSpacecraft* Spacecraft = Cast<UFlareSimulatedSpacecraft>(SpacecraftContainer->ShipInterfacePtr);
 
-	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
-	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+	if (Spacecraft)
+	{
+		if (TargetLeftSpacecraft)
+		{
+			TargetRightSpacecraft = Spacecraft;
+		}
+		else
+		{
+			TargetLeftSpacecraft = Spacecraft;
+		}
+
+		ShipList->SetVisibility(EVisibility::Collapsed);
+		RightShipText->SetVisibility(EVisibility::Visible);
+		BackToShipSelection->SetVisibility(EVisibility::Visible);
+
+		FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
+		FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+	}
 }
 
 void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, TSharedPtr<uint32> Quantity)
@@ -315,6 +356,17 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 		FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
 		FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
 	}
+}
+
+void SFlareTradeMenu::OnBackToSelection()
+{
+	ShipList->ClearSelection();
+	TargetRightSpacecraft = NULL;
+	RightCargoBay->ClearChildren();
+
+	ShipList->SetVisibility(EVisibility::Visible);
+	RightShipText->SetVisibility(EVisibility::Collapsed);
+	BackToShipSelection->SetVisibility(EVisibility::Collapsed);
 }
 
 #undef LOCTEXT_NAMESPACE

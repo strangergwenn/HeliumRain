@@ -13,18 +13,21 @@
 
 void SFlareCargoInfo::Construct(const FArguments& InArgs)
 {
+	// Params
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TargetSpacecraft = InArgs._Spacecraft;
 	CargoIndex = InArgs._CargoIndex;
 	OnClicked = InArgs._OnClicked;
+	TSharedPtr<SButton> Button;
 	
+	// Layout
 	ChildSlot
 	.HAlign(HAlign_Left)
 	.VAlign(VAlign_Center)
 	.Padding(FMargin(1))
 	[
 		// Button (behaviour only, no display)
-		SNew(SButton)
+		SAssignNew(Button, SButton)
 		.OnClicked(this, &SFlareCargoInfo::OnButtonClicked)
 		.ContentPadding(FMargin(0))
 		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
@@ -64,6 +67,12 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	// Don't intercept clicks if it's not interactive
+	if (!OnClicked.IsBound())
+	{
+		Button->SetVisibility(EVisibility::HitTestInvisible);
+	}
 }
 
 

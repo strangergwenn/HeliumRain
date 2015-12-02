@@ -19,6 +19,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
+	OnItemSelected = InArgs._OnItemSelected;
 	
 	// Build structure
 	ChildSlot
@@ -135,14 +136,48 @@ void SFlareShipList::RefreshList()
 		}
 	};
 
+	ClearSelection();
 	TargetListData.Sort(FSortBySize());
 	TargetList->RequestListRefresh();
+}
+
+void SFlareShipList::ClearSelection()
+{
+	TargetList->ClearSelection();
 }
 
 void SFlareShipList::Reset()
 {
 	TargetListData.Empty();
 	TargetList->RequestListRefresh();
+	SelectedItem.Reset();
+}
+
+IFlareSpacecraftInterface* SFlareShipList::GetSelectedSpacecraft() const
+{
+	if (SelectedItem.IsValid() && SelectedItem->ShipInterfacePtr)
+	{
+		return SelectedItem->ShipInterfacePtr;
+	}
+	return NULL;
+}
+
+FFlareSpacecraftComponentDescription* SFlareShipList::GetSelectedPart() const
+{
+	if (SelectedItem.IsValid() && SelectedItem->PartDescription)
+	{
+		return SelectedItem->PartDescription;
+	}
+	return NULL;
+}
+
+UFlareCompany* SFlareShipList::GetSelectedCompany() const
+{
+	if (SelectedItem.IsValid() && SelectedItem->CompanyPtr)
+	{
+		return SelectedItem->CompanyPtr;
+	}
+	return NULL;
 }
 
 
@@ -187,6 +222,7 @@ void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESel
 {
 	FLOG("SFlareShipList::OnTargetSelected");
 	TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(TargetList->WidgetFromItem(Item));
+	SelectedItem = Item;
 
 	// Update selection
 	if (PreviousSelection.IsValid())
@@ -198,8 +234,17 @@ void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESel
 	if (ItemWidget.IsValid())
 	{
 		TSharedRef<SFlareSpacecraftInfo> ShipInfoWidget = StaticCastSharedRef<SFlareSpacecraftInfo>(ItemWidget->GetContainer()->GetContent());
-		ShipInfoWidget->SetMinimized(false);
-		ItemWidget->SetSelected(true);
+
+		if (OnItemSelected.IsBound())
+		{
+			OnItemSelected.Execute(Item);
+		}
+		else
+		{
+			ShipInfoWidget->SetMinimized(false);
+			ItemWidget->SetSelected(true);
+		}
+
 		PreviousSelection = ItemWidget;
 	}
 }

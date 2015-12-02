@@ -302,7 +302,7 @@ void SFlareSpacecraftInfo::Show()
 		bool OwnedAndNotSelf = TargetSpacecraft != PC->GetShipPawn() && TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
 		bool CanDock = OwnedAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
-		bool CanTrade = OwnedAndNotSelf && !TargetSpacecraft->IsStation();
+		bool CanTrade = OwnedAndNotSelf && !TargetSpacecraft->IsStation() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 
 		// Button states
 		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
