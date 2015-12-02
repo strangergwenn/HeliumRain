@@ -46,7 +46,7 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	AStaticMeshActor* Sky;
+	AActor* Sky;
 	UDirectionalLightComponent* Light;
 
 	FName CurrentSector;
