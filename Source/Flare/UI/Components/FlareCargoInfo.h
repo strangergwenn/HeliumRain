@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "FlareButton.h"
+
 
 class UFlareSimulatedSpacecraft;
 
@@ -17,6 +19,7 @@ class SFlareCargoInfo : public SCompoundWidget
 
 	SLATE_ARGUMENT(UFlareSimulatedSpacecraft*, Spacecraft)
 	SLATE_ARGUMENT(int32, CargoIndex)
+	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 	
 	SLATE_END_ARGS()
 
@@ -52,6 +55,9 @@ protected:
 	/** Get the quantity text */
 	FText GetResourceQuantity() const;
 
+	/** Cargo item clicked */
+	FReply OnButtonClicked();
+
 
 protected:
 
@@ -62,5 +68,6 @@ protected:
 	// Spacecraft data
 	UFlareSimulatedSpacecraft*                      TargetSpacecraft;
 	int32                                           CargoIndex;
+	FFlareButtonClicked                             OnClicked;
 
 };

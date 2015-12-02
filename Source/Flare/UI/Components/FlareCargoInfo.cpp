@@ -13,45 +13,53 @@
 
 void SFlareCargoInfo::Construct(const FArguments& InArgs)
 {
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TargetSpacecraft = InArgs._Spacecraft;
 	CargoIndex = InArgs._CargoIndex;
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	OnClicked = InArgs._OnClicked;
 	
 	ChildSlot
 	.HAlign(HAlign_Left)
 	.VAlign(VAlign_Center)
 	.Padding(FMargin(1))
 	[
-		SNew(SBorder)
-		.Padding(FMargin(0))
-		.BorderImage(this, &SFlareCargoInfo::GetResourceIcon)
+		// Button (behaviour only, no display)
+		SNew(SButton)
+		.OnClicked(this, &SFlareCargoInfo::OnButtonClicked)
+		.ContentPadding(FMargin(0))
+		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
 		[
-			SNew(SBox)
-			.WidthOverride(Theme.ResourceWidth)
-			.HeightOverride(Theme.ResourceHeight)
+			SNew(SBorder)
 			.Padding(FMargin(0))
+			.BorderImage(this, &SFlareCargoInfo::GetResourceIcon)
 			[
-				SNew(SVerticalBox)
+				SNew(SBox)
+				.WidthOverride(Theme.ResourceWidth)
+				.HeightOverride(Theme.ResourceHeight)
+				.Padding(FMargin(0))
+				[
+					SNew(SVerticalBox)
 			
-				// Resource name
-				+ SVerticalBox::Slot()
-				.Padding(Theme.SmallContentPadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareCargoInfo::GetResourceAcronym)
-				]
+					// Resource name
+					+ SVerticalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareCargoInfo::GetResourceAcronym)
+					]
 
-				// Resource quantity
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.SmallContentPadding)
-				.VAlign(VAlign_Bottom)
-				.HAlign(HAlign_Center)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SmallFont)
-					.Text(this, &SFlareCargoInfo::GetResourceQuantity)
+					// Resource quantity
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					.VAlign(VAlign_Bottom)
+					.HAlign(HAlign_Center)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SmallFont)
+						.Text(this, &SFlareCargoInfo::GetResourceQuantity)
+					]
 				]
 			]
 		]
@@ -127,5 +135,12 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 
 	return FText::FromString(FString::Printf(TEXT("%u/%u"), Cargo->Quantity, Cargo->Capacity)); //FString needed here
 }
+
+FReply SFlareCargoInfo::OnButtonClicked()
+{
+	OnClicked.ExecuteIfBound();
+	return FReply::Handled();
+}
+
 
 #undef LOCTEXT_NAMESPACE
