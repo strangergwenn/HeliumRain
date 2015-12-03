@@ -67,6 +67,12 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	// Don't intercept clicks if it's not interactive
+	if (!OnClicked.IsBound())
+	{
+		Button->SetVisibility(EVisibility::HitTestInvisible);
+	}
 }
 
 
