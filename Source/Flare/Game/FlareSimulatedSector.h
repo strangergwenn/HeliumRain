@@ -225,7 +225,7 @@ public:
 
 	void SimulateTransport(int64 Duration);
 
-	uint32 TakeUselessRessouce(FFlareResourceDescription* Resource, uint32 QuantityToTake);
+	uint32 TakeUselessRessouce(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
 
 protected:
 

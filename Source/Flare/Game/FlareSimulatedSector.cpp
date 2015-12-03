@@ -580,7 +580,7 @@ void UFlareSimulatedSector::SimulateTransport(int64 Duration)
 					uint32 QuantityToTransfert = FMath::Min(TransportCapacity, NeededQuantity * 2 - StoredQuantity);
 					// TODO check the slot size : for helium quantity to transfert will be 2 but must be 100 (1 slot)
 					QuantityToTransfert = FMath::Min(StorageCapacity, QuantityToTransfert);
-					uint32 TakenResources = TakeUselessRessouce(Resource, QuantityToTransfert);
+					uint32 TakenResources = TakeUselessRessouce(Station->GetCompany(), Resource, QuantityToTransfert);
 					Station->GiveResources(Resource, TakenResources);
 					TransportCapacity -= TakenResources;
 					FLOGV("      Do transfet : QuantityToTransfert=%u TakenResources=%u TransportCapacity=%u", QuantityToTransfert, TakenResources, TransportCapacity);
@@ -607,13 +607,18 @@ void UFlareSimulatedSector::SimulateTransport(int64 Duration)
 	FLOGV("SimulateTransport end TransportCapacity=%u", TransportCapacity);
 }
 
-uint32 UFlareSimulatedSector::TakeUselessRessouce(FFlareResourceDescription* Resource, uint32 QuantityToTake)
+uint32 UFlareSimulatedSector::TakeUselessRessouce(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake)
 {
 	uint32 RemainingQuantityToTake = QuantityToTake;
 	// First pass: take from station with factory that output the resource
 	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToTake > 0; StationIndex++)
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+
+		if( Station->GetCompany() != Company)
+		{
+			continue;
+		}
 
 		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
@@ -635,6 +640,11 @@ uint32 UFlareSimulatedSector::TakeUselessRessouce(FFlareResourceDescription* Res
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 		bool NeedResource = false;
+
+		if( Station->GetCompany() != Company)
+		{
+			continue;
+		}
 
 		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
@@ -658,6 +668,11 @@ uint32 UFlareSimulatedSector::TakeUselessRessouce(FFlareResourceDescription* Res
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 		bool NeedResource = false;
+
+		if( Station->GetCompany() != Company)
+		{
+			continue;
+		}
 
 		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
