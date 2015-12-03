@@ -190,6 +190,23 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 	{
 		GetCompany()->VisitSector(Sector);
 	}
+	else
+	{
+		// Un assign the ship
+		AssignToSector(false);
+	}
+}
+
+void UFlareSimulatedSpacecraft::AssignToSector(bool Assign)
+{
+	if (CurrentSector == NULL)
+	{
+		SpacecraftData.IsAssigned = false;
+	}
+	else
+	{
+		SpacecraftData.IsAssigned = Assign;
+	}
 }
 
 

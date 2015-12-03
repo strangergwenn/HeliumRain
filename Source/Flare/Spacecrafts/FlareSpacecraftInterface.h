@@ -171,6 +171,8 @@ public:
 
 	virtual bool CanBeFlown() const = 0;
 
+	virtual bool IsAssignedToSector() const = 0;
+
 	/*----------------------------------------------------
 		Sub system
 	----------------------------------------------------*/

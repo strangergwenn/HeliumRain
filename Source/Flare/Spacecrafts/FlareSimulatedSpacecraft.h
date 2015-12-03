@@ -71,8 +71,15 @@ public:
 
 	virtual bool CanBeFlown() const override
 	{
-		return !IsStation() && (CurrentSector != NULL);
+		return !IsStation() && (CurrentSector != NULL) && ! IsAssignedToSector();
 	}
+
+	virtual bool IsAssignedToSector() const override
+	{
+		return SpacecraftData.IsAssigned;
+	}
+
+	void AssignToSector(bool Assign);
 
 	/*----------------------------------------------------
 		Resources

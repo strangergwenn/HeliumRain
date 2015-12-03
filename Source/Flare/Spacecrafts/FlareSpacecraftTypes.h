@@ -242,9 +242,13 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareCargoSave> Cargo;
 
-	/** Factory states*/
+	/** Factory states */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareFactorySave> FactoryStates;
+
+	/** Is spacecraft assigned to the sector */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool IsAssigned;
 };
 
 

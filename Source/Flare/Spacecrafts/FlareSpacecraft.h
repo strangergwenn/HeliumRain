@@ -90,7 +90,12 @@ public:
 
 	virtual bool CanBeFlown() const override
 	{
-		return !IsStation();
+		return !IsStation() && !IsAssignedToSector();
+	}
+
+	virtual bool IsAssignedToSector() const override
+	{
+		return ShipData.IsAssigned;
 	}
 
 protected:

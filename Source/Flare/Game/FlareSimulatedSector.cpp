@@ -127,6 +127,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	ShipData.PowerOutageDelay = 0;
 	ShipData.PowerOutageAcculumator = 0;
 	ShipData.AttachPoint = AttachPoint;
+	ShipData.IsAssigned = false;
 
 	FName RCSIdentifier;
 	FName OrbitalEngineIdentifier;
@@ -398,8 +399,8 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		return false;
 	}
 
-	// Compute total available resources
-	TArray<FFlareCargo> AvailableResources;
+	// First, it need a free cargo
+	bool HasFreeCargo = false;
 	for(int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
@@ -409,7 +410,39 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 			continue;
 		}
 
-		TArray<FFlareCargo>& CargoBay = Ship->GetCargoBay();
+		if(Ship->GetDescription()->CargoBayCount == 0)
+		{
+			// Not a cargo
+			continue;
+		}
+
+		if(Ship->IsAssignedToSector())
+		{
+			// Not available to build
+			continue;
+		}
+
+		HasFreeCargo = true;
+		break;
+	}
+
+	if(!HasFreeCargo)
+	{
+		return false;
+	}
+
+	// Compute total available resources
+	TArray<FFlareCargo> AvailableResources;
+	for(int SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = SectorSpacecrafts[SpacecraftIndex];
+
+		if(Spacecraft->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		TArray<FFlareCargo>& CargoBay = Spacecraft->GetCargoBay();
 		for(int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
 		{
 			FFlareCargo* Cargo = &(CargoBay[CargoIndex]);
@@ -484,7 +517,10 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	{
 		FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
 		uint32 ResourceToTake = FactoryResource->Quantity;
+		FFlareResourceDescription* Resource = &(FactoryResource->Resource->Data);
 
+
+		// First take from ships
 		for(int ShipIndex = 0; ShipIndex < SectorShips.Num() && ResourceToTake > 0; ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
@@ -494,7 +530,33 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 				continue;
 			}
 
-			ResourceToTake -= Ship->TakeResources(&(FactoryResource->Resource->Data), ResourceToTake);
+			ResourceToTake -= Ship->TakeResources(Resource, ResourceToTake);
+		}
+
+		if(ResourceToTake == 0)
+		{
+			continue;
+		}
+
+		// Then take useless resources from station
+		ResourceToTake -= TakeUselessRessouce(Company, Resource, ResourceToTake);
+
+		if(ResourceToTake == 0)
+		{
+			continue;
+		}
+
+		// Finally take from all stations
+		for(int StationIndex = 0; StationIndex < SectorStations.Num() && ResourceToTake > 0; StationIndex++)
+		{
+			UFlareSimulatedSpacecraft* Station = SectorShips[StationIndex];
+
+			if(Station->GetCompany() != Company)
+			{
+				continue;
+			}
+
+			ResourceToTake -= Station->TakeResources(Resource, ResourceToTake);
 		}
 
 		if(ResourceToTake > 0)
