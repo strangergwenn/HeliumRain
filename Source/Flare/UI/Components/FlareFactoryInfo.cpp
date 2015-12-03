@@ -299,7 +299,7 @@ FText SFlareFactoryInfo::GetFactoryName(UFlareFactory* Factory) const
 
 	if (Factory)
 	{
-		Result = FText::Format(LOCTEXT("FactoryNameFormat", "{0} ({1})"),
+		Result = FText::Format(LOCTEXT("FactoryNameFormat", "{0} - {1}"),
 			FText::FromString(Factory->GetDescription()->Name.ToString().ToUpper()),
 			GetFactoryStatus(Factory));
 	}
