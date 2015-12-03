@@ -101,7 +101,7 @@ protected:
 	----------------------------------------------------*/
 
 	// Spacecraft data
-	UFlareFactory*                                  Factory;
+	UFlareFactory*                                  TargetFactory;
 
 	// Slate data
 	TSharedPtr<SVerticalBox>                        LimitList;

@@ -13,7 +13,7 @@
 
 void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 {
-	Factory = InArgs._Factory;
+	TargetFactory = InArgs._Factory;
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
@@ -46,7 +46,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.NameFont)
-					.Text(this, &SFlareFactoryInfo::GetFactoryName, Factory)
+					.Text(this, &SFlareFactoryInfo::GetFactoryName, TargetFactory)
 				]
 
 				// Factory description
@@ -56,7 +56,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareFactoryInfo::GetFactoryDescription, Factory)
+					.Text(this, &SFlareFactoryInfo::GetFactoryDescription, TargetFactory)
 				]
 
 				// Factory production cycle description
@@ -66,7 +66,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareFactoryInfo::GetFactoryCycleInfo, Factory)
+					.Text(this, &SFlareFactoryInfo::GetFactoryCycleInfo, TargetFactory)
 				]
 			
 				// Factory production status
@@ -95,8 +95,8 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 							.AutoWidth()
 							[
 								SNew(SFlareButton)
-								.Visibility(this, &SFlareFactoryInfo::GetStartProductionVisibility, Factory)
-								.OnClicked(this, &SFlareFactoryInfo::OnStartProduction, Factory)
+								.Visibility(this, &SFlareFactoryInfo::GetStartProductionVisibility, TargetFactory)
+								.OnClicked(this, &SFlareFactoryInfo::OnStartProduction, TargetFactory)
 								.Text(FText())
 								.HelpText(LOCTEXT("StartProduction", "Start production"))
 								.Icon(FFlareStyleSet::GetIcon("Load"))
@@ -109,8 +109,8 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 							.AutoWidth()
 							[
 								SNew(SFlareButton)
-								.Visibility(this, &SFlareFactoryInfo::GetStopProductionVisibility, Factory)
-								.OnClicked(this, &SFlareFactoryInfo::OnStopProduction, Factory)
+								.Visibility(this, &SFlareFactoryInfo::GetStopProductionVisibility, TargetFactory)
+								.OnClicked(this, &SFlareFactoryInfo::OnStopProduction, TargetFactory)
 								.Text(FText())
 								.HelpText(LOCTEXT("StopProduction", "Stop production"))
 								.Icon(FFlareStyleSet::GetIcon("Stop"))
@@ -129,7 +129,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 								.WidthOverride(Theme.ContentWidth / 3)
 								[
 									SNew(SProgressBar)
-									.Percent(this, &SFlareFactoryInfo::GetProductionProgress, Factory)
+									.Percent(this, &SFlareFactoryInfo::GetProductionProgress, TargetFactory)
 									.Style(&Theme.ProgressBarStyle)
 								]
 							]
@@ -193,10 +193,10 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 
 void SFlareFactoryInfo::UpdateFactoryLimits()
 {
-	check(Factory);
+	check(TargetFactory);
 	LimitList->ClearChildren();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Factory->GetParent();
+	UFlareSimulatedSpacecraft* SimulatedSpacecraft = TargetFactory->GetParent();
 
 	// Production cycle limiter
 	/*bool ProductionLimitEnabled = !Factory->HasInfiniteCycle();
@@ -212,18 +212,18 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 	}*/
 
 	// Iterate all output resources
-	for (int ResourceIndex = 0; ResourceIndex < Factory->GetDescription()->OutputResources.Num(); ResourceIndex++)
+	for (int ResourceIndex = 0; ResourceIndex < TargetFactory->GetDescription()->OutputResources.Num(); ResourceIndex++)
 	{
-		const FFlareFactoryResource* FactoryResource = &Factory->GetDescription()->OutputResources[ResourceIndex];
+		const FFlareFactoryResource* FactoryResource = &TargetFactory->GetDescription()->OutputResources[ResourceIndex];
 		FFlareResourceDescription* Resource = &FactoryResource->Resource->Data;
 		check(Resource);
 				
 		// Production resource limiter
-		bool ResourceLimitEnabled = Factory->HasOutputLimit(Resource);
+		bool ResourceLimitEnabled = TargetFactory->HasOutputLimit(Resource);
 		FText ProductionCycleStatusText;
 		if (ResourceLimitEnabled)
 		{
-			if (Factory->GetOutputLimit(Resource) == 0)
+			if (TargetFactory->GetOutputLimit(Resource) == 0)
 			{
 				ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "{0} output is dumped"), Resource->Acronym);
 			}
@@ -231,7 +231,7 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 			{
 				ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "{0} output limited to {1}"),
 					Resource->Acronym,
-					FText::AsNumber(Factory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetDescription()->CargoBayCapacity));
+					FText::AsNumber(TargetFactory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetDescription()->CargoBayCapacity));
 			}
 		}
 		else
@@ -266,8 +266,8 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 			.AutoWidth()
 			[
 				SNew(SFlareButton)
-				.Visibility(this, &SFlareFactoryInfo::GetDecreaseOutputLimitVisibility, Factory, Resource)
-				.OnClicked(this, &SFlareFactoryInfo::OnDecreaseOutputLimit, Factory, Resource)
+				.Visibility(this, &SFlareFactoryInfo::GetDecreaseOutputLimitVisibility, TargetFactory, Resource)
+				.OnClicked(this, &SFlareFactoryInfo::OnDecreaseOutputLimit, TargetFactory, Resource)
 				.Text(FText::FromString(TEXT("-")))
 				.Transparent(true)
 				.Width(1)
@@ -278,8 +278,8 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 			.AutoWidth()
 			[
 				SNew(SFlareButton)
-				.Visibility(this, &SFlareFactoryInfo::GetIncreaseOutputLimitVisibility, Factory, Resource)
-				.OnClicked(this, &SFlareFactoryInfo::OnIncreaseOutputLimit, Factory, Resource)
+				.Visibility(this, &SFlareFactoryInfo::GetIncreaseOutputLimitVisibility, TargetFactory, Resource)
+				.OnClicked(this, &SFlareFactoryInfo::OnIncreaseOutputLimit, TargetFactory, Resource)
 				.Text(FText::FromString(TEXT("+")))
 				.Transparent(true)
 				.Width(1)
