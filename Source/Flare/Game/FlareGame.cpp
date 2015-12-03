@@ -394,11 +394,11 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 
 	// Player company
 	FFlarePlayerSave PlayerData;
-	UFlareCompany* Company = CreateCompany(-1);
-	PlayerData.CompanyIdentifier = Company->GetIdentifier();
+	UFlareCompany* PlayerCompany = CreateCompany(-1);
+	PlayerData.CompanyIdentifier = PlayerCompany->GetIdentifier();
 	PlayerData.ScenarioId = ScenarioIndex;
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
-	PC->SetCompany(Company);
+	PC->SetCompany(PlayerCompany);
 
 	// TODO Implement scenarii - Later with world init
 	/*switch(ScenarioIndex)
@@ -417,19 +417,27 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 		break;
 	}*/
 
+	// Create player ship
 	FLOG("AFlareGame::CreateGame create initial ship");
-	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-ghoul", Company, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-ghoul", PlayerCompany, FVector::ZeroVector);
 	PlayerData.LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData.SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 
-	FLOG("AFlareGame::CreateGame create initial ennemy station");
-	World->FindSector("outpost")->CreateStation("station-outpost", World->GetCompanies()[0], FVector::ZeroVector);
+	// Initial setup : "Outpost"
+	World->FindSector("outpost")->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
+	World->FindSector("outpost")->CreateStation("station-tokamak", PlayerCompany, FVector::ZeroVector);
+	World->FindSector("outpost")->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector);
+	World->FindSector("outpost")->CreateStation("station-solar-plant", World->FindCompanyByShortName("HFR"), FVector::ZeroVector);
+	World->FindSector("outpost")->CreateStation("station-solar-plant", World->FindCompanyByShortName("HFR"), FVector::ZeroVector);
+	World->FindSector("outpost")->CreateStation("station-tokamak", World->FindCompanyByShortName("SUN"), FVector::ZeroVector);
+	World->FindSector("outpost")->CreateStation("station-hub", World->FindCompanyByShortName("GWS"), FVector::ZeroVector);
 
+	// Discover known sectors
 	if (!PlayerData.QuestData.PlayTutorial)
 	{
 		for (int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
 		{
-			Company->DiscoverSector(World->GetSectors()[SectorIndex]);
+			PlayerCompany->DiscoverSector(World->GetSectors()[SectorIndex]);
 		}
 	}
 
@@ -440,6 +448,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());
 	QuestManager->Load(PlayerData.QuestData);
 
+	// End loading
 	LoadedOrCreated = true;
 	PC->OnLoadComplete();
 }
