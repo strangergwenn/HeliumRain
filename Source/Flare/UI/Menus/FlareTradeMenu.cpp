@@ -134,9 +134,10 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						.AutoHeight()
 						.Padding(Theme.TitlePadding)
 						[
-							SAssignNew(RightShipText, STextBlock)
+							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
 							.Text(this, &SFlareTradeMenu::GetRightSpacecraftName)
+							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
 						]
 				
 						// Ship's cargo
@@ -146,6 +147,18 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						.HAlign(HAlign_Left)
 						[
 							SAssignNew(RightCargoBay, SHorizontalBox)
+							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+						]
+
+						// Help text
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(LOCTEXT("HelpText", "Click on a resource to start trading."))
+							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
 						]
 
 						// Back button
@@ -154,10 +167,11 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						.HAlign(HAlign_Left)
 						[
-							SAssignNew(BackToShipSelection, SFlareButton)
+							SNew(SFlareButton)
 							.Text(LOCTEXT("BackToSelection", "Go back to the ship selection"))
 							.Icon(FFlareStyleSet::GetIcon("Stop"))
 							.OnClicked(this, &SFlareTradeMenu::OnBackToSelection)
+							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
 							.Width(8)
 						]
 						
@@ -234,8 +248,6 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	// Setup widgets
 	ShipList->RefreshList();
 	ShipList->SetVisibility(EVisibility::Visible);
-	RightShipText->SetVisibility(EVisibility::Collapsed);
-	BackToShipSelection->SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft, TSharedPtr<SHorizontalBox> CargoBay)
@@ -278,6 +290,11 @@ void SFlareTradeMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+EVisibility SFlareTradeMenu::GetTradingVisibility() const
+{
+	return (TargetLeftSpacecraft && TargetRightSpacecraft) ? EVisibility::Visible : EVisibility::Collapsed;
+}
 
 FText SFlareTradeMenu::GetTitle() const
 {
@@ -336,9 +353,6 @@ void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> Space
 		}
 
 		ShipList->SetVisibility(EVisibility::Collapsed);
-		RightShipText->SetVisibility(EVisibility::Visible);
-		BackToShipSelection->SetVisibility(EVisibility::Visible);
-
 		FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
 		FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
 	}
@@ -363,10 +377,7 @@ void SFlareTradeMenu::OnBackToSelection()
 	ShipList->ClearSelection();
 	TargetRightSpacecraft = NULL;
 	RightCargoBay->ClearChildren();
-
 	ShipList->SetVisibility(EVisibility::Visible);
-	RightShipText->SetVisibility(EVisibility::Collapsed);
-	BackToShipSelection->SetVisibility(EVisibility::Collapsed);
 }
 
 #undef LOCTEXT_NAMESPACE

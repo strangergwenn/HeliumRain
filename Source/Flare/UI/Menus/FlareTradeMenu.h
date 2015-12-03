@@ -50,6 +50,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 	
+	/** Is the trading part visible or not */
+	EVisibility GetTradingVisibility() const;
+
 	/** Get the title */
 	FText GetTitle() const;
 
@@ -86,8 +89,6 @@ protected:
 	TSharedPtr<SFlareShipList>                      ShipList;
 	TSharedPtr<SHorizontalBox>                      LeftCargoBay;
 	TSharedPtr<SHorizontalBox>                      RightCargoBay;
-	TSharedPtr<STextBlock>                          RightShipText;
-	TSharedPtr<SFlareButton>                        BackToShipSelection;
 
 	// Data
 	UFlareSimulatedSector*                          TargetSector;
