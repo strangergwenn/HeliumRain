@@ -11,6 +11,7 @@ class SFlareConfirmationBox : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareConfirmationBox)
+		: _FullHide(false)
 	{}
 
 	SLATE_EVENT(FFlareButtonClicked, OnConfirmed)
@@ -18,6 +19,7 @@ class SFlareConfirmationBox : public SCompoundWidget
 
 	SLATE_ARGUMENT(FText, CancelText)
 	SLATE_ARGUMENT(FText, ConfirmText)
+	SLATE_ARGUMENT(bool, FullHide)
 			
 	SLATE_END_ARGS()
 
@@ -45,8 +47,9 @@ protected:
 	----------------------------------------------------*/
 
 	TSharedPtr<SFlareButton> ConfirmButton;
-
+	TSharedPtr<SFlareButton> CancelButton;
 	TSharedPtr<STextBlock> CostLabel;
+	bool FullHide;
 
 
 };

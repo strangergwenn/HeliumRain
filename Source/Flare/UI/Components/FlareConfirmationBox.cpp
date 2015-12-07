@@ -13,6 +13,7 @@
 void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FullHide = InArgs._FullHide;
 
 	// Create the layout
 	ChildSlot
@@ -26,7 +27,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Left)
 		.AutoWidth()
 		[
-			SNew(SFlareButton)
+			SAssignNew(CancelButton, SFlareButton)
 			.HelpText(LOCTEXT("Cancel", "Cancel"))
 			.Text(InArgs._CancelText)
 			.OnClicked(InArgs._OnCancelled)
@@ -39,7 +40,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 			SAssignNew(ConfirmButton, SFlareButton)
 			.HelpText(LOCTEXT("Confirm", "Confirm"))
 			.OnClicked(InArgs._OnConfirmed)
-			.Width(8)
+			.Width(10)
 			.Height(1)
 		]
 	];
@@ -82,7 +83,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 	);
 
 	// Default is hidden
-	ConfirmButton->SetVisibility(EVisibility::Hidden);
+	Hide();
 }
 
 
@@ -101,12 +102,19 @@ void SFlareConfirmationBox::Show(float Amount)
 
 		CostLabel->SetText(FString::FromInt(Amount));
 	}
+
 	ConfirmButton->SetVisibility(EVisibility::Visible);
+	CancelButton->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareConfirmationBox::Hide()
 {
 	ConfirmButton->SetVisibility(EVisibility::Hidden);
+
+	if (FullHide)
+	{
+		CancelButton->SetVisibility(EVisibility::Hidden);
+	}
 }
 
 

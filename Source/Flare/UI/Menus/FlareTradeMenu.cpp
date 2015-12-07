@@ -186,8 +186,65 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						]
 					]
 				]
+			]
 
-				// TODO : price, volume selection & confirmation box
+			// Price box
+			+ SScrollBox::Slot()
+			.HAlign(HAlign_Center)
+			[
+				SNew(SBox)
+				.HAlign(HAlign_Fill)
+				.WidthOverride(Theme.ContentWidth)
+				[
+					SNew(SVerticalBox)
+
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("TransactionTitle", "TRANSACTION DETAILS"))
+						.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+					]
+
+					// Info
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareTradeMenu::GetTransactionDetails)
+						.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+					]
+
+					// Quantity
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(QuantitySlider, SSlider)
+						.Style(&Theme.SliderStyle)
+						.Value(0)
+						.OnValueChanged(this, &SFlareTradeMenu::OnResourceQuantityChanged)
+						.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+					]
+
+					// Price
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(PriceBox, SFlareConfirmationBox)
+						.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSACTION"))
+						.CancelText(LOCTEXT("BackTopShip", "CANCEL"))
+						.OnConfirmed(this, &SFlareTradeMenu::OnConfirmTransaction)
+						.OnCancelled(this, &SFlareTradeMenu::OnCancelTransaction)
+						.FullHide(true)
+					]
+				]
 			]
 		]
 	];
@@ -267,7 +324,7 @@ void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft
 				SNew(SFlareCargoInfo)
 				.Spacecraft(TargetSpacecraft)
 				.CargoIndex(CargoIndex)
-				.OnClicked(this, &SFlareTradeMenu::OnTransferResources, TargetSpacecraft, OtherSpacecraft, Cargo->Resource, TSharedPtr<uint32>(new uint32(1)))
+				.OnClicked(this, &SFlareTradeMenu::OnTransferResources, TargetSpacecraft, OtherSpacecraft, Cargo->Resource)
 			];
 		}
 	}
@@ -277,11 +334,19 @@ void SFlareTradeMenu::Exit()
 {
 	SetEnabled(false);
 
+	// Reset cargo
 	TargetLeftSpacecraft = NULL;
 	TargetRightSpacecraft = NULL;
 	LeftCargoBay->ClearChildren();
 	RightCargoBay->ClearChildren();
 
+	// Reset transaction data
+	TransactionDestinationSpacecraft = NULL;
+	TransactionSourceSpacecraft = NULL;
+	TransactionResource = NULL;
+
+	// Reset menus
+	PriceBox->Hide();
 	ShipList->Reset();
 	SetVisibility(EVisibility::Hidden);
 }
@@ -296,16 +361,14 @@ EVisibility SFlareTradeMenu::GetTradingVisibility() const
 	return (TargetLeftSpacecraft && TargetRightSpacecraft) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
+EVisibility SFlareTradeMenu::GetTransactionDetailsVisibility() const
+{
+	return (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
 FText SFlareTradeMenu::GetTitle() const
 {
 	return LOCTEXT("Trade", "TRADE");
-
-	/*if (TargetSector)
-	{
-		Result = FText::Format(Result, FText::FromString(TargetSector->GetSectorName().ToString().ToUpper())); // FString needed here
-	}
-
-	return Result;*/
 }
 
 FText SFlareTradeMenu::GetLeftSpacecraftName() const
@@ -332,6 +395,22 @@ FText SFlareTradeMenu::GetRightSpacecraftName() const
 	}
 }
 
+FText SFlareTradeMenu::GetTransactionDetails() const
+{
+	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
+	{
+		return FText::Format(LOCTEXT("TradeInfoFormat", "Trading {0}x {1} from {2} to {3}"),
+			FText::AsNumber(TransactionQuantity),
+			TransactionResource->Name,
+			FText::FromName(TransactionSourceSpacecraft->GetImmatriculation()),
+			FText::FromName(TransactionDestinationSpacecraft->GetImmatriculation()));
+	}
+	else
+	{
+		return FText();
+	}
+}
+
 void SFlareTradeMenu::OnBackClicked()
 {
 	MenuManager->Back();
@@ -343,6 +422,7 @@ void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> Space
 
 	if (Spacecraft)
 	{
+		// Store spacecrafts
 		if (TargetLeftSpacecraft)
 		{
 			TargetRightSpacecraft = Spacecraft;
@@ -352,31 +432,98 @@ void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> Space
 			TargetLeftSpacecraft = Spacecraft;
 		}
 
-		ShipList->SetVisibility(EVisibility::Collapsed);
+		// Reset menus
+		PriceBox->Hide();
 		FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
 		FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+		ShipList->SetVisibility(EVisibility::Collapsed);
 	}
 }
 
-void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, TSharedPtr<uint32> Quantity)
+void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource)
 {
 	if (DestinationSpacecraft)
 	{
-		if (SourceSpacecraft && Resource)
-		{
-			TargetSector->GetGame()->GetGameWorld()->TransfertResources(SourceSpacecraft, DestinationSpacecraft, Resource, *Quantity.Get());
-		}
+		// Store transaction data
+		TransactionSourceSpacecraft = SourceSpacecraft;
+		TransactionDestinationSpacecraft = DestinationSpacecraft;
+		TransactionResource = Resource;
+		TransactionQuantity = TransactionSourceSpacecraft->GetCargoBayResourceQuantity(TransactionResource);
+		QuantitySlider->SetValue(1.0f);
 
-		FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
-		FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+		// Update price (TODO)
+		uint32 ResourceUnitPrice = 42;//SourceSpacecraft->GetSellingPrice(TransactionResource);
+		if (TransactionSourceSpacecraft && ResourceUnitPrice > 0)
+		{
+			PriceBox->Show(TransactionQuantity * ResourceUnitPrice);
+		}
 	}
+}
+
+void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
+{
+	// Force slider value, update quantity
+	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBayResourceQuantity(TransactionResource), TransactionSourceSpacecraft->GetDescription()->CargoBayCapacity);
+	TransactionQuantity = FMath::Lerp((int32)1, ResourceMaxQuantity, Value);
+	QuantitySlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
+	FLOGV("SFlareTradeMenu::OnResourceQuantityChanged %f -> %d/%d", Value, TransactionQuantity, ResourceMaxQuantity);
+
+	// Update price (TODO)
+	uint32 ResourceUnitPrice = 42;//SourceSpacecraft->GetSellingPrice(TransactionResource);
+	if (TransactionSourceSpacecraft && ResourceUnitPrice > 0)
+	{
+		PriceBox->Show(TransactionQuantity * ResourceUnitPrice);
+	}
+}
+
+void SFlareTradeMenu::OnConfirmTransaction()
+{
+	// Actual transaction
+	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
+	{
+		TargetSector->GetGame()->GetGameWorld()->TransfertResources(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource, TransactionQuantity);
+	}
+
+	// Reset transaction data
+	TransactionDestinationSpacecraft = NULL;
+	TransactionSourceSpacecraft = NULL;
+	TransactionResource = NULL;
+	TransactionQuantity = 0;
+
+	// Reset menus
+	PriceBox->Hide();
+	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
+	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+}
+
+void SFlareTradeMenu::OnCancelTransaction()
+{
+	// Reset transaction data
+	TransactionDestinationSpacecraft = NULL;
+	TransactionSourceSpacecraft = NULL;
+	TransactionResource = NULL;
+	TransactionQuantity = 0;
+
+	// Reset menus
+	PriceBox->Hide();
+	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
+	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
 }
 
 void SFlareTradeMenu::OnBackToSelection()
 {
-	ShipList->ClearSelection();
 	TargetRightSpacecraft = NULL;
+
+	// Reset transaction data
+	TransactionDestinationSpacecraft = NULL;
+	TransactionSourceSpacecraft = NULL;
+	TransactionResource = NULL;
+	TransactionQuantity = 0;
+
+	// Reset menus
+	PriceBox->Hide();
 	RightCargoBay->ClearChildren();
+	ShipList->ClearSelection();
 	ShipList->SetVisibility(EVisibility::Visible);
 }
 
