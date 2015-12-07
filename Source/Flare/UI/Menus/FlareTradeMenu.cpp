@@ -465,7 +465,14 @@ void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 	// Force slider value, update quantity
 	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBayResourceQuantity(TransactionResource), TransactionSourceSpacecraft->GetDescription()->CargoBayCapacity);
 	TransactionQuantity = FMath::Lerp((int32)1, ResourceMaxQuantity, Value);
-	QuantitySlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
+	if (ResourceMaxQuantity == 1)
+	{
+		QuantitySlider->SetValue(1.0f);
+	}
+	else
+	{
+		QuantitySlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
+	}
 	FLOGV("SFlareTradeMenu::OnResourceQuantityChanged %f -> %d/%d", Value, TransactionQuantity, ResourceMaxQuantity);
 
 	// Update price (TODO)
