@@ -3,6 +3,7 @@
 #include "../Flare.h"
 #include "FlareHUD.h"
 #include "FlareMenuPawn.h"
+#include "FlareSoundManager.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSaveGame.h"
 #include "../UI/Components/FlareNotifier.h"
@@ -27,10 +28,7 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void PlayerTick(float DeltaTime) override;
-
-	/** Update the sound state using fading */
-	virtual void UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume);
-
+	
 	/** Activate or deactivate the exterbal camera */
 	virtual void SetExternalCamera(bool NewState);
 
@@ -76,6 +74,7 @@ public:
 	virtual void OnSectorDeactivated();
 
 	void SetLastFlownShip(FName LastFlownShipIdentifier);
+
 
 	/*----------------------------------------------------
 		Menus
@@ -230,20 +229,12 @@ public:
 protected:
 
 	/*----------------------------------------------------
-		Sound data
+		Sound
 	----------------------------------------------------*/
 
-	// Engine sound node
+	// Sound manager
 	UPROPERTY()
-	UAudioComponent*                         EngineSound;
-
-	// RCS sound node
-	UPROPERTY()
-	UAudioComponent*                         RCSSound;
-
-	// Power sound node
-	UPROPERTY()
-	UAudioComponent*                         PowerSound;
+	UFlareSoundManager*                      SoundManager;
 
 	/** Sound for menu openings */
 	UPROPERTY()
@@ -252,14 +243,6 @@ protected:
 	/** Sound for menu closings */
 	UPROPERTY()
 	USoundCue*                               OffSound;
-
-	// Sound data
-	float                                    EngineSoundFadeSpeed;
-	float                                    RCSSoundFadeSpeed;
-	float                                    PowerSoundFadeSpeed;
-	float                                    EngineSoundVolume;
-	float                                    RCSSoundVolume;
-	float                                    PowerSoundVolume;
 
 
 	/*----------------------------------------------------
