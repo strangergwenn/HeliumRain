@@ -8,6 +8,25 @@ class AFlareSpacecraft;
 class AFlarePlayerController;
 
 
+/** Ambient sound player with fading */
+USTRUCT()
+struct FFlareSoundPlayer
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Sound component */
+	UPROPERTY()
+	UAudioComponent*                         Sound;
+
+	/** Fade speed */
+	float                                    FadeSpeed;
+
+	/** Volume */
+	float                                    Volume;
+};
+
+
+/** Main ambient sound & music manager */
 UCLASS()
 class FLARE_API UFlareSoundManager : public UObject
 {
@@ -24,9 +43,6 @@ public:
 	
 	/** Update the sound manager */
 	virtual void Update(float DeltaSeconds);
-	
-	/** Set the current spacecraft that the player uses */
-	virtual void SetCurrentSpacecraft(AFlareSpacecraft* Ship);
 
 
 protected:
@@ -34,9 +50,15 @@ protected:
 	/*----------------------------------------------------
 		Internal methods
 	----------------------------------------------------*/
+	
+	/** Set the current spacecraft that the player uses */
+	virtual void SetCurrentSpacecraft(AFlareSpacecraft* Ship);
 
 	/** Update the sound state using fading */
-	virtual void UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume);
+	virtual void UpdateSound(FFlareSoundPlayer& Player, float VolumeDelta);
+
+	/** Stop this sound without fading */
+	virtual void StopSound(FFlareSoundPlayer& Player);
 
 	
 protected:
@@ -52,27 +74,18 @@ protected:
 	/** Currently flown ship */
 	UPROPERTY()
 	AFlareSpacecraft*                        ShipPawn;
-
+	
 	// Engine sound node
 	UPROPERTY()
-	UAudioComponent*                         EngineSound;
+	FFlareSoundPlayer                        EngineSound;
 
 	// RCS sound node
 	UPROPERTY()
-	UAudioComponent*                         RCSSound;
+	FFlareSoundPlayer                        RCSSound;
 
 	// Power sound node
 	UPROPERTY()
-	UAudioComponent*                         PowerSound;
-
-	// Sound data
-	float                                    EngineSoundFadeSpeed;
-	float                                    RCSSoundFadeSpeed;
-	float                                    PowerSoundFadeSpeed;
-	float                                    EngineSoundVolume;
-	float                                    RCSSoundVolume;
-	float                                    PowerSoundVolume;
+	FFlareSoundPlayer                        PowerSound;
 	
-
 };
 

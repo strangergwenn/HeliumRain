@@ -18,24 +18,24 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 {
 	// Data
 	ShipPawn = NULL;
-
-	//// Power sound
-	PowerSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
-	PowerSound->bAutoActivate = false;
-	PowerSound->bAutoDestroy = false;
-	PowerSoundFadeSpeed = 0.3;
+	
+	// Power sound
+	PowerSound.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
+	PowerSound.Sound->bAutoActivate = false;
+	PowerSound.Sound->bAutoDestroy = false;
+	PowerSound.FadeSpeed = 0.3;
 
 	// Engine sound
-	EngineSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
-	EngineSound->bAutoActivate = false;
-	EngineSound->bAutoDestroy = false;
-	EngineSoundFadeSpeed = 2.0;
+	EngineSound.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
+	EngineSound.Sound->bAutoActivate = false;
+	EngineSound.Sound->bAutoDestroy = false;
+	EngineSound.FadeSpeed = 2.0;
 
 	// RCS sound
-	RCSSound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("RCSSound"));
-	RCSSound->bAutoActivate = false;
-	RCSSound->bAutoDestroy = false;
-	RCSSoundFadeSpeed = 5.0;
+	RCSSound.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("RCSSound"));
+	RCSSound.Sound->bAutoActivate = false;
+	RCSSound.Sound->bAutoDestroy = false;
+	RCSSound.FadeSpeed = 5.0;
 }
 
 
@@ -46,19 +46,28 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 {
 	PC = Player;
+	FLOG("UFlareSoundManager::Setup");
 
 	// Attach all sounds
 	if (Player)
 	{
 		USceneComponent* RootComponent = Player->GetRootComponent();
-		PowerSound->AttachTo(RootComponent);
-		EngineSound->AttachTo(RootComponent);
-		RCSSound->AttachTo(RootComponent);
+		PowerSound.Sound->AttachTo(RootComponent);
+		EngineSound.Sound->AttachTo(RootComponent);
+		RCSSound.Sound->AttachTo(RootComponent);
 	}
 }
 
 void UFlareSoundManager::Update(float DeltaSeconds)
 {
+	// Update the ship if necessary
+	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+	if (PlayerShip != ShipPawn)
+	{
+		SetCurrentSpacecraft(PlayerShip);
+	}
+
+	// Has a ship : update sound
 	if (ShipPawn)
 	{
 		// Engine values
@@ -85,40 +94,17 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		}
 
 		// Update sounds
-		UpdateSound(PowerSound,  (ShipPawn->GetDamageSystem()->IsPowered() && !ShipPawn->GetDamageSystem()->HasPowerOutage() ? 1 : -1) * PowerSoundFadeSpeed  * DeltaSeconds, PowerSoundVolume);
-		UpdateSound(EngineSound, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1)              * EngineSoundFadeSpeed * DeltaSeconds, EngineSoundVolume);
-		UpdateSound(RCSSound,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)                       * RCSSoundFadeSpeed    * DeltaSeconds, RCSSoundVolume);
+		UpdateSound(PowerSound,  (ShipPawn->GetDamageSystem()->IsPowered() && !ShipPawn->GetDamageSystem()->HasPowerOutage() ? 1 : -1) * DeltaSeconds);
+		UpdateSound(EngineSound, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1)              * DeltaSeconds);
+		UpdateSound(RCSSound,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)                       * DeltaSeconds);
 	}
 
 	// No ship : stop all sounds
 	else
 	{
-		PowerSound->Stop();
-		EngineSound->Stop();
-		RCSSound->Stop();
-		PowerSoundVolume = 0;
-		EngineSoundVolume = 0;
-		RCSSoundVolume = 0;
-	}
-}
-
-void UFlareSoundManager::SetCurrentSpacecraft(AFlareSpacecraft* Ship)
-{
-	ShipPawn = Ship;
-
-	if (Ship)
-	{
-		// Setup power sound
-		FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
-		PowerSound->SetSound(ShipDescription ? ShipDescription->PowerSound : NULL);
-
-		// Setup orbital engine sound
-		FFlareSpacecraftComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
-		EngineSound->SetSound(EngineDescription ? EngineDescription->EngineCharacteristics.EngineSound : NULL);
-
-		// Setup RCS sound
-		FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
-		RCSSound->SetSound(RCSDescription ? RCSDescription->EngineCharacteristics.EngineSound : NULL);
+		StopSound(PowerSound);
+		StopSound(EngineSound);
+		StopSound(RCSSound);
 	}
 }
 
@@ -127,26 +113,53 @@ void UFlareSoundManager::SetCurrentSpacecraft(AFlareSpacecraft* Ship)
 	Internal methods
 ----------------------------------------------------*/
 
-void UFlareSoundManager::UpdateSound(UAudioComponent* SoundComp, float VolumeDelta, float& CurrentVolume)
+void UFlareSoundManager::SetCurrentSpacecraft(AFlareSpacecraft* Ship)
 {
-	float NewVolume = FMath::Clamp(CurrentVolume + VolumeDelta, 0.0f, 1.0f);
-	if (NewVolume != CurrentVolume)
+	ShipPawn = Ship;
+	FLOG("UFlareSoundManager::SetCurrentSpacecraft : new spacecraft");
+
+	if (Ship)
+	{
+		// Setup power sound
+		FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
+		PowerSound.Sound->SetSound(ShipDescription ? ShipDescription->PowerSound : NULL);
+
+		// Setup orbital engine sound
+		FFlareSpacecraftComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
+		EngineSound.Sound->SetSound(EngineDescription ? EngineDescription->EngineCharacteristics.EngineSound : NULL);
+
+		// Setup RCS sound
+		FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
+		RCSSound.Sound->SetSound(RCSDescription ? RCSDescription->EngineCharacteristics.EngineSound : NULL);
+	}
+}
+
+void UFlareSoundManager::UpdateSound(FFlareSoundPlayer& Player, float VolumeDelta)
+{
+	float NewVolume = FMath::Clamp(Player.Volume + VolumeDelta * Player.FadeSpeed, 0.0f, 1.0f);
+	if (NewVolume != Player.Volume)
 	{
 		if (NewVolume == 0)
 		{
-			SoundComp->Stop();
+			Player.Sound->Stop();
 		}
-		else if (CurrentVolume == 0)
+		else if (Player.Volume == 0)
 		{
-			SoundComp->Play();
+			Player.Sound->Play();
 		}
 		else
 		{
-			SoundComp->SetVolumeMultiplier(NewVolume);
-			SoundComp->SetPitchMultiplier(0.5 + 0.5 * NewVolume);
+			Player.Sound->SetVolumeMultiplier(NewVolume);
+			Player.Sound->SetPitchMultiplier(0.5 + 0.5 * NewVolume);
 		}
-		CurrentVolume = NewVolume;
+		Player.Volume = NewVolume;
 	}
+}
+
+void UFlareSoundManager::StopSound(FFlareSoundPlayer& Player)
+{
+	Player.Sound->Stop();
+	Player.Volume = 0;
 }
 
 #undef LOCTEXT_NAMESPACE

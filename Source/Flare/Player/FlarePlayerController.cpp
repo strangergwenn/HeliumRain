@@ -193,12 +193,6 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 
-	// Register ambient sounds
-	if (SoundManager)
-	{
-		SoundManager->SetCurrentSpacecraft(Ship);
-	}
-
 	// Inform the player
 	if (Ship)
 	{
