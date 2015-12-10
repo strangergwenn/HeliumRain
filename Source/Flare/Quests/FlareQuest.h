@@ -132,6 +132,7 @@ struct FFlareSharedQuestCondition
 	/** Shared conditions list*/
 	UPROPERTY(EditAnywhere, Category = Quest)
 	TArray<FFlareQuestConditionDescription> Conditions;
+
 };
 
 /** Quest message */
@@ -139,12 +140,14 @@ USTRUCT()
 struct FFlareQuestMessage
 {
 	GENERATED_USTRUCT_BODY()
+		
 	UPROPERTY(EditAnywhere, Category = Quest)
-	FString Text;
+	FText MessageText;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
 	bool WaitAck;
 };
+
 
 /** Quest condition */
 USTRUCT()
@@ -171,7 +174,7 @@ struct FFlareQuestStepDescription
 	FName Identifier;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
-	FString StepDescription;
+	FText Description;
 
 	/** End conditions */
 	UPROPERTY(EditAnywhere, Category = Quest)
@@ -209,13 +212,13 @@ struct FFlareQuestDescription
 	FName Identifier;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
-	FString Name;
+	FText QuestName;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
-	FString Description;
+	FText QuestDescription;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
-	FString EndedDescription;
+	FText QuestEndedDescription;
 
 	/** Is tutorial quests. Will not be displayed if tutorial is disabled */
 	UPROPERTY(EditAnywhere, Category = Quest)
@@ -255,6 +258,7 @@ class FLARE_API UFlareQuest: public UObject
 	GENERATED_UCLASS_BODY()
 
 public:
+
 	/*----------------------------------------------------
 		Save
 	----------------------------------------------------*/
@@ -267,6 +271,7 @@ public:
 
 	/** Save the quest status to a save file */
 	virtual FFlareQuestProgressSave* Save();
+
 
 	/*----------------------------------------------------
 		Gameplay
@@ -294,9 +299,9 @@ public:
 
 	virtual void PerformAction(const FFlareQuestActionDescription* Action);
 
-	virtual FString FormatTags(FString Message);
+	virtual FText FormatTags(FText Message);
 
-	virtual void SendQuestNotification(FString Message, FName Tag);
+	virtual void SendQuestNotification(FText Message, FName Tag);
 
 	virtual FFlareQuestStepProgressSave* CreateStepProgressSave(const FFlareQuestConditionDescription* Condition);
 
@@ -350,33 +355,35 @@ protected:
 
 	bool									TrackObjectives;
 
-	public:
 
-		/*----------------------------------------------------
-			Getters
-		----------------------------------------------------*/
+public:
 
-		inline FName GetIdentifier() const
-		{
-			return QuestDescription->Identifier;
-		}
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
 
-		inline FString GetQuestName() const
-		{
-			return QuestDescription->Name;
-		}
+	inline FName GetIdentifier() const
+	{
+		return QuestDescription->Identifier;
+	}
 
-		inline EFlareQuestStatus::Type GetStatus()
-		{
-			return QuestStatus;
-		}
+	inline FText GetQuestName() const
+	{
+		return QuestDescription->QuestName;
+	}
 
-		const FFlareSharedQuestCondition* FindSharedCondition(FName SharedConditionIdentifier);
+	inline EFlareQuestStatus::Type GetStatus()
+	{
+		return QuestStatus;
+	}
 
-		inline const FFlareQuestStepDescription* GetCurrentStepDescription()
-		{
-			return CurrentStepDescription;
-		}
+	const FFlareSharedQuestCondition* FindSharedCondition(FName SharedConditionIdentifier);
 
-		FFlareQuestStepProgressSave* GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition);
+	inline const FFlareQuestStepDescription* GetCurrentStepDescription()
+	{
+		return CurrentStepDescription;
+	}
+
+	FFlareQuestStepProgressSave* GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition);
+
 };

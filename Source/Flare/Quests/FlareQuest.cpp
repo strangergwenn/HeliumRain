@@ -116,7 +116,8 @@ void UFlareQuest::EndStep()
 	QuestData.SuccessfullSteps.Add(StepDescription->Identifier);
 	FLOGV("Quest %s step %s end", *GetIdentifier().ToString(), *StepDescription->Identifier.ToString());
 
-	SendQuestNotification(StepDescription->StepDescription + ": Done", NAME_None);
+	FText DoneText = LOCTEXT("DoneFormat", "{0} : Done");
+	SendQuestNotification(FText::Format(DoneText, StepDescription->Description), NAME_None);
 
 	PerformActions(StepDescription->EndActions);
 
@@ -382,13 +383,15 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 
 				if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
 				{
-					// Near enougth to the target !
+					// Nearing the target
 					if (ProgressSave->CurrentProgression + 2 <= Condition->VectorListParam.Num())
 					{
 						// Progress.
 						ProgressSave->CurrentProgression++;
 
-						SendQuestNotification("Waypoint reach. " + FString::FromInt(Condition->VectorListParam.Num() -ProgressSave->CurrentProgression) + " left." ,
+						FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
+
+						SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(Condition->VectorListParam.Num() - ProgressSave->CurrentProgression)),
 											  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")));
 					}
 					else
@@ -463,9 +466,9 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 		for (int i = 0; i < Action->MessagesParameter.Num(); i++)
 		{
 			//Replace tags in quests text
-			FString MessageString = FormatTags(Action->MessagesParameter[i].Text);
+			FText MessageText = FormatTags(Action->MessagesParameter[i].MessageText);
 
-			SendQuestNotification(MessageString, FName(*(FString("quest-")+GetIdentifier().ToString()+"-message")));
+			SendQuestNotification(MessageText, FName(*(FString("quest-")+GetIdentifier().ToString()+"-message")));
 		}
 		break;
 	default:
@@ -475,12 +478,11 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 
 }
 
-FString UFlareQuest::FormatTags(FString Message)
+FText UFlareQuest::FormatTags(FText Message)
 {
-	FString MessageString = Message;
-
 	// Replace input tags
 	bool Found = false;
+	FString MessageString = Message.ToString();
 
 	// input-axis
 	do {
@@ -577,19 +579,17 @@ FString UFlareQuest::FormatTags(FString Message)
 
 	MessageString = MessageString.Replace(TEXT("<br>"), TEXT("\n"));
 
-	return MessageString;
+	return FText::FromString(MessageString);
 }
 
-
-
-void UFlareQuest::SendQuestNotification(FString Message, FName Tag)
+void UFlareQuest::SendQuestNotification(FText Message, FName Tag)
 {
-	FText Text = FText::FromString(GetQuestName());
-	FText Info = FText::FromString(Message);
-	float Duration = 5 + Message.Len() / 10.0f;
-	FLOGV("Send quest notification: %s", *Message);
-	QuestManager->GetGame()->GetPC()->Notify(Text, Info, Tag, EFlareNotification::NT_Quest, Duration);
+	FText Text = GetQuestName();
+	float Duration = 5 + Message.ToString().Len() / 10.0f;
+	FLOGV("UFlareQuest::SendQuestNotification : %s", *Message.ToString());
+	QuestManager->GetGame()->GetPC()->Notify(Text, Message, Tag, EFlareNotification::NT_Quest, Duration);
 }
+
 
 /*----------------------------------------------------
 	Objective tracking
@@ -626,12 +626,11 @@ void UFlareQuest::UpdateObjectiveTracker()
 		return;
 	}
 
-
-	FText Name = FText::FromString(GetQuestName());
-	FText Infos = FText::FromString("");
+	FText Name =GetQuestName();
+	FText Infos = FText();
 	if (GetCurrentStepDescription())
 	{
-		Infos = FText::FromString(GetCurrentStepDescription()->StepDescription);
+		Infos = GetCurrentStepDescription()->Description;
 	}
 
 	FFlarePlayerObjectiveData Objective;
@@ -669,12 +668,12 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
 				float Velocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
 
+				FText ReachSpeedText = LOCTEXT("ReachMinSpeedFormat", "Reach at least {0} m/s forward");
+				FText ReachSpeedShortText = LOCTEXT("ReachMinSpeedShortFormat", "{0} m/s");
+
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
-				ObjectiveCondition.InitialLabel = FText::FromString(FString("Reach at least ") +
-																	FString::FromInt((int)(Condition->FloatParam1)) +
-																	" m/s forward");
-				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(Velocity)) +
-																	 " m/s");
+				ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(Condition->FloatParam1)));
+				ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Velocity)));
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
 
@@ -702,12 +701,12 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
 				float Velocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
 
+				FText ReachSpeedText = LOCTEXT("ReachMaxSpeedFormat", "Reach less than {0} m/s forward");
+				FText ReachSpeedShortText = LOCTEXT("ReachMaxSpeedShortFormat", "{0} m/s");
+
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
-				ObjectiveCondition.InitialLabel = FText::FromString(FString("Reach at most ") +
-																	FString::FromInt((int)(Condition->FloatParam1)) +
-																	" m/s forward");
-				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(Velocity)) +
-																	 " m/s");
+				ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(Condition->FloatParam1)));
+				ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Velocity)));
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
 
@@ -735,22 +734,13 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
 				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
 
-				FFlarePlayerObjectiveCondition ObjectiveCondition;
-				FString Direction;
-				if (Condition->FloatParam1 > 0)
-				{
-					Direction = "down";
-				}
-				else
-				{
-					Direction = "up";
-				}
-				ObjectiveCondition.InitialLabel = FText::FromString(FString("Pitch at least at ") +
-															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
-															" deg/s "+Direction);
+				FText Direction = (Condition->FloatParam1 > 0) ? LOCTEXT("Down", "down") : LOCTEXT("Up", "up");
+				FText ReachSpeedText = LOCTEXT("ReachPitchFormat", "Reach pitch rate of {0}\u00B0/s {1}");
+				FText ReachSpeedShortText = LOCTEXT("ReachPitchShortFormat", "{0}\u00B0/s");
 
-				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Y)) +
-																	 " deg/s");
+				FFlarePlayerObjectiveCondition ObjectiveCondition;
+				ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)), Direction);
+				ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Y)));
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
 
@@ -769,22 +759,13 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
 				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
 
-				FFlarePlayerObjectiveCondition ObjectiveCondition;
-				FString Direction;
-				if (Condition->FloatParam1 > 0)
-				{
-					Direction = "right";
-				}
-				else
-				{
-					Direction = "left";
-				}
-				ObjectiveCondition.InitialLabel = FText::FromString(FString("Yaw at least at ") +
-															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
-															" deg/s "+Direction);
+				FText Direction = (Condition->FloatParam1 > 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
+				FText ReachYawText = LOCTEXT("ReachYawFormat", "Reach yaw rate of {0} \u00B0/s {1}");
+				FText ReachYawShortText = LOCTEXT("ReachYawShortFormat", "{0} \u00B0/s");
 
-				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Z)) +
-																	 " deg/s");
+				FFlarePlayerObjectiveCondition ObjectiveCondition;
+				ObjectiveCondition.InitialLabel = FText::Format(ReachYawText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)), Direction);
+				ObjectiveCondition.TerminalLabel = FText::Format(ReachYawShortText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Z)));
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
 
@@ -803,22 +784,13 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
 				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
 
-				FFlarePlayerObjectiveCondition ObjectiveCondition;
-				FString Direction;
-				if (Condition->FloatParam1 > 0)
-				{
-					Direction = "left";
-				}
-				else
-				{
-					Direction = "right";
-				}
-				ObjectiveCondition.InitialLabel = FText::FromString(FString("Roll at least at ") +
-															FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)) +
-															" deg/s "+Direction);
+				FText Direction = (Condition->FloatParam1 > 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
+				FText ReachRollText = LOCTEXT("ReachRollFormat", "Reach roll rate of {0} \u00B0/s {1}");
+				FText ReachRollShortText = LOCTEXT("ReachRollShortFormat", "{0} \u00B0/s");
 
-				ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.X)) +
-																	 " deg/s");
+				FFlarePlayerObjectiveCondition ObjectiveCondition;
+				ObjectiveCondition.InitialLabel = FText::Format(ReachRollText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)), Direction);
+				ObjectiveCondition.TerminalLabel = FText::Format(ReachRollShortText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.X)));
 				ObjectiveCondition.Counter = 0;
 				ObjectiveCondition.MaxCounter = 0;
 
@@ -838,7 +810,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 		{
 
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::FromString(TEXT("Follow waypoints"));
+			ObjectiveCondition.InitialLabel = LOCTEXT("FollowWaypoints", "Follow waypoints");
 			ObjectiveCondition.TerminalLabel = FText::GetEmpty();
 			ObjectiveCondition.Counter = 0;
 			ObjectiveCondition.MaxCounter = Condition->VectorListParam.Num();
@@ -906,11 +878,10 @@ void UFlareQuest::GenerateConditionCollinearityObjective(FFlarePlayerObjectiveDa
 
 		FFlarePlayerObjectiveCondition ObjectiveCondition;
 		ObjectiveCondition.MaxProgress = 1.0f;
-		FString MostOrLeast;
+		FText MostOrLeast;
 		if (ConditionType == EFlareQuestCondition::SHIP_MAX_COLLINEARITY)
 		{
-			MostOrLeast = "least";
-
+			MostOrLeast = LOCTEXT("Least", "least");
 			if (AlignmentAngle > TargetAlignmentAngle)
 			{
 				ObjectiveCondition.Progress = 1.0;
@@ -919,12 +890,10 @@ void UFlareQuest::GenerateConditionCollinearityObjective(FFlarePlayerObjectiveDa
 			{
 				ObjectiveCondition.Progress = AlignmentAngle/TargetAlignmentAngle;
 			}
-
 		}
 		else
 		{
-			MostOrLeast = "most";
-
+			MostOrLeast = LOCTEXT("Most", "most");
 			if (AlignmentAngle < TargetAlignmentAngle)
 			{
 				ObjectiveCondition.Progress = 1.0;
@@ -933,15 +902,12 @@ void UFlareQuest::GenerateConditionCollinearityObjective(FFlarePlayerObjectiveDa
 			{
 				ObjectiveCondition.Progress = (180 - AlignmentAngle) / (180 - TargetAlignmentAngle);
 			}
-
 		}
-
-
-		ObjectiveCondition.InitialLabel = FText::FromString(FString("Misalign your nose and your prograde vector by at ") + MostOrLeast + " " +
-															FString::FromInt((int)(TargetAlignmentAngle)) +
-															" degrees");
-		ObjectiveCondition.TerminalLabel = FText::FromString(FString::FromInt((int)(AlignmentAngle)) +
-															 " degrees");
+		
+		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("MisAlignFormat", "Misalign your nose and your prograde vector by at {0} {1}\u00B0"),
+			MostOrLeast, FText::AsNumber((int)(TargetAlignmentAngle)));
+		ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("MisAlignShortFormat", "{0}\u00B0"),
+			FText::AsNumber((int)(AlignmentAngle)));
 		ObjectiveCondition.Counter = 0;
 		ObjectiveCondition.MaxCounter = 0;
 		ObjectiveData->ConditionList.Add(ObjectiveCondition);
