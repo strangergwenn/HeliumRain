@@ -16,26 +16,53 @@
 UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-	// Data
+	// Gameplay data
 	ShipPawn = NULL;
+	MusicChanging = false;
+	MusicDesiredTrack = EFlareMusicTrack::None;
+
+	// Music track references
+	static ConstructorHelpers::FObjectFinder<USoundCue> HomeMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> ExplorationMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> SkirmishMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
+
+	// Music track store
+	MusicTracks.Add(NULL);
+	MusicTracks.Add(HomeMusicObj.Object);
+	MusicTracks.Add(ExplorationMusicObj.Object);
+	MusicTracks.Add(PacificMusicObj.Object);
+	MusicTracks.Add(SkirmishMusicObj.Object);
+	MusicTracks.Add(WarMusicObj.Object);
+
+	// Music sound
+	MusicPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("MusicSound"));
+	MusicPlayer.Sound->bAutoActivate = false;
+	MusicPlayer.Sound->bAutoDestroy = false;
+	MusicPlayer.PitchedFade = false;
+	MusicPlayer.FadeSpeed = 5.0;
 	
 	// Power sound
-	PowerSound.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
-	PowerSound.Sound->bAutoActivate = false;
-	PowerSound.Sound->bAutoDestroy = false;
-	PowerSound.FadeSpeed = 0.3;
+	PowerPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
+	PowerPlayer.Sound->bAutoActivate = false;
+	PowerPlayer.Sound->bAutoDestroy = false;
+	PowerPlayer.PitchedFade = true;
+	PowerPlayer.FadeSpeed = 0.3;
 
 	// Engine sound
-	EngineSound.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
-	EngineSound.Sound->bAutoActivate = false;
-	EngineSound.Sound->bAutoDestroy = false;
-	EngineSound.FadeSpeed = 2.0;
+	EnginePlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
+	EnginePlayer.Sound->bAutoActivate = false;
+	EnginePlayer.Sound->bAutoDestroy = false;
+	EnginePlayer.PitchedFade = true;
+	EnginePlayer.FadeSpeed = 2.0;
 
 	// RCS sound
-	RCSSound.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("RCSSound"));
-	RCSSound.Sound->bAutoActivate = false;
-	RCSSound.Sound->bAutoDestroy = false;
-	RCSSound.FadeSpeed = 5.0;
+	RCSPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("RCSSound"));
+	RCSPlayer.Sound->bAutoActivate = false;
+	RCSPlayer.Sound->bAutoDestroy = false;
+	RCSPlayer.PitchedFade = true;
+	RCSPlayer.FadeSpeed = 5.0;
 }
 
 
@@ -52,9 +79,13 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 	if (Player)
 	{
 		USceneComponent* RootComponent = Player->GetRootComponent();
-		PowerSound.Sound->AttachTo(RootComponent);
-		EngineSound.Sound->AttachTo(RootComponent);
-		RCSSound.Sound->AttachTo(RootComponent);
+
+		MusicPlayer.Sound->AttachTo(RootComponent);
+		MusicPlayer.Sound->SetSound(NULL);
+
+		PowerPlayer.Sound->AttachTo(RootComponent);
+		EnginePlayer.Sound->AttachTo(RootComponent);
+		RCSPlayer.Sound->AttachTo(RootComponent);
 	}
 }
 
@@ -67,7 +98,28 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		SetCurrentSpacecraft(PlayerShip);
 	}
 
-	// Has a ship : update sound
+	// Music management
+	if (MusicChanging)
+	{
+		if (MusicPlayer.Volume > 0)
+		{
+			UpdatePlayer(MusicPlayer, -DeltaSeconds);
+		}
+		else
+		{
+			SetDesiredMusicTrack();
+		}
+	}
+	else if (MusicDesiredTrack == EFlareMusicTrack::None)
+	{
+		UpdatePlayer(MusicPlayer, -DeltaSeconds);
+	}
+	else
+	{
+		UpdatePlayer(MusicPlayer, +DeltaSeconds);
+	}
+
+	// Has a ship : update ship sounds
 	if (ShipPawn)
 	{
 		// Engine values
@@ -94,18 +146,25 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		}
 
 		// Update sounds
-		UpdateSound(PowerSound,  (ShipPawn->GetDamageSystem()->IsPowered() && !ShipPawn->GetDamageSystem()->HasPowerOutage() ? 1 : -1) * DeltaSeconds);
-		UpdateSound(EngineSound, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1)              * DeltaSeconds);
-		UpdateSound(RCSSound,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)                       * DeltaSeconds);
+		UpdatePlayer(PowerPlayer,  (ShipPawn->GetDamageSystem()->IsPowered() && !ShipPawn->GetDamageSystem()->HasPowerOutage() ? 1 : -1) * DeltaSeconds);
+		UpdatePlayer(EnginePlayer, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1)              * DeltaSeconds);
+		UpdatePlayer(RCSPlayer,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)                       * DeltaSeconds);
 	}
 
-	// No ship : stop all sounds
+	// No ship : stop all ship sounds
 	else
 	{
-		StopSound(PowerSound);
-		StopSound(EngineSound);
-		StopSound(RCSSound);
+		UpdatePlayer(PowerPlayer,  -DeltaSeconds);
+		UpdatePlayer(EnginePlayer, -DeltaSeconds);
+		UpdatePlayer(RCSPlayer,    -DeltaSeconds);
 	}
+}
+
+void UFlareSoundManager::RequestMusicTrack(EFlareMusicTrack::Type NewTrack)
+{
+	FLOGV("UFlareSoundManager::RequestMusicTrack : requested %d", (int32)(NewTrack - EFlareMusicTrack::None));
+	MusicDesiredTrack = NewTrack;
+	MusicChanging = true;
 }
 
 
@@ -122,19 +181,29 @@ void UFlareSoundManager::SetCurrentSpacecraft(AFlareSpacecraft* Ship)
 	{
 		// Setup power sound
 		FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
-		PowerSound.Sound->SetSound(ShipDescription ? ShipDescription->PowerSound : NULL);
+		PowerPlayer.Sound->SetSound(ShipDescription ? ShipDescription->PowerSound : NULL);
 
 		// Setup orbital engine sound
 		FFlareSpacecraftComponentDescription* EngineDescription = Ship->GetOrbitalEngineDescription();
-		EngineSound.Sound->SetSound(EngineDescription ? EngineDescription->EngineCharacteristics.EngineSound : NULL);
+		EnginePlayer.Sound->SetSound(EngineDescription ? EngineDescription->EngineCharacteristics.EngineSound : NULL);
 
 		// Setup RCS sound
 		FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
-		RCSSound.Sound->SetSound(RCSDescription ? RCSDescription->EngineCharacteristics.EngineSound : NULL);
+		RCSPlayer.Sound->SetSound(RCSDescription ? RCSDescription->EngineCharacteristics.EngineSound : NULL);
 	}
 }
 
-void UFlareSoundManager::UpdateSound(FFlareSoundPlayer& Player, float VolumeDelta)
+void UFlareSoundManager::SetDesiredMusicTrack()
+{
+	int32 TrackIndex = (int32)(MusicDesiredTrack - EFlareMusicTrack::None);
+	FLOGV("UFlareSoundManager::SetDesiredMusicTrack : starting %d", TrackIndex);
+	check(TrackIndex >= 0 && TrackIndex < MusicTracks.Num() - 1);
+
+	MusicPlayer.Sound->SetSound(MusicTracks[TrackIndex]);
+	MusicChanging = false;
+}
+
+void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta)
 {
 	float NewVolume = FMath::Clamp(Player.Volume + VolumeDelta * Player.FadeSpeed, 0.0f, 1.0f);
 	if (NewVolume != Player.Volume)
@@ -150,13 +219,13 @@ void UFlareSoundManager::UpdateSound(FFlareSoundPlayer& Player, float VolumeDelt
 		else
 		{
 			Player.Sound->SetVolumeMultiplier(NewVolume);
-			Player.Sound->SetPitchMultiplier(0.5 + 0.5 * NewVolume);
+			Player.Sound->SetPitchMultiplier(Player.PitchedFade ? 0.5f + 0.5f * NewVolume : 1.0f);
 		}
 		Player.Volume = NewVolume;
 	}
 }
 
-void UFlareSoundManager::StopSound(FFlareSoundPlayer& Player)
+void UFlareSoundManager::StopPlayer(FFlareSoundPlayer& Player)
 {
 	Player.Sound->Stop();
 	Player.Volume = 0;

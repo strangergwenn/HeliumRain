@@ -8,6 +8,22 @@ class AFlareSpacecraft;
 class AFlarePlayerController;
 
 
+/** Music tracks */
+UENUM()
+namespace EFlareMusicTrack
+{
+	enum Type
+	{
+		None,
+		MainMenu,
+		Exploration,
+		Pacific,
+		Skirmish,
+		War
+	};
+}
+
+
 /** Ambient sound player with fading */
 USTRUCT()
 struct FFlareSoundPlayer
@@ -23,6 +39,9 @@ struct FFlareSoundPlayer
 
 	/** Volume */
 	float                                    Volume;
+
+	/** Should this sound change pitch with the volume ? */
+	bool                                     PitchedFade;
 };
 
 
@@ -39,10 +58,13 @@ public:
 	----------------------------------------------------*/
 
 	/** Setup the sound controller */
-	virtual void Setup(AFlarePlayerController* Player);
+	void Setup(AFlarePlayerController* Player);
 	
 	/** Update the sound manager */
-	virtual void Update(float DeltaSeconds);
+	void Update(float DeltaSeconds);
+
+	/** Require a specific music track */
+	void RequestMusicTrack(EFlareMusicTrack::Type NewTrack);
 
 
 protected:
@@ -52,13 +74,16 @@ protected:
 	----------------------------------------------------*/
 	
 	/** Set the current spacecraft that the player uses */
-	virtual void SetCurrentSpacecraft(AFlareSpacecraft* Ship);
+	void SetCurrentSpacecraft(AFlareSpacecraft* Ship);
+
+	/** Start playing the requested music */
+	void SetDesiredMusicTrack();
 
 	/** Update the sound state using fading */
-	virtual void UpdateSound(FFlareSoundPlayer& Player, float VolumeDelta);
+	void UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta);
 
 	/** Stop this sound without fading */
-	virtual void StopSound(FFlareSoundPlayer& Player);
+	void StopPlayer(FFlareSoundPlayer& Player);
 
 	
 protected:
@@ -67,25 +92,47 @@ protected:
 		Gameplay data
 	----------------------------------------------------*/
 
-	/** Player controller */
+	// Player controller
 	UPROPERTY()
 	AFlarePlayerController*                  PC;
 
-	/** Currently flown ship */
+	// Currently flown ship
 	UPROPERTY()
 	AFlareSpacecraft*                        ShipPawn;
-	
+
+
+	/*----------------------------------------------------
+		Music
+	----------------------------------------------------*/
+
+	// Music store
+	UPROPERTY()
+	TArray<USoundCue*>                       MusicTracks;
+
+	// Track switching system
+	EFlareMusicTrack::Type                   MusicDesiredTrack;
+	bool                                     MusicChanging;
+
+	// Music sound node
+	UPROPERTY()
+	FFlareSoundPlayer                        MusicPlayer;
+
+
+	/*----------------------------------------------------
+		Sounds
+	----------------------------------------------------*/
+
 	// Engine sound node
 	UPROPERTY()
-	FFlareSoundPlayer                        EngineSound;
+	FFlareSoundPlayer                        EnginePlayer;
 
 	// RCS sound node
 	UPROPERTY()
-	FFlareSoundPlayer                        RCSSound;
+	FFlareSoundPlayer                        RCSPlayer;
 
 	// Power sound node
 	UPROPERTY()
-	FFlareSoundPlayer                        PowerSound;
+	FFlareSoundPlayer                        PowerPlayer;
 	
 };
 

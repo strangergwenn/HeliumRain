@@ -60,6 +60,7 @@ void AFlarePlayerController::BeginPlay()
 	if (SoundManager)
 	{
 		SoundManager->Setup(this);
+		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
 	}
 }
 
@@ -728,10 +729,14 @@ void AFlarePlayerController::MouseInputY(float Val)
 
 void AFlarePlayerController::Test1()
 {
+	FLOG("AFlarePlayerController::Test1");
+	SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
 }
 
 void AFlarePlayerController::Test2()
 {
+	FLOG("AFlarePlayerController::Test2");
+	SoundManager->RequestMusicTrack(EFlareMusicTrack::None);
 }
 
 
