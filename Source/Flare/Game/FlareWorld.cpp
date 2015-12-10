@@ -129,7 +129,7 @@ UFlareTravel* UFlareWorld::LoadTravel(const FFlareTravelSave& TravelData)
 	Travel->Load(TravelData);
 	Travels.AddUnique(Travel);
 
-	FLOGV("UFlareWorld::LoadTravel : loaded travel for fleet '%s'", *Travel->GetFleet()->GetFleetName());
+	FLOGV("UFlareWorld::LoadTravel : loaded travel for fleet '%s'", *Travel->GetFleet()->GetFleetName().ToString());
 
 	return Travel;
 }
@@ -188,7 +188,7 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 	{
 		UFlareTravel* Travel = Travels[i];
 
-		FLOGV("UFlareWorld::Save : saving travel for ('%s')", *Travel->GetFleet()->GetFleetName());
+		FLOGV("UFlareWorld::Save : saving travel for ('%s')", *Travel->GetFleet()->GetFleetName().ToString());
 		FFlareTravelSave* TempData = Travel->Save();
 		WorldData.TravelData.Add(*TempData);
 	}
@@ -353,7 +353,7 @@ UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimula
 
 void UFlareWorld::DeleteTravel(UFlareTravel* Travel)
 {
-	FLOGV("UFlareWorld::DeleteTravel : remove travel for fleet '%s'", *Travel->GetFleet()->GetFleetName());
+	FLOGV("UFlareWorld::DeleteTravel : remove travel for fleet '%s'", *Travel->GetFleet()->GetFleetName().ToString());
 
 	Travels.Remove(Travel);
 }

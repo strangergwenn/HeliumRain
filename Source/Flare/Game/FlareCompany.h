@@ -112,7 +112,7 @@ public:
 	virtual FText GetShortInfoText();
 
 	/** Create a new fleet in a sector */
-	virtual UFlareFleet* CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector);
+	virtual UFlareFleet* CreateFleet(FText FleetName, UFlareSimulatedSector* FleetSector);
 
 	/** Destroy a fleet */
 	virtual void RemoveFleet(UFlareFleet* Fleet);

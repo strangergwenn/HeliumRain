@@ -220,7 +220,7 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 	for (int i = 0; i < CompanyFleets.Num(); i++)
 	{
 		UFlareFleet* Fleet = CompanyFleets[i];
-		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName());
+		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName().ToString());
 	}
 
 	TArray<UFlareSimulatedSpacecraft*> CompanySpacecrafts = Company->GetCompanySpacecrafts();
@@ -281,7 +281,7 @@ void UFlareGameTools::CreateFleet(FString FleetName, FName FirstShipImmatriculat
 	UFlareSimulatedSector* FleetSector = Ship->GetCurrentSector();
 
 
-	UFlareFleet* Fleet = FleetCompany->CreateFleet(FleetName, FleetSector);
+	UFlareFleet* Fleet = FleetCompany->CreateFleet(FText::FromString(FleetName), FleetSector);
 	Fleet->AddShip(Ship);
 }
 
@@ -453,7 +453,10 @@ void UFlareGameTools::PrintTravelList()
 	for (int i = 0; i < GetGameWorld()->GetTravels().Num(); i++)
 	{
 		UFlareTravel* Travel = GetGameWorld()->GetTravels()[i];
-		FLOGV("%2d - %s to %s	", i, *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName().ToString());
+		FLOGV("%2d - %s to %s	",
+			i,
+			*Travel->GetFleet()->GetFleetName().ToString(),
+			*Travel->GetDestinationSector()->GetSectorName().ToString());
 	}
 }
 
@@ -474,7 +477,9 @@ void UFlareGameTools::PrintTravelByIndex(int32 Index)
 	}
 
 	UFlareTravel* Travel = GetGameWorld()->GetTravels()[Index];
-	FLOGV("> PrintTravel %s to %s", *Travel->GetFleet()->GetFleetName(), *Travel->GetDestinationSector()->GetSectorName().ToString());
+	FLOGV("> PrintTravel %s to %s",
+		*Travel->GetFleet()->GetFleetName().ToString(),
+		*Travel->GetDestinationSector()->GetSectorName().ToString());
 	FLOGV("  - Departure time: %lld s", Travel->GetDepartureTime());
 	FLOGV("  - Elapsed time: %lld s", Travel->GetElapsedTime());
 
@@ -606,7 +611,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 	for (int i = 0; i < SectorFleets.Num(); i++)
 	{
 		UFlareFleet* Fleet = SectorFleets[i];
-		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName());
+		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName().ToString());
 	}
 
 	TArray<UFlareSimulatedSpacecraft*> SectorShips = Sector->GetSectorShips();

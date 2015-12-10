@@ -390,7 +390,7 @@ void AFlarePlayerController::SelectFleet(UFlareFleet* Fleet)
 	}
 	else
 	{
-		FLOGV("Select fleet %s : %s", *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName());
+		FLOGV("Select fleet %s : %s", *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName().ToString());
 	}
 	SelectedFleet = Fleet;
 }

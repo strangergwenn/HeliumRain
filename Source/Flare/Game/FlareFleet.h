@@ -19,7 +19,7 @@ struct FFlareFleetSave
 
 	/** Given Name */
 	UPROPERTY(EditAnywhere, Category = Save)
-	FString Name;
+	FText Name;
 
 	/** Sector identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -46,6 +46,7 @@ public:
 
 	/** Save the fleet to a save file */
 	virtual FFlareFleetSave* Save();
+
 
 	/*----------------------------------------------------
 		Gameplay
@@ -74,13 +75,14 @@ protected:
 
 	TArray<UFlareSimulatedSpacecraft*>     FleetShips;
 
-
 	UFlareCompany*			               FleetCompany;
 	FFlareFleetSave                        FleetData;
 	AFlareGame*                            Game;
 	bool                                   IsShipListLoaded;
 	UFlareSimulatedSector*                 CurrentSector;
-	UFlareTravel*                           CurrentTravel;
+	UFlareTravel*                          CurrentTravel;
+
+
 public:
 
 	/*----------------------------------------------------
@@ -92,9 +94,8 @@ public:
 		return Game;
 	}
 
-	FString GetFleetName() const
+	FText GetFleetName() const
 	{
-		// TODO use FText
 		return FleetData.Name;
 	}
 
@@ -114,7 +115,6 @@ public:
 	}
 
 	TArray<UFlareSimulatedSpacecraft*>& GetShips();
-
 
 	bool IsTraveling();
 

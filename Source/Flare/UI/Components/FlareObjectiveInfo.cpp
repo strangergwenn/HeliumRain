@@ -209,27 +209,27 @@ EVisibility SFlareObjectiveInfo::GetVisibility() const
 FText SFlareObjectiveInfo::GetName() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Data.Name : FText::FromString(""));
+	return (Objective ? Objective->Data.Name : FText());
 }
 
 FText SFlareObjectiveInfo::GetDescription() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Data.Description : FText::FromString(""));
+	return (Objective ? Objective->Data.Description : FText());
 }
 
 FText SFlareObjectiveInfo::GetInitialLabel(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
-				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText::FromString(""));
+				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText());
 }
 
 FText SFlareObjectiveInfo::GetTerminalLabel(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
-				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText::FromString(""));
+				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText());
 }
 
 FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
@@ -238,17 +238,17 @@ FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 
 	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
-		return FText::FromString("");
+		return FText();
 	}
 
 	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
 
 	if (Condition->MaxCounter == 0)
 	{
-		return FText::FromString("");
+		return FText();
 	}
 
-	return  FText::FromString(FString::FromInt(Condition->Counter) + "/" + FString::FromInt(Condition->MaxCounter));
+	return FText::Format(LOCTEXT("ObjectiveCounterFormat", "{0} / {1}"), FText::AsNumber(Condition->Counter), FText::AsNumber(Condition->MaxCounter));
 }
 
 EVisibility SFlareObjectiveInfo::GetCounterVisibility(int32 ConditionIndex) const

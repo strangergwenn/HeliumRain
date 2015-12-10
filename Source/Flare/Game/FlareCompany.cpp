@@ -191,7 +191,7 @@ FText UFlareCompany::GetShortInfoText()
 	return FText::Format(LOCTEXT("ShortInfoFormat", "{0} ({1} {2}, {3})"), GetCompanyName(), FText::AsNumber(GetMoney()), MoneyText, ShipDescriptionText);
 }
 
-UFlareFleet* UFlareCompany::CreateFleet(FString FleetName, UFlareSimulatedSector* FleetSector)
+UFlareFleet* UFlareCompany::CreateFleet(FText FleetName, UFlareSimulatedSector* FleetSector)
 {
 	// Create the fleet
 	FFlareFleetSave FleetData;
@@ -213,7 +213,7 @@ UFlareFleet* UFlareCompany::LoadFleet(const FFlareFleetSave& FleetData)
 	Fleet->Load(FleetData);
 	CompanyFleets.AddUnique(Fleet);
 
-	FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetFleetName());
+	FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetFleetName().ToString());
 
 	return Fleet;
 }

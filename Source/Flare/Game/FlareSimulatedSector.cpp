@@ -6,6 +6,8 @@
 #include "FlareFleet.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
+#define LOCTEXT_NAMESPACE "FlareSimulatedSector"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -223,7 +225,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	// TODO remove automatic fleet creation
 	if (!Spacecraft->IsStation())
 	{
-		UFlareFleet* NewFleet = Company->CreateFleet("Automatic fleet", Spacecraft->GetCurrentSector());
+		UFlareFleet* NewFleet = Company->CreateFleet(LOCTEXT("AutomaticFleet", "Automatic fleet"), Spacecraft->GetCurrentSector());
 		NewFleet->AddShip(Spacecraft);
 		// If the ship is in the player company, select the new fleet
 		if (Game->GetPC()->GetCompany() == Company)
@@ -271,17 +273,17 @@ void UFlareSimulatedSector::DisbandFleet(UFlareFleet* Fleet)
 {
 	if (SectorFleets.Remove(Fleet) == 0)
 	{
-		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName().ToString())
+		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName().ToString(), *GetSectorName().ToString())
 		return;
 	}
 }
 
 void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 {
-	FLOGV("UFlareSimulatedSector::RetireFleet %s", *Fleet->GetFleetName());
+	FLOGV("UFlareSimulatedSector::RetireFleet %s", *Fleet->GetFleetName().ToString());
 	if (SectorFleets.Remove(Fleet) == 0)
 	{
-		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName(), *GetSectorName().ToString())
+		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName().ToString(), *GetSectorName().ToString())
 		return;
 	}
 
@@ -755,3 +757,5 @@ uint32 UFlareSimulatedSector::TakeUselessRessouce(UFlareCompany* Company, FFlare
 
 	return QuantityToTake - RemainingQuantityToTake;
 }
+
+#undef LOCTEXT_NAMESPACE
