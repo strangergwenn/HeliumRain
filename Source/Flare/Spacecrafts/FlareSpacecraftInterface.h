@@ -173,6 +173,8 @@ public:
 
 	virtual bool IsAssignedToSector() const = 0;
 
+	virtual void AssignToSector(bool Assign) = 0;
+
 	/*----------------------------------------------------
 		Sub system
 	----------------------------------------------------*/

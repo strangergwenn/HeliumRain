@@ -407,6 +407,11 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 	Getters
 ----------------------------------------------------*/
 
+uint32 UFlareSimulatedSpacecraft::GetCargoBayCapacity()
+{
+	return SpacecraftDescription->CargoBayCapacity * SpacecraftDescription->CargoBayCount;
+}
+
 uint32 UFlareSimulatedSpacecraft::GetCargoBayResourceQuantity(FFlareResourceDescription* Resource)
 {
 	uint32 Quantity = 0;

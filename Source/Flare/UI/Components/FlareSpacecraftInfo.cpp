@@ -162,6 +162,28 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Width(3)
 						]
 
+						// Assign to sector
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SAssignNew(AssignButton, SFlareButton)
+							.Text(LOCTEXT("Assign", "ASSIGN"))
+							.HelpText(LOCTEXT("AssignInfo", "Assign this ship to the sector"))
+							.OnClicked(this, &SFlareSpacecraftInfo::OnAssign)
+							.Width(3)
+						]
+
+						// UnAssign to sector
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SAssignNew(UnassignButton, SFlareButton)
+							.Text(LOCTEXT("Unassign", "UNASSIGN"))
+							.HelpText(LOCTEXT("UnassignInfo", "Unassign this ship from the sector"))
+							.OnClicked(this, &SFlareSpacecraftInfo::OnUnassign)
+							.Width(3)
+						]
+
 						// Select this ship
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
@@ -289,6 +311,8 @@ void SFlareSpacecraftInfo::Show()
 	{
 		InspectButton->SetVisibility(EVisibility::Collapsed);
 		TradeButton->SetVisibility(EVisibility::Collapsed);
+		AssignButton->SetVisibility(EVisibility::Collapsed);
+		UnassignButton->SetVisibility(EVisibility::Collapsed);
 		FlyButton->SetVisibility(EVisibility::Collapsed);
 		SelectButton->SetVisibility(EVisibility::Collapsed);
 		DockButton->SetVisibility(EVisibility::Collapsed);
@@ -302,6 +326,7 @@ void SFlareSpacecraftInfo::Show()
 		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
 		bool CanDock = OwnedAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
 		bool CanTrade = OwnedAndNotSelf && !TargetSpacecraft->IsStation() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
+		bool CanAssign = OwnedAndNotSelf && !TargetSpacecraft->IsStation();
 
 		// Button states
 		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
@@ -319,6 +344,17 @@ void SFlareSpacecraftInfo::Show()
 		{
 			FlyButton->SetVisibility(EVisibility::Collapsed);
 			SelectButton->SetVisibility(EVisibility::Collapsed);
+		}
+
+		if (CanAssign)
+		{
+			AssignButton->SetVisibility(TargetSpacecraft->IsAssignedToSector() ? EVisibility::Collapsed : EVisibility::Visible);
+			UnassignButton->SetVisibility(TargetSpacecraft->IsAssignedToSector() ? EVisibility::Visible : EVisibility::Collapsed);
+		}
+		else
+		{
+			AssignButton->SetVisibility(EVisibility::Collapsed);
+			UnassignButton->SetVisibility(EVisibility::Collapsed);
 		}
 	}
 }
@@ -409,6 +445,24 @@ void SFlareSpacecraftInfo::OnUndock()
 	{
 		PC->GetShipPawn()->GetNavigationSystem()->Undock();
 		PC->GetMenuManager()->CloseMenu();
+	}
+}
+
+void SFlareSpacecraftInfo::OnAssign()
+{
+	if (PC && TargetSpacecraft)
+	{
+		TargetSpacecraft->AssignToSector(true);
+		Show();
+	}
+}
+
+void SFlareSpacecraftInfo::OnUnassign()
+{
+	if (PC && TargetSpacecraft)
+	{
+		TargetSpacecraft->AssignToSector(false);
+		Show();
 	}
 }
 

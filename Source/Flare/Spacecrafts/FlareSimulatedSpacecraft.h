@@ -79,7 +79,7 @@ public:
 		return SpacecraftData.IsAssigned;
 	}
 
-	void AssignToSector(bool Assign);
+	void AssignToSector(bool Assign) override;
 
 	/*----------------------------------------------------
 		Resources
@@ -160,6 +160,8 @@ public:
 	{
 		return CargoBay;
 	}
+
+	uint32 GetCargoBayCapacity();
 
 	uint32 GetCargoBayResourceQuantity(FFlareResourceDescription* Resource);
 

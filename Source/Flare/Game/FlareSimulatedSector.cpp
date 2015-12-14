@@ -574,8 +574,16 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 
 void UFlareSimulatedSector::SimulateTransport(int64 Duration)
 {
-	// TODO transport capacity
-	uint32 TransportCapacityPerHour = 10;
+	for(int CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		SimulateTransport(Duration, GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex]);
+	}
+}
+
+void UFlareSimulatedSector::SimulateTransport(int64 Duration, UFlareCompany* Company)
+{
+
+	uint32 TransportCapacityPerHour = GetTransportCapacityPerHour(Company);
 
 	FLOGV("SimulateTransport Duration=%lld TransportCapacityPerHour=%u", Duration, TransportCapacityPerHour)
 
@@ -612,6 +620,11 @@ void UFlareSimulatedSector::SimulateTransport(int64 Duration)
 		if(PersistentStationIndex >= SectorStations.Num())
 		{
 			PersistentStationIndex = 0;
+		}
+
+		if(Station->GetCompany() != Company)
+		{
+			continue;
 		}
 
 		FLOGV("Check station %s needs:", *Station->GetImmatriculation().ToString());
@@ -757,5 +770,21 @@ uint32 UFlareSimulatedSector::TakeUselessRessouce(UFlareCompany* Company, FFlare
 
 	return QuantityToTake - RemainingQuantityToTake;
 }
+
+uint32 UFlareSimulatedSector::GetTransportCapacityPerHour(UFlareCompany* Company)
+{
+	uint32 TransportCapacityPerHour = 0;
+
+	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
+		if (Ship->GetCompany() == Company && Ship->IsAssignedToSector())
+		{
+			TransportCapacityPerHour += Ship->GetCargoBayCapacity();
+		}
+	}
+	return TransportCapacityPerHour;
+}
+
 
 #undef LOCTEXT_NAMESPACE

@@ -93,6 +93,12 @@ public:
 		return !IsStation() && !IsAssignedToSector();
 	}
 
+	void AssignToSector(bool Assign) override
+	{
+		ShipData.IsAssigned = Assign;
+	}
+
+
 	virtual bool IsAssignedToSector() const override
 	{
 		return ShipData.IsAssigned;

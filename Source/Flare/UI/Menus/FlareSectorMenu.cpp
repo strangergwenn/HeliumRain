@@ -406,7 +406,9 @@ FText SFlareSectorMenu::GetSectorDescription() const
 
 	if (TargetSector)
 	{
-		Result = TargetSector->GetSectorDescription();
+		// TODO Move at the right place
+		//Result = TargetSector->GetSectorDescription();
+		Result = FText::FromString(TargetSector->GetSectorDescription().ToString() + FString::Printf(TEXT(" DEBUG: Transport capacity = %u"), TargetSector->GetTransportCapacityPerHour(MenuManager->GetGame()->GetPC()->GetCompany())));
 	}
 
 	return Result;

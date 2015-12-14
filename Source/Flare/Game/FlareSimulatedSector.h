@@ -225,6 +225,8 @@ public:
 
 	void SimulateTransport(int64 Duration);
 
+	void SimulateTransport(int64 Duration, UFlareCompany* Company);
+
 	uint32 TakeUselessRessouce(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
 
 protected:
@@ -304,4 +306,5 @@ public:
 
 	EFlareSectorFriendlyness::Type GetSectorFriendlyness(UFlareCompany* Company) const;
 
+	uint32 GetTransportCapacityPerHour(UFlareCompany* Company);
 };

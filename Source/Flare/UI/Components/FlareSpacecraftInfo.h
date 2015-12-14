@@ -80,6 +80,11 @@ public:
 	/** Undock */
 	void OnUndock();
 
+	/** Assign*/
+	void OnAssign();
+
+	/** Unassign*/
+	void OnUnassign();
 
 	/*----------------------------------------------------
 		Content
@@ -123,6 +128,8 @@ protected:
 	// Slate data
 	TSharedPtr<SFlareButton>          InspectButton;
 	TSharedPtr<SFlareButton>          TradeButton;
+	TSharedPtr<SFlareButton>          AssignButton;
+	TSharedPtr<SFlareButton>          UnassignButton;
 	TSharedPtr<SFlareButton>          FlyButton;
 	TSharedPtr<SFlareButton>          SelectButton;
 	TSharedPtr<SFlareButton>          DockButton;
