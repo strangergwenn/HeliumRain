@@ -94,6 +94,9 @@ public:
 	/** Load a fleet from save */
 	virtual UFlareFleet* LoadFleet(const FFlareFleetSave& FleetData);
 
+	/** Load a trade route from save */
+	virtual UFlareTradeRoute* LoadTradeRoute(const FFlareTradeRouteSave& TradeRouteData);
+
 
 	/*----------------------------------------------------
 		Gameplay
@@ -116,6 +119,13 @@ public:
 
 	/** Destroy a fleet */
 	virtual void RemoveFleet(UFlareFleet* Fleet);
+
+	/** Create a new trade route */
+	virtual UFlareTradeRoute* CreateTradeRoute(FText TradeRouteName);
+
+	/** Destroy a trade route */
+	virtual void RemoveTradeRoute(UFlareTradeRoute* TradeRoute);
+
 
 	/** Destroy a spacecraft */
 	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
@@ -176,6 +186,9 @@ protected:
 
 	UPROPERTY()
 	TArray<UFlareFleet*>                    CompanyFleets;
+
+	UPROPERTY()
+	TArray<UFlareTradeRoute*>               CompanyTradeRoutes;
 
 	UPROPERTY()
 	UMaterialInstanceDynamic*               CompanyEmblem;
@@ -276,6 +289,11 @@ public:
 		return CompanyFleets;
 	}
 
+	inline TArray<UFlareTradeRoute*>& GetCompanyTradeRoutes()
+	{
+		return CompanyTradeRoutes;
+	}
+
 	inline TArray<UFlareSimulatedSector*>& GetKnownSectors()
 	{
 		return KnownSectors;
@@ -293,6 +311,18 @@ public:
 			if (CompanyFleets[i]->GetIdentifier() == Identifier)
 			{
 				return CompanyFleets[i];
+			}
+		}
+		return NULL;
+	}
+
+	UFlareTradeRoute* FindTradeRoute(FName Identifier) const
+	{
+		for (int i = 0; i < CompanyTradeRoutes.Num(); i++)
+		{
+			if (CompanyTradeRoutes[i]->GetIdentifier() == Identifier)
+			{
+				return CompanyTradeRoutes[i];
 			}
 		}
 		return NULL;

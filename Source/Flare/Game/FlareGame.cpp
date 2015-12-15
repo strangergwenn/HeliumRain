@@ -473,6 +473,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.CatalogIdentifier = CatalogIdentifier;
 	CompanyData.Money = FMath::RandRange(5, 10) * 10000;
 	CompanyData.FleetImmatriculationIndex = 0;
+	CompanyData.TradeRouteImmatriculationIndex = 0;
 	// Create company
 	Company = World->LoadCompany(CompanyData);
 	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());

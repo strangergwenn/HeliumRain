@@ -223,6 +223,14 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 		FLOGV("   %2d - %s: %s", i,  *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName().ToString());
 	}
 
+	TArray<UFlareTradeRoute*> CompanyTradeRoutes = Company->GetCompanyTradeRoutes();
+	FLOGV("  > %d trade routes", CompanyTradeRoutes.Num());
+	for (int i = 0; i < CompanyTradeRoutes.Num(); i++)
+	{
+		UFlareTradeRoute* TradeRoute = CompanyTradeRoutes[i];
+		FLOGV("   %2d - %s: %s", i,  *TradeRoute->GetIdentifier().ToString(), *TradeRoute->GetTradeRouteName().ToString());
+	}
+
 	TArray<UFlareSimulatedSpacecraft*> CompanySpacecrafts = Company->GetCompanySpacecrafts();
 	FLOGV("  > %d spacecrafts (%d ships and %d stations)", CompanySpacecrafts.Num(), Company->GetCompanyShips().Num(), Company->GetCompanyStations().Num());
 	for (int i = 0; i < CompanySpacecrafts.Num(); i++)
@@ -400,6 +408,120 @@ void UFlareGameTools::MergeFleets(FName Fleet1Identifier, FName Fleet2Identifier
 	}
 
 	Fleet1->Merge(Fleet2);
+}
+
+/*----------------------------------------------------
+	Trade route tools
+----------------------------------------------------*/
+
+void UFlareGameTools::CreateTradeRoute(FString TradeRouteName, FName CompanyShortName)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::CreateTradeRoute failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::CreateTradeRoute failed: a sector is active");
+		return;
+	}
+
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if (!Company)
+	{
+		FLOGV("AFlareGame::CreateTradeRoute failed: no company with short name '%s'", * CompanyShortName.ToString());
+		return;
+	}
+
+	Company->CreateTradeRoute(FText::FromString(TradeRouteName));
+}
+
+void UFlareGameTools::DissolveTradeRoute(FName TradeRouteIdentifier)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::DisbandFleet failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::DisbandFleet failed: a sector is active");
+		return;
+	}
+
+	UFlareTradeRoute* TradeRoute = GetGameWorld()->FindTradeRoute(TradeRouteIdentifier);
+	if (!TradeRoute)
+	{
+		FLOGV("AFlareGame::DissolveTradeRoute failed: no trade route with id '%s'", *TradeRouteIdentifier.ToString());
+		return;
+	}
+
+	TradeRoute->Dissolve();
+}
+
+
+void UFlareGameTools::AddToTradeRoute(FName TradeRouteIdentifier, FName ShipImmatriculation)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::AddToTradeRoute failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::AddToTradeRoute failed: a sector is active");
+		return;
+	}
+
+	UFlareTradeRoute* TradeRoute = GetGameWorld()->FindTradeRoute(TradeRouteIdentifier);
+	if (!TradeRoute)
+	{
+		FLOGV("AFlareGame::AddToTradeRoute failed: no trade route with id '%s'", *TradeRouteIdentifier.ToString());
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(ShipImmatriculation);
+	if (!Ship)
+	{
+		FLOGV("AFlareGame::AddToTradeRoute failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
+		return;
+	}
+	TradeRoute->AddShip(Ship);
+}
+
+
+void UFlareGameTools::RemoveFromTradeRoute(FName TradeRouteIdentifier, FName ShipImmatriculation)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::RemoveFromTradeRoute failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("AFlareGame::RemoveFromTradeRoute failed: a sector is active");
+		return;
+	}
+
+	UFlareTradeRoute* TradeRoute = GetGameWorld()->FindTradeRoute(TradeRouteIdentifier);
+	if (!TradeRoute)
+	{
+		FLOGV("AFlareGame::RemoveFromTradeRoute failed: no trade route with id '%s'", *TradeRouteIdentifier.ToString());
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(ShipImmatriculation);
+	if (!Ship)
+	{
+		FLOGV("AFlareGame::RemoveFromTradeRoute failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
+		return;
+	}
+	TradeRoute->RemoveShip(Ship);
 }
 
 /*----------------------------------------------------

@@ -102,6 +102,27 @@ public:
 	void MergeFleets(FName Fleet1Identifier, FName Fleet2Identifier);
 
 	/*----------------------------------------------------
+		Trade route tools
+	----------------------------------------------------*/
+
+	/** Create a trade route */
+	UFUNCTION(exec)
+	void CreateTradeRoute(FString TradeRouteName, FName CompanyShortName);
+
+	/** Dissolve a trade route */
+	UFUNCTION(exec)
+	void DissolveTradeRoute(FName TradeRouteIdentifier);
+
+	/** Add a ship to a trade route */
+	UFUNCTION(exec)
+	void AddToTradeRoute(FName TradeRouteIdentifier, FName ShipImmatriculation);
+
+	/** Remove a ship from a trade route */
+	UFUNCTION(exec)
+	void RemoveFromTradeRoute(FName TradeRouteIdentifier, FName ShipImmatriculation);
+
+
+	/*----------------------------------------------------
 		Travel tools
 	----------------------------------------------------*/
 

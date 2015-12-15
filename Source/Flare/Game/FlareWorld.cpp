@@ -432,6 +432,20 @@ UFlareFleet* UFlareWorld::FindFleet(FName Identifier) const
 	return NULL;
 }
 
+UFlareTradeRoute* UFlareWorld::FindTradeRoute(FName Identifier) const
+{
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		UFlareTradeRoute* TradeRoute = Company->FindTradeRoute(Identifier);
+		if (TradeRoute)
+		{
+			return TradeRoute;
+		}
+	}
+	return NULL;
+}
+
 UFlareSimulatedSpacecraft* UFlareWorld::FindSpacecraft(FName ShipImmatriculation)
 {
 	for (int i = 0; i < Companies.Num(); i++)

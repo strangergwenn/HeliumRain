@@ -181,6 +181,8 @@ public:
 
 	UFlareFleet* FindFleet(FName Identifier) const;
 
+	UFlareTradeRoute* FindTradeRoute(FName Identifier) const;
+
 	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation);
 
 	inline TArray<UFlareCompany*> GetCompanies() const

@@ -59,6 +59,12 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 		LoadFleet(CompanyData.Fleets[i]);
 	}
 
+	// Load all trade routes
+	for (int32 i = 0; i < CompanyData.TradeRoutes.Num(); i++)
+	{
+		LoadTradeRoute(CompanyData.TradeRoutes[i]);
+	}
+
 	// Load emblem
 	SetupEmblem();
 }
@@ -88,6 +94,7 @@ void UFlareCompany::PostLoad()
 FFlareCompanySave* UFlareCompany::Save()
 {
 	CompanyData.Fleets.Empty();
+	CompanyData.TradeRoutes.Empty();
 	CompanyData.ShipData.Empty();
 	CompanyData.StationData.Empty();
 	CompanyData.SectorsKnowledge.Empty();
@@ -95,6 +102,11 @@ FFlareCompanySave* UFlareCompany::Save()
 	for (int i = 0 ; i < CompanyFleets.Num(); i++)
 	{
 		CompanyData.Fleets.Add(*CompanyFleets[i]->Save());
+	}
+
+	for (int i = 0 ; i < CompanyTradeRoutes.Num(); i++)
+	{
+		CompanyData.TradeRoutes.Add(*CompanyTradeRoutes[i]->Save());
 	}
 
 	for (int i = 0 ; i < CompanyShips.Num(); i++)
@@ -228,6 +240,36 @@ void UFlareCompany::RemoveFleet(UFlareFleet* Fleet)
 	}
 }
 
+UFlareTradeRoute* UFlareCompany::CreateTradeRoute(FText TradeRouteName)
+{
+	// Create the trade route
+	FFlareTradeRouteSave TradeRouteData;
+	TradeRouteData.Identifier = FName(*(GetIdentifier().ToString() + "-" + FString::FromInt(CompanyData.TradeRouteImmatriculationIndex++)));
+	TradeRouteData.Name = TradeRouteName;
+	UFlareTradeRoute* TradeRoute = LoadTradeRoute(TradeRouteData);
+	return TradeRoute;
+}
+
+
+UFlareTradeRoute* UFlareCompany::LoadTradeRoute(const FFlareTradeRouteSave& TradeRouteData)
+{
+	UFlareTradeRoute* TradeRoute = NULL;
+
+	// Create the new travel
+	TradeRoute = NewObject<UFlareTradeRoute>(this, UFlareTradeRoute::StaticClass());
+	TradeRoute->Load(TradeRouteData);
+	CompanyTradeRoutes.AddUnique(TradeRoute);
+
+	FLOGV("UFlareWorld::LoadTradeRoute : loaded trade route '%s'", *TradeRoute->GetTradeRouteName().ToString());
+
+	return TradeRoute;
+}
+
+void UFlareCompany::RemoveTradeRoute(UFlareTradeRoute* TradeRoute)
+{
+	CompanyTradeRoutes.Remove(TradeRoute);
+}
+
 UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
@@ -269,6 +311,11 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 	if (Spacecraft->GetCurrentFleet())
 	{
 		Spacecraft->GetCurrentFleet()->RemoveShip(Spacecraft);
+	}
+
+	if (Spacecraft->GetCurrentTradeRoute())
+	{
+		Spacecraft->GetCurrentTradeRoute()->RemoveShip(Spacecraft);
 	}
 
 	if (Spacecraft->GetCurrentSector())

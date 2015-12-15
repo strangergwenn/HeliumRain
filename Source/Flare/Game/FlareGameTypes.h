@@ -2,6 +2,7 @@
 
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareFleet.h"
+#include "FlareTradeRoute.h"
 #include "FlareGameTypes.generated.h"
 
 
@@ -62,8 +63,15 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareFleetSave> Fleets;
 
+	/** Company trade routes */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FFlareTradeRouteSave> TradeRoutes;
+
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 FleetImmatriculationIndex;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 TradeRouteImmatriculationIndex;
 
 	/** List of known or visited sectors */
 	UPROPERTY(EditAnywhere, Category = Save)
