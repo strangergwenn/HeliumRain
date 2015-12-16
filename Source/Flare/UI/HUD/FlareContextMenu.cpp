@@ -56,6 +56,7 @@ void SFlareContextMenu::Show()
 void SFlareContextMenu::Hide()
 {
 	SetVisibility(EVisibility::Hidden);
+	TargetSpacecraft = NULL;
 }
 
 void SFlareContextMenu::OnClicked()
