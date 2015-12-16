@@ -1,10 +1,12 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Game/FlareCompany.h"
 #include "../Components/FlareColorPanel.h"
 #include "../Components/FlareShipList.h"
 #include "../Components/FlareCompanyInfo.h"
+
+
+class UFlareCompany;
 
 
 class SFlareCompanyMenu : public SCompoundWidget

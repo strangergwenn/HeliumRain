@@ -4,6 +4,7 @@
 #include "../Components/FlarePartInfo.h"
 #include "../Components/FlareCompanyInfo.h"
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareCompany.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"

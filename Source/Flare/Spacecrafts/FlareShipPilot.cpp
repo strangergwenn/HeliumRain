@@ -4,6 +4,8 @@
 #include "FlareShipPilot.h"
 #include "FlareSpacecraft.h"
 #include "FlarePilotHelper.h"
+#include "../Game/FlareCompany.h"
+
 
 /*----------------------------------------------------
 	Constructor
