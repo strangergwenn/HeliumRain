@@ -134,6 +134,17 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						.TextStyle(&Theme.TextFont)
 						.WrapTextAt(Theme.ContentWidth)
 					]
+				
+					// Sector transport info
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSectorMenu::GetSectorTransportInfo)
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(Theme.ContentWidth)
+					]
 
 					// Travel here
 					+ SVerticalBox::Slot()
@@ -406,9 +417,21 @@ FText SFlareSectorMenu::GetSectorDescription() const
 
 	if (TargetSector)
 	{
-		// TODO Move at the right place
-		//Result = TargetSector->GetSectorDescription();
-		Result = FText::FromString(TargetSector->GetSectorDescription().ToString() + FString::Printf(TEXT(" DEBUG: Transport capacity = %u"), TargetSector->GetTransportCapacityPerHour(MenuManager->GetGame()->GetPC()->GetCompany())));
+		Result = TargetSector->GetSectorDescription();
+	}
+
+	return Result;
+}
+
+FText SFlareSectorMenu::GetSectorTransportInfo() const
+{
+	FText Result;
+
+	if (TargetSector)
+	{
+		Result = FText::Format(LOCTEXT("SectorDescriptionFormat", "Capacity of assigned transports : {0} cargo units per hour"),
+			FText::AsNumber(TargetSector->GetTransportCapacityPerHour(MenuManager->GetGame()->GetPC()->GetCompany()))
+			);
 	}
 
 	return Result;

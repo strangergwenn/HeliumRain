@@ -273,7 +273,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 
 		// Fill the cargo bay
 		CargoBay->ClearChildren();
-		if (SimulatedSpacecraft)
+		if (SimulatedSpacecraft && SimulatedSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
 		{
 			for (int CargoIndex = 0; CargoIndex < SimulatedSpacecraft->GetCargoBay().Num() ; CargoIndex++)
 			{
@@ -284,6 +284,11 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 					.CargoIndex(CargoIndex)
 				];
 			}
+			CargoBay->SetVisibility(EVisibility::Visible);
+		}
+		else
+		{
+			CargoBay->SetVisibility(EVisibility::Collapsed);
 		}
 	}
 }

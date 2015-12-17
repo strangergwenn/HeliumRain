@@ -39,6 +39,7 @@ public:
 
 	void UpdateStationCost();
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -56,6 +57,9 @@ protected:
 
 	/** Get the sector's description */
 	FText GetSectorDescription() const;
+
+	/** Get the sector's transport data */
+	FText GetSectorTransportInfo() const;
 
 	/** Get the sector's location */
 	FText GetSectorLocation() const;
