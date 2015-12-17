@@ -5,6 +5,7 @@
 #include "FlareTradeRoute.generated.h"
 
 class UFlareSimulatedSector;
+class UFlareFleet;
 struct FFlareResourceDescription;
 
 /** Fleet save data */
@@ -46,9 +47,9 @@ struct FFlareTradeRouteSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Identifier;
 
-	/** Trade route ships */
+	/** Trade route fleets */
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FName> ShipImmatriculations;
+	TArray<FName> FleetIdentifiers;
 
 	/** Trade route sectors */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -77,9 +78,11 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
-	virtual void AddShip(UFlareSimulatedSpacecraft* Ship);
+	void Simulate(int64 Duration);
 
-	virtual void RemoveShip(UFlareSimulatedSpacecraft* Ship);
+	virtual void AddFleet(UFlareFleet* Ship);
+
+	virtual void RemoveFleet(UFlareFleet* Ship);
 
 	virtual void AddSector(UFlareSimulatedSector* Sector);
 
@@ -92,20 +95,20 @@ public:
 	virtual void ClearSectorUnloadOrder(int32 SectorIndex, FFlareResourceDescription* Resource);
 
 
-	/** Remove all ship from the trade route and delete it. */
+	/** Remove all fleet from the trade route and delete it. */
 	virtual void Dissolve();
 
-	virtual void InitShipList();
+	virtual void InitFleetList();
 
 
 protected:
 
-	TArray<UFlareSimulatedSpacecraft*>     TradeRouteShips;
+	TArray<UFlareFleet*>                  TradeRouteFleets;
 
 	UFlareCompany*			               TradeRouteCompany;
 	FFlareTradeRouteSave                   TradeRouteData;
 	AFlareGame*                            Game;
-	bool                                   IsShipListLoaded;
+	bool                                   IsFleetListLoaded;
 
 public:
 
@@ -138,5 +141,9 @@ public:
 		return &TradeRouteData;
 	}
 
-	TArray<UFlareSimulatedSpacecraft*>& GetShips();
+	TArray<UFlareFleet*>& GetFleets();
+
+	FFlareTradeRouteSectorSave* GetSectorOrders(UFlareSimulatedSector* Sector);
+
+	UFlareSimulatedSector* GetNextTradeSector(UFlareSimulatedSector* Sector);
 };

@@ -313,11 +313,6 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 		Spacecraft->GetCurrentFleet()->RemoveShip(Spacecraft);
 	}
 
-	if (Spacecraft->GetCurrentTradeRoute())
-	{
-		Spacecraft->GetCurrentTradeRoute()->RemoveShip(Spacecraft);
-	}
-
 	if (Spacecraft->GetCurrentSector())
 	{
 		Spacecraft->GetCurrentSector()->RemoveSpacecraft(Spacecraft);

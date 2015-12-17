@@ -463,7 +463,7 @@ void UFlareGameTools::DissolveTradeRoute(FName TradeRouteIdentifier)
 }
 
 
-void UFlareGameTools::AddToTradeRoute(FName TradeRouteIdentifier, FName ShipImmatriculation)
+void UFlareGameTools::AddToTradeRoute(FName TradeRouteIdentifier, FName FleetIdentifier)
 {
 	if (!GetGameWorld())
 	{
@@ -484,17 +484,18 @@ void UFlareGameTools::AddToTradeRoute(FName TradeRouteIdentifier, FName ShipImma
 		return;
 	}
 
-	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(ShipImmatriculation);
-	if (!Ship)
+	UFlareFleet* Fleet = GetGameWorld()->FindFleet(FleetIdentifier);
+	if (!Fleet)
 	{
-		FLOGV("AFlareGame::AddToTradeRoute failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
+		FLOGV("AFlareGame::AddToTradeRoute failed: no fleet with id '%s'", *FleetIdentifier.ToString());
 		return;
 	}
-	TradeRoute->AddShip(Ship);
+
+	TradeRoute->AddFleet(Fleet);
 }
 
 
-void UFlareGameTools::RemoveFromTradeRoute(FName TradeRouteIdentifier, FName ShipImmatriculation)
+void UFlareGameTools::RemoveFromTradeRoute(FName TradeRouteIdentifier, FName FleetIdentifier)
 {
 	if (!GetGameWorld())
 	{
@@ -515,13 +516,14 @@ void UFlareGameTools::RemoveFromTradeRoute(FName TradeRouteIdentifier, FName Shi
 		return;
 	}
 
-	UFlareSimulatedSpacecraft* Ship = GetGameWorld()->FindSpacecraft(ShipImmatriculation);
-	if (!Ship)
+	UFlareFleet* Fleet = GetGameWorld()->FindFleet(FleetIdentifier);
+	if (!Fleet)
 	{
-		FLOGV("AFlareGame::RemoveFromTradeRoute failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
+		FLOGV("AFlareGame::RemoveFromTradeRoute failed: no fleet with id '%s'", *FleetIdentifier.ToString());
 		return;
 	}
-	TradeRoute->RemoveShip(Ship);
+
+	TradeRoute->RemoveFleet(Fleet);
 }
 
 /*----------------------------------------------------

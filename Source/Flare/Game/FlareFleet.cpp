@@ -89,6 +89,7 @@ void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship)
 	FleetData.ShipImmatriculations.Remove(Ship->GetImmatriculation());
 	FleetShips.Remove(Ship);
 	Ship->SetCurrentFleet(NULL);
+	// TODO If the fleet is empty, disand
 }
 
 /** Remove all ship from the fleet and delete it. Not possible during travel */
@@ -100,9 +101,17 @@ void UFlareFleet::Disband()
 		return;
 	}
 
+	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	{
+		FleetShips[ShipIndex]->SetCurrentFleet(NULL);
+	}
+
+	if (GetCurrentTradeRoute())
+	{
+		GetCurrentTradeRoute()->RemoveFleet(this);
+	}
 	GetCurrentSector()->DisbandFleet(this);
 	FleetCompany->RemoveFleet(this);
-
 }
 
 void UFlareFleet::Merge(UFlareFleet* Fleet)

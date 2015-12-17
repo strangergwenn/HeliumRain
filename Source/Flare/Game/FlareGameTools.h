@@ -113,13 +113,13 @@ public:
 	UFUNCTION(exec)
 	void DissolveTradeRoute(FName TradeRouteIdentifier);
 
-	/** Add a ship to a trade route */
+	/** Add a fleet to a trade route */
 	UFUNCTION(exec)
-	void AddToTradeRoute(FName TradeRouteIdentifier, FName ShipImmatriculation);
+	void AddToTradeRoute(FName TradeRouteIdentifier, FName FleetIdentifier);
 
-	/** Remove a ship from a trade route */
+	/** Remove a fleet from a trade route */
 	UFUNCTION(exec)
-	void RemoveFromTradeRoute(FName TradeRouteIdentifier, FName ShipImmatriculation);
+	void RemoveFromTradeRoute(FName TradeRouteIdentifier, FName FleetIdentifier);
 
 
 	/*----------------------------------------------------

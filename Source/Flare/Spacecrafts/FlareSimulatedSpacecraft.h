@@ -67,11 +67,6 @@ public:
 		CurrentFleet = Fleet;
 	}
 
-	virtual void SetCurrentTradeRoute(UFlareTradeRoute* TradeRoute)
-	{
-		CurrentTradeRoute = TradeRoute;
-	}
-
 	virtual void SetSpawnMode(EFlareSpawnMode::Type SpawnMode);
 
 	virtual bool CanBeFlown() const override
@@ -111,7 +106,6 @@ protected:
 	AFlareGame*                   Game;
 
 	UFlareFleet*                  CurrentFleet;
-	UFlareTradeRoute*             CurrentTradeRoute;
 	UFlareSimulatedSector*        CurrentSector;
 
 	// Systems
@@ -160,7 +154,7 @@ public:
 	/** Return null if not in a trade route */
 	inline UFlareTradeRoute* GetCurrentTradeRoute()
 	{
-		return CurrentTradeRoute;
+		return (CurrentFleet ? CurrentFleet->GetCurrentTradeRoute() : NULL);
 	}
 
 	inline FFlareSpacecraftDescription* GetDescription() const

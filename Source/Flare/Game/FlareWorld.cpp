@@ -219,6 +219,17 @@ void UFlareWorld::Simulate(int64 Duration)
 		Factories[FactoryIndex]->Simulate(Duration);
 	}
 
+	// Trade routes
+	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+	{
+		TArray<UFlareTradeRoute*>& TradeRoutes = Companies[CompanyIndex]->GetCompanyTradeRoutes();
+
+		for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
+		{
+			TradeRoutes[RouteIndex]->Simulate(Duration);
+		}
+	}
+
 	// Process events
 }
 

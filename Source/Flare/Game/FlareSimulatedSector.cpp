@@ -541,7 +541,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 		}
 
 		// Then take useless resources from station
-		ResourceToTake -= TakeUselessRessouce(Company, Resource, ResourceToTake);
+		ResourceToTake -= TakeUselessResources(Company, Resource, ResourceToTake);
 
 		if(ResourceToTake == 0)
 		{
@@ -657,7 +657,7 @@ void UFlareSimulatedSector::SimulateTransport(int64 Duration, UFlareCompany* Com
 					uint32 QuantityToTransfert = FMath::Min(TransportCapacity, NeededQuantity * 2 - StoredQuantity);
 					// TODO check the slot size : for helium quantity to transfert will be 2 but must be 100 (1 slot)
 					QuantityToTransfert = FMath::Min(StorageCapacity, QuantityToTransfert);
-					uint32 TakenResources = TakeUselessRessouce(Station->GetCompany(), Resource, QuantityToTransfert);
+					uint32 TakenResources = TakeUselessResources(Station->GetCompany(), Resource, QuantityToTransfert);
 					Station->GiveResources(Resource, TakenResources);
 					TransportCapacity -= TakenResources;
 					FLOGV("      Do transfet : QuantityToTransfert=%u TakenResources=%u TransportCapacity=%u", QuantityToTransfert, TakenResources, TransportCapacity);
@@ -684,7 +684,7 @@ void UFlareSimulatedSector::SimulateTransport(int64 Duration, UFlareCompany* Com
 	FLOGV("SimulateTransport end TransportCapacity=%u", TransportCapacity);
 }
 
-uint32 UFlareSimulatedSector::TakeUselessRessouce(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake)
+uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake)
 {
 	uint32 RemainingQuantityToTake = QuantityToTake;
 	// First pass: take from station with factory that output the resource
@@ -702,8 +702,8 @@ uint32 UFlareSimulatedSector::TakeUselessRessouce(UFlareCompany* Company, FFlare
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
 			if(Factory->HasOutputResource(Resource))
 			{
-				uint32 TakenQuatity = Station->TakeResources(Resource, RemainingQuantityToTake);
-				RemainingQuantityToTake -= TakenQuatity;
+				uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
+				RemainingQuantityToTake -= TakenQuantity;
 				break;
 			}
 		}
@@ -735,8 +735,8 @@ uint32 UFlareSimulatedSector::TakeUselessRessouce(UFlareCompany* Company, FFlare
 
 		if(!NeedResource)
 		{
-			uint32 TakenQuatity = Station->TakeResources(Resource, RemainingQuantityToTake);
-			RemainingQuantityToTake -= TakenQuatity;
+			uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
+			RemainingQuantityToTake -= TakenQuantity;
 		}
 	}
 
@@ -763,12 +763,63 @@ uint32 UFlareSimulatedSector::TakeUselessRessouce(UFlareCompany* Company, FFlare
 
 		if(!NeedResource)
 		{
-			uint32 TakenQuatity = Station->TakeResources(Resource, RemainingQuantityToTake);
-			RemainingQuantityToTake -= TakenQuatity;
+			uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
+			RemainingQuantityToTake -= TakenQuantity;
 		}
 	}
 
 	return QuantityToTake - RemainingQuantityToTake;
+}
+
+uint32 UFlareSimulatedSector::TakeResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake)
+{
+	uint32 RemainingQuantityToTake = QuantityToTake;
+
+	{
+		uint32 TakenQuantity = TakeUselessResources(Company, Resource, RemainingQuantityToTake);
+		RemainingQuantityToTake -= TakenQuantity;
+	}
+
+	if(RemainingQuantityToTake > 0)
+	{
+		for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToTake > 0; StationIndex++)
+		{
+			UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+
+			if( Station->GetCompany() != Company)
+			{
+				continue;
+			}
+
+
+			uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
+			RemainingQuantityToTake -= TakenQuantity;
+		}
+	}
+
+	return QuantityToTake - RemainingQuantityToTake;
+}
+
+uint32 UFlareSimulatedSector::GiveResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToGive)
+{
+	uint32 RemainingQuantityToGive = QuantityToGive;
+
+	// TODO Storage station first
+
+	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToGive > 0; StationIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+
+		if( Station->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		uint32 GivenQuantity = Station->GiveResources(Resource, RemainingQuantityToGive);
+		RemainingQuantityToGive -= GivenQuantity;
+	}
+
+	return RemainingQuantityToGive;
 }
 
 uint32 UFlareSimulatedSector::GetTransportCapacityPerHour(UFlareCompany* Company)
@@ -784,6 +835,25 @@ uint32 UFlareSimulatedSector::GetTransportCapacityPerHour(UFlareCompany* Company
 		}
 	}
 	return TransportCapacityPerHour;
+}
+
+uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource)
+{
+	uint32 ResourceCount = 0;
+
+	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num(); StationIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+
+		if( Station->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		ResourceCount += Station->GetCargoBayResourceQuantity(Resource);
+	}
+
+	return ResourceCount;
 }
 
 

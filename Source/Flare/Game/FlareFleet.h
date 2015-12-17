@@ -9,6 +9,7 @@ class UFlareSimulatedSpacecraft;
 class AFlareGame;
 class UFlareCompany;
 class UFlareTravel;
+class UFlareTradeRoute;
 struct FFlareSpacecraftSave;
 
 /** Fleet save data */
@@ -68,6 +69,11 @@ public:
 
 	void SetCurrentTravel(UFlareTravel* Travel);
 
+	virtual void SetCurrentTradeRoute(UFlareTradeRoute* TradeRoute)
+	{
+		CurrentTradeRoute = TradeRoute;
+	}
+
 	virtual void InitShipList();
 
 
@@ -81,6 +87,7 @@ protected:
 	bool                                   IsShipListLoaded;
 	UFlareSimulatedSector*                 CurrentSector;
 	UFlareTravel*                          CurrentTravel;
+	UFlareTradeRoute*                      CurrentTradeRoute;
 
 
 public:
@@ -130,5 +137,10 @@ public:
 		return CurrentTravel;
 	}
 
+	/** Return null if not in a trade route */
+	inline UFlareTradeRoute* GetCurrentTradeRoute()
+	{
+		return CurrentTradeRoute;
+	}
 
 };

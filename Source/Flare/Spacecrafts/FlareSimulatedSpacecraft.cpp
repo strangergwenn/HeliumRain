@@ -199,6 +199,8 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 
 void UFlareSimulatedSpacecraft::AssignToSector(bool Assign)
 {
+	// TODO Extract the ship from the fleet !
+
 	if (CurrentSector == NULL)
 	{
 		SpacecraftData.IsAssigned = false;
