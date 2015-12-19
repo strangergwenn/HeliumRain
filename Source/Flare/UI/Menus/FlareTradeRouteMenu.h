@@ -1,24 +1,19 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../Components/FlareColorPanel.h"
-#include "../Components/FlareShipList.h"
-#include "../Components/FlareCompanyInfo.h"
 
+class UFlareTradeRoute;
 
-class UFlareCompany;
-
-
-class SFlareCompanyMenu : public SCompoundWidget
+class SFlareTradeRouteMenu : public SCompoundWidget
 {
 	/*----------------------------------------------------
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareCompanyMenu){}
+	SLATE_BEGIN_ARGS(SFlareTradeRouteMenu){}
 
 	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
-	
+
 	SLATE_END_ARGS()
 
 
@@ -35,11 +30,10 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter(UFlareCompany* Target);
+	void Enter(UFlareTradeRoute* TradeRoute);
 
 	/** Exit this menu */
 	void Exit();
-
 
 protected:
 
@@ -47,14 +41,18 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
-	/** Get the company name */
-	FText GetCompanyName() const;
-	
-	/** Go back to the orbital map */
-	void OnOrbit();
+	/** Go back to the previous menu*/
+	void OnBackClicked();
 
-	/** Create a new trade route and open trade route menu */
-	void OnNewTradeRouteClicked();
+
+	void OnChangeRouteNameClicked();
+
+	/** Is the delete button visible ? */
+	EVisibility GetChangeRouteNameVisibility() const;
+
+	/** Get route name */
+	FText GetTradeRouteName() const;
+
 
 protected:
 
@@ -62,16 +60,13 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	// Menu manager
-	TWeakObjectPtr<class AFlareMenuManager>  MenuManager;
+	// HUD reference
+	UPROPERTY()
+	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 
-	// Gameplay data
-	UFlareCompany*                           Company;
+	// Menu components
+	UFlareTradeRoute*                     TargetTradeRoute;
 
-	// Menu data
-	TSharedPtr<SFlareColorPanel>             ColorBox;
-	TSharedPtr<SFlareShipList>               ShipList;
-	TSharedPtr<SFlareCompanyInfo>            CompanyInfo;
-
-
+	// Sector data
+	TSharedPtr<SComboBox<UFlareSimulatedSector*>> SectorSelector;
 };

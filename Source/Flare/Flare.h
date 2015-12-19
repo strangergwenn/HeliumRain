@@ -28,6 +28,7 @@ namespace EFlareMenu
 		MENU_Undock,
 		MENU_Sector,
 		MENU_Trade,
+		MENU_TradeRoute,
 		MENU_Orbit,
 		MENU_Leaderboard,
 		MENU_Settings,

@@ -138,6 +138,30 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.MenuManager(MenuManager)
 					.Title(LOCTEXT("Property", "PROPERTY"))
 				]
+
+				// Trade routes Title
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("Trade routes", "TRADE ROUTES"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Build station button
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SFlareButton)
+					.Width(8)
+					.Text(LOCTEXT("NewTradeRouteButton", "New trade route"))
+					.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route"))
+					.Icon(FFlareStyleSet::GetIcon("TradeRoute"))
+					.OnClicked(this, &SFlareCompanyMenu::OnNewTradeRouteClicked)
+				]
 			]
 		]
 	];
@@ -231,5 +255,13 @@ void SFlareCompanyMenu::OnOrbit()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 }
+
+void SFlareCompanyMenu::OnNewTradeRouteClicked()
+{
+	UFlareTradeRoute* TradeRoute = Company->CreateTradeRoute(LOCTEXT("UntitledRoute", "Untitled Route"));
+
+	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, TradeRoute);
+}
+
 
 #undef LOCTEXT_NAMESPACE

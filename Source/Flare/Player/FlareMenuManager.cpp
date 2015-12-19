@@ -9,6 +9,7 @@
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
 #include "../UI/Menus/FlareTradeMenu.h"
+#include "../UI/Menus/FlareTradeRouteMenu.h"
 #include "../UI/Menus/FlareOrbitalMenu.h"
 #include "../UI/Menus/FlareLeaderboardMenu.h"
 #include "../Player/FlarePlayerController.h"
@@ -48,6 +49,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).MenuManager(this);
 		SAssignNew(TradeMenu, SFlareTradeMenu).MenuManager(this);
+		SAssignNew(TradeRouteMenu, SFlareTradeRouteMenu).MenuManager(this);
 		SAssignNew(OrbitMenu, SFlareOrbitalMenu).MenuManager(this);
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
 
@@ -69,13 +71,14 @@ void AFlareMenuManager::SetupMenu()
 
 		// Register regular menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),         50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SettingsMenu.ToSharedRef()),         50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SettingsMenu.ToSharedRef()),     50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(NewGameMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeMenu.ToSharedRef()),       50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeMenu.ToSharedRef()),        50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeRouteMenu.ToSharedRef()),   50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),  50);
 
@@ -94,6 +97,7 @@ void AFlareMenuManager::SetupMenu()
 		ShipMenu->Setup();
 		SectorMenu->Setup();
 		TradeMenu->Setup();
+		TradeRouteMenu->Setup();
 		OrbitMenu->Setup();
 		LeaderboardMenu->Setup();
 
@@ -219,6 +223,10 @@ void AFlareMenuManager::Back()
 				OpenMenu(EFlareMenu::MENU_Orbit);
 				// TODO real back
 			break;
+			case EFlareMenu::MENU_TradeRoute:
+				OpenMenu(EFlareMenu::MENU_Orbit);
+				// TODO real back
+			break;
 			case EFlareMenu::MENU_Leaderboard:
 				OpenMenu(EFlareMenu::MENU_Orbit);
 				break;
@@ -316,6 +324,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_Undock:         Path = "Undock";       break;
 		case EFlareMenu::MENU_Sector:         Path = "Sector";       break;
 		case EFlareMenu::MENU_Trade:          Path = "Trade";        break;
+		case EFlareMenu::MENU_TradeRoute:     Path = "TradeRoute";   break;
 		case EFlareMenu::MENU_Orbit:          Path = "Orbit";        break;
 		case EFlareMenu::MENU_Settings:       Path = "Settings";     break;
 		case EFlareMenu::MENU_Quit:           Path = "Quit";         break;
@@ -353,6 +362,7 @@ void AFlareMenuManager::ResetMenu()
 	ShipMenu->Exit();
 	SectorMenu->Exit();
 	TradeMenu->Exit();
+	TradeRouteMenu->Exit();
 	OrbitMenu->Exit();
 	LeaderboardMenu->Exit();
 
@@ -423,6 +433,9 @@ void AFlareMenuManager::ProcessFadeTarget()
 		case EFlareMenu::MENU_Trade:
 			OpenTrade(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
 			break;
+		case EFlareMenu::MENU_TradeRoute:
+			OpenTradeRoute(static_cast<UFlareTradeRoute*>(FadeTargetData));
+		break;
 		case EFlareMenu::MENU_Orbit:
 			OpenOrbit();
 			break;
@@ -550,10 +563,17 @@ void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
 		TradeMenu->Enter(SimulatedSpacecraft->GetCurrentSector(), SimulatedSpacecraft, NULL);
 		// TODO What append if the cast fail ?
 	}
-
-
 }
 
+void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
+{
+	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_TradeRoute;
+	GetPC()->OnEnterMenu();
+
+
+	TradeRouteMenu->Enter(TradeRoute);
+}
 
 void AFlareMenuManager::OpenOrbit()
 {
