@@ -22,6 +22,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBackReticleIconObj     (TEXT("/Game/Gameplay/HUD/TX_BackReticle.TX_BackReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj             (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombAimIconObj         (TEXT("/Game/Gameplay/HUD/TX_BombAim.TX_BombAim"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombMarkerObj          (TEXT("/Game/Gameplay/HUD/TX_BombMarker.TX_BombMarker"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj       (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj            (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj       (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
@@ -44,6 +45,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDBackReticleIcon = HUDBackReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
 	HUDBombAimIcon = HUDBombAimIconObj.Object;
+	HUDBombMarker = HUDBombMarkerObj.Object;
 	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
 	HUDNoseIcon = HUDNoseIconObj.Object;
 	HUDObjectiveIcon = HUDObjectiveIconObj.Object;
@@ -226,7 +228,9 @@ void AFlareHUD::DrawHUD()
 				}
 
 				// Draw search markers
-				if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE && ShouldDrawSearchMarker)
+				if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE
+				 && !PlayerShip->GetStateManager()->IsExternalCamera()
+				 && ShouldDrawSearchMarker)
 				{
 					DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
 				}
@@ -344,6 +348,21 @@ void AFlareHUD::DrawHUD()
 			FLinearColor PointerColor = HudColorNeutral;
 			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
 			DrawHUDIconRotated(ViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
+		}
+
+		// Draw bombs
+		for (int32 BombIndex = 0; BombIndex < ActiveSector->GetBombs().Num(); BombIndex++)
+		{
+			FVector2D ScreenPosition;
+			AFlareBomb* Bomb = ActiveSector->GetBombs()[BombIndex];
+			
+			if (Bomb && PC->ProjectWorldLocationToScreen(Bomb->GetActorLocation(), ScreenPosition))
+			{
+				if (IsInScreen(ScreenPosition))
+				{
+					DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, GetHostilityColor(PC, Bomb->GetFiringSpacecraft()) , true);
+				}
+			}
 		}
 	}
 }

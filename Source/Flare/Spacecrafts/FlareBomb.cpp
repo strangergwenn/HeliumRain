@@ -1,5 +1,8 @@
 
 #include "../Flare.h"
+#include "FlareSpacecraft.h"
+#include "../Game/FlareAsteroid.h"
+#include "FlareWeapon.h"
 #include "FlareBombComponent.h"
 #include "FlareBomb.h"
 
@@ -170,6 +173,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 			}
 		}
 
+		Spacecraft->GetGame()->GetActiveSector()->UnregisterBomb(this);
 		Destroy();
 	}
 
@@ -180,6 +184,7 @@ void AFlareBomb::Drop()
 {
 	FLOG("AFlareBomb Drop");
 	DetachRootComponentFromParent(true);
+	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterBomb(this);
 
 	FVector FrontVector = BombComp->ComponentToWorld.TransformVector(FVector(1,0,0));
 
@@ -224,6 +229,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			{
 				// 5 km and 30s
 				Destroy();
+				PlayerShip->GetGame()->GetActiveSector()->UnregisterBomb(this);
 			}
 		}
 	}

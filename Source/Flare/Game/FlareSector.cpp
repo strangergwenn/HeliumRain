@@ -416,6 +416,16 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
     return Bomb;
 }
 
+void UFlareSector::RegisterBomb(AFlareBomb* Bomb)
+{
+	SectorBombs.AddUnique(Bomb);
+}
+
+void UFlareSector::UnregisterBomb(AFlareBomb* Bomb)
+{
+	SectorBombs.Remove(Bomb);
+}
+
 void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying)
 {
 	FLOGV("UFlareSector::DestroySpacecraft %s", *Spacecraft->GetImmatriculation().ToString());

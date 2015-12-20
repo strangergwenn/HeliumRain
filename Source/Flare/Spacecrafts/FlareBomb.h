@@ -121,6 +121,16 @@ public:
 		Getters
 	----------------------------------------------------*/
 
+	inline AFlareSpacecraft* GetFiringSpacecraft() const
+	{
+		check(ParentWeapon);
+
+		AFlareSpacecraft* Spacecraft = ParentWeapon->GetSpacecraft();
+		check(Spacecraft);
+
+		return Spacecraft;
+	}
+
 	inline bool IsDropped() const
 	{
 		return BombData.Dropped;

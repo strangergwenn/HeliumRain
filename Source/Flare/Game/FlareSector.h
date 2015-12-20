@@ -55,6 +55,10 @@ public:
 
 	AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 
+	void RegisterBomb(AFlareBomb* Bomb);
+
+	void UnregisterBomb(AFlareBomb* Bomb);
+
 	/** Destroy a ship or a station*/
 	virtual void DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying = false);
 
@@ -136,6 +140,11 @@ public:
 	inline TArray<AFlareAsteroid*>& GetAsteroids()
 	{
 		return SectorAsteroids;
+	}
+
+	inline TArray<AFlareBomb*>& GetBombs()
+	{
+		return SectorBombs;
 	}
 
 	inline int64 GetLocalTime()
