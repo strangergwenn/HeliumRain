@@ -196,7 +196,7 @@ FText SFlareTradeRouteMenu::GetTradeRouteName() const
 
 	if (TargetTradeRoute)
 	{
-		Result = FText::FromString(TargetTradeRoute->GetName());
+		Result = TargetTradeRoute->GetTradeRouteName();
 	}
 
 	return Result;

@@ -149,7 +149,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.TextStyle(&Theme.SubTitleFont)
 				]
 
-				// Build station button
+				// New trade route button
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
@@ -161,6 +161,14 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route"))
 					.Icon(FFlareStyleSet::GetIcon("TradeRoute"))
 					.OnClicked(this, &SFlareCompanyMenu::OnNewTradeRouteClicked)
+				]
+
+				// Trade route list
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SAssignNew(TradeRouteList, SVerticalBox)
 				]
 			]
 		]
@@ -224,16 +232,65 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	}
 
 	ShipList->RefreshList();
+	UpdateTradeRouteList();
 }
 
 void SFlareCompanyMenu::Exit()
 {
 	SetEnabled(false);
 	ShipList->Reset();
+	TradeRouteList->ClearChildren();
+
 	Company = NULL;
 	SetVisibility(EVisibility::Hidden);
 }
 
+void SFlareCompanyMenu::UpdateTradeRouteList()
+{
+	if (Company)
+	{
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+
+		TArray<UFlareTradeRoute*>& TradeRoutes = Company->GetCompanyTradeRoutes();
+		for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
+		{
+			UFlareTradeRoute* TradeRoute = TradeRoutes[RouteIndex];
+			// TODO Trade route info
+			TradeRouteList->AddSlot()
+			.AutoHeight()
+			.HAlign(HAlign_Right)
+			[
+				SNew(SHorizontalBox)
+
+				// Route info
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(TradeRoute->GetTradeRouteName())
+					]
+				]
+
+				// Inspect
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.OnClicked(this, &SFlareCompanyMenu::OnInspectTradeRouteClicked, TradeRoute)
+					.Text(FText(LOCTEXT("Inspect", "Inspect")))
+				]
+
+			];
+		}
+	}
+}
 
 /*----------------------------------------------------
 	Callbacks
@@ -260,6 +317,11 @@ void SFlareCompanyMenu::OnNewTradeRouteClicked()
 {
 	UFlareTradeRoute* TradeRoute = Company->CreateTradeRoute(LOCTEXT("UntitledRoute", "Untitled Route"));
 
+	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, TradeRoute);
+}
+
+void SFlareCompanyMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
+{
 	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, TradeRoute);
 }
 

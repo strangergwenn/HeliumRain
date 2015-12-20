@@ -40,6 +40,8 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	/** Generate the trade route list */
+	void UpdateTradeRouteList();
 
 protected:
 
@@ -55,6 +57,9 @@ protected:
 
 	/** Create a new trade route and open trade route menu */
 	void OnNewTradeRouteClicked();
+
+	/** Inspect trade route */
+	void OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute);
 
 protected:
 
@@ -72,6 +77,7 @@ protected:
 	TSharedPtr<SFlareColorPanel>             ColorBox;
 	TSharedPtr<SFlareShipList>               ShipList;
 	TSharedPtr<SFlareCompanyInfo>            CompanyInfo;
+	TSharedPtr<SVerticalBox>                 TradeRouteList;
 
 
 };
