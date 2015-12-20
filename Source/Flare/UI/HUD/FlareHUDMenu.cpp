@@ -179,7 +179,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Bottom)
-		.Padding(FMargin(0, 0, 0, 100))
+		.Padding(FMargin(0, 0, 0, 0))
 		[
 			SAssignNew(WeaponContainer, SVerticalBox)
 		]
