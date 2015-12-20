@@ -137,7 +137,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	// Size selector
 	if (ShipDescription->Size == EFlarePartSize::S)
 	{
-		RCSIdentifier = FName("rcs-piranha");
+		RCSIdentifier = FName("rcs-coral");
 		OrbitalEngineIdentifier = FName("engine-octopus");
 	}
 	else if (ShipDescription->Size == EFlarePartSize::L)
