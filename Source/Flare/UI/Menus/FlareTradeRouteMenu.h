@@ -35,6 +35,8 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+    void GenerateSectorList();
+
 protected:
 
 	/*----------------------------------------------------
@@ -62,6 +64,17 @@ protected:
 	/** Get route name */
 	FText GetTradeRouteName() const;
 
+    TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* Item);
+
+    void OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo);
+
+    FText OnGetCurrentSectorComboLine() const;
+
+    void OnAddSectorClicked();
+
+    /** Can Add sector */
+    EVisibility GetAddSectorVisibility() const;
+
 
 protected:
 
@@ -79,6 +92,9 @@ protected:
 
 	// Sector data
 	TSharedPtr<SComboBox<UFlareSimulatedSector*>> SectorSelector;
+    TArray<UFlareSimulatedSector*>                SectorList;
+
     TSharedPtr<SEditableText>                   EditRouteName;
+    TSharedPtr<SVerticalBox>                    TradeSectorList;
 
 };

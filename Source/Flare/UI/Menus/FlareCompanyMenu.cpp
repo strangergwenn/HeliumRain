@@ -147,9 +147,10 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.Text(LOCTEXT("Trade routes", "TRADE ROUTES"))
 					.TextStyle(&Theme.SubTitleFont)
+                    .Visibility(this, &SFlareCompanyMenu::GetTradeRouteVisibility)
 				]
 
-				// New trade route button
+                // New trade route button
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
@@ -161,6 +162,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route"))
 					.Icon(FFlareStyleSet::GetIcon("TradeRoute"))
 					.OnClicked(this, &SFlareCompanyMenu::OnNewTradeRouteClicked)
+                    .Visibility(this, &SFlareCompanyMenu::GetTradeRouteVisibility)
 				]
 
 				// Trade route list
@@ -324,6 +326,19 @@ void SFlareCompanyMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, TradeRoute);
 }
+
+EVisibility SFlareCompanyMenu::GetTradeRouteVisibility() const
+{
+    if (Company)
+    {
+        return MenuManager->GetPC()->GetCompany()->GetVisitedSectors().Num() > 2 ? EVisibility::Visible : EVisibility::Collapsed;
+    }
+    else
+    {
+        return EVisibility::Collapsed;
+    }
+}
+
 
 
 #undef LOCTEXT_NAMESPACE

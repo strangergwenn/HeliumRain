@@ -147,7 +147,14 @@ public:
 
 	TArray<UFlareFleet*>& GetFleets();
 
+    TArray<FFlareTradeRouteSectorSave>& GetSectors()
+    {
+        return TradeRouteData.Sectors;
+    }
+
 	FFlareTradeRouteSectorSave* GetSectorOrders(UFlareSimulatedSector* Sector);
 
 	UFlareSimulatedSector* GetNextTradeSector(UFlareSimulatedSector* Sector);
+
+    bool IsVisiting(UFlareSimulatedSector *Sector);
 };

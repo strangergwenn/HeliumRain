@@ -133,6 +133,11 @@ void UFlareTradeRoute::RemoveFleet(UFlareFleet* Fleet)
 
 void UFlareTradeRoute::AddSector(UFlareSimulatedSector* Sector)
 {
+    if(IsVisiting(Sector))
+    {
+        FLOG("Warning: try to add a sector already visited by the trade route");
+        return;
+    }
 	FFlareTradeRouteSectorSave TradeRouteSector;
 	TradeRouteSector.SectorIdentifier = Sector->GetIdentifier();
 
@@ -310,4 +315,16 @@ UFlareSimulatedSector* UFlareTradeRoute::GetNextTradeSector(UFlareSimulatedSecto
 	return Game->GetGameWorld()->FindSector(TradeRouteData.Sectors[NextSectorId].SectorIdentifier);
 }
 
+
+bool UFlareTradeRoute::IsVisiting(UFlareSimulatedSector *Sector)
+{
+    for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+    {
+        if(TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+        {
+            return true;
+        }
+    }
+    return false;
+}
 

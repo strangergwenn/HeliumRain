@@ -160,8 +160,49 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
                         .OnClicked(this, &SFlareTradeRouteMenu::OnCancelChangeRouteNameClicked)
                         .Visibility(this, &SFlareTradeRouteMenu::GetEditingRouteNameVisibility)
                     ]
-				]
-			]
+
+                    // Sector selection
+                    + SVerticalBox::Slot()
+                    .AutoHeight()
+                    .Padding(Theme.ContentPadding)
+                    [
+                        SAssignNew(SectorSelector, SComboBox<UFlareSimulatedSector*>)
+                        .OptionsSource(&SectorList)
+                        .OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateSectorComboLine)
+                        .OnSelectionChanged(this, &SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged)
+                        .ComboBoxStyle(&Theme.ComboBoxStyle)
+                        .ForegroundColor(FLinearColor::White)
+                        .Visibility(this, &SFlareTradeRouteMenu::GetAddSectorVisibility)
+                        [
+                            SNew(STextBlock)
+                            .Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
+                            .TextStyle(&Theme.TextFont)
+                        ]
+                    ]
+
+                    // Add sector button
+                    + SVerticalBox::Slot()
+                    .AutoHeight()
+                    .Padding(Theme.ContentPadding)
+                    .HAlign(HAlign_Left)
+                    [
+                        SNew(SFlareButton)
+                        .Width(8)
+                        .Text(LOCTEXT("AddSector", "Add a sector"))
+                        .HelpText(LOCTEXT("AddSectorInfo", "Add a sector to the trade route"))
+                        .OnClicked(this, &SFlareTradeRouteMenu::OnAddSectorClicked)
+                        .Visibility(this, &SFlareTradeRouteMenu::GetAddSectorVisibility)
+                    ]
+
+                    // Trade route sector list
+                    + SVerticalBox::Slot()
+                    .AutoHeight()
+                    .HAlign(HAlign_Left)
+                    [
+                        SAssignNew(TradeSectorList, SVerticalBox)
+                    ]
+                ]
+             ]
 
 			// Content block
 			+ SVerticalBox::Slot()
@@ -202,14 +243,78 @@ void SFlareTradeRouteMenu::Enter(UFlareTradeRoute* TradeRoute)
 
 	TargetTradeRoute = TradeRoute;
 	AFlarePlayerController* PC = MenuManager->GetPC();
+
+    GenerateSectorList();
 }
 
 void SFlareTradeRouteMenu::Exit()
 {
 	SetEnabled(false);
 	TargetTradeRoute = NULL;
+    TradeSectorList->ClearChildren();
 
 	SetVisibility(EVisibility::Hidden);
+}
+
+void SFlareTradeRouteMenu::GenerateSectorList()
+{
+    SectorList.Empty();
+    TradeSectorList->ClearChildren();
+
+    if (TargetTradeRoute)
+    {
+        TArray<UFlareSimulatedSector*>& VisitedSectors = MenuManager->GetGame()->GetPC()->GetCompany()->GetVisitedSectors();
+        for (int SectorIndex = 0; SectorIndex < VisitedSectors.Num(); SectorIndex++)
+        {
+            if (!TargetTradeRoute->IsVisiting(VisitedSectors[SectorIndex]))
+            {
+                SectorList.Add(VisitedSectors[SectorIndex]);
+            }
+        }
+
+        const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+
+        TArray<FFlareTradeRouteSectorSave>& Sectors = TargetTradeRoute->GetSectors();
+        for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+        {
+            FFlareTradeRouteSectorSave* SectorOrders = &Sectors[SectorIndex];
+            UFlareSimulatedSector* Sector = MenuManager->GetGame()->GetGameWorld()->FindSector(SectorOrders->SectorIdentifier);
+
+            // TODO Trade route sector info
+            TradeSectorList->AddSlot()
+            .AutoHeight()
+            .HAlign(HAlign_Right)
+            [
+                SNew(SHorizontalBox)
+
+                // Sector info
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                .Padding(Theme.ContentPadding)
+                [
+                    SNew(SBox)
+                    .HAlign(HAlign_Left)
+                    .VAlign(VAlign_Center)
+                    [
+                        SNew(STextBlock)
+                        .TextStyle(&Theme.TextFont)
+                        .Text(Sector->GetSectorName())
+                    ]
+                ]
+
+               /* // Inspect
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                [
+                    SNew(SFlareButton)
+                    .OnClicked(this, &SFlareCompanyMenu::OnInspectTradeRouteClicked, TradeRoute)
+                    .Text(FText(LOCTEXT("Inspect", "Inspect")))
+                ]*/
+
+            ];
+        }
+    }
 }
 
 /*----------------------------------------------------
@@ -263,6 +368,45 @@ FText SFlareTradeRouteMenu::GetTradeRouteName() const
 
 	return Result;
 }
+
+
+TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateSectorComboLine(UFlareSimulatedSector* Item)
+{
+    const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+    return SNew(STextBlock)
+    .Text(Item->GetSectorName())
+    .TextStyle(&Theme.TextFont);
+}
+
+void SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo)
+{
+}
+
+FText SFlareTradeRouteMenu::OnGetCurrentSectorComboLine() const
+{
+    UFlareSimulatedSector* Item = SectorSelector->GetSelectedItem();
+    return Item ? Item->GetSectorName() : LOCTEXT("Select", "Select a sector");
+}
+
+void SFlareTradeRouteMenu::OnAddSectorClicked()
+{
+    UFlareSimulatedSector* Item = SectorSelector->GetSelectedItem();
+    if (Item)
+    {
+        TargetTradeRoute->AddSector(Item);
+        GenerateSectorList();
+        SectorSelector->SetSelectedItem(NULL);
+    }
+}
+
+EVisibility SFlareTradeRouteMenu::GetAddSectorVisibility() const
+{
+    return SectorList.Num() > 0 ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
+
+
 
 #undef LOCTEXT_NAMESPACE
 

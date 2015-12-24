@@ -61,6 +61,7 @@ protected:
 	/** Inspect trade route */
 	void OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute);
 
+    EVisibility GetTradeRouteVisibility() const;
 protected:
 
 	/*----------------------------------------------------
