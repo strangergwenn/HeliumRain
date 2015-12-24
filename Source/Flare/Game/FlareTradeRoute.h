@@ -100,6 +100,10 @@ public:
 
 	virtual void InitFleetList();
 
+    virtual void SetTradeRouteName(FText NewName)
+    {
+        TradeRouteData.Name = NewName;
+    }
 
 protected:
 

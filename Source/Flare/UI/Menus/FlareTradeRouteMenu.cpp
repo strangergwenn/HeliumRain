@@ -104,9 +104,9 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.Text(this, &SFlareTradeRouteMenu::GetTradeRouteName)
 						.TextStyle(&Theme.SubTitleFont)
-					]
+                    ]
 
-					// Change name
+                    // Change name
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
@@ -115,11 +115,51 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						SNew(SFlareButton)
 						.Width(8)
 						.Text(LOCTEXT("ChangeName", "Change route name"))
-						.HelpText(LOCTEXT("ChangeName", "Change the route name"))
+                        .HelpText(LOCTEXT("ChangeNameInfo", "Change the route name"))
 						.Icon(FFlareStyleSet::GetIcon("ChangeRouteName"))
 						.OnClicked(this, &SFlareTradeRouteMenu::OnChangeRouteNameClicked)
-						.Visibility(this, &SFlareTradeRouteMenu::GetChangeRouteNameVisibility)
+                        .Visibility(this, &SFlareTradeRouteMenu::GetShowingRouteNameVisibility)
 					]
+
+                    // Trade route name
+                    + SVerticalBox::Slot()
+                    .Padding(Theme.TitlePadding)
+                    .AutoHeight()
+                    [
+                        SAssignNew(EditRouteName, SEditableText)
+                        .Style(&Theme.TextInputStyle)
+                        .Visibility(this, &SFlareTradeRouteMenu::GetEditingRouteNameVisibility)
+                    ]
+
+                    // Confirm name
+                    + SVerticalBox::Slot()
+                    .AutoHeight()
+                    .Padding(Theme.ContentPadding)
+                    .HAlign(HAlign_Left)
+                    [
+                        SNew(SFlareButton)
+                        .Width(8)
+                        .Text(LOCTEXT("ConfirmChangeName", "Confirm"))
+                        .HelpText(LOCTEXT("ConfirmChangeNameInfo", "Confirm change the route name"))
+                        .Icon(FFlareStyleSet::GetIcon("ConfirmChangeRouteName"))
+                        .OnClicked(this, &SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked)
+                        .Visibility(this, &SFlareTradeRouteMenu::GetEditingRouteNameVisibility)
+                    ]
+
+                    // Cancel change name
+                    + SVerticalBox::Slot()
+                    .AutoHeight()
+                    .Padding(Theme.ContentPadding)
+                    .HAlign(HAlign_Left)
+                    [
+                        SNew(SFlareButton)
+                        .Width(8)
+                        .Text(LOCTEXT("CancelChangeName", "Cancel"))
+                        .HelpText(LOCTEXT("CancelChangeNameInfo", "Cancel name change"))
+                        .Icon(FFlareStyleSet::GetIcon("CancelChangeRouteName"))
+                        .OnClicked(this, &SFlareTradeRouteMenu::OnCancelChangeRouteNameClicked)
+                        .Visibility(this, &SFlareTradeRouteMenu::GetEditingRouteNameVisibility)
+                    ]
 				]
 			]
 
@@ -156,6 +196,7 @@ void SFlareTradeRouteMenu::Enter(UFlareTradeRoute* TradeRoute)
 {
 	FLOG("SFlareTradeMenu::Enter");
 
+    IsEditingName = false;
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
@@ -182,11 +223,32 @@ void SFlareTradeRouteMenu::OnBackClicked()
 
 void SFlareTradeRouteMenu::OnChangeRouteNameClicked()
 {
+    EditRouteName->SetText(GetTradeRouteName());
+    IsEditingName = true;
 }
 
-EVisibility SFlareTradeRouteMenu::GetChangeRouteNameVisibility() const
+void SFlareTradeRouteMenu::OnCancelChangeRouteNameClicked()
 {
-	return EVisibility::Visible;
+    IsEditingName = false;
+}
+
+void SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked()
+{
+    if (TargetTradeRoute)
+    {
+        TargetTradeRoute->SetTradeRouteName(EditRouteName->GetText());
+    }
+    IsEditingName = false;
+}
+
+EVisibility SFlareTradeRouteMenu::GetShowingRouteNameVisibility() const
+{
+    return IsEditingName ? EVisibility::Collapsed : EVisibility::Visible;
+}
+
+EVisibility SFlareTradeRouteMenu::GetEditingRouteNameVisibility() const
+{
+    return IsEditingName ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 /** Get a button text */

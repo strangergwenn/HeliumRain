@@ -166,7 +166,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				// Trade route list
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.HAlign(HAlign_Fill)
+                .HAlign(HAlign_Left)
 				[
 					SAssignNew(TradeRouteList, SVerticalBox)
 				]

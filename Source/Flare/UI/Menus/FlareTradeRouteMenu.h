@@ -47,8 +47,17 @@ protected:
 
 	void OnChangeRouteNameClicked();
 
-	/** Is the delete button visible ? */
-	EVisibility GetChangeRouteNameVisibility() const;
+    void OnConfirmChangeRouteNameClicked();
+
+    void OnCancelChangeRouteNameClicked();
+
+
+    /** Are the not editing components visible ? */
+    EVisibility GetShowingRouteNameVisibility() const;
+
+    /** Are the not editing components visible ? */
+    EVisibility GetEditingRouteNameVisibility() const;
+
 
 	/** Get route name */
 	FText GetTradeRouteName() const;
@@ -66,7 +75,10 @@ protected:
 
 	// Menu components
 	UFlareTradeRoute*                     TargetTradeRoute;
+    bool                                    IsEditingName;
 
 	// Sector data
 	TSharedPtr<SComboBox<UFlareSimulatedSector*>> SectorSelector;
+    TSharedPtr<SEditableText>                   EditRouteName;
+
 };
