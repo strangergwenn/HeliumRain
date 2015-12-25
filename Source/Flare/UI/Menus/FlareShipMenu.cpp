@@ -270,13 +270,16 @@ void SFlareShipMenu::Setup()
 
 void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
-	FLOG("SFlareShipMenu::Enter");
+	FLOGV("SFlareShipMenu::Enter : CanEdit=%d", IsEditable);
 	SetEnabled(true);
+	SetVisibility(EVisibility::Visible);
 
+	// Load data
 	CanEdit = IsEditable;
 	TargetSpacecraft = Target;
 	TargetSpacecraftData = Target->Save();
 	LoadTargetSpacecraft();
+	UpdateFactoryList();
 
 	// Move the viewer to the right
 	AFlarePlayerController* PC = MenuManager->GetPC();
@@ -285,26 +288,40 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
 	}
 
-	// Fill the docking data
-	TArray<IFlareSpacecraftInterface*> DockedShips = Target->GetDockingSystem()->GetDockedShips();
-	for (int32 i = 0; i < DockedShips.Num(); i++)
+	// Is the docking list visible ?
+	UFlareSpacecraftDockingSystem* DockSystem = Cast<UFlareSpacecraftDockingSystem>(TargetSpacecraft->GetDockingSystem());
+	if (CanEdit || Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL)
 	{
-		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(DockedShips[i]);
-
-		if (Spacecraft)
-		{
-			FLOGV("SFlareShipMenu::Enter %s", *Spacecraft->GetName());
-		}
-		if (DockedShips[i]->GetDamageSystem()->IsAlive())
-		{
-			ShipList->AddShip(DockedShips[i]);
-		}
+		FLOG("SFlareShipMenu::Enter : Simulated or upgrade view");
+		ShipList->SetVisibility(EVisibility::Collapsed);
 	}
-	ShipList->RefreshList();
 
-	SetVisibility(EVisibility::Visible);
+	// Fill the docking list if it is visible
+	else if (DockSystem && DockSystem->GetDockCount() > 0)
+	{
+		TArray<IFlareSpacecraftInterface*> DockedShips = Target->GetDockingSystem()->GetDockedShips();
+		for (int32 i = 0; i < DockedShips.Num(); i++)
+		{
+			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(DockedShips[i]);
 
-	UpdateFactoryList();
+			if (Spacecraft)
+			{
+				FLOGV("SFlareShipMenu::Enter : Found docked ship %s", *Spacecraft->GetName());
+			}
+			if (DockedShips[i]->GetDamageSystem()->IsAlive())
+			{
+				ShipList->AddShip(DockedShips[i]);
+			}
+		}
+
+		ShipList->RefreshList();
+		ShipList->SetVisibility(EVisibility::Visible);
+	}
+	else
+	{
+		FLOG("SFlareShipMenu::Enter : Target ship doesn't have a docking system");
+		ShipList->SetVisibility(EVisibility::Collapsed);
+	}
 }
 
 void SFlareShipMenu::Exit()
