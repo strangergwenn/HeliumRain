@@ -65,6 +65,9 @@ public:
 	/** Inspect the current target */
 	void OnInspect();
 
+	/** Upgrade the current target */
+	void OnUpgrade();
+
 	/** Trade with the current target */
 	void OnTrade();
 
@@ -86,6 +89,7 @@ public:
 	/** Unassign*/
 	void OnUnassign();
 
+
 	/*----------------------------------------------------
 		Content
 	----------------------------------------------------*/
@@ -105,7 +109,10 @@ public:
 	/** Hide the company flag if owned */
 	EVisibility GetCompanyFlagVisibility() const;
 
-	/** Get the company name or the current fleet's name */
+	/** Visibility setting for the company/fleet/station data */
+	EVisibility GetSpacecraftInfoVisibility() const;
+
+	/** Get the company name or the current fleet's name or the production status */
 	FText GetSpacecraftInfo() const;
 	
 
@@ -127,6 +134,7 @@ protected:
 
 	// Slate data
 	TSharedPtr<SFlareButton>          InspectButton;
+	TSharedPtr<SFlareButton>          UpgradeButton;
 	TSharedPtr<SFlareButton>          TradeButton;
 	TSharedPtr<SFlareButton>          AssignButton;
 	TSharedPtr<SFlareButton>          UnassignButton;

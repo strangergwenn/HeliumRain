@@ -75,6 +75,9 @@ protected:
 	/** Is it a station */
 	EVisibility GetEngineVisibility() const;
 
+	/** Is it editable  */
+	EVisibility GetEditVisibility() const;
+
 	/** Get a Slate brush for the RCS icon */
 	const FSlateBrush* GetRCSIcon() const;
 

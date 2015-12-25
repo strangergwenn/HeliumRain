@@ -156,6 +156,17 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(ShipCustomizationBox, SVerticalBox)
 			
+					// Edit info
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("EditInfoText", "Click on a component to upgrade it."))
+						.Visibility(this, &SFlareShipMenu::GetEditVisibility)
+					]
+
 					// Components
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -290,9 +301,9 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 
 	// Is the docking list visible ?
 	UFlareSpacecraftDockingSystem* DockSystem = Cast<UFlareSpacecraftDockingSystem>(TargetSpacecraft->GetDockingSystem());
-	if (CanEdit || Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL)
+	if (CanEdit)
 	{
-		FLOG("SFlareShipMenu::Enter : Simulated or upgrade view");
+		FLOG("SFlareShipMenu::Enter : Upgrade view");
 		ShipList->SetVisibility(EVisibility::Collapsed);
 	}
 
@@ -563,6 +574,11 @@ const FSlateBrush* SFlareShipMenu::GetExitIcon() const
 EVisibility SFlareShipMenu::GetEngineVisibility() const
 {
 	return (TargetSpacecraft && !TargetSpacecraft->IsStation() ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetEditVisibility() const
+{
+	return (CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 const FSlateBrush* SFlareShipMenu::GetRCSIcon() const
