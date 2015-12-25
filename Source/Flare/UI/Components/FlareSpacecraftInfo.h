@@ -102,11 +102,11 @@ public:
 	/** Get the target class icon */
 	const FSlateBrush* GetClassIcon() const;
 
-	/** Hide the company line if owned */
-	EVisibility GetCompanyLineVisibility() const;
+	/** Hide the company flag if owned */
+	EVisibility GetCompanyFlagVisibility() const;
 
-	/** Get the company name */
-	FText GetCompanyName() const;
+	/** Get the company name or the current fleet's name */
+	FText GetSpacecraftInfo() const;
 	
 
 protected:

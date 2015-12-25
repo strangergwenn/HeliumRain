@@ -5,6 +5,10 @@
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "FlareFactory.h"
 
+
+#define LOCTEXT_NAMESPACE "FlareFactoryInfo"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -571,3 +575,115 @@ bool UFlareFactory::HasInputResource(FFlareResourceDescription* Resource)
 	return false;
 }
 
+FText UFlareFactory::GetFactoryCycleInfo()
+{
+	FText CommaTextReference = LOCTEXT("Comma", " + ");
+	FText ProductionCostText;
+	FText ProductionOutputText;
+
+	// Cycle cost in credits
+	uint32 CycleCost = GetDescription()->ProductionCost;
+	if (CycleCost > 0)
+	{
+		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleCost));
+	}
+
+	// Cycle cost in resources
+	for (int ResourceIndex = 0; ResourceIndex < GetDescription()->InputResources.Num(); ResourceIndex++)
+	{
+		FText CommaText = ProductionCostText.IsEmpty() ? FText() : CommaTextReference;
+		const FFlareFactoryResource* FactoryResource = &GetDescription()->InputResources[ResourceIndex];
+		check(FactoryResource);
+
+		ProductionCostText = FText::Format(LOCTEXT("ProductionResourcesFormat", "{0}{1} {2} {3}"),
+			ProductionCostText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
+	}
+
+	// Cycle output in factory actions
+	for (int ActionIndex = 0; ActionIndex < GetDescription()->OutputActions.Num(); ActionIndex++)
+	{
+		FText CommaText = ProductionOutputText.IsEmpty() ? FText() : CommaTextReference;
+		const FFlareFactoryAction* FactoryAction = &GetDescription()->OutputActions[ActionIndex];
+		check(FactoryAction);
+
+		switch (FactoryAction->Action)
+		{
+			// Ship production
+		case EFlareFactoryAction::CreateShip:
+			ProductionOutputText = FText::Format(LOCTEXT("ProductionActionsFormat", "{0}{1} {2} {3}"),
+				ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity),
+				GetGame()->GetSpacecraftCatalog()->Get(FactoryAction->Identifier)->Name);
+			break;
+
+			// TODO
+		case EFlareFactoryAction::DiscoverSector:
+		case EFlareFactoryAction::GainTechnology:
+		default:
+			FLOGV("SFlareShipMenu::UpdateFactoryLimitsList : Unimplemented factory action %d", (FactoryAction->Action + 0));
+		}
+	}
+
+	// Cycle output in resources
+	for (int ResourceIndex = 0; ResourceIndex < GetDescription()->OutputResources.Num(); ResourceIndex++)
+	{
+		FText CommaText = ProductionOutputText.IsEmpty() ? FText() : CommaTextReference;
+		const FFlareFactoryResource* FactoryResource = &GetDescription()->OutputResources[ResourceIndex];
+		check(FactoryResource);
+
+		ProductionOutputText = FText::Format(LOCTEXT("ProductionOutputFormat", "{0}{1} {2} {3}"),
+			ProductionOutputText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
+	}
+
+	return FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} each {2}"),
+		ProductionCostText, ProductionOutputText,
+		FText::FromString(*UFlareGameTools::FormatTime(GetDescription()->ProductionTime, 2))); // FString needed here
+}
+
+FText UFlareFactory::GetFactoryStatus()
+{
+	FText ProductionStatusText;
+
+	if (IsActive())
+	{
+		if (!IsNeedProduction())
+		{
+			ProductionStatusText = LOCTEXT("ProductionNotNeeded", "Production not needed");
+		}
+		else if (HasCostReserved())
+		{
+			ProductionStatusText = FText::Format(LOCTEXT("ProductionInProgressFormat", "Producing ({0}{1})"),
+				FText::FromString(*UFlareGameTools::FormatTime(GetRemainingProductionDuration(), 2)), // FString needed here
+				HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space"));
+		}
+		else if (HasInputMoney() && HasInputResources())
+		{
+			ProductionStatusText = LOCTEXT("ProductionWillStart", "Starting");
+		}
+		else
+		{
+			if (!HasInputMoney())
+			{
+				ProductionStatusText = LOCTEXT("ProductionNotEnoughMoney", "Waiting for credits");
+			}
+
+			if (!HasInputResources())
+			{
+				ProductionStatusText = LOCTEXT("ProductionNotEnoughResources", "Waiting for resources");
+			}
+		}
+	}
+	else if (IsPaused())
+	{
+		ProductionStatusText = FText::Format(LOCTEXT("ProductionPaused", "Paused ({0} to completion)"),
+			FText::FromString(*UFlareGameTools::FormatTime(GetRemainingProductionDuration(), 2))); // FString needed here
+	}
+	else
+	{
+		ProductionStatusText = LOCTEXT("ProductionStopped", "Stopped");
+	}
+
+	return ProductionStatusText;
+}
+
+
+#undef LOCTEXT_NAMESPACE

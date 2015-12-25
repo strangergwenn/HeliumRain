@@ -53,7 +53,7 @@ protected:
 
 	/** Get the factory status info */
 	FText GetFactoryStatus(UFlareFactory* Factory) const;
-
+	
 	/** Get the current progress */
 	TOptional<float> GetProductionProgress(UFlareFactory* Factory) const;
 
@@ -81,12 +81,7 @@ protected:
 
 	/** Stop production */
 	void OnStopProduction(UFlareFactory* Factory);
-
-	/*
-	void OnSwitchProductionCyclesLimit(UFlareFactory* Factory);
-	void OnIncreaseProductionCycles(UFlareFactory* Factory);
-	void OnDecreaseProductionCycles(UFlareFactory* Factory);*/
-
+	
 	/** Decrease the output storage limit */
 	void OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
 

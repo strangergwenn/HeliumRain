@@ -232,4 +232,11 @@ public:
 	bool HasOutputResource(FFlareResourceDescription* Resource);
 
 	bool HasInputResource(FFlareResourceDescription* Resource);
+
+	/** Get tgis factory's cycle data */
+	FText GetFactoryCycleInfo();
+
+	/** Get this factory's status text */
+	FText GetFactoryStatus();
+
 };

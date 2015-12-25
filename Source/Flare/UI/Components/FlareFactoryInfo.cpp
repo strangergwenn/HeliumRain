@@ -198,19 +198,6 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareSimulatedSpacecraft* SimulatedSpacecraft = TargetFactory->GetParent();
 
-	// Production cycle limiter
-	/*bool ProductionLimitEnabled = !Factory->HasInfiniteCycle();
-	FText ProductionCycleStatusText;
-	if (ProductionLimitEnabled)
-	{
-	ProductionCycleStatusText = FText::Format(LOCTEXT("ProductionLimitFormat", "Limited to {0} cycles (clear)"),
-	FText::AsNumber(Factory->GetCycleCount()));
-	}
-	else
-	{
-	ProductionCycleStatusText = LOCTEXT("ProductionLimitEnable", "Limit production cycles");
-	}*/
-
 	// Iterate all output resources
 	for (int ResourceIndex = 0; ResourceIndex < TargetFactory->GetDescription()->OutputResources.Num(); ResourceIndex++)
 	{
@@ -301,7 +288,7 @@ FText SFlareFactoryInfo::GetFactoryName(UFlareFactory* Factory) const
 	{
 		Result = FText::Format(LOCTEXT("FactoryNameFormat", "{0} - {1}"),
 			FText::FromString(Factory->GetDescription()->Name.ToString().ToUpper()),
-			GetFactoryStatus(Factory));
+			Factory->GetFactoryStatus());
 	}
 
 	return Result;
@@ -309,124 +296,17 @@ FText SFlareFactoryInfo::GetFactoryName(UFlareFactory* Factory) const
 
 FText SFlareFactoryInfo::GetFactoryDescription(UFlareFactory* Factory) const
 {
-	FText Result;
-
-	if (Factory)
-	{
-		Result = Factory->GetDescription()->Description;
-	}
-
-	return Result;
+	return Factory ? Factory->GetDescription()->Description : FText();
 }
 
 FText SFlareFactoryInfo::GetFactoryCycleInfo(UFlareFactory* Factory) const
 {
-	FText CommaTextReference = LOCTEXT("Comma", " + ");
-	FText ProductionCostText;
-	FText ProductionOutputText;
-
-	// Cycle cost in credits
-	uint32 CycleCost = Factory->GetDescription()->ProductionCost;
-	if (CycleCost > 0)
-	{
-		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleCost));
-	}
-
-	// Cycle cost in resources
-	for (int ResourceIndex = 0; ResourceIndex < Factory->GetDescription()->InputResources.Num(); ResourceIndex++)
-	{
-		FText CommaText = ProductionCostText.IsEmpty() ? FText() : CommaTextReference;
-		const FFlareFactoryResource* FactoryResource = &Factory->GetDescription()->InputResources[ResourceIndex];
-		check(FactoryResource);
-
-		ProductionCostText = FText::Format(LOCTEXT("ProductionResourcesFormat", "{0}{1} {2} {3}"),
-			ProductionCostText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
-	}
-
-	// Cycle output in factory actions
-	for (int ActionIndex = 0; ActionIndex < Factory->GetDescription()->OutputActions.Num(); ActionIndex++)
-	{
-		FText CommaText = ProductionOutputText.IsEmpty() ? FText() : CommaTextReference;
-		const FFlareFactoryAction* FactoryAction = &Factory->GetDescription()->OutputActions[ActionIndex];
-		check(FactoryAction);
-
-		switch (FactoryAction->Action)
-		{
-			// Ship production
-		case EFlareFactoryAction::CreateShip:
-			ProductionOutputText = FText::Format(LOCTEXT("ProductionActionsFormat", "{0}{1} {2} {3}"),
-				ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity),
-				MenuManager->GetGame()->GetSpacecraftCatalog()->Get(FactoryAction->Identifier)->Name);
-			break;
-
-			// TODO
-		case EFlareFactoryAction::DiscoverSector:
-		case EFlareFactoryAction::GainTechnology:
-		default:
-			FLOGV("SFlareShipMenu::UpdateFactoryLimitsList : Unimplemented factory action %d", (FactoryAction->Action + 0));
-		}
-	}
-
-	// Cycle output in resources
-	for (int ResourceIndex = 0; ResourceIndex < Factory->GetDescription()->OutputResources.Num(); ResourceIndex++)
-	{
-		FText CommaText = ProductionOutputText.IsEmpty() ? FText() : CommaTextReference;
-		const FFlareFactoryResource* FactoryResource = &Factory->GetDescription()->OutputResources[ResourceIndex];
-		check(FactoryResource);
-
-		ProductionOutputText = FText::Format(LOCTEXT("ProductionOutputFormat", "{0}{1} {2} {3}"),
-			ProductionOutputText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
-	}
-
-	return FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} each {2}"),
-		ProductionCostText, ProductionOutputText,
-		FText::FromString(*UFlareGameTools::FormatTime(Factory->GetDescription()->ProductionTime, 2))); // FString needed here
+	return Factory ? Factory->GetFactoryCycleInfo() : FText();
 }
 
 FText SFlareFactoryInfo::GetFactoryStatus(UFlareFactory* Factory) const
 {
-	FText ProductionStatusText;
-
-	if (Factory && Factory->IsActive())
-	{
-		if (!Factory->IsNeedProduction())
-		{
-			ProductionStatusText = LOCTEXT("ProductionNotNeeded", "Production not needed");
-		}
-		else if (Factory->HasCostReserved())
-		{
-			ProductionStatusText = FText::Format(LOCTEXT("ProductionInProgressFormat", "Producing ({0}{1})"),
-				FText::FromString(*UFlareGameTools::FormatTime(Factory->GetRemainingProductionDuration(), 2)), // FString needed here
-				Factory->HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space"));
-		}
-		else if (Factory->HasInputMoney() && Factory->HasInputResources())
-		{
-			ProductionStatusText = LOCTEXT("ProductionWillStart", "Starting");
-		}
-		else
-		{
-			if (!Factory->HasInputMoney())
-			{
-				ProductionStatusText = LOCTEXT("ProductionNotEnoughMoney", "Waiting for credits");
-			}
-
-			if (!Factory->HasInputResources())
-			{
-				ProductionStatusText = LOCTEXT("ProductionNotEnoughResources", "Waiting for resources");
-			}
-		}
-	}
-	else if (Factory->IsPaused())
-	{
-		ProductionStatusText = FText::Format(LOCTEXT("ProductionPaused", "Paused ({0} to completion)"),
-			FText::FromString(*UFlareGameTools::FormatTime(Factory->GetRemainingProductionDuration(), 2))); // FString needed here
-	}
-	else
-	{
-		ProductionStatusText = LOCTEXT("ProductionStopped", "Stopped");
-	}
-
-	return ProductionStatusText;
+	return Factory ? Factory->GetFactoryStatus() : FText();
 }
 
 TOptional<float> SFlareFactoryInfo::GetProductionProgress(UFlareFactory* Factory) const
@@ -464,11 +344,6 @@ EVisibility SFlareFactoryInfo::GetStopProductionVisibility(UFlareFactory* Factor
 		return EVisibility::Collapsed;
 	}
 }
-//
-//EVisibility SFlareFactoryInfo::GetProductionCyclesLimitVisibility(UFlareFactory* Factory) const
-//{
-//	return (!Factory->HasInfiniteCycle() ? EVisibility::Visible : EVisibility::Collapsed);
-//}
 
 EVisibility SFlareFactoryInfo::GetIncreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
 {
@@ -513,27 +388,6 @@ void SFlareFactoryInfo::OnStopProduction(UFlareFactory* Factory)
 	Factory->Stop();
 	UpdateFactoryLimits();
 }
-//
-//void SFlareFactoryInfo::OnSwitchProductionCyclesLimit(UFlareFactory* Factory)
-//{
-//	Factory->SetInfiniteCycle(!Factory->HasInfiniteCycle());
-//	UpdateFactoryLimitsList();
-//}
-//
-//void SFlareFactoryInfo::OnIncreaseProductionCycles(UFlareFactory* Factory)
-//{
-//	Factory->SetCycleCount(Factory->GetCycleCount() + 1);
-//	UpdateFactoryLimitsList();
-//}
-//
-//void SFlareFactoryInfo::OnDecreaseProductionCycles(UFlareFactory* Factory)
-//{
-//	if (Factory->GetCycleCount() > 1)
-//	{
-//		Factory->SetCycleCount(Factory->GetCycleCount() - 1);
-//		UpdateFactoryLimitsList();
-//	}
-//}
 
 void SFlareFactoryInfo::OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource)
 {

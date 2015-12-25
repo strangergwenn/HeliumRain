@@ -91,7 +91,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SNew(SHorizontalBox)
-						.Visibility(this, &SFlareSpacecraftInfo::GetCompanyLineVisibility)
 
 						// Company flag
 						+ SHorizontalBox::Slot()
@@ -100,6 +99,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(CompanyFlag, SFlareCompanyFlag)
 							.Player(InArgs._Player)
+							.Visibility(this, &SFlareSpacecraftInfo::GetCompanyFlagVisibility)
 						]
 
 						// Company info
@@ -108,7 +108,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						.Padding(FMargin(8))
 						[
 							SNew(STextBlock)
-							.Text(this, &SFlareSpacecraftInfo::GetCompanyName)
+							.Text(this, &SFlareSpacecraftInfo::GetSpacecraftInfo)
 							.TextStyle(&Theme.TextFont)
 						]
 					]
@@ -513,7 +513,7 @@ const FSlateBrush* SFlareSpacecraftInfo::GetClassIcon() const
 	return NULL;
 }
 
-EVisibility SFlareSpacecraftInfo::GetCompanyLineVisibility() const
+EVisibility SFlareSpacecraftInfo::GetCompanyFlagVisibility() const
 {
 	if (TargetSpacecraft)
 	{
@@ -529,13 +529,53 @@ EVisibility SFlareSpacecraftInfo::GetCompanyLineVisibility() const
 	return EVisibility::Visible;
 }
 
-FText SFlareSpacecraftInfo::GetCompanyName() const
+FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 {
 	if (TargetSpacecraft)
 	{
 		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
+		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 
-		if (TargetCompany)
+		// Our company
+		if (TargetCompany && PC && TargetCompany == PC->GetCompany())
+		{
+			// Station : show production, if simulated
+			if (TargetSpacecraft->IsStation())
+			{
+				if (SimulatedSpacecraft)
+				{
+					FText ProductionStatusText = FText();
+					TArray<UFlareFactory*>& Factories = SimulatedSpacecraft->GetFactories();
+
+					for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+					{
+						FText NewLineText = (FactoryIndex > 0) ? FText::FromString("\n") : FText();
+						UFlareFactory* Factory = Factories[FactoryIndex];
+
+						ProductionStatusText = FText::Format(LOCTEXT("ProductionStatusFormat", "{0}{1}{2} : {3}"),
+							ProductionStatusText,
+							NewLineText,
+							Factory->GetDescription()->Name,
+							Factory->GetFactoryStatus());
+					}
+
+					return ProductionStatusText;
+				}
+			}
+
+			// Ship : show fleet, if > 1 ship
+			else if (SimulatedSpacecraft)
+			{
+				UFlareFleet* Fleet = SimulatedSpacecraft->GetCurrentFleet();
+				if (Fleet->GetShips().Num() > 1)
+				{
+					return FText::Format(LOCTEXT("FleetFormat", "In fleet \"{0}\""), Fleet->GetFleetName());
+				}
+			}
+		}
+
+		// Other company
+		else
 		{
 			return FText::Format(LOCTEXT("OwnedByFormat", "Owned by {0}"), TargetCompany->GetShortInfoText());
 		}
