@@ -138,7 +138,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// Center column : Asta, Ariadne
+				// Center column : Anka & Asta
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
 				[
@@ -146,15 +146,15 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 
 					+ SVerticalBox::Slot()
 					[
-						SAssignNew(AstaBox, SFlarePlanetaryBox)
+						SAssignNew(AnkaBox, SFlarePlanetaryBox)
 					]
 					+ SVerticalBox::Slot()
 					[
-						SAssignNew(AriadneBox, SFlarePlanetaryBox)
+						SAssignNew(AstaBox, SFlarePlanetaryBox)
 					]
 				]
 
-				// Right column : buttons, Anka
+				// Right column : buttons, Ariadne
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
 				[
@@ -213,10 +213,10 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						]
 					]
 
-					// Anka
+					// Ariadne
 					+ SVerticalBox::Slot()
 					[
-						SAssignNew(AnkaBox, SFlarePlanetaryBox)
+						SAssignNew(AriadneBox, SFlarePlanetaryBox)
 					]
 				]
 			]
