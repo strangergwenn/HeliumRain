@@ -73,6 +73,9 @@ protected:
 	/** Open the settings menu */
 	void OnOpenSettings();
 
+	/*** Open credits */
+	void OnOpenCredits();
+
 	/** Quit the game */
 	void OnQuitGame();
 

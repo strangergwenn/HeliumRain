@@ -1,17 +1,20 @@
 
 #include "../Flare.h"
 #include "FlareMenuManager.h"
+
 #include "../UI/Menus/FlareMainMenu.h"
 #include "../UI/Menus/FlareSettingsMenu.h"
 #include "../UI/Menus/FlareNewGameMenu.h"
 #include "../UI/Menus/FlareDashboard.h"
-#include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
+#include "../UI/Menus/FlareOrbitalMenu.h"
+#include "../UI/Menus/FlareLeaderboardMenu.h"
+#include "../UI/Menus/FlareCompanyMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
 #include "../UI/Menus/FlareTradeMenu.h"
 #include "../UI/Menus/FlareTradeRouteMenu.h"
-#include "../UI/Menus/FlareOrbitalMenu.h"
-#include "../UI/Menus/FlareLeaderboardMenu.h"
+#include "../UI/Menus/FlareCreditsMenu.h"
+
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../FlareLoadingScreen/FlareLoadingScreen.h"
@@ -52,6 +55,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(TradeRouteMenu, SFlareTradeRouteMenu).MenuManager(this);
 		SAssignNew(OrbitMenu, SFlareOrbitalMenu).MenuManager(this);
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
+		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 
 		// Notifier
 		SAssignNew(Notifier, SFlareNotifier).MenuManager(this).Visibility(EVisibility::SelfHitTestInvisible);
@@ -81,6 +85,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeRouteMenu.ToSharedRef()),   50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),  50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),      50);
 
 		// Register special menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         80);
@@ -100,6 +105,7 @@ void AFlareMenuManager::SetupMenu()
 		TradeRouteMenu->Setup();
 		OrbitMenu->Setup();
 		LeaderboardMenu->Setup();
+		CreditsMenu->Setup();
 
 		CurrentMenu = EFlareMenu::MENU_None;
 	}
@@ -189,6 +195,7 @@ void AFlareMenuManager::Back()
 			case EFlareMenu::MENU_NewGame:
 				OpenMenu(EFlareMenu::MENU_Main);
 				break;
+
 			case EFlareMenu::MENU_Settings:
 				FLOGV("AFlareMenuManager::Back MENU_Settings LastNonSettingsMenu %d", (int) LastNonSettingsMenu);
 
@@ -201,6 +208,7 @@ void AFlareMenuManager::Back()
 					OpenMenu(LastNonSettingsMenu);
 				}
 				break;
+
 			case EFlareMenu::MENU_Dashboard:
 				CloseMenu();
 				break;
@@ -216,20 +224,29 @@ void AFlareMenuManager::Back()
 			case EFlareMenu::MENU_ShipConfig:
 				OpenMenu(EFlareMenu::MENU_Dashboard);
 				break;
+
 			case EFlareMenu::MENU_Sector:
 				OpenMenu(EFlareMenu::MENU_Orbit);
 				break;
+
 			case EFlareMenu::MENU_Trade:
 				OpenMenu(EFlareMenu::MENU_Orbit);
 				// TODO real back
-			break;
+				break;
+
 			case EFlareMenu::MENU_TradeRoute:
 				OpenMenu(EFlareMenu::MENU_Orbit);
 				// TODO real back
-			break;
+				break;
+
 			case EFlareMenu::MENU_Leaderboard:
 				OpenMenu(EFlareMenu::MENU_Orbit);
 				break;
+
+			case EFlareMenu::MENU_Credits:
+				OpenMenu(EFlareMenu::MENU_Main);
+				break;
+
 			case EFlareMenu::MENU_Main:
 			case EFlareMenu::MENU_FlyShip:
 			case EFlareMenu::MENU_Orbit:
@@ -365,6 +382,7 @@ void AFlareMenuManager::ResetMenu()
 	TradeRouteMenu->Exit();
 	OrbitMenu->Exit();
 	LeaderboardMenu->Exit();
+	CreditsMenu->Exit();
 
 	if (PC)
 	{
@@ -400,9 +418,11 @@ void AFlareMenuManager::ProcessFadeTarget()
 		case EFlareMenu::MENU_Main:
 			OpenMainMenu();
 			break;
+
 		case EFlareMenu::MENU_Settings:
 			OpenSettingsMenu();
 			break;
+
 		case EFlareMenu::MENU_NewGame:
 			OpenNewGameMenu();
 			break;
@@ -430,18 +450,25 @@ void AFlareMenuManager::ProcessFadeTarget()
 		case EFlareMenu::MENU_Sector:
 			OpenSector(static_cast<UFlareSimulatedSector*>(FadeTargetData));
 			break;
+
 		case EFlareMenu::MENU_Trade:
 			OpenTrade(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
 			break;
+
 		case EFlareMenu::MENU_TradeRoute:
 			OpenTradeRoute(static_cast<UFlareTradeRoute*>(FadeTargetData));
-		break;
+			break;
+
 		case EFlareMenu::MENU_Orbit:
 			OpenOrbit();
 			break;
 
 		case EFlareMenu::MENU_Leaderboard:
 			OpenLeaderboard();
+			break;
+
+		case EFlareMenu::MENU_Credits:
+			OpenCredits();
 			break;
 
 		case EFlareMenu::MENU_Quit:
@@ -589,6 +616,14 @@ void AFlareMenuManager::OpenLeaderboard()
 	CurrentMenu = EFlareMenu::MENU_Leaderboard;
 	GetPC()->OnEnterMenu();
 	LeaderboardMenu->Enter();
+}
+
+void AFlareMenuManager::OpenCredits()
+{
+	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_Credits;
+	GetPC()->OnEnterMenu();
+	CreditsMenu->Enter();
 }
 
 void AFlareMenuManager::ExitMenu()

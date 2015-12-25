@@ -112,13 +112,33 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 
 		// Build info
 		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Right)
 		.VAlign(VAlign_Bottom)
+		.HAlign(HAlign_Fill)
 		.Padding(Theme.SmallContentPadding)
 		[
-			SNew(STextBlock)
-			.Text(FText::Format(LOCTEXT("DEVBUILD", "Helium Rain / Development build / {0}"), FText::FromString(__DATE__))) // FString neded here
-			.TextStyle(&Theme.SmallFont)
+			SNew(SHorizontalBox)
+
+			// Credits
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SFlareButton)
+				.Transparent(true)
+				.Width(3)
+				.Text(LOCTEXT("About", "About"))
+				.OnClicked(this, &SFlareMainMenu::OnOpenCredits)
+			]
+
+			// Version
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.AutoWidth()
+			[
+				SNew(STextBlock)
+				.Text(FText::Format(FText::FromString("HELIUM RAIN / development build / {0}"), FText::FromString(__DATE__))) // FString neded here
+				.TextStyle(&Theme.SmallFont)
+			]
 		]
 	];
 
@@ -184,13 +204,13 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 
 			// Delete
 			+ SVerticalBox::Slot()
-				.HAlign(HAlign_Left)
-				.VAlign(VAlign_Center)
-				.AutoHeight()
-				.Padding(Theme.SmallContentPadding)
-				[
-					SNew(SFlareButton)
-					.Text(LOCTEXT("Delete", "Delete game"))
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Center)
+			.AutoHeight()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("Delete", "Delete game"))
 				.HelpText(LOCTEXT("DeleteInfo", "Delete this game, forever, without backup !"))
 				.Icon(FFlareStyleSet::GetIcon("Delete"))
 				.OnClicked(this, &SFlareMainMenu::OnDeleteSlot, IndexPtr)
@@ -315,6 +335,10 @@ void SFlareMainMenu::OnDeleteSlotConfirmed()
 void SFlareMainMenu::OnOpenSettings()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
+}
+void SFlareMainMenu::OnOpenCredits()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Credits);
 }
 
 void SFlareMainMenu::OnQuitGame()

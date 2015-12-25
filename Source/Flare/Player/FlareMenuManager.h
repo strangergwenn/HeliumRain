@@ -10,13 +10,14 @@ class SFlareMainMenu;
 class SFlareSettingsMenu;
 class SFlareNewGameMenu;
 class SFlareDashboard;
-class SFlareCompanyMenu;
 class SFlareShipMenu;
+class SFlareOrbitalMenu;
+class SFlareLeaderboardMenu;
+class SFlareCompanyMenu;
 class SFlareSectorMenu;
 class SFlareTradeMenu;
 class SFlareTradeRouteMenu;
-class SFlareOrbitalMenu;
-class SFlareLeaderboardMenu;
+class SFlareCreditsMenu;
 
 class AFlarePlayerController;
 
@@ -147,6 +148,9 @@ protected:
 	/** Open the company menu */
 	virtual void OpenLeaderboard();
 
+	/** Go to the game's credits */
+	virtual void OpenCredits();
+
 	/** Exit the menu */
 	virtual void ExitMenu();
 
@@ -169,23 +173,25 @@ protected:
 	TEnumAsByte<EFlareMenu::Type>           CurrentMenu;
 	TEnumAsByte<EFlareMenu::Type>           LastNonSettingsMenu;
 
-	// Menus
+	// Menu tools
 	TSharedPtr<SFlareTooltip>               Tooltip;
 	TSharedPtr<SFlareNotifier>              Notifier;
 	TSharedPtr<SFlareConfirmationOverlay>   Confirmation;
+
+	// Menus
 	TSharedPtr<SFlareMainMenu>              MainMenu;
 	TSharedPtr<SFlareSettingsMenu>          SettingsMenu;
 	TSharedPtr<SFlareNewGameMenu>           NewGameMenu;
 	TSharedPtr<SFlareDashboard>             Dashboard;
-	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
+	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
+	TSharedPtr<SFlareLeaderboardMenu>       LeaderboardMenu;
+	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;
 	TSharedPtr<SFlareSectorMenu>            SectorMenu;
 	TSharedPtr<SFlareTradeMenu>             TradeMenu;
 	TSharedPtr<SFlareTradeRouteMenu>        TradeRouteMenu;
-	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
-	TSharedPtr<SFlareLeaderboardMenu>       LeaderboardMenu;
+	TSharedPtr<SFlareCreditsMenu>           CreditsMenu;
 	
-
 	// Menu target data
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
 	void*                                   FadeTargetData;

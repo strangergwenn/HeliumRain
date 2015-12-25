@@ -32,6 +32,7 @@ namespace EFlareMenu
 		MENU_Orbit,
 		MENU_Leaderboard,
 		MENU_Settings,
+		MENU_Credits,
 		MENU_Quit,
 		MENU_Exit
 	};
