@@ -12,7 +12,6 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 {
 	// Mesh data
 	GetStaticMeshComponent()->bTraceComplexOnMove = true;
-	//GetStaticMeshComponent()->LDMaxDrawDistance = 1000000; // 10km
 	GetStaticMeshComponent()->SetSimulatePhysics(true);
 	GetStaticMeshComponent()->SetLinearDamping(0);
 	GetStaticMeshComponent()->SetAngularDamping(0);
@@ -38,7 +37,7 @@ void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 		GetStaticMeshComponent()->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
 		
 		float CollisionSize = GetStaticMeshComponent()->GetCollisionShape().GetExtent().Size();
-		FVector ScaleFactor = Data.Scale * (10000.0f / CollisionSize);
+		FVector ScaleFactor = Data.Scale * (20000.0f / CollisionSize);
 
 		SetActorScale3D(ScaleFactor);
 		GetStaticMeshComponent()->SetPhysicsLinearVelocity(Data.LinearVelocity);
