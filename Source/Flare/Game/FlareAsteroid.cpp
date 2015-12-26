@@ -36,7 +36,11 @@ void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 	{
 		AsteroidData = Data;
 		GetStaticMeshComponent()->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
-		SetActorScale3D(Data.Scale);
+		
+		float CollisionSize = GetStaticMeshComponent()->GetCollisionShape().GetExtent().Size();
+		FVector ScaleFactor = Data.Scale * (10000.0f / CollisionSize);
+
+		SetActorScale3D(ScaleFactor);
 		GetStaticMeshComponent()->SetPhysicsLinearVelocity(Data.LinearVelocity);
 		GetStaticMeshComponent()->SetPhysicsAngularVelocity(Data.AngularVelocity);
 	}
