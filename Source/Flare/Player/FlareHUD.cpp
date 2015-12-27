@@ -494,6 +494,12 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color);
 
+			// Draw the target's distance
+			FString DistanceText = FormatDistance(Distance / 100);
+			FVector2D DistanceTextPosition = ScreenPosition - (ViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 3 * CornerSize * FVector2D::UnitVector;
+			DrawText(DistanceText, DistanceTextPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
+			DrawText(DistanceText, DistanceTextPosition, HUDFont, FVector2D::UnitVector, Color.ToFColor(true));
+
 			// Draw the status
 			if (!Spacecraft->IsStation() && ObjectSize.X > IconSize)
 			{
