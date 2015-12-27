@@ -169,7 +169,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				.VAlign(VAlign_Top)
 				[
 					SNew(SBox)
-					.WidthOverride(8 * Theme.ButtonWidth + Theme.ContentPadding.Left + Theme.ContentPadding.Right)
+					.WidthOverride(10 * Theme.ButtonWidth + Theme.ContentPadding.Left + Theme.ContentPadding.Right)
 					[
 						SNew(SVerticalBox)
 
@@ -211,7 +211,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							SNew(STextBlock)
 							.TextStyle(&Theme.TextFont)
 							.Text(this, &SFlareSectorMenu::OnGetStationCost)
-							.WrapTextAt(8 * Theme.ButtonWidth)
+							.WrapTextAt(10 * Theme.ButtonWidth)
 						]
 
 						// Build station button
@@ -221,7 +221,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						.HAlign(HAlign_Left)
 						[
 							SNew(SFlareButton)
-							.Width(8)
+							.Width(10)
 							.Text(LOCTEXT("BuildStationButton", "Build station"))
 							.HelpText(LOCTEXT("BuildStationInfo", "Build a station"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -348,20 +348,24 @@ void SFlareSectorMenu::UpdateStationCost()
 	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
 	if (Item)
 	{
-		FFlareSpacecraftDescription* StationDescription = &Item->Data;
-		FText StationCostText = FText::Format(LOCTEXT("CreditsFormat", "{0} credits"), FText::AsNumber(StationDescription->Cost));
 		FString ResourcesString;
+		FFlareSpacecraftDescription* StationDescription = &Item->Data;
+		StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 
 		// Add resources
 		for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
 		{
 			FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
-			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Acronym.ToString()); // FString needed here
+			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
 		}
 
 		// Final text
-		StationCost = FText::Format(LOCTEXT("StationCostFormat", "This station costs {0}{1}."), StationCostText, FText::FromString(ResourcesString));
-		StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
+		FText CanBuildText = LOCTEXT("CanBuild", "You can build this station !");
+		FText CannotBuildText = LOCTEXT("CannotBuild", "You can't build this station yet.");
+		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2} and requires an unnassigned cargo ship in this sector."),
+			StationBuildable ? CanBuildText : CannotBuildText,
+			FText::AsNumber(StationDescription->Cost),
+			FText::FromString(ResourcesString));
 	}
 }
 
