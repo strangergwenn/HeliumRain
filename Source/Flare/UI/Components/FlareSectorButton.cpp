@@ -123,12 +123,12 @@ FText SFlareSectorButton::GetSectorText() const
 
 			if (Sector->GetSectorStations().Num() > 0)
 			{
-				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} station") : LOCTEXT("Stations", "{0} stations");
+				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", ", {0} station") : LOCTEXT("Stations", ", {0} stations");
 				StationText = FText::Format(StationText, FText::AsNumber(Sector->GetSectorStations().Num()));
 			}
 		}
 
-		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}\n{2}"), SectorTitle, ShipText, StationText);
+		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}{2}"), SectorTitle, ShipText, StationText);
 	}
 
 	return SectorText;
