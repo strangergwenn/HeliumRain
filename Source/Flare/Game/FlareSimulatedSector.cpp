@@ -393,6 +393,59 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 	}
 }
 
+FText UFlareSimulatedSector::GetSectorFriendlynessText(UFlareCompany* Company) const
+{
+	FText Status;
+
+	switch (GetSectorFriendlyness(Company))
+	{
+		case EFlareSectorFriendlyness::NotVisited:
+			Status = LOCTEXT("Unknown", "UNKNOWN");
+			break;
+		case EFlareSectorFriendlyness::Neutral:
+			Status = LOCTEXT("Neutral", "NEUTRAL");
+			break;
+		case EFlareSectorFriendlyness::Friendly:
+			Status = LOCTEXT("Friendly", "FRIENDLY");
+			break;
+		case EFlareSectorFriendlyness::Contested:
+			Status = LOCTEXT("Contested", "CONTESTED");
+			break;
+		case EFlareSectorFriendlyness::Hostile:
+			Status = LOCTEXT("Hostile", "HOSTILE");
+			break;
+	}
+
+	return Status;
+}
+
+FLinearColor UFlareSimulatedSector::GetSectorFriendlynessColor(UFlareCompany* Company) const
+{
+	FLinearColor Color;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	switch (GetSectorFriendlyness(Company))
+	{
+		case EFlareSectorFriendlyness::NotVisited:
+			Color = Theme.UnknownColor;
+			break;
+		case EFlareSectorFriendlyness::Neutral:
+			Color = Theme.NeutralColor;
+			break;
+		case EFlareSectorFriendlyness::Friendly:
+			Color = Theme.FriendlyColor;
+			break;
+		case EFlareSectorFriendlyness::Contested:
+			Color = Theme.DisputedColor;
+			break;
+		case EFlareSectorFriendlyness::Hostile:
+			Color = Theme.EnemyColor;
+			break;
+	}
+
+	return Color;
+}
+
 bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
 {
 	// Check money cost

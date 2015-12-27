@@ -86,7 +86,9 @@ void SFlareSectorButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointe
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	if (MenuManager && Sector)
 	{
-		MenuManager->ShowTooltip(this, Sector->GetSectorName(), Sector->GetSectorDescription());
+		FText Status = Sector->GetSectorFriendlynessText(PlayerCompany);
+		FText SectorNameText = FText::Format(LOCTEXT("SectorNameFormat", "{0} ({1})"), Sector->GetSectorName(), Status);
+		MenuManager->ShowTooltip(this, SectorNameText, Sector->GetSectorDescription());
 	}
 }
 
@@ -141,29 +143,11 @@ const FSlateBrush* SFlareSectorButton::GetBackgroundBrush() const
 
 FSlateColor SFlareSectorButton::GetBorderColor() const
 {
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor Color = FLinearColor::White;
 
 	if (Sector)
 	{
-		switch(Sector->GetSectorFriendlyness(PlayerCompany))
-		{
-			case EFlareSectorFriendlyness::NotVisited:
-				Color = Theme.UnknownColor;
-				break;
-			case EFlareSectorFriendlyness::Neutral:
-				Color = Theme.NeutralColor;
-				break;
-			case EFlareSectorFriendlyness::Friendly:
-				Color = Theme.FriendlyColor;
-				break;
-			case EFlareSectorFriendlyness::Contested:
-				Color = Theme.DisputedColor;
-				break;
-			case EFlareSectorFriendlyness::Hostile:
-				Color = Theme.EnemyColor;
-				break;
-		}
+		Color = Sector->GetSectorFriendlynessColor(PlayerCompany);
 	}
 
 	Color = (IsHovered() ? Color : Color.Desaturate(0.1));

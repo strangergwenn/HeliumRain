@@ -308,7 +308,14 @@ public:
 		return SectorFleets;
 	}
 
+	/** Get the friendlyness status toward a company */
 	EFlareSectorFriendlyness::Type GetSectorFriendlyness(UFlareCompany* Company) const;
+
+	/** Get the friendlyness status toward a company, as a text */
+	FText GetSectorFriendlynessText(UFlareCompany* Company) const;
+
+	/** Get the friendlyness status toward a company, as a color */
+	FLinearColor GetSectorFriendlynessColor(UFlareCompany* Company) const;
 
 	uint32 GetTransportCapacityPerHour(UFlareCompany* Company);
 
