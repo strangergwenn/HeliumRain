@@ -58,9 +58,6 @@ public:
 
 	/** Choose a color*/
 	void OnItemPicked(int32 ItemIndex);
-
-	/** Mouse out */
-	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
 	
 
 protected:

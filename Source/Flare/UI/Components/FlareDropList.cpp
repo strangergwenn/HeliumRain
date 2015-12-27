@@ -85,10 +85,7 @@ void SFlareDropList::OnItemPicked(int32 ItemIndex)
 	{
 		OnItemPickedCallback.Execute(ItemIndex);
 	}
-}
 
-void SFlareDropList::OnMouseLeave(const FPointerEvent& MouseEvent)
-{
 	IsDropped = false;
 	ItemArray->SetVisibility(EVisibility::Collapsed);
 }
