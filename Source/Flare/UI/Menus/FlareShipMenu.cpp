@@ -196,7 +196,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareShipMenu::ShowRCSs)
 							.Icon(this, &SFlareShipMenu::GetRCSIcon)
 							.Text(this, &SFlareShipMenu::GetRCSText)
-							.HelpText(LOCTEXT("RCSInfo", "Inspect the current RCS thrusters"))
+							.HelpText(LOCTEXT("RCSInfo", "Inspect the current attitude control thrusters (RCS)"))
 							.InvertedBackground(true)
 							.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
 						]
@@ -628,6 +628,7 @@ const FSlateBrush* SFlareShipMenu::GetWeaponIcon(TSharedPtr<int32> Index) const
 FText SFlareShipMenu::GetWeaponText(TSharedPtr<int32> Index) const
 {
 	FText Result;
+	FText Comment;
 
 	if (*Index < WeaponDescriptions.Num())
 	{
@@ -638,7 +639,26 @@ FText SFlareShipMenu::GetWeaponText(TSharedPtr<int32> Index) const
 		}
 	}
 
-	return Result;
+	if (TargetSpacecraft)
+	{
+		const FFlareSpacecraftDescription* ShipDesc = TargetSpacecraft->GetDescription();
+
+		if (ShipDesc)
+		{
+			if (ShipDesc->Size == EFlarePartSize::L)
+			{
+				check(*Index >= 0 && *Index < ShipDesc->TurretSlots.Num());
+				Comment = ShipDesc->TurretSlots[*Index].SlotName;
+			}
+			else
+			{
+				check(*Index >= 0 && *Index < ShipDesc->GunSlots.Num());
+				Comment = ShipDesc->GunSlots[*Index].SlotName;
+			}
+		}
+	}
+
+	return FText::Format(LOCTEXT("WeaponTextFormat", "{0}\n({1})"), Result, Comment);
 }
 
 TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
