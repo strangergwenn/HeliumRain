@@ -64,7 +64,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(Confirmation, SFlareConfirmationOverlay).MenuManager(this);
 
 		// Tooltip
-		SAssignNew(Tooltip, SFlareTooltip);
+		SAssignNew(Tooltip, SFlareTooltip).MenuManager(this);
 
 		// Fader
 		SAssignNew(Fader, SBorder)
@@ -313,9 +313,9 @@ void AFlareMenuManager::FlushNotifications()
 	}
 }
 
-void AFlareMenuManager::ShowTooltip(SWidget* TargetWidget, FText Content)
+void AFlareMenuManager::ShowTooltip(SWidget* TargetWidget, FText Title, FText Content)
 {
-	Tooltip->ShowTooltip(TargetWidget, Content);
+	Tooltip->ShowTooltip(TargetWidget, Title, Content);
 }
 
 void AFlareMenuManager::HideTooltip(SWidget* TargetWidget)

@@ -79,12 +79,12 @@ protected:
 	FFlareButtonClicked            OnClicked;
 
 	// Attributes
-	TAttribute<FText>              Text;
 	TAttribute<const FSlateBrush*> Icon;
 	TAttribute<FSlateColor>        IconColor;
 	TAttribute<FSlateColor>        HighlightColor;
 	TAttribute<FSlateColor>        TextColor;
 	TAttribute<FText>              HelpText;
+	TAttribute<FText>              Text;
 
 	// Slate data
 	TSharedPtr<STextBlock>         TextBlock;

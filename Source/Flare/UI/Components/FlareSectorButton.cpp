@@ -86,7 +86,7 @@ void SFlareSectorButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointe
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	if (MenuManager && Sector)
 	{
-		MenuManager->ShowTooltip(this, Sector->GetSectorDescription());
+		MenuManager->ShowTooltip(this, Sector->GetSectorName(), Sector->GetSectorDescription());
 	}
 }
 

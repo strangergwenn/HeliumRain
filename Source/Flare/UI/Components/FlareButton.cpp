@@ -20,6 +20,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	IsTransparent = InArgs._Transparent;
 	OnClicked = InArgs._OnClicked;
 	Color = InArgs._Color;
+	Text = InArgs._Text;
 	HelpText = InArgs._HelpText;
 	int32 Width = InArgs._Width * Theme.ButtonWidth;
 	int32 Height = InArgs._Height * Theme.ButtonHeight;
@@ -185,7 +186,7 @@ void SFlareButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	if (MenuManager)
 	{
-		MenuManager->ShowTooltip(this, HelpText.Get());
+		MenuManager->ShowTooltip(this, Text.Get(), HelpText.Get());
 	}
 }
 

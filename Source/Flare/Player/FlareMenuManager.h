@@ -83,7 +83,7 @@ public:
 	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
 
 	/** Start displaying the tooltip */
-	void ShowTooltip(SWidget* TargetWidget, FText Content);
+	void ShowTooltip(SWidget* TargetWidget, FText Title, FText Content);
 
 	/** Stop displaying the tooltip */
 	void HideTooltip(SWidget* TargetWidget);

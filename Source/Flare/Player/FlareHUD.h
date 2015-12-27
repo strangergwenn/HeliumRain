@@ -168,4 +168,9 @@ public:
 		return MouseMenu;
 	}
 
+	FVector2D GetViewportSize() const
+	{
+		return ViewportSize;
+	}
+
 };

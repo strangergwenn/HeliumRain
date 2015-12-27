@@ -102,7 +102,7 @@ void SFlareRoundButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointer
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	if (MenuManager)
 	{
-		MenuManager->ShowTooltip(this, HelpText.Get());
+		MenuManager->ShowTooltip(this, Text.Get(), HelpText.Get());
 	}
 }
 

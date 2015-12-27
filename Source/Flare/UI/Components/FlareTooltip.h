@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../Components/FlareNotification.h"
 
 
 class AFlareMenuManager;
@@ -15,6 +14,8 @@ class SFlareTooltip : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareTooltip)
 	{}
+
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	
 	SLATE_END_ARGS()
 
@@ -36,7 +37,7 @@ public:
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
 	/** Start displaying the tooltip */
-	void ShowTooltip(SWidget* TargetWidget, FText Content);
+	void ShowTooltip(SWidget* TargetWidget, FText Title, FText Content);
 
 	/** Stop displaying the tooltip */
 	void HideTooltip(SWidget* TargetWidget);
@@ -46,11 +47,17 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Get the current position */
+	FMargin GetTooltipPosition() const;
+
 	/** Get the current tooltip color/opacity */
 	FSlateColor GetTooltipColor() const;
 
 	/** Get the current tooltip color/opacity for text shadows */
 	FLinearColor GetTooltipShadowColor() const;
+
+	/** Get the current tooltip title */
+	FText GetTitleText() const;
 
 	/** Get the current tooltip text */
 	FText GetHelpText() const;
@@ -61,13 +68,19 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
+
+	// HUD reference
+	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 	
+	TSharedPtr<SBox>                        ContentBox;
+
 	// Settings
 	float                                   TooltipDelay;
 	float                                   TooltipFadeDuration;
 
 	// Data
 	SWidget*                                TooltipTarget;
+	FText                                   TooltipTitle;
 	FText                                   TooltipContent;
 	bool                                    TooltipVisible;
 	float                                   TooltipCurrentTime;

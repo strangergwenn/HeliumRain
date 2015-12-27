@@ -92,6 +92,7 @@ protected:
 	TSharedPtr<SBorder>            InnerContainer;
 	TAttribute<const FSlateBrush*> Icon;
 	TAttribute<FSlateColor>        Color;
+	TAttribute<FText>              Text;
 	TAttribute<FText>              HelpText;
 
 
