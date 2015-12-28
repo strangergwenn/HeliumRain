@@ -201,7 +201,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 
 	// Init pilot
 	ShipData.Pilot.Identifier = "chewie";
-	ShipData.Pilot.Name = "Chewbaca";
+	ShipData.Pilot.Name = "Chewbacca";
 
 	// Init company
 	ShipData.CompanyIdentifier = Company->GetIdentifier();
