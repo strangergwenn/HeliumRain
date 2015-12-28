@@ -66,6 +66,9 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 	
-	FFlareAsteroidSave                          AsteroidData;
+	FFlareAsteroidSave                      AsteroidData;
 	bool                                    Paused;
+
+	UMaterialInstanceDynamic*               AsteroidMaterial;
+
 };
