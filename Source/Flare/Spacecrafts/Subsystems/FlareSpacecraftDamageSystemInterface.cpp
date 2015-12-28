@@ -18,7 +18,7 @@ UFlareSpacecraftDamageSystemInterface::UFlareSpacecraftDamageSystemInterface(con
 	Tools
 ----------------------------------------------------*/
 
-FText IFlareSpacecraftDamageSystemInterface::GetSubsystemName(EFlareSubsystem::Type SubsystemType) const
+FText IFlareSpacecraftDamageSystemInterface::GetSubsystemName(EFlareSubsystem::Type SubsystemType)
 {
 	FText Text;
 
