@@ -99,19 +99,9 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 
 FText SFlareSubsystemStatus::GetText() const
 {
-	FText Text;
-
-	switch (SubsystemType)
-	{
-		case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "Cooling");      break;
-		case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "Engines");       break;
-		case EFlareSubsystem::SYS_RCS:           Text = LOCTEXT("SYS_RCS", "RCS");                  break;
-		case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "Crew");         break;
-		case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "Power");              break;
-		case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "Weapons");           break;
-	}
-
-	return FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}\n{1}%"), Text, FText::AsNumber(100 * ComponentHealth));
+	return FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}\n{1}%"),
+		IFlareSpacecraftDamageSystemInterface::GetSubsystemName(SubsystemType),
+		FText::AsNumber(100 * ComponentHealth));
 }
 
 FText SFlareSubsystemStatus::GetInfoText() const

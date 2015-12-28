@@ -40,6 +40,12 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Mouse entered (tooltip) */
+	virtual void OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+
+	/** Mouse left (tooltip) */
+	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
+
 	/** Get the current color */
 	FSlateColor GetIconColor(EFlareSubsystem::Type Type) const;
 

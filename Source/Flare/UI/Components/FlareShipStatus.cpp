@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareShipStatus.h"
+#include "../../Player/FlareMenuManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareShipStatus"
 
@@ -100,6 +101,39 @@ void SFlareShipStatus::SetTargetShip(IFlareSpacecraftInterface* Target)
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+{
+	SWidget::OnMouseEnter(MyGeometry, MouseEvent);
+
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	if (MenuManager && TargetShip)
+	{
+		FText Info;
+
+		for (int32 Index = EFlareSubsystem::SYS_None + 1; Index <= EFlareSubsystem::SYS_Weapon; Index++)
+		{
+			Info = FText::Format(LOCTEXT("HealthInfoFormat", "{0}{1} : {2}%\n"),
+				Info,
+				IFlareSpacecraftDamageSystemInterface::GetSubsystemName((EFlareSubsystem::Type)Index),
+				FText::AsNumber(100 * TargetShip->GetDamageSystem()->GetSubsystemHealth((EFlareSubsystem::Type)Index, false, true))
+				);
+		}
+
+		MenuManager->ShowTooltip(this, LOCTEXT("Status", "SHIP STATUS"), Info);
+	}
+}
+
+void SFlareShipStatus::OnMouseLeave(const FPointerEvent& MouseEvent)
+{
+	SWidget::OnMouseLeave(MouseEvent);
+
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	if (MenuManager)
+	{
+		MenuManager->HideTooltip(this);
+	}
+}
 
 FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
 {
