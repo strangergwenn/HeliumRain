@@ -103,14 +103,18 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 		// Spawn penetration effect
 		if (ExplosionEffectTemplate)
 		{
-		UGameplayStatics::SpawnEmitterAttached(
-			ExplosionEffectTemplate,
-			OtherComp,
-			NAME_None,
-			HitLocation,
-			HitNormal.Rotation(),
-			EAttachLocation::KeepWorldPosition,
-			true);
+			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
+				ExplosionEffectTemplate,
+				OtherComp,
+				NAME_None,
+				HitLocation,
+				HitNormal.Rotation(),
+				EAttachLocation::KeepWorldPosition,
+				true);
+			if (PSC)
+			{
+				PSC->SetWorldScale3D(FVector(1, 1, 1));
+			}
 		}
 
 		//TODO Explosion radius

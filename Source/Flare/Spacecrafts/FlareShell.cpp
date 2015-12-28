@@ -281,15 +281,13 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 				else if (Asteroid)
 				{
 					float ImpulseForce = 1000 * ShellDescription->WeaponCharacteristics.ExplosionPower * ShellDescription->WeaponCharacteristics.AmmoDamageRadius;
-
-					// Physics impulse
 					Asteroid->GetStaticMeshComponent()->AddImpulseAtLocation( ShellVelocity.GetUnsafeNormal(), HitResult.Location);
 				}
 
 			}
 
 			// Spawn penetration effect
-			UGameplayStatics::SpawnEmitterAttached(
+			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
 				ExplosionEffectTemplate,
 				HitResult.GetComponent(),
 				NAME_None,
@@ -297,6 +295,10 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 				HitResult.ImpactNormal.Rotation(),
 				EAttachLocation::KeepWorldPosition,
 				true);
+			if (PSC)
+			{
+				PSC->SetWorldScale3D(FVector(1, 1, 1));
+			}
 
 			// Remove flight effects
 			if (FlightEffects)
@@ -427,9 +429,6 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 						}
 					}
 				}
-
-
-
 			}
 		}
 
@@ -519,7 +518,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	// Apply FX
 	if (ShipComponent)
 	{
-		UGameplayStatics::SpawnEmitterAttached(
+		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
 			ImpactEffectTemplate,
 			ShipComponent,
 			NAME_None,
@@ -527,6 +526,10 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 			ImpactNormal.Rotation(),
 			EAttachLocation::KeepWorldPosition,
 			true);
+		if (PSC)
+		{
+			PSC->SetWorldScale3D(FVector(1, 1, 1));
+		}
 	}
 
 	return AbsorbedEnergy;
@@ -534,12 +537,10 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 
 bool AFlareShell::Trace(const FVector& Start, const FVector& End, FHitResult& HitOut)
 {
+	// Ignore Actors
 	FCollisionQueryParams TraceParams(FName(TEXT("Shell Trace")), true, this);
 	TraceParams.bTraceComplex = true;
-	// TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
-
-	// Ignore Actors
 	TraceParams.AddIgnoredActor(this);
 	TraceParams.AddIgnoredActor(ParentWeapon->GetSpacecraft());
 

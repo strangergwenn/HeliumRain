@@ -42,9 +42,9 @@ void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 		SetActorScale3D(ScaleFactor);
 
 		// Mass scale
-		//FBodyInstance* BodyInst = GetStaticMeshComponent()->GetBodyInstance();
-		//BodyInst->MassScale = ScaleFactor.Size();
-		//BodyInst->UpdateMassProperties();
+		FBodyInstance* BodyInst = GetStaticMeshComponent()->GetBodyInstance();
+		BodyInst->MassScale = ScaleFactor.Size();
+		BodyInst->UpdateMassProperties();
 
 		// Physics status
 		GetStaticMeshComponent()->SetPhysicsLinearVelocity(Data.LinearVelocity);
