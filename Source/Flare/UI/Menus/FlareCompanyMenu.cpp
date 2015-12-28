@@ -331,7 +331,7 @@ EVisibility SFlareCompanyMenu::GetTradeRouteVisibility() const
 {
     if (Company)
     {
-        return MenuManager->GetPC()->GetCompany()->GetVisitedSectors().Num() > 2 ? EVisibility::Visible : EVisibility::Collapsed;
+        return MenuManager->GetPC()->GetCompany()->GetVisitedSectors().Num() >= 2 ? EVisibility::Visible : EVisibility::Collapsed;
     }
     else
     {
