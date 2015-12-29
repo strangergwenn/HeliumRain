@@ -304,11 +304,6 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 					.CargoIndex(CargoIndex)
 				];
 			}
-			CargoBay->SetVisibility(EVisibility::Visible);
-		}
-		else
-		{
-			CargoBay->SetVisibility(EVisibility::Collapsed);
 		}
 	}
 }
@@ -334,6 +329,7 @@ void SFlareSpacecraftInfo::Show()
 
 	if (Minimized)
 	{
+		CargoBay->SetVisibility(EVisibility::Collapsed);
 		InspectButton->SetVisibility(EVisibility::Collapsed);
 		UpgradeButton->SetVisibility(EVisibility::Collapsed);
 		TradeButton->SetVisibility(EVisibility::Collapsed);
@@ -357,6 +353,7 @@ void SFlareSpacecraftInfo::Show()
 		bool CanUpgrade = Owned && (IsDocked || Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL);
 
 		// Button states
+		CargoBay->SetVisibility(CargoBay->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
 		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
 		UpgradeButton->SetVisibility(CanUpgrade ? EVisibility::Visible : EVisibility::Collapsed);
 		TradeButton->SetVisibility(CanTrade ? EVisibility::Visible : EVisibility::Collapsed);
