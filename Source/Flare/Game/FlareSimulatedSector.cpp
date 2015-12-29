@@ -273,7 +273,7 @@ void UFlareSimulatedSector::DisbandFleet(UFlareFleet* Fleet)
 {
 	if (SectorFleets.Remove(Fleet) == 0)
 	{
-		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName().ToString(), *GetSectorName().ToString())
+        FLOGV("ERROR: Disband fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName().ToString(), *GetSectorName().ToString())
 		return;
 	}
 }
@@ -872,7 +872,7 @@ uint32 UFlareSimulatedSector::GiveResources(UFlareCompany* Company, FFlareResour
 		RemainingQuantityToGive -= GivenQuantity;
 	}
 
-	return RemainingQuantityToGive;
+    return QuantityToGive - RemainingQuantityToGive;
 }
 
 uint32 UFlareSimulatedSector::GetTransportCapacityPerHour(UFlareCompany* Company)

@@ -21,6 +21,8 @@ void UFlareTradeRoute::Load(const FFlareTradeRouteSave& Data)
 	Game = TradeRouteCompany->GetGame();
 	TradeRouteData = Data;
 	IsFleetListLoaded = false;
+
+    InitFleetList();
 }
 
 FFlareTradeRouteSave* UFlareTradeRoute::Save()
@@ -35,12 +37,21 @@ FFlareTradeRouteSave* UFlareTradeRoute::Save()
 
 void UFlareTradeRoute::Simulate(int64 Duration)
 {
+    if(TradeRouteData.Sectors.Num() == 0)
+    {
+        // Nothing to do
+        return;
+    }
+
+    FLOGV("Trade route simulate %lld", Duration);
 	for(int32 FleetIndex = 0; FleetIndex < TradeRouteFleets.Num() ; FleetIndex++)
 	{
 		UFlareFleet* Fleet = TradeRouteFleets[FleetIndex];
 
+        FLOGV("  - Fleet %d", FleetIndex);
 		if(Fleet->IsTraveling())
 		{
+            FLOG("  -> is travelling");
 			continue;
 		}
 
@@ -74,7 +85,7 @@ void UFlareTradeRoute::Simulate(int64 Duration)
 							ResourceToGive = FMath::Min(ResourceToGive, ResourceToUnload->Quantity - SectorResourceCount);
 						}
 
-						uint32 GivenResources = CurrentSector->GiveResources(Company, Resource, AvailableResourceCount);
+                        uint32 GivenResources = CurrentSector->GiveResources(Company, Resource, ResourceToGive);
 						Ship->TakeResources(Resource, GivenResources);
 					}
 				}
@@ -103,9 +114,18 @@ void UFlareTradeRoute::Simulate(int64 Duration)
 		{
 			continue;
 		}
+        if(NextTradeSector)
+        {
+            FLOGV("  start travel to %s", *NextTradeSector->GetSectorName().ToString());
+            // Travel to next sector
+            Game->GetGameWorld()->StartTravel(Fleet, NextTradeSector);
+        }
+        else
+        {
+            FLOG("No next sector");
+        }
 
-		// Travel to next sector
-		Game->GetGameWorld()->StartTravel(Fleet, NextTradeSector);
+
 	}
 
 }
@@ -304,7 +324,7 @@ UFlareSimulatedSector* UFlareTradeRoute::GetNextTradeSector(UFlareSimulatedSecto
 
 	if(NextSectorId < 0)
 	{
-		return NULL;
+        NextSectorId = 0;
 	}
 
 	if(NextSectorId >= TradeRouteData.Sectors.Num())

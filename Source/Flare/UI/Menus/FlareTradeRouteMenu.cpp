@@ -242,6 +242,46 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
                         SAssignNew(TradeSectorList, SVerticalBox)
                     ]
 
+                   + SVerticalBox::Slot()
+                   .AutoHeight()
+                   .Padding(Theme.ContentPadding)
+                   [
+                       SAssignNew(FleetSelector, SComboBox<UFlareFleet*>)
+                       .OptionsSource(&FleetList)
+                       .OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateFleetComboLine)
+                       .OnSelectionChanged(this, &SFlareTradeRouteMenu::OnFleetComboLineSelectionChanged)
+                       .ComboBoxStyle(&Theme.ComboBoxStyle)
+                       .ForegroundColor(FLinearColor::White)
+                       .Visibility(this, &SFlareTradeRouteMenu::GetAssignFleetVisibility)
+                       [
+                           SNew(STextBlock)
+                           .Text(this, &SFlareTradeRouteMenu::OnGetCurrentFleetComboLine)
+                           .TextStyle(&Theme.TextFont)
+                       ]
+                   ]
+
+                   // Assign fleet button
+                   + SVerticalBox::Slot()
+                   .AutoHeight()
+                   .Padding(Theme.ContentPadding)
+                   .HAlign(HAlign_Left)
+                   [
+                       SNew(SFlareButton)
+                       .Width(8)
+                       .Text(LOCTEXT("AssignFleet", "Assign a fleet"))
+                       .HelpText(LOCTEXT("AssignFleetInfo", "Assign a fleet to the trade route"))
+                       .OnClicked(this, &SFlareTradeRouteMenu::OnAssignFleetClicked)
+                       .Visibility(this, &SFlareTradeRouteMenu::GetAssignFleetVisibility)
+                   ]
+
+                    // Trade route fleet list
+                    + SVerticalBox::Slot()
+                    .AutoHeight()
+                    .HAlign(HAlign_Left)
+                    [
+                        SAssignNew(TradeFleetList, SVerticalBox)
+                    ]
+
 				]
 			]
 		]
@@ -271,6 +311,7 @@ void SFlareTradeRouteMenu::Enter(UFlareTradeRoute* TradeRoute)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
     GenerateSectorList();
+    GenerateFleetList();
 }
 
 void SFlareTradeRouteMenu::Exit()
@@ -278,6 +319,7 @@ void SFlareTradeRouteMenu::Exit()
 	SetEnabled(false);
 	TargetTradeRoute = NULL;
     TradeSectorList->ClearChildren();
+    TradeFleetList->ClearChildren();
 
 	SetVisibility(EVisibility::Hidden);
 }
@@ -549,6 +591,70 @@ void SFlareTradeRouteMenu::GenerateSectorList()
     }
 }
 
+void SFlareTradeRouteMenu::GenerateFleetList()
+{
+    FleetList.Empty();
+    TradeFleetList->ClearChildren();
+
+
+
+    if (TargetTradeRoute)
+    {
+        TArray<UFlareFleet*>& Fleets = MenuManager->GetGame()->GetPC()->GetCompany()->GetCompanyFleets();
+        for (int FleetIndex = 0; FleetIndex < Fleets.Num(); FleetIndex++)
+        {
+            if (!Fleets[FleetIndex]->GetCurrentTradeRoute())
+            {
+                FleetList.Add(Fleets[FleetIndex]);
+            }
+        }
+
+        const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+
+        TArray<UFlareFleet*>& TradeFleets = TargetTradeRoute->GetFleets();
+        for (int FleetIndex = 0; FleetIndex < TradeFleets.Num(); FleetIndex++)
+        {
+            UFlareFleet* Fleet = TradeFleets[FleetIndex];
+
+
+            TradeFleetList->AddSlot()
+            .AutoHeight()
+            .HAlign(HAlign_Right)
+            [
+                SNew(SVerticalBox)
+
+                // Fleet info
+                + SVerticalBox::Slot()
+                .AutoHeight()
+                .HAlign(HAlign_Left)
+                [
+                    SNew(SBox)
+                    .HAlign(HAlign_Left)
+                    .VAlign(VAlign_Center)
+                    [
+                        SNew(STextBlock)
+                        .TextStyle(&Theme.TextFont)
+                        .Text(Fleet->GetName())
+                    ]
+                ]
+
+                // Unassign fleet
+                + SVerticalBox::Slot()
+                .AutoHeight()
+                .HAlign(HAlign_Left)
+                [
+                    SNew(SFlareButton)
+                    .OnClicked(this, &SFlareTradeRouteMenu::OnUnassignFleetClicked, Fleet)
+                    .Text(FText(LOCTEXT("Unassign", "Unassign")))
+                ]
+            ];
+
+        }
+    }
+}
+
+
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
@@ -817,6 +923,53 @@ void SFlareTradeRouteMenu::OnClearUnloadResourceClicked(UFlareSimulatedSector* S
     }
 }
 
+
+TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateFleetComboLine(UFlareFleet* Item)
+{
+    const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+    return SNew(STextBlock)
+    .Text(Item->GetName())
+    .TextStyle(&Theme.TextFont);
+
+}
+
+void SFlareTradeRouteMenu::OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo)
+{
+
+}
+
+FText SFlareTradeRouteMenu::OnGetCurrentFleetComboLine() const
+{
+    UFlareFleet* Item = FleetSelector->GetSelectedItem();
+    return Item ? Item->GetName() : LOCTEXT("SelectFleet", "Select a fleet");
+}
+
+void SFlareTradeRouteMenu::OnAssignFleetClicked()
+{
+    UFlareFleet* Item = FleetSelector->GetSelectedItem();
+    if (Item)
+    {
+        TargetTradeRoute->AddFleet(Item);
+        GenerateFleetList();
+    }
+}
+
+EVisibility SFlareTradeRouteMenu::GetAssignFleetVisibility() const
+{
+    return FleetList.Num() > 0 ? EVisibility::Visible : EVisibility::Collapsed;
+
+}
+
+
+void SFlareTradeRouteMenu::OnUnassignFleetClicked(UFlareFleet* Fleet)
+{
+    if(TargetTradeRoute)
+    {
+        TargetTradeRoute->RemoveFleet(Fleet);
+        GenerateFleetList();
+    }
+}
 
 #undef LOCTEXT_NAMESPACE
 

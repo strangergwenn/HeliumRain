@@ -37,6 +37,8 @@ public:
 
     void GenerateSectorList();
 
+    void GenerateFleetList();
+
 protected:
 
 	/*----------------------------------------------------
@@ -100,6 +102,21 @@ protected:
 
     void OnClearUnloadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 
+    /** Fleet management */
+
+    TSharedRef<SWidget> OnGenerateFleetComboLine(UFlareFleet* Item);
+
+    void OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo);
+
+    FText OnGetCurrentFleetComboLine() const;
+
+    void OnAssignFleetClicked();
+
+    /** Can assign a fleet*/
+    EVisibility GetAssignFleetVisibility() const;
+
+    void OnUnassignFleetClicked(UFlareFleet* Fleet);
+
 
 protected:
 
@@ -119,11 +136,15 @@ protected:
 	TSharedPtr<SComboBox<UFlareSimulatedSector*>> SectorSelector;
     TArray<UFlareSimulatedSector*>                SectorList;
 
+    TSharedPtr<SComboBox<UFlareFleet*>> FleetSelector;
+    TArray<UFlareFleet*>                FleetList;
+
     TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
     TArray<UFlareResourceCatalogEntry*>                ResourceList;
 
 
     TSharedPtr<SEditableText>                   EditRouteName;
     TSharedPtr<SVerticalBox>                    TradeSectorList;
+    TSharedPtr<SVerticalBox>                    TradeFleetList;
 
 };
