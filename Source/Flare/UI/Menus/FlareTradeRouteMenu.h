@@ -75,6 +75,31 @@ protected:
     /** Can Add sector */
     EVisibility GetAddSectorVisibility() const;
 
+    TSharedRef<SWidget> OnGenerateResourceComboLine(UFlareResourceCatalogEntry* Item);
+
+    void OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo);
+
+    FText OnGetCurrentResourceComboLine() const;
+
+    /** Can Add resource*/
+    EVisibility GetResourceSelectorVisibility() const;
+
+    void OnLoadResourceClicked(UFlareSimulatedSector* Sector);
+
+    void OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+
+    void OnIncreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+
+    void OnClearLoadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+
+    void OnUnloadResourceClicked(UFlareSimulatedSector* Sector);
+
+    void OnDecreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+
+    void OnIncreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+
+    void OnClearUnloadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+
 
 protected:
 
@@ -93,6 +118,10 @@ protected:
 	// Sector data
 	TSharedPtr<SComboBox<UFlareSimulatedSector*>> SectorSelector;
     TArray<UFlareSimulatedSector*>                SectorList;
+
+    TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
+    TArray<UFlareResourceCatalogEntry*>                ResourceList;
+
 
     TSharedPtr<SEditableText>                   EditRouteName;
     TSharedPtr<SVerticalBox>                    TradeSectorList;

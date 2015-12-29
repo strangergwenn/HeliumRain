@@ -328,3 +328,14 @@ bool UFlareTradeRoute::IsVisiting(UFlareSimulatedSector *Sector)
     return false;
 }
 
+int32 UFlareTradeRoute::GetSectorIndex(UFlareSimulatedSector *Sector)
+{
+    for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+    {
+        if(TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+        {
+            return SectorIndex;
+        }
+    }
+    return -1;
+}

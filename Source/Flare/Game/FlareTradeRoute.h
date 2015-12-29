@@ -157,4 +157,7 @@ public:
 	UFlareSimulatedSector* GetNextTradeSector(UFlareSimulatedSector* Sector);
 
     bool IsVisiting(UFlareSimulatedSector *Sector);
+
+    int32 GetSectorIndex(UFlareSimulatedSector *Sector);
+
 };
