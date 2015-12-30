@@ -287,8 +287,7 @@ void AFlareHUD::DrawHUD()
 
 						// Draw distance
 						FVector2D CenterScreenPosition = ScreenPosition - ViewportSize / 2 + FVector2D(0, IconSize);
-						DrawText(ObjectiveText, CenterScreenPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
-						DrawText(ObjectiveText, CenterScreenPosition, HUDFont, FVector2D::UnitVector, (Target->Active ? FColor::White : InactiveTextColor));
+						DrawTextShaded(ObjectiveText, CenterScreenPosition, (Target->Active ? FLinearColor::White : InactiveTextColor));
 					}
 
 					// Tell the HUD to draw the search marker only if we are outside this
@@ -403,8 +402,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 			// Label
 			FString IndicatorText = Designation.ToString();
 			FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
-			DrawText(IndicatorText, IndicatorPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
-			DrawText(IndicatorText, IndicatorPosition, HUDFont, FVector2D::UnitVector, FColor::White);
+			DrawTextShaded(IndicatorText, IndicatorPosition);
 
 			// Icon
 			DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
@@ -412,8 +410,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 			// Speed 
 			FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
 			FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
-			DrawText(VelocityText, VelocityPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
-			DrawText(VelocityText, VelocityPosition, HUDFont, FVector2D::UnitVector, FColor::White);
+			DrawTextShaded(VelocityText, VelocityPosition);
 		}
 	}
 }
@@ -454,7 +451,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		float Distance = (TargetLocation - PlayerLocation).Size();
 		float ApparentAngle = FMath::RadiansToDegrees(FMath::Atan(ShipSize / Distance));
 		float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * ViewportSize.X;
-		FVector2D ObjectSize = FMath::Min(0.66f * Size, 300.0f) * FVector2D(1, 1);
+		FVector2D ObjectSize = FMath::Min(0.66f * Size, 500.0f) * FVector2D(1, 1);
 
 		// Check if the mouse is there
 		int ToleranceRange = 3;
@@ -483,7 +480,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		// Draw the HUD designator
 		else if (Spacecraft->GetDamageSystem()->IsAlive())
 		{
-			float CornerSize = 6;
+			float CornerSize = 8;
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 			FVector2D CenterPos = ScreenPosition - ObjectSize / 2;
 			FLinearColor Color = GetHostilityColor(PC, Spacecraft);
@@ -497,8 +494,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			// Draw the target's distance
 			FString DistanceText = FormatDistance(Distance / 100);
 			FVector2D DistanceTextPosition = ScreenPosition - (ViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 3 * CornerSize * FVector2D::UnitVector;
-			DrawText(DistanceText, DistanceTextPosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
-			DrawText(DistanceText, DistanceTextPosition, HUDFont, FVector2D::UnitVector, Color.ToFColor(true));
+			DrawTextShaded(DistanceText, DistanceTextPosition, Color);
 
 			// Draw the status
 			if (!Spacecraft->IsStation() && ObjectSize.X > IconSize)
@@ -548,9 +544,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 							// Time display
 							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
 							FVector2D TimePosition = ScreenPosition - ViewportSize / 2 - FVector2D(42,0);
-
-							DrawText(TimeText, TimePosition + FVector2D::UnitVector, HUDFont, FVector2D::UnitVector, FColor::Black);
-							DrawText(TimeText, TimePosition, HUDFont, FVector2D::UnitVector, HUDAimHelperColor.ToFColor(true));
+							DrawTextShaded(TimeText, TimePosition, HUDAimHelperColor);
 						}
 					}
 				}
@@ -620,6 +614,12 @@ void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float DesignatorIconSize,
 	Position -= (DesignatorIconSize / 2) * FVector2D::UnitVector;
 	DrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color,
 		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
+}
+
+void AFlareHUD::DrawTextShaded(FString Text, FVector2D Position, FLinearColor Color)
+{
+	DrawText(Text, Position - FVector2D(1, 3), HUDFont, FVector2D(1, 1.4), FColor::Black);
+	DrawText(Text, Position, HUDFont, FVector2D::UnitVector, Color.ToFColor(true));
 }
 
 bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const

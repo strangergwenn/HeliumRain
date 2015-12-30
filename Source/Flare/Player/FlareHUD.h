@@ -87,6 +87,9 @@ protected:
 	/** Draw an icon */
 	void DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, float Rotation);
 
+	/** Print a text with a shadow */
+	void DrawTextShaded(FString Text, FVector2D Position, FLinearColor Color = FLinearColor::White);
+
 	/** Is this position inside the viewport + border */
 	bool IsInScreen(FVector2D ScreenPosition) const;
 
