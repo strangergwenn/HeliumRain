@@ -397,21 +397,24 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 	FVector EndPoint = Object->GetActorLocation() + FocusDistance * Speed;
 	if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition) && SpeedMS > 1)
 	{
-		if (IsInScreen(ScreenPosition))
-		{
-			// Label
-			FString IndicatorText = Designation.ToString();
-			FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
-			DrawTextShaded(IndicatorText, IndicatorPosition);
+		// Cap screen pos
+		float ScreenBorderDistanceX = 100;
+		float ScreenBorderDistanceY = 20;
+		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, ScreenBorderDistanceX, ViewportSize.X - ScreenBorderDistanceX);
+		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, ScreenBorderDistanceY, ViewportSize.Y - ScreenBorderDistanceY);
 
-			// Icon
-			DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
+		// Label
+		FString IndicatorText = Designation.ToString();
+		FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
+		DrawTextShaded(IndicatorText, IndicatorPosition);
 
-			// Speed 
-			FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
-			FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
-			DrawTextShaded(VelocityText, VelocityPosition);
-		}
+		// Icon
+		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
+
+		// Speed 
+		FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
+		FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
+		DrawTextShaded(VelocityText, VelocityPosition);
 	}
 }
 
