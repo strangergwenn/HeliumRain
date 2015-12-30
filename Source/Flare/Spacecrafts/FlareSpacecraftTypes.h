@@ -114,6 +114,41 @@ struct FFlareShipPilotSave
 
 };
 
+/** Asteroid save data */
+USTRUCT()
+struct FFlareAsteroidSave
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Asteroid identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName Identifier;
+
+	/** Asteroid location */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector Location;
+
+	/** Asteroid rotation */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FRotator Rotation;
+
+	/** Asteroid linear velocity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector LinearVelocity;
+
+	/** Asteroid angular velocity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector AngularVelocity;
+
+	/** Asteroid scale */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector Scale;
+
+	/** Content identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 AsteroidMeshID;
+};
+
 /** Spacecraft cargo save data */
 USTRUCT()
 struct FFlareCargoSave
@@ -249,6 +284,10 @@ struct FFlareSpacecraftSave
 	/** Is spacecraft assigned to the sector */
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool IsAssigned;
+	
+	/** Asteroid we're stuck to */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareAsteroidSave AsteroidData;
 };
 
 

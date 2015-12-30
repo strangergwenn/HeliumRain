@@ -11,6 +11,7 @@
 
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareAsteroid.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraft"
@@ -36,6 +37,11 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	// Dock info
 	ShipData.DockedTo = NAME_None;
 	ShipData.DockedAt = -1;
+
+	// Asteroid info
+	ShipData.AsteroidData.Identifier = NAME_None;
+	ShipData.AsteroidData.AsteroidMeshID = 0;
+	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
 
 	Paused = false;
 }
@@ -180,7 +186,7 @@ void AFlareSpacecraft::Redock()
 	if (ShipData.DockedTo != NAME_None && !IsPresentationMode())
 	{
 		// TODO use sector iterator
-		FLOGV("AFlareSpacecraft::Load : Looking for station '%s'", *ShipData.DockedTo.ToString());
+		FLOGV("AFlareSpacecraft::Redock : Looking for station '%s'", *ShipData.DockedTo.ToString());
 
 		for (int32 SpacecraftIndex = 0; SpacecraftIndex < GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 		{
@@ -188,7 +194,7 @@ void AFlareSpacecraft::Redock()
 
 			if (Station->GetImmatriculation() == ShipData.DockedTo)
 			{
-				FLOGV("AFlareSpacecraft::Load : Found dock station '%s'", *Station->GetImmatriculation().ToString());
+				FLOGV("AFlareSpacecraft::Redock : Found dock station '%s'", *Station->GetImmatriculation().ToString());
 				NavigationSystem->ConfirmDock(Station, ShipData.DockedAt);
 				break;
 			}
@@ -266,11 +272,11 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 
 void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 {
-
 	if (!IsPresentationMode())
 	{
 		Airframe->SetSimulatePhysics(true);
 	}
+
 	// Update local data
 	ShipData = Data;
 	ShipData.SpawnMode = EFlareSpawnMode::Safe;
@@ -348,9 +354,11 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		}
 	}
 
+	// Look for an asteroid component
+	ApplyAsteroidData();
+
 	// Customization
 	UpdateCustomization();
-
 	Redock();
 
 	// If not rcs, add passive stabilization
@@ -363,13 +371,13 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	// Initialize pilot
 	Pilot = NewObject<UFlareShipPilot>(this, UFlareShipPilot::StaticClass());
 	Pilot->Initialize(&ShipData.Pilot, GetCompany(), this);
-
 	if (!StateManager)
 	{
 		StateManager = NewObject<UFlareSpacecraftStateManager>(this, UFlareSpacecraftStateManager::StaticClass());
 	}
 	StateManager->Initialize(this);
 
+	// Subsystems
 	DamageSystem->Start();
 	NavigationSystem->Start();
 	DockingSystem->Start();
@@ -457,6 +465,40 @@ UFlareSpacecraftWeaponsSystem* AFlareSpacecraft::GetWeaponsSystem() const
 UFlareSpacecraftDockingSystem* AFlareSpacecraft::GetDockingSystem() const
 {
 	return DockingSystem;
+}
+
+void AFlareSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
+{
+	// Copy data
+	ShipData.AsteroidData.Identifier = Data->Identifier;
+	ShipData.AsteroidData.AsteroidMeshID = Data->AsteroidMeshID;
+	ShipData.AsteroidData.Scale = Data->Scale;
+
+	// Apply
+	ApplyAsteroidData();
+	SetActorLocation(Data->Location);
+	SetActorRotation(Data->Rotation);
+}
+
+void AFlareSpacecraft::ApplyAsteroidData()
+{
+	if (ShipData.AsteroidData.Identifier != NAME_None)
+	{
+		TArray<UActorComponent*> Components = GetComponentsByClass(UActorComponent::StaticClass());
+		for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+		{
+			UActorComponent* Component = Components[ComponentIndex];
+			if (Component->GetName().Contains("Asteroid"))
+			{
+				FLOGV("AFlareSpacecraft::ApplyAsteroidData : Found asteroid component '%s', previously set from '%s'",
+					*Component->GetName(), *ShipData.AsteroidData.Identifier.ToString());
+
+				UStaticMeshComponent* AsteroidComponentCandidate = Cast<UStaticMeshComponent>(Component);
+				AFlareAsteroid::SetupAsteroidMesh(GetGame(), AsteroidComponentCandidate, ShipData.AsteroidData);
+				break;
+			}
+		}
+	}
 }
 
 UFlareInternalComponent* AFlareSpacecraft::GetInternalComponentAtLocation(FVector Location) const

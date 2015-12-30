@@ -31,30 +31,35 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 {
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-	if (Game)
-	{
-		AsteroidData = Data;
-		GetStaticMeshComponent()->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
-		
-		// Actor scale
-		float CollisionSize = GetStaticMeshComponent()->GetCollisionShape().GetExtent().Size();
-		FVector ScaleFactor = Data.Scale * (20000.0f / CollisionSize);
-		SetActorScale3D(ScaleFactor);
+	AsteroidData = Data;
 
-		// Mass scale
-		FBodyInstance* BodyInst = GetStaticMeshComponent()->GetBodyInstance();
-		BodyInst->MassScale = ScaleFactor.Size();
-		BodyInst->UpdateMassProperties();
+	SetupAsteroidMesh(Game, GetStaticMeshComponent(), Data);
+	GetStaticMeshComponent()->SetPhysicsLinearVelocity(Data.LinearVelocity);
+	GetStaticMeshComponent()->SetPhysicsAngularVelocity(Data.AngularVelocity);
+}
 
-		// Physics status
-		GetStaticMeshComponent()->SetPhysicsLinearVelocity(Data.LinearVelocity);
-		GetStaticMeshComponent()->SetPhysicsAngularVelocity(Data.AngularVelocity);
+void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data)
+{
+	Component->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
 
-		// Material
-		AsteroidMaterial = UMaterialInstanceDynamic::Create(GetStaticMeshComponent()->GetMaterial(0), GetWorld());
-		GetStaticMeshComponent()->SetMaterial(0, AsteroidMaterial);
-		AsteroidMaterial->SetScalarParameterValue("IceMask", 0);// TODO FRED : 1 or 0 depending on sector :) 
-	}
+	// Actor scale
+	Component->SetWorldScale3D(FVector(1, 1, 1));
+	float CollisionSize = Component->GetCollisionShape().GetExtent().Size();
+	FVector ScaleFactor = Component->GetOwner()->GetActorScale3D() * Data.Scale * (20000.0f / CollisionSize);
+	Component->SetWorldScale3D(ScaleFactor);
+
+	FLOGV("AFlareAsteroid::SetupAsteroidMesh : ID=%d Scale=%f,%f,%f CollisionSize=%f",
+		Data.AsteroidMeshID, Data.Scale.X, Data.Scale.Y, Data.Scale.Z, CollisionSize);
+
+	// Mass scale
+	FBodyInstance* BodyInst = Component->GetBodyInstance();
+	BodyInst->MassScale = ScaleFactor.Size();
+	BodyInst->UpdateMassProperties();
+
+	// Material
+	UMaterialInstanceDynamic* AsteroidMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), Component->GetWorld());
+	Component->SetMaterial(0, AsteroidMaterial);
+	AsteroidMaterial->SetScalarParameterValue("IceMask", 0);// TODO FRED : 1 or 0 depending on sector :)
 }
 
 FFlareAsteroidSave* AFlareAsteroid::Save()
@@ -77,8 +82,6 @@ void AFlareAsteroid::SetPause(bool Pause)
 	{
 		return;
 	}
-
-
 
 	CustomTimeDilation = (Pause ? 0.f : 1.0);
 	if (Pause)

@@ -98,11 +98,17 @@ public:
 		ShipData.IsAssigned = Assign;
 	}
 
-
 	virtual bool IsAssignedToSector() const override
 	{
 		return ShipData.IsAssigned;
 	}
+
+	/** Set asteroid data from an asteroid save */
+	void SetAsteroidData(FFlareAsteroidSave* Data);
+
+	/** Apply the current asteroid data */
+	void ApplyAsteroidData();
+
 
 protected:
 

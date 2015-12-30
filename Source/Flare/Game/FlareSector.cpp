@@ -164,7 +164,7 @@ AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidDat
 AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipData)
 {
 	AFlareSpacecraft* Spacecraft = NULL;
-	FLOGV("AFlareGame::LoadSpacecraft ('%s')", *ShipData.Immatriculation.ToString());
+	FLOGV("UFlareSector::LoadSpacecraft : Start loading ('%s')", *ShipData.Immatriculation.ToString());
 
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipData.Identifier);
 	if (Desc)
@@ -191,66 +191,59 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 			}
 			SectorSpacecrafts.Add(Spacecraft);
 
-
-			switch(ShipData.SpawnMode)
+			switch (ShipData.SpawnMode)
 			{
 				case EFlareSpawnMode::Safe:
+					FLOGV("UFlareSector::LoadSpacecraft : Safe spawn ('%s')", *ShipData.Immatriculation.ToString());
 					RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
 					RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 					break;
+
 				case EFlareSpawnMode::Spawn:
+					FLOGV("UFlareSector::LoadSpacecraft : Spawn ('%s')", *ShipData.Immatriculation.ToString());
 					if (Desc->NeedAttachPoint)
 					{
-						AFlareAsteroid* AttachPoint = NULL;
+						// Look for the asteroid in the level - if it doesn't exist, we were already "attached"
+						AFlareAsteroid* Asteroid = NULL;
 						for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
 						{
 							AFlareAsteroid* AsteroidCandidate = SectorAsteroids[AsteroidIndex];
 							if (AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
 							{
-								AttachPoint = AsteroidCandidate;
+								Asteroid = AsteroidCandidate;
 								break;
 							}
 						}
-						if (AttachPoint)
+
+						// Found it
+						if (Asteroid)
 						{
-							bool SpacecraftAttachPointLocationFound = false;
-							FVector Position = Spacecraft->GetActorLocation() + FVector(1,0,0);
-							TArray<UActorComponent*> Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-							for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-							{
-								UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-								if (Component->DoesSocketExist(FName("AttachPoint")))
-								{
-									SpacecraftAttachPointLocationFound = true;
-									Position = Component->GetSocketLocation(FName("AttachPoint"));
-									break;
-								}
-							}
-							if (! SpacecraftAttachPointLocationFound)
-							{
-								FLOGV("AFlareGame::LoadSpacecraft failed to find 'AttachPoint' socket on '%s'", *ShipData.Immatriculation.ToString());
-							}
+							FLOGV("UFlareSector::LoadSpacecraft : Found asteroid we need to attach to ('%s')", *Asteroid->GetName());
 
-							FBox AttachPointBox = AttachPoint->GetComponentsBoundingBox();
-							float AttachPointSize = FMath::Max(AttachPointBox.GetExtent().Size(), 1.0f);
+							// Kill asteroid
+							FFlareAsteroidSave* AsteroidData = Asteroid->Save();
+							Asteroid->SetActorEnableCollision(false);
+							Asteroid->SetActorHiddenInGame(true);
+							SectorAsteroids.Remove(Asteroid);
+							Asteroid->Destroy();
 
-							FVector StationOffset = Position - Spacecraft->GetActorLocation();
-							FVector StationDirection = StationOffset.GetUnsafeNormal();
-							float AttachDistance = StationOffset.Size() + AttachPointSize;
-
-							FVector StationLocation = AttachPoint->GetActorLocation() + StationDirection * AttachDistance;
-
-							Spacecraft->SetActorLocation(StationLocation);
+							// Setup station
+							Spacecraft->SetAsteroidData(AsteroidData);
 						}
 					}
 					else
 					{
+						FLOGV("UFlareSector::LoadSpacecraft : Placing ('%s')", *ShipData.Immatriculation.ToString());
 						PlaceSpacecraft(Spacecraft, ShipData.Location);
 					}
+
 					RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
 					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
 					break;
+
 				case EFlareSpawnMode::Travel:
+
+					FLOGV("UFlareSector::LoadSpacecraft : Travel ('%s')", *ShipData.Immatriculation.ToString());
 
 					FVector SpawnDirection;
 					TArray<AFlareSpacecraft*> FriendlySpacecrafts = GetCompanySpacecrafts(Spacecraft->GetCompany());
@@ -308,39 +301,15 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
 					break;
 			}
-
-			if (Desc->NeedAttachPoint)
-			{
-				// Attach the station to the attach point
-				AFlareAsteroid* AttachPoint = NULL;
-				for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
-				{
-					AFlareAsteroid* AsteroidCandidate = SectorAsteroids[AsteroidIndex];
-					if (AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
-					{
-						AttachPoint = AsteroidCandidate;
-						break;
-					}
-				}
-
-				if (AttachPoint)
-				{
-					AttachPoint->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
-				}
-				else
-				{
-					FLOGV("AFlareGame::LoadSpacecraft failed to attach '%s' to attach point '%s'", *ShipData.Immatriculation.ToString(), *ShipData.AttachPoint.ToString());
-				}
-			}
 		}
 		else
 		{
-			FLOG("AFlareGame::LoadSpacecraft fail to create AFlareSpacecraft");
+			FLOG("UFlareSector::LoadSpacecraft : fail to create AFlareSpacecraft");
 		}
 	}
 	else
 	{
-		FLOG("AFlareGame::LoadSpacecraft failed (no description available)");
+		FLOG("UFlareSector::LoadSpacecraft : failed (no description available)");
 	}
 
 
@@ -350,7 +319,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
 {
     AFlareBomb* Bomb = NULL;
-    FLOG("AFlareGame::LoadBomb");
+    FLOG("UFlareSector::LoadBomb");
 
     AFlareSpacecraft* ParentSpacecraft = NULL;
 
@@ -400,17 +369,17 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
             }
             else
             {
-                FLOG("AFlareGame::LoadBomb fail to create AFlareBom");
+                FLOG("UFlareSector::LoadBomb fail to create AFlareBom");
             }
         }
         else
         {
-            FLOG("AFlareGame::LoadBomb failed (no parent weapon)");
+            FLOG("UFlareSector::LoadBomb failed (no parent weapon)");
         }
     }
     else
     {
-        FLOG("AFlareGame::LoadBomb failed (no parent ship)");
+        FLOG("UFlareSector::LoadBomb failed (no parent ship)");
     }
 
     return Bomb;

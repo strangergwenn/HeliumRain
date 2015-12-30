@@ -206,6 +206,11 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	// Init company
 	ShipData.CompanyIdentifier = Company->GetIdentifier();
 
+	// Asteroid info
+	ShipData.AsteroidData.Identifier = NAME_None;
+	ShipData.AsteroidData.AsteroidMeshID = 0;
+	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
+
 	// Create the ship
 	Spacecraft = Company->LoadSpacecraft(ShipData);
 	if (Spacecraft->IsStation())

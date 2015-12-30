@@ -41,7 +41,6 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 			{
 				for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 				{
-					FLOGV("Is Sky ? %s", *(*ActorItr)->GetName());
 					if ((*ActorItr)->GetName().StartsWith("BP_Sky_Saygar_C_0"))
 					{
 						FLOG("Sky found");

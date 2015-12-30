@@ -1,42 +1,10 @@
 #pragma once
 
+#include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareAsteroid.generated.h"
 
 
-/** Asteroid save data */
-USTRUCT()
-struct FFlareAsteroidSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Asteroid identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName Identifier;
-
-	/** Asteroid location */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FVector Location;
-
-	/** Asteroid rotation */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FRotator Rotation;
-
-	/** Asteroid linear velocity */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FVector LinearVelocity;
-
-	/** Asteroid angular velocity */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FVector AngularVelocity;
-
-	/** Asteroid scale */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FVector Scale;
-
-	/** Content identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 AsteroidMeshID;
-};
+class AFlareGame;
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
@@ -60,6 +28,10 @@ public:
 
 	virtual void SetPause(bool Paused);
 
+	/** Setup an asteroid mesh */
+	static void SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data);
+
+
 protected:
 
 	/*----------------------------------------------------
@@ -68,7 +40,5 @@ protected:
 	
 	FFlareAsteroidSave                      AsteroidData;
 	bool                                    Paused;
-
-	UMaterialInstanceDynamic*               AsteroidMaterial;
 
 };

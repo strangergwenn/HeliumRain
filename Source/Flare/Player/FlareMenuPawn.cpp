@@ -127,7 +127,7 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	// Setup rotation and scale
 	CurrentSpacecraft->SetActorScale3D(FVector(1, 1, 1));
 	float Scale = DisplaySize / CurrentSpacecraft->GetMeshScale();
-	FLOGV("DS=%f, MS=%f, S=%f", DisplaySize, CurrentSpacecraft->GetMeshScale(), Scale);
+	FLOGV("AFlareMenuPawn::ShowShip : DS=%f, MS=%f, S=%f", DisplaySize, CurrentSpacecraft->GetMeshScale(), Scale);
 	CurrentSpacecraft->SetActorScale3D(Scale * FVector(1, 1, 1));
 	CurrentSpacecraft->SetActorRelativeRotation(FRotator(0, InitialYaw, 0));
 
@@ -135,7 +135,6 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	SlideInOutCurrentTime = 0.0f;
 	SlideInOutOffset = SlideInOutSideOffset;
 	SetSlideDirection(true);
-
 	CurrentSpacecraft->StartPresentation();
 
 	// UI
