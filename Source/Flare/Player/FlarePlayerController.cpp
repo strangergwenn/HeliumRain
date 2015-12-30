@@ -136,22 +136,25 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	// Update dust effects
 	if (DustEffect && ShipPawn && !IsInMenu())
 	{
-		FVector ViewLocation;
-		FRotator ViewRotation;
-
-		GetPlayerViewPoint(ViewLocation, ViewRotation);
-		ViewRotation.Normalize();
-		ViewLocation += ViewRotation.RotateVector(500 * FVector(1, 0, 0));
-
+		// Ship velocity
 		FVector Velocity = ShipPawn->GetLinearVelocity();
-		FLinearColor Color = FLinearColor::White;
-		Color.R= FMath::Clamp(Velocity.Size() / 100, 0.0f, 1.0f);
-		DustEffect->SetColorParameter("Intensity", Color);
-
 		FVector Direction = Velocity;
 		Direction.Normalize();
+
+		// Particle position
+		FVector ViewLocation;
+		FRotator ViewRotation;
+		GetPlayerViewPoint(ViewLocation, ViewRotation);
+		ViewLocation += Direction.Rotation().RotateVector(5000 * FVector(1, 0, 0));
 		DustEffect->SetWorldLocation(ViewLocation);
+
+		// Particle params
+		float VelocityFactor = FMath::Clamp(Velocity.Size() / 100.0f, 0.0f, 1.0f);
+		FLinearColor Color = FLinearColor::White * VelocityFactor;
+		DustEffect->SetFloatParameter("SpawnCount", VelocityFactor);
+		DustEffect->SetColorParameter("Intensity", Color);
 		DustEffect->SetVectorParameter("Direction", -Direction);
+		DustEffect->SetVectorParameter("Size", FVector(1, VelocityFactor, 1));
 	}
 
 	// Sound
