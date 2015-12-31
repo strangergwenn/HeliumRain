@@ -123,8 +123,9 @@ FText SFlareSectorButton::GetSectorText() const
 
 			if (Sector->GetSectorStations().Num() > 0)
 			{
-				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", ", {0} station") : LOCTEXT("Stations", ", {0} stations");
-				StationText = FText::Format(StationText, FText::AsNumber(Sector->GetSectorStations().Num()));
+				FText CommaText = (Sector->GetSectorShips().Num() > 0) ? LOCTEXT("Comma", ",") : FText();
+				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} {1} station") : LOCTEXT("Stations", "{0} {1} stations");
+				StationText = FText::Format(StationText, CommaText, FText::AsNumber(Sector->GetSectorStations().Num()));
 			}
 		}
 
