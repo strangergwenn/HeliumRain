@@ -161,43 +161,49 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							]
 						]
 
-						// Fullscreen
+						// Buttons
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Right)
+						.HAlign(HAlign_Center)
 						[
-							SAssignNew(FullscreenButton, SFlareButton)
-							.Text(LOCTEXT("Fullscreen", "Fullscreen"))
-							.HelpText(LOCTEXT("FullscreenInfo", "Show the game in full screen"))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
-						]
+							SNew(SHorizontalBox)
+							
+							// Fullscreen
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(FullscreenButton, SFlareButton)
+								.Text(LOCTEXT("Fullscreen", "Fullscreen"))
+								.HelpText(LOCTEXT("FullscreenInfo", "Show the game in full screen"))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
+							]
 
-						// VSync
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Right)
-						[
-							SAssignNew(VSyncButton, SFlareButton)
-							.Text(LOCTEXT("V-sync", "V-Sync"))
-							.HelpText(LOCTEXT("VSyncInfo", "Vertical synchronization ensures that every image is consistent, even with low performance."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
-						]
+							// VSync
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(VSyncButton, SFlareButton)
+								.Text(LOCTEXT("V-sync", "V-Sync"))
+								.HelpText(LOCTEXT("VSyncInfo", "Vertical synchronization ensures that every image is consistent, even with low performance."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
+							]
 
-						// Supersampling
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Right)
-						[
-							SAssignNew(SupersamplingButton, SFlareButton)
-							.Text(LOCTEXT("Supersampling", "Supersampling"))
-							.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the game at double the resolution. This is a very demanding feature."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
+							// Supersampling
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(SupersamplingButton, SFlareButton)
+								.Text(LOCTEXT("Supersampling", "Supersampling"))
+								.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the game at double the resolution. This is a very demanding feature."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
+							]
 						]
 
 						// Texture quality box
@@ -382,6 +388,63 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 									.Text(GetPostProcessQualityLabel(MyGameSettings->ScalabilityQuality.PostProcessQuality))
 								]
 							]
+						]
+					]
+				]
+
+				// Sound Info
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("SoundHint", "Sound"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+				
+				// Music level box
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// Music volume text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelSize)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("MusicLabel", "Music volume"))
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Music volume slider
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(MusicVolumeSlider, SSlider)
+						.Value(0 /*todo ratio*/)
+						.Style(&Theme.SliderStyle)
+						.OnValueChanged(this, &SFlareSettingsMenu::OnMusicVolumeSliderChanged)
+					]
+
+					// Music volume label
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(ValueSize)
+						[
+							SAssignNew(MusicVolumeLabel, STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(GetMusicVolumeLabel(0 /*todo value = xxx*/))
 						]
 					]
 				]
@@ -660,6 +723,21 @@ void SFlareSettingsMenu::OnPostProcessQualitySliderChanged(float Value)
 	}
 }
 
+void SFlareSettingsMenu::OnMusicVolumeSliderChanged(float Value)
+{
+	int32 Step = 10;
+	int32 StepValue = FMath::RoundToInt(Step * Value);
+	MusicVolumeSlider->SetValue((float)StepValue / (float)Step);
+	
+	FLOGV("SFlareSettingsMenu::OnMusicVolumeSliderChanged : set PostProcess quality to %d (current is %d)", StepValue, 0/*todo=xxx*/);
+
+	//if (xxx != StepValue)
+	{
+		//xxx = StepValue;
+		MusicVolumeLabel->SetText(GetMusicVolumeLabel(StepValue));
+	}
+}
+
 void SFlareSettingsMenu::OnVSyncToggle()
 {
 	if (VSyncButton->IsActive())
@@ -744,18 +822,15 @@ void SFlareSettingsMenu::FillResolutionList()
 		FLOG("SFlareSettingsMenu::FillResolutionList : screen resolutions could not be obtained");
 	}
 
+	// Look for current resolution
 	for (int i = 0; i < ResolutionList.Num(); i++)
 	{
-
-		// Look for current resolution
 		if (Resolution.X == ResolutionList[i]->Width && Resolution.Y == ResolutionList[i]->Height)
 		{
 			CurrentResolutionIndex = i;
 			break;
 		}
 	}
-
-
 
 	// Didn't find our current res...
 	if (CurrentResolutionIndex < 0)
@@ -797,16 +872,6 @@ void SFlareSettingsMenu::UpdateResolution()
 		MyGameSettings->SaveConfig();
 
 		GEngine->SaveConfig();
-
-		/*
-		MyGameSettings->SetScreenResolution(FIntPoint(Item->Width, Item->Height));
-		MyGameSettings->SetFullscreenMode(FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed);
-		MyGameSettings->RequestResolutionChange(Item->Width, Item->Height, FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed, false);
-
-		MyGameSettings->ConfirmVideoMode();
-		MyGameSettings->ApplySettings(false);*/
-		/*MyGameSettings->ApplyNonResolutionSettings();
-		MyGameSettings->SaveSettings();*/
 	}
 }
 
@@ -874,6 +939,13 @@ FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
 	}
 }
 
+FText SFlareSettingsMenu::GetMusicVolumeLabel(int32 Value) const
+{
+	if (Value == 0)
+		return LOCTEXT("Muted", "Muted");
+	else
+		return FText::Format(LOCTEXT("MusicVolumeFormat", "{0}%"), FText::AsNumber(10 * Value));
+}
 
 void SFlareSettingsMenu::CreateBinds()
 {

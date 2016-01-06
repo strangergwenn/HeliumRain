@@ -99,6 +99,8 @@ protected:
 
 	void OnPostProcessQualitySliderChanged(float Value);
 
+	void OnMusicVolumeSliderChanged(float Value);
+
 	void OnFullscreenToggle();
 
 	void OnVSyncToggle();
@@ -124,6 +126,7 @@ protected:
 	FText GetEffectsQualityLabel(int32 Value) const;
 	FText GetAntiAliasingQualityLabel(int32 Value) const;
 	FText GetPostProcessQualityLabel(int32 Value) const;
+	FText GetMusicVolumeLabel(int32 Value) const;
 
 	void CreateBinds();
 
@@ -146,10 +149,12 @@ protected:
 	TSharedPtr<SSlider>                         EffectsQualitySlider;
 	TSharedPtr<SSlider>                         AntiAliasingQualitySlider;
 	TSharedPtr<SSlider>                         PostProcessQualitySlider;
+	TSharedPtr<SSlider>                         MusicVolumeSlider;
 	TSharedPtr<STextBlock>	        			TextureQualityLabel;
 	TSharedPtr<STextBlock>	        			EffectsQualityLabel;
 	TSharedPtr<STextBlock>	        			AntiAliasingQualityLabel;
 	TSharedPtr<STextBlock>	        			PostProcessQualityLabel;
+	TSharedPtr<STextBlock>	        			MusicVolumeLabel;
 	TSharedPtr<SVerticalBox>                    ControlList;
 
 
