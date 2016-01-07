@@ -154,7 +154,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// Right column : buttons, Ariadne
+				// Right column : buttons, Hela
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Fill)
 				[
@@ -213,10 +213,10 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						]
 					]
 
-					// Ariadne
+					// Hela
 					+ SVerticalBox::Slot()
 					[
-						SAssignNew(AriadneBox, SFlarePlanetaryBox)
+						SAssignNew(HelaBox, SFlarePlanetaryBox)
 					]
 				]
 			]
@@ -257,7 +257,7 @@ void SFlareOrbitalMenu::Exit()
 	NemaBox->ClearChildren();
 	AnkaBox->ClearChildren();
 	AstaBox->ClearChildren();
-	AriadneBox->ClearChildren();
+	HelaBox->ClearChildren();
 	TravelsBox->ClearChildren();
 }
 
@@ -282,7 +282,7 @@ void SFlareOrbitalMenu::UpdateMap()
 	UpdateMapForBody(NemaBox, &Game->GetSectorCatalog()->OrbitalBodies[0]);
 	UpdateMapForBody(AnkaBox, &Game->GetSectorCatalog()->OrbitalBodies[1]);
 	UpdateMapForBody(AstaBox, &Game->GetSectorCatalog()->OrbitalBodies[2]);
-	UpdateMapForBody(AriadneBox, &Game->GetSectorCatalog()->OrbitalBodies[3]);
+	UpdateMapForBody(HelaBox, &Game->GetSectorCatalog()->OrbitalBodies[3]);
 }
 
 void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, const FFlareSectorCelestialBodyDescription* Body)

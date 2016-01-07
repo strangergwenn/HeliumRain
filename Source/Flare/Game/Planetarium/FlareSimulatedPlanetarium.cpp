@@ -55,14 +55,14 @@ void UFlareSimulatedPlanetarium::Load()
 		Anka.OrbitDistance = 320000;
 		Nema.Sattelites.Add(Anka);
 
-		FFlareCelestialBody Ariadne;
-		Ariadne.Name = LOCTEXT("Ariadne", "Ariadne");
-		Ariadne.Identifier = "ariadne";
-		Ariadne.Mass = 5.3e23;
-		Ariadne.Radius = 4600;
-		Ariadne.RotationVelocity = 0.003;
-		Ariadne.OrbitDistance = 571000;
-		Nema.Sattelites.Add(Ariadne);
+		FFlareCelestialBody Hela;
+		Hela.Name = LOCTEXT("Hela", "Hela");
+		Hela.Identifier = "hela";
+		Hela.Mass = 5.3e23;
+		Hela.Radius = 4600;
+		Hela.RotationVelocity = 0.003;
+		Hela.OrbitDistance = 571000;
+		Nema.Sattelites.Add(Hela);
 
 		FFlareCelestialBody Asta;
 		Asta.Name = LOCTEXT("Asta", "Asta");

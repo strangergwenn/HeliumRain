@@ -120,6 +120,6 @@ protected:
 	TSharedPtr<SFlarePlanetaryBox>              NemaBox;
 	TSharedPtr<SFlarePlanetaryBox>              AstaBox;
 	TSharedPtr<SFlarePlanetaryBox>              AnkaBox;
-	TSharedPtr<SFlarePlanetaryBox>              AriadneBox;
+	TSharedPtr<SFlarePlanetaryBox>              HelaBox;
 	TSharedPtr<SVerticalBox>                    TravelsBox;
 };
