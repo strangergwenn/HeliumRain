@@ -431,6 +431,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	World->FindSector("outpost")->CreateStation("station-solar-plant", World->FindCompanyByShortName("HFR"), FVector::ZeroVector);
 	World->FindSector("outpost")->CreateStation("station-tokamak", World->FindCompanyByShortName("SUN"), FVector::ZeroVector);
 	World->FindSector("outpost")->CreateStation("station-hub", World->FindCompanyByShortName("GWS"), FVector::ZeroVector);
+	World->FindSector("outpost")->GetPeople()->GiveBirth(1000);
 
 	// Discover known sectors
 	if (!PlayerData.QuestData.PlayTutorial)

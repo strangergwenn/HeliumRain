@@ -4,6 +4,7 @@
 #include "Object.h"
 #include "../Spacecrafts/FlareBomb.h"
 #include "FlareAsteroid.h"
+#include "../Economy/FlarePeople.h"
 #include "FlareSimulatedSector.generated.h"
 
 class UFlareSimulatedSpacecraft;
@@ -160,6 +161,10 @@ struct FFlareSectorSave
 	/** Local sector time. */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 LocalTime;
+
+	/** Sector peole. */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlarePeopleSave PeopleData;
 };
 
 UCLASS()
@@ -174,6 +179,10 @@ public:
 
 	/** Load the sector from a save file */
 	virtual void Load(const FFlareSectorDescription* Description, const FFlareSectorSave& Data, const FFlareSectorOrbitParameters& OrbitParameters);
+
+
+	/** Load sector people */
+	virtual UFlarePeople* LoadPeople(const FFlarePeopleSave& PeopleData);
 
 	/** Save the sector to a save file */
     virtual FFlareSectorSave* Save();
@@ -252,6 +261,9 @@ protected:
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
 	const FFlareSectorDescription*          SectorDescription;
 
+	UPROPERTY()
+	UFlarePeople*							People;
+
 	int32                                   PersistentStationIndex;
 
 public:
@@ -306,6 +318,11 @@ public:
 	inline TArray<UFlareFleet*>& GetSectorFleets()
 	{
 		return SectorFleets;
+	}
+
+	inline UFlarePeople* GetPeople()
+	{
+		return People;
 	}
 
 	/** Get the friendlyness status toward a company */

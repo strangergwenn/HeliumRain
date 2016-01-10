@@ -32,6 +32,8 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	SectorSpacecrafts.Empty();
 	SectorFleets.Empty();
 
+	LoadPeople(SectorData.PeopleData);
+
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
@@ -56,6 +58,15 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	}
 }
 
+UFlarePeople* UFlareSimulatedSector::LoadPeople(const FFlarePeopleSave& PeopleData)
+{
+	// Create the new people
+	People = NewObject<UFlarePeople>(this, UFlarePeople::StaticClass());
+	People->Load(this, PeopleData);
+
+	return People;
+}
+
 FFlareSectorSave* UFlareSimulatedSector::Save()
 {
 	SectorData.SpacecraftIdentifiers.Empty();
@@ -70,6 +81,8 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 	{
 		SectorData.FleetIdentifiers.Add(SectorFleets[i]->GetIdentifier());
 	}
+
+	SectorData.PeopleData = *People->Save();
 
 	return &SectorData;
 }
@@ -643,7 +656,7 @@ void UFlareSimulatedSector::SimulateTransport(int64 Duration, UFlareCompany* Com
 
 	uint32 TransportCapacityPerHour = GetTransportCapacityPerHour(Company);
 
-	FLOGV("SimulateTransport Duration=%lld TransportCapacityPerHour=%u", Duration, TransportCapacityPerHour)
+	//FLOGV("SimulateTransport Duration=%lld TransportCapacityPerHour=%u", Duration, TransportCapacityPerHour)
 
 	if(TransportCapacityPerHour == 0)
 	{

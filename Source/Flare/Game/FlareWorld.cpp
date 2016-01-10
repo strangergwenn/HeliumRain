@@ -63,6 +63,17 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 					NewSectorData.GivenName = FText();
 					NewSectorData.Identifier = SectorDescription->Identifier;
 					NewSectorData.LocalTime = 0;
+
+					// Init population
+					NewSectorData.PeopleData.Population = 0;
+					NewSectorData.PeopleData.BirthPoint = 0;
+					NewSectorData.PeopleData.DeathPoint = 0;
+					NewSectorData.PeopleData.FoodStock = 0;
+					NewSectorData.PeopleData.HappinessPoint = 0;
+					NewSectorData.PeopleData.Money = 0;
+
+
+
 					SectorSave = &NewSectorData;
 				}
 
@@ -200,6 +211,12 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 void UFlareWorld::Simulate(int64 Duration)
 {
 	WorldData.Time += Duration;
+
+	// Peoples
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		Sectors[SectorIndex]->GetPeople()->Simulate(Duration);
+	}
 
 	// Travels
 	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
