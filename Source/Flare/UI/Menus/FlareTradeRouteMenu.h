@@ -10,7 +10,7 @@ class SFlareTradeRouteMenu : public SCompoundWidget
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareTradeRouteMenu){}
+	SLATE_BEGIN_ARGS(SFlareTradeRouteMenu) {}
 
 	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 
@@ -35,9 +35,9 @@ public:
 	/** Exit this menu */
 	void Exit();
 
-    void GenerateSectorList();
+	void GenerateSectorList();
 
-    void GenerateFleetList();
+	void GenerateFleetList();
 
 protected:
 
@@ -48,103 +48,97 @@ protected:
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 
-
-	void OnChangeRouteNameClicked();
-
-    void OnConfirmChangeRouteNameClicked();
-
-    void OnCancelChangeRouteNameClicked();
-
-
-    /** Are the not editing components visible ? */
-    EVisibility GetShowingRouteNameVisibility() const;
-
-    /** Are the not editing components visible ? */
-    EVisibility GetEditingRouteNameVisibility() const;
-
+	/** Confirm a new name for this trade route */
+	void OnConfirmChangeRouteNameClicked();
 
 	/** Get route name */
 	FText GetTradeRouteName() const;
 
-    TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* Item);
+	TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* Item);
 
-    void OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo);
+	void OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo);
 
-    FText OnGetCurrentSectorComboLine() const;
+	FText OnGetCurrentSectorComboLine() const;
 
-    void OnAddSectorClicked();
+	void OnAddSectorClicked();
 
-    /** Can Add sector */
-    EVisibility GetAddSectorVisibility() const;
+	/** Can Add sector */
+	EVisibility GetAddSectorVisibility() const;
 
-    TSharedRef<SWidget> OnGenerateResourceComboLine(UFlareResourceCatalogEntry* Item);
+	TSharedRef<SWidget> OnGenerateResourceComboLine(UFlareResourceCatalogEntry* Item);
 
-    void OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo);
+	void OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo);
 
-    FText OnGetCurrentResourceComboLine() const;
+	FText OnGetCurrentResourceComboLine() const;
 
-    /** Can Add resource*/
-    EVisibility GetResourceSelectorVisibility() const;
+	/** Can Add resource*/
+	EVisibility GetResourceSelectorVisibility() const;
 
-    void OnLoadResourceClicked(UFlareSimulatedSector* Sector);
+	/** Get the load text's button */
+	FText GetLoadText() const;
 
-    void OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+	/** Get the unload text's button */
+	FText GetUnloadText() const;
 
-    void OnIncreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+	/** Load the current resource */
+	void OnLoadResourceClicked(UFlareSimulatedSector* Sector);
 
-    void OnClearLoadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+	void OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 
-    void OnUnloadResourceClicked(UFlareSimulatedSector* Sector);
+	void OnIncreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 
-    void OnDecreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+	void OnClearLoadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 
-    void OnIncreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+	/** Load the current resource */
+	void OnUnloadResourceClicked(UFlareSimulatedSector* Sector);
 
-    void OnClearUnloadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
+	void OnDecreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 
-    /** Fleet management */
+	void OnIncreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 
-    TSharedRef<SWidget> OnGenerateFleetComboLine(UFlareFleet* Item);
+	void OnClearUnloadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 
-    void OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo);
+	/** Fleet management */
 
-    FText OnGetCurrentFleetComboLine() const;
+	TSharedRef<SWidget> OnGenerateFleetComboLine(UFlareFleet* Item);
 
-    void OnAssignFleetClicked();
+	void OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo);
 
-    /** Can assign a fleet*/
-    EVisibility GetAssignFleetVisibility() const;
+	FText OnGetCurrentFleetComboLine() const;
 
-    void OnUnassignFleetClicked(UFlareFleet* Fleet);
+	void OnAssignFleetClicked();
+
+	/** Can assign a fleet*/
+	EVisibility GetAssignFleetVisibility() const;
+
+	void OnUnassignFleetClicked(UFlareFleet* Fleet);
 
 
 protected:
 
 	/*----------------------------------------------------
-		Protected data
+	Protected data
 	----------------------------------------------------*/
 
 	// HUD reference
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+	TWeakObjectPtr<class AFlareMenuManager>            MenuManager;
 
 	// Menu components
-	UFlareTradeRoute*                     TargetTradeRoute;
-    bool                                    IsEditingName;
+	UFlareTradeRoute*                                  TargetTradeRoute;
 
 	// Sector data
-	TSharedPtr<SComboBox<UFlareSimulatedSector*>> SectorSelector;
-    TArray<UFlareSimulatedSector*>                SectorList;
+	TSharedPtr<SComboBox<UFlareSimulatedSector*>>      SectorSelector;
+	TArray<UFlareSimulatedSector*>                     SectorList;
 
-    TSharedPtr<SComboBox<UFlareFleet*>> FleetSelector;
-    TArray<UFlareFleet*>                FleetList;
+	TSharedPtr<SComboBox<UFlareFleet*>>                FleetSelector;
+	TArray<UFlareFleet*>                               FleetList;
 
-    TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
-    TArray<UFlareResourceCatalogEntry*>                ResourceList;
+	TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
 
 
-    TSharedPtr<SEditableText>                   EditRouteName;
-    TSharedPtr<SVerticalBox>                    TradeSectorList;
-    TSharedPtr<SVerticalBox>                    TradeFleetList;
+	TSharedPtr<SEditableText>                          EditRouteName;
+	TSharedPtr<SHorizontalBox>                         TradeSectorList;
+	TSharedPtr<SVerticalBox>                           TradeFleetList;
 
 };
