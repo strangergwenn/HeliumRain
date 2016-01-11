@@ -14,6 +14,7 @@ class AFlareGame;
 struct FFlarePlayerSave;
 struct FFlareResourceDescription;
 
+
 /** Sector friendlyness status */
 UENUM()
 namespace EFlareSectorFriendlyness
@@ -27,7 +28,6 @@ namespace EFlareSectorFriendlyness
 		Hostile /** The sector have only hostile spacecraft */
 	};
 }
-
 
 
 /** Sector description */
@@ -54,7 +54,16 @@ struct FFlareSectorDescription
 
 	/** Peaceful sector */
 	UPROPERTY(EditAnywhere, Category = Content)
-	bool Peaceful;
+	bool IsPeaceful;
+
+	/** Is this sector ice-rich */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool IsIcy;
+
+	/** Is this sector available for pumping stations */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool IsGeostationary;
+
 };
 
 
@@ -121,7 +130,6 @@ struct FFlareSectorOrbitParameters
 };
 
 
-
 /** Sector save data */
 USTRUCT()
 struct FFlareSectorSave
@@ -167,6 +175,7 @@ struct FFlareSectorSave
 	FFlarePeopleSave PeopleData;
 };
 
+
 UCLASS()
 class FLARE_API UFlareSimulatedSector : public UObject
 {
@@ -179,7 +188,6 @@ public:
 
 	/** Load the sector from a save file */
 	virtual void Load(const FFlareSectorDescription* Description, const FFlareSectorSave& Data, const FFlareSectorOrbitParameters& OrbitParameters);
-
 
 	/** Load sector people */
 	virtual UFlarePeople* LoadPeople(const FFlarePeopleSave& PeopleData);

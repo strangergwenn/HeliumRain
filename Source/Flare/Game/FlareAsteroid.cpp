@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "FlareAsteroid.h"
 #include "FlareGame.h"
+#include "FlareSimulatedSector.h"
 
 
 /*----------------------------------------------------
@@ -59,7 +60,7 @@ void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* C
 	// Material
 	UMaterialInstanceDynamic* AsteroidMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), Component->GetWorld());
 	Component->SetMaterial(0, AsteroidMaterial);
-	AsteroidMaterial->SetScalarParameterValue("IceMask", 0);// TODO FRED : 1 or 0 depending on sector :)
+	AsteroidMaterial->SetScalarParameterValue("IceMask", Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
 }
 
 FFlareAsteroidSave* AFlareAsteroid::Save()
