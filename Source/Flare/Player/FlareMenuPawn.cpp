@@ -200,9 +200,6 @@ void AFlareMenuPawn::ResetContent(bool Unsafe)
 	ExternalCameraPitchTarget = -CameraMaxPitch / 2;
 	ExternalCameraPitch = ExternalCameraPitchTarget;
 	SetCameraDistance(DisplayDistance);
-
-	// Emit the material settings
-	UseLightBackground();
 }
 
 void AFlareMenuPawn::UpdateCustomization()
@@ -230,12 +227,12 @@ void AFlareMenuPawn::SetSlideDirection(bool GoUp)
 
 void AFlareMenuPawn::UseLightBackground()
 {
-	UpdateBackgroundColor(0.1, 0.8, 0);
+	UpdateBackgroundColor(0.1, 0.7, 0);
 }
 
 void AFlareMenuPawn::UseDarkBackground()
 {
-	UpdateBackgroundColor(0.15, 0.05, 0.8);
+	UpdateBackgroundColor(0.15, 0.05, 0.7);
 }
 
 
