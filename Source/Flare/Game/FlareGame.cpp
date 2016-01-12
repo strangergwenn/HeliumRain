@@ -424,6 +424,11 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	PlayerData.SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 
 	// Initial setup : "Outpost"
+	for (int32 Index = 0; Index < 20; Index++)
+	{
+		World->FindSector("outpost")->CreateAsteroid(FMath::RandRange(0, 9), "asteroid" + Index, 200000 * FMath::VRand());
+	}
+	World->FindSector("outpost")->CreateShip("ship-dragon", PlayerCompany, FVector::ZeroVector);
 	World->FindSector("outpost")->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
 	World->FindSector("outpost")->CreateStation("station-tokamak", PlayerCompany, FVector::ZeroVector);
 	World->FindSector("outpost")->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector);
@@ -433,6 +438,13 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	World->FindSector("outpost")->CreateStation("station-hub", World->FindCompanyByShortName("GWS"), FVector::ZeroVector);
 	World->FindSector("outpost")->GetPeople()->GiveBirth(1000);
 	World->FindSector("outpost")->GetPeople()->SetHappiness(1);
+	
+	// Initial setup : "Frozen Realm"
+	for (int32 Index = 0; Index < 50; Index++)
+	{
+		World->FindSector("frozen-realm")->CreateAsteroid(FMath::RandRange(0, 9), "asteroid" + Index, 200000 * FMath::VRand());
+	}
+	World->FindSector("frozen-realm")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
 
 	// Discover known sectors
 	if (!PlayerData.QuestData.PlayTutorial)

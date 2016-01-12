@@ -4,6 +4,8 @@
 #include "FlareGame.h"
 #include "FlareSimulatedSector.h"
 
+#include "StaticMeshResources.h"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -59,7 +61,10 @@ void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* C
 
 	// Material
 	UMaterialInstanceDynamic* AsteroidMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), Component->GetWorld());
-	Component->SetMaterial(0, AsteroidMaterial);
+	for (int32 LodIndex = 0; LodIndex < Component->StaticMesh->RenderData->LODResources.Num(); LodIndex++)
+	{
+		Component->SetMaterial(LodIndex, AsteroidMaterial);
+	}
 	AsteroidMaterial->SetScalarParameterValue("IceMask", Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
 }
 

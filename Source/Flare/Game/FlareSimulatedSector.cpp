@@ -268,7 +268,7 @@ void UFlareSimulatedSector::CreateAsteroid(int32 ID, FName Name, FVector Locatio
 	Data.Identifier = Name;
 	Data.LinearVelocity = FVector::ZeroVector;
 	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
-	Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.9,1.1);
+	Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.5,1.2);
 	Data.Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
 	Data.Location = Location;
 
