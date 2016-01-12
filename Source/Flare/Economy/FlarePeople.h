@@ -38,6 +38,10 @@ struct FFlarePeopleSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 Money;
 
+	/** Dept. 10% money gain will be use to cancel the dept */
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 Dept;
+
 	/** Birth point. When reach birth threasold, someone die */
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 BirthPoint;
@@ -45,6 +49,10 @@ struct FFlarePeopleSave
 	/** Death point. When reach death threasold, someone die */
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 DeathPoint;
+
+	/** Hunger point. Kill people with time */
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 HungerPoint;
 
 	/** Birth point */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -81,6 +89,17 @@ public:
 
 	void GiveBirth(uint32 BirthCount);
 
+	void KillPeople(uint32 KillCount);
+
+	void IncreaseHappiness(uint32 HappinessPoints);
+
+	void DecreaseHappiness(uint32 SadnessPoints);
+
+	void SetHappiness(float Happiness);
+
+	void Pay(uint32 Amount);
+
+	void ResetPeople();
 
 protected:
 
@@ -108,4 +127,6 @@ public:
 	{
 		return Parent;
 	}
+
+	float GetHappiness();
 };

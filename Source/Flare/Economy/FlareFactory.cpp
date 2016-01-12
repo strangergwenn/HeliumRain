@@ -354,7 +354,7 @@ void UFlareFactory::DoProduction()
 	// Pay cost
 	uint32 PaidCost = FMath::Min(FactoryDescription->ProductionCost, FactoryData.CostReserved);
 	FactoryData.CostReserved -= PaidCost;
-	// TODO Give lost money to people
+	Parent->GetCurrentSector()->GetPeople()->Pay(PaidCost);
 
 	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
 	{
