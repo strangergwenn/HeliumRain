@@ -228,6 +228,9 @@ public:
 	/** Undock */
 	void UndockShip();
 
+	/** trade with the station we're docked to */
+	void StartTrading();
+
 
 protected:
 

@@ -60,6 +60,9 @@ protected:
 
 	/** Undock */
 	void OnUndock();
+
+	/** Start trading */
+	void OnStartTrading();
 	
 	/** Close the menu */
 	void OnExit();

@@ -82,6 +82,36 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
 			]
 
+			// Start trading
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Trade", "Trade"))
+				.HelpText(LOCTEXT("TradeInfo", "Start trading with the station we're docked to"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Trade, true))
+				.OnClicked(this, &SFlareDashboard::OnStartTrading)
+				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
+			]
+
+			// Undock
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Undock", "Undock"))
+				.HelpText(LOCTEXT("UndockInfo", "Undock from this station and start flying the ship"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Undock, true))
+				.OnClicked(this, &SFlareDashboard::OnUndock)
+				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
+			]
+
 			// Orbit
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Center)
@@ -276,6 +306,11 @@ void SFlareDashboard::OnUndock()
 			MenuManager->CloseMenu();
 		}
 	}
+}
+
+void SFlareDashboard::OnStartTrading()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Trade, MenuManager->GetPC()->GetShipPawn());
 }
 
 void SFlareDashboard::OnExit()
