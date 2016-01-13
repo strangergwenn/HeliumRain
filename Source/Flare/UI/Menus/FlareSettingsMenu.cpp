@@ -110,18 +110,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 
-				// Info
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				.HAlign(HAlign_Left)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
-					.TextStyle(&Theme.SubTitleFont)
-				]
-
-				// Subtitle
+				// Help
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
@@ -130,6 +119,17 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
 					.Text(LOCTEXT("AutoApply", "Changes will be applied and saved automatically."))
+				]
+
+				// Title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
+					.TextStyle(&Theme.SubTitleFont)
 				]
 
 				// Graphic form
@@ -392,15 +392,47 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// Sound Info
+				// Graphics info
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.TitlePadding)
 				.HAlign(HAlign_Left)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("SoundHint", "Sound"))
+					.Text(LOCTEXT("GraphicsHint", "Graphics"))
 					.TextStyle(&Theme.SubTitleFont)
+				]
+				
+				// Options
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SHorizontalBox)
+					
+					// Dark theme in strategy
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(DarkThemeInStrategyButton, SFlareButton)
+						.Text(LOCTEXT("DarkStrategy", "Dark theme in orbit"))
+						.HelpText(LOCTEXT("DarkStrategyInfo", "Use the dark theme when using menus around the orbital map"))
+						.Toggle(true)
+						.OnClicked(this, &SFlareSettingsMenu::OnDarkThemeInStrategyToggle)
+					]
+					
+					// Dark theme in nav
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(DarkThemeInNavButton, SFlareButton)
+						.Text(LOCTEXT("DarkNav", "Dark theme in nav"))
+						.HelpText(LOCTEXT("DarkNavInfo", "Use the dark theme when using menus during navigation"))
+						.Toggle(true)
+						.OnClicked(this, &SFlareSettingsMenu::OnDarkThemeInNavToggle)
+					]
 				]
 				
 				// Music level box
@@ -429,7 +461,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SAssignNew(MusicVolumeSlider, SSlider)
-						.Value(0 /*todo ratio*/)
+						.Value(MenuManager->GetPC()->MusicVolume / 10.0f)
 						.Style(&Theme.SliderStyle)
 						.OnValueChanged(this, &SFlareSettingsMenu::OnMusicVolumeSliderChanged)
 					]
@@ -444,7 +476,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(MusicVolumeLabel, STextBlock)
 							.TextStyle(&Theme.TextFont)
-							.Text(GetMusicVolumeLabel(0 /*todo value = xxx*/))
+							.Text(GetMusicVolumeLabel(MenuManager->GetPC()->MusicVolume))
 						]
 					]
 				]
@@ -603,14 +635,23 @@ void SFlareSettingsMenu::Enter()
 	FLOG("SFlareSettingsMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-
-	// Menu
 	AFlarePlayerController* PC = MenuManager->GetPC();
+
 	if (PC)
 	{
+		// Decorator mesh
 		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
 		PC->GetMenuPawn()->ShowPart(PartDesc);
+
+		// Themes
+		DarkThemeInStrategyButton->SetActive(PC->UseDarkThemeForStrategy);
+		DarkThemeInNavButton->SetActive(PC->UseDarkThemeForNavigation);
+
+		// Music volume
+		int32 MusicVolume = PC->MusicVolume;
+		MusicVolumeSlider->SetValue((float)MusicVolume / 10.0f);
+		MusicVolumeLabel->SetText(GetMusicVolumeLabel(MusicVolume));
 	}
 
 	// Resolutions
@@ -653,6 +694,20 @@ void SFlareSettingsMenu::OnFullscreenToggle()
 	UpdateResolution();
 }
 
+void SFlareSettingsMenu::OnDarkThemeInStrategyToggle()
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	PC->SetUseDarkThemeForStrategy(DarkThemeInStrategyButton->IsActive());
+	PC->SaveConfig();
+}
+
+void SFlareSettingsMenu::OnDarkThemeInNavToggle()
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	PC->SetUseDarkThemeForNavigation(DarkThemeInNavButton->IsActive());
+	PC->SaveConfig();
+}
+
 void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
 {
 	int32 Step = 3;
@@ -660,10 +715,10 @@ void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
 	TextureQualitySlider->SetValue((float)StepValue / (float)Step);
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FLOGV("SFlareSettingsMenu::OnTextureQualitySliderChanged : Set Texture quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.TextureQuality);
 
 	if (MyGameSettings->ScalabilityQuality.TextureQuality != StepValue)
 	{
+		FLOGV("SFlareSettingsMenu::OnTextureQualitySliderChanged : Set Texture quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.TextureQuality);
 		MyGameSettings->ScalabilityQuality.TextureQuality = StepValue;
 		MyGameSettings->ApplySettings(false);
 		TextureQualityLabel->SetText(GetTextureQualityLabel(StepValue));
@@ -677,10 +732,10 @@ void SFlareSettingsMenu::OnEffectsQualitySliderChanged(float Value)
 	EffectsQualitySlider->SetValue((float)StepValue / (float)Step);
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FLOGV("SFlareSettingsMenu::OnEffectsQualitySliderChanged : Set Effects quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.EffectsQuality);
 
 	if (MyGameSettings->ScalabilityQuality.EffectsQuality != StepValue)
 	{
+		FLOGV("SFlareSettingsMenu::OnEffectsQualitySliderChanged : Set Effects quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.EffectsQuality);
 		MyGameSettings->ScalabilityQuality.EffectsQuality = StepValue;
 		MyGameSettings->ApplySettings(false);
 		EffectsQualityLabel->SetText(GetEffectsQualityLabel(StepValue));
@@ -694,12 +749,11 @@ void SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged(float Value)
 	AntiAliasingQualitySlider->SetValue((float)StepValue / (float)Step);
 
 	int32 AAValue = StepValue;
-
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FLOGV("SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged : set AntiAliasing quality to %d (current is %d)", AAValue, MyGameSettings->ScalabilityQuality.AntiAliasingQuality);
 
 	if (MyGameSettings->ScalabilityQuality.AntiAliasingQuality != AAValue)
 	{
+		FLOGV("SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged : set AntiAliasing quality to %d (current is %d)", AAValue, MyGameSettings->ScalabilityQuality.AntiAliasingQuality);
 		MyGameSettings->ScalabilityQuality.AntiAliasingQuality = AAValue;
 		MyGameSettings->ApplySettings(false);
 		AntiAliasingQualityLabel->SetText(GetAntiAliasingQualityLabel(AAValue));
@@ -713,10 +767,10 @@ void SFlareSettingsMenu::OnPostProcessQualitySliderChanged(float Value)
 	PostProcessQualitySlider->SetValue((float)StepValue / (float)Step);
 
 	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-	FLOGV("SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged : set PostProcess quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.PostProcessQuality);
 
 	if (MyGameSettings->ScalabilityQuality.PostProcessQuality != StepValue)
 	{
+		FLOGV("SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged : set PostProcess quality to %d (current is %d)", StepValue, MyGameSettings->ScalabilityQuality.PostProcessQuality);
 		MyGameSettings->ScalabilityQuality.PostProcessQuality = StepValue;
 		MyGameSettings->ApplySettings(false);
 		PostProcessQualityLabel->SetText(GetPostProcessQualityLabel(StepValue));
@@ -728,13 +782,16 @@ void SFlareSettingsMenu::OnMusicVolumeSliderChanged(float Value)
 	int32 Step = 10;
 	int32 StepValue = FMath::RoundToInt(Step * Value);
 	MusicVolumeSlider->SetValue((float)StepValue / (float)Step);
-	
-	FLOGV("SFlareSettingsMenu::OnMusicVolumeSliderChanged : set PostProcess quality to %d (current is %d)", StepValue, 0/*todo=xxx*/);
 
-	//if (xxx != StepValue)
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	int32 CurrentVolume = PC->MusicVolume;
+	
+	if (CurrentVolume != StepValue)
 	{
-		//xxx = StepValue;
+		FLOGV("SFlareSettingsMenu::OnMusicVolumeSliderChanged : set music volume to %d (current is %d)", StepValue, CurrentVolume);
 		MusicVolumeLabel->SetText(GetMusicVolumeLabel(StepValue));
+		PC->SetMusicVolume(StepValue);
+		PC->SaveConfig();
 	}
 }
 

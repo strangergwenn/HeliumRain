@@ -304,7 +304,6 @@ void SFlareTradeRouteMenu::Enter(UFlareTradeRoute* TradeRoute)
 
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	MenuManager->UseDarkBackground();
 
 	TargetTradeRoute = TradeRoute;
 	EditRouteName->SetText(GetTradeRouteName());

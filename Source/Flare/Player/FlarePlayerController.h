@@ -14,7 +14,7 @@ class AFlareMenuManager;
 class AFlareHUD;
 
 
-UCLASS(MinimalAPI)
+UCLASS(MinimalAPI, Config=FlarePlayerController)
 class AFlarePlayerController : public APlayerController
 {
 	GENERATED_UCLASS_BODY()
@@ -85,6 +85,9 @@ public:
 
 	/** Spawn the menu pawn and prepare the UI */
 	virtual void SetupMenu();
+
+	/** Update the menu's style */
+	void UpdateMenuTheme();
 
 	/** Entering the main menu */
 	virtual void OnEnterMenu();
@@ -284,13 +287,37 @@ protected:
 	/** Objective */
 	UPROPERTY()
 	FFlarePlayerObjective                    CurrentObjective;
-	
-	UFlareFleet*                             SelectedFleet;
 
 	// Various gameplay data
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
+	UFlareFleet*                             SelectedFleet;
+
+
+public:
+
+	/*----------------------------------------------------
+		Config
+	----------------------------------------------------*/
+
+	/** Whether to use the dark theme when no sector is active */
+	UPROPERTY(Config)
+	bool                                     UseDarkThemeForStrategy;
+	
+	/** Whether to use the dark theme when a sector is active */
+	UPROPERTY(Config)
+	bool                                     UseDarkThemeForNavigation;
+	
+	/** Whether to use the dark theme when a sector is active */
+	UPROPERTY(Config)
+	int32                                    MusicVolume;
+
+	void SetUseDarkThemeForStrategy(bool New);
+
+	void SetUseDarkThemeForNavigation(bool New);
+
+	void SetMusicVolume(int32 New);
 
 
 public:

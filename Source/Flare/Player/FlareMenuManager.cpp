@@ -390,7 +390,6 @@ void AFlareMenuManager::ResetMenu()
 	}
 
 	FadeIn();
-	UseLightBackground();
 }
 
 void AFlareMenuManager::FadeIn()

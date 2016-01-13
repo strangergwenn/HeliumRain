@@ -107,6 +107,10 @@ protected:
 
 	void OnSupersamplingToggle();
 
+	void OnDarkThemeInStrategyToggle();
+
+	void OnDarkThemeInNavToggle();
+
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
 
 	/** Exit this menu */
@@ -145,6 +149,8 @@ protected:
 	TSharedPtr<SFlareButton>                    FullscreenButton;
 	TSharedPtr<SFlareButton>                    VSyncButton;
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
+	TSharedPtr<SFlareButton>                    DarkThemeInStrategyButton;
+	TSharedPtr<SFlareButton>                    DarkThemeInNavButton;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;
 	TSharedPtr<SSlider>                         AntiAliasingQualitySlider;

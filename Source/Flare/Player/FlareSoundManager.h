@@ -63,6 +63,9 @@ public:
 	/** Update the sound manager */
 	void Update(float DeltaSeconds);
 
+	/** Set the music volume to use */
+	void SetMusicVolume(int32 Volume);
+
 	/** Require a specific music track */
 	void RequestMusicTrack(EFlareMusicTrack::Type NewTrack);
 
@@ -80,7 +83,7 @@ protected:
 	void SetDesiredMusicTrack();
 
 	/** Update the sound state using fading */
-	void UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta);
+	void UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta, bool Force = false);
 
 	/** Stop this sound without fading */
 	void StopPlayer(FFlareSoundPlayer& Player);
@@ -99,6 +102,8 @@ protected:
 	// Currently flown ship
 	UPROPERTY()
 	AFlareSpacecraft*                        ShipPawn;
+
+	float                                    MusicVolume;
 
 
 	/*----------------------------------------------------

@@ -61,6 +61,7 @@ void AFlarePlayerController::BeginPlay()
 	{
 		SoundManager->Setup(this);
 		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+		SoundManager->SetMusicVolume(MusicVolume);
 	}
 }
 
@@ -340,6 +341,24 @@ void AFlarePlayerController::SetupMenu()
 	GetNavHUD()->UpdateHUDVisibility();
 }
 
+void AFlarePlayerController::UpdateMenuTheme()
+{
+	if (GetGame()->GetActiveSector())
+	{
+		if (UseDarkThemeForNavigation)
+			MenuManager->UseDarkBackground();
+		else
+			MenuManager->UseLightBackground();
+	}
+	else
+	{
+		if (UseDarkThemeForStrategy)
+			MenuManager->UseDarkBackground();
+		else
+			MenuManager->UseLightBackground();
+	}
+}
+
 void AFlarePlayerController::OnEnterMenu()
 {
 	if (!IsInMenu())
@@ -352,6 +371,7 @@ void AFlarePlayerController::OnEnterMenu()
 		MenuPawn->SetActorHiddenInGame(false);
 	}
 
+	UpdateMenuTheme();
 	GetNavHUD()->UpdateHUDVisibility();
 }
 
@@ -910,6 +930,30 @@ void AFlarePlayerController::UndockShip()
 		ShipPawn->GetNavigationSystem()->Undock();
 	}
 }
+
+
+/*----------------------------------------------------
+	Config
+----------------------------------------------------*/
+
+void AFlarePlayerController::SetUseDarkThemeForStrategy(bool New)
+{
+	UseDarkThemeForStrategy = New;
+	UpdateMenuTheme();
+}
+
+void AFlarePlayerController::SetUseDarkThemeForNavigation(bool New)
+{
+	UseDarkThemeForNavigation = New;
+	UpdateMenuTheme();
+}
+
+void AFlarePlayerController::SetMusicVolume(int32 New)
+{
+	MusicVolume = New;
+	SoundManager->SetMusicVolume(New);
+}
+
 
 /*----------------------------------------------------
 	Getters for game classes

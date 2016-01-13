@@ -243,7 +243,6 @@ void SFlareOrbitalMenu::Enter()
 
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	MenuManager->UseDarkBackground();
 
 	UpdateMap();
 	UpdateTravels();

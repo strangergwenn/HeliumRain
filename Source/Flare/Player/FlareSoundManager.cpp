@@ -18,6 +18,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 {
 	// Gameplay data
 	ShipPawn = NULL;
+	MusicVolume = 1.0f;
 	MusicChanging = false;
 	MusicDesiredTrack = EFlareMusicTrack::None;
 
@@ -42,6 +43,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	MusicPlayer.Sound->bAutoDestroy = false;
 	MusicPlayer.PitchedFade = false;
 	MusicPlayer.FadeSpeed = 5.0;
+	MusicPlayer.Volume = 0;
 	
 	// Power sound
 	PowerPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("PowerSound"));
@@ -49,6 +51,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	PowerPlayer.Sound->bAutoDestroy = false;
 	PowerPlayer.PitchedFade = true;
 	PowerPlayer.FadeSpeed = 0.3;
+	PowerPlayer.Volume = 0;
 
 	// Engine sound
 	EnginePlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("EngineSound"));
@@ -56,6 +59,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	EnginePlayer.Sound->bAutoDestroy = false;
 	EnginePlayer.PitchedFade = true;
 	EnginePlayer.FadeSpeed = 2.0;
+	EnginePlayer.Volume = 0;
 
 	// RCS sound
 	RCSPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("RCSSound"));
@@ -63,6 +67,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	RCSPlayer.Sound->bAutoDestroy = false;
 	RCSPlayer.PitchedFade = true;
 	RCSPlayer.FadeSpeed = 5.0;
+	RCSPlayer.Volume = 0;
 }
 
 
@@ -72,8 +77,8 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 
 void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 {
-	PC = Player;
 	FLOG("UFlareSoundManager::Setup");
+	PC = Player;
 
 	// Attach all sounds
 	if (Player)
@@ -87,6 +92,13 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 		EnginePlayer.Sound->AttachTo(RootComponent);
 		RCSPlayer.Sound->AttachTo(RootComponent);
 	}
+}
+
+void UFlareSoundManager::SetMusicVolume(int32 Volume)
+{
+	FLOGV("UFlareSoundManager::SetMusicVolume %d", Volume);
+	MusicVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
+	UpdatePlayer(MusicPlayer, 0, true);
 }
 
 void UFlareSoundManager::Update(float DeltaSeconds)
@@ -203,10 +215,10 @@ void UFlareSoundManager::SetDesiredMusicTrack()
 	MusicChanging = false;
 }
 
-void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta)
+void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta, bool Force)
 {
 	float NewVolume = FMath::Clamp(Player.Volume + VolumeDelta * Player.FadeSpeed, 0.0f, 1.0f);
-	if (NewVolume != Player.Volume)
+	if (NewVolume != Player.Volume || Force)
 	{
 		if (NewVolume == 0)
 		{
@@ -218,10 +230,14 @@ void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDel
 		}
 		else
 		{
-			Player.Sound->SetVolumeMultiplier(NewVolume);
+			Player.Sound->SetVolumeMultiplier((Player.Sound == MusicPlayer.Sound) ? MusicVolume * NewVolume : NewVolume);
 			Player.Sound->SetPitchMultiplier(Player.PitchedFade ? 0.5f + 0.5f * NewVolume : 1.0f);
 		}
 		Player.Volume = NewVolume;
+	}
+	else if (Player.Sound == MusicPlayer.Sound && Player.Sound->VolumeMultiplier != MusicVolume * NewVolume)
+	{
+		Player.Sound->SetVolumeMultiplier(MusicVolume * NewVolume);
 	}
 }
 
