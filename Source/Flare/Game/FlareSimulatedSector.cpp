@@ -643,28 +643,24 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	return true;
 }
 
-void UFlareSimulatedSector::SimulateTransport(int64 Duration)
+void UFlareSimulatedSector::SimulateTransport()
 {
 	for(int CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 	{
-		SimulateTransport(Duration, GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex]);
+		SimulateTransport(GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex]);
 	}
 }
 
-void UFlareSimulatedSector::SimulateTransport(int64 Duration, UFlareCompany* Company)
+void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 {
 
-	uint32 TransportCapacityPerHour = GetTransportCapacityPerHour(Company);
+	uint32 TransportCapacity = GetTransportCapacity(Company);
 
-	//FLOGV("SimulateTransport Duration=%lld TransportCapacityPerHour=%u", Duration, TransportCapacityPerHour)
-
-	if(TransportCapacityPerHour == 0)
+	if(TransportCapacity == 0)
 	{
 		// No transport
 		return;
 	}
-
-	uint32 TransportCapacity = Duration * TransportCapacityPerHour / 3600.;
 
 	// TODO Store ouput resource from station in overflow to storage
 
@@ -893,19 +889,19 @@ uint32 UFlareSimulatedSector::GiveResources(UFlareCompany* Company, FFlareResour
     return QuantityToGive - RemainingQuantityToGive;
 }
 
-uint32 UFlareSimulatedSector::GetTransportCapacityPerHour(UFlareCompany* Company)
+uint32 UFlareSimulatedSector::GetTransportCapacity(UFlareCompany* Company)
 {
-	uint32 TransportCapacityPerHour = 0;
+	uint32 TransportCapacity = 0;
 
 	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
 		if (Ship->GetCompany() == Company && Ship->IsAssignedToSector())
 		{
-			TransportCapacityPerHour += Ship->GetCargoBayCapacity();
+			TransportCapacity += Ship->GetCargoBayCapacity();
 		}
 	}
-	return TransportCapacityPerHour;
+	return TransportCapacity;
 }
 
 uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource)

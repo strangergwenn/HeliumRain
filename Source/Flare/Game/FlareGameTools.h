@@ -42,15 +42,15 @@ public:
 
 	/** Get world time */
 	UFUNCTION(exec)
-	int64 GetWorldTime();
+	int64 GetWorldDate();
 
 	/** Set world time */
 	UFUNCTION(exec)
-	void SetWorldTime(int64 Time);
+	void SetWorldDate(int64 Date);
 
 	/** Simulate a world duration */
 	UFUNCTION(exec)
-	void Simulate(int64 Duration);
+	void Simulate();
 
 	/** Configure time multiplier for active sector planetarium */
 	UFUNCTION(exec)
@@ -216,12 +216,16 @@ public:
 		Helper
 	----------------------------------------------------*/
 
-	static const int64 MINUTE_IN_SECONDS = 60;
-	static const int64 HOUR_IN_SECONDS = 60 * MINUTE_IN_SECONDS;
-	static const int64 DAY_IN_SECONDS = 24 * HOUR_IN_SECONDS;
-	static const int64 YEAR_IN_SECONDS = 365 * DAY_IN_SECONDS;
+	static const int64 DAYS_IN_YEAR = 365;
+	static const int64 SECONDS_IN_MINUTE = 60;
+	static const int64 SECONDS_IN_HOUR = 60 * SECONDS_IN_MINUTE;
+	static const int64 SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
+	static const int64 SECONDS_IN_YEAR = DAYS_IN_YEAR * SECONDS_IN_DAY;
+
 
 	static FString FormatTime(int64 Time, int Deep);
+
+	static FString FormatDate(int64 Date, int Deep);
 
 	/*----------------------------------------------------
 		Getter

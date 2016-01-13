@@ -44,11 +44,9 @@ static uint32 BIRTH_POINT_TRESHOLD = 7120;
 static uint32 DEATH_POINT_TRESHOLD = 29200;
 static uint32 MONETARY_CREATION = 10000;
 
-void UFlarePeople::Simulate(int64 Duration)
+void UFlarePeople::Simulate()
 {
-	FLOGV("Simulate people for sector %s. Population=%u", *Parent->GetSectorName().ToString(), PeopleData.Population)
-
-
+	FLOGV("Simulate people for sector %s. Population=%u", *Parent->GetSectorName().ToString(), PeopleData.Population)			
 
 	float Happiness = GetHappiness();
 

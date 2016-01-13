@@ -210,32 +210,26 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 }
 
 
-void UFlareWorld::Simulate(int64 Duration)
+void UFlareWorld::Simulate()
 {
-	WorldData.Time += Duration;
+	WorldData.Date++;
 
 	// Peoples
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
-		Sectors[SectorIndex]->GetPeople()->Simulate(Duration);
-	}
-
-	// Travels
-	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
-	{
-		Travels[TravelIndex]->Simulate(Duration);
+		Sectors[SectorIndex]->GetPeople()->Simulate();
 	}
 
 	// Automatic transport
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
-		Sectors[SectorIndex]->SimulateTransport(Duration);
+		Sectors[SectorIndex]->SimulateTransport();
 	}
 
 	// Factories
 	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
-		Factories[FactoryIndex]->Simulate(Duration);
+		Factories[FactoryIndex]->Simulate();
 	}
 
 	// Trade routes
@@ -245,8 +239,14 @@ void UFlareWorld::Simulate(int64 Duration)
 
 		for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
 		{
-			TradeRoutes[RouteIndex]->Simulate(Duration);
+			TradeRoutes[RouteIndex]->Simulate();
 		}
+	}
+
+	// Travels
+	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
+	{
+		Travels[TravelIndex]->Simulate();
 	}
 
 	// Process events
@@ -254,9 +254,9 @@ void UFlareWorld::Simulate(int64 Duration)
 
 void UFlareWorld::FastForward()
 {
-	Simulate(0);
-
-	int64 FastForwardEnd = WorldData.Time + 86400;
+	Simulate();
+	// TODO repair
+	/*int64 FastForwardEnd = WorldData.Time + 86400;
 
 	while(WorldData.Time < FastForwardEnd)
 	{
@@ -290,24 +290,20 @@ void UFlareWorld::FastForward()
 			// End fast forward
 			break;
 		}
-	}
+	}*/
 }
 
-void UFlareWorld::ForceTime(int64 Time)
+void UFlareWorld::ForceDate(int64 Date)
 {
-	int64 TimeJump = Time - WorldData.Time;
-	WorldData.Time = Time;
-	if (TimeJump > 0)
+	while(WorldData.Date < Date)
 	{
-		Simulate(TimeJump);
+		Simulate();
 	}
-
-
 }
 
-inline static bool EventTimeComparator (const FFlareWorldEvent& ip1, const FFlareWorldEvent& ip2)
+inline static bool EventDateComparator (const FFlareWorldEvent& ip1, const FFlareWorldEvent& ip2)
  {
-	 return (ip1.Time < ip2.Time);
+	 return (ip1.Date < ip2.Date);
  }
 
 TArray<FFlareWorldEvent> UFlareWorld::GenerateEvents(UFlareCompany* PointOfView)
@@ -321,7 +317,7 @@ TArray<FFlareWorldEvent> UFlareWorld::GenerateEvents(UFlareCompany* PointOfView)
 	{
 		FFlareWorldEvent TravelEvent;
 
-		TravelEvent.Time = WorldData.Time + Travels[TravelIndex]->GetRemainingTravelDuration();
+		TravelEvent.Date = WorldData.Date + Travels[TravelIndex]->GetRemainingTravelDuration();
 		TravelEvent.Visibility = EFlareEventVisibility::Blocking;
 		NextEvents.Add(TravelEvent);
 	}
@@ -336,7 +332,7 @@ TArray<FFlareWorldEvent> UFlareWorld::GenerateEvents(UFlareCompany* PointOfView)
 		}
 	}
 
-	NextEvents.Sort(&EventTimeComparator);
+	NextEvents.Sort(&EventDateComparator);
 
 	return NextEvents;
 }
@@ -376,7 +372,7 @@ UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimula
 		TravelData.FleetIdentifier = TravelingFleet->GetIdentifier();
 		TravelData.OriginSectorIdentifier = OriginSector->GetIdentifier();
 		TravelData.DestinationSectorIdentifier = DestinationSector->GetIdentifier();
-		TravelData.DepartureTime = GetTime();
+		TravelData.DepartureDate = GetDate();
 		return LoadTravel(TravelData);
 	}
 }

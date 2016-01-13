@@ -25,7 +25,7 @@ struct FFlareTravelSave
 	FName DestinationSectorIdentifier;
 
 	UPROPERTY(EditAnywhere, Category = Save)
-	int64 DepartureTime;
+	int64 DepartureDate;
 
 };
 
@@ -51,7 +51,7 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
-	void Simulate(long Duration);
+	void Simulate();
 
 	int64 GetRemainingTravelDuration();
 
@@ -115,9 +115,9 @@ public:
 		return Fleet;
 	}
 
-	int64 GetDepartureTime()
+	int64 GetDepartureDate()
 	{
-		return TravelData.DepartureTime;
+		return TravelData.DepartureDate;
 	}
 
 	int64 GetElapsedTime();

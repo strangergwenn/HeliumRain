@@ -33,7 +33,7 @@ FFlareFactorySave* UFlareFactory::Save()
 	return &FactoryData;
 }
 
-void UFlareFactory::Simulate(int64 Duration)
+void UFlareFactory::Simulate()
 {
 
 	if (!FactoryData.Active)
@@ -41,48 +41,44 @@ void UFlareFactory::Simulate(int64 Duration)
 		return;
 	}
 
-	int64 RemainingDuration = Duration;
 
-	while (RemainingDuration >= 0)
+	// Check if production is running
+	if(!IsNeedProduction())
 	{
-		// Check if production is running
-		if(!IsNeedProduction())
+		// Don't produce if not needed
+		return;
+	}
+
+	TryBeginProduction();
+
+	if (HasCostReserved())
+	{
+		FactoryData.ProductedDuration += 1;
+
+		if(FactoryData.ProductedDuration < FactoryDescription->ProductionTime)
 		{
-			// Don't produce if not needed
+			// In production
 			return;
 		}
-		else if (HasCostReserved())
-		{
-			int64 ProducedTime = FMath::Min(RemainingDuration, FactoryDescription->ProductionTime - FactoryData.ProductedDuration);
-			FactoryData.ProductedDuration += ProducedTime ;
-			RemainingDuration -= ProducedTime;
 
-			if(FactoryData.ProductedDuration < FactoryDescription->ProductionTime)
-			{
-				// In production
-				return;
-			}
-
-			if (!HasOutputFreeSpace())
-			{
-				// TODO display warning to user
-				// No free space wait.
-				FLOGV("%s : Production Paused : no output free space", *FactoryDescription->Name.ToString())
-				return;
-			}
-
-			DoProduction();
-		}
-		else if (HasInputResources() && HasInputMoney())
+		if (!HasOutputFreeSpace())
 		{
-			BeginProduction();
-		}
-		else
-		{
-			// Production can't start
-			FLOGV("%s : Production can't start resources ? %d money ?%d", *FactoryDescription->Name.ToString(), HasInputResources(), HasInputMoney())
+			// TODO display warning to user
+			// No free space wait.
+			FLOGV("%s : Production Paused : no output free space", *FactoryDescription->Name.ToString())
 			return;
 		}
+
+		DoProduction();
+		TryBeginProduction();
+	}
+}
+
+void UFlareFactory::TryBeginProduction()
+{
+	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney())
+	{
+		BeginProduction();
 	}
 }
 
@@ -428,7 +424,7 @@ FFlareWorldEvent *UFlareFactory::GenerateEvent()
 			return NULL;
 		}
 
-		NextEvent.Time = GetGame()->GetGameWorld()->GetTime() + FactoryDescription->ProductionTime - FactoryData.ProductedDuration;
+		NextEvent.Date= GetGame()->GetGameWorld()->GetDate() + FactoryDescription->ProductionTime - FactoryData.ProductedDuration;
 		NextEvent.Visibility = EFlareEventVisibility::Silent;
 		return &NextEvent;
 	}
@@ -636,7 +632,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 
 	return FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} each {2}"),
 		ProductionCostText, ProductionOutputText,
-		FText::FromString(*UFlareGameTools::FormatTime(GetDescription()->ProductionTime, 2))); // FString needed here
+		FText::FromString(*UFlareGameTools::FormatDate(GetDescription()->ProductionTime, 2))); // FString needed here
 }
 
 FText UFlareFactory::GetFactoryStatus()
@@ -652,7 +648,7 @@ FText UFlareFactory::GetFactoryStatus()
 		else if (HasCostReserved())
 		{
 			ProductionStatusText = FText::Format(LOCTEXT("ProductionInProgressFormat", "Producing ({0}{1})"),
-				FText::FromString(*UFlareGameTools::FormatTime(GetRemainingProductionDuration(), 2)), // FString needed here
+				FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
 				HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space"));
 		}
 		else if (HasInputMoney() && HasInputResources())
@@ -675,7 +671,7 @@ FText UFlareFactory::GetFactoryStatus()
 	else if (IsPaused())
 	{
 		ProductionStatusText = FText::Format(LOCTEXT("ProductionPaused", "Paused ({0} to completion)"),
-			FText::FromString(*UFlareGameTools::FormatTime(GetRemainingProductionDuration(), 2))); // FString needed here
+			FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2))); // FString needed here
 	}
 	else
 	{

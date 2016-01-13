@@ -87,36 +87,36 @@ void UFlareGameTools::SetDefaultTurret(FName NewDefaultTurretIdentifier)
 	World tools
 ----------------------------------------------------*/
 
-int64 UFlareGameTools::GetWorldTime()
+int64 UFlareGameTools::GetWorldDate()
 {
 	if (!GetGameWorld())
 	{
-		FLOG("AFlareGame::GetWorldTime failed: no loaded world");
+		FLOG("AFlareGame::GetWorldDate failed: no loaded world");
 		return 0;
 	}
-	FLOGV("World time: %lld", GetGameWorld()->GetTime());
-	return GetGameWorld()->GetTime();
+	FLOGV("World date: %lld", GetGameWorld()->GetDate());
+	return GetGameWorld()->GetDate();
 }
 
-void UFlareGameTools::SetWorldTime(int64 Time)
+void UFlareGameTools::SetWorldDate(int64 Date)
 {
 	if (!GetGameWorld())
 	{
-		FLOG("AFlareGame::SetWorldTime failed: no loaded world");
+		FLOG("AFlareGame::SetWorldDate failed: no loaded world");
 		return;
 	}
 
 	if (GetActiveSector())
 	{
-		FLOG("AFlareGame::SetWorldTime failed: a sector is active");
+		FLOG("AFlareGame::SetWorldDate failed: a sector is active");
 		return;
 	}
 
-	GetGameWorld()->ForceTime(Time);
+	GetGameWorld()->ForceDate(Date);
 }
 
 
-void UFlareGameTools::Simulate(int64 Duration)
+void UFlareGameTools::Simulate()
 {
 	if (!GetGameWorld())
 	{
@@ -130,7 +130,7 @@ void UFlareGameTools::Simulate(int64 Duration)
 		return;
 	}
 
-	GetGameWorld()->Simulate(Duration);
+	GetGameWorld()->Simulate();
 }
 
 void UFlareGameTools::SetPlanatariumTimeMultiplier(float Multiplier)
@@ -604,8 +604,8 @@ void UFlareGameTools::PrintTravelByIndex(int32 Index)
 	FLOGV("> PrintTravel %s to %s",
 		*Travel->GetFleet()->GetFleetName().ToString(),
 		*Travel->GetDestinationSector()->GetSectorName().ToString());
-	FLOGV("  - Departure time: %lld s", Travel->GetDepartureTime());
-	FLOGV("  - Elapsed time: %lld s", Travel->GetElapsedTime());
+	FLOGV("  - Departure date: day %lld ", Travel->GetDepartureDate());
+	FLOGV("  - Elapsed time: %lld days", Travel->GetElapsedTime());
 
 }
 
@@ -1182,14 +1182,14 @@ void UFlareGameTools::PrintCompanyList()
 
 FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 {
-	if (Time < MINUTE_IN_SECONDS)
+	if (Time < SECONDS_IN_MINUTE)
 	{
 		return FString::FromInt(Time) + (Time > 2 ? FString(LOCTEXT("seconds", " seconds").ToString()) : FString(LOCTEXT("second", " second").ToString()));
 	}
-	else if (Time < HOUR_IN_SECONDS)
+	else if (Time < SECONDS_IN_HOUR)
 	{
-		int64 Minutes = Time / MINUTE_IN_SECONDS;
-		int64 RemainingSeconds = Time % MINUTE_IN_SECONDS;
+		int64 Minutes = Time / SECONDS_IN_MINUTE;
+		int64 RemainingSeconds = Time % SECONDS_IN_MINUTE;
 
 		FString MinutesString;
 
@@ -1205,11 +1205,11 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		return MinutesString;
 	}
-	else if (Time < DAY_IN_SECONDS)
+	else if (Time < SECONDS_IN_DAY)
 	{
-		int64 Hours = Time / HOUR_IN_SECONDS;
-		int64 RemainingSeconds = Time % HOUR_IN_SECONDS;
-		int64 RemainingMinutes = RemainingSeconds / MINUTE_IN_SECONDS;
+		int64 Hours = Time / SECONDS_IN_HOUR;
+		int64 RemainingSeconds = Time % SECONDS_IN_HOUR;
+		int64 RemainingMinutes = RemainingSeconds / SECONDS_IN_MINUTE;
 
 		FString HoursString;
 
@@ -1225,11 +1225,11 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		return HoursString;
 	}
-	else if (Time < YEAR_IN_SECONDS)
+	else if (Time < SECONDS_IN_YEAR)
 	{
-		int64 Days = Time / DAY_IN_SECONDS;
-		int64 RemainingSeconds = Time % DAY_IN_SECONDS;
-		int64 RemainingHours = RemainingSeconds / HOUR_IN_SECONDS;
+		int64 Days = Time / SECONDS_IN_DAY;
+		int64 RemainingSeconds = Time % SECONDS_IN_DAY;
+		int64 RemainingHours = RemainingSeconds / SECONDS_IN_HOUR;
 
 		FString DaysString;
 
@@ -1247,9 +1247,9 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 	}
 	else
 	{
-		int64 Years = Time / YEAR_IN_SECONDS;
-		int64 RemainingSeconds = Time % YEAR_IN_SECONDS;
-		int64 RemainingDays = RemainingSeconds / DAY_IN_SECONDS;
+		int64 Years = Time / SECONDS_IN_YEAR;
+		int64 RemainingSeconds = Time % SECONDS_IN_YEAR;
+		int64 RemainingDays = RemainingSeconds / SECONDS_IN_DAY;
 
 		FString YearsString;
 
@@ -1261,6 +1261,33 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 		if (Deep > 0 && RemainingDays > 0)
 		{
 			YearsString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+		}
+
+		return YearsString;
+	}
+}
+
+FString UFlareGameTools::FormatDate(int64 Days, int Deep)
+{
+	if (Days < DAYS_IN_YEAR)
+	{
+		return FString::FromInt(Days) + (Days > 2 ? FString(LOCTEXT("days", " days").ToString()) : FString(LOCTEXT("day", " day").ToString()));
+	}
+	else
+	{
+		int64 Years = Days / DAYS_IN_YEAR;
+		int64 RemainingDays = Days % DAYS_IN_YEAR;
+
+		FString YearsString;
+
+		if (Years > 0)
+		{
+			YearsString += FString::FromInt(Years) + (Years > 2 ? FString(LOCTEXT("years", " years").ToString()) : FString(LOCTEXT("year", " year").ToString()));
+		}
+
+		if (Deep > 0 && RemainingDays > 0)
+		{
+			YearsString += FString(" ") + FormatDate(RemainingDays, Deep - 1);
 		}
 
 		return YearsString;

@@ -269,10 +269,10 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 	{
 		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
 
-		if (GameWorld && LastUpdateTime != GameWorld->GetTime())
+		if (GameWorld && LastUpdateDate != GameWorld->GetDate())
 		{
 			UpdateTravels();
-			LastUpdateTime = GameWorld->GetTime();
+			LastUpdateDate = GameWorld->GetDate();
 		}
 	}
 }
@@ -333,7 +333,7 @@ void SFlareOrbitalMenu::UpdateTravels()
 			FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} Travel to {1}: {2} remaining."),
 				Travel->GetFleet()->GetName(),
 				Travel->GetDestinationSector()->GetSectorName(),
-				FText::FromString(*UFlareGameTools::FormatTime(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
+				FText::FromString(*UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
 
 			TravelsBox->AddSlot()
 			[

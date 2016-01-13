@@ -114,7 +114,7 @@ protected:
 	// Game data
 	AFlareGame*                                 Game;
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
-	int64                                       LastUpdateTime;
+	int64                                       LastUpdateDate;
 
 	// Components
 	TSharedPtr<SFlarePlanetaryBox>              NemaBox;

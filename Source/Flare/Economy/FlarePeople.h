@@ -85,7 +85,7 @@ public:
 	   Gameplay
 	----------------------------------------------------*/
 
-	void Simulate(int64 Duration);
+	void Simulate();
 
 	void GiveBirth(uint32 BirthCount);
 

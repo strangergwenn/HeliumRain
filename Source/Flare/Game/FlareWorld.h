@@ -32,7 +32,7 @@ struct FFlareWorldSave
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, Category = Save)
-	int64                    Time;
+	int64                    Date;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareCompanySave> CompanyData;
@@ -52,7 +52,7 @@ struct FFlareWorldEvent
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, Category = Save)
-	int64                    Time;
+	int64                    Date;
 
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlareEventVisibility::Type>  Visibility;
@@ -87,8 +87,8 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
-	/** Simulate world during a specific duration */
-	void Simulate(int64 Duration);
+	/** Simulate world for a day */
+	void Simulate();
 
 	/** Simulate world from now to the next event */
 	void FastForward();
@@ -97,8 +97,8 @@ public:
 
 	virtual void DeleteTravel(UFlareTravel* Travel);
 
-	/** Force new time */
-	virtual void ForceTime(int64 Time);
+	/** Force new date */
+	virtual void ForceDate(int64 Date);
 
 	/** Generate all the next events in the world. If PointOfView is set, return the next event this company known */
 	TArray<FFlareWorldEvent> GenerateEvents(UFlareCompany* PointOfView = NULL);
@@ -168,9 +168,9 @@ public:
 		return Travels;
 	}
 
-	inline int64 GetTime()
+	inline int64 GetDate()
 	{
-		return WorldData.Time;
+		return WorldData.Date;
 	}
 
 	UFlareCompany* FindCompany(FName Identifier) const;

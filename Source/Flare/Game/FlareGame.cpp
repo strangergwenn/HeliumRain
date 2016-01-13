@@ -3,6 +3,7 @@
 #include "FlareGame.h"
 #include "FlareSaveGame.h"
 #include "FlareAsteroid.h"
+#include "FlareGameTools.h"
 
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
@@ -160,9 +161,10 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		// Create the new sector
 		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
 		FFlareSectorSave* SectorData = Sector->Save();
-		if (SectorData->LocalTime < GetGameWorld()->GetTime())
+		if (SectorData->LocalTime < GetGameWorld()->GetDate())
 		{
-			SectorData->LocalTime = GetGameWorld()->GetTime();
+			// TODO Find time with light
+			SectorData->LocalTime = GetGameWorld()->GetDate() * UFlareGameTools::SECONDS_IN_DAY;
 		}
 		Planetarium->ResetTime();
 		ActiveSector->Load(*SectorData, Sector);
@@ -371,7 +373,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	// Create the new world
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
 	FFlareWorldSave WorldData;
-	WorldData.Time = 475856;
+	WorldData.Date = 3168;
 	World->Load(WorldData);
 
 	// Create companies
@@ -510,7 +512,7 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
         // Create the new world
         World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
 
-		FLOGV("AFlareGame::LoadGame time=%lld", Save->WorldData.Time);
+		FLOGV("AFlareGame::LoadGame date=%lld", Save->WorldData.Date);
 
         World->Load(Save->WorldData);
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
@@ -558,8 +560,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
 		Save->PlayerData.QuestData = *QuestManager->Save();
 
-
-		FLOGV("AFlareGame::SaveGame time=%lld", Save->WorldData.Time);
+		FLOGV("AFlareGame::SaveGame date=%lld", Save->WorldData.Date);
 		// Save
 		UGameplayStatics::SaveGameToSlot(Save, "SaveSlot" + FString::FromInt(CurrentSaveIndex), 0);
 		return true;

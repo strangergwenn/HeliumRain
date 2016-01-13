@@ -35,7 +35,7 @@ FFlareTradeRouteSave* UFlareTradeRoute::Save()
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareTradeRoute::Simulate(int64 Duration)
+void UFlareTradeRoute::Simulate()
 {
     if(TradeRouteData.Sectors.Num() == 0)
     {
@@ -43,7 +43,7 @@ void UFlareTradeRoute::Simulate(int64 Duration)
         return;
     }
 
-    FLOGV("Trade route simulate %lld", Duration);
+	FLOG("Trade route simulate");
 	for(int32 FleetIndex = 0; FleetIndex < TradeRouteFleets.Num() ; FleetIndex++)
 	{
 		UFlareFleet* Fleet = TradeRouteFleets[FleetIndex];

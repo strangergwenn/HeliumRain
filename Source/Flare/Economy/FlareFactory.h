@@ -117,7 +117,9 @@ public:
 	   Gameplay
 	----------------------------------------------------*/
 
-	void Simulate(int64 Duration);
+	void Simulate();
+
+	void TryBeginProduction();
 
 	void Start();
 

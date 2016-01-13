@@ -78,7 +78,7 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
-	void Simulate(int64 Duration);
+	void Simulate();
 
 	virtual void AddFleet(UFlareFleet* Ship);
 

@@ -48,7 +48,7 @@ FFlareTravelSave* UFlareTravel::Save()
 ----------------------------------------------------*/
 
 
-void UFlareTravel::Simulate(long Duration)
+void UFlareTravel::Simulate()
 {
 	if (GetRemainingTravelDuration() <= 0)
 	{
@@ -68,7 +68,7 @@ void UFlareTravel::EndTravel()
 
 int64 UFlareTravel::GetElapsedTime()
 {
-	return Game->GetGameWorld()->GetTime() - TravelData.DepartureTime;
+	return Game->GetGameWorld()->GetDate() - TravelData.DepartureDate;
 }
 
 int64 UFlareTravel::GetRemainingTravelDuration()
@@ -89,9 +89,8 @@ void UFlareTravel::ChangeDestination(UFlareSimulatedSector* NewDestinationSector
 
 	// Reset travel duration
 	// TODO intelligent travel remaining duration change
-	TravelData.DepartureTime = Game->GetGameWorld()->GetTime();
+	TravelData.DepartureDate = Game->GetGameWorld()->GetDate();
 	GenerateTravelDuration();
-	Simulate(0);
 }
 
 bool UFlareTravel::CanChangeDestination()
@@ -125,7 +124,7 @@ void UFlareTravel::GenerateTravelDuration()
 	{
 		// Phase change travel
 		FFlareCelestialBody* CelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
-		TravelDuration = ComputePhaseTravelDuration(CelestialBody, OriginAltitude, OriginPhase, DestinationPhase);
+		TravelDuration = ComputePhaseTravelDuration(CelestialBody, OriginAltitude, OriginPhase, DestinationPhase) / UFlareGameTools::SECONDS_IN_DAY;
 	}
 	else
 	{
@@ -133,7 +132,7 @@ void UFlareTravel::GenerateTravelDuration()
 		FFlareCelestialBody* OriginCelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
 		FFlareCelestialBody* DestinationCelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(DestinationCelestialBodyIdentifier);
 
-		TravelDuration = ComputeAltitudeTravelDuration(OriginCelestialBody, OriginAltitude, DestinationCelestialBody, DestinationAltitude);
+		TravelDuration = ComputeAltitudeTravelDuration(OriginCelestialBody, OriginAltitude, DestinationCelestialBody, DestinationAltitude) / UFlareGameTools::SECONDS_IN_DAY;
 	}
 }
 

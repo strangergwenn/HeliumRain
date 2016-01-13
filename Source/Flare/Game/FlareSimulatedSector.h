@@ -240,9 +240,9 @@ public:
 
 	bool BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
-	void SimulateTransport(int64 Duration);
+	void SimulateTransport();
 
-	void SimulateTransport(int64 Duration, UFlareCompany* Company);
+	void SimulateTransport(UFlareCompany* Company);
 
 	uint32 TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
 
@@ -342,7 +342,7 @@ public:
 	/** Get the friendlyness status toward a company, as a color */
 	FLinearColor GetSectorFriendlynessColor(UFlareCompany* Company) const;
 
-	uint32 GetTransportCapacityPerHour(UFlareCompany* Company);
+	uint32 GetTransportCapacity(UFlareCompany* Company);
 
 	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource);
 };
