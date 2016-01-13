@@ -350,7 +350,7 @@ void SFlareSpacecraftInfo::Show()
 		bool CanDock = OwnedAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
 		bool CanTrade = OwnedAndNotSelf && !TargetSpacecraft->IsStation() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 		bool CanAssign = OwnedAndNotSelf && !TargetSpacecraft->IsStation();
-		bool CanUpgrade = Owned && (IsDocked || Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL);
+		bool CanUpgrade = Owned && !TargetSpacecraft->IsStation() && (IsDocked || Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL);
 
 		// Button states
 		CargoBay->SetVisibility(CargoBay->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
