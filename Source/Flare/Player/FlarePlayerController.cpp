@@ -371,7 +371,6 @@ void AFlarePlayerController::OnEnterMenu()
 		MenuPawn->SetActorHiddenInGame(false);
 	}
 
-	UpdateMenuTheme();
 	GetNavHUD()->UpdateHUDVisibility();
 }
 

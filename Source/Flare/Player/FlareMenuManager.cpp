@@ -506,6 +506,7 @@ void AFlareMenuManager::OpenMainMenu()
 	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenSettingsMenu()
@@ -514,6 +515,7 @@ void AFlareMenuManager::OpenSettingsMenu()
 	CurrentMenu = EFlareMenu::MENU_Settings;
 	GetPC()->OnEnterMenu();
 	SettingsMenu->Enter();
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenNewGameMenu()
@@ -522,6 +524,7 @@ void AFlareMenuManager::OpenNewGameMenu()
 	CurrentMenu = EFlareMenu::MENU_NewGame;
 	GetPC()->OnEnterMenu();
 	NewGameMenu->Enter();
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenDashboard()
@@ -530,6 +533,7 @@ void AFlareMenuManager::OpenDashboard()
 	CurrentMenu = EFlareMenu::MENU_Dashboard;
 	GetPC()->OnEnterMenu();
 	Dashboard->Enter();
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
@@ -543,6 +547,7 @@ void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
 		Target = Cast<AFlarePlayerController>(GetOwner())->GetCompany();
 	}
 	CompanyMenu->Enter(Target);
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
@@ -568,6 +573,7 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 		Target = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
 	}
 	ShipMenu->Enter(Target, IsEditable);
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
@@ -576,6 +582,7 @@ void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
 	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
 	SectorMenu->Enter(Sector);
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
@@ -585,11 +592,12 @@ void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
 	GetPC()->OnEnterMenu();
 
 	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(Spacecraft);
-	if(SimulatedSpacecraft)
+	if (SimulatedSpacecraft)
 	{
 		TradeMenu->Enter(SimulatedSpacecraft->GetCurrentSector(), SimulatedSpacecraft, NULL);
 		// TODO What append if the cast fail ?
 	}
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
@@ -600,6 +608,7 @@ void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
 
 
 	TradeRouteMenu->Enter(TradeRoute);
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenOrbit()
@@ -608,6 +617,7 @@ void AFlareMenuManager::OpenOrbit()
 	CurrentMenu = EFlareMenu::MENU_Orbit;
 	GetPC()->OnEnterMenu();
 	OrbitMenu->Enter();
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenLeaderboard()
@@ -616,6 +626,7 @@ void AFlareMenuManager::OpenLeaderboard()
 	CurrentMenu = EFlareMenu::MENU_Leaderboard;
 	GetPC()->OnEnterMenu();
 	LeaderboardMenu->Enter();
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenCredits()
@@ -624,6 +635,7 @@ void AFlareMenuManager::OpenCredits()
 	CurrentMenu = EFlareMenu::MENU_Credits;
 	GetPC()->OnEnterMenu();
 	CreditsMenu->Enter();
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::ExitMenu()
