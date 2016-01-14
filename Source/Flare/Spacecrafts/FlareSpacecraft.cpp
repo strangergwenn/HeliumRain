@@ -60,7 +60,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
-	if (!IsPresentationMode())
+	if (!IsPresentationMode() && StateManager)
 	{
 		StateManager->Tick(DeltaSeconds);
 
