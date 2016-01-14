@@ -3,6 +3,8 @@
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+
 #include "FlarePeople.h"
 
 
@@ -46,7 +48,14 @@ static uint32 MONETARY_CREATION = 10000;
 
 void UFlarePeople::Simulate()
 {
+	if(PeopleData.Population == 0)
+	{
+		return;
+	}
+
 	FLOGV("Simulate people for sector %s. Population=%u", *Parent->GetSectorName().ToString(), PeopleData.Population)			
+
+	SimulateResourcePurchase();
 
 	float Happiness = GetHappiness();
 
@@ -85,14 +94,12 @@ void UFlarePeople::Simulate()
 	uint32 FoodConsumption = PeopleData.Population;
 	uint32 EatenFood = FMath::Min(FoodConsumption, PeopleData.FoodStock);
 	// Reduce stock
-	PeopleData.FoodStock = EatenFood;
+	PeopleData.FoodStock -= EatenFood;
+	IncreaseHappiness(EatenFood / 10);
 
 	// Reduce hunger (100% if everybody eat)
 	float FeedPeopleRatio = (float) EatenFood / (float) FoodConsumption;
-	if (PeopleData.HungerPoint > 0)
-	{
-		IncreaseHappiness(FeedPeopleRatio * PeopleData.Population * 2);
-	}
+
 	PeopleData.HungerPoint *= 1 - FeedPeopleRatio;
 
 
@@ -103,7 +110,7 @@ void UFlarePeople::Simulate()
 
 
 
-	/*FLOGV(" - happiness: %f", Happiness);
+	FLOGV(" - happiness: %f", Happiness);
 	FLOGV(" - Sickness: %f", Sickness);
 	FLOGV(" - Fertility: %f", Fertility);
 
@@ -115,7 +122,103 @@ void UFlarePeople::Simulate()
 	FLOGV(" - Hunger: %u", PeopleData.HungerPoint);
 
 	FLOGV(" - Money: %u", PeopleData.Money);
-	FLOGV(" - Detp: %u", PeopleData.Dept);*/
+	FLOGV(" - Dept: %u", PeopleData.Dept);
+}
+
+void UFlarePeople::SimulateResourcePurchase()
+{
+	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
+
+	// Buy at food for 15 days
+	uint32 FoodToHave =  PeopleData.Population * 15; // In kg
+	if(FoodToHave > PeopleData.FoodStock)
+	{
+		uint32 FoodToBuy = FoodToHave - PeopleData.FoodStock;
+		FLOGV("  FoodToBuy: %u", FoodToBuy);
+		uint32 BoughtFood = BuyResourcesInSector(Food, FoodToBuy / 1000); // In Tons
+		FLOGV("  BoughtFood: %u", BoughtFood);
+		PeopleData.FoodStock += BoughtFood * 1000; // In kg
+	}
+
+
+}
+
+uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, uint32 Quantity)
+{
+	// Find companies selling the ressource
+
+	TArray<UFlareSimulatedSpacecraft*> SellingStations;
+	TArray<UFlareCompany*> SellingCompanies;
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Parent->GetSectorStations().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = Parent->GetSectorStations()[SpacecraftIndex];
+
+		if(!Station->IsConsumeResources())
+		{
+			continue;
+		}
+		SellingStations.Add(Station);
+		SellingCompanies.AddUnique(Station->GetCompany());
+	}
+
+	// Limit quantity to buy with money
+	uint32 ResourceToBuy = FMath::Min(Quantity, PeopleData.Money / Parent->GetResourcePrice(Resource));
+
+	while(ResourceToBuy > 0 && SellingCompanies.Num() > 0)
+	{
+		uint32 ReputationSum = 0;
+		uint32 InitialResourceToBuy = ResourceToBuy;
+
+		// Compute company reputation sum to share market part
+		for (int32 CompanyIndex = 0; CompanyIndex < SellingCompanies.Num(); CompanyIndex++)
+		{
+			FFlareCompanyReputationSave* Reputation = GetCompanyReputation(SellingCompanies[CompanyIndex]);
+
+			ReputationSum += Reputation->Reputation;
+		}
+
+		for (int32 CompanyIndex = SellingCompanies.Num()-1; CompanyIndex >= 0; CompanyIndex--)
+		{
+			FFlareCompanyReputationSave* Reputation = GetCompanyReputation(SellingCompanies[CompanyIndex]);
+
+			uint32 PartToBuy = (InitialResourceToBuy * Reputation->Reputation) / ReputationSum;
+
+			uint32 BoughtQuantity = BuyInStationForCompany(Resource, PartToBuy, SellingCompanies[CompanyIndex], SellingStations);
+			ResourceToBuy -= BoughtQuantity;
+			if(PartToBuy == 0 || BoughtQuantity < PartToBuy)
+			{
+				SellingCompanies.RemoveAt(CompanyIndex);
+			}
+		}
+	}
+
+	return Quantity - ResourceToBuy;
+}
+
+uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations)
+{
+	uint32 RemainingQuantity = Quantity;
+
+
+
+	for (int32 StationIndex = 0; StationIndex < Stations.Num(); StationIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = Stations[StationIndex];
+
+		if(Station->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantity);
+		RemainingQuantity -= TakenQuantity;
+		uint32 Price = Parent->GetResourcePrice(Resource) * TakenQuantity;
+		PeopleData.Money -= Price;
+		Company->GiveMoney(Price);
+	}
+
+	return Quantity - RemainingQuantity;
 }
 
 void UFlarePeople::GiveBirth(uint32 BirthCount)
@@ -234,5 +337,23 @@ float UFlarePeople::GetHappiness()
 	return (float) PeopleData.HappinessPoint / (100 * (float) PeopleData.Population);
 }
 
+FFlareCompanyReputationSave* UFlarePeople::GetCompanyReputation(UFlareCompany* Company)
+{
+	for(int ReputationIndex = 0; ReputationIndex < PeopleData.CompanyReputations.Num(); ReputationIndex++)
+	{
+		if(PeopleData.CompanyReputations[ReputationIndex].CompanyIdentifier == Company->GetIdentifier())
+		{
+			return &PeopleData.CompanyReputations[ReputationIndex];
+		}
+	}
+
+	//Init Reputation
+	FFlareCompanyReputationSave NewReputation;
+	NewReputation.CompanyIdentifier = Company->GetIdentifier();
+	NewReputation.Reputation = 1000 * PeopleData.Population;
+	PeopleData.CompanyReputations.Add(NewReputation);
+
+	return GetCompanyReputation(Company);
+}
 
 #undef LOCTEXT_NAMESPACE

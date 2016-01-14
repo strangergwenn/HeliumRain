@@ -333,6 +333,8 @@ public:
 		return People;
 	}
 
+
+
 	/** Get the friendlyness status toward a company */
 	EFlareSectorFriendlyness::Type GetSectorFriendlyness(UFlareCompany* Company) const;
 
@@ -345,4 +347,6 @@ public:
 	uint32 GetTransportCapacity(UFlareCompany* Company);
 
 	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource);
+
+	uint32 GetResourcePrice(FFlareResourceDescription* Resource);
 };

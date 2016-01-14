@@ -434,7 +434,7 @@ FText SFlareSectorMenu::GetSectorTransportInfo() const
 
 	if (TargetSector)
 	{
-		Result = FText::Format(LOCTEXT("SectorDescriptionFormat", "Capacity of assigned transports : {0} cargo units per hour"),
+		Result = FText::Format(LOCTEXT("SectorDescriptionFormat", "Capacity of assigned transports : {0} cargo units per day"),
 			FText::AsNumber(TargetSector->GetTransportCapacity(MenuManager->GetGame()->GetPC()->GetCompany()))
 			);
 	}

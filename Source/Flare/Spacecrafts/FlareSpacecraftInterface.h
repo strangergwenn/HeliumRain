@@ -122,6 +122,9 @@ struct FFlareSpacecraftDescription
 	/** Factories*/
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<UFlareFactoryCatalogEntry*> Factories;
+
+	/** Is people can consume resource in this station */
+	UPROPERTY(EditAnywhere, Category = Content) bool IsConsumeResources;
 };
 
 /** Interface wrapper */

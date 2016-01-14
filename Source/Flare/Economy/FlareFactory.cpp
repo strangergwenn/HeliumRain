@@ -53,11 +53,16 @@ void UFlareFactory::Simulate()
 
 	if (HasCostReserved())
 	{
-		FactoryData.ProductedDuration += 1;
 
 		if(FactoryData.ProductedDuration < FactoryDescription->ProductionTime)
 		{
-			// In production
+			FactoryData.ProductedDuration += 1;
+		}
+
+		if(FactoryData.ProductedDuration < FactoryDescription->ProductionTime)
+		{
+
+			// Still In production
 			return;
 		}
 

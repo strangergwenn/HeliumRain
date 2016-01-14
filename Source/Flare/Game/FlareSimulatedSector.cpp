@@ -924,4 +924,9 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 }
 
 
+uint32 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resource)
+{
+	return 10;
+}
+
 #undef LOCTEXT_NAMESPACE

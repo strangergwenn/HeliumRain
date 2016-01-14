@@ -183,4 +183,9 @@ public:
 		return SpacecraftData.Location;
 	}
 
+	inline bool IsConsumeResources() const
+	{
+		return SpacecraftDescription->IsConsumeResources;
+	}
+
 };

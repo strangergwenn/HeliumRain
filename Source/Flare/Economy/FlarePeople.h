@@ -2,8 +2,9 @@
 #pragma once
 #include "FlarePeople.generated.h"
 
-
 class UFlareSimulatedSector;
+class UFlareSimulatedSpacecraft;
+struct FFlareResourceDescription;
 
 /** Company reputation save data */
 USTRUCT()
@@ -87,6 +88,12 @@ public:
 
 	void Simulate();
 
+	void SimulateResourcePurchase();
+
+	uint32 BuyResourcesInSector(FFlareResourceDescription* Resource, uint32 Quantity);
+
+	uint32 BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations);
+
 	void GiveBirth(uint32 BirthCount);
 
 	void KillPeople(uint32 KillCount);
@@ -129,4 +136,6 @@ public:
 	}
 
 	float GetHappiness();
+
+	FFlareCompanyReputationSave* GetCompanyReputation(UFlareCompany* Company);
 };

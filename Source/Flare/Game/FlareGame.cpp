@@ -428,7 +428,8 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	// Initial setup : "Outpost"
 	for (int32 Index = 0; Index < 20; Index++)
 	{
-		World->FindSector("outpost")->CreateAsteroid(FMath::RandRange(0, 9), "asteroid" + Index, 200000 * FMath::VRand());
+		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
+		World->FindSector("outpost")->CreateAsteroid(FMath::RandRange(0, 9), FName(*AsteroidName) , 200000 * FMath::VRand());
 	}
 	World->FindSector("outpost")->CreateShip("ship-dragon", PlayerCompany, FVector::ZeroVector);
 	World->FindSector("outpost")->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
@@ -444,7 +445,8 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	// Initial setup : "Frozen Realm"
 	for (int32 Index = 0; Index < 50; Index++)
 	{
-		World->FindSector("frozen-realm")->CreateAsteroid(FMath::RandRange(0, 9), "asteroid" + Index, 200000 * FMath::VRand());
+		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
+		World->FindSector("frozen-realm")->CreateAsteroid(FMath::RandRange(0, 9), FName(*AsteroidName), 200000 * FMath::VRand());
 	}
 	World->FindSector("frozen-realm")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
 
