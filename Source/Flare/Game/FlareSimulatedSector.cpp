@@ -489,12 +489,6 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 			continue;
 		}
 
-		if(Ship->IsAssignedToSector())
-		{
-			// Not available to build
-			continue;
-		}
-
 		HasFreeCargo = true;
 		break;
 	}

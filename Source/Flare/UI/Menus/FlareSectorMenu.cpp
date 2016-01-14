@@ -362,7 +362,7 @@ void SFlareSectorMenu::UpdateStationCost()
 		// Final text
 		FText CanBuildText = LOCTEXT("CanBuild", "You can build this station !");
 		FText CannotBuildText = LOCTEXT("CannotBuild", "You can't build this station yet.");
-		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2} and requires an unnassigned cargo ship in this sector."),
+		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2} and requires acargo ship in this sector."),
 			StationBuildable ? CanBuildText : CannotBuildText,
 			FText::AsNumber(StationDescription->Cost),
 			FText::FromString(ResourcesString));
