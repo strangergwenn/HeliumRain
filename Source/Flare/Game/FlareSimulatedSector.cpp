@@ -667,11 +667,62 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 
 	FLOGV("PersistentStationIndex=%d", PersistentStationIndex);
 
-	// TODO 4 pass:
-	// a first one with the exact quantity
-	// the second with the double
-	// a third with slot alignemnt
-	// a 4th with inactive stations
+	// TODO 5 pass:
+	// 1 - fill resources consumers
+	// 2 - one with the exact quantity
+	// 3 - the second with the double
+	// 4 - third with slot alignemnt
+	// 5 - a 4th with inactive stations
+
+	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+
+		FLOGV("Distribute consumer ressource %s", *Resource->Name.ToString());
+
+
+		// Transport consumer resources by priority
+		for (int32 CountIndex = 0 ; CountIndex < SectorStations.Num(); CountIndex++)
+		{
+			UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
+
+			if(Station->GetCompany() != Company || !Station->IsConsumeResources())
+			{
+				continue;
+			}
+
+			FLOGV("Check station %s needs:", *Station->GetImmatriculation().ToString());
+
+
+			// Fill only one slot for each ressource
+			if(Station->GetCargoBayResourceQuantity(Resource) > Station->GetDescription()->CargoBayCapacity)
+			{
+				FLOGV("Fill only one slot for each ressource. Has %d", Station->GetCargoBayResourceQuantity(Resource));
+
+				continue;
+			}
+
+			uint32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBayResourceQuantity(Resource);
+			uint32 FreeSpace = Station->GetCargoBayFreeSpace(Resource);
+			uint32 QuantityToTransfert = FMath::Min(MaxQuantity, FreeSpace);
+			uint32 TakenResources = TakeUselessResources(Station->GetCompany(), Resource, QuantityToTransfert);
+			Station->GiveResources(Resource, TakenResources);
+			TransportCapacity -= TakenResources;
+
+			FLOGV("MaxQuantity %d", MaxQuantity);
+			FLOGV("FreeSpace %d", FreeSpace);
+			FLOGV("QuantityToTransfert %d", QuantityToTransfert);
+			FLOGV("TakenResources %d", TakenResources);
+			FLOGV("TransportCapacity %d", TransportCapacity);
+
+
+			if(TransportCapacity == 0)
+			{
+				break;
+			}
+
+		}
+	}
 
 
 	for (int32 CountIndex = 0 ; CountIndex < SectorStations.Num(); CountIndex++)
@@ -753,7 +804,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
-		if( Station->GetCompany() != Company)
+		if( Station->GetCompany() != Company || Station->IsConsumeResources())
 		{
 			continue;
 		}
@@ -779,7 +830,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 		bool NeedResource = false;
 
-		if( Station->GetCompany() != Company)
+		if( Station->GetCompany() != Company || Station->IsConsumeResources())
 		{
 			continue;
 		}
@@ -807,7 +858,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 		bool NeedResource = false;
 
-		if( Station->GetCompany() != Company)
+		if( Station->GetCompany() != Company || Station->IsConsumeResources())
 		{
 			continue;
 		}
