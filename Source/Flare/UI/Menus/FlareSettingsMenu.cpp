@@ -1067,6 +1067,9 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddDefaults(EKeys::F)));
 
 	//Misc
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("End day", "End day")))
+		->AddActionMapping("Simulate")
+		->AddDefaults(EKeys::F6)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Misc", "MISCELLANEOUS")))->MakeHeader()));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Quick Ship Switch", "Quick Ship Switch")))
 		->AddActionMapping("QuickSwitch")
@@ -1080,6 +1083,7 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open settings menu", "Open settings menu")))
 		->AddActionMapping("SettingsMenu")
 		->AddDefaults(EKeys::F10)));
+
 }
 
 /*----------------------------------------------------

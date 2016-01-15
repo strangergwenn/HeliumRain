@@ -166,6 +166,9 @@ public:
 	/** Send back to menu */
 	virtual void BackMenu();
 
+	/** Simulate a turn */
+	virtual void Simulate();
+
 	/** Open settings menu */
 	virtual void SettingsMenu();
 

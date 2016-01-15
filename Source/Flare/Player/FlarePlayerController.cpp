@@ -540,6 +540,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleCamera", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCamera);
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
 	InputComponent->BindAction("BackMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::BackMenu);
+	InputComponent->BindAction("Simulate", EInputEvent::IE_Released, this, &AFlarePlayerController::Simulate);
 	InputComponent->BindAction("SettingsMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::SettingsMenu);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
 	InputComponent->BindAction("TooglePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePilot);
@@ -595,6 +596,30 @@ void AFlarePlayerController::BackMenu()
 	{
 		FLOG("AFlarePlayerController::BackMenu IsInMenu");
 		MenuManager->Back();
+	}
+}
+
+void AFlarePlayerController::Simulate()
+{
+	if (!GetGame()->IsLoadedOrCreated())
+	{
+		return;
+	}
+
+
+	UFlareSimulatedSector* LastActiveSector = NULL;
+
+	if(GetGame()->GetActiveSector())
+	{
+		LastActiveSector = GetGame()->GetActiveSector()->GetSimulatedSector();
+		GetGame()->DeactivateSector(this);
+	}
+
+	GetGame()->GetGameWorld()->Simulate();
+
+	if(LastActiveSector)
+	{
+		GetGame()->ActivateSector(this, LastActiveSector);
 	}
 }
 
