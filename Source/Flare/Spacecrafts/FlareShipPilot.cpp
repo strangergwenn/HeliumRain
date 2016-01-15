@@ -4,7 +4,12 @@
 #include "FlareShipPilot.h"
 #include "FlareSpacecraft.h"
 #include "FlarePilotHelper.h"
+
 #include "../Game/FlareCompany.h"
+#include "../Game/FlareGame.h"
+
+#include "../Spacecrafts/FlareEngine.h"
+#include "../Spacecrafts/FlareRCS.h"
 
 
 /*----------------------------------------------------

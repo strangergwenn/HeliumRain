@@ -4,6 +4,7 @@
 #include "../Components/FlareRoundButton.h"
 #include "../../Spacecrafts/FlareWeapon.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
+#include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareWeaponStatus"
 
