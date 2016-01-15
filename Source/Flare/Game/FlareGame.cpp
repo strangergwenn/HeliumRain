@@ -4,6 +4,7 @@
 #include "FlareSaveGame.h"
 #include "FlareAsteroid.h"
 #include "FlareGameTools.h"
+#include "FlareScenarioTools.h"
 
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
@@ -402,61 +403,20 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
 	PC->SetCompany(PlayerCompany);
 
-	// TODO Implement scenarii - Later with world init
-	/*switch(ScenarioIndex)
+	UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
+	ScenarioTools->Init(PlayerCompany, &PlayerData);
+
+	switch(ScenarioIndex)
 	{
 		case -1: // Empty
-			InitEmptyScenario(&PlayerData);
+			ScenarioTools->GenerateEmptyScenario();
 		break;
-		case 0: // Peaceful
-			InitPeacefulScenario(&PlayerData);
+		case 0: // Fighter
+			ScenarioTools->GenerateFighterScenario();
 		break;
-		case 1: // Threatened
-			InitThreatenedScenario(&PlayerData, Company);
+		case 1: // Debug
+			ScenarioTools->GenerateDebugScenario();
 		break;
-		case 2: // Aggressive
-			InitAggresiveScenario(&PlayerData, Company);
-		break;
-	}*/
-
-	// Create player ship
-	FLOG("AFlareGame::CreateGame create initial ship");
-	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-ghoul", PlayerCompany, FVector::ZeroVector);
-	PlayerData.LastFlownShipIdentifier = InitialShip->GetImmatriculation();
-	PlayerData.SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
-
-	// Initial setup : "Outpost"
-	for (int32 Index = 0; Index < 20; Index++)
-	{
-		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
-		World->FindSector("outpost")->CreateAsteroid(FMath::RandRange(0, 9), FName(*AsteroidName) , 200000 * FMath::VRand());
-	}
-	World->FindSector("outpost")->CreateShip("ship-dragon", PlayerCompany, FVector::ZeroVector);
-	World->FindSector("outpost")->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
-	World->FindSector("outpost")->CreateStation("station-tokamak", PlayerCompany, FVector::ZeroVector);
-	World->FindSector("outpost")->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector);
-	World->FindSector("outpost")->CreateStation("station-solar-plant", World->FindCompanyByShortName("HFR"), FVector::ZeroVector);
-	World->FindSector("outpost")->CreateStation("station-solar-plant", World->FindCompanyByShortName("HFR"), FVector::ZeroVector);
-	World->FindSector("outpost")->CreateStation("station-tokamak", World->FindCompanyByShortName("SUN"), FVector::ZeroVector);
-	World->FindSector("outpost")->CreateStation("station-hub", World->FindCompanyByShortName("GWS"), FVector::ZeroVector);
-	World->FindSector("outpost")->GetPeople()->GiveBirth(1000);
-	World->FindSector("outpost")->GetPeople()->SetHappiness(1);
-	
-	// Initial setup : "Frozen Realm"
-	for (int32 Index = 0; Index < 50; Index++)
-	{
-		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
-		World->FindSector("frozen-realm")->CreateAsteroid(FMath::RandRange(0, 9), FName(*AsteroidName), 200000 * FMath::VRand());
-	}
-	World->FindSector("frozen-realm")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
-
-	// Discover known sectors
-	if (!PlayerData.QuestData.PlayTutorial)
-	{
-		for (int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
-		{
-			PlayerCompany->DiscoverSector(World->GetSectors()[SectorIndex]);
-		}
 	}
 
 	// Load
@@ -489,7 +449,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 
 	// Generate arbitrary save data
 	CompanyData.CatalogIdentifier = CatalogIdentifier;
-	CompanyData.Money = FMath::RandRange(5, 10) * 10000;
+	CompanyData.Money = 0;
 	CompanyData.FleetImmatriculationIndex = 0;
 	CompanyData.TradeRouteImmatriculationIndex = 0;
 	// Create company

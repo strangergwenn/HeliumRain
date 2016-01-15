@@ -224,17 +224,6 @@ public:
 	int RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
 	void SetShipToFly(UFlareSimulatedSpacecraft* Ship);
-    /** Init world with empty scenario */
-	// virtual void InitEmptyScenario(FFlarePlayerSave* PlayerData);
-
-    /** Init world with peaceful scenario */
-	// virtual void InitPeacefulScenario(FFlarePlayerSave* PlayerData);
-
-    /** Init world with threatened scenario */
-	// virtual void InitThreatenedScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
-
-    /** Init world with aggresve scenario */
-	// virtual void InitAggresiveScenario(FFlarePlayerSave* PlayerData, UFlareCompany* PlayerCompany);
 
 	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
