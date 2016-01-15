@@ -391,6 +391,7 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
 	Mat->SetTextureParameterValue("PaintPattern", Pattern);
 	Mat->SetTextureParameterValue("Emblem", Emblem);
+	Mat->SetScalarParameterValue("IsPainted", 1);
 }
 
 void UFlareCompany::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)
