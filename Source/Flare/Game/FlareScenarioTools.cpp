@@ -67,6 +67,10 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	UFlareSimulatedSector* Outpost = World->FindSector("outpost");
 	FFlareResourceDescription* Water = Game->GetResourceCatalog()->Get("h2o");
 	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
+	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
+	FFlareResourceDescription* Plastics = Game->GetResourceCatalog()->Get("plastics");
+	FFlareResourceDescription* Hydrogen = Game->GetResourceCatalog()->Get("h2");
+	FFlareResourceDescription* Helium = Game->GetResourceCatalog()->Get("he3");
 
 	// Create player ship
 	FLOG("UFlareScenarioTools::GenerateDebugScenario create initial ship");
@@ -78,16 +82,27 @@ void UFlareScenarioTools::GenerateDebugScenario()
 
 
 	// Initial setup : "Outpost"
-	Outpost->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector)->AssignToSector(true);
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		Outpost->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector)->AssignToSector(true);
+	}
 
-	Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GiveResources(Water, 10);
-	Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GiveResources(Water, 10);
-	Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GiveResources(Water, 10);
+	for(int Index = 0; Index < 3; Index ++)
+	{
+		Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GiveResources(Water, 100);
+	}
 
 	Outpost->CreateStation("station-habitation", PlayerCompany, FVector::ZeroVector)->GiveResources(Food, 30);
 	Outpost->CreateStation("station-farm", PlayerCompany, FVector::ZeroVector);
-	Outpost->CreateStation("station-refinery", PlayerCompany, FVector::ZeroVector);
-	Outpost->CreateStation("station-pomping", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* Refinery = Outpost->CreateStation("station-refinery", PlayerCompany, FVector::ZeroVector);
+	Refinery->GetFactories()[0]->SetOutputLimit(Plastics, 1);
+	Refinery->GetFactories()[0]->SetOutputLimit(Hydrogen, 1);
+	Refinery->GiveResources(Fuel, 50);
+
+	UFlareSimulatedSpacecraft* PompingStation = Outpost->CreateStation("station-pomping", PlayerCompany, FVector::ZeroVector);
+	PompingStation->GetFactories()[0]->SetOutputLimit(Hydrogen, 1);
+	PompingStation->GetFactories()[0]->SetOutputLimit(Helium, 1);
+	PompingStation->GiveResources(Fuel, 50);
 
 	Outpost->GetPeople()->GiveBirth(1000);
 	Outpost->GetPeople()->SetHappiness(1);

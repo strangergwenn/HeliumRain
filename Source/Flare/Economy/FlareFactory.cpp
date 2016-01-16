@@ -49,8 +49,6 @@ void UFlareFactory::Simulate()
 		return;
 	}
 
-	TryBeginProduction();
-
 	if (HasCostReserved())
 	{
 
@@ -75,8 +73,9 @@ void UFlareFactory::Simulate()
 		}
 
 		DoProduction();
-		TryBeginProduction();
+
 	}
+	TryBeginProduction();
 }
 
 void UFlareFactory::TryBeginProduction()
