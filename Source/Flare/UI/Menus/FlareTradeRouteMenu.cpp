@@ -1020,7 +1020,7 @@ void SFlareTradeRouteMenu::OnAssignFleetClicked()
 EVisibility SFlareTradeRouteMenu::GetAssignFleetVisibility() const
 {
 	// Only one fleet !
-	return FleetList.Num() > 0 && TargetTradeRoute->GetFleets().Num() == 0 ? EVisibility::Visible : EVisibility::Collapsed;
+	return FleetList.Num() > 0 && TargetTradeRoute && TargetTradeRoute->GetFleets().Num() == 0 ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 
