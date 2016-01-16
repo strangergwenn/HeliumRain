@@ -389,9 +389,9 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	CompanyData.ShortName = *FString("PLY"); // TODO : Extract better short name
 	CompanyData.Emblem = NULL; // TODO
 	CompanyData.CustomizationBasePaintColorIndex = 0;
-	CompanyData.CustomizationPaintColorIndex = 3;
-	CompanyData.CustomizationOverlayColorIndex = 6;
-	CompanyData.CustomizationLightColorIndex = 13;
+	CompanyData.CustomizationPaintColorIndex = 4;
+	CompanyData.CustomizationOverlayColorIndex = 13;
+	CompanyData.CustomizationLightColorIndex = 8;
 	CompanyData.CustomizationPatternIndex = 1;
 	PC->SetCompanyDescription(CompanyData);
 
