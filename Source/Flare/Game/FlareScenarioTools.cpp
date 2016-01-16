@@ -65,6 +65,8 @@ void UFlareScenarioTools::GenerateDebugScenario()
 
 
 	UFlareSimulatedSector* Outpost = World->FindSector("outpost");
+	UFlareSimulatedSector* MinerHome = World->FindSector("miners-home");
+
 	FFlareResourceDescription* Water = Game->GetResourceCatalog()->Get("h2o");
 	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
 	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
@@ -107,6 +109,41 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	Outpost->GetPeople()->GiveBirth(1000);
 	Outpost->GetPeople()->SetHappiness(1);
 
+	// Initial setup : "Miner's home"
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector)->AssignToSector(true);
+	}
+
+	UFlareSimulatedSpacecraft* Tokamak = MinerHome->CreateStation("station-tokamak", PlayerCompany, FVector::ZeroVector);
+	Tokamak->GiveResources(Water, 200);
+	UFlareSimulatedSpacecraft* Steelworks = MinerHome->CreateStation("station-steelworks", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* Manufacture = MinerHome->CreateStation("station-manufacture", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* Mine = MinerHome->CreateStation("station-mine", PlayerCompany, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[0].Identifier);
+
+	UFlareTradeRoute* OutpostToMinerHome =  PlayerCompany->CreateTradeRoute(FText::FromString(TEXT("Trade route 1")));
+	OutpostToMinerHome->AddSector(Outpost);
+	OutpostToMinerHome->AddSector(MinerHome);
+
+	OutpostToMinerHome->SetSectorLoadOrder(0, Helium, 0);
+	OutpostToMinerHome->SetSectorLoadOrder(0, Hydrogen, 0);
+	OutpostToMinerHome->SetSectorLoadOrder(0, Plastics, 0);
+	OutpostToMinerHome->SetSectorUnloadOrder(0, Water, 0);
+
+	OutpostToMinerHome->SetSectorLoadOrder(1, Water, 200);
+	OutpostToMinerHome->SetSectorUnloadOrder(1, Helium, 0);
+	OutpostToMinerHome->SetSectorUnloadOrder(1, Hydrogen, 0);
+	OutpostToMinerHome->SetSectorUnloadOrder(1, Plastics, 0);
+
+
+
+	UFlareFleet* TradeFleet1 = PlayerCompany->CreateFleet(FText::FromString(TEXT("Trade fleet 1")), MinerHome);
+	TradeFleet1->AddShip(MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector));
+	TradeFleet1->AddShip(MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector));
+	TradeFleet1->AddShip(MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector));
+	TradeFleet1->AddShip(MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector));
+
+	OutpostToMinerHome->AddFleet(TradeFleet1);
 
 	World->FindSector("frozen-realm")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
 
@@ -130,6 +167,14 @@ void UFlareScenarioTools::SetupWorld()
 	{
 		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
 		World->FindSector("outpost")->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
+	}
+
+
+	// Create asteroids at "Miner's home"
+	for (int32 Index = 0; Index < 40; Index++)
+	{
+		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
+		World->FindSector("miners-home")->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
 	}
 
 	// Create asteroids at "Frozen Realm"
