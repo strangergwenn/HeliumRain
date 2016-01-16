@@ -985,6 +985,11 @@ void AFlarePlayerController::SetMusicVolume(int32 New)
 	SoundManager->SetMusicVolume(New);
 }
 
+void AFlarePlayerController::SetUseTessellationOnShips(bool New)
+{
+	UseTessellationOnShips = New;
+}
+
 
 /*----------------------------------------------------
 	Getters for game classes

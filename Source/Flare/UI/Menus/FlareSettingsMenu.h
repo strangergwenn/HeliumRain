@@ -107,6 +107,8 @@ protected:
 
 	void OnSupersamplingToggle();
 
+	void OnTessellationToggle();
+
 	void OnDarkThemeInStrategyToggle();
 
 	void OnDarkThemeInNavToggle();
@@ -149,6 +151,7 @@ protected:
 	TSharedPtr<SFlareButton>                    FullscreenButton;
 	TSharedPtr<SFlareButton>                    VSyncButton;
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
+	TSharedPtr<SFlareButton>                    TessellationButton;
 	TSharedPtr<SFlareButton>                    DarkThemeInStrategyButton;
 	TSharedPtr<SFlareButton>                    DarkThemeInNavButton;
 	TSharedPtr<SSlider>                         TextureQualitySlider;

@@ -192,6 +192,15 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 								.Toggle(true)
 								.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
 							]
+						]
+
+						// Buttons 2
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Center)
+						[
+							SNew(SHorizontalBox)
 
 							// Supersampling
 							+ SHorizontalBox::Slot()
@@ -200,9 +209,21 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							[
 								SAssignNew(SupersamplingButton, SFlareButton)
 								.Text(LOCTEXT("Supersampling", "Supersampling"))
-								.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the game at double the resolution. This is a very demanding feature."))
+								.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a very demanding feature."))
 								.Toggle(true)
 								.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
+							]
+
+							// Tessellation
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(TessellationButton, SFlareButton)
+								.Text(LOCTEXT("Tessellation", "Tessellation"))
+								.HelpText(LOCTEXT("TessellationInfo", "Tessellation will subdivide the hulls of ships for better rendering. This is a very demanding feature."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnTessellationToggle)
 							]
 						]
 
@@ -392,14 +413,14 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// Graphics info
+				// Gameplay info
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.TitlePadding)
 				.HAlign(HAlign_Left)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("GraphicsHint", "Graphics"))
+					.Text(LOCTEXT("GameplayHint", "Gameplay"))
 					.TextStyle(&Theme.SubTitleFont)
 				]
 				
@@ -644,9 +665,10 @@ void SFlareSettingsMenu::Enter()
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 
-		// Themes
+		// Settings
 		DarkThemeInStrategyButton->SetActive(PC->UseDarkThemeForStrategy);
 		DarkThemeInNavButton->SetActive(PC->UseDarkThemeForNavigation);
+		TessellationButton->SetActive(PC->UseTessellationOnShips);
 
 		// Music volume
 		int32 MusicVolume = PC->MusicVolume;
@@ -822,12 +844,27 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Disable supersampling")
 	}
 
-	//GEngine->GameViewport->ConsoleCommand(*FString::Printf(TEXT("r.ScreenPercentage %dx"),(SupersamplingButton->IsActive() ? 200 : 100)));
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 200 : 100);
 	MyGameSettings->ApplySettings(false);
-	//MyGameSettings->ScalabilityQuality.ResolutionQuality = (SupersamplingButton->IsActive() ? 200 : 100);
 
+}
+
+void SFlareSettingsMenu::OnTessellationToggle()
+{
+	if (TessellationButton->IsActive())
+	{
+		FLOG("SFlareSettingsMenu::OnTessellationToggle : Enable tessellation")
+	}
+	else
+	{
+		FLOG("SFlareSettingsMenu::OnTessellationToggle : Disable tessellation")
+	}
+
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	PC->SetUseTessellationOnShips(TessellationButton->IsActive());
+	PC->SaveConfig();
+	PC->GetMenuPawn()->UpdateCustomization();
 }
 
 void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey )

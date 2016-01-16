@@ -318,12 +318,18 @@ public:
 	/** Whether to use the dark theme when a sector is active */
 	UPROPERTY(Config)
 	int32                                    MusicVolume;
+	
+	/** Whether to use tessellation everywhere */
+	UPROPERTY(Config)
+	bool                                     UseTessellationOnShips;
 
 	void SetUseDarkThemeForStrategy(bool New);
 
 	void SetUseDarkThemeForNavigation(bool New);
 
 	void SetMusicVolume(int32 New);
+
+	void SetUseTessellationOnShips(bool New);
 
 
 public:
