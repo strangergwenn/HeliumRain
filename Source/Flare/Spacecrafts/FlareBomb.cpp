@@ -177,7 +177,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 			}
 		}
 
-		Spacecraft->GetGame()->GetActiveSector()->UnregisterBomb(this);
+		ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
 		Destroy();
 	}
 
