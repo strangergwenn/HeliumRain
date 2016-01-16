@@ -462,6 +462,9 @@ public:
 	/** Create a damaged effect */
 	virtual void StartDestroyedEffects();
 
+	/** Spawn damage effects */
+	virtual void StartDamagedEffect(FVector Location, FRotator Rotation, EFlarePartSize::Type WeaponSize);
+
 
 protected:
 
@@ -476,9 +479,6 @@ protected:
 
 	UPROPERTY()
 	UFlareCompany*                          PlayerCompany;
-
-	UPROPERTY()
-	UParticleSystemComponent*               DestroyedEffects;
 
 	// Materials
 	UMaterialInstanceDynamic*               ComponentMaterial;
@@ -509,18 +509,41 @@ protected:
 	float                                   FlickerMaxOffPeriod;
 	float                                   CurrentFlickerMaxPeriod;
 
-	UPROPERTY()		UParticleSystem*                        DestroyedEffectTemplate;
+	// Effects
+	UPROPERTY()
+	UParticleSystem*                        DestroyedEffectTemplate;
 
-	public:
+	UPROPERTY()
+	UParticleSystemComponent*               DestroyedEffects;
+
+
+	/*----------------------------------------------------
+		Effects
+	----------------------------------------------------*/
+
+	UPROPERTY()
+	UParticleSystem*                        ImpactEffectTemplateS;
+
+	UPROPERTY()
+	UParticleSystem*                        ImpactEffectTemplateL;
+
+	int32                                   ImpactCount;
+
+	int32                                   MaxImpactCount;
+
+	float                                   ImpactEffectChance;
+
+
+public:
 
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
+
 	virtual AFlareSpacecraft* GetSpacecraft() const
 	{
 		return Spacecraft;
 	}
-
 
 	virtual FFlareSpacecraftComponentDescription* GetDescription() const
 	{

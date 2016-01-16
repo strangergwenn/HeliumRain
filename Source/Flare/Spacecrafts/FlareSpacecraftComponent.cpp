@@ -19,7 +19,6 @@ UFlareSpacecraftComponent::UFlareSpacecraftComponent(const class FObjectInitiali
 	, SpacecraftPawn(NULL)
 	, Spacecraft(NULL)
 	, PlayerCompany(NULL)
-	, DestroyedEffects(NULL)
 	, ComponentMaterial(NULL)
 	, ComponentDescription(NULL)
 	, LocalHeatEffect(false)
@@ -29,7 +28,17 @@ UFlareSpacecraftComponent::UFlareSpacecraftComponent(const class FObjectInitiali
 	, TimeLeftInFlicker(0)
 	, FlickerMaxOnPeriod(1)
 	, FlickerMaxOffPeriod(3)
+	, DestroyedEffects(NULL)
+	, ImpactCount(0)
+	, MaxImpactCount(3)
+	, ImpactEffectChance(0.1)
 {
+	// Fire effects
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ImpactEffectTemplateSObj(TEXT("/Game/Master/Particles/PS_Fire.PS_Fire"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ImpactEffectTemplateLObj(TEXT("/Game/Master/Particles/PS_Fire_L.PS_Fire_L"));
+	ImpactEffectTemplateS = ImpactEffectTemplateSObj.Object;
+	ImpactEffectTemplateL = ImpactEffectTemplateLObj.Object;
+
 	// Physics setup
 	PrimaryComponentTick.bCanEverTick = true;
 	SetNotifyRigidBodyCollision(true);
@@ -600,5 +609,50 @@ void UFlareSpacecraftComponent::StartDestroyedEffects()
 			GetComponentRotation(),
 			EAttachLocation::KeepWorldPosition,
 			true);
+	}
+}
+
+void UFlareSpacecraftComponent::StartDamagedEffect(FVector Location, FRotator Rotation, EFlarePartSize::Type WeaponSize)
+{
+	EFlarePartSize::Type Size = EFlarePartSize::S;
+
+	// Get size
+	if (ComponentDescription)
+	{
+		Size = ComponentDescription->Size;
+	}
+	else if (Spacecraft)
+	{
+		Size = Spacecraft->GetDescription()->Size;
+	}
+
+	// Limiters
+	if (ImpactCount >= MaxImpactCount)
+	{
+		return;
+	}
+	else if (FMath::FRand() > ImpactEffectChance)
+	{
+		return;
+	}
+	else if (WeaponSize < Size)
+	{
+		return;
+	}
+
+	// Spawn
+	UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
+		(Size == EFlarePartSize::L) ? ImpactEffectTemplateL : ImpactEffectTemplateS,
+		this,
+		NAME_None,
+		Location,
+		Rotation + FRotator::MakeFromEuler(FVector(0, -90, 0)),
+		EAttachLocation::KeepWorldPosition,
+		true);
+
+	if (PSC)
+	{
+		ImpactCount++;
+		PSC->SetWorldScale3D(FVector(1, 1, 1));
 	}
 }

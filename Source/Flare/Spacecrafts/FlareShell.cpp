@@ -300,6 +300,13 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 				PSC->SetWorldScale3D(FVector(1, 1, 1));
 			}
 
+			// Spawn hull damage effect
+			UFlareSpacecraftComponent* HullComp = Cast<UFlareSpacecraftComponent>(HitResult.GetComponent());
+			if (HullComp)
+			{
+				HullComp->StartDamagedEffect(HitResult.Location, HitResult.ImpactNormal.Rotation(), ParentWeapon->GetDescription()->Size);
+			}
+
 			// Remove flight effects
 			if (FlightEffects)
 			{
