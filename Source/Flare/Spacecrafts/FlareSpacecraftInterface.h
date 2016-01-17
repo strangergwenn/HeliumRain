@@ -42,6 +42,18 @@ struct FFlareSpacecraftSlotDescription
 	TArray<float> TurretBarrelsAngleLimit;
 };
 
+/** Spacecraft capabilities */
+UENUM()
+namespace EFlareSpacecraftCapability
+{
+	enum Type
+	{
+		Consumer,
+		Storage
+	};
+}
+
+
 
 /** Catalog data structure for a spacecraft */
 USTRUCT()
@@ -124,7 +136,8 @@ struct FFlareSpacecraftDescription
 	TArray<UFlareFactoryCatalogEntry*> Factories;
 
 	/** Is people can consume resource in this station */
-	UPROPERTY(EditAnywhere, Category = Content) bool IsConsumeResources;
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<TEnumAsByte<EFlareSpacecraftCapability::Type>> Capabilities;
 };
 
 /** Interface wrapper */

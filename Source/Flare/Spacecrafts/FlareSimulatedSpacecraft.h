@@ -183,9 +183,14 @@ public:
 		return SpacecraftData.Location;
 	}
 
-	inline bool IsConsumeResources() const
+	inline bool HasCapability(EFlareSpacecraftCapability::Type Capability) const
 	{
-		return SpacecraftDescription->IsConsumeResources;
+		return SpacecraftDescription->Capabilities.Contains(Capability);
+	}
+
+	inline bool IsConsumeResource(FFlareResourceDescription* Resource) const
+	{
+		return HasCapability(EFlareSpacecraftCapability::Consumer) && !SpacecraftData.SalesExcludedResources.Contains(Resource->Identifier);
 	}
 
 };

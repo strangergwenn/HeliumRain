@@ -15,6 +15,17 @@ struct FFlarePlayerSave;
 struct FFlareResourceDescription;
 
 
+/** Factory action type values */
+UENUM()
+namespace EFlareTransportLimitType
+{
+	enum Type
+	{
+		Production,
+		CargoBay
+	};
+}
+
 /** Sector friendlyness status */
 UENUM()
 namespace EFlareSectorFriendlyness
@@ -233,11 +244,15 @@ public:
 
 	void SimulateTransport(UFlareCompany* Company);
 
+	void AdaptativeTransportResources(UFlareCompany* Company, uint32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly);
+
 	uint32 TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
 
 	uint32 TakeResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
 
 	uint32 GiveResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToGive);
+
+	uint32 AdaptativeGiveResources(UFlareCompany* Company, FFlareResourceDescription* GivenResource, uint32 QuantityToGive, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool StorageOnly);
 
 protected:
 

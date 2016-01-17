@@ -44,7 +44,7 @@ FFlarePeopleSave* UFlarePeople::Save()
 
 static uint32 BIRTH_POINT_TRESHOLD = 7120;
 static uint32 DEATH_POINT_TRESHOLD = 29200;
-static uint32 MONETARY_CREATION = 10000;
+static uint32 MONETARY_CREATION = 1000;
 
 void UFlarePeople::Simulate()
 {
@@ -128,6 +128,9 @@ void UFlarePeople::Simulate()
 void UFlarePeople::SimulateResourcePurchase()
 {
 	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
+	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
+	FFlareResourceDescription* Tools = Game->GetResourceCatalog()->Get("tools");
+	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
 
 	// Buy at food for 15 days
 	uint32 FoodToHave =  PeopleData.Population * 15; // In kg
@@ -140,6 +143,12 @@ void UFlarePeople::SimulateResourcePurchase()
 		PeopleData.FoodStock += BoughtFood * 1000; // In kg
 	}
 
+	// Todo stock
+	uint32 BoughtFuel = BuyResourcesInSector(Fuel, PeopleData.Population / 1000); // In Tons
+	uint32 BoughtTools = BuyResourcesInSector(Tools, PeopleData.Population / 1000); // In Tons
+	uint32 BoughtTech = BuyResourcesInSector(Tech, PeopleData.Population / 1000); // In Tons
+
+	PeopleData.HappinessPoint += BoughtFuel + BoughtTools + BoughtTech;
 
 }
 
@@ -154,7 +163,7 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 	{
 		UFlareSimulatedSpacecraft* Station = Parent->GetSectorStations()[SpacecraftIndex];
 
-		if(!Station->IsConsumeResources())
+		if(!Station->HasCapability(EFlareSpacecraftCapability::Consumer))
 		{
 			continue;
 		}

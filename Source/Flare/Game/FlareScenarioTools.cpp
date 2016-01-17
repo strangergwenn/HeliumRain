@@ -73,6 +73,10 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	FFlareResourceDescription* Plastics = Game->GetResourceCatalog()->Get("plastics");
 	FFlareResourceDescription* Hydrogen = Game->GetResourceCatalog()->Get("h2");
 	FFlareResourceDescription* Helium = Game->GetResourceCatalog()->Get("he3");
+	FFlareResourceDescription* Silica = Game->GetResourceCatalog()->Get("sio2");
+	FFlareResourceDescription* Steel= Game->GetResourceCatalog()->Get("steel");
+	FFlareResourceDescription* Tools= Game->GetResourceCatalog()->Get("tools");
+	FFlareResourceDescription* Tech= Game->GetResourceCatalog()->Get("tech");
 
 	// Create player ship
 	FLOG("UFlareScenarioTools::GenerateDebugScenario create initial ship");
@@ -94,14 +98,15 @@ void UFlareScenarioTools::GenerateDebugScenario()
 		Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GiveResources(Water, 100);
 	}
 
+	Outpost->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
+
 	Outpost->CreateStation("station-habitation", PlayerCompany, FVector::ZeroVector)->GiveResources(Food, 30);
 	Outpost->CreateStation("station-farm", PlayerCompany, FVector::ZeroVector);
 	UFlareSimulatedSpacecraft* Refinery = Outpost->CreateStation("station-refinery", PlayerCompany, FVector::ZeroVector);
 	Refinery->GetFactories()[0]->SetOutputLimit(Plastics, 1);
-	Refinery->GetFactories()[0]->SetOutputLimit(Hydrogen, 1);
 	Refinery->GiveResources(Fuel, 50);
 
-	UFlareSimulatedSpacecraft* PompingStation = Outpost->CreateStation("station-pomping", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* PompingStation = Outpost->CreateStation("station-pumping", PlayerCompany, FVector::ZeroVector);
 	PompingStation->GetFactories()[0]->SetOutputLimit(Hydrogen, 1);
 	PompingStation->GetFactories()[0]->SetOutputLimit(Helium, 1);
 	PompingStation->GiveResources(Fuel, 50);
@@ -115,11 +120,26 @@ void UFlareScenarioTools::GenerateDebugScenario()
 		MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector)->AssignToSector(true);
 	}
 
+	MinerHome->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
+
+	for(int Index = 0; Index < 2; Index ++)
+	{
+		MinerHome->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GiveResources(Water, 100);
+	}
+
 	UFlareSimulatedSpacecraft* Tokamak = MinerHome->CreateStation("station-tokamak", PlayerCompany, FVector::ZeroVector);
 	Tokamak->GiveResources(Water, 200);
 	UFlareSimulatedSpacecraft* Steelworks = MinerHome->CreateStation("station-steelworks", PlayerCompany, FVector::ZeroVector);
-	UFlareSimulatedSpacecraft* Manufacture = MinerHome->CreateStation("station-manufacture", PlayerCompany, FVector::ZeroVector);
+	Steelworks->GetFactories()[0]->SetOutputLimit(Steel, 1);
+
 	UFlareSimulatedSpacecraft* Mine = MinerHome->CreateStation("station-mine", PlayerCompany, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[0].Identifier);
+	Mine->GetFactories()[0]->SetOutputLimit(Silica, 1);
+
+	UFlareSimulatedSpacecraft* ToolFactory = MinerHome->CreateStation("station-tool-factory", PlayerCompany, FVector::ZeroVector);
+	ToolFactory->GetFactories()[0]->SetOutputLimit(Tools, 1);
+
+	UFlareSimulatedSpacecraft* Foundry = MinerHome->CreateStation("station-foundry", PlayerCompany, FVector::ZeroVector);
+	Foundry->GetFactories()[0]->SetOutputLimit(Tech, 1);
 
 	UFlareTradeRoute* OutpostToMinerHome =  PlayerCompany->CreateTradeRoute(FText::FromString(TEXT("Trade route 1")));
 	OutpostToMinerHome->AddSector(Outpost);
@@ -129,8 +149,12 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	OutpostToMinerHome->SetSectorLoadOrder(0, Hydrogen, 0);
 	OutpostToMinerHome->SetSectorLoadOrder(0, Plastics, 0);
 	OutpostToMinerHome->SetSectorUnloadOrder(0, Water, 0);
+	OutpostToMinerHome->SetSectorUnloadOrder(0, Tools, 0);
+	OutpostToMinerHome->SetSectorUnloadOrder(0, Tech, 0);
 
-	OutpostToMinerHome->SetSectorLoadOrder(1, Water, 200);
+	OutpostToMinerHome->SetSectorLoadOrder(1, Tools, 0);
+	OutpostToMinerHome->SetSectorLoadOrder(1, Tech, 0);
+	OutpostToMinerHome->SetSectorLoadOrder(1, Water, 250);
 	OutpostToMinerHome->SetSectorUnloadOrder(1, Helium, 0);
 	OutpostToMinerHome->SetSectorUnloadOrder(1, Hydrogen, 0);
 	OutpostToMinerHome->SetSectorUnloadOrder(1, Plastics, 0);
@@ -138,10 +162,7 @@ void UFlareScenarioTools::GenerateDebugScenario()
 
 
 	UFlareFleet* TradeFleet1 = PlayerCompany->CreateFleet(FText::FromString(TEXT("Trade fleet 1")), MinerHome);
-	TradeFleet1->AddShip(MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector));
-	TradeFleet1->AddShip(MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector));
-	TradeFleet1->AddShip(MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector));
-	TradeFleet1->AddShip(MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector));
+	TradeFleet1->AddShip(MinerHome->CreateShip("ship-atlas", PlayerCompany, FVector::ZeroVector));
 
 	OutpostToMinerHome->AddFleet(TradeFleet1);
 

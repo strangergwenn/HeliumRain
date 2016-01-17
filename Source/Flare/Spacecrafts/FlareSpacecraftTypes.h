@@ -288,6 +288,11 @@ struct FFlareSpacecraftSave
 	/** Asteroid we're stuck to */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareAsteroidSave AsteroidData;
+
+	/** Factory states */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FName> SalesExcludedResources;
+
 };
 
 
