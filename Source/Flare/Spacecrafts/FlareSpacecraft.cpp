@@ -650,6 +650,8 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 
 	InputComponent->BindAction("ZoomIn", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomIn);
 	InputComponent->BindAction("ZoomOut", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomOut);
+	InputComponent->BindAction("ZoomIn", EInputEvent::IE_Repeat, this, &AFlareSpacecraft::ZoomIn);
+	InputComponent->BindAction("ZoomOut", EInputEvent::IE_Repeat, this, &AFlareSpacecraft::ZoomOut);
 
 	InputComponent->BindAction("FaceForward", EInputEvent::IE_Released, this, &AFlareSpacecraft::FaceForward);
 	InputComponent->BindAction("FaceBackward", EInputEvent::IE_Released, this, &AFlareSpacecraft::FaceBackward);
@@ -737,7 +739,7 @@ void AFlareSpacecraft::ActivateWeaponGroup3()
 void AFlareSpacecraft::NextWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
-	if (WeaponSystems && !StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
+	if (WeaponSystems && !StateManager->IsPilotMode())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
@@ -751,7 +753,7 @@ void AFlareSpacecraft::NextWeapon()
 void AFlareSpacecraft::PreviousWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
-	if (WeaponSystems && !StateManager->IsPilotMode() && !StateManager->IsExternalCamera())
+	if (WeaponSystems && !StateManager->IsPilotMode())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount() - 1);

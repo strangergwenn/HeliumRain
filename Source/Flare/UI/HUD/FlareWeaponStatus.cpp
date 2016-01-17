@@ -107,11 +107,7 @@ void SFlareWeaponStatus::Tick(const FGeometry& AllottedGeometry, const double In
 	}
 
 	// Update animation state
-	if (PlayerShip->GetStateManager()->IsExternalCamera())
-	{
-		CurrentAlpha -= InDeltaTime / FadeOutTime;
-	}
-	else if (IsSelected)
+	if (IsSelected)
 	{
 		CurrentAlpha += InDeltaTime / FadeInTime;
 	}
