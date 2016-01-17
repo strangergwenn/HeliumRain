@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="production_poster.svg"
-   inkscape:export-filename="/home/fred/store/HeliumRain/production_poster.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="/home/fred/store/HeliumRain/economy_cheat_sheet.png"
+   inkscape:export-xdpi="150"
+   inkscape:export-ydpi="150">
   <defs
      id="defs4">
     <linearGradient
@@ -51,9 +51,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.5"
-     inkscape:cx="950.904"
-     inkscape:cy="1021.4758"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="965.94618"
+     inkscape:cy="718.69804"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -117,7 +117,7 @@
        id="rect3935"
        width="859.99969"
        height="467.70483"
-       x="1038.9424"
+       x="1045.9424"
        y="46.631268"
        rx="0"
        ry="0" />
@@ -346,7 +346,7 @@
            y="519.00165"
            style="font-size:24px" /></flowRegion><flowPara
          id="flowPara4072"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Produce steel reducing iron ore with dihydrogen.</flowPara></flowRoot>    <g
+         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">This factory produces steel.</flowPara></flowRoot>    <g
        id="g4084"
        transform="matrix(0.32314489,0,0,0.32314489,242.57353,332.68762)"
        style="stroke:#c3cdd3;stroke-opacity:1">
@@ -466,13 +466,13 @@
        transform="translate(-183.50325,-421.82238)"><flowRegion
          id="flowRegion4199"><rect
            id="rect4201"
-           width="230.71579"
-           height="45.668633"
+           width="332.71579"
+           height="34.66864"
            x="292.94424"
            y="519.00165"
            style="font-size:24px" /></flowRegion><flowPara
          id="flowPara4203"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Extract ore and ice from asteroids.</flowPara></flowRoot>    <g
+         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">An orbital map built to extract valuable resources from an asteroid.</flowPara></flowRoot>    <g
        id="g4205"
        transform="matrix(0.32314489,0,0,0.32314489,252.8042,105.00308)"
        style="stroke:#c3cdd3;stroke-opacity:1">
@@ -533,12 +533,12 @@
     <text
        sodipodi:linespacing="125%"
        id="text4223"
-       y="149.30197"
+       y="165.30197"
        x="110.83418"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#e3f2a4;fill-opacity:1"
-         y="149.30197"
+         y="165.30197"
          x="110.83418"
          id="tspan4225"
          sodipodi:role="line"><tspan
@@ -554,13 +554,13 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#c3cdd3;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="171.03571"
-       y="197.87343"
+       y="205.87343"
        id="text4227"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4229"
          x="171.03571"
-         y="197.87343"
+         y="205.87343"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#a4f2a6;fill-opacity:1"
    id="tspan4867">10 Fuel</tspan> → <tspan
@@ -570,13 +570,13 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="110.83418"
-       y="169.30197"
+       y="183.30197"
        id="text4231"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4233"
          x="110.83418"
-         y="169.30197"
+         y="183.30197"
          style="font-size:24px;fill:#e3f2a4;fill-opacity:1"><tspan
            style="fill:#c3cdd3;fill-opacity:1"
            id="tspan4853"> →</tspan><tspan
@@ -614,11 +614,11 @@
            style="font-size:24px"
            y="519.00165"
            x="292.94424"
-           height="44.658489"
-           width="338.80212"
+           height="47.658508"
+           width="342.80209"
            id="rect4333" /></flowRegion><flowPara
          style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara4335">Produce fuel electrolizing water. Energy come from fusion reaction.</flowPara></flowRoot>    <g
+         id="flowPara4335">Converts water into cryogenic fuel through electrolysis. Uses a nuclear fusion tokamak.</flowPara></flowRoot>    <g
        style="stroke:#c3cdd3;stroke-opacity:1"
        transform="matrix(0.32314489,0,0,0.32314489,740.56132,889.82478)"
        id="g4337">
@@ -740,7 +740,7 @@
            y="519.00165"
            style="font-size:24px" /></flowRegion><flowPara
          id="flowPara4385"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Produce fuel electrolizing water. Energy come photoelectric effect form the sun.</flowPara></flowRoot>    <g
+         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Solar plants generate fuel from sun energy.</flowPara></flowRoot>    <g
        id="g4387"
        transform="matrix(0.32314489,0,0,0.32314489,237.52277,888.81463)"
        style="stroke:#c3cdd3;stroke-opacity:1">
@@ -802,20 +802,20 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#a4f2a6;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="155.75429"
-       y="976.63422"
+       y="972.63422"
        id="text4409"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4411"
          x="155.75429"
-         y="976.63422"
+         y="972.63422"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
    id="tspan4921">10 H₂O</tspan> → <tspan
    style="fill:#a4f2a6;fill-opacity:1"
    id="tspan4883">10 Fuel </tspan></tspan></text>
     <flowRoot
-       transform="translate(-198.78467,396.33439)"
+       transform="translate(-198.78467,382.33439)"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        id="flowRoot4413"
        xml:space="preserve"><flowRegion
@@ -831,7 +831,7 @@
        xml:space="preserve"
        id="flowRoot4421"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       transform="translate(-183.50325,-407.48307)"><flowRegion
+       transform="translate(-184.00325,-389.98307)"><flowRegion
          id="flowRegion4423"><rect
            id="rect4425"
            width="338.80212"
@@ -877,7 +877,7 @@
              width="340.71579"
              id="rect4247" /></flowRegion><flowPara
            style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-           id="flowPara4249">Produce steel reducing iron ore with dihydrogen.</flowPara></flowRoot>      <g
+           id="flowPara4249">Extract gases from Nema's atmosphere.</flowPara></flowRoot>      <g
          style="stroke:#c3cdd3;stroke-opacity:1"
          transform="matrix(0.32314489,0,0,0.32314489,642.8042,103.57451)"
          id="g4251">
@@ -1019,11 +1019,11 @@
            style="font-size:24px"
            y="519.00165"
            x="292.94424"
-           height="44.658489"
-           width="338.80212"
+           height="45.658508"
+           width="348.80209"
            id="rect4447" /></flowRegion><flowPara
          style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara4449">Produce organic products from methane.</flowPara></flowRoot>    <g
+         id="flowPara4449">Refineries use methane as a source to various compounds.</flowPara></flowRoot>    <g
        style="stroke:#c3cdd3;stroke-opacity:1"
        transform="matrix(0.32314489,0,0,0.32314489,727.42933,332.68762)"
        id="g4451">
@@ -1085,13 +1085,13 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="624.39142"
-       y="391.22147"
+       y="403.22147"
        id="text4469"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4471"
          x="624.39142"
-         y="391.22147"
+         y="403.22147"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#f2a4a4;fill-opacity:1"
    id="tspan4915">2 CH₄</tspan> → <tspan
@@ -1102,12 +1102,12 @@
     <text
        sodipodi:linespacing="125%"
        id="text4473"
-       y="420.5072"
+       y="428.5072"
        x="657.08936"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
-         y="420.5072"
+         y="428.5072"
          x="657.08936"
          id="tspan4475"
          sodipodi:role="line"><tspan
@@ -1126,7 +1126,7 @@
          y="496.14172"
          x="93.720772"
          id="tspan4495"
-         sodipodi:role="line">Manufacture</tspan></text>
+         sodipodi:role="line">Tool factory</tspan></text>
     <rect
        ry="0"
        rx="0"
@@ -1149,7 +1149,7 @@
            width="338.80212"
            id="rect4503" /></flowRegion><flowPara
          style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara4505">Produce tools from steel and plastics.</flowPara></flowRoot>    <g
+         id="flowPara4505">This station produces every kind of tool, from the basic wrench to high-end hull production tools.</flowPara></flowRoot>    <g
        style="stroke:#c3cdd3;stroke-opacity:1"
        transform="matrix(0.32314489,0,0,0.32314489,242.57353,495.32218)"
        id="g4507">
@@ -1220,14 +1220,14 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       x="102.03208"
-       y="553.85602"
+       x="114.66846"
+       y="561.85602"
        id="text4525"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4527"
-         x="102.03208"
-         y="553.85602"
+         x="114.66846"
+         y="561.85602"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
    id="tspan4893">2 Steel</tspan> + <tspan
@@ -1238,13 +1238,13 @@
     <text
        sodipodi:linespacing="125%"
        id="text4529"
-       y="583.14178"
-       x="160.80502"
+       y="589.14178"
+       x="170.38202"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
-         y="583.14178"
-         x="160.80502"
+         y="589.14178"
+         x="170.38202"
          id="tspan4531"
          sodipodi:role="line"><tspan
    style="fill:#a4f2a6;fill-opacity:1"
@@ -1285,7 +1285,7 @@
            y="519.00165"
            style="font-size:24px" /></flowRegion><flowPara
          id="flowPara4545"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Produce food from carbon and water.</flowPara></flowRoot>    <g
+         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Farms are vital for producing food.</flowPara></flowRoot>    <g
        id="g4547"
        transform="matrix(0.32314489,0,0,0.32314489,721.42933,495.32218)"
        style="stroke:#c3cdd3;stroke-opacity:1">
@@ -1420,7 +1420,7 @@
            y="519.00165"
            style="font-size:24px" /></flowRegion><flowPara
          id="flowPara4591"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Produce tech products from silicon. Silicon come form silica reduction with hydrogen.</flowPara></flowRoot>    <g
+         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Foundries transform raw metallic ore into advanced alloys for spacecraft construction.</flowPara></flowRoot>    <g
        id="g4593"
        transform="matrix(0.32314489,0,0,0.32314489,236.57353,654.92628)"
        style="stroke:#c3cdd3;stroke-opacity:1">
@@ -1455,7 +1455,7 @@
          y="772.82703"
          x="333.802"
          id="tspan4601"
-         sodipodi:role="line">5 days, 100</tspan></text>
+         sodipodi:role="line">5 days, 500</tspan></text>
     <g
        id="g4603"
        transform="matrix(0.64069777,0,0,0.64069777,72.385128,407.71262)">
@@ -1546,7 +1546,7 @@
            width="338.80212"
            id="rect4629" /></flowRegion><flowPara
          style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara4631">Produce fleet supply from water, steel and plastic.</flowPara></flowRoot>    <g
+         id="flowPara4631">Arsenals produce supplies for fleets, enabling repairs and upgrades.</flowPara></flowRoot>    <g
        style="stroke:#c3cdd3;stroke-opacity:1"
        transform="matrix(0.32314489,0,0,0.32314489,727.42933,654.92628)"
        id="g4633">
@@ -1608,13 +1608,13 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="592.60474"
-       y="713.46014"
+       y="721.46014"
        id="text4651"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4653"
          x="592.60474"
-         y="713.46014"
+         y="721.46014"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
    id="tspan4895">2 Steel</tspan> + <tspan
@@ -1625,12 +1625,12 @@
     <text
        sodipodi:linespacing="125%"
        id="text4655"
-       y="742.74591"
+       y="746.74591"
        x="657.08936"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
-         y="742.74591"
+         y="746.74591"
          x="657.08936"
          id="tspan4657"
          sodipodi:role="line"><tspan
@@ -2438,7 +2438,7 @@
            width="217.8165"
            id="rect5180" /></flowRegion><flowPara
          style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara5182">In this station the people consume resources.</flowPara></flowRoot>    <text
+         id="flowPara5182">A life-supporting station.</flowPara></flowRoot>    <text
        sodipodi:linespacing="125%"
        id="text5218"
        y="988.242"
@@ -3167,7 +3167,7 @@
              width="230.94498"
              id="rect5567" /></flowRegion><flowPara
            style="font-size:12px;fill:#c3cdd3;fill-opacity:1"
-           id="flowPara5569">Base component for crop plants. Produced by the refinery.</flowPara></flowRoot>      <g
+           id="flowPara5569">Carbon is the basic building block of materials.</flowPara></flowRoot>      <g
          transform="matrix(0.64069777,0,0,0.64069777,1225.1344,-34.662357)"
          id="g5571">
         <text
@@ -3565,7 +3565,7 @@
            id="tspan5725"
            x="1730.5369"
            y="416.15976"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    1300</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    2200</tspan></text>
     </g>
     <g
        id="g5806"
@@ -3623,18 +3623,18 @@
        style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
     <flowRoot
        transform="matrix(0.8197226,0,0,0.8197226,826.83672,161.01404)"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       style="font-size:12.19924887000000169px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        id="flowRoot5852"
        xml:space="preserve"><flowRegion
          id="flowRegion5854"><rect
-           style="font-size:24px"
+           style="font-size:12.19924887000000169px;line-height:80%"
            y="519.00165"
            x="292.94424"
-           height="44.658489"
-           width="338.80212"
+           height="81.866219"
+           width="277.19589"
            id="rect5856" /></flowRegion><flowPara
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara5858">Light fighter.</flowPara></flowRoot>    <text
+         style="font-size:12.19924887000000169px;fill:#c3cdd3;fill-opacity:1;line-height:80%"
+         id="flowPara5858">The Ghoul fighter was built for infiltration and electronic warfare, but has shown to be capable of much more.</flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-size:32.78890228px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1204.954"
@@ -3672,13 +3672,13 @@
        xml:space="preserve"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1072.8666"
-       y="618.9082"
+       y="624.9082"
        id="text5872"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5874"
          x="1072.8666"
-         y="618.9082"
+         y="624.9082"
          style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"><tspan
    id="tspan5876"
    style="fill:#a4b5f2;fill-opacity:1">10 Steel <tspan
@@ -3691,12 +3691,12 @@
     <text
        sodipodi:linespacing="125%"
        id="text5880"
-       y="634.90558"
+       y="640.90558"
        x="1113.2036"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:15.34363079px;fill:#f2a4a4;fill-opacity:1"
-         y="634.90558"
+         y="640.90558"
          x="1113.2036"
          id="tspan5882"
          sodipodi:role="line"><tspan
@@ -3743,7 +3743,7 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot6043"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       style="font-size:12.19924887px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        transform="matrix(0.8197226,0,0,0.8197226,1114.5763,161.01404)"><flowRegion
          id="flowRegion6045"><rect
            id="rect6047"
@@ -3751,9 +3751,9 @@
            height="44.658489"
            x="292.94424"
            y="519.00165"
-           style="font-size:24px" /></flowRegion><flowPara
+           style="font-size:12.19924887px" /></flowRegion><flowPara
          id="flowPara6049"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Light battleship.</flowPara></flowRoot>    <text
+         style="font-size:12.19924887px;fill:#c3cdd3;fill-opacity:1">The Dragon corvette is a fast interceptor.</flowPara></flowRoot>    <text
        sodipodi:linespacing="125%"
        id="text6051"
        y="658.75562"
@@ -3861,18 +3861,18 @@
        style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
     <flowRoot
        transform="matrix(0.8197226,0,0,0.8197226,1402.3157,161.01404)"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       style="font-size:12.19924887px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        id="flowRoot6095"
        xml:space="preserve"><flowRegion
          id="flowRegion6097"><rect
-           style="font-size:24px"
+           style="font-size:12.19924887px"
            y="519.00165"
            x="292.94424"
            height="44.658489"
            width="338.80212"
            id="rect6099" /></flowRegion><flowPara
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara6101">Very light transport ship.</flowPara></flowRoot>    <text
+         style="font-size:12.19924887px;fill:#c3cdd3;fill-opacity:1"
+         id="flowPara6101">A small shuttle meant for carrying people around.</flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-size:32.78890228px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1791.527"
@@ -3979,7 +3979,7 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot6147"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       style="font-size:12.19924887000000169px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:87%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        transform="matrix(0.8197226,0,0,0.8197226,826.83672,274.91235)"><flowRegion
          id="flowRegion6149"><rect
            id="rect6151"
@@ -3987,9 +3987,9 @@
            height="44.658489"
            x="292.94424"
            y="519.00165"
-           style="font-size:24px" /></flowRegion><flowPara
+           style="font-size:12.19924887000000169px;line-height:87%" /></flowRegion><flowPara
          id="flowPara6153"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Figther bomber.</flowPara></flowRoot>    <text
+         style="font-size:12.19924887000000169px;fill:#c3cdd3;fill-opacity:1;line-height:87%">The Orca is a fighter-bomber, designed to carry both light and anti-ships weapons. It is the perfect tool for attacking larger vessels.</flowPara></flowRoot>    <text
        sodipodi:linespacing="125%"
        id="text6155"
        y="772.65393"
@@ -4026,12 +4026,12 @@
     <text
        sodipodi:linespacing="125%"
        id="text6167"
-       y="732.80652"
+       y="740.80652"
        x="1064.2767"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"
-         y="732.80652"
+         y="740.80652"
          x="1064.2767"
          id="tspan6169"
          sodipodi:role="line"><tspan
@@ -4047,13 +4047,13 @@
        xml:space="preserve"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1113.2036"
-       y="748.80389"
+       y="756.80389"
        id="text6173"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6175"
          x="1113.2036"
-         y="748.80389"
+         y="756.80389"
          style="font-size:15.34363079px;fill:#f2a4a4;fill-opacity:1"><tspan
            style="fill:#a4f2a6;fill-opacity:1"
            id="tspan6177">250 Fuel</tspan><tspan
@@ -4097,18 +4097,18 @@
        style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
     <flowRoot
        transform="matrix(0.8197226,0,0,0.8197226,1114.5763,274.91235)"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       style="font-size:12.19924887px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        id="flowRoot6199"
        xml:space="preserve"><flowRegion
          id="flowRegion6201"><rect
-           style="font-size:24px"
+           style="font-size:12.19924927px;line-height:80.00000119%"
            y="519.00165"
            x="292.94424"
-           height="44.658489"
-           width="338.80212"
+           height="44.658508"
+           width="287.90768"
            id="rect6203" /></flowRegion><flowPara
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara6205">Heavy battleship.</flowPara></flowRoot>    <text
+         style="font-size:12.19924887px;fill:#c3cdd3;fill-opacity:1;line-height:80%"
+         id="flowPara6205">The Invader is a powerful ship, designed for fast response and surprise attack.</flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-size:32.78890228px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1483.9015"
@@ -4146,13 +4146,13 @@
        xml:space="preserve"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1349.9225"
-       y="732.80652"
+       y="740.80652"
        id="text6219"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6221"
          x="1349.9225"
-         y="732.80652"
+         y="740.80652"
          style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"><tspan
    id="tspan6223"
    style="fill:#a4b5f2;fill-opacity:1">100 Steel <tspan
@@ -4163,12 +4163,12 @@
     <text
        sodipodi:linespacing="125%"
        id="text6225"
-       y="748.80389"
+       y="756.80389"
        x="1400.9431"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:15.34363079px;fill:#f2a4a4;fill-opacity:1"
-         y="748.80389"
+         y="756.80389"
          x="1400.9431"
          id="tspan6227"
          sodipodi:role="line"><tspan
@@ -4215,17 +4215,17 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot6251"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       style="font-size:12.19924887px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        transform="matrix(0.8197226,0,0,0.8197226,1402.3157,274.91235)"><flowRegion
          id="flowRegion6253"><rect
            id="rect6255"
-           width="338.80212"
-           height="44.658489"
+           width="288.77029"
+           height="44.658508"
            x="292.94424"
            y="519.00165"
-           style="font-size:24px" /></flowRegion><flowPara
+           style="font-size:12.19924927px" /></flowRegion><flowPara
          id="flowPara6257"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Small local cargo ship.</flowPara></flowRoot>    <text
+         style="font-size:12.19924887px;fill:#c3cdd3;fill-opacity:1">A small cargo craft that can carry surprisingly large amounts of liquids.</flowPara></flowRoot>    <text
        sodipodi:linespacing="125%"
        id="text6259"
        y="772.65393"
@@ -4262,12 +4262,12 @@
     <text
        sodipodi:linespacing="125%"
        id="text6271"
-       y="732.80652"
+       y="740.80652"
        x="1651.0127"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"
-         y="732.80652"
+         y="740.80652"
          x="1651.0127"
          id="tspan6273"
          sodipodi:role="line"><tspan
@@ -4283,13 +4283,13 @@
        xml:space="preserve"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1688.6826"
-       y="748.80389"
+       y="756.80389"
        id="text6277"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan6279"
          x="1688.6826"
-         y="748.80389"
+         y="756.80389"
          style="font-size:15.34363079px;fill:#f2a4a4;fill-opacity:1"><tspan
            style="fill:#a4f2a6;fill-opacity:1"
            id="tspan6281">200 Fuel</tspan><tspan
@@ -4334,17 +4334,17 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot6355"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       style="font-size:12.19924886999999991px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        transform="matrix(0.8197226,0,0,0.8197226,1114.5763,385.85226)"><flowRegion
          id="flowRegion6357"><rect
            id="rect6359"
-           width="338.80212"
-           height="44.658489"
+           width="286.18243"
+           height="41.208038"
            x="292.94424"
            y="519.00165"
-           style="font-size:24px" /></flowRegion><flowPara
+           style="font-size:12.19924927px;line-height:80.00000119%" /></flowRegion><flowPara
          id="flowPara6361"
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Very large battleship.</flowPara></flowRoot>    <text
+         style="font-size:12.19924886999999991px;fill:#c3cdd3;fill-opacity:1;line-height:80%">The Leviathan is a very powerful battleship, built to withstand engagments against other large vessels.</flowPara></flowRoot>    <text
        sodipodi:linespacing="125%"
        id="text6363"
        y="883.59381"
@@ -4382,20 +4382,20 @@
        sodipodi:linespacing="125%"
        id="text6375"
        y="843.7464"
-       x="1345.4723"
-       style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       x="1355.4723"
+       style="font-size:14px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
-         style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"
+         style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
          y="843.7464"
-         x="1345.4723"
+         x="1355.4723"
          id="tspan6377"
          sodipodi:role="line"><tspan
-   style="fill:#a4b5f2;fill-opacity:1"
+   style="font-size:14px;fill:#a4b5f2;fill-opacity:1"
    id="tspan6379">150 Steel<tspan
-   style="fill:#c3cdd3;fill-opacity:1"
+   style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
    id="tspan6735"> +</tspan> 120 Plastics </tspan>+ <tspan
    id="tspan6705"
-   style="fill:#a4f2a6;fill-opacity:1">75 Tools</tspan> → </tspan></text>
+   style="font-size:14px;fill:#a4f2a6;fill-opacity:1">75 Tools</tspan> → </tspan></text>
     <text
        xml:space="preserve"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -4450,18 +4450,18 @@
        style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
     <flowRoot
        transform="matrix(0.8197226,0,0,0.8197226,1402.3157,385.85226)"
-       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       style="font-size:12.19924887px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        id="flowRoot6407"
        xml:space="preserve"><flowRegion
          id="flowRegion6409"><rect
-           style="font-size:24px"
+           style="font-size:12.19924887px"
            y="519.00165"
            x="292.94424"
            height="44.658489"
            width="338.80212"
            id="rect6411" /></flowRegion><flowPara
-         style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-         id="flowPara6413">Heavy long distance cargo.</flowPara></flowRoot>    <text
+         style="font-size:12.19924887px;fill:#c3cdd3;fill-opacity:1"
+         id="flowPara6413">A supersized cargo built for major companies.</flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-size:32.78890228px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1775.5577"
@@ -4695,7 +4695,7 @@
     </g>
     <g
        id="g6829"
-       transform="translate(633.8466,-466.49436)">
+       transform="translate(1068.8466,-458.10472)">
       <text
          sodipodi:linespacing="125%"
          id="text6831"
@@ -5093,5 +5093,18 @@
            y="772.87158"
            style="font-size:12.42901993px;fill:#c3cdd3;fill-opacity:1">100 Steel, 30 plastics, 20 Tools</tspan></text>
     </g>
-  </g>
+    <flowRoot
+       transform="translate(939.1427,8.8602005)"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       id="flowRoot7184"
+       xml:space="preserve"><flowRegion
+         id="flowRegion7186"><rect
+           style="font-size:24px"
+           y="519.00165"
+           x="292.94424"
+           height="35.658508"
+           width="394.80209"
+           id="rect7188" /></flowRegion><flowPara
+         style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
+         id="flowPara7190">Shipyards are large stations that build other spacecrafts.</flowPara></flowRoot>  </g>
 </svg>
