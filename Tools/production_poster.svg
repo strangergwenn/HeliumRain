@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="production_poster.svg"
-   inkscape:export-filename="/home/fred/store/HeliumRain/economy_cheat_sheet.png"
+   inkscape:export-filename="/home/fred/store/HeliumRain/hr_cheat_sheet.png"
    inkscape:export-xdpi="150"
    inkscape:export-ydpi="150">
   <defs
@@ -51,9 +51,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="965.94618"
-     inkscape:cy="718.69804"
+     inkscape:zoom="1"
+     inkscape:cx="1095.1332"
+     inkscape:cy="742.01247"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -333,7 +333,7 @@
            height="93.944183"
            x="343.45187"
            y="517.99152" /></flowRegion><flowPara
-         id="flowPara4064"></flowPara></flowRoot>    <flowRoot
+         id="flowPara4064" /></flowRoot>    <flowRoot
        xml:space="preserve"
        id="flowRoot4066"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -595,7 +595,7 @@
          y="872.64441"
          x="591.70856"
          id="tspan4325"
-         sodipodi:role="line">Fusion reactor</tspan></text>
+         sodipodi:role="line">Fusion Reactor</tspan></text>
     <rect
        ry="0"
        rx="0"
@@ -717,7 +717,7 @@
          id="tspan4375"
          x="88.669998"
          y="871.63422"
-         style="font-size:24px;fill:#c3cdd3;fill-opacity:1">Solar plant</tspan></text>
+         style="font-size:24px;fill:#c3cdd3;fill-opacity:1">Solar Plant</tspan></text>
     <rect
        style="fill:#000000;fill-opacity:0.10196078;stroke:none"
        id="rect4377"
@@ -854,7 +854,7 @@
            y="86.394066"
            x="493.95145"
            id="tspan4239"
-           sodipodi:role="line">Pomping station</tspan></text>
+           sodipodi:role="line">Pomping Station</tspan></text>
       <rect
          ry="0"
          rx="0"
@@ -1126,7 +1126,7 @@
          y="496.14172"
          x="93.720772"
          id="tspan4495"
-         sodipodi:role="line">Tool factory</tspan></text>
+         sodipodi:role="line">Tool Factory</tspan></text>
     <rect
        ry="0"
        rx="0"
@@ -1649,7 +1649,7 @@
            height="100"
            x="-112.85714"
            y="516.64789" /></flowRegion><flowPara
-         id="flowPara4671"></flowPara></flowRoot>    <flowRoot
+         id="flowPara4671" /></flowRoot>    <flowRoot
        xml:space="preserve"
        id="flowRoot4673"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -2532,7 +2532,7 @@
              width="245.94496"
              id="rect5351" /></flowRegion><flowPara
            style="font-size:12px;fill:#c3cdd3;fill-opacity:1"
-           id="flowPara5353">Combustible for fusion reactor. Extracted from  Nema by pumping station.</flowPara></flowRoot>      <g
+           id="flowPara5353">Nuclear fuel for fusion reactors. Extracted from  Nema by pumping stations.</flowPara></flowRoot>      <g
          transform="matrix(0.64069777,0,0,0.64069777,937.24093,133.19478)"
          id="g5359">
         <text
@@ -2595,17 +2595,17 @@
       <flowRoot
          xml:space="preserve"
          id="flowRoot5375"
-         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         transform="translate(775.69331,-419.70927)"><flowRegion
+         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:100%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+         transform="translate(775.69331,-415.70927)"><flowRegion
            id="flowRegion5377"><rect
              id="rect5379"
              width="245.94496"
              height="58.944233"
              x="292.94424"
              y="519.00165"
-             style="font-size:24px" /></flowRegion><flowPara
+             style="font-size:24px;line-height:100%" /></flowRegion><flowPara
            id="flowPara5381"
-           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Main component of Nema. Used to reduce oxydes and produce water. Extracted by pomping station.</flowPara></flowRoot>      <g
+           style="font-size:12px;line-height:100%;fill:#c3cdd3;fill-opacity:1">Main component of Nema. Used to reduce oxydes and produce water. Extracted by pumping stations.</flowPara></flowRoot>      <g
          id="g5383"
          transform="matrix(0.64069777,0,0,0.64069777,937.24093,-214.66236)">
         <text
@@ -2751,7 +2751,7 @@
              y="519.00165"
              style="font-size:24px" /></flowRegion><flowPara
            id="flowPara5429"
-           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Carbon chemitry base material. Extracted from  Nema by pomping station.</flowPara></flowRoot>      <g
+           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Carbon chemistry base material. Extracted from  Nema by pumping stations.</flowPara></flowRoot>      <g
          id="g5431"
          transform="matrix(0.64069777,0,0,0.64069777,937.24093,-34.662357)">
         <text
@@ -2824,7 +2824,7 @@
              width="245.94496"
              id="rect5451" /></flowRegion><flowPara
            style="font-size:12px;fill:#c3cdd3;fill-opacity:1"
-           id="flowPara5453">Rocks. Extracted from  asteroids. Used to produce Tech products</flowPara></flowRoot>      <g
+           id="flowPara5453">Rock extracted from  asteroids. Used to produce Tech products</flowPara></flowRoot>      <g
          transform="matrix(0.64069777,0,0,0.64069777,937.24093,49.623357)"
          id="g5455">
         <text
@@ -2934,7 +2934,7 @@
            y="447.31287"
            x="1356.7601"
            id="tspan5489"
-           sodipodi:role="line">Fleet suply</tspan></text>
+           sodipodi:role="line">Fleet Supply</tspan></text>
       <flowRoot
          xml:space="preserve"
          id="flowRoot5491"
@@ -2948,7 +2948,7 @@
              y="519.00165"
              style="font-size:24px" /></flowRegion><flowPara
            id="flowPara5497"
-           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Packed fuel, ammunition and spare parts for ships maintenance and supply. Produced by the arsenal.</flowPara></flowRoot>      <g
+           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Fuel, ammunition and spare parts, packed for maintenance. Produced at arsenals.</flowPara></flowRoot>      <g
          id="g5499"
          transform="matrix(0.64069777,0,0,0.64069777,1225.1344,133.19478)">
         <text
@@ -3009,19 +3009,19 @@
            y="99.455727"
            style="font-size:20px;fill:#c3cdd3;fill-opacity:1">Water</tspan></text>
       <flowRoot
-         transform="translate(1063.5868,-419.70927)"
-         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+         transform="translate(1063.5868,-417.70927)"
+         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:100%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
          id="flowRoot5515"
          xml:space="preserve"><flowRegion
            id="flowRegion5517"><rect
-             style="font-size:24px"
+             style="font-size:24px;line-height:100%"
              y="519.00165"
              x="292.94424"
              height="58.944214"
              width="235.2307"
              id="rect5519" /></flowRegion><flowPara
-           style="font-size:12px;fill:#c3cdd3;fill-opacity:1"
-           id="flowPara5521">Produce buy ore reduction ore fuel combustion. It's main use is fuel production by electrolysis.</flowPara></flowRoot>      <g
+           style="font-size:12px;line-height:100%;fill:#c3cdd3;fill-opacity:1"
+           id="flowPara5521">Produce by ore reduction or fuel combustion. Its main use is fuel production through electrolysis.</flowPara></flowRoot>      <g
          transform="matrix(0.64069777,0,0,0.64069777,1225.1344,-214.66236)"
          id="g5523">
         <text
@@ -3094,7 +3094,7 @@
              y="519.00165"
              style="font-size:24px" /></flowRegion><flowPara
            id="flowPara5545"
-           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Base material for hulls. Produced by steelworks and used for everythings.</flowPara></flowRoot>      <g
+           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Base material for hulls. Produced by steelworks and used evertwhere.</flowPara></flowRoot>      <g
          id="g5547"
          transform="matrix(0.64069777,0,0,0.64069777,1225.1344,-127.5195)">
         <text
@@ -3240,7 +3240,7 @@
              y="519.00165"
              style="font-size:24px" /></flowRegion><flowPara
            id="flowPara5593"
-           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Range of plastics materials used for vary high end products. Produced by the refinery.</flowPara></flowRoot>      <g
+           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Range of plastics materials used for various high end products. Produced by a refinery.</flowPara></flowRoot>      <g
          id="g5595"
          transform="matrix(0.64069777,0,0,0.64069777,1225.1344,49.623357)">
         <text
@@ -3304,7 +3304,7 @@
          xml:space="preserve"
          id="flowRoot5635"
          style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         transform="translate(1346.4295,-419.70927)"><flowRegion
+         transform="translate(1346.4295,-417.70927)"><flowRegion
            id="flowRegion5637"><rect
              id="rect5639"
              width="240.94498"
@@ -3313,7 +3313,7 @@
              y="519.00165"
              style="font-size:24px" /></flowRegion><flowPara
            id="flowPara5641"
-           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Vital consumer resources. If the people lake of food, it will begin to starve.</flowPara></flowRoot>      <g
+           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">The most vital resource. People will starve if they lake of it.</flowPara></flowRoot>      <g
          id="g5643"
          transform="matrix(0.64069777,0,0,0.64069777,1507.9771,-214.66236)">
         <text
@@ -3386,7 +3386,7 @@
              width="245.94496"
              id="rect5663" /></flowRegion><flowPara
            style="font-size:12px;fill:#c3cdd3;fill-opacity:1"
-           id="flowPara5665">Fuel is a consumed by people but is the main energy source for all stations.</flowPara></flowRoot>      <g
+           id="flowPara5665">Fuel is used to power machinery, propel spacerafts or provide power to people.</flowPara></flowRoot>      <g
          transform="matrix(0.64069777,0,0,0.64069777,1507.9771,-127.5195)"
          id="g5667">
         <text
@@ -3459,7 +3459,7 @@
              y="519.00165"
              style="font-size:24px" /></flowRegion><flowPara
            id="flowPara5689"
-           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Middle-end products for people. Also used to build ships and stations.</flowPara></flowRoot>      <g
+           style="font-size:12px;fill:#c3cdd3;fill-opacity:1">Every kind of tool, from the basic wrench to high-end hull production tools.</flowPara></flowRoot>      <g
          id="g5691"
          transform="matrix(0.64069777,0,0,0.64069777,1507.9771,-34.662357)">
         <text
@@ -3518,7 +3518,7 @@
            id="tspan5705"
            x="1639.6029"
            y="363.74142"
-           style="font-size:20px;fill:#c3cdd3;fill-opacity:1">Tech products</tspan></text>
+           style="font-size:20px;fill:#c3cdd3;fill-opacity:1">Tech Products</tspan></text>
       <flowRoot
          transform="translate(1346.4295,-155.42356)"
          style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -3532,7 +3532,7 @@
              width="245.94496"
              id="rect5711" /></flowRegion><flowPara
            style="font-size:12px;fill:#c3cdd3;fill-opacity:1"
-           id="flowPara5713">Hight-end consumer products. Also used to build advanced ships or stations.</flowPara></flowRoot>      <g
+           id="flowPara5713">High-end consumer products. Also used to build advanced ships or stations.</flowPara></flowRoot>      <g
          transform="matrix(0.64069777,0,0,0.64069777,1507.9771,49.623357)"
          id="g5715">
         <text
@@ -4321,7 +4321,7 @@
          id="tspan6351"
          x="1350.2092"
          y="803.61975"
-         style="font-size:19.67334175px;fill:#c3cdd3;fill-opacity:1">Levianthan</tspan></text>
+         style="font-size:19.67334175px;fill:#c3cdd3;fill-opacity:1">Leviathan</tspan></text>
     <rect
        style="fill:#000000;fill-opacity:0.10196078;stroke:none"
        id="rect6353"
