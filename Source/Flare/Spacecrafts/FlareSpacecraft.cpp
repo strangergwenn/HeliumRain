@@ -608,7 +608,6 @@ void AFlareSpacecraft::OnEnemyKilled(IFlareSpacecraftInterface* Enemy)
 
 void AFlareSpacecraft::OnDocked()
 {
-
 	// Signal the PC
 	AFlarePlayerController* PC = GetPC();
 	if (PC && !StateManager->IsExternalCamera())
@@ -631,6 +630,16 @@ void AFlareSpacecraft::OnDocked()
 	}
 
 	DamageSystem->UpdatePower();
+}
+
+void AFlareSpacecraft::OnUndocked()
+{
+	// Signal the PC
+	AFlarePlayerController* PC = GetPC();
+	if (PC && StateManager->IsExternalCamera())
+	{
+		PC->SetExternalCamera(false);
+	}
 }
 
 

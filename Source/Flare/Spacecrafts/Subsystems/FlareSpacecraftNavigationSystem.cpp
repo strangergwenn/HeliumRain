@@ -189,6 +189,8 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 		// Update Angular acceleration rate : when it's docked the mass is the ship mass + the station mass
 		Spacecraft->SetRCSDescription(Spacecraft->GetRCSDescription());
 
+		Spacecraft->OnUndocked();
+
 		FLOG("AFlareSpacecraft::Undock successful");
 		return true;
 	}

@@ -44,6 +44,8 @@ public:
 
 	virtual void OnDocked();
 
+	virtual void OnUndocked();
+
 	virtual void SetPause(bool Pause);
 
 	virtual void Redock();
