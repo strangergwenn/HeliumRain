@@ -375,10 +375,21 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 		IFlareSpacecraftNavigationSystemInterface* Nav = TargetShip->GetNavigationSystem();
 		FFlareShipCommandData Command = Nav->GetCurrentCommand();
 
+		// Docking info
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
 			AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
 			Info = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
+		}
+
+		// Targetting info
+		else
+		{
+			AFlareSpacecraft* TargetShipPawn = Cast<AFlareSpacecraft>(TargetShip);
+			if (TargetShipPawn && TargetShipPawn->GetCurrentTarget())
+			{
+				Info = FText::Format(LOCTEXT("TargettingFormat", "Targetting {0}"), FText::FromName(TargetShipPawn->GetCurrentTarget()->GetImmatriculation()));
+			}
 		}
 	}
 

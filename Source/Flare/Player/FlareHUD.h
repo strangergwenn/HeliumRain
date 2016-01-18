@@ -7,6 +7,19 @@
 #include "FlareHUD.generated.h"
 
 
+/** Target info */
+USTRUCT()
+struct FFlareScreenTarget
+{
+	GENERATED_USTRUCT_BODY()
+
+	AFlareSpacecraft*      Spacecraft;
+
+	float                  DistanceFromScreenCenter;
+
+};
+
+
 /** Navigation HUD */
 UCLASS()
 class FLARE_API AFlareHUD : public AHUD
@@ -49,6 +62,7 @@ public:
 	/** Decide if the HUD is displayed or not */
 	void UpdateHUDVisibility();
 
+
 	virtual void Tick(float DeltaSeconds) override;
 
 
@@ -73,7 +87,7 @@ protected:
 	bool DrawHUDDesignator(AFlareSpacecraft*Spacecraft);
 
 	/** Draw a designator corner */
-	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor);
+	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Highlighted = false);
 
 	/** Draw a status block for the ship */
 	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
@@ -103,6 +117,10 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
+	// Menu reference
+	UPROPERTY()
+	AFlareMenuManager*                      MenuManager;
+
 	// Settings
 	float                                   CombatMouseRadius;
 	float                                   FocusDistance;
@@ -111,9 +129,12 @@ protected:
 	FLinearColor                            HudColorFriendly;
 	FLinearColor                            HudColorEnemy;
 	FLinearColor                            HudColorObjective;
+	
+	// Spacecraft targets
+	UPROPERTY()
+	TArray<FFlareScreenTarget>              ScreenTargets;
 
 	// General data
-	AFlareMenuManager*                      MenuManager;
 	bool                                    HUDVisible;
 	bool                                    IsInteractive;
 	bool                                    FoundTargetUnderMouse;
@@ -130,6 +151,7 @@ protected:
 	UTexture2D*                             HUDObjectiveIcon;
 	UTexture2D*                             HUDCombatMouseIcon;
 	UTexture2D*                             HUDDesignatorCornerTexture;
+	UTexture2D*                             HUDDesignatorCornerSelectedTexture;
 	UTexture2D*                             HUDDesignatorSelectionTexture;
 
 	// Ship status content
@@ -155,6 +177,12 @@ public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
+
+	/** Get the spacecrafts shown on screen */
+	inline TArray<FFlareScreenTarget>& GetCurrentTargets()
+	{
+		return ScreenTargets;
+	}
 
 	const FVector2D& GetContextMenuLocation() const
 	{

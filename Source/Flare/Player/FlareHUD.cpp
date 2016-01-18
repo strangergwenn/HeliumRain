@@ -27,7 +27,8 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj            (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj       (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj    (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj(TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorSelectedCornerObj(TEXT("/Game/Gameplay/HUD/TX_DesignatorCornerSelected.TX_DesignatorCornerSelected"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorSelectionObj (TEXT("/Game/Slate/Icons/TX_Icon_TargettingContextButton.TX_Icon_TargettingContextButton"));
 
 	// Load content (status icons)
@@ -51,6 +52,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDObjectiveIcon = HUDObjectiveIconObj.Object;
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
+	HUDDesignatorCornerSelectedTexture = HUDDesignatorSelectedCornerObj.Object;
 	HUDDesignatorSelectionTexture = HUDDesignatorSelectionObj.Object;
 
 	// Set content (status icons)
@@ -191,6 +193,11 @@ void AFlareHUD::UpdateHUDVisibility()
 	HUD drawing
 ----------------------------------------------------*/
 
+inline static bool IsCloserToCenter(const FFlareScreenTarget& TargetA, const FFlareScreenTarget& TargetB)
+{
+	return (TargetA.DistanceFromScreenCenter < TargetB.DistanceFromScreenCenter);
+}
+
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -200,44 +207,41 @@ void AFlareHUD::DrawHUD()
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 
-	if (!ActiveSector || !HUDVisible || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive())
+	// So these are forbidden cases
+	if (!ActiveSector || !HUDVisible || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsMouseMenuOpen())
 	{
 		return;
 	}
-
-	// Draw designators and context menu
-	if (!MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu() && !IsMouseMenuOpen())
+	
+	// Iterate on all 'other' ships to show designators, markings, etc
+	ScreenTargets.Empty();
+	FoundTargetUnderMouse = false;
+	for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 	{
-		// Draw ship designators and markers
-		FoundTargetUnderMouse = false;
-
-		for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
+		AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
+		if (Spacecraft != PlayerShip)
 		{
-			AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
-			if (Spacecraft != PlayerShip)
+			// Draw designators
+			bool ShouldDrawSearchMarker;
+			if (PC->LineOfSightTo(Spacecraft))
 			{
-				// Draw designators
-				bool ShouldDrawSearchMarker;
-				if (PC->LineOfSightTo(Spacecraft))
-				{
-					ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
-				}
-				else
-				{
-					ShouldDrawSearchMarker = Spacecraft->GetDamageSystem()->IsAlive();
-				}
+				ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
+			}
+			else
+			{
+				ShouldDrawSearchMarker = Spacecraft->GetDamageSystem()->IsAlive();
+			}
 
-				// Draw search markers
-				if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE
-				 && !PlayerShip->GetStateManager()->IsExternalCamera()
-				 && ShouldDrawSearchMarker)
-				{
-					DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
-				}
+			// Draw search markers
+			if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE
+				&& !PlayerShip->GetStateManager()->IsExternalCamera()
+				&& ShouldDrawSearchMarker)
+			{
+				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
 			}
 		}
 
-		// Hide the context menu
+		// Hide the context menu if nothing was found
 		if (!FoundTargetUnderMouse || !IsInteractive)
 		{
 			ContextMenu->Hide();
@@ -245,7 +249,7 @@ void AFlareHUD::DrawHUD()
 	}
 
 	// Update HUD materials
-	if (PC && PlayerShip && !MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu() && !IsMouseMenuOpen())
+	if (PlayerShip)
 	{
 		// Draw inertial vectors
 		DrawSpeed(PC, PlayerShip, HUDReticleIcon, PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
@@ -264,7 +268,6 @@ void AFlareHUD::DrawHUD()
 
 			for (int TargetIndex = 0; TargetIndex < PC->GetCurrentObjective()->Data.TargetList.Num(); TargetIndex++)
 			{
-
 				const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->Data.TargetList[TargetIndex];
 				FVector ObjectiveLocation = Target->Location;
 				FLinearColor InactiveColor = HudColorNeutral;
@@ -278,7 +281,6 @@ void AFlareHUD::DrawHUD()
 				{
 					if (IsInScreen(ScreenPosition))
 					{
-
 						// Draw icon
 						DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, (Target->Active ? HudColorNeutral : InactiveColor), true);
 
@@ -308,7 +310,6 @@ void AFlareHUD::DrawHUD()
 		// Draw bomb marker
 		if (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
 		{
-
 			float AmmoVelocity = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetAmmoVelocity();
 			FRotator ShipAttitude = PlayerShip->GetActorRotation();
 			FVector ShipVelocity = 100.f * PlayerShip->GetLinearVelocity();
@@ -330,7 +331,9 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Draw combat mouse pointer
-		if (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		if (!PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
+		    PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
+		 || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
 		{
 			// Compute clamped mouse position
 			FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerMouseOffset();
@@ -364,6 +367,9 @@ void AFlareHUD::DrawHUD()
 			}
 		}
 	}
+
+	// Sort screen targets
+	ScreenTargets.Sort(&IsCloserToCenter);
 }
 
 FString AFlareHUD::FormatDistance(float Distance)
@@ -454,7 +460,13 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		float Distance = (TargetLocation - PlayerLocation).Size();
 		float ApparentAngle = FMath::RadiansToDegrees(FMath::Atan(ShipSize / Distance));
 		float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * ViewportSize.X;
-		FVector2D ObjectSize = FMath::Min(0.66f * Size, 500.0f) * FVector2D(1, 1);
+		FVector2D ObjectSize = FMath::Min(0.66f * Size, 300.0f) * FVector2D(1, 1);
+
+		// Add to targets
+		FFlareScreenTarget TargetData;
+		TargetData.Spacecraft = Spacecraft;
+		TargetData.DistanceFromScreenCenter = (ScreenPosition - ViewportSize / 2).Size();
+		ScreenTargets.Add(TargetData);
 
 		// Check if the mouse is there
 		int ToleranceRange = 3;
@@ -489,10 +501,11 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			FLinearColor Color = GetHostilityColor(PC, Spacecraft);
 
 			// Draw designator corners
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color);
+			bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color, Highlighted);
 
 			// Draw the target's distance
 			FString DistanceText = FormatDistance(Distance / 100);
@@ -567,14 +580,15 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	return true;
 }
 
-void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor)
+void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Highlighted)
 {
-	ObjectSize = FMath::Max(ObjectSize, DesignatorIconSize * FVector2D::UnitVector);
+	float ScaledDesignatorIconSize = DesignatorIconSize * (Highlighted ? 2 : 1);
+	ObjectSize = FMath::Max(ObjectSize, ScaledDesignatorIconSize * FVector2D::UnitVector);
 
-	DrawTexture(HUDDesignatorCornerTexture,
+	DrawTexture(Highlighted ? HUDDesignatorCornerSelectedTexture : HUDDesignatorCornerTexture,
 		Position.X + (ObjectSize.X + DesignatorIconSize) * MainOffset.X / 2,
 		Position.Y + (ObjectSize.Y + DesignatorIconSize) * MainOffset.Y / 2,
-		DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1,
+		ScaledDesignatorIconSize, ScaledDesignatorIconSize, 0, 0, 1, 1,
 		HudColor,
 		BLEND_Translucent, 1.0f, false,
 		Rotation);

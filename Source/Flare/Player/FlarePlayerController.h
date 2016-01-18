@@ -216,14 +216,17 @@ public:
 	/** Brake */
 	void Brake();
 
-	/** Get the nearest spacecraft */
-	AFlareSpacecraft* GetNearestSpacecraft(bool OnScreenRequired = false);
+	/** Inspect the target */
+	void InspectTargetSpacecraft();
 
-	/** Match speed with nearest spacecraft */
-	void MatchSpeedWithNearestSpacecraft();
+	/** Dock at the target */
+	void DockAtTargetSpacecraft();
 
-	/** Find the nearest spacecraft */
-	void LookAtNearestSpacecraft();
+	/** Match speed with target spacecraft */
+	void MatchSpeedWithTargetSpacecraft();
+
+	/** Find the target spacecraft */
+	void LookAtTargetSpacecraft();
 
 	/** Open the upgrade menu */
 	void UpgradeShip();

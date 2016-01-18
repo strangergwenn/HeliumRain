@@ -568,10 +568,13 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 	CurrentMenu = EFlareMenu::MENU_Ship;
 	GetPC()->OnEnterMenu();
 
+	// No target passed - "Inspect" on target ship
 	if (Target == NULL)
 	{
-		Target = Cast<AFlarePlayerController>(GetOwner())->GetShipPawn();
+		Target = GetPC()->GetShipPawn()->GetCurrentTarget();
+		FLOGV("AFlareMenuManager::InspectShip : No ship passed, using selection : %s", *Target->GetImmatriculation().ToString());
 	}
+
 	ShipMenu->Enter(Target, IsEditable);
 	GetPC()->UpdateMenuTheme();
 }

@@ -830,17 +830,29 @@ void AFlarePlayerController::WheelPressed()
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));
 			}
 
-			AFlareSpacecraft* Nearest = GetNearestSpacecraft(true);
-			if (Nearest)
+			// Targetting
+			AFlareSpacecraft* Target = ShipPawn->GetCurrentTarget();
+			if (Target)
 			{
-				FText Text = FText::Format(LOCTEXT("MatchSpeedFormat", "Match speed with {0}"), FText::FromName(Nearest->GetImmatriculation()));
-				MouseMenu->AddWidget("Mouse_MatchSpeed", Text,
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::MatchSpeedWithNearestSpacecraft));
+				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Inspect {0}"), FText::FromName(Target->GetImmatriculation()));
+				MouseMenu->AddWidget(Target->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
+/*
+				FText Text2 = FText::Format(LOCTEXT("MatchSpeedFormat", "Match speed with {0}"), FText::FromName(Target->GetImmatriculation()));
+				MouseMenu->AddWidget("Mouse_MatchSpeed", Text2,
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::MatchSpeedWithTargetSpacecraft));*/
+
+				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn()))
+				{
+					FText Text3 = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetImmatriculation()));
+					MouseMenu->AddWidget("Mouse_DockAt", Text3,
+						FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));
+				}
 			}
 			else
 			{
-				MouseMenu->AddWidget("Mouse_LookAt", LOCTEXT("FindNearest", "Look at nearest spacecraft"),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::LookAtNearestSpacecraft));
+				MouseMenu->AddWidget("Mouse_LookAt", LOCTEXT("FindNearest", "Look at current target"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::LookAtTargetSpacecraft));
 			}
 
 		}
@@ -884,44 +896,35 @@ void AFlarePlayerController::Brake()
 	}
 }
 
-AFlareSpacecraft* AFlarePlayerController::GetNearestSpacecraft(bool OnScreenRequired)
+void AFlarePlayerController::InspectTargetSpacecraft()
 {
-	AFlareSpacecraft* TargetSpacecraft = NULL;
 	if (ShipPawn)
 	{
-		float TargetDistance = 0;
-		TArray<AFlareSpacecraft*> CompanySpacecrafs = GetGame()->GetActiveSector()->GetCompanySpacecrafts(Company);
-		for (int32 SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafs.Num(); SpacecraftIndex++)
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		if (TargetSpacecraft)
 		{
-			AFlareSpacecraft* Spacecraft = CompanySpacecrafs[SpacecraftIndex];
-			if (Spacecraft && Spacecraft != ShipPawn)
-			{
-				float Distance = (Spacecraft->GetActorLocation() - ShipPawn->GetActorLocation()).Size();
-				if (!TargetSpacecraft || Distance < TargetDistance)
-				{
-					FVector2D ScreenPosition;
-					if (!OnScreenRequired || ProjectWorldLocationToScreen(Spacecraft->GetActorLocation(), ScreenPosition))
-					{
-						TargetSpacecraft = Spacecraft;
-						TargetDistance = Distance;
-					}
-				}
-			}
+			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, NULL);
 		}
 	}
-
-	if (TargetSpacecraft)
-	{
-		FLOGV("AFlarePlayerController::GetNearestSpacecraft : Found %s", *TargetSpacecraft->GetImmatriculation().ToString());
-	}
-	return TargetSpacecraft;
 }
 
-void AFlarePlayerController::MatchSpeedWithNearestSpacecraft()
+void AFlarePlayerController::DockAtTargetSpacecraft()
 {
 	if (ShipPawn)
 	{
-		AFlareSpacecraft* TargetSpacecraft = GetNearestSpacecraft(true);
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		if (TargetSpacecraft)
+		{
+			ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
+		}
+	}
+}
+
+void AFlarePlayerController::MatchSpeedWithTargetSpacecraft()
+{
+	if (ShipPawn)
+	{
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
 			ShipPawn->ForceManual();
@@ -930,11 +933,11 @@ void AFlarePlayerController::MatchSpeedWithNearestSpacecraft()
 	}
 }
 
-void AFlarePlayerController::LookAtNearestSpacecraft()
+void AFlarePlayerController::LookAtTargetSpacecraft()
 {
 	if (ShipPawn)
 	{
-		AFlareSpacecraft* TargetSpacecraft = GetNearestSpacecraft(false);
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
 			FVector TargetDirection = (TargetSpacecraft->GetActorLocation() - ShipPawn->GetActorLocation());
@@ -946,7 +949,7 @@ void AFlarePlayerController::LookAtNearestSpacecraft()
 
 void AFlarePlayerController::UpgradeShip()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig);
+	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig, ShipPawn);
 }
 
 void AFlarePlayerController::UndockShip()

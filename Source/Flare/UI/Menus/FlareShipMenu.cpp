@@ -281,9 +281,10 @@ void SFlareShipMenu::Setup()
 
 void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
-	FLOGV("SFlareShipMenu::Enter : CanEdit=%d", IsEditable);
+	// Info
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+	FLOGV("SFlareShipMenu::Enter : %s, CanEdit=%d", *Target->GetImmatriculation().ToString(), IsEditable);
 
 	// Load data
 	CanEdit = IsEditable;

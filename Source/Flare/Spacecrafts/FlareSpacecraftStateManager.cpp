@@ -80,7 +80,6 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	// Control
 	switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 	{
-		case EFlareWeaponGroupType::WG_NONE:
 		case EFlareWeaponGroupType::WG_TURRET:
 		{
 			if (PlayerLeftMousePressed && !ExternalCamera)
@@ -101,6 +100,8 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 			}
 		}
 		break;
+
+		case EFlareWeaponGroupType::WG_NONE:
 		case EFlareWeaponGroupType::WG_GUN:
 		case EFlareWeaponGroupType::WG_BOMB:
 			{
@@ -437,7 +438,7 @@ bool UFlareSpacecraftStateManager::IsWantFire() const
 		}
 		else
 		{
-			switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+			switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 			{
 				case EFlareWeaponGroupType::WG_NONE:
 				case EFlareWeaponGroupType::WG_TURRET:
@@ -462,9 +463,9 @@ bool UFlareSpacecraftStateManager::IsWantCursor() const
 	{
 		switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 		{
-			case EFlareWeaponGroupType::WG_NONE:
 			case EFlareWeaponGroupType::WG_TURRET:
 				return true;
+			case EFlareWeaponGroupType::WG_NONE:
 			case EFlareWeaponGroupType::WG_BOMB:
 			case EFlareWeaponGroupType::WG_GUN:
 				return false;
@@ -478,12 +479,10 @@ bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 {
 	switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 	{
-		case EFlareWeaponGroupType::WG_NONE:
-			return true;
-
 		case EFlareWeaponGroupType::WG_TURRET:
 			return true;
 
+		case EFlareWeaponGroupType::WG_NONE:
 		case EFlareWeaponGroupType::WG_BOMB:
 		case EFlareWeaponGroupType::WG_GUN:
 			return false;

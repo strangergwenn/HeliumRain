@@ -280,12 +280,14 @@ EVisibility SFlareDashboard::GetDockedVisibility() const
 
 void SFlareDashboard::OnInspectShip()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Ship);
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	MenuManager->OpenMenu(EFlareMenu::MENU_Ship, PC->GetShipPawn());
 }
 
 void SFlareDashboard::OnConfigureShip()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig);
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig, PC->GetShipPawn());
 }
 
 void SFlareDashboard::OnOrbit()

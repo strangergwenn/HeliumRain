@@ -60,6 +60,10 @@ public:
 	/** Extrapolate the position of a ship for a given gun. Return time before intersect. If time is negative, no intersection. */
 	virtual float GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const;
 
+	/** Get the current target */
+	AFlareSpacecraft* GetCurrentTarget() const;
+
+
 	/*----------------------------------------------------
 		Ship interface
 	----------------------------------------------------*/
@@ -166,6 +170,10 @@ public:
 
 	virtual void PreviousWeapon();
 
+	virtual void NextTarget();
+
+	virtual void PreviousTarget();
+
 	virtual void ThrustInput(float Val);
 
 	virtual void MoveVerticalInput(float Val);
@@ -200,7 +208,7 @@ public:
 protected:
 
 	/*----------------------------------------------------
-		Component data
+		Internal data
 	----------------------------------------------------*/
 
 	// Component descriptions, save data
@@ -236,6 +244,25 @@ protected:
 	UFlareSpacecraftStateManager*				   StateManager;
 
 	bool                                           Paused;
+
+
+	/*----------------------------------------------------
+		Target selection
+	----------------------------------------------------*/
+
+	// Target spacecraft
+	UPROPERTY()
+	AFlareSpacecraft*                              CurrentTarget;
+
+	// target spacecraft index in the list
+	int32                                          TargetIndex;
+
+	// Time elapsed since we last selected
+	float                                          TimeSinceSelection;
+
+	// Max time between target selections before "prev" or "next" resets to center
+	float                                          MaxTimeBeforeSelectionReset;
+
 
 public:
 

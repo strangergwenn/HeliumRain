@@ -43,6 +43,11 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	ShipData.AsteroidData.AsteroidMeshID = 0;
 	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
 
+	// Gameplay
+	CurrentTarget = NULL;
+	TargetIndex = 0;
+	TimeSinceSelection = 0;
+	MaxTimeBeforeSelectionReset = 3.0;
 	Paused = false;
 }
 
@@ -58,33 +63,43 @@ void AFlareSpacecraft::BeginPlay()
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-
 	if (!IsPresentationMode() && StateManager)
 	{
+		// Tick systems
 		StateManager->Tick(DeltaSeconds);
-
 		DockingSystem->TickSystem(DeltaSeconds);
 		NavigationSystem->TickSystem(DeltaSeconds);
 		WeaponsSystem->TickSystem(DeltaSeconds);
 		DamageSystem->TickSystem(DeltaSeconds);
 
+		// Player ship updates
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 		if (PC)
 		{
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+
+			// 5km limit
 			if (PlayerShip && !GetDamageSystem()->IsAlive())
 			{
 				float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-				if (Distance > 500000)
+				if (Company && Distance > 500000)
 				{
-					// 5 km
-					if (Company)
-					{
-						GetGame()->GetActiveSector()->DestroySpacecraft(this);
-					}
+					GetGame()->GetActiveSector()->DestroySpacecraft(this);
 				}
 			}
+
+			// Set a default target if there is no manual choice
+			if (this == PlayerShip && TargetIndex == 0)
+			{
+				TArray<FFlareScreenTarget>& ScreenTargets = PC->GetNavHUD()->GetCurrentTargets();
+				if (ScreenTargets.Num())
+				{
+					int32 ActualIndex = TargetIndex % ScreenTargets.Num();
+					CurrentTarget = ScreenTargets[ActualIndex].Spacecraft;
+				}
+			}
+
+			TimeSinceSelection += DeltaSeconds;
 		}
 
 		float SmoothedVelocityChangeSpeed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
@@ -215,7 +230,6 @@ float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float B
 	return GetAimPosition(TargettingShip->GetActorLocation(), TargettingShip->GetLinearVelocity() * 100, BulletSpeed, PredictionDelay, ResultPosition);
 }
 
-
 float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
 	// TODO : use helper
@@ -265,6 +279,12 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 	}
 	return InterceptTime;
 }
+
+AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
+{
+	return CurrentTarget;
+}
+
 
 /*----------------------------------------------------
 	Ship interface
@@ -679,6 +699,9 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 
 	InputComponent->BindAction("NextWeapon", EInputEvent::IE_Released, this, &AFlareSpacecraft::NextWeapon);
 	InputComponent->BindAction("PreviousWeapon", EInputEvent::IE_Released, this, &AFlareSpacecraft::PreviousWeapon);
+
+	InputComponent->BindAction("NextTarget", EInputEvent::IE_Released, this, &AFlareSpacecraft::NextTarget);
+	InputComponent->BindAction("PreviousTarget", EInputEvent::IE_Released, this, &AFlareSpacecraft::PreviousTarget);
 }
 
 void AFlareSpacecraft::LeftMousePress()
@@ -780,6 +803,68 @@ void AFlareSpacecraft::PreviousWeapon()
 	}
 }
 
+void AFlareSpacecraft::NextTarget()
+{
+	if (!StateManager->IsPilotMode())
+	{
+		// Data
+		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
+		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
+		{
+			return Candidate.Spacecraft == CurrentTarget;
+		};
+
+		// Is visible on screen
+		if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
+		{
+			TargetIndex++;
+			TargetIndex = FMath::Min(TargetIndex, ScreenTargets.Num() - 1);
+			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
+			FLOGV("AFlareSpacecraft::NextTarget : %d", TargetIndex);
+		}
+
+		// Else reset
+		else
+		{
+			TargetIndex = 0;
+			FLOGV("AFlareSpacecraft::NextTarget : reset to center");
+		}
+
+		TimeSinceSelection = 0;
+	}
+}
+
+void AFlareSpacecraft::PreviousTarget()
+{
+	if (!StateManager->IsPilotMode())
+	{
+		// Data
+		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
+		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
+		{
+			return Candidate.Spacecraft == CurrentTarget;
+		};
+
+		// Is visible on screen
+		if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
+		{
+			TargetIndex--;
+			TargetIndex = FMath::Max(TargetIndex, 0);
+			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
+			FLOGV("AFlareSpacecraft::PreviousTarget : %d", TargetIndex);
+		}
+
+		// Else reset
+		else
+		{
+			TargetIndex = 0;
+			FLOGV("AFlareSpacecraft::PreviousTarget : reset to center");
+		}
+
+		TimeSinceSelection = 0;
+	}
+}
+
 void AFlareSpacecraft::ThrustInput(float Val)
 {
 	StateManager->SetPlayerXLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
@@ -870,6 +955,7 @@ void AFlareSpacecraft::ForceManual()
 		NavigationSystem->AbortAllCommands();
 	}
 }
+
 
 /*----------------------------------------------------
 		Getters
