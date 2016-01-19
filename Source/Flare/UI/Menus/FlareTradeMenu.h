@@ -90,6 +90,8 @@ protected:
 	/** Go back to choosing a ship to trade with */
 	void OnBackToSelection();
 
+	/** Update price on confirm button */
+	void UpdatePrice();
 
 protected:
 

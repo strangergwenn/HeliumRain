@@ -43,6 +43,18 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 			.Width(10)
 			.Height(1)
 		]
+
+		// Transfert button
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Right)
+		[
+			SAssignNew(ConfirmFreeButton, SFlareButton)
+			.HelpText(LOCTEXT("Confirm", "Confirm"))
+			.Text(InArgs._ConfirmFreeText)
+			.OnClicked(InArgs._OnConfirmed)
+			.Width(10)
+			.Height(1)
+		]
 	];
 
 	// Buy button content
@@ -96,20 +108,21 @@ void SFlareConfirmationBox::Show(float Amount)
 	if (Amount > 0)
 	{
 		CostLabel->SetText("+" + FString::FromInt(Amount));
+		ConfirmButton->SetVisibility(EVisibility::Visible);
 	}
 	else
 	{
-
-		CostLabel->SetText(FString::FromInt(Amount));
+		ConfirmFreeButton->SetVisibility(EVisibility::Visible);
 	}
 
-	ConfirmButton->SetVisibility(EVisibility::Visible);
+
 	CancelButton->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareConfirmationBox::Hide()
 {
 	ConfirmButton->SetVisibility(EVisibility::Hidden);
+	ConfirmFreeButton->SetVisibility(EVisibility::Hidden);
 
 	if (FullHide)
 	{

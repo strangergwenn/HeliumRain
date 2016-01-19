@@ -389,12 +389,30 @@ bool UFlareWorld::TransfertResources(UFlareSimulatedSpacecraft* SourceSpacecraft
 	// TODO Check docking capabilities
 	bool TransfertOK = true;
 
-	uint32 TakenResources = SourceSpacecraft->TakeResources(Resource, Quantity);
+	uint32 ResourcePrice = SourceSpacecraft->GetCurrentSector()->GetResourcePrice(Resource);
+	uint32 QuantityToTake = Quantity;
+
+	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
+	{
+		// Limit transaction bay available money
+		uint32 MaxAffordableQuantity = DestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice;
+		QuantityToTake = FMath::Min(QuantityToTake, MaxAffordableQuantity);
+	}
+
+	uint32 TakenResources = SourceSpacecraft->TakeResources(Resource, QuantityToTake);
 	uint32 GivenResources = DestinationSpacecraft->GiveResources(Resource, TakenResources);
 	uint32 PaybackResources = TakenResources - GivenResources;
 	if (PaybackResources > 0)
 	{
 		SourceSpacecraft->GiveResources(Resource, PaybackResources);
+	}
+
+	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
+	{
+		// Pay
+		uint32 Price = SourceSpacecraft->GetCurrentSector()->GetResourcePrice(Resource) * GivenResources;
+		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
+		SourceSpacecraft->GetCompany()->GiveMoney(Price);
 	}
 
 	return TransfertOK;

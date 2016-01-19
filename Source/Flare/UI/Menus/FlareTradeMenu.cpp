@@ -239,6 +239,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(PriceBox, SFlareConfirmationBox)
 						.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSACTION"))
+						.ConfirmFreeText(LOCTEXT("ConfirmFree", "CONFIRM TRANSFERT"))
 						.CancelText(LOCTEXT("BackTopShip", "CANCEL"))
 						.OnConfirmed(this, &SFlareTradeMenu::OnConfirmTransaction)
 						.OnCancelled(this, &SFlareTradeMenu::OnCancelTransaction)
@@ -451,12 +452,7 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 		TransactionQuantity = TransactionSourceSpacecraft->GetCargoBayResourceQuantity(TransactionResource);
 		QuantitySlider->SetValue(1.0f);
 
-		// Update price (TODO)
-		uint32 ResourceUnitPrice = 42;//SourceSpacecraft->GetSellingPrice(TransactionResource);
-		if (TransactionSourceSpacecraft && ResourceUnitPrice > 0)
-		{
-			PriceBox->Show(TransactionQuantity * ResourceUnitPrice);
-		}
+		UpdatePrice();
 	}
 }
 
@@ -475,12 +471,7 @@ void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 	}
 	FLOGV("SFlareTradeMenu::OnResourceQuantityChanged %f -> %d/%d", Value, TransactionQuantity, ResourceMaxQuantity);
 
-	// Update price (TODO)
-	uint32 ResourceUnitPrice = 42;//SourceSpacecraft->GetSellingPrice(TransactionResource);
-	if (TransactionSourceSpacecraft && ResourceUnitPrice > 0)
-	{
-		PriceBox->Show(TransactionQuantity * ResourceUnitPrice);
-	}
+	UpdatePrice();
 }
 
 void SFlareTradeMenu::OnConfirmTransaction()
@@ -532,6 +523,30 @@ void SFlareTradeMenu::OnBackToSelection()
 	RightCargoBay->ClearChildren();
 	ShipList->ClearSelection();
 	ShipList->SetVisibility(EVisibility::Visible);
+}
+
+void SFlareTradeMenu::UpdatePrice()
+{
+	// Update price
+	uint32 ResourceUnitPrice = TransactionSourceSpacecraft->GetCurrentSector()->GetResourcePrice(TransactionResource);
+
+	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
+	{
+		uint64 TransactionPrice = TransactionQuantity * ResourceUnitPrice;
+		if(TransactionDestinationSpacecraft->GetCompany()->GetMoney() < TransactionPrice)
+		{
+			// TODO Not enought money message
+			PriceBox->Hide();
+		}
+		else
+		{
+			PriceBox->Show(TransactionQuantity * ResourceUnitPrice);
+		}
+	}
+	else
+	{
+		PriceBox->Show(0);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE
