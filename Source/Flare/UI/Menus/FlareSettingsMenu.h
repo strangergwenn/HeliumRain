@@ -113,6 +113,8 @@ protected:
 
 	void OnDarkThemeInNavToggle();
 
+	void OnCockpitToggle();
+
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
 
 	/** Exit this menu */
@@ -154,6 +156,7 @@ protected:
 	TSharedPtr<SFlareButton>                    TessellationButton;
 	TSharedPtr<SFlareButton>                    DarkThemeInStrategyButton;
 	TSharedPtr<SFlareButton>                    DarkThemeInNavButton;
+	TSharedPtr<SFlareButton>                    CockpitButton;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;
 	TSharedPtr<SSlider>                         AntiAliasingQualitySlider;

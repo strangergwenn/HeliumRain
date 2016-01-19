@@ -145,6 +145,12 @@ public:
 
 	virtual void StartPresentation() override;
 
+	/** Set the cockpit mesh */
+	void SetCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UTextureRenderTarget2D* CameraTarget);
+
+	/** Remove the cockpit mesh */
+	void HideCockpit();
+
 
 public:
 
@@ -244,6 +250,19 @@ protected:
 	UFlareSpacecraftStateManager*				   StateManager;
 
 	bool                                           Paused;
+	
+
+	/*----------------------------------------------------
+		Cockpit
+	----------------------------------------------------*/
+
+	// Cockpit
+	UPROPERTY()
+	UStaticMeshComponent*                          CockpitMesh;
+
+	// Scene capture for the ship's camera
+	UPROPERTY()
+	USceneCaptureComponent2D*                      CockpitCapture;
 
 
 	/*----------------------------------------------------

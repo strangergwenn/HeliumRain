@@ -454,6 +454,18 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						.Toggle(true)
 						.OnClicked(this, &SFlareSettingsMenu::OnDarkThemeInNavToggle)
 					]
+					
+					// Dark theme in nav
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(CockpitButton, SFlareButton)
+						.Text(LOCTEXT("Cockpit", "Hide cockpit"))
+						.HelpText(LOCTEXT("DarkNavInfo", "Hide the 3D cockpit and use a flat interface instead"))
+						.Toggle(true)
+						.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
+					]
 				]
 				
 				// Music level box
@@ -666,6 +678,7 @@ void SFlareSettingsMenu::Enter()
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 
 		// Settings
+		CockpitButton->SetActive(!PC->UseCockpit);
 		DarkThemeInStrategyButton->SetActive(PC->UseDarkThemeForStrategy);
 		DarkThemeInNavButton->SetActive(PC->UseDarkThemeForNavigation);
 		TessellationButton->SetActive(PC->UseTessellationOnShips);
@@ -727,6 +740,13 @@ void SFlareSettingsMenu::OnDarkThemeInNavToggle()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	PC->SetUseDarkThemeForNavigation(DarkThemeInNavButton->IsActive());
+	PC->SaveConfig();
+}
+
+void SFlareSettingsMenu::OnCockpitToggle()
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	PC->SetUseCockpit(!CockpitButton->IsActive());
 	PC->SaveConfig();
 }
 

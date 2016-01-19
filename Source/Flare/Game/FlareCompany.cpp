@@ -395,7 +395,6 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 	Mat->SetTextureParameterValue("Emblem", Emblem);
 	Mat->SetScalarParameterValue("IsPainted", 1);
 	Mat->SetScalarParameterValue("TessellationMultiplier", PC->UseTessellationOnShips ? 10.0 : 0.0);
-	FLOGV("TSL = %d", PC->UseTessellationOnShips ? 1 : 0);
 }
 
 void UFlareCompany::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)

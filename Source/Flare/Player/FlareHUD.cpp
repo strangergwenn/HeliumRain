@@ -114,9 +114,9 @@ void AFlareHUD::Setup(AFlareMenuManager* NewMenuManager)
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ContextMenuContainer.ToSharedRef()), 10);
 
 		// Setup extra menus
-		ContextMenu->Hide();
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 		UpdateHUDVisibility();
+		ContextMenu->Hide();
 	}
 }
 
@@ -153,20 +153,9 @@ void AFlareHUD::SetWheelCursorMove(FVector2D Move)
 	MouseMenu->SetWheelCursorMove(Move);
 }
 
-void AFlareHUD::Tick(float DeltaSeconds)
+bool AFlareHUD::IsWheelMenuOpen() const
 {
-	Super::Tick(DeltaSeconds);
-	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-
-	// Mouse control
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && !MouseMenu->IsOpen())
-	{
-		FVector2D MousePos = PC->GetMousePosition();
-		FVector2D ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
-		MousePos = 2 * ((MousePos - ViewportCenter) / ViewportSize);
-		PC->MousePositionInput(MousePos);
-	}
+	return MouseMenu->IsOpen();
 }
 
 void AFlareHUD::OnTargetShipChanged()
@@ -188,7 +177,45 @@ void AFlareHUD::UpdateHUDVisibility()
 	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
+void AFlareHUD::DrawToCanvasRenderTarget(UCanvas* TargetCanvas, int32 Width, int32 Height)
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC && PC->UseCockpit)
+	{
+		CurrentCanvas = TargetCanvas;
+		DrawHUDInternal();
+	}
+}
 
+void AFlareHUD::DrawHUD()
+{
+	Super::DrawHUD();
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC && !PC->UseCockpit)
+	{
+		CurrentCanvas = Canvas;
+		DrawHUDInternal();
+	}
+}
+
+void AFlareHUD::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+
+	// Mouse control
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC && !MouseMenu->IsOpen())
+	{
+		FVector2D MousePos = PC->GetMousePosition();
+		FVector2D ViewportCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+		MousePos = 2 * ((MousePos - ViewportCenter) / ViewportSize);
+		PC->MousePositionInput(MousePos);
+	}
+}
+
+	
 /*----------------------------------------------------
 	HUD drawing
 ----------------------------------------------------*/
@@ -198,17 +225,15 @@ inline static bool IsCloserToCenter(const FFlareScreenTarget& TargetA, const FFl
 	return (TargetA.DistanceFromScreenCenter < TargetB.DistanceFromScreenCenter);
 }
 
-void AFlareHUD::DrawHUD()
+void AFlareHUD::DrawHUDInternal()
 {
-	Super::DrawHUD();
-
 	// Initial data and checks
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 
 	// So these are forbidden cases
-	if (!ActiveSector || !HUDVisible || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsMouseMenuOpen())
+	if (!ActiveSector || !HUDVisible || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
 	{
 		return;
 	}
@@ -289,7 +314,7 @@ void AFlareHUD::DrawHUD()
 
 						// Draw distance
 						FVector2D CenterScreenPosition = ScreenPosition - ViewportSize / 2 + FVector2D(0, IconSize);
-						DrawTextShaded(ObjectiveText, CenterScreenPosition, (Target->Active ? FLinearColor::White : InactiveTextColor));
+						FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? FLinearColor::White : InactiveTextColor));
 					}
 
 					// Tell the HUD to draw the search marker only if we are outside this
@@ -412,7 +437,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		// Label
 		FString IndicatorText = Designation.ToString();
 		FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
-		DrawTextShaded(IndicatorText, IndicatorPosition);
+		FlareDrawText(IndicatorText, IndicatorPosition);
 
 		// Icon
 		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
@@ -420,7 +445,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		// Speed 
 		FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
 		FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
-		DrawTextShaded(VelocityText, VelocityPosition);
+		FlareDrawText(VelocityText, VelocityPosition);
 	}
 }
 
@@ -510,7 +535,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			// Draw the target's distance
 			FString DistanceText = FormatDistance(Distance / 100);
 			FVector2D DistanceTextPosition = ScreenPosition - (ViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 3 * CornerSize * FVector2D::UnitVector;
-			DrawTextShaded(DistanceText, DistanceTextPosition, Color);
+			FlareDrawText(DistanceText, DistanceTextPosition, Color);
 
 			// Draw the status
 			if (!Spacecraft->IsStation() && ObjectSize.X > IconSize)
@@ -560,7 +585,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 							// Time display
 							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
 							FVector2D TimePosition = ScreenPosition - ViewportSize / 2 - FVector2D(42,0);
-							DrawTextShaded(TimeText, TimePosition, HUDAimHelperColor);
+							FlareDrawText(TimeText, TimePosition, HUDAimHelperColor);
 						}
 					}
 				}
@@ -585,7 +610,7 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 	float ScaledDesignatorIconSize = DesignatorIconSize * (Highlighted ? 2 : 1);
 	ObjectSize = FMath::Max(ObjectSize, ScaledDesignatorIconSize * FVector2D::UnitVector);
 
-	DrawTexture(Highlighted ? HUDDesignatorCornerSelectedTexture : HUDDesignatorCornerTexture,
+	FlareDrawTexture(Highlighted ? HUDDesignatorCornerSelectedTexture : HUDDesignatorCornerTexture,
 		Position.X + (ObjectSize.X + DesignatorIconSize) * MainOffset.X / 2,
 		Position.Y + (ObjectSize.Y + DesignatorIconSize) * MainOffset.Y / 2,
 		ScaledDesignatorIconSize, ScaledDesignatorIconSize, 0, 0, 1, 1,
@@ -623,20 +648,52 @@ void AFlareHUD::DrawHUDIcon(FVector2D Position, float DesignatorIconSize, UTextu
 	{
 		Position -= (DesignatorIconSize / 2) * FVector2D::UnitVector;
 	}
-	DrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color);
+	FlareDrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color);
 }
 
 void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, float Rotation)
 {
 	Position -= (DesignatorIconSize / 2) * FVector2D::UnitVector;
-	DrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color,
+	FlareDrawTexture(Texture, Position.X, Position.Y, DesignatorIconSize, DesignatorIconSize, 0, 0, 1, 1, Color,
 		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
 }
 
-void AFlareHUD::DrawTextShaded(FString Text, FVector2D Position, FLinearColor Color)
+void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Color)
 {
-	DrawText(Text, Position - FVector2D(1, 3), HUDFont, FVector2D(1, 1.4), FColor::Black);
-	DrawText(Text, Position, HUDFont, FVector2D::UnitVector, Color.ToFColor(true));
+	if (CurrentCanvas)
+	{
+		float XL, YL;
+		CurrentCanvas->TextSize(HUDFont, Text, XL, YL);
+		const float X = CurrentCanvas->ClipX / 2.0f - XL / 2.0f + Position.X;
+		const float Y = CurrentCanvas->ClipY / 2.0f - YL / 2.0f + Position.Y;
+
+		{
+			FCanvasTextItem ShadowItem(FVector2D(X - 1, Y - 3), FText::FromString(Text), HUDFont, FLinearColor::Black);
+			ShadowItem.Scale = FVector2D(1, 1.4);
+			CurrentCanvas->DrawItem(ShadowItem);
+		}
+		{
+			FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), HUDFont, Color);
+			TextItem.Scale = FVector2D(1, 1);
+			CurrentCanvas->DrawItem(TextItem);
+		}
+	}
+}
+
+void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY, float ScreenW, float ScreenH, float TextureU, float TextureV, float TextureUWidth, float TextureVHeight, FLinearColor Color, EBlendMode BlendMode, float Scale, bool bScalePosition, float Rotation, FVector2D RotPivot)
+{
+	if (CurrentCanvas && Texture)
+	{
+		FCanvasTileItem TileItem(FVector2D(ScreenX, ScreenY), Texture->Resource, FVector2D(ScreenW, ScreenH) * Scale, FVector2D(TextureU, TextureV), FVector2D(TextureU + TextureUWidth, TextureV + TextureVHeight), Color);
+		TileItem.Rotation = FRotator(0, Rotation, 0);
+		TileItem.PivotPoint = RotPivot;
+		if (bScalePosition)
+		{
+			TileItem.Position *= Scale;
+		}
+		TileItem.BlendMode = FCanvas::BlendToSimpleElementBlend(BlendMode);
+		CurrentCanvas->DrawItem(TileItem);
+	}
 }
 
 bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const
@@ -653,6 +710,7 @@ bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const
 		return true;
 	}
 }
+
 FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target)
 {
 	EFlareHostility::Type Hostility = Target->GetPlayerHostility();

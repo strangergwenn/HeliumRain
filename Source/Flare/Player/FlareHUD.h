@@ -7,6 +7,9 @@
 #include "FlareHUD.generated.h"
 
 
+class SFlareHUDMenu;
+class SFlareMouseMenu;
+
 /** Target info */
 USTRUCT()
 struct FFlareScreenTarget
@@ -56,23 +59,28 @@ public:
 	/** Move wheel menu cursor */
 	void SetWheelCursorMove(FVector2D Move);
 
+	/** Is the mouse menu open */
+	bool IsWheelMenuOpen() const;
+
 	/** Notify the HUD the played ship has changed */
 	void OnTargetShipChanged();
 
 	/** Decide if the HUD is displayed or not */
 	void UpdateHUDVisibility();
 
+	/** Canvas callback */
+	UFUNCTION()
+	void DrawToCanvasRenderTarget(UCanvas* TargetCanvas, int32 Width, int32 Height);
+
+	virtual void DrawHUD() override;
 
 	virtual void Tick(float DeltaSeconds) override;
 
 
-	/*----------------------------------------------------
-		HUD drawing
-	----------------------------------------------------*/
-
-	virtual void DrawHUD() override;
-
 protected:
+
+	/** Drawing back-end */
+	void DrawHUDInternal();
 
 	/** Format a distance in meter */
 	FString FormatDistance(float Distance);
@@ -102,7 +110,10 @@ protected:
 	void DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, float Rotation);
 
 	/** Print a text with a shadow */
-	void DrawTextShaded(FString Text, FVector2D Position, FLinearColor Color = FLinearColor::White);
+	void FlareDrawText(FString Text, FVector2D Position, FLinearColor Color = FLinearColor::White);
+
+	/** Draw a texture */
+	void FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY, float ScreenW, float ScreenH, float TextureU, float TextureV, float TextureUWidth, float TextureVHeight, FLinearColor TintColor = FLinearColor::White, EBlendMode BlendMode = BLEND_Translucent, float Scale = 1.f, bool bScalePosition = false, float Rotation = 0.f, FVector2D RotPivot = FVector2D::ZeroVector);
 
 	/** Is this position inside the viewport + border */
 	bool IsInScreen(FVector2D ScreenPosition) const;
@@ -139,6 +150,7 @@ protected:
 	bool                                    IsInteractive;
 	bool                                    FoundTargetUnderMouse;
 	FVector2D                               ViewportSize;
+	UCanvas*                                CurrentCanvas;
 
 	// Designator content
 	UTexture2D*                             HUDReticleIcon;
@@ -189,11 +201,6 @@ public:
 		return ContextMenuPosition;
 	}
 
-	bool IsMouseMenuOpen() const
-	{
-		return MouseMenu->IsOpen();
-	}
-
 	TSharedPtr<SFlareMouseMenu> GetMouseMenu() const
 	{
 		return MouseMenu;
@@ -202,6 +209,11 @@ public:
 	FVector2D GetViewportSize() const
 	{
 		return ViewportSize;
+	}
+
+	UCanvas* GetCanvas() const
+	{
+		return Canvas;
 	}
 
 };

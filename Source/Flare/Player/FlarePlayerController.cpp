@@ -21,6 +21,9 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
+	, CockpitMaterialInstance(NULL)
+	, CockpitCameraTarget(NULL)
+	, CockpitHUDTarget(NULL)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 
@@ -29,6 +32,16 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	static ConstructorHelpers::FObjectFinder<USoundCue> OffSoundObj(TEXT("/Game/Master/Sound/A_Beep_Off"));
 	OnSound = OnSoundObj.Object;
 	OffSound = OffSoundObj.Object;
+
+	// Cockpit
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/HUD/SM_Cockpit"));
+	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
+	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/HUD/MT_Cockpit"));
+	CockpitMaterialMaster = CockpitMaterialInstanceObj.Object;
+
+	// TODO GWENN : do this dynamically with h/w in AFlarePlayerController::BeginPlay()
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> CockpitCameraTargetObj(TEXT("/Game/Gameplay/HUD/RT_CockpitCamera"));
+	CockpitCameraTarget = CockpitCameraTargetObj.Object;
 
 	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
@@ -50,6 +63,9 @@ void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	EnableCheats();
+
+	// Cockpit
+	SetupCockpit();
 
 	// Menu manager
 	SetupMenu();
@@ -77,7 +93,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	}
 
 	// Mouse cursor
-	bool NewShowMouseCursor = !HUD->IsMouseMenuOpen() ;
+	bool NewShowMouseCursor = !HUD->IsWheelMenuOpen() ;
 	if (!MenuManager->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
@@ -101,7 +117,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 #endif
 
 		// Force focus to UI
-		if (NewShowMouseCursor || HUD->IsMouseMenuOpen())
+		if (NewShowMouseCursor || HUD->IsWheelMenuOpen())
 		{
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);
@@ -163,6 +179,12 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	{
 		SoundManager->Update(DeltaSeconds);
 	}
+
+	// HUD
+	if (UseCockpit && CockpitHUDTarget)
+	{
+		CockpitHUDTarget->UpdateResource();
+	}
 }
 
 void AFlarePlayerController::SetExternalCamera(bool NewState)
@@ -186,6 +208,10 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	if (ShipPawn)
 	{
 		ShipPawn->GetStateManager()->EnablePilot(true);
+		if (UseCockpit)
+		{
+			ShipPawn->SetCockpit(NULL, NULL, NULL);
+		}
 	}
 
 	// Fly the new ship
@@ -193,10 +219,18 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	{
 		Possess(Ship);
 	}
+
+	// Setup everything
 	ShipPawn = Ship;
 	SetExternalCamera(false);
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
+
+	// Cockpit
+	if (UseCockpit)
+	{
+		ShipPawn->SetCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitCameraTarget);
+	}
 
 	// Inform the player
 	if (Ship)
@@ -302,6 +336,7 @@ void AFlarePlayerController::SetLastFlownShip(FName LastFlownShipIdentifier)
 	PlayerData.LastFlownShipIdentifier = LastFlownShipIdentifier;
 }
 
+
 /*----------------------------------------------------
 	Menus
 ----------------------------------------------------*/
@@ -310,6 +345,51 @@ void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNo
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
 	MenuManager->Notify(Title, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
+}
+
+void AFlarePlayerController::SetupCockpit()
+{
+	// Cockpit on
+	if (UseCockpit && CockpitMaterialInstance == NULL)
+	{
+		FVector2D ViewportSize = GEngine->GameViewport->Viewport->GetSizeXY();
+
+		FLOG("AFlarePlayerController::BeginPlay : will be using 3D cockpit");
+		// TODO GWENN
+		/*CockpitCameraTarget = NewObject<UTextureRenderTarget2D>();
+		check(CockpitCameraTarget);
+		CockpitCameraTarget->SizeX = ViewportSize.X;
+		CockpitCameraTarget->SizeY = ViewportSize.Y;*/
+
+		// Cockpit HUD texture target
+		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
+		check(CockpitHUDTarget);
+		CockpitHUDTarget->OnCanvasRenderTargetUpdate.AddDynamic(GetNavHUD(), &AFlareHUD::DrawToCanvasRenderTarget);
+		CockpitHUDTarget->ClearColor = FLinearColor::Black;
+
+		// Cockpit material
+		CockpitMaterialInstance = UMaterialInstanceDynamic::Create(CockpitMaterialMaster, GetWorld());
+		check(CockpitMaterialInstance);
+		CockpitMaterialInstance->SetTextureParameterValue("CameraTexture", CockpitCameraTarget);
+		CockpitMaterialInstance->SetTextureParameterValue("HUDTexture", CockpitHUDTarget);
+
+		// Already flying
+		if (ShipPawn)
+		{
+			ShipPawn->SetCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitCameraTarget);
+		}
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::BeginPlay : will be using flat Slate UI");
+		CockpitMaterialInstance = NULL;
+
+		// Already flying
+		if (ShipPawn)
+		{
+			ShipPawn->HideCockpit();
+		}
+	}
 }
 
 void AFlarePlayerController::SetupMenu()
@@ -743,7 +823,7 @@ void AFlarePlayerController::MouseInputX(float Val)
 		return;
 	}
 
-	if (GetNavHUD()->IsMouseMenuOpen())
+	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
 	}
@@ -764,7 +844,7 @@ void AFlarePlayerController::MouseInputY(float Val)
 		return;
 	}
 
-	if (GetNavHUD()->IsMouseMenuOpen())
+	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
 	}
@@ -793,7 +873,7 @@ void AFlarePlayerController::Test2()
 
 void AFlarePlayerController::WheelPressed()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager && !MenuManager->IsMenuOpen() && !GetNavHUD()->IsMouseMenuOpen())
+	if (GetGame()->IsLoadedOrCreated() && MenuManager && !MenuManager->IsMenuOpen() && !GetNavHUD()->IsWheelMenuOpen())
 	{
 		TSharedPtr<SFlareMouseMenu> MouseMenu = GetNavHUD()->GetMouseMenu();
 
@@ -980,6 +1060,12 @@ void AFlarePlayerController::SetUseDarkThemeForNavigation(bool New)
 {
 	UseDarkThemeForNavigation = New;
 	UpdateMenuTheme();
+}
+
+void AFlarePlayerController::SetUseCockpit(bool New)
+{
+	UseCockpit = New;
+	SetupCockpit();
 }
 
 void AFlarePlayerController::SetMusicVolume(int32 New)

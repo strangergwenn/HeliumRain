@@ -43,6 +43,14 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	ShipData.AsteroidData.AsteroidMeshID = 0;
 	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
 
+	// Cockpit
+	CockpitMesh = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Cockpit"));
+	CockpitMesh->AttachTo(Airframe);
+
+	// Cockpit camera
+	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
+	CockpitCapture->AttachTo(Airframe);
+
 	// Gameplay
 	CurrentTarget = NULL;
 	TargetIndex = 0;
@@ -611,6 +619,40 @@ void AFlareSpacecraft::StartPresentation()
 	}
 }
 
+void AFlareSpacecraft::SetCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UTextureRenderTarget2D* CameraTarget)
+{
+	AFlarePlayerController* PC = GetPC();
+	check(PC->UseCockpit);
+
+	// Setup render target camera
+	FVector CameraOffset = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
+	CockpitCapture->SetRelativeLocation(2 * CameraOffset);
+	CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
+	CockpitCapture->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
+
+	// Setup cockpit camera
+	Cast<UCameraComponent>(Camera)->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_FXAA;
+
+	// Setup data
+	CockpitMesh->SetStaticMesh(Mesh);
+	CockpitMesh->SetMaterial(0, Material);
+	CockpitMesh->SetWorldScale3D(0.2 * FVector(1, 1, 1));
+
+	// Update material
+	if (Material && CockpitCapture && CameraTarget)
+	{
+		CockpitCapture->TextureTarget = CameraTarget;
+		CockpitCapture->bCaptureEveryFrame = true;
+		CockpitCapture->UpdateContent();
+	}
+}
+
+void AFlareSpacecraft::HideCockpit()
+{
+	CockpitMesh = NULL;
+	CockpitCapture->TextureTarget = NULL;
+	StateManager->SetExternalCamera(false, true);
+}
 
 
 /*----------------------------------------------------

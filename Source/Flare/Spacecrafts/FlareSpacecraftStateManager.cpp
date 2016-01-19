@@ -221,10 +221,10 @@ void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
 }
 
 
-void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
+void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState, bool Force)
 {
 	// If nothing changed...
-	if (ExternalCamera == NewState)
+	if (ExternalCamera == NewState && !Force)
 	{
 		return;
 	}
@@ -245,7 +245,7 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	{
 		FVector CameraOffset = Spacecraft->WorldToLocal(Spacecraft->Airframe->GetSocketLocation(FName("Camera")) - Spacecraft->GetActorLocation());
 		Spacecraft->SetCameraDistance(0);
-		Spacecraft->SetCameraLocalPosition(CameraOffset);
+		Spacecraft->SetCameraLocalPosition(Spacecraft->GetPC()->UseCockpit ? FVector::ZeroVector : CameraOffset);
 	}
 }
 
@@ -266,7 +266,7 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 		else
 		{
 			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
-			if (PC && !PC->GetNavHUD()->IsMouseMenuOpen())
+			if (PC && !PC->GetNavHUD()->IsWheelMenuOpen())
 			{
 				float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X),1.3) * 0.05; // TODO Config sensibility
 				float Y = - FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y),1.3) * 0.05;

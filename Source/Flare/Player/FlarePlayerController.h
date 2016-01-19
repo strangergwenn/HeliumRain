@@ -83,6 +83,9 @@ public:
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_General, float Timeout = 5.0f, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL);
 
+	/** Setup the cockpit */
+	virtual void SetupCockpit();
+
 	/** Spawn the menu pawn and prepare the UI */
 	virtual void SetupMenu();
 
@@ -304,6 +307,31 @@ protected:
 	UFlareFleet*                             SelectedFleet;
 
 
+	/*----------------------------------------------------
+		Cockpit
+	----------------------------------------------------*/
+
+	// Cockpit template
+	UPROPERTY()
+	UStaticMesh*                             CockpitMeshTemplate;
+
+	// Cockpit material
+	UPROPERTY()
+	UMaterial*                               CockpitMaterialMaster;
+
+	// Cockpit material
+	UPROPERTY()
+	UMaterialInstanceDynamic*                CockpitMaterialInstance;
+
+	// Cockpit texture (camera)
+	UPROPERTY()
+	UTextureRenderTarget2D*                  CockpitCameraTarget;
+
+	// Cockpit texture (HUD)
+	UPROPERTY()
+	UCanvasRenderTarget2D*                   CockpitHUDTarget;
+
+
 public:
 
 	/*----------------------------------------------------
@@ -318,6 +346,10 @@ public:
 	UPROPERTY(Config)
 	bool                                     UseDarkThemeForNavigation;
 	
+	/** Whether to use the 3D cockpit */
+	UPROPERTY(Config)
+	bool                                     UseCockpit;
+	
 	/** Whether to use the dark theme when a sector is active */
 	UPROPERTY(Config)
 	int32                                    MusicVolume;
@@ -329,6 +361,8 @@ public:
 	void SetUseDarkThemeForStrategy(bool New);
 
 	void SetUseDarkThemeForNavigation(bool New);
+
+	void SetUseCockpit(bool New);
 
 	void SetMusicVolume(int32 New);
 
