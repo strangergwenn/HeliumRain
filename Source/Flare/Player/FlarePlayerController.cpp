@@ -372,23 +372,11 @@ void AFlarePlayerController::SetupCockpit()
 		check(CockpitMaterialInstance);
 		CockpitMaterialInstance->SetTextureParameterValue("CameraTexture", CockpitCameraTarget);
 		CockpitMaterialInstance->SetTextureParameterValue("HUDTexture", CockpitHUDTarget);
-
-		// Already flying
-		if (ShipPawn)
-		{
-			ShipPawn->SetCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitCameraTarget);
-		}
 	}
 	else
 	{
 		FLOG("AFlarePlayerController::BeginPlay : will be using flat Slate UI");
 		CockpitMaterialInstance = NULL;
-
-		// Already flying
-		if (ShipPawn)
-		{
-			ShipPawn->HideCockpit();
-		}
 	}
 }
 
