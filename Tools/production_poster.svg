@@ -53,13 +53,13 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1"
      inkscape:cx="984.6215"
-     inkscape:cy="509.4917"
+     inkscape:cy="549.4917"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
+     inkscape:window-width="1855"
      inkscape:window-height="1056"
-     inkscape:window-x="1920"
+     inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
@@ -2981,7 +2981,7 @@
            y="499.7312"
            x="1457.6941"
            id="tspan5509"
-           sodipodi:role="line">Min cost: 1900</tspan></text>
+           sodipodi:role="line">Min cost: 1800</tspan></text>
     </g>
     <g
        id="g7139"
@@ -3054,7 +3054,7 @@
            id="tspan5533"
            x="1457.6941"
            y="151.87405"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    490</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    250</tspan></text>
     </g>
     <g
        id="g7109"
@@ -3419,7 +3419,7 @@
            id="tspan5677"
            x="1748.5369"
            y="239.01691"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost: 500</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost: 260</tspan></text>
     </g>
     <g
        id="g7004"
