@@ -827,7 +827,7 @@ void AFlareSpacecraft::NextTarget()
 		else
 		{
 			TargetIndex = 0;
-			FLOGV("AFlareSpacecraft::NextTarget : reset to center");
+			FLOG("AFlareSpacecraft::NextTarget : reset to center");
 		}
 
 		TimeSinceSelection = 0;
@@ -858,7 +858,7 @@ void AFlareSpacecraft::PreviousTarget()
 		else
 		{
 			TargetIndex = 0;
-			FLOGV("AFlareSpacecraft::PreviousTarget : reset to center");
+			FLOG("AFlareSpacecraft::PreviousTarget : reset to center");
 		}
 
 		TimeSinceSelection = 0;
