@@ -49,7 +49,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 
 	// Cockpit camera
 	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
-	CockpitCapture->bCaptureEveryFrame = false;
+	CockpitCapture->bCaptureEveryFrame = true;
 	CockpitCapture->AttachTo(Airframe);
 
 	// Gameplay

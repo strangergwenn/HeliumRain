@@ -153,7 +153,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	Wrapper class
 ----------------------------------------------------*/
 
-UCLASS(hidecategories=Object, MinimalAPI)
+UCLASS()
 class UFlareWidgetStyleCatalog : public USlateWidgetStyleContainerBase
 {
 	GENERATED_UCLASS_BODY()
