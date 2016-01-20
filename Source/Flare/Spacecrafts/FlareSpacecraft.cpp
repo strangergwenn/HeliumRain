@@ -49,6 +49,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 
 	// Cockpit camera
 	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
+	CockpitCapture->bCaptureEveryFrame = false;
 	CockpitCapture->AttachTo(Airframe);
 
 	// Gameplay
@@ -67,6 +68,9 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 void AFlareSpacecraft::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Offset the scene capture
+	CockpitCapture->AttachTo(Airframe, FName("Camera"));
 }
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
@@ -619,7 +623,7 @@ void AFlareSpacecraft::StartPresentation()
 	}
 }
 
-void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UCanvasRenderTarget2D* CameraTarget)
+void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UMaterialInstanceDynamic* FrameMaterial, UCanvasRenderTarget2D* CameraTarget)
 {
 	AFlarePlayerController* PC = GetPC();
 
@@ -634,26 +638,17 @@ void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic*
 	// Setup mesh
 	CockpitMesh->SetStaticMesh(Mesh);
 	CockpitMesh->SetMaterial(0, Material);
-	CockpitMesh->SetWorldScale3D(0.1 * FVector(1, 1, 1));
+	CockpitMesh->SetMaterial(1, FrameMaterial);
 
 	// Setup render target camera
-	FVector CameraOffset = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
-	CockpitCapture->SetRelativeLocation(2 * CameraOffset);
 	CockpitCapture->FOVAngle = PC->PlayerCameraManager ? PC->PlayerCameraManager->GetFOVAngle() : 90;
 	CockpitCapture->TextureTarget = CameraTarget;
-	CockpitCapture->bCaptureEveryFrame = true;
-	CockpitCapture->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
-
-	StateManager->SetExternalCamera(false, true);
 }
 
 void AFlareSpacecraft::ExitCockpit()
 {
 	CockpitMesh->SetStaticMesh(NULL);
 	CockpitCapture->TextureTarget = NULL;
-	CockpitCapture->bCaptureEveryFrame = false;
-
-	StateManager->SetExternalCamera(false, true);
 }
 
 

@@ -60,6 +60,14 @@ protected:
 	UPROPERTY()
 	UMaterialInstanceDynamic*                CockpitMaterialInstance;
 
+	// Cockpit material template (frame)
+	UPROPERTY()
+	UMaterial*                               CockpitFrameMaterialTemplate;
+
+	// Cockpit material instance (frame)
+	UPROPERTY()
+	UMaterialInstanceDynamic*                CockpitFrameMaterialInstance;
+
 	// Cockpit texture (camera)
 	UPROPERTY()
 	UCanvasRenderTarget2D*                   CockpitCameraTarget;
@@ -67,6 +75,10 @@ protected:
 	// Cockpit texture (HUD)
 	UPROPERTY()
 	UCanvasRenderTarget2D*                   CockpitHUDTarget;
+
+	// Cockpit texture (instruments)
+	UPROPERTY()
+	UCanvasRenderTarget2D*                   CockpitInstrumentsTarget;
 
 
 public:

@@ -25,6 +25,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
 	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/HUD/MT_Cockpit"));
 	CockpitMaterialTemplate = CockpitMaterialInstanceObj.Object;
+	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/HUD/MT_CockpitFrame"));
+	CockpitFrameMaterialTemplate = CockpitFrameMaterialInstanceObj.Object;
 	
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
@@ -49,23 +51,38 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
 		check(CockpitCameraTarget);
 		CockpitCameraTarget->ClearColor = FLinearColor::Black;
+		CockpitCameraTarget->UpdateResource();
 
 		// Cockpit HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
 		check(CockpitHUDTarget);
 		CockpitHUDTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawToCanvasRenderTarget);
 		CockpitHUDTarget->ClearColor = FLinearColor::Black;
+		CockpitHUDTarget->UpdateResource();
+
+		// Cockpit instruments texture target
+		CockpitInstrumentsTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), 256, 256);
+		check(CockpitInstrumentsTarget);
+		//CockpitInstrumentsTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawToCanvasRenderTarget);
+		CockpitInstrumentsTarget->ClearColor = FLinearColor::Black;
+		CockpitInstrumentsTarget->UpdateResource();
 
 		// Cockpit material
 		CockpitMaterialInstance = UMaterialInstanceDynamic::Create(CockpitMaterialTemplate, GetWorld());
 		check(CockpitMaterialInstance);
-		CockpitMaterialInstance->SetTextureParameterValue("CameraTexture", CockpitCameraTarget);
-		CockpitMaterialInstance->SetTextureParameterValue("HUDTexture", CockpitHUDTarget);
+		CockpitMaterialInstance->SetTextureParameterValue("CameraTarget", CockpitCameraTarget);
+		CockpitMaterialInstance->SetTextureParameterValue("HUDTarget", CockpitHUDTarget);
+
+		// Cockpit frame material
+		CockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(CockpitFrameMaterialTemplate, GetWorld());
+		check(CockpitMaterialInstance);
+		CockpitFrameMaterialInstance->SetTextureParameterValue("InstrumentsTarget", CockpitInstrumentsTarget);
 	}
 	else
 	{
 		FLOG("AFlareCockpitManager::SetupCockpit : cockpit manager is disabled");
 		CockpitMaterialInstance = NULL;
+		CockpitFrameMaterialInstance = NULL;
 	}
 }
 
@@ -78,16 +95,19 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	// Ensure cockpit existence
-	if (PC->UseCockpit && CockpitMaterialInstance == NULL)
+	if (PC->UseCockpit)
 	{
-		SetupCockpit(PC);
-	}
+		// Ensure cockpit existence
+		if (CockpitMaterialInstance == NULL)
+		{
+			SetupCockpit(PC);
+		}
 
-	// Update HUD target
-	if (PC->UseCockpit && CockpitHUDTarget)
-	{
-		CockpitHUDTarget->UpdateResource();
+		// Update HUD target
+		if (CockpitHUDTarget)
+		{
+			CockpitHUDTarget->UpdateResource();
+		}
 	}
 }
 
@@ -105,46 +125,11 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewShipPawn)
 	// Setup new ship
 	if (PC->UseCockpit)
 	{
-		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitCameraTarget);
+		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitFrameMaterialInstance, CockpitCameraTarget);
+		ShipPawn->GetCamera()->PostProcessSettings.bOverride_AntiAliasingMethod = true;
 		ShipPawn->GetCamera()->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_FXAA;
 	}
 }
-
-/*
-void AFlareCockpitManager::Configure(UFlareSpacecraftComponent* Airframe, UStaticMeshComponent* CockpitMesh, USceneCaptureComponent2D* CockpitCapture)
-{
-	check(PC->UseCockpit);
-
-	// Setup render target camera
-	FVector CameraOffset = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
-	CockpitCapture->SetRelativeLocation(2 * CameraOffset);
-	CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
-	CockpitCapture->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
-
-	// Setup cockpit camera
-	Cast<UCameraComponent>(Camera)->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_FXAA;
-
-	// Setup data
-	CockpitMesh->SetStaticMesh(Mesh);
-	CockpitMesh->SetMaterial(0, Material);
-	CockpitMesh->SetWorldScale3D(0.1 * FVector(1, 1, 1));
-
-	// Update material
-	if (Material && CockpitCapture && CameraTarget)
-	{
-		CockpitCapture->TextureTarget = CameraTarget;
-		CockpitCapture->bCaptureEveryFrame = true;
-		CockpitCapture->UpdateContent();
-	}
-}
-
-void AFlareCockpitManager::HideCockpit()
-{
-	CockpitMesh = NULL;
-	CockpitCapture->TextureTarget = NULL;
-	StateManager->SetExternalCamera(false, true);
-}*/
-
 
 
 #undef LOCTEXT_NAMESPACE

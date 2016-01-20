@@ -146,7 +146,7 @@ public:
 	virtual void StartPresentation() override;
 
 	/** Set the cockpit mesh */
-	void EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UCanvasRenderTarget2D* CameraTarget);
+	void EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UMaterialInstanceDynamic* FrameMaterial, UCanvasRenderTarget2D* CameraTarget);
 
 	/** Remove the cockpit mesh */
 	void ExitCockpit();
@@ -345,5 +345,15 @@ public:
 	inline bool IsPaused()
 	{
 		return Paused;
+	}
+
+	inline USceneCaptureComponent2D* GetCockpitCameraCapture()
+	{
+		return CockpitCapture;
+	}
+
+	inline UStaticMeshComponent* GetCockpitMesh()
+	{
+		return CockpitMesh;
 	}
 };
