@@ -39,7 +39,11 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 	if (PC->UseCockpit && CockpitMaterialInstance == NULL)
 	{
 		FVector2D ViewportSize = GEngine->GameViewport->Viewport->GetSizeXY();
-		FLOG("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit");
+		if (ViewportSize.Size() == 0)
+		{
+			return;
+		}
+		FLOGV("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit (%dx%d", ViewportSize.X, ViewportSize.Y);
 
 		// Cockpit camera texture target
 		CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
@@ -74,6 +78,12 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// Ensure cockpit existence
+	if (PC->UseCockpit && CockpitMaterialInstance == NULL)
+	{
+		SetupCockpit(PC);
+	}
+
 	// Update HUD target
 	if (PC->UseCockpit && CockpitHUDTarget)
 	{
@@ -83,16 +93,20 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 
 void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewShipPawn)
 {
-	if (PC->UseCockpit && ShipPawn)
+	// Reset existing ship
+	if (ShipPawn)
 	{
-		ShipPawn->HideCockpit();
+		ShipPawn->ExitCockpit();
+		ShipPawn->GetCamera()->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
 	}
 
 	ShipPawn = NewShipPawn;
 
+	// Setup new ship
 	if (PC->UseCockpit)
 	{
-		ShipPawn->SetCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitCameraTarget);
+		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitCameraTarget);
+		ShipPawn->GetCamera()->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_FXAA;
 	}
 }
 

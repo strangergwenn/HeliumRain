@@ -146,10 +146,10 @@ public:
 	virtual void StartPresentation() override;
 
 	/** Set the cockpit mesh */
-	void SetCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UCanvasRenderTarget2D* CameraTarget);
+	void EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UCanvasRenderTarget2D* CameraTarget);
 
 	/** Remove the cockpit mesh */
-	void HideCockpit();
+	void ExitCockpit();
 
 
 public:
@@ -315,6 +315,11 @@ public:
 	virtual UFlareSpacecraftComponent* GetCockpit() const
 	{
 		return ShipCockit;
+	}
+
+	virtual UCameraComponent* GetCamera() const
+	{
+		return Cast<UCameraComponent>(Camera);
 	}
 
 	inline UFlareSpacecraftStateManager* GetStateManager()

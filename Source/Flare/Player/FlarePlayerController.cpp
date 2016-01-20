@@ -190,10 +190,6 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	if (ShipPawn)
 	{
 		ShipPawn->GetStateManager()->EnablePilot(true);
-		if (UseCockpit)
-		{
-			ShipPawn->SetCockpit(NULL, NULL, NULL);
-		}
 	}
 
 	// Fly the new ship

@@ -619,40 +619,41 @@ void AFlareSpacecraft::StartPresentation()
 	}
 }
 
-void AFlareSpacecraft::SetCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UCanvasRenderTarget2D* CameraTarget)
+void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UCanvasRenderTarget2D* CameraTarget)
 {
 	AFlarePlayerController* PC = GetPC();
+
+	// Ensure we're not doing anything stupid
 	check(PC->UseCockpit);
+	check(CockpitMesh);
+	check(CockpitCapture);
+	check(Mesh);
+	check(Material);
+	check(CameraTarget);
 
-	// Setup render target camera
-	FVector CameraOffset = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
-	CockpitCapture->SetRelativeLocation(2 * CameraOffset);
-	CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
-	CockpitCapture->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
-
-	// Setup cockpit camera
-	Cast<UCameraComponent>(Camera)->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_FXAA;
-
-	// Setup data
+	// Setup mesh
 	CockpitMesh->SetStaticMesh(Mesh);
 	CockpitMesh->SetMaterial(0, Material);
 	CockpitMesh->SetWorldScale3D(0.1 * FVector(1, 1, 1));
 
-	// Update material
-	if (Material && CockpitCapture && CameraTarget)
-	{
-		CockpitCapture->TextureTarget = CameraTarget;
-		CockpitCapture->bCaptureEveryFrame = true;
-		CockpitCapture->UpdateContent();
-	}
+	// Setup render target camera
+	FVector CameraOffset = WorldToLocal(Airframe->GetSocketLocation(FName("Camera")) - GetActorLocation());
+	CockpitCapture->SetRelativeLocation(2 * CameraOffset);
+	CockpitCapture->FOVAngle = PC->PlayerCameraManager ? PC->PlayerCameraManager->GetFOVAngle() : 90;
+	CockpitCapture->TextureTarget = CameraTarget;
+	CockpitCapture->bCaptureEveryFrame = true;
+	CockpitCapture->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
+
+	StateManager->SetExternalCamera(false, true);
 }
 
-void AFlareSpacecraft::HideCockpit()
+void AFlareSpacecraft::ExitCockpit()
 {
-	CockpitMesh = NULL;
+	CockpitMesh->SetStaticMesh(NULL);
 	CockpitCapture->TextureTarget = NULL;
+	CockpitCapture->bCaptureEveryFrame = false;
+
 	StateManager->SetExternalCamera(false, true);
-	Cast<UCameraComponent>(Camera)->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
 }
 
 
