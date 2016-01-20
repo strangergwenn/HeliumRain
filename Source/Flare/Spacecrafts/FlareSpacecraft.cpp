@@ -652,6 +652,7 @@ void AFlareSpacecraft::HideCockpit()
 	CockpitMesh = NULL;
 	CockpitCapture->TextureTarget = NULL;
 	StateManager->SetExternalCamera(false, true);
+	Cast<UCameraComponent>(Camera)->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
 }
 
 

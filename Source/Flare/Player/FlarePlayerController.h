@@ -4,6 +4,7 @@
 #include "FlareHUD.h"
 #include "FlareMenuPawn.h"
 #include "FlareSoundManager.h"
+#include "FlareCockpitManager.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSaveGame.h"
 #include "../UI/Components/FlareNotifier.h"
@@ -296,6 +297,10 @@ protected:
 	UPROPERTY()
 	AFlareMenuManager*                       MenuManager;
 
+	/** Cockpit system */
+	UPROPERTY()
+	AFlareCockpitManager*                    CockpitManager;
+
 	/** Objective */
 	UPROPERTY()
 	FFlarePlayerObjective                    CurrentObjective;
@@ -305,32 +310,7 @@ protected:
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
 	UFlareFleet*                             SelectedFleet;
-
-
-	/*----------------------------------------------------
-		Cockpit
-	----------------------------------------------------*/
-
-	// Cockpit template
-	UPROPERTY()
-	UStaticMesh*                             CockpitMeshTemplate;
-
-	// Cockpit material
-	UPROPERTY()
-	UMaterial*                               CockpitMaterialMaster;
-
-	// Cockpit material
-	UPROPERTY()
-	UMaterialInstanceDynamic*                CockpitMaterialInstance;
-
-	// Cockpit texture (camera)
-	UPROPERTY()
-	UCanvasRenderTarget2D*                   CockpitCameraTarget;
-
-	// Cockpit texture (HUD)
-	UPROPERTY()
-	UCanvasRenderTarget2D*                   CockpitHUDTarget;
-
+	
 
 public:
 

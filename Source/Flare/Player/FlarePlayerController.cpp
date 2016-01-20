@@ -21,9 +21,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
-	, CockpitMaterialInstance(NULL)
-	, CockpitCameraTarget(NULL)
-	, CockpitHUDTarget(NULL)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 
@@ -32,12 +29,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	static ConstructorHelpers::FObjectFinder<USoundCue> OffSoundObj(TEXT("/Game/Master/Sound/A_Beep_Off"));
 	OnSound = OnSoundObj.Object;
 	OffSound = OffSoundObj.Object;
-
-	// Cockpit
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/HUD/SM_Cockpit"));
-	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
-	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/HUD/MT_Cockpit"));
-	CockpitMaterialMaster = CockpitMaterialInstanceObj.Object;
 	
 	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
@@ -62,6 +53,7 @@ void AFlarePlayerController::BeginPlay()
 
 	// Cockpit
 	SetupCockpit();
+	CockpitManager->SetupCockpit(this);
 
 	// Menu manager
 	SetupMenu();
@@ -175,12 +167,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	{
 		SoundManager->Update(DeltaSeconds);
 	}
-
-	// HUD
-	if (UseCockpit && CockpitHUDTarget)
-	{
-		CockpitHUDTarget->UpdateResource();
-	}
 }
 
 void AFlarePlayerController::SetExternalCamera(bool NewState)
@@ -221,13 +207,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	SetExternalCamera(false);
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
-
-	// Cockpit
-	if (UseCockpit)
-	{
-		ShipPawn->SetCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitCameraTarget);
-	}
-
+	CockpitManager->OnFlyShip(ShipPawn);
+	
 	// Inform the player
 	if (Ship)
 	{
@@ -345,34 +326,11 @@ void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNo
 
 void AFlarePlayerController::SetupCockpit()
 {
-	// Cockpit on
-	if (UseCockpit && CockpitMaterialInstance == NULL)
-	{
-		FVector2D ViewportSize = GEngine->GameViewport->Viewport->GetSizeXY();
-		FLOG("AFlarePlayerController::SetupCockpit : will be using 3D cockpit");
-
-		// Cockpit camera texture target
-		CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
-		check(CockpitCameraTarget);
-		CockpitCameraTarget->ClearColor = FLinearColor::Black;
-
-		// Cockpit HUD texture target
-		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
-		check(CockpitHUDTarget);
-		CockpitHUDTarget->OnCanvasRenderTargetUpdate.AddDynamic(GetNavHUD(), &AFlareHUD::DrawToCanvasRenderTarget);
-		CockpitHUDTarget->ClearColor = FLinearColor::Black;
-
-		// Cockpit material
-		CockpitMaterialInstance = UMaterialInstanceDynamic::Create(CockpitMaterialMaster, GetWorld());
-		check(CockpitMaterialInstance);
-		CockpitMaterialInstance->SetTextureParameterValue("CameraTexture", CockpitCameraTarget);
-		CockpitMaterialInstance->SetTextureParameterValue("HUDTexture", CockpitHUDTarget);
-	}
-	else
-	{
-		FLOG("AFlarePlayerController::SetupCockpit : will be using flat Slate UI");
-		CockpitMaterialInstance = NULL;
-	}
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.Owner = this;
+	SpawnInfo.Instigator = Instigator;
+	SpawnInfo.ObjectFlags |= RF_Transient;
+	CockpitManager = GetWorld()->SpawnActor<AFlareCockpitManager>(AFlareCockpitManager::StaticClass(), SpawnInfo);
 }
 
 void AFlarePlayerController::SetupMenu()
@@ -1048,7 +1006,7 @@ void AFlarePlayerController::SetUseDarkThemeForNavigation(bool New)
 void AFlarePlayerController::SetUseCockpit(bool New)
 {
 	UseCockpit = New;
-	SetupCockpit();
+	CockpitManager->SetupCockpit(this);
 }
 
 void AFlarePlayerController::SetMusicVolume(int32 New)
