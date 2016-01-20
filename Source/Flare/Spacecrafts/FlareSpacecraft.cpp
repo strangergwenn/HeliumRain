@@ -636,7 +636,7 @@ void AFlareSpacecraft::SetCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* M
 	// Setup data
 	CockpitMesh->SetStaticMesh(Mesh);
 	CockpitMesh->SetMaterial(0, Material);
-	CockpitMesh->SetWorldScale3D(0.2 * FVector(1, 1, 1));
+	CockpitMesh->SetWorldScale3D(0.1 * FVector(1, 1, 1));
 
 	// Update material
 	if (Material && CockpitCapture && CameraTarget)
