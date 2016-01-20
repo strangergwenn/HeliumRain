@@ -619,7 +619,7 @@ void AFlareSpacecraft::StartPresentation()
 	}
 }
 
-void AFlareSpacecraft::SetCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UTextureRenderTarget2D* CameraTarget)
+void AFlareSpacecraft::SetCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UCanvasRenderTarget2D* CameraTarget)
 {
 	AFlarePlayerController* PC = GetPC();
 	check(PC->UseCockpit);

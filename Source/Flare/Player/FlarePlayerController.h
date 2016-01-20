@@ -325,7 +325,7 @@ protected:
 
 	// Cockpit texture (camera)
 	UPROPERTY()
-	UTextureRenderTarget2D*                  CockpitCameraTarget;
+	UCanvasRenderTarget2D*                   CockpitCameraTarget;
 
 	// Cockpit texture (HUD)
 	UPROPERTY()

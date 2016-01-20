@@ -38,11 +38,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
 	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/HUD/MT_Cockpit"));
 	CockpitMaterialMaster = CockpitMaterialInstanceObj.Object;
-
-	// TODO GWENN : do this dynamically with h/w in AFlarePlayerController::BeginPlay()
-	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> CockpitCameraTargetObj(TEXT("/Game/Gameplay/HUD/RT_CockpitCamera"));
-	CockpitCameraTarget = CockpitCameraTargetObj.Object;
-
+	
 	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
 	DustEffectTemplate = DustEffectTemplateObj.Object;
@@ -353,13 +349,12 @@ void AFlarePlayerController::SetupCockpit()
 	if (UseCockpit && CockpitMaterialInstance == NULL)
 	{
 		FVector2D ViewportSize = GEngine->GameViewport->Viewport->GetSizeXY();
+		FLOG("AFlarePlayerController::SetupCockpit : will be using 3D cockpit");
 
-		FLOG("AFlarePlayerController::BeginPlay : will be using 3D cockpit");
-		// TODO GWENN
-		/*CockpitCameraTarget = NewObject<UTextureRenderTarget2D>();
+		// Cockpit camera texture target
+		CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
 		check(CockpitCameraTarget);
-		CockpitCameraTarget->SizeX = ViewportSize.X;
-		CockpitCameraTarget->SizeY = ViewportSize.Y;*/
+		CockpitCameraTarget->ClearColor = FLinearColor::Black;
 
 		// Cockpit HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
@@ -375,7 +370,7 @@ void AFlarePlayerController::SetupCockpit()
 	}
 	else
 	{
-		FLOG("AFlarePlayerController::BeginPlay : will be using flat Slate UI");
+		FLOG("AFlarePlayerController::SetupCockpit : will be using flat Slate UI");
 		CockpitMaterialInstance = NULL;
 	}
 }
