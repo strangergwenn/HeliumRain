@@ -6,6 +6,8 @@
 #include "FlareSector.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "AI/FlareCompanyAI.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareCompany"
 
@@ -35,10 +37,13 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	if (Data.CatalogIdentifier >= 0)
 	{
 		CompanyDescription = GetGame()->GetCompanyDescription(Data.CatalogIdentifier);
+		CompanyAI = NewObject<UFlareCompanyAI>(this, UFlareCompanyAI::StaticClass());
+		CompanyAI->Load(this, CompanyData.AI);
 	}
 	else
 	{
 		CompanyDescription = GetGame()->GetPlayerCompanyDescription();
+		CompanyAI = NULL;
 	}
 
 	// Load ships
@@ -148,6 +153,14 @@ FFlareCompanySave* UFlareCompany::Save()
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
+
+void UFlareCompany::SimulateAI()
+{
+	if(CompanyAI)
+	{
+		CompanyAI->Simulate();
+	}
+}
 
 EFlareHostility::Type UFlareCompany::GetPlayerHostility() const
 {

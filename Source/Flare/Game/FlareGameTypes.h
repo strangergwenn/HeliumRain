@@ -31,6 +31,16 @@ struct FFlareCompanySectorKnowledge
 	TEnumAsByte<EFlareSectorKnowledge::Type> Knowledge;
 };
 
+/** Fleet save data */
+USTRUCT()
+struct FFlareCompanyAISave
+{
+	GENERATED_USTRUCT_BODY()
+
+
+};
+
+
 /** Game save data */
 USTRUCT()
 struct FFlareCompanySave
@@ -76,6 +86,10 @@ struct FFlareCompanySave
 	/** List of known or visited sectors */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareCompanySectorKnowledge> SectorsKnowledge;
+
+	/** Company AI data */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareCompanyAISave AI;
 };
 
 UCLASS()

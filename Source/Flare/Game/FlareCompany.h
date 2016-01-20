@@ -10,6 +10,7 @@
 
 
 class UFlareFleet;
+class UFlareCompanyAI;
 
 /** Hostility status */
 UENUM()
@@ -102,6 +103,8 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
+	virtual void SimulateAI();
+
 	/** Check if we are friend or for toward the player */
 	virtual EFlareHostility::Type GetPlayerHostility() const;
 
@@ -174,6 +177,9 @@ protected:
 	// Gameplay data
 	const FFlareCompanyDescription*         CompanyDescription;
 	FFlareCompanySave                       CompanyData;
+
+	UPROPERTY()
+	UFlareCompanyAI*                         CompanyAI;
 
 	UPROPERTY()
 	TArray<UFlareSimulatedSpacecraft*>      CompanyStations;

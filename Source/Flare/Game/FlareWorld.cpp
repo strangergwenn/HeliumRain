@@ -249,6 +249,11 @@ void UFlareWorld::Simulate()
 		Travels[TravelIndex]->Simulate();
 	}
 
+	// AI
+	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+	{
+		Companies[CompanyIndex]->SimulateAI();
+	}
 	// Process events
 }
 
