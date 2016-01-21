@@ -25,7 +25,7 @@ public:
 	virtual void EnablePilot(bool EnablePilot);
 
 	/** Activate or deactivate the external camera */
-	virtual void SetExternalCamera(bool NewState, bool Force = false);
+	virtual void SetExternalCamera(bool NewState);
 
 	inline bool IsExternalCamera() const
 	{

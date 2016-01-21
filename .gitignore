@@ -12,3 +12,6 @@ DerivedDataCache/
 *.fbx
 Build/Receipts/FlareEditor-Win64-Development.target.xml
 Build/
+Binaries/Win64/FlareEditor.target
+Binaries/Win64/UE4Editor.modules
+Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor.modules

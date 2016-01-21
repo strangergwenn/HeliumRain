@@ -48,10 +48,10 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		FLOGV("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit (%dx%d", ViewportSize.X, ViewportSize.Y);
 
 		// Cockpit camera texture target
-		CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
-		check(CockpitCameraTarget);
-		CockpitCameraTarget->ClearColor = FLinearColor::Black;
-		CockpitCameraTarget->UpdateResource();
+		//CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
+		//check(CockpitCameraTarget);
+		//CockpitCameraTarget->ClearColor = FLinearColor::Black;
+		//CockpitCameraTarget->UpdateResource();
 
 		// Cockpit HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
@@ -117,7 +117,6 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewShipPawn)
 	if (ShipPawn)
 	{
 		ShipPawn->ExitCockpit();
-		ShipPawn->GetCamera()->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_TemporalAA;
 	}
 
 	ShipPawn = NewShipPawn;
@@ -127,7 +126,6 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewShipPawn)
 	{
 		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitFrameMaterialInstance, CockpitCameraTarget);
 		ShipPawn->GetCamera()->PostProcessSettings.bOverride_AntiAliasingMethod = true;
-		ShipPawn->GetCamera()->PostProcessSettings.AntiAliasingMethod = EAntiAliasingMethod::AAM_FXAA;
 	}
 }
 
