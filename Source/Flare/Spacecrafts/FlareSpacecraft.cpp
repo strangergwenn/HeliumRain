@@ -48,9 +48,9 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	CockpitMesh->AttachTo(Airframe);
 
 	// Cockpit camera
-	//CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
-	//CockpitCapture->bCaptureEveryFrame = true;
-	//CockpitCapture->AttachTo(Airframe);
+	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
+	CockpitCapture->bCaptureEveryFrame = true;
+	CockpitCapture->AttachTo(Airframe);
 
 	// Gameplay
 	CurrentTarget = NULL;
@@ -68,9 +68,17 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 void AFlareSpacecraft::BeginPlay()
 {
 	Super::BeginPlay();
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
-	// Offset the scene capture
-	CockpitMesh->AttachTo(Airframe, FName("Camera"));
+	// Offset the cockpit
+	if (PC->UseCockpitRenderTarget)
+	{
+		CockpitCapture->AttachTo(Airframe, FName("Camera"));
+	}
+	else
+	{
+		CockpitMesh->AttachTo(Airframe, FName("Camera"));
+	}
 }
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
@@ -632,8 +640,6 @@ void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic*
 	check(CockpitMesh);
 	check(Mesh);
 	check(Material);
-	//check(CameraTarget);
-	//check(CockpitCapture);
 
 	// Setup mesh
 	CockpitMesh->SetStaticMesh(Mesh);
@@ -641,8 +647,13 @@ void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic*
 	CockpitMesh->SetMaterial(1, FrameMaterial);
 
 	// Setup render target camera
-	//CockpitCapture->FOVAngle = 90;
-	//CockpitCapture->TextureTarget = CameraTarget;
+	if (PC->UseCockpitRenderTarget)
+	{
+		check(CameraTarget);
+		check(CockpitCapture);
+		CockpitCapture->FOVAngle = 90;
+		CockpitCapture->TextureTarget = CameraTarget;
+	}
 }
 
 void AFlareSpacecraft::ExitCockpit()

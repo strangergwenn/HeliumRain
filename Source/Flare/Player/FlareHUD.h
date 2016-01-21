@@ -150,6 +150,9 @@ protected:
 	bool                                    IsInteractive;
 	bool                                    FoundTargetUnderMouse;
 	FVector2D                               ViewportSize;
+
+	// Current data
+	FVector2D                               CurrentViewportSize;
 	UCanvas*                                CurrentCanvas;
 
 	// Designator content

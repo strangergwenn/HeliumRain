@@ -21,11 +21,11 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitHUDTarget(NULL)
 {
 	// Cockpit data
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/HUD/SM_Cockpit"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit"));
 	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
-	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/HUD/MT_Cockpit"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MT_Cockpit"));
 	CockpitMaterialTemplate = CockpitMaterialInstanceObj.Object;
-	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/HUD/MT_CockpitFrame"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MT_CockpitFrame"));
 	CockpitFrameMaterialTemplate = CockpitFrameMaterialInstanceObj.Object;
 	
 	// Settings
@@ -48,10 +48,13 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		FLOGV("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit (%dx%d", ViewportSize.X, ViewportSize.Y);
 
 		// Cockpit camera texture target
-		//CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
-		//check(CockpitCameraTarget);
-		//CockpitCameraTarget->ClearColor = FLinearColor::Black;
-		//CockpitCameraTarget->UpdateResource();
+		if (PC->UseCockpitRenderTarget)
+		{
+			CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
+			check(CockpitCameraTarget);
+			CockpitCameraTarget->ClearColor = FLinearColor::Black;
+			CockpitCameraTarget->UpdateResource();
+		}
 
 		// Cockpit HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
@@ -72,6 +75,7 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		check(CockpitMaterialInstance);
 		CockpitMaterialInstance->SetTextureParameterValue("CameraTarget", CockpitCameraTarget);
 		CockpitMaterialInstance->SetTextureParameterValue("HUDTarget", CockpitHUDTarget);
+		CockpitMaterialInstance->SetScalarParameterValue("CockpitOpacity", PC->UseCockpitRenderTarget ? 1:0);
 
 		// Cockpit frame material
 		CockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(CockpitFrameMaterialTemplate, GetWorld());

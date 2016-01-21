@@ -182,6 +182,7 @@ void AFlareHUD::DrawToCanvasRenderTarget(UCanvas* TargetCanvas, int32 Width, int
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && PC->UseCockpit)
 	{
+		CurrentViewportSize = FVector2D(Width, Height);
 		CurrentCanvas = TargetCanvas;
 		DrawHUDInternal();
 	}
@@ -194,6 +195,7 @@ void AFlareHUD::DrawHUD()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && !PC->UseCockpit)
 	{
+		CurrentViewportSize = ViewportSize;
 		CurrentCanvas = Canvas;
 		DrawHUDInternal();
 	}
@@ -283,7 +285,7 @@ void AFlareHUD::DrawHUDInternal()
 		// Draw nose
 		if (!PlayerShip->GetStateManager()->IsExternalCamera())
 		{
-			DrawHUDIcon(ViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
+			DrawHUDIcon(CurrentViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
 		}
 
 		// Draw objective
@@ -313,12 +315,12 @@ void AFlareHUD::DrawHUDInternal()
 						FString ObjectiveText = FormatDistance(Distance);
 
 						// Draw distance
-						FVector2D CenterScreenPosition = ScreenPosition - ViewportSize / 2 + FVector2D(0, IconSize);
+						FVector2D CenterScreenPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(0, IconSize);
 						FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? FLinearColor::White : InactiveTextColor));
 					}
 
 					// Tell the HUD to draw the search marker only if we are outside this
-					ShouldDrawMarker = (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.GetMin() / 3));
+					ShouldDrawMarker = (FVector2D::Distance(ScreenPosition, CurrentViewportSize / 2) >= (CurrentViewportSize.GetMin() / 3));
 				}
 				else
 				{
@@ -374,7 +376,7 @@ void AFlareHUD::DrawHUDInternal()
 			// Draw
 			FLinearColor PointerColor = HudColorNeutral;
 			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
-			DrawHUDIconRotated(ViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
+			DrawHUDIconRotated(CurrentViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
 		}
 
 		// Draw bombs
@@ -431,12 +433,12 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		// Cap screen pos
 		float ScreenBorderDistanceX = 100;
 		float ScreenBorderDistanceY = 20;
-		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, ScreenBorderDistanceX, ViewportSize.X - ScreenBorderDistanceX);
-		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, ScreenBorderDistanceY, ViewportSize.Y - ScreenBorderDistanceY);
+		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, ScreenBorderDistanceX, CurrentViewportSize.X - ScreenBorderDistanceX);
+		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, ScreenBorderDistanceY, CurrentViewportSize.Y - ScreenBorderDistanceY);
 
 		// Label
 		FString IndicatorText = Designation.ToString();
-		FVector2D IndicatorPosition = ScreenPosition - ViewportSize / 2 - FVector2D(42, 0);
+		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(42, 0);
 		FlareDrawText(IndicatorText, IndicatorPosition);
 
 		// Icon
@@ -444,7 +446,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 
 		// Speed 
 		FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
-		FVector2D VelocityPosition = ScreenPosition - ViewportSize / 2 + FVector2D(42, 0);
+		FVector2D VelocityPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(42, 0);
 		FlareDrawText(VelocityText, VelocityPosition);
 	}
 }
@@ -466,7 +468,7 @@ void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, floa
 
 		// Draw
 		FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
-		DrawHUDIconRotated(ViewportSize / 2 + ScreenspacePosition, IconSize, HUDCombatMouseIcon, Color, Position3D.Rotation().Yaw);
+		DrawHUDIconRotated(CurrentViewportSize / 2 + ScreenspacePosition, IconSize, HUDCombatMouseIcon, Color, Position3D.Rotation().Yaw);
 	}
 }
 
@@ -484,13 +486,13 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		float ShipSize = 2 * Spacecraft->GetMeshScale();
 		float Distance = (TargetLocation - PlayerLocation).Size();
 		float ApparentAngle = FMath::RadiansToDegrees(FMath::Atan(ShipSize / Distance));
-		float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * ViewportSize.X;
+		float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * CurrentViewportSize.X;
 		FVector2D ObjectSize = FMath::Min(0.66f * Size, 300.0f) * FVector2D(1, 1);
 
 		// Add to targets
 		FFlareScreenTarget TargetData;
 		TargetData.Spacecraft = Spacecraft;
-		TargetData.DistanceFromScreenCenter = (ScreenPosition - ViewportSize / 2).Size();
+		TargetData.DistanceFromScreenCenter = (ScreenPosition - CurrentViewportSize / 2).Size();
 		ScreenTargets.Add(TargetData);
 
 		// Check if the mouse is there
@@ -534,7 +536,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 
 			// Draw the target's distance
 			FString DistanceText = FormatDistance(Distance / 100);
-			FVector2D DistanceTextPosition = ScreenPosition - (ViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 3 * CornerSize * FVector2D::UnitVector;
+			FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 3 * CornerSize * FVector2D::UnitVector;
 			FlareDrawText(DistanceText, DistanceTextPosition, Color);
 
 			// Draw the status
@@ -584,7 +586,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						{
 							// Time display
 							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
-							FVector2D TimePosition = ScreenPosition - ViewportSize / 2 - FVector2D(42,0);
+							FVector2D TimePosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(42,0);
 							FlareDrawText(TimeText, TimePosition, HUDAimHelperColor);
 						}
 					}
@@ -592,7 +594,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 
 			// Tell the HUD to draw the search marker only if we are outside this
-			return (FVector2D::Distance(ScreenPosition, ViewportSize / 2) >= (ViewportSize.GetMin() / 3));
+			return (FVector2D::Distance(ScreenPosition, CurrentViewportSize / 2) >= (CurrentViewportSize.GetMin() / 3));
 		}
 	}
 
@@ -700,8 +702,8 @@ bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const
 {
 	int32 ScreenBorderDistance = 100;
 
-	if (ScreenPosition.X > ViewportSize.X - ScreenBorderDistance || ScreenPosition.X < ScreenBorderDistance
-	 || ScreenPosition.Y > ViewportSize.Y - ScreenBorderDistance || ScreenPosition.Y < ScreenBorderDistance)
+	if (ScreenPosition.X > CurrentViewportSize.X - ScreenBorderDistance || ScreenPosition.X < ScreenBorderDistance
+	 || ScreenPosition.Y > CurrentViewportSize.Y - ScreenBorderDistance || ScreenPosition.Y < ScreenBorderDistance)
 	{
 		return false;
 	}

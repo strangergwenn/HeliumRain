@@ -329,6 +329,9 @@ public:
 	/** Whether to use the 3D cockpit */
 	UPROPERTY(Config)
 	bool                                     UseCockpit;
+
+	// Not config
+	bool                                     UseCockpitRenderTarget;
 	
 	/** Whether to use the dark theme when a sector is active */
 	UPROPERTY(Config)
