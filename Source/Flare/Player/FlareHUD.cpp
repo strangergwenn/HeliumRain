@@ -177,7 +177,7 @@ void AFlareHUD::UpdateHUDVisibility()
 	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
-void AFlareHUD::DrawToCanvasRenderTarget(UCanvas* TargetCanvas, int32 Width, int32 Height)
+void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && PC->UseCockpit)
@@ -185,6 +185,20 @@ void AFlareHUD::DrawToCanvasRenderTarget(UCanvas* TargetCanvas, int32 Width, int
 		CurrentViewportSize = FVector2D(Width, Height);
 		CurrentCanvas = TargetCanvas;
 		DrawHUDInternal();
+	}
+}
+
+void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32 Height)
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC && PC->UseCockpit)
+	{
+		CurrentViewportSize = FVector2D(Width, Height);
+		CurrentCanvas = TargetCanvas;
+
+		FlareDrawText(FString("Top monitor"), FVector2D(50, 150));
+		FlareDrawText(FString("Bottom left monitor"), FVector2D(10, 100));
+		FlareDrawText(FString("Bottom right monitor"), FVector2D(50, 30));
 	}
 }
 
@@ -215,6 +229,9 @@ void AFlareHUD::Tick(float DeltaSeconds)
 		MousePos = 2 * ((MousePos - ViewportCenter) / ViewportSize);
 		PC->MousePositionInput(MousePos);
 	}
+
+	// HUD mode
+	HUDMenu->SetVisibility(PC->UseCockpit ? EVisibility::Hidden : EVisibility::Visible);
 }
 
 	

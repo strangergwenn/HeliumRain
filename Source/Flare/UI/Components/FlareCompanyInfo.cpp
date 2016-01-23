@@ -99,7 +99,10 @@ FText SFlareCompanyInfo::GetCompanyName() const
 	if (Company)
 	{
 		const FFlareCompanyDescription* Desc = Company->GetDescription();
-		Result = Desc->Name;
+		if (Desc)
+		{
+			Result = Desc->Name;
+		}
 	}
 
 	return Result;

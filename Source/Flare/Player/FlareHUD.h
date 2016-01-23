@@ -68,9 +68,13 @@ public:
 	/** Decide if the HUD is displayed or not */
 	void UpdateHUDVisibility();
 
-	/** Canvas callback */
+	/** Canvas callback for the cockpit's HUD*/
 	UFUNCTION()
-	void DrawToCanvasRenderTarget(UCanvas* TargetCanvas, int32 Width, int32 Height);
+	void DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height);
+
+	/** Canvas callback for the cockpit's instruments*/
+	UFUNCTION()
+	void DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32 Height);
 
 	virtual void DrawHUD() override;
 

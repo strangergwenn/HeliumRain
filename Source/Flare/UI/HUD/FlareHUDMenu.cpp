@@ -328,16 +328,12 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 FText SFlareHUDMenu::GetInfoText() const
 {
-	FText ShipText;
-	FText ModeText;
-	FText SectorText;
-	FText AutopilotText;
-
-	if (TargetShip)
+	if (TargetShip && !MenuManager->GetPC()->UseCockpit)
 	{
-		ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
-
-		SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
+		FText ModeText;
+		FText AutopilotText;
+		FText ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
+		FText SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
 
 		if (TargetShip->GetNavigationSystem()->IsDocked())
 		{
@@ -361,9 +357,11 @@ FText SFlareHUDMenu::GetInfoText() const
 				AutopilotText = LOCTEXT("AUTOPILOT", " (Autopilot)");
 			}
 		}
+
+		return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} - {1} {2} - {3}"), ShipText, ModeText, AutopilotText, SectorText);
 	}
 
-	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} - {1} {2} - {3}"), ShipText, ModeText, AutopilotText, SectorText);
+	return FText();
 }
 
 FText SFlareHUDMenu::GetLowerInfoText() const

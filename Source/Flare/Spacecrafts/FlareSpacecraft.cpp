@@ -69,16 +69,6 @@ void AFlareSpacecraft::BeginPlay()
 {
 	Super::BeginPlay();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-
-	// Offset the cockpit
-	if (PC->UseCockpitRenderTarget)
-	{
-		CockpitCapture->AttachTo(Airframe, FName("Camera"));
-	}
-	else
-	{
-		CockpitMesh->AttachTo(Airframe, FName("Camera"));
-	}
 }
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
@@ -635,6 +625,18 @@ void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic*
 {
 	AFlarePlayerController* PC = GetPC();
 
+	// Offset the cockpit
+	if (PC->UseCockpitRenderTarget)
+	{
+		//CockpitCapture->AttachTo(Airframe, FName("Camera"), EAttachLocation::SnapToTarget);
+		FVector CameraOffset = Airframe->GetSocketLocation(FName("Camera"));
+		CockpitCapture->SetRelativeLocation(CameraOffset);
+	}
+	else
+	{
+		CockpitMesh->AttachTo(Camera, NAME_None, EAttachLocation::SnapToTarget);
+	}
+
 	// Ensure we're not doing anything stupid
 	check(PC->UseCockpit);
 	check(CockpitMesh);
@@ -651,7 +653,7 @@ void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic*
 	{
 		check(CameraTarget);
 		check(CockpitCapture);
-		CockpitCapture->FOVAngle = 90;
+		CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
 		CockpitCapture->TextureTarget = CameraTarget;
 	}
 }
