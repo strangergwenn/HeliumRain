@@ -25,12 +25,13 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
 	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MT_Cockpit"));
 	CockpitMaterialTemplate = CockpitMaterialInstanceObj.Object;
-	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MT_CockpitFrame"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MI_CockpitFrame"));
 	CockpitFrameMaterialTemplate = CockpitFrameMaterialInstanceObj.Object;
 	
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
+	CockpitInstrumentsTargetSize = 512;
 }
 
 void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
@@ -64,7 +65,7 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		CockpitHUDTarget->UpdateResource();
 
 		// Cockpit instruments texture target
-		CockpitInstrumentsTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), 256, 256);
+		CockpitInstrumentsTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitInstrumentsTargetSize, CockpitInstrumentsTargetSize);
 		check(CockpitInstrumentsTarget);
 		CockpitInstrumentsTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawCockpitInstruments);
 		CockpitInstrumentsTarget->ClearColor = FLinearColor::Black;
@@ -95,6 +96,47 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 	Interaction
 ----------------------------------------------------*/
 
+void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewShipPawn)
+{
+	// Reset existing ship
+	if (ShipPawn)
+	{
+		ShipPawn->ExitCockpit();
+	}
+
+	ShipPawn = NewShipPawn;
+
+	// Setup new ship
+	if (ShipPawn && PC->UseCockpit)
+	{
+		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitFrameMaterialInstance, CockpitCameraTarget);
+		ShipPawn->GetCamera()->PostProcessSettings.bOverride_AntiAliasingMethod = true;
+	}
+}
+
+void AFlareCockpitManager::SetExternalCamera(bool External)
+{
+	if (!ShipPawn)
+	{
+		return;
+	}
+
+	if (External)
+	{
+		ShipPawn->ExitCockpit();
+	}
+	else
+	{
+		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitFrameMaterialInstance, CockpitCameraTarget);
+		ShipPawn->GetCamera()->PostProcessSettings.bOverride_AntiAliasingMethod = true;
+	}
+}
+
+
+/*----------------------------------------------------
+	Internal
+----------------------------------------------------*/
+
 void AFlareCockpitManager::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -112,25 +154,53 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 		{
 			CockpitHUDTarget->UpdateResource();
 		}
+
+		// Update instruments
+		if (ShipPawn && CockpitFrameMaterialInstance && CockpitInstrumentsTarget)
+		{
+			UpdateTarget(DeltaSeconds);
+			UpdateInfo(DeltaSeconds);
+			UpdateDamages(DeltaSeconds);
+			UpdateTemperature(DeltaSeconds);
+			UpdatePower(DeltaSeconds);
+
+			CockpitInstrumentsTarget->UpdateResource();
+		}
 	}
 }
 
-void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewShipPawn)
+void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 {
-	// Reset existing ship
-	if (ShipPawn)
-	{
-		ShipPawn->ExitCockpit();
-	}
+	CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorTop", FFlareStyleSet::GetDefaultTheme().FriendlyColor);
+}
 
-	ShipPawn = NewShipPawn;
+void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
+{
+	CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorLeft", FFlareStyleSet::GetDefaultTheme().FriendlyColor);
+}
 
-	// Setup new ship
-	if (PC->UseCockpit)
-	{
-		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitFrameMaterialInstance, CockpitCameraTarget);
-		ShipPawn->GetCamera()->PostProcessSettings.bOverride_AntiAliasingMethod = true;
-	}
+void AFlareCockpitManager::UpdateDamages(float DeltaSeconds)
+{
+}
+
+void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
+{
+	float Temperature = ShipPawn->GetDamageSystem()->GetTemperature();
+	float OverheatTemperature = ShipPawn->GetDamageSystem()->GetOverheatTemperature();
+	FLinearColor TemperatureColor = PC->GetNavHUD()->GetHealthColor(Temperature, OverheatTemperature);
+
+	CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", TemperatureColor);
+}
+
+void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
+{/*
+	bool Outage = ShipPawn->GetDamageSystem()->HasPowerOutage();
+
+	float Intensity = Outage ? 0 : 1;
+
+	CockpitFrameMaterialInstance->SetScalarParameterValue("IndicatorIntensityTop",   Intensity);
+	CockpitFrameMaterialInstance->SetScalarParameterValue("IndicatorIntensityLeft",  Intensity);
+	CockpitFrameMaterialInstance->SetScalarParameterValue("IndicatorIntensityRight", Intensity);*/
 }
 
 

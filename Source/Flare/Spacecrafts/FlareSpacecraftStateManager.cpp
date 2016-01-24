@@ -230,6 +230,7 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	}
 
 	ExternalCamera = NewState;
+	AFlarePlayerController* PC = Spacecraft->GetPC();
 
 	// Put the camera at the right spot
 	if (ExternalCamera)
@@ -243,7 +244,6 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	}
 	else
 	{
-		AFlarePlayerController* PC = Spacecraft->GetPC();
 		Spacecraft->SetCameraDistance(0);
 
 		if (PC && PC->UseCockpit && PC->UseCockpitRenderTarget)
@@ -255,6 +255,12 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 			FVector CameraOffset = Spacecraft->WorldToLocal(Spacecraft->Airframe->GetSocketLocation(FName("Camera")) - Spacecraft->GetActorLocation());
 			Spacecraft->SetCameraLocalPosition(CameraOffset);
 		}
+	}
+
+	// Notify cockpit
+	if (PC && PC->UseCockpit)
+	{
+		PC->GetCockpitManager()->SetExternalCamera(ExternalCamera);
 	}
 }
 

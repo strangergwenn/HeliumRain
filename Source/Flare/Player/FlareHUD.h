@@ -76,6 +76,12 @@ public:
 	UFUNCTION()
 	void DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32 Height);
 
+	/** Draw a subsystem info line on a cockpit intrument */
+	void DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position);
+
+	/** Get the health color, using custom thresholds */
+	FLinearColor GetHealthColor(float Current, float Max = 1);
+
 	virtual void DrawHUD() override;
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -108,13 +114,13 @@ protected:
 	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, float Health, UTexture2D* Texture);
 
 	/** Draw an icon */
-	void DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, bool Center = false);
+	void DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color = FLinearColor::White, bool Center = false);
 
 	/** Draw an icon */
-	void DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color, float Rotation);
+	void DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color = FLinearColor::White, float Rotation = 0);
 
 	/** Print a text with a shadow */
-	void FlareDrawText(FString Text, FVector2D Position, FLinearColor Color = FLinearColor::White);
+	void FlareDrawText(FString Text, FVector2D Position, FLinearColor Color = FLinearColor::White, bool Center = true, bool Large = false);
 
 	/** Draw a texture */
 	void FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY, float ScreenW, float ScreenH, float TextureU, float TextureV, float TextureUWidth, float TextureVHeight, FLinearColor TintColor = FLinearColor::White, EBlendMode BlendMode = BLEND_Translucent, float Scale = 1.f, bool bScalePosition = false, float Rotation = 0.f, FVector2D RotPivot = FVector2D::ZeroVector);
@@ -177,11 +183,20 @@ protected:
 	UTexture2D*                             HUDTemperatureIcon;
 	UTexture2D*                             HUDPowerIcon;
 	UTexture2D*                             HUDPropulsionIcon;
+	UTexture2D*                             HUDRCSIcon;
 	UTexture2D*                             HUDHealthIcon;
 	UTexture2D*                             HUDWeaponIcon;
 
 	// Font
 	UFont*                                  HUDFont;
+	UFont*                                  HUDFontLarge;
+
+	// Instruments
+	FVector2D                               TopInstrument;
+	FVector2D                               LeftInstrument;
+	FVector2D                               RightInstrument;
+	FVector2D                               InstrumentSize;
+	FVector2D                               InstrumentLine;
 	
 	// Slate menus
 	TSharedPtr<SFlareHUDMenu>               HUDMenu;

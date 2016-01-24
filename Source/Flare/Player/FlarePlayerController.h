@@ -393,6 +393,11 @@ public:
 		return Cast<AFlareHUD>(GetHUD());
 	}
 
+	inline AFlareCockpitManager* GetCockpitManager()
+	{
+		return CockpitManager;
+	}
+
 	/** Return the last flown ship.
 	 * Return NULL if no last flown ship, or if it is destroyed */
 	UFlareSimulatedSpacecraft* GetLastFlownShip();

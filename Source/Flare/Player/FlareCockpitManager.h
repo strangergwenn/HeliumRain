@@ -27,12 +27,31 @@ public:
 	/** Signal that a new ship is being flown */
 	virtual void OnFlyShip(AFlareSpacecraft* NewShipPawn);
 
+	/** Whether to use the external camera or not */
+	virtual void SetExternalCamera(bool External);
+
+
 	/*----------------------------------------------------
 		Internal
 	----------------------------------------------------*/
 
 	virtual void Tick(float DeltaSeconds) override;
-	
+
+	/** Update the target info */
+	void UpdateTarget(float DeltaSeconds);
+
+	/** Update the info screen */
+	void UpdateInfo(float DeltaSeconds);
+
+	/** Update the damage system info */
+	void UpdateDamages(float DeltaSeconds);
+
+	/** Update the overheat info */
+	void UpdateTemperature(float DeltaSeconds);
+
+	/** Update the power status */
+	void UpdatePower(float DeltaSeconds);
+
 
 protected:
 
@@ -62,7 +81,7 @@ protected:
 
 	// Cockpit material template (frame)
 	UPROPERTY()
-	UMaterial*                               CockpitFrameMaterialTemplate;
+	UMaterialInstanceConstant*               CockpitFrameMaterialTemplate;
 
 	// Cockpit material instance (frame)
 	UPROPERTY()
@@ -80,13 +99,8 @@ protected:
 	UPROPERTY()
 	UCanvasRenderTarget2D*                   CockpitInstrumentsTarget;
 
-
-public:
-
-	/*----------------------------------------------------
-		Getters
-	----------------------------------------------------*/
-
+	// Settings
+	int32                                    CockpitInstrumentsTargetSize;
 
 
 };

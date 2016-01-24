@@ -27,7 +27,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj            (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj       (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj(TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj    (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorSelectedCornerObj(TEXT("/Game/Gameplay/HUD/TX_DesignatorCornerSelected.TX_DesignatorCornerSelected"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorSelectionObj (TEXT("/Game/Slate/Icons/TX_Icon_TargettingContextButton.TX_Icon_TargettingContextButton"));
 
@@ -35,11 +35,13 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDTemperatureIconObj     (TEXT("/Game/Slate/Icons/TX_Icon_Temperature.TX_Icon_Temperature"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPowerIconObj           (TEXT("/Game/Slate/Icons/TX_Icon_Power.TX_Icon_Power"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDPropulsionIconObj      (TEXT("/Game/Slate/Icons/TX_Icon_Propulsion.TX_Icon_Propulsion"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDRCSIconObj             (TEXT("/Game/Slate/Icons/TX_Icon_RCS.TX_Icon_RCS"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHealthIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_LifeSupport.TX_Icon_LifeSupport"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
 
 	// Load content (font)
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj                (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
+	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontLargeObj           (TEXT("/Game/Slate/Fonts/HudFontLarge.HudFontLarge"));
 
 	// Set content (general icons)
 	HUDReticleIcon = HUDReticleIconObj.Object;
@@ -59,15 +61,24 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDTemperatureIcon = HUDTemperatureIconObj.Object;
 	HUDPowerIcon = HUDPowerIconObj.Object;
 	HUDPropulsionIcon = HUDPropulsionIconObj.Object;
+	HUDRCSIcon = HUDRCSIconObj.Object;
 	HUDHealthIcon = HUDHealthIconObj.Object;
 	HUDWeaponIcon = HUDWeaponIconObj.Object;
 
 	// Set content (font)
 	HUDFont = HUDFontObj.Object;
+	HUDFontLarge = HUDFontLargeObj.Object;
 
 	// Settings
 	FocusDistance = 1000000;
 	IconSize = 24;
+
+	// Cockpit instruments
+	TopInstrument =   FVector2D(20, 10);
+	LeftInstrument =  FVector2D(20, 165);
+	RightInstrument = FVector2D(20, 320);
+	InstrumentSize =  FVector2D(380, 120);
+	InstrumentLine =  FVector2D(0, 20);
 }
 
 void AFlareHUD::BeginPlay()
@@ -188,20 +199,6 @@ void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
 	}
 }
 
-void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32 Height)
-{
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && PC->UseCockpit)
-	{
-		CurrentViewportSize = FVector2D(Width, Height);
-		CurrentCanvas = TargetCanvas;
-
-		FlareDrawText(FString("Top monitor"), FVector2D(50, 150));
-		FlareDrawText(FString("Bottom left monitor"), FVector2D(10, 100));
-		FlareDrawText(FString("Bottom right monitor"), FVector2D(50, 30));
-	}
-}
-
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -232,6 +229,122 @@ void AFlareHUD::Tick(float DeltaSeconds)
 
 	// HUD mode
 	HUDMenu->SetVisibility(PC->UseCockpit ? EVisibility::Hidden : EVisibility::Visible);
+}
+
+
+/*----------------------------------------------------
+	Cockpit HUD drawing
+----------------------------------------------------*/
+
+void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32 Height)
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC && PC->UseCockpit)
+	{
+		// Dynamic data
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+		CurrentViewportSize = FVector2D(Width, Height);
+		CurrentCanvas = TargetCanvas;
+
+		// Right instrument
+		if (PlayerShip)
+		{
+			// Data
+			float CockpitIconSize = 20;
+			FVector2D CurrentPos = RightInstrument;
+			int32 Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
+			FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
+
+			// Ship name
+			FString FlyingText = PlayerShip->GetImmatriculation().ToString();
+			FlareDrawText(FlyingText, CurrentPos, Theme.FriendlyColor, false, true);
+			CurrentPos += 3 * InstrumentLine;
+
+			// Temperature text
+			FLinearColor TemperatureColor = GetHealthColor(Temperature, PlayerShip->GetDamageSystem()->GetOverheatTemperature());
+			DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
+			FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
+			CurrentPos += InstrumentLine;
+
+			// Subsystem health
+			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Temperature, CurrentPos);
+			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Propulsion, CurrentPos);
+			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_RCS, CurrentPos);
+			CurrentPos += FVector2D(InstrumentSize.X / 2, 0) - 3 * InstrumentLine;
+			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_LifeSupport, CurrentPos);
+			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Power, CurrentPos);
+			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Weapon, CurrentPos);
+
+			// Ship icon
+			int32 ShipIconSize = 80;
+			UTexture2D* ShipIcon = Cast<UTexture2D>(PlayerShip->GetDescription()->MeshPreviewBrush.GetResourceObject());
+			DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - ShipIconSize, 0), ShipIconSize, ShipIcon, Theme.FriendlyColor);
+		}
+
+
+		FlareDrawText(FString("Top"), TopInstrument, FLinearColor::White, false);
+		FlareDrawText(FString("Left"), LeftInstrument, FLinearColor::White, false);
+	}
+}
+
+void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position)
+{
+	AFlareSpacecraft* PlayerShip = MenuManager->GetPC()->GetShipPawn();
+	float ComponentHealth = PlayerShip->GetDamageSystem()->GetSubsystemHealth(Subsystem);
+
+	FText SystemText = FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}: {1}%"),
+		IFlareSpacecraftDamageSystemInterface::GetSubsystemName(Subsystem),
+		FText::AsNumber(100 * ComponentHealth));
+
+	// Drawing data
+	UTexture2D* Icon = NULL;
+	float CockpitIconSize = 20;
+	FLinearColor HealthColor = GetHealthColor(ComponentHealth);
+	
+	// Icon
+	switch (Subsystem)
+	{
+		case EFlareSubsystem::SYS_Temperature:
+			Icon = HUDTemperatureIcon;
+			break;
+		case EFlareSubsystem::SYS_Propulsion:
+			Icon = HUDPropulsionIcon;
+			break;
+		case EFlareSubsystem::SYS_RCS:
+			Icon = HUDRCSIcon;
+			break;
+		case EFlareSubsystem::SYS_LifeSupport:
+			Icon = HUDHealthIcon;
+			break;
+		case EFlareSubsystem::SYS_Power:
+			Icon = HUDPowerIcon;
+			break;
+		case EFlareSubsystem::SYS_Weapon:
+			Icon = HUDWeaponIcon;
+			break;
+	}
+
+	DrawHUDIcon(Position, CockpitIconSize, Icon, HealthColor);
+	FlareDrawText(SystemText.ToString(), Position + FVector2D(1.5 * CockpitIconSize, 0), HealthColor, false);
+	Position += InstrumentLine;
+}
+
+FLinearColor AFlareHUD::GetHealthColor(float Current, float Max)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.FriendlyColor;
+	FLinearColor DamageColor = Theme.EnemyColor;
+
+	float Distance = Current - 0.8f * Max;
+	float Ratio = FMath::Clamp(FMath::Abs(Distance) / 10.0f, 0.0f, 1.0f);
+
+	if (Distance < 0)
+	{
+		Ratio = 0.0f;
+	}
+
+	return FMath::Lerp(NormalColor, DamageColor, Ratio);
 }
 
 	
@@ -677,22 +790,35 @@ void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float DesignatorIconSize,
 		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
 }
 
-void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Color)
+void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Color, bool Center, bool Large)
 {
 	if (CurrentCanvas)
 	{
-		float XL, YL;
-		CurrentCanvas->TextSize(HUDFont, Text, XL, YL);
-		const float X = CurrentCanvas->ClipX / 2.0f - XL / 2.0f + Position.X;
-		const float Y = CurrentCanvas->ClipY / 2.0f - YL / 2.0f + Position.Y;
+		float X, Y;
+		UFont* Font = Large ? HUDFontLarge : HUDFont;
 
+		// Optional centering
+		if (Center)
 		{
-			FCanvasTextItem ShadowItem(FVector2D(X - 1, Y - 3), FText::FromString(Text), HUDFont, FLinearColor::Black);
+			float XL, YL;
+			CurrentCanvas->TextSize(Font, Text, XL, YL);
+			X = CurrentCanvas->ClipX / 2.0f - XL / 2.0f + Position.X;
+			Y = CurrentCanvas->ClipY / 2.0f - YL / 2.0f + Position.Y;
+		}
+		else
+		{
+			X = Position.X;
+			Y = Position.Y;
+		}
+
+		// Drawing
+		{
+			FCanvasTextItem ShadowItem(FVector2D(X - 1, Y - 3), FText::FromString(Text), Font, FLinearColor::Black);
 			ShadowItem.Scale = FVector2D(1, 1.4);
 			CurrentCanvas->DrawItem(ShadowItem);
 		}
 		{
-			FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), HUDFont, Color);
+			FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), Font, Color);
 			TextItem.Scale = FVector2D(1, 1);
 			CurrentCanvas->DrawItem(TextItem);
 		}

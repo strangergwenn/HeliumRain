@@ -628,7 +628,6 @@ void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic*
 	// Offset the cockpit
 	if (PC->UseCockpitRenderTarget)
 	{
-		//CockpitCapture->AttachTo(Airframe, FName("Camera"), EAttachLocation::SnapToTarget);
 		FVector CameraOffset = Airframe->GetSocketLocation(FName("Camera"));
 		CockpitCapture->SetRelativeLocation(CameraOffset);
 	}
