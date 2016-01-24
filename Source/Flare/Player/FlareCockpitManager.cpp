@@ -27,7 +27,14 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMaterialTemplate = CockpitMaterialInstanceObj.Object;
 	static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MI_CockpitFrame"));
 	CockpitFrameMaterialTemplate = CockpitFrameMaterialInstanceObj.Object;
-	
+
+	// Cockpit mesh
+	CockpitMesh = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Cockpit"));
+
+	// Cockpit camera
+	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
+	CockpitCapture->bCaptureEveryFrame = true;
+
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
@@ -82,6 +89,20 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		CockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(CockpitFrameMaterialTemplate, GetWorld());
 		check(CockpitMaterialInstance);
 		CockpitFrameMaterialInstance->SetTextureParameterValue("InstrumentsTarget", CockpitInstrumentsTarget);
+
+		// Setup mesh
+		CockpitMesh->SetStaticMesh(CockpitMeshTemplate);
+		CockpitMesh->SetMaterial(0, CockpitMaterialInstance);
+		CockpitMesh->SetMaterial(1, CockpitFrameMaterialInstance);
+
+		// Setup render target camera
+		if (PC->UseCockpitRenderTarget)
+		{
+			check(CockpitCapture);
+			check(CockpitCameraTarget);
+			CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
+			CockpitCapture->TextureTarget = CockpitCameraTarget;
+		}
 	}
 	else
 	{
@@ -101,7 +122,7 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewShipPawn)
 	// Reset existing ship
 	if (ShipPawn)
 	{
-		ShipPawn->ExitCockpit();
+		ExitCockpit(ShipPawn);
 	}
 
 	ShipPawn = NewShipPawn;
@@ -109,8 +130,7 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewShipPawn)
 	// Setup new ship
 	if (ShipPawn && PC->UseCockpit)
 	{
-		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitFrameMaterialInstance, CockpitCameraTarget);
-		ShipPawn->GetCamera()->PostProcessSettings.bOverride_AntiAliasingMethod = true;
+		EnterCockpit(ShipPawn);
 	}
 }
 
@@ -123,12 +143,11 @@ void AFlareCockpitManager::SetExternalCamera(bool External)
 
 	if (External)
 	{
-		ShipPawn->ExitCockpit();
+		ExitCockpit(ShipPawn);
 	}
 	else
 	{
-		ShipPawn->EnterCockpit(CockpitMeshTemplate, CockpitMaterialInstance, CockpitFrameMaterialInstance, CockpitCameraTarget);
-		ShipPawn->GetCamera()->PostProcessSettings.bOverride_AntiAliasingMethod = true;
+		EnterCockpit(ShipPawn);
 	}
 }
 
@@ -167,6 +186,35 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 			CockpitInstrumentsTarget->UpdateResource();
 		}
 	}
+}
+
+void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* ShipPawn)
+{
+	// Ensure we're not doing anything stupid
+	check(PC->UseCockpit);
+	check(CockpitMesh);
+	check(CockpitMesh);
+	check(CockpitMaterialTemplate);
+	check(CockpitFrameMaterialTemplate);
+
+	// Offset the cockpit
+	if (PC->UseCockpitRenderTarget)
+	{
+		CockpitMesh->AttachTo(ShipPawn->GetRootComponent(), NAME_None, EAttachLocation::SnapToTarget);
+		FVector CameraOffset = ShipPawn->GetRootComponent()->GetSocketLocation(FName("Camera"));
+		CockpitCapture->SetRelativeLocation(CameraOffset);
+	}
+	else
+	{
+		CockpitMesh->AttachTo(ShipPawn->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
+	}
+
+	CockpitMesh->SetVisibility(true, true);
+}
+
+void AFlareCockpitManager::ExitCockpit(AFlareSpacecraft* ShipPawn)
+{
+	CockpitMesh->SetVisibility(false, true);
 }
 
 void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)

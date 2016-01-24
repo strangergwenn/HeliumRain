@@ -30,12 +30,19 @@ public:
 	/** Whether to use the external camera or not */
 	virtual void SetExternalCamera(bool External);
 
-
 	/*----------------------------------------------------
 		Internal
 	----------------------------------------------------*/
 
 	virtual void Tick(float DeltaSeconds) override;
+
+protected:
+
+	/** Enter the cockpit */
+	void EnterCockpit(AFlareSpacecraft* ShipPawn);
+
+	/** Exit the cockpit */
+	void ExitCockpit(AFlareSpacecraft* ShipPawn);
 
 	/** Update the target info */
 	void UpdateTarget(float DeltaSeconds);
@@ -71,6 +78,14 @@ protected:
 	UPROPERTY()
 	UStaticMesh*                             CockpitMeshTemplate;
 
+	// Cockpit
+	UPROPERTY()
+	UStaticMeshComponent*                    CockpitMesh;
+
+	// Scene capture for the ship's camera
+	UPROPERTY()
+	USceneCaptureComponent2D*                CockpitCapture;
+
 	// Cockpit material template
 	UPROPERTY()
 	UMaterial*                               CockpitMaterialTemplate;
@@ -102,5 +117,21 @@ protected:
 	// Settings
 	int32                                    CockpitInstrumentsTargetSize;
 
+
+public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	inline USceneCaptureComponent2D* GetCockpitCameraCapture()
+	{
+		return CockpitCapture;
+	}
+
+	inline UStaticMeshComponent* GetCockpitMesh()
+	{
+		return CockpitMesh;
+	}
 
 };

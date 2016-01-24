@@ -43,15 +43,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	ShipData.AsteroidData.AsteroidMeshID = 0;
 	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
 
-	// Cockpit
-	CockpitMesh = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Cockpit"));
-	CockpitMesh->AttachTo(Airframe);
-
-	// Cockpit camera
-	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
-	CockpitCapture->bCaptureEveryFrame = true;
-	CockpitCapture->AttachTo(Airframe);
-
 	// Gameplay
 	CurrentTarget = NULL;
 	TargetIndex = 0;
@@ -376,7 +367,6 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 			SetOrbitalEngineDescription(ComponentDescription);
 		}
 
-
 		// Find the cockpit
 		if (ComponentDescription->GeneralCharacteristics.LifeSupport)
 		{
@@ -619,48 +609,6 @@ void AFlareSpacecraft::StartPresentation()
 	{
 		Airframe->SetSimulatePhysics(false);
 	}
-}
-
-void AFlareSpacecraft::EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UMaterialInstanceDynamic* FrameMaterial, UCanvasRenderTarget2D* CameraTarget)
-{
-	AFlarePlayerController* PC = GetPC();
-
-	// Offset the cockpit
-	if (PC->UseCockpitRenderTarget)
-	{
-		FVector CameraOffset = Airframe->GetSocketLocation(FName("Camera"));
-		CockpitCapture->SetRelativeLocation(CameraOffset);
-	}
-	else
-	{
-		CockpitMesh->AttachTo(Camera, NAME_None, EAttachLocation::SnapToTarget);
-	}
-
-	// Ensure we're not doing anything stupid
-	check(PC->UseCockpit);
-	check(CockpitMesh);
-	check(Mesh);
-	check(Material);
-
-	// Setup mesh
-	CockpitMesh->SetStaticMesh(Mesh);
-	CockpitMesh->SetMaterial(0, Material);
-	CockpitMesh->SetMaterial(1, FrameMaterial);
-
-	// Setup render target camera
-	if (PC->UseCockpitRenderTarget)
-	{
-		check(CameraTarget);
-		check(CockpitCapture);
-		CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
-		CockpitCapture->TextureTarget = CameraTarget;
-	}
-}
-
-void AFlareSpacecraft::ExitCockpit()
-{
-	CockpitMesh->SetStaticMesh(NULL);
-	CockpitCapture->TextureTarget = NULL;
 }
 
 

@@ -250,19 +250,6 @@ protected:
 	UFlareSpacecraftStateManager*				   StateManager;
 
 	bool                                           Paused;
-	
-
-	/*----------------------------------------------------
-		Cockpit
-	----------------------------------------------------*/
-
-	// Cockpit
-	UPROPERTY()
-	UStaticMeshComponent*                          CockpitMesh;
-
-	// Scene capture for the ship's camera
-	UPROPERTY()
-	USceneCaptureComponent2D*                      CockpitCapture;
 
 
 	/*----------------------------------------------------
@@ -345,15 +332,5 @@ public:
 	inline bool IsPaused()
 	{
 		return Paused;
-	}
-
-	inline USceneCaptureComponent2D* GetCockpitCameraCapture()
-	{
-		return CockpitCapture;
-	}
-
-	inline UStaticMeshComponent* GetCockpitMesh()
-	{
-		return CockpitMesh;
 	}
 };
