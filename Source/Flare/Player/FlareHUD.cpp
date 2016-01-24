@@ -188,17 +188,6 @@ void AFlareHUD::UpdateHUDVisibility()
 	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
-void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
-{
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && PC->UseCockpit)
-	{
-		CurrentViewportSize = FVector2D(Width, Height);
-		CurrentCanvas = TargetCanvas;
-		DrawHUDInternal();
-	}
-}
-
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -236,55 +225,152 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	Cockpit HUD drawing
 ----------------------------------------------------*/
 
+void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC && PC->UseCockpit)
+	{
+		CurrentViewportSize = FVector2D(Width, Height);
+		CurrentCanvas = TargetCanvas;
+		DrawHUDInternal();
+	}
+}
+
 void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32 Height)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && PC->UseCockpit)
 	{
 		// Dynamic data
-		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		CurrentViewportSize = FVector2D(Width, Height);
 		CurrentCanvas = TargetCanvas;
 
-		// Right instrument
+		// Draw instruments
 		if (PlayerShip)
 		{
-			// Data
-			float CockpitIconSize = 20;
-			FVector2D CurrentPos = RightInstrument;
-			int32 Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
-			FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
+			DrawCockpitSubsystems(PlayerShip);
+			DrawCockpitEquipment(PlayerShip);
+			DrawCockpitTarget(PlayerShip);
+		}
+	}
+}
 
-			// Ship name
-			FString FlyingText = PlayerShip->GetImmatriculation().ToString();
-			FlareDrawText(FlyingText, CurrentPos, Theme.FriendlyColor, false, true);
-			CurrentPos += 3 * InstrumentLine;
+void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
+{
+	// Data
+	float CockpitIconSize = 20;
+	FVector2D CurrentPos = RightInstrument;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	int32 Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
+	FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
 
-			// Temperature text
-			FLinearColor TemperatureColor = GetHealthColor(Temperature, PlayerShip->GetDamageSystem()->GetOverheatTemperature());
-			DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
-			FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
-			CurrentPos += InstrumentLine;
+	// Ship name
+	FString FlyingText = PlayerShip->GetImmatriculation().ToString();
+	FlareDrawText(FlyingText, CurrentPos, Theme.FriendlyColor, false, true);
+	CurrentPos += 2 * InstrumentLine;
 
-			// Subsystem health
-			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Temperature, CurrentPos);
-			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Propulsion, CurrentPos);
-			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_RCS, CurrentPos);
-			CurrentPos += FVector2D(InstrumentSize.X / 2, 0) - 3 * InstrumentLine;
-			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_LifeSupport, CurrentPos);
-			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Power, CurrentPos);
-			DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Weapon, CurrentPos);
+	// Temperature text
+	FLinearColor TemperatureColor = GetHealthColor(Temperature, PlayerShip->GetDamageSystem()->GetOverheatTemperature());
+	DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
+	FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
+	CurrentPos += 2 * InstrumentLine;
 
-			// Ship icon
-			int32 ShipIconSize = 80;
-			UTexture2D* ShipIcon = Cast<UTexture2D>(PlayerShip->GetDescription()->MeshPreviewBrush.GetResourceObject());
-			DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - ShipIconSize, 0), ShipIconSize, ShipIcon, Theme.FriendlyColor);
+	// Subsystem health
+	DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Temperature, CurrentPos);
+	DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Propulsion, CurrentPos);
+	DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_RCS, CurrentPos);
+	CurrentPos += FVector2D(InstrumentSize.X / 2, 0) - 3 * InstrumentLine;
+	DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_LifeSupport, CurrentPos);
+	DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Power, CurrentPos);
+
+	// Weapons
+	if (PlayerShip->IsMilitary())
+	{
+		DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Weapon, CurrentPos);
+	}
+
+	// Ship icon
+	int32 ShipIconSize = 80;
+	UTexture2D* ShipIcon = Cast<UTexture2D>(PlayerShip->GetDescription()->MeshPreviewBrush.GetResourceObject());
+	DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - ShipIconSize, 0), ShipIconSize, ShipIcon, Theme.FriendlyColor);
+}
+
+void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
+{
+	FVector2D CurrentPos = LeftInstrument;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Military version
+	if (PlayerShip->IsMilitary())
+	{
+		FText TitleText;
+		FText InfoText;
+		FLinearColor HealthColor = Theme.FriendlyColor;
+		FFlareWeaponGroup* CurrentWeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+
+		if (CurrentWeaponGroup)
+		{
+			float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex());
+			HealthColor = GetHealthColor(ComponentHealth);
+
+			// Get ammo count
+			int32 RemainingAmmo = 0;
+			for (int32 i = 0; i < CurrentWeaponGroup->Weapons.Num(); i++)
+			{
+				if (CurrentWeaponGroup->Weapons[i]->GetDamageRatio() <= 0.0f)
+				{
+					continue;
+				}
+				RemainingAmmo += CurrentWeaponGroup->Weapons[i]->GetCurrentAmmo();
+			}
+
+			// Final strings
+			TitleText = CurrentWeaponGroup->Weapons[0]->GetDescription()->Name;
+			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}x {1} - {2}%"),
+				FText::AsNumber(CurrentWeaponGroup->Weapons.Num()),
+				FText::Format(LOCTEXT("Rounds", "{0} rounds"), FText::AsNumber(RemainingAmmo)),
+				FText::AsNumber(100 * ComponentHealth));
+		}
+		else
+		{
+			TitleText = LOCTEXT("WeaponsDisabled", "Weapons offline");
 		}
 
+		// Draw text
+		FlareDrawText(TitleText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
+		CurrentPos += 2 * InstrumentLine;
+		FlareDrawText(InfoText.ToString(), CurrentPos, HealthColor, false);
+		CurrentPos += InstrumentLine;
 
-		FlareDrawText(FString("Top"), TopInstrument, FLinearColor::White, false);
-		FlareDrawText(FString("Left"), LeftInstrument, FLinearColor::White, false);
+		// Weapon icon
+		if (CurrentWeaponGroup)
+		{
+			int32 WeaponIconSize = 80;
+			UTexture2D* WeaponIcon = Cast<UTexture2D>(CurrentWeaponGroup->Weapons[0]->GetDescription()->MeshPreviewBrush.GetResourceObject());
+			DrawHUDIcon(LeftInstrument + FVector2D(InstrumentSize.X - WeaponIconSize, 0), WeaponIconSize, WeaponIcon, Theme.FriendlyColor);
+		}
+
+		// Weapon list
+	}
+
+	// Unarmed version
+	else
+	{
+
+	}
+}
+
+void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
+{
+	FVector2D CurrentPos = TopInstrument + FVector2D(InstrumentSize.X / 5, InstrumentSize.Y);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
+
+	if (TargetShip)
+	{
+		FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0}"), FText::FromString(TargetShip->GetImmatriculation().ToString()));
+		FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 	}
 }
 

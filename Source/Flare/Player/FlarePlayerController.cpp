@@ -55,7 +55,7 @@ void AFlarePlayerController::BeginPlay()
 	// Cockpit
 	SetupCockpit();
 	CockpitManager->SetupCockpit(this);
-	PlayerCameraManager->SetFOV(95);
+	PlayerCameraManager->SetFOV(90);
 
 	// Menu manager
 	SetupMenu();

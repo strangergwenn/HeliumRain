@@ -25,7 +25,7 @@ public:
 	virtual void SetupCockpit(AFlarePlayerController* NewPC);
 
 	/** Signal that a new ship is being flown */
-	virtual void OnFlyShip(AFlareSpacecraft* NewShipPawn);
+	virtual void OnFlyShip(AFlareSpacecraft* NewPlayerShip);
 
 	/** Whether to use the external camera or not */
 	virtual void SetExternalCamera(bool External);
@@ -39,10 +39,10 @@ public:
 protected:
 
 	/** Enter the cockpit */
-	void EnterCockpit(AFlareSpacecraft* ShipPawn);
+	void EnterCockpit(AFlareSpacecraft* PlayerShip);
 
 	/** Exit the cockpit */
-	void ExitCockpit(AFlareSpacecraft* ShipPawn);
+	void ExitCockpit(AFlareSpacecraft* PlayerShip);
 
 	/** Update the target info */
 	void UpdateTarget(float DeltaSeconds);
@@ -50,14 +50,8 @@ protected:
 	/** Update the info screen */
 	void UpdateInfo(float DeltaSeconds);
 
-	/** Update the damage system info */
-	void UpdateDamages(float DeltaSeconds);
-
 	/** Update the overheat info */
 	void UpdateTemperature(float DeltaSeconds);
-
-	/** Update the power status */
-	void UpdatePower(float DeltaSeconds);
 
 
 protected:
@@ -72,18 +66,26 @@ protected:
 
 	// Cyrrently flown ship
 	UPROPERTY()
-	AFlareSpacecraft*                        ShipPawn;
+	AFlareSpacecraft*                        PlayerShip;
 
 	// Cockpit mesh template
 	UPROPERTY()
 	UStaticMesh*                             CockpitMeshTemplate;
 
 	// Cockpit
-	UPROPERTY()
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent*                    CockpitMesh;
 
+	// Light
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
+	UPointLightComponent*                    CockpitLight;
+
+	// Light2
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
+	UPointLightComponent*                    CockpitLight2;
+
 	// Scene capture for the ship's camera
-	UPROPERTY()
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	USceneCaptureComponent2D*                CockpitCapture;
 
 	// Cockpit material template
@@ -91,27 +93,27 @@ protected:
 	UMaterial*                               CockpitMaterialTemplate;
 
 	// Cockpit material instance
-	UPROPERTY()
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UMaterialInstanceDynamic*                CockpitMaterialInstance;
 
 	// Cockpit material template (frame)
-	UPROPERTY()
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UMaterialInstanceConstant*               CockpitFrameMaterialTemplate;
 
 	// Cockpit material instance (frame)
-	UPROPERTY()
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UMaterialInstanceDynamic*                CockpitFrameMaterialInstance;
 
 	// Cockpit texture (camera)
-	UPROPERTY()
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UCanvasRenderTarget2D*                   CockpitCameraTarget;
 
 	// Cockpit texture (HUD)
-	UPROPERTY()
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UCanvasRenderTarget2D*                   CockpitHUDTarget;
 
 	// Cockpit texture (instruments)
-	UPROPERTY()
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UCanvasRenderTarget2D*                   CockpitInstrumentsTarget;
 
 	// Settings

@@ -68,6 +68,15 @@ public:
 	/** Decide if the HUD is displayed or not */
 	void UpdateHUDVisibility();
 
+	virtual void DrawHUD() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+
+	/*----------------------------------------------------
+		Cockpit
+	----------------------------------------------------*/
+
 	/** Canvas callback for the cockpit's HUD*/
 	UFUNCTION()
 	void DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height);
@@ -76,16 +85,25 @@ public:
 	UFUNCTION()
 	void DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32 Height);
 
+	/** Draw on the current canvas the ship's subsystem status */
+	void DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip);
+
+	/** Draw on the current canvas the ship's weapon or cargo status */
+	void DrawCockpitEquipment(AFlareSpacecraft* PlayerShip);
+
+	/** Draw on the current canvas the ship's target info */
+	void DrawCockpitTarget(AFlareSpacecraft* PlayerShip);
+
 	/** Draw a subsystem info line on a cockpit intrument */
 	void DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position);
 
 	/** Get the health color, using custom thresholds */
 	FLinearColor GetHealthColor(float Current, float Max = 1);
 
-	virtual void DrawHUD() override;
 
-	virtual void Tick(float DeltaSeconds) override;
-
+	/*----------------------------------------------------
+		Internals
+	----------------------------------------------------*/
 
 protected:
 
