@@ -39,15 +39,17 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	// Light
 	CockpitLight = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight"));
 	CockpitLight->SetLightColor(FLinearColor(1.0f, 0.871f, 0.731));
-	CockpitLight->SetIntensity(300);
-	CockpitLight->SetRelativeLocation(FVector(0, -10, -20));
+	CockpitLight->SetIntensity(200);
+	CockpitLight->SetRelativeLocation(FVector(0, -30, -30));
+	CockpitLight->SetCastShadows(false);
 	CockpitLight->AttachTo(CockpitMesh);
 
 	// Light 2
 	CockpitLight2 = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight2"));
 	CockpitLight2->SetLightColor(FLinearColor(1.0f, 0.376f, 0.212f));
-	CockpitLight2->SetIntensity(300);
-	CockpitLight2->SetRelativeLocation(FVector(0, 10, 50));
+	CockpitLight2->SetIntensity(200);
+	CockpitLight2->SetRelativeLocation(FVector(0, 10, 10));
+	CockpitLight2->SetCastShadows(false);
 	CockpitLight2->AttachTo(CockpitMesh);
 
 	// Settings

@@ -21,7 +21,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
-	, UseCockpitRenderTarget(true)
+	, UseCockpitRenderTarget(false)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 
