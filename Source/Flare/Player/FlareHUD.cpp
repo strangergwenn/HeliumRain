@@ -182,9 +182,10 @@ void AFlareHUD::OnTargetShipChanged()
 void AFlareHUD::UpdateHUDVisibility()
 {
 	bool NewVisibility = HUDVisible && !MenuManager->IsMenuOpen();
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
-	HUDMenu->SetVisibility(NewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
+	HUDMenu->SetVisibility((NewVisibility && !PC->UseCockpit) ? EVisibility::Visible : EVisibility::Collapsed);
 	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
@@ -215,9 +216,6 @@ void AFlareHUD::Tick(float DeltaSeconds)
 		MousePos = 2 * ((MousePos - ViewportCenter) / ViewportSize);
 		PC->MousePositionInput(MousePos);
 	}
-
-	// HUD mode
-	HUDMenu->SetVisibility(PC->UseCockpit ? EVisibility::Hidden : EVisibility::Visible);
 }
 
 

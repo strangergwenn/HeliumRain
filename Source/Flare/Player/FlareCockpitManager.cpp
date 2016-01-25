@@ -124,6 +124,7 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		FLOG("AFlareCockpitManager::SetupCockpit : cockpit manager is disabled");
 		CockpitMaterialInstance = NULL;
 		CockpitFrameMaterialInstance = NULL;
+		ExitCockpit(PlayerShip);
 	}
 }
 
@@ -147,6 +148,10 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 	{
 		EnterCockpit(PlayerShip);
 	}
+	else
+	{
+		ExitCockpit(PlayerShip);
+	}
 }
 
 void AFlareCockpitManager::SetExternalCamera(bool External)
@@ -156,7 +161,7 @@ void AFlareCockpitManager::SetExternalCamera(bool External)
 		return;
 	}
 
-	if (External)
+	if (External || !PC->UseCockpit)
 	{
 		ExitCockpit(PlayerShip);
 	}

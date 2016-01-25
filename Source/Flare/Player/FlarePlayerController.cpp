@@ -407,6 +407,7 @@ void AFlarePlayerController::OnExitMenu()
 		// Fly the ship
 		Possess(ShipPawn);
 		GetNavHUD()->OnTargetShipChanged();
+		CockpitManager->OnFlyShip(ShipPawn);
 		SetSelectingWeapon();
 	}
 
