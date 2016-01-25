@@ -97,8 +97,11 @@ public:
 	/** Draw a subsystem info line on a cockpit intrument */
 	void DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position);
 
-	/** Get the health color, using custom thresholds */
-	FLinearColor GetHealthColor(float Current, float Max = 1);
+	/** Get the temperature color, using custom threshold */
+	FLinearColor GetTemperatureColor(float Current, float Max);
+
+	/** Get the health color */
+	FLinearColor GetHealthColor(float Current);
 
 
 	/*----------------------------------------------------

@@ -283,7 +283,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 {
 	float Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
 	float OverheatTemperature = PlayerShip->GetDamageSystem()->GetOverheatTemperature();
-	FLinearColor TemperatureColor = PC->GetNavHUD()->GetHealthColor(Temperature, OverheatTemperature);
+	FLinearColor TemperatureColor = PC->GetNavHUD()->GetTemperatureColor(Temperature, OverheatTemperature);
 
 	CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", TemperatureColor);
 }

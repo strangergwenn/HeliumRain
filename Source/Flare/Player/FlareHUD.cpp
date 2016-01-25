@@ -269,7 +269,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	CurrentPos += 2 * InstrumentLine;
 
 	// Temperature text
-	FLinearColor TemperatureColor = GetHealthColor(Temperature, PlayerShip->GetDamageSystem()->GetOverheatTemperature());
+	FLinearColor TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetDamageSystem()->GetOverheatTemperature());
 	DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
 	FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
 	CurrentPos += 2 * InstrumentLine;
@@ -328,7 +328,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}x {1} - {2}%"),
 				FText::AsNumber(CurrentWeaponGroup->Weapons.Num()),
 				FText::Format(LOCTEXT("Rounds", "{0} rounds"), FText::AsNumber(RemainingAmmo)),
-				FText::AsNumber(100 * ComponentHealth));
+				FText::AsNumber((int32)(100 * ComponentHealth)));
 		}
 		else
 		{
@@ -379,7 +379,7 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 
 	FText SystemText = FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}: {1}%"),
 		IFlareSpacecraftDamageSystemInterface::GetSubsystemName(Subsystem),
-		FText::AsNumber(100 * ComponentHealth));
+		FText::AsNumber((int32)(100 * ComponentHealth)));
 
 	// Drawing data
 	UTexture2D* Icon = NULL;
@@ -414,7 +414,7 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 	Position += InstrumentLine;
 }
 
-FLinearColor AFlareHUD::GetHealthColor(float Current, float Max)
+FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.FriendlyColor;
@@ -428,6 +428,16 @@ FLinearColor AFlareHUD::GetHealthColor(float Current, float Max)
 		Ratio = 0.0f;
 	}
 
+	return FMath::Lerp(NormalColor, DamageColor, Ratio);
+}
+
+FLinearColor AFlareHUD::GetHealthColor(float Current)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.FriendlyColor;
+	FLinearColor DamageColor = Theme.EnemyColor;
+
+	float Ratio = FMath::Clamp(1 - Current, 0.0f, 1.0f);
 	return FMath::Lerp(NormalColor, DamageColor, Ratio);
 }
 
