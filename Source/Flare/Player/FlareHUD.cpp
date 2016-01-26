@@ -77,7 +77,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	TopInstrument =   FVector2D(20, 10);
 	LeftInstrument =  FVector2D(20, 165);
 	RightInstrument = FVector2D(20, 320);
-	InstrumentSize =  FVector2D(380, 120);
+	InstrumentSize =  FVector2D(380, 115);
 	InstrumentLine =  FVector2D(0, 20);
 }
 
@@ -373,7 +373,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 
 		// No weapon
 		FString DisarmedName = FString("1. ") + DisarmText.ToString();
-		DisarmedName = ((CurrentWeapongroupIndex == -1) ? FString("> ") : FString("   ")) + DisarmedName;
+		DisarmedName = ((CurrentWeapongroupIndex == -1) ? FString("> ") : FString("    ")) + DisarmedName;
 		FlareDrawText(DisarmedName, CurrentPos, HealthColor, false);
 		CurrentPos += InstrumentLine;
 	}

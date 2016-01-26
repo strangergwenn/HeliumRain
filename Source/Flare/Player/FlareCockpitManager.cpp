@@ -83,6 +83,7 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 	// Cockpit on
 	if (PC->UseCockpit && CockpitMaterialInstance == NULL)
 	{
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 		FVector2D ViewportSize = GEngine->GameViewport->Viewport->GetSizeXY();
 		if (ViewportSize.Size() == 0)
 		{
@@ -93,10 +94,12 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		// Screen material
 		CockpitMaterialInstance = UMaterialInstanceDynamic::Create(CockpitMaterialTemplate, GetWorld());
 		check(CockpitMaterialInstance);
+		CockpitMaterialInstance->SetVectorParameterValue("IndicatorColorBorders", Theme.FriendlyColor);
 
 		// Frame material
 		CockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(CockpitFrameMaterialTemplate, GetWorld());
 		check(CockpitMaterialInstance);
+		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorBorders", Theme.FriendlyColor);
 		
 		// HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
@@ -285,17 +288,10 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 
 	if (TargetShip)
 	{
-		// Update indicator
 		Intensity = 1;
 		FLinearColor Color = TargetShip->GetPlayerHostility() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
 		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorTop", Color);
-		
-		// Update FLIR
 		CockpitFLIRCapture->Activate();
-		/*FVector TargetDirection = TargetShip->GetActorLocation() - PlayerShip->GetActorLocation();
-		TargetDirection.Normalize();
-		CockpitFLIRCapture->SetRelativeLocation(TargetDirection * 1000);
-		CockpitFLIRCapture->SetRelativeRotation((TargetDirection).Rotation());*/
 	}
 	else
 	{
