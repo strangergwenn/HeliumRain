@@ -114,6 +114,10 @@ public:
 	/** Get the ship size */
 	float GetMeshScale() const;
 
+	/** Get the hostility text */
+	FText GetPlayerHostilityText() const;
+
+
 protected:
 
 	/*----------------------------------------------------

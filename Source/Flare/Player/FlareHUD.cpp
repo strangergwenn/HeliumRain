@@ -361,13 +361,24 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 
 void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 {
-	FVector2D CurrentPos = TopInstrument + FVector2D(InstrumentSize.X / 5, InstrumentSize.Y);
+	FVector2D CurrentPos = TopInstrument + FVector2D(0, InstrumentSize.Y) - InstrumentLine;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 
+	// Sector info
+	UFlareSimulatedSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector()->GetSimulatedSector();
+	FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
+		CurrentSector->GetSectorName(),
+		CurrentSector->GetSectorFriendlynessText(PlayerShip->GetCompany()));
+	FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+	CurrentPos += InstrumentLine;
+
+	// Target info
+	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 	if (TargetShip)
 	{
-		FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0}"), FText::FromString(TargetShip->GetImmatriculation().ToString()));
+		FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0} ({1})"),
+			FText::FromString(TargetShip->GetImmatriculation().ToString()),
+			TargetShip->GetPlayerHostilityText());
 		FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 	}
 }
