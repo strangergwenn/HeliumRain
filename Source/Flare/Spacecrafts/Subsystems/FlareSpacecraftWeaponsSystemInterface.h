@@ -40,6 +40,7 @@ public:
 
 		virtual EFlareWeaponGroupType::Type GetActiveWeaponType() const = 0;
 
+		FText GetWeaponModeInfo() const;
 
 
 };

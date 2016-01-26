@@ -105,9 +105,7 @@ public:
 	virtual void SetActiveWeaponTarget(AFlareSpacecraft* Target);
 
 	virtual AFlareSpacecraft* GetActiveWeaponTarget();
-
-
-
+	
 	virtual void StopAllWeapons();
 
 

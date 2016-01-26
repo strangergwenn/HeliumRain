@@ -341,17 +341,7 @@ FText SFlareHUDMenu::GetInfoText() const
 		}
 		else
 		{
-			EFlareWeaponGroupType::Type WeaponType = TargetShip->GetWeaponsSystem()->GetActiveWeaponType();
-
-			switch (WeaponType)
-			{
-			case EFlareWeaponGroupType::WG_NONE:    ModeText = LOCTEXT("Navigation", "Navigation mode");      break;
-			case EFlareWeaponGroupType::WG_GUN:     ModeText = LOCTEXT("Fighter", "Fighter mode");            break;
-			case EFlareWeaponGroupType::WG_BOMB:    ModeText = LOCTEXT("Bomber", "Bomber mode");              break;
-			case EFlareWeaponGroupType::WG_TURRET:
-			default:                                ModeText = LOCTEXT("CapitalShip", "Capital ship mode");   break;
-			}
-
+			ModeText = TargetShip->GetWeaponsSystem()->GetWeaponModeInfo();
 			if (TargetShip->GetNavigationSystem()->IsAutoPilot())
 			{
 				AutopilotText = LOCTEXT("AUTOPILOT", " (Autopilot)");

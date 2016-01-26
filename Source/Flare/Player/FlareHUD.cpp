@@ -268,11 +268,15 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	FlareDrawText(FlyingText, CurrentPos, Theme.FriendlyColor, false, true);
 	CurrentPos += 2 * InstrumentLine;
 
+	// Ship status
+	FlareDrawText(GetShipStatus(PlayerShip).ToString(), CurrentPos, Theme.FriendlyColor, false);
+	CurrentPos += InstrumentLine;
+	
 	// Temperature text
 	FLinearColor TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetDamageSystem()->GetOverheatTemperature());
 	DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
 	FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
-	CurrentPos += 2 * InstrumentLine;
+	CurrentPos += InstrumentLine;
 
 	// Subsystem health
 	DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Temperature, CurrentPos);
@@ -305,11 +309,13 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		FText TitleText;
 		FText InfoText;
 		FLinearColor HealthColor = Theme.FriendlyColor;
+		int32 CurrentWeapongroupIndex = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex();
 		FFlareWeaponGroup* CurrentWeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+		FText DisarmText = LOCTEXT("WeaponsDisabled", "Standing down");;
 
 		if (CurrentWeaponGroup)
 		{
-			float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex());
+			float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(CurrentWeapongroupIndex);
 			HealthColor = GetHealthColor(ComponentHealth);
 
 			// Get ammo count
@@ -324,7 +330,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			}
 
 			// Final strings
-			TitleText = CurrentWeaponGroup->Weapons[0]->GetDescription()->Name;
+			TitleText = CurrentWeaponGroup->Description->Name;
 			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}x {1} - {2}%"),
 				FText::AsNumber(CurrentWeaponGroup->Weapons.Num()),
 				FText::Format(LOCTEXT("Rounds", "{0} rounds"), FText::AsNumber(RemainingAmmo)),
@@ -332,14 +338,14 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		}
 		else
 		{
-			TitleText = LOCTEXT("WeaponsDisabled", "Weapons offline");
+			TitleText = DisarmText;
 		}
 
 		// Draw text
 		FlareDrawText(TitleText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 2 * InstrumentLine;
 		FlareDrawText(InfoText.ToString(), CurrentPos, HealthColor, false);
-		CurrentPos += InstrumentLine;
+		CurrentPos += 2 * InstrumentLine;
 
 		// Weapon icon
 		if (CurrentWeaponGroup)
@@ -350,6 +356,26 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		}
 
 		// Weapon list
+		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
+		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
+		{
+			float WeaponHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(i);
+			FText WeaponText = FText::Format(LOCTEXT("WeaponListInfoFormat", "{0}. {1} - {2}%"),
+				FText::AsNumber(i + 2), 
+				WeaponGroupList[i]->Description->Name,
+				FText::AsNumber((int32)(100 * WeaponHealth)));
+			FString WeaponString = ((i == CurrentWeapongroupIndex) ? FString("> ") : FString("   ")) + WeaponText.ToString();
+
+			HealthColor = GetHealthColor(WeaponHealth);
+			FlareDrawText(WeaponString, CurrentPos, HealthColor, false);
+			CurrentPos += InstrumentLine;
+		}
+
+		// No weapon
+		FString DisarmedName = FString("1. ") + DisarmText.ToString();
+		DisarmedName = ((CurrentWeapongroupIndex == -1) ? FString("> ") : FString("   ")) + DisarmedName;
+		FlareDrawText(DisarmedName, CurrentPos, HealthColor, false);
+		CurrentPos += InstrumentLine;
 	}
 
 	// Unarmed version
@@ -425,7 +451,36 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 	Position += InstrumentLine;
 }
 
-FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max)
+FText AFlareHUD::GetShipStatus(AFlareSpacecraft* PlayerShip) const
+{
+	FText ModeText;
+	FText AutopilotText;
+	IFlareSpacecraftNavigationSystemInterface* Nav = PlayerShip->GetNavigationSystem();
+	FFlareShipCommandData Command = Nav->GetCurrentCommand();
+
+	if (Nav->IsDocked())
+	{
+		ModeText = LOCTEXT("Docked", "Docked");
+	}
+	else if (Command.Type == EFlareCommandDataType::CDT_Dock)
+	{
+		AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
+		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
+	}
+	else
+	{
+		ModeText = PlayerShip->GetWeaponsSystem()->GetWeaponModeInfo();
+	}
+
+	if (Nav->IsAutoPilot())
+	{
+		AutopilotText = LOCTEXT("Autopilot", " (Autopilot)");
+	}
+
+	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} {1}"), ModeText, AutopilotText);
+}
+
+FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max) const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.FriendlyColor;
@@ -442,7 +497,7 @@ FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max)
 	return FMath::Lerp(NormalColor, DamageColor, Ratio);
 }
 
-FLinearColor AFlareHUD::GetHealthColor(float Current)
+FLinearColor AFlareHUD::GetHealthColor(float Current) const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.FriendlyColor;
