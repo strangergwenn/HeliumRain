@@ -30,6 +30,7 @@ public:
 	/** Whether to use the external camera or not */
 	virtual void SetExternalCamera(bool External);
 
+
 	/*----------------------------------------------------
 		Internal
 	----------------------------------------------------*/
@@ -57,7 +58,7 @@ protected:
 protected:
 
 	/*----------------------------------------------------
-		Protected data
+		General gameplay & cockpit data
 	----------------------------------------------------*/
 
 	// Player controller
@@ -84,9 +85,15 @@ protected:
 	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UPointLightComponent*                    CockpitLight2;
 
-	// Scene capture for the ship's camera
-	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
-	USceneCaptureComponent2D*                CockpitCapture;
+	// Gameplay data
+	bool                                     IsInCockpit;
+	int32                                    CockpitInstrumentsTargetSize;
+	int32                                    CockpitFLIRTargetSize;
+	
+
+	/*----------------------------------------------------
+		Materials
+	----------------------------------------------------*/
 
 	// Cockpit material template
 	UPROPERTY()
@@ -104,9 +111,10 @@ protected:
 	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UMaterialInstanceDynamic*                CockpitFrameMaterialInstance;
 
-	// Cockpit texture (camera)
-	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
-	UCanvasRenderTarget2D*                   CockpitCameraTarget;
+
+	/*----------------------------------------------------
+		Cameras and render targets
+	----------------------------------------------------*/
 
 	// Cockpit texture (HUD)
 	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
@@ -116,21 +124,32 @@ protected:
 	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
 	UCanvasRenderTarget2D*                   CockpitInstrumentsTarget;
 
-	// Settings
-	int32                                    CockpitInstrumentsTargetSize;
+	// Scene capture (target camera)
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
+	USceneCaptureComponent2D*                CockpitFLIRCapture;
 
+	// Cockpit texture (target camera)
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
+	UCanvasRenderTarget2D*                   CockpitFLIRCameraTarget;
+
+#if FLARE_USE_COCKPIT_RENDERTARGET
+
+	// Scene capture (main camera, for RT version)
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
+	USceneCaptureComponent2D*                CockpitCapture;
+
+	// Cockpit texture (main camera, for RT version)
+	UPROPERTY(Category = Cockpit, VisibleDefaultsOnly, BlueprintReadOnly)
+	UCanvasRenderTarget2D*                   CockpitCameraTarget;
+
+#endif
 
 public:
 
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
-
-	inline USceneCaptureComponent2D* GetCockpitCameraCapture()
-	{
-		return CockpitCapture;
-	}
-
+	
 	inline UStaticMeshComponent* GetCockpitMesh()
 	{
 		return CockpitMesh;

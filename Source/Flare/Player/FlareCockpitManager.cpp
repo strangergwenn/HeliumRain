@@ -18,8 +18,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, PlayerShip(NULL)
 	, CockpitMaterialInstance(NULL)
 	, CockpitFrameMaterialInstance(NULL)
-	, CockpitCameraTarget(NULL)
 	, CockpitHUDTarget(NULL)
+	, CockpitInstrumentsTarget(NULL)
 {
 	// Cockpit data
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit"));
@@ -34,9 +34,19 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMesh->LightingChannels.bChannel0 = false;
 	CockpitMesh->LightingChannels.bChannel1 = true;
 
-	// Cockpit camera
+	// Main camera
+#if FLARE_USE_COCKPIT_RENDERTARGET
 	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
 	CockpitCapture->bCaptureEveryFrame = true;
+	CockpitCameraTarget = NULL;
+#endif
+
+	// FLIR camera
+	CockpitFLIRCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitFLIRCapture"));
+	CockpitFLIRCapture->bCaptureEveryFrame = true;
+	CockpitFLIRCapture->FOVAngle = 10;
+	CockpitFLIRCameraTarget = NULL;
+	CockpitFLIRCapture->Deactivate();
 
 	// Light
 	CockpitLight = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight"));
@@ -62,6 +72,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 	CockpitInstrumentsTargetSize = 512;
+	CockpitFLIRTargetSize = 512;
+	IsInCockpit = false;
 }
 
 void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
@@ -78,54 +90,59 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		}
 		FLOGV("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit (%dx%d", ViewportSize.X, ViewportSize.Y);
 
-		// Cockpit camera texture target
-		if (PC->UseCockpitRenderTarget)
-		{
-			CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
-			check(CockpitCameraTarget);
-			CockpitCameraTarget->ClearColor = FLinearColor::Black;
-			CockpitCameraTarget->UpdateResource();
-		}
+		// Screen material
+		CockpitMaterialInstance = UMaterialInstanceDynamic::Create(CockpitMaterialTemplate, GetWorld());
+		check(CockpitMaterialInstance);
 
-		// Cockpit HUD texture target
+		// Frame material
+		CockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(CockpitFrameMaterialTemplate, GetWorld());
+		check(CockpitMaterialInstance);
+		
+		// HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
 		check(CockpitHUDTarget);
 		CockpitHUDTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawCockpitHUD);
 		CockpitHUDTarget->ClearColor = FLinearColor::Black;
 		CockpitHUDTarget->UpdateResource();
+		CockpitMaterialInstance->SetTextureParameterValue("HUDTarget", CockpitHUDTarget);
 
-		// Cockpit instruments texture target
+		// Instruments texture target
 		CockpitInstrumentsTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitInstrumentsTargetSize, CockpitInstrumentsTargetSize);
 		check(CockpitInstrumentsTarget);
 		CockpitInstrumentsTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawCockpitInstruments);
 		CockpitInstrumentsTarget->ClearColor = FLinearColor::Black;
 		CockpitInstrumentsTarget->UpdateResource();
-
-		// Cockpit material
-		CockpitMaterialInstance = UMaterialInstanceDynamic::Create(CockpitMaterialTemplate, GetWorld());
-		check(CockpitMaterialInstance);
-		CockpitMaterialInstance->SetTextureParameterValue("CameraTarget", CockpitCameraTarget);
-		CockpitMaterialInstance->SetTextureParameterValue("HUDTarget", CockpitHUDTarget);
-		CockpitMaterialInstance->SetScalarParameterValue("CockpitOpacity", PC->UseCockpitRenderTarget ? 1:0);
-
-		// Cockpit frame material
-		CockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(CockpitFrameMaterialTemplate, GetWorld());
-		check(CockpitMaterialInstance);
 		CockpitFrameMaterialInstance->SetTextureParameterValue("InstrumentsTarget", CockpitInstrumentsTarget);
+
+		// FLIR camera target
+		CockpitFLIRCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitFLIRTargetSize, CockpitFLIRTargetSize);
+		check(CockpitFLIRCameraTarget);
+		CockpitFLIRCameraTarget->ClearColor = FLinearColor::Black;
+		CockpitFLIRCameraTarget->UpdateResource();
+
+		// Setup FLIR camera
+		check(CockpitFLIRCapture);
+		CockpitFLIRCapture->TextureTarget = CockpitFLIRCameraTarget;
+		CockpitFrameMaterialInstance->SetTextureParameterValue("FLIRTarget", CockpitFLIRCameraTarget);
+
+#if FLARE_USE_COCKPIT_RENDERTARGET
+		// Main camera texture target
+		CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
+		check(CockpitCameraTarget);
+		CockpitCameraTarget->ClearColor = FLinearColor::Black;
+		CockpitCameraTarget->UpdateResource();
+
+		// Setup main camera
+		check(CockpitCapture);
+		CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
+		CockpitCapture->TextureTarget = CockpitCameraTarget;
+		CockpitMaterialInstance->SetTextureParameterValue("CameraTarget", CockpitCameraTarget);
+#endif
 
 		// Setup mesh
 		CockpitMesh->SetStaticMesh(CockpitMeshTemplate);
 		CockpitMesh->SetMaterial(0, CockpitMaterialInstance);
 		CockpitMesh->SetMaterial(1, CockpitFrameMaterialInstance);
-
-		// Setup render target camera
-		if (PC->UseCockpitRenderTarget)
-		{
-			check(CockpitCapture);
-			check(CockpitCameraTarget);
-			CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
-			CockpitCapture->TextureTarget = CockpitCameraTarget;
-		}
 	}
 	else
 	{
@@ -196,29 +213,32 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 			SetupCockpit(PC);
 		}
 
-		// Update HUD target
-		if (CockpitHUDTarget)
+		if (IsInCockpit && PlayerShip)
 		{
-			CockpitHUDTarget->UpdateResource();
-		}
+			// Update HUD target
+			if (CockpitHUDTarget)
+			{
+				CockpitHUDTarget->UpdateResource();
+			}
 
-		// Update instruments target
-		if (CockpitInstrumentsTarget)
-		{
-			CockpitInstrumentsTarget->UpdateResource();
-		}
+			// Update instruments target
+			if (CockpitInstrumentsTarget)
+			{
+				CockpitInstrumentsTarget->UpdateResource();
+			}
 
-		// Update instruments
-		if (PlayerShip && CockpitFrameMaterialInstance)
-		{
-			UpdateTarget(DeltaSeconds);
-			UpdateInfo(DeltaSeconds);
-			UpdateTemperature(DeltaSeconds);
+			// Update instruments
+			if (CockpitFrameMaterialInstance)
+			{
+				UpdateTarget(DeltaSeconds);
+				UpdateInfo(DeltaSeconds);
+				UpdateTemperature(DeltaSeconds);
 
-			// Lights
-			bool LightsActive = !PlayerShip->GetDamageSystem()->HasPowerOutage();
-			CockpitLight->SetActive(LightsActive);
-			CockpitLight2->SetActive(LightsActive);
+				// Lights
+				bool LightsActive = !PlayerShip->GetDamageSystem()->HasPowerOutage();
+				CockpitLight->SetActive(LightsActive);
+				CockpitLight2->SetActive(LightsActive);
+			}
 		}
 	}
 }
@@ -233,22 +253,27 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* PlayerShip)
 	check(CockpitFrameMaterialTemplate);
 
 	// Offset the cockpit
-	if (PC->UseCockpitRenderTarget)
-	{
-		CockpitMesh->AttachTo(PlayerShip->GetRootComponent(), NAME_None, EAttachLocation::SnapToTarget);
-		FVector CameraOffset = PlayerShip->GetRootComponent()->GetSocketLocation(FName("Camera"));
-		CockpitCapture->SetRelativeLocation(CameraOffset);
-	}
-	else
-	{
-		CockpitMesh->AttachTo(PlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
-	}
+#if FLARE_USE_COCKPIT_RENDERTARGET
+	CockpitMesh->AttachTo(PlayerShip->GetRootComponent(), NAME_None, EAttachLocation::SnapToTarget);
+	FVector CameraOffset = PlayerShip->GetRootComponent()->GetSocketLocation(FName("Camera"));
+	CockpitCapture->SetRelativeLocation(CameraOffset);
+#else
+	CockpitMesh->AttachTo(PlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
+#endif
 
+	// FLIR camera
+	CockpitFLIRCapture->AttachTo(PlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
+
+	// General data
+	IsInCockpit = true;
+	CockpitFLIRCapture->Activate();
 	CockpitMesh->SetVisibility(true, true);
 }
 
 void AFlareCockpitManager::ExitCockpit(AFlareSpacecraft* PlayerShip)
 {
+	IsInCockpit = false;
+	CockpitFLIRCapture->Deactivate();
 	CockpitMesh->SetVisibility(false, true);
 }
 
@@ -260,9 +285,21 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 
 	if (TargetShip)
 	{
+		// Update indicator
 		Intensity = 1;
 		FLinearColor Color = TargetShip->GetPlayerHostility() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
 		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorTop", Color);
+		
+		// Update FLIR
+		CockpitFLIRCapture->Activate();
+		/*FVector TargetDirection = TargetShip->GetActorLocation() - PlayerShip->GetActorLocation();
+		TargetDirection.Normalize();
+		CockpitFLIRCapture->SetRelativeLocation(TargetDirection * 1000);
+		CockpitFLIRCapture->SetRelativeRotation((TargetDirection).Rotation());*/
+	}
+	else
+	{
+		CockpitFLIRCapture->Deactivate();
 	}
 
 	CockpitFrameMaterialInstance->SetScalarParameterValue("IndicatorIntensityTop", Intensity);

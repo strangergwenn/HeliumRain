@@ -21,7 +21,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
-	, UseCockpitRenderTarget(false)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 
@@ -55,7 +54,7 @@ void AFlarePlayerController::BeginPlay()
 	// Cockpit
 	SetupCockpit();
 	CockpitManager->SetupCockpit(this);
-	PlayerCameraManager->SetFOV(90);
+	PlayerCameraManager->SetFOV(93);
 
 	// Menu manager
 	SetupMenu();
