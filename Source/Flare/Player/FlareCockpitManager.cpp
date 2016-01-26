@@ -31,6 +31,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 
 	// Cockpit mesh
 	CockpitMesh = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Cockpit"));
+	CockpitMesh->LightingChannels.bChannel0 = false;
+	CockpitMesh->LightingChannels.bChannel1 = true;
 
 	// Cockpit camera
 	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
@@ -42,6 +44,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitLight->SetIntensity(200);
 	CockpitLight->SetRelativeLocation(FVector(0, -30, -30));
 	CockpitLight->SetCastShadows(false);
+	CockpitLight->LightingChannels.bChannel0 = false;
+	CockpitLight->LightingChannels.bChannel1 = true;
 	CockpitLight->AttachTo(CockpitMesh);
 
 	// Light 2
@@ -50,6 +54,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitLight2->SetIntensity(200);
 	CockpitLight2->SetRelativeLocation(FVector(0, 10, 10));
 	CockpitLight2->SetCastShadows(false);
+	CockpitLight2->LightingChannels.bChannel0 = false;
+	CockpitLight2->LightingChannels.bChannel1 = true;
 	CockpitLight2->AttachTo(CockpitMesh);
 
 	// Settings
