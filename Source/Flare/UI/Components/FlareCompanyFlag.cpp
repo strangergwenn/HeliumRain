@@ -1,5 +1,7 @@
 
 #include "../../Flare.h"
+#include "../../Player/FlarePlayerController.h"
+#include "../../Game/FlareCompany.h"
 #include "FlareCompanyFlag.h"
 
 

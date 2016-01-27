@@ -2,6 +2,8 @@
 #include "../Flare.h"
 #include "FlareSpacecraft.h"
 #include "../Game/FlareAsteroid.h"
+#include "../Game/FlareGame.h"
+#include "../Player/FlarePlayerController.h"
 #include "FlareWeapon.h"
 #include "FlareBombComponent.h"
 #include "FlareBomb.h"

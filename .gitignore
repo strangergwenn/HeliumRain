@@ -15,3 +15,4 @@ Build/
 Binaries/Win64/FlareEditor.target
 Binaries/Win64/UE4Editor.modules
 Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor.modules
+Binaries/Win64/Flare.target
