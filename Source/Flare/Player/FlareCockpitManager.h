@@ -89,6 +89,8 @@ protected:
 	bool                                     IsInCockpit;
 	int32                                    CockpitInstrumentsTargetSize;
 	int32                                    CockpitFLIRTargetSize;
+	float                                    CockpitHealthLightTime;
+	float                                    CockpitHealthLightPeriod;
 	
 
 	/*----------------------------------------------------

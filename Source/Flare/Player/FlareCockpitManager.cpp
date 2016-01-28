@@ -20,6 +20,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitFrameMaterialInstance(NULL)
 	, CockpitHUDTarget(NULL)
 	, CockpitInstrumentsTarget(NULL)
+	, CockpitHealthLightTime(0)
+	, CockpitHealthLightPeriod(1.2)
 {
 	// Cockpit data
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit"));
@@ -322,11 +324,29 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 
 void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 {
-	float Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
-	float OverheatTemperature = PlayerShip->GetDamageSystem()->GetOverheatTemperature();
-	FLinearColor TemperatureColor = PC->GetNavHUD()->GetTemperatureColor(Temperature, OverheatTemperature);
+	// Update timer
+	CockpitHealthLightTime += DeltaSeconds;
+	if (CockpitHealthLightTime > CockpitHealthLightPeriod)
+	{
+		CockpitHealthLightTime -= CockpitHealthLightPeriod;
+	}
 
-	CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", TemperatureColor);
+	// Temperature
+	if (CockpitHealthLightTime > CockpitHealthLightPeriod / 2)
+	{
+		float Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
+		float OverheatTemperature = PlayerShip->GetDamageSystem()->GetOverheatTemperature();
+		FLinearColor TemperatureColor = PC->GetNavHUD()->GetTemperatureColor(Temperature, OverheatTemperature);
+		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", TemperatureColor);
+	}
+
+	// Cockpit health
+	else
+	{
+		float ComponentHealth = PlayerShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport);
+		FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(ComponentHealth);
+		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", HealthColor);
+	}
 }
 
 
