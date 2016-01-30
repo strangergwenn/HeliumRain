@@ -100,11 +100,16 @@ public:
 	/** Get the ship's current status as text */
 	FText GetShipStatus(AFlareSpacecraft* PlayerShip) const;
 
+
+	/*----------------------------------------------------
+		HUD helpers
+	----------------------------------------------------*/
+
 	/** Get the temperature color, using custom threshold */
-	FLinearColor GetTemperatureColor(float Current, float Max) const;
+	static FLinearColor GetTemperatureColor(float Current, float Max);
 
 	/** Get the health color */
-	FLinearColor GetHealthColor(float Current) const;
+	static FLinearColor GetHealthColor(float Current);
 
 
 	/*----------------------------------------------------
@@ -155,6 +160,9 @@ protected:
 	/** Get the appropriate hostility color */
 	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target);
 
+	/** Convert a world location to screen-space */
+	bool WorldToScreen(FVector World, FVector2D& Screen);
+
 
 protected:
 
@@ -183,6 +191,7 @@ protected:
 	bool                                    HUDVisible;
 	bool                                    IsInteractive;
 	bool                                    FoundTargetUnderMouse;
+	bool                                    IsDrawingCockpit;
 	FVector2D                               ViewportSize;
 
 	// Current data

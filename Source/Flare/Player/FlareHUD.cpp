@@ -16,6 +16,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CombatMouseRadius(100)
 	, HUDVisible(true)
+	, IsDrawingCockpit(false)
 {
 	// Load content (general icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj         (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
@@ -125,7 +126,6 @@ void AFlareHUD::Setup(AFlareMenuManager* NewMenuManager)
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ContextMenuContainer.ToSharedRef()), 10);
 
 		// Setup extra menus
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 		UpdateHUDVisibility();
 		ContextMenu->Hide();
 	}
@@ -198,6 +198,7 @@ void AFlareHUD::DrawHUD()
 	{
 		CurrentViewportSize = ViewportSize;
 		CurrentCanvas = Canvas;
+		IsDrawingCockpit = false;
 		DrawHUDInternal();
 	}
 }
@@ -230,6 +231,7 @@ void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
 	{
 		CurrentViewportSize = FVector2D(Width, Height);
 		CurrentCanvas = TargetCanvas;
+		IsDrawingCockpit = true;
 		DrawHUDInternal();
 	}
 }
@@ -480,7 +482,12 @@ FText AFlareHUD::GetShipStatus(AFlareSpacecraft* PlayerShip) const
 	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} {1}"), ModeText, AutopilotText);
 }
 
-FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max) const
+
+/*----------------------------------------------------
+	Helpers
+----------------------------------------------------*/
+
+FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.FriendlyColor;
@@ -497,7 +504,7 @@ FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max) const
 	return FMath::Lerp(NormalColor, DamageColor, Ratio);
 }
 
-FLinearColor AFlareHUD::GetHealthColor(float Current) const
+FLinearColor AFlareHUD::GetHealthColor(float Current)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.FriendlyColor;
@@ -594,7 +601,7 @@ void AFlareHUD::DrawHUDInternal()
 
 				bool ShouldDrawMarker = false;
 
-				if (PC->ProjectWorldLocationToScreen(ObjectiveLocation, ScreenPosition))
+				if (WorldToScreen(ObjectiveLocation, ScreenPosition))
 				{
 					if (IsInScreen(ScreenPosition))
 					{
@@ -640,7 +647,7 @@ void AFlareHUD::DrawHUDInternal()
 			FVector BombTarget = PlayerShip->GetActorLocation() + BombDirection * 1000000;
 
 			FVector2D ScreenPosition;
-			if (PC->ProjectWorldLocationToScreen(BombTarget, ScreenPosition))
+			if (WorldToScreen(BombTarget, ScreenPosition))
 			{
 				// Icon
 				DrawHUDIcon(ScreenPosition, IconSize, HUDBombAimIcon, HudColorNeutral, true);
@@ -675,7 +682,7 @@ void AFlareHUD::DrawHUDInternal()
 			FVector2D ScreenPosition;
 			AFlareBomb* Bomb = ActiveSector->GetBombs()[BombIndex];
 			
-			if (Bomb && PC->ProjectWorldLocationToScreen(Bomb->GetActorLocation(), ScreenPosition))
+			if (Bomb && WorldToScreen(Bomb->GetActorLocation(), ScreenPosition))
 			{
 				if (IsInScreen(ScreenPosition))
 				{
@@ -718,7 +725,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 
 	// Draw inertial vector
 	FVector EndPoint = Object->GetActorLocation() + FocusDistance * Speed;
-	if (PC->ProjectWorldLocationToScreen(EndPoint, ScreenPosition) && SpeedMS > 1)
+	if (WorldToScreen(EndPoint, ScreenPosition) && SpeedMS > 1)
 	{
 		// Cap screen pos
 		float ScreenBorderDistanceX = 100;
@@ -770,7 +777,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = Spacecraft->GetActorLocation();
 
-	if (PC->ProjectWorldLocationToScreen(TargetLocation, ScreenPosition))
+	if (WorldToScreen(TargetLocation, ScreenPosition))
 	{
 		// Compute apparent size in screenspace
 		float ShipSize = 2 * Spacecraft->GetMeshScale();
@@ -856,7 +863,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 					FVector AmmoIntersectionLocation;
 					float InterceptTime = Spacecraft->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
-					if (InterceptTime > 0 && PC->ProjectWorldLocationToScreen(AmmoIntersectionLocation, ScreenPosition))
+					if (InterceptTime > 0 && WorldToScreen(AmmoIntersectionLocation, ScreenPosition))
 					{
 						// Get some more data
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
@@ -1031,6 +1038,42 @@ FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpac
 		case EFlareHostility::Friendly:
 		default:
 			return HudColorNeutral;
+	}
+}
+
+bool AFlareHUD::WorldToScreen(FVector World, FVector2D& Screen)
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	// Cockpit projection
+	if (IsDrawingCockpit)
+	{
+		FVector WorldDirection = World - PC->GetShipPawn()->GetActorLocation();
+		FVector ScreenDirection = PC->GetShipPawn()->WorldToLocal(WorldDirection);
+		ScreenDirection += FVector(10000, 0, 0); // Cockpit is supposed to be spherical around -100
+
+		// FoV calculation. The vertical FoV is scaled by an arbitrary factor because UV adjustments were made for horizontal.
+		float HorizontalFOV = PC->PlayerCameraManager->GetFOVAngle();
+		float VerticalFOV = (ViewportSize.Y / ViewportSize.X) * HorizontalFOV * 0.79;
+
+		FVector ScreenRotation = ScreenDirection.Rotation().Euler();
+		if (FMath::Abs(ScreenRotation.Z) <= HorizontalFOV && FMath::Abs(ScreenRotation.Y) <= VerticalFOV)
+		{
+			Screen.X = (ScreenRotation.Z / HorizontalFOV) * CurrentViewportSize.X;
+			Screen.Y = (-ScreenRotation.Y / VerticalFOV) * CurrentViewportSize.Y;
+			Screen += CurrentViewportSize / 2;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	// Flat screen projection
+	else
+	{
+		return PC->ProjectWorldLocationToScreen(World, Screen);
 	}
 }
 
