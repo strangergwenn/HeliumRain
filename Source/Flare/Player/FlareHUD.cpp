@@ -249,9 +249,29 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 		// Draw instruments
 		if (PlayerShip)
 		{
-			DrawCockpitSubsystems(PlayerShip);
-			DrawCockpitEquipment(PlayerShip);
-			DrawCockpitTarget(PlayerShip);
+			// Regular case
+			if (!PC->IsTest1)//!PlayerShip->GetDamageSystem()->HasPowerOutage()))
+			{
+				DrawCockpitSubsystems(PlayerShip);
+				DrawCockpitEquipment(PlayerShip);
+				DrawCockpitTarget(PlayerShip);
+			}
+
+			// Power out
+			else
+			{
+				// Power out text
+				FText PowerOut = LOCTEXT("PowerOut", "NO POWER");
+				FText PowerOutInfo = FText::Format(LOCTEXT("PwBackInFormat", "Power back in {0}..."),
+					FText::AsNumber((int32)(PlayerShip->GetDamageSystem()->GetPowerOutageDuration()) + 1));
+
+				// Draw
+				FVector2D CurrentPos = RightInstrument;
+				const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+				FlareDrawText(PowerOut.ToString(), CurrentPos, Theme.EnemyColor, false, true);
+				CurrentPos += 2 * InstrumentLine;
+				FlareDrawText(PowerOutInfo.ToString(), CurrentPos, Theme.EnemyColor, false);
+			}
 		}
 	}
 }

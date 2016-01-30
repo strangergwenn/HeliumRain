@@ -54,6 +54,9 @@ protected:
 	/** Update the overheat info */
 	void UpdateTemperature(float DeltaSeconds);
 
+	/** Update the power level */
+	void UpdatePower(float DeltaSeconds);
+
 
 protected:
 
@@ -91,6 +94,8 @@ protected:
 	int32                                    CockpitFLIRTargetSize;
 	float                                    CockpitHealthLightTime;
 	float                                    CockpitHealthLightPeriod;
+	float                                    CockpitPowerTime;
+	float                                    CockpitPowerPeriod;
 	
 
 	/*----------------------------------------------------

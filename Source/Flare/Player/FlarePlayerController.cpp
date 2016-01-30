@@ -39,6 +39,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	QuickSwitchNextOffset = 0;
 	CurrentObjective.Set = false;
 	CurrentObjective.Version = 0;
+	IsTest1 = false;
+	IsTest2 = false;
 }
 
 
@@ -572,7 +574,6 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAxis("MouseInputX", this, &AFlarePlayerController::MouseInputX);
 	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
 
-
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
 }
@@ -795,14 +796,14 @@ void AFlarePlayerController::MouseInputY(float Val)
 
 void AFlarePlayerController::Test1()
 {
-	FLOG("AFlarePlayerController::Test1");
-	SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+	IsTest1 = !IsTest1;
+	FLOGV("AFlarePlayerController::Test1 %d", IsTest1);
 }
 
 void AFlarePlayerController::Test2()
 {
-	FLOG("AFlarePlayerController::Test2");
-	SoundManager->RequestMusicTrack(EFlareMusicTrack::None);
+	IsTest2 = !IsTest2;
+	FLOGV("AFlarePlayerController::Test2 %d", IsTest2);
 }
 
 

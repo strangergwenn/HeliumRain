@@ -22,6 +22,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitInstrumentsTarget(NULL)
 	, CockpitHealthLightTime(0)
 	, CockpitHealthLightPeriod(1.2)
+	, CockpitPowerTime(0)
+	, CockpitPowerPeriod(0.3)
 {
 	// Cockpit data
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit"));
@@ -238,11 +240,7 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 				UpdateTarget(DeltaSeconds);
 				UpdateInfo(DeltaSeconds);
 				UpdateTemperature(DeltaSeconds);
-
-				// Lights
-				bool LightsActive = !PlayerShip->GetDamageSystem()->HasPowerOutage();
-				CockpitLight->SetActive(LightsActive);
-				CockpitLight2->SetActive(LightsActive);
+				UpdatePower(DeltaSeconds);
 			}
 		}
 	}
@@ -288,7 +286,14 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	if (TargetShip)
+	// Power out
+	if (PlayerShip->GetDamageSystem()->HasPowerOutage())
+	{
+		Intensity = 0;
+	}
+
+	// Target exists
+	else if (TargetShip)
 	{
 		Intensity = 1;
 		FLinearColor Color = TargetShip->GetPlayerHostility() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
@@ -331,8 +336,15 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 		CockpitHealthLightTime -= CockpitHealthLightPeriod;
 	}
 
+	// Power out
+	if (PlayerShip->GetDamageSystem()->HasPowerOutage())
+	{
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", Theme.EnemyColor);
+	}
+
 	// Temperature
-	if (CockpitHealthLightTime > CockpitHealthLightPeriod / 2)
+	else if (CockpitHealthLightTime > CockpitHealthLightPeriod / 2)
 	{
 		float Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
 		float OverheatTemperature = PlayerShip->GetDamageSystem()->GetOverheatTemperature();
@@ -347,6 +359,27 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 		FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(ComponentHealth);
 		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", HealthColor);
 	}
+}
+
+void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
+{
+	// Update timer
+	bool HasPower = !PlayerShip->GetDamageSystem()->HasPowerOutage();
+	CockpitPowerTime += (HasPower ? 1.0f : -1.0f) * DeltaSeconds;
+	CockpitPowerTime = FMath::Clamp(CockpitPowerTime, 0.0f, CockpitPowerPeriod);
+	float PowerAlpha = CockpitPowerTime / CockpitPowerPeriod;
+
+	// Update lights
+	float Intensity = 20 + PowerAlpha * 200;
+	CockpitLight->SetIntensity(Intensity);
+	CockpitLight2->SetIntensity(Intensity);
+
+	// Update materials
+	FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(PowerAlpha);
+	CockpitMaterialInstance->SetScalarParameterValue(      "Power", PowerAlpha);
+	CockpitFrameMaterialInstance->SetScalarParameterValue( "Power", PowerAlpha);
+	CockpitMaterialInstance->SetVectorParameterValue(      "IndicatorColorBorders", HealthColor);
+	CockpitFrameMaterialInstance->SetVectorParameterValue( "IndicatorColorBorders", HealthColor);
 }
 
 

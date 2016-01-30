@@ -460,7 +460,8 @@ FText SFlareHUDMenu::GetOutageText() const
 
 	if (TargetShip)
 	{
-		return FText::Format(LOCTEXT("PwBackInFormat", "Power back in {0}..."), FText::AsNumber(TargetShip->GetDamageSystem()->GetPowerOutageDuration() + 1));
+		return FText::Format(LOCTEXT("PwBackInFormat", "Power back in {0}..."),
+			FText::AsNumber((int32)(TargetShip->GetDamageSystem()->GetPowerOutageDuration()) + 1));
 	}
 
 	return Result;
