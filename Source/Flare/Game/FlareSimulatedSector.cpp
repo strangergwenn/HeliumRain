@@ -467,23 +467,23 @@ FLinearColor UFlareSimulatedSector::GetSectorFriendlynessColor(UFlareCompany* Co
 bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
 {
 	// Check money cost
-	if(Company->GetMoney() < StationDescription->Cost)
+	if (Company->GetMoney() < StationDescription->Cost)
 	{
 		return false;
 	}
 
 	// First, it need a free cargo
 	bool HasFreeCargo = false;
-	for(int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
+	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
 
-		if(Ship->GetCompany() != Company)
+		if (Ship->GetCompany() != Company)
 		{
 			continue;
 		}
 
-		if(Ship->GetDescription()->CargoBayCount == 0)
+		if (Ship->GetDescription()->CargoBayCount == 0)
 		{
 			// Not a cargo
 			continue;
@@ -536,7 +536,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 				}
 			}
 
-			if(NewResource)
+			if (NewResource)
 			{
 				FFlareCargo NewResourceCargo;
 				NewResourceCargo.Resource = Cargo->Resource;
@@ -547,17 +547,17 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Check resource cost
-	for(int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+	for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
 	{
 		FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
 		bool ResourceFound = false;
 
-		for(int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
+		for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
 		{
-			if(AvailableResources[AvailableResourceIndex].Resource == &(FactoryResource->Resource->Data))
+			if (AvailableResources[AvailableResourceIndex].Resource == &(FactoryResource->Resource->Data))
 			{
 				ResourceFound = true;
-				if(AvailableResources[AvailableResourceIndex].Quantity < FactoryResource->Quantity)
+				if (AvailableResources[AvailableResourceIndex].Quantity < FactoryResource->Quantity)
 				{
 					return false;
 				}
@@ -565,7 +565,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 			}
 		}
 
-		if(!ResourceFound)
+		if (!ResourceFound)
 		{
 			return false;
 		}
@@ -576,9 +576,10 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 
 bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
 {
-	if(!CanBuildStation(StationDescription, Company))
+	if (!CanBuildStation(StationDescription, Company))
 	{
-		FLOGV("Fail to buid station '%s' for company '%s'", *StationDescription->Identifier.ToString(), *Company->GetIdentifier().ToString());
+		FLOGV("UFlareSimulatedSector::BuildStation : Failed to buid station '%s' for company '%s'",
+			*StationDescription->Identifier.ToString(), *Company->GetIdentifier().ToString());
 		return false;
 	}
 
@@ -586,7 +587,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	Company->TakeMoney(StationDescription->Cost);
 
 	// Take resource cost
-	for(int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+	for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
 	{
 		FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
 		uint32 ResourceToTake = FactoryResource->Quantity;
@@ -594,11 +595,11 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 
 
 		// First take from ships
-		for(int ShipIndex = 0; ShipIndex < SectorShips.Num() && ResourceToTake > 0; ShipIndex++)
+		for (int ShipIndex = 0; ShipIndex < SectorShips.Num() && ResourceToTake > 0; ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
 
-			if(Ship->GetCompany() != Company)
+			if (Ship->GetCompany() != Company)
 			{
 				continue;
 			}
@@ -606,7 +607,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 			ResourceToTake -= Ship->TakeResources(Resource, ResourceToTake);
 		}
 
-		if(ResourceToTake == 0)
+		if (ResourceToTake == 0)
 		{
 			continue;
 		}
@@ -614,17 +615,17 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 		// Then take useless resources from station
 		ResourceToTake -= TakeUselessResources(Company, Resource, ResourceToTake);
 
-		if(ResourceToTake == 0)
+		if (ResourceToTake == 0)
 		{
 			continue;
 		}
 
 		// Finally take from all stations
-		for(int StationIndex = 0; StationIndex < SectorStations.Num() && ResourceToTake > 0; StationIndex++)
+		for (int StationIndex = 0; StationIndex < SectorStations.Num() && ResourceToTake > 0; StationIndex++)
 		{
 			UFlareSimulatedSpacecraft* Station = SectorShips[StationIndex];
 
-			if(Station->GetCompany() != Company)
+			if (Station->GetCompany() != Company)
 			{
 				continue;
 			}
@@ -684,7 +685,7 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 
 	uint32 TransportCapacity = GetTransportCapacity(Company);
 
-	if(TransportCapacity == 0)
+	if (TransportCapacity == 0)
 	{
 		// No transport
 		return;
@@ -694,7 +695,7 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 
 	FLOGV("Initial TransportCapacity=%u", TransportCapacity);
 
-	if(PersistentStationIndex >= SectorStations.Num())
+	if (PersistentStationIndex >= SectorStations.Num())
 	{
 		PersistentStationIndex = 0;
 	}
@@ -710,7 +711,7 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 	// 6 - empty full output for station with no output space // TODO
 
 	//1 - fill resources consumers
-	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+	for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 	{
 		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
 
@@ -722,7 +723,7 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 		{
 			UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
 
-			if(Station->GetCompany() != Company || !Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+			if (Station->GetCompany() != Company || !Station->HasCapability(EFlareSpacecraftCapability::Consumer))
 			{
 				continue;
 			}
@@ -731,7 +732,7 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 
 
 			// Fill only one slot for each ressource
-			if(Station->GetCargoBayResourceQuantity(Resource) > Station->GetDescription()->CargoBayCapacity)
+			if (Station->GetCargoBayResourceQuantity(Resource) > Station->GetDescription()->CargoBayCapacity)
 			{
 				FLOGV("Fill only one slot for each ressource. Has %d", Station->GetCargoBayResourceQuantity(Resource));
 
@@ -752,7 +753,7 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 			FLOGV("TransportCapacity %d", TransportCapacity);
 
 
-			if(TransportCapacity == 0)
+			if (TransportCapacity == 0)
 			{
 				break;
 			}
@@ -761,25 +762,25 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 	}
 
 	// 2 - one with the exact quantity
-	if(TransportCapacity)
+	if (TransportCapacity)
 	{
 		AdaptativeTransportResources(Company, TransportCapacity, EFlareTransportLimitType::Production, 1, true);
 	}
 
 	// 3 - the second with the double
-	if(TransportCapacity)
+	if (TransportCapacity)
 	{
 		AdaptativeTransportResources(Company, TransportCapacity, EFlareTransportLimitType::Production, 2, true);
 	}
 
 	// 4 - third with slot alignemnt
-	if(TransportCapacity)
+	if (TransportCapacity)
 	{
 		AdaptativeTransportResources(Company, TransportCapacity, EFlareTransportLimitType::CargoBay, 1, true);
 	}
 
 	// 5 - a 4th with inactive stations
-	if(TransportCapacity)
+	if (TransportCapacity)
 	{
 		AdaptativeTransportResources(Company, TransportCapacity, EFlareTransportLimitType::CargoBay, 1, false);
 	}
@@ -793,12 +794,12 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[PersistentStationIndex];
 		PersistentStationIndex++;
-		if(PersistentStationIndex >= SectorStations.Num())
+		if (PersistentStationIndex >= SectorStations.Num())
 		{
 			PersistentStationIndex = 0;
 		}
 
-		if(Station->GetCompany() != Company)
+		if (Station->GetCompany() != Company)
 		{
 			continue;
 		}
@@ -806,20 +807,20 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 		FLOGV("Check station %s needs:", *Station->GetImmatriculation().ToString());
 
 
-		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
 
 			FLOGV("  Factory %s : IsActive=%d IsNeedProduction=%d", *Factory->GetDescription()->Name.ToString(), Factory->IsActive(),Factory->IsNeedProduction());
 
-			if(ActiveOnly && (!Factory->IsActive() || !Factory->IsNeedProduction()))
+			if (ActiveOnly && (!Factory->IsActive() || !Factory->IsNeedProduction()))
 			{
 				FLOG("    No resources needed");
 				// No resources needed
 				break;
 			}
 
-			for(int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
+			for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
 				uint32 StoredQuantity = Station->GetCargoBayResourceQuantity(Resource);
@@ -840,7 +841,7 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 				FLOGV("    Resource %s : StoredQuantity=%u NeededQuantity=%u StorageCapacity=%u", *Resource->Name.ToString(), StoredQuantity, NeededQuantity, StorageCapacity);
 
 
-				if(StoredQuantity < NeededQuantity)
+				if (StoredQuantity < NeededQuantity)
 				{
 					// Do transfert
 					uint32 QuantityToTransfert = FMath::Min(TransportCapacity, NeededQuantity - StoredQuantity);
@@ -850,20 +851,20 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 					TransportCapacity -= TakenResources;
 					FLOGV("      Do transfet : QuantityToTransfert=%u TakenResources=%u TransportCapacity=%u", QuantityToTransfert, TakenResources, TransportCapacity);
 
-					if(TransportCapacity == 0)
+					if (TransportCapacity == 0)
 					{
 						break;
 					}
 				}
 			}
 
-			if(TransportCapacity == 0)
+			if (TransportCapacity == 0)
 			{
 				break;
 			}
 		}
 
-		if(TransportCapacity == 0)
+		if (TransportCapacity == 0)
 		{
 			break;
 		}
@@ -879,15 +880,15 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
-		if( Station->GetCompany() != Company || Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		if ( Station->GetCompany() != Company || Station->HasCapability(EFlareSpacecraftCapability::Consumer))
 		{
 			continue;
 		}
 
-		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
-			if(Factory->HasOutputResource(Resource))
+			if (Factory->HasOutputResource(Resource))
 			{
 				uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
 				RemainingQuantityToTake -= TakenQuantity;
@@ -905,22 +906,22 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 		bool NeedResource = false;
 
-		if( Station->GetCompany() != Company || Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		if ( Station->GetCompany() != Company || Station->HasCapability(EFlareSpacecraftCapability::Consumer))
 		{
 			continue;
 		}
 
-		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
-			if(Factory->HasInputResource(Resource))
+			if (Factory->HasInputResource(Resource))
 			{
 				NeedResource =true;
 				break;
 			}
 		}
 
-		if(!NeedResource)
+		if (!NeedResource)
 		{
 			uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
 			RemainingQuantityToTake -= TakenQuantity;
@@ -933,22 +934,22 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 		bool NeedResource = false;
 
-		if( Station->GetCompany() != Company || Station->IsConsumeResource(Resource))
+		if ( Station->GetCompany() != Company || Station->IsConsumeResource(Resource))
 		{
 			continue;
 		}
 
-		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
-			if(Factory->IsActive() && Factory->IsNeedProduction() && Factory->HasInputResource(Resource))
+			if (Factory->IsActive() && Factory->IsNeedProduction() && Factory->HasInputResource(Resource))
 			{
 				NeedResource =true;
 				break;
 			}
 		}
 
-		if(!NeedResource)
+		if (!NeedResource)
 		{
 			uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
 			RemainingQuantityToTake -= TakenQuantity;
@@ -967,13 +968,13 @@ uint32 UFlareSimulatedSector::TakeResources(UFlareCompany* Company, FFlareResour
 		RemainingQuantityToTake -= TakenQuantity;
 	}
 
-	if(RemainingQuantityToTake > 0)
+	if (RemainingQuantityToTake > 0)
 	{
 		for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToTake > 0; StationIndex++)
 		{
 			UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
-			if( Station->GetCompany() != Company)
+			if ( Station->GetCompany() != Company)
 			{
 				continue;
 			}
@@ -1030,14 +1031,14 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
-		if( Station->GetCompany() != Company)
+		if ( Station->GetCompany() != Company)
 		{
 			continue;
 		}
 
-		if(StorageOnly)
+		if (StorageOnly)
 		{
-			if(Station->HasCapability(EFlareSpacecraftCapability::Storage))
+			if (Station->HasCapability(EFlareSpacecraftCapability::Storage))
 			{
 				uint32 GivenQuantity = Station->GiveResources(GivenResource, RemainingQuantityToGive);
 				RemainingQuantityToGive -= GivenQuantity;
@@ -1045,24 +1046,24 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 			continue;
 		}
 
-		for(int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
 
 			FLOGV("  Factory %s : IsActive=%d IsNeedProduction=%d", *Factory->GetDescription()->Name.ToString(), Factory->IsActive(),Factory->IsNeedProduction());
 
-			if(ActiveOnly && (!Factory->IsActive() || !Factory->IsNeedProduction()))
+			if (ActiveOnly && (!Factory->IsActive() || !Factory->IsNeedProduction()))
 			{
 				FLOG("    No resources needed");
 				// No resources needed
 				break;
 			}
 
-			for(int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
+			for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
 
-				if(Resource != GivenResource)
+				if (Resource != GivenResource)
 				{
 					continue;
 				}
@@ -1085,7 +1086,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 				FLOGV("    Give Resource %s : StoredQuantity=%u NeededQuantity=%u StorageCapacity=%u", *Resource->Name.ToString(), StoredQuantity, NeededQuantity, StorageCapacity);
 
 
-				if(StoredQuantity < NeededQuantity)
+				if (StoredQuantity < NeededQuantity)
 				{
 					// Do transfert
 					uint32 QuantityToTransfert = FMath::Min(RemainingQuantityToGive, NeededQuantity - StoredQuantity);
@@ -1096,14 +1097,14 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 
 					FLOGV("      Give: QuantityToTransfert=%u RemainingQuantityToGive=%u", QuantityToTransfert, RemainingQuantityToGive);
 
-					if(RemainingQuantityToGive == 0)
+					if (RemainingQuantityToGive == 0)
 					{
 						break;
 					}
 				}
 			}
 
-			if(RemainingQuantityToGive == 0)
+			if (RemainingQuantityToGive == 0)
 			{
 				break;
 			}
@@ -1136,7 +1137,7 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
-		if( Station->GetCompany() != Company)
+		if ( Station->GetCompany() != Company)
 		{
 			continue;
 		}
