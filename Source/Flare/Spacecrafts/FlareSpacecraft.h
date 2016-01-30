@@ -3,6 +3,8 @@
 #include "FlareSpacecraftPawn.h"
 #include "FlareWeapon.h"
 #include "FlareSpacecraftInterface.h"
+#include "FlareSpacecraftComponent.h"
+#include "FlareSpacecraftSpinningComponent.h"
 #include "Subsystems/FlareSpacecraftDamageSystem.h"
 #include "Subsystems/FlareSpacecraftNavigationSystem.h"
 #include "Subsystems/FlareSpacecraftDockingSystem.h"

@@ -13,14 +13,24 @@ public:
 
 	GENERATED_UCLASS_BODY()
 
+	/*----------------------------------------------------
+		Public interface
+	----------------------------------------------------*/
+
 	virtual void Tick(float DeltaSeconds) override;
 
+	/** Move a celestial body */
 	void MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection);
 
+	/** Reset the current time */
 	void ResetTime();
 
+	/** Set the current tim multiplier */
+	void SetTimeMultiplier(float Multiplier);
+
+
 	/*----------------------------------------------------
-		Public events
+		Public Blueprint events
 	----------------------------------------------------*/
 
 	/** Set the altitude of the current system, in km */
@@ -39,9 +49,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetSectorRotation(int32 RotationDegrees);
 
-	void SetTimeMultiplier(float Multiplier);
 
 protected:
+
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
@@ -61,24 +71,38 @@ protected:
 	float SmoothTime;
 	float TimeMultiplier;
 
+
 public:
+
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
 
-		inline AFlareGame* GetGame() const
+	inline AFlareGame* GetGame() const
+	{
+		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+	}
+
+	double GetSunOcclusion() const
+	{
+		return SunOcclusion;
+	}
+
+	inline float GetSmoothTime()
+	{
+		return SmoothTime;
+	}
+
+	inline FVector GetSunDirection()
+	{
+		FVector Direction;
+
+		if (Light)
 		{
-			return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+			Direction = Light->GetDirection();
 		}
 
-		double GetSunOcclusion() const
-		{
-			return SunOcclusion;
-		}
-
-		inline float GetSmoothTime()
-		{
-			return SmoothTime;
-		}
+		return Direction;
+	}
 
 };
