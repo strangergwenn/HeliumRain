@@ -201,43 +201,8 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					break;
 
 				case EFlareSpawnMode::Spawn:
-					FLOGV("UFlareSector::LoadSpacecraft : Spawn ('%s')", *ShipData.Immatriculation.ToString());
-					if (Desc->NeedAttachPoint)
-					{
-						// Look for the asteroid in the level - if it doesn't exist, we were already "attached"
-						AFlareAsteroid* Asteroid = NULL;
-						for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
-						{
-							AFlareAsteroid* AsteroidCandidate = SectorAsteroids[AsteroidIndex];
-							if (AsteroidCandidate->Save()->Identifier == ShipData.AttachPoint)
-							{
-								Asteroid = AsteroidCandidate;
-								break;
-							}
-						}
-
-						// Found it
-						if (Asteroid)
-						{
-							FLOGV("UFlareSector::LoadSpacecraft : Found asteroid we need to attach to ('%s')", *Asteroid->GetName());
-
-							// Kill asteroid
-							FFlareAsteroidSave* AsteroidData = Asteroid->Save();
-							Asteroid->SetActorEnableCollision(false);
-							Asteroid->SetActorHiddenInGame(true);
-							SectorAsteroids.Remove(Asteroid);
-							Asteroid->Destroy();
-
-							// Setup station
-							Spacecraft->SetAsteroidData(AsteroidData);
-						}
-					}
-					else
-					{
-						FLOGV("UFlareSector::LoadSpacecraft : Placing ('%s')", *ShipData.Immatriculation.ToString());
-						PlaceSpacecraft(Spacecraft, ShipData.Location);
-					}
-
+					FLOGV("UFlareSector::LoadSpacecraft : Placing ('%s')", *ShipData.Immatriculation.ToString());
+					PlaceSpacecraft(Spacecraft, ShipData.Location);
 					RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
 					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
 					break;

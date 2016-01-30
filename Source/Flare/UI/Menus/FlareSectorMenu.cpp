@@ -360,14 +360,17 @@ void SFlareSectorMenu::UpdateStationCost()
 		}
 
 		// Final text
-		FText CanBuildText = LOCTEXT("CanBuild", "You can build this station !");
-		FText CannotBuildText = LOCTEXT("CannotBuild", "You can't build this station yet.");
-		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2} and requires acargo ship in this sector."),
+		FText AsteroidText = LOCTEXT("AsteroidNeeded", " and an asteroid");
+		FText CanBuildText = LOCTEXT("CanBuildStation", "You can build this station !");
+		FText CannotBuildText = LOCTEXT("CannotBuildStation", "You can't build this station yet.");
+		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2}, requires a cargo ship{3} in this sector."),
 			StationBuildable ? CanBuildText : CannotBuildText,
 			FText::AsNumber(StationDescription->Cost),
-			FText::FromString(ResourcesString));
+			FText::FromString(ResourcesString),
+			StationDescription->NeedsAsteroidToBuild ? AsteroidText : FText());
 	}
 }
+
 
 /*----------------------------------------------------
 	Callbacks

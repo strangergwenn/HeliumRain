@@ -467,6 +467,22 @@ UFlareSimulatedSector* UFlareWorld::FindSector(FName Identifier) const
 	return NULL;
 }
 
+UFlareSimulatedSector* UFlareWorld::FindSectorBySpacecraft(FName SpacecraftIdentifier) const
+{
+	for (int i = 0; i < Sectors.Num(); i++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[i];
+		for (int j = 0; j < Sector->GetSectorSpacecrafts().Num(); j++)
+		{
+			if (Sector->GetSectorSpacecrafts()[j]->GetDescription()->Identifier == SpacecraftIdentifier)
+			{
+				return Sector;
+			}
+		}
+	}
+	return NULL;
+}
+
 UFlareFleet* UFlareWorld::FindFleet(FName Identifier) const
 {
 	for (int i = 0; i < Companies.Num(); i++)

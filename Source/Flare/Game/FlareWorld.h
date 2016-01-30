@@ -179,6 +179,8 @@ public:
 
 	UFlareSimulatedSector* FindSector(FName Identifier) const;
 
+	UFlareSimulatedSector* FindSectorBySpacecraft(FName SpacecraftIdentifier) const;
+
 	UFlareFleet* FindFleet(FName Identifier) const;
 
 	UFlareTradeRoute* FindTradeRoute(FName Identifier) const;

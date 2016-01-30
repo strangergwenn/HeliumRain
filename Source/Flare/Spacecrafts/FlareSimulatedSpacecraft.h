@@ -44,6 +44,7 @@ public:
 	/** Check if this is a station ship */
 	virtual bool IsStation() const override;
 
+
 	/*----------------------------------------------------
 		Sub system
 	----------------------------------------------------*/
@@ -80,6 +81,10 @@ public:
 	}
 
 	void AssignToSector(bool Assign) override;
+
+	/** Set asteroid data from an asteroid save */
+	void SetAsteroidData(FFlareAsteroidSave* Data);
+
 
 	/*----------------------------------------------------
 		Resources

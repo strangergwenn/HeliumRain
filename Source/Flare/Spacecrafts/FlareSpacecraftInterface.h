@@ -80,6 +80,9 @@ struct FFlareSpacecraftDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareFactoryResource> ResourcesCost;
 
+	/** Spacecraft needs asteroid */
+	UPROPERTY(EditAnywhere, Category = Content) bool NeedsAsteroidToBuild;
+
 	/** Size of the ship components */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlarePartSize::Type> Size;
@@ -119,9 +122,6 @@ struct FFlareSpacecraftDescription
 
 	/** Engine Power sound*/
 	UPROPERTY(EditAnywhere, Category = Content) USoundCue* PowerSound;
-
-	/** Need attach point */
-	UPROPERTY(EditAnywhere, Category = Content) bool NeedAttachPoint;
 
 	/** Cargo bay count.*/
 	UPROPERTY(EditAnywhere, Category = Content)

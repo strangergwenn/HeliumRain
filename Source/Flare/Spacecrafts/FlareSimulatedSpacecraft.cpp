@@ -405,6 +405,16 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 	return true;
 }
 
+void UFlareSimulatedSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
+{
+	SpacecraftData.AsteroidData.Identifier = Data->Identifier;
+	SpacecraftData.AsteroidData.AsteroidMeshID = Data->AsteroidMeshID;
+	SpacecraftData.AsteroidData.Scale = Data->Scale;
+	SpacecraftData.Location = Data->Location;
+	SpacecraftData.Rotation = Data->Rotation;
+}
+
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/

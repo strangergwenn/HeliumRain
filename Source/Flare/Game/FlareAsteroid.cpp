@@ -36,12 +36,12 @@ void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	AsteroidData = Data;
 
-	SetupAsteroidMesh(Game, GetStaticMeshComponent(), Data);
+	SetupAsteroidMesh(Game, Game->GetActiveSector()->GetSimulatedSector(), GetStaticMeshComponent(), Data);
 	GetStaticMeshComponent()->SetPhysicsLinearVelocity(Data.LinearVelocity);
 	GetStaticMeshComponent()->SetPhysicsAngularVelocity(Data.AngularVelocity);
 }
 
-void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data)
+void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UFlareSimulatedSector* Sector, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data)
 {
 	Component->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
 
@@ -65,7 +65,9 @@ void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* C
 	{
 		Component->SetMaterial(LodIndex, AsteroidMaterial);
 	}
-	AsteroidMaterial->SetScalarParameterValue("IceMask", Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
+	
+
+	AsteroidMaterial->SetScalarParameterValue("IceMask", Sector->GetDescription()->IsIcy);
 }
 
 FFlareAsteroidSave* AFlareAsteroid::Save()

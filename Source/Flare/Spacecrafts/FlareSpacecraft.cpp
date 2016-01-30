@@ -514,7 +514,8 @@ void AFlareSpacecraft::ApplyAsteroidData()
 					*Component->GetName(), *ShipData.AsteroidData.Identifier.ToString());
 
 				UStaticMeshComponent* AsteroidComponentCandidate = Cast<UStaticMeshComponent>(Component);
-				AFlareAsteroid::SetupAsteroidMesh(GetGame(), AsteroidComponentCandidate, ShipData.AsteroidData);
+				UFlareSimulatedSector* Sector = GetGame()->GetGameWorld()->FindSectorBySpacecraft(ShipData.Identifier);
+				AFlareAsteroid::SetupAsteroidMesh(GetGame(), Sector, AsteroidComponentCandidate, ShipData.AsteroidData);
 				break;
 			}
 		}

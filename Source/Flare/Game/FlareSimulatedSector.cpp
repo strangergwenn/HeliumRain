@@ -493,36 +493,42 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		break;
 	}
 
-	if(!HasFreeCargo)
+	if (!HasFreeCargo)
+	{
+		return false;
+	}
+
+	// Does it needs an asteroid ? 
+	if (StationDescription->NeedsAsteroidToBuild && SectorData.AsteroidData.Num() == 0)
 	{
 		return false;
 	}
 
 	// Compute total available resources
 	TArray<FFlareCargo> AvailableResources;
-	for(int SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
+	for (int SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = SectorSpacecrafts[SpacecraftIndex];
 
-		if(Spacecraft->GetCompany() != Company)
+		if (Spacecraft->GetCompany() != Company)
 		{
 			continue;
 		}
 
 		TArray<FFlareCargo>& CargoBay = Spacecraft->GetCargoBay();
-		for(int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
+		for (int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
 		{
 			FFlareCargo* Cargo = &(CargoBay[CargoIndex]);
 
-			if(!Cargo->Resource)
+			if (!Cargo->Resource)
 			{
 				continue;
 			}
 
 			bool NewResource = true;
-			for(int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
+			for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
 			{
-				if(AvailableResources[AvailableResourceIndex].Resource == Cargo->Resource)
+				if (AvailableResources[AvailableResourceIndex].Resource == Cargo->Resource)
 				{
 					AvailableResources[AvailableResourceIndex].Quantity += Cargo->Quantity;
 					NewResource = false;
@@ -626,20 +632,48 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 			ResourceToTake -= Station->TakeResources(Resource, ResourceToTake);
 		}
 
-		if(ResourceToTake > 0)
+		if (ResourceToTake > 0)
 		{
-			FLOG("WARNING ! Fail to take resource cost for build station a station but CanBuild test succeded");
+			FLOG("UFlareSimulatedSector::BuildStation : Failed to take resource cost for build station a station but CanBuild test succeded");
 		}
 	}
 
-	CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* Spacecraft = CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
+
+	// Needs an esteroid ? 
+	if (Spacecraft && StationDescription->NeedsAsteroidToBuild)
+	{
+		FFlareAsteroidSave* AsteroidSave = NULL;
+		int32 AsteroidSaveIndex = -1;
+
+		// Take the first available asteroid
+		for (int AsteroidIndex = 0; AsteroidIndex < SectorData.AsteroidData.Num(); AsteroidIndex++)
+		{
+			FFlareAsteroidSave* AsteroidCandidate = &SectorData.AsteroidData[AsteroidIndex];
+			AsteroidSave = AsteroidCandidate;
+			AsteroidSaveIndex = AsteroidIndex;
+			break;
+		}
+
+		// Found it
+		if (AsteroidSave)
+		{
+			FLOGV("UFlareSimulatedSector::BuildStation : Found asteroid we need to attach to ('%s')", *AsteroidSave->Identifier.ToString());
+			Spacecraft->SetAsteroidData(AsteroidSave);
+			SectorData.AsteroidData.RemoveAt(AsteroidSaveIndex);
+		}
+		else
+		{
+			FLOGV("UFlareSimulatedSector::BuildStation : Failed to use asteroid !");
+		}
+	}
 
 	return true;
 }
 
 void UFlareSimulatedSector::SimulateTransport()
 {
-	for(int CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	for (int CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 	{
 		SimulateTransport(GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex]);
 	}
