@@ -174,7 +174,7 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 	PlayerShip = NewPlayerShip;
 
 	// Setup new ship
-	if (PlayerShip && PC->UseCockpit)
+	if (PlayerShip && PC->UseCockpit && !PlayerShip->GetStateManager()->IsExternalCamera())
 	{
 		EnterCockpit(PlayerShip);
 	}
@@ -267,7 +267,7 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* PlayerShip)
 #endif
 
 	// FLIR camera
-	CockpitFLIRCapture->AttachTo(PlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
+	CockpitFLIRCapture->AttachTo(PlayerShip->GetRootComponent(), "Dock", EAttachLocation::SnapToTarget);
 
 	// General data
 	IsInCockpit = true;

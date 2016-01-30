@@ -194,7 +194,7 @@ void AFlareHUD::DrawHUD()
 	Super::DrawHUD();
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && !PC->UseCockpit)
+	if (PC && !PC->UseCockpit && HUDVisible)
 	{
 		CurrentViewportSize = ViewportSize;
 		CurrentCanvas = Canvas;
@@ -525,7 +525,7 @@ void AFlareHUD::DrawHUDInternal()
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 
 	// So these are forbidden cases
-	if (!ActiveSector || !HUDVisible || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
+	if (!ActiveSector || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
 	{
 		return;
 	}
