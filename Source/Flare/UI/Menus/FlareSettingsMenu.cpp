@@ -461,8 +461,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.SmallContentPadding)
 					[
 						SAssignNew(CockpitButton, SFlareButton)
-						.Text(LOCTEXT("Cockpit", "Hide cockpit"))
-						.HelpText(LOCTEXT("DarkNavInfo", "Hide the 3D cockpit and use a flat interface instead"))
+						.Text(LOCTEXT("Cockpit", "Use cockpit"))
+						.HelpText(LOCTEXT("DarkNavInfo", "Use the 3D cockpit instead of a flat interface"))
 						.Toggle(true)
 						.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
 					]
@@ -678,7 +678,7 @@ void SFlareSettingsMenu::Enter()
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 
 		// Settings
-		CockpitButton->SetActive(!PC->UseCockpit);
+		CockpitButton->SetActive(PC->UseCockpit);
 		DarkThemeInStrategyButton->SetActive(PC->UseDarkThemeForStrategy);
 		DarkThemeInNavButton->SetActive(PC->UseDarkThemeForNavigation);
 		TessellationButton->SetActive(PC->UseTessellationOnShips);
@@ -746,7 +746,7 @@ void SFlareSettingsMenu::OnDarkThemeInNavToggle()
 void SFlareSettingsMenu::OnCockpitToggle()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	PC->SetUseCockpit(!CockpitButton->IsActive());
+	PC->SetUseCockpit(CockpitButton->IsActive());
 	PC->SaveConfig();
 }
 
