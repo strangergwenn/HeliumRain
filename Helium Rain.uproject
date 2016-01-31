@@ -5,12 +5,12 @@
 	"Description": "",
 	"Modules": [
 		{
-			"Name": "Flare",
+			"Name": "HeliumRain",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "FlareLoadingScreen",
+			"Name": "HeliumRainLoadingScreen",
 			"Type": "Runtime",
 			"LoadingPhase": "PreLoadingScreen"
 		}
