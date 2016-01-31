@@ -2,7 +2,7 @@
 #include "Flare.h"
 
 
-IMPLEMENT_PRIMARY_GAME_MODULE(FFlareModule, Flare, "HeliumRain");
+IMPLEMENT_PRIMARY_GAME_MODULE(FFlareModule, HeliumRain, "HeliumRain");
 
 DEFINE_LOG_CATEGORY(LogFlare)
 
