@@ -23,7 +23,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitHealthLightTime(0)
 	, CockpitHealthLightPeriod(1.2)
 	, CockpitPowerTime(0)
-	, CockpitPowerPeriod(0.3)
+	, CockpitPowerPeriod(0.4)
 {
 	// Cockpit data
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit"));
@@ -173,6 +173,11 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 		ExitCockpit(PlayerShip);
 	}
 
+	// Reset data
+	if (PlayerShip != NewPlayerShip)
+	{
+		CockpitPowerTime = 0;
+	}
 	PlayerShip = NewPlayerShip;
 
 	// Setup new ship
