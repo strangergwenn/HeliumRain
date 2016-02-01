@@ -166,7 +166,7 @@ EFlareHostility::Type UFlareCompany::GetPlayerHostility() const
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
 
-	if (PC)
+	if (PC && PC->GetCompany())
 	{
 		return PC->GetCompany()->GetHostility(this);
 	}

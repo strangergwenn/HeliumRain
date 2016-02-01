@@ -22,7 +22,7 @@ UFlareSector::UFlareSector(const FObjectInitializer& ObjectInitializer)
 
 void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sector)
 {
-	Destroy();
+	DestroySector();
 
 	Game = Cast<AFlareGame>(GetOuter());
 	SectorData = Data;
@@ -102,7 +102,7 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 	return &SectorData;
 }
 
-void UFlareSector::Destroy()
+void UFlareSector::DestroySector()
 {
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{

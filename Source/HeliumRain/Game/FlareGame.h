@@ -48,7 +48,7 @@ UCLASS()
 class HELIUMRAIN_API AFlareGame : public AGameMode
 {
 public:
-
+	
 	GENERATED_UCLASS_BODY()
 
 	/*----------------------------------------------------
@@ -114,6 +114,26 @@ public:
 
 	/** Unload the game*/
 	virtual void UnloadGame();
+
+	
+	/*----------------------------------------------------
+		Level streaming
+	----------------------------------------------------*/
+
+	/** Load a streaming level */
+	void LoadStreamingLevel(FName SectorLevel);
+
+	/** Unload a streaming level */
+	void UnloadStreamingLevel(FName SectorLevel);
+
+	/** Callback for a loaded streaming level */
+	UFUNCTION(BlueprintCallable, Category = GameMode)
+	void OnLevelLoaded();
+
+	/** Callback for an unloaded streaming level */
+	UFUNCTION(BlueprintCallable, Category = GameMode)
+	void OnLevelUnLoaded();
+
 
 	/*----------------------------------------------------
 		Immatriculations
@@ -211,6 +231,7 @@ protected:
 	int32                                      CurrentSaveIndex;
 	bool                                       LoadedOrCreated;
 	int32                                      SaveSlotCount;
+	int32                                      CurrentStreamingLevelIndex;
 
 	UPROPERTY()
 	TArray<FFlareSaveSlotInfo>                 SaveSlots;

@@ -79,6 +79,10 @@ struct FFlareSectorDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsSolarRich;
 
+	/** Level to load for this sector */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName LevelName;
+
 };
 
 

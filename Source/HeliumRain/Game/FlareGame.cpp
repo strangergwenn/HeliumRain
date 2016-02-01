@@ -27,6 +27,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	, CurrentImmatriculationIndex(0)
 	, LoadedOrCreated(false)
 	, SaveSlotCount(3)
+	, CurrentStreamingLevelIndex(0)
 {
 	// Game classes
 	HUDClass = AFlareHUD::StaticClass();
@@ -116,7 +117,6 @@ void AFlareGame::Logout(AController* Player)
 	Super::Logout(Player);
 }
 
-
 void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sector)
 {
 	if (!Sector)
@@ -125,38 +125,40 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		return;
 	}
 
-	FLOGV("AFlareGame::ActivateSector %s", *Sector->GetSectorName().ToString());
+	// Load the sector level - Will call OnLevelLoaded()
+	LoadStreamingLevel(Sector->GetDescription()->LevelName);
+
+	// Check if we should really activate
+	FLOGV("AFlareGame::ActivateSector : %s", *Sector->GetSectorName().ToString());
 	if (ActiveSector)
 	{
-		FLOG("AFlareGame::ActivateSector has active sector");
+		FLOG("AFlareGame::ActivateSector : There is already an active sector");
 		if (ActiveSector->GetIdentifier() == Sector->GetIdentifier())
 		{
 			// Sector to activate is already active
 			return;
 		}
 
+		// Deactivate the sector
 		DeactivateSector(Player);
 	}
 
-
-	FLOGV("AFlareGame::ActivateSector ship count %d", Sector->GetSectorShips().Num());
-
+	// Ships
+	FLOGV("AFlareGame::ActivateSector : Ship count = %d", Sector->GetSectorShips().Num());
 	bool PlayerHasShip = false;
 	for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-		FLOGV("AFlareGame::ActivateSector ship %s", *Ship->GetImmatriculation().ToString());
-		FLOGV(" %d", (Ship->GetCompany()->GetPlayerHostility() + 0));
-
+		FLOGV("AFlareGame::ActivateSector : Found ship %s", *Ship->GetImmatriculation().ToString());
 		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
 		{
-			FLOG("  my ship");
 			PlayerHasShip = true;
 			break;
 		}
 	}
 
-	FLOGV("PlayerHasShip %d", PlayerHasShip);
+	// Planetarium & sector setup
+	FLOGV("AFlareGame::ActivateSector : PlayerHasShip = %d", PlayerHasShip);
 	if (PlayerHasShip)
 	{
 		// Create the new sector
@@ -178,48 +180,65 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 
 void AFlareGame::DeactivateSector(AController* Player)
 {
-	if (ActiveSector)
+	if (!ActiveSector)
 	{
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
+		return;
+	}
 
-		FName LastFlownShip = "";
+	FLOGV("AFlareGame::DeactivateSector : %s", *ActiveSector->GetSimulatedSector()->GetSectorName().ToString());
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 
-		if (PC->GetShipPawn())
-		{
-			LastFlownShip = PC->GetShipPawn()->GetImmatriculation();
-		}
+	// Set last flown ship
+	FName LastFlownShip = "";
+	if (PC->GetShipPawn())
+	{
+		LastFlownShip = PC->GetShipPawn()->GetImmatriculation();
+	}
 
-		TArray<FFlareSpacecraftSave> SpacecraftData;
-		FFlareSectorSave* SectorData = ActiveSector->Save(SpacecraftData);
-		ActiveSector->Destroy();
-		ActiveSector = NULL;
+	// Save and destroy the active sector
+	TArray<FFlareSpacecraftSave> SpacecraftData;
+	FFlareSectorSave* SectorData = ActiveSector->Save(SpacecraftData);
+	ActiveSector->DestroySector();
+	ActiveSector = NULL;
 
-		SectorData->LastFlownShip = LastFlownShip;
-		PC->SetLastFlownShip(LastFlownShip);
+	SectorData->LastFlownShip = LastFlownShip;
+	PC->SetLastFlownShip(LastFlownShip);
 
-		// Reload  spacecrafts
-		for (int i = 0 ; i < SpacecraftData.Num(); i++)
-		{
-			UFlareSimulatedSpacecraft* Spacecraft = GetGameWorld()->FindSpacecraft(SpacecraftData[i].Immatriculation);
-			Spacecraft->Load(SpacecraftData[i]);
-		}
+	// Reload spacecrafts
+	for (int i = 0 ; i < SpacecraftData.Num(); i++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = GetGameWorld()->FindSpacecraft(SpacecraftData[i].Immatriculation);
+		Spacecraft->Load(SpacecraftData[i]);
+	}
 
-		// Reload sector
-		UFlareSimulatedSector* Sector = World->FindSector(SectorData->Identifier);
-		if (!Sector)
-		{
-			FLOGV("ERROR: no simulated sector match for active sector '%s'", *SectorData->Identifier.ToString());
-		}
-
+	// Reload simulated sector
+	UFlareSimulatedSector* Sector = World->FindSector(SectorData->Identifier);
+	if (Sector)
+	{
 		Sector->Load(Sector->GetDescription(), *SectorData, *Sector->GetOrbitParameters());
 
-
-		PC->OnSectorDeactivated();
+		// Unload the sector level - Will call OnLevelUnloaded()
+		UnloadStreamingLevel(Sector->GetDescription()->LevelName);
 	}
+	else
+	{
+		FLOGV("AFlareGame::DeactivateSector : no simulated sector match for active sector '%s'", *SectorData->Identifier.ToString());
+	}
+
+	PC->OnSectorDeactivated();
 }
 
 void AFlareGame::Tick(float DeltaSeconds)
 {
+	Super::Tick(DeltaSeconds);
+
+	for (FConstPawnIterator Iterator = GetWorld()->GetPawnIterator(); Iterator; ++Iterator)
+	{
+		// This should never fail
+		APawn* Pawn = *Iterator;
+		check(Pawn);
+	}
+
 	if (QuestManager)
 	{
 		QuestManager->OnTick(DeltaSeconds);
@@ -542,14 +561,63 @@ void AFlareGame::UnloadGame()
 
 	if (ActiveSector)
 	{
-		ActiveSector->Destroy();
+		UnloadStreamingLevel(ActiveSector->GetSimulatedSector()->GetDescription()->LevelName);
+		ActiveSector->DestroySector();
 		ActiveSector = NULL;
 	}
+
 	World = NULL;
 	LoadedOrCreated = false;
 }
 
 
+/*----------------------------------------------------
+	Level streaming
+----------------------------------------------------*/
+
+void AFlareGame::LoadStreamingLevel(FName SectorLevel)
+{
+	if (SectorLevel != NAME_None)
+	{
+		FLOGV("AFlareGame::LoadStreamingLevel : Loading streaming level '%s'", *SectorLevel.ToString());
+
+		FLatentActionInfo Info;
+		Info.CallbackTarget = this;
+		Info.ExecutionFunction = "OnLevelLoaded";
+		Info.UUID = CurrentStreamingLevelIndex;
+		Info.Linkage = 0;
+
+		UGameplayStatics::LoadStreamLevel(this, SectorLevel, true, true, Info);
+		CurrentStreamingLevelIndex++;
+	}
+}
+
+void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
+{
+	if (SectorLevel != NAME_None)
+	{
+		FLOGV("AFlareGame::UnloadStreamingLevel : Unloading streaming level '%s'", *SectorLevel.ToString());
+
+		FLatentActionInfo Info;
+		Info.CallbackTarget = this;
+		Info.ExecutionFunction = "OnLevelUnloaded";
+		Info.UUID = CurrentStreamingLevelIndex;
+		Info.Linkage = 0;
+
+		UGameplayStatics::UnloadStreamLevel(this, SectorLevel, Info);
+		CurrentStreamingLevelIndex++;
+	}
+}
+
+void AFlareGame::OnLevelLoaded()
+{
+	FLOG("AFlareGame::OnLevelLoaded");
+}
+
+void AFlareGame::OnLevelUnLoaded()
+{
+	FLOG("AFlareGame::OnLevelUnLoaded");
+}
 
 
 /*----------------------------------------------------

@@ -29,7 +29,7 @@ public:
 	virtual FFlareSectorSave* Save(TArray<FFlareSpacecraftSave>& SpacecraftData);
 
 	/** Destroy the sector */
-	virtual void Destroy();
+	virtual void DestroySector();
 
 	/*----------------------------------------------------
 		Gameplay

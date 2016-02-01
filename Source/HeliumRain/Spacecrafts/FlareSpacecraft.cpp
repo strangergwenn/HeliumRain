@@ -60,6 +60,7 @@ void AFlareSpacecraft::BeginPlay()
 {
 	Super::BeginPlay();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	CurrentTarget = NULL;
 }
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
@@ -86,6 +87,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				if (Company && Distance > 500000)
 				{
 					GetGame()->GetActiveSector()->DestroySpacecraft(this);
+					return;
 				}
 			}
 
@@ -164,6 +166,9 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 void AFlareSpacecraft::Destroyed()
 {
+	Super::Destroyed();
+
+	CurrentTarget = NULL;
 }
 
 void AFlareSpacecraft::SetPause(bool Pause)
@@ -184,6 +189,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	Airframe->SetSimulatePhysics(!Pause);
 
 	Paused = Pause;
+	CurrentTarget = NULL;
 	SetActorHiddenInGame(Pause);
 
 	if (!Pause)
@@ -283,7 +289,14 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 
 AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 {
-	return CurrentTarget;
+	if (CurrentTarget && CurrentTarget->IsValidLowLevelFast())
+	{
+		return CurrentTarget;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 
