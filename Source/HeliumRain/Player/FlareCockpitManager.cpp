@@ -262,12 +262,9 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 
 	// Offset the cockpit
 #if FLARE_USE_COCKPIT_RENDERTARGET
-	CockpitMesh->AttachTo(TargetPlayerShip->GetRootComponent(), NAME_None, EAttachLocation::SnapToTarget);
-	FVector CameraOffset = TargetPlayerShip->GetRootComponent()->GetSocketLocation(FName("Camera"));
-	CockpitCapture->SetRelativeLocation(CameraOffset);
-#else
-	CockpitMesh->AttachTo(TargetPlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
+	CockpitCapture->AttachTo(TargetPlayerShip->GetRootComponent(), "Camera", EAttachLocation::SnapToTarget);
 #endif
+	CockpitMesh->AttachTo(TargetPlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
 
 	// FLIR camera
 	CockpitFLIRCapture->AttachTo(TargetPlayerShip->GetRootComponent(), "Dock", EAttachLocation::SnapToTarget);

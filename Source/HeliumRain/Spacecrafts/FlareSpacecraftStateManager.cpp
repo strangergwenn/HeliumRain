@@ -2,6 +2,7 @@
 #include "../Flare.h"
 
 #include "FlareSpacecraftStateManager.h"
+#include "../Player/FlareCockpitManager.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
@@ -18,7 +19,6 @@ UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectIn
 {
 	// Pilot
 	IsPiloted = true;
-
 }
 
 void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft)
