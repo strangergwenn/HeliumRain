@@ -1186,4 +1186,10 @@ uint32 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resour
 
 }
 
+int32 UFlareSimulatedSector::GetTransportCapacityBalance(UFlareCompany* Company)
+{
+	// TODO
+	return 0;
+}
+
 #undef LOCTEXT_NAMESPACE

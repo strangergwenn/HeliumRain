@@ -30,6 +30,27 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	World = Game->GetGameWorld();
 	PlayerCompany = Company;
 	PlayerData = Player;
+
+	Outpost = World->FindSector("outpost");
+	MinerHome = World->FindSector("miners-home");
+	FrozenRealm = World->FindSector("frozen-realm");
+
+	MiningSyndicate = World->FindCompanyByShortName("MSY");
+	HelixFoundries = World->FindCompanyByShortName("HFR");
+	Sunwatch = World->FindCompanyByShortName("SUN");
+
+	Water = Game->GetResourceCatalog()->Get("h2o");
+	Food = Game->GetResourceCatalog()->Get("food");
+	Fuel = Game->GetResourceCatalog()->Get("fuel");
+	Plastics = Game->GetResourceCatalog()->Get("plastics");
+	Hydrogen = Game->GetResourceCatalog()->Get("h2");
+	Helium = Game->GetResourceCatalog()->Get("he3");
+	Silica = Game->GetResourceCatalog()->Get("sio2");
+	Steel= Game->GetResourceCatalog()->Get("steel");
+	Tools= Game->GetResourceCatalog()->Get("tools");
+	Tech= Game->GetResourceCatalog()->Get("tech");
+
+
 }
 
 void UFlareScenarioTools::GenerateEmptyScenario()
@@ -46,37 +67,59 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-ghoul", PlayerCompany, FVector::ZeroVector);
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
+	PlayerCompany->DiscoverSector(Outpost);
+	PlayerCompany->DiscoverSector(MinerHome);
 
-	// Initial setup : outpost
-	UFlareSimulatedSector* Outpost = World->FindSector("outpost");
-	Outpost->CreateShip("ship-dragon", PlayerCompany, FVector::ZeroVector);
-	Outpost->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
-	Outpost->CreateStation("station-tokamak", PlayerCompany, FVector::ZeroVector);
-	Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector);
-	Outpost->CreateStation("station-solar-plant", World->FindCompanyByShortName("HFR"), FVector::ZeroVector);
-	Outpost->CreateStation("station-solar-plant", World->FindCompanyByShortName("HFR"), FVector::ZeroVector);
-	Outpost->CreateStation("station-tokamak", World->FindCompanyByShortName("SUN"), FVector::ZeroVector);
-	Outpost->CreateStation("station-hub", World->FindCompanyByShortName("GWS"), FVector::ZeroVector);
+	MiningSyndicate->GiveMoney(100000);
+	HelixFoundries->GiveMoney(100000);
+	Sunwatch->GiveMoney(100000);
+
+
+	// Initial setup: miner home
+	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[0].Identifier);
+	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[1].Identifier);
+	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[2].Identifier);
+	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[3].Identifier);
+	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[4].Identifier);
+	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[5].Identifier);
+	// Todo remove
+	MinerHome->CreateStation("station-solar-plant", MiningSyndicate, FVector::ZeroVector)->GiveResources(Water, 100);
+
+
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		MinerHome->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GiveResources(Water, 100);
+	}
+
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		Outpost->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector)->AssignToSector(true);
+	}
+
+	// Initial setup: Outpost
+	Outpost->CreateStation("station-steelworks", HelixFoundries, FVector::ZeroVector);
+	Outpost->CreateStation("station-steelworks", HelixFoundries, FVector::ZeroVector);
+	Outpost->CreateStation("station-steelworks", HelixFoundries, FVector::ZeroVector);
+	Outpost->CreateStation("station-tool-factory", HelixFoundries, FVector::ZeroVector);
+	Outpost->CreateStation("station-tool-factory", HelixFoundries, FVector::ZeroVector);
+
+	// Todo remove
+	Outpost->CreateStation("station-solar-plant", HelixFoundries, FVector::ZeroVector)->GiveResources(Water, 100);
+
+	for(int Index = 0; Index < 6; Index ++)
+	{
+		Outpost->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GiveResources(Water, 100);
+	}
+
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		Outpost->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector)->AssignToSector(true);
+	}
 }
 
 void UFlareScenarioTools::GenerateDebugScenario()
 {
 	SetupWorld();
-
-
-	UFlareSimulatedSector* Outpost = World->FindSector("outpost");
-	UFlareSimulatedSector* MinerHome = World->FindSector("miners-home");
-
-	FFlareResourceDescription* Water = Game->GetResourceCatalog()->Get("h2o");
-	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
-	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
-	FFlareResourceDescription* Plastics = Game->GetResourceCatalog()->Get("plastics");
-	FFlareResourceDescription* Hydrogen = Game->GetResourceCatalog()->Get("h2");
-	FFlareResourceDescription* Helium = Game->GetResourceCatalog()->Get("he3");
-	FFlareResourceDescription* Silica = Game->GetResourceCatalog()->Get("sio2");
-	FFlareResourceDescription* Steel= Game->GetResourceCatalog()->Get("steel");
-	FFlareResourceDescription* Tools= Game->GetResourceCatalog()->Get("tools");
-	FFlareResourceDescription* Tech= Game->GetResourceCatalog()->Get("tech");
 
 	// Create player ship
 	FLOG("UFlareScenarioTools::GenerateDebugScenario create initial ship");
@@ -187,7 +230,7 @@ void UFlareScenarioTools::SetupWorld()
 	for (int32 Index = 0; Index < 20; Index++)
 	{
 		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
-		World->FindSector("outpost")->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
+		Outpost->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
 	}
 
 
@@ -195,7 +238,7 @@ void UFlareScenarioTools::SetupWorld()
 	for (int32 Index = 0; Index < 40; Index++)
 	{
 		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
-		World->FindSector("miners-home")->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
+		MinerHome->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
 	}
 
 	// Create asteroids at "Frozen Realm"

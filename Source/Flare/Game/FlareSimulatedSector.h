@@ -278,6 +278,8 @@ protected:
 
 	int32                                   PersistentStationIndex;
 
+	// Cache
+
 public:
 
     /*----------------------------------------------------
@@ -353,4 +355,9 @@ public:
 	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource);
 
 	uint32 GetResourcePrice(FFlareResourceDescription* Resource);
+
+	/** If positive, return the remaining tranport capacity after transport.
+	 *  If negative, return the laking tranport capacity after transport
+	 */
+	int32 GetTransportCapacityBalance(UFlareCompany* Company);
 };
