@@ -16,14 +16,14 @@
 AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, PlayerShip(NULL)
-	, CockpitMaterialInstance(NULL)
-	, CockpitFrameMaterialInstance(NULL)
-	, CockpitHUDTarget(NULL)
-	, CockpitInstrumentsTarget(NULL)
 	, CockpitHealthLightTime(0)
 	, CockpitHealthLightPeriod(1.2)
 	, CockpitPowerTime(0)
 	, CockpitPowerPeriod(0.4)
+	, CockpitMaterialInstance(NULL)
+	, CockpitFrameMaterialInstance(NULL)
+	, CockpitHUDTarget(NULL)
+	, CockpitInstrumentsTarget(NULL)
 {
 	// Cockpit data
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit"));
@@ -251,7 +251,7 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 	}
 }
 
-void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* PlayerShip)
+void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 {
 	// Ensure we're not doing anything stupid
 	check(PC->UseCockpit);
@@ -262,15 +262,15 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* PlayerShip)
 
 	// Offset the cockpit
 #if FLARE_USE_COCKPIT_RENDERTARGET
-	CockpitMesh->AttachTo(PlayerShip->GetRootComponent(), NAME_None, EAttachLocation::SnapToTarget);
-	FVector CameraOffset = PlayerShip->GetRootComponent()->GetSocketLocation(FName("Camera"));
+	CockpitMesh->AttachTo(TargetPlayerShip->GetRootComponent(), NAME_None, EAttachLocation::SnapToTarget);
+	FVector CameraOffset = TargetPlayerShip->GetRootComponent()->GetSocketLocation(FName("Camera"));
 	CockpitCapture->SetRelativeLocation(CameraOffset);
 #else
-	CockpitMesh->AttachTo(PlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
+	CockpitMesh->AttachTo(TargetPlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
 #endif
 
 	// FLIR camera
-	CockpitFLIRCapture->AttachTo(PlayerShip->GetRootComponent(), "Dock", EAttachLocation::SnapToTarget);
+	CockpitFLIRCapture->AttachTo(TargetPlayerShip->GetRootComponent(), "Dock", EAttachLocation::SnapToTarget);
 
 	// General data
 	IsInCockpit = true;
@@ -278,7 +278,7 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* PlayerShip)
 	CockpitMesh->SetVisibility(true, true);
 }
 
-void AFlareCockpitManager::ExitCockpit(AFlareSpacecraft* PlayerShip)
+void AFlareCockpitManager::ExitCockpit(AFlareSpacecraft* TargetPlayerShip)
 {
 	IsInCockpit = false;
 	CockpitFLIRCapture->Deactivate();

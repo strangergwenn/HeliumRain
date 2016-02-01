@@ -20,7 +20,12 @@ class SFlareTradeRouteMenu;
 class SFlareCreditsMenu;
 
 class AFlarePlayerController;
-
+class AFlareSpacecraft;
+class AFlareGame;
+class IFlareSpacecraftInterface;
+class UFlareCompany;
+class UFlareSimulatedSector;
+class UFlareTradeRoute;
 
 /** Main HUD class (container for HUD and menus) */
 UCLASS()

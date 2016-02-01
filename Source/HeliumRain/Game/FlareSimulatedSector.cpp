@@ -665,7 +665,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 		}
 		else
 		{
-			FLOGV("UFlareSimulatedSector::BuildStation : Failed to use asteroid !");
+			FLOG("UFlareSimulatedSector::BuildStation : Failed to use asteroid !");
 		}
 	}
 

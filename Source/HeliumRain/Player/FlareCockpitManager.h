@@ -40,10 +40,10 @@ public:
 protected:
 
 	/** Enter the cockpit */
-	void EnterCockpit(AFlareSpacecraft* PlayerShip);
+	void EnterCockpit(AFlareSpacecraft* TargetPlayerShip);
 
 	/** Exit the cockpit */
-	void ExitCockpit(AFlareSpacecraft* PlayerShip);
+	void ExitCockpit(AFlareSpacecraft* TargetPlayerShip);
 
 	/** Update the target info */
 	void UpdateTarget(float DeltaSeconds);
