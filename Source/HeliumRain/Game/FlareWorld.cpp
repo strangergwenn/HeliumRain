@@ -214,16 +214,16 @@ void UFlareWorld::Simulate()
 {
 	WorldData.Date++;
 
-	// Peoples
-	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
-	{
-		Sectors[SectorIndex]->GetPeople()->Simulate();
-	}
-
 	// Automatic transport
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
 		Sectors[SectorIndex]->SimulateTransport();
+	}
+
+	// Peoples
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		Sectors[SectorIndex]->GetPeople()->Simulate();
 	}
 
 	// Factories

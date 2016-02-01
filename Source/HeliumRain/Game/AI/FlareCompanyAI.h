@@ -30,6 +30,7 @@ public:
 
 	virtual void Simulate();
 
+	virtual void UnAssignShipsFromSector(uint32 Capacity);
 
 	protected:
 

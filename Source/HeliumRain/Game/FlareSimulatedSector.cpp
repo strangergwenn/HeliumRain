@@ -1055,5 +1055,10 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 	return ResourceCount;
 }
 
+int32 UFlareSimulatedSector::GetTransportCapacityBalance(UFlareCompany* Company)
+{
+	// TODO
+	return 0;
+}
 
 #undef LOCTEXT_NAMESPACE

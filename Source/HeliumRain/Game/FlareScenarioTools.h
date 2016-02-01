@@ -44,6 +44,27 @@ protected:
 
 	AFlareGame*                                Game;
 	UFlareWorld*                               World;
+
+	UFlareSimulatedSector* Outpost;
+	UFlareSimulatedSector* MinerHome;
+	UFlareSimulatedSector* FrozenRealm;
+
+	UFlareCompany* MiningSyndicate;
+	UFlareCompany* HelixFoundries;
+	UFlareCompany* Sunwatch;
+
+	FFlareResourceDescription* Water;
+	FFlareResourceDescription* Food;
+	FFlareResourceDescription* Fuel;
+	FFlareResourceDescription* Plastics;
+	FFlareResourceDescription* Hydrogen;
+	FFlareResourceDescription* Helium;
+	FFlareResourceDescription* Silica;
+	FFlareResourceDescription* Steel;
+	FFlareResourceDescription* Tools;
+	FFlareResourceDescription* Tech;
+
+
 public:
 	/*----------------------------------------------------
 		Getter

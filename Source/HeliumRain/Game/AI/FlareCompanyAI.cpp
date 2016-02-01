@@ -34,6 +34,20 @@ void UFlareCompanyAI::Simulate()
 
 	FLOGV("Simulate AI for %s", *Company->GetCompanyName().ToString());
 
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+		int32 TransportCapacityBalance = Sector->GetTransportCapacityBalance(Company);
+
+		if(TransportCapacityBalance > 0)
+		{
+			UnAssignShipsFromSector((uint32) TransportCapacityBalance);
+		}
+	}
+
+
+
+	/*
 	TArray<UFlareSimulatedSpacecraft*> CompanyShips = Company->GetCompanyShips();
 
 	// Assign ships to current sector
@@ -41,7 +55,12 @@ void UFlareCompanyAI::Simulate()
 	{
 		UFlareSimulatedSpacecraft* Ship = CompanyShips[ShipIndex];
 		Ship->AssignToSector(true);
-	}
+	}*/
+}
+
+void UFlareCompanyAI::UnAssignShipsFromSector(uint32 Capacity)
+{
+	// TODO
 }
 
 

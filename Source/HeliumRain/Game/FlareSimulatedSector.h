@@ -166,4 +166,9 @@ public:
 
 	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource);
 
+	/** If positive, return the remaining tranport capacity after transport.
+	 *  If negative, return the laking tranport capacity after transport
+	 */
+	int32 GetTransportCapacityBalance(UFlareCompany* Company);
+
 };
