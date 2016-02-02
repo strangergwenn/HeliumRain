@@ -192,14 +192,55 @@ void AFlareHUD::UpdateHUDVisibility()
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
-
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && !PC->UseCockpit && HUDVisible)
+
+	if (HUDVisible && PC)
 	{
+		// Setup data
 		CurrentViewportSize = ViewportSize;
 		CurrentCanvas = Canvas;
 		IsDrawingCockpit = false;
-		DrawHUDInternal();
+
+		// Initial data and checks
+		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+		if (!ShouldDrawHUD())
+		{
+			return;
+		}
+
+		// Draw the general-purpose HUD (no-cockpit version)
+		else if (!PC->UseCockpit)
+		{
+			DrawHUDInternal();
+		}
+
+		// Draw nose
+		if (!PlayerShip->GetStateManager()->IsExternalCamera())
+		{
+			DrawHUDIcon(CurrentViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
+		}
+
+		// Draw combat mouse pointer
+		if (!PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
+			PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
+			|| PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
+		{
+			// Compute clamped mouse position
+			FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerMouseOffset();
+			FVector MousePosDelta3D = FVector(MousePosDelta.X, MousePosDelta.Y, 0);
+			MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
+			MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);
+
+			// Keep an offset
+			FVector2D MinimalOffset = MousePosDelta;
+			MinimalOffset.Normalize();
+			MousePosDelta += 12 * MinimalOffset;
+
+			// Draw
+			FLinearColor PointerColor = HudColorNeutral;
+			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
+			DrawHUDIconRotated(CurrentViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
+		}
 	}
 }
 
@@ -232,7 +273,11 @@ void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
 		CurrentViewportSize = FVector2D(Width, Height);
 		CurrentCanvas = TargetCanvas;
 		IsDrawingCockpit = true;
-		DrawHUDInternal();
+
+		if (ShouldDrawHUD())
+		{
+			DrawHUDInternal();
+		}
 	}
 }
 
@@ -250,7 +295,7 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 		if (PlayerShip)
 		{
 			// Regular case
-			if (!PC->IsTest1)//!PlayerShip->GetDamageSystem()->HasPowerOutage()))
+			if (!PlayerShip->GetDamageSystem()->HasPowerOutage())
 			{
 				DrawCockpitSubsystems(PlayerShip);
 				DrawCockpitEquipment(PlayerShip);
@@ -544,19 +589,30 @@ inline static bool IsCloserToCenter(const FFlareScreenTarget& TargetA, const FFl
 	return (TargetA.DistanceFromScreenCenter < TargetB.DistanceFromScreenCenter);
 }
 
+
+bool AFlareHUD::ShouldDrawHUD() const
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
+	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+
+	if (!ActiveSector || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 void AFlareHUD::DrawHUDInternal()
 {
 	// Initial data and checks
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
-
-	// So these are forbidden cases
-	if (!ActiveSector || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
-	{
-		return;
-	}
-	
+		
 	// Iterate on all 'other' ships to show designators, markings, etc
 	ScreenTargets.Empty();
 	FoundTargetUnderMouse = false;
@@ -598,12 +654,6 @@ void AFlareHUD::DrawHUDInternal()
 		// Draw inertial vectors
 		DrawSpeed(PC, PlayerShip, HUDReticleIcon, PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
 		DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"), true);
-
-		// Draw nose
-		if (!PlayerShip->GetStateManager()->IsExternalCamera())
-		{
-			DrawHUDIcon(CurrentViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
-		}
 
 		// Draw objective
 		if (PC->HasObjective() && PC->GetCurrentObjective()->Data.TargetList.Num() > 0)
@@ -672,28 +722,6 @@ void AFlareHUD::DrawHUDInternal()
 				// Icon
 				DrawHUDIcon(ScreenPosition, IconSize, HUDBombAimIcon, HudColorNeutral, true);
 			}
-		}
-
-		// Draw combat mouse pointer
-		if (!PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
-		    PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
-		 || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
-		{
-			// Compute clamped mouse position
-			FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerMouseOffset();
-			FVector MousePosDelta3D = FVector(MousePosDelta.X, MousePosDelta.Y, 0);
-			MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
-			MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);
-
-			// Keep an offset
-			FVector2D MinimalOffset = MousePosDelta;
-			MinimalOffset.Normalize();
-			MousePosDelta += 12 * MinimalOffset;
-
-			// Draw
-			FLinearColor PointerColor = HudColorNeutral;
-			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
-			DrawHUDIconRotated(CurrentViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
 		}
 
 		// Draw bombs

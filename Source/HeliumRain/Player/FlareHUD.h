@@ -118,6 +118,9 @@ public:
 
 protected:
 
+	/** Should we draw the HUD ? */
+	bool ShouldDrawHUD() const;
+
 	/** Drawing back-end */
 	void DrawHUDInternal();
 
