@@ -104,7 +104,6 @@ protected:
 
 	AFlareGame*                             Game;
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
-	const FFlareSectorDescription*          SectorDescription;
 
 	UPROPERTY()
 	UFlarePeople*							People;
