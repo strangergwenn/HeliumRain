@@ -471,7 +471,6 @@ void UFlareSector::PlaceSpacecraft(AFlareSpacecraft* Spacecraft, FVector Locatio
 	Getters
 ----------------------------------------------------*/
 
-
 TArray<AFlareSpacecraft*> UFlareSector::GetCompanyShips(UFlareCompany* Company)
 {
 	TArray<AFlareSpacecraft*> CompanyShips;

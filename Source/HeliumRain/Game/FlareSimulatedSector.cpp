@@ -398,7 +398,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		}
 
 		UFlareCargoBay* CargoBay = Spacecraft->GetCargoBay();
-		for (int CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
+		for (uint32 CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
 		{
 			FFlareCargo* Cargo = CargoBay->GetSlot(CargoIndex);
 
@@ -429,7 +429,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Check resource cost
-	for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+	for (int32 ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
 	{
 		FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
 		bool ResourceFound = false;
@@ -622,7 +622,7 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 			}
 
 			uint32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBay()->GetResourceQuantity(Resource);
-			uint32 FreeSpace = Station->GetCargoBay()->GetFreeSpace(Resource);
+			uint32 FreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
 			uint32 QuantityToTransfert = FMath::Min(MaxQuantity, FreeSpace);
 			uint32 TakenResources = TakeUselessResources(Station->GetCompany(), Resource, QuantityToTransfert);
 			Station->GetCargoBay()->GiveResources(Resource, TakenResources);
@@ -707,7 +707,7 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 				FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
 				uint32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
 				uint32 ConsumedQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
-				uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpace(Resource);
+				uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
 
 				uint32 NeededQuantity = 0;
 				switch(TransportLimitType)
@@ -952,7 +952,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 
 				uint32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
 				uint32 ConsumedQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
-				uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpace(Resource);
+				uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
 
 				uint32 NeededQuantity = 0;
 				switch(TransportLimitType)
@@ -1029,5 +1029,6 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 
 	return ResourceCount;
 }
+
 
 #undef LOCTEXT_NAMESPACE

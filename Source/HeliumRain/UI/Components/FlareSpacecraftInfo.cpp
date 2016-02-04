@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareSpacecraftInfo.h"
 #include "FlareCargoInfo.h"
+#include "../../Economy/FlareCargoBay.h"
 #include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftInfo"
@@ -295,7 +296,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 		CargoBay->ClearChildren();
 		if (SimulatedSpacecraft && SimulatedSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
 		{
-			for (int CargoIndex = 0; CargoIndex < SimulatedSpacecraft->GetCargoBay()->GetSlotCount() ; CargoIndex++)
+			for (uint32 CargoIndex = 0; CargoIndex < SimulatedSpacecraft->GetCargoBay()->GetSlotCount() ; CargoIndex++)
 			{
 				CargoBay->AddSlot()
 				[

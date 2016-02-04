@@ -223,7 +223,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 	TArray<FFlareFactoryResource> OutputResources = GetLimitedOutputResources();
 
 	// First, fill already existing slots
-	for (int32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
+	for (uint32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
 	{
 		for (int32 ResourceIndex = OutputResources.Num() -1 ; ResourceIndex >= 0; ResourceIndex--)
 		{
@@ -248,7 +248,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 	}
 
 	// Fill free cargo slots
-	for (int32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
+	for (uint32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
 	{
 		if (OutputResources.Num() == 0)
 		{
@@ -472,7 +472,7 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 		uint32 MaxCapacity = CargoBay->GetCapacity() * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
 		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier);
 		uint32 CurrentQuantity = 0;
-		for (int32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
+		for (uint32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
 		{
 			if(CargoBay->GetSlot(CargoIndex)->Resource == Resource)
 			{

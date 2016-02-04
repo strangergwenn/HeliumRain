@@ -2,9 +2,11 @@
 #pragma once
 #include "FlarePeople.generated.h"
 
+class AFlareGame;
 class UFlareSimulatedSector;
 class UFlareSimulatedSpacecraft;
 struct FFlareResourceDescription;
+
 
 /** Company reputation save data */
 USTRUCT()
@@ -119,6 +121,7 @@ protected:
 
 	AFlareGame*                              Game;
 	UFlareSimulatedSector*   				 Parent;
+
 public:
 
 	/*----------------------------------------------------

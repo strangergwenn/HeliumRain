@@ -254,7 +254,7 @@ uint32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource)
 
 	return Quantity;
 }
-uint32 UFlareCargoBay::GetFreeSpace(FFlareResourceDescription* Resource)
+uint32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource)
 {
 	uint32 Quantity = 0;
 

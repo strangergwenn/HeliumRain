@@ -66,7 +66,7 @@ public:
 
 	uint32 GetResourceQuantity(FFlareResourceDescription* Resource);
 
-	uint32 GetFreeSpace(FFlareResourceDescription* Resource);
+	uint32 GetFreeSpaceForResource(FFlareResourceDescription* Resource);
 
 
 

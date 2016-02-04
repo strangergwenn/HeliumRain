@@ -99,6 +99,7 @@ public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
+
 	UFlareSimulatedSector* GetSimulatedSector() override
 	{
 		return SimulatedSector;

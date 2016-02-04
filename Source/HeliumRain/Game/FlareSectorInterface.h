@@ -1,8 +1,11 @@
 #pragma once
 
 
+#include "../Economy/FlarePeople.h"
 #include "FlareSectorInterface.generated.h"
 
+
+struct FFlareBombSave;
 class UFlareSimulatedSector;
 class IFlareSpacecraftInterface;
 
@@ -243,7 +246,7 @@ public:
 	/** Get the friendlyness status toward a company, as a color */
 	FLinearColor GetSectorFriendlynessColor(UFlareCompany* Company);
 
-	virtual UFlareSimulatedSector* GetSimulatedSector();
+	virtual UFlareSimulatedSector* GetSimulatedSector() PURE_VIRTUAL(UFlareSectorInterface::GetSimulatedSector, return NULL;);
 
 	virtual uint32 GetResourcePrice(FFlareResourceDescription* Resource);
 
