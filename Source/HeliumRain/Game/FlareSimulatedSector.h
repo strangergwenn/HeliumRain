@@ -103,7 +103,6 @@ protected:
 	TArray<UFlareFleet*>                    SectorFleets;
 
 	AFlareGame*                             Game;
-	FFlareSectorOrbitParameters             SectorOrbitParameters;
 
 	UPROPERTY()
 	UFlarePeople*							People;
