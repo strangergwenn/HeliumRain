@@ -5,8 +5,8 @@
 #include "../Components/FlareShipList.h"
 #include "../Components/FlareConfirmationBox.h"
 
-class UFlareSimulatedSpacecraft;
-class UFlareSimulatedSector;
+class IFlareSpacecraftInterface;
+class IFlareSectorInterface;
 struct FFlareResourceDescription;
 
 
@@ -36,10 +36,10 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter(UFlareSimulatedSector* ParentSector, UFlareSimulatedSpacecraft* LeftSpacecraft, UFlareSimulatedSpacecraft* RightSpacecraft);
+	void Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraftInterface* LeftSpacecraft, IFlareSpacecraftInterface* RightSpacecraft);
 
 	/** Fill a content pane with the trading information for Target spacecraft to deal with Other */
-	void FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft, TSharedPtr<SHorizontalBox> TargetBlock);
+	void FillTradeBlock(IFlareSpacecraftInterface* TargetSpacecraft, IFlareSpacecraftInterface* OtherSpacecraft, TSharedPtr<SHorizontalBox> TargetBlock);
 
 	/** Exit this menu */
 	void Exit();
@@ -76,7 +76,7 @@ protected:
 	void OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer);
 
 	/** Start transferring a resource */
-	void OnTransferResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource);
+	void OnTransferResources(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource);
 
 	/** Changed resource quantity, recompute price **/
 	void OnResourceQuantityChanged(float Value);
@@ -111,13 +111,13 @@ protected:
 	TSharedPtr<SFlareConfirmationBox>               PriceBox;
 
 	// Data
-	UFlareSimulatedSector*                          TargetSector;
-	UFlareSimulatedSpacecraft*                      TargetLeftSpacecraft;
-	UFlareSimulatedSpacecraft*                      TargetRightSpacecraft;
+	UFlareSectorInterface*                          TargetSector;
+	IFlareSpacecraftInterface*                      TargetLeftSpacecraft;
+	IFlareSpacecraftInterface*                      TargetRightSpacecraft;
 
 	// Current transaction
-	UFlareSimulatedSpacecraft*                      TransactionSourceSpacecraft;
-	UFlareSimulatedSpacecraft*                      TransactionDestinationSpacecraft;
+	IFlareSpacecraftInterface*                      TransactionSourceSpacecraft;
+	IFlareSpacecraftInterface*                      TransactionDestinationSpacecraft;
 	FFlareResourceDescription*                      TransactionResource;
 	uint32                                          TransactionQuantity;
 

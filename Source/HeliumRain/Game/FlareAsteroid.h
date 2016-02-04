@@ -5,7 +5,7 @@
 
 
 class AFlareGame;
-class UFlareSimulatedSector;
+class UFlareSector;
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
@@ -30,7 +30,7 @@ public:
 	virtual void SetPause(bool Paused);
 
 	/** Setup an asteroid mesh */
-	static void SetupAsteroidMesh(AFlareGame* Game, UFlareSimulatedSector* Sector, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data);
+	static void SetupAsteroidMesh(AFlareGame* Game, UFlareSector* Sector, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data);
 
 
 protected:

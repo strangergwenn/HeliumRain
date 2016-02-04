@@ -15,7 +15,7 @@ class IFlareSpacecraftDamageSystemInterface;
 class IFlareSpacecraftNavigationSystemInterface;
 class IFlareSpacecraftWeaponsSystemInterface;
 class IFlareSpacecraftDockingSystemInterface;
-
+class UFlareCargoBay;
 
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */
@@ -165,6 +165,8 @@ public:
 	/** Save the ship to a save file */
 	virtual FFlareSpacecraftSave* Save() = 0;
 
+	virtual AFlareGame* GetGame() const = 0;
+
 	/** Get the parent company */
 	virtual UFlareCompany* GetCompany() = 0;
 
@@ -190,6 +192,10 @@ public:
 	virtual bool IsAssignedToSector() const = 0;
 
 	virtual void AssignToSector(bool Assign) = 0;
+
+	virtual UFlareCargoBay* GetCargoBay() = 0;
+
+	virtual UFlareSectorInterface* GetCurrentSectorInterface() = 0;
 
 	/*----------------------------------------------------
 		Sub system

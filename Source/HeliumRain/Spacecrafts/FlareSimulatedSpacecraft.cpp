@@ -3,6 +3,7 @@
 #include "../Game/FlareSimulatedSector.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareWorld.h"
+#include "../Economy/FlareCargoBay.h"
 #include "FlareSimulatedSpacecraft.h"
 
 
@@ -69,30 +70,8 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		Game->GetGameWorld()->AddFactory(Factory);
 	}
 
-	// Initialize cargo bay
-	CargoBay.Empty();
-	for (uint32 CargoIndex = 0; CargoIndex < SpacecraftDescription->CargoBayCount; CargoIndex++)
-	{
-		FFlareCargo Cargo;
-		Cargo.Resource = NULL;
-		Cargo.Capacity = SpacecraftDescription->CargoBayCapacity;
-		Cargo.Quantity = 0;
-
-		if (CargoIndex < (uint32)SpacecraftData.Cargo.Num())
-		{
-			// Existing save
-			FFlareCargoSave* CargoSave = &SpacecraftData.Cargo[CargoIndex];
-
-			if (CargoSave->Quantity > 0)
-			{
-				Cargo.Resource = Game->GetResourceCatalog()->Get(CargoSave->ResourceIdentifier);
-				Cargo.Quantity = FMath::Min(CargoSave->Quantity, SpacecraftDescription->CargoBayCapacity);
-			}
-		}
-
-		CargoBay.Add(Cargo);
-	}
-
+	CargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
+	CargoBay->Load(this, SpacecraftData.Cargo);
 }
 
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
@@ -103,22 +82,7 @@ FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 		SpacecraftData.FactoryStates.Add(*Factories[FactoryIndex]->Save());
 	}
 
-	SpacecraftData.Cargo.Empty();
-	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		FFlareCargoSave CargoSave;
-		CargoSave.Quantity = Cargo.Quantity;
-		if (Cargo.Resource != NULL)
-		{
-			CargoSave.ResourceIdentifier = Cargo.Resource->Identifier;
-		}
-		else
-		{
-			CargoSave.ResourceIdentifier = NAME_None;
-		}
-		SpacecraftData.Cargo.Add(CargoSave);
-	}
+	SpacecraftData.Cargo = *CargoBay->Save();
 
 	return &SpacecraftData;
 }
@@ -216,165 +180,6 @@ void UFlareSimulatedSpacecraft::AssignToSector(bool Assign)
 	Resources
 ----------------------------------------------------*/
 
-bool UFlareSimulatedSpacecraft::HasResources(FFlareResourceDescription* Resource, uint32 Quantity)
-{
-	uint32 PresentQuantity = 0;
-
-	if (Quantity == 0)
-	{
-		return true;
-	}
-
-	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo* Cargo = &CargoBay[CargoIndex];
-		if (Cargo->Resource == Resource)
-		{
-			PresentQuantity += Cargo->Quantity;
-			if (PresentQuantity >= Quantity)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-uint32 UFlareSimulatedSpacecraft::TakeResources(FFlareResourceDescription* Resource, uint32 Quantity)
-{
-	uint32 QuantityToTake = Quantity;
-
-
-	if (QuantityToTake == 0)
-	{
-		return 0;
-	}
-
-	// First pass: take resource from the less full cargo
-	uint32 MinQuantity = 0;
-	FFlareCargo* MinQuantityCargo = NULL;
-
-	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if (Cargo.Resource == Resource)
-		{
-			if (MinQuantityCargo == NULL || MinQuantity > Cargo.Quantity)
-			{
-				MinQuantityCargo = &Cargo;
-				MinQuantity = Cargo.Quantity;
-			}
-		}
-	}
-
-	if (MinQuantityCargo)
-	{
-		uint32 TakenQuantity = FMath::Min(MinQuantityCargo->Quantity, QuantityToTake);
-		if (TakenQuantity > 0)
-		{
-			MinQuantityCargo->Quantity -= TakenQuantity;
-			QuantityToTake -= TakenQuantity;
-
-			if (MinQuantityCargo->Quantity == 0)
-			{
-				MinQuantityCargo->Resource = NULL;
-			}
-
-			if (QuantityToTake == 0)
-			{
-				return Quantity;
-			}
-		}
-	}
-
-
-	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if (Cargo.Resource == Resource)
-		{
-			uint32 TakenQuantity = FMath::Min(Cargo.Quantity, QuantityToTake);
-			if (TakenQuantity > 0)
-			{
-				Cargo.Quantity -= TakenQuantity;
-				QuantityToTake -= TakenQuantity;
-
-				if (Cargo.Quantity == 0)
-				{
-					Cargo.Resource = NULL;
-				}
-
-				if (QuantityToTake == 0)
-				{
-					return Quantity;
-				}
-			}
-		}
-	}
-	return Quantity - QuantityToTake;
-}
-
-uint32 UFlareSimulatedSpacecraft::GiveResources(FFlareResourceDescription* Resource, uint32 Quantity)
-{
-	uint32 QuantityToGive = Quantity;
-
-	if (QuantityToGive == 0)
-	{
-		return Quantity;
-	}
-
-	// First pass, fill already existing slots
-	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if (Resource == Cargo.Resource)
-		{
-			// Same resource
-			uint32 AvailableCapacity = Cargo.Capacity - Cargo.Quantity;
-			uint32 GivenQuantity = FMath::Min(AvailableCapacity, QuantityToGive);
-			if (GivenQuantity > 0)
-			{
-				Cargo.Quantity += GivenQuantity;
-				QuantityToGive -= GivenQuantity;
-
-				if (QuantityToGive == 0)
-				{
-					return Quantity;
-				}
-			}
-		}
-	}
-
-	// Fill free cargo slots
-	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if (Cargo.Quantity == 0)
-		{
-			// Empty Cargo
-			uint32 GivenQuantity = FMath::Min(Cargo.Capacity, QuantityToGive);
-			if (GivenQuantity > 0)
-			{
-				Cargo.Quantity += GivenQuantity;
-				Cargo.Resource = Resource;
-
-				QuantityToGive -= GivenQuantity;
-
-				if (QuantityToGive == 0)
-				{
-					return Quantity;
-				}
-			}
-			else
-			{
-				FLOGV("Zero sized cargo bay for %s", *GetImmatriculation().ToString())
-			}
-
-		}
-	}
-
-	return Quantity - QuantityToGive;
-}
 
 bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft)
 {
@@ -419,43 +224,4 @@ void UFlareSimulatedSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
 	Getters
 ----------------------------------------------------*/
 
-uint32 UFlareSimulatedSpacecraft::GetCargoBayCapacity()
-{
-	return SpacecraftDescription->CargoBayCapacity * SpacecraftDescription->CargoBayCount;
-}
 
-uint32 UFlareSimulatedSpacecraft::GetCargoBayResourceQuantity(FFlareResourceDescription* Resource)
-{
-	uint32 Quantity = 0;
-
-	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if (Cargo.Resource == Resource)
-		{
-			Quantity += Cargo.Quantity;
-		}
-	}
-
-	return Quantity;
-}
-
-uint32 UFlareSimulatedSpacecraft::GetCargoBayFreeSpace(FFlareResourceDescription* Resource)
-{
-	uint32 Quantity = 0;
-
-	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if (Cargo.Resource == NULL)
-		{
-			Quantity += Cargo.Capacity;
-		}
-		else if (Cargo.Resource == Resource)
-		{
-			Quantity += Cargo.Capacity - Cargo.Quantity;
-		}
-	}
-
-	return Quantity;
-}

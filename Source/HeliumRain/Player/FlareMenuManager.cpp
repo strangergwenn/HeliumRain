@@ -598,8 +598,13 @@ void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
 	if (SimulatedSpacecraft)
 	{
 		TradeMenu->Enter(SimulatedSpacecraft->GetCurrentSector(), SimulatedSpacecraft, NULL);
-		// TODO What append if the cast fail ?
 	}
+	else
+	{
+		AFlareSpacecraft* ActiveSpacecraft = Cast<AFlareSpacecraft>(Spacecraft);
+		TradeMenu->Enter(GetGame()->GetActiveSector(), ActiveSpacecraft, NULL);
+	}
+
 	GetPC()->UpdateMenuTheme();
 }
 

@@ -36,12 +36,12 @@ void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	AsteroidData = Data;
 
-	SetupAsteroidMesh(Game, Game->GetActiveSector()->GetSimulatedSector(), GetStaticMeshComponent(), Data);
+	SetupAsteroidMesh(Game, Game->GetActiveSector(), GetStaticMeshComponent(), Data);
 	GetStaticMeshComponent()->SetPhysicsLinearVelocity(Data.LinearVelocity);
 	GetStaticMeshComponent()->SetPhysicsAngularVelocity(Data.AngularVelocity);
 }
 
-void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UFlareSimulatedSector* Sector, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data)
+void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UFlareSector* Sector, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data)
 {
 	Component->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
 

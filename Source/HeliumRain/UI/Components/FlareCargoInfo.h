@@ -4,7 +4,7 @@
 #include "FlareButton.h"
 
 
-class UFlareSimulatedSpacecraft;
+class IFlareSpacecraftInterface;
 
 
 class SFlareCargoInfo : public SCompoundWidget
@@ -17,7 +17,7 @@ class SFlareCargoInfo : public SCompoundWidget
 		: _Spacecraft(NULL)
 	{}
 
-	SLATE_ARGUMENT(UFlareSimulatedSpacecraft*, Spacecraft)
+	SLATE_ARGUMENT(IFlareSpacecraftInterface*, Spacecraft)
 	SLATE_ARGUMENT(int32, CargoIndex)
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 	
@@ -66,7 +66,7 @@ protected:
 	----------------------------------------------------*/
 
 	// Spacecraft data
-	UFlareSimulatedSpacecraft*                      TargetSpacecraft;
+	IFlareSpacecraftInterface*                      TargetSpacecraft;
 	int32                                           CargoIndex;
 	FFlareButtonClicked                             OnClicked;
 

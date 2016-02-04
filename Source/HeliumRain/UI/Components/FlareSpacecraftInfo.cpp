@@ -295,7 +295,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 		CargoBay->ClearChildren();
 		if (SimulatedSpacecraft && SimulatedSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
 		{
-			for (int CargoIndex = 0; CargoIndex < SimulatedSpacecraft->GetCargoBay().Num() ; CargoIndex++)
+			for (int CargoIndex = 0; CargoIndex < SimulatedSpacecraft->GetCargoBay()->GetSlotCount() ; CargoIndex++)
 			{
 				CargoBay->AddSlot()
 				[

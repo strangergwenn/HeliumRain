@@ -170,7 +170,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 			SectorData->LocalTime = GetGameWorld()->GetDate() * UFlareGameTools::SECONDS_IN_DAY;
 		}
 		Planetarium->ResetTime();
-		ActiveSector->Load(*SectorData, Sector);
+		ActiveSector->Load(Sector, *SectorData);
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 		PC->OnSectorActivated();
@@ -178,14 +178,14 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 	GetQuestManager()->OnSectorActivation(Sector);
 }
 
-void AFlareGame::DeactivateSector(AController* Player)
+UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 {
 	if (!ActiveSector)
 	{
-		return;
+		return NULL;
 	}
 
-	FLOGV("AFlareGame::DeactivateSector : %s", *ActiveSector->GetSimulatedSector()->GetSectorName().ToString());
+	FLOGV("AFlareGame::DeactivateSector : %s", *ActiveSector->GetSectorName().ToString());
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 
 	// Set last flown ship
@@ -226,6 +226,8 @@ void AFlareGame::DeactivateSector(AController* Player)
 	}
 
 	PC->OnSectorDeactivated();
+
+	return Sector;
 }
 
 void AFlareGame::Tick(float DeltaSeconds)
@@ -561,7 +563,7 @@ void AFlareGame::UnloadGame()
 
 	if (ActiveSector)
 	{
-		UnloadStreamingLevel(ActiveSector->GetSimulatedSector()->GetDescription()->LevelName);
+		UnloadStreamingLevel(ActiveSector->GetDescription()->LevelName);
 		ActiveSector->DestroySector();
 		ActiveSector = NULL;
 	}

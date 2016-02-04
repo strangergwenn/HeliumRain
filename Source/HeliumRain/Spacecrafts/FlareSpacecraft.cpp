@@ -421,6 +421,9 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	{
 		Airframe->SetSimulatePhysics(false);
 	}
+
+	CargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
+	CargoBay->Load(this, ShipData.Cargo);
 }
 
 FFlareSpacecraftSave* AFlareSpacecraft::Save()
@@ -447,6 +450,8 @@ FFlareSpacecraftSave* AFlareSpacecraft::Save()
 			ShipData.Components.Add(*ComponentSave);
 		}
 	}
+
+	ShipData.Cargo = *CargoBay->Save();
 
 	return &ShipData;
 }
@@ -527,12 +532,16 @@ void AFlareSpacecraft::ApplyAsteroidData()
 					*Component->GetName(), *ShipData.AsteroidData.Identifier.ToString());
 
 				UStaticMeshComponent* AsteroidComponentCandidate = Cast<UStaticMeshComponent>(Component);
-				UFlareSimulatedSector* Sector = GetGame()->GetGameWorld()->FindSectorBySpacecraft(ShipData.Identifier);
-				AFlareAsteroid::SetupAsteroidMesh(GetGame(), Sector, AsteroidComponentCandidate, ShipData.AsteroidData);
+				AFlareAsteroid::SetupAsteroidMesh(GetGame(), GetGame()->GetActiveSector() , AsteroidComponentCandidate, ShipData.AsteroidData);
 				break;
 			}
 		}
 	}
+}
+
+UFlareSectorInterface* AFlareSpacecraft::GetCurrentSectorInterface()
+{
+	return GetGame()->GetActiveSector();
 }
 
 UFlareInternalComponent* AFlareSpacecraft::GetInternalComponentAtLocation(FVector Location) const

@@ -5,6 +5,7 @@
 #include "../Spacecrafts/FlareBomb.h"
 #include "FlareAsteroid.h"
 #include "FlareSimulatedSector.h"
+#include "FlareSectorInterface.h"
 #include "FlareSector.generated.h"
 
 class UFlareSimulatedSector;
@@ -12,7 +13,7 @@ class AFlareGame;
 class AFlareAsteroid;
 
 UCLASS()
-class HELIUMRAIN_API UFlareSector : public UObject
+class HELIUMRAIN_API UFlareSector : public UFlareSectorInterface
 {
 	GENERATED_UCLASS_BODY()
 
@@ -23,7 +24,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Load the sector from a save file */
-	virtual void Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sector);
+	virtual void Load(UFlareSimulatedSector* ParentSector, const FFlareSectorSave& Data);
 
 	/** Save the sector to a save file */
 	virtual FFlareSectorSave* Save(TArray<FFlareSpacecraftSave>& SpacecraftData);
@@ -73,6 +74,8 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
+	UFlareSimulatedSector*      SimulatedSector;
+
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorStations;
 	UPROPERTY()
@@ -87,10 +90,6 @@ protected:
 	TArray<AFlareShell*>      SectorShells;
 	// TODO shell register
 
-
-	FFlareSectorSave              SectorData;
-	AFlareGame*                   Game;
-	UFlareSimulatedSector*        SimulatedSector;
 	int64						  LocalTime;
 	bool						  SectorRepartitionCache;
 	FVector                       SectorCenter;
@@ -100,15 +99,9 @@ public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
-
-	AFlareGame* GetGame() const
+	UFlareSimulatedSector* GetSimulatedSector() override
 	{
-		return Game;
-	}
-
-	FFlareSectorSave* GetData()
-	{
-		return &SectorData;
+		return SimulatedSector;
 	}
 
 	TArray<AFlareSpacecraft*> GetCompanyShips(UFlareCompany* Company);
@@ -122,10 +115,6 @@ public:
 		return SectorData.Identifier;
 	}
 
-	inline UFlareSimulatedSector* GetSimulatedSector()
-	{
-		return SimulatedSector;
-	}
 
 	inline TArray<AFlareSpacecraft*>& GetSpacecrafts()
 	{

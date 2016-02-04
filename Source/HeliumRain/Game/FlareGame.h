@@ -63,7 +63,7 @@ public:
 
 	virtual void ActivateSector(AController* Player,UFlareSimulatedSector* Sector);
 
-	virtual void DeactivateSector(AController* Player);
+	virtual UFlareSimulatedSector* DeactivateSector(AController* Player);
 
 	virtual void Tick(float DeltaSeconds) override;
 

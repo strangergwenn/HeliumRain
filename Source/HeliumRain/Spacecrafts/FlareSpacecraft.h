@@ -117,6 +117,12 @@ public:
 	/** Apply the current asteroid data */
 	void ApplyAsteroidData();
 
+	inline UFlareCargoBay* GetCargoBay() override
+	{
+		return CargoBay;
+	}
+
+	UFlareSectorInterface* GetCurrentSectorInterface() override;
 
 protected:
 
@@ -253,6 +259,8 @@ protected:
 
 	bool                                           Paused;
 
+	UPROPERTY()
+	UFlareCargoBay*                                         CargoBay;
 
 	/*----------------------------------------------------
 		Target selection
@@ -277,6 +285,11 @@ public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
+
+	inline AFlareGame* GetGame() const override
+	{
+		return AFlareSpacecraftPawn::GetGame();
+	}
 
 	/** Return linear velocity in meters */
 	FVector GetLinearVelocity() const;

@@ -458,7 +458,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Sector info
-	UFlareSimulatedSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector()->GetSimulatedSector();
+	UFlareSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector();
 	FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
 		CurrentSector->GetSectorName(),
 		CurrentSector->GetSectorFriendlynessText(PlayerShip->GetCompany()));

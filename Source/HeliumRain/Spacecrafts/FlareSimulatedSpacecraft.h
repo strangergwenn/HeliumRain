@@ -12,6 +12,7 @@
 class UFlareGame;
 class UFlareSimulatedSector;
 class UFlareFleet;
+class UFlareCargoBay;
 
 UCLASS()
 class HELIUMRAIN_API UFlareSimulatedSpacecraft : public UObject, public IFlareSpacecraftInterface
@@ -90,12 +91,6 @@ public:
 		Resources
 	----------------------------------------------------*/
 
-	bool HasResources(FFlareResourceDescription* Resource, uint32 Quantity);
-
-	uint32 TakeResources(FFlareResourceDescription* Resource, uint32 Quantity);
-
-	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
-
 	bool CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft);
 
 protected:
@@ -127,14 +122,14 @@ protected:
 	TArray<UFlareFactory*>                                  Factories;
 
 	UPROPERTY()
-	TArray<FFlareCargo>                                     CargoBay;
+	UFlareCargoBay*                                         CargoBay;
 public:
 
     /*----------------------------------------------------
         Getters
     ----------------------------------------------------*/
 
-	inline AFlareGame* GetGame() const
+	inline AFlareGame* GetGame() const override
 	{
 		return Game;
 	}	
@@ -167,16 +162,15 @@ public:
 		return SpacecraftDescription;
 	}
 
-	TArray<FFlareCargo>& GetCargoBay()
+	inline UFlareCargoBay* GetCargoBay() override
 	{
 		return CargoBay;
 	}
 
-	uint32 GetCargoBayCapacity();
-
-	uint32 GetCargoBayResourceQuantity(FFlareResourceDescription* Resource);
-
-	uint32 GetCargoBayFreeSpace(FFlareResourceDescription* Resource);
+	inline UFlareSectorInterface* GetCurrentSectorInterface() override
+	{
+		return CurrentSector;
+	}
 
 	inline TArray<UFlareFactory*>& GetFactories()
 	{

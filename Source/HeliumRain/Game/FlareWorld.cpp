@@ -389,12 +389,12 @@ void UFlareWorld::DeleteTravel(UFlareTravel* Travel)
 	Travels.Remove(Travel);
 }
 
-bool UFlareWorld::TransfertResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity)
+bool UFlareWorld::TransfertResources(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity)
 {
 	// TODO Check docking capabilities
 	bool TransfertOK = true;
 
-	uint32 ResourcePrice = SourceSpacecraft->GetCurrentSector()->GetResourcePrice(Resource);
+	uint32 ResourcePrice = SourceSpacecraft->GetCurrentSectorInterface()->GetResourcePrice(Resource);
 	uint32 QuantityToTake = Quantity;
 
 	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
@@ -404,18 +404,18 @@ bool UFlareWorld::TransfertResources(UFlareSimulatedSpacecraft* SourceSpacecraft
 		QuantityToTake = FMath::Min(QuantityToTake, MaxAffordableQuantity);
 	}
 
-	uint32 TakenResources = SourceSpacecraft->TakeResources(Resource, QuantityToTake);
-	uint32 GivenResources = DestinationSpacecraft->GiveResources(Resource, TakenResources);
+	uint32 TakenResources = SourceSpacecraft->GetCargoBay()->TakeResources(Resource, QuantityToTake);
+	uint32 GivenResources = DestinationSpacecraft->GetCargoBay()->GiveResources(Resource, TakenResources);
 	uint32 PaybackResources = TakenResources - GivenResources;
 	if (PaybackResources > 0)
 	{
-		SourceSpacecraft->GiveResources(Resource, PaybackResources);
+		SourceSpacecraft->GetCargoBay()->GiveResources(Resource, PaybackResources);
 	}
 
 	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
 	{
 		// Pay
-		uint32 Price = SourceSpacecraft->GetCurrentSector()->GetResourcePrice(Resource) * GivenResources;
+		uint32 Price = SourceSpacecraft->GetCurrentSectorInterface()->GetResourcePrice(Resource) * GivenResources;
 		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
 		SourceSpacecraft->GetCompany()->GiveMoney(Price);
 	}

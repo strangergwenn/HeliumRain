@@ -20,13 +20,16 @@ UFlareSector::UFlareSector(const FObjectInitializer& ObjectInitializer)
   Save
 ----------------------------------------------------*/
 
-void UFlareSector::Load(const FFlareSectorSave& Data, UFlareSimulatedSector* Sector)
+void UFlareSector::Load(UFlareSimulatedSector* ParentSector, const FFlareSectorSave& Data)
 {
 	DestroySector();
 
 	Game = Cast<AFlareGame>(GetOuter());
 	SectorData = Data;
-	SimulatedSector = Sector;
+	SimulatedSector = ParentSector;
+	SectorDescription = SimulatedSector->GetDescription();
+	SectorOrbitParameters = *SimulatedSector->GetOrbitParameters();
+
 	LocalTime = SectorData.LocalTime;
 
 	for (int i = 0 ; i < SectorData.AsteroidData.Num(); i++)

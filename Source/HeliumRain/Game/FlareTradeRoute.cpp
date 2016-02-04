@@ -77,7 +77,7 @@ void UFlareTradeRoute::Simulate()
 
 					if(ResourceToUnload->Quantity == 0 || SectorResourceCount < ResourceToUnload->Quantity)
 					{
-						uint32 AvailableResourceCount = Ship->GetCargoBayResourceQuantity(Resource);
+						uint32 AvailableResourceCount = Ship->GetCargoBay()->GetResourceQuantity(Resource);
 
 						uint32 ResourceToGive = AvailableResourceCount;
 						if(ResourceToUnload->Quantity != 0)
@@ -86,7 +86,7 @@ void UFlareTradeRoute::Simulate()
 						}
 
                         uint32 GivenResources = CurrentSector->GiveResources(Company, Resource, ResourceToGive);
-						Ship->TakeResources(Resource, GivenResources);
+						Ship->GetCargoBay()->TakeResources(Resource, GivenResources);
 					}
 				}
 
@@ -101,7 +101,7 @@ void UFlareTradeRoute::Simulate()
 					if(AvailableResourceCount > ResourceToLoad->Quantity)
 					{
 						uint32 ResourceToGive = AvailableResourceCount - ResourceToLoad->Quantity;
-						uint32 GivenResources = Ship->GiveResources(Resource, ResourceToGive);
+						uint32 GivenResources = Ship->GetCargoBay()->GiveResources(Resource, ResourceToGive);
 						CurrentSector->TakeResources(Company, Resource, GivenResources);
 					}
 				}

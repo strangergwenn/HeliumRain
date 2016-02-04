@@ -4,6 +4,7 @@
 #include "FlareGame.h"
 #include "FlareWorld.h"
 #include "FlareFleet.h"
+#include "../Economy/FlareCargoBay.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSector"
@@ -28,7 +29,9 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	SectorDescription = Description;
 	SectorOrbitParameters = OrbitParameters;
 	SectorShips.Empty();
+	SectorShipInterfaces.Empty();
 	SectorStations.Empty();
+	SectorStationInterfaces.Empty();
 	SectorSpacecrafts.Empty();
 	SectorFleets.Empty();
 
@@ -40,10 +43,12 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 		if (Spacecraft->IsStation())
 		{
 			SectorStations.Add(Spacecraft);
+			SectorStationInterfaces.Add(Spacecraft);
 		}
 		else
 		{
 			SectorShips.Add(Spacecraft);
+			SectorShipInterfaces.Add(Spacecraft);
 		}
 		SectorSpacecrafts.Add(Spacecraft);
 		Spacecraft->SetCurrentSector(this);
@@ -229,10 +234,12 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	if (Spacecraft->IsStation())
 	{
 		SectorStations.Add(Spacecraft);
+		SectorStationInterfaces.Add(Spacecraft);
 	}
 	else
 	{
 		SectorShips.Add(Spacecraft);
+		SectorShipInterfaces.Add(Spacecraft);
 	}
 	SectorSpacecrafts.Add(Spacecraft);
 
@@ -283,6 +290,7 @@ void UFlareSimulatedSector::AddFleet(UFlareFleet* Fleet)
 	{
 		Fleet->GetShips()[ShipIndex]->SetCurrentSector(this);
 		SectorShips.AddUnique(Fleet->GetShips()[ShipIndex]);
+		SectorShipInterfaces.AddUnique(Fleet->GetShips()[ShipIndex]);
 		SectorSpacecrafts.AddUnique(Fleet->GetShips()[ShipIndex]);
 	}
 }
@@ -318,6 +326,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 int UFlareSimulatedSector::RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	SectorSpacecrafts.Remove(Spacecraft);
+	SectorShipInterfaces.Remove(Spacecraft);
 	return SectorShips.Remove(Spacecraft);
 }
 
@@ -331,137 +340,10 @@ void UFlareSimulatedSector::SetShipToFly(UFlareSimulatedSpacecraft* Ship)
 	Getters
 ----------------------------------------------------*/
 
-FText UFlareSimulatedSector::GetSectorName() const
-{
-	if (SectorData.GivenName.ToString().Len())
-	{
-		return SectorData.GivenName;
-	}
-	else if (SectorDescription->Name.ToString().Len())
-	{
-		return SectorDescription->Name;
-	}
-	else
-	{
-		return FText::FromString(GetSectorCode());
-	}
-}
 
 FText UFlareSimulatedSector::GetSectorDescription() const
 {
 	return SectorDescription->Description;
-}
-
-FString UFlareSimulatedSector::GetSectorCode() const
-{
-	// TODO cache
-	return SectorOrbitParameters.CelestialBodyIdentifier.ToString() + "-" + FString::FromInt(SectorOrbitParameters.Altitude) + "-" + FString::FromInt(SectorOrbitParameters.Phase);
-}
-
-EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFlareCompany* Company) const
-{
-	if (!Company->HasVisitedSector(this))
-	{
-		return EFlareSectorFriendlyness::NotVisited;
-	}
-
-	if (SectorSpacecrafts.Num() == 0)
-	{
-		return EFlareSectorFriendlyness::Neutral;
-	}
-
-	int HostileSpacecraftCount = 0;
-	int NeutralSpacecraftCount = 0;
-	int FriendlySpacecraftCount = 0;
-
-	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
-	{
-		UFlareCompany* OtherCompany = SectorSpacecrafts[SpacecraftIndex]->GetCompany();
-
-		if (OtherCompany == Company)
-		{
-			FriendlySpacecraftCount++;
-		}
-		else if (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile)
-		{
-			HostileSpacecraftCount++;
-		}
-		else
-		{
-			NeutralSpacecraftCount++;
-		}
-	}
-
-	if (FriendlySpacecraftCount > 0 && HostileSpacecraftCount > 0)
-	{
-		return EFlareSectorFriendlyness::Contested;
-	}
-
-	if (FriendlySpacecraftCount > 0)
-	{
-		return EFlareSectorFriendlyness::Friendly;
-	}
-	else if (HostileSpacecraftCount > 0)
-	{
-		return EFlareSectorFriendlyness::Hostile;
-	}
-	else
-	{
-		return EFlareSectorFriendlyness::Neutral;
-	}
-}
-
-FText UFlareSimulatedSector::GetSectorFriendlynessText(UFlareCompany* Company) const
-{
-	FText Status;
-
-	switch (GetSectorFriendlyness(Company))
-	{
-		case EFlareSectorFriendlyness::NotVisited:
-			Status = LOCTEXT("Unknown", "UNKNOWN");
-			break;
-		case EFlareSectorFriendlyness::Neutral:
-			Status = LOCTEXT("Neutral", "NEUTRAL");
-			break;
-		case EFlareSectorFriendlyness::Friendly:
-			Status = LOCTEXT("Friendly", "FRIENDLY");
-			break;
-		case EFlareSectorFriendlyness::Contested:
-			Status = LOCTEXT("Contested", "CONTESTED");
-			break;
-		case EFlareSectorFriendlyness::Hostile:
-			Status = LOCTEXT("Hostile", "HOSTILE");
-			break;
-	}
-
-	return Status;
-}
-
-FLinearColor UFlareSimulatedSector::GetSectorFriendlynessColor(UFlareCompany* Company) const
-{
-	FLinearColor Color;
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	switch (GetSectorFriendlyness(Company))
-	{
-		case EFlareSectorFriendlyness::NotVisited:
-			Color = Theme.UnknownColor;
-			break;
-		case EFlareSectorFriendlyness::Neutral:
-			Color = Theme.NeutralColor;
-			break;
-		case EFlareSectorFriendlyness::Friendly:
-			Color = Theme.FriendlyColor;
-			break;
-		case EFlareSectorFriendlyness::Contested:
-			Color = Theme.DisputedColor;
-			break;
-		case EFlareSectorFriendlyness::Hostile:
-			Color = Theme.EnemyColor;
-			break;
-	}
-
-	return Color;
 }
 
 bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
@@ -515,10 +397,10 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 			continue;
 		}
 
-		TArray<FFlareCargo>& CargoBay = Spacecraft->GetCargoBay();
-		for (int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
+		UFlareCargoBay* CargoBay = Spacecraft->GetCargoBay();
+		for (int CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
 		{
-			FFlareCargo* Cargo = &(CargoBay[CargoIndex]);
+			FFlareCargo* Cargo = CargoBay->GetSlot(CargoIndex);
 
 			if (!Cargo->Resource)
 			{
@@ -604,7 +486,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 				continue;
 			}
 
-			ResourceToTake -= Ship->TakeResources(Resource, ResourceToTake);
+			ResourceToTake -= Ship->GetCargoBay()->TakeResources(Resource, ResourceToTake);
 		}
 
 		if (ResourceToTake == 0)
@@ -630,7 +512,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 				continue;
 			}
 
-			ResourceToTake -= Station->TakeResources(Resource, ResourceToTake);
+			ResourceToTake -= Station->GetCargoBay()->TakeResources(Resource, ResourceToTake);
 		}
 
 		if (ResourceToTake > 0)
@@ -732,18 +614,18 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 
 
 			// Fill only one slot for each ressource
-			if (Station->GetCargoBayResourceQuantity(Resource) > Station->GetDescription()->CargoBayCapacity)
+			if (Station->GetCargoBay()->GetResourceQuantity(Resource) > Station->GetDescription()->CargoBayCapacity)
 			{
-				FLOGV("Fill only one slot for each ressource. Has %d", Station->GetCargoBayResourceQuantity(Resource));
+				FLOGV("Fill only one slot for each ressource. Has %d", Station->GetCargoBay()->GetResourceQuantity(Resource));
 
 				continue;
 			}
 
-			uint32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBayResourceQuantity(Resource);
-			uint32 FreeSpace = Station->GetCargoBayFreeSpace(Resource);
+			uint32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBay()->GetResourceQuantity(Resource);
+			uint32 FreeSpace = Station->GetCargoBay()->GetFreeSpace(Resource);
 			uint32 QuantityToTransfert = FMath::Min(MaxQuantity, FreeSpace);
 			uint32 TakenResources = TakeUselessResources(Station->GetCompany(), Resource, QuantityToTransfert);
-			Station->GiveResources(Resource, TakenResources);
+			Station->GetCargoBay()->GiveResources(Resource, TakenResources);
 			TransportCapacity -= TakenResources;
 
 			FLOGV("MaxQuantity %d", MaxQuantity);
@@ -823,9 +705,9 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 			for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
-				uint32 StoredQuantity = Station->GetCargoBayResourceQuantity(Resource);
+				uint32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
 				uint32 ConsumedQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
-				uint32 StorageCapacity = Station->GetCargoBayFreeSpace(Resource);
+				uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpace(Resource);
 
 				uint32 NeededQuantity = 0;
 				switch(TransportLimitType)
@@ -847,7 +729,7 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 					uint32 QuantityToTransfert = FMath::Min(TransportCapacity, NeededQuantity - StoredQuantity);
 					QuantityToTransfert = FMath::Min(StorageCapacity, QuantityToTransfert);
 					uint32 TakenResources = TakeUselessResources(Station->GetCompany(), Resource, QuantityToTransfert);
-					Station->GiveResources(Resource, TakenResources);
+					Station->GetCargoBay()->GiveResources(Resource, TakenResources);
 					TransportCapacity -= TakenResources;
 					FLOGV("      Do transfet : QuantityToTransfert=%u TakenResources=%u TransportCapacity=%u", QuantityToTransfert, TakenResources, TransportCapacity);
 
@@ -890,7 +772,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
 			if (Factory->HasOutputResource(Resource))
 			{
-				uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
+				uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
 				RemainingQuantityToTake -= TakenQuantity;
 				break;
 			}
@@ -923,7 +805,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 
 		if (!NeedResource)
 		{
-			uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
+			uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
 			RemainingQuantityToTake -= TakenQuantity;
 		}
 	}
@@ -951,7 +833,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 
 		if (!NeedResource)
 		{
-			uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
+			uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
 			RemainingQuantityToTake -= TakenQuantity;
 		}
 	}
@@ -980,7 +862,7 @@ uint32 UFlareSimulatedSector::TakeResources(UFlareCompany* Company, FFlareResour
 			}
 
 
-			uint32 TakenQuantity = Station->TakeResources(Resource, RemainingQuantityToTake);
+			uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
 			RemainingQuantityToTake -= TakenQuantity;
 		}
 	}
@@ -1040,7 +922,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 		{
 			if (Station->HasCapability(EFlareSpacecraftCapability::Storage))
 			{
-				uint32 GivenQuantity = Station->GiveResources(GivenResource, RemainingQuantityToGive);
+				uint32 GivenQuantity = Station->GetCargoBay()->GiveResources(GivenResource, RemainingQuantityToGive);
 				RemainingQuantityToGive -= GivenQuantity;
 			}
 			continue;
@@ -1068,9 +950,9 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 					continue;
 				}
 
-				uint32 StoredQuantity = Station->GetCargoBayResourceQuantity(Resource);
+				uint32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
 				uint32 ConsumedQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
-				uint32 StorageCapacity = Station->GetCargoBayFreeSpace(Resource);
+				uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpace(Resource);
 
 				uint32 NeededQuantity = 0;
 				switch(TransportLimitType)
@@ -1091,7 +973,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 					// Do transfert
 					uint32 QuantityToTransfert = FMath::Min(RemainingQuantityToGive, NeededQuantity - StoredQuantity);
 					QuantityToTransfert = FMath::Min(StorageCapacity, QuantityToTransfert);
-					Station->GiveResources(Resource, QuantityToTransfert);
+					Station->GetCargoBay()->GiveResources(Resource, QuantityToTransfert);
 
 					RemainingQuantityToGive -= QuantityToTransfert;
 
@@ -1123,7 +1005,7 @@ uint32 UFlareSimulatedSector::GetTransportCapacity(UFlareCompany* Company)
 		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
 		if (Ship->GetCompany() == Company && Ship->IsAssignedToSector())
 		{
-			TransportCapacity += Ship->GetCargoBayCapacity();
+			TransportCapacity += Ship->GetCargoBay()->GetCapacity();
 		}
 	}
 	return TransportCapacity;
@@ -1142,83 +1024,10 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 			continue;
 		}
 
-		ResourceCount += Station->GetCargoBayResourceQuantity(Resource);
+		ResourceCount += Station->GetCargoBay()->GetResourceQuantity(Resource);
 	}
 
 	return ResourceCount;
-}
-
-
-uint32 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resource)
-{
-	// DEBUGInflation
-	float Inflation = 1.5;
-
-	// TODO better
-	if (Resource->Identifier == "h2")
-	{
-		return 25 * Inflation;
-	}
-	else if (Resource->Identifier == "feo")
-	{
-		return 100 * Inflation;
-	}
-	else if (Resource->Identifier == "ch4")
-	{
-		return 50 * Inflation;
-	}
-	else if (Resource->Identifier == "sio2")
-	{
-		return 100 * Inflation;
-	}
-	else if (Resource->Identifier == "he3")
-	{
-		return 100 * Inflation;
-	}
-	else if (Resource->Identifier == "h2o")
-	{
-		return 250 * Inflation;
-	}
-	else if (Resource->Identifier == "steel")
-	{
-		return 500 * Inflation;
-	}
-	else if (Resource->Identifier == "c")
-	{
-		return 300 * Inflation;
-	}
-	else if (Resource->Identifier == "plastics")
-	{
-		return 300 * Inflation;
-	}
-	else if (Resource->Identifier == "fleet-supply")
-	{
-		return 1800 * Inflation;
-	}
-	else if (Resource->Identifier == "food")
-	{
-		return 600 * Inflation;
-	}
-	else if (Resource->Identifier == "fuel")
-	{
-		return 260 * Inflation;
-	}
-	else if (Resource->Identifier == "tools")
-	{
-		return 1000 * Inflation;
-	}
-	else if (Resource->Identifier == "tech")
-	{
-		return 1300 * Inflation;
-
-	}
-	else
-	{
-		FLOGV("Unknown resource %s", *Resource->Identifier.ToString());
-		return 0;
-	}
-
-
 }
 
 #undef LOCTEXT_NAMESPACE

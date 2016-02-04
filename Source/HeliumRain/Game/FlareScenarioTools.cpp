@@ -95,21 +95,21 @@ void UFlareScenarioTools::GenerateDebugScenario()
 
 	for(int Index = 0; Index < 3; Index ++)
 	{
-		Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GiveResources(Water, 100);
+		Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 	}
 
 	Outpost->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
 
-	Outpost->CreateStation("station-habitation", PlayerCompany, FVector::ZeroVector)->GiveResources(Food, 30);
+	Outpost->CreateStation("station-habitation", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Food, 30);
 	Outpost->CreateStation("station-farm", PlayerCompany, FVector::ZeroVector);
 	UFlareSimulatedSpacecraft* Refinery = Outpost->CreateStation("station-refinery", PlayerCompany, FVector::ZeroVector);
 	Refinery->GetFactories()[0]->SetOutputLimit(Plastics, 1);
-	Refinery->GiveResources(Fuel, 50);
+	Refinery->GetCargoBay()->GiveResources(Fuel, 50);
 
 	UFlareSimulatedSpacecraft* PompingStation = Outpost->CreateStation("station-pumping", PlayerCompany, FVector::ZeroVector);
 	PompingStation->GetFactories()[0]->SetOutputLimit(Hydrogen, 1);
 	PompingStation->GetFactories()[0]->SetOutputLimit(Helium, 1);
-	PompingStation->GiveResources(Fuel, 50);
+	PompingStation->GetCargoBay()->GiveResources(Fuel, 50);
 
 	Outpost->GetPeople()->GiveBirth(1000);
 	Outpost->GetPeople()->SetHappiness(1);
@@ -124,11 +124,11 @@ void UFlareScenarioTools::GenerateDebugScenario()
 
 	for(int Index = 0; Index < 2; Index ++)
 	{
-		MinerHome->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GiveResources(Water, 100);
+		MinerHome->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 	}
 
 	UFlareSimulatedSpacecraft* Tokamak = MinerHome->CreateStation("station-tokamak", PlayerCompany, FVector::ZeroVector);
-	Tokamak->GiveResources(Water, 200);
+	Tokamak->GetCargoBay()->GiveResources(Water, 200);
 	UFlareSimulatedSpacecraft* Steelworks = MinerHome->CreateStation("station-steelworks", PlayerCompany, FVector::ZeroVector);
 	Steelworks->GetFactories()[0]->SetOutputLimit(Steel, 1);
 

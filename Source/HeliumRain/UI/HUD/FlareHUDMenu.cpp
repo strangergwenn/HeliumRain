@@ -333,7 +333,7 @@ FText SFlareHUDMenu::GetInfoText() const
 		FText ModeText;
 		FText AutopilotText;
 		FText ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
-		FText SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
+		FText SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSectorName();
 
 		if (TargetShip->GetNavigationSystem()->IsDocked())
 		{

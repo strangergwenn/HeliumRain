@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Object.h"
-#include "FlareSimulatedSector.h"
+#include "FlareSectorInterface.h"
 #include "FlareGameTypes.h"
 #include "FlareTravel.h"
 #include "Planetarium/FlareSimulatedPlanetarium.h"
@@ -111,7 +111,7 @@ public:
 
 	// TODO Check docking capabilities
 	/** Transfert resource from one spacecraft to another spacecraft */
-	bool TransfertResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity);
+	bool TransfertResources(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity);
 
 protected:
 

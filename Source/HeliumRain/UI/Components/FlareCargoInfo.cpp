@@ -85,7 +85,7 @@ void SFlareCargoInfo::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEv
 	SWidget::OnMouseEnter(MyGeometry, MouseEvent);
 
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
-	FFlareCargo* Cargo = &TargetSpacecraft->GetCargoBay()[CargoIndex];
+	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	check(Cargo);
 
 	if (MenuManager)
@@ -108,7 +108,7 @@ void SFlareCargoInfo::OnMouseLeave(const FPointerEvent& MouseEvent)
 
 const FSlateBrush* SFlareCargoInfo::GetResourceIcon() const
 {
-	FFlareCargo* Cargo = &TargetSpacecraft->GetCargoBay()[CargoIndex];
+	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	check(Cargo);
 
 	if (Cargo->Resource)
@@ -124,7 +124,7 @@ const FSlateBrush* SFlareCargoInfo::GetResourceIcon() const
 
 FText SFlareCargoInfo::GetResourceAcronym() const
 {
-	FFlareCargo* Cargo = &TargetSpacecraft->GetCargoBay()[CargoIndex];
+	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	check(Cargo);
 
 	if (Cargo->Resource)
@@ -139,7 +139,7 @@ FText SFlareCargoInfo::GetResourceAcronym() const
 
 FText SFlareCargoInfo::GetResourceQuantity() const
 {
-	FFlareCargo* Cargo = &TargetSpacecraft->GetCargoBay()[CargoIndex];
+	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	check(Cargo);
 
 	return FText::FromString(FString::Printf(TEXT("%u/%u"), Cargo->Quantity, Cargo->Capacity)); //FString needed here
@@ -147,7 +147,7 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 
 FReply SFlareCargoInfo::OnButtonClicked()
 {
-	FFlareCargo* Cargo = &TargetSpacecraft->GetCargoBay()[CargoIndex];
+	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 
 	if (Cargo && Cargo->Resource)
 	{

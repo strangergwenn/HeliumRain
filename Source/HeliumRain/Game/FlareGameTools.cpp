@@ -798,12 +798,12 @@ void UFlareGameTools::PrintCargoBay(FName ShipImmatriculation)
 		FLOGV("AFlareGame::PrintCargoBay failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
-	TArray<FFlareCargo>& CargoBay = Ship->GetCargoBay();
+	UFlareCargoBay* CargoBay = Ship->GetCargoBay();
 
 	FLOGV("Cargo bay for '%s' : ", *ShipImmatriculation.ToString());
-	for (int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
+	for (int CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
 	{
-		FFlareCargo* Cargo = &CargoBay[CargoIndex];
+		FFlareCargo* Cargo = CargoBay->GetSlot(CargoIndex);
 		FLOGV("  - %s : %u / %u ", (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, Cargo->Capacity);
 	}
 }
@@ -835,7 +835,7 @@ void UFlareGameTools::GiveResources(FName ShipImmatriculation, FName ResourceIde
 		FLOGV("AFlareGame::GiveResources failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
-	Ship->GiveResources(Resource, Quantity);
+	Ship->GetCargoBay()->GiveResources(Resource, Quantity);
 }
 
 void UFlareGameTools::TakeResources(FName ShipImmatriculation, FName ResourceIdentifier, uint32 Quantity)
@@ -865,7 +865,7 @@ void UFlareGameTools::TakeResources(FName ShipImmatriculation, FName ResourceIde
 		FLOGV("AFlareGame::TakeResources failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
-	Ship->TakeResources(Resource, Quantity);
+	Ship->GetCargoBay()->TakeResources(Resource, Quantity);
 }
 
 void UFlareGameTools::TakeMoney(FName CompanyShortName, uint64 Amount)
@@ -975,7 +975,6 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName Station
 	}
 
 	AFlarePlayerController* PC = GetPC();
-	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 	FVector TargetPosition = FVector::ZeroVector;
@@ -984,7 +983,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName Station
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
-	GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
 
 	UFlareSimulatedSpacecraft* NewStation= NULL;
 
@@ -1025,7 +1024,6 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 	}
 
 	AFlarePlayerController* PC = GetPC();
-	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 	FVector TargetPosition = FVector::ZeroVector;
@@ -1034,7 +1032,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
-	GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
 
 	UFlareSimulatedSpacecraft* NewShip = NULL;
 
@@ -1060,7 +1058,6 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 	}
 
 	AFlarePlayerController* PC = GetPC();
-	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 	FVector TargetPosition = FVector::ZeroVector;
@@ -1069,7 +1066,7 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
-	GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
 
 	for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
 	{
@@ -1103,7 +1100,6 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 	}
 
 	AFlarePlayerController* PC = GetPC();
-	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 	FVector TargetPosition1 = FVector::ZeroVector;
@@ -1114,7 +1110,7 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 		TargetPosition2 = ExistingShipPawn->GetActorLocation() - ExistingShipPawn->GetActorRotation().RotateVector(Distance / 2.f * FVector(100, 0, 0));
 	}
 
-	GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
 
 	for (int32 ShipIndex = 0; ShipIndex < ShipClass1Count; ShipIndex++)
 	{
@@ -1142,7 +1138,6 @@ void UFlareGameTools::CreateAsteroid(int32 ID, FName Name)
 
 
 	AFlarePlayerController* PC = GetPC();
-	UFlareSimulatedSector* ActiveSector = GetActiveSector()->GetSimulatedSector();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
 	FVector TargetPosition = FVector::ZeroVector;
@@ -1151,7 +1146,7 @@ void UFlareGameTools::CreateAsteroid(int32 ID, FName Name)
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(200 * FVector(100, 0, 0));
 	}
 
-	GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
 
 	ActiveSector->CreateAsteroid(ID, Name, TargetPosition);
 
