@@ -141,46 +141,6 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Right)
 					[
 						SAssignNew(LimitList, SVerticalBox)
-
-						//// Factory mode control
-						//+ SVerticalBox::Slot()
-						//.AutoHeight()
-						//.Padding(Theme.SmallContentPadding)
-						//[
-						//	SNew(SHorizontalBox)
-
-						//	// Factory switch mode
-						//	+ SHorizontalBox::Slot()
-						//	.AutoWidth()
-						//	[
-						//		SNew(SFlareButton)
-						//		.OnClicked(this, &SFlareFactoryInfo::OnSwitchProductionCyclesLimit, Factory)
-						//		.Text(ProductionCycleStatusText)
-						//		.Width(ProductionLimitEnabled ? 6 : 8)
-						//	]
-
-						//	// Factory remove production cycle button
-						//	+ SHorizontalBox::Slot()
-						//	.AutoWidth()
-						//	[
-						//		SNew(SFlareButton)
-						//		.Visibility(this, &SFlareFactoryInfo::GetProductionCyclesLimitVisibility, Factory)
-						//		.OnClicked(this, &SFlareFactoryInfo::OnDecreaseProductionCycles, Factory)
-						//		.Text(FText::FromString(TEXT("-")))
-						//		.Width(1)
-						//	]
-
-						//	// Factory add production cycle button
-						//	+ SHorizontalBox::Slot()
-						//	.AutoWidth()
-						//	[
-						//		SNew(SFlareButton)
-						//		.Visibility(this, &SFlareFactoryInfo::GetProductionCyclesLimitVisibility, Factory)
-						//		.OnClicked(this, &SFlareFactoryInfo::OnIncreaseProductionCycles, Factory)
-						//		.Text(FText::FromString(TEXT("+")))
-						//		.Width(1)
-						//	]
-						//]
 					]
 				]
 			]
