@@ -205,6 +205,8 @@ protected:
 	FFlareSectorSave                        SectorData;
 
 	AFlareGame*                             Game;
+
+	UPROPERTY()
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
 	const FFlareSectorDescription*          SectorDescription;
 

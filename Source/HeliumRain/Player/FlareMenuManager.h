@@ -25,6 +25,7 @@ class AFlareGame;
 class IFlareSpacecraftInterface;
 class UFlareCompany;
 class UFlareSimulatedSector;
+class UFlareSectorInterface;
 class UFlareTradeRoute;
 
 /** Main HUD class (container for HUD and menus) */
@@ -139,7 +140,7 @@ protected:
 	virtual void InspectShip(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
 
 	/** Open the sector menu */
-	virtual void OpenSector(UFlareSimulatedSector* Sector);
+	virtual void OpenSector(UFlareSectorInterface* Sector);
 
 	/** Open the trade menu */
 	virtual void OpenTrade(IFlareSpacecraftInterface* Spacecraft);

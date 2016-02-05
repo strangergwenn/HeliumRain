@@ -102,8 +102,6 @@ protected:
 
 	TArray<UFlareFleet*>                    SectorFleets;
 
-	AFlareGame*                             Game;
-
 	UPROPERTY()
 	UFlarePeople*							People;
 

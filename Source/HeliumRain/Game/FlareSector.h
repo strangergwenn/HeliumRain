@@ -78,10 +78,13 @@ protected:
 
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorStations;
+	TArray<IFlareSpacecraftInterface*>      SectorStationInterfaces;
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorShips;
+	TArray<IFlareSpacecraftInterface*>      SectorShipInterfaces;
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorSpacecrafts;
+
 	UPROPERTY()
 	TArray<AFlareAsteroid*>      SectorAsteroids;
 	UPROPERTY()
@@ -116,15 +119,24 @@ public:
 		return SectorData.Identifier;
 	}
 
-
 	inline TArray<AFlareSpacecraft*>& GetSpacecrafts()
 	{
 		return SectorSpacecrafts;
 	}
 
+	inline TArray<IFlareSpacecraftInterface*>& GetSectorShipInterfaces() override
+	{
+		return SectorShipInterfaces;
+	}
+
 	inline TArray<AFlareSpacecraft*>& GetStations()
 	{
 		return SectorStations;
+	}
+
+	inline TArray<IFlareSpacecraftInterface*>& GetSectorStationInterfaces() override
+	{
+		return SectorStationInterfaces;
 	}
 
 	inline TArray<AFlareAsteroid*>& GetAsteroids()

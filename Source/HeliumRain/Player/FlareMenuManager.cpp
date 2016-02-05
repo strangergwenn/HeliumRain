@@ -15,6 +15,7 @@
 #include "../UI/Menus/FlareTradeRouteMenu.h"
 #include "../UI/Menus/FlareCreditsMenu.h"
 
+#include "../Game/FlareSectorInterface.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../HeliumRainLoadingScreen/FlareLoadingScreen.h"
@@ -448,7 +449,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Sector:
-			OpenSector(static_cast<UFlareSimulatedSector*>(FadeTargetData));
+			OpenSector(static_cast<UFlareSectorInterface*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Trade:
@@ -579,13 +580,23 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 	GetPC()->UpdateMenuTheme();
 }
 
-void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
+void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)
 {
 	ResetMenu();
 	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
-	SectorMenu->Enter(Sector);
-	GetPC()->UpdateMenuTheme();
+
+
+	UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(Sector);
+	if (SimulatedSector)
+	{
+		SectorMenu->Enter(SimulatedSector);
+		GetPC()->UpdateMenuTheme();
+	}
+	else
+	{
+		FLOG("Fail to cast to UFlareSimulatedSector");
+	}
 }
 
 void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)

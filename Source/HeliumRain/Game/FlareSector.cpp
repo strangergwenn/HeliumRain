@@ -137,7 +137,9 @@ void UFlareSector::DestroySector()
 
 	SectorSpacecrafts.Empty();
 	SectorShips.Empty();
+	SectorShipInterfaces.Empty();
 	SectorStations.Empty();
+	SectorStationInterfaces.Empty();
 	SectorBombs.Empty();
 	SectorAsteroids.Empty();
 	SectorShells.Empty();
@@ -188,10 +190,12 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 			if (Spacecraft->IsStation())
 			{
 				SectorStations.Add(Spacecraft);
+				SectorStationInterfaces.Add(Spacecraft);
 			}
 			else
 			{
 				SectorShips.Add(Spacecraft);
+				SectorShipInterfaces.Add(Spacecraft);
 			}
 			SectorSpacecrafts.Add(Spacecraft);
 
@@ -372,7 +376,9 @@ void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroyi
 	{
 		SectorSpacecrafts.Remove(Spacecraft);
 		SectorShips.Remove(Spacecraft);
+		SectorShipInterfaces.Remove(Spacecraft);
 		SectorStations.Remove(Spacecraft);
+		SectorStationInterfaces.Remove(Spacecraft);
 	}
 
 	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Game->GetGameWorld()->FindSpacecraft(Spacecraft->GetImmatriculation());
