@@ -145,6 +145,11 @@ bool UFlareSimulatedPlanetarium::IsSatellite(FFlareCelestialBody* Body, FFlareCe
 	return false;
 }
 
+float UFlareSimulatedPlanetarium::GetLightRatio(FFlareCelestialBody* Body, double OrbitDistance)
+{
+	return 0.5 + FMath::Acos(Body->Radius / (Body->Radius + OrbitDistance)) / PI;
+}
+
 FFlareCelestialBody UFlareSimulatedPlanetarium::GetSnapShot(int64 Time, float SmoothTime)
 {
 	ComputeCelestialBodyLocation(NULL, &Sun, Time, SmoothTime);

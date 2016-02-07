@@ -245,6 +245,8 @@ public:
 	/** Return true if the target body is sattelite of the parent body */
 	bool IsSatellite(FFlareCelestialBody* Body, FFlareCelestialBody* Parent);
 
+	float GetLightRatio(FFlareCelestialBody* Body, double OrbitDistance);
+
 protected:
 
 	void ComputeCelestialBodyLocation(FFlareCelestialBody* ParentBody, FFlareCelestialBody* Body, int64 time, float SmoothTime);

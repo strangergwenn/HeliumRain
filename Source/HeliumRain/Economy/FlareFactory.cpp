@@ -25,6 +25,8 @@ void UFlareFactory::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, const FFla
 	FactoryData = Data;
 	FactoryDescription = Description;
 	Parent = ParentSpacecraft;
+
+	ProductionCostInit = false;
 }
 
 
@@ -164,7 +166,7 @@ void UFlareFactory::ClearOutputLimit(FFlareResourceDescription* Resource)
 
 bool UFlareFactory::HasCostReserved()
 {
-	if (FactoryData.CostReserved < FactoryDescription->ProductionCost)
+	if (FactoryData.CostReserved < GetProductionCost())
 	{
 		return false;
 	}
@@ -198,7 +200,7 @@ bool UFlareFactory::HasCostReserved()
 
 bool UFlareFactory::HasInputMoney()
 {
-	return Parent->GetCompany()->GetMoney() >= FactoryDescription->ProductionCost;
+	return Parent->GetCompany()->GetMoney() >= GetProductionCost();
 }
 
 bool UFlareFactory::HasInputResources()
@@ -273,7 +275,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 
 void UFlareFactory::BeginProduction()
 {
-	Parent->GetCompany()->TakeMoney(FactoryDescription->ProductionCost);
+	Parent->GetCompany()->TakeMoney(GetProductionCost());
 
 
 	// Consume input resources
@@ -323,7 +325,7 @@ void UFlareFactory::BeginProduction()
 		}
 	}
 
-	FactoryData.CostReserved = FactoryDescription->ProductionCost;
+	FactoryData.CostReserved = GetProductionCost();
 }
 
 void UFlareFactory::CancelProduction()
@@ -354,7 +356,7 @@ void UFlareFactory::CancelProduction()
 void UFlareFactory::DoProduction()
 {
 	// Pay cost
-	uint32 PaidCost = FMath::Min(FactoryDescription->ProductionCost, FactoryData.CostReserved);
+	uint32 PaidCost = FMath::Min(GetProductionCost(), FactoryData.CostReserved);
 	FactoryData.CostReserved -= PaidCost;
 	Parent->GetCurrentSector()->GetPeople()->Pay(PaidCost);
 
@@ -458,10 +460,33 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	Getters
 ----------------------------------------------------*/
 
+uint32 UFlareFactory::GetProductionCost()
+{
+	if(!ProductionCostInit)
+	{
+		ProductionCostInit = true;
+		ScaledProductionCost = FactoryDescription->ProductionCost;
+
+		if(FactoryDescription->NeedSun)
+		{
+			FFlareCelestialBody* Body = Parent->GetCurrentSector()->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(Parent->GetCurrentSector()->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			if (Body)
+			{
+				float LightRatio = Parent->GetCurrentSector()->GetGame()->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, Parent->GetCurrentSector()->GetOrbitParameters()->Altitude);
+				ScaledProductionCost =  FactoryDescription->ProductionCost / LightRatio;
+			}
+		}
+	}
+	return ScaledProductionCost;
+}
+
+
 int64 UFlareFactory::GetRemainingProductionDuration()
 {
 	return FactoryDescription->ProductionTime - FactoryData.ProductedDuration;
 }
+
 
 TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 {
@@ -584,7 +609,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 	FText ProductionOutputText;
 
 	// Cycle cost in credits
-	uint32 CycleCost = GetDescription()->ProductionCost;
+	uint32 CycleCost = GetProductionCost();
 	if (CycleCost > 0)
 	{
 		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleCost));

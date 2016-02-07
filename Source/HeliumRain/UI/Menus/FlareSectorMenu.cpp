@@ -495,9 +495,21 @@ FText SFlareSectorMenu::GetSectorLocation() const
 	{
 		FFlareCelestialBody* Body = TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(TargetSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
+
 		if (Body)
 		{
-			Result = FText::Format(LOCTEXT("SectorLocation",  "{0} - Altitude: {1} km - Phase: {2} \u00B0"), Body->Name, FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude), FText::AsNumber(TargetSector->GetOrbitParameters()->Phase));
+			FText LightRatioString;
+			if(TargetSector->GetDescription()->IsSolarPoor)
+			{
+				LightRatioString = LOCTEXT("SectorLightRatioFoggy", "0% (foggy)");
+			}
+			else
+			{
+				int32 LightRatio = 100 * TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, TargetSector->GetOrbitParameters()->Altitude);
+				LightRatioString = FText::Format(LOCTEXT("SectorLightRatioFormat", "{0}%"), FText::AsNumber(LightRatio));
+			}
+
+			Result = FText::Format(LOCTEXT("SectorLocation",  "{0} - Altitude: {1} km - Phase: {2}\u00B0 - Light ratio: {3}"), Body->Name, FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude), FText::AsNumber(TargetSector->GetOrbitParameters()->Phase), LightRatioString);
 		}
 	}
 

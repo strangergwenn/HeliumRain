@@ -92,9 +92,9 @@ struct FFlareFactoryDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareFactoryAction> OutputActions;
 
-
-	// TODO add output actions
-
+	/** Sun impact factory cost */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool NeedSun;
 };
 
 UCLASS()
@@ -166,6 +166,8 @@ protected:
 	const FFlareFactoryDescription*          FactoryDescription;
 	UFlareSimulatedSpacecraft*				 Parent;
 	FFlareWorldEvent                         NextEvent;
+	uint32                                   ScaledProductionCost;
+	bool                                     ProductionCostInit;
 public:
 
 	/*----------------------------------------------------
@@ -186,6 +188,8 @@ public:
 	{
 		return Parent;
 	}
+
+	uint32 GetProductionCost();
 
 	int64 GetRemainingProductionDuration();
 
