@@ -69,9 +69,9 @@ struct FFlareSectorDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsGeostationary;
 
-	/** Is this sector rich in solar activity */
+	/** Is this sector poor in solar activity */
 	UPROPERTY(EditAnywhere, Category = Content)
-	bool IsSolarRich;
+	bool IsSolarPoor;
 
 	/** Level to load for this sector */
 	UPROPERTY(EditAnywhere, Category = Content)

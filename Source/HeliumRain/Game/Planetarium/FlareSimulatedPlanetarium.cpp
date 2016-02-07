@@ -43,7 +43,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Nema.Identifier = "nema";
 		Nema.Mass = 8.421e26;
 		Nema.Radius = 69586;
-		Nema.RotationVelocity = 0.0037254354102635744;
+		Nema.RotationVelocity = -0.0037254354102635744;
 		Nema.OrbitDistance = 110491584;
 
 		FFlareCelestialBody Anka;

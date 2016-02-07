@@ -53,7 +53,19 @@ namespace EFlareSpacecraftCapability
 	};
 }
 
-
+/** Build constraints for stations */
+UENUM()
+namespace EFlareBuildConstraint
+{
+	enum Type
+	{
+		FreeAsteroid,
+		SunExposure,
+		HideOnIce,
+		HideOnNoIce,
+		GeostationnaryOrbit
+	};
+}
 
 /** Catalog data structure for a spacecraft */
 USTRUCT()
@@ -80,8 +92,9 @@ struct FFlareSpacecraftDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareFactoryResource> ResourcesCost;
 
-	/** Spacecraft needs asteroid */
-	UPROPERTY(EditAnywhere, Category = Content) bool NeedsAsteroidToBuild;
+	/** Build constraints for stations */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<TEnumAsByte<EFlareBuildConstraint::Type>> BuildConstraint;
 
 	/** Size of the ship components */
 	UPROPERTY(EditAnywhere, Category = Save)

@@ -20,12 +20,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	
-	// Init station list
-	UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
-	for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
-	{
-		StationList.Add(SpacecraftCatalog->StationCatalog[SpacecraftIndex]);
-	}
+	StationList.Empty();
 
 	// Build structure
 	ChildSlot
@@ -288,6 +283,28 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	TargetSector = Sector;
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
+	// Init buildable station list
+	StationList.Empty();
+	UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+	for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
+	{
+		UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
+		FFlareSpacecraftDescription* Description = &Entry->Data;
+
+		if(TargetSector->GetDescription()->IsIcy && Description->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce))
+		{
+			continue;
+		}
+
+		if(!TargetSector->GetDescription()->IsIcy && Description->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce))
+		{
+			continue;
+		}
+
+		StationList.Add(Entry);
+	}
+
+
 	// Add stations
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
 	{
@@ -360,14 +377,39 @@ void SFlareSectorMenu::UpdateStationCost()
 		}
 
 		// Final text
-		FText AsteroidText = LOCTEXT("AsteroidNeeded", " and an asteroid");
+		FText AsteroidText = LOCTEXT("AsteroidNeeded", "\n- a free asteroid");
+		FText SunText = LOCTEXT("SunNeeded", "\n- a good sun exposure");
+		FText GeostationaryText = LOCTEXT("GeostationaryNeeded", "\n- a geostationary orbit");
+
+
+		FString ConstraintString;
+		FText ConstraintText = LOCTEXT("ConstraintStation", "You also need:");
+
+		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
+		{
+			ConstraintString += AsteroidText.ToString();
+		}
+		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure))
+		{
+			ConstraintString += SunText.ToString();
+		}
+		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationnaryOrbit))
+		{
+			ConstraintString += GeostationaryText.ToString();
+		}
+
+		if (ConstraintString.Len() > 0)
+		{
+			ConstraintString = ConstraintText.ToString() + ConstraintString;
+		}
+
 		FText CanBuildText = LOCTEXT("CanBuildStation", "You can build this station !");
 		FText CannotBuildText = LOCTEXT("CannotBuildStation", "You can't build this station yet.");
-		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2}, requires a cargo ship{3} in this sector."),
+		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2}, requires a cargo ship in this sector. {3}"),
 			StationBuildable ? CanBuildText : CannotBuildText,
 			FText::AsNumber(StationDescription->Cost),
 			FText::FromString(ResourcesString),
-			StationDescription->NeedsAsteroidToBuild ? AsteroidText : FText());
+			FText::FromString(ConstraintString));
 	}
 }
 

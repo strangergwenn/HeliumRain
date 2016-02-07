@@ -348,6 +348,36 @@ FText UFlareSimulatedSector::GetSectorDescription() const
 
 bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
 {
+	// Does it needs sun
+	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure) && SectorDescription->IsSolarPoor)
+	{
+		return false;
+	}
+
+	// Does it needs not icy sector
+	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce) &&SectorDescription->IsIcy)
+	{
+		return false;
+	}
+
+	// Does it needs icy sector
+	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce) && !SectorDescription->IsIcy)
+	{
+		return false;
+	}
+
+	// Does it needs an geostationary orbit ?
+	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationnaryOrbit) && !SectorDescription->IsGeostationary)
+	{
+		return false;
+	}
+
+	// Does it needs an asteroid ?
+	if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid) && SectorData.AsteroidData.Num() == 0)
+	{
+		return false;
+	}
+
 	// Check money cost
 	if (Company->GetMoney() < StationDescription->Cost)
 	{
@@ -380,11 +410,6 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		return false;
 	}
 
-	// Does it needs an asteroid ? 
-	if (StationDescription->NeedsAsteroidToBuild && SectorData.AsteroidData.Num() == 0)
-	{
-		return false;
-	}
 
 	// Compute total available resources
 	TArray<FFlareCargo> AvailableResources;
@@ -524,7 +549,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	UFlareSimulatedSpacecraft* Spacecraft = CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
 
 	// Needs an esteroid ? 
-	if (Spacecraft && StationDescription->NeedsAsteroidToBuild)
+	if (Spacecraft && StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
 	{
 		FFlareAsteroidSave* AsteroidSave = NULL;
 		int32 AsteroidSaveIndex = -1;

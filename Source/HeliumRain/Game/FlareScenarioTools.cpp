@@ -132,7 +132,7 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	UFlareSimulatedSpacecraft* Steelworks = MinerHome->CreateStation("station-steelworks", PlayerCompany, FVector::ZeroVector);
 	Steelworks->GetFactories()[0]->SetOutputLimit(Steel, 1);
 
-	UFlareSimulatedSpacecraft* Mine = MinerHome->CreateStation("station-mine", PlayerCompany, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[0].Identifier);
+	UFlareSimulatedSpacecraft* Mine = MinerHome->CreateStation("station-ice-mine", PlayerCompany, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[0].Identifier);
 	Mine->GetFactories()[0]->SetOutputLimit(Silica, 1);
 
 	UFlareSimulatedSpacecraft* ToolFactory = MinerHome->CreateStation("station-tool-factory", PlayerCompany, FVector::ZeroVector);
