@@ -214,6 +214,8 @@ void AFlareMenuManager::CloseMenu(bool HardClose)
 void AFlareMenuManager::Back()
 {
 	FLOG("AFlareMenuManager::Back");
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
 	if (MenuIsOpen)
 	{
 		FLOGV("AFlareMenuManager::Back MenuIsOpen %d", (int) CurrentMenu);
@@ -245,11 +247,15 @@ void AFlareMenuManager::Back()
 				break;
 
 			case EFlareMenu::MENU_Ship:
-				OpenMenu(EFlareMenu::MENU_Dashboard);
-				break;
-
 			case EFlareMenu::MENU_ShipConfig:
-				OpenMenu(EFlareMenu::MENU_Dashboard);
+				if (PC->GetShipPawn())
+				{
+					OpenMenu(EFlareMenu::MENU_Dashboard);
+				}
+				else
+				{
+					OpenMenu(EFlareMenu::MENU_Orbit);
+				}
 				break;
 
 			case EFlareMenu::MENU_Sector:
