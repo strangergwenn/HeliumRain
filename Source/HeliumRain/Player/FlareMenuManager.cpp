@@ -263,8 +263,14 @@ void AFlareMenuManager::Back()
 				break;
 
 			case EFlareMenu::MENU_Trade:
-				OpenMenu(EFlareMenu::MENU_Orbit);
-				// TODO real back
+				if (PC->GetShipPawn())
+				{
+					OpenMenu(EFlareMenu::MENU_Dashboard);
+				}
+				else
+				{
+					OpenMenu(EFlareMenu::MENU_Orbit);
+				}
 				break;
 
 			case EFlareMenu::MENU_TradeRoute:

@@ -54,6 +54,9 @@ protected:
 	/** Is the trading part visible or not */
 	EVisibility GetTradingVisibility() const;
 
+	/** Is the "back to selection" visible or not */
+	EVisibility GetBackToSelectionVisibility() const;
+
 	/** Are the transaction details visible ? */
 	EVisibility GetTransactionDetailsVisibility() const;
 	

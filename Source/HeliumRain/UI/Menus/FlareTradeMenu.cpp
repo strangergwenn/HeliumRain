@@ -172,7 +172,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("BackToSelection", "Go back to the ship selection"))
 							.Icon(FFlareStyleSet::GetIcon("Stop"))
 							.OnClicked(this, &SFlareTradeMenu::OnBackToSelection)
-							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+							.Visibility(this, &SFlareTradeMenu::GetBackToSelectionVisibility)
 							.Width(8)
 						]
 						
@@ -240,7 +240,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(PriceBox, SFlareConfirmationBox)
 						.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSACTION"))
-						.ConfirmFreeText(LOCTEXT("ConfirmFree", "CONFIRM TRANSFERT"))
+						.ConfirmFreeText(LOCTEXT("ConfirmFree", "CONFIRM TRANSFER"))
 						.CancelText(LOCTEXT("BackTopShip", "CANCEL"))
 						.OnConfirmed(this, &SFlareTradeMenu::OnConfirmTransaction)
 						.OnCancelled(this, &SFlareTradeMenu::OnCancelTransaction)
@@ -274,33 +274,49 @@ void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraf
 	// Setup targets
 	TargetSector = ParentSector;
 	TargetLeftSpacecraft = LeftSpacecraft;
-	TargetRightSpacecraft = RightSpacecraft;
+
+	// First-person trading override
+	AFlareSpacecraft* PhysicalSpacecraft = Cast<AFlareSpacecraft>(TargetLeftSpacecraft);
+	if (PhysicalSpacecraft)
+	{
+		if (PhysicalSpacecraft->GetNavigationSystem()->IsDocked())
+		{
+			TargetRightSpacecraft = PhysicalSpacecraft->GetNavigationSystem()->GetDockStation();
+		}
+	}
+	else
+	{
+		TargetRightSpacecraft = RightSpacecraft;
+	}
 
 	// Setup menus
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
 	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
 	
-	// Add stations
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorStationInterfaces().Num(); SpacecraftIndex++)
+	if (!PhysicalSpacecraft)
 	{
-		IFlareSpacecraftInterface* StationCandidate = ParentSector->GetSectorStationInterfaces()[SpacecraftIndex];
-		if (StationCandidate && StationCandidate != LeftSpacecraft && StationCandidate != RightSpacecraft
-		 && StationCandidate->GetDescription()->CargoBayCount > 0)
+		// Add stations
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorStationInterfaces().Num(); SpacecraftIndex++)
 		{
-			ShipList->AddShip(StationCandidate);
+			IFlareSpacecraftInterface* StationCandidate = ParentSector->GetSectorStationInterfaces()[SpacecraftIndex];
+			if (StationCandidate && StationCandidate != LeftSpacecraft && StationCandidate != RightSpacecraft
+			 && StationCandidate->GetDescription()->CargoBayCount > 0)
+			{
+				ShipList->AddShip(StationCandidate);
+			}
 		}
-	}
 
-	// Add ships
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorShipInterfaces().Num(); SpacecraftIndex++)
-	{
-		IFlareSpacecraftInterface* ShipCandidate = ParentSector->GetSectorShipInterfaces()[SpacecraftIndex];
-		if (ShipCandidate && ShipCandidate != LeftSpacecraft && ShipCandidate != RightSpacecraft
-		 && ShipCandidate->GetDescription()->CargoBayCount > 0
-		 && ShipCandidate->GetDamageSystem()->IsAlive())
+		// Add ships
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorShipInterfaces().Num(); SpacecraftIndex++)
 		{
-			ShipList->AddShip(ShipCandidate);
+			IFlareSpacecraftInterface* ShipCandidate = ParentSector->GetSectorShipInterfaces()[SpacecraftIndex];
+			if (ShipCandidate && ShipCandidate != LeftSpacecraft && ShipCandidate != RightSpacecraft
+			 && ShipCandidate->GetDescription()->CargoBayCount > 0
+			 && ShipCandidate->GetDamageSystem()->IsAlive())
+			{
+				ShipList->AddShip(ShipCandidate);
+			}
 		}
 	}
 
@@ -363,6 +379,20 @@ EVisibility SFlareTradeMenu::GetTradingVisibility() const
 	return (TargetLeftSpacecraft && TargetRightSpacecraft) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
+EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
+{
+	AFlareSpacecraft* PhysicalSpacecraft = Cast<AFlareSpacecraft>(TargetLeftSpacecraft);
+	if (PhysicalSpacecraft)
+	{
+		return EVisibility::Collapsed;
+	}
+	else
+	{
+		return GetTradingVisibility();
+	}
+}
+
+
 EVisibility SFlareTradeMenu::GetTransactionDetailsVisibility() const
 {
 	return (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
@@ -420,7 +450,7 @@ void SFlareTradeMenu::OnBackClicked()
 
 void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer)
 {
-	UFlareSimulatedSpacecraft* Spacecraft = Cast<UFlareSimulatedSpacecraft>(SpacecraftContainer->ShipInterfacePtr);
+	IFlareSpacecraftInterface* Spacecraft = SpacecraftContainer->ShipInterfacePtr;
 
 	if (Spacecraft)
 	{
@@ -450,7 +480,9 @@ void SFlareTradeMenu::OnTransferResources(IFlareSpacecraftInterface* SourceSpace
 		TransactionSourceSpacecraft = SourceSpacecraft;
 		TransactionDestinationSpacecraft = DestinationSpacecraft;
 		TransactionResource = Resource;
-		TransactionQuantity = TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource);
+		TransactionQuantity = FMath::Min(FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
+		                                            TransactionSourceSpacecraft->GetDescription()->CargoBayCapacity),
+		                                            TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
 		QuantitySlider->SetValue(1.0f);
 
 		UpdatePrice();
@@ -460,7 +492,10 @@ void SFlareTradeMenu::OnTransferResources(IFlareSpacecraftInterface* SourceSpace
 void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 {
 	// Force slider value, update quantity
-	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource), TransactionSourceSpacecraft->GetDescription()->CargoBayCapacity);
+	int32 ResourceMaxQuantity = FMath::Min(FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
+		                                              TransactionSourceSpacecraft->GetDescription()->CargoBayCapacity),
+		                                              TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
+
 	TransactionQuantity = FMath::Lerp((int32)1, ResourceMaxQuantity, Value);
 	if (ResourceMaxQuantity == 1)
 	{
