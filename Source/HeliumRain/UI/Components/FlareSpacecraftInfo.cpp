@@ -410,7 +410,7 @@ void SFlareSpacecraftInfo::OnInspect()
 				*SimulatedSpacecraft->GetImmatriculation().ToString(), SimulatedSpacecraft->GetCurrentSector());
 		}
 
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
+		PC->GetMenuManager()->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft);
 	}
 }
 
@@ -419,7 +419,7 @@ void SFlareSpacecraftInfo::OnUpgrade()
 	if (PC && TargetSpacecraft)
 	{
 		FLOGV("SFlareSpacecraftInfo::OnUpgrade : TargetSpacecraft=%p", TargetSpacecraft);
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ShipConfig, TargetSpacecraft);
+		PC->GetMenuManager()->OpenMenuSpacecraft(EFlareMenu::MENU_ShipConfig, TargetSpacecraft);
 	}
 }
 
@@ -427,7 +427,7 @@ void SFlareSpacecraftInfo::OnTrade()
 {
 	if (PC && TargetSpacecraft)
 	{
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Trade, TargetSpacecraft);
+		PC->GetMenuManager()->OpenMenuSpacecraft(EFlareMenu::MENU_Trade, TargetSpacecraft);
 	}
 }
 
@@ -445,7 +445,7 @@ void SFlareSpacecraftInfo::OnFly()
 		}
 		else
 		{
-			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
+			PC->GetMenuManager()->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
 		}
 	}
 }

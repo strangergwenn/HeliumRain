@@ -281,13 +281,13 @@ EVisibility SFlareDashboard::GetDockedVisibility() const
 void SFlareDashboard::OnInspectShip()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	MenuManager->OpenMenu(EFlareMenu::MENU_Ship, PC->GetShipPawn());
+	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, PC->GetShipPawn());
 }
 
 void SFlareDashboard::OnConfigureShip()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig, PC->GetShipPawn());
+	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_ShipConfig, PC->GetShipPawn());
 }
 
 void SFlareDashboard::OnOrbit()
@@ -312,7 +312,7 @@ void SFlareDashboard::OnUndock()
 
 void SFlareDashboard::OnStartTrading()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Trade, MenuManager->GetPC()->GetShipPawn());
+	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Trade, MenuManager->GetPC()->GetShipPawn());
 }
 
 void SFlareDashboard::OnExit()

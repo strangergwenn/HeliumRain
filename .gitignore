@@ -25,3 +25,7 @@ Binaries/Win64/HeliumRain.target
 HeliumRain.opensdf
 HeliumRain.sdf
 HeliumRain.sln
+Binaries/Win64/HeliumRain-Win64-DebugGame.target
+Binaries/Win64/HeliumRainEditor-Win64-DebugGame.target
+Binaries/Win64/UE4Editor-Win64-DebugGame.modules
+Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor-Win64-DebugGame.modules

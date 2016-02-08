@@ -55,6 +55,9 @@ public:
 	/** Open a menu asynchronously, from a target and user data */
 	void OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
 
+	/** Open a menu asynchronously, from a target and user data */
+	void OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacecraftInterface* Data = NULL);
+
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
 	
@@ -93,6 +96,9 @@ public:
 
 	/** Stop displaying the tooltip */
 	void HideTooltip(SWidget* TargetWidget);
+
+	// Is this a spacecraft menu
+	bool IsSpacecraftMenu(EFlareMenu::Type Type) const;
 
 
 protected:
@@ -197,9 +203,19 @@ protected:
 	TSharedPtr<SFlareTradeMenu>             TradeMenu;
 	TSharedPtr<SFlareTradeRouteMenu>        TradeRouteMenu;
 	TSharedPtr<SFlareCreditsMenu>           CreditsMenu;
-	
-	// Menu target data
+
+
+	/*----------------------------------------------------
+		Menu target data
+	----------------------------------------------------*/
+
+	// Menu
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
+
+	// Ship data
+	IFlareSpacecraftInterface*              FadeTargetSpacecraft;
+
+	// Generic data
 	void*                                   FadeTargetData;
 
 

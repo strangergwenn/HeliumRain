@@ -271,7 +271,7 @@ void AFlarePlayerController::OnSectorActivated()
 
 			// Disable pilot during the switch
 			Candidate->GetStateManager()->EnablePilot(false);
-			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Candidate);
+			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, Candidate);
 		}
 	}
 
@@ -734,7 +734,7 @@ void AFlarePlayerController::QuickSwitch()
 				QuickSwitchNextOffset = OffsetIndex + 1;
 				// Disable pilot during the switch
 				SeletedCandidate->GetStateManager()->EnablePilot(false);
-				MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, SeletedCandidate);
+				MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, SeletedCandidate);
 			}
 			else
 			{
@@ -923,7 +923,7 @@ void AFlarePlayerController::InspectTargetSpacecraft()
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, NULL);
+			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship);
 		}
 	}
 }
@@ -969,7 +969,7 @@ void AFlarePlayerController::LookAtTargetSpacecraft()
 
 void AFlarePlayerController::UpgradeShip()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig, ShipPawn);
+	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_ShipConfig, ShipPawn);
 }
 
 void AFlarePlayerController::UndockShip()
@@ -982,7 +982,7 @@ void AFlarePlayerController::UndockShip()
 
 void AFlarePlayerController::StartTrading()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Trade, ShipPawn);
+	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Trade, ShipPawn);
 }
 
 

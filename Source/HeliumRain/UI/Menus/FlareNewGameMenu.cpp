@@ -232,7 +232,7 @@ void SFlareNewGameMenu::OnLaunch()
 
 		// Launch
 		Game->CreateGame(PC, CompanyNameData, ScenarioIndex, TutorialButton->IsActive());
-		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
+		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 	}
 }
 

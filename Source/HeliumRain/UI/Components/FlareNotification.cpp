@@ -235,7 +235,16 @@ FReply SFlareNotification::OnNotificationClicked()
 	// Call if necessary
 	if (TargetMenu != EFlareMenu::MENU_None)
 	{
-		MenuManager->OpenMenu(TargetMenu, TargetInfo);
+		if (MenuManager->IsSpacecraftMenu(TargetMenu))
+		{
+			//MenuManager->OpenMenuSpacecraft(TargetMenu, Cast<IFlareSpacecraftInterface>(TargetInfo));
+			check(false);
+			// TODO
+		}
+		else
+		{
+			MenuManager->OpenMenu(TargetMenu, TargetInfo);
+		}
 	}
 
 	// Set the lifetime to "almost done"

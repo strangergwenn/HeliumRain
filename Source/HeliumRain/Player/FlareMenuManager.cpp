@@ -152,21 +152,47 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 
 void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 {
+	// Filters
+	check(!IsSpacecraftMenu(Target));
 	if (FadeTarget == Target && FadeTargetData == Data)
 	{
 		return;
 	}
 
+	// Back function
 	if (Target != EFlareMenu::MENU_None && Target != EFlareMenu::MENU_Settings)
 	{
 		LastNonSettingsMenu = Target;
 	}
 
-
+	// Settings
 	MenuIsOpen = true;
 	FadeOut();
 	FadeTarget = Target;
 	FadeTargetData = Data;
+}
+
+void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacecraftInterface* Data)
+{	
+	// Filters
+	check(IsSpacecraftMenu(Target));
+	if (FadeTarget == Target && FadeTargetData == Data)
+	{
+		return;
+	}
+
+	// Back function
+	if (Target != EFlareMenu::MENU_None && Target != EFlareMenu::MENU_Settings)
+	{
+		LastNonSettingsMenu = Target;
+	}
+
+	// Settings
+	MenuIsOpen = true;
+	FadeOut();
+	FadeTarget = Target;
+	FadeTargetData = NULL;
+	FadeTargetSpacecraft = Cast<IFlareSpacecraftInterface>(Data);
 }
 
 void AFlareMenuManager::CloseMenu(bool HardClose)
@@ -324,6 +350,20 @@ void AFlareMenuManager::HideTooltip(SWidget* TargetWidget)
 	Tooltip->HideTooltip(TargetWidget);
 }
 
+bool AFlareMenuManager::IsSpacecraftMenu(EFlareMenu::Type Type) const
+{
+	if (Type == EFlareMenu::MENU_FlyShip
+     || Type == EFlareMenu::MENU_Ship
+     || Type == EFlareMenu::MENU_ShipConfig
+     || Type == EFlareMenu::MENU_Trade)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion)
 {
@@ -437,15 +477,15 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_FlyShip:
-			FlyShip(static_cast<AFlareSpacecraft*>(FadeTargetData));
+			FlyShip(Cast<AFlareSpacecraft>(FadeTargetSpacecraft));
 			break;
 
 		case EFlareMenu::MENU_Ship:
-			InspectShip(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
+			InspectShip(FadeTargetSpacecraft);
 			break;
 
 		case EFlareMenu::MENU_ShipConfig:
-			InspectShip(static_cast<IFlareSpacecraftInterface*>(FadeTargetData), true);
+			InspectShip(FadeTargetSpacecraft, true);
 			break;
 
 		case EFlareMenu::MENU_Sector:
@@ -453,7 +493,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Trade:
-			OpenTrade(static_cast<IFlareSpacecraftInterface*>(FadeTargetData));
+			OpenTrade(FadeTargetSpacecraft);
 			break;
 
 		case EFlareMenu::MENU_TradeRoute:
@@ -565,19 +605,37 @@ void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
 
 void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
 {
-	ResetMenu();
-	CurrentMenu = EFlareMenu::MENU_Ship;
-	GetPC()->OnEnterMenu();
+	IFlareSpacecraftInterface* MenuTarget = NULL;
 
 	// No target passed - "Inspect" on target ship
-	if (Target == NULL)
+	if (Target == NULL && GetPC()->GetShipPawn())
 	{
-		Target = GetPC()->GetShipPawn()->GetCurrentTarget();
-		FLOGV("AFlareMenuManager::InspectShip : No ship passed, using selection : %s", *Target->GetImmatriculation().ToString());
+		MenuTarget = GetPC()->GetShipPawn()->GetCurrentTarget();
+		if (MenuTarget)
+		{
+			FLOGV("AFlareMenuManager::InspectShip : No ship passed, using selection : %s", *Target->GetImmatriculation().ToString());
+		}
+		else
+		{
+			FLOG("AFlareMenuManager::InspectShip : No ship, aborting");
+		}
+	}
+	else
+	{
+		MenuTarget = Target;
 	}
 
-	ShipMenu->Enter(Target, IsEditable);
-	GetPC()->UpdateMenuTheme();
+	// Open the menu for good
+	if (MenuTarget)
+	{
+		ResetMenu();
+
+		CurrentMenu = EFlareMenu::MENU_Ship;
+		GetPC()->OnEnterMenu();
+
+		ShipMenu->Enter(MenuTarget, IsEditable);
+		GetPC()->UpdateMenuTheme();
+	}
 }
 
 void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)

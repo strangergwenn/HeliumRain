@@ -80,7 +80,7 @@ void SFlareContextMenu::OnClicked()
 		}
 		else
 		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, TargetSpacecraft);
+			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft);
 		}
 	}
 }
