@@ -38,11 +38,22 @@ void UFlareCompanyAI::Simulate()
 	{
 		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
 		int32 TransportCapacityBalance = Sector->GetTransportCapacityBalance(Company);
+		FLOGV("Sector %s, transport capacity=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacity(Company));
+		FLOGV("Sector %s, transport needs=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacityNeeds(Company));
+		FLOGV("Sector %s, transport balance=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacityBalance(Company));
 
 		if(TransportCapacityBalance > 0)
 		{
-			UnAssignShipsFromSector((uint32) TransportCapacityBalance);
+			// TODO tolerate few more ship
+			UnassignShipsFromSector(Sector, (uint32) TransportCapacityBalance);
+			FLOGV("AI %s ACTION : Unassign ships from sector %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TransportCapacityBalance)
 		}
+		else if(TransportCapacityBalance < 0)
+		{
+			AssignShipsToSector(Sector, (uint32) (- TransportCapacityBalance));
+			FLOGV("AI %s ACTION : Assign ships to sector %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TransportCapacityBalance)
+		}
+		// TODO reassign large ships
 	}
 
 
@@ -58,9 +69,53 @@ void UFlareCompanyAI::Simulate()
 	}*/
 }
 
-void UFlareCompanyAI::UnAssignShipsFromSector(uint32 Capacity)
+void UFlareCompanyAI::UnassignShipsFromSector(UFlareSimulatedSector* Sector, uint32 MaxCapacity)
 {
-	// TODO
+	uint32 RemainingCapacity = MaxCapacity;
+
+	for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
+		if(Ship->GetCompany() != Company || !Ship->IsAssignedToSector())
+		{
+			continue;
+		}
+
+		if(Ship->GetCargoBay()->GetCapacity() <= RemainingCapacity)
+		{
+			Ship->AssignToSector(false);
+			RemainingCapacity-= Ship->GetCargoBay()->GetCapacity();
+		}
+
+		if(RemainingCapacity == 0)
+		{
+			return;
+		}
+	}
+}
+
+void UFlareCompanyAI::AssignShipsToSector(UFlareSimulatedSector* Sector, uint32 MinCapacity)
+{
+	int32 RemainingCapacity = MinCapacity;
+
+	for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
+		if(Ship->GetCompany() != Company || Ship->IsAssignedToSector() || Ship->GetCurrentTradeRoute() != NULL || Ship->GetCargoBay()->GetCapacity() == 0)
+		{
+			continue;
+		}
+
+
+		Ship->AssignToSector(true);
+		RemainingCapacity-= Ship->GetCargoBay()->GetCapacity();
+
+
+		if(RemainingCapacity <= 0)
+		{
+			return;
+		}
+	}
 }
 
 

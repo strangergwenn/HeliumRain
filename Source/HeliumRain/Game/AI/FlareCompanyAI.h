@@ -24,13 +24,23 @@ public:
 	virtual FFlareCompanyAISave* Save();
 
 
+
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
 
 	virtual void Simulate();
 
-	virtual void UnAssignShipsFromSector(uint32 Capacity);
+protected:
+
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
+
+	virtual void UnassignShipsFromSector(UFlareSimulatedSector* Sector, uint32 Capacity);
+
+	virtual void AssignShipsToSector(UFlareSimulatedSector* Sector, uint32 Capacity);
 
 	protected:
 

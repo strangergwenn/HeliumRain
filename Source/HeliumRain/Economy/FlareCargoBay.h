@@ -64,6 +64,11 @@ public:
 
 	uint32 GetCapacity();
 
+	uint32 GetSlotCapacity()
+	{
+		return CargoBayCapacity;
+	}
+
 	uint32 GetResourceQuantity(FFlareResourceDescription* Resource);
 
 	uint32 GetFreeSpaceForResource(FFlareResourceDescription* Resource);

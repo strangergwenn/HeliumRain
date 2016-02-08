@@ -83,17 +83,18 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[4].Identifier);
 	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[5].Identifier);
 	// Todo remove
-	MinerHome->CreateStation("station-solar-plant", MiningSyndicate, FVector::ZeroVector)->GiveResources(Water, 100);
+	MinerHome->CreateStation("station-solar-plant", MiningSyndicate, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 
 
 	for(int Index = 0; Index < 5; Index ++)
 	{
-		MinerHome->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GiveResources(Water, 100);
+		MinerHome->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 	}
 
 	for(int Index = 0; Index < 5; Index ++)
 	{
-		Outpost->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector)->AssignToSector(true);
+		MinerHome->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector);
+		MinerHome->CreateShip("ship-omen", MiningSyndicate, FVector::ZeroVector);
 	}
 
 	// Initial setup: Outpost
@@ -104,16 +105,21 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	Outpost->CreateStation("station-tool-factory", HelixFoundries, FVector::ZeroVector);
 
 	// Todo remove
-	Outpost->CreateStation("station-solar-plant", HelixFoundries, FVector::ZeroVector)->GiveResources(Water, 100);
+	Outpost->CreateStation("station-solar-plant", HelixFoundries, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 
 	for(int Index = 0; Index < 6; Index ++)
 	{
-		Outpost->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GiveResources(Water, 100);
+		Outpost->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 	}
 
 	for(int Index = 0; Index < 5; Index ++)
 	{
-		Outpost->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector)->AssignToSector(true);
+		Outpost->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector);
+	}
+
+	for(int Index = 0; Index < 3; Index ++)
+	{
+		Outpost->CreateShip("ship-omen", HelixFoundries, FVector::ZeroVector);
 	}
 }
 

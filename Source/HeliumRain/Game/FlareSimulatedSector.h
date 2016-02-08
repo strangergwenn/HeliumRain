@@ -171,4 +171,6 @@ public:
 	 */
 	int32 GetTransportCapacityBalance(UFlareCompany* Company);
 
+	int32 GetTransportCapacityNeeds(UFlareCompany* Company);
+
 };

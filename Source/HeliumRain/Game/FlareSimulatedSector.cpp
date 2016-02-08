@@ -613,7 +613,7 @@ void UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company)
 	// 1 - fill resources consumers
 	// 2 - one with the exact quantity
 	// 3 - the second with the double
-	// 4 - third with slot alignemnt
+	// 4 - third with 1 slot alignemnt
 	// 5 - a 4th with inactive stations
 	// 6 - empty full output for station with no output space // TODO
 
@@ -1057,8 +1057,61 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 
 int32 UFlareSimulatedSector::GetTransportCapacityBalance(UFlareCompany* Company)
 {
-	// TODO
-	return 0;
+	return GetTransportCapacity(Company) -  GetTransportCapacityNeeds(Company);
+}
+
+int32 UFlareSimulatedSector::GetTransportCapacityNeeds(UFlareCompany* Company)
+{
+
+	int32 TransportNeeds = 0;
+	// For each ressource, find the required resources and available resources
+	for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+	{
+		int32 Input = 0;
+		int32 Stock = 0;
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+
+		// For each station, check if consume resource or if has the ressources.
+		for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num(); StationIndex++)
+		{
+			UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+			bool NeedResource = false;
+
+			if ( Station->GetCompany() != Company)
+			{
+				// TODO implements sell/buy
+				continue;
+			}
+
+			for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+			{
+				UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
+
+				if (!Factory->IsActive())
+				{
+					continue;
+				}
+
+				if (Factory->HasInputResource(Resource))
+				{
+					// 1 slot as input
+					Input += FMath::Max(0, (int32) Station->GetCargoBay()->GetSlotCapacity() - (int32)  Station->GetCargoBay()->GetResourceQuantity(Resource));
+					NeedResource = true;
+					break;
+				}
+			}
+
+			if (!NeedResource)
+			{
+				Stock += Station->GetCargoBay()->GetResourceQuantity(Resource);
+			}
+
+		}
+
+		TransportNeeds += FMath::Min(Input, Stock);
+	}
+
+	return TransportNeeds;
 }
 
 #undef LOCTEXT_NAMESPACE
