@@ -65,7 +65,7 @@ void AFlareSpacecraft::BeginPlay()
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
-	if (!IsPresentationMode() && StateManager)
+	if (!IsPresentationMode() && StateManager && !Paused)
 	{
 		// Tick systems
 		StateManager->Tick(DeltaSeconds);
