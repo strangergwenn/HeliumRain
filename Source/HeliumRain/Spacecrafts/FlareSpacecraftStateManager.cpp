@@ -15,7 +15,8 @@
 
 UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
-	, AngularInputDeadRatio(0.025)
+	, AngularInputDeadRatio(0.05)
+	, MouseSensitivity(0.2)
 {
 	// Pilot
 	IsPiloted = true;
@@ -170,14 +171,10 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 				FVector BulletVelocity = ShipAttitude.Vector();
 				BulletVelocity.Normalize();
 				BulletVelocity *= 100.f * AmmoVelocity;
-
-
+				
 				FVector BulletDirection = (ShipVelocity + BulletVelocity).GetUnsafeNormal();
-
 				FVector LocalBulletDirection = Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(BulletDirection);
-
-
-
+				
 				float Pitch = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Z));
 				float Yaw = FMath::RadiansToDegrees(FMath::Asin(LocalBulletDirection.Y));
 
@@ -275,20 +272,24 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 {
 	if (Relative)
 	{
+		// External camera : panning with mouse clicks
 		if (ExternalCamera)
 		{
 			ExternalCameraYawTarget += Val.X * Spacecraft->GetCameraPanSpeed();
 			ExternalCameraPitchTarget += Val.Y * Spacecraft->GetCameraPanSpeed();
+			PlayerMouseOffset = FVector2D(0, 0);
 		}
+		
+		// FP view
 		else
 		{
 			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
 			if (PC && !PC->GetNavHUD()->IsWheelMenuOpen())
 			{
-				float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X),1.3) * 0.05; // TODO Config sensibility
-				float Y = - FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y),1.3) * 0.05;
+				float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X), 1.3) * MouseSensitivity;
+				float Y = -FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y), 1.3) * MouseSensitivity;
 
-				PlayerMouseOffset += FVector2D(X,Y);
+				PlayerMouseOffset += FVector2D(X, Y);
 				if (PlayerMouseOffset.Size() > 1)
 				{
 					PlayerMouseOffset /= PlayerMouseOffset.Size();
@@ -311,15 +312,15 @@ void UFlareSpacecraftStateManager::ExternalCameraZoom(bool ZoomIn)
 {
 	if (ExternalCamera)
 	{
-	// TODO don't duplicate with Spacecraft Pawn
-	// Compute camera data
-	float Scale = Spacecraft->GetMeshScale();
-	float LimitNear = Scale * 1.5;
-	float LimitFar = Scale * 4;
-	float Offset = Scale * (ZoomIn ? -0.5 : 0.5);
+		// TODO don't duplicate with Spacecraft Pawn
+		// Compute camera data
+		float Scale = Spacecraft->GetMeshScale();
+		float LimitNear = Scale * 1.5;
+		float LimitFar = Scale * 4;
+		float Offset = Scale * (ZoomIn ? -0.5 : 0.5);
 
-	// Move camera
-	ExternalCameraDistanceTarget = FMath::Clamp(ExternalCameraDistance + Offset, LimitNear, LimitFar);
+		// Move camera
+		ExternalCameraDistanceTarget = FMath::Clamp(ExternalCameraDistance + Offset, LimitNear, LimitFar);
 	}
 }
 
@@ -494,18 +495,25 @@ bool UFlareSpacecraftStateManager::IsWantCursor() const
 
 bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 {
-	switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+	if (ExternalCamera)
 	{
-		case EFlareWeaponGroupType::WG_TURRET:
-			return true;
+		return true;
+	}
+	else
+	{
+		switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+		{
+			case EFlareWeaponGroupType::WG_TURRET:
+				return true;
 
-		case EFlareWeaponGroupType::WG_NONE:
-		case EFlareWeaponGroupType::WG_BOMB:
-		case EFlareWeaponGroupType::WG_GUN:
-			return false;
+			case EFlareWeaponGroupType::WG_NONE:
+			case EFlareWeaponGroupType::WG_BOMB:
+			case EFlareWeaponGroupType::WG_GUN:
+				return false;
 
-		default:
-			return true;
+			default:
+				return true;
+		}
 	}
 }
 

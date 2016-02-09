@@ -72,14 +72,16 @@ public:
 protected:
 
 	AFlareSpacecraft*                        Spacecraft;
+
+	// Settings
 	float                                    AngularInputDeadRatio;
+	float                                    MouseSensitivity;
 
 	// Dynamic gameplay data
-
-
 	bool                                     IsPiloted;
 	bool                                     ExternalCamera;
 
+	// External camera
 	float                                    ExternalCameraPitch;
 	float                                    ExternalCameraYaw;
 	float                                    ExternalCameraDistance;
@@ -87,16 +89,14 @@ protected:
 	float									 ExternalCameraYawTarget;
 	float									 ExternalCameraDistanceTarget;
 
+	// Internal camera
 	float									 InternalCameraPitch;
 	float									 InternalCameraYaw;
 	float									 InternalCameraPitchTarget;
 	float									 InternalCameraYawTarget;
-
-
-
+	
 	EFlareWeaponGroupType::Type              LastWeaponType;
-
-
+	
 	// Manual player pilot
 	bool                                     PlayerLeftMousePressed;
 	bool                                     PlayerManualOrbitalBoost;

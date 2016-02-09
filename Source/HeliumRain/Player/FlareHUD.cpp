@@ -200,22 +200,23 @@ void AFlareHUD::DrawHUD()
 		CurrentViewportSize = ViewportSize;
 		CurrentCanvas = Canvas;
 		IsDrawingCockpit = false;
+		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
 		// Initial data and checks
-		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		if (!ShouldDrawHUD())
 		{
 			return;
 		}
 
 		// Draw the general-purpose HUD (no-cockpit version)
-		else if (!PC->UseCockpit)
+		bool IsExternalCamera = PlayerShip->GetStateManager()->IsExternalCamera();
+		if (!PC->UseCockpit || IsExternalCamera)
 		{
 			DrawHUDInternal();
 		}
 
 		// Draw nose
-		if (!PlayerShip->GetStateManager()->IsExternalCamera())
+		if (!IsExternalCamera)
 		{
 			DrawHUDIcon(CurrentViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
 		}
