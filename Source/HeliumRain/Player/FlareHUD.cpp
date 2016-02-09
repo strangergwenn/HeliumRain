@@ -3,6 +3,7 @@
 #include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
+#include "../Economy/FlareCargoBay.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
@@ -449,7 +450,41 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	// Unarmed version
 	else
 	{
+		UFlareCargoBay* CargoBay = PlayerShip->GetCargoBay();
+		check(CargoBay);
 
+		// Title
+		FText CargoText = LOCTEXT("CargoText", "Cargo bay");
+		FlareDrawText(CargoText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
+		CurrentPos += 2 * InstrumentLine;
+
+		// Subtitle
+		FText CargoInfoText = FText::Format(LOCTEXT("CargoInfoFormat", "Current usage : {0} / {1}"),
+			FText::AsNumber(CargoBay->GetUsedCargoSpace()), FText::AsNumber(CargoBay->GetCapacity()));
+		FlareDrawText(CargoInfoText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+		CurrentPos += InstrumentLine;
+
+		// Cargo bay slots
+		uint32 MaxCargoBayCount = 8;
+		TArray<FFlareCargo>& CargoBaySlots = CargoBay->GetSlots();
+		for (int CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
+		{
+			// Create text
+			FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
+			FText CargoSlotResourceText = Cargo.Resource ? Cargo.Resource->Acronym : LOCTEXT("CargoBaySlotEmpty", "Empty");
+			FText CargoBaySlotText = FText::Format(LOCTEXT("CargoBaySlotFormat", "{0} ({1}/{2})"),
+				CargoSlotResourceText, FText::AsNumber(Cargo.Quantity), FText::AsNumber(Cargo.Capacity));
+
+			// Go to the right column after n/2 slots
+			if (CargoIndex == MaxCargoBayCount / 2)
+			{
+				CurrentPos += FVector2D(InstrumentSize.X / 2, 0) - (MaxCargoBayCount / 2) * InstrumentLine;
+			}
+
+			// Draw
+			FlareDrawText(CargoBaySlotText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+			CurrentPos += InstrumentLine;
+		}
 	}
 }
 

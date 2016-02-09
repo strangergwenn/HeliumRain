@@ -10,6 +10,7 @@ class HELIUMRAIN_API UFlareCargoBay : public UObject
 	GENERATED_UCLASS_BODY()
 
 public:
+
 	/*----------------------------------------------------
 	   Save
 	----------------------------------------------------*/
@@ -19,6 +20,7 @@ public:
 
 	/** Save the factory to a save file */
 	virtual TArray<FFlareCargoSave>* Save();
+
 
 	/*----------------------------------------------------
 	   Gameplay
@@ -30,6 +32,7 @@ public:
 
 	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -37,15 +40,16 @@ protected:
 	----------------------------------------------------*/
 
 	// Gameplay data
-	TArray<FFlareCargoSave>               CargoBayData;
-	IFlareSpacecraftInterface*				 Parent;
+	TArray<FFlareCargoSave>                    CargoBayData;
+	IFlareSpacecraftInterface*				   Parent;
 
-	TArray<FFlareCargo>                      CargoBay;
+	TArray<FFlareCargo>                        CargoBay;
 
 	// Cache
-	uint32								CargoBayCount;
-	uint32								CargoBayCapacity;
-	AFlareGame*                              Game;
+	uint32								       CargoBayCount;
+	uint32								       CargoBayCapacity;
+	AFlareGame*                                Game;
+
 
 public:
 
@@ -53,27 +57,34 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	inline IFlareSpacecraftInterface* GetParent()
-	{
-		return Parent;
-	}
+	uint32 GetSlotCount() const;
 
-	uint32 GetSlotCount();
+	uint32 GetCapacity() const;
+
+	uint32 GetUsedCargoSpace() const;
+
+	uint32 GetFreeCargoSpace() const;
+
+	uint32 GetResourceQuantity(FFlareResourceDescription* Resource) const;
+
+	uint32 GetFreeSpaceForResource(FFlareResourceDescription* Resource) const;
 
 	FFlareCargo* GetSlot(uint32 Index);
 
-	uint32 GetCapacity();
+	TArray<FFlareCargo>& GetSlots()
+	{
+		return CargoBay;
+	}
 
-	uint32 GetSlotCapacity()
+	uint32 GetSlotCapacity() const
 	{
 		return CargoBayCapacity;
 	}
 
-	uint32 GetResourceQuantity(FFlareResourceDescription* Resource);
-
-	uint32 GetFreeSpaceForResource(FFlareResourceDescription* Resource);
-
-
+	inline IFlareSpacecraftInterface* GetParent() const
+	{
+		return Parent;
+	}
 
 
 };

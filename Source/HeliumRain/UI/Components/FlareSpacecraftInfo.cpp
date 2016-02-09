@@ -290,18 +290,16 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 			TargetSpacecraftDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
 		}
 
-		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(Target);
-
 		// Fill the cargo bay
 		CargoBay->ClearChildren();
-		if (SimulatedSpacecraft && SimulatedSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
+		if (Target->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
 		{
-			for (uint32 CargoIndex = 0; CargoIndex < SimulatedSpacecraft->GetCargoBay()->GetSlotCount() ; CargoIndex++)
+			for (uint32 CargoIndex = 0; CargoIndex < Target->GetCargoBay()->GetSlotCount() ; CargoIndex++)
 			{
 				CargoBay->AddSlot()
 				[
 					SNew(SFlareCargoInfo)
-					.Spacecraft(SimulatedSpacecraft)
+					.Spacecraft(Target)
 					.CargoIndex(CargoIndex)
 				];
 			}

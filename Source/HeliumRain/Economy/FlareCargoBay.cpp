@@ -73,7 +73,6 @@ TArray<FFlareCargoSave>* UFlareCargoBay::Save()
    Gameplay
 ----------------------------------------------------*/
 
-
 bool UFlareCargoBay::HasResources(FFlareResourceDescription* Resource, uint32 Quantity)
 {
 	uint32 PresentQuantity = 0;
@@ -234,18 +233,40 @@ uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32
 	return Quantity - QuantityToGive;
 }
 
-uint32 UFlareCargoBay::GetCapacity()
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+uint32 UFlareCargoBay::GetCapacity() const
 {
 	return CargoBayCapacity * CargoBayCount;
 }
 
-uint32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource)
+uint32 UFlareCargoBay::GetUsedCargoSpace() const
+{
+	uint32 Used = 0;
+
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
+	{
+		Used += CargoBay[CargoIndex].Quantity;
+	}
+
+	return Used;
+}
+
+uint32 UFlareCargoBay::GetFreeCargoSpace() const
+{
+	return GetCapacity() - GetUsedCargoSpace();
+}
+
+uint32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource) const
 {
 	uint32 Quantity = 0;
 
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		const FFlareCargo& Cargo = CargoBay[CargoIndex];
 		if (Cargo.Resource == Resource)
 		{
 			Quantity += Cargo.Quantity;
@@ -254,13 +275,14 @@ uint32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource)
 
 	return Quantity;
 }
-uint32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource)
+
+uint32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource) const
 {
 	uint32 Quantity = 0;
 
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
+		const FFlareCargo& Cargo = CargoBay[CargoIndex];
 		if (Cargo.Resource == NULL)
 		{
 			Quantity += Cargo.Capacity;
@@ -274,11 +296,10 @@ uint32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resour
 	return Quantity;
 }
 
-uint32 UFlareCargoBay::GetSlotCount()
+uint32 UFlareCargoBay::GetSlotCount() const
 {
 	return CargoBayCount;
 }
-
 
 FFlareCargo* UFlareCargoBay::GetSlot(uint32 Index)
 {
