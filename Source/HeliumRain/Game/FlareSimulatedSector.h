@@ -73,11 +73,13 @@ public:
 
 	void SimulateTransport();
 
-	void SimulateTransport(UFlareCompany* Company);
+	uint32 SimulateTransport(UFlareCompany* Company, uint32 TransportCapacity);
 
-	void AdaptativeTransportResources(UFlareCompany* Company, uint32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly);
+	void SimulateTrade(TArray<uint32> CompanyRemainingTransportCapacity);
 
-	uint32 TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
+	void AdaptativeTransportResources(UFlareCompany* Company, uint32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool AllowTrade = false);
+
+	uint32 TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake, bool AllowTrade = false);
 
 	uint32 TakeResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
 
@@ -169,8 +171,8 @@ public:
 	/** If positive, return the remaining tranport capacity after transport.
 	 *  If negative, return the laking tranport capacity after transport
 	 */
-	int32 GetTransportCapacityBalance(UFlareCompany* Company);
+	int32 GetTransportCapacityBalance(UFlareCompany* Company, bool AllowTrade = false);
 
-	int32 GetTransportCapacityNeeds(UFlareCompany* Company);
+	int32 GetTransportCapacityNeeds(UFlareCompany* Company, bool AllowTrade = false);
 
 };

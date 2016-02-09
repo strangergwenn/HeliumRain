@@ -38,22 +38,33 @@ void UFlareCompanyAI::Simulate()
 	{
 		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
 		int32 TransportCapacityBalance = Sector->GetTransportCapacityBalance(Company);
-		FLOGV("Sector %s, transport capacity=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacity(Company));
-		FLOGV("Sector %s, transport needs=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacityNeeds(Company));
-		FLOGV("Sector %s, transport balance=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacityBalance(Company));
+		//FLOGV("Sector %s, transport capacity=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacity(Company));
+		//FLOGV("Sector %s, transport needs=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacityNeeds(Company));
+		//FLOGV("Sector %s, transport balance=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacityBalance(Company));
 
-		if(TransportCapacityBalance > 0)
+		if (TransportCapacityBalance > 0)
 		{
 			// TODO tolerate few more ship
 			UnassignShipsFromSector(Sector, (uint32) TransportCapacityBalance);
-			FLOGV("AI %s ACTION : Unassign ships from sector %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TransportCapacityBalance)
+			//FLOGV("AI %s ACTION : Unassign ships from sector %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TransportCapacityBalance)
 		}
-		else if(TransportCapacityBalance < 0)
+		else if (TransportCapacityBalance < 0)
 		{
 			AssignShipsToSector(Sector, (uint32) (- TransportCapacityBalance));
-			FLOGV("AI %s ACTION : Assign ships to sector %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TransportCapacityBalance)
+			//FLOGV("AI %s ACTION : Assign ships to sector %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TransportCapacityBalance)
 		}
 		// TODO reassign large ships
+
+
+		// Assign ship for trade
+
+		int32 TradeTransportCapacityBalance = Sector->GetTransportCapacityBalance(Company, true);
+		if (TradeTransportCapacityBalance < 0)
+		{
+			AssignShipsToSector(Sector, (uint32) (- TradeTransportCapacityBalance));
+			FLOGV("AI %s ACTION : Assign ships to sector for trade %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TradeTransportCapacityBalance)
+		}
+		FLOGV("Sector %s, final transport capacity=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacity(Company));
 	}
 
 

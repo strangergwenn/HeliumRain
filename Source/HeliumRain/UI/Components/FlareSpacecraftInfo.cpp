@@ -292,7 +292,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 
 		// Fill the cargo bay
 		CargoBay->ClearChildren();
-		if (Target->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned)
+		if (Target->GetCompany()->GetPlayerHostility() != EFlareHostility::Hostile)
 		{
 			for (uint32 CargoIndex = 0; CargoIndex < Target->GetCargoBay()->GetSlotCount() ; CargoIndex++)
 			{

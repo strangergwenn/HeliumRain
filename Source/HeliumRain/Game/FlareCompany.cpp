@@ -358,12 +358,14 @@ void UFlareCompany::TakeMoney(uint64 Amount)
 	else
 	{
 		CompanyData.Money -= Amount;
+		FLOGV("$ %s - %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
 	}
 }
 
 void UFlareCompany::GiveMoney(uint64 Amount)
 {
 	CompanyData.Money += Amount;
+	FLOGV("$ %s + %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
 }
 
 /*----------------------------------------------------

@@ -92,7 +92,6 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	for(int Index = 0; Index < 5; Index ++)
 	{
 		MinerHome->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector);
-		MinerHome->CreateShip("ship-omen", MiningSyndicate, FVector::ZeroVector);
 	}
 
 	// Initial setup: Outpost
