@@ -451,18 +451,18 @@ FFlareWorldEvent *UFlareFactory::GenerateEvent()
 void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 {
 	FFlareSpacecraftDescription* ShipDescription = GetGame()->GetSpacecraftCatalog()->Get(FactoryData.TargetShipClass);
-	if (!ShipDescription)
+
+	if (ShipDescription)
 	{
-		return;
+		UFlareCompany* Company = Parent->GetCompany();
+		FVector SpawnPosition = Parent->GetSpawnLocation();
+		for (uint32 Index = 0; Index < Action->Quantity; Index++)
+		{
+			Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
+		}
 	}
 
-	UFlareCompany* Company = Parent->GetCompany();
-	FVector SpawnPosition = Parent->GetSpawnLocation();
-
-	for (uint32 Index = 0; Index < Action->Quantity; Index++)
-	{
-		Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
-	}
+	FactoryData.TargetShipClass = NAME_None;
 }
 
 
