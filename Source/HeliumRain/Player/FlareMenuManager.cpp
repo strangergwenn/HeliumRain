@@ -625,7 +625,7 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 		MenuTarget = GetPC()->GetShipPawn()->GetCurrentTarget();
 		if (MenuTarget)
 		{
-			FLOGV("AFlareMenuManager::InspectShip : No ship passed, using selection : %s", *Target->GetImmatriculation().ToString());
+			FLOGV("AFlareMenuManager::InspectShip : No ship passed, using selection : %s", *MenuTarget->GetImmatriculation().ToString());
 		}
 		else
 		{
