@@ -1134,7 +1134,7 @@ bool AFlareHUD::WorldToScreen(FVector World, FVector2D& Screen)
 	{
 		FVector WorldDirection = World - PC->GetShipPawn()->GetActorLocation();
 		FVector ScreenDirection = PC->GetShipPawn()->WorldToLocal(WorldDirection);
-		ScreenDirection += FVector(10000, 0, 0); // Cockpit is supposed to be spherical around -100
+		ScreenDirection += FVector(100, 0, 0); // Cockpit is supposed to be spherical around -100
 
 		// FoV calculation. The vertical FoV is scaled by an arbitrary factor because UV adjustments were made for horizontal.
 		float HorizontalFOV = PC->PlayerCameraManager->GetFOVAngle();
