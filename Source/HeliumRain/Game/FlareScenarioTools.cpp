@@ -49,8 +49,6 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	Steel= Game->GetResourceCatalog()->Get("steel");
 	Tools= Game->GetResourceCatalog()->Get("tools");
 	Tech= Game->GetResourceCatalog()->Get("tech");
-
-
 }
 
 void UFlareScenarioTools::GenerateEmptyScenario()
@@ -127,57 +125,71 @@ void UFlareScenarioTools::GenerateDebugScenario()
 {
 	SetupWorld();
 
-	// Create player ship
-	FLOG("UFlareScenarioTools::GenerateDebugScenario create initial ship");
+	FLOG("UFlareScenarioTools::GenerateDebugScenario");
+
+	/*----------------------------------------------------
+		Outpost
+	----------------------------------------------------*/
+	
+	// Add solar plants
+	for (int Index = 0; Index < 3; Index ++)
+	{
+		Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
+	}
+
+	// Various stations
+	Outpost->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
+	Outpost->CreateStation("station-habitation", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Food, 30);
+	Outpost->CreateStation("station-farm", PlayerCompany, FVector::ZeroVector);
+
+	// Refinery
+	UFlareSimulatedSpacecraft* Refinery = Outpost->CreateStation("station-refinery", PlayerCompany, FVector::ZeroVector);
+	Refinery->GetFactories()[0]->SetOutputLimit(Plastics, 1);
+	Refinery->GetCargoBay()->GiveResources(Fuel, 50);
+
+	// Pumping station
+	UFlareSimulatedSpacecraft* PumpingStation = Outpost->CreateStation("station-pumping", PlayerCompany, FVector::ZeroVector);
+	PumpingStation->GetFactories()[0]->SetOutputLimit(Hydrogen, 1);
+	PumpingStation->GetFactories()[0]->SetOutputLimit(Helium, 1);
+	PumpingStation->GetCargoBay()->GiveResources(Fuel, 50);
+
+	// Final settings
+	Outpost->GetPeople()->GiveBirth(1000);
+	Outpost->GetPeople()->SetHappiness(1);
+
+	// Add Omens
+	for (int Index = 0; Index < 5; Index++)
+	{
+		Outpost->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector)->AssignToSector(true);
+	}
+
+	// Player ship
 	UFlareSimulatedSpacecraft* InitialShip = Outpost->CreateShip("ship-solen", PlayerCompany, FVector::ZeroVector);
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 
 
+	/*----------------------------------------------------
+		Miner's Home
+	----------------------------------------------------*/
 
-
-	// Initial setup : "Outpost"
-	for(int Index = 0; Index < 5; Index ++)
-	{
-		Outpost->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector)->AssignToSector(true);
-	}
-
-	for(int Index = 0; Index < 3; Index ++)
-	{
-		Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
-	}
-
-	Outpost->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
-
-	Outpost->CreateStation("station-habitation", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Food, 30);
-	Outpost->CreateStation("station-farm", PlayerCompany, FVector::ZeroVector);
-	UFlareSimulatedSpacecraft* Refinery = Outpost->CreateStation("station-refinery", PlayerCompany, FVector::ZeroVector);
-	Refinery->GetFactories()[0]->SetOutputLimit(Plastics, 1);
-	Refinery->GetCargoBay()->GiveResources(Fuel, 50);
-
-	UFlareSimulatedSpacecraft* PompingStation = Outpost->CreateStation("station-pumping", PlayerCompany, FVector::ZeroVector);
-	PompingStation->GetFactories()[0]->SetOutputLimit(Hydrogen, 1);
-	PompingStation->GetFactories()[0]->SetOutputLimit(Helium, 1);
-	PompingStation->GetCargoBay()->GiveResources(Fuel, 50);
-
-	Outpost->GetPeople()->GiveBirth(1000);
-	Outpost->GetPeople()->SetHappiness(1);
-
-	// Initial setup : "Miner's home"
+	// Add Omens
 	for(int Index = 0; Index < 5; Index ++)
 	{
 		MinerHome->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector)->AssignToSector(true);
 	}
 
-	MinerHome->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
-
+	// Add solar plants
 	for(int Index = 0; Index < 2; Index ++)
 	{
 		MinerHome->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 	}
 
+	MinerHome->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
+
 	UFlareSimulatedSpacecraft* Tokamak = MinerHome->CreateStation("station-tokamak", PlayerCompany, FVector::ZeroVector);
 	Tokamak->GetCargoBay()->GiveResources(Water, 200);
+
 	UFlareSimulatedSpacecraft* Steelworks = MinerHome->CreateStation("station-steelworks", PlayerCompany, FVector::ZeroVector);
 	Steelworks->GetFactories()[0]->SetOutputLimit(Steel, 1);
 
@@ -190,7 +202,19 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	UFlareSimulatedSpacecraft* Foundry = MinerHome->CreateStation("station-foundry", PlayerCompany, FVector::ZeroVector);
 	Foundry->GetFactories()[0]->SetOutputLimit(Tech, 1);
 
-	UFlareTradeRoute* OutpostToMinerHome =  PlayerCompany->CreateTradeRoute(FText::FromString(TEXT("Trade route 1")));
+
+	/*----------------------------------------------------
+		Frozen Realm
+	----------------------------------------------------*/
+
+	World->FindSector("frozen-realm")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
+
+
+	/*----------------------------------------------------
+		Trade routes
+	----------------------------------------------------*/
+
+	UFlareTradeRoute* OutpostToMinerHome = PlayerCompany->CreateTradeRoute(FText::FromString(TEXT("Trade route 1")));
 	OutpostToMinerHome->AddSector(Outpost);
 	OutpostToMinerHome->AddSector(MinerHome);
 
@@ -207,15 +231,16 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	OutpostToMinerHome->SetSectorUnloadOrder(1, Helium, 0);
 	OutpostToMinerHome->SetSectorUnloadOrder(1, Hydrogen, 0);
 	OutpostToMinerHome->SetSectorUnloadOrder(1, Plastics, 0);
-
-
-
+	
 	UFlareFleet* TradeFleet1 = PlayerCompany->CreateFleet(FText::FromString(TEXT("Trade fleet 1")), MinerHome);
 	TradeFleet1->AddShip(MinerHome->CreateShip("ship-atlas", PlayerCompany, FVector::ZeroVector));
 
 	OutpostToMinerHome->AddFleet(TradeFleet1);
 
-	World->FindSector("frozen-realm")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
+
+	/*----------------------------------------------------
+		Player setup
+	----------------------------------------------------*/
 
 	// Discover known sectors
 	if (!PlayerData->QuestData.PlayTutorial)
