@@ -294,7 +294,7 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 		CurrentCanvas = TargetCanvas;
 
 		// Draw instruments
-		if (PlayerShip)
+		if (PlayerShip && PlayerShip->GetDamageSystem()->IsAlive())
 		{
 			// Regular case
 			if (!PlayerShip->GetDamageSystem()->HasPowerOutage())

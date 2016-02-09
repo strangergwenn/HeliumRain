@@ -289,7 +289,8 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Power out
-	if (PlayerShip->GetDamageSystem()->HasPowerOutage())
+	bool HasPower = !PlayerShip->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetDamageSystem()->IsAlive();
+	if (!HasPower)
 	{
 		Intensity = 0;
 	}
@@ -366,7 +367,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 {
 	// Update timer
-	bool HasPower = !PlayerShip->GetDamageSystem()->HasPowerOutage();
+	bool HasPower = !PlayerShip->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetDamageSystem()->IsAlive();
 	CockpitPowerTime += (HasPower ? 1.0f : -1.0f) * DeltaSeconds;
 	CockpitPowerTime = FMath::Clamp(CockpitPowerTime, 0.0f, CockpitPowerPeriod);
 	float PowerAlpha = CockpitPowerTime / CockpitPowerPeriod;
