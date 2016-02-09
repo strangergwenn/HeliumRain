@@ -15,6 +15,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 {
 	TargetFactory = InArgs._Factory;
 	MenuManager = InArgs._MenuManager;
+	ShipList.Empty();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
 	// Structure
@@ -68,7 +69,26 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareFactoryInfo::GetFactoryCycleInfo, TargetFactory)
 				]
-			
+
+				// Ship building
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SAssignNew(ShipSelector, SComboBox<UFlareSpacecraftCatalogEntry*>)
+					.OptionsSource(&ShipList)
+					.OnGenerateWidget(this, &SFlareFactoryInfo::OnGenerateShipComboLine)
+					.OnSelectionChanged(this, &SFlareFactoryInfo::OnShipComboLineSelectionChanged)
+					.ComboBoxStyle(&Theme.ComboBoxStyle)
+					.ForegroundColor(FLinearColor::White)
+					.Visibility(this, &SFlareFactoryInfo::GetShipSelectorVisibility, TargetFactory)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareFactoryInfo::OnGetCurrentShipComboLine)
+						.TextStyle(&Theme.TextFont)
+					]
+				]
+							
 				// Factory production status
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -147,6 +167,29 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 		]
 	];
 
+	// Init buildable ship list
+	ShipList.Empty();
+	if (TargetFactory && TargetFactory->HasCreateShipAction())
+	{
+		UFlareSpacecraftCatalogEntry* SelectedEntry = NULL;
+		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+
+		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->ShipCatalog.Num(); SpacecraftIndex++)
+		{
+			UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->ShipCatalog[SpacecraftIndex];
+			FFlareSpacecraftDescription* Description = &Entry->Data;
+			ShipList.Add(Entry);
+
+			if (Description->Identifier == TargetFactory->GetTargetShipClass())
+			{
+				SelectedEntry = Entry;
+			}
+		}
+
+		ShipSelector->SetSelectedItem(SelectedEntry);
+	}
+
+	// Update factory
 	UpdateFactoryLimits();
 }
 
@@ -159,9 +202,9 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 	UFlareSimulatedSpacecraft* SimulatedSpacecraft = TargetFactory->GetParent();
 
 	// Iterate all output resources
-	for (int ResourceIndex = 0; ResourceIndex < TargetFactory->GetDescription()->OutputResources.Num(); ResourceIndex++)
+	for (int ResourceIndex = 0; ResourceIndex < TargetFactory->GetDescription()->CycleCost.OutputResources.Num(); ResourceIndex++)
 	{
-		const FFlareFactoryResource* FactoryResource = &TargetFactory->GetDescription()->OutputResources[ResourceIndex];
+		const FFlareFactoryResource* FactoryResource = &TargetFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
 		FFlareResourceDescription* Resource = &FactoryResource->Resource->Data;
 		check(Resource);
 				
@@ -328,6 +371,39 @@ EVisibility SFlareFactoryInfo::GetDecreaseOutputLimitVisibility(UFlareFactory* F
 	{
 		return EVisibility::Hidden;
 	}
+}
+
+
+/*----------------------------------------------------
+	Ship building
+----------------------------------------------------*/
+
+TSharedRef<SWidget> SFlareFactoryInfo::OnGenerateShipComboLine(UFlareSpacecraftCatalogEntry* Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(STextBlock)
+		.Text(Item->Data.Name)
+		.TextStyle(&Theme.TextFont);
+}
+
+void SFlareFactoryInfo::OnShipComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo)
+{
+	if (Item && TargetFactory)
+	{
+		TargetFactory->SetTargetShipClass(Item->Data.Identifier);
+	}
+}
+
+FText SFlareFactoryInfo::OnGetCurrentShipComboLine() const
+{
+	UFlareSpacecraftCatalogEntry* Item = ShipSelector->GetSelectedItem();
+	return Item ? Item->Data.Name : LOCTEXT("Select", "Select a ship");
+}
+
+EVisibility SFlareFactoryInfo::GetShipSelectorVisibility(UFlareFactory* Factory) const
+{
+	return (Factory->HasCreateShipAction() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 

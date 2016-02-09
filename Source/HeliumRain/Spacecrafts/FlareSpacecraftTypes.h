@@ -197,6 +197,10 @@ struct FFlareFactorySave
 	/** Max slot used for factory output */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareCargoSave> OutputCargoLimit;
+
+	/** Target ship class for shipyards */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName TargetShipClass;
 };
 
 /** Spacecraft save data */

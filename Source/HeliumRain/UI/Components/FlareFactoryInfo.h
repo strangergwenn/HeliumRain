@@ -1,9 +1,11 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../Components/FlareListItem.h"
+#include "../Components/FlareSpacecraftInfo.h"
+#include "../Components/FlareShipList.h"
 
 
-class UFlareFactory;
 class UFlareFactory;
 
 
@@ -62,14 +64,25 @@ protected:
 
 	/** Get the current stop visibility */
 	EVisibility GetStopProductionVisibility(UFlareFactory* Factory) const;
-	/*
-	EVisibility GetProductionCyclesLimitVisibility(UFlareFactory* Factory) const;*/
 
 	/** Get the current + visibility */
 	EVisibility GetIncreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
 
 	/** Get the current - visibility */
 	EVisibility GetDecreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+
+
+	/*----------------------------------------------------
+		Ship building
+	----------------------------------------------------*/
+
+	TSharedRef<SWidget> OnGenerateShipComboLine(UFlareSpacecraftCatalogEntry* Item);
+
+	void OnShipComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo);
+
+	FText OnGetCurrentShipComboLine() const;
+
+	EVisibility GetShipSelectorVisibility(UFlareFactory* Factory) const;
 
 
 	/*----------------------------------------------------
@@ -101,6 +114,10 @@ protected:
 	// Slate data
 	TSharedPtr<SVerticalBox>                        LimitList;
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
+
+	// Ship building
+	TSharedPtr<SComboBox<UFlareSpacecraftCatalogEntry*>> ShipSelector;
+	TArray<UFlareSpacecraftCatalogEntry*>                ShipList;
 
 
 };

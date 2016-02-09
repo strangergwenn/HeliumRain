@@ -45,7 +45,7 @@ void UFlareFactory::Simulate()
 
 
 	// Check if production is running
-	if(!IsNeedProduction())
+	if (!IsNeedProduction())
 	{
 		// Don't produce if not needed
 		return;
@@ -54,12 +54,12 @@ void UFlareFactory::Simulate()
 	if (HasCostReserved())
 	{
 
-		if(FactoryData.ProductedDuration < FactoryDescription->ProductionTime)
+		if (FactoryData.ProductedDuration < GetCycleData().ProductionTime)
 		{
 			FactoryData.ProductedDuration += 1;
 		}
 
-		if(FactoryData.ProductedDuration < FactoryDescription->ProductionTime)
+		if (FactoryData.ProductedDuration < GetCycleData().ProductionTime)
 		{
 
 			// Still In production
@@ -98,7 +98,7 @@ void UFlareFactory::Start()
 	for (int32 FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
 		UFlareFactory* Factory = Factories[FactoryIndex];
-		if(Factory == this)
+		if (Factory == this)
 		{
 			continue;
 		}
@@ -135,7 +135,7 @@ void UFlareFactory::SetOutputLimit(FFlareResourceDescription* Resource, uint32 M
 	bool ExistingResource = false;
 	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
-		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
+		if (FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
 		{
 			ExistingResource = true;
 			FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity = MaxSlot;
@@ -143,7 +143,7 @@ void UFlareFactory::SetOutputLimit(FFlareResourceDescription* Resource, uint32 M
 		}
 	}
 
-	if(!ExistingResource)
+	if (!ExistingResource)
 	{
 		FFlareCargoSave NewCargoLimit;
 		NewCargoLimit.ResourceIdentifier = Resource->Identifier;
@@ -156,12 +156,17 @@ void UFlareFactory::ClearOutputLimit(FFlareResourceDescription* Resource)
 {
 	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
-		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
+		if (FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
 		{
 			FactoryData.OutputCargoLimit.RemoveAt(CargoLimitIndex);
 			return;
 		}
 	}
+}
+
+void UFlareFactory::SetTargetShipClass(FName Identifier)
+{
+	FactoryData.TargetShipClass = Identifier;
 }
 
 bool UFlareFactory::HasCostReserved()
@@ -171,9 +176,9 @@ bool UFlareFactory::HasCostReserved()
 		return false;
 	}
 
-	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
 	{
-		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
+		const FFlareFactoryResource* Resource = &GetCycleData().InputResources[ResourceIndex];
 
 		bool ResourceFound = false;
 
@@ -205,9 +210,9 @@ bool UFlareFactory::HasInputMoney()
 
 bool UFlareFactory::HasInputResources()
 {
-	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
 	{
-		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
+		const FFlareFactoryResource* Resource = &GetCycleData().InputResources[ResourceIndex];
 		if (!Parent->GetCargoBay()->HasResources(&Resource->Resource->Data, Resource->Quantity))
 		{
 			return false;
@@ -279,9 +284,9 @@ void UFlareFactory::BeginProduction()
 
 
 	// Consume input resources
-	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
 	{
-		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
+		const FFlareFactoryResource* Resource = &GetCycleData().InputResources[ResourceIndex];
 		FFlareCargoSave* AlreadyReservedCargo = NULL;
 
 
@@ -360,9 +365,9 @@ void UFlareFactory::DoProduction()
 	FactoryData.CostReserved -= PaidCost;
 	Parent->GetCurrentSector()->GetPeople()->Pay(PaidCost);
 
-	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
 	{
-		const FFlareFactoryResource* Resource = &FactoryDescription->InputResources[ResourceIndex];
+		const FFlareFactoryResource* Resource = &GetCycleData().InputResources[ResourceIndex];
 
 		for (int32 ReservedResourceIndex = FactoryData.ResourceReserved.Num()-1; ReservedResourceIndex >=0 ; ReservedResourceIndex--)
 		{
@@ -411,7 +416,7 @@ void UFlareFactory::DoProduction()
 	}
 
 	FactoryData.ProductedDuration = 0;
-	if(!HasInfiniteCycle())
+	if (!HasInfiniteCycle())
 	{
 		FactoryData.CycleCount--;
 	}
@@ -432,7 +437,7 @@ FFlareWorldEvent *UFlareFactory::GenerateEvent()
 			return NULL;
 		}
 
-		NextEvent.Date= GetGame()->GetGameWorld()->GetDate() + FactoryDescription->ProductionTime - FactoryData.ProductedDuration;
+		NextEvent.Date= GetGame()->GetGameWorld()->GetDate() + GetCycleData().ProductionTime - FactoryData.ProductedDuration;
 		NextEvent.Visibility = EFlareEventVisibility::Silent;
 		return &NextEvent;
 	}
@@ -441,7 +446,7 @@ FFlareWorldEvent *UFlareFactory::GenerateEvent()
 
 void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 {
-	FFlareSpacecraftDescription* ShipDescription = GetGame()->GetSpacecraftCatalog()->Get(Action->Identifier);
+	FFlareSpacecraftDescription* ShipDescription = GetGame()->GetSpacecraftCatalog()->Get(FactoryData.TargetShipClass);
 	if (!ShipDescription)
 	{
 		return;
@@ -456,42 +461,65 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	}
 }
 
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
 
+const FFlareProductionData& UFlareFactory::GetCycleData()
+{
+	if (HasCreateShipAction() && FactoryData.TargetShipClass != NAME_None)
+	{
+		return GetGame()->GetSpacecraftCatalog()->Get(FactoryData.TargetShipClass)->CycleCost;
+	}
+	else
+	{
+		return FactoryDescription->CycleCost;
+	}
+}
+
+bool UFlareFactory::HasCreateShipAction() const
+{
+	for (int32 Index = 0; Index < GetDescription()->OutputActions.Num(); Index++)
+	{
+		if (GetDescription()->OutputActions[Index].Action == EFlareFactoryAction::CreateShip)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 uint32 UFlareFactory::GetProductionCost()
 {
-	if(!ProductionCostInit)
+	if (!ProductionCostInit)
 	{
 		ProductionCostInit = true;
-		ScaledProductionCost = FactoryDescription->ProductionCost;
+		ScaledProductionCost = GetCycleData().ProductionCost;
 
-		if(FactoryDescription->NeedSun)
+		if (FactoryDescription->NeedSun)
 		{
-			FFlareCelestialBody* Body = Parent->GetCurrentSector()->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(Parent->GetCurrentSector()->GetOrbitParameters()->CelestialBodyIdentifier);
+			FFlareCelestialBody* Body = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(Parent->GetCurrentSector()->GetOrbitParameters()->CelestialBodyIdentifier);
 
 			if (Body)
 			{
-				float LightRatio = Parent->GetCurrentSector()->GetGame()->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, Parent->GetCurrentSector()->GetOrbitParameters()->Altitude);
-				ScaledProductionCost =  FactoryDescription->ProductionCost / LightRatio;
+				float LightRatio = Game->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, Parent->GetCurrentSector()->GetOrbitParameters()->Altitude);
+				ScaledProductionCost = GetCycleData().ProductionCost / LightRatio;
 			}
 		}
 	}
 	return ScaledProductionCost;
 }
 
-
 int64 UFlareFactory::GetRemainingProductionDuration()
 {
-	return FactoryDescription->ProductionTime - FactoryData.ProductedDuration;
+	return GetCycleData().ProductionTime - FactoryData.ProductedDuration;
 }
-
 
 TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 {
 	UFlareCargoBay* CargoBay = Parent->GetCargoBay();
-	TArray<FFlareFactoryResource> OutputResources = FactoryDescription->OutputResources;
+	TArray<FFlareFactoryResource> OutputResources = GetCycleData().OutputResources;
 	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
 		uint32 MaxCapacity = CargoBay->GetCapacity() * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
@@ -499,7 +527,7 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 		uint32 CurrentQuantity = 0;
 		for (uint32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
 		{
-			if(CargoBay->GetSlot(CargoIndex)->Resource == Resource)
+			if (CargoBay->GetSlot(CargoIndex)->Resource == Resource)
 			{
 				CurrentQuantity += CargoBay->GetSlot(CargoIndex)->Quantity;
 			}
@@ -507,7 +535,7 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 
 		uint32 MaxAddition;
 
-		if(CurrentQuantity > MaxCapacity)
+		if (CurrentQuantity > MaxCapacity)
 		{
 			MaxAddition = 0;
 		}
@@ -537,7 +565,7 @@ uint32 UFlareFactory::GetOutputLimit(FFlareResourceDescription* Resource)
 {
 	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
-		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
+		if (FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
 		{
 			return FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
 		}
@@ -550,7 +578,7 @@ bool UFlareFactory::HasOutputLimit(FFlareResourceDescription* Resource)
 {
 	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
-		if(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
+		if (FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier == Resource->Identifier)
 		{
 			return true;
 		}
@@ -558,28 +586,27 @@ bool UFlareFactory::HasOutputLimit(FFlareResourceDescription* Resource)
 	return false;
 }
 
-
 int32 UFlareFactory::GetInputResourcesCount()
 {
-	return FactoryDescription->InputResources.Num();
+	return GetCycleData().InputResources.Num();
 }
 
 FFlareResourceDescription* UFlareFactory::GetInputResource(int32 Index)
 {
-	return &FactoryDescription->InputResources[Index].Resource->Data;
+	return &GetCycleData().InputResources[Index].Resource->Data;
 }
 
 uint32 UFlareFactory::GetInputResourceQuantity(int32 Index)
 {
-	return FactoryDescription->InputResources[Index].Quantity;
+	return GetCycleData().InputResources[Index].Quantity;
 }
 
 bool UFlareFactory::HasOutputResource(FFlareResourceDescription* Resource)
 {
-	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->OutputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().OutputResources.Num() ; ResourceIndex++)
 	{
-		FFlareResourceDescription* ResourceCandidate = &FactoryDescription->OutputResources[ResourceIndex].Resource->Data;
-		if(ResourceCandidate == Resource)
+		FFlareResourceDescription* ResourceCandidate = &GetCycleData().OutputResources[ResourceIndex].Resource->Data;
+		if (ResourceCandidate == Resource)
 		{
 			return true;
 		}
@@ -590,10 +617,10 @@ bool UFlareFactory::HasOutputResource(FFlareResourceDescription* Resource)
 
 bool UFlareFactory::HasInputResource(FFlareResourceDescription* Resource)
 {
-	for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->InputResources.Num() ; ResourceIndex++)
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
 	{
-		FFlareResourceDescription* ResourceCandidate = &FactoryDescription->InputResources[ResourceIndex].Resource->Data;
-		if(ResourceCandidate == Resource)
+		FFlareResourceDescription* ResourceCandidate = &GetCycleData().InputResources[ResourceIndex].Resource->Data;
+		if (ResourceCandidate == Resource)
 		{
 			return true;
 		}
@@ -608,18 +635,24 @@ FText UFlareFactory::GetFactoryCycleInfo()
 	FText ProductionCostText;
 	FText ProductionOutputText;
 
-	// Cycle cost in credits
-	uint32 CycleCost = GetProductionCost();
-	if (CycleCost > 0)
+	// No ship class selected
+	if (HasCreateShipAction() && FactoryData.TargetShipClass == NAME_None)
 	{
-		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleCost));
+		return LOCTEXT("SelectShipClass", "Please select a ship class to build");
+	}
+
+	// Cycle cost in credits
+	uint32 CycleProductionCost = GetProductionCost();
+	if (CycleProductionCost > 0)
+	{
+		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleProductionCost));
 	}
 
 	// Cycle cost in resources
-	for (int ResourceIndex = 0; ResourceIndex < GetDescription()->InputResources.Num(); ResourceIndex++)
+	for (int ResourceIndex = 0; ResourceIndex < GetCycleData().InputResources.Num(); ResourceIndex++)
 	{
 		FText CommaText = ProductionCostText.IsEmpty() ? FText() : CommaTextReference;
-		const FFlareFactoryResource* FactoryResource = &GetDescription()->InputResources[ResourceIndex];
+		const FFlareFactoryResource* FactoryResource = &GetCycleData().InputResources[ResourceIndex];
 		check(FactoryResource);
 
 		ProductionCostText = FText::Format(LOCTEXT("ProductionResourcesFormat", "{0}{1} {2} {3}"),
@@ -639,7 +672,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 		case EFlareFactoryAction::CreateShip:
 			ProductionOutputText = FText::Format(LOCTEXT("ProductionActionsFormat", "{0}{1} {2} {3}"),
 				ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity),
-				GetGame()->GetSpacecraftCatalog()->Get(FactoryAction->Identifier)->Name);
+				GetGame()->GetSpacecraftCatalog()->Get(FactoryData.TargetShipClass)->Name);
 			break;
 
 			// TODO
@@ -651,10 +684,10 @@ FText UFlareFactory::GetFactoryCycleInfo()
 	}
 
 	// Cycle output in resources
-	for (int ResourceIndex = 0; ResourceIndex < GetDescription()->OutputResources.Num(); ResourceIndex++)
+	for (int ResourceIndex = 0; ResourceIndex < GetCycleData().OutputResources.Num(); ResourceIndex++)
 	{
 		FText CommaText = ProductionOutputText.IsEmpty() ? FText() : CommaTextReference;
-		const FFlareFactoryResource* FactoryResource = &GetDescription()->OutputResources[ResourceIndex];
+		const FFlareFactoryResource* FactoryResource = &GetCycleData().OutputResources[ResourceIndex];
 		check(FactoryResource);
 
 		ProductionOutputText = FText::Format(LOCTEXT("ProductionOutputFormat", "{0}{1} {2} {3}"),
@@ -663,7 +696,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 
 	return FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} each {2}"),
 		ProductionCostText, ProductionOutputText,
-		FText::FromString(*UFlareGameTools::FormatDate(GetDescription()->ProductionTime, 2))); // FString needed here
+		FText::FromString(*UFlareGameTools::FormatDate(GetCycleData().ProductionTime, 2))); // FString needed here
 }
 
 FText UFlareFactory::GetFactoryStatus()

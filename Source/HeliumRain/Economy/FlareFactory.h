@@ -39,6 +39,7 @@ USTRUCT()
 struct FFlareFactoryAction
 {
 	GENERATED_USTRUCT_BODY()
+
 	/** Faction action. */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlareFactoryAction::Type> Action;
@@ -52,7 +53,28 @@ struct FFlareFactoryAction
 	uint32 Quantity;
 };
 
+/** Production cost */
+USTRUCT()
+struct FFlareProductionData
+{
+	GENERATED_USTRUCT_BODY()
 
+	/** Time for 1 production cycle */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int64 ProductionTime;
+
+	/** Cost for 1 production cycle */
+	UPROPERTY(EditAnywhere, Category = Content)
+	uint32 ProductionCost;
+
+	/** Input resources */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareFactoryResource> InputResources;
+
+	/** Output resources */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareFactoryResource> OutputResources;
+};
 
 /** Factory description */
 USTRUCT()
@@ -71,23 +93,7 @@ struct FFlareFactoryDescription
 	/** Resource identifier */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FName Identifier;
-
-	/** Time for 1 production cycle */
-	UPROPERTY(EditAnywhere, Category = Content)
-	int64 ProductionTime;
-
-	/** Cost for 1 production cycle */
-	UPROPERTY(EditAnywhere, Category = Content)
-	uint32 ProductionCost;
-
-	/** Input resources */
-	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareFactoryResource> InputResources;
-
-	/** Output resources */
-	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareFactoryResource> OutputResources;
-
+	
 	/** Output actions */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareFactoryAction> OutputActions;
@@ -95,6 +101,10 @@ struct FFlareFactoryDescription
 	/** Sun impact factory cost */
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool NeedSun;
+
+	/** Cycle cost & yields */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FFlareProductionData CycleCost;
 };
 
 UCLASS()
@@ -135,6 +145,8 @@ public:
 
 	void ClearOutputLimit(FFlareResourceDescription* Resource);
 
+	void SetTargetShipClass(FName Identifier);
+
 	bool HasInputMoney();
 
 	bool HasInputResources();
@@ -153,6 +165,7 @@ public:
 
 	void PerformCreateShipAction(const FFlareFactoryAction* Action);
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -168,6 +181,7 @@ protected:
 	FFlareWorldEvent                         NextEvent;
 	uint32                                   ScaledProductionCost;
 	bool                                     ProductionCostInit;
+
 public:
 
 	/*----------------------------------------------------
@@ -179,7 +193,7 @@ public:
 		return Game;
 	}
 
-	inline const FFlareFactoryDescription*GetDescription() const
+	inline const FFlareFactoryDescription* GetDescription() const
 	{
 		return FactoryDescription;
 	}
@@ -187,6 +201,15 @@ public:
 	inline UFlareSimulatedSpacecraft* GetParent()
 	{
 		return Parent;
+	}
+
+	const FFlareProductionData& GetCycleData();
+
+	bool HasCreateShipAction() const;
+
+	FName GetTargetShipClass() const
+	{
+		return FactoryData.TargetShipClass;
 	}
 
 	uint32 GetProductionCost();

@@ -379,7 +379,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Check money cost
-	if (Company->GetMoney() < StationDescription->Cost)
+	if (Company->GetMoney() < StationDescription->CycleCost.ProductionCost)
 	{
 		return false;
 	}
@@ -454,9 +454,9 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Check resource cost
-	for (int32 ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+	for (int32 ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
 	{
-		FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
+		FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
 		bool ResourceFound = false;
 
 		for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
@@ -491,12 +491,12 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	}
 
 	// Pay station cost
-	Company->TakeMoney(StationDescription->Cost);
+	Company->TakeMoney(StationDescription->CycleCost.ProductionCost);
 
 	// Take resource cost
-	for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+	for (int ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
 	{
-		FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
+		FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
 		uint32 ResourceToTake = FactoryResource->Quantity;
 		FFlareResourceDescription* Resource = &(FactoryResource->Resource->Data);
 

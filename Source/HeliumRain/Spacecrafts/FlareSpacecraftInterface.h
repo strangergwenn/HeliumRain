@@ -85,13 +85,6 @@ struct FFlareSpacecraftDescription
 	/** Spacecraft description */
 	UPROPERTY(EditAnywhere, Category = Content) FText ImmatriculationCode;
 
-	/** Spacecraft cost */
-	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
-
-	/** Spacecraft resources cost*/
-	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareFactoryResource> ResourcesCost;
-
 	/** Build constraints for stations */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<TEnumAsByte<EFlareBuildConstraint::Type>> BuildConstraint;
@@ -151,6 +144,10 @@ struct FFlareSpacecraftDescription
 	/** Is people can consume resource in this station */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<TEnumAsByte<EFlareSpacecraftCapability::Type>> Capabilities;
+
+	/** Cycle cost & yields */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FFlareProductionData CycleCost;
 };
 
 /** Interface wrapper */

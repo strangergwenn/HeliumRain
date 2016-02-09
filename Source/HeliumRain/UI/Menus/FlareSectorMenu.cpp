@@ -370,9 +370,9 @@ void SFlareSectorMenu::UpdateStationCost()
 		StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 
 		// Add resources
-		for (int ResourceIndex = 0; ResourceIndex < StationDescription->ResourcesCost.Num(); ResourceIndex++)
+		for (int ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
 		{
-			FFlareFactoryResource* FactoryResource = &StationDescription->ResourcesCost[ResourceIndex];
+			FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
 			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
 		}
 
@@ -407,7 +407,7 @@ void SFlareSectorMenu::UpdateStationCost()
 		FText CannotBuildText = LOCTEXT("CannotBuildStation", "You can't build this station yet.");
 		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2}, requires a cargo ship in this sector. {3}"),
 			StationBuildable ? CanBuildText : CannotBuildText,
-			FText::AsNumber(StationDescription->Cost),
+			FText::AsNumber(StationDescription->CycleCost.ProductionCost),
 			FText::FromString(ResourcesString),
 			FText::FromString(ConstraintString));
 	}

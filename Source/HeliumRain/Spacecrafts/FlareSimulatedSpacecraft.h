@@ -169,7 +169,7 @@ public:
 
 	inline UFlareSectorInterface* GetCurrentSectorInterface() override
 	{
-		return CurrentSector;
+		return Cast<UFlareSectorInterface>(CurrentSector);
 	}
 
 	inline TArray<UFlareFactory*>& GetFactories()
