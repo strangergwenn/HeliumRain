@@ -166,7 +166,11 @@ void UFlareFactory::ClearOutputLimit(FFlareResourceDescription* Resource)
 
 void UFlareFactory::SetTargetShipClass(FName Identifier)
 {
-	FactoryData.TargetShipClass = Identifier;
+	if (FactoryData.TargetShipClass != Identifier)
+	{
+		FactoryData.TargetShipClass = Identifier;
+		FactoryData.ProductedDuration = 0;
+	}
 }
 
 bool UFlareFactory::HasCostReserved()
