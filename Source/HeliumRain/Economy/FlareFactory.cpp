@@ -463,6 +463,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	}
 
 	FactoryData.TargetShipClass = NAME_None;
+	Stop();
 }
 
 
