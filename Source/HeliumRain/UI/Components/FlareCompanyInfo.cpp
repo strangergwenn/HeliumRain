@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareCompanyInfo.h"
 #include "../../Game/FlareCompany.h"
+#include "../../Player/FlarePlayerController.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareCompanyInfo"
@@ -69,9 +70,28 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Right)
 			.Padding(Theme.ContentPadding)
 			[
-				SNew(STextBlock)
-				.Text(this, &SFlareCompanyInfo::GetCompanyHostility)
-				.TextStyle(&Theme.TextFont)
+				SNew(SVerticalBox)
+				
+				// Status
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareCompanyInfo::GetCompanyHostility)
+					.TextStyle(&Theme.TextFont)
+				]
+
+				// Toggle player hostility
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SFlareButton)
+					.Text(this, &SFlareCompanyInfo::GetToggleHostilityText)
+					.OnClicked(this, &SFlareCompanyInfo::OnToggleHostility)
+					.Visibility(this, &SFlareCompanyInfo::GetToggleHostilityVisibility)
+					.Width(4)
+				]
 			]
 		]
 	];
@@ -142,15 +162,15 @@ FText SFlareCompanyInfo::GetCompanyHostility() const
 		switch (Hostiliy)
 		{
 			case EFlareHostility::Friendly:
-				Result = LOCTEXT("Allied", "Allied");
+				Result = LOCTEXT("Allied", "This company is an ally");
 				break;
 
 			case EFlareHostility::Hostile:
-				Result = LOCTEXT("Hostile", "Hostile");
+				Result = LOCTEXT("Hostile", "This company is hostile");
 				break;
 
 			case EFlareHostility::Neutral:
-				Result = LOCTEXT("Neutral", "Neutral");
+				Result = LOCTEXT("Neutral", "This company is neutral");
 				break;
 
 			case EFlareHostility::Owned:
@@ -167,5 +187,62 @@ const FSlateBrush* SFlareCompanyInfo::GetCompanyEmblem() const
 	return (Company ? Company->GetEmblem() : NULL);
 }
 
+EVisibility SFlareCompanyInfo::GetToggleHostilityVisibility() const
+{
+	if (Player && Player->GetCompany() == Company)
+	{
+		return EVisibility::Collapsed;
+	}
+	else
+	{
+		return EVisibility::Visible;
+	}
+}
+
+FText SFlareCompanyInfo::GetToggleHostilityText() const
+{
+	if (!Player || !Company)
+	{
+		return FText();
+	}
+
+	// We are at war
+	else if (Player->GetCompany()->GetHostility(Company))
+	{
+		return LOCTEXT("RequestPeace", "Request peace");
+	}
+
+	// We are at peace
+	else
+	{
+		return LOCTEXT("DeclareWar", "Declare war");
+	}
+}
+
+void SFlareCompanyInfo::OnToggleHostility()
+{
+	if (Player && Company)
+	{
+		// Requesting peace
+		if (Player->GetCompany()->GetHostility(Company))
+		{
+			Player->GetCompany()->SetHostilityTo(Company, false);
+
+			FText Text = LOCTEXT("PeaceRequested", "Peace requested");
+			FText InfoText = FText::Format(LOCTEXT("PeaceRequestedFormat", "You are seeking peace with {0}."), Company->GetCompanyName());
+			Player->Notify(Text, InfoText, NAME_None, EFlareNotification::NT_Military);
+		}
+
+		// Declaring war
+		else
+		{
+			Player->GetCompany()->SetHostilityTo(Company, true);
+
+			FText Text = LOCTEXT("WarDeclared", "War has been declared");
+			FText InfoText = FText::Format(LOCTEXT("WarDeclaredFormat", "You have declared war to {0} !"), Company->GetCompanyName());
+			Player->Notify(Text, InfoText, NAME_None, EFlareNotification::NT_Military);
+		}
+	}
+}
 
 #undef LOCTEXT_NAMESPACE

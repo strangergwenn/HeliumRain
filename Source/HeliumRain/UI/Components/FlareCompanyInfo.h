@@ -60,6 +60,15 @@ protected:
 	/** Get the company emblem */
 	const FSlateBrush* GetCompanyEmblem() const;
 
+	/** Hide the war button on ourselves */
+	EVisibility GetToggleHostilityVisibility() const;
+
+	/** Get the war/peace button text */
+	FText GetToggleHostilityText() const;
+
+	/** Toggle player hostility toward this company */
+	void OnToggleHostility();
+
 	
 protected:
 
