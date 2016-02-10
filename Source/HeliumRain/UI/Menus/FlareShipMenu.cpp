@@ -502,6 +502,7 @@ void SFlareShipMenu::UpdateFactoryList()
 				SNew(SFlareFactoryInfo)
 				.Factory(Factories[FactoryIndex])
 				.MenuManager(MenuManager)
+				.Visibility(this, &SFlareShipMenu::GetFactoryControlsVisibility)
 			];
 		}
 	}
@@ -575,6 +576,19 @@ const FSlateBrush* SFlareShipMenu::GetExitIcon() const
 EVisibility SFlareShipMenu::GetEngineVisibility() const
 {
 	return (TargetSpacecraft && !TargetSpacecraft->IsStation() ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+EVisibility SFlareShipMenu::GetFactoryControlsVisibility() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC && TargetSpacecraft && TargetSpacecraft->GetCompany() == PC->GetCompany())
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
 }
 
 EVisibility SFlareShipMenu::GetEditVisibility() const

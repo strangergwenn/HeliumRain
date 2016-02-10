@@ -72,6 +72,9 @@ protected:
 	/** Get the icon for the exit button */
 	const FSlateBrush* GetExitIcon() const;
 
+	/** Can we edit */
+	EVisibility GetFactoryControlsVisibility() const;
+
 	/** Is it a station */
 	EVisibility GetEngineVisibility() const;
 
