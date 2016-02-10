@@ -88,6 +88,7 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(SFlareButton)
 					.Text(this, &SFlareCompanyInfo::GetToggleHostilityText)
+					.HelpText(this, &SFlareCompanyInfo::GetToggleHostilityHelpText)
 					.OnClicked(this, &SFlareCompanyInfo::OnToggleHostility)
 					.Visibility(this, &SFlareCompanyInfo::GetToggleHostilityVisibility)
 					.Width(4)
@@ -207,7 +208,7 @@ FText SFlareCompanyInfo::GetToggleHostilityText() const
 	}
 
 	// We are at war
-	else if (Player->GetCompany()->GetHostility(Company))
+	else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 	{
 		return LOCTEXT("RequestPeace", "Request peace");
 	}
@@ -219,12 +220,32 @@ FText SFlareCompanyInfo::GetToggleHostilityText() const
 	}
 }
 
+FText SFlareCompanyInfo::GetToggleHostilityHelpText() const
+{
+	if (!Player || !Company)
+	{
+		return FText();
+	}
+
+	// We are at war
+	else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
+	{
+		return LOCTEXT("RequestPeaceHelp", "Request peace with this company and stop hostilities (you are currently at war with this company)");
+	}
+
+	// We are at peace
+	else
+	{
+		return LOCTEXT("DeclareWarHelp", "Declare war to this company (you are currently on good terms with this company)");
+	}
+}
+
 void SFlareCompanyInfo::OnToggleHostility()
 {
 	if (Player && Company)
 	{
 		// Requesting peace
-		if (Player->GetCompany()->GetHostility(Company))
+		if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 		{
 			Player->GetCompany()->SetHostilityTo(Company, false);
 

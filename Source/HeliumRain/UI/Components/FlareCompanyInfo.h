@@ -66,6 +66,9 @@ protected:
 	/** Get the war/peace button text */
 	FText GetToggleHostilityText() const;
 
+	/** Get the war/peace button help text */
+	FText GetToggleHostilityHelpText() const;
+
 	/** Toggle player hostility toward this company */
 	void OnToggleHostility();
 
