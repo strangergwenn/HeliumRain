@@ -367,7 +367,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Does it needs an geostationary orbit ?
-	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationnaryOrbit) && !SectorDescription->IsGeostationary)
+	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit) && !SectorDescription->IsGeostationary)
 	{
 		return false;
 	}

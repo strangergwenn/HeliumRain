@@ -63,7 +63,7 @@ namespace EFlareBuildConstraint
 		SunExposure,
 		HideOnIce,
 		HideOnNoIce,
-		GeostationnaryOrbit
+		GeostationaryOrbit
 	};
 }
 

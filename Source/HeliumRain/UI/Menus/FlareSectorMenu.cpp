@@ -376,40 +376,35 @@ void SFlareSectorMenu::UpdateStationCost()
 			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
 		}
 
-		// Final text
-		FText AsteroidText = LOCTEXT("AsteroidNeeded", "\n- a free asteroid");
-		FText SunText = LOCTEXT("SunNeeded", "\n- a good sun exposure");
-		FText GeostationaryText = LOCTEXT("GeostationaryNeeded", "\n- a geostationary orbit");
-
-
+		// Constraints
 		FString ConstraintString;
-		FText ConstraintText = LOCTEXT("ConstraintStation", "You also need:");
-
+		FText ConstraintText;
+		FText AsteroidText = LOCTEXT("AsteroidNeeded", "a free asteroid");
+		FText SunText = LOCTEXT("SunNeeded", "good sun exposure");
+		FText GeostationaryText = LOCTEXT("GeostationaryNeeded", "a geostationary orbit");
+;
 		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
 		{
-			ConstraintString += AsteroidText.ToString();
+			ConstraintString += " " + AsteroidText.ToString();
 		}
 		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure))
 		{
-			ConstraintString += SunText.ToString();
+			ConstraintString += " " + SunText.ToString();
 		}
-		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationnaryOrbit))
+		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit))
 		{
-			ConstraintString += GeostationaryText.ToString();
+			ConstraintString += " " + GeostationaryText.ToString();
 		}
-
 		if (ConstraintString.Len() > 0)
 		{
-			ConstraintString = ConstraintText.ToString() + ConstraintString;
+			ConstraintText = FText::Format(LOCTEXT("ConstraintStationFormat", "You also need{0}."), FText::FromString(ConstraintString));
 		}
 
+		// Final text
 		FText CanBuildText = LOCTEXT("CanBuildStation", "You can build this station !");
 		FText CannotBuildText = LOCTEXT("CannotBuildStation", "You can't build this station yet.");
-		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2}, requires a cargo ship in this sector. {3}"),
-			StationBuildable ? CanBuildText : CannotBuildText,
-			FText::AsNumber(StationDescription->CycleCost.ProductionCost),
-			FText::FromString(ResourcesString),
-			FText::FromString(ConstraintString));
+		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2}, and requires a cargo ship in this sector. {3}"),
+			StationBuildable ? CanBuildText : CannotBuildText, FText::AsNumber(StationDescription->CycleCost.ProductionCost), FText::FromString(ResourcesString), ConstraintText);
 	}
 }
 
@@ -453,7 +448,7 @@ FText SFlareSectorMenu::GetSectorName() const
 
 	if (TargetSector)
 	{
-		Result = FText::Format(LOCTEXT("SectorFormat", "SECTOR : {0} ({1})"),
+		Result = FText::Format(LOCTEXT("SectorFormat", "Sector : {0} ({1})"),
 			FText::FromString(TargetSector->GetSectorName().ToString().ToUpper()), //FString needed here
 			TargetSector->GetSectorFriendlynessText(MenuManager->GetPC()->GetCompany()));
 	}
@@ -479,9 +474,15 @@ FText SFlareSectorMenu::GetSectorTransportInfo() const
 
 	if (TargetSector)
 	{
-		Result = FText::Format(LOCTEXT("SectorDescriptionFormat", "Capacity of assigned transports : {0} cargo units per day"),
-			FText::AsNumber(TargetSector->GetTransportCapacity(MenuManager->GetGame()->GetPC()->GetCompany()))
-			);
+		UFlareCompany* PlayerCompany = MenuManager->GetGame()->GetPC()->GetCompany();
+		FText TransportInfoText = LOCTEXT("SectorDescriptionFormat",
+			"Required transport capacity : {0} cargo units per day\nCapacity of assigned transports : {1} cargo units per day ({2})");
+
+		Result = FText::Format(TransportInfoText,
+			FText::AsNumber(TargetSector->GetTransportCapacityNeeds(PlayerCompany)),
+			FText::AsNumber(TargetSector->GetTransportCapacity(PlayerCompany)),
+			FText::AsNumber(TargetSector->GetTransportCapacityBalance(PlayerCompany))
+		);
 	}
 
 	return Result;
