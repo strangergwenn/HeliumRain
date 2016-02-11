@@ -77,6 +77,8 @@ public:
 
 	void SimulateTrade(TArray<uint32> CompanyRemainingTransportCapacity);
 
+	void FillResourceConsumers(UFlareCompany* Company, uint32& TransportCapacity, bool AllowTrade);
+
 	void AdaptativeTransportResources(UFlareCompany* Company, uint32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool AllowTrade = false);
 
 	uint32 TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake, bool AllowTrade = false);
