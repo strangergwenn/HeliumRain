@@ -710,7 +710,7 @@ FName AFlareGame::PickCapitalShipName()
 		if (NameIncrement > 1)
 		{
 			FString Roman = ConvertToRoman(NameIncrement);
-			Suffix = FString("-") + Roman;
+			Suffix = FString(" ") + Roman;
 		}
 		else
 		{
@@ -747,19 +747,36 @@ FName AFlareGame::PickCapitalShipName()
 void AFlareGame::InitCapitalShipNameDatabase()
 {
 	BaseImmatriculationNameList.Empty();
-	BaseImmatriculationNameList.Add("Revenge");
-	BaseImmatriculationNameList.Add("Sovereign");
-	BaseImmatriculationNameList.Add("Stalker");
-	BaseImmatriculationNameList.Add("Leviathan");
-	BaseImmatriculationNameList.Add("Resolve");
-	BaseImmatriculationNameList.Add("Explorer");
 	BaseImmatriculationNameList.Add("Arrow");
-	BaseImmatriculationNameList.Add("Intruder");
-	BaseImmatriculationNameList.Add("Goliath");
-	BaseImmatriculationNameList.Add("Shrike");
-	BaseImmatriculationNameList.Add("Thunder");
+	BaseImmatriculationNameList.Add("Atom");
+	BaseImmatriculationNameList.Add("Binary Star");
+	BaseImmatriculationNameList.Add("Blackout");
+	BaseImmatriculationNameList.Add("Crescent Moon");
+	BaseImmatriculationNameList.Add("Comet");
+	BaseImmatriculationNameList.Add("Coronation");
+	BaseImmatriculationNameList.Add("Destiny");
+	BaseImmatriculationNameList.Add("Duty");
 	BaseImmatriculationNameList.Add("Enterprise");
+	BaseImmatriculationNameList.Add("Giant");
+	BaseImmatriculationNameList.Add("Goliath");
+	BaseImmatriculationNameList.Add("Hammer");
+	BaseImmatriculationNameList.Add("Honor");
+	BaseImmatriculationNameList.Add("Intruder");
+	BaseImmatriculationNameList.Add("Explorer");
+	BaseImmatriculationNameList.Add("Meteor");
+	BaseImmatriculationNameList.Add("Mammoth");
+	BaseImmatriculationNameList.Add("Photon");
+	BaseImmatriculationNameList.Add("Resolve");
+	BaseImmatriculationNameList.Add("Revenge");
 	BaseImmatriculationNameList.Add("Sahara");
+	BaseImmatriculationNameList.Add("Sovereign");
+	BaseImmatriculationNameList.Add("Shrike");
+	BaseImmatriculationNameList.Add("Spearhead");
+	BaseImmatriculationNameList.Add("Stalker");
+	BaseImmatriculationNameList.Add("Thunder");
+	BaseImmatriculationNameList.Add("Unity");
+	BaseImmatriculationNameList.Add("Valor");
+	BaseImmatriculationNameList.Add("Winter");
 }
 
 
