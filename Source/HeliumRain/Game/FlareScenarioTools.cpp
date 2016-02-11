@@ -68,6 +68,27 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	PlayerCompany->DiscoverSector(Outpost);
 	PlayerCompany->DiscoverSector(MinerHome);
 
+	FillWorld();
+}
+
+void UFlareScenarioTools::GenerateFreighterScenario()
+{
+	SetupWorld();
+
+	// Create player ship
+	FLOG("UFlareScenarioTools::GenerateFreighterScenario create initial ship");
+	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-solen", PlayerCompany, FVector::ZeroVector);
+	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
+	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
+	PlayerCompany->DiscoverSector(Outpost);
+	PlayerCompany->DiscoverSector(MinerHome);
+
+	FillWorld();
+}
+
+void UFlareScenarioTools::FillWorld()
+{
+
 	MiningSyndicate->GiveMoney(100000);
 	HelixFoundries->GiveMoney(100000);
 	Sunwatch->GiveMoney(100000);

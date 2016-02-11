@@ -432,10 +432,13 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 		case -1: // Empty
 			ScenarioTools->GenerateEmptyScenario();
 		break;
-		case 0: // Fighter
+		case 0: // Freighter
+			ScenarioTools->GenerateFreighterScenario();
+		break;
+		case 1: // Fighter
 			ScenarioTools->GenerateFighterScenario();
 		break;
-		case 1: // Debug
+		case 2: // Debug
 			ScenarioTools->GenerateDebugScenario();
 		break;
 	}

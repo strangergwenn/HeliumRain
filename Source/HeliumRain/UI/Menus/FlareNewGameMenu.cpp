@@ -23,6 +23,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	Game = MenuManager->GetPC()->GetGame();
 
 	// Game starts
+	ScenarioList.Add(MakeShareable(new FString(TEXT("Freigther"))));
 	ScenarioList.Add(MakeShareable(new FString(TEXT("Fighter"))));
 	ScenarioList.Add(MakeShareable(new FString(TEXT("Debug"))));
 

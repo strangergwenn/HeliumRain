@@ -23,6 +23,8 @@ public:
 
 	void GenerateFighterScenario();
 
+	void GenerateFreighterScenario();
+
 	void GenerateDebugScenario();
 
 protected:
@@ -33,6 +35,8 @@ protected:
 
 	/** Create asteroid, artefact and common things */
 	void SetupWorld();
+
+	void FillWorld();
 
 	/*----------------------------------------------------
 		Protected data
