@@ -195,7 +195,7 @@ void AFlareHUD::DrawHUD()
 	Super::DrawHUD();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
-	if (HUDVisible && PC)
+	if (PC)
 	{
 		// Setup data
 		CurrentViewportSize = ViewportSize;
@@ -211,7 +211,7 @@ void AFlareHUD::DrawHUD()
 
 		// Draw the general-purpose HUD (no-cockpit version)
 		bool IsExternalCamera = PlayerShip->GetStateManager()->IsExternalCamera();
-		if (!PC->UseCockpit || IsExternalCamera)
+		if (HUDVisible && (!PC->UseCockpit || IsExternalCamera))
 		{
 			DrawHUDInternal();
 		}
