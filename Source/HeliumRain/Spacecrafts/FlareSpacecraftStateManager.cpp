@@ -17,6 +17,7 @@ UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectIn
 	: Super(PCIP)
 	, AngularInputDeadRatio(0.05)
 	, MouseSensitivity(0.2)
+	, MouseSensitivityPower(2)
 {
 	// Pilot
 	IsPiloted = true;
@@ -286,8 +287,8 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
 			if (PC && !PC->GetNavHUD()->IsWheelMenuOpen())
 			{
-				float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X), 1.3) * MouseSensitivity;
-				float Y = -FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y), 1.3) * MouseSensitivity;
+				float X = FMath::Sign(Val.X) * FMath::Pow(FMath::Abs(Val.X), MouseSensitivityPower) * MouseSensitivity;
+				float Y = -FMath::Sign(Val.Y) * FMath::Pow(FMath::Abs(Val.Y), MouseSensitivityPower) * MouseSensitivity;
 
 				PlayerMouseOffset += FVector2D(X, Y);
 				if (PlayerMouseOffset.Size() > 1)

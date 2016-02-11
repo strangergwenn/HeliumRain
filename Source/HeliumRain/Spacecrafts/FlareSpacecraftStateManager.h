@@ -76,6 +76,7 @@ protected:
 	// Settings
 	float                                    AngularInputDeadRatio;
 	float                                    MouseSensitivity;
+	float                                    MouseSensitivityPower;
 
 	// Dynamic gameplay data
 	bool                                     IsPiloted;
