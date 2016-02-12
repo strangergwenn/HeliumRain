@@ -1138,7 +1138,8 @@ bool AFlareHUD::WorldToScreen(FVector World, FVector2D& Screen)
 
 		// FoV calculation. The vertical FoV is scaled by an arbitrary factor because UV adjustments were made for horizontal.
 		float HorizontalFOV = PC->PlayerCameraManager->GetFOVAngle();
-		float VerticalFOV = (ViewportSize.Y / ViewportSize.X) * HorizontalFOV * 0.79;
+		float VerticalFOV = (ViewportSize.Y / ViewportSize.X) * HorizontalFOV * 0.95;
+		HorizontalFOV *= 1.1;
 
 		FVector ScreenRotation = ScreenDirection.Rotation().Euler();
 		if (FMath::Abs(ScreenRotation.Z) <= HorizontalFOV && FMath::Abs(ScreenRotation.Y) <= VerticalFOV)
