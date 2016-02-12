@@ -34,10 +34,15 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	Outpost = World->FindSector("outpost");
 	MinerHome = World->FindSector("miners-home");
 	FrozenRealm = World->FindSector("frozen-realm");
+	BlueHeart = World->FindSector("blue-heart");
+	TheCloud = World->FindSector("the-cloud");
+
 
 	MiningSyndicate = World->FindCompanyByShortName("MSY");
 	HelixFoundries = World->FindCompanyByShortName("HFR");
 	Sunwatch = World->FindCompanyByShortName("SUN");
+	IonLane = World->FindCompanyByShortName("ION");
+	UnitedFarmsChemicals = World->FindCompanyByShortName("UFC");
 
 	Water = Game->GetResourceCatalog()->Get("h2o");
 	Food = Game->GetResourceCatalog()->Get("food");
@@ -67,7 +72,8 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 	PlayerCompany->DiscoverSector(Outpost);
 	PlayerCompany->DiscoverSector(MinerHome);
-
+	PlayerCompany->DiscoverSector(BlueHeart);
+	PlayerCompany->DiscoverSector(TheCloud);
 	FillWorld();
 }
 
@@ -82,6 +88,9 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 	PlayerCompany->DiscoverSector(Outpost);
 	PlayerCompany->DiscoverSector(MinerHome);
+	PlayerCompany->DiscoverSector(BlueHeart);
+	PlayerCompany->DiscoverSector(TheCloud);
+	PlayerCompany->GiveMoney(10000);
 
 	FillWorld();
 }
@@ -92,6 +101,8 @@ void UFlareScenarioTools::FillWorld()
 	MiningSyndicate->GiveMoney(100000);
 	HelixFoundries->GiveMoney(100000);
 	Sunwatch->GiveMoney(100000);
+	UnitedFarmsChemicals->GiveMoney(100000);
+	IonLane->GiveMoney(100000);
 
 
 	// Initial setup: miner home
@@ -101,8 +112,6 @@ void UFlareScenarioTools::FillWorld()
 	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[3].Identifier);
 	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[4].Identifier);
 	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[5].Identifier);
-	// Todo remove
-	MinerHome->CreateStation("station-solar-plant", MiningSyndicate, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 
 
 	for(int Index = 0; Index < 5; Index ++)
@@ -139,6 +148,55 @@ void UFlareScenarioTools::FillWorld()
 	{
 		Outpost->CreateShip("ship-omen", HelixFoundries, FVector::ZeroVector);
 	}
+
+	// Initial setup Blue Heart
+	BlueHeart->GetPeople()->GiveBirth(3000);
+
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		BlueHeart->CreateStation("station-habitation", IonLane, FVector::ZeroVector);
+	}
+
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		BlueHeart->CreateStation("station-hub", IonLane, FVector::ZeroVector);
+	}
+
+	for(int Index = 0; Index < 2; Index ++)
+	{
+		BlueHeart->CreateStation("station-hub", Sunwatch, FVector::ZeroVector);
+	}
+
+	for(int Index = 0; Index < 20; Index ++)
+	{
+		BlueHeart->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
+	}
+
+	for(int Index = 0; Index < 2; Index ++)
+	{
+		BlueHeart->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector);
+	}
+
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		BlueHeart->CreateStation("station-farm", UnitedFarmsChemicals, FVector::ZeroVector);
+	}
+
+	for(int Index = 0; Index < 10; Index ++)
+	{
+		BlueHeart->CreateShip("ship-omen", IonLane, FVector::ZeroVector);
+	}
+
+	// Initial setup for The Cloud
+
+	for(int Index = 0; Index < 5; Index ++)
+	{
+		TheCloud->CreateStation("station-pumping", UnitedFarmsChemicals, FVector::ZeroVector);
+		TheCloud->CreateStation("station-refinery", UnitedFarmsChemicals, FVector::ZeroVector);
+		TheCloud->CreateShip("ship-omen", UnitedFarmsChemicals, FVector::ZeroVector);
+	}
+
+
 }
 
 void UFlareScenarioTools::GenerateDebugScenario()

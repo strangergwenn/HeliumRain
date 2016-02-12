@@ -52,10 +52,14 @@ protected:
 	UFlareSimulatedSector* Outpost;
 	UFlareSimulatedSector* MinerHome;
 	UFlareSimulatedSector* FrozenRealm;
+	UFlareSimulatedSector* BlueHeart;
+	UFlareSimulatedSector* TheCloud;
 
 	UFlareCompany* MiningSyndicate;
 	UFlareCompany* HelixFoundries;
 	UFlareCompany* Sunwatch;
+	UFlareCompany* IonLane;
+	UFlareCompany* UnitedFarmsChemicals;
 
 	FFlareResourceDescription* Water;
 	FFlareResourceDescription* Food;
