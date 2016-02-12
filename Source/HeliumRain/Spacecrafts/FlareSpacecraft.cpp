@@ -242,13 +242,17 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 	// TODO : use helper
 
 	// Relative Target Speed
-	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
+	//FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity();
+
+	// DEBUG TEST
+	// Absolute Target Speed
+	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity() - GunVelocity;
 	FVector TargetLocation = GetActorLocation() + TargetVelocity * PredictionDelay;
 	FVector BulletLocation = GunLocation + GunVelocity * PredictionDelay;
 
 	// Find the relative speed in the axis of target
 	FVector TargetDirection = (TargetLocation - BulletLocation).GetUnsafeNormal();
-	FVector BonusVelocity = GunVelocity;
+	FVector BonusVelocity = GunVelocity * 0;
 	float BonusVelocityInTargetAxis = FVector::DotProduct(TargetDirection, BonusVelocity);
 	float EffectiveBulletSpeed = BulletSpeed * 100.f + BonusVelocityInTargetAxis;
 

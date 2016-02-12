@@ -956,6 +956,9 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						bool BomberTargettingSmall = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetSize() == EFlarePartSize::S;
 						bool BomberTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetSize() == EFlarePartSize::L;
 
+						// DEBUG TODO REMOVE
+						FighterTargettingLarge = false;
+
 						// Draw helper if it makes sense
 						if (!FighterTargettingLarge && !BomberTargettingSmall)
 						{

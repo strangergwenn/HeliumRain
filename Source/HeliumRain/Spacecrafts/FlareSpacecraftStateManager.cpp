@@ -157,11 +157,12 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 			case EFlareWeaponGroupType::WG_NONE:
 			case EFlareWeaponGroupType::WG_TURRET:
 			case EFlareWeaponGroupType::WG_BOMB:
+			case EFlareWeaponGroupType::WG_GUN:
 				// Camera to front
 				InternalCameraYawTarget = 0;
 				InternalCameraPitchTarget = 0;
 				break;
-			case EFlareWeaponGroupType::WG_GUN:
+			/*case EFlareWeaponGroupType::WG_GUN:
 				// Camera to bullet direction
 
 				float AmmoVelocity = Spacecraft->GetWeaponsSystem()->GetActiveWeaponGroup()->Description->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
@@ -198,7 +199,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 				}
 				InternalCameraYawTarget = Yaw;
 				InternalCameraPitchTarget = Pitch;
-
+*/
 			break;
 		}
 
