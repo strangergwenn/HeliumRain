@@ -96,71 +96,75 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Left)
 				.VAlign(VAlign_Top)
 				[
-					SNew(SVerticalBox)
-
-					// Sector name
-					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
-					.AutoHeight()
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right)
 					[
-						SNew(STextBlock)
-						.Text(this, &SFlareSectorMenu::GetSectorName)
-						.TextStyle(&Theme.SubTitleFont)
-					]
+						SNew(SVerticalBox)
 
-					// Sector description
-					+ SVerticalBox::Slot()
-					.Padding(Theme.ContentPadding)
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareSectorMenu::GetSectorDescription)
-						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(Theme.ContentWidth)
-					]
+						// Sector name
+						+ SVerticalBox::Slot()
+						.Padding(Theme.TitlePadding)
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareSectorMenu::GetSectorName)
+							.TextStyle(&Theme.SubTitleFont)
+						]
+
+						// Sector description
+						+ SVerticalBox::Slot()
+						.Padding(Theme.ContentPadding)
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareSectorMenu::GetSectorDescription)
+							.TextStyle(&Theme.TextFont)
+							.WrapTextAt(Theme.ContentWidth)
+						]
 				
-					// Sector location
-					+ SVerticalBox::Slot()
-					.Padding(Theme.ContentPadding)
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareSectorMenu::GetSectorLocation)
-						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(Theme.ContentWidth)
-					]
+						// Sector location
+						+ SVerticalBox::Slot()
+						.Padding(Theme.ContentPadding)
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareSectorMenu::GetSectorLocation)
+							.TextStyle(&Theme.TextFont)
+							.WrapTextAt(Theme.ContentWidth)
+						]
 				
-					// Sector transport info
-					+ SVerticalBox::Slot()
-					.Padding(Theme.ContentPadding)
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareSectorMenu::GetSectorTransportInfo)
-						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(Theme.ContentWidth)
-					]
+						// Sector transport info
+						+ SVerticalBox::Slot()
+						.Padding(Theme.ContentPadding)
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareSectorMenu::GetSectorTransportInfo)
+							.TextStyle(&Theme.TextFont)
+							.WrapTextAt(Theme.ContentWidth)
+						]
 
-					// Travel here
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Left)
-					[
-						SNew(SFlareButton)
-						.Width(8)
-						.Text(this, &SFlareSectorMenu::GetTravelText)
-						.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
-						.Icon(FFlareStyleSet::GetIcon("Travel"))
-						.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
-						.Visibility(this, &SFlareSectorMenu::GetTravelVisibility)
+						// Travel here
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(8)
+							.Text(this, &SFlareSectorMenu::GetTravelText)
+							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
+							.Visibility(this, &SFlareSectorMenu::GetTravelVisibility)
+						]
 					]
 				]
 				
 				// Station construction
 				+ SHorizontalBox::Slot()
 				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Right)
+				.HAlign(HAlign_Left)
 				.VAlign(VAlign_Top)
 				[
 					SNew(SBox)

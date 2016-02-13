@@ -1,7 +1,6 @@
 
 #include "../../Flare.h"
 #include "FlareHUDMenu.h"
-#include "../Components/FlareObjectiveInfo.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -121,17 +120,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			.TextStyle(&Theme.NameFont)
 			.Text(this, &SFlareHUDMenu::GetLowerInfoText)
 			.ColorAndOpacity(NormalColor)
-		]
-		
-		// Objective
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Top)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SFlareObjectiveInfo)
-			.PC(PC)
-			.Visibility(EVisibility::SelfHitTestInvisible)
 		]
 	
 		// Overheating box

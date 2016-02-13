@@ -225,7 +225,7 @@ FMargin SFlareNotification::GetNotificationMargins() const
 {
 	FMargin Result(0);
 
-	Result.Bottom = CurrentMargin;
+	Result.Top = CurrentMargin;
 
 	return Result;
 }

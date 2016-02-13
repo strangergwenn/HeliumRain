@@ -1,6 +1,8 @@
 
 #include "../../Flare.h"
 #include "FlareNotifier.h"
+#include "../../Player/FlareMenuManager.h"
+#include "../Components/FlareObjectiveInfo.h"
 
 #define LOCTEXT_NAMESPACE "FlareNotifier"
 
@@ -13,17 +15,35 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 {
 	// Data
 	MenuManager = InArgs._MenuManager;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Create the layout
 	ChildSlot
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Right)
+	.Padding(FMargin(0, 200, 0, 0))
 	[
 		SNew(SBox)
-		.HeightOverride(900)
-		.VAlign(VAlign_Bottom)
+		.HeightOverride(800)
+		.VAlign(VAlign_Top)
 		[
-			SAssignNew(NotificationContainer, SVerticalBox)
+			SNew(SVerticalBox)
+
+			// Objective
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SNew(SFlareObjectiveInfo)
+				.PC(MenuManager->GetPC())
+				.Visibility(EVisibility::SelfHitTestInvisible)
+			]
+
+			// Notifications
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SAssignNew(NotificationContainer, SVerticalBox)
+			]
 		]
 	];
 }
@@ -51,7 +71,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 
 	// Add notification
 	TSharedPtr<SFlareNotification> NotificationEntry;
-	NotificationContainer->InsertSlot(0)
+	NotificationContainer->AddSlot()
 	.AutoHeight()
 	[
 		SAssignNew(NotificationEntry, SFlareNotification)

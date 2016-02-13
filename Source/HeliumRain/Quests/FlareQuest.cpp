@@ -116,8 +116,8 @@ void UFlareQuest::EndStep()
 	QuestData.SuccessfullSteps.Add(StepDescription->Identifier);
 	FLOGV("Quest %s step %s end", *GetIdentifier().ToString(), *StepDescription->Identifier.ToString());
 
-	FText DoneText = LOCTEXT("DoneFormat", "{0} : Done");
-	SendQuestNotification(FText::Format(DoneText, StepDescription->Description), NAME_None);
+	//FText DoneText = LOCTEXT("DoneFormat", "{0} : Done");
+	//SendQuestNotification(FText::Format(DoneText, StepDescription->Description), NAME_None);
 
 	PerformActions(StepDescription->EndActions);
 
@@ -626,7 +626,7 @@ void UFlareQuest::UpdateObjectiveTracker()
 		return;
 	}
 
-	FText Name =GetQuestName();
+	FText Name = GetQuestName();
 	FText Infos = FText();
 	if (GetCurrentStepDescription())
 	{
@@ -701,7 +701,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
 				float Velocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
 
-				FText ReachSpeedText = LOCTEXT("ReachMaxSpeedFormat", "Reach less than {0} m/s forward");
+				FText ReachSpeedText = LOCTEXT("ReachMaxSpeedFormat", "Fly at less than {0} m/s forward");
 				FText ReachSpeedShortText = LOCTEXT("ReachMaxSpeedShortFormat", "{0} m/s");
 
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
@@ -735,7 +735,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
 
 				FText Direction = (Condition->FloatParam1 > 0) ? LOCTEXT("Down", "down") : LOCTEXT("Up", "up");
-				FText ReachSpeedText = LOCTEXT("ReachPitchFormat", "Reach pitch rate of {0}\u00B0/s {1}");
+				FText ReachSpeedText = LOCTEXT("ReachPitchFormat", "Reach a pitch rate of {0}\u00B0/s {1}");
 				FText ReachSpeedShortText = LOCTEXT("ReachPitchShortFormat", "{0}\u00B0/s");
 
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
@@ -760,7 +760,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
 
 				FText Direction = (Condition->FloatParam1 > 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
-				FText ReachYawText = LOCTEXT("ReachYawFormat", "Reach yaw rate of {0} \u00B0/s {1}");
+				FText ReachYawText = LOCTEXT("ReachYawFormat", "Reach a yaw rate of {0} \u00B0/s {1}");
 				FText ReachYawShortText = LOCTEXT("ReachYawShortFormat", "{0} \u00B0/s");
 
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
@@ -784,8 +784,8 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
 				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
 
-				FText Direction = (Condition->FloatParam1 > 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
-				FText ReachRollText = LOCTEXT("ReachRollFormat", "Reach roll rate of {0} \u00B0/s {1}");
+				FText Direction = (Condition->FloatParam1 < 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
+				FText ReachRollText = LOCTEXT("ReachRollFormat", "Reach a roll rate of {0} \u00B0/s {1}");
 				FText ReachRollShortText = LOCTEXT("ReachRollShortFormat", "{0} \u00B0/s");
 
 				FFlarePlayerObjectiveCondition ObjectiveCondition;
@@ -904,7 +904,7 @@ void UFlareQuest::GenerateConditionCollinearityObjective(FFlarePlayerObjectiveDa
 			}
 		}
 		
-		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("MisAlignFormat", "Misalign your nose and your prograde vector by at {0} {1}\u00B0"),
+		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("MisAlignFormat", "Put at {0} {1}\u00B0 between your nose and your prograde vector"),
 			MostOrLeast, FText::AsNumber((int)(TargetAlignmentAngle)));
 		ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("MisAlignShortFormat", "{0}\u00B0"),
 			FText::AsNumber((int)(AlignmentAngle)));

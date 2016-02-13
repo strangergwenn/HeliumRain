@@ -21,11 +21,13 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 ObjectiveInfoWidth = 400;
 	int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
+	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
+	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 	
 	// Create the layout
 	ChildSlot
 	.VAlign(VAlign_Top)
-	.HAlign(HAlign_Left)
+	.HAlign(HAlign_Right)
 	[
 		SNew(SHorizontalBox)
 
@@ -34,13 +36,12 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SNew(SBox)
-			.VAlign(VAlign_Center)
-			.HAlign(HAlign_Left)
-			.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
+			.WidthOverride(10)
 			[
 				SNew(SImage)
-				.Image(FFlareStyleSet::GetIcon("Objective"))
-				.ColorAndOpacity(this, &SFlareObjectiveInfo::GetColor)
+				.Image(&Theme.InvertedBrush)
+				.ColorAndOpacity(ObjectiveColor)
+				.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
 			]
 		]
 
@@ -48,44 +49,48 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
 		[
-			SNew(SBox)
-			.WidthOverride(ObjectiveInfoWidth)
-			.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
+			SNew(SBorder)
+			.BorderImage(&Theme.BackgroundBrush)
+			.Padding(FMargin(1))
 			[
-				SNew(SVerticalBox)
-
-				// Header
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+				SNew(SBox)
+				.WidthOverride(ObjectiveInfoWidth)
+				.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
 				.Padding(Theme.ContentPadding)
 				[
-					SNew(STextBlock)
-					.Text(this, &SFlareObjectiveInfo::GetName)
-					.WrapTextAt(ObjectiveInfoTextWidth)
-					.TextStyle(&Theme.NameFont)
-					.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
-					.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
-				]
+					SNew(SVerticalBox)
 
-				// Description
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(STextBlock)
-					.Text(this, &SFlareObjectiveInfo::GetDescription)
-					.WrapTextAt(ObjectiveInfoTextWidth)
-					.TextStyle(&Theme.TextFont)
-					.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
-					.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
-				]
+					// Header
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareObjectiveInfo::GetName)
+						.WrapTextAt(ObjectiveInfoTextWidth)
+						.TextStyle(&Theme.NameFont)
+						.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
+						.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+					]
 
-				// Conditions
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(ConditionBox, SVerticalBox)
+					// Description
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareObjectiveInfo::GetDescription)
+						.WrapTextAt(ObjectiveInfoTextWidth)
+						.TextStyle(&Theme.TextFont)
+						.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
+						.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+					]
+
+					// Conditions
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SAssignNew(ConditionBox, SVerticalBox)
+					]
 				]
 			]
 		]
@@ -111,6 +116,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 	if (Objective && Objective->Version != LastObjectiveVersion)
 	{
 		// Update structure
+		FLOGV("SFlareObjectiveInfo::Tick : New objective step %d", Objective->Version);
 		LastObjectiveVersion = Objective->Version;
 		ConditionBox->ClearChildren();
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -121,17 +127,14 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 		{
 			// Update structure
 			const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
-
 			ConditionBox->AddSlot()
 			.AutoHeight()
-			.Padding(Theme.ContentPadding)
 			[
 				SNew(SVerticalBox)
 
 				// Step description
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				//.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
 					.Text(this, &SFlareObjectiveInfo::GetInitialLabel, ConditionIndex)
@@ -144,18 +147,18 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 				// Step progress
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				//.Padding(Theme.ContentPadding)
+				.VAlign(VAlign_Center)
 				[
 					SNew(SHorizontalBox)
 
-					//Progress bar
+					// Progress bar
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					//.Padding(Theme.ContentPadding)
 					[
 						SNew(SBox)
-						.WidthOverride(ObjectiveInfoWidth/2)
+						.WidthOverride(ObjectiveInfoWidth / 2)
 						.Visibility(this, &SFlareObjectiveInfo::GetProgressVisibility, ConditionIndex)
+						.VAlign(VAlign_Center)
 						[
 							SNew(SProgressBar)
 							.Style(&Theme.ProgressBarStyle)
@@ -167,7 +170,6 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 					// Counter
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					//.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareObjectiveInfo::GetCounter, ConditionIndex)
@@ -178,10 +180,9 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 						.Visibility(this, &SFlareObjectiveInfo::GetCounterVisibility, ConditionIndex)
 					]
 
-					// terminal text
+					// Terminal text
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					//.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareObjectiveInfo::GetTerminalLabel, ConditionIndex)
@@ -192,13 +193,8 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 					]
 				]
 			];
-
-
-
 		}
-
 	}
-
 }
 
 EVisibility SFlareObjectiveInfo::GetVisibility() const
@@ -209,27 +205,27 @@ EVisibility SFlareObjectiveInfo::GetVisibility() const
 FText SFlareObjectiveInfo::GetName() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Data.Name : FText());
+	return (Objective ? Objective->Data.Name : FText::FromString("noname"));
 }
 
 FText SFlareObjectiveInfo::GetDescription() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Data.Description : FText());
+	return (Objective ? Objective->Data.Description : FText::FromString("nodesc"));
 }
 
 FText SFlareObjectiveInfo::GetInitialLabel(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
-				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText());
+				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText::FromString("noinit"));
 }
 
 FText SFlareObjectiveInfo::GetTerminalLabel(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
-				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText());
+				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText::FromString("noterm"));
 }
 
 FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
@@ -238,14 +234,14 @@ FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 
 	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
-		return FText();
+		return FText::FromString("nocount");
 	}
 
 	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
 
 	if (Condition->MaxCounter == 0)
 	{
-		return FText();
+		return FText::FromString("maxcount");
 	}
 
 	return FText::Format(LOCTEXT("ObjectiveCounterFormat", "{0} / {1}"), FText::AsNumber(Condition->Counter), FText::AsNumber(Condition->MaxCounter));

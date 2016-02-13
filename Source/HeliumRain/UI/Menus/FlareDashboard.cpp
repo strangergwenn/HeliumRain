@@ -5,7 +5,6 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
-#include "../Components/FlareObjectiveInfo.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareDashboard"
@@ -147,25 +146,6 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		.Padding(FMargin(200, 20))
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
-		]
-
-		// Action list
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Objective
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SFlareObjectiveInfo).PC(PC)
-			]
 		]
 
 		// Content block

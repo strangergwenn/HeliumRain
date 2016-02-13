@@ -515,6 +515,7 @@ const FFlarePlayerObjective* AFlarePlayerController::GetCurrentObjective() const
 	return (CurrentObjective.Set? &CurrentObjective : NULL);
 }
 
+
 /*----------------------------------------------------
 	Customization
 ----------------------------------------------------*/

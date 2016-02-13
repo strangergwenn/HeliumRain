@@ -141,6 +141,56 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 
+				// Travel buttons
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Center)
+				[
+					SNew(SHorizontalBox)
+
+					// Fast forward
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(4)
+						.Text(LOCTEXT("FastForward", "Fast forward"))
+						.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
+						.Icon(FFlareStyleSet::GetIcon("FastForward"))
+						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+						.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
+					]
+
+					// Fly selected ship
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(4)
+						.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
+						.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+						.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
+						.Visibility(this, &SFlareOrbitalMenu::GetFlySelectedShipVisibility)
+					]
+
+					// Fly last flown
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(4)
+						.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
+						.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+						.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
+						.Visibility(this, &SFlareOrbitalMenu::GetFlyCurrentShipVisibility)
+					]
+				]
+
 				+ SVerticalBox::Slot()
 				[
 					SAssignNew(AnkaBox, SFlarePlanetaryBox)
@@ -151,70 +201,11 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				]
 			]
 
-			// Right column : buttons, Hela
+			// Right column
 			+ SHorizontalBox::Slot()
 			.VAlign(VAlign_Fill)
 			[
-				SNew(SVerticalBox)
-
-				// Travel buttons
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Right)
-				[
-					SNew(SVerticalBox)
-						
-					// Fast forward
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Right)
-					.AutoHeight()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SFlareButton)
-						.Width(8)
-						.Text(LOCTEXT("FastForward", "Fast forward"))
-						.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
-						.Icon(FFlareStyleSet::GetIcon("FastForward"))
-						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
-						.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
-					]
-
-					// Fly selected ship
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Right)
-					.AutoHeight()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SFlareButton)
-						.Width(8)
-						.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
-						.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
-						.Icon(FFlareStyleSet::GetIcon("Travel"))
-						.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
-						.Visibility(this, &SFlareOrbitalMenu::GetFlySelectedShipVisibility)
-					]
-
-					// Fly last flown
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Right)
-					.AutoHeight()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SFlareButton)
-						.Width(8)
-						.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
-						.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
-						.Icon(FFlareStyleSet::GetIcon("Travel"))
-						.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
-						.Visibility(this, &SFlareOrbitalMenu::GetFlyCurrentShipVisibility)
-					]
-				]
-
-				// Hela
-				+ SVerticalBox::Slot()
-				[
-					SAssignNew(HelaBox, SFlarePlanetaryBox)
-				]
+				SAssignNew(HelaBox, SFlarePlanetaryBox)
 			]
 		]
 	];
@@ -348,17 +339,7 @@ void SFlareOrbitalMenu::UpdateTravels()
 
 FText SFlareOrbitalMenu::GetFlyCurrentShipText() const
 {
-	FText FlyText = LOCTEXT("FlyCurrent", "Fly most recent");
-	UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
-
-	if (CurrentShip)
-	{
-		return FText::Format(LOCTEXT("FlyRecentFormat", "{0} ({1})"), FlyText, FText::FromName(CurrentShip->GetImmatriculation()));
-	}
-	else
-	{
-		return FlyText;
-	}
+	return LOCTEXT("FlyCurrentFormat", "Fly last flown");
 }
 
 EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
@@ -378,17 +359,7 @@ EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
 
 FText SFlareOrbitalMenu::GetFlySelectedShipText() const
 {
-	FText FlyText = LOCTEXT("FlySelected", "Fly selected ");
-	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
-
-	if (SelectedFleet)
-	{
-		return FText::Format(LOCTEXT("FlyCurrentFormat", "{0} ({1})"), FlyText, SelectedFleet->GetName());
-	}
-	else
-	{
-		return FlyText;
-	}
+	return LOCTEXT("FlySelectedFormat", "Fly selected");
 }
 
 EVisibility SFlareOrbitalMenu::GetFlySelectedShipVisibility() const
