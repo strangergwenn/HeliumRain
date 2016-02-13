@@ -211,7 +211,6 @@ void UFlareQuestManager::OnSectorVisited(UFlareSimulatedSector* Sector)
 }
 
 
-
 void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
 {
 	LoadCallbacks(Quest);
@@ -229,9 +228,12 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	OldQuests.Add(Quest);
 
 	// Quest successful notification
-	FText Text = LOCTEXT("Quest successful", "Quest successful");
-	FText Info = Quest->GetQuestName();
-	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
+	if (Quest->GetQuestDescription()->Category != EFlareQuestCategory::TUTORIAL)
+	{
+		FText Text = LOCTEXT("Quest successful", "Quest successful");
+		FText Info = Quest->GetQuestName();
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
+	}
 
 	if (Quest == SelectedQuest)
 	{
@@ -249,9 +251,12 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	OldQuests.Add(Quest);
 
 	// Quest failed notification
-	FText Text = LOCTEXT("Quest failed", "Quest failed");
-	FText Info = Quest->GetQuestName();
-	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
+	if (Quest->GetQuestDescription()->Category != EFlareQuestCategory::TUTORIAL)
+	{
+		FText Text = LOCTEXT("Quest failed", "Quest failed");
+		FText Info = Quest->GetQuestName();
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
+	}
 
 	if (Quest == SelectedQuest)
 	{
@@ -267,9 +272,12 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	ActiveQuests.Add(Quest);
 
 	// New quest notification
-	FText Text = LOCTEXT("New quest", "New quest started");
-	FText Info = Quest->GetQuestName();
-	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
+	if (Quest->GetQuestDescription()->Category != EFlareQuestCategory::TUTORIAL)
+	{
+		FText Text = LOCTEXT("New quest", "New quest started");
+		FText Info = Quest->GetQuestName();
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
+	}
 
 	if (!SelectedQuest)
 	{

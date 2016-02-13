@@ -372,6 +372,11 @@ public:
 		return QuestDescription->QuestName;
 	}
 
+	inline const FFlareQuestDescription* GetQuestDescription() const
+	{
+		return QuestDescription;
+	}
+
 	inline EFlareQuestStatus::Type GetStatus()
 	{
 		return QuestStatus;
