@@ -87,17 +87,26 @@ protected:
 	/** RCS callback */
 	FText GetRCSText() const;
 
+	/** RCS health */
+	FSlateColor GetRCSHealthColor() const;
+
 	/** Get a Slate brush for the engine icon */
 	const FSlateBrush* GetEngineIcon() const;
 
 	/** Engine callback */
 	FText GetEngineText() const;
 
+	/** Engine health */
+	FSlateColor GetEnginesHealthColor() const;
+
 	/** Get a Slate brush for the weapon icons */
 	const FSlateBrush* GetWeaponIcon(TSharedPtr<int32> Index) const;
 
 	/** Weapon callback */
 	FText GetWeaponText(TSharedPtr<int32> Index) const;
+
+	/** Weapon health */
+	FSlateColor GetWeaponHealthColor() const;
 
 	/** Part list generator */
 	TSharedRef<ITableRow> GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);

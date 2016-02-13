@@ -61,6 +61,8 @@ public:
 
 		virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false, bool WithAmmo = false) const = 0;
 
+		virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor = false, bool WithAmmo = true) const = 0;
+
 		virtual float GetTemperature() const = 0;
 
 		virtual float GetOverheatTemperature() const = 0;

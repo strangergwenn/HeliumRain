@@ -58,6 +58,11 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 	return 1.0f;
 }
 
+float UFlareSimulatedSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor, bool WithAmmo) const
+{
+	return 1.0f;
+}
+
 float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
 {
 	// TODO replace mock

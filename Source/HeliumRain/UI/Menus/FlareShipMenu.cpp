@@ -185,6 +185,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("EngineInfo", "Inspect the current orbital engines"))
 							.InvertedBackground(true)
 							.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
+							.HighlightColor(this, &SFlareShipMenu::GetEnginesHealthColor)
 						]
 
 						// RCS
@@ -199,6 +200,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("RCSInfo", "Inspect the current attitude control thrusters (RCS)"))
 							.InvertedBackground(true)
 							.Visibility(this, &SFlareShipMenu::GetEngineVisibility)
+							.HighlightColor(this, &SFlareShipMenu::GetRCSHealthColor)
 						]
 
 						// Weapons
@@ -412,6 +414,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 						.Text(this, &SFlareShipMenu::GetWeaponText, IndexPtr)
 						.HelpText(LOCTEXT("WeaponInfo", "Inspect this weapon system"))
 						.InvertedBackground(true)
+						.HighlightColor(this, &SFlareShipMenu::GetWeaponHealthColor)
 					];
 
 			} 
@@ -613,6 +616,18 @@ FText SFlareShipMenu::GetRCSText() const
 	return Result;
 }
 
+FSlateColor SFlareShipMenu::GetRCSHealthColor() const
+{
+	float ComponentHealth = 1;
+
+	if (TargetSpacecraft)
+	{
+		ComponentHealth = TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS);
+	}
+
+	return FFlareStyleSet::GetHealthColor(ComponentHealth, false);
+}
+
 const FSlateBrush* SFlareShipMenu::GetEngineIcon() const
 {
 	return (EngineDescription ? &EngineDescription->MeshPreviewBrush : NULL);
@@ -628,6 +643,18 @@ FText SFlareShipMenu::GetEngineText() const
 	}
 
 	return Result;
+}
+
+FSlateColor SFlareShipMenu::GetEnginesHealthColor() const
+{
+	float ComponentHealth = 1;
+
+	if (TargetSpacecraft)
+	{
+		ComponentHealth = TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion);
+	}
+
+	return FFlareStyleSet::GetHealthColor(ComponentHealth, false);
 }
 
 const FSlateBrush* SFlareShipMenu::GetWeaponIcon(TSharedPtr<int32> Index) const
@@ -674,6 +701,18 @@ FText SFlareShipMenu::GetWeaponText(TSharedPtr<int32> Index) const
 	}
 
 	return FText::Format(LOCTEXT("WeaponTextFormat", "{0}\n({1})"), Result, Comment);
+}
+
+FSlateColor SFlareShipMenu::GetWeaponHealthColor() const
+{
+	float ComponentHealth = 1;
+
+	if (TargetSpacecraft)
+	{
+		ComponentHealth = TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon);
+	}
+
+	return FFlareStyleSet::GetHealthColor(ComponentHealth, false);
 }
 
 TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
