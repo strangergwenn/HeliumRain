@@ -83,7 +83,7 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 
 	// Create player ship
 	FLOG("UFlareScenarioTools::GenerateFreighterScenario create initial ship");
-	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-solen", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 	PlayerCompany->DiscoverSector(Outpost);
@@ -242,7 +242,7 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	}
 
 	// Player ship
-	UFlareSimulatedSpacecraft* InitialShip = Outpost->CreateShip("ship-solen", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* InitialShip = Outpost->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 

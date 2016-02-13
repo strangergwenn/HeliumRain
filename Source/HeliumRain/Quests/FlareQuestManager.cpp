@@ -267,7 +267,7 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	ActiveQuests.Add(Quest);
 
 	// New quest notification
-	FText Text = LOCTEXT("New quest", "New quest available");
+	FText Text = LOCTEXT("New quest", "New quest started");
 	FText Info = Quest->GetQuestName();
 	GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-")+Quest->GetIdentifier().ToString()+"-status"), EFlareNotification::NT_Quest));
 
