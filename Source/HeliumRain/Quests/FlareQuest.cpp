@@ -1065,7 +1065,7 @@ const FFlareSharedQuestCondition* UFlareQuest::FindSharedCondition(FName SharedC
 		}
 	}
 
-	FLOGV("ERROR: The quest %s don't have shared condition named %s", *GetIdentifier().ToString(), *SharedConditionIdentifier.ToString());
+	FLOGV("ERROR: The quest %s doesn't have shared condition named %s", *GetIdentifier().ToString(), *SharedConditionIdentifier.ToString());
 
 	return NULL;
 }
