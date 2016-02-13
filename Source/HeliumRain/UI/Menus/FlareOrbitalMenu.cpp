@@ -28,196 +28,192 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SBorder)
-		.BorderImage(FFlareStyleSet::GetImage("OrbitBackground"))
-		[
-			SNew(SVerticalBox)
+		SNew(SVerticalBox)
 
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Fill)
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit))
+			]
+
+			// Title
+			+ SHorizontalBox::Slot()
 			.VAlign(VAlign_Center)
 			.Padding(Theme.ContentPadding)
 			[
-				SNew(SHorizontalBox)
-
-				// Icon
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit))
-				]
-
-				// Title
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TitleFont)
-					.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
-				]
-
-				// Company
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Bottom)
-				.Padding(Theme.TitleButtonPadding)
-				[
-					SNew(SFlareRoundButton)
-					.Text(LOCTEXT("InspectCompany", "Company"))
-					.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
-					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
-					.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
-				]
-
-				// Leaderboard
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Bottom)
-				.Padding(Theme.TitleButtonPadding)
-				.AutoWidth()
-				[
-					SNew(SFlareRoundButton)
-					.Text(LOCTEXT("Leaderboard", "Competition"))
-					.HelpText(LOCTEXT("LeaderboardInfo", "Take a closer look at all the companies"))
-					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
-					.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
-				]
-
-				// Quit
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Bottom)
-				.Padding(Theme.TitleButtonPadding)
-				.AutoWidth()
-				[
-					SNew(SFlareRoundButton)
-					.Text(LOCTEXT("SaveQuit", "Save and quit"))
-					.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
-					.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
-					.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
-				]
+				SNew(STextBlock)
+				.TextStyle(&Theme.TitleFont)
+				.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
 			]
 
-			// Separator
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(FMargin(200, 20))
+			// Company
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
 			[
-				SNew(SImage).Image(&Theme.SeparatorBrush)
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("InspectCompany", "Company"))
+				.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
+				.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
 			]
+
+			// Leaderboard
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("Leaderboard", "Competition"))
+				.HelpText(LOCTEXT("LeaderboardInfo", "Take a closer look at all the companies"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
+				.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
+			]
+
+			// Quit
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("SaveQuit", "Save and quit"))
+				.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
+				.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
+			]
+		]
+
+		// Separator
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(200, 20))
+		[
+			SNew(SImage).Image(&Theme.SeparatorBrush)
+		]
 			
-			// Planetarium
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Fill)
+		// Planetarium
+		+ SVerticalBox::Slot()
+		.Padding(Theme.ContentPadding)
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
+		[
+			SNew(SHorizontalBox)
+
+			// Left column : travels, Nema
+			+ SHorizontalBox::Slot()
 			.VAlign(VAlign_Fill)
 			[
-				SNew(SHorizontalBox)
-
-				// Left column : travels, Nema
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Fill)
-				[
-					SNew(SVerticalBox)
+				SNew(SVerticalBox)
 					
-					// Travels
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.HAlign(HAlign_Left)
-					.Padding(Theme.ContentPadding)
-					[
-						SAssignNew(TravelsBox, SVerticalBox)
-					]
+				// Travels
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				.Padding(Theme.ContentPadding)
+				[
+					SAssignNew(TravelsBox, SVerticalBox)
+				]
 			
-					// Nema
-					+ SVerticalBox::Slot()
-					[
-						SAssignNew(NemaBox, SFlarePlanetaryBox)
-					]
+				// Nema
+				+ SVerticalBox::Slot()
+				[
+					SAssignNew(NemaBox, SFlarePlanetaryBox)
 				]
+			]
 
-				// Center column : Anka & Asta
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Fill)
+			// Center column : Anka & Asta
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				[
+					SAssignNew(AnkaBox, SFlarePlanetaryBox)
+				]
+				+ SVerticalBox::Slot()
+				[
+					SAssignNew(AstaBox, SFlarePlanetaryBox)
+				]
+			]
+
+			// Right column : buttons, Hela
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SVerticalBox)
+
+				// Travel buttons
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Right)
 				[
 					SNew(SVerticalBox)
-
-					+ SVerticalBox::Slot()
-					[
-						SAssignNew(AnkaBox, SFlarePlanetaryBox)
-					]
-					+ SVerticalBox::Slot()
-					[
-						SAssignNew(AstaBox, SFlarePlanetaryBox)
-					]
-				]
-
-				// Right column : buttons, Hela
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Fill)
-				[
-					SNew(SVerticalBox)
-
-					// Travel buttons
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.HAlign(HAlign_Right)
-					[
-						SNew(SVerticalBox)
 						
-						// Fast forward
-						+ SVerticalBox::Slot()
-						.HAlign(HAlign_Right)
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SFlareButton)
-							.Width(8)
-							.Text(LOCTEXT("FastForward", "Fast forward"))
-							.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
-							.Icon(FFlareStyleSet::GetIcon("FastForward"))
-							.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
-							.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
-						]
-
-						// Fly selected ship
-						+ SVerticalBox::Slot()
-						.HAlign(HAlign_Right)
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SFlareButton)
-							.Width(8)
-							.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
-							.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
-							.Icon(FFlareStyleSet::GetIcon("Travel"))
-							.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
-							.Visibility(this, &SFlareOrbitalMenu::GetFlySelectedShipVisibility)
-						]
-
-						// Fly last flown
-						+ SVerticalBox::Slot()
-						.HAlign(HAlign_Right)
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SFlareButton)
-							.Width(8)
-							.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
-							.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
-							.Icon(FFlareStyleSet::GetIcon("Travel"))
-							.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
-							.Visibility(this, &SFlareOrbitalMenu::GetFlyCurrentShipVisibility)
-						]
-					]
-
-					// Hela
+					// Fast forward
 					+ SVerticalBox::Slot()
+					.HAlign(HAlign_Right)
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(HelaBox, SFlarePlanetaryBox)
+						SNew(SFlareButton)
+						.Width(8)
+						.Text(LOCTEXT("FastForward", "Fast forward"))
+						.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
+						.Icon(FFlareStyleSet::GetIcon("FastForward"))
+						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+						.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
 					]
+
+					// Fly selected ship
+					+ SVerticalBox::Slot()
+					.HAlign(HAlign_Right)
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(8)
+						.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
+						.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+						.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
+						.Visibility(this, &SFlareOrbitalMenu::GetFlySelectedShipVisibility)
+					]
+
+					// Fly last flown
+					+ SVerticalBox::Slot()
+					.HAlign(HAlign_Right)
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(8)
+						.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
+						.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+						.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
+						.Visibility(this, &SFlareOrbitalMenu::GetFlyCurrentShipVisibility)
+					]
+				]
+
+				// Hela
+				+ SVerticalBox::Slot()
+				[
+					SAssignNew(HelaBox, SFlarePlanetaryBox)
 				]
 			]
 		]
