@@ -30,6 +30,8 @@ public:
 
 	uint32 TakeResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
+	void DumpCargo(FFlareCargo* Cargo);
+
 	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
 

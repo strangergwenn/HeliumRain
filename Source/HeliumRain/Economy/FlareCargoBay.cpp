@@ -171,6 +171,12 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 	return Quantity - QuantityToTake;
 }
 
+void UFlareCargoBay::DumpCargo(FFlareCargo* Cargo)
+{
+	Cargo->Quantity = 0;
+	Cargo->Resource = NULL;
+}
+
 uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32 Quantity)
 {
 	uint32 QuantityToGive = Quantity;

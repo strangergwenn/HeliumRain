@@ -1,8 +1,9 @@
 
 #include "../../Flare.h"
 #include "FlareCargoInfo.h"
-#include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Economy/FlareCargoBay.h"
 
 #define LOCTEXT_NAMESPACE "FlareCargoInfo"
 
@@ -26,44 +27,68 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Center)
 	.Padding(FMargin(1))
 	[
-		// Button (behaviour only, no display)
-		SAssignNew(Button, SButton)
-		.OnClicked(this, &SFlareCargoInfo::OnButtonClicked)
-		.ContentPadding(FMargin(0))
-		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-		[
-			SNew(SBorder)
-			.Padding(FMargin(0))
-			.BorderImage(this, &SFlareCargoInfo::GetResourceIcon)
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ResourceWidth)
-				.HeightOverride(Theme.ResourceHeight)
-				.Padding(FMargin(0))
-				[
-					SNew(SVerticalBox)
-			
-					// Resource name
-					+ SVerticalBox::Slot()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareCargoInfo::GetResourceAcronym)
-					]
+		SNew(SVerticalBox)
 
-					// Resource quantity
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.SmallContentPadding)
-					.VAlign(VAlign_Bottom)
-					.HAlign(HAlign_Center)
+		// Main
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(0))
+		[
+			// Button (behaviour only, no display)
+			SAssignNew(Button, SButton)
+			.OnClicked(this, &SFlareCargoInfo::OnButtonClicked)
+			.ContentPadding(FMargin(0))
+			.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+			[
+				SNew(SBorder)
+				.Padding(FMargin(0))
+				.BorderImage(this, &SFlareCargoInfo::GetResourceIcon)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ResourceWidth)
+					.HeightOverride(Theme.ResourceHeight)
+					.Padding(FMargin(0))
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.SmallFont)
-						.Text(this, &SFlareCargoInfo::GetResourceQuantity)
+						SNew(SVerticalBox)
+			
+						// Resource name
+						+ SVerticalBox::Slot()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareCargoInfo::GetResourceAcronym)
+						]
+
+						// Resource quantity
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						.VAlign(VAlign_Bottom)
+						.HAlign(HAlign_Center)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SmallFont)
+							.Text(this, &SFlareCargoInfo::GetResourceQuantity)
+						]
 					]
 				]
+			]
+		]
+
+		// Dump
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(0))
+		[
+			SAssignNew(DumpButton, SButton)
+			.OnClicked(this, &SFlareCargoInfo::OnDumpClicked)
+			.ContentPadding(FMargin(0))
+			.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+			.HAlign(HAlign_Right)
+			[
+				SNew(SImage)
+				.Image(FFlareStyleSet::GetIcon("Stop"))
 			]
 		]
 	];
@@ -73,6 +98,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 	{
 		Button->SetVisibility(EVisibility::HitTestInvisible);
 	}
+	DumpButton->SetVisibility(EVisibility::Hidden);
 }
 
 
@@ -88,10 +114,22 @@ void SFlareCargoInfo::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEv
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	check(Cargo);
 
+	// Tooltip
 	if (MenuManager)
 	{
-		FText InfoText = Cargo->Resource ? Cargo->Resource->Description : LOCTEXT("EmptyInfo", "Empty bay");
-		MenuManager->ShowTooltip(this, LOCTEXT("CargoBayTitle", "Cargo bay"), InfoText);
+		FText TitleText = Cargo->Resource ? Cargo->Resource->Name : LOCTEXT("EmptyTitle", "Empty bay");
+		FText InfoText = Cargo->Resource ? Cargo->Resource->Description : LOCTEXT("EmptyInfo", "This cargo bay is empty.");
+		MenuManager->ShowTooltip(this, FText::Format(LOCTEXT("CargoBayFormat", "Cargo bay : {0}"), TitleText), InfoText);
+	}
+
+	// Dump button
+	if (Cargo->Resource)
+	{
+		DumpButton->SetVisibility(EVisibility::Visible);
+	}
+	else
+	{
+		DumpButton->SetVisibility(EVisibility::Hidden);
 	}
 }
 
@@ -104,6 +142,8 @@ void SFlareCargoInfo::OnMouseLeave(const FPointerEvent& MouseEvent)
 	{
 		MenuManager->HideTooltip(this);
 	}
+
+	DumpButton->SetVisibility(EVisibility::Hidden);
 }
 
 const FSlateBrush* SFlareCargoInfo::GetResourceIcon() const
@@ -157,5 +197,16 @@ FReply SFlareCargoInfo::OnButtonClicked()
 	return FReply::Handled();
 }
 
+FReply SFlareCargoInfo::OnDumpClicked()
+{
+	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
+
+	if (Cargo && Cargo->Resource)
+	{
+		TargetSpacecraft->GetCargoBay()->DumpCargo(Cargo);
+	}
+
+	return FReply::Handled();
+}
 
 #undef LOCTEXT_NAMESPACE

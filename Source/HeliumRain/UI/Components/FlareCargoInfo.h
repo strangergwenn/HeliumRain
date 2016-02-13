@@ -58,6 +58,9 @@ protected:
 	/** Cargo item clicked */
 	FReply OnButtonClicked();
 
+	/** Dump this bay */
+	FReply OnDumpClicked();
+
 
 protected:
 
@@ -69,5 +72,9 @@ protected:
 	IFlareSpacecraftInterface*                      TargetSpacecraft;
 	int32                                           CargoIndex;
 	FFlareButtonClicked                             OnClicked;
+
+	// Slate data
+	TSharedPtr<SButton>                             DumpButton;
+
 
 };
