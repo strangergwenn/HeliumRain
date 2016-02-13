@@ -15,9 +15,9 @@
 
 UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
-	, AngularInputDeadRatio(0.05)
-	, MouseSensitivity(0.2)
-	, MouseSensitivityPower(2)
+	, AngularInputDeadRatio(0.008)
+	, MouseSensitivity(0.1)
+	, MouseSensitivityPower(1)
 {
 	// Pilot
 	IsPiloted = true;
