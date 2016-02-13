@@ -76,6 +76,11 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 	{
 		WeaponIndicator->SetVisibility(CenterIcons ? EVisibility::Collapsed : EVisibility::Hidden);
 	}
+
+	if (TargetShip)
+	{
+		SetVisibility(Cast<AFlareSpacecraft>(TargetShip) ? EVisibility::Visible : EVisibility::Collapsed);
+	}
 }
 
 
@@ -87,13 +92,22 @@ void SFlareShipStatus::SetTargetShip(IFlareSpacecraftInterface* Target)
 {
 	TargetShip = Target;
 
-	if (TargetShip && TargetShip->IsMilitary())
+	if (TargetShip)
 	{
-		WeaponIndicator->SetVisibility(EVisibility::Visible);
+		SetVisibility(Cast<AFlareSpacecraft>(TargetShip) ? EVisibility::Visible : EVisibility::Collapsed);
+
+		if (TargetShip->IsMilitary())
+		{
+			WeaponIndicator->SetVisibility(EVisibility::Visible);
+		}
+		else
+		{
+			WeaponIndicator->SetVisibility(CenterIcons ? EVisibility::Collapsed : EVisibility::Hidden);
+		}
 	}
 	else
 	{
-		WeaponIndicator->SetVisibility(CenterIcons ? EVisibility::Collapsed : EVisibility::Hidden);
+		SetVisibility(EVisibility::Collapsed);
 	}
 }
 
