@@ -15,7 +15,6 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 {
 	TargetFactory = InArgs._Factory;
 	MenuManager = InArgs._MenuManager;
-	ShipList.Empty();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
 	// Structure
@@ -47,7 +46,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.NameFont)
-					.Text(this, &SFlareFactoryInfo::GetFactoryName, TargetFactory)
+					.Text(this, &SFlareFactoryInfo::GetFactoryName)
 				]
 
 				// Factory description
@@ -57,7 +56,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareFactoryInfo::GetFactoryDescription, TargetFactory)
+					.Text(this, &SFlareFactoryInfo::GetFactoryDescription)
 				]
 
 				// Factory production cycle description
@@ -67,28 +66,23 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareFactoryInfo::GetFactoryCycleInfo, TargetFactory)
+					.Text(this, &SFlareFactoryInfo::GetFactoryCycleInfo)
 				]
 
 				// Ship building
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
 				[
-					SAssignNew(ShipSelector, SComboBox<UFlareSpacecraftCatalogEntry*>)
-					.OptionsSource(&ShipList)
-					.OnGenerateWidget(this, &SFlareFactoryInfo::OnGenerateShipComboLine)
-					.OnSelectionChanged(this, &SFlareFactoryInfo::OnShipComboLineSelectionChanged)
-					.ComboBoxStyle(&Theme.ComboBoxStyle)
-					.ForegroundColor(FLinearColor::White)
-					.Visibility(this, &SFlareFactoryInfo::GetShipSelectorVisibility, TargetFactory)
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareFactoryInfo::OnGetCurrentShipComboLine)
-						.TextStyle(&Theme.TextFont)
-					]
+					SNew(SFlareButton)
+					.Width(8)
+					.Text(this, &SFlareFactoryInfo::GetTargetShipClassText)
+					.HelpText(LOCTEXT("ChooseClass", "Pick a ship class to build, or change the current selection"))
+					.OnClicked(this, &SFlareFactoryInfo::OnOpenSpacecraftOrder)
+					.Visibility(this, &SFlareFactoryInfo::GetShipSelectorVisibility)
 				]
-							
+				
 				// Factory production status
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -115,8 +109,8 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 							.AutoWidth()
 							[
 								SNew(SFlareButton)
-								.Visibility(this, &SFlareFactoryInfo::GetStartProductionVisibility, TargetFactory)
-								.OnClicked(this, &SFlareFactoryInfo::OnStartProduction, TargetFactory)
+								.Visibility(this, &SFlareFactoryInfo::GetStartProductionVisibility)
+								.OnClicked(this, &SFlareFactoryInfo::OnStartProduction)
 								.Text(FText())
 								.HelpText(LOCTEXT("StartProduction", "Start production"))
 								.Icon(FFlareStyleSet::GetIcon("Load"))
@@ -129,8 +123,8 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 							.AutoWidth()
 							[
 								SNew(SFlareButton)
-								.Visibility(this, &SFlareFactoryInfo::GetStopProductionVisibility, TargetFactory)
-								.OnClicked(this, &SFlareFactoryInfo::OnStopProduction, TargetFactory)
+								.Visibility(this, &SFlareFactoryInfo::GetStopProductionVisibility)
+								.OnClicked(this, &SFlareFactoryInfo::OnStopProduction)
 								.Text(FText())
 								.HelpText(LOCTEXT("StopProduction", "Stop production"))
 								.Icon(FFlareStyleSet::GetIcon("Stop"))
@@ -149,7 +143,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 								.WidthOverride(Theme.ContentWidth / 3)
 								[
 									SNew(SProgressBar)
-									.Percent(this, &SFlareFactoryInfo::GetProductionProgress, TargetFactory)
+									.Percent(this, &SFlareFactoryInfo::GetProductionProgress)
 									.Style(&Theme.ProgressBarStyle)
 								]
 							]
@@ -166,36 +160,6 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 			]
 		]
 	];
-
-	// Init buildable ship list
-	ShipList.Empty();
-	if (TargetFactory && TargetFactory->HasCreateShipAction())
-	{
-		UFlareSpacecraftCatalogEntry* SelectedEntry = NULL;
-		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
-
-		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->ShipCatalog.Num(); SpacecraftIndex++)
-		{
-			UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->ShipCatalog[SpacecraftIndex];
-			FFlareSpacecraftDescription* Description = &Entry->Data;
-
-			// Filter by ship size, and add
-			bool LargeFactory = TargetFactory->GetDescription()->Identifier.ToString().Contains("large");
-			bool LargeShip = Description->Size >= EFlarePartSize::L;
-			if (LargeFactory == LargeShip)
-			{
-				ShipList.Add(Entry);
-			}
-
-			// Pre-selection
-			if (Description->Identifier == TargetFactory->GetTargetShipClass())
-			{
-				SelectedEntry = Entry;
-			}
-		}
-
-		ShipSelector->SetSelectedItem(SelectedEntry);
-	}
 
 	// Update factory
 	UpdateFactoryLimits();
@@ -264,8 +228,8 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 			.AutoWidth()
 			[
 				SNew(SFlareButton)
-				.Visibility(this, &SFlareFactoryInfo::GetDecreaseOutputLimitVisibility, TargetFactory, Resource)
-				.OnClicked(this, &SFlareFactoryInfo::OnDecreaseOutputLimit, TargetFactory, Resource)
+				.Visibility(this, &SFlareFactoryInfo::GetDecreaseOutputLimitVisibility, Resource)
+				.OnClicked(this, &SFlareFactoryInfo::OnDecreaseOutputLimit, Resource)
 				.Text(FText::FromString(TEXT("-")))
 				.Transparent(true)
 				.Width(1)
@@ -276,8 +240,8 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 			.AutoWidth()
 			[
 				SNew(SFlareButton)
-				.Visibility(this, &SFlareFactoryInfo::GetIncreaseOutputLimitVisibility, TargetFactory, Resource)
-				.OnClicked(this, &SFlareFactoryInfo::OnIncreaseOutputLimit, TargetFactory, Resource)
+				.Visibility(this, &SFlareFactoryInfo::GetIncreaseOutputLimitVisibility, Resource)
+				.OnClicked(this, &SFlareFactoryInfo::OnIncreaseOutputLimit, Resource)
 				.Text(FText::FromString(TEXT("+")))
 				.Transparent(true)
 				.Width(1)
@@ -291,40 +255,40 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 	Content callbacks
 ----------------------------------------------------*/
 
-FText SFlareFactoryInfo::GetFactoryName(UFlareFactory* Factory) const
+FText SFlareFactoryInfo::GetFactoryName() const
 {
 	FText Result;
 
-	if (Factory)
+	if (TargetFactory)
 	{
 		Result = FText::Format(LOCTEXT("FactoryNameFormat", "{0} - {1}"),
-			FText::FromString(Factory->GetDescription()->Name.ToString().ToUpper()),
-			Factory->GetFactoryStatus());
+			FText::FromString(TargetFactory->GetDescription()->Name.ToString().ToUpper()),
+			TargetFactory->GetFactoryStatus());
 	}
 
 	return Result;
 }
 
-FText SFlareFactoryInfo::GetFactoryDescription(UFlareFactory* Factory) const
+FText SFlareFactoryInfo::GetFactoryDescription() const
 {
-	return Factory ? Factory->GetDescription()->Description : FText();
+	return TargetFactory ? TargetFactory->GetDescription()->Description : FText();
 }
 
-FText SFlareFactoryInfo::GetFactoryCycleInfo(UFlareFactory* Factory) const
+FText SFlareFactoryInfo::GetFactoryCycleInfo() const
 {
-	return Factory ? Factory->GetFactoryCycleInfo() : FText();
+	return TargetFactory ? TargetFactory->GetFactoryCycleInfo() : FText();
 }
 
-FText SFlareFactoryInfo::GetFactoryStatus(UFlareFactory* Factory) const
+FText SFlareFactoryInfo::GetFactoryStatus() const
 {
-	return Factory ? Factory->GetFactoryStatus() : FText();
+	return TargetFactory ? TargetFactory->GetFactoryStatus() : FText();
 }
 
-TOptional<float> SFlareFactoryInfo::GetProductionProgress(UFlareFactory* Factory) const
+TOptional<float> SFlareFactoryInfo::GetProductionProgress() const
 {
-	if (Factory)
+	if (TargetFactory)
 	{
-		return ((float)Factory->GetProductedDuration() / (float)Factory->GetRemainingProductionDuration());
+		return ((float)TargetFactory->GetProductedDuration() / (float)TargetFactory->GetRemainingProductionDuration());
 	}
 	else
 	{
@@ -332,11 +296,11 @@ TOptional<float> SFlareFactoryInfo::GetProductionProgress(UFlareFactory* Factory
 	}
 }
 
-EVisibility SFlareFactoryInfo::GetStartProductionVisibility(UFlareFactory* Factory) const
+EVisibility SFlareFactoryInfo::GetStartProductionVisibility() const
 {
-	if (Factory)
+	if (TargetFactory)
 	{
-		return (!Factory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
+		return (!TargetFactory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 	}
 	else
 	{
@@ -344,11 +308,11 @@ EVisibility SFlareFactoryInfo::GetStartProductionVisibility(UFlareFactory* Facto
 	}
 }
 
-EVisibility SFlareFactoryInfo::GetStopProductionVisibility(UFlareFactory* Factory) const
+EVisibility SFlareFactoryInfo::GetStopProductionVisibility() const
 {
-	if (Factory)
+	if (TargetFactory)
 	{
-		return (Factory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
+		return (TargetFactory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 	}
 	else
 	{
@@ -356,12 +320,12 @@ EVisibility SFlareFactoryInfo::GetStopProductionVisibility(UFlareFactory* Factor
 	}
 }
 
-EVisibility SFlareFactoryInfo::GetIncreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
+EVisibility SFlareFactoryInfo::GetIncreaseOutputLimitVisibility(FFlareResourceDescription* Resource) const
 {
-	if (Factory)
+	if (TargetFactory)
 	{
-		uint32 MaxOutput = Factory->GetParent()->GetDescription()->CargoBayCount;
-		return (Factory->HasOutputLimit(Resource) && Factory->GetOutputLimit(Resource) < MaxOutput ? EVisibility::Visible : EVisibility::Hidden);
+		uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
+		return (TargetFactory->HasOutputLimit(Resource) && TargetFactory->GetOutputLimit(Resource) < MaxOutput ? EVisibility::Visible : EVisibility::Hidden);
 	}
 	else
 	{
@@ -369,98 +333,100 @@ EVisibility SFlareFactoryInfo::GetIncreaseOutputLimitVisibility(UFlareFactory* F
 	}
 }
 
-EVisibility SFlareFactoryInfo::GetDecreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const
+EVisibility SFlareFactoryInfo::GetDecreaseOutputLimitVisibility(FFlareResourceDescription* Resource) const
 {
-	if (Factory)
+	if (TargetFactory)
 	{
-		return (!Factory->HasOutputLimit(Resource) || Factory->GetOutputLimit(Resource) > 0 ? EVisibility::Visible : EVisibility::Hidden);
+		return (!TargetFactory->HasOutputLimit(Resource) || TargetFactory->GetOutputLimit(Resource) > 0 ? EVisibility::Visible : EVisibility::Hidden);
 	}
 	else
 	{
 		return EVisibility::Hidden;
 	}
 }
-
 
 /*----------------------------------------------------
 	Ship building
 ----------------------------------------------------*/
 
-TSharedRef<SWidget> SFlareFactoryInfo::OnGenerateShipComboLine(UFlareSpacecraftCatalogEntry* Item)
+FText SFlareFactoryInfo::GetTargetShipClassText() const
 {
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	return SNew(STextBlock)
-		.Text(Item->Data.Name)
-		.TextStyle(&Theme.TextFont);
-}
-
-void SFlareFactoryInfo::OnShipComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo)
-{
-	if (Item && TargetFactory)
+	if (TargetFactory && TargetFactory->HasCreateShipAction())
 	{
-		TargetFactory->SetTargetShipClass(Item->Data.Identifier);
+		FName TargetShipClass = TargetFactory->GetTargetShipClass();
+		if (TargetShipClass != NAME_None)
+		{
+			FFlareSpacecraftDescription* TargetShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetShipClass);
+			return FText::Format(LOCTEXT("CurrentSHipFormat", "Building {0} (Change)"), TargetShipDesc->Name);
+		}
+		else
+		{
+			return LOCTEXT("ChooseClass", "Pick a ship class");
+		}
+	}
+	else
+	{
+		return FText();
 	}
 }
 
-FText SFlareFactoryInfo::OnGetCurrentShipComboLine() const
+EVisibility SFlareFactoryInfo::GetShipSelectorVisibility() const
 {
-	UFlareSpacecraftCatalogEntry* Item = ShipSelector->GetSelectedItem();
-	return Item ? Item->Data.Name : LOCTEXT("Select", "Select a ship");
-}
-
-EVisibility SFlareFactoryInfo::GetShipSelectorVisibility(UFlareFactory* Factory) const
-{
-	return (Factory->HasCreateShipAction() ? EVisibility::Visible : EVisibility::Collapsed);
+	return (TargetFactory && TargetFactory->HasCreateShipAction() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 
 /*----------------------------------------------------
 	Action callbacks
 ----------------------------------------------------*/
-	
-void SFlareFactoryInfo::OnStartProduction(UFlareFactory* Factory)
+
+void SFlareFactoryInfo::OnOpenSpacecraftOrder()
 {
-	check(Factory);
-	Factory->Start();
+	MenuManager->OpenSpacecraftOrder(this);
+}
+
+void SFlareFactoryInfo::OnStartProduction()
+{
+	check(TargetFactory);
+	TargetFactory->Start();
 	UpdateFactoryLimits();
 }
 
-void SFlareFactoryInfo::OnStopProduction(UFlareFactory* Factory)
+void SFlareFactoryInfo::OnStopProduction()
 {
-	check(Factory);
-	Factory->Stop();
+	check(TargetFactory);
+	TargetFactory->Stop();
 	UpdateFactoryLimits();
 }
 
-void SFlareFactoryInfo::OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource)
+void SFlareFactoryInfo::OnDecreaseOutputLimit(FFlareResourceDescription* Resource)
 {
-	check(Factory);
-	uint32 MaxOutput = Factory->GetParent()->GetDescription()->CargoBayCount;
+	check(TargetFactory);
+	uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
 
-	if (!Factory->HasOutputLimit(Resource))
+	if (!TargetFactory->HasOutputLimit(Resource))
 	{
-		Factory->SetOutputLimit(Resource, MaxOutput - 1);
+		TargetFactory->SetOutputLimit(Resource, MaxOutput - 1);
 	}
-	else if (Factory->GetOutputLimit(Resource) > 0)
+	else if (TargetFactory->GetOutputLimit(Resource) > 0)
 	{
-		Factory->SetOutputLimit(Resource, Factory->GetOutputLimit(Resource) - 1);
+		TargetFactory->SetOutputLimit(Resource, TargetFactory->GetOutputLimit(Resource) - 1);
 	}
 	UpdateFactoryLimits();
 }
 
-void SFlareFactoryInfo::OnIncreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource)
+void SFlareFactoryInfo::OnIncreaseOutputLimit(FFlareResourceDescription* Resource)
 {
-	check(Factory);
-	uint32 MaxOutput = Factory->GetParent()->GetDescription()->CargoBayCount;
+	check(TargetFactory);
+	uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
 
-	if (Factory->GetOutputLimit(Resource) + 1 >= MaxOutput)
+	if (TargetFactory->GetOutputLimit(Resource) + 1 >= MaxOutput)
 	{
-		Factory->ClearOutputLimit(Resource);
+		TargetFactory->ClearOutputLimit(Resource);
 	}
 	else
 	{
-		Factory->SetOutputLimit(Resource, Factory->GetOutputLimit(Resource) + 1);
+		TargetFactory->SetOutputLimit(Resource, TargetFactory->GetOutputLimit(Resource) + 1);
 	}
 	UpdateFactoryLimits();
 }

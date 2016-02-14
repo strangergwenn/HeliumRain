@@ -2,9 +2,12 @@
 
 #include "../UI/Components/FlareTooltip.h"
 #include "../UI/Components/FlareNotifier.h"
+#include "../UI/Components/FlareSpacecraftOrderOverlay.h"
 #include "../UI/Components/FlareConfirmationOverlay.h"
 #include "FlareMenuManager.generated.h"
 
+
+class SFlareFactoryInfo;
 
 class SFlareMainMenu;
 class SFlareSettingsMenu;
@@ -57,6 +60,9 @@ public:
 
 	/** Open a menu asynchronously, from a target and user data */
 	void OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacecraftInterface* Data = NULL);
+
+	/** Show the list of spacecraft that can be ordered here */
+	void OpenSpacecraftOrder(SFlareFactoryInfo* FactoryMenu);
 
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
@@ -189,6 +195,7 @@ protected:
 	TSharedPtr<SFlareTooltip>               Tooltip;
 	TSharedPtr<SFlareNotifier>              Notifier;
 	TSharedPtr<SFlareConfirmationOverlay>   Confirmation;
+	TSharedPtr<SFlareSpacecraftOrderOverlay>SpacecraftOrder;
 
 	// Menus
 	TSharedPtr<SFlareMainMenu>              MainMenu;

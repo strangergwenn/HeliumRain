@@ -17,9 +17,22 @@ public:
 	}
 	FInterfaceContainer(IFlareSpacecraftInterface* InPtr)
 		: ShipInterfacePtr(InPtr)
+		, SpacecraftDescriptionPtr(NULL)
 		, PartDescription(NULL)
 	{}
 	IFlareSpacecraftInterface* ShipInterfacePtr;
+
+	// Ship description
+	static TSharedPtr<FInterfaceContainer> New(FFlareSpacecraftDescription* InObject)
+	{
+		return MakeShareable(new FInterfaceContainer(InObject));
+	}
+	FInterfaceContainer(FFlareSpacecraftDescription* InPtr)
+		: SpacecraftDescriptionPtr(InPtr)
+		, ShipInterfacePtr(NULL)
+		, PartDescription(NULL)
+	{}
+	FFlareSpacecraftDescription* SpacecraftDescriptionPtr;
 
 	// Part info
 	static TSharedPtr<FInterfaceContainer> New(FFlareSpacecraftComponentDescription* InObject)
@@ -28,6 +41,7 @@ public:
 	}
 	FInterfaceContainer(FFlareSpacecraftComponentDescription* InPtr)
 		: ShipInterfacePtr(NULL)
+		, SpacecraftDescriptionPtr(NULL)
 		, PartDescription(InPtr)
 	{}
 	FFlareSpacecraftComponentDescription* PartDescription;
@@ -39,6 +53,7 @@ public:
 	}
 	FInterfaceContainer(UFlareCompany* InPtr)
 		: ShipInterfacePtr(NULL)
+		, SpacecraftDescriptionPtr(NULL)
 		, CompanyPtr(InPtr)
 	{}
 	UFlareCompany* CompanyPtr;

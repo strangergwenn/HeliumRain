@@ -64,6 +64,9 @@ void AFlareMenuManager::SetupMenu()
 		// Confirmation overlay
 		SAssignNew(Confirmation, SFlareConfirmationOverlay).MenuManager(this);
 
+		// Spacecraft order overlay
+		SAssignNew(SpacecraftOrder, SFlareSpacecraftOrderOverlay).MenuManager(this);
+
 		// Tooltip
 		SAssignNew(Tooltip, SFlareTooltip).MenuManager(this);
 
@@ -89,6 +92,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),      50);
 
 		// Register special menus
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SpacecraftOrder.ToSharedRef()),  60);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         80);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Confirmation.ToSharedRef()),     80);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),          90);
@@ -193,6 +197,11 @@ void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacec
 	FadeTarget = Target;
 	FadeTargetData = NULL;
 	FadeTargetSpacecraft = Cast<IFlareSpacecraftInterface>(Data);
+}
+
+void AFlareMenuManager::OpenSpacecraftOrder(SFlareFactoryInfo* FactoryMenu)
+{
+	SpacecraftOrder->Open(FactoryMenu);
 }
 
 void AFlareMenuManager::CloseMenu(bool HardClose)
@@ -423,6 +432,8 @@ void AFlareMenuManager::ResetMenu()
 	{
 		LastNonSettingsMenu = CurrentMenu;
 	}*/
+
+	SpacecraftOrder->Close();
 
 	MainMenu->Exit();
 	SettingsMenu->Exit();

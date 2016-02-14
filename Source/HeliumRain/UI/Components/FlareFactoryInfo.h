@@ -1,9 +1,6 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../Components/FlareListItem.h"
-#include "../Components/FlareSpacecraftInfo.h"
-#include "../Components/FlareShipList.h"
 
 
 class UFlareFactory;
@@ -37,6 +34,12 @@ public:
 	/** Update this factory's limits */
 	void UpdateFactoryLimits();
 
+	/** Get the factory */
+	UFlareFactory* GetFactory()
+	{
+		return TargetFactory;
+	}
+
 
 protected:
 
@@ -45,61 +48,62 @@ protected:
 	----------------------------------------------------*/
 
 	/** Get the factory name */
-	FText GetFactoryName(UFlareFactory* Factory) const;
+	FText GetFactoryName() const;
 
 	/** Get the factory descriptipn */
-	FText GetFactoryDescription(UFlareFactory* Factory) const;
+	FText GetFactoryDescription() const;
 
 	/** Get the factory cycle description */
-	FText GetFactoryCycleInfo(UFlareFactory* Factory) const;
+	FText GetFactoryCycleInfo() const;
 
 	/** Get the factory status info */
-	FText GetFactoryStatus(UFlareFactory* Factory) const;
+	FText GetFactoryStatus() const;
 	
 	/** Get the current progress */
-	TOptional<float> GetProductionProgress(UFlareFactory* Factory) const;
+	TOptional<float> GetProductionProgress() const;
 
 	/** Get the current start visibility */
-	EVisibility GetStartProductionVisibility(UFlareFactory* Factory) const;
+	EVisibility GetStartProductionVisibility() const;
 
 	/** Get the current stop visibility */
-	EVisibility GetStopProductionVisibility(UFlareFactory* Factory) const;
+	EVisibility GetStopProductionVisibility() const;
 
 	/** Get the current + visibility */
-	EVisibility GetIncreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+	EVisibility GetIncreaseOutputLimitVisibility(FFlareResourceDescription* Resource) const;
 
 	/** Get the current - visibility */
-	EVisibility GetDecreaseOutputLimitVisibility(UFlareFactory* Factory, FFlareResourceDescription* Resource) const;
+	EVisibility GetDecreaseOutputLimitVisibility(FFlareResourceDescription* Resource) const;
 
 
 	/*----------------------------------------------------
 		Ship building
 	----------------------------------------------------*/
 
-	TSharedRef<SWidget> OnGenerateShipComboLine(UFlareSpacecraftCatalogEntry* Item);
+	/** Chat are we building, if any ? */
+	FText GetTargetShipClassText() const;
 
-	void OnShipComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo);
-
-	FText OnGetCurrentShipComboLine() const;
-
-	EVisibility GetShipSelectorVisibility(UFlareFactory* Factory) const;
+	/** Visibiliy of the ship selector */
+	EVisibility GetShipSelectorVisibility() const;
 
 
 	/*----------------------------------------------------
 		Action callbacks
 	----------------------------------------------------*/
 
+	/** Order a spacecraft */
+	void OnOpenSpacecraftOrder();
+
 	/** Start production */
-	void OnStartProduction(UFlareFactory* Factory);
+	void OnStartProduction();
 
 	/** Stop production */
-	void OnStopProduction(UFlareFactory* Factory);
+	void OnStopProduction();
 	
 	/** Decrease the output storage limit */
-	void OnDecreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+	void OnDecreaseOutputLimit(FFlareResourceDescription* Resource);
 
 	/** Increase the output storage limit */
-	void OnIncreaseOutputLimit(UFlareFactory* Factory, FFlareResourceDescription* Resource);
+	void OnIncreaseOutputLimit(FFlareResourceDescription* Resource);
 
 
 protected:
@@ -114,10 +118,6 @@ protected:
 	// Slate data
 	TSharedPtr<SVerticalBox>                        LimitList;
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
-
-	// Ship building
-	TSharedPtr<SComboBox<UFlareSpacecraftCatalogEntry*>> ShipSelector;
-	TArray<UFlareSpacecraftCatalogEntry*>                ShipList;
 
 
 };

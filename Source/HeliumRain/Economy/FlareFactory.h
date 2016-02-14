@@ -205,6 +205,8 @@ public:
 
 	const FFlareProductionData& GetCycleData();
 
+	const FFlareProductionData& GetCycleDataForShipClass(FName Class);
+
 	bool HasCreateShipAction() const;
 
 	FName GetTargetShipClass() const
@@ -212,7 +214,7 @@ public:
 		return FactoryData.TargetShipClass;
 	}
 
-	uint32 GetProductionCost();
+	uint32 GetProductionCost(const FFlareProductionData* Data = NULL);
 
 	int64 GetRemainingProductionDuration();
 
@@ -262,7 +264,10 @@ public:
 
 	bool HasInputResource(FFlareResourceDescription* Resource);
 
-	/** Get tgis factory's cycle data */
+	/** Get this factory's cycle costs */
+	FText GetFactoryCycleCost(const FFlareProductionData* Data);
+
+	/** Get this factory's cycle data */
 	FText GetFactoryCycleInfo();
 
 	/** Get this factory's status text */

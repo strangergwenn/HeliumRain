@@ -475,12 +475,17 @@ const FFlareProductionData& UFlareFactory::GetCycleData()
 {
 	if (HasCreateShipAction() && FactoryData.TargetShipClass != NAME_None)
 	{
-		return GetGame()->GetSpacecraftCatalog()->Get(FactoryData.TargetShipClass)->CycleCost;
+		return GetCycleDataForShipClass(FactoryData.TargetShipClass);
 	}
 	else
 	{
 		return FactoryDescription->CycleCost;
 	}
+}
+
+const FFlareProductionData& UFlareFactory::GetCycleDataForShipClass(FName Class)
+{
+	return GetGame()->GetSpacecraftCatalog()->Get(Class)->CycleCost;
 }
 
 bool UFlareFactory::HasCreateShipAction() const
@@ -495,12 +500,15 @@ bool UFlareFactory::HasCreateShipAction() const
 	return false;
 }
 
-uint32 UFlareFactory::GetProductionCost()
+uint32 UFlareFactory::GetProductionCost(const FFlareProductionData* Data)
 {
+	const FFlareProductionData* CycleData = Data ? Data : &GetCycleData();
+	check(CycleData);
+
 	if (!ProductionCostInit)
 	{
 		ProductionCostInit = true;
-		ScaledProductionCost = GetCycleData().ProductionCost;
+		ScaledProductionCost = CycleData->ProductionCost;
 
 		if (FactoryDescription->NeedSun)
 		{
@@ -509,7 +517,7 @@ uint32 UFlareFactory::GetProductionCost()
 			if (Body)
 			{
 				float LightRatio = Game->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, Parent->GetCurrentSector()->GetOrbitParameters()->Altitude);
-				ScaledProductionCost = GetCycleData().ProductionCost / LightRatio;
+				ScaledProductionCost = CycleData->ProductionCost / LightRatio;
 			}
 		}
 	}
@@ -634,10 +642,35 @@ bool UFlareFactory::HasInputResource(FFlareResourceDescription* Resource)
 	return false;
 }
 
+FText UFlareFactory::GetFactoryCycleCost(const FFlareProductionData* Data)
+{
+	FText ProductionCostText;
+	FText CommaTextReference = LOCTEXT("Comma", " + ");
+
+	// Cycle cost in credits
+	uint32 CycleProductionCost = GetProductionCost(Data);
+	if (CycleProductionCost > 0)
+	{
+		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleProductionCost));
+	}
+
+	// Cycle cost in resources
+	for (int ResourceIndex = 0; ResourceIndex < Data->InputResources.Num(); ResourceIndex++)
+	{
+		FText CommaText = ProductionCostText.IsEmpty() ? FText() : CommaTextReference;
+		const FFlareFactoryResource* FactoryResource = &Data->InputResources[ResourceIndex];
+		check(FactoryResource);
+
+		ProductionCostText = FText::Format(LOCTEXT("ProductionResourcesFormat", "{0}{1} {2} {3}"),
+			ProductionCostText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
+	}
+
+	return ProductionCostText;
+}
+
 FText UFlareFactory::GetFactoryCycleInfo()
 {
 	FText CommaTextReference = LOCTEXT("Comma", " + ");
-	FText ProductionCostText;
 	FText ProductionOutputText;
 
 	// No ship class selected
@@ -646,23 +679,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 		return LOCTEXT("SelectShipClass", "Please select a ship class to build");
 	}
 
-	// Cycle cost in credits
-	uint32 CycleProductionCost = GetProductionCost();
-	if (CycleProductionCost > 0)
-	{
-		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleProductionCost));
-	}
-
-	// Cycle cost in resources
-	for (int ResourceIndex = 0; ResourceIndex < GetCycleData().InputResources.Num(); ResourceIndex++)
-	{
-		FText CommaText = ProductionCostText.IsEmpty() ? FText() : CommaTextReference;
-		const FFlareFactoryResource* FactoryResource = &GetCycleData().InputResources[ResourceIndex];
-		check(FactoryResource);
-
-		ProductionCostText = FText::Format(LOCTEXT("ProductionResourcesFormat", "{0}{1} {2} {3}"),
-			ProductionCostText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
-	}
+	FText ProductionCostText = GetFactoryCycleCost(&GetCycleData());
 
 	// Cycle output in factory actions
 	for (int ActionIndex = 0; ActionIndex < GetDescription()->OutputActions.Num(); ActionIndex++)
