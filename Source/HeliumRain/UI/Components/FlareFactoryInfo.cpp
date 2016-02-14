@@ -178,8 +178,16 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 		{
 			UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->ShipCatalog[SpacecraftIndex];
 			FFlareSpacecraftDescription* Description = &Entry->Data;
-			ShipList.Add(Entry);
 
+			// Filter by ship size, and add
+			bool LargeFactory = TargetFactory->GetDescription()->Identifier.ToString().Contains("large");
+			bool LargeShip = Description->Size >= EFlarePartSize::L;
+			if (LargeFactory == LargeShip)
+			{
+				ShipList.Add(Entry);
+			}
+
+			// Pre-selection
 			if (Description->Identifier == TargetFactory->GetTargetShipClass())
 			{
 				SelectedEntry = Entry;
