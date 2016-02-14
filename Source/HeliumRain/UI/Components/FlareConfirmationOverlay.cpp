@@ -109,11 +109,6 @@ void SFlareConfirmationOverlay::Confirm(FText Text, FSimpleDelegate OnConfirmed)
 	Callbacks
 ----------------------------------------------------*/
 
-void SFlareConfirmationOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
-{
-	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
-}
-
 FText SFlareConfirmationOverlay::GetText() const
 {
 	return InfoText;

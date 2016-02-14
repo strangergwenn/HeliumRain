@@ -43,8 +43,6 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 	
-	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-
 	/** Get the info text */
 	FText GetText() const;
 
