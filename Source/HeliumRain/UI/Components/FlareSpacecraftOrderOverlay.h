@@ -56,6 +56,9 @@ public:
 	/** The selection was changed */
 	void OnSpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
 
+	/** Can we confirm */
+	EVisibility GetConfirmVisibility() const;
+
 
 	/*----------------------------------------------------
 		Action callbacks

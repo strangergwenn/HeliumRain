@@ -77,6 +77,7 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("ConfirmInfo", "Confirm the choice and star production"))
 							.Icon(FFlareStyleSet::GetIcon("OK"))
 							.OnClicked(this, &SFlareSpacecraftOrderOverlay::OnConfirmed)
+							.Visibility(this, &SFlareSpacecraftOrderOverlay::GetConfirmVisibility)
 						]
 
 						+ SHorizontalBox::Slot()
@@ -152,25 +153,33 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FFlareSpacecraftDescription* Desc = Item->SpacecraftDescriptionPtr;
+	const FFlareProductionData* CycleData = &TargetFactory->GetCycleDataForShipClass(Desc->Identifier);
 
-	// Strings
-	FText WeaponText;
-	if (Desc->TurretSlots.Num())
+	// Spacecraft type
+	FText SpacecraftInfoText;
+	if (Desc->OrbitalEngineCount == 0)
 	{
-		WeaponText = FText::Format(LOCTEXT("WeaponFormat", "({0} turrets)"), FText::AsNumber(Desc->TurretSlots.Num()));
+		SpacecraftInfoText = LOCTEXT("Station", "(Station)");
+	}
+	else if (Desc->TurretSlots.Num())
+	{
+		SpacecraftInfoText = FText::Format(LOCTEXT("WeaponFormat", "(Military ship, {0} turrets)"), FText::AsNumber(Desc->TurretSlots.Num()));
 	}
 	else if (Desc->GunSlots.Num())
 	{
-		WeaponText = FText::Format(LOCTEXT("WeaponFormat", "({0} gun slots)"), FText::AsNumber(Desc->GunSlots.Num()));
+		SpacecraftInfoText = FText::Format(LOCTEXT("WeaponFormat", "(Military ship, {0} gun slots)"), FText::AsNumber(Desc->GunSlots.Num()));
 	}
 	else
 	{
-		WeaponText = LOCTEXT("NoWeapons", "(Unarmed)");
+		SpacecraftInfoText = LOCTEXT("NoWeapons", "(Unarmed ship)");
 	}
+
+	// Production time
+	int ProductionTime = CycleData->ProductionTime;
 
 	// Structure
 	return SNew(SFlareListItem, OwnerTable)
-	.Width(20)
+	.Width(25)
 	.Height(2)
 	.Content()
 	[
@@ -215,7 +224,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(STextBlock)
-				.Text(WeaponText)
+				.Text(SpacecraftInfoText)
 				.TextStyle(&Theme.TextFont)
 			]
 		]
@@ -229,7 +238,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(LOCTEXT("ProductionCost", "Production cost"))
+				.Text(LOCTEXT("ProductionCost", "Production cost & duration"))
 				.TextStyle(&Theme.NameFont)
 			]
 
@@ -237,7 +246,16 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(TargetFactory->GetFactoryCycleCost(&TargetFactory->GetCycleDataForShipClass(Desc->Identifier)))
+				.Text(TargetFactory->GetFactoryCycleCost(CycleData))
+				.WrapTextAt(Theme.ContentWidth / 3)
+				.TextStyle(&Theme.TextFont)
+			]
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SNew(STextBlock)
+				.Text(FText::Format(LOCTEXT("ProductionTimeFormat", "{0} days"), FText::AsNumber(ProductionTime)))
 				.WrapTextAt(Theme.ContentWidth / 3)
 				.TextStyle(&Theme.TextFont)
 			]
@@ -260,6 +278,18 @@ void SFlareSpacecraftOrderOverlay::OnSpacecraftSelectionChanged(TSharedPtr<FInte
 	{
 		ItemWidget->SetSelected(true);
 		PreviousSelection = ItemWidget;
+	}
+}
+
+EVisibility SFlareSpacecraftOrderOverlay::GetConfirmVisibility() const
+{
+	if (SpacecraftSelector->GetNumItemsSelected() > 0)
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Hidden;
 	}
 }
 
