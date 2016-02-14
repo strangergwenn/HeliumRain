@@ -836,7 +836,7 @@ void AFlarePlayerController::WheelPressed()
 		// Flying controls
 		else
 		{
-			if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
+			/*if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
 			{
 				MouseMenu->AddWidget("Mouse_Align", LOCTEXT("Align", "Forward"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
@@ -849,7 +849,7 @@ void AFlarePlayerController::WheelPressed()
 			{
 				MouseMenu->AddWidget("Mouse_Reverse", LOCTEXT("Backward", "Backward"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));
-			}
+			}*/
 
 			// Targetting
 			AFlareSpacecraft* Target = ShipPawn->GetCurrentTarget();
