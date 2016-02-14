@@ -151,7 +151,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						.HAlign(HAlign_Left)
 						[
 							SNew(SFlareButton)
-							.Width(8)
+							.Width(9)
 							.Text(this, &SFlareSectorMenu::GetTravelText)
 							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -424,7 +424,7 @@ FText SFlareSectorMenu::GetTravelText() const
 
 	if (SelectedFleet)
 	{
-		return FText::Format(LOCTEXT("TravelFormat", "{0} with {1}"), FlyText, SelectedFleet->GetName());
+		return FText::Format(LOCTEXT("TravelFormat", "{0} with selection ({1})"), FlyText, SelectedFleet->GetName());
 	}
 	else
 	{
