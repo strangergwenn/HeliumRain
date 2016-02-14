@@ -4,6 +4,7 @@
 #include "FlareSpacecraftOrderOverlay.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Economy/FlareFactory.h"
+#include "../../Game/FlareGame.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftOrderOverlay"
 

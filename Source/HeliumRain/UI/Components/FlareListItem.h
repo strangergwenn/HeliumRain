@@ -28,8 +28,8 @@ public:
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
 	FInterfaceContainer(FFlareSpacecraftDescription* InPtr)
-		: SpacecraftDescriptionPtr(InPtr)
-		, ShipInterfacePtr(NULL)
+		: ShipInterfacePtr(NULL)
+		, SpacecraftDescriptionPtr(InPtr)
 		, PartDescription(NULL)
 	{}
 	FFlareSpacecraftDescription* SpacecraftDescriptionPtr;

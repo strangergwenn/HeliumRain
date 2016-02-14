@@ -4,7 +4,7 @@
 
 
 class UFlareFactory;
-
+struct FFlareResourceDescription;
 
 class SFlareFactoryInfo : public SCompoundWidget
 {
