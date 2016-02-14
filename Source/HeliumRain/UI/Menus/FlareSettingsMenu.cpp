@@ -1067,30 +1067,18 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Flying", "FLYING")))->MakeHeader()));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveForward", "Move Forward")))
 		->AddAxisMapping("Thrust", 1.0f)
-		->AddDefaults(EKeys::LeftShift)));
+		->AddDefaults(EKeys::W)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveBackward", "Move Backward")))
 		->AddAxisMapping("Thrust", -1.0f)
-		->AddDefaults(EKeys::LeftControl)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveLeft", "Move Left")))
-		->AddAxisMapping("MoveHorizontalInput", -1.0f)
-		->AddDefaults(EKeys::A)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveRight", "Move Right")))
-		->AddAxisMapping("MoveHorizontalInput", 1.0f)
-		->AddDefaults(EKeys::D)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveUp", "Move Up")))
-		->AddAxisMapping("MoveVerticalInput", 1.0f)
-		->AddDefaults(EKeys::W)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveDown", "Move Down")))
-		->AddAxisMapping("MoveVerticalInput", -1.0f)
 		->AddDefaults(EKeys::S)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCW", "Roll Right")))
 		->AddAxisMapping("RollInput", 1.0f)
-		->AddDefaults(EKeys::E)));
+		->AddDefaults(EKeys::A)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCCW", "Roll Left")))
 		->AddAxisMapping("RollInput", -1.0f)
-		->AddDefaults(EKeys::Q)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Boost", "Boost")))
-		->AddActionMapping("Boost")
+		->AddDefaults(EKeys::D)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("LockDirection", "Lock direction")))
+		->AddActionMapping("LockDirection")
 		->AddDefaults(EKeys::SpaceBar)));
 
 	// Auto pilot

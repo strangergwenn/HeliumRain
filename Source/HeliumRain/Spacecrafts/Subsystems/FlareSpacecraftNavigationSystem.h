@@ -168,7 +168,6 @@ protected:
 	float                                    AnticollisionAngle;
 
 	// Physics simulation
-	float                                    AccelerationRatioTarget;
 	FVector                                  LinearTargetVelocity;
 	FVector                                  AngularTargetVelocity;
 	bool                                     UseOrbitalBoost;
@@ -202,11 +201,6 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	inline bool IsBoosting() const
-	{
-		return UseOrbitalBoost;
-	}
-
 	inline float GetAngularAccelerationRate() const
 	{
 		return AngularAccelerationRate;
@@ -220,11 +214,6 @@ public:
 	inline float GetLinearMaxVelocity() const
 	{
 		return LinearMaxVelocity;
-	}
-
-	inline float GetLinearMaxBoostingVelocity() const
-	{
-		return LinearMaxVelocity * 1000;
 	}
 
 	inline EFlareShipStatus::Type GetStatus() const

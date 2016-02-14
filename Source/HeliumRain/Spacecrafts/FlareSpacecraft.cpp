@@ -691,9 +691,6 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 	check(InputComponent);
 
 	InputComponent->BindAxis("Thrust", this, &AFlareSpacecraft::ThrustInput);
-	InputComponent->BindAxis("MoveVerticalInput", this, &AFlareSpacecraft::MoveVerticalInput);
-	InputComponent->BindAxis("MoveHorizontalInput", this, &AFlareSpacecraft::MoveHorizontalInput);
-
 	InputComponent->BindAxis("RollInput", this, &AFlareSpacecraft::RollInput);
 
 	InputComponent->BindAction("ZoomIn", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomIn);
@@ -704,8 +701,8 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAction("FaceForward", EInputEvent::IE_Released, this, &AFlareSpacecraft::FaceForward);
 	InputComponent->BindAction("FaceBackward", EInputEvent::IE_Released, this, &AFlareSpacecraft::FaceBackward);
 	InputComponent->BindAction("Brake", EInputEvent::IE_Released, this, &AFlareSpacecraft::Brake);
-	InputComponent->BindAction("Boost", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::BoostOn);
-	InputComponent->BindAction("Boost", EInputEvent::IE_Released, this, &AFlareSpacecraft::BoostOff);
+	InputComponent->BindAction("LockDirection", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::LockDirectionOn);
+	InputComponent->BindAction("LockDirection", EInputEvent::IE_Released, this, &AFlareSpacecraft::LockDirectionOff);
 	InputComponent->BindAction("Manual", EInputEvent::IE_Released, this, &AFlareSpacecraft::ForceManual);
 
 	InputComponent->BindAction("LeftMouse", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::LeftMousePress);
@@ -889,16 +886,6 @@ void AFlareSpacecraft::ThrustInput(float Val)
 	StateManager->SetPlayerXLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 
-void AFlareSpacecraft::MoveVerticalInput(float Val)
-{
-	StateManager->SetPlayerZLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
-}
-
-void AFlareSpacecraft::MoveHorizontalInput(float Val)
-{
-	StateManager->SetPlayerYLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
-}
-
 void AFlareSpacecraft::RollInput(float Val)
 {
 	StateManager->SetPlayerRollAngularVelocity(- Val * NavigationSystem->GetAngularMaxVelocity());
@@ -956,14 +943,14 @@ void AFlareSpacecraft::BrakeToVelocity(const FVector& VelocityTarget)
 	}
 }
 
-void AFlareSpacecraft::BoostOn()
+void AFlareSpacecraft::LockDirectionOn()
 {
-	StateManager->SetPlayerOrbitalBoost(true);
+	StateManager->SetPlayerLockDirection(true);
 }
 
-void AFlareSpacecraft::BoostOff()
+void AFlareSpacecraft::LockDirectionOff()
 {
-	StateManager->SetPlayerOrbitalBoost(false);
+	StateManager->SetPlayerLockDirection(false);
 }
 
 void AFlareSpacecraft::ForceManual()

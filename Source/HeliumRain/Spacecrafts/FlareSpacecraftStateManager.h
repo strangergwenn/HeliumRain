@@ -52,8 +52,7 @@ public:
 
 	virtual void ExternalCameraZoom(bool ZoomIn);
 
-	virtual void SetPlayerOrbitalBoost(bool Val);
-
+	virtual void SetPlayerLockDirection(bool Val);
 	virtual void SetPlayerXLinearVelocity(float Val);
 	virtual void SetPlayerYLinearVelocity(float Val);
 	virtual void SetPlayerZLinearVelocity(float Val);
@@ -63,7 +62,6 @@ public:
 	// Output
 	virtual FVector GetLinearTargetVelocity() const;
 	virtual FVector GetAngularTargetVelocity() const;
-	virtual float GetAccelerationRatioTarget() const;
 	virtual bool IsUseOrbitalBoost() const;
 	virtual bool IsWantFire() const;
 	virtual bool IsWantCursor() const;
@@ -100,9 +98,11 @@ protected:
 	
 	// Manual player pilot
 	bool                                     PlayerLeftMousePressed;
-	bool                                     PlayerManualOrbitalBoost;
+	bool                                     PlayerManualLockDirection;
 	FVector                                  PlayerManualAngularVelocity; // In local space
 	FVector                                  PlayerManualLinearVelocity;
 	FVector2D                                PlayerMouseOffset;
 	FVector2D                                PlayerMousePosition;
+	float	                                 PlayerManualVelocityCommand;
+	float	                                 PlayerManualLockLinearDirection;
 };
