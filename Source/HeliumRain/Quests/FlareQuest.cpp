@@ -597,14 +597,14 @@ void UFlareQuest::SendQuestNotification(FText Message, FName Tag)
 
 void UFlareQuest::StartObjectiveTracking()
 {
-	FLOGV("UFlareQuest::StartObjectiveTracking");
+	FLOG("UFlareQuest::StartObjectiveTracking");
 
 	if (TrackObjectives)
 	{
 		return; // No change
 	}
 
-	FLOGV("UFlareQuest::StartObjectiveTracking : tracking");
+	FLOG("UFlareQuest::StartObjectiveTracking : tracking");
 	TrackObjectives = true;
 	QuestManager->GetGame()->GetPC()->CompleteObjective();
 	UpdateObjectiveTracker();
@@ -612,14 +612,14 @@ void UFlareQuest::StartObjectiveTracking()
 
 void UFlareQuest::StopObjectiveTracking()
 {
-	FLOGV("UFlareQuest::StopObjectiveTracking");
+	FLOG("UFlareQuest::StopObjectiveTracking");
 
 	if (!TrackObjectives)
 	{
 		return; // No change
 	}
 
-	FLOGV("UFlareQuest::StartObjectiveTracking : not tracking anymore");
+	FLOG("UFlareQuest::StartObjectiveTracking : not tracking anymore");
 	TrackObjectives = false;
 	QuestManager->GetGame()->GetPC()->CompleteObjective();
 }
