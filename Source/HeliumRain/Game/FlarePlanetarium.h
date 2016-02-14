@@ -28,6 +28,7 @@ public:
 	/** Set the current tim multiplier */
 	void SetTimeMultiplier(float Multiplier);
 
+	void SkipNight(float TimeRange);
 
 	/*----------------------------------------------------
 		Public Blueprint events
@@ -70,7 +71,7 @@ protected:
 
 	float SmoothTime;
 	float TimeMultiplier;
-
+	float SkipNightTimeRange;
 
 public:
 

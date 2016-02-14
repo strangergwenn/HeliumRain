@@ -189,7 +189,9 @@ void UFlareSimulatedPlanetarium::ComputeCelestialBodyLocation(FFlareCelestialBod
 		Body->AbsoluteLocation = ParentBody->AbsoluteLocation + Body->RelativeLocation;
 	}
 
-	Body->RotationAngle = FPreciseMath::UnwindDegrees(Body->RotationVelocity * Time) + Body->RotationVelocity * SmoothTime;
+	int64 RotationPeriod = 360/Body->RotationVelocity;
+
+	Body->RotationAngle = FPreciseMath::UnwindDegrees(Body->RotationVelocity * (Time % RotationPeriod)) + Body->RotationVelocity * SmoothTime;
 	for (int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
 	{
 		FFlareCelestialBody* CelestialBody = &Body->Sattelites[SatteliteIndex];

@@ -164,12 +164,13 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		// Create the new sector
 		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
 		FFlareSectorSave* SectorData = Sector->Save();
-		if (SectorData->LocalTime < GetGameWorld()->GetDate())
+		if ((SectorData->LocalTime / UFlareGameTools::SECONDS_IN_DAY)  < GetGameWorld()->GetDate())
 		{
 			// TODO Find time with light
 			SectorData->LocalTime = GetGameWorld()->GetDate() * UFlareGameTools::SECONDS_IN_DAY;
 		}
 		Planetarium->ResetTime();
+		Planetarium->SkipNight(UFlareGameTools::SECONDS_IN_DAY);
 		ActiveSector->Load(Sector, *SectorData);
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);

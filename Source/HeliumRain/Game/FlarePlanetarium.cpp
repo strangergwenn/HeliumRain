@@ -14,6 +14,7 @@ AFlarePlanetarium::AFlarePlanetarium(const class FObjectInitializer& PCIP)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	TimeMultiplier = 1.0;
+	SkipNightTimeRange = 0;
 }
 
 void AFlarePlanetarium::Tick(float DeltaSeconds)
@@ -64,70 +65,89 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 				}
 			}
 
-			Sun = World->GetPlanerarium()->GetSnapShot(LocalTime, SmoothTime);
 
-			// Draw Player
-			FFlareSectorOrbitParameters* PlayerOrbit = GetGame()->GetActiveSector()->GetOrbitParameters();
-
-
-			FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody(PlayerOrbit->CelestialBodyIdentifier);
-			if (CurrentParent)
+			do
 			{
-				FPreciseVector ParentLocation = CurrentParent->AbsoluteLocation;
 
-				double DistanceToParentCenter = CurrentParent->Radius + PlayerOrbit->Altitude;
-				FPreciseVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, LocalTime, SmoothTime, DistanceToParentCenter, 0, PlayerOrbit->Phase);
-				/*FLOGV("Parent location = %s", *CurrentParent->AbsoluteLocation.ToString());
-				FLOGV("PlayerLocation = %s", *PlayerLocation.ToString());*/
-	/*			DrawDebugLine(GetWorld(), FVector(1000, 0 ,0), FVector(- 1000, 0 ,0), FColor::Red, false);
-				DrawDebugLine(GetWorld(), FVector(0, 1000 ,0), FVector(0,- 1000 ,0), FColor::Green, false);
-				DrawDebugLine(GetWorld(), FVector(0, 0, 900), FVector(0, 0, -1000), FColor::Blue, false);
-				DrawDebugLine(GetWorld(), FVector(0, 0, 900), FVector(0, 0, 1000), FColor::Cyan, false);
-*/
-				FPreciseVector DeltaLocation = ParentLocation - PlayerLocation;
-				FPreciseVector SunDeltaLocation = Sun.AbsoluteLocation - PlayerLocation;
+				Sun = World->GetPlanerarium()->GetSnapShot(LocalTime, SmoothTime);
 
-				float AngleOffset =  90 + FMath::RadiansToDegrees(FMath::Atan2(DeltaLocation.Z,DeltaLocation.X));
-				/*FLOGV("DeltaLocation = %s", *DeltaLocation.ToString());
-				FLOGV("FMath::Atan2(DeltaLocation.Y,DeltaLocation.X)  = %f", FMath::Atan2(DeltaLocation.Z,DeltaLocation.X));
-				FLOGV("AngleOffset  = %f", AngleOffset);*/
+				// Draw Player
+				FFlareSectorOrbitParameters* PlayerOrbit = GetGame()->GetActiveSector()->GetOrbitParameters();
 
-				FPreciseVector SunDirection = -(SunDeltaLocation.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0))).GetUnsafeNormal();
 
-				// Reset sun occlusion;
-				SunOcclusion = 0;
-
-				MoveCelestialBody(&Sun, -PlayerLocation, AngleOffset, SunDirection);
-
-				if (Sky)
+				FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody(PlayerOrbit->CelestialBodyIdentifier);
+				if (CurrentParent)
 				{
-					Sky->SetActorRotation(FRotator(-AngleOffset, 0 , 0));
-					//FLOGV("Sky %s rotation= %s",*Sky->GetName(),  *Sky->GetActorRotation().ToString());
+					FPreciseVector ParentLocation = CurrentParent->AbsoluteLocation;
+
+					double DistanceToParentCenter = CurrentParent->Radius + PlayerOrbit->Altitude;
+					FPreciseVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, LocalTime, SmoothTime, DistanceToParentCenter, 0, PlayerOrbit->Phase);
+					/*FLOGV("Parent location = %s", *CurrentParent->AbsoluteLocation.ToString());
+					FLOGV("PlayerLocation = %s", *PlayerLocation.ToString());*/
+		/*			DrawDebugLine(GetWorld(), FVector(1000, 0 ,0), FVector(- 1000, 0 ,0), FColor::Red, false);
+					DrawDebugLine(GetWorld(), FVector(0, 1000 ,0), FVector(0,- 1000 ,0), FColor::Green, false);
+					DrawDebugLine(GetWorld(), FVector(0, 0, 900), FVector(0, 0, -1000), FColor::Blue, false);
+					DrawDebugLine(GetWorld(), FVector(0, 0, 900), FVector(0, 0, 1000), FColor::Cyan, false);
+	*/
+					FPreciseVector DeltaLocation = ParentLocation - PlayerLocation;
+					FPreciseVector SunDeltaLocation = Sun.AbsoluteLocation - PlayerLocation;
+
+					float AngleOffset =  90 + FMath::RadiansToDegrees(FMath::Atan2(DeltaLocation.Z,DeltaLocation.X));
+					/*FLOGV("DeltaLocation = %s", *DeltaLocation.ToString());
+					FLOGV("FMath::Atan2(DeltaLocation.Y,DeltaLocation.X)  = %f", FMath::Atan2(DeltaLocation.Z,DeltaLocation.X));
+					FLOGV("AngleOffset  = %f", AngleOffset);*/
+
+					FPreciseVector SunDirection = -(SunDeltaLocation.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0))).GetUnsafeNormal();
+
+					// Reset sun occlusion;
+					SunOcclusion = 0;
+
+					MoveCelestialBody(&Sun, -PlayerLocation, AngleOffset, SunDirection);
+
+					if(SkipNightTimeRange > 0 && SunOcclusion >= 1)
+					{
+						//Try to find night
+						SmoothTime = FMath::FRand() * SkipNightTimeRange;
+						FLOGV("Night, try to find light at %f (max %f)",SmoothTime, SkipNightTimeRange);
+					}
+					else
+					{
+						SkipNightTimeRange = 0;
+					}
+
+
+					if (Sky)
+					{
+						Sky->SetActorRotation(FRotator(-AngleOffset, 0 , 0));
+						//FLOGV("Sky %s rotation= %s",*Sky->GetName(),  *Sky->GetActorRotation().ToString());
+					}
+					else
+					{
+						FLOG("Error: No sky found");
+					}
+
+					//FLOGV("SunOcclusion %f", SunOcclusion);
+					if (Light)
+					{
+						float Intensity = 10 * FMath::Pow((1.0 - SunOcclusion), 2);
+						//FLOGV("Light Intensity %f", Intensity);
+						Light->SetIntensity(Intensity);
+					}
+					else
+					{
+
+						FLOG("Error: No sun light found");
+					}
+
+
 				}
 				else
 				{
-					FLOG("Error: No sky found");
-				}
-
-				//FLOGV("SunOcclusion %f", SunOcclusion);
-				if (Light)
-				{
-					float Intensity = 10 * FMath::Pow((1.0 - SunOcclusion), 2);
-					//FLOGV("Light Intensity %f", Intensity);
-					Light->SetIntensity(Intensity);
-				}
-				else
-				{
-
-					FLOG("Error: No sun light found");
+					FLOGV("Error: Failed to find the current sector: '%s' in planetarium", *(PlayerOrbit->CelestialBodyIdentifier.ToString()));
 				}
 
 
-			}
-			else
-			{
-				FLOGV("Error: Failed to find the current sector: '%s' in planetarium", *(PlayerOrbit->CelestialBodyIdentifier.ToString()));
-			}
+			} while(SkipNightTimeRange != 0);
 		}
 	}
 }
@@ -296,6 +316,11 @@ void AFlarePlanetarium::ResetTime()
 void AFlarePlanetarium::SetTimeMultiplier(float Multiplier)
 {
 	TimeMultiplier = Multiplier;
+}
+
+void AFlarePlanetarium::SkipNight(float TimeRange)
+{
+	SkipNightTimeRange = TimeRange;
 }
 
 
