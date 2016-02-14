@@ -180,7 +180,7 @@ protected:
 	UFlareSimulatedSpacecraft*				 Parent;
 	FFlareWorldEvent                         NextEvent;
 	uint32                                   ScaledProductionCost;
-	bool                                     ProductionCostInit;
+
 
 public:
 

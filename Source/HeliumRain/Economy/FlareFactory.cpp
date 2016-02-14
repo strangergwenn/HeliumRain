@@ -25,8 +25,6 @@ void UFlareFactory::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, const FFla
 	FactoryData = Data;
 	FactoryDescription = Description;
 	Parent = ParentSpacecraft;
-
-	ProductionCostInit = false;
 }
 
 
@@ -505,22 +503,19 @@ uint32 UFlareFactory::GetProductionCost(const FFlareProductionData* Data)
 	const FFlareProductionData* CycleData = Data ? Data : &GetCycleData();
 	check(CycleData);
 
-	if (!ProductionCostInit)
+	ScaledProductionCost = CycleData->ProductionCost;
+
+	if (FactoryDescription->NeedSun)
 	{
-		ProductionCostInit = true;
-		ScaledProductionCost = CycleData->ProductionCost;
+		FFlareCelestialBody* Body = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(Parent->GetCurrentSector()->GetOrbitParameters()->CelestialBodyIdentifier);
 
-		if (FactoryDescription->NeedSun)
+		if (Body)
 		{
-			FFlareCelestialBody* Body = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(Parent->GetCurrentSector()->GetOrbitParameters()->CelestialBodyIdentifier);
-
-			if (Body)
-			{
-				float LightRatio = Game->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, Parent->GetCurrentSector()->GetOrbitParameters()->Altitude);
-				ScaledProductionCost = CycleData->ProductionCost / LightRatio;
-			}
+			float LightRatio = Game->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, Parent->GetCurrentSector()->GetOrbitParameters()->Altitude);
+			ScaledProductionCost = CycleData->ProductionCost / LightRatio;
 		}
 	}
+
 	return ScaledProductionCost;
 }
 
