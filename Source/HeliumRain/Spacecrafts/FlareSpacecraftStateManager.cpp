@@ -32,6 +32,8 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 	PlayerManualLinearVelocity = FVector::ZeroVector;
 	PlayerManualAngularVelocity = FVector::ZeroVector;
+	float ForwardVelocity = FVector::DotProduct(ParentSpacecraft->GetLinearVelocity(), FVector(1, 0, 0));
+	PlayerManualVelocityCommand = FMath::Clamp(ForwardVelocity / ParentSpacecraft->GetNavigationSystem()->GetLinearMaxVelocity(), 0.0f, 1.0f);
 
 	InternalCameraPitch = 0;
 	InternalCameraYaw = 0;
@@ -72,6 +74,35 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		SetPlayerMouseOffset(FVector2D(0,0), false);
 	}
 	LastWeaponType = CurrentWeaponType;
+
+	/*float VelocityReference = PlayerManualVelocityCommand;
+	if(!IsChangingVelocity)
+	{
+		VelocityReference = Spacecraft->GetLinearVelocity().Size() / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
+	}*/
+
+	if( FMath::IsNearlyZero(PlayerManualLinearVelocity.Z))
+	{
+		PlayerManualVelocityCommand = Spacecraft->GetLinearVelocity().Size() / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
+		FLOGV("Spacecraft->GetLinearVelocity() %s", *Spacecraft->GetLinearVelocity().ToString())
+		FLOGV("Spacecraft->GetLinearVelocity().Size() %f", Spacecraft->GetLinearVelocity().Size())
+		FLOGV("Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() %f", Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity())
+		FLOGV("PlayerManualVelocityCommand %f", PlayerManualVelocityCommand)
+
+	}
+	else
+	{
+		if (PlayerManualLinearVelocity.Z < 0)
+		{
+			//PlayerManualVelocityCommand = FMath::Clamp(VelocityReference - DeltaSeconds * 1, 0.0f, 1.0f);
+			PlayerManualVelocityCommand = 0.0;
+		}
+		else if (PlayerManualLinearVelocity.Z > 0)
+		{
+			//PlayerManualVelocityCommand = FMath::Clamp(VelocityReference + DeltaSeconds * 1, 0.0f, 1.0f);
+			PlayerManualVelocityCommand = 1.0;
+		}
+	}
 
 
 	if (!IsPiloted && (PlayerManualOrbitalBoost || !PlayerManualLinearVelocity.IsZero()))
@@ -338,7 +369,8 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocity(float Val)
 
 void UFlareSpacecraftStateManager::SetPlayerYLinearVelocity(float Val)
 {
-	PlayerManualLinearVelocity.Y = Val;
+	//PlayerManualLinearVelocity.Y = Val;
+	PlayerManualAngularVelocity.X = -Val;
 }
 
 void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
@@ -348,7 +380,7 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
 
 void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocity(float Val)
 {
-	PlayerManualAngularVelocity.X = Val;
+	//PlayerManualAngularVelocity.X = Val;
 }
 
 FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
@@ -367,7 +399,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 			case EFlareWeaponGroupType::WG_BOMB:
 			default:
 			{
-				FVector LocalPlayerManualLinearVelocity = PlayerManualLinearVelocity;
+				/*FVector LocalPlayerManualLinearVelocity = PlayerManualLinearVelocity;
 				// Manual orbital boost
 				if (PlayerManualOrbitalBoost)
 				{
@@ -376,6 +408,19 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 
 				// Add velocity command to current velocity
 				return Spacecraft->GetLinearVelocity() + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerManualLinearVelocity);
+				*/
+
+				if(PlayerManualOrbitalBoost && ! Spacecraft->GetLinearVelocity().IsNearlyZero())
+				{
+
+					return  Spacecraft->GetLinearVelocity().GetUnsafeNormal() * PlayerManualVelocityCommand * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
+				}
+				else
+				{
+					FVector LocalPlayerManualLinearVelocity = PlayerManualVelocityCommand * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() * FVector(1, 0, 0);
+
+					return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerManualLinearVelocity);
+				}
 			}
 		}
 	}
@@ -403,34 +448,6 @@ FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
 	}
 }
 
-float UFlareSpacecraftStateManager::GetAccelerationRatioTarget() const
-{
-	if (IsPiloted)
-	{
-		return 1.0;
-	}
-	else
-	{
-		if (ExternalCamera)
-		{
-			return 1.0;
-		}
-		else
-		{
-			switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-			{
-				case EFlareWeaponGroupType::WG_BOMB:
-				case EFlareWeaponGroupType::WG_TURRET:
-				case EFlareWeaponGroupType::WG_NONE:
-				case EFlareWeaponGroupType::WG_GUN:
-				default:
-				{
-					return 1.0;
-				}
-			}
-		}
-	}
-}
 
 bool UFlareSpacecraftStateManager::IsUseOrbitalBoost() const
 {
@@ -440,7 +457,8 @@ bool UFlareSpacecraftStateManager::IsUseOrbitalBoost() const
 	}
 	else
 	{
-		return PlayerManualOrbitalBoost;
+		//return PlayerManualOrbitalBoost;
+		return true;
 	}
 }
 

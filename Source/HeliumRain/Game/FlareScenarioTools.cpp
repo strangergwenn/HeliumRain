@@ -212,13 +212,13 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	// Add solar plants
 	for (int Index = 0; Index < 3; Index ++)
 	{
-		Outpost->CreateStation("station-solar-plant", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
+		Outpost->CreateStation("station-solar-plant", UnitedFarmsChemicals, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
 	}
 
 	// Various stations
-	Outpost->CreateStation("station-hub", PlayerCompany, FVector::ZeroVector);
-	Outpost->CreateStation("station-habitation", PlayerCompany, FVector::ZeroVector)->GetCargoBay()->GiveResources(Food, 30);
-	Outpost->CreateStation("station-farm", PlayerCompany, FVector::ZeroVector);
+	Outpost->CreateStation("station-hub", UnitedFarmsChemicals, FVector::ZeroVector);
+	Outpost->CreateStation("station-habitation", UnitedFarmsChemicals, FVector::ZeroVector)->GetCargoBay()->GiveResources(Food, 30);
+	Outpost->CreateStation("station-farm", UnitedFarmsChemicals, FVector::ZeroVector);
 
 	// Refinery
 	UFlareSimulatedSpacecraft* Refinery = Outpost->CreateStation("station-refinery", PlayerCompany, FVector::ZeroVector);
@@ -238,11 +238,13 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	// Add Omens
 	for (int Index = 0; Index < 5; Index++)
 	{
-		Outpost->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector)->AssignToSector(true);
+		Outpost->CreateShip("ship-omen", UnitedFarmsChemicals, FVector::ZeroVector)->AssignToSector(true);
 	}
 
+	PlayerCompany->SetHostilityTo(UnitedFarmsChemicals, true);
+
 	// Player ship
-	UFlareSimulatedSpacecraft* InitialShip = Outpost->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* InitialShip = Outpost->CreateShip("ship-ghoul", PlayerCompany, FVector::ZeroVector);
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 

@@ -37,7 +37,6 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 		LinearTargetVelocity = Spacecraft->GetStateManager()->GetLinearTargetVelocity();
 		AngularTargetVelocity = Spacecraft->GetStateManager()->GetAngularTargetVelocity();
 		UseOrbitalBoost = Spacecraft->GetStateManager()->IsUseOrbitalBoost();
-		AccelerationRatioTarget = Spacecraft->GetStateManager()->GetAccelerationRatioTarget();
 
 		if (Spacecraft->GetStateManager()->IsWantFire())
 		{
@@ -894,14 +893,12 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 	}
 	//FLOGV("RelativeResultSpeed %s", *RelativeResultSpeed.ToString());
 	LinearTargetVelocity = RelativeResultSpeed;
-	AccelerationRatioTarget = 1.f;
 	return false;
 }
 
 void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds, FVector TargetVelocity)
 {
 	LinearTargetVelocity = TargetVelocity;
-	AccelerationRatioTarget = 1.f;
 	FVector DeltaLinearVelocity = TargetVelocity*100 - Spacecraft->Airframe->GetPhysicsLinearVelocity();
 
 	// Null speed detection
@@ -1073,11 +1070,11 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 	{
 		// Clamp speed
 		float MaxVelocity = LinearMaxVelocity;
-		if (UseOrbitalBoost)
+		/*if (UseOrbitalBoost)
 		{
 			FVector FrontDirection = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
 			MaxVelocity = FVector::DotProduct(LinearTargetVelocity.GetUnsafeNormal(), FrontDirection) * GetLinearMaxBoostingVelocity();
-		}
+		}*/
 		// If overspeed, clamp 1% speed per second
 		LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(FMath::Max(MaxVelocity, LinearTargetVelocity.Size() * 0.99f * DeltaSeconds));
 
@@ -1088,7 +1085,7 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 
 		if (!DeltaV.IsNearlyZero())
 		{
-			FVector Acceleration = AccelerationRatioTarget * DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, UseOrbitalBoost).Size() / Spacecraft->Airframe->GetMass();
+			FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, UseOrbitalBoost).Size() / Spacecraft->Airframe->GetMass();
 
 
 			FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
@@ -1177,17 +1174,22 @@ FVector UFlareSpacecraftNavigationSystem::GetTotalMaxThrustInAxis(TArray<UActorC
 	{
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
-		if (Engine->IsA(UFlareOrbitalEngine::StaticClass()) && !WithOrbitalEngines)
-		{
-			continue;
-		}
-
 		FVector WorldThrustAxis = Engine->GetThrustAxis();
-
 		float Ratio = FVector::DotProduct(WorldThrustAxis, Axis);
-		if (Ratio > 0)
+
+		if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
 		{
-			TotalMaxThrust += WorldThrustAxis * Engine->GetMaxThrust() * Ratio;
+			if(WithOrbitalEngines && Ratio + 0.2 > 0)
+			{
+				TotalMaxThrust += WorldThrustAxis * Engine->GetMaxThrust() * (Ratio + 0.2);
+			}
+		}
+		else
+		{
+			if (Ratio > 0)
+			{
+				TotalMaxThrust += WorldThrustAxis * Engine->GetMaxThrust() * Ratio;
+			}
 		}
 	}
 

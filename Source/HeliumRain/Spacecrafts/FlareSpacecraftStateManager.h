@@ -63,7 +63,6 @@ public:
 	// Output
 	virtual FVector GetLinearTargetVelocity() const;
 	virtual FVector GetAngularTargetVelocity() const;
-	virtual float GetAccelerationRatioTarget() const;
 	virtual bool IsUseOrbitalBoost() const;
 	virtual bool IsWantFire() const;
 	virtual bool IsWantCursor() const;
@@ -105,4 +104,6 @@ protected:
 	FVector                                  PlayerManualLinearVelocity;
 	FVector2D                                PlayerMouseOffset;
 	FVector2D                                PlayerMousePosition;
+	float	                                 PlayerManualVelocityCommand;
+	float	                                 PlayerManualLockLinearDirection;
 };
