@@ -15,8 +15,10 @@ Build/
 Binaries/Win64/FlareEditor.target
 Binaries/Win64/UE4Editor.modules
 Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor.modules
+Plugins/InternalComponentVisualizer/Binaries/Linux
 Binaries/Win64/Flare.target
 Binaries/Win64/Flare-Win64-Shipping.target
+Binaries/Linux/
 Helium Rain.sdf
 Helium Rain.sln
 Helium Rain.opensdf
@@ -29,3 +31,40 @@ Binaries/Win64/HeliumRain-Win64-DebugGame.target
 Binaries/Win64/HeliumRainEditor-Win64-DebugGame.target
 Binaries/Win64/UE4Editor-Win64-DebugGame.modules
 Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor-Win64-DebugGame.modules
+CMakeLists.txt
+Flare.kdev4
+Flare.pro
+Flare.pro.user
+Flare.workspace
+FlareCodeCompletionFolders.txt
+FlareCodeLitePreProcessor.txt
+FlareConfig.pri
+FlareDefines.pri
+FlareHeader.pri
+FlareIncludes.pri
+FlareSource.pri
+Helium Rain.kdev4
+Helium Rain.pro
+Helium Rain.pro.user
+Helium Rain.workspace
+Helium RainCodeCompletionFolders.txt
+Helium RainCodeLitePreProcessor.txt
+Helium RainConfig.pri
+Helium RainDefines.pri
+Helium RainHeader.pri
+Helium RainIncludes.pri
+Helium RainSource.pri
+HeliumRain.kdev4
+HeliumRain.pro
+HeliumRain.pro.user
+HeliumRain.workspace
+HeliumRainCodeCompletionFolders.txt
+HeliumRainCodeLitePreProcessor.txt
+HeliumRainConfig.pri
+HeliumRainDefines.pri
+HeliumRainHeader.pri
+HeliumRainIncludes.pri
+HeliumRainSource.pri
+Makefile
+.kdev4
+core
