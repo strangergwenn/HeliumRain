@@ -4,6 +4,7 @@
 #include "../Game/FlareGame.h"
 #include "../Game/FlareWorld.h"
 #include "../Economy/FlareCargoBay.h"
+#include "../Economy/FlareFactory.h"
 #include "FlareSimulatedSpacecraft.h"
 
 
@@ -45,10 +46,11 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	Game->GetGameWorld()->ClearFactories(this);
 	Factories.Empty();
 
-
+	// Load factories
 	for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
 	{
 		FFlareFactorySave FactoryData;
+		FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
 
 		if (FactoryIndex < SpacecraftData.FactoryStates.Num())
 		{
@@ -56,16 +58,15 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		}
 		else
 		{
-				FactoryData.Active = (FactoryIndex == 0);
+				FactoryData.Active = FactoryDescription->AutoStart;
 				FactoryData.CostReserved = 0;
 				FactoryData.ProductedDuration = 0;
 				FactoryData.InfiniteCycle = true;
 				FactoryData.CycleCount = 0;
 		}
 
-
 		UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
-		Factory->Load(this, &SpacecraftDescription->Factories[FactoryIndex]->Data, FactoryData);
+		Factory->Load(this, FactoryDescription, FactoryData);
 		Factories.Add(Factory);
 		Game->GetGameWorld()->AddFactory(Factory);
 	}

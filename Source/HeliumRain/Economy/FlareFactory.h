@@ -102,6 +102,10 @@ struct FFlareFactoryDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool NeedSun;
 
+	/** Auto-start */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool AutoStart;
+
 	/** Cycle cost & yields */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FFlareProductionData CycleCost;
