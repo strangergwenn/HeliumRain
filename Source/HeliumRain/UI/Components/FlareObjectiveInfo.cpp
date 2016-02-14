@@ -205,7 +205,16 @@ EVisibility SFlareObjectiveInfo::GetVisibility() const
 FText SFlareObjectiveInfo::GetName() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Data.Name : FText::FromString("noname"));
+
+	if (Objective)
+	{
+		return FText::Format(LOCTEXT("ObjectiveTextFormat", "{0} ({1}/{2})"),
+			Objective->Data.Name, FText::AsNumber(Objective->Data.StepsDone + 1), FText::AsNumber(Objective->Data.StepsCount));
+	}
+	else
+	{
+		return FText::FromString("noname");
+	}
 }
 
 FText SFlareObjectiveInfo::GetDescription() const

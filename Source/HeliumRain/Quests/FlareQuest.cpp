@@ -632,23 +632,21 @@ void UFlareQuest::UpdateObjectiveTracker()
 		return;
 	}
 
-	FText Name = GetQuestName();
-	FText Infos = FText();
+	FFlarePlayerObjectiveData Objective;
 	if (GetCurrentStepDescription())
 	{
-		Infos = GetCurrentStepDescription()->Description;
+		Objective.StepsDone = QuestData.SuccessfullSteps.Num();
+		Objective.StepsCount = GetQuestDescription()->Steps.Num();
+		Objective.Description = GetCurrentStepDescription()->Description;
+		Objective.Name = GetQuestName();
 	}
-
-	FFlarePlayerObjectiveData Objective;
-	Objective.Name = Name;
-	Objective.Description = Infos;
 
 	if (GetCurrentStepDescription())
 	{
 		AddConditionObjectives(&Objective, GetCurrentStepDescription()->EndConditions);
 	}
 
-	QuestManager->GetGame()->GetPC()->StartObjective(Name, Objective);
+	QuestManager->GetGame()->GetPC()->StartObjective(Objective.Name, Objective);
 }
 
 void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, const TArray<FFlareQuestConditionDescription>& Conditions)

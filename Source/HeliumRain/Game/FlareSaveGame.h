@@ -42,6 +42,9 @@ struct FFlarePlayerObjectiveData
 	FText                       Name;
 	FText                       Description;
 
+	int                         StepsDone;
+	int                         StepsCount;
+
 	TArray<FFlarePlayerObjectiveTarget> TargetList;
 	TArray<FFlarePlayerObjectiveCondition> ConditionList;
 };
