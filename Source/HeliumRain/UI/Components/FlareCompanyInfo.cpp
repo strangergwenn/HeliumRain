@@ -345,12 +345,6 @@ FText SFlareCompanyInfo::GetToggleHostilityText() const
 		return FText();
 	}
 
-	// Our company
-	else if (Company == Player->GetCompany())
-	{
-		return LOCTEXT("Inspect", "Company status");
-	}
-
 	// We are at war
 	else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 	{
@@ -371,12 +365,6 @@ FText SFlareCompanyInfo::GetToggleHostilityHelpText() const
 		return FText();
 	}
 
-	// Our company
-	else if (Company == Player->GetCompany())
-	{
-		return LOCTEXT("InspectHelp", "Go to your company status to inspect or customize company property");
-	}
-
 	// We are at war
 	else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 	{
@@ -394,14 +382,8 @@ void SFlareCompanyInfo::OnToggleHostility()
 {
 	if (Player && Company)
 	{
-		// Our company
-		if (Company == Player->GetCompany())
-		{
-			Player->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Company);
-		}
-
 		// Requesting peace
-		else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
+		if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 		{
 			Player->GetCompany()->SetHostilityTo(Company, false);
 
