@@ -16,10 +16,12 @@ class SFlareCompanyInfo : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareCompanyInfo)
 		: _Player(NULL)
 		, _Company(NULL)
+		, _Rank(-1)
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
 	SLATE_ARGUMENT(UFlareCompany*, Company)
+	SLATE_ARGUMENT(int32, Rank)
 	
 	SLATE_END_ARGS()
 
@@ -53,6 +55,18 @@ protected:
 
 	/** Get the company info text */
 	FText GetCompanyInfo() const;
+
+	/** Get the company description text */
+	FText GetCompanyDescription() const;
+
+	/** Reputation info */
+	FText GetReputationText() const;
+
+	/** Reputation value */
+	FText GetReputationTextValue() const;
+
+	/** Reputation info color */
+	FSlateColor GetReputationColor() const;
 
 	/** Get the hostility data towards us, from this company */
 	FText GetCompanyHostility() const;

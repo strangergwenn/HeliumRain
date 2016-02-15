@@ -39,6 +39,10 @@ struct FFlareCompanyDescription
 	UPROPERTY(EditAnywhere, Category = Company)
 	FName ShortName;
 
+	/** Name */
+	UPROPERTY(EditAnywhere, Category = Company)
+	FText Description;
+
 	/** Emblem */
 	UPROPERTY(EditAnywhere, Category = Company)
 	UTexture2D* Emblem;

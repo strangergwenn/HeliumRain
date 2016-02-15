@@ -19,72 +19,143 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 	Company = InArgs._Company;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
+	// Rank
+	FText RankText;
+	if (InArgs._Rank >= 0)
+	{
+		RankText = FText::Format(LOCTEXT("RankFormat", "{0}/"), FText::AsNumber(InArgs._Rank));
+	}
+
 	// Create the layout
 	ChildSlot
 	.VAlign(VAlign_Top)
-	.HAlign(HAlign_Left)
+	.HAlign(HAlign_Fill)
 	[
-		SNew(SBox)
-		.WidthOverride(Theme.ContentWidth)
+		SNew(SHorizontalBox)
+
+		// Rank
+		+ SHorizontalBox::Slot()
+		.Padding(Theme.SmallContentPadding)
+		.AutoWidth()
 		.HAlign(HAlign_Fill)
 		[
-			SNew(SHorizontalBox)
+			SNew(STextBlock)
+			.TextStyle(&Theme.TitleFont)
+			.Text(RankText)
+		]
 
-			// Emblem
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.HAlign(HAlign_Left)
+		// Emblem
+		+ SHorizontalBox::Slot()
+		.Padding(Theme.SmallContentPadding)
+		.AutoWidth()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Top)
+		[
+			SNew(SImage)
+			.Image(this, &SFlareCompanyInfo::GetCompanyEmblem)
+		]
+
+		// Data
+		+ SHorizontalBox::Slot()
+		.Padding(Theme.SmallContentPadding)
+		.HAlign(HAlign_Fill)
+		[
+			SNew(SVerticalBox)
+				
+			// Name
+			+ SVerticalBox::Slot()
+			.AutoHeight()
 			[
-				SNew(SImage)
-				.Image(this, &SFlareCompanyInfo::GetCompanyEmblem)
+				SNew(STextBlock)
+				.Text(this, &SFlareCompanyInfo::GetCompanyName)
+				.TextStyle(&Theme.SubTitleFont)
 			]
 
 			// Data
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(Theme.ContentPadding)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
 			[
-				SNew(SVerticalBox)
-				
-				// Name
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.Text(this, &SFlareCompanyInfo::GetCompanyName)
-					.TextStyle(&Theme.SubTitleFont)
-				]
+				SNew(STextBlock)
+				.Text(this, &SFlareCompanyInfo::GetCompanyInfo)
+				.TextStyle(&Theme.TextFont)
+			]
+		]
 
-				// Data
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+		// Details
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Fill)
+		.AutoWidth()
+		[
+			SNew(SVerticalBox)
+
+			// Description
+			+ SVerticalBox::Slot()
+			.Padding(Theme.SmallContentPadding)
+			.HAlign(HAlign_Left)
+			.AutoHeight()
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth / 1.5)
 				[
 					SNew(STextBlock)
-					.Text(this, &SFlareCompanyInfo::GetCompanyInfo)
-					.TextStyle(&Theme.TextFont)
+					.Text(this, &SFlareCompanyInfo::GetCompanyDescription)
+					.WrapTextAt(Theme.ContentWidth / 1.5)
+					.TextStyle(&Theme.NameFont)
 				]
 			]
-
-			// Hostility
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SVerticalBox)
 				
-				// Status
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
+			// Reputation
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SHorizontalBox)
+
+				// Reputation & Hostility
+				+ SHorizontalBox::Slot()
+				.Padding(Theme.SmallContentPadding)
 				[
-					SNew(STextBlock)
-					.Text(this, &SFlareCompanyInfo::GetCompanyHostility)
-					.TextStyle(&Theme.TextFont)
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Reputation text
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareCompanyInfo::GetReputationText)
+							.TextStyle(&Theme.TextFont)
+						]
+
+						// Reputation value
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareCompanyInfo::GetReputationTextValue)
+							.ColorAndOpacity(this, &SFlareCompanyInfo::GetReputationColor)
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Hostility
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareCompanyInfo::GetCompanyHostility)
+						.TextStyle(&Theme.TextFont)
+					]
 				]
 
 				// Toggle player hostility
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(SFlareButton)
 					.Text(this, &SFlareCompanyInfo::GetToggleHostilityText)
@@ -152,6 +223,73 @@ FText SFlareCompanyInfo::GetCompanyInfo() const
 	return Result;
 }
 
+FText SFlareCompanyInfo::GetCompanyDescription() const
+{
+	FText Result;
+
+	if (Company)
+	{
+		const FFlareCompanyDescription* Desc = Company->GetDescription();
+		if (Desc)
+		{
+			Result = Desc->Description;
+		}
+	}
+
+	return Result;
+}
+
+FText SFlareCompanyInfo::GetReputationText() const
+{
+	FText Result;
+
+	if (Player && Player->GetCompany() != Company)
+	{
+		return LOCTEXT("ReputationInfo", "Reputation level : ");
+	}
+
+	return Result;
+}
+
+FText SFlareCompanyInfo::GetReputationTextValue() const
+{
+	FText Result;
+
+	if (Player && Company && Player->GetCompany() != Company)
+	{
+		int32 Reputation = Company->GetReputation(Player->GetCompany());
+		return FText::AsNumber(Reputation);
+	}
+
+	return Result;
+}
+
+FSlateColor SFlareCompanyInfo::GetReputationColor() const
+{
+	FLinearColor Result;
+
+	if (Player && Company)
+	{
+		float Reputation = Company->GetReputation(Player->GetCompany());
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+		if (Reputation <= -100)
+		{
+			return Theme.EnemyColor;
+		}
+		else if (Reputation >= 100)
+		{
+			return Theme.FriendlyColor;
+		}
+		else
+		{
+			return Theme.NeutralColor;
+		}
+	}
+
+	return Result;
+}
+
 FText SFlareCompanyInfo::GetCompanyHostility() const
 {
 	FText Result;
@@ -207,6 +345,12 @@ FText SFlareCompanyInfo::GetToggleHostilityText() const
 		return FText();
 	}
 
+	// Our company
+	else if (Company == Player->GetCompany())
+	{
+		return LOCTEXT("Inspect", "Company status");
+	}
+
 	// We are at war
 	else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 	{
@@ -227,6 +371,12 @@ FText SFlareCompanyInfo::GetToggleHostilityHelpText() const
 		return FText();
 	}
 
+	// Our company
+	else if (Company == Player->GetCompany())
+	{
+		return LOCTEXT("InspectHelp", "Go to your company status to inspect or customize company property");
+	}
+
 	// We are at war
 	else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 	{
@@ -244,8 +394,14 @@ void SFlareCompanyInfo::OnToggleHostility()
 {
 	if (Player && Company)
 	{
+		// Our company
+		if (Company == Player->GetCompany())
+		{
+			Player->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Company);
+		}
+
 		// Requesting peace
-		if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
+		else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 		{
 			Player->GetCompany()->SetHostilityTo(Company, false);
 

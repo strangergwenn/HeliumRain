@@ -50,7 +50,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("Leaderboard", "COMPETITION"))
+				.Text(LOCTEXT("Leaderboard", "COMPETITORS"))
 			]
 
 			// Close
@@ -93,7 +93,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				[
 					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth)
+					.WidthOverride(Theme.ContentWidth * 1.4)
 					[
 						SAssignNew(CompanyList, SListView< TSharedPtr<FInterfaceContainer> >)
 						.ListItemsSource(&CompanyListData)
@@ -167,6 +167,7 @@ TSharedRef<ITableRow> SFlareLeaderboardMenu::GenerateCompanyInfo(TSharedPtr<FInt
 		SNew(SFlareCompanyInfo)
 		.Player(MenuManager->GetPC())
 		.Company(Item->CompanyPtr)
+		.Rank(CompanyListData.Find(Item) + 1)
 	];
 }
 
