@@ -145,6 +145,8 @@ public:
 	/** Give a money amount to the company */
 	virtual void GiveMoney(uint64 Amount);
 
+	virtual void GiveReputation(UFlareCompany* Company, float Amount);
+
 	/*----------------------------------------------------
 		Customization
 	----------------------------------------------------*/
@@ -338,4 +340,5 @@ public:
 
 	bool HasVisitedSector(const UFlareSimulatedSector* Sector) const;
 
+	float GetReputation(UFlareCompany* Company);
 };

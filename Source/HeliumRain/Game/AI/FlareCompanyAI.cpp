@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareCompanyAI.h"
 #include "../FlareCompany.h"
+#include "../FlareGame.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 /*----------------------------------------------------
@@ -33,6 +34,27 @@ void UFlareCompanyAI::Simulate()
 {
 
 	FLOGV("Simulate AI for %s", *Company->GetCompanyName().ToString());
+
+
+	// Diplomacy
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if(OtherCompany == Company)
+		{
+			continue;
+		}
+
+		if(Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
+		{
+			Company->SetHostilityTo(OtherCompany, false);
+		}
+		else if(Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
+		{
+			Company->SetHostilityTo(OtherCompany, true);
+		}
+	}
 
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 	{

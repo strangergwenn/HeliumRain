@@ -368,6 +368,74 @@ void UFlareCompany::GiveMoney(uint64 Amount)
 	FLOGV("$ %s + %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
 }
 
+#define REPUTATION_RANGE 200.f
+void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount)
+{
+	FFlareCompanyReputationSave* CompanyReputation = NULL;
+
+	if(Company == this)
+	{
+		FLOG("ERROR: A company don't have reputation for itself!");
+		return;
+	}
+
+	for (int32 CompanyIndex = 0; CompanyIndex < CompanyData.CompaniesReputation.Num(); CompanyIndex++)
+	{
+		if(Company->GetIdentifier() == CompanyData.CompaniesReputation[CompanyIndex].CompanyIdentifier)
+		{
+			CompanyReputation = &CompanyData.CompaniesReputation[CompanyIndex];
+			break;
+		}
+	}
+
+	if(CompanyReputation == NULL)
+	{
+		FFlareCompanyReputationSave NewCompanyReputation;
+		NewCompanyReputation.CompanyIdentifier = Company->GetIdentifier();
+		NewCompanyReputation.Reputation = 0;
+		CompanyData.CompaniesReputation.Add(NewCompanyReputation);
+		CompanyReputation = &CompanyData.CompaniesReputation[CompanyData.CompaniesReputation.Num()-1];
+	}
+
+	// Gain reputation is easier with low reputation and loose reputation is easier with hight reputation.
+	// Reputation vary between -200 and 200
+	// 0% if reputation in variation direction = 200
+	// 10% if reputation in variation direction = 100
+	// 100% if reputation in variation direction = 0
+	// 200% if reputation in variation direction = -100
+	// 1000% if reputation in variation direction = -200
+
+	// -200 = 0, 200 = 1
+	float ReputationRatioInVarationDirection = (CompanyReputation->Reputation * FMath::Sign(Amount) + REPUTATION_RANGE) / (2*REPUTATION_RANGE);
+	float ReputationGainFactor = 1.f;
+
+	if(ReputationRatioInVarationDirection < 0.25f)
+	{
+		ReputationGainFactor = - 32.f * ReputationRatioInVarationDirection + 10.f;
+	}
+	else if(ReputationRatioInVarationDirection < 0.50f)
+	{
+		ReputationGainFactor = - 4.f * ReputationRatioInVarationDirection + 3.f;
+	}
+	else if(ReputationRatioInVarationDirection < 0.75f)
+	{
+		ReputationGainFactor = - 3.6f * ReputationRatioInVarationDirection + 2.8f;
+	}
+	else
+	{
+		ReputationGainFactor = - 0.4f * ReputationRatioInVarationDirection + 0.4f;
+	}
+
+	float ReputationScaledGain = Amount * ReputationGainFactor;
+
+	CompanyReputation->Reputation = FMath::Clamp(CompanyReputation->Reputation + ReputationScaledGain, -200.f, 200.f);
+	if(FMath::Abs(CompanyReputation->Reputation) < 1.f)
+	{
+		CompanyReputation->Reputation = 0.f;
+	}
+}
+
+
 /*----------------------------------------------------
 	Customization
 ----------------------------------------------------*/
@@ -467,6 +535,19 @@ UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculati
 bool UFlareCompany::HasVisitedSector(const UFlareSimulatedSector* Sector) const
 {
 	return VisitedSectors.Contains(Sector);
+}
+
+float UFlareCompany::GetReputation(UFlareCompany* Company)
+{
+	for (int32 CompanyIndex = 0; CompanyIndex < CompanyData.CompaniesReputation.Num(); CompanyIndex++)
+	{
+		if(Company->GetIdentifier() == CompanyData.CompaniesReputation[CompanyIndex].CompanyIdentifier)
+		{
+			return CompanyData.CompaniesReputation[CompanyIndex].Reputation;
+		}
+	}
+
+	return 0;
 }
 
 #undef LOCTEXT_NAMESPACE

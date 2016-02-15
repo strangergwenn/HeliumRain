@@ -238,6 +238,26 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 		UFlareSimulatedSpacecraft* Spacecraft = CompanySpacecrafts[i];
 		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
 	}
+
+	TArray<UFlareCompany*> Companies = GetGame()->GetGameWorld()->GetCompanies();
+	FLOG("  > Diplomacy");
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* OtherCompany = Companies[i];
+		if(OtherCompany == Company)
+		{
+			continue;
+		}
+		FLOGV("   - %s want %s with %s (reputation: %f). %s want %s with %s (reputation: %f)",
+			  *Company->GetCompanyName().ToString(),
+			  (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile ? *FString("war") : *FString("peace")),
+			  *OtherCompany->GetCompanyName().ToString(),
+			  Company->GetReputation(OtherCompany),
+			  *OtherCompany->GetCompanyName().ToString(),
+			  (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile ? *FString("war") : *FString("peace")),
+			  *Company->GetCompanyName().ToString(),
+			  OtherCompany->GetReputation(Company));
+	}
 }
 
 void UFlareGameTools::PrintCompanyByIndex(int32 Index)
@@ -257,6 +277,33 @@ void UFlareGameTools::PrintCompanyByIndex(int32 Index)
 
 	PrintCompany(Companies[Index]->GetShortName());
 }
+
+void UFlareGameTools::GiveReputation(FName CompanyShortName1, FName CompanyShortName2, float Amount)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("UFlareGameTools::GiveReputation failed: no loaded world");
+		return;
+	}
+
+	UFlareCompany* Company1 = GetGameWorld()->FindCompanyByShortName(CompanyShortName1);
+	if (!Company1)
+	{
+		FLOGV("UFlareGameTools::GiveReputation failed: no company with short name '%s'", * CompanyShortName1.ToString());
+		return;
+	}
+
+	UFlareCompany* Company2 = GetGameWorld()->FindCompanyByShortName(CompanyShortName2);
+	if (!Company2)
+	{
+		FLOGV("UFlareGameTools::GiveReputation failed: no company with short name '%s'", * CompanyShortName2.ToString());
+		return;
+	}
+
+	Company1->GiveReputation(Company2, Amount);
+}
+
+
 
 
 /*----------------------------------------------------

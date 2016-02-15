@@ -249,6 +249,28 @@ void UFlareWorld::Simulate()
 		Travels[TravelIndex]->Simulate();
 	}
 
+	// Reputation stabilization
+	for (int CompanyIndex1 = 0; CompanyIndex1 < Companies.Num(); CompanyIndex1++)
+	{
+		UFlareCompany* Company1 =Companies[CompanyIndex1];
+
+		for (int CompanyIndex2 = 0; CompanyIndex2 < Companies.Num(); CompanyIndex2++)
+		{
+			UFlareCompany* Company2 =Companies[CompanyIndex2];
+
+			if(Company1 == Company2)
+			{
+				continue;
+			}
+
+			float Reputation = Company1->GetReputation(Company2);
+			if(Reputation != 0.f)
+			{
+				Company1->GiveReputation(Company2, -1 * FMath::Sign(Reputation));
+			}
+		}
+	}
+
 	// AI
 	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 	{

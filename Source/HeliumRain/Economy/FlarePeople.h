@@ -1,27 +1,12 @@
 
 #pragma once
+#include "../Game/FlareGameTypes.h"
 #include "FlarePeople.generated.h"
 
 class AFlareGame;
 class UFlareSimulatedSector;
 class UFlareSimulatedSpacecraft;
 struct FFlareResourceDescription;
-
-
-/** Company reputation save data */
-USTRUCT()
-struct FFlareCompanyReputationSave
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Reputation owner */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName CompanyIdentifier;
-
-	/** Reputation points */
-	UPROPERTY(EditAnywhere, Category = Save)
-	uint32 Reputation;
-};
 
 /** Sector people save data */
 USTRUCT()
