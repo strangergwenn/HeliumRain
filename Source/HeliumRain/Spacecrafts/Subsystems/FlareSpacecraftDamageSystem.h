@@ -29,6 +29,10 @@ public:
 
 	virtual void Start();
 
+	/** Set who's doing the damage */
+	virtual void SetLastDamageCauser(AFlareSpacecraft* Ship);
+
+
 public:
 
 	/*----------------------------------------------------
@@ -55,9 +59,9 @@ public:
 	virtual float GetPowerOutageDuration() const;
 
 
-/*----------------------------------------------------
-	System Interface
-----------------------------------------------------*/
+	/*----------------------------------------------------
+		System Interface
+	----------------------------------------------------*/
 
 	/** Update power status for all components */
 	virtual void UpdatePower();
@@ -84,11 +88,16 @@ protected:
 
 	UPROPERTY()
 	AFlareSpacecraft*                               Spacecraft;
+
 	FFlareSpacecraftSave*                           Data;
 	FFlareSpacecraftDescription*                    Description;
 	TArray<UActorComponent*>                        Components;
+
 	bool                                            WasAlive; // True if was alive at the last tick
 	float											TimeSinceLastExternalDamage;
+
+	AFlareSpacecraft*                               LastDamageCauser;
+
 
 public:
 	/*----------------------------------------------------

@@ -480,6 +480,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(ActorToDamage);
 	if (Spacecraft)
 	{
+		Spacecraft->GetDamageSystem()->SetLastDamageCauser(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()));
 		Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, ImpactRadius, ImpactLocation, DamageType);
 
 		// Physics impulse

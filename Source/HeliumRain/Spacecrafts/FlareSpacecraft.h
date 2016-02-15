@@ -124,15 +124,6 @@ public:
 
 	UFlareSectorInterface* GetCurrentSectorInterface() override;
 
-protected:
-
-	/*----------------------------------------------------
-		Damage system
-	----------------------------------------------------*/
-
-	/** Our ship killed another ship */
-	virtual void OnEnemyKilled(IFlareSpacecraftInterface* Enemy);
-
 
 public:
 

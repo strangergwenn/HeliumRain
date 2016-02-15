@@ -52,7 +52,7 @@ protected:
 
 	/** Mesh component */
 	UPROPERTY()
-	USceneComponent*                    ShellComp;
+	USceneComponent*                         ShellComp;
 
 	/** Special effects on explosion */
 	UPROPERTY()

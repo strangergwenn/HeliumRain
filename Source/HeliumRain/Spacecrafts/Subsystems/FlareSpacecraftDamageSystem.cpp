@@ -4,6 +4,7 @@
 #include "FlareSpacecraftDamageSystem.h"
 #include "../FlareSpacecraft.h"
 #include "../../Game/FlareGame.h"
+#include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftDamageSystem"
 
@@ -14,6 +15,7 @@
 UFlareSpacecraftDamageSystem::UFlareSpacecraftDamageSystem(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, Spacecraft(NULL)
+	, LastDamageCauser(NULL)
 {
 }
 
@@ -90,6 +92,30 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	// Update Alive status
 	if (WasAlive && !IsAlive())
 	{
+		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+
+		// Player kill
+		if (PC && LastDamageCauser == PC->GetShipPawn())
+		{
+			PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"),
+				FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a {0}-class ship ({1})"),
+					Spacecraft->GetDescription()->Name,
+					FText::FromString(Spacecraft->GetImmatriculation().ToString())),
+				FName("ship-killed"),
+				EFlareNotification::NT_Military);
+		}
+
+		// Company kill
+		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetCompany())
+		{
+			PC->Notify(LOCTEXT("ShipKilledCompany", "Target destroyed"),
+				FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your ship {0} destroyed a {1}-class ship ({2})"),
+					FText::FromString(LastDamageCauser->GetImmatriculation().ToString()),
+					Spacecraft->GetDescription()->Name,
+					FText::FromString(Spacecraft->GetImmatriculation().ToString())),
+				FName("ship-killed"),
+				EFlareNotification::NT_Military);
+		}
 
 		WasAlive = false;
 		OnControlLost();
@@ -104,13 +130,10 @@ void UFlareSpacecraftDamageSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft,
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	Description = Spacecraft->GetDescription();
 	Data = OwnerData;
-
 }
 
 void UFlareSpacecraftDamageSystem::Start()
 {
-
-
 	// Reload components
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
@@ -138,6 +161,10 @@ void UFlareSpacecraftDamageSystem::Start()
 	TimeSinceLastExternalDamage = 10000;
 }
 
+void UFlareSpacecraftDamageSystem::SetLastDamageCauser(AFlareSpacecraft* Ship)
+{
+	LastDamageCauser = Ship;
+}
 
 void UFlareSpacecraftDamageSystem::UpdatePower()
 {
@@ -150,14 +177,28 @@ void UFlareSpacecraftDamageSystem::UpdatePower()
 
 void UFlareSpacecraftDamageSystem::OnControlLost()
 {
-	AFlarePlayerController* PC = Spacecraft->GetPC();
-	if (PC)
+	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+
+	// Lost player ship
+	if (Spacecraft == PC->GetShipPawn())
 	{
 		PC->Notify(
-			LOCTEXT("ShipDestroyed", "Your ship has been destroyed !"),
-			LOCTEXT("ShipDestroyedInfo", "You can switch to nearby ships with N."),
+			LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
+			FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"),
+				LastDamageCauser->GetDescription()->Name),
 			FName("ship-destroyed"),
 			EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
+	}
+
+	// Lost player ship
+	else if (Spacecraft->GetCompany() == PC->GetCompany())
+	{
+		PC->Notify(LOCTEXT("ShipDestroyedCompany", "One of your ships has been destroyed"),
+			FText::Format(LOCTEXT("ShipDestroyedCompanyFormat", "Your ship {0} was destroyed by a {1}-class ship"),
+				FText::FromString(Spacecraft->GetImmatriculation().ToString()),
+				LastDamageCauser->GetDescription()->Name),
+			FName("ship-killed"),
+			EFlareNotification::NT_Military);
 	}
 
 	Spacecraft->GetNavigationSystem()->Undock();

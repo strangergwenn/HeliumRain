@@ -636,15 +636,6 @@ void AFlareSpacecraft::StartPresentation()
 		Damage system
 ----------------------------------------------------*/
 
-void AFlareSpacecraft::OnEnemyKilled(IFlareSpacecraftInterface* Enemy)
-{
-	AFlarePlayerController* PC = GetPC();
-	if (PC)
-	{
-		PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"), LOCTEXT("SkillKilledInfo", "You destroyed an enemy ship !"), FName("ship-killed"), EFlareNotification::NT_Military);
-	}
-}
-
 void AFlareSpacecraft::OnDocked()
 {
 	// Signal the PC
