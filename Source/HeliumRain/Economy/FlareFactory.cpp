@@ -3,6 +3,7 @@
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../Player/FlarePlayerController.h"
 #include "FlareFactory.h"
 
 
@@ -456,7 +457,17 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 		FVector SpawnPosition = Parent->GetSpawnLocation();
 		for (uint32 Index = 0; Index < Action->Quantity; Index++)
 		{
-			Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
+			UFlareSimulatedSpacecraft* Spacecraft = Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
+			AFlarePlayerController* PC = Parent->GetGame()->GetPC();
+
+			// Notify PC
+			if (PC && Spacecraft)
+			{
+				PC->Notify(LOCTEXT("ShipBuilt", "Ship production complete"),
+					FText::Format(LOCTEXT("ShipBuiltFormat", "Your ship {0} is ready to use !"), FText::FromString(Spacecraft->GetImmatriculation().ToString())),
+					FName("ship-killed"),
+					EFlareNotification::NT_Trading);
+			}
 		}
 	}
 
