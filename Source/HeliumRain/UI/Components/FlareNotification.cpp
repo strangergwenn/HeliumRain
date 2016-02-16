@@ -195,11 +195,11 @@ FSlateColor SFlareNotification::GetNotificationColor(EFlareNotification::Type Ty
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	switch (Type)
 	{
-		case EFlareNotification::NT_General:  Result = Theme.ObjectiveColor; break;
-		case EFlareNotification::NT_Help:     Result = Theme.InfoColor;      break;
-		case EFlareNotification::NT_Military: Result = Theme.CombatColor;    break;
-		case EFlareNotification::NT_Quest:	  Result = Theme.QuestColor;     break;
-		case EFlareNotification::NT_Trading:  Result = Theme.TradingColor;   break;
+		case EFlareNotification::NT_Info:      Result = Theme.InfoColor;      break;
+		case EFlareNotification::NT_Objective: Result = Theme.ObjectiveColor; break;
+		case EFlareNotification::NT_Military:  Result = Theme.CombatColor;    break;
+		case EFlareNotification::NT_Quest:	   Result = Theme.QuestColor;     break;
+		case EFlareNotification::NT_Economy:   Result = Theme.TradingColor;   break;
 	}
 
 	// Update alpha and return

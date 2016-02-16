@@ -14,9 +14,9 @@ namespace EFlareNotification
 {
 	enum Type
 	{
-		NT_General,
-		NT_Help,
-		NT_Trading,
+		NT_Info,
+		NT_Objective,
+		NT_Economy,
 		NT_Military,
 		NT_Quest
 	};

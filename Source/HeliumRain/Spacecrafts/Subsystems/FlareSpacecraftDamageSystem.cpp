@@ -98,23 +98,20 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		if (PC && LastDamageCauser == PC->GetShipPawn())
 		{
 			PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"),
-				FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a {0}-class ship ({1})"),
-					Spacecraft->GetDescription()->Name,
-					FText::FromString(Spacecraft->GetImmatriculation().ToString())),
+				FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetDescription()->Name),
 				FName("ship-killed"),
-				EFlareNotification::NT_Military);
+				EFlareNotification::NT_Info);
 		}
 
 		// Company kill
 		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetCompany())
 		{
 			PC->Notify(LOCTEXT("ShipKilledCompany", "Target destroyed"),
-				FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your ship {0} destroyed a {1}-class ship ({2})"),
-					FText::FromString(LastDamageCauser->GetImmatriculation().ToString()),
+				FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"),
 					Spacecraft->GetDescription()->Name,
-					FText::FromString(Spacecraft->GetImmatriculation().ToString())),
+					LastDamageCauser->GetDescription()->Name),
 				FName("ship-killed"),
-				EFlareNotification::NT_Military);
+				EFlareNotification::NT_Info);
 		}
 
 		WasAlive = false;
@@ -184,19 +181,16 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	{
 		PC->Notify(
 			LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
-			FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"),
-				LastDamageCauser->GetDescription()->Name),
+			FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetDescription()->Name),
 			FName("ship-destroyed"),
 			EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
 	}
 
-	// Lost player ship
+	// Lost company ship
 	else if (Spacecraft->GetCompany() == PC->GetCompany())
 	{
 		PC->Notify(LOCTEXT("ShipDestroyedCompany", "One of your ships has been destroyed"),
-			FText::Format(LOCTEXT("ShipDestroyedCompanyFormat", "Your ship {0} was destroyed by a {1}-class ship"),
-				FText::FromString(Spacecraft->GetImmatriculation().ToString()),
-				LastDamageCauser->GetDescription()->Name),
+			FText::Format(LOCTEXT("ShipDestroyedCompanyFormat", "Your {0}-class ship was destroyed"), Spacecraft->GetDescription()->Name),
 			FName("ship-killed"),
 			EFlareNotification::NT_Military);
 	}

@@ -466,7 +466,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 				PC->Notify(LOCTEXT("ShipBuilt", "Ship production complete"),
 					FText::Format(LOCTEXT("ShipBuiltFormat", "Your ship {0} is ready to use !"), FText::FromString(Spacecraft->GetImmatriculation().ToString())),
 					FName("ship-killed"),
-					EFlareNotification::NT_Trading);
+					EFlareNotification::NT_Economy);
 			}
 		}
 	}

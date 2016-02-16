@@ -214,7 +214,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		// Notification
 		FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetImmatriculation()));
 		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
-		Notify(Text, Info, "flying-info", EFlareNotification::NT_Help);
+		Notify(Text, Info, "flying-info", EFlareNotification::NT_Info);
 
 		// HUD update
 		GetNavHUD()->OnTargetShipChanged();
