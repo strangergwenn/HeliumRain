@@ -15,7 +15,7 @@ class AFlareMenuManager;
 class AFlareHUD;
 
 
-UCLASS(MinimalAPI, Config=FlarePlayerController)
+UCLASS(MinimalAPI)
 class AFlarePlayerController : public APlayerController
 {
 	GENERATED_UCLASS_BODY()
@@ -330,25 +330,17 @@ public:
 	----------------------------------------------------*/
 
 	/** Whether to use the dark theme when no sector is active */
-	UPROPERTY(Config)
 	bool                                     UseDarkThemeForStrategy;
 	
 	/** Whether to use the dark theme when a sector is active */
-	UPROPERTY(Config)
 	bool                                     UseDarkThemeForNavigation;
 	
 	/** Whether to use the 3D cockpit */
-	UPROPERTY(Config)
 	bool                                     UseCockpit;
 		
 	/** Whether to use the dark theme when a sector is active */
-	UPROPERTY(Config)
 	int32                                    MusicVolume;
 	
-	/** Whether to use tessellation everywhere */
-	UPROPERTY(Config)
-	bool                                     UseTessellationOnShips;
-
 	void SetUseDarkThemeForStrategy(bool New);
 
 	void SetUseDarkThemeForNavigation(bool New);
@@ -356,8 +348,6 @@ public:
 	void SetUseCockpit(bool New);
 
 	void SetMusicVolume(int32 New);
-
-	void SetUseTessellationOnShips(bool New);
 
 
 public:

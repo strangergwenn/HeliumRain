@@ -541,6 +541,15 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
+	TessellationButton->SetActive(MyGameSettings->UseTessellationOnShips);
+	CockpitButton->SetActive(MyGameSettings->UseCockpit);
+	DarkThemeInStrategyButton->SetActive(MyGameSettings->UseDarkThemeForStrategy);
+	DarkThemeInNavButton->SetActive(MyGameSettings->UseDarkThemeForNavigation);
+
+	// Music volume
+	int32 MusicVolume = MyGameSettings->MusicVolume;
+	MusicVolumeSlider->SetValue((float)MusicVolume / 10.0f);
+	MusicVolumeLabel->SetText(GetMusicVolumeLabel(MusicVolume));
 }
 
 
@@ -676,17 +685,6 @@ void SFlareSettingsMenu::Enter()
 		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
 		PC->GetMenuPawn()->ShowPart(PartDesc);
-
-		// Settings
-		CockpitButton->SetActive(PC->UseCockpit);
-		DarkThemeInStrategyButton->SetActive(PC->UseDarkThemeForStrategy);
-		DarkThemeInNavButton->SetActive(PC->UseDarkThemeForNavigation);
-		TessellationButton->SetActive(PC->UseTessellationOnShips);
-
-		// Music volume
-		int32 MusicVolume = PC->MusicVolume;
-		MusicVolumeSlider->SetValue((float)MusicVolume / 10.0f);
-		MusicVolumeLabel->SetText(GetMusicVolumeLabel(MusicVolume));
 	}
 
 	// Resolutions
@@ -731,23 +729,32 @@ void SFlareSettingsMenu::OnFullscreenToggle()
 
 void SFlareSettingsMenu::OnDarkThemeInStrategyToggle()
 {
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	PC->SetUseDarkThemeForStrategy(DarkThemeInStrategyButton->IsActive());
-	PC->SaveConfig();
+	bool New = DarkThemeInStrategyButton->IsActive();
+	MenuManager->GetPC()->SetUseDarkThemeForStrategy(New);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseDarkThemeForStrategy = New;
+	MyGameSettings->ApplySettings(false);
 }
 
 void SFlareSettingsMenu::OnDarkThemeInNavToggle()
 {
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	PC->SetUseDarkThemeForNavigation(DarkThemeInNavButton->IsActive());
-	PC->SaveConfig();
+	bool New = DarkThemeInStrategyButton->IsActive();
+	MenuManager->GetPC()->SetUseDarkThemeForNavigation(New);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseDarkThemeForNavigation = New;
+	MyGameSettings->ApplySettings(false);
 }
 
 void SFlareSettingsMenu::OnCockpitToggle()
 {
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	PC->SetUseCockpit(CockpitButton->IsActive());
-	PC->SaveConfig();
+	bool New = CockpitButton->IsActive();
+	MenuManager->GetPC()->SetUseCockpit(New);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseCockpit = New;
+	MyGameSettings->ApplySettings(false);
 }
 
 void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
@@ -825,15 +832,17 @@ void SFlareSettingsMenu::OnMusicVolumeSliderChanged(float Value)
 	int32 StepValue = FMath::RoundToInt(Step * Value);
 	MusicVolumeSlider->SetValue((float)StepValue / (float)Step);
 
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	int32 CurrentVolume = PC->MusicVolume;
+	int32 CurrentVolume = MyGameSettings->MusicVolume;
 	
-	if (CurrentVolume != StepValue)
+	if (PC && CurrentVolume != StepValue)
 	{
 		FLOGV("SFlareSettingsMenu::OnMusicVolumeSliderChanged : set music volume to %d (current is %d)", StepValue, CurrentVolume);
 		MusicVolumeLabel->SetText(GetMusicVolumeLabel(StepValue));
+		MyGameSettings->MusicVolume = StepValue;
+		MyGameSettings->ApplySettings(false);
 		PC->SetMusicVolume(StepValue);
-		PC->SaveConfig();
 	}
 }
 
@@ -881,10 +890,11 @@ void SFlareSettingsMenu::OnTessellationToggle()
 		FLOG("SFlareSettingsMenu::OnTessellationToggle : Disable tessellation")
 	}
 
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	PC->SetUseTessellationOnShips(TessellationButton->IsActive());
-	PC->SaveConfig();
-	PC->GetMenuPawn()->UpdateCustomization();
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseTessellationOnShips = TessellationButton->IsActive();
+	MyGameSettings->ApplySettings(false);
+
+	MenuManager->GetPC()->GetMenuPawn()->UpdateCustomization();
 }
 
 void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey )

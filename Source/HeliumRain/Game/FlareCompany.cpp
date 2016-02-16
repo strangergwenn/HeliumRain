@@ -2,8 +2,9 @@
 #include "Flare.h"
 #include "FlareGame.h"
 #include "FlareCompany.h"
-#include "../Player/FlarePlayerController.h"
 #include "FlareSector.h"
+#include "FlareGameUserSettings.h"
+#include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "AI/FlareCompanyAI.h"
@@ -459,6 +460,7 @@ void UFlareCompany::UpdateCompanyCustomization()
 void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 
 	// Get data from storage
 	FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(GetBasePaintColorIndex());
@@ -477,7 +479,7 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 	Mat->SetTextureParameterValue("PaintPattern", Pattern);
 	Mat->SetTextureParameterValue("Emblem", Emblem);
 	Mat->SetScalarParameterValue("IsPainted", 1);
-	Mat->SetScalarParameterValue("TessellationMultiplier", PC->UseTessellationOnShips ? 10.0 : 0.0);
+	Mat->SetScalarParameterValue("TessellationMultiplier", MyGameSettings->UseTessellationOnShips ? 10.0 : 0.0);
 }
 
 void UFlareCompany::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)

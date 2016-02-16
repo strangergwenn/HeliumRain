@@ -15,7 +15,13 @@ UFlareGameUserSettings::UFlareGameUserSettings(const class FObjectInitializer& P
 void UFlareGameUserSettings::SetToDefaults()
 {
 	Super::SetToDefaults();
+
 	ScreenPercentage = 100;
+	UseDarkThemeForStrategy = true;
+	UseDarkThemeForNavigation = false;
+	UseCockpit = true;
+	MusicVolume = 8;
+	UseTessellationOnShips = false;
 }
 
 void UFlareGameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)

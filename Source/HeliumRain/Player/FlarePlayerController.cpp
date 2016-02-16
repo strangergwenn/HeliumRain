@@ -4,6 +4,7 @@
 #include "../Game/FlareGameTools.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
+#include "../Game/FlareGameUserSettings.h"
 #include "FlareMenuManager.h"
 #include "EngineUtils.h"
 
@@ -52,6 +53,14 @@ void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	EnableCheats();
+
+	// Settings
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	check(MyGameSettings);
+	UseDarkThemeForStrategy = MyGameSettings->UseDarkThemeForStrategy;
+	UseDarkThemeForNavigation = MyGameSettings->UseDarkThemeForNavigation;
+	UseCockpit = MyGameSettings->UseCockpit;
+	MusicVolume = MyGameSettings->MusicVolume;
 
 	// Cockpit
 	SetupCockpit();
@@ -1021,11 +1030,6 @@ void AFlarePlayerController::SetMusicVolume(int32 New)
 {
 	MusicVolume = New;
 	SoundManager->SetMusicVolume(New);
-}
-
-void AFlarePlayerController::SetUseTessellationOnShips(bool New)
-{
-	UseTessellationOnShips = New;
 }
 
 
