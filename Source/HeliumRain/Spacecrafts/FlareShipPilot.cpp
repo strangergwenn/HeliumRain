@@ -590,7 +590,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// 3 - Drop : Drop util its not safe to stay
 	// 2 - Withdraw : target is passed, wait a security distance to attack again
 
-	float WeigthCoef = FMath::Sqrt(Ship->Airframe->GetMass()) / FMath::Sqrt(5425.f) * (2-Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS)) ; // 1 for ghoul at 100%
+	float WeigthCoef = FMath::Sqrt(Ship->GetSpacecraftMass()) / FMath::Sqrt(5425.f) * (2-Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS)) ; // 1 for ghoul at 100%
 
 	float ChargeDistance = 15 * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * WeigthCoef ;
 	float AlignTime = 12 * WeigthCoef;
@@ -831,12 +831,12 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		// If not, find a leader
 		AFlareSpacecraft* LeaderShip = Ship;
 
-
 		TArray<AFlareSpacecraft*> Spacecrafts = Ship->GetGame()->GetActiveSector()->GetCompanySpacecrafts(Ship->GetCompany());
-
 		for (int ShipIndex = 0; ShipIndex < Spacecrafts.Num() ; ShipIndex++)
 		{
 			AFlareSpacecraft* CandidateShip = Spacecrafts[ShipIndex];
+			float LeaderMass = LeaderShip->GetSpacecraftMass();
+			float CandidateMass = CandidateShip->GetSpacecraftMass();
 
 			if (Ship == CandidateShip)
 			{
@@ -848,18 +848,17 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 				continue;
 			}
 
-            if (LeaderShip->Airframe->GetMass() == CandidateShip->Airframe->GetMass())
+            if (LeaderMass == CandidateMass)
 			{
                 if (LeaderShip->GetImmatriculation() < CandidateShip->GetImmatriculation())
                 {
                     continue;
                 }
 			}
-            else if (LeaderShip->Airframe->GetMass() > CandidateShip->Airframe->GetMass())
+            else if (LeaderMass > CandidateMass)
             {
                 continue;
             }
-
 
             LeaderShip = CandidateShip;
 		}

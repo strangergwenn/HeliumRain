@@ -930,6 +930,8 @@ void AFlarePlayerController::FlyTargetSpacecraft()
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
+			// Disable pilot during the switch
+			TargetSpacecraft->GetStateManager()->EnablePilot(false);
 			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, TargetSpacecraft);
 		}
 	}

@@ -52,6 +52,9 @@ public:
 
 	virtual void Redock();
 
+	virtual float GetSpacecraftMass();
+
+
 	/*----------------------------------------------------
 		Player interface
 	----------------------------------------------------*/
@@ -246,8 +249,11 @@ protected:
 
 	bool                                           Paused;
 
+	float                                          LastMass;
+
 	UPROPERTY()
-	UFlareCargoBay*                                         CargoBay;
+	UFlareCargoBay*                                CargoBay;
+
 
 	/*----------------------------------------------------
 		Target selection

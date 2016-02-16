@@ -49,6 +49,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	TimeSinceSelection = 0;
 	MaxTimeBeforeSelectionReset = 3.0;
 	Paused = false;
+	LastMass = 0;
 }
 
 
@@ -152,7 +153,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 		return;
 	}
 
-	//FLOGV("AFlareSpacecraft Hit  Mass %f NormalImpulse %s NormalImpulse.Size() %f", Airframe->GetMass(), *NormalImpulse.ToString(), NormalImpulse.Size());
+	//FLOGV("AFlareSpacecraft Hit  Mass %f NormalImpulse %s NormalImpulse.Size() %f", GetSpacecraftMass(), *NormalImpulse.ToString(), NormalImpulse.Size());
 	DamageSystem->OnCollision(Other, HitLocation, NormalImpulse);
 
 	// If hit, check if the is a docking in progress. If yes, check if the ship is correctly aligned
@@ -201,7 +202,6 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	}
 }
 
-
 void AFlareSpacecraft::Redock()
 {
 	// Re-dock if we were docked
@@ -224,13 +224,23 @@ void AFlareSpacecraft::Redock()
 	}
 }
 
+float AFlareSpacecraft::GetSpacecraftMass()
+{
+	if (Airframe->IsSimulatingPhysics())
+	{
+		LastMass = Airframe->GetMass();
+		return LastMass;
+	}
+	else
+	{
+		return LastMass;
+	}
+}
+
+
 /*----------------------------------------------------
 	Player interface
 ----------------------------------------------------*/
-
-
-// TODO move in helper class
-
 
 float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
@@ -589,7 +599,7 @@ void AFlareSpacecraft::SetRCSDescription(FFlareSpacecraftComponentDescription* D
 	{
 		if (Airframe && Description->EngineCharacteristics.AngularAccelerationRate > 0 && !IsPresentationMode())
 		{
-			float Mass = Airframe->GetMass() / 100000;
+			float Mass = GetSpacecraftMass() / 100000;
 			NavigationSystem->SetAngularAccelerationRate(Description->EngineCharacteristics.AngularAccelerationRate / (60 * Mass));
 		}
 	}

@@ -229,13 +229,12 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 
 	// Compute the relative velocity in the impact axis then compute kinetic energy
 	/*float ImpactSpeed = DeltaVelocity.Size();
-	float ImpactMass = FMath::Min(Spacecraft->Airframe->GetMass(), OtherRoot->GetMass());
+	float ImpactMass = FMath::Min(Spacecraft->GetSpacecraftMass(), OtherRoot->GetMass());
 	*/
 
 	//200 m /s -> 6301.873047 * 20000 -> 300 / 2 damage
 
-
-	float ImpactMass = Spacecraft->Airframe->GetMass();
+	float ImpactMass = Spacecraft->GetSpacecraftMass();
 	float ImpactSpeed = NormalImpulse.Size() / (ImpactMass * 100.f);
 	float ImpactEnergy = ImpactMass * ImpactSpeed / 8402.f;
 
