@@ -931,11 +931,11 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 
 			// Target selection info
-			int32 SelectionSize = FMath::Min(48, (int32)ObjectSize.X);
+			/*int32 SelectionSize = FMath::Min(48, (int32)ObjectSize.X);
 			if (Spacecraft == PlayerShip->GetWeaponsSystem()->GetActiveWeaponTarget())
 			{
 				DrawHUDIcon(ScreenPosition, SelectionSize, HUDDesignatorSelectionTexture, Color, true);
-			}
+			}*/
 			
 			// Combat helper
 			if (Spacecraft->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)

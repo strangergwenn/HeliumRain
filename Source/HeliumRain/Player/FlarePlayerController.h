@@ -223,6 +223,9 @@ public:
 	/** Inspect the target */
 	void InspectTargetSpacecraft();
 
+	/** Fly the target */
+	void FlyTargetSpacecraft();
+
 	/** Dock at the target */
 	void DockAtTargetSpacecraft();
 

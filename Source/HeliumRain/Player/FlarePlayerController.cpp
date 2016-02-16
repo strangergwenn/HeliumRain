@@ -836,46 +836,40 @@ void AFlarePlayerController::WheelPressed()
 		// Flying controls
 		else
 		{
-			/*if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
-			{
-				MouseMenu->AddWidget("Mouse_Align", LOCTEXT("Align", "Forward"),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToSpeed));
-			}
-
-			MouseMenu->AddWidget("Mouse_Brake", LOCTEXT("Brake", "Brake"),
-				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::Brake));
-
-			if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_BOMB)
-			{
-				MouseMenu->AddWidget("Mouse_Reverse", LOCTEXT("Backward", "Backward"),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::AlignToReverse));
-			}*/
-
 			// Targetting
 			AFlareSpacecraft* Target = ShipPawn->GetCurrentTarget();
 			if (Target)
 			{
+				// Inspect
 				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Inspect {0}"), FText::FromName(Target->GetImmatriculation()));
 				MouseMenu->AddWidget(Target->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
-/*
-				FText Text2 = FText::Format(LOCTEXT("MatchSpeedFormat", "Match speed with {0}"), FText::FromName(Target->GetImmatriculation()));
-				MouseMenu->AddWidget("Mouse_MatchSpeed", Text2,
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::MatchSpeedWithTargetSpacecraft));*/
 
+				// Fly
+				if (Target->GetCompany() == GetCompany())
+				{
+					Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), FText::FromName(Target->GetImmatriculation()));
+					MouseMenu->AddWidget("Mouse_Fly", Text,	FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::FlyTargetSpacecraft));
+				}
+
+				// Dock
 				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn()))
 				{
-					FText Text3 = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetImmatriculation()));
-					MouseMenu->AddWidget("Mouse_DockAt", Text3,
-						FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));
+					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetImmatriculation()));
+					MouseMenu->AddWidget("Mouse_DockAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));
 				}
 			}
-			else
+
+			// Capital ship controls
+			else if (ShipPawn->GetDescription()->Size == EFlarePartSize::L)
 			{
-				MouseMenu->AddWidget("Mouse_LookAt", LOCTEXT("FindNearest", "Look at current target"),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::LookAtTargetSpacecraft));
+				// TODO
 			}
 
+			// Fighter controls
+			else
+			{
+			}
 		}
 
 		GetNavHUD()->SetWheelMenu(true);
@@ -925,6 +919,18 @@ void AFlarePlayerController::InspectTargetSpacecraft()
 		if (TargetSpacecraft)
 		{
 			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship);
+		}
+	}
+}
+
+void AFlarePlayerController::FlyTargetSpacecraft()
+{
+	if (ShipPawn)
+	{
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		if (TargetSpacecraft)
+		{
+			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, TargetSpacecraft);
 		}
 	}
 }

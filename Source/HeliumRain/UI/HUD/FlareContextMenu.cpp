@@ -100,7 +100,8 @@ void SFlareContextMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 
 		if (PlayerShip && PlayerShip->IsMilitary() && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET)
 		{
-			IsTargetting = true;
+			// Manual targetting is not cool, disabled
+			//IsTargetting = true;
 		}
 		else
 		{
