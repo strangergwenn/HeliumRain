@@ -146,20 +146,21 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 
 void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDesc)
 {
-	// Clean up
-	ResetContent();
-
 	// Choose a part to work with
 	SlideFromAToB = !SlideFromAToB;
 	UFlareSpacecraftComponent* CurrentPart = SlideFromAToB ? CurrentPartB : CurrentPartA;
+	UFlareCompany* Company = CurrentSpacecraft ? CurrentSpacecraft->GetCompany() : GetPC()->GetCompany();
 	FVector& CurrentPartOffset = SlideFromAToB ? CurrentPartOffsetB : CurrentPartOffsetA;
+
+	// Clean up
+	ResetContent();
 
 	// Load the parts and scale accordingly
 	CurrentPart->SetVisibility(true, true);
 	FFlareSpacecraftComponentSave Data;
 	Data.Damage = 0;
 	Data.ComponentIdentifier = PartDesc->Identifier;
-	CurrentPart->Initialize(&Data, GetPC()->GetCompany(), this, true);
+	CurrentPart->Initialize(&Data, Company, this, true);
 	CurrentPart->SetWorldScale3D(FVector(1, 1, 1));
 	float Scale = DisplaySize / CurrentPart->GetMeshScale();
 	CurrentPart->SetWorldScale3D(Scale * FVector(1, 1, 1));
