@@ -66,6 +66,13 @@ void AFlareSpacecraft::BeginPlay()
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
+	// Show mass in logs
+	if (LastMass <= 0 && Airframe && Airframe->IsSimulatingPhysics())
+	{
+		LastMass = Airframe->GetMass();
+		FLOGV("AFlareSpacecraft::Tick : Mass is %f for ship '%s'", LastMass, *GetName());
+	}
+
 	if (!IsPresentationMode() && StateManager && !Paused)
 	{
 		// Tick systems
@@ -226,14 +233,18 @@ void AFlareSpacecraft::Redock()
 
 float AFlareSpacecraft::GetSpacecraftMass()
 {
-	if (Airframe->IsSimulatingPhysics())
+	float Mass = GetDescription()->Mass;
+	if (Mass)
 	{
-		LastMass = Airframe->GetMass();
-		return LastMass;
+		return Mass;
+	}
+	else if (Airframe)
+	{
+		return Airframe->GetMass();
 	}
 	else
 	{
-		return LastMass;
+		return 0;
 	}
 }
 

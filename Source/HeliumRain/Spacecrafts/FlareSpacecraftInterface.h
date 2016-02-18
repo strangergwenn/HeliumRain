@@ -85,6 +85,9 @@ struct FFlareSpacecraftDescription
 	/** Spacecraft description */
 	UPROPERTY(EditAnywhere, Category = Content) FText ImmatriculationCode;
 
+	/** Spacecraft mass */
+	UPROPERTY(EditAnywhere, Category = Content) float Mass;
+
 	/** Build constraints for stations */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<TEnumAsByte<EFlareBuildConstraint::Type>> BuildConstraint;
