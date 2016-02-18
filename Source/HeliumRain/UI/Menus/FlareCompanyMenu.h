@@ -43,6 +43,7 @@ public:
 	/** Generate the trade route list */
 	void UpdateTradeRouteList();
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -61,7 +62,12 @@ protected:
 	/** Inspect trade route */
 	void OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute);
 
+	/** Delete trade route */
+	void OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute);
+
     EVisibility GetTradeRouteVisibility() const;
+
+
 protected:
 
 	/*----------------------------------------------------

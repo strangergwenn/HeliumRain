@@ -129,16 +129,6 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.MenuManager(MenuManager)
 				]
 
-				// Object list
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Left)
-				[
-					SAssignNew(ShipList, SFlareShipList)
-					.MenuManager(MenuManager)
-					.Title(LOCTEXT("Property", "PROPERTY"))
-				]
-
 				// Trade routes Title
 				+ SVerticalBox::Slot()
 				.Padding(Theme.TitlePadding)
@@ -157,10 +147,10 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Left)
 				[
 					SNew(SFlareButton)
-					.Width(8)
-					.Text(LOCTEXT("NewTradeRouteButton", "New trade route"))
-					.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route"))
-					.Icon(FFlareStyleSet::GetIcon("TradeRoute"))
+					.Width(6)
+					.Text(LOCTEXT("NewTradeRouteButton", "Add new trade route"))
+					.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it"))
+					.Icon(FFlareStyleSet::GetIcon("New"))
 					.OnClicked(this, &SFlareCompanyMenu::OnNewTradeRouteClicked)
                     .Visibility(this, &SFlareCompanyMenu::GetTradeRouteVisibility)
 				]
@@ -171,6 +161,16 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
                 .HAlign(HAlign_Left)
 				[
 					SAssignNew(TradeRouteList, SVerticalBox)
+				]
+
+				// Object list
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SAssignNew(ShipList, SFlareShipList)
+					.MenuManager(MenuManager)
+					.Title(LOCTEXT("Property", "PROPERTY"))
 				]
 			]
 		]
@@ -251,44 +251,45 @@ void SFlareCompanyMenu::UpdateTradeRouteList()
 {
 	if (Company)
 	{
+		TradeRouteList->ClearChildren();
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-
 		TArray<UFlareTradeRoute*>& TradeRoutes = Company->GetCompanyTradeRoutes();
+
 		for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
 		{
 			UFlareTradeRoute* TradeRoute = TradeRoutes[RouteIndex];
-			// TODO Trade route info
+
+			// Add line
 			TradeRouteList->AddSlot()
 			.AutoHeight()
 			.HAlign(HAlign_Right)
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(SHorizontalBox)
-
-				// Route info
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.HAlign(HAlign_Left)
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(TradeRoute->GetTradeRouteName())
-					]
-				]
 
 				// Inspect
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
 				[
 					SNew(SFlareButton)
+					.Width(6)
+					.Text(TradeRoute->GetTradeRouteName())
+					.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
 					.OnClicked(this, &SFlareCompanyMenu::OnInspectTradeRouteClicked, TradeRoute)
-					.Text(FText(LOCTEXT("Inspect", "Inspect")))
 				]
 
+				// Remove
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Transparent(true)
+					.Text(FText())
+					.HelpText(LOCTEXT("RemoveTradeRouteHelp", "Remove this trade route"))
+					.Icon(FFlareStyleSet::GetIcon("Stop"))
+					.OnClicked(this, &SFlareCompanyMenu::OnDeleteTradeRoute, TradeRoute)
+					.Width(1)
+				]
 			];
 		}
 	}
@@ -325,6 +326,13 @@ void SFlareCompanyMenu::OnNewTradeRouteClicked()
 void SFlareCompanyMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, TradeRoute);
+}
+
+void SFlareCompanyMenu::OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute)
+{
+	check(TradeRoute);
+	TradeRoute->Dissolve();
+	UpdateTradeRouteList();
 }
 
 EVisibility SFlareCompanyMenu::GetTradeRouteVisibility() const

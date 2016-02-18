@@ -283,8 +283,7 @@ void AFlareMenuManager::Back()
 				break;
 
 			case EFlareMenu::MENU_TradeRoute:
-				OpenMenu(EFlareMenu::MENU_Orbit);
-				// TODO real back
+				OpenMenu(EFlareMenu::MENU_Company);
 				break;
 
 			case EFlareMenu::MENU_Leaderboard:
