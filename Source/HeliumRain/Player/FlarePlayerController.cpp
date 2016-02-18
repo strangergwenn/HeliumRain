@@ -35,6 +35,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
 	DustEffectTemplate = DustEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
+	NeedFocusUI = true;
 	
 	// Gameplay
 	QuickSwitchNextOffset = 0;
@@ -94,16 +95,19 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 	// Mouse cursor
 	bool NewShowMouseCursor = !HUD->IsWheelMenuOpen() ;
+	bool NewNeedFocusUI = HUD->IsWheelMenuOpen();
 	if (!MenuManager->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
+		NewNeedFocusUI = false;
 	}
 
-	if (NewShowMouseCursor != bShowMouseCursor)
+	if (NewShowMouseCursor != bShowMouseCursor || NewNeedFocusUI != NeedFocusUI)
 	{
 		// Set the mouse status
-		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
+		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d, need focus ui is %d", NewShowMouseCursor, NewNeedFocusUI);
 		bShowMouseCursor = NewShowMouseCursor;
+		NeedFocusUI = NewNeedFocusUI;
 
 		ResetMousePosition();
 
@@ -117,7 +121,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 #endif
 
 		// Force focus to UI
-		if (NewShowMouseCursor || HUD->IsWheelMenuOpen())
+		if (NewNeedFocusUI)
 		{
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);

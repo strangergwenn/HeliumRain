@@ -321,7 +321,7 @@ protected:
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
 	UFlareFleet*                             SelectedFleet;
-	
+	bool                                     NeedFocusUI;
 
 public:
 
