@@ -855,7 +855,7 @@ void AFlarePlayerController::WheelPressed()
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
 
 				// Fly
-				if (Target->GetCompany() == GetCompany())
+				if (Target->GetCompany() == GetCompany() && !Target->IsStation())
 				{
 					Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), FText::FromName(Target->GetImmatriculation()));
 					MouseMenu->AddWidget("Mouse_Fly", Text,	FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::FlyTargetSpacecraft));
