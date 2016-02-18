@@ -93,7 +93,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	}
 
 	// Mouse cursor
-	bool NewShowMouseCursor = !HUD->IsWheelMenuOpen() ;
+	bool NewShowMouseCursor = true;
 	if (!MenuManager->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
@@ -117,7 +117,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 #endif
 
 		// Force focus to UI
-		if (NewShowMouseCursor || HUD->IsWheelMenuOpen())
+		if (NewShowMouseCursor)
 		{
 			FInputModeGameAndUI InputMode;
 			SetInputMode(InputMode);
