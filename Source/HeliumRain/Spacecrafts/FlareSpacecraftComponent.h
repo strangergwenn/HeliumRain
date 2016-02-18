@@ -409,8 +409,8 @@ public:
 	/** Return the amount of armor hit points at the world location. If not destructible, return a negative value */
 	virtual float GetRemainingArmorAtLocation(FVector Location);
 
-	/** Apply damage to this component. */
-	virtual void ApplyDamage(float Energy);
+	/** Apply damage to this component. Return inflicted damage ratio */
+	virtual float ApplyDamage(float Energy);
 
 	/** Apply overheat damage to this component only it is used. Burn damage are always applied. */
 	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy);

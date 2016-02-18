@@ -389,14 +389,16 @@ float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
 	return -1.0f;
 }
 
-void UFlareSpacecraftComponent::ApplyDamage(float Energy)
+float UFlareSpacecraftComponent::ApplyDamage(float Energy)
 {
+	float InflictedDamageRatio = 0;
 	if (ComponentDescription)
 	{
 		// Apply damage
 		float StateBeforeDamage = GetDamageRatio();
 		ShipComponentData.Damage += Energy;
 		float StateAfterDamage = GetDamageRatio();
+		InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
 
 		//FLOGV("Component %s. Apply Energy=%f  %f->%f", *(GetReadableName()), Energy, StateBeforeDamage, StateAfterDamage);
 
@@ -413,6 +415,7 @@ void UFlareSpacecraftComponent::ApplyDamage(float Energy)
 		}
 		UpdateLight();
 	}
+	return InflictedDamageRatio;
 }
 
 void UFlareSpacecraftComponent::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)

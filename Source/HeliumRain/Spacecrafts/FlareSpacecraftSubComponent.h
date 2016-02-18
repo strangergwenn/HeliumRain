@@ -19,7 +19,7 @@ public:
 
 	float GetRemainingArmorAtLocation(FVector Location) override;
 
-	virtual void ApplyDamage(float Energy) override;
+	virtual float ApplyDamage(float Energy) override;
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 

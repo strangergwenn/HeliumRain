@@ -32,6 +32,10 @@ public:
 
 	virtual void Simulate();
 
+	virtual void Tick();
+
+	virtual void SimulateDiplomacy();
+
 protected:
 
 	/*----------------------------------------------------

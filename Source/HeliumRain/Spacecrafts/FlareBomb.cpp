@@ -125,7 +125,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 		AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(Other);
 		if (Spacecraft)
 		{
-			Spacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower , WeaponDescription->WeaponCharacteristics.AmmoDamageRadius, HitLocation, EFlareDamage::DAM_HEAT);
+			Spacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower , WeaponDescription->WeaponCharacteristics.AmmoDamageRadius, HitLocation, EFlareDamage::DAM_HEAT, ParentWeapon->GetSpacecraft()->GetCompany());
 
 
 			float ImpulseForce = 1000 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius;

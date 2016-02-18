@@ -109,6 +109,8 @@ public:
 
 	virtual void SimulateAI();
 
+	virtual void TickAI();
+
 	/** Check if we are friend or for toward the player */
 	virtual EFlareHostility::Type GetPlayerHostility() const;
 
@@ -116,7 +118,7 @@ public:
 	virtual EFlareHostility::Type GetHostility(const UFlareCompany* TargetCompany) const;
 
 	/** Set whether this company is hostile to an other company */
-	virtual void SetHostilityTo(const UFlareCompany* TargetCompany, bool Hostile);
+	virtual void SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile);
 
 	/** Get an info string for this company */
 	virtual FText GetShortInfoText();
@@ -149,7 +151,7 @@ public:
 	/** Give a money amount to the company */
 	virtual void GiveMoney(uint64 Amount);
 
-	virtual void GiveReputation(UFlareCompany* Company, float Amount);
+	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);
 
 	/*----------------------------------------------------
 		Customization

@@ -36,25 +36,7 @@ void UFlareCompanyAI::Simulate()
 	FLOGV("Simulate AI for %s", *Company->GetCompanyName().ToString());
 
 
-	// Diplomacy
-	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
-	{
-		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
-
-		if(OtherCompany == Company)
-		{
-			continue;
-		}
-
-		if(Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
-		{
-			Company->SetHostilityTo(OtherCompany, false);
-		}
-		else if(Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
-		{
-			Company->SetHostilityTo(OtherCompany, true);
-		}
-	}
+	SimulateDiplomacy();
 
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 	{
@@ -100,6 +82,34 @@ void UFlareCompanyAI::Simulate()
 		UFlareSimulatedSpacecraft* Ship = CompanyShips[ShipIndex];
 		Ship->AssignToSector(true);
 	}*/
+}
+
+void UFlareCompanyAI::Tick()
+{
+	SimulateDiplomacy();
+}
+
+void UFlareCompanyAI::SimulateDiplomacy()
+{
+	// Declare war or make peace
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if(OtherCompany == Company)
+		{
+			continue;
+		}
+
+		if(Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
+		{
+			Company->SetHostilityTo(OtherCompany, false);
+		}
+		else if(Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
+		{
+			Company->SetHostilityTo(OtherCompany, true);
+		}
+	}
 }
 
 void UFlareCompanyAI::UnassignShipsFromSector(UFlareSimulatedSector* Sector, uint32 MaxCapacity)

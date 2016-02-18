@@ -716,6 +716,8 @@ void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, uint32
 				Station->GetCompany()->TakeMoney(TransactionAmount);
 				Company->GiveMoney(TransactionAmount);
 				FLOGV("%s	%u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
+				Station->GetCompany()->GiveReputation(Company, 0.5f, true);
 			}
 
 
@@ -812,6 +814,8 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 						int32 TransactionAmount = TakenResources * UnitSellPrice;
 						Station->GetCompany()->TakeMoney(TransactionAmount);
 						Company->GiveMoney(TransactionAmount);
+						Company->GiveReputation(Station->GetCompany(), 0.5f, true);
+						Station->GetCompany()->GiveReputation(Company, 0.5f, true);
 						FLOGV("%s sell %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 					}
 
@@ -971,6 +975,8 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 					int32 TransactionAmount = TakenQuantity * UnitBuyPrice;
 					Station->GetCompany()->GiveMoney(TransactionAmount);
 					Company->TakeMoney(TransactionAmount);
+					Company->GiveReputation(Station->GetCompany(), 0.5f, true);
+					Station->GetCompany()->GiveReputation(Company, 0.5f, true);
 					FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 				}
 
@@ -1013,6 +1019,8 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 				int32 TransactionAmount = TakenQuantity * UnitBuyPrice;
 				Station->GetCompany()->GiveMoney(TransactionAmount);
 				Company->TakeMoney(TransactionAmount);
+				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
+				Station->GetCompany()->GiveReputation(Company, 0.5f, true);
 				FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 			}
 		}

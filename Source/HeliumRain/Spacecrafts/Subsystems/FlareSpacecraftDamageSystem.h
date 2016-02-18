@@ -71,7 +71,7 @@ public:
 
 	virtual void OnCollision(class AActor* Other, FVector HitLocation, FVector NormalImpulse);
 
-	virtual void ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType);
+	virtual void ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
 
 
 

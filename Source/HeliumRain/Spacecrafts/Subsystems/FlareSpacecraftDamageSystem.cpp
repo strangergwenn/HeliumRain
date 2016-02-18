@@ -316,10 +316,17 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 
 
 	}
-	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location, EFlareDamage::DAM_Collision);
+
+	AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(Other);
+	UFlareCompany* DamageSource = NULL;
+	if (OtherSpacecraft)
+	{
+		DamageSource = OtherSpacecraft->GetCompany();
+	}
+	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location, EFlareDamage::DAM_Collision, DamageSource);
 }
 
-void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType)
+void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
 {
 	// The damages are applied to all component touching the sphere defined by the radius and the
 	// location in parameter.
@@ -350,7 +357,12 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 		{
 			//FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
-			Component->ApplyDamage(Energy * Efficiency);
+			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency);
+
+			if(DamageSource != NULL && DamageSource != Spacecraft->GetCompany())
+			{
+				Spacecraft->GetCompany()->GiveReputation(DamageSource, - (InflictedDamageRatio * 30), true);
+			}
 		}
 	}
 

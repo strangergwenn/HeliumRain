@@ -246,6 +246,14 @@ void AFlareGame::Tick(float DeltaSeconds)
 	{
 		QuestManager->OnTick(DeltaSeconds);
 	}
+
+	if(GetActiveSector() != NULL)
+	{
+		for (int CompanyIndex = 0; CompanyIndex < GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+		{
+			GetGameWorld()->GetCompanies()[CompanyIndex]->TickAI();
+		}
+	}
 }
 
 

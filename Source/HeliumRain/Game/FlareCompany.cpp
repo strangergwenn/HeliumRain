@@ -163,6 +163,15 @@ void UFlareCompany::SimulateAI()
 	}
 }
 
+void UFlareCompany::TickAI()
+{
+	if(CompanyAI)
+	{
+		CompanyAI->Tick();
+	}
+}
+
+
 EFlareHostility::Type UFlareCompany::GetPlayerHostility() const
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
@@ -189,17 +198,20 @@ EFlareHostility::Type UFlareCompany::GetHostility(const UFlareCompany* TargetCom
 	return EFlareHostility::Neutral;
 }
 
-void UFlareCompany::SetHostilityTo(const UFlareCompany* TargetCompany, bool Hostile)
+void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 {
 	if (TargetCompany && TargetCompany != this)
 	{
-		if (Hostile)
+		bool WasHostile = CompanyData.HostileCompanies.Contains(TargetCompany->GetIdentifier());
+		if (Hostile && !WasHostile)
 		{
 			CompanyData.HostileCompanies.AddUnique(TargetCompany->GetIdentifier());
+			TargetCompany->GiveReputation(this, -50, true);
 		}
-		else
+		else if(!Hostile && WasHostile)
 		{
 			CompanyData.HostileCompanies.Remove(TargetCompany->GetIdentifier());
+			TargetCompany->GiveReputation(this, 20, true);
 		}
 	}
 }
@@ -370,11 +382,11 @@ void UFlareCompany::GiveMoney(uint64 Amount)
 }
 
 #define REPUTATION_RANGE 200.f
-void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount)
+void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Propagate)
 {
 	FFlareCompanyReputationSave* CompanyReputation = NULL;
 
-	if(Company == this)
+	if (Company == this)
 	{
 		FLOG("ERROR: A company don't have reputation for itself!");
 		return;
@@ -389,7 +401,7 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount)
 		}
 	}
 
-	if(CompanyReputation == NULL)
+	if (CompanyReputation == NULL)
 	{
 		FFlareCompanyReputationSave NewCompanyReputation;
 		NewCompanyReputation.CompanyIdentifier = Company->GetIdentifier();
@@ -410,15 +422,15 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount)
 	float ReputationRatioInVarationDirection = (CompanyReputation->Reputation * FMath::Sign(Amount) + REPUTATION_RANGE) / (2*REPUTATION_RANGE);
 	float ReputationGainFactor = 1.f;
 
-	if(ReputationRatioInVarationDirection < 0.25f)
+	if (ReputationRatioInVarationDirection < 0.25f)
 	{
 		ReputationGainFactor = - 32.f * ReputationRatioInVarationDirection + 10.f;
 	}
-	else if(ReputationRatioInVarationDirection < 0.50f)
+	else if (ReputationRatioInVarationDirection < 0.50f)
 	{
 		ReputationGainFactor = - 4.f * ReputationRatioInVarationDirection + 3.f;
 	}
-	else if(ReputationRatioInVarationDirection < 0.75f)
+	else if (ReputationRatioInVarationDirection < 0.75f)
 	{
 		ReputationGainFactor = - 3.6f * ReputationRatioInVarationDirection + 2.8f;
 	}
@@ -430,10 +442,36 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount)
 	float ReputationScaledGain = Amount * ReputationGainFactor;
 
 	CompanyReputation->Reputation = FMath::Clamp(CompanyReputation->Reputation + ReputationScaledGain, -200.f, 200.f);
-	if(FMath::Abs(CompanyReputation->Reputation) < 1.f)
+	if (FMath::Abs(CompanyReputation->Reputation) < 1.f)
 	{
 		CompanyReputation->Reputation = 0.f;
 	}
+
+	if (Propagate)
+	{
+		// Other companies gain a part of reputation gain according to their affinity :
+		// 200 = 50 % of the gain
+		// -200 = -50 % of the gain
+		// 0 = 0% the the gain
+
+
+		for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+		{
+			UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+			if (OtherCompany == Company || OtherCompany == this)
+			{
+				continue;
+			}
+
+			float OtherReputation = OtherCompany->GetReputation(Company);
+			float PropagationRatio = OtherReputation / 400.f;
+			OtherCompany->GiveReputation(Company, PropagationRatio * ReputationScaledGain, false);
+		}
+
+
+	}
+
 }
 
 

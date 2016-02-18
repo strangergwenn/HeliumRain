@@ -300,7 +300,7 @@ void UFlareGameTools::GiveReputation(FName CompanyShortName1, FName CompanyShort
 		return;
 	}
 
-	Company1->GiveReputation(Company2, Amount);
+	Company1->GiveReputation(Company2, Amount, false);
 }
 
 

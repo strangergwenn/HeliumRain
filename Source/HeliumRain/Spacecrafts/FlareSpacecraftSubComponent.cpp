@@ -37,7 +37,7 @@ float UFlareSpacecraftSubComponent::GetRemainingArmorAtLocation(FVector Location
 	return ParentComponent->GetRemainingArmorAtLocation(Location);
 }
 
-void UFlareSpacecraftSubComponent::ApplyDamage(float Energy)
+float UFlareSpacecraftSubComponent::ApplyDamage(float Energy)
 {
-	ParentComponent->ApplyDamage(Energy);
+	return ParentComponent->ApplyDamage(Energy);
 }
