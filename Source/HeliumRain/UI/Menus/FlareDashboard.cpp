@@ -285,6 +285,7 @@ void SFlareDashboard::OnUndock()
 		if (Ship)
 		{
 			Ship->GetNavigationSystem()->Undock();
+			PC->SetExternalCamera(false);
 			MenuManager->CloseMenu();
 		}
 	}
