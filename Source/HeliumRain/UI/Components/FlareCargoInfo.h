@@ -59,7 +59,7 @@ protected:
 	FReply OnButtonClicked();
 
 	/** Dump this bay */
-	FReply OnDumpClicked();
+	void OnDumpClicked();
 
 
 protected:
@@ -74,7 +74,7 @@ protected:
 	FFlareButtonClicked                             OnClicked;
 
 	// Slate data
-	TSharedPtr<SButton>                             DumpButton;
+	TSharedPtr<SFlareButton>                        DumpButton;
 
 
 };

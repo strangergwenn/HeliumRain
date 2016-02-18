@@ -24,7 +24,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 	// Layout
 	ChildSlot
 	.HAlign(HAlign_Left)
-	.VAlign(VAlign_Center)
+	.VAlign(VAlign_Top)
 	.Padding(FMargin(1))
 	[
 		SNew(SVerticalBox)
@@ -81,15 +81,13 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.Padding(FMargin(0))
 		[
-			SAssignNew(DumpButton, SButton)
+			SAssignNew(DumpButton, SFlareButton)
+			.Transparent(true)
+			.Text(FText())
+			.HelpText(LOCTEXT("DumpResourceHelp", "Dump this resource"))
+			.Icon(FFlareStyleSet::GetIcon("Stop"))
 			.OnClicked(this, &SFlareCargoInfo::OnDumpClicked)
-			.ContentPadding(FMargin(0))
-			.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-			.HAlign(HAlign_Right)
-			[
-				SNew(SImage)
-				.Image(FFlareStyleSet::GetIcon("Stop"))
-			]
+			.Width(1)
 		]
 	];
 
@@ -98,7 +96,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 	{
 		Button->SetVisibility(EVisibility::HitTestInvisible);
 	}
-	DumpButton->SetVisibility(EVisibility::Hidden);
+	DumpButton->SetVisibility(EVisibility::Collapsed);
 }
 
 
@@ -123,14 +121,7 @@ void SFlareCargoInfo::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEv
 	}
 
 	// Dump button
-	if (Cargo->Resource)
-	{
-		DumpButton->SetVisibility(EVisibility::Visible);
-	}
-	else
-	{
-		DumpButton->SetVisibility(EVisibility::Hidden);
-	}
+	DumpButton->SetVisibility(Cargo->Resource ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 void SFlareCargoInfo::OnMouseLeave(const FPointerEvent& MouseEvent)
@@ -143,7 +134,7 @@ void SFlareCargoInfo::OnMouseLeave(const FPointerEvent& MouseEvent)
 		MenuManager->HideTooltip(this);
 	}
 
-	DumpButton->SetVisibility(EVisibility::Hidden);
+	DumpButton->SetVisibility(EVisibility::Collapsed);
 }
 
 const FSlateBrush* SFlareCargoInfo::GetResourceIcon() const
@@ -197,7 +188,7 @@ FReply SFlareCargoInfo::OnButtonClicked()
 	return FReply::Handled();
 }
 
-FReply SFlareCargoInfo::OnDumpClicked()
+void SFlareCargoInfo::OnDumpClicked()
 {
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 
@@ -205,8 +196,6 @@ FReply SFlareCargoInfo::OnDumpClicked()
 	{
 		TargetSpacecraft->GetCargoBay()->DumpCargo(Cargo);
 	}
-
-	return FReply::Handled();
 }
 
 #undef LOCTEXT_NAMESPACE
