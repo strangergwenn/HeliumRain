@@ -104,6 +104,6 @@ protected:
 	FVector2D                                PlayerMouseOffset;
 	FVector2D                                PlayerMousePosition;
 	float	                                 PlayerManualVelocityCommand;
-	bool	                                 PlayerManualVelocityCommandForward;
-	float	                                 PlayerManualLockLinearDirection;
+	bool	                                 PlayerManualVelocityCommandActive;
+	FVector	                                 PlayerManualLockDirectionVector;
 };
