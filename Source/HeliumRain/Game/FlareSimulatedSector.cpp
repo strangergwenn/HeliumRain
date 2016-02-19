@@ -672,7 +672,7 @@ void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, uint32
 		{
 			UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
 
-			if ((!AllowTrade && Station->GetCompany() != Company) || !Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+			if ((!AllowTrade && Station->GetCompany() != Company) || !Station->HasCapability(EFlareSpacecraftCapability::Consumer) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 			{
 				continue;
 			}
@@ -748,7 +748,7 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 			PersistentStationIndex = 0;
 		}
 
-		if (!AllowTrade && Station->GetCompany() != Company)
+		if ((!AllowTrade && Station->GetCompany() != Company) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 		{
 			continue;
 		}
@@ -957,7 +957,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
-		if ( (!AllowTrade && Station->GetCompany() != Company) || Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		if ( (!AllowTrade && Station->GetCompany() != Company) || Station->HasCapability(EFlareSpacecraftCapability::Consumer) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 		{
 			continue;
 		}
@@ -994,7 +994,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 		bool NeedResource = false;
 
-		if ( (!AllowTrade && Station->GetCompany() != Company) || Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		if ( (!AllowTrade && Station->GetCompany() != Company) || Station->HasCapability(EFlareSpacecraftCapability::Consumer) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 		{
 			continue;
 		}
@@ -1032,7 +1032,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 		bool NeedResource = false;
 
-		if ( (!AllowTrade && Station->GetCompany() != Company) || Station->IsConsumeResource(Resource))
+		if ( (!AllowTrade && Station->GetCompany() != Company) || Station->IsConsumeResource(Resource) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 		{
 			continue;
 		}
@@ -1277,7 +1277,7 @@ int32 UFlareSimulatedSector::GetTransportCapacityNeeds(UFlareCompany* Company, b
 			UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 			bool NeedResource = false;
 
-			if (!AllowTrade && Station->GetCompany() != Company)
+			if ((!AllowTrade && Station->GetCompany() != Company) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 			{
 				continue;
 			}

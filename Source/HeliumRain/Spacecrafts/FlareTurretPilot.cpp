@@ -303,7 +303,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 			continue;
 		}
 
-		if (PlayerCompany->GetHostility(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		if (PlayerCompany->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
 		{
 			continue;
 		}

@@ -68,6 +68,9 @@ protected:
 	/** Reputation info color */
 	FSlateColor GetReputationColor() const;
 
+	/** War info color */
+	FSlateColor GetWarColor() const;
+
 	/** Get the hostility data towards us, from this company */
 	FText GetCompanyHostility() const;
 

@@ -938,7 +938,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}*/
 			
 			// Combat helper
-			if (Spacecraft->GetPlayerHostility() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
+			if (Spacecraft->GetPlayerWarState() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
 				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 				if (WeaponGroup)
@@ -1109,7 +1109,7 @@ bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const
 
 FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target)
 {
-	EFlareHostility::Type Hostility = Target->GetPlayerHostility();
+	EFlareHostility::Type Hostility = Target->GetPlayerWarState();
 	switch (Hostility)
 	{
 		case EFlareHostility::Hostile:

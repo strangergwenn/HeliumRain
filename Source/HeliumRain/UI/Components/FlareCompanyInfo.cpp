@@ -69,6 +69,7 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 				SNew(STextBlock)
 				.Text(this, &SFlareCompanyInfo::GetCompanyName)
 				.TextStyle(&Theme.SubTitleFont)
+				.ColorAndOpacity(this, &SFlareCompanyInfo::GetWarColor)
 			]
 
 			// Data
@@ -290,6 +291,28 @@ FSlateColor SFlareCompanyInfo::GetReputationColor() const
 	return Result;
 }
 
+FSlateColor SFlareCompanyInfo::GetWarColor() const
+{
+	FLinearColor Result;
+
+	if (Player && Company)
+	{
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+		if (Company->GetPlayerWarState() == EFlareHostility::Hostile)
+		{
+			return Theme.EnemyColor;
+		}
+		else
+		{
+			return Theme.NeutralColor;
+		}
+	}
+
+	return Result;
+}
+
+
 FText SFlareCompanyInfo::GetCompanyHostility() const
 {
 	FText Result;
@@ -309,7 +332,14 @@ FText SFlareCompanyInfo::GetCompanyHostility() const
 				break;
 
 			case EFlareHostility::Neutral:
-				Result = LOCTEXT("Neutral", "This company is neutral");
+				if (Company->GetPlayerWarState() == EFlareHostility::Hostile)
+				{
+					Result = LOCTEXT("NeutralSeekPeace", "This company seek peace");
+				}
+				else
+				{
+					Result = LOCTEXT("NeutralNotSeekPeace", "This company is neutral");
+				}
 				break;
 
 			case EFlareHostility::Owned:

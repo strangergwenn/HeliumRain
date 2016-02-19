@@ -61,7 +61,7 @@ EFlareSectorFriendlyness::Type UFlareSectorInterface::GetSectorFriendlyness(UFla
 		{
 			FriendlySpacecraftCount++;
 		}
-		else if (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile)
+		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
 		{
 			HostileSpacecraftCount++;
 		}

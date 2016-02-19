@@ -108,6 +108,10 @@ void UFlareCompanyAI::SimulateDiplomacy()
 		else if(Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
 		{
 			Company->SetHostilityTo(OtherCompany, true);
+			if (OtherCompany == Game->GetPC()->GetCompany())
+			{
+				OtherCompany->SetHostilityTo(Company, true);
+			}
 		}
 	}
 }

@@ -203,7 +203,7 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 	}
 
 	// Check if both spacecraft are not at war
-	if(GetCompany()->GetHostility(OtherSpacecraft->GetCompany()) == EFlareHostility::Hostile)
+	if(GetCompany()->GetWarState(OtherSpacecraft->GetCompany()) == EFlareHostility::Hostile)
 	{
 		return false;
 	}

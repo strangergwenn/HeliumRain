@@ -266,7 +266,7 @@ void UFlareWorld::Simulate()
 			float Reputation = Company1->GetReputation(Company2);
 			if(Reputation != 0.f)
 			{
-				Company1->GiveReputation(Company2, -1 * FMath::Sign(Reputation), false);
+				Company1->GiveReputation(Company2, -0.1 * FMath::Sign(Reputation), false);
 			}
 		}
 	}

@@ -240,7 +240,7 @@ FText AFlareSpacecraftPawn::GetPlayerHostilityText() const
 {
 	FText Status;
 
-	switch (GetPlayerHostility())
+	switch (GetPlayerWarState())
 	{
 		case EFlareHostility::Neutral:
 			Status = LOCTEXT("Neutral", "NEUTRAL");

@@ -862,7 +862,7 @@ void AFlarePlayerController::WheelPressed()
 				}
 
 				// Dock
-				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn()) && Target->GetCompany()->GetPlayerHostility() >= EFlareHostility::Neutral)
+				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn()) && Target->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
 				{
 					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetImmatriculation()));
 					MouseMenu->AddWidget("Mouse_DockAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));

@@ -301,7 +301,8 @@ void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraf
 		{
 			IFlareSpacecraftInterface* StationCandidate = ParentSector->GetSectorStationInterfaces()[SpacecraftIndex];
 			if (StationCandidate && StationCandidate != LeftSpacecraft && StationCandidate != RightSpacecraft
-			 && StationCandidate->GetDescription()->CargoBayCount > 0)
+			 && StationCandidate->GetDescription()->CargoBayCount > 0
+			 && StationCandidate->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile)
 			{
 				ShipList->AddShip(StationCandidate);
 			}
@@ -313,7 +314,8 @@ void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraf
 			IFlareSpacecraftInterface* ShipCandidate = ParentSector->GetSectorShipInterfaces()[SpacecraftIndex];
 			if (ShipCandidate && ShipCandidate != LeftSpacecraft && ShipCandidate != RightSpacecraft
 			 && ShipCandidate->GetDescription()->CargoBayCount > 0
-			 && ShipCandidate->GetDamageSystem()->IsAlive())
+			 && ShipCandidate->GetDamageSystem()->IsAlive()
+			 && ShipCandidate->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile )
 			{
 				ShipList->AddShip(ShipCandidate);
 			}

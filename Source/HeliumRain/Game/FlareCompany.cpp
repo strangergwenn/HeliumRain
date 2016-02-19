@@ -198,6 +198,32 @@ EFlareHostility::Type UFlareCompany::GetHostility(const UFlareCompany* TargetCom
 	return EFlareHostility::Neutral;
 }
 
+EFlareHostility::Type UFlareCompany::GetPlayerWarState() const
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
+
+	if (PC)
+	{
+		return GetWarState(PC->GetCompany());
+	}
+
+	return EFlareHostility::Neutral;
+}
+
+EFlareHostility::Type UFlareCompany::GetWarState(const UFlareCompany* TargetCompany) const
+{
+	if (TargetCompany == this)
+	{
+		return EFlareHostility::Owned;
+	}
+	else if (GetHostility(TargetCompany) == EFlareHostility::Hostile || TargetCompany->GetHostility(this) == EFlareHostility::Hostile)
+	{
+		return EFlareHostility::Hostile;
+	}
+
+	return GetHostility(TargetCompany);
+}
+
 void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 {
 	if (TargetCompany && TargetCompany != this)

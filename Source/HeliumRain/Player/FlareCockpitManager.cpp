@@ -299,7 +299,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	else if (TargetShip)
 	{
 		Intensity = 1;
-		FLinearColor Color = TargetShip->GetPlayerHostility() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
+		FLinearColor Color = TargetShip->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
 		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorTop", Color);
 		CockpitFLIRCapture->Activate();
 	}

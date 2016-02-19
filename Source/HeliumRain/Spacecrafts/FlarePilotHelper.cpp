@@ -16,7 +16,7 @@ bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompa
 		{
 
 
-			if (MyCompany->GetHostility(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile)
+			if (MyCompany->GetWarState(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile)
 			{
 				//FLOG("  hostile, skip");
 				continue;

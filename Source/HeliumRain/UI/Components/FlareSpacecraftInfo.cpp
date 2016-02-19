@@ -292,7 +292,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 
 		// Fill the cargo bay
 		CargoBay->ClearChildren();
-		if (Target->GetCompany()->GetPlayerHostility() != EFlareHostility::Hostile)
+		if (Target->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile)
 		{
 			for (uint32 CargoIndex = 0; CargoIndex < Target->GetCargoBay()->GetSlotCount() ; CargoIndex++)
 			{
@@ -345,7 +345,7 @@ void SFlareSpacecraftInfo::Show()
 		IFlareSpacecraftDockingSystemInterface* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PC->GetShipPawn();
-		bool FriendlyAndNotSelf = TargetSpacecraft->GetCompany()->GetPlayerHostility() >= EFlareHostility::Neutral;
+		bool FriendlyAndNotSelf = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
 
 		// Permissions
 		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());

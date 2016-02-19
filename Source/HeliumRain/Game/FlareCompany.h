@@ -117,6 +117,12 @@ public:
 	/** Check if we are friend or foe toward this target company */
 	virtual EFlareHostility::Type GetHostility(const UFlareCompany* TargetCompany) const;
 
+	/** Check if we are friend or foe toward this target company. Hostile if at least one company is hostile */
+	virtual EFlareHostility::Type GetPlayerWarState() const;
+
+	/** Check if we are friend or foe toward this target company.  Hostile if at least one company is hostile */
+	virtual EFlareHostility::Type GetWarState(const UFlareCompany* TargetCompany) const;
+
 	/** Set whether this company is hostile to an other company */
 	virtual void SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile);
 

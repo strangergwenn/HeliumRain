@@ -241,7 +241,7 @@ void UFlareScenarioTools::GenerateDebugScenario()
 		Outpost->CreateShip("ship-omen", UnitedFarmsChemicals, FVector::ZeroVector)->AssignToSector(true);
 	}
 
-	PlayerCompany->SetHostilityTo(UnitedFarmsChemicals, true);
+	//PlayerCompany->SetHostilityTo(UnitedFarmsChemicals, true);
 
 	// Player ship
 	UFlareSimulatedSpacecraft* InitialShip = Outpost->CreateShip("ship-ghoul", PlayerCompany, FVector::ZeroVector);

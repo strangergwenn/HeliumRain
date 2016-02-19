@@ -189,6 +189,32 @@ private:
 		}
 	}
 
+	inline EFlareHostility::Type GetPlayerWarState() const
+	{
+		if(Company)
+		{
+			return Company->GetPlayerWarState();
+		}
+		else
+		{
+			return EFlareHostility::Neutral;
+		}
+	}
+
+
+	inline EFlareHostility::Type GetWarState(UFlareCompany* TargetCompany) const
+	{
+		if (Company)
+		{
+			return Company->GetWarState(TargetCompany);
+		}
+		else
+		{
+			return EFlareHostility::Neutral;
+		}
+	}
+
+
 	inline float GetCameraPanSpeed() const
 	{
 		return CameraPanSpeed;

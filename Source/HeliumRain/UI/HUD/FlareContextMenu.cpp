@@ -122,7 +122,7 @@ FMargin SFlareContextMenu::GetContextMenuPosition() const
 
 EVisibility SFlareContextMenu::GetButtonVisibility() const
 {
-	if (!IsTargetting || (TargetSpacecraft && TargetSpacecraft->GetCompany()->GetPlayerHostility() <= EFlareHostility::Neutral))
+	if (!IsTargetting || (TargetSpacecraft && TargetSpacecraft->GetCompany()->GetPlayerWarState() <= EFlareHostility::Neutral))
 	{
 		return EVisibility::Visible;
 	}
