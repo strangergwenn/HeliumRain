@@ -215,7 +215,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							]
 
 							// Tessellation
-							+ SHorizontalBox::Slot()
+							/*+ SHorizontalBox::Slot()
 							.AutoWidth()
 							.Padding(Theme.SmallContentPadding)
 							[
@@ -224,7 +224,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 								.HelpText(LOCTEXT("TessellationInfo", "Tessellation will subdivide the hulls of ships for better rendering. This is a very demanding feature."))
 								.Toggle(true)
 								.OnClicked(this, &SFlareSettingsMenu::OnTessellationToggle)
-							]
+							]*/
 						]
 
 						// Texture quality box
@@ -541,7 +541,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
-	TessellationButton->SetActive(MyGameSettings->UseTessellationOnShips);
+	//TessellationButton->SetActive(MyGameSettings->UseTessellationOnShips);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
 	DarkThemeInStrategyButton->SetActive(MyGameSettings->UseDarkThemeForStrategy);
 	DarkThemeInNavButton->SetActive(MyGameSettings->UseDarkThemeForNavigation);
@@ -881,7 +881,7 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 
 void SFlareSettingsMenu::OnTessellationToggle()
 {
-	if (TessellationButton->IsActive())
+	/*if (TessellationButton->IsActive())
 	{
 		FLOG("SFlareSettingsMenu::OnTessellationToggle : Enable tessellation")
 	}
@@ -894,7 +894,7 @@ void SFlareSettingsMenu::OnTessellationToggle()
 	MyGameSettings->UseTessellationOnShips = TessellationButton->IsActive();
 	MyGameSettings->ApplySettings(false);
 
-	MenuManager->GetPC()->GetMenuPawn()->UpdateCustomization();
+	MenuManager->GetPC()->GetMenuPawn()->UpdateCustomization();*/
 }
 
 void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey )
