@@ -121,7 +121,8 @@ void SFlareCargoInfo::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEv
 	}
 
 	// Dump button
-	DumpButton->SetVisibility(Cargo->Resource ? EVisibility::Visible : EVisibility::Collapsed);
+	bool CanDump = Cargo->Resource && TargetSpacecraft && TargetSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany();
+	DumpButton->SetVisibility(CanDump ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 void SFlareCargoInfo::OnMouseLeave(const FPointerEvent& MouseEvent)
