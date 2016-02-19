@@ -184,6 +184,10 @@ public:
 
 	virtual void ThrustInput(float Val);
 
+	virtual void MoveVerticalInput(float Val);
+
+	virtual void MoveHorizontalInput(float Val);
+
 	virtual void RollInput(float Val);
 
 	virtual void PitchInput(float Val);

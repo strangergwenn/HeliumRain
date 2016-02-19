@@ -704,6 +704,8 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* InputCom
 
 	InputComponent->BindAxis("Thrust", this, &AFlareSpacecraft::ThrustInput);
 	InputComponent->BindAxis("RollInput", this, &AFlareSpacecraft::RollInput);
+	InputComponent->BindAxis("MoveVerticalInput", this, &AFlareSpacecraft::MoveVerticalInput);
+	InputComponent->BindAxis("MoveHorizontalInput", this, &AFlareSpacecraft::MoveHorizontalInput);
 
 	InputComponent->BindAction("ZoomIn", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomIn);
 	InputComponent->BindAction("ZoomOut", EInputEvent::IE_Released, this, &AFlareSpacecraft::ZoomOut);
@@ -896,6 +898,17 @@ void AFlareSpacecraft::PreviousTarget()
 void AFlareSpacecraft::ThrustInput(float Val)
 {
 	StateManager->SetPlayerXLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
+
+void AFlareSpacecraft::MoveVerticalInput(float Val)
+{
+	StateManager->SetPlayerZLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
+void AFlareSpacecraft::MoveHorizontalInput(float Val)
+{
+	StateManager->SetPlayerYLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 
 void AFlareSpacecraft::RollInput(float Val)

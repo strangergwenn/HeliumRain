@@ -366,7 +366,11 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 				}
 				else
 				{
-					FVector LocalPlayerManualLinearVelocity = PlayerManualVelocityCommand * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() * FVector(1, 0, 0);
+					FVector LocalPlayerMainLinearVelocity = PlayerManualVelocityCommand * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() * FVector(1, 0, 0);
+
+					FVector LocalPlayerLateralLinearVelocity = FVector(0, PlayerManualLinearVelocity.Y, PlayerManualLinearVelocity.Z);
+
+					FVector LocalPlayerManualLinearVelocity = LocalPlayerMainLinearVelocity + LocalPlayerLateralLinearVelocity;
 
 					return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerManualLinearVelocity);
 				}
