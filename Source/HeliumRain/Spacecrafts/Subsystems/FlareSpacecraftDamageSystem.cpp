@@ -179,11 +179,22 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	// Lost player ship
 	if (Spacecraft == PC->GetShipPawn())
 	{
-		PC->Notify(
-			LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
-			FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetDescription()->Name),
-			FName("ship-destroyed"),
-			EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
+		if (LastDamageCauser)
+		{
+			PC->Notify(
+				LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
+				FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetDescription()->Name),
+				FName("ship-destroyed"),
+				EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
+		}
+		else
+		{
+			PC->Notify(
+				LOCTEXT("ShipCrashed", "Crash"),
+				FText::FText(LOCTEXT("ShipDestroyedFormat", "You crashed your ship")),
+				FName("ship-crashed"),
+				EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
+		}
 	}
 
 	// Lost company ship
@@ -322,6 +333,11 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	if (OtherSpacecraft)
 	{
 		DamageSource = OtherSpacecraft->GetCompany();
+		LastDamageCauser = OtherSpacecraft;
+	}
+	else
+	{
+		LastDamageCauser = NULL;
 	}
 	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location, EFlareDamage::DAM_Collision, DamageSource);
 }
