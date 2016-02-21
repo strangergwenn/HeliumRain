@@ -60,6 +60,10 @@ public:
 
 	void UnregisterBomb(AFlareBomb* Bomb);
 
+	void RegisterShell(AFlareShell* Shell);
+
+	void UnregisterShell(AFlareShell* Shell);
+
 	/** Destroy a ship or a station*/
 	virtual void DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying = false);
 

@@ -77,6 +77,7 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 	}
 
 	SetLifeSpan(ShellDescription->WeaponCharacteristics.GunCharacteristics.AmmoRange * 100 / ShellVelocity.Size()); // 2km
+	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterShell(this);
 }
 
 void AFlareShell::Tick(float DeltaSeconds)
@@ -319,6 +320,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 	if (DestroyProjectile)
 	{
 		Destroy();
+		ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterShell(this);
 	}
 }
 
@@ -442,6 +444,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 
 	}
 	Destroy();
+	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterShell(this);
 }
 
 float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius, EFlareDamage::Type DamageType)

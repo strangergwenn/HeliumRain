@@ -368,6 +368,16 @@ void UFlareSector::UnregisterBomb(AFlareBomb* Bomb)
 	SectorBombs.Remove(Bomb);
 }
 
+void UFlareSector::RegisterShell(AFlareShell* Shell)
+{
+	SectorShells.AddUnique(Shell);
+}
+
+void UFlareSector::UnregisterShell(AFlareShell* Shell)
+{
+	SectorShells.Remove(Shell);
+}
+
 void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying)
 {
 	FLOGV("UFlareSector::DestroySpacecraft %s", *Spacecraft->GetImmatriculation().ToString());
