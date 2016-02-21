@@ -152,6 +152,8 @@ void SFlareLeaderboardMenu::Exit()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Hidden);
+	CompanyListData.Empty();
+	CompanyList->RequestListRefresh();
 }
 
 
