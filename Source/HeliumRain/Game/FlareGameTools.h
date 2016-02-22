@@ -36,6 +36,10 @@ public:
 	UFUNCTION(exec)
 	void SetDefaultTurret(FName NewDefaultTurretIdentifier);
 
+	UFUNCTION(exec)
+	void SetHudDistortion(uint32 Axis, uint32 X, uint32 Y, float Value);
+
+
 	/*----------------------------------------------------
 		World tools
 	----------------------------------------------------*/

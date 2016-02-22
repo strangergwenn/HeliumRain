@@ -83,6 +83,15 @@ void UFlareGameTools::SetDefaultTurret(FName NewDefaultTurretIdentifier)
 	}
 }
 
+void UFlareGameTools::SetHudDistortion(uint32 Axis, uint32 X, uint32 Y, float Value)
+{
+	AFlareHUD* Hud = Cast<AFlareHUD>(GetGame()->GetPC()->GetHUD());
+	if (Hud)
+	{
+		Hud->SetDistortion(Axis, X, Y, Value);
+	}
+}
+
 /*----------------------------------------------------
 	World tools
 ----------------------------------------------------*/
