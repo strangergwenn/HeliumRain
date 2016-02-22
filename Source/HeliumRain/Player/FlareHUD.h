@@ -111,6 +111,12 @@ public:
 	/** Get the health color */
 	static FLinearColor GetHealthColor(float Current);
 
+	void SetDistortionGrid(uint32 Value)
+	{
+		DistortionGrid = Value;
+	}
+
+	void SetDistortion(uint32 Axis, uint32 X, uint32 Y, float Value);
 
 	/*----------------------------------------------------
 		Internals
@@ -123,6 +129,9 @@ protected:
 
 	/** Drawing back-end */
 	void DrawHUDInternal();
+
+	/** Drawing debug grid*/
+	void DrawDebugGrid (FLinearColor Color);
 
 	/** Format a distance in meter */
 	FString FormatDistance(float Distance);
@@ -164,7 +173,13 @@ protected:
 	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target);
 
 	/** Convert a world location to screen-space */
-	bool WorldToScreen(FVector World, FVector2D& Screen);
+	bool WorldToScreenOld(FVector World, FVector2D& Screen);
+
+	/** Convert a world location to cockpit-space */
+	bool ProjectWorldLocationToCockpit(FVector World, FVector2D& Cockpit);
+
+	/** Convert a screen location to cockpit-space */
+	bool ScreenToCockpit(FVector2D Screen, FVector2D& Cockpit);
 
 
 protected:
@@ -241,6 +256,8 @@ protected:
 	TSharedPtr<SFlareContextMenu>           ContextMenu;
 	FVector2D                               ContextMenuPosition;
 
+	// Debug
+	uint32                                  DistortionGrid;
 
 public:
 

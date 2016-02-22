@@ -81,6 +81,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	RightInstrument = FVector2D(20, 320);
 	InstrumentSize =  FVector2D(380, 115);
 	InstrumentLine =  FVector2D(0, 20);
+
+	// Debug
+	DistortionGrid = 0;
 }
 
 void AFlareHUD::BeginPlay()
@@ -222,6 +225,12 @@ void AFlareHUD::DrawHUD()
 			DrawHUDIcon(CurrentViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
 		}
 
+		if (DistortionGrid)
+		{
+			DrawDebugGrid(HudColorEnemy);
+		}
+
+
 		// Draw combat mouse pointer
 		if (!PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
 			PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
@@ -279,6 +288,11 @@ void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
 		if (ShouldDrawHUD())
 		{
 			DrawHUDInternal();
+
+			if (DistortionGrid)
+			{
+				DrawDebugGrid(HudColorFriendly);
+			}
 		}
 	}
 }
@@ -707,7 +721,7 @@ void AFlareHUD::DrawHUDInternal()
 
 				bool ShouldDrawMarker = false;
 
-				if (WorldToScreen(ObjectiveLocation, ScreenPosition))
+				if (ProjectWorldLocationToCockpit(ObjectiveLocation, ScreenPosition))
 				{
 					if (IsInScreen(ScreenPosition))
 					{
@@ -753,7 +767,7 @@ void AFlareHUD::DrawHUDInternal()
 			FVector BombTarget = PlayerShip->GetActorLocation() + BombDirection * 1000000;
 
 			FVector2D ScreenPosition;
-			if (WorldToScreen(BombTarget, ScreenPosition))
+			if (ProjectWorldLocationToCockpit(BombTarget, ScreenPosition))
 			{
 				// Icon
 				DrawHUDIcon(ScreenPosition, IconSize, HUDBombAimIcon, HudColorNeutral, true);
@@ -766,7 +780,7 @@ void AFlareHUD::DrawHUDInternal()
 			FVector2D ScreenPosition;
 			AFlareBomb* Bomb = ActiveSector->GetBombs()[BombIndex];
 			
-			if (Bomb && WorldToScreen(Bomb->GetActorLocation(), ScreenPosition))
+			if (Bomb && ProjectWorldLocationToCockpit(Bomb->GetActorLocation(), ScreenPosition))
 			{
 				if (IsInScreen(ScreenPosition))
 				{
@@ -778,6 +792,32 @@ void AFlareHUD::DrawHUDInternal()
 
 	// Sort screen targets
 	ScreenTargets.Sort(&IsCloserToCenter);
+}
+
+void AFlareHUD::DrawDebugGrid(FLinearColor Color)
+{
+	float HPrecision = DistortionGrid;
+	float VPrecision = DistortionGrid;
+
+
+	for (int32 HIndex = -HPrecision; HIndex <= HPrecision; HIndex++)
+	{
+		for (int32 VIndex = -VPrecision; VIndex <= VPrecision; VIndex++)
+		{
+
+			FVector2D Screen = FVector2D(0.5 * ViewportSize.X * ((VPrecision + VIndex) / VPrecision),
+										 0.5 * ViewportSize.Y * ((HPrecision + HIndex) / HPrecision));
+			FVector2D Cockpit = Screen;
+			if (!IsDrawingCockpit || ScreenToCockpit(Screen, Cockpit))
+			{
+				DrawHUDIcon(Cockpit, IconSize, HUDNoseIcon, Color, true);
+				FlareDrawText(FText::Format(LOCTEXT("GridLocation", "{0},{1}"), FText::AsNumber(HIndex), FText::AsNumber(VIndex)).ToString(), Cockpit, Color, false, false);
+			}
+		}
+	}
+
+
+
 }
 
 FString AFlareHUD::FormatDistance(float Distance)
@@ -809,7 +849,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 
 	// Draw inertial vector
 	FVector EndPoint = Object->GetActorLocation() + FocusDistance * Speed;
-	if (WorldToScreen(EndPoint, ScreenPosition) && SpeedMS > 1)
+	if (ProjectWorldLocationToCockpit(EndPoint, ScreenPosition) && SpeedMS > 1)
 	{
 		// Cap screen pos
 		float ScreenBorderDistanceX = 100;
@@ -861,7 +901,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = Spacecraft->GetActorLocation();
 
-	if (WorldToScreen(TargetLocation, ScreenPosition))
+	if (ProjectWorldLocationToCockpit(TargetLocation, ScreenPosition))
 	{
 		// Compute apparent size in screenspace
 		float ShipSize = 2 * Spacecraft->GetMeshScale();
@@ -947,7 +987,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 					FVector AmmoIntersectionLocation;
 					float InterceptTime = Spacecraft->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
-					if (InterceptTime > 0 && WorldToScreen(AmmoIntersectionLocation, ScreenPosition))
+					if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, ScreenPosition))
 					{
 						// Get some more data
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
@@ -1125,7 +1165,32 @@ FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpac
 	}
 }
 
-bool AFlareHUD::WorldToScreen(FVector World, FVector2D& Screen)
+bool AFlareHUD::ProjectWorldLocationToCockpit(FVector World, FVector2D& Cockpit)
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	FVector2D Screen;
+	if (PC->ProjectWorldLocationToScreen(World, Screen))
+	{
+		if (IsDrawingCockpit)
+		{
+			return ScreenToCockpit(Screen, Cockpit);
+		}
+		else
+		{
+			Cockpit = Screen;
+			return true;
+		}
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+//TODO remove
+bool AFlareHUD::WorldToScreenOld(FVector World, FVector2D& Screen)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
@@ -1161,6 +1226,120 @@ bool AFlareHUD::WorldToScreen(FVector World, FVector2D& Screen)
 		return PC->ProjectWorldLocationToScreen(World, Screen);
 	}
 }
+
+#define GRID_H_SIZE 11
+#define GRID_V_SIZE 11
+
+static float BaseHorizontalDistortion = 1.0f;
+static float HorizontalDistortionMap[] = {
+	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
+	1.000f, 0.980f, 0.928f, 0.940f, 0.980f, 1.000f, 1.014f, 1.024f, 1.018f, 1.002f, 1.000f,
+	1.000f, 0.941f, 0.917f, 0.935f, 0.975f, 1.000f, 1.016f, 1.026f, 1.021f, 1.005f, 1.000f,
+	1.000f, 0.915f, 0.903f, 0.930f, 0.970f, 1.000f, 1.018f, 1.028f, 1.023f, 1.005f, 1.000f,
+	1.000f, 0.899f, 0.897f, 0.930f, 0.969f, 1.000f, 1.020f, 1.029f, 1.025f, 1.011f, 1.000f,
+	1.000f, 0.895f, 0.895f, 0.930f, 0.970f,   1.f , 1.020f, 1.030f, 1.026f, 1.011f, 1.000f,
+	1.000f, 0.900f, 0.895f, 0.930f, 0.970f, 1.000f, 1.020f, 1.029f, 1.024f, 1.010f, 1.000f,
+	1.000f, 0.920f, 0.905f, 0.935f, 0.970f, 1.000f, 1.020f, 1.026f, 1.022f, 1.008f, 1.000f,
+	1.000f, 0.940f, 0.915f, 0.940f, 0.970f, 1.000f, 1.020f, 1.023f, 1.019f, 1.005f, 1.000f,
+	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
+	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f };
+
+static float BaseVerticalDistortion = 1.0f;
+static float VerticalDistortionMap[] = {
+	0.000f, 0.000f, 0.000f, 0.000f, 0.000f, 0.620f, 0.000f, 0.000f, 0.000f, 0.000f, 0.000f,
+	0.750f, 0.600f, 0.400f, 0.240f, 0.300f, 0.620f, 0.300f, 0.190f, 0.350f, 0.540f, 0.750f,
+	0.940f, 0.830f, 0.750f, 0.670f, 0.635f, 0.620f, 0.635f, 0.670f, 0.750f, 0.830f, 0.940f,
+	0.950f, 0.905f, 0.865f, 0.840f, 0.820f, 0.820f, 0.820f, 0.840f, 0.865f, 0.905f, 0.950f,
+	0.970f, 0.962f, 0.945f, 0.933f, 0.930f, 0.930f, 0.930f, 0.933f, 0.945f, 0.962f, 0.970f,
+	1.000f, 1.000f, 1.000f, 1.000f, 1.000f,   1.f , 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
+	1.010f, 1.023f, 1.031f, 1.037f, 1.043f, 1.050f, 1.045f, 1.051f, 1.035f, 1.024f, 1.010f,
+	1.020f, 1.039f, 1.053f, 1.065f, 1.074f, 1.075f, 1.075f, 1.069f, 1.056f, 1.039f, 1.020f,
+	1.020f, 1.045f, 1.059f, 1.071f, 1.080f, 1.100f, 1.080f, 1.071f, 1.059f, 1.045f, 1.020f,
+	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.100f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
+	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.100f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f };
+
+void AFlareHUD::SetDistortion(uint32 Axis, uint32 X, uint32 Y, float Value)
+{
+	if(X < GRID_H_SIZE && Y < GRID_V_SIZE)
+	{
+
+		if(Axis == 0)
+		{
+			HorizontalDistortionMap[X  + Y * GRID_H_SIZE] = Value;
+		}
+		else
+		{
+			VerticalDistortionMap[X + Y * GRID_V_SIZE] = Value;
+		}
+	}
+}
+
+bool AFlareHUD::ScreenToCockpit(FVector2D Screen, FVector2D& Cockpit)
+{
+	float AspectRatio = CurrentViewportSize.X/CurrentViewportSize.Y;
+
+	float ExtraHeight = ViewportSize.Y - ViewportSize.X / AspectRatio;
+
+	// Find for near point of the map
+	float XRelativeLocation = (Screen.X / ViewportSize.X)  * (GRID_H_SIZE - 1);
+	float YRelativeLocation = (Screen.Y - (ExtraHeight / 2)) / (ViewportSize.Y - ExtraHeight) * (GRID_V_SIZE - 1);
+
+
+
+	//FLOGV("Screen=%s XRelativeLocation=%f YRelativeLocation=%f AspectRatio=%f ExtraHeight=%f", *Screen.ToString(), XRelativeLocation, YRelativeLocation, AspectRatio, ExtraHeight);
+
+	if(XRelativeLocation < 0.f || XRelativeLocation > (GRID_H_SIZE - 1) || YRelativeLocation < 0.f || YRelativeLocation > (GRID_V_SIZE - 1))
+	{
+		return false;
+	}
+
+
+	int32 LeftIndex = FMath::Floor(XRelativeLocation);
+	int32 RightIndex = FMath::Ceil(XRelativeLocation);
+	int32 TopIndex = FMath::Floor(YRelativeLocation);
+	int32 BottomIndex = FMath::Ceil(YRelativeLocation);
+
+	float LocalX = XRelativeLocation - LeftIndex;
+	float LocalY = YRelativeLocation - TopIndex;
+
+
+	float TopLeftXDistorsion = HorizontalDistortionMap[LeftIndex + TopIndex * GRID_H_SIZE];
+	float TopRightXDistorsion = HorizontalDistortionMap[RightIndex + TopIndex * GRID_H_SIZE];
+	float BottomLeftXDistorsion = HorizontalDistortionMap[LeftIndex + BottomIndex * GRID_H_SIZE];
+	float BottomRightXDistorsion = HorizontalDistortionMap[RightIndex + BottomIndex * GRID_H_SIZE];
+
+
+	float TopMeanXDistorsion = LocalX * TopRightXDistorsion +  (1 - LocalX) * TopLeftXDistorsion;
+	float BottomMeanXDistorsion = LocalX * BottomRightXDistorsion +  (1 - LocalX) * BottomLeftXDistorsion;
+	float MeanXDistorsion = LocalY * BottomMeanXDistorsion +  (1 - LocalY) * TopMeanXDistorsion;
+
+	float TopLeftYDistorsion = VerticalDistortionMap[LeftIndex + TopIndex * GRID_V_SIZE];
+	float TopRightYDistorsion = VerticalDistortionMap[RightIndex + TopIndex * GRID_V_SIZE];
+	float BottomLeftYDistorsion = VerticalDistortionMap[LeftIndex + BottomIndex * GRID_V_SIZE];
+	float BottomRightYDistorsion = VerticalDistortionMap[RightIndex + BottomIndex * GRID_V_SIZE];
+
+
+	float TopMeanYDistorsion = LocalX * TopRightYDistorsion +  (1 - LocalX) * TopLeftYDistorsion;
+	float BottomMeanYDistorsion = LocalX * BottomRightYDistorsion +  (1 - LocalX) * BottomLeftYDistorsion;
+	float MeanYDistorsion = LocalY * BottomMeanYDistorsion +  (1 - LocalY) * TopMeanYDistorsion;
+
+
+	Cockpit = FVector2D(XRelativeLocation / (GRID_H_SIZE - 1) * (BaseHorizontalDistortion * MeanXDistorsion) * CurrentViewportSize.X,
+						YRelativeLocation / (GRID_H_SIZE - 1) * (BaseVerticalDistortion * MeanYDistorsion) * CurrentViewportSize.Y);
+
+	//FLOGV("Cockpit=%s MeanXDistorsion=%f MeanYDistorsion=%f", *Cockpit.ToString(), MeanXDistorsion, MeanYDistorsion);
+
+
+	if(Cockpit.X < 0.f || Cockpit.X > CurrentViewportSize.X || Cockpit.Y < 0.f || Cockpit.Y > CurrentViewportSize.Y)
+	{
+		return false;
+	}
+
+
+
+	return true;
+}
+
 
 
 #undef LOCTEXT_NAMESPACE
