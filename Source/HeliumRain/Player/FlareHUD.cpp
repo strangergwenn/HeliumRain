@@ -1294,10 +1294,10 @@ bool AFlareHUD::ScreenToCockpit(FVector2D Screen, FVector2D& Cockpit)
 	}
 
 
-	int32 LeftIndex = FMath::Floor(XRelativeLocation);
-	int32 RightIndex = FMath::Ceil(XRelativeLocation);
-	int32 TopIndex = FMath::Floor(YRelativeLocation);
-	int32 BottomIndex = FMath::Ceil(YRelativeLocation);
+	int32 LeftIndex = FMath::FloorToInt(XRelativeLocation);
+	int32 RightIndex = FMath::CeilToInt(XRelativeLocation);
+	int32 TopIndex = FMath::FloorToInt(YRelativeLocation);
+	int32 BottomIndex = FMath::CeilToInt(YRelativeLocation);
 
 	float LocalX = XRelativeLocation - LeftIndex;
 	float LocalY = YRelativeLocation - TopIndex;

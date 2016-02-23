@@ -414,6 +414,7 @@ void SFlareOrbitalMenu::OnMainMenu()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
+	PC->CompleteObjective();
 	MenuManager->FlushNotifications();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 
