@@ -165,7 +165,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Center)
+						.HAlign(HAlign_Left)
 						[
 							SNew(SHorizontalBox)
 							
@@ -192,15 +192,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 								.Toggle(true)
 								.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
 							]
-						]
-
-						// Buttons 2
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Center)
-						[
-							SNew(SHorizontalBox)
 
 							// Supersampling
 							+ SHorizontalBox::Slot()
@@ -208,23 +199,11 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.SmallContentPadding)
 							[
 								SAssignNew(SupersamplingButton, SFlareButton)
-								.Text(LOCTEXT("Supersampling", "Supersampling"))
-								.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a very demanding feature."))
+								.Text(LOCTEXT("Supersampling", "Supersampling (!)"))
+								.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a VERY demanding feature."))
 								.Toggle(true)
 								.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
 							]
-
-							// Tessellation
-							/*+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SAssignNew(TessellationButton, SFlareButton)
-								.Text(LOCTEXT("Tessellation", "Tessellation"))
-								.HelpText(LOCTEXT("TessellationInfo", "Tessellation will subdivide the hulls of ships for better rendering. This is a very demanding feature."))
-								.Toggle(true)
-								.OnClicked(this, &SFlareSettingsMenu::OnTessellationToggle)
-							]*/
 						]
 
 						// Texture quality box
