@@ -93,7 +93,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.HelpText(LOCTEXT("TradeInfo", "Start trading with the station we're docked to"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Trade, true))
 				.OnClicked(this, &SFlareDashboard::OnStartTrading)
-				.Visibility(this, &SFlareDashboard::GetDockedVisibility)
+				.Visibility(this, &SFlareDashboard::GetTradeVisibility)
 			]
 
 			// Undock
@@ -252,6 +252,21 @@ EVisibility SFlareDashboard::GetDockedVisibility() const
 		if (Ship)
 		{
 			return (Ship->GetNavigationSystem()->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
+		}
+	}
+
+	return EVisibility::Collapsed;
+}
+
+EVisibility SFlareDashboard::GetTradeVisibility() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		AFlareSpacecraft* Ship = PC->GetShipPawn();
+		if (Ship)
+		{
+			return ((Ship->GetNavigationSystem()->IsDocked() && Ship->GetDescription()->CargoBayCount > 0 )? EVisibility::Visible : EVisibility::Collapsed);
 		}
 	}
 

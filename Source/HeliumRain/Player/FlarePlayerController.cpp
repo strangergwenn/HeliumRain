@@ -838,8 +838,13 @@ void AFlarePlayerController::WheelPressed()
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UpgradeShip));
 			MouseMenu->AddWidget("Undock_Button", LOCTEXT("Undock", "Undock"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UndockShip));
-			MouseMenu->AddWidget("Trade_Button", LOCTEXT("Trade", "Trade"),
-				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::StartTrading));
+
+			// Trade if possible
+			if (ShipPawn->GetDescription()->CargoBayCount > 0)
+			{
+				MouseMenu->AddWidget("Trade_Button", LOCTEXT("Trade", "Trade"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::StartTrading));
+			}
 		}
 
 		// Flying controls

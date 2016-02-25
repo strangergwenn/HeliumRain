@@ -49,6 +49,9 @@ protected:
 	/** Are we docked */
 	EVisibility GetDockedVisibility() const;
 
+	/** Can we trade */
+	EVisibility GetTradeVisibility() const;
+
 	/** Inspect the current ship */
 	void OnInspectShip();
 
