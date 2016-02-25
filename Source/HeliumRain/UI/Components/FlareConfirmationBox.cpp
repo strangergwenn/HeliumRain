@@ -13,7 +13,9 @@
 void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	ConfirmText = InArgs._ConfirmText;
 	FullHide = InArgs._FullHide;
+	Amount = 0;
 
 	// Create the layout
 	ChildSlot
@@ -38,61 +40,14 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Right)
 		[
 			SAssignNew(ConfirmButton, SFlareButton)
+			.Icon(FFlareStyleSet::GetIcon("Cost"))
+			.Text(this, &SFlareConfirmationBox::GetBuyText)
 			.HelpText(LOCTEXT("Confirm", "Confirm"))
-			.OnClicked(InArgs._OnConfirmed)
-			.Width(10)
-			.Height(1)
-		]
-
-		// Transfert button
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		[
-			SAssignNew(ConfirmFreeButton, SFlareButton)
-			.HelpText(LOCTEXT("Confirm", "Confirm"))
-			.Text(InArgs._ConfirmFreeText)
 			.OnClicked(InArgs._OnConfirmed)
 			.Width(10)
 			.Height(1)
 		]
 	];
-
-	// Buy button content
-	ConfirmButton->GetContainer()->SetContent(
-		SNew(SHorizontalBox)
-
-		// Confirmation
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(STextBlock)
-			.Text(InArgs._ConfirmText)
-			.TextStyle(&Theme.TextFont)
-		]
-
-		// Cost icon
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		.AutoWidth()
-		[
-			SNew(SImage).Image(FFlareStyleSet::GetIcon("Cost"))
-		]
-
-		// Cost amount
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		.AutoWidth()
-		[
-			SAssignNew(CostLabel, STextBlock)
-			.TextStyle(&Theme.TextFont)
-		]
-	);
 
 	// Default is hidden
 	Hide();
@@ -103,26 +58,28 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 	Content
 ----------------------------------------------------*/
 
-void SFlareConfirmationBox::Show(float Amount)
+FText SFlareConfirmationBox::GetBuyText() const
 {
-	if (Amount > 0)
+	if (Amount != 0)
 	{
-		CostLabel->SetText("+" + FString::FromInt(Amount));
-		ConfirmButton->SetVisibility(EVisibility::Visible);
+		return FText::Format(LOCTEXT("ConfirmTextFormat", "{0} ({1} credits)"), ConfirmText, FText::AsNumber(Amount));
 	}
 	else
 	{
-		ConfirmFreeButton->SetVisibility(EVisibility::Visible);
+		return ConfirmText;
 	}
+}
 
-
+void SFlareConfirmationBox::Show(float NewAmount)
+{
+	Amount = NewAmount;
+	ConfirmButton->SetVisibility(EVisibility::Visible);
 	CancelButton->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareConfirmationBox::Hide()
 {
 	ConfirmButton->SetVisibility(EVisibility::Hidden);
-	ConfirmFreeButton->SetVisibility(EVisibility::Hidden);
 
 	if (FullHide)
 	{

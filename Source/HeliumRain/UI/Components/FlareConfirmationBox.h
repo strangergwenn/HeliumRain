@@ -17,9 +17,8 @@ class SFlareConfirmationBox : public SCompoundWidget
 	SLATE_EVENT(FFlareButtonClicked, OnConfirmed)
 	SLATE_EVENT(FFlareButtonClicked, OnCancelled)
 
-	SLATE_ARGUMENT(FText, CancelText)
 	SLATE_ARGUMENT(FText, ConfirmText)
-	SLATE_ARGUMENT(FText, ConfirmFreeText)
+	SLATE_ARGUMENT(FText, CancelText)
 	SLATE_ARGUMENT(bool, FullHide)
 			
 	SLATE_END_ARGS()
@@ -33,6 +32,9 @@ public:
 
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
+
+	/** Get the display text */
+	FText GetBuyText() const;
 
 	/** Show this box for a specific amount */
 	void Show(float Amount);
@@ -48,10 +50,12 @@ protected:
 	----------------------------------------------------*/
 
 	TSharedPtr<SFlareButton> ConfirmButton;
-	TSharedPtr<SFlareButton> ConfirmFreeButton;
 	TSharedPtr<SFlareButton> CancelButton;
 	TSharedPtr<STextBlock> CostLabel;
+
+	FText ConfirmText;
 	bool FullHide;
+	int32 Amount;
 
 
 };
