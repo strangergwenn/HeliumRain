@@ -89,15 +89,9 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 	{
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-		int32 ParentViewportWidth = GEngine->GameViewport->Viewport->GetSizeXY().X;
-		if (ParentViewportWidth == 0)
-		{
-			return;
-		}
-
 		// Use same width as parent and 16:9 ratio
+		int32 ParentViewportWidth = 1920;
 		FVector2D ViewportSize = FVector2D (ParentViewportWidth, (ParentViewportWidth * 9) / 16);
-
 		FLOGV("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit (%dx%d", ViewportSize.X, ViewportSize.Y);
 
 		// Screen material
