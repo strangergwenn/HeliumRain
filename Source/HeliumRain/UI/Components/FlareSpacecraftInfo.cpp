@@ -348,11 +348,17 @@ void SFlareSpacecraftInfo::Show()
 		bool FriendlyAndNotSelf = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
 
 		// Permissions
+		bool IsStrategy = Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL;
 		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
 		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
-		bool CanTrade = Owned && !TargetSpacecraft->IsStation() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 		bool CanAssign = OwnedAndNotSelf && !TargetSpacecraft->IsStation();
-		bool CanUpgrade = Owned && !TargetSpacecraft->IsStation() && (IsDocked || Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL);
+		bool CanUpgrade = Owned && !TargetSpacecraft->IsStation() && (IsDocked || IsStrategy);
+
+		// Trade permission
+		bool CanTrade = Owned &&
+			!TargetSpacecraft->IsStation()
+			&& TargetSpacecraft->GetDescription()->CargoBayCount > 0
+			&& (IsStrategy || IsDocked);
 
 		// Button states
 		CargoBay->SetVisibility(CargoBay->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
