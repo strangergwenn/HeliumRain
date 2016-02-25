@@ -81,9 +81,12 @@ void SFlareMouseMenu::Close()
 	if (HasSelection())
 	{
 		int32 Index = GetSelectedIndex();
-		FLOGV("SFlareMouseMenu::Close : index %d", Index);
-		Actions[Index].ExecuteIfBound();
-		SelectedWidget = Index;
+		if (Index >= 0 && Index < Actions.Num())
+		{
+			FLOGV("SFlareMouseMenu::Close : index %d", Index);
+			Actions[Index].ExecuteIfBound();
+			SelectedWidget = Index;
+		}
 	}
 	else
 	{
