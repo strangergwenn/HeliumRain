@@ -268,11 +268,7 @@ struct FFlareSpacecraftSave
 	/** Pending power outage downtime, in seconds */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float PowerOutageAcculumator;
-
-	/** If attached to an asteroid, identifier of this asteroid */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName AttachPoint;
-
+	
 	/** Pilot */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareShipPilotSave Pilot;

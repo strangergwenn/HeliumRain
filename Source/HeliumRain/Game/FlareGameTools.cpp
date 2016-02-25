@@ -710,7 +710,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipCl
 	return ShipPawn;
 }
 
-UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier, FName AttachPoint)
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier)
 {
 	if (!GetGameWorld())
 	{
@@ -739,23 +739,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSect
 		return NULL;
 	}
 
-	bool AttachPointOK = false;
-	for (int AsteroidIndex = 0; AsteroidIndex < Sector->Save()->AsteroidData.Num(); AsteroidIndex++)
-	{
-		if (Sector->Save()->AsteroidData[AsteroidIndex].Identifier == AttachPoint)
-		{
-			AttachPointOK = true;
-			break;
-		}
-	}
-
-	if (!AttachPointOK)
-	{
-		FLOGV("AFlareGame::CreateStationInCompanyAttachedInSector failed: invalid attache point '%s' in sector '%s'", *AttachPoint.ToString(), *SectorIdentifier.ToString());
-		return NULL;
-	}
-
-	UFlareSimulatedSpacecraft* NewStation = Sector->CreateStation(StationClass, Company, FVector::ZeroVector, FRotator::ZeroRotator, AttachPoint);
+	UFlareSimulatedSpacecraft* NewStation = Sector->CreateStation(StationClass, Company, FVector::ZeroVector, FRotator::ZeroRotator);
 	return NewStation;
 }
 

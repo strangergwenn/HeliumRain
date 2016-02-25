@@ -549,12 +549,40 @@ void AFlareSpacecraft::ApplyAsteroidData()
 				FLOGV("AFlareSpacecraft::ApplyAsteroidData : Found asteroid component '%s', previously set from '%s'",
 					*Component->GetName(), *ShipData.AsteroidData.Identifier.ToString());
 
+				// Get a valid sector
+				UFlareSectorInterface* Sector = GetGame()->GetActiveSector();
+				if (!Sector)
+				{
+					Sector = GetOwnerSector();
+				}
+
+				// Setup the asteroid
+				bool IsIcy = Sector->GetDescription()->IsIcy;
 				UStaticMeshComponent* AsteroidComponentCandidate = Cast<UStaticMeshComponent>(Component);
-				AFlareAsteroid::SetupAsteroidMesh(GetGame(), GetGame()->GetActiveSector() , AsteroidComponentCandidate, ShipData.AsteroidData);
+				AFlareAsteroid::SetupAsteroidMesh(GetGame(), AsteroidComponentCandidate, ShipData.AsteroidData, IsIcy);
 				break;
 			}
 		}
 	}
+}
+
+UFlareSimulatedSector* AFlareSpacecraft::GetOwnerSector()
+{
+	TArray<UFlareSimulatedSector*> Sectors = GetGame()->GetGameWorld()->GetSectors();
+
+	for (int32 Index = 0; Index < Sectors.Num(); Index++)
+	{
+		UFlareSimulatedSector* CandidateSector = Sectors[Index];
+		for (int32 ShipIndex = 0; ShipIndex < CandidateSector->GetSectorSpacecrafts().Num(); ShipIndex++)
+		{
+			if (CandidateSector->GetSectorSpacecrafts()[ShipIndex]->Save()->Identifier == ShipData.Identifier)
+			{
+				return CandidateSector;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 UFlareSectorInterface* AFlareSpacecraft::GetCurrentSectorInterface()

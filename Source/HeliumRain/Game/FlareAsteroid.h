@@ -30,7 +30,7 @@ public:
 	virtual void SetPause(bool Paused);
 
 	/** Setup an asteroid mesh */
-	static void SetupAsteroidMesh(AFlareGame* Game, UFlareSector* Sector, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data);
+	static void SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data, bool IsIcy);
 
 
 protected:

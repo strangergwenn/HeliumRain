@@ -125,6 +125,8 @@ public:
 		return CargoBay;
 	}
 
+	UFlareSimulatedSector* GetOwnerSector();
+
 	UFlareSectorInterface* GetCurrentSectorInterface() override;
 
 

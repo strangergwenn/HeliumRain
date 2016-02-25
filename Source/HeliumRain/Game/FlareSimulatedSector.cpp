@@ -93,10 +93,12 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 }
 
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation, FName AttachPoint)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
 {
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(StationClass);
+	UFlareSimulatedSpacecraft* Station = NULL;
 
+	// Invalid desc ? Get a new one
 	if (!Desc)
 	{
 		Desc = Game->GetSpacecraftCatalog()->Get(FName(*("station-" + StationClass.ToString())));
@@ -104,9 +106,16 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 
 	if (Desc)
 	{
-		return CreateShip(Desc, Company, TargetPosition, TargetRotation, AttachPoint);
+		Station = CreateShip(Desc, Company, TargetPosition, TargetRotation);
+
+		// Needs an esteroid ? 
+		if (Station && Desc->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
+		{
+			AttachStationToAsteroid(Station);
+		}
 	}
-	return NULL;
+
+	return Station;
 }
 
 UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition)
@@ -130,7 +139,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FName ShipClass, UF
 	return NULL;
 }
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation, FName AttachPoint)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
 
@@ -146,7 +155,6 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	ShipData.Heat = 600 * ShipDescription->HeatCapacity;
 	ShipData.PowerOutageDelay = 0;
 	ShipData.PowerOutageAcculumator = 0;
-	ShipData.AttachPoint = AttachPoint;
 	ShipData.IsAssigned = false;
 
 	FName RCSIdentifier;
@@ -548,35 +556,34 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 
 	UFlareSimulatedSpacecraft* Spacecraft = CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
 
-	// Needs an esteroid ? 
-	if (Spacecraft && StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
+	return true;
+}
+
+void UFlareSimulatedSector::AttachStationToAsteroid(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	FFlareAsteroidSave* AsteroidSave = NULL;
+	int32 AsteroidSaveIndex = -1;
+
+	// Take the first available asteroid
+	for (int AsteroidIndex = 0; AsteroidIndex < SectorData.AsteroidData.Num(); AsteroidIndex++)
 	{
-		FFlareAsteroidSave* AsteroidSave = NULL;
-		int32 AsteroidSaveIndex = -1;
-
-		// Take the first available asteroid
-		for (int AsteroidIndex = 0; AsteroidIndex < SectorData.AsteroidData.Num(); AsteroidIndex++)
-		{
-			FFlareAsteroidSave* AsteroidCandidate = &SectorData.AsteroidData[AsteroidIndex];
-			AsteroidSave = AsteroidCandidate;
-			AsteroidSaveIndex = AsteroidIndex;
-			break;
-		}
-
-		// Found it
-		if (AsteroidSave)
-		{
-			FLOGV("UFlareSimulatedSector::BuildStation : Found asteroid we need to attach to ('%s')", *AsteroidSave->Identifier.ToString());
-			Spacecraft->SetAsteroidData(AsteroidSave);
-			SectorData.AsteroidData.RemoveAt(AsteroidSaveIndex);
-		}
-		else
-		{
-			FLOG("UFlareSimulatedSector::BuildStation : Failed to use asteroid !");
-		}
+		FFlareAsteroidSave* AsteroidCandidate = &SectorData.AsteroidData[AsteroidIndex];
+		AsteroidSave = AsteroidCandidate;
+		AsteroidSaveIndex = AsteroidIndex;
+		break;
 	}
 
-	return true;
+	// Found it
+	if (AsteroidSave)
+	{
+		FLOGV("UFlareSimulatedSector::AttachStationToAsteroid : Found asteroid we need to attach to ('%s')", *AsteroidSave->Identifier.ToString());
+		Spacecraft->SetAsteroidData(AsteroidSave);
+		SectorData.AsteroidData.RemoveAt(AsteroidSaveIndex);
+	}
+	else
+	{
+		FLOG("UFlareSimulatedSector::AttachStationToAsteroid : Failed to use asteroid !");
+	}
 }
 
 void UFlareSimulatedSector::SimulateTransport()

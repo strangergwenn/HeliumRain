@@ -159,7 +159,7 @@ public:
 
 	/** Create a station attached to an asteroid in the level */
 	UFUNCTION(exec)
-	UFlareSimulatedSpacecraft* CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier, FName AttachPoint);
+	UFlareSimulatedSpacecraft* CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier);
 
 	UFUNCTION(exec)
 	void PrintSectorList();

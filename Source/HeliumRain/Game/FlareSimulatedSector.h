@@ -43,13 +43,13 @@ public:
     ----------------------------------------------------*/
 
     /** Create a station in the level  for a specific company */
-	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator, FName AttachPoint = NAME_None);
+	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
     /** Create a ship in the level  for a specific company */
 	UFlareSimulatedSpacecraft* CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
 
 	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
-	UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator, FName AttachPoint = NAME_None);
+	UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator);
 
 	/** Create an asteroid */
 	void CreateAsteroid(int32 ID, FName Name, FVector Location);
@@ -70,6 +70,8 @@ public:
 	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
 	bool BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
+
+	void AttachStationToAsteroid(UFlareSimulatedSpacecraft* Spacecraft);
 
 	void SimulateTransport();
 

@@ -104,15 +104,12 @@ void UFlareScenarioTools::FillWorld()
 	UnitedFarmsChemicals->GiveMoney(100000);
 	IonLane->GiveMoney(100000);
 
-
 	// Initial setup: miner home
-	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[0].Identifier);
-	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[1].Identifier);
-	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[2].Identifier);
-	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[3].Identifier);
-	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[4].Identifier);
-	MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[5].Identifier);
 
+	for (int Index = 0; Index < 5; Index++)
+	{
+		MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator);
+	}
 
 	for(int Index = 0; Index < 5; Index ++)
 	{
@@ -273,7 +270,7 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	UFlareSimulatedSpacecraft* Steelworks = MinerHome->CreateStation("station-steelworks", PlayerCompany, FVector::ZeroVector);
 	Steelworks->GetFactories()[0]->SetOutputLimit(Steel, 1);
 
-	UFlareSimulatedSpacecraft* Mine = MinerHome->CreateStation("station-ice-mine", PlayerCompany, FVector::ZeroVector, FRotator::ZeroRotator, MinerHome->Save()->AsteroidData[0].Identifier);
+	UFlareSimulatedSpacecraft* Mine = MinerHome->CreateStation("station-ice-mine", PlayerCompany, FVector::ZeroVector, FRotator::ZeroRotator);
 	Mine->GetFactories()[0]->SetOutputLimit(Silica, 1);
 
 	UFlareSimulatedSpacecraft* ToolFactory = MinerHome->CreateStation("station-tool-factory", PlayerCompany, FVector::ZeroVector);
@@ -343,7 +340,6 @@ void UFlareScenarioTools::SetupWorld()
 		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
 		Outpost->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
 	}
-
 
 	// Create asteroids at "Miner's home"
 	for (int32 Index = 0; Index < 40; Index++)
