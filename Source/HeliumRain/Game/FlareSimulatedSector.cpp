@@ -156,6 +156,13 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	ShipData.PowerOutageDelay = 0;
 	ShipData.PowerOutageAcculumator = 0;
 	ShipData.IsAssigned = false;
+	ShipData.DynamicComponentStateIdentifier = NAME_None;
+	ShipData.DynamicComponentStateProgress = 0.f;
+
+	if (ShipDescription->DynamicComponentStates.Num() > 0)
+	{
+		ShipData.DynamicComponentStateIdentifier = ShipDescription->DynamicComponentStates[0].StateIdentifier;
+	}
 
 	FName RCSIdentifier;
 	FName OrbitalEngineIdentifier;

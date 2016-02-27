@@ -338,6 +338,9 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(Data.Identifier);
 	SetShipDescription(Desc);
 
+	// Load dynamic components
+	UpdateDynamicComponents();
+
 	// Initialize damage system
 	DamageSystem = NewObject<UFlareSpacecraftDamageSystem>(this, UFlareSpacecraftDamageSystem::StaticClass());
 	DamageSystem->Initialize(this, &ShipData);
@@ -583,6 +586,92 @@ UFlareSimulatedSector* AFlareSpacecraft::GetOwnerSector()
 	}
 
 	return NULL;
+}
+
+void AFlareSpacecraft::UpdateDynamicComponents()
+{
+	TArray<UActorComponent*> DynamicComponents = GetComponentsByClass(UChildActorComponent::StaticClass());
+
+	if(DynamicComponents.Num() == 0)
+	{
+		return;
+	}
+
+	FFlareSpacecraftDynamicComponentStateDescription* CurrentState = NULL;
+	int32 TemplateIndex;
+
+	for (int32 StateIndex = 0; StateIndex < ShipDescription->DynamicComponentStates.Num(); StateIndex++)
+	{
+		FFlareSpacecraftDynamicComponentStateDescription* State = &ShipDescription->DynamicComponentStates[StateIndex];
+
+
+
+		if (State->StateIdentifier == ShipData.DynamicComponentStateIdentifier)
+		{
+			if(State->StateTemplates.Num() == 0)
+			{
+				FLOGV("Dynamic component state '%s' has no template", *ShipData.DynamicComponentStateIdentifier.ToString())
+				break;
+			}
+
+			CurrentState = State;
+			TemplateIndex = FMath::Clamp((int32) (ShipData.DynamicComponentStateProgress * CurrentState->StateTemplates.Num()), 0, CurrentState->StateTemplates.Num()-1);
+			break;
+		}
+	}
+
+
+	for (int32 ComponentIndex = 0; ComponentIndex < DynamicComponents.Num(); ComponentIndex++)
+	{
+		UChildActorComponent* Component = Cast<UChildActorComponent>(DynamicComponents[ComponentIndex]);
+
+		if(!Component)
+		{
+			continue;
+		}
+
+		if (CurrentState == NULL)
+		{
+			FLOGV("Fail to find State '%s'", *ShipData.DynamicComponentStateIdentifier.ToString());
+			Component->SetChildActorClass(NULL);
+			return;
+		}
+		else
+		{
+			Component->SetChildActorClass(*(CurrentState->StateTemplates[TemplateIndex]->GeneratedClass));
+
+			if (Component->ChildActor)
+			{
+				TArray<UActorComponent*> SubDynamicComponents = Component->ChildActor->GetComponentsByClass(UChildActorComponent::StaticClass());
+				for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
+				{
+					UChildActorComponent* SubDynamicComponent = Cast<UChildActorComponent>(SubDynamicComponents[SubComponentIndex]);
+
+					if(SubDynamicComponent->ChildActor)
+					{
+						SubDynamicComponent->ChildActor->AttachRootComponentToActor(this,"", EAttachLocation::KeepWorldPosition, true);
+					}
+				}
+
+				SubDynamicComponents = Component->ChildActor->GetComponentsByClass(UStaticMeshComponent::StaticClass());
+				for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
+				{
+					UStaticMeshComponent* SubDynamicComponent = Cast<UStaticMeshComponent>(SubDynamicComponents[SubComponentIndex]);
+
+					if (SubDynamicComponent)
+					{
+						USceneComponent* ParentDefaultAttachComponent = GetDefaultAttachComponent();
+						if (ParentDefaultAttachComponent)
+						{
+							SubDynamicComponent->AttachTo(ParentDefaultAttachComponent, "", EAttachLocation::KeepWorldPosition, true);
+						}
+					}
+
+				}
+
+			}
+		}
+	}
 }
 
 UFlareSectorInterface* AFlareSpacecraft::GetCurrentSectorInterface()

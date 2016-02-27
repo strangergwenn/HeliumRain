@@ -120,6 +120,8 @@ public:
 	/** Apply the current asteroid data */
 	void ApplyAsteroidData();
 
+	void UpdateDynamicComponents();
+
 	inline UFlareCargoBay* GetCargoBay() override
 	{
 		return CargoBay;
@@ -259,7 +261,6 @@ protected:
 
 	UPROPERTY()
 	UFlareCargoBay*                                CargoBay;
-
 
 	/*----------------------------------------------------
 		Target selection

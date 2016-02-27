@@ -39,7 +39,7 @@ void UFlareFactory::Simulate()
 
 	if (!FactoryData.Active)
 	{
-		return;
+		goto post_prod;
 	}
 
 
@@ -47,7 +47,7 @@ void UFlareFactory::Simulate()
 	if (!IsNeedProduction())
 	{
 		// Don't produce if not needed
-		return;
+		goto post_prod;
 	}
 
 	if (HasCostReserved())
@@ -62,7 +62,7 @@ void UFlareFactory::Simulate()
 		{
 
 			// Still In production
-			return;
+			goto post_prod;
 		}
 
 		if (!HasOutputFreeSpace())
@@ -70,13 +70,20 @@ void UFlareFactory::Simulate()
 			// TODO display warning to user
 			// No free space wait.
 			FLOGV("%s : Production Paused : no output free space", *FactoryDescription->Name.ToString())
-			return;
+			goto post_prod;
 		}
 
 		DoProduction();
 
 	}
 	TryBeginProduction();
+
+post_prod:
+
+	if (FactoryDescription->VisibleStates)
+	{
+		UpdateDynamicState();
+	}
 }
 
 void UFlareFactory::TryBeginProduction()
@@ -84,6 +91,19 @@ void UFlareFactory::TryBeginProduction()
 	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney())
 	{
 		BeginProduction();
+	}
+}
+
+void UFlareFactory::UpdateDynamicState()
+{
+	if(FactoryData.TargetShipClass == NAME_None)
+	{
+		Parent->SetDynamicComponentState(TEXT("idle"));
+	}
+	else
+	{
+		Parent->SetDynamicComponentState(FactoryData.TargetShipClass,
+				((float)GetProductedDuration() / (float)GetRemainingProductionDuration()));
 	}
 }
 

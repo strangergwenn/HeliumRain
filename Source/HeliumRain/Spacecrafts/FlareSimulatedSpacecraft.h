@@ -86,6 +86,7 @@ public:
 	/** Set asteroid data from an asteroid save */
 	void SetAsteroidData(FFlareAsteroidSave* Data);
 
+	void SetDynamicComponentState(FName Identifier, float Progress = 0.f);
 
 	/*----------------------------------------------------
 		Resources

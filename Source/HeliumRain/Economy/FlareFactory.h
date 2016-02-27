@@ -109,6 +109,10 @@ struct FFlareFactoryDescription
 	/** Cycle cost & yields */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FFlareProductionData CycleCost;
+
+	/** Visible states */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool VisibleStates;
 };
 
 UCLASS()
@@ -134,6 +138,8 @@ public:
 	void Simulate();
 
 	void TryBeginProduction();
+
+	void UpdateDynamicState();
 
 	void Start();
 

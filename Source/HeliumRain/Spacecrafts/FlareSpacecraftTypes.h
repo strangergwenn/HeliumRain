@@ -293,6 +293,13 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FName> SalesExcludedResources;
 
+	/** Current state identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName DynamicComponentStateIdentifier;
+
+	/** Current state progress */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float DynamicComponentStateProgress;
 };
 
 
