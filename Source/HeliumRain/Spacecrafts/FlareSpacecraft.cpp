@@ -598,7 +598,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 	}
 
 	FFlareSpacecraftDynamicComponentStateDescription* CurrentState = NULL;
-	int32 TemplateIndex;
+	int32 TemplateIndex = 0;
 
 	for (int32 StateIndex = 0; StateIndex < ShipDescription->DynamicComponentStates.Num(); StateIndex++)
 	{
@@ -650,6 +650,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 					if(SubDynamicComponent->ChildActor)
 					{
 						SubDynamicComponent->ChildActor->AttachRootComponentToActor(this,"", EAttachLocation::KeepWorldPosition, true);
+						SubDynamicComponent->ChildActor->SetOwner(this);
 					}
 				}
 

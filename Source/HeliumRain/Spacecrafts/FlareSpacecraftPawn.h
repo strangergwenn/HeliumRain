@@ -160,7 +160,8 @@ private:
 		Getters
 	----------------------------------------------------*/
 
-	inline bool IsPresentationMode() const
+	UFUNCTION(BlueprintCallable, Category=Gameplay)
+	bool IsPresentationMode() const
 	{
 		return PresentationMode;
 	}
