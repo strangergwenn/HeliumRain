@@ -338,9 +338,6 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(Data.Identifier);
 	SetShipDescription(Desc);
 
-	// Load dynamic components
-	UpdateDynamicComponents();
-
 	// Initialize damage system
 	DamageSystem = NewObject<UFlareSpacecraftDamageSystem>(this, UFlareSpacecraftDamageSystem::StaticClass());
 	DamageSystem->Initialize(this, &ShipData);
@@ -359,6 +356,9 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	// Look for parent company
 	SetOwnerCompany(GetGame()->GetGameWorld()->FindCompany(Data.CompanyIdentifier));
+
+	// Load dynamic components
+	UpdateDynamicComponents();
 
 	// Initialize components
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
@@ -651,6 +651,15 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 					{
 						SubDynamicComponent->ChildActor->AttachRootComponentToActor(this,"", EAttachLocation::KeepWorldPosition, true);
 						SubDynamicComponent->ChildActor->SetOwner(this);
+
+						UFlareSpacecraftComponent* ChildRootComponent = Cast<UFlareSpacecraftComponent>(SubDynamicComponent->ChildActor->GetRootComponent());
+						if (ChildRootComponent)
+						{
+							FFlareSpacecraftComponentSave Data;
+							Data.Damage = 0;
+							Data.ComponentIdentifier = NAME_None;
+							ChildRootComponent->Initialize(&Data, Company, this, false);
+						}
 					}
 				}
 
