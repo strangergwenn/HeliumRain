@@ -332,28 +332,37 @@ void UFlareScenarioTools::GenerateDebugScenario()
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/
+
 void UFlareScenarioTools::SetupWorld()
 {
-	// Create asteroids at "Outpost"
-	for (int32 Index = 0; Index < 20; Index++)
-	{
-		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
-		Outpost->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
-	}
+	// Spawn asteroids
+	SetupAsteroids(Outpost, 20, FVector(2, 20, 1));
+	SetupAsteroids(MinerHome, 400, FVector(3, 50, 1));
+	SetupAsteroids(World->FindSector("frozen-realm"), 20, FVector(5, 50, 2));
+}
 
-	// Create asteroids at "Miner's home"
-	for (int32 Index = 0; Index < 40; Index++)
-	{
-		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
-		MinerHome->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName) , 200000 * FMath::VRand());
-	}
+void UFlareScenarioTools::SetupAsteroids(UFlareSimulatedSector* Sector, int32 Count, FVector DistributionShape)
+{
+	float MaxAsteroidDistance = 10000;
 
-	// Create asteroids at "Frozen Realm"
-	for (int32 Index = 0; Index < 50; Index++)
+	for (int32 Index = 0; Index < Count; Index++)
 	{
 		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
-		World->FindSector("frozen-realm")->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName), 200000 * FMath::VRand());
+		FVector AsteroidLocation = MaxAsteroidDistance * GetRandomAsteroidLocation(DistributionShape.X, DistributionShape.Y, DistributionShape.Z);
+
+		Sector->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName), AsteroidLocation);
 	}
+}
+
+FVector UFlareScenarioTools::GetRandomAsteroidLocation(float X, float Y, float Z)
+{
+	FVector Result;
+	
+	Result.X = FMath::RandRange(-X, X);
+	Result.Y = FMath::RandRange(-Y, Y);
+	Result.Z = FMath::RandRange(-Z, Z);
+
+	return Result;
 }
 
 

@@ -279,18 +279,26 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 
 void UFlareSimulatedSector::CreateAsteroid(int32 ID, FName Name, FVector Location)
 {
-	if (ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
+	if (ID < 0 || ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
 	{
-		FLOGV("Astroid create fail : Asteroid max ID is %d", Game->GetAsteroidCatalog()->Asteroids.Num() -1);
+		FLOGV("UFlareSimulatedSector::CreateAsteroid : Can't find ID %d", ID);
 		return;
 	}
 
+	// Compute size
+	float MinSize = 0.4;
+	float MinMaxSize = 0.8;
+	float MaxMaxSize = 1.6;
+	float MaxSize = FMath::Lerp(MinMaxSize, MaxMaxSize, FMath::Clamp(Location.Size() / 100000.0f, 0.0f, 1.0f));
+	float Size = FMath::FRandRange(MinSize, MaxSize);
+
+	// Write data
 	FFlareAsteroidSave Data;
 	Data.AsteroidMeshID = ID;
 	Data.Identifier = Name;
 	Data.LinearVelocity = FVector::ZeroVector;
 	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
-	Data.Scale = FVector(1,1,1) * FMath::FRandRange(0.5,1.2);
+	Data.Scale = FVector(1,1,1) * Size;
 	Data.Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
 	Data.Location = Location;
 
@@ -314,7 +322,7 @@ void UFlareSimulatedSector::DisbandFleet(UFlareFleet* Fleet)
 {
 	if (SectorFleets.Remove(Fleet) == 0)
 	{
-        FLOGV("ERROR: Disband fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName().ToString(), *GetSectorName().ToString())
+        FLOGV("UFlareSimulatedSector::DisbandFleet : Disband fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName().ToString(), *GetSectorName().ToString())
 		return;
 	}
 }
@@ -324,7 +332,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 	FLOGV("UFlareSimulatedSector::RetireFleet %s", *Fleet->GetFleetName().ToString());
 	if (SectorFleets.Remove(Fleet) == 0)
 	{
-		FLOGV("ERROR: RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName().ToString(), *GetSectorName().ToString())
+		FLOGV("UFlareSimulatedSector::RetireFleet : RetireFleet fail. Fleet '%s' is not in sector '%s'", *Fleet->GetFleetName().ToString(), *GetSectorName().ToString())
 		return;
 	}
 
@@ -333,7 +341,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 		Fleet->GetShips()[ShipIndex]->SetCurrentSector(NULL);
 		if (RemoveSpacecraft(Fleet->GetShips()[ShipIndex]) == 0)
 		{
-			FLOGV("ERROR: RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation().ToString(), *GetSectorName().ToString())
+			FLOGV("UFlareSimulatedSector::RetireFleet : RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation().ToString(), *GetSectorName().ToString())
 		}
 	}
 }
@@ -569,15 +577,19 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 void UFlareSimulatedSector::AttachStationToAsteroid(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	FFlareAsteroidSave* AsteroidSave = NULL;
+	float AsteroidSaveDistance = 100000000;
 	int32 AsteroidSaveIndex = -1;
 
-	// Take the first available asteroid
+	// Take the center-est available asteroid
 	for (int AsteroidIndex = 0; AsteroidIndex < SectorData.AsteroidData.Num(); AsteroidIndex++)
 	{
 		FFlareAsteroidSave* AsteroidCandidate = &SectorData.AsteroidData[AsteroidIndex];
-		AsteroidSave = AsteroidCandidate;
-		AsteroidSaveIndex = AsteroidIndex;
-		break;
+		if (AsteroidCandidate->Location.Size() < AsteroidSaveDistance)
+		{
+			AsteroidSaveDistance = AsteroidCandidate->Location.Size();
+			AsteroidSaveIndex = AsteroidIndex;
+			AsteroidSave = AsteroidCandidate;
+		}
 	}
 
 	// Found it
