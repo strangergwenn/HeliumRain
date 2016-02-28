@@ -160,15 +160,25 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		case EFlareWeaponGroupType::WG_NONE:
 		case EFlareWeaponGroupType::WG_GUN:
 		case EFlareWeaponGroupType::WG_BOMB:
+		{
+			AFlarePlayerController* PC = Spacecraft->GetPC();
+
+			if (PC && !PC->GetNavHUD()->IsWheelMenuOpen())
 			{
-			float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
+				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
 
-			// Compensation curve
-			float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio) , 0.f, 1.f), MouseSensitivityPower);
-			float Angle = FMath::Atan2(PlayerMouseOffset.Y, PlayerMouseOffset.X);
+				// Compensation curve
+				float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio), 0.f, 1.f), MouseSensitivityPower);
+				float Angle = FMath::Atan2(PlayerMouseOffset.Y, PlayerMouseOffset.X);
 
-			PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-			PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+				PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+				PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			}
+			else
+			{
+				PlayerManualAngularVelocity.Z = 0;
+				PlayerManualAngularVelocity.Y = 0;
+			}
 		}
 		break;
 	}
