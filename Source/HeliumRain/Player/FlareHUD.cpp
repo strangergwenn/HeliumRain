@@ -285,7 +285,7 @@ void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
 		CurrentCanvas = TargetCanvas;
 		IsDrawingCockpit = true;
 
-		if (ShouldDrawHUD())
+		if (HUDVisible && ShouldDrawHUD())
 		{
 			DrawHUDInternal();
 
