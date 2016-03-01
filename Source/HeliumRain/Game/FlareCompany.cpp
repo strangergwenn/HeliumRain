@@ -84,15 +84,22 @@ void UFlareCompany::PostLoad()
 	for (int32 i = 0; i < CompanyData.SectorsKnowledge.Num(); i++)
 	{
 		UFlareSimulatedSector* Sector = GetGame()->GetGameWorld()->FindSector(CompanyData.SectorsKnowledge[i].SectorIdentifier);
-		switch (CompanyData.SectorsKnowledge[i].Knowledge) {
-		case EFlareSectorKnowledge::Visited:
-			VisitedSectors.Add(Sector);
-			// No break
-		case EFlareSectorKnowledge::Known:
-			KnownSectors.Add(Sector);
-			break;
-		default:
-			break;
+		if (Sector)
+		{
+			switch (CompanyData.SectorsKnowledge[i].Knowledge) {
+			case EFlareSectorKnowledge::Visited:
+				VisitedSectors.Add(Sector);
+				// No break
+			case EFlareSectorKnowledge::Known:
+				KnownSectors.Add(Sector);
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			FLOGV("Fail to find known sector '%s'. Ignore it.", *CompanyData.SectorsKnowledge[i].SectorIdentifier.ToString());
 		}
 	}
 }
