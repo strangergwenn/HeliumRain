@@ -35,7 +35,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	MinerHome = World->FindSector("miners-home");
 	FrozenRealm = World->FindSector("frozen-realm");
 	BlueHeart = World->FindSector("blue-heart");
-	TheCloud = World->FindSector("the-cloud");
+	TheSpire = World->FindSector("the-spire");
 
 
 	MiningSyndicate = World->FindCompanyByShortName("MSY");
@@ -73,7 +73,7 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	PlayerCompany->DiscoverSector(Outpost);
 	PlayerCompany->DiscoverSector(MinerHome);
 	PlayerCompany->DiscoverSector(BlueHeart);
-	PlayerCompany->DiscoverSector(TheCloud);
+	PlayerCompany->DiscoverSector(TheSpire);
 	FillWorld();
 }
 
@@ -89,7 +89,7 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	PlayerCompany->DiscoverSector(Outpost);
 	PlayerCompany->DiscoverSector(MinerHome);
 	PlayerCompany->DiscoverSector(BlueHeart);
-	PlayerCompany->DiscoverSector(TheCloud);
+	PlayerCompany->DiscoverSector(TheSpire);
 	PlayerCompany->GiveMoney(10000);
 
 	FillWorld();
@@ -188,9 +188,9 @@ void UFlareScenarioTools::FillWorld()
 
 	for(int Index = 0; Index < 5; Index ++)
 	{
-		TheCloud->CreateStation("station-pumping", UnitedFarmsChemicals, FVector::ZeroVector);
-		TheCloud->CreateStation("station-refinery", UnitedFarmsChemicals, FVector::ZeroVector);
-		TheCloud->CreateShip("ship-omen", UnitedFarmsChemicals, FVector::ZeroVector);
+		TheSpire->CreateStation("station-pumping", UnitedFarmsChemicals, FVector::ZeroVector);
+		TheSpire->CreateStation("station-refinery", UnitedFarmsChemicals, FVector::ZeroVector);
+		TheSpire->CreateShip("ship-omen", UnitedFarmsChemicals, FVector::ZeroVector);
 	}
 
 

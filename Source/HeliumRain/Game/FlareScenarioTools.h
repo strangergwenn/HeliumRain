@@ -61,7 +61,7 @@ protected:
 	UFlareSimulatedSector* MinerHome;
 	UFlareSimulatedSector* FrozenRealm;
 	UFlareSimulatedSector* BlueHeart;
-	UFlareSimulatedSector* TheCloud;
+	UFlareSimulatedSector* TheSpire;
 
 	UFlareCompany* MiningSyndicate;
 	UFlareCompany* HelixFoundries;
