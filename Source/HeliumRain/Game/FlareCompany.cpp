@@ -394,17 +394,18 @@ void UFlareCompany::VisitSector(UFlareSimulatedSector* Sector)
 	}
 }
 
-void UFlareCompany::TakeMoney(uint64 Amount)
+bool UFlareCompany::TakeMoney(uint64 Amount)
 {
 	if (Amount > CompanyData.Money)
 	{
 		FLOGV("Fail to take %llu money from %s (balance: %llu)", Amount, *GetCompanyName().ToString(), CompanyData.Money);
-		CompanyData.Money = 0;
+		return false;
 	}
 	else
 	{
 		CompanyData.Money -= Amount;
 		FLOGV("$ %s - %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
+		return true;
 	}
 }
 

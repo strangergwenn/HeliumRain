@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareCompany.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
 #include "FlareFactory.h"
@@ -126,6 +127,19 @@ void UFlareFactory::Start()
 			Factory->Pause();
 		}
 	}
+
+	if (FactoryData.TargetShipCompany == NAME_None && FactoryData.OrderShipCompany != NAME_None)
+	{
+		FactoryData.TargetShipClass = FactoryData.OrderShipClass;
+		FactoryData.TargetShipCompany = FactoryData.OrderShipCompany;
+		FactoryData.ProductedDuration = 0;
+
+		Parent->GetCompany()->GiveMoney(FactoryData.OrderShipAdvancePayment);
+
+		FactoryData.OrderShipCompany = NAME_None;
+		FactoryData.OrderShipClass = NAME_None;
+		FactoryData.OrderShipAdvancePayment = 0;
+	}
 }
 
 void UFlareFactory::Pause()
@@ -183,13 +197,41 @@ void UFlareFactory::ClearOutputLimit(FFlareResourceDescription* Resource)
 	}
 }
 
-void UFlareFactory::SetTargetShipClass(FName Identifier)
+void UFlareFactory::OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 {
-	if (FactoryData.TargetShipClass != Identifier)
+	if (FactoryData.OrderShipCompany != NAME_None)
 	{
-		FactoryData.TargetShipClass = Identifier;
-		FactoryData.ProductedDuration = 0;
+		CancelOrder();
 	}
+
+	uint32 ShipPrice = 0;
+
+	if(Parent->GetCompany() != OrderCompany)
+	{
+		ShipPrice = UFlareGameTools::ComputeShipPrice(ShipIdentifier, Parent->GetCurrentSector());
+		if(!OrderCompany->TakeMoney(ShipPrice))
+		{
+			// Not enough money
+			return;
+		}
+	}
+
+	FactoryData.OrderShipClass = ShipIdentifier;
+	FactoryData.OrderShipCompany = OrderCompany->GetIdentifier();
+	FactoryData.OrderShipAdvancePayment = ShipPrice;
+}
+
+void UFlareFactory::CancelOrder()
+{
+	if(FactoryData.OrderShipCompany != NAME_None)
+	{
+		UFlareCompany* Company = GetGame()->GetGameWorld()->FindCompany(FactoryData.OrderShipCompany);
+		Company->GiveMoney(FactoryData.OrderShipAdvancePayment);
+	}
+
+	FactoryData.OrderShipClass = NAME_None;
+	FactoryData.OrderShipCompany = NAME_None;
+	FactoryData.OrderShipAdvancePayment = 0;
 }
 
 bool UFlareFactory::HasCostReserved()
@@ -303,7 +345,10 @@ bool UFlareFactory::HasOutputFreeSpace()
 
 void UFlareFactory::BeginProduction()
 {
-	Parent->GetCompany()->TakeMoney(GetProductionCost());
+	if(!Parent->GetCompany()->TakeMoney(GetProductionCost()))
+	{
+		return;
+	}
 
 
 	// Consume input resources
@@ -379,6 +424,8 @@ void UFlareFactory::CancelProduction()
 	}
 
 	FactoryData.ProductedDuration = 0;
+	FactoryData.TargetShipClass = NAME_None;
+	FactoryData.TargetShipCompany = NAME_None;
 }
 
 void UFlareFactory::DoProduction()
@@ -474,6 +521,12 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	if (ShipDescription)
 	{
 		UFlareCompany* Company = Parent->GetCompany();
+
+		if(FactoryData.TargetShipCompany != NAME_None)
+		{
+			Company = Game->GetGameWorld()->FindCompany(FactoryData.TargetShipCompany);
+		}
+
 		FVector SpawnPosition = Parent->GetSpawnLocation();
 		for (uint32 Index = 0; Index < Action->Quantity; Index++)
 		{
@@ -492,7 +545,17 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	}
 
 	FactoryData.TargetShipClass = NAME_None;
-	Stop();
+	FactoryData.TargetShipCompany = NAME_None;
+
+	if(FactoryData.OrderShipCompany == NAME_None)
+	{
+		// No more ship to produce
+		Stop();
+	}
+	else
+	{
+		Start();
+	}
 }
 
 

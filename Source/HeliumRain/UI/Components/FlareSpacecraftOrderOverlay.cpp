@@ -308,8 +308,23 @@ void SFlareSpacecraftOrderOverlay::OnConfirmed()
 		if (Desc && TargetFactory)
 		{
 			FLOGV("SFlareSpacecraftOrderOverlay::OnConfirmed : picked '%s'", *Desc->Identifier.ToString());
-			TargetFactory->SetTargetShipClass(Desc->Identifier);
-			TargetFactory->Start();
+
+			if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+			{
+				// Player ship building
+				if (TargetFactory->GetTargetShipClass() != Desc->Identifier)
+				{
+					// Replace it
+					TargetFactory->Stop();
+					TargetFactory->OrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
+					TargetFactory->Start();
+				}
+			}
+			else
+			{
+				TargetFactory->OrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
+				TargetFactory->Start();
+			}
 		}
 	}
 

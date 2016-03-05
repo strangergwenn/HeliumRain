@@ -152,7 +152,7 @@ public:
 	virtual void VisitSector(UFlareSimulatedSector* Sector);
 
 	/** Take a money amount from the company */
-	virtual void TakeMoney(uint64 Amount);
+	virtual bool TakeMoney(uint64 Amount);
 
 	/** Give a money amount to the company */
 	virtual void GiveMoney(uint64 Amount);

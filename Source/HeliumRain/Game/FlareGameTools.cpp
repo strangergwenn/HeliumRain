@@ -1338,6 +1338,38 @@ FString UFlareGameTools::FormatDate(int64 Days, int Deep)
 	}
 }
 
+uint32 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector)
+{
+	FFlareSpacecraftDescription *Desc;
+
+	Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
+
+	if (!Desc)
+	{
+		FLOGV("ComputeShipPrice failed: Unkwnon ship %s", *ShipClass.ToString());
+		return 0;
+	}
+
+	int32 Cost = 0;
+	Cost += Desc->CycleCost.ProductionCost;
+
+	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num() ; ResourceIndex++)
+	{
+		FFlareFactoryResource* Resource = &Desc->CycleCost.InputResources[ResourceIndex];
+		Cost += Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data);
+	}
+
+	// Substract output resource
+	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.OutputResources.Num() ; ResourceIndex++)
+	{
+		FFlareFactoryResource* Resource = &Desc->CycleCost.OutputResources[ResourceIndex];
+		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data);
+	}
+
+	FLOGV("Ship %s cost %d credit", *ShipClass.ToString(), Cost);
+	return FMath::Max(0, Cost);
+}
+
 /*----------------------------------------------------
 	Getter
 ----------------------------------------------------*/

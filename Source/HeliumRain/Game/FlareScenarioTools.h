@@ -62,12 +62,14 @@ protected:
 	UFlareSimulatedSector* FrozenRealm;
 	UFlareSimulatedSector* BlueHeart;
 	UFlareSimulatedSector* TheSpire;
+	UFlareSimulatedSector* TheDepths;
 
 	UFlareCompany* MiningSyndicate;
 	UFlareCompany* HelixFoundries;
 	UFlareCompany* Sunwatch;
 	UFlareCompany* IonLane;
 	UFlareCompany* UnitedFarmsChemicals;
+	UFlareCompany* GhostWorksShipyards;
 
 	FFlareResourceDescription* Water;
 	FFlareResourceDescription* Food;

@@ -201,6 +201,22 @@ struct FFlareFactorySave
 	/** Target ship class for shipyards */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName TargetShipClass;
+
+	/** Target ship company owner */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName TargetShipCompany;
+
+	/** Order ship class for shipyards */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName OrderShipClass;
+
+	/** Order ship company owner */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName OrderShipCompany;
+
+	/** Order advance payment */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 OrderShipAdvancePayment;
 };
 
 /** Spacecraft save data */

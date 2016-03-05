@@ -289,7 +289,7 @@ TOptional<float> SFlareFactoryInfo::GetProductionProgress() const
 {
 	if (TargetFactory)
 	{
-		return ((float)TargetFactory->GetProductedDuration() / (float)TargetFactory->GetRemainingProductionDuration());
+		return ((float)TargetFactory->GetProductedDuration() / (float)TargetFactory->GetCycleData().ProductionTime);
 	}
 	else
 	{

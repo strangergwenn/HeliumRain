@@ -36,13 +36,15 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	FrozenRealm = World->FindSector("frozen-realm");
 	BlueHeart = World->FindSector("blue-heart");
 	TheSpire = World->FindSector("the-spire");
-
+	TheDepths = World->FindSector("the-depths");
 
 	MiningSyndicate = World->FindCompanyByShortName("MSY");
 	HelixFoundries = World->FindCompanyByShortName("HFR");
 	Sunwatch = World->FindCompanyByShortName("SUN");
 	IonLane = World->FindCompanyByShortName("ION");
 	UnitedFarmsChemicals = World->FindCompanyByShortName("UFC");
+	GhostWorksShipyards = World->FindCompanyByShortName("GWS");
+
 
 	Water = Game->GetResourceCatalog()->Get("h2o");
 	Food = Game->GetResourceCatalog()->Get("food");
@@ -74,6 +76,10 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	PlayerCompany->DiscoverSector(MinerHome);
 	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
+<<<<<<< HEAD
+=======
+	PlayerCompany->DiscoverSector(TheDepths);
+>>>>>>> #150 It's now possible to order ship to others companies
 	FillWorld();
 }
 
@@ -90,6 +96,10 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	PlayerCompany->DiscoverSector(MinerHome);
 	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
+<<<<<<< HEAD
+=======
+	PlayerCompany->DiscoverSector(TheDepths);
+>>>>>>> #150 It's now possible to order ship to others companies
 	PlayerCompany->GiveMoney(10000);
 
 	FillWorld();
@@ -184,7 +194,7 @@ void UFlareScenarioTools::FillWorld()
 		BlueHeart->CreateShip("ship-omen", IonLane, FVector::ZeroVector);
 	}
 
-	// Initial setup for The Cloud
+	// Initial setup for The Spire
 
 	for(int Index = 0; Index < 5; Index ++)
 	{
@@ -192,6 +202,9 @@ void UFlareScenarioTools::FillWorld()
 		TheSpire->CreateStation("station-refinery", UnitedFarmsChemicals, FVector::ZeroVector);
 		TheSpire->CreateShip("ship-omen", UnitedFarmsChemicals, FVector::ZeroVector);
 	}
+
+	// Initial setup for The Depths
+	TheDepths->CreateStation("station-shipyard", GhostWorksShipyards, FVector::ZeroVector);
 
 
 }

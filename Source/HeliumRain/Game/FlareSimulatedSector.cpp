@@ -514,7 +514,10 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	}
 
 	// Pay station cost
-	Company->TakeMoney(StationDescription->CycleCost.ProductionCost);
+	if(!Company->TakeMoney(StationDescription->CycleCost.ProductionCost))
+	{
+		return false;
+	}
 
 	// Take resource cost
 	for (int ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)

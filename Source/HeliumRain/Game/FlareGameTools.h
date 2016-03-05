@@ -240,6 +240,8 @@ public:
 
 	static FString FormatDate(int64 Date, int Deep);
 
+	static uint32 ComputeShipPrice(FName ShipIdentifier, UFlareSimulatedSector *Sector);
+
 	/*----------------------------------------------------
 		Getter
 	----------------------------------------------------*/

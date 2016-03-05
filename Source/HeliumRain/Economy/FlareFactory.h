@@ -147,6 +147,10 @@ public:
 
 	void Stop();
 
+	void OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier);
+
+	void CancelOrder();
+
 	void SetInfiniteCycle(bool Mode);
 
 	void SetCycleCount(uint32 Count);
@@ -282,5 +286,10 @@ public:
 
 	/** Get this factory's status text */
 	FText GetFactoryStatus();
+
+	FName GetTargetShipCompany()
+	{
+		return FactoryData.TargetShipCompany;
+	}
 
 };
