@@ -107,6 +107,7 @@ void UFlareScenarioTools::FillWorld()
 	Sunwatch->GiveMoney(100000);
 	UnitedFarmsChemicals->GiveMoney(100000);
 	IonLane->GiveMoney(100000);
+	GhostWorksShipyards->GiveMoney(100000);
 
 	// Initial setup: miner home
 

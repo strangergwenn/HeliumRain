@@ -170,6 +170,10 @@ public:
 	UFUNCTION(exec)
 	void PrintSectorByIndex(int32 Index);
 
+	UFUNCTION(exec)
+	void Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation);
+
+
 	/*----------------------------------------------------
 		Trade tools
 	----------------------------------------------------*/

@@ -231,6 +231,64 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 	return Sector;
 }
 
+void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation)
+{
+	DeactivateSector(GetPC());
+
+	UFlareSimulatedSpacecraft* ShipToScrap = World->FindSpacecraft(ShipImmatriculation);
+	UFlareSimulatedSpacecraft* ScrapingStation = World->FindSpacecraft(TargetStationImmatriculation);
+
+	if(!ShipToScrap || !ScrapingStation)
+	{
+		FLOG("Scrap failed: ship to scrap or station not found");
+		return;
+	}
+
+	if(ShipToScrap->GetCurrentSector() != ScrapingStation->GetCurrentSector())
+	{
+		FLOG("Scrap failed: ship and station not in the same sector");
+		return;
+	}
+	UFlareSimulatedSector* CurrentSector = ShipToScrap->GetCurrentSector();
+
+	uint64 ScrapRevenue = 0;
+
+	for (int ResourceIndex = 0; ResourceIndex < ShipToScrap->GetDescription()->CycleCost.InputResources.Num() ; ResourceIndex++)
+	{
+		FFlareFactoryResource* Resource = &ShipToScrap->GetDescription()->CycleCost.InputResources[ResourceIndex];
+
+
+		ScrapRevenue += Resource->Quantity * CurrentSector->GetResourcePrice(&Resource->Resource->Data);
+		int ResourceToGive = Resource->Quantity;
+
+		ResourceToGive -= ScrapingStation->GetCargoBay()->GiveResources(&Resource->Resource->Data, Resource->Quantity);
+		CurrentSector->GiveResources(ScrapingStation->GetCompany(), &Resource->Resource->Data, ResourceToGive);
+	}
+
+
+	ScrapRevenue = FMath::Min(ScrapRevenue, ScrapingStation->GetCompany()->GetMoney());
+
+	FLOGV("Scrap success for %d", ScrapRevenue);
+
+	if(ScrapingStation->GetCompany() != ShipToScrap->GetCompany())
+	{
+		ShipToScrap->GetCompany()->GiveMoney(ScrapRevenue);
+		GetPC()->Notify(LOCTEXT("ShipSellScrap", "Ship scrap complete"),
+			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scraped for {1} credits!"), FText::FromString(ShipToScrap->GetImmatriculation().ToString()), FText::AsNumber(ScrapRevenue)),
+			FName("ship-own-scraped"),
+			EFlareNotification::NT_Economy);
+	}
+	else
+	{
+		GetPC()->Notify(LOCTEXT("ShipOwnScrap", "Ship scrap complete"),
+			FText::Format(LOCTEXT("ShipOwnScrapFormat", "Your ship {0} has been scraped!"), FText::FromString(ShipToScrap->GetImmatriculation().ToString())),
+			FName("ship-own-scraped"),
+			EFlareNotification::NT_Economy);
+	}
+
+	ShipToScrap->GetCompany()->DestroySpacecraft(ShipToScrap);
+}
+
 void AFlareGame::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

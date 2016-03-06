@@ -67,6 +67,8 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation);
+
 	/*----------------------------------------------------
 		Save slots
 	----------------------------------------------------*/

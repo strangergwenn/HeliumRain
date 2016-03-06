@@ -809,19 +809,32 @@ void UFlareGameTools::PrintSectorByIndex(int32 Index)
 {
 	if (!GetGameWorld())
 	{
-		FLOG("AFlareGame::PrintSectorByIndex failed: no loaded world");
+		FLOG("UFlareGameTools::PrintSectorByIndex failed: no loaded world");
 		return;
 	}
 
 	TArray<UFlareSimulatedSector*> Sectors= GetGameWorld()->GetSectors();
 	if (Index < 0 || Index > Sectors.Num() -1)
 	{
-		FLOGV("AFlareGame::PrintSectorByIndex failed: invalid index %d, with %d sectors.", Index, Sectors.Num());
+		FLOGV("UFlareGameTools::PrintSectorByIndex failed: invalid index %d, with %d sectors.", Index, Sectors.Num());
 		return;
 	}
 
 	PrintSector(Sectors[Index]->GetIdentifier());
 }
+
+void UFlareGameTools::Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("UFlareGameTools::Scrap failed: no loaded world");
+		return;
+	}
+
+	GetGame()->Scrap(ShipImmatriculation, TargetStationImmatriculation);
+}
+
+
 
 /*----------------------------------------------------
 	Trade tools
