@@ -76,10 +76,7 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	PlayerCompany->DiscoverSector(MinerHome);
 	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
-<<<<<<< HEAD
-=======
 	PlayerCompany->DiscoverSector(TheDepths);
->>>>>>> #150 It's now possible to order ship to others companies
 	FillWorld();
 }
 
@@ -96,10 +93,7 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	PlayerCompany->DiscoverSector(MinerHome);
 	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
-<<<<<<< HEAD
-=======
 	PlayerCompany->DiscoverSector(TheDepths);
->>>>>>> #150 It's now possible to order ship to others companies
 	PlayerCompany->GiveMoney(10000);
 
 	FillWorld();
