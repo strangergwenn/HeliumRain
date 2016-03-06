@@ -228,6 +228,26 @@ public:
 		return FactoryData.TargetShipClass;
 	}
 
+	FName GetTargetShipCompany() const
+	{
+		return FactoryData.TargetShipCompany;
+	}
+
+	FName GetOrderShipClass() const
+	{
+		return FactoryData.OrderShipClass;
+	}
+
+	FName GetOrderShipCompany() const
+	{
+		return FactoryData.OrderShipCompany;
+	}
+
+	uint32 GetOrderShipAdvancePayment() const
+	{
+		return FactoryData.OrderShipAdvancePayment;
+	}
+
 	uint32 GetProductionCost(const FFlareProductionData* Data = NULL);
 
 	int64 GetRemainingProductionDuration();
@@ -287,9 +307,6 @@ public:
 	/** Get this factory's status text */
 	FText GetFactoryStatus();
 
-	FName GetTargetShipCompany()
-	{
-		return FactoryData.TargetShipCompany;
-	}
+
 
 };
