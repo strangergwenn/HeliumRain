@@ -156,7 +156,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
 							.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
-							.Visibility(this, &SFlareSectorMenu::GetTravelVisibility)
+							.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
 						]
 					]
 				]
@@ -225,7 +225,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("BuildStationInfo", "Build a station"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
 							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
-							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
+							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
 						]
 					]
 				]
@@ -432,17 +432,17 @@ FText SFlareSectorMenu::GetTravelText() const
 	}
 }
 
-EVisibility SFlareSectorMenu::GetTravelVisibility() const
+bool SFlareSectorMenu::IsTravelDisabled() const
 {
 	UFlareFleet* CurrentFleet = MenuManager->GetPC()->GetSelectedFleet();
 
 	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector && !(CurrentFleet->IsTraveling() && !CurrentFleet->GetCurrentTravel()->CanChangeDestination()))
 	{
-		return EVisibility::Visible;
+		return false;
 	}
 	else
 	{
-		return EVisibility::Collapsed;
+		return true;
 	}
 }
 
@@ -555,9 +555,9 @@ FText SFlareSectorMenu::OnGetStationCost() const
 	return StationCost;
 }
 
-EVisibility SFlareSectorMenu::GetBuildStationVisibility() const
+bool SFlareSectorMenu::IsBuildStationDisabled() const
 {
-	return (StationBuildable ? EVisibility::Visible : EVisibility::Collapsed);
+	return (!StationBuildable);
 }
 
 FText SFlareSectorMenu::OnGetCurrentStationComboLine() const

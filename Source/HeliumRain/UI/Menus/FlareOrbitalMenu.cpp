@@ -155,11 +155,11 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SFlareButton)
 						.Width(4)
-						.Text(LOCTEXT("FastForward", "Fast forward"))
+						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
 						.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
 						.Icon(FFlareStyleSet::GetIcon("FastForward"))
 						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
-						.Visibility(this, &SFlareOrbitalMenu::GetFastForwardVisibility)
+						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
 					]
 
 					// Fly selected ship
@@ -173,7 +173,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
 						.Icon(FFlareStyleSet::GetIcon("Travel"))
 						.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
-						.Visibility(this, &SFlareOrbitalMenu::GetFlySelectedShipVisibility)
+						.IsDisabled(this, &SFlareOrbitalMenu::IsFlySelectedShipDisabled)
 					]
 
 					// Fly last flown
@@ -187,7 +187,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
 						.Icon(FFlareStyleSet::GetIcon("Travel"))
 						.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
-						.Visibility(this, &SFlareOrbitalMenu::GetFlyCurrentShipVisibility)
+						.IsDisabled(this, &SFlareOrbitalMenu::IsFlyCurrentShipDisabled)
 					]
 				]
 
@@ -339,10 +339,17 @@ void SFlareOrbitalMenu::UpdateTravels()
 
 FText SFlareOrbitalMenu::GetFlyCurrentShipText() const
 {
-	return LOCTEXT("FlyCurrentFormat", "Fly last flown");
+	if (!IsFlyCurrentShipDisabled())
+	{
+		return LOCTEXT("FlyCurrentFormat", "Fly last ship");
+	}
+	else
+	{
+		return LOCTEXT("NoFlyCurrentFormat", "Can't fly last ship !");
+	}
 }
 
-EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
+bool SFlareOrbitalMenu::IsFlyCurrentShipDisabled() const
 {
 	if (IsEnabled())
 	{
@@ -350,19 +357,26 @@ EVisibility SFlareOrbitalMenu::GetFlyCurrentShipVisibility() const
 
 		if (CurrentShip && CurrentShip->CanBeFlown())
 		{
-			return EVisibility::Visible;
+			return false;
 		}
 	}
 
-	return EVisibility::Collapsed;
+	return true;
 }
 
 FText SFlareOrbitalMenu::GetFlySelectedShipText() const
 {
-	return LOCTEXT("FlySelectedFormat", "Fly selected");
+	if (!IsFlySelectedShipDisabled())
+	{
+		return LOCTEXT("FlySelectedFormat", "Fly selected");
+	}
+	else
+	{
+		return LOCTEXT("NoFlySelectedFormat", "No ship selected !");
+	}
 }
 
-EVisibility SFlareOrbitalMenu::GetFlySelectedShipVisibility() const
+bool SFlareOrbitalMenu::IsFlySelectedShipDisabled() const
 {
 	if (IsEnabled())
 	{
@@ -374,15 +388,27 @@ EVisibility SFlareOrbitalMenu::GetFlySelectedShipVisibility() const
 
 			if (CurrentShip && CurrentShip->CanBeFlown())
 			{
-				return EVisibility::Visible;
+				return false;
 			}
 		}
 	}
 
-	return EVisibility::Collapsed;
+	return true;
 }
 
-EVisibility SFlareOrbitalMenu::GetFastForwardVisibility() const
+FText SFlareOrbitalMenu::GetFastForwardText() const
+{
+	if (!IsFastForwardDisabled())
+	{
+		return LOCTEXT("FastForwardText", "Fast forward");
+	}
+	else
+	{
+		return LOCTEXT("NoFastForwardText", "Can't fast forward !");
+	}
+}
+
+bool SFlareOrbitalMenu::IsFastForwardDisabled() const
 {
 	if (IsEnabled())
 	{
@@ -390,14 +416,12 @@ EVisibility SFlareOrbitalMenu::GetFastForwardVisibility() const
 
 		if (GameWorld && (GameWorld->GetTravels().Num() > 0 || true)) // Not true if there is pending todo event
 		{
-
 			// TODO ALPHA : show the button during station/ship constructions as well
-			return EVisibility::Visible;
+			return false;
 		}
-
 	}
 
-	return EVisibility::Collapsed;
+	return true;
 }
 
 void SFlareOrbitalMenu::OnInspectCompany()

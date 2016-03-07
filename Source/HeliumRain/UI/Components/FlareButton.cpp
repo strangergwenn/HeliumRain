@@ -22,6 +22,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	Color = InArgs._Color;
 	Text = InArgs._Text;
 	HelpText = InArgs._HelpText;
+	IsDisabled = InArgs._IsDisabled;
 	int32 Width = InArgs._Width * Theme.ButtonWidth;
 	int32 Height = InArgs._Height * Theme.ButtonHeight;
 	
@@ -174,6 +175,11 @@ bool SFlareButton::IsActive() const
 	return IsPressed;
 }
 
+void SFlareButton::SetDisabled(bool State)
+{
+	IsDisabled = State;
+}
+
 
 /*----------------------------------------------------
 	Callbacks
@@ -208,6 +214,10 @@ const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 	if (IsTransparent)
 	{
 		return &Theme.InvisibleBrush;
+	}
+	else if (IsDisabled.IsBound() && IsDisabled.Get())
+	{
+		return &Theme.ButtonDisabledDecorator;
 	}
 	else if (IsToggle)
 	{
@@ -247,6 +257,10 @@ const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 	{
 		return (IsHovered() ? &Theme.NearInvisibleBrush : &Theme.InvisibleBrush);
 	}
+	else if (IsDisabled.IsBound() && IsDisabled.Get())
+	{
+		return &Theme.ButtonDisabledBackground;
+	}
 	else
 	{
 		return (IsHovered() ? &Theme.ButtonActiveBackground : &Theme.ButtonBackground);
@@ -260,14 +274,17 @@ FSlateColor SFlareButton::GetMainColor() const
 
 FReply SFlareButton::OnButtonClicked()
 {
-	if (IsToggle)
+	if (!IsDisabled.IsBound() || !IsDisabled.Get())
 	{
-		IsPressed = !IsPressed;
-	}
+		if (IsToggle)
+		{
+			IsPressed = !IsPressed;
+		}
 
-	if (OnClicked.IsBound() == true)
-	{
-		OnClicked.Execute();
+		if (OnClicked.IsBound() == true)
+		{
+			OnClicked.Execute();
+		}
 	}
 
 	return FReply::Handled();

@@ -50,7 +50,7 @@ protected:
 	FText GetTravelText() const;
 
 	/** Visibility setting for the travel button */
-	EVisibility GetTravelVisibility() const;
+	bool IsTravelDisabled() const;
 
 	/** Get the sector's name */
 	FText GetSectorName() const;
@@ -77,7 +77,7 @@ protected:
 
 	FText OnGetStationCost() const;
 
-	EVisibility GetBuildStationVisibility() const;
+	bool IsBuildStationDisabled() const;
 
 	FText OnGetCurrentStationComboLine() const;
 

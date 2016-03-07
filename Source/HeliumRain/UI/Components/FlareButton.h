@@ -22,8 +22,10 @@ class SFlareButton : public SCompoundWidget
 
 	SLATE_ATTRIBUTE(FText, Text)
 	SLATE_ATTRIBUTE(FText, HelpText)
-	SLATE_ATTRIBUTE(const FSlateBrush*, Icon);
+	SLATE_ATTRIBUTE(const FSlateBrush*, Icon)
 	SLATE_ATTRIBUTE(FSlateColor, Color)
+	SLATE_ATTRIBUTE(bool, IsDisabled)
+
 	SLATE_EVENT(FFlareButtonClicked, OnClicked)
 
 	SLATE_ARGUMENT(bool, Toggle)
@@ -49,6 +51,9 @@ public:
 	/** Get the toggle state */
 	bool IsActive() const;
 
+	/** Set the disabled state */
+	void SetDisabled(bool State);
+	
 
 	/*----------------------------------------------------
 		Callbacks
@@ -90,10 +95,13 @@ protected:
 	// Slate data
 	FFlareButtonClicked            OnClicked;
 	TSharedPtr<SBorder>            InnerContainer;
+
+	// Attributes
 	TAttribute<const FSlateBrush*> Icon;
 	TAttribute<FSlateColor>        Color;
 	TAttribute<FText>              Text;
 	TAttribute<FText>              HelpText;
+	TAttribute<bool>               IsDisabled;
 
 
 public:

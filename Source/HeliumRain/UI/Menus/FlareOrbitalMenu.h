@@ -66,16 +66,19 @@ protected:
 	FText GetFlyCurrentShipText() const;
 
 	/** Visibility setting for the fly-current-ship feature */
-	EVisibility GetFlyCurrentShipVisibility() const;
+	bool IsFlyCurrentShipDisabled() const;
 
 	/** Get the text for the fly-selected-ship button */
 	FText GetFlySelectedShipText() const;
 
 	/** Visibility setting for the fly-selected-ship feature */
-	EVisibility GetFlySelectedShipVisibility() const;
+	bool IsFlySelectedShipDisabled() const;
+
+	/** Get the text for the fast-forward feature */
+	FText GetFastForwardText() const;
 
 	/** Visibility setting for the fast-forward feature */
-	EVisibility GetFastForwardVisibility() const;
+	bool IsFastForwardDisabled() const;
 
 	/** Inspect the company */
 	void OnInspectCompany();
@@ -122,4 +125,5 @@ protected:
 	TSharedPtr<SFlarePlanetaryBox>              AnkaBox;
 	TSharedPtr<SFlarePlanetaryBox>              HelaBox;
 	TSharedPtr<SVerticalBox>                    TravelsBox;
+
 };
