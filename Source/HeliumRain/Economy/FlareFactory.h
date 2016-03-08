@@ -221,7 +221,14 @@ public:
 
 	const FFlareProductionData& GetCycleDataForShipClass(FName Class);
 
-	bool HasCreateShipAction() const;
+	/** Is it a ship production line */
+	bool IsShipyard() const;
+
+	/** Is it a light ship production line */
+	bool IsSmallShipyard() const;
+
+	/** Is it a heavy ship production line */
+	bool IsLargeShipyard() const;
 
 	FName GetTargetShipClass() const
 	{

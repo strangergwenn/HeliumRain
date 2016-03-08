@@ -199,9 +199,9 @@ void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacec
 	FadeTargetSpacecraft = Cast<IFlareSpacecraftInterface>(Data);
 }
 
-void AFlareMenuManager::OpenSpacecraftOrder(SFlareFactoryInfo* FactoryMenu)
+void AFlareMenuManager::OpenSpacecraftOrder(UFlareFactory* Factory)
 {
-	SpacecraftOrder->Open(FactoryMenu);
+	SpacecraftOrder->Open(Factory);
 }
 
 void AFlareMenuManager::CloseMenu(bool HardClose)

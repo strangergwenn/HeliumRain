@@ -83,11 +83,20 @@ public:
 	/** Undock */
 	void OnUndock();
 
+	/** Scrap this ship */
+	void OnScrap();
+
 	/** Assign*/
 	void OnAssign();
 
 	/** Unassign*/
 	void OnUnassign();
+
+	/** Order a ship */
+	void OnOrderShip();
+
+	/** Order a heavy ship */
+	void OnOrderHeavyShip();
 
 
 	/*----------------------------------------------------
@@ -132,7 +141,7 @@ protected:
 	FFlareSpacecraftDescription*      TargetSpacecraftDesc;
 	FText                             TargetName;
 
-	// Slate data
+	// Slate data (buttons)
 	TSharedPtr<SFlareButton>          InspectButton;
 	TSharedPtr<SFlareButton>          UpgradeButton;
 	TSharedPtr<SFlareButton>          TradeButton;
@@ -142,6 +151,11 @@ protected:
 	TSharedPtr<SFlareButton>          SelectButton;
 	TSharedPtr<SFlareButton>          DockButton;
 	TSharedPtr<SFlareButton>          UndockButton;
+	TSharedPtr<SFlareButton>          ScrapButton;
+	TSharedPtr<SFlareButton>          OrderShipButton;
+	TSharedPtr<SFlareButton>          OrderHeavyShipButton;
+
+	// Slate data (various)
 	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
 	TSharedPtr<SHorizontalBox>        CargoBay;

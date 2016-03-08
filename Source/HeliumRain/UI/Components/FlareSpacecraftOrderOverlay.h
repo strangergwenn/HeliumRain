@@ -40,7 +40,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Show the overlay */
-	void Open(SFlareFactoryInfo* FactoryMenu);
+	void Open(UFlareFactory* Factory);
 	
 	/** Close the overlay */
 	void Close();

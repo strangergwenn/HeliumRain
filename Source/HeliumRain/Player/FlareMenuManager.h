@@ -30,6 +30,8 @@ class UFlareCompany;
 class UFlareSimulatedSector;
 class UFlareSectorInterface;
 class UFlareTradeRoute;
+class UFlareFactory;
+
 
 /** Main HUD class (container for HUD and menus) */
 UCLASS()
@@ -62,7 +64,7 @@ public:
 	void OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacecraftInterface* Data = NULL);
 
 	/** Show the list of spacecraft that can be ordered here */
-	void OpenSpacecraftOrder(SFlareFactoryInfo* FactoryMenu);
+	void OpenSpacecraftOrder(UFlareFactory* Factory);
 
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);

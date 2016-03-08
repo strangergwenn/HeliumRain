@@ -565,7 +565,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 
 const FFlareProductionData& UFlareFactory::GetCycleData()
 {
-	if (HasCreateShipAction() && FactoryData.TargetShipClass != NAME_None)
+	if (IsShipyard() && FactoryData.TargetShipClass != NAME_None)
 	{
 		return GetCycleDataForShipClass(FactoryData.TargetShipClass);
 	}
@@ -580,7 +580,7 @@ const FFlareProductionData& UFlareFactory::GetCycleDataForShipClass(FName Class)
 	return GetGame()->GetSpacecraftCatalog()->Get(Class)->CycleCost;
 }
 
-bool UFlareFactory::HasCreateShipAction() const
+bool UFlareFactory::IsShipyard() const
 {
 	for (int32 Index = 0; Index < GetDescription()->OutputActions.Num(); Index++)
 	{
@@ -590,6 +590,16 @@ bool UFlareFactory::HasCreateShipAction() const
 		}
 	}
 	return false;
+}
+
+bool UFlareFactory::IsSmallShipyard() const
+{
+	return IsShipyard() && !GetDescription()->Identifier.ToString().Contains("large");
+}
+
+bool UFlareFactory::IsLargeShipyard() const
+{
+	return IsShipyard() && GetDescription()->Identifier.ToString().Contains("large");
 }
 
 uint32 UFlareFactory::GetProductionCost(const FFlareProductionData* Data)
@@ -763,7 +773,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 	FText ProductionOutputText;
 
 	// No ship class selected
-	if (HasCreateShipAction() && FactoryData.TargetShipClass == NAME_None)
+	if (IsShipyard() && FactoryData.TargetShipClass == NAME_None)
 	{
 		return LOCTEXT("SelectShipClass", "Please select a ship class to build");
 	}

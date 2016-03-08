@@ -3,6 +3,7 @@
 #include "FlareFactoryInfo.h"
 #include "FlareSpacecraftOrderOverlay.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Player/FlarePlayerController.h"
 #include "../../Economy/FlareFactory.h"
 #include "../../Game/FlareGame.h"
 
@@ -104,14 +105,14 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareSpacecraftOrderOverlay::Open(SFlareFactoryInfo* FactoryMenu)
+void SFlareSpacecraftOrderOverlay::Open(UFlareFactory* Factory)
 {
 	SetVisibility(EVisibility::Visible);
-	TargetFactory = FactoryMenu->GetFactory();
+	TargetFactory = Factory;
 
 	// Init buildable Spacecraft list
 	SpacecraftList.Empty();
-	if (TargetFactory && TargetFactory->HasCreateShipAction())
+	if (TargetFactory && TargetFactory->IsShipyard())
 	{
 		UFlareSpacecraftCatalogEntry* SelectedEntry = NULL;
 		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
@@ -122,7 +123,7 @@ void SFlareSpacecraftOrderOverlay::Open(SFlareFactoryInfo* FactoryMenu)
 			FFlareSpacecraftDescription* Description = &Entry->Data;
 
 			// Filter by Spacecraft size, and add
-			bool LargeFactory = TargetFactory->GetDescription()->Identifier.ToString().Contains("large");
+			bool LargeFactory = TargetFactory->IsLargeShipyard();
 			bool LargeSpacecraft = Description->Size >= EFlarePartSize::L;
 			if (LargeFactory == LargeSpacecraft)
 			{
@@ -174,9 +175,20 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 	{
 		SpacecraftInfoText = LOCTEXT("NoWeapons", "(Unarmed ship)");
 	}
-
-	// Production time
+	
+	// Production cost
+	FText ProductionCost;
 	int ProductionTime = CycleData->ProductionTime;
+	if (MenuManager->GetPC()->GetCompany() == TargetFactory->GetParent()->GetCompany())
+	{
+		ProductionCost = TargetFactory->GetFactoryCycleCost(CycleData);
+	}
+	else
+	{
+		ProductionTime += TargetFactory->GetRemainingProductionDuration();
+		int32 CycleProductionCost = UFlareGameTools::ComputeShipPrice(Desc->Identifier, TargetFactory->GetParent()->GetCurrentSector());
+		ProductionCost = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleProductionCost));
+	}
 
 	// Structure
 	return SNew(SFlareListItem, OwnerTable)
@@ -247,7 +259,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(TargetFactory->GetFactoryCycleCost(CycleData))
+				.Text(ProductionCost)
 				.WrapTextAt(Theme.ContentWidth / 3)
 				.TextStyle(&Theme.TextFont)
 			]

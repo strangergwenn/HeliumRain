@@ -352,13 +352,13 @@ EVisibility SFlareFactoryInfo::GetDecreaseOutputLimitVisibility(FFlareResourceDe
 
 FText SFlareFactoryInfo::GetTargetShipClassText() const
 {
-	if (TargetFactory && TargetFactory->HasCreateShipAction())
+	if (TargetFactory && TargetFactory->IsShipyard())
 	{
 		FName TargetShipClass = TargetFactory->GetTargetShipClass();
 		if (TargetShipClass != NAME_None)
 		{
 			FFlareSpacecraftDescription* TargetShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetShipClass);
-			return FText::Format(LOCTEXT("CurrentSHipFormat", "Building {0} (Change)"), TargetShipDesc->Name);
+			return FText::Format(LOCTEXT("CurrentShipFormat", "Building {0} (Change)"), TargetShipDesc->Name);
 		}
 		else
 		{
@@ -373,7 +373,7 @@ FText SFlareFactoryInfo::GetTargetShipClassText() const
 
 EVisibility SFlareFactoryInfo::GetShipSelectorVisibility() const
 {
-	return (TargetFactory && TargetFactory->HasCreateShipAction() ? EVisibility::Visible : EVisibility::Collapsed);
+	return (TargetFactory && TargetFactory->IsShipyard() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 
@@ -383,7 +383,7 @@ EVisibility SFlareFactoryInfo::GetShipSelectorVisibility() const
 
 void SFlareFactoryInfo::OnOpenSpacecraftOrder()
 {
-	MenuManager->OpenSpacecraftOrder(this);
+	MenuManager->OpenSpacecraftOrder(TargetFactory);
 }
 
 void SFlareFactoryInfo::OnStartProduction()
