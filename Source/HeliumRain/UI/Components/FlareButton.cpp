@@ -177,7 +177,7 @@ bool SFlareButton::IsActive() const
 
 void SFlareButton::SetDisabled(bool State)
 {
-	IsDisabled = State;
+	IsDisabled.Set(State);
 }
 
 
@@ -210,12 +210,13 @@ void SFlareButton::OnMouseLeave(const FPointerEvent& MouseEvent)
 const FSlateBrush* SFlareButton::GetDecoratorBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	bool WasDisabled = (IsDisabled.IsBound() || IsDisabled.IsSet()) && IsDisabled.Get();
 
 	if (IsTransparent)
 	{
 		return &Theme.InvisibleBrush;
 	}
-	else if (IsDisabled.IsBound() && IsDisabled.Get())
+	else if (WasDisabled)
 	{
 		return &Theme.ButtonDisabledDecorator;
 	}
@@ -252,12 +253,13 @@ const FSlateBrush* SFlareButton::GetIconBrush() const
 const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	bool WasDisabled = (IsDisabled.IsBound() || IsDisabled.IsSet()) && IsDisabled.Get();
 
 	if (IsTransparent)
 	{
 		return (IsHovered() ? &Theme.NearInvisibleBrush : &Theme.InvisibleBrush);
 	}
-	else if (IsDisabled.IsBound() && IsDisabled.Get())
+	else if (WasDisabled)
 	{
 		return &Theme.ButtonDisabledBackground;
 	}
@@ -274,7 +276,8 @@ FSlateColor SFlareButton::GetMainColor() const
 
 FReply SFlareButton::OnButtonClicked()
 {
-	if (!IsDisabled.IsBound() || !IsDisabled.Get())
+	bool WasDisabled = (IsDisabled.IsBound() || IsDisabled.IsSet()) && IsDisabled.Get();
+	if (!WasDisabled)
 	{
 		if (IsToggle)
 		{

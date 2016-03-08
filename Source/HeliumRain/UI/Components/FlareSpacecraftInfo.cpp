@@ -142,14 +142,14 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Width(4)
 						]
 
-						// Upgrade
+						// Select this ship
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
-							SAssignNew(UpgradeButton, SFlareButton)
-							.Text(LOCTEXT("Upgrade", "UPGRADE"))
-							.HelpText(LOCTEXT("UpgradeInfo", "Upgrade this spacecraft"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
+							SAssignNew(SelectButton, SFlareButton)
+							.Text(LOCTEXT("ShipSelect", "SELECT"))
+							.HelpText(LOCTEXT("ShipSelectInfo", "Use this ship for orital navigation"))
+							.OnClicked(this, &SFlareSpacecraftInfo::OnSelect)
 							.Width(4)
 						]
 
@@ -172,28 +172,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					[
 						SNew(SHorizontalBox)
 
-						// Select this ship
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(SelectButton, SFlareButton)
-							.Text(LOCTEXT("ShipSelect", "SELECT"))
-							.HelpText(LOCTEXT("ShipSelectInfo", "Use this ship for orital navigation"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnSelect)
-							.Width(4)
-						]
-
-						// Trade
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(TradeButton, SFlareButton)
-							.Text(LOCTEXT("Trade", "TRADE"))
-							.HelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
-							.Width(4)
-						]
-
 						// Assign to sector
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
@@ -213,6 +191,28 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Unassign", "UNASSIGN"))
 							.HelpText(LOCTEXT("UnassignInfo", "Unassign this ship from the sector"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnUnassign)
+							.Width(4)
+						]
+
+						// Trade
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SAssignNew(TradeButton, SFlareButton)
+							.Text(LOCTEXT("Trade", "TRADE"))
+							.HelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"))
+							.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
+							.Width(4)
+						]
+
+						// Upgrade
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SAssignNew(UpgradeButton, SFlareButton)
+							.Text(LOCTEXT("Upgrade", "UPGRADE"))
+							.HelpText(LOCTEXT("UpgradeInfo", "Upgrade this spacecraft"))
+							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
 							.Width(4)
 						]
 			
@@ -346,49 +346,49 @@ void SFlareSpacecraftInfo::Show()
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PC->GetShipPawn();
 		bool FriendlyAndNotSelf = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
-
-		// Permissions
 		bool IsStrategy = Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL;
 		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
+		bool IsStation = TargetSpacecraft->IsStation();
+
+		// Permissions
 		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
-		bool CanAssign = OwnedAndNotSelf && !TargetSpacecraft->IsStation();
-		bool CanUpgrade = Owned && !TargetSpacecraft->IsStation() && (IsDocked || IsStrategy);
+		bool CanAssign = OwnedAndNotSelf && !IsStation && !TargetSpacecraft->IsAssignedToSector();
+		bool CanUnAssign = OwnedAndNotSelf && !IsStation && TargetSpacecraft->IsAssignedToSector();
+		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy);
+		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 
-		// Trade permission
-		bool CanTrade = Owned &&
-			!TargetSpacecraft->IsStation()
-			&& TargetSpacecraft->GetDescription()->CargoBayCount > 0
-			&& (IsStrategy || IsDocked);
-
-		// Button states
+		// Button states : hide stuff that can never make sense (flying stations etc)
 		CargoBay->SetVisibility(CargoBay->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
 		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
 		UpgradeButton->SetVisibility(CanUpgrade ? EVisibility::Visible : EVisibility::Collapsed);
 		TradeButton->SetVisibility(CanTrade ? EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock ? EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
+		FlyButton->SetVisibility(IsStation ? EVisibility::Collapsed : EVisibility::Visible);
+		SelectButton->SetVisibility(IsStation ? EVisibility::Collapsed : EVisibility::Visible);
+		AssignButton->SetVisibility(CanAssign ? EVisibility::Visible : EVisibility::Collapsed);
+		UnassignButton->SetVisibility(CanUnAssign ? EVisibility::Visible : EVisibility::Collapsed);
 
-		// Flyable ships
+		// Flyable ships : disable when not flyable
 		if (OwnedAndNotSelf && TargetSpacecraft->CanBeFlown())
 		{
-			FlyButton->SetVisibility(EVisibility::Visible);
-			SelectButton->SetVisibility(EVisibility::Visible);
+			FlyButton->SetDisabled(false);
+			SelectButton->SetDisabled(false);
 		}
 		else
 		{
-			FlyButton->SetVisibility(EVisibility::Collapsed);
-			SelectButton->SetVisibility(EVisibility::Collapsed);
+			FlyButton->SetDisabled(true);
+			SelectButton->SetDisabled(true);
 		}
 
-		if (CanAssign)
+		// Disable trade while flying unless docked
+		if (IsStrategy)
 		{
-			AssignButton->SetVisibility(TargetSpacecraft->IsAssignedToSector() ? EVisibility::Collapsed : EVisibility::Visible);
-			UnassignButton->SetVisibility(TargetSpacecraft->IsAssignedToSector() ? EVisibility::Visible : EVisibility::Collapsed);
+			TradeButton->SetDisabled(false);
 		}
 		else
 		{
-			AssignButton->SetVisibility(EVisibility::Collapsed);
-			UnassignButton->SetVisibility(EVisibility::Collapsed);
+			TradeButton->SetDisabled(!IsDocked);
 		}
 	}
 }
