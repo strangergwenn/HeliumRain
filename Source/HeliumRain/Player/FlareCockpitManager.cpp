@@ -37,6 +37,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMesh = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Cockpit"));
 	CockpitMesh->LightingChannels.bChannel0 = false;
 	CockpitMesh->LightingChannels.bChannel1 = true;
+	RootComponent = CockpitMesh;
 
 	// Main camera
 #if FLARE_USE_COCKPIT_RENDERTARGET
