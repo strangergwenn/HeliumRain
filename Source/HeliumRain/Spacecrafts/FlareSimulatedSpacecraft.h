@@ -45,6 +45,10 @@ public:
 	/** Check if this is a station ship */
 	virtual bool IsStation() const override;
 
+	virtual bool CanFight() const override;
+
+	virtual bool CanTravel() const override;
+
 
 	/*----------------------------------------------------
 		Sub system

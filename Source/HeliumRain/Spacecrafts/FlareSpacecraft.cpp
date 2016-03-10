@@ -526,6 +526,16 @@ UFlareSpacecraftDockingSystem* AFlareSpacecraft::GetDockingSystem() const
 	return DockingSystem;
 }
 
+bool AFlareSpacecraft::CanFight() const
+{
+	return GetDamageSystem()->IsAlive() && IsMilitary() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+}
+
+bool AFlareSpacecraft::CanTravel() const
+{
+	return GetDamageSystem()->IsAlive() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) > 0;
+}
+
 void AFlareSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
 {
 	// Copy data

@@ -436,7 +436,7 @@ bool SFlareSectorMenu::IsTravelDisabled() const
 {
 	UFlareFleet* CurrentFleet = MenuManager->GetPC()->GetSelectedFleet();
 
-	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector && !(CurrentFleet->IsTraveling() && !CurrentFleet->GetCurrentTravel()->CanChangeDestination()))
+	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector && CurrentFleet->CanTravel())
 	{
 		return false;
 	}
@@ -449,7 +449,6 @@ bool SFlareSectorMenu::IsTravelDisabled() const
 FText SFlareSectorMenu::GetSectorName() const
 {
 	FText Result;
-
 	if (TargetSector)
 	{
 		Result = FText::Format(LOCTEXT("SectorFormat", "Sector : {0} ({1})"),

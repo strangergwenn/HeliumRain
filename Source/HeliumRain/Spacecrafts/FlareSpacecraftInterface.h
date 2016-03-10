@@ -40,6 +40,10 @@ struct FFlareSpacecraftSlotDescription
 	/** Turret angle limits. The number of value indicate indicate the angular between each limit. For exemple 4 value are for 0°, 90°, -90° and 180°? */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<float> TurretBarrelsAngleLimit;
+
+	/** Power components */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FName> PoweredComponents;
 };
 
 USTRUCT()
@@ -219,6 +223,10 @@ public:
 	virtual bool IsStation() const = 0;
 
 	virtual bool CanBeFlown() const = 0;
+
+	virtual bool CanTravel() const = 0;
+
+	virtual bool CanFight() const = 0;
 
 	virtual bool IsAssignedToSector() const = 0;
 

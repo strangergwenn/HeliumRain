@@ -44,8 +44,11 @@ public:
 
 protected:
 
+	float GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
+						 FFlareSpacecraftComponentSave* ComponentData,
+						 bool WithArmor) const;
 
-
+	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/

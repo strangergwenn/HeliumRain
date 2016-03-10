@@ -48,6 +48,36 @@ bool UFlareFleet::IsTraveling()
 	return CurrentTravel != NULL;
 }
 
+bool UFlareFleet::CanTravel()
+{
+	if (IsTraveling() && !GetCurrentTravel()->CanChangeDestination())
+	{
+		return false;
+	}
+
+	if (GetImmobilizedShipCount() == FleetShips.Num())
+	{
+		// All ship are immobilized
+		return false;
+	}
+
+	return true;
+}
+
+uint32 UFlareFleet::GetImmobilizedShipCount()
+{
+	uint32 ImmobilizedShip = 0;
+
+	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	{
+		if (!FleetShips[ShipIndex]->CanTravel())
+		{
+			ImmobilizedShip++;
+		}
+	}
+	return ImmobilizedShip;
+}
+
 void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 {
 	if (IsTraveling())

@@ -104,6 +104,10 @@ public:
 		return !IsStation() && !IsAssignedToSector();
 	}
 
+	virtual bool CanFight() const override;
+
+	virtual bool CanTravel() const override;
+
 	void AssignToSector(bool Assign) override
 	{
 		ShipData.IsAssigned = Assign;

@@ -125,6 +125,10 @@ public:
 
 	bool IsTraveling();
 
+	bool CanTravel();
+
+	uint32 GetImmobilizedShipCount();
+
 	/** Return null if traveling */
 	inline UFlareSimulatedSector* GetCurrentSector()
 	{

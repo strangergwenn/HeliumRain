@@ -116,6 +116,18 @@ bool UFlareSimulatedSpacecraft::IsStation() const
 	return IFlareSpacecraftInterface::IsStation(SpacecraftDescription);
 }
 
+
+bool UFlareSimulatedSpacecraft::CanFight() const
+{
+	return GetDamageSystem()->IsAlive() && IsMilitary() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+}
+
+bool UFlareSimulatedSpacecraft::CanTravel() const
+{
+	return GetDamageSystem()->IsAlive() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) > 0;
+}
+
+
 FName UFlareSimulatedSpacecraft::GetImmatriculation() const
 {
 	return SpacecraftData.Immatriculation;
