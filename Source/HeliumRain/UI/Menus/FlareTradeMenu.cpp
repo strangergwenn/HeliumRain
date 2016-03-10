@@ -259,7 +259,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 void SFlareTradeMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 	ShipList->SetVisibility(EVisibility::Collapsed);
 }
 
@@ -367,7 +367,7 @@ void SFlareTradeMenu::Exit()
 	// Reset menus
 	PriceBox->Hide();
 	ShipList->Reset();
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 

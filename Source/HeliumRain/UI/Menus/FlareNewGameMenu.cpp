@@ -191,7 +191,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 void SFlareNewGameMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareNewGameMenu::Enter()
@@ -213,7 +213,7 @@ void SFlareNewGameMenu::Enter()
 void SFlareNewGameMenu::Exit()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 

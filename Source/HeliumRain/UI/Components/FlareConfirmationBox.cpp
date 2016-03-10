@@ -79,11 +79,11 @@ void SFlareConfirmationBox::Show(float NewAmount)
 
 void SFlareConfirmationBox::Hide()
 {
-	ConfirmButton->SetVisibility(EVisibility::Hidden);
+	ConfirmButton->SetVisibility(EVisibility::Collapsed);
 
 	if (FullHide)
 	{
-		CancelButton->SetVisibility(EVisibility::Hidden);
+		CancelButton->SetVisibility(EVisibility::Collapsed);
 	}
 }
 

@@ -295,7 +295,7 @@ Interaction
 void SFlareTradeRouteMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareTradeRouteMenu::Enter(UFlareTradeRoute* TradeRoute)
@@ -318,7 +318,7 @@ void SFlareTradeRouteMenu::Exit()
 	TradeSectorList->ClearChildren();
 	TradeFleetList->ClearChildren();
 
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareTradeRouteMenu::GenerateSectorList()

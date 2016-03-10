@@ -115,7 +115,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 void SFlareLeaderboardMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareLeaderboardMenu::Enter()
@@ -151,7 +151,7 @@ void SFlareLeaderboardMenu::Enter()
 void SFlareLeaderboardMenu::Exit()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 	CompanyListData.Empty();
 	CompanyList->RequestListRefresh();
 }

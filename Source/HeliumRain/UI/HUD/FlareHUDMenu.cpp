@@ -266,7 +266,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	}
 	else
 	{
-		WeaponContainer->SetVisibility(EVisibility::Hidden);
+		WeaponContainer->SetVisibility(EVisibility::Collapsed);
 	}
 }
 

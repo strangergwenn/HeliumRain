@@ -274,7 +274,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 void SFlareSectorMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
@@ -361,7 +361,7 @@ void SFlareSectorMenu::Exit()
 	StationSelector->ClearSelection();
 	StationBuildable = false;
 
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareSectorMenu::UpdateStationCost()

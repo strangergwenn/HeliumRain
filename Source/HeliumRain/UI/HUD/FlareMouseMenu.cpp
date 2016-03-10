@@ -22,7 +22,7 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	// Init
 	MenuManager = InArgs._MenuManager;
 	PC = MenuManager->GetPC();
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 	CurrentTime = 0.0f;
 	IsOpening = false;
 	
@@ -121,7 +121,7 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 	CurrentTime += IsOpening ? InDeltaTime : -InDeltaTime;
 	if (!IsOpen())
 	{
-		SetVisibility(EVisibility::Hidden);
+		SetVisibility(EVisibility::Collapsed);
 	}
 }
 

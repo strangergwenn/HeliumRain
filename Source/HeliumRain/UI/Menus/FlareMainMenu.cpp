@@ -230,7 +230,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 void SFlareMainMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareMainMenu::Enter()
@@ -246,7 +246,7 @@ void SFlareMainMenu::Enter()
 void SFlareMainMenu::Exit()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 

@@ -191,7 +191,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 void SFlareDashboard::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareDashboard::Enter()
@@ -235,7 +235,7 @@ void SFlareDashboard::Exit()
 	OwnedShipList->Reset();
 	OtherShipList->Reset();
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 

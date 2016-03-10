@@ -647,7 +647,7 @@ TSharedRef<SWidget> SFlareSettingsMenu::BuildKeyBindingBox()
 void SFlareSettingsMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareSettingsMenu::Enter()
@@ -673,7 +673,7 @@ void SFlareSettingsMenu::Enter()
 void SFlareSettingsMenu::Exit()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 

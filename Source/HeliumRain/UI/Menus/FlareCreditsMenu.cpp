@@ -267,7 +267,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 void SFlareCreditsMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareCreditsMenu::Enter()
@@ -281,7 +281,7 @@ void SFlareCreditsMenu::Enter()
 void SFlareCreditsMenu::Exit()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 

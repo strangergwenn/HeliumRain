@@ -219,7 +219,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 void SFlareOrbitalMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareOrbitalMenu::Enter()
@@ -238,7 +238,7 @@ void SFlareOrbitalMenu::Enter()
 void SFlareOrbitalMenu::Exit()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 
 	NemaBox->ClearChildren();
 	AnkaBox->ClearChildren();

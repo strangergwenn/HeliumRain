@@ -185,7 +185,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 void SFlareCompanyMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);	
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareCompanyMenu::Enter(UFlareCompany* Target)
@@ -244,7 +244,7 @@ void SFlareCompanyMenu::Exit()
 	TradeRouteList->ClearChildren();
 
 	Company = NULL;
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareCompanyMenu::UpdateTradeRouteList()

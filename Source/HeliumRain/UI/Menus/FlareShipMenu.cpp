@@ -274,7 +274,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 void SFlareShipMenu::Setup()
 {
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 
 	TargetSpacecraft = NULL;
 	RCSDescription = NULL;
@@ -352,7 +352,7 @@ void SFlareShipMenu::Exit()
 	EngineDescription = NULL;
 
 	SetEnabled(false);
-	SetVisibility(EVisibility::Hidden);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareShipMenu::LoadTargetSpacecraft()
