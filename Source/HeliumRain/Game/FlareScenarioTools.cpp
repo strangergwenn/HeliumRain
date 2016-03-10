@@ -345,34 +345,55 @@ void UFlareScenarioTools::SetupWorld()
 {
 	// Spawn asteroids
 	SetupAsteroids(Outpost, 20, FVector(2, 20, 1));
-	SetupAsteroids(MinerHome, 400, FVector(3, 50, 1));
+	SetupAsteroids(MinerHome, 50, FVector(3, 50, 1));
 	SetupAsteroids(World->FindSector("frozen-realm"), 20, FVector(5, 50, 2));
 }
 
 void UFlareScenarioTools::SetupAsteroids(UFlareSimulatedSector* Sector, int32 Count, FVector DistributionShape)
 {
-	float MaxAsteroidDistance = 10000;
+	FLOGV("UFlareScenarioTools::SetupAsteroids : Trying to spawn %d asteroids", Count);
 
-	for (int32 Index = 0; Index < Count; Index++)
+	// Compute parameters
+	float MaxAsteroidDistance = 15000;
+	int32 AsteroidCount = 0;
+	int32 CellCount = DistributionShape.X * DistributionShape.Y * DistributionShape.Z * 4;
+
+	for (int32 X = -DistributionShape.X; X <= DistributionShape.X; X++)
 	{
-		FString AsteroidName = FString("asteroid") + FString::FromInt(Index);
-		FVector AsteroidLocation = MaxAsteroidDistance * GetRandomAsteroidLocation(DistributionShape.X, DistributionShape.Y, DistributionShape.Z);
+		for (int32 Y = -DistributionShape.Y; Y <= DistributionShape.Y; Y++)
+		{
+			for (int32 Z = DistributionShape.Z; Z <= DistributionShape.Z; Z++)
+			{
+				if (FMath::RandHelper(CellCount) <= Count)
+				{
+					bool CanSpawn = true;
+					FVector AsteroidLocation = MaxAsteroidDistance * FVector(X, Y, Z);
 
-		Sector->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName), AsteroidLocation);
+					// Check for collision
+					TArray<FFlareAsteroidSave> Asteroids = Sector->Save()->AsteroidData;
+					for (int32 Index = 0; Index < Asteroids.Num(); Index++)
+					{
+						if ((Asteroids[Index].Location - AsteroidLocation).Size() < MaxAsteroidDistance)
+						{
+							CanSpawn = false;
+							break;
+						}
+					}
+
+					// Spawn the asteroid
+					if (CanSpawn)
+					{
+						FString AsteroidName = FString("asteroid") + FString::FromInt(AsteroidCount);
+						Sector->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName), AsteroidLocation);
+						AsteroidCount++;
+					}
+				}
+			}
+		}
 	}
+
+	FLOGV("UFlareScenarioTools::SetupAsteroids : Spawned %d asteroids", AsteroidCount);
 }
-
-FVector UFlareScenarioTools::GetRandomAsteroidLocation(float X, float Y, float Z)
-{
-	FVector Result;
-	
-	Result.X = FMath::RandRange(-X, X);
-	Result.Y = FMath::RandRange(-Y, Y);
-	Result.Z = FMath::RandRange(-Z, Z);
-
-	return Result;
-}
-
 
 
 #undef LOCTEXT_NAMESPACE

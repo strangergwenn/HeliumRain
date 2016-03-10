@@ -20,13 +20,19 @@ public:
 	/*----------------------------------------------------
 		Public methods
 	----------------------------------------------------*/
-	
+
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+
 	/** Properties setup */
 	virtual void Load(const FFlareAsteroidSave& Data);
 
 	/** Save the asteroid to a save file */
 	virtual FFlareAsteroidSave* Save();
 
+	/** Set as paused */
 	virtual void SetPause(bool Paused);
 
 	/** Setup an asteroid mesh */
@@ -38,7 +44,8 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-	
+
+	FVector                                 SpawnLocation;
 	FFlareAsteroidSave                      AsteroidData;
 	bool                                    Paused;
 

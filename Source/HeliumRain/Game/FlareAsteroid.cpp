@@ -31,6 +31,28 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 	Gameplay
 ----------------------------------------------------*/
 
+void AFlareAsteroid::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void AFlareAsteroid::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	/*float CollisionSize = GetStaticMeshComponent()->GetCollisionShape().GetExtent().Size();
+	if (SpawnLocation.Size() <= 0.1)
+	{
+		SpawnLocation = GetActorLocation();
+		DrawDebugSphere(GetWorld(), SpawnLocation, CollisionSize / 2, 16, FColor::Red, true);
+	}
+	else
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), CollisionSize / 2, 16, FColor::Blue, false);
+		DrawDebugLine(GetWorld(), GetActorLocation(), SpawnLocation, FColor::Green, false);
+	}*/
+}
+
 void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 {
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());

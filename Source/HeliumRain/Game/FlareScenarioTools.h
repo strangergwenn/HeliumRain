@@ -41,10 +41,7 @@ protected:
 
 	/** Spawn a series of asteroids in this sector */
 	void SetupAsteroids(UFlareSimulatedSector* Sector, int32 Count = 50, FVector DistributionShape = FVector(2, 50, 1));
-
-	/** Get a random vector in a spheroid shape */
-	FVector GetRandomAsteroidLocation(float X, float Y, float Z);
-
+	
 
 	/*----------------------------------------------------
 		Protected data
