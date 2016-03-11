@@ -118,6 +118,10 @@ public:
 
 	void SetDistortion(uint32 Axis, uint32 X, uint32 Y, float Value);
 
+	/** Format a distance in meter */
+	static FString FormatDistance(float Distance);
+
+
 	/*----------------------------------------------------
 		Internals
 	----------------------------------------------------*/
@@ -132,9 +136,6 @@ protected:
 
 	/** Drawing debug grid*/
 	void DrawDebugGrid (FLinearColor Color);
-
-	/** Format a distance in meter */
-	FString FormatDistance(float Distance);
 
 	/** Draw speed indicator */
 	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert);

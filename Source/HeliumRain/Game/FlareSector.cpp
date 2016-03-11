@@ -201,22 +201,38 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 
 			switch (ShipData.SpawnMode)
 			{
+				// Already known to be correct
 				case EFlareSpawnMode::Safe:
-					FLOGV("UFlareSector::LoadSpacecraft : Safe spawn ('%s')", *ShipData.Immatriculation.ToString());
+
+					FLOGV("UFlareSector::LoadSpacecraft : Safe spawn '%s' at (%f,%f,%f)",
+						*ShipData.Immatriculation.ToString(),
+						ShipData.Location.X, ShipData.Location.Y, ShipData.Location.Z);
+
 					RootComponent->SetPhysicsLinearVelocity(ShipData.LinearVelocity, false);
 					RootComponent->SetPhysicsAngularVelocity(ShipData.AngularVelocity, false);
 					break;
 
+				// First spawn
 				case EFlareSpawnMode::Spawn:
-					FLOGV("UFlareSector::LoadSpacecraft : Placing ('%s')", *ShipData.Immatriculation.ToString());
+
 					PlaceSpacecraft(Spacecraft, ShipData.Location);
+					{
+						FVector NewLocation = Spacecraft->GetActorLocation();
+						FLOGV("UFlareSector::LoadSpacecraft : Placing '%s' at (%f,%f,%f)",
+							*ShipData.Immatriculation.ToString(),
+							NewLocation.X, NewLocation.Y, NewLocation.Z);
+					}
+
 					RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
 					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
 					break;
 
+				// Incoming in sector
 				case EFlareSpawnMode::Travel:
 
-					FLOGV("UFlareSector::LoadSpacecraft : Travel ('%s')", *ShipData.Immatriculation.ToString());
+					FLOGV("UFlareSector::LoadSpacecraft : Travel '%s' at (%f, %f, %f)",
+						*ShipData.Immatriculation.ToString(),
+						ShipData.Location.X, ShipData.Location.Y, ShipData.Location.Z);
 
 					FVector SpawnDirection;
 					TArray<AFlareSpacecraft*> FriendlySpacecrafts = GetCompanySpacecrafts(Spacecraft->GetCompany());
@@ -277,7 +293,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 		}
 		else
 		{
-			FLOG("UFlareSector::LoadSpacecraft : fail to create AFlareSpacecraft");
+			FLOG("UFlareSector::LoadSpacecraft : failed to create AFlareSpacecraft");
 		}
 	}
 	else
@@ -458,28 +474,28 @@ AActor* UFlareSector::GetNearestBody(FVector Location, float* NearestDistance, b
 
 void UFlareSector::PlaceSpacecraft(AFlareSpacecraft* Spacecraft, FVector Location)
 {
-	float RandomLocationRadius = 0;
 	float RandomLocationRadiusIncrement = 50000; // 500m
+	float RandomLocationRadius = RandomLocationRadiusIncrement;
 	float EffectiveDistance = -1;
 
-	while(EffectiveDistance < 0 && RandomLocationRadius < RandomLocationRadiusIncrement * 1000)
+	do 
 	{
 		Location += FMath::VRand() * RandomLocationRadius;
+		float Size = Spacecraft->GetMeshScale();
+		float NearestDistance;
 
 		// Check if location is secure
-		float Size = Spacecraft->GetMeshScale();
-
-
-		float NearestDistance;
 		if (GetNearestBody(Location, &NearestDistance, true, Spacecraft) == NULL)
 		{
 			// No other ship.
 			break;
 		}
-		EffectiveDistance = NearestDistance - Size;
 
+		EffectiveDistance = NearestDistance - Size;
 		RandomLocationRadius += RandomLocationRadiusIncrement;
 	}
+	while (EffectiveDistance <= 0 && RandomLocationRadius < RandomLocationRadiusIncrement * 1000);
+
 	Spacecraft->SetActorLocation(Location);
 }
 

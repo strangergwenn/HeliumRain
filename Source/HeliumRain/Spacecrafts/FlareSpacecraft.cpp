@@ -162,11 +162,14 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 	//FLOGV("AFlareSpacecraft Hit  Mass %f NormalImpulse %s NormalImpulse.Size() %f", GetSpacecraftMass(), *NormalImpulse.ToString(), NormalImpulse.Size());
 	DamageSystem->OnCollision(Other, HitLocation, NormalImpulse);
-
+	
 	// If hit, check if the is a docking in progress. If yes, check if the ship is correctly aligned
 	AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(Other);
 	if (OtherSpacecraft)
 	{
+		//FLOGV(">>>>>>>>>> COLL %s %s", *GetImmatriculation().ToString(), *OtherSpacecraft->GetImmatriculation().ToString());
+		//FLOGV(">>>>>>>>>> DIST %s", *AFlareHUD::FormatDistance( (LOC1 - LOC2).Size() / 100) );
+
 		// The other actor is a spacecraft, check if it's not the station we want to dock to.
 		GetNavigationSystem()->CheckCollisionDocking(OtherSpacecraft);
 	}

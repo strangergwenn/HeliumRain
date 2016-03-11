@@ -245,9 +245,16 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 
 	//200 m /s -> 6301.873047 * 20000 -> 300 / 2 damage
 
+	float ImpactSpeed = 0;
+	float ImpactEnergy = 0;
 	float ImpactMass = Spacecraft->GetSpacecraftMass();
-	float ImpactSpeed = NormalImpulse.Size() / (ImpactMass * 100.f);
-	float ImpactEnergy = ImpactMass * ImpactSpeed / 8402.f;
+
+	// Check if the mass was set and is valid
+	if (ImpactMass > KINDA_SMALL_NUMBER)
+	{
+		ImpactSpeed = NormalImpulse.Size() / (ImpactMass * 100.f);
+		ImpactEnergy = ImpactMass * ImpactSpeed / 8402.f;
+	}
 
 	float  Radius = 0.2 + FMath::Sqrt(ImpactEnergy) * 0.11;
 	//FLOGV("OnCollision %s", *Spacecraft->GetImmatriculation().ToString());
