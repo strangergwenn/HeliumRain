@@ -345,7 +345,7 @@ void UFlareScenarioTools::SetupWorld()
 {
 	// Spawn asteroids
 	SetupAsteroids(Outpost, 20, FVector(2, 20, 1));
-	SetupAsteroids(MinerHome, 50, FVector(5, 80, 2));
+	SetupAsteroids(MinerHome, 50, FVector(3, 50, 1));
 	SetupAsteroids(World->FindSector("frozen-realm"), 20, FVector(5, 50, 2));
 }
 
@@ -354,7 +354,7 @@ void UFlareScenarioTools::SetupAsteroids(UFlareSimulatedSector* Sector, int32 Co
 	FLOGV("UFlareScenarioTools::SetupAsteroids : Trying to spawn %d asteroids", Count);
 
 	// Compute parameters
-	float MaxAsteroidDistance = 20000;
+	float MaxAsteroidDistance = 15000;
 	int32 AsteroidCount = 0;
 	int32 CellCount = DistributionShape.X * DistributionShape.Y * DistributionShape.Z * 4;
 
