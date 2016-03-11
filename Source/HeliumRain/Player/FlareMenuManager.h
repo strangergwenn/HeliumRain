@@ -13,7 +13,8 @@ class SFlareMainMenu;
 class SFlareSettingsMenu;
 class SFlareNewGameMenu;
 class SFlareDashboard;
-class SFlareShipMenu;
+class SFlareShipMenu;;
+class SFlareFleetMenu;
 class SFlareOrbitalMenu;
 class SFlareLeaderboardMenu;
 class SFlareCompanyMenu;
@@ -31,6 +32,7 @@ class UFlareSimulatedSector;
 class UFlareSectorInterface;
 class UFlareTradeRoute;
 class UFlareFactory;
+class UFlareFleet;
 
 
 /** Main HUD class (container for HUD and menus) */
@@ -153,6 +155,9 @@ protected:
 	/** Show the config menu for a specific ship */
 	virtual void InspectShip(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
 
+	/** Show the fleet menu */
+	virtual void OpenFleetMenu(UFlareFleet* TargetFleet);
+
 	/** Open the sector menu */
 	virtual void OpenSector(UFlareSectorInterface* Sector);
 
@@ -205,6 +210,7 @@ protected:
 	TSharedPtr<SFlareNewGameMenu>           NewGameMenu;
 	TSharedPtr<SFlareDashboard>             Dashboard;
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
+	TSharedPtr<SFlareFleetMenu>             FleetMenu;
 	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
 	TSharedPtr<SFlareLeaderboardMenu>       LeaderboardMenu;
 	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;

@@ -68,6 +68,20 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
 			]
 
+			// Fleets
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.TitleButtonPadding)
+			.AutoWidth()
+			[
+				SNew(SFlareRoundButton)
+				.Text(LOCTEXT("InspectFleets", "Fleets"))
+				.HelpText(LOCTEXT("InspectFleetsInfo", "Inspect and manage your fleets"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Fleet, true))
+				.OnClicked(this, &SFlareOrbitalMenu::OnInspectFleet)
+			]
+
 			// Leaderboard
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
@@ -427,6 +441,11 @@ bool SFlareOrbitalMenu::IsFastForwardDisabled() const
 void SFlareOrbitalMenu::OnInspectCompany()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
+}
+
+void SFlareOrbitalMenu::OnInspectFleet()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_Fleet);
 }
 
 void SFlareOrbitalMenu::OnOpenLeaderboard()

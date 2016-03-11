@@ -83,6 +83,9 @@ protected:
 	/** Inspect the company */
 	void OnInspectCompany();
 
+	/** Inspect the fleet */
+	void OnInspectFleet();
+
 	/** Open the company leaderboard */
 	void OnOpenLeaderboard();
 
