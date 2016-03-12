@@ -66,11 +66,14 @@ void AFlareSpacecraft::BeginPlay()
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
+	check(IsValidLowLevelFast());
+	check(Airframe && Airframe->GetBodyInstance()->IsValidBodyInstance());
+
 	// Show mass in logs
-	if (LastMass <= 0 && Airframe && Airframe->IsSimulatingPhysics())
+	if (LastMass <= KINDA_SMALL_NUMBER && Airframe && Airframe->IsSimulatingPhysics())
 	{
 		LastMass = Airframe->GetMass();
-		FLOGV("AFlareSpacecraft::Tick : Mass is %f for ship '%s'", LastMass, *GetName());
+		FLOGV("AFlareSpacecraft::Tick : Mass is %f for spacecraft '%s'", LastMass, *GetName());
 	}
 
 	if (!IsPresentationMode() && StateManager && !Paused)
@@ -123,6 +126,9 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// This is unnacceptable
+	check(Other != this);
+
 	// ghoul 10m/s -> asteroid : 5919376.500000
 	// ghoul 10m/s -> outpost  : 8190371.000000
 	// ghoul 10m/s -> hub : 4157000.750000 + 4161034.500000 =                                                        8318035.25
@@ -154,9 +160,9 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
+	// Colliding a kill pending actor, or itself
 	if (!Other)
 	{
-		// Colliding a kill pending actor
 		return;
 	}
 

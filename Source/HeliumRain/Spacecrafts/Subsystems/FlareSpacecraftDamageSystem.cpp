@@ -95,7 +95,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
 
 		// Player kill
-		if (PC && LastDamageCauser == PC->GetShipPawn())
+		if (PC && LastDamageCauser == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
 		{
 			PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"),
 				FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetDescription()->Name),

@@ -3,6 +3,7 @@
 
 #include "FlareSpacecraftNavigationSystem.h"
 #include "../FlareSpacecraft.h"
+#include "../../Game/FlareGame.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftNavigationSystem"
 
@@ -129,6 +130,23 @@ bool UFlareSpacecraftNavigationSystem::IsDocked()
 
 void UFlareSpacecraftNavigationSystem::SetStatus(EFlareShipStatus::Type NewStatus)
 {
+	switch (NewStatus)
+	{
+		case EFlareShipStatus::SS_Manual:
+			FLOGV("UFlareSpacecraftNavigationSystem::SetStatus : Manual");
+			break;
+
+		case EFlareShipStatus::SS_AutoPilot:
+			FLOGV("UFlareSpacecraftNavigationSystem::SetStatus : AutoPilot");
+			break;
+
+		case EFlareShipStatus::SS_Docked:
+			FLOGV("UFlareSpacecraftNavigationSystem::SetStatus : Docked");
+			break;
+
+		default: break;
+	}
+
 	Status = NewStatus;
 }
 
@@ -143,15 +161,18 @@ void UFlareSpacecraftNavigationSystem::SetAngularAccelerationRate(float Accelera
 
 bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetStation)
 {
+	FLOGV("AFlareSpacecraft::DockAt : '%s' docking at '%s'",
+		*Spacecraft->GetImmatriculation().ToString(),
+		*TargetStation->GetImmatriculation().ToString());
 
-	FLOG("AFlareSpacecraft::DockAt");
 	FFlareDockingInfo DockingInfo = TargetStation->GetDockingSystem()->RequestDock(Spacecraft, Spacecraft->GetActorLocation());
 
-	// Try to dock
+	// Docking granted
 	if (DockingInfo.Granted)
 	{
 		if (IsDocked())
 		{
+			FLOG("AFlareSpacecraft::DockAt : leaving current dock");
 			Undock();
 		}
 
@@ -161,24 +182,25 @@ bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetS
 	}
 
 	// Failed
-	FLOG("AFlareSpacecraft::DockAt failed");
-	return false;
+	else
+	{
+		FLOG("AFlareSpacecraft::DockAt : docking denied");
+		return false;
+	}
 }
 
 bool UFlareSpacecraftNavigationSystem::Undock()
 {
-	FLOG("AFlareSpacecraft::Undock");
-	FFlareShipCommandData Head;
-
 	// Try undocking
 	if (IsDocked())
 	{
+		FLOGV("AFlareSpacecraft::Undock : '%s' undocking from '%s'",
+			*Spacecraft->GetImmatriculation().ToString(),
+			*Data->DockedTo.ToString());
+
 		// Detach from station
 		Spacecraft->DetachRootComponentFromParent(true);
-
-		// Evacuate
 		GetDockStation()->GetDockingSystem()->ReleaseDock(Spacecraft, Data->DockedAt);
-		PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(5000 * FVector(-1, 0, 0)));
 
 		// Update data
 		SetStatus(EFlareShipStatus::SS_AutoPilot);
@@ -187,16 +209,20 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 
 		// Update Angular acceleration rate : when it's docked the mass is the ship mass + the station mass
 		Spacecraft->SetRCSDescription(Spacecraft->GetRCSDescription());
-
 		Spacecraft->OnUndocked();
 
-		FLOG("AFlareSpacecraft::Undock successful");
+		// Leave
+		PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(5000 * FVector(-1, 0, 0)));
+		FLOG("AFlareSpacecraft::Undock : successful");
 		return true;
 	}
 
 	// Failed
-	FLOG("AFlareSpacecraft::Undock failed");
-	return false;
+	else
+	{
+		FLOGV("AFlareSpacecraft::Undock : '%s' is not docked", *Spacecraft->GetImmatriculation().ToString());
+		return false;
+	}
 }
 
 IFlareSpacecraftInterface* UFlareSpacecraftNavigationSystem::GetDockStation()
@@ -637,7 +663,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId)
 {
-	FLOG("AFlareSpacecraft::ConfirmDock");
+	FLOGV("AFlareSpacecraft::ConfirmDock : '%s' is now docked", *Spacecraft->GetImmatriculation().ToString());
 	ClearCurrentCommand();
 
 	// Set as docked
@@ -653,7 +679,6 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* Do
 	{
 		Spacecraft->AttachRootComponentToActor(Station,"", EAttachLocation::KeepWorldPosition, true);
 	}
-
 
 	// Cut engines
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
@@ -705,8 +730,8 @@ void UFlareSpacecraftNavigationSystem::PushCommandRotation(const FVector& Rotati
 	Command.Type = EFlareCommandDataType::CDT_Rotation;
 	Command.RotationTarget = RotationTarget;
 	Command.LocalShipAxis = LocalShipAxis;
-	FLOGV("PushCommandRotation RotationTarget '%s'", *RotationTarget.ToString());
-	FLOGV("PushCommandRotation LocalShipAxis '%s'", *LocalShipAxis.ToString());
+	FLOGV("UFlareSpacecraftNavigationSystem::PushCommandRotation RotationTarget '%s'", *RotationTarget.ToString());
+	FLOGV("UFlareSpacecraftNavigationSystem::PushCommandRotation LocalShipAxis '%s'", *LocalShipAxis.ToString());
 	PushCommand(Command);
 }
 
@@ -724,7 +749,9 @@ void UFlareSpacecraftNavigationSystem::PushCommand(const FFlareShipCommandData& 
 	SetStatus(EFlareShipStatus::SS_AutoPilot);
 	CommandData.Enqueue(Command);
 
-	FLOGV("Pushed command '%s'", *EFlareCommandDataType::ToString(Command.Type));
+	FLOGV("UFlareSpacecraftNavigationSystem::PushCommand : '%s' has new command '%s'",
+		*Spacecraft->GetImmatriculation().ToString(),
+		*EFlareCommandDataType::ToString(Command.Type));
 }
 
 void UFlareSpacecraftNavigationSystem::ClearCurrentCommand()
@@ -732,7 +759,9 @@ void UFlareSpacecraftNavigationSystem::ClearCurrentCommand()
 	FFlareShipCommandData Command;
 	CommandData.Dequeue(Command);
 
-	FLOGV("Cleared command '%s'", *EFlareCommandDataType::ToString(Command.Type));
+	FLOGV("UFlareSpacecraftNavigationSystem::ClearCurrentCommand : '%s' has cleared command '%s'",
+		*Spacecraft->GetImmatriculation().ToString(),
+		*EFlareCommandDataType::ToString(Command.Type));
 
 	if (!CommandData.Peek(Command))
 	{
@@ -754,7 +783,10 @@ void UFlareSpacecraftNavigationSystem::AbortAllCommands()
 
 	while (CommandData.Dequeue(Command))
 	{
-		FLOGV("Abort command '%s'", *EFlareCommandDataType::ToString(Command.Type));
+		FLOGV("UFlareSpacecraftNavigationSystem::AbortAllCommands : '%s' has aborted command '%s'",
+			*Spacecraft->GetImmatriculation().ToString(), 
+			*EFlareCommandDataType::ToString(Command.Type));
+
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
 			// Release dock grant
@@ -774,8 +806,6 @@ FVector UFlareSpacecraftNavigationSystem::GetDockOffset()
 {
 	return Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(GetDockLocation());
 }
-
-
 
 bool UFlareSpacecraftNavigationSystem::IsPointColliding(FVector Candidate, AActor* Ignore)
 {

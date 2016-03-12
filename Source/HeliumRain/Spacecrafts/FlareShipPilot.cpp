@@ -87,15 +87,16 @@ void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany*
 /*----------------------------------------------------
 	Pilot functions
 ----------------------------------------------------*/
+
 void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 {
-	if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_Docked)
+	if (Ship->GetNavigationSystem()->IsDocked())
 	{
 		// Let's undock
 		Ship->GetNavigationSystem()->Undock();
 		return;
 	}
-	else if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_AutoPilot)
+	else if (Ship->GetNavigationSystem()->IsAutoPilot())
 	{
 		// Wait manoeuver
 		return;
@@ -216,8 +217,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 {
-
-	if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_Docked)
+	if (Ship->GetNavigationSystem()->IsDocked())
 	{
 		if (WaitTime < 10)
 		{
@@ -236,7 +236,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 		return;
 	}
-	else if (Ship->GetNavigationSystem()->GetStatus() == EFlareShipStatus::SS_AutoPilot)
+	else if (Ship->GetNavigationSystem()->IsAutoPilot())
 	{
 		// Wait manoeuver
 		return;
