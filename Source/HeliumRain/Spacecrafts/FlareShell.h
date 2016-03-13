@@ -33,9 +33,12 @@ public:
 
 	virtual float ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* ImpactComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius, EFlareDamage::Type DamageType);
 
+	virtual void Destroyed() override;
+
 	virtual void SetFuzeTimer(float TargetSecureTime, float TargetActiveTime);
 
 	virtual void CheckFuze(FVector ActorLocation, FVector NextActorLocation);
+
 protected:
 
 	/*----------------------------------------------------

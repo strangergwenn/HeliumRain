@@ -320,7 +320,6 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 	if (DestroyProjectile)
 	{
 		Destroy();
-		ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterShell(this);
 	}
 }
 
@@ -444,7 +443,6 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 
 	}
 	Destroy();
-	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterShell(this);
 }
 
 float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius, EFlareDamage::Type DamageType)
@@ -572,6 +570,15 @@ bool AFlareShell::Trace(const FVector& Start, const FVector& End, FHitResult& Hi
 
 	// Hit any Actor?
 	return (HitOut.GetActor() != NULL) ;
+}
+
+void AFlareShell::Destroyed()
+{
+	Super::Destroyed();
+
+	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+	check(Game);
+	Game->GetActiveSector()->UnregisterShell(this);
 }
 
 void AFlareShell::SetFuzeTimer(float TargetSecureTime, float TargetActiveTime)
