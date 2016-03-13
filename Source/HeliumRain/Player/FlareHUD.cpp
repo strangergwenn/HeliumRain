@@ -1104,7 +1104,7 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 
 		// Drawing
 		{
-			FCanvasTextItem ShadowItem(FVector2D(X - 1, Y - 3), FText::FromString(Text), Font, FLinearColor::Black);
+			FCanvasTextItem ShadowItem(FVector2D(X - 1, Y - 3.5), FText::FromString(Text), Font, FLinearColor::Black);
 			ShadowItem.Scale = FVector2D(1, 1.4);
 			CurrentCanvas->DrawItem(ShadowItem);
 		}
