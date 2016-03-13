@@ -1050,8 +1050,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName Station
 	UFlareSimulatedSpacecraft* NewStation= NULL;
 
 	NewStation = ActiveSector->CreateStation(StationClass, Company, TargetPosition);
-
-	GetGame()->ActivateSector(PC, ActiveSector);
+	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
 
 	return NewStation;
 }
@@ -1099,7 +1098,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 	UFlareSimulatedSpacecraft* NewShip = NULL;
 
 	NewShip = ActiveSector->CreateShip(ShipClass, Company, TargetPosition);
-	GetGame()->ActivateSector(PC, ActiveSector);
+	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
 
 	return NewShip;
 }
@@ -1135,8 +1134,7 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 		ActiveSector->CreateShip(ShipClass, Company, TargetPosition);
 	}
 
-	GetGame()->ActivateSector(PC, ActiveSector);
-
+	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
 }
 
 void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FName Company2Name, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count)
@@ -1186,7 +1184,7 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 		ActiveSector->CreateShip(ShipClass2, Company2, TargetPosition2);
 	}
 
-	GetGame()->ActivateSector(PC, ActiveSector);
+	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
 }
 
 
@@ -1212,7 +1210,7 @@ void UFlareGameTools::CreateAsteroid(int32 ID, FName Name)
 
 	ActiveSector->CreateAsteroid(ID, Name, TargetPosition);
 
-	GetGame()->ActivateSector(PC, ActiveSector);
+	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
 }
 
 void UFlareGameTools::PrintCompanyList()
