@@ -19,6 +19,8 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	void BeginPlay() override;
+
 	/** Move a celestial body */
 	void MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection);
 
@@ -29,6 +31,7 @@ public:
 	void SetTimeMultiplier(float Multiplier);
 
 	void SkipNight(float TimeRange);
+
 
 	/*----------------------------------------------------
 		Public Blueprint events

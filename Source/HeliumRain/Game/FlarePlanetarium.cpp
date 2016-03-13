@@ -17,6 +17,36 @@ AFlarePlanetarium::AFlarePlanetarium(const class FObjectInitializer& PCIP)
 	SkipNightTimeRange = 0;
 }
 
+void AFlarePlanetarium::BeginPlay()
+{
+	Super::BeginPlay();
+	FLOG("AFlarePlanetarium::BeginPlay");
+
+	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UStaticMeshComponent* PlanetCandidate = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
+		if (PlanetCandidate)
+		{
+			// Apply a new dynamic material to planets so that we can control shading parameters
+			UMaterialInstanceConstant* BasePlanetMaterial = Cast<UMaterialInstanceConstant>(PlanetCandidate->GetMaterial(0));
+			if (BasePlanetMaterial)
+			{
+				FLOGV("AFlarePlanetarium::BeginPlay : found planet '%s'", *PlanetCandidate->GetName());
+
+#if PLATFORM_LINUX
+				int32 UseNormalAsLightingDirection = 1;
+#else
+				int32 UseNormalAsLightingDirection = 0;
+#endif
+				UMaterialInstanceDynamic* PlanetMaterial = UMaterialInstanceDynamic::Create(BasePlanetMaterial, GetWorld());
+				PlanetCandidate->SetMaterial(0, PlanetMaterial);
+				PlanetMaterial->SetScalarParameterValue("UseNormalAsLightingDirection", UseNormalAsLightingDirection);
+			}
+		}
+	}
+}
+
 void AFlarePlanetarium::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -44,7 +74,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 				{
 					if ((*ActorItr)->GetName().StartsWith("BP_Sky_Saygar_C_0"))
 					{
-						FLOG("Sky found");
+						FLOG("AFlarePlanetarium::Tick : found the sky");
 						Sky = *ActorItr;
 						break;
 					}
@@ -108,7 +138,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					{
 						//Try to find night
 						SmoothTime = FMath::FRand() * SkipNightTimeRange;
-						FLOGV("Night, try to find light at %f (max %f)",SmoothTime, SkipNightTimeRange);
+						FLOGV("AFlarePlanetarium::Tick : night, try to find light at %f (max %f)",SmoothTime, SkipNightTimeRange);
 					}
 					else
 					{
@@ -123,7 +153,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					}
 					else
 					{
-						FLOG("Error: No sky found");
+						FLOG("AFlarePlanetarium::Tick : no sky found");
 					}
 
 					//FLOGV("SunOcclusion %f", SunOcclusion);
@@ -136,14 +166,14 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					else
 					{
 
-						FLOG("Error: No sun light found");
+						FLOG("AFlarePlanetarium::Tick : no sunlight found");
 					}
 
 
 				}
 				else
 				{
-					FLOGV("Error: Failed to find the current sector: '%s' in planetarium", *(PlayerOrbit->CelestialBodyIdentifier.ToString()));
+					FLOGV("AFlarePlanetarium::Tick : fFailed to find the current sector: '%s' in planetarium", *(PlayerOrbit->CelestialBodyIdentifier.ToString()));
 				}
 
 
@@ -231,7 +261,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 	}
 	else
 	{
-		FLOGV("ERROR: No planetarium component for '%s' celestial body", *(Body->Identifier.ToString()));
+		FLOGV("AFlarePlanetarium::MoveCelestialBody : no planetarium component for celestial body '%s'", *(Body->Identifier.ToString()));
 	}
 
 	/*DrawDebugLine(GetWorld(), FVector(0, 0, 0), AlignedLocation * 100000, FColor::Blue, false, 1.f);
@@ -309,7 +339,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 
 void AFlarePlanetarium::ResetTime()
 {
-	FLOGV("AFlarePlanetarium::ResetTime from %f", SmoothTime);
+	FLOGV("AFlarePlanetarium::ResetTime : %f", SmoothTime);
 	SmoothTime = 0;
 }
 
