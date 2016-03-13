@@ -6,6 +6,35 @@
 #include "FlareGameTypes.generated.h"
 
 
+/** Combat groups */
+UENUM()
+namespace EFlareCombatGroup
+{
+	enum Type
+	{
+		AllMilitary,
+		Capitals,
+		Fighters,
+		Bombers,
+		Civilan
+	};
+}
+
+/** Combat tactics */
+UENUM()
+namespace EFlareCombatTactic
+{
+	enum Type
+	{
+		AttackAllEnemies,
+		AttackFighters,
+		AttackCapitals,
+		AttackCivilians,
+		StandDown,
+		Flee
+	};
+}
+
 /** Sector knowledge status */
 UENUM()
 namespace EFlareSectorKnowledge

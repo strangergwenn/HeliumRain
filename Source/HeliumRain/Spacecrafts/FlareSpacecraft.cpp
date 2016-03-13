@@ -894,6 +894,8 @@ void AFlareSpacecraft::DeactivateWeapon()
 {
 	if (!StateManager->IsPilotMode())
 	{
+		// TODO FRED : set the current group if flying capital ship (issue #93)
+
 		//StateManager->SetExternalCamera(false);
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
 		GetPC()->SetSelectingWeapon();
@@ -905,6 +907,8 @@ void AFlareSpacecraft::ActivateWeaponGroup1()
 {
 	if (!StateManager->IsPilotMode())
 	{
+		// TODO FRED : set the current group if flying capital ship (issue #93)
+
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup1");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->ActivateWeaponGroup(0);
@@ -920,6 +924,8 @@ void AFlareSpacecraft::ActivateWeaponGroup2()
 {
 	if (!StateManager->IsPilotMode())
 	{
+		// TODO FRED : set the current group if flying capital ship (issue #93)
+
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup2");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->ActivateWeaponGroup(1);
@@ -934,6 +940,8 @@ void AFlareSpacecraft::ActivateWeaponGroup3()
 {
 	if (!StateManager->IsPilotMode())
 	{
+		// TODO FRED : set the current group if flying capital ship (issue #93)
+
 		FLOG("AFlareSpacecraft::ActivateWeaponGroup3");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->ActivateWeaponGroup(2);
@@ -949,6 +957,8 @@ void AFlareSpacecraft::NextWeapon()
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
 	if (WeaponSystems && !StateManager->IsPilotMode())
 	{
+		// TODO FRED : set the current group if flying capital ship (issue #93)
+
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
@@ -963,6 +973,8 @@ void AFlareSpacecraft::PreviousWeapon()
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
 	if (WeaponSystems && !StateManager->IsPilotMode())
 	{
+		// TODO FRED : set the current group if flying capital ship (issue #93)
+
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount() - 1);
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);

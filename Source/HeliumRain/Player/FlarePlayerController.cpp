@@ -877,7 +877,21 @@ void AFlarePlayerController::WheelPressed()
 			// Capital ship controls
 			else if (ShipPawn->GetDescription()->Size == EFlarePartSize::L)
 			{
-				// TODO
+				// TODO FRED : uncomment supported commands (issue #93)
+				// TODO GWENN : icons
+
+				/*MouseMenu->AddWidget("Mouse_Nothing", LOCTEXT("AttackAll", "Attack all enemies"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackAllEnemies));
+				MouseMenu->AddWidget("Mouse_Nothing", LOCTEXT("AttackFighters", "Attack fighters"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackFighters));
+				MouseMenu->AddWidget("Mouse_Nothing", LOCTEXT("AttackCapitals", "Attack capitals"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackCapitals));
+				MouseMenu->AddWidget("Mouse_Nothing", LOCTEXT("AttackCivilians", "Attack civilians"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackCivilians));
+				MouseMenu->AddWidget("Mouse_Nothing", LOCTEXT("StandDown", "Stand down"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::StandDown));
+				MouseMenu->AddWidget("Mouse_Nothing", LOCTEXT("Flee", "Flee"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::Flee));*/
 			}
 
 			// Fighter controls
@@ -961,6 +975,11 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 			ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
 		}
 	}
+}
+
+void AFlarePlayerController::SetTacticForCurrentGroup(EFlareCombatTactic::Type Tactic)
+{
+	// TODO FRED : set the current tactic for the current group (issue #93)
 }
 
 void AFlarePlayerController::MatchSpeedWithTargetSpacecraft()

@@ -229,6 +229,9 @@ public:
 	/** Dock at the target */
 	void DockAtTargetSpacecraft();
 
+	/** Set the required combat tactic */
+	void SetTacticForCurrentGroup(EFlareCombatTactic::Type Tactic);
+
 	/** Match speed with target spacecraft */
 	void MatchSpeedWithTargetSpacecraft();
 

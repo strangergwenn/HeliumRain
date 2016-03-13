@@ -3,6 +3,7 @@
 #include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Economy/FlareCargoBay.h"
 
 
@@ -386,8 +387,8 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	FVector2D CurrentPos = LeftInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	// Military version
-	if (PlayerShip->IsMilitary())
+	// Fighter version
+	if (PlayerShip->IsMilitary() && PlayerShip->GetDescription()->Size == EFlarePartSize::S)
 	{
 		FText TitleText;
 		FText InfoText;
@@ -459,6 +460,39 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		DisarmedName = ((CurrentWeapongroupIndex == -1) ? FString("> ") : FString("    ")) + DisarmedName;
 		FlareDrawText(DisarmedName, CurrentPos, HealthColor, false);
 		CurrentPos += InstrumentLine;
+	}
+
+	// Capital ship version
+	else if (PlayerShip->IsMilitary())
+	{
+		// Title
+		FText CommandGroupText = LOCTEXT("ShipGroups", "Command groups");
+		FlareDrawText(CommandGroupText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
+		CurrentPos += 2 * InstrumentLine;
+
+		// TODO FRED : get the current group (issue #93)
+		int32 CurrentGroupIndex = 0;
+
+		// Group list
+		for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
+		{
+			FText GroupName;
+
+			switch (Index)
+			{
+				case EFlareCombatGroup::AllMilitary:   GroupName = LOCTEXT("AllMilitary",  "All military ships");   break;
+				case EFlareCombatGroup::Capitals:      GroupName = LOCTEXT("AllCapitals",  "Capital ships");        break;
+				case EFlareCombatGroup::Fighters:      GroupName = LOCTEXT("AllFighters",  "Fighters");             break;
+				case EFlareCombatGroup::Bombers:       GroupName = LOCTEXT("AllBombers",   "Bombers");              break;
+				case EFlareCombatGroup::Civilan:       GroupName = LOCTEXT("AllCivilians", "Freighters");           break;
+			}
+
+			FText GroupText = FText::Format(LOCTEXT("GroupListInfoFormat", "{0}. {1}"), FText::AsNumber(Index + 1), GroupName);
+			FString GroupString = ((Index == CurrentGroupIndex) ? FString("> ") : FString("   ")) + GroupText.ToString();
+
+			FlareDrawText(GroupString, CurrentPos, Theme.FriendlyColor, false);
+			CurrentPos += InstrumentLine;
+		}
 	}
 
 	// Unarmed version
