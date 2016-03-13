@@ -92,6 +92,7 @@ void SFlareTooltip::ShowTooltip(SWidget* TargetWidget, FText Title, FText Conten
 {
 	if (TooltipTarget != TargetWidget)
 	{
+		SetVisibility(EVisibility::HitTestInvisible);
 		TooltipTarget = TargetWidget;
 		TooltipTitle = Title;
 		TooltipContent = Content;
@@ -106,6 +107,14 @@ void SFlareTooltip::HideTooltip(SWidget* TargetWidget)
 		TooltipVisible = false;
 		TooltipTarget = NULL;
 	}
+}
+
+void SFlareTooltip::HideTooltipForce()
+{
+	TooltipVisible = false;
+	TooltipTarget = NULL;
+	TooltipCurrentTime = TooltipFadeDuration;
+	SetVisibility(EVisibility::Collapsed);
 }
 
 

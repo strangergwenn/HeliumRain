@@ -125,6 +125,9 @@ protected:
 
 	/** Fade to black */
 	void FadeOut();
+
+	/** Are we during a fade transition ? */
+	bool IsFading();
 	
 	/** After a fading process has completed, proceed */
 	virtual void ProcessFadeTarget();

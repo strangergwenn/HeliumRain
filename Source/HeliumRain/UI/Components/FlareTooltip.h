@@ -39,8 +39,11 @@ public:
 	/** Start displaying the tooltip */
 	void ShowTooltip(SWidget* TargetWidget, FText Title, FText Content);
 
-	/** Stop displaying the tooltip */
+	/** Stop displaying the tooltip unless someone else stole the show (normal, safe version) */
 	void HideTooltip(SWidget* TargetWidget);
+
+	/** Stop displaying the tooltip (when you positively need that tooltip gone no matter what)*/
+	void HideTooltipForce();
 
 
 	/*----------------------------------------------------

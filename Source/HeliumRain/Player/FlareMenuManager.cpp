@@ -369,12 +369,18 @@ void AFlareMenuManager::FlushNotifications()
 
 void AFlareMenuManager::ShowTooltip(SWidget* TargetWidget, FText Title, FText Content)
 {
-	Tooltip->ShowTooltip(TargetWidget, Title, Content);
+	if (Tooltip.IsValid() && !IsFading())
+	{
+		Tooltip->ShowTooltip(TargetWidget, Title, Content);
+	}
 }
 
 void AFlareMenuManager::HideTooltip(SWidget* TargetWidget)
 {
-	Tooltip->HideTooltip(TargetWidget);
+	if (Tooltip.IsValid() && !IsFading())
+	{
+		Tooltip->HideTooltip(TargetWidget);
+	}
 }
 
 bool AFlareMenuManager::IsSpacecraftMenu(EFlareMenu::Type Type) const
@@ -479,6 +485,12 @@ void AFlareMenuManager::FadeOut()
 		LastNonSettingsMenu = CurrentMenu;
 	}*/
 	CurrentMenu = EFlareMenu::MENU_None;
+	Tooltip->HideTooltipForce();
+}
+
+bool AFlareMenuManager::IsFading()
+{
+	return (FadeTimer < FadeDuration);
 }
 
 void AFlareMenuManager::ProcessFadeTarget()
