@@ -578,7 +578,12 @@ void AFlareShell::Destroyed()
 
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	check(Game);
-	Game->GetActiveSector()->UnregisterShell(this);
+
+	UFlareSector* Sector = Game->GetActiveSector();
+	if (Sector->IsValidLowLevelFast())
+	{
+		Sector->UnregisterShell(this);
+	}
 }
 
 void AFlareShell::SetFuzeTimer(float TargetSecureTime, float TargetActiveTime)
