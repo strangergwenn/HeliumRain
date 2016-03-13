@@ -280,7 +280,7 @@ void AFlarePlayerController::OnSectorActivated()
 
 			// Disable pilot during the switch
 			Candidate->GetStateManager()->EnablePilot(false);
-			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, Candidate);
+			FlyShip(Candidate);
 		}
 	}
 

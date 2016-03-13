@@ -525,8 +525,9 @@ void SFlareSpacecraftInfo::OnFly()
 
 		if (SimulatedSpacecraft)
 		{
-			SimulatedSpacecraft->GetCurrentSector()->SetShipToFly(SimulatedSpacecraft);
-			PC->GetGame()->ActivateSector(PC, SimulatedSpacecraft->GetCurrentSector());
+			UFlareSimulatedSector* Sector = SimulatedSpacecraft->GetCurrentSector();
+			Sector->SetShipToFly(SimulatedSpacecraft);
+			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
 		}
 		else
 		{

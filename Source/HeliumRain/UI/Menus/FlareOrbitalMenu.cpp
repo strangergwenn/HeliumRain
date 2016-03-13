@@ -485,8 +485,9 @@ void SFlareOrbitalMenu::OnFlyCurrentShipClicked()
 
 	if (CurrentShip)
 	{
-		CurrentShip->GetCurrentSector()->SetShipToFly(CurrentShip);
-		PC->GetGame()->ActivateSector(PC, CurrentShip->GetCurrentSector());
+		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
+		Sector->SetShipToFly(CurrentShip);
+		MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
 	}
 }
 
@@ -503,8 +504,9 @@ void SFlareOrbitalMenu::OnFlySelectedShipClicked()
 
 	if (CurrentShip)
 	{
-		CurrentShip->GetCurrentSector()->SetShipToFly(CurrentShip);
-		PC->GetGame()->ActivateSector(PC, CurrentShip->GetCurrentSector());
+		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
+		Sector->SetShipToFly(CurrentShip);
+		MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
 	}
 }
 

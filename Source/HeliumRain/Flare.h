@@ -22,6 +22,7 @@ namespace EFlareMenu
 		MENU_Dashboard,
 		MENU_Company,
 		MENU_FlyShip,
+		MENU_ActivateSector,
 		MENU_Fleet,
 		MENU_Ship,
 		MENU_ShipConfig,

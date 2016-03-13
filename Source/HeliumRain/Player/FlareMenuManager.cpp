@@ -241,7 +241,9 @@ void AFlareMenuManager::Back()
 			case EFlareMenu::MENU_Settings:
 				FLOGV("AFlareMenuManager::Back MENU_Settings LastNonSettingsMenu %d", (int) LastNonSettingsMenu);
 
-				if (LastNonSettingsMenu == EFlareMenu::MENU_FlyShip || LastNonSettingsMenu == EFlareMenu::MENU_Exit)
+				if (LastNonSettingsMenu == EFlareMenu::MENU_FlyShip
+				 || LastNonSettingsMenu == EFlareMenu::MENU_ActivateSector
+				 || LastNonSettingsMenu == EFlareMenu::MENU_Exit)
 				{
 					CloseMenu();
 				}
@@ -301,6 +303,7 @@ void AFlareMenuManager::Back()
 
 			case EFlareMenu::MENU_Main:
 			case EFlareMenu::MENU_FlyShip:
+			case EFlareMenu::MENU_ActivateSector:
 			case EFlareMenu::MENU_Orbit:
 			case EFlareMenu::MENU_Quit:
 			case EFlareMenu::MENU_Exit:
@@ -508,6 +511,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 			FlyShip(Cast<AFlareSpacecraft>(FadeTargetSpacecraft));
 			break;
 
+		case EFlareMenu::MENU_ActivateSector:
+			ActivateSector(static_cast<UFlareSectorInterface*>(FadeTargetData));
+			break;
+
 		case EFlareMenu::MENU_Fleet:
 			OpenFleetMenu(static_cast<UFlareFleet*>(FadeTargetData));
 			break;
@@ -628,9 +635,21 @@ void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
 	ExitMenu();
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && Target)
+	if (PC && Target->IsValidLowLevel())
 	{
 		PC->FlyShip(Target);
+		MenuIsOpen = false;
+	}
+}
+
+void AFlareMenuManager::ActivateSector(UFlareSectorInterface* Target)
+{
+	ExitMenu();
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC && Target)
+	{
+		PC->GetGame()->ActivateSector(PC, Cast<UFlareSimulatedSector>(Target));
 		MenuIsOpen = false;
 	}
 }

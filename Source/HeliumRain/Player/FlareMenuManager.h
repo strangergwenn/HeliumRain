@@ -152,6 +152,9 @@ protected:
 	/** Fly this ship */
 	virtual void FlyShip(AFlareSpacecraft* Target);
 
+	/** Activate a sector */
+	virtual void ActivateSector(UFlareSectorInterface* Target);
+
 	/** Show the config menu for a specific ship */
 	virtual void InspectShip(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
 
