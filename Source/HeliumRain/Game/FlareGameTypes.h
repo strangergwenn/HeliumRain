@@ -29,6 +29,7 @@ namespace EFlareCombatTactic
 		AttackAllEnemies,
 		AttackFighters,
 		AttackCapitals,
+		AttackStations,
 		AttackCivilians,
 		StandDown,
 		Flee
@@ -145,4 +146,11 @@ class HELIUMRAIN_API UFlareGameTypes : public UObject
 	GENERATED_UCLASS_BODY()
 
 public:
+
+	/** Get the group name */
+	static FText GetCombatGroupDescription(EFlareCombatGroup::Type Type);
+
+	/** Get the tactic name */
+	static FText GetCombatTacticDescription(EFlareCombatTactic::Type Type);
+
 };

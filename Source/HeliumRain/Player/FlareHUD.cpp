@@ -476,17 +476,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		// Group list
 		for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
 		{
-			FText GroupName;
-
-			switch (Index)
-			{
-				case EFlareCombatGroup::AllMilitary:   GroupName = LOCTEXT("AllMilitary",  "All military ships");   break;
-				case EFlareCombatGroup::Capitals:      GroupName = LOCTEXT("AllCapitals",  "Capital ships");        break;
-				case EFlareCombatGroup::Fighters:      GroupName = LOCTEXT("AllFighters",  "Fighters");             break;
-				case EFlareCombatGroup::Bombers:       GroupName = LOCTEXT("AllBombers",   "Bombers");              break;
-				case EFlareCombatGroup::Civilan:       GroupName = LOCTEXT("AllCivilians", "Freighters");           break;
-			}
-
+			FText GroupName = UFlareGameTypes::GetCombatGroupDescription(static_cast<EFlareCombatGroup::Type>(Index));
 			FText GroupText = FText::Format(LOCTEXT("GroupListInfoFormat", "{0}. {1}"), FText::AsNumber(Index + 1), GroupName);
 			FString GroupString = ((Index == CurrentGroupIndex) ? FString("> ") : FString("   ")) + GroupText.ToString();
 
