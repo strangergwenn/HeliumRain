@@ -67,7 +67,7 @@ void AFlareSpacecraft::BeginPlay()
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
 	check(IsValidLowLevelFast());
-	check(Airframe && Airframe->GetBodyInstance()->IsValidBodyInstance());
+	//check(Airframe && Airframe->GetBodyInstance()->IsValidBodyInstance());
 
 	// Show mass in logs
 	if (LastMass <= KINDA_SMALL_NUMBER && Airframe && Airframe->IsSimulatingPhysics())

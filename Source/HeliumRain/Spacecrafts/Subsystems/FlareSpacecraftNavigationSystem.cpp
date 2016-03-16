@@ -1110,20 +1110,31 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 		DeltaVAxis.Normalize();
 
 		bool HasUsedOrbitalBoost = false;
-
+		float LinearMasterAlpha = 0.f;
+		float LinearMasterBoostAlpha = 0.f;
 
 		if (!DeltaV.IsNearlyZero())
 		{
 			// First, try without using the boost
 			FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, false).Size() / Spacecraft->GetSpacecraftMass();
 
-			// First, if the not enought trust check with the boost
-			if (UseOrbitalBoost && Acceleration.Size() < DeltaV.Size() / DeltaSeconds)
+			float AccelerationDeltaV = Acceleration.Size() * DeltaSeconds;
+
+			LinearMasterAlpha = FMath::Clamp(DeltaV.Size()/ AccelerationDeltaV, 0.0f, 1.0f);
+			// Second, if the not enought trust check with the boost
+			if (UseOrbitalBoost && AccelerationDeltaV < DeltaV.Size() )
 			{
 				FVector AccelerationWithBoost = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, true).Size() / Spacecraft->GetSpacecraftMass();
 				if (AccelerationWithBoost.Size() > Acceleration.Size())
 				{
 					HasUsedOrbitalBoost = true;
+
+
+					float BoostDeltaV = (AccelerationWithBoost.Size() - Acceleration.Size()) * DeltaSeconds;
+					float DeltaVAfterClassicalAcceleration = DeltaV.Size() - AccelerationDeltaV;
+
+					LinearMasterBoostAlpha = FMath::Clamp(DeltaVAfterClassicalAcceleration/ BoostDeltaV, 0.0f, 1.0f);
+
 					Acceleration = AccelerationWithBoost;
 				}
 			}
@@ -1174,22 +1185,22 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 				{
 					if(HasUsedOrbitalBoost)
 					{
-						LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis) + 0.2;
+						LinearAlpha = (-FVector::DotProduct(ThrustAxis, DeltaVAxis) + 0.2) * LinearMasterBoostAlpha;
 					}
+					AngularAlpha = 0;
 				}
 				else
 				{
-					LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis);
+					LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis) * LinearMasterAlpha;
+					FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
+					FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
+					TorqueDirection.Normalize();
+
+					if (!DeltaAngularV.IsNearlyZero() && !Engine->IsA(UFlareOrbitalEngine::StaticClass()))
+					{
+						AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
+					}
 				}
-			}
-
-			FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
-			FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
-			TorqueDirection.Normalize();
-
-			if (!DeltaAngularV.IsNearlyZero() && !Engine->IsA(UFlareOrbitalEngine::StaticClass()))
-			{
-				AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
 			}
 
 			Engine->SetAlpha(FMath::Clamp(LinearAlpha + AngularAlpha, 0.0f, 1.0f));

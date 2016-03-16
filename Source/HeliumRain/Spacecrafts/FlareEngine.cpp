@@ -37,6 +37,12 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 	
 	// Smooth the alpha value. Half-life time : 1/8 second
 	float AverageCoeff = 8 * DeltaTime;
+
+	if(this->IsA(UFlareOrbitalEngine::StaticClass()))
+	{
+		AverageCoeff = 1 * DeltaTime;
+	}
+
 	ExhaustAccumulator = FMath::Clamp(AverageCoeff * GetEffectiveAlpha() + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
 
 	// Apply effects
@@ -65,9 +71,17 @@ void UFlareEngine::UpdateEffects()
 	// Apply the glow value
 	if (EffectMaterial && SpacecraftPawn)
 	{
+
+		float Opacity = ExhaustAccumulator;
+
+		if(this->IsA(UFlareOrbitalEngine::StaticClass()))
+		{
+			Opacity = FMath::Square(ExhaustAccumulator);
+		}
+
 		if (!SpacecraftPawn->IsPresentationMode() && IsVisibleByPlayer())
 		{
-			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), ExhaustAccumulator);
+			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), Opacity);
 		}
 		else if (SpacecraftPawn->IsPresentationMode() || IsVisibleByPlayer())
 		{
