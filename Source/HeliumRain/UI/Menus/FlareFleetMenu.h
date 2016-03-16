@@ -5,7 +5,6 @@
 #include "../Components/FlareShipList.h"
 
 class IFlareSpacecraftInterface;
-class IFlareSectorInterface;
 
 
 class SFlareFleetMenu : public SCompoundWidget
@@ -35,12 +34,12 @@ public:
 
 	/** Enter this menu */
 	void Enter(UFlareFleet* TargetFleet);
-
-	/** Fill a content pane with the trading information for Target spacecraft to deal with Other */
-	void FillTradeBlock(IFlareSpacecraftInterface* TargetSpacecraft, IFlareSpacecraftInterface* OtherSpacecraft, TSharedPtr<SHorizontalBox> TargetBlock);
-
+	
 	/** Exit this menu */
 	void Exit();
+
+	/** Update the fleet list */
+	void UpdateFleetList();
 
 
 protected:
@@ -52,8 +51,29 @@ protected:
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 
-	/** A spacecraft has been selected, hide the list and show the cargo */
+	/** A spacecraft has been selected*/
 	void OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer);
+
+	/** A fleet has been selected */
+	void OnFleetSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer);
+
+	/** Is the "select fleet" button disabled */
+	bool IsSelectDisabled() const;
+
+	/** Is the "add to fleet" button disabled */
+	bool IsAddDisabled() const;
+
+	/** Is the "remove from fleet" button disabled */
+	bool IsRemoveDisabled() const;
+
+	/** Select a fleet */
+	void OnSelectFleet();
+
+	/** Add the selected ship to the selected fleet */
+	void OnAddToFleet();
+
+	/** Remove the selected ship from the selected fleet */
+	void OnRemoveFromFleet();
 
 
 protected:
@@ -68,6 +88,12 @@ protected:
 
 	// Menu components
 	TSharedPtr<SFlareShipList>                      ShipList;
+	TSharedPtr<SFlareShipList>                      FleetList;
+
+	// State data
+	UFlareFleet*                                    SelectedFleet;
+	UFlareFleet*                                    FleetToAdd;
+	IFlareSpacecraftInterface*                      ShipToRemove;
 
 
 };

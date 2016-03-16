@@ -17,6 +17,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 {
 	// Data
 	MenuManager = InArgs._MenuManager;
+	UseCompactDisplay = InArgs._UseCompactDisplay;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	OnItemSelected = InArgs._OnItemSelected;
@@ -75,9 +76,14 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareShipList::AddShip(IFlareSpacecraftInterface* ShipCandidate)
+void SFlareShipList::AddFleet(UFlareFleet* Fleet)
 {
-	TargetListData.AddUnique(FInterfaceContainer::New(ShipCandidate));
+	TargetListData.AddUnique(FInterfaceContainer::New(Fleet));
+}
+
+void SFlareShipList::AddShip(IFlareSpacecraftInterface* Ship)
+{
+	TargetListData.AddUnique(FInterfaceContainer::New(Ship));
 }
 
 void SFlareShipList::RefreshList()
@@ -90,6 +96,22 @@ void SFlareShipList::RefreshList()
 			check(PtrB.IsValid());
 			IFlareSpacecraftInterface* A = PtrA->ShipInterfacePtr;
 			IFlareSpacecraftInterface* B = PtrB->ShipInterfacePtr;
+
+			if (PtrA->FleetPtr)
+			{
+				if (PtrB->FleetPtr)
+				{
+					return (PtrA->FleetPtr->GetShips().Num() > PtrB->FleetPtr->GetShips().Num());
+				}
+				else
+				{
+					return true;
+				}
+			}
+			else if (PtrB->FleetPtr)
+			{
+				return false;
+			}
 
 			if (A->IsStation())
 			{
@@ -149,35 +171,9 @@ void SFlareShipList::ClearSelection()
 void SFlareShipList::Reset()
 {
 	TargetListData.Empty();
+	TargetList->ClearSelection();
 	TargetList->RequestListRefresh();
 	SelectedItem.Reset();
-}
-
-IFlareSpacecraftInterface* SFlareShipList::GetSelectedSpacecraft() const
-{
-	if (SelectedItem.IsValid() && SelectedItem->ShipInterfacePtr)
-	{
-		return SelectedItem->ShipInterfacePtr;
-	}
-	return NULL;
-}
-
-FFlareSpacecraftComponentDescription* SFlareShipList::GetSelectedPart() const
-{
-	if (SelectedItem.IsValid() && SelectedItem->PartDescription)
-	{
-		return SelectedItem->PartDescription;
-	}
-	return NULL;
-}
-
-UFlareCompany* SFlareShipList::GetSelectedCompany() const
-{
-	if (SelectedItem.IsValid() && SelectedItem->CompanyPtr)
-	{
-		return SelectedItem->CompanyPtr;
-	}
-	return NULL;
 }
 
 
@@ -193,12 +189,17 @@ EVisibility SFlareShipList::GetNoObjectsVisibility() const
 TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
+	int32 Width = 15;
+	int32 Height = UseCompactDisplay ? 1 : 2;
+
+	// Ship
 	if (Item->ShipInterfacePtr)
 	{
 		return SNew(SFlareListItem, OwnerTable)
-			.Width(15)
-			.Height(2)
+			.Width(Width)
+			.Height(Height)
 			.Content()
 			[
 				SNew(SFlareSpacecraftInfo)
@@ -208,6 +209,67 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 				.Visible(true)
 			];
 	}
+
+	// Fleet
+	else if (Item->FleetPtr)
+	{
+		TSharedPtr<SVerticalBox> Temp;
+		int32 ShipCount = Item->FleetPtr->GetShips().Num();
+		FText ShipText = ShipCount == 1 ? LOCTEXT("Ship", "ship") : LOCTEXT("Ships", "ships");
+		FText FleetDescription = FText::Format(LOCTEXT("FleetDescriptionFormat", "{0} {1}"), FText::AsNumber(ShipCount), ShipText);
+		
+		// Single ship : just the ship
+		if (Item->FleetPtr->GetShips().Num() == 1)
+		{
+			return SNew(SFlareListItem, OwnerTable)
+				.Width(Width)
+				.Height(Height)
+				.Content()
+				[
+					SNew(SFlareSpacecraftInfo)
+					.Player(PC)
+					.Spacecraft(Item->FleetPtr->GetShips()[0])
+					.Minimized(true)
+					.Visible(true)
+				];
+		}
+
+		// Actual fleet
+		else
+		{
+			return SNew(SFlareListItem, OwnerTable)
+			.Width(Width)
+			.Height(Height)
+			.Content()
+			[
+				SNew(SHorizontalBox)
+
+				// Ship name
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(FMargin(10))
+				.VAlign(VAlign_Center)
+				[
+					SNew(STextBlock)
+					.Text(Item->FleetPtr->GetFleetName())
+					.TextStyle(&Theme.NameFont)
+				]
+
+				// Ship class
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(FMargin(12))
+				.VAlign(VAlign_Center)
+				[
+					SNew(STextBlock)
+					.Text(FleetDescription)
+					.TextStyle(&Theme.TextFont)
+				]
+			];
+		}
+	}
+
+	// Invalid item
 	else
 	{
 		return SNew(SFlareListItem, OwnerTable)
@@ -224,11 +286,16 @@ void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESel
 	TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(TargetList->WidgetFromItem(Item));
 	SelectedItem = Item;
 
+	bool ExpandShipWidgets = Item.IsValid() && Item->ShipInterfacePtr && !UseCompactDisplay;
+
 	// Update selection
 	if (PreviousSelection.IsValid())
 	{
 		TSharedRef<SFlareSpacecraftInfo> ShipInfoWidget = StaticCastSharedRef<SFlareSpacecraftInfo>(PreviousSelection->GetContainer()->GetContent());
-		ShipInfoWidget->SetMinimized(true);
+		if (ExpandShipWidgets)
+		{
+			ShipInfoWidget->SetMinimized(true);
+		}
 		PreviousSelection->SetSelected(false);
 	}
 	if (ItemWidget.IsValid())
@@ -237,14 +304,14 @@ void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESel
 
 		if (OnItemSelected.IsBound())
 		{
-			OnItemSelected.Execute(Item);
+			OnItemSelected.Execute(Item); 
 		}
-		else
+		if (ExpandShipWidgets)
 		{
 			ShipInfoWidget->SetMinimized(false);
-			ItemWidget->SetSelected(true);
 		}
 
+		ItemWidget->SetSelected(true);
 		PreviousSelection = ItemWidget;
 	}
 }

@@ -13,8 +13,11 @@ class SFlareShipList : public SCompoundWidget
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareShipList){}
+	SLATE_BEGIN_ARGS(SFlareShipList)
+	 : _UseCompactDisplay(false)
+	{}
 
+	SLATE_ARGUMENT(bool, UseCompactDisplay)
 	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	SLATE_EVENT(FFlareListItemSelected, OnItemSelected)
 	SLATE_ARGUMENT(FText, Title)
@@ -31,8 +34,11 @@ public:
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
 
+	/** Add a new fleet to the list */
+	void AddFleet(UFlareFleet* Fleet);
+
 	/** Add a new ship to the list */
-	void AddShip(IFlareSpacecraftInterface* ShipCandidate);
+	void AddShip(IFlareSpacecraftInterface* Ship);
 
 	/** Update the list display from content */
 	void RefreshList();
@@ -42,16 +48,7 @@ public:
 
 	/** Remove all entries from the list */
 	void Reset();
-
-	/** Get the currently selected spacecraft, or NULL */
-	IFlareSpacecraftInterface* GetSelectedSpacecraft() const;
-
-	/** Get the currently selected part, or NULL */
-	FFlareSpacecraftComponentDescription* GetSelectedPart() const;
-
-	/** Get the currently selected compay, or NULL */
-	UFlareCompany* GetSelectedCompany() const;
-
+	
 
 protected:
 
@@ -87,5 +84,6 @@ protected:
 
 	// State data
 	FFlareListItemSelected                                       OnItemSelected;
+	bool                                                         UseCompactDisplay;
 
 };
