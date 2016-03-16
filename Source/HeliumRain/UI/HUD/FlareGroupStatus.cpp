@@ -115,7 +115,7 @@ FText SFlareGroupStatus::GetText() const
 	EFlareCombatTactic::Type TargetShipGroupOrder = EFlareCombatTactic::AttackMilitary; // = GetCurrentTacticForShipGroup(TargetShipGroup);
 	
 	// Final string
-	Text = FText::Format(LOCTEXT("GroupInfoFormat", "{0} ({1} shîps)\nCurrent order : {2}\n"),
+	Text = FText::Format(LOCTEXT("GroupInfoFormat", "{0} ({1} ships)\nCurrent order : {2}\n"),
 		UFlareGameTypes::GetCombatGroupDescription(TargetShipGroup),
 		FText::AsNumber(TargetShipGroupCount),
 		UFlareGameTypes::GetCombatTacticDescription(TargetShipGroupOrder));
