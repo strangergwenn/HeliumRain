@@ -40,13 +40,11 @@ FText UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::Type Type)
 
 	switch (Type)
 	{
-		case EFlareCombatTactic::AttackAllEnemies:   Result = LOCTEXT("AttackAll",       "Attack all enemies"); break;
-		case EFlareCombatTactic::AttackFighters:     Result = LOCTEXT("AttackFighters",  "Attack fighters");    break;
-		case EFlareCombatTactic::AttackCapitals:     Result = LOCTEXT("AttackCapitals",  "Attack capitals");    break;
-		case EFlareCombatTactic::AttackStations:     Result = LOCTEXT("AttackStations",  "Attack stations");    break;
-		case EFlareCombatTactic::AttackCivilians:    Result = LOCTEXT("AttackCivilians", "Attack civilians");   break;
-		case EFlareCombatTactic::StandDown:          Result = LOCTEXT("StandDown",       "Stand down");         break;
-		case EFlareCombatTactic::Flee:               Result = LOCTEXT("Flee",            "Flee");               break;
+		case EFlareCombatTactic::ProtectMe:        Result = LOCTEXT("ProtectMe",       "Protect me");         break;
+		case EFlareCombatTactic::AttackMilitary:   Result = LOCTEXT("AttackMilitary",  "Attack military");    break;
+		case EFlareCombatTactic::AttackStations:   Result = LOCTEXT("AttackStations",  "Attack stations");    break;
+		case EFlareCombatTactic::AttackCivilians:  Result = LOCTEXT("AttackCivilians", "Attack freighters");  break;
+		case EFlareCombatTactic::StandDown:        Result = LOCTEXT("StandDown",       "Stand down");         break;
 	}
 
 	return Result;

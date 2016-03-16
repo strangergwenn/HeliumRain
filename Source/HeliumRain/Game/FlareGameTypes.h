@@ -26,13 +26,11 @@ namespace EFlareCombatTactic
 {
 	enum Type
 	{
-		AttackAllEnemies,
-		AttackFighters,
-		AttackCapitals,
+		ProtectMe,
+		AttackMilitary,
 		AttackStations,
 		AttackCivilians,
-		StandDown,
-		Flee
+		StandDown
 	};
 }
 
