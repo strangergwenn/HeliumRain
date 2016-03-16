@@ -133,15 +133,15 @@ void UFlareSpacecraftNavigationSystem::SetStatus(EFlareShipStatus::Type NewStatu
 	switch (NewStatus)
 	{
 		case EFlareShipStatus::SS_Manual:
-			FLOGV("UFlareSpacecraftNavigationSystem::SetStatus : Manual");
+			FLOG("UFlareSpacecraftNavigationSystem::SetStatus : Manual");
 			break;
 
 		case EFlareShipStatus::SS_AutoPilot:
-			FLOGV("UFlareSpacecraftNavigationSystem::SetStatus : AutoPilot");
+			FLOG("UFlareSpacecraftNavigationSystem::SetStatus : AutoPilot");
 			break;
 
 		case EFlareShipStatus::SS_Docked:
-			FLOGV("UFlareSpacecraftNavigationSystem::SetStatus : Docked");
+			FLOG("UFlareSpacecraftNavigationSystem::SetStatus : Docked");
 			break;
 
 		default: break;
