@@ -317,13 +317,22 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 
 	if (PlayerShip->IsMilitary())
 	{
-		FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
-
-		if (WeaponGroup)
+		// Fighter
+		if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
 		{
-			Intensity = 1;
-			float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex());
-			CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorLeft", PC->GetNavHUD()->GetHealthColor(ComponentHealth));
+			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+			if (WeaponGroup)
+			{
+				Intensity = 1;
+				float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex());
+				CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorLeft", PC->GetNavHUD()->GetHealthColor(ComponentHealth));
+			}
+		}
+
+		// Capital
+		else
+		{
+			CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorLeft", PC->GetNavHUD()->GetHealthColor(1));
 		}
 	}
 

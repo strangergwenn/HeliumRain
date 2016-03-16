@@ -896,7 +896,6 @@ void AFlareSpacecraft::DeactivateWeapon()
 	{
 		// TODO FRED : set the current group if flying capital ship (issue #93)
 
-		//StateManager->SetExternalCamera(false);
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->DeactivateWeapons();

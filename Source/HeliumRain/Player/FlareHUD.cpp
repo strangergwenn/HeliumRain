@@ -471,7 +471,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		CurrentPos += 2 * InstrumentLine;
 
 		// TODO FRED : get the current group (issue #93)
-		int32 CurrentGroupIndex = 0;
+		int32 CurrentGroupIndex = 0; // = GetCurrentShipGroup();
 
 		// Group list
 		for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)

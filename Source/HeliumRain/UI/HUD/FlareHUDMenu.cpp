@@ -238,29 +238,49 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	// Update weapon list
 	if (PlayerShip && PlayerShip->IsMilitary())
 	{
-		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
-		TSharedPtr<SFlareSubsystemStatus> Temp;
-
-		// Add weapon indicators
-		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
+		// Fighter
+		if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
 		{
+			TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
+
+			// Add weapon indicators
+			for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
+			{
+				WeaponContainer->AddSlot()
+				.AutoHeight()
+				[
+					SNew(SFlareWeaponStatus)
+					.PlayerShip(PlayerShip)
+					.TargetWeaponGroupIndex(i)
+				];
+			}
+
+			// No weapon
 			WeaponContainer->AddSlot()
 			.AutoHeight()
 			[
 				SNew(SFlareWeaponStatus)
 				.PlayerShip(PlayerShip)
-				.TargetWeaponGroupIndex(i)
+				.TargetWeaponGroupIndex(-1)
 			];
 		}
 
-		// No weapon
-		WeaponContainer->AddSlot()
-		.AutoHeight()
-		[
-			SNew(SFlareWeaponStatus)
-			.PlayerShip(PlayerShip)
-			.TargetWeaponGroupIndex(-1)
-		];
+		// Capital ship
+		else
+		{
+			for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
+			{
+				// TODO FRED : uncomment once supported (issue #93)
+
+				/*WeaponContainer->AddSlot()
+				.AutoHeight()
+				[
+					SNew(SFlareGroupStatus)
+					.PC(MenuManager->GetPC())
+					.TargetShipGroup(static_cast<EFlareCombatGroup::Type>(Index))
+				];*/
+			}
+		}
 
 		WeaponContainer->SetVisibility(EVisibility::Visible);
 	}

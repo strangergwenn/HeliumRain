@@ -27,7 +27,6 @@ FText UFlareGameTypes::GetCombatGroupDescription(EFlareCombatGroup::Type Type)
 		case EFlareCombatGroup::AllMilitary:   Result = LOCTEXT("AllMilitary",  "All military ships");   break;
 		case EFlareCombatGroup::Capitals:      Result = LOCTEXT("AllCapitals",  "Capital ships");        break;
 		case EFlareCombatGroup::Fighters:      Result = LOCTEXT("AllFighters",  "Fighters");             break;
-		case EFlareCombatGroup::Bombers:       Result = LOCTEXT("AllBombers",   "Bombers");              break;
 		case EFlareCombatGroup::Civilan:       Result = LOCTEXT("AllCivilians", "Freighters");           break;
 	}
 
@@ -50,5 +49,19 @@ FText UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::Type Type)
 	return Result;
 }
 
+const FSlateBrush* UFlareGameTypes::GetCombatGroupIcon(EFlareCombatGroup::Type Type)
+{
+	const FSlateBrush* Result = NULL;
+
+	switch (Type)
+	{
+		case EFlareCombatGroup::AllMilitary:   Result = FFlareStyleSet::GetIcon("AllMilitary");   break;
+		case EFlareCombatGroup::Capitals:      Result = FFlareStyleSet::GetIcon("AllCapitals");   break;
+		case EFlareCombatGroup::Fighters:      Result = FFlareStyleSet::GetIcon("AllFighters");   break;
+		case EFlareCombatGroup::Civilan:       Result = FFlareStyleSet::GetIcon("AllFreighters"); break;
+	}
+
+	return Result;
+}
 
 #undef LOCTEXT_NAMESPACE

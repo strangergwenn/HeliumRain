@@ -15,7 +15,6 @@ namespace EFlareCombatGroup
 		AllMilitary,
 		Capitals,
 		Fighters,
-		Bombers,
 		Civilan
 	};
 }
@@ -150,5 +149,9 @@ public:
 
 	/** Get the tactic name */
 	static FText GetCombatTacticDescription(EFlareCombatTactic::Type Type);
+
+	/** Get the icon for this combat group */
+	static const FSlateBrush* GetCombatGroupIcon(EFlareCombatGroup::Type Type);
+
 
 };
