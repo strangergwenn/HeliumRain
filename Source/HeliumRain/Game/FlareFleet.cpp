@@ -144,27 +144,31 @@ void UFlareFleet::Disband()
 	FleetCompany->RemoveFleet(this);
 }
 
-void UFlareFleet::Merge(UFlareFleet* Fleet)
+bool UFlareFleet::CanMerge(UFlareFleet* Fleet)
 {
 	if (Fleet->IsTraveling())
 	{
-		FLOGV("Fleet Merge fail: '%s' is travelling", *Fleet->GetFleetName().ToString());
-		return;
+		return false;
 	}
 
 	if (IsTraveling())
 	{
-		FLOGV("Fleet Merge fail: '%s' is travelling", *GetFleetName().ToString());
-		return;
+		return false;
 	}
 
 	if (GetCurrentSector() != Fleet->GetCurrentSector())
 	{
-		FLOGV("Fleet Merge fail: '%s' is the sector '%s' but '%s' is the sector '%s'",
-			  *GetFleetName().ToString(),
-			  *GetCurrentSector()->GetSectorName().ToString(),
-			  *Fleet->GetFleetName().ToString(),
-			  *Fleet->GetCurrentSector()->GetSectorName().ToString());
+		return false;
+	}
+
+	return true;
+}
+
+void UFlareFleet::Merge(UFlareFleet* Fleet)
+{
+	if (!CanMerge(Fleet))
+	{
+		FLOGV("Fleet Merge fail: '%s' is not mergeable", *Fleet->GetFleetName().ToString());
 		return;
 	}
 

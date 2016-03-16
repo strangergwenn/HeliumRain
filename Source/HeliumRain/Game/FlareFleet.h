@@ -63,6 +63,8 @@ public:
 	/** Remove all ship from the fleet and delete it. Not possible during travel */
 	virtual void Disband();
 
+	virtual bool CanMerge(UFlareFleet* Fleet);
+
 	virtual void Merge(UFlareFleet* Fleet);
 
 	virtual void SetCurrentSector(UFlareSimulatedSector* Sector);
