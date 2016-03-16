@@ -41,6 +41,9 @@ public:
 	/** Update the fleet list */
 	void UpdateFleetList();
 
+	/** Update the ship list */
+	void UpdateShipList();
+
 
 protected:
 

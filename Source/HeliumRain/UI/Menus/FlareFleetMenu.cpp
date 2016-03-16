@@ -153,10 +153,10 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(SFlareButton)
 								.Width(8)
-								.Text(LOCTEXT("AddToFleet", "Merge with current fleet"))
-								.HelpText(LOCTEXT("AddToFleetInfo", "Merge this fleet or ship with the current fleet"))
-								.IsDisabled(this, &SFlareFleetMenu::IsAddDisabled)
-								.OnClicked(this, &SFlareFleetMenu::OnAddToFleet)
+								.Text(LOCTEXT("SelectFleet", "Select fleet"))
+								.HelpText(LOCTEXT("SelectFleetInfo", "Select this fleet"))
+								.IsDisabled(this, &SFlareFleetMenu::IsSelectDisabled)
+								.OnClicked(this, &SFlareFleetMenu::OnSelectFleet)
 							]
 
 							+ SHorizontalBox::Slot()
@@ -164,10 +164,10 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(SFlareButton)
 								.Width(8)
-								.Text(LOCTEXT("SelectFleet", "Select fleet"))
-								.HelpText(LOCTEXT("SelectFleetInfo", "Select this fleet"))
-								.IsDisabled(this, &SFlareFleetMenu::IsSelectDisabled)
-								.OnClicked(this, &SFlareFleetMenu::OnSelectFleet)
+								.Text(LOCTEXT("AddToFleet", "Merge with current fleet"))
+								.HelpText(LOCTEXT("AddToFleetInfo", "Merge this fleet or ship with the current fleet"))
+								.IsDisabled(this, &SFlareFleetMenu::IsAddDisabled)
+								.OnClicked(this, &SFlareFleetMenu::OnAddToFleet)
 							]
 						]
 
@@ -235,6 +235,22 @@ void SFlareFleetMenu::UpdateFleetList()
 	FleetList->RefreshList();
 }
 
+void SFlareFleetMenu::UpdateShipList()
+{
+	ShipList->Reset();
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < SelectedFleet->GetShips().Num(); SpacecraftIndex++)
+	{
+		IFlareSpacecraftInterface* ShipCandidate = SelectedFleet->GetShips()[SpacecraftIndex];
+		if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
+		{
+			ShipList->AddShip(ShipCandidate);
+		}
+	}
+	
+	ShipList->RefreshList();
+}
+
 
 /*----------------------------------------------------
 	Callbacks
@@ -294,24 +310,13 @@ bool SFlareFleetMenu::IsRemoveDisabled() const
 
 void SFlareFleetMenu::OnSelectFleet()
 {
-	ShipList->Reset();
+	check(FleetToAdd);
 
-	if (FleetToAdd)
-	{
-		for (int32 SpacecraftIndex = 0; SpacecraftIndex < FleetToAdd->GetShips().Num(); SpacecraftIndex++)
-		{
-			IFlareSpacecraftInterface* ShipCandidate = FleetToAdd->GetShips()[SpacecraftIndex];
-			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
-			{
-				ShipList->AddShip(ShipCandidate);
-			}
-		}
+	SelectedFleet = FleetToAdd;
 
-		SelectedFleet = FleetToAdd;
-		FleetToAdd = NULL;
-	}
-
-	ShipList->RefreshList();
+	UpdateShipList();
+	FleetToAdd = NULL;
+	ShipToRemove = NULL;
 }
 
 void SFlareFleetMenu::OnAddToFleet()
@@ -321,8 +326,10 @@ void SFlareFleetMenu::OnAddToFleet()
 
 	SelectedFleet->Merge(FleetToAdd);
 
+	UpdateShipList();
 	UpdateFleetList();
 	FleetToAdd = NULL;
+	ShipToRemove = NULL;
 }
 
 void SFlareFleetMenu::OnRemoveFromFleet()
@@ -332,7 +339,9 @@ void SFlareFleetMenu::OnRemoveFromFleet()
 
 	SelectedFleet->RemoveShip(Cast<UFlareSimulatedSpacecraft>(ShipToRemove));
 
+	UpdateShipList();
 	UpdateFleetList();
+	FleetToAdd = NULL;
 	ShipToRemove = NULL;
 }
 
