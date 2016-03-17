@@ -69,6 +69,9 @@ protected:
 	/** Is the "remove from fleet" button disabled */
 	bool IsRemoveDisabled() const;
 
+	/** Is the "rename fleet" button disabled */
+	bool IsRenameDisabled() const;
+
 	/** Select a fleet */
 	void OnSelectFleet();
 
@@ -77,6 +80,9 @@ protected:
 
 	/** Remove the selected ship from the selected fleet */
 	void OnRemoveFromFleet();
+
+	/** Rename the selected fleet */
+	void OnRenameFleet();
 
 
 protected:
@@ -92,6 +98,7 @@ protected:
 	// Menu components
 	TSharedPtr<SFlareShipList>                      ShipList;
 	TSharedPtr<SFlareShipList>                      FleetList;
+	TSharedPtr<SEditableText>                       EditFleetName;
 
 	// State data
 	UFlareFleet*                                    SelectedFleet;

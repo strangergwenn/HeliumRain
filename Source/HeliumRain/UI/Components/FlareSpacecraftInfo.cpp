@@ -734,10 +734,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 			else if (SimulatedSpacecraft)
 			{
 				UFlareFleet* Fleet = SimulatedSpacecraft->GetCurrentFleet();
-				if (Fleet->GetShips().Num() > 1)
-				{
-					return FText::Format(LOCTEXT("FleetFormat", "In fleet \"{0}\""), Fleet->GetFleetName());
-				}
+				return FText::Format(LOCTEXT("FleetFormat", "In fleet \"{0}\""), Fleet->GetFleetName());
 			}
 		}
 

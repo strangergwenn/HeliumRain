@@ -424,7 +424,7 @@ FText SFlareSectorMenu::GetTravelText() const
 
 	if (SelectedFleet)
 	{
-		return FText::Format(LOCTEXT("TravelFormat", "{0} with selection ({1})"), FlyText, SelectedFleet->GetName());
+		return FText::Format(LOCTEXT("TravelFormat", "{0} with selection ({1})"), FlyText, SelectedFleet->GetFleetName());
 	}
 	else
 	{

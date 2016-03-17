@@ -108,6 +108,11 @@ public:
 		return FleetData.Name;
 	}
 
+	void SetFleetName(FText Name)
+	{
+		FleetData.Name = Name;
+	}
+
 	UFlareCompany* GetFleetCompany() const
 	{
 		return FleetCompany;

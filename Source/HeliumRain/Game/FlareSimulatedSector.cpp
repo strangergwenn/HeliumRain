@@ -265,8 +265,9 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	// TODO remove automatic fleet creation
 	if (!Spacecraft->IsStation())
 	{
-		UFlareFleet* NewFleet = Company->CreateFleet(LOCTEXT("AutomaticFleet", "Automatic fleet"), Spacecraft->GetCurrentSector());
+		UFlareFleet* NewFleet = Company->CreateFleet(FText::FromString(Spacecraft->GetImmatriculation().ToString()), Spacecraft->GetCurrentSector());
 		NewFleet->AddShip(Spacecraft);
+
 		// If the ship is in the player company, select the new fleet
 		if (Game->GetPC()->GetCompany() == Company)
 		{

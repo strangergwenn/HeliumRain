@@ -331,7 +331,7 @@ void SFlareOrbitalMenu::UpdateTravels()
 		if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 		{
 			FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} Travel to {1}: {2} remaining."),
-				Travel->GetFleet()->GetName(),
+				Travel->GetFleet()->GetFleetName(),
 				Travel->GetDestinationSector()->GetSectorName(),
 				FText::FromString(*UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
 
