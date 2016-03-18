@@ -525,7 +525,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 	if (OkForDocking)
 	{
-		//FLOG("-> OK for docking");
+		/*FLOG("-> OK for docking");*/
 		ConfirmDock(DockStation, DockId);
 		return;
 	}
@@ -573,7 +573,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 	if (InFinalApproach)
 	{
-		//FLOG("-> In final approach");
+		/*FLOG("-> In final approach");*/
 		MaxVelocity = DockingVelocityLimit / 200;
 	}
 	else
@@ -607,14 +607,14 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 		if (InApproach)
 		{
-			//FLOG("-> In approach");
+			/*FLOG("-> In approach");*/
 			MaxVelocity = GetApproachVelocityLimit(DockToDockDistance) / 200 ;
 			LocationTarget += StationDockAxis * (FinalApproachDockToDockDistanceLimit / 2);
 			//FLOGV("Location offset=%s", *((StationDockAxis * (FinalApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
 		else
 		{
-			//FLOG("-> Rendez-vous");
+			/*FLOG("-> Rendez-vous");*/
 			MaxVelocity = LinearMaxVelocity;
 			LocationTarget += StationDockAxis * (ApproachDockToDockDistanceLimit / 2);
 			if (DockToDockDistance > ApproachDockToDockDistanceLimit)
@@ -622,8 +622,11 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 				AxisTarget = LocationTarget - ShipDockLocation;
 				AngularVelocityTarget = FVector::ZeroVector;
 			}
+
+			//FLOGV("Anticollision test ignore FVector::DotProduct(DockToDockDeltaLocation.GetUnsafeNormal(), StationDockAxis)=%f", FVector::DotProduct(DockToDockDeltaLocation.GetUnsafeNormal(), StationDockAxis));
+
 			// During rendez-vous avoid the station if not in axis
-			if (FVector::DotProduct((ShipDockLocation - ShipDockLocation).GetUnsafeNormal(), StationDockAxis) < 0.5)
+			if (FVector::DotProduct(DockToDockDeltaLocation.GetUnsafeNormal(), StationDockAxis) > -0.9)
 			{
 				AnticollisionDockStation = NULL;
 			}
@@ -632,11 +635,13 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 			//FLOGV("Location offset=%s", *((StationDockAxis * (ApproachDockToDockDistanceLimit / 2)).ToString()));
 		}
 	}
+
 	/*FLOGV("MaxVelocity=%f", MaxVelocity);
 	FLOGV("LocationTarget=%s", *LocationTarget.ToString());
 	FLOGV("AxisTarget=%s", *AxisTarget.ToString());
 	FLOGV("AngularVelocityTarget=%s", *AngularVelocityTarget.ToString());
 	FLOGV("VelocityTarget=%s", *VelocityTarget.ToString());
+
 
 
 	DrawDebugSphere(Spacecraft->GetWorld(), LocationTarget, 100, 12, FColor::Green, false,0.03);
@@ -650,6 +655,8 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 	if (Anticollision)
 	{
+		//FLOGV("Docking Anticollision ignore=%p", AnticollisionDockStation);
+
 		// During docking, lets the others avoid me
 		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, AnticollisionDockStation);
 	}
