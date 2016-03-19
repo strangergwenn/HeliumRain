@@ -206,7 +206,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	Airframe->SetSimulatePhysics(!Pause);
 
 	Paused = Pause;
-	CurrentTarget = NULL;
+
 	SetActorHiddenInGame(Pause);
 
 	if (!Pause)
