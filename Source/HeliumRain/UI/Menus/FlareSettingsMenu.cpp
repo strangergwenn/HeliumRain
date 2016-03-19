@@ -200,7 +200,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							[
 								SAssignNew(SupersamplingButton, SFlareButton)
 								.Text(LOCTEXT("Supersampling", "Supersampling (!)"))
-								.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a VERY demanding feature."))
+								.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a very demanding feature."))
 								.Toggle(true)
 								.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
 							]
@@ -845,15 +845,15 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 {
 	if (SupersamplingButton->IsActive())
 	{
-		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Enable supersampling")
+		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Enable supersampling (2K)")
 	}
 	else
 	{
-		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Disable supersampling")
+		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Disable supersampling (2K)")
 	}
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 200 : 100);
+	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 142 : 100);
 	MyGameSettings->ApplySettings(false);
 
 }
