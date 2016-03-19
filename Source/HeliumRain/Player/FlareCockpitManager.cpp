@@ -312,7 +312,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 		float TargetSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
 
 		CockpitFLIRCapture->FOVAngle = 3 * FMath::RadiansToDegrees(FMath::Atan2(TargetSize, TargetDirection.Size()));
-		CockpitFLIRCapture->FOVAngle = FMath::Min(CockpitFLIRCapture->FOVAngle, 45);
+		CockpitFLIRCapture->FOVAngle = FMath::Min(CockpitFLIRCapture->FOVAngle, 45.0f);
 
 		CockpitFLIRCapture->Activate();
 	}
