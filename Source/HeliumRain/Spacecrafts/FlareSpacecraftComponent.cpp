@@ -480,9 +480,15 @@ bool UFlareSpacecraftComponent::IsGenerator() const
 void UFlareSpacecraftComponent::UpdatePower()
 {
 	Power = 0;
+
 	for (int32 i = 0; i < PowerSources.Num(); i++)
 	{
 		Power += PowerSources[i]->GetGeneratedPower();
+	}
+
+	if (PowerSources .Num() == 0)
+	{
+		Power = 1;
 	}
 
 	UpdateLight();
@@ -509,40 +515,42 @@ void UFlareSpacecraftComponent::UpdatePowerSources(TArray<UFlareSpacecraftCompon
 {
 	PowerSources.Empty();
 
-	float MinDistance = 100000; // 1km max attach MinDistance
-	float DoubleConnectionThesold = 100; // 1m
-	FVector Location = GetComponentLocation();
-
-	// First pass, find the closest distance
 	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
 	{
 		UFlareSpacecraftComponent* PowerSource = (*AvailablePowerSources)[i];
+		FFlareSpacecraftSlotDescription* SlotDescription = NULL;
 
-		FVector OtherLocation;
-		float OtherRadius;
-		PowerSource->GetBoundingSphere(OtherLocation, OtherRadius);
-		float Distance = (OtherLocation - Location).Size() - OtherRadius;
-
-		if (Distance < MinDistance)
+		if (PowerSource == this)
 		{
-			MinDistance = Distance;
+			PowerSources.Add(PowerSource);
+			break;
+		}
+
+		// Find InternalComponentSlot
+		for (int32 SlotIndex = 0; SlotIndex < Spacecraft->GetDescription()->InternalComponentSlots.Num(); SlotIndex ++)
+		{
+			if (Spacecraft->GetDescription()->InternalComponentSlots[SlotIndex].SlotIdentifier == PowerSource->Save()->ShipSlotIdentifier)
+			{
+				SlotDescription = &Spacecraft->GetDescription()->InternalComponentSlots[SlotIndex];
+				break;
+			}
+		}
+
+		if (!SlotDescription)
+		{
+			continue;
+		}
+
+		if (SlotDescription->PoweredComponents.Contains(ShipComponentData.ShipSlotIdentifier))
+		{
+			PowerSources.Add(PowerSource);
 		}
 	}
 
-	// Second pass, add all source in the distance thresold
-	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
+	if (PowerSources.Num() == 0)
 	{
-		UFlareSpacecraftComponent* PowerSource = (*AvailablePowerSources)[i];
-		FVector OtherLocation;
-		float OtherRadius;
-		PowerSource->GetBoundingSphere(OtherLocation, OtherRadius);
-		float Distance = (OtherLocation - Location).Size() - OtherRadius;
-
-		if (Distance < MinDistance + DoubleConnectionThesold)
-		{
-			PowerSources.Add(PowerSource);
-			//FLOGV("Component %s powered by %s", *GetReadableName(), *PowerSource->GetReadableName());
-		}
+		FLOGV("Warning: %s : %s has no power source", *Spacecraft->GetImmatriculation().ToString(),
+			  *ShipComponentData.ShipSlotIdentifier.ToString());
 	}
 }
 

@@ -713,9 +713,7 @@ void AFlarePlayerController::QuickSwitch()
 				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
 
-				if (Candidate->GetDamageSystem()->IsAlive()
-					&& Candidate->IsMilitary()
-					&& Candidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
+				if (Candidate->CanFight())
 				{
 					SeletedCandidate = Candidate;
 					break;

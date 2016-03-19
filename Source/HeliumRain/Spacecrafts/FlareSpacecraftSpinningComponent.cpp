@@ -91,10 +91,6 @@ void UFlareSpacecraftSpinningComponent::TickComponent(float DeltaSeconds, enum E
 			AddLocalRotation(RotationSpeed * DeltaSeconds * Axis);
 		}
 	}
-	else
-	{
-		SetCollisionProfileName("NoCollision");
-	}
 }
 
 
