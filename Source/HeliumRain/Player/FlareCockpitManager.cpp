@@ -302,19 +302,99 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 		FLinearColor Color = TargetShip->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
 		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorTop", Color);
 
+		IFlareSpacecraftNavigationSystemInterface* Nav = PlayerShip->GetNavigationSystem();
 
-		FVector TargetDirection = TargetShip->GetActorLocation() - CockpitFLIRCapture->GetComponentLocation();
-		FRotator CameraRotation = TargetDirection.Rotation();
-		CameraRotation.Roll = PlayerShip->GetActorRotation().Roll;
-		CockpitFLIRCapture->SetWorldRotation(CameraRotation);
 
-		FBox CandidateBox = TargetShip->GetComponentsBoundingBox();
-		float TargetSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
+		if(Nav->IsDocked())
+		{
+			CockpitFLIRCapture->Deactivate();
+		}
+		else
+		{
+			float MaxFlirCameraAngle = 60.0f;
 
-		CockpitFLIRCapture->FOVAngle = 3 * FMath::RadiansToDegrees(FMath::Atan2(TargetSize, TargetDirection.Size()));
-		CockpitFLIRCapture->FOVAngle = FMath::Min(CockpitFLIRCapture->FOVAngle, 45.0f);
+			FVector TargetLocation = TargetShip->GetActorLocation();
+			FFlareShipCommandData Command = Nav->GetCurrentCommand();
 
-		CockpitFLIRCapture->Activate();
+			if(Command.Type == EFlareCommandDataType::CDT_Dock)
+			{
+				AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(Command.ActionTarget);
+				int32 DockId = Command.ActionTargetParam;
+
+				FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);
+				FVector StationDockLocation =  DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
+				TargetLocation = StationDockLocation;
+			}
+
+
+			// Find best FLIR camera
+			TArray<FName> SocketNames  = PlayerShip->Airframe->GetAllSocketNames();
+			float BestAngle;
+			FVector TargetDirection;
+			FVector CameraMainDirection;
+			FVector TargetLocationDelta;
+			bool FlirCameraFound = false;
+			FName BestCameraName;
+
+			for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
+			{
+				if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
+				{
+					FTransform CameraWorldTransform = PlayerShip->Airframe->GetSocketTransform(SocketNames[SocketIndex]);
+
+					FVector CameraLocation = CameraWorldTransform.GetTranslation();
+					FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1,0,0));
+
+					FVector CandidateTargetLocationDelta = TargetLocation - CameraLocation;
+					FVector CandidateTargetDirection = CandidateTargetLocationDelta.GetUnsafeNormal();
+
+					float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(CandidateTargetDirection, CandidateCameraMainDirection))));
+
+					if (!FlirCameraFound || Angle < BestAngle)
+					{
+						// Select camera
+						BestAngle  = Angle;
+						TargetDirection = CandidateTargetDirection;
+						CameraMainDirection = CandidateCameraMainDirection;
+						TargetLocationDelta = CandidateTargetLocationDelta;
+						FlirCameraFound = true;
+						BestCameraName = SocketNames[SocketIndex];
+					}
+				}
+			}
+
+			if(FlirCameraFound)
+			{
+				CockpitFLIRCapture->AttachTo(PlayerShip->GetRootComponent(), BestCameraName, EAttachLocation::SnapToTarget);
+
+				FRotator CameraRotation = TargetDirection.Rotation();
+
+				if(BestAngle > MaxFlirCameraAngle)
+				{
+					// Clamp max rotation
+					FVector RotationAxis = FVector::CrossProduct(CameraMainDirection, TargetDirection).GetUnsafeNormal();
+					FVector MaxTurnDirection = CameraMainDirection.RotateAngleAxis(MaxFlirCameraAngle, RotationAxis);
+
+					CameraRotation = MaxTurnDirection.Rotation();
+				}
+
+				CameraRotation.Roll = PlayerShip->GetActorRotation().Roll;
+
+				CockpitFLIRCapture->SetWorldRotation(CameraRotation);
+
+				FBox CandidateBox = TargetShip->GetComponentsBoundingBox();
+				float TargetSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
+
+				CockpitFLIRCapture->FOVAngle = 3 * FMath::RadiansToDegrees(FMath::Atan2(TargetSize, TargetLocationDelta.Size()));
+				CockpitFLIRCapture->FOVAngle = FMath::Min(CockpitFLIRCapture->FOVAngle, 30.0f);
+
+				CockpitFLIRCapture->Activate();
+			}
+			else
+			{
+				CockpitFLIRCapture->Deactivate();
+			}
+		}
 	}
 	else
 	{

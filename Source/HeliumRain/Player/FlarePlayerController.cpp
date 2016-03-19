@@ -90,6 +90,30 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	if (ShipPawn)
 	{
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
+
+
+		// FLIR Debug Code. Keep it for future ship setup
+		/*
+		TArray<FName> SocketNames  = ShipPawn->Airframe->GetAllSocketNames();
+		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
+		{
+
+			FLOGV("Check socket = %s", *SocketNames[SocketIndex].ToString());
+
+
+			if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
+			{
+				FTransform CameraWorldTransform = ShipPawn->Airframe->GetSocketTransform(SocketNames[SocketIndex]);
+
+				FVector CameraLocation = CameraWorldTransform.GetTranslation();
+				FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1,0,0));
+
+				DrawDebugLine(GetWorld(), CameraLocation, CameraLocation + 500 * CandidateCameraMainDirection, FColor::Red, false);
+				DrawDebugSphere(GetWorld(), CameraLocation, 50, 32, FColor::Green, false);
+			}
+		}
+		*/
+
 	}
 
 	// Mouse cursor
