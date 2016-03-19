@@ -111,6 +111,7 @@ void AFlareGame::Logout(AController* Player)
 
 	// Save the world, literally
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
+	DeactivateSector(PC);
 	SaveGame(PC);
 	PC->PrepareForExit();
 
