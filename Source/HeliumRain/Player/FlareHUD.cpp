@@ -689,6 +689,7 @@ void AFlareHUD::DrawHUDInternal()
 		
 	// Iterate on all 'other' ships to show designators, markings, etc
 	ScreenTargets.Empty();
+	ScreenTargetsOwner = PlayerShip->GetImmatriculation();
 	FoundTargetUnderMouse = false;
 	for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 	{

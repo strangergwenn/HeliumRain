@@ -103,7 +103,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			}
 
 			// Set a default target if there is no manual choice
-			if (this == PlayerShip && TargetIndex == 0)
+			if (this == PlayerShip && TargetIndex == 0 && PC->GetNavHUD()->GetCurrentTargetsOwner() == GetImmatriculation())
 			{
 				TArray<FFlareScreenTarget>& ScreenTargets = PC->GetNavHUD()->GetCurrentTargets();
 				if (ScreenTargets.Num())

@@ -205,6 +205,7 @@ protected:
 	// Spacecraft targets
 	UPROPERTY()
 	TArray<FFlareScreenTarget>              ScreenTargets;
+	FName									ScreenTargetsOwner;
 
 	// General data
 	bool                                    HUDVisible;
@@ -270,6 +271,11 @@ public:
 	inline TArray<FFlareScreenTarget>& GetCurrentTargets()
 	{
 		return ScreenTargets;
+	}
+
+	inline FName GetCurrentTargetsOwner()
+	{
+		return ScreenTargetsOwner;
 	}
 
 	const FVector2D& GetContextMenuLocation() const
