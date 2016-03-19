@@ -276,7 +276,7 @@ void SFlareFleetMenu::UpdateFleetList()
 	for (int32 FleetIndex = 0; FleetIndex < FleetCount; FleetIndex++)
 	{
 		UFlareFleet* Fleet = PC->GetCompany()->GetCompanyFleets()[FleetIndex];
-		if (Fleet && Fleet->GetShips().Num() && !Fleet->GetShips()[0]->IsAssignedToSector())
+		if (Fleet && Fleet->GetShips().Num() && !Fleet->GetShips()[0]->IsAssignedToSector() && Fleet != SelectedFleet)
 		{
 			FleetList->AddFleet(Fleet);
 		}
