@@ -274,6 +274,13 @@ UFlareFleet* UFlareCompany::CreateFleet(FText FleetName, UFlareSimulatedSector* 
 	return Fleet;
 }
 
+UFlareFleet* UFlareCompany::CreateAutomaticFleet(UFlareSimulatedSpacecraft * Spacecraft)
+{
+	UFlareFleet* NewFleet = CreateFleet(FText::FromString(Spacecraft->GetImmatriculation().ToString()), Spacecraft->GetCurrentSector());
+	NewFleet->AddShip(Spacecraft);
+
+	return NewFleet;
+}
 
 UFlareFleet* UFlareCompany::LoadFleet(const FFlareFleetSave& FleetData)
 {

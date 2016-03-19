@@ -111,6 +111,7 @@ public:
 	void AssignToSector(bool Assign) override
 	{
 		ShipData.IsAssigned = Assign;
+		// TODO remove/add in fleet or remove feature un active sector
 	}
 
 	virtual bool IsAssignedToSector() const override

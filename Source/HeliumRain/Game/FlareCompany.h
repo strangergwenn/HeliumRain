@@ -132,6 +132,8 @@ public:
 	/** Create a new fleet in a sector */
 	virtual UFlareFleet* CreateFleet(FText FleetName, UFlareSimulatedSector* FleetSector);
 
+	virtual UFlareFleet* CreateAutomaticFleet(UFlareSimulatedSpacecraft * Spacecraft);
+
 	/** Destroy a fleet */
 	virtual void RemoveFleet(UFlareFleet* Fleet);
 

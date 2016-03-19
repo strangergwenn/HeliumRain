@@ -105,7 +105,7 @@ void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 	FleetData.ShipImmatriculations.Add(Ship->GetImmatriculation());
 	FleetShips.AddUnique(Ship);
 	Ship->SetCurrentFleet(this);
-
+	Ship->AssignToSector(false);
 }
 
 void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship)
@@ -119,7 +119,16 @@ void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship)
 	FleetData.ShipImmatriculations.Remove(Ship->GetImmatriculation());
 	FleetShips.Remove(Ship);
 	Ship->SetCurrentFleet(NULL);
-	// TODO If the fleet is empty, disand
+
+	if (!Ship->IsAssignedToSector())
+	{
+		Ship->GetCompany()->CreateAutomaticFleet(Ship);
+	}
+
+	if(FleetShips.Num() == 0)
+	{
+		GetFleetCompany()->RemoveFleet(this);
+	}
 }
 
 /** Remove all ship from the fleet and delete it. Not possible during travel */

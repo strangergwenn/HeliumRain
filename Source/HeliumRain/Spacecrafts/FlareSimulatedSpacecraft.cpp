@@ -191,6 +191,16 @@ void UFlareSimulatedSpacecraft::AssignToSector(bool Assign)
 	{
 		SpacecraftData.IsAssigned = Assign;
 	}
+
+	if (Assign && GetCurrentFleet()) {
+		GetCurrentFleet()->RemoveShip(this);
+	}
+
+	if (!Assign && !GetCurrentFleet())
+	{
+		// Add in automatic fleet
+		GetCompany()->CreateAutomaticFleet(this);
+	}
 }
 
 
