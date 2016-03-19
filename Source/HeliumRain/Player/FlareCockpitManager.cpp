@@ -301,6 +301,19 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 		Intensity = 1;
 		FLinearColor Color = TargetShip->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
 		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorTop", Color);
+
+
+		FVector TargetDirection = TargetShip->GetActorLocation() - CockpitFLIRCapture->GetComponentLocation();
+		FRotator CameraRotation = TargetDirection.Rotation();
+		CameraRotation.Roll = PlayerShip->GetActorRotation().Roll;
+		CockpitFLIRCapture->SetWorldRotation(CameraRotation);
+
+		FBox CandidateBox = TargetShip->GetComponentsBoundingBox();
+		float TargetSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
+
+		CockpitFLIRCapture->FOVAngle = 3 * FMath::RadiansToDegrees(FMath::Atan2(TargetSize, TargetDirection.Size()));
+		CockpitFLIRCapture->FOVAngle = FMath::Min(CockpitFLIRCapture->FOVAngle, 45);
+
 		CockpitFLIRCapture->Activate();
 	}
 	else
