@@ -530,6 +530,30 @@ void SFlareSectorMenu::OnTravelHereClicked()
 	UFlareFleet* SelectedFleet = MenuManager->GetGame()->GetPC()->GetSelectedFleet();
 	if (SelectedFleet)
 	{
+		if (SelectedFleet->GetImmobilizedShipCount() == 0)
+		{
+			OnStartTravelConfirmed();
+		}
+		else
+		{
+			FText ShipText = LOCTEXT("ConfirmTravelSingular", "{0} ship is too damaged to travel. Do you really want to leave it in this sector ?");
+			FText ShipsText = LOCTEXT("ConfirmTravelPlural", "{0} ships are too damaged to travel. Do you really want to leave them in this sector ?");
+
+			FText ConfirmText = FText::Format(SelectedFleet->GetImmobilizedShipCount() != 1 ? ShipsText : ShipText,
+											  FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()));
+
+			MenuManager->Confirm(LOCTEXT("ConfirmTravelTitle", "ABANDON SHIPS ?"),
+								 ConfirmText,
+								 FSimpleDelegate::CreateSP(this, &SFlareSectorMenu::OnStartTravelConfirmed));
+		}
+	}
+}
+
+void SFlareSectorMenu::OnStartTravelConfirmed()
+{
+	UFlareFleet* SelectedFleet = MenuManager->GetGame()->GetPC()->GetSelectedFleet();
+	if (SelectedFleet)
+	{
 		MenuManager->GetGame()->GetGameWorld()->StartTravel(SelectedFleet, TargetSector);
 		MenuManager->Back();
 	}

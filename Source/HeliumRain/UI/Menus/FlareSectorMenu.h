@@ -70,6 +70,8 @@ protected:
 	/** Move the selected fleet here */
 	void OnTravelHereClicked();
 
+	void OnStartTravelConfirmed();
+
 	/** Get the text of a station combo box line*/
 	TSharedRef<SWidget> OnGenerateStationComboLine(UFlareSpacecraftCatalogEntry* Item);
 
