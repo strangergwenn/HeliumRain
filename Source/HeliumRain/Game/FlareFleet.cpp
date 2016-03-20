@@ -126,7 +126,7 @@ void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 	Ship->AssignToSector(false);
 }
 
-void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship)
+void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship, bool destroyed)
 {
 	if (IsTraveling())
 	{
@@ -138,7 +138,7 @@ void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship)
 	FleetShips.Remove(Ship);
 	Ship->SetCurrentFleet(NULL);
 
-	if (!Ship->IsAssignedToSector())
+	if (!destroyed && !Ship->IsAssignedToSector())
 	{
 		Ship->GetCompany()->CreateAutomaticFleet(Ship);
 	}
@@ -234,6 +234,15 @@ void UFlareFleet::InitShipList()
 		for (int ShipIndex = 0; ShipIndex < FleetData.ShipImmatriculations.Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = FleetCompany->FindSpacecraft(FleetData.ShipImmatriculations[ShipIndex]);
+			if (!Ship)
+			{
+				FLOGV("WARNING: Fail to find ship with id %s in company %s for fleet %s (%d ships)",
+						*FleetData.ShipImmatriculations[ShipIndex].ToString(),
+						*FleetCompany->GetCompanyName().ToString(),
+						*GetFleetName().ToString(),
+						FleetData.ShipImmatriculations.Num());
+				continue;
+			}
 			Ship->SetCurrentFleet(this);
 			FleetShips.Add(Ship);
 		}

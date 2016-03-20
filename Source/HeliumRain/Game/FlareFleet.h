@@ -58,7 +58,7 @@ public:
 
 	virtual void AddShip(UFlareSimulatedSpacecraft* Ship);
 
-	virtual void RemoveShip(UFlareSimulatedSpacecraft* Ship);
+	virtual void RemoveShip(UFlareSimulatedSpacecraft* Ship, bool destroyed = false);
 
 	/** Remove all ship from the fleet and delete it. Not possible during travel */
 	virtual void Disband();
