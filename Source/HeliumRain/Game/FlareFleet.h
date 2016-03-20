@@ -78,6 +78,7 @@ public:
 
 	virtual void InitShipList();
 
+	void RemoveImmobilizedShips();
 
 protected:
 

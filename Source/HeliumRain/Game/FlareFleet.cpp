@@ -78,6 +78,24 @@ uint32 UFlareFleet::GetImmobilizedShipCount()
 	return ImmobilizedShip;
 }
 
+void UFlareFleet::RemoveImmobilizedShips()
+{
+	TArray<UFlareSimulatedSpacecraft*> ShipToRemove;
+
+	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	{
+		if (!FleetShips[ShipIndex]->CanTravel())
+		{
+			ShipToRemove.Add(FleetShips[ShipIndex]);
+		}
+	}
+
+	for (int ShipIndex = 0; ShipIndex < ShipToRemove.Num(); ShipIndex++)
+	{
+		RemoveShip(ShipToRemove[ShipIndex]);
+	}
+}
+
 void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 {
 	if (IsTraveling())

@@ -383,6 +383,11 @@ void UFlareWorld::AddFactory(UFlareFactory* Factory)
 
 UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
 {
+	if (!TravelingFleet->CanTravel())
+	{
+		return NULL;
+	}
+
 	if (TravelingFleet->IsTraveling())
 	{
 		TravelingFleet->GetCurrentTravel()->ChangeDestination(DestinationSector);
@@ -390,6 +395,9 @@ UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimula
 	}
 	else
 	{
+		// Remove immobilized ships
+		TravelingFleet->RemoveImmobilizedShips();
+
 		// Make the fleet exit the sector
 		UFlareSimulatedSector* OriginSector = TravelingFleet->GetCurrentSector();
 		OriginSector->RetireFleet(TravelingFleet);
