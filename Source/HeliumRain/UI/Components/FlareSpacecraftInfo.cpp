@@ -402,6 +402,19 @@ void SFlareSpacecraftInfo::Show()
 		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy);
 		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 
+		if(Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft)
+				&& TargetSpacecraft->GetCurrentSectorInterface())
+		{
+			EFlareSectorBattleState::Type BattleState = TargetSpacecraft->GetCurrentSectorInterface()->GetSectorBattleState(TargetSpacecraft->GetCompany());
+			if (BattleState == EFlareSectorBattleState::BattleLost
+					|| BattleState == EFlareSectorBattleState::BattleLostNoRetreat
+					|| BattleState == EFlareSectorBattleState::BattleNoRetreat
+				|| BattleState == EFlareSectorBattleState::Battle)
+			{
+				CanTrade = false;
+			}
+		}
+
 		// Button states : hide stuff that can never make sense (flying stations etc)
 		CargoBay->SetVisibility(CargoBay->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
 
