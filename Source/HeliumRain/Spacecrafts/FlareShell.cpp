@@ -375,7 +375,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 			FLOGV("FragmentCount %d",FragmentCount);*/
 
 
-			TArray<UActorComponent*> Components = ShipCandidate->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+			TArray<UActorComponent*> Components = ShipCandidate->GetComponentsByClass(UStaticMeshComponent::StaticClass());
 
 			//FLOGV("Component cont %d",Components.Num());
 			for (int i = 0; i < FragmentCount; i ++)
@@ -389,7 +389,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 
 				for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 				{
-					UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+					UStaticMeshComponent* Component = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
 					if (Component)
 					{
 						FHitResult HitResult(ForceInit);
@@ -502,13 +502,13 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	}
 
 	// Spawn impact decal
-	if (ShipComponent && ShipComponent->IsVisibleByPlayer())
+	if (HitComponent)
 	{
 		float DecalSize = FMath::FRandRange(50, 100);
 		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
 			ExplosionEffectMaterial,
 			DecalSize * FVector(1, 1, 1),
-			ShipComponent,
+			HitComponent,
 			NAME_None,
 			ImpactLocation,
 			ImpactNormal.Rotation(),
@@ -526,11 +526,11 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	}
 
 	// Apply FX
-	if (ShipComponent)
+	if (HitComponent)
 	{
 		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
 			ImpactEffectTemplate,
-			ShipComponent,
+			HitComponent,
 			NAME_None,
 			ImpactLocation,
 			ImpactNormal.Rotation(),
