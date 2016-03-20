@@ -382,6 +382,7 @@ void SFlareFleetMenu::OnSelectFleet()
 	FLOGV("SFlareFleetMenu::OnSelectFleet : selected '%s'", *SelectedFleet->GetFleetName().ToString());
 
 	UpdateShipList();
+	UpdateFleetList();
 	FleetToAdd = NULL;
 	ShipToRemove = NULL;
 }

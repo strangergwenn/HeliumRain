@@ -127,7 +127,7 @@ void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship)
 
 	if(FleetShips.Num() == 0)
 	{
-		GetFleetCompany()->RemoveFleet(this);
+		Disband();
 	}
 }
 

@@ -58,8 +58,16 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	for (int i = 0 ; i < SectorData.FleetIdentifiers.Num(); i++)
 	{
 		UFlareFleet* Fleet = Game->GetGameWorld()->FindFleet(SectorData.FleetIdentifiers[i]);
-		SectorFleets.Add(Fleet);
-		Fleet->SetCurrentSector(this);
+		if (Fleet)
+		{
+			SectorFleets.Add(Fleet);
+			Fleet->SetCurrentSector(this);
+		}
+		else
+		{
+			FLOGV("WARNING: Missing fleet %s in sector %s", *SectorData.FleetIdentifiers[i].ToString(), *GetSectorName().ToString());
+		}
+
 	}
 }
 
