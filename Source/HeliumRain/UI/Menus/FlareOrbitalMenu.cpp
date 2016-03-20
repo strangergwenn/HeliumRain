@@ -412,13 +412,49 @@ bool SFlareOrbitalMenu::IsFlySelectedShipDisabled() const
 
 FText SFlareOrbitalMenu::GetFastForwardText() const
 {
-	if (!IsFastForwardDisabled())
+	if (!IsEnabled())
 	{
-		return LOCTEXT("FastForwardText", "Fast forward");
+		return FText();
+	}
+
+	bool BattleInProgress = false;
+	bool BattleLostWithRetreat = false;
+	bool BattleLostWithoutRetreat = false;
+
+	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
+
+		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+		if(BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+		{
+			BattleInProgress = true;
+		}
+		else if(BattleState == EFlareSectorBattleState::BattleLost)
+		{
+			BattleLostWithRetreat = true;
+		}
+		else if(BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
+		{
+			BattleLostWithoutRetreat = true;
+		}
+	}
+
+	if (BattleInProgress)
+	{
+		return LOCTEXT("NoFastForwardBattleText", "Can't fast forward ! Battle in progress.");
+	}
+	else if (BattleLostWithRetreat)
+	{
+		return LOCTEXT("FastForwardBattleLostWithRetreatText", "Fast forward ! Make travel your ships out of battle or they will be lost.");
+	}
+	else if (BattleLostWithRetreat)
+	{
+		return LOCTEXT("FastForwardBattleLostWithoutRetreatText", "Fast forward ! Your ships remaining in battle will be lost.");
 	}
 	else
 	{
-		return LOCTEXT("NoFastForwardText", "Can't fast forward !");
+		return LOCTEXT("FastForwardText", "Fast forward");
 	}
 }
 
@@ -427,6 +463,18 @@ bool SFlareOrbitalMenu::IsFastForwardDisabled() const
 	if (IsEnabled())
 	{
 		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
+
+		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+		{
+			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
+
+			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+			if(BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+			{
+				return true;
+			}
+		}
+
 
 		if (GameWorld && (GameWorld->GetTravels().Num() > 0 || true)) // Not true if there is pending todo event
 		{
@@ -471,6 +519,55 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 }
 
 void SFlareOrbitalMenu::OnFastForwardClicked()
+{
+	bool BattleInProgress = false;
+	bool BattleLostWithRetreat = false;
+	bool BattleLostWithoutRetreat = false;
+
+	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
+
+		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+		if(BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+		{
+			BattleInProgress = true;
+		}
+		else if(BattleState == EFlareSectorBattleState::BattleLost)
+		{
+			BattleLostWithRetreat = true;
+		}
+		else if(BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
+		{
+			BattleLostWithoutRetreat = true;
+		}
+	}
+
+	if (BattleInProgress)
+	{
+		return;
+	}
+	else if (BattleLostWithRetreat)
+	{
+		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS"),
+							 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some ships engaged in a battle cannot retreat. They will be destroyed by the ennemy on fast forward."),
+							 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
+
+	}
+	else if (BattleLostWithRetreat)
+	{
+		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
+							 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some ships engaged in a battle still retreat. If you confirm fast forward, they will be destroyed by the ennemy."),
+							 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
+	}
+	else
+	{
+		OnFastForwardConfirmed();
+	}
+}
+
+
+void SFlareOrbitalMenu::OnFastForwardConfirmed()
 {
 	MenuManager->GetGame()->GetGameWorld()->FastForward();
 

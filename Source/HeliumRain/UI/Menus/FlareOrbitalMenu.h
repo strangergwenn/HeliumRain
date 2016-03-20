@@ -104,6 +104,8 @@ protected:
 	/** Fast forward to the next event */
 	void OnFastForwardClicked();
 
+	void OnFastForwardConfirmed();
+
 	/** Fly the last flown ship */
 	void OnFlyCurrentShipClicked();
 
