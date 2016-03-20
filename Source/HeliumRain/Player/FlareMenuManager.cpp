@@ -343,11 +343,11 @@ void AFlareMenuManager::UseDarkBackground()
 	GetPC()->GetMenuPawn()->UseDarkBackground();
 }
 
-void AFlareMenuManager::Confirm(FText Text, FSimpleDelegate OnConfirmed)
+void AFlareMenuManager::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed)
 {
 	if (Confirmation.IsValid())
 	{
-		Confirmation->Confirm(Text, OnConfirmed);
+		Confirmation->Confirm(Title, Text, OnConfirmed);
 	}
 }
 

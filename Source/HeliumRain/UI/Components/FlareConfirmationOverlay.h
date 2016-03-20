@@ -36,7 +36,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Show the confirmation overlay */
-	void Confirm(FText Text, FSimpleDelegate OnConfirmed);
+	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed);
 	
 
 	/*----------------------------------------------------
@@ -45,6 +45,9 @@ public:
 	
 	/** Get the info text */
 	FText GetText() const;
+
+	/** Get the info title */
+	FText GetTitle() const;
 
 	/** Confirmed action */
 	void OnConfirmed();
@@ -65,6 +68,7 @@ protected:
 
 	// Slate data
 	FText                                        InfoText;
+	FText                                        InfoTitle;
 	FSimpleDelegate                              OnConfirmedCB;
 
 

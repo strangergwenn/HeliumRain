@@ -319,7 +319,9 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 void SFlareMainMenu::OnDeleteSlot(TSharedPtr<int32> Index)
 {
 	SaveSlotToDelete = *Index;
-	MenuManager->Confirm(LOCTEXT("ConfirmExit", "Do you really want to delete this save slot ?"), FSimpleDelegate::CreateSP(this, &SFlareMainMenu::OnDeleteSlotConfirmed));
+	MenuManager->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
+						 LOCTEXT("ConfirmExit", "Do you really want to delete this save slot ?"),
+						 FSimpleDelegate::CreateSP(this, &SFlareMainMenu::OnDeleteSlotConfirmed));
 }
 
 void SFlareMainMenu::OnDeleteSlotConfirmed()

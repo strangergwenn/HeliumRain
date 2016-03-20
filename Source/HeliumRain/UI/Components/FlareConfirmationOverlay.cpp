@@ -14,6 +14,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	InfoTitle = LOCTEXT("AreYouSureTitleInfo", "ARE YOU SURE ?");
 	InfoText = LOCTEXT("AreYouSureInfo", "Please confirm this action.");
 
 	// Create the layout
@@ -41,7 +42,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("AreYouSure", "ARE YOU SURE ?"))
+						.Text(this, &SFlareConfirmationOverlay::GetTitle)
 						.TextStyle(&Theme.TitleFont)
 						.Justification(ETextJustify::Center)
 					]
@@ -97,9 +98,10 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareConfirmationOverlay::Confirm(FText Text, FSimpleDelegate OnConfirmed)
+void SFlareConfirmationOverlay::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed)
 {
 	InfoText = Text;
+	InfoTitle = Title;
 	OnConfirmedCB = OnConfirmed;
 	SetVisibility(EVisibility::Visible);
 }
@@ -108,6 +110,11 @@ void SFlareConfirmationOverlay::Confirm(FText Text, FSimpleDelegate OnConfirmed)
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+FText SFlareConfirmationOverlay::GetTitle() const
+{
+	return InfoTitle;
+}
 
 FText SFlareConfirmationOverlay::GetText() const
 {

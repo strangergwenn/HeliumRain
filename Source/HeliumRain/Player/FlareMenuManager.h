@@ -96,7 +96,7 @@ public:
 	void FlushNotifications();
 
 	/** Show the confirmation overlay */
-	void Confirm(FText Text, FSimpleDelegate OnConfirmed);
+	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed);
 
 	/** Get a Slate icon brush */
 	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
