@@ -112,6 +112,7 @@ FText SFlareSectorButton::GetSectorText() const
 		FText SectorTitle = Sector->GetSectorName();
 		FText ShipText;
 		FText StationText;
+		FText BattleStatusText;
 
 		if (PlayerCompany->HasVisitedSector(Sector))
 		{
@@ -127,9 +128,36 @@ FText SFlareSectorButton::GetSectorText() const
 				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} {1} station") : LOCTEXT("Stations", "{0} {1} stations");
 				StationText = FText::Format(StationText, CommaText, FText::AsNumber(Sector->GetSectorStations().Num()));
 			}
+
+			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(PlayerCompany);
+			switch (BattleState) {
+			case EFlareSectorBattleState::NoBattle:
+				break;
+			case EFlareSectorBattleState::BattleWon:
+				BattleStatusText = LOCTEXT("SectorBattleWon", "Battle won");
+				break;
+			case EFlareSectorBattleState::BattleLost:
+				BattleStatusText = LOCTEXT("SectorBattleLost", "Battle lost. Retreat possible.");
+				break;
+			case EFlareSectorBattleState::BattleLostNoRetreat:
+				BattleStatusText = LOCTEXT("SectorBattleLostNoRetreat", "Battle lost");
+				break;
+			case EFlareSectorBattleState::Battle:
+				BattleStatusText = LOCTEXT("SectorBattleBattle", "Battle in progress. Retreat possible");
+				break;
+			case EFlareSectorBattleState::BattleNoRetreat:
+				BattleStatusText = LOCTEXT("SectorBattleBattle", "Battle in progress");
+				break;
+			default:
+				break;
+			}
+
 		}
 
-		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}{2}"), SectorTitle, ShipText, StationText);
+
+
+
+		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}{2}\n{3}"), SectorTitle, ShipText, StationText, BattleStatusText);
 	}
 
 	return SectorText;

@@ -34,6 +34,21 @@ namespace EFlareSectorFriendlyness
 	};
 }
 
+/** Sector battle status */
+UENUM()
+namespace EFlareSectorBattleState
+{
+	enum Type
+	{
+		NoBattle, /** No battle. No ships are dangerous or at war */
+		BattleWon, /** Battle ended. This is enemy ships but not dangerous */
+		BattleLost, /** Battle ended. This is dangerons enemy ships but not owned dangerous ship */
+		BattleLostNoRetreat, /** Battle ended. This is dangerons enemy ships but not owned dangerous ship. No ship can travel */
+		Battle, /** A battle is in progress. Each ennemy company has at least one dangerous ship. One of ship can travel.*/
+		BattleNoRetreat, /** A battle is in progress. Each ennemy company has at least one dangerous ship. No ship can travel */
+	};
+}
+
 
 /** Sector description */
 USTRUCT()
@@ -241,6 +256,9 @@ public:
 
 	/** Get the friendlyness status toward a company */
 	EFlareSectorFriendlyness::Type GetSectorFriendlyness(UFlareCompany* Company);
+
+	/** Get the current battle status of a company */
+	EFlareSectorBattleState::Type  GetSectorBattleState(UFlareCompany* Company);
 
 	/** Get the friendlyness status toward a company, as a text */
 	FText GetSectorFriendlynessText(UFlareCompany* Company);

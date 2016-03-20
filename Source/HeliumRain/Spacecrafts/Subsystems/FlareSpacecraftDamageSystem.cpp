@@ -520,7 +520,15 @@ float UFlareSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Typ
 				UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
 				Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*((Weapon->GetCurrentAmmo() > 0 || !WithAmmo) ? 1 : 0);
 			}
-			Health = Total/Weapons.Num();
+			if(Weapons.Num() == 0)
+			{
+				Health = 0;
+			}
+			else
+			{
+				Health = Total/Weapons.Num();
+			}
+
 		}
 		break;
 		case EFlareSubsystem::SYS_Temperature:

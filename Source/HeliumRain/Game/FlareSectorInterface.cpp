@@ -1,6 +1,7 @@
 #include "../Flare.h"
 #include "FlareSectorInterface.h"
 #include "FlareSimulatedSector.h"
+#include "../Spacecrafts/FlareSpacecraftInterface.h"
 
 #define LOCTEXT_NAMESPACE "FlareSectorInterface"
 
@@ -87,6 +88,97 @@ EFlareSectorFriendlyness::Type UFlareSectorInterface::GetSectorFriendlyness(UFla
 	else
 	{
 		return EFlareSectorFriendlyness::Neutral;
+	}
+}
+
+EFlareSectorBattleState::Type UFlareSectorInterface::GetSectorBattleState(UFlareCompany* Company)
+{
+
+	if (GetSectorShipInterfaces().Num() == 0)
+	{
+		return EFlareSectorBattleState::NoBattle;
+	}
+
+	int HostileSpacecraftCount = 0;
+	int DangerousHostileSpacecraftCount = 0;
+
+
+	int FriendlySpacecraftCount = 0;
+	int DangerousFriendlySpacecraftCount = 0;
+	int CrippledFriendlySpacecraftCount = 0;
+
+	for (int SpacecraftIndex = 0 ; SpacecraftIndex < GetSectorShipInterfaces().Num(); SpacecraftIndex++)
+	{
+
+		IFlareSpacecraftInterface* Spacecraft = GetSectorShipInterfaces()[SpacecraftIndex];
+
+		UFlareCompany* OtherCompany = Spacecraft->GetCompany();
+
+		if (!Spacecraft->GetDamageSystem()->IsAlive())
+		{
+			continue;
+		}
+
+		if (OtherCompany == Company)
+		{
+			FriendlySpacecraftCount++;
+			if (Spacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
+			{
+				DangerousFriendlySpacecraftCount++;
+			}
+
+			if (Spacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) == 0)
+			{
+				CrippledFriendlySpacecraftCount++;
+			}
+		}
+		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
+		{
+			HostileSpacecraftCount++;
+			if (Spacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
+			{
+				DangerousHostileSpacecraftCount++;
+			}
+		}
+	}
+
+	// No friendly or no hostile ship
+	if (FriendlySpacecraftCount == 0 || HostileSpacecraftCount == 0)
+	{
+		return EFlareSectorBattleState::NoBattle;
+	}
+
+	// No friendly and hostile ship are not dangerous
+	if (DangerousFriendlySpacecraftCount == 0 && DangerousHostileSpacecraftCount == 0)
+	{
+		return EFlareSectorBattleState::NoBattle;
+	}
+
+	// No friendly dangerous ship so the enemy have one. Battle is lost
+	if (DangerousFriendlySpacecraftCount == 0)
+	{
+		if (CrippledFriendlySpacecraftCount == FriendlySpacecraftCount)
+		{
+			return EFlareSectorBattleState::BattleLostNoRetreat;
+		}
+		else
+		{
+			return EFlareSectorBattleState::BattleLost;
+		}
+	}
+
+	if (DangerousHostileSpacecraftCount == 0)
+	{
+		return EFlareSectorBattleState::BattleWon;
+	}
+
+	if (CrippledFriendlySpacecraftCount == FriendlySpacecraftCount)
+	{
+		return EFlareSectorBattleState::BattleNoRetreat;
+	}
+	else
+	{
+		return EFlareSectorBattleState::Battle;
 	}
 }
 

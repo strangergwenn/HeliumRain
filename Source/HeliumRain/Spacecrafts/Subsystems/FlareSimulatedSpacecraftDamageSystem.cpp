@@ -163,7 +163,14 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 							*((CurrentAmmo > 0 || !WithAmmo) ? 1 : 0);
 				}
 			}
-			Health = Total/WeaponCount;
+			if(WeaponCount == 0)
+			{
+				Health = 0;
+			}
+			else
+			{
+				Health = Total/WeaponCount;
+			}
 		}
 		break;
 		case EFlareSubsystem::SYS_Temperature:
