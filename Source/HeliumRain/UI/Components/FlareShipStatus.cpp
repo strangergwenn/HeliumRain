@@ -127,6 +127,10 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 
 		for (int32 Index = EFlareSubsystem::SYS_None + 1; Index <= EFlareSubsystem::SYS_Weapon; Index++)
 		{
+			if (Index == EFlareSubsystem::SYS_Weapon && !TargetShip->IsMilitary())
+			{
+				continue;
+			}
 			Info = FText::Format(LOCTEXT("HealthInfoFormat", "{0}{1} : {2}%\n"),
 				Info,
 				IFlareSpacecraftDamageSystemInterface::GetSubsystemName((EFlareSubsystem::Type)Index),
