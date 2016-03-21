@@ -570,14 +570,6 @@ void UFlareSector::GenerateSectorRepartitionCache()
 			}
 		}
 
-		for (int AsteroidsIndex = 0 ; AsteroidsIndex < SectorAsteroids.Num(); AsteroidsIndex++)
-		{
-			AFlareAsteroid* Asteroid = SectorAsteroids[AsteroidsIndex];
-			SectorMin = SectorMin.ComponentMin(Asteroid->GetActorLocation());
-			SectorMax = SectorMax.ComponentMax(Asteroid->GetActorLocation());
-			SignificantObjectCount++;
-		}
-
 		if (SignificantObjectCount > 0)
 		{
 			// At least one station or asteroid in sector
