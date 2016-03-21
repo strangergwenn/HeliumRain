@@ -329,7 +329,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 
 			// Find best FLIR camera
 			TArray<FName> SocketNames  = PlayerShip->Airframe->GetAllSocketNames();
-			float BestAngle;
+			float BestAngle = 0;
 			FVector TargetDirection;
 			FVector CameraMainDirection;
 			FVector TargetLocationDelta;
