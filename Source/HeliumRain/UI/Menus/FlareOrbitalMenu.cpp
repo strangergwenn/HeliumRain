@@ -547,17 +547,17 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 	{
 		return;
 	}
-	else if (BattleLostWithRetreat)
+	else if (BattleLostWithoutRetreat)
 	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS"),
-							 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some ships engaged in a battle cannot retreat. They will be destroyed by the ennemy on fast forward."),
+		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS"),
+							 LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some ships engaged in a battle cannot retreat. They will be destroyed by the ennemy on fast forward."),
 							 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
 
 	}
 	else if (BattleLostWithRetreat)
 	{
 		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
-							 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some ships engaged in a battle still retreat. If you confirm fast forward, they will be destroyed by the ennemy."),
+							 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some ships engaged in a battle can retreat. If you confirm fast forward, they will be destroyed by the ennemy."),
 							 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
 	}
 	else

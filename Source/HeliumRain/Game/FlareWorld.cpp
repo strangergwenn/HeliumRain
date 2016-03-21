@@ -213,6 +213,37 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 void UFlareWorld::Simulate()
 {
 	WorldData.Date++;
+	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+	// Finish player battles
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
+
+		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(PlayerCompany);
+
+		if(BattleState != EFlareSectorBattleState::NoBattle && BattleState != EFlareSectorBattleState::BattleWon)
+		{
+			// Destroy all player ships
+			TArray<UFlareSimulatedSpacecraft*> ShipToDestroy;
+
+			for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+			{
+				if(Sector->GetSectorShips()[ShipIndex]->GetCompany() == PlayerCompany)
+				{
+					ShipToDestroy.Add(Sector->GetSectorShips()[ShipIndex]);
+				}
+			}
+
+			for (int ShipIndex = 0; ShipIndex < ShipToDestroy.Num(); ShipIndex++)
+			{
+				PlayerCompany->DestroySpacecraft(ShipToDestroy[ShipIndex]);
+			}
+		}
+	}
+
+	// TODO company battles
+
 
 	// Automatic transport
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
