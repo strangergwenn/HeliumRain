@@ -376,7 +376,7 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 	CompanyShips.Remove(Spacecraft);
 	if (Spacecraft->GetCurrentFleet())
 	{
-		Spacecraft->GetCurrentFleet()->RemoveShip(Spacecraft);
+		Spacecraft->GetCurrentFleet()->RemoveShip(Spacecraft, true);
 	}
 
 	if (Spacecraft->GetCurrentSector())
