@@ -442,15 +442,15 @@ FText SFlareOrbitalMenu::GetFastForwardText() const
 
 	if (BattleInProgress)
 	{
-		return LOCTEXT("NoFastForwardBattleText", "Can't fast forward ! Battle in progress.");
+		return LOCTEXT("NoFastForwardBattleText", "Battle in progress");
 	}
 	else if (BattleLostWithRetreat)
 	{
-		return LOCTEXT("FastForwardBattleLostWithRetreatText", "Fast forward ! Make travel your ships out of battle or they will be lost.");
+		return LOCTEXT("FastForwardBattleLostWithRetreatText", "Fast forward (!)");
 	}
-	else if (BattleLostWithRetreat)
+	else if (BattleLostWithoutRetreat)
 	{
-		return LOCTEXT("FastForwardBattleLostWithoutRetreatText", "Fast forward ! Your ships remaining in battle will be lost.");
+		return LOCTEXT("FastForwardBattleLostWithoutRetreatText", "Fast forward (!)");
 	}
 	else
 	{
@@ -549,15 +549,15 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 	}
 	else if (BattleLostWithoutRetreat)
 	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS"),
-							 LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some ships engaged in a battle cannot retreat. They will be destroyed by the ennemy on fast forward."),
+		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
+							 LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and will be lost."),
 							 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
 
 	}
 	else if (BattleLostWithRetreat)
 	{
 		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
-							 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some ships engaged in a battle can retreat. If you confirm fast forward, they will be destroyed by the ennemy."),
+							 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some of the ships engaged in a battle can still retreat ! They will be lost."),
 							 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
 	}
 	else
