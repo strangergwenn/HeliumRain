@@ -183,6 +183,8 @@ public:
 
 	virtual void ActivateWeaponGroup3();
 
+	virtual void ActivateWeaponGroupByIndex(int32 Index);
+
 	virtual void NextWeapon();
 
 	virtual void PreviousWeapon();

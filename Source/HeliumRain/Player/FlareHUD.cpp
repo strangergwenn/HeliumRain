@@ -470,8 +470,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		FlareDrawText(CommandGroupText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 2 * InstrumentLine;
 
-		// TODO FRED : get the current group (issue #93)
-		int32 CurrentGroupIndex = 0; // = GetCurrentShipGroup();
+		int32 CurrentGroupIndex = MenuManager->GetPC()->GetCurrentShipGroup();
 
 		// Group list
 		for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)

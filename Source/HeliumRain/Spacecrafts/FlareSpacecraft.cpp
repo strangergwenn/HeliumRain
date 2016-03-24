@@ -892,10 +892,15 @@ void AFlareSpacecraft::LeftMouseRelease()
 
 void AFlareSpacecraft::DeactivateWeapon()
 {
-	if (!StateManager->IsPilotMode())
+	// Capital ship
+	if (GetDescription()->Size == EFlarePartSize::L)
 	{
-		// TODO FRED : set the current group if flying capital ship (issue #93)
+		GetPC()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(0));
+	}
 
+	// Fighter
+	else if(!StateManager->IsPilotMode())
+	{
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
 		GetPC()->SetSelectingWeapon();
 		GetWeaponsSystem()->DeactivateWeapons();
@@ -904,81 +909,90 @@ void AFlareSpacecraft::DeactivateWeapon()
 
 void AFlareSpacecraft::ActivateWeaponGroup1()
 {
-	if (!StateManager->IsPilotMode())
-	{
-		// TODO FRED : set the current group if flying capital ship (issue #93)
-
-		FLOG("AFlareSpacecraft::ActivateWeaponGroup1");
-		GetPC()->SetSelectingWeapon();
-		GetWeaponsSystem()->ActivateWeaponGroup(0);
-
-		if(GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
-		{
-			StateManager->SetExternalCamera(false);
-		}
-	}
+	ActivateWeaponGroupByIndex(0);
 }
 
 void AFlareSpacecraft::ActivateWeaponGroup2()
 {
-	if (!StateManager->IsPilotMode())
-	{
-		// TODO FRED : set the current group if flying capital ship (issue #93)
-
-		FLOG("AFlareSpacecraft::ActivateWeaponGroup2");
-		GetPC()->SetSelectingWeapon();
-		GetWeaponsSystem()->ActivateWeaponGroup(1);
-		if(GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
-		{
-			StateManager->SetExternalCamera(false);
-		}
-	}
+	ActivateWeaponGroupByIndex(1);
 }
 
 void AFlareSpacecraft::ActivateWeaponGroup3()
 {
-	if (!StateManager->IsPilotMode())
-	{
-		// TODO FRED : set the current group if flying capital ship (issue #93)
+	ActivateWeaponGroupByIndex(2);
+}
 
-		FLOG("AFlareSpacecraft::ActivateWeaponGroup3");
-		GetPC()->SetSelectingWeapon();
-		GetWeaponsSystem()->ActivateWeaponGroup(2);
-		if(GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
+{
+	FLOGV("AFlareSpacecraft::ActivateWeaponGroup : %d", Index);
+
+	// Capital ship
+	if (GetDescription()->Size == EFlarePartSize::L)
+	{
+		GetPC()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(Index + 1));
+	}
+
+	// Fighter
+	else if(!StateManager->IsPilotMode())
+	{
+		GetWeaponsSystem()->ActivateWeaponGroup(Index);
+		if (GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
 		{
 			StateManager->SetExternalCamera(false);
 		}
 	}
+
+	GetPC()->SetSelectingWeapon();
 }
 
 void AFlareSpacecraft::NextWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
-	if (WeaponSystems && !StateManager->IsPilotMode())
+	
+	// Capital ship
+	if (GetDescription()->Size == EFlarePartSize::L)
 	{
-		// TODO FRED : set the current group if flying capital ship (issue #93)
+		int32 CurrentIndex = GetPC()->GetCurrentShipGroup() + 1;
+		CurrentIndex = FMath::Clamp(CurrentIndex, 0, static_cast<int32>(EFlareCombatGroup::Civilan));
+		FLOGV("AFlareSpacecraft::NextWeapon : group %d", CurrentIndex);
 
+		GetPC()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
+	}
+
+	// Fighter
+	else if (WeaponSystems && !StateManager->IsPilotMode())
+	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
 
-		GetPC()->SetSelectingWeapon();
 		WeaponSystems->ActivateWeaponGroup(CurrentIndex);
 	}
+
+	GetPC()->SetSelectingWeapon();
 }
 
 void AFlareSpacecraft::PreviousWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
-	if (WeaponSystems && !StateManager->IsPilotMode())
+	
+	// Capital ship
+	if (GetDescription()->Size == EFlarePartSize::L)
 	{
-		// TODO FRED : set the current group if flying capital ship (issue #93)
+		int32 CurrentIndex = GetPC()->GetCurrentShipGroup() - 1;
+		CurrentIndex = FMath::Clamp(CurrentIndex, 0, static_cast<int32>(EFlareCombatGroup::Civilan));
+		FLOGV("AFlareSpacecraft::NextWeapon : group %d", CurrentIndex);
 
+		GetPC()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
+	}
+
+	// Fighter
+	else if (WeaponSystems && !StateManager->IsPilotMode())
+	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount() - 1);
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
 
-		GetPC()->SetSelectingWeapon();
 		if (CurrentIndex >= 0)
 		{
 			WeaponSystems->ActivateWeaponGroup(CurrentIndex);
@@ -988,6 +1002,8 @@ void AFlareSpacecraft::PreviousWeapon()
 			WeaponSystems->DeactivateWeapons();
 		}
 	}
+
+	GetPC()->SetSelectingWeapon();
 }
 
 void AFlareSpacecraft::NextTarget()

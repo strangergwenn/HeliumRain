@@ -240,7 +240,15 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
-	
+
+	// Combat groups
+	CurrentShipGroup = EFlareCombatGroup::AllMilitary;
+	CurrentCombatTactics.Empty();
+	for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
+	{
+		CurrentCombatTactics.Add(EFlareCombatTactic::ProtectMe);
+	}
+
 	// Inform the player
 	if (Ship)
 	{
@@ -546,6 +554,39 @@ bool AFlarePlayerController::HasObjective() const
 const FFlarePlayerObjective* AFlarePlayerController::GetCurrentObjective() const
 {
 	return (CurrentObjective.Set? &CurrentObjective : NULL);
+}
+
+/*----------------------------------------------------
+	Command groups
+----------------------------------------------------*/
+
+void AFlarePlayerController::SetCurrentShipGroup(EFlareCombatGroup::Type Type)
+{
+	CurrentShipGroup = Type;
+}
+
+void AFlarePlayerController::SetTacticForCurrentShipGroup(EFlareCombatTactic::Type Tactic)
+{
+	check(CurrentShipGroup < CurrentCombatTactics.Num());
+	CurrentCombatTactics[CurrentShipGroup] = Tactic;
+}
+
+EFlareCombatGroup::Type AFlarePlayerController::GetCurrentShipGroup() const
+{
+	return CurrentShipGroup;
+}
+
+EFlareCombatTactic::Type AFlarePlayerController::GetCurrentTacticForShipGroup(EFlareCombatGroup::Type Type) const
+{
+	check(Type < CurrentCombatTactics.Num());
+	return CurrentCombatTactics[Type];
+}
+
+int32 AFlarePlayerController::GetShipCountForShipGroup(EFlareCombatGroup::Type Type) const
+{
+	// TODO FRED (issue #93)
+
+	return 42;
 }
 
 
@@ -899,9 +940,7 @@ void AFlarePlayerController::WheelPressed()
 			// Capital ship controls
 			if (ShipPawn->GetDescription()->Size == EFlarePartSize::L)
 			{
-				// TODO FRED : uncomment supported commands (issue #93)
-
-				/*MouseMenu->AddWidget("Mouse_ProtectMe", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::ProtectMe),
+				MouseMenu->AddWidget("Mouse_ProtectMe", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::ProtectMe),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::ProtectMe));
 				MouseMenu->AddWidget("Mouse_AttackAll", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::AttackMilitary),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackMilitary));
@@ -910,7 +949,7 @@ void AFlarePlayerController::WheelPressed()
 				MouseMenu->AddWidget("Mouse_AttackCivilians", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::AttackCivilians),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackCivilians));
 				MouseMenu->AddWidget("Mouse_Nothing", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::StandDown),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::StandDown));*/
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::StandDown));
 			}
 
 			// Fighter controls
@@ -998,7 +1037,7 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 
 void AFlarePlayerController::SetTacticForCurrentGroup(EFlareCombatTactic::Type Tactic)
 {
-	// TODO FRED : set the current tactic for the current group (issue #93)
+	SetTacticForCurrentShipGroup(Tactic);
 }
 
 void AFlarePlayerController::MatchSpeedWithTargetSpacecraft()

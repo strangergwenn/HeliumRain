@@ -270,15 +270,13 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 		{
 			for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
 			{
-				// TODO FRED : uncomment once supported (issue #93)
-
-				/*WeaponContainer->AddSlot()
+				WeaponContainer->AddSlot()
 				.AutoHeight()
 				[
 					SNew(SFlareGroupStatus)
 					.PC(MenuManager->GetPC())
 					.TargetShipGroup(static_cast<EFlareCombatGroup::Type>(Index))
-				];*/
+				];
 			}
 		}
 
