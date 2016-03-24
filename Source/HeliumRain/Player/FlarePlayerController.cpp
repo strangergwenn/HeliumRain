@@ -87,20 +87,51 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
 
+	// We are flying
 	if (ShipPawn)
 	{
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
+		
+		// Reset ship count values
+		CurrentMilitaryShipCount = 0;
+		CurrentCapitalShipCount = 0;
+		CurrentFighterCount = 0;
+		CurrentCivilianShipCount = 0;
 
+		// Compute the current count of all kinds of ships
+		UFlareSector* Sector = Cast<UFlareSector>(ShipPawn->GetCurrentSectorInterface());
+		if (Sector)
+		{
+			TArray<IFlareSpacecraftInterface*>& ShipList = Sector->GetSectorShipInterfaces();
+			for (int32 Index = 0; Index < ShipList.Num(); Index++)
+			{
+				IFlareSpacecraftInterface* Ship = ShipList[Index];
+				check(Ship);
+
+				if (Ship->IsMilitary())
+				{
+					CurrentMilitaryShipCount++;
+					if (Ship->GetDescription()->Size == EFlarePartSize::L)
+					{
+						CurrentCapitalShipCount++;
+					}
+					else
+					{
+						CurrentFighterCount++;
+					}
+				}
+				else
+				{
+					CurrentCivilianShipCount++;
+				}
+			}
+		}
 
 		// FLIR Debug Code. Keep it for future ship setup
-		/*
-		TArray<FName> SocketNames  = ShipPawn->Airframe->GetAllSocketNames();
+		/*TArray<FName> SocketNames  = ShipPawn->Airframe->GetAllSocketNames();
 		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
 		{
-
 			FLOGV("Check socket = %s", *SocketNames[SocketIndex].ToString());
-
-
 			if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
 			{
 				FTransform CameraWorldTransform = ShipPawn->Airframe->GetSocketTransform(SocketNames[SocketIndex]);
@@ -111,9 +142,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 				DrawDebugLine(GetWorld(), CameraLocation, CameraLocation + 500 * CandidateCameraMainDirection, FColor::Red, false);
 				DrawDebugSphere(GetWorld(), CameraLocation, 50, 32, FColor::Green, false);
 			}
-		}
-		*/
-
+		}*/
 	}
 
 	// Mouse cursor
@@ -584,9 +613,21 @@ EFlareCombatTactic::Type AFlarePlayerController::GetCurrentTacticForShipGroup(EF
 
 int32 AFlarePlayerController::GetShipCountForShipGroup(EFlareCombatGroup::Type Type) const
 {
-	// TODO FRED (issue #93)
+	switch (Type)
+	{
+		case EFlareCombatGroup::AllMilitary:
+			return CurrentMilitaryShipCount;
 
-	return 42;
+		case EFlareCombatGroup::Capitals:
+			return CurrentCapitalShipCount;
+
+		case EFlareCombatGroup::Fighters:
+			return CurrentFighterCount;
+
+		case EFlareCombatGroup::Civilan:
+		default:
+			return CurrentCivilianShipCount;
+	}
 }
 
 

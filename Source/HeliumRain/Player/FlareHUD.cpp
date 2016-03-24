@@ -477,9 +477,10 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		{
 			EFlareCombatGroup::Type GroupType = static_cast<EFlareCombatGroup::Type>(Index);
 			FText GroupName = UFlareGameTypes::GetCombatGroupDescription(GroupType);
-			FText GroupText = FText::Format(LOCTEXT("GroupListInfoFormat", "{0}. {1} : {2}"),
+			FText GroupText = FText::Format(LOCTEXT("GroupListInfoFormat", "{0}. {1} ({2}) : {3}"),
 				FText::AsNumber(Index + 1),
 				GroupName,
+				FText::AsNumber(MenuManager->GetPC()->GetShipCountForShipGroup(GroupType)),
 				UFlareGameTypes::GetCombatTacticDescription(MenuManager->GetPC()->GetCurrentTacticForShipGroup(GroupType)));
 
 			FString GroupString = ((Index == CurrentGroupIndex) ? FString("> ") : FString("   ")) + GroupText.ToString();

@@ -347,6 +347,10 @@ protected:
 	// Command groups
 	TEnumAsByte<EFlareCombatGroup::Type>     CurrentShipGroup;
 	TArray<TEnumAsByte<EFlareCombatTactic::Type>> CurrentCombatTactics;
+	int32                                    CurrentMilitaryShipCount;
+	int32                                    CurrentCapitalShipCount;
+	int32                                    CurrentFighterCount;
+	int32                                    CurrentCivilianShipCount;
 	
 
 public:
