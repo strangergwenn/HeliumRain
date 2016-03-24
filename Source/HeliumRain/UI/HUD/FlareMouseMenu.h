@@ -116,6 +116,7 @@ protected:
 	int32                                WidgetDistance;
 	int32                                WidgetSize;
 	float                                AnimTime;
+	float                                ColinearityPower;
 
 	// HUD data
 	FFlareMouseMenuClicked               DefaultAction;

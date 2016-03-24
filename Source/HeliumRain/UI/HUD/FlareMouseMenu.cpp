@@ -18,6 +18,7 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	WidgetDistance = 192;
 	WidgetSize = 200;
 	AnimTime = 0.20f;
+	ColinearityPower = 4.0f;
 
 	// Init
 	MenuManager = InArgs._MenuManager;
@@ -179,6 +180,7 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 				OperatorAlpha = 0.0f;
 			}
 		}
+		OperatorAlpha = FMath::Pow(OperatorAlpha, ColinearityPower);
 
 		// Update the alpha to account for animation
 		float AnimAlpha = FMath::Clamp(CurrentTime / AnimTime, 0.0f, 1.0f);
