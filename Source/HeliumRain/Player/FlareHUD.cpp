@@ -75,6 +75,8 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	// Settings
 	FocusDistance = 1000000;
 	IconSize = 24;
+	ShadowOffset = FVector2D(1, 1);
+	ShadowColor = FLinearColor(0.02, 0.02, 0.02, 1.0f);
 
 	// Cockpit instruments
 	TopInstrument =   FVector2D(20, 10);
@@ -221,16 +223,17 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Draw nose
-		if (!IsExternalCamera)
+		if (HUDVisible && !IsExternalCamera)
 		{
 			DrawHUDIcon(CurrentViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
-		}
 
-		if (DistortionGrid)
-		{
-			DrawDebugGrid(HudColorEnemy);
+			// Draw inertial vectors
+			if (PlayerShip)
+			{
+				DrawSpeed(PC, PlayerShip, HUDReticleIcon, PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
+				DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"), true);
+			}
 		}
-
 
 		// Draw combat mouse pointer
 		if (!PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
@@ -252,6 +255,12 @@ void AFlareHUD::DrawHUD()
 			FLinearColor PointerColor = HudColorNeutral;
 			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
 			DrawHUDIconRotated(CurrentViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
+		}
+
+		// Distorsion grid
+		if (DistortionGrid)
+		{
+			DrawDebugGrid(HudColorEnemy);
 		}
 	}
 }
@@ -731,10 +740,6 @@ void AFlareHUD::DrawHUDInternal()
 	// Update HUD materials
 	if (PlayerShip)
 	{
-		// Draw inertial vectors
-		DrawSpeed(PC, PlayerShip, HUDReticleIcon, PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
-		DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"), true);
-
 		// Draw objective
 		if (PC->HasObjective() && PC->GetCurrentObjective()->Data.TargetList.Num() > 0)
 		{
@@ -745,9 +750,6 @@ void AFlareHUD::DrawHUDInternal()
 				const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->Data.TargetList[TargetIndex];
 				FVector ObjectiveLocation = Target->Location;
 				FLinearColor InactiveColor = HudColorNeutral;
-				InactiveColor.A = 0.25;
-				FColor InactiveTextColor = FColor::White;
-				InactiveTextColor.A = 64;
 
 				bool ShouldDrawMarker = false;
 
@@ -763,7 +765,7 @@ void AFlareHUD::DrawHUDInternal()
 
 						// Draw distance
 						FVector2D CenterScreenPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(0, IconSize);
-						FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? FLinearColor::White : InactiveTextColor));
+						FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? HudColorObjective : HudColorNeutral));
 					}
 
 					// Tell the HUD to draw the search marker only if we are outside this
@@ -890,7 +892,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		// Label
 		FString IndicatorText = Designation.ToString();
 		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(42, 0);
-		FlareDrawText(IndicatorText, IndicatorPosition);
+		FlareDrawText(IndicatorText, IndicatorPosition, HudColorNeutral);
 
 		// Icon
 		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
@@ -898,7 +900,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		// Speed 
 		FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
 		FVector2D VelocityPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(42, 0);
-		FlareDrawText(VelocityText, VelocityPosition);
+		FlareDrawText(VelocityText, VelocityPosition, HudColorNeutral);
 	}
 }
 
@@ -987,7 +989,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 
 			// Draw the target's distance
 			FString DistanceText = FormatDistance(Distance / 100);
-			FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 3 * CornerSize * FVector2D::UnitVector;
+			FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 2 * CornerSize * FVector2D::UnitVector;
 			FlareDrawText(DistanceText, DistanceTextPosition, Color);
 
 			// Draw the status
@@ -1134,8 +1136,8 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 
 		// Drawing
 		{
-			FCanvasTextItem ShadowItem(FVector2D(X - 1, Y - 3.5), FText::FromString(Text), Font, FLinearColor::Black);
-			ShadowItem.Scale = FVector2D(1, 1.4);
+			FCanvasTextItem ShadowItem(FVector2D(X, Y) + ShadowOffset, FText::FromString(Text), Font, ShadowColor);
+			ShadowItem.Scale = FVector2D(1, 1);
 			CurrentCanvas->DrawItem(ShadowItem);
 		}
 		{
@@ -1150,7 +1152,15 @@ void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY
 {
 	if (CurrentCanvas && Texture)
 	{
-		FCanvasTileItem TileItem(FVector2D(ScreenX, ScreenY), Texture->Resource, FVector2D(ScreenW, ScreenH) * Scale, FVector2D(TextureU, TextureV), FVector2D(TextureU + TextureUWidth, TextureV + TextureVHeight), Color);
+		// Setup texture (in dark)
+		FCanvasTileItem TileItem(FVector2D(ScreenX, ScreenY),
+			Texture->Resource,
+			FVector2D(ScreenW, ScreenH) * Scale,
+			FVector2D(TextureU, TextureV),
+			FVector2D(TextureU + TextureUWidth, TextureV + TextureVHeight),
+			Color);
+
+		// More setup
 		TileItem.Rotation = FRotator(0, Rotation, 0);
 		TileItem.PivotPoint = RotPivot;
 		if (bScalePosition)
@@ -1158,6 +1168,10 @@ void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY
 			TileItem.Position *= Scale;
 		}
 		TileItem.BlendMode = FCanvas::BlendToSimpleElementBlend(BlendMode);
+		
+		// Draw texture
+		TileItem.Position -= ShadowOffset;
+		TileItem.SetColor(Color);
 		CurrentCanvas->DrawItem(TileItem);
 	}
 }

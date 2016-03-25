@@ -201,6 +201,8 @@ protected:
 	FLinearColor                            HudColorFriendly;
 	FLinearColor                            HudColorEnemy;
 	FLinearColor                            HudColorObjective;
+	FVector2D                               ShadowOffset;
+	FLinearColor                            ShadowColor;
 	
 	// Spacecraft targets
 	UPROPERTY()
