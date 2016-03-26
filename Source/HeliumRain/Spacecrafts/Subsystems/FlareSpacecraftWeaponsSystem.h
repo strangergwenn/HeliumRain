@@ -6,6 +6,10 @@
 class AFlareSpacecraft;
 class UFlareWeapon;
 
+struct FFlareSpacecraftComponentDescription;
+struct FFlareSpacecraftDescription;
+struct FFlareSpacecraftSave;
+
 /** Structure holding all data for a weapon group */
 struct FFlareWeaponGroup
 {
