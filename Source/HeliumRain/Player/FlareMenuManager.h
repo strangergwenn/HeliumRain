@@ -12,6 +12,7 @@ class SFlareFactoryInfo;
 class SFlareMainMenu;
 class SFlareSettingsMenu;
 class SFlareNewGameMenu;
+class SFlareStoryMenu;
 class SFlareDashboard;
 class SFlareShipMenu;;
 class SFlareFleetMenu;
@@ -146,6 +147,9 @@ protected:
 	/** Open the new game menu */
 	virtual void OpenNewGameMenu();
 
+	/** Open the story menu */
+	virtual void OpenStoryMenu();
+
 	/** Open the main menu */
 	virtual void OpenDashboard();
 
@@ -214,6 +218,7 @@ protected:
 	TSharedPtr<SFlareMainMenu>              MainMenu;
 	TSharedPtr<SFlareSettingsMenu>          SettingsMenu;
 	TSharedPtr<SFlareNewGameMenu>           NewGameMenu;
+	TSharedPtr<SFlareStoryMenu>             StoryMenu;
 	TSharedPtr<SFlareDashboard>             Dashboard;
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
 	TSharedPtr<SFlareFleetMenu>             FleetMenu;

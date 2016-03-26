@@ -5,6 +5,7 @@
 #include "../UI/Menus/FlareMainMenu.h"
 #include "../UI/Menus/FlareSettingsMenu.h"
 #include "../UI/Menus/FlareNewGameMenu.h"
+#include "../UI/Menus/FlareStoryMenu.h"
 #include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareFleetMenu.h"
@@ -49,6 +50,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(MainMenu, SFlareMainMenu).MenuManager(this);
 		SAssignNew(SettingsMenu, SFlareSettingsMenu).MenuManager(this);
 		SAssignNew(NewGameMenu, SFlareNewGameMenu).MenuManager(this);
+		SAssignNew(StoryMenu, SFlareStoryMenu).MenuManager(this);
 		SAssignNew(Dashboard, SFlareDashboard).MenuManager(this);
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
 		SAssignNew(FleetMenu, SFlareFleetMenu).MenuManager(this);
@@ -83,6 +85,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SettingsMenu.ToSharedRef()),     50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(NewGameMenu.ToSharedRef()),      50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StoryMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(FleetMenu.ToSharedRef()),        50);
@@ -105,6 +108,7 @@ void AFlareMenuManager::SetupMenu()
 		MainMenu->Setup();
 		SettingsMenu->Setup();
 		NewGameMenu->Setup();
+		StoryMenu->Setup();
 		Dashboard->Setup();
 		CompanyMenu->Setup();
 		ShipMenu->Setup();
@@ -236,6 +240,10 @@ void AFlareMenuManager::Back()
 		{
 			case EFlareMenu::MENU_NewGame:
 				OpenMenu(EFlareMenu::MENU_Main);
+				break;
+
+			case EFlareMenu::MENU_Story:
+				OpenMenu(EFlareMenu::MENU_Orbit);
 				break;
 
 			case EFlareMenu::MENU_Settings:
@@ -447,10 +455,12 @@ void AFlareMenuManager::ResetMenu()
 	}*/
 
 	SpacecraftOrder->Close();
+	Notifier->SetVisibility(EVisibility::SelfHitTestInvisible);
 
 	MainMenu->Exit();
 	SettingsMenu->Exit();
 	NewGameMenu->Exit();
+	StoryMenu->Exit();
 	Dashboard->Exit();
 	CompanyMenu->Exit();
 	ShipMenu->Exit();
@@ -511,6 +521,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 			OpenNewGameMenu();
 			break;
 
+		case EFlareMenu::MENU_Story:
+			OpenStoryMenu();
+			break;
+			
 		case EFlareMenu::MENU_Dashboard:
 			OpenDashboard();
 			break;
@@ -595,6 +609,8 @@ AFlareGame* AFlareMenuManager::GetGame() const
 void AFlareMenuManager::OpenMainMenu()
 {
 	ResetMenu();
+	Notifier->SetVisibility(EVisibility::Collapsed);
+
 	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
@@ -604,6 +620,8 @@ void AFlareMenuManager::OpenMainMenu()
 void AFlareMenuManager::OpenSettingsMenu()
 {
 	ResetMenu();
+	Notifier->SetVisibility(EVisibility::Collapsed);
+
 	CurrentMenu = EFlareMenu::MENU_Settings;
 	GetPC()->OnEnterMenu();
 	SettingsMenu->Enter();
@@ -613,9 +631,22 @@ void AFlareMenuManager::OpenSettingsMenu()
 void AFlareMenuManager::OpenNewGameMenu()
 {
 	ResetMenu();
+	Notifier->SetVisibility(EVisibility::Collapsed);
+
 	CurrentMenu = EFlareMenu::MENU_NewGame;
 	GetPC()->OnEnterMenu();
 	NewGameMenu->Enter();
+	GetPC()->UpdateMenuTheme();
+}
+
+void AFlareMenuManager::OpenStoryMenu()
+{
+	ResetMenu();
+	Notifier->SetVisibility(EVisibility::Collapsed);
+
+	CurrentMenu = EFlareMenu::MENU_Story;
+	GetPC()->OnEnterMenu();
+	StoryMenu->Enter();
 	GetPC()->UpdateMenuTheme();
 }
 

@@ -19,6 +19,7 @@ namespace EFlareMenu
 		MENU_None,
 		MENU_Main,
 		MENU_NewGame,
+		MENU_Story,
 		MENU_Dashboard,
 		MENU_Company,
 		MENU_FlyShip,
