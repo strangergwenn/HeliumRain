@@ -236,7 +236,7 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Draw combat mouse pointer
-		if (!PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
+		if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
 			PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
 			|| PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
 		{
