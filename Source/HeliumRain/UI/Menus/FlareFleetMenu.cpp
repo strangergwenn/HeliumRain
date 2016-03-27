@@ -117,7 +117,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 								SNew(SFlareButton)
 								.Width(8)
 								.Icon(FFlareStyleSet::GetIcon("OK"))
-								.Text(LOCTEXT("SelectFleet", "Select fleet"))
+								.Text(LOCTEXT("SelectFleet", "Edit selected fleet"))
 								.HelpText(LOCTEXT("SelectFleetInfo", "Select"))
 								.IsDisabled(this, &SFlareFleetMenu::IsSelectDisabled)
 								.OnClicked(this, &SFlareFleetMenu::OnSelectFleet)
@@ -134,6 +134,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 								.HelpText(LOCTEXT("AddToFleetInfo", "Merge this fleet or ship with the current fleet"))
 								.IsDisabled(this, &SFlareFleetMenu::IsAddDisabled)
 								.OnClicked(this, &SFlareFleetMenu::OnAddToFleet)
+								.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 							]
 						]
 
@@ -176,6 +177,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 								[
 									SAssignNew(EditFleetName, SEditableText)
 									.Style(&Theme.TextInputStyle)
+									.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 								]
 
 								// Confirm
@@ -190,6 +192,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 									.HelpText(LOCTEXT("ChangeNameInfo", "Rename"))
 									.OnClicked(this, &SFlareFleetMenu::OnRenameFleet)
 									.IsDisabled(this, &SFlareFleetMenu::IsRenameDisabled)
+									.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 								]
 							]
 
@@ -204,6 +207,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 								.HelpText(LOCTEXT("RemoveFromFleetInfo", "Remove this ship from the fleet"))
 								.IsDisabled(this, &SFlareFleetMenu::IsRemoveDisabled)
 								.OnClicked(this, &SFlareFleetMenu::OnRemoveFromFleet)
+								.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 							]
 						]
 									
@@ -330,6 +334,11 @@ void SFlareFleetMenu::OnFleetSelected(TSharedPtr<FInterfaceContainer> Spacecraft
 	{
 		FleetToAdd = Fleet;
 	}
+}
+
+EVisibility SFlareFleetMenu::GetEditVisibility() const
+{
+	return SelectedFleet ? EVisibility::Visible : EVisibility::Hidden;
 }
 
 bool SFlareFleetMenu::IsSelectDisabled() const

@@ -60,6 +60,9 @@ protected:
 	/** A fleet has been selected */
 	void OnFleetSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer);
 
+	/** Can we see edit buttons */
+	EVisibility GetEditVisibility() const;
+
 	/** Is the "select fleet" button disabled */
 	bool IsSelectDisabled() const;
 
