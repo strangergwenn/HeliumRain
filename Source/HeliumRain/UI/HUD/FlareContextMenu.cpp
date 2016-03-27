@@ -4,6 +4,9 @@
 #include "../../Player/FlareMenuManager.h"
 #include "FlareContextMenu.h"
 
+#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
+#include "Runtime/Engine/Classes/Engine/RendererSettings.h"
+
 #define LOCTEXT_NAMESPACE "FlareContextMenu"
 
 
@@ -112,8 +115,11 @@ void SFlareContextMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 
 FMargin SFlareContextMenu::GetContextMenuPosition() const
 {
-	FVector2D Pos = HUD->GetContextMenuLocation();
+	FVector2D HudLocation = HUD->GetContextMenuLocation();
+	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
 
+	FVector2D Pos = HudLocation / ViewportScale;
 	Pos.X -= 48;
 	Pos.Y -= 48;
 
