@@ -62,26 +62,40 @@ void UFlareSpacecraftSpinningComponent::TickComponent(float DeltaSeconds, enum E
 			AFlarePlanetarium* Planetarium = Ship->GetGame()->GetPlanetarium();
 			if (Planetarium)
 			{
+				FVector X(1, 0, 0);
+				FVector Y(0, 1, 0);
+				FVector Z(0, 0, 1);
+
 				FRotator SunRotator = Planetarium->GetSunDirection().Rotation();
 				FRotator SpinnerRotator = GetComponentRotation();
-				FRotator Delta = SunRotator - SpinnerRotator;
+				FRotator Delta;
 
-				// Does not work, because Roll axis if zero when extracted from a direction... :) 
+				// Compute the angle difference
+				SunRotator.Normalize();
+				SpinnerRotator.Normalize();
+				float Angle = FMath::Acos(FVector::DotProduct(SunRotator.RotateVector(X), SpinnerRotator.RotateVector(Z)));
+				// TODO : angle has a 50% chance of being the wrong way depending on orientation...
 
+				// Use the correct axis
 				if (RotationAxisRoll)
 				{
-					Delta = FRotator(0, 0, Delta.Roll);
+					Delta = FQuat(X, Angle).Rotator();
 				}
 				else if (RotationAxisYaw)
 				{
-					Delta = FRotator(0, Delta.Yaw, 0);
+					Delta = FQuat(Z, Angle).Rotator();
 				}
 				else
 				{
-					Delta = FRotator(Delta.Pitch, 0, 0);
+					Delta = FQuat(Y, Angle).Rotator();
 				}
-				
-				AddLocalRotation(RotationSpeed * DeltaSeconds * Delta);
+
+				// Update
+				float DegreesAngle = FMath::RadiansToDegrees(Angle);
+				if (DegreesAngle > 1)
+				{
+					AddLocalRotation(RotationSpeed * DeltaSeconds * Delta);
+				}
 			}
 		}
 
