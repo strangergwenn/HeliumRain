@@ -195,6 +195,8 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 				FName("ship-crashed"),
 				EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
 		}
+
+		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Dashboard);
 	}
 
 	// Lost company ship
