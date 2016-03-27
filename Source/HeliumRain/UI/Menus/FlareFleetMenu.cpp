@@ -172,26 +172,27 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(SHorizontalBox)
 
-								// Name field
-								+ SHorizontalBox::Slot()
-								[
-									SAssignNew(EditFleetName, SEditableText)
-									.Style(&Theme.TextInputStyle)
-									.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-								]
-
 								// Confirm
 								+ SHorizontalBox::Slot()
 								.AutoWidth()
-								.HAlign(HAlign_Right)
 								[
 									SNew(SFlareButton)
-									.Width(3)
+									.Width(4)
 									.Icon(FFlareStyleSet::GetIcon("OK"))
-									.Text(LOCTEXT("Rename", "Rename"))
-									.HelpText(LOCTEXT("ChangeNameInfo", "Rename"))
+									.Text(LOCTEXT("Rename", "Rename fleet"))
+									.HelpText(LOCTEXT("ChangeNameInfo", "Rename the selected fleet"))
 									.OnClicked(this, &SFlareFleetMenu::OnRenameFleet)
 									.IsDisabled(this, &SFlareFleetMenu::IsRenameDisabled)
+									.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+								]
+
+								// Name field
+								+ SHorizontalBox::Slot()
+								.HAlign(HAlign_Fill)
+								.Padding(Theme.SmallContentPadding)
+								[
+									SAssignNew(EditFleetName, SEditableText)
+									.Style(&Theme.TextInputStyle)
 									.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 								]
 							]
@@ -199,6 +200,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 							+ SVerticalBox::Slot()
 							.AutoHeight()
 							.Padding(Theme.SmallContentPadding)
+							.HAlign(HAlign_Left)
 							[
 								SNew(SFlareButton)
 								.Width(8)
