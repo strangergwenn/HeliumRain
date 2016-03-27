@@ -830,8 +830,7 @@ void AFlareHUD::DrawDebugGrid(FLinearColor Color)
 {
 	float HPrecision = DistortionGrid;
 	float VPrecision = DistortionGrid;
-
-
+	
 	for (int32 HIndex = -HPrecision; HIndex <= HPrecision; HIndex++)
 	{
 		for (int32 VIndex = -VPrecision; VIndex <= VPrecision; VIndex++)
@@ -847,16 +846,13 @@ void AFlareHUD::DrawDebugGrid(FLinearColor Color)
 			}
 		}
 	}
-
-
-
 }
 
 FString AFlareHUD::FormatDistance(float Distance)
 {
 	if (Distance < 1000)
 	{
-		return FString::FromInt(Distance) + FString(" m");
+		return FString::FromInt(Distance) + FString("m");
 	}
 	else
 	{
@@ -864,11 +860,11 @@ FString AFlareHUD::FormatDistance(float Distance)
 		if (Kilometers < 10)
 		{
 			int Hectometer = ((int)(Distance - Kilometers * 1000)) / 100;
-			return FString::FromInt(Kilometers) +"." + FString::FromInt(Hectometer)+ FString(" km");
+			return FString::FromInt(Kilometers) + "." + FString::FromInt(Hectometer) + FString("km");
 		}
 		else
 		{
-			return FString::FromInt(Kilometers) + FString(" km");
+			return FString::FromInt(Kilometers) + FString("km");
 		}
 	}
 }
@@ -987,10 +983,13 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color, Highlighted);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color, Highlighted);
 
-			// Draw the target's distance
-			FString DistanceText = FormatDistance(Distance / 100);
-			FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 2 * CornerSize * FVector2D::UnitVector;
-			FlareDrawText(DistanceText, DistanceTextPosition, Color);
+			// Draw the target's distance if selected
+			if (Spacecraft == PlayerShip->GetCurrentTarget())
+			{
+				FString DistanceText = FormatDistance(Distance / 100);
+				FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 2 * CornerSize * FVector2D::UnitVector;
+				FlareDrawText(DistanceText, DistanceTextPosition, Color);
+			}
 
 			// Draw the status
 			if (!Spacecraft->IsStation() && ObjectSize.X > IconSize)
