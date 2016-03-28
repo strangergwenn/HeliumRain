@@ -158,6 +158,21 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
 						]
+
+						// Refuel fleets
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(9)
+							.Text(this, &SFlareSectorMenu::GetRefuelText)
+							.HelpText(LOCTEXT("TravelInfo", "Refuel all fleets in this sector so that they have the necessary fuel, ammo and resources to fight."))
+							.Icon(FFlareStyleSet::GetIcon("Tank"))
+							.OnClicked(this, &SFlareSectorMenu::OnRefuelClicked)
+							.IsDisabled(this, &SFlareSectorMenu::IsRefuelDisabled)
+						]
 					]
 				]
 				
@@ -446,6 +461,31 @@ bool SFlareSectorMenu::IsTravelDisabled() const
 	}
 }
 
+FText SFlareSectorMenu::GetRefuelText() const
+{
+	if (IsRefuelDisabled())
+	{
+		if (true) // TODO FRED(#155) : utiliser les API de ravitaillement
+		{
+			return LOCTEXT("NoFleetToRefuel", "No fleet here needs refuelling");
+		}
+		else
+		{
+			return LOCTEXT("CantRefuel", "Can't refuel here !");
+		}
+	}
+	else
+	{
+		return FText::Format(LOCTEXT("RefuelOkayFormat", "Refuel all fleets (requires {0} fleet supplies)"),
+			FText::AsNumber(42)); // TODO FRED (#155) : utiliser les API de ravitaillement
+	}
+}
+
+bool SFlareSectorMenu::IsRefuelDisabled() const
+{
+	return true; // TODO FRED (#155) : utiliser les API de ravitaillement
+}
+
 FText SFlareSectorMenu::GetSectorName() const
 {
 	FText Result;
@@ -590,6 +630,11 @@ void SFlareSectorMenu::OnTravelHereClicked()
 								 FSimpleDelegate::CreateSP(this, &SFlareSectorMenu::OnStartTravelConfirmed));
 		}
 	}
+}
+
+void SFlareSectorMenu::OnRefuelClicked()
+{
+	// TODO FRED (#155) : utiliser les API de ravitaillement
 }
 
 void SFlareSectorMenu::OnStartTravelConfirmed()

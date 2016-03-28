@@ -52,6 +52,12 @@ protected:
 	/** Visibility setting for the travel button */
 	bool IsTravelDisabled() const;
 
+	/** Get the refuel text */
+	FText GetRefuelText() const;
+
+	/** Visibility setting for the refuel button */
+	bool IsRefuelDisabled() const;
+
 	/** Get the sector's name */
 	FText GetSectorName() const;
 
@@ -70,6 +76,9 @@ protected:
 	/** Move the selected fleet here */
 	void OnTravelHereClicked();
 
+	/** Refuel all fleets */
+	void OnRefuelClicked();
+
 	void OnStartTravelConfirmed();
 
 	/** Get the text of a station combo box line*/
@@ -84,6 +93,7 @@ protected:
 	FText OnGetCurrentStationComboLine() const;
 
 	void OnBuildStationClicked();
+
 
 protected:
 
