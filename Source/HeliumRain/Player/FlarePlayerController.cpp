@@ -598,6 +598,11 @@ void AFlarePlayerController::SetTacticForCurrentShipGroup(EFlareCombatTactic::Ty
 {
 	check(CurrentShipGroup < CurrentCombatTactics.Num());
 	CurrentCombatTactics[CurrentShipGroup] = Tactic;
+	if (CurrentShipGroup == EFlareCombatGroup::AllMilitary)
+	{
+		CurrentCombatTactics[EFlareCombatGroup::Capitals] = Tactic;
+		CurrentCombatTactics[EFlareCombatGroup::Fighters] = Tactic;
+	}
 }
 
 EFlareCombatGroup::Type AFlarePlayerController::GetCurrentShipGroup() const
