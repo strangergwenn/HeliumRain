@@ -119,7 +119,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							SNew(STextBlock)
 							.Text(this, &SFlareSectorMenu::GetSectorDescription)
 							.TextStyle(&Theme.TextFont)
-							.WrapTextAt(Theme.ContentWidth)
+							.WrapTextAt(Theme.ContentWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
 						]
 				
 						// Sector location
@@ -479,12 +479,11 @@ FText SFlareSectorMenu::GetSectorTransportInfo() const
 	{
 		UFlareCompany* PlayerCompany = MenuManager->GetGame()->GetPC()->GetCompany();
 		FText TransportInfoText = LOCTEXT("SectorDescriptionFormat",
-			"Required transport capacity : {0} cargo units per day\nCapacity of assigned transports : {1} cargo units per day ({2})");
+			"Stations require {0} cargo units per day (current capacity is {1}).");
 
 		Result = FText::Format(TransportInfoText,
 			FText::AsNumber(TargetSector->GetTransportCapacityNeeds(PlayerCompany)),
-			FText::AsNumber(TargetSector->GetTransportCapacity(PlayerCompany)),
-			FText::AsNumber(TargetSector->GetTransportCapacityBalance(PlayerCompany))
+			FText::AsNumber(TargetSector->GetTransportCapacity(PlayerCompany))
 		);
 	}
 
@@ -499,13 +498,16 @@ FText SFlareSectorMenu::GetSectorLocation() const
 	{
 		FFlareCelestialBody* Body = TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(TargetSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
-
 		if (Body)
 		{
 			FText LightRatioString;
-			if(TargetSector->GetDescription()->IsSolarPoor)
+			FString AttributeString;
+
+			// Light ratio
+			if (TargetSector->GetDescription()->IsSolarPoor)
 			{
-				LightRatioString = LOCTEXT("SectorLightRatioFoggy", "0% (foggy)");
+				LightRatioString = LOCTEXT("SectorLightRatioFoggy", "0%");
+				AttributeString += LOCTEXT("Foggy", "Foggy").ToString();
 			}
 			else
 			{
@@ -513,7 +515,48 @@ FText SFlareSectorMenu::GetSectorLocation() const
 				LightRatioString = FText::Format(LOCTEXT("SectorLightRatioFormat", "{0}%"), FText::AsNumber(LightRatio));
 			}
 
-			Result = FText::Format(LOCTEXT("SectorLocation",  "{0} - Altitude: {1} km - Phase: {2}\u00B0 - Light ratio: {3}"), Body->Name, FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude), FText::AsNumber(TargetSector->GetOrbitParameters()->Phase), LightRatioString);
+			// Peaceful
+			if (TargetSector->GetDescription()->IsPeaceful)
+			{
+				if (AttributeString.Len())
+				{
+					AttributeString += ", ";
+				}
+				AttributeString += LOCTEXT("Peaceful", "Peaceful").ToString();
+			}
+
+			// Icy
+			if (TargetSector->GetDescription()->IsIcy)
+			{
+				if (AttributeString.Len())
+				{
+					AttributeString += ", ";
+				}
+				AttributeString += LOCTEXT("Icy", "Icy").ToString();
+			}
+
+			// Geostationary
+			if (TargetSector->GetDescription()->IsGeostationary)
+			{
+				if (AttributeString.Len())
+				{
+					AttributeString += ", ";
+				}
+				AttributeString += LOCTEXT("Geostationary", "Geostationary").ToString();
+			}
+
+			// Spacer
+			if (AttributeString.Len())
+			{
+				AttributeString = "- " + AttributeString;
+			}
+
+			// Result
+			Result = FText::Format(LOCTEXT("SectorLocation",  "Orbiting {0} - Altitude: {1} km - {2} light {3}"),
+				Body->Name,
+				FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude),
+				LightRatioString,
+				FText::FromString(AttributeString));
 		}
 	}
 
