@@ -228,25 +228,6 @@ void AFlareHUD::DrawHUD()
 		if (HUDVisible && !IsExternalCamera)
 		{
 			DrawHUDIcon(CurrentViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
-
-			// Draw inertial vectors
-			if (PlayerShip)
-			{
-				FVector ShipVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
-				bool Firing = (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN);
-
-				if (Firing)
-				{
-					DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, ShipVelocity, FText(), false);
-					DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, -ShipVelocity, FText(), true);
-				}
-				else
-				{
-					DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipVelocity, LOCTEXT("Forward", "FWD"), false);
-					DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipVelocity, LOCTEXT("Backward", "BWD"), true);
-				}
-
-			}
 		}
 
 		// Draw combat mouse pointer
@@ -754,6 +735,21 @@ void AFlareHUD::DrawHUDInternal()
 	// Update HUD materials
 	if (PlayerShip)
 	{
+		// Draw inertial vectors
+		FVector ShipVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
+		bool Firing = (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN);
+
+		if (Firing)
+		{
+			DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, ShipVelocity, FText(), false);
+			DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, -ShipVelocity, FText(), true);
+		}
+		else
+		{
+			DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipVelocity, LOCTEXT("Forward", "FWD"), false);
+			DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipVelocity, LOCTEXT("Backward", "BWD"), true);
+		}
+
 		// Draw objective
 		if (PC->HasObjective() && PC->GetCurrentObjective()->Data.TargetList.Num() > 0)
 		{
