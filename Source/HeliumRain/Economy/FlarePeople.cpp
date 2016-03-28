@@ -320,6 +320,14 @@ void UFlarePeople::Pay(uint32 Amount)
 	PeopleData.Money += Amount - Repayment;
 }
 
+void UFlarePeople::TakeMoney(uint32 Amount)
+{
+	uint32 TakenMoney = FMath::Min(PeopleData.Money, Amount);
+	PeopleData.Money -=  TakenMoney;
+
+	PeopleData.Dept += Amount - TakenMoney;
+}
+
 void UFlarePeople::ResetPeople()
 {
 	PeopleData.Population = 0;

@@ -274,4 +274,6 @@ public:
 
 	virtual TArray<IFlareSpacecraftInterface*>& GetSectorShipInterfaces() PURE_VIRTUAL(UFlareSectorInterface::GetSectorShipInterfaces, static TArray<IFlareSpacecraftInterface*> Dummy; return Dummy;);
 
+	bool CanUpgrade(UFlareCompany* Company);
+
 };

@@ -139,7 +139,12 @@ protected:
 
 	/** Close the menu */
 	void OnExit();
-		
+
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
+
+	int64 GetTransactionCost(FFlareSpacecraftComponentDescription* SelectedPart);
 
 protected:
 

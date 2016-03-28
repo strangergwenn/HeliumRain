@@ -128,6 +128,10 @@ public:
 		return SectorSpacecrafts;
 	}
 
+	inline FFlarePeopleSave* GetPeople(){
+		return &SectorData.PeopleData;
+	}
+
 	inline TArray<IFlareSpacecraftInterface*>& GetSectorShipInterfaces() override
 	{
 		return SectorShipInterfaces;

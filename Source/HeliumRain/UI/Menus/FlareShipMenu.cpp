@@ -7,7 +7,7 @@
 #include "../../Player/FlarePlayerController.h"
 #include "../Components/FlarePartInfo.h"
 #include "../Components/FlareFactoryInfo.h"
-
+#include "../../Game/FlareSector.h"
 
 #define LOCTEXT_NAMESPACE "FlareShipMenu"
 
@@ -859,14 +859,17 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 		}
 		CurrentPartIndex = Index;
 
+		int64 TransactionCost = GetTransactionCost(Item->PartDescription);
+
 		// Show the confirmation dialog
-		if (CurrentPartIndex != ShipPartIndex)
+		if ((CurrentPartIndex != ShipPartIndex) && (TransactionCost <= (int64) PC->GetCompany()->GetMoney()))
 		{
-			BuyConfirmation->Show(PartListData[CurrentEquippedPartIndex]->Cost - Item->PartDescription->Cost);
+			BuyConfirmation->Show(TransactionCost);
 		}
 		else
 		{
 			BuyConfirmation->Hide();
+			// TODO : Show hide reason
 		}
 	}
 
@@ -890,10 +893,14 @@ void SFlareShipMenu::OnPartConfirmed()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
-		CurrentEquippedPartIndex = CurrentPartIndex;
-
 		// Edit the correct save data property
 		FFlareSpacecraftComponentDescription* PartDesc = PartListData[CurrentPartIndex];
+
+		int32 TransactionCost = GetTransactionCost(PartDesc);
+
+		CurrentEquippedPartIndex = CurrentPartIndex;
+
+
 		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 		int32 WeaponCount = 0;
 		for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
@@ -921,12 +928,49 @@ void SFlareShipMenu::OnPartConfirmed()
 			if (UpdatePart)
 			{
 				TargetSpacecraftData->Components[i].ComponentIdentifier = PartDesc->Identifier;
+
 			}
 		}
 		
 		// Update the world ship if it exists
 		if (TargetSpacecraft)
 		{
+			if(TransactionCost > 0)
+			{
+				TargetSpacecraft->GetCompany()->TakeMoney(TransactionCost);
+			}
+			else
+			{
+				TargetSpacecraft->GetCompany()->GiveMoney(FMath::Abs(TransactionCost));
+			}
+
+			UFlareSectorInterface* SectorInterface = TargetSpacecraft->GetCurrentSectorInterface();
+
+			UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(SectorInterface);
+			UFlareSector* ActiveSector = Cast<UFlareSector>(SectorInterface);
+			if (SimulatedSector)
+			{
+				if(TransactionCost > 0)
+				{
+					SimulatedSector->GetPeople()->Pay(TransactionCost);
+				}
+				else
+				{
+					SimulatedSector->GetPeople()->TakeMoney(FMath::Abs(TransactionCost));
+				}
+			}
+			else if (ActiveSector)
+			{
+				if(TransactionCost > 0)
+				{
+					ActiveSector->GetPeople()->Money += TransactionCost;
+				}
+				else
+				{
+					ActiveSector->GetPeople()->Dept += FMath::Abs(TransactionCost);
+				}
+			}
+
 			TargetSpacecraft->Load(*TargetSpacecraftData);
 		}
 
@@ -954,5 +998,13 @@ void SFlareShipMenu::OnExit()
 	}
 }
 
+/*----------------------------------------------------
+	Helpers
+----------------------------------------------------*/
+
+int64 SFlareShipMenu::GetTransactionCost(FFlareSpacecraftComponentDescription* SelectedPart)
+{
+	return SelectedPart->Cost - PartListData[CurrentEquippedPartIndex]->Cost;
+}
 
 #undef LOCTEXT_NAMESPACE

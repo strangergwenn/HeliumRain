@@ -392,14 +392,16 @@ void SFlareSpacecraftInfo::Show()
 		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PC->GetShipPawn();
 		bool FriendlyAndNotSelf = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
 		bool IsStrategy = Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL;
-		bool IsDocked = TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
+		bool IsDocked = TargetSpacecraft->GetNavigationSystem()->IsDocked() || TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
 		bool IsStation = TargetSpacecraft->IsStation();
 
 		// Permissions
 		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
 		bool CanAssign = Owned && !IsStation && !TargetSpacecraft->IsAssignedToSector();
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
-		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy);
+
+
+		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy) && TargetSpacecraft->GetCurrentSectorInterface()->CanUpgrade(TargetSpacecraft->GetCompany());
 		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 
 		if(Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft)

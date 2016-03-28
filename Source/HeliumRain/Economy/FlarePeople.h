@@ -93,6 +93,8 @@ public:
 
 	void Pay(uint32 Amount);
 
+	void TakeMoney(uint32 Amount);
+
 	void ResetPeople();
 
 protected:

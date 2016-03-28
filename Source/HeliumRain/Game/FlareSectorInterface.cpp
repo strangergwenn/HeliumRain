@@ -307,4 +307,25 @@ uint32 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resour
 
 }
 
+bool UFlareSectorInterface::CanUpgrade(UFlareCompany* Company)
+{
+	EFlareSectorBattleState::Type BattleState = GetSectorBattleState(Company);
+	if(BattleState != EFlareSectorBattleState::NoBattle
+			&& BattleState != EFlareSectorBattleState::BattleWon)
+	{
+		return false;
+	}
+
+	for(int StationIndex = 0 ; StationIndex < GetSectorStationInterfaces().Num(); StationIndex ++ )
+	{
+		IFlareSpacecraftInterface* StationInterface = GetSectorStationInterfaces()[StationIndex];
+		if (StationInterface->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 #undef LOCTEXT_NAMESPACE
