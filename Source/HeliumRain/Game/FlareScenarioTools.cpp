@@ -77,6 +77,7 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
 	PlayerCompany->DiscoverSector(TheDepths);
+	PlayerCompany->DiscoverSector(FrozenRealm);
 	FillWorld();
 }
 
@@ -94,6 +95,7 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
 	PlayerCompany->DiscoverSector(TheDepths);
+	PlayerCompany->DiscoverSector(FrozenRealm);
 	PlayerCompany->GiveMoney(10000);
 
 	FillWorld();
