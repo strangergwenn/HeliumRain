@@ -58,6 +58,12 @@ protected:
 	/** Visibility setting for the refuel button */
 	bool IsRefuelDisabled() const;
 
+	/** Get the repair text */
+	FText GetRepairText() const;
+
+	/** Visibility setting for the repair button */
+	bool IsRepairDisabled() const;
+
 	/** Get the sector's name */
 	FText GetSectorName() const;
 
@@ -78,6 +84,9 @@ protected:
 
 	/** Refuel all fleets */
 	void OnRefuelClicked();
+
+	/** Repair all fleets */
+	void OnRepairClicked();
 
 	void OnStartTravelConfirmed();
 

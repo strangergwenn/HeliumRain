@@ -147,11 +147,11 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						// Travel here
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
+						.Padding(Theme.SmallContentPadding)
 						.HAlign(HAlign_Left)
 						[
 							SNew(SFlareButton)
-							.Width(9)
+							.Width(10)
 							.Text(this, &SFlareSectorMenu::GetTravelText)
 							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -162,23 +162,37 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						// Refuel fleets
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
 						.HAlign(HAlign_Left)
+						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SFlareButton)
-							.Width(9)
+							.Width(10)
 							.Text(this, &SFlareSectorMenu::GetRefuelText)
 							.HelpText(LOCTEXT("TravelInfo", "Refuel all fleets in this sector so that they have the necessary fuel, ammo and resources to fight."))
 							.Icon(FFlareStyleSet::GetIcon("Tank"))
 							.OnClicked(this, &SFlareSectorMenu::OnRefuelClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsRefuelDisabled)
 						]
+
+						// Repair fleets
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(SFlareButton)
+							.Width(10)
+							.Text(this, &SFlareSectorMenu::GetRepairText)
+							.HelpText(LOCTEXT("TravelInfo", "Repair all fleets in this sector."))
+							.Icon(FFlareStyleSet::GetIcon("Repair"))
+							.OnClicked(this, &SFlareSectorMenu::OnRepairClicked)
+							.IsDisabled(this, &SFlareSectorMenu::IsRepairDisabled)
+						]
 					]
 				]
 				
 				// Station construction
 				+ SHorizontalBox::Slot()
-				.Padding(Theme.ContentPadding)
 				.HAlign(HAlign_Left)
 				.VAlign(VAlign_Top)
 				[
@@ -192,6 +206,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						.AutoHeight()
 						.Padding(Theme.TitlePadding)
 						.HAlign(HAlign_Left)
+						.VAlign(VAlign_Top)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
@@ -476,14 +491,39 @@ FText SFlareSectorMenu::GetRefuelText() const
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("RefuelOkayFormat", "Refuel all fleets (requires {0} fleet supplies)"),
+		return FText::Format(LOCTEXT("RefuelOkayFormat", "Refuel all fleets ({0} fleet supplies)"),
 			FText::AsNumber(42)); // TODO FRED (#155) : utiliser les API de ravitaillement
+	}
+}
+
+FText SFlareSectorMenu::GetRepairText() const
+{
+	if (IsRepairDisabled())
+	{
+		if (true) // TODO FRED(#155) : utiliser les API de réparation
+		{
+			return LOCTEXT("NoFleetToRepair", "No fleet here needs repairing");
+		}
+		else
+		{
+			return LOCTEXT("CantRepair", "Can't repair here !");
+		}
+	}
+	else
+	{
+		return FText::Format(LOCTEXT("RepairOkayFormat", "Repair all fleets ({0} fleet supplies)"),
+			FText::AsNumber(42)); // TODO FRED (#155) : utiliser les API de réparation
 	}
 }
 
 bool SFlareSectorMenu::IsRefuelDisabled() const
 {
 	return true; // TODO FRED (#155) : utiliser les API de ravitaillement
+}
+
+bool SFlareSectorMenu::IsRepairDisabled() const
+{
+	return true; // TODO FRED (#155) : utiliser les API de réparation
 }
 
 FText SFlareSectorMenu::GetSectorName() const
@@ -635,6 +675,11 @@ void SFlareSectorMenu::OnTravelHereClicked()
 void SFlareSectorMenu::OnRefuelClicked()
 {
 	// TODO FRED (#155) : utiliser les API de ravitaillement
+}
+
+void SFlareSectorMenu::OnRepairClicked()
+{
+	// TODO FRED (#155) : utiliser les API de réparation
 }
 
 void SFlareSectorMenu::OnStartTravelConfirmed()
