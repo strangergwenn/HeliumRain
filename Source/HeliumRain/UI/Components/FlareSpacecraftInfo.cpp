@@ -422,14 +422,14 @@ void SFlareSpacecraftInfo::Show()
 
 		// Upper line
 		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
-		SelectButton->SetVisibility(IsStation ? EVisibility::Collapsed : EVisibility::Visible);
-		FlyButton->SetVisibility(IsStation ? EVisibility::Collapsed : EVisibility::Visible);
+		SelectButton->SetVisibility(!Owned || IsStation ? EVisibility::Collapsed : EVisibility::Visible);
+		FlyButton->SetVisibility(!Owned ||IsStation ? EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
 		AssignButton->SetVisibility(CanAssign ? EVisibility::Visible : EVisibility::Collapsed);
 		UnassignButton->SetVisibility(CanUnAssign ? EVisibility::Visible : EVisibility::Collapsed);
 		TradeButton->SetVisibility(CanTrade ? EVisibility::Visible : EVisibility::Collapsed);
-		UpgradeButton->SetVisibility(CanUpgrade ? EVisibility::Visible : EVisibility::Collapsed);
+		UpgradeButton->SetVisibility(Owned && !IsStation ? EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock ? EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
 
@@ -456,6 +456,8 @@ void SFlareSpacecraftInfo::Show()
 		{
 			TradeButton->SetDisabled(!IsDocked);
 		}
+
+		UpgradeButton->SetDisabled(!CanUpgrade);
 
 		// Shipyards get additional controls
 		OrderShipButton->SetVisibility(EVisibility::Collapsed);

@@ -251,7 +251,7 @@ EVisibility SFlareDashboard::GetDockedVisibility() const
 		AFlareSpacecraft* Ship = PC->GetShipPawn();
 		if (Ship)
 		{
-			return (Ship->GetNavigationSystem()->IsDocked() ? EVisibility::Visible : EVisibility::Collapsed);
+			return (Ship->GetNavigationSystem()->IsDocked() && Ship->GetCurrentSectorInterface()->CanUpgrade(Ship->GetCompany()) ? EVisibility::Visible : EVisibility::Collapsed);
 		}
 	}
 

@@ -938,8 +938,11 @@ void AFlarePlayerController::WheelPressed()
 		// Docked controls
 		if (ShipPawn->GetNavigationSystem()->IsDocked())
 		{
-			MouseMenu->AddWidget("ShipUpgrade_Button", LOCTEXT("Upgrade", "Upgrade"),
+			if (ShipPawn->GetCurrentSectorInterface()->CanUpgrade(ShipPawn->GetCompany()))
+			{
+				MouseMenu->AddWidget("ShipUpgrade_Button", LOCTEXT("Upgrade", "Upgrade"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UpgradeShip));
+			}
 			MouseMenu->AddWidget("Undock_Button", LOCTEXT("Undock", "Undock"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UndockShip));
 
