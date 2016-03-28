@@ -93,40 +93,9 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	{
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 		
-		// Reset ship count values
-		CurrentMilitaryShipCount = 0;
-		CurrentCapitalShipCount = 0;
-		CurrentFighterCount = 0;
-		CurrentCivilianShipCount = 0;
-
-		// Compute the current count of all kinds of ships
 		UFlareSector* Sector = Cast<UFlareSector>(ShipPawn->GetCurrentSectorInterface());
-		if (Sector)
-		{
-			TArray<IFlareSpacecraftInterface*>& ShipList = Sector->GetSectorShipInterfaces();
-			for (int32 Index = 0; Index < ShipList.Num(); Index++)
-			{
-				IFlareSpacecraftInterface* Ship = ShipList[Index];
-				check(Ship);
+		GetCompany()->GetAI()->ResetControlGroups(Sector);
 
-				if (Ship->IsMilitary())
-				{
-					CurrentMilitaryShipCount++;
-					if (Ship->GetDescription()->Size == EFlarePartSize::L)
-					{
-						CurrentCapitalShipCount++;
-					}
-					else
-					{
-						CurrentFighterCount++;
-					}
-				}
-				else
-				{
-					CurrentCivilianShipCount++;
-				}
-			}
-		}
 
 		// Battle state
 		if (GetGame()->GetActiveSector())
@@ -283,12 +252,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	CockpitManager->OnFlyShip(ShipPawn);
 
 	// Combat groups
-	CurrentShipGroup = EFlareCombatGroup::AllMilitary;
-	CurrentCombatTactics.Empty();
-	for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
-	{
-		CurrentCombatTactics.Add(EFlareCombatTactic::ProtectMe);
-	}
+	GetCompany()->GetAI()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
+	GetCompany()->GetAI()->ResetShipGroup(EFlareCombatTactic::ProtectMe);
 
 	// Inform the player
 	if (Ship)
@@ -629,55 +594,6 @@ const FFlarePlayerObjective* AFlarePlayerController::GetCurrentObjective() const
 	return (CurrentObjective.Set? &CurrentObjective : NULL);
 }
 
-/*----------------------------------------------------
-	Command groups
-----------------------------------------------------*/
-
-void AFlarePlayerController::SetCurrentShipGroup(EFlareCombatGroup::Type Type)
-{
-	CurrentShipGroup = Type;
-}
-
-void AFlarePlayerController::SetTacticForCurrentShipGroup(EFlareCombatTactic::Type Tactic)
-{
-	check(CurrentShipGroup < CurrentCombatTactics.Num());
-	CurrentCombatTactics[CurrentShipGroup] = Tactic;
-	if (CurrentShipGroup == EFlareCombatGroup::AllMilitary)
-	{
-		CurrentCombatTactics[EFlareCombatGroup::Capitals] = Tactic;
-		CurrentCombatTactics[EFlareCombatGroup::Fighters] = Tactic;
-	}
-}
-
-EFlareCombatGroup::Type AFlarePlayerController::GetCurrentShipGroup() const
-{
-	return CurrentShipGroup;
-}
-
-EFlareCombatTactic::Type AFlarePlayerController::GetCurrentTacticForShipGroup(EFlareCombatGroup::Type Type) const
-{
-	check(Type < CurrentCombatTactics.Num());
-	return CurrentCombatTactics[Type];
-}
-
-int32 AFlarePlayerController::GetShipCountForShipGroup(EFlareCombatGroup::Type Type) const
-{
-	switch (Type)
-	{
-		case EFlareCombatGroup::AllMilitary:
-			return CurrentMilitaryShipCount;
-
-		case EFlareCombatGroup::Capitals:
-			return CurrentCapitalShipCount;
-
-		case EFlareCombatGroup::Fighters:
-			return CurrentFighterCount;
-
-		case EFlareCombatGroup::Civilan:
-		default:
-			return CurrentCivilianShipCount;
-	}
-}
 
 
 /*----------------------------------------------------
@@ -1130,7 +1046,7 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 
 void AFlarePlayerController::SetTacticForCurrentGroup(EFlareCombatTactic::Type Tactic)
 {
-	SetTacticForCurrentShipGroup(Tactic);
+	GetCompany()->GetAI()->SetTacticForCurrentShipGroup(Tactic);
 }
 
 void AFlarePlayerController::MatchSpeedWithTargetSpacecraft()

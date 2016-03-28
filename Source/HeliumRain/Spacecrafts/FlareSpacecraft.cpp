@@ -12,6 +12,7 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareAsteroid.h"
+#include "../Game/AI/FlareCompanyAI.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraft"
@@ -895,7 +896,7 @@ void AFlareSpacecraft::DeactivateWeapon()
 	// Capital ship
 	if (GetDescription()->Size == EFlarePartSize::L)
 	{
-		GetPC()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(0));
+		GetCompany()->GetAI()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(0));
 	}
 
 	// Fighter
@@ -929,7 +930,7 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 	// Capital ship
 	if (GetDescription()->Size == EFlarePartSize::L)
 	{
-		GetPC()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(Index + 1));
+		GetCompany()->GetAI()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(Index + 1));
 	}
 
 	// Fighter
@@ -952,11 +953,11 @@ void AFlareSpacecraft::NextWeapon()
 	// Capital ship
 	if (GetDescription()->Size == EFlarePartSize::L)
 	{
-		int32 CurrentIndex = GetPC()->GetCurrentShipGroup() + 1;
+		int32 CurrentIndex = GetCompany()->GetAI()->GetCurrentShipGroup() + 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, static_cast<int32>(EFlareCombatGroup::Civilan));
 		FLOGV("AFlareSpacecraft::NextWeapon : group %d", CurrentIndex);
 
-		GetPC()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
+		GetCompany()->GetAI()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
 	}
 
 	// Fighter
@@ -979,11 +980,11 @@ void AFlareSpacecraft::PreviousWeapon()
 	// Capital ship
 	if (GetDescription()->Size == EFlarePartSize::L)
 	{
-		int32 CurrentIndex = GetPC()->GetCurrentShipGroup() - 1;
+		int32 CurrentIndex = GetCompany()->GetAI()->GetCurrentShipGroup() - 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, static_cast<int32>(EFlareCombatGroup::Civilan));
 		FLOGV("AFlareSpacecraft::NextWeapon : group %d", CurrentIndex);
 
-		GetPC()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
+		GetCompany()->GetAI()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
 	}
 
 	// Fighter

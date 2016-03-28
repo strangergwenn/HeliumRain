@@ -36,6 +36,29 @@ public:
 
 	virtual void SimulateDiplomacy();
 
+	/*----------------------------------------------------
+		Command groups
+	----------------------------------------------------*/
+
+	/** Set the current ship group to give orders to */
+	void SetCurrentShipGroup(EFlareCombatGroup::Type Type);
+
+	/** Set the current order for the currently selected ship group */
+	void SetTacticForCurrentShipGroup(EFlareCombatTactic::Type Tactic);
+
+	/** Get the current ship group */
+	EFlareCombatGroup::Type GetCurrentShipGroup() const;
+
+	/* Get the current order */
+	EFlareCombatTactic::Type GetCurrentTacticForShipGroup(EFlareCombatGroup::Type Type) const;
+
+	/** Get the ship count in this group */
+	int32 GetShipCountForShipGroup(EFlareCombatGroup::Type Type) const;
+
+	void ResetControlGroups(UFlareSector* Sector);
+
+	void ResetShipGroup(EFlareCombatTactic::Type Tactic);
+
 protected:
 
 	/*----------------------------------------------------
@@ -51,6 +74,16 @@ protected:
 	UFlareCompany*			               Company;
 	FFlareCompanyAISave					   AIData;
 	AFlareGame*                            Game;
+
+	// Command groups
+	TEnumAsByte<EFlareCombatGroup::Type>     CurrentShipGroup;
+	TArray<TEnumAsByte<EFlareCombatTactic::Type>> CurrentCombatTactics;
+	int32                                    CurrentMilitaryShipCount;
+	int32                                    CurrentCapitalShipCount;
+	int32                                    CurrentFighterCount;
+	int32                                    CurrentCivilianShipCount;
+
+
 
 	public:
 

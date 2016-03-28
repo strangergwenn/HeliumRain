@@ -32,6 +32,11 @@ FFlareCompanyAISave* UFlareCompanyAI::Save()
 
 void UFlareCompanyAI::Simulate()
 {
+	if (Company == Game->GetPC()->GetCompany())
+	{
+		return;
+	}
+
 
 	FLOGV("Simulate AI for %s", *Company->GetCompanyName().ToString());
 
@@ -86,6 +91,11 @@ void UFlareCompanyAI::Simulate()
 
 void UFlareCompanyAI::Tick()
 {
+	if (Company == Game->GetPC()->GetCompany())
+	{
+		return;
+	}
+
 	SimulateDiplomacy();
 }
 
@@ -165,6 +175,106 @@ void UFlareCompanyAI::AssignShipsToSector(UFlareSimulatedSector* Sector, uint32 
 	}
 }
 
+/*----------------------------------------------------
+	Command groups
+----------------------------------------------------*/
+
+void UFlareCompanyAI::SetCurrentShipGroup(EFlareCombatGroup::Type Type)
+{
+	CurrentShipGroup = Type;
+}
+
+void UFlareCompanyAI::SetTacticForCurrentShipGroup(EFlareCombatTactic::Type Tactic)
+{
+	check(CurrentShipGroup < CurrentCombatTactics.Num());
+	CurrentCombatTactics[CurrentShipGroup] = Tactic;
+	if (CurrentShipGroup == EFlareCombatGroup::AllMilitary)
+	{
+		CurrentCombatTactics[EFlareCombatGroup::Capitals] = Tactic;
+		CurrentCombatTactics[EFlareCombatGroup::Fighters] = Tactic;
+	}
+}
+
+EFlareCombatGroup::Type UFlareCompanyAI::GetCurrentShipGroup() const
+{
+	return CurrentShipGroup;
+}
+
+EFlareCombatTactic::Type UFlareCompanyAI::GetCurrentTacticForShipGroup(EFlareCombatGroup::Type Type) const
+{
+	check(Type < CurrentCombatTactics.Num());
+	return CurrentCombatTactics[Type];
+}
+
+int32 UFlareCompanyAI::GetShipCountForShipGroup(EFlareCombatGroup::Type Type) const
+{
+	switch (Type)
+	{
+		case EFlareCombatGroup::AllMilitary:
+			return CurrentMilitaryShipCount;
+
+		case EFlareCombatGroup::Capitals:
+			return CurrentCapitalShipCount;
+
+		case EFlareCombatGroup::Fighters:
+			return CurrentFighterCount;
+
+		case EFlareCombatGroup::Civilan:
+		default:
+			return CurrentCivilianShipCount;
+	}
+}
+
+void UFlareCompanyAI::ResetControlGroups(UFlareSector* Sector)
+{
+	// Reset ship count values
+	CurrentMilitaryShipCount = 0;
+	CurrentCapitalShipCount = 0;
+	CurrentFighterCount = 0;
+	CurrentCivilianShipCount = 0;
+
+	// Compute the current count of all kinds of ships
+	if (Sector)
+	{
+		TArray<IFlareSpacecraftInterface*>& ShipList = Sector->GetSectorShipInterfaces();
+		for (int32 Index = 0; Index < ShipList.Num(); Index++)
+		{
+			IFlareSpacecraftInterface* Ship = ShipList[Index];
+			check(Ship);
+
+			if (Ship->GetCompany() != Company)
+			{
+				continue;
+			}
+
+			if (Ship->IsMilitary())
+			{
+				CurrentMilitaryShipCount++;
+				if (Ship->GetDescription()->Size == EFlarePartSize::L)
+				{
+					CurrentCapitalShipCount++;
+				}
+				else
+				{
+					CurrentFighterCount++;
+				}
+			}
+			else
+			{
+				CurrentCivilianShipCount++;
+			}
+		}
+	}
+}
+
+void UFlareCompanyAI::ResetShipGroup(EFlareCombatTactic::Type Tactic)
+{
+	CurrentCombatTactics.Empty();
+	for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
+	{
+		CurrentCombatTactics.Add(Tactic);
+	}
+}
 
 /*----------------------------------------------------
 	Getters

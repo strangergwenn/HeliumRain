@@ -34,18 +34,20 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	CompanyData.Identifier = FName(*GetName());
 	CompanyDescription = NULL;
 
+
 	// Player description ID is -1
 	if (Data.CatalogIdentifier >= 0)
 	{
 		CompanyDescription = GetGame()->GetCompanyDescription(Data.CatalogIdentifier);
-		CompanyAI = NewObject<UFlareCompanyAI>(this, UFlareCompanyAI::StaticClass());
-		CompanyAI->Load(this, CompanyData.AI);
 	}
 	else
 	{
 		CompanyDescription = GetGame()->GetPlayerCompanyDescription();
-		CompanyAI = NULL;
 	}
+
+	CompanyAI = NewObject<UFlareCompanyAI>(this, UFlareCompanyAI::StaticClass());
+	CompanyAI->Load(this, CompanyData.AI);
+
 
 	// Load ships
 	for (int i = 0 ; i < CompanyData.ShipData.Num(); i++)
@@ -164,18 +166,12 @@ FFlareCompanySave* UFlareCompany::Save()
 
 void UFlareCompany::SimulateAI()
 {
-	if(CompanyAI)
-	{
-		CompanyAI->Simulate();
-	}
+	CompanyAI->Simulate();
 }
 
 void UFlareCompany::TickAI()
 {
-	if(CompanyAI)
-	{
-		CompanyAI->Tick();
-	}
+	CompanyAI->Tick();
 }
 
 

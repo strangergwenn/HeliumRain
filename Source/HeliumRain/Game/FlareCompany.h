@@ -355,4 +355,9 @@ public:
 	bool HasVisitedSector(const UFlareSimulatedSector* Sector) const;
 
 	float GetReputation(UFlareCompany* Company);
+
+	inline UFlareCompanyAI* GetAI()
+	{
+		return CompanyAI;
+	}
 };
