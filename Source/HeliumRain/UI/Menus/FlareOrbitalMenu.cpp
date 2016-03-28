@@ -330,7 +330,7 @@ void SFlareOrbitalMenu::UpdateTravels()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->GetTravels()[TravelIndex];
 		if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 		{
-			FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} Travel to {1}: {2} remaining."),
+			FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} is travelling to {1} ({2} left)"),
 				Travel->GetFleet()->GetFleetName(),
 				Travel->GetDestinationSector()->GetSectorName(),
 				FText::FromString(*UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1))); //FString needed here

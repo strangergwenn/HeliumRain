@@ -1326,7 +1326,11 @@ FString UFlareGameTools::FormatDate(int64 Days, int Deep)
 {
 	if (Days < DAYS_IN_YEAR)
 	{
-		return FString::FromInt(Days) + (Days > 2 ? FString(LOCTEXT("days", " days").ToString()) : FString(LOCTEXT("day", " day").ToString()));
+		if (Days < 1)
+		{
+			Days = 1;
+		}
+		return FString::FromInt(Days) + (Days > 1 ? FString(LOCTEXT("days", " days").ToString()) : FString(LOCTEXT("day", " day").ToString()));
 	}
 	else
 	{
