@@ -222,6 +222,7 @@ protected:
 
 	// Designator content
 	UTexture2D*                             HUDReticleIcon;
+	UTexture2D*                             HUDCombatReticleIcon;
 	UTexture2D*                             HUDBackReticleIcon;
 	UTexture2D*                             HUDAimIcon;
 	UTexture2D*                             HUDBombAimIcon;

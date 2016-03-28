@@ -22,6 +22,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 {
 	// Load content (general icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj         (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatReticleIconobj   (TEXT("/Game/Gameplay/HUD/TX_CombatReticle.TX_CombatReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBackReticleIconObj     (TEXT("/Game/Gameplay/HUD/TX_BackReticle.TX_BackReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj             (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombAimIconObj         (TEXT("/Game/Gameplay/HUD/TX_BombAim.TX_BombAim"));
@@ -48,6 +49,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Set content (general icons)
 	HUDReticleIcon = HUDReticleIconObj.Object;
+	HUDCombatReticleIcon = HUDCombatReticleIconobj.Object;
 	HUDBackReticleIcon = HUDBackReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
 	HUDBombAimIcon = HUDBombAimIconObj.Object;
@@ -230,8 +232,20 @@ void AFlareHUD::DrawHUD()
 			// Draw inertial vectors
 			if (PlayerShip)
 			{
-				DrawSpeed(PC, PlayerShip, HUDReticleIcon, PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Forward", "FWD"), false);
-				DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -PlayerShip->GetSmoothedLinearVelocity() * 100, LOCTEXT("Backward", "BWD"), true);
+				FVector ShipVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
+				bool Firing = (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN);
+
+				if (Firing)
+				{
+					DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, ShipVelocity, FText(), false);
+					DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, -ShipVelocity, FText(), true);
+				}
+				else
+				{
+					DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipVelocity, LOCTEXT("Forward", "FWD"), false);
+					DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipVelocity, LOCTEXT("Backward", "BWD"), true);
+				}
+
 			}
 		}
 
@@ -887,7 +901,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 
 		// Label
 		FString IndicatorText = Designation.ToString();
-		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(42, 0);
+		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(60, 0);
 		FlareDrawText(IndicatorText, IndicatorPosition, HudColorNeutral);
 
 		// Icon
@@ -895,7 +909,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 
 		// Speed 
 		FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
-		FVector2D VelocityPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(42, 0);
+		FVector2D VelocityPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(60, 0);
 		FlareDrawText(VelocityText, VelocityPosition, HudColorNeutral);
 	}
 }
