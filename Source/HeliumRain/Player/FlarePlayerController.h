@@ -69,10 +69,13 @@ public:
 	virtual void SetCompany(UFlareCompany* NewCompany);
 	
 	/** Call a sector is activated */
-	virtual void OnSectorActivated();
+	virtual void OnSectorActivated(UFlareSector* ActiveSector);
 
 	/** Call a sector is deactivated */
 	virtual void OnSectorDeactivated();
+
+	/** The battle state has changed, update music, notify, etc */
+	virtual void OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState);
 
 	void SetLastFlownShip(FName LastFlownShipIdentifier);
 
@@ -343,6 +346,7 @@ protected:
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
 	UFlareFleet*                             SelectedFleet;
+	TEnumAsByte<EFlareSectorBattleState::Type> LastBattleState;
 
 	// Command groups
 	TEnumAsByte<EFlareCombatGroup::Type>     CurrentShipGroup;

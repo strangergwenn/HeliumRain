@@ -2,6 +2,7 @@
 
 
 #include "../Economy/FlarePeople.h"
+#include "../Player/FlareSoundManager.h"
 #include "FlareSectorInterface.generated.h"
 
 
@@ -91,6 +92,10 @@ struct FFlareSectorDescription
 	/** Level to load for this sector */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FName LevelName;
+
+	/** Track to play for this sector */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TEnumAsByte<EFlareMusicTrack::Type> LevelTrack;
 
 };
 

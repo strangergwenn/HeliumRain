@@ -42,6 +42,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CurrentObjective.Version = 0;
 	IsTest1 = false;
 	IsTest2 = false;
+	LastBattleState = EFlareSectorBattleState::NoBattle;
 }
 
 
@@ -76,7 +77,7 @@ void AFlarePlayerController::BeginPlay()
 	if (SoundManager)
 	{
 		SoundManager->Setup(this);
-		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+		SoundManager->RequestMusicTrack(EFlareMusicTrack::MainMenu);
 		SoundManager->SetMusicVolume(MusicVolume);
 	}
 }
@@ -124,6 +125,17 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 				{
 					CurrentCivilianShipCount++;
 				}
+			}
+		}
+
+		// Battle state
+		if (GetGame()->GetActiveSector())
+		{
+			EFlareSectorBattleState::Type BattleState = GetGame()->GetActiveSector()->GetSectorBattleState(GetCompany());
+			if (BattleState != LastBattleState)
+			{
+				LastBattleState = BattleState;
+				OnBattleStateChanged(BattleState);
 			}
 		}
 
@@ -325,15 +337,16 @@ void AFlarePlayerController::OnLoadComplete()
 	Company->UpdateCompanyCustomization();
 }
 
-void AFlarePlayerController::OnSectorActivated()
+void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 {
-	FLOGV("AFlarePlayerController::OnSectorActivated LastFlownShip=%s", *GetGame()->GetActiveSector()->GetData()->LastFlownShip.ToString());
+	FLOGV("AFlarePlayerController::OnSectorActivated LastFlownShip=%s", *ActiveSector->GetData()->LastFlownShip.ToString());
 	bool CandidateFound = false;
 
-	if (GetGame()->GetActiveSector()->GetData()->LastFlownShip != "")
+	// Last flown ship
+	if (ActiveSector->GetData()->LastFlownShip != "")
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated not null last ship");
-		AFlareSpacecraft* Candidate = GetGame()->GetActiveSector()->FindSpacecraft(GetGame()->GetActiveSector()->GetData()->LastFlownShip);
+		AFlareSpacecraft* Candidate = ActiveSector->FindSpacecraft(ActiveSector->GetData()->LastFlownShip);
 		if (Candidate)
 		{
 			FLOG("AFlarePlayerController::OnSectorActivated last ship found");
@@ -350,12 +363,43 @@ void AFlarePlayerController::OnSectorActivated()
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
 		QuickSwitch();
 	}
+
+	// Level music
+	EFlareMusicTrack::Type LevelMusic = ActiveSector->GetDescription()->LevelTrack;
+	if (LevelMusic != EFlareMusicTrack::None)
+	{
+		SoundManager->RequestMusicTrack(LevelMusic);
+	}
+	else
+	{
+		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+	}
 }
 
 void AFlarePlayerController::OnSectorDeactivated()
 {
+	FLOG("AFlarePlayerController::OnSectorDeactivated");
+
 	ShipPawn = NULL;
+	LastBattleState = EFlareSectorBattleState::NoBattle;
 	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+	SoundManager->RequestMusicTrack(EFlareMusicTrack::MainMenu);
+}
+
+void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState)
+{
+	FLOG("AFlarePlayerController::OnBattleStateChanged");
+
+	if (NewBattleState == EFlareSectorBattleState::NoBattle)
+	{
+		FLOG("AFlarePlayerController::OnBattleStateChanged : peace");
+		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::OnBattleStateChanged : battle");
+		SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
+	}
 }
 
 void AFlarePlayerController::Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData)

@@ -19,7 +19,7 @@ namespace EFlareMusicTrack
 		Exploration,
 		Danger,
 		Pacific,
-		Skirmish,
+		Combat,
 		War
 	};
 }

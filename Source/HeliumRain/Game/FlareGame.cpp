@@ -175,7 +175,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		ActiveSector->Load(Sector, *SectorData);
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
-		PC->OnSectorActivated();
+		PC->OnSectorActivated(ActiveSector);
 	}
 	GetQuestManager()->OnSectorActivation(Sector);
 }
