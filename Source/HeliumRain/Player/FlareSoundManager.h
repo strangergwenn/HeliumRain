@@ -17,6 +17,7 @@ namespace EFlareMusicTrack
 		None,
 		MainMenu,
 		Exploration,
+		Danger,
 		Pacific,
 		Skirmish,
 		War

@@ -25,14 +25,16 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	// Music track references
 	static ConstructorHelpers::FObjectFinder<USoundCue> HomeMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> ExplorationMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> DangerMusicObk(TEXT("/Game/Master/Music/A_Danger_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> SkirmishMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> SkirmishMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
 
 	// Music track store
 	MusicTracks.Add(NULL);
 	MusicTracks.Add(HomeMusicObj.Object);
 	MusicTracks.Add(ExplorationMusicObj.Object);
+	MusicTracks.Add(DangerMusicObk.Object);
 	MusicTracks.Add(PacificMusicObj.Object);
 	MusicTracks.Add(SkirmishMusicObj.Object);
 	MusicTracks.Add(WarMusicObj.Object);
