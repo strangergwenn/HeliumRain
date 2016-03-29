@@ -18,6 +18,7 @@ void UFlareCompanyAI::Load(UFlareCompany* ParentCompany, const FFlareCompanyAISa
 {
 	Company = ParentCompany;
 	Game = Company->GetGame();
+	ResetShipGroup(EFlareCombatTactic::AttackMilitary);
 }
 
 FFlareCompanyAISave* UFlareCompanyAI::Save()
@@ -95,6 +96,8 @@ void UFlareCompanyAI::Tick()
 	{
 		return;
 	}
+
+	ResetShipGroup(EFlareCombatTactic::AttackMilitary);
 
 	SimulateDiplomacy();
 }

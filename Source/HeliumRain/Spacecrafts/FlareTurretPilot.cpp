@@ -72,8 +72,9 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		SecondaryShipSize = EFlarePartSize::L;
 	}
 
+	EFlareCombatTactic::Type Tactic = Turret->GetSpacecraft()->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(EFlareCombatGroup::Capitals);
 
-	PilotTargetShip = GetNearestHostileShip(true, true, 1200000,PreferredShipSize);
+	PilotTargetShip = GetNearestHostileShip(true, Tactic);
 
 	if(Turret->GetWeaponGroup()->Target)
 	{
@@ -97,39 +98,9 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 	if (!PilotTargetShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(true, false, 5000000, PreferredShipSize);
+		PilotTargetShip = GetNearestHostileShip(false, Tactic);
 	}
 
-	if (!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(true, true, 1200000,SecondaryShipSize);
-	}
-
-	if (!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(true, false, 5000000, SecondaryShipSize);
-	}
-
-	// No dangerous ship, try not dangerous ships
-	if (!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 1200000, PreferredShipSize);
-	}
-
-	if (!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 5000000, PreferredShipSize);
-	}
-
-	if (!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 1200000, SecondaryShipSize);
-	}
-
-	if (!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(false, false, 5000000, SecondaryShipSize);
-	}
 
 	TimeUntilNextComponentSwitch-=ReactionTime;
 
@@ -264,7 +235,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	Helpers
 ----------------------------------------------------*/
 
-AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, bool ReachableOnly, float MaxDistance, EFlarePartSize::Type PreferredType) const
+AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const
 {
 	// For now an host ship is a the nearest host ship with the following critera:
 	// - Alive
@@ -285,54 +256,91 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool DangerousOnly, b
 	FVector FireAxis = Turret->GetFireAxis();
 
 
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Turret->GetSpacecraft()->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
+
+	struct PilotHelper::TargetPreferences TargetPreferences;
+	TargetPreferences.IsLarge = 1;
+	TargetPreferences.IsSmall = 1;
+	TargetPreferences.IsStation = 1;
+	TargetPreferences.IsNotStation = 1;
+	TargetPreferences.IsMilitary = 1;
+	TargetPreferences.IsNotMilitary = 0.1;
+	TargetPreferences.IsDangerous = 1;
+	TargetPreferences.IsNotDangerous = 0.01;
+	TargetPreferences.TargetStateWeight = 1;
+	TargetPreferences.MaxDistance = 5000000;
+	TargetPreferences.DistanceWeight = 0.1;
+	TargetPreferences.AttackTarget = NULL;
+	TargetPreferences.AttackTargetWeight = 1;
+	TargetPreferences.PreferredDirection = FireAxis;
+	TargetPreferences.MinAlignement = -1;
+	TargetPreferences.AlignementWeight = 1.0;
+	TargetPreferences.BaseLocation = PilotLocation;
+
+
+
+	if (Turret->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
 	{
-		AFlareSpacecraft* ShipCandidate = Turret->GetSpacecraft()->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+		TargetPreferences.IsLarge = 1.0f;
+		TargetPreferences.IsSmall = 0.1f;
+	}
+	else
+	{
+		TargetPreferences.IsLarge = 0.1f;
+		TargetPreferences.IsSmall = 1.0f;
+	}
 
-		if (!ShipCandidate->GetDamageSystem()->IsAlive())
+	if (Tactic == EFlareCombatTactic::AttackStations)
+	{
+		TargetPreferences.IsStation = 10;
+	}
+	else if (Tactic == EFlareCombatTactic::AttackMilitary)
+	{
+		TargetPreferences.IsStation = 0.1;
+	}
+	else if (Tactic == EFlareCombatTactic::AttackCivilians)
+	{
+		TargetPreferences.IsMilitary = 0.1;
+		TargetPreferences.IsNotMilitary = 1.0;
+		TargetPreferences.IsNotDangerous = 1.0;
+	}
+	else if (Tactic == EFlareCombatTactic::ProtectMe)
+	{
+		// Protect me is only available for player ship
+		if (Turret->GetSpacecraft()->GetCompany() == Turret->GetSpacecraft()->GetGame()->GetPC()->GetCompany())
 		{
-			continue;
+			TargetPreferences.AttackTarget = Turret->GetSpacecraft()->GetGame()->GetPC()->GetShipPawn();
+			TargetPreferences.AttackTargetWeight = 1.0;
+		}
+	}
+
+
+	while (NearestHostileShip == NULL)
+	{
+		NearestHostileShip = PilotHelper::GetBestTarget(Turret->GetSpacecraft(), TargetPreferences);
+
+		if(NearestHostileShip == NULL)
+		{
+			// No target
+			return NULL;
 		}
 
-		if (DangerousOnly && !IsShipDangerous(ShipCandidate))
-		{
-			continue;
-		}
-		if (ShipCandidate->GetSize() != PreferredType)
-		{
-			continue;
-		}
 
-		if (PlayerCompany->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
-		{
-			continue;
-		}
-
-		float Distance = (PilotLocation - ShipCandidate->GetActorLocation()).Size();
+		float Distance = (PilotLocation - NearestHostileShip->GetActorLocation()).Size();
 		if (Distance < SecurityRadius * 100)
 		{
+			TargetPreferences.IgnoreList.Add(NearestHostileShip);
+			NearestHostileShip = NULL;
 			continue;
 		}
 
-		if (Distance > MaxDistance)
-		{
-			continue;
-		}
-
-		FVector TargetAxis = (ShipCandidate->GetActorLocation()- PilotLocation).GetUnsafeNormal();
+		FVector TargetAxis = (NearestHostileShip->GetActorLocation()- PilotLocation).GetUnsafeNormal();
 
 		if (ReachableOnly && !Turret->IsReacheableAxis(TargetAxis))
 		{
+			TargetPreferences.IgnoreList.Add(NearestHostileShip);
+			NearestHostileShip = NULL;
 			continue;
 		}
-		float Dot = FVector::DotProduct(TargetAxis, FireAxis);
-
-		if (NearestHostileShip == NULL || Dot > MaxDot)
-		{
-			MaxDot = Dot;
-			NearestHostileShip = ShipCandidate;
-		}
-
 	}
 	return NearestHostileShip;
 }

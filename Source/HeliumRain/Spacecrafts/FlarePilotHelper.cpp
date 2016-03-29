@@ -159,6 +159,146 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 }
 
 
+AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences)
+{
+	AFlareSpacecraft* BestTarget = NULL;
+	float BestScore = 0;
+
+	//FLOGV("GetBestTarget for %s", *Ship->GetImmatriculation().ToString());
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Ship->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		AFlareSpacecraft* ShipCandidate = Ship->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+
+		if (Preferences.IgnoreList.Contains(ShipCandidate))
+		{
+			continue;
+		}
+
+		if (Ship->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		{
+			// Ignore not hostile ships
+			continue;
+		}
+
+		if (!ShipCandidate->GetDamageSystem()->IsAlive())
+		{
+			// Ignore destroyed ships
+			continue;
+		}
+
+		float Score;
+		float StateScore;
+		float AttackTargetScore;
+		float DistanceScore;
+		float AlignementScore;
+
+		StateScore = Preferences.TargetStateWeight;
+
+		if (ShipCandidate->GetSize() == EFlarePartSize::L)
+		{
+			StateScore *= Preferences.IsLarge;
+		}
+
+		if (ShipCandidate->GetSize() == EFlarePartSize::S)
+		{
+			StateScore *= Preferences.IsSmall;
+		}
+
+
+		if (ShipCandidate->IsStation())
+		{
+			StateScore *= Preferences.IsStation;
+		}
+		else
+		{
+			StateScore *= Preferences.IsNotStation;
+		}
+
+
+		if (ShipCandidate->IsMilitary())
+		{
+			StateScore *= Preferences.IsMilitary;
+		}
+		else
+		{
+			StateScore *= Preferences.IsNotMilitary;
+		}
+
+		if (IsShipDangerous(ShipCandidate))
+		{
+			StateScore *= Preferences.IsDangerous;
+		}
+		else
+		{
+			StateScore *= Preferences.IsNotDangerous;
+		}
+
+		float Distance = (Preferences.BaseLocation - ShipCandidate->GetActorLocation()).Size();
+		if (Distance >= Preferences.MaxDistance)
+		{
+			DistanceScore = 0.f;
+		}
+		else
+		{
+			DistanceScore = Preferences.DistanceWeight * (1.f - (Distance / Preferences.MaxDistance));
+		}
+
+		if (Preferences.AttackTarget && IsShipDangerous(ShipCandidate) && ShipCandidate->GetPilot()->GetTargetShip() == Preferences.AttackTarget)
+		{
+			AttackTargetScore = Preferences.AttackTargetWeight;
+		}
+		else
+		{
+			AttackTargetScore = 0.0f;
+		}
+
+
+		FVector Direction = (Preferences.BaseLocation - ShipCandidate->GetActorLocation()).GetUnsafeNormal();
+
+
+		float Alignement = FVector::DotProduct(Preferences.PreferredDirection, Direction);
+
+		if (Alignement > Preferences.MinAlignement)
+		{
+			AlignementScore = Preferences.AlignementWeight * ((Alignement - Preferences.MinAlignement) / (1 - Preferences.MinAlignement));
+		}
+		else
+		{
+			AlignementScore = 0;
+		}
+
+		Score = StateScore * (AttackTargetScore + DistanceScore + AlignementScore);
+
+
+		/*FLOGV("  - %s: %f", *ShipCandidate->GetImmatriculation().ToString(), Score);
+		FLOGV("        - StateScore=%f", StateScore);
+		FLOGV("        - AttackTargetScore=%f", AttackTargetScore);
+		FLOGV("        - DistanceScore=%f", DistanceScore);
+		FLOGV("        - AlignementScore=%f", AlignementScore);*/
+
+		if (Score > 0)
+		{
+			if (BestTarget == NULL || Score > BestScore)
+			{
+				BestTarget = ShipCandidate;
+				BestScore = Score;
+			}
+		}
+	}
+
+	/*if(BestTarget)
+	{
+		FLOGV(" -> BestTarget %s with %f", *BestTarget->GetImmatriculation().ToString(), BestScore);
+	}
+	else
+	{
+		FLOG(" -> No target");
+	}*/
+
+	return BestTarget;
+}
+
 
 
 void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector CurrentLocation, float CurrentSize, UStaticMeshComponent* StaticMeshComponent, FVector CurrentVelocity, AActor** MostDangerousCandidateActor, FVector*MostDangerousLocation, float* MostDangerousHitTime, float* MostDangerousInterCollisionTravelTime)
@@ -284,4 +424,9 @@ void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 		*MostDangerousInterCollisionTravelTime = InterCollisionTravelTime;
 		*MostDangerousLocation = CandidateLocation;
 	}
+}
+
+bool PilotHelper::IsShipDangerous(AFlareSpacecraft* ShipCandidate)
+{
+	return ShipCandidate->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
 }

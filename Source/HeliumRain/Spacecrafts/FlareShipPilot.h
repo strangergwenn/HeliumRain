@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FlareSpacecraftTypes.h"
+#include "../Game/FlareGameTypes.h"
 #include "FlareShipPilot.generated.h"
 
 class UFlareCompany;
@@ -73,10 +74,7 @@ public:
 	 */
 	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const;
 
-	/** Return true if the ship is dangerous */
-	virtual bool IsShipDangerous(AFlareSpacecraft* ShipCandidate) const;
-
-	virtual void FindBestHostileTarget();
+	virtual void FindBestHostileTarget(EFlareCombatTactic::Type Tactic);
 
 	virtual UFlareSpacecraftComponent* GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft);
 
@@ -147,5 +145,15 @@ protected:
 	bool LastWantFire;
 	float TimeBeforeNextDrop;
 	float                                TimeUntilNextComponentSwitch;
+	EFlareCombatTactic::Type			CurrentTactic;
 
+	/*----------------------------------------------------
+		Helper
+	----------------------------------------------------*/
+public:
+
+	inline AFlareSpacecraft* GetTargetShip()
+	{
+		return PilotTargetShip;
+	}
 };

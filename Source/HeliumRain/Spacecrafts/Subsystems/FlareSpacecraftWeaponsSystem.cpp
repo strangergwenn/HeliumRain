@@ -294,4 +294,44 @@ bool UFlareSpacecraftWeaponsSystem::HasUsableWeaponType(EFlareWeaponGroupType::T
 	return false;
 }
 
+void UFlareSpacecraftWeaponsSystem::GetTargetSizePreference(float* IsSmall, float* IsLarge)
+{
+	float LargePool = 0;
+	float SmallPool = 0;
+
+	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
+	{
+		if (Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, false, true) <= 0)
+		{
+			continue;
+		}
+
+		if (WeaponGroupList[GroupIndex]->Type == EFlareWeaponGroupType::WG_BOMB)
+		{
+			LargePool += 1.0;
+		}
+		else if (WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
+		{
+			LargePool += 1.0;
+			SmallPool += 0.1;
+		}
+		else
+		{
+			LargePool += 0.1;
+			SmallPool += 1.0;
+		}
+	}
+
+	if(LargePool > 0 || SmallPool > 0)
+	{
+		FVector2D PoolVector = FVector2D(LargePool, SmallPool);
+		PoolVector.Normalize();
+		LargePool = PoolVector.X;
+		SmallPool = PoolVector.Y;
+	}
+
+	*IsLarge  = LargePool;
+	*IsSmall  = SmallPool;
+}
+
 #undef LOCTEXT_NAMESPACE

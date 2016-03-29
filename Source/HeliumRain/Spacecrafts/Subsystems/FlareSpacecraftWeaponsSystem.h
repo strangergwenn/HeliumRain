@@ -112,6 +112,8 @@ public:
 	
 	virtual void StopAllWeapons();
 
+	void GetTargetSizePreference(float* IsSmall, float* IsLarge);
+
 
 protected:
 

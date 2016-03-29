@@ -7,6 +7,7 @@
 
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareGame.h"
+#include "../Game/AI/FlareCompanyAI.h"
 
 #include "../Spacecrafts/FlareEngine.h"
 #include "../Spacecrafts/FlareRCS.h"
@@ -122,12 +123,25 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		}
 	}
 
+	EFlareCombatGroup::Type CombatGroup;
+
+	if(Ship->GetSize() == EFlarePartSize::L)
+	{
+		CombatGroup = EFlareCombatGroup::Capitals;
+	}
+	else
+	{
+		CombatGroup = EFlareCombatGroup::Fighters;
+	}
+
+	EFlareCombatTactic::Type Tactic = Ship->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(CombatGroup);
 
 	if (!PilotTargetShip // No target
 			|| !PilotTargetShip->GetDamageSystem()->IsAlive() // Target dead
 			|| (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > MaxFollowDistance * 100 // Target too far
 			|| (Ship->GetSize() == EFlarePartSize::S && SelectedWeaponGroupIndex == -1)  // No selected weapon
-			|| (Ship->GetSize() == EFlarePartSize::S && !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0))  // Selected weapon not usable
+			|| (Ship->GetSize() == EFlarePartSize::S && !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0)
+			|| Tactic != CurrentTactic)  // Selected weapon not usable
 	{
 // 		if (PilotTargetShip == NULL)
 // 		{
@@ -152,7 +166,8 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 		PilotTargetShip = NULL;
 		SelectedWeaponGroupIndex = -1;
-		FindBestHostileTarget();
+		CurrentTactic = Tactic;
+		FindBestHostileTarget(CurrentTactic);
 	}
 
 	bool Idle = true;
@@ -320,7 +335,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 {
 	float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
 
-	bool DangerousTarget = IsShipDangerous(PilotTargetShip);
+	bool DangerousTarget = PilotHelper::IsShipDangerous(PilotTargetShip);
 
 	//FLOGV("%s target %s",  *Ship->GetHumanReadableName(),  *PilotTargetShip->GetHumanReadableName());
 	// The pilot have a target, track and kill it
@@ -988,61 +1003,56 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 
 
-void UFlareShipPilot::FindBestHostileTarget()
+void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 {
-	// TODO S or L ship dispatch
-
 	AFlareSpacecraft* TargetCandidate = NULL;
 
+	struct PilotHelper::TargetPreferences TargetPreferences;
+	TargetPreferences.IsLarge = 1;
+	TargetPreferences.IsSmall = 1;
+	TargetPreferences.IsStation = 1;
+	TargetPreferences.IsNotStation = 1;
+	TargetPreferences.IsMilitary = 1;
+	TargetPreferences.IsNotMilitary = 0.1;
+	TargetPreferences.IsDangerous = 1;
+	TargetPreferences.IsNotDangerous = 0.01;
+	TargetPreferences.TargetStateWeight = 1;
+	TargetPreferences.MaxDistance = 1000000;
+	TargetPreferences.DistanceWeight = 0.5;
+	TargetPreferences.AttackTarget = NULL;
+	TargetPreferences.AttackTargetWeight = 1;
+	TargetPreferences.PreferredDirection = Ship->GetFrontVector();
+	TargetPreferences.MinAlignement = -1;
+	TargetPreferences.AlignementWeight = 0.1;
+	TargetPreferences.BaseLocation = Ship->GetActorLocation();
 
-	// First search dangerous target
+	Ship->GetWeaponsSystem()->GetTargetSizePreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge);
 
-	if (Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_BOMB))
+	if (Tactic == EFlareCombatTactic::AttackStations)
 	{
-		TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::L);
+		TargetPreferences.IsStation = 10;
 	}
-
-	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_GUN))
+	else if (Tactic == EFlareCombatTactic::AttackMilitary)
 	{
-		TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::S);
-		if (!TargetCandidate)
+		TargetPreferences.IsStation = 0.1;
+	}
+	else if (Tactic == EFlareCombatTactic::AttackCivilians)
+	{
+		TargetPreferences.IsMilitary = 0.1;
+		TargetPreferences.IsNotMilitary = 1.0;
+		TargetPreferences.IsNotDangerous = 1.0;
+	}
+	else if (Tactic == EFlareCombatTactic::ProtectMe)
+	{
+		// Protect me is only available for player ship
+		if (Ship->GetCompany() == Ship->GetGame()->GetPC()->GetCompany())
 		{
-			TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::L);
+			TargetPreferences.AttackTarget = Ship->GetGame()->GetPC()->GetShipPawn();
+			TargetPreferences.AttackTargetWeight = 1.0;
 		}
 	}
 
-	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
-	{
-		// TODO if has AA turret, follow S
-		TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::L);
-		if (!TargetCandidate)
-		{
-			TargetCandidate = GetNearestHostileShip(true, EFlarePartSize::S);
-		}
-	}
-
-	// Then search non dangerous target
-
-	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_BOMB))
-	{
-		TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::L);
-	}
-
-	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_GUN))
-	{
-		TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::S);
-		// Don't attack L not dangerous target with gun
-	}
-	if (!TargetCandidate && Ship->GetWeaponsSystem()->HasUsableWeaponType(EFlareWeaponGroupType::WG_TURRET))
-	{
-		// TODO if has AA turret, follow S
-		TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::L);
-		if (!TargetCandidate)
-		{
-			TargetCandidate = GetNearestHostileShip(false, EFlarePartSize::S);
-		}
-	}
-
+	TargetCandidate = PilotHelper::GetBestTarget(Ship, TargetPreferences);
 
 	if (TargetCandidate)
 	{
@@ -1120,7 +1130,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly, EFl
 			continue;
 		}
 
-		if (DangerousOnly && !IsShipDangerous(ShipCandidate))
+		if (DangerousOnly && ! PilotHelper::IsShipDangerous(ShipCandidate))
 		{
 			continue;
 		}
@@ -1304,10 +1314,6 @@ TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 }
 
 
-bool UFlareShipPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
-{
-	return ShipCandidate->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
-}
 
 UFlareSpacecraftComponent* UFlareShipPilot::GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft)
 {
