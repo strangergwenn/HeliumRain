@@ -20,6 +20,7 @@ UFlareScenarioTools::UFlareScenarioTools(const FObjectInitializer& ObjectInitial
 {
 }
 
+
 /*----------------------------------------------------
 	Public methods
 ----------------------------------------------------*/
@@ -31,36 +32,48 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	PlayerCompany = Company;
 	PlayerData = Player;
 
-	Outpost = World->FindSector("outpost");
-	MinerHome = World->FindSector("miners-home");
+	// Notable sectors (Nema)
+	BlueHeart =   World->FindSector("blue-heart");
+	MinerHome =   World->FindSector("miners-home");
+	Lighthouse =  World->FindSector("lighthouse");
+	TheSpire =    World->FindSector("the-spire");
+	TheDepths =   World->FindSector("the-depths");
+	FirstLight =  World->FindSector("first-light");
+
+	// Notable sectors (Anka)
+	Outpost =     World->FindSector("outpost");
+	Crossroads =  World->FindSector("crossroads");
+	TheDig =      World->FindSector("the-dig");
+
+	// Notable sectors (Hela)
 	FrozenRealm = World->FindSector("frozen-realm");
-	BlueHeart = World->FindSector("blue-heart");
-	TheSpire = World->FindSector("the-spire");
-	TheDepths = World->FindSector("the-depths");
 
-	MiningSyndicate = World->FindCompanyByShortName("MSY");
-	HelixFoundries = World->FindCompanyByShortName("HFR");
-	Sunwatch = World->FindCompanyByShortName("SUN");
-	IonLane = World->FindCompanyByShortName("ION");
+	// Notable sectors (Asta)
+	Decay =       World->FindSector("decay");
+
+	// Companies
+	MiningSyndicate =      World->FindCompanyByShortName("MSY");
+	HelixFoundries =       World->FindCompanyByShortName("HFR");
+	Sunwatch =             World->FindCompanyByShortName("SUN");
+	IonLane =              World->FindCompanyByShortName("ION");
 	UnitedFarmsChemicals = World->FindCompanyByShortName("UFC");
-	GhostWorksShipyards = World->FindCompanyByShortName("GWS");
+	GhostWorksShipyards =  World->FindCompanyByShortName("GWS");
 
-
-	Water = Game->GetResourceCatalog()->Get("h2o");
-	Food = Game->GetResourceCatalog()->Get("food");
-	Fuel = Game->GetResourceCatalog()->Get("fuel");
+	// Resources
+	Water =    Game->GetResourceCatalog()->Get("h2o");
+	Food =     Game->GetResourceCatalog()->Get("food");
+	Fuel =     Game->GetResourceCatalog()->Get("fuel");
 	Plastics = Game->GetResourceCatalog()->Get("plastics");
 	Hydrogen = Game->GetResourceCatalog()->Get("h2");
-	Helium = Game->GetResourceCatalog()->Get("he3");
-	Silica = Game->GetResourceCatalog()->Get("sio2");
-	Steel= Game->GetResourceCatalog()->Get("steel");
-	Tools= Game->GetResourceCatalog()->Get("tools");
-	Tech= Game->GetResourceCatalog()->Get("tech");
+	Helium =   Game->GetResourceCatalog()->Get("he3");
+	Silica =   Game->GetResourceCatalog()->Get("sio2");
+	Steel =    Game->GetResourceCatalog()->Get("steel");
+	Tools =    Game->GetResourceCatalog()->Get("tools");
+	Tech =     Game->GetResourceCatalog()->Get("tech");
 }
 
 void UFlareScenarioTools::GenerateEmptyScenario()
 {
-
 }
 
 void UFlareScenarioTools::GenerateFighterScenario()
@@ -69,16 +82,10 @@ void UFlareScenarioTools::GenerateFighterScenario()
 
 	// Create player ship
 	FLOG("UFlareScenarioTools::GenerateFighterScenario create initial ship");
-	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-ghoul", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* InitialShip = FirstLight->CreateShip("ship-ghoul", PlayerCompany, FVector::ZeroVector);
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
-	PlayerCompany->DiscoverSector(Outpost);
-	PlayerCompany->DiscoverSector(MinerHome);
-	PlayerCompany->DiscoverSector(BlueHeart);
-	PlayerCompany->DiscoverSector(TheSpire);
-	PlayerCompany->DiscoverSector(TheDepths);
-	PlayerCompany->DiscoverSector(FrozenRealm);
-	PlayerCompany->DiscoverSector(World->FindSector("decay"));
+	
 	FillWorld();
 }
 
@@ -88,24 +95,30 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 
 	// Create player ship
 	FLOG("UFlareScenarioTools::GenerateFreighterScenario create initial ship");
-	UFlareSimulatedSpacecraft* InitialShip = World->FindSector("first-light")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* InitialShip = FirstLight->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
-	PlayerCompany->DiscoverSector(Outpost);
-	PlayerCompany->DiscoverSector(MinerHome);
-	PlayerCompany->DiscoverSector(BlueHeart);
-	PlayerCompany->DiscoverSector(TheSpire);
-	PlayerCompany->DiscoverSector(TheDepths);
-	PlayerCompany->DiscoverSector(FrozenRealm);
-	PlayerCompany->DiscoverSector(World->FindSector("decay"));
-	PlayerCompany->GiveMoney(10000);
-
+	
 	FillWorld();
 }
 
 void UFlareScenarioTools::FillWorld()
 {
+	// Discover some sectors
+	PlayerCompany->DiscoverSector(BlueHeart);
+	PlayerCompany->DiscoverSector(MinerHome);
+	PlayerCompany->DiscoverSector(Lighthouse);
+	PlayerCompany->DiscoverSector(TheSpire);
+	PlayerCompany->DiscoverSector(TheDepths);
+	PlayerCompany->DiscoverSector(FirstLight);
+	PlayerCompany->DiscoverSector(Outpost);
+	PlayerCompany->DiscoverSector(Crossroads);
+	PlayerCompany->DiscoverSector(TheDig);
+	PlayerCompany->DiscoverSector(FrozenRealm);
+	PlayerCompany->DiscoverSector(Decay);
 
+	// Company setup
+	PlayerCompany->GiveMoney(10000);
 	MiningSyndicate->GiveMoney(100000);
 	HelixFoundries->GiveMoney(100000);
 	Sunwatch->GiveMoney(100000);
@@ -296,7 +309,7 @@ void UFlareScenarioTools::GenerateDebugScenario()
 		Frozen Realm
 	----------------------------------------------------*/
 
-	World->FindSector("frozen-realm")->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
+	FrozenRealm->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
 
 
 	/*----------------------------------------------------
@@ -347,10 +360,12 @@ void UFlareScenarioTools::GenerateDebugScenario()
 
 void UFlareScenarioTools::SetupWorld()
 {
-	// Spawn asteroids
-	SetupAsteroids(Outpost, 20, FVector(2, 20, 1));
 	SetupAsteroids(MinerHome, 50, FVector(3, 50, 1));
-	SetupAsteroids(World->FindSector("frozen-realm"), 20, FVector(5, 50, 2));
+
+	SetupAsteroids(Outpost, 20, FVector(2, 20, 1));
+	SetupAsteroids(TheDig, 20, FVector(5, 50, 2));
+
+	SetupAsteroids(FrozenRealm, 20, FVector(5, 50, 2));
 }
 
 void UFlareScenarioTools::SetupAsteroids(UFlareSimulatedSector* Sector, int32 Count, FVector DistributionShape)

@@ -19,6 +19,7 @@ public:
 
 	void Init(UFlareCompany* Company, FFlarePlayerSave* Player);
 
+
 	void GenerateEmptyScenario();
 
 	void GenerateFighterScenario();
@@ -26,6 +27,7 @@ public:
 	void GenerateFreighterScenario();
 
 	void GenerateDebugScenario();
+
 
 protected:
 
@@ -47,47 +49,50 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	UFlareCompany*             PlayerCompany;
-
-	FFlarePlayerSave*          PlayerData;
-
+	// Main data
+	UFlareCompany*                             PlayerCompany;
+	FFlarePlayerSave*                          PlayerData;
 	AFlareGame*                                Game;
 	UFlareWorld*                               World;
 
-	UFlareSimulatedSector* Outpost;
-	UFlareSimulatedSector* MinerHome;
-	UFlareSimulatedSector* FrozenRealm;
-	UFlareSimulatedSector* BlueHeart;
-	UFlareSimulatedSector* TheSpire;
-	UFlareSimulatedSector* TheDepths;
+	// Notable sectors (Nema)
+	UFlareSimulatedSector*                     BlueHeart;
+	UFlareSimulatedSector*                     MinerHome;
+	UFlareSimulatedSector*                     Lighthouse;
+	UFlareSimulatedSector*                     TheSpire;
+	UFlareSimulatedSector*                     TheDepths;
+	UFlareSimulatedSector*                     FirstLight;
 
-	UFlareCompany* MiningSyndicate;
-	UFlareCompany* HelixFoundries;
-	UFlareCompany* Sunwatch;
-	UFlareCompany* IonLane;
-	UFlareCompany* UnitedFarmsChemicals;
-	UFlareCompany* GhostWorksShipyards;
+	// Notable sectors (Anka)
+	UFlareSimulatedSector*                     Outpost;
+	UFlareSimulatedSector*                     Crossroads;
+	UFlareSimulatedSector*                     TheDig;
 
-	FFlareResourceDescription* Water;
-	FFlareResourceDescription* Food;
-	FFlareResourceDescription* Fuel;
-	FFlareResourceDescription* Plastics;
-	FFlareResourceDescription* Hydrogen;
-	FFlareResourceDescription* Helium;
-	FFlareResourceDescription* Silica;
-	FFlareResourceDescription* Steel;
-	FFlareResourceDescription* Tools;
-	FFlareResourceDescription* Tech;
+	// Notable sectors (Hela)
+	UFlareSimulatedSector*                     FrozenRealm;
+
+	// Notable sectors (Asta)
+	UFlareSimulatedSector*                     Decay;
 
 
-public:
-	/*----------------------------------------------------
-		Getter
-	----------------------------------------------------*/
+	// Companies
+	UFlareCompany*                             MiningSyndicate;
+	UFlareCompany*                             HelixFoundries;
+	UFlareCompany*                             Sunwatch;
+	UFlareCompany*                             IonLane;
+	UFlareCompany*                             UnitedFarmsChemicals;
+	UFlareCompany*                             GhostWorksShipyards;
 
-	/*AFlarePlayerController* GetPC() const;
+	// Resources
+	FFlareResourceDescription*                 Water;
+	FFlareResourceDescription*                 Food;
+	FFlareResourceDescription*                 Fuel;
+	FFlareResourceDescription*                 Plastics;
+	FFlareResourceDescription*                 Hydrogen;
+	FFlareResourceDescription*                 Helium;
+	FFlareResourceDescription*                 Silica;
+	FFlareResourceDescription*                 Steel;
+	FFlareResourceDescription*                 Tools;
+	FFlareResourceDescription*                 Tech;
 
-	AFlareGame* GetGame() const;
-
-	UFlareWorld* GetGameWorld() const;*/
 };
