@@ -1,4 +1,6 @@
 #pragma once
+
+#include "../Game/FlareGameTypes.h"
 #include "FlareTurretPilot.generated.h"
 
 class UFlareTurret;
