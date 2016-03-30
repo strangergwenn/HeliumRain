@@ -78,27 +78,19 @@ void UFlareScenarioTools::GenerateEmptyScenario()
 
 void UFlareScenarioTools::GenerateFighterScenario()
 {
-	SetupWorld();
+	FLOG("UFlareScenarioTools::GenerateFighterScenario");
 
-	// Create player ship
-	FLOG("UFlareScenarioTools::GenerateFighterScenario create initial ship");
-	UFlareSimulatedSpacecraft* InitialShip = FirstLight->CreateShip("ship-ghoul", PlayerCompany, FVector::ZeroVector);
-	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
-	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
-	
+	SetupWorld();
+	CreatePlayerShip(FirstLight, "ship-ghoul");
 	FillWorld();
 }
 
 void UFlareScenarioTools::GenerateFreighterScenario()
 {
-	SetupWorld();
+	FLOG("UFlareScenarioTools::GenerateFreighterScenario");
 
-	// Create player ship
-	FLOG("UFlareScenarioTools::GenerateFreighterScenario create initial ship");
-	UFlareSimulatedSpacecraft* InitialShip = FirstLight->CreateShip("ship-omen", PlayerCompany, FVector::ZeroVector);
-	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
-	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
-	
+	SetupWorld();
+	CreatePlayerShip(FirstLight, "ship-omen");	
 	FillWorld();
 }
 
@@ -354,9 +346,17 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	}
 }
 
+
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/
+
+void UFlareScenarioTools::CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class)
+{
+	UFlareSimulatedSpacecraft* InitialShip = Sector->CreateShip(Class, PlayerCompany, FVector::ZeroVector);
+	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
+	PlayerData->SelectedFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
+}
 
 void UFlareScenarioTools::SetupWorld()
 {
