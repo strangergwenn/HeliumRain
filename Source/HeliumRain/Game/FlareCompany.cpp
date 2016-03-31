@@ -627,4 +627,27 @@ float UFlareCompany::GetReputation(UFlareCompany* Company)
 	return 0;
 }
 
+FText UFlareCompany::GetPlayerHostilityText() const
+{
+	FText Status;
+
+	switch (GetPlayerWarState())
+	{
+		case EFlareHostility::Neutral:
+			Status = LOCTEXT("Neutral", "NEUTRAL");
+			break;
+		case EFlareHostility::Friendly:
+			Status = LOCTEXT("Friendly", "FRIENDLY");
+			break;
+		case EFlareHostility::Owned:
+			Status = LOCTEXT("Owned", "OWNED");
+			break;
+		case EFlareHostility::Hostile:
+			Status = LOCTEXT("Hostile", "HOSTILE");
+			break;
+	}
+
+	return Status;
+}
+
 #undef LOCTEXT_NAMESPACE

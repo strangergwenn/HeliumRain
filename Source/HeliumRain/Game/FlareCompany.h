@@ -229,6 +229,9 @@ public:
 		Getters
 	----------------------------------------------------*/
 
+	/** Get the hostility text */
+	FText GetPlayerHostilityText() const;
+
 	inline AFlareGame* GetGame() const
 	{
 		return Game;

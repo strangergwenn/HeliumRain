@@ -762,7 +762,9 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		// Other company
 		else
 		{
-			return FText::Format(LOCTEXT("OwnedByFormat", "Owned by {0}"), TargetCompany->GetShortInfoText());
+			return FText::Format(LOCTEXT("OwnedByFormat", "Owned by {0} ({1})"),
+				TargetCompany->GetCompanyName(),
+				TargetCompany->GetPlayerHostilityText());
 		}
 	}
 

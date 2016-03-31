@@ -554,7 +554,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 	{
 		FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0} ({1})"),
 			FText::FromString(TargetShip->GetImmatriculation().ToString()),
-			TargetShip->GetPlayerHostilityText());
+			TargetShip->GetCompany()->GetPlayerHostilityText());
 		FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 	}
 }
