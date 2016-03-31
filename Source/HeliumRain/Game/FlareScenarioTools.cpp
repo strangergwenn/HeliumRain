@@ -40,6 +40,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	TheDepths =   World->FindSector("the-depths");
 	FirstLight =  World->FindSector("first-light");
 
+
 	// Notable sectors (Anka)
 	Outpost =     World->FindSector("outpost");
 	Crossroads =  World->FindSector("crossroads");
@@ -70,6 +71,29 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	Steel =    Game->GetResourceCatalog()->Get("steel");
 	Tools =    Game->GetResourceCatalog()->Get("tools");
 	Tech =     Game->GetResourceCatalog()->Get("tech");
+
+	// Ships
+	ShipSolen = "ship-solen";
+	ShipOmen = "ship-omen";
+	ShipAtlas = "ship-atlas";
+	ShipGhoul = "ship-ghoul";
+	ShipOrca = "ship-orca";
+	ShipDragon = "ship-dragon";
+	ShipInvader = "ship-invader";
+	ShipLeviathan = "ship-leviathan";
+
+	// Stations
+	StationFarm = "station-farm";
+	StationSolarPlant = "station-solar-plant";
+	StationHabitation = "station-habitation";
+	StationMine = "station-mine";
+	StationSteelworks = "station-steelworks";
+	StationToolFactory = "station-tool-factory";
+	StationPump = "station-pumping";
+	StationRefinery = "station-refinery";
+	StationArsenal = "station-arsenal";
+	StationShipyard = "station-shipyard";
+	StationHub = "station-hub";
 }
 
 void UFlareScenarioTools::GenerateEmptyScenario()
@@ -118,99 +142,83 @@ void UFlareScenarioTools::FillWorld()
 	IonLane->GiveMoney(100000);
 	GhostWorksShipyards->GiveMoney(100000);
 
-	// Initial setup: miner home
-
-	for (int Index = 0; Index < 5; Index++)
-	{
-		MinerHome->CreateStation("station-mine", MiningSyndicate, FVector::ZeroVector, FRotator::ZeroRotator);
-	}
-
-	for(int Index = 0; Index < 5; Index ++)
-	{
-		MinerHome->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
-	}
-
-	for(int Index = 0; Index < 5; Index ++)
-	{
-		MinerHome->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector);
-	}
-
-	// Initial setup: Outpost
-	Outpost->CreateStation("station-steelworks", HelixFoundries, FVector::ZeroVector);
-	Outpost->CreateStation("station-steelworks", HelixFoundries, FVector::ZeroVector);
-	Outpost->CreateStation("station-steelworks", HelixFoundries, FVector::ZeroVector);
-	Outpost->CreateStation("station-tool-factory", HelixFoundries, FVector::ZeroVector);
-	Outpost->CreateStation("station-tool-factory", HelixFoundries, FVector::ZeroVector);
-
-	// Todo remove
-	Outpost->CreateStation("station-solar-plant", HelixFoundries, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
-
-	for(int Index = 0; Index < 6; Index ++)
-	{
-		Outpost->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
-	}
-
-	for(int Index = 0; Index < 5; Index ++)
-	{
-		Outpost->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector);
-	}
-
-	for(int Index = 0; Index < 3; Index ++)
-	{
-		Outpost->CreateShip("ship-omen", HelixFoundries, FVector::ZeroVector);
-	}
-
-	// Initial setup Blue Heart
+	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);
 
-	for(int Index = 0; Index < 5; Index ++)
+
+
+	CreateStation(StationFarm, UnitedFarmsChemicals, Lighthouse, 4);
+	CreateStation(StationSolarPlant, Sunwatch, Lighthouse, 6);
+	CreateStation(StationHabitation, IonLane, BlueHeart, 4);
+	CreateStation(StationHabitation, IonLane, BlueHeart, 4);
+
+	CreateStation(StationMine, MiningSyndicate, MinerHome, 6);
+
+	CreateStation(StationSteelworks, HelixFoundries, Outpost, 3);
+	CreateStation(StationToolFactory, HelixFoundries, Outpost, 1);
+
+	CreateStation(StationPump, UnitedFarmsChemicals, TheSpire, 4);
+	CreateStation(StationRefinery, UnitedFarmsChemicals, TheSpire, 4);
+
+	CreateStation(StationShipyard, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStation(StationArsenal, GhostWorksShipyards, FrozenRealm, 1);
+
+
+	CreateStation(StationHub, IonLane, Crossroads, 4);
+	CreateStation(StationHub, IonLane, Lighthouse, 2);
+	CreateStation(StationHub, IonLane, BlueHeart, 1);
+	CreateStation(StationHub, IonLane, MinerHome, 1);
+	CreateStation(StationHub, IonLane, Outpost, 1);
+	CreateStation(StationHub, IonLane, TheSpire, 1);
+	CreateStation(StationHub, IonLane, FrozenRealm, 1);
+
+
+	CreateShip(ShipOmen, IonLane, Crossroads, 30);
+	CreateShip(ShipOmen, MiningSyndicate, MinerHome, 5);
+	CreateShip(ShipOmen, HelixFoundries, Outpost, 2);
+	CreateShip(ShipOmen, UnitedFarmsChemicals, TheSpire, 2);
+	CreateShip(ShipOmen, Sunwatch, Lighthouse, 2);
+
+}
+
+void UFlareScenarioTools::CreateShip(FName ShipClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count)
+{
+	for (int Index = 0; Index < Count; Index++)
 	{
-		BlueHeart->CreateStation("station-habitation", IonLane, FVector::ZeroVector);
+		Sector->CreateShip(ShipClass, Company, FVector::ZeroVector);
 	}
+}
 
-	for(int Index = 0; Index < 5; Index ++)
+void UFlareScenarioTools::CreateStation(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count)
+{
+	for (int Index = 0; Index < Count; Index++)
 	{
-		BlueHeart->CreateStation("station-hub", IonLane, FVector::ZeroVector);
+		UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, FVector::ZeroVector, FRotator::ZeroRotator);
+
+		if (!Station || Station->GetFactories().Num() == 0)
+		{
+			continue;
+		}
+
+
+		UFlareFactory* ActiveFactory = Station->GetFactories()[0];
+
+		// Limit output
+		// TODO limit in AI
+		for (int32 ResourceIndex = 0 ; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.OutputResources.Num() ; ResourceIndex++)
+		{
+			const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
+			ActiveFactory->SetOutputLimit(&Resource->Resource->Data, 1);
+		}
+
+		// Give input resources
+		for (int32 ResourceIndex = 0 ; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.InputResources.Num() ; ResourceIndex++)
+		{
+			const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
+
+			Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity());
+		}
 	}
-
-	for(int Index = 0; Index < 2; Index ++)
-	{
-		BlueHeart->CreateStation("station-hub", Sunwatch, FVector::ZeroVector);
-	}
-
-	for(int Index = 0; Index < 20; Index ++)
-	{
-		BlueHeart->CreateStation("station-solar-plant", Sunwatch, FVector::ZeroVector)->GetCargoBay()->GiveResources(Water, 100);
-	}
-
-	for(int Index = 0; Index < 2; Index ++)
-	{
-		BlueHeart->CreateShip("ship-omen", Sunwatch, FVector::ZeroVector);
-	}
-
-	for(int Index = 0; Index < 5; Index ++)
-	{
-		BlueHeart->CreateStation("station-farm", UnitedFarmsChemicals, FVector::ZeroVector);
-	}
-
-	for(int Index = 0; Index < 10; Index ++)
-	{
-		BlueHeart->CreateShip("ship-omen", IonLane, FVector::ZeroVector);
-	}
-
-	// Initial setup for The Spire
-
-	for(int Index = 0; Index < 5; Index ++)
-	{
-		TheSpire->CreateStation("station-pumping", UnitedFarmsChemicals, FVector::ZeroVector);
-		TheSpire->CreateStation("station-refinery", UnitedFarmsChemicals, FVector::ZeroVector);
-		TheSpire->CreateShip("ship-omen", UnitedFarmsChemicals, FVector::ZeroVector);
-	}
-
-	// Initial setup for The Depths
-	TheDepths->CreateStation("station-shipyard", GhostWorksShipyards, FVector::ZeroVector);
-
-
 }
 
 void UFlareScenarioTools::GenerateDebugScenario()

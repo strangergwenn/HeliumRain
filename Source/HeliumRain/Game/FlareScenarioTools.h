@@ -47,6 +47,11 @@ protected:
 	/** Spawn a series of asteroids in this sector */
 	void SetupAsteroids(UFlareSimulatedSector* Sector, int32 Count = 50, FVector DistributionShape = FVector(2, 50, 1));
 	
+	/** Create a ship */
+	void CreateShip(FName ShipClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count);
+
+	/** Create a station and fill its input */
+	void CreateStation(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count);
 
 	/*----------------------------------------------------
 		Protected data
@@ -97,5 +102,28 @@ protected:
 	FFlareResourceDescription*                 Steel;
 	FFlareResourceDescription*                 Tools;
 	FFlareResourceDescription*                 Tech;
+
+	// Ships
+	FName                                      ShipSolen;
+	FName                                      ShipOmen;
+	FName                                      ShipAtlas;
+	FName                                      ShipGhoul;
+	FName                                      ShipOrca;
+	FName                                      ShipDragon;
+	FName                                      ShipInvader;
+	FName                                      ShipLeviathan;
+
+	// Stations
+	FName                                      StationFarm;
+	FName                                      StationSolarPlant;
+	FName                                      StationHabitation;
+	FName                                      StationMine;
+	FName                                      StationSteelworks;
+	FName                                      StationToolFactory;
+	FName                                      StationPump;
+	FName                                      StationRefinery;
+	FName                                      StationArsenal;
+	FName                                      StationShipyard;
+	FName                                      StationHub;
 
 };
