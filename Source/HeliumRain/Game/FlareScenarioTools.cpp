@@ -183,7 +183,7 @@ void UFlareScenarioTools::FillWorld()
 
 void UFlareScenarioTools::CreateShip(FName ShipClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count)
 {
-	for (int Index = 0; Index < Count; Index++)
+	for (uint32 Index = 0; Index < Count; Index++)
 	{
 		Sector->CreateShip(ShipClass, Company, FVector::ZeroVector);
 	}
@@ -191,7 +191,7 @@ void UFlareScenarioTools::CreateShip(FName ShipClass, UFlareCompany* Company, UF
 
 void UFlareScenarioTools::CreateStation(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count)
 {
-	for (int Index = 0; Index < Count; Index++)
+	for (uint32 Index = 0; Index < Count; Index++)
 	{
 		UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, FVector::ZeroVector, FRotator::ZeroRotator);
 
