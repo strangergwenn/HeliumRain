@@ -97,6 +97,7 @@ void AFlareGame::StartPlay()
 	
 	// Spawn planetarium
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	Planetarium->SetActorScale3D(0.1 * FVector(1, 1, 1));
 }
 
 void AFlareGame::PostLogin(APlayerController* Player)
