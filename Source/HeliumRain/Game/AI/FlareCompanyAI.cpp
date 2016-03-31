@@ -78,6 +78,29 @@ void UFlareCompanyAI::Simulate()
 	}
 
 
+	// TODO Move unassign ship un sector that have not enough ship
+	// Substract ship that are currently traveling to the sector and are not in a trade route
+
+
+	// Trade route creation
+
+	// For all current trade route in a sector (if not in a sector, it's not possible to modify then)
+	//      -> Compute the resource balance in the dest sector and the resource balance in the source sector
+	//			-> If the balance is negative in the dest sector, and positive un the source add a cargo
+	//      -> Compute the current transport rate for the resource (resource/day)(mean on multiple travel) and the max transport rate
+	//			-> If current is a lot below the max, remove a cargo
+
+	// If inactive cargo
+	// compute max negative balance. Find nearest sector with a positive balance.
+	// create a route.
+	// assign enought capacity to match the min(negative balance, positive balance)
+
+
+
+	// TODO hub by stock, % of world production max
+
+
+
 
 	/*
 	TArray<UFlareSimulatedSpacecraft*> CompanyShips = Company->GetCompanyShips();
