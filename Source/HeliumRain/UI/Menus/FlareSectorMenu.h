@@ -46,6 +46,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Cen we build stations */
+	EVisibility GetBuildStationVisibility() const;
+
 	/** Get the travel text */
 	FText GetTravelText() const;
 

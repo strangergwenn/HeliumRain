@@ -211,6 +211,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
 							.Text(LOCTEXT("BuildStation", "BUILD A STATION"))
+							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
 						]
 
 						// Station selection
@@ -229,6 +230,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 								.Text(this, &SFlareSectorMenu::OnGetCurrentStationComboLine)
 								.TextStyle(&Theme.TextFont)
 							]
+							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
 						]
 
 						// Station cost text
@@ -241,6 +243,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.TextFont)
 							.Text(this, &SFlareSectorMenu::OnGetStationCost)
 							.WrapTextAt(10 * Theme.ButtonWidth)
+							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
 						]
 
 						// Build station button
@@ -256,6 +259,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
 							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
+							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
 						]
 					]
 				]
@@ -317,67 +321,75 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	TargetSector = Sector;
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	// Init buildable station list
 	StationList.Empty();
-	UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
-	for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
+
+	// Known sector
+	if (PC->GetCompany()->HasVisitedSector(TargetSector))
 	{
-		UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
-		FFlareSpacecraftDescription* Description = &Entry->Data;
-
-		if(TargetSector->GetDescription()->IsIcy && Description->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce))
+		// Init buildable station list
+		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
 		{
-			continue;
+			UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
+			FFlareSpacecraftDescription* Description = &Entry->Data;
+
+			if(TargetSector->GetDescription()->IsIcy && Description->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce))
+			{
+				continue;
+			}
+
+			if (!TargetSector->GetDescription()->IsIcy && Description->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce))
+			{
+				continue;
+			}
+
+			StationList.Add(Entry);
+		}
+		
+		// Add stations
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* StationCandidate = Sector->GetSectorStations()[SpacecraftIndex];
+
+			if (StationCandidate)
+			{
+				if (StationCandidate->GetCompany() == PC->GetCompany())
+				{
+					OwnedShipList->AddShip(StationCandidate);
+				}
+				else
+				{
+					OtherShipList->AddShip(StationCandidate);
+				}
+			}
 		}
 
-		if(!TargetSector->GetDescription()->IsIcy && Description->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce))
+		// Add ships
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
 		{
-			continue;
-		}
+			UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorShips()[SpacecraftIndex];
 
-		StationList.Add(Entry);
+			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
+			{
+				if (ShipCandidate->GetCompany() == PC->GetCompany())
+				{
+					OwnedShipList->AddShip(ShipCandidate);
+				}
+				else
+				{
+					OtherShipList->AddShip(ShipCandidate);
+				}
+			}
+		}
 	}
 
-
-	// Add stations
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
+	// Unknown sector
+	else
 	{
-		UFlareSimulatedSpacecraft* StationCandidate = Sector->GetSectorStations()[SpacecraftIndex];
-
-		if (StationCandidate)
-		{
-			if (StationCandidate->GetCompany() == PC->GetCompany())
-			{
-				OwnedShipList->AddShip(StationCandidate);
-			}
-			else
-			{
-				OtherShipList->AddShip(StationCandidate);
-			}
-		}
-	}
-
-	// Add ships
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
-	{
-		UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorShips()[SpacecraftIndex];
-
-		if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
-		{
-			if (ShipCandidate->GetCompany() == PC->GetCompany())
-			{
-				OwnedShipList->AddShip(ShipCandidate);
-			}
-			else
-			{
-				OtherShipList->AddShip(ShipCandidate);
-			}
-		}
 	}
 
 	OwnedShipList->RefreshList();
 	OtherShipList->RefreshList();
-
 	UpdateStationCost();
 }
 
@@ -446,6 +458,20 @@ void SFlareSectorMenu::UpdateStationCost()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+EVisibility SFlareSectorMenu::GetBuildStationVisibility() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	
+	// Known sector
+	if (PC && PC->GetCompany()->HasVisitedSector(TargetSector))
+	{
+		return EVisibility::Visible;
+	}
+	{
+		return EVisibility::Collapsed;
+	}
+}
 
 FText SFlareSectorMenu::GetTravelText() const
 {
