@@ -736,18 +736,18 @@ void AFlareHUD::DrawHUDInternal()
 	if (PlayerShip)
 	{
 		// Draw inertial vectors
-		FVector ShipVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
+		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
 		bool Firing = (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN);
 
 		if (Firing)
 		{
-			DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, ShipVelocity, FText(), false);
-			DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, -ShipVelocity, FText(), true);
+			DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, ShipSmoothedVelocity, FText(), false);
+			DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, -ShipSmoothedVelocity, FText(), true);
 		}
 		else
 		{
-			DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipVelocity, LOCTEXT("Forward", "FWD"), false);
-			DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipVelocity, LOCTEXT("Backward", "BWD"), true);
+			DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipSmoothedVelocity, LOCTEXT("Forward", "FWD"), false);
+			DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity, LOCTEXT("Backward", "BWD"), true);
 		}
 
 		// Draw objective
