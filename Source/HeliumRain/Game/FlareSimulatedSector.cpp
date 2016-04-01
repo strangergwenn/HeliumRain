@@ -40,6 +40,13 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Game->GetGameWorld()->FindSpacecraft(SectorData.SpacecraftIdentifiers[i]);
+
+		if (!Spacecraft)
+		{
+			FLOGV("UFlareSimulatedSector::Load : Missing spacecraft '%s'", *SectorData.SpacecraftIdentifiers[i].ToString());
+			continue;
+		}
+
 		if (Spacecraft->IsStation())
 		{
 			SectorStations.Add(Spacecraft);
@@ -65,7 +72,7 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 		}
 		else
 		{
-			FLOGV("WARNING: Missing fleet %s in sector %s", *SectorData.FleetIdentifiers[i].ToString(), *GetSectorName().ToString());
+			FLOGV("UFlareSimulatedSector::Load : Missing fleet %s in sector %s", *SectorData.FleetIdentifiers[i].ToString(), *GetSectorName().ToString());
 		}
 
 	}
