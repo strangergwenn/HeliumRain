@@ -77,6 +77,9 @@ public:
 	/** Color callback */
 	FSlateColor GetMainColor() const;
 
+	/** Get the text style */
+	FSlateFontInfo GetTextStyle() const;
+
 	/** Mouse click	*/
 	FReply OnButtonClicked();
 
@@ -91,6 +94,8 @@ protected:
 	bool                           IsToggle;
 	bool                           IsPressed;
 	bool                           IsTransparent;
+	int32                          Width;
+	int32                          Height;
 	
 	// Slate data
 	FFlareButtonClicked            OnClicked;

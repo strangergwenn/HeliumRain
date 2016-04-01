@@ -23,8 +23,8 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	Text = InArgs._Text;
 	HelpText = InArgs._HelpText;
 	IsDisabled = InArgs._IsDisabled;
-	int32 Width = InArgs._Width * Theme.ButtonWidth;
-	int32 Height = InArgs._Height * Theme.ButtonHeight;
+	Width = InArgs._Width * Theme.ButtonWidth;
+	Height = InArgs._Height * Theme.ButtonHeight;
 	
 	// Structure
 	ChildSlot
@@ -120,7 +120,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	if (InArgs._Text.IsSet())
 	{
 		TSharedPtr<SVerticalBox> IconBox;
-
+		
 		InnerContainer->SetPadding(IsTransparent ? FMargin(0) : Theme.ButtonPadding);
 		InnerContainer->SetContent(
 			SNew(SHorizontalBox)
@@ -139,6 +139,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TextFont)
+				.Font(this, &SFlareButton::GetTextStyle)
 				.Text(InArgs._Text)
 			]
 		);
@@ -272,6 +273,24 @@ const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 FSlateColor SFlareButton::GetMainColor() const
 {
 	return Color.Get();
+}
+
+FSlateFontInfo SFlareButton::GetTextStyle() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	if (Text.IsSet() || Text.IsBound())
+	{
+		float TextLength = Text.Get().ToString().Len();
+		float ButtonWidth = GetDesiredSize().X;
+
+		if (TextLength > 0.075 * ButtonWidth)
+		{
+			return Theme.SmallFont.Font;
+		}
+	}
+
+	return Theme.TextFont.Font;
 }
 
 FReply SFlareButton::OnButtonClicked()
