@@ -386,6 +386,12 @@ FText UFlareSimulatedSector::GetSectorDescription() const
 
 bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
 {
+	// Too many stations
+	if (SectorStations.Num() >= GetMaxStationsInSector())
+	{
+		return false;
+	}
+
 	// Does it needs sun
 	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure) && SectorDescription->IsSolarPoor)
 	{

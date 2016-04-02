@@ -168,6 +168,11 @@ public:
 		return this;
 	}
 
+	int32 GetMaxStationsInSector()
+	{
+		return 30;
+	}
+
 	uint32 GetTransportCapacity(UFlareCompany* Company);
 
 	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource);

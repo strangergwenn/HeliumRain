@@ -210,7 +210,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("BuildStation", "BUILD A STATION"))
+							.Text(this, &SFlareSectorMenu::GetBuildStationText)
 							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
 						]
 
@@ -459,6 +459,20 @@ void SFlareSectorMenu::UpdateStationCost()
 	Callbacks
 ----------------------------------------------------*/
 
+FText SFlareSectorMenu::GetBuildStationText() const
+{
+	if (TargetSector)
+	{
+		return FText::Format(LOCTEXT("BuildStation", "BUILD A STATION ({0} / {1})"),
+			FText::AsNumber(TargetSector->GetSectorStations().Num()),
+				FText::AsNumber(TargetSector->GetMaxStationsInSector()));
+	}
+	else
+	{
+		return FText();
+	}
+}
+
 EVisibility SFlareSectorMenu::GetBuildStationVisibility() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
@@ -669,6 +683,36 @@ FText SFlareSectorMenu::GetSectorLocation() const
 	return Result;
 }
 
+TSharedRef<SWidget> SFlareSectorMenu::OnGenerateStationComboLine(UFlareSpacecraftCatalogEntry* Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(STextBlock)
+		.Text(Item->Data.Name)
+		.TextStyle(&Theme.TextFont);
+}
+
+FText SFlareSectorMenu::OnGetStationCost() const
+{
+	return StationCost;
+}
+
+bool SFlareSectorMenu::IsBuildStationDisabled() const
+{
+	return (!StationBuildable);
+}
+
+FText SFlareSectorMenu::OnGetCurrentStationComboLine() const
+{
+	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
+	return Item ? Item->Data.Name : LOCTEXT("Select", "Select a station");
+}
+
+
+/*----------------------------------------------------
+	Action callbacks
+----------------------------------------------------*/
+
 void SFlareSectorMenu::OnBackClicked()
 {
 	MenuManager->Back();
@@ -718,34 +762,9 @@ void SFlareSectorMenu::OnStartTravelConfirmed()
 	}
 }
 
-TSharedRef<SWidget> SFlareSectorMenu::OnGenerateStationComboLine(UFlareSpacecraftCatalogEntry* Item)
-{
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	return SNew(STextBlock)
-	.Text(Item->Data.Name)
-	.TextStyle(&Theme.TextFont);
-}
-
 void SFlareSectorMenu::OnStationComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo)
 {
 	UpdateStationCost();
-}
-
-FText SFlareSectorMenu::OnGetStationCost() const
-{
-	return StationCost;
-}
-
-bool SFlareSectorMenu::IsBuildStationDisabled() const
-{
-	return (!StationBuildable);
-}
-
-FText SFlareSectorMenu::OnGetCurrentStationComboLine() const
-{
-	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
-	return Item ? Item->Data.Name : LOCTEXT("Select", "Select a station");
 }
 
 void SFlareSectorMenu::OnBuildStationClicked()

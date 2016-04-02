@@ -43,10 +43,13 @@ public:
 protected:
 
 	/*----------------------------------------------------
-		Callbacks
+		Content callbacks
 	----------------------------------------------------*/
 
-	/** Cen we build stations */
+	/** Can we build stations */
+	FText GetBuildStationText() const;
+
+	/** Can we build stations */
 	EVisibility GetBuildStationVisibility() const;
 
 	/** Get the travel text */
@@ -79,6 +82,20 @@ protected:
 	/** Get the sector's location */
 	FText GetSectorLocation() const;
 
+	FText OnGetStationCost() const;
+
+	/** Get the text of a station combo box line*/
+	TSharedRef<SWidget> OnGenerateStationComboLine(UFlareSpacecraftCatalogEntry* Item);
+
+	bool IsBuildStationDisabled() const;
+
+	FText OnGetCurrentStationComboLine() const;
+
+
+	/*----------------------------------------------------
+		Action callbacks
+	----------------------------------------------------*/
+
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 
@@ -93,16 +110,7 @@ protected:
 
 	void OnStartTravelConfirmed();
 
-	/** Get the text of a station combo box line*/
-	TSharedRef<SWidget> OnGenerateStationComboLine(UFlareSpacecraftCatalogEntry* Item);
-
 	void OnStationComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo);
-
-	FText OnGetStationCost() const;
-
-	bool IsBuildStationDisabled() const;
-
-	FText OnGetCurrentStationComboLine() const;
 
 	void OnBuildStationClicked();
 
