@@ -69,6 +69,9 @@ public:
 	/** Show the list of spacecraft that can be ordered here */
 	void OpenSpacecraftOrder(UFlareFactory* Factory);
 
+	/** Show the list of stations that can be ordered here */
+	void OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback);
+
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
 	

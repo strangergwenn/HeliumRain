@@ -6,9 +6,12 @@
 #include "../Components/FlareListItem.h"
 
 
-class SFlareFactoryInfo;
 class UFlareFactory;
+class UFlareSimulatedSector;
 class AFlareMenuManager;
+
+
+DECLARE_DELEGATE_OneParam(FOrderDelegate, FFlareSpacecraftDescription*)
 
 
 class SFlareSpacecraftOrderOverlay : public SCompoundWidget
@@ -39,9 +42,12 @@ public:
 		Interaction
 	----------------------------------------------------*/
 
-	/** Show the overlay */
+	/** Show the overlay for a factory */
 	void Open(UFlareFactory* Factory);
 	
+	/** Show the overlay for a sector */
+	void Open(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback);
+
 	/** Close the overlay */
 	void Close();
 
@@ -77,12 +83,14 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	/** HUD reference */
+	// State data
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareMenuManager>                   MenuManager;
+	FOrderDelegate                                            OnConfirmedCB;
 
 	// Spacecraft building
 	UFlareFactory*                                            TargetFactory;
+	UFlareSimulatedSector*                                    TargetSector;
 	TArray<TSharedPtr<FInterfaceContainer>>                   SpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>    SpacecraftSelector;
 

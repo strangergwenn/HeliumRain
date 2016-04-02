@@ -20,6 +20,8 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	SpacecraftList.Empty();
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	TargetFactory = NULL;
+	TargetSector = NULL;
 
 	// Create the layout
 	ChildSlot
@@ -53,14 +55,20 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	
 					// List
 					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
 					[
-						SAssignNew(SpacecraftSelector, SListView<TSharedPtr<FInterfaceContainer>>)
-						.ListItemsSource(&SpacecraftList)
-						.SelectionMode(ESelectionMode::Single)
-						.OnGenerateRow(this, &SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine)
-						.OnSelectionChanged(this, &SFlareSpacecraftOrderOverlay::OnSpacecraftSelectionChanged)
+						SNew(SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+						+ SScrollBox::Slot()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(SpacecraftSelector, SListView<TSharedPtr<FInterfaceContainer>>)
+							.ListItemsSource(&SpacecraftList)
+							.SelectionMode(ESelectionMode::Single)
+							.OnGenerateRow(this, &SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine)
+							.OnSelectionChanged(this, &SFlareSpacecraftOrderOverlay::OnSpacecraftSelectionChanged)
+						]
 					]
 	
 					// Buttons
@@ -76,7 +84,7 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 						[
 							SNew(SFlareButton)
 							.Text(LOCTEXT("Confirm", "Confirm"))
-							.HelpText(LOCTEXT("ConfirmInfo", "Confirm the choice and star production"))
+							.HelpText(LOCTEXT("ConfirmInfo", "Confirm the choice and start production"))
 							.Icon(FFlareStyleSet::GetIcon("OK"))
 							.OnClicked(this, &SFlareSpacecraftOrderOverlay::OnConfirmed)
 							.Visibility(this, &SFlareSpacecraftOrderOverlay::GetConfirmVisibility)
@@ -110,7 +118,7 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareFactory* Factory)
 	SetVisibility(EVisibility::Visible);
 	TargetFactory = Factory;
 
-	// Init buildable Spacecraft list
+	// Init buildable ship list
 	SpacecraftList.Empty();
 	if (TargetFactory && TargetFactory->IsShipyard())
 	{
@@ -141,9 +149,33 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareFactory* Factory)
 	SpacecraftSelector->RequestListRefresh();
 }
 
+void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback)
+{
+	SetVisibility(EVisibility::Visible);
+	TargetSector = Sector;
+	OnConfirmedCB = ConfirmationCallback;
+
+	// Init buildable station list
+	SpacecraftList.Empty();
+	if (TargetSector)
+	{
+		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+
+		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
+		{
+			UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
+			SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
+		}
+	}
+
+	SpacecraftSelector->RequestListRefresh();
+}
+
 void SFlareSpacecraftOrderOverlay::Close()
 {
 	SetVisibility(EVisibility::Collapsed);
+	TargetFactory = NULL;
+	TargetSector = NULL;
 }
 
 
@@ -153,46 +185,99 @@ void SFlareSpacecraftOrderOverlay::Close()
 
 TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
+	// Setup
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FFlareSpacecraftDescription* Desc = Item->SpacecraftDescriptionPtr;
-	const FFlareProductionData* CycleData = &TargetFactory->GetCycleDataForShipClass(Desc->Identifier);
-
-	// Spacecraft type
 	FText SpacecraftInfoText;
-	if (Desc->OrbitalEngineCount == 0)
-	{
-		SpacecraftInfoText = LOCTEXT("Station", "(Station)");
-	}
-	else if (Desc->TurretSlots.Num())
-	{
-		SpacecraftInfoText = FText::Format(LOCTEXT("WeaponFormat", "(Military ship, {0} turrets)"), FText::AsNumber(Desc->TurretSlots.Num()));
-	}
-	else if (Desc->GunSlots.Num())
-	{
-		SpacecraftInfoText = FText::Format(LOCTEXT("WeaponFormat", "(Military ship, {0} gun slots)"), FText::AsNumber(Desc->GunSlots.Num()));
-	}
-	else
-	{
-		SpacecraftInfoText = LOCTEXT("NoWeapons", "(Unarmed ship)");
-	}
-	
-	// Production cost
 	FText ProductionCost;
-	int ProductionTime = CycleData->ProductionTime;
-	if (MenuManager->GetPC()->GetCompany() == TargetFactory->GetParent()->GetCompany())
+	int ProductionTime;
+
+	// Factory
+	if (TargetFactory)
 	{
-		ProductionCost = TargetFactory->GetFactoryCycleCost(CycleData);
+		check(TargetFactory);
+		const FFlareProductionData* CycleData = &TargetFactory->GetCycleDataForShipClass(Desc->Identifier);
+		ProductionTime = CycleData->ProductionTime;
+
+		// Spacecraft type
+		if (Desc->OrbitalEngineCount == 0)
+		{
+			SpacecraftInfoText = LOCTEXT("FactoryStation", "(Station)");
+		}
+		else if (Desc->TurretSlots.Num())
+		{
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} turrets)"), FText::AsNumber(Desc->TurretSlots.Num()));
+		}
+		else if (Desc->GunSlots.Num())
+		{
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} gun slots)"), FText::AsNumber(Desc->GunSlots.Num()));
+		}
+		else
+		{
+			SpacecraftInfoText = LOCTEXT("FactoryNoWeapons", "(Unarmed ship)");
+		}
+
+		// Production cost
+		if (MenuManager->GetPC()->GetCompany() == TargetFactory->GetParent()->GetCompany())
+		{
+			ProductionCost = TargetFactory->GetFactoryCycleCost(CycleData);
+		}
+		else
+		{
+			ProductionTime += TargetFactory->GetRemainingProductionDuration();
+			int32 CycleProductionCost = UFlareGameTools::ComputeShipPrice(Desc->Identifier, TargetFactory->GetParent()->GetCurrentSector());
+			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "{0} credits"), FText::AsNumber(CycleProductionCost));
+		}
 	}
+
+	// Sector
 	else
 	{
-		ProductionTime += TargetFactory->GetRemainingProductionDuration();
-		int32 CycleProductionCost = UFlareGameTools::ComputeShipPrice(Desc->Identifier, TargetFactory->GetParent()->GetCurrentSector());
-		ProductionCost = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleProductionCost));
+		check(TargetSector);
+		SpacecraftInfoText = LOCTEXT("SectorStation", "(Station)");
+		ProductionTime = Desc->CycleCost.ProductionTime;
+
+		// Add resources
+		FString ResourcesString;
+		for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num(); ResourceIndex++)
+		{
+			FFlareFactoryResource* FactoryResource = &Desc->CycleCost.InputResources[ResourceIndex];
+			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
+		}
+
+		// Constraints
+		FString ConstraintString;
+		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
+		{
+			ConstraintString += ", " + LOCTEXT("AsteroidNeeded", "a free asteroid").ToString();
+		}
+		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure))
+		{
+			ConstraintString += ", " + LOCTEXT("SunNeeded", "good sun exposure").ToString();
+		}
+		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit))
+		{
+			ConstraintString += ", " + LOCTEXT("GeostationaryNeeded", "a geostationary orbit").ToString();
+		}
+		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce))
+		{
+			ConstraintString += ", " + LOCTEXT("NonIcyNeeded", "a non-icy sector").ToString();
+		}
+		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce))
+		{
+			ConstraintString += ", " + LOCTEXT("IcyNeeded", "an icy sector").ToString();
+		}
+
+		// Final text
+		ProductionCost = FText::Format(LOCTEXT("StationCostFormat", "{0} credits{1}\nRequires a cargo ship{2}"),
+			FText::AsNumber(Desc->CycleCost.ProductionCost),
+			FText::FromString(ResourcesString),
+			FText::FromString(ConstraintString));
 	}
 
 	// Structure
 	return SNew(SFlareListItem, OwnerTable)
-	.Width(25)
+	.Width(30)
 	.Height(2)
 	.Content()
 	[
@@ -201,7 +286,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		// Picture
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
-		.Padding(Theme.SmallContentPadding)
+		.Padding(Theme.ContentPadding)
 		.VAlign(VAlign_Top)
 		[
 			SNew(SImage)
@@ -210,6 +295,8 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 
 		// Main infos
 		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(SVerticalBox)
 
@@ -226,10 +313,14 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			.AutoHeight()
 			.Padding(Theme.SmallContentPadding)
 			[
-				SNew(STextBlock)
-				.Text(Desc->Description)
-				.TextStyle(&Theme.TextFont)
-				.WrapTextAt(Theme.ContentWidth)
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				[
+					SNew(STextBlock)
+					.Text(Desc->Description)
+					.TextStyle(&Theme.TextFont)
+					.WrapTextAt(Theme.ContentWidth)
+				]
 			]
 
 			+ SVerticalBox::Slot()
@@ -242,8 +333,10 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			]
 		]
 
+		// Costs
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(SVerticalBox)
 
@@ -260,7 +353,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			[
 				SNew(STextBlock)
 				.Text(ProductionCost)
-				.WrapTextAt(Theme.ContentWidth / 3)
+				.WrapTextAt(0.65 * Theme.ContentWidth)
 				.TextStyle(&Theme.TextFont)
 			]
 
@@ -269,7 +362,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			[
 				SNew(STextBlock)
 				.Text(FText::Format(LOCTEXT("ProductionTimeFormat", "{0} days"), FText::AsNumber(ProductionTime)))
-				.WrapTextAt(Theme.ContentWidth / 3)
+				.WrapTextAt(0.65 * Theme.ContentWidth)
 				.TextStyle(&Theme.TextFont)
 			]
 		]
@@ -317,25 +410,35 @@ void SFlareSpacecraftOrderOverlay::OnConfirmed()
 	if (SpacecraftSelector->GetNumItemsSelected() > 0)
 	{
 		FFlareSpacecraftDescription* Desc = SpacecraftSelector->GetSelectedItems()[0]->SpacecraftDescriptionPtr;
-		if (Desc && TargetFactory)
+		if (Desc)
 		{
 			FLOGV("SFlareSpacecraftOrderOverlay::OnConfirmed : picked '%s'", *Desc->Identifier.ToString());
 
-			if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+			// Factory
+			if (TargetFactory)
 			{
-				// Player ship building
-				if (TargetFactory->GetTargetShipClass() != Desc->Identifier)
+				if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
 				{
-					// Replace it
-					TargetFactory->Stop();
+					// Player ship building
+					if (TargetFactory->GetTargetShipClass() != Desc->Identifier)
+					{
+						// Replace it
+						TargetFactory->Stop();
+						TargetFactory->OrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
+						TargetFactory->Start();
+					}
+				}
+				else
+				{
 					TargetFactory->OrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
 					TargetFactory->Start();
 				}
 			}
+
+			// Sector
 			else
 			{
-				TargetFactory->OrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
-				TargetFactory->Start();
+				OnConfirmedCB.ExecuteIfBound(Desc);
 			}
 		}
 	}

@@ -212,6 +212,11 @@ void AFlareMenuManager::OpenSpacecraftOrder(UFlareFactory* Factory)
 	SpacecraftOrder->Open(Factory);
 }
 
+void AFlareMenuManager::OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback)
+{
+	SpacecraftOrder->Open(Sector, ConfirmationCallback);
+}
+
 void AFlareMenuManager::CloseMenu(bool HardClose)
 {
 	if (MenuIsOpen)

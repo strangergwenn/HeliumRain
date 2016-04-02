@@ -37,8 +37,6 @@ public:
 	/** Exit this menu */
 	void Exit();
 
-	void UpdateStationCost();
-
 
 protected:
 
@@ -51,6 +49,9 @@ protected:
 
 	/** Can we build stations */
 	EVisibility GetBuildStationVisibility() const;
+
+	/** Dp we have more than the max stations already ? */
+	bool IsBuildStationDisabled() const;
 
 	/** Get the travel text */
 	FText GetTravelText() const;
@@ -82,14 +83,8 @@ protected:
 	/** Get the sector's location */
 	FText GetSectorLocation() const;
 
+	/** Get the station' cost */
 	FText OnGetStationCost() const;
-
-	/** Get the text of a station combo box line*/
-	TSharedRef<SWidget> OnGenerateStationComboLine(UFlareSpacecraftCatalogEntry* Item);
-
-	bool IsBuildStationDisabled() const;
-
-	FText OnGetCurrentStationComboLine() const;
 
 
 	/*----------------------------------------------------
@@ -108,11 +103,14 @@ protected:
 	/** Repair all fleets */
 	void OnRepairClicked();
 
+	/** Start travel */
 	void OnStartTravelConfirmed();
 
-	void OnStationComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo);
-
+	/** Build a station */
 	void OnBuildStationClicked();
+
+	/** Station selected */
+	void OnBuildStationSelected(FFlareSpacecraftDescription* NewStationDescription);
 
 
 protected:
@@ -131,8 +129,7 @@ protected:
 	UFlareSimulatedSector*                     TargetSector;
 
 	// Station data
-	TSharedPtr<SComboBox<UFlareSpacecraftCatalogEntry*>> StationSelector;
-	TArray<UFlareSpacecraftCatalogEntry*>                StationList;
-	FText                                                           StationCost;
-	bool                                                            StationBuildable;
+	FText                                      StationCost;
+	FFlareSpacecraftDescription*               StationDescription;
+
 };

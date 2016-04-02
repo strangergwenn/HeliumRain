@@ -168,7 +168,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					// Buttons : advanced
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(8, 0, 8, 8))
+					.Padding(FMargin(8, 0, 8, 0))
 					[
 						SNew(SHorizontalBox)
 

@@ -19,8 +19,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	
-	StationList.Empty();
 
 	// Build structure
 	ChildSlot
@@ -97,7 +95,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				.VAlign(VAlign_Top)
 				[
 					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right)
+					.WidthOverride(Theme.ContentWidth)
 					[
 						SNew(SVerticalBox)
 
@@ -119,7 +117,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							SNew(STextBlock)
 							.Text(this, &SFlareSectorMenu::GetSectorDescription)
 							.TextStyle(&Theme.TextFont)
-							.WrapTextAt(Theme.ContentWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+							.WrapTextAt(Theme.ContentWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right)
 						]
 				
 						// Sector location
@@ -158,6 +156,30 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
 						]
+					]
+				]
+				
+				// Station construction
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Top)
+				[
+					SNew(SBox)
+					.WidthOverride(10 * Theme.ButtonWidth + Theme.ContentPadding.Left + Theme.ContentPadding.Right)
+					[
+						SNew(SVerticalBox)
+
+						// Build station text
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						.HAlign(HAlign_Left)
+						.VAlign(VAlign_Top)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(LOCTEXT("Actions", "SECTOR ACTIONS"))
+						]
 
 						// Refuel fleets
 						+ SVerticalBox::Slot()
@@ -188,49 +210,21 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareSectorMenu::OnRepairClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsRepairDisabled)
 						]
-					]
-				]
-				
-				// Station construction
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Left)
-				.VAlign(VAlign_Top)
-				[
-					SNew(SBox)
-					.WidthOverride(10 * Theme.ButtonWidth + Theme.ContentPadding.Left + Theme.ContentPadding.Right)
-					[
-						SNew(SVerticalBox)
 
-						// Build station text
+						// Build station button
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.TitlePadding)
+						.Padding(Theme.SmallContentPadding)
 						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Top)
 						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.SubTitleFont)
+							SNew(SFlareButton)
+							.Width(10)
 							.Text(this, &SFlareSectorMenu::GetBuildStationText)
+							.HelpText(LOCTEXT("BuildStationInfo", "Build a station in this sector"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
 							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
-						]
-
-						// Station selection
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
-							SAssignNew(StationSelector, SComboBox<UFlareSpacecraftCatalogEntry*>)
-							.OptionsSource(&StationList)
-							.OnGenerateWidget(this, &SFlareSectorMenu::OnGenerateStationComboLine)
-							.OnSelectionChanged(this, &SFlareSectorMenu::OnStationComboLineSelectionChanged)
-							.ComboBoxStyle(&Theme.ComboBoxStyle)
-							.ForegroundColor(FLinearColor::White)
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareSectorMenu::OnGetCurrentStationComboLine)
-								.TextStyle(&Theme.TextFont)
-							]
-							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
+							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
 						]
 
 						// Station cost text
@@ -243,22 +237,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.TextFont)
 							.Text(this, &SFlareSectorMenu::OnGetStationCost)
 							.WrapTextAt(10 * Theme.ButtonWidth)
-							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
-						]
-
-						// Build station button
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Left)
-						[
-							SNew(SFlareButton)
-							.Width(10)
-							.Text(LOCTEXT("BuildStationButton", "Build station"))
-							.HelpText(LOCTEXT("BuildStationInfo", "Build a station"))
-							.Icon(FFlareStyleSet::GetIcon("Travel"))
-							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
-							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
 							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
 						]
 					]
@@ -319,34 +297,13 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	SetVisibility(EVisibility::Visible);
 
 	TargetSector = Sector;
-	AFlarePlayerController* PC = MenuManager->GetPC();
-
-	StationList.Empty();
 	StationCost = FText();
+	StationDescription = NULL;
+	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	// Known sector
 	if (PC->GetCompany()->HasVisitedSector(TargetSector))
-	{
-		// Init buildable station list
-		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
-		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
-		{
-			UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
-			FFlareSpacecraftDescription* Description = &Entry->Data;
-
-			if(TargetSector->GetDescription()->IsIcy && Description->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce))
-			{
-				continue;
-			}
-
-			if (!TargetSector->GetDescription()->IsIcy && Description->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce))
-			{
-				continue;
-			}
-
-			StationList.Add(Entry);
-		}
-		
+	{		
 		// Add stations
 		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
 		{
@@ -396,82 +353,13 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 void SFlareSectorMenu::Exit()
 {
 	SetEnabled(false);
-	TargetSector = NULL;
 
 	OwnedShipList->Reset();
 	OtherShipList->Reset();
-	StationSelector->ClearSelection();
-	StationBuildable = false;
+	StationCost = FText();
+	TargetSector = NULL;
 
 	SetVisibility(EVisibility::Collapsed);
-}
-
-void SFlareSectorMenu::UpdateStationCost()
-{
-	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
-	if (Item)
-	{
-		// Can we build ?
-		TArray<FText> Reasons;
-		FString ResourcesString;
-		FFlareSpacecraftDescription* StationDescription = &Item->Data;
-		StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany(), Reasons);
-
-		// Cant build this station
-		if (!StationBuildable)
-		{
-			FString CantBuildReasons;
-			for (int32 Index = 0; Index < Reasons.Num(); Index++)
-			{
-				CantBuildReasons += FString("\n\t") + Reasons[Index].ToString();
-			}
-			StationCost = FText::Format(LOCTEXT("CannotBuildStationFormat", "You can't build this station yet: {0}"), FText::FromString(CantBuildReasons));
-		}
-
-		else
-		{
-			// Add resources
-			for (int ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
-			{
-				FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
-				ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
-			}
-
-			// Constraints
-			FString ConstraintString;
-			FText ConstraintText;
-			FText AsteroidText = LOCTEXT("AsteroidNeeded", "a free asteroid");
-			FText SunText = LOCTEXT("SunNeeded", "good sun exposure");
-			FText GeostationaryText = LOCTEXT("GeostationaryNeeded", "a geostationary orbit");
-
-			if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
-			{
-				ConstraintString += " " + AsteroidText.ToString();
-			}
-			if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure))
-			{
-				ConstraintString += " " + SunText.ToString();
-			}
-			if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit))
-			{
-				ConstraintString += " " + GeostationaryText.ToString();
-			}
-			if (ConstraintString.Len() > 0)
-			{
-				ConstraintText = FText::Format(LOCTEXT("ConstraintStationFormat", "You also need{0}."), FText::FromString(ConstraintString));
-			}
-
-			// Final text
-			StationCost = FText::Format(LOCTEXT("StationCostFormat", "This station will cost {0} credits{1}, and requires a cargo ship in this sector. {2}"),
-				FText::AsNumber(StationDescription->CycleCost.ProductionCost),
-				FText::FromString(ResourcesString),
-				ConstraintText);
-		}
-	}
-	else
-	{
-		StationCost = FText();
-	}
 }
 
 
@@ -483,7 +371,7 @@ FText SFlareSectorMenu::GetBuildStationText() const
 {
 	if (TargetSector)
 	{
-		return FText::Format(LOCTEXT("BuildStation", "BUILD A STATION ({0} / {1})"),
+		return FText::Format(LOCTEXT("BuildStation", "Build station ({0} / {1})"),
 			FText::AsNumber(TargetSector->GetSectorStations().Num()),
 				FText::AsNumber(TargetSector->GetMaxStationsInSector()));
 	}
@@ -504,6 +392,18 @@ EVisibility SFlareSectorMenu::GetBuildStationVisibility() const
 	}
 	{
 		return EVisibility::Collapsed;
+	}
+}
+
+bool SFlareSectorMenu::IsBuildStationDisabled() const
+{
+	if (TargetSector)
+	{
+		return (TargetSector->GetSectorStations().Num() >= TargetSector->GetMaxStationsInSector());
+	}
+	else
+	{
+		return true;
 	}
 }
 
@@ -703,29 +603,9 @@ FText SFlareSectorMenu::GetSectorLocation() const
 	return Result;
 }
 
-TSharedRef<SWidget> SFlareSectorMenu::OnGenerateStationComboLine(UFlareSpacecraftCatalogEntry* Item)
-{
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	return SNew(STextBlock)
-		.Text(Item->Data.Name)
-		.TextStyle(&Theme.TextFont);
-}
-
 FText SFlareSectorMenu::OnGetStationCost() const
 {
 	return StationCost;
-}
-
-bool SFlareSectorMenu::IsBuildStationDisabled() const
-{
-	return (!StationBuildable);
-}
-
-FText SFlareSectorMenu::OnGetCurrentStationComboLine() const
-{
-	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
-	return Item ? Item->Data.Name : LOCTEXT("Select", "Select a station");
 }
 
 
@@ -782,19 +662,40 @@ void SFlareSectorMenu::OnStartTravelConfirmed()
 	}
 }
 
-void SFlareSectorMenu::OnStationComboLineSelectionChanged(UFlareSpacecraftCatalogEntry* Item, ESelectInfo::Type SelectInfo)
-{
-	UpdateStationCost();
-}
-
 void SFlareSectorMenu::OnBuildStationClicked()
 {
-	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
-	if (Item)
+	StationCost = FText();
+	MenuManager->OpenSpacecraftOrder(TargetSector, FOrderDelegate::CreateSP(this, &SFlareSectorMenu::OnBuildStationSelected));
+}
+
+void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewStationDescription)
+{
+	StationDescription = NewStationDescription;
+
+	if (StationDescription)
 	{
-		FFlareSpacecraftDescription* StationDescription = &Item->Data;
-		TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
-		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
+		// Can we build ?
+		TArray<FText> Reasons;
+		FString ResourcesString;
+		bool StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany(), Reasons);
+
+		// Build it
+		if (StationBuildable)
+		{
+			TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
+			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
+		}
+
+		// Can't build this station
+		else
+		{
+			FString CantBuildReasons;
+			for (int32 Index = 0; Index < Reasons.Num(); Index++)
+			{
+				CantBuildReasons += FString("\n\t") + Reasons[Index].ToString();
+			}
+			StationCost = FText::Format(LOCTEXT("CannotBuildStationFormat", "You can't build this station yet: {0}"), FText::FromString(CantBuildReasons));
+		}
 	}
 }
 
