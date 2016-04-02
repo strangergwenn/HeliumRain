@@ -130,21 +130,24 @@ bool UFlareSpacecraftNavigationSystem::IsDocked()
 
 void UFlareSpacecraftNavigationSystem::SetStatus(EFlareShipStatus::Type NewStatus)
 {
-	switch (NewStatus)
+	if (NewStatus != Status)
 	{
-		case EFlareShipStatus::SS_Manual:
-			FLOG("UFlareSpacecraftNavigationSystem::SetStatus : Manual");
-			break;
+		switch (NewStatus)
+		{
+			case EFlareShipStatus::SS_Manual:
+				FLOG("UFlareSpacecraftNavigationSystem::SetStatus : Manual");
+				break;
 
-		case EFlareShipStatus::SS_AutoPilot:
-			FLOG("UFlareSpacecraftNavigationSystem::SetStatus : AutoPilot");
-			break;
+			case EFlareShipStatus::SS_AutoPilot:
+				FLOG("UFlareSpacecraftNavigationSystem::SetStatus : AutoPilot");
+				break;
 
-		case EFlareShipStatus::SS_Docked:
-			FLOG("UFlareSpacecraftNavigationSystem::SetStatus : Docked");
-			break;
+			case EFlareShipStatus::SS_Docked:
+				FLOG("UFlareSpacecraftNavigationSystem::SetStatus : Docked");
+				break;
 
-		default: break;
+			default: break;
+		}
 	}
 
 	Status = NewStatus;
