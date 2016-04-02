@@ -1355,9 +1355,7 @@ FString UFlareGameTools::FormatDate(int64 Days, int Deep)
 
 uint32 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector)
 {
-	FFlareSpacecraftDescription *Desc;
-
-	Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
+	FFlareSpacecraftDescription* Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
 
 	if (!Desc)
 	{
@@ -1381,9 +1379,10 @@ uint32 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector 
 		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data);
 	}
 
-	FLOGV("Ship %s cost %d credit", *ShipClass.ToString(), Cost);
+	//FLOGV("Ship %s cost %d credit", *ShipClass.ToString(), Cost);
 	return FMath::Max(0, Cost);
 }
+
 
 /*----------------------------------------------------
 	Getter

@@ -346,6 +346,7 @@ EVisibility SFlareFactoryInfo::GetDecreaseOutputLimitVisibility(FFlareResourceDe
 	}
 }
 
+
 /*----------------------------------------------------
 	Ship building
 ----------------------------------------------------*/

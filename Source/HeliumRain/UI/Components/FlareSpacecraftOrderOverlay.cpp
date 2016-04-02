@@ -76,13 +76,24 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
 					.HAlign(HAlign_Right)
+					.VAlign(VAlign_Top)
 					[
 						SNew(SHorizontalBox)
 
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
+						.Padding(Theme.ContentPadding)
 						[
-							SNew(SFlareButton)
+							SAssignNew(ConfirmText, STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.WrapTextAt(Theme.ContentWidth)
+						]
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.VAlign(VAlign_Top)
+						[
+							SAssignNew(ConfirmButon, SFlareButton)
 							.Text(LOCTEXT("Confirm", "Confirm"))
 							.HelpText(LOCTEXT("ConfirmInfo", "Confirm the choice and start production"))
 							.Icon(FFlareStyleSet::GetIcon("OK"))
@@ -92,6 +103,7 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
+						.VAlign(VAlign_Top)
 						[
 							SNew(SFlareButton)
 							.Text(LOCTEXT("Cancel", "Cancel"))
@@ -147,6 +159,7 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareFactory* Factory)
 	}
 
 	SpacecraftSelector->RequestListRefresh();
+	ConfirmText->SetText(FText());
 }
 
 void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback)
@@ -169,13 +182,86 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSector* Sector, FOrderDel
 	}
 
 	SpacecraftSelector->RequestListRefresh();
+	ConfirmText->SetText(FText());
 }
 
 void SFlareSpacecraftOrderOverlay::Close()
 {
 	SetVisibility(EVisibility::Collapsed);
+
+	SpacecraftList.Empty();
+	SpacecraftSelector->RequestListRefresh();
+	SpacecraftSelector->ClearSelection();
+
+	ConfirmText->SetText(FText());
 	TargetFactory = NULL;
 	TargetSector = NULL;
+}
+
+void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	if (SpacecraftSelector->GetNumItemsSelected() > 0)
+	{
+		FFlareSpacecraftDescription* Desc = SpacecraftSelector->GetSelectedItems()[0]->SpacecraftDescriptionPtr;
+		UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
+		ConfirmText->SetText(FText());
+		bool CanBuild = false;
+
+		if (Desc)
+		{
+			// Factory
+			if (TargetFactory)
+			{
+				UFlareSimulatedSpacecraft* Parent = TargetFactory->GetParent();
+				uint32 ShipPrice;
+
+				// Get price
+				if (Parent->GetCompany() != PlayerCompany)
+				{
+					ShipPrice = UFlareGameTools::ComputeShipPrice(Desc->Identifier, Parent->GetCurrentSector());
+				}
+				else
+				{
+					ShipPrice = Desc->CycleCost.ProductionCost;
+				}
+				CanBuild = (PlayerCompany->GetMoney() >= ShipPrice);
+
+				// Show reason
+				if (!CanBuild)
+				{
+					ConfirmText->SetText(FText::Format(LOCTEXT("CannotBuildShip", "Not enough credits ({0} / {1})"),
+						FText::AsNumber(PlayerCompany->GetMoney()),
+						FText::AsNumber(ShipPrice)));
+				}
+			}
+
+			// Sector
+			else
+			{
+				TArray<FText> Reasons;
+				CanBuild = TargetSector->CanBuildStation(Desc, PlayerCompany, Reasons);
+
+				// Show reason
+				if (!CanBuild)
+				{
+					FString CantBuildReasons;
+					for (int32 Index = 0; Index < Reasons.Num(); Index++)
+					{
+						if (Index)
+						{
+							CantBuildReasons += FString(" - ");
+						}
+						CantBuildReasons += Reasons[Index].ToString();
+					}
+					ConfirmText->SetText(FText::FromString(CantBuildReasons));
+				}
+			}
+		}
+
+		ConfirmButon->SetDisabled(!CanBuild);
+	}
 }
 
 

@@ -226,19 +226,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
 							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
 						]
-
-						// Station cost text
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Left)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(this, &SFlareSectorMenu::OnGetStationCost)
-							.WrapTextAt(10 * Theme.ButtonWidth)
-							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
-						]
 					]
 				]
 			]
@@ -297,7 +284,6 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	SetVisibility(EVisibility::Visible);
 
 	TargetSector = Sector;
-	StationCost = FText();
 	StationDescription = NULL;
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
@@ -356,7 +342,6 @@ void SFlareSectorMenu::Exit()
 
 	OwnedShipList->Reset();
 	OtherShipList->Reset();
-	StationCost = FText();
 	TargetSector = NULL;
 
 	SetVisibility(EVisibility::Collapsed);
@@ -603,11 +588,6 @@ FText SFlareSectorMenu::GetSectorLocation() const
 	return Result;
 }
 
-FText SFlareSectorMenu::OnGetStationCost() const
-{
-	return StationCost;
-}
-
 
 /*----------------------------------------------------
 	Action callbacks
@@ -664,7 +644,6 @@ void SFlareSectorMenu::OnStartTravelConfirmed()
 
 void SFlareSectorMenu::OnBuildStationClicked()
 {
-	StationCost = FText();
 	MenuManager->OpenSpacecraftOrder(TargetSector, FOrderDelegate::CreateSP(this, &SFlareSectorMenu::OnBuildStationSelected));
 }
 
@@ -684,17 +663,6 @@ void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewSt
 		{
 			TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
-		}
-
-		// Can't build this station
-		else
-		{
-			FString CantBuildReasons;
-			for (int32 Index = 0; Index < Reasons.Num(); Index++)
-			{
-				CantBuildReasons += FString("\n\t") + Reasons[Index].ToString();
-			}
-			StationCost = FText::Format(LOCTEXT("CannotBuildStationFormat", "You can't build this station yet: {0}"), FText::FromString(CantBuildReasons));
 		}
 	}
 }

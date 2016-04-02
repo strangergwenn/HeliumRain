@@ -52,6 +52,9 @@ public:
 	void Close();
 
 
+	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
+
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
@@ -95,6 +98,8 @@ protected:
 	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>    SpacecraftSelector;
 
 	// Slate data
+	TSharedPtr<SFlareButton>                                  ConfirmButon;
+	TSharedPtr<STextBlock>                                    ConfirmText;
 	TSharedPtr<SFlareListItem>                                PreviousSelection;
 	TSharedPtr<FInterfaceContainer>                           SelectedItem;
 

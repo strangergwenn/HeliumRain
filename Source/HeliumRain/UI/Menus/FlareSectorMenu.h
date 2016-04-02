@@ -129,7 +129,6 @@ protected:
 	UFlareSimulatedSector*                     TargetSector;
 
 	// Station data
-	FText                                      StationCost;
 	FFlareSpacecraftDescription*               StationDescription;
 
 };
