@@ -384,48 +384,59 @@ FText UFlareSimulatedSector::GetSectorDescription() const
 	return SectorDescription->Description;
 }
 
-bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
+bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReasons)
 {
+	bool Result = true;
+
 	// Too many stations
 	if (SectorStations.Num() >= GetMaxStationsInSector())
 	{
-		return false;
+		OutReasons.Add(LOCTEXT("BuildTooManyStations", "There are too many stations in the sector."));
+		Result = false;
 	}
 
 	// Does it needs sun
-	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure) && SectorDescription->IsSolarPoor)
+	if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure) && SectorDescription->IsSolarPoor)
 	{
-		return false;
+		OutReasons.Add(LOCTEXT("BuildRequiresSun", "This station requires high solar exposure."));
+		Result = false;
 	}
 
 	// Does it needs not icy sector
-	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce) &&SectorDescription->IsIcy)
+	if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce) &&SectorDescription->IsIcy)
 	{
-		return false;
+		OutReasons.Add(LOCTEXT("BuildRequiresNoIcy", "This station can only be built in non-icy sectors."));
+		Result = false;
 	}
 
 	// Does it needs icy sector
-	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce) && !SectorDescription->IsIcy)
+	if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce) && !SectorDescription->IsIcy)
 	{
-		return false;
+		OutReasons.Add(LOCTEXT("BuildRequiresIcy", "This station can only be built in icy sectors."));
+		Result = false;
 	}
 
 	// Does it needs an geostationary orbit ?
-	if(StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit) && !SectorDescription->IsGeostationary)
+	if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit) && !SectorDescription->IsGeostationary)
 	{
-		return false;
+		OutReasons.Add(LOCTEXT("BuildRequiresGeo", "This station can only be built in geostationary sectors."));
+		Result = false;
 	}
 
 	// Does it needs an asteroid ?
 	if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid) && SectorData.AsteroidData.Num() == 0)
 	{
-		return false;
+		OutReasons.Add(LOCTEXT("BuildRequiresAsteroid", "This station can only be built on an asteroid."));
+		Result = false;
 	}
 
 	// Check money cost
 	if (Company->GetMoney() < StationDescription->CycleCost.ProductionCost)
 	{
-		return false;
+		OutReasons.Add(FText::Format(LOCTEXT("BuildRequiresMoney", "Not enough credits ({0} / {1})."),
+			FText::AsNumber(Company->GetMoney()),
+			FText::AsNumber(StationDescription->CycleCost.ProductionCost)));
+		Result = false;
 	}
 
 	// First, it need a free cargo
@@ -448,13 +459,12 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		HasFreeCargo = true;
 		break;
 	}
-
 	if (!HasFreeCargo)
 	{
-		return false;
+		OutReasons.Add(LOCTEXT("BuildRequiresCargo", "No cargo with free space in this sector."));
+		Result = false;
 	}
-
-
+	
 	// Compute total available resources
 	TArray<FFlareCargo> AvailableResources;
 	for (int SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
@@ -502,35 +512,43 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	{
 		FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
 		bool ResourceFound = false;
+		uint32 AvailableQuantity = 0;
 
 		for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
 		{
 			if (AvailableResources[AvailableResourceIndex].Resource == &(FactoryResource->Resource->Data))
 			{
-				ResourceFound = true;
-				if (AvailableResources[AvailableResourceIndex].Quantity < FactoryResource->Quantity)
+				AvailableQuantity = AvailableResources[AvailableResourceIndex].Quantity;
+				if (AvailableQuantity >= FactoryResource->Quantity)
 				{
-					return false;
+					ResourceFound = true;
 				}
 				break;
 			}
 		}
-
 		if (!ResourceFound)
 		{
-			return false;
+			OutReasons.Add(FText::Format(LOCTEXT("BuildRequiresResources", "Not enough {0} in this sector ({1} / {2})."),
+					FactoryResource->Resource->Data.Name,
+					FText::AsNumber(AvailableQuantity),
+					FText::AsNumber(FactoryResource->Quantity)));
+
+			Result = false;
 		}
 	}
 
-	return true;
+	return Result;
 }
 
 bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
 {
-	if (!CanBuildStation(StationDescription, Company))
+	TArray<FText> Reasons;
+	if (!CanBuildStation(StationDescription, Company, Reasons))
 	{
-		FLOGV("UFlareSimulatedSector::BuildStation : Failed to buid station '%s' for company '%s'",
-			*StationDescription->Identifier.ToString(), *Company->GetIdentifier().ToString());
+		FLOGV("UFlareSimulatedSector::BuildStation : Failed to buid station '%s' for company '%s' (%s)",
+			*StationDescription->Identifier.ToString(),
+			*Company->GetIdentifier().ToString(),
+			*Reasons[0].ToString());
 		return false;
 	}
 

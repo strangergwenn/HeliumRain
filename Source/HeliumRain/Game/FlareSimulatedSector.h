@@ -67,7 +67,8 @@ public:
 
 	void SetShipToFly(UFlareSimulatedSpacecraft* Ship);
 
-	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
+	/** Check whether we can build a station, understand why if not */
+	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReason);
 
 	bool BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 

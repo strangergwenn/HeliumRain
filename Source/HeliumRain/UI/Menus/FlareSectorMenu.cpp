@@ -322,6 +322,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	StationList.Empty();
+	StationCost = FText();
 
 	// Known sector
 	if (PC->GetCompany()->HasVisitedSector(TargetSector))
@@ -390,7 +391,6 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 
 	OwnedShipList->RefreshList();
 	OtherShipList->RefreshList();
-	UpdateStationCost();
 }
 
 void SFlareSectorMenu::Exit()
@@ -411,46 +411,66 @@ void SFlareSectorMenu::UpdateStationCost()
 	UFlareSpacecraftCatalogEntry* Item = StationSelector->GetSelectedItem();
 	if (Item)
 	{
+		// Can we build ?
+		TArray<FText> Reasons;
 		FString ResourcesString;
 		FFlareSpacecraftDescription* StationDescription = &Item->Data;
-		StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
+		StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany(), Reasons);
 
-		// Add resources
-		for (int ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
+		// Cant build this station
+		if (!StationBuildable)
 		{
-			FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
-			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
-		}
-
-		// Constraints
-		FString ConstraintString;
-		FText ConstraintText;
-		FText AsteroidText = LOCTEXT("AsteroidNeeded", "a free asteroid");
-		FText SunText = LOCTEXT("SunNeeded", "good sun exposure");
-		FText GeostationaryText = LOCTEXT("GeostationaryNeeded", "a geostationary orbit");
-;
-		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
-		{
-			ConstraintString += " " + AsteroidText.ToString();
-		}
-		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure))
-		{
-			ConstraintString += " " + SunText.ToString();
-		}
-		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit))
-		{
-			ConstraintString += " " + GeostationaryText.ToString();
-		}
-		if (ConstraintString.Len() > 0)
-		{
-			ConstraintText = FText::Format(LOCTEXT("ConstraintStationFormat", "You also need{0}."), FText::FromString(ConstraintString));
+			FString CantBuildReasons;
+			for (int32 Index = 0; Index < Reasons.Num(); Index++)
+			{
+				CantBuildReasons += FString("\n\t") + Reasons[Index].ToString();
+			}
+			StationCost = FText::Format(LOCTEXT("CannotBuildStationFormat", "You can't build this station yet: {0}"), FText::FromString(CantBuildReasons));
 		}
 
-		// Final text
-		FText CanBuildText = LOCTEXT("CanBuildStation", "You can build this station !");
-		FText CannotBuildText = LOCTEXT("CannotBuildStation", "You can't build this station yet.");
-		StationCost = FText::Format(LOCTEXT("StationCostFormat", "{0} It costs {1} credits{2}, and requires a cargo ship in this sector. {3}"),
-			StationBuildable ? CanBuildText : CannotBuildText, FText::AsNumber(StationDescription->CycleCost.ProductionCost), FText::FromString(ResourcesString), ConstraintText);
+		else
+		{
+			// Add resources
+			for (int ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
+			{
+				FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
+				ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
+			}
+
+			// Constraints
+			FString ConstraintString;
+			FText ConstraintText;
+			FText AsteroidText = LOCTEXT("AsteroidNeeded", "a free asteroid");
+			FText SunText = LOCTEXT("SunNeeded", "good sun exposure");
+			FText GeostationaryText = LOCTEXT("GeostationaryNeeded", "a geostationary orbit");
+
+			if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
+			{
+				ConstraintString += " " + AsteroidText.ToString();
+			}
+			if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure))
+			{
+				ConstraintString += " " + SunText.ToString();
+			}
+			if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit))
+			{
+				ConstraintString += " " + GeostationaryText.ToString();
+			}
+			if (ConstraintString.Len() > 0)
+			{
+				ConstraintText = FText::Format(LOCTEXT("ConstraintStationFormat", "You also need{0}."), FText::FromString(ConstraintString));
+			}
+
+			// Final text
+			StationCost = FText::Format(LOCTEXT("StationCostFormat", "This station will cost {0} credits{1}, and requires a cargo ship in this sector. {2}"),
+				FText::AsNumber(StationDescription->CycleCost.ProductionCost),
+				FText::FromString(ResourcesString),
+				ConstraintText);
+		}
+	}
+	else
+	{
+		StationCost = FText();
 	}
 }
 
