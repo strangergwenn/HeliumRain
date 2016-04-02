@@ -134,7 +134,7 @@ void UFlareScenarioTools::FillWorld()
 	PlayerCompany->DiscoverSector(Decay);
 
 	// Company setup
-	PlayerCompany->GiveMoney(10000);
+	PlayerCompany->GiveMoney(100000);
 	MiningSyndicate->GiveMoney(100000);
 	HelixFoundries->GiveMoney(100000);
 	Sunwatch->GiveMoney(100000);

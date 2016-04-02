@@ -4,6 +4,9 @@
 #include "../Components/FlareButton.h"
 
 
+class AFlarePlayerController;
+
+
 class SFlareConfirmationBox : public SCompoundWidget
 {
 	/*----------------------------------------------------
@@ -12,11 +15,13 @@ class SFlareConfirmationBox : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareConfirmationBox)
 		: _FullHide(false)
+		, _PC(NULL)
 	{}
 
 	SLATE_EVENT(FFlareButtonClicked, OnConfirmed)
 	SLATE_EVENT(FFlareButtonClicked, OnCancelled)
 
+	SLATE_ARGUMENT(AFlarePlayerController*, PC)
 	SLATE_ARGUMENT(FText, ConfirmText)
 	SLATE_ARGUMENT(FText, CancelText)
 	SLATE_ARGUMENT(bool, FullHide)
@@ -48,6 +53,9 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
+
+	UPROPERTY()
+	AFlarePlayerController* PC;
 
 	TSharedPtr<SFlareButton> ConfirmButton;
 	TSharedPtr<SFlareButton> CancelButton;

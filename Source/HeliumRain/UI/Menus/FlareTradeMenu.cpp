@@ -244,6 +244,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						.OnConfirmed(this, &SFlareTradeMenu::OnConfirmTransaction)
 						.OnCancelled(this, &SFlareTradeMenu::OnCancelTransaction)
 						.FullHide(true)
+						.PC(MenuManager->GetPC())
 					]
 				]
 			]

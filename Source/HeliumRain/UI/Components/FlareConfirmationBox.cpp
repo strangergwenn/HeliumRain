@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareConfirmationBox.h"
+#include "../../Player/FlarePlayerController.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareConfirmationBox"
@@ -15,6 +16,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	ConfirmText = InArgs._ConfirmText;
 	FullHide = InArgs._FullHide;
+	PC = InArgs._PC;
 	Amount = 0;
 
 	// Create the layout
@@ -75,6 +77,15 @@ void SFlareConfirmationBox::Show(float NewAmount)
 	Amount = NewAmount;
 	ConfirmButton->SetVisibility(EVisibility::Visible);
 	CancelButton->SetVisibility(EVisibility::Visible);
+
+	if (NewAmount > PC->GetCompany()->GetMoney())
+	{
+		ConfirmButton->SetDisabled(true);
+	}
+	else
+	{
+		ConfirmButton->SetDisabled(false);
+	}
 }
 
 void SFlareConfirmationBox::Hide()

@@ -249,6 +249,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						.CancelText(LOCTEXT("BackTopShip", "BACK TO SHIP"))
 						.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
 						.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)
+						.PC(PC)
 					]
 				]
 
@@ -862,14 +863,13 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 		int64 TransactionCost = GetTransactionCost(Item->PartDescription);
 
 		// Show the confirmation dialog
-		if ((CurrentPartIndex != ShipPartIndex) && (TransactionCost <= (int64) PC->GetCompany()->GetMoney()))
+		if (CurrentPartIndex != ShipPartIndex)
 		{
 			BuyConfirmation->Show(TransactionCost);
 		}
 		else
 		{
 			BuyConfirmation->Hide();
-			// TODO : Show hide reason
 		}
 	}
 
