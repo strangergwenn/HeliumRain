@@ -186,6 +186,16 @@ void AFlareSpacecraft::Destroyed()
 {
 	Super::Destroyed();
 
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Components[ComponentIndex]);
+		if (Weapon)
+		{
+			Weapon->ClearBombs();
+		}
+	}
+
 	CurrentTarget = NULL;
 }
 

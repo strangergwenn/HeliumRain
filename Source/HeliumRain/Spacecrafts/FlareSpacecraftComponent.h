@@ -367,6 +367,9 @@ public:
 	/** Check if we initialized this component */
 	bool IsInitialized();
 
+	/** Set the visibility of this part while upgrading */
+	virtual void SetVisibleInUpgrade(bool Visible);
+
 	/** Set the new temperature of this component */
 	virtual void SetTemperature(int32 TemperatureKelvin);
 

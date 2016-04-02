@@ -232,6 +232,11 @@ bool UFlareSpacecraftComponent::IsInitialized()
 	return (SpacecraftPawn != NULL);
 }
 
+void UFlareSpacecraftComponent::SetVisibleInUpgrade(bool Visible)
+{
+	SetVisibility(Visible, true);
+}
+
 void UFlareSpacecraftComponent::SetTemperature(int32 TemperatureKelvin)
 {
 	if (ComponentMaterial)

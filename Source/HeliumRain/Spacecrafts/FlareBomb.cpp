@@ -201,9 +201,7 @@ void AFlareBomb::Drop()
 	BombData.DropParentDistance = GetParentDistance();
 	BombData.Dropped = true;
 	BombData.LifeTime = 0;
-
 }
-
 
 void AFlareBomb::Tick(float DeltaSeconds)
 {
@@ -224,22 +222,29 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		BombData.LifeTime += DeltaSeconds;
 	}
 
+	// Auto-destroy
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PC)
 	{
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		if (PlayerShip)
 		{
+			// 5 km and 30s auto-destroy
 			float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
 			if (Distance > 500000 && BombData.LifeTime > 30)
 			{
-				// 5 km and 30s
+				Destroy();
+				PlayerShip->GetGame()->GetActiveSector()->UnregisterBomb(this);
+			}
+
+			// Parent removed destroy
+			if (!ParentWeapon->IsValidLowLevel() || !ParentWeapon->GetSpacecraft()->IsValidLowLevel())
+			{
 				Destroy();
 				PlayerShip->GetGame()->GetActiveSector()->UnregisterBomb(this);
 			}
 		}
 	}
-
 }
 
 

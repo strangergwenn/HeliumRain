@@ -156,7 +156,7 @@ void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDe
 	ResetContent();
 
 	// Load the parts and scale accordingly
-	CurrentPart->SetVisibility(true, true);
+	CurrentPart->SetVisibleInUpgrade(true);
 	FFlareSpacecraftComponentSave Data;
 	Data.Damage = 0;
 	Data.ComponentIdentifier = PartDesc->Identifier;
@@ -193,8 +193,8 @@ void AFlareMenuPawn::ResetContent(bool Unsafe)
 	}
 
 	// Hide parts
-	CurrentPartA->SetVisibility(false, true);
-	CurrentPartB->SetVisibility(false, true);
+	CurrentPartA->SetVisibleInUpgrade(false);
+	CurrentPartB->SetVisibleInUpgrade(false);
 	
 	// Setup panning
 	SetCameraPitch(-CameraMaxPitch / 2);

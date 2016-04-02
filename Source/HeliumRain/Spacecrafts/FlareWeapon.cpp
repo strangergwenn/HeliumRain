@@ -33,13 +33,8 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 	FLOG("UFlareWeapon::Initialize");
 
 	// Destroy attached bombs
-	for (int i = 0; i < Bombs.Num(); i++)
-	{
-		Bombs[i]->Destroy();
-	}
-	Bombs.Empty();
+	ClearBombs();
 	CurrentAmmo = 0;
-
 
 	// Setup properties
 	if (ComponentDescription && Spacecraft)
@@ -242,9 +237,14 @@ void UFlareWeapon::SetTarget(AActor *NewTarget)
 	Target = NewTarget;
 }
 
-void UFlareWeapon::SetupComponentMesh()
+void UFlareWeapon::SetVisibleInUpgrade(bool Visible)
 {
-	Super::SetupComponentMesh();
+	Super::SetVisibleInUpgrade(Visible);
+
+	if (!Visible)
+	{
+		ClearBombs();
+	}
 }
 
 void UFlareWeapon::StartFire()
@@ -299,8 +299,7 @@ void UFlareWeapon::FillBombs()
 		FTransform HardPointWorldTransform = GetSocketTransform(HardpointName);
 
 		GetSocketWorldLocationAndRotation(HardpointName, HardpointLocation, HardpointRotation);
-
-
+		
 		/*FLOGV("Bomb %d HardpointName=%s", BombIndex, *HardpointName.ToString());
 		FLOGV("Bomb %d HardpointLocation=%s", BombIndex, *HardpointLocation.ToString());
 		FLOGV("Bomb %d HardpointRotation=%s", BombIndex, *HardpointRotation.ToString());*/
@@ -311,10 +310,7 @@ void UFlareWeapon::FillBombs()
 
 		/*FLOGV("Bomb %d RelativeLocation=%s", BombIndex, *(Hardpoint->RelativeLocation.ToString()));
 		FLOGV("Bomb %d RelativeRotation=%s", BombIndex, *(Hardpoint->RelativeRotation.ToString()));*/
-
-
-
-
+		
 		FVector BombLocation = HardPointWorldTransform.TransformPosition(-BombHardpoint->RelativeLocation);
 
 		//FLOGV("Bomb %d BombLocation=%s", BombIndex, *BombLocation.ToString());
@@ -322,13 +318,9 @@ void UFlareWeapon::FillBombs()
 		BombLocation = SocketMatrix.TransformPosition(-BombHardpoint->RelativeLocation);
 
 		//FLOGV("Bomb %d BombLocation2=%s", BombIndex, *BombLocation.ToString());
-
-
 		//FLOGV("Bomb %d HardPointWorldTransform.Rotator()=%s", BombIndex, *(HardPointWorldTransform.Rotator().ToString()));
 		//FLOGV("Bomb %d SocketMatrix.Rotator()=%s", BombIndex, *(SocketMatrix.Rotator().ToString()));
-
-
-
+		
 		float Roll = 0;
 
 		bool NegativeZScale = RelativeScale3D.Z < 0;
@@ -352,11 +344,9 @@ void UFlareWeapon::FillBombs()
 		FTransform LocalRotation(FRotator(0,0,Roll));
 
 		//FLOGV("Bomb %d Roll=%f", Roll);
-
-
+		
 		FTransform Rotation = LocalRotation * ComponentToWorld;
-
-
+		
 		//FLOGV("Bomb %d LocalRotation.Rotator()=%s", BombIndex, *(LocalRotation.Rotator().ToString()));
 		//FLOGV("Bomb %d Rotation.Rotator()=%s", BombIndex, *(Rotation.Rotator().ToString()));
 
@@ -378,6 +368,15 @@ void UFlareWeapon::FillBombs()
 
 		Bombs.Add(Bomb);
 	}
+}
+
+void UFlareWeapon::ClearBombs()
+{
+	for (int i = 0; i < Bombs.Num(); i++)
+	{
+		Bombs[i]->Destroy();
+	}
+	Bombs.Empty();
 }
 
 FVector UFlareWeapon::GetFireAxis() const
@@ -438,22 +437,21 @@ UStaticMesh* UFlareWeapon::GetMesh(bool PresentationMode) const
 	return Super::GetMesh(PresentationMode);
 }
 
-
-
 void UFlareWeapon::OnAttachmentChanged()
 {
+	Super::OnAttachmentChanged();
 
 	if (!AttachParent)
 	{
-		// Destroy attached bombs
-		for (int i = 0; i < Bombs.Num(); i++)
-		{
-			Bombs[i]->Destroy();
-		}
-		Bombs.Empty();
+		ClearBombs();
 	}
 }
 
+void UFlareWeapon::BeginDestroy()
+{
+	Super::BeginDestroy();
+	ClearBombs();
+}
 
 FText UFlareWeapon::GetSlotName() const
 {

@@ -29,7 +29,7 @@ public:
 
 	void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-	void SetupComponentMesh() override;
+	virtual void SetVisibleInUpgrade(bool Visible) override;
 
 	/** Start firing */
 	virtual void StartFire();
@@ -70,9 +70,13 @@ public:
 
 	virtual void SetTarget(AActor *NewTarget);
 
-	virtual void OnAttachmentChanged();
+	virtual void OnAttachmentChanged() override;
+
+	virtual void BeginDestroy() override;
 
 	virtual void FillBombs();
+
+	virtual void ClearBombs();
 
 	virtual FText GetSlotName() const;
 
