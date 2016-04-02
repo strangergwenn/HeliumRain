@@ -22,8 +22,7 @@ void UFlareSimulatedPlanetarium::Load()
 {
 	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
 	Sun.Sattelites.Empty();
-
-
+	
 	// Init the sun
 	Sun.Name = LOCTEXT("Sun", "Sun");
 	Sun.Identifier = "star-sun";
@@ -36,7 +35,6 @@ void UFlareSimulatedPlanetarium::Load()
 	Sun.RotationAngle = 0;
 
 	// Nema
-
 	FFlareCelestialBody Nema;
 	{
 		Nema.Name = LOCTEXT("Nema", "Nema");
@@ -72,6 +70,15 @@ void UFlareSimulatedPlanetarium::Load()
 		Asta.RotationVelocity = 0.05;
 		Asta.OrbitDistance = 870000;
 		Nema.Sattelites.Add(Asta);
+
+		FFlareCelestialBody Adena;
+		Adena.Name = LOCTEXT("Adena", "Adena");
+		Adena.Identifier = "adena";
+		Adena.Mass = 2e23;
+		Adena.Radius = 2500;
+		Adena.RotationVelocity = 0.04;
+		Adena.OrbitDistance = 1150000;
+		Nema.Sattelites.Add(Adena);
 	}
 	Sun.Sattelites.Add(Nema);
 }

@@ -254,6 +254,7 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
+
 	AFlareGame*                   Game;
 
 	FFlareCelestialBody           Sun;

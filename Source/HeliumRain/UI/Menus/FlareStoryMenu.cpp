@@ -109,7 +109,7 @@ void SFlareStoryMenu::Setup()
 	TextList.Add(LOCTEXT("Story2", "Interstellar colonial carrier Daedalus leaves Earth orbit with a crew of 9,000. Packed with mining gear and scientific equipment to investigate the Hydri system, it will reach 20% the speed of light.\n"));
 
 	TitleList.Add(LOCTEXT("Story3Title", "2213"));
-	TextList.Add(LOCTEXT("Story3", "ICC Daedalus enters the orbit of Nema, the giant planet orbiting \u03B2 Hydri. Its moons Asta, Anka and Hela are barren, desolated wastelands, unable to support life. Pumping stations are built around Nema to extract the valuable gases it's made of.\n"));
+	TextList.Add(LOCTEXT("Story3", "ICC Daedalus enters the orbit of Nema, the giant planet orbiting \u03B2 Hydri. Its moons are barren, desolated wastelands, unable to support life. Pumping stations are built around Nema to extract the valuable gases it's made of.\n"));
 
 	TitleList.Add(LOCTEXT("Story4Title", "2219"));
 	TextList.Add(LOCTEXT("Story4", "Daedalus is destroyed when some of the colonists attempt a return to Earth, only to meet military opposition from the others. As the colonial government breaks down, companies remain as the only social structures.\n"));

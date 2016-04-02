@@ -205,21 +205,47 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
+				// Anka
 				+ SVerticalBox::Slot()
 				[
 					SAssignNew(AnkaBox, SFlarePlanetaryBox)
 				]
+
+				// Asta
 				+ SVerticalBox::Slot()
 				[
 					SAssignNew(AstaBox, SFlarePlanetaryBox)
 				]
 			]
 
-			// Right column
+			// Right column : Hela & Adena
 			+ SHorizontalBox::Slot()
 			.VAlign(VAlign_Fill)
 			[
-				SAssignNew(HelaBox, SFlarePlanetaryBox)
+				SNew(SVerticalBox)
+				
+				// Future button & spacer
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Center)
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SFlareButton)
+					.Width(4)
+					.Visibility(EVisibility::Hidden)
+				]
+				
+				// Hela
+				+ SVerticalBox::Slot()
+				[
+					SAssignNew(HelaBox, SFlarePlanetaryBox)
+				]
+
+				// Adena
+				+ SVerticalBox::Slot()
+				[
+					SAssignNew(AdenaBox, SFlarePlanetaryBox)
+				]
 			]
 		]
 	];
@@ -258,6 +284,7 @@ void SFlareOrbitalMenu::Exit()
 	AnkaBox->ClearChildren();
 	AstaBox->ClearChildren();
 	HelaBox->ClearChildren();
+	AdenaBox->ClearChildren();
 	TravelsBox->ClearChildren();
 }
 
@@ -283,6 +310,7 @@ void SFlareOrbitalMenu::UpdateMap()
 	UpdateMapForBody(AnkaBox, &Game->GetSectorCatalog()->OrbitalBodies[1]);
 	UpdateMapForBody(AstaBox, &Game->GetSectorCatalog()->OrbitalBodies[2]);
 	UpdateMapForBody(HelaBox, &Game->GetSectorCatalog()->OrbitalBodies[3]);
+	UpdateMapForBody(AdenaBox, &Game->GetSectorCatalog()->OrbitalBodies[4]);
 }
 
 void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, const FFlareSectorCelestialBodyDescription* Body)

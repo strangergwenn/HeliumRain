@@ -82,6 +82,8 @@ protected:
 	// Notable sectors (Asta)
 	UFlareSimulatedSector*                     Decay;
 
+	// Notable sectors (Adena)
+
 
 	// Companies
 	UFlareCompany*                             MiningSyndicate;

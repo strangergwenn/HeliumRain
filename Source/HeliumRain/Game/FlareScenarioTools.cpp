@@ -52,6 +52,8 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	// Notable sectors (Asta)
 	Decay =       World->FindSector("decay");
 
+	// Notable sectors (Adena)
+
 	// Companies
 	MiningSyndicate =      World->FindCompanyByShortName("MSY");
 	HelixFoundries =       World->FindCompanyByShortName("HFR");
