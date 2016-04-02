@@ -804,7 +804,7 @@ void AFlareMenuManager::OpenOrbit()
 	CurrentMenu = EFlareMenu::MENU_Orbit;
 	GetPC()->OnEnterMenu();
 	OrbitMenu->Enter();
-	GetPC()->UpdateMenuTheme();
+	UseDarkBackground();
 }
 
 void AFlareMenuManager::OpenLeaderboard()

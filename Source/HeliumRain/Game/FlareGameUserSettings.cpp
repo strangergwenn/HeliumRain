@@ -17,7 +17,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	Super::SetToDefaults();
 
 	ScreenPercentage = 100;
-	UseDarkThemeForStrategy = true;
+	UseDarkThemeForStrategy = false;
 	UseDarkThemeForNavigation = false;
 	UseCockpit = true;
 	MusicVolume = 8;
