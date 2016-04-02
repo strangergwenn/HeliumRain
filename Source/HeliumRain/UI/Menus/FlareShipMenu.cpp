@@ -584,7 +584,7 @@ EVisibility SFlareShipMenu::GetEngineVisibility() const
 EVisibility SFlareShipMenu::GetFactoryControlsVisibility() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC && TargetSpacecraft && PC->GetCompany()->GetWarState(TargetSpacecraft->GetCompany()) != EFlareHostility::Hostile)
+	if (PC && TargetSpacecraft && PC->GetCompany() == TargetSpacecraft->GetCompany())
 	{
 		return EVisibility::Visible;
 	}
