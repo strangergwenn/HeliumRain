@@ -123,17 +123,17 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 void UFlareScenarioTools::FillWorld()
 {
 	// Discover some sectors
-	PlayerCompany->DiscoverSector(BlueHeart);
-	PlayerCompany->DiscoverSector(MinerHome);
-	PlayerCompany->DiscoverSector(Lighthouse);
-	PlayerCompany->DiscoverSector(TheSpire);
-	PlayerCompany->DiscoverSector(TheDepths);
-	PlayerCompany->DiscoverSector(FirstLight);
-	PlayerCompany->DiscoverSector(Outpost);
-	PlayerCompany->DiscoverSector(Crossroads);
+	DiscoverKwownWorld(PlayerCompany);
 	PlayerCompany->DiscoverSector(TheDig);
-	PlayerCompany->DiscoverSector(FrozenRealm);
 	PlayerCompany->DiscoverSector(Decay);
+
+	DiscoverKwownWorld(MiningSyndicate);
+	DiscoverKwownWorld(HelixFoundries);
+	DiscoverKwownWorld(Sunwatch);
+	DiscoverKwownWorld(MiningSyndicate);
+	DiscoverKwownWorld(UnitedFarmsChemicals);
+	DiscoverKwownWorld(IonLane);
+	DiscoverKwownWorld(GhostWorksShipyards);
 
 	// Company setup
 	PlayerCompany->GiveMoney(100000);
@@ -143,6 +143,8 @@ void UFlareScenarioTools::FillWorld()
 	UnitedFarmsChemicals->GiveMoney(100000);
 	IonLane->GiveMoney(100000);
 	GhostWorksShipyards->GiveMoney(100000);
+
+
 
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);
@@ -424,5 +426,17 @@ void UFlareScenarioTools::SetupAsteroids(UFlareSimulatedSector* Sector, int32 Co
 	FLOGV("UFlareScenarioTools::SetupAsteroids : Spawned %d asteroids", AsteroidCount);
 }
 
+void UFlareScenarioTools::DiscoverKwownWorld(UFlareCompany* Company)
+{
+	Company->DiscoverSector(BlueHeart);
+	Company->DiscoverSector(MinerHome);
+	Company->DiscoverSector(Lighthouse);
+	Company->DiscoverSector(TheSpire);
+	Company->DiscoverSector(TheDepths);
+	Company->DiscoverSector(FirstLight);
+	Company->DiscoverSector(Outpost);
+	Company->DiscoverSector(Crossroads);
+	Company->DiscoverSector(FrozenRealm);
+}
 
 #undef LOCTEXT_NAMESPACE

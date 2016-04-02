@@ -101,7 +101,14 @@ bool UFlareTravel::CanChangeDestination()
 
 void UFlareTravel::GenerateTravelDuration()
 {
-	TravelDuration = 0;
+	UFlareSimulatedSector* OriginSector = Game->GetGameWorld()->FindSector(TravelData.OriginSectorIdentifier);
+
+	TravelDuration = ComputeTravelDuration(Game->GetGameWorld(), OriginSector, DestinationSector);
+}
+
+int64 UFlareTravel::ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSector* OriginSector, UFlareSimulatedSector* DestinationSector)
+{
+	int64 TravelDuration = 0;
 
 	double OriginAltitude;
 	double DestinationAltitude;
@@ -110,7 +117,6 @@ void UFlareTravel::GenerateTravelDuration()
 	FName OriginCelestialBodyIdentifier;
 	FName DestinationCelestialBodyIdentifier;
 
-	UFlareSimulatedSector* OriginSector = Game->GetGameWorld()->FindSector(TravelData.OriginSectorIdentifier);
 
 	OriginAltitude = OriginSector->GetOrbitParameters()->Altitude;
 	OriginCelestialBodyIdentifier = OriginSector->GetOrbitParameters()->CelestialBodyIdentifier;
@@ -123,27 +129,29 @@ void UFlareTravel::GenerateTravelDuration()
 	if (OriginCelestialBodyIdentifier == DestinationCelestialBodyIdentifier && OriginAltitude == DestinationAltitude)
 	{
 		// Phase change travel
-		FFlareCelestialBody* CelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
-		TravelDuration = ComputePhaseTravelDuration(CelestialBody, OriginAltitude, OriginPhase, DestinationPhase) / UFlareGameTools::SECONDS_IN_DAY;
+		FFlareCelestialBody* CelestialBody = World->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
+		TravelDuration = ComputePhaseTravelDuration(World, CelestialBody, OriginAltitude, OriginPhase, DestinationPhase) / UFlareGameTools::SECONDS_IN_DAY;
 	}
 	else
 	{
 		// Altitude change travel
-		FFlareCelestialBody* OriginCelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
-		FFlareCelestialBody* DestinationCelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(DestinationCelestialBodyIdentifier);
+		FFlareCelestialBody* OriginCelestialBody = World->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
+		FFlareCelestialBody* DestinationCelestialBody = World->GetPlanerarium()->FindCelestialBody(DestinationCelestialBodyIdentifier);
 
-		TravelDuration = ComputeAltitudeTravelDuration(OriginCelestialBody, OriginAltitude, DestinationCelestialBody, DestinationAltitude) / UFlareGameTools::SECONDS_IN_DAY;
+		TravelDuration = ComputeAltitudeTravelDuration(World, OriginCelestialBody, OriginAltitude, DestinationCelestialBody, DestinationAltitude) / UFlareGameTools::SECONDS_IN_DAY;
 	}
+
+	return TravelDuration;
 }
 
-double UFlareTravel::ComputeSphereOfInfluenceAltitude(FFlareCelestialBody* CelestialBody)
+double UFlareTravel::ComputeSphereOfInfluenceAltitude(UFlareWorld* World, FFlareCelestialBody* CelestialBody)
 {
-	FFlareCelestialBody* ParentCelestialBody = Game->GetGameWorld()->GetPlanerarium()->FindParent(CelestialBody);
+	FFlareCelestialBody* ParentCelestialBody = World->GetPlanerarium()->FindParent(CelestialBody);
 	return CelestialBody->OrbitDistance * pow(CelestialBody->Mass / ParentCelestialBody->Mass, 0.4) - CelestialBody->Radius;
 }
 
 
-int64 UFlareTravel::ComputePhaseTravelDuration(FFlareCelestialBody* CelestialBody, double Altitude, double OriginPhase, double DestinationPhase)
+int64 UFlareTravel::ComputePhaseTravelDuration(UFlareWorld* World, FFlareCelestialBody* CelestialBody, double Altitude, double OriginPhase, double DestinationPhase)
 {
 	double TravelPhase =  FMath::Abs(FMath::UnwindDegrees(DestinationPhase - OriginPhase));
 
@@ -154,57 +162,57 @@ int64 UFlareTravel::ComputePhaseTravelDuration(FFlareCelestialBody* CelestialBod
 	return TRAVEL_DURATION_PER_PHASE_KM * TravelDistance;
 }
 
-int64 UFlareTravel::ComputeAltitudeTravelDuration(FFlareCelestialBody* OriginCelestialBody, double OriginAltitude, FFlareCelestialBody* DestinationCelestialBody, double DestinationAltitude)
+int64 UFlareTravel::ComputeAltitudeTravelDuration(UFlareWorld* World, FFlareCelestialBody* OriginCelestialBody, double OriginAltitude, FFlareCelestialBody* DestinationCelestialBody, double DestinationAltitude)
 {
 	double TravelAltitude;
 
 	if (OriginCelestialBody == DestinationCelestialBody)
 	{
-		TravelAltitude = ComputeAltitudeTravelDistance(OriginAltitude, DestinationAltitude);
+		TravelAltitude = ComputeAltitudeTravelDistance(World, OriginAltitude, DestinationAltitude);
 	}
-	else if (Game->GetGameWorld()->GetPlanerarium()->IsSatellite(DestinationCelestialBody, OriginCelestialBody))
+	else if (World->GetPlanerarium()->IsSatellite(DestinationCelestialBody, OriginCelestialBody))
 	{
 		// Planet to moon
-		TravelAltitude = ComputeAltitudeTravelToMoonDistance(OriginCelestialBody, OriginAltitude, DestinationCelestialBody) +
-			ComputeAltitudeTravelToSoiDistance(DestinationCelestialBody, DestinationAltitude);
+		TravelAltitude = ComputeAltitudeTravelToMoonDistance(World, OriginCelestialBody, OriginAltitude, DestinationCelestialBody) +
+			ComputeAltitudeTravelToSoiDistance(World, DestinationCelestialBody, DestinationAltitude);
 	}
-	else if (Game->GetGameWorld()->GetPlanerarium()->IsSatellite(OriginCelestialBody, DestinationCelestialBody))
+	else if (World->GetPlanerarium()->IsSatellite(OriginCelestialBody, DestinationCelestialBody))
 	{
 		// Moon to planet
-		TravelAltitude = ComputeAltitudeTravelToSoiDistance(OriginCelestialBody, OriginAltitude) +
-				ComputeAltitudeTravelToMoonDistance(DestinationCelestialBody, DestinationAltitude, OriginCelestialBody);
+		TravelAltitude = ComputeAltitudeTravelToSoiDistance(World, OriginCelestialBody, OriginAltitude) +
+				ComputeAltitudeTravelToMoonDistance(World, DestinationCelestialBody, DestinationAltitude, OriginCelestialBody);
 	}
 	else
 	{
-		TravelAltitude = ComputeAltitudeTravelToSoiDistance(OriginCelestialBody, OriginAltitude) +
-				ComputeAltitudeTravelMoonToMoonDistance(OriginCelestialBody, DestinationCelestialBody) +
-				ComputeAltitudeTravelToSoiDistance(DestinationCelestialBody, DestinationAltitude);
+		TravelAltitude = ComputeAltitudeTravelToSoiDistance(World, OriginCelestialBody, OriginAltitude) +
+				ComputeAltitudeTravelMoonToMoonDistance(World, OriginCelestialBody, DestinationCelestialBody) +
+				ComputeAltitudeTravelToSoiDistance(World, DestinationCelestialBody, DestinationAltitude);
 	}
 
 	return TRAVEL_DURATION_PER_ALTITUDE_KM * TravelAltitude;
 }
 
-double UFlareTravel::ComputeAltitudeTravelDistance(double OriginAltitude, double DestinationAltitude)
+double UFlareTravel::ComputeAltitudeTravelDistance(UFlareWorld* World, double OriginAltitude, double DestinationAltitude)
 {
 	// Altitude change in same celestial body
 	return FMath::Abs(DestinationAltitude - OriginAltitude);
 }
 
-double UFlareTravel::ComputeAltitudeTravelToSoiDistance(FFlareCelestialBody* CelestialBody, double Altitude)
+double UFlareTravel::ComputeAltitudeTravelToSoiDistance(UFlareWorld* World, FFlareCelestialBody* CelestialBody, double Altitude)
 {
-	double MoonSoiAltitude = ComputeSphereOfInfluenceAltitude(CelestialBody);
+	double MoonSoiAltitude = ComputeSphereOfInfluenceAltitude(World, CelestialBody);
 	// Travel from moon SOI to moon target altitude
 	return FMath::Abs(Altitude - MoonSoiAltitude);
 }
 
-double UFlareTravel::ComputeAltitudeTravelToMoonDistance(FFlareCelestialBody* ParentCelestialBody, double Altitude, FFlareCelestialBody* MoonCelestialBody)
+double UFlareTravel::ComputeAltitudeTravelToMoonDistance(UFlareWorld* World, FFlareCelestialBody* ParentCelestialBody, double Altitude, FFlareCelestialBody* MoonCelestialBody)
 {
 	double MoonAltitude = MoonCelestialBody->OrbitDistance - ParentCelestialBody->Radius;
 	// Travel to moon altitude
 	return FMath::Abs(MoonAltitude - Altitude);
 }
 
-double UFlareTravel::ComputeAltitudeTravelMoonToMoonDistance(FFlareCelestialBody* OriginCelestialBody, FFlareCelestialBody* DestinationCelestialBody)
+double UFlareTravel::ComputeAltitudeTravelMoonToMoonDistance(UFlareWorld* World, FFlareCelestialBody* OriginCelestialBody, FFlareCelestialBody* DestinationCelestialBody)
 {
 	// Moon1 orbit  to moon2 orbit
 	return FMath::Abs(DestinationCelestialBody->OrbitDistance - OriginCelestialBody->OrbitDistance);

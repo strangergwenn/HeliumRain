@@ -85,7 +85,7 @@ void UFlareTradeRoute::Simulate()
 							ResourceToGive = FMath::Min(ResourceToGive, ResourceToUnload->Quantity - SectorResourceCount);
 						}
 
-                        uint32 GivenResources = CurrentSector->GiveResources(Company, Resource, ResourceToGive);
+						uint32 GivenResources = CurrentSector->GiveResources(Company, Resource, ResourceToGive, true);
 						Ship->GetCargoBay()->TakeResources(Resource, GivenResources);
 					}
 				}

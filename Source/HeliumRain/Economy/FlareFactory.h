@@ -266,6 +266,11 @@ public:
 		return FactoryData.ProductedDuration;
 	}
 
+	inline int64 GetProductionDuration()
+	{
+		return GetCycleData().ProductionTime;
+	}
+
 	inline bool IsActive()
 	{
 		return FactoryData.Active;
@@ -297,9 +302,15 @@ public:
 
 	int32 GetInputResourcesCount();
 
+	int32 GetOutputResourcesCount();
+
 	FFlareResourceDescription* GetInputResource(int32 Index);
 
+	FFlareResourceDescription* GetOutputResource(int32 Index);
+
 	uint32 GetInputResourceQuantity(int32 Index);
+
+	uint32 GetOutputResourceQuantity(int32 Index);
 
 	bool HasOutputResource(FFlareResourceDescription* Resource);
 

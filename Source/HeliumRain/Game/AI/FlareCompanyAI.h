@@ -7,6 +7,21 @@
 class UFlareCompany;
 
 
+struct ResourceVariation
+{
+	int32 OwnedFlow;
+	int32 FactoryFlow;
+
+	int32 OwnedStock;
+	int32 FactoryStock;
+	int32 StorageStock;
+
+	int32 OwnedCapacity;
+	int32 FactoryCapacity;
+	int32 StorageCapacity;
+
+};
+
 UCLASS()
 class HELIUMRAIN_API UFlareCompanyAI : public UObject
 {
@@ -68,6 +83,12 @@ protected:
 	virtual void UnassignShipsFromSector(UFlareSimulatedSector* Sector, uint32 Capacity);
 
 	virtual void AssignShipsToSector(UFlareSimulatedSector* Sector, uint32 Capacity);
+
+	TMap<FFlareResourceDescription*, ResourceVariation> ComputeSectorResourceVariation(UFlareSimulatedSector* Sector);
+
+	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation);
+
+	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos();
 
 	protected:
 

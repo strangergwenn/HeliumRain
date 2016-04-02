@@ -4,7 +4,7 @@
 #include "FlareTravel.generated.h"
 
 struct FFlareCelestialBody;
-
+class UFlareWorld;
 
 /** Travel save data */
 USTRUCT()
@@ -63,21 +63,25 @@ public:
 
 	FFlareSectorOrbitParameters ComputeCurrentTravelLocation();
 
-	double ComputeSphereOfInfluenceAltitude(FFlareCelestialBody* CelestialBody);
+	static int64 ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSector* OriginSector, UFlareSimulatedSector* DestinationSector);
 
-	int64 ComputePhaseTravelDuration(FFlareCelestialBody* CelestialBody, double Altitude, double OriginPhase, double DestinationPhase);
+	static int64 ComputePhaseTravelDuration(UFlareWorld* World, FFlareCelestialBody* CelestialBody, double Altitude, double OriginPhase, double DestinationPhase);
 
-	int64 ComputeAltitudeTravelDuration(FFlareCelestialBody* OriginCelestialBody, double OriginAltitude, FFlareCelestialBody* DestinationCelestialBody, double DestinationAltitude);
+	static int64 ComputeAltitudeTravelDuration(UFlareWorld* World, FFlareCelestialBody* OriginCelestialBody, double OriginAltitude, FFlareCelestialBody* DestinationCelestialBody, double DestinationAltitude);
 
-	double ComputeAltitudeTravelDistance(double OriginAltitude, double DestinationAltitude);
+	static double ComputeSphereOfInfluenceAltitude(UFlareWorld* World, FFlareCelestialBody* CelestialBody);
 
-	double ComputeAltitudeTravelToSoiDistance(FFlareCelestialBody* CelestialBody, double Altitude);
+	static double ComputeAltitudeTravelDistance(UFlareWorld* World, double OriginAltitude, double DestinationAltitude);
 
-	double ComputeAltitudeTravelToMoonDistance(FFlareCelestialBody* ParentCelestialBody, double Altitude, FFlareCelestialBody*MoonCelestialBody);
+	static double ComputeAltitudeTravelToSoiDistance(UFlareWorld* World, FFlareCelestialBody* CelestialBody, double Altitude);
 
-	double ComputeAltitudeTravelMoonToMoonDistance(FFlareCelestialBody* OriginCelestialBody, FFlareCelestialBody* DestinationCelestialBody);
+	static double ComputeAltitudeTravelToMoonDistance(UFlareWorld* World, FFlareCelestialBody* ParentCelestialBody, double Altitude, FFlareCelestialBody*MoonCelestialBody);
 
-	FFlareSectorOrbitParameters ComputeAltitudeTravelLocation(FFlareCelestialBody* CelestialBody, double OriginAltitude, double DestinationAltitude, int64 ElapsedTime);
+	static double ComputeAltitudeTravelMoonToMoonDistance(UFlareWorld* World, FFlareCelestialBody* OriginCelestialBody, FFlareCelestialBody* DestinationCelestialBody);
+
+	FFlareSectorOrbitParameters ComputeAltitudeTravelLocation(UFlareWorld* World, FFlareCelestialBody* CelestialBody, double OriginAltitude, double DestinationAltitude, int64 ElapsedTime);
+
+
 
 protected:
 

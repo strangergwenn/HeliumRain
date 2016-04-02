@@ -53,6 +53,9 @@ protected:
 	/** Create a station and fill its input */
 	void CreateStation(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count);
 
+	/** Discover all public sectors*/
+	void DiscoverKwownWorld(UFlareCompany* Company);
+
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/

@@ -703,14 +703,29 @@ int32 UFlareFactory::GetInputResourcesCount()
 	return GetCycleData().InputResources.Num();
 }
 
+int32 UFlareFactory::GetOutputResourcesCount()
+{
+	return GetCycleData().OutputResources.Num();
+}
+
 FFlareResourceDescription* UFlareFactory::GetInputResource(int32 Index)
 {
 	return &GetCycleData().InputResources[Index].Resource->Data;
 }
 
+FFlareResourceDescription* UFlareFactory::GetOutputResource(int32 Index)
+{
+	return &GetCycleData().OutputResources[Index].Resource->Data;
+}
+
 uint32 UFlareFactory::GetInputResourceQuantity(int32 Index)
 {
 	return GetCycleData().InputResources[Index].Quantity;
+}
+
+uint32 UFlareFactory::GetOutputResourceQuantity(int32 Index)
+{
+	return GetCycleData().OutputResources[Index].Quantity;
 }
 
 bool UFlareFactory::HasOutputResource(FFlareResourceDescription* Resource)
