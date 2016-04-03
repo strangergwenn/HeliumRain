@@ -132,21 +132,19 @@ void UFlarePeople::SimulateResourcePurchase()
 	FFlareResourceDescription* Tools = Game->GetResourceCatalog()->Get("tools");
 	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
 
-	// Buy at food for 15 days
-	uint32 FoodToHave =  PeopleData.Population * 15; // In kg
-	if(FoodToHave > PeopleData.FoodStock)
-	{
-		uint32 FoodToBuy = FoodToHave - PeopleData.FoodStock;
-		FLOGV("  FoodToBuy: %u", FoodToBuy);
-		uint32 BoughtFood = BuyResourcesInSector(Food, FoodToBuy / 1000); // In Tons
-		FLOGV("  BoughtFood: %u", BoughtFood);
-		PeopleData.FoodStock += BoughtFood * 1000; // In kg
-	}
+	uint32 BoughtFood = BuyResourcesInSector(Food, GetRessourceConsumption(Food)); // In Tons
+	FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
+	PeopleData.FoodStock += BoughtFood * 1000; // In kg
+
 
 	// Todo stock
-	uint32 BoughtFuel = BuyResourcesInSector(Fuel, PeopleData.Population / 1000); // In Tons
-	uint32 BoughtTools = BuyResourcesInSector(Tools, PeopleData.Population / 1000); // In Tons
-	uint32 BoughtTech = BuyResourcesInSector(Tech, PeopleData.Population / 1000); // In Tons
+	uint32 BoughtFuel = BuyResourcesInSector(Fuel, GetRessourceConsumption(Fuel)); // In Tons
+	uint32 BoughtTools = BuyResourcesInSector(Tools, GetRessourceConsumption(Tools)); // In Tons
+	uint32 BoughtTech = BuyResourcesInSector(Tech, GetRessourceConsumption(Tech)); // In Tons
+	FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
+	FLOGV("People in %s bought %u tools", *Parent->GetSectorName().ToString(), BoughtTools);
+	FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
+
 
 	PeopleData.HappinessPoint += BoughtFuel + BoughtTools + BoughtTech;
 
@@ -172,7 +170,8 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 	}
 
 	// Limit quantity to buy with money
-	uint32 ResourceToBuy = FMath::Min(Quantity, PeopleData.Money / (uint32) (Parent->GetResourcePrice(Resource)*1.05));
+	uint32 BaseQuantity = FMath::Min(Quantity, PeopleData.Money / (uint32) (Parent->GetResourcePrice(Resource)*1.05));
+	uint32 ResourceToBuy = BaseQuantity;
 
 	while(ResourceToBuy > 0 && SellingCompanies.Num() > 0)
 	{
@@ -195,6 +194,7 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 
 			uint32 BoughtQuantity = BuyInStationForCompany(Resource, PartToBuy, SellingCompanies[CompanyIndex], SellingStations);
 			ResourceToBuy -= BoughtQuantity;
+
 			if(PartToBuy == 0 || BoughtQuantity < PartToBuy)
 			{
 				SellingCompanies.RemoveAt(CompanyIndex);
@@ -202,7 +202,7 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 		}
 	}
 
-	return Quantity - ResourceToBuy;
+	return BaseQuantity - ResourceToBuy;
 }
 
 uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations)
@@ -228,6 +228,39 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 	}
 
 	return Quantity - RemainingQuantity;
+}
+
+uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
+{
+	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
+	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
+	FFlareResourceDescription* Tools = Game->GetResourceCatalog()->Get("tools");
+	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
+
+	if (Resource == Food)
+	{
+		// Buy at food for 15 days
+		uint32 FoodToHave =  PeopleData.Population * 15; // In kg
+		if(FoodToHave > PeopleData.FoodStock)
+		{
+			uint32 FoodToBuy = FoodToHave - PeopleData.FoodStock;
+			return FoodToBuy;
+		}
+	}
+	else if (Resource == Fuel)
+	{
+		return PeopleData.Population / 1000;
+	}
+	else if (Resource == Tools)
+	{
+		return PeopleData.Population / 1000;
+	}
+	else if (Resource == Tech)
+	{
+		return PeopleData.Population / 1000;
+	}
+
+	return 0;
 }
 
 void UFlarePeople::GiveBirth(uint32 BirthCount)

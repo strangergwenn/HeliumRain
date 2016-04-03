@@ -33,4 +33,6 @@ public:
 	/** Get a resource from identifier */
 	FFlareResourceDescription* Get(FName Identifier) const;
 
+	bool IsCustomerResource(FFlareResourceDescription* Resource) const;
+
 };

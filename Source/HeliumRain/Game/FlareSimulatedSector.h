@@ -89,8 +89,10 @@ public:
 	uint32 TakeResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
 
 	uint32 GiveResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToGive, bool AllowTrade);
+	uint32 DoGiveResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToGive, bool AllowTrade);
 
 	uint32 AdaptativeGiveResources(UFlareCompany* Company, FFlareResourceDescription* GivenResource, uint32 QuantityToGive, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool StorageOnly, bool AllowTrade);
+	uint32 AdaptativeGiveCustomerResources(UFlareCompany* Company, FFlareResourceDescription* GivenResource, uint32 QuantityToGive, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool AllowTrade);
 
 protected:
 

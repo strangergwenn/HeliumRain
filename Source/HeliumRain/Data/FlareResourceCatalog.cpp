@@ -31,3 +31,15 @@ FFlareResourceDescription* UFlareResourceCatalog::Get(FName Identifier) const
 
 	return NULL;
 }
+
+bool UFlareResourceCatalog::IsCustomerResource(FFlareResourceDescription* Resource) const
+{
+	for (int32 ResourceIndex = 0; ResourceIndex < ConsumerResources.Num(); ResourceIndex++)
+	{
+		if(Resource == &ConsumerResources[ResourceIndex]->Data)
+		{
+			return true;
+		}
+	}
+	return false;
+}

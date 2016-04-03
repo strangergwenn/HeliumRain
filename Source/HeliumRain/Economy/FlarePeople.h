@@ -81,6 +81,8 @@ public:
 
 	uint32 BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations);
 
+	uint32 GetRessourceConsumption(FFlareResourceDescription* Resource);
+
 	void GiveBirth(uint32 BirthCount);
 
 	void KillPeople(uint32 KillCount);
@@ -96,6 +98,7 @@ public:
 	void TakeMoney(uint32 Amount);
 
 	void ResetPeople();
+
 
 protected:
 

@@ -627,6 +627,8 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 		SectorVariations.Add(Resource, ResourceVariation);
 	}
 
+	uint32 OwnedCustomerStation = 0;
+	uint32 NotOwnedCustomerStation = 0;
 
 	for (int32 StationIndex = 0 ; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
 	{
@@ -638,12 +640,11 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 			continue;
 		}
 
+		uint32 SlotCapacity = Station->GetCargoBay()->GetSlotCapacity();
 
 		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
-			uint32 SlotCapacity = Station->GetCargoBay()->GetSlotCapacity();
-
 			if ((!Factory->IsActive() || !Factory->IsNeedProduction()))
 			{
 				// No resources needed
@@ -722,10 +723,63 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 				}
 			}
 
+
 			// TODO habitation
 
 			// TODO storage
 
+		}
+
+		// Customer flow
+		if (Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		{
+			if (Company == Station->GetCompany())
+			{
+				OwnedCustomerStation++;
+			}
+			else
+			{
+				NotOwnedCustomerStation++;
+			}
+
+			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+			{
+				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+				struct ResourceVariation* Variation = &SectorVariations[Resource];
+
+				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				if (ResourceQuantity < SlotCapacity)
+				{
+					uint32 Capacity = SlotCapacity - ResourceQuantity;
+					if (Company == Station->GetCompany())
+					{
+						Variation->OwnedCapacity += Capacity;
+					}
+					else
+					{
+						Variation->FactoryCapacity += Capacity;
+					}
+				}
+
+			}
+		}
+	}
+
+	if(OwnedCustomerStation || NotOwnedCustomerStation)
+	{
+		float OwnedCustomerRatio = (float) OwnedCustomerStation / (float) (OwnedCustomerStation + NotOwnedCustomerStation);
+		float NotOwnedCustomerRatio = (float) NotOwnedCustomerStation / (float) (OwnedCustomerStation + NotOwnedCustomerStation);
+
+		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+			struct ResourceVariation* Variation = &SectorVariations[Resource];
+
+
+			uint32 Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource);
+
+			Variation->OwnedFlow = OwnedCustomerRatio * Consumption;
+			Variation->FactoryFlow = NotOwnedCustomerRatio * Consumption;
 		}
 	}
 
