@@ -313,6 +313,25 @@ void SFlareOrbitalMenu::UpdateMap()
 	UpdateMapForBody(AdenaBox, &Game->GetSectorCatalog()->OrbitalBodies[4]);
 }
 
+struct FSortByAltitudeAndPhase
+{
+	inline bool operator()(UFlareSimulatedSector& SectorA, UFlareSimulatedSector& SectorB) const
+	{
+		if (SectorA.GetOrbitParameters()->Altitude > SectorB.GetOrbitParameters()->Altitude)
+		{
+			return false;
+		}
+		else if (SectorA.GetOrbitParameters()->Phase > SectorB.GetOrbitParameters()->Phase)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+};
+
 void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, const FFlareSectorCelestialBodyDescription* Body)
 {
 	// Setup the planetary map
@@ -328,22 +347,27 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 		.Text(Body->CelestialBodyName)
 	];
 
+	// Get sectors
+	TArray<UFlareSimulatedSector*> KnownSectors = MenuManager->GetPC()->GetCompany()->GetKnownSectors();
+	KnownSectors = KnownSectors.FilterByPredicate(
+		[&](UFlareSimulatedSector* Sector)
+		{
+			return Sector->GetOrbitParameters()->CelestialBodyIdentifier == Body->CelestialBodyIdentifier;
+		});
+	KnownSectors.Sort(FSortByAltitudeAndPhase());
+
 	// Add the sectors
-	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+	for (int32 SectorIndex = 0; SectorIndex < KnownSectors.Num(); SectorIndex++)
 	{
 		TSharedPtr<int32> IndexPtr(new int32(SectorIndex));
-		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
-
-		if (Sector->GetOrbitParameters()->CelestialBodyIdentifier == Body->CelestialBodyIdentifier)
-		{
-			Map->AddSlot()
-			[
-				SNew(SFlareSectorButton)
-				.Sector(Sector)
-				.PlayerCompany(MenuManager->GetPC()->GetCompany())
-				.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
-			];
-		}
+		UFlareSimulatedSector* Sector = KnownSectors[SectorIndex];
+		Map->AddSlot()
+		[
+			SNew(SFlareSectorButton)
+			.Sector(Sector)
+			.PlayerCompany(MenuManager->GetPC()->GetCompany())
+			.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
+		];
 	}
 }
 
