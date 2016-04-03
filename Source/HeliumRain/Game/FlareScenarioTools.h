@@ -18,8 +18,7 @@ public:
 	----------------------------------------------------*/
 
 	void Init(UFlareCompany* Company, FFlarePlayerSave* Player);
-
-
+	
 	void GenerateEmptyScenario();
 
 	void GenerateFighterScenario();
@@ -28,11 +27,25 @@ public:
 
 	void GenerateDebugScenario();
 	
-	/** Setup the common world */
-	void FillWorld();
-
-
+	
 protected:
+
+	/*----------------------------------------------------
+		Common world
+	----------------------------------------------------*/
+
+	/** Setup the common world */
+	void SetupWorld();
+
+	/** Setup asteroids */
+	void SetupAsteroids();
+
+	/** Setup artifacts */
+	void SetupArtifacts();
+
+	/** Discover all public sectors*/
+	void SetupKnownSectors(UFlareCompany* Company);
+
 
 	/*----------------------------------------------------
 		Helpers
@@ -41,20 +54,15 @@ protected:
 	/** Create the player ship */
 	void CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class);
 
-	/** Create asteroid, artefact and common things */
-	void SetupWorld();
-
 	/** Spawn a series of asteroids in this sector */
-	void SetupAsteroids(UFlareSimulatedSector* Sector, int32 Count = 50, FVector DistributionShape = FVector(2, 50, 1));
-	
+	void CreateAsteroids(UFlareSimulatedSector* Sector, int32 Count = 50, FVector DistributionShape = FVector(2, 50, 1));
+		
 	/** Create a ship */
-	void CreateShip(FName ShipClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count);
+	void CreateShips(FName ShipClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count);
 
 	/** Create a station and fill its input */
-	void CreateStation(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count);
+	void CreateStations(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count);
 
-	/** Discover all public sectors*/
-	void DiscoverKwownWorld(UFlareCompany* Company);
 
 	/*----------------------------------------------------
 		Protected data
@@ -67,27 +75,30 @@ protected:
 	UFlareWorld*                               World;
 
 	// Notable sectors (Nema)
-	UFlareSimulatedSector*                     BlueHeart;
-	UFlareSimulatedSector*                     MinerHome;
-	UFlareSimulatedSector*                     Lighthouse;
-	UFlareSimulatedSector*                     TheSpire;
 	UFlareSimulatedSector*                     TheDepths;
 	UFlareSimulatedSector*                     FirstLight;
+	UFlareSimulatedSector*                     MinersHome;
+	UFlareSimulatedSector*                     Anomaly;
+	UFlareSimulatedSector*                     BlueHeart;
+	UFlareSimulatedSector*                     Lighthouse;
+	UFlareSimulatedSector*                     TheSpire;
 
 	// Notable sectors (Anka)
 	UFlareSimulatedSector*                     Outpost;
+	UFlareSimulatedSector*                     Colossus;
 	UFlareSimulatedSector*                     Crossroads;
 	UFlareSimulatedSector*                     TheDig;
 
 	// Notable sectors (Hela)
 	UFlareSimulatedSector*                     FrozenRealm;
+	UFlareSimulatedSector*                     ShoreOfIce;
 
 	// Notable sectors (Asta)
 	UFlareSimulatedSector*                     Decay;
 
 	// Notable sectors (Adena)
-
-
+	UFlareSimulatedSector*                     Solitude;
+	
 	// Companies
 	UFlareCompany*                             MiningSyndicate;
 	UFlareCompany*                             HelixFoundries;

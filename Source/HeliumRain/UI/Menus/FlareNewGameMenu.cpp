@@ -25,7 +25,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	// Game starts
 	ScenarioList.Add(MakeShareable(new FString(TEXT("Freighter"))));
 	//ScenarioList.Add(MakeShareable(new FString(TEXT("Fighter"))));
-	ScenarioList.Add(MakeShareable(new FString(TEXT("Debug"))));
+	//ScenarioList.Add(MakeShareable(new FString(TEXT("Debug"))));
 
 	// Color
 	FLinearColor Color = Theme.NeutralColor;
