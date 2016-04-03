@@ -359,8 +359,9 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 	// Add the sectors
 	for (int32 SectorIndex = 0; SectorIndex < KnownSectors.Num(); SectorIndex++)
 	{
-		TSharedPtr<int32> IndexPtr(new int32(SectorIndex));
 		UFlareSimulatedSector* Sector = KnownSectors[SectorIndex];
+		TSharedPtr<int32> IndexPtr(new int32(MenuManager->GetPC()->GetCompany()->GetKnownSectors().Find(Sector)));
+
 		Map->AddSlot()
 		[
 			SNew(SFlareSectorButton)
