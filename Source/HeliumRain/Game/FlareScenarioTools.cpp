@@ -299,7 +299,6 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 4);
 	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 6);
 	CreateStations(StationHabitation, IonLane, BlueHeart, 4);
-	CreateStations(StationHabitation, IonLane, BlueHeart, 4);
 	CreateStations(StationMine, MiningSyndicate, MinersHome, 6);
 	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);
 	CreateStations(StationToolFactory, HelixFoundries, Outpost, 1);
