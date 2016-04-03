@@ -137,6 +137,12 @@ public:
 
 	uint32 GetImmobilizedShipCount();
 
+	/** Get the current ship count in the fleet */
+	uint32 GetShipCount();
+
+	/** Get the maximum ship count in a fleet */
+	uint32 GetMaxShipCount();
+
 	/** Return null if traveling */
 	inline UFlareSimulatedSector* GetCurrentSector()
 	{

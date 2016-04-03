@@ -78,6 +78,16 @@ uint32 UFlareFleet::GetImmobilizedShipCount()
 	return ImmobilizedShip;
 }
 
+uint32 UFlareFleet::GetShipCount()
+{
+	return FleetShips.Num();
+}
+
+uint32 UFlareFleet::GetMaxShipCount()
+{
+	return 20;
+}
+
 void UFlareFleet::RemoveImmobilizedShips()
 {
 	TArray<UFlareSimulatedSpacecraft*> ShipToRemove;
@@ -173,6 +183,11 @@ void UFlareFleet::Disband()
 
 bool UFlareFleet::CanMerge(UFlareFleet* Fleet)
 {
+	if (GetShipCount() + Fleet->GetShipCount() > GetMaxShipCount())
+	{
+		return false;
+	}
+
 	if (Fleet->IsTraveling())
 	{
 		return false;
