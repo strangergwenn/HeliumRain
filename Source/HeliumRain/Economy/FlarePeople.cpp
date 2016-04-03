@@ -244,24 +244,24 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 	if (Resource == Food)
 	{
 		// Buy at food for 15 days
-		uint32 FoodToHave =  PeopleData.Population * 15; // In kg
+		uint32 FoodToHave =  1000 + PeopleData.Population * 15; // In kg
 		if(FoodToHave > PeopleData.FoodStock)
 		{
 			uint32 FoodToBuy = FoodToHave - PeopleData.FoodStock;
-			return FoodToBuy;
+			return FoodToBuy / 1000;
 		}
 	}
 	else if (Resource == Fuel)
 	{
-		return PeopleData.Population / 1000;
+		return PeopleData.Population / 5000;
 	}
 	else if (Resource == Tools)
 	{
-		return PeopleData.Population / 1000;
+		return PeopleData.Population / 10000;
 	}
 	else if (Resource == Tech)
 	{
-		return PeopleData.Population / 1000;
+		return PeopleData.Population / 10000;
 	}
 
 	return 0;
@@ -348,7 +348,7 @@ void UFlarePeople::SetHappiness(float Happiness)
 
 void UFlarePeople::Pay(uint32 Amount)
 {
-	FLOGV("Pay to people for sector %s Amount=%u", *Parent->GetSectorName().ToString(), Amount)
+	//FLOGV("Pay to people for sector %s Amount=%u", *Parent->GetSectorName().ToString(), Amount)
 
 	uint32 Repayment = 0;
 	if(PeopleData.Dept > 0)

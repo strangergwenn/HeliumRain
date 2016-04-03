@@ -881,5 +881,37 @@ FText UFlareFactory::GetFactoryStatus()
 	return ProductionStatusText;
 }
 
+bool UFlareFactory::IsProducing()
+{
+	if (IsActive())
+	{
+		if (!IsNeedProduction())
+		{
+			return false;
+		}
+		else if (HasCostReserved())
+		{
+			if(HasOutputFreeSpace())
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if (HasInputMoney() && HasInputResources())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return false;
+}
+
 
 #undef LOCTEXT_NAMESPACE

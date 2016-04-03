@@ -317,11 +317,11 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHub, IonLane, FrozenRealm, 1);
 
 	// Create cargos
-	CreateShips(ShipOmen, IonLane, Crossroads, 30);
-	CreateShips(ShipOmen, MiningSyndicate, MinersHome, 5);
-	CreateShips(ShipOmen, HelixFoundries, Outpost, 2);
-	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 2);
-	CreateShips(ShipOmen, Sunwatch, Lighthouse, 2);
+	CreateShips(ShipOmen, IonLane, Crossroads, 60);
+	CreateShips(ShipOmen, MiningSyndicate, MinersHome, 10);
+	CreateShips(ShipOmen, HelixFoundries, Outpost, 4);
+	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 4);
+	CreateShips(ShipOmen, Sunwatch, Lighthouse, 4);
 
 }
 

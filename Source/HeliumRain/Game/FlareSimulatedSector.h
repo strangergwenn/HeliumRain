@@ -176,7 +176,7 @@ public:
 		return 30;
 	}
 
-	uint32 GetTransportCapacity(UFlareCompany* Company);
+	uint32 GetTransportCapacity(UFlareCompany* Company, bool AllCompanies = false);
 
 	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource);
 

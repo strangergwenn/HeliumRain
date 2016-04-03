@@ -281,6 +281,8 @@ public:
 		return !FactoryData.Active && FactoryData.ProductedDuration > 0;
 	}
 
+	bool IsProducing();
+
 	inline bool HasInfiniteCycle()
 	{
 		return FactoryData.InfiniteCycle;

@@ -655,7 +655,7 @@ void UFlareSimulatedSector::SimulateTransport()
 	for (int CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 	{
 		UFlareCompany* Company = GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex];
-		uint32 TransportCapacity = GetTransportCapacity(Company);
+		uint32 TransportCapacity = GetTransportCapacity(Company, false);
 
 		uint32 UsedCapacity = SimulateTransport(Company, TransportCapacity);
 
@@ -1407,14 +1407,14 @@ uint32 UFlareSimulatedSector::AdaptativeGiveCustomerResources(UFlareCompany* Com
 	return QuantityToGive - RemainingQuantityToGive;
 }
 
-uint32 UFlareSimulatedSector::GetTransportCapacity(UFlareCompany* Company)
+uint32 UFlareSimulatedSector::GetTransportCapacity(UFlareCompany* Company, bool AllCompanies)
 {
 	uint32 TransportCapacity = 0;
 
 	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
-		if (Ship->GetCompany() == Company && Ship->IsAssignedToSector())
+		if ((AllCompanies || Ship->GetCompany() == Company) && Ship->IsAssignedToSector())
 		{
 			TransportCapacity += Ship->GetCargoBay()->GetCapacity();
 		}
@@ -1443,7 +1443,7 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 
 int32 UFlareSimulatedSector::GetTransportCapacityBalance(UFlareCompany* Company, bool AllowTrade)
 {
-	return GetTransportCapacity(Company) -  GetTransportCapacityNeeds(Company, AllowTrade);
+	return GetTransportCapacity(Company, AllowTrade) -  GetTransportCapacityNeeds(Company, AllowTrade);
 }
 
 int32 UFlareSimulatedSector::GetTransportCapacityNeeds(UFlareCompany* Company, bool AllowTrade)
