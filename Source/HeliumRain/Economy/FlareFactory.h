@@ -330,5 +330,9 @@ public:
 		return FactoryData.ResourceReserved;
 	}
 
+	inline uint64 GetReservedMoney()
+	{
+		return FactoryData.CostReserved;
+	}
 
 };

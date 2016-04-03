@@ -143,6 +143,9 @@ protected:
 	AFlareGame*                             Game;
 
 public:
+	uint64 WorldMoneyReference;
+
+public:
 
 	/*----------------------------------------------------
 		Getters
@@ -191,5 +194,7 @@ public:
 	{
 		return Companies;
 	}
+
+	uint64 GetWorldMoney();
 
 };

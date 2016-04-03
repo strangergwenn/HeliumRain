@@ -125,6 +125,11 @@ public:
 		return Parent;
 	}
 
+	inline uint64 GetMoney()
+	{
+		return PeopleData.Money;
+	}
+
 	float GetHappiness();
 
 	FFlareCompanyReputationSave* GetCompanyReputation(UFlareCompany* Company);

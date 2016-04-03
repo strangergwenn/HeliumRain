@@ -26,6 +26,7 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 	// Init planetarium
 	Planetarium = NewObject<UFlareSimulatedPlanetarium>(this, UFlareSimulatedPlanetarium::StaticClass());
 	Planetarium->Load();
+	WorldMoneyReference = 0;
 
     // Load all companies
     for (int32 i = 0; i < WorldData.CompanyData.Num(); i++)
@@ -256,11 +257,26 @@ void UFlareWorld::Simulate()
 	}
 
 
+	// Check money integrity
+	if (WorldMoneyReference == 0)
+	{
+		WorldMoneyReference = GetWorldMoney();
+	}
+	else
+	{
+		uint64 WorldMoney = GetWorldMoney();
+
+		if (WorldMoneyReference != GetWorldMoney())
+		{
+			FLOGV("WARNING : World money integrity failure : world contain %lld credits but reference is %lld", WorldMoney, WorldMoneyReference)
+		}
+	}
+
+
 	/**
 	 *  Begin day
 	 */
 	WorldData.Date++;
-
 
 	// Automatic transport
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
@@ -595,4 +611,47 @@ UFlareSimulatedSpacecraft* UFlareWorld::FindSpacecraft(FName ShipImmatriculation
 		}
 	}
 	return NULL;
+}
+
+
+uint64 UFlareWorld::GetWorldMoney()
+{
+	// World money is the sum of company money + factory money + people money
+
+	uint64 CompanyMoney = 0;
+	uint64 FactoryMoney = 0;
+	uint64 PeopleMoney = 0;
+
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+
+		CompanyMoney += Company->GetMoney();
+
+		TArray<UFlareSimulatedSpacecraft*>& Spacecrafts = Company->GetCompanySpacecrafts();
+		for (int ShipIndex = 0; ShipIndex < Spacecrafts.Num() ; ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = Spacecrafts[ShipIndex];
+
+			for (int32 FactoryIndex = 0; FactoryIndex < Spacecraft->GetFactories().Num(); FactoryIndex++)
+			{
+				UFlareFactory* Factory = Spacecraft->GetFactories()[FactoryIndex];
+				FactoryMoney += Factory->GetReservedMoney();
+			}
+		}
+	}
+
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		PeopleMoney += Sectors[SectorIndex]->GetPeople()->GetMoney();
+	}
+
+	uint64 WorldMoney = CompanyMoney + FactoryMoney + PeopleMoney;
+
+	//FLOGV("World money: %lld", WorldMoney);
+	//FLOGV("  - company: %lld", CompanyMoney);
+	//FLOGV("  - factory: %lld", FactoryMoney);
+	//FLOGV("  - people : %lld", PeopleMoney);
+
+	return WorldMoney;
 }

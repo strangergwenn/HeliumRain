@@ -243,7 +243,9 @@ void UFlarePeople::GiveBirth(uint32 BirthCount)
 	PeopleData.Population += BirthCount;
 
 	// Money creation
-	PeopleData.Money += BirthCount * MONETARY_CREATION;
+	uint32 NewMoney = BirthCount * MONETARY_CREATION;
+	PeopleData.Money += NewMoney;
+	Game->GetGameWorld()->WorldMoneyReference +=NewMoney;
 
 	IncreaseHappiness(BirthCount * 100 * 2);
 	PeopleData.HappinessPoint += BirthCount * 100 * 2; // Birth happiness bonus
@@ -265,7 +267,7 @@ void UFlarePeople::KillPeople(uint32 KillCount)
 	// Decrease population
 	PeopleData.Population -= KillCount;
 
-	// Money destruction
+	// Money destruction (delayed, really destroy on Pay)
 	PeopleData.Dept += KillCount * MONETARY_CREATION;
 
 	DecreaseHappiness(KillCount * 100 * 2); // Death happiness malus
@@ -316,6 +318,7 @@ void UFlarePeople::Pay(uint32 Amount)
 	{
 		Repayment = FMath::Min(PeopleData.Dept, Amount / 10);
 		PeopleData.Dept -= Repayment;
+		Game->GetGameWorld()->WorldMoneyReference -=Repayment;
 	}
 	PeopleData.Money += Amount - Repayment;
 }
