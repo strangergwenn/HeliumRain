@@ -12,6 +12,20 @@
 class UFlareFleet;
 class UFlareCompanyAI;
 
+struct CompanyValue
+{
+	uint64 MoneyValue;
+	uint64 StockValue;
+	uint64 ShipsValue;
+	uint64 StationsValue;
+
+	/** Ships + Stations*/
+	uint64 SpacecraftsValue;
+
+	/** Money + Spacecrafts + Stock */
+	uint64 TotalValue;
+};
+
 /** Hostility status */
 UENUM()
 namespace EFlareHostility
@@ -293,6 +307,8 @@ public:
 	{
 		return CompanyData.Money;
 	}
+
+	struct CompanyValue GetCompanyValue() const;
 
 	inline TArray<UFlareSimulatedSpacecraft*>& GetCompanyStations()
 	{

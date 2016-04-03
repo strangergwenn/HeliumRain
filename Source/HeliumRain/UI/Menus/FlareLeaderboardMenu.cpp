@@ -135,16 +135,16 @@ void SFlareLeaderboardMenu::Enter()
 	}
 
 	// Sorting rules
-	struct FSortByMoney
+	struct FSortByValue
 	{
 		FORCEINLINE bool operator()(const TSharedPtr<FInterfaceContainer> PtrA, const TSharedPtr<FInterfaceContainer> PtrB) const
 		{
-			return (PtrA->CompanyPtr->GetMoney() > PtrB->CompanyPtr->GetMoney());
+			return (PtrA->CompanyPtr->GetCompanyValue().TotalValue > PtrB->CompanyPtr->GetCompanyValue().TotalValue);
 		}
 	};
 
 	// Sort
-	CompanyListData.Sort(FSortByMoney());
+	CompanyListData.Sort(FSortByValue());
 	CompanyList->RequestListRefresh();
 }
 

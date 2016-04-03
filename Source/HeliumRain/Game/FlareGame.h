@@ -39,7 +39,7 @@ struct FFlareSaveSlotInfo
 	FSlateBrush                EmblemBrush;
 
 	int32                      CompanyShipCount;
-	int32                      CompanyMoney;
+	int32                      CompanyValue;
 	FText                      CompanyName;
 };
 

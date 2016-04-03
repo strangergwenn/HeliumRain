@@ -34,7 +34,6 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	CompanyData.Identifier = FName(*GetName());
 	CompanyDescription = NULL;
 
-
 	// Player description ID is -1
 	if (Data.CatalogIdentifier >= 0)
 	{
@@ -155,6 +154,8 @@ FFlareCompanySave* UFlareCompany::Save()
 			CompanyData.SectorsKnowledge.Add(SectorKnowledge);
 		}
 	}
+
+	CompanyData.CompanyValue = GetCompanyValue().TotalValue;
 
 	return &CompanyData;
 }
@@ -595,6 +596,91 @@ const FSlateBrush* UFlareCompany::GetEmblem() const
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
+
+struct CompanyValue UFlareCompany::GetCompanyValue() const
+{
+	// Company value is the sum of :
+	// - money
+	// - value of its spacecraft
+	// - value of the stock in these spacecraft
+	// - value of the resources used in factory
+
+	struct CompanyValue Value;
+	Value.MoneyValue = GetMoney();
+	Value.StockValue = 0;
+	Value.ShipsValue = 0;
+	Value.StationsValue = 0;
+
+	for (int SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafts.Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = CompanySpacecrafts[SpacecraftIndex];
+
+		UFlareSimulatedSector *ReferenceSector =  Spacecraft->GetCurrentSector();
+
+		if (!ReferenceSector)
+		{
+			if (Spacecraft->GetCurrentFleet() && Spacecraft->GetCurrentFleet()->GetCurrentTravel())
+			{
+				ReferenceSector = Spacecraft->GetCurrentFleet()->GetCurrentTravel()->GetDestinationSector();
+			}
+			else
+			{
+				FLOGV("Spacecraft %s is lost : no current sector, no travel", *Spacecraft->GetImmatriculation().ToString());
+				continue;
+			}
+
+		}
+
+		// Value of the spacecraft
+		uint64 SpacecraftPrice = UFlareGameTools::ComputeShipPrice(Spacecraft->GetDescription()->Identifier, ReferenceSector);
+
+		if(Spacecraft->IsStation())
+		{
+			Value.StationsValue += SpacecraftPrice;
+		}
+		else
+		{
+			Value.ShipsValue += SpacecraftPrice;
+		}
+
+		// Value of the stock
+		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetCargoBay()->GetSlots();
+		for (int CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
+		{
+			FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
+
+			if (!Cargo.Resource)
+			{
+				continue;
+			}
+
+			Value.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource) * Cargo.Quantity;
+		}
+
+		// Value of factory stock
+		for (int32 FactoryIndex = 0; FactoryIndex < Spacecraft->GetFactories().Num(); FactoryIndex++)
+		{
+			UFlareFactory* Factory = Spacecraft->GetFactories()[FactoryIndex];
+
+
+
+			for (int32 ReservedResourceIndex = 0 ; ReservedResourceIndex < Factory->GetReservedResources().Num(); ReservedResourceIndex++)
+			{
+				FName ResourceIdentifier = Factory->GetReservedResources()[ReservedResourceIndex].ResourceIdentifier;
+				uint32 Quantity = Factory->GetReservedResources()[ReservedResourceIndex].Quantity;
+
+				FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceIdentifier);
+
+				Value.StockValue += ReferenceSector->GetResourcePrice(Resource) * Quantity;
+			}
+		}
+	}
+
+	Value.SpacecraftsValue = Value.ShipsValue + Value.StationsValue;
+	Value.TotalValue = Value.MoneyValue + Value.StockValue + Value.SpacecraftsValue;
+
+	return Value;
+}
 
 UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculation)
 {

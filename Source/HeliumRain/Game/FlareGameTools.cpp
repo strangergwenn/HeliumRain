@@ -232,7 +232,13 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 	}
 
 	FLOGV("> PrintCompany: %s - %s (%s)", *Company->GetIdentifier().ToString(), *Company->GetCompanyName().ToString(), *Company->GetShortName().ToString());
-	FLOGV("  > %llu $", Company->GetMoney());
+	struct CompanyValue Value = Company->GetCompanyValue();
+	FLOGV("  > %llu $", Value.TotalValue);
+	FLOGV("    - Money %llu $", Value.MoneyValue);
+	FLOGV("    - Stocks %llu $", Value.StockValue);
+	FLOGV("    - Spacecrafts %llu $", Value.SpacecraftsValue);
+	FLOGV("      - Ships %llu $", Value.ShipsValue);
+	FLOGV("      - Stations %llu $", Value.StationsValue);
 	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();
 	FLOGV("  > %d fleets", CompanyFleets.Num());
 	for (int i = 0; i < CompanyFleets.Num(); i++)
@@ -766,7 +772,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 {
 	if (!GetGameWorld())
 	{
-		FLOG("AFlareGame::PrintCompany failed: no loaded world");
+		FLOG("AFlareGame::PrintSector failed: no loaded world");
 		return;
 	}
 

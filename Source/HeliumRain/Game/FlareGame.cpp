@@ -363,7 +363,7 @@ void AFlareGame::ReadAllSaveSlots()
 				const FFlareCompanyDescription* Desc = &Save->PlayerCompanyDescription;
 
 				// Money and general infos
-				SaveSlotInfo.CompanyMoney = PlayerCompany->Money;
+				SaveSlotInfo.CompanyValue = PlayerCompany->CompanyValue;
 				SaveSlotInfo.CompanyName = Desc->Name;
 
 				// Emblem material
@@ -383,7 +383,7 @@ void AFlareGame::ReadAllSaveSlots()
 			SaveSlotInfo.Emblem = NULL;
 			SaveSlotInfo.EmblemBrush = FSlateNoResource();
 			SaveSlotInfo.CompanyShipCount = 0;
-			SaveSlotInfo.CompanyMoney = 0;
+			SaveSlotInfo.CompanyValue = 0;
 			SaveSlotInfo.CompanyName = FText();
 		}
 

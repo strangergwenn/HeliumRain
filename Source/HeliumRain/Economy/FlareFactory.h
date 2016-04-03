@@ -325,6 +325,10 @@ public:
 	/** Get this factory's status text */
 	FText GetFactoryStatus();
 
+	inline TArray<FFlareCargoSave>& GetReservedResources()
+	{
+		return FactoryData.ResourceReserved;
+	}
 
 
 };

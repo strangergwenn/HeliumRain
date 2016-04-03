@@ -268,7 +268,7 @@ FText SFlareMainMenu::GetText(int32 Index) const
 		CompanyText = SaveSlotInfo.CompanyName;
 		ShipText = FText::Format(LOCTEXT("ShipInfoFormat", "{0} {1}"),
 			FText::AsNumber(SaveSlotInfo.CompanyShipCount), (SaveSlotInfo.CompanyShipCount == 1 ? LOCTEXT("Ship", "ship") : LOCTEXT("Ships", "ships")));
-		MoneyText = FText::Format(LOCTEXT("Credits", "{0} credits"), FText::AsNumber(SaveSlotInfo.CompanyMoney));
+		MoneyText = FText::Format(LOCTEXT("Credits", "{0} credits"), FText::AsNumber(SaveSlotInfo.CompanyValue));
 	}
 
 	return FText::Format(LOCTEXT("SaveInfoFormat", "{0}\n{1}\n{2}\n"), CompanyText, MoneyText, ShipText);

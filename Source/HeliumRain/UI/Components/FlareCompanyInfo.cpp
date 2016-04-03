@@ -218,7 +218,7 @@ FText SFlareCompanyInfo::GetCompanyInfo() const
 			FText::AsNumber(CompanyShipCount), CompanyShipCount == 1 ? LOCTEXT("Ship", "ship") : LOCTEXT("Ships", "ships"));
 		
 		// Full string
-		return FText::Format(LOCTEXT("CompanyInfoFormat", "{0} {1}\n{2}\n{3}"), FText::AsNumber(Company->GetMoney()), LOCTEXT("Credits", "credits"), StationText, ShipText);
+		return FText::Format(LOCTEXT("CompanyInfoFormat", "{0} {1}\n{2}\n{3}"), FText::AsNumber(Company->GetCompanyValue().TotalValue), LOCTEXT("Credits", "credits"), StationText, ShipText);
 	}
 
 	return Result;
