@@ -31,6 +31,14 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	FLinearColor Color = Theme.NeutralColor;
 	Color.A = Theme.DefaultAlpha;
 
+	// Name
+	FText DefaultName = LOCTEXT("CompanyName", "Player Inc");
+	FString PlayerName = MenuManager->GetPC()->PlayerState->PlayerName;
+	if (PlayerName.Len())
+	{
+		DefaultName = FText::Format(LOCTEXT("CompanyNameFormat", "{0} Corp"), FText::FromString(PlayerName));
+	}
+
 	// Build structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
@@ -119,7 +127,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SAssignNew(CompanyName, SEditableText)
-						.Text(LOCTEXT("CompanyName", "Player Inc"))
+						.Text(DefaultName)
 						.Style(&Theme.TextInputStyle)
 					]
 				]
