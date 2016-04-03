@@ -26,7 +26,6 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 	// Init planetarium
 	Planetarium = NewObject<UFlareSimulatedPlanetarium>(this, UFlareSimulatedPlanetarium::StaticClass());
 	Planetarium->Load();
-	WorldMoneyReference = 0;
 
     // Load all companies
     for (int32 i = 0; i < WorldData.CompanyData.Num(); i++)
@@ -101,6 +100,8 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 	{
 		Companies[i]->PostLoad();
 	}
+
+	WorldMoneyReferenceInit = false;
 }
 
 
@@ -258,15 +259,16 @@ void UFlareWorld::Simulate()
 
 
 	// Check money integrity
-	if (WorldMoneyReference == 0)
+	if (! WorldMoneyReferenceInit)
 	{
 		WorldMoneyReference = GetWorldMoney();
+		WorldMoneyReferenceInit = true;
 	}
 	else
 	{
 		uint64 WorldMoney = GetWorldMoney();
 
-		if (WorldMoneyReference != GetWorldMoney())
+		if (WorldMoneyReference != WorldMoney)
 		{
 			FLOGV("WARNING : World money integrity failure : world contain %lld credits but reference is %lld", WorldMoney, WorldMoneyReference)
 		}

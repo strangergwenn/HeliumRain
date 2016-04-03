@@ -142,8 +142,11 @@ protected:
 
 	AFlareGame*                             Game;
 
+	bool WorldMoneyReferenceInit;
+
 public:
 	uint64 WorldMoneyReference;
+
 
 public:
 
