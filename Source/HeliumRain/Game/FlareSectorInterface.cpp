@@ -238,64 +238,86 @@ FLinearColor UFlareSectorInterface::GetSectorFriendlynessColor(UFlareCompany* Co
 uint32 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource)
 {
 	// DEBUGInflation
-	float Inflation = 1.5;
+	float Margin = 1.2;
+
+	// Raw
+	static float H2Price = 25 * Margin;
+	static float FeoPrice = 100 * Margin;
+	static float Ch4Price = 50 * Margin;
+	static float Sio2Price = 100 * Margin;
+	static float He3Price = 100 * Margin;
+	static float H2oPrice = 250 * Margin;
+
+
+	// Product
+	static float FuelPrice = (H2oPrice + 10) * Margin;
+	static float EnergyPrice = FuelPrice - H2oPrice;
+	static float SteelPrice = (2 * FeoPrice + 4 * H2oPrice + EnergyPrice * 2 - 2 * H2oPrice + 100) * Margin;
+	static float CPrice = (Ch4Price + 5 * EnergyPrice + 50) * Margin;
+	static float PlasticPrice = (Ch4Price + 5 * EnergyPrice + 50) * Margin;
+	static float FSPrice = (SteelPrice + 2 * PlasticPrice + FuelPrice + 10 * EnergyPrice + 100) * Margin;
+	static float FoodPrice = (5 * CPrice + FuelPrice + 49 * EnergyPrice + 500) / 5.0 * Margin;
+	static float ToolsPrice = (SteelPrice + PlasticPrice + 10 * EnergyPrice + 100) * Margin;
+	static float TechPrice = (2 * Sio2Price + 4 * H2Price + 50 * EnergyPrice - 2 * H2oPrice + 500) * Margin;
+
+
 
 	// TODO better
 	if (Resource->Identifier == "h2")
 	{
-		return 25 * Inflation;
+		return H2Price;
 	}
 	else if (Resource->Identifier == "feo")
 	{
-		return 100 * Inflation;
+		return FeoPrice;
 	}
 	else if (Resource->Identifier == "ch4")
 	{
-		return 50 * Inflation;
+		return Ch4Price;
 	}
 	else if (Resource->Identifier == "sio2")
 	{
-		return 100 * Inflation;
+		return Sio2Price;
 	}
 	else if (Resource->Identifier == "he3")
 	{
-		return 100 * Inflation;
+		return He3Price;
 	}
 	else if (Resource->Identifier == "h2o")
 	{
-		return 250 * Inflation;
+		return H2oPrice;
 	}
 	else if (Resource->Identifier == "steel")
 	{
-		return 500 * Inflation;
+		return SteelPrice;
 	}
 	else if (Resource->Identifier == "c")
 	{
-		return 300 * Inflation;
+		return CPrice;
 	}
 	else if (Resource->Identifier == "plastics")
 	{
-		return 300 * Inflation;
+		return PlasticPrice;
 	}
 	else if (Resource->Identifier == "fleet-supply")
 	{
-		return 1800 * Inflation;
+		return FSPrice;
 	}
 	else if (Resource->Identifier == "food")
 	{
-		return 600 * Inflation;
+		return FoodPrice;
 	}
 	else if (Resource->Identifier == "fuel")
 	{
-		return 260 * Inflation;
+		return FuelPrice;
 	}
 	else if (Resource->Identifier == "tools")
 	{
-		return 1000 * Inflation;
+		return ToolsPrice;
 	}
 	else if (Resource->Identifier == "tech")
 	{
-		return 1300 * Inflation;
+		return TechPrice;
 
 	}
 	else
