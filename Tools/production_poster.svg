@@ -52,13 +52,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="984.6215"
-     inkscape:cy="549.4917"
+     inkscape:cx="1291.6215"
+     inkscape:cy="662.4917"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g6974"
      showgrid="false"
      inkscape:window-width="1855"
-     inkscape:window-height="1056"
+     inkscape:window-height="1176"
      inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1" />
@@ -1637,7 +1637,7 @@
    style="fill:#a4f2a6;fill-opacity:1"
    id="tspan4877">10 Fuel</tspan> → <tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4929">5 H₂O </tspan></tspan></text>
+   id="tspan4929"> 9 H₂O </tspan></tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot4665"
@@ -2981,7 +2981,7 @@
            y="499.7312"
            x="1457.6941"
            id="tspan5509"
-           sodipodi:role="line">Min cost: 1800</tspan></text>
+           sodipodi:role="line">Min cost: 1550</tspan></text>
     </g>
     <g
        id="g7139"
@@ -3346,7 +3346,7 @@
            y="151.87405"
            x="1744.5369"
            id="tspan5653"
-           sodipodi:role="line">Min cost:   600 </tspan></text>
+           sodipodi:role="line">Min cost:   550 </tspan></text>
     </g>
     <g
        id="g6989"
