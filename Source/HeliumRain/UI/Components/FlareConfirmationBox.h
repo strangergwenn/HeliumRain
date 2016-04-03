@@ -14,8 +14,8 @@ class SFlareConfirmationBox : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareConfirmationBox)
-		: _FullHide(false)
-		, _PC(NULL)
+		: _PC(NULL)
+		, _FullHide(false)
 	{}
 
 	SLATE_EVENT(FFlareButtonClicked, OnConfirmed)
