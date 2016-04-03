@@ -29,12 +29,7 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 	TransitionTime = 0.5f;
 	int32 Width = 1.5 * Theme.ContentWidth;
 	int32 TextWidth = Width - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
-
-	// Setup
-	CurrentTime = -2.0;
-	CurrentTextAlpha = 0;
-	CurrentTextIndex = 0;
-
+	
 	// Build structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
@@ -121,9 +116,14 @@ void SFlareStoryMenu::Setup()
 void SFlareStoryMenu::Enter()
 {
 	FLOG("SFlareStoryMenu::Enter");
+
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 	MenuManager->UseDarkBackground();
+
+	CurrentTime = -2.0;
+	CurrentTextAlpha = 0;
+	CurrentTextIndex = 0;
 }
 
 void SFlareStoryMenu::Exit()
