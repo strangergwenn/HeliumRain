@@ -212,8 +212,12 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 
 void UFlareWorld::Simulate()
 {
-	WorldData.Date++;
+
 	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+	/**
+	 *  End previous day
+	 */
 
 	// Finish player battles
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
@@ -243,6 +247,19 @@ void UFlareWorld::Simulate()
 	}
 
 	// TODO company battles
+
+
+	// AI
+	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+	{
+		Companies[CompanyIndex]->SimulateAI();
+	}
+
+
+	/**
+	 *  Begin day
+	 */
+	WorldData.Date++;
 
 
 	// Automatic transport
@@ -297,15 +314,9 @@ void UFlareWorld::Simulate()
 			float Reputation = Company1->GetReputation(Company2);
 			if(Reputation != 0.f)
 			{
-				Company1->GiveReputation(Company2, -0.1 * FMath::Sign(Reputation), false);
+				Company1->GiveReputation(Company2, -0.01 * FMath::Sign(Reputation), false);
 			}
 		}
-	}
-
-	// AI
-	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
-	{
-		Companies[CompanyIndex]->SimulateAI();
 	}
 	// Process events
 }
