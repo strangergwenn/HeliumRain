@@ -93,7 +93,7 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				[
 					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth * 1.4)
+					.WidthOverride(Theme.ContentWidth * 1.65)
 					[
 						SAssignNew(CompanyList, SListView< TSharedPtr<FInterfaceContainer> >)
 						.ListItemsSource(&CompanyListData)
