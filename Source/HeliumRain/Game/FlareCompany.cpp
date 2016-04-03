@@ -251,12 +251,11 @@ FText UFlareCompany::GetShortInfoText()
 	// Static text
 	FText ShipText = LOCTEXT("Ship", "ship");
 	FText ShipsText = LOCTEXT("Ships", "ships");
-	FText MoneyText = LOCTEXT("Money", "credits");
 
 	// Build
 	int32 ShipCount = GetCompanyShips().Num();
 	FText ShipDescriptionText = FText::Format(LOCTEXT("ShipDescriptionFormat", "{0} {1}"), FText::AsNumber(ShipCount), ShipCount != 1 ? ShipsText : ShipText);
-	return FText::Format(LOCTEXT("ShortInfoFormat", "{0} ({1} {2}, {3})"), GetCompanyName(), FText::AsNumber(GetMoney()), MoneyText, ShipDescriptionText);
+	return FText::Format(LOCTEXT("ShortInfoFormat", "{0} ({1} credits, {2})"), GetCompanyName(), FText::AsNumber(GetMoney()), ShipDescriptionText);
 }
 
 UFlareFleet* UFlareCompany::CreateFleet(FText FleetName, UFlareSimulatedSector* FleetSector)
