@@ -144,7 +144,7 @@ UFlareTravel* UFlareWorld::LoadTravel(const FFlareTravelSave& TravelData)
 	Travel->Load(TravelData);
 	Travels.AddUnique(Travel);
 
-	FLOGV("UFlareWorld::LoadTravel : loaded travel for fleet '%s'", *Travel->GetFleet()->GetFleetName().ToString());
+	//FLOGV("UFlareWorld::LoadTravel : loaded travel for fleet '%s'", *Travel->GetFleet()->GetFleetName().ToString());
 
 	return Travel;
 }
@@ -256,7 +256,6 @@ void UFlareWorld::Simulate()
 	{
 		Companies[CompanyIndex]->SimulateAI();
 	}
-
 
 	// Check money integrity
 	if (! WorldMoneyReferenceInit)
@@ -474,8 +473,6 @@ UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimula
 
 void UFlareWorld::DeleteTravel(UFlareTravel* Travel)
 {
-	FLOGV("UFlareWorld::DeleteTravel : remove travel for fleet '%s'", *Travel->GetFleet()->GetFleetName().ToString());
-
 	Travels.Remove(Travel);
 }
 

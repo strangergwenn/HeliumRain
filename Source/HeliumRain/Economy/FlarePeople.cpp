@@ -133,7 +133,8 @@ void UFlarePeople::SimulateResourcePurchase()
 	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
 
 	uint32 BoughtFood = BuyResourcesInSector(Food, GetRessourceConsumption(Food)); // In Tons
-	FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
+	if(BoughtFood)
+		FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
 	PeopleData.FoodStock += BoughtFood * 1000; // In kg
 
 
@@ -141,9 +142,12 @@ void UFlarePeople::SimulateResourcePurchase()
 	uint32 BoughtFuel = BuyResourcesInSector(Fuel, GetRessourceConsumption(Fuel)); // In Tons
 	uint32 BoughtTools = BuyResourcesInSector(Tools, GetRessourceConsumption(Tools)); // In Tons
 	uint32 BoughtTech = BuyResourcesInSector(Tech, GetRessourceConsumption(Tech)); // In Tons
-	FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
-	FLOGV("People in %s bought %u tools", *Parent->GetSectorName().ToString(), BoughtTools);
-	FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
+	if(BoughtFuel)
+		FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
+	if(BoughtTools)
+		FLOGV("People in %s bought %u tools", *Parent->GetSectorName().ToString(), BoughtTools);
+	if(BoughtTech)
+		FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
 
 
 	PeopleData.HappinessPoint += BoughtFuel + BoughtTools + BoughtTech;

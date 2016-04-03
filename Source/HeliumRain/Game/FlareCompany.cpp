@@ -407,7 +407,10 @@ bool UFlareCompany::TakeMoney(uint64 Amount)
 	else
 	{
 		CompanyData.Money -= Amount;
-		FLOGV("$ %s - %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
+		if (Amount > 0)
+		{
+			FLOGV("$ %s - %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
+		}
 		return true;
 	}
 }
@@ -415,7 +418,10 @@ bool UFlareCompany::TakeMoney(uint64 Amount)
 void UFlareCompany::GiveMoney(uint64 Amount)
 {
 	CompanyData.Money += Amount;
-	FLOGV("$ %s + %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
+	if (Amount > 0)
+	{
+		FLOGV("$ %s + %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
+	}
 }
 
 #define REPUTATION_RANGE 200.f

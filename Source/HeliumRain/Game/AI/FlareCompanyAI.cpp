@@ -38,9 +38,7 @@ void UFlareCompanyAI::Simulate()
 		return;
 	}
 
-
-	FLOGV("Simulate AI for %s", *Company->GetCompanyName().ToString());
-
+	//FLOGV("Simulate AI for %s", *Company->GetCompanyName().ToString());
 
 	SimulateDiplomacy();
 
@@ -317,10 +315,10 @@ void UFlareCompanyAI::Simulate()
 			}
 		}
 
-		FLOGV("Best balance for %s : %f credit per day", *Ship->GetImmatriculation().ToString(), BestMoneyBalanceParDay);
+		//FLOGV("Best balance for %s : %f credit per day", *Ship->GetImmatriculation().ToString(), BestMoneyBalanceParDay);
 		if(BestResource)
 		{
-			FLOGV(" -> Transfert %s from %s to %s", *BestResource->Name.ToString(), *BestSectorA->GetSectorName().ToString(), *BestSectorB->GetSectorName().ToString());
+			//FLOGV(" -> Transfert %s from %s to %s", *BestResource->Name.ToString(), *BestSectorA->GetSectorName().ToString(), *BestSectorB->GetSectorName().ToString());
 			if (Ship->GetCurrentSector() == BestSectorA)
 			{
 				// Already in A, buy resources and go to B
@@ -331,12 +329,12 @@ void UFlareCompanyAI::Simulate()
 
 				// TODO reduce computed sector stock
 
-				FLOGV(" -> Buy %d / %d", BroughtResource, BestBuyQuantity);
+				//FLOGV(" -> Buy %d / %d", BroughtResource, BestBuyQuantity);
 				if(BroughtResource == BestBuyQuantity)
 				{
 					// All wanted resources is get, travel to B
 					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSectorB);
-					FLOGV(" -> Travel to %s", *BestSectorB->GetSectorName().ToString());
+					//FLOGV(" -> Travel to %s", *BestSectorB->GetSectorName().ToString());
 				}
 
 
@@ -344,11 +342,8 @@ void UFlareCompanyAI::Simulate()
 			else
 			{
 				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSectorA);
-				FLOGV(" -> Travel to %s", *BestSectorA->GetSectorName().ToString());
+				//FLOGV(" -> Travel to %s", *BestSectorA->GetSectorName().ToString());
 			}
-
-
-
 		}
 	}
 
