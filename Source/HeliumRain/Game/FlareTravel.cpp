@@ -110,6 +110,11 @@ int64 UFlareTravel::ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSec
 {
 	int64 TravelDuration = 0;
 
+	if (OriginSector == DestinationSector)
+	{
+		return 0;
+	}
+
 	double OriginAltitude;
 	double DestinationAltitude;
 	double OriginPhase;

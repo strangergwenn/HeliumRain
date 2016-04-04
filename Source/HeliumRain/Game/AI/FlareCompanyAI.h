@@ -7,6 +7,18 @@
 class UFlareCompany;
 
 
+
+
+struct SectorDeal
+{
+	float MoneyBalanceParDay;
+	UFlareSimulatedSector* SectorA;
+	UFlareSimulatedSector* SectorB;
+	FFlareResourceDescription* Resource;
+	int32 BuyQuantity;
+};
+
+
 struct ResourceVariation
 {
 	int32 OwnedFlow;
@@ -15,11 +27,17 @@ struct ResourceVariation
 	int32 OwnedStock;
 	int32 FactoryStock;
 	int32 StorageStock;
+	int32 IncomingResources;
 
 	int32 OwnedCapacity;
 	int32 FactoryCapacity;
 	int32 StorageCapacity;
+};
 
+struct SectorVariation
+{
+	int32 IncomingCapacity;
+	TMap<FFlareResourceDescription*, ResourceVariation> ResourceVariations;
 };
 
 UCLASS()
@@ -84,11 +102,13 @@ protected:
 
 	virtual void AssignShipsToSector(UFlareSimulatedSector* Sector, uint32 Capacity);
 
-	TMap<FFlareResourceDescription*, ResourceVariation> ComputeSectorResourceVariation(UFlareSimulatedSector* Sector);
+	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector);
 
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation);
 
 	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos();
+
+	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation);
 
 	protected:
 

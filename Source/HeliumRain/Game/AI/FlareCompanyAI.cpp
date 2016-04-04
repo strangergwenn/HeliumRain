@@ -4,6 +4,7 @@
 #include "../FlareCompany.h"
 #include "../FlareGame.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../../Economy/FlareCargoBay.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -70,7 +71,7 @@ void UFlareCompanyAI::Simulate()
 		if (TradeTransportCapacityBalance < 0)
 		{
 			AssignShipsToSector(Sector, (uint32) (- TradeTransportCapacityBalance));
-			FLOGV("AI %s ACTION : Assign ships to sector for trade %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TradeTransportCapacityBalance)
+			//FLOGV("AI %s ACTION : Assign ships to sector for trade %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TradeTransportCapacityBalance)
 		}
 		//FLOGV("Sector %s, final transport capacity=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacity(Company));
 	}
@@ -122,7 +123,7 @@ void UFlareCompanyAI::Simulate()
 
 	// TODO IF AT LEAST ONE IDLE SHIP
 
-	TMap<UFlareSimulatedSector*, TMap<FFlareResourceDescription*, struct ResourceVariation>> WorldResourceVariation;
+	TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
 
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 	{
@@ -134,7 +135,7 @@ void UFlareCompanyAI::Simulate()
 		// TODO, cache in sector for all company
 
 
-		TMap<FFlareResourceDescription*, struct ResourceVariation> Variation = ComputeSectorResourceVariation(Sector);
+		SectorVariation Variation = ComputeSectorResourceVariation(Sector);
 
 		WorldResourceVariation.Add(Sector, Variation);
 		//DumpSectorResourceVariation(Sector, &Variation);
@@ -150,202 +151,99 @@ void UFlareCompanyAI::Simulate()
 	//	FLOGV("Search something to do for %s", *Ship->GetImmatriculation().ToString());
 
 		// TODO first, go for auto assign if needed
-		// TODO substract current travelling ships
 
-		float BestMoneyBalanceParDay = 0;
-		UFlareSimulatedSector* BestSectorA = NULL;
-		UFlareSimulatedSector* BestSectorB = NULL;
-		FFlareResourceDescription* BestResource = NULL;
-		int32 BestBuyQuantity = 0;
+
+		SectorDeal BestDeal;
+		BestDeal.BuyQuantity = 0;
+		BestDeal.MoneyBalanceParDay = 0;
+		BestDeal.Resource = NULL;
+		BestDeal.SectorA = NULL;
+		BestDeal.SectorB = NULL;
 
 		for (int32 SectorAIndex = 0; SectorAIndex < Company->GetKnownSectors().Num(); SectorAIndex++)
 		{
 			UFlareSimulatedSector* SectorA = Company->GetKnownSectors()[SectorAIndex];
 
-			for (int32 SectorBIndex = 0; SectorBIndex < Company->GetKnownSectors().Num(); SectorBIndex++)
+			SectorDeal SectorBestDeal;
+			SectorBestDeal.Resource = NULL;
+			SectorBestDeal.BuyQuantity = 0;
+			SectorBestDeal.MoneyBalanceParDay = 0;
+			SectorBestDeal.Resource = NULL;
+			SectorBestDeal.SectorA = NULL;
+			SectorBestDeal.SectorB = NULL;
+
+
+			while (true)
 			{
-				UFlareSimulatedSector* SectorB = Company->GetKnownSectors()[SectorBIndex];
-
-				if(SectorA == SectorB)
+				SectorBestDeal = FindBestDealForShipFromSector(Ship, SectorA, &BestDeal, &WorldResourceVariation);
+				if(!SectorBestDeal.Resource)
 				{
-					// Same sector
-					continue;
+					// No best deal found
+					break;
 				}
 
-				// Travel time
-
-				int64 TravelTimeToA = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorA);
-				int64 TravelTimeToB = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), SectorA, SectorB);
-				int64 TravelTime = TravelTimeToA + TravelTimeToB;
-
-
-
-
-				TMap<FFlareResourceDescription*, struct ResourceVariation>* SectorVariationA = &WorldResourceVariation[SectorA];
-				TMap<FFlareResourceDescription*, struct ResourceVariation>* SectorVariationB = &WorldResourceVariation[SectorB];
-
-				for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+				SectorVariation* SectorVariationA = &WorldResourceVariation[SectorA];
+				if(Ship->GetCurrentSector() != SectorA && SectorVariationA->IncomingCapacity > 0 && SectorBestDeal.BuyQuantity > 0)
 				{
-					FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
-					struct ResourceVariation* VariationA = &(*SectorVariationA)[Resource];
-					struct ResourceVariation* VariationB = &(*SectorVariationB)[Resource];
+					//FLOGV("IncomingCapacity to %s = %d", *SectorA->GetSectorName().ToString(), SectorVariationA->IncomingCapacity);
+					int32 UsedIncomingCapacity = FMath::Min(SectorBestDeal.BuyQuantity, SectorVariationA->IncomingCapacity);
 
-					if(!VariationA->OwnedFlow &&
-							!VariationA->FactoryFlow &&
-							!VariationA->OwnedStock &&
-							!VariationA->FactoryStock &&
-							!VariationA->StorageStock &&
-							!VariationA->OwnedCapacity &&
-							!VariationA->FactoryCapacity &&
-							!VariationA->StorageCapacity &&
-							!VariationB->OwnedFlow &&
-							!VariationB->FactoryFlow &&
-							!VariationB->OwnedStock &&
-							!VariationB->FactoryStock &&
-							!VariationB->StorageStock &&
-							!VariationB->OwnedCapacity &&
-							!VariationB->FactoryCapacity &&
-							!VariationB->StorageCapacity)
-					{
-						continue;
-					}
-
-
-					int32 InitialQuantity = Ship->GetCargoBay()->GetResourceQuantity(Resource);
-					int32 FreeSpace = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource);
-
-					int32 StockInAAfterTravel =
-							VariationA->OwnedStock
-							+ VariationA->FactoryStock
-							+ VariationA->StorageStock
-							- (VariationA->OwnedFlow * TravelTimeToA)
-							- (VariationA->FactoryFlow * TravelTimeToA);
-
-					if(StockInAAfterTravel <= 0 && InitialQuantity == 0)
-					{
-						continue;
-					}
-
-					int32 CanBuyQuantity = FMath::Min(FreeSpace, StockInAAfterTravel);
-
-					int32 CapacityInBAfterTravel =
-							VariationB->OwnedCapacity
-							+ VariationB->FactoryCapacity
-							+ VariationB->StorageCapacity
-							+ VariationB->OwnedFlow * TravelTime
-							+ VariationB->FactoryFlow * TravelTime;
-
-					int32 SellQuantity = FMath::Min(CapacityInBAfterTravel, CanBuyQuantity + InitialQuantity);
-					int32  BuyQuantity = FMath::Max(0, SellQuantity - InitialQuantity);
-
-					// Use price details
-
-					int32 MoneyGain = 0;
-					int32 QuantityToSell = SellQuantity;
-
-					int32 OwnedCapacity = FMath::Max(0, (int32) (VariationB->OwnedCapacity + VariationB->OwnedFlow * TravelTime));
-					int32 FactoryCapacity = FMath::Max(0, (int32) (VariationB->FactoryCapacity + VariationB->FactoryFlow * TravelTime));
-					int32 StorageCapacity = VariationB->StorageCapacity;
-
-					int32 OwnedSellQuantity = FMath::Min(OwnedCapacity, QuantityToSell);
-					MoneyGain += OwnedSellQuantity * SectorB->GetResourcePrice(Resource) * 1.1; // Valorise transport to its own station
-					QuantityToSell -= OwnedSellQuantity;
-
-					int32 FactorySellQuantity = FMath::Min(FactoryCapacity, QuantityToSell);
-					MoneyGain += FactorySellQuantity * SectorB->GetResourcePrice(Resource) * 1.01;
-					QuantityToSell -= FactorySellQuantity;
-
-					int32 StorageSellQuantity = FMath::Min(StorageCapacity, QuantityToSell);
-					MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource);
-					QuantityToSell -= StorageSellQuantity;
-
-					int32 MoneySpend = 0;
-					int32 QuantityToBuy = BuyQuantity;
-
-					int32 OwnedStock = FMath::Max(0, (int32) (VariationA->OwnedStock - VariationA->OwnedFlow * TravelTimeToA));
-					int32 FactoryStock = FMath::Max(0, (int32) (VariationA->FactoryStock - VariationA->FactoryFlow * TravelTimeToA));
-					int32 StorageStock = VariationA->StorageStock;
-
-
-					int32 OwnedBuyQuantity = FMath::Min(OwnedStock, QuantityToBuy);
-					MoneySpend += OwnedBuyQuantity * SectorA->GetResourcePrice(Resource) * 0.9; // Valorise buy to self
-					QuantityToBuy -= OwnedBuyQuantity;
-
-					int32 FactoryBuyQuantity = FMath::Min(FactoryStock, QuantityToBuy);
-					MoneySpend += FactoryBuyQuantity * SectorA->GetResourcePrice(Resource) * 0.99;
-					QuantityToBuy -= FactoryBuyQuantity;
-
-					int32 StorageBuyQuantity = FMath::Min(StorageStock, QuantityToBuy);
-					MoneySpend += StorageBuyQuantity * SectorA->GetResourcePrice(Resource);
-					QuantityToBuy -= StorageBuyQuantity;
-
-
-					int32 MoneyBalance = MoneyGain - MoneySpend;
-
-					float MoneyBalanceParDay = (float) MoneyBalance / (float) TravelTime;
-
-					if(MoneyBalanceParDay > BestMoneyBalanceParDay)
-					{
-						BestMoneyBalanceParDay = MoneyBalanceParDay;
-						BestSectorA = SectorA;
-						BestSectorB = SectorB;
-						BestResource = Resource;
-						BestBuyQuantity = BuyQuantity;
-
-						/*FLOGV("Travel %s -> %s -> %s : %lld days", *Ship->GetCurrentSector()->GetSectorName().ToString(),
-									*SectorA->GetSectorName().ToString(), *SectorB->GetSectorName().ToString(), TravelTime);
-
-						FLOGV("New Best Resource %s", *Resource->Name.ToString())
-
-						FLOGV(" -> InitialQuantity=%u", InitialQuantity);
-						FLOGV(" -> FreeSpace=%u", FreeSpace);
-						FLOGV(" -> StockInAAfterTravel=%u", StockInAAfterTravel);
-						FLOGV(" -> BuyQuantity=%u", BuyQuantity);
-						FLOGV(" -> CapacityInBAfterTravel=%u", CapacityInBAfterTravel);
-						FLOGV(" -> SellQuantity=%u", SellQuantity);
-						FLOGV(" -> MoneyGain=%d", MoneyGain);
-						FLOGV(" -> MoneySpend=%d", MoneySpend);
-						FLOGV("   -> OwnedBuyQuantity=%d", OwnedBuyQuantity);
-						FLOGV("   -> FactoryBuyQuantity=%d", FactoryBuyQuantity);
-						FLOGV("   -> StorageBuyQuantity=%d", StorageBuyQuantity);
-						FLOGV(" -> MoneyBalance=%d", MoneyBalance);
-						FLOGV(" -> MoneyBalanceParDay=%f", MoneyBalanceParDay);*/
-					}
+					SectorVariationA->IncomingCapacity -= UsedIncomingCapacity;
+					struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[SectorBestDeal.Resource];
+					VariationA->OwnedStock -= UsedIncomingCapacity;
 				}
+				else
+				{
+					break;
+				}
+			}
+
+			if(SectorBestDeal.Resource)
+			{
+				BestDeal = SectorBestDeal;
 			}
 		}
 
-		FLOGV("Best balance for %s : %f credit per day", *Ship->GetImmatriculation().ToString(), BestMoneyBalanceParDay);
-		if(BestResource)
+		FLOGV("Best balance for %s (%s) : %f credit per day", *Ship->GetImmatriculation().ToString(), *Ship->GetCurrentSector()->GetSectorName().ToString(), BestDeal.MoneyBalanceParDay);
+		if(BestDeal.Resource)
 		{
-			FLOGV(" -> Transfert %s from %s to %s", *BestResource->Name.ToString(), *BestSectorA->GetSectorName().ToString(), *BestSectorB->GetSectorName().ToString());
-			if (Ship->GetCurrentSector() == BestSectorA)
+			FLOGV(" -> Transfert %s from %s to %s", *BestDeal.Resource->Name.ToString(), *BestDeal.SectorA->GetSectorName().ToString(), *BestDeal.SectorB->GetSectorName().ToString());
+			if (Ship->GetCurrentSector() == BestDeal.SectorA)
 			{
 				// Already in A, buy resources and go to B
 
-				uint32 BroughtResource = BestSectorA->TakeUselessResources(Company, BestResource, BestBuyQuantity, false);
-				BroughtResource += BestSectorA->TakeUselessResources(Company, BestResource, BestBuyQuantity - BroughtResource, true);
-				Ship->GetCargoBay()->GiveResources(BestResource, BroughtResource);
+				uint32 BroughtResource = BestDeal.SectorA->TakeUselessResources(Company, BestDeal.Resource, BestDeal.BuyQuantity, false);
+				BroughtResource += BestDeal.SectorA->TakeUselessResources(Company, BestDeal.Resource, BestDeal.BuyQuantity - BroughtResource, true);
+				Ship->GetCargoBay()->GiveResources(BestDeal.Resource, BroughtResource);
 
 				// TODO reduce computed sector stock
 
-				FLOGV(" -> Buy %d / %d", BroughtResource, BestBuyQuantity);
-				if(BroughtResource == BestBuyQuantity)
+				FLOGV(" -> Buy %d / %d", BroughtResource, BestDeal.BuyQuantity);
+				if(BroughtResource == BestDeal.BuyQuantity)
 				{
 					// All wanted resources is get, travel to B
-					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSectorB);
-					FLOGV(" -> Travel to %s", *BestSectorB->GetSectorName().ToString());
+					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestDeal.SectorB);
+					FLOGV(" -> Travel to %s", *BestDeal.SectorB->GetSectorName().ToString());
 
-					// Virtualy decrease the stock for other ships
-					TMap<FFlareResourceDescription*, struct ResourceVariation>* SectorVariationA = &WorldResourceVariation[BestSectorA];
-					struct ResourceVariation* VariationA = &(*SectorVariationA)[BestResource];
-					VariationA->OwnedStock -= BestBuyQuantity;
+					// Virtualy decrease the stock for other ships in sector A
+					SectorVariation* SectorVariationA = &WorldResourceVariation[BestDeal.SectorA];
+					struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[BestDeal.Resource];
+					VariationA->OwnedStock -= BestDeal.BuyQuantity;
+
+
+					// Virtualy say some capacity arrive in sector B
+					SectorVariation* SectorVariationB = &WorldResourceVariation[BestDeal.SectorB];
+					SectorVariationB->IncomingCapacity += BestDeal.BuyQuantity;
+
+					// Virtualy decrease the capacity for other ships in sector B
+					struct ResourceVariation* VariationB = &SectorVariationB->ResourceVariations[BestDeal.Resource];
+					VariationB->OwnedCapacity -= BestDeal.BuyQuantity;
 				}
 				else
 				{
 					// Fail to buy the promised resources, remove the deal from the list
-					TMap<FFlareResourceDescription*, struct ResourceVariation>* SectorVariationA = &WorldResourceVariation[BestSectorA];
-					struct ResourceVariation* VariationA = &(*SectorVariationA)[BestResource];
+					SectorVariation* SectorVariationA = &WorldResourceVariation[BestDeal.SectorA];
+					struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[BestDeal.Resource];
 					VariationA->FactoryStock = 0;
 					VariationA->OwnedStock = 0;
 					VariationA->StorageStock = 0;
@@ -361,14 +259,23 @@ void UFlareCompanyAI::Simulate()
 			}
 			else
 			{
-				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSectorA);
-				FLOGV(" -> Travel to %s", *BestSectorA->GetSectorName().ToString());
+				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestDeal.SectorA);
+				FLOGV(" -> Travel to %s", *BestDeal.SectorA->GetSectorName().ToString());
 
 				// Reserve the deal by virtualy decrease the stock for other ships
-				TMap<FFlareResourceDescription*, struct ResourceVariation>* SectorVariationA = &WorldResourceVariation[BestSectorA];
-				struct ResourceVariation* VariationA = &(*SectorVariationA)[BestResource];
-				VariationA->OwnedStock -= BestBuyQuantity;
+				SectorVariation* SectorVariationA = &WorldResourceVariation[BestDeal.SectorA];
+				struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[BestDeal.Resource];
+				VariationA->OwnedStock -= BestDeal.BuyQuantity;
+
+				// Reserve the deal by virtualy decrease the capacity for other ships
+				SectorVariation* SectorVariationB = &WorldResourceVariation[BestDeal.SectorB];
+				struct ResourceVariation* VariationB = &SectorVariationB->ResourceVariations[BestDeal.Resource];
+				VariationB->OwnedCapacity -= BestDeal.BuyQuantity;
 			}
+		}
+		else
+		{
+			FLOGV("%s found nothing to do", *Ship->GetImmatriculation().ToString());
 		}
 	}
 
@@ -414,6 +321,176 @@ void UFlareCompanyAI::Simulate()
 		UFlareSimulatedSpacecraft* Ship = CompanyShips[ShipIndex];
 		Ship->AssignToSector(true);
 	}*/
+}
+
+SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation)
+{
+	SectorDeal BestDeal;
+	BestDeal.Resource = NULL;
+	BestDeal.BuyQuantity = 0;
+	BestDeal.MoneyBalanceParDay = DealToBeat->MoneyBalanceParDay;
+	BestDeal.Resource = NULL;
+	BestDeal.SectorA = NULL;
+	BestDeal.SectorB = NULL;
+
+	for (int32 SectorBIndex = 0; SectorBIndex < Company->GetKnownSectors().Num(); SectorBIndex++)
+	{
+		UFlareSimulatedSector* SectorB = Company->GetKnownSectors()[SectorBIndex];
+
+		if(SectorA == SectorB)
+		{
+			// Same sector
+			continue;
+		}
+
+		// Travel time
+
+		int64 TravelTimeToA = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorA);
+		int64 TravelTimeToB = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), SectorA, SectorB);
+		int64 TravelTime = TravelTimeToA + TravelTimeToB;
+
+
+
+
+		SectorVariation* SectorVariationA = &(*WorldResourceVariation)[SectorA];
+		SectorVariation* SectorVariationB = &(*WorldResourceVariation)[SectorB];
+
+		for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+			struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[Resource];
+			struct ResourceVariation* VariationB = &SectorVariationB->ResourceVariations[Resource];
+
+			if(!VariationA->OwnedFlow &&
+					!VariationA->FactoryFlow &&
+					!VariationA->OwnedStock &&
+					!VariationA->FactoryStock &&
+					!VariationA->StorageStock &&
+					!VariationA->OwnedCapacity &&
+					!VariationA->FactoryCapacity &&
+					!VariationA->StorageCapacity &&
+					!VariationB->OwnedFlow &&
+					!VariationB->FactoryFlow &&
+					!VariationB->OwnedStock &&
+					!VariationB->FactoryStock &&
+					!VariationB->StorageStock &&
+					!VariationB->OwnedCapacity &&
+					!VariationB->FactoryCapacity &&
+					!VariationB->StorageCapacity)
+			{
+				continue;
+			}
+
+
+			int32 InitialQuantity = Ship->GetCargoBay()->GetResourceQuantity(Resource);
+			int32 FreeSpace = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource);
+
+			int32 StockInAAfterTravel =
+					VariationA->OwnedStock
+					+ VariationA->FactoryStock
+					+ VariationA->StorageStock
+					- (VariationA->OwnedFlow * TravelTimeToA)
+					- (VariationA->FactoryFlow * TravelTimeToA);
+
+			if(StockInAAfterTravel <= 0 && InitialQuantity == 0)
+			{
+				continue;
+			}
+
+			int32 CanBuyQuantity = FMath::Min(FreeSpace, StockInAAfterTravel);
+
+			int32 CapacityInBAfterTravel =
+					VariationB->OwnedCapacity
+					+ VariationB->FactoryCapacity
+					+ VariationB->StorageCapacity
+					+ VariationB->OwnedFlow * TravelTime
+					+ VariationB->FactoryFlow * TravelTime
+					- VariationB->IncomingResources;
+
+			int32 SellQuantity = FMath::Min(CapacityInBAfterTravel, CanBuyQuantity + InitialQuantity);
+			int32  BuyQuantity = FMath::Max(0, SellQuantity - InitialQuantity);
+
+			// Use price details
+
+			int32 MoneyGain = 0;
+			int32 QuantityToSell = SellQuantity;
+
+			int32 OwnedCapacity = FMath::Max(0, (int32) (VariationB->OwnedCapacity + VariationB->OwnedFlow * TravelTime));
+			int32 FactoryCapacity = FMath::Max(0, (int32) (VariationB->FactoryCapacity + VariationB->FactoryFlow * TravelTime));
+			int32 StorageCapacity = VariationB->StorageCapacity;
+
+			int32 OwnedSellQuantity = FMath::Min(OwnedCapacity, QuantityToSell);
+			MoneyGain += OwnedSellQuantity * SectorB->GetResourcePrice(Resource) * 1.1; // Valorise transport to its own station
+			QuantityToSell -= OwnedSellQuantity;
+
+			int32 FactorySellQuantity = FMath::Min(FactoryCapacity, QuantityToSell);
+			MoneyGain += FactorySellQuantity * SectorB->GetResourcePrice(Resource) * 1.01;
+			QuantityToSell -= FactorySellQuantity;
+
+			int32 StorageSellQuantity = FMath::Min(StorageCapacity, QuantityToSell);
+			MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource);
+			QuantityToSell -= StorageSellQuantity;
+
+			int32 MoneySpend = 0;
+			int32 QuantityToBuy = BuyQuantity;
+
+			int32 OwnedStock = FMath::Max(0, (int32) (VariationA->OwnedStock - VariationA->OwnedFlow * TravelTimeToA));
+			int32 FactoryStock = FMath::Max(0, (int32) (VariationA->FactoryStock - VariationA->FactoryFlow * TravelTimeToA));
+			int32 StorageStock = VariationA->StorageStock;
+
+
+			int32 OwnedBuyQuantity = FMath::Min(OwnedStock, QuantityToBuy);
+			MoneySpend += OwnedBuyQuantity * SectorA->GetResourcePrice(Resource) * 0.9; // Valorise buy to self
+			QuantityToBuy -= OwnedBuyQuantity;
+
+			int32 FactoryBuyQuantity = FMath::Min(FactoryStock, QuantityToBuy);
+			MoneySpend += FactoryBuyQuantity * SectorA->GetResourcePrice(Resource) * 0.99;
+			QuantityToBuy -= FactoryBuyQuantity;
+
+			int32 StorageBuyQuantity = FMath::Min(StorageStock, QuantityToBuy);
+			MoneySpend += StorageBuyQuantity * SectorA->GetResourcePrice(Resource);
+			QuantityToBuy -= StorageBuyQuantity;
+
+
+			int32 MoneyBalance = MoneyGain - MoneySpend;
+
+			float MoneyBalanceParDay = (float) MoneyBalance / (float) TravelTime;
+
+
+			if(MoneyBalanceParDay > BestDeal.MoneyBalanceParDay)
+			{
+
+				BestDeal.MoneyBalanceParDay = MoneyBalanceParDay;
+				BestDeal.SectorA = SectorA;
+				BestDeal.SectorB = SectorB;
+				BestDeal.Resource = Resource;
+				BestDeal.BuyQuantity = BuyQuantity;
+
+			/*	FLOGV("Travel %s -> %s -> %s : %lld days", *Ship->GetCurrentSector()->GetSectorName().ToString(),
+							*SectorA->GetSectorName().ToString(), *SectorB->GetSectorName().ToString(), TravelTime);
+
+				FLOGV("New Best Resource %s", *Resource->Name.ToString())
+
+				FLOGV(" -> IncomingCapacity=%u", SectorVariationA->IncomingCapacity);
+				FLOGV(" -> IncomingResources=%u", VariationA->IncomingResources);
+				FLOGV(" -> InitialQuantity=%u", InitialQuantity);
+				FLOGV(" -> FreeSpace=%u", FreeSpace);
+				FLOGV(" -> StockInAAfterTravel=%u", StockInAAfterTravel);
+				FLOGV(" -> BuyQuantity=%u", BuyQuantity);
+				FLOGV(" -> CapacityInBAfterTravel=%u", CapacityInBAfterTravel);
+				FLOGV(" -> SellQuantity=%u", SellQuantity);
+				FLOGV(" -> MoneyGain=%d", MoneyGain);
+				FLOGV(" -> MoneySpend=%d", MoneySpend);
+				FLOGV("   -> OwnedBuyQuantity=%d", OwnedBuyQuantity);
+				FLOGV("   -> FactoryBuyQuantity=%d", FactoryBuyQuantity);
+				FLOGV("   -> StorageBuyQuantity=%d", StorageBuyQuantity);
+				FLOGV(" -> MoneyBalance=%d", MoneyBalance);
+				FLOGV(" -> MoneyBalanceParDay=%f", MoneyBalanceParDay);*/
+			}
+		}
+	}
+
+	return BestDeal;
 }
 
 void UFlareCompanyAI::Tick()
@@ -629,9 +706,9 @@ void UFlareCompanyAI::ResetShipGroup(EFlareCombatTactic::Type Tactic)
 	}
 }
 
-TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedSector* Sector)
+SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedSector* Sector)
 {
-	TMap<FFlareResourceDescription*, ResourceVariation> SectorVariations;
+	SectorVariation SectorVariation;
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 	{
 		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
@@ -644,7 +721,8 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 		ResourceVariation.OwnedCapacity = 0;
 		ResourceVariation.FactoryCapacity = 0;
 		ResourceVariation.StorageCapacity = 0;
-		SectorVariations.Add(Resource, ResourceVariation);
+		ResourceVariation.IncomingResources = 0;
+		SectorVariation.ResourceVariations.Add(Resource, ResourceVariation);
 	}
 
 	uint32 OwnedCustomerStation = 0;
@@ -675,7 +753,7 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 			for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
-				struct ResourceVariation* Variation = &SectorVariations[Resource];
+				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 
 				uint32 Flow = Factory->GetInputResourceQuantity(ResourceIndex) / Factory->GetProductionDuration();
@@ -717,7 +795,7 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 			for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetOutputResourcesCount(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = Factory->GetOutputResource(ResourceIndex);
-				struct ResourceVariation* Variation = &SectorVariations[Resource];
+				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 				uint32 Flow = Factory->GetOutputResourceQuantity(ResourceIndex) / Factory->GetProductionDuration();
 
@@ -771,7 +849,7 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-				struct ResourceVariation* Variation = &SectorVariations[Resource];
+				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
 				if (ResourceQuantity < SlotCapacity)
@@ -799,7 +877,7 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 		{
 			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-			struct ResourceVariation* Variation = &SectorVariations[Resource];
+			struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 
 			uint32 Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource);
@@ -809,7 +887,46 @@ TMap<FFlareResourceDescription*, ResourceVariation> UFlareCompanyAI::ComputeSect
 		}
 	}
 
-	return SectorVariations;
+	// Compute incoming capacity and resources
+	SectorVariation.IncomingCapacity = 0;
+	for (int32 TravelIndex = 0; TravelIndex < Game->GetGameWorld()->GetTravels().Num(); TravelIndex++)
+	{
+		UFlareTravel* Travel = Game->GetGameWorld()->GetTravels()[TravelIndex];
+		if (Travel->GetDestinationSector() != Sector)
+		{
+			continue;
+		}
+
+		UFlareFleet* IncomingFleet = Travel->GetFleet();
+
+
+		for (int ShipIndex = 0; ShipIndex < IncomingFleet->GetShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = IncomingFleet->GetShips()[ShipIndex];
+
+			if (Ship->GetCargoBay()->GetSlotCapacity() == 0)
+			{
+				continue;
+			}
+			SectorVariation.IncomingCapacity += Ship->GetCargoBay()->GetCapacity();
+
+			TArray<FFlareCargo>& CargoBaySlots = Ship->GetCargoBay()->GetSlots();
+			for (int CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
+			{
+				FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
+
+				if (!Cargo.Resource)
+				{
+					continue;
+				}
+				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Cargo.Resource];
+
+				Variation->IncomingResources = Cargo.Quantity;
+			}
+		}
+	}
+
+	return SectorVariation;
 }
 
 void UFlareCompanyAI::DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* SectorVariation)
