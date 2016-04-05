@@ -466,7 +466,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				BestDeal.Resource = Resource;
 				BestDeal.BuyQuantity = BuyQuantity;
 
-			/*	FLOGV("Travel %s -> %s -> %s : %lld days", *Ship->GetCurrentSector()->GetSectorName().ToString(),
+				/**FLOGV("Travel %s -> %s -> %s : %lld days", *Ship->GetCurrentSector()->GetSectorName().ToString(),
 							*SectorA->GetSectorName().ToString(), *SectorB->GetSectorName().ToString(), TravelTime);
 
 				FLOGV("New Best Resource %s", *Resource->Name.ToString())
@@ -897,6 +897,8 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			continue;
 		}
 
+		int64 RemainingTravelDuration = FMath::Max((int64) 1, Travel->GetRemainingTravelDuration());
+
 		UFlareFleet* IncomingFleet = Travel->GetFleet();
 
 
@@ -908,7 +910,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			{
 				continue;
 			}
-			SectorVariation.IncomingCapacity += Ship->GetCargoBay()->GetCapacity();
+			SectorVariation.IncomingCapacity += Ship->GetCargoBay()->GetCapacity() / RemainingTravelDuration;
 
 			TArray<FFlareCargo>& CargoBaySlots = Ship->GetCargoBay()->GetSlots();
 			for (int CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
@@ -921,9 +923,43 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				}
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Cargo.Resource];
 
-				Variation->IncomingResources = Cargo.Quantity;
+				Variation->IncomingResources += Cargo.Quantity / (RemainingTravelDuration * 0.5);
 			}
 		}
+	}
+
+	// Consider resource over 10 days of consumption as IncomingResources
+	for (int32 StationIndex = 0 ; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
+
+
+		if (!Station->HasCapability(EFlareSpacecraftCapability::Storage) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+		{
+			continue;
+		}
+
+
+		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+			struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
+
+			int32 TotalFlow =  Variation->FactoryFlow + Variation->OwnedFlow;
+
+			if(TotalFlow >= 0)
+			{
+				int32 LongTermConsumption = TotalFlow * 10;
+				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+
+				if (ResourceQuantity > LongTermConsumption)
+				{
+					Variation->IncomingResources += ResourceQuantity - LongTermConsumption;
+				}
+			}
+		}
+
+
 	}
 
 	return SectorVariation;

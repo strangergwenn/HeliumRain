@@ -285,19 +285,19 @@ void UFlareScenarioTools::SetupWorld()
 
 	// Company setup
 	PlayerCompany->GiveMoney(100000);
-	MiningSyndicate->GiveMoney(100000);
-	HelixFoundries->GiveMoney(100000);
-	Sunwatch->GiveMoney(100000);
-	UnitedFarmsChemicals->GiveMoney(100000);
-	IonLane->GiveMoney(100000);
-	GhostWorksShipyards->GiveMoney(100000);
+	MiningSyndicate->GiveMoney(1000000);
+	HelixFoundries->GiveMoney(1000000);
+	Sunwatch->GiveMoney(1000000);
+	UnitedFarmsChemicals->GiveMoney(1000000);
+	IonLane->GiveMoney(1000000);
+	GhostWorksShipyards->GiveMoney(1000000);
 
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);
 
 	// Create initial stations
 	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 4);
-	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 6);
+	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 8);
 	CreateStations(StationHabitation, IonLane, BlueHeart, 4);
 	CreateStations(StationMine, MiningSyndicate, MinersHome, 6);
 	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);
@@ -319,9 +319,9 @@ void UFlareScenarioTools::SetupWorld()
 	// Create cargos
 	CreateShips(ShipOmen, IonLane, Crossroads, 60);
 	CreateShips(ShipOmen, MiningSyndicate, MinersHome, 10);
-	CreateShips(ShipOmen, HelixFoundries, Outpost, 4);
-	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 4);
-	CreateShips(ShipOmen, Sunwatch, Lighthouse, 4);
+	CreateShips(ShipOmen, HelixFoundries, Outpost, 10);
+	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 10);
+	CreateShips(ShipOmen, Sunwatch, Lighthouse, 10);
 
 }
 
@@ -431,28 +431,45 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 	{
 		UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, FVector::ZeroVector, FRotator::ZeroRotator);
 
-		if (!Station || Station->GetFactories().Num() == 0)
+		if (!Station)
 		{
 			continue;
 		}
 		
-		UFlareFactory* ActiveFactory = Station->GetFactories()[0];
 
-		// Limit output
-		// TODO limit in AI
-		for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.OutputResources.Num(); ResourceIndex++)
+		if(Station->GetFactories().Num() > 0)
 		{
-			const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
-			ActiveFactory->SetOutputLimit(&Resource->Resource->Data, 1);
+			UFlareFactory* ActiveFactory = Station->GetFactories()[0];
+
+			// Limit output
+			// TODO limit in AI
+			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.OutputResources.Num(); ResourceIndex++)
+			{
+				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
+				ActiveFactory->SetOutputLimit(&Resource->Resource->Data, 1);
+			}
+
+			// Give input resources
+			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
+			{
+				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
+
+				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity());
+			}
 		}
 
-		// Give input resources
-		for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
-		{
-			const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
 
-			Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity());
+		// Give customer resources
+		if (Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		{
+			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+			{
+				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity());
+			}
 		}
+
+
 	}
 }
 

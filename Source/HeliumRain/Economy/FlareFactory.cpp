@@ -5,6 +5,7 @@
 #include "../Game/FlareCompany.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
+#include "../Economy/FlareCargoBay.h"
 #include "FlareFactory.h"
 
 
@@ -634,20 +635,13 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 	TArray<FFlareFactoryResource> OutputResources = GetCycleData().OutputResources;
 	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
-		uint32 MaxCapacity = CargoBay->GetCapacity() * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
+		uint32 MaxCapacity = CargoBay->GetSlotCapacity() * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
 		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier);
-		uint32 CurrentQuantity = 0;
-		for (uint32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
-		{
-			if (CargoBay->GetSlot(CargoIndex)->Resource == Resource)
-			{
-				CurrentQuantity += CargoBay->GetSlot(CargoIndex)->Quantity;
-			}
-		}
-
 		uint32 MaxAddition;
+		uint32 CurrentQuantity = CargoBay->GetResourceQuantity(Resource);
 
-		if (CurrentQuantity > MaxCapacity)
+
+		if (CurrentQuantity >= MaxCapacity)
 		{
 			MaxAddition = 0;
 		}
