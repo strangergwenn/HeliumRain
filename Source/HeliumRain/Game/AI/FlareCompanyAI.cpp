@@ -950,7 +950,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			if(TotalFlow >= 0)
 			{
 				int32 LongTermConsumption = TotalFlow * 10;
-				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				int32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
 
 				if (ResourceQuantity > LongTermConsumption)
 				{
