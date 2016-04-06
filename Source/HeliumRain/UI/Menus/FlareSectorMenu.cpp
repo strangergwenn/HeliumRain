@@ -223,7 +223,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("BuildStationInfo", "Build a station in this sector"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
 							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
-							.Visibility(this, &SFlareSectorMenu::GetBuildStationVisibility)
 							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
 						]
 					]
@@ -354,11 +353,20 @@ void SFlareSectorMenu::Exit()
 
 FText SFlareSectorMenu::GetBuildStationText() const
 {
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
 	if (TargetSector)
 	{
-		return FText::Format(LOCTEXT("BuildStation", "Build station ({0} / {1})"),
-			FText::AsNumber(TargetSector->GetSectorStations().Num()),
+		if (PC && PC->GetCompany()->HasVisitedSector(TargetSector))
+		{
+			return FText::Format(LOCTEXT("BuildStationFormat", "Build station ({0} / {1})"),
+				FText::AsNumber(TargetSector->GetSectorStations().Num()),
 				FText::AsNumber(TargetSector->GetMaxStationsInSector()));
+		}
+		else
+		{
+			return LOCTEXT("BuildStation", "Build station (?)");
+		}
 	}
 	else
 	{
@@ -366,25 +374,16 @@ FText SFlareSectorMenu::GetBuildStationText() const
 	}
 }
 
-EVisibility SFlareSectorMenu::GetBuildStationVisibility() const
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	
-	// Known sector
-	if (PC && PC->GetCompany()->HasVisitedSector(TargetSector))
-	{
-		return EVisibility::Visible;
-	}
-	{
-		return EVisibility::Collapsed;
-	}
-}
-
 bool SFlareSectorMenu::IsBuildStationDisabled() const
 {
-	if (TargetSector)
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	if (TargetSector
+		&& PC
+		&& PC->GetCompany()->HasVisitedSector(TargetSector)
+		&& TargetSector->GetSectorStations().Num() < TargetSector->GetMaxStationsInSector())
 	{
-		return (TargetSector->GetSectorStations().Num() >= TargetSector->GetMaxStationsInSector());
+		return false;
 	}
 	else
 	{

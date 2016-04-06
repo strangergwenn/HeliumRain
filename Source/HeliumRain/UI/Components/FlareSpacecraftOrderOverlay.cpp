@@ -285,11 +285,13 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		const FFlareProductionData* CycleData = &TargetFactory->GetCycleDataForShipClass(Desc->Identifier);
 		ProductionTime = CycleData->ProductionTime;
 
-		// Spacecraft type
+		// Station
 		if (Desc->OrbitalEngineCount == 0)
 		{
-			SpacecraftInfoText = LOCTEXT("FactoryStation", "(Station)");
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryStationFormat", "(Station, {0} factories)"), FText::AsNumber(Desc->Factories.Num()));
 		}
+
+		// Ship
 		else if (Desc->TurretSlots.Num())
 		{
 			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} turrets)"), FText::AsNumber(Desc->TurretSlots.Num()));
@@ -320,7 +322,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 	else
 	{
 		check(TargetSector);
-		SpacecraftInfoText = LOCTEXT("SectorStation", "(Station)");
+		SpacecraftInfoText = FText::Format(LOCTEXT("StationInfoFormat", "(Station, {0} factories)"), FText::AsNumber(Desc->Factories.Num()));
 		ProductionTime = Desc->CycleCost.ProductionTime;
 
 		// Add resources

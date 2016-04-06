@@ -46,10 +46,7 @@ protected:
 
 	/** Can we build stations */
 	FText GetBuildStationText() const;
-
-	/** Can we build stations */
-	EVisibility GetBuildStationVisibility() const;
-
+	
 	/** Dp we have more than the max stations already ? */
 	bool IsBuildStationDisabled() const;
 
