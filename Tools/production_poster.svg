@@ -52,15 +52,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="1291.6215"
-     inkscape:cy="662.4917"
+     inkscape:cx="694.61612"
+     inkscape:cy="372.84157"
      inkscape:document-units="px"
-     inkscape:current-layer="g6974"
+     inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1855"
-     inkscape:window-height="1176"
-     inkscape:window-x="65"
-     inkscape:window-y="24"
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="1920"
+     inkscape:window-y="144"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -408,62 +408,60 @@
        sodipodi:linespacing="125%"
        id="text4103"
        y="391.22147"
-       x="146.82114"
+       x="138.82114"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
          y="391.22147"
-         x="146.82114"
+         x="138.82114"
          id="tspan4105"
          sodipodi:role="line"><tspan
    style="fill:#f2a4a4;fill-opacity:1"
-   id="tspan4911">2 FeO</tspan> + <tspan
+   id="tspan4911">20 FeO</tspan> + <tspan
    style="fill:#f2a4a4;fill-opacity:1"
-   id="tspan4913">4 H₂</tspan> → <tspan
+   id="tspan4913">40 H₂</tspan> → <tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4887">1 Steel </tspan></tspan></text>
+   id="tspan4887">10 Steel </tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       x="160.80502"
+       x="211.80502"
        y="420.5072"
        id="text4109"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4111"
-         x="160.80502"
+         x="211.80502"
          y="420.5072"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
-   style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4873">10 Fuel</tspan> → <tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4933">12 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1"
+           id="tspan4873">10 Fuel</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="103.95145"
-       y="87.822632"
+       y="73.822632"
        id="text4191"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4193"
          x="103.95145"
-         y="87.822632"
-         style="font-size:24px;fill:#c3cdd3;fill-opacity:1">Mine</tspan></text>
+         y="73.822632"
+         style="font-size:24px;fill:#c3cdd3;fill-opacity:1">Mines</tspan></text>
     <rect
        style="fill:#000000;fill-opacity:0.10196078;stroke:none"
        id="rect4195"
-       width="355.91827"
-       height="139.57224"
+       width="394.41827"
+       height="166.97125"
        x="101.30762"
-       y="92.108353"
+       y="80.209328"
        rx="0"
        ry="0" />
     <flowRoot
        xml:space="preserve"
        id="flowRoot4197"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       transform="translate(-183.50325,-421.82238)"><flowRegion
+       transform="translate(-183.50325,-435.82238)"><flowRegion
          id="flowRegion4199"><rect
            id="rect4201"
            width="332.71579"
@@ -474,7 +472,7 @@
          id="flowPara4203"
          style="font-size:14px;fill:#c3cdd3;fill-opacity:1">An orbital map built to extract valuable resources from an asteroid.</flowPara></flowRoot>    <g
        id="g4205"
-       transform="matrix(0.32314489,0,0,0.32314489,252.8042,105.00308)"
+       transform="matrix(0.32314489,0,0,0.32314489,252.8042,121.00308)"
        style="stroke:#c3cdd3;stroke-opacity:1">
       <path
          transform="matrix(0.91611931,-0.40090575,0.40090575,0.91611931,-108.74157,144.66546)"
@@ -499,18 +497,18 @@
     <text
        sodipodi:linespacing="125%"
        id="text4211"
-       y="222.90384"
+       y="238.90384"
        x="350.03268"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
-         y="222.90384"
+         y="238.90384"
          x="350.03268"
          id="tspan4213"
          sodipodi:role="line">1 day, 100</tspan></text>
     <g
        id="g4215"
-       transform="matrix(0.64069777,0,0,0.64069777,82.6158,-142.21058)">
+       transform="matrix(0.64069777,0,0,0.64069777,82.6158,-126.21058)">
       <text
          sodipodi:linespacing="125%"
          id="text4217"
@@ -533,57 +531,51 @@
     <text
        sodipodi:linespacing="125%"
        id="text4223"
-       y="165.30197"
+       y="153.30197"
        x="110.83418"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#e3f2a4;fill-opacity:1"
-         y="165.30197"
+         y="153.30197"
          x="110.83418"
          id="tspan4225"
          sodipodi:role="line"><tspan
            style="fill:#c3cdd3;fill-opacity:1"
-           id="tspan4855"> →</tspan><tspan
+           id="tspan4855">Iron mine →</tspan><tspan
            style="fill:#f2a4a4;fill-opacity:1"
-           id="tspan4841"> 1 SiO₂</tspan><tspan
-           style="fill:#c3cdd3;fill-opacity:1"
-           id="tspan4857"> +</tspan><tspan
-           style="fill:#f2a4a4;fill-opacity:1"
-           id="tspan4845"> 1 FeO</tspan></tspan></text>
+           id="tspan4845"> 10 FeO</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#c3cdd3;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       x="171.03571"
-       y="205.87343"
+       x="230.03571"
+       y="221.87343"
        id="text4227"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4229"
-         x="171.03571"
-         y="205.87343"
+         x="230.03571"
+         y="221.87343"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
-   style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4867">10 Fuel</tspan> → <tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4937">10 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1"
+           id="tspan4867">10 Fuel</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="110.83418"
-       y="183.30197"
+       y="195.30197"
        id="text4231"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4233"
          x="110.83418"
-         y="183.30197"
+         y="195.30197"
          style="font-size:24px;fill:#e3f2a4;fill-opacity:1"><tspan
            style="fill:#c3cdd3;fill-opacity:1"
-           id="tspan4853"> →</tspan><tspan
+           id="tspan4853">Water mine →</tspan><tspan
            style="fill:#a4b5f2;fill-opacity:1"
-           id="tspan4843"> 1 H₂O</tspan><tspan
+           id="tspan4843"> 50 H₂O</tspan><tspan
            style="font-size:14px;font-style:italic;fill:#c3cdd3;fill-opacity:1;-inkscape-font-specification:Lato Bold Italic"
-           id="tspan4235"> (on frozen asteroids)</tspan></tspan></text>
+           id="tspan4235"> (frozen asteroids only)</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4323"
@@ -653,7 +645,7 @@
          id="tspan4345"
          x="837.78979"
          y="1007.7256"
-         style="font-size:18px;fill:#c3cdd3;fill-opacity:1">1 day, 100</tspan></text>
+         style="font-size:18px;fill:#c3cdd3;fill-opacity:1">1 day, 500</tspan></text>
     <g
        transform="matrix(0.64069777,0,0,0.64069777,570.37292,642.61115)"
        id="g4347">
@@ -689,7 +681,7 @@
          y="948.35864"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#f2a4a4;fill-opacity:1"
-   id="tspan4917">10 He-3</tspan> → </tspan></text>
+   id="tspan4917">50 He-3</tspan> → </tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4359"
@@ -701,11 +693,9 @@
          y="977.64441"
          x="658.79285"
          id="tspan4361"
-         sodipodi:role="line"><tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4919">100 H₂O</tspan> → <tspan
+         sodipodi:role="line">→ <tspan
    style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4885">100 Fuel </tspan></tspan></text>
+   id="tspan4885">500 Fuel </tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -775,7 +765,7 @@
          y="1006.7154"
          x="334.75122"
          id="tspan4395"
-         sodipodi:role="line">1 day, 100</tspan></text>
+         sodipodi:role="line">1 day, 500</tspan></text>
     <g
        id="g4397"
        transform="matrix(0.64069777,0,0,0.64069777,67.33438,641.601)">
@@ -811,9 +801,9 @@
          y="972.63422"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4921">10 H₂O</tspan> → <tspan
+   id="tspan4921">50 H₂O</tspan> → <tspan
    style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4883">10 Fuel </tspan></tspan></text>
+   id="tspan4883">50 Fuel </tspan></tspan></text>
     <flowRoot
        transform="translate(-198.78467,382.33439)"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -831,7 +821,7 @@
        xml:space="preserve"
        id="flowRoot4421"
        style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       transform="translate(-184.00325,-389.98307)"><flowRegion
+       transform="translate(-184.00325,-403.98307)"><flowRegion
          id="flowRegion4423"><rect
            id="rect4425"
            width="338.80212"
@@ -840,156 +830,142 @@
            y="519.00165"
            style="font-size:24px;fill:#91e4ff;fill-opacity:1" /></flowRegion><flowPara
          id="flowPara4427"
-         style="font-size:14px;fill:#91e4ff;fill-opacity:1">Need an asteroid to be built on.</flowPara></flowRoot>    <g
-       id="g4731"
-       transform="translate(84.625122,0)">
-      <text
-         sodipodi:linespacing="125%"
-         id="text4237"
-         y="86.394066"
-         x="493.95145"
-         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         xml:space="preserve"><tspan
-           style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
-           y="86.394066"
-           x="493.95145"
-           id="tspan4239"
-           sodipodi:role="line">Pumping Station</tspan></text>
-      <rect
-         ry="0"
-         rx="0"
-         y="90.679779"
-         x="491.30762"
-         height="139.57224"
-         width="355.91827"
-         id="rect4241"
-         style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
-      <flowRoot
-         transform="translate(206.49675,-423.25095)"
-         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         id="flowRoot4243"
-         xml:space="preserve"><flowRegion
-           id="flowRegion4245"><rect
-             style="font-size:24px"
-             y="519.00165"
-             x="292.94424"
-             height="34.954353"
-             width="340.71579"
-             id="rect4247" /></flowRegion><flowPara
-           style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-           id="flowPara4249">Extract gases from Nema's atmosphere.</flowPara></flowRoot>      <g
-         style="stroke:#c3cdd3;stroke-opacity:1"
-         transform="matrix(0.32314489,0,0,0.32314489,642.8042,103.57451)"
-         id="g4251">
-        <path
-           sodipodi:type="spiral"
-           style="fill:none;stroke:#c3cdd3;stroke-width:13.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           id="path4253"
-           sodipodi:cx="261.42856"
-           sodipodi:cy="338.79074"
-           sodipodi:expansion="0"
-           sodipodi:revolution="0.80000001"
-           sodipodi:radius="21.404749"
-           sodipodi:argument="-17.727484"
-           sodipodi:t0="0"
-           d="m 270.71429,358.07645 c -10.50555,5.05824 -23.5132,0.50557 -28.57144,-9.99998 -5.05824,-10.50555 -0.50557,-23.5132 9.99998,-28.57144 10.50555,-5.05823 23.5132,-0.50557 28.57144,9.99998 0.97265,2.02012 1.62474,4.19227 1.92553,6.41409"
-           transform="matrix(0.91611931,-0.40090575,0.40090575,0.91611931,-108.74157,144.66546)" />
-        <path
-           style="fill:none;stroke:#c3cdd3;stroke-width:5.9000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           d="m 281.07822,322.30052 9.72272,17.93301 -19.89154,-0.12627"
-           id="path4255"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="ccc" />
-      </g>
-      <text
-         xml:space="preserve"
-         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="740.03271"
-         y="221.47528"
-         id="text4257"
-         sodipodi:linespacing="125%"><tspan
-           sodipodi:role="line"
-           id="tspan4259"
-           x="740.03271"
-           y="221.47528"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">1 day, 100</tspan></text>
-      <g
-         transform="matrix(0.64069777,0,0,0.64069777,472.6158,-143.63915)"
-         id="g4261">
-        <text
-           xml:space="preserve"
-           style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-           x="553.12482"
-           y="570.45721"
-           id="text4263"
-           sodipodi:linespacing="125%"><tspan
-             sodipodi:role="line"
-             id="tspan4265"
-             x="553.12482"
-             y="570.45721"
-             style="font-size:24px;fill:#c3cdd3;fill-opacity:1">C</tspan></text>
-        <path
-           style="fill:none;stroke:#c3cdd3;stroke-width:2.79999995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           d="m 562.27245,551.16849 0,21.23465"
-           id="path4267"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="cc" />
-      </g>
-      <text
-         xml:space="preserve"
-         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="538.01086"
-         y="160.10835"
-         id="text4269"
-         sodipodi:linespacing="125%"><tspan
-           sodipodi:role="line"
-           id="tspan4271"
-           x="538.01086"
-           y="160.10835"
-           style="font-size:24px;fill:#e3f2a4;fill-opacity:1"><tspan
-             style="fill:#c3cdd3;fill-opacity:1"
-             id="tspan4861">→</tspan><tspan
-             style="fill:#f2a4a4;fill-opacity:1"
-             id="tspan4847"> 1 He-3</tspan><tspan
-             style="fill:#c3cdd3;fill-opacity:1"
-             id="tspan4863"> +</tspan><tspan
-             style="fill:#f2a4a4;fill-opacity:1"
-             id="tspan4849"> 2 CH₄</tspan><tspan
-             style="fill:#c3cdd3;fill-opacity:1"
-             id="tspan4865"> +</tspan><tspan
-             style="fill:#f2a4a4;fill-opacity:1"
-             id="tspan4851"> 4 H₂ </tspan></tspan></text>
-      <text
-         sodipodi:linespacing="125%"
-         id="text4273"
-         y="191.39409"
-         x="572.46423"
-         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#c3cdd3;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         xml:space="preserve"><tspan
-           style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
-           y="191.39409"
-           x="572.46423"
-           id="tspan4275"
-           sodipodi:role="line"><tspan
-   style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4869">10 Fuel</tspan> → <tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4939">10 H₂O </tspan></tspan></text>
-      <flowRoot
-         xml:space="preserve"
-         id="flowRoot4429"
-         style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         transform="translate(205.64275,-404.76878)"><flowRegion
-           id="flowRegion4431"><rect
-             id="rect4433"
-             width="338.80212"
-             height="44.658489"
-             x="292.94424"
-             y="519.00165"
-             style="font-size:24px;fill:#91e4ff;fill-opacity:1" /></flowRegion><flowPara
-           id="flowPara4435"
-           style="font-size:14px;fill:#91e4ff;fill-opacity:1">Need to be build in geostationary orbit.</flowPara></flowRoot>    </g>
+         style="font-size:14px;fill:#91e4ff;fill-opacity:1">Need an asteroid to be built on.</flowPara></flowRoot>    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       x="578.57654"
+       y="72.394066"
+       id="text4237"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4239"
+         x="578.57654"
+         y="72.394066"
+         style="font-size:24px;fill:#c3cdd3;fill-opacity:1">Pumping Station</tspan></text>
+    <rect
+       style="fill:#000000;fill-opacity:0.10196078;stroke:none"
+       id="rect4241"
+       width="355.91827"
+       height="167.73471"
+       x="575.93274"
+       y="78.658966"
+       rx="0"
+       ry="0" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4243"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       transform="translate(291.12187,-437.25095)"><flowRegion
+         id="flowRegion4245"><rect
+           id="rect4247"
+           width="340.71579"
+           height="34.954353"
+           x="292.94424"
+           y="519.00165"
+           style="font-size:24px" /></flowRegion><flowPara
+         id="flowPara4249"
+         style="font-size:14px;fill:#c3cdd3;fill-opacity:1">Extract gases from Nema's atmosphere.</flowPara></flowRoot>    <g
+       id="g4251"
+       transform="matrix(0.32314489,0,0,0.32314489,727.42932,119.57451)"
+       style="stroke:#c3cdd3;stroke-opacity:1">
+      <path
+         transform="matrix(0.91611931,-0.40090575,0.40090575,0.91611931,-108.74157,144.66546)"
+         d="m 270.71429,358.07645 c -10.50555,5.05824 -23.5132,0.50557 -28.57144,-9.99998 -5.05824,-10.50555 -0.50557,-23.5132 9.99998,-28.57144 10.50555,-5.05823 23.5132,-0.50557 28.57144,9.99998 0.97265,2.02012 1.62474,4.19227 1.92553,6.41409"
+         sodipodi:t0="0"
+         sodipodi:argument="-17.727484"
+         sodipodi:radius="21.404749"
+         sodipodi:revolution="0.80000001"
+         sodipodi:expansion="0"
+         sodipodi:cy="338.79074"
+         sodipodi:cx="261.42856"
+         id="path4253"
+         style="fill:none;stroke:#c3cdd3;stroke-width:13.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="spiral" />
+      <path
+         sodipodi:nodetypes="ccc"
+         inkscape:connector-curvature="0"
+         id="path4255"
+         d="m 281.07822,322.30052 9.72272,17.93301 -19.89154,-0.12627"
+         style="fill:none;stroke:#c3cdd3;stroke-width:5.9000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
     <text
+       sodipodi:linespacing="125%"
+       id="text4257"
+       y="237.47528"
+       x="824.65784"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       xml:space="preserve"><tspan
+         style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
+         y="237.47528"
+         x="824.65784"
+         id="tspan4259"
+         sodipodi:role="line">1 day, 100</tspan></text>
+    <g
+       id="g4261"
+       transform="matrix(0.64069777,0,0,0.64069777,557.24092,-127.63915)">
+      <text
+         sodipodi:linespacing="125%"
+         id="text4263"
+         y="570.45721"
+         x="553.12482"
+         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+         xml:space="preserve"><tspan
+           style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
+           y="570.45721"
+           x="553.12482"
+           id="tspan4265"
+           sodipodi:role="line">C</tspan></text>
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path4267"
+         d="m 562.27245,551.16849 0,21.23465"
+         style="fill:none;stroke:#c3cdd3;stroke-width:2.79999995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4269"
+       y="136.10835"
+       x="583.74512"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       xml:space="preserve"><tspan
+         style="font-size:24px;fill:#e3f2a4;fill-opacity:1"
+         y="136.10835"
+         x="583.74512"
+         id="tspan4271"
+         sodipodi:role="line"><tspan
+           id="tspan4861"
+           style="fill:#c3cdd3;fill-opacity:1">Hydrogen pump →</tspan><tspan
+           id="tspan4851"
+           style="fill:#f2a4a4;fill-opacity:1"> 40 H₂ </tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#c3cdd3;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       x="708.08936"
+       y="217.39409"
+       id="text4273"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4275"
+         x="708.08936"
+         y="217.39409"
+         style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
+           id="tspan4869"
+           style="fill:#a4f2a6;fill-opacity:1">10 Fuel </tspan></tspan></text>
+    <flowRoot
+       transform="translate(290.26787,-418.76878)"
+       style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       id="flowRoot4429"
+       xml:space="preserve"><flowRegion
+         id="flowRegion4431"><rect
+           style="font-size:24px;fill:#91e4ff;fill-opacity:1"
+           y="519.00165"
+           x="292.94424"
+           height="44.658489"
+           width="338.80212"
+           id="rect4433" /></flowRegion><flowPara
+         style="font-size:14px;fill:#91e4ff;fill-opacity:1"
+         id="flowPara4435">Need to be build in geostationary orbit.</flowPara></flowRoot>    <text
        sodipodi:linespacing="125%"
        id="text4437"
        y="333.50717"
@@ -1019,13 +995,13 @@
            style="font-size:24px"
            y="519.00165"
            x="292.94424"
-           height="45.658508"
-           width="348.80209"
+           height="43.537189"
+           width="357.99448"
            id="rect4447" /></flowRegion><flowPara
          style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
          id="flowPara4449">Refineries use methane as a source to various compounds.</flowPara></flowRoot>    <g
        style="stroke:#c3cdd3;stroke-opacity:1"
-       transform="matrix(0.32314489,0,0,0.32314489,727.42933,332.68762)"
+       transform="matrix(0.32314489,0,0,0.32314489,727.42933,336.68762)"
        id="g4451">
       <path
          sodipodi:type="spiral"
@@ -1051,16 +1027,16 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="824.65784"
-       y="450.58835"
+       y="454.58835"
        id="text4457"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4459"
          x="824.65784"
-         y="450.58835"
+         y="454.58835"
          style="font-size:18px;fill:#c3cdd3;fill-opacity:1">1 day, 100</tspan></text>
     <g
-       transform="matrix(0.64069777,0,0,0.64069777,557.24093,85.47396)"
+       transform="matrix(0.64069777,0,0,0.64069777,557.24093,89.47396)"
        id="g4461">
       <text
          xml:space="preserve"
@@ -1085,36 +1061,32 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="624.39142"
-       y="403.22147"
+       y="395.22147"
        id="text4469"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4471"
          x="624.39142"
-         y="403.22147"
+         y="395.22147"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#f2a4a4;fill-opacity:1"
-   id="tspan4915">2 CH₄</tspan> → <tspan
+   id="tspan4915">10 CH₄</tspan> → <tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4907">1 C</tspan> + <tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4889">1 Plastics</tspan></tspan></text>
+   id="tspan4907">10 C</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4473"
-       y="428.5072"
-       x="657.08936"
+       y="436.5072"
+       x="699.08936"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
-         y="428.5072"
-         x="657.08936"
+         y="436.5072"
+         x="699.08936"
          id="tspan4475"
          sodipodi:role="line"><tspan
-   style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4875">10 Fuel</tspan> → <tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4931">10 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1"
+           id="tspan4875">10 Fuel </tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4493"
@@ -1220,37 +1192,35 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       x="114.66846"
+       x="94.668457"
        y="561.85602"
        id="text4525"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4527"
-         x="114.66846"
+         x="94.668457"
          y="561.85602"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4893">1 Steel</tspan> + <tspan
+   id="tspan4893">10 Steel</tspan> + <tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4891">1 Plastics</tspan> → <tspan
+   id="tspan4891">10 Plastics</tspan> → <tspan
    style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4905">1 Tools</tspan></tspan></text>
+   id="tspan4905">10 Tools</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4529"
        y="589.14178"
-       x="170.38202"
+       x="222.38202"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
          y="589.14178"
-         x="170.38202"
+         x="222.38202"
          id="tspan4531"
          sodipodi:role="line"><tspan
-   style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4881">10 Fuel</tspan> → <tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4935">10 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1"
+           id="tspan4881">10 Fuel </tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -1320,7 +1290,7 @@
          y="613.2229"
          x="818.65784"
          id="tspan4555"
-         sodipodi:role="line">5 days, 500</tspan></text>
+         sodipodi:role="line">1 days, 100</tspan></text>
     <g
        id="g4557"
        transform="matrix(0.64069777,0,0,0.64069777,557.24093,248.10852)">
@@ -1347,36 +1317,32 @@
        sodipodi:linespacing="125%"
        id="text4565"
        y="575.85602"
-       x="684.26526"
+       x="629.26526"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
          y="575.85602"
-         x="684.26526"
+         x="629.26526"
          id="tspan4567"
          sodipodi:role="line"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4909">5 C</tspan> → <tspan
+   id="tspan4909">10 C + 10 H₂O</tspan> → <tspan
    style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4899">5 Food</tspan></tspan></text>
+   id="tspan4899">10 Food</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       x="657.08936"
+       x="711.08936"
        y="595.9989"
        id="text4569"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4571"
-         x="657.08936"
+         x="711.08936"
          y="595.9989"
          style="font-size:24px;fill:#f2a4a4;fill-opacity:1"><tspan
            style="fill:#a4f2a6;fill-opacity:1"
-           id="tspan4759">50 Fuel</tspan><tspan
-           style="fill:#c3cdd3;fill-opacity:1"
-           id="tspan4761"> →</tspan><tspan
-           style="fill:#a4b5f2;fill-opacity:1"
-           id="tspan4763"> 49 H₂O </tspan></tspan></text>
+           id="tspan4759">10 Fuel</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -1491,27 +1457,25 @@
          id="tspan4613"
          sodipodi:role="line"><tspan
    style="fill:#f2a4a4;fill-opacity:1"
-   id="tspan4923">2 SiO₂</tspan> + <tspan
+   id="tspan4923">20 SiO₂</tspan> + <tspan
    style="fill:#f2a4a4;fill-opacity:1"
-   id="tspan4925">4 H₂</tspan> → <tspan
+   id="tspan4925">40H₂</tspan> → <tspan
    style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4903">1 Tech </tspan></tspan></text>
+   id="tspan4903">10 Tech </tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       x="172.76758"
+       x="232.76758"
        y="750.32208"
        id="text4615"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4617"
-         x="172.76758"
+         x="232.76758"
          y="750.32208"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
-   style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4879">50 Fuel </tspan>→ <tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4927">52 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1"
+           id="tspan4879">50 Fuel</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4619"
@@ -1607,37 +1571,35 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-       x="592.60474"
+       x="586.60474"
        y="721.46014"
        id="text4651"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4653"
-         x="592.60474"
+         x="586.60474"
          y="721.46014"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4895">1 Steel</tspan> + <tspan
+   id="tspan4895">10 Steel</tspan> + <tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4897">2 Plastics</tspan> → <tspan
+   id="tspan4897">20 Plastics</tspan> → <tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4901">1 Supply</tspan></tspan></text>
+   id="tspan4901">10 FS</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4655"
        y="746.74591"
-       x="657.08936"
+       x="705.08936"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
          y="746.74591"
-         x="657.08936"
+         x="705.08936"
          id="tspan4657"
          sodipodi:role="line"><tspan
-   style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4877">10 Fuel</tspan> → <tspan
-   style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan4929"> 9 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1"
+           id="tspan4877">10 Fuel</tspan></tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot4665"
@@ -1665,13 +1627,13 @@
          style="font-size:14px;fill:#91e4ff;fill-opacity:1">Daily production depends on night duration. Farms are more efficient in high orbits.</flowPara></flowRoot>    <rect
        style="fill:#ff9797;fill-opacity:0.41960784;stroke:none"
        id="rect4683"
-       width="78.764229"
+       width="63.264229"
        height="13.619628"
-       x="231.75597"
+       x="247.25597"
        y="-421.77927"
        transform="matrix(0,1,-1,0,0,0)"
        inkscape:transform-center-x="88.527577"
-       inkscape:transform-center-y="-28.576344" />
+       inkscape:transform-center-y="-22.95281" />
     <path
        inkscape:transform-center-y="21.402275"
        inkscape:transform-center-x="88.527577"
@@ -1719,13 +1681,13 @@
        style="fill:#ff9797;fill-opacity:0.41960784;stroke:none"
        sodipodi:type="star" />
     <rect
-       inkscape:transform-center-y="-28.576344"
+       inkscape:transform-center-y="-23.702"
        inkscape:transform-center-x="88.527577"
        transform="matrix(0,1,-1,0,0,0)"
        y="-902.49359"
-       x="231.75597"
+       x="245.19099"
        height="13.619628"
-       width="78.764229"
+       width="65.329201"
        id="rect4695"
        style="fill:#ff9797;fill-opacity:0.41960784;stroke:none" />
     <path
@@ -2363,13 +2325,13 @@
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1401.4337"
-       y="71.07859"
+       y="159.07858"
        id="text5059"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5061"
          x="1401.4337"
-         y="71.07859"
+         y="159.07858"
          style="font-size:24px;fill:#c3cdd3;fill-opacity:1">Manufactured</tspan></text>
     <text
        sodipodi:linespacing="125%"
@@ -2557,15 +2519,15 @@
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="1177.8007"
+         x="1187.8007"
          y="499.7312"
          id="text5367"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan5369"
-           x="1177.8007"
+           x="1187.8007"
            y="499.7312"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost: 100</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost: 25</tspan></text>
     </g>
     <g
        id="g7124"
@@ -2631,14 +2593,14 @@
          sodipodi:linespacing="125%"
          id="text5391"
          y="151.87405"
-         x="1177.8007"
+         x="1167.8007"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
            y="151.87405"
-           x="1177.8007"
+           x="1167.8007"
            id="tspan5393"
-           sodipodi:role="line">Min cost:    25</tspan></text>
+           sodipodi:role="line">Min cost:    6.25</tspan></text>
     </g>
     <g
        id="g7094"
@@ -2703,15 +2665,15 @@
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="1177.8007"
+         x="1185.8007"
          y="239.01691"
          id="text5415"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan5417"
-           x="1177.8007"
+           x="1185.8007"
            y="239.01691"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost: 100</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost: 25</tspan></text>
     </g>
     <g
        id="g7079"
@@ -2777,14 +2739,14 @@
          sodipodi:linespacing="125%"
          id="text5439"
          y="331.87405"
-         x="1177.8007"
+         x="1167.8007"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
            y="331.87405"
-           x="1177.8007"
+           x="1167.8007"
            id="tspan5441"
-           sodipodi:role="line">Min cost:    50</tspan></text>
+           sodipodi:role="line">Min cost:    12.5</tspan></text>
     </g>
     <g
        id="g7064"
@@ -2849,15 +2811,15 @@
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="1169.8007"
+         x="1177.8007"
          y="416.15976"
          id="text5463"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan5465"
-           x="1169.8007"
+           x="1177.8007"
            y="416.15976"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    100</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    25</tspan></text>
     </g>
     <rect
        ry="0"
@@ -2974,20 +2936,20 @@
          sodipodi:linespacing="125%"
          id="text5507"
          y="499.7312"
-         x="1457.6941"
+         x="1463.6941"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
            y="499.7312"
-           x="1457.6941"
+           x="1463.6941"
            id="tspan5509"
-           sodipodi:role="line">Min cost: 1550</tspan></text>
+           sodipodi:role="line">Min cost: 200</tspan></text>
     </g>
     <g
        id="g7139"
-       transform="translate(0,1.615918e-5)">
+       transform="translate(0,-23.999984)">
       <rect
-         style="fill:#2d57ff;fill-opacity:0.41960784;stroke:none"
+         style="fill:#ff2d2d;fill-opacity:0.41960785;stroke:none"
          id="rect5298"
          width="78.764229"
          height="250"
@@ -3046,15 +3008,15 @@
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="1457.6941"
+         x="1463.6941"
          y="151.87405"
          id="text5531"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan5533"
-           x="1457.6941"
+           x="1463.6941"
            y="151.87405"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    250</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    5</tspan></text>
     </g>
     <g
        id="g7109"
@@ -3120,14 +3082,14 @@
          sodipodi:linespacing="125%"
          id="text5555"
          y="239.01691"
-         x="1465.6941"
+         x="1463.6941"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
            y="239.01691"
-           x="1465.6941"
+           x="1463.6941"
            id="tspan5557"
-           sodipodi:role="line">Min cost: 500</tspan></text>
+           sodipodi:role="line">Min cost: 100</tspan></text>
     </g>
     <g
        id="g7154"
@@ -3192,15 +3154,15 @@
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="1457.6941"
+         x="1453.6941"
          y="331.87405"
          id="text5579"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan5581"
-           x="1457.6941"
+           x="1453.6941"
            y="331.87405"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    300</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    37.5</tspan></text>
     </g>
     <g
        id="g7169"
@@ -3266,14 +3228,14 @@
          sodipodi:linespacing="125%"
          id="text5603"
          y="416.15976"
-         x="1457.6941"
+         x="1453.6941"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
            y="416.15976"
-           x="1457.6941"
+           x="1453.6941"
            id="tspan5605"
-           sodipodi:role="line">Min cost:    300</tspan></text>
+           sodipodi:role="line">Min cost:    37.5</tspan></text>
     </g>
     <g
        id="g6974"
@@ -3339,14 +3301,14 @@
          sodipodi:linespacing="125%"
          id="text5651"
          y="151.87405"
-         x="1744.5369"
+         x="1738.5369"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
          xml:space="preserve"><tspan
            style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
            y="151.87405"
-           x="1744.5369"
+           x="1738.5369"
            id="tspan5653"
-           sodipodi:role="line">Min cost:   550 </tspan></text>
+           sodipodi:role="line">Min cost:   67.5</tspan></text>
     </g>
     <g
        id="g6989"
@@ -3411,15 +3373,15 @@
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="1748.5369"
+         x="1758.5369"
          y="239.01691"
          id="text5675"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan5677"
-           x="1748.5369"
+           x="1758.5369"
            y="239.01691"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost: 260</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost: 15</tspan></text>
     </g>
     <g
        id="g7004"
@@ -3492,7 +3454,7 @@
            y="331.87405"
            x="1730.5369"
            id="tspan5701"
-           sodipodi:role="line">Min cost:    1000</tspan></text>
+           sodipodi:role="line">Min cost:   162.5</tspan></text>
     </g>
     <g
        id="g7019"
@@ -3557,15 +3519,15 @@
       <text
          xml:space="preserve"
          style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
-         x="1730.5369"
+         x="1734.5369"
          y="416.15976"
          id="text5723"
          sodipodi:linespacing="125%"><tspan
            sodipodi:role="line"
            id="tspan5725"
-           x="1730.5369"
+           x="1734.5369"
            y="416.15976"
-           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    1300</tspan></text>
+           style="font-size:18px;fill:#c3cdd3;fill-opacity:1">Min cost:    200</tspan></text>
     </g>
     <g
        id="g5806"
@@ -3618,7 +3580,7 @@
        y="582.29462"
        x="1060.3025"
        height="81.811691"
-       width="247.37828"
+       width="281.3194"
        id="rect5850"
        style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
     <flowRoot
@@ -3681,13 +3643,13 @@
          y="624.9082"
          style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"><tspan
    id="tspan5876"
-   style="fill:#a4b5f2;fill-opacity:1">10 Steel <tspan
+   style="fill:#a4b5f2;fill-opacity:1">100 Steel <tspan
    style="fill:#c3cdd3;fill-opacity:1"
-   id="tspan6721">+</tspan> 8 Plastics <tspan
+   id="tspan6721">+</tspan> 80 Plastics <tspan
    style="fill:#c3cdd3;fill-opacity:1"
    id="tspan6719">+ </tspan></tspan><tspan
    id="tspan6711"
-   style="fill:#a4f2a6;fill-opacity:1">5 Tools</tspan>  → </tspan></text>
+   style="fill:#a4f2a6;fill-opacity:1">50Tools</tspan>  → </tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text5880"
@@ -3701,11 +3663,7 @@
          id="tspan5882"
          sodipodi:role="line"><tspan
            id="tspan5884"
-           style="fill:#a4f2a6;fill-opacity:1">150 Fuel</tspan><tspan
-           id="tspan5886"
-           style="fill:#c3cdd3;fill-opacity:1"> →</tspan><tspan
-           id="tspan5888"
-           style="fill:#a4b5f2;fill-opacity:1"> 150 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1">150 Fuel</tspan></tspan></text>
     <flowRoot
        transform="translate(773.52862,125.44327)"
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -3734,7 +3692,7 @@
     <rect
        style="fill:#000000;fill-opacity:0.10196078;stroke:none"
        id="rect6041"
-       width="247.37828"
+       width="276.36966"
        height="81.811691"
        x="1348.042"
        y="582.29462"
@@ -3800,13 +3758,13 @@
          id="tspan6065"
          sodipodi:role="line"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan6067">50 Steel <tspan
+   id="tspan6067">500 Steel <tspan
    style="fill:#c3cdd3;fill-opacity:1"
-   id="tspan6733">+ </tspan>40 Plastics <tspan
+   id="tspan6733">+ </tspan>400 Plastics <tspan
    style="fill:#c3cdd3;fill-opacity:1"
    id="tspan6731">+ </tspan></tspan><tspan
    id="tspan6693"
-   style="fill:#a4f2a6;fill-opacity:1">25 Tools</tspan>  → </tspan></text>
+   style="fill:#a4f2a6;fill-opacity:1">250 Tools</tspan>  → </tspan></text>
     <text
        xml:space="preserve"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -3820,11 +3778,7 @@
          y="634.90558"
          style="font-size:15.34363079px;fill:#f2a4a4;fill-opacity:1"><tspan
            style="fill:#a4f2a6;fill-opacity:1"
-           id="tspan6073">600 Fuel</tspan><tspan
-           style="fill:#c3cdd3;fill-opacity:1"
-           id="tspan6075"> →</tspan><tspan
-           style="fill:#a4b5f2;fill-opacity:1"
-           id="tspan6077"> 600 H₂O </tspan></tspan></text>
+           id="tspan6073">600 Fuel</tspan></tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot6079"
@@ -3856,7 +3810,7 @@
        y="582.29462"
        x="1635.7815"
        height="81.811691"
-       width="247.37828"
+       width="263.64172"
        id="rect6093"
        style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
     <flowRoot
@@ -3919,11 +3873,11 @@
          y="618.9082"
          style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"><tspan
    id="tspan6119"
-   style="fill:#a4b5f2;fill-opacity:1">4 Steel <tspan
+   style="fill:#a4b5f2;fill-opacity:1">40 Steel <tspan
    style="fill:#c3cdd3;fill-opacity:1"
-   id="tspan6747">+ </tspan>3 Plastics + </tspan><tspan
+   id="tspan6747">+ </tspan>30 Plastics + </tspan><tspan
    id="tspan6675"
-   style="fill:#a4f2a6;fill-opacity:1">2 Tools</tspan> → </tspan></text>
+   style="fill:#a4f2a6;fill-opacity:1">20 Tools</tspan> → </tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text6121"
@@ -3937,11 +3891,7 @@
          id="tspan6123"
          sodipodi:role="line"><tspan
            id="tspan6125"
-           style="fill:#a4f2a6;fill-opacity:1">100 Fuel</tspan><tspan
-           id="tspan6127"
-           style="fill:#c3cdd3;fill-opacity:1"> →</tspan><tspan
-           id="tspan6129"
-           style="fill:#a4b5f2;fill-opacity:1"> 100 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1">100 Fuel</tspan></tspan></text>
     <flowRoot
        transform="translate(1349.0076,125.44327)"
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -3955,7 +3905,7 @@
            width="338.80212"
            id="rect6135" /></flowRegion><flowPara
          style="font-size:12px;fill:#91e4ff;fill-opacity:1"
-         id="flowPara6137">Cargo: 1 x 5 t</flowPara></flowRoot>    <text
+         id="flowPara6137">Cargo: 1 x 50 t</flowPara></flowRoot>    <text
        xml:space="preserve"
        style="font-size:32.78890228px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
        x="1062.4697"
@@ -3970,7 +3920,7 @@
     <rect
        style="fill:#000000;fill-opacity:0.10196078;stroke:none"
        id="rect6145"
-       width="247.37828"
+       width="281.3194"
        height="81.811691"
        x="1060.3025"
        y="696.19293"
@@ -4036,9 +3986,9 @@
          id="tspan6169"
          sodipodi:role="line"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan6171">20 Steel <tspan
+   id="tspan6171">200 Steel <tspan
    style="fill:#c3cdd3;fill-opacity:1"
-   id="tspan6723">+</tspan> 16 Plastics <tspan
+   id="tspan6723">+</tspan> 160 Plastics <tspan
    style="fill:#c3cdd3;fill-opacity:1"
    id="tspan6725">+ 10</tspan></tspan><tspan
    id="tspan6717"
@@ -4056,11 +4006,7 @@
          y="756.80389"
          style="font-size:15.34363079px;fill:#f2a4a4;fill-opacity:1"><tspan
            style="fill:#a4f2a6;fill-opacity:1"
-           id="tspan6177">250 Fuel</tspan><tspan
-           style="fill:#c3cdd3;fill-opacity:1"
-           id="tspan6179"> →</tspan><tspan
-           style="fill:#a4b5f2;fill-opacity:1"
-           id="tspan6181"> 250 H₂O </tspan></tspan></text>
+           id="tspan6177">250 Fuel</tspan></tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot6183"
@@ -4092,7 +4038,7 @@
        y="696.19293"
        x="1348.042"
        height="81.811691"
-       width="247.37828"
+       width="276.36966"
        id="rect6197"
        style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
     <flowRoot
@@ -4155,11 +4101,11 @@
          y="740.80652"
          style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"><tspan
    id="tspan6223"
-   style="fill:#a4b5f2;fill-opacity:1">100 Steel <tspan
+   style="fill:#a4b5f2;fill-opacity:1">1000 Steel <tspan
    style="fill:#c3cdd3;fill-opacity:1"
-   id="tspan6727">+</tspan> 80 Plastics </tspan>+ <tspan
+   id="tspan6727">+</tspan> 800 Plastics </tspan>+ <tspan
    id="tspan6699"
-   style="fill:#a4f2a6;fill-opacity:1">50 Tools</tspan> → </tspan></text>
+   style="fill:#a4f2a6;fill-opacity:1">500 Tools</tspan> → </tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text6225"
@@ -4173,11 +4119,7 @@
          id="tspan6227"
          sodipodi:role="line"><tspan
            id="tspan6229"
-           style="fill:#a4f2a6;fill-opacity:1">1000 Fuel</tspan><tspan
-           id="tspan6231"
-           style="fill:#c3cdd3;fill-opacity:1"> →</tspan><tspan
-           id="tspan6233"
-           style="fill:#a4b5f2;fill-opacity:1"> 1000 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1">1000 Fuel</tspan></tspan></text>
     <flowRoot
        transform="translate(1061.2682,239.34158)"
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -4206,7 +4148,7 @@
     <rect
        style="fill:#000000;fill-opacity:0.10196078;stroke:none"
        id="rect6249"
-       width="247.37828"
+       width="263.64172"
        height="81.811691"
        x="1635.7815"
        y="696.19293"
@@ -4272,13 +4214,13 @@
          id="tspan6273"
          sodipodi:role="line"><tspan
    style="fill:#a4b5f2;fill-opacity:1"
-   id="tspan6275">10 Steel <tspan
+   id="tspan6275">100 Steel <tspan
    style="fill:#c3cdd3;fill-opacity:1"
-   id="tspan6745">+</tspan> 8 Plastics <tspan
+   id="tspan6745">+</tspan> 80 Plastics <tspan
    style="fill:#c3cdd3;fill-opacity:1"
    id="tspan6743">+ </tspan></tspan><tspan
    id="tspan6681"
-   style="fill:#a4f2a6;fill-opacity:1">5 Tools</tspan>  → </tspan></text>
+   style="fill:#a4f2a6;fill-opacity:1">50 Tools</tspan>  → </tspan></text>
     <text
        xml:space="preserve"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -4292,11 +4234,7 @@
          y="756.80389"
          style="font-size:15.34363079px;fill:#f2a4a4;fill-opacity:1"><tspan
            style="fill:#a4f2a6;fill-opacity:1"
-           id="tspan6281">200 Fuel</tspan><tspan
-           style="fill:#c3cdd3;fill-opacity:1"
-           id="tspan6283"> →</tspan><tspan
-           style="fill:#a4b5f2;fill-opacity:1"
-           id="tspan6285"> 200 H₂O </tspan></tspan></text>
+           id="tspan6281">2000 Fuel</tspan></tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot6287"
@@ -4325,7 +4263,7 @@
     <rect
        style="fill:#000000;fill-opacity:0.10196078;stroke:none"
        id="rect6353"
-       width="247.37828"
+       width="276.36966"
        height="81.811691"
        x="1348.042"
        y="807.13281"
@@ -4391,11 +4329,11 @@
          id="tspan6377"
          sodipodi:role="line"><tspan
    style="font-size:14px;fill:#a4b5f2;fill-opacity:1"
-   id="tspan6379">150 Steel<tspan
+   id="tspan6379">1500 Steel<tspan
    style="font-size:14px;fill:#c3cdd3;fill-opacity:1"
-   id="tspan6735"> +</tspan> 120 Plastics </tspan>+ <tspan
+   id="tspan6735"> +</tspan> 1200 Plastics </tspan>+ <tspan
    id="tspan6705"
-   style="font-size:14px;fill:#a4f2a6;fill-opacity:1">75 Tools</tspan> → </tspan></text>
+   style="font-size:14px;fill:#a4f2a6;fill-opacity:1">750 Tools</tspan> → </tspan></text>
     <text
        xml:space="preserve"
        style="font-size:25.57271767px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -4409,11 +4347,7 @@
          y="859.74377"
          style="font-size:15.34363079px;fill:#f2a4a4;fill-opacity:1"><tspan
            style="fill:#a4f2a6;fill-opacity:1"
-           id="tspan6385">1500 Fuel</tspan><tspan
-           style="fill:#c3cdd3;fill-opacity:1"
-           id="tspan6387"> →</tspan><tspan
-           style="fill:#a4b5f2;fill-opacity:1"
-           id="tspan6389"> 1500 H₂O </tspan></tspan></text>
+           id="tspan6385">1500 Fuel</tspan></tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot6391"
@@ -4445,7 +4379,7 @@
        y="807.13281"
        x="1635.7815"
        height="81.811691"
-       width="247.37828"
+       width="263.64172"
        id="rect6405"
        style="fill:#000000;fill-opacity:0.10196078;stroke:none" />
     <flowRoot
@@ -4508,11 +4442,11 @@
          y="843.7464"
          style="font-size:15.34363079px;fill:#c3cdd3;fill-opacity:1"><tspan
    id="tspan6431"
-   style="fill:#a4b5f2;fill-opacity:1">100 Steel <tspan
+   style="fill:#a4b5f2;fill-opacity:1">1000 Steel <tspan
    style="fill:#c3cdd3;fill-opacity:1"
-   id="tspan6739">+</tspan> 80 Plastics </tspan>+ <tspan
+   id="tspan6739">+</tspan> 800 Plastics </tspan>+ <tspan
    id="tspan6687"
-   style="fill:#a4f2a6;fill-opacity:1">50 Tools</tspan> → </tspan></text>
+   style="fill:#a4f2a6;fill-opacity:1">500 Tools</tspan> → </tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text6433"
@@ -4526,11 +4460,7 @@
          id="tspan6435"
          sodipodi:role="line"><tspan
            id="tspan6437"
-           style="fill:#a4f2a6;fill-opacity:1">1000 Fuel</tspan><tspan
-           id="tspan6439"
-           style="fill:#c3cdd3;fill-opacity:1"> →</tspan><tspan
-           id="tspan6441"
-           style="fill:#a4b5f2;fill-opacity:1"> 1000 H₂O </tspan></tspan></text>
+           style="fill:#a4f2a6;fill-opacity:1">1000 Fuel</tspan></tspan></text>
     <flowRoot
        transform="translate(1349.0076,350.28149)"
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#91e4ff;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -4544,7 +4474,7 @@
            width="338.80212"
            id="rect6447" /></flowRegion><flowPara
          style="font-size:12px;fill:#91e4ff;fill-opacity:1"
-         id="flowPara6449">Cargo: 8 x 100 t</flowPara></flowRoot>    <g
+         id="flowPara6449">Cargo: 8 x 1000 t</flowPara></flowRoot>    <g
        id="g6765"
        transform="matrix(0.7059019,0,0,0.7059019,172.25119,227.91234)">
       <text
@@ -4995,7 +4925,7 @@
     </g>
     <g
        id="g6937"
-       transform="matrix(0.7059019,0,0,0.7059019,-304.79042,-321.61)">
+       transform="matrix(0.7059019,0,0,0.7059019,-304.79042,-305.61)">
       <text
          xml:space="preserve"
          style="font-size:27.62004471px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
@@ -5044,7 +4974,7 @@
            sodipodi:role="line">100 Steel, 30 plastics, 20 Tools</tspan></text>
     </g>
     <g
-       transform="matrix(0.7059019,0,0,0.7059019,170.77198,-321.61)"
+       transform="matrix(0.7059019,0,0,0.7059019,170.77198,-305.61)"
        id="g6955">
       <text
          sodipodi:linespacing="125%"
@@ -5126,5 +5056,81 @@
          x="405.76343"
          y="480.66437"
          style="font-size:8px;fill:#ffffff;fill-opacity:0.30196078">Steel</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       x="110.83418"
+       y="173.80197"
+       id="text5060"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5062"
+         x="110.83418"
+         y="173.80197"
+         style="font-size:24px;fill:#e3f2a4;fill-opacity:1"><tspan
+           id="tspan5064"
+           style="fill:#c3cdd3;fill-opacity:1">Silica mine →</tspan><tspan
+           id="tspan5066"
+           style="fill:#f2a4a4;fill-opacity:1"> 10 SiO₂</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       x="583.74512"
+       y="158.10835"
+       id="text5072"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5074"
+         x="583.74512"
+         y="158.10835"
+         style="font-size:24px;fill:#e3f2a4;fill-opacity:1"><tspan
+           style="fill:#c3cdd3;fill-opacity:1"
+           id="tspan5076">Methane pump →</tspan><tspan
+           style="fill:#f2a4a4;fill-opacity:1"
+           id="tspan5082"> 20 CH₄</tspan></tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text5088"
+       y="180.10835"
+       x="583.74512"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       xml:space="preserve"><tspan
+         style="font-size:24px;fill:#e3f2a4;fill-opacity:1"
+         y="180.10835"
+         x="583.74512"
+         id="tspan5090"
+         sodipodi:role="line"><tspan
+           id="tspan5092"
+           style="fill:#c3cdd3;fill-opacity:1">Helium-3 pump →</tspan><tspan
+           id="tspan5094"
+           style="fill:#f2a4a4;fill-opacity:1"> 10 He-3</tspan></tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text5104"
+       y="415.22147"
+       x="624.39142"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#e3f2a4;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       xml:space="preserve"><tspan
+         style="font-size:24px;fill:#c3cdd3;fill-opacity:1"
+         y="415.22147"
+         x="624.39142"
+         id="tspan5106"
+         sodipodi:role="line"><tspan
+   id="tspan5108"
+   style="fill:#f2a4a4;fill-opacity:1">10 CH₄</tspan> → <tspan
+   id="tspan5112"
+   style="fill:#a4b5f2;fill-opacity:1">10 Plastics</tspan></tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text5882"
+       y="398.72693"
+       x="594.84814"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Lato;-inkscape-font-specification:Sans Bold"
+       xml:space="preserve"><tspan
+         style="font-size:18px;fill:#c3cdd3;fill-opacity:1"
+         y="398.72693"
+         x="594.84814"
+         id="tspan5885"
+         sodipodi:role="line">or</tspan></text>
   </g>
 </svg>

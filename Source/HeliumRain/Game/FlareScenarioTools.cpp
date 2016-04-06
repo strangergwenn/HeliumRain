@@ -91,11 +91,16 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	StationFarm = "station-farm";
 	StationSolarPlant = "station-solar-plant";
 	StationHabitation = "station-habitation";
-	StationMine = "station-mine";
+	StationIceMine = "station-ice-mine";
+	StationIronMine = "station-iron-mine";
+	StationSilicaMine = "station-silica-mine";
 	StationSteelworks = "station-steelworks";
 	StationToolFactory = "station-tool-factory";
-	StationPump = "station-pumping";
-	StationRefinery = "station-refinery";
+	StationHydrogenPump = "station-h2-pump";
+	StationMethanePump = "station-ch4-pump";
+	StationHeliumPump = "station-he3-pump";
+	StationCarbonRefinery = "station-carbon-refinery";
+	StationPlasticsRefinery = "station-plastics-refinery";
 	StationArsenal = "station-arsenal";
 	StationShipyard = "station-shipyard";
 	StationHub = "station-hub";
@@ -299,11 +304,18 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 4);
 	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 8);
 	CreateStations(StationHabitation, IonLane, BlueHeart, 4);
-	CreateStations(StationMine, MiningSyndicate, MinersHome, 6);
+	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 6);
+
+	CreateStations(StationIceMine, MiningSyndicate, MinersHome, 8);
+
 	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);
 	CreateStations(StationToolFactory, HelixFoundries, Outpost, 1);
-	CreateStations(StationPump, UnitedFarmsChemicals, TheSpire, 4);
-	CreateStations(StationRefinery, UnitedFarmsChemicals, TheSpire, 4);
+	CreateStations(StationMethanePump, UnitedFarmsChemicals, TheSpire, 4);
+	CreateStations(StationHydrogenPump, HelixFoundries, TheSpire, 3);
+
+
+	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 4);
+	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 4);
 	CreateStations(StationShipyard, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationArsenal, GhostWorksShipyards, FrozenRealm, 1);
 

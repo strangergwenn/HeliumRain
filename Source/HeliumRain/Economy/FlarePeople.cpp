@@ -253,15 +253,15 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 	}
 	else if (Resource == Fuel)
 	{
-		return PeopleData.Population / 5000;
+		return PeopleData.Population / 500;
 	}
 	else if (Resource == Tools)
 	{
-		return PeopleData.Population / 10000;
+		return PeopleData.Population / 1000;
 	}
 	else if (Resource == Tech)
 	{
-		return PeopleData.Population / 10000;
+		return PeopleData.Population / 1000;
 	}
 
 	return 0;

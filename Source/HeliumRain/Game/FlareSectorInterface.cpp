@@ -240,25 +240,26 @@ uint32 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resour
 	// DEBUGInflation
 	float Margin = 1.2;
 
+	// Base
+	static float FuelPrice = 15 * Margin;
+
 	// Raw
-	static float H2Price = 25 * Margin;
-	static float FeoPrice = 100 * Margin;
-	static float Ch4Price = 50 * Margin;
-	static float Sio2Price = 100 * Margin;
-	static float He3Price = 100 * Margin;
-	static float H2oPrice = 250 * Margin;
+	static float H2Price = (FuelPrice * 10) / 40. * Margin;
+	static float FeoPrice = (FuelPrice * 10) / 10.* Margin;
+	static float Ch4Price = (FuelPrice * 10) / 20. * Margin;
+	static float Sio2Price = (FuelPrice * 10) / 10. * Margin;
+	static float He3Price = (FuelPrice * 10) / 10. * Margin;
+	static float H2oPrice = (FuelPrice * 10) / 50. * Margin;
 
 
 	// Product
-	static float FuelPrice = (H2oPrice + 10) * Margin;
-	static float EnergyPrice = FuelPrice - H2oPrice;
-	static float SteelPrice = (2 * FeoPrice + 4 * H2oPrice + EnergyPrice * 2 - 2 * H2oPrice + 100) * Margin;
-	static float CPrice = (Ch4Price + 5 * EnergyPrice + 50) * Margin;
-	static float PlasticPrice = (Ch4Price + 5 * EnergyPrice + 50) * Margin;
-	static float FSPrice = (SteelPrice + 2 * PlasticPrice + FuelPrice + 10 * EnergyPrice + 100) * Margin;
-	static float FoodPrice = (5 * CPrice + FuelPrice + 49 * EnergyPrice + 500) / 5.0 * Margin;
-	static float ToolsPrice = (SteelPrice + PlasticPrice + 10 * EnergyPrice + 100) * Margin;
-	static float TechPrice = (2 * Sio2Price + 4 * H2Price + 50 * EnergyPrice - 2 * H2oPrice + 500) * Margin;
+	static float SteelPrice = (20 * FeoPrice + 40 * H2oPrice + 10 * FuelPrice + 100) / 10. * Margin;
+	static float CPrice = (10 * Ch4Price + 10 * FuelPrice + 100) / 10.0 * Margin;
+	static float PlasticPrice = (10 * Ch4Price + 10 * FuelPrice + 100) / 10.0 * Margin;
+	static float FSPrice = (10 * SteelPrice + 20* PlasticPrice + 10 * FuelPrice + 100) / 10.0 * Margin;
+	static float FoodPrice = (10 * CPrice + 10 * H2oPrice + 10 * FuelPrice + 100) / 10.0 * Margin;
+	static float ToolsPrice = (10 * SteelPrice + 10 * PlasticPrice + 100) / 10.0 * Margin;
+	static float TechPrice = (20 * Sio2Price+ 40 * H2Price + 50 * FuelPrice + 500) / 10.0 * Margin;
 
 
 
