@@ -113,7 +113,7 @@ void SFlarePartInfo::SetOwned(bool State)
 		}
 		else
 		{
-			CostLabel->SetText(FString::FromInt(PartCost));
+			CostLabel->SetText(FString::FromInt(UFlareGameTools::DisplayMoney(PartCost)));
 			CostLabel->SetVisibility(EVisibility::Visible);
 			CostImage->SetImage(FFlareStyleSet::GetIcon("Cost"));
 		}

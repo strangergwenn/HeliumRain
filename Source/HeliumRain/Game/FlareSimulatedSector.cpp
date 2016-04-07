@@ -434,8 +434,8 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	if (Company->GetMoney() < StationDescription->CycleCost.ProductionCost)
 	{
 		OutReasons.Add(FText::Format(LOCTEXT("BuildRequiresMoney", "Not enough credits ({0} / {1})"),
-			FText::AsNumber(Company->GetMoney()),
-			FText::AsNumber(StationDescription->CycleCost.ProductionCost)));
+			FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetMoney())),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(StationDescription->CycleCost.ProductionCost))));
 		Result = false;
 	}
 

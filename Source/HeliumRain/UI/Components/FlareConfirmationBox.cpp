@@ -64,7 +64,7 @@ FText SFlareConfirmationBox::GetBuyText() const
 {
 	if (Amount != 0)
 	{
-		return FText::Format(LOCTEXT("ConfirmTextFormat", "{0} ({1} credits)"), ConfirmText, FText::AsNumber(Amount));
+		return FText::Format(LOCTEXT("ConfirmTextFormat", "{0} ({1} credits)"), ConfirmText, FText::AsNumber(UFlareGameTools::DisplayMoney(Amount)));
 	}
 	else
 	{

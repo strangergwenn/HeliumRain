@@ -170,7 +170,7 @@ public:
 	/** Take a money amount from the company */
 	virtual bool TakeMoney(uint64 Amount);
 
-	/** Give a money amount to the company */
+	/** Give a money amount to the company. In cents */
 	virtual void GiveMoney(uint64 Amount);
 
 	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);

@@ -1385,7 +1385,7 @@ uint32 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector 
 		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data);
 	}
 
-	//FLOGV("Ship %s cost %d credit", *ShipClass.ToString(), Cost);
+	//FLOGV("Ship %s cost %d credit", *ShipClass.ToString(), UFlareGameTools::DisplayMoney(Cost));
 	return FMath::Max(0, Cost);
 }
 

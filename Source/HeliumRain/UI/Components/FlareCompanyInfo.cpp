@@ -222,8 +222,8 @@ FText SFlareCompanyInfo::GetCompanyInfo() const
 		
 		// Full string
 		return FText::Format(LOCTEXT("CompanyInfoFormat", "Valued at {0} credits\n{1} credits in bank\n{2} owned\n{3} owned"),
-			FText::AsNumber(Company->GetCompanyValue().TotalValue),
-			FText::AsNumber(Company->GetMoney()),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetCompanyValue().TotalValue)),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetMoney())),
 			StationText,
 			ShipText);
 	}

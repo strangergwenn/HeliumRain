@@ -246,6 +246,11 @@ public:
 
 	static uint32 ComputeShipPrice(FName ShipIdentifier, UFlareSimulatedSector *Sector);
 
+	static inline uint64 DisplayMoney(uint64 Money)
+	{
+		return Money/100;
+	}
+
 	/*----------------------------------------------------
 		Getter
 	----------------------------------------------------*/
@@ -257,5 +262,7 @@ public:
 	UFlareWorld* GetGameWorld() const;
 
 	UFlareSector* GetActiveSector() const;
+
+
 
 };

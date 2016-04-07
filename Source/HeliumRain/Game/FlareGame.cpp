@@ -276,7 +276,7 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 		ScrapingStation->GetCompany()->TakeMoney(ScrapRevenue);
 		ShipToScrap->GetCompany()->GiveMoney(ScrapRevenue);
 		GetPC()->Notify(LOCTEXT("ShipSellScrap", "Ship scrap complete"),
-			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scraped for {1} credits!"), FText::FromString(ShipToScrap->GetImmatriculation().ToString()), FText::AsNumber(ScrapRevenue)),
+			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scraped for {1} credits!"), FText::FromString(ShipToScrap->GetImmatriculation().ToString()), FText::AsNumber(UFlareGameTools::DisplayMoney(ScrapRevenue))),
 			FName("ship-own-scraped"),
 			EFlareNotification::NT_Economy);
 	}

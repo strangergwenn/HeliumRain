@@ -71,7 +71,6 @@ void UFlareFactory::Simulate()
 		{
 			// TODO display warning to user
 			// No free space wait.
-			FLOGV("%s : Production Paused : no output free space", *FactoryDescription->Name.ToString())
 			goto post_prod;
 		}
 
@@ -90,6 +89,34 @@ post_prod:
 
 void UFlareFactory::TryBeginProduction()
 {
+	// Factory rentability
+
+	int64 Balance = 0;
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &GetCycleData().InputResources[ResourceIndex];
+
+		Balance -= Parent->GetCurrentSector()->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+	}
+
+
+
+	Balance -= GetCycleData().ProductionCost;
+
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().OutputResources.Num() ; ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &GetCycleData().OutputResources[ResourceIndex];
+
+		Balance += Parent->GetCurrentSector()->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+	}
+
+
+	if(Balance < 0)
+	{
+		FLOGV("WARNING : %s balance : %lld", *FactoryDescription->Name.ToString(), Balance);
+	}
+
+
 	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney())
 	{
 		BeginProduction();
@@ -759,7 +786,7 @@ FText UFlareFactory::GetFactoryCycleCost(const FFlareProductionData* Data)
 	uint32 CycleProductionCost = GetProductionCost(Data);
 	if (CycleProductionCost > 0)
 	{
-		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(CycleProductionCost));
+		ProductionCostText = FText::Format(LOCTEXT("ProductionCostFormat", "{0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
 	}
 
 	// Cycle cost in resources

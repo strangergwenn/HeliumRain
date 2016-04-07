@@ -232,8 +232,8 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 				if (!CanBuild)
 				{
 					ConfirmText->SetText(FText::Format(LOCTEXT("CannotBuildShip", "Not enough credits ({0} / {1})"),
-						FText::AsNumber(PlayerCompany->GetMoney()),
-						FText::AsNumber(ShipPrice)));
+						FText::AsNumber(UFlareGameTools::DisplayMoney(PlayerCompany->GetMoney())),
+						FText::AsNumber(UFlareGameTools::DisplayMoney(ShipPrice))));
 				}
 			}
 
@@ -314,7 +314,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		{
 			ProductionTime += TargetFactory->GetRemainingProductionDuration();
 			int32 CycleProductionCost = UFlareGameTools::ComputeShipPrice(Desc->Identifier, TargetFactory->GetParent()->GetCurrentSector());
-			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "{0} credits"), FText::AsNumber(CycleProductionCost));
+			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "{0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
 		}
 	}
 
@@ -358,7 +358,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 
 		// Final text
 		ProductionCost = FText::Format(LOCTEXT("StationCostFormat", "{0} credits{1}\nRequires a cargo ship{2}"),
-			FText::AsNumber(Desc->CycleCost.ProductionCost),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(Desc->CycleCost.ProductionCost)),
 			FText::FromString(ResourcesString),
 			FText::FromString(ConstraintString));
 	}
