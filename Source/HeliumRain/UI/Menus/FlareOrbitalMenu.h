@@ -53,13 +53,10 @@ protected:
 
 	/** Update the map for a specific celestial body */
 	void UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, const FFlareSectorCelestialBodyDescription* Body);
-
-	/** Update the list of current travels */
-	void UpdateTravels();
-
+	
 
 	/*----------------------------------------------------
-		Callbacks
+		Content callbacks
 	----------------------------------------------------*/
 
 	/** Get the text for the fly-current-ship button */
@@ -77,8 +74,27 @@ protected:
 	/** Get the text for the fast-forward feature */
 	FText GetFastForwardText() const;
 
+	/** Get the icon for the fast forward button */
+	const FSlateBrush* GetFastForwardIcon() const;
+
 	/** Visibility setting for the fast-forward feature */
 	bool IsFastForwardDisabled() const;
+
+	/** Get the current date */
+	FText GetDateText() const;
+
+	/** Get the travel text */
+	FText GetTravelText() const;
+
+	/** Get a widget's position on the screen */
+	FVector2D GetWidgetPosition(int32 Index) const;
+
+	/** Get a widget's size on the screen */
+	FVector2D GetWidgetSize(int32 Index) const;
+
+	/*----------------------------------------------------
+		Action callbacks
+	----------------------------------------------------*/
 
 	/** Inspect the company */
 	void OnInspectCompany();
@@ -94,16 +110,11 @@ protected:
 	
 	/** Open a sector */
 	void OnOpenSector(TSharedPtr<int32> Index);
-
-	/** Get a widget's position on the screen */
-	FVector2D GetWidgetPosition(int32 Index) const;
-
-	/** Get a widget's size on the screen */
-	FVector2D GetWidgetSize(int32 Index) const;
 	
-	/** Fast forward to the next event */
+	/** Check if we can fast forward */
 	void OnFastForwardClicked();
 
+	/** Fast forward to the next event */
 	void OnFastForwardConfirmed();
 
 	/** Fly the last flown ship */
@@ -122,7 +133,11 @@ protected:
 	// Game data
 	AFlareGame*                                 Game;
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
-	int64                                       LastUpdateDate;
+
+	// Fast forward
+	bool                                        FastForwardActive;
+	float                                       FastForwardPeriod;
+	float                                       TimeSinceFastForward;
 
 	// Components
 	TSharedPtr<SFlarePlanetaryBox>              NemaBox;
@@ -130,6 +145,6 @@ protected:
 	TSharedPtr<SFlarePlanetaryBox>              AnkaBox;
 	TSharedPtr<SFlarePlanetaryBox>              HelaBox;
 	TSharedPtr<SFlarePlanetaryBox>              AdenaBox;
-	TSharedPtr<SVerticalBox>                    TravelsBox;
+	TSharedPtr<SFlareButton>                    FastForward;
 
 };

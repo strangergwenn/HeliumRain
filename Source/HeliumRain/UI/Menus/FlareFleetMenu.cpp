@@ -66,9 +66,9 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Back", "Back"))
-				.HelpText(LOCTEXT("BackInfo", "Go to the previous menu"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.Text(LOCTEXT("GoOrbit", "Orbital map"))
+				.HelpText(LOCTEXT("GoOrbitInfo", "Go back to the orbital map"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit, true))
 				.OnClicked(this, &SFlareFleetMenu::OnBackClicked)
 			]
 		]

@@ -238,11 +238,14 @@ public:
 	static const int64 SECONDS_IN_HOUR = 60 * SECONDS_IN_MINUTE;
 	static const int64 SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
 	static const int64 SECONDS_IN_YEAR = DAYS_IN_YEAR * SECONDS_IN_DAY;
+	static const int64 START_YEAR = 2224;
 
 
 	static FString FormatTime(int64 Time, int Deep);
 
 	static FString FormatDate(int64 Date, int Deep);
+
+	static FText GetDisplayDate(int64 Days);
 
 	static uint32 ComputeShipPrice(FName ShipIdentifier, UFlareSimulatedSector *Sector);
 

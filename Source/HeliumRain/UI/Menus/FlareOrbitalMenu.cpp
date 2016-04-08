@@ -22,6 +22,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
+	FastForwardPeriod = 1.0f;
 
 	// Build structure
 	ChildSlot
@@ -139,7 +140,9 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Left)
 				.Padding(Theme.ContentPadding)
 				[
-					SAssignNew(TravelsBox, SVerticalBox)
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(this, &SFlareOrbitalMenu::GetTravelText)
 				]
 			
 				// Nema
@@ -167,13 +170,14 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					.Padding(Theme.SmallContentPadding)
 					[
-						SNew(SFlareButton)
+						SAssignNew(FastForward, SFlareButton)
 						.Width(4)
+						.Toggle(true)
 						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
-						.HelpText(LOCTEXT("FastForwardInfo", "Fast forward to the next event (travel, construction...)"))
-						.Icon(FFlareStyleSet::GetIcon("FastForward"))
+						.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
 						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
 						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
+						.HelpText(LOCTEXT("FastForwardInfo", "Wait and see - Travels, production, building will be accelerated."))
 					]
 
 					// Fly selected ship
@@ -224,15 +228,31 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 				
-				// Future button & spacer
+				// Time info
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.HAlign(HAlign_Center)
 				.Padding(Theme.SmallContentPadding)
 				[
-					SNew(SFlareButton)
-					.Width(4)
-					.Visibility(EVisibility::Hidden)
+					SNew(SHorizontalBox)
+
+					// Future button & spacer
+					+ SHorizontalBox::Slot()
+					[
+						SNew(SFlareButton)
+						.Width(4)
+						.Visibility(EVisibility::Hidden)
+					]
+
+					// Date
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareOrbitalMenu::GetDateText)
+					]
 				]
 				
 				// Hela
@@ -271,8 +291,11 @@ void SFlareOrbitalMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	TimeSinceFastForward = 0;
+	FastForwardActive = false;
+	FastForward->SetActive(false);
+
 	UpdateMap();
-	UpdateTravels();
 }
 
 void SFlareOrbitalMenu::Exit()
@@ -285,7 +308,10 @@ void SFlareOrbitalMenu::Exit()
 	AstaBox->ClearChildren();
 	HelaBox->ClearChildren();
 	AdenaBox->ClearChildren();
-	TravelsBox->ClearChildren();
+
+	TimeSinceFastForward = 0;
+	FastForwardActive = false;
+	FastForward->SetActive(false);
 }
 
 void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
@@ -294,12 +320,15 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 
 	if (IsEnabled() && MenuManager.IsValid())
 	{
-		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
-
-		if (GameWorld && LastUpdateDate != GameWorld->GetDate())
+		// Fast forward every FastForwardPeriod
+		if (FastForwardActive)
 		{
-			UpdateTravels();
-			LastUpdateDate = GameWorld->GetDate();
+			TimeSinceFastForward += InDeltaTime;
+			if (TimeSinceFastForward > FastForwardPeriod)
+			{
+				MenuManager->GetGame()->GetGameWorld()->FastForward();
+				TimeSinceFastForward = 0;
+			}
 		}
 	}
 }
@@ -369,33 +398,6 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 			.PlayerCompany(MenuManager->GetPC()->GetCompany())
 			.OnClicked(this, &SFlareOrbitalMenu::OnOpenSector, IndexPtr)
 		];
-	}
-}
-
-void SFlareOrbitalMenu::UpdateTravels()
-{
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	TravelsBox->ClearChildren();
-
-	// Add travels slots
-	for (int32 TravelIndex = 0; TravelIndex < MenuManager->GetGame()->GetGameWorld()->GetTravels().Num(); TravelIndex++)
-	{
-		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->GetTravels()[TravelIndex];
-		if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
-		{
-			FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} is travelling to {1} ({2} left)"),
-				Travel->GetFleet()->GetFleetName(),
-				Travel->GetDestinationSector()->GetSectorName(),
-				FText::FromString(*UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
-
-			TravelsBox->AddSlot()
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
-				.Text(TravelText)
-			];
-
-		}
 	}
 }
 
@@ -470,44 +472,63 @@ FText SFlareOrbitalMenu::GetFastForwardText() const
 		return FText();
 	}
 
-	bool BattleInProgress = false;
-	bool BattleLostWithRetreat = false;
-	bool BattleLostWithoutRetreat = false;
+	if (!FastForward->IsActive())
+	{
+		bool BattleInProgress = false;
+		bool BattleLostWithRetreat = false;
+		bool BattleLostWithoutRetreat = false;
 
-	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
-	{
-		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
+		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+		{
+			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
 
-		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
-		if(BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
-		{
-			BattleInProgress = true;
+			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+			if (BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+			{
+				BattleInProgress = true;
+			}
+			else if (BattleState == EFlareSectorBattleState::BattleLost)
+			{
+				BattleLostWithRetreat = true;
+			}
+			else if (BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
+			{
+				BattleLostWithoutRetreat = true;
+			}
 		}
-		else if(BattleState == EFlareSectorBattleState::BattleLost)
-		{
-			BattleLostWithRetreat = true;
-		}
-		else if(BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
-		{
-			BattleLostWithoutRetreat = true;
-		}
-	}
 
-	if (BattleInProgress)
-	{
-		return LOCTEXT("NoFastForwardBattleText", "Battle in progress");
-	}
-	else if (BattleLostWithRetreat)
-	{
-		return LOCTEXT("FastForwardBattleLostWithRetreatText", "Fast forward (!)");
-	}
-	else if (BattleLostWithoutRetreat)
-	{
-		return LOCTEXT("FastForwardBattleLostWithoutRetreatText", "Fast forward (!)");
+		if (BattleInProgress)
+		{
+			return LOCTEXT("NoFastForwardBattleText", "Battle in progress");
+		}
+		else if (BattleLostWithRetreat)
+		{
+			return LOCTEXT("FastForwardBattleLostWithRetreatText", "Fast forward (!)");
+		}
+		else if (BattleLostWithoutRetreat)
+		{
+			return LOCTEXT("FastForwardBattleLostWithoutRetreatText", "Fast forward (!)");
+		}
+		else
+		{
+			return LOCTEXT("FastForwardText", "Fast forward");
+		}
 	}
 	else
 	{
-		return LOCTEXT("FastForwardText", "Fast forward");
+		return LOCTEXT("FastForwardingText", "Fast forwarding...");
+	}
+}
+
+const FSlateBrush* SFlareOrbitalMenu::GetFastForwardIcon() const
+{
+	if (FastForward->IsActive())
+	{
+		return FFlareStyleSet::GetIcon("Stop");
+	}
+	else
+	{
+		return FFlareStyleSet::GetIcon("FastForward");
 	}
 }
 
@@ -527,8 +548,7 @@ bool SFlareOrbitalMenu::IsFastForwardDisabled() const
 				return true;
 			}
 		}
-
-
+		
 		if (GameWorld && (GameWorld->GetTravels().Num() > 0 || true)) // Not true if there is pending todo event
 		{
 			// TODO ALPHA : show the button during station/ship constructions as well
@@ -538,6 +558,67 @@ bool SFlareOrbitalMenu::IsFastForwardDisabled() const
 
 	return true;
 }
+
+FText SFlareOrbitalMenu::GetDateText() const
+{
+	if (IsEnabled())
+	{
+		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
+		if (GameWorld)
+		{
+			return UFlareGameTools::GetDisplayDate(GameWorld->GetDate());
+		}
+	}
+
+	return FText();
+}
+
+FText SFlareOrbitalMenu::GetTravelText() const
+{
+	if (IsEnabled())
+	{
+		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
+		if (GameWorld)
+		{
+			FString Result;
+
+			for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
+			{
+				UFlareTravel* Travel = GameWorld->GetTravels()[TravelIndex];
+				if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
+				{
+					FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} is travelling to {1} ({2} left)"),
+						Travel->GetFleet()->GetFleetName(),
+						Travel->GetDestinationSector()->GetSectorName(),
+						FText::FromString(*UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
+
+					Result += TravelText.ToString();
+				}
+			}
+
+			return FText::FromString(Result);
+		}
+	}
+
+	return FText();
+}
+
+FVector2D SFlareOrbitalMenu::GetWidgetPosition(int32 Index) const
+{
+	return FVector2D(1920, 1080) / 2;
+}
+
+FVector2D SFlareOrbitalMenu::GetWidgetSize(int32 Index) const
+{
+	int WidgetSize = 200;
+	FVector2D BaseSize(WidgetSize, WidgetSize);
+	return BaseSize;
+}
+
+
+/*----------------------------------------------------
+	Action callbacks
+----------------------------------------------------*/
 
 void SFlareOrbitalMenu::OnInspectCompany()
 {
@@ -573,59 +654,63 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 
 void SFlareOrbitalMenu::OnFastForwardClicked()
 {
-	bool BattleInProgress = false;
-	bool BattleLostWithRetreat = false;
-	bool BattleLostWithoutRetreat = false;
-
-	for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+	if (FastForward->IsActive())
 	{
-		UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
+		bool BattleInProgress = false;
+		bool BattleLostWithRetreat = false;
+		bool BattleLostWithoutRetreat = false;
 
-		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
-		if(BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
 		{
-			BattleInProgress = true;
-		}
-		else if(BattleState == EFlareSectorBattleState::BattleLost)
-		{
-			BattleLostWithRetreat = true;
-		}
-		else if(BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
-		{
-			BattleLostWithoutRetreat = true;
-		}
-	}
+			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
 
-	if (BattleInProgress)
-	{
-		return;
-	}
-	else if (BattleLostWithoutRetreat)
-	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
-							 LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and will be lost."),
-							 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
+			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+			if(BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+			{
+				BattleInProgress = true;
+			}
+			else if(BattleState == EFlareSectorBattleState::BattleLost)
+			{
+				BattleLostWithRetreat = true;
+			}
+			else if(BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
+			{
+				BattleLostWithoutRetreat = true;
+			}
+		}
 
-	}
-	else if (BattleLostWithRetreat)
-	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
-							 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some of the ships engaged in a battle can still retreat ! They will be lost."),
-							 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
+		if (BattleInProgress)
+		{
+			return;
+		}
+		else if (BattleLostWithoutRetreat)
+		{
+			MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
+								 LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and will be lost."),
+								 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
+
+		}
+		else if (BattleLostWithRetreat)
+		{
+			MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
+								 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some of the ships engaged in a battle can still retreat ! They will be lost."),
+								 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
+		}
+		else
+		{
+			OnFastForwardConfirmed();
+		}
 	}
 	else
 	{
-		OnFastForwardConfirmed();
+		FastForwardActive = false;
 	}
 }
 
 
 void SFlareOrbitalMenu::OnFastForwardConfirmed()
 {
-	MenuManager->GetGame()->GetGameWorld()->FastForward();
-
-	UpdateMap();
-	UpdateTravels();
+	FastForwardActive = true;
 }
 
 void SFlareOrbitalMenu::OnFlyCurrentShipClicked()
@@ -658,18 +743,6 @@ void SFlareOrbitalMenu::OnFlySelectedShipClicked()
 		Sector->SetShipToFly(CurrentShip);
 		MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
 	}
-}
-
-FVector2D SFlareOrbitalMenu::GetWidgetPosition(int32 Index) const
-{
-	return FVector2D(1920, 1080) / 2;
-}
-
-FVector2D SFlareOrbitalMenu::GetWidgetSize(int32 Index) const
-{
-	int WidgetSize = 200;
-	FVector2D BaseSize(WidgetSize, WidgetSize);
-	return BaseSize;
 }
 
 #undef LOCTEXT_NAMESPACE

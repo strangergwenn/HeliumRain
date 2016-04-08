@@ -1359,6 +1359,15 @@ FString UFlareGameTools::FormatDate(int64 Days, int Deep)
 	}
 }
 
+FText UFlareGameTools::GetDisplayDate(int64 Days)
+{
+	int64 Years = START_YEAR + (Days / DAYS_IN_YEAR);
+	int64 RemainingDays = Days % DAYS_IN_YEAR;
+	FString YearsString;
+
+	return FText::Format(LOCTEXT("DateFormat", "Year {0} - Day {1}"), FText::AsNumber(Years), FText::AsNumber(RemainingDays));
+}
+
 uint32 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector)
 {
 	FFlareSpacecraftDescription* Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
