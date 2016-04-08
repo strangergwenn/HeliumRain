@@ -368,6 +368,7 @@ void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotifica
 {
 	if (Notifier.IsValid())
 	{
+		OrbitMenu->StopFastForward();
 		Notifier->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
 	}
 }

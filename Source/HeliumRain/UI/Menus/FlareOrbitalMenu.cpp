@@ -291,9 +291,7 @@ void SFlareOrbitalMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	TimeSinceFastForward = 0;
-	FastForwardActive = false;
-	FastForward->SetActive(false);
+	StopFastForward();
 
 	UpdateMap();
 }
@@ -309,6 +307,11 @@ void SFlareOrbitalMenu::Exit()
 	HelaBox->ClearChildren();
 	AdenaBox->ClearChildren();
 
+	StopFastForward();
+}
+
+void SFlareOrbitalMenu::StopFastForward()
+{
 	TimeSinceFastForward = 0;
 	FastForwardActive = false;
 	FastForward->SetActive(false);

@@ -39,6 +39,9 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	/** A notification was received, stop */
+	void StopFastForward();
+
 	virtual void Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime ) override;
 
 
@@ -91,6 +94,7 @@ protected:
 
 	/** Get a widget's size on the screen */
 	FVector2D GetWidgetSize(int32 Index) const;
+
 
 	/*----------------------------------------------------
 		Action callbacks
