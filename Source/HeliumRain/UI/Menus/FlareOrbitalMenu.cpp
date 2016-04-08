@@ -22,7 +22,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
-	FastForwardPeriod = 1.0f;
+	FastForwardPeriod = 0.5f;
 
 	// Build structure
 	ChildSlot
@@ -119,7 +119,60 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
-			
+
+		// Buttons
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(Theme.ContentPadding)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		[
+			SNew(SHorizontalBox)
+
+			// Fast forward
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SAssignNew(FastForward, SFlareButton)
+				.Width(6)
+				.Toggle(true)
+				.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
+				.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
+				.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+				.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
+				.HelpText(LOCTEXT("FastForwardInfo", "Wait and see - Travels, production, building will be accelerated."))
+			]
+
+			// Fly selected ship
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Width(6)
+				.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
+				.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
+				.Icon(FFlareStyleSet::GetIcon("Travel"))
+				.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
+				.IsDisabled(this, &SFlareOrbitalMenu::IsFlySelectedShipDisabled)
+			]
+
+			// Fly last flown
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Width(6)
+				.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
+				.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
+				.Icon(FFlareStyleSet::GetIcon("Travel"))
+				.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
+				.IsDisabled(this, &SFlareOrbitalMenu::IsFlyCurrentShipDisabled)
+			]
+		]
+
 		// Planetarium
 		+ SVerticalBox::Slot()
 		.Padding(Theme.ContentPadding)
@@ -128,21 +181,22 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SHorizontalBox)
 
-			// Left column : travels, Nema
+			// Left column
 			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			.VAlign(VAlign_Fill)
+			.HAlign(HAlign_Fill)
 			[
 				SNew(SVerticalBox)
 					
-				// Travels
+				// Date
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.HAlign(HAlign_Left)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareOrbitalMenu::GetTravelText)
+					.Text(this, &SFlareOrbitalMenu::GetDateText)
 				]
 			
 				// Nema
@@ -152,119 +206,63 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				]
 			]
 
-			// Center column : Anka & Asta
+			// Main column 
 			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Fill)
-			[
-				SNew(SVerticalBox)
-
-				// Travel buttons
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Center)
-				[
-					SNew(SHorizontalBox)
-
-					// Fast forward
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SAssignNew(FastForward, SFlareButton)
-						.Width(4)
-						.Toggle(true)
-						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
-						.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
-						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
-						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
-						.HelpText(LOCTEXT("FastForwardInfo", "Wait and see - Travels, production, building will be accelerated."))
-					]
-
-					// Fly selected ship
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SFlareButton)
-						.Width(4)
-						.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
-						.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
-						.Icon(FFlareStyleSet::GetIcon("Travel"))
-						.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
-						.IsDisabled(this, &SFlareOrbitalMenu::IsFlySelectedShipDisabled)
-					]
-
-					// Fly last flown
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SFlareButton)
-						.Width(4)
-						.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
-						.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
-						.Icon(FFlareStyleSet::GetIcon("Travel"))
-						.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
-						.IsDisabled(this, &SFlareOrbitalMenu::IsFlyCurrentShipDisabled)
-					]
-				]
-
-				// Anka
-				+ SVerticalBox::Slot()
-				[
-					SAssignNew(AnkaBox, SFlarePlanetaryBox)
-				]
-
-				// Asta
-				+ SVerticalBox::Slot()
-				[
-					SAssignNew(AstaBox, SFlarePlanetaryBox)
-				]
-			]
-
-			// Right column : Hela & Adena
-			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SVerticalBox)
 				
-				// Time info
+				// Top line
 				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Center)
-				.Padding(Theme.SmallContentPadding)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
 				[
 					SNew(SHorizontalBox)
 
-					// Future button & spacer
+					// Anka
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SFlareButton)
-						.Width(4)
-						.Visibility(EVisibility::Hidden)
+						SAssignNew(AnkaBox, SFlarePlanetaryBox)
 					]
 
-					// Date
+					// Travels
 					+ SHorizontalBox::Slot()
-					.AutoWidth()
+					.VAlign(VAlign_Top)
+					.HAlign(HAlign_Right)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareOrbitalMenu::GetDateText)
+						.Text(this, &SFlareOrbitalMenu::GetTravelText)
+						.WrapTextAt(2 * Theme.ContentWidth)
 					]
 				]
-				
-				// Hela
-				+ SVerticalBox::Slot()
-				[
-					SAssignNew(HelaBox, SFlarePlanetaryBox)
-				]
 
-				// Adena
+				// Bottom line
 				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
 				[
-					SAssignNew(AdenaBox, SFlarePlanetaryBox)
+					SNew(SHorizontalBox)
+
+					// Asta
+					+ SHorizontalBox::Slot()
+					[
+						SAssignNew(AstaBox, SFlarePlanetaryBox)
+					]
+
+					// Hela
+					+ SHorizontalBox::Slot()
+					[
+						SAssignNew(HelaBox, SFlarePlanetaryBox)
+					]
+
+					// Adena
+					+ SHorizontalBox::Slot()
+					[
+						SAssignNew(AdenaBox, SFlarePlanetaryBox)
+					]
 				]
 			]
 		]
@@ -573,7 +571,7 @@ FText SFlareOrbitalMenu::GetDateText() const
 		{
 			uint64 Credits = PlayerCompany->GetMoney();
 			FText DateText = UFlareGameTools::GetDisplayDate(GameWorld->GetDate());
-			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "{0} - {1} credits"), DateText, FText::AsNumber(Credits));
+			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "\n{0} - {1} credits"), DateText, FText::AsNumber(Credits));
 		}
 	}
 
@@ -587,7 +585,7 @@ FText SFlareOrbitalMenu::GetTravelText() const
 		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
 		if (GameWorld)
 		{
-			FString Result;
+			FString Result = "\n";
 
 			for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
 			{
