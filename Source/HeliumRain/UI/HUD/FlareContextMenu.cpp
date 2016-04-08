@@ -39,6 +39,8 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 			.Text(this, &SFlareContextMenu::GetText)
 		]
 	];
+
+	Hide();
 }
 
 

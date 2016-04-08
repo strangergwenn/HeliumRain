@@ -99,11 +99,11 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 			.AutoHeight()
 			[
 				SNew(SBox)
-				.WidthOverride(0.8 * Theme.ContentWidth)
+				.WidthOverride(0.7 * Theme.ContentWidth)
 				[
 					SNew(STextBlock)
 					.Text(this, &SFlareCompanyInfo::GetCompanyDescription)
-					.WrapTextAt(0.8 * Theme.ContentWidth)
+					.WrapTextAt(0.7 * Theme.ContentWidth)
 					.TextStyle(&Theme.NameFont)
 				]
 			]
