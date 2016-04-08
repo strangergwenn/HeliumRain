@@ -567,9 +567,13 @@ FText SFlareOrbitalMenu::GetDateText() const
 	if (IsEnabled())
 	{
 		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
-		if (GameWorld)
+		UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
+
+		if (GameWorld && PlayerCompany)
 		{
-			return UFlareGameTools::GetDisplayDate(GameWorld->GetDate());
+			uint64 Credits = PlayerCompany->GetMoney();
+			FText DateText = UFlareGameTools::GetDisplayDate(GameWorld->GetDate());
+			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "{0} - {1} credits"), DateText, FText::AsNumber(Credits));
 		}
 	}
 
