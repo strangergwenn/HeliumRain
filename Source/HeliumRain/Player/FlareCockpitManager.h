@@ -82,6 +82,10 @@ protected:
 	UPROPERTY()
 	UStaticMesh*                             CockpitMeshTemplate;
 
+	// Cockpit mesh template
+	UPROPERTY()
+	UStaticMesh*                             FighterCockpitMeshTemplate;
+
 	// Cockpit
 	UPROPERTY(Category = Cockpit, EditAnywhere)
 	UStaticMeshComponent*                    CockpitMesh;

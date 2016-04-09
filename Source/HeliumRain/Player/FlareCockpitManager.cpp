@@ -28,6 +28,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	// Cockpit data
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit"));
 	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> FighterCockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit_Fighter"));
+	FighterCockpitMeshTemplate = FighterCockpitMeshTemplateObj.Object;
 	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MT_Cockpit"));
 	CockpitMaterialTemplate = CockpitMaterialInstanceObj.Object;
 	static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MI_CockpitFrame"));
@@ -145,11 +147,6 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		CockpitCapture->TextureTarget = CockpitCameraTarget;
 		CockpitMaterialInstance->SetTextureParameterValue("CameraTarget", CockpitCameraTarget);
 #endif
-
-		// Setup mesh
-		CockpitMesh->SetStaticMesh(CockpitMeshTemplate);
-		CockpitMesh->SetMaterial(0, CockpitMaterialInstance);
-		CockpitMesh->SetMaterial(1, CockpitFrameMaterialInstance);
 	}
 	else
 	{
@@ -256,9 +253,22 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	// Ensure we're not doing anything stupid
 	check(PC->UseCockpit);
 	check(CockpitMesh);
-	check(CockpitMesh);
 	check(CockpitMaterialTemplate);
 	check(CockpitFrameMaterialTemplate);
+
+	// Set the correct variation
+	if (TargetPlayerShip->IsMilitary())
+	{
+		CockpitMesh->SetStaticMesh(FighterCockpitMeshTemplate);
+	}
+	else
+	{
+		CockpitMesh->SetStaticMesh(CockpitMeshTemplate);
+	}
+
+	// Set materials
+	CockpitMesh->SetMaterial(0, CockpitMaterialInstance);
+	CockpitMesh->SetMaterial(1, CockpitFrameMaterialInstance);
 
 	// Offset the cockpit
 #if FLARE_USE_COCKPIT_RENDERTARGET
