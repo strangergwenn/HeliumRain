@@ -28,6 +28,7 @@ void UFlareCargoBay::Load(IFlareSpacecraftInterface* ParentSpacecraft, TArray<FF
 		Cargo.Resource = NULL;
 		Cargo.Capacity = CargoBayCapacity;
 		Cargo.Quantity = 0;
+		Cargo.Locked = false;
 
 		if (CargoIndex < (uint32)Data.Num())
 		{
@@ -132,7 +133,7 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 			MinQuantityCargo->Quantity -= TakenQuantity;
 			QuantityToTake -= TakenQuantity;
 
-			if (MinQuantityCargo->Quantity == 0)
+			if (MinQuantityCargo->Quantity == 0 && !MinQuantityCargo->Locked)
 			{
 				MinQuantityCargo->Resource = NULL;
 			}
@@ -156,7 +157,7 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 				Cargo.Quantity -= TakenQuantity;
 				QuantityToTake -= TakenQuantity;
 
-				if (Cargo.Quantity == 0)
+				if (Cargo.Quantity == 0 && !Cargo.Locked)
 				{
 					Cargo.Resource = NULL;
 				}
@@ -174,7 +175,10 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 void UFlareCargoBay::DumpCargo(FFlareCargo* Cargo)
 {
 	Cargo->Quantity = 0;
-	Cargo->Resource = NULL;
+	if (!Cargo->Locked)
+	{
+		Cargo->Resource = NULL;
+	}
 }
 
 uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32 Quantity)
@@ -212,7 +216,7 @@ uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32
 	for (int CargoIndex = 0 ; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if (Cargo.Quantity == 0)
+		if (Cargo.Resource == NULL)
 		{
 			// Empty Cargo
 			uint32 GivenQuantity = FMath::Min(Cargo.Capacity, QuantityToGive);
@@ -312,3 +316,41 @@ FFlareCargo* UFlareCargoBay::GetSlot(uint32 Index)
 	return &CargoBay[Index];
 }
 
+bool UFlareCargoBay::LockSlot(FFlareResourceDescription* Resource)
+{
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+
+		if (!Cargo.Locked && (Cargo.Resource == NULL || Cargo.Resource == Resource))
+		{
+			Cargo.Locked = true;
+
+			if (Cargo.Resource == NULL)
+			{
+				Cargo.Resource = Resource;
+				Cargo.Quantity = 0;
+			}
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void UFlareCargoBay::UnlockAll()
+{
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		FFlareCargo& Cargo = CargoBay[CargoIndex];
+
+		if (Cargo.Locked)
+		{
+			Cargo.Locked = false;
+			if (Cargo.Quantity == 0)
+			{
+				Cargo.Resource = NULL;
+			}
+		}
+	}
+}

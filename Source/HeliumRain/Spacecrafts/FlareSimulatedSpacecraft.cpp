@@ -78,6 +78,48 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	CargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
 	CargoBay->Load(this, SpacecraftData.Cargo);
+
+
+	// Lock resources
+	CargoBay->UnlockAll();
+
+	if (Factories.Num() > 0)
+	{
+		UFlareFactory* Factory = Factories[0];
+
+		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->GetCycleData().InputResources.Num() ; ResourceIndex++)
+		{
+			const FFlareFactoryResource* Resource = &Factory->GetCycleData().InputResources[ResourceIndex];
+
+			if (!CargoBay->LockSlot(&Resource->Resource->Data))
+			{
+				FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
+			}
+		}
+
+		for (int32 ResourceIndex = 0 ; ResourceIndex <Factory-> GetCycleData().OutputResources.Num() ; ResourceIndex++)
+		{
+			const FFlareFactoryResource* Resource = &Factory->GetCycleData().OutputResources[ResourceIndex];
+
+			if (!CargoBay->LockSlot(&Resource->Resource->Data))
+			{
+				FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
+			}
+		}
+	}
+
+	if (HasCapability(EFlareSpacecraftCapability::Consumer))
+	{
+		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+			if (!CargoBay->LockSlot(Resource))
+			{
+				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+			}
+		}
+	}
+
 }
 
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()

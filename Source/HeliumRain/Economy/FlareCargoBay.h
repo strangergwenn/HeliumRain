@@ -34,6 +34,9 @@ public:
 
 	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
+	void UnlockAll();
+
+	bool LockSlot(FFlareResourceDescription* Resource);
 
 protected:
 

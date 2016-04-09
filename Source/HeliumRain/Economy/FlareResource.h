@@ -45,6 +45,10 @@ struct FFlareCargo
 	/** Cargo capacity */
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 Capacity;
+
+	/** Cargo locked */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool Locked;
 };
 
 UCLASS()
