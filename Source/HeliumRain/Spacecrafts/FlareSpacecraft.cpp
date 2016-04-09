@@ -209,9 +209,9 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	CustomTimeDilation = (Pause ? 0.f : 1.0);
 	if (Pause)
 	{
+		CurrentTarget = NULL;
 		Save(); // Save must be performed with the old pause state
 		FLOGV("%s save linear velocity : %s", *GetImmatriculation().ToString(), *ShipData.LinearVelocity.ToString());
-
 	}
 
 	Airframe->SetSimulatePhysics(!Pause);
@@ -327,7 +327,11 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 
 AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 {
-	if (CurrentTarget && CurrentTarget->IsValidLowLevelFast())
+	if (CurrentTarget
+		&& CurrentTarget->IsValidLowLevelFast()
+		&& CurrentTarget->Airframe
+		&& CurrentTarget->GetDamageSystem()
+		&& CurrentTarget->GetDamageSystem()->IsAlive())
 	{
 		return CurrentTarget;
 	}
@@ -465,6 +469,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	CargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
 	CargoBay->Load(this, ShipData.Cargo);
+	CurrentTarget = NULL;
 }
 
 FFlareSpacecraftSave* AFlareSpacecraft::Save()
@@ -807,6 +812,8 @@ void AFlareSpacecraft::StartPresentation()
 	{
 		Airframe->SetSimulatePhysics(false);
 	}
+
+	CurrentTarget = NULL;
 }
 
 
