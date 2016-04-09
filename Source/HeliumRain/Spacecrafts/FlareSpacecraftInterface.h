@@ -67,7 +67,8 @@ namespace EFlareSpacecraftCapability
 	enum Type
 	{
 		Consumer,
-		Storage
+		Storage,
+		Maintenance
 	};
 }
 

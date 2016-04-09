@@ -24,6 +24,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<UFlareResourceCatalogEntry*> ConsumerResources;
 
+	/** Resources data */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<UFlareResourceCatalogEntry*> MaintenanceResources;
+
 public:
 
 	/*----------------------------------------------------

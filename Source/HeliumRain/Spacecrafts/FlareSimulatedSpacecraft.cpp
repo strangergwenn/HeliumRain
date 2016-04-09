@@ -120,6 +120,18 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		}
 	}
 
+	if (HasCapability(EFlareSpacecraftCapability::Maintenance))
+	{
+		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
+
+			if (!CargoBay->LockSlot(Resource))
+			{
+				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+			}
+		}
+	}
 }
 
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
