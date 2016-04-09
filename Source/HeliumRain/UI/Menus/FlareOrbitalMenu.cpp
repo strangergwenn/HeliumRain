@@ -597,7 +597,7 @@ FText SFlareOrbitalMenu::GetTravelText() const
 						Travel->GetDestinationSector()->GetSectorName(),
 						FText::FromString(*UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
 
-					Result += TravelText.ToString();
+					Result += TravelText.ToString() + "\n";
 				}
 			}
 
