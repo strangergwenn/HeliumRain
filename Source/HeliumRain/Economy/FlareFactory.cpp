@@ -89,35 +89,7 @@ post_prod:
 
 void UFlareFactory::TryBeginProduction()
 {
-	// Factory rentability
-
-	int64 Balance = 0;
-	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
-	{
-		const FFlareFactoryResource* Resource = &GetCycleData().InputResources[ResourceIndex];
-
-		Balance -= Parent->GetCurrentSector()->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
-	}
-
-
-
-	Balance -= GetCycleData().ProductionCost;
-
-	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().OutputResources.Num() ; ResourceIndex++)
-	{
-		const FFlareFactoryResource* Resource = &GetCycleData().OutputResources[ResourceIndex];
-
-		Balance += Parent->GetCurrentSector()->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
-	}
-
-
-	if(Balance < 0)
-	{
-		FLOGV("WARNING : %s balance : %lld", *FactoryDescription->Name.ToString(), Balance);
-	}
-
-
-	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney())
+	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney() && GetProductionBalance() > 0)
 	{
 		BeginProduction();
 	}
@@ -872,12 +844,17 @@ FText UFlareFactory::GetFactoryStatus()
 				FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
 				HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space"));
 		}
-		else if (HasInputMoney() && HasInputResources())
+		else if (HasInputMoney() && HasInputResources() && GetProductionBalance() > 0)
 		{
 			ProductionStatusText = LOCTEXT("ProductionWillStart", "Starting");
 		}
 		else
 		{
+			if (GetProductionBalance() <= 0)
+			{
+				ProductionStatusText = LOCTEXT("ProductionNotProfitable", "Production not profitable. Waiting higher prices.");
+			}
+
 			if (!HasInputMoney())
 			{
 				ProductionStatusText = LOCTEXT("ProductionNotEnoughMoney", "Waiting for credits");
@@ -887,6 +864,8 @@ FText UFlareFactory::GetFactoryStatus()
 			{
 				ProductionStatusText = LOCTEXT("ProductionNotEnoughResources", "Waiting for resources");
 			}
+
+
 		}
 	}
 	else if (IsPaused())
@@ -921,7 +900,7 @@ bool UFlareFactory::IsProducing()
 				return false;
 			}
 		}
-		else if (HasInputMoney() && HasInputResources())
+		else if (HasInputMoney() && HasInputResources() && GetProductionBalance() > 0)
 		{
 			return true;
 		}
@@ -932,6 +911,38 @@ bool UFlareFactory::IsProducing()
 	}
 
 	return false;
+}
+
+
+int64 UFlareFactory::GetProductionBalance()
+{
+	// Factory rentability
+
+	int64 Balance = 0;
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &GetCycleData().InputResources[ResourceIndex];
+
+		Balance -= Parent->GetCurrentSector()->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+	}
+
+
+
+	Balance -= GetCycleData().ProductionCost;
+
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().OutputResources.Num() ; ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &GetCycleData().OutputResources[ResourceIndex];
+
+		Balance += Parent->GetCurrentSector()->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+	}
+
+
+	if(Balance < 0)
+	{
+		FLOGV("WARNING : %s balance : %lld", *FactoryDescription->Name.ToString(), Balance);
+	}
+	return Balance;
 }
 
 

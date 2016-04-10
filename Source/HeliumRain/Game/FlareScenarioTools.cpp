@@ -220,6 +220,7 @@ void UFlareScenarioTools::SetupWorld()
 
 	// Create cargos
 	CreateShips(ShipOmen, IonLane, Crossroads, 60);
+	CreateShips(ShipAtlas, IonLane, Crossroads, 2);
 	CreateShips(ShipOmen, MiningSyndicate, MinersHome, 10);
 	CreateShips(ShipOmen, HelixFoundries, Outpost, 10);
 	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 10);

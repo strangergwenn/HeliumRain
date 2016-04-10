@@ -28,6 +28,7 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 
 	Fleet = Game->GetGameWorld()->FindFleet(TravelData.FleetIdentifier);
 	DestinationSector = Game->GetGameWorld()->FindSector(TravelData.DestinationSectorIdentifier);
+	OriginSector = Game->GetGameWorld()->FindSector(TravelData.OriginSectorIdentifier);
 
 	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
@@ -62,6 +63,33 @@ void UFlareTravel::EndTravel()
 	DestinationSector->AddFleet(Fleet);
 
 	// Place correctly new ships to avoid collision
+
+	// TODO Money migration
+	// TODO People migration
+
+	// Price migration
+	float ContaminationFactor = 0.001f;
+	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+
+		float OriginPrice = OriginSector->GetPreciceResourcePrice(Resource);
+		float DestinationPrice = DestinationSector->GetPreciceResourcePrice(Resource);
+
+		float Mean = (OriginPrice + DestinationPrice) / 2.f;
+
+
+		float NewOriginPrice = (OriginPrice * (1 - ContaminationFactor)) + (ContaminationFactor * Mean);
+		float NewDestinationPrice = (DestinationPrice * (1 - ContaminationFactor)) + (ContaminationFactor * Mean);
+
+		//FLOGV("Travel start from %s. %s price ajusted from %f to %f (Mean: %f)", *OriginSector->GetSectorName().ToString(), *Resource->Name.ToString(), OriginPrice, NewOriginPrice, Mean);
+		//FLOGV("Travel end from %s. %s price ajusted from %f to %f (Mean: %f)", *DestinationSector->GetSectorName().ToString(), *Resource->Name.ToString(), DestinationPrice, NewDestinationPrice, Mean);
+
+		OriginSector->SetPreciceResourcePrice(Resource, NewOriginPrice);
+		DestinationSector->SetPreciceResourcePrice(Resource, NewDestinationPrice);
+
+	}
+
 
 	Game->GetGameWorld()->DeleteTravel(this);
 }
@@ -101,8 +129,6 @@ bool UFlareTravel::CanChangeDestination()
 
 void UFlareTravel::GenerateTravelDuration()
 {
-	UFlareSimulatedSector* OriginSector = Game->GetGameWorld()->FindSector(TravelData.OriginSectorIdentifier);
-
 	TravelDuration = ComputeTravelDuration(Game->GetGameWorld(), OriginSector, DestinationSector);
 }
 

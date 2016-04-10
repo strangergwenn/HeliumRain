@@ -92,6 +92,7 @@ protected:
 
 	UFlareFleet*                            Fleet;
 	UFlareSimulatedSector*                  DestinationSector;
+	UFlareSimulatedSector*                  OriginSector;
 
 
 	FFlareTravelSave                        TravelData;

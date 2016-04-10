@@ -337,4 +337,5 @@ public:
 		return FactoryData.CostReserved;
 	}
 
+	int64 GetProductionBalance();
 };

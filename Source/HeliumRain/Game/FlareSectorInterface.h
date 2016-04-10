@@ -162,6 +162,19 @@ struct FFlareSectorOrbitParameters
 	double Phase;
 };
 
+/** Sector resources prices*/
+USTRUCT()
+struct FFFlareResourcePrice
+{
+	GENERATED_USTRUCT_BODY()
+	/** Resource */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ResourceIdentifier;
+
+	/** Price */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float Price;
+};
 
 /** Sector save data */
 USTRUCT()
@@ -206,6 +219,9 @@ struct FFlareSectorSave
 	/** Sector peole. */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlarePeopleSave PeopleData;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFFlareResourcePrice> ResourcePrices;
 };
 
 UCLASS(abstract)
@@ -215,7 +231,12 @@ class UFlareSectorInterface  : public UObject
 
 public:
 
+
 protected:
+	void LoadResourcePrices();
+
+	void SaveResourcePrices();
+
 
 	/*----------------------------------------------------
 	  Protected data
@@ -229,6 +250,7 @@ protected:
 	UPROPERTY()
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
 	const FFlareSectorDescription*          SectorDescription;
+	TMap<FFlareResourceDescription*, float> ResourcePrices;
 
 public:
 	/*----------------------------------------------------
@@ -271,13 +293,19 @@ public:
 	/** Get the friendlyness status toward a company, as a color */
 	FLinearColor GetSectorFriendlynessColor(UFlareCompany* Company);
 
-	virtual UFlareSimulatedSector* GetSimulatedSector() PURE_VIRTUAL(UFlareSectorInterface::GetSimulatedSector, return NULL;);
+	virtual UFlareSimulatedSector* GetSimulatedSector() PURE_VIRTUAL(UFlareSectorInterface::GetSimulatedSector, return NULL;)
 
-	virtual uint32 GetResourcePrice(FFlareResourceDescription* Resource);
+	float GetPreciceResourcePrice(FFlareResourceDescription* Resource);
 
-	virtual TArray<IFlareSpacecraftInterface*>& GetSectorStationInterfaces() PURE_VIRTUAL(UFlareSectorInterface::GetSectorStationInterfaces, static TArray<IFlareSpacecraftInterface*> Dummy; return Dummy;);
+	void SetPreciceResourcePrice(FFlareResourceDescription* Resource, float NewPrice);
 
-	virtual TArray<IFlareSpacecraftInterface*>& GetSectorShipInterfaces() PURE_VIRTUAL(UFlareSectorInterface::GetSectorShipInterfaces, static TArray<IFlareSpacecraftInterface*> Dummy; return Dummy;);
+	virtual uint64 GetResourcePrice(FFlareResourceDescription* Resource);
+
+	virtual float GetDefaultResourcePrice(FFlareResourceDescription* Resource);
+
+	virtual TArray<IFlareSpacecraftInterface*>& GetSectorStationInterfaces() PURE_VIRTUAL(UFlareSectorInterface::GetSectorStationInterfaces, static TArray<IFlareSpacecraftInterface*> Dummy; return Dummy;)
+
+	virtual TArray<IFlareSpacecraftInterface*>& GetSectorShipInterfaces() PURE_VIRTUAL(UFlareSectorInterface::GetSectorShipInterfaces, static TArray<IFlareSpacecraftInterface*> Dummy; return Dummy;)
 
 	bool CanUpgrade(UFlareCompany* Company);
 

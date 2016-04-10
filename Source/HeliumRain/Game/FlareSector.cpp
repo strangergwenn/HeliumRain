@@ -69,6 +69,8 @@ void UFlareSector::Load(UFlareSimulatedSector* ParentSector, const FFlareSectorS
 	{
 		LoadBomb(SectorData.BombData[i]);
 	}
+
+	LoadResourcePrices();
 }
 
 FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftData)
@@ -102,6 +104,9 @@ FFlareSectorSave* UFlareSector::Save(TArray<FFlareSpacecraftSave>& SpacecraftDat
 	}
 
 	SectorData.LocalTime = LocalTime + GetGame()->GetPlanetarium()->GetSmoothTime();
+
+	SaveResourcePrices();
+
 	return &SectorData;
 }
 

@@ -335,6 +335,15 @@ void UFlareWorld::Simulate()
 			}
 		}
 	}
+
+	// Price variation.
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		Sectors[SectorIndex]->SimulatePriceVariation();
+	}
+
+
+
 	// Process events
 }
 

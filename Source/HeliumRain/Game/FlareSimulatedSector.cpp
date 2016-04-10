@@ -76,6 +76,8 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 		}
 
 	}
+
+	LoadResourcePrices();
 }
 
 UFlarePeople* UFlareSimulatedSector::LoadPeople(const FFlarePeopleSave& PeopleData)
@@ -103,6 +105,8 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 	}
 
 	SectorData.PeopleData = *People->Save();
+
+	SaveResourcePrices();
 
 	return &SectorData;
 }
@@ -644,6 +648,110 @@ void UFlareSimulatedSector::AttachStationToAsteroid(UFlareSimulatedSpacecraft* S
 	else
 	{
 		FLOG("UFlareSimulatedSector::AttachStationToAsteroid : Failed to use asteroid !");
+	}
+}
+
+void UFlareSimulatedSector::SimulatePriceVariation()
+{
+	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+		SimulatePriceVariation(Resource);
+	}
+}
+
+void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Resource)
+{
+	float Variation = 0;
+	float OldPrice = GetPreciceResourcePrice(Resource);
+	// Prices can increase because :
+
+	//  - The input of a station is low (and less than half)
+	//  - Consumer ressource is low
+	//  - Maintenance ressource is low (and less than half)
+	//  - Station stop because no profit
+
+
+	// Prices can decrease because :
+	//  - Output of a station is full (and more than half)
+	//  - Consumer ressource is full (and more than half)
+	//  - Maintenance ressource is full (and more than half) (very slow decrease)
+
+
+	// Prices never go below min production cost
+	for (int32 CountIndex = 0 ; CountIndex < SectorStations.Num(); CountIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
+
+		float StockRatio = (float) Station->GetCargoBay()->GetResourceQuantity(Resource) / (float) Station->GetCargoBay()->GetSlotCapacity();
+
+		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+		{
+			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
+
+			if(!Factory->IsActive())
+			{
+				continue;
+			}
+
+
+			if (Factory->HasInputResource(Resource))
+			{
+				if (StockRatio < 0.5f)
+				{
+					Variation += (0.5f - StockRatio) * 0.2; // +0.1% max
+				}
+			}
+
+			if (Factory->HasOutputResource(Resource))
+			{
+				if (StockRatio > 0.5f)
+				{
+					Variation += - (StockRatio - 0.5f) * 0.2; // -0.1% max
+				}
+				else
+				{
+					float Margin = Factory->GetProductionBalance() / OldPrice;
+					if (Margin < 0.2)
+					{
+						Variation += FMath::Min(0.2f, (0.2f - Margin) * 0.5f); // +0.1% at 0 margin
+					}
+				}
+			}
+		}
+
+		if(Station->HasCapability(EFlareSpacecraftCapability::Consumer) && Game->GetResourceCatalog()->IsCustomerResource(Resource))
+		{
+			if (StockRatio < 0.5f)
+			{
+				Variation += (0.5f - StockRatio) * 0.4; // +0.2% max
+			}
+
+			if (StockRatio > 0.5f)
+			{
+				Variation += - (StockRatio - 0.5f) * 0.2; // -0.1% max
+			}
+		}
+
+		if(Station->HasCapability(EFlareSpacecraftCapability::Maintenance) && Game->GetResourceCatalog()->IsMaintenanceResource(Resource))
+		{
+			if (StockRatio < 0.5f)
+			{
+				Variation += (0.5f - StockRatio) * 0.4; // +0.2% max
+			}
+
+			if (StockRatio > 0.5f)
+			{
+				Variation += - (StockRatio - 0.5f) * 0.02; // -0.01% max
+			}
+		}
+	}
+
+	if(Variation != 0.f)
+	{
+		float NewPrice = FMath::Max(1.f, OldPrice * (1 + Variation / 100.f));
+		SetPreciceResourcePrice(Resource, NewPrice);
+		//FLOGV("%s price in %s change from %f to %f (%f)", *Resource->Name.ToString(), *GetSectorName().ToString(), OldPrice, NewPrice, Variation);
 	}
 }
 
