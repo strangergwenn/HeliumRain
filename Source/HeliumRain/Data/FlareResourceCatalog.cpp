@@ -43,3 +43,15 @@ bool UFlareResourceCatalog::IsCustomerResource(FFlareResourceDescription* Resour
 	}
 	return false;
 }
+
+bool UFlareResourceCatalog::IsMaintenanceResource(FFlareResourceDescription* Resource) const
+{
+	for (int32 ResourceIndex = 0; ResourceIndex < MaintenanceResources.Num(); ResourceIndex++)
+	{
+		if(Resource == &MaintenanceResources[ResourceIndex]->Data)
+		{
+			return true;
+		}
+	}
+	return false;
+}

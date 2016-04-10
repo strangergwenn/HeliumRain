@@ -39,4 +39,6 @@ public:
 
 	bool IsCustomerResource(FFlareResourceDescription* Resource) const;
 
+	bool IsMaintenanceResource(FFlareResourceDescription* Resource) const;
+
 };

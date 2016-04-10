@@ -698,6 +698,9 @@ uint32 UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company, uint32 I
 	//1 - fill resources consumers
 	FillResourceConsumers(Company, TransportCapacity, true);
 
+	//1.1 - fill resources maintenance
+	FillResourceMaintenances(Company, TransportCapacity, true);
+
 	// 2 - one with the exact quantity
 	if (TransportCapacity)
 	{
@@ -741,6 +744,85 @@ void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, uint32
 			UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
 
 			if ((!AllowTrade && Station->GetCompany() != Company) || !Station->HasCapability(EFlareSpacecraftCapability::Consumer) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+			{
+				continue;
+			}
+
+			//FLOGV("Check station %s needs:", *Station->GetImmatriculation().ToString());
+
+
+			// Fill only one slot for each ressource
+			if (Station->GetCargoBay()->GetResourceQuantity(Resource) > Station->GetDescription()->CargoBayCapacity)
+			{
+				FLOGV("Fill only one slot for each ressource. Has %d", Station->GetCargoBay()->GetResourceQuantity(Resource));
+
+				continue;
+			}
+
+
+			uint32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBay()->GetResourceQuantity(Resource);
+			uint32 FreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
+			uint32 QuantityToTransfert = FMath::Min(MaxQuantity, FreeSpace);
+			QuantityToTransfert = FMath::Min(TransportCapacity, QuantityToTransfert);
+
+			if(Station->GetCompany() != Company)
+			{
+				// Compute max quantity the station can afford
+				uint32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+				QuantityToTransfert = FMath::Min(MaxBuyableQuantity, QuantityToTransfert);
+				//FLOGV("MaxBuyableQuantity  %u",  MaxBuyableQuantity);
+				//FLOGV("QuantityToTransfert  %u",  QuantityToTransfert);
+			}
+
+
+
+			uint32 TakenResources = TakeUselessResources(Company, Resource, QuantityToTransfert, AllowTrade);
+			Station->GetCargoBay()->GiveResources(Resource, TakenResources);
+			TransportCapacity -= TakenResources;
+
+			if(TakenResources > 0 && Station->GetCompany() != Company)
+			{
+				// Sell resources
+				int32 TransactionAmount = TakenResources * UnitSellPrice;
+				Station->GetCompany()->TakeMoney(TransactionAmount);
+				Company->GiveMoney(TransactionAmount);
+				FLOGV("%s	%u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
+				Station->GetCompany()->GiveReputation(Company, 0.5f, true);
+			}
+
+
+			//FLOGV("MaxQuantity %d", MaxQuantity);
+			//FLOGV("FreeSpace %d", FreeSpace);
+			//FLOGV("QuantityToTransfert %d", QuantityToTransfert);
+			//FLOGV("TakenResources %d", TakenResources);
+			//FLOGV("TransportCapacity %d", TransportCapacity);
+
+
+			if (TransportCapacity == 0)
+			{
+				return;
+			}
+
+		}
+	}
+}
+
+void UFlareSimulatedSector::FillResourceMaintenances(UFlareCompany* Company, uint32& TransportCapacity, bool AllowTrade)
+{
+	for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
+		uint32 UnitSellPrice = 1.01 * GetResourcePrice(Resource);
+		//FLOGV("Distribute consumer ressource %s", *Resource->Name.ToString());
+
+
+		// Transport consumer resources by priority
+		for (int32 CountIndex = 0 ; CountIndex < SectorStations.Num(); CountIndex++)
+		{
+			UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
+
+			if ((!AllowTrade && Station->GetCompany() != Company) || !Station->HasCapability(EFlareSpacecraftCapability::Maintenance) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 			{
 				continue;
 			}
@@ -967,6 +1049,9 @@ void UFlareSimulatedSector::SimulateTrade(TArray<uint32> CompanyRemainingTranspo
 
 			//1 - fill resources consumers
 			FillResourceConsumers(Company, TransportCapacity, true);
+
+			//1.1 - fill resources maintenances
+			FillResourceMaintenances(Company, TransportCapacity, true);
 
 			// 2 - one with the exact quantity
 			if (TransportCapacity)
@@ -1487,6 +1572,13 @@ int32 UFlareSimulatedSector::GetTransportCapacityNeeds(UFlareCompany* Company, b
 			}
 
 			if(Station->HasCapability(EFlareSpacecraftCapability::Consumer) && Game->GetResourceCatalog()->IsCustomerResource(Resource))
+			{
+				// 1 slot as input
+				Input += FMath::Max(0, (int32) Station->GetCargoBay()->GetSlotCapacity() - (int32)  Station->GetCargoBay()->GetResourceQuantity(Resource));
+				NeedResource = true;
+			}
+
+			if(Station->HasCapability(EFlareSpacecraftCapability::Maintenance) && Game->GetResourceCatalog()->IsMaintenanceResource(Resource))
 			{
 				// 1 slot as input
 				Input += FMath::Max(0, (int32) Station->GetCargoBay()->GetSlotCapacity() - (int32)  Station->GetCargoBay()->GetResourceQuantity(Resource));
