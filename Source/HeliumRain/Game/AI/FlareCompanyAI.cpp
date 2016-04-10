@@ -867,6 +867,31 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 			}
 		}
+
+		// Maintenance
+		if (Station->HasCapability(EFlareSpacecraftCapability::Maintenance))
+		{
+			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
+			{
+				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
+				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
+
+				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				if (ResourceQuantity < SlotCapacity)
+				{
+					uint32 Capacity = SlotCapacity - ResourceQuantity;
+					if (Company == Station->GetCompany())
+					{
+						Variation->OwnedCapacity += Capacity;
+					}
+					else
+					{
+						Variation->FactoryCapacity += Capacity;
+					}
+				}
+
+			}
+		}
 	}
 
 	if(OwnedCustomerStation || NotOwnedCustomerStation)
