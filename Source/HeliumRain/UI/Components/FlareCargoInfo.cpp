@@ -66,7 +66,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 						.AutoHeight()
 						.Padding(Theme.SmallContentPadding)
 						.VAlign(VAlign_Bottom)
-						.HAlign(HAlign_Center)
+						.HAlign(HAlign_Right)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SmallFont)
@@ -175,7 +175,14 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	check(Cargo);
 
-	return FText::FromString(FString::Printf(TEXT("%u/%u"), Cargo->Quantity, Cargo->Capacity)); //FString needed here
+	if (Cargo->Capacity > 999)
+	{
+		return FText::FromString(FString::Printf(TEXT(" %u\n/%u"), Cargo->Quantity, Cargo->Capacity));
+	}
+	else
+	{
+		return FText::FromString(FString::Printf(TEXT("%u/%u"), Cargo->Quantity, Cargo->Capacity));
+	}
 }
 
 FReply SFlareCargoInfo::OnButtonClicked()
