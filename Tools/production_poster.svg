@@ -52,15 +52,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="694.61612"
+     inkscape:cx="500.61612"
      inkscape:cy="372.84157"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1056"
-     inkscape:window-x="1920"
-     inkscape:window-y="144"
+     inkscape:window-width="1855"
+     inkscape:window-height="1176"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -693,7 +693,9 @@
          y="977.64441"
          x="658.79285"
          id="tspan4361"
-         sodipodi:role="line">→ <tspan
+         sodipodi:role="line"><tspan
+   style="fill:#a4b5f2;fill-opacity:1"
+   id="tspan4690">500 H₂O</tspan> → <tspan
    style="fill:#a4f2a6;fill-opacity:1"
    id="tspan4885">500 Fuel </tspan></tspan></text>
     <text

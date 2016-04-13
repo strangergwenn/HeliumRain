@@ -35,6 +35,16 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	SectorSpacecrafts.Empty();
 	SectorFleets.Empty();
 
+	FFlareCelestialBody* Body = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(SectorOrbitParameters.CelestialBodyIdentifier);
+	if (Body)
+	{
+		LightRatio = Game->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, SectorOrbitParameters.Altitude);
+	}
+	else
+	{
+		LightRatio = 1.0;
+	}
+
 	LoadPeople(SectorData.PeopleData);
 
 	for (int i = 0 ; i < SectorData.SpacecraftIdentifiers.Num(); i++)
@@ -388,7 +398,7 @@ FText UFlareSimulatedSector::GetSectorDescription() const
 	return SectorDescription->Description;
 }
 
-bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReasons)
+bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReasons, bool IgnoreCost)
 {
 	bool Result = true;
 
@@ -432,6 +442,11 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	{
 		OutReasons.Add(LOCTEXT("BuildRequiresAsteroid", "This station can only be built on an asteroid"));
 		Result = false;
+	}
+
+	if(IgnoreCost)
+	{
+		return Result;
 	}
 
 	// Check money cost

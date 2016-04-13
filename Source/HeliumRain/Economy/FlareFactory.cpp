@@ -611,13 +611,8 @@ uint32 UFlareFactory::GetProductionCost(const FFlareProductionData* Data)
 
 	if (FactoryDescription->NeedSun)
 	{
-		FFlareCelestialBody* Body = Game->GetGameWorld()->GetPlanerarium()->FindCelestialBody(Parent->GetCurrentSector()->GetOrbitParameters()->CelestialBodyIdentifier);
-
-		if (Body)
-		{
-			float LightRatio = Game->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, Parent->GetCurrentSector()->GetOrbitParameters()->Altitude);
-			ScaledProductionCost = CycleData->ProductionCost / LightRatio;
-		}
+		// TODO NeedSun flag must impact output instead of cost
+		ScaledProductionCost = CycleData->ProductionCost / Parent->GetCurrentSector()->GetLightRatio();
 	}
 
 	return ScaledProductionCost;
@@ -928,7 +923,7 @@ int64 UFlareFactory::GetProductionBalance()
 
 
 
-	Balance -= GetCycleData().ProductionCost;
+	Balance -= GetProductionCost();
 
 	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().OutputResources.Num() ; ResourceIndex++)
 	{

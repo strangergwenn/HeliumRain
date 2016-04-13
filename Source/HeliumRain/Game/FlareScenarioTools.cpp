@@ -370,7 +370,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
-				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() / 3);
+				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() / 2);
 			}
 		}
 

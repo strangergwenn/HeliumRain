@@ -125,6 +125,10 @@ protected:
 	int32                                    CurrentCivilianShipCount;
 
 
+	// TODO Save it
+	FFlareSpacecraftDescription*			 ConstructionProjectStation;
+	UFlareSimulatedSector*         			 ConstructionProjectSector;
+
 
 	public:
 

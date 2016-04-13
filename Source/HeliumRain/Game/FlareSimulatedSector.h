@@ -68,7 +68,7 @@ public:
 	void SetShipToFly(UFlareSimulatedSpacecraft* Ship);
 
 	/** Check whether we can build a station, understand why if not */
-	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReason);
+	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReason, bool IgnoreCost = false);
 
 	bool BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
@@ -121,6 +121,7 @@ protected:
 	UFlarePeople*							People;
 
 	int32                                   PersistentStationIndex;
+	float									LightRatio;
 
 public:
 
@@ -192,5 +193,10 @@ public:
 	int32 GetTransportCapacityBalance(UFlareCompany* Company, bool AllowTrade = false);
 
 	int32 GetTransportCapacityNeeds(UFlareCompany* Company, bool AllowTrade = false);
+
+	float GetLightRatio()
+	{
+		return LightRatio;
+	}
 
 };

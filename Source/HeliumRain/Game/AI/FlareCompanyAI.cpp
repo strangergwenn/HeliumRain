@@ -160,6 +160,10 @@ void UFlareCompanyAI::Simulate()
 		BestDeal.SectorA = NULL;
 		BestDeal.SectorB = NULL;
 
+
+		// Stay here option
+
+
 		for (int32 SectorAIndex = 0; SectorAIndex < Company->GetKnownSectors().Num(); SectorAIndex++)
 		{
 			UFlareSimulatedSector* SectorA = Company->GetKnownSectors()[SectorAIndex];
@@ -308,19 +312,163 @@ void UFlareCompanyAI::Simulate()
 
 
 
+	//TODO always keep money for production
+	// Acquire ship
 
+	TArray<UFlareSpacecraftCatalogEntry*>& StationCatalog = Game->GetSpacecraftCatalog()->StationCatalog;
 
-
-
-	/*
-	TArray<UFlareSimulatedSpacecraft*> CompanyShips = Company->GetCompanyShips();
-
-	// Assign ships to current sector
-	for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
+	// Build station
+	if (!ConstructionProjectStation && !ConstructionProjectSector)
 	{
-		UFlareSimulatedSpacecraft* Ship = CompanyShips[ShipIndex];
-		Ship->AssignToSector(true);
-	}*/
+
+
+	// Count factories for the company
+
+
+	// Compute rentability in each sector for each station
+	// Add weight if the company already have another station in this type
+
+		float BestDayCountToPayStationPrice = 0;
+		FFlareSpacecraftDescription* BestStationDescription = NULL;
+		UFlareSimulatedSector* BestSector = NULL;
+
+		for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+		{
+			UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+
+
+			for (int32 StationIndex = 0; StationIndex < StationCatalog.Num(); StationIndex++)
+			{
+				FFlareSpacecraftDescription* StationDescription = &StationCatalog[StationIndex]->Data;
+
+				// Check sector limitations
+				TArray<FText> Reasons;
+				if (!Sector->CanBuildStation(StationDescription, Company, Reasons, true))
+				{
+					continue;
+				}
+
+
+
+				for (int FactoryIndex = 0; FactoryIndex < StationDescription->Factories.Num(); FactoryIndex++)
+				{
+					FFlareFactoryDescription* FactoryDescription = &StationDescription->Factories[FactoryIndex]->Data;
+
+					bool Shipyard = false;
+
+					for (int32 Index = 0; Index < FactoryDescription->OutputActions.Num(); Index++)
+					{
+						if (FactoryDescription->OutputActions[Index].Action == EFlareFactoryAction::CreateShip)
+						{
+							Shipyard = true;
+							break;
+						}
+					}
+
+					if(Shipyard)
+					{
+						// TODO Shipyard case
+						continue;
+					}
+
+					float GainPerDay = 0;
+					float GainPerCycle = 0;
+
+					if (FactoryDescription->NeedSun)
+					{
+						// TODO need sun  must impact production output
+						GainPerCycle -= FactoryDescription->CycleCost.ProductionCost / Sector->GetLightRatio();
+					}
+					else
+					{
+						GainPerCycle -= FactoryDescription->CycleCost.ProductionCost;
+					}
+
+
+					for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num() ; ResourceIndex++)
+					{
+						const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+						GainPerCycle -= Sector->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+					}
+
+					for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num() ; ResourceIndex++)
+					{
+						const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
+						GainPerCycle += Sector->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+					}
+
+					GainPerDay = GainPerCycle / FactoryDescription->CycleCost.ProductionTime;
+
+					//FLOGV("%s in %s GainPerDay=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), GainPerDay / 100);
+
+					float StationPrice = UFlareGameTools::ComputeShipPrice(StationDescription->Identifier, Sector);
+
+					float DayToPayPrice = StationPrice / GainPerDay;
+
+					//FLOGV("StationPrice=%f DayToPayPrice=%f", StationPrice, DayToPayPrice);
+
+
+					if (GainPerDay > 0 && (!BestStationDescription || DayToPayPrice < BestDayCountToPayStationPrice))
+					{
+						BestDayCountToPayStationPrice = DayToPayPrice;
+						BestStationDescription = StationDescription;
+						BestSector = Sector;
+					}
+				}
+			}
+		}
+
+		if (BestSector && BestStationDescription)
+		{
+			FLOGV(">>> %s in %s BestDayCountToPayStationPrice=%f", *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), BestDayCountToPayStationPrice);
+		}
+
+
+	// Compute shipyard need shipyard
+	// Count turn before a ship is buildable to add weigth to this option
+
+
+
+	// Compute the place the farest from all shipyard
+
+
+	// Compute the time to pay the price with the station
+
+	// If best option weight > 1, build it.
+	}
+
+	// TODO Save ConstructionProjectStation
+
+	if (ConstructionProjectStation && ConstructionProjectSector)
+	{
+		TArray<FText> Reasons;
+		if (!ConstructionProjectSector->CanBuildStation(ConstructionProjectStation, Company, Reasons))
+		{
+			// Abandon build project
+			FLOGV("%s abandon to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+			ConstructionProjectStation = NULL;
+			ConstructionProjectSector = NULL;
+		}
+		else
+		{
+			// TODO Buy cost keeping marging
+
+			// Try build station
+			if (ConstructionProjectSector->BuildStation(ConstructionProjectStation, Company))
+			{
+				// Build success clean contruction project
+				ConstructionProjectStation = NULL;
+				ConstructionProjectSector = NULL;
+			}
+			else
+			{
+				// Cannot build
+
+				// TODO make price very attractive
+				// TODO make capacity very high
+			}
+		}
+	}
 }
 
 SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation)
@@ -337,19 +485,23 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 	{
 		UFlareSimulatedSector* SectorB = Company->GetKnownSectors()[SectorBIndex];
 
+		int64 TravelTimeToA;
+		int64 TravelTimeToB;
+
 		if(SectorA == SectorB)
 		{
-			// Same sector
-			continue;
+			// Stay in sector option
+			TravelTimeToA = 1;
+			TravelTimeToB = 0;
 		}
+		else
+		{
+			// Travel time
+			TravelTimeToA = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorA);
+			TravelTimeToB = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), SectorA, SectorB);
 
-		// Travel time
-
-		int64 TravelTimeToA = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorA);
-		int64 TravelTimeToB = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), SectorA, SectorB);
+		}
 		int64 TravelTime = TravelTimeToA + TravelTimeToB;
-
-
 
 
 		SectorVariation* SectorVariationA = &(*WorldResourceVariation)[SectorA];
