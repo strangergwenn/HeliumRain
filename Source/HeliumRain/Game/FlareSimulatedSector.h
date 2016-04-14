@@ -185,7 +185,7 @@ public:
 
 	uint32 GetTransportCapacity(UFlareCompany* Company, bool AllCompanies = false);
 
-	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource);
+	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips = false);
 
 	/** If positive, return the remaining tranport capacity after transport.
 	 *  If negative, return the laking tranport capacity after transport

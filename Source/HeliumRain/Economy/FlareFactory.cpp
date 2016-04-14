@@ -89,7 +89,7 @@ post_prod:
 
 void UFlareFactory::TryBeginProduction()
 {
-	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney() && GetProductionBalance() > 0)
+	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney() && GetMarginRatio() > 0.2)
 	{
 		BeginProduction();
 	}
@@ -839,13 +839,15 @@ FText UFlareFactory::GetFactoryStatus()
 				FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
 				HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space"));
 		}
-		else if (HasInputMoney() && HasInputResources() && GetProductionBalance() > 0)
+		else if (HasInputMoney() && HasInputResources() && GetMarginRatio() > 0.2)
 		{
 			ProductionStatusText = LOCTEXT("ProductionWillStart", "Starting");
 		}
 		else
 		{
-			if (GetProductionBalance() <= 0)
+
+
+			if (GetMarginRatio()  <= 0.2)
 			{
 				ProductionStatusText = LOCTEXT("ProductionNotProfitable", "Production not profitable. Waiting higher prices.");
 			}
@@ -895,7 +897,7 @@ bool UFlareFactory::IsProducing()
 				return false;
 			}
 		}
-		else if (HasInputMoney() && HasInputResources() && GetProductionBalance() > 0)
+		else if (HasInputMoney() && HasInputResources() && GetMarginRatio() > 0.2)
 		{
 			return true;
 		}
@@ -908,6 +910,32 @@ bool UFlareFactory::IsProducing()
 	return false;
 }
 
+
+float UFlareFactory::GetMarginRatio()
+{
+	int64 SellPrice = 0;
+
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().OutputResources.Num() ; ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &GetCycleData().OutputResources[ResourceIndex];
+
+		SellPrice += Parent->GetCurrentSector()->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+	}
+
+	if(SellPrice == 0)
+	{
+		return 0;
+	}
+
+	float Margin = (float) GetProductionBalance() / (float) SellPrice;
+
+	if (Margin < 0.2)
+	{
+		FLOGV("WARNING : %s margin : %f", *FactoryDescription->Name.ToString(), Margin);
+	}
+
+	return Margin;
+}
 
 int64 UFlareFactory::GetProductionBalance()
 {
@@ -932,11 +960,6 @@ int64 UFlareFactory::GetProductionBalance()
 		Balance += Parent->GetCurrentSector()->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
 	}
 
-
-	if(Balance < 0)
-	{
-		FLOGV("WARNING : %s balance : %lld", *FactoryDescription->Name.ToString(), Balance);
-	}
 	return Balance;
 }
 

@@ -726,10 +726,10 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 				}
 				else
 				{
-					float Margin = Factory->GetProductionBalance() / OldPrice;
-					if (Margin < 0.2)
+					float Margin = Factory->GetMarginRatio();
+					if (Margin < 0.5)
 					{
-						Variation += FMath::Min(0.2f, (0.2f - Margin) * 0.5f); // +0.1% at 0 margin
+						Variation += FMath::Min(0.5f, (0.5f - Margin)) * 0.2f; // +0.1% at 0 margin
 					}
 				}
 			}
@@ -1630,13 +1630,20 @@ uint32 UFlareSimulatedSector::GetTransportCapacity(UFlareCompany* Company, bool 
 	return TransportCapacity;
 }
 
-uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource)
+uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips)
 {
 	uint32 ResourceCount = 0;
 
-	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num(); StationIndex++)
+	TArray<UFlareSimulatedSpacecraft*>& SpacecraftList = SectorStations;
+
+	if(IncludeShips)
 	{
-		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
+		SpacecraftList = SectorSpacecrafts;
+	}
+
+	for (int32 StationIndex = 0 ; StationIndex < SpacecraftList.Num(); StationIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = SpacecraftList[StationIndex];
 
 		if ( Station->GetCompany() != Company)
 		{

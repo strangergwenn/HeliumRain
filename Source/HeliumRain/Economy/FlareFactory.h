@@ -338,4 +338,6 @@ public:
 	}
 
 	int64 GetProductionBalance();
+
+	float GetMarginRatio();
 };

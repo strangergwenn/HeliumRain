@@ -6,6 +6,8 @@
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../../Economy/FlareCargoBay.h"
 
+#define STATION_CONSTRUCTION_PRICE_BONUS 1.2
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -401,8 +403,8 @@ void UFlareCompanyAI::Simulate()
 
 					//FLOGV("%s in %s GainPerDay=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), GainPerDay / 100);
 
-					float StationPrice = UFlareGameTools::ComputeShipPrice(StationDescription->Identifier, Sector);
-
+					// Price with station resources prices bonus
+					float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeShipPrice(StationDescription->Identifier, Sector);
 					float DayToPayPrice = StationPrice / GainPerDay;
 
 					//FLOGV("StationPrice=%f DayToPayPrice=%f", StationPrice, DayToPayPrice);
@@ -420,7 +422,21 @@ void UFlareCompanyAI::Simulate()
 
 		if (BestSector && BestStationDescription)
 		{
-			FLOGV(">>> %s in %s BestDayCountToPayStationPrice=%f", *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), BestDayCountToPayStationPrice);
+			FLOGV("%s >>> %s in %s BestDayCountToPayStationPrice=%f", *Company->GetCompanyName().ToString(),  *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), BestDayCountToPayStationPrice);
+
+			// Start construction only if can afford to buy the station
+
+			float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeShipPrice(BestStationDescription->Identifier, BestSector);
+
+			if (StationPrice < Company->GetMoney())
+			{
+				ConstructionProjectStation = BestStationDescription;
+				ConstructionProjectSector = BestSector;
+			}
+			else
+			{
+				FLOGV("    dont build yet :station cost %f but company has only %lld", StationPrice, Company->GetMoney());
+			}
 		}
 
 
@@ -442,7 +458,7 @@ void UFlareCompanyAI::Simulate()
 	if (ConstructionProjectStation && ConstructionProjectSector)
 	{
 		TArray<FText> Reasons;
-		if (!ConstructionProjectSector->CanBuildStation(ConstructionProjectStation, Company, Reasons))
+		if (!ConstructionProjectSector->CanBuildStation(ConstructionProjectStation, Company, Reasons, true))
 		{
 			// Abandon build project
 			FLOGV("%s abandon to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
@@ -451,18 +467,45 @@ void UFlareCompanyAI::Simulate()
 		}
 		else
 		{
+			// Try to buy resources
+
+			for (int ResourceIndex = 0; ResourceIndex < ConstructionProjectStation->CycleCost.InputResources.Num() ; ResourceIndex++)
+			{
+				FFlareFactoryResource* Resource = &ConstructionProjectStation->CycleCost.InputResources[ResourceIndex];
+
+				int32 ResourceStock = ConstructionProjectSector->GetResourceCount(Company, &Resource->Resource->Data);
+
+				int32 QuantityToBuy = Resource->Quantity - ResourceStock;
+
+				FLOGV("%s try to buy %d %s in %s", *Company->GetCompanyName().ToString(),
+					  QuantityToBuy,
+					  *(&Resource->Resource->Data)->Name.ToString(),
+					  *ConstructionProjectSector->GetSectorName().ToString());
+
+				ConstructionProjectSector->TakeUselessResources(Company, &Resource->Resource->Data, QuantityToBuy, true);
+			}
+
+			// TODO Need at least one cargo
+
+
+			// Don't start construction if not enought ship to get the resources
+
 			// TODO Buy cost keeping marging
 
 			// Try build station
 			if (ConstructionProjectSector->BuildStation(ConstructionProjectStation, Company))
 			{
+				FLOGV("%s build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+
 				// Build success clean contruction project
 				ConstructionProjectStation = NULL;
 				ConstructionProjectSector = NULL;
+
 			}
 			else
 			{
 				// Cannot build
+				FLOGV("%s fail to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
 
 				// TODO make price very attractive
 				// TODO make capacity very high
@@ -603,6 +646,21 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			MoneySpend += StorageBuyQuantity * SectorA->GetResourcePrice(Resource);
 			QuantityToBuy -= StorageBuyQuantity;
 
+
+			// Station construction incitation
+			if (SectorB == ConstructionProjectSector)
+			{
+				for (int ConstructionResourceIndex = 0; ConstructionResourceIndex < ConstructionProjectStation->CycleCost.InputResources.Num() ; ConstructionResourceIndex++)
+				{
+					FFlareFactoryResource* ConstructionResource = &ConstructionProjectStation->CycleCost.InputResources[ConstructionResourceIndex];
+
+					if (Resource == &ConstructionResource->Resource->Data)
+					{
+						MoneyGain *= STATION_CONSTRUCTION_PRICE_BONUS;
+						break;
+					}
+				}
+			}
 
 			int32 MoneyBalance = MoneyGain - MoneySpend;
 
@@ -1042,6 +1100,17 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 				}
 
+			}
+		}
+
+		// Station construction incitation
+		if (ConstructionProjectSector == Sector)
+		{
+			for (int ResourceIndex = 0; ResourceIndex < ConstructionProjectStation->CycleCost.InputResources.Num() ; ResourceIndex++)
+			{
+				FFlareFactoryResource* Resource = &ConstructionProjectStation->CycleCost.InputResources[ResourceIndex];
+				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[&Resource->Resource->Data];
+				Variation->OwnedCapacity += Resource->Quantity;
 			}
 		}
 	}
