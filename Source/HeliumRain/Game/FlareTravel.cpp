@@ -68,13 +68,13 @@ void UFlareTravel::EndTravel()
 	// TODO People migration
 
 	// Price migration
-	float ContaminationFactor = 0.001f;
+	float ContaminationFactor = 0.01f;
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 	{
 		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
 
-		float OriginPrice = OriginSector->GetPreciceResourcePrice(Resource);
-		float DestinationPrice = DestinationSector->GetPreciceResourcePrice(Resource);
+		float OriginPrice = OriginSector->GetPreciseResourcePrice(Resource);
+		float DestinationPrice = DestinationSector->GetPreciseResourcePrice(Resource);
 
 		float Mean = (OriginPrice + DestinationPrice) / 2.f;
 
@@ -85,8 +85,8 @@ void UFlareTravel::EndTravel()
 		//FLOGV("Travel start from %s. %s price ajusted from %f to %f (Mean: %f)", *OriginSector->GetSectorName().ToString(), *Resource->Name.ToString(), OriginPrice, NewOriginPrice, Mean);
 		//FLOGV("Travel end from %s. %s price ajusted from %f to %f (Mean: %f)", *DestinationSector->GetSectorName().ToString(), *Resource->Name.ToString(), DestinationPrice, NewDestinationPrice, Mean);
 
-		OriginSector->SetPreciceResourcePrice(Resource, NewOriginPrice);
-		DestinationSector->SetPreciceResourcePrice(Resource, NewDestinationPrice);
+		OriginSector->SetPreciseResourcePrice(Resource, NewOriginPrice);
+		DestinationSector->SetPreciseResourcePrice(Resource, NewDestinationPrice);
 
 	}
 

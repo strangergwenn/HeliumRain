@@ -678,13 +678,12 @@ void UFlareSimulatedSector::SimulatePriceVariation()
 void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Resource)
 {
 	float Variation = 0;
-	float OldPrice = GetPreciceResourcePrice(Resource);
+	float OldPrice = GetPreciseResourcePrice(Resource);
 	// Prices can increase because :
 
 	//  - The input of a station is low (and less than half)
 	//  - Consumer ressource is low
 	//  - Maintenance ressource is low (and less than half)
-	//  - Station stop because no profit
 
 
 	// Prices can decrease because :
@@ -714,7 +713,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			{
 				if (StockRatio < 0.5f)
 				{
-					Variation += (0.5f - StockRatio) * 0.2; // +0.1% max
+					Variation += (0.5f - StockRatio) * 1.0; // +0.5% max
 				}
 			}
 
@@ -722,16 +721,18 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			{
 				if (StockRatio > 0.5f)
 				{
-					Variation += - (StockRatio - 0.5f) * 0.2; // -0.1% max
+					Variation += - (StockRatio - 0.5f) * 0.1; // -0.01% max
 				}
-				else
+
+				/* Replace by world price propagation*/
+				/*else
 				{
 					float Margin = Factory->GetMarginRatio();
 					if (Margin < 0.5)
 					{
 						Variation += FMath::Min(0.5f, (0.5f - Margin)) * 0.2f; // +0.1% at 0 margin
 					}
-				}
+				}*/
 			}
 		}
 
@@ -744,7 +745,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 
 			if (StockRatio > 0.5f)
 			{
-				Variation += - (StockRatio - 0.5f) * 0.2; // -0.1% max
+				Variation += - (StockRatio - 0.5f) * 0.02; // -0.01% max
 			}
 		}
 
@@ -765,7 +766,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 	if(Variation != 0.f)
 	{
 		float NewPrice = FMath::Max(1.f, OldPrice * (1 + Variation / 100.f));
-		SetPreciceResourcePrice(Resource, NewPrice);
+		SetPreciseResourcePrice(Resource, NewPrice);
 		//FLOGV("%s price in %s change from %f to %f (%f)", *Resource->Name.ToString(), *GetSectorName().ToString(), OldPrice, NewPrice, Variation);
 	}
 }

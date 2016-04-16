@@ -341,7 +341,8 @@ void UFlareWorld::Simulate()
 	{
 		Sectors[SectorIndex]->SimulatePriceVariation();
 	}
-
+	// Price homogenization
+	SimulatePriceHomogenization();
 
 
 	// Process events
@@ -517,6 +518,48 @@ bool UFlareWorld::TransfertResources(IFlareSpacecraftInterface* SourceSpacecraft
 	}
 
 	return TransfertOK;
+}
+
+void UFlareWorld::SimulatePriceHomogenization()
+{
+	float ContaminationFactor = 0.1f;
+	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+		float PriceMin = 0.0;
+		float PriceMax = 0.0;
+
+		for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+		{
+			float SectorPrice = Sectors[SectorIndex]->GetPreciseResourcePrice(Resource);
+			if(SectorIndex == 0)
+			{
+				PriceMin = SectorPrice;
+				PriceMax = SectorPrice;
+			}
+			else
+			{
+				PriceMin = FMath::Min(SectorPrice, PriceMin);
+				PriceMax = FMath::Max(SectorPrice, PriceMax);
+			}
+		}
+
+
+		float WorldPrice = (PriceMax + PriceMin) / 2;
+
+		FLOGV("World price for %s : %f", *Resource->Name.ToString(), WorldPrice / 100);
+
+
+		for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+		{
+			float CurrentPrice = Sectors[SectorIndex]->GetPreciseResourcePrice(Resource);
+
+			float NewPrice = CurrentPrice * (1 - ContaminationFactor) + WorldPrice * ContaminationFactor;
+			 Sectors[SectorIndex]->SetPreciseResourcePrice(Resource, NewPrice);
+			 //FLOGV(" - price in %s : %f", *Sectors[SectorIndex]->GetSectorName().ToString(), NewPrice / 100);
+
+		}
+	}
 }
 
 /*----------------------------------------------------

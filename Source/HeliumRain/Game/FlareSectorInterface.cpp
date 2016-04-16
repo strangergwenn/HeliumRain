@@ -18,14 +18,12 @@ UFlareSectorInterface::UFlareSectorInterface(const class FObjectInitializer& PCI
 void UFlareSectorInterface::LoadResourcePrices()
 {
 	ResourcePrices.Empty();
-
 	for (int PriceIndex = 0; PriceIndex < SectorData.ResourcePrices.Num(); PriceIndex++)
 	{
 		FFFlareResourcePrice* ResourcePrice = &SectorData.ResourcePrices[PriceIndex];
 		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourcePrice->ResourceIdentifier);
 		float Price = ResourcePrice->Price;
 		ResourcePrices.Add(Resource, Price);
-
 	}
 }
 
@@ -41,6 +39,7 @@ void UFlareSectorInterface::SaveResourcePrices()
 			FFFlareResourcePrice Price;
 			Price.ResourceIdentifier = Resource->Identifier;
 			Price.Price = ResourcePrices[Resource];
+			SectorData.ResourcePrices.Add(Price);
 		}
 	}
 }
@@ -266,7 +265,7 @@ FLinearColor UFlareSectorInterface::GetSectorFriendlynessColor(UFlareCompany* Co
 }
 
 
-float UFlareSectorInterface::GetPreciceResourcePrice(FFlareResourceDescription* Resource)
+float UFlareSectorInterface::GetPreciseResourcePrice(FFlareResourceDescription* Resource)
 {
 	if (!ResourcePrices.Contains(Resource))
 	{
@@ -276,14 +275,14 @@ float UFlareSectorInterface::GetPreciceResourcePrice(FFlareResourceDescription* 
 	return ResourcePrices[Resource];
 }
 
-void UFlareSectorInterface::SetPreciceResourcePrice(FFlareResourceDescription* Resource, float NewPrice)
+void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice)
 {
 	ResourcePrices[Resource] = NewPrice;
 }
 
 uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource)
 {
-	return GetPreciceResourcePrice(Resource);
+	return GetPreciseResourcePrice(Resource);
 }
 
 float UFlareSectorInterface::GetDefaultResourcePrice(FFlareResourceDescription* Resource)

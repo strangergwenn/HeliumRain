@@ -295,9 +295,9 @@ public:
 
 	virtual UFlareSimulatedSector* GetSimulatedSector() PURE_VIRTUAL(UFlareSectorInterface::GetSimulatedSector, return NULL;)
 
-	float GetPreciceResourcePrice(FFlareResourceDescription* Resource);
+	float GetPreciseResourcePrice(FFlareResourceDescription* Resource);
 
-	void SetPreciceResourcePrice(FFlareResourceDescription* Resource, float NewPrice);
+	void SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice);
 
 	virtual uint64 GetResourcePrice(FFlareResourceDescription* Resource);
 
