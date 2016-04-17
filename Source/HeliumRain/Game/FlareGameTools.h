@@ -64,6 +64,10 @@ public:
 	UFUNCTION(exec)
 	void SetPlanatariumTimeMultiplier(float Multiplier);
 
+	/** Set all sectors as visted */
+	UFUNCTION(exec)
+	void RevealMap();
+
 	/*----------------------------------------------------
 		Company tools
 	----------------------------------------------------*/
@@ -247,7 +251,9 @@ public:
 
 	static FText GetDisplayDate(int64 Days);
 
-	static uint32 ComputeShipPrice(FName ShipIdentifier, UFlareSimulatedSector *Sector);
+	static uint64 ComputeShipPrice(FName ShipIdentifier, UFlareSimulatedSector *Sector);
+
+	static uint32 ComputeConstructionCapacity(FName ShipClass, AFlareGame *Game);
 
 	static inline uint64 DisplayMoney(uint64 Money)
 	{

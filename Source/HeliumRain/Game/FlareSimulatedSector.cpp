@@ -486,9 +486,14 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	
 	// Compute total available resources
 	TArray<FFlareCargo> AvailableResources;
+
+
+	// TODO Use getCompanyResources
+
 	for (int SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = SectorSpacecrafts[SpacecraftIndex];
+
 
 		if (Spacecraft->GetCompany() != Company)
 		{
@@ -496,6 +501,8 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		}
 
 		UFlareCargoBay* CargoBay = Spacecraft->GetCargoBay();
+
+
 		for (uint32 CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
 		{
 			FFlareCargo* Cargo = CargoBay->GetSlot(CargoIndex);
@@ -506,12 +513,15 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 			}
 
 			bool NewResource = true;
+
+
 			for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
 			{
 				if (AvailableResources[AvailableResourceIndex].Resource == Cargo->Resource)
 				{
 					AvailableResources[AvailableResourceIndex].Quantity += Cargo->Quantity;
 					NewResource = false;
+
 					break;
 				}
 			}
@@ -564,7 +574,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	TArray<FText> Reasons;
 	if (!CanBuildStation(StationDescription, Company, Reasons))
 	{
-		FLOGV("UFlareSimulatedSector::BuildStation : Failed to buid station '%s' for company '%s' (%s)",
+		FLOGV("UFlareSimulatedSector::BuildStation : Failed to build station '%s' for company '%s' (%s)",
 			*StationDescription->Identifier.ToString(),
 			*Company->GetIdentifier().ToString(),
 			*Reasons[0].ToString());
@@ -614,7 +624,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 		// Finally take from all stations
 		for (int StationIndex = 0; StationIndex < SectorStations.Num() && ResourceToTake > 0; StationIndex++)
 		{
-			UFlareSimulatedSpacecraft* Station = SectorShips[StationIndex];
+			UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
 			if (Station->GetCompany() != Company)
 			{
@@ -713,7 +723,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			{
 				if (StockRatio < 0.5f)
 				{
-					Variation += (0.5f - StockRatio) * 1.0; // +0.5% max
+					Variation += (0.5f - StockRatio) * 0.05; // +0.05% max
 				}
 			}
 
@@ -721,18 +731,15 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			{
 				if (StockRatio > 0.5f)
 				{
-					Variation += - (StockRatio - 0.5f) * 0.1; // -0.01% max
+					Variation += - (StockRatio - 0.5f) * 0.05; // -0.05% max
 				}
 
-				/* Replace by world price propagation*/
-				/*else
+
+				float Margin = Factory->GetMarginRatio();
+				if (Margin > UFlareFactory::MaxMargin)
 				{
-					float Margin = Factory->GetMarginRatio();
-					if (Margin < 0.5)
-					{
-						Variation += FMath::Min(0.5f, (0.5f - Margin)) * 0.2f; // +0.1% at 0 margin
-					}
-				}*/
+					Variation += - 0.01; // +0.01% if margin > 50%
+				}
 			}
 		}
 
@@ -753,7 +760,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 		{
 			if (StockRatio < 0.5f)
 			{
-				Variation += (0.5f - StockRatio) * 0.4; // +0.2% max
+				Variation += (0.5f - StockRatio) * 0.2; // +0.01% max
 			}
 
 			if (StockRatio > 0.5f)
@@ -910,7 +917,7 @@ void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, uint32
 				int32 TransactionAmount = TakenResources * UnitSellPrice;
 				Station->GetCompany()->TakeMoney(TransactionAmount);
 				Company->GiveMoney(TransactionAmount);
-				FLOGV("%s	%u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+				//FLOGV("%s	%u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 				Station->GetCompany()->GiveReputation(Company, 0.5f, true);
 			}
@@ -989,7 +996,7 @@ void UFlareSimulatedSector::FillResourceMaintenances(UFlareCompany* Company, uin
 				int32 TransactionAmount = TakenResources * UnitSellPrice;
 				Station->GetCompany()->TakeMoney(TransactionAmount);
 				Company->GiveMoney(TransactionAmount);
-				FLOGV("%s	%u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+				//FLOGV("%s	%u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 				Station->GetCompany()->GiveReputation(Company, 0.5f, true);
 			}
@@ -1090,7 +1097,7 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 						Company->GiveMoney(TransactionAmount);
 						Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 						Station->GetCompany()->GiveReputation(Company, 0.5f, true);
-						FLOGV("%s sell %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+						//FLOGV("%s sell %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 					}
 
 					TransportCapacity -= TakenResources;
@@ -1252,7 +1259,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 					Company->TakeMoney(TransactionAmount);
 					Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 					Station->GetCompany()->GiveReputation(Company, 0.5f, true);
-					FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+					//FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 				}
 
 				break;
@@ -1296,7 +1303,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 				Company->TakeMoney(TransactionAmount);
 				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 				Station->GetCompany()->GiveReputation(Company, 0.5f, true);
-				FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+				//FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 			}
 		}
 	}
@@ -1332,7 +1339,7 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 				int32 TransactionAmount = TakenQuantity * UnitBuyPrice;
 				Station->GetCompany()->GiveMoney(TransactionAmount);
 				Company->TakeMoney(TransactionAmount);
-				FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+				//FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 			}
 		}
 
@@ -1518,7 +1525,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 						Company->GiveMoney(TransactionAmount);
 						Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 						Station->GetCompany()->GiveReputation(Company, 0.5f, true);
-						FLOGV("%s sell %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), QuantityToTransfert, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+						//FLOGV("%s sell %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), QuantityToTransfert, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 					}
 
 
@@ -1598,7 +1605,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveCustomerResources(UFlareCompany* Com
 
 			RemainingQuantityToGive -= QuantityToTransfert;
 
-			FLOGV("      Give: QuantityToTransfert=%u RemainingQuantityToGive=%u", QuantityToTransfert, RemainingQuantityToGive);
+			//FLOGV("      Give: QuantityToTransfert=%u RemainingQuantityToGive=%u", QuantityToTransfert, RemainingQuantityToGive);
 
 			if(QuantityToTransfert > 0 && Station->GetCompany() != Company)
 			{
@@ -1608,7 +1615,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveCustomerResources(UFlareCompany* Com
 				Company->GiveMoney(TransactionAmount);
 				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 				Station->GetCompany()->GiveReputation(Company, 0.5f, true);
-				FLOGV("%s sell %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), QuantityToTransfert, *GivenResource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
+				//FLOGV("%s sell %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), QuantityToTransfert, *GivenResource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 			}
 		}
 	}

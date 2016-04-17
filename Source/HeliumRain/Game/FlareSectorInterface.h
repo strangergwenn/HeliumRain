@@ -301,7 +301,7 @@ public:
 
 	virtual uint64 GetResourcePrice(FFlareResourceDescription* Resource);
 
-	virtual float GetDefaultResourcePrice(FFlareResourceDescription* Resource);
+	static float GetDefaultResourcePrice(FFlareResourceDescription* Resource);
 
 	virtual TArray<IFlareSpacecraftInterface*>& GetSectorStationInterfaces() PURE_VIRTUAL(UFlareSectorInterface::GetSectorStationInterfaces, static TArray<IFlareSpacecraftInterface*> Dummy; return Dummy;)
 

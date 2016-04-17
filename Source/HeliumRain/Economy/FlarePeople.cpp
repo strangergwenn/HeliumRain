@@ -241,6 +241,11 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 	FFlareResourceDescription* Tools = Game->GetResourceCatalog()->Get("tools");
 	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
 
+	if (PeopleData.Population == 0)
+	{
+		return 0;
+	}
+
 	if (Resource == Food)
 	{
 		// Buy at food for 15 days
@@ -253,15 +258,15 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 	}
 	else if (Resource == Fuel)
 	{
-		return PeopleData.Population / 500;
+		return PeopleData.Population / 1500;
 	}
 	else if (Resource == Tools)
 	{
-		return PeopleData.Population / 1000;
+		return PeopleData.Population / 2000;
 	}
 	else if (Resource == Tech)
 	{
-		return PeopleData.Population / 1000;
+		return PeopleData.Population / 2500;
 	}
 
 	return 0;

@@ -301,6 +301,11 @@ EVisibility SFlareFactoryInfo::GetStartProductionVisibility() const
 {
 	if (TargetFactory)
 	{
+		if (TargetFactory->GetParent()->GetCompany() != MenuManager->GetPC()->GetCompany())
+		{
+			return EVisibility::Collapsed;
+		}
+
 		return (!TargetFactory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 	}
 	else
@@ -313,6 +318,11 @@ EVisibility SFlareFactoryInfo::GetStopProductionVisibility() const
 {
 	if (TargetFactory)
 	{
+		if (TargetFactory->GetParent()->GetCompany() != MenuManager->GetPC()->GetCompany())
+		{
+			return EVisibility::Collapsed;
+		}
+
 		return (TargetFactory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 	}
 	else
@@ -325,6 +335,11 @@ EVisibility SFlareFactoryInfo::GetIncreaseOutputLimitVisibility(FFlareResourceDe
 {
 	if (TargetFactory)
 	{
+		if (TargetFactory->GetParent()->GetCompany() != MenuManager->GetPC()->GetCompany())
+		{
+			return EVisibility::Hidden;
+		}
+
 		uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
 		return (TargetFactory->HasOutputLimit(Resource) && TargetFactory->GetOutputLimit(Resource) < MaxOutput ? EVisibility::Visible : EVisibility::Hidden);
 	}
@@ -338,6 +353,11 @@ EVisibility SFlareFactoryInfo::GetDecreaseOutputLimitVisibility(FFlareResourceDe
 {
 	if (TargetFactory)
 	{
+		if (TargetFactory->GetParent()->GetCompany() != MenuManager->GetPC()->GetCompany())
+		{
+			return EVisibility::Hidden;
+		}
+
 		return (!TargetFactory->HasOutputLimit(Resource) || TargetFactory->GetOutputLimit(Resource) > 0 ? EVisibility::Visible : EVisibility::Hidden);
 	}
 	else

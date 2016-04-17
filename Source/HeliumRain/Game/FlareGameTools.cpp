@@ -156,6 +156,30 @@ void UFlareGameTools::SetPlanatariumTimeMultiplier(float Multiplier)
 	GetGame()->GetPlanetarium()->SetTimeMultiplier(Multiplier);
 }
 
+void UFlareGameTools::RevealMap()
+{
+	if (!GetGameWorld())
+	{
+		FLOG("UFlareGameTools::RevealMap failed: no loaded world");
+		return;
+	}
+
+	if (GetActiveSector())
+	{
+		FLOG("UFlareGameTools::RevealMap failed: a sector is active");
+		return;
+	}
+
+	for (int i = 0; i < GetGameWorld()->GetSectors().Num(); i++)
+	{
+
+		UFlareSimulatedSector* Sector = GetGameWorld()->GetSectors()[i];
+		AFlarePlayerController* PC = GetPC();
+		PC->GetCompany()->VisitSector(Sector);
+	}
+}
+
+
 /*----------------------------------------------------
 	Company tools
 ----------------------------------------------------*/
@@ -164,13 +188,13 @@ void UFlareGameTools::DeclareWar(FName Company1ShortName, FName Company2ShortNam
 {
 	if (!GetGameWorld())
 	{
-		FLOG("AFlareGame::DeclareWar failed: no loaded world");
+		FLOG("UFlareGameTools::DeclareWar failed: no loaded world");
 		return;
 	}
 
 	if (GetActiveSector())
 	{
-		FLOG("AFlareGame::DeclareWar failed: a sector is active");
+		FLOG("UFlareGameTools::DeclareWar failed: a sector is active");
 		return;
 	}
 
@@ -1370,7 +1394,7 @@ FText UFlareGameTools::GetDisplayDate(int64 Days)
 		FText::AsNumber(RemainingDays));
 }
 
-uint32 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector)
+uint64 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector)
 {
 	FFlareSpacecraftDescription* Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
 
@@ -1380,7 +1404,7 @@ uint32 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector 
 		return 0;
 	}
 
-	int32 Cost = 0;
+	int64 Cost = 0;
 	Cost += Desc->CycleCost.ProductionCost;
 
 	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num() ; ResourceIndex++)
@@ -1396,10 +1420,37 @@ uint32 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector 
 		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data);
 	}
 
-	//FLOGV("Ship %s cost %d credit", *ShipClass.ToString(), UFlareGameTools::DisplayMoney(Cost));
-	return FMath::Max(0, Cost);
+	return FMath::Max((int64) 0, Cost);
 }
 
+
+uint32 UFlareGameTools::ComputeConstructionCapacity(FName ShipClass, AFlareGame *Game)
+{
+	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipClass);
+
+	if (!Desc)
+	{
+		FLOGV("ComputeConstructionCapacity failed: Unkwnon ship %s", *ShipClass.ToString());
+		return 0;
+	}
+
+	int32 Capacity = 0;
+
+	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num() ; ResourceIndex++)
+	{
+		FFlareFactoryResource* Resource = &Desc->CycleCost.InputResources[ResourceIndex];
+		Capacity += Resource->Quantity;
+	}
+
+	// Substract output resource
+	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.OutputResources.Num() ; ResourceIndex++)
+	{
+		FFlareFactoryResource* Resource = &Desc->CycleCost.OutputResources[ResourceIndex];
+		Capacity += Resource->Quantity;
+	}
+
+	return Capacity;
+}
 
 /*----------------------------------------------------
 	Getter

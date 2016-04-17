@@ -251,11 +251,58 @@ void UFlareWorld::Simulate()
 	// TODO company battles
 
 
-	// AI
+	// AI. Play them in random order
+	TArray<UFlareCompany*> CompaniesToSimulateAI = Companies;
+	while(CompaniesToSimulateAI.Num())
+	{
+		int32 Index = FMath::RandRange(0, CompaniesToSimulateAI.Num() - 1);
+		CompaniesToSimulateAI[Index]->SimulateAI();
+		CompaniesToSimulateAI.RemoveAt(Index);
+	}
+
+	// Base revenue between company. 1 per 100000 is share between all companies
+	uint32 SharingCompanyCount = 0;
+	int64 SharedPool = 0;
+
 	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 	{
-		Companies[CompanyIndex]->SimulateAI();
+		UFlareCompany* Company =Companies[CompanyIndex];
+		if (Company != PlayerCompany)
+		{
+			int64 MoneyToTake = Company->GetMoney() / 1000;
+			if (Company->TakeMoney(MoneyToTake))
+			{
+				SharedPool +=MoneyToTake;
+			}
+			SharingCompanyCount++;
+		}
 	}
+
+	// Share poll
+	int64 PoolPart = SharedPool / SharingCompanyCount;
+	int64 PoolBonus = SharedPool % SharingCompanyCount; // The bonus is given to a random company
+
+	int32 BonusIndex = FMath::RandRange(0, SharingCompanyCount - 1);
+
+	FLOGV("Share part amount is : %d", PoolPart/100);
+	int32 SharingCompanyIndex = 0;
+	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+	{
+		UFlareCompany* Company =Companies[CompanyIndex];
+		if (Company != PlayerCompany)
+		{
+			Company->GiveMoney(PoolPart);
+
+			if(CompanyIndex == BonusIndex)
+			{
+				Company->GiveMoney(PoolBonus);
+			}
+
+			SharingCompanyIndex++;
+		}
+	}
+
+
 
 	// Check money integrity
 	if (! WorldMoneyReferenceInit)
@@ -279,6 +326,15 @@ void UFlareWorld::Simulate()
 	 */
 	WorldData.Date++;
 
+
+	// Factories
+	FLOG("Factories");
+	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+	{
+		Factories[FactoryIndex]->Simulate();
+	}
+
+	FLOG("Automatic transport");
 	// Automatic transport
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
@@ -286,16 +342,15 @@ void UFlareWorld::Simulate()
 	}
 
 	// Peoples
+	FLOG("Peoples");
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
 		Sectors[SectorIndex]->GetPeople()->Simulate();
 	}
 
-	// Factories
-	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
-	{
-		Factories[FactoryIndex]->Simulate();
-	}
+
+
+	FLOG("Trade routes");
 
 	// Trade routes
 	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
@@ -528,10 +583,16 @@ void UFlareWorld::SimulatePriceHomogenization()
 		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
 		float PriceMin = 0.0;
 		float PriceMax = 0.0;
+		uint32 ResourceStocks = 0;
+		uint32 ResourceDailyConsumption = 0;
+
+		float MaxPriceToResumeProduction = 0;
+
 
 		for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 		{
-			float SectorPrice = Sectors[SectorIndex]->GetPreciseResourcePrice(Resource);
+			UFlareSimulatedSector* Sector = Sectors[SectorIndex];
+			float SectorPrice = Sector->GetPreciseResourcePrice(Resource);
 			if(SectorIndex == 0)
 			{
 				PriceMin = SectorPrice;
@@ -542,12 +603,149 @@ void UFlareWorld::SimulatePriceHomogenization()
 				PriceMin = FMath::Min(SectorPrice, PriceMin);
 				PriceMax = FMath::Max(SectorPrice, PriceMax);
 			}
+
+			for (int32 StationIndex = 0 ; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
+			{
+				UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
+
+				for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
+				{
+					UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
+					if (!Factory->IsActive() || !Factory->IsNeedProduction() || !Factory->HasOutputFreeSpace())
+					{
+						// No resources needed or full
+						break;
+					}
+
+					// TODO Count only the real usage
+
+					// Input flow
+					for (int32 FactoryResourceIndex = 0; FactoryResourceIndex < Factory->GetInputResourcesCount(); FactoryResourceIndex++)
+					{
+						FFlareResourceDescription* FactoryResource = Factory->GetInputResource(FactoryResourceIndex);
+						if(Resource == FactoryResource)
+						{
+							ResourceDailyConsumption += Factory->GetInputResourceQuantity(FactoryResourceIndex) / Factory->GetProductionDuration();
+							break;
+						}
+
+					}
+
+					// Output flow
+					for (int32 FactoryResourceIndex = 0; FactoryResourceIndex < Factory->GetOutputResourcesCount(); FactoryResourceIndex++)
+					{
+						FFlareResourceDescription* FactoryResource = Factory->GetOutputResource(FactoryResourceIndex);
+						if(Resource == FactoryResource)
+						{
+							float Margin = Factory->GetMarginRatio();
+
+							if(Margin >= UFlareFactory::MinMargin)
+							{
+								continue;
+							}
+
+							float ProductionBalance = (float) Factory->GetProductionBalance();
+
+							float SellPrice = ProductionBalance / Factory->GetMarginRatio();
+							float CostPrice = SellPrice - ProductionBalance;
+
+							float NeedInflation = CostPrice / (0.8 * SellPrice);
+
+
+							float PriceToResumeProduction = (SellPrice * NeedInflation) / Factory->GetOutputResourceQuantity(FactoryResourceIndex);
+
+							MaxPriceToResumeProduction = FMath::Max(MaxPriceToResumeProduction, PriceToResumeProduction);
+
+							/*FLOGV("Margin: %f",  Margin);
+							FLOGV("ProductionBalance: %f",  ProductionBalance);
+							FLOGV("SellPrice: %f",  SellPrice);
+							FLOGV("CostPrice: %f",  CostPrice);
+							FLOGV("NeedInflation: %f",  NeedInflation);
+							FLOGV("PriceToResumeProduction: %f",  PriceToResumeProduction);
+*/
+
+
+
+
+							break;
+						}
+
+					}
+				}
+
+				ResourceStocks += Station->GetCargoBay()->GetResourceQuantity(Resource);
+			}
+
+			ResourceDailyConsumption += Sector->GetPeople()->GetRessourceConsumption(Resource);
+		}
+
+		// Travelling ship stocks
+
+		for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+		{
+			UFlareCompany* Company =Companies[CompanyIndex];
+
+
+			for (int32 ShipIndex = 0 ; ShipIndex < Company->GetCompanyShips().Num(); ShipIndex++)
+			{
+				UFlareSimulatedSpacecraft* Ship = Company->GetCompanyShips()[ShipIndex];
+				if (Ship->GetCurrentSector() == NULL)
+				{
+					ResourceStocks += Ship->GetCargoBay()->GetResourceQuantity(Resource);
+				}
+			}
 		}
 
 
+		/*FLOGV("PriceMax: %f",  PriceMax);
+		FLOGV("PriceMin: %f",  PriceMin);*/
+
 		float WorldPrice = (PriceMax + PriceMin) / 2;
 
+
+		float StockLimit = 50;
+
+		float StockRatio = StockLimit;
+		float Variation = 0;
+		// TODO Exclude maintenance resources
+
+		if (ResourceDailyConsumption > 0)
+		{
+			StockRatio = (float) ResourceStocks/ (float) ResourceDailyConsumption;
+		}
+
+		if(StockRatio < StockLimit)
+		{
+			// Less than 10 day of stock
+			Variation = 0.1 * (1 - StockRatio / StockLimit); //1.0% with no stocks. 0% with 100 day of stocks
+		}
+		else if (StockRatio < StockLimit * 4)
+		{
+			Variation = -0.05 *  (StockRatio - StockLimit) / (StockLimit * 3); // -0.5% with 400 day of stock. 0% with 100 day of stocks
+		}
+		else
+		{
+			Variation = -0.05;
+		}
+
+		WorldPrice *= (1 + Variation / 100.f);
+
 		FLOGV("World price for %s : %f", *Resource->Name.ToString(), WorldPrice / 100);
+
+		if(StockRatio < StockLimit && WorldPrice < MaxPriceToResumeProduction * 1.25)
+		{
+			WorldPrice = MaxPriceToResumeProduction * 1.25;
+		}
+
+		/*FLOGV("World price for %s : %f", *Resource->Name.ToString(), WorldPrice / 100);
+		FLOGV("  - stocks: %d", ResourceStocks);
+		FLOGV("  - daily consumption: %d", ResourceDailyConsumption);
+		FLOGV("  - stock ratio: %f days", StockRatio);
+		FLOGV("  - variation : %f percent", Variation);
+		FLOGV("  - MaxPriceToResumeProduction : %f", MaxPriceToResumeProduction / 100);
+*/
+
+		WorldPrice = FMath::Min(UFlareSector::GetDefaultResourcePrice(Resource) * 20, WorldPrice);
 
 
 		for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)

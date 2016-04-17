@@ -12,6 +12,9 @@
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
 
 
+const float UFlareFactory::MinMargin = 0.2;
+const float UFlareFactory::MaxMargin = 0.6;
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -89,7 +92,7 @@ post_prod:
 
 void UFlareFactory::TryBeginProduction()
 {
-	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney() && GetMarginRatio() > 0.2)
+	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney() && (IsShipyard() || GetMarginRatio() > MinMargin))
 	{
 		BeginProduction();
 	}
@@ -113,6 +116,8 @@ void UFlareFactory::Start()
 	FactoryData.Active = true;
 
 	// Stop other factories
+	// TODO Remove the code if it's sure
+	/*
 	TArray<UFlareFactory*>& Factories = Parent->GetFactories();
 
 	for (int32 FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
@@ -126,7 +131,7 @@ void UFlareFactory::Start()
 		{
 			Factory->Pause();
 		}
-	}
+	}*/
 
 	if (FactoryData.TargetShipCompany == NAME_None && FactoryData.OrderShipCompany != NAME_None)
 	{
@@ -534,7 +539,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 			AFlarePlayerController* PC = Parent->GetGame()->GetPC();
 
 			// Notify PC
-			if (PC && Spacecraft)
+			if (PC && Spacecraft && Spacecraft->GetCompany() == PC->GetCompany())
 			{
 				PC->Notify(LOCTEXT("ShipBuilt", "Ship production complete"),
 					FText::Format(LOCTEXT("ShipBuiltFormat", "Your ship {0} is ready to use !"), FText::FromString(Spacecraft->GetImmatriculation().ToString())),
@@ -839,7 +844,7 @@ FText UFlareFactory::GetFactoryStatus()
 				FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
 				HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space"));
 		}
-		else if (HasInputMoney() && HasInputResources() && GetMarginRatio() > 0.2)
+		else if (HasInputMoney() && HasInputResources() && (IsShipyard() || GetMarginRatio() > MinMargin))
 		{
 			ProductionStatusText = LOCTEXT("ProductionWillStart", "Starting");
 		}
@@ -847,7 +852,7 @@ FText UFlareFactory::GetFactoryStatus()
 		{
 
 
-			if (GetMarginRatio()  <= 0.2)
+			if (!IsShipyard() && GetMarginRatio()  <= MinMargin)
 			{
 				ProductionStatusText = LOCTEXT("ProductionNotProfitable", "Production not profitable. Waiting higher prices.");
 			}
@@ -897,7 +902,7 @@ bool UFlareFactory::IsProducing()
 				return false;
 			}
 		}
-		else if (HasInputMoney() && HasInputResources() && GetMarginRatio() > 0.2)
+		else if (HasInputMoney() && HasInputResources() && GetMarginRatio() > MinMargin)
 		{
 			return true;
 		}
@@ -929,10 +934,10 @@ float UFlareFactory::GetMarginRatio()
 
 	float Margin = (float) GetProductionBalance() / (float) SellPrice;
 
-	if (Margin < 0.2)
+	/*if (Margin < MinMargin)
 	{
 		FLOGV("WARNING : %s margin : %f", *FactoryDescription->Name.ToString(), Margin);
-	}
+	}*/
 
 	return Margin;
 }
