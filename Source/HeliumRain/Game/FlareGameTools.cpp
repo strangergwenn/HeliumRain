@@ -822,7 +822,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 	for (int i = 0; i < SectorShips.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = SectorShips[i];
-		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
+		FLOGV("   %2d - %s (%d)", i,  *Spacecraft->GetImmatriculation().ToString(), Spacecraft->IsStation());
 	}
 
 	TArray<UFlareSimulatedSpacecraft*> SectorStations = Sector->GetSectorStations();
@@ -830,7 +830,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 	for (int i = 0; i < SectorStations.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = SectorStations[i];
-		FLOGV("   %2d - %s", i,  *Spacecraft->GetImmatriculation().ToString());
+		FLOGV("   %2d - %s (%d)", i,  *Spacecraft->GetImmatriculation().ToString(), Spacecraft->IsStation());
 	}
 }
 

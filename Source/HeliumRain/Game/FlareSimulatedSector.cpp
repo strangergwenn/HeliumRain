@@ -576,7 +576,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 	{
 		FLOGV("UFlareSimulatedSector::BuildStation : Failed to build station '%s' for company '%s' (%s)",
 			*StationDescription->Identifier.ToString(),
-			*Company->GetIdentifier().ToString(),
+			*Company->GetCompanyName().ToString(),
 			*Reasons[0].ToString());
 		return false;
 	}
@@ -1642,16 +1642,16 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 {
 	uint32 ResourceCount = 0;
 
-	TArray<UFlareSimulatedSpacecraft*>& SpacecraftList = SectorStations;
+	TArray<UFlareSimulatedSpacecraft*>* SpacecraftList = &SectorStations;
 
 	if(IncludeShips)
 	{
-		SpacecraftList = SectorSpacecrafts;
+		SpacecraftList = &SectorSpacecrafts;
 	}
 
-	for (int32 StationIndex = 0 ; StationIndex < SpacecraftList.Num(); StationIndex++)
+	for (int32 StationIndex = 0 ; StationIndex < SpacecraftList->Num(); StationIndex++)
 	{
-		UFlareSimulatedSpacecraft* Station = SpacecraftList[StationIndex];
+		UFlareSimulatedSpacecraft* Station = (*SpacecraftList)[StationIndex];
 
 		if ( Station->GetCompany() != Company)
 		{

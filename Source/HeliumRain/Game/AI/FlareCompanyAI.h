@@ -110,6 +110,10 @@ protected:
 
 	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation);
 
+	void ManagerConstructionShips(TMap<UFlareSimulatedSector*, SectorVariation> & WorldResourceVariation);
+
+	TMap<FFlareResourceDescription*, int32> ComputeWorldResourceFlow();
+
 	protected:
 
 	UFlareCompany*			               Company;
@@ -128,6 +132,7 @@ protected:
 	// TODO Save it
 	FFlareSpacecraftDescription*			 ConstructionProjectStation;
 	UFlareSimulatedSector*         			 ConstructionProjectSector;
+	TArray<UFlareSimulatedSpacecraft *>      ConstructionShips;
 
 
 	public:

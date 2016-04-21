@@ -282,35 +282,43 @@ void UFlareScenarioTools::CreateAsteroids(UFlareSimulatedSector* Sector, int32 C
 	float MaxAsteroidDistance = 15000;
 	int32 AsteroidCount = 0;
 	int32 CellCount = DistributionShape.X * DistributionShape.Y * DistributionShape.Z * 4;
+	int32 FailCount = 0;
 
-	for (int32 X = -DistributionShape.X; X <= DistributionShape.X; X++)
+	while(AsteroidCount < Count && FailCount < 5000)
 	{
-		for (int32 Y = -DistributionShape.Y; Y <= DistributionShape.Y; Y++)
+		for (int32 X = -DistributionShape.X; X <= DistributionShape.X; X++)
 		{
-			for (int32 Z = DistributionShape.Z; Z <= DistributionShape.Z; Z++)
+			for (int32 Y = -DistributionShape.Y; Y <= DistributionShape.Y; Y++)
 			{
-				if (FMath::RandHelper(CellCount) <= Count)
+				for (int32 Z = DistributionShape.Z; Z <= DistributionShape.Z; Z++)
 				{
-					bool CanSpawn = true;
-					FVector AsteroidLocation = MaxAsteroidDistance * FVector(X, Y, Z);
-
-					// Check for collision
-					TArray<FFlareAsteroidSave> Asteroids = Sector->Save()->AsteroidData;
-					for (int32 Index = 0; Index < Asteroids.Num(); Index++)
+					if (FMath::RandHelper(CellCount) <= Count)
 					{
-						if ((Asteroids[Index].Location - AsteroidLocation).Size() < MaxAsteroidDistance)
+						bool CanSpawn = true;
+						FVector AsteroidLocation = MaxAsteroidDistance * FVector(X, Y, Z);
+
+						// Check for collision
+						TArray<FFlareAsteroidSave> Asteroids = Sector->Save()->AsteroidData;
+						for (int32 Index = 0; Index < Asteroids.Num(); Index++)
 						{
-							CanSpawn = false;
-							break;
+							if ((Asteroids[Index].Location - AsteroidLocation).Size() < MaxAsteroidDistance)
+							{
+								CanSpawn = false;
+								break;
+							}
 						}
-					}
 
-					// Spawn the asteroid
-					if (CanSpawn)
-					{
-						FString AsteroidName = FString("asteroid") + FString::FromInt(AsteroidCount);
-						Sector->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName), AsteroidLocation);
-						AsteroidCount++;
+						// Spawn the asteroid
+						if (CanSpawn)
+						{
+							FString AsteroidName = FString("asteroid") + FString::FromInt(AsteroidCount);
+							Sector->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName), AsteroidLocation);
+							AsteroidCount++;
+						}
+						else
+						{
+							FailCount++;
+						}
 					}
 				}
 			}

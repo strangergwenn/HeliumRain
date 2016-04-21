@@ -212,6 +212,27 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 }
 
 
+bool UFlareWorld::CheckIntegrity()
+{
+	bool Integrity = true;
+	for (int i = 0; i < Sectors.Num(); i++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[i];
+
+		for (int32 StationIndex = 0 ; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
+		{
+			UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
+			if (!Station->IsStation())
+			{
+				FLOGV(" !!! Integrity error: Station %s in %s is not a station", *Station->GetImmatriculation().ToString(), *Sector->GetSectorName().ToString());
+				Integrity = false;
+			}
+		}
+	}
+
+	return Integrity;
+}
+
 void UFlareWorld::Simulate()
 {
 

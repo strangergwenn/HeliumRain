@@ -87,6 +87,9 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
+	bool CheckIntegrity();
+
+
 	/** Simulate world for a day */
 	void Simulate();
 
