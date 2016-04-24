@@ -2,6 +2,8 @@
 #include "FlareSectorInterface.h"
 #include "FlareSimulatedSector.h"
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
+#include "../Economy/FlareCargoBay.h"
+#include "../Game/FlareGame.h"
 
 #define LOCTEXT_NAMESPACE "FlareSectorInterface"
 
@@ -280,9 +282,25 @@ void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* R
 	ResourcePrices[Resource] = NewPrice;
 }
 
-uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource)
+uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext)
 {
-	return GetPreciseResourcePrice(Resource);
+	float DefaultPrice = GetPreciseResourcePrice(Resource);
+
+	switch(PriceContext)
+	{
+		case EFlareResourcePriceContext::Default:
+			return DefaultPrice;
+		break;
+		case EFlareResourcePriceContext::FactoryOutput:
+			return DefaultPrice * 0.99f;
+		break;
+		case EFlareResourcePriceContext::FactoryInput:
+			return DefaultPrice * 1.01f;
+		break;
+		case EFlareResourcePriceContext::ConsumerConsumption:
+			return DefaultPrice * 1.05f;
+		break;
+	}
 }
 
 float UFlareSectorInterface::GetDefaultResourcePrice(FFlareResourceDescription* Resource)
@@ -378,6 +396,114 @@ float UFlareSectorInterface::GetDefaultResourcePrice(FFlareResourceDescription* 
 	}
 
 
+}
+
+uint32 UFlareSectorInterface::GetTransfertResourcePrice(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource)
+{
+	IFlareSpacecraftInterface* Station = NULL;
+	if (SourceSpacecraft->IsStation())
+	{
+		Station = SourceSpacecraft;
+	}
+	else if (DestinationSpacecraft->IsStation())
+	{
+		Station = DestinationSpacecraft;
+	}
+	else
+	{
+		// Both are ships
+		return GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+	}
+
+	FFlareSpacecraftDescription* SpacecraftDescription =  Station->GetDescription();
+
+	// Load factories
+	for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+	{
+		FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
+
+		for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num() ; ResourceIndex++)
+		{
+			const FFlareFactoryResource* FactoryResource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+			if(&FactoryResource->Resource->Data == Resource)
+			{
+				// Is input resource of a station
+				return GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+			}
+		}
+
+		for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num() ; ResourceIndex++)
+		{
+			const FFlareFactoryResource* FactoryResource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
+			if(&FactoryResource->Resource->Data == Resource)
+			{
+				// Is output resource of a station
+				return GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput);
+			}
+		}	
+	}
+
+	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Consumer) && Game->GetResourceCatalog()->IsCustomerResource(Resource))
+	{
+		// Customer resource
+		return GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+	}
+
+	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Maintenance) && Game->GetResourceCatalog()->IsMaintenanceResource(Resource))
+	{
+		// Maintenance resource
+		return GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+	}
+
+	return GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+}
+
+
+uint32 UFlareSectorInterface::TransfertResources(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity)
+{
+	// TODO Check docking capabilities
+
+	if(SourceSpacecraft->GetCurrentSectorInterface() != DestinationSpacecraft->GetCurrentSectorInterface())
+	{
+		FLOG("Warning cannot transfert resource because both ship are not in the same sector");
+		return 0;
+	}
+
+	if(SourceSpacecraft->IsStation() && DestinationSpacecraft->IsStation())
+	{
+		FLOG("Warning cannot transfert resource between 2 stations");
+		return 0;
+	}
+
+	uint32 ResourcePrice = GetTransfertResourcePrice(SourceSpacecraft, DestinationSpacecraft, Resource);
+	uint32 QuantityToTake = Quantity;
+
+	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
+	{
+		// Limit transaction bay available money
+		uint32 MaxAffordableQuantity = DestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice;
+		QuantityToTake = FMath::Min(QuantityToTake, MaxAffordableQuantity);
+	}
+	uint32 ResourceCapacity = DestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(Resource);
+
+	QuantityToTake = FMath::Min(QuantityToTake, ResourceCapacity);
+
+
+	uint32 TakenResources = SourceSpacecraft->GetCargoBay()->TakeResources(Resource, QuantityToTake);
+	uint32 GivenResources = DestinationSpacecraft->GetCargoBay()->GiveResources(Resource, TakenResources);
+
+	if (GivenResources > 0 && SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
+	{
+		// Pay
+		uint32 Price = ResourcePrice * GivenResources;
+		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
+		SourceSpacecraft->GetCompany()->GiveMoney(Price);
+
+		SourceSpacecraft->GetCompany()->GiveReputation(Company, 0.5f, true);
+		DestinationSpacecraft->GiveReputation(Station->GetCompany(), 0.5f, true);
+	}
+
+	return GivenResources;
 }
 
 bool UFlareSectorInterface::CanUpgrade(UFlareCompany* Company)

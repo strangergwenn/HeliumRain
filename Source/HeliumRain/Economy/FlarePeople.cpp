@@ -174,7 +174,7 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 	}
 
 	// Limit quantity to buy with money
-	uint32 BaseQuantity = FMath::Min(Quantity, PeopleData.Money / (uint32) (Parent->GetResourcePrice(Resource)*1.05));
+	uint32 BaseQuantity = FMath::Min(Quantity, PeopleData.Money / (uint32) (Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption)));
 	uint32 ResourceToBuy = BaseQuantity;
 
 	while(ResourceToBuy > 0 && SellingCompanies.Num() > 0)
@@ -226,7 +226,7 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 
 		uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantity);
 		RemainingQuantity -= TakenQuantity;
-		uint32 Price = (uint32) (Parent->GetResourcePrice(Resource)*1.05) * TakenQuantity;
+		uint32 Price = (uint32) (Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption)) * TakenQuantity;
 		PeopleData.Money -= Price;
 		Company->GiveMoney(Price);
 	}

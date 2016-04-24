@@ -50,6 +50,18 @@ namespace EFlareSectorBattleState
 	};
 }
 
+/** Resource price context */
+UENUM()
+namespace EFlareResourcePriceContext
+{
+	enum Type
+	{
+		Default, /** Default price */
+		FactoryInput, /** Price selling to a factory needing the resource */
+		FactoryOutput, /** Price buying the resource to a factory */
+		ConsumerConsumption, /** Price selling to a the people */
+	};
+}
 
 /** Sector description */
 USTRUCT()
@@ -299,13 +311,20 @@ public:
 
 	void SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice);
 
-	virtual uint64 GetResourcePrice(FFlareResourceDescription* Resource);
+	virtual uint64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext);
 
 	static float GetDefaultResourcePrice(FFlareResourceDescription* Resource);
 
 	virtual TArray<IFlareSpacecraftInterface*>& GetSectorStationInterfaces() PURE_VIRTUAL(UFlareSectorInterface::GetSectorStationInterfaces, static TArray<IFlareSpacecraftInterface*> Dummy; return Dummy;)
 
 	virtual TArray<IFlareSpacecraftInterface*>& GetSectorShipInterfaces() PURE_VIRTUAL(UFlareSectorInterface::GetSectorShipInterfaces, static TArray<IFlareSpacecraftInterface*> Dummy; return Dummy;)
+
+	uint32 GetTransfertResourcePrice(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource);
+
+	// TODO Check docking capabilities
+	/** Transfert resource from one spacecraft to another spacecraft */
+	uint32 TransfertResources(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity);
+
 
 	bool CanUpgrade(UFlareCompany* Company);
 

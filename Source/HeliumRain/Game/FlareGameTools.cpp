@@ -1000,38 +1000,44 @@ void UFlareGameTools::TransferResources(FName SourceImmatriculation, FName Desti
 {
 	if (!GetGameWorld())
 	{
-		FLOG("AFlareGame::TransferResources failed: no loaded world");
+		FLOG("UFlareGameTools::TransferResources failed: no loaded world");
 		return;
 	}
 
 	if (GetActiveSector())
 	{
-		FLOG("AFlareGame::TransferResources failed: a sector is active");
+		FLOG("UFlareGameTools::TransferResources failed: a sector is active");
 		return;
 	}
 
 	FFlareResourceDescription* Resource = GetGame()->GetResourceCatalog()->Get(ResourceIdentifier);
 	if (!Resource)
 	{
-		FLOGV("AFlareGame::TransferResources failed: no resource with id '%s'", *ResourceIdentifier.ToString());
+		FLOGV("UFlareGameTools::TransferResources failed: no resource with id '%s'", *ResourceIdentifier.ToString());
 		return;
 	}
 
 	UFlareSimulatedSpacecraft* SourceSpacecraft = GetGameWorld()->FindSpacecraft(SourceImmatriculation);
 	if (!SourceSpacecraft)
 	{
-		FLOGV("AFlareGame::TransferResources failed: no source spacecraft with immatriculation '%s'", *SourceImmatriculation.ToString());
+		FLOGV("UFlareGameTools::TransferResources failed: no source spacecraft with immatriculation '%s'", *SourceImmatriculation.ToString());
 		return;
 	}
 
 	UFlareSimulatedSpacecraft* DestinationSpacecraft = GetGameWorld()->FindSpacecraft(DestinationImmatriculation);
 	if (!DestinationSpacecraft)
 	{
-		FLOGV("AFlareGame::TransferResources failed: no destination spacecraft with immatriculation '%s'", *DestinationImmatriculation.ToString());
+		FLOGV("UFlareGameTools::TransferResources failed: no destination spacecraft with immatriculation '%s'", *DestinationImmatriculation.ToString());
 		return;
 	}
 
-	GetGameWorld()->TransfertResources(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
+	if(SourceSpacecraft->GetCurrentSectorInterface() == NULL)
+	{
+		FLOG("UFlareGameTools::TransferResources failed: no source spacecraft not in a sector");
+		return;
+	}
+
+	SourceSpacecraft->GetCurrentSectorInterface()->TransfertResources(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
 }
 
 /*----------------------------------------------------
@@ -1410,14 +1416,14 @@ uint64 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector 
 	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num() ; ResourceIndex++)
 	{
 		FFlareFactoryResource* Resource = &Desc->CycleCost.InputResources[ResourceIndex];
-		Cost += Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data);
+		Cost += Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
 	}
 
 	// Substract output resource
 	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.OutputResources.Num() ; ResourceIndex++)
 	{
 		FFlareFactoryResource* Resource = &Desc->CycleCost.OutputResources[ResourceIndex];
-		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data);
+		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
 	}
 
 	return FMath::Max((int64) 0, Cost);

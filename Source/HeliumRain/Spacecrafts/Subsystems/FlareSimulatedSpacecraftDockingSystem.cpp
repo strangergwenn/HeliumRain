@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 
+#include "../FlareSimulatedSpacecraft.h"
 #include "FlareSimulatedSpacecraftDockingSystem.h"
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraftDockingSystem"

@@ -259,7 +259,7 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 		FFlareFactoryResource* Resource = &ShipToScrap->GetDescription()->CycleCost.InputResources[ResourceIndex];
 
 
-		ScrapRevenue += Resource->Quantity * CurrentSector->GetResourcePrice(&Resource->Resource->Data);
+		ScrapRevenue += Resource->Quantity * CurrentSector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
 		int ResourceToGive = Resource->Quantity;
 
 		ResourceToGive -= ScrapingStation->GetCargoBay()->GiveResources(&Resource->Resource->Data, Resource->Quantity);

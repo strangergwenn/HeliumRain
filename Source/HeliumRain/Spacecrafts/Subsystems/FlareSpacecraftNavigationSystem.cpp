@@ -4,6 +4,7 @@
 #include "FlareSpacecraftNavigationSystem.h"
 #include "../FlareSpacecraft.h"
 #include "../../Game/FlareGame.h"
+#include "../FlarePilotHelper.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftNavigationSystem"
 

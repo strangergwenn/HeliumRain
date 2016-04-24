@@ -3,7 +3,8 @@
 #include "FlareSpacecraftDockingSystemInterface.h"
 #include "FlareSimulatedSpacecraftDockingSystem.generated.h"
 
-
+class UFlareSimulatedSpacecraft;
+struct FFlareSpacecraftDescription;
 
 /** Spacecraft docking system class */
 UCLASS()

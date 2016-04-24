@@ -515,9 +515,9 @@ void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 void SFlareTradeMenu::OnConfirmTransaction()
 {
 	// Actual transaction
-	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
+	if (TransactionSourceSpacecraft && TransactionSourceSpacecraft->GetCurrentSectorInterface() && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		TargetSector->GetGame()->GetGameWorld()->TransfertResources(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource, TransactionQuantity);
+		TransactionSourceSpacecraft->GetCurrentSectorInterface()->TransfertResources(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource, TransactionQuantity);
 	}
 
 	// Reset transaction data
@@ -566,7 +566,12 @@ void SFlareTradeMenu::OnBackToSelection()
 void SFlareTradeMenu::UpdatePrice()
 {
 	// Update price
-	uint32 ResourceUnitPrice = TransactionSourceSpacecraft->GetCurrentSectorInterface()->GetResourcePrice(TransactionResource);
+	uint32 ResourceUnitPrice = 0;
+
+	if (TransactionSourceSpacecraft && TransactionSourceSpacecraft->GetCurrentSectorInterface())
+	{
+		ResourceUnitPrice = TransactionSourceSpacecraft->GetCurrentSectorInterface()->GetTransfertResourcePrice(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource);
+	}
 
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
 	{

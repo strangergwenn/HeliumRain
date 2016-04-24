@@ -660,7 +660,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 				continue;
 			}
 
-			Value.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource) * Cargo.Quantity;
+			Value.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
 		}
 
 		// Value of factory stock
@@ -677,7 +677,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 
 				FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceIdentifier);
 
-				Value.StockValue += ReferenceSector->GetResourcePrice(Resource) * Quantity;
+				Value.StockValue += ReferenceSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * Quantity;
 			}
 		}
 	}

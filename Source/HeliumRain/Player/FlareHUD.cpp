@@ -5,6 +5,7 @@
 #include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Economy/FlareCargoBay.h"
+#include "../Game/AI/FlareCompanyAI.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"

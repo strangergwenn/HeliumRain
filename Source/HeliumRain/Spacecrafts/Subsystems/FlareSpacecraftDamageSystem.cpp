@@ -5,6 +5,9 @@
 #include "../FlareSpacecraft.h"
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../FlareEngine.h"
+#include "../FlareOrbitalEngine.h"
+#include "../FlareShell.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftDamageSystem"
 

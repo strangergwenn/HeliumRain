@@ -429,7 +429,7 @@ void UFlareCompanyAI::Simulate()
 				for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num() ; ResourceIndex++)
 				{
 					const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
-					GainPerCycle -= Sector->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+					GainPerCycle -= Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryInput) * Resource->Quantity;
 
 					float NeededFlow = (float) Resource->Quantity / (float) FactoryDescription->CycleCost.ProductionTime;
 					//FLOGV("%s, %s: ResourceFlow = %d Flow needed = %f",
@@ -449,7 +449,7 @@ void UFlareCompanyAI::Simulate()
 				for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num() ; ResourceIndex++)
 				{
 					const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
-					GainPerCycle += Sector->GetResourcePrice(&Resource->Resource->Data) * Resource->Quantity;
+					GainPerCycle += Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryOutput) * Resource->Quantity;
 
 
 					float ProducedFlow = (float) Resource->Quantity / (float) FactoryDescription->CycleCost.ProductionTime;
@@ -1231,15 +1231,15 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			int32 StorageCapacity = VariationB->StorageCapacity;
 
 			int32 OwnedSellQuantity = FMath::Min(OwnedCapacity, QuantityToSell);
-			MoneyGain += OwnedSellQuantity * SectorB->GetResourcePrice(Resource) * 1.1; // Valorise transport to its own station
+			MoneyGain += OwnedSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * 1.1; // Valorise transport to its own station
 			QuantityToSell -= OwnedSellQuantity;
 
 			int32 FactorySellQuantity = FMath::Min(FactoryCapacity, QuantityToSell);
-			MoneyGain += FactorySellQuantity * SectorB->GetResourcePrice(Resource) * 1.01;
+			MoneyGain += FactorySellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
 			QuantityToSell -= FactorySellQuantity;
 
 			int32 StorageSellQuantity = FMath::Min(StorageCapacity, QuantityToSell);
-			MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource);
+			MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
 			QuantityToSell -= StorageSellQuantity;
 
 			int32 MoneySpend = 0;
@@ -1251,15 +1251,15 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 
 
 			int32 OwnedBuyQuantity = FMath::Min(OwnedStock, QuantityToBuy);
-			MoneySpend += OwnedBuyQuantity * SectorA->GetResourcePrice(Resource) * 0.9; // Valorise buy to self
+			MoneySpend += OwnedBuyQuantity * SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * 0.9; // Valorise buy to self
 			QuantityToBuy -= OwnedBuyQuantity;
 
 			int32 FactoryBuyQuantity = FMath::Min(FactoryStock, QuantityToBuy);
-			MoneySpend += FactoryBuyQuantity * SectorA->GetResourcePrice(Resource) * 0.99;
+			MoneySpend += FactoryBuyQuantity * SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput);
 			QuantityToBuy -= FactoryBuyQuantity;
 
 			int32 StorageBuyQuantity = FMath::Min(StorageStock, QuantityToBuy);
-			MoneySpend += StorageBuyQuantity * SectorA->GetResourcePrice(Resource);
+			MoneySpend += StorageBuyQuantity * SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
 			QuantityToBuy -= StorageBuyQuantity;
 
 
