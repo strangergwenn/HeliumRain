@@ -499,8 +499,8 @@ uint32 UFlareSectorInterface::TransfertResources(IFlareSpacecraftInterface* Sour
 		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
 		SourceSpacecraft->GetCompany()->GiveMoney(Price);
 
-		SourceSpacecraft->GetCompany()->GiveReputation(Company, 0.5f, true);
-		DestinationSpacecraft->GiveReputation(Station->GetCompany(), 0.5f, true);
+		SourceSpacecraft->GetCompany()->GiveReputation(DestinationSpacecraft->GetCompany(), 0.5f, true);
+		DestinationSpacecraft->GetCompany()->GiveReputation(SourceSpacecraft->GetCompany(), 0.5f, true);
 	}
 
 	return GivenResources;
