@@ -1358,6 +1358,14 @@ void UFlareCompanyAI::SimulateDiplomacy()
 	}
 }
 
+/** Destroy a spacecraft */
+void UFlareCompanyAI::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	// Don't keep reference on destroyed ship
+	ConstructionShips.Remove(Spacecraft);
+}
+
+
 void UFlareCompanyAI::UnassignShipsFromSector(UFlareSimulatedSector* Sector, uint32 MaxCapacity)
 {
 	uint32 RemainingCapacity = MaxCapacity;

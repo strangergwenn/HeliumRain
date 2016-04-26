@@ -69,6 +69,10 @@ public:
 
 	virtual void SimulateDiplomacy();
 
+	/** Destroy a spacecraft */
+	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
+
+
 	/*----------------------------------------------------
 		Command groups
 	----------------------------------------------------*/
