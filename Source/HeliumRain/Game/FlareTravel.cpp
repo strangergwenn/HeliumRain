@@ -9,6 +9,7 @@
 static const double TRAVEL_DURATION_PER_PHASE_KM = 0.4;
 static const double TRAVEL_DURATION_PER_ALTITUDE_KM = 6;
 
+#define LOCTEXT_NAMESPACE "FlareTravelInfos"
 
 
 /*----------------------------------------------------
@@ -92,6 +93,16 @@ void UFlareTravel::EndTravel()
 
 
 	Game->GetGameWorld()->DeleteTravel(this);
+
+	if(Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && Fleet->GetCurrentTradeRoute() == NULL)
+	{
+		 Game->GetPC()->Notify(LOCTEXT("TravelEnded", "Travel ended"),
+			FText::Format(LOCTEXT("TravelEndedFormat", "{0} just arrived to {1}!"),
+			Fleet->GetFleetName(),
+			DestinationSector->GetSectorName()),
+			FName("travel-end"),
+			EFlareNotification::NT_Economy);
+	}
 }
 
 int64 UFlareTravel::GetElapsedTime()
@@ -249,3 +260,4 @@ double UFlareTravel::ComputeAltitudeTravelMoonToMoonDistance(UFlareWorld* World,
 	return FMath::Abs(DestinationCelestialBody->OrbitDistance - OriginCelestialBody->OrbitDistance);
 }
 
+#undef LOCTEXT_NAMESPACE
