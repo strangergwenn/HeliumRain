@@ -321,6 +321,34 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 
 	if (IsEnabled() && MenuManager.IsValid())
 	{
+		// Check sector state changes
+		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+		{
+			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
+
+			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+			if(LastSectorBattleState.Contains(Sector))
+			{
+				EFlareSectorBattleState::Type LastBattleState = LastSectorBattleState[Sector];
+				if(LastBattleState == BattleState)
+				{
+					continue;
+				}
+
+				MenuManager->GetPC()->Notify(LOCTEXT("BattleStateChange", "Battle state change"),
+					FText::Format(LOCTEXT("BattleStateChangeFormat", "Battle state change in {0} !"), Sector->GetSectorName()),
+					FName("battle-state-changed"),
+					EFlareNotification::NT_Military);
+				// TODO more detail state and only for some transition
+
+				LastSectorBattleState[Sector] = BattleState;
+			}
+			else
+			{
+				LastSectorBattleState.Add(Sector,BattleState);
+			}
+		}
+
 		// Fast forward every FastForwardPeriod
 		if (FastForwardActive)
 		{

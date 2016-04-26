@@ -150,5 +150,6 @@ protected:
 	TSharedPtr<SFlarePlanetaryBox>              HelaBox;
 	TSharedPtr<SFlarePlanetaryBox>              AdenaBox;
 	TSharedPtr<SFlareButton>                    FastForward;
+	TMap<UFlareSimulatedSector*, EFlareSectorBattleState::Type> LastSectorBattleState;
 
 };
