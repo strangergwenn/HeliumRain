@@ -73,3 +73,4 @@ Binaries/Win64/HeliumRain-Win64-Shipping.target
 Binaries/Win64/HeliumRain-Win64-Test.target
 HeliumRain.VC.db
 HeliumRain.VC.VC.opendb
+Binaries/Win64/steam_appid.txt
