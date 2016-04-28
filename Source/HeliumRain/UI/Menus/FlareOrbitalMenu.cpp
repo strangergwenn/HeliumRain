@@ -335,8 +335,8 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 					continue;
 				}
 
-				MenuManager->GetPC()->Notify(LOCTEXT("BattleStateChange", "Battle state change"),
-					FText::Format(LOCTEXT("BattleStateChangeFormat", "Battle state change in {0} !"), Sector->GetSectorName()),
+				MenuManager->GetPC()->Notify(LOCTEXT("BattleStateChange", "Battle update"),
+					FText::Format(LOCTEXT("BattleStateChangeFormat", "The military status of {0} has changed !"), Sector->GetSectorName()),
 					FName("battle-state-changed"),
 					EFlareNotification::NT_Military);
 				// TODO more detail state and only for some transition
