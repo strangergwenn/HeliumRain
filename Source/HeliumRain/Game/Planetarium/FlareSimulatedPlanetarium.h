@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "FlareSimulatedPlanetarium.generated.h"
 
+class AFlareGame;
 
 struct FPreciseMath
 {
@@ -265,10 +266,7 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	AFlareGame* GetGame() const
-	{
-		return Game;
-	}
+	AFlareGame* GetGame() const;
 
 
 

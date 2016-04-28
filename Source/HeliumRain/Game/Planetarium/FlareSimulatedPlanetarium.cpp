@@ -206,4 +206,9 @@ void UFlareSimulatedPlanetarium::ComputeCelestialBodyLocation(FFlareCelestialBod
 	}
 }
 
+AFlareGame* UFlareSimulatedPlanetarium::GetGame() const
+{
+	return Game;
+}
+
 #undef LOCTEXT_NAMESPACE

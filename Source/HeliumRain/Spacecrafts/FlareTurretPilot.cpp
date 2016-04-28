@@ -3,9 +3,15 @@
 
 #include "FlarePilotHelper.h"
 #include "FlareTurret.h"
+#include "FlareRCS.h"
 #include "FlareTurretPilot.h"
 #include "FlareSpacecraft.h"
 #include "FlareSpacecraftComponent.h"
+
+#include "../Player/FlarePlayerController.h"
+#include "../Game/FlareGame.h"
+#include "../Game/AI/FlareCompanyAI.h"
+
 
 /*----------------------------------------------------
 	Constructor
