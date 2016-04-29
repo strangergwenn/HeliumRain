@@ -552,7 +552,7 @@ void UFlareSpacecraftComponent::UpdatePowerSources(TArray<UFlareSpacecraftCompon
 		}
 	}
 
-	if (PowerSources.Num() == 0)
+	if (PowerSources.Num() == 0 && ShipComponentData.ShipSlotIdentifier != NAME_None)
 	{
 		FLOGV("Warning: %s : %s has no power source", *Spacecraft->GetImmatriculation().ToString(),
 			  *ShipComponentData.ShipSlotIdentifier.ToString());
