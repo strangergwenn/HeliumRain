@@ -18,6 +18,7 @@ class SFlareSpacecraftInfo : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareSpacecraftInfo)
 		: _Player(NULL)
 		, _Spacecraft(NULL)
+		, _OwnerWidget(NULL)
 		, _NoInspect(false)
 		, _Minimized(false)
 		, _Visible(false)
@@ -25,6 +26,7 @@ class SFlareSpacecraftInfo : public SCompoundWidget
 
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
 	SLATE_ARGUMENT(IFlareSpacecraftInterface*, Spacecraft)
+	SLATE_ARGUMENT(SWidget*, OwnerWidget)
 
 	SLATE_ARGUMENT(bool, NoInspect)
 	SLATE_ARGUMENT(bool, Minimized)
@@ -159,5 +161,6 @@ protected:
 	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
 	TSharedPtr<SHorizontalBox>        CargoBay;
+	TSharedPtr<SWidget>               OwnerWidget;
 
 };

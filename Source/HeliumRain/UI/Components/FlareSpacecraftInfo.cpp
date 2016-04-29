@@ -16,6 +16,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 {
 	// Data
 	PC = InArgs._Player;
+	OwnerWidget = InArgs._OwnerWidget->AsShared();
 	NoInspect = InArgs._NoInspect;
 	Minimized = InArgs._Minimized;
 	AFlareGame* Game = InArgs._Player->GetGame();
@@ -694,6 +695,14 @@ const FSlateBrush* SFlareSpacecraftInfo::GetClassIcon() const
 
 EVisibility SFlareSpacecraftInfo::GetCompanyFlagVisibility() const
 {
+	// Crash mitigation - If parent is hidden, so are we, don't try to use the target (#178)
+	if (OwnerWidget.IsValid() && OwnerWidget->GetVisibility() != EVisibility::Visible
+		|| PC && !PC->GetMenuManager()->IsMenuOpen())
+	{
+		return EVisibility::Collapsed;
+	}
+
+	// Check the target
 	if (TargetSpacecraft)
 	{
 		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
@@ -715,6 +724,13 @@ EVisibility SFlareSpacecraftInfo::GetSpacecraftInfoVisibility() const
 
 FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 {
+	// Crash mitigation - If parent is hidden, so are we, don't try to use the target (#178)
+	if (OwnerWidget.IsValid() && OwnerWidget->GetVisibility() != EVisibility::Visible
+		|| PC && !PC->GetMenuManager()->IsMenuOpen())
+	{
+		return FText();
+	}
+
 	if (TargetSpacecraft)
 	{
 		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();

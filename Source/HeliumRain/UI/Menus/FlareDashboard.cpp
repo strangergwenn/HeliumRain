@@ -228,13 +228,18 @@ void SFlareDashboard::Enter()
 
 	OwnedShipList->RefreshList();
 	OtherShipList->RefreshList();
+	OwnedShipList->SetVisibility(EVisibility::Visible);
+	OtherShipList->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareDashboard::Exit()
 {
+	SetEnabled(false);
+
 	OwnedShipList->Reset();
 	OtherShipList->Reset();
-	SetEnabled(false);
+	OwnedShipList->SetVisibility(EVisibility::Collapsed);
+	OtherShipList->SetVisibility(EVisibility::Collapsed);
 	SetVisibility(EVisibility::Collapsed);
 }
 

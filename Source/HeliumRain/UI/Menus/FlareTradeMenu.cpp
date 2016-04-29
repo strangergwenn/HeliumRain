@@ -368,6 +368,7 @@ void SFlareTradeMenu::Exit()
 	// Reset menus
 	PriceBox->Hide();
 	ShipList->Reset();
+	ShipList->SetVisibility(EVisibility::Collapsed);
 	SetVisibility(EVisibility::Collapsed);
 }
 

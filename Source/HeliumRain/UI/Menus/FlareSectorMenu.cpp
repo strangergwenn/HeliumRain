@@ -333,16 +333,19 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 
 	OwnedShipList->RefreshList();
 	OtherShipList->RefreshList();
+	OwnedShipList->SetVisibility(EVisibility::Visible);
+	OtherShipList->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareSectorMenu::Exit()
 {
 	SetEnabled(false);
+	TargetSector = NULL;
 
 	OwnedShipList->Reset();
 	OtherShipList->Reset();
-	TargetSector = NULL;
-
+	OwnedShipList->SetVisibility(EVisibility::Collapsed);
+	OtherShipList->SetVisibility(EVisibility::Collapsed);
 	SetVisibility(EVisibility::Collapsed);
 }
 

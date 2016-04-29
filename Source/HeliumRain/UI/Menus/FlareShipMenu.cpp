@@ -107,6 +107,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					SAssignNew(ObjectActionMenu, SFlareSpacecraftInfo)
 					.Player(PC)
 					.NoInspect(true)
+					.OwnerWidget(this)
 				]
 
 				// Object class
@@ -345,6 +346,7 @@ void SFlareShipMenu::Exit()
 	PartListData.Empty();
 	PartList->RequestListRefresh();
 	ShipList->Reset();
+	ShipList->SetVisibility(EVisibility::Collapsed);
 
 	FactoryList->ClearChildren();
 

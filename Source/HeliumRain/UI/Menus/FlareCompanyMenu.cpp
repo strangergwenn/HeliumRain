@@ -234,6 +234,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	}
 
 	ShipList->RefreshList();
+	ShipList->SetVisibility(EVisibility::Visible);
 	UpdateTradeRouteList();
 }
 
@@ -241,6 +242,7 @@ void SFlareCompanyMenu::Exit()
 {
 	SetEnabled(false);
 	ShipList->Reset();
+	ShipList->SetVisibility(EVisibility::Collapsed);
 	TradeRouteList->ClearChildren();
 
 	Company = NULL;
