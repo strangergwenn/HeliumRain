@@ -270,9 +270,31 @@ UFlareFleet* UFlareCompany::CreateFleet(FText FleetName, UFlareSimulatedSector* 
 	return Fleet;
 }
 
-UFlareFleet* UFlareCompany::CreateAutomaticFleet(UFlareSimulatedSpacecraft * Spacecraft)
+UFlareFleet* UFlareCompany::CreateAutomaticFleet(UFlareSimulatedSpacecraft* Spacecraft)
 {
-	UFlareFleet* NewFleet = CreateFleet(FText::FromString(Spacecraft->GetImmatriculation().ToString()), Spacecraft->GetCurrentSector());
+	FText FleetName;
+	int32 FleetCount = Spacecraft->GetCompany()->GetCompanyFleets().Num() + 1;
+
+	if (Spacecraft->IsMilitary())
+	{
+		if (Spacecraft->GetDescription()->Size == EFlarePartSize::L)
+		{
+			FleetName = FText::Format(LOCTEXT("CombatFleetFormat", "Combat Fleet {0}"),
+				FText::FromString(AFlareGame::ConvertToRoman(FleetCount)));
+		}
+		else
+		{
+			FleetName = FText::Format(LOCTEXT("WarFleetFormat", "War Fleet {0}"),
+				FText::FromString(AFlareGame::ConvertToRoman(FleetCount)));
+		}
+	}
+	else
+	{
+		FleetName = FText::Format(LOCTEXT("CivilianFleetFormat", "Trade Fleet {0}"),
+			FText::AsNumber(FleetCount));
+	}
+
+	UFlareFleet* NewFleet = CreateFleet(FleetName, Spacecraft->GetCurrentSector());
 	NewFleet->AddShip(Spacecraft);
 
 	return NewFleet;

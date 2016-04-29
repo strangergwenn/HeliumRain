@@ -708,7 +708,6 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 
 	// Company name
 	Immatriculation += Company->GetShortName().ToString();
-	Immatriculation += "-";
 
 	// Class
 	Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString();
@@ -736,7 +735,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 //   Out: n/a
 //   Cav: caller responsible for buffer size.
 
-static FString ConvertToRoman(unsigned int val)
+FString AFlareGame::ConvertToRoman(uint32 val)
 {
 	FString Roman;
 
@@ -821,9 +820,9 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Empty();
 	BaseImmatriculationNameList.Add("Arrow");
 	BaseImmatriculationNameList.Add("Atom");
-	BaseImmatriculationNameList.Add("Binary Star");
+	BaseImmatriculationNameList.Add("BinaryStar");
 	BaseImmatriculationNameList.Add("Blackout");
-	BaseImmatriculationNameList.Add("Crescent Moon");
+	BaseImmatriculationNameList.Add("CrescentMoon");
 	BaseImmatriculationNameList.Add("Comet");
 	BaseImmatriculationNameList.Add("Coronation");
 	BaseImmatriculationNameList.Add("Destiny");

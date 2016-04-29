@@ -147,6 +147,9 @@ public:
 	/** Fill the database with capital ship names */
 	void InitCapitalShipNameDatabase();
 
+	/** Convert a number to roman */
+	static FString ConvertToRoman(uint32 Val);
+
 	/** Get a capship name */
 	FName PickCapitalShipName();
 
