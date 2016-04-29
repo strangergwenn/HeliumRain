@@ -230,6 +230,7 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 					SNew(SFlareSpacecraftInfo)
 					.Player(PC)
 					.Spacecraft(Item->FleetPtr->GetShips()[0])
+					.OwnerWidget(this)
 					.Minimized(true)
 					.Visible(true)
 				];
