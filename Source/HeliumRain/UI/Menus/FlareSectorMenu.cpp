@@ -190,7 +190,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							SNew(SFlareButton)
 							.Width(10)
 							.Text(this, &SFlareSectorMenu::GetRefuelText)
-							.HelpText(LOCTEXT("TravelInfo", "Refuel all fleets in this sector so that they have the necessary fuel, ammo and resources to fight."))
+							.HelpText(LOCTEXT("TravelInfo", "Refill all fleets in this sector so that they have the necessary fuel, ammo and resources to fight."))
 							.Icon(FFlareStyleSet::GetIcon("Tank"))
 							.OnClicked(this, &SFlareSectorMenu::OnRefuelClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsRefuelDisabled)
@@ -429,16 +429,16 @@ FText SFlareSectorMenu::GetRefuelText() const
 	{
 		if (true) // TODO FRED(#155) : utiliser les API de ravitaillement
 		{
-			return LOCTEXT("NoFleetToRefuel", "No fleet here needs refuelling");
+			return LOCTEXT("NoFleetToRefuel", "No fleet here needs refilling");
 		}
 		else
 		{
-			return LOCTEXT("CantRefuel", "Can't refuel here !");
+			return LOCTEXT("CantRefuel", "Can't refill here !");
 		}
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("RefuelOkayFormat", "Refuel all fleets ({0} fleet supplies)"),
+		return FText::Format(LOCTEXT("RefuelOkayFormat", "Refill all fleets ({0} fleet supplies)"),
 			FText::AsNumber(42)); // TODO FRED (#155) : utiliser les API de ravitaillement
 	}
 }
