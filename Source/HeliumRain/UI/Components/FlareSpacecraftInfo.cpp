@@ -398,7 +398,7 @@ void SFlareSpacecraftInfo::Show()
 
 		// Permissions
 		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
-		bool CanAssign = Owned && !IsStation && !TargetSpacecraft->IsAssignedToSector();
+		bool CanAssign = Owned && !IsStation && TargetSpacecraft->GetCurrentSectorInterface() && !TargetSpacecraft->IsAssignedToSector();
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
 
 
