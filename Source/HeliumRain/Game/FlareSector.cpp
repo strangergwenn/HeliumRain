@@ -284,14 +284,27 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 						SpawnDirection = (FriendlyShipLocationMean - GetSectorCenter()).GetUnsafeNormal() ;
 					}
 
-					FVector Location = GetSectorCenter() + SpawnDirection * (500000 + GetSectorRadius());
+					float SpawnDistance = GetSectorRadius() + 1;
+
+					if (GetSectorBattleState(Spacecraft->GetCompany()) != EFlareSectorBattleState::NoBattle)
+					{
+						SpawnDistance += 500000; // 5 km
+					}
+					FVector Location = GetSectorCenter() + SpawnDirection * SpawnDistance;
 
 					FVector CenterDirection = (GetSectorCenter() - Location).GetUnsafeNormal();
 					Spacecraft->SetActorRotation(CenterDirection.Rotation());
 
 					PlaceSpacecraft(Spacecraft, Location);
 
-					RootComponent->SetPhysicsLinearVelocity(CenterDirection * 10000, false);
+					float SpawnVelocity = 0;
+
+					if (GetSectorBattleState(Spacecraft->GetCompany()) != EFlareSectorBattleState::NoBattle)
+					{
+							SpawnVelocity = 10000;
+					}
+
+					RootComponent->SetPhysicsLinearVelocity(CenterDirection * SpawnVelocity, false);
 					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
 					break;
 			}
