@@ -73,7 +73,7 @@ void UFlareTradeRoute::Simulate()
 					FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceToUnload->ResourceIdentifier);
 
 
-					uint32 SectorResourceCount = CurrentSector->GetResourceCount(Company, Resource);
+					uint32 SectorResourceCount = CurrentSector->GetResourceCount(Company, Resource, false, true);
 
 					if(ResourceToUnload->Quantity == 0 || SectorResourceCount < ResourceToUnload->Quantity)
 					{
@@ -96,13 +96,23 @@ void UFlareTradeRoute::Simulate()
 					FFlareCargoSave* ResourceToLoad = &SectorOrder->ResourcesToLoad[ResourceIndex];
 					FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceToLoad->ResourceIdentifier);
 
-					uint32 AvailableResourceCount = CurrentSector->GetResourceCount(Company, Resource);
+					uint32 AvailableResourceCount = CurrentSector->GetResourceCount(Company, Resource, false, true);
 
 					if(AvailableResourceCount > ResourceToLoad->Quantity)
 					{
-						uint32 ResourceToGive = AvailableResourceCount - ResourceToLoad->Quantity;
-						uint32 GivenResources = Ship->GetCargoBay()->GiveResources(Resource, ResourceToGive);
-						CurrentSector->TakeResources(Company, Resource, GivenResources);
+						uint32 ResourceToBuy = AvailableResourceCount - ResourceToLoad->Quantity;
+						uint32 FreeSpace = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource);
+
+						uint32 ResourcesToTake = FMath::Min(FreeSpace, ResourceToBuy);
+
+						uint32 TakenResources = CurrentSector->TakeUselessResources(Company, Resource, ResourcesToTake, true);
+
+						uint32 GivenResources = Ship->GetCargoBay()->GiveResources(Resource, TakenResources);
+
+						if(GivenResources != TakenResources)
+						{
+							FLOGV("WARNING: Trade route take %d resource but can give only %d resource in the cargo", TakenResources, GivenResources);
+						}
 					}
 				}
 			}

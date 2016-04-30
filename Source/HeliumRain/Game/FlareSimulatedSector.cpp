@@ -1661,7 +1661,7 @@ uint32 UFlareSimulatedSector::GetTransportCapacity(UFlareCompany* Company, bool 
 	return TransportCapacity;
 }
 
-uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips)
+uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips, bool AllowTrade)
 {
 	uint32 ResourceCount = 0;
 
@@ -1676,7 +1676,7 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 	{
 		UFlareSimulatedSpacecraft* Station = (*SpacecraftList)[StationIndex];
 
-		if ( Station->GetCompany() != Company)
+		if ((!AllowTrade && Station->GetCompany() != Company) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 		{
 			continue;
 		}
