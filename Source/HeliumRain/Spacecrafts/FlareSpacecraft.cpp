@@ -61,7 +61,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 void AFlareSpacecraft::BeginPlay()
 {
 	Super::BeginPlay();
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	CurrentTarget = NULL;
 }
 
@@ -139,7 +138,6 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 			10.0f);
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
 
-		check(false);
 		return;
 	}
 
@@ -346,7 +344,8 @@ void AFlareSpacecraft::ResetCurrentTarget()
 AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 {
 	// Don't try in menus
-	if (GetPC()->GetMenuManager()->IsMenuOpen())
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC->GetMenuManager()->IsMenuOpen())
 	{
 		return NULL;
 	}
