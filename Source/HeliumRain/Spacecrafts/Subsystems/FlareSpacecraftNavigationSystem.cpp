@@ -219,6 +219,11 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 		// Leave
 		PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(5000 * FVector(-1, 0, 0)));
 		FLOG("AFlareSpacecraft::Undock : successful");
+
+		// Hack for bug #195: for ue4 to reweld all.
+		Spacecraft->Airframe->SetSimulatePhysics(false);
+		Spacecraft->Airframe->SetSimulatePhysics(true);
+
 		return true;
 	}
 
