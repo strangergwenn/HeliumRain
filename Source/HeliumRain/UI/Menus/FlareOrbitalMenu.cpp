@@ -473,7 +473,7 @@ FText SFlareOrbitalMenu::GetFlySelectedShipText() const
 {
 	UFlareSimulatedSpacecraft* CurrentShip = NULL;
 	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
-	if (SelectedFleet->GetShips().Num() > 0)
+	if (SelectedFleet && SelectedFleet->GetShips().Num() > 0)
 	{
 		CurrentShip = SelectedFleet->GetShips()[0];
 	}
