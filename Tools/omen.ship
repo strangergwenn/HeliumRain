@@ -1,7 +1,7 @@
 [Omen]
 ShipName=Omen
 HeatCapacity=14
-MinHeatsinkRatio=0.10
+MinHeatsinkRatio=0.01
 
 [ic-small-cockpit]
 PassivePower=1
@@ -12,8 +12,7 @@ PassivePower=0.5
 
 [ic-small-heatsink2]
 Count = 2
-MaxHeatsink=1.0
-MinHeatsink=0.5
+MaxHeatsink=4.0
 
 [rcs-piranha]
 Count = 16

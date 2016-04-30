@@ -1,7 +1,7 @@
 [Ghoul]
 ShipName=Ghoul
 HeatCapacity=13
-MinHeatsinkRatio=0.10
+MinHeatsinkRatio=0.01
 
 [ic-small-cockpit]
 PassivePower=1
@@ -11,7 +11,7 @@ Count = 4
 PassivePower=0.5
 
 [ic-small-heatsink]
-MaxHeatsink=4
+MaxHeatsink=16
 MinHeatsink=1
 
 [weapon-eradicator]

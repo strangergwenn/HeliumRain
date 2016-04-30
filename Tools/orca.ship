@@ -1,7 +1,7 @@
 [Orca]
 ShipName=Orca
 HeatCapacity=40
-MinHeatsinkRatio=0.10
+MinHeatsinkRatio=0.01
 
 [ic-small-cockpit]
 PassivePower=2

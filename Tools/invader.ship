@@ -1,7 +1,7 @@
 [Invader]
 ShipName=Invader
 HeatCapacity=800
-MinHeatsinkRatio=0.10
+MinHeatsinkRatio=0.01
 
 [ic-large-cockpit]
 PassivePower=100
@@ -18,11 +18,11 @@ MinHeatsink=1.25
 
 [ic-large-heatsink]
 Count = 2
-MaxHeatsink=10
+MaxHeatsink=80
 MinHeatsink=2.5
 
 [ic-large-heatsink-heavy]
-MaxHeatsink=40
+MaxHeatsink=240
 MinHeatsink=20
 
 [rcs-rift]

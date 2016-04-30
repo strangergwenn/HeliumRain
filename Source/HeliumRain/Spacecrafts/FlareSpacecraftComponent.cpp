@@ -571,7 +571,7 @@ float UFlareSpacecraftComponent::GetHeatProduction() const
 
 float UFlareSpacecraftComponent::GetHeatSinkSurface() const
 {
-	return HeatSinkSurface * (0.1 +  9 * GetUsableRatio() / 10);
+	return HeatSinkSurface * (0.01 +  0.99 * GetUsableRatio());
 }
 
 bool UFlareSpacecraftComponent::IsHeatSink() const
