@@ -292,6 +292,8 @@ void SFlareOrbitalMenu::Enter()
 	StopFastForward();
 
 	UpdateMap();
+
+	Game->SaveGame(MenuManager->GetPC());
 }
 
 void SFlareOrbitalMenu::Exit()
@@ -306,6 +308,8 @@ void SFlareOrbitalMenu::Exit()
 	AdenaBox->ClearChildren();
 
 	StopFastForward();
+
+	Game->SaveGame(MenuManager->GetPC());
 }
 
 void SFlareOrbitalMenu::StopFastForward()
@@ -313,6 +317,7 @@ void SFlareOrbitalMenu::StopFastForward()
 	TimeSinceFastForward = 0;
 	FastForwardActive = false;
 	FastForward->SetActive(false);
+	Game->SaveGame(MenuManager->GetPC());
 }
 
 void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
@@ -758,6 +763,7 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 void SFlareOrbitalMenu::OnFastForwardConfirmed()
 {
 	FastForwardActive = true;
+	Game->SaveGame(MenuManager->GetPC());
 }
 
 void SFlareOrbitalMenu::OnFlyCurrentShipClicked()
