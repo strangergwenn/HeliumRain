@@ -345,6 +345,12 @@ void AFlareSpacecraft::ResetCurrentTarget()
 
 AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 {
+	// Don't try in menus
+	if (GetPC()->GetMenuManager()->IsMenuOpen())
+	{
+		return NULL;
+	}
+
 	// Crash "preventer" - ensure we've got a really valid target, this isn't a solution, but it seems to only happen when using CreateShip commands
 	// TODO : remove all IsValidLowLevelFast checks, play a little, check during real gameplay if stuff happens
 	if (CurrentTarget                    && CurrentTarget->IsValidLowLevelFast()
