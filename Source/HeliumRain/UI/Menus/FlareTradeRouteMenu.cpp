@@ -22,6 +22,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TArray<UFlareResourceCatalogEntry*> ResourceList = PC->GetGame()->GetResourceCatalog()->Resources;
+	MaxSectorsInRoute = 4;
 
 	// Build structure
 	ChildSlot
@@ -84,17 +85,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Center)
 		[
 			SNew(SVerticalBox)
-
-			// Title
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("TradeRouteControls", "Trade route controls"))
-				.TextStyle(&Theme.SubTitleFont)
-			]
-
+			
 			// Content block
 			+ SVerticalBox::Slot()
 			.VAlign(VAlign_Top)
@@ -105,18 +96,29 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 				.ScrollBarStyle(&Theme.ScrollBarStyle)
 
 				+ SScrollBox::Slot()
+				.HAlign(HAlign_Center)
 				[
 					SNew(SVerticalBox)
 
 					// Buttons
 					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Left)
+					.HAlign(HAlign_Center)
 					[
 						SNew(SBox)
 						.WidthOverride(Theme.ContentWidth)
 						.HAlign(HAlign_Fill)
 						[
 							SNew(SVerticalBox)
+							
+							// Title
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.TitlePadding)
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("TradeRouteControls", "Trade route controls"))
+								.TextStyle(&Theme.SubTitleFont)
+							]
 
 							// Trade route name
 							+ SVerticalBox::Slot()
@@ -200,17 +202,19 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 								// Button
 								+ SHorizontalBox::Slot()
 								.AutoWidth()
+								.Padding(Theme.SmallContentPadding)
 								[
 									SNew(SFlareButton)
-									.Width(4)
-									.Text(LOCTEXT("AddSector", "Add sector"))
+									.Width(5)
+									.Text(FText::Format(LOCTEXT("AddSectorFormat", "Add sector (Max {0})"), FText::AsNumber(MaxSectorsInRoute)))
 									.HelpText(LOCTEXT("AddSectorInfo", "Add this sector to the trade route"))
 									.OnClicked(this, &SFlareTradeRouteMenu::OnAddSectorClicked)
-									.Visibility(this, &SFlareTradeRouteMenu::GetAddSectorVisibility)
+									.IsDisabled(this, &SFlareTradeRouteMenu::IsAddSectorDisabled)
 								]
 
 								// List
 								+ SHorizontalBox::Slot()
+								.Padding(Theme.SmallContentPadding)
 								[
 									SAssignNew(SectorSelector, SComboBox<UFlareSimulatedSector*>)
 									.OptionsSource(&SectorList)
@@ -218,7 +222,6 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 									.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged)
 									.ComboBoxStyle(&Theme.ComboBoxStyle)
 									.ForegroundColor(FLinearColor::White)
-									.Visibility(this, &SFlareTradeRouteMenu::GetAddSectorVisibility)
 									[
 										SNew(STextBlock)
 										.Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
@@ -410,7 +413,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 							.OnClicked(this, &SFlareTradeRouteMenu::OnLoadResourceClicked, Sector)
 							.Text(this, &SFlareTradeRouteMenu::GetLoadText)
 							.HelpText(LOCTEXT("LoadHelp", "Load the selected resource in this sector"))
-							.Width(4)
+							.Width(3)
 						]
 
 						+ SHorizontalBox::Slot()
@@ -419,7 +422,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 							.OnClicked(this, &SFlareTradeRouteMenu::OnUnloadResourceClicked, Sector)
 							.Text(this, &SFlareTradeRouteMenu::GetUnloadText)
 							.HelpText(LOCTEXT("UnloadHelp", "Unload the selected resource in this sector"))
-							.Width(4)
+							.Width(3)
 						]
 					]
 
@@ -696,7 +699,7 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TextFont)
-				.Text(LOCTEXT("NoFleet", "No fleet assigned or available !"))
+				.Text(LOCTEXT("NoFleet", "No fleet assigned or available, route disabled"))
 			];
 		}
 	}
@@ -710,21 +713,8 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 
 
 /*----------------------------------------------------
-	Callbacks
+	Content callbacks
 ----------------------------------------------------*/
-
-void SFlareTradeRouteMenu::OnBackClicked()
-{
-	MenuManager->Back();
-}
-
-void SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked()
-{
-	if (TargetTradeRoute)
-	{
-		TargetTradeRoute->SetTradeRouteName(EditRouteName->GetText());
-	}
-}
 
 FText SFlareTradeRouteMenu::GetTradeRouteName() const
 {
@@ -742,8 +732,11 @@ TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateSectorComboLine(UFlareSimula
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
+	UFlareSimulatedPlanetarium* Planetarium = MenuManager->GetGame()->GetGameWorld()->GetPlanerarium();
+	FFlareCelestialBody* CelestialBody = Planetarium->FindCelestialBody(Item->GetOrbitParameters()->CelestialBodyIdentifier);
+
 	return SNew(STextBlock)
-		.Text(Item->GetSectorName())
+		.Text(FText::Format(LOCTEXT("SectorLineFormat", "{0} (Orbiting {1})"), Item->GetSectorName(), CelestialBody->Name))
 		.TextStyle(&Theme.TextFont);
 }
 
@@ -757,19 +750,22 @@ FText SFlareTradeRouteMenu::OnGetCurrentSectorComboLine() const
 	return Item ? Item->GetSectorName() : LOCTEXT("SelectSector", "Select a sector");
 }
 
-void SFlareTradeRouteMenu::OnAddSectorClicked()
+bool SFlareTradeRouteMenu::IsAddSectorDisabled() const
 {
-	UFlareSimulatedSector* Item = SectorSelector->GetSelectedItem();
-	if (Item)
+	if (TargetTradeRoute)
 	{
-		TargetTradeRoute->AddSector(Item);
-		GenerateSectorList();
+		if (TargetTradeRoute->GetSectors().Num() >= MaxSectorsInRoute)
+		{
+			return true;
+		}
 	}
-}
 
-EVisibility SFlareTradeRouteMenu::GetAddSectorVisibility() const
-{
-	return SectorList.Num() > 0 ? EVisibility::Visible : EVisibility::Collapsed;
+	if (SectorList.Num() == 0)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateResourceComboLine(UFlareResourceCatalogEntry* Item)
@@ -779,11 +775,6 @@ TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateResourceComboLine(UFlareReso
 	return SNew(STextBlock)
 		.Text(Item->Data.Name)
 		.TextStyle(&Theme.TextFont);
-}
-
-void SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo)
-{
-
 }
 
 FText SFlareTradeRouteMenu::OnGetCurrentResourceComboLine() const
@@ -844,6 +835,59 @@ FText SFlareTradeRouteMenu::GetUnloadText() const
 	}
 
 	return Result;
+}
+
+TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateFleetComboLine(UFlareFleet* Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(STextBlock)
+		.Text(Item->GetFleetName())
+		.TextStyle(&Theme.TextFont);
+}
+
+FText SFlareTradeRouteMenu::OnGetCurrentFleetComboLine() const
+{
+	UFlareFleet* Item = FleetSelector->GetSelectedItem();
+	return Item ? Item->GetFleetName() : LOCTEXT("SelectFleet", "Select a fleet");
+}
+
+EVisibility SFlareTradeRouteMenu::GetAssignFleetVisibility() const
+{
+	// Only one fleet !
+	return FleetList.Num() > 0 && TargetTradeRoute && TargetTradeRoute->GetFleets().Num() == 0 ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
+
+/*----------------------------------------------------
+	Action callbacks
+----------------------------------------------------*/
+
+void SFlareTradeRouteMenu::OnBackClicked()
+{
+	MenuManager->Back();
+}
+
+void SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked()
+{
+	if (TargetTradeRoute)
+	{
+		TargetTradeRoute->SetTradeRouteName(EditRouteName->GetText());
+	}
+}
+
+void SFlareTradeRouteMenu::OnAddSectorClicked()
+{
+	UFlareSimulatedSector* Item = SectorSelector->GetSelectedItem();
+	if (Item)
+	{
+		TargetTradeRoute->AddSector(Item);
+		GenerateSectorList();
+	}
+}
+
+void SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo)
+{
 }
 
 void SFlareTradeRouteMenu::OnLoadResourceClicked(UFlareSimulatedSector* Sector)
@@ -988,23 +1032,8 @@ void SFlareTradeRouteMenu::OnClearUnloadResourceClicked(UFlareSimulatedSector* S
 	}
 }
 
-TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateFleetComboLine(UFlareFleet* Item)
-{
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	return SNew(STextBlock)
-		.Text(Item->GetFleetName())
-		.TextStyle(&Theme.TextFont);
-}
-
 void SFlareTradeRouteMenu::OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo)
 {
-}
-
-FText SFlareTradeRouteMenu::OnGetCurrentFleetComboLine() const
-{
-	UFlareFleet* Item = FleetSelector->GetSelectedItem();
-	return Item ? Item->GetFleetName() : LOCTEXT("SelectFleet", "Select a fleet");
 }
 
 void SFlareTradeRouteMenu::OnAssignFleetClicked()
@@ -1016,14 +1045,6 @@ void SFlareTradeRouteMenu::OnAssignFleetClicked()
 		GenerateFleetList();
 	}
 }
-
-EVisibility SFlareTradeRouteMenu::GetAssignFleetVisibility() const
-{
-	// Only one fleet !
-	return FleetList.Num() > 0 && TargetTradeRoute && TargetTradeRoute->GetFleets().Num() == 0 ? EVisibility::Visible : EVisibility::Collapsed;
-}
-
-
 void SFlareTradeRouteMenu::OnUnassignFleetClicked(UFlareFleet* Fleet)
 {
 	if (TargetTradeRoute)
