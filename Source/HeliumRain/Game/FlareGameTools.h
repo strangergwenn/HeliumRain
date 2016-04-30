@@ -255,7 +255,7 @@ public:
 
 	static uint32 ComputeConstructionCapacity(FName ShipClass, AFlareGame *Game);
 
-	static inline uint64 DisplayMoney(uint64 Money)
+	static inline int64 DisplayMoney(int64 Money)
 	{
 		return Money/100;
 	}
