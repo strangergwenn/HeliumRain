@@ -5,6 +5,7 @@
 #include "FlareWorld.h"
 #include "FlareGame.h"
 #include "FlareGameTools.h"
+#include "../UI/Components/FlareNotification.h"
 
 static const double TRAVEL_DURATION_PER_PHASE_KM = 0.4;
 static const double TRAVEL_DURATION_PER_ALTITUDE_KM = 6;
@@ -90,18 +91,21 @@ void UFlareTravel::EndTravel()
 		DestinationSector->SetPreciseResourcePrice(Resource, NewDestinationPrice);
 
 	}
-
-
+	
 	Game->GetGameWorld()->DeleteTravel(this);
 
-	if(Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && Fleet->GetCurrentTradeRoute() == NULL)
+	// Notify travel ended
+	if (Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && Fleet->GetCurrentTradeRoute() == NULL)
 	{
-		 Game->GetPC()->Notify(LOCTEXT("TravelEnded", "Travel ended"),
+		Game->GetPC()->Notify(LOCTEXT("TravelEnded", "Travel ended"),
 			FText::Format(LOCTEXT("TravelEndedFormat", "{0} arrived at {1}"),
-			Fleet->GetFleetName(),
-			DestinationSector->GetSectorName()),
+				Fleet->GetFleetName(),
+				DestinationSector->GetSectorName()),
 			FName("travel-end"),
-			EFlareNotification::NT_Economy);
+			EFlareNotification::NT_Economy,
+			5.0f,
+			EFlareMenu::MENU_Sector,
+			DestinationSector);
 	}
 }
 

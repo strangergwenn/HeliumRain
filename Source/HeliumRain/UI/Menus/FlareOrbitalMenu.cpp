@@ -327,19 +327,24 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
 
 			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
-			if(LastSectorBattleState.Contains(Sector))
+			if (LastSectorBattleState.Contains(Sector))
 			{
 				EFlareSectorBattleState::Type LastBattleState = LastSectorBattleState[Sector];
-				if(LastBattleState == BattleState)
+
+				// TODO more detail state and only for some transition
+				if (LastBattleState == BattleState)
 				{
 					continue;
 				}
 
+				// Notify
 				MenuManager->GetPC()->Notify(LOCTEXT("BattleStateChange", "Battle update"),
 					FText::Format(LOCTEXT("BattleStateChangeFormat", "The military status of {0} has changed !"), Sector->GetSectorName()),
 					FName("battle-state-changed"),
-					EFlareNotification::NT_Military);
-				// TODO more detail state and only for some transition
+					EFlareNotification::NT_Military,
+					10.0f,
+					EFlareMenu::MENU_Sector,
+					Sector);
 
 				LastSectorBattleState[Sector] = BattleState;
 			}
