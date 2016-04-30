@@ -137,6 +137,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				.HelpText(LOCTEXT("CloseInfo", "Close the menu and go back to flying the ship"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
 				.OnClicked(this, &SFlareDashboard::OnExit)
+				.Visibility(this, &SFlareDashboard::GetExitVisibility)
 			]
 		]
 
@@ -257,6 +258,21 @@ EVisibility SFlareDashboard::GetDockedVisibility() const
 		if (Ship)
 		{
 			return (Ship->GetNavigationSystem()->IsDocked() && Ship->GetCurrentSectorInterface()->CanUpgrade(Ship->GetCompany()) ? EVisibility::Visible : EVisibility::Collapsed);
+		}
+	}
+
+	return EVisibility::Collapsed;
+}
+
+EVisibility SFlareDashboard::GetExitVisibility() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		AFlareSpacecraft* Ship = PC->GetShipPawn();
+		if (Ship)
+		{
+			return (Ship->GetDamageSystem()->IsAlive() ? EVisibility::Visible : EVisibility::Collapsed);
 		}
 	}
 

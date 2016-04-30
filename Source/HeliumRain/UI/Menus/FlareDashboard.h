@@ -49,6 +49,9 @@ protected:
 	/** Are we docked */
 	EVisibility GetDockedVisibility() const;
 
+	/** Can we exit this menu and fly the current ship */
+	EVisibility GetExitVisibility() const;
+
 	/** Can we trade */
 	EVisibility GetTradeVisibility() const;
 
