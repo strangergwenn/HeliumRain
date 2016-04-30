@@ -135,7 +135,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.Padding(Theme.SmallContentPadding)
 			[
 				SAssignNew(FastForward, SFlareButton)
-				.Width(6)
+				.Width(8)
 				.Toggle(true)
 				.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
 				.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
@@ -150,7 +150,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SFlareButton)
-				.Width(6)
+				.Width(8)
 				.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
 				.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
 				.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -164,7 +164,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SFlareButton)
-				.Width(6)
+				.Width(8)
 				.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
 				.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
 				.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -437,13 +437,15 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 
 FText SFlareOrbitalMenu::GetFlyCurrentShipText() const
 {
-	if (!IsFlyCurrentShipDisabled())
+	UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
+
+	if (CurrentShip && !IsFlyCurrentShipDisabled())
 	{
-		return LOCTEXT("FlyCurrentFormat", "Fly last ship");
+		return FText::Format(LOCTEXT("FlyCurrentFormat", "Fly previous ship ({0})"), FText::FromName(CurrentShip->GetImmatriculation()));
 	}
 	else
 	{
-		return LOCTEXT("NoFlyCurrentFormat", "Can't fly last ship !");
+		return LOCTEXT("NoFlyCurrentFormat", "Can't fly previous ship !");
 	}
 }
 
@@ -464,13 +466,20 @@ bool SFlareOrbitalMenu::IsFlyCurrentShipDisabled() const
 
 FText SFlareOrbitalMenu::GetFlySelectedShipText() const
 {
-	if (!IsFlySelectedShipDisabled())
+	UFlareSimulatedSpacecraft* CurrentShip = NULL;
+	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
+	if (SelectedFleet->GetShips().Num() > 0)
 	{
-		return LOCTEXT("FlySelectedFormat", "Fly selected");
+		CurrentShip = SelectedFleet->GetShips()[0];
+	}
+
+	if (CurrentShip && !IsFlySelectedShipDisabled())
+	{
+		return FText::Format(LOCTEXT("FlySelectedFormat", "Fly selected ship ({0})"), FText::FromName(CurrentShip->GetImmatriculation()));
 	}
 	else
 	{
-		return LOCTEXT("NoFlySelectedFormat", "No ship selected !");
+		return LOCTEXT("NoFlySelectedFormat", "Can't fly selected ship !");
 	}
 }
 

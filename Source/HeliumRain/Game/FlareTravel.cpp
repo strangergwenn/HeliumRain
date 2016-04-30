@@ -97,7 +97,7 @@ void UFlareTravel::EndTravel()
 	if(Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && Fleet->GetCurrentTradeRoute() == NULL)
 	{
 		 Game->GetPC()->Notify(LOCTEXT("TravelEnded", "Travel ended"),
-			FText::Format(LOCTEXT("TravelEndedFormat", "{0} just arrived at {1}"),
+			FText::Format(LOCTEXT("TravelEndedFormat", "{0} arrived at {1}"),
 			Fleet->GetFleetName(),
 			DestinationSector->GetSectorName()),
 			FName("travel-end"),

@@ -314,7 +314,7 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 		CurrentCanvas = TargetCanvas;
 
 		// Draw instruments
-		if (PlayerShip && PlayerShip->GetDamageSystem()->IsAlive())
+		if (PlayerShip && PlayerShip->IsValidLowLevelFast() && PlayerShip->GetDamageSystem()->IsAlive())
 		{
 			// Regular case
 			if (!PlayerShip->GetDamageSystem()->HasPowerOutage())
@@ -551,7 +551,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 
 	// Target info
 	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
-	if (TargetShip)
+	if (TargetShip && TargetShip->IsValidLowLevelFast())
 	{
 		FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0} ({1})"),
 			FText::FromString(TargetShip->GetImmatriculation().ToString()),
