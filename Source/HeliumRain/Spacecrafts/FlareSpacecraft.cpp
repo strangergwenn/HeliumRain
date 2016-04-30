@@ -130,7 +130,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	// TODO #158 aka the self-collision event of death
 	if (Other == this)
 	{
-		AFlarePlayerController* PC = GetPC();
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 		PC->Notify(
 			FText::FromString("KNOWN BUG #158"),
 			FText::FromString("You just encountered the known bug #158. You can re-fly your ship by clicking \"fly previous\". Sorry for the inconvenience."),
