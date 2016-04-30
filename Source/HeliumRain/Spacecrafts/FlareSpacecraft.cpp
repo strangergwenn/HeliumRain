@@ -338,6 +338,11 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 	return InterceptTime;
 }
 
+void AFlareSpacecraft::ResetCurrentTarget()
+{
+	CurrentTarget = NULL;
+}
+
 AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 {
 	// Crash "preventer" - ensure we've got a really valid target, this isn't a solution, but it seems to only happen when using CreateShip commands

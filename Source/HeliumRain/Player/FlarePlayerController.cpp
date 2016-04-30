@@ -236,12 +236,14 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Reset the current ship to auto
 	if (ShipPawn)
 	{
+		ShipPawn->ResetCurrentTarget();
 		ShipPawn->GetStateManager()->EnablePilot(true);
 	}
 
 	// Fly the new ship
 	if (PossessNow)
 	{
+		Ship->ResetCurrentTarget();
 		Possess(Ship);
 	}
 
@@ -346,7 +348,13 @@ void AFlarePlayerController::OnSectorDeactivated()
 {
 	FLOG("AFlarePlayerController::OnSectorDeactivated");
 
+	// Reset the ship's target
+	if (ShipPawn)
+	{
+		ShipPawn->ResetCurrentTarget();
+	}
 	ShipPawn = NULL;
+
 	LastBattleState = EFlareSectorBattleState::NoBattle;
 	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 	SoundManager->RequestMusicTrack(EFlareMusicTrack::MainMenu);
