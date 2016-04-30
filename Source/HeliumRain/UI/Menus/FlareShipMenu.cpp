@@ -867,7 +867,7 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 		// Show the confirmation dialog
 		if (CurrentPartIndex != ShipPartIndex)
 		{
-			BuyConfirmation->Show(TransactionCost);
+			BuyConfirmation->Show(TransactionCost, PC->GetCompany());
 		}
 		else
 		{

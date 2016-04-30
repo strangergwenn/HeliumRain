@@ -577,19 +577,11 @@ void SFlareTradeMenu::UpdatePrice()
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
 	{
 		uint64 TransactionPrice = TransactionQuantity * ResourceUnitPrice;
-		if(TransactionDestinationSpacecraft->GetCompany()->GetMoney() < TransactionPrice)
-		{
-			// TODO Not enought money message
-			PriceBox->Hide();
-		}
-		else
-		{
-			PriceBox->Show(TransactionQuantity * ResourceUnitPrice);
-		}
+		PriceBox->Show(TransactionPrice, TransactionDestinationSpacecraft->GetCompany());
 	}
 	else
 	{
-		PriceBox->Show(0);
+		PriceBox->Show(0, MenuManager->GetPC()->GetCompany());
 	}
 }
 

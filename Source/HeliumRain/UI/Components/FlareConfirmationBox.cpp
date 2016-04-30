@@ -72,13 +72,13 @@ FText SFlareConfirmationBox::GetBuyText() const
 	}
 }
 
-void SFlareConfirmationBox::Show(float NewAmount)
+void SFlareConfirmationBox::Show(float NewAmount, UFlareCompany* TargetCompany)
 {
 	Amount = NewAmount;
 	ConfirmButton->SetVisibility(EVisibility::Visible);
 	CancelButton->SetVisibility(EVisibility::Visible);
 
-	if (NewAmount > PC->GetCompany()->GetMoney())
+	if (NewAmount > TargetCompany->GetMoney())
 	{
 		ConfirmButton->SetDisabled(true);
 	}

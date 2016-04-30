@@ -42,7 +42,7 @@ public:
 	FText GetBuyText() const;
 
 	/** Show this box for a specific amount */
-	void Show(float Amount);
+	void Show(float Amount, UFlareCompany* TargetCompany);
 
 	/** Hide this box */
 	void Hide();
