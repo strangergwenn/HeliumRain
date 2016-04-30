@@ -195,8 +195,20 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 
 void AFlareSpacecraft::Destroyed()
 {
+	// Notify PC
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC->GetShipPawn())
+	{
+		AFlareSpacecraft* PlayerTarget = PC->GetShipPawn()->GetCurrentTarget();
+		if (PlayerTarget == this)
+		{
+			PC->GetShipPawn()->ResetCurrentTarget();
+		}
+	}
+
 	Super::Destroyed();
 
+	// Clear bombs
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
