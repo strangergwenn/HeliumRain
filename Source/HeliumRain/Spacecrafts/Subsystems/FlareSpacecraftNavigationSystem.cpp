@@ -655,7 +655,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	// UpdateAngularAttitudeAuto(DeltaSeconds);
 
 	// Not in approach, just go to the docking entrance point
-	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.25);
+	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.75);
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
 
 	if (Anticollision)
@@ -904,6 +904,7 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 		FVector Acceleration = GetTotalMaxThrustInAxis(Engines, DeltaVelocityAxis, false) / Spacecraft->GetSpacecraftMass();
 		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, DeltaPositionDirection));
 
+		// TODO: Fix security ratio engine flickering
 		TimeToFinalVelocity = (DeltaVelocity.Size() / (SecurityRatio * AccelerationInAngleAxis));
 	}
 
@@ -1122,9 +1123,24 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 		FVector DeltaVAxis = DeltaV;
 		DeltaVAxis.Normalize();
 
+		bool Log = false;
+		if (Spacecraft->GetCompany() == Spacecraft->GetGame()->GetPC()->GetCompany())
+		{
+			//Log = true;
+		}
+
 		bool HasUsedOrbitalBoost = false;
 		float LinearMasterAlpha = 0.f;
 		float LinearMasterBoostAlpha = 0.f;
+
+		if(Log) {
+			FLOGV("PhysicSubTick DeltaSeconds=%f", DeltaSeconds);
+
+			FLOGV("PhysicSubTick LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
+			FLOGV("PhysicSubTick Spacecraft->GetLinearVelocity()=%s", *Spacecraft->GetLinearVelocity().ToString());
+
+			FLOGV("PhysicSubTick DeltaV=%s", *DeltaV.ToString());
+		}
 
 		if (!DeltaV.IsNearlyZero())
 		{
