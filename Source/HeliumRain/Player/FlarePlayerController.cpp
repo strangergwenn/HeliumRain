@@ -261,9 +261,20 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Inform the player
 	if (Ship)
 	{
+		// Count owned ships
+		int32 OwnedSpacecraftCount = 0;
+		for (FConstPawnIterator Iterator = GetWorld()->GetPawnIterator(); Iterator; ++Iterator)
+		{
+			AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(*Iterator);
+			if (OtherSpacecraft && OtherSpacecraft->GetCompany() == GetCompany())
+			{
+				OwnedSpacecraftCount++;
+			}
+		}
+
 		// Notification
 		FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetImmatriculation()));
-		FText Info = LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.");
+		FText Info = (OwnedSpacecraftCount > 1) ? LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.") : FText();
 		Notify(Text, Info, "flying-info", EFlareNotification::NT_Info);
 
 		// HUD update
