@@ -813,7 +813,6 @@ void AFlarePlayerController::QuickSwitch()
 
 	if (GetGame()->GetActiveSector() && Company)
 	{
-
 		TArray<AFlareSpacecraft*> CompanyShips = GetGame()->GetActiveSector()->GetCompanyShips(Company);
 
 		if (CompanyShips.Num())
@@ -828,7 +827,7 @@ void AFlarePlayerController::QuickSwitch()
 				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
 
-				if (Candidate->CanFight())
+				if (Candidate && Candidate != ShipPawn && Candidate->CanFight())
 				{
 					SeletedCandidate = Candidate;
 					break;
