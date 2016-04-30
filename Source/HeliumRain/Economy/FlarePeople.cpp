@@ -44,7 +44,7 @@ FFlarePeopleSave* UFlarePeople::Save()
 
 static uint32 BIRTH_POINT_TRESHOLD = 7120;
 static uint32 DEATH_POINT_TRESHOLD = 29200;
-static uint32 MONETARY_CREATION = 100000;
+static uint32 MONETARY_CREATION = 10000;
 
 void UFlarePeople::Simulate()
 {
