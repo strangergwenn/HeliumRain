@@ -207,7 +207,7 @@ public:
 	virtual UFlareCompany* GetCompany() = 0;
 
 	/** Get the ship nick name */
-	virtual FName GetNickName() const = 0;
+	virtual FText GetNickName() const = 0;
 
 	/** Get the ship description*/
 	virtual FFlareSpacecraftDescription* GetDescription() const = 0;

@@ -251,7 +251,7 @@ struct FFlareSpacecraftSave
 
 	/** Ship nickname. Readable for the player */
 	UPROPERTY(EditAnywhere, Category = Save)
-	FName NickName;
+	FText NickName;
 
 	/** Ship catalog identifier */
 	UPROPERTY(EditAnywhere, Category = Save)

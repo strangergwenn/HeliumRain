@@ -726,7 +726,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	// Update data
 	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
 	SpacecraftSave->Immatriculation = FName(*Immatriculation);
-	SpacecraftSave->NickName = FName(*NickName);
+	SpacecraftSave->NickName = FText::FromString(NickName);
 }
 
 // convertToRoman:
@@ -760,7 +760,7 @@ FString AFlareGame::ConvertToRoman(uint32 val)
 	return Roman;
 }
 
-FName AFlareGame::PickCapitalShipName()
+FText AFlareGame::PickCapitalShipName()
 {
 	if (BaseImmatriculationNameList.Num() == 0)
 	{
@@ -768,12 +768,12 @@ FName AFlareGame::PickCapitalShipName()
 	}
 	int32 PickIndex = FMath::RandRange(0,BaseImmatriculationNameList.Num()-1);
 
-	FName BaseName = BaseImmatriculationNameList[PickIndex];
+	FText BaseName = BaseImmatriculationNameList[PickIndex];
 
 	// Check unicity
 	bool Unique;
 	int32 NameIncrement = 1;
-	FName CandidateName;
+	FText CandidateName;
 	do
 	{
 		Unique = true;
@@ -788,7 +788,7 @@ FName AFlareGame::PickCapitalShipName()
 			Suffix = FString("");
 		}
 
-		CandidateName = FName(*(BaseName.ToString()+Suffix));
+		CandidateName = FText::FromString(BaseName.ToString() + Suffix);
 
 		// Browse all existing ships the check if the name is unique
 		// TODO check ship in travel (not in a sector with travels will be implemented)
@@ -799,7 +799,7 @@ FName AFlareGame::PickCapitalShipName()
 			for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 			{
 				UFlareSimulatedSpacecraft* SpacecraftCandidate = Sector->GetSectorShips()[ShipIndex];
-				if (SpacecraftCandidate && SpacecraftCandidate->GetNickName() == CandidateName)
+				if (SpacecraftCandidate && SpacecraftCandidate->GetNickName().ToString() == CandidateName.ToString())
 				{
 					FLOGV("Not unique %s", *CandidateName.ToString());
 					Unique = false;
@@ -818,36 +818,36 @@ FName AFlareGame::PickCapitalShipName()
 void AFlareGame::InitCapitalShipNameDatabase()
 {
 	BaseImmatriculationNameList.Empty();
-	BaseImmatriculationNameList.Add("Arrow");
-	BaseImmatriculationNameList.Add("Atom");
-	BaseImmatriculationNameList.Add("BinaryStar");
-	BaseImmatriculationNameList.Add("Blackout");
-	BaseImmatriculationNameList.Add("CrescentMoon");
-	BaseImmatriculationNameList.Add("Comet");
-	BaseImmatriculationNameList.Add("Coronation");
-	BaseImmatriculationNameList.Add("Destiny");
-	BaseImmatriculationNameList.Add("Duty");
-	BaseImmatriculationNameList.Add("Enterprise");
-	BaseImmatriculationNameList.Add("Giant");
-	BaseImmatriculationNameList.Add("Goliath");
-	BaseImmatriculationNameList.Add("Hammer");
-	BaseImmatriculationNameList.Add("Honor");
-	BaseImmatriculationNameList.Add("Intruder");
-	BaseImmatriculationNameList.Add("Explorer");
-	BaseImmatriculationNameList.Add("Meteor");
-	BaseImmatriculationNameList.Add("Mammoth");
-	BaseImmatriculationNameList.Add("Photon");
-	BaseImmatriculationNameList.Add("Resolve");
-	BaseImmatriculationNameList.Add("Revenge");
-	BaseImmatriculationNameList.Add("Sahara");
-	BaseImmatriculationNameList.Add("Sovereign");
-	BaseImmatriculationNameList.Add("Shrike");
-	BaseImmatriculationNameList.Add("Spearhead");
-	BaseImmatriculationNameList.Add("Stalker");
-	BaseImmatriculationNameList.Add("Thunder");
-	BaseImmatriculationNameList.Add("Unity");
-	BaseImmatriculationNameList.Add("Valor");
-	BaseImmatriculationNameList.Add("Winter");
+	BaseImmatriculationNameList.Add(FText::FromString("Arrow"));
+	BaseImmatriculationNameList.Add(FText::FromString("Atom"));
+	BaseImmatriculationNameList.Add(FText::FromString("BinaryStar"));
+	BaseImmatriculationNameList.Add(FText::FromString("Blackout"));
+	BaseImmatriculationNameList.Add(FText::FromString("CrescentMoon"));
+	BaseImmatriculationNameList.Add(FText::FromString("Comet"));
+	BaseImmatriculationNameList.Add(FText::FromString("Coronation"));
+	BaseImmatriculationNameList.Add(FText::FromString("Destiny"));
+	BaseImmatriculationNameList.Add(FText::FromString("Duty"));
+	BaseImmatriculationNameList.Add(FText::FromString("Enterprise"));
+	BaseImmatriculationNameList.Add(FText::FromString("Giant"));
+	BaseImmatriculationNameList.Add(FText::FromString("Goliath"));
+	BaseImmatriculationNameList.Add(FText::FromString("Hammer"));
+	BaseImmatriculationNameList.Add(FText::FromString("Honor"));
+	BaseImmatriculationNameList.Add(FText::FromString("Intruder"));
+	BaseImmatriculationNameList.Add(FText::FromString("Explorer"));
+	BaseImmatriculationNameList.Add(FText::FromString("Meteor"));
+	BaseImmatriculationNameList.Add(FText::FromString("Mammoth"));
+	BaseImmatriculationNameList.Add(FText::FromString("Photon"));
+	BaseImmatriculationNameList.Add(FText::FromString("Resolve"));
+	BaseImmatriculationNameList.Add(FText::FromString("Revenge"));
+	BaseImmatriculationNameList.Add(FText::FromString("Sahara"));
+	BaseImmatriculationNameList.Add(FText::FromString("Sovereign"));
+	BaseImmatriculationNameList.Add(FText::FromString("Shrike"));
+	BaseImmatriculationNameList.Add(FText::FromString("Spearhead"));
+	BaseImmatriculationNameList.Add(FText::FromString("Stalker"));
+	BaseImmatriculationNameList.Add(FText::FromString("Thunder"));
+	BaseImmatriculationNameList.Add(FText::FromString("Unity"));
+	BaseImmatriculationNameList.Add(FText::FromString("Valor"));
+	BaseImmatriculationNameList.Add(FText::FromString("Winter"));
 }
 
 

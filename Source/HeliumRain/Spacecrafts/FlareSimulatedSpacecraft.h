@@ -139,7 +139,7 @@ public:
 		return Game;
 	}	
 
-	inline FName GetNickName() const override
+	inline FText GetNickName() const override
 	{
 		return SpacecraftData.NickName;
 	}

@@ -306,7 +306,7 @@ public:
 		return ShipDescription;
 	}
 
-	inline FName GetNickName() const override
+	inline FText GetNickName() const override
 	{
 		return ShipData.NickName;
 	}

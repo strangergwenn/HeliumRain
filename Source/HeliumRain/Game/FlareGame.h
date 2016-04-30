@@ -151,7 +151,7 @@ public:
 	static FString ConvertToRoman(uint32 Val);
 
 	/** Get a capship name */
-	FName PickCapitalShipName();
+	FText PickCapitalShipName();
 
 
 protected:
@@ -228,7 +228,7 @@ protected:
 	----------------------------------------------------*/
 
 	int32                                      CurrentImmatriculationIndex;
-	TArray<FName>                              BaseImmatriculationNameList;
+	TArray<FText>                              BaseImmatriculationNameList;
 
 	FName                                      DefaultWeaponIdentifier;
 	FName                                      DefaultTurretIdentifier;
