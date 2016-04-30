@@ -179,7 +179,7 @@ void UFlareScenarioTools::SetupWorld()
 	PlayerCompany->DiscoverSector(Solitude);
 
 	// Company setup
-	PlayerCompany->GiveMoney(10000000);
+	PlayerCompany->GiveMoney(5000000);
 	MiningSyndicate->GiveMoney(100000000);
 	HelixFoundries->GiveMoney(100000000);
 	Sunwatch->GiveMoney(100000000);
