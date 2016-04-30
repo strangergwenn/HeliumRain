@@ -402,8 +402,8 @@ void SFlareSpacecraftInfo::Show()
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
 
 
-		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy) && TargetSpacecraft->GetCurrentSectorInterface()->CanUpgrade(TargetSpacecraft->GetCompany());
-		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
+		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy) && TargetSpacecraft->GetCurrentSectorInterface() && TargetSpacecraft->GetCurrentSectorInterface()->CanUpgrade(TargetSpacecraft->GetCompany());
+		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetCurrentSectorInterface() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 
 		if(Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft)
 				&& TargetSpacecraft->GetCurrentSectorInterface())
