@@ -564,6 +564,30 @@ bool AFlarePlayerController::IsSelectingWeapon() const
 	return (TimeSinceWeaponSwitch < WeaponSwitchTime);
 }
 
+void AFlarePlayerController::NotifyDockingResult(bool Success, IFlareSpacecraftInterface* Target)
+{
+	if (Success)
+	{
+		Notify(
+			LOCTEXT("DockingGranted", "Docking granted"),
+			FText::Format(
+				LOCTEXT("DockingGrantedInfoFormat", "Your ship is now automatically docking at {0}. Using manual controls will abort docking."),
+				FText::FromName(Target->GetImmatriculation())),
+			"docking-granted",
+			EFlareNotification::NT_Info,
+			10.0f);
+	}
+	else
+	{
+		Notify(
+			LOCTEXT("DockingDenied", "Docking denied"),
+			FText::Format(LOCTEXT("DockingDeniedInfoFormat", "{0} denied your docking request"), FText::FromName(Target->GetImmatriculation())),
+			"docking-denied",
+			EFlareNotification::NT_Info,
+			10.0f);
+	}
+}
+
 
 /*----------------------------------------------------
 	Objectives
@@ -1040,7 +1064,8 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
-			ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
+			bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
+			NotifyDockingResult(DockingConfirmed, TargetSpacecraft);
 		}
 	}
 }

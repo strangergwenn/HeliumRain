@@ -44,9 +44,9 @@ public:
 
 	virtual void Destroyed() override;
 
-	virtual void OnDocked();
+	virtual void OnDocked(IFlareSpacecraftInterface* DockStation);
 
-	virtual void OnUndocked();
+	virtual void OnUndocked(IFlareSpacecraftInterface* DockStation);
 
 	virtual void SetPause(bool Pause);
 

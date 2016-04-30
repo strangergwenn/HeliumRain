@@ -204,7 +204,8 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 
 		// Detach from station
 		Spacecraft->DetachRootComponentFromParent(true);
-		GetDockStation()->GetDockingSystem()->ReleaseDock(Spacecraft, Data->DockedAt);
+		IFlareSpacecraftInterface* DockStation = GetDockStation();
+		DockStation->GetDockingSystem()->ReleaseDock(Spacecraft, Data->DockedAt);
 
 		// Update data
 		SetStatus(EFlareShipStatus::SS_AutoPilot);
@@ -213,7 +214,7 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 
 		// Update Angular acceleration rate : when it's docked the mass is the ship mass + the station mass
 		Spacecraft->SetRCSDescription(Spacecraft->GetRCSDescription());
-		Spacecraft->OnUndocked();
+		Spacecraft->OnUndocked(DockStation);
 
 		// Leave
 		PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(5000 * FVector(-1, 0, 0)));
@@ -699,8 +700,9 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* Do
 		Engine->SetAlpha(0.0f);
 	}
 
-	Spacecraft->OnDocked();
+	Spacecraft->OnDocked(DockStation);
 }
+
 
 /*----------------------------------------------------
 	Navigation commands and helpers

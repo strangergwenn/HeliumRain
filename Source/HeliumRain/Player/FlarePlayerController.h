@@ -117,6 +117,9 @@ public:
 	/** id we select a weapon recently ? */
 	bool IsSelectingWeapon() const;
 
+	/** Show a notification explaining if we succeeded in docking */
+	void NotifyDockingResult(bool Success, IFlareSpacecraftInterface* Target);
+
 
 	/*----------------------------------------------------
 		Objectives
@@ -133,6 +136,7 @@ public:
 
 	/** Get the raw objective data */
 	const FFlarePlayerObjective* GetCurrentObjective() const;
+
 
 	/*----------------------------------------------------
 		Customization

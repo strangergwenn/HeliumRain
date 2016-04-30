@@ -575,7 +575,8 @@ void SFlareSpacecraftInfo::OnDockAt()
 {
 	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
 	{
-		PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetSpacecraft);
+		bool DockingConfirmed = PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetSpacecraft);
+		PC->NotifyDockingResult(DockingConfirmed, TargetSpacecraft);
 		PC->GetMenuManager()->CloseMenu();
 	}
 }

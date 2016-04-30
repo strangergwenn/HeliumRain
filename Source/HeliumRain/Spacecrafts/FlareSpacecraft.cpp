@@ -822,13 +822,22 @@ void AFlareSpacecraft::StartPresentation()
 		Damage system
 ----------------------------------------------------*/
 
-void AFlareSpacecraft::OnDocked()
+void AFlareSpacecraft::OnDocked(IFlareSpacecraftInterface* DockStation)
 {
 	// Signal the PC
 	AFlarePlayerController* PC = GetPC();
-	if (PC && !StateManager->IsExternalCamera())
+	if (PC)
 	{
-		PC->SetExternalCamera(true);
+		if (!StateManager->IsExternalCamera())
+		{
+			PC->SetExternalCamera(true);
+		}
+
+		PC->Notify(
+			LOCTEXT("DockingSuccess", "Docking successful"),
+			FText::Format(LOCTEXT("DockingSuccessInfoFormat", "Your ship is now docked at {0}"), FText::FromName(DockStation->GetImmatriculation())),
+			"docking-success",
+			EFlareNotification::NT_Info);
 	}
 
 	// Reload and repair
@@ -848,13 +857,22 @@ void AFlareSpacecraft::OnDocked()
 	DamageSystem->UpdatePower();
 }
 
-void AFlareSpacecraft::OnUndocked()
+void AFlareSpacecraft::OnUndocked(IFlareSpacecraftInterface* DockStation)
 {
 	// Signal the PC
 	AFlarePlayerController* PC = GetPC();
-	if (PC && StateManager->IsExternalCamera())
+	if (PC)
 	{
-		PC->SetExternalCamera(false);
+		if (StateManager->IsExternalCamera())
+		{
+			PC->SetExternalCamera(false);
+		}
+
+		PC->Notify(
+			LOCTEXT("Undocked", "Undocked"),
+			FText::Format(LOCTEXT("UndockedInfoFormat", "Undocked from {0}"), FText::FromName(DockStation->GetImmatriculation())),
+			"docking-success",
+			EFlareNotification::NT_Info);
 	}
 }
 
