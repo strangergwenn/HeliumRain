@@ -136,7 +136,9 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(STextBlock)
-				.Text(FText::Format(FText::FromString("HELIUM RAIN / alpha build / {0}"), FText::FromString(__DATE__))) // FString neded here
+				.Text(FText::Format(FText::FromString("HELIUM RAIN / Alpha / Built on {0} at {1}"),
+					FText::FromString(__DATE__),  // FString neded here
+					FText::FromString(__TIME__))) // FString neded here
 				.TextStyle(&Theme.SmallFont)
 			]
 		]
