@@ -697,8 +697,8 @@ const FSlateBrush* SFlareSpacecraftInfo::GetClassIcon() const
 EVisibility SFlareSpacecraftInfo::GetCompanyFlagVisibility() const
 {
 	// Crash mitigation - If parent is hidden, so are we, don't try to use the target (#178)
-	if (OwnerWidget.IsValid() && OwnerWidget->GetVisibility() != EVisibility::Visible
-		|| PC && !PC->GetMenuManager()->IsMenuOpen())
+	if ((OwnerWidget.IsValid() && OwnerWidget->GetVisibility() != EVisibility::Visible)
+		|| (PC && !PC->GetMenuManager()->IsMenuOpen()))
 	{
 		return EVisibility::Collapsed;
 	}
@@ -726,8 +726,8 @@ EVisibility SFlareSpacecraftInfo::GetSpacecraftInfoVisibility() const
 FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 {
 	// Crash mitigation - If parent is hidden, so are we, don't try to use the target (#178)
-	if (OwnerWidget.IsValid() && OwnerWidget->GetVisibility() != EVisibility::Visible
-		|| PC && !PC->GetMenuManager()->IsMenuOpen())
+	if ((OwnerWidget.IsValid() && OwnerWidget->GetVisibility() != EVisibility::Visible)
+		|| (PC && !PC->GetMenuManager()->IsMenuOpen()))
 	{
 		return FText();
 	}
