@@ -36,7 +36,7 @@ AFlareMenuManager* AFlareMenuManager::Singleton;
 AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, MenuIsOpen(false)
-	, FadeDuration(0.25)
+	, FadeDuration(0.20)
 {
 }
 
@@ -137,15 +137,18 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 	if (Fader.IsValid() && FadeTimer >= 0)
 	{
 		FadeTimer += DeltaSeconds;
-		FLinearColor Color = FLinearColor::Black;
+		float AccelRatio = 1.1;
 		float Alpha = FMath::Clamp(FadeTimer / FadeDuration, 0.0f, 1.0f);
 
+		// Apply alpha
+		FLinearColor Color = FLinearColor::Black;
+		Color.A = FMath::Clamp((FadeFromBlack ? 1 - AccelRatio * Alpha : AccelRatio * Alpha), 0.0f, 1.0f);
+		Fader->SetBorderBackgroundColor(Color);
+		
 		// Fade process
 		if (Alpha < 1)
 		{
-			Color.A = FadeFromBlack ? 1 - Alpha : Alpha;
 			Fader->SetVisibility(EVisibility::Visible);
-			Fader->SetBorderBackgroundColor(Color);
 		}
 
 		// Callback

@@ -174,7 +174,7 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 	{
 		UFlareCompany* Company = Companies[i];
 
-		FLOGV("UFlareWorld::Save : saving company ('%s')", *Company->GetName());
+		//FLOGV("UFlareWorld::Save : saving company ('%s')", *Company->GetName());
 		FFlareCompanySave* TempData = Company->Save();
 		WorldData.CompanyData.Add(*TempData);
 	}
@@ -183,12 +183,12 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 	for (int i = 0; i < Sectors.Num(); i++)
 	{
 		UFlareSimulatedSector* Sector = Sectors[i];
-		FLOGV("UFlareWorld::Save : saving sector ('%s')", *Sector->GetName());
+		//FLOGV("UFlareWorld::Save : saving sector ('%s')", *Sector->GetName());
 
 		FFlareSectorSave* TempData;
 		if (ActiveSector && Sector->GetIdentifier() == ActiveSector->GetIdentifier())
 		{
-			FLOG("  sector saved as active sector");
+			//FLOG("  sector saved as active sector");
 			TempData = ActiveSector->Save(SpacecraftData);
 		}
 		else
@@ -203,7 +203,7 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 	{
 		UFlareTravel* Travel = Travels[i];
 
-		FLOGV("UFlareWorld::Save : saving travel for ('%s')", *Travel->GetFleet()->GetFleetName().ToString());
+		//FLOGV("UFlareWorld::Save : saving travel for ('%s')", *Travel->GetFleet()->GetFleetName().ToString());
 		FFlareTravelSave* TempData = Travel->Save();
 		WorldData.TravelData.Add(*TempData);
 	}
