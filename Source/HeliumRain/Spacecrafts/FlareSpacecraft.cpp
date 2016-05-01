@@ -587,6 +587,20 @@ UFlareSpacecraftDockingSystem* AFlareSpacecraft::GetDockingSystem() const
 	return DockingSystem;
 }
 
+bool AFlareSpacecraft::CanBeFlown(FText& OutInfo) const
+{
+	if (IsStation())
+	{
+		return false;
+	}
+	else if (IsAssignedToSector())
+	{
+		OutInfo = FText::Format(LOCTEXT("CantTravelFormat", "Can't fly if assigned ({0})"), FText::FromName(GetImmatriculation()));
+		return false;
+	}
+	return true;
+}
+
 bool AFlareSpacecraft::CanFight() const
 {
 	return GetDamageSystem()->IsAlive() && IsMilitary() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;

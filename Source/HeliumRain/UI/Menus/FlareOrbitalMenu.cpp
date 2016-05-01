@@ -135,7 +135,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.Padding(Theme.SmallContentPadding)
 			[
 				SAssignNew(FastForward, SFlareButton)
-				.Width(8)
+				.Width(4)
 				.Toggle(true)
 				.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
 				.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
@@ -150,7 +150,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SFlareButton)
-				.Width(8)
+				.Width(9)
 				.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
 				.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
 				.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -164,7 +164,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SFlareButton)
-				.Width(8)
+				.Width(9)
 				.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
 				.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
 				.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -235,7 +235,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
 						.Text(this, &SFlareOrbitalMenu::GetTravelText)
-						.WrapTextAt(2 * Theme.ContentWidth)
+						.WrapTextAt(0.8 * Theme.ContentWidth)
 					]
 				]
 
@@ -448,14 +448,19 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 FText SFlareOrbitalMenu::GetFlyCurrentShipText() const
 {
 	UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
+	FText Reason;
 
-	if (CurrentShip && !IsFlyCurrentShipDisabled())
+	if (!CurrentShip)
+	{
+		return LOCTEXT("FlyCurrentNone", "Previous ship is unavailable");
+	}
+	else if (CurrentShip->CanBeFlown(Reason))
 	{
 		return FText::Format(LOCTEXT("FlyCurrentFormat", "Fly previous ship ({0})"), FText::FromName(CurrentShip->GetImmatriculation()));
 	}
 	else
 	{
-		return LOCTEXT("NoFlyCurrentFormat", "Can't fly previous ship !");
+		return Reason;
 	}
 }
 
@@ -464,8 +469,9 @@ bool SFlareOrbitalMenu::IsFlyCurrentShipDisabled() const
 	if (IsEnabled())
 	{
 		UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
+		FText Unused;
 
-		if (CurrentShip && CurrentShip->CanBeFlown())
+		if (CurrentShip && CurrentShip->CanBeFlown(Unused))
 		{
 			return false;
 		}
@@ -483,13 +489,18 @@ FText SFlareOrbitalMenu::GetFlySelectedShipText() const
 		CurrentShip = SelectedFleet->GetShips()[0];
 	}
 
-	if (CurrentShip && !IsFlySelectedShipDisabled())
+	FText Reason;
+	if (!CurrentShip)
+	{
+		return LOCTEXT("FlySelectedNone", "No fleet selected");
+	}
+	else if (CurrentShip->CanBeFlown(Reason))
 	{
 		return FText::Format(LOCTEXT("FlySelectedFormat", "Fly selected ship ({0})"), FText::FromName(CurrentShip->GetImmatriculation()));
 	}
 	else
 	{
-		return LOCTEXT("NoFlySelectedFormat", "Can't fly selected ship !");
+		return Reason;
 	}
 }
 
@@ -501,9 +512,9 @@ bool SFlareOrbitalMenu::IsFlySelectedShipDisabled() const
 
 		if (SelectedFleet && SelectedFleet->GetShips().Num() > 0)
 		{
+			FText Unused;
 			UFlareSimulatedSpacecraft* CurrentShip = SelectedFleet->GetShips()[0];
-
-			if (CurrentShip && CurrentShip->CanBeFlown())
+			if (CurrentShip && CurrentShip->CanBeFlown(Unused))
 			{
 				return false;
 			}

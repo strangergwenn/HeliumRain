@@ -102,10 +102,7 @@ public:
 
 	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
-	virtual bool CanBeFlown() const override
-	{
-		return !IsStation() && !IsAssignedToSector();
-	}
+	virtual bool CanBeFlown(FText& OutInfo) const override;
 
 	virtual bool CanFight() const override;
 

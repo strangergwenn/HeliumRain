@@ -400,12 +400,11 @@ void SFlareSpacecraftInfo::Show()
 		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
 		bool CanAssign = Owned && !IsStation && TargetSpacecraft->GetCurrentSectorInterface() && !TargetSpacecraft->IsAssignedToSector();
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
-
-
 		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy) && TargetSpacecraft->GetCurrentSectorInterface() && TargetSpacecraft->GetCurrentSectorInterface()->CanUpgrade(TargetSpacecraft->GetCompany());
 		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetCurrentSectorInterface() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 
-		if(Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft)
+		// Trade override during battles
+		if (Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft)
 				&& TargetSpacecraft->GetCurrentSectorInterface())
 		{
 			EFlareSectorBattleState::Type BattleState = TargetSpacecraft->GetCurrentSectorInterface()->GetSectorBattleState(TargetSpacecraft->GetCompany());
@@ -437,7 +436,8 @@ void SFlareSpacecraftInfo::Show()
 		ScrapButton->SetVisibility(EVisibility::Collapsed); // Unused at this time
 
 		// Flyable ships : disable when not flyable
-		if (OwnedAndNotSelf && TargetSpacecraft->CanBeFlown())
+		FText Reason;
+		if (OwnedAndNotSelf && TargetSpacecraft->CanBeFlown(Reason))
 		{
 			FlyButton->SetDisabled(false);
 			SelectButton->SetDisabled(false);
@@ -536,7 +536,8 @@ void SFlareSpacecraftInfo::OnTrade()
 
 void SFlareSpacecraftInfo::OnFly()
 {
-	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown())
+	FText Unused;
+	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown(Unused))
 	{
 		// Check if a simulated spacecraft
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
@@ -556,7 +557,8 @@ void SFlareSpacecraftInfo::OnFly()
 
 void SFlareSpacecraftInfo::OnSelect()
 {
-	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown())
+	FText Unused;
+	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown(Unused))
 	{
 		// Check if a simulated spacecraft
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);

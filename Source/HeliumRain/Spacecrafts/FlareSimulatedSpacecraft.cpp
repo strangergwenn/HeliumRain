@@ -8,6 +8,9 @@
 #include "FlareSimulatedSpacecraft.h"
 
 
+#define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraft"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -212,6 +215,26 @@ void UFlareSimulatedSpacecraft::SetSpawnMode(EFlareSpawnMode::Type SpawnMode)
 	SpacecraftData.SpawnMode = SpawnMode;
 }
 
+bool UFlareSimulatedSpacecraft::CanBeFlown(FText& OutInfo) const
+{
+	if (IsStation())
+	{
+		return false;
+	}
+	else if (CurrentSector == NULL)
+	{
+		OutInfo = FText::Format(LOCTEXT("CantTravelFormat", "Can't fly during travel ({0})"), FText::FromName(GetImmatriculation()));
+		return false;
+	}
+	else if (IsAssignedToSector())
+	{
+		OutInfo = FText::Format(LOCTEXT("CantAssignedFormat", "Can't fly if assigned ({0})"), FText::FromName(GetImmatriculation()));
+		return false;
+	}
+	return true;
+}
+
+
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
@@ -307,8 +330,5 @@ void UFlareSimulatedSpacecraft::SetDynamicComponentState(FName Identifier, float
 	SpacecraftData.DynamicComponentStateProgress = Progress;
 }
 
-/*----------------------------------------------------
-	Getters
-----------------------------------------------------*/
 
-
+#undef LOCTEXT_NAMESPACE

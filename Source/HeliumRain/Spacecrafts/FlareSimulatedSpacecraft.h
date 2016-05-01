@@ -75,10 +75,7 @@ public:
 
 	virtual void SetSpawnMode(EFlareSpawnMode::Type SpawnMode);
 
-	virtual bool CanBeFlown() const override
-	{
-		return !IsStation() && (CurrentSector != NULL) && ! IsAssignedToSector();
-	}
+	virtual bool CanBeFlown(FText& OutInfo) const override;
 
 	virtual bool IsAssignedToSector() const override
 	{

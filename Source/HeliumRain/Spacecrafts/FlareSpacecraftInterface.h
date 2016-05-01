@@ -223,7 +223,7 @@ public:
 	/** Check if this is a station ship */
 	virtual bool IsStation() const = 0;
 
-	virtual bool CanBeFlown() const = 0;
+	virtual bool CanBeFlown(FText& OutInfo) const = 0;
 
 	virtual bool CanTravel() const = 0;
 
