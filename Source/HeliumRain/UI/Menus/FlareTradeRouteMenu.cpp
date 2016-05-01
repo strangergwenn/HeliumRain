@@ -546,7 +546,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 				}
 				else
 				{
-					UnloadLimits = FText(LOCTEXT("UnloadLimits", "Unload all"));
+					UnloadLimits = FText(LOCTEXT("UnloadAll", "Unload all"));
 				}
 
 				UnloadResourceList->AddSlot()
