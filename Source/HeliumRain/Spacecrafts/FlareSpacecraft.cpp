@@ -66,7 +66,7 @@ void AFlareSpacecraft::BeginPlay()
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
-	check(IsValidLowLevelFast());
+	check(IsValidLowLevel());
 	//check(Airframe && Airframe->GetBodyInstance()->IsValidBodyInstance());
 
 	// Show mass in logs
@@ -363,11 +363,8 @@ AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 	}
 
 	// Crash "preventer" - ensure we've got a really valid target, this isn't a solution, but it seems to only happen when using CreateShip commands
-	// TODO : remove all IsValidLowLevelFast checks, play a little, check during real gameplay if stuff happens
-	if (CurrentTarget                    && CurrentTarget->IsValidLowLevelFast()
-	 && CurrentTarget->Airframe          && CurrentTarget->Airframe->IsValidLowLevelFast()
-	 && CurrentTarget->GetDamageSystem() && CurrentTarget->GetDamageSystem()->IsValidLowLevelFast()
-	 && CurrentTarget->GetDamageSystem()->IsAlive())
+	if (IsValidLowLevel() && CurrentTarget  && CurrentTarget->IsValidLowLevel()
+	 && CurrentTarget->GetDamageSystem() && CurrentTarget->GetDamageSystem()->IsValidLowLevel() && CurrentTarget->GetDamageSystem()->IsAlive())
 	{
 		return CurrentTarget;
 	}

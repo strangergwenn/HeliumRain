@@ -580,7 +580,7 @@ void AFlareShell::Destroyed()
 	check(Game);
 
 	UFlareSector* Sector = Game->GetActiveSector();
-	if (Sector->IsValidLowLevelFast())
+	if (Sector->IsValidLowLevel())
 	{
 		Sector->UnregisterShell(this);
 	}

@@ -33,6 +33,9 @@ public:
 	/** Signal that a new ship is being flown */
 	virtual void OnFlyShip(AFlareSpacecraft* NewPlayerShip);
 
+	/** Signal that no ship is being flown */
+	virtual void OnStopFlying();
+
 	/** Whether to use the external camera or not */
 	virtual void SetExternalCamera(bool External);
 
@@ -49,7 +52,7 @@ protected:
 	void EnterCockpit(AFlareSpacecraft* TargetPlayerShip);
 
 	/** Exit the cockpit */
-	void ExitCockpit(AFlareSpacecraft* TargetPlayerShip);
+	void ExitCockpit();
 
 	/** Update the target info */
 	void UpdateTarget(float DeltaSeconds);

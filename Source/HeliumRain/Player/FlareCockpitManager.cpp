@@ -153,7 +153,7 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		FLOG("AFlareCockpitManager::SetupCockpit : cockpit manager is disabled");
 		CockpitMaterialInstance = NULL;
 		CockpitFrameMaterialInstance = NULL;
-		ExitCockpit(PlayerShip);
+		ExitCockpit();
 	}
 }
 
@@ -167,7 +167,7 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 	// Reset existing ship
 	if (PlayerShip)
 	{
-		ExitCockpit(PlayerShip);
+		ExitCockpit();
 	}
 
 	// Reset data
@@ -184,8 +184,13 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 	}
 	else
 	{
-		ExitCockpit(PlayerShip);
+		ExitCockpit();
 	}
+}
+
+void AFlareCockpitManager::OnStopFlying()
+{
+	ExitCockpit();
 }
 
 void AFlareCockpitManager::SetExternalCamera(bool External)
@@ -197,7 +202,7 @@ void AFlareCockpitManager::SetExternalCamera(bool External)
 
 	if (External || !PC->UseCockpit)
 	{
-		ExitCockpit(PlayerShip);
+		ExitCockpit();
 	}
 	else
 	{
@@ -285,9 +290,10 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	CockpitMesh->SetVisibility(true, true);
 }
 
-void AFlareCockpitManager::ExitCockpit(AFlareSpacecraft* TargetPlayerShip)
+void AFlareCockpitManager::ExitCockpit()
 {
 	IsInCockpit = false;
+	PlayerShip = NULL;
 	CockpitFLIRCapture->Deactivate();
 	CockpitMesh->SetVisibility(false, true);
 }

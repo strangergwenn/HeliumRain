@@ -74,3 +74,6 @@ Binaries/Win64/HeliumRain-Win64-Test.target
 HeliumRain.VC.db
 HeliumRain.VC.VC.opendb
 Binaries/Win64/steam_appid.txt
+Binaries/Win64/HeliumRainEditor-Win64-Debug.target
+Binaries/Win64/UE4Editor-Win64-Debug.modules
+Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor-Win64-Debug.modules

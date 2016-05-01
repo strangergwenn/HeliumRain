@@ -359,13 +359,15 @@ void AFlarePlayerController::OnSectorDeactivated()
 {
 	FLOG("AFlarePlayerController::OnSectorDeactivated");
 
-	// Reset the ship's target
+	// Reset the ship
+	CockpitManager->OnStopFlying();
 	if (ShipPawn)
 	{
 		ShipPawn->ResetCurrentTarget();
+		ShipPawn = NULL;
 	}
-	ShipPawn = NULL;
 
+	// Reset states
 	LastBattleState = EFlareSectorBattleState::NoBattle;
 	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
 	SoundManager->RequestMusicTrack(EFlareMusicTrack::MainMenu);

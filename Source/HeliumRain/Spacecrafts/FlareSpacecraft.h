@@ -156,13 +156,7 @@ public:
 
 	virtual void StartPresentation() override;
 
-	/** Set the cockpit mesh */
-	void EnterCockpit(UStaticMesh* Mesh, UMaterialInstanceDynamic* Material, UMaterialInstanceDynamic* FrameMaterial, UCanvasRenderTarget2D* CameraTarget);
-
-	/** Remove the cockpit mesh */
-	void ExitCockpit();
-
-
+	
 public:
 
 	/*----------------------------------------------------
