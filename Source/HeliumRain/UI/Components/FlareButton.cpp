@@ -284,7 +284,7 @@ FSlateFontInfo SFlareButton::GetTextStyle() const
 		float TextLength = Text.Get().ToString().Len();
 		float ButtonWidth = GetDesiredSize().X;
 
-		if (TextLength > 0.09 * ButtonWidth)
+		if (TextLength > 0.075 * ButtonWidth)
 		{
 			return Theme.SmallFont.Font;
 		}

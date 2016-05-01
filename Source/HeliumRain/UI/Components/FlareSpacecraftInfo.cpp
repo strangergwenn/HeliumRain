@@ -181,7 +181,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Assign", "ASSIGN HERE"))
 							.HelpText(LOCTEXT("AssignInfo", "Assign this ship to it's current sector"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnAssign)
-							.Width(4)
+							.Width(3)
 						]
 
 						// UnAssign to sector
@@ -192,7 +192,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Unassign", "UNASSIGN"))
 							.HelpText(LOCTEXT("UnassignInfo", "Unassign this ship from the sector"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnUnassign)
-							.Width(4)
+							.Width(3)
 						]
 
 						// Trade
@@ -203,7 +203,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Trade", "TRADE"))
 							.HelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
-							.Width(4)
+							.Width(3)
 						]
 
 						// Upgrade
@@ -214,7 +214,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Upgrade", "UPGRADE"))
 							.HelpText(LOCTEXT("UpgradeInfo", "Upgrade this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
-							.Width(4)
+							.Width(3)
 						]
 			
 						// Dock here
@@ -225,7 +225,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Dock", "DOCK HERE"))
 							.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
-							.Width(4)
+							.Width(3)
 						]
 
 						// Undock
@@ -236,7 +236,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Undock", "UNDOCK"))
 							.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
-							.Width(4)
+							.Width(3)
 						]
 
 						// Scrap
@@ -247,7 +247,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Scrap", "SCRAP"))
 							.HelpText(LOCTEXT("UndockInfo", "Permanently destroy this ship and get some resources back"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
-							.Width(4)
+							.Width(3)
 						]
 					]
 
