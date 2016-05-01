@@ -160,7 +160,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(FlyButton, SFlareButton)
 							.Text(LOCTEXT("ShipFly", "FLY"))
-							.HelpText(LOCTEXT("ShipFlyInfo", "Take command of this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
 							.Width(4)
 						]
@@ -201,7 +200,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(TradeButton, SFlareButton)
 							.Text(LOCTEXT("Trade", "TRADE"))
-							.HelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
 							.Width(3)
 						]
@@ -212,7 +210,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(UpgradeButton, SFlareButton)
 							.Text(LOCTEXT("Upgrade", "UPGRADE"))
-							.HelpText(LOCTEXT("UpgradeInfo", "Upgrade this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
 							.Width(3)
 						]
@@ -432,33 +429,49 @@ void SFlareSpacecraftInfo::Show()
 		UpgradeButton->SetVisibility(Owned && !IsStation ? EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock ? EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
-
 		ScrapButton->SetVisibility(EVisibility::Collapsed); // Unused at this time
 
 		// Flyable ships : disable when not flyable
 		FText Reason;
-		if (OwnedAndNotSelf && TargetSpacecraft->CanBeFlown(Reason))
+		if (!OwnedAndNotSelf)
 		{
-			FlyButton->SetDisabled(false);
-			SelectButton->SetDisabled(false);
+			FlyButton->SetHelpText(LOCTEXT("ShipAlreadyFlyInfo", "You are already flying this spacecraft"));
+			FlyButton->SetDisabled(true);
+		}
+		else if (!TargetSpacecraft->CanBeFlown(Reason))
+		{
+			FlyButton->SetHelpText(Reason);
+			FlyButton->SetDisabled(true);
 		}
 		else
 		{
-			FlyButton->SetDisabled(true);
-			SelectButton->SetDisabled(true);
+			FlyButton->SetHelpText(LOCTEXT("ShipFlyInfo", "Take command of this spacecraft"));
+			FlyButton->SetDisabled(false);
 		}
 
 		// Disable trade while flying unless docked
-		if (IsStrategy)
+		if (IsStrategy || IsDocked)
 		{
+			TradeButton->SetHelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"));
 			TradeButton->SetDisabled(false);
 		}
 		else
 		{
-			TradeButton->SetDisabled(!IsDocked);
+			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading requires to be docked, or on the orbital map"));
+			TradeButton->SetDisabled(true);
 		}
 
-		UpgradeButton->SetDisabled(!CanUpgrade);
+		// Disable upgrades
+		if (CanUpgrade)
+		{
+			UpgradeButton->SetHelpText(LOCTEXT("UpgradeInfo", "Upgrade this spacecraft"));
+			UpgradeButton->SetDisabled(false);
+		}
+		else
+		{
+			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked, or on the orbital map with an available station in the sector"));
+			UpgradeButton->SetDisabled(true);
+		}
 
 		// Shipyards get additional controls
 		OrderShipButton->SetVisibility(EVisibility::Collapsed);

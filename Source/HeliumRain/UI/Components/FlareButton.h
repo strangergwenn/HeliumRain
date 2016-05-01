@@ -53,6 +53,12 @@ public:
 
 	/** Set the disabled state */
 	void SetDisabled(bool State);
+
+	/** Force a new text */
+	void SetText(FText NewText);
+
+	/** Force a new help text */
+	void SetHelpText(FText NewText);
 	
 
 	/*----------------------------------------------------
@@ -100,6 +106,7 @@ protected:
 	// Slate data
 	FFlareButtonClicked            OnClicked;
 	TSharedPtr<SBorder>            InnerContainer;
+	TSharedPtr<STextBlock>         TextBlock;
 
 	// Attributes
 	TAttribute<const FSlateBrush*> Icon;

@@ -137,7 +137,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.VAlign(VAlign_Center)
 			[
-				SNew(STextBlock)
+				SAssignNew(TextBlock, STextBlock)
 				.TextStyle(&Theme.TextFont)
 				.Font(this, &SFlareButton::GetTextStyle)
 				.Text(InArgs._Text)
@@ -179,6 +179,20 @@ bool SFlareButton::IsActive() const
 void SFlareButton::SetDisabled(bool State)
 {
 	IsDisabled.Set(State);
+}
+
+void SFlareButton::SetText(FText NewText)
+{
+	if (TextBlock.IsValid())
+	{
+		Text.Set(NewText);
+		TextBlock->SetText(Text);
+	}
+}
+
+void SFlareButton::SetHelpText(FText NewText)
+{
+	HelpText.Set(NewText);
 }
 
 
