@@ -166,6 +166,13 @@ void SFlareShipList::RefreshList()
 void SFlareShipList::ClearSelection()
 {
 	TargetList->ClearSelection();
+
+	if (PreviousSelection.IsValid())
+	{
+		TSharedRef<SFlareSpacecraftInfo> ShipInfoWidget = StaticCastSharedRef<SFlareSpacecraftInfo>(PreviousSelection->GetContainer()->GetContent());
+		ShipInfoWidget->SetMinimized(true);
+		PreviousSelection->SetSelected(false);
+	}
 }
 
 void SFlareShipList::Reset()

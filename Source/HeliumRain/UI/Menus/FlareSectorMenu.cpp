@@ -233,26 +233,33 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot()
 			.VAlign(VAlign_Top)
 			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
+				SNew(SHorizontalBox)
 
-				+ SScrollBox::Slot()
+				// Owned
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
 				[
-					SNew(SHorizontalBox)
+					SNew(SScrollBox)
+					.Style(&Theme.ScrollBoxStyle)
+					.ScrollBarStyle(&Theme.ScrollBarStyle)
 
-					// Owned
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Right)
+					+ SScrollBox::Slot()
 					[
 						SAssignNew(OwnedShipList, SFlareShipList)
 						.MenuManager(MenuManager)
 						.Title(LOCTEXT("MyListTitle", "OWNED SPACECRAFTS IN SECTOR"))
 					]
+				]
 
-					// Others
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Left)
+				// Others
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SScrollBox)
+					.Style(&Theme.ScrollBoxStyle)
+					.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+					+ SScrollBox::Slot()
 					[
 						SAssignNew(OtherShipList, SFlareShipList)
 						.MenuManager(MenuManager)

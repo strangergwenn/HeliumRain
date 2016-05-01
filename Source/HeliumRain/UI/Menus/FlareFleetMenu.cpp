@@ -87,60 +87,59 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		[
-			SNew(SScrollBox)
-			.Style(&Theme.ScrollBoxStyle)
-			.ScrollBarStyle(&Theme.ScrollBarStyle)
+			SNew(SHorizontalBox)
 
-			+ SScrollBox::Slot()
+			// Fleet list
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Left)
 			[
-				SNew(SHorizontalBox)
-
-				// Fleet list
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Left)
+				SNew(SBox)
+				.HAlign(HAlign_Fill)
+				.WidthOverride(Theme.ContentWidth)
 				[
-					SNew(SBox)
-					.HAlign(HAlign_Fill)
-					.WidthOverride(Theme.ContentWidth)
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Right)
 					[
 						SNew(SVerticalBox)
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.HAlign(HAlign_Right)
+						.Padding(Theme.SmallContentPadding)
 						[
-							SNew(SVerticalBox)
-
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SNew(SFlareButton)
-								.Width(8)
-								.Icon(FFlareStyleSet::GetIcon("OK"))
-								.Text(this, &SFlareFleetMenu::GetSelectText)
-								.HelpText(LOCTEXT("SelectFleetInfo", "Select this fleet to rename it or change its composition"))
-								.IsDisabled(this, &SFlareFleetMenu::IsSelectDisabled)
-								.OnClicked(this, &SFlareFleetMenu::OnSelectFleet)
-							]
-
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SNew(SFlareButton)
-								.Width(8)
-								.Icon(FFlareStyleSet::GetIcon("MoveRight"))
-								.Text(this, &SFlareFleetMenu::GetAddText)
-								.HelpText(LOCTEXT("AddToFleetInfo", "Merge this fleet or ship with the current fleet"))
-								.IsDisabled(this, &SFlareFleetMenu::IsAddDisabled)
-								.OnClicked(this, &SFlareFleetMenu::OnAddToFleet)
-								.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-							]
+							SNew(SFlareButton)
+							.Width(8)
+							.Icon(FFlareStyleSet::GetIcon("OK"))
+							.Text(this, &SFlareFleetMenu::GetSelectText)
+							.HelpText(LOCTEXT("SelectFleetInfo", "Select this fleet to rename it or change its composition"))
+							.IsDisabled(this, &SFlareFleetMenu::IsSelectDisabled)
+							.OnClicked(this, &SFlareFleetMenu::OnSelectFleet)
 						]
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(SFlareButton)
+							.Width(8)
+							.Icon(FFlareStyleSet::GetIcon("MoveRight"))
+							.Text(this, &SFlareFleetMenu::GetAddText)
+							.HelpText(LOCTEXT("AddToFleetInfo", "Merge this fleet or ship with the current fleet"))
+							.IsDisabled(this, &SFlareFleetMenu::IsAddDisabled)
+							.OnClicked(this, &SFlareFleetMenu::OnAddToFleet)
+							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+						]
+					]
+
+					+ SVerticalBox::Slot()
+					[
+						SNew(SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+						+ SScrollBox::Slot()
 						[
 							SAssignNew(FleetList, SFlareShipList)
 							.MenuManager(MenuManager)
@@ -150,72 +149,78 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 						]
 					]
 				]
+			]
 
-				// Ship list
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Fill)
+			// Ship list
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Fill)
+			[
+				SNew(SBox)
+				.HAlign(HAlign_Right)
+				.WidthOverride(Theme.ContentWidth)
 				[
-					SNew(SBox)
-					.HAlign(HAlign_Right)
-					.WidthOverride(Theme.ContentWidth)
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
 					[
 						SNew(SVerticalBox)
-
+							
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.HAlign(HAlign_Left)
+						.Padding(Theme.SmallContentPadding)
 						[
-							SNew(SVerticalBox)
-							
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SNew(SHorizontalBox)
+							SNew(SHorizontalBox)
 
-								// Confirm
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								[
-									SNew(SFlareButton)
-									.Width(4)
-									.Icon(FFlareStyleSet::GetIcon("OK"))
-									.Text(LOCTEXT("Rename", "Rename fleet"))
-									.HelpText(LOCTEXT("ChangeNameInfo", "Rename the selected fleet"))
-									.OnClicked(this, &SFlareFleetMenu::OnRenameFleet)
-									.IsDisabled(this, &SFlareFleetMenu::IsRenameDisabled)
-									.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-								]
-
-								// Name field
-								+ SHorizontalBox::Slot()
-								.HAlign(HAlign_Fill)
-								.Padding(Theme.SmallContentPadding)
-								[
-									SAssignNew(EditFleetName, SEditableText)
-									.Style(&Theme.TextInputStyle)
-									.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-								]
-							]
-
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
-							.HAlign(HAlign_Left)
+							// Confirm
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
 							[
 								SNew(SFlareButton)
-								.Width(8)
-								.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
-								.Text(this, &SFlareFleetMenu::GetRemoveText)
-								.HelpText(LOCTEXT("RemoveFromFleetInfo", "Remove this ship from the fleet"))
-								.IsDisabled(this, &SFlareFleetMenu::IsRemoveDisabled)
-								.OnClicked(this, &SFlareFleetMenu::OnRemoveFromFleet)
+								.Width(4)
+								.Icon(FFlareStyleSet::GetIcon("OK"))
+								.Text(LOCTEXT("Rename", "Rename fleet"))
+								.HelpText(LOCTEXT("ChangeNameInfo", "Rename the selected fleet"))
+								.OnClicked(this, &SFlareFleetMenu::OnRenameFleet)
+								.IsDisabled(this, &SFlareFleetMenu::IsRenameDisabled)
+								.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+							]
+
+							// Name field
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Fill)
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(EditFleetName, SEditableText)
+								.Style(&Theme.TextInputStyle)
 								.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 							]
 						]
-									
+
 						+ SVerticalBox::Slot()
 						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(8)
+							.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
+							.Text(this, &SFlareFleetMenu::GetRemoveText)
+							.HelpText(LOCTEXT("RemoveFromFleetInfo", "Remove this ship from the fleet"))
+							.IsDisabled(this, &SFlareFleetMenu::IsRemoveDisabled)
+							.OnClicked(this, &SFlareFleetMenu::OnRemoveFromFleet)
+							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+						]
+					]
+									
+					+ SVerticalBox::Slot()
+					[
+						SNew(SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+						+ SScrollBox::Slot()
 						[
 							SAssignNew(ShipList, SFlareShipList)
 							.MenuManager(MenuManager)

@@ -152,28 +152,35 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 		// Content block
 		+ SVerticalBox::Slot()
 		[
-			SNew(SScrollBox)
-			.Style(&Theme.ScrollBoxStyle)
-			.ScrollBarStyle(&Theme.ScrollBarStyle)
+			SNew(SHorizontalBox)
 
-			+ SScrollBox::Slot()
+			// Owned
+			+ SHorizontalBox::Slot()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Right)
 			[
-				SNew(SHorizontalBox)
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
 
-				// Owned
-				+ SHorizontalBox::Slot()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Right)
+				+ SScrollBox::Slot()
 				[
 					SAssignNew(OwnedShipList, SFlareShipList)
 					.MenuManager(MenuManager)
 					.Title(LOCTEXT("DashboardMyListTitle", "OWNED SPACECRAFTS IN SECTOR"))
 				]
+			]
 
-				// Others
-				+ SHorizontalBox::Slot()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Left)
+			// Others
+			+ SHorizontalBox::Slot()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+				+ SScrollBox::Slot()
 				[
 					SAssignNew(OtherShipList, SFlareShipList)
 					.MenuManager(MenuManager)
