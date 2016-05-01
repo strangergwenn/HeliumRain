@@ -52,7 +52,7 @@ void SFlarePlanetaryBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FA
 
 FVector2D SFlarePlanetaryBox::ComputeDesiredSize(float) const
 {
-	return 2.5 * FVector2D(Radius, Radius);
+	return 2.6 * FVector2D(Radius, Radius);
 }
 
 FChildren* SFlarePlanetaryBox::GetChildren()
