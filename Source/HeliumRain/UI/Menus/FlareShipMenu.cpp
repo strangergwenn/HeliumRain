@@ -246,8 +246,8 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(BuyConfirmation, SFlareConfirmationBox)
-						.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSACTION"))
-						.CancelText(LOCTEXT("BackTopShip", "BACK TO SHIP"))
+						.ConfirmText(LOCTEXT("Confirm", "Confirm transaction"))
+						.CancelText(LOCTEXT("BackTopShip", "Back to ship"))
 						.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
 						.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)
 						.PC(PC)
@@ -261,7 +261,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(ShipList, SFlareShipList)
 					.MenuManager(MenuManager)
-					.Title(LOCTEXT("DockedShips", "DOCKED SHIPS"))
+					.Title(LOCTEXT("DockedShips", "Docked ships"))
 				]
 			]
 		]
@@ -379,7 +379,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 		if (ShipDesc)
 		{
-			FText Prefix = TargetSpacecraft->IsStation() ? LOCTEXT("Station", "STATION") : LOCTEXT("Ship", "SHIP");
+			FText Prefix = TargetSpacecraft->IsStation() ? LOCTEXT("Station", "Station") : LOCTEXT("Ship", "Ship");
 			FText Immatriculation = FText::FromString(TargetSpacecraft->GetImmatriculation().ToString());
 			ObjectName->SetText(FText::Format(LOCTEXT("ObjectNameFormat", "{0} : {1}"), Prefix, Immatriculation));
 
@@ -535,11 +535,11 @@ FText SFlareShipMenu::GetTitleText() const
 {
 	if (TargetSpacecraft && TargetSpacecraft->IsStation())
 	{
-		return  LOCTEXT("StationMenuTitle", "STATION");
+		return  LOCTEXT("StationMenuTitle", "Station");
 	}
 	else
 	{
-		return (CanEdit ? LOCTEXT("ShipConfigMenuTitle", "SHIP UPGRADE") : LOCTEXT("ShipMenuTitle", "SHIP"));
+		return (CanEdit ? LOCTEXT("ShipConfigMenuTitle", "Ship upgrade") : LOCTEXT("ShipMenuTitle", "Ship"));
 	}
 }
 
