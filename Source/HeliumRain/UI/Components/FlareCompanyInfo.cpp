@@ -341,7 +341,7 @@ FText SFlareCompanyInfo::GetCompanyHostility() const
 			case EFlareHostility::Neutral:
 				if (Company->GetPlayerWarState() == EFlareHostility::Hostile)
 				{
-					Result = LOCTEXT("NeutralSeekPeace", "This company seek peace");
+					Result = LOCTEXT("NeutralSeekPeace", "This company is seeking peace");
 				}
 				else
 				{
