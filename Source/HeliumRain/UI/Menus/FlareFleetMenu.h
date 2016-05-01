@@ -63,6 +63,12 @@ protected:
 	/** Can we see edit buttons */
 	EVisibility GetEditVisibility() const;
 
+	/** Get text about merging */
+	FText GetAddText() const;
+
+	/** Get text about removing a ship from the fleet */
+	FText GetRemoveText() const;
+
 	/** Is the "select fleet" button disabled */
 	bool IsSelectDisabled() const;
 

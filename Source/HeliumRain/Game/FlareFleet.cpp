@@ -4,6 +4,10 @@
 #include "FlareCompany.h"
 #include "FlareSimulatedSector.h"
 
+
+#define LOCTEXT_NAMESPACE "FlareFleet"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -181,25 +185,29 @@ void UFlareFleet::Disband()
 	FleetCompany->RemoveFleet(this);
 }
 
-bool UFlareFleet::CanMerge(UFlareFleet* Fleet)
+bool UFlareFleet::CanMerge(UFlareFleet* Fleet, FText& OutInfo)
 {
 	if (GetShipCount() + Fleet->GetShipCount() > GetMaxShipCount())
 	{
-		return false;
-	}
-
-	if (Fleet->IsTraveling())
-	{
+		OutInfo = LOCTEXT("FleetMaxShips", "Can't add, max ships reached");
 		return false;
 	}
 
 	if (IsTraveling())
 	{
+		OutInfo = LOCTEXT("FleetTravel", "Can't add during travel");
+		return false;
+	}
+
+	if (Fleet->IsTraveling())
+	{
+		OutInfo = LOCTEXT("FleetTravel", "Can't add travelling ships");
 		return false;
 	}
 
 	if (GetCurrentSector() != Fleet->GetCurrentSector())
 	{
+		OutInfo = LOCTEXT("FleetTravel", "Can't add from a different sector");
 		return false;
 	}
 
@@ -208,7 +216,8 @@ bool UFlareFleet::CanMerge(UFlareFleet* Fleet)
 
 void UFlareFleet::Merge(UFlareFleet* Fleet)
 {
-	if (!CanMerge(Fleet))
+	FText Unused;
+	if (!CanMerge(Fleet, Unused))
 	{
 		FLOGV("Fleet Merge fail: '%s' is not mergeable", *Fleet->GetFleetName().ToString());
 		return;
@@ -276,3 +285,4 @@ TArray<UFlareSimulatedSpacecraft*>& UFlareFleet::GetShips()
 	return FleetShips;
 }
 
+#undef LOCTEXT_NAMESPACE

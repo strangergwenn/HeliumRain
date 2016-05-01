@@ -117,7 +117,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 								SNew(SFlareButton)
 								.Width(8)
 								.Icon(FFlareStyleSet::GetIcon("OK"))
-								.Text(LOCTEXT("SelectFleet", "Edit selected fleet"))
+								.Text(LOCTEXT("SelectFleet", "Edit selection"))
 								.HelpText(LOCTEXT("SelectFleetInfo", "Select"))
 								.IsDisabled(this, &SFlareFleetMenu::IsSelectDisabled)
 								.OnClicked(this, &SFlareFleetMenu::OnSelectFleet)
@@ -130,7 +130,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 								SNew(SFlareButton)
 								.Width(8)
 								.Icon(FFlareStyleSet::GetIcon("MoveRight"))
-								.Text(LOCTEXT("AddToFleet", "Merge with selected"))
+								.Text(this, &SFlareFleetMenu::GetAddText)
 								.HelpText(LOCTEXT("AddToFleetInfo", "Merge this fleet or ship with the current fleet"))
 								.IsDisabled(this, &SFlareFleetMenu::IsAddDisabled)
 								.OnClicked(this, &SFlareFleetMenu::OnAddToFleet)
@@ -205,7 +205,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 								SNew(SFlareButton)
 								.Width(8)
 								.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
-								.Text(LOCTEXT("RemoveFromFleet", "Remove from selected"))
+								.Text(this, &SFlareFleetMenu::GetRemoveText)
 								.HelpText(LOCTEXT("RemoveFromFleetInfo", "Remove this ship from the fleet"))
 								.IsDisabled(this, &SFlareFleetMenu::IsRemoveDisabled)
 								.OnClicked(this, &SFlareFleetMenu::OnRemoveFromFleet)
@@ -343,6 +343,41 @@ EVisibility SFlareFleetMenu::GetEditVisibility() const
 	return SelectedFleet ? EVisibility::Visible : EVisibility::Hidden;
 }
 
+FText SFlareFleetMenu::GetAddText() const
+{
+	if (FleetToAdd && SelectedFleet)
+	{
+		FText Reason;
+		if (SelectedFleet->CanMerge(FleetToAdd, Reason))
+		{
+			return LOCTEXT("AddToFleet", "Add selection to fleet");
+		}
+		else
+		{
+			return Reason;
+		}
+	}
+
+	return LOCTEXT("NoSelectedFleetToAddTo", "Add selection to fleet");
+}
+
+FText SFlareFleetMenu::GetRemoveText() const
+{
+	if (ShipToRemove)
+	{
+		if (SelectedFleet->GetShips().Num() > 1)
+		{
+			return LOCTEXT("RemoveFromFleet", "Remove selected ship");
+		}
+		else
+		{
+			return LOCTEXT("CantRemoveFromFleetInfo", "Can't remove the only ship");
+		}
+	}
+
+	return LOCTEXT("NoSelectedFleetToRemoveFrom", "Remove selected ship");
+}
+
 bool SFlareFleetMenu::IsSelectDisabled() const
 {
 	return FleetToAdd && FleetToAdd != SelectedFleet ? false : true;
@@ -350,7 +385,8 @@ bool SFlareFleetMenu::IsSelectDisabled() const
 
 bool SFlareFleetMenu::IsAddDisabled() const
 {
-	if (!FleetToAdd || !SelectedFleet || FleetToAdd == SelectedFleet || !SelectedFleet->CanMerge(FleetToAdd))
+	FText Unused;
+	if (!FleetToAdd || !SelectedFleet || FleetToAdd == SelectedFleet || !SelectedFleet->CanMerge(FleetToAdd, Unused))
 	{
 		return true;
 	}

@@ -63,7 +63,8 @@ public:
 	/** Remove all ship from the fleet and delete it. Not possible during travel */
 	virtual void Disband();
 
-	virtual bool CanMerge(UFlareFleet* Fleet);
+	/** Tell us if we can merge, and why */
+	virtual bool CanMerge(UFlareFleet* Fleet, FText& OutInfo);
 
 	virtual void Merge(UFlareFleet* Fleet);
 
