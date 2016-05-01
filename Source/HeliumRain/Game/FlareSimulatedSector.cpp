@@ -367,7 +367,10 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 
 	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
-		Fleet->GetShips()[ShipIndex]->SetCurrentSector(NULL);
+		UFlareSimulatedSpacecraft* Spacecraft = Fleet->GetShips()[ShipIndex];
+		Spacecraft->SetCurrentSector(NULL);
+		Spacecraft->GetNavigationSystem()->Undock();
+
 		if (RemoveSpacecraft(Fleet->GetShips()[ShipIndex]) == 0)
 		{
 			FLOGV("UFlareSimulatedSector::RetireFleet : RetireFleet fail. Ship '%s' is not in sector '%s'", *Fleet->GetShips()[ShipIndex]->GetImmatriculation().ToString(), *GetSectorName().ToString())

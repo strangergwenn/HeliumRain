@@ -42,8 +42,21 @@ bool UFlareSimulatedSpacecraftNavigationSystem::IsAutoPilot()
 
 bool UFlareSimulatedSpacecraftNavigationSystem::IsDocked()
 {
-	// TODO replace mock
-	return false;
+	return (Data->DockedTo != NAME_None);
+}
+
+bool UFlareSimulatedSpacecraftNavigationSystem::Undock()
+{
+	if (IsDocked())
+	{
+		Data->DockedTo = NAME_None;
+		Data->DockedAt = -1;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 FFlareShipCommandData UFlareSimulatedSpacecraftNavigationSystem::GetCurrentCommand()

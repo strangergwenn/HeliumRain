@@ -32,6 +32,8 @@ public:
 
 	virtual bool IsDocked();
 
+	virtual bool Undock() override;
+
 	/** Get the current command */
 	virtual FFlareShipCommandData GetCurrentCommand();
 
