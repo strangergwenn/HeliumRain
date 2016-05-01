@@ -54,16 +54,21 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
+	// Owner
 	UPROPERTY()
-	AFlarePlayerController* PC;
+	AFlarePlayerController*                 PC;
 
-	TSharedPtr<SFlareButton> ConfirmButton;
-	TSharedPtr<SFlareButton> CancelButton;
-	TSharedPtr<STextBlock> CostLabel;
+	// Gameplay data
+	bool                                    FullHide;
+	int32                                   Amount;
+	FText                                   ConfirmText;
+	UFlareCompany*                          TargetCompany;
 
-	FText ConfirmText;
-	bool FullHide;
-	int32 Amount;
+	// Buttons
+	TSharedPtr<SFlareButton>                ConfirmButton;
+	TSharedPtr<SFlareButton>                CancelButton;
+	TSharedPtr<STextBlock>                  CostLabel;
+
 
 
 };

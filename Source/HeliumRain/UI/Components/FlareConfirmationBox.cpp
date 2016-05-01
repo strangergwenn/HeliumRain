@@ -17,7 +17,9 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 	ConfirmText = InArgs._ConfirmText;
 	FullHide = InArgs._FullHide;
 	PC = InArgs._PC;
+
 	Amount = 0;
+	TargetCompany = NULL;
 
 	// Create the layout
 	ChildSlot
@@ -64,7 +66,17 @@ FText SFlareConfirmationBox::GetBuyText() const
 {
 	if (Amount != 0)
 	{
-		return FText::Format(LOCTEXT("ConfirmTextFormat", "{0} ({1} credits)"), ConfirmText, FText::AsNumber(UFlareGameTools::DisplayMoney(Amount)));
+		if (TargetCompany && Amount <= TargetCompany->GetMoney())
+		{
+			return FText::Format(LOCTEXT("ConfirmTextFormat", "{0} ({1} credits)"),
+				ConfirmText,
+				FText::AsNumber(UFlareGameTools::DisplayMoney(Amount)));
+		}
+		else
+		{
+			return FText::Format(LOCTEXT("DeniedTextFormat", "Company only has {0} credits"),
+				FText::AsNumber(UFlareGameTools::DisplayMoney(TargetCompany->GetMoney())));
+		}
 	}
 	else
 	{
@@ -72,9 +84,10 @@ FText SFlareConfirmationBox::GetBuyText() const
 	}
 }
 
-void SFlareConfirmationBox::Show(float NewAmount, UFlareCompany* TargetCompany)
+void SFlareConfirmationBox::Show(float NewAmount, UFlareCompany* NewTargetCompany)
 {
 	Amount = NewAmount;
+	TargetCompany = NewTargetCompany;
 	ConfirmButton->SetVisibility(EVisibility::Visible);
 	CancelButton->SetVisibility(EVisibility::Visible);
 
@@ -91,6 +104,7 @@ void SFlareConfirmationBox::Show(float NewAmount, UFlareCompany* TargetCompany)
 void SFlareConfirmationBox::Hide()
 {
 	ConfirmButton->SetVisibility(EVisibility::Collapsed);
+	TargetCompany = NULL;
 
 	if (FullHide)
 	{
