@@ -63,6 +63,9 @@ protected:
 	/** Can we see edit buttons */
 	EVisibility GetEditVisibility() const;
 
+	/** Get the text about editing a fleet */
+	FText GetSelectText() const;
+
 	/** Get text about merging */
 	FText GetAddText() const;
 

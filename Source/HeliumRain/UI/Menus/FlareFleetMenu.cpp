@@ -8,6 +8,7 @@
 #include "../../Player/FlarePlayerController.h"
 #include "../Components/FlareRoundButton.h"
 
+
 #define LOCTEXT_NAMESPACE "FlareFleetMenu"
 
 
@@ -117,8 +118,8 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 								SNew(SFlareButton)
 								.Width(8)
 								.Icon(FFlareStyleSet::GetIcon("OK"))
-								.Text(LOCTEXT("SelectFleet", "Edit selection"))
-								.HelpText(LOCTEXT("SelectFleetInfo", "Select"))
+								.Text(this, &SFlareFleetMenu::GetSelectText)
+								.HelpText(LOCTEXT("SelectFleetInfo", "Select this fleet to rename it or change its composition"))
 								.IsDisabled(this, &SFlareFleetMenu::IsSelectDisabled)
 								.OnClicked(this, &SFlareFleetMenu::OnSelectFleet)
 							]
@@ -326,6 +327,7 @@ void SFlareFleetMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> Space
 	if (Spacecraft)
 	{
 		ShipToRemove = Spacecraft;
+		FLOGV("SFlareFleetMenu::OnSpacecraftSelected : ship to remove '%s'", *Spacecraft->GetImmatriculation().ToString());
 	}
 }
 
@@ -335,12 +337,29 @@ void SFlareFleetMenu::OnFleetSelected(TSharedPtr<FInterfaceContainer> Spacecraft
 	if (Fleet)
 	{
 		FleetToAdd = Fleet;
+		FLOGV("SFlareFleetMenu::OnFleetSelected : fleet to add/edit '%s'", *Fleet->GetFleetName().ToString());
 	}
 }
 
 EVisibility SFlareFleetMenu::GetEditVisibility() const
 {
 	return SelectedFleet ? EVisibility::Visible : EVisibility::Hidden;
+}
+
+FText SFlareFleetMenu::GetSelectText() const
+{
+	if (!FleetToAdd || FleetToAdd == SelectedFleet)
+	{
+		return LOCTEXT("NoSelectedFleet", "Edit selection");
+	}
+	else if (FleetToAdd->IsTraveling())
+	{
+		return LOCTEXT("CantEditTravelFleet", "Can't edit travelling fleets");
+	}
+	else
+	{
+		return LOCTEXT("SelectFleet", "Edit selection");
+	}
 }
 
 FText SFlareFleetMenu::GetAddText() const
@@ -371,7 +390,7 @@ FText SFlareFleetMenu::GetRemoveText() const
 		}
 		else
 		{
-			return LOCTEXT("CantRemoveFromFleetInfo", "Can't remove the only ship");
+			return LOCTEXT("CantRemoveFromFleet", "Can't remove the only ship");
 		}
 	}
 
@@ -380,7 +399,7 @@ FText SFlareFleetMenu::GetRemoveText() const
 
 bool SFlareFleetMenu::IsSelectDisabled() const
 {
-	return FleetToAdd && FleetToAdd != SelectedFleet ? false : true;
+	return (!FleetToAdd || FleetToAdd == SelectedFleet || FleetToAdd->IsTraveling());
 }
 
 bool SFlareFleetMenu::IsAddDisabled() const

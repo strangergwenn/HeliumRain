@@ -206,25 +206,25 @@ bool UFlareFleet::CanMerge(UFlareFleet* Fleet, FText& OutInfo)
 {
 	if (GetShipCount() + Fleet->GetShipCount() > GetMaxShipCount())
 	{
-		OutInfo = LOCTEXT("FleetMaxShips", "Can't add, max ships reached");
+		OutInfo = LOCTEXT("MergeFleetMaxShips", "Can't add, max ships reached");
 		return false;
 	}
 
 	if (IsTraveling())
 	{
-		OutInfo = LOCTEXT("FleetTravel", "Can't add during travel");
+		OutInfo = LOCTEXT("MergeFleetTravel", "Can't add during travel");
 		return false;
 	}
 
 	if (Fleet->IsTraveling())
 	{
-		OutInfo = LOCTEXT("FleetTravel", "Can't add travelling ships");
+		OutInfo = LOCTEXT("MergeOtherFleetTravel", "Can't add travelling ships");
 		return false;
 	}
 
 	if (GetCurrentSector() != Fleet->GetCurrentSector())
 	{
-		OutInfo = LOCTEXT("FleetTravel", "Can't add from a different sector");
+		OutInfo = LOCTEXT("MergeFleetDifferenSector", "Can't add from a different sector");
 		return false;
 	}
 
