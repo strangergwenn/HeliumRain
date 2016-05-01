@@ -122,7 +122,7 @@ void SFlareCargoInfo::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEv
 	}
 
 	// Dump button
-	bool CanDump = Cargo->Resource && TargetSpacecraft && TargetSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany();
+	bool CanDump = Cargo->Resource && Cargo->Quantity > 0 && TargetSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany();
 	DumpButton->SetVisibility(CanDump ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
@@ -189,7 +189,7 @@ FReply SFlareCargoInfo::OnButtonClicked()
 {
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 
-	if (Cargo && Cargo->Resource)
+	if (Cargo && Cargo->Resource && Cargo->Quantity > 0)
 	{
 		OnClicked.ExecuteIfBound();
 	}
