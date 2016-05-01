@@ -199,7 +199,7 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	int32 Width = 15;
-	int32 Height = UseCompactDisplay ? 1 : 2;
+	int32 Height = 1;
 
 	// Ship
 	if (Item->ShipInterfacePtr)

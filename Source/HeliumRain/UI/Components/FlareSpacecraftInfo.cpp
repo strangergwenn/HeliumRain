@@ -52,7 +52,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						// Class icon
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(8))
 						.VAlign(VAlign_Center)
 						[
 							SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetClassIcon)
@@ -61,7 +60,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						// Ship name
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(10))
+						.Padding(FMargin(8))
 						.VAlign(VAlign_Center)
 						[
 							SNew(STextBlock)
@@ -72,7 +71,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						// Ship class
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(12))
+						.Padding(FMargin(8))
 						.VAlign(VAlign_Center)
 						[
 							SNew(STextBlock)
@@ -97,7 +96,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						// Company flag
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(8))
+						.Padding(FMargin(0, 4))
 						[
 							SAssignNew(CompanyFlag, SFlareCompanyFlag)
 							.Player(InArgs._Player)
