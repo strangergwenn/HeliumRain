@@ -620,7 +620,9 @@ FText AFlareHUD::GetShipStatus(AFlareSpacecraft* PlayerShip) const
 	}
 	else
 	{
-		ModeText = PlayerShip->GetWeaponsSystem()->GetWeaponModeInfo();
+		ModeText = FText::Format(LOCTEXT("SpeedFormat", "{0}m/s - {1}"),
+			FText::AsNumber(FMath::RoundToInt(PlayerShip->GetLinearVelocity().Size())),
+			PlayerShip->GetWeaponsSystem()->GetWeaponModeInfo());
 	}
 
 	if (Nav->IsAutoPilot())

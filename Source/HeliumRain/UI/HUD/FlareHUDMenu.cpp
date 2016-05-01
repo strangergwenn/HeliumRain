@@ -332,7 +332,6 @@ FText SFlareHUDMenu::GetInfoText() const
 	{
 		FText ModeText;
 		FText AutopilotText;
-		FText ShipText = Cast<AFlareSpacecraft>(TargetShip)->GetDescription()->Name;
 		FText SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSectorName();
 
 		if (TargetShip->GetNavigationSystem()->IsDocked())
@@ -348,7 +347,11 @@ FText SFlareHUDMenu::GetInfoText() const
 			}
 		}
 
-		return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} - {1} {2} - {3}"), ShipText, ModeText, AutopilotText, SectorText);
+		return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}m/s - {1} {2} - {3}"),
+			FText::AsNumber(FMath::RoundToInt(Cast<AFlareSpacecraft>(TargetShip)->GetLinearVelocity().Size())),
+			ModeText,
+			AutopilotText,
+			SectorText);
 	}
 
 	return FText();
