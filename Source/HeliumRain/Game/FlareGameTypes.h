@@ -137,6 +137,7 @@ struct FFlareCompanySave
 	TArray<FFlareCompanyReputationSave> CompaniesReputation;
 
 	/** Value of all company assets */
+	UPROPERTY(EditAnywhere, Category = Save)
 	uint64 CompanyValue;
 };
 
