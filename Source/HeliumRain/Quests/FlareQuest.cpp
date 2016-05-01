@@ -585,7 +585,7 @@ FText UFlareQuest::FormatTags(FText Message)
 void UFlareQuest::SendQuestNotification(FText Message, FName Tag)
 {
 	FText Text = GetQuestName();
-	float Duration = 5 + Message.ToString().Len() / 10.0f;
+	float Duration = 10 + Message.ToString().Len() / 10.0f;
 	FLOGV("UFlareQuest::SendQuestNotification : %s", *Message.ToString());
 	QuestManager->GetGame()->GetPC()->Notify(Text, Message, Tag, EFlareNotification::NT_Quest, Duration);
 }
