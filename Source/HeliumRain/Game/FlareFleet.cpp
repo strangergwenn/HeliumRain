@@ -68,6 +68,23 @@ bool UFlareFleet::CanTravel()
 	return true;
 }
 
+bool UFlareFleet::CanTravel(FText& OutInfo)
+{
+	if (IsTraveling() && !GetCurrentTravel()->CanChangeDestination())
+	{
+		OutInfo = FText::Format(LOCTEXT("TravellingFormat", "Can't change destination for {0}"), GetFleetName());
+		return false;
+	}
+
+	if (GetImmobilizedShipCount() == FleetShips.Num())
+	{
+		OutInfo = LOCTEXT("Travelling", "Can't travel with stranded ships");
+		return false;
+	}
+
+	return true;
+}
+
 uint32 UFlareFleet::GetImmobilizedShipCount()
 {
 	uint32 ImmobilizedShip = 0;

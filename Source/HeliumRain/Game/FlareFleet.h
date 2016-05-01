@@ -66,6 +66,15 @@ public:
 	/** Tell us if we can merge, and why */
 	virtual bool CanMerge(UFlareFleet* Fleet, FText& OutInfo);
 
+	/** Tell us if we are travelling */
+	bool IsTraveling();
+
+	/** Tell us if we can travel */
+	bool CanTravel();
+
+	/** Tell us if we can travel, and why */
+	bool CanTravel(FText& OutInfo);
+
 	virtual void Merge(UFlareFleet* Fleet);
 
 	virtual void SetCurrentSector(UFlareSimulatedSector* Sector);
@@ -131,10 +140,6 @@ public:
 	}
 
 	TArray<UFlareSimulatedSpacecraft*>& GetShips();
-
-	bool IsTraveling();
-
-	bool CanTravel();
 
 	uint32 GetImmobilizedShipCount();
 

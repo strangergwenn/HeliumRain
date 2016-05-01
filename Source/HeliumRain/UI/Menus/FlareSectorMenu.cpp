@@ -396,24 +396,36 @@ bool SFlareSectorMenu::IsBuildStationDisabled() const
 
 FText SFlareSectorMenu::GetTravelText() const
 {
-	FText FlyText = LOCTEXT("Travel", "Travel");
 	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
 
 	if (SelectedFleet)
 	{
-		return FText::Format(LOCTEXT("TravelFormat", "{0} with selection ({1})"), FlyText, SelectedFleet->GetFleetName());
+		FText Reason;
+
+		if (SelectedFleet->GetCurrentSector() == TargetSector)
+		{
+			return FText::Format(LOCTEXT("TravelAlreadyHereFormat", "{0} is already there"), SelectedFleet->GetFleetName());
+		}
+		else if (!SelectedFleet->CanTravel(Reason))
+		{
+			return Reason;
+		}
+		else
+		{
+			return FText::Format(LOCTEXT("TravelFormat", "Travel with selection ({0})"), SelectedFleet->GetFleetName());
+		}
 	}
 	else
 	{
-		return FlyText;
+		return LOCTEXT("TravelNoSelection", "Travel here (no fleet selected)");
 	}
 }
 
 bool SFlareSectorMenu::IsTravelDisabled() const
 {
-	UFlareFleet* CurrentFleet = MenuManager->GetPC()->GetSelectedFleet();
+	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
 
-	if (CurrentFleet && CurrentFleet->GetCurrentSector() != TargetSector && CurrentFleet->CanTravel())
+	if (SelectedFleet && SelectedFleet->GetCurrentSector() != TargetSector && SelectedFleet->CanTravel())
 	{
 		return false;
 	}
