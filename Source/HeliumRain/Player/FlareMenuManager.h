@@ -81,6 +81,9 @@ public:
 	/** Is a menu open */
 	bool IsMenuOpen() const;
 
+	/** Which menu, if any, is opened ? */
+	EFlareMenu::Type GetCurrentMenu() const;
+
 	/** Is a menu being opened or closed */
 	bool IsSwitchingMenu() const;
 

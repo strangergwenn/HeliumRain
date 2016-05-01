@@ -770,8 +770,11 @@ void AFlarePlayerController::Simulate()
 
 void AFlarePlayerController::SettingsMenu()
 {
-	FLOG("AFlarePlayerController::SettingsMenu");
-	MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
+	if (MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Settings)
+	{
+		FLOG("AFlarePlayerController::SettingsMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
+	}
 }
 
 void AFlarePlayerController::ToggleCombat()

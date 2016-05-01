@@ -335,6 +335,11 @@ bool AFlareMenuManager::IsMenuOpen() const
 	return MenuIsOpen;
 }
 
+EFlareMenu::Type AFlareMenuManager::GetCurrentMenu() const
+{
+	return CurrentMenu;
+}
+
 bool AFlareMenuManager::IsSwitchingMenu() const
 {
 	return (Fader->GetVisibility() == EVisibility::Visible);
