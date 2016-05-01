@@ -585,10 +585,19 @@ void SFlareSpacecraftInfo::OnDockAt()
 
 void SFlareSpacecraftInfo::OnUndock()
 {
-	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
+	if (PC && TargetSpacecraft)
 	{
-		PC->GetShipPawn()->GetNavigationSystem()->Undock();
-		PC->GetMenuManager()->CloseMenu();
+		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(TargetSpacecraft);
+		if (Spacecraft && Spacecraft->GetNavigationSystem()->IsDocked())
+		{
+			Spacecraft->GetNavigationSystem()->Undock();
+			PC->GetMenuManager()->CloseMenu();
+		}
+		else if(TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
+		{
+			PC->GetShipPawn()->GetNavigationSystem()->Undock();
+			PC->GetMenuManager()->CloseMenu();
+		}
 	}
 }
 
@@ -598,6 +607,7 @@ void SFlareSpacecraftInfo::OnScrap()
 	{
 		// TODO
 		//PC->GetGame()->Scrap();
+		// TODO else if as for OnUndock
 		PC->GetMenuManager()->Back();
 	}
 }
