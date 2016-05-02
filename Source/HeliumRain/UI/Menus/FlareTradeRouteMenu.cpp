@@ -176,6 +176,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 								+ SHorizontalBox::Slot()
 								.AutoWidth()
 								.Padding(Theme.SmallContentPadding)
+								.HAlign(HAlign_Right)
 								[
 									SNew(SFlareButton)
 									.Width(5)
@@ -184,13 +185,13 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 									.OnClicked(this, &SFlareTradeRouteMenu::OnAssignFleetClicked)
 									.Visibility(this, &SFlareTradeRouteMenu::GetAssignFleetVisibility)
 								]
+							]
 
-								// Trade route fleet list
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								[
-									SAssignNew(TradeFleetList, SVerticalBox)
-								]
+							// Fleet list (assigned)
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SAssignNew(TradeFleetList, SVerticalBox)
 							]
 
 							// Sector selection
@@ -236,7 +237,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.TitlePadding)
 							[
 								SNew(STextBlock)
-								.Text(LOCTEXT("ResourceSelection", "Current resource"))
+								.Text(LOCTEXT("ResourceSelection", "Current resource to load / unload"))
 								.TextStyle(&Theme.SubTitleFont)
 							]
 
@@ -670,37 +671,32 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 
 			TradeFleetList->AddSlot()
 			.AutoHeight()
-			.HAlign(HAlign_Right)
+			.HAlign(HAlign_Fill)
 			[
 				SNew(SHorizontalBox)
 
 				// Fleet info
 				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.HAlign(HAlign_Left)
+				.Padding(Theme.SmallContentPadding)
+				.VAlign(VAlign_Center)
 				[
-					SNew(SBox)
-					.HAlign(HAlign_Left)
-					.VAlign(VAlign_Center)
-					.WidthOverride(Theme.ContentWidth - 4 * Theme.ButtonWidth - 2 * Theme.SmallContentPadding.Left)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(FText::Format(LOCTEXT("FleetNameFormat", "Assigned fleet : {0}"), Fleet->GetFleetName()))
-					]
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::Format(LOCTEXT("FleetNameFormat", "Assigned fleet : {0}"), Fleet->GetFleetName()))
 				]
 
 				// Unassign fleet
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
-				.HAlign(HAlign_Left)
+				.HAlign(HAlign_Right)
+				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(SFlareButton)
+					.Width(5)
 					.OnClicked(this, &SFlareTradeRouteMenu::OnUnassignFleetClicked, Fleet)
 					.Text(FText(LOCTEXT("Unassign", "Unassign")))
 					.HelpText(FText(LOCTEXT("UnassignHelp", "Unassign this fleet and pick another one")))
 					.Icon(FFlareStyleSet::GetIcon("Stop"))
-					.Width(4)
 				]
 			];
 		}
