@@ -263,13 +263,13 @@ protected:
 	UPROPERTY()
 	UFlareCargoBay*                                CargoBay;
 
-
 	/*----------------------------------------------------
 		Target selection
 	----------------------------------------------------*/
 
 	// Target spacecraft
-	FName                                          CurrentTarget;
+	UPROPERTY()
+	AFlareSpacecraft*                              CurrentTarget;
 
 	// target spacecraft index in the list
 	int32                                          TargetIndex;

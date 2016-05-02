@@ -45,7 +45,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
 
 	// Gameplay
-	CurrentTarget = NAME_None;
+	CurrentTarget = NULL;
 	TargetIndex = 0;
 	TimeSinceSelection = 0;
 	MaxTimeBeforeSelectionReset = 3.0;
@@ -61,7 +61,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 void AFlareSpacecraft::BeginPlay()
 {
 	Super::BeginPlay();
-	ResetCurrentTarget();
+	CurrentTarget = NULL;
 }
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
@@ -109,7 +109,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				if (ScreenTargets.Num())
 				{
 					int32 ActualIndex = TargetIndex % ScreenTargets.Num();
-					CurrentTarget = ScreenTargets[ActualIndex].Spacecraft->GetImmatriculation();
+					CurrentTarget = ScreenTargets[ActualIndex].Spacecraft;
 				}
 			}
 
@@ -219,7 +219,7 @@ void AFlareSpacecraft::Destroyed()
 		}
 	}
 
-	ResetCurrentTarget();
+	CurrentTarget = NULL;
 }
 
 void AFlareSpacecraft::SetPause(bool Pause)
@@ -232,7 +232,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	CustomTimeDilation = (Pause ? 0.f : 1.0);
 	if (Pause)
 	{
-		ResetCurrentTarget();
+		CurrentTarget = NULL;
 		Save(); // Save must be performed with the old pause state
 		FLOGV("%s save linear velocity : %s", *GetImmatriculation().ToString(), *ShipData.LinearVelocity.ToString());
 	}
@@ -350,29 +350,28 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 
 void AFlareSpacecraft::ResetCurrentTarget()
 {
-	CurrentTarget = NAME_None;
+	CurrentTarget = NULL;
 }
 
 AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 {
-	AFlarePlayerController* PC = GetPC();
-
-	if (CurrentTarget != NAME_None && PC && PC->GetNavHUD())
+	// Don't try in menus
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC->GetMenuManager()->IsMenuOpen())
 	{
-		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
-		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
-		{
-			return Candidate.Spacecraft->GetImmatriculation() == CurrentTarget;
-		};
-		
-		FFlareScreenTarget* CurrentTargetData = ScreenTargets.FindByPredicate(FindCurrentTarget);
-		if (CurrentTargetData)
-		{
-			return CurrentTargetData->Spacecraft;
-		}
+		return NULL;
 	}
 
-	return NULL;
+	// Crash "preventer" - ensure we've got a really valid target, this isn't a solution, but it seems to only happen when using CreateShip commands
+	if (IsValidLowLevel() && CurrentTarget  && CurrentTarget->IsValidLowLevel()
+	 && CurrentTarget->GetDamageSystem() && CurrentTarget->GetDamageSystem()->IsValidLowLevel() && CurrentTarget->GetDamageSystem()->IsAlive())
+	{
+		return CurrentTarget;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 
@@ -503,7 +502,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	CargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
 	CargoBay->Load(this, ShipData.Cargo);
-	ResetCurrentTarget();
+	CurrentTarget = NULL;
 }
 
 FFlareSpacecraftSave* AFlareSpacecraft::Save()
@@ -861,7 +860,7 @@ void AFlareSpacecraft::StartPresentation()
 		Airframe->SetSimulatePhysics(false);
 	}
 
-	ResetCurrentTarget();
+	CurrentTarget = NULL;
 }
 
 
@@ -1098,7 +1097,7 @@ void AFlareSpacecraft::NextTarget()
 		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
 		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 		{
-			return Candidate.Spacecraft->GetImmatriculation() == CurrentTarget;
+			return Candidate.Spacecraft == CurrentTarget;
 		};
 
 		// Is visible on screen
@@ -1106,7 +1105,7 @@ void AFlareSpacecraft::NextTarget()
 		{
 			TargetIndex++;
 			TargetIndex = FMath::Min(TargetIndex, ScreenTargets.Num() - 1);
-			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft->GetImmatriculation();
+			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
 			FLOGV("AFlareSpacecraft::NextTarget : %d", TargetIndex);
 		}
 
@@ -1129,7 +1128,7 @@ void AFlareSpacecraft::PreviousTarget()
 		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
 		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 		{
-			return Candidate.Spacecraft->GetImmatriculation() == CurrentTarget;
+			return Candidate.Spacecraft == CurrentTarget;
 		};
 
 		// Is visible on screen
@@ -1137,7 +1136,7 @@ void AFlareSpacecraft::PreviousTarget()
 		{
 			TargetIndex--;
 			TargetIndex = FMath::Max(TargetIndex, 0);
-			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft->GetImmatriculation();
+			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
 			FLOGV("AFlareSpacecraft::PreviousTarget : %d", TargetIndex);
 		}
 
