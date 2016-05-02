@@ -288,21 +288,26 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		// Station
 		if (Desc->OrbitalEngineCount == 0)
 		{
-			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryStationFormat", "(Station, {0} factories)"), FText::AsNumber(Desc->Factories.Num()));
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryStationFormat", "(Station, {0} factories)"),
+				FText::AsNumber(Desc->Factories.Num()));
 		}
 
 		// Ship
 		else if (Desc->TurretSlots.Num())
 		{
-			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} turrets)"), FText::AsNumber(Desc->TurretSlots.Num()));
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} turrets)"),
+				FText::AsNumber(Desc->TurretSlots.Num()));
 		}
 		else if (Desc->GunSlots.Num())
 		{
-			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} gun slots)"), FText::AsNumber(Desc->GunSlots.Num()));
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} gun slots)"),
+				FText::AsNumber(Desc->GunSlots.Num()));
 		}
 		else
 		{
-			SpacecraftInfoText = LOCTEXT("FactoryNoWeapons", "(Unarmed ship)");
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryTraderFormat", "(Trading ship, {0}x{1} cargo units)"),
+				FText::AsNumber(Desc->CargoBayCount),
+				FText::AsNumber(Desc->CargoBayCapacity));
 		}
 
 		// Production cost
