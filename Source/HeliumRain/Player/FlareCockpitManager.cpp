@@ -191,6 +191,7 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 void AFlareCockpitManager::OnStopFlying()
 {
 	ExitCockpit();
+	PlayerShip = NULL;
 }
 
 void AFlareCockpitManager::SetExternalCamera(bool External)
@@ -293,7 +294,6 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 void AFlareCockpitManager::ExitCockpit()
 {
 	IsInCockpit = false;
-	PlayerShip = NULL;
 	CockpitFLIRCapture->Deactivate();
 	CockpitMesh->SetVisibility(false, true);
 }
