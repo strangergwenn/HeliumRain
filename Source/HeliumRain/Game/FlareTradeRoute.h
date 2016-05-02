@@ -86,6 +86,8 @@ public:
 
 	virtual void AddSector(UFlareSimulatedSector* Sector);
 
+	virtual void RemoveSector(UFlareSimulatedSector* Sector);
+
 	virtual void SetSectorLoadOrder(int32 SectorIndex, FFlareResourceDescription* Resource, uint32 QuantityToLeft);
 
 	virtual void ClearSectorLoadOrder(int32 SectorIndex, FFlareResourceDescription* Resource);

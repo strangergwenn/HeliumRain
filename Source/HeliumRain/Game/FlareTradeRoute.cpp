@@ -174,6 +174,18 @@ void UFlareTradeRoute::AddSector(UFlareSimulatedSector* Sector)
 	TradeRouteData.Sectors.Add(TradeRouteSector);
 }
 
+void UFlareTradeRoute::RemoveSector(UFlareSimulatedSector* Sector)
+{
+	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+	{
+		if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+		{
+			TradeRouteData.Sectors.RemoveAt(SectorIndex);
+			return;
+		}
+	}
+}
+
 void UFlareTradeRoute::SetSectorLoadOrder(int32 SectorIndex, FFlareResourceDescription* Resource, uint32 QuantityToLeft)
 {
 	if(SectorIndex >= TradeRouteData.Sectors.Num())

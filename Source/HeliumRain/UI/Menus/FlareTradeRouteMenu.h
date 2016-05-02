@@ -64,6 +64,9 @@ protected:
 	/** Can Add resource*/
 	EVisibility GetResourceSelectorVisibility() const;
 
+	/** Add button */
+	FText GetAddSectorText() const;
+
 	/** Get the load text's button */
 	FText GetLoadText() const;
 
@@ -91,7 +94,11 @@ protected:
 
 	void OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo);
 
+	/** Sector added */
 	void OnAddSectorClicked();
+
+	/** Sector removed */
+	void OnRemoveSectorClicked(UFlareSimulatedSector* Sector);
 
 	// Load the current resource
 	void OnLoadResourceClicked(UFlareSimulatedSector* Sector);

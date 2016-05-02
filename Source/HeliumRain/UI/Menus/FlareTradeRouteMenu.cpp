@@ -122,13 +122,13 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 
 							// Trade route name
 							+ SVerticalBox::Slot()
-							.Padding(Theme.SmallContentPadding)
 							.AutoHeight()
 							[
 								SNew(SHorizontalBox)
 
 								// Name field
 								+ SHorizontalBox::Slot()
+								.Padding(Theme.SmallContentPadding)
 								[
 									SAssignNew(EditRouteName, SEditableText)
 									.Style(&Theme.TextInputStyle)
@@ -137,10 +137,10 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 								// Confirm
 								+ SHorizontalBox::Slot()
 								.AutoWidth()
-								.HAlign(HAlign_Right)
+								.Padding(Theme.SmallContentPadding)
 								[
 									SNew(SFlareButton)
-									.Width(4)
+									.Width(5)
 									.Text(LOCTEXT("Rename", "Rename"))
 									.HelpText(LOCTEXT("ChangeNameInfo", "Rename this trade route"))
 									.Icon(FFlareStyleSet::GetIcon("OK"))
@@ -151,12 +151,12 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 							// Fleet list
 							+ SVerticalBox::Slot()
 							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
 							[
 								SNew(SHorizontalBox)
 
 								// List
 								+ SHorizontalBox::Slot()
+								.Padding(Theme.SmallContentPadding)
 								[
 									SAssignNew(FleetSelector, SComboBox<UFlareFleet*>)
 									.OptionsSource(&FleetList)
@@ -175,9 +175,10 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 								// Name field
 								+ SHorizontalBox::Slot()
 								.AutoWidth()
+								.Padding(Theme.SmallContentPadding)
 								[
 									SNew(SFlareButton)
-									.Width(4)
+									.Width(5)
 									.Text(LOCTEXT("AssignFleet", "Assign"))
 									.HelpText(LOCTEXT("AssignFleetInfo", "Assign this fleet to the trade route"))
 									.OnClicked(this, &SFlareTradeRouteMenu::OnAssignFleetClicked)
@@ -195,22 +196,8 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 							// Sector selection
 							+ SVerticalBox::Slot()
 							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
 							[
 								SNew(SHorizontalBox)
-
-								// Button
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SNew(SFlareButton)
-									.Width(5)
-									.Text(FText::Format(LOCTEXT("AddSectorFormat", "Add sector (Max {0})"), FText::AsNumber(MaxSectorsInRoute)))
-									.HelpText(LOCTEXT("AddSectorInfo", "Add this sector to the trade route"))
-									.OnClicked(this, &SFlareTradeRouteMenu::OnAddSectorClicked)
-									.IsDisabled(this, &SFlareTradeRouteMenu::IsAddSectorDisabled)
-								]
 
 								// List
 								+ SHorizontalBox::Slot()
@@ -227,6 +214,19 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 										.Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
 										.TextStyle(&Theme.TextFont)
 									]
+								]
+
+								// Button
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.SmallContentPadding)
+								[
+									SNew(SFlareButton)
+									.Width(5)
+									.Text(this, &SFlareTradeRouteMenu::GetAddSectorText)
+									.HelpText(LOCTEXT("AddSectorInfo", "Add this sector to the trade route"))
+									.OnClicked(this, &SFlareTradeRouteMenu::OnAddSectorClicked)
+									.IsDisabled(this, &SFlareTradeRouteMenu::IsAddSectorDisabled)
 								]
 							]
 
@@ -372,6 +372,20 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 					[
 						SNew(SImage)
 						.Image(FFlareStyleSet::GetImage(SectorIndex > 0 ? "TradeRouteArrow2" : "TradeRouteArrow_Start"))
+					]
+
+					// Remove sector
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Top)
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Transparent(true)
+						.Text(FText())
+						.HelpText(LOCTEXT("RemoveSectorHelp", "Remove this sector from the trade route"))
+						.Icon(FFlareStyleSet::GetIcon("Stop"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnRemoveSectorClicked, Sector)
+						.Width(1)
 					]
 
 					// Sector info
@@ -803,6 +817,19 @@ EVisibility SFlareTradeRouteMenu::GetResourceSelectorVisibility() const
 	return visibility;
 }
 
+
+FText SFlareTradeRouteMenu::GetAddSectorText() const
+{
+	if (TargetTradeRoute)
+	{
+		return FText::Format(LOCTEXT("AddSectorFormat", "Add sector ({0} / {1})"),
+			FText::AsNumber(TargetTradeRoute->GetSectors().Num()),
+			FText::AsNumber(MaxSectorsInRoute));
+	}
+
+	return FText();
+}
+
 FText SFlareTradeRouteMenu::GetLoadText() const
 {
 	FText Result;
@@ -888,6 +915,15 @@ void SFlareTradeRouteMenu::OnAddSectorClicked()
 
 void SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo)
 {
+}
+
+void SFlareTradeRouteMenu::OnRemoveSectorClicked(UFlareSimulatedSector* Sector)
+{
+	if (TargetTradeRoute)
+	{
+		TargetTradeRoute->RemoveSector(Sector);
+		GenerateSectorList();
+	}
 }
 
 void SFlareTradeRouteMenu::OnLoadResourceClicked(UFlareSimulatedSector* Sector)
