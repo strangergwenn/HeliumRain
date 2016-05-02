@@ -197,12 +197,20 @@ void AFlareSpacecraft::Destroyed()
 {
 	// Notify PC
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC->GetShipPawn())
+	if (PC)
 	{
-		AFlareSpacecraft* PlayerTarget = PC->GetShipPawn()->GetCurrentTarget();
-		if (PlayerTarget == this)
+		if (PC->GetShipPawn())
 		{
-			PC->GetShipPawn()->ResetCurrentTarget();
+			AFlareSpacecraft* PlayerTarget = PC->GetShipPawn()->GetCurrentTarget();
+			if (PlayerTarget == this)
+			{
+				PC->GetShipPawn()->ResetCurrentTarget();
+			}
+		}
+
+		if (PC->GetNavHUD())
+		{
+			PC->GetNavHUD()->RemoveTarget(this);
 		}
 	}
 

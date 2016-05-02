@@ -67,6 +67,12 @@ public:
 
 	/** Decide if the HUD is displayed or not */
 	void UpdateHUDVisibility();
+	
+	/** Reset target */
+	void RemoveTarget(AFlareSpacecraft* Target);
+
+	/** Reset all targets */
+	void RemoveAllTargets();
 
 	virtual void DrawHUD() override;
 

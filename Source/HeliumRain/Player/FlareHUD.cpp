@@ -199,6 +199,23 @@ void AFlareHUD::UpdateHUDVisibility()
 	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
+void AFlareHUD::RemoveTarget(AFlareSpacecraft* Spacecraft)
+{
+	for (int32 Index = 0; Index < ScreenTargets.Num(); Index++)
+	{
+		if (ScreenTargets[Index].Spacecraft == Spacecraft)
+		{
+			ScreenTargets.RemoveAt(Index);
+			return;
+		}
+	}
+}
+
+void AFlareHUD::RemoveAllTargets()
+{
+	ScreenTargets.Empty();
+}
+
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();

@@ -367,6 +367,12 @@ void AFlarePlayerController::OnSectorDeactivated()
 		ShipPawn = NULL;
 	}
 
+	// Reset the HUD
+	if (GetNavHUD())
+	{
+		GetNavHUD()->RemoveAllTargets();
+	}
+
 	// Reset states
 	LastBattleState = EFlareSectorBattleState::NoBattle;
 	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
