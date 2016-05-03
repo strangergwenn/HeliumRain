@@ -1,2 +1,2 @@
 #!/bin/sh
-./HeliumRain/Binaries/Linux/HeliumRain-Linux-Test -opengl4
+./HeliumRain/Binaries/Linux/HeliumRain-Linux-Test
