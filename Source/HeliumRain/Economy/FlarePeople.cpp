@@ -399,6 +399,15 @@ float UFlarePeople::GetHappiness()
 	return (float) PeopleData.HappinessPoint / (100 * (float) PeopleData.Population);
 }
 
+float UFlarePeople::GetWealth()
+{
+	if(PeopleData.Population == 0)
+	{
+		return 0;
+	}
+	return (float) PeopleData.Money / ((float) PeopleData.Population);
+}
+
 FFlareCompanyReputationSave* UFlarePeople::GetCompanyReputation(UFlareCompany* Company)
 {
 	for(int ReputationIndex = 0; ReputationIndex < PeopleData.CompanyReputations.Num(); ReputationIndex++)

@@ -133,7 +133,14 @@ public:
 		return PeopleData.Money;
 	}
 
+	inline uint32 GetPopulation()
+	{
+		return PeopleData.Population;
+	}
+
 	float GetHappiness();
+
+	float GetWealth();
 
 	FFlareCompanyReputationSave* GetCompanyReputation(UFlareCompany* Company);
 };
