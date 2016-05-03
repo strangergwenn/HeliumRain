@@ -538,6 +538,11 @@ UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimula
 		TravelingFleet->GetCurrentTravel()->ChangeDestination(DestinationSector);
 		return TravelingFleet->GetCurrentTravel();
 	}
+	else if (TravelingFleet->GetCurrentSector() == DestinationSector)
+	{
+		//Try to start a travel to current sector
+		return NULL;
+	}
 	else
 	{
 		// Remove immobilized ships
