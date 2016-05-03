@@ -99,6 +99,7 @@ public:
 
 	void ResetPeople();
 
+	void PrintInfo();
 
 protected:
 

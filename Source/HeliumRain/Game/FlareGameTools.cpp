@@ -832,6 +832,18 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 		UFlareSimulatedSpacecraft* Spacecraft = SectorStations[i];
 		FLOGV("   %2d - %s (%d)", i,  *Spacecraft->GetImmatriculation().ToString(), Spacecraft->IsStation());
 	}
+
+	//Prices
+	FLOG("  > prices");
+	for(int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+		FLOGV("   - %s : %f credits", *Resource->Name.ToString(), Sector->GetPreciseResourcePrice(Resource));
+	}
+
+	//People
+	FLOG("  > people");
+	Sector->GetPeople()->PrintInfo();
 }
 
 

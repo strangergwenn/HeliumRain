@@ -53,7 +53,6 @@ void UFlarePeople::Simulate()
 		return;
 	}
 
-	FLOGV("Simulate people for sector %s. Population=%u", *Parent->GetSectorName().ToString(), PeopleData.Population)			
 
 	SimulateResourcePurchase();
 
@@ -109,20 +108,6 @@ void UFlarePeople::Simulate()
 	DecreaseHappiness(Hunger * 10);
 
 
-
-	FLOGV(" - happiness: %f", Happiness);
-	FLOGV(" - Sickness: %f", Sickness);
-	FLOGV(" - Fertility: %f", Fertility);
-
-	FLOGV(" - Food: %u", PeopleData.FoodStock);
-	FLOGV(" - FoodConsumption: %u", FoodConsumption);
-	FLOGV(" - EatenFood: %u", EatenFood);
-	FLOGV(" - FeedPeopleRatio: %f", FeedPeopleRatio);
-	FLOGV(" - Delta Hunger: %u", Hunger);
-	FLOGV(" - Hunger: %u", PeopleData.HungerPoint);
-
-	FLOGV(" - Money: %u", PeopleData.Money);
-	FLOGV(" - Dept: %u", PeopleData.Dept);
 }
 
 void UFlarePeople::SimulateResourcePurchase()
@@ -386,6 +371,25 @@ void UFlarePeople::ResetPeople()
 
 }
 
+void UFlarePeople::PrintInfo()
+{
+
+	FLOGV("People for sector %s. ", *Parent->GetSectorName().ToString())
+	FLOGV(" - population: %u", PeopleData.Population);
+	FLOGV(" - happiness: %f", GetHappiness());
+	//FLOGV(" - Sickness: %f", Sickness);
+	//FLOGV(" - Fertility: %f", Fertility);
+
+	FLOGV(" - Food: %u", PeopleData.FoodStock);
+	//FLOGV(" - FoodConsumption: %u", FoodConsumption);
+	//FLOGV(" - EatenFood: %u", EatenFood);
+	//FLOGV(" - FeedPeopleRatio: %f", FeedPeopleRatio);
+	//FLOGV(" - Delta Hunger: %u", Hunger);
+	FLOGV(" - Hunger: %u", PeopleData.HungerPoint);
+
+	FLOGV(" - Money: %f", PeopleData.Money / 100.);
+	FLOGV(" - Dept: %f", PeopleData.Dept / 100.);
+}
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
