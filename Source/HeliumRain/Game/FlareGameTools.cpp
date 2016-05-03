@@ -257,12 +257,12 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 
 	FLOGV("> PrintCompany: %s - %s (%s)", *Company->GetIdentifier().ToString(), *Company->GetCompanyName().ToString(), *Company->GetShortName().ToString());
 	struct CompanyValue Value = Company->GetCompanyValue();
-	FLOGV("  > %llu $", Value.TotalValue);
-	FLOGV("    - Money %llu $", Value.MoneyValue);
-	FLOGV("    - Stocks %llu $", Value.StockValue);
-	FLOGV("    - Spacecrafts %llu $", Value.SpacecraftsValue);
-	FLOGV("      - Ships %llu $", Value.ShipsValue);
-	FLOGV("      - Stations %llu $", Value.StationsValue);
+	FLOGV("  > %f $", Value.TotalValue / 100.);
+	FLOGV("    - Money %f $", Value.MoneyValue / 100.);
+	FLOGV("    - Stocks %f $", Value.StockValue/ 100.);
+	FLOGV("    - Spacecrafts %f $", Value.SpacecraftsValue/ 100.);
+	FLOGV("      - Ships %f $", Value.ShipsValue/ 100.);
+	FLOGV("      - Stations %f $", Value.StationsValue/ 100.);
 	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();
 	FLOGV("  > %d fleets", CompanyFleets.Num());
 	for (int i = 0; i < CompanyFleets.Num(); i++)
@@ -838,7 +838,7 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 	for(int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 	{
 		FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->Resources[ResourceIndex]->Data;
-		FLOGV("   - %s : %f credits", *Resource->Name.ToString(), Sector->GetPreciseResourcePrice(Resource));
+		FLOGV("   - %s : %f credits", *Resource->Name.ToString(), Sector->GetPreciseResourcePrice(Resource) / 100.);
 	}
 
 	//People
