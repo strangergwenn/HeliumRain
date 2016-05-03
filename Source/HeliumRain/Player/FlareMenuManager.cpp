@@ -238,6 +238,7 @@ void AFlareMenuManager::CloseMenu(bool HardClose)
 
 void AFlareMenuManager::Back()
 {
+	// TODO real back
 	FLOG("AFlareMenuManager::Back");
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 

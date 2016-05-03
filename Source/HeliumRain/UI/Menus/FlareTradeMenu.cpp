@@ -450,7 +450,15 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 
 void SFlareTradeMenu::OnBackClicked()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
+	// TODO real back
+	if (TargetSector->IsA(UFlareSector::StaticClass()))
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+	}
+	else
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
+	}
 }
 
 void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer)
