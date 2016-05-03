@@ -298,7 +298,7 @@ uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resour
 			return DefaultPrice * 1.01f;
 		break;
 		case EFlareResourcePriceContext::ConsumerConsumption:
-			return DefaultPrice * 1.05f;
+			return DefaultPrice * 2.f;
 		break;
 		default:
 			return 0;
