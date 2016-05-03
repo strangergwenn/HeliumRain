@@ -94,6 +94,63 @@ void UFlareTravel::EndTravel()
 	
 	Game->GetGameWorld()->DeleteTravel(this);
 
+	// Money and people migration
+	float OriginPopulation = OriginSector->GetPeople()->GetPopulation();
+	float DestinationPopulation = DestinationSector->GetPeople()->GetPopulation();
+
+
+	if(OriginPopulation == 0 && DestinationPopulation == 0)
+	{
+		// Each give 1% of its money
+		uint32 OriginTransfert = OriginSector->GetPeople()->GetMoney() / 100;
+		uint32 DestinationTransfert = DestinationSector->GetPeople()->GetMoney() / 100;
+
+		OriginSector->GetPeople()->TakeMoney(OriginTransfert);
+		DestinationSector->GetPeople()->Pay(OriginTransfert);
+
+		DestinationSector->GetPeople()->TakeMoney(DestinationTransfert);
+		OriginSector->GetPeople()->Pay(DestinationTransfert);
+	}
+	else if (OriginPopulation  == 0)
+	{
+		// Origin sector has no population so it leak it's money
+		uint32 OriginTransfert = OriginSector->GetPeople()->GetMoney() / 100;
+		OriginSector->GetPeople()->TakeMoney(OriginTransfert);
+		DestinationSector->GetPeople()->Pay(OriginTransfert);
+	}
+	else if (DestinationPopulation  == 0)
+	{
+		// Destination sector has no population so it leak it's money
+		uint32 DestinationTransfert = DestinationSector->GetPeople()->GetMoney() / 100;
+		DestinationSector->GetPeople()->TakeMoney(DestinationTransfert);
+		OriginSector->GetPeople()->Pay(DestinationTransfert);
+	}
+	else
+	{
+		// Both have population. The wealthier leak.
+		float OriginWealth = OriginSector->GetPeople()->GetWealth();
+		float DestinationWealth = OriginSector->GetPeople()->GetWealth();
+		float TotalWealth = OriginWealth + DestinationWealth;
+
+		if(TotalWealth > 0)
+		{
+			if(OriginWealth > DestinationWealth)
+			{
+				float LeakRatio = 0.02f * ((OriginWealth / TotalWealth) - 0.5f); // 1% at max
+				uint32 OriginTransfert = LeakRatio * OriginSector->GetPeople()->GetMoney();
+				OriginSector->GetPeople()->TakeMoney(OriginTransfert);
+				DestinationSector->GetPeople()->Pay(OriginTransfert);
+			}
+			else
+			{
+				float LeakRatio = 0.02f * ((DestinationWealth / TotalWealth) - 0.5f); // 1% at max
+				uint32 DestinationTransfert = LeakRatio * DestinationSector->GetPeople()->GetMoney();
+				DestinationSector->GetPeople()->TakeMoney(DestinationTransfert);
+				OriginSector->GetPeople()->Pay(DestinationTransfert);
+			}
+		}
+	}
+
 	// Notify travel ended
 	if (Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && Fleet->GetCurrentTradeRoute() == NULL)
 	{
