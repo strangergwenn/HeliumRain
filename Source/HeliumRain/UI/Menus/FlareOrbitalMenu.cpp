@@ -645,6 +645,7 @@ FText SFlareOrbitalMenu::GetTravelText() const
 		{
 			FString Result = "\n";
 
+			// List travels
 			for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
 			{
 				UFlareTravel* Travel = GameWorld->GetTravels()[TravelIndex];
@@ -656,6 +657,36 @@ FText SFlareOrbitalMenu::GetTravelText() const
 						FText::FromString(*UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
 
 					Result += TravelText.ToString() + "\n";
+				}
+			}
+
+			// List ship productions
+			TArray<UFlareCompany*> Companies = GameWorld->GetCompanies();
+			for (int32 CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+			{
+				TArray<UFlareSimulatedSpacecraft*>& CompanyStations = Companies[CompanyIndex]->GetCompanyStations();
+				for (int32 StationIndex = 0; StationIndex < CompanyStations.Num(); StationIndex++)
+				{
+					for (int32 FactoryIndex = 0; FactoryIndex < CompanyStations[StationIndex]->GetFactories().Num(); FactoryIndex++)
+					{
+						// Get shipyard if existing
+						UFlareFactory* TargetFactory = CompanyStations[StationIndex]->GetFactories()[FactoryIndex];
+						if (!TargetFactory->IsShipyard())
+						{
+							continue;
+						}
+
+						// TODO FRED : API for the list of current orders ?
+
+						// Look for one of our ships
+						if (TargetFactory->GetOrderShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+						{
+							FText TravelText = FText::Format(LOCTEXT("ShipProductionTextFormat", "A {0} is being built by {1} ({2} left)"),
+								MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass())->Name,
+								Companies[CompanyIndex]->GetCompanyName(),
+								FText::FromString(*UFlareGameTools::FormatDate(42424242, 1))); //FString needed here
+						}
+					}
 				}
 			}
 
