@@ -865,6 +865,34 @@ void UFlareGameTools::PrintSectorByIndex(int32 Index)
 	PrintSector(Sectors[Index]->GetIdentifier());
 }
 
+
+void UFlareGameTools::GiveBirth(int32 SectorIndex, uint32 Population)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("UFlareGameTools::GiveBirth failed: no loaded world");
+		return;
+	}
+
+	TArray<UFlareSimulatedSector*> Sectors= GetGameWorld()->GetSectors();
+	if (SectorIndex < 0 || SectorIndex > Sectors.Num() -1)
+	{
+		FLOGV("UFlareGameTools::GiveBirth failed: invalid index %d, with %d sectors.", SectorIndex, Sectors.Num());
+		return;
+	}
+
+	FName SectorIdentifier = Sectors[SectorIndex]->GetIdentifier();
+
+	UFlareSimulatedSector* Sector = GetGameWorld()->FindSector(SectorIdentifier);
+	if (!Sector)
+	{
+		FLOGV("AFlareGame::GiveBirth failed: no sector with identifier '%s'", * SectorIdentifier.ToString());
+		return;
+	}
+
+	Sector->GetPeople()->GiveBirth(Population);
+}
+
 void UFlareGameTools::Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation)
 {
 	if (!GetGameWorld())

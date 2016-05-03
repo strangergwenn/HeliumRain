@@ -175,6 +175,9 @@ public:
 	void PrintSectorByIndex(int32 Index);
 
 	UFUNCTION(exec)
+	void GiveBirth(int32 SectorIndex, uint32 Population);
+
+	UFUNCTION(exec)
 	void Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation);
 
 
