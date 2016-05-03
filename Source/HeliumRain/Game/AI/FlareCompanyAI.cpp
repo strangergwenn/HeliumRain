@@ -1210,6 +1210,9 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 
 			int32 CanBuyQuantity = FMath::Min(FreeSpace, StockInAAfterTravel);
 
+			// Affordable quantity
+			CanBuyQuantity =  FMath::Min(CanBuyQuantity, (int32) (Company->GetMoney() / SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput)));
+
 			int32 CapacityInBAfterTravel =
 					VariationB->OwnedCapacity
 					+ VariationB->FactoryCapacity
@@ -1667,7 +1670,10 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 
-				uint32 Flow = Factory->GetInputResourceQuantity(ResourceIndex) / Factory->GetProductionDuration();
+				int32 Flow = Factory->GetInputResourceQuantity(ResourceIndex) / Factory->GetProductionDuration();
+
+				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
+
 
 				if (Flow == 0)
 				{
@@ -1682,6 +1688,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 					else
 					{
+						Flow = FMath::Min(Flow, CanBuyQuantity);
 						Variation->FactoryFlow += Flow;
 					}
 				}
@@ -1689,13 +1696,14 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
 				if (ResourceQuantity < SlotCapacity)
 				{
-					uint32 Capacity = SlotCapacity - ResourceQuantity;
+					int32 Capacity = SlotCapacity - ResourceQuantity;
 					if (Company == Station->GetCompany())
 					{
 						Variation->OwnedCapacity += Capacity;
 					}
 					else
 					{
+						Capacity = FMath::Min(Capacity, CanBuyQuantity);
 						Variation->FactoryCapacity += Capacity;
 					}
 				}
@@ -1763,15 +1771,20 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+
+				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
+
+
 				if (ResourceQuantity < SlotCapacity)
 				{
-					uint32 Capacity = SlotCapacity - ResourceQuantity;
+					int32 Capacity = SlotCapacity - ResourceQuantity;
 					if (Company == Station->GetCompany())
 					{
 						Variation->OwnedCapacity += Capacity;
 					}
 					else
 					{
+						Capacity = FMath::Min(Capacity, CanBuyQuantity);
 						Variation->FactoryCapacity += Capacity;
 					}
 				}
@@ -1788,15 +1801,20 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+
+				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
+
+
 				if (ResourceQuantity < SlotCapacity)
 				{
-					uint32 Capacity = SlotCapacity - ResourceQuantity;
+					int32 Capacity = SlotCapacity - ResourceQuantity;
 					if (Company == Station->GetCompany())
 					{
 						Variation->OwnedCapacity += Capacity;
 					}
 					else
 					{
+						Capacity = FMath::Min(Capacity, CanBuyQuantity);
 						Variation->FactoryCapacity += Capacity;
 					}
 				}
