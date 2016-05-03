@@ -141,21 +141,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.TextFont)
 							.WrapTextAt(Theme.ContentWidth)
 						]
-
-						// Travel here
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						.HAlign(HAlign_Left)
-						[
-							SNew(SFlareButton)
-							.Width(10)
-							.Text(this, &SFlareSectorMenu::GetTravelText)
-							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
-							.Icon(FFlareStyleSet::GetIcon("Travel"))
-							.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
-							.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
-						]
 					]
 				]
 				
@@ -179,6 +164,21 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
 							.Text(LOCTEXT("Actions", "SECTOR ACTIONS"))
+						]
+
+						// Travel here
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(10)
+							.Text(this, &SFlareSectorMenu::GetTravelText)
+							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
+							.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
 						]
 
 						// Refuel fleets
@@ -525,11 +525,12 @@ FText SFlareSectorMenu::GetSectorTransportInfo() const
 	{
 		UFlareCompany* PlayerCompany = MenuManager->GetGame()->GetPC()->GetCompany();
 		FText TransportInfoText = LOCTEXT("SectorDescriptionFormat",
-			"Stations require {0} cargo units per day (current capacity is {1}).");
+			"Stations here require {0} cargo units per day (current capacity is {1}). The sector has a population of {2}.");
 
 		Result = FText::Format(TransportInfoText,
 			FText::AsNumber(TargetSector->GetTransportCapacityNeeds(PlayerCompany)),
-			FText::AsNumber(TargetSector->GetTransportCapacity(PlayerCompany))
+			FText::AsNumber(TargetSector->GetTransportCapacity(PlayerCompany)),
+			FText::AsNumber(TargetSector->GetPeople()->GetPopulation())
 		);
 	}
 
