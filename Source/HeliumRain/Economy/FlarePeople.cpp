@@ -117,11 +117,16 @@ void UFlarePeople::SimulateResourcePurchase()
 	FFlareResourceDescription* Tools = Game->GetResourceCatalog()->Get("tools");
 	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
 
-	uint32 BoughtFood = BuyResourcesInSector(Food, GetRessourceConsumption(Food)); // In Tons
+	uint32 FoodConsumption = GetRessourceConsumption(Food);
+	uint32 BoughtFood = BuyResourcesInSector(Food, FoodConsumption); // In Tons
 	if(BoughtFood)
 		FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
 	PeopleData.FoodStock += BoughtFood * 1000; // In kg
 
+	if(FoodConsumption != BoughtFood)
+	{
+		return;
+	}
 
 	// Todo stock
 	uint32 BoughtFuel = BuyResourcesInSector(Fuel, GetRessourceConsumption(Fuel)); // In Tons
