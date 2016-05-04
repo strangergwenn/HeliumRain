@@ -340,7 +340,4 @@ public:
 	int64 GetProductionBalance();
 
 	float GetMarginRatio();
-
-	static const float MinMargin;
-	static const float MaxMargin;
 };

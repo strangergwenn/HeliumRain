@@ -27,6 +27,18 @@ struct FFlareResourceDescription
 	/** Resource icon */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FSlateBrush Icon;
+
+	/** Min resource price */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int64 MinPrice;
+
+	/** Min resource price */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int64 MaxPrice;
+
+	/** Min resource price */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int64 TransportFee;
 };
 
 /** Spacecraft cargo data */

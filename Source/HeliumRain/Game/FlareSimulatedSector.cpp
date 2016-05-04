@@ -707,6 +707,9 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 	//  - Maintenance ressource is full (and more than half) (very slow decrease)
 
 
+	float Overflow = 0;
+
+
 	// Prices never go below min production cost
 	for (int32 CountIndex = 0 ; CountIndex < SectorStations.Num(); CountIndex++)
 	{
@@ -724,27 +727,14 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			}
 
 
-			if (Factory->HasInputResource(Resource))
+			if (Factory->HasInputResource(Resource) && !Factory->HasInputResources() && Station->GetCargoBay()->GetFreeSpaceForResource(Resource) > 0)
 			{
-				if (StockRatio < 0.5f)
-				{
-					Variation += (0.5f - StockRatio) * 0.05; // +0.05% max
-				}
+				Overflow -= 1;
 			}
 
-			if (Factory->HasOutputResource(Resource))
+			if (Factory->HasOutputResource(Resource) && !Factory->HasOutputFreeSpace())
 			{
-				if (StockRatio > 0.5f)
-				{
-					Variation += - (StockRatio - 0.5f) * 0.05; // -0.05% max
-				}
-
-
-				float Margin = Factory->GetMarginRatio();
-				if (Margin > UFlareFactory::MaxMargin)
-				{
-					Variation += - 0.01; // +0.01% if margin > 50%
-				}
+				Overflow += 1;
 			}
 		}
 
@@ -752,34 +742,46 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 		{
 			if (StockRatio < 0.5f)
 			{
-				Variation += (0.5f - StockRatio) * 0.4; // +0.2% max
-			}
-
-			if (StockRatio > 0.5f)
-			{
-				Variation += - (StockRatio - 0.5f) * 0.02; // -0.01% max
+				Overflow -= 2.f * (0.5f - StockRatio); // Max -1
 			}
 		}
 
 		if(Station->HasCapability(EFlareSpacecraftCapability::Maintenance) && Game->GetResourceCatalog()->IsMaintenanceResource(Resource))
 		{
-			if (StockRatio < 0.5f)
+			if (StockRatio < 0.1f)
 			{
-				Variation += (0.5f - StockRatio) * 0.2; // +0.01% max
-			}
-
-			if (StockRatio > 0.5f)
-			{
-				Variation += - (StockRatio - 0.5f) * 0.02; // -0.01% max
+				Overflow -= 2.f * (0.5f - StockRatio); // Max -1
 			}
 		}
+	}
+
+	if (Overflow > 0)
+	{
+		Variation = -1;
+	}
+	else if(Overflow < 0)
+	{
+		Variation = +1;
 	}
 
 	if(Variation != 0.f)
 	{
 		float NewPrice = FMath::Max(1.f, OldPrice * (1 + Variation / 100.f));
+
+
 		SetPreciseResourcePrice(Resource, NewPrice);
-		//FLOGV("%s price in %s change from %f to %f (%f)", *Resource->Name.ToString(), *GetSectorName().ToString(), OldPrice, NewPrice, Variation);
+		if(NewPrice > Resource->MaxPrice)
+		{
+			FLOGV("%s price at max in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
+		}
+		else if(NewPrice < Resource->MinPrice)
+		{
+			FLOGV("%s price at min in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
+		}
+		else
+		{
+			FLOGV("%s price in %s change from %f to %f (%f)", *Resource->Name.ToString(), *GetSectorName().ToString(), OldPrice / 100.f, NewPrice / 100.f, Variation);
+		}
 	}
 }
 

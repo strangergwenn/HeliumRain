@@ -11,10 +11,6 @@
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
 
-
-const float UFlareFactory::MinMargin = 0.2;
-const float UFlareFactory::MaxMargin = 0.6;
-
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -92,7 +88,12 @@ post_prod:
 
 void UFlareFactory::TryBeginProduction()
 {
-	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney() && (IsShipyard() || GetMarginRatio() > MinMargin))
+	if (GetMarginRatio() < 0.f)
+	{
+		FLOGV("WARNING: Margin ratio for %s is : %f", *FactoryDescription->Name.ToString(), GetMarginRatio())
+	}
+
+	if (IsNeedProduction() && !HasCostReserved() && HasInputResources() && HasInputMoney())
 	{
 		BeginProduction();
 	}
@@ -844,19 +845,12 @@ FText UFlareFactory::GetFactoryStatus()
 				FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
 				HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space"));
 		}
-		else if (HasInputMoney() && HasInputResources() && (IsShipyard() || GetMarginRatio() > MinMargin))
+		else if (HasInputMoney() && HasInputResources())
 		{
 			ProductionStatusText = LOCTEXT("ProductionWillStart", "Starting");
 		}
 		else
 		{
-
-
-			if (!IsShipyard() && GetMarginRatio()  <= MinMargin)
-			{
-				ProductionStatusText = LOCTEXT("ProductionNotProfitable", "Production not profitable. Waiting higher prices.");
-			}
-
 			if (!HasInputMoney())
 			{
 				ProductionStatusText = LOCTEXT("ProductionNotEnoughMoney", "Waiting for credits");
@@ -902,7 +896,7 @@ bool UFlareFactory::IsProducing()
 				return false;
 			}
 		}
-		else if (HasInputMoney() && HasInputResources() && GetMarginRatio() > MinMargin)
+		else if (HasInputMoney() && HasInputResources())
 		{
 			return true;
 		}
@@ -933,11 +927,6 @@ float UFlareFactory::GetMarginRatio()
 	}
 
 	float Margin = (float) GetProductionBalance() / (float) SellPrice;
-
-	/*if (Margin < MinMargin)
-	{
-		FLOGV("WARNING : %s margin : %f", *FactoryDescription->Name.ToString(), Margin);
-	}*/
 
 	return Margin;
 }

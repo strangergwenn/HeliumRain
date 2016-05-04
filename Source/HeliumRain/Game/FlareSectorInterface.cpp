@@ -279,12 +279,12 @@ float UFlareSectorInterface::GetPreciseResourcePrice(FFlareResourceDescription* 
 
 void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice)
 {
-	ResourcePrices[Resource] = NewPrice;
+	ResourcePrices[Resource] = FMath::Clamp(NewPrice, (float) Resource->MinPrice, (float) Resource->MaxPrice);
 }
 
 uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext)
 {
-	float DefaultPrice = GetPreciseResourcePrice(Resource);
+	uint64 DefaultPrice = FMath::Round(GetPreciseResourcePrice(Resource));
 
 	switch(PriceContext)
 	{
@@ -292,13 +292,13 @@ uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resour
 			return DefaultPrice;
 		break;
 		case EFlareResourcePriceContext::FactoryOutput:
-			return DefaultPrice * 0.99f;
+			return DefaultPrice - Resource->TransportFee;
 		break;
 		case EFlareResourcePriceContext::FactoryInput:
-			return DefaultPrice * 1.01f;
+			return DefaultPrice + Resource->TransportFee;
 		break;
 		case EFlareResourcePriceContext::ConsumerConsumption:
-			return DefaultPrice * 2.f;
+			return DefaultPrice * 2;
 		break;
 		default:
 			return 0;
@@ -308,97 +308,7 @@ uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resour
 
 float UFlareSectorInterface::GetDefaultResourcePrice(FFlareResourceDescription* Resource)
 {
-	// DEBUGInflation
-	float Margin = 1.2;
-
-	// Base
-	static float FuelPrice = 1500 * Margin;
-
-	// Raw
-	static float H2Price = ((FuelPrice * 10 + 10000) / 40.) * Margin;
-	static float FeoPrice = ((FuelPrice * 10 + 10000) / 10.)* Margin;
-	static float Ch4Price = ((FuelPrice * 10 + 10000) / 20.) * Margin;
-	static float Sio2Price = ((FuelPrice * 10 + 10000) / 10.) * Margin;
-	static float He3Price = ((FuelPrice * 10 + 10000) / 10.) * Margin;
-	static float H2oPrice = ((FuelPrice * 10 + 10000) / 50.) * Margin;
-
-
-	// Product
-	static float SteelPrice = ((20 * FeoPrice + 40 * H2oPrice + 10 * FuelPrice + 10000)) / 10. * Margin;
-	static float CPrice = ((10 * Ch4Price + 10 * FuelPrice + 10000)) / 10.0 * Margin;
-	static float PlasticPrice = ((10 * Ch4Price + 10 * FuelPrice + 10000)) / 10.0 * Margin;
-	static float FSPrice = ((10 * SteelPrice + 20* PlasticPrice + 10 * FuelPrice + 10000)) / 10.0 * Margin;
-	static float FoodPrice = ((10 * CPrice + 10 * H2oPrice + 10 * FuelPrice + 10000)) / 10.0 * Margin;
-	static float ToolsPrice = ((10 * SteelPrice + 10 * PlasticPrice + 10000)) / 10.0 * Margin;
-	static float TechPrice = ((20 * Sio2Price+ 40 * H2Price + 50 * FuelPrice + 50000)) / 10.0 * Margin;
-
-
-
-	// TODO better
-	if (Resource->Identifier == "h2")
-	{
-		return H2Price;
-	}
-	else if (Resource->Identifier == "feo")
-	{
-		return FeoPrice;
-	}
-	else if (Resource->Identifier == "ch4")
-	{
-		return Ch4Price;
-	}
-	else if (Resource->Identifier == "sio2")
-	{
-		return Sio2Price;
-	}
-	else if (Resource->Identifier == "he3")
-	{
-		return He3Price;
-	}
-	else if (Resource->Identifier == "h2o")
-	{
-		return H2oPrice;
-	}
-	else if (Resource->Identifier == "steel")
-	{
-		return SteelPrice;
-	}
-	else if (Resource->Identifier == "c")
-	{
-		return CPrice;
-	}
-	else if (Resource->Identifier == "plastics")
-	{
-		return PlasticPrice;
-	}
-	else if (Resource->Identifier == "fleet-supply")
-	{
-		return FSPrice;
-	}
-	else if (Resource->Identifier == "food")
-	{
-		return FoodPrice;
-	}
-	else if (Resource->Identifier == "fuel")
-	{
-		return FuelPrice;
-	}
-	else if (Resource->Identifier == "tools")
-	{
-		return ToolsPrice;
-	}
-	else if (Resource->Identifier == "tech")
-	{
-		return TechPrice;
-
-	}
-	else
-	{
-		FLOGV("Unknown resource %s", *Resource->Identifier.ToString());
-		return 0;
-	}
-
-
+	return Resource->MinPrice * 0.75 + Resource->MaxPrice * 0.25;
 }
 
 uint32 UFlareSectorInterface::GetTransfertResourcePrice(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource)

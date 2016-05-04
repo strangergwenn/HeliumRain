@@ -112,8 +112,6 @@ public:
 	/** Add a factory to world */
 	void AddFactory(UFlareFactory* Factory);
 
-	void SimulatePriceHomogenization();
-
 protected:
 
 	/*----------------------------------------------------

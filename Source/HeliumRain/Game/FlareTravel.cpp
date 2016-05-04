@@ -66,7 +66,6 @@ void UFlareTravel::EndTravel()
 
 	// Place correctly new ships to avoid collision
 
-	// TODO Money migration
 	// TODO People migration
 
 	// Price migration
@@ -84,8 +83,8 @@ void UFlareTravel::EndTravel()
 		float NewOriginPrice = (OriginPrice * (1 - ContaminationFactor)) + (ContaminationFactor * Mean);
 		float NewDestinationPrice = (DestinationPrice * (1 - ContaminationFactor)) + (ContaminationFactor * Mean);
 
-		//FLOGV("Travel start from %s. %s price ajusted from %f to %f (Mean: %f)", *OriginSector->GetSectorName().ToString(), *Resource->Name.ToString(), OriginPrice, NewOriginPrice, Mean);
-		//FLOGV("Travel end from %s. %s price ajusted from %f to %f (Mean: %f)", *DestinationSector->GetSectorName().ToString(), *Resource->Name.ToString(), DestinationPrice, NewDestinationPrice, Mean);
+		//FLOGV("Travel start from %s. %s price ajusted from %f to %f (Mean: %f)", *OriginSector->GetSectorName().ToString(), *Resource->Name.ToString(), OriginPrice/100., NewOriginPrice/100., Mean/100.);
+		//FLOGV("Travel end from %s. %s price ajusted from %f to %f (Mean: %f)", *DestinationSector->GetSectorName().ToString(), *Resource->Name.ToString(), DestinationPrice/100., NewDestinationPrice/100., Mean/100.);
 
 		OriginSector->SetPreciseResourcePrice(Resource, NewOriginPrice);
 		DestinationSector->SetPreciseResourcePrice(Resource, NewDestinationPrice);
