@@ -426,8 +426,8 @@ void SFlareSpacecraftInfo::Show()
 		UnassignButton->SetVisibility(CanUnAssign ? EVisibility::Visible : EVisibility::Collapsed);
 		TradeButton->SetVisibility(CanTrade ? EVisibility::Visible : EVisibility::Collapsed);
 		UpgradeButton->SetVisibility(Owned && !IsStation ? EVisibility::Visible : EVisibility::Collapsed);
-		DockButton->SetVisibility(CanDock ? EVisibility::Visible : EVisibility::Collapsed);
-		UndockButton->SetVisibility(IsDocked ? EVisibility::Visible : EVisibility::Collapsed);
+		DockButton->SetVisibility(CanDock && !IsStrategy ? EVisibility::Visible : EVisibility::Collapsed);
+		UndockButton->SetVisibility(IsDocked && !IsStrategy ? EVisibility::Visible : EVisibility::Collapsed);
 		ScrapButton->SetVisibility(EVisibility::Collapsed); // Unused at this time
 
 		// Flyable ships : disable when not flyable
