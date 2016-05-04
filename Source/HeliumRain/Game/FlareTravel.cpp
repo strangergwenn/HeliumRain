@@ -100,9 +100,9 @@ void UFlareTravel::EndTravel()
 
 	if(OriginPopulation == 0 && DestinationPopulation == 0)
 	{
-		// Each give 1% of its money
-		uint32 OriginTransfert = OriginSector->GetPeople()->GetMoney() / 100;
-		uint32 DestinationTransfert = DestinationSector->GetPeople()->GetMoney() / 100;
+		// Each give 10% of its money
+		uint32 OriginTransfert = OriginSector->GetPeople()->GetMoney() / 10;
+		uint32 DestinationTransfert = DestinationSector->GetPeople()->GetMoney() / 10;
 
 		OriginSector->GetPeople()->TakeMoney(OriginTransfert);
 		DestinationSector->GetPeople()->Pay(OriginTransfert);
@@ -113,14 +113,14 @@ void UFlareTravel::EndTravel()
 	else if (OriginPopulation  == 0)
 	{
 		// Origin sector has no population so it leak it's money
-		uint32 OriginTransfert = OriginSector->GetPeople()->GetMoney() / 100;
+		uint32 OriginTransfert = OriginSector->GetPeople()->GetMoney() / 10;
 		OriginSector->GetPeople()->TakeMoney(OriginTransfert);
 		DestinationSector->GetPeople()->Pay(OriginTransfert);
 	}
 	else if (DestinationPopulation  == 0)
 	{
 		// Destination sector has no population so it leak it's money
-		uint32 DestinationTransfert = DestinationSector->GetPeople()->GetMoney() / 100;
+		uint32 DestinationTransfert = DestinationSector->GetPeople()->GetMoney() / 10;
 		DestinationSector->GetPeople()->TakeMoney(DestinationTransfert);
 		OriginSector->GetPeople()->Pay(DestinationTransfert);
 	}
