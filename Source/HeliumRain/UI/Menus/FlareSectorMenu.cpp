@@ -169,7 +169,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SVerticalBox)
 
-						// Build station text
+						// Helper title
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.TitlePadding)
@@ -178,7 +178,21 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("Actions", "SECTOR ACTIONS"))
+							.Text(LOCTEXT("Actions", "Sector tools"))
+						]
+
+						// Show prices
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(10)
+							.Text(LOCTEXT("ResourcePrices", "Resource prices - Coming soon !")) // TODO #287
+							.HelpText(LOCTEXT("ResourcePricesInfo", "See the price and use of resources in this sector"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.IsDisabled(true)
 						]
 
 						// Refuel fleets
@@ -247,7 +261,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(OwnedShipList, SFlareShipList)
 						.MenuManager(MenuManager)
-						.Title(LOCTEXT("MyListTitle", "OWNED SPACECRAFTS IN SECTOR"))
+						.Title(LOCTEXT("MyListTitle", "Owned spacecrafts in sector"))
 					]
 				]
 
@@ -263,7 +277,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(OtherShipList, SFlareShipList)
 						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OtherListTitle", "OTHER SPACECRAFTS IN SECTOR"))
+						.Title(LOCTEXT("OtherListTitle", "Other spacecrafts in sector"))
 					]
 				]
 			]

@@ -167,7 +167,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(OwnedShipList, SFlareShipList)
 					.MenuManager(MenuManager)
-					.Title(LOCTEXT("DashboardMyListTitle", "OWNED SPACECRAFTS IN SECTOR"))
+					.Title(LOCTEXT("DashboardMyListTitle", "Owned spacecrafts in sector"))
 				]
 			]
 
@@ -184,7 +184,7 @@ void SFlareDashboard::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(OtherShipList, SFlareShipList)
 					.MenuManager(MenuManager)
-					.Title(LOCTEXT("DashboardOtherListTitle", "OTHER SPACECRAFTS IN SECTOR"))
+					.Title(LOCTEXT("DashboardOtherListTitle", "Other spacecrafts in sector"))
 				]
 			]
 		]

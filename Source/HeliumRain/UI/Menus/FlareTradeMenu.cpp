@@ -112,6 +112,36 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(LeftCargoBay, SHorizontalBox)
 					]
+
+					// Help text
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("HelpText", "Your ship is ready to trade with another spacecraft."))
+					]
+
+					// Resource prices title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("ResourcePrices", "Resource prices"))
+					]
+
+					// Help text
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(FText::FromString("Coming soon !")) // TODO #278
+					]
 				]
 			]
 
@@ -123,131 +153,134 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Fill)
 				.WidthOverride(Theme.ContentWidth)
 				[
-					SNew(SVerticalBox)
+					SNew(SScrollBox)
+					.Style(&Theme.ScrollBoxStyle)
+					.ScrollBarStyle(&Theme.ScrollBarStyle)
 
-					// Ship's name
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.TitlePadding)
+					+ SScrollBox::Slot()
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.SubTitleFont)
-						.Text(this, &SFlareTradeMenu::GetRightSpacecraftName)
-						.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
-					]
-				
-					// Ship's cargo
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Left)
-					[
-						SAssignNew(RightCargoBay, SHorizontalBox)
-						.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
-					]
-
-					// Help text
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(LOCTEXT("HelpText", "Click on a resource to start trading."))
-						.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
-					]
-
-					// Back button
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Left)
-					[
-						SNew(SFlareButton)
-						.Text(LOCTEXT("BackToSelection", "Go back to the ship selection"))
-						.Icon(FFlareStyleSet::GetIcon("Stop"))
-						.OnClicked(this, &SFlareTradeMenu::OnBackToSelection)
-						.Visibility(this, &SFlareTradeMenu::GetBackToSelectionVisibility)
-						.Width(8)
-					]
+						SNew(SVerticalBox)
 						
-					// Ship selection list
-					+ SVerticalBox::Slot()
-					[
-						SNew(SScrollBox)
-						.Style(&Theme.ScrollBoxStyle)
-						.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-						+ SScrollBox::Slot()
+						// Ship selection list
+						+ SVerticalBox::Slot()
 						[
 							SAssignNew(ShipList, SFlareShipList)
 							.MenuManager(MenuManager)
-							.Title(LOCTEXT("SelectSpacecraft", "SELECT A SPECACRAFT TO TRADE WITH"))
+							.Title(LOCTEXT("SelectSpacecraft", "Select a spacecraft to trade with"))
 							.OnItemSelected(this, &SFlareTradeMenu::OnSpacecraftSelected)
 						]
+
+						// Ship's name
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(this, &SFlareTradeMenu::GetRightSpacecraftName)
+							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+						]
+				
+						// Ship's cargo
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Fill)
+						[
+							SNew(SHorizontalBox)
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SAssignNew(RightCargoBay, SHorizontalBox)
+								.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Right)
+							.VAlign(VAlign_Center)
+							[
+								SNew(SFlareButton)
+								.Text(LOCTEXT("BackToSelection", "Change target"))
+								.Icon(FFlareStyleSet::GetIcon("Stop"))
+								.OnClicked(this, &SFlareTradeMenu::OnBackToSelection)
+								.Visibility(this, &SFlareTradeMenu::GetBackToSelectionVisibility)
+								.Width(4)
+							]
+						]
+
+						// Help text
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(LOCTEXT("OtherShipHelpText", "Click on a resource to start trading."))
+							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+						]
+
+						// Price box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SBox)
+							.HAlign(HAlign_Fill)
+							.VAlign(VAlign_Top)
+							.WidthOverride(Theme.ContentWidth)
+							[
+								SNew(SVerticalBox)
+
+								// Title
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.TitlePadding)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.SubTitleFont)
+									.Text(LOCTEXT("TransactionTitle", "Transaction details"))
+									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+								]
+
+								// Info
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.ContentPadding)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(this, &SFlareTradeMenu::GetTransactionDetails)
+									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+								]
+
+								// Quantity
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(QuantitySlider, SSlider)
+									.Style(&Theme.SliderStyle)
+									.Value(0)
+									.OnValueChanged(this, &SFlareTradeMenu::OnResourceQuantityChanged)
+									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+								]
+
+								// Price
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(PriceBox, SFlareConfirmationBox)
+									.ConfirmText(LOCTEXT("Confirm", "Confirm transfer"))
+									.CancelText(LOCTEXT("BackTopShip", "Cancel"))
+									.OnConfirmed(this, &SFlareTradeMenu::OnConfirmTransaction)
+									.OnCancelled(this, &SFlareTradeMenu::OnCancelTransaction)
+									.FullHide(true)
+									.PC(MenuManager->GetPC())
+								]
+							]
+						]
 					]
-				]
-			]
-		]
-
-		// Price box
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Bottom)
-		[
-			SNew(SBox)
-			.HAlign(HAlign_Fill)
-			.WidthOverride(Theme.ContentWidth)
-			[
-				SNew(SVerticalBox)
-
-				// Title
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SubTitleFont)
-					.Text(LOCTEXT("TransactionTitle", "TRANSACTION DETAILS"))
-					.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
-				]
-
-				// Info
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareTradeMenu::GetTransactionDetails)
-					.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
-				]
-
-				// Quantity
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(QuantitySlider, SSlider)
-					.Style(&Theme.SliderStyle)
-					.Value(0)
-					.OnValueChanged(this, &SFlareTradeMenu::OnResourceQuantityChanged)
-					.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
-				]
-
-				// Price
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(PriceBox, SFlareConfirmationBox)
-					.ConfirmText(LOCTEXT("Confirm", "CONFIRM TRANSFER"))
-					.CancelText(LOCTEXT("BackTopShip", "CANCEL"))
-					.OnConfirmed(this, &SFlareTradeMenu::OnConfirmTransaction)
-					.OnCancelled(this, &SFlareTradeMenu::OnCancelTransaction)
-					.FullHide(true)
-					.PC(MenuManager->GetPC())
 				]
 			]
 		]
