@@ -51,9 +51,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.313708"
-     inkscape:cx="1689.1813"
-     inkscape:cy="618.43169"
+     inkscape:zoom="1"
+     inkscape:cx="1662.3633"
+     inkscape:cy="632.55559"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -1207,7 +1207,7 @@
    style="fill:#a4b5f2;fill-opacity:1"
    id="tspan4891">10 Plastics</tspan> → <tspan
    style="fill:#a4f2a6;fill-opacity:1"
-   id="tspan4905">10 Tools</tspan></tspan></text>
+   id="tspan4905">30 Tools</tspan></tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4529"
@@ -3455,7 +3455,7 @@
            y="331.87405"
            x="1730.5369"
            id="tspan5701"
-           sodipodi:role="line">Min cost:   647</tspan></text>
+           sodipodi:role="line">Min cost:   218</tspan></text>
     </g>
     <g
        id="g7019"
