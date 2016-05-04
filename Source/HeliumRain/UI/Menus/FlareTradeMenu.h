@@ -72,6 +72,9 @@ protected:
 	/** Get the transaction details */
 	FText GetTransactionDetails() const;
 
+	/** Get the resource prices */
+	FText GetResourcePriceInfo(FFlareResourceDescription* Resource) const;
+
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 
@@ -112,6 +115,7 @@ protected:
 	TSharedPtr<SHorizontalBox>                      RightCargoBay;
 	TSharedPtr<SSlider>                             QuantitySlider;
 	TSharedPtr<SFlareConfirmationBox>               PriceBox;
+	TSharedPtr<SVerticalBox>                        ResourcePriceList;
 
 	// Data
 	UFlareSectorInterface*                          TargetSector;

@@ -18,8 +18,7 @@ public:
 	/** Resources data */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<UFlareResourceCatalogEntry*> Resources;
-
-
+	
 	/** Resources data */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<UFlareResourceCatalogEntry*> ConsumerResources;
@@ -37,8 +36,20 @@ public:
 	/** Get a resource from identifier */
 	FFlareResourceDescription* Get(FName Identifier) const;
 
+	/** Get all resources */
+	TArray<UFlareResourceCatalogEntry*>& GetResourceList()
+	{
+		return Resources;
+	}
+
 	bool IsCustomerResource(FFlareResourceDescription* Resource) const;
 
 	bool IsMaintenanceResource(FFlareResourceDescription* Resource) const;
 
 };
+
+
+inline static bool SortByResourceType(const UFlareResourceCatalogEntry& ResourceA, const UFlareResourceCatalogEntry& ResourceB)
+{
+	return (ResourceA.Data.Icon.GetResourceName() < ResourceB.Data.Icon.GetResourceName());
+}

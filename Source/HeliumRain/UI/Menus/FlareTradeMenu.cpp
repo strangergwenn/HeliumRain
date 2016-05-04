@@ -88,59 +88,64 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Fill)
 			[
-				SNew(SBox)
-				.HAlign(HAlign_Left)
-				.WidthOverride(Theme.ContentWidth)
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+				+ SScrollBox::Slot()
 				[
-					SNew(SVerticalBox)
-
-					// Current ship's name
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.TitlePadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.SubTitleFont)
-						.Text(this, &SFlareTradeMenu::GetLeftSpacecraftName)
-					]
-
-					// Current ship's cargo
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
+					SNew(SBox)
 					.HAlign(HAlign_Left)
+					.WidthOverride(Theme.ContentWidth)
 					[
-						SAssignNew(LeftCargoBay, SHorizontalBox)
-					]
+						SNew(SVerticalBox)
 
-					// Help text
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(LOCTEXT("HelpText", "Your ship is ready to trade with another spacecraft."))
-					]
+						// Current ship's name
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(this, &SFlareTradeMenu::GetLeftSpacecraftName)
+						]
 
-					// Resource prices title
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.TitlePadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.SubTitleFont)
-						.Text(LOCTEXT("ResourcePrices", "Resource prices"))
-					]
+						// Current ship's cargo
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SAssignNew(LeftCargoBay, SHorizontalBox)
+						]
 
-					// Help text
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(FText::FromString("Coming soon !")) // TODO #278
+						// Help text
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(LOCTEXT("HelpText", "Your ship is ready to trade with another spacecraft."))
+						]
+
+						// Resource prices title
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(LOCTEXT("ResourcePrices", "Local resource prices"))
+						]
+
+						// Help text
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(ResourcePriceList, SVerticalBox)
+						]
 					]
 				]
 			]
@@ -302,11 +307,10 @@ void SFlareTradeMenu::Setup()
 void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraftInterface* LeftSpacecraft, IFlareSpacecraftInterface* RightSpacecraft)
 {
 	FLOGV("SFlareTradeMenu::Enter ParentSector=%p LeftSpacecraft=%p RightSpacecraft=%p", ParentSector, LeftSpacecraft, RightSpacecraft);
-
+	
+	// Setup
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-
-	// Setup targets
 	TargetSector = ParentSector;
 	TargetLeftSpacecraft = LeftSpacecraft;
 
@@ -324,11 +328,7 @@ void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraf
 		TargetRightSpacecraft = RightSpacecraft;
 	}
 
-	// Setup menus
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
-	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
-	
+	// Not first person - list spacecrafts
 	if (!PhysicalSpacecraft)
 	{
 		// Add stations
@@ -357,7 +357,57 @@ void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraf
 		}
 	}
 
+	// Resource prices
+	ResourcePriceList->ClearChildren();
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	TArray<UFlareResourceCatalogEntry*>& ResourceList = MenuManager->GetGame()->GetResourceCatalog()->GetResourceList();
+	ResourceList.Sort(&SortByResourceType);
+
+	// Resource prices
+	for (int32 ResourceIndex = 0; ResourceIndex < ResourceList.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription& Resource = ResourceList[ResourceIndex]->Data;
+		ResourcePriceList->AddSlot()
+		.Padding(FMargin(1))
+		[
+			SNew(SHorizontalBox)
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SBorder)
+				.Padding(FMargin(0))
+				.BorderImage(&Resource.Icon)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ResourceWidth)
+					.HeightOverride(Theme.ResourceHeight)
+					.Padding(FMargin(0))
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(Resource.Acronym)
+					]
+				]
+			]
+
+			// Price
+			+ SHorizontalBox::Slot()
+			.Padding(Theme.ContentPadding)
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(this, &SFlareTradeMenu::GetResourcePriceInfo, &Resource)
+			]
+		];
+	}
+
 	// Setup widgets
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
 	ShipList->RefreshList();
 	ShipList->SetVisibility(EVisibility::Visible);
 }
@@ -479,6 +529,22 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 	{
 		return FText();
 	}
+}
+
+FText SFlareTradeMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource) const
+{
+	if (TargetSector)
+	{
+		FNumberFormattingOptions MoneyFormat;
+		MoneyFormat.MaximumFractionalDigits = 2;
+
+		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "Base price of {0} credits - Bought at {1}, sold at {2}"),
+			FText::AsNumber(TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) / 100.0f, &MoneyFormat),
+			FText::AsNumber(TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput) / 100.0f, &MoneyFormat),
+			FText::AsNumber(TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput) / 100.0f, &MoneyFormat));
+	}
+
+	return FText();
 }
 
 void SFlareTradeMenu::OnBackClicked()
