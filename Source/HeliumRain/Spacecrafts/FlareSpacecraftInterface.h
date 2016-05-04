@@ -237,6 +237,18 @@ public:
 
 	virtual UFlareSectorInterface* GetCurrentSectorInterface() = 0;
 
+
+	/*----------------------------------------------------
+		Resources
+	----------------------------------------------------*/
+
+	/** Is this resource used as input by this station ?*/
+	virtual bool IsInputResource(FFlareResourceDescription* Resource);
+
+	/** Is this resource used as output by this station ?*/
+	virtual bool IsOutputResource(FFlareResourceDescription* Resource);
+
+
 	/*----------------------------------------------------
 		Sub system
 	----------------------------------------------------*/

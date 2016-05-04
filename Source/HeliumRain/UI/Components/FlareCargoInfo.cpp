@@ -174,14 +174,35 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 {
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	check(Cargo);
+	
+	// Print IO text if any
+	FText LockText;
+	if (Cargo->Locked)
+	{
+		if (TargetSpacecraft->IsOutputResource(Cargo->Resource))
+		{
+			LockText = FText::Format(LOCTEXT("OutputCargoFormat", "(Output)\n"), Cargo->Resource->Acronym);
+		}
+		else
+		{
+			LockText = FText::Format(LOCTEXT("InputCargoFormat", "(Input)\n"), Cargo->Resource->Acronym);
+		}
+	}
 
+	// Format the current capacity info
 	if (Cargo->Capacity > 999)
 	{
-		return FText::FromString(FString::Printf(TEXT(" %u\n/%u"), Cargo->Quantity, Cargo->Capacity));
+		FNumberFormattingOptions CargoFormat;
+		CargoFormat.MaximumFractionalDigits = 1;
+
+		return FText::Format(FText::FromString("{0} {1}k/{2}k"),
+			LockText,
+			FText::AsNumber(Cargo->Quantity / 1000.0f, &CargoFormat),
+			FText::AsNumber(Cargo->Capacity / 1000.0f, &CargoFormat));
 	}
 	else
 	{
-		return FText::FromString(FString::Printf(TEXT("%u/%u"), Cargo->Quantity, Cargo->Capacity));
+		return FText::FromString(FString::Printf(TEXT("%s %u/%u"), *LockText.ToString(), Cargo->Quantity, Cargo->Capacity));
 	}
 }
 
