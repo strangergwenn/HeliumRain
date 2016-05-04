@@ -116,7 +116,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("Colors", "COLORS"))
+					.Text(LOCTEXT("Colors", "Colors"))
 					.TextStyle(&Theme.SubTitleFont)
 				]
 
@@ -135,7 +135,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("Trade routes", "TRADE ROUTES"))
+					.Text(LOCTEXT("Trade routes", "Trade routes"))
 					.TextStyle(&Theme.SubTitleFont)
                     .Visibility(this, &SFlareCompanyMenu::GetTradeRouteVisibility)
 				]
@@ -170,7 +170,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(ShipList, SFlareShipList)
 					.MenuManager(MenuManager)
-					.Title(LOCTEXT("Property", "PROPERTY"))
+					.Title(LOCTEXT("Property", "Property"))
 				]
 			]
 		]
@@ -307,7 +307,7 @@ FText SFlareCompanyMenu::GetCompanyName() const
 
 	if (Company)
 	{
-		Result = FText::Format(LOCTEXT("Company", "COMPANY : {0}"), Company->GetCompanyName());
+		Result = FText::Format(LOCTEXT("Company", "Company : {0}"), Company->GetCompanyName());
 	}
 
 	return Result;

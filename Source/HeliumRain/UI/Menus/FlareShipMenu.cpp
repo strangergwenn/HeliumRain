@@ -225,7 +225,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(ShipPartPickerTitle, STextBlock)
-						.Text(LOCTEXT("ShipParts", "AVAILABLE COMPONENTS"))
+						.Text(LOCTEXT("ShipParts", "Available components"))
 						.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
 					]
 
