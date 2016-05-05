@@ -591,9 +591,8 @@ void SFlareTradeMenu::OnTransferResources(IFlareSpacecraftInterface* SourceSpace
 		TransactionSourceSpacecraft = SourceSpacecraft;
 		TransactionDestinationSpacecraft = DestinationSpacecraft;
 		TransactionResource = Resource;
-		TransactionQuantity = FMath::Min(FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
-		                                            TransactionSourceSpacecraft->GetDescription()->CargoBayCapacity),
-		                                            TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
+		TransactionQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
+		                            TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
 		QuantitySlider->SetValue(1.0f);
 
 		UpdatePrice();
@@ -603,9 +602,8 @@ void SFlareTradeMenu::OnTransferResources(IFlareSpacecraftInterface* SourceSpace
 void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 {
 	// Force slider value, update quantity
-	int32 ResourceMaxQuantity = FMath::Min(FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
-		                                              TransactionSourceSpacecraft->GetDescription()->CargoBayCapacity),
-		                                              TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
+	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
+		                              TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
 
 	TransactionQuantity = FMath::Lerp((int32)1, ResourceMaxQuantity, Value);
 	if (ResourceMaxQuantity == 1)
@@ -616,7 +614,6 @@ void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 	{
 		QuantitySlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
 	}
-	FLOGV("SFlareTradeMenu::OnResourceQuantityChanged %f -> %d/%d", Value, TransactionQuantity, ResourceMaxQuantity);
 
 	UpdatePrice();
 }
@@ -626,7 +623,11 @@ void SFlareTradeMenu::OnConfirmTransaction()
 	// Actual transaction
 	if (TransactionSourceSpacecraft && TransactionSourceSpacecraft->GetCurrentSectorInterface() && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		TransactionSourceSpacecraft->GetCurrentSectorInterface()->TransfertResources(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource, TransactionQuantity);
+		TransactionSourceSpacecraft->GetCurrentSectorInterface()->TransfertResources(
+			TransactionSourceSpacecraft,
+			TransactionDestinationSpacecraft,
+			TransactionResource,
+			TransactionQuantity);
 	}
 
 	// Reset transaction data
@@ -679,7 +680,10 @@ void SFlareTradeMenu::UpdatePrice()
 
 	if (TransactionSourceSpacecraft && TransactionSourceSpacecraft->GetCurrentSectorInterface())
 	{
-		ResourceUnitPrice = TransactionSourceSpacecraft->GetCurrentSectorInterface()->GetTransfertResourcePrice(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource);
+		ResourceUnitPrice = TransactionSourceSpacecraft->GetCurrentSectorInterface()->GetTransfertResourcePrice(
+			TransactionSourceSpacecraft,
+			TransactionDestinationSpacecraft,
+			TransactionResource);
 	}
 
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
