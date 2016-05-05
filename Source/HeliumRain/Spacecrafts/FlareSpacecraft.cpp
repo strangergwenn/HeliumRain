@@ -363,13 +363,6 @@ void AFlareSpacecraft::ResetCurrentTarget()
 
 AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 {
-	// Don't try in menus
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC->GetMenuManager()->IsMenuOpen())
-	{
-		return NULL;
-	}
-
 	// Crash "preventer" - ensure we've got a really valid target, this isn't a solution, but it seems to only happen when using CreateShip commands
 	if (IsValidLowLevel() && CurrentTarget  && CurrentTarget->IsValidLowLevel()
 	 && CurrentTarget->GetDamageSystem() && CurrentTarget->GetDamageSystem()->IsValidLowLevel() && CurrentTarget->GetDamageSystem()->IsAlive())
