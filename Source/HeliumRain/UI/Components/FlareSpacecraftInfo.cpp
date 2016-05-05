@@ -499,6 +499,11 @@ void SFlareSpacecraftInfo::Show()
 			}
 		}
 	}
+
+	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
+	{
+		CargoBay->SetVisibility(EVisibility::Visible);
+	}
 }
 
 void SFlareSpacecraftInfo::Hide()
