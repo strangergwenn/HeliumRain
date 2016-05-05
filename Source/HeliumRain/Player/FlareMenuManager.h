@@ -23,6 +23,7 @@ class SFlareSectorMenu;
 class SFlareTradeMenu;
 class SFlareTradeRouteMenu;
 class SFlareCreditsMenu;
+class SFlareResourcePricesMenu;
 
 class AFlarePlayerController;
 class AFlareSpacecraft;
@@ -192,6 +193,9 @@ protected:
 	/** Open the company menu */
 	virtual void OpenLeaderboard();
 
+	/** Open the resource prices menu */
+	virtual void OpenResourcePrices(UFlareSectorInterface* Sector);
+
 	/** Go to the game's credits */
 	virtual void OpenCredits();
 
@@ -238,6 +242,7 @@ protected:
 	TSharedPtr<SFlareTradeMenu>             TradeMenu;
 	TSharedPtr<SFlareTradeRouteMenu>        TradeRouteMenu;
 	TSharedPtr<SFlareCreditsMenu>           CreditsMenu;
+	TSharedPtr<SFlareResourcePricesMenu>    ResourcePricesMenu;
 
 
 	/*----------------------------------------------------

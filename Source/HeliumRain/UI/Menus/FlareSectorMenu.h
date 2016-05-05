@@ -91,6 +91,9 @@ protected:
 	/** Go back to the previous menu*/
 	void OnBackClicked();
 
+	/** See the resource prices */
+	void OnResourcePrices();
+
 	/** Move the selected fleet here */
 	void OnTravelHereClicked();
 

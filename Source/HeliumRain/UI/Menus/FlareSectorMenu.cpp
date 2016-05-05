@@ -189,10 +189,10 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(SFlareButton)
 							.Width(10)
-							.Text(LOCTEXT("ResourcePrices", "Resource prices - Coming soon !")) // TODO #287
+							.Text(LOCTEXT("ResourcePrices", "Resource prices"))
 							.HelpText(LOCTEXT("ResourcePricesInfo", "See the price and use of resources in this sector"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
-							.IsDisabled(true)
+							.OnClicked(this, &SFlareSectorMenu::OnResourcePrices)
 						]
 
 						// Refuel fleets
@@ -632,6 +632,11 @@ FText SFlareSectorMenu::GetSectorLocation() const
 void SFlareSectorMenu::OnBackClicked()
 {
 	MenuManager->Back();
+}
+
+void SFlareSectorMenu::OnResourcePrices()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, TargetSector);
 }
 
 void SFlareSectorMenu::OnTravelHereClicked()

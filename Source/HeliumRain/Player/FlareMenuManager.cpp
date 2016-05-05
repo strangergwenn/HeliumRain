@@ -16,6 +16,7 @@
 #include "../UI/Menus/FlareTradeMenu.h"
 #include "../UI/Menus/FlareTradeRouteMenu.h"
 #include "../UI/Menus/FlareCreditsMenu.h"
+#include "../UI/Menus/FlareResourcePricesMenu.h"
 
 #include "../Game/FlareSectorInterface.h"
 #include "../Player/FlarePlayerController.h"
@@ -60,6 +61,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(TradeRouteMenu, SFlareTradeRouteMenu).MenuManager(this);
 		SAssignNew(OrbitMenu, SFlareOrbitalMenu).MenuManager(this);
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
+		SAssignNew(ResourcePricesMenu, SFlareResourcePricesMenu).MenuManager(this);
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 
 		// Notifier
@@ -82,27 +84,28 @@ void AFlareMenuManager::SetupMenu()
 		Fader->SetVisibility(EVisibility::Hidden);
 
 		// Register regular menus
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),         50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SettingsMenu.ToSharedRef()),     50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(NewGameMenu.ToSharedRef()),      50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StoryMenu.ToSharedRef()),        50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),        50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),      50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(FleetMenu.ToSharedRef()),        50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),         50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),       50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeMenu.ToSharedRef()),        50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeRouteMenu.ToSharedRef()),   50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),        50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),  50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),      50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),           50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SettingsMenu.ToSharedRef()),       50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(NewGameMenu.ToSharedRef()),        50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StoryMenu.ToSharedRef()),          50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),          50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),        50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(FleetMenu.ToSharedRef()),          50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),           50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),         50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeMenu.ToSharedRef()),          50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeRouteMenu.ToSharedRef()),     50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),          50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),    50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ResourcePricesMenu.ToSharedRef()), 50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),        50);
 
 		// Register special menus
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),         60);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Confirmation.ToSharedRef()),     60);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),          90);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SpacecraftOrder.ToSharedRef()),  70);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),            100);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),           60);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Confirmation.ToSharedRef()),       60);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),            90);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SpacecraftOrder.ToSharedRef()),    70);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),              100);
 
 		// Setup regular menus
 		MainMenu->Setup();
@@ -257,6 +260,10 @@ void AFlareMenuManager::Back()
 		{
 			ShipMenu->Back();
 		}
+		else if (CurrentMenu == EFlareMenu::MENU_ResourcePrices)
+		{
+			ResourcePricesMenu->Back();
+		}
 
 		// Close menu and fly the ship again
 		else if (PreviousMenu == EFlareMenu::MENU_Exit)
@@ -326,6 +333,7 @@ EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
 		case EFlareMenu::MENU_Ship:
 		case EFlareMenu::MENU_ShipConfig:
 		case EFlareMenu::MENU_Trade:
+		case EFlareMenu::MENU_ResourcePrices:
 			break;
 
 		// Those menus have no back
@@ -434,6 +442,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_Dashboard:      Path = "Sector";       break;
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;
 		case EFlareMenu::MENU_Leaderboard:    Path = "Leaderboard";  break;
+		case EFlareMenu::MENU_ResourcePrices: Path = "Sector";       break;
 		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
 		case EFlareMenu::MENU_Fleet:          Path = "Fleet";        break;
 		case EFlareMenu::MENU_Station:        Path = "Station";      break;
@@ -465,12 +474,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 void AFlareMenuManager::ResetMenu()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-
-	/*if (CurrentMenu != EFlareMenu::MENU_None && CurrentMenu != EFlareMenu::MENU_Settings)
-	{
-		LastNonSettingsMenu = CurrentMenu;
-	}*/
-
+	
 	SpacecraftOrder->Close();
 	Notifier->SetVisibility(EVisibility::SelfHitTestInvisible);
 
@@ -487,6 +491,7 @@ void AFlareMenuManager::ResetMenu()
 	TradeRouteMenu->Exit();
 	OrbitMenu->Exit();
 	LeaderboardMenu->Exit();
+	ResourcePricesMenu->Exit();
 	CreditsMenu->Exit();
 
 	if (PC)
@@ -507,10 +512,6 @@ void AFlareMenuManager::FadeOut()
 {
 	FadeFromBlack = false;
 	FadeTimer = 0;
-	/*if (CurrentMenu != EFlareMenu::MENU_None && CurrentMenu != EFlareMenu::MENU_Settings)
-	{
-		LastNonSettingsMenu = CurrentMenu;
-	}*/
 	CurrentMenu = EFlareMenu::MENU_None;
 	Tooltip->HideTooltipForce();
 }
@@ -588,6 +589,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 
 		case EFlareMenu::MENU_Leaderboard:
 			OpenLeaderboard();
+			break;
+
+		case EFlareMenu::MENU_ResourcePrices:
+			OpenResourcePrices(static_cast<UFlareSectorInterface*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Credits:
@@ -825,6 +830,15 @@ void AFlareMenuManager::OpenLeaderboard()
 	CurrentMenu = EFlareMenu::MENU_Leaderboard;
 	GetPC()->OnEnterMenu();
 	LeaderboardMenu->Enter();
+	GetPC()->UpdateMenuTheme();
+}
+
+void AFlareMenuManager::OpenResourcePrices(UFlareSectorInterface* Sector)
+{
+	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_ResourcePrices;
+	GetPC()->OnEnterMenu();
+	ResourcePricesMenu->Enter(Sector);
 	GetPC()->UpdateMenuTheme();
 }
 
