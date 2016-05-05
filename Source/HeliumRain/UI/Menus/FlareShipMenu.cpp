@@ -63,10 +63,10 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
-				.Text(this, &SFlareShipMenu::GetExitText)
-				.HelpText(this, &SFlareShipMenu::GetExitInfoText)
-				.Icon(this, &SFlareShipMenu::GetExitIcon)
-				.OnClicked(this, &SFlareShipMenu::OnExit)
+				.Text(LOCTEXT("ExitText", "Back"))
+				.HelpText(LOCTEXT("ExitInfoTextt", "Go back to the previous menu"))
+				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.OnClicked(this, &SFlareShipMenu::Back)
 			]
 		]
 
@@ -514,6 +514,18 @@ void SFlareShipMenu::UpdateFactoryList()
 	}
 }
 
+void SFlareShipMenu::Back()
+{
+	if (TargetSpacecraft && Cast<AFlareSpacecraft>(TargetSpacecraft))
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+	}
+	else
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSpacecraft->GetCurrentSectorInterface());
+	}
+}
+
 
 /*----------------------------------------------------
 	Content callbacks
@@ -540,42 +552,6 @@ FText SFlareShipMenu::GetTitleText() const
 	else
 	{
 		return (CanEdit ? LOCTEXT("ShipConfigMenuTitle", "Ship upgrade") : LOCTEXT("ShipMenuTitle", "Ship"));
-	}
-}
-
-FText SFlareShipMenu::GetExitText() const
-{
-	if (Cast<AFlareSpacecraft>(TargetSpacecraft))
-	{
-		return LOCTEXT("ExitTextDashboard", "Dashboard");
-	}
-	else
-	{
-		return LOCTEXT("ExitTextOrbit", "Orbital map");
-	}
-}
-
-FText SFlareShipMenu::GetExitInfoText() const
-{
-	if (Cast<AFlareSpacecraft>(TargetSpacecraft))
-	{
-		return LOCTEXT("ExitInfoTextDashboard", "Go back to the dashboard");
-	}
-	else
-	{
-		return LOCTEXT("ExitInfoTextOrbit", "Go back to the orbital map");
-	}
-}
-
-const FSlateBrush* SFlareShipMenu::GetExitIcon() const
-{
-	if (Cast<AFlareSpacecraft>(TargetSpacecraft))
-	{
-		return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Dashboard, true);
-	}
-	else
-	{
-		return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit, true);
 	}
 }
 
@@ -988,17 +964,6 @@ void SFlareShipMenu::OnPartCancelled()
 	LoadTargetSpacecraft();
 }
 
-void SFlareShipMenu::OnExit()
-{
-	if (Cast<AFlareSpacecraft>(TargetSpacecraft))
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
-	}
-	else
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
-	}
-}
 
 /*----------------------------------------------------
 	Helpers

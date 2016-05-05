@@ -14,7 +14,7 @@ class SFlareSettingsMenu;
 class SFlareNewGameMenu;
 class SFlareStoryMenu;
 class SFlareDashboard;
-class SFlareShipMenu;;
+class SFlareShipMenu;
 class SFlareFleetMenu;
 class SFlareOrbitalMenu;
 class SFlareLeaderboardMenu;
@@ -72,18 +72,21 @@ public:
 	/** Show the list of stations that can be ordered here */
 	void OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback);
 
+	/** Is a menu open */
+	bool IsMenuOpen() const;
+
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
 	
-	/** Return to top menu */
+	/** Return to the previous menu */
 	void Back();
-
-	/** Is a menu open */
-	bool IsMenuOpen() const;
 
 	/** Which menu, if any, is opened ? */
 	EFlareMenu::Type GetCurrentMenu() const;
 
+	/** Which menu, if any, was opened ? */
+	EFlareMenu::Type GetPreviousMenu() const;
+	
 	/** Is a menu being opened or closed */
 	bool IsSwitchingMenu() const;
 

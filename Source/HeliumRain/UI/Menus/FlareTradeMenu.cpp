@@ -64,7 +64,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("Back", "Back"))
 				.HelpText(LOCTEXT("BackInfo", "Go to the previous menu"))
 				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
-				.OnClicked(this, &SFlareTradeMenu::OnBackClicked)
+				.OnClicked(this, &SFlareTradeMenu::Back)
 			]
 		]
 
@@ -457,6 +457,18 @@ void SFlareTradeMenu::Exit()
 	SetVisibility(EVisibility::Collapsed);
 }
 
+void SFlareTradeMenu::Back()
+{
+	if (!TargetSector || TargetSector->IsA(UFlareSector::StaticClass()))
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+	}
+	else
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
+	}
+}
+
 
 /*----------------------------------------------------
 	Callbacks
@@ -545,19 +557,6 @@ FText SFlareTradeMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource)
 	}
 
 	return FText();
-}
-
-void SFlareTradeMenu::OnBackClicked()
-{
-	// TODO real back
-	if (TargetSector->IsA(UFlareSector::StaticClass()))
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
-	}
-	else
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
-	}
 }
 
 void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer)

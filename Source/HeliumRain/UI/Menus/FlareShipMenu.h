@@ -50,6 +50,9 @@ public:
 	/** Update the part list, preselect an item */
 	void UpdatePartList(FFlareSpacecraftComponentDescription* SelectItem);
 
+	/** Go back to the previous menu */
+	void Back();
+
 
 protected:
 
@@ -62,16 +65,7 @@ protected:
 
 	/** Title callback */
 	FText GetTitleText() const;
-
-	/** Get the text to show for the exit button */
-	FText GetExitText() const;
-
-	/** Get tge info tetx for the exit button */
-	FText GetExitInfoText() const;
-
-	/** Get the icon for the exit button */
-	const FSlateBrush* GetExitIcon() const;
-
+	
 	/** Can we edit */
 	EVisibility GetFactoryControlsVisibility() const;
 
@@ -137,8 +131,6 @@ protected:
 	/** Cancelled a part */
 	void OnPartCancelled();
 
-	/** Close the menu */
-	void OnExit();
 
 	/*----------------------------------------------------
 		Helpers

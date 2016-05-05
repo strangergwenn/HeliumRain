@@ -44,6 +44,9 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	/** Go back to the previous menu */
+	void Back();
+
 
 protected:
 
@@ -74,10 +77,7 @@ protected:
 
 	/** Get the resource prices */
 	FText GetResourcePriceInfo(FFlareResourceDescription* Resource) const;
-
-	/** Go back to the previous menu*/
-	void OnBackClicked();
-
+	
 	/** A spacecraft has been selected, hide the list and show the cargo */
 	void OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer);
 
@@ -98,6 +98,7 @@ protected:
 
 	/** Update price on confirm button */
 	void UpdatePrice();
+
 
 protected:
 

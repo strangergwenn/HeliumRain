@@ -220,6 +220,11 @@ void AFlareMenuManager::OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrde
 	SpacecraftOrder->Open(Sector, ConfirmationCallback);
 }
 
+bool AFlareMenuManager::IsMenuOpen() const
+{
+	return MenuIsOpen;
+}
+
 void AFlareMenuManager::CloseMenu(bool HardClose)
 {
 	if (MenuIsOpen)
@@ -238,107 +243,104 @@ void AFlareMenuManager::CloseMenu(bool HardClose)
 
 void AFlareMenuManager::Back()
 {
-	// TODO real back
-	FLOG("AFlareMenuManager::Back");
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-
 	if (MenuIsOpen)
 	{
-		FLOGV("AFlareMenuManager::Back MenuIsOpen %d", (int) CurrentMenu);
-		switch (CurrentMenu)
+		FLOG("AFlareMenuManager::Back");
+		EFlareMenu::Type PreviousMenu = GetPreviousMenu();
+
+		// Menus with dedicated back
+		if (CurrentMenu == EFlareMenu::MENU_Trade)
 		{
-			case EFlareMenu::MENU_NewGame:
-				OpenMenu(EFlareMenu::MENU_Main);
-				break;
+			TradeMenu->Back();
+		}
+		else if (CurrentMenu == EFlareMenu::MENU_Ship || CurrentMenu == EFlareMenu::MENU_ShipConfig)
+		{
+			ShipMenu->Back();
+		}
 
-			case EFlareMenu::MENU_Story:
-				OpenMenu(EFlareMenu::MENU_Orbit);
-				break;
+		// Close menu and fly the ship again
+		else if (PreviousMenu == EFlareMenu::MENU_Exit)
+		{
+			CloseMenu();
+		}
 
-			case EFlareMenu::MENU_Settings:
-				FLOGV("AFlareMenuManager::Back MENU_Settings LastNonSettingsMenu %d", (int) LastNonSettingsMenu);
-
-				if (LastNonSettingsMenu == EFlareMenu::MENU_FlyShip
-				 || LastNonSettingsMenu == EFlareMenu::MENU_ActivateSector
-				 || LastNonSettingsMenu == EFlareMenu::MENU_Exit)
-				{
-					CloseMenu();
-				}
-				else
-				{
-					OpenMenu(LastNonSettingsMenu);
-				}
-				break;
-
-			case EFlareMenu::MENU_Dashboard:
-				CloseMenu();
-				break;
-
-			case EFlareMenu::MENU_Company:
-				OpenMenu(EFlareMenu::MENU_Orbit);
-				break;
-
-			case EFlareMenu::MENU_Ship:
-			case EFlareMenu::MENU_ShipConfig:
-				if (PC->GetShipPawn())
-				{
-					OpenMenu(EFlareMenu::MENU_Dashboard);
-				}
-				else
-				{
-					OpenMenu(EFlareMenu::MENU_Orbit);
-				}
-				break;
-
-			case EFlareMenu::MENU_Fleet:
-			case EFlareMenu::MENU_Sector:
-				OpenMenu(EFlareMenu::MENU_Orbit);
-				break;
-
-			case EFlareMenu::MENU_Trade:
-				if (PC->GetShipPawn())
-				{
-					OpenMenu(EFlareMenu::MENU_Dashboard);
-				}
-				else
-				{
-					OpenMenu(EFlareMenu::MENU_Orbit);
-				}
-				break;
-
-			case EFlareMenu::MENU_TradeRoute:
-				OpenMenu(EFlareMenu::MENU_Company);
-				break;
-
-			case EFlareMenu::MENU_Leaderboard:
-				OpenMenu(EFlareMenu::MENU_Orbit);
-				break;
-
-			case EFlareMenu::MENU_Credits:
-				OpenMenu(EFlareMenu::MENU_Main);
-				break;
-
-			case EFlareMenu::MENU_Main:
-			case EFlareMenu::MENU_FlyShip:
-			case EFlareMenu::MENU_ActivateSector:
-			case EFlareMenu::MENU_Orbit:
-			case EFlareMenu::MENU_Quit:
-			case EFlareMenu::MENU_Exit:
-			case EFlareMenu::MENU_None:
-			default:
-				break;
+		// General-purpose back
+		else if (PreviousMenu != EFlareMenu::MENU_None)
+		{
+			OpenMenu(PreviousMenu);
 		}
 	}
-}
-
-bool AFlareMenuManager::IsMenuOpen() const
-{
-	return MenuIsOpen;
 }
 
 EFlareMenu::Type AFlareMenuManager::GetCurrentMenu() const
 {
 	return CurrentMenu;
+}
+
+EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	switch (CurrentMenu)
+	{
+		// Dashboard
+		case EFlareMenu::MENU_Dashboard:
+			return EFlareMenu::MENU_Exit;
+			break;
+
+		// Main
+		case EFlareMenu::MENU_NewGame:
+		case EFlareMenu::MENU_Credits:
+			return EFlareMenu::MENU_Main;
+			break;
+
+		// Orbital map
+		case EFlareMenu::MENU_Story:
+		case EFlareMenu::MENU_Fleet:
+		case EFlareMenu::MENU_Sector:
+		case EFlareMenu::MENU_Company:
+		case EFlareMenu::MENU_Leaderboard:
+			return EFlareMenu::MENU_Orbit;
+			break;
+
+		// Company
+		case EFlareMenu::MENU_TradeRoute:
+			return EFlareMenu::MENU_Company;
+			break;
+		
+		// Settings
+		case EFlareMenu::MENU_Settings:
+			if (LastNonSettingsMenu == EFlareMenu::MENU_FlyShip
+			 || LastNonSettingsMenu == EFlareMenu::MENU_Exit
+			 || LastNonSettingsMenu == EFlareMenu::MENU_ActivateSector)
+			{
+				return EFlareMenu::MENU_Exit;
+			}
+			else
+			{
+				return LastNonSettingsMenu;
+			}
+			break;
+
+		// Those menus back themselves
+		case EFlareMenu::MENU_Ship:
+		case EFlareMenu::MENU_ShipConfig:
+		case EFlareMenu::MENU_Trade:
+			break;
+
+		// Those menus have no back
+		case EFlareMenu::MENU_Main:
+		case EFlareMenu::MENU_FlyShip:
+		case EFlareMenu::MENU_ActivateSector:
+		case EFlareMenu::MENU_Orbit:
+		case EFlareMenu::MENU_Quit:
+		case EFlareMenu::MENU_Exit:
+		case EFlareMenu::MENU_None:
+		default:
+			break;
+	}
+
+	return EFlareMenu::MENU_None;
 }
 
 bool AFlareMenuManager::IsSwitchingMenu() const
