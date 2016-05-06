@@ -1764,8 +1764,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
 
-				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
-
+				// Dept are allowed for sell to customers
 
 				if (ResourceQuantity < SlotCapacity)
 				{
@@ -1776,7 +1775,6 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 					else
 					{
-						Capacity = FMath::Min(Capacity, CanBuyQuantity);
 						Variation->FactoryCapacity += Capacity;
 					}
 				}

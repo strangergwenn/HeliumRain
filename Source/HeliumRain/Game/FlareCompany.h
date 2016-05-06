@@ -14,16 +14,16 @@ class UFlareCompanyAI;
 
 struct CompanyValue
 {
-	uint64 MoneyValue;
-	uint64 StockValue;
-	uint64 ShipsValue;
-	uint64 StationsValue;
+	int64 MoneyValue;
+	int64 StockValue;
+	int64 ShipsValue;
+	int64 StationsValue;
 
 	/** Ships + Stations*/
-	uint64 SpacecraftsValue;
+	int64 SpacecraftsValue;
 
 	/** Money + Spacecrafts + Stock */
-	uint64 TotalValue;
+	int64 TotalValue;
 };
 
 /** Hostility status */
@@ -168,10 +168,10 @@ public:
 	virtual void VisitSector(UFlareSimulatedSector* Sector);
 
 	/** Take a money amount from the company */
-	virtual bool TakeMoney(uint64 Amount);
+	virtual bool TakeMoney(int64 Amount, bool AllowDepts = false);
 
 	/** Give a money amount to the company. In cents */
-	virtual void GiveMoney(uint64 Amount);
+	virtual void GiveMoney(int64 Amount);
 
 	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);
 
@@ -303,7 +303,7 @@ public:
 		return CompanyDescription->CustomizationPatternIndex;
 	}
 
-	inline uint64 GetMoney() const
+	inline int64 GetMoney() const
 	{
 		return CompanyData.Money;
 	}

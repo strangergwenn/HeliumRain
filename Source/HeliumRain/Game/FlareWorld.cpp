@@ -212,6 +212,56 @@ FFlareWorldSave* UFlareWorld::Save(UFlareSector* ActiveSector)
 }
 
 
+void UFlareWorld::CompanyMutualAssistance()
+{
+	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+	// Base revenue between company. 1 per 100000 is share between all companies
+	uint32 SharingCompanyCount = 0;
+	int64 SharedPool = 0;
+
+	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+	{
+		UFlareCompany* Company =Companies[CompanyIndex];
+		if (Company != PlayerCompany)
+		{
+			int64 MoneyToTake = Company->GetMoney() / 1000;
+			if (MoneyToTake > 0)
+			{
+				if (Company->TakeMoney(MoneyToTake))
+				{
+					SharedPool +=MoneyToTake;
+				}
+			}
+			SharingCompanyCount++;
+		}
+	}
+
+	// Share poll
+	int64 PoolPart = SharedPool / SharingCompanyCount;
+	int64 PoolBonus = SharedPool % SharingCompanyCount; // The bonus is given to a random company
+
+	int32 BonusIndex = FMath::RandRange(0, SharingCompanyCount - 1);
+
+	FLOGV("Share part amount is : %d", PoolPart/100);
+	int32 SharingCompanyIndex = 0;
+	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+	{
+		UFlareCompany* Company =Companies[CompanyIndex];
+		if (Company != PlayerCompany)
+		{
+			Company->GiveMoney(PoolPart);
+
+			if(CompanyIndex == BonusIndex)
+			{
+				Company->GiveMoney(PoolBonus);
+			}
+
+			SharingCompanyIndex++;
+		}
+	}
+}
+
 bool UFlareWorld::CheckIntegrity()
 {
 	bool Integrity = true;
@@ -227,6 +277,23 @@ bool UFlareWorld::CheckIntegrity()
 				FLOGV(" !!! Integrity error: Station %s in %s is not a station", *Station->GetImmatriculation().ToString(), *Sector->GetSectorName().ToString());
 				Integrity = false;
 			}
+		}
+	}
+
+	// Check money integrity
+	if (! WorldMoneyReferenceInit)
+	{
+		WorldMoneyReference = GetWorldMoney();
+		WorldMoneyReferenceInit = true;
+	}
+	else
+	{
+		int64 WorldMoney = GetWorldMoney();
+
+		if (WorldMoneyReference != WorldMoney)
+		{
+			FLOGV("WARNING : World money integrity failure : world contain %lld credits but reference is %lld", WorldMoney, WorldMoneyReference)
+			Integrity = false;
 		}
 	}
 
@@ -281,66 +348,10 @@ void UFlareWorld::Simulate()
 		CompaniesToSimulateAI.RemoveAt(Index);
 	}
 
-	// Base revenue between company. 1 per 100000 is share between all companies
-	uint32 SharingCompanyCount = 0;
-	int64 SharedPool = 0;
-
-	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
-	{
-		UFlareCompany* Company =Companies[CompanyIndex];
-		if (Company != PlayerCompany)
-		{
-			int64 MoneyToTake = Company->GetMoney() / 1000;
-			if (Company->TakeMoney(MoneyToTake))
-			{
-				SharedPool +=MoneyToTake;
-			}
-			SharingCompanyCount++;
-		}
-	}
-
-	// Share poll
-	int64 PoolPart = SharedPool / SharingCompanyCount;
-	int64 PoolBonus = SharedPool % SharingCompanyCount; // The bonus is given to a random company
-
-	int32 BonusIndex = FMath::RandRange(0, SharingCompanyCount - 1);
-
-	FLOGV("Share part amount is : %d", PoolPart/100);
-	int32 SharingCompanyIndex = 0;
-	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
-	{
-		UFlareCompany* Company =Companies[CompanyIndex];
-		if (Company != PlayerCompany)
-		{
-			Company->GiveMoney(PoolPart);
-
-			if(CompanyIndex == BonusIndex)
-			{
-				Company->GiveMoney(PoolBonus);
-			}
-
-			SharingCompanyIndex++;
-		}
-	}
+	CompanyMutualAssistance();
 
 
-
-	// Check money integrity
-	if (! WorldMoneyReferenceInit)
-	{
-		WorldMoneyReference = GetWorldMoney();
-		WorldMoneyReferenceInit = true;
-	}
-	else
-	{
-		uint64 WorldMoney = GetWorldMoney();
-
-		if (WorldMoneyReference != WorldMoney)
-		{
-			FLOGV("WARNING : World money integrity failure : world contain %lld credits but reference is %lld", WorldMoney, WorldMoneyReference)
-		}
-	}
-
+	CheckIntegrity();
 
 	/**
 	 *  Begin day
@@ -733,13 +744,13 @@ UFlareSimulatedSpacecraft* UFlareWorld::FindSpacecraft(FName ShipImmatriculation
 }
 
 
-uint64 UFlareWorld::GetWorldMoney()
+int64 UFlareWorld::GetWorldMoney()
 {
 	// World money is the sum of company money + factory money + people money
 
-	uint64 CompanyMoney = 0;
-	uint64 FactoryMoney = 0;
-	uint64 PeopleMoney = 0;
+	int64 CompanyMoney = 0;
+	int64 FactoryMoney = 0;
+	int64 PeopleMoney = 0;
 
 	for (int i = 0; i < Companies.Num(); i++)
 	{
@@ -765,7 +776,7 @@ uint64 UFlareWorld::GetWorldMoney()
 		PeopleMoney += Sectors[SectorIndex]->GetPeople()->GetMoney();
 	}
 
-	uint64 WorldMoney = CompanyMoney + FactoryMoney + PeopleMoney;
+	int64 WorldMoney = CompanyMoney + FactoryMoney + PeopleMoney;
 
 	//FLOGV("World money: %lld", WorldMoney);
 	//FLOGV("  - company: %lld", CompanyMoney);

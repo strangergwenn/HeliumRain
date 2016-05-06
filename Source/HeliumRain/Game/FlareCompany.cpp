@@ -420,11 +420,11 @@ void UFlareCompany::VisitSector(UFlareSimulatedSector* Sector)
 	}
 }
 
-bool UFlareCompany::TakeMoney(uint64 Amount)
+bool UFlareCompany::TakeMoney(int64 Amount, bool AllowDepts)
 {
-	if (Amount > CompanyData.Money)
+	if (Amount < 0 || (Amount > CompanyData.Money && !AllowDepts))
 	{
-		FLOGV("Fail to take %llu money from %s (balance: %llu)", Amount, *GetCompanyName().ToString(), CompanyData.Money);
+		FLOGV("Fail to take %f money from %s (balance: %f)", Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
 		return false;
 	}
 	else
@@ -439,8 +439,14 @@ bool UFlareCompany::TakeMoney(uint64 Amount)
 	}
 }
 
-void UFlareCompany::GiveMoney(uint64 Amount)
+void UFlareCompany::GiveMoney(int64 Amount)
 {
+	if (Amount < 0)
+	{
+		FLOGV("Fail to give %f money from %s (balance: %f)", Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
+		return;
+	}
+
 	CompanyData.Money += Amount;
 	/*if (Amount > 0)
 	{
@@ -661,7 +667,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 		}
 
 		// Value of the spacecraft
-		uint64 SpacecraftPrice = UFlareGameTools::ComputeShipPrice(Spacecraft->GetDescription()->Identifier, ReferenceSector);
+		int64 SpacecraftPrice = UFlareGameTools::ComputeShipPrice(Spacecraft->GetDescription()->Identifier, ReferenceSector);
 
 		if(Spacecraft->IsStation())
 		{

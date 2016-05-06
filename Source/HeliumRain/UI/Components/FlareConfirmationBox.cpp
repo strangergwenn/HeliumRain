@@ -84,7 +84,7 @@ FText SFlareConfirmationBox::GetBuyText() const
 {
 	if (Amount != 0 && TargetCompany)
 	{
-		if (Amount <= static_cast<int64>(TargetCompany->GetMoney()))
+		if (Amount <= TargetCompany->GetMoney() || AllowDepts)
 		{
 			return FText::Format(LOCTEXT("ConfirmTextFormat", "{0} ({1} credits)"),
 				ConfirmText,
@@ -113,14 +113,15 @@ FText SFlareConfirmationBox::GetWalletText() const
 	return FText();
 }
 
-void SFlareConfirmationBox::Show(int64 NewAmount, UFlareCompany* NewTargetCompany)
+void SFlareConfirmationBox::Show(int64 NewAmount, UFlareCompany* NewTargetCompany, bool NewAllowDepts)
 {
 	Amount = NewAmount;
+	AllowDepts = NewAllowDepts;
 	TargetCompany = NewTargetCompany;
 	ConfirmButton->SetVisibility(EVisibility::Visible);
 	CancelButton->SetVisibility(EVisibility::Visible);
 
-	if (NewAmount > static_cast<int64>(TargetCompany->GetMoney()))
+	if (NewAmount > TargetCompany->GetMoney() && !AllowDepts)
 	{
 		ConfirmButton->SetDisabled(true);
 	}

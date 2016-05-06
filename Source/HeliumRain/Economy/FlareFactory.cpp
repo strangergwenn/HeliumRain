@@ -276,6 +276,11 @@ bool UFlareFactory::HasCostReserved()
 
 bool UFlareFactory::HasInputMoney()
 {
+	if(!IsShipyard())
+	{
+		// Allow depts
+		return true;
+	}
 	return Parent->GetCompany()->GetMoney() >= GetProductionCost();
 }
 
@@ -351,7 +356,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 
 void UFlareFactory::BeginProduction()
 {
-	if(!Parent->GetCompany()->TakeMoney(GetProductionCost()))
+	if(!Parent->GetCompany()->TakeMoney(GetProductionCost(), !IsShipyard()))
 	{
 		return;
 	}

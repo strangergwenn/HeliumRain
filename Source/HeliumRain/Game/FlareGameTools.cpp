@@ -1022,7 +1022,7 @@ void UFlareGameTools::TakeResources(FName ShipImmatriculation, FName ResourceIde
 	Ship->GetCargoBay()->TakeResources(Resource, Quantity);
 }
 
-void UFlareGameTools::TakeMoney(FName CompanyShortName, uint64 Amount)
+void UFlareGameTools::TakeMoney(FName CompanyShortName, int64 Amount)
 {
 	if (!GetGameWorld())
 	{
@@ -1040,7 +1040,7 @@ void UFlareGameTools::TakeMoney(FName CompanyShortName, uint64 Amount)
 	Company->TakeMoney(Amount);
 }
 
-void UFlareGameTools::GiveMoney(FName CompanyShortName, uint64 Amount)
+void UFlareGameTools::GiveMoney(FName CompanyShortName, int64 Amount)
 {
 	if (!GetGameWorld())
 	{
@@ -1462,7 +1462,7 @@ FText UFlareGameTools::GetDisplayDate(int64 Days)
 		FText::AsNumber(RemainingDays));
 }
 
-uint64 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector)
+int64 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector)
 {
 	FFlareSpacecraftDescription* Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
 

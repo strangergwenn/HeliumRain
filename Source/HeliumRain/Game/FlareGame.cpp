@@ -252,7 +252,7 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 	}
 	UFlareSimulatedSector* CurrentSector = ShipToScrap->GetCurrentSector();
 
-	uint64 ScrapRevenue = 0;
+	int64 ScrapRevenue = 0;
 
 	for (int ResourceIndex = 0; ResourceIndex < ShipToScrap->GetDescription()->CycleCost.InputResources.Num() ; ResourceIndex++)
 	{

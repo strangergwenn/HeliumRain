@@ -312,7 +312,7 @@ public:
 
 	void SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice);
 
-	virtual uint64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext);
+	virtual int64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext);
 
 	static float GetDefaultResourcePrice(FFlareResourceDescription* Resource);
 

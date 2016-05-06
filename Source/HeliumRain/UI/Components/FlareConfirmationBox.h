@@ -45,7 +45,7 @@ public:
 	FText GetWalletText() const;
 
 	/** Show this box for a specific amount */
-	void Show(int64 Amount, UFlareCompany* TargetCompany);
+	void Show(int64 Amount, UFlareCompany* TargetCompany, bool NewAllowDepts = false);
 
 	/** Hide this box */
 	void Hide();
@@ -63,6 +63,7 @@ protected:
 
 	// Gameplay data
 	bool                                    FullHide;
+	bool                                    AllowDepts;
 	int64                                   Amount;
 	FText                                   ConfirmText;
 	UFlareCompany*                          TargetCompany;

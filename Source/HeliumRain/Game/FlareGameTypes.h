@@ -98,7 +98,7 @@ struct FFlareCompanySave
 
 	/** Money money money / Always funny / In a rich men's world */
 	UPROPERTY(EditAnywhere, Category = Save)
-	uint64 Money;
+	int64 Money;
 
 	/** Hostile companies */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -138,7 +138,7 @@ struct FFlareCompanySave
 
 	/** Value of all company assets */
 	UPROPERTY(EditAnywhere, Category = Save)
-	uint64 CompanyValue;
+	int64 CompanyValue;
 };
 
 UCLASS()

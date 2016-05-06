@@ -197,10 +197,10 @@ public:
 	void TakeResources(FName ShipImmatriculation, FName ResourceIdentifier, uint32 Quantity);
 
 	UFUNCTION(exec)
-	void TakeMoney(FName CompanyShortName, uint64 Amount);
+	void TakeMoney(FName CompanyShortName, int64 Amount);
 
 	UFUNCTION(exec)
-	void GiveMoney(FName CompanyShortName, uint64 Amount);
+	void GiveMoney(FName CompanyShortName, int64 Amount);
 
 	UFUNCTION(exec)
 	void TransferResources(FName SourceImmatriculation, FName DestinationImmatriculation, FName ResourceIdentifier, uint32 Quantity);
@@ -256,7 +256,7 @@ public:
 
 	static FText GetDisplayDate(int64 Days);
 
-	static uint64 ComputeShipPrice(FName ShipIdentifier, UFlareSimulatedSector *Sector);
+	static int64 ComputeShipPrice(FName ShipIdentifier, UFlareSimulatedSector *Sector);
 
 	static uint32 ComputeConstructionCapacity(FName ShipClass, AFlareGame *Game);
 

@@ -89,6 +89,7 @@ public:
 
 	bool CheckIntegrity();
 
+	void CompanyMutualAssistance();
 
 	/** Simulate world for a day */
 	void Simulate();
@@ -146,7 +147,7 @@ protected:
 	bool WorldMoneyReferenceInit;
 
 public:
-	uint64 WorldMoneyReference;
+	int64 WorldMoneyReference;
 
 
 public:
@@ -199,7 +200,8 @@ public:
 		return Companies;
 	}
 
-	uint64 GetWorldMoney();
+	int64 GetWorldMoney();
+
 	uint32 GetWorldPopulation();
 
 };

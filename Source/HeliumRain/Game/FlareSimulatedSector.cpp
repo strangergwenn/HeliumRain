@@ -803,10 +803,10 @@ void UFlareSimulatedSector::SimulateTransport()
 	SimulateTrade(CompanyRemainingTransportCapacity);
 }
 
-uint32 UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company, uint32 InitialTranportCapacity)
+int32 UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company, int32 InitialTranportCapacity)
 {
 
-	uint32 TransportCapacity = InitialTranportCapacity;
+	int32 TransportCapacity = InitialTranportCapacity;
 
 	if (TransportCapacity == 0)
 	{
@@ -867,7 +867,7 @@ uint32 UFlareSimulatedSector::SimulateTransport(UFlareCompany* Company, uint32 I
 	return InitialTranportCapacity - TransportCapacity;
 }
 
-void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, uint32& TransportCapacity, bool AllowTrade)
+void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, int32& TransportCapacity, bool AllowTrade)
 {
 	for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 	{
@@ -886,6 +886,7 @@ void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, uint32
 				continue;
 			}
 
+			bool IsTrade = (Station->GetCompany() != Company);
 			//FLOGV("Check station %s needs:", *Station->GetImmatriculation().ToString());
 
 
@@ -898,31 +899,35 @@ void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, uint32
 			}
 
 
-			uint32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBay()->GetResourceQuantity(Resource);
-			uint32 FreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
-			uint32 QuantityToTransfert = FMath::Min(MaxQuantity, FreeSpace);
+			int32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBay()->GetResourceQuantity(Resource);
+			int32 FreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
+			int32 QuantityToTransfert = FMath::Min(MaxQuantity, FreeSpace);
 			QuantityToTransfert = FMath::Min(TransportCapacity, QuantityToTransfert);
 
-			if(Station->GetCompany() != Company)
+			// No need to limits, depth are allowed for habitations
+			/*
+			if(IsTrade)
 			{
 				// Compute max quantity the station can afford
-				uint32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+				int32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+				MaxBuyableQuantity = FMath::Max(0, MaxBuyableQuantity);
 				QuantityToTransfert = FMath::Min(MaxBuyableQuantity, QuantityToTransfert);
 				//FLOGV("MaxBuyableQuantity  %u",  MaxBuyableQuantity);
 				//FLOGV("QuantityToTransfert  %u",  QuantityToTransfert);
 			}
 
+*/
 
-
-			uint32 TakenResources = TakeUselessResources(Company, Resource, QuantityToTransfert, AllowTrade);
+			int32 TakenResources = TakeUselessResources(Company, Resource, QuantityToTransfert, AllowTrade, IsTrade);
 			Station->GetCargoBay()->GiveResources(Resource, TakenResources);
 			TransportCapacity -= TakenResources;
 
-			if(TakenResources > 0 && Station->GetCompany() != Company)
+			if(TakenResources > 0 && IsTrade)
 			{
 				// Sell resources
-				int32 TransactionAmount = TakenResources * UnitSellPrice;
-				Station->GetCompany()->TakeMoney(TransactionAmount);
+				int64 TransactionAmount = TakenResources * UnitSellPrice;
+				if (!Station->GetCompany()->TakeMoney(TransactionAmount, true))
+					FLOGV("WARNING: %s	fail to sell %u inits of %s (as customer resource) to %s for %f", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount/100);
 				Company->GiveMoney(TransactionAmount);
 				//FLOGV("%s	%u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
@@ -946,7 +951,7 @@ void UFlareSimulatedSector::FillResourceConsumers(UFlareCompany* Company, uint32
 	}
 }
 
-void UFlareSimulatedSector::FillResourceMaintenances(UFlareCompany* Company, uint32& TransportCapacity, bool AllowTrade)
+void UFlareSimulatedSector::FillResourceMaintenances(UFlareCompany* Company, int32& TransportCapacity, bool AllowTrade)
 {
 	for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
 	{
@@ -965,6 +970,7 @@ void UFlareSimulatedSector::FillResourceMaintenances(UFlareCompany* Company, uin
 				continue;
 			}
 
+			bool IsTrade = (Station->GetCompany() != Company);
 			//FLOGV("Check station %s needs:", *Station->GetImmatriculation().ToString());
 
 
@@ -977,15 +983,16 @@ void UFlareSimulatedSector::FillResourceMaintenances(UFlareCompany* Company, uin
 			}
 
 
-			uint32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBay()->GetResourceQuantity(Resource);
-			uint32 FreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
-			uint32 QuantityToTransfert = FMath::Min(MaxQuantity, FreeSpace);
+			int32 MaxQuantity = Station->GetDescription()->CargoBayCapacity - Station->GetCargoBay()->GetResourceQuantity(Resource);
+			int32 FreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
+			int32 QuantityToTransfert = FMath::Min(MaxQuantity, FreeSpace);
 			QuantityToTransfert = FMath::Min(TransportCapacity, QuantityToTransfert);
 
-			if(Station->GetCompany() != Company)
+			if(IsTrade)
 			{
 				// Compute max quantity the station can afford
-				uint32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+				int32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+				MaxBuyableQuantity = FMath::Max(0, MaxBuyableQuantity);
 				QuantityToTransfert = FMath::Min(MaxBuyableQuantity, QuantityToTransfert);
 				//FLOGV("MaxBuyableQuantity  %u",  MaxBuyableQuantity);
 				//FLOGV("QuantityToTransfert  %u",  QuantityToTransfert);
@@ -993,15 +1000,16 @@ void UFlareSimulatedSector::FillResourceMaintenances(UFlareCompany* Company, uin
 
 
 
-			uint32 TakenResources = TakeUselessResources(Company, Resource, QuantityToTransfert, AllowTrade);
+			int32 TakenResources = TakeUselessResources(Company, Resource, QuantityToTransfert, AllowTrade, IsTrade);
 			Station->GetCargoBay()->GiveResources(Resource, TakenResources);
 			TransportCapacity -= TakenResources;
 
-			if(TakenResources > 0 && Station->GetCompany() != Company)
+			if(TakenResources > 0 && IsTrade)
 			{
 				// Sell resources
-				int32 TransactionAmount = TakenResources * UnitSellPrice;
-				Station->GetCompany()->TakeMoney(TransactionAmount);
+				int64 TransactionAmount = TakenResources * UnitSellPrice;
+				if (!Station->GetCompany()->TakeMoney(TransactionAmount))
+					FLOGV("WARNING: %s	fail to sell %u inits of %s (as maintenance resource) to %s for %f", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount/100);
 				Company->GiveMoney(TransactionAmount);
 				//FLOGV("%s	%u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
@@ -1025,7 +1033,7 @@ void UFlareSimulatedSector::FillResourceMaintenances(UFlareCompany* Company, uin
 	}
 }
 
-void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company, uint32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool AllowTrade)
+void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company, int32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool AllowTrade)
 {
 	for (int32 CountIndex = 0 ; CountIndex < SectorStations.Num(); CountIndex++)
 	{
@@ -1057,16 +1065,19 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 				break;
 			}
 
+			bool IsTrade = (Station->GetCompany() != Company);
+
+
 			for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
-				uint32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
-				uint32 ConsumedQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
-				uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
-				uint32 UnitSellPrice = GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+				int32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				int32 ConsumedQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
+				int32 StorageCapacity = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
+				int32 UnitSellPrice = GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
 						// TODO Cargo stations
 
-				uint32 NeededQuantity = 0;
+				int32 NeededQuantity = 0;
 				switch(TransportLimitType)
 				{
 					case EFlareTransportLimitType::Production:
@@ -1083,24 +1094,26 @@ void UFlareSimulatedSector::AdaptativeTransportResources(UFlareCompany* Company,
 				if (StoredQuantity < NeededQuantity)
 				{
 					// Do transfert
-					uint32 QuantityToTransfert = FMath::Min(TransportCapacity, NeededQuantity - StoredQuantity);
+					int32 QuantityToTransfert = FMath::Min(TransportCapacity, NeededQuantity - StoredQuantity);
 					QuantityToTransfert = FMath::Min(StorageCapacity, QuantityToTransfert);
-					if(Station->GetCompany() != Company)
+					if(IsTrade)
 					{
 						// Compute max quantity the station can afford
-						uint32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+						int32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+						MaxBuyableQuantity = FMath::Max(0, MaxBuyableQuantity);
 						QuantityToTransfert = FMath::Min(MaxBuyableQuantity, QuantityToTransfert);
 						//FLOGV("MaxBuyableQuantity  %u",  MaxBuyableQuantity);
 						//FLOGV("QuantityToTransfert  %u",  QuantityToTransfert);
 					}
 
-					uint32 TakenResources = TakeUselessResources(Company, Resource, QuantityToTransfert, AllowTrade);
+					int32 TakenResources = TakeUselessResources(Company, Resource, QuantityToTransfert, AllowTrade, IsTrade);
 					Station->GetCargoBay()->GiveResources(Resource, TakenResources);
-					if(TakenResources > 0 && Station->GetCompany() != Company)
+					if(TakenResources > 0 && IsTrade)
 					{
 						// Sell resources
-						int32 TransactionAmount = TakenResources * UnitSellPrice;
-						Station->GetCompany()->TakeMoney(TransactionAmount);
+						int64 TransactionAmount = TakenResources * UnitSellPrice;
+						if (!Station->GetCompany()->TakeMoney(TransactionAmount))
+							FLOGV("WARNING: %s	fail to sell %u inits of %s (as standard resource) to %s for %f", *Company->GetCompanyName().ToString(), TakenResources, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount/100);
 						Company->GiveMoney(TransactionAmount);
 						Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 						Station->GetCompany()->GiveReputation(Company, 0.5f, true);
@@ -1143,7 +1156,6 @@ void UFlareSimulatedSector::SimulateTrade(TArray<uint32> CompanyRemainingTranspo
 
 	while(true)
 	{
-		TArray<int32> CompanyTransportNeeds;
 		int32 TotalTransportNeeds = 0;
 		int32 TotalRemainingTransportCapacity = 0;
 
@@ -1172,11 +1184,11 @@ void UFlareSimulatedSector::SimulateTrade(TArray<uint32> CompanyRemainingTranspo
 		for (int CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 		{
 			UFlareCompany* Company = GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex];
-			uint32 RemainingTransportCapacity = CompanyRemainingTransportCapacity[CompanyIndex];
-			uint32 Quota = TotalTransportNeeds * RemainingTransportCapacity / TotalRemainingTransportCapacity;
+			int32 RemainingTransportCapacity = CompanyRemainingTransportCapacity[CompanyIndex];
+			int32 Quota = TotalTransportNeeds * RemainingTransportCapacity / TotalRemainingTransportCapacity;
 
-			uint32 InitialTransportCapacity = FMath::Min(Quota, RemainingTransportCapacity);
-			uint32 TransportCapacity = InitialTransportCapacity;
+			int32 InitialTransportCapacity = FMath::Min(Quota, RemainingTransportCapacity);
+			int32 TransportCapacity = InitialTransportCapacity;
 
 			//FLOGV("Company %s trade", *Company->GetCompanyName().ToString());
 
@@ -1229,15 +1241,16 @@ void UFlareSimulatedSector::SimulateTrade(TArray<uint32> CompanyRemainingTranspo
 	}
 }
 
-uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake, bool AllowTrade)
+uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, int32 QuantityToTake, bool AllowTrade, bool AllowDepts)
 {
 
 
 	// Compute the max quantity the company can buy
-	uint32 MaxUnitBuyPrice = GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
-	uint32 MaxBuyableQuantity = Company->GetMoney() / MaxUnitBuyPrice;
+	int32 MaxUnitBuyPrice = GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+	int32 MaxBuyableQuantity = (AllowDepts ? QuantityToTake : Company->GetMoney() / MaxUnitBuyPrice);
+	MaxBuyableQuantity = FMath::Max(0, MaxBuyableQuantity);
 	QuantityToTake = FMath::Min(QuantityToTake, MaxBuyableQuantity);
-	uint32 RemainingQuantityToTake = QuantityToTake;
+	int32 RemainingQuantityToTake = QuantityToTake;
 	// TODO storage station
 
 
@@ -1256,14 +1269,16 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
 			if (Factory->HasOutputResource(Resource))
 			{
-				uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
+				int32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
 				RemainingQuantityToTake -= TakenQuantity;
 				if(TakenQuantity > 0 && Station->GetCompany() != Company)
 				{
 					//Buy
-					int32 TransactionAmount = TakenQuantity * GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput);
+					int64 TransactionAmount = TakenQuantity * GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput);
 					Station->GetCompany()->GiveMoney(TransactionAmount);
-					Company->TakeMoney(TransactionAmount);
+					if (!Company->TakeMoney(TransactionAmount, AllowDepts))
+						FLOGV("WARNING: %s	fail to buy %u inits of %s (as useless resource) to %s for %f", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount/100);
+
 					Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 					Station->GetCompany()->GiveReputation(Company, 0.5f, true);
 					//FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
@@ -1300,14 +1315,16 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 
 		if (!NeedResource)
 		{
-			uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
+			int32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
 			RemainingQuantityToTake -= TakenQuantity;
 			if(TakenQuantity > 0 && Station->GetCompany() != Company)
 			{
 				//Buy
-				int32 TransactionAmount = TakenQuantity * GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+				int64 TransactionAmount = TakenQuantity * GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
 				Station->GetCompany()->GiveMoney(TransactionAmount);
-				Company->TakeMoney(TransactionAmount);
+				if (!Company->TakeMoney(TransactionAmount, AllowDepts))
+					FLOGV("WARNING: %s	fail to buy %u inits of %s (as useless resource) to %s for %f", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount/100);
+
 				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 				Station->GetCompany()->GiveReputation(Company, 0.5f, true);
 				//FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
@@ -1338,14 +1355,16 @@ uint32 UFlareSimulatedSector::TakeUselessResources(UFlareCompany* Company, FFlar
 
 		if (!NeedResource)
 		{
-			uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
+			int32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantityToTake);
 			RemainingQuantityToTake -= TakenQuantity;
 			if(TakenQuantity > 0 && Station->GetCompany() != Company)
 			{
 				//Buy
-				int32 TransactionAmount = TakenQuantity * GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+				int64 TransactionAmount = TakenQuantity * GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
 				Station->GetCompany()->GiveMoney(TransactionAmount);
-				Company->TakeMoney(TransactionAmount);
+				if (!Company->TakeMoney(TransactionAmount, AllowDepts))
+					FLOGV("WARNING: %s	fail to buy %u inits of %s (as useless resource) to %s for %f", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount/100);
+
 				//FLOGV("%s buy %u inits of %s to %s for %d", *Company->GetCompanyName().ToString(), TakenQuantity, *Resource->Name.ToString(), *Station->GetCompany()->GetCompanyName().ToString(), TransactionAmount);
 			}
 		}
@@ -1441,7 +1460,7 @@ uint32 UFlareSimulatedSector::DoGiveResources(UFlareCompany* Company, FFlareReso
 uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FFlareResourceDescription* GivenResource, uint32 QuantityToGive, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool StorageOnly, bool AllowTrade)
 {
 
-	uint32 RemainingQuantityToGive = QuantityToGive;
+	int32 RemainingQuantityToGive = QuantityToGive;
 	//uint32 UnitSellPrice = 1.01 * GetResourcePrice(GivenResource);
 
 	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToGive > 0; StationIndex++)
@@ -1457,24 +1476,25 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 		{
 			if (Station->HasCapability(EFlareSpacecraftCapability::Storage))
 			{
-				uint32 QuantityToTransfert = RemainingQuantityToGive;
+				int32 QuantityToTransfert = RemainingQuantityToGive;
 
 				if(Station->GetCompany() != Company)
 				{
 					// Compute max quantity the station can afford
-					uint32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / GetResourcePrice(GivenResource, EFlareResourcePriceContext::Default);
+					int32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / GetResourcePrice(GivenResource, EFlareResourcePriceContext::Default);
+					MaxBuyableQuantity = FMath::Max(0, MaxBuyableQuantity);
 					QuantityToTransfert = FMath::Min(MaxBuyableQuantity, QuantityToTransfert);
 					//FLOGV("MaxBuyableQuantity  %u",  MaxBuyableQuantity);
 					//FLOGV("QuantityToTransfert  %u",  QuantityToTransfert);
 				}
 
-				uint32 GivenQuantity = Station->GetCargoBay()->GiveResources(GivenResource, QuantityToTransfert);
+				int32 GivenQuantity = Station->GetCargoBay()->GiveResources(GivenResource, QuantityToTransfert);
 				RemainingQuantityToGive -= GivenQuantity;
 
 				if(GivenQuantity > 0 && Station->GetCompany() != Company)
 				{
 					// Sell resources
-					int32 TransactionAmount = GivenQuantity * GetResourcePrice(GivenResource, EFlareResourcePriceContext::Default);
+					int64 TransactionAmount = GivenQuantity * GetResourcePrice(GivenResource, EFlareResourcePriceContext::Default);
 					Station->GetCompany()->TakeMoney(TransactionAmount);
 					Company->GiveMoney(TransactionAmount);
 					Company->GiveReputation(Station->GetCompany(), 0.5f, true);
@@ -1508,11 +1528,11 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 					continue;
 				}
 
-				uint32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
-				uint32 ConsumedQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
-				uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
+				int32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				int32 ConsumedQuantity = Factory->GetInputResourceQuantity(ResourceIndex);
+				int32 StorageCapacity = Station->GetCargoBay()->GetFreeSpaceForResource(Resource);
 
-				uint32 NeededQuantity = 0;
+				int32 NeededQuantity = 0;
 				switch(TransportLimitType)
 				{
 					case EFlareTransportLimitType::Production:
@@ -1529,12 +1549,13 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 				if (StoredQuantity < NeededQuantity)
 				{
 					// Do transfert
-					uint32 QuantityToTransfert = FMath::Min(RemainingQuantityToGive, NeededQuantity - StoredQuantity);
+					int32 QuantityToTransfert = FMath::Min(RemainingQuantityToGive, NeededQuantity - StoredQuantity);
 
 					if(Station->GetCompany() != Company)
 					{
 						// Compute max quantity the station can afford
-						uint32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+						int32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+						MaxBuyableQuantity = FMath::Max(0, MaxBuyableQuantity);
 						QuantityToTransfert = FMath::Min(MaxBuyableQuantity, QuantityToTransfert);
 						//FLOGV("MaxBuyableQuantity  %u",  MaxBuyableQuantity);
 						//FLOGV("QuantityToTransfert  %u",  QuantityToTransfert);
@@ -1550,7 +1571,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveResources(UFlareCompany* Company, FF
 					if(QuantityToTransfert > 0 && Station->GetCompany() != Company)
 					{
 						// Sell resources
-						int32 TransactionAmount = QuantityToTransfert * GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
+						int64 TransactionAmount = QuantityToTransfert * GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
 						Station->GetCompany()->TakeMoney(TransactionAmount);
 						Company->GiveMoney(TransactionAmount);
 						Company->GiveReputation(Station->GetCompany(), 0.5f, true);
@@ -1584,8 +1605,8 @@ uint32 UFlareSimulatedSector::AdaptativeGiveCustomerResources(UFlareCompany* Com
 		return 0;
 	}
 
-	uint32 RemainingQuantityToGive = QuantityToGive;
-	uint32 UnitSellPrice = GetResourcePrice(GivenResource, EFlareResourcePriceContext::FactoryInput);
+	int32 RemainingQuantityToGive = QuantityToGive;
+	int32 UnitSellPrice = GetResourcePrice(GivenResource, EFlareResourcePriceContext::FactoryInput);
 
 	for (int32 StationIndex = 0 ; StationIndex < SectorStations.Num() && RemainingQuantityToGive > 0; StationIndex++)
 	{
@@ -1596,10 +1617,10 @@ uint32 UFlareSimulatedSector::AdaptativeGiveCustomerResources(UFlareCompany* Com
 			continue;
 		}
 
-		uint32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(GivenResource);
-		uint32 StorageCapacity = Station->GetCargoBay()->GetFreeSpaceForResource(GivenResource);
+		int32 StoredQuantity = Station->GetCargoBay()->GetResourceQuantity(GivenResource);
+		int32 StorageCapacity = Station->GetCargoBay()->GetFreeSpaceForResource(GivenResource);
 
-		uint32 NeededQuantity = 0;
+		int32 NeededQuantity = 0;
 		switch(TransportLimitType)
 		{
 			case EFlareTransportLimitType::Production:
@@ -1619,16 +1640,18 @@ uint32 UFlareSimulatedSector::AdaptativeGiveCustomerResources(UFlareCompany* Com
 		if (StoredQuantity < NeededQuantity)
 		{
 			// Do transfert
-			uint32 QuantityToTransfert = FMath::Min(RemainingQuantityToGive, NeededQuantity - StoredQuantity);
+			int32 QuantityToTransfert = FMath::Min(RemainingQuantityToGive, NeededQuantity - StoredQuantity);
 
-			if(Station->GetCompany() != Company)
+			// Customer station can generate detps
+			/*if(Station->GetCompany() != Company)
 			{
 				// Compute max quantity the station can afford
-				uint32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+				int32 MaxBuyableQuantity = Station->GetCompany()->GetMoney() / UnitSellPrice;
+				MaxBuyableQuantity = FMath::Max(0, MaxBuyableQuantity);
 				QuantityToTransfert = FMath::Min(MaxBuyableQuantity, QuantityToTransfert);
 				//FLOGV("MaxBuyableQuantity  %u",  MaxBuyableQuantity);
 				//FLOGV("QuantityToTransfert  %u",  QuantityToTransfert);
-			}
+			}*/
 
 			QuantityToTransfert = FMath::Min(StorageCapacity, QuantityToTransfert);
 			Station->GetCargoBay()->GiveResources(GivenResource, QuantityToTransfert);
@@ -1641,7 +1664,7 @@ uint32 UFlareSimulatedSector::AdaptativeGiveCustomerResources(UFlareCompany* Com
 			{
 				// Sell resources
 				int32 TransactionAmount = QuantityToTransfert * UnitSellPrice;
-				Station->GetCompany()->TakeMoney(TransactionAmount);
+				Station->GetCompany()->TakeMoney(TransactionAmount, true);
 				Company->GiveMoney(TransactionAmount);
 				Company->GiveReputation(Station->GetCompany(), 0.5f, true);
 				Station->GetCompany()->GiveReputation(Company, 0.5f, true);

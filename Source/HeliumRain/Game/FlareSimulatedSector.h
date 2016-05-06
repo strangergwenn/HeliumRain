@@ -76,7 +76,7 @@ public:
 
 	void SimulateTransport();
 
-	uint32 SimulateTransport(UFlareCompany* Company, uint32 TransportCapacity);
+	int32 SimulateTransport(UFlareCompany* Company, int32 TransportCapacity);
 
 	void SimulatePriceVariation();
 
@@ -84,13 +84,13 @@ public:
 
 	void SimulateTrade(TArray<uint32> CompanyRemainingTransportCapacity);
 
-	void FillResourceConsumers(UFlareCompany* Company, uint32& TransportCapacity, bool AllowTrade);
+	void FillResourceConsumers(UFlareCompany* Company, int32& TransportCapacity, bool AllowTrade);
 
-	void FillResourceMaintenances(UFlareCompany* Company, uint32& TransportCapacity, bool AllowTrade);
+	void FillResourceMaintenances(UFlareCompany* Company, int32& TransportCapacity, bool AllowTrade);
 
-	void AdaptativeTransportResources(UFlareCompany* Company, uint32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool AllowTrade = false);
+	void AdaptativeTransportResources(UFlareCompany* Company, int32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool AllowTrade = false);
 
-	uint32 TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake, bool AllowTrade = false);
+	uint32 TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, int32 QuantityToTake, bool AllowTrade = false, bool AllowDepts = false);
 
 	uint32 TakeResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
 

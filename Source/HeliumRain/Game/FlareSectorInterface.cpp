@@ -282,9 +282,9 @@ void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* R
 	ResourcePrices[Resource] = FMath::Clamp(NewPrice, (float) Resource->MinPrice, (float) Resource->MaxPrice);
 }
 
-uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext)
+int64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext)
 {
-	uint64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource));
+	int64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource));
 
 	switch (PriceContext)
 	{
@@ -361,27 +361,27 @@ uint32 UFlareSectorInterface::TransfertResources(IFlareSpacecraftInterface* Sour
 		return 0;
 	}
 
-	uint32 ResourcePrice = GetTransfertResourcePrice(SourceSpacecraft, DestinationSpacecraft, Resource);
-	uint32 QuantityToTake = Quantity;
+	int32 ResourcePrice = GetTransfertResourcePrice(SourceSpacecraft, DestinationSpacecraft, Resource);
+	int32 QuantityToTake = Quantity;
 
 	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
 	{
 		// Limit transaction bay available money
-		uint32 MaxAffordableQuantity = DestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice;
+		int32 MaxAffordableQuantity = DestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice;
 		QuantityToTake = FMath::Min(QuantityToTake, MaxAffordableQuantity);
 	}
-	uint32 ResourceCapacity = DestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(Resource);
+	int32 ResourceCapacity = DestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(Resource);
 
 	QuantityToTake = FMath::Min(QuantityToTake, ResourceCapacity);
 
 
-	uint32 TakenResources = SourceSpacecraft->GetCargoBay()->TakeResources(Resource, QuantityToTake);
-	uint32 GivenResources = DestinationSpacecraft->GetCargoBay()->GiveResources(Resource, TakenResources);
+	int32 TakenResources = SourceSpacecraft->GetCargoBay()->TakeResources(Resource, QuantityToTake);
+	int32 GivenResources = DestinationSpacecraft->GetCargoBay()->GiveResources(Resource, TakenResources);
 
 	if (GivenResources > 0 && SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
 	{
 		// Pay
-		uint32 Price = ResourcePrice * GivenResources;
+		int64 Price = ResourcePrice * GivenResources;
 		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
 		SourceSpacecraft->GetCompany()->GiveMoney(Price);
 

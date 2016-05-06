@@ -682,8 +682,9 @@ void SFlareTradeMenu::UpdatePrice()
 
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
 	{
-		uint64 TransactionPrice = TransactionQuantity * ResourceUnitPrice;
-		PriceBox->Show(TransactionPrice, TransactionDestinationSpacecraft->GetCompany());
+		int64 TransactionPrice = TransactionQuantity * ResourceUnitPrice;
+		bool AllowDepts = (TransactionDestinationSpacecraft->GetResourceUseType(TransactionResource) == EFlareResourcePriceContext::ConsumerConsumption);
+		PriceBox->Show(TransactionPrice, TransactionDestinationSpacecraft->GetCompany(), AllowDepts);
 	}
 	else
 	{

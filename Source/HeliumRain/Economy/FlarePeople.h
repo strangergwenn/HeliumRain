@@ -131,7 +131,7 @@ public:
 		return Parent;
 	}
 
-	inline uint64 GetMoney()
+	inline int64 GetMoney()
 	{
 		return PeopleData.Money;
 	}
