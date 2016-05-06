@@ -179,7 +179,7 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	FText LockText;
 	if (Cargo->Locked)
 	{
-		if (TargetSpacecraft->IsOutputResource(Cargo->Resource))
+		if (TargetSpacecraft->GetResourceUseType(Cargo->Resource) == EFlareResourcePriceContext::FactoryOutput)
 		{
 			LockText = FText::Format(LOCTEXT("OutputCargoFormat", "(Output)\n"), Cargo->Resource->Acronym);
 		}

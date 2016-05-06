@@ -242,11 +242,8 @@ public:
 		Resources
 	----------------------------------------------------*/
 
-	/** Is this resource used as input by this station ?*/
-	virtual bool IsInputResource(FFlareResourceDescription* Resource);
-
-	/** Is this resource used as output by this station ?*/
-	virtual bool IsOutputResource(FFlareResourceDescription* Resource);
+	/** Is this an input, output... ?*/
+	EFlareResourcePriceContext::Type GetResourceUseType(FFlareResourceDescription* Resource);
 
 
 	/*----------------------------------------------------

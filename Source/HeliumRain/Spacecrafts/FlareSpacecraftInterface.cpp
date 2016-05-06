@@ -1,6 +1,7 @@
 #include "../Flare.h"
 #include "FlareSpacecraftInterface.h"
 #include "FlareSpacecraftComponent.h"
+#include "../Game/FlareGame.h"
 
 
 /*----------------------------------------------------
@@ -69,46 +70,52 @@ bool IFlareSpacecraftInterface::IsMilitary(FFlareSpacecraftDescription* Spacecra
 	return SpacecraftDesc->GunSlots.Num() > 0 || SpacecraftDesc->TurretSlots.Num() > 0;
 }
 
-bool IFlareSpacecraftInterface::IsInputResource(FFlareResourceDescription* Resource)
+EFlareResourcePriceContext::Type IFlareSpacecraftInterface::GetResourceUseType(FFlareResourceDescription* Resource)
 {
-	// TODO FRED #271 : generalize to AFlareSpacecraft
-
-	bool IsInput = false;
-	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(this);
-	if (SimulatedSpacecraft)
+	// Check we're and station
+	if (!IsStation())
 	{
-		TArray<UFlareFactory*> Factories = SimulatedSpacecraft->GetFactories();
-		for (int32 FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+		return EFlareResourcePriceContext::Default;
+	}
+	FFlareSpacecraftDescription* SpacecraftDescription = GetDescription();
+
+	// Parse factories
+	for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+	{
+		FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
+
+		// Is input resource of a station ?
+		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num(); ResourceIndex++)
 		{
-			if (Factories[FactoryIndex]->HasInputResource(Resource))
+			const FFlareFactoryResource* FactoryResource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+			if (&FactoryResource->Resource->Data == Resource)
 			{
-				IsInput = true;
-				break;
+				return EFlareResourcePriceContext::FactoryInput;
+			}
+		}
+
+		// Is output resource of a station ?
+		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num(); ResourceIndex++)
+		{
+			const FFlareFactoryResource* FactoryResource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
+			if (&FactoryResource->Resource->Data == Resource)
+			{
+				return EFlareResourcePriceContext::FactoryOutput;
 			}
 		}
 	}
 
-	return IsInput;
-}
-
-bool IFlareSpacecraftInterface::IsOutputResource(FFlareResourceDescription* Resource)
-{
-	// TODO FRED #271 : generalize to AFlareSpacecraft
-
-	bool IsOutput = false;
-	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(this);
-	if (SimulatedSpacecraft)
+	// Customer resource ?
+	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Consumer) && GetGame()->GetResourceCatalog()->IsCustomerResource(Resource))
 	{
-		TArray<UFlareFactory*> Factories = SimulatedSpacecraft->GetFactories();
-		for (int32 FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
-		{
-			if (Factories[FactoryIndex]->HasOutputResource(Resource))
-			{
-				IsOutput = true;
-				break;
-			}
-		}
+		return EFlareResourcePriceContext::ConsumerConsumption;
 	}
 
-	return IsOutput;
+	// Maintenance resource ?
+	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Maintenance) && GetGame()->GetResourceCatalog()->IsMaintenanceResource(Resource))
+	{
+		return EFlareResourcePriceContext::FactoryInput;
+	}
+
+	return EFlareResourcePriceContext::Default;
 }

@@ -284,9 +284,9 @@ void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* R
 
 uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext)
 {
-	uint64 DefaultPrice = FMath::Round(GetPreciseResourcePrice(Resource));
+	uint64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource));
 
-	switch(PriceContext)
+	switch (PriceContext)
 	{
 		case EFlareResourcePriceContext::Default:
 			return DefaultPrice;
