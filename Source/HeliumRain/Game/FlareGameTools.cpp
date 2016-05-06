@@ -352,6 +352,28 @@ void UFlareGameTools::GiveReputation(FName CompanyShortName1, FName CompanyShort
 }
 
 
+void UFlareGameTools::TakeCompanyControl(FName CompanyShortName)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("UFlareGameTools::TakeCompanyControl failed: no loaded world");
+		return;
+	}
+
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if (!Company)
+	{
+		FLOGV("UFlareGameTools::TakeCompanyControl failed: no company with short name '%s'", * CompanyShortName.ToString());
+		return;
+	}
+
+	GetGame()->GetPC()->SetCompanyDescription(*Company->GetDescription());
+	FFlarePlayerSave SavePlayerData;
+	SavePlayerData.CompanyIdentifier = Company->GetIdentifier();
+	SavePlayerData.LastFlownShipIdentifier = NAME_None;
+	SavePlayerData.SelectedFleetIdentifier = NAME_None;
+	GetGame()->GetPC()->Load(SavePlayerData);
+}
 
 
 /*----------------------------------------------------

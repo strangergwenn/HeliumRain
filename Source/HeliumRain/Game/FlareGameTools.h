@@ -93,6 +93,8 @@ public:
 	UFUNCTION(exec)
 	void GiveReputation(FName CompanyShortName1, FName CompanyShortName2, float Amount);
 
+	UFUNCTION(exec)
+	void TakeCompanyControl(FName CompanyShortName);
 
 	/*----------------------------------------------------
 		Fleet tools
