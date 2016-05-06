@@ -314,6 +314,8 @@ float UFlareSectorInterface::GetDefaultResourcePrice(FFlareResourceDescription* 
 uint32 UFlareSectorInterface::GetTransfertResourcePrice(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource)
 {
 	IFlareSpacecraftInterface* Station = NULL;
+
+	// Which one is any is a station ?
 	if (SourceSpacecraft->IsStation())
 	{
 		Station = SourceSpacecraft;
@@ -324,51 +326,18 @@ uint32 UFlareSectorInterface::GetTransfertResourcePrice(IFlareSpacecraftInterfac
 	}
 	else
 	{
-		// Both are ships
 		return GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
 	}
 
-	FFlareSpacecraftDescription* SpacecraftDescription =  Station->GetDescription();
-
-	// Load factories
-	for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+	// Get context
+	EFlareResourcePriceContext::Type ResourceUsage = Station->GetResourceUseType(Resource);
+	if (ResourceUsage == EFlareResourcePriceContext::ConsumerConsumption)
 	{
-		FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
-
-		for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num() ; ResourceIndex++)
-		{
-			const FFlareFactoryResource* FactoryResource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
-			if(&FactoryResource->Resource->Data == Resource)
-			{
-				// Is input resource of a station
-				return GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
-			}
-		}
-
-		for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num() ; ResourceIndex++)
-		{
-			const FFlareFactoryResource* FactoryResource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
-			if(&FactoryResource->Resource->Data == Resource)
-			{
-				// Is output resource of a station
-				return GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput);
-			}
-		}	
+		ResourceUsage = EFlareResourcePriceContext::FactoryInput;
 	}
 
-	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Consumer) && Game->GetResourceCatalog()->IsCustomerResource(Resource))
-	{
-		// Customer resource
-		return GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
-	}
-
-	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Maintenance) && Game->GetResourceCatalog()->IsMaintenanceResource(Resource))
-	{
-		// Maintenance resource
-		return GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
-	}
-
-	return GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+	// Get the usage and price
+	return GetResourcePrice(Resource, ResourceUsage);
 }
 
 
