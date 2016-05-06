@@ -26,30 +26,48 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Fill)
 	.HAlign(HAlign_Fill)
 	[
-		SNew(SHorizontalBox)
-
-		// Back button
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Left)
-		.AutoWidth()
+		SNew(SVerticalBox)
+		
+		// Help text
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(Theme.ContentPadding)
 		[
-			SAssignNew(CancelButton, SFlareButton)
-			.HelpText(LOCTEXT("Cancel", "Cancel"))
-			.Text(InArgs._CancelText)
-			.OnClicked(InArgs._OnCancelled)
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(this, &SFlareConfirmationBox::GetWalletText)
 		]
-
-		// Buy button
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
+		
+		// Buttons
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(Theme.TitlePadding)
 		[
-			SAssignNew(ConfirmButton, SFlareButton)
-			.Icon(FFlareStyleSet::GetIcon("Cost"))
-			.Text(this, &SFlareConfirmationBox::GetBuyText)
-			.HelpText(LOCTEXT("Confirm", "Confirm"))
-			.OnClicked(InArgs._OnConfirmed)
-			.Width(10)
-			.Height(1)
+			SNew(SHorizontalBox)
+
+			// Back button
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Left)
+			.AutoWidth()
+			[
+				SAssignNew(CancelButton, SFlareButton)
+				.HelpText(LOCTEXT("Cancel", "Cancel"))
+				.Text(InArgs._CancelText)
+				.OnClicked(InArgs._OnCancelled)
+			]
+
+			// Buy button
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			[
+				SAssignNew(ConfirmButton, SFlareButton)
+				.Icon(FFlareStyleSet::GetIcon("Cost"))
+				.Text(this, &SFlareConfirmationBox::GetBuyText)
+				.HelpText(LOCTEXT("Confirm", "Confirm"))
+				.OnClicked(InArgs._OnConfirmed)
+				.Width(10)
+				.Height(1)
+			]
 		]
 	];
 
@@ -64,9 +82,9 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 
 FText SFlareConfirmationBox::GetBuyText() const
 {
-	if (Amount != 0)
+	if (Amount != 0 && TargetCompany)
 	{
-		if (TargetCompany && Amount <= TargetCompany->GetMoney())
+		if (Amount <= static_cast<int64>(TargetCompany->GetMoney()))
 		{
 			return FText::Format(LOCTEXT("ConfirmTextFormat", "{0} ({1} credits)"),
 				ConfirmText,
@@ -84,14 +102,25 @@ FText SFlareConfirmationBox::GetBuyText() const
 	}
 }
 
-void SFlareConfirmationBox::Show(float NewAmount, UFlareCompany* NewTargetCompany)
+FText SFlareConfirmationBox::GetWalletText() const
+{
+	if (PC)
+	{
+		return FText::Format(LOCTEXT("CompanyCurrentWallet", "You have {0} credits available."),
+			FText::AsNumber(PC->GetCompany()->GetMoney() / 100));
+	}
+
+	return FText();
+}
+
+void SFlareConfirmationBox::Show(int64 NewAmount, UFlareCompany* NewTargetCompany)
 {
 	Amount = NewAmount;
 	TargetCompany = NewTargetCompany;
 	ConfirmButton->SetVisibility(EVisibility::Visible);
 	CancelButton->SetVisibility(EVisibility::Visible);
 
-	if (NewAmount > TargetCompany->GetMoney())
+	if (NewAmount > static_cast<int64>(TargetCompany->GetMoney()))
 	{
 		ConfirmButton->SetDisabled(true);
 	}
@@ -103,11 +132,13 @@ void SFlareConfirmationBox::Show(float NewAmount, UFlareCompany* NewTargetCompan
 
 void SFlareConfirmationBox::Hide()
 {
-	ConfirmButton->SetVisibility(EVisibility::Collapsed);
+	Amount = 0;
 	TargetCompany = NULL;
+	ConfirmButton->SetDisabled(true);
 
 	if (FullHide)
 	{
+		ConfirmButton->SetVisibility(EVisibility::Collapsed);
 		CancelButton->SetVisibility(EVisibility::Collapsed);
 	}
 }

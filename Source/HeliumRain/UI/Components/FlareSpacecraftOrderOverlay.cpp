@@ -70,6 +70,17 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 							.OnSelectionChanged(this, &SFlareSpacecraftOrderOverlay::OnSpacecraftSelectionChanged)
 						]
 					]
+
+					// Help text
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Right)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareSpacecraftOrderOverlay::GetWalletText)
+					]
 	
 					// Buttons
 					+ SVerticalBox::Slot()
@@ -268,6 +279,17 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 /*----------------------------------------------------
 	Content callbacks
 ----------------------------------------------------*/
+
+FText SFlareSpacecraftOrderOverlay::GetWalletText() const
+{
+	if (MenuManager->GetPC())
+	{
+		return FText::Format(LOCTEXT("CompanyCurrentWallet", "You have {0} credits available."),
+			FText::AsNumber(MenuManager->GetPC()->GetCompany()->GetMoney() / 100));
+	}
+
+	return FText();
+}
 
 TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {

@@ -50,7 +50,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TitleFont)
-				.Text(this, &SFlareTradeMenu::GetTitle)
+				.Text(LOCTEXT("Trade", "TRADE"))
 			]
 
 			// Close
@@ -247,17 +247,6 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
 								]
 
-								// Info
-								+ SVerticalBox::Slot()
-								.AutoHeight()
-								.Padding(Theme.ContentPadding)
-								[
-									SNew(STextBlock)
-									.TextStyle(&Theme.TextFont)
-									.Text(this, &SFlareTradeMenu::GetTransactionDetails)
-									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
-								]
-
 								// Quantity
 								+ SVerticalBox::Slot()
 								.AutoHeight()
@@ -270,10 +259,20 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
 								]
 
-								// Price
+								// Info
 								+ SVerticalBox::Slot()
 								.AutoHeight()
 								.Padding(Theme.ContentPadding)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(this, &SFlareTradeMenu::GetTransactionDetails)
+									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+								]
+
+								// Price
+								+ SVerticalBox::Slot()
+								.AutoHeight()
 								[
 									SAssignNew(PriceBox, SFlareConfirmationBox)
 									.ConfirmText(LOCTEXT("Confirm", "Confirm transfer"))
@@ -498,11 +497,6 @@ EVisibility SFlareTradeMenu::GetTransactionDetailsVisibility() const
 	return (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
-FText SFlareTradeMenu::GetTitle() const
-{
-	return LOCTEXT("Trade", "TRADE");
-}
-
 FText SFlareTradeMenu::GetLeftSpacecraftName() const
 {
 	if (TargetLeftSpacecraft)
@@ -531,7 +525,7 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 {
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		return FText::Format(LOCTEXT("TradeInfoFormat", "Trading {0}x {1} from {2} to {3}"),
+		return FText::Format(LOCTEXT("TradeInfoFormat", "Trading {0}x {1} from {2} to {3}."),
 			FText::AsNumber(TransactionQuantity),
 			TransactionResource->Name,
 			FText::FromName(TransactionSourceSpacecraft->GetImmatriculation()),

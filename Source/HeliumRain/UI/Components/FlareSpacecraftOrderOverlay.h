@@ -58,6 +58,9 @@ public:
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
+
+	/** Get the company's wallet info */
+	FText GetWalletText() const;
 		
 	/** Craft a line for the list */
 	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);

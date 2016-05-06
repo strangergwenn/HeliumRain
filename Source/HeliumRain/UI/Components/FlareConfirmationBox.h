@@ -41,8 +41,11 @@ public:
 	/** Get the display text */
 	FText GetBuyText() const;
 
+	/** Get the company's wallet info */
+	FText GetWalletText() const;
+
 	/** Show this box for a specific amount */
-	void Show(float Amount, UFlareCompany* TargetCompany);
+	void Show(int64 Amount, UFlareCompany* TargetCompany);
 
 	/** Hide this box */
 	void Hide();
@@ -60,7 +63,7 @@ protected:
 
 	// Gameplay data
 	bool                                    FullHide;
-	int32                                   Amount;
+	int64                                   Amount;
 	FText                                   ConfirmText;
 	UFlareCompany*                          TargetCompany;
 

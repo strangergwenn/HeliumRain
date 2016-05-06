@@ -96,7 +96,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						// Company flag
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(0, 4))
+						.Padding(FMargin(0, 8))
 						[
 							SAssignNew(CompanyFlag, SFlareCompanyFlag)
 							.Player(InArgs._Player)

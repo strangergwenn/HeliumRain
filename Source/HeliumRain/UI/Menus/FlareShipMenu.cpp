@@ -240,13 +240,23 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						.OnSelectionChanged(this, &SFlareShipMenu::OnPartPicked)
 					]
 
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("TransactionTitle", "Confirm transaction"))
+					]
+
 					// Button box
 					+ SVerticalBox::Slot()
 					.Padding(Theme.ContentPadding)
 					.AutoHeight()
 					[
 						SAssignNew(BuyConfirmation, SFlareConfirmationBox)
-						.ConfirmText(LOCTEXT("Confirm", "Confirm transaction"))
+						.ConfirmText(LOCTEXT("Confirm", "Buy component"))
 						.CancelText(LOCTEXT("BackTopShip", "Back to ship"))
 						.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
 						.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)

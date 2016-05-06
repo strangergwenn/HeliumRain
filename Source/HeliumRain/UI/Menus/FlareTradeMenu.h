@@ -63,9 +63,6 @@ protected:
 	/** Are the transaction details visible ? */
 	EVisibility GetTransactionDetailsVisibility() const;
 	
-	/** Get the title */
-	FText GetTitle() const;
-
 	/** Get the name of the left spacecraft */
 	FText GetLeftSpacecraftName() const;
 
