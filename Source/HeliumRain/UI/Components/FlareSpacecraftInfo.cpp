@@ -448,6 +448,18 @@ void SFlareSpacecraftInfo::Show()
 			FlyButton->SetDisabled(false);
 		}
 
+		// Select button
+		if (TargetSpacecraft->IsAssignedToSector())
+		{
+			SelectButton->SetHelpText(LOCTEXT("ShipAssignedSelectInfo", "You must unassign this ship befor select it"));
+			SelectButton->SetDisabled(true);
+		}
+		else
+		{
+			SelectButton->SetHelpText(LOCTEXT("ShipSelectInfo", "Select this spacecraft's fleet"));
+			SelectButton->SetDisabled(false);
+		}
+
 		// Disable trade while flying unless docked
 		if (IsStrategy || IsDocked)
 		{
