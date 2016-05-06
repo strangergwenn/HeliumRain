@@ -101,6 +101,8 @@ public:
 
 	void PrintInfo();
 
+	void CheckPopulationDisparition();
+
 protected:
 
 	/*----------------------------------------------------

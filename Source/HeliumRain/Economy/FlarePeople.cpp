@@ -50,6 +50,7 @@ void UFlarePeople::Simulate()
 {
 	if(PeopleData.Population == 0)
 	{
+		CheckPopulationDisparition();
 		return;
 	}
 
@@ -395,6 +396,31 @@ void UFlarePeople::PrintInfo()
 	FLOGV(" - Money: %f", PeopleData.Money / 100.);
 	FLOGV(" - Dept: %f", PeopleData.Dept / 100.);
 }
+
+void UFlarePeople::CheckPopulationDisparition()
+{
+	// if world population is zero and this sector has habitation. Spawn some people
+	if(Game->GetGameWorld()->GetWorldPopulation() > 0)
+	{
+		return;
+	}
+
+	FLOG("WARNING: world people died !!!");
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Parent->GetSectorStations().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = Parent->GetSectorStations()[SpacecraftIndex];
+
+		if(Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		{
+			// Find an habitation, spawn
+			GiveBirth(2000);
+			FLOGV("WARNING: give birth at %s", *Parent->GetSectorName().ToString());
+			return;
+		}
+	}
+}
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/

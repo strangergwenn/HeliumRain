@@ -774,3 +774,15 @@ uint64 UFlareWorld::GetWorldMoney()
 
 	return WorldMoney;
 }
+
+uint32 UFlareWorld::GetWorldPopulation()
+{
+	uint32 WorldPopulation = 0;
+
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		WorldPopulation += Sectors[SectorIndex]->GetPeople()->GetPopulation();
+	}
+
+	return WorldPopulation;
+}

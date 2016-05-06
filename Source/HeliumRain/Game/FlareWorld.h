@@ -200,5 +200,6 @@ public:
 	}
 
 	uint64 GetWorldMoney();
+	uint32 GetWorldPopulation();
 
 };
