@@ -119,3 +119,58 @@ EFlareResourcePriceContext::Type IFlareSpacecraftInterface::GetResourceUseType(F
 
 	return EFlareResourcePriceContext::Default;
 }
+
+void IFlareSpacecraftInterface::LockResources()
+{
+	GetCargoBay()->UnlockAll();
+
+	if (GetDescription()->Factories.Num() > 0)
+	{
+		FFlareFactoryDescription* Factory = &GetDescription()->Factories[0]->Data;
+
+		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->CycleCost.InputResources.Num() ; ResourceIndex++)
+		{
+			const FFlareFactoryResource* Resource = &Factory->CycleCost.InputResources[ResourceIndex];
+
+			if (!GetCargoBay()->LockSlot(&Resource->Resource->Data))
+			{
+				FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
+			}
+		}
+
+		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->CycleCost.OutputResources.Num() ; ResourceIndex++)
+		{
+			const FFlareFactoryResource* Resource = &Factory->CycleCost.OutputResources[ResourceIndex];
+
+			if (!GetCargoBay()->LockSlot(&Resource->Resource->Data))
+			{
+				FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
+			}
+		}
+	}
+
+	if (HasCapability(EFlareSpacecraftCapability::Consumer))
+	{
+		for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+			if (!GetCargoBay()->LockSlot(Resource))
+			{
+				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+			}
+		}
+	}
+
+	if (HasCapability(EFlareSpacecraftCapability::Maintenance))
+	{
+		for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
+
+			if (!GetCargoBay()->LockSlot(Resource))
+			{
+				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+			}
+		}
+	}
+}

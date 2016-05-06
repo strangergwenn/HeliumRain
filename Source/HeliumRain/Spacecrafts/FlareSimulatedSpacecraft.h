@@ -184,11 +184,6 @@ public:
 		return SpacecraftData.Location;
 	}
 
-	inline bool HasCapability(EFlareSpacecraftCapability::Type Capability) const
-	{
-		return SpacecraftDescription->Capabilities.Contains(Capability);
-	}
-
 	inline bool IsConsumeResource(FFlareResourceDescription* Resource) const
 	{
 		return HasCapability(EFlareSpacecraftCapability::Consumer) && !SpacecraftData.SalesExcludedResources.Contains(Resource->Identifier);

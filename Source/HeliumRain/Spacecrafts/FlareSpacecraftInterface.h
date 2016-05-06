@@ -245,6 +245,8 @@ public:
 	/** Is this an input, output... ?*/
 	EFlareResourcePriceContext::Type GetResourceUseType(FFlareResourceDescription* Resource);
 
+	/** Lock cargo bay slot for useful resources */
+	void LockResources();
 
 	/*----------------------------------------------------
 		Sub system
@@ -268,4 +270,9 @@ public:
 	static bool IsStation(FFlareSpacecraftDescription* SpacecraftDesc);
 
 	static bool IsMilitary(FFlareSpacecraftDescription* SpacecraftDesc);
+
+	inline bool HasCapability(EFlareSpacecraftCapability::Type Capability) const
+	{
+		return GetDescription()->Capabilities.Contains(Capability);
+	}
 };

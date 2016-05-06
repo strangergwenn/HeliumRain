@@ -503,6 +503,9 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	CargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
 	CargoBay->Load(this, ShipData.Cargo);
+
+	LockResources();
+
 	CurrentTarget = NULL;
 }
 
