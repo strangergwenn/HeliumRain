@@ -195,10 +195,20 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 		FNumberFormattingOptions CargoFormat;
 		CargoFormat.MaximumFractionalDigits = 1;
 
-		return FText::Format(FText::FromString("{0} {1}k/{2}k"),
-			LockText,
-			FText::AsNumber(Cargo->Quantity / 1000.0f, &CargoFormat),
-			FText::AsNumber(Cargo->Capacity / 1000.0f, &CargoFormat));
+		if(Cargo->Quantity > 99)
+		{
+			return FText::Format(FText::FromString("{0} {1}k/{2}k"),
+				LockText,
+				FText::AsNumber(Cargo->Quantity / 1000.0f, &CargoFormat),
+				FText::AsNumber(Cargo->Capacity / 1000.0f, &CargoFormat));
+		}
+		else
+		{
+			return FText::Format(FText::FromString("{0} {1}/{2}k"),
+				LockText,
+				FText::AsNumber(Cargo->Quantity, &CargoFormat),
+				FText::AsNumber(Cargo->Capacity / 1000.0f, &CargoFormat));
+		}
 	}
 	else
 	{
