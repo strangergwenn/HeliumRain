@@ -385,17 +385,19 @@ struct FSortByAltitudeAndPhase
 {
 	inline bool operator()(UFlareSimulatedSector& SectorA, UFlareSimulatedSector& SectorB) const
 	{
-		if (SectorA.GetOrbitParameters()->Altitude > SectorB.GetOrbitParameters()->Altitude)
+		if (SectorA.GetOrbitParameters()->Altitude == SectorB.GetOrbitParameters()->Altitude)
 		{
-			return false;
-		}
-		else if (SectorA.GetOrbitParameters()->Phase > SectorB.GetOrbitParameters()->Phase)
-		{
-			return false;
+			// Compare phase
+			if(SectorA.GetOrbitParameters()->Phase == SectorB.GetOrbitParameters()->Phase)
+			{
+				FLOGV("WARNING: %s and %s are at the same phase", *SectorA.GetSectorName().ToString(), *SectorB.GetSectorName().ToString())
+			}
+
+			return SectorA.GetOrbitParameters()->Phase < SectorB.GetOrbitParameters()->Phase;
 		}
 		else
 		{
-			return true;
+			return (SectorA.GetOrbitParameters()->Altitude < SectorB.GetOrbitParameters()->Altitude);
 		}
 	}
 };
