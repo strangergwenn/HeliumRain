@@ -618,7 +618,7 @@ uint32 UFlareFactory::GetProductionCost(const FFlareProductionData* Data)
 	if (FactoryDescription->NeedSun)
 	{
 		// TODO NeedSun flag must impact output instead of cost
-		ScaledProductionCost = CycleData->ProductionCost / Parent->GetCurrentSector()->GetLightRatio();
+		//ScaledProductionCost = CycleData->ProductionCost / Parent->GetCurrentSector()->GetLightRatio();
 	}
 
 	return ScaledProductionCost;

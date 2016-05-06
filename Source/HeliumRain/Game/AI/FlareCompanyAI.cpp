@@ -413,15 +413,7 @@ void UFlareCompanyAI::Simulate()
 				float GainPerDay = 0;
 				float GainPerCycle = 0;
 
-				if (FactoryDescription->NeedSun)
-				{
-					// TODO need sun  must impact production output
-					GainPerCycle -= FactoryDescription->CycleCost.ProductionCost / Sector->GetLightRatio();
-				}
-				else
-				{
-					GainPerCycle -= FactoryDescription->CycleCost.ProductionCost;
-				}
+				GainPerCycle -= FactoryDescription->CycleCost.ProductionCost;
 
 				float Malus = 0;
 				float Bonus = 0;
