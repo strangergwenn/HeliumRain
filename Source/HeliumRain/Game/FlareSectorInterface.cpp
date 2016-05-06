@@ -298,7 +298,10 @@ uint64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resour
 			return DefaultPrice + Resource->TransportFee;
 		break;
 		case EFlareResourcePriceContext::ConsumerConsumption:
-			return DefaultPrice * 2;
+			return DefaultPrice * 1.5;
+		break;
+		case EFlareResourcePriceContext::MaintenanceConsumption:
+			return DefaultPrice * 1.5;
 		break;
 		default:
 			return 0;
@@ -331,7 +334,8 @@ uint32 UFlareSectorInterface::GetTransfertResourcePrice(IFlareSpacecraftInterfac
 
 	// Get context
 	EFlareResourcePriceContext::Type ResourceUsage = Station->GetResourceUseType(Resource);
-	if (ResourceUsage == EFlareResourcePriceContext::ConsumerConsumption)
+	if (ResourceUsage == EFlareResourcePriceContext::ConsumerConsumption ||
+			ResourceUsage == EFlareResourcePriceContext::MaintenanceConsumption)
 	{
 		ResourceUsage = EFlareResourcePriceContext::FactoryInput;
 	}

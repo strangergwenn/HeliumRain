@@ -114,7 +114,7 @@ EFlareResourcePriceContext::Type IFlareSpacecraftInterface::GetResourceUseType(F
 	// Maintenance resource ?
 	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Maintenance) && GetGame()->GetResourceCatalog()->IsMaintenanceResource(Resource))
 	{
-		return EFlareResourcePriceContext::FactoryInput;
+		return EFlareResourcePriceContext::MaintenanceConsumption;
 	}
 
 	return EFlareResourcePriceContext::Default;
