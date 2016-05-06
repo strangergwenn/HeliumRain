@@ -335,8 +335,7 @@ void UFlareWorld::Simulate()
 			}
 		}
 	}
-
-	// TODO company battles
+	// TODO battles between 2 AI company
 
 
 	// AI. Play them in random order
@@ -349,8 +348,6 @@ void UFlareWorld::Simulate()
 	}
 
 	CompanyMutualAssistance();
-
-
 	CheckIntegrity();
 
 	/**
@@ -379,7 +376,6 @@ void UFlareWorld::Simulate()
 	{
 		Sectors[SectorIndex]->GetPeople()->Simulate();
 	}
-
 
 
 	FLOG("Trade routes");

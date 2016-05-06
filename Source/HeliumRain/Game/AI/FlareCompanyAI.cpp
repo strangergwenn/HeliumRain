@@ -619,15 +619,7 @@ void UFlareCompanyAI::Simulate()
 					IdleCargoCapacity -= NeedCapacity;
 				}
 
-				if(!Game->GetGameWorld()->CheckIntegrity())
-				{
-					FLOG(" !!! Check integrity fail before ManagerConstructionShips");
-				}
 				ManagerConstructionShips(WorldResourceVariation);
-				if(!Game->GetGameWorld()->CheckIntegrity())
-				{
-					FLOG(" !!! Check integrity fail after ManagerConstructionShips");
-				}
 			}
 		}
 	}
@@ -736,11 +728,6 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 		}
 	}
 
-	if(!Game->GetGameWorld()->CheckIntegrity())
-	{
-		FLOG(" !!! Check integrity fail after generate ship lists");
-	}
-
 	TMap<FFlareResourceDescription *, int32> MissingResourcesQuantity;
 
 	// List missing ressources
@@ -750,17 +737,7 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 
 		int32 NeededQuantity = Resource->Quantity;
 
-		if(!Game->GetGameWorld()->CheckIntegrity())
-		{
-			FLOGV(" !!! Check integrity fail before  GetResourceCount for resource %s", *(&Resource->Resource->Data)->Name.ToString());
-		}
-
 		int32 OwnedQuantity = ConstructionProjectSector->GetResourceCount(Company, &Resource->Resource->Data, true);
-
-		if(!Game->GetGameWorld()->CheckIntegrity())
-		{
-			FLOGV(" !!! Check integrity fail after  GetResourceCount for resource %s", *(&Resource->Resource->Data)->Name.ToString());
-		}
 
 		// Add not in sector ships resources
 		for (int32 ShipIndex = 0 ; ShipIndex < ConstructionShips.Num(); ShipIndex++)
@@ -768,45 +745,15 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 			UFlareSimulatedSpacecraft* Ship = ConstructionShips[ShipIndex];
 			if (Ship->GetCurrentSector() != ConstructionProjectSector)
 			{
-				if(!Game->GetGameWorld()->CheckIntegrity())
-				{
-					FLOGV(" !!! Check integrity fail before  GetResourceQuantity for resource %s and ship (sector=%p)",
-						*(&Resource->Resource->Data)->Name.ToString(),
-						  *Ship->GetImmatriculation().ToString(), Ship->GetCurrentSector());
-				}
 				OwnedQuantity = Ship->GetCargoBay()->GetResourceQuantity(&Resource->Resource->Data);
-				if(!Game->GetGameWorld()->CheckIntegrity())
-				{
-					FLOGV(" !!! Check integrity fail after  GetResourceQuantity for resource %s and ship (sector=%p)",
-						*(&Resource->Resource->Data)->Name.ToString(),
-						  *Ship->GetImmatriculation().ToString(), Ship->GetCurrentSector());
-				}
 			}
 		}
 
 		if(NeededQuantity > OwnedQuantity)
 		{
-			if(!Game->GetGameWorld()->CheckIntegrity())
-			{
-				FLOGV(" !!! Check integrity fail before add   to MissingResourcesQuantity resource %s", *(&Resource->Resource->Data)->Name.ToString());
-			}
-
 			MissingResourcesQuantity.Add(&Resource->Resource->Data, NeededQuantity - OwnedQuantity);
-
-			if(!Game->GetGameWorld()->CheckIntegrity())
-			{
-				FLOGV(" !!! Check integrity fail after add   to MissingResourcesQuantity resource %s", *(&Resource->Resource->Data)->Name.ToString());
-			}
 		}
 	}
-
-
-
-	if(!Game->GetGameWorld()->CheckIntegrity())
-	{
-		FLOG(" !!! Check integrity fail after generate missing resources");
-	}
-
 
 	// First strep, agregate ressources in construction sector
 	for (int32 ShipIndex = 0 ; ShipIndex < ShipsInConstructionSector.Num(); ShipIndex++)
@@ -867,14 +814,6 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 		}
 	}
 
-
-
-	if(!Game->GetGameWorld()->CheckIntegrity())
-	{
-		FLOG(" !!! Check integrity fail after agregate");
-	}
-
-
 	// if no missing ressources
 	if (MissingResourcesQuantity.Num() == 0)
 	{
@@ -892,12 +831,6 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 				ConstructionShips.Remove(Ship);
 				ShipIndex--;
 			}
-		}
-
-
-		if(!Game->GetGameWorld()->CheckIntegrity())
-		{
-			FLOG(" !!! Check integrity fail after no missing resources");
 		}
 	}
 	else
@@ -942,15 +875,6 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 				}
 			}
 
-
-			if(!Game->GetGameWorld()->CheckIntegrity())
-			{
-				FLOG(" !!! Check integrity fail after take resources");
-			}
-
-
-
-
 			bool IsFull = true;
 			for (int ResourceIndex = 0; ResourceIndex < MissingResources.Num() ; ResourceIndex++)
 			{
@@ -964,21 +888,10 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 				}
 			}
 
-
-			if(!Game->GetGameWorld()->CheckIntegrity())
-			{
-				FLOG(" !!! Check integrity fail after full check");
-			}
-
 			if(IsFull)
 			{
 				// Go to construction sector
 				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), ConstructionProjectSector);
-
-				if(!Game->GetGameWorld()->CheckIntegrity())
-				{
-					FLOG(" !!! Check integrity fail after isFull");
-				}
 			}
 			else
 			{
@@ -1088,11 +1001,6 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 					}
 				}
 
-				if(!Game->GetGameWorld()->CheckIntegrity())
-				{
-					FLOG(" !!! Check integrity fail after best travel loockup");
-				}
-
 				if(BestSector)
 				{
 					// Travel to sector
@@ -1108,11 +1016,6 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 					struct ResourceVariation* Variation = &SectorVariation->ResourceVariations[BestResource];
 
 					Variation->OwnedStock -= FMath::Max(0, BestEstimateTake);
-
-					if(!Game->GetGameWorld()->CheckIntegrity())
-					{
-						FLOG(" !!! Check integrity fail after best travel");
-					}
 				}
 
 
