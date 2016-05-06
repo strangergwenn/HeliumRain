@@ -418,7 +418,73 @@ void UFlareWorld::Simulate()
 		Sectors[SectorIndex]->SimulatePriceVariation();
 	}
 
+	// People money migration
+	SimulatePeopleMoneyMigration();
+
 	// Process events
+}
+
+void UFlareWorld::SimulatePeopleMoneyMigration()
+{
+	for (int SectorIndexA = 0; SectorIndexA < Sectors.Num(); SectorIndexA++)
+	{
+		UFlareSimulatedSector* SectorA = Sectors[SectorIndexA];
+
+		for (int SectorIndexB = SectorIndexA + 1; SectorIndexB < Sectors.Num(); SectorIndexB++)
+		{
+			UFlareSimulatedSector* SectorB = Sectors[SectorIndexB];
+
+			// Money and people migration
+			float PopulationA = SectorA->GetPeople()->GetPopulation();
+			float PopulationB = SectorB->GetPeople()->GetPopulation();
+
+
+			if(PopulationA == 0 && PopulationB == 0)
+			{
+				// 2 sector without population. Do nothing
+				continue;
+			}
+			else if (PopulationA  == 0)
+			{
+				// Origin sector has no population so it leak it's money
+				uint32 TransfertA = SectorA->GetPeople()->GetMoney() / 10;
+				SectorA->GetPeople()->TakeMoney(TransfertA);
+				SectorB->GetPeople()->Pay(TransfertA);
+			}
+			else if (PopulationB  == 0)
+			{
+				// Destination sector has no population so it leak it's money
+				uint32 TransfertB = SectorB->GetPeople()->GetMoney() / 10;
+				SectorB->GetPeople()->TakeMoney(TransfertB);
+				SectorA->GetPeople()->Pay(TransfertB);
+			}
+			else
+			{
+				// Both have population. The wealthier leak.
+				float WealthA = SectorA->GetPeople()->GetWealth();
+				float WealthB = SectorA->GetPeople()->GetWealth();
+				float TotalWealth = WealthA + WealthB;
+
+				if(TotalWealth > 0)
+				{
+					if(WealthA > WealthB)
+					{
+						float LeakRatio = 0.02f * ((WealthA / TotalWealth) - 0.5f); // 1% at max
+						uint32 TransfertA = LeakRatio * SectorA->GetPeople()->GetMoney();
+						SectorA->GetPeople()->TakeMoney(TransfertA);
+						SectorB->GetPeople()->Pay(TransfertA);
+					}
+					else
+					{
+						float LeakRatio = 0.02f * ((WealthB / TotalWealth) - 0.5f); // 1% at max
+						uint32 TransfertB = LeakRatio * SectorB->GetPeople()->GetMoney();
+						SectorB->GetPeople()->TakeMoney(TransfertB);
+						SectorA->GetPeople()->Pay(TransfertB);
+					}
+				}
+			}
+		}
+	}
 }
 
 void UFlareWorld::FastForward()

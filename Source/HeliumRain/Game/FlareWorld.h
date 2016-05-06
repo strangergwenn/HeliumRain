@@ -93,6 +93,8 @@ public:
 	/** Simulate world for a day */
 	void Simulate();
 
+	void SimulatePeopleMoneyMigration();
+
 	/** Simulate world from now to the next event */
 	void FastForward();
 

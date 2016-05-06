@@ -343,7 +343,7 @@ void UFlarePeople::SetHappiness(float Happiness)
 
 void UFlarePeople::Pay(uint32 Amount)
 {
-	//FLOGV("Pay to people for sector %s Amount=%u", *Parent->GetSectorName().ToString(), Amount)
+	//FLOGV("Pay to people for sector %s Amount=%f", *Parent->GetSectorName().ToString(), Amount/100.)
 
 	uint32 Repayment = 0;
 	if(PeopleData.Dept > 0)
