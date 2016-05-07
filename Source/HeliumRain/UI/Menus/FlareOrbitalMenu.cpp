@@ -308,16 +308,18 @@ void SFlareOrbitalMenu::Exit()
 	AdenaBox->ClearChildren();
 
 	StopFastForward();
-
-	Game->SaveGame(MenuManager->GetPC());
 }
 
 void SFlareOrbitalMenu::StopFastForward()
 {
 	TimeSinceFastForward = 0;
-	FastForwardActive = false;
 	FastForward->SetActive(false);
-	Game->SaveGame(MenuManager->GetPC());
+
+	if (FastForwardActive)
+	{
+		FastForwardActive = false;
+		Game->SaveGame(MenuManager->GetPC());
+	}
 }
 
 void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)

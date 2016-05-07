@@ -228,6 +228,7 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 	}
 
 	PC->OnSectorDeactivated();
+	SaveGame(PC);
 
 	return Sector;
 }
