@@ -274,7 +274,7 @@ bool UFlareWorld::CheckIntegrity()
 			UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
 			if (!Station->IsStation())
 			{
-				FLOGV(" !!! Integrity error: Station %s in %s is not a station", *Station->GetImmatriculation().ToString(), *Sector->GetSectorName().ToString());
+				FLOGV("WARNING : World integrity failure : station %s in %s is not a station", *Station->GetImmatriculation().ToString(), *Sector->GetSectorName().ToString());
 				Integrity = false;
 			}
 		}
@@ -292,11 +292,107 @@ bool UFlareWorld::CheckIntegrity()
 
 		if (WorldMoneyReference != WorldMoney)
 		{
-			FLOGV("WARNING : World money integrity failure : world contain %lld credits but reference is %lld", WorldMoney, WorldMoneyReference)
+			FLOGV("WARNING : World integrity failure : world contain %lld credits but reference is %lld", WorldMoney, WorldMoneyReference)
 			Integrity = false;
 		}
 	}
 
+	//  Check companyintegrity
+	for (int i = 0; i < Companies.Num(); i++)
+	{
+		UFlareCompany* Company = Companies[i];
+		if (Company->GetCompanySpacecrafts().Num() != Company->GetCompanyShips().Num() + Company->GetCompanyStations().Num())
+		{
+			FLOGV("WARNING : World integrity failure : %s have %d spacecraft but %d ships and %s stations", *Company->GetCompanyName().ToString(),
+				  Company->GetCompanySpacecrafts().Num(),
+				  Company->GetCompanyShips().Num(),
+				  Company->GetCompanyStations().Num());
+			Integrity = false;
+		}
+
+		// Ships
+		for (int32 ShipIndex = 0 ; ShipIndex < Company->GetCompanyShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = Company->GetCompanyShips()[ShipIndex];
+
+			UFlareSimulatedSector* ShipSector = Ship->GetCurrentSector();
+
+			if(ShipSector)
+			{
+				if (Ship->GetCurrentFleet() == NULL && !Ship->IsAssignedToSector())
+				{
+					FLOGV("WARNING : World integrity failure : %s in %s is not assigned and in no fleetis not have %d spacecraft but %d ships and %s stations",
+						  *Ship->GetImmatriculation().ToString(),
+						  *ShipSector->GetSectorName().ToString());
+					Integrity = false;
+				}
+
+				if(!ShipSector->GetSectorShips().Contains(Ship))
+				{
+					FLOGV("WARNING : World integrity failure : %s in %s but not in sector ship list",
+						  *Ship->GetImmatriculation().ToString(),
+						  *ShipSector->GetSectorName().ToString());
+					Integrity = false;
+				}
+			}
+			else
+			{
+				if (Ship->GetCurrentFleet() == NULL)
+				{
+					FLOGV("WARNING : World integrity failure : %s not in sector but in no fleet (is assigned ? %d)",
+						  *Ship->GetImmatriculation().ToString(),
+						  Ship->IsAssignedToSector());
+					Integrity = false;
+
+				}
+				else if(Ship->GetCurrentFleet()->GetCurrentTravel() == NULL)
+				{
+					FLOGV("WARNING : World integrity failure : %s in fleet %s but not in sector and not in travel",
+						  *Ship->GetImmatriculation().ToString(),
+						  *Ship->GetCurrentFleet()->GetFleetName().ToString());
+					if(Ship->GetCurrentFleet()->GetCurrentSector() != NULL)
+					{
+						FLOGV("  - %s in %s",
+							  *Ship->GetCurrentFleet()->GetFleetName().ToString(),
+							  *Ship->GetCurrentFleet()->GetCurrentSector()->GetSectorName().ToString());
+						if (Ship->GetCurrentFleet()->GetCurrentSector()->GetSectorSpacecrafts().Contains(Ship))
+						{
+							FLOGV("  - %s contains the ship in its list",
+								  *Ship->GetCurrentFleet()->GetCurrentSector()->GetSectorName().ToString());
+						}
+						else
+						{
+							FLOGV("  - %s don't contains the ship in its list",
+								  *Ship->GetCurrentFleet()->GetCurrentSector()->GetSectorName().ToString());
+						}
+					}
+					Integrity = false;
+				}
+			}
+		}
+
+		// Fleets
+		for (int32 FleetIndex = 0 ; FleetIndex < Company->GetCompanyFleets().Num(); FleetIndex++)
+		{
+			UFlareFleet* Fleet = Company->GetCompanyFleets()[FleetIndex];
+
+			if(Fleet->GetShipCount() == 0)
+			{
+				FLOGV("WARNING : World integrity failure : %s fleet %s is empty",
+					  *Company->GetCompanyName().ToString(),
+					  *Fleet->GetFleetName().ToString());
+				Integrity = false;
+			}
+
+			if(Fleet->GetCurrentSector() == NULL && Fleet->GetCurrentTravel() == NULL)
+			{
+				FLOGV("WARNING : World integrity failure : %s fleet %s is not is a sector and not in travel",
+					  *Company->GetCompanyName().ToString(),
+					  *Fleet->GetFleetName().ToString());
+				Integrity = false;
+			}
+		}
+	}
 	return Integrity;
 }
 
