@@ -727,14 +727,31 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			}
 
 
-			if (Factory->HasInputResource(Resource) && !Factory->HasInputResources() && Station->GetCargoBay()->GetFreeSpaceForResource(Resource) > 0)
+			if (Factory->HasInputResource(Resource))
 			{
-				Overflow -= 1;
+				if (StockRatio < 0.4f)
+				{
+					Overflow -= 2.f * (0.5f - StockRatio); // Max -1
+				}
+
+				if (StockRatio > 0.6f)
+				{
+					Overflow += 2.f * (StockRatio - 0.5); // Max -1
+				}
 			}
 
-			if (Factory->HasOutputResource(Resource) && !Factory->HasOutputFreeSpace())
+
+			if (Factory->HasOutputResource(Resource))
 			{
-				Overflow += 1;
+				if (StockRatio < 0.4f)
+				{
+					Overflow -= 2.f * (0.5f - StockRatio); // Max -1
+				}
+
+				if (StockRatio > 0.6f)
+				{
+					Overflow += 2.f * (StockRatio - 0.5); // Max -1
+				}
 			}
 		}
 
