@@ -792,14 +792,14 @@ FText AFlareGame::PickCapitalShipName()
 		CandidateName = FText::FromString(BaseName.ToString() + Suffix);
 
 		// Browse all existing ships the check if the name is unique
-		// TODO check ship in travel (not in a sector with travels will be implemented)
-		for (int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
+		for (int i = 0; i < GetGameWorld()->GetCompanies().Num(); i++)
 		{
-			UFlareSimulatedSector* Sector = World->GetSectors()[SectorIndex];
+			UFlareCompany* Company = GetGameWorld()->GetCompanies()[i];
 
-			for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+			// Ships
+			for (int32 ShipIndex = 0 ; ShipIndex < Company->GetCompanyShips().Num(); ShipIndex++)
 			{
-				UFlareSimulatedSpacecraft* SpacecraftCandidate = Sector->GetSectorShips()[ShipIndex];
+				UFlareSimulatedSpacecraft* SpacecraftCandidate = Company->GetCompanyShips()[ShipIndex];
 				if (SpacecraftCandidate && SpacecraftCandidate->GetNickName().ToString() == CandidateName.ToString())
 				{
 					FLOGV("Not unique %s", *CandidateName.ToString());

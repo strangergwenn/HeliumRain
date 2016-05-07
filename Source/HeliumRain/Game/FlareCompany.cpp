@@ -363,7 +363,18 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 	if (Desc)
 	{
 		Spacecraft = NewObject<UFlareSimulatedSpacecraft>(this, UFlareSimulatedSpacecraft::StaticClass());
-		Spacecraft->Load(SpacecraftData);
+
+		if(FindSpacecraft(SpacecraftData.Immatriculation))
+		{
+			FFlareSpacecraftSave FixedSpacecraftData = SpacecraftData;
+			Game->Immatriculate(this, SpacecraftData.Identifier, &FixedSpacecraftData);
+			FLOGV("WARNING : Double immatriculation, fix that. New immatriculation is %s", *FixedSpacecraftData.Immatriculation.ToString());
+			Spacecraft->Load(FixedSpacecraftData);
+		}
+		else
+		{
+			Spacecraft->Load(SpacecraftData);
+		}
 
 
 		if ((Spacecraft)->IsStation())

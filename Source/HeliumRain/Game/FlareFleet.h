@@ -22,7 +22,7 @@ struct FFlareFleetSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FText Name;
 
-	/** Sector identifier */
+	/** Fleet identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName Identifier;
 
