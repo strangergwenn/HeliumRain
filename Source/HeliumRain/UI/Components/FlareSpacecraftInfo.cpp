@@ -136,7 +136,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						.AutoWidth()
 						[
 							SAssignNew(InspectButton, SFlareButton)
-							.Text(LOCTEXT("Inspect", "INSPECT"))
+							.Text(LOCTEXT("Inspect", "DETAILS"))
 							.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
 							.Width(4)
@@ -248,34 +248,34 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					]
 
 					// Buttons : shipyards
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(FMargin(8, 0, 8, 8))
-					[
-						SNew(SHorizontalBox)
+					//+ SVerticalBox::Slot()
+					//.AutoHeight()
+					//.Padding(FMargin(8, 0, 8, 8))
+					//[
+					//	SNew(SHorizontalBox)
 
-						// Order
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(OrderShipButton, SFlareButton)
-							.Text(LOCTEXT("OrderShip", "BUY LIGHT SHIP"))
-							.HelpText(LOCTEXT("OrderShipInfo", "Buy a ship at this shipyard"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnOrderShip)
-							.Width(6)
-						]
+					//	// Order
+					//	+ SHorizontalBox::Slot()
+					//	.AutoWidth()
+					//	[
+					//		SAssignNew(OrderShipButton, SFlareButton)
+					//		.Text(LOCTEXT("OrderShip", "BUY LIGHT SHIP"))
+					//		.HelpText(LOCTEXT("OrderShipInfo", "Buy a ship at this shipyard"))
+					//		.OnClicked(this, &SFlareSpacecraftInfo::OnOrderShip)
+					//		.Width(6)
+					//	]
 
-						// Order (heavy)
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(OrderHeavyShipButton, SFlareButton)
-							.Text(LOCTEXT("OrderHeavyShip", "BUY HEAVY SHIP"))
-							.HelpText(LOCTEXT("OrderHeavyShipInfo", "Buy a heavy ship at this shipyard"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnOrderHeavyShip)
-							.Width(6)
-						]
-					]
+					//	// Order (heavy)
+					//	+ SHorizontalBox::Slot()
+					//	.AutoWidth()
+					//	[
+					//		SAssignNew(OrderHeavyShipButton, SFlareButton)
+					//		.Text(LOCTEXT("OrderHeavyShip", "BUY HEAVY SHIP"))
+					//		.HelpText(LOCTEXT("OrderHeavyShipInfo", "Buy a heavy ship at this shipyard"))
+					//		.OnClicked(this, &SFlareSpacecraftInfo::OnOrderHeavyShip)
+					//		.Width(6)
+					//	]
+					//]
 				]
 
 				// Icon
@@ -378,8 +378,8 @@ void SFlareSpacecraftInfo::Show()
 		DockButton->SetVisibility(EVisibility::Collapsed);
 		UndockButton->SetVisibility(EVisibility::Collapsed);
 		ScrapButton->SetVisibility(EVisibility::Collapsed);
-		OrderShipButton->SetVisibility(EVisibility::Collapsed);
-		OrderHeavyShipButton->SetVisibility(EVisibility::Collapsed);
+		//OrderShipButton->SetVisibility(EVisibility::Collapsed);
+		//OrderHeavyShipButton->SetVisibility(EVisibility::Collapsed);
 	}
 	else if (TargetSpacecraft)
 	{
@@ -485,31 +485,31 @@ void SFlareSpacecraftInfo::Show()
 		}
 
 		// Shipyards get additional controls
-		OrderShipButton->SetVisibility(EVisibility::Collapsed);
-		OrderHeavyShipButton->SetVisibility(EVisibility::Collapsed);
-		UFlareSimulatedSpacecraft* TargetSimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-		if (TargetSimulatedSpacecraft)
-		{
-			bool IsShipyard = false;
-			TArray<UFlareFactory*> Factories = TargetSimulatedSpacecraft->GetFactories();
-			for (int32 Index = 0; Index < Factories.Num(); Index++)
-			{
-				if (Factories[Index]->IsShipyard())
-				{
-					IsShipyard = true;
-					break;
-				}
-			}
+		//OrderShipButton->SetVisibility(EVisibility::Collapsed);
+		//OrderHeavyShipButton->SetVisibility(EVisibility::Collapsed);
+		//UFlareSimulatedSpacecraft* TargetSimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
+		//if (TargetSimulatedSpacecraft)
+		//{
+		//	bool IsShipyard = false;
+		//	TArray<UFlareFactory*> Factories = TargetSimulatedSpacecraft->GetFactories();
+		//	for (int32 Index = 0; Index < Factories.Num(); Index++)
+		//	{
+		//		if (Factories[Index]->IsShipyard())
+		//		{
+		//			IsShipyard = true;
+		//			break;
+		//		}
+		//	}
 
-			// It's a shipyard
-			if (IsShipyard)
-			{
-				OrderShipButton->SetVisibility(EVisibility::Visible);
-				OrderHeavyShipButton->SetVisibility(EVisibility::Visible);
-				OrderShipButton->SetDisabled(!FriendlyAndNotSelf);
-				OrderHeavyShipButton->SetDisabled(!FriendlyAndNotSelf);
-			}
-		}
+		//	// It's a shipyard
+		//	if (IsShipyard)
+		//	{
+		//		OrderShipButton->SetVisibility(EVisibility::Visible);
+		//		OrderHeavyShipButton->SetVisibility(EVisibility::Visible);
+		//		OrderShipButton->SetDisabled(!FriendlyAndNotSelf);
+		//		OrderHeavyShipButton->SetDisabled(!FriendlyAndNotSelf);
+		//	}
+		//}
 	}
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
