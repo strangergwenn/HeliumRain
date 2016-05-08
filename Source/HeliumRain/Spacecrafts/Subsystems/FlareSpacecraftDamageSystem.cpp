@@ -58,29 +58,6 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	// Don't radiate too much energy : negative temperature is not possible
 	Data->Heat -= FMath::Min(HeatRadiation * DeltaSeconds, Data->Heat);
 
-	// Overheat after 800°K, compute heat damage from temperature beyond 800°K : 0.005%/(°K*s)
-	float OverheatDamage = (Temperature - GetOverheatTemperature()) * DeltaSeconds * 0.00005;
-	float BurningDamage = FMath::Max((Temperature - GetBurnTemperature()) * DeltaSeconds * 0.0001, 0.0);
-
-	// Update component temperature and apply heat damage
-	for (int32 i = 0; i < Components.Num(); i++)
-	{
-		// Apply temperature
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[i]);
-
-		// Overheat apply damage is necessary
-		if (OverheatDamage > 0)
-		{
-			Component->ApplyHeatDamage(Component->GetTotalHitPoints() * OverheatDamage, Component->GetTotalHitPoints() * BurningDamage);
-		}
-	}
-
-	// If damage have been applied, power production may have change
-	if (OverheatDamage > 0)
-	{
-		UpdatePower();
-	}
-
 	// Power outage
 	if (Data->PowerOutageDelay > 0)
 	{
@@ -604,6 +581,22 @@ bool UFlareSpacecraftDamageSystem::HasPowerOutage() const
 float UFlareSpacecraftDamageSystem::GetPowerOutageDuration() const
 {
 	return Data->PowerOutageDelay;
+}
+
+float UFlareSpacecraftDamageSystem::GetOverheatRatio(float HalfRatio) const
+{
+	if (GetTemperature() <= GetOverheatTemperature())
+	{
+		return 0;
+	}
+	else
+	{
+		float OverHeat = GetTemperature() - GetOverheatTemperature();
+		float BaseOverHeatRatio = OverHeat / GetOverheatTemperature();
+
+
+		return (-1/(BaseOverHeatRatio/HalfRatio+1))+1;
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

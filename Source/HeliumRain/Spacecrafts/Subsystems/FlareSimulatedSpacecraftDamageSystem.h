@@ -38,9 +38,7 @@ public:
 
 	virtual float GetTemperature() const;
 
-	virtual float GetOverheatTemperature() const { return 1200; }
-
-	virtual float GetBurnTemperature() const { return 1500; }
+	virtual float GetOverheatTemperature() const { return 1000; }
 
 protected:
 

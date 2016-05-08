@@ -67,7 +67,6 @@ public:
 
 		virtual float GetOverheatTemperature() const = 0;
 
-		virtual float GetBurnTemperature() const = 0;
 
 		/** Get a subsystem's name */
 		static FText GetSubsystemName(EFlareSubsystem::Type SubsystemType);

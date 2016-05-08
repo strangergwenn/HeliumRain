@@ -108,6 +108,20 @@ float UFlareEngine::GetMaxThrust() const
 	}
 }
 
+float UFlareEngine::GetUsableRatio() const
+{
+	float BaseUsableRatio = UFlareSpacecraftComponent::GetUsableRatio();
+
+	if (Spacecraft)
+	{
+		return BaseUsableRatio * (1.0f - Spacecraft->GetDamageSystem()->GetOverheatRatio(0.05));
+	}
+	else
+	{
+		return BaseUsableRatio;
+	}
+}
+
 float UFlareEngine::GetInitialMaxThrust() const
 {
 	return MaxThrust;
@@ -118,13 +132,3 @@ float UFlareEngine::GetHeatProduction() const
 	return Super::GetHeatProduction() * GetEffectiveAlpha();
 }
 
-void UFlareEngine::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
-{
-	Super::ApplyHeatDamage(OverheatEnergy, BurnEnergy);
-
-	// Apply damage only on usage
-	if (GetEffectiveAlpha() > 0)
-	{
-		ApplyDamage(OverheatEnergy * ExhaustAlpha);
-	}
-}

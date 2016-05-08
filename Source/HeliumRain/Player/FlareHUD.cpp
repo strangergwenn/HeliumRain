@@ -661,7 +661,7 @@ FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max)
 	FLinearColor NormalColor = Theme.FriendlyColor;
 	FLinearColor DamageColor = Theme.EnemyColor;
 
-	float Distance = Current - 0.8f * Max;
+	float Distance = Current - Max;
 	float Ratio = FMath::Clamp(FMath::Abs(Distance) / 10.0f, 0.0f, 1.0f);
 
 	if (Distance < 0)

@@ -415,9 +415,6 @@ public:
 	/** Apply damage to this component. Return inflicted damage ratio */
 	virtual float ApplyDamage(float Energy);
 
-	/** Apply overheat damage to this component only it is used. Burn damage are always applied. */
-	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy);
-
 	/** Return the remaining hit points ratio. 1 for no damage, 0 for destroyed */
 	virtual float GetDamageRatio(bool WithArmor = false) const;
 

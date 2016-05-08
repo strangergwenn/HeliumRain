@@ -42,9 +42,7 @@ public:
 	/** Return the current amount of heat production in KW */
 	virtual float GetHeatProduction() const override;
 
-	/** Apply damage to this component only if it is used. */
-	virtual void ApplyHeatDamage(float OverheatEnergy, float BurnEnergy) override;
-
+	virtual float GetUsableRatio() const override;
 
 protected:
 

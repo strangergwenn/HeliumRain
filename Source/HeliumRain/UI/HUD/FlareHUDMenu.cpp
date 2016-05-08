@@ -18,7 +18,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	TargetShip = NULL;
 	Overheating = false;
-	Burning = false;
 	PowerOutage = false;
 	PresentationFlashTime = 0.2f;
 	TimeSinceOverheatChanged = PresentationFlashTime;
@@ -308,7 +307,6 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 			TimeSinceOverheatChanged = 0;
 		}
 		Overheating = NewOverheating;
-		Burning = (TargetShip->GetDamageSystem()->GetTemperature() > TargetShip->GetDamageSystem()->GetBurnTemperature());
 
 		// Outage status
 		TimeSinceOutageChanged += InDeltaTime;

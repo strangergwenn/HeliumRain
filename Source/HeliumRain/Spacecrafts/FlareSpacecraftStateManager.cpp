@@ -437,7 +437,7 @@ bool UFlareSpacecraftStateManager::IsUseOrbitalBoost() const
 	}
 	else
 	{
-		return Spacecraft->GetDamageSystem()->GetTemperature() < Spacecraft->GetDamageSystem()->GetBurnTemperature();
+		return true;
 	}
 }
 

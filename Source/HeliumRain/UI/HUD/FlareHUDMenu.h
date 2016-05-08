@@ -99,7 +99,6 @@ protected:
 	float                                Temperature;
 	float                                OverheatTemperature;
 	bool                                 Overheating;
-	bool                                 Burning;
 	bool                                 PowerOutage;
 
 	// Effect data

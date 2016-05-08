@@ -423,11 +423,6 @@ float UFlareSpacecraftComponent::ApplyDamage(float Energy)
 	return InflictedDamageRatio;
 }
 
-void UFlareSpacecraftComponent::ApplyHeatDamage(float OverheatEnergy, float BurnEnergy)
-{
-	// Standard component have no overheat damage.
-}
-
 float UFlareSpacecraftComponent::GetDamageRatio(bool WithArmor) const
 {
 	if (ComponentDescription)

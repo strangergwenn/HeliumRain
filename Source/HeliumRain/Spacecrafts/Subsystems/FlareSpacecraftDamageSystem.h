@@ -41,9 +41,7 @@ public:
 
 	virtual float GetTemperature() const;
 
-	virtual float GetOverheatTemperature() const { return 1200; }
-
-	virtual float GetBurnTemperature() const { return 1500; }
+	virtual float GetOverheatTemperature() const { return 1000; }
 
 	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false, bool WithAmmo = false) const;
 
@@ -58,6 +56,7 @@ public:
 
 	virtual float GetPowerOutageDuration() const;
 
+	virtual float GetOverheatRatio(float HalfRatio) const;
 
 	/*----------------------------------------------------
 		System Interface
