@@ -136,6 +136,11 @@ public:
 		return PeopleData.Money;
 	}
 
+	inline int64 GetDept()
+	{
+		return PeopleData.Dept;
+	}
+
 	inline uint32 GetPopulation()
 	{
 		return PeopleData.Population;

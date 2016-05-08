@@ -882,6 +882,7 @@ int64 UFlareWorld::GetWorldMoney()
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
 		PeopleMoney += Sectors[SectorIndex]->GetPeople()->GetMoney();
+		PeopleMoney -= Sectors[SectorIndex]->GetPeople()->GetDept();
 	}
 
 	int64 WorldMoney = CompanyMoney + FactoryMoney + PeopleMoney;
