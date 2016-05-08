@@ -1117,12 +1117,6 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 	if (Spacecraft->GetDamageSystem()->IsPowered())
 	{
-		// Clamp speed
-		float MaxVelocity = LinearMaxVelocity;
-
-		// If overspeed, clamp 1% speed per second
-		LinearTargetVelocity = LinearTargetVelocity.GetClampedToMaxSize(FMath::Max(MaxVelocity, LinearTargetVelocity.Size() * 0.99f * DeltaSeconds));
-
 		// Linear physics
 		FVector DeltaV = LinearTargetVelocity - Spacecraft->GetLinearVelocity();
 		FVector DeltaVAxis = DeltaV;

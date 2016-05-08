@@ -33,7 +33,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	PlayerManualLinearVelocity = FVector::ZeroVector;
 	PlayerManualAngularVelocity = FVector::ZeroVector;
 	float ForwardVelocity = FVector::DotProduct(ParentSpacecraft->GetLinearVelocity(), FVector(1, 0, 0));
-	PlayerManualVelocityCommand = FMath::Clamp(ForwardVelocity / ParentSpacecraft->GetNavigationSystem()->GetLinearMaxVelocity(), 0.0f, 1.0f);
+	PlayerManualVelocityCommand = ForwardVelocity;
 	PlayerManualVelocityCommandActive = true;
 
 	InternalCameraPitch = 0;
@@ -90,27 +90,20 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 			// Get current state
 			PlayerManualVelocityCommand = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
 		}
-
-		if(PlayerManualVelocityCommand > 0)
-		{
-			PlayerManualVelocityCommand = FMath::Min(PlayerManualVelocityCommand, Spacecraft->GetLinearVelocity().Size() / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity());
-		}
-		else
-		{
-			PlayerManualVelocityCommand = FMath::Max(PlayerManualVelocityCommand, - 1.f * Spacecraft->GetLinearVelocity().Size() / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity());
-		}
 	}
 	else
 	{
 		PlayerManualVelocityCommandActive = true;
 
+		PlayerManualVelocityCommand = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
+
 		if (PlayerManualLinearVelocity.X < 0)
 		{
-			PlayerManualVelocityCommand = -1.0;
+			PlayerManualVelocityCommand -= 0.1;
 		}
 		else if (PlayerManualLinearVelocity.X > 0)
 		{
-			PlayerManualVelocityCommand = 1.0;
+			PlayerManualVelocityCommand += 0.1;
 		}
 	}
 
