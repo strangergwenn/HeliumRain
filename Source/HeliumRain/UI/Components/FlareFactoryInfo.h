@@ -85,6 +85,9 @@ protected:
 	/** Visibiliy of the ship selector */
 	EVisibility GetShipSelectorVisibility() const;
 
+	/** Visibiliy of the ship selector */
+	bool IsShipSelectorDisabled() const;
+
 	/** Visibiliy of the cancel ship button */
 	EVisibility GetCancelShipOrderVisibility() const;
 

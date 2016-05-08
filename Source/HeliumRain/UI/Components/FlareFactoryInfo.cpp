@@ -165,6 +165,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 						.HelpText(LOCTEXT("ChooseClass", "Pick a ship class to build, or change the current selection"))
 						.OnClicked(this, &SFlareFactoryInfo::OnOpenSpacecraftOrder)
 						.Visibility(this, &SFlareFactoryInfo::GetShipSelectorVisibility)
+						.IsDisabled(this, &SFlareFactoryInfo::IsShipSelectorDisabled)
 					]
 					
 					// Cancel
@@ -407,7 +408,7 @@ FText SFlareFactoryInfo::GetTargetShipClassText() const
 			if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
 			{
 				FFlareSpacecraftDescription* TargetShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetShipClass);
-				return FText::Format(LOCTEXT("CurrentShipFormat", "Building {0} (Change)"), TargetShipDesc->Name);
+				return FText::Format(LOCTEXT("CurrentShipFormat", "Building {0}"), TargetShipDesc->Name);
 			}
 
 			// Other company already building here
@@ -445,11 +446,27 @@ EVisibility SFlareFactoryInfo::GetShipSelectorVisibility() const
 	return (TargetFactory && TargetFactory->IsShipyard() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
+bool SFlareFactoryInfo::IsShipSelectorDisabled() const
+{
+	if (TargetFactory && TargetFactory->IsShipyard())
+	{
+		if (TargetFactory->GetTargetShipClass() != NAME_None)
+		{
+			if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 EVisibility SFlareFactoryInfo::GetCancelShipOrderVisibility() const
 {
 	if (TargetFactory && TargetFactory->IsShipyard())
 	{
-		return (TargetFactory->GetOrderShipClass() != NAME_None) ? EVisibility::Visible : EVisibility::Collapsed;
+		return (TargetFactory->GetTargetShipClass() != NAME_None || TargetFactory->GetOrderShipClass() != NAME_None) ? EVisibility::Visible : EVisibility::Collapsed;
 	}
 	else
 	{
@@ -471,7 +488,17 @@ void SFlareFactoryInfo::OnCancelSpacecraftOrder()
 {
 	if (TargetFactory && TargetFactory->IsShipyard())
 	{
-		TargetFactory->CancelOrder();
+		FName CompanyIdentifier = MenuManager->GetPC()->GetCompany()->GetIdentifier();
+
+		// Cancel production
+		if (TargetFactory->GetTargetShipClass() != NAME_None && TargetFactory->GetTargetShipCompany() == CompanyIdentifier)
+		{
+			TargetFactory->CancelProduction();
+		}
+		else if (TargetFactory->GetOrderShipClass() != NAME_None && TargetFactory->GetOrderShipCompany() == CompanyIdentifier)
+		{
+			TargetFactory->CancelOrder();
+		}
 	}
 }
 
