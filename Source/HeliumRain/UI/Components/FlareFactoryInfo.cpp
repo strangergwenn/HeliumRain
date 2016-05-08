@@ -466,7 +466,18 @@ EVisibility SFlareFactoryInfo::GetCancelShipOrderVisibility() const
 {
 	if (TargetFactory && TargetFactory->IsShipyard())
 	{
-		return (TargetFactory->GetTargetShipClass() != NAME_None || TargetFactory->GetOrderShipClass() != NAME_None) ? EVisibility::Visible : EVisibility::Collapsed;
+		if (TargetFactory->GetTargetShipClass() != NAME_None && TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+		{
+			return EVisibility::Visible;
+		}
+		else if (TargetFactory->GetOrderShipClass() != NAME_None)
+		{
+			return EVisibility::Visible;
+		}
+		else
+		{
+			return EVisibility::Collapsed;
+		}
 	}
 	else
 	{
