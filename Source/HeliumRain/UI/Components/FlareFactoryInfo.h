@@ -85,6 +85,9 @@ protected:
 	/** Visibiliy of the ship selector */
 	EVisibility GetShipSelectorVisibility() const;
 
+	/** Visibiliy of the cancel ship button */
+	EVisibility GetCancelShipOrderVisibility() const;
+
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -92,6 +95,9 @@ protected:
 
 	/** Order a spacecraft */
 	void OnOpenSpacecraftOrder();
+
+	/** Cancel a spacecraft */
+	void OnCancelSpacecraftOrder();
 
 	/** Start production */
 	void OnStartProduction();

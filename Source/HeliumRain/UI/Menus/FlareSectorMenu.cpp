@@ -512,7 +512,7 @@ FText SFlareSectorMenu::GetSectorName() const
 	if (TargetSector)
 	{
 		Result = FText::Format(LOCTEXT("SectorFormat", "Sector : {0} ({1})"),
-			FText::FromString(TargetSector->GetSectorName().ToString().ToUpper()), //FString needed here
+			FText::FromString(TargetSector->GetSectorName().ToString()), //FString needed here
 			TargetSector->GetSectorFriendlynessText(MenuManager->GetPC()->GetCompany()));
 	}
 

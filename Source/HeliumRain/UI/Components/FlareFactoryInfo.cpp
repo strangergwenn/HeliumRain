@@ -3,6 +3,7 @@
 #include "FlareFactoryInfo.h"
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Player/FlarePlayerController.h"
 #include "../../Economy/FlareFactory.h"
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
@@ -68,20 +69,6 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareFactoryInfo::GetFactoryCycleInfo)
-				]
-
-				// Ship building
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Left)
-				[
-					SNew(SFlareButton)
-					.Width(8)
-					.Text(this, &SFlareFactoryInfo::GetTargetShipClassText)
-					.HelpText(LOCTEXT("ChooseClass", "Pick a ship class to build, or change the current selection"))
-					.OnClicked(this, &SFlareFactoryInfo::OnOpenSpacecraftOrder)
-					.Visibility(this, &SFlareFactoryInfo::GetShipSelectorVisibility)
 				]
 				
 				// Factory production status
@@ -156,6 +143,41 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Right)
 					[
 						SAssignNew(LimitList, SVerticalBox)
+					]
+				]
+
+				// Ship building
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SHorizontalBox)
+					
+					// Change target class
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(8)
+						.Text(this, &SFlareFactoryInfo::GetTargetShipClassText)
+						.HelpText(LOCTEXT("ChooseClass", "Pick a ship class to build, or change the current selection"))
+						.OnClicked(this, &SFlareFactoryInfo::OnOpenSpacecraftOrder)
+						.Visibility(this, &SFlareFactoryInfo::GetShipSelectorVisibility)
+					]
+					
+					// Cancel
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(3)
+						.Text(LOCTEXT("CancelSpacecraftOrder", "Cancel"))
+						.HelpText(LOCTEXT("Cancel", "Cancel the current order"))
+						.OnClicked(this, &SFlareFactoryInfo::OnCancelSpacecraftOrder)
+						.Visibility(this, &SFlareFactoryInfo::GetCancelShipOrderVisibility)
 					]
 				]
 			]
@@ -263,7 +285,7 @@ FText SFlareFactoryInfo::GetFactoryName() const
 	if (TargetFactory)
 	{
 		Result = FText::Format(LOCTEXT("FactoryNameFormat", "{0} - {1}"),
-			FText::FromString(TargetFactory->GetDescription()->Name.ToString().ToUpper()),
+			FText::FromString(TargetFactory->GetDescription()->Name.ToString()),
 			TargetFactory->GetFactoryStatus());
 	}
 
@@ -376,14 +398,40 @@ FText SFlareFactoryInfo::GetTargetShipClassText() const
 	if (TargetFactory && TargetFactory->IsShipyard())
 	{
 		FName TargetShipClass = TargetFactory->GetTargetShipClass();
+		FName OrderShipClass = TargetFactory->GetOrderShipClass();
+
+		// Currently building a ship
 		if (TargetShipClass != NAME_None)
 		{
-			FFlareSpacecraftDescription* TargetShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetShipClass);
-			return FText::Format(LOCTEXT("CurrentShipFormat", "Building {0} (Change)"), TargetShipDesc->Name);
+			// It's one of ours
+			if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+			{
+				FFlareSpacecraftDescription* TargetShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetShipClass);
+				return FText::Format(LOCTEXT("CurrentShipFormat", "Building {0} (Change)"), TargetShipDesc->Name);
+			}
+
+			// Other company already building here
+			else
+			{
+				// Already a queue
+				if (OrderShipClass != NAME_None)
+				{
+					FFlareSpacecraftDescription* OrderShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(OrderShipClass);
+					return FText::Format(LOCTEXT("QueuedShipFormat", "Queued order for {0} (Change)"), OrderShipDesc->Name);
+				}
+
+				// New queue
+				else
+				{
+					return LOCTEXT("QueueOrderNewShip", "Queue order for a new ship");
+				}
+			}
 		}
+
+		// Idle factory
 		else
 		{
-			return LOCTEXT("ChooseClass", "Pick a ship class");
+			return LOCTEXT("OrderNewShip", "Build a new ship");
 		}
 	}
 	else
@@ -397,6 +445,18 @@ EVisibility SFlareFactoryInfo::GetShipSelectorVisibility() const
 	return (TargetFactory && TargetFactory->IsShipyard() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
+EVisibility SFlareFactoryInfo::GetCancelShipOrderVisibility() const
+{
+	if (TargetFactory && TargetFactory->IsShipyard())
+	{
+		return (TargetFactory->GetOrderShipClass() != NAME_None) ? EVisibility::Visible : EVisibility::Collapsed;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
+
 
 /*----------------------------------------------------
 	Action callbacks
@@ -405,6 +465,14 @@ EVisibility SFlareFactoryInfo::GetShipSelectorVisibility() const
 void SFlareFactoryInfo::OnOpenSpacecraftOrder()
 {
 	MenuManager->OpenSpacecraftOrder(TargetFactory);
+}
+
+void SFlareFactoryInfo::OnCancelSpacecraftOrder()
+{
+	if (TargetFactory && TargetFactory->IsShipyard())
+	{
+		TargetFactory->CancelOrder();
+	}
 }
 
 void SFlareFactoryInfo::OnStartProduction()

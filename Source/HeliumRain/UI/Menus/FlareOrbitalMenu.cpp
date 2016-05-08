@@ -675,20 +675,37 @@ FText SFlareOrbitalMenu::GetTravelText() const
 					{
 						// Get shipyard if existing
 						UFlareFactory* TargetFactory = CompanyStations[StationIndex]->GetFactories()[FactoryIndex];
+						FName CompanyIdentifier = MenuManager->GetPC()->GetCompany()->GetIdentifier();
 						if (!TargetFactory->IsShipyard())
 						{
 							continue;
 						}
-
-						// TODO FRED : API for the list of current orders ?
-
-						// Look for one of our ships
-						if (TargetFactory->GetOrderShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+						
+						// Queue ship order
+						if (TargetFactory->GetOrderShipCompany() == CompanyIdentifier)
 						{
-							FText TravelText = FText::Format(LOCTEXT("ShipProductionTextFormat", "A {0} is being built by {1} ({2} left)"),
-								MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass())->Name,
+							FFlareSpacecraftDescription* OrderDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass());
+							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration() + OrderDesc->CycleCost.ProductionTime;
+
+							FText TravelText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "A {0} ordered to {1} ({2} left)"),
+								OrderDesc->Name,
 								Companies[CompanyIndex]->GetCompanyName(),
-								FText::FromString(*UFlareGameTools::FormatDate(42424242, 1))); //FString needed here
+								FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+
+							Result += TravelText.ToString() + "\n";
+						}
+
+						// Ship being built
+						else if (TargetFactory->GetTargetShipCompany() == CompanyIdentifier)
+						{
+							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration();
+
+							FText TravelText = FText::Format(LOCTEXT("ShipProductionTextFormat", "A {0} is being built by {1} ({2} left)"),
+								MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
+								Companies[CompanyIndex]->GetCompanyName(),
+								FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+
+							Result += TravelText.ToString() + "\n";
 						}
 					}
 				}

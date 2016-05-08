@@ -789,7 +789,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 	// No ship class selected
 	if (IsShipyard() && FactoryData.TargetShipClass == NAME_None)
 	{
-		return LOCTEXT("SelectShipClass", "Please select a ship class to build");
+		return LOCTEXT("SelectShipClass", "No ship in construction.");
 	}
 
 	FText ProductionCostText = GetFactoryCycleCost(&GetCycleData());
@@ -829,7 +829,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 			ProductionOutputText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
 	}
 
-	return FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} each {2}"),
+	return FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} in {2}"),
 		ProductionCostText, ProductionOutputText,
 		FText::FromString(*UFlareGameTools::FormatDate(GetCycleData().ProductionTime, 2))); // FString needed here
 }
@@ -846,9 +846,25 @@ FText UFlareFactory::GetFactoryStatus()
 		}
 		else if (HasCostReserved())
 		{
-			ProductionStatusText = FText::Format(LOCTEXT("ProductionInProgressFormat", "Producing ({0}{1})"),
-				FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
-				HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space"));
+			FText HasFreeSpace = HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space");
+
+			// Shipyards are a special case
+			if (IsShipyard())
+			{
+				UFlareWorld* GameWorld = Game->GetGameWorld();
+
+				ProductionStatusText = FText::Format(LOCTEXT("ProductionInProgressFormat", "Building {0} for {1} ({2}{3})"),
+					Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
+					GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName(),
+					FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
+					HasFreeSpace);
+			}
+			else
+			{
+				ProductionStatusText = FText::Format(LOCTEXT("ProductionInProgressFormat", "Producing ({0}{1})"),
+					FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
+					HasFreeSpace);
+			}
 		}
 		else if (HasInputMoney() && HasInputResources())
 		{
