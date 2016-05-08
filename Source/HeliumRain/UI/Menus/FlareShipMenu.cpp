@@ -532,7 +532,15 @@ void SFlareShipMenu::Back()
 	}
 	else
 	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSpacecraft->GetCurrentSectorInterface());
+		UFlareSectorInterface* CurrentSector = TargetSpacecraft->GetCurrentSectorInterface();
+		if (CurrentSector)
+		{
+			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, CurrentSector);
+		}
+		else
+		{
+			MenuManager->OpenMenu(EFlareMenu::MENU_Company);
+		}
 	}
 }
 
