@@ -365,6 +365,22 @@ bool UFlareWorld::CheckIntegrity()
 							FLOGV("  - %s don't contains the ship in its list",
 								  *Ship->GetCurrentFleet()->GetCurrentSector()->GetSectorName().ToString());
 						}
+
+						Ship->GetCurrentFleet()->GetCurrentSector()->AddFleet(Ship->GetCurrentFleet());
+						FLOGV("Fix integrity : set %s to %s",
+							   *Ship->GetImmatriculation().ToString(),
+							  *Ship->GetCurrentFleet()->GetCurrentSector()->GetSectorName().ToString());
+					}
+					else
+					{
+						FLOGV("  - %s in no sector", *Ship->GetCurrentFleet()->GetFleetName().ToString());
+						if (Ship->GetCompany()->GetKnownSectors().Num() > 0)
+						{
+							Ship->GetCompany()->GetKnownSectors()[0]->AddFleet(Ship->GetCurrentFleet());
+							FLOGV("Fix integrity : set %s to %s",
+							   *Ship->GetImmatriculation().ToString(),
+							  *Ship->GetCurrentSector()->GetSectorName().ToString());
+						}
 					}
 					Integrity = false;
 				}

@@ -579,12 +579,15 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 		PC->Load(Save->PlayerData);
 		PC->GetCompany()->SetupEmblem();
 
+		World->CheckIntegrity();
+
 		// Init the quest manager
 		QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());
 		QuestManager->Load(Save->PlayerData.QuestData);
 
 		LoadedOrCreated = true;
 		PC->OnLoadComplete();
+
 		return true;
 	}
 

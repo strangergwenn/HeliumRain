@@ -336,7 +336,7 @@ void UFlareSimulatedSector::CreateAsteroid(int32 ID, FName Name, FVector Locatio
 
 void UFlareSimulatedSector::AddFleet(UFlareFleet* Fleet)
 {
-	SectorFleets.Add(Fleet);
+	SectorFleets.AddUnique(Fleet);
 
 	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
