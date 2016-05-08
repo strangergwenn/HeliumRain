@@ -21,6 +21,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	UseDarkThemeForNavigation = false;
 	UseCockpit = true;
 	MusicVolume = 8;
+	MasterVolume = 10;
 	UseTessellationOnShips = false;
 }
 

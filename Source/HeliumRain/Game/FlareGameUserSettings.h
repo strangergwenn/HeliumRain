@@ -38,9 +38,13 @@ public:
 	UPROPERTY(Config)
 	bool                                     UseCockpit;
 		
-	/** Whether to use the dark theme when a sector is active */
+	/** Music volume */
 	UPROPERTY(Config)
 	int32                                    MusicVolume;
+
+	/** Master volume */
+	UPROPERTY(Config)
+	int32                                    MasterVolume;
 	
 	/** Whether to use tessellation everywhere */
 	UPROPERTY(Config)

@@ -67,6 +67,9 @@ public:
 	/** Set the music volume to use */
 	void SetMusicVolume(int32 Volume);
 
+	/** Set the master volume to use */
+	void SetMasterVolume(int32 Volume);
+
 	/** Require a specific music track */
 	void RequestMusicTrack(EFlareMusicTrack::Type NewTrack);
 

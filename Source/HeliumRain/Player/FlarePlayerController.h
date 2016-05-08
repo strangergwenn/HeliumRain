@@ -347,8 +347,11 @@ public:
 	/** Whether to use the 3D cockpit */
 	bool                                     UseCockpit;
 		
-	/** Whether to use the dark theme when a sector is active */
+	/** Music volume */
 	int32                                    MusicVolume;
+
+	/** Master volume */
+	int32                                    MasterVolume;
 	
 	void SetUseDarkThemeForStrategy(bool New);
 
@@ -357,6 +360,8 @@ public:
 	void SetUseCockpit(bool New);
 
 	void SetMusicVolume(int32 New);
+
+	void SetMasterVolume(int32 New);
 
 
 public:

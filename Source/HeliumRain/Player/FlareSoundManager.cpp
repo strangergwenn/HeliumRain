@@ -4,6 +4,7 @@
 #include "FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareOrbitalEngine.h"
+#include "AudioDevice.h"
 
 
 #define LOCTEXT_NAMESPACE "UFlareSoundManager"
@@ -101,6 +102,19 @@ void UFlareSoundManager::SetMusicVolume(int32 Volume)
 	FLOGV("UFlareSoundManager::SetMusicVolume %d", Volume);
 	MusicVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 	UpdatePlayer(MusicPlayer, 0, true);
+}
+
+void UFlareSoundManager::SetMasterVolume(int32 Volume)
+{
+	FLOGV("UFlareSoundManager::SetMasterVolume %d", Volume);
+	float MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
+
+	FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
+	for (auto i = AudioDevice->SoundClasses.CreateIterator(); i; ++i)
+	{
+		USoundClass* SoundClass = i.Key();
+		SoundClass->Properties.Volume = MasterVolume;
+	}
 }
 
 void UFlareSoundManager::Update(float DeltaSeconds)

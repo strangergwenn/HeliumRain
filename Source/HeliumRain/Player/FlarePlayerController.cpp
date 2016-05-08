@@ -63,6 +63,7 @@ void AFlarePlayerController::BeginPlay()
 	UseDarkThemeForNavigation = MyGameSettings->UseDarkThemeForNavigation;
 	UseCockpit = MyGameSettings->UseCockpit;
 	MusicVolume = MyGameSettings->MusicVolume;
+	MasterVolume = MyGameSettings->MasterVolume;
 
 	// Cockpit
 	SetupCockpit();
@@ -80,6 +81,7 @@ void AFlarePlayerController::BeginPlay()
 		SoundManager->Setup(this);
 		SoundManager->RequestMusicTrack(EFlareMusicTrack::MainMenu);
 		SoundManager->SetMusicVolume(MusicVolume);
+		SoundManager->SetMasterVolume(MasterVolume);
 	}
 }
 
@@ -1176,6 +1178,12 @@ void AFlarePlayerController::SetMusicVolume(int32 New)
 {
 	MusicVolume = New;
 	SoundManager->SetMusicVolume(New);
+}
+
+void AFlarePlayerController::SetMasterVolume(int32 New)
+{
+	MasterVolume = New;
+	SoundManager->SetMasterVolume(New);
 }
 
 

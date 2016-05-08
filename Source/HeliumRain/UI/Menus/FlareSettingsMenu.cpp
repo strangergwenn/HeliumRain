@@ -447,6 +447,52 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					]
 				]
 				
+				// Master sound level box
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// Master volume text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelSize)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("MasterLabel", "Master volume"))
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Master volume slider
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(MasterVolumeSlider, SSlider)
+						.Value(MenuManager->GetPC()->MusicVolume / 10.0f)
+						.Style(&Theme.SliderStyle)
+						.OnValueChanged(this, &SFlareSettingsMenu::OnMasterVolumeSliderChanged)
+					]
+
+					// Master volume label
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(ValueSize)
+						[
+							SAssignNew(MasterVolumeLabel, STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(GetMusicVolumeLabel(MenuManager->GetPC()->MasterVolume))
+						]
+					]
+				]
+				
 				// Music level box
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -825,6 +871,27 @@ void SFlareSettingsMenu::OnMusicVolumeSliderChanged(float Value)
 	}
 }
 
+void SFlareSettingsMenu::OnMasterVolumeSliderChanged(float Value)
+{
+	int32 Step = 10;
+	int32 StepValue = FMath::RoundToInt(Step * Value);
+	MasterVolumeSlider->SetValue((float)StepValue / (float)Step);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	int32 CurrentVolume = MyGameSettings->MasterVolume;
+
+	if (PC && CurrentVolume != StepValue)
+	{
+		FLOGV("SFlareSettingsMenu::OnMasterVolumeSliderChanged : set music volume to %d (current is %d)", StepValue, CurrentVolume);
+		MasterVolumeLabel->SetText(GetMasterVolumeLabel(StepValue));
+		MyGameSettings->MasterVolume = StepValue;
+		MyGameSettings->ApplySettings(false);
+		PC->SetMasterVolume(StepValue);
+	}
+}
+
+
 void SFlareSettingsMenu::OnVSyncToggle()
 {
 	if (VSyncButton->IsActive())
@@ -1048,6 +1115,14 @@ FText SFlareSettingsMenu::GetMusicVolumeLabel(int32 Value) const
 		return LOCTEXT("Muted", "Muted");
 	else
 		return FText::Format(LOCTEXT("MusicVolumeFormat", "{0}%"), FText::AsNumber(10 * Value));
+}
+
+FText SFlareSettingsMenu::GetMasterVolumeLabel(int32 Value) const
+{
+	if (Value == 0)
+		return LOCTEXT("Muted", "Muted");
+	else
+		return FText::Format(LOCTEXT("MasterVolumeFormat", "{0}%"), FText::AsNumber(10 * Value));
 }
 
 void SFlareSettingsMenu::CreateBinds()
