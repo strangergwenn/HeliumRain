@@ -1207,7 +1207,7 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 			{
 				LinearAlpha = true;
 			}
-			else if (!DeltaV.IsNearlyZero())
+			else if (!DeltaV.IsNearlyZero() || !DeltaAngularV.IsNearlyZero())
 			{
 				if(Engine->IsA(UFlareOrbitalEngine::StaticClass()))
 				{
