@@ -317,12 +317,12 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 	ShipStatus->SetTargetShip(Target);
 
 	// Get the save data info to retrieve the class data
-	if (Target && PC)
+	if (TargetSpacecraft && PC)
 	{
 		// Setup basic info
-		CompanyFlag->SetCompany(Target->GetCompany());
-		TargetName = FText::FromName(Target->GetImmatriculation());
-		FFlareSpacecraftSave* SaveData = Target->Save();
+		CompanyFlag->SetCompany(TargetSpacecraft->GetCompany());
+		TargetName = FText::FromName(TargetSpacecraft->GetImmatriculation());
+		FFlareSpacecraftSave* SaveData = TargetSpacecraft->Save();
 		if (SaveData)
 		{
 			TargetSpacecraftDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
@@ -330,14 +330,15 @@ void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
 
 		// Fill the cargo bay
 		CargoBay->ClearChildren();
-		if (Target->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile)
+		UFlareCompany* Company = TargetSpacecraft->GetCompany();
+		if (Company->GetPlayerWarState() != EFlareHostility::Hostile)
 		{
-			for (uint32 CargoIndex = 0; CargoIndex < Target->GetCargoBay()->GetSlotCount() ; CargoIndex++)
+			for (uint32 CargoIndex = 0; CargoIndex < TargetSpacecraft->GetCargoBay()->GetSlotCount() ; CargoIndex++)
 			{
 				CargoBay->AddSlot()
 				[
 					SNew(SFlareCargoInfo)
-					.Spacecraft(Target)
+					.Spacecraft(TargetSpacecraft)
 					.CargoIndex(CargoIndex)
 				];
 			}

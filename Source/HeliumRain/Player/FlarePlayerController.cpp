@@ -424,10 +424,10 @@ void AFlarePlayerController::SetLastFlownShip(FName LastFlownShipIdentifier)
 	Menus
 ----------------------------------------------------*/
 
-void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo, FName TargetSpacecraft)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
-	MenuManager->Notify(Title, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
+	MenuManager->Notify(Title, Info, Tag, Type, Timeout, TargetMenu, TargetInfo, TargetSpacecraft);
 }
 
 void AFlarePlayerController::SetupCockpit()

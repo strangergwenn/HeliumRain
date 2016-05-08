@@ -210,7 +210,7 @@ void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacec
 	FadeOut();
 	FadeTarget = Target;
 	FadeTargetData = NULL;
-	FadeTargetSpacecraft = Cast<IFlareSpacecraftInterface>(Data);
+	FadeTargetSpacecraft = Data;
 }
 
 void AFlareMenuManager::OpenSpacecraftOrder(UFlareFactory* Factory)
@@ -383,12 +383,12 @@ void AFlareMenuManager::Confirm(FText Title, FText Text, FSimpleDelegate OnConfi
 	}
 }
 
-void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo)
+void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo, FName TargetSpacecraft)
 {
 	if (Notifier.IsValid())
 	{
 		OrbitMenu->StopFastForward();
-		Notifier->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
+		Notifier->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo, TargetSpacecraft);
 	}
 }
 

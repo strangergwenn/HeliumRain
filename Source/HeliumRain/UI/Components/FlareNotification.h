@@ -30,6 +30,8 @@ class SFlareNotification : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareNotification)
+		: _TargetInfo(NULL)
+		, _TargetSpacecraft(NAME_None)
 	{}
 
 	SLATE_ARGUMENT(AFlareMenuManager*, MenuManager)
@@ -41,6 +43,7 @@ class SFlareNotification : public SCompoundWidget
 	SLATE_ARGUMENT(float, Timeout)
 	SLATE_ARGUMENT(EFlareMenu::Type, TargetMenu)
 	SLATE_ARGUMENT(void*, TargetInfo)
+	SLATE_ARGUMENT(FName, TargetSpacecraft)
 
 	SLATE_END_ARGS()
 
@@ -100,9 +103,9 @@ protected:
 	float                                NotificationEnterDuration;
 	float                                NotificationExitDuration;
 
-	/** HUD reference */
+	// HUD reference
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareMenuManager>      MenuManager;
+	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 
 	SFlareNotifier*                      Notifier;
 
@@ -111,9 +114,10 @@ protected:
 	bool                                 ForcedLife;
 	TEnumAsByte<EFlareMenu::Type>        TargetMenu;
 	void*                                TargetInfo;
+	FName                                TargetSpacecraft;
 	FText                                Text;
 	FName                                Tag;
-
+	
 	// Fade data
 	TSharedPtr<SButton>                  Button;
 	float                                CurrentAlpha;
