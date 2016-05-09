@@ -14,6 +14,7 @@
 #include "../Quests/FlareQuestManager.h"
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareResourceCatalog.h"
+#include "Save/FlareSaveGameSystem.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 
@@ -610,6 +611,8 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 	FLOGV("AFlareGame::SaveGame : saving to slot %d", CurrentSaveIndex);
 	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
 
+
+
 	// Save process
 	if (PC && Save)
 	{
@@ -621,7 +624,15 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 
 		FLOGV("AFlareGame::SaveGame date=%lld", Save->WorldData.Date);
 		// Save
-		UGameplayStatics::SaveGameToSlot(Save, "SaveSlot" + FString::FromInt(CurrentSaveIndex), 0);
+		FString SaveName = "SaveSlot" + FString::FromInt(CurrentSaveIndex);
+		UGameplayStatics::SaveGameToSlot(Save, SaveName, 0);
+
+
+		// Save prototype
+		UFlareSaveGameSystem *SaveGameSystem = NewObject<UFlareSaveGameSystem>(this, UFlareSaveGameSystem::StaticClass());
+
+		SaveGameSystem->SaveGame(SaveName, Save);
+
 		return true;
 	}
 

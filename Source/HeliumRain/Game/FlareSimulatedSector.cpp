@@ -218,6 +218,12 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 		ComponentData.ComponentIdentifier = RCSIdentifier;
 		ComponentData.ShipSlotIdentifier = FName(*("rcs-" + FString::FromInt(i)));
 		ComponentData.Damage = 0.f;
+
+		//Save optimization
+		ComponentData.Turret.BarrelsAngle = 0;
+		ComponentData.Turret.TurretAngle = 0;
+		ComponentData.Weapon.FiredAmmo = 0;
+
 		ShipData.Components.Add(ComponentData);
 	}
 
@@ -227,6 +233,12 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 		ComponentData.ComponentIdentifier = OrbitalEngineIdentifier;
 		ComponentData.ShipSlotIdentifier = FName(*("engine-" + FString::FromInt(i)));
 		ComponentData.Damage = 0.f;
+
+		//Save optimization
+		ComponentData.Turret.BarrelsAngle = 0;
+		ComponentData.Turret.TurretAngle = 0;
+		ComponentData.Weapon.FiredAmmo = 0;
+
 		ShipData.Components.Add(ComponentData);
 	}
 
@@ -237,6 +249,11 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 		ComponentData.ShipSlotIdentifier = ShipDescription->GunSlots[i].SlotIdentifier;
 		ComponentData.Damage = 0.f;
 		ComponentData.Weapon.FiredAmmo = 0;
+
+		//Save optimization
+		ComponentData.Turret.BarrelsAngle = 0;
+		ComponentData.Turret.TurretAngle = 0;
+
 		ShipData.Components.Add(ComponentData);
 	}
 
@@ -258,6 +275,12 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 		ComponentData.ComponentIdentifier = ShipDescription->InternalComponentSlots[i].ComponentIdentifier;
 		ComponentData.ShipSlotIdentifier = ShipDescription->InternalComponentSlots[i].SlotIdentifier;
 		ComponentData.Damage = 0.f;
+
+		//Save optimization
+		ComponentData.Turret.BarrelsAngle = 0;
+		ComponentData.Turret.TurretAngle = 0;
+		ComponentData.Weapon.FiredAmmo = 0;
+
 		ShipData.Components.Add(ComponentData);
 	}
 
