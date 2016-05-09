@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "FlareSpacecraft.h"
 #include "Subsystems/FlareSpacecraftDamageSystem.h"
+#include "../Game/FlareGame.h"
 #include "../Game/FlarePlanetarium.h"
 #include "FlareSpacecraftSpinningComponent.h"
 

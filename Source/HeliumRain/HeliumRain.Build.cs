@@ -13,8 +13,10 @@ public class HeliumRain : ModuleRules
 				"Engine",
 				"OnlineSubsystem",
 				"OnlineSubsystemUtils",
-                "RHI"
-			}
+                "RHI",
+                "Json",
+                "JsonUtilities"
+            }
         );
 
         PrivateDependencyModuleNames.AddRange(

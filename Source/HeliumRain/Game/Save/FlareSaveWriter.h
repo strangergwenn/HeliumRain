@@ -4,6 +4,42 @@
 #include "Object.h"
 #include "FlareSaveWriter.generated.h"
 
+
+struct FFlarePlayerSave;
+struct FFlareQuestSave;
+struct FFlareQuestProgressSave;
+struct FFlareQuestStepProgressSave;
+
+struct FFlareCompanyDescription;
+struct FFlareWorldSave;
+
+struct FFlareCompanySave;
+
+struct FFlareSpacecraftSave;
+struct FFlareShipPilotSave;
+struct FFlareAsteroidSave;
+struct FFlareSpacecraftComponentSave;
+struct FFlareSpacecraftComponentTurretSave;
+struct FFlareSpacecraftComponentWeaponSave;
+struct FFlareTurretPilotSave;
+
+struct FFlareCargoSave;
+struct FFlareFactorySave;
+
+struct FFlareFleetSave;
+struct FFlareTradeRouteSave;
+struct FFlareTradeRouteSectorSave;
+struct FFlareCompanySectorKnowledge;
+struct FFlareCompanyAISave;
+struct FFlareCompanyReputationSave;
+
+struct FFlareSectorSave;
+struct FFlarePeopleSave;
+struct FFlareBombSave;
+struct FFFlareResourcePrice;
+struct FFlareTravelSave;
+
+
 UCLASS()
 class HELIUMRAIN_API UFlareSaveWriter: public UObject
 {

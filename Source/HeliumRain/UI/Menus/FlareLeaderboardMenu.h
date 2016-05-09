@@ -3,7 +3,9 @@
 #include "../../Flare.h"
 
 
+class AFlareGame;
 class AFlareMenuManager;
+class FInterfaceContainer;
 
 
 class SFlareLeaderboardMenu : public SCompoundWidget
