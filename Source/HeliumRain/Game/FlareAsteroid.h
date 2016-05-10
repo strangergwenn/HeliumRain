@@ -48,5 +48,19 @@ protected:
 	FVector                                 SpawnLocation;
 	FFlareAsteroidSave                      AsteroidData;
 	bool                                    Paused;
+	bool                                    IsIcyAsteroid;
+
+	UPROPERTY()
+	UParticleSystem*                        IceEffectTemplate;
+
+	UPROPERTY()
+	UParticleSystem*                        DustEffectTemplate;
+
+	int32                                   EffectsCount;
+	float                                   EffectsScale;
+	float                                   EffectsUpdatePeriod;
+	float                                   EffectsUpdateTimer;
+	TArray<FVector>                         EffectsKernels;
+	TArray<UParticleSystemComponent*>       Effects;
 
 };

@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "FlareAsteroid.h"
 #include "FlareGame.h"
+#include "FlarePlanetarium.h"
 #include "FlareSimulatedSector.h"
 
 #include "StaticMeshResources.h"
@@ -20,10 +21,21 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 	GetStaticMeshComponent()->SetAngularDamping(0);
 	SetActorEnableCollision(true);
 
+	// FX
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> IceEffectTemplateObj(TEXT("/Game/Master/Particles/PS_IceEffect.PS_IceEffect"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_DustEffect.PS_DustEffect"));
+	IceEffectTemplate = IceEffectTemplateObj.Object;
+	DustEffectTemplate = DustEffectTemplateObj.Object;
+
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
 	SetMobility(EComponentMobility::Movable);
+	IsIcyAsteroid = false;
 	Paused = false;
+	EffectsCount = FMath::RandRange(1, 5);
+	EffectsScale = 0.05;
+	EffectsUpdatePeriod = 0.17f;
+	EffectsUpdateTimer = 0;
 }
 
 
@@ -34,14 +46,33 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 void AFlareAsteroid::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Create random effects
+	for (int32 Index = 0; Index < EffectsCount; Index++)
+	{
+		EffectsKernels.Add(FMath::VRand());
+
+		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
+			DustEffectTemplate,
+			GetRootComponent(),
+			NAME_None,
+			GetActorLocation(),
+			FRotator(),
+			EAttachLocation::KeepWorldPosition,
+			false);
+
+		PSC->SetWorldScale3D(EffectsScale * FVector(1, 1, 1));
+		Effects.Add(PSC);
+	}
 }
 
 void AFlareAsteroid::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	float CollisionSize = GetStaticMeshComponent()->GetCollisionShape().GetExtent().Size();
+	EffectsUpdateTimer += DeltaSeconds;
 
-	/*float CollisionSize = GetStaticMeshComponent()->GetCollisionShape().GetExtent().Size();
-	if (SpawnLocation.Size() <= 0.1)
+	/*if (SpawnLocation.Size() <= 0.1)
 	{
 		SpawnLocation = GetActorLocation();
 		DrawDebugSphere(GetWorld(), SpawnLocation, CollisionSize / 2, 16, FColor::Red, true);
@@ -51,6 +82,57 @@ void AFlareAsteroid::Tick(float DeltaSeconds)
 		DrawDebugSphere(GetWorld(), GetActorLocation(), CollisionSize / 2, 16, FColor::Blue, false);
 		DrawDebugLine(GetWorld(), GetActorLocation(), SpawnLocation, FColor::Green, false);
 	}*/
+
+	if (EffectsUpdateTimer > EffectsUpdatePeriod)
+	{
+		// World data
+		AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+		FVector AsteroidLocation = GetActorLocation();
+		FVector SunDirection = Game->GetPlanetarium()->GetSunDirection();
+		SunDirection.Normalize();
+	
+		// Compute new FX locations
+		for (int32 Index = 0; Index < EffectsKernels.Num(); Index++)
+		{
+			FVector RandomDirection = FVector::CrossProduct(SunDirection, EffectsKernels[Index]);
+			RandomDirection.Normalize();
+			FVector StartPoint = AsteroidLocation + RandomDirection * CollisionSize;
+
+			// Trace params
+			FHitResult HitResult(ForceInit);
+			FCollisionQueryParams TraceParams(FName(TEXT("Asteroid Trace")), false, NULL);
+			TraceParams.bTraceComplex = true;
+			TraceParams.bReturnPhysicalMaterial = false;
+			ECollisionChannel CollisionChannel = ECollisionChannel::ECC_WorldDynamic;
+
+			// Trace
+			bool FoundHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, AsteroidLocation, CollisionChannel, TraceParams);
+			if (FoundHit && HitResult.Actor == this && Effects[Index])
+			{
+				FVector EffectLocation = HitResult.Location;
+				//DrawDebugLine(GetWorld(), EffectLocation, EffectLocation + SunDirection * 10000, FColor::Blue, false);
+
+				if (Game->GetActiveSector()->GetDescription()->IsIcy != IsIcyAsteroid)
+				{
+					IsIcyAsteroid = Game->GetActiveSector()->GetDescription()->IsIcy;
+					Effects[Index]->SetTemplate(IsIcyAsteroid ? IceEffectTemplate : DustEffectTemplate);
+				}
+
+				if (!Effects[Index]->IsActive())
+				{
+					Effects[Index]->Activate();
+				}
+				Effects[Index]->SetWorldLocation(EffectLocation);
+				Effects[Index]->SetWorldRotation(SunDirection.Rotation());
+			}
+			else
+			{
+				Effects[Index]->Deactivate();
+			}
+		}
+
+		EffectsUpdateTimer = 0;
+	}
 }
 
 void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
