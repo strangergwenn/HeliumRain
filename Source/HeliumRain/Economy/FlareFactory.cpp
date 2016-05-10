@@ -857,7 +857,7 @@ FText UFlareFactory::GetFactoryStatus()
 			{
 				UFlareWorld* GameWorld = Game->GetGameWorld();
 
-				ProductionStatusText = FText::Format(LOCTEXT("ProductionInProgressFormat", "Building {0} for {1} ({2}{3})"),
+				ProductionStatusText = FText::Format(LOCTEXT("ShipProductionInProgressFormat", "Building {0} for {1} ({2}{3})"),
 					Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
 					GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName(),
 					FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
@@ -865,7 +865,7 @@ FText UFlareFactory::GetFactoryStatus()
 			}
 			else
 			{
-				ProductionStatusText = FText::Format(LOCTEXT("ProductionInProgressFormat", "Producing ({0}{1})"),
+				ProductionStatusText = FText::Format(LOCTEXT("RegularProductionInProgressFormat", "Producing ({0}{1})"),
 					FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
 					HasFreeSpace);
 			}
