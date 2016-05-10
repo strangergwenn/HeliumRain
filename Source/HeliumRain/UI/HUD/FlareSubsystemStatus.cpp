@@ -101,7 +101,7 @@ FText SFlareSubsystemStatus::GetText() const
 {
 	return FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}\n{1}%"),
 		IFlareSpacecraftDamageSystemInterface::GetSubsystemName(SubsystemType),
-		FText::AsNumber(100 * ComponentHealth));
+		FText::AsNumber(FMath::RoundToInt(100 * ComponentHealth)));
 }
 
 FText SFlareSubsystemStatus::GetInfoText() const
