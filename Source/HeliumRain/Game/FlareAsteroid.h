@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
+#include "FlareAsteroidComponent.h"
 #include "FlareAsteroid.generated.h"
 
 
@@ -45,22 +46,12 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
+	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
+	class UFlareAsteroidComponent*          Asteroid;
+
 	FVector                                 SpawnLocation;
 	FFlareAsteroidSave                      AsteroidData;
 	bool                                    Paused;
-	bool                                    IsIcyAsteroid;
 
-	UPROPERTY()
-	UParticleSystem*                        IceEffectTemplate;
-
-	UPROPERTY()
-	UParticleSystem*                        DustEffectTemplate;
-
-	int32                                   EffectsCount;
-	float                                   EffectsScale;
-	float                                   EffectsUpdatePeriod;
-	float                                   EffectsUpdateTimer;
-	TArray<FVector>                         EffectsKernels;
-	TArray<UParticleSystemComponent*>       Effects;
 
 };
