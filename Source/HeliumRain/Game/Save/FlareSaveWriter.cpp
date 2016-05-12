@@ -80,7 +80,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuest(FFlareQuestSave* Data)
 	{
 		FailedQuests.Add(MakeShareable(new FJsonValueString(Data->FailedQuests[i].ToString())));
 	}
-	JsonObject->SetArrayField("SuccessfulQuests", FailedQuests);
+	JsonObject->SetArrayField("FailedQuests", FailedQuests);
 
 	return JsonObject;
 }
@@ -241,6 +241,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	JsonObject->SetStringField("Immatriculation", Data->Immatriculation.ToString());
 	JsonObject->SetStringField("NickName", Data->NickName.ToString());
 	JsonObject->SetStringField("Identifier", Data->Identifier.ToString());
+	JsonObject->SetStringField("CompanyIdentifier", Data->CompanyIdentifier.ToString());
 	JsonObject->SetStringField("Location", FormatVector(Data->Location));
 	JsonObject->SetStringField("Rotation", FormatRotator(Data->Rotation));
 	JsonObject->SetStringField("SpawnMode", FormatEnum<EFlareSpawnMode::Type>("EFlareSpawnMode",Data->SpawnMode));
@@ -251,7 +252,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	JsonObject->SetNumberField("Heat", Data->Heat);
 	JsonObject->SetNumberField("PowerOutageDelay", Data->PowerOutageDelay);
 	JsonObject->SetNumberField("PowerOutageAcculumator", Data->PowerOutageAcculumator);
-	JsonObject->SetBoolField("PowerOutageAcculumator", Data->IsAssigned);
+	JsonObject->SetBoolField("IsAssigned", Data->IsAssigned);
 	JsonObject->SetStringField("DynamicComponentStateIdentifier", Data->DynamicComponentStateIdentifier.ToString());
 	JsonObject->SetNumberField("DynamicComponentStateProgress", Data->DynamicComponentStateProgress);
 	JsonObject->SetObjectField("Pilot", SavePilot(&Data->Pilot));
@@ -560,8 +561,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SavePeople(FFlarePeopleSave* Data)
 	JsonObject->SetStringField("DeathPoint", FormatInt32(Data->DeathPoint));
 	JsonObject->SetStringField("HungerPoint", FormatInt32(Data->HungerPoint));
 	JsonObject->SetStringField("HappinessPoint", FormatInt32(Data->HappinessPoint));
-	JsonObject->SetStringField("Population", FormatInt32(Data->Population));
-	JsonObject->SetStringField("Population", FormatInt32(Data->Population));
 
 	TArray< TSharedPtr<FJsonValue> > CompanyReputations;
 	for(int i = 0; i < Data->CompanyReputations.Num(); i++)
@@ -582,7 +581,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBomb(FFlareBombSave* Data)
 	JsonObject->SetStringField("Rotation", FormatRotator(Data->Rotation));
 	JsonObject->SetStringField("LinearVelocity", FormatVector(Data->LinearVelocity));
 	JsonObject->SetStringField("AngularVelocity", FormatVector(Data->AngularVelocity));
-	JsonObject->SetStringField("Location", FormatVector(Data->Location));
 	JsonObject->SetStringField("WeaponSlotIdentifier", Data->WeaponSlotIdentifier.ToString());
 	JsonObject->SetStringField("ParentSpacecraft", Data->ParentSpacecraft.ToString());
 	JsonObject->SetBoolField("Activated", Data->Activated);

@@ -3,6 +3,7 @@
 
 #include "FlareSaveGameSystem.h"
 #include "FlareSaveWriter.h"
+#include "FlareSaveReaderV1.h"
 #include "../FlareGame.h"
 
 
@@ -27,7 +28,6 @@ bool UFlareSaveGameSystem::DoesSaveGameExist(const FString SaveName)
 
 bool UFlareSaveGameSystem::SaveGame(const FString SaveName, UFlareSaveGame* SaveData)
 {
-
 	FLOGV("UFlareSaveGameSystem::SaveGame SaveName=%s", *SaveName);
 
 	UFlareSaveWriter* SaveWriter = NewObject<UFlareSaveWriter>(this, UFlareSaveWriter::StaticClass());
@@ -35,8 +35,8 @@ bool UFlareSaveGameSystem::SaveGame(const FString SaveName, UFlareSaveGame* Save
 
 	// Save the json object
 	FString FileContents;
-	TSharedRef< TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>> > JsonWriter = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&FileContents);
-	//TSharedRef< TJsonWriter<> > JsonWriter = TJsonWriterFactory<>::Create(&FileContents);
+	//TSharedRef< TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>> > JsonWriter = TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&FileContents);
+	TSharedRef< TJsonWriter<> > JsonWriter = TJsonWriterFactory<>::Create(&FileContents);
 
 	if (FJsonSerializer::Serialize(JsonObject, JsonWriter))
 	{
@@ -52,18 +52,33 @@ bool UFlareSaveGameSystem::SaveGame(const FString SaveName, UFlareSaveGame* Save
 
 UFlareSaveGame* UFlareSaveGameSystem::LoadGame(const FString SaveName)
 {
-	// TODO Load stuff
+	FLOGV("UFlareSaveGameSystem::LoadGame SaveName=%s", *SaveName);
 
-	FString JsonRaw = "{ \"exampleString\": \"Hello World\" }";
-		TSharedPtr<FJsonObject> JsonParsed;
-		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(JsonRaw);
-		if (FJsonSerializer::Deserialize(JsonReader, JsonParsed))
+	UFlareSaveGame *SaveGame = NULL;
+
+	// Read the saveto a string
+	FString SaveString;
+	if(FFileHelper::LoadFileToString(SaveString, *GetSaveGamePath(SaveName)))
+	{
+		// Deserialize a JSON object from the string
+		TSharedPtr< FJsonObject > Object;
+		TSharedRef< TJsonReader<> > Reader = TJsonReaderFactory<>::Create(SaveString);
+		if(FJsonSerializer::Deserialize(Reader, Object) && Object.IsValid())
 		{
-			FString ExampleString = JsonParsed->GetStringField("exampleString");
+			UFlareSaveReaderV1* SaveReader = NewObject<UFlareSaveReaderV1>(this, UFlareSaveReaderV1::StaticClass());
+			SaveGame = SaveReader->LoadGame(Object);
 		}
+		else
+		{
+			FLOGV("Fail to deserialize save '%s'", *GetSaveGamePath(SaveName));
+		}
+	}
+	else
+	{
+		FLOGV("Fail to read save '%s'", *GetSaveGamePath(SaveName));
+	}
 
-	//return FFileHelper::LoadFileToArray(Data, *GetSaveGamePath(SaveName));
-	return NULL;
+	return SaveGame;
 }
 
 bool UFlareSaveGameSystem::DeleteGame(const FString SaveName)

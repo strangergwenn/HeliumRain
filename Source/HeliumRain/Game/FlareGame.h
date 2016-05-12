@@ -24,6 +24,7 @@
 
 
 class UFlareSaveGame;
+class UFlareSaveGameSystem;
 class UFlareQuestManager;
 class UFlareQuestCatalog;
 struct FFlarePlayerSave;
@@ -185,6 +186,10 @@ protected:
 	UFlareSector*                              ActiveSector;
 
 	AFlarePlayerController*			           PlayerController;
+
+	/** Save game system*/
+	UPROPERTY()
+	UFlareSaveGameSystem*                      SaveGameSystem;
 
 	/*----------------------------------------------------
 		Catalogs

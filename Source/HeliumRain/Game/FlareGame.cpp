@@ -84,6 +84,8 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	SectorCatalog = ConstructorStatics.SectorCatalog.Object;
 	QuestCatalog = ConstructorStatics.QuestCatalog.Object;
 	ResourceCatalog = ConstructorStatics.ResourceCatalog.Object;
+
+	SaveGameSystem = NewObject<UFlareSaveGameSystem>(this, UFlareSaveGameSystem::StaticClass(), TEXT("SaveGameSystem"));
 }
 
 
@@ -426,29 +428,41 @@ const FFlareSaveSlotInfo& AFlareGame::GetSaveSlotInfo(int32 Index)
 UFlareSaveGame* AFlareGame::ReadSaveSlot(int32 Index)
 {
 	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
-	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
+	UFlareSaveGame* Save = NULL;
+
+	// Prototype load
+	if(SaveGameSystem->DoesSaveGameExist(SaveFile))
 	{
-		UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
+		FLOG("Try load with prototype");
+		Save = SaveGameSystem->LoadGame(SaveFile);
+	}
+
+
+	if (Save == NULL && UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
+	{
+		// Try legacy load
+		FLOG("Try load with legacy");
 		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
-		return Save;
 	}
-	else
-	{
-		return NULL;
-	}
+
+	return Save;
 }
 
 bool AFlareGame::DeleteSaveSlot(int32 Index)
 {
 	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
+	bool Deleted = false;
 	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
 	{
-		return UGameplayStatics::DeleteGameInSlot(SaveFile, 0);
+		Deleted |= UGameplayStatics::DeleteGameInSlot(SaveFile, 0);
 	}
-	else
+
+	if (SaveGameSystem->DoesSaveGameExist(SaveFile))
 	{
-		return false;
+		Deleted |= SaveGameSystem->DeleteGame(SaveFile);
 	}
+
+	return Deleted;
 }
 
 
@@ -629,8 +643,6 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 
 
 		// Save prototype
-		UFlareSaveGameSystem *SaveGameSystem = NewObject<UFlareSaveGameSystem>(this, UFlareSaveGameSystem::StaticClass());
-
 		SaveGameSystem->SaveGame(SaveName, Save);
 
 		return true;

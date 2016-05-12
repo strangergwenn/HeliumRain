@@ -90,8 +90,6 @@ protected:
 	TSharedRef<FJsonObject> SaveResourcePrice(FFFlareResourcePrice* Data);
 	TSharedRef<FJsonObject> SaveTravel(FFlareTravelSave* Data);
 
-
-
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
@@ -104,17 +102,17 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	inline FString FormatInt32(int32 Data)
+	inline static FString FormatInt32(int32 Data)
 	{
 		return FString::FromInt(Data);
 	}
 
-	inline FString FormatInt64(int64 Data)
+	inline static FString FormatInt64(int64 Data)
 	{
 		return FString::Printf(TEXT("%lld"), Data);
 	}
 
-	inline FString FormatTransform(FTransform Data)
+	inline static FString FormatTransform(FTransform Data)
 	{
 		return FString::Printf(TEXT("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f"),
 				Data.GetRotation().X,
@@ -129,7 +127,7 @@ public:
 				Data.GetScale3D().Z);
 	}
 
-	inline FString FormatVector(FVector Data)
+	inline static FString FormatVector(FVector Data)
 	{
 		return FString::Printf(TEXT("%f,%f,%f"),
 				Data.X,
@@ -137,7 +135,7 @@ public:
 				Data.Z);
 	}
 
-	inline FString FormatRotator(FRotator Data)
+	inline static FString FormatRotator(FRotator Data)
 	{
 		return FString::Printf(TEXT("%f,%f,%f"),
 				Data.Pitch,

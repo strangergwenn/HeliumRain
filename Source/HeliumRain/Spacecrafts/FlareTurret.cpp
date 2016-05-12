@@ -3,6 +3,7 @@
 #include "FlareTurret.h"
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
+#include "FlareSpacecraftSubComponent.h"
 
 
 /*----------------------------------------------------
