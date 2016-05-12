@@ -921,7 +921,7 @@ void AFlareSpacecraft::OnUndocked(IFlareSpacecraftInterface* DockStation)
 		PC->Notify(
 			LOCTEXT("Undocked", "Undocked"),
 			FText::Format(LOCTEXT("UndockedInfoFormat", "Undocked from {0}"), FText::FromName(DockStation->GetImmatriculation())),
-			"docking-success",
+			"undocking-success",
 			EFlareNotification::NT_Info);
 	}
 }

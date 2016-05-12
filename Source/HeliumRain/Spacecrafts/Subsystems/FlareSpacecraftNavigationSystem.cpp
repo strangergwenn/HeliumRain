@@ -165,7 +165,7 @@ void UFlareSpacecraftNavigationSystem::SetAngularAccelerationRate(float Accelera
 
 bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetStation)
 {
-	FLOGV("AFlareSpacecraft::DockAt : '%s' docking at '%s'",
+	FLOGV("UFlareSpacecraftNavigationSystem::DockAt : '%s' docking at '%s'",
 		*Spacecraft->GetImmatriculation().ToString(),
 		*TargetStation->GetImmatriculation().ToString());
 
@@ -176,11 +176,11 @@ bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetS
 	{
 		if (IsDocked())
 		{
-			FLOG("AFlareSpacecraft::DockAt : leaving current dock");
+			FLOG("UFlareSpacecraftNavigationSystem::DockAt : leaving current dock");
 			Undock();
 		}
 
-		FLOG("AFlareSpacecraft::DockAt : access granted");
+		FLOG("UFlareSpacecraftNavigationSystem::DockAt : access granted");
 		PushCommandDock(DockingInfo);
 		return true;
 	}
@@ -188,7 +188,7 @@ bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetS
 	// Failed
 	else
 	{
-		FLOG("AFlareSpacecraft::DockAt : docking denied");
+		FLOG("UFlareSpacecraftNavigationSystem::DockAt : docking denied");
 		return false;
 	}
 }
@@ -198,7 +198,7 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 	// Try undocking
 	if (IsDocked())
 	{
-		FLOGV("AFlareSpacecraft::Undock : '%s' undocking from '%s'",
+		FLOGV("UFlareSpacecraftNavigationSystem::Undock : '%s' undocking from '%s'",
 			*Spacecraft->GetImmatriculation().ToString(),
 			*Data->DockedTo.ToString());
 
@@ -218,7 +218,7 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 
 		// Leave
 		PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(5000 * FVector(-1, 0, 0)));
-		FLOG("AFlareSpacecraft::Undock : successful");
+		FLOG("UFlareSpacecraftNavigationSystem::Undock : successful");
 
 		// Hack for bug #195: for ue4 to reweld all.
 		Spacecraft->Airframe->SetSimulatePhysics(false);
@@ -230,7 +230,7 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 	// Failed
 	else
 	{
-		FLOGV("AFlareSpacecraft::Undock : '%s' is not docked", *Spacecraft->GetImmatriculation().ToString());
+		FLOGV("UFlareSpacecraftNavigationSystem::Undock : '%s' is not docked", *Spacecraft->GetImmatriculation().ToString());
 		return false;
 	}
 }
@@ -680,7 +680,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId)
 {
-	FLOGV("AFlareSpacecraft::ConfirmDock : '%s' is now docked", *Spacecraft->GetImmatriculation().ToString());
+	FLOGV("UFlareSpacecraftNavigationSystem::ConfirmDock : '%s' is now docked", *Spacecraft->GetImmatriculation().ToString());
 	ClearCurrentCommand();
 
 	// Set as docked
