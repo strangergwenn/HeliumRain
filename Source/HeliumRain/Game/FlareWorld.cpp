@@ -467,6 +467,12 @@ void UFlareWorld::Simulate()
 	 */
 	WorldData.Date++;
 
+	// Swap Prices.
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		Sectors[SectorIndex]->SwapPrices();
+	}
+
 
 	// Factories
 	FLOG("Factories");
@@ -541,6 +547,7 @@ void UFlareWorld::Simulate()
 	SimulatePeopleMoneyMigration();
 
 	// Process events
+
 }
 
 void UFlareWorld::SimulatePeopleMoneyMigration()

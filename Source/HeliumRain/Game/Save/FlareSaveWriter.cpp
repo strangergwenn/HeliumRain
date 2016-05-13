@@ -546,6 +546,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSector(FFlareSectorSave* Data)
 	}
 	JsonObject->SetArrayField("ResourcePrices", ResourcePrices);
 
+	TArray< TSharedPtr<FJsonValue> > LastResourcePrices;
+	for(int i = 0; i < Data->LastResourcePrices.Num(); i++)
+	{
+		LastResourcePrices.Add(MakeShareable(new FJsonValueObject(SaveResourcePrice(&Data->LastResourcePrices[i]))));
+	}
+	JsonObject->SetArrayField("LastResourcePrices", LastResourcePrices);
+
 	return JsonObject;
 }
 

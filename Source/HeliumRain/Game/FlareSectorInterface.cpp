@@ -27,6 +27,15 @@ void UFlareSectorInterface::LoadResourcePrices()
 		float Price = ResourcePrice->Price;
 		ResourcePrices.Add(Resource, Price);
 	}
+
+	LastResourcePrices.Empty();
+	for (int PriceIndex = 0; PriceIndex < SectorData.LastResourcePrices.Num(); PriceIndex++)
+	{
+		FFFlareResourcePrice* ResourcePrice = &SectorData.LastResourcePrices[PriceIndex];
+		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourcePrice->ResourceIdentifier);
+		float Price = ResourcePrice->Price;
+		LastResourcePrices.Add(Resource, Price);
+	}
 }
 
 void UFlareSectorInterface::SaveResourcePrices()
@@ -42,6 +51,20 @@ void UFlareSectorInterface::SaveResourcePrices()
 			Price.ResourceIdentifier = Resource->Identifier;
 			Price.Price = ResourcePrices[Resource];
 			SectorData.ResourcePrices.Add(Price);
+		}
+	}
+
+	SectorData.LastResourcePrices.Empty();
+
+	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+		if (LastResourcePrices.Contains(Resource))
+		{
+			FFFlareResourcePrice Price;
+			Price.ResourceIdentifier = Resource->Identifier;
+			Price.Price = LastResourcePrices[Resource];
+			SectorData.LastResourcePrices.Add(Price);
 		}
 	}
 }
@@ -267,14 +290,33 @@ FLinearColor UFlareSectorInterface::GetSectorFriendlynessColor(UFlareCompany* Co
 }
 
 
-float UFlareSectorInterface::GetPreciseResourcePrice(FFlareResourceDescription* Resource)
+float UFlareSectorInterface::GetPreciseResourcePrice(FFlareResourceDescription* Resource, bool LastPrice)
 {
-	if (!ResourcePrices.Contains(Resource))
+	if(!LastPrice)
 	{
-		ResourcePrices.Add(Resource, GetDefaultResourcePrice(Resource));
+
+		if (!ResourcePrices.Contains(Resource))
+		{
+			ResourcePrices.Add(Resource, GetDefaultResourcePrice(Resource));
+		}
+
+		return ResourcePrices[Resource];
+	}
+	else
+	{
+		if (!LastResourcePrices.Contains(Resource))
+		{
+			LastResourcePrices.Add(Resource, GetPreciseResourcePrice(Resource, false));
+		}
+
+		return LastResourcePrices[Resource];
 	}
 
-	return ResourcePrices[Resource];
+}
+
+void UFlareSectorInterface::SwapPrices()
+{
+	LastResourcePrices = ResourcePrices;
 }
 
 void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice)
@@ -282,9 +324,9 @@ void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* R
 	ResourcePrices[Resource] = FMath::Clamp(NewPrice, (float) Resource->MinPrice, (float) Resource->MaxPrice);
 }
 
-int64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext)
+int64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, bool LastPrice)
 {
-	int64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource));
+	int64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource, LastPrice));
 
 	switch (PriceContext)
 	{

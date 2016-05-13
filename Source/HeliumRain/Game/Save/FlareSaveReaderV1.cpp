@@ -585,6 +585,17 @@ void UFlareSaveReaderV1::LoadSector(const TSharedPtr<FJsonObject> Object, FFlare
 			Data->ResourcePrices.Add(ChildData);
 		}
 	}
+
+	const TArray<TSharedPtr<FJsonValue>>* LastResourcePrices;
+	if(Object->TryGetArrayField("LastResourcePrices", LastResourcePrices))
+	{
+		for (TSharedPtr<FJsonValue> Item : *LastResourcePrices)
+		{
+			FFFlareResourcePrice ChildData;
+			LoadResourcePrice(Item->AsObject(), &ChildData);
+			Data->LastResourcePrices.Add(ChildData);
+		}
+	}
 }
 
 
