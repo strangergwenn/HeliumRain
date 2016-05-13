@@ -93,7 +93,7 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	{
 		AFlareAsteroid* AsteroidCandidate = ActiveSector->GetAsteroids()[AsteroidIndex];
 		//FLOGV("  -> test AsteroidCandidate %s", *AsteroidCandidate->GetName());
-		CheckRelativeDangerosity(AsteroidCandidate, CurrentLocation, CurrentSize, AsteroidCandidate->GetStaticMeshComponent(), CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
+		CheckRelativeDangerosity(AsteroidCandidate, CurrentLocation, CurrentSize, AsteroidCandidate->GetAsteroidComponent(), CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
 	}
 
 

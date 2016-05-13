@@ -149,7 +149,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 			FVector ImpulseDirection = (HitLocation - GetActorLocation()).GetUnsafeNormal();
 
 			// Physics impulse
-			Asteroid->GetStaticMeshComponent()->AddImpulseAtLocation( ImpulseForce * ImpulseDirection, HitLocation);
+			Asteroid->GetAsteroidComponent()->AddImpulseAtLocation( ImpulseForce * ImpulseDirection, HitLocation);
 		}
 
 		UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(OtherComp);

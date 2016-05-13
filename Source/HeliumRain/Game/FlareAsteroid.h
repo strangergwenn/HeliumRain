@@ -7,10 +7,10 @@
 
 class AFlareGame;
 class UFlareSector;
-
+class UFlareAsteroidComponent;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class AFlareAsteroid : public AStaticMeshActor
+class AFlareAsteroid : public AActor
 {
 public:
 
@@ -47,11 +47,22 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-	class UFlareAsteroidComponent*          Asteroid;
+	UFlareAsteroidComponent*          Asteroid;
 
 	FVector                                 SpawnLocation;
 	FFlareAsteroidSave                      AsteroidData;
 	bool                                    Paused;
 
+
+public:
+
+	/*----------------------------------------------------
+		Getter
+	----------------------------------------------------*/
+
+	UFlareAsteroidComponent *GetAsteroidComponent()
+	{
+		return Asteroid;
+	}
 
 };
