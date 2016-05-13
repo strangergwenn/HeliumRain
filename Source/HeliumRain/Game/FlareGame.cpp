@@ -639,8 +639,6 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 		FLOGV("AFlareGame::SaveGame date=%lld", Save->WorldData.Date);
 		// Save
 		FString SaveName = "SaveSlot" + FString::FromInt(CurrentSaveIndex);
-		UGameplayStatics::SaveGameToSlot(Save, SaveName, 0);
-
 
 		// Save prototype
 		SaveGameSystem->SaveGame(SaveName, Save);
