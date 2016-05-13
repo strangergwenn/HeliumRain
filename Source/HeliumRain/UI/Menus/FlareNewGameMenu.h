@@ -7,7 +7,7 @@
 
 
 class AFlareMenuManager;
-
+class AFlareGame;
 
 class SFlareNewGameMenu : public SCompoundWidget
 {
