@@ -759,6 +759,35 @@ bool UFlareFactory::HasInputResource(FFlareResourceDescription* Resource)
 	return false;
 }
 
+uint32 UFlareFactory::GetInputResourceQuantity(FFlareResourceDescription* Resource)
+{
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
+	{
+		FFlareResourceDescription* ResourceCandidate = &GetCycleData().InputResources[ResourceIndex].Resource->Data;
+		if (ResourceCandidate == Resource)
+		{
+			return GetCycleData().InputResources[ResourceIndex].Quantity;
+		}
+	}
+
+	return 0;
+}
+
+uint32 UFlareFactory::GetOutputResourceQuantity(FFlareResourceDescription* Resource)
+{
+	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().OutputResources.Num() ; ResourceIndex++)
+	{
+		FFlareResourceDescription* ResourceCandidate = &GetCycleData().OutputResources[ResourceIndex].Resource->Data;
+		if (ResourceCandidate == Resource)
+		{
+			return GetCycleData().OutputResources[ResourceIndex].Quantity;
+		}
+	}
+
+	return 0;
+}
+
+
 FText UFlareFactory::GetFactoryCycleCost(const FFlareProductionData* Data)
 {
 	FText ProductionCostText;

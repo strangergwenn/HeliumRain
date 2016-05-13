@@ -314,6 +314,10 @@ public:
 
 	uint32 GetOutputResourceQuantity(int32 Index);
 
+	uint32 GetInputResourceQuantity(FFlareResourceDescription* Resource);
+
+	uint32 GetOutputResourceQuantity(FFlareResourceDescription* Resource);
+
 	bool HasOutputResource(FFlareResourceDescription* Resource);
 
 	bool HasInputResource(FFlareResourceDescription* Resource);
