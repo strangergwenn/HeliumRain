@@ -263,10 +263,26 @@ FText SFlareResourcePricesMenu::GetResourcePriceInfo(FFlareResourceDescription* 
 		FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
-		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits - Bought at {1}, sold at {2}"),
-			FText::AsNumber(TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) / 100.0f, &MoneyFormat),
-			FText::AsNumber(TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput) / 100.0f, &MoneyFormat),
-			FText::AsNumber(TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput) / 100.0f, &MoneyFormat));
+		int64 ResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+		int64 LastResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default, true);
+
+		FText VariationText;
+
+		if(ResourcePrice != LastResourcePrice)
+		{
+			float Variation = (((float) ResourcePrice) / ((float) LastResourcePrice) - 1);
+
+			VariationText = FText::Format(LOCTEXT("ResourceVariationFormat", " ({0}{1}%)"),
+							(Variation > 0 ?
+								 FText::FText(LOCTEXT("ResourceVariationFormatSignPlus","+")) :
+								 FText::FText(LOCTEXT("ResourceVariationFormatSignMinus","-"))),
+						  FText::AsNumber(FMath::Abs(Variation) * 100.0f, &MoneyFormat));
+		}
+
+		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits{2} - Transport fee {1} credits "),
+			FText::AsNumber(ResourcePrice / 100.0f, &MoneyFormat),
+			FText::AsNumber(Resource->TransportFee / 100.0f, &MoneyFormat),
+			VariationText);
 	}
 
 	return FText();
