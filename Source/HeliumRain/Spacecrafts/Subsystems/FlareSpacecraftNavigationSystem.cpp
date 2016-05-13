@@ -393,7 +393,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 
 	float DockingDockToDockDistanceLimit = 20; // 20 cm of linear distance to dock
 	float FinalApproachDockToDockDistanceLimit = 100; // 1 m of linear distance
-	float ApproachDockToDockDistanceLimit = 10000; // 100 m approch distance
+	float ApproachDockToDockDistanceLimit = 40000; // 400 m approch distance
 
 	float FinalApproachDockToDockLateralDistanceLimit = 100; // 50 cm of linear lateral distance
 
