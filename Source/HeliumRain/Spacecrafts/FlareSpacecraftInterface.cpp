@@ -2,6 +2,7 @@
 #include "FlareSpacecraftInterface.h"
 #include "FlareSpacecraftComponent.h"
 #include "../Game/FlareGame.h"
+#include "../Economy/FlareCargoBay.h"
 
 
 /*----------------------------------------------------
