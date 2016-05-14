@@ -149,6 +149,11 @@ void UFlareSpacecraftNavigationSystem::SetStatus(EFlareShipStatus::Type NewStatu
 
 			default: break;
 		}
+		if (Spacecraft->GetStateManager())
+		{
+			// Not available on redock
+			Spacecraft->GetStateManager()->OnStatusChanged();
+		}
 	}
 
 	Status = NewStatus;

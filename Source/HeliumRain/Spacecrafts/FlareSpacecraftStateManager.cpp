@@ -406,6 +406,13 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 	}
 }
 
+void UFlareSpacecraftStateManager::OnStatusChanged()
+{
+	// Maybe set to manual, in this case, forgot the old command
+	float ForwardVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), FVector(1, 0, 0));
+	PlayerManualVelocityCommand = ForwardVelocity;
+}
+
 FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
 {
 	if (IsPiloted)

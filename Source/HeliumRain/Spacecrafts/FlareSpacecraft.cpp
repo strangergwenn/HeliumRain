@@ -51,6 +51,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	MaxTimeBeforeSelectionReset = 3.0;
 	Paused = false;
 	LastMass = 0;
+	StateManager = NULL;
 }
 
 

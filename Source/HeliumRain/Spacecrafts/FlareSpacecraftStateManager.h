@@ -59,6 +59,8 @@ public:
 
 	virtual void SetPlayerRollAngularVelocity(float Val);
 
+	virtual void OnStatusChanged();
+
 	// Output
 	virtual FVector GetLinearTargetVelocity() const;
 	virtual FVector GetAngularTargetVelocity() const;
