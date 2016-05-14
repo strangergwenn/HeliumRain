@@ -1302,7 +1302,7 @@ TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 		if (StationCandidate->GetDockingSystem()->GetDockCount() > 0)
 		{
 
-			if (StationCandidate->GetCompany() != Ship->GetCompany())
+			if (StationCandidate->GetWarState(Ship->GetCompany()) == EFlareHostility::Hostile)
 			{
 				continue;
 			}
