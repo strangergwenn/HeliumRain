@@ -301,8 +301,17 @@ void UFlareTradeRoute::InitFleetList()
 		for (int FleetIndex = 0; FleetIndex < TradeRouteData.FleetIdentifiers.Num(); FleetIndex++)
 		{
 			UFlareFleet* Fleet= TradeRouteCompany->FindFleet(TradeRouteData.FleetIdentifiers[FleetIndex]);
-			Fleet->SetCurrentTradeRoute(this);
-			TradeRouteFleets.Add(Fleet);
+			if (Fleet)
+			{
+				Fleet->SetCurrentTradeRoute(this);
+				TradeRouteFleets.Add(Fleet);
+			}
+			else
+			{
+				FLOGV("WARNING: Fail to find fleet '%s'. Save corrupted", *TradeRouteData.FleetIdentifiers[FleetIndex].ToString());
+				TradeRouteData.FleetIdentifiers.Empty();
+				break;
+			}
 		}
 	}
 }
