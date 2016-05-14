@@ -156,7 +156,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		{
 			AFlarePlayerController* PC = Spacecraft->GetPC();
 
-			if (PC && !PC->GetNavHUD()->IsWheelMenuOpen())
+			if (Spacecraft->IsFlownByPlayer() &&  PC && !PC->GetNavHUD()->IsWheelMenuOpen())
 			{
 				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
 
@@ -184,7 +184,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 {
 	AFlarePlayerController* PC = Spacecraft->GetPC();
-	if (PC)
+	if (Spacecraft->IsFlownByPlayer() && PC)
 	{
 		if (PC->GetMenuManager()->IsMenuOpen())
 		{

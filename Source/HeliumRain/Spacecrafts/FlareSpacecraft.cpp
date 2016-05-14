@@ -877,7 +877,7 @@ void AFlareSpacecraft::OnDocked(IFlareSpacecraftInterface* DockStation)
 {
 	// Signal the PC
 	AFlarePlayerController* PC = GetPC();
-	if (PC)
+	if (IsFlownByPlayer() && PC)
 	{
 		if (!StateManager->IsExternalCamera())
 		{
@@ -911,8 +911,8 @@ void AFlareSpacecraft::OnDocked(IFlareSpacecraftInterface* DockStation)
 void AFlareSpacecraft::OnUndocked(IFlareSpacecraftInterface* DockStation)
 {
 	// Signal the PC
-	AFlarePlayerController* PC = GetPC();
-	if (PC)
+	AFlarePlayerController* PC = GetGame()->GetPC();
+	if (IsFlownByPlayer() && PC)
 	{
 		if (StateManager->IsExternalCamera())
 		{

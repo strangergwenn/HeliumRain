@@ -206,12 +206,12 @@ FVector AFlareSpacecraftPawn::WorldToLocal(FVector World)
 
 AFlarePlayerController* AFlareSpacecraftPawn::GetPC() const
 {
-	return Cast<AFlarePlayerController>(GetController());
+	return GetGame()->GetPC();
 }
 
 bool AFlareSpacecraftPawn::IsFlownByPlayer() const
 {
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	AFlarePlayerController* PC = GetGame()->GetPC();
 	if (PC)
 	{
 		return (PC->GetShipPawn() == this);
