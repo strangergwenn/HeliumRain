@@ -342,6 +342,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 				SectorList.Add(VisitedSectors[SectorIndex]);
 			}
 		}
+		SectorSelector->RefreshOptions();
 
 		// Iterate on the trade route
 		TArray<FFlareTradeRouteSectorSave>& Sectors = TargetTradeRoute->GetSectors();
