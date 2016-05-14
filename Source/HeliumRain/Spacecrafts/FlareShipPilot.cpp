@@ -58,7 +58,7 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	LinearTargetVelocity = FVector::ZeroVector;
 	AngularTargetVelocity = FVector::ZeroVector;
 	WantFire = false;
-	UseOrbitalBoost = false;
+	UseOrbitalBoost = true;
 
 	if (Ship->IsMilitary())
 	{
@@ -316,7 +316,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		if (Distance > 1000 && Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.95)
 		{
 			// Too hot and no imminent danger
-			UseOrbitalBoost = false;
+			//UseOrbitalBoost = false;
 		}
 	}
 
@@ -561,7 +561,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	// Manage orbital boost
 	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
 	{
-		UseOrbitalBoost = false;
+		//UseOrbitalBoost = false;
 	}
 
 	// Find friend barycenter
@@ -779,7 +779,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// Manage orbital boost
 	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
 	{
-		UseOrbitalBoost = false;
+		//UseOrbitalBoost = false;
 	}
 
 
@@ -790,7 +790,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 {
 	// TODO find better
-	UseOrbitalBoost = false;
+	//UseOrbitalBoost = false;
 
 
 	// If damaged repair
@@ -838,7 +838,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		if (Distance > 2000 && Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.95)
 		{
 			// Too hot and no imminent danger
-			UseOrbitalBoost = false;
+			//UseOrbitalBoost = false;
 		}
 	}
 	else
@@ -997,7 +997,7 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	// Manage orbital boost
 	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.9)
 	{
-		UseOrbitalBoost = false;
+		//UseOrbitalBoost = false;
 	}
 }
 
