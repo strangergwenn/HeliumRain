@@ -273,26 +273,50 @@ UFlareFleet* UFlareCompany::CreateFleet(FText FleetName, UFlareSimulatedSector* 
 UFlareFleet* UFlareCompany::CreateAutomaticFleet(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	FText FleetName;
-	int32 FleetCount = Spacecraft->GetCompany()->GetCompanyFleets().Num() + 1;
+	int32 FleetIndex = 1;
 
-	if (Spacecraft->IsMilitary())
+	while(true)
 	{
-		if (Spacecraft->GetDescription()->Size == EFlarePartSize::L)
+		if (Spacecraft->IsMilitary())
 		{
-			FleetName = FText::Format(LOCTEXT("CombatFleetFormat", "Combat Fleet {0}"),
-				FText::FromString(AFlareGame::ConvertToRoman(FleetCount)));
+			if (Spacecraft->GetDescription()->Size == EFlarePartSize::L)
+			{
+				FleetName = FText::Format(LOCTEXT("CombatFleetFormat", "Combat Fleet {0}"),
+					FText::FromString(AFlareGame::ConvertToRoman(FleetIndex)));
+			}
+			else
+			{
+				FleetName = FText::Format(LOCTEXT("WarFleetFormat", "War Fleet {0}"),
+					FText::FromString(AFlareGame::ConvertToRoman(FleetIndex)));
+			}
 		}
 		else
 		{
-			FleetName = FText::Format(LOCTEXT("WarFleetFormat", "War Fleet {0}"),
-				FText::FromString(AFlareGame::ConvertToRoman(FleetCount)));
+			FleetName = FText::Format(LOCTEXT("CivilianFleetFormat", "Trade Fleet {0}"),
+				FText::AsNumber(FleetIndex));
+		}
+
+		// Check duplicate
+		bool Duplicate = false;
+		for (int i = 0 ; i < CompanyFleets.Num(); i++)
+		{
+			if (FleetName.CompareTo(CompanyFleets[i]->GetFleetName()) == 0)
+			{
+				Duplicate = true;
+				break;
+			}
+		}
+
+		if (Duplicate)
+		{
+			FleetIndex++;
+		}
+		else
+		{
+			break;
 		}
 	}
-	else
-	{
-		FleetName = FText::Format(LOCTEXT("CivilianFleetFormat", "Trade Fleet {0}"),
-			FText::AsNumber(FleetCount));
-	}
+
 
 	UFlareFleet* NewFleet = CreateFleet(FleetName, Spacecraft->GetCurrentSector());
 	NewFleet->AddShip(Spacecraft);
