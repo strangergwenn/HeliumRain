@@ -926,6 +926,12 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 
 		float MaxPreciseSpeed = FMath::Min((Distance - DistanceToStop) / DeltaSeconds, MaxVelocity);
 
+		if (DistanceToStop * 1.1 > Distance)
+		{
+			MaxPreciseSpeed = FMath::Min(MaxPreciseSpeed, Spacecraft->GetLinearVelocity().Size());
+
+		}
+
 		RelativeResultSpeed = DeltaPositionDirection;
 		RelativeResultSpeed *= MaxPreciseSpeed;
 		RelativeResultSpeed += TargetVelocity;
