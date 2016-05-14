@@ -663,6 +663,7 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 				FleetList.Add(Fleets[FleetIndex]);
 			}
 		}
+		FleetSelector->RefreshOptions();
 
 		// Assigned fleets (text display)
 		TArray<UFlareFleet*>& TradeFleets = TargetTradeRoute->GetFleets();
