@@ -738,7 +738,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
 
-		float StockRatio = FMath::Clamp(0.f, 1.f, (float) Station->GetCargoBay()->GetResourceQuantity(Resource) / (float) Station->GetCargoBay()->GetSlotCapacity());
+		float StockRatio = FMath::Clamp((float) Station->GetCargoBay()->GetResourceQuantity(Resource) / (float) Station->GetCargoBay()->GetSlotCapacity(), 0.f, 1.f);
 
 		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
