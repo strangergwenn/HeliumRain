@@ -20,21 +20,16 @@ UFlareSectorInterface::UFlareSectorInterface(const class FObjectInitializer& PCI
 void UFlareSectorInterface::LoadResourcePrices()
 {
 	ResourcePrices.Empty();
+	LastResourcePrices.Empty();
 	for (int PriceIndex = 0; PriceIndex < SectorData.ResourcePrices.Num(); PriceIndex++)
 	{
 		FFFlareResourcePrice* ResourcePrice = &SectorData.ResourcePrices[PriceIndex];
 		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourcePrice->ResourceIdentifier);
 		float Price = ResourcePrice->Price;
 		ResourcePrices.Add(Resource, Price);
-	}
-
-	LastResourcePrices.Empty();
-	for (int PriceIndex = 0; PriceIndex < SectorData.LastResourcePrices.Num(); PriceIndex++)
-	{
-		FFFlareResourcePrice* ResourcePrice = &SectorData.LastResourcePrices[PriceIndex];
-		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourcePrice->ResourceIdentifier);
-		float Price = ResourcePrice->Price;
-		LastResourcePrices.Add(Resource, Price);
+		FFlareFloatBuffer* Prices = &ResourcePrice->Prices;
+		Prices->Resize(50);
+		LastResourcePrices.Add(Resource, *Prices);
 	}
 }
 
@@ -50,21 +45,8 @@ void UFlareSectorInterface::SaveResourcePrices()
 			FFFlareResourcePrice Price;
 			Price.ResourceIdentifier = Resource->Identifier;
 			Price.Price = ResourcePrices[Resource];
+			Price.Prices = LastResourcePrices[Resource];
 			SectorData.ResourcePrices.Add(Price);
-		}
-	}
-
-	SectorData.LastResourcePrices.Empty();
-
-	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
-	{
-		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
-		if (LastResourcePrices.Contains(Resource))
-		{
-			FFFlareResourcePrice Price;
-			Price.ResourceIdentifier = Resource->Identifier;
-			Price.Price = LastResourcePrices[Resource];
-			SectorData.LastResourcePrices.Add(Price);
 		}
 	}
 }
@@ -290,9 +272,9 @@ FLinearColor UFlareSectorInterface::GetSectorFriendlynessColor(UFlareCompany* Co
 }
 
 
-float UFlareSectorInterface::GetPreciseResourcePrice(FFlareResourceDescription* Resource, bool LastPrice)
+float UFlareSectorInterface::GetPreciseResourcePrice(FFlareResourceDescription* Resource, int32 Age)
 {
-	if(!LastPrice)
+	if(Age == 0)
 	{
 
 		if (!ResourcePrices.Contains(Resource))
@@ -306,17 +288,32 @@ float UFlareSectorInterface::GetPreciseResourcePrice(FFlareResourceDescription* 
 	{
 		if (!LastResourcePrices.Contains(Resource))
 		{
-			LastResourcePrices.Add(Resource, GetPreciseResourcePrice(Resource, false));
+			FFlareFloatBuffer Prices;
+			Prices.Init(50);
+			Prices.Append(GetPreciseResourcePrice(Resource, 0));
+			LastResourcePrices.Add(Resource, Prices);
 		}
 
-		return LastResourcePrices[Resource];
+		return LastResourcePrices[Resource].GetValue(Age);
 	}
 
 }
 
 void UFlareSectorInterface::SwapPrices()
 {
-	LastResourcePrices = ResourcePrices;
+	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+
+		if (!LastResourcePrices.Contains(Resource))
+		{
+			FFlareFloatBuffer Prices;
+			Prices.Init(50);
+			LastResourcePrices.Add(Resource, Prices);
+		}
+
+		LastResourcePrices[Resource].Append(GetPreciseResourcePrice(Resource, 0));
+	}
 }
 
 void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice)
@@ -324,9 +321,9 @@ void UFlareSectorInterface::SetPreciseResourcePrice(FFlareResourceDescription* R
 	ResourcePrices[Resource] = FMath::Clamp(NewPrice, (float) Resource->MinPrice, (float) Resource->MaxPrice);
 }
 
-int64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, bool LastPrice)
+int64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age)
 {
-	int64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource, LastPrice));
+	int64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource, Age));
 
 	switch (PriceContext)
 	{

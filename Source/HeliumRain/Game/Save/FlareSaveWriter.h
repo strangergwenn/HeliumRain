@@ -88,7 +88,11 @@ protected:
 	TSharedRef<FJsonObject> SavePeople(FFlarePeopleSave* Data);
 	TSharedRef<FJsonObject> SaveBomb(FFlareBombSave* Data);
 	TSharedRef<FJsonObject> SaveResourcePrice(FFFlareResourcePrice* Data);
+	TSharedRef<FJsonObject> SaveFloatBuffer(FFlareFloatBuffer* Data);
 	TSharedRef<FJsonObject> SaveTravel(FFlareTravelSave* Data);
+
+
+
 
 	/*----------------------------------------------------
 		Protected data

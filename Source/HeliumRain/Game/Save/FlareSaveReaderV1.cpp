@@ -585,17 +585,6 @@ void UFlareSaveReaderV1::LoadSector(const TSharedPtr<FJsonObject> Object, FFlare
 			Data->ResourcePrices.Add(ChildData);
 		}
 	}
-
-	const TArray<TSharedPtr<FJsonValue>>* LastResourcePrices;
-	if(Object->TryGetArrayField("LastResourcePrices", LastResourcePrices))
-	{
-		for (TSharedPtr<FJsonValue> Item : *LastResourcePrices)
-		{
-			FFFlareResourcePrice ChildData;
-			LoadResourcePrice(Item->AsObject(), &ChildData);
-			Data->LastResourcePrices.Add(ChildData);
-		}
-	}
 }
 
 
@@ -642,6 +631,7 @@ void UFlareSaveReaderV1::LoadResourcePrice(const TSharedPtr<FJsonObject> Object,
 {
 	LoadFName(Object, "ResourceIdentifier", &Data->ResourceIdentifier);
 	LoadFloat(Object, "Price", &Data->Price);
+	LoadFloatBuffer(Object, "Prices", &Data->Prices);
 }
 
 
@@ -740,6 +730,20 @@ void UFlareSaveReaderV1::LoadFNameArray(TSharedPtr< FJsonObject > Object, FStrin
 	}
 }
 
+void UFlareSaveReaderV1::LoadFloatArray(TSharedPtr< FJsonObject > Object, FString Key, TArray<float>* Data)
+{
+	const TArray<TSharedPtr<FJsonValue>>* Array;
+	if(Object->TryGetArrayField(Key, Array))
+	{
+		for (TSharedPtr<FJsonValue> Item : *Array)
+		{
+			float Value = Item->AsNumber();
+			Data->Add(Value);
+		}
+	}
+}
+
+
 void UFlareSaveReaderV1::LoadTransform(TSharedPtr< FJsonObject > Object, FString Key, FTransform* Data)
 {
 	FString DataString;
@@ -820,5 +824,22 @@ void UFlareSaveReaderV1::LoadRotator(TSharedPtr< FJsonObject > Object, FString K
 	else
 	{
 		FLOGV("WARNING: Fail to load FRotator key '%s'. Save corrupted", *Key);
+	}
+}
+
+void UFlareSaveReaderV1::LoadFloatBuffer(TSharedPtr< FJsonObject > Object, FString Key, FFlareFloatBuffer* Data)
+{
+	const TSharedPtr< FJsonObject >* FloatBuffer;
+	if(Object->TryGetObjectField(Key, FloatBuffer))
+	{
+		LoadInt32(*FloatBuffer, "MaxSize", &Data->MaxSize);
+		LoadInt32(*FloatBuffer, "WriteIndex", &Data->WriteIndex);
+
+		LoadFloatArray(*FloatBuffer, "Values", &Data->Values);
+	}
+	else
+	{
+		FLOGV("WARNING: Fail to load float key '%s'. Save corrupted", *Key);
+		Data->Init(1);
 	}
 }

@@ -187,6 +187,9 @@ struct FFFlareResourcePrice
 	/** Price */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float Price;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareFloatBuffer Prices;
 };
 
 /** Sector save data */
@@ -234,9 +237,6 @@ struct FFlareSectorSave
 	FFlarePeopleSave PeopleData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFFlareResourcePrice> LastResourcePrices;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFFlareResourcePrice> ResourcePrices;
 };
 
@@ -267,7 +267,7 @@ protected:
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
 	const FFlareSectorDescription*          SectorDescription;
 	TMap<FFlareResourceDescription*, float> ResourcePrices;
-	TMap<FFlareResourceDescription*, float> LastResourcePrices;
+	TMap<FFlareResourceDescription*, FFlareFloatBuffer> LastResourcePrices;
 
 public:
 	/*----------------------------------------------------
@@ -312,13 +312,13 @@ public:
 
 	virtual UFlareSimulatedSector* GetSimulatedSector() PURE_VIRTUAL(UFlareSectorInterface::GetSimulatedSector, return NULL;)
 
-	float GetPreciseResourcePrice(FFlareResourceDescription* Resource, bool LastPrice = false);
+	float GetPreciseResourcePrice(FFlareResourceDescription* Resource, int32 Age = 0);
 
 	void SwapPrices();
 
 	void SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice);
 
-	virtual int64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, bool LastPrice = false);
+	virtual int64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age = 0);
 
 	static float GetDefaultResourcePrice(FFlareResourceDescription* Resource);
 

@@ -141,6 +141,33 @@ struct FFlareCompanySave
 	int64 CompanyValue;
 };
 
+/** Game save data */
+USTRUCT()
+struct FFlareFloatBuffer
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 MaxSize;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 WriteIndex;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<float> Values;
+
+
+	void Init(int32 Size);
+
+	void Resize(int32 Size);
+
+	void Append(float NewValue);
+
+	float GetValue(int32 Age);
+
+	float GetMean(int32 StartAge, int32 EndAge);
+};
+
 UCLASS()
 class HELIUMRAIN_API UFlareGameTypes : public UObject
 {

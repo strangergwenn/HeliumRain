@@ -263,8 +263,9 @@ FText SFlareResourcePricesMenu::GetResourcePriceInfo(FFlareResourceDescription* 
 		FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
+		int32 MeanDuration = 50;
 		int64 ResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
-		int64 LastResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default, true);
+		int64 LastResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default, MeanDuration-1);
 
 		FText VariationText;
 

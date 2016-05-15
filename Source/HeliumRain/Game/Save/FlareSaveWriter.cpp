@@ -546,13 +546,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSector(FFlareSectorSave* Data)
 	}
 	JsonObject->SetArrayField("ResourcePrices", ResourcePrices);
 
-	TArray< TSharedPtr<FJsonValue> > LastResourcePrices;
-	for(int i = 0; i < Data->LastResourcePrices.Num(); i++)
-	{
-		LastResourcePrices.Add(MakeShareable(new FJsonValueObject(SaveResourcePrice(&Data->LastResourcePrices[i]))));
-	}
-	JsonObject->SetArrayField("LastResourcePrices", LastResourcePrices);
-
 	return JsonObject;
 }
 
@@ -604,6 +597,27 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveResourcePrice(FFFlareResourcePrice
 
 	JsonObject->SetStringField("ResourceIdentifier", Data->ResourceIdentifier.ToString());
 	JsonObject->SetNumberField("Price", Data->Price);
+	JsonObject->SetObjectField("Prices", SaveFloatBuffer(&Data->Prices));
+
+
+	return JsonObject;
+}
+
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveFloatBuffer(FFlareFloatBuffer* Data)
+{
+	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	JsonObject->SetStringField("MaxSize", FormatInt32(Data->MaxSize));
+	JsonObject->SetStringField("WriteIndex", FormatInt32(Data->WriteIndex));
+
+
+
+	TArray< TSharedPtr<FJsonValue> > Values;
+	for(int i = 0; i < Data->Values.Num(); i++)
+	{
+		Values.Add(MakeShareable(new FJsonValueNumber(Data->Values[i])));
+	}
+	JsonObject->SetArrayField("Values", Values);
 
 	return JsonObject;
 }

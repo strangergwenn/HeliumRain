@@ -73,9 +73,13 @@ public:
 	void LoadFName(TSharedPtr< FJsonObject > Object, FString Key, FName* Data);
 	void LoadFText(TSharedPtr< FJsonObject > Object, FString Key, FText* Data);
 	void LoadFNameArray(TSharedPtr< FJsonObject > Object, FString Key, TArray<FName>* Data);
+	void LoadFloatArray(TSharedPtr< FJsonObject > Object, FString Key, TArray<float>* Data);
 	void LoadTransform(TSharedPtr< FJsonObject > Object, FString Key, FTransform* Data);
 	void LoadVector(TSharedPtr< FJsonObject > Object, FString Key, FVector* Data);
 	void LoadRotator(TSharedPtr< FJsonObject > Object, FString Key, FRotator* Data);
+	void LoadFloatBuffer(TSharedPtr< FJsonObject > Object, FString Key, FFlareFloatBuffer* Data);
+
+
 
 	template <typename EnumType>
 	static FORCEINLINE EnumType LoadEnum(TSharedPtr< FJsonObject > Object, FString Key, const FString& EnumName)
