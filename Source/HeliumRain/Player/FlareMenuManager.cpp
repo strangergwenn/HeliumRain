@@ -121,6 +121,7 @@ void AFlareMenuManager::SetupMenu()
 		TradeRouteMenu->Setup();
 		OrbitMenu->Setup();
 		LeaderboardMenu->Setup();
+		ResourcePricesMenu->Setup();
 		CreditsMenu->Setup();
 
 		CurrentMenu = EFlareMenu::MENU_None;
