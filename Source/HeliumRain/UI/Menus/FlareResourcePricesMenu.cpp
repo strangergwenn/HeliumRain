@@ -120,7 +120,7 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 	// Resource prices
 	ResourcePriceList->ClearChildren();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	TArray<UFlareResourceCatalogEntry*>& ResourceList = MenuManager->GetGame()->GetResourceCatalog()->GetResourceList();
+	TArray<UFlareResourceCatalogEntry*> ResourceList = MenuManager->GetGame()->GetResourceCatalog()->GetResourceList();
 	ResourceList.Sort(&SortByResourceType);
 
 	// Header
@@ -266,6 +266,7 @@ void SFlareResourcePricesMenu::OnShowWorldInfosClicked(FFlareResourceDescription
 
 	MenuManager->OpenMenu(EFlareMenu::MENU_WorldEconomy, Params);
 }
+
 FText SFlareResourcePricesMenu::GetSectorPriceInfo() const
 {
 	FText Text;

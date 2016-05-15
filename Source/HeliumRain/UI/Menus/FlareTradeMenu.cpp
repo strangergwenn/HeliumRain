@@ -359,7 +359,7 @@ void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraf
 	// Resource prices
 	ResourcePriceList->ClearChildren();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	TArray<UFlareResourceCatalogEntry*>& ResourceList = MenuManager->GetGame()->GetResourceCatalog()->GetResourceList();
+	TArray<UFlareResourceCatalogEntry*> ResourceList = MenuManager->GetGame()->GetResourceCatalog()->GetResourceList();
 	ResourceList.Sort(&SortByResourceType);
 
 	// Resource prices
