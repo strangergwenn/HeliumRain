@@ -53,6 +53,7 @@ protected:
 	/** Get the resource price info */
 	FText GetResourcePriceInfo(FFlareResourceDescription* Resource) const;
 
+	FText GetSectorPriceInfo() const;
 
 protected:
 

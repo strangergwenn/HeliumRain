@@ -161,7 +161,7 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.NameFont)
-				.Text(LOCTEXT("ResourcePrice", "Prices in this sector"))
+				.Text(this, &SFlareResourcePricesMenu::GetSectorPriceInfo)
 			]
 		]
 	];
@@ -255,6 +255,19 @@ void SFlareResourcePricesMenu::Back()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+FText SFlareResourcePricesMenu::GetSectorPriceInfo() const
+{
+	FText Text;
+
+	if (TargetSector)
+	{
+		Text = FText::Format(LOCTEXT("ResourcePrice", "Prices in {0}"), TargetSector->GetSectorName());
+	}
+
+	return Text;
+}
+
 
 FText SFlareResourcePricesMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource) const
 {
