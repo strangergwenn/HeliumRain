@@ -35,6 +35,7 @@ namespace EFlareMenu
 		MENU_Orbit,
 		MENU_Leaderboard,
 		MENU_ResourcePrices,
+		MENU_WorldEconomy,
 		MENU_Settings,
 		MENU_Credits,
 		MENU_Quit,

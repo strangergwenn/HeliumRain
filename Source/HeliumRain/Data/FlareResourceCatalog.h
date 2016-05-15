@@ -36,6 +36,9 @@ public:
 	/** Get a resource from identifier */
 	FFlareResourceDescription* Get(FName Identifier) const;
 
+	/** Get a resource from identifier */
+	UFlareResourceCatalogEntry* GetEntry(FFlareResourceDescription*) const;
+
 	/** Get all resources */
 	TArray<UFlareResourceCatalogEntry*>& GetResourceList()
 	{

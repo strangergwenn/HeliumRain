@@ -55,3 +55,15 @@ bool UFlareResourceCatalog::IsMaintenanceResource(FFlareResourceDescription* Res
 	}
 	return false;
 }
+
+UFlareResourceCatalogEntry* UFlareResourceCatalog::GetEntry(FFlareResourceDescription* Resource) const
+{
+	for (int32 ResourceIndex = 0; ResourceIndex < Resources.Num(); ResourceIndex++)
+	{
+		if(Resource == &Resources[ResourceIndex]->Data)
+		{
+			return Resources[ResourceIndex];
+		}
+	}
+	return NULL;
+}

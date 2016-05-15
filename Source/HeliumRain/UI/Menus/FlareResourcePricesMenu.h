@@ -50,6 +50,10 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** On show world infos clicked */
+	void OnShowWorldInfosClicked(FFlareResourceDescription* Resource);
+
+
 	/** Get the resource price info */
 	FText GetResourcePriceInfo(FFlareResourceDescription* Resource) const;
 

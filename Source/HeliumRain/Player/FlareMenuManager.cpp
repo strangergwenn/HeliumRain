@@ -17,6 +17,7 @@
 #include "../UI/Menus/FlareTradeRouteMenu.h"
 #include "../UI/Menus/FlareCreditsMenu.h"
 #include "../UI/Menus/FlareResourcePricesMenu.h"
+#include "../UI/Menus/FlareWorldEconomyMenu.h"
 
 #include "../Game/FlareSectorInterface.h"
 #include "../Player/FlarePlayerController.h"
@@ -62,6 +63,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(OrbitMenu, SFlareOrbitalMenu).MenuManager(this);
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
 		SAssignNew(ResourcePricesMenu, SFlareResourcePricesMenu).MenuManager(this);
+		SAssignNew(WorldEconomyMenu, SFlareWorldEconomyMenu).MenuManager(this);
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 
 		// Notifier
@@ -98,6 +100,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(OrbitMenu.ToSharedRef()),          50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),    50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ResourcePricesMenu.ToSharedRef()), 50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(WorldEconomyMenu.ToSharedRef()),   50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),        50);
 
 		// Register special menus
@@ -122,6 +125,7 @@ void AFlareMenuManager::SetupMenu()
 		OrbitMenu->Setup();
 		LeaderboardMenu->Setup();
 		ResourcePricesMenu->Setup();
+		WorldEconomyMenu->Setup();
 		CreditsMenu->Setup();
 
 		CurrentMenu = EFlareMenu::MENU_None;
@@ -265,6 +269,11 @@ void AFlareMenuManager::Back()
 		{
 			ResourcePricesMenu->Back();
 		}
+		else if (CurrentMenu == EFlareMenu::MENU_WorldEconomy)
+		{
+			WorldEconomyMenu->Back();
+		}
+
 
 		// Close menu and fly the ship again
 		else if (PreviousMenu == EFlareMenu::MENU_Exit)
@@ -335,6 +344,7 @@ EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
 		case EFlareMenu::MENU_ShipConfig:
 		case EFlareMenu::MENU_Trade:
 		case EFlareMenu::MENU_ResourcePrices:
+		case EFlareMenu::MENU_WorldEconomy:
 			break;
 
 		// Those menus have no back
@@ -444,6 +454,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;
 		case EFlareMenu::MENU_Leaderboard:    Path = "Leaderboard";  break;
 		case EFlareMenu::MENU_ResourcePrices: Path = "Sector";       break;
+		case EFlareMenu::MENU_WorldEconomy:   Path = "Sector";       break;
 		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
 		case EFlareMenu::MENU_Fleet:          Path = "Fleet";        break;
 		case EFlareMenu::MENU_Station:        Path = "Station";      break;
@@ -493,6 +504,7 @@ void AFlareMenuManager::ResetMenu()
 	OrbitMenu->Exit();
 	LeaderboardMenu->Exit();
 	ResourcePricesMenu->Exit();
+	WorldEconomyMenu->Exit();
 	CreditsMenu->Exit();
 
 	if (PC)
@@ -594,6 +606,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 
 		case EFlareMenu::MENU_ResourcePrices:
 			OpenResourcePrices(static_cast<UFlareSectorInterface*>(FadeTargetData));
+			break;
+
+		case EFlareMenu::MENU_WorldEconomy:
+			OpenWorldEconomy(static_cast<FFlareWorldEconomyMenuParam*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Credits:
@@ -841,6 +857,16 @@ void AFlareMenuManager::OpenResourcePrices(UFlareSectorInterface* Sector)
 	GetPC()->OnEnterMenu();
 	ResourcePricesMenu->Enter(Sector);
 	GetPC()->UpdateMenuTheme();
+}
+
+void AFlareMenuManager::OpenWorldEconomy(FFlareWorldEconomyMenuParam* Params)
+{
+	ResetMenu();
+	CurrentMenu = EFlareMenu::MENU_WorldEconomy;
+	GetPC()->OnEnterMenu();
+	WorldEconomyMenu->Enter(Params->Resource, Params->Sector);
+	GetPC()->UpdateMenuTheme();
+	delete Params;
 }
 
 void AFlareMenuManager::OpenCredits()

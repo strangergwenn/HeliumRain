@@ -24,6 +24,7 @@ class SFlareTradeMenu;
 class SFlareTradeRouteMenu;
 class SFlareCreditsMenu;
 class SFlareResourcePricesMenu;
+class SFlareWorldEconomyMenu;
 
 class AFlarePlayerController;
 class AFlareSpacecraft;
@@ -35,7 +36,7 @@ class UFlareSectorInterface;
 class UFlareTradeRoute;
 class UFlareFactory;
 class UFlareFleet;
-
+struct FFlareWorldEconomyMenuParam;
 
 /** Main HUD class (container for HUD and menus) */
 UCLASS()
@@ -196,6 +197,9 @@ protected:
 	/** Open the resource prices menu */
 	virtual void OpenResourcePrices(UFlareSectorInterface* Sector);
 
+	/** Open the world economy menu */
+	virtual void OpenWorldEconomy(FFlareWorldEconomyMenuParam* Params);
+
 	/** Go to the game's credits */
 	virtual void OpenCredits();
 
@@ -243,6 +247,7 @@ protected:
 	TSharedPtr<SFlareTradeRouteMenu>        TradeRouteMenu;
 	TSharedPtr<SFlareCreditsMenu>           CreditsMenu;
 	TSharedPtr<SFlareResourcePricesMenu>    ResourcePricesMenu;
+	TSharedPtr<SFlareWorldEconomyMenu>      WorldEconomyMenu;
 
 
 	/*----------------------------------------------------

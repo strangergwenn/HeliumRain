@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareResourcePricesMenu.h"
+#include "FlareWorldEconomyMenu.h"
 #include "../../Game/FlareGame.h"
 #include "../../Economy/FlareResource.h"
 #include "../../Player/FlareMenuManager.h"
@@ -188,9 +189,10 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 					.HeightOverride(Theme.ResourceHeight)
 					.Padding(FMargin(0))
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
+						SNew(SFlareButton)
+						//.TextStyle(&Theme.TextFont)
 						.Text(Resource.Acronym)
+						.OnClicked(this, &SFlareResourcePricesMenu::OnShowWorldInfosClicked, &Resource)
 					]
 				]
 			]
@@ -256,6 +258,14 @@ void SFlareResourcePricesMenu::Back()
 	Callbacks
 ----------------------------------------------------*/
 
+void SFlareResourcePricesMenu::OnShowWorldInfosClicked(FFlareResourceDescription* Resource)
+{
+	FFlareWorldEconomyMenuParam* Params = new FFlareWorldEconomyMenuParam();
+	Params->Resource = Resource;
+	Params->Sector = TargetSector;
+
+	MenuManager->OpenMenu(EFlareMenu::MENU_WorldEconomy, Params);
+}
 FText SFlareResourcePricesMenu::GetSectorPriceInfo() const
 {
 	FText Text;

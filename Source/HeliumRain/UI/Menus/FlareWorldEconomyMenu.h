@@ -1,4 +1,91 @@
-#ifndef FLAREWORLDECONOMYMENU_H
-#define FLAREWORLDECONOMYMENU_H
+#pragma once
 
-#endif // FLAREWORLDECONOMYMENU_H
+#include "../../Flare.h"
+#include "../Components/FlareButton.h"
+
+
+class UFlareSectorInterface;
+class UFlareSimulatedSector;
+class AFlareMenuManager;
+struct FFlareResourceDescription;
+
+/** Sector resources prices*/
+struct FFlareWorldEconomyMenuParam
+{
+	/** Resource */
+	FFlareResourceDescription* Resource;
+
+	/** Sector */
+	UFlareSectorInterface* Sector;
+};
+
+class SFlareWorldEconomyMenu : public SCompoundWidget
+{
+	/*----------------------------------------------------
+		Slate arguments
+	----------------------------------------------------*/
+
+	SLATE_BEGIN_ARGS(SFlareWorldEconomyMenu){}
+
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
+
+	SLATE_END_ARGS()
+
+
+public:
+
+	/*----------------------------------------------------
+		Interaction
+	----------------------------------------------------*/
+
+	/** Create the widget */
+	void Construct(const FArguments& InArgs);
+
+	/** Setup the widget */
+	void Setup();
+
+	/** Enter this menu */
+	void Enter(FFlareResourceDescription* Resource, UFlareSectorInterface* Sector);
+
+	/** Exit this menu */
+	void Exit();
+
+	/** Exit this menu */
+	void Back();
+
+	void GenerateSectorList();
+
+protected:
+
+	/*----------------------------------------------------
+		Callbacks
+	----------------------------------------------------*/
+
+	/** Get the resource price info */
+	FText GetResourcePriceInfo(UFlareSimulatedSector* Sector) const;
+
+	/** Get the resource price variation info */
+	FText GetResourcePriceVariationInfo(UFlareSimulatedSector* Sector, TSharedPtr<int32> MeanDuration) const;
+
+	TSharedRef<SWidget> OnGenerateResourceComboLine(UFlareResourceCatalogEntry* Item);
+
+	void OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo);
+
+	FText OnGetCurrentResourceComboLine() const;
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	// Target data
+	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
+	UFlareSectorInterface*                          BackSector;
+	FFlareResourceDescription*                      TargetResource;
+
+	// Slate data
+	TSharedPtr<SVerticalBox>                        SectorList;
+	TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
+
+};
