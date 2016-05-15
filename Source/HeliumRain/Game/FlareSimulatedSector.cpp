@@ -828,16 +828,6 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 
 		//
 		float MeanPrice = (float) (Resource->MaxPrice + Resource->MinPrice) / 2.f;
-		FLOGV("OldPrice=%f", OldPrice);
-		FLOGV("MinPrice=%f", (float) Resource->MinPrice);
-		FLOGV("MaxPrice=%f", (float) Resource->MaxPrice);
-		FLOGV("MeanPrice=%f", MeanPrice);
-		FLOGV("MeanWantedVariation=%f", MeanWantedVariation);
-		FLOGV("OldPriceRatio=%f", OldPriceRatio);
-		FLOGV("MaxPriceVariation=%f", MaxPriceVariation);
-		FLOGV("OldPriceRatioToVariationDirection=%f", OldPriceRatioToVariationDirection);
-		FLOGV("VariationScale=%f", VariationScale);
-		FLOGV("Variation=%f", Variation);
 
 		SetPreciseResourcePrice(Resource, NewPrice);
 		if(NewPrice > Resource->MaxPrice)
