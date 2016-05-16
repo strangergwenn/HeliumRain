@@ -45,8 +45,11 @@ void UFlareSectorInterface::SaveResourcePrices()
 			FFFlareResourcePrice Price;
 			Price.ResourceIdentifier = Resource->Identifier;
 			Price.Price = ResourcePrices[Resource];
-			Price.Prices = LastResourcePrices[Resource];
-			SectorData.ResourcePrices.Add(Price);
+			if (LastResourcePrices.Contains(Resource))
+			{
+				Price.Prices = LastResourcePrices[Resource];
+				SectorData.ResourcePrices.Add(Price);
+			}
 		}
 	}
 }
