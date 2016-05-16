@@ -42,22 +42,27 @@ void UFlareAsteroidComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Create random effects
-	for (int32 Index = 0; Index < EffectsCount; Index++)
+	if (IsIcyAsteroid)
 	{
-		EffectsKernels.Add(FMath::VRand());
+		// Create random effects
+		for (int32 Index = 0; Index < EffectsCount; Index++)
+		{
+			EffectsKernels.Add(FMath::VRand());
 
-		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
-			IceEffectTemplate,
-			this,
-			NAME_None,
-			GetComponentLocation(),
-			FRotator(),
-			EAttachLocation::KeepWorldPosition,
-			false);
+			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
+				IceEffectTemplate,
+				this,
+				NAME_None,
+				GetComponentLocation(),
+				FRotator(),
+				EAttachLocation::KeepWorldPosition,
+				false);
 
-		PSC->SetWorldScale3D(EffectsScale * FVector(1, 1, 1));
-		Effects.Add(PSC);
+			PSC->SetWorldScale3D(EffectsScale * FVector(1, 1, 1));
+			Effects.Add(PSC);
+
+			PSC->SetTemplate(IceEffectTemplate);
+		}
 	}
 }
 
@@ -67,14 +72,10 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 	float CollisionSize = GetCollisionShape().GetExtent().Size();
 	EffectsUpdateTimer += DeltaTime;
 
-	// Icy flag
-	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-	bool UpdateIcy = (Game->GetActiveSector()->GetDescription()->IsIcy != IsIcyAsteroid);
-	IsIcyAsteroid = Game->GetActiveSector()->GetDescription()->IsIcy;
-
 	if (EffectsUpdateTimer > EffectsUpdatePeriod)
 	{
 		// World data
+		AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 		FVector AsteroidLocation = GetComponentLocation();
 		FVector SunDirection = Game->GetPlanetarium()->GetSunDirection();
 		SunDirection.Normalize();
@@ -99,11 +100,6 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 			{
 				FVector EffectLocation = HitResult.Location;
 
-				if (UpdateIcy)
-				{
-					Effects[Index]->SetTemplate(IsIcyAsteroid ? IceEffectTemplate : DustEffectTemplate);
-				}
-
 				if (!Effects[Index]->IsActive())
 				{
 					Effects[Index]->Activate();
@@ -119,4 +115,9 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 
 		EffectsUpdateTimer = 0;
 	}
+}
+
+void UFlareAsteroidComponent::SetIcy(bool Icy)
+{
+	IsIcyAsteroid = Icy;
 }

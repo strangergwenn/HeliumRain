@@ -36,6 +36,12 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 
 void AFlareAsteroid::BeginPlay()
 {
+	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+	if(Game)
+	{
+		Asteroid->SetIcy(Game->GetActiveSector()->GetDescription()->IsIcy);
+	}
+
 	Super::BeginPlay();
 }
 

@@ -61,6 +61,23 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 
 void AFlareSpacecraft::BeginPlay()
 {
+	// Setup asteroids
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareAsteroidComponent::StaticClass());
+
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareAsteroidComponent* AsteroidComponent = Cast<UFlareAsteroidComponent>(Components[ComponentIndex]);
+
+		if(AsteroidComponent)
+		{
+			AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+			if(Game)
+			{
+				AsteroidComponent->SetIcy(Game->GetActiveSector()->GetDescription()->IsIcy);
+			}
+		}
+	}
+
 	Super::BeginPlay();
 	CurrentTarget = NULL;
 }
