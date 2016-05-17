@@ -115,7 +115,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestStepProgress(FFlareQuestStepP
 	JsonObject->SetStringField("ConditionIdentifier", Data->ConditionIdentifier.ToString());
 	JsonObject->SetStringField("CurrentProgression", FormatInt32(Data->CurrentProgression));
 	JsonObject->SetStringField("InitialTransform", FormatTransform(Data->InitialTransform));
-	JsonObject->SetNumberField("InitialVelocity", Data->InitialVelocity);
+	SaveFloat(JsonObject,"InitialVelocity", Data->InitialVelocity);
 
 	return JsonObject;
 }
@@ -249,12 +249,12 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	JsonObject->SetStringField("AngularVelocity", FormatVector(Data->AngularVelocity));
 	JsonObject->SetStringField("DockedTo", Data->DockedTo.ToString());
 	JsonObject->SetStringField("DockedAt", FormatInt32(Data->DockedAt));
-	JsonObject->SetNumberField("Heat", Data->Heat);
-	JsonObject->SetNumberField("PowerOutageDelay", Data->PowerOutageDelay);
-	JsonObject->SetNumberField("PowerOutageAcculumator", Data->PowerOutageAcculumator);
+	SaveFloat(JsonObject,"Heat", Data->Heat);
+	SaveFloat(JsonObject,"PowerOutageDelay", Data->PowerOutageDelay);
+	SaveFloat(JsonObject,"PowerOutageAcculumator", Data->PowerOutageAcculumator);
 	JsonObject->SetBoolField("IsAssigned", Data->IsAssigned);
 	JsonObject->SetStringField("DynamicComponentStateIdentifier", Data->DynamicComponentStateIdentifier.ToString());
-	JsonObject->SetNumberField("DynamicComponentStateProgress", Data->DynamicComponentStateProgress);
+	SaveFloat(JsonObject,"DynamicComponentStateProgress", Data->DynamicComponentStateProgress);
 	JsonObject->SetObjectField("Pilot", SavePilot(&Data->Pilot));
 	JsonObject->SetObjectField("Asteroid", SaveAsteroid(&Data->AsteroidData));
 
@@ -321,7 +321,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraftComponent(FFlareSpacecra
 
 	JsonObject->SetStringField("ComponentIdentifier", Data->ComponentIdentifier.ToString());
 	JsonObject->SetStringField("ShipSlotIdentifier", Data->ShipSlotIdentifier.ToString());
-	JsonObject->SetNumberField("Damage", Data->Damage);
+	SaveFloat(JsonObject,"Damage", Data->Damage);
 	JsonObject->SetObjectField("Turret", SaveSpacecraftComponentTurret(&Data->Turret));
 	JsonObject->SetObjectField("Weapon", SaveSpacecraftComponentWeapon(&Data->Weapon));
 	JsonObject->SetObjectField("Pilot", SaveTurretPilot(&Data->Pilot));
@@ -334,8 +334,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraftComponentTurret(FFlareSp
 {
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
-	JsonObject->SetNumberField("TurretAngle", Data->TurretAngle);
-	JsonObject->SetNumberField("BarrelsAngle", Data->BarrelsAngle);
+	SaveFloat(JsonObject,"TurretAngle", Data->TurretAngle);
+	SaveFloat(JsonObject,"BarrelsAngle", Data->BarrelsAngle);
 
 	return JsonObject;
 }
@@ -492,7 +492,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompanyReputation(FFlareCompanyRep
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
 	JsonObject->SetStringField("CompanyIdentifier", Data->CompanyIdentifier.ToString());
-	JsonObject->SetNumberField("Reputation", Data->Reputation);
+	SaveFloat(JsonObject,"Reputation", Data->Reputation);
 
 	return JsonObject;
 }
@@ -585,8 +585,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBomb(FFlareBombSave* Data)
 	JsonObject->SetStringField("ParentSpacecraft", Data->ParentSpacecraft.ToString());
 	JsonObject->SetBoolField("Activated", Data->Activated);
 	JsonObject->SetBoolField("Dropped", Data->Dropped);
-	JsonObject->SetNumberField("DropParentDistance", Data->DropParentDistance);
-	JsonObject->SetNumberField("LifeTime", Data->LifeTime);
+	SaveFloat(JsonObject,"DropParentDistance", Data->DropParentDistance);
+	SaveFloat(JsonObject,"LifeTime", Data->LifeTime);
 
 	return JsonObject;
 }
@@ -596,7 +596,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveResourcePrice(FFFlareResourcePrice
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
 	JsonObject->SetStringField("ResourceIdentifier", Data->ResourceIdentifier.ToString());
-	JsonObject->SetNumberField("Price", Data->Price);
+	SaveFloat(JsonObject,"Price", Data->Price);
 	JsonObject->SetObjectField("Prices", SaveFloatBuffer(&Data->Prices));
 
 
@@ -633,4 +633,17 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveTravel(FFlareTravelSave* Data)
 	JsonObject->SetStringField("DepartureDate", FormatInt64(Data->DepartureDate));
 
 	return JsonObject;
+}
+
+void UFlareSaveWriter::SaveFloat(TSharedPtr< FJsonObject > Object, FString Key, float Data)
+{
+	if(FMath::IsNaN(Data))
+	{
+		FLOGV("WARNING: Fix NaN in code for field '%s' : %f", *Key, Data);
+		Object->SetNumberField(Key, 0);
+	}
+	else
+	{
+		Object->SetNumberField(Key, Data);
+	}
 }

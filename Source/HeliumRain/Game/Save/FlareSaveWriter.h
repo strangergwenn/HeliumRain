@@ -91,6 +91,7 @@ protected:
 	TSharedRef<FJsonObject> SaveFloatBuffer(FFlareFloatBuffer* Data);
 	TSharedRef<FJsonObject> SaveTravel(FFlareTravelSave* Data);
 
+	void SaveFloat(TSharedPtr< FJsonObject > Object, FString Key, float Data);
 
 
 
