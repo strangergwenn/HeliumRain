@@ -575,7 +575,7 @@ FText SFlareTradeMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource)
 						  FText::AsNumber(FMath::Abs(Variation) * 100.0f, &MoneyFormat));
 		}
 
-		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits{2} - Transport fee {1} credits "),
+		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits{2} - Transport fee : {1} credits "),
 			FText::AsNumber(ResourcePrice / 100.0f, &MoneyFormat),
 			FText::AsNumber(Resource->TransportFee / 100.0f, &MoneyFormat),
 			VariationText);

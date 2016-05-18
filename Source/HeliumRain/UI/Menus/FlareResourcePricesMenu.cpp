@@ -399,7 +399,7 @@ FText SFlareResourcePricesMenu::GetSectorPriceInfo() const
 
 	if (TargetSector)
 	{
-		Text = FText::Format(LOCTEXT("ResourcePrice", "Prices in {0}"), TargetSector->GetSectorName());
+		Text = FText::Format(LOCTEXT("ResourcePrice", "Price in {0}"), TargetSector->GetSectorName());
 	}
 
 	return Text;
