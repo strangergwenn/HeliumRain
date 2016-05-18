@@ -143,6 +143,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Fill)
 						[
 							SAssignNew(ResourcePriceList, SVerticalBox)
 						]
@@ -369,36 +370,47 @@ void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraf
 		ResourcePriceList->AddSlot()
 		.Padding(FMargin(1))
 		[
-			SNew(SHorizontalBox)
-
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
+			SNew(SBorder)
+			.Padding(FMargin(1))
+			.BorderImage((ResourceIndex % 2 == 0 ? &Theme.EvenBrush : &Theme.OddBrush))
 			[
-				SNew(SBorder)
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
 				.Padding(FMargin(0))
-				.BorderImage(&Resource.Icon)
+				.HAlign(HAlign_Fill)
 				[
-					SNew(SBox)
-					.WidthOverride(Theme.ResourceWidth)
-					.HeightOverride(Theme.ResourceHeight)
-					.Padding(FMargin(0))
+					SNew(SHorizontalBox)
+
+					// Icon
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBorder)
+						.Padding(FMargin(0))
+						.BorderImage(&Resource.Icon)
+						[
+							SNew(SBox)
+							.WidthOverride(Theme.ResourceWidth)
+							.HeightOverride(Theme.ResourceHeight)
+							.Padding(FMargin(0))
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.TextFont)
+								.Text(Resource.Acronym)
+							]
+						]
+					]
+
+					// Price
+					+ SHorizontalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
-						.Text(Resource.Acronym)
+						.Text(this, &SFlareTradeMenu::GetResourcePriceInfo, &Resource)
 					]
 				]
-			]
-
-			// Price
-			+ SHorizontalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.VAlign(VAlign_Center)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
-				.Text(this, &SFlareTradeMenu::GetResourcePriceInfo, &Resource)
 			]
 		];
 	}

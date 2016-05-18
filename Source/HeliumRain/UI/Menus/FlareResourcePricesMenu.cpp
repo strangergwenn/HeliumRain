@@ -75,121 +75,112 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
 
-		// List header
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Center)
-		.Padding(Theme.ContentPadding)
-		.AutoHeight()
-		[
-			SNew(SBox)
-			.WidthOverride(1.7 * Theme.ContentWidth)
-			.HAlign(HAlign_Fill)
-			.Padding(FMargin(1))
-			[
-
-				SNew(SHorizontalBox)
-
-				// Icon space
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SBox)
-					.WidthOverride(Theme.ResourceWidth)
-					.Padding(FMargin(0))
-				]
-
-				// Info
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.5 * Theme.ContentWidth)
-					.HAlign(HAlign_Left)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("ResourceInfo", "Resource info"))
-					]
-				]
-
-				// Prices
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
-					.HAlign(HAlign_Left)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(this, &SFlareResourcePricesMenu::GetSectorPriceInfo)
-						.WrapTextAt(0.2 * Theme.ContentWidth)
-					]
-				]
-
-				// Variation
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
-					.HAlign(HAlign_Left)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("ResourcePriceVariation", "Variation on 40 days"))
-						.WrapTextAt(0.2 * Theme.ContentWidth)
-					]
-				]
-
-
-				// Transport fee
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
-					.HAlign(HAlign_Left)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("TransportFee", "Transport fee"))
-					]
-				]
-
-				// Icon space
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.3 * Theme.ContentWidth)
-					.Padding(FMargin(0))
-				]
-			]
-		]
-
-
-		// List
+		// Content
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Center)
 		.Padding(Theme.ContentPadding)
 		[
-			SNew(SBox)
-			.WidthOverride(1.7 * Theme.ContentWidth)
-			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
+			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
 
-				+ SScrollBox::Slot()
+			+ SScrollBox::Slot()
+			[
+				SNew(SBox)
+				.WidthOverride(2 * Theme.ContentWidth)
+				.Padding(FMargin(1))
 				[
-					SNew(SBox)
-					.HAlign(HAlign_Fill)
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Icon space
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SBox)
+							.WidthOverride(Theme.ResourceWidth)
+							.Padding(FMargin(0))
+						]
+
+						// Info
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.8 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourceInfo", "Resource info"))
+							]
+						]
+
+						// Prices
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.3 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(this, &SFlareResourcePricesMenu::GetSectorPriceInfo)
+							]
+						]
+
+						// Variation
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.3 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourcePriceVariation", "40-day variation"))
+							]
+						]
+
+
+						// Transport fee
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.2 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("TransportFee", "Transport"))
+							]
+						]
+
+						// Icon space
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.3 * Theme.ContentWidth)
+							.Padding(FMargin(0))
+						]
+					]
+
+					// List
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					[
 						SAssignNew(ResourcePriceList, SVerticalBox)
 					]
@@ -265,13 +256,13 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.5 * Theme.ContentWidth)
+					.WidthOverride(0.8 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
 						.Text(Resource.Description)
-						.WrapTextAt(0.5 * Theme.ContentWidth)
+						.WrapTextAt(0.75 * Theme.ContentWidth)
 					]
 				]
 
@@ -282,7 +273,7 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(0.3 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -299,7 +290,7 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(0.3 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -326,13 +317,11 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 
 				// Details
 				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
+				.HAlign(HAlign_Right)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
 					.WidthOverride(0.2 * Theme.ContentWidth)
-					.HAlign(HAlign_Left)
 					[
 						SNew(SFlareButton)
 						.Text(LOCTEXT("DetailButton", "Details"))

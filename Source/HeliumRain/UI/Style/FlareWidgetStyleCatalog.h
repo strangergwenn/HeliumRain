@@ -32,6 +32,8 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 		OutBrushes.Add(&InvisibleBrush);
 		OutBrushes.Add(&NearInvisibleBrush);
 		OutBrushes.Add(&SeparatorBrush);
+		OutBrushes.Add(&OddBrush);
+		OutBrushes.Add(&EvenBrush);
 
 		OutBrushes.Add(&ButtonBackground);
 		OutBrushes.Add(&ButtonActiveBackground);
