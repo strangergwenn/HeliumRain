@@ -25,6 +25,10 @@
 AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
+	// Ship name font
+	static ConstructorHelpers::FObjectFinder<UFont> ShipNameFontObj(TEXT("/Game/Slate/Fonts/ShipNameFont.ShipNameFont"));
+	ShipNameFont = ShipNameFontObj.Object;
+
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("Airframe"));
 	Airframe->SetSimulatePhysics(true);
@@ -61,24 +65,23 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 
 void AFlareSpacecraft::BeginPlay()
 {
-	// Setup asteroids
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareAsteroidComponent::StaticClass());
+	Super::BeginPlay();
 
+	// Setup asteroid components, if any
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareAsteroidComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareAsteroidComponent* AsteroidComponent = Cast<UFlareAsteroidComponent>(Components[ComponentIndex]);
-
-		if(AsteroidComponent)
+		if (AsteroidComponent)
 		{
 			AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-			if(Game)
+			if (Game)
 			{
 				AsteroidComponent->SetIcy(Game->GetActiveSector()->GetDescription()->IsIcy);
 			}
 		}
 	}
 
-	Super::BeginPlay();
 	CurrentTarget = NULL;
 }
 
@@ -487,6 +490,15 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	// Look for an asteroid component
 	ApplyAsteroidData();
 
+	// Setup ship name texture target
+	if (GetDescription()->Size == EFlarePartSize::L)
+	{
+		ShipNameTexture = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), 256, 256);
+		check(ShipNameTexture);
+		ShipNameTexture->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlareSpacecraft::DrawShipName);
+		ShipNameTexture->ClearColor = FLinearColor::Black;
+	}
+
 	// Customization
 	UpdateCustomization();
 	Redock();
@@ -849,9 +861,10 @@ void AFlareSpacecraft::SetRCSDescription(FFlareSpacecraftComponentDescription* D
 
 void AFlareSpacecraft::UpdateCustomization()
 {
+	// Send the update event to subsystems
 	Super::UpdateCustomization();
-
 	Airframe->UpdateCustomization();
+	ShipNameTexture->UpdateResource();
 
 	// Customize decal materials
 	TArray<UActorComponent*> Components = GetComponentsByClass(UDecalComponent::StaticClass());
@@ -860,14 +873,35 @@ void AFlareSpacecraft::UpdateCustomization()
 		UDecalComponent* Component = Cast<UDecalComponent>(Components[ComponentIndex]);
 		if (Component)
 		{
-			if (!DecalMaterial)
+			// Ship name decal
+			if (Component->GetName().Contains("ShipNameDecal"))
 			{
-				DecalMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), GetWorld());
+				if (!ShipNameDecalMaterial)
+				{
+					FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
+					FLinearColor ShipNameColor = (BasePaintColor.GetLuminance() > 0.5) ? FLinearColor::Black : FLinearColor::White;
+					ShipNameDecalMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), GetWorld());
+					ShipNameDecalMaterial->SetVectorParameterValue("NameColor", ShipNameColor);
+					ShipNameDecalMaterial->SetTextureParameterValue("NameTexture", ShipNameTexture);
+				}
+				if (Company && ShipNameDecalMaterial)
+				{
+					Component->SetMaterial(0, ShipNameDecalMaterial);
+				}
 			}
-			if (Company && DecalMaterial)
+
+			// Company decal
+			else
 			{
-				Company->CustomizeComponentMaterial(DecalMaterial);
-				Component->SetMaterial(0, DecalMaterial);
+				if (!DecalMaterial)
+				{
+					DecalMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), GetWorld());
+					Company->CustomizeComponentMaterial(DecalMaterial);
+				}
+				if (Company && DecalMaterial)
+				{
+					Component->SetMaterial(0, DecalMaterial);
+				}
 			}
 		}
 	}
@@ -883,6 +917,29 @@ void AFlareSpacecraft::StartPresentation()
 	}
 
 	CurrentTarget = NULL;
+}
+
+void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 Height)
+{
+	if (TargetCanvas)
+	{
+		// Cleanup immatriculation
+		FString Text = GetImmatriculation().ToString().ToUpper();
+		int32 Index = Text.Find(*FString("-")) + 1;
+		Text = Text.RightChop(Index);
+		Text = Text.Replace(*FString("-"), *FString(" "));
+
+		// Centering
+		float XL, YL;
+		TargetCanvas->TextSize(ShipNameFont, Text, XL, YL);
+		float X = TargetCanvas->ClipX / 2.0f - XL / 2.0f;
+		float Y = TargetCanvas->ClipY / 2.0f - YL / 2.0f;
+
+		// Drawing
+		FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), ShipNameFont, FLinearColor::White);
+		TextItem.Scale = FVector2D(1, 1);
+		TargetCanvas->DrawItem(TextItem);
+	}
 }
 
 

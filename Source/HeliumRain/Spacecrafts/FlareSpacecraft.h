@@ -156,7 +156,11 @@ public:
 
 	virtual void StartPresentation() override;
 
+	/** Canvas callback for the ship name */
+	UFUNCTION()
+	void DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 Height);
 	
+
 public:
 
 	/*----------------------------------------------------
@@ -243,6 +247,18 @@ protected:
 	// Decal material
 	UPROPERTY()
 	UMaterialInstanceDynamic*                      DecalMaterial;
+
+	// Decal material
+	UPROPERTY()
+	UMaterialInstanceDynamic*                      ShipNameDecalMaterial;
+
+	// Ship name texture
+	UPROPERTY()
+	UCanvasRenderTarget2D*                         ShipNameTexture;
+
+	// Ship name font
+	UPROPERTY()
+	UFont*                                         ShipNameFont;
 
 	// Systems
 	UPROPERTY()

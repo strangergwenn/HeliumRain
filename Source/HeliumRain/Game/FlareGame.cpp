@@ -845,9 +845,9 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Empty();
 	BaseImmatriculationNameList.Add(FText::FromString("Arrow"));
 	BaseImmatriculationNameList.Add(FText::FromString("Atom"));
-	BaseImmatriculationNameList.Add(FText::FromString("BinaryStar"));
+	BaseImmatriculationNameList.Add(FText::FromString("Binary-Star"));
 	BaseImmatriculationNameList.Add(FText::FromString("Blackout"));
-	BaseImmatriculationNameList.Add(FText::FromString("CrescentMoon"));
+	BaseImmatriculationNameList.Add(FText::FromString("Crescent-Moon"));
 	BaseImmatriculationNameList.Add(FText::FromString("Comet"));
 	BaseImmatriculationNameList.Add(FText::FromString("Coronation"));
 	BaseImmatriculationNameList.Add(FText::FromString("Destiny"));
