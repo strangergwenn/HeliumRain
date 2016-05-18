@@ -61,6 +61,11 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	FSlateColor GetPriceColor(UFlareSimulatedSector* Sector) const;
+
+	/** Get the resource price info */
+	FText GetResourceDescription() const;
+
 	/** Get the resource price info */
 	FText GetResourcePriceInfo(UFlareSimulatedSector* Sector) const;
 
@@ -72,6 +77,8 @@ protected:
 	void OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo);
 
 	FText OnGetCurrentResourceComboLine() const;
+
+	void OnOpenSector(UFlareSimulatedSector* Sector);
 
 protected:
 

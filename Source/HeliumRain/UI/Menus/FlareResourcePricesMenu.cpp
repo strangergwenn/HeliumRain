@@ -75,22 +75,124 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
 
-		// Main
+		// List header
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Center)
+		.Padding(Theme.ContentPadding)
+		.AutoHeight()
+		[
+			SNew(SBox)
+			.WidthOverride(1.7 * Theme.ContentWidth)
+			.HAlign(HAlign_Fill)
+			.Padding(FMargin(1))
+			[
+
+				SNew(SHorizontalBox)
+
+				// Icon space
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ResourceWidth)
+					.Padding(FMargin(0))
+				]
+
+				// Info
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.5 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(LOCTEXT("ResourceInfo", "Resource info"))
+					]
+				]
+
+				// Prices
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(this, &SFlareResourcePricesMenu::GetSectorPriceInfo)
+						.WrapTextAt(0.2 * Theme.ContentWidth)
+					]
+				]
+
+				// Variation
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(LOCTEXT("ResourcePriceVariation", "Variation on 40 days"))
+						.WrapTextAt(0.2 * Theme.ContentWidth)
+					]
+				]
+
+
+				// Transport fee
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(LOCTEXT("TransportFee", "Transport fee"))
+					]
+				]
+
+				// Icon space
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.3 * Theme.ContentWidth)
+					.Padding(FMargin(0))
+				]
+			]
+		]
+
+
+		// List
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Center)
 		.Padding(Theme.ContentPadding)
 		[
-			SNew(SScrollBox)
-			.Style(&Theme.ScrollBoxStyle)
-			.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-			+ SScrollBox::Slot()
+			SNew(SBox)
+			.WidthOverride(1.7 * Theme.ContentWidth)
 			[
-				SNew(SBox)
-				.WidthOverride(1.6 * Theme.ContentWidth)
-				.HAlign(HAlign_Fill)
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+				+ SScrollBox::Slot()
 				[
-					SAssignNew(ResourcePriceList, SVerticalBox)
+					SNew(SBox)
+					.HAlign(HAlign_Fill)
+					[
+						SAssignNew(ResourcePriceList, SVerticalBox)
+					]
 				]
 			]
 		]
@@ -123,50 +225,6 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 	TArray<UFlareResourceCatalogEntry*> ResourceList = MenuManager->GetGame()->GetResourceCatalog()->GetResourceList();
 	ResourceList.Sort(&SortByResourceType);
 
-	// Header
-	ResourcePriceList->AddSlot()
-	.Padding(FMargin(1))
-	[
-		SNew(SHorizontalBox)
-
-		// Icon space
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(SBox)
-			.WidthOverride(Theme.ResourceWidth)
-			.Padding(FMargin(0))
-		]
-
-		// Info
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(SBox)
-			.WidthOverride(0.8 * Theme.ContentWidth)
-			.HAlign(HAlign_Center)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.NameFont)
-				.Text(LOCTEXT("ResourceInfo", "Resource info"))
-			]
-		]
-
-		// Info
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(SBox)
-			.WidthOverride(0.6 * Theme.ContentWidth)
-			.HAlign(HAlign_Center)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.NameFont)
-				.Text(this, &SFlareResourcePricesMenu::GetSectorPriceInfo)
-			]
-		]
-	];
-
 	// Resource prices
 	for (int32 ResourceIndex = 0; ResourceIndex < ResourceList.Num(); ResourceIndex++)
 	{
@@ -174,59 +232,113 @@ void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
 		ResourcePriceList->AddSlot()
 		.Padding(FMargin(1))
 		[
-			SNew(SHorizontalBox)
-
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
+			SNew(SBorder)
+			.Padding(FMargin(1))
+			.BorderImage((ResourceIndex % 2 == 0 ? &Theme.EvenBrush : &Theme.OddBrush))
 			[
-				SNew(SBorder)
-				.Padding(FMargin(0))
-				.BorderImage(&Resource.Icon)
+				SNew(SHorizontalBox)
+
+				// Icon
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
 				[
-					SNew(SBox)
-					.WidthOverride(Theme.ResourceWidth)
-					.HeightOverride(Theme.ResourceHeight)
+					SNew(SBorder)
 					.Padding(FMargin(0))
+					.BorderImage(&Resource.Icon)
 					[
-						SNew(SFlareButton)
-						//.TextStyle(&Theme.TextFont)
-						.Text(Resource.Acronym)
-						.OnClicked(this, &SFlareResourcePricesMenu::OnShowWorldInfosClicked, &Resource)
+						SNew(SBox)
+						.WidthOverride(Theme.ResourceWidth)
+						.HeightOverride(Theme.ResourceHeight)
+						.Padding(FMargin(0))
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(Resource.Acronym)
+						]
 					]
 				]
-			]
 
-			// Info
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SBox)
-				.WidthOverride(0.8 * Theme.ContentWidth)
-				.HAlign(HAlign_Left)
+				// Info
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(Resource.Description)
-					.WrapTextAt(0.8 * Theme.ContentWidth)
+					SNew(SBox)
+					.WidthOverride(0.5 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(Resource.Description)
+						.WrapTextAt(0.5 * Theme.ContentWidth)
+					]
 				]
-			]
 
-			// Price
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SBox)
-				.WidthOverride(0.6 * Theme.ContentWidth)
-				.HAlign(HAlign_Left)
+				// Price
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareResourcePricesMenu::GetResourcePriceInfo, &Resource)
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.ColorAndOpacity(this, &SFlareResourcePricesMenu::GetPriceColor, &Resource)
+						.Text(this, &SFlareResourcePricesMenu::GetResourcePriceInfo, &Resource)
+					]
+				]
+
+				// Price variation
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareResourcePricesMenu::GetResourcePriceVariationInfo, &Resource)
+					]
+				]
+
+				// Transport fee
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareResourcePricesMenu::GetResourceTransportFeeInfo, &Resource)
+					]
+				]
+
+				// Details
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(SFlareButton)
+						.Text(LOCTEXT("DetailButton", "Details"))
+						.OnClicked(this, &SFlareResourcePricesMenu::OnShowWorldInfosClicked, &Resource)
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+					]
 				]
 			]
 		];
@@ -258,6 +370,24 @@ void SFlareResourcePricesMenu::Back()
 	Callbacks
 ----------------------------------------------------*/
 
+FSlateColor SFlareResourcePricesMenu::GetPriceColor(FFlareResourceDescription* Resource) const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	if (TargetSector)
+	{
+		FLinearColor HightPriceColor = Theme.FriendlyColor;
+		FLinearColor LowPriceColor = Theme.EnemyColor;
+
+		float ResourcePrice = TargetSector->GetPreciseResourcePrice(Resource);
+
+		float PriceRatio = (ResourcePrice - Resource->MinPrice) / (float) (Resource->MaxPrice - Resource->MinPrice);
+
+
+		return FMath::Lerp(LowPriceColor, HightPriceColor, PriceRatio);
+	}
+	return Theme.FriendlyColor;
+}
+
 void SFlareResourcePricesMenu::OnShowWorldInfosClicked(FFlareResourceDescription* Resource)
 {
 	FFlareWorldEconomyMenuParam* Params = new FFlareWorldEconomyMenuParam();
@@ -287,32 +417,59 @@ FText SFlareResourcePricesMenu::GetResourcePriceInfo(FFlareResourceDescription* 
 		FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
-		int32 MeanDuration = 50;
 		int64 ResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
-		int64 LastResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default, MeanDuration-1);
 
-		FText VariationText;
-
-		if(ResourcePrice != LastResourcePrice)
-		{
-			float Variation = (((float) ResourcePrice) / ((float) LastResourcePrice) - 1);
-
-			VariationText = FText::Format(LOCTEXT("ResourceVariationFormat", " ({0}{1}%)"),
-							(Variation > 0 ?
-								 FText::FText(LOCTEXT("ResourceVariationFormatSignPlus","+")) :
-								 FText::FText(LOCTEXT("ResourceVariationFormatSignMinus","-"))),
-						  FText::AsNumber(FMath::Abs(Variation) * 100.0f, &MoneyFormat));
-		}
-
-		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits{2} - Transport fee {1} credits "),
-			FText::AsNumber(ResourcePrice / 100.0f, &MoneyFormat),
-			FText::AsNumber(Resource->TransportFee / 100.0f, &MoneyFormat),
-			VariationText);
+		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits"),
+			FText::AsNumber(ResourcePrice / 100.0f, &MoneyFormat));
 	}
 
 	return FText();
 }
 
+FText SFlareResourcePricesMenu::GetResourcePriceVariationInfo(FFlareResourceDescription* Resource) const
+{
+	if (TargetSector)
+	{
+		FNumberFormattingOptions MoneyFormat;
+		MoneyFormat.MaximumFractionalDigits = 2;
+
+		int32 MeanDuration = 40;
+		int64 ResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+		int64 LastResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default, MeanDuration);
+
+		if(ResourcePrice != LastResourcePrice)
+		{
+			float Variation = (((float) ResourcePrice) / ((float) LastResourcePrice) - 1);
+
+			if(FMath::Abs(Variation) >= 0.0001)
+			{
+				return FText::Format(LOCTEXT("ResourceVariationFormat", "{0}{1}%"),
+								(Variation > 0 ?
+									 FText::FText(LOCTEXT("ResourceVariationFormatSignPlus","+")) :
+									 FText::FText(LOCTEXT("ResourceVariationFormatSignMinus","-"))),
+							  FText::AsNumber(FMath::Abs(Variation) * 100.0f, &MoneyFormat));
+			}
+		}
+
+		return FText::FText(LOCTEXT("ResourceMainPriceNoVariationFormat", "-"));
+	}
+
+	return FText();
+}
+
+FText SFlareResourcePricesMenu::GetResourceTransportFeeInfo(FFlareResourceDescription* Resource) const
+{
+	if (TargetSector)
+	{
+		FNumberFormattingOptions MoneyFormat;
+		MoneyFormat.MaximumFractionalDigits = 2;
+
+		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits"),
+			FText::AsNumber(Resource->TransportFee / 100.0f, &MoneyFormat));
+	}
+
+	return FText();
+}
 
 #undef LOCTEXT_NAMESPACE
 
