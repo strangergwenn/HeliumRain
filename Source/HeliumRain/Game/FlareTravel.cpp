@@ -6,6 +6,7 @@
 #include "FlareGame.h"
 #include "FlareGameTools.h"
 #include "../UI/Components/FlareNotification.h"
+#include "../Economy/FlareCargoBay.h"
 
 static const double TRAVEL_DURATION_PER_PHASE_KM = 0.4;
 static const double TRAVEL_DURATION_PER_ALTITUDE_KM = 6;
@@ -69,10 +70,23 @@ void UFlareTravel::EndTravel()
 	// TODO People migration
 
 	// Price migration
-	float ContaminationFactor = 0.01f;
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 	{
 		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+
+		float ContaminationFactor = 0.00f;
+
+		for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = Fleet->GetShips()[ShipIndex];
+			if (Ship->GetCargoBay()->GetResourceQuantity(Resource) > 0)
+			{
+				ContaminationFactor += Ship->GetCargoBay()->GetResourceQuantity(Resource) / 1000.f;
+				//TODO scale bay world stock/flow
+			}
+		}
+
+		ContaminationFactor = FMath::Min(ContaminationFactor, 1.f);
 
 		float OriginPrice = OriginSector->GetPreciseResourcePrice(Resource);
 		float DestinationPrice = DestinationSector->GetPreciseResourcePrice(Resource);
