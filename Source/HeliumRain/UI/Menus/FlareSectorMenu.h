@@ -59,6 +59,9 @@ protected:
 	/** Get the refuel text */
 	FText GetRefuelText() const;
 
+	/** Visibility setting for the resource prices button */
+	bool IsResourcePricesDisabled() const;
+
 	/** Visibility setting for the refuel button */
 	bool IsRefuelDisabled() const;
 

@@ -269,7 +269,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 	}
 
 	// Natural order is sorted bay discovery
-	TArray<UFlareSimulatedSector*>& Sectors = MenuManager->GetPC()->GetCompany()->GetKnownSectors();
+	TArray<UFlareSimulatedSector*>& Sectors = MenuManager->GetPC()->GetCompany()->GetVisitedSectors();
 
 	// Sector list
 	for (int32 SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)

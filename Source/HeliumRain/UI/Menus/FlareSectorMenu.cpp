@@ -193,6 +193,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("ResourcePricesInfo", "See the price and use of resources in this sector"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
 							.OnClicked(this, &SFlareSectorMenu::OnResourcePrices)
+							.IsDisabled(this, &SFlareSectorMenu::IsResourcePricesDisabled)
 						]
 
 						// Refuel fleets
@@ -480,7 +481,7 @@ FText SFlareSectorMenu::GetRepairText() const
 {
 	if (IsRepairDisabled())
 	{
-		if (true) // TODO FRED(#155) : utiliser les API de réparation
+		if (true) // TODO FRED(#155) : utiliser les API de rÃ©paration
 		{
 			return LOCTEXT("NoFleetToRepair", "No fleet here needs repairing");
 		}
@@ -492,8 +493,17 @@ FText SFlareSectorMenu::GetRepairText() const
 	else
 	{
 		return FText::Format(LOCTEXT("RepairOkayFormat", "Repair all fleets ({0} fleet supplies)"),
-			FText::AsNumber(42)); // TODO FRED (#155) : utiliser les API de réparation
+			FText::AsNumber(42)); // TODO FRED (#155) : utiliser les API de rÃ©paration
 	}
+}
+
+bool SFlareSectorMenu::IsResourcePricesDisabled() const
+{
+	if (TargetSector)
+	{
+		return !MenuManager->GetPC()->GetCompany()->HasVisitedSector(TargetSector);
+	}
+	return false;
 }
 
 bool SFlareSectorMenu::IsRefuelDisabled() const
@@ -503,7 +513,7 @@ bool SFlareSectorMenu::IsRefuelDisabled() const
 
 bool SFlareSectorMenu::IsRepairDisabled() const
 {
-	return true; // TODO FRED (#155) : utiliser les API de réparation
+	return true; // TODO FRED (#155) : utiliser les API de rÃ©paration
 }
 
 FText SFlareSectorMenu::GetSectorName() const
@@ -670,7 +680,7 @@ void SFlareSectorMenu::OnRefuelClicked()
 
 void SFlareSectorMenu::OnRepairClicked()
 {
-	// TODO FRED (#155) : utiliser les API de réparation
+	// TODO FRED (#155) : utiliser les API de rÃ©paration
 }
 
 void SFlareSectorMenu::OnStartTravelConfirmed()
