@@ -353,7 +353,7 @@ int64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resourc
 
 float UFlareSectorInterface::GetDefaultResourcePrice(FFlareResourceDescription* Resource)
 {
-	return Resource->MinPrice * 0.75 + Resource->MaxPrice * 0.25;
+	return (Resource->MinPrice + Resource->MaxPrice)/2;
 }
 
 uint32 UFlareSectorInterface::GetTransfertResourcePrice(IFlareSpacecraftInterface* SourceSpacecraft, IFlareSpacecraftInterface* DestinationSpacecraft, FFlareResourceDescription* Resource)
