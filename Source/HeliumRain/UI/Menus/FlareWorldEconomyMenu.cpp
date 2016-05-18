@@ -392,15 +392,24 @@ FSlateColor SFlareWorldEconomyMenu::GetPriceColor(UFlareSimulatedSector* Sector)
 	if (TargetResource)
 	{
 
-		FLinearColor HightPriceColor = Theme.FriendlyColor;
+		FLinearColor HighPriceColor = Theme.FriendlyColor;
+		FLinearColor MeanPriceColor = Theme.NeutralColor;
 		FLinearColor LowPriceColor = Theme.EnemyColor;
 
 		float ResourcePrice = Sector->GetPreciseResourcePrice(TargetResource);
 
 		float PriceRatio = (ResourcePrice - TargetResource->MinPrice) / (float) (TargetResource->MaxPrice - TargetResource->MinPrice);
 
+		if(PriceRatio  > 0.5)
+		{
+			return FMath::Lerp(MeanPriceColor, HighPriceColor, 2.f * (PriceRatio - 0.5));
+		}
+		else
+		{
+			return FMath::Lerp(LowPriceColor, MeanPriceColor, 2.f * PriceRatio);
+		}
 
-		return FMath::Lerp(LowPriceColor, HightPriceColor, PriceRatio);
+		return FMath::Lerp(LowPriceColor, HighPriceColor, PriceRatio);
 	}
 	return Theme.FriendlyColor;
 }

@@ -375,15 +375,22 @@ FSlateColor SFlareResourcePricesMenu::GetPriceColor(FFlareResourceDescription* R
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	if (TargetSector)
 	{
-		FLinearColor HightPriceColor = Theme.FriendlyColor;
+		FLinearColor HighPriceColor = Theme.FriendlyColor;
+		FLinearColor MeanPriceColor = Theme.NeutralColor;
 		FLinearColor LowPriceColor = Theme.EnemyColor;
 
 		float ResourcePrice = TargetSector->GetPreciseResourcePrice(Resource);
 
 		float PriceRatio = (ResourcePrice - Resource->MinPrice) / (float) (Resource->MaxPrice - Resource->MinPrice);
 
-
-		return FMath::Lerp(LowPriceColor, HightPriceColor, PriceRatio);
+		if(PriceRatio  > 0.5)
+		{
+			return FMath::Lerp(MeanPriceColor, HighPriceColor, 2.f * (PriceRatio - 0.5));
+		}
+		else
+		{
+			return FMath::Lerp(LowPriceColor, MeanPriceColor, 2.f * PriceRatio);
+		}
 	}
 	return Theme.FriendlyColor;
 }
