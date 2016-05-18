@@ -231,7 +231,7 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 				// Get price
 				if (Parent->GetCompany() != PlayerCompany)
 				{
-					ShipPrice = UFlareGameTools::ComputeShipPrice(Desc->Identifier, Parent->GetCurrentSector());
+					ShipPrice = UFlareGameTools::ComputeShipPrice(Desc->Identifier, Parent->GetCurrentSector(), true);
 				}
 				else
 				{
@@ -340,7 +340,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		else
 		{
 			ProductionTime += TargetFactory->GetRemainingProductionDuration();
-			int32 CycleProductionCost = UFlareGameTools::ComputeShipPrice(Desc->Identifier, TargetFactory->GetParent()->GetCurrentSector());
+			int32 CycleProductionCost = UFlareGameTools::ComputeShipPrice(Desc->Identifier, TargetFactory->GetParent()->GetCurrentSector(), true);
 			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "{0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
 		}
 	}

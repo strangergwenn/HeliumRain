@@ -11,6 +11,7 @@
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
 
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -214,7 +215,7 @@ void UFlareFactory::OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 
 	if(Parent->GetCompany() != OrderCompany)
 	{
-		ShipPrice = UFlareGameTools::ComputeShipPrice(ShipIdentifier, Parent->GetCurrentSector());
+		ShipPrice = UFlareGameTools::ComputeShipPrice(ShipIdentifier, Parent->GetCurrentSector(), true);
 		if(!OrderCompany->TakeMoney(ShipPrice))
 		{
 			// Not enough money

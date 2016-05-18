@@ -1462,7 +1462,7 @@ FText UFlareGameTools::GetDisplayDate(int64 Days)
 		FText::AsNumber(RemainingDays));
 }
 
-int64 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector)
+int64 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector, bool WithMargin)
 {
 	FFlareSpacecraftDescription* Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
 
@@ -1488,7 +1488,7 @@ int64 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *
 		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
 	}
 
-	return FMath::Max((int64) 0, Cost);
+	return FMath::Max((int64) 0, Cost) * (WithMargin ? 1.2f : 1.0f);
 }
 
 

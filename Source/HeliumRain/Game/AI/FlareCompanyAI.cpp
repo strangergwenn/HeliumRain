@@ -463,7 +463,7 @@ void UFlareCompanyAI::Simulate()
 				//FLOGV("%s in %s GainPerDay=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), GainPerDay / 100);
 
 				// Price with station resources prices bonus
-				float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeShipPrice(StationDescription->Identifier, Sector);
+				float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeShipPrice(StationDescription->Identifier, Sector, true);
 				float DayToPayPrice = StationPrice / GainPerDay;
 				float MissingMoneyRatio = FMath::Min(1.0f, Company->GetMoney() / StationPrice);
 
@@ -518,7 +518,7 @@ void UFlareCompanyAI::Simulate()
 
 		// Start construction only if can afford to buy the station
 
-		float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeShipPrice(BestStationDescription->Identifier, BestSector);
+		float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeShipPrice(BestStationDescription->Identifier, BestSector, true);
 
 		bool StartConstruction = true;
 
@@ -668,7 +668,7 @@ void UFlareCompanyAI::Simulate()
 							FLOG("Order atlas");
 							// TODO generic helper
 
-							if(UFlareGameTools::ComputeShipPrice("ship-atlas", Sector) * 2 < Company->GetMoney())
+							if(UFlareGameTools::ComputeShipPrice("ship-atlas", Sector, true) * 2 < Company->GetMoney())
 							{
 
 								Factory->OrderShip(Company, "ship-atlas");
@@ -684,7 +684,7 @@ void UFlareCompanyAI::Simulate()
 							FLOG("Order omen");
 							// TODO generic helper
 
-							if(UFlareGameTools::ComputeShipPrice("ship-omen", Sector) * 2 < Company->GetMoney())
+							if(UFlareGameTools::ComputeShipPrice("ship-omen", Sector, true) * 2 < Company->GetMoney())
 							{
 
 								Factory->OrderShip(Company, "ship-omen");
