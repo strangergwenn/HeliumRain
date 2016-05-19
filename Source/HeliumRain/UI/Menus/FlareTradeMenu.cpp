@@ -631,6 +631,16 @@ void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 		                              TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
 
 	TransactionQuantity = FMath::Lerp((int32)1, ResourceMaxQuantity, Value);
+
+	if(ResourceMaxQuantity >= 1000 && (TransactionQuantity - ResourceMaxQuantity) > 50)
+	{
+		TransactionQuantity = (TransactionQuantity / 50) * 50;
+	}
+	else if(ResourceMaxQuantity >= 100 && (TransactionQuantity - ResourceMaxQuantity) > 10)
+	{
+		TransactionQuantity = (TransactionQuantity / 10) * 10;
+	}
+
 	if (ResourceMaxQuantity == 1)
 	{
 		QuantitySlider->SetValue(1.0f);
