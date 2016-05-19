@@ -254,7 +254,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 		}
 
 
-		FVector Direction = (Preferences.BaseLocation - ShipCandidate->GetActorLocation()).GetUnsafeNormal();
+		FVector Direction = (ShipCandidate->GetActorLocation() - Preferences.BaseLocation).GetUnsafeNormal();
 
 
 		float Alignement = FVector::DotProduct(Preferences.PreferredDirection, Direction);
