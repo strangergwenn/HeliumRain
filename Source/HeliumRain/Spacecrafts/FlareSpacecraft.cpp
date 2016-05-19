@@ -864,7 +864,10 @@ void AFlareSpacecraft::UpdateCustomization()
 	// Send the update event to subsystems
 	Super::UpdateCustomization();
 	Airframe->UpdateCustomization();
-	ShipNameTexture->UpdateResource();
+	if (ShipNameTexture)
+	{
+		ShipNameTexture->UpdateResource();
+	}
 
 	// Customize decal materials
 	TArray<UActorComponent*> Components = GetComponentsByClass(UDecalComponent::StaticClass());
@@ -876,7 +879,7 @@ void AFlareSpacecraft::UpdateCustomization()
 			// Ship name decal
 			if (Component->GetName().Contains("ShipNameDecal"))
 			{
-				if (!ShipNameDecalMaterial)
+				if (ShipNameTexture && !ShipNameDecalMaterial)
 				{
 					FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
 					FLinearColor ShipNameColor = (BasePaintColor.GetLuminance() > 0.5) ? FLinearColor::Black : FLinearColor::White;
