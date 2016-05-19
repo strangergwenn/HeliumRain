@@ -74,154 +74,160 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 			SNew(SImage).Image(&Theme.SeparatorBrush)
 		]
 
-		// Main
+		// Resource selector and info
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.HAlign(HAlign_Center)
 		.Padding(Theme.ContentPadding)
 		[
-
-			SNew(SHorizontalBox)
-
-			// Resource List
-			+ SHorizontalBox::Slot()
-			.Padding(Theme.SmallContentPadding)
+			SNew(SBox)
+			.WidthOverride(2 * Theme.ContentWidth)
+			.Padding(FMargin(0))
+			.HAlign(HAlign_Fill)
 			[
-				SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
-				.OptionsSource(&MenuManager->GetPC()->GetGame()->GetResourceCatalog()->Resources)
-				.OnGenerateWidget(this, &SFlareWorldEconomyMenu::OnGenerateResourceComboLine)
-				.OnSelectionChanged(this, &SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged)
-				.ComboBoxStyle(&Theme.ComboBoxStyle)
-				.ForegroundColor(FLinearColor::White)
+				SNew(SVerticalBox)
 
-				[
-					SNew(SBox)
-					.WidthOverride(0.4 * Theme.ContentWidth)
-					.HAlign(HAlign_Right)
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine)
-						.TextStyle(&Theme.SubTitleFont)
-					]
-				]
-			]
-
-			// Info
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SBox)
-				.WidthOverride(0.8 * Theme.ContentWidth)
-				.HAlign(HAlign_Left)
-				.HeightOverride(Theme.ResourceHeight)
+				// Resource name
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
 				[
 					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareWorldEconomyMenu::GetResourceDescription)
-					.WrapTextAt(0.8 * Theme.ContentWidth)
+					.Text(LOCTEXT("ResourceTitle", "Current resource"))
+					.TextStyle(&Theme.SubTitleFont)
 				]
-			]
-
-			// TODO : transport fee, stock, flow, etc
-		]
-
-
-		// List header
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Center)
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SBox)
-			.WidthOverride(1.7 * Theme.ContentWidth)
-			.HAlign(HAlign_Fill)
-			.Padding(FMargin(1))
-			[
-
-				SNew(SHorizontalBox)
-
-				// Sector Name
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
+		
+				// Resource picker
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				.Padding(Theme.ContentPadding)
 				[
-					SNew(SBox)
-					.WidthOverride(0.3 * Theme.ContentWidth)
-					.HAlign(HAlign_Center)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("SectorNameColumnTitleInfo", "Sector"))
-					]
-				]
+					SNew(SHorizontalBox)
 
-				// Price
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.3 * Theme.ContentWidth)
+					// Resource List
+					+ SHorizontalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
 					.HAlign(HAlign_Left)
+					.AutoWidth()
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("ResourcePriceColumnTitleInfo", "Price"))
+						SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
+						.OptionsSource(&MenuManager->GetPC()->GetGame()->GetResourceCatalog()->Resources)
+						.OnGenerateWidget(this, &SFlareWorldEconomyMenu::OnGenerateResourceComboLine)
+						.OnSelectionChanged(this, &SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged)
+						.ComboBoxStyle(&Theme.ComboBoxStyle)
+						.ForegroundColor(FLinearColor::White)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine)
+							.TextStyle(&Theme.TextFont)
+						]
 					]
-				]
 
-				// Price variation 1 day
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.3 * Theme.ContentWidth)
-					.HAlign(HAlign_Left)
+					// Info
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.HAlign(HAlign_Right)
+					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("ResourcePriceVariation1dColumnTitleInfo", "Price variation (1 day)"))
-						.WrapTextAt(0.3 * Theme.ContentWidth)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareWorldEconomyMenu::GetResourceDescription)
+						.WrapTextAt(Theme.ContentWidth)
 					]
-				]
 
-				// Price variation 40 days
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.5 * Theme.ContentWidth)
-					.HAlign(HAlign_Left)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("ResourcePriceVariation40dColumnTitleInfo", "Price variation (40 days)"))
-						.WrapTextAt(0.5 * Theme.ContentWidth)
-					]
+					// TODO : transport fee, stock, flow, etc
 				]
 			]
 		]
 
-		// List
+		// Content
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Center)
 		.Padding(Theme.ContentPadding)
 		[
-			SNew(SBox)
-			.WidthOverride(1.7 * Theme.ContentWidth)
-			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
+			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
 
-				+ SScrollBox::Slot()
+			+ SScrollBox::Slot()
+			[
+				SNew(SBox)
+				.WidthOverride(2 * Theme.ContentWidth)
+				.Padding(FMargin(0))
 				[
-					SNew(SBox)
-					.HAlign(HAlign_Fill)
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Sector name
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.7 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("SectorNameColumnTitleInfo", "Sector"))
+							]
+						]
+
+						// Price
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.3 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourcePriceColumnTitleInfo", "Price"))
+							]
+						]
+
+						// Price variation 1 day
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.3 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourcePriceVariation1dColumnTitleInfo", "1-day variation"))
+								.WrapTextAt(0.3 * Theme.ContentWidth)
+							]
+						]
+
+						// Price variation 40 days
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.3 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourcePriceVariation40dColumnTitleInfo", "40-days variation"))
+								.WrapTextAt(0.5 * Theme.ContentWidth)
+							]
+						]
+					]
+
+					// List
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					[
 						SAssignNew(SectorList, SVerticalBox)
 					]
@@ -283,7 +289,6 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 			.Padding(FMargin(1))
 			.BorderImage((SectorIndex % 2 == 0 ? &Theme.EvenBrush : &Theme.OddBrush))
 			[
-
 				SNew(SHorizontalBox)
 
 				// Sector
@@ -293,18 +298,13 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.3 * Theme.ContentWidth)
-					.HAlign(HAlign_Center)
+					.WidthOverride(0.7 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
 					[
-						SNew(SFlareSectorButton)
-						.Sector(Sector)
-						.PlayerCompany(MenuManager->GetPC()->GetCompany())
-						.OnClicked(this, &SFlareWorldEconomyMenu::OnOpenSector, Sector)
-
-						/*SNew(SFlareSectorButton)
+						SNew(STextBlock)
+						.Text(Sector->GetSectorName()) // TODO text with hostility etc
 						.TextStyle(&Theme.TextFont)
-						.Text(Sector->GetSectorName())
-						.WrapTextAt(0.25 * Theme.ContentWidth)*/
+						.WrapTextAt(0.65 * Theme.ContentWidth)
 					]
 				]
 
@@ -354,6 +354,21 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
 						.Text(this, &SFlareWorldEconomyMenu::GetResourcePriceVariationInfo, Sector, TSharedPtr<int32>(new int32(40)))
+					]
+				]
+
+				// Details
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					[
+						SNew(SFlareButton)
+						.Text(LOCTEXT("DetailButton", "Details"))
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+						.OnClicked(this, &SFlareWorldEconomyMenu::OnOpenSector, Sector)
 					]
 				]
 			]

@@ -88,7 +88,7 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SBox)
 				.WidthOverride(2 * Theme.ContentWidth)
-				.Padding(FMargin(1))
+				.Padding(FMargin(0))
 				[
 					SNew(SVerticalBox)
 
