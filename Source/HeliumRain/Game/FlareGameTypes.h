@@ -168,6 +168,21 @@ struct FFlareFloatBuffer
 	float GetMean(int32 StartAge, int32 EndAge);
 };
 
+/** Incoming event description */
+USTRUCT()
+struct FFlareIncomingEvent
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Event text */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FText Text;
+
+	/** Days until event */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int64 RemainingDuration;
+};
+
 UCLASS()
 class HELIUMRAIN_API UFlareGameTypes : public UObject
 {

@@ -640,6 +640,12 @@ FText SFlareOrbitalMenu::GetDateText() const
 	return FText();
 }
 
+
+inline static bool EventDurationComparator (const FFlareIncomingEvent& ip1, const FFlareIncomingEvent& ip2)
+ {
+	 return (ip1.RemainingDuration < ip2.RemainingDuration);
+ }
+
 FText SFlareOrbitalMenu::GetTravelText() const
 {
 	if (IsEnabled())
@@ -647,7 +653,8 @@ FText SFlareOrbitalMenu::GetTravelText() const
 		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
 		if (GameWorld)
 		{
-			FString Result = "\n";
+			TArray<FFlareIncomingEvent> IncomingEvents;
+
 
 			// List travels
 			for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
@@ -655,12 +662,15 @@ FText SFlareOrbitalMenu::GetTravelText() const
 				UFlareTravel* Travel = GameWorld->GetTravels()[TravelIndex];
 				if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 				{
+					int64 RemainingDuration = Travel->GetRemainingTravelDuration();
 					FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} is travelling to {1} ({2} left)"),
 						Travel->GetFleet()->GetFleetName(),
 						Travel->GetDestinationSector()->GetSectorName(),
-						FText::FromString(*UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1))); //FString needed here
-
-					Result += TravelText.ToString() + "\n";
+						FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1))); //FString needed here
+					FFlareIncomingEvent TravelEvent;
+					TravelEvent.Text = TravelText;
+					TravelEvent.RemainingDuration = RemainingDuration;
+					IncomingEvents.Add(TravelEvent);
 				}
 			}
 
@@ -687,12 +697,15 @@ FText SFlareOrbitalMenu::GetTravelText() const
 							FFlareSpacecraftDescription* OrderDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass());
 							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration() + OrderDesc->CycleCost.ProductionTime;
 
-							FText TravelText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "A {0} ordered to {1} ({2} left)"),
+							FText ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "A {0} ordered to {1} ({2} left)"),
 								OrderDesc->Name,
 								Companies[CompanyIndex]->GetCompanyName(),
 								FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
 
-							Result += TravelText.ToString() + "\n";
+							FFlareIncomingEvent ProductionEvent;
+							ProductionEvent.Text = ProductionText;
+							ProductionEvent.RemainingDuration = ProductionTime;
+							IncomingEvents.Add(ProductionEvent);
 						}
 
 						// Ship being built
@@ -700,15 +713,27 @@ FText SFlareOrbitalMenu::GetTravelText() const
 						{
 							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration();
 
-							FText TravelText = FText::Format(LOCTEXT("ShipProductionTextFormat", "A {0} is being built by {1} ({2} left)"),
+							FText ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "A {0} is being built by {1} ({2} left)"),
 								MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
 								Companies[CompanyIndex]->GetCompanyName(),
 								FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
 
-							Result += TravelText.ToString() + "\n";
+							FFlareIncomingEvent ProductionEvent;
+							ProductionEvent.Text = ProductionText;
+							ProductionEvent.RemainingDuration = ProductionTime;
+							IncomingEvents.Add(ProductionEvent);
 						}
 					}
 				}
+			}
+			// TODO merge with world event system
+
+			IncomingEvents.Sort(&EventDurationComparator);
+
+			FString Result = "\n";
+			for(FFlareIncomingEvent& Event : IncomingEvents)
+			{
+				Result += Event.Text.ToString() + "\n";
 			}
 
 			return FText::FromString(Result);
