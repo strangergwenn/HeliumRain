@@ -234,6 +234,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 
 				// Incoming in sector
 				case EFlareSpawnMode::Travel:
+				{
 
 					FLOGV("UFlareSector::LoadSpacecraft : Travel '%s' at (%f, %f, %f)",
 						*ShipData.Immatriculation.ToString(),
@@ -290,6 +291,9 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 					{
 						SpawnDistance += 500000; // 5 km
 					}
+
+					SpawnDistance = FMath::Min(SpawnDistance, GetSectorLimits());
+
 					FVector Location = GetSectorCenter() + SpawnDirection * SpawnDistance;
 
 					FVector CenterDirection = (GetSectorCenter() - Location).GetUnsafeNormal();
@@ -306,7 +310,24 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(const FFlareSpacecraftSave& ShipD
 
 					RootComponent->SetPhysicsLinearVelocity(CenterDirection * SpawnVelocity, false);
 					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
-					break;
+				}
+				break;
+				case EFlareSpawnMode::Exit:
+				{
+					float SpawnDistance = GetSectorLimits() * 0.9;
+					float SpawnVelocity = ShipData.LinearVelocity.Size() * 0.6;
+					FVector SpawnDirection = ShipData.Location.GetUnsafeNormal();
+					FVector Location = SpawnDirection * SpawnDistance;
+					FVector CenterDirection = (GetSectorCenter() - Location).GetUnsafeNormal();
+
+					PlaceSpacecraft(Spacecraft, Location);
+					Spacecraft->SetActorRotation(CenterDirection.Rotation());
+
+					RootComponent->SetPhysicsLinearVelocity(CenterDirection * SpawnVelocity, false);
+					RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
+
+				}
+				break;
 			}
 		}
 		else

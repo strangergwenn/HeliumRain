@@ -279,6 +279,8 @@ protected:
 	UPROPERTY()
 	UFlareCargoBay*                                CargoBay;
 
+	bool										   InWarningZone;
+
 	/*----------------------------------------------------
 		Target selection
 	----------------------------------------------------*/

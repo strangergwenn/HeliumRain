@@ -168,4 +168,9 @@ public:
 
 	float GetSectorRadius();
 
+	float GetSectorLimits()
+	{
+		return 1500000; // 15 km
+	}
+
 };

@@ -112,6 +112,75 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		{
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
+
+			if (this == PlayerShip)
+			{
+				// Return to orbital if player leave the limits
+				float Distance = GetActorLocation().Size();
+				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
+				if(Distance > Limits)
+				{
+					PC->Notify(
+						LOCTEXT("ExitSector", "Exit sector"),
+						LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference. Use travels to change sector or fly again to return in the sector."),
+						"exit-sector",
+						EFlareNotification::NT_Info);
+					ShipData.SpawnMode = EFlareSpawnMode::Exit;
+					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
+				}
+				else
+				{
+					float MinDistance = Limits - Distance;
+					FLOGV("MinDistance = %f", MinDistance);
+					bool ExitImminent = false;
+
+					if (MinDistance < 0.1 * Limits)
+					{
+						ExitImminent = true;
+					}
+					else if (! GetLinearVelocity().IsNearlyZero())
+					{
+						// https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+						FVector ShipDirection = GetLinearVelocity().GetUnsafeNormal();
+						FVector ShipLocation = GetActorLocation();
+						float Dot = FVector::DotProduct(ShipDirection, ShipLocation);
+
+						float DistanceBeforeExit = - Dot + FMath::Sqrt(Dot * Dot - Distance * Distance + Limits * Limits);
+						float Velocity = GetLinearVelocity().Size() * 100;
+						float DurationBeforeExit = DistanceBeforeExit / Velocity;
+
+
+						FLOGV("DistanceBeforeExit = %f", DistanceBeforeExit);
+						FLOGV("Velocity = %f", Velocity);
+						FLOGV("DurationBeforeExit = %f", DurationBeforeExit);
+
+						if (DurationBeforeExit < 15)
+						{
+							ExitImminent = true;
+						}
+					}
+
+					if (ExitImminent)
+					{
+						if (!InWarningZone)
+						{
+							PC->Notify(
+								LOCTEXT("ExitSectorImminent", "Exit sector imminent"),
+								LOCTEXT("ExitSectorImminentDescription", "Your ship will exit the sector orbit. Return near the sector center."),
+								"exit-sector-imminent",
+								EFlareNotification::NT_Info);
+						}
+
+						InWarningZone = true;
+					}
+					else
+					{
+						InWarningZone = false;
+					}
+
+				}
+			}
+
 			// 5km limit
 			if (PlayerShip && !GetDamageSystem()->IsAlive())
 			{
@@ -537,6 +606,7 @@ void AFlareSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	LockResources();
 
 	CurrentTarget = NULL;
+	InWarningZone = false;
 }
 
 FFlareSpacecraftSave* AFlareSpacecraft::Save()

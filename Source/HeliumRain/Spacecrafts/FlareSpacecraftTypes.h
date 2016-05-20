@@ -24,7 +24,8 @@ namespace EFlareSpawnMode
 	{
 		Safe,
 		Spawn,
-		Travel
+		Travel,
+		Exit
 	};
 }
 

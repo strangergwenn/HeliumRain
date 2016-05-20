@@ -108,7 +108,8 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	}
 
 
-	TimeUntilNextComponentSwitch-=ReactionTime;
+	//TimeUntilNextComponentSwitch-=ReactionTime; // TODO restore if reaction time is restored
+	TimeUntilNextComponentSwitch-=DeltaSeconds;
 
 	if (PilotTargetShip)
 	{
