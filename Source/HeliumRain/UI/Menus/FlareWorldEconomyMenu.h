@@ -66,6 +66,12 @@ protected:
 	/** Get the resource price info */
 	FText GetResourceDescription() const;
 
+	/** Get the sector info */
+	FText GetSectorText(UFlareSimulatedSector* Sector) const;
+
+	/** Get the sector info color */
+	FSlateColor GetSectorTextColor(UFlareSimulatedSector* Sector) const;
+
 	/** Get the resource price info */
 	FText GetResourcePriceInfo(UFlareSimulatedSector* Sector) const;
 

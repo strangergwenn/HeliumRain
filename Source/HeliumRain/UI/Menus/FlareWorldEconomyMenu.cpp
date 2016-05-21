@@ -301,10 +301,26 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 					.WidthOverride(0.7 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
-						SNew(STextBlock)
-						.Text(Sector->GetSectorName()) // TODO text with hostility etc
-						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(0.65 * Theme.ContentWidth)
+						SNew(SHorizontalBox)
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(Sector->GetSectorName())
+							.TextStyle(&Theme.TextFont)
+						]
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareWorldEconomyMenu::GetSectorText, Sector)
+							.ColorAndOpacity(this, &SFlareWorldEconomyMenu::GetSectorTextColor, Sector)
+							.TextStyle(&Theme.TextFont)
+						]
 					]
 				]
 
@@ -437,6 +453,17 @@ FText SFlareWorldEconomyMenu::GetResourceDescription() const
 	}
 
 	return FText();
+}
+
+FText SFlareWorldEconomyMenu::GetSectorText(UFlareSimulatedSector* Sector) const
+{
+	return FText::Format(LOCTEXT("SectorInfoFormat", "({0})"),
+		Sector->GetSectorFriendlynessText(MenuManager->GetPC()->GetCompany()));
+}
+
+FSlateColor SFlareWorldEconomyMenu::GetSectorTextColor(UFlareSimulatedSector* Sector) const
+{
+	return Sector->GetSectorFriendlynessColor(MenuManager->GetPC()->GetCompany());
 }
 
 FText SFlareWorldEconomyMenu::GetResourcePriceInfo(UFlareSimulatedSector* Sector) const
