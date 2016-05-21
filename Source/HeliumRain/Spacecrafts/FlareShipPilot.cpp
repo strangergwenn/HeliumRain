@@ -232,7 +232,54 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 {
-	if (Ship->GetNavigationSystem()->IsDocked())
+
+	PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::S);
+	if (!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::L);
+	}
+
+	// If enemy near, run away !
+	if (PilotTargetShip)
+	{
+
+		FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
+		float Distance = DeltaLocation.Size(); // Distance in meters
+
+		FLOGV("%s If enemy near, run away ! Distance = %f", *Ship->GetImmatriculation().ToString(),Distance);
+
+
+		// There is at least one hostile enemy
+		if (Distance < 4000)
+		{
+			FLOGV("%s Low distance", *Ship->GetImmatriculation().ToString());
+
+			Ship->ForceManual(); // TODO make independant command channel
+			if(Ship->GetNavigationSystem()->IsDocked())
+			{
+				Ship->GetNavigationSystem()->Undock();
+			}
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 100;
+
+			// Exit avoidance
+			LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity);
+
+
+
+			UseOrbitalBoost = true;
+		}
+		else
+		{
+			PilotTargetShip = NULL;
+		}
+
+	}
+
+	if(PilotTargetShip)
+	{
+		// Already done
+	}
+	else if (Ship->GetNavigationSystem()->IsDocked())
 	{
 		if (WaitTime < 10)
 		{
@@ -291,34 +338,8 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		}
 	}
 
-	PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::S);
-	if (!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::L);
-	}
 
-	// If enemy near, run away !
-	if (PilotTargetShip)
-	{
 
-		FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
-		float Distance = DeltaLocation.Size(); // Distance in meters
-
-		// There is at least one hostile enemy
-		if (Distance < 4000)
-		{
-			Ship->ForceManual(); // TODO make independant command channel
-			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
-
-			UseOrbitalBoost = true;
-		}
-
-		if (Distance > 1000 && Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.95)
-		{
-			// Too hot and no imminent danger
-			//UseOrbitalBoost = false;
-		}
-	}
 
 	// Turn to destination
 	if (! LinearTargetVelocity.IsZero())
@@ -326,9 +347,11 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1.f, 0.f, 0.f) , LinearTargetVelocity.GetUnsafeNormal(),FVector(0.f, 0.f, 0.f), DeltaSeconds);
 	}
 
+
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
 
+	FLOGV("%s Location = %s LinearTargetVelocity = %s",  *Ship->GetImmatriculation().ToString(), * Ship->GetActorLocation().ToString(),	 *LinearTargetVelocity.ToString());
 }
 
 void UFlareShipPilot::FighterPilot(float DeltaSeconds)
@@ -827,10 +850,12 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		float Distance = DeltaLocation.Size(); // Distance in meters
 
 		// There is at least one hostile enemy
-		if (Distance < 10000)
+		if (Distance < 10000) // 10 km
 		{
 			Ship->ForceManual(); // TODO make independant command channel
 			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+
+			LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity);
 
 			UseOrbitalBoost = true;
 		}
@@ -1103,6 +1128,30 @@ int32 UFlareShipPilot::GetPreferedWeaponGroup() const
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/
+
+FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector InitialVelocityTarget) const
+{
+	float CurveTrajectoryLimit = 0.3f;
+	float ShipCenterDistance = TargetShip->GetActorLocation().Size();
+	float SectorLimits = TargetShip->GetGame()->GetActiveSector()->GetSectorLimits();
+	if (ShipCenterDistance > SectorLimits * CurveTrajectoryLimit && !InitialVelocityTarget.IsNearlyZero())
+	{
+		// Curve the trajectory to avoid exit
+		float CurveRatio = FMath::Min(1.f, (ShipCenterDistance - SectorLimits * CurveTrajectoryLimit) / (SectorLimits * (1-CurveTrajectoryLimit)));
+		FVector CenterDirection = (TargetShip->GetGame()->GetActiveSector()->GetSectorCenter() - TargetShip->GetActorLocation()).GetUnsafeNormal();
+		FVector InitialVelocityTargetDirection = InitialVelocityTarget.GetUnsafeNormal();
+
+		FVector ExitAvoidanceDirection = (10 * CurveRatio * CenterDirection + (1 - CurveRatio) * InitialVelocityTargetDirection).GetUnsafeNormal();
+		FVector ExitAvoidanceVelocity = ExitAvoidanceDirection *  InitialVelocityTarget.Size();
+
+		return ExitAvoidanceVelocity;
+
+	}
+	else
+	{
+		return InitialVelocityTarget;
+	}
+}
 
 AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly, EFlarePartSize::Type Size) const
 {
