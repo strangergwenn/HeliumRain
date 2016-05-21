@@ -592,6 +592,13 @@ void UFlareSaveReaderV1::LoadPeople(const TSharedPtr<FJsonObject> Object, FFlare
 {
 	LoadInt32(Object, "Population", (int32*) &Data->Population); // TODO clean after conversion
 	LoadInt32(Object, "FoodStock", (int32*) &Data->FoodStock);
+	LoadInt32(Object, "FuelStock", (int32*) &Data->FuelStock);
+	LoadInt32(Object, "ToolStock", (int32*) &Data->ToolStock);
+	LoadInt32(Object, "TechStock", (int32*) &Data->TechStock);
+	LoadFloat(Object, "FoodConsumption", &Data->FoodConsumption);
+	LoadFloat(Object, "FuelConsumption", &Data->FuelConsumption);
+	LoadFloat(Object, "ToolConsumption", &Data->ToolConsumption);
+	LoadFloat(Object, "TechConsumption", &Data->TechConsumption);
 	LoadInt32(Object, "Money", (int32*) &Data->Money);
 	LoadInt32(Object, "Dept", (int32*) &Data->Dept);
 	LoadInt32(Object, "BirthPoint", (int32*) &Data->BirthPoint);

@@ -49,6 +49,34 @@ struct FFlarePeopleSave
 	/** Reputation of each company. By default 10 point per inhabitant. */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareCompanyReputationSave> CompanyReputations;
+
+	/** Fuel stock count */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 FuelStock;
+
+	/** Tools stock count */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 ToolStock;
+
+	/** Tech stock count */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 TechStock;
+
+	/** Food consumtion per inhabitant */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float FoodConsumption;
+
+	/** Fuel consumtion per inhabitant */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float FuelConsumption;
+
+	/** Tool consumtion per inhabitant */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float ToolConsumption;
+
+	/** Tech consumtion per inhabitant */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float TechConsumption;
 };
 
 

@@ -555,6 +555,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SavePeople(FFlarePeopleSave* Data)
 
 	JsonObject->SetStringField("Population", FormatInt32(Data->Population));
 	JsonObject->SetStringField("FoodStock", FormatInt32(Data->FoodStock));
+	JsonObject->SetStringField("FuelStock", FormatInt32(Data->FuelStock));
+	JsonObject->SetStringField("ToolStock", FormatInt32(Data->ToolStock));
+	JsonObject->SetStringField("TechStock", FormatInt32(Data->TechStock));
+	SaveFloat(JsonObject,"FoodConsumption", Data->FoodConsumption);
+	SaveFloat(JsonObject,"FuelConsumption", Data->FuelConsumption);
+	SaveFloat(JsonObject,"ToolConsumption", Data->ToolConsumption);
+	SaveFloat(JsonObject,"TechConsumption", Data->TechConsumption);
 	JsonObject->SetStringField("Money", FormatInt32(Data->Money));
 	JsonObject->SetStringField("Dept", FormatInt32(Data->Dept));
 	JsonObject->SetStringField("BirthPoint", FormatInt32(Data->BirthPoint));

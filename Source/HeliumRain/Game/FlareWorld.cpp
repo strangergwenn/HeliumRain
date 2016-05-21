@@ -69,6 +69,13 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 					NewSectorData.PeopleData.BirthPoint = 0;
 					NewSectorData.PeopleData.DeathPoint = 0;
 					NewSectorData.PeopleData.FoodStock = 0;
+					NewSectorData.PeopleData.FuelStock = 0;
+					NewSectorData.PeopleData.ToolStock = 0;
+					NewSectorData.PeopleData.TechStock = 0;
+					NewSectorData.PeopleData.FoodConsumption = 0;
+					NewSectorData.PeopleData.FuelConsumption = 0;
+					NewSectorData.PeopleData.ToolConsumption = 0;
+					NewSectorData.PeopleData.TechConsumption = 0;
 					NewSectorData.PeopleData.HappinessPoint = 0;
 					NewSectorData.PeopleData.HungerPoint = 0;
 					NewSectorData.PeopleData.Money = 0;

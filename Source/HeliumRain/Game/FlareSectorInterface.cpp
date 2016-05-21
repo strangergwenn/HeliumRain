@@ -340,7 +340,7 @@ int64 UFlareSectorInterface::GetResourcePrice(FFlareResourceDescription* Resourc
 			return DefaultPrice + Resource->TransportFee;
 		break;
 		case EFlareResourcePriceContext::ConsumerConsumption:
-			return DefaultPrice * 1.5;
+			return DefaultPrice * 1.2; // TODO dynamic
 		break;
 		case EFlareResourcePriceContext::MaintenanceConsumption:
 			return DefaultPrice * 1.5;
