@@ -187,6 +187,12 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			continue;
 		}
 
+		if (ShipCandidate->GetActorLocation().Size() > ShipCandidate->GetGame()->GetActiveSector()->GetSectorLimits())
+		{
+			// Ignore out limit ships
+			continue;
+		}
+
 		float Score;
 		float StateScore;
 		float AttackTargetScore;
