@@ -131,7 +131,6 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				else
 				{
 					float MinDistance = Limits - Distance;
-					FLOGV("MinDistance = %f", MinDistance);
 					bool ExitImminent = false;
 
 					if (MinDistance < 0.1 * Limits)
@@ -148,11 +147,6 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 						float DistanceBeforeExit = - Dot + FMath::Sqrt(Dot * Dot - Distance * Distance + Limits * Limits);
 						float Velocity = GetLinearVelocity().Size() * 100;
 						float DurationBeforeExit = DistanceBeforeExit / Velocity;
-
-
-						FLOGV("DistanceBeforeExit = %f", DistanceBeforeExit);
-						FLOGV("Velocity = %f", Velocity);
-						FLOGV("DurationBeforeExit = %f", DurationBeforeExit);
 
 						if (DurationBeforeExit < 15)
 						{
@@ -190,6 +184,31 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					GetGame()->GetActiveSector()->DestroySpacecraft(this);
 					return;
 				}
+			}
+
+			// Destroy lost ship
+			float Distance = GetActorLocation().Size();
+			float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
+			if(Distance > Limits * 3)
+			{
+				// Ship is lost, destroy it
+				if(GetCompany() ==	PC->GetCompany())
+				{
+					PC->Notify(LOCTEXT("MyShipLost", "Ship lost"),
+						FText::Format(LOCTEXT("MyShipLostFormat", "One of your ships was lost in space ({0})"),
+							 FText::FromString(GetImmatriculation().ToString())),
+						FName("my-ship-lost"),
+						EFlareNotification::NT_Info);
+				}
+				else
+				{
+					PC->Notify(LOCTEXT("ShipLostCompany", "Ship lost"),
+						FText::Format(LOCTEXT("ShipLostCompanyFormat", "{0} lost a ship in space"),
+							GetCompany()->GetCompanyName()),
+						FName("company-ship-lost"),
+						EFlareNotification::NT_Info);
+				}
+				GetGame()->GetActiveSector()->DestroySpacecraft(this);
 			}
 
 			// Set a default target if there is no manual choice
