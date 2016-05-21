@@ -121,8 +121,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				if(Distance > Limits)
 				{
 					PC->Notify(
-						LOCTEXT("ExitSector", "Exit sector"),
-						LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference. Use travels to change sector or fly again to return in the sector."),
+						LOCTEXT("ExitSector", "Exited sector"),
+						LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference."),
 						"exit-sector",
 						EFlareNotification::NT_Info);
 					ShipData.SpawnMode = EFlareSpawnMode::Exit;
@@ -165,8 +165,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 						if (!InWarningZone)
 						{
 							PC->Notify(
-								LOCTEXT("ExitSectorImminent", "Exit sector imminent"),
-								LOCTEXT("ExitSectorImminentDescription", "Your ship will exit the sector orbit. Return near the sector center."),
+								LOCTEXT("ExitSectorImminent", "Exiting sector"),
+								LOCTEXT("ExitSectorImminentDescription", "Your ship is going to exit the sector. Go back near the sector center if you want to stay."),
 								"exit-sector-imminent",
 								EFlareNotification::NT_Info);
 						}
