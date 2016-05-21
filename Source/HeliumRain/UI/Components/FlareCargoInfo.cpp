@@ -188,31 +188,24 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 			LockText = FText::Format(LOCTEXT("InputCargoFormat", "(Input)\n"), Cargo->Resource->Acronym);
 		}
 	}
-
+	
 	// Format the current capacity info
 	if (Cargo->Capacity > 999)
 	{
 		FNumberFormattingOptions CargoFormat;
 		CargoFormat.MaximumFractionalDigits = 1;
 
-		if(Cargo->Quantity > 99)
-		{
-			return FText::Format(FText::FromString("{0} {1}k/{2}k"),
-				LockText,
-				FText::AsNumber(Cargo->Quantity / 1000.0f, &CargoFormat),
-				FText::AsNumber(Cargo->Capacity / 1000.0f, &CargoFormat));
-		}
-		else
-		{
-			return FText::Format(FText::FromString("{0} {1}/{2}k"),
-				LockText,
-				FText::AsNumber(Cargo->Quantity, &CargoFormat),
-				FText::AsNumber(Cargo->Capacity / 1000.0f, &CargoFormat));
-		}
+		return FText::Format(FText::FromString("{0} {1}/{2}k"),
+			LockText,
+			FText::AsNumber(Cargo->Quantity, &CargoFormat),
+			FText::AsNumber(Cargo->Capacity / 1000.0f, &CargoFormat));
 	}
 	else
 	{
-		return FText::FromString(FString::Printf(TEXT("%s %u/%u"), *LockText.ToString(), Cargo->Quantity, Cargo->Capacity));
+		return FText::Format(FText::FromString("{0} {1}/{2}"),
+			LockText,
+			FText::AsNumber(Cargo->Quantity),
+			FText::AsNumber(Cargo->Capacity));
 	}
 }
 

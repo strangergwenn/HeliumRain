@@ -230,35 +230,6 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 									.IsDisabled(this, &SFlareTradeRouteMenu::IsAddSectorDisabled)
 								]
 							]
-
-							// Title
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.TitlePadding)
-							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("ResourceSelection", "Current resource to load / unload"))
-								.TextStyle(&Theme.SubTitleFont)
-							]
-
-							// Resource selection
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
-								.OptionsSource(&PC->GetGame()->GetResourceCatalog()->Resources)
-								.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateResourceComboLine)
-								.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged)
-								.ComboBoxStyle(&Theme.ComboBoxStyle)
-								.ForegroundColor(FLinearColor::White)
-								.Visibility(this, &SFlareTradeRouteMenu::GetResourceSelectorVisibility)
-								[
-									SNew(STextBlock)
-									.Text(this, &SFlareTradeRouteMenu::OnGetCurrentResourceComboLine)
-									.TextStyle(&Theme.TextFont)
-								]
-							]
 						]
 					]
 
@@ -279,6 +250,35 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SAssignNew(TradeSectorList, SHorizontalBox)
+					]
+
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("ResourceSelection", "Change current resource"))
+						.TextStyle(&Theme.SubTitleFont)
+					]
+
+					// Resource selection
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
+						.OptionsSource(&PC->GetGame()->GetResourceCatalog()->Resources)
+						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateResourceComboLine)
+						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged)
+						.ComboBoxStyle(&Theme.ComboBoxStyle)
+						.ForegroundColor(FLinearColor::White)
+						.Visibility(this, &SFlareTradeRouteMenu::GetResourceSelectorVisibility)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentResourceComboLine)
+							.TextStyle(&Theme.TextFont)
+						]
 					]
 				]
 			]
