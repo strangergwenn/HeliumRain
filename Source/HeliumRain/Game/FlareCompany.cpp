@@ -740,8 +740,14 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 				uint32 Quantity = Factory->GetReservedResources()[ReservedResourceIndex].Quantity;
 
 				FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceIdentifier);
-
-				Value.StockValue += ReferenceSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * Quantity;
+				if (Resource)
+				{
+					Value.StockValue += ReferenceSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * Quantity;
+				}
+				else
+				{
+					FLOGV("WARNING: Invalid reserved resource %s (%d reserved) for %s)", *ResourceIdentifier.ToString(), Quantity, *Spacecraft->GetImmatriculation().ToString())
+				}
 			}
 		}
 	}
