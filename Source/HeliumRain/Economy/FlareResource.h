@@ -2,6 +2,7 @@
 #pragma once
 #include "FlareResource.generated.h"
 
+
 /** Resource description */
 USTRUCT()
 struct FFlareResourceDescription
@@ -58,9 +59,13 @@ struct FFlareCargo
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 Capacity;
 
-	/** Cargo locked */
+	/** Cargo lock */
 	UPROPERTY(EditAnywhere, Category = Save)
-	bool Locked;
+	TEnumAsByte<EFlareResourceLock::Type> Lock;
+
+	/** Manual lock */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool ManualLock;
 };
 
 UCLASS()

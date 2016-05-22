@@ -417,6 +417,7 @@ void UFlareSaveReaderV1::LoadCargo(const TSharedPtr<FJsonObject> Object, FFlareC
 {
 	LoadFName(Object, "ResourceIdentifier", &Data->ResourceIdentifier);
 	LoadInt32(Object, "Quantity", (int32*) &Data->Quantity); // TODO clean after conversion
+	Data->Lock = LoadEnum<EFlareResourceLock::Type>(Object, "Lock", "EFlareResourceLock");
 }
 
 

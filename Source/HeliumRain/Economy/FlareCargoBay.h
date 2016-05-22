@@ -34,9 +34,9 @@ public:
 
 	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
 
-	void UnlockAll();
+	void UnlockAll(bool IgnoreManualLock = true);
 
-	bool LockSlot(FFlareResourceDescription* Resource);
+	bool LockSlot(FFlareResourceDescription* Resource, EFlareResourceLock::Type LockType, bool ManualLock);
 
 protected:
 
@@ -91,4 +91,7 @@ public:
 		return Parent;
 	}
 
+	bool WantSell(FFlareResourceDescription* Resource) const;
+
+	bool WantBuy(FFlareResourceDescription* Resource) const;
 };

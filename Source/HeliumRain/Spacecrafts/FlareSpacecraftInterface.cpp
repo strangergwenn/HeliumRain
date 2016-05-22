@@ -133,7 +133,7 @@ void IFlareSpacecraftInterface::LockResources()
 		{
 			const FFlareFactoryResource* Resource = &Factory->CycleCost.InputResources[ResourceIndex];
 
-			if (!GetCargoBay()->LockSlot(&Resource->Resource->Data))
+			if (!GetCargoBay()->LockSlot(&Resource->Resource->Data, EFlareResourceLock::Input, false))
 			{
 				FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
 			}
@@ -143,7 +143,7 @@ void IFlareSpacecraftInterface::LockResources()
 		{
 			const FFlareFactoryResource* Resource = &Factory->CycleCost.OutputResources[ResourceIndex];
 
-			if (!GetCargoBay()->LockSlot(&Resource->Resource->Data))
+			if (!GetCargoBay()->LockSlot(&Resource->Resource->Data, EFlareResourceLock::Output, false))
 			{
 				FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
 			}
@@ -155,7 +155,7 @@ void IFlareSpacecraftInterface::LockResources()
 		for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 		{
 			FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-			if (!GetCargoBay()->LockSlot(Resource))
+			if (!GetCargoBay()->LockSlot(Resource, EFlareResourceLock::Input, false))
 			{
 				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
 			}
@@ -168,7 +168,7 @@ void IFlareSpacecraftInterface::LockResources()
 		{
 			FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
 
-			if (!GetCargoBay()->LockSlot(Resource))
+			if (!GetCargoBay()->LockSlot(Resource, EFlareResourceLock::Input, false))
 			{
 				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
 			}

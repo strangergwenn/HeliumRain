@@ -177,17 +177,15 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	
 	// Print IO text if any
 	FText LockText;
-	if (Cargo->Locked)
+	if (Cargo->Lock == EFlareResourceLock::Output)
 	{
-		if (TargetSpacecraft->GetResourceUseType(Cargo->Resource) == EFlareResourcePriceContext::FactoryOutput)
-		{
-			LockText = FText::Format(LOCTEXT("OutputCargoFormat", "(Output)\n"), Cargo->Resource->Acronym);
-		}
-		else
-		{
-			LockText = FText::Format(LOCTEXT("InputCargoFormat", "(Input)\n"), Cargo->Resource->Acronym);
-		}
+		LockText = FText::Format(LOCTEXT("OutputCargoFormat", "(Output)\n"), Cargo->Resource->Acronym);
 	}
+	else if (Cargo->Lock == EFlareResourceLock::Input)
+	{
+		LockText = FText::Format(LOCTEXT("InputCargoFormat", "(Input)\n"), Cargo->Resource->Acronym);
+	}
+	// TODO Trade
 	
 	// Format the current capacity info
 	if (Cargo->Capacity > 999)

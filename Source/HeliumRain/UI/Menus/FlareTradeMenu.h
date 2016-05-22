@@ -62,6 +62,9 @@ protected:
 
 	/** Are the transaction details visible ? */
 	EVisibility GetTransactionDetailsVisibility() const;
+
+	/** Are the transaction details visible ? */
+	EVisibility GetTransactionInvalidVisibility() const;
 	
 	/** Get the name of the left spacecraft */
 	FText GetLeftSpacecraftName() const;
@@ -71,6 +74,9 @@ protected:
 	
 	/** Get the transaction details */
 	FText GetTransactionDetails() const;
+
+	/** Get the transaction invalid details */
+	FText GetTransactionInvalidDetails() const;
 
 	/** Get the resource prices */
 	FText GetResourcePriceInfo(FFlareResourceDescription* Resource) const;
@@ -96,6 +102,8 @@ protected:
 	/** Update price on confirm button */
 	void UpdatePrice();
 
+	/** Return true if the transaction is valid*/
+	bool IsTransactionValid() const;
 
 protected:
 

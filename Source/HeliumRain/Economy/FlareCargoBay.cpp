@@ -28,7 +28,8 @@ void UFlareCargoBay::Load(IFlareSpacecraftInterface* ParentSpacecraft, TArray<FF
 		Cargo.Resource = NULL;
 		Cargo.Capacity = CargoBayCapacity;
 		Cargo.Quantity = 0;
-		Cargo.Locked = false;
+		Cargo.Lock = EFlareResourceLock::NoLock;
+		Cargo.ManualLock= false;
 
 		if (CargoIndex < (uint32)Data.Num())
 		{
@@ -39,6 +40,14 @@ void UFlareCargoBay::Load(IFlareSpacecraftInterface* ParentSpacecraft, TArray<FF
 			{
 				Cargo.Resource = Game->GetResourceCatalog()->Get(CargoSave->ResourceIdentifier);
 				Cargo.Quantity = FMath::Min(CargoSave->Quantity, CargoBayCapacity);
+
+			}
+
+			if(CargoSave->Lock != EFlareResourceLock::NoLock)
+			{
+				Cargo.Resource = Game->GetResourceCatalog()->Get(CargoSave->ResourceIdentifier);
+				Cargo.Lock = CargoSave->Lock;
+				Cargo.ManualLock = true;
 			}
 		}
 
@@ -63,6 +72,15 @@ TArray<FFlareCargoSave>* UFlareCargoBay::Save()
 		{
 			CargoSave.ResourceIdentifier = NAME_None;
 		}
+		if(Cargo.ManualLock && Cargo.Lock != 255)
+		{
+			CargoSave.Lock = Cargo.Lock;
+		}
+		else
+		{
+			CargoSave.Lock = EFlareResourceLock::NoLock;
+		}
+
 		CargoBayData.Add(CargoSave);
 	}
 
@@ -133,7 +151,7 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 			MinQuantityCargo->Quantity -= TakenQuantity;
 			QuantityToTake -= TakenQuantity;
 
-			if (MinQuantityCargo->Quantity == 0 && !MinQuantityCargo->Locked)
+			if (MinQuantityCargo->Quantity == 0 && MinQuantityCargo->Lock == EFlareResourceLock::NoLock)
 			{
 				MinQuantityCargo->Resource = NULL;
 			}
@@ -157,7 +175,7 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 				Cargo.Quantity -= TakenQuantity;
 				QuantityToTake -= TakenQuantity;
 
-				if (Cargo.Quantity == 0 && !Cargo.Locked)
+				if (Cargo.Quantity == 0 && Cargo.Lock == EFlareResourceLock::NoLock)
 				{
 					Cargo.Resource = NULL;
 				}
@@ -175,7 +193,7 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 void UFlareCargoBay::DumpCargo(FFlareCargo* Cargo)
 {
 	Cargo->Quantity = 0;
-	if (!Cargo->Locked)
+	if (Cargo->Lock == EFlareResourceLock::NoLock)
 	{
 		Cargo->Resource = NULL;
 	}
@@ -316,15 +334,20 @@ FFlareCargo* UFlareCargoBay::GetSlot(uint32 Index)
 	return &CargoBay[Index];
 }
 
-bool UFlareCargoBay::LockSlot(FFlareResourceDescription* Resource)
+bool UFlareCargoBay::LockSlot(FFlareResourceDescription* Resource, EFlareResourceLock::Type LockType, bool ManualLock)
 {
+	if(LockType == EFlareResourceLock::NoLock)
+	{
+		return false;
+	}
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
 
-		if (!Cargo.Locked && (Cargo.Resource == NULL || Cargo.Resource == Resource))
+		if (Cargo.Lock == EFlareResourceLock::NoLock && (Cargo.Resource == NULL || Cargo.Resource == Resource))
 		{
-			Cargo.Locked = true;
+			Cargo.Lock = LockType;
+			Cargo.ManualLock = ManualLock;
 
 			if (Cargo.Resource == NULL)
 			{
@@ -338,19 +361,65 @@ bool UFlareCargoBay::LockSlot(FFlareResourceDescription* Resource)
 	return false;
 }
 
-void UFlareCargoBay::UnlockAll()
+void UFlareCargoBay::UnlockAll(bool IgnoreManualLock)
 {
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		FFlareCargo& Cargo = CargoBay[CargoIndex];
 
-		if (Cargo.Locked)
+		if (Cargo.Lock != EFlareResourceLock::NoLock)
 		{
-			Cargo.Locked = false;
+			if(IgnoreManualLock && Cargo.ManualLock)
+			{
+				continue;
+			}
+
+			Cargo.Lock = EFlareResourceLock::NoLock;
+			Cargo.ManualLock = false;
+
 			if (Cargo.Quantity == 0)
 			{
 				Cargo.Resource = NULL;
 			}
 		}
 	}
+}
+
+bool UFlareCargoBay::WantSell(FFlareResourceDescription* Resource) const
+{
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		const FFlareCargo& Cargo = CargoBay[CargoIndex];
+		if(Cargo.Resource != NULL && Cargo.Resource != Resource)
+		{
+			continue;
+		}
+
+		if(Cargo.Lock == EFlareResourceLock::NoLock || Cargo.Lock == EFlareResourceLock::Output)
+		{
+			// TODO Trade lock
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UFlareCargoBay::WantBuy(FFlareResourceDescription* Resource) const
+{
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		const FFlareCargo& Cargo = CargoBay[CargoIndex];
+		if(Cargo.Resource != NULL && Cargo.Resource != Resource)
+		{
+			continue;
+		}
+
+		if(Cargo.Lock == EFlareResourceLock::NoLock || Cargo.Lock == EFlareResourceLock::Input)
+		{
+			// TODO Trade lock
+			return true;
+		}
+	}
+	return false;
 }

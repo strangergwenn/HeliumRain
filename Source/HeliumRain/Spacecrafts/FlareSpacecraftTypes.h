@@ -29,6 +29,19 @@ namespace EFlareSpawnMode
 	};
 }
 
+/** Resource lock type values */
+UENUM()
+namespace EFlareResourceLock
+{
+	enum Type
+	{
+		NoLock, // The slot is free
+		Input, // The slot accept only sell
+		Output, // The slot accept only buy
+		Trade, // The slot is lock to a resource and accept buy and sell according price thresold
+	};
+}
+
 /** Ship component turret save data */
 USTRUCT()
 struct FFlareSpacecraftComponentTurretSave
@@ -150,6 +163,7 @@ struct FFlareAsteroidSave
 	int32 AsteroidMeshID;
 };
 
+
 /** Spacecraft cargo save data */
 USTRUCT()
 struct FFlareCargoSave
@@ -163,6 +177,10 @@ struct FFlareCargoSave
 	/** Cargo quantity */
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 Quantity;
+
+	/** Lock type */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlareResourceLock::Type> Lock;
 };
 
 /** Spacecraft factory save data */

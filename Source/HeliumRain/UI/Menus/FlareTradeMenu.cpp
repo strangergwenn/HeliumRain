@@ -248,6 +248,17 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
 								]
 
+								// Invalid transaction
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.ContentPadding)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(this, &SFlareTradeMenu::GetTransactionInvalidDetails)
+									.Visibility(this, &SFlareTradeMenu::GetTransactionInvalidVisibility)
+								]
+
 								// Quantity
 								+ SVerticalBox::Slot()
 								.AutoHeight()
@@ -505,9 +516,16 @@ EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 }
 
 
+
+
 EVisibility SFlareTradeMenu::GetTransactionDetailsVisibility() const
 {
-	return (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
+	return IsTransactionValid() ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
+EVisibility SFlareTradeMenu::GetTransactionInvalidVisibility() const
+{
+	return (!IsTransactionValid() && TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 FText SFlareTradeMenu::GetLeftSpacecraftName() const
@@ -540,6 +558,21 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 	{
 		return FText::Format(LOCTEXT("TradeInfoFormat", "Trading {0}x {1} from {2} to {3}."),
 			FText::AsNumber(TransactionQuantity),
+			TransactionResource->Name,
+			FText::FromName(TransactionSourceSpacecraft->GetImmatriculation()),
+			FText::FromName(TransactionDestinationSpacecraft->GetImmatriculation()));
+	}
+	else
+	{
+		return FText();
+	}
+}
+
+FText SFlareTradeMenu::GetTransactionInvalidDetails() const
+{
+	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
+	{
+		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Trading of {0} is unauthorized from {1} to {2}"),
 			TransactionResource->Name,
 			FText::FromName(TransactionSourceSpacecraft->GetImmatriculation()),
 			FText::FromName(TransactionDestinationSpacecraft->GetImmatriculation()));
@@ -722,16 +755,39 @@ void SFlareTradeMenu::UpdatePrice()
 			TransactionResource);
 	}
 
-	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
+	if(IsTransactionValid())
 	{
-		int64 TransactionPrice = TransactionQuantity * ResourceUnitPrice;
-		bool AllowDepts = (TransactionDestinationSpacecraft->GetResourceUseType(TransactionResource) == EFlareResourcePriceContext::ConsumerConsumption);
-		PriceBox->Show(TransactionPrice, TransactionDestinationSpacecraft->GetCompany(), AllowDepts);
+		if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
+		{
+			int64 TransactionPrice = TransactionQuantity * ResourceUnitPrice;
+			bool AllowDepts = (TransactionDestinationSpacecraft->GetResourceUseType(TransactionResource) == EFlareResourcePriceContext::ConsumerConsumption);
+			PriceBox->Show(TransactionPrice, TransactionDestinationSpacecraft->GetCompany(), AllowDepts);
+		}
+		else
+		{
+			PriceBox->Show(0, MenuManager->GetPC()->GetCompany());
+		}
 	}
 	else
 	{
-		PriceBox->Show(0, MenuManager->GetPC()->GetCompany());
+		PriceBox->Hide();
 	}
+}
+
+bool SFlareTradeMenu::IsTransactionValid() const
+{
+	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
+	{
+		if(TransactionSourceSpacecraft->GetCompany() == TransactionDestinationSpacecraft->GetCompany())
+		{
+			return true;
+		}
+		if (TransactionSourceSpacecraft->GetCargoBay()->WantSell(TransactionResource) && TransactionDestinationSpacecraft->GetCargoBay()->WantBuy(TransactionResource))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 #undef LOCTEXT_NAMESPACE
