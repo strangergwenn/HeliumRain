@@ -382,10 +382,10 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 			PeopleData.FuelConsumption = FUEL_MIN_CONSUMPTION;
 		}
 
-		uint32 FuelToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.FuelConsumption * FUEL_NEED_STOCK; // In kg
-		if(FuelToHave > PeopleData.FuelStock)
+		int32 FuelToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.FuelConsumption * FUEL_NEED_STOCK; // In kg
+		if (FuelToHave > PeopleData.FuelStock)
 		{
-			uint32 FuelToBuy = FuelToHave - PeopleData.FuelStock;
+			int32 FuelToBuy = FuelToHave - PeopleData.FuelStock;
 			return FuelToBuy / 1000;
 		}
 	}
@@ -396,10 +396,10 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 			PeopleData.ToolConsumption = TOOL_MIN_CONSUMPTION;
 		}
 
-		uint32 ToolToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.ToolConsumption * TOOL_NEED_STOCK; // In kg
-		if(ToolToHave > PeopleData.ToolStock)
+		int32 ToolToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.ToolConsumption * TOOL_NEED_STOCK; // In kg
+		if (ToolToHave > PeopleData.ToolStock)
 		{
-			uint32 ToolToBuy = ToolToHave - PeopleData.ToolStock;
+			int32 ToolToBuy = ToolToHave - PeopleData.ToolStock;
 			return ToolToBuy / 1000;
 		}
 	}
@@ -410,10 +410,10 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 			PeopleData.TechConsumption = TECH_MIN_CONSUMPTION;
 		}
 
-		uint32 TechToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.TechConsumption * TECH_NEED_STOCK; // In kg
-		if(TechToHave > PeopleData.TechStock)
+		int32 TechToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.TechConsumption * TECH_NEED_STOCK; // In kg
+		if (TechToHave > PeopleData.TechStock)
 		{
-			uint32 TechToBuy = TechToHave - PeopleData.TechStock;
+			int32 TechToBuy = TechToHave - PeopleData.TechStock;
 			return TechToBuy / 1000;
 		}
 	}
