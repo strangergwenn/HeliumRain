@@ -346,11 +346,12 @@ void SFlareTradeMenu::Enter(UFlareSectorInterface* ParentSector, IFlareSpacecraf
 		// Add ships
 		for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorShipInterfaces().Num(); SpacecraftIndex++)
 		{
+			// Don't allow trade with other
 			IFlareSpacecraftInterface* ShipCandidate = ParentSector->GetSectorShipInterfaces()[SpacecraftIndex];
 			if (ShipCandidate && ShipCandidate != LeftSpacecraft && ShipCandidate != RightSpacecraft
 			 && ShipCandidate->GetDescription()->CargoBayCount > 0
 			 && ShipCandidate->GetDamageSystem()->IsAlive()
-			 && ShipCandidate->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile )
+			 && ShipCandidate->GetCompany() == MenuManager->GetPC()->GetCompany())
 			{
 				ShipList->AddShip(ShipCandidate);
 			}
