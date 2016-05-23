@@ -191,12 +191,15 @@ void AFlareHUD::OnTargetShipChanged()
 
 void AFlareHUD::UpdateHUDVisibility()
 {
-	bool NewVisibility = HUDVisible && !MenuManager->IsMenuOpen();
-	AFlarePlayerController* PC = MenuManager->GetPC();
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC)
+	{
+		bool NewVisibility = HUDVisible && !PC->GetMenuManager()->IsMenuOpen();
 
-	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
-	HUDMenu->SetVisibility((NewVisibility && !PC->UseCockpit) ? EVisibility::Visible : EVisibility::Collapsed);
-	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
+		FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
+		HUDMenu->SetVisibility((NewVisibility && !PC->UseCockpit) ? EVisibility::Visible : EVisibility::Collapsed);
+		ContextMenu->SetVisibility(NewVisibility && !PC->GetMenuManager()->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
+	}
 }
 
 void AFlareHUD::RemoveTarget(AFlareSpacecraft* Spacecraft)

@@ -327,6 +327,7 @@ protected:
 
 	// Various gameplay data
 	int32                                    QuickSwitchNextOffset;
+	bool                                     KeepFlyingInMenus;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
 	UFlareFleet*                             SelectedFleet;
