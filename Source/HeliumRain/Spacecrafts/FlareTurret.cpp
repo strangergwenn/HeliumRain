@@ -79,7 +79,7 @@ void UFlareTurret::SetupComponentMesh()
 	if (Spacecraft && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh)
 	{
 
-		TurretComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass(), TEXT("TurretMesh"));
+		TurretComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass());
 		 if (TurretComponent)
 		 {
 			TurretComponent->SetParentSpacecraftComponent(this);
@@ -96,7 +96,7 @@ void UFlareTurret::SetupComponentMesh()
 	if (Spacecraft && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh)
 	{
 
-		BarrelComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass() , TEXT("BarrelMesh"));
+		BarrelComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass());
 		 if (BarrelComponent)
 		 {
 			 BarrelComponent->SetParentSpacecraftComponent(this);
