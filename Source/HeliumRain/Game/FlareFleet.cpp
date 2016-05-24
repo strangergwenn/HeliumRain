@@ -47,7 +47,7 @@ FText UFlareFleet::GetName()
 	}
 }
 
-bool UFlareFleet::IsTraveling()
+bool UFlareFleet::IsTraveling() const
 {
 	return CurrentTravel != NULL;
 }
@@ -107,6 +107,23 @@ uint32 UFlareFleet::GetShipCount()
 uint32 UFlareFleet::GetMaxShipCount()
 {
 	return 20;
+}
+
+FText UFlareFleet::GetStatusInfo() const
+{
+	if (IsTraveling())
+	{
+		int64 RemainingDuration = CurrentTravel->GetRemainingTravelDuration();
+		return FText::Format(LOCTEXT("TravelTextFormat", "Travelling to {0} ({1} left)"),
+			CurrentTravel->GetDestinationSector()->GetSectorName(),
+			FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1))); //FString needed here
+	}
+	else
+	{
+		return LOCTEXT("TravelIdle", "Idle");
+	}
+
+	return FText();
 }
 
 void UFlareFleet::RemoveImmobilizedShips()

@@ -47,6 +47,7 @@ public:
 	/** Save the travel to a save file */
 	virtual FFlareTravelSave* Save();
 
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -108,6 +109,11 @@ public:
 	AFlareGame* GetGame() const
 	{
 		return Game;
+	}
+
+	UFlareSimulatedSector* GetSourceSector()
+	{
+		return OriginSector;
 	}
 
 	UFlareSimulatedSector* GetDestinationSector()
