@@ -48,7 +48,7 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("Title", "Spacecraft order"))
+						.Text(this, &SFlareSpacecraftOrderOverlay::GetWindowTitle)
 						.TextStyle(&Theme.TitleFont)
 						.Justification(ETextJustify::Center)
 					]
@@ -279,6 +279,22 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 /*----------------------------------------------------
 	Content callbacks
 ----------------------------------------------------*/
+
+FText SFlareSpacecraftOrderOverlay::GetWindowTitle() const
+{
+	if (TargetFactory)
+	{
+		return LOCTEXT("SpacecraftOrderTitle", "Order spacecraft");
+	}
+	else if (TargetSector)
+	{
+		return LOCTEXT("BuildStationTitle", "Build station");
+	}
+	else
+	{
+		return FText();
+	}
+}
 
 FText SFlareSpacecraftOrderOverlay::GetWalletText() const
 {

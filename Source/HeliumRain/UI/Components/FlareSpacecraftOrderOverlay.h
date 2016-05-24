@@ -59,6 +59,9 @@ public:
 		Content callbacks
 	----------------------------------------------------*/
 
+	/** Get the window title */
+	FText GetWindowTitle() const;
+
 	/** Get the company's wallet info */
 	FText GetWalletText() const;
 		
