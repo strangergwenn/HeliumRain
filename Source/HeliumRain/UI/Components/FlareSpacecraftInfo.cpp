@@ -241,7 +241,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(ScrapButton, SFlareButton)
 							.Text(LOCTEXT("Scrap", "SCRAP"))
-							.HelpText(LOCTEXT("UndockInfo", "Permanently destroy this ship and get some resources back"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
 							.Width(3)
 						]
@@ -374,9 +373,9 @@ void SFlareSpacecraftInfo::Show()
 		{
 			EFlareSectorBattleState::Type BattleState = TargetSpacecraft->GetCurrentSectorInterface()->GetSectorBattleState(TargetSpacecraft->GetCompany());
 			if (BattleState == EFlareSectorBattleState::BattleLost
-					|| BattleState == EFlareSectorBattleState::BattleLostNoRetreat
-					|| BattleState == EFlareSectorBattleState::BattleNoRetreat
-				|| BattleState == EFlareSectorBattleState::Battle)
+			 || BattleState == EFlareSectorBattleState::BattleLostNoRetreat
+			 || BattleState == EFlareSectorBattleState::BattleNoRetreat
+			 || BattleState == EFlareSectorBattleState::Battle)
 			{
 				CanTrade = false;
 			}
@@ -388,7 +387,7 @@ void SFlareSpacecraftInfo::Show()
 		// Upper line
 		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
 		SelectButton->SetVisibility(!Owned || IsStation ? EVisibility::Collapsed : EVisibility::Visible);
-		FlyButton->SetVisibility(!Owned ||IsStation ? EVisibility::Collapsed : EVisibility::Visible);
+		FlyButton->SetVisibility(!Owned || IsStation ? EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
 		AssignButton->SetVisibility(CanAssign ? EVisibility::Visible : EVisibility::Collapsed);
@@ -397,7 +396,7 @@ void SFlareSpacecraftInfo::Show()
 		UpgradeButton->SetVisibility(Owned && !IsStation ? EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock && !IsStrategy ? EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(IsDocked && !IsStrategy ? EVisibility::Visible : EVisibility::Collapsed);
-		ScrapButton->SetVisibility(EVisibility::Collapsed); // Unused at this time
+		ScrapButton->SetVisibility(IsStation ? EVisibility::Collapsed : EVisibility::Visible);
 
 		// Flyable ships : disable when not flyable
 		FText Reason;
@@ -446,11 +445,15 @@ void SFlareSpacecraftInfo::Show()
 		{
 			UpgradeButton->SetHelpText(LOCTEXT("UpgradeInfo", "Upgrade this spacecraft"));
 			UpgradeButton->SetDisabled(false);
+			ScrapButton->SetHelpText(LOCTEXT("ScrapInfo", "Permanently destroy this ship and get some resources back"));
+			ScrapButton->SetDisabled(false);
 		}
 		else
 		{
 			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked, or on the orbital map with an available station in the sector"));
 			UpgradeButton->SetDisabled(true);
+			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked, or on the orbital map with an available station in the sector"));
+			ScrapButton->SetDisabled(true);
 		}
 	}
 
@@ -574,12 +577,38 @@ void SFlareSpacecraftInfo::OnUndock()
 
 void SFlareSpacecraftInfo::OnScrap()
 {
-	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
+	if (PC && TargetSpacecraft)
 	{
-		// TODO
-		//PC->GetGame()->Scrap();
-		// TODO else if as for OnUndock
-		PC->GetMenuManager()->Back();
+		FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping '%s'", *TargetSpacecraft->GetImmatriculation().ToString())
+		IFlareSpacecraftInterface* TargetStation = NULL;
+		TArray<IFlareSpacecraftInterface*> SectorStations = TargetSpacecraft->GetCurrentSectorInterface()->GetSectorStationInterfaces();
+
+		// Find a suitable station
+		for (int Index = 0; Index < SectorStations.Num(); Index++)
+		{
+			if (SectorStations[Index]->GetCompany() == PC->GetCompany())
+			{
+				TargetStation = SectorStations[Index];
+				FLOGV("SFlareSpacecraftInfo::OnScrap : found player station '%s'", *TargetStation->GetImmatriculation().ToString())
+				break;
+			}
+			else if (TargetStation == NULL)
+			{
+				TargetStation = SectorStations[Index];
+			}
+		}
+
+		// Scrap
+		if (TargetStation)
+		{
+			FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping at '%s'", *TargetStation->GetImmatriculation().ToString())
+			PC->GetGame()->Scrap(TargetSpacecraft->GetImmatriculation(), TargetStation->GetImmatriculation());
+			PC->GetMenuManager()->Back();
+		}
+		else
+		{
+			FLOGV("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !")
+		}
 	}
 }
 
