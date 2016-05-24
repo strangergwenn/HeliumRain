@@ -50,6 +50,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	// Notable sectors (Hela)
 	FrozenRealm = World->FindSector("frozen-realm");
 	ShoreOfIce =  World->FindSector("shore-of-ice");
+	Ruins =       World->FindSector("ruins");
 
 	// Notable sectors (Asta)
 	Decay =       World->FindSector("decay");
@@ -230,13 +231,16 @@ void UFlareScenarioTools::SetupWorld()
 
 void UFlareScenarioTools::SetupAsteroids()
 {
+	CreateAsteroids(FirstLight, 8, FVector(2, 3, 1));
 	CreateAsteroids(MinersHome, 45, FVector(3, 50, 1));
+	CreateAsteroids(TheDepths, 16, FVector(3, 10, 2));
 
 	CreateAsteroids(Outpost, 17, FVector(2, 20, 1));
 	CreateAsteroids(TheDig, 22, FVector(5, 50, 2));
 
 	CreateAsteroids(FrozenRealm, 16, FVector(5, 50, 2));
 	CreateAsteroids(ShoreOfIce, 27, FVector(2, 20, 1));
+	CreateAsteroids(Ruins, 10, FVector(2, 5, 1));
 }
 
 void UFlareScenarioTools::SetupArtifacts()
@@ -260,6 +264,8 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 
 	// Notable sectors (Hela)
 	Company->DiscoverSector(FrozenRealm);
+	Company->DiscoverSector(ShoreOfIce);
+	Company->DiscoverSector(Ruins);
 }
 
 
