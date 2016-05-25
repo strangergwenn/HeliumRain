@@ -69,7 +69,9 @@ namespace EFlareShellDamageType
 	{
 		HighExplosive, // Explosion send shell pieces around at hight velocity.
 		ArmorPiercing, // Not explosive shell, The damage are done by kinetic energy. Classique bullets.
-		HEAT, // Heat Explosive Anti Tank. The explosion is focalized in a hot beam of metal melting armor.
+		HEAT,          // Heat Explosive Anti Tank. The explosion is focalized in a hot beam of metal melting armor.
+		LightSalvage,  // No actual damage, enable retrieval of light ships
+		HeavySalvage,  // No actual damage, enable retrieval of heavy ships
 	};
 }
 
