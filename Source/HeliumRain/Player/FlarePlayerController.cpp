@@ -459,7 +459,6 @@ void AFlarePlayerController::SetupMenu()
 	{
 		DefaultPawn->Destroy();
 	}
-	GetNavHUD()->UpdateHUDVisibility();
 }
 
 void AFlarePlayerController::UpdateMenuTheme()

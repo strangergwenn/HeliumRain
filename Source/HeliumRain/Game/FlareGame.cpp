@@ -275,19 +275,19 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 
 	FLOGV("Scrap success for %d", ScrapRevenue);
 
-	if(ScrapingStation->GetCompany() != ShipToScrap->GetCompany())
+	if (ScrapingStation->GetCompany() != ShipToScrap->GetCompany())
 	{
 		ScrapingStation->GetCompany()->TakeMoney(ScrapRevenue);
 		ShipToScrap->GetCompany()->GiveMoney(ScrapRevenue);
 		GetPC()->Notify(LOCTEXT("ShipSellScrap", "Ship scrap complete"),
-			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scraped for {1} credits!"), FText::FromString(ShipToScrap->GetImmatriculation().ToString()), FText::AsNumber(UFlareGameTools::DisplayMoney(ScrapRevenue))),
+			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scrapped for {1} credits!"), FText::FromString(ShipToScrap->GetImmatriculation().ToString()), FText::AsNumber(UFlareGameTools::DisplayMoney(ScrapRevenue))),
 			FName("ship-own-scraped"),
 			EFlareNotification::NT_Economy);
 	}
 	else
 	{
 		GetPC()->Notify(LOCTEXT("ShipOwnScrap", "Ship scrap complete"),
-			FText::Format(LOCTEXT("ShipOwnScrapFormat", "Your ship {0} has been scraped!"), FText::FromString(ShipToScrap->GetImmatriculation().ToString())),
+			FText::Format(LOCTEXT("ShipOwnScrapFormat", "Your ship {0} has been scrapped !"), FText::FromString(ShipToScrap->GetImmatriculation().ToString())),
 			FName("ship-own-scraped"),
 			EFlareNotification::NT_Economy);
 	}

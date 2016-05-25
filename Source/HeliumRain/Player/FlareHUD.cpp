@@ -134,10 +134,6 @@ void AFlareHUD::Setup(AFlareMenuManager* NewMenuManager)
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(HUDMenu.ToSharedRef()), 0);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MouseMenu.ToSharedRef()), 5);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ContextMenuContainer.ToSharedRef()), 10);
-
-		// Setup extra menus
-		UpdateHUDVisibility();
-		ContextMenu->Hide();
 	}
 }
 

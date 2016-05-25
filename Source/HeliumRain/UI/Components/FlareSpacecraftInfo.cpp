@@ -241,41 +241,10 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(ScrapButton, SFlareButton)
 							.Text(LOCTEXT("Scrap", "SCRAP"))
-							.HelpText(LOCTEXT("UndockInfo", "Permanently destroy this ship and get some resources back"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
 							.Width(3)
 						]
 					]
-
-					// Buttons : shipyards
-					//+ SVerticalBox::Slot()
-					//.AutoHeight()
-					//.Padding(FMargin(8, 0, 8, 8))
-					//[
-					//	SNew(SHorizontalBox)
-
-					//	// Order
-					//	+ SHorizontalBox::Slot()
-					//	.AutoWidth()
-					//	[
-					//		SAssignNew(OrderShipButton, SFlareButton)
-					//		.Text(LOCTEXT("OrderShip", "BUY LIGHT SHIP"))
-					//		.HelpText(LOCTEXT("OrderShipInfo", "Buy a ship at this shipyard"))
-					//		.OnClicked(this, &SFlareSpacecraftInfo::OnOrderShip)
-					//		.Width(6)
-					//	]
-
-					//	// Order (heavy)
-					//	+ SHorizontalBox::Slot()
-					//	.AutoWidth()
-					//	[
-					//		SAssignNew(OrderHeavyShipButton, SFlareButton)
-					//		.Text(LOCTEXT("OrderHeavyShip", "BUY HEAVY SHIP"))
-					//		.HelpText(LOCTEXT("OrderHeavyShipInfo", "Buy a heavy ship at this shipyard"))
-					//		.OnClicked(this, &SFlareSpacecraftInfo::OnOrderHeavyShip)
-					//		.Width(6)
-					//	]
-					//]
 				]
 
 				// Icon
@@ -379,8 +348,6 @@ void SFlareSpacecraftInfo::Show()
 		DockButton->SetVisibility(EVisibility::Collapsed);
 		UndockButton->SetVisibility(EVisibility::Collapsed);
 		ScrapButton->SetVisibility(EVisibility::Collapsed);
-		//OrderShipButton->SetVisibility(EVisibility::Collapsed);
-		//OrderHeavyShipButton->SetVisibility(EVisibility::Collapsed);
 	}
 	else if (TargetSpacecraft)
 	{
@@ -406,9 +373,9 @@ void SFlareSpacecraftInfo::Show()
 		{
 			EFlareSectorBattleState::Type BattleState = TargetSpacecraft->GetCurrentSectorInterface()->GetSectorBattleState(TargetSpacecraft->GetCompany());
 			if (BattleState == EFlareSectorBattleState::BattleLost
-					|| BattleState == EFlareSectorBattleState::BattleLostNoRetreat
-					|| BattleState == EFlareSectorBattleState::BattleNoRetreat
-				|| BattleState == EFlareSectorBattleState::Battle)
+			 || BattleState == EFlareSectorBattleState::BattleLostNoRetreat
+			 || BattleState == EFlareSectorBattleState::BattleNoRetreat
+			 || BattleState == EFlareSectorBattleState::Battle)
 			{
 				CanTrade = false;
 			}
@@ -420,7 +387,7 @@ void SFlareSpacecraftInfo::Show()
 		// Upper line
 		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
 		SelectButton->SetVisibility(!Owned || IsStation ? EVisibility::Collapsed : EVisibility::Visible);
-		FlyButton->SetVisibility(!Owned ||IsStation ? EVisibility::Collapsed : EVisibility::Visible);
+		FlyButton->SetVisibility(!Owned || IsStation ? EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
 		AssignButton->SetVisibility(CanAssign ? EVisibility::Visible : EVisibility::Collapsed);
@@ -429,7 +396,7 @@ void SFlareSpacecraftInfo::Show()
 		UpgradeButton->SetVisibility(Owned && !IsStation ? EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock && !IsStrategy ? EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(IsDocked && !IsStrategy ? EVisibility::Visible : EVisibility::Collapsed);
-		ScrapButton->SetVisibility(EVisibility::Collapsed); // Unused at this time
+		ScrapButton->SetVisibility(IsStation ? EVisibility::Collapsed : EVisibility::Visible);
 
 		// Flyable ships : disable when not flyable
 		FText Reason;
@@ -478,39 +445,16 @@ void SFlareSpacecraftInfo::Show()
 		{
 			UpgradeButton->SetHelpText(LOCTEXT("UpgradeInfo", "Upgrade this spacecraft"));
 			UpgradeButton->SetDisabled(false);
+			ScrapButton->SetHelpText(LOCTEXT("ScrapInfo", "Permanently destroy this ship and get some resources back"));
+			ScrapButton->SetDisabled(false);
 		}
 		else
 		{
 			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked, or on the orbital map with an available station in the sector"));
 			UpgradeButton->SetDisabled(true);
+			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked, or on the orbital map with an available station in the sector"));
+			ScrapButton->SetDisabled(true);
 		}
-
-		// Shipyards get additional controls
-		//OrderShipButton->SetVisibility(EVisibility::Collapsed);
-		//OrderHeavyShipButton->SetVisibility(EVisibility::Collapsed);
-		//UFlareSimulatedSpacecraft* TargetSimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-		//if (TargetSimulatedSpacecraft)
-		//{
-		//	bool IsShipyard = false;
-		//	TArray<UFlareFactory*> Factories = TargetSimulatedSpacecraft->GetFactories();
-		//	for (int32 Index = 0; Index < Factories.Num(); Index++)
-		//	{
-		//		if (Factories[Index]->IsShipyard())
-		//		{
-		//			IsShipyard = true;
-		//			break;
-		//		}
-		//	}
-
-		//	// It's a shipyard
-		//	if (IsShipyard)
-		//	{
-		//		OrderShipButton->SetVisibility(EVisibility::Visible);
-		//		OrderHeavyShipButton->SetVisibility(EVisibility::Visible);
-		//		OrderShipButton->SetDisabled(!FriendlyAndNotSelf);
-		//		OrderHeavyShipButton->SetDisabled(!FriendlyAndNotSelf);
-		//	}
-		//}
 	}
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
@@ -633,12 +577,38 @@ void SFlareSpacecraftInfo::OnUndock()
 
 void SFlareSpacecraftInfo::OnScrap()
 {
-	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
+	if (PC && TargetSpacecraft)
 	{
-		// TODO
-		//PC->GetGame()->Scrap();
-		// TODO else if as for OnUndock
-		PC->GetMenuManager()->Back();
+		FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping '%s'", *TargetSpacecraft->GetImmatriculation().ToString())
+		IFlareSpacecraftInterface* TargetStation = NULL;
+		TArray<IFlareSpacecraftInterface*> SectorStations = TargetSpacecraft->GetCurrentSectorInterface()->GetSectorStationInterfaces();
+
+		// Find a suitable station
+		for (int Index = 0; Index < SectorStations.Num(); Index++)
+		{
+			if (SectorStations[Index]->GetCompany() == PC->GetCompany())
+			{
+				TargetStation = SectorStations[Index];
+				FLOGV("SFlareSpacecraftInfo::OnScrap : found player station '%s'", *TargetStation->GetImmatriculation().ToString())
+				break;
+			}
+			else if (TargetStation == NULL)
+			{
+				TargetStation = SectorStations[Index];
+			}
+		}
+
+		// Scrap
+		if (TargetStation)
+		{
+			FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping at '%s'", *TargetStation->GetImmatriculation().ToString())
+			PC->GetGame()->Scrap(TargetSpacecraft->GetImmatriculation(), TargetStation->GetImmatriculation());
+			PC->GetMenuManager()->Back();
+		}
+		else
+		{
+			FLOGV("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !")
+		}
 	}
 }
 
@@ -657,40 +627,6 @@ void SFlareSpacecraftInfo::OnUnassign()
 	{
 		TargetSpacecraft->AssignToSector(false);
 		Show();
-	}
-}
-
-void SFlareSpacecraftInfo::OnOrderShip()
-{
-	UFlareSimulatedSpacecraft* TargetSimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-	if (PC && TargetSimulatedSpacecraft)
-	{
-		TArray<UFlareFactory*> Factories = TargetSimulatedSpacecraft->GetFactories();
-		for (int32 Index = 0; Index < Factories.Num(); Index++)
-		{
-			if (Factories[Index]->IsSmallShipyard())
-			{
-				PC->GetMenuManager()->OpenSpacecraftOrder(Factories[Index]);
-				return;
-			}
-		}
-	}
-}
-
-void SFlareSpacecraftInfo::OnOrderHeavyShip()
-{
-	UFlareSimulatedSpacecraft* TargetSimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-	if (PC && TargetSimulatedSpacecraft)
-	{
-		TArray<UFlareFactory*> Factories = TargetSimulatedSpacecraft->GetFactories();
-		for (int32 Index = 0; Index < Factories.Num(); Index++)
-		{
-			if (Factories[Index]->IsLargeShipyard())
-			{
-				PC->GetMenuManager()->OpenSpacecraftOrder(Factories[Index]);
-				return;
-			}
-		}
 	}
 }
 
@@ -806,13 +742,14 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 				}
 			}
 
-			// Ship : show fleet, if > 1 ship
+			// Ship : show fleet info
 			else if (SimulatedSpacecraft)
 			{
 				UFlareFleet* Fleet = SimulatedSpacecraft->GetCurrentFleet();
 				if (Fleet)
 				{
-					return FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2})"),
+					return FText::Format(LOCTEXT("FleetFormat", "{0} - {1} ({2} / {3})"),
+						Fleet->GetStatusInfo(),
 						Fleet->GetFleetName(),
 						FText::AsNumber(Fleet->GetShipCount()),
 						FText::AsNumber(Fleet->GetMaxShipCount()));

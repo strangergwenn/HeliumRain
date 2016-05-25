@@ -67,7 +67,7 @@ public:
 	virtual bool CanMerge(UFlareFleet* Fleet, FText& OutInfo);
 
 	/** Tell us if we are travelling */
-	bool IsTraveling();
+	bool IsTraveling() const;
 
 	/** Tell us if we can travel */
 	bool CanTravel();
@@ -148,6 +148,9 @@ public:
 
 	/** Get the maximum ship count in a fleet */
 	uint32 GetMaxShipCount();
+
+	/** Get information about the current travel, if any */
+	FText GetStatusInfo() const;
 
 	/** Return null if traveling */
 	inline UFlareSimulatedSector* GetCurrentSector()

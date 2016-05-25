@@ -92,6 +92,7 @@ protected:
 	// Notable sectors (Hela)
 	UFlareSimulatedSector*                     FrozenRealm;
 	UFlareSimulatedSector*                     ShoreOfIce;
+	UFlareSimulatedSector*                     Ruins;
 
 	// Notable sectors (Asta)
 	UFlareSimulatedSector*                     Decay;

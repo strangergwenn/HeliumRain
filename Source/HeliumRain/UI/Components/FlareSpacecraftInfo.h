@@ -93,13 +93,7 @@ public:
 
 	/** Unassign*/
 	void OnUnassign();
-
-	/** Order a ship */
-	void OnOrderShip();
-
-	/** Order a heavy ship */
-	void OnOrderHeavyShip();
-
+	
 
 	/*----------------------------------------------------
 		Content

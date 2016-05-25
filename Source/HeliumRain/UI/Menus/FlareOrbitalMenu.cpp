@@ -663,10 +663,9 @@ FText SFlareOrbitalMenu::GetTravelText() const
 				if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 				{
 					int64 RemainingDuration = Travel->GetRemainingTravelDuration();
-					FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} is travelling to {1} ({2} left)"),
+					FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} : {1}"),
 						Travel->GetFleet()->GetFleetName(),
-						Travel->GetDestinationSector()->GetSectorName(),
-						FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1))); //FString needed here
+						Travel->GetFleet()->GetStatusInfo());
 					FFlareIncomingEvent TravelEvent;
 					TravelEvent.Text = TravelText;
 					TravelEvent.RemainingDuration = RemainingDuration;

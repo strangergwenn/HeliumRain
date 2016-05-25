@@ -210,6 +210,8 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	SetVisibility(EVisibility::Collapsed);
 }
 
 
