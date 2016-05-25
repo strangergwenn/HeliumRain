@@ -35,6 +35,8 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	[
 		SAssignNew(HUDCanvas, SCanvas)
 	];
+
+	SetVisibility(EVisibility::Collapsed);
 }
 
 
