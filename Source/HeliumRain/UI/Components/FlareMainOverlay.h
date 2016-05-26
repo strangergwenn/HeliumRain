@@ -96,6 +96,7 @@ protected:
 	float                                           TitleButtonHeight;
 
 	// Slate data
+	TSharedPtr<SBorder>                             Background;
 	TSharedPtr<SHorizontalBox>                      MenuList;
 	TArray< TSharedPtr<SFlareNotification> >        NotificationData;
 	TSharedPtr<SVerticalBox>                        NotificationContainer;

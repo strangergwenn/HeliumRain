@@ -773,7 +773,7 @@ UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculati
 
 bool UFlareCompany::HasVisitedSector(const UFlareSimulatedSector* Sector) const
 {
-	return VisitedSectors.Contains(Sector);
+	return Sector && VisitedSectors.Contains(Sector);
 }
 
 float UFlareCompany::GetReputation(UFlareCompany* Company)

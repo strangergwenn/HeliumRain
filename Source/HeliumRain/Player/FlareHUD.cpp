@@ -556,20 +556,24 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 
 	// Sector info
 	UFlareSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector();
-	FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
-		CurrentSector->GetSectorName(),
-		CurrentSector->GetSectorFriendlynessText(PlayerShip->GetCompany()));
-	FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
-	CurrentPos += InstrumentLine;
 
-	// Target info
-	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
-	if (TargetShip && TargetShip->IsValidLowLevel())
+	if (CurrentSector)
 	{
-		FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0} ({1})"),
-			FText::FromString(TargetShip->GetImmatriculation().ToString()),
-			TargetShip->GetCompany()->GetPlayerHostilityText());
-		FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+		FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
+			CurrentSector->GetSectorName(),
+			CurrentSector->GetSectorFriendlynessText(PlayerShip->GetCompany()));
+		FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+		CurrentPos += InstrumentLine;
+
+		// Target info
+		AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
+		if (TargetShip && TargetShip->IsValidLowLevel())
+		{
+			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0} ({1})"),
+				FText::FromString(TargetShip->GetImmatriculation().ToString()),
+				TargetShip->GetCompany()->GetPlayerHostilityText());
+			FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+		}
 	}
 }
 

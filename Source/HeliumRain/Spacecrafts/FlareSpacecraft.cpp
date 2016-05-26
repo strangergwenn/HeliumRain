@@ -1440,11 +1440,12 @@ FText AFlareSpacecraft::GetShipStatus() const
 	FText AutopilotText;
 	IFlareSpacecraftNavigationSystemInterface* Nav = GetNavigationSystem();
 	FFlareShipCommandData Command = Nav->GetCurrentCommand();
+	UFlareSector* CurrentSector = GetGame()->GetActiveSector();
 
 	if (Paused)
 	{
 		return FText::Format(LOCTEXT("ShipPausedFormat", "Flying in {0} (game paused)"),
-			GetGame()->GetActiveSector()->GetSectorName());
+			CurrentSector ? CurrentSector->GetSectorName() : LOCTEXT("UnknownSector", "Unknown Sector"));
 	}
 	else if (Nav->IsDocked())
 	{
@@ -1468,7 +1469,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 
 	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} in {1} {2}"),
-		ModeText, GetGame()->GetActiveSector()->GetSectorName(), AutopilotText);
+		ModeText, CurrentSector->GetSectorName(), AutopilotText);
 }
 
 /** Linear velocity, in m/s in world reference*/

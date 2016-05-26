@@ -241,7 +241,7 @@ public:
 
 	virtual UFlareSectorInterface* GetCurrentSectorInterface() = 0;
 
-	virtual int32 GetLevel() const;
+	virtual int32 GetLevel() const = 0;
 
 	/*----------------------------------------------------
 		Resources

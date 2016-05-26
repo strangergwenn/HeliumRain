@@ -37,7 +37,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.Padding(FMargin(0))
 		.VAlign(VAlign_Top)
 		[
-			SNew(SBorder)
+			SAssignNew(Background, SBorder)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			.Padding(FMargin(0))
@@ -106,7 +106,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.VAlign(VAlign_Top)
 		.HAlign(HAlign_Right)
-		.Padding(FMargin(0, 200, 0, 0))
+		.Padding(FMargin(0, 64, 0, 0))
 		[
 			SNew(SBox)
 			.HeightOverride(800)
@@ -239,13 +239,13 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSl
 void SFlareMainOverlay::Open()
 {
 	IsOverlayVisible = true;
-	MenuList->SetVisibility(EVisibility::Visible);
+	Background->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareMainOverlay::Close()
 {
 	IsOverlayVisible = false;
-	MenuList->SetVisibility(EVisibility::Collapsed);
+	Background->SetVisibility(EVisibility::Hidden);
 }
 
 bool SFlareMainOverlay::IsOpen() const

@@ -238,9 +238,12 @@ void SFlareMainMenu::Setup()
 void SFlareMainMenu::Enter()
 {
 	FLOG("SFlareMainMenu::Enter");
-	Game->UnloadGame();
 
+	Game->UnloadGame();
 	Game->ReadAllSaveSlots();
+
+	MenuManager->CloseMainOverlay();
+
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 }
