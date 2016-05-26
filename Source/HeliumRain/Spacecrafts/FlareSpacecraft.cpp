@@ -74,11 +74,26 @@ void AFlareSpacecraft::BeginPlay()
 		UFlareAsteroidComponent* AsteroidComponent = Cast<UFlareAsteroidComponent>(Components[ComponentIndex]);
 		if (AsteroidComponent)
 		{
+			bool IsIcy = false;
+
 			AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 			if (Game)
 			{
-				AsteroidComponent->SetIcy(Game->GetActiveSector()->GetDescription()->IsIcy);
+				if (Game->GetActiveSector())
+				{
+					IsIcy = Game->GetActiveSector()->GetDescription()->IsIcy;
+				}
+				else
+				{
+					IFlareSpacecraftInterface* Spacecraft = Game->GetPC()->GetMenuManager()->GetShipMenu()->GetTargetSpacecraft();
+					if (Spacecraft)
+					{
+						IsIcy = Spacecraft->GetCurrentSectorInterface()->GetDescription()->IsIcy;
+					}
+				}
 			}
+
+			AsteroidComponent->SetIcy(IsIcy);
 		}
 	}
 
