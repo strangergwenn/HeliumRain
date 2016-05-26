@@ -607,7 +607,7 @@ void SFlareSpacecraftInfo::OnScrap()
 		}
 		else
 		{
-			FLOGV("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !")
+			FLOG("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !")
 		}
 	}
 }
