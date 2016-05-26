@@ -31,7 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Add a menu link */
-	void AddMenuLink(EFlareMenu::Type Menu);
+	void AddMenuLink(EFlareMenu::Type Menu, bool AlignRight = false);
 
 
 	/*----------------------------------------------------

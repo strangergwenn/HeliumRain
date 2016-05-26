@@ -246,6 +246,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
+	MenuManager->CloseMainOverlay();
 
 	// Combat groups
 	GetCompany()->GetAI()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
@@ -726,7 +727,6 @@ void AFlarePlayerController::ToggleMenu()
 		if (MenuManager->IsOverlayOpen())
 		{
 			MenuManager->CloseMenu();
-			MenuManager->CloseMainOverlay();
 		}
 		else
 		{

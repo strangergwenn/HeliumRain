@@ -167,12 +167,18 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 
 void AFlareMenuManager::OpenMainOverlay()
 {
+	FLOG("AFlareMenuManager::CloseMainOverlay");
+
 	MainOverlay->Open();
+	GetPC()->GetNavHUD()->UpdateHUDVisibility();
 }
 
 void AFlareMenuManager::CloseMainOverlay()
 {
+	FLOG("AFlareMenuManager::CloseMainOverlay");
+
 	MainOverlay->Close();
+	GetPC()->GetNavHUD()->UpdateHUDVisibility();
 }
 
 bool AFlareMenuManager::IsOverlayOpen() const
@@ -182,6 +188,8 @@ bool AFlareMenuManager::IsOverlayOpen() const
 
 void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 {
+	FLOG("AFlareMenuManager::OpenMenu");
+
 	// Filters
 	check(!IsSpacecraftMenu(Target));
 	if (FadeTarget == Target && FadeTargetData == Data)
@@ -203,7 +211,9 @@ void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 }
 
 void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacecraftInterface* Data)
-{	
+{
+	FLOG("AFlareMenuManager::OpenMenuSpacecraft");
+
 	// Filters
 	check(IsSpacecraftMenu(Target));
 	if (FadeTarget == Target && FadeTargetData == Data)
@@ -227,11 +237,13 @@ void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacec
 
 void AFlareMenuManager::OpenSpacecraftOrder(UFlareFactory* Factory)
 {
+	FLOG("AFlareMenuManager::OpenSpacecraftOrder");
 	SpacecraftOrder->Open(Factory);
 }
 
 void AFlareMenuManager::OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback)
 {
+	FLOG("AFlareMenuManager::OpenSpacecraftOrder");
 	SpacecraftOrder->Open(Sector, ConfirmationCallback);
 }
 
@@ -242,6 +254,7 @@ bool AFlareMenuManager::IsMenuOpen() const
 
 void AFlareMenuManager::CloseMenu(bool HardClose)
 {
+	FLOG("AFlareMenuManager::CloseMenu");
 	if (MenuIsOpen)
 	{
 		if (HardClose)
@@ -452,6 +465,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 
 	switch (MenuType)
 	{
+		case EFlareMenu::MENU_None:           Name = LOCTEXT("NoneMenuName", "Flying");                    break;
 		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Main Menu");                 break;
 		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New Game");               break;
 		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
@@ -482,6 +496,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 
 	switch (MenuType)
 	{
+		case EFlareMenu::MENU_None:           Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_Main:           Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_NewGame:        Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;
@@ -911,9 +926,12 @@ void AFlareMenuManager::OpenCredits()
 
 void AFlareMenuManager::ExitMenu()
 {
+	FLOG("AFlareMenuManager::ExitMenu");
 	ResetMenu();
 
 	CurrentMenu = EFlareMenu::MENU_None;
+	CloseMainOverlay();
+	CloseMenu();
 	GetPC()->OnExitMenu();
 }
 

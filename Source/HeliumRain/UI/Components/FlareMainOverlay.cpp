@@ -48,7 +48,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SNew(SBox)
-					.HAlign(HAlign_Left)
+					.HAlign(HAlign_Fill)
 					.WidthOverride(0.8 * Theme.ContentWidth)
 					[
 						SNew(SHorizontalBox)
@@ -65,6 +65,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.VAlign(VAlign_Center)
 						.AutoWidth()
+						.Padding(FMargin(20, 0))
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.TitleFont)
@@ -115,30 +116,49 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	AddMenuLink(EFlareMenu::MENU_Company);
 	AddMenuLink(EFlareMenu::MENU_Settings);
 	AddMenuLink(EFlareMenu::MENU_Quit);
-	AddMenuLink(EFlareMenu::MENU_Exit);
+	AddMenuLink(EFlareMenu::MENU_Exit, true);
 
 	// Init
 	Close();
 }
 
-void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
+void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu, bool AlignRight)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TSharedPtr<SFlareButton> Button;
 
 	// Create button
-	MenuList->AddSlot()
-	.AutoWidth()
-	[
-		SAssignNew(Button, SFlareButton)
-		.Width(3)
-		.Height(2.6666667)
-		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
-	];
+	if (AlignRight)
+	{
+		MenuList->AddSlot()
+		.HAlign(HAlign_Right)
+		[
+			SAssignNew(Button, SFlareButton)
+			.Width(3)
+			.Height(2.6666667)
+			.Transparent(true)
+			.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
+		];
+	}
+	else
+	{
+		MenuList->AddSlot()
+		.AutoWidth()
+		.HAlign(HAlign_Left)
+		[
+			SAssignNew(Button, SFlareButton)
+			.Width(3)
+			.Height(2.6666667)
+			.Transparent(true)
+			.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
+		];
+
+	}
 
 	// Fill button contents
 	Button->GetContainer()->SetHAlign(HAlign_Center);
-	Button->GetContainer()->SetVAlign(VAlign_Center);
+	Button->GetContainer()->SetVAlign(VAlign_Fill);
+	Button->GetContainer()->SetPadding(FMargin(0, 20));
 	Button->GetContainer()->SetContent(
 		SNew(SVerticalBox)
 
