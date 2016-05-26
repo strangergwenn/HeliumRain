@@ -24,11 +24,14 @@ class SFlareMainOverlay : public SCompoundWidget
 public:
 
 	/*----------------------------------------------------
-		Public methods
+		Construction
 	----------------------------------------------------*/
 
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
+
+	/** Add a menu link */
+	void AddMenuLink(EFlareMenu::Type Menu);
 
 
 	/*----------------------------------------------------
@@ -40,6 +43,9 @@ public:
 
 	/** Close the menu list */
 	void Close();
+
+	/** Is the overlay open */
+	bool IsOpen() const;
 
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo = NULL, FName TargetSpacecraft = NAME_None);
@@ -53,7 +59,16 @@ public:
 	----------------------------------------------------*/
 	
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-		
+	
+	/** Get the name of the current menu */
+	FText GetCurrentMenuName() const;
+
+	/** Get the icon of the current menu */
+	const FSlateBrush* GetCurrentMenuIcon() const;
+
+	/** Switch menu */
+	void OnOpenMenu(EFlareMenu::Type Menu);
+
 
 protected:
 
@@ -61,13 +76,18 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	/** HUD reference */
+	// Menu manager
 	UPROPERTY()
-	TWeakObjectPtr<class AFlareMenuManager>      MenuManager;
+	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
+
+	// General data
+	bool                                            IsOverlayVisible;
 
 	// Slate data
-	TArray< TSharedPtr<SFlareNotification> > NotificationData;
-	TSharedPtr<SVerticalBox>             NotificationContainer;
+	TSharedPtr<SHorizontalBox>                      MenuList;
+	TArray< TSharedPtr<SFlareNotification> >        NotificationData;
+	TSharedPtr<SVerticalBox>                        NotificationContainer;
+
 
 public:
 

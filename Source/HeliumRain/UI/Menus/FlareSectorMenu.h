@@ -90,10 +90,7 @@ protected:
 	/*----------------------------------------------------
 		Action callbacks
 	----------------------------------------------------*/
-
-	/** Go back to the previous menu*/
-	void OnBackClicked();
-
+	
 	/** See the resource prices */
 	void OnResourcePrices();
 

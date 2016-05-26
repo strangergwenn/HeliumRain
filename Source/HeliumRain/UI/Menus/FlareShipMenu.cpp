@@ -27,56 +27,9 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
+	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage).Image(this, &SFlareShipMenu::GetTitleIcon)
-			]
-
-			// Title
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TitleFont)
-				.Text(this, &SFlareShipMenu::GetTitleText)
-			]
-
-			// Quit
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("ExitText", "Back"))
-				.HelpText(LOCTEXT("ExitInfoTextt", "Go back to the previous menu"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
-				.OnClicked(this, &SFlareShipMenu::Back)
-			]
-		]
-
-		// Separator
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(200, 20))
-		[
-			SNew(SImage).Image(&Theme.SeparatorBrush)
-		]
 		
 		// Content
 		+ SVerticalBox::Slot()
@@ -528,7 +481,7 @@ void SFlareShipMenu::Back()
 {
 	if (TargetSpacecraft && Cast<AFlareSpacecraft>(TargetSpacecraft))
 	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+		MenuManager->CloseMenu();
 	}
 	else
 	{

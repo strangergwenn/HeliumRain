@@ -53,9 +53,6 @@ protected:
 	/** Get the company name */
 	FText GetCompanyName() const;
 	
-	/** Go back to the orbital map */
-	void OnOrbit();
-
 	/** Create a new trade route and open trade route menu */
 	void OnNewTradeRouteClicked();
 

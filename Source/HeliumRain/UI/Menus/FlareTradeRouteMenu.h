@@ -85,10 +85,7 @@ protected:
 	/*----------------------------------------------------
 		Actions callbacks
 	----------------------------------------------------*/
-
-	/** Go back to the previous menu*/
-	void OnBackClicked();
-
+	
 	/** Confirm a new name for this trade route */
 	void OnConfirmChangeRouteNameClicked();
 

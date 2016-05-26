@@ -1,8 +1,13 @@
 
 #include "../../Flare.h"
 #include "FlareMainOverlay.h"
-#include "../../Player/FlareMenuManager.h"
 #include "../Components/FlareObjectiveInfo.h"
+
+#include "../../Player/FlareHUD.h"
+#include "../../Player/FlareMenuManager.h"
+
+#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
+#include "Runtime/Engine/Classes/Engine/RendererSettings.h"
 
 #define LOCTEXT_NAMESPACE "FlareMainOverlay"
 
@@ -20,21 +25,62 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	// Create the layout
 	ChildSlot
 	.VAlign(VAlign_Top)
-	.HAlign(HAlign_Right)
-	.Padding(FMargin(0, 200, 0, 0))
+	.HAlign(HAlign_Fill)
 	[
 		SNew(SVerticalBox)
 
 		// Menu list
 		+ SVerticalBox::Slot()
 		.AutoHeight()
+		.Padding(FMargin(0))
+		.VAlign(VAlign_Top)
 		[
-			SNew(SHorizontalBox)
+			SNew(SBorder)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.Padding(FMargin(0))
+			.BorderImage(&Theme.BackgroundBrush)
+			[
+				SAssignNew(MenuList, SHorizontalBox)
+
+				// Title
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.HAlign(HAlign_Left)
+					.WidthOverride(0.8 * Theme.ContentWidth)
+					[
+						SNew(SHorizontalBox)
+
+						// Title icon
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SImage)
+							.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)
+						]
+
+						// Title text
+						+ SHorizontalBox::Slot()
+						.VAlign(VAlign_Center)
+						.AutoWidth()
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TitleFont)
+							.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
+						]
+					]
+				]
+			]
 		]
 	
 		// Notifications
 		+ SVerticalBox::Slot()
 		.AutoHeight()
+		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Right)
+		.Padding(FMargin(0, 200, 0, 0))
 		[
 			SNew(SBox)
 			.HeightOverride(800)
@@ -61,6 +107,63 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	// Add menus
+	AddMenuLink(EFlareMenu::MENU_Ship);
+	AddMenuLink(EFlareMenu::MENU_Sector);
+	AddMenuLink(EFlareMenu::MENU_Orbit);
+	AddMenuLink(EFlareMenu::MENU_Company);
+	AddMenuLink(EFlareMenu::MENU_Settings);
+	AddMenuLink(EFlareMenu::MENU_Quit);
+	AddMenuLink(EFlareMenu::MENU_Exit);
+
+	// Init
+	Close();
+}
+
+void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	TSharedPtr<SFlareButton> Button;
+
+	// Create button
+	MenuList->AddSlot()
+	.AutoWidth()
+	[
+		SAssignNew(Button, SFlareButton)
+		.Width(3)
+		.Height(2.6666667)
+		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
+	];
+
+	// Fill button contents
+	Button->GetContainer()->SetHAlign(HAlign_Center);
+	Button->GetContainer()->SetVAlign(VAlign_Center);
+	Button->GetContainer()->SetContent(
+		SNew(SVerticalBox)
+
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		[
+			SNew(SBox)
+			.WidthOverride(64)
+			.HeightOverride(64)
+			[
+				SNew(SImage)
+				.Image(AFlareMenuManager::GetMenuIcon(Menu))
+			]
+		]
+
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(AFlareMenuManager::GetMenuName(Menu))
+		]
+	);
 }
 
 
@@ -70,12 +173,19 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 
 void SFlareMainOverlay::Open()
 {
-
+	IsOverlayVisible = true;
+	MenuList->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareMainOverlay::Close()
 {
+	IsOverlayVisible = false;
+	MenuList->SetVisibility(EVisibility::Collapsed);
+}
 
+bool SFlareMainOverlay::IsOpen() const
+{
+	return IsOverlayVisible;
 }
 
 void SFlareMainOverlay::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo, FName TargetSpacecraft)
@@ -131,9 +241,24 @@ void SFlareMainOverlay::FlushNotifications()
 void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
-	int32 NotificationCount = 0;
+
+	// Get 2D position
+	FVector2D MousePosition = MenuManager->GetPC()->GetMousePosition();
+	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
+
+	// Visibility check
+	if (!IsOverlayVisible || (MousePosition.Y / ViewportScale) > AFlareMenuManager::GetMainOverlayHeight())
+	{
+		SetVisibility(EVisibility::HitTestInvisible);
+	}
+	else
+	{
+		SetVisibility(EVisibility::Visible);
+	}
 
 	// Destroy notifications when they're done with the animation
+	int32 NotificationCount = 0;
 	for (auto& NotificationEntry : NotificationData)
 	{
 		if (NotificationEntry->IsFinished())
@@ -150,6 +275,29 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	if (NotificationCount == 0)
 	{
 		NotificationData.Empty();
+	}
+}
+
+FText SFlareMainOverlay::GetCurrentMenuName() const
+{
+	FText Name = AFlareMenuManager::GetMenuName(MenuManager->GetCurrentMenu());
+	return FText::FromString(Name.ToString().ToUpper());
+}
+
+const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
+{
+	return AFlareMenuManager::GetMenuIcon(MenuManager->GetCurrentMenu());
+}
+
+void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
+{
+	if (MenuManager->IsSpacecraftMenu(Menu))
+	{
+		MenuManager->OpenMenuSpacecraft(Menu);
+	}
+	else
+	{
+		MenuManager->OpenMenu(Menu);
 	}
 }
 

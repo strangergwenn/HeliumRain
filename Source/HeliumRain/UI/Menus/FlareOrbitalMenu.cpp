@@ -28,97 +28,9 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
+	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Orbit))
-			]
-
-			// Title
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("Orbital", "ORBITAL MAP"))
-			]
-
-			// Company
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("InspectCompany", "Company"))
-				.HelpText(LOCTEXT("InspectCompanyInfo", "Inspect your company"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Company, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnInspectCompany)
-			]
-
-			// Fleets
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("InspectFleets", "Fleets"))
-				.HelpText(LOCTEXT("InspectFleetsInfo", "Inspect and manage your fleets"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Fleet, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnInspectFleet)
-			]
-
-			// Leaderboard
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Leaderboard", "Competitors"))
-				.HelpText(LOCTEXT("LeaderboardInfo", "Take a closer look at all the companies"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Leaderboard, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnOpenLeaderboard)
-			]
-
-			// Quit
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("SaveQuit", "Save and quit"))
-				.HelpText(LOCTEXT("SaveQuitInfo", "Save the game and go back to the main menu"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main, true))
-				.OnClicked(this, &SFlareOrbitalMenu::OnMainMenu)
-			]
-		]
-
-		// Separator
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(200, 20))
-		[
-			SNew(SImage).Image(&Theme.SeparatorBrush)
-		]
 
 		// Buttons
 		+ SVerticalBox::Slot()
@@ -758,32 +670,6 @@ FVector2D SFlareOrbitalMenu::GetWidgetSize(int32 Index) const
 /*----------------------------------------------------
 	Action callbacks
 ----------------------------------------------------*/
-
-void SFlareOrbitalMenu::OnInspectCompany()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Company);
-}
-
-void SFlareOrbitalMenu::OnInspectFleet()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Fleet);
-}
-
-void SFlareOrbitalMenu::OnOpenLeaderboard()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Leaderboard);
-}
-
-void SFlareOrbitalMenu::OnMainMenu()
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-
-	PC->CompleteObjective();
-	MenuManager->FlushNotifications();
-	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
-
-	Game->SaveGame(PC);
-}
 
 void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 {

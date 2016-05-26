@@ -721,15 +721,16 @@ void AFlarePlayerController::ToggleCamera()
 
 void AFlarePlayerController::ToggleMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && GetGame()->GetActiveSector())
+	if (GetGame()->IsLoadedOrCreated())
 	{
-		if (IsInMenu())
+		if (MenuManager->IsOverlayOpen())
 		{
 			MenuManager->CloseMenu();
+			MenuManager->CloseMainOverlay();
 		}
 		else
 		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Dashboard);
+			MenuManager->OpenMainOverlay();
 		}
 	}
 }
@@ -750,8 +751,7 @@ void AFlarePlayerController::Simulate()
 	{
 		return;
 	}
-
-
+	
 	UFlareSimulatedSector* LastActiveSector = NULL;
 
 	if(GetGame()->GetActiveSector())

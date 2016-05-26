@@ -170,7 +170,7 @@ public:
 	/** Toggle the external view */
 	virtual void ToggleCamera();
 
-	/** Toggle the dashboard */
+	/** Toggle the overlay */
 	virtual void ToggleMenu();
 
 	/** Send back to menu */

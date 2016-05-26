@@ -30,8 +30,8 @@ class SFlareButton : public SCompoundWidget
 
 	SLATE_ARGUMENT(bool, Toggle)
 	SLATE_ARGUMENT(bool, Transparent)
-	SLATE_ARGUMENT(int32, Width)
-	SLATE_ARGUMENT(int32, Height)
+	SLATE_ARGUMENT(float, Width)
+	SLATE_ARGUMENT(float, Height)
 	
 	SLATE_END_ARGS()
 
@@ -100,8 +100,8 @@ protected:
 	bool                           IsToggle;
 	bool                           IsPressed;
 	bool                           IsTransparent;
-	int32                          Width;
-	int32                          Height;
+	float                          Width;
+	float                          Height;
 	
 	// Slate data
 	FFlareButtonClicked            OnClicked;

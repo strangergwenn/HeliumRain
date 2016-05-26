@@ -176,7 +176,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 				EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
 		}
 
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Dashboard);
+		PC->GetMenuManager()->OpenMainOverlay();
 	}
 
 	// Lost company ship

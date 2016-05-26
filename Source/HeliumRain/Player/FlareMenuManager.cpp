@@ -6,7 +6,6 @@
 #include "../UI/Menus/FlareSettingsMenu.h"
 #include "../UI/Menus/FlareNewGameMenu.h"
 #include "../UI/Menus/FlareStoryMenu.h"
-#include "../UI/Menus/FlareDashboard.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareFleetMenu.h"
 #include "../UI/Menus/FlareOrbitalMenu.h"
@@ -53,7 +52,6 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(SettingsMenu, SFlareSettingsMenu).MenuManager(this);
 		SAssignNew(NewGameMenu, SFlareNewGameMenu).MenuManager(this);
 		SAssignNew(StoryMenu, SFlareStoryMenu).MenuManager(this);
-		SAssignNew(Dashboard, SFlareDashboard).MenuManager(this);
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
 		SAssignNew(FleetMenu, SFlareFleetMenu).MenuManager(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
@@ -67,7 +65,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 
 		// Create overlays
-		SAssignNew(FlareMainOverlay, SFlareMainOverlay).MenuManager(this);
+		SAssignNew(MainOverlay, SFlareMainOverlay).MenuManager(this);
 		SAssignNew(Confirmation, SFlareConfirmationOverlay).MenuManager(this);
 		SAssignNew(SpacecraftOrder, SFlareSpacecraftOrderOverlay).MenuManager(this);
 
@@ -86,7 +84,6 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SettingsMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(NewGameMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StoryMenu.ToSharedRef()),          50);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Dashboard.ToSharedRef()),          50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(FleetMenu.ToSharedRef()),          50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),           50);
@@ -104,14 +101,13 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),            90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SpacecraftOrder.ToSharedRef()),    70);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),              100);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(FlareMainOverlay.ToSharedRef()),   150);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainOverlay.ToSharedRef()),        150);
 
 		// Setup regular menus
 		MainMenu->Setup();
 		SettingsMenu->Setup();
 		NewGameMenu->Setup();
 		StoryMenu->Setup();
-		Dashboard->Setup();
 		CompanyMenu->Setup();
 		ShipMenu->Setup();
 		FleetMenu->Setup();
@@ -167,6 +163,21 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 			Fader->SetVisibility(EVisibility::Hidden);
 		}
 	}
+}
+
+void AFlareMenuManager::OpenMainOverlay()
+{
+	MainOverlay->Open();
+}
+
+void AFlareMenuManager::CloseMainOverlay()
+{
+	MainOverlay->Close();
+}
+
+bool AFlareMenuManager::IsOverlayOpen() const
+{
+	return MainOverlay->IsOpen();
 }
 
 void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
@@ -226,7 +237,7 @@ void AFlareMenuManager::OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrde
 
 bool AFlareMenuManager::IsMenuOpen() const
 {
-	return MenuIsOpen;
+	return MenuIsOpen || IsOverlayOpen();
 }
 
 void AFlareMenuManager::CloseMenu(bool HardClose)
@@ -270,7 +281,6 @@ void AFlareMenuManager::Back()
 			WorldEconomyMenu->Back();
 		}
 
-
 		// Close menu and fly the ship again
 		else if (PreviousMenu == EFlareMenu::MENU_Exit)
 		{
@@ -296,11 +306,6 @@ EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
 
 	switch (CurrentMenu)
 	{
-		// Dashboard
-		case EFlareMenu::MENU_Dashboard:
-			return EFlareMenu::MENU_Exit;
-			break;
-
 		// Main
 		case EFlareMenu::MENU_NewGame:
 		case EFlareMenu::MENU_Credits:
@@ -343,11 +348,14 @@ EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
 		case EFlareMenu::MENU_WorldEconomy:
 			break;
 
+		// Those menus have only the main overlay as root, close
+		case EFlareMenu::MENU_Orbit:
+			return EFlareMenu::MENU_Exit;
+
 		// Those menus have no back
 		case EFlareMenu::MENU_Main:
 		case EFlareMenu::MENU_FlyShip:
 		case EFlareMenu::MENU_ActivateSector:
-		case EFlareMenu::MENU_Orbit:
 		case EFlareMenu::MENU_Quit:
 		case EFlareMenu::MENU_Exit:
 		case EFlareMenu::MENU_None:
@@ -392,18 +400,18 @@ void AFlareMenuManager::Confirm(FText Title, FText Text, FSimpleDelegate OnConfi
 
 void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo, FName TargetSpacecraft)
 {
-	if (FlareMainOverlay.IsValid())
+	if (MainOverlay.IsValid())
 	{
 		OrbitMenu->StopFastForward();
-		FlareMainOverlay->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo, TargetSpacecraft);
+		MainOverlay->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo, TargetSpacecraft);
 	}
 }
 
 void AFlareMenuManager::FlushNotifications()
 {
-	if (FlareMainOverlay.IsValid())
+	if (MainOverlay.IsValid())
 	{
-		FlareMainOverlay->FlushNotifications();
+		MainOverlay->FlushNotifications();
 	}
 }
 
@@ -438,6 +446,36 @@ bool AFlareMenuManager::IsSpacecraftMenu(EFlareMenu::Type Type) const
 	}
 }
 
+FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
+{
+	FText Name;
+
+	switch (MenuType)
+	{
+		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Main Menu");                 break;
+		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New Game");               break;
+		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
+		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Leaderboard");        break;
+		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Resource Prices"); break;
+		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World Economy");     break;
+		case EFlareMenu::MENU_Ship:           Name = LOCTEXT("ShipMenuName", "Ship");                      break;
+		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleet");                    break;
+		case EFlareMenu::MENU_Station:        Name = LOCTEXT("StationMenuName", "Station");                break;
+		case EFlareMenu::MENU_ShipConfig:     Name = LOCTEXT("ShipConfigMenuName", "Ship Upgrade");        break;
+		case EFlareMenu::MENU_Undock:         Name = LOCTEXT("UndockMenuName", "Undock");                  break;
+		case EFlareMenu::MENU_Sector:         Name = LOCTEXT("SectorMenuName", "Sector Info");             break;
+		case EFlareMenu::MENU_Trade:          Name = LOCTEXT("TradeMenuName", "Trade");                    break;
+		case EFlareMenu::MENU_TradeRoute:     Name = LOCTEXT("TradeRouteMenuName", "Trade Route");         break;
+		case EFlareMenu::MENU_Orbit:          Name = LOCTEXT("OrbitMenuName", "Orbital Map");              break;
+		case EFlareMenu::MENU_Settings:       Name = LOCTEXT("SettingsMenuName", "Settings");              break;
+		case EFlareMenu::MENU_Quit:           Name = LOCTEXT("QuitMenuName", "Quit");                      break;
+		case EFlareMenu::MENU_Exit:           Name = LOCTEXT("ExitMenuName", "Close");                     break;
+		default:                                                                                           break;
+	}
+
+	return Name;
+}
+
 const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion)
 {
 	FString Path;
@@ -446,7 +484,6 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 	{
 		case EFlareMenu::MENU_Main:           Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_NewGame:        Path = "HeliumRain";   break;
-		case EFlareMenu::MENU_Dashboard:      Path = "Sector";       break;
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;
 		case EFlareMenu::MENU_Leaderboard:    Path = "Leaderboard";  break;
 		case EFlareMenu::MENU_ResourcePrices: Path = "Sector";       break;
@@ -484,13 +521,11 @@ void AFlareMenuManager::ResetMenu()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	
 	SpacecraftOrder->Close();
-	FlareMainOverlay->SetVisibility(EVisibility::SelfHitTestInvisible);
 
 	MainMenu->Exit();
 	SettingsMenu->Exit();
 	NewGameMenu->Exit();
 	StoryMenu->Exit();
-	Dashboard->Exit();
 	CompanyMenu->Exit();
 	ShipMenu->Exit();
 	FleetMenu->Exit();
@@ -550,10 +585,6 @@ void AFlareMenuManager::ProcessFadeTarget()
 
 		case EFlareMenu::MENU_Story:
 			OpenStoryMenu();
-			break;
-			
-		case EFlareMenu::MENU_Dashboard:
-			OpenDashboard();
 			break;
 
 		case EFlareMenu::MENU_Company:
@@ -644,7 +675,6 @@ AFlareGame* AFlareMenuManager::GetGame() const
 void AFlareMenuManager::OpenMainMenu()
 {
 	ResetMenu();
-	FlareMainOverlay->SetVisibility(EVisibility::Collapsed);
 
 	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->OnEnterMenu();
@@ -655,8 +685,8 @@ void AFlareMenuManager::OpenMainMenu()
 void AFlareMenuManager::OpenSettingsMenu()
 {
 	ResetMenu();
-	FlareMainOverlay->SetVisibility(EVisibility::Collapsed);
 
+	CloseMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Settings;
 	GetPC()->OnEnterMenu();
 	SettingsMenu->Enter();
@@ -666,7 +696,6 @@ void AFlareMenuManager::OpenSettingsMenu()
 void AFlareMenuManager::OpenNewGameMenu()
 {
 	ResetMenu();
-	FlareMainOverlay->SetVisibility(EVisibility::Collapsed);
 
 	CurrentMenu = EFlareMenu::MENU_NewGame;
 	GetPC()->OnEnterMenu();
@@ -677,7 +706,6 @@ void AFlareMenuManager::OpenNewGameMenu()
 void AFlareMenuManager::OpenStoryMenu()
 {
 	ResetMenu();
-	FlareMainOverlay->SetVisibility(EVisibility::Collapsed);
 
 	CurrentMenu = EFlareMenu::MENU_Story;
 	GetPC()->OnEnterMenu();
@@ -685,18 +713,11 @@ void AFlareMenuManager::OpenStoryMenu()
 	GetPC()->UpdateMenuTheme();
 }
 
-void AFlareMenuManager::OpenDashboard()
-{
-	ResetMenu();
-	CurrentMenu = EFlareMenu::MENU_Dashboard;
-	GetPC()->OnEnterMenu();
-	Dashboard->Enter();
-	GetPC()->UpdateMenuTheme();
-}
-
 void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
 {
 	ResetMenu();
+
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Company;
 	GetPC()->OnEnterMenu();
 
@@ -759,6 +780,7 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 	{
 		ResetMenu();
 
+		OpenMainOverlay();
 		CurrentMenu = EFlareMenu::MENU_Ship;
 		GetPC()->OnEnterMenu();
 
@@ -771,6 +793,7 @@ void AFlareMenuManager::OpenFleetMenu(UFlareFleet* TargetFleet)
 {
 	ResetMenu();
 
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Fleet;
 	GetPC()->OnEnterMenu();
 
@@ -783,11 +806,11 @@ void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)
 	ResetMenu();
 	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
-
-
+	
 	UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(Sector);
 	if (SimulatedSector)
 	{
+		OpenMainOverlay();
 		SectorMenu->Enter(SimulatedSector);
 		GetPC()->UpdateMenuTheme();
 	}
@@ -800,6 +823,8 @@ void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)
 void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
 {
 	ResetMenu();
+
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Trade;
 	GetPC()->OnEnterMenu();
 
@@ -820,10 +845,11 @@ void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
 void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
 {
 	ResetMenu();
+
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_TradeRoute;
 	GetPC()->OnEnterMenu();
-
-
+	
 	TradeRouteMenu->Enter(TradeRoute);
 	GetPC()->UpdateMenuTheme();
 }
@@ -831,6 +857,8 @@ void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
 void AFlareMenuManager::OpenOrbit()
 {
 	ResetMenu();
+
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Orbit;
 	GetPC()->OnEnterMenu();
 	OrbitMenu->Enter();
@@ -840,6 +868,8 @@ void AFlareMenuManager::OpenOrbit()
 void AFlareMenuManager::OpenLeaderboard()
 {
 	ResetMenu();
+
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Leaderboard;
 	GetPC()->OnEnterMenu();
 	LeaderboardMenu->Enter();
@@ -849,6 +879,8 @@ void AFlareMenuManager::OpenLeaderboard()
 void AFlareMenuManager::OpenResourcePrices(UFlareSectorInterface* Sector)
 {
 	ResetMenu();
+
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_ResourcePrices;
 	GetPC()->OnEnterMenu();
 	ResourcePricesMenu->Enter(Sector);
@@ -858,6 +890,8 @@ void AFlareMenuManager::OpenResourcePrices(UFlareSectorInterface* Sector)
 void AFlareMenuManager::OpenWorldEconomy(FFlareWorldEconomyMenuParam* Params)
 {
 	ResetMenu();
+
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_WorldEconomy;
 	GetPC()->OnEnterMenu();
 	WorldEconomyMenu->Enter(Params->Resource, Params->Sector);
@@ -868,6 +902,7 @@ void AFlareMenuManager::OpenWorldEconomy(FFlareWorldEconomyMenuParam* Params)
 void AFlareMenuManager::OpenCredits()
 {
 	ResetMenu();
+
 	CurrentMenu = EFlareMenu::MENU_Credits;
 	GetPC()->OnEnterMenu();
 	CreditsMenu->Enter();
@@ -877,6 +912,7 @@ void AFlareMenuManager::OpenCredits()
 void AFlareMenuManager::ExitMenu()
 {
 	ResetMenu();
+
 	CurrentMenu = EFlareMenu::MENU_None;
 	GetPC()->OnExitMenu();
 }

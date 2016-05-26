@@ -49,10 +49,7 @@ protected:
 
 	/** Target item generator */
 	TSharedRef<ITableRow> GenerateCompanyInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
-
-	/** Exit this menu */
-	void OnExit();
-
+	
 
 protected:
 

@@ -99,19 +99,7 @@ protected:
 	/*----------------------------------------------------
 		Action callbacks
 	----------------------------------------------------*/
-
-	/** Inspect the company */
-	void OnInspectCompany();
-
-	/** Inspect the fleet */
-	void OnInspectFleet();
-
-	/** Open the company leaderboard */
-	void OnOpenLeaderboard();
-
-	/** Back to the main menu */
-	void OnMainMenu();
-	
+		
 	/** Open a sector */
 	void OnOpenSector(TSharedPtr<int32> Index);
 	

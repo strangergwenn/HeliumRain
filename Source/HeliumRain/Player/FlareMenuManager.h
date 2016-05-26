@@ -13,7 +13,6 @@ class SFlareMainMenu;
 class SFlareSettingsMenu;
 class SFlareNewGameMenu;
 class SFlareStoryMenu;
-class SFlareDashboard;
 class SFlareShipMenu;
 class SFlareFleetMenu;
 class SFlareOrbitalMenu;
@@ -61,6 +60,15 @@ public:
 	----------------------------------------------------*/
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	/** Open the main overlay */
+	void OpenMainOverlay();
+
+	/** Close the main overlay */
+	void CloseMainOverlay();
+	
+	/** Is the overlay open ? */
+	bool IsOverlayOpen() const;
 	
 	/** Open a menu asynchronously, from a target and user data */
 	void OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
@@ -110,7 +118,10 @@ public:
 	/** Show the confirmation overlay */
 	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed);
 
-	/** Get a Slate icon brush */
+	/** Get the name text for this menu */
+	static FText GetMenuName(EFlareMenu::Type MenuType);
+
+	/** Get the Slate icon brush for this menu */
 	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
 
 	/** Start displaying the tooltip */
@@ -160,9 +171,6 @@ protected:
 
 	/** Open the story menu */
 	virtual void OpenStoryMenu();
-
-	/** Open the main menu */
-	virtual void OpenDashboard();
 
 	/** Open the company menu */
 	virtual void InspectCompany(UFlareCompany* Target);
@@ -227,7 +235,7 @@ protected:
 
 	// Menu tools
 	TSharedPtr<SFlareTooltip>               Tooltip;
-	TSharedPtr<SFlareMainOverlay>      FlareMainOverlay;
+	TSharedPtr<SFlareMainOverlay>           MainOverlay;
 	TSharedPtr<SFlareConfirmationOverlay>   Confirmation;
 	TSharedPtr<SFlareSpacecraftOrderOverlay>SpacecraftOrder;
 
@@ -236,7 +244,6 @@ protected:
 	TSharedPtr<SFlareSettingsMenu>          SettingsMenu;
 	TSharedPtr<SFlareNewGameMenu>           NewGameMenu;
 	TSharedPtr<SFlareStoryMenu>             StoryMenu;
-	TSharedPtr<SFlareDashboard>             Dashboard;
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
 	TSharedPtr<SFlareFleetMenu>             FleetMenu;
 	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
@@ -280,6 +287,11 @@ public:
 	static inline AFlareMenuManager* GetSingleton()
 	{
 		return Singleton;
+	}
+
+	static inline int32 GetMainOverlayHeight()
+	{
+		return 128;
 	}
 
 
