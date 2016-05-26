@@ -92,10 +92,7 @@ public:
 
 	/** Spawn the menu pawn and prepare the UI */
 	virtual void SetupMenu();
-
-	/** Update the menu's style */
-	void UpdateMenuTheme();
-
+	
 	/** Entering the main menu */
 	virtual void OnEnterMenu();
 
@@ -337,13 +334,7 @@ public:
 	/*----------------------------------------------------
 		Config
 	----------------------------------------------------*/
-
-	/** Whether to use the dark theme when no sector is active */
-	bool                                     UseDarkThemeForStrategy;
-	
-	/** Whether to use the dark theme when a sector is active */
-	bool                                     UseDarkThemeForNavigation;
-	
+		
 	/** Whether to use the 3D cockpit */
 	bool                                     UseCockpit;
 		
@@ -353,10 +344,6 @@ public:
 	/** Master volume */
 	int32                                    MasterVolume;
 	
-	void SetUseDarkThemeForStrategy(bool New);
-
-	void SetUseDarkThemeForNavigation(bool New);
-
 	void SetUseCockpit(bool New);
 
 	void SetMusicVolume(int32 New);

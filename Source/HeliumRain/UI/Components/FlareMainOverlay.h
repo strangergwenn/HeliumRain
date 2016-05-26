@@ -5,6 +5,7 @@
 
 
 class AFlareMenuManager;
+class SFlareButton;
 
 
 class SFlareMainOverlay : public SCompoundWidget
@@ -31,7 +32,10 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Add a menu link */
-	void AddMenuLink(EFlareMenu::Type Menu, bool AlignRight = false);
+	void AddMenuLink(EFlareMenu::Type Menu);
+
+	/** Setup a button */
+	void SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text);
 
 
 	/*----------------------------------------------------
@@ -63,11 +67,17 @@ public:
 	/** Get the name of the current menu */
 	FText GetCurrentMenuName() const;
 
+	/** Get the spacecraft info text */
+	FText GetSpacecraftInfo() const;
+
 	/** Get the icon of the current menu */
 	const FSlateBrush* GetCurrentMenuIcon() const;
 
 	/** Switch menu */
 	void OnOpenMenu(EFlareMenu::Type Menu);
+
+	/** Go back */
+	void OnBack();
 
 
 protected:
@@ -82,6 +92,8 @@ protected:
 
 	// General data
 	bool                                            IsOverlayVisible;
+	float                                           TitleButtonWidth;
+	float                                           TitleButtonHeight;
 
 	// Slate data
 	TSharedPtr<SHorizontalBox>                      MenuList;

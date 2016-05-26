@@ -625,7 +625,7 @@ void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
 	Mat->SetTextureParameterValue("PaintPattern", Pattern);
 	Mat->SetTextureParameterValue("Emblem", Emblem);
 	Mat->SetScalarParameterValue("IsPainted", 1);
-	Mat->SetScalarParameterValue("TessellationMultiplier", MyGameSettings->UseTessellationOnShips ? 10.0 : 0.0);
+	Mat->SetScalarParameterValue("TessellationMultiplier", 0.0);
 }
 
 void UFlareCompany::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)
@@ -796,16 +796,16 @@ FText UFlareCompany::GetPlayerHostilityText() const
 	switch (GetPlayerWarState())
 	{
 		case EFlareHostility::Neutral:
-			Status = LOCTEXT("Neutral", "NEUTRAL");
+			Status = LOCTEXT("Neutral", "Neutral");
 			break;
 		case EFlareHostility::Friendly:
-			Status = LOCTEXT("Friendly", "FRIENDLY");
+			Status = LOCTEXT("Friendly", "Friendly");
 			break;
 		case EFlareHostility::Owned:
-			Status = LOCTEXT("Owned", "OWNED");
+			Status = LOCTEXT("Owned", "Owned");
 			break;
 		case EFlareHostility::Hostile:
-			Status = LOCTEXT("Hostile", "HOSTILE");
+			Status = LOCTEXT("Hostile", "Hostile");
 			break;
 	}
 

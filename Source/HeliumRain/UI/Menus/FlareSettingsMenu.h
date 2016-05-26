@@ -108,13 +108,7 @@ protected:
 	void OnVSyncToggle();
 
 	void OnSupersamplingToggle();
-
-	void OnTessellationToggle();
-
-	void OnDarkThemeInStrategyToggle();
-
-	void OnDarkThemeInNavToggle();
-
+		
 	void OnCockpitToggle();
 
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
@@ -156,9 +150,6 @@ protected:
 	TSharedPtr<SFlareButton>                    FullscreenButton;
 	TSharedPtr<SFlareButton>                    VSyncButton;
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
-	TSharedPtr<SFlareButton>                    TessellationButton;
-	TSharedPtr<SFlareButton>                    DarkThemeInStrategyButton;
-	TSharedPtr<SFlareButton>                    DarkThemeInNavButton;
 	TSharedPtr<SFlareButton>                    CockpitButton;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;

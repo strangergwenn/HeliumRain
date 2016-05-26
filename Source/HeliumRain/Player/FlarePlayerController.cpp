@@ -59,8 +59,6 @@ void AFlarePlayerController::BeginPlay()
 	// Settings
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	check(MyGameSettings);
-	UseDarkThemeForStrategy = MyGameSettings->UseDarkThemeForStrategy;
-	UseDarkThemeForNavigation = MyGameSettings->UseDarkThemeForNavigation;
 	UseCockpit = MyGameSettings->UseCockpit;
 	MusicVolume = MyGameSettings->MusicVolume;
 	MasterVolume = MyGameSettings->MasterVolume;
@@ -79,7 +77,6 @@ void AFlarePlayerController::BeginPlay()
 	if (SoundManager)
 	{
 		SoundManager->Setup(this);
-		SoundManager->RequestMusicTrack(EFlareMusicTrack::MainMenu);
 		SoundManager->SetMusicVolume(MusicVolume);
 		SoundManager->SetMasterVolume(MasterVolume);
 	}
@@ -131,7 +128,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 	// Mouse cursor
 	bool NewShowMouseCursor = true;
-	if (!MenuManager->IsMenuOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
+	if (!MenuManager->IsUIOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
 	}
@@ -370,7 +367,6 @@ void AFlarePlayerController::OnSectorDeactivated()
 	// Reset states
 	LastBattleState = EFlareSectorBattleState::NoBattle;
 	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
-	SoundManager->RequestMusicTrack(EFlareMusicTrack::MainMenu);
 }
 
 void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState)
@@ -458,24 +454,6 @@ void AFlarePlayerController::SetupMenu()
 	if (DefaultPawn)
 	{
 		DefaultPawn->Destroy();
-	}
-}
-
-void AFlarePlayerController::UpdateMenuTheme()
-{
-	if (GetGame()->GetActiveSector())
-	{
-		if (UseDarkThemeForNavigation)
-			MenuManager->UseDarkBackground();
-		else
-			MenuManager->UseLightBackground();
-	}
-	else
-	{
-		if (UseDarkThemeForStrategy)
-			MenuManager->UseDarkBackground();
-		else
-			MenuManager->UseLightBackground();
 	}
 }
 
@@ -724,9 +702,14 @@ void AFlarePlayerController::ToggleMenu()
 {
 	if (GetGame()->IsLoadedOrCreated())
 	{
-		if (MenuManager->IsOverlayOpen())
+		if (MenuManager->IsMenuOpen())
 		{
 			MenuManager->CloseMenu();
+			MenuManager->CloseMainOverlay();
+		}
+		else if (MenuManager->IsOverlayOpen())
+		{
+			MenuManager->CloseMainOverlay();
 		}
 		else
 		{
@@ -879,7 +862,7 @@ void AFlarePlayerController::QuickSwitch()
 
 void AFlarePlayerController::MouseInputX(float Val)
 {
-	if (MenuManager->IsMenuOpen())
+	if (MenuManager->IsUIOpen())
 	{
 		if (MenuPawn)
 		{
@@ -900,7 +883,7 @@ void AFlarePlayerController::MouseInputX(float Val)
 
 void AFlarePlayerController::MouseInputY(float Val)
 {
-	if (MenuManager->IsMenuOpen())
+	if (MenuManager->IsUIOpen())
 	{
 		if (MenuPawn)
 		{
@@ -938,7 +921,7 @@ void AFlarePlayerController::Test2()
 
 void AFlarePlayerController::WheelPressed()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager && !MenuManager->IsMenuOpen() && !GetNavHUD()->IsWheelMenuOpen())
+	if (GetGame()->IsLoadedOrCreated() && MenuManager && !MenuManager->IsUIOpen() && !GetNavHUD()->IsWheelMenuOpen())
 	{
 		TSharedPtr<SFlareMouseMenu> MouseMenu = GetNavHUD()->GetMouseMenu();
 
@@ -1145,18 +1128,6 @@ void AFlarePlayerController::StartTrading()
 /*----------------------------------------------------
 	Config
 ----------------------------------------------------*/
-
-void AFlarePlayerController::SetUseDarkThemeForStrategy(bool New)
-{
-	UseDarkThemeForStrategy = New;
-	UpdateMenuTheme();
-}
-
-void AFlarePlayerController::SetUseDarkThemeForNavigation(bool New)
-{
-	UseDarkThemeForNavigation = New;
-	UpdateMenuTheme();
-}
 
 void AFlarePlayerController::SetUseCockpit(bool New)
 {

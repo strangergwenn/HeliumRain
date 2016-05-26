@@ -15,7 +15,6 @@ namespace EFlareMusicTrack
 	enum Type
 	{
 		None,
-		MainMenu,
 		Exploration,
 		Danger,
 		Pacific,

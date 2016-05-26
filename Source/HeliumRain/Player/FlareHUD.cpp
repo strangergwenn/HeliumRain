@@ -187,7 +187,7 @@ void AFlareHUD::OnTargetShipChanged()
 
 void AFlareHUD::UpdateHUDVisibility()
 {
-	bool NewVisibility = HUDVisible && !MenuManager->IsMenuOpen();
+	bool NewVisibility = HUDVisible && !MenuManager->IsUIOpen();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
@@ -371,7 +371,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	CurrentPos += 2 * InstrumentLine;
 
 	// Ship status
-	FlareDrawText(GetShipStatus(PlayerShip).ToString(), CurrentPos, Theme.FriendlyColor, false);
+	FlareDrawText(PlayerShip->GetShipStatus().ToString(), CurrentPos, Theme.FriendlyColor, false);
 	CurrentPos += InstrumentLine;
 	
 	// Temperature text
@@ -615,37 +615,6 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 	Position += InstrumentLine;
 }
 
-FText AFlareHUD::GetShipStatus(AFlareSpacecraft* PlayerShip) const
-{
-	FText ModeText;
-	FText AutopilotText;
-	IFlareSpacecraftNavigationSystemInterface* Nav = PlayerShip->GetNavigationSystem();
-	FFlareShipCommandData Command = Nav->GetCurrentCommand();
-
-	if (Nav->IsDocked())
-	{
-		ModeText = LOCTEXT("Docked", "Docked");
-	}
-	else if (Command.Type == EFlareCommandDataType::CDT_Dock)
-	{
-		AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
-		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
-	}
-	else
-	{
-		ModeText = FText::Format(LOCTEXT("SpeedFormat", "{0}m/s - {1}"),
-			FText::AsNumber(FMath::RoundToInt(PlayerShip->GetLinearVelocity().Size())),
-			PlayerShip->GetWeaponsSystem()->GetWeaponModeInfo());
-	}
-
-	if (Nav->IsAutoPilot())
-	{
-		AutopilotText = LOCTEXT("Autopilot", " (Autopilot)");
-	}
-
-	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} {1}"), ModeText, AutopilotText);
-}
-
 
 /*----------------------------------------------------
 	Helpers
@@ -695,7 +664,7 @@ bool AFlareHUD::ShouldDrawHUD() const
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
-	if (!ActiveSector || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
+	if (!ActiveSector || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsUIOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
 	{
 		return false;
 	}

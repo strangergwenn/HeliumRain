@@ -305,6 +305,8 @@ public:
 		Getters
 	----------------------------------------------------*/
 
+	FText GetShipStatus() const;
+
 	inline AFlareGame* GetGame() const override
 	{
 		return AFlareSpacecraftPawn::GetGame();

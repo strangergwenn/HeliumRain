@@ -1419,6 +1419,42 @@ void AFlareSpacecraft::ForceManual()
 		Getters
 ----------------------------------------------------*/
 
+
+FText AFlareSpacecraft::GetShipStatus() const
+{
+	FText ModeText;
+	FText AutopilotText;
+	IFlareSpacecraftNavigationSystemInterface* Nav = GetNavigationSystem();
+	FFlareShipCommandData Command = Nav->GetCurrentCommand();
+
+	if (Paused)
+	{
+		return LOCTEXT("ShipInfoPaused", "Game paused");
+	}
+	else if (Nav->IsDocked())
+	{
+		ModeText = LOCTEXT("Docked", "Docked");
+	}
+	else if (Command.Type == EFlareCommandDataType::CDT_Dock)
+	{
+		AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
+		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
+	}
+	else
+	{
+		ModeText = FText::Format(LOCTEXT("SpeedFormat", "{0}m/s - {1}"),
+			FText::AsNumber(FMath::RoundToInt(GetLinearVelocity().Size())),
+			GetWeaponsSystem()->GetWeaponModeInfo());
+	}
+
+	if (Nav->IsAutoPilot())
+	{
+		AutopilotText = LOCTEXT("Autopilot", "(Autopilot)");
+	}
+
+	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} {1}"), ModeText, AutopilotText);
+}
+
 /** Linear velocity, in m/s in world reference*/
 FVector AFlareSpacecraft::GetLinearVelocity() const
 {

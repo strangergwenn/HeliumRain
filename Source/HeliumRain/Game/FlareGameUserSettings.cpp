@@ -17,12 +17,9 @@ void UFlareGameUserSettings::SetToDefaults()
 	Super::SetToDefaults();
 
 	ScreenPercentage = 100;
-	UseDarkThemeForStrategy = false;
-	UseDarkThemeForNavigation = false;
 	UseCockpit = true;
 	MusicVolume = 8;
 	MasterVolume = 10;
-	UseTessellationOnShips = false;
 }
 
 void UFlareGameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)

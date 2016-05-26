@@ -21,6 +21,8 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	TitleButtonWidth = 2.0f;
+	TitleButtonHeight = 2.666667f;
 
 	// Create the layout
 	ChildSlot
@@ -67,9 +69,25 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 						.AutoWidth()
 						.Padding(FMargin(20, 0))
 						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TitleFont)
-							.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
+							SNew(SVerticalBox)
+
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.TitleFont)
+								.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
+							]
+
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.TextFont)
+								.Text(this, &SFlareMainOverlay::GetSpacecraftInfo)
+							]
 						]
 					]
 				]
@@ -110,58 +128,77 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	];
 
 	// Add menus
+	TSharedPtr<SFlareButton> Button;
 	AddMenuLink(EFlareMenu::MENU_Ship);
 	AddMenuLink(EFlareMenu::MENU_Sector);
 	AddMenuLink(EFlareMenu::MENU_Orbit);
+	AddMenuLink(EFlareMenu::MENU_Leaderboard);
 	AddMenuLink(EFlareMenu::MENU_Company);
+	AddMenuLink(EFlareMenu::MENU_Fleet);
 	AddMenuLink(EFlareMenu::MENU_Settings);
-	AddMenuLink(EFlareMenu::MENU_Quit);
-	AddMenuLink(EFlareMenu::MENU_Exit, true);
+	AddMenuLink(EFlareMenu::MENU_Main);
+	
+	// Back button
+	MenuList->AddSlot()
+	.HAlign(HAlign_Right)
+	[
+		SAssignNew(Button, SFlareButton)
+		.Width(TitleButtonWidth)
+		.Height(TitleButtonHeight)
+		.Transparent(true)
+		.OnClicked(this, &SFlareMainOverlay::OnBack)
+	];
+	SetupMenuLink(Button, FFlareStyleSet::GetIcon("Back"), LOCTEXT("BackButtonTitle", "Back"));
+	
+	// Exit button
+	MenuList->AddSlot()
+	.HAlign(HAlign_Right)
+	.AutoWidth()
+	[
+		SAssignNew(Button, SFlareButton)
+		.Width(TitleButtonWidth)
+		.Height(TitleButtonHeight)
+		.Transparent(true)
+		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, EFlareMenu::MENU_Exit)
+	];
+	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit), AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Exit));
 
 	// Init
 	Close();
 }
 
-void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu, bool AlignRight)
+void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
 {
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TSharedPtr<SFlareButton> Button;
 
 	// Create button
-	if (AlignRight)
-	{
-		MenuList->AddSlot()
-		.HAlign(HAlign_Right)
-		[
-			SAssignNew(Button, SFlareButton)
-			.Width(3)
-			.Height(2.6666667)
-			.Transparent(true)
-			.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
-		];
-	}
-	else
-	{
-		MenuList->AddSlot()
-		.AutoWidth()
-		.HAlign(HAlign_Left)
-		[
-			SAssignNew(Button, SFlareButton)
-			.Width(3)
-			.Height(2.6666667)
-			.Transparent(true)
-			.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
-		];
-
-	}
+	MenuList->AddSlot()
+	.AutoWidth()
+	.HAlign(HAlign_Left)
+	[
+		SAssignNew(Button, SFlareButton)
+		.Width(TitleButtonWidth)
+		.Height(TitleButtonHeight)
+		.Transparent(true)
+		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
+	];
 
 	// Fill button contents
+	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(Menu), AFlareMenuManager::GetMenuName(Menu));
+}
+
+void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
 	Button->GetContainer()->SetHAlign(HAlign_Center);
 	Button->GetContainer()->SetVAlign(VAlign_Fill);
-	Button->GetContainer()->SetPadding(FMargin(0, 20));
+	Button->GetContainer()->SetPadding(FMargin(0, 25));
+
 	Button->GetContainer()->SetContent(
 		SNew(SVerticalBox)
 
+		// Icon
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.HAlign(HAlign_Center)
@@ -171,17 +208,18 @@ void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu, bool AlignRight)
 			.HeightOverride(64)
 			[
 				SNew(SImage)
-				.Image(AFlareMenuManager::GetMenuIcon(Menu))
+				.Image(Icon)
 			]
 		]
 
+		// Text
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.HAlign(HAlign_Center)
 		[
 			SNew(STextBlock)
-			.TextStyle(&Theme.TextFont)
-			.Text(AFlareMenuManager::GetMenuName(Menu))
+			.TextStyle(&Theme.SmallFont)
+			.Text(Text)
 		]
 	);
 }
@@ -300,8 +338,35 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 
 FText SFlareMainOverlay::GetCurrentMenuName() const
 {
-	FText Name = AFlareMenuManager::GetMenuName(MenuManager->GetCurrentMenu());
+	FText Name;
+	
+	if (MenuManager->IsMenuOpen())
+	{
+		Name = AFlareMenuManager::GetMenuName(MenuManager->GetCurrentMenu());
+	}
+	else
+	{
+		Name = LOCTEXT("FlyingText", "Flying");
+	}
+
 	return FText::FromString(Name.ToString().ToUpper());
+}
+
+FText SFlareMainOverlay::GetSpacecraftInfo() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	if (PC->GetShipPawn())
+	{
+		return PC->GetShipPawn()->GetShipStatus();
+	}
+	else
+	{
+		// TODO : this should not happen anymore
+		return FText::FromString(FString("No player ship found"));
+	}
+
+	return FText();
 }
 
 const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
@@ -313,12 +378,25 @@ void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
 {
 	if (MenuManager->IsSpacecraftMenu(Menu))
 	{
-		MenuManager->OpenMenuSpacecraft(Menu);
+		if (Menu == EFlareMenu::MENU_Ship)
+		{
+			AFlarePlayerController* PC = MenuManager->GetPC();
+			MenuManager->OpenMenuSpacecraft(Menu, PC->GetShipPawn());
+		}
+		else
+		{
+			MenuManager->OpenMenuSpacecraft(Menu);
+		}
 	}
 	else
 	{
 		MenuManager->OpenMenu(Menu);
 	}
+}
+
+void SFlareMainOverlay::OnBack()
+{
+	MenuManager->Back();
 }
 
 

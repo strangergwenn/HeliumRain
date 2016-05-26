@@ -154,7 +154,7 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor Color = Theme.NeutralColor;
 
-	if (MenuManager->IsMenuOpen())
+	if (MenuManager->IsUIOpen())
 	{
 		Color.A = 0;
 	}

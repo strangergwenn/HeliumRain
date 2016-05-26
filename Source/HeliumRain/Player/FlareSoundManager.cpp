@@ -24,7 +24,6 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	MusicDesiredTrack = EFlareMusicTrack::None;
 
 	// Music track references
-	static ConstructorHelpers::FObjectFinder<USoundCue> HomeMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> ExplorationMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> DangerMusicObk(TEXT("/Game/Master/Music/A_Danger_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
@@ -33,7 +32,6 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 
 	// Music track store
 	MusicTracks.Add(NULL);
-	MusicTracks.Add(HomeMusicObj.Object);
 	MusicTracks.Add(ExplorationMusicObj.Object);
 	MusicTracks.Add(DangerMusicObk.Object);
 	MusicTracks.Add(PacificMusicObj.Object);

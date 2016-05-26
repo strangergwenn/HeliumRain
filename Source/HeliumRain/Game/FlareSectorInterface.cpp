@@ -228,19 +228,19 @@ FText UFlareSectorInterface::GetSectorFriendlynessText(UFlareCompany* Company)
 	switch (GetSectorFriendlyness(Company))
 	{
 		case EFlareSectorFriendlyness::NotVisited:
-			Status = LOCTEXT("Unknown", "UNKNOWN");
+			Status = LOCTEXT("Unknown", "Unknown");
 			break;
 		case EFlareSectorFriendlyness::Neutral:
-			Status = LOCTEXT("Neutral", "NEUTRAL");
+			Status = LOCTEXT("Neutral", "Neutral");
 			break;
 		case EFlareSectorFriendlyness::Friendly:
-			Status = LOCTEXT("Friendly", "FRIENDLY");
+			Status = LOCTEXT("Friendly", "Friendly");
 			break;
 		case EFlareSectorFriendlyness::Contested:
-			Status = LOCTEXT("Contested", "CONTESTED");
+			Status = LOCTEXT("Contested", "Contested");
 			break;
 		case EFlareSectorFriendlyness::Hostile:
-			Status = LOCTEXT("Hostile", "HOSTILE");
+			Status = LOCTEXT("Hostile", "Hostile");
 			break;
 	}
 

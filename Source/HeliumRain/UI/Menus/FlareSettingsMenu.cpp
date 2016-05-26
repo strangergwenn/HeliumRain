@@ -84,7 +84,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Back", "Back"))
 				.HelpText(LOCTEXT("BackInfo", "Go back to the main menu"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.Icon(FFlareStyleSet::GetIcon("Back_Button"))
 				.OnClicked(this, &SFlareSettingsMenu::OnExit)
 			]
 		]
@@ -410,31 +410,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SHorizontalBox)
 					
-					// Dark theme in strategy
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SAssignNew(DarkThemeInStrategyButton, SFlareButton)
-						.Text(LOCTEXT("DarkStrategy", "Dark theme in orbit"))
-						.HelpText(LOCTEXT("DarkStrategyInfo", "Use the dark theme when using menus around the orbital map"))
-						.Toggle(true)
-						.OnClicked(this, &SFlareSettingsMenu::OnDarkThemeInStrategyToggle)
-					]
-					
-					// Dark theme in nav
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SAssignNew(DarkThemeInNavButton, SFlareButton)
-						.Text(LOCTEXT("DarkNav", "Dark theme in nav"))
-						.HelpText(LOCTEXT("DarkNavInfo", "Use the dark theme when using menus during navigation"))
-						.Toggle(true)
-						.OnClicked(this, &SFlareSettingsMenu::OnDarkThemeInNavToggle)
-					]
-					
-					// Dark theme in nav
+					// Cockpit
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.Padding(Theme.SmallContentPadding)
@@ -566,10 +542,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
-	//TessellationButton->SetActive(MyGameSettings->UseTessellationOnShips);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
-	DarkThemeInStrategyButton->SetActive(MyGameSettings->UseDarkThemeForStrategy);
-	DarkThemeInNavButton->SetActive(MyGameSettings->UseDarkThemeForNavigation);
 
 	// Music volume
 	int32 MusicVolume = MyGameSettings->MusicVolume;
@@ -752,26 +725,6 @@ void SFlareSettingsMenu::OnFullscreenToggle()
 	UpdateResolution();
 }
 
-void SFlareSettingsMenu::OnDarkThemeInStrategyToggle()
-{
-	bool New = DarkThemeInStrategyButton->IsActive();
-	MenuManager->GetPC()->SetUseDarkThemeForStrategy(New);
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->UseDarkThemeForStrategy = New;
-	MyGameSettings->ApplySettings(false);
-}
-
-void SFlareSettingsMenu::OnDarkThemeInNavToggle()
-{
-	bool New = DarkThemeInStrategyButton->IsActive();
-	MenuManager->GetPC()->SetUseDarkThemeForNavigation(New);
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->UseDarkThemeForNavigation = New;
-	MyGameSettings->ApplySettings(false);
-}
-
 void SFlareSettingsMenu::OnCockpitToggle()
 {
 	bool New = CockpitButton->IsActive();
@@ -923,24 +876,6 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 142 : 100);
 	MyGameSettings->ApplySettings(false);
 
-}
-
-void SFlareSettingsMenu::OnTessellationToggle()
-{
-	/*if (TessellationButton->IsActive())
-	{
-		FLOG("SFlareSettingsMenu::OnTessellationToggle : Enable tessellation")
-	}
-	else
-	{
-		FLOG("SFlareSettingsMenu::OnTessellationToggle : Disable tessellation")
-	}
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->UseTessellationOnShips = TessellationButton->IsActive();
-	MyGameSettings->ApplySettings(false);
-
-	MenuManager->GetPC()->GetMenuPawn()->UpdateCustomization();*/
 }
 
 void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey )

@@ -82,6 +82,9 @@ public:
 	/** Show the list of stations that can be ordered here */
 	void OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback);
 
+	/** Is UI visible */
+	bool IsUIOpen() const;
+
 	/** Is a menu open */
 	bool IsMenuOpen() const;
 

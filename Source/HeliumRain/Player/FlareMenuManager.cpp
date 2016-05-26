@@ -247,9 +247,14 @@ void AFlareMenuManager::OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrde
 	SpacecraftOrder->Open(Sector, ConfirmationCallback);
 }
 
+bool AFlareMenuManager::IsUIOpen() const
+{
+	return IsMenuOpen() || IsOverlayOpen();
+}
+
 bool AFlareMenuManager::IsMenuOpen() const
 {
-	return MenuIsOpen || IsOverlayOpen();
+	return MenuIsOpen;
 }
 
 void AFlareMenuManager::CloseMenu(bool HardClose)
@@ -465,22 +470,22 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 
 	switch (MenuType)
 	{
-		case EFlareMenu::MENU_None:           Name = LOCTEXT("NoneMenuName", "Flying");                    break;
-		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Main Menu");                 break;
-		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New Game");               break;
+		case EFlareMenu::MENU_None:           Name = LOCTEXT("NoneMenuName", "");                          break;
+		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Save & quit");               break;
+		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New game");               break;
 		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
 		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Leaderboard");        break;
-		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Resource Prices"); break;
-		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World Economy");     break;
+		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Resource prices"); break;
+		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World economy");     break;
 		case EFlareMenu::MENU_Ship:           Name = LOCTEXT("ShipMenuName", "Ship");                      break;
-		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleet");                    break;
+		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleets");                   break;
 		case EFlareMenu::MENU_Station:        Name = LOCTEXT("StationMenuName", "Station");                break;
-		case EFlareMenu::MENU_ShipConfig:     Name = LOCTEXT("ShipConfigMenuName", "Ship Upgrade");        break;
+		case EFlareMenu::MENU_ShipConfig:     Name = LOCTEXT("ShipConfigMenuName", "Ship upgrade");        break;
 		case EFlareMenu::MENU_Undock:         Name = LOCTEXT("UndockMenuName", "Undock");                  break;
-		case EFlareMenu::MENU_Sector:         Name = LOCTEXT("SectorMenuName", "Sector Info");             break;
+		case EFlareMenu::MENU_Sector:         Name = LOCTEXT("SectorMenuName", "Sector info");             break;
 		case EFlareMenu::MENU_Trade:          Name = LOCTEXT("TradeMenuName", "Trade");                    break;
-		case EFlareMenu::MENU_TradeRoute:     Name = LOCTEXT("TradeRouteMenuName", "Trade Route");         break;
-		case EFlareMenu::MENU_Orbit:          Name = LOCTEXT("OrbitMenuName", "Orbital Map");              break;
+		case EFlareMenu::MENU_TradeRoute:     Name = LOCTEXT("TradeRouteMenuName", "Trade route");         break;
+		case EFlareMenu::MENU_Orbit:          Name = LOCTEXT("OrbitMenuName", "Orbital map");              break;
 		case EFlareMenu::MENU_Settings:       Name = LOCTEXT("SettingsMenuName", "Settings");              break;
 		case EFlareMenu::MENU_Quit:           Name = LOCTEXT("QuitMenuName", "Quit");                      break;
 		case EFlareMenu::MENU_Exit:           Name = LOCTEXT("ExitMenuName", "Close");                     break;
@@ -694,7 +699,7 @@ void AFlareMenuManager::OpenMainMenu()
 	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::OpenSettingsMenu()
@@ -705,7 +710,7 @@ void AFlareMenuManager::OpenSettingsMenu()
 	CurrentMenu = EFlareMenu::MENU_Settings;
 	GetPC()->OnEnterMenu();
 	SettingsMenu->Enter();
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::OpenNewGameMenu()
@@ -715,7 +720,7 @@ void AFlareMenuManager::OpenNewGameMenu()
 	CurrentMenu = EFlareMenu::MENU_NewGame;
 	GetPC()->OnEnterMenu();
 	NewGameMenu->Enter();
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::OpenStoryMenu()
@@ -725,7 +730,7 @@ void AFlareMenuManager::OpenStoryMenu()
 	CurrentMenu = EFlareMenu::MENU_Story;
 	GetPC()->OnEnterMenu();
 	StoryMenu->Enter();
-	GetPC()->UpdateMenuTheme();
+	UseDarkBackground();
 }
 
 void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
@@ -741,7 +746,7 @@ void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
 		Target = Cast<AFlarePlayerController>(GetOwner())->GetCompany();
 	}
 	CompanyMenu->Enter(Target);
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
@@ -800,7 +805,7 @@ void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEd
 		GetPC()->OnEnterMenu();
 
 		ShipMenu->Enter(MenuTarget, IsEditable);
-		GetPC()->UpdateMenuTheme();
+		UseLightBackground();
 	}
 }
 
@@ -813,7 +818,7 @@ void AFlareMenuManager::OpenFleetMenu(UFlareFleet* TargetFleet)
 	GetPC()->OnEnterMenu();
 
 	FleetMenu->Enter(TargetFleet);
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)
@@ -840,7 +845,7 @@ void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)
 		}
 	}
 
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
@@ -862,7 +867,7 @@ void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
 		TradeMenu->Enter(GetGame()->GetActiveSector(), ActiveSpacecraft, NULL);
 	}
 
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
@@ -874,7 +879,7 @@ void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
 	GetPC()->OnEnterMenu();
 	
 	TradeRouteMenu->Enter(TradeRoute);
-	GetPC()->UpdateMenuTheme();
+	UseDarkBackground();
 }
 
 void AFlareMenuManager::OpenOrbit()
@@ -896,7 +901,7 @@ void AFlareMenuManager::OpenLeaderboard()
 	CurrentMenu = EFlareMenu::MENU_Leaderboard;
 	GetPC()->OnEnterMenu();
 	LeaderboardMenu->Enter();
-	GetPC()->UpdateMenuTheme();
+	UseDarkBackground();
 }
 
 void AFlareMenuManager::OpenResourcePrices(UFlareSectorInterface* Sector)
@@ -907,7 +912,7 @@ void AFlareMenuManager::OpenResourcePrices(UFlareSectorInterface* Sector)
 	CurrentMenu = EFlareMenu::MENU_ResourcePrices;
 	GetPC()->OnEnterMenu();
 	ResourcePricesMenu->Enter(Sector);
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::OpenWorldEconomy(FFlareWorldEconomyMenuParam* Params)
@@ -918,7 +923,7 @@ void AFlareMenuManager::OpenWorldEconomy(FFlareWorldEconomyMenuParam* Params)
 	CurrentMenu = EFlareMenu::MENU_WorldEconomy;
 	GetPC()->OnEnterMenu();
 	WorldEconomyMenu->Enter(Params->Resource, Params->Sector);
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 	delete Params;
 }
 
@@ -929,7 +934,7 @@ void AFlareMenuManager::OpenCredits()
 	CurrentMenu = EFlareMenu::MENU_Credits;
 	GetPC()->OnEnterMenu();
 	CreditsMenu->Enter();
-	GetPC()->UpdateMenuTheme();
+	UseLightBackground();
 }
 
 void AFlareMenuManager::ExitMenu()

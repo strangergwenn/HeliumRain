@@ -102,10 +102,7 @@ public:
 
 	/** Draw a subsystem info line on a cockpit intrument */
 	void DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position);
-
-	/** Get the ship's current status as text */
-	FText GetShipStatus(AFlareSpacecraft* PlayerShip) const;
-
+	
 
 	/*----------------------------------------------------
 		HUD helpers

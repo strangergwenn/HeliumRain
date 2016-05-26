@@ -81,7 +81,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				SNew(SFlareRoundButton)
 				.Text(LOCTEXT("Cancel", "Cancel"))
 				.HelpText(LOCTEXT("CancelInfo", "Cancel and go back to the main menu"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit, true))
+				.Icon(FFlareStyleSet::GetIcon("Back_Button"))
 				.OnClicked(this, &SFlareNewGameMenu::OnExit)
 			]
 		]
