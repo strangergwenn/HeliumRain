@@ -258,17 +258,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	SetVisibility(EVisibility::Visible);
 	StationDescription = NULL;
 	AFlarePlayerController* PC = MenuManager->GetPC();
-
-	// Find target sector
-	if (Sector == NULL && PC->GetShipPawn())
-	{
-		UFlareSector* ActiveSector = Cast<UFlareSector>(PC->GetShipPawn()->GetCurrentSectorInterface());
-		TargetSector = ActiveSector->GetSimulatedSector();
-	}
-	else
-	{
-		TargetSector = Sector;
-	}
+	TargetSector = Sector;
 	
 	// Known sector
 	if (PC->GetCompany()->HasVisitedSector(TargetSector))

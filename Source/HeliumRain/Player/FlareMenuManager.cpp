@@ -819,20 +819,28 @@ void AFlareMenuManager::OpenFleetMenu(UFlareFleet* TargetFleet)
 void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)
 {
 	ResetMenu();
+
+	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
 	
 	UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(Sector);
 	if (SimulatedSector)
 	{
-		OpenMainOverlay();
 		SectorMenu->Enter(SimulatedSector);
-		GetPC()->UpdateMenuTheme();
 	}
 	else
 	{
-		FLOG("Fail to cast to UFlareSimulatedSector");
+		if (GetPC()->GetShipPawn())
+		{
+			FLOG("Fail to cast to UFlareSimulatedSector, using current sector");
+			UFlareSector* ActiveSector = Cast<UFlareSector>(GetPC()->GetShipPawn()->GetCurrentSectorInterface());
+			SimulatedSector = ActiveSector->GetSimulatedSector();
+			SectorMenu->Enter(SimulatedSector);
+		}
 	}
+
+	GetPC()->UpdateMenuTheme();
 }
 
 void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
