@@ -43,7 +43,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CurrentObjective.Version = 0;
 	IsTest1 = false;
 	IsTest2 = false;
-	KeepFlyingInMenus = true;
 	LastBattleState = EFlareSectorBattleState::NoBattle;
 }
 
@@ -484,65 +483,35 @@ void AFlarePlayerController::OnEnterMenu()
 	if (!IsInMenu())
 	{
 		ClientPlaySound(OnSound);
+		Possess(MenuPawn);
 
-		// Shutdown trails, etc
-		if (KeepFlyingInMenus)
-		{
-			if (DustEffect)
-			{
-				DustEffect->Deactivate();
-			}
-		}
-
-		// Possess the menu pawn
-		else
-		{
-			Possess(MenuPawn);
-			MenuPawn->SetActorHiddenInGame(false);
-			SetWorldPause(true);
-		}
+		// Pause all gameplay actors
+		SetWorldPause(true);
+		MenuPawn->SetActorHiddenInGame(false);
 	}
 
-	// Update the HUD
-	if (GetNavHUD())
-	{
-		GetNavHUD()->UpdateHUDVisibility();
-	}
+	GetNavHUD()->UpdateHUDVisibility();
 }
 
 void AFlarePlayerController::OnExitMenu()
 {
 	if (IsInMenu())
 	{
+		// Quit menu
+		MenuPawn->SetActorHiddenInGame(true);
 		ClientPlaySound(OffSound);
 
-		// The player ship is already possessed
-		if (KeepFlyingInMenus)
-		{
-			if (DustEffect)
-			{
-				DustEffect->Activate();
-			}
-		}
+		// Unpause all gameplay actors
+		SetWorldPause(false);
 
-		// Possess the player ship
-		else
-		{
-			MenuPawn->SetActorHiddenInGame(true);
-			SetWorldPause(false);
-			Possess(ShipPawn);
-			GetNavHUD()->OnTargetShipChanged();
-		}
-		
+		// Fly the ship
+		Possess(ShipPawn);
+		GetNavHUD()->OnTargetShipChanged();
 		CockpitManager->OnFlyShip(ShipPawn);
 		SetSelectingWeapon();
 	}
 
-	// Update the HUD
-	if (GetNavHUD())
-	{
-		GetNavHUD()->UpdateHUDVisibility();
-	}
+	GetNavHUD()->UpdateHUDVisibility();
 }
 
 void AFlarePlayerController::SetWorldPause(bool Pause)
@@ -576,7 +545,7 @@ UFlareFleet* AFlarePlayerController::GetSelectedFleet()
 
 bool AFlarePlayerController::IsInMenu()
 {
-	return MenuManager->IsMenuOpen();
+	return (GetPawn() == MenuPawn);
 }
 
 FVector2D AFlarePlayerController::GetMousePosition()

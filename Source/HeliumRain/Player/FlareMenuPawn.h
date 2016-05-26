@@ -150,7 +150,7 @@ public:
 
 	inline AFlarePlayerController* GetPC() const
 	{
-		return Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+		return Cast<AFlarePlayerController>(GetController());
 	}
 
 	inline AFlareSpacecraft* GetCurrentSpacecraft()
