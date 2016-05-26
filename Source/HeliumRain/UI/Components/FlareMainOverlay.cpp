@@ -43,50 +43,57 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 			.Padding(FMargin(0))
 			.BorderImage(&Theme.BackgroundBrush)
 			[
-				SAssignNew(MenuList, SHorizontalBox)
-
-				// Title
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
+				SNew(SBorder)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
+				.Padding(FMargin(0, 0, 0, 8))
+				.BorderImage(&Theme.BackgroundBrush)
 				[
-					SNew(SBox)
-					.HAlign(HAlign_Fill)
-					.WidthOverride(0.9 * Theme.ContentWidth)
+					SAssignNew(MenuList, SHorizontalBox)
+
+					// Title
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					[
-						SNew(SHorizontalBox)
-
-						// Title icon
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
+						SNew(SBox)
+						.HAlign(HAlign_Fill)
+						.WidthOverride(0.9 * Theme.ContentWidth)
 						[
-							SNew(SImage)
-							.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)
-						]
+							SNew(SHorizontalBox)
 
-						// Title text
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.AutoWidth()
-						.Padding(FMargin(20, 0))
-						[
-							SNew(SVerticalBox)
-
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
+							// Title icon
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.TitleFont)
-								.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
+								SNew(SImage)
+								.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)
 							]
 
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
+							// Title text
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.AutoWidth()
+							.Padding(FMargin(20, 0))
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(this, &SFlareMainOverlay::GetSpacecraftInfo)
+								SNew(SVerticalBox)
+
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.SmallContentPadding)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TitleFont)
+									.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
+								]
+
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.SmallContentPadding)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(this, &SFlareMainOverlay::GetSpacecraftInfo)
+								]
 							]
 						]
 					]

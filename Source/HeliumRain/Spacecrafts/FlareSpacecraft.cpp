@@ -1419,7 +1419,6 @@ void AFlareSpacecraft::ForceManual()
 		Getters
 ----------------------------------------------------*/
 
-
 FText AFlareSpacecraft::GetShipStatus() const
 {
 	FText ModeText;
@@ -1429,7 +1428,8 @@ FText AFlareSpacecraft::GetShipStatus() const
 
 	if (Paused)
 	{
-		return LOCTEXT("ShipInfoPaused", "Game paused");
+		return FText::Format(LOCTEXT("ShipPausedFormat", "Flying in {0} (game paused)"),
+			GetGame()->GetActiveSector()->GetSectorName());
 	}
 	else if (Nav->IsDocked())
 	{
@@ -1452,7 +1452,8 @@ FText AFlareSpacecraft::GetShipStatus() const
 		AutopilotText = LOCTEXT("Autopilot", "(Autopilot)");
 	}
 
-	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} {1}"), ModeText, AutopilotText);
+	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} in {1} {2}"),
+		ModeText, GetGame()->GetActiveSector()->GetSectorName(), AutopilotText);
 }
 
 /** Linear velocity, in m/s in world reference*/
