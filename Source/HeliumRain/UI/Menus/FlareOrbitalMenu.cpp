@@ -195,9 +195,7 @@ void SFlareOrbitalMenu::Setup()
 void SFlareOrbitalMenu::Enter()
 {
 	FLOG("SFlareOrbitalMenu::Enter");
-
-	Game->DeactivateSector(MenuManager->GetPC());
-
+	
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
