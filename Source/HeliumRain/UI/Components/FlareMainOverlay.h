@@ -67,11 +67,11 @@ public:
 	/** Get the name of the current menu */
 	FText GetCurrentMenuName() const;
 
-	/** Get the spacecraft info text */
-	FText GetSpacecraftInfo() const;
-
 	/** Get the icon of the current menu */
 	const FSlateBrush* GetCurrentMenuIcon() const;
+
+	/** Get the spacecraft info text */
+	FText GetSpacecraftInfo() const;
 
 	/** Switch menu */
 	void OnOpenMenu(EFlareMenu::Type Menu);

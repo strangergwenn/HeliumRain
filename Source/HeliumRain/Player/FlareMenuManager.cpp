@@ -475,7 +475,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New game");               break;
 		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
 		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Leaderboard");        break;
-		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Resource prices"); break;
+		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Local economy");   break;
 		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World economy");     break;
 		case EFlareMenu::MENU_Ship:           Name = LOCTEXT("ShipMenuName", "Ship");                      break;
 		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleets");                   break;
@@ -501,7 +501,6 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 
 	switch (MenuType)
 	{
-		case EFlareMenu::MENU_None:           Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_Main:           Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_NewGame:        Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_Company:        Path = "Company";      break;

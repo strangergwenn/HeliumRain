@@ -51,7 +51,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 {
-
+	AFlarePlayerController* PC = Spacecraft->GetPC();
 	EFlareWeaponGroupType::Type CurrentWeaponType = Spacecraft->GetWeaponsSystem()->GetActiveWeaponType();
 
 	if (Spacecraft->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
@@ -107,8 +107,6 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		}
 	}
 
-
-
 	if (!PlayerManualLockDirection)
 	{
 		if(!Spacecraft->GetLinearVelocity().IsNearlyZero())
@@ -127,11 +125,11 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	}
 
 	// Control
-	switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+	switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 	{
 		case EFlareWeaponGroupType::WG_TURRET:
 		{
-			if (PlayerLeftMousePressed && !ExternalCamera)
+			if (PlayerLeftMousePressed && !ExternalCamera && !PC->GetMenuManager()->IsUIOpen())
 			{
 				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMousePosition.X) + FMath::Square(PlayerMousePosition.Y));
 
@@ -154,9 +152,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		case EFlareWeaponGroupType::WG_GUN:
 		case EFlareWeaponGroupType::WG_BOMB:
 		{
-			AFlarePlayerController* PC = Spacecraft->GetPC();
-
-			if (Spacecraft->IsFlownByPlayer() &&  PC && !PC->GetNavHUD()->IsWheelMenuOpen())
+			if (Spacecraft->IsFlownByPlayer() && PC && !PC->GetNavHUD()->IsWheelMenuOpen() && !PC->GetMenuManager()->IsUIOpen())
 			{
 				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
 

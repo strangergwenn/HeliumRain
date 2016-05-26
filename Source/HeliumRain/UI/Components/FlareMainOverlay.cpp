@@ -51,7 +51,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 				[
 					SNew(SBox)
 					.HAlign(HAlign_Fill)
-					.WidthOverride(0.8 * Theme.ContentWidth)
+					.WidthOverride(0.9 * Theme.ContentWidth)
 					[
 						SNew(SHorizontalBox)
 
@@ -352,11 +352,27 @@ FText SFlareMainOverlay::GetCurrentMenuName() const
 	return FText::FromString(Name.ToString().ToUpper());
 }
 
+const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
+{
+	if (MenuManager->IsMenuOpen())
+	{
+		return AFlareMenuManager::GetMenuIcon(MenuManager->GetCurrentMenu());
+	}
+	else
+	{
+		return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector);
+	}
+}
+
 FText SFlareMainOverlay::GetSpacecraftInfo() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	if (PC->GetShipPawn())
+	if (MenuManager->IsMenuOpen() && MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None)
+	{
+		return FText();
+	}
+	else if (PC->GetShipPawn())
 	{
 		return PC->GetShipPawn()->GetShipStatus();
 	}
@@ -367,11 +383,6 @@ FText SFlareMainOverlay::GetSpacecraftInfo() const
 	}
 
 	return FText();
-}
-
-const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
-{
-	return AFlareMenuManager::GetMenuIcon(MenuManager->GetCurrentMenu());
 }
 
 void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
