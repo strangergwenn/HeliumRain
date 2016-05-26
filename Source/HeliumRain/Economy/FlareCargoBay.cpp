@@ -19,14 +19,14 @@ void UFlareCargoBay::Load(IFlareSpacecraftInterface* ParentSpacecraft, TArray<FF
 	Parent = ParentSpacecraft;
 	Game = Parent->GetGame();
 	CargoBayCount = Parent->GetDescription()->CargoBayCount;
-	CargoBayCapacity = Parent->GetDescription()->CargoBayCapacity;
+	CargoBayBaseCapacity = Parent->GetDescription()->CargoBayCapacity;
 	// Initialize cargo bay
 	CargoBay.Empty();
 	for (uint32 CargoIndex = 0; CargoIndex < CargoBayCount; CargoIndex++)
 	{
 		FFlareCargo Cargo;
 		Cargo.Resource = NULL;
-		Cargo.Capacity = CargoBayCapacity;
+		Cargo.Capacity = GetSlotCapacity();
 		Cargo.Quantity = 0;
 		Cargo.Lock = EFlareResourceLock::NoLock;
 		Cargo.ManualLock= false;
@@ -39,7 +39,7 @@ void UFlareCargoBay::Load(IFlareSpacecraftInterface* ParentSpacecraft, TArray<FF
 			if (CargoSave->Quantity > 0)
 			{
 				Cargo.Resource = Game->GetResourceCatalog()->Get(CargoSave->ResourceIdentifier);
-				Cargo.Quantity = FMath::Min(CargoSave->Quantity, CargoBayCapacity);
+				Cargo.Quantity = FMath::Min(CargoSave->Quantity, GetSlotCapacity());
 
 			}
 
@@ -266,9 +266,14 @@ uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32
 	Getters
 ----------------------------------------------------*/
 
+uint32 UFlareCargoBay::GetSlotCapacity() const
+{
+	return CargoBayBaseCapacity * Parent->GetLevel();
+}
+
 uint32 UFlareCargoBay::GetCapacity() const
 {
-	return CargoBayCapacity * CargoBayCount;
+	return GetSlotCapacity() * CargoBayCount;
 }
 
 uint32 UFlareCargoBay::GetUsedCargoSpace() const

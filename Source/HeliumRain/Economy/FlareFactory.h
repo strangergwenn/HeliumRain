@@ -194,7 +194,8 @@ protected:
 	UFlareSimulatedSpacecraft*				 Parent;
 	FFlareWorldEvent                         NextEvent;
 	uint32                                   ScaledProductionCost;
-
+	FFlareProductionData CycleCostCache;
+	int32 CycleCostCacheLevel;
 
 public:
 

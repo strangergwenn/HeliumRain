@@ -294,6 +294,11 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	Object->TryGetBoolField(TEXT("IsAssigned"), Data->IsAssigned);
 	LoadFName(Object, "DynamicComponentStateIdentifier", &Data->DynamicComponentStateIdentifier);
 	LoadFloat(Object, "DynamicComponentStateProgress", &Data->DynamicComponentStateProgress);
+	LoadInt32(Object, "Level", &Data->Level);
+	if (Data->Level == 0)
+	{
+		Data->Level = 1;
+	}
 
 	const TSharedPtr< FJsonObject >* Pilot;
 	if(Object->TryGetObjectField(TEXT("Pilot"), Pilot))

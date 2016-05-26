@@ -413,7 +413,7 @@ void UFlareCompanyAI::Simulate()
 				float GainPerDay = 0;
 				float GainPerCycle = 0;
 
-				GainPerCycle -= FactoryDescription->CycleCost.ProductionCost;
+				GainPerCycle -= Sector->GetStationConstructionFee(FactoryDescription->CycleCost.ProductionCost);
 
 				float Malus = 0;
 				float Bonus = 0;

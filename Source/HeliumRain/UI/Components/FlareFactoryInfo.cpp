@@ -198,9 +198,9 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 	UFlareSimulatedSpacecraft* SimulatedSpacecraft = TargetFactory->GetParent();
 
 	// Iterate all output resources
-	for (int ResourceIndex = 0; ResourceIndex < TargetFactory->GetDescription()->CycleCost.OutputResources.Num(); ResourceIndex++)
+	for (int ResourceIndex = 0; ResourceIndex < TargetFactory->GetCycleData().OutputResources.Num(); ResourceIndex++)
 	{
-		const FFlareFactoryResource* FactoryResource = &TargetFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
+		const FFlareFactoryResource* FactoryResource = &TargetFactory->GetCycleData().OutputResources[ResourceIndex];
 		FFlareResourceDescription* Resource = &FactoryResource->Resource->Data;
 		check(Resource);
 				
@@ -217,7 +217,7 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 			{
 				ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "{0} output limited to {1}"),
 					Resource->Acronym,
-					FText::AsNumber(TargetFactory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetDescription()->CargoBayCapacity));
+					FText::AsNumber(TargetFactory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetCargoBay()->GetSlotCapacity()));
 			}
 		}
 		else

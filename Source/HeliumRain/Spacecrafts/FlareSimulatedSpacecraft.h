@@ -89,6 +89,11 @@ public:
 
 	void SetDynamicComponentState(FName Identifier, float Progress = 0.f);
 
+	void Upgrade()
+	{
+		SpacecraftData.Level++;
+	}
+
 	/*----------------------------------------------------
 		Resources
 	----------------------------------------------------*/
@@ -184,9 +189,19 @@ public:
 		return SpacecraftData.Location;
 	}
 
+	inline int32 GetLevel() const override
+	{
+		return SpacecraftData.Level;
+	}
+
 	inline bool IsConsumeResource(FFlareResourceDescription* Resource) const
 	{
 		return HasCapability(EFlareSpacecraftCapability::Consumer) && !SpacecraftData.SalesExcludedResources.Contains(Resource->Identifier);
+	}
+
+	int64 GetStationUpgradeFee() const
+	{
+		return SpacecraftData.Level * SpacecraftDescription->CycleCost.ProductionCost;
 	}
 
 };

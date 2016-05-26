@@ -174,6 +174,10 @@ struct FFlareSpacecraftDescription
 	/** Cycle cost & yields */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FFlareProductionData CycleCost;
+
+	/** Max level.*/
+	UPROPERTY(EditAnywhere, Category = Content)
+	int32 MaxLevel;
 };
 
 /** Interface wrapper */
@@ -237,6 +241,7 @@ public:
 
 	virtual UFlareSectorInterface* GetCurrentSectorInterface() = 0;
 
+	virtual int32 GetLevel() const;
 
 	/*----------------------------------------------------
 		Resources

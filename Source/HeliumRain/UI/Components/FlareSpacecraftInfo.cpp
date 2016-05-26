@@ -648,7 +648,17 @@ FText SFlareSpacecraftInfo::GetDescription() const
 	// Description builder
 	if (TargetSpacecraftDesc)
 	{
-		return FText::Format(LOCTEXT("DescriptionFormat", "({0})"), TargetSpacecraftDesc->Name);
+		// TODO exclude shipyard
+		if(TargetSpacecraft && TargetSpacecraft->IsStation())
+		{
+			return FText::Format(LOCTEXT("DescriptionStationFormat", "({0} level {1})"),
+								 TargetSpacecraftDesc->Name,
+								 FText::AsNumber(TargetSpacecraft->GetLevel()));
+		}
+		else
+		{
+			return FText::Format(LOCTEXT("DescriptionFormat", "({0})"), TargetSpacecraftDesc->Name);
+		}
 	}
 
 	return DefaultText;

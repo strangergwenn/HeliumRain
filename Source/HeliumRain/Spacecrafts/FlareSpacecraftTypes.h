@@ -335,6 +335,9 @@ struct FFlareSpacecraftSave
 	/** Current state progress */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float DynamicComponentStateProgress;
+
+	/** Station current level */
+	int32 Level;
 };
 
 

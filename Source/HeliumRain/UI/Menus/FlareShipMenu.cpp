@@ -90,6 +90,15 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					SAssignNew(FactoryList, SVerticalBox)
 				]
 
+				// Factory box
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SAssignNew(UpgradeBox, SVerticalBox)
+				]
+
+
 				// Ship part characteristics
 				+ SVerticalBox::Slot()
 				.VAlign(VAlign_Center)
@@ -259,6 +268,7 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	TargetSpacecraftData = Target->Save();
 	LoadTargetSpacecraft();
 	UpdateFactoryList();
+	UpdateUpgradeBox();
 
 	// Move the viewer to the right
 	AFlarePlayerController* PC = MenuManager->GetPC();
@@ -312,6 +322,7 @@ void SFlareShipMenu::Exit()
 	ShipList->SetVisibility(EVisibility::Collapsed);
 
 	FactoryList->ClearChildren();
+	UpgradeBox->ClearChildren();
 
 	TargetSpacecraft = NULL;
 	RCSDescription = NULL;
@@ -475,6 +486,88 @@ void SFlareShipMenu::UpdateFactoryList()
 			];
 		}
 	}
+}
+
+void SFlareShipMenu::UpdateUpgradeBox()
+{
+	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	UpgradeBox->ClearChildren();
+
+	if(!SimulatedSpacecraft || !SimulatedSpacecraft->IsStation())
+	{
+		return;
+	}
+
+	// Upgrade title
+	UpgradeBox->AddSlot()
+	.AutoHeight()
+	.Padding(Theme.TitlePadding)
+	[
+		SNew(STextBlock)
+		.TextStyle(&Theme.SubTitleFont)
+		.Text(LOCTEXT("TitleUpgrade", "Upgrade"))
+	];
+
+	if(SimulatedSpacecraft->GetLevel() >= SimulatedSpacecraft->GetDescription()->MaxLevel)
+	{
+		// Max level
+		UpgradeBox->AddSlot()
+		.AutoHeight()
+		.Padding(Theme.TitlePadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(LOCTEXT("MaxLevel", "The station is at the max level."))
+		];
+	}
+	else
+	{
+
+		// Add resources
+		FString ResourcesString;
+		for (int ResourceIndex = 0; ResourceIndex < SimulatedSpacecraft->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
+		{
+			FFlareFactoryResource* FactoryResource = &SimulatedSpacecraft->GetDescription()->CycleCost.InputResources[ResourceIndex];
+			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
+		}
+
+		// Final text
+		FText ProductionCost = FText::Format(LOCTEXT("UpgradeCostFormat", "Level {0}/{1}. Upgrade for {2} credits and {3}"),
+			FText::AsNumber(SimulatedSpacecraft->GetLevel()),
+			FText::AsNumber(SimulatedSpacecraft->GetDescription()->MaxLevel),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(SimulatedSpacecraft->GetStationUpgradeFee())),
+			FText::FromString(ResourcesString));
+
+		// TODO increase stock inc cargo bay with level
+
+
+		// Upgrade cost
+		UpgradeBox->AddSlot()
+		.AutoHeight()
+		.Padding(Theme.TitlePadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(ProductionCost)
+		];
+
+		// Upgrade button
+		UpgradeBox->AddSlot()
+		.AutoHeight()
+		.Padding(Theme.TitlePadding)
+		[
+				SNew(SFlareButton)
+				.Width(10)
+				.Text(LOCTEXT("UpgradeStationInfo", "Upgrade this station"))
+				.Icon(FFlareStyleSet::GetIcon("Travel"))
+				.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked)
+				.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled)
+		];
+	}
+
+
+
 }
 
 void SFlareShipMenu::Back()
@@ -697,7 +790,42 @@ TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceCont
 	return res;
 }
 
+void SFlareShipMenu::OnUpgradeStationClicked()
+{
+	if (TargetSpacecraft)
+	{
+		UFlareSectorInterface* SectorInterface = TargetSpacecraft->GetCurrentSectorInterface();
+		UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(SectorInterface);
+		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 
+		if (SimulatedSector && SimulatedSpacecraft)
+		{
+			SimulatedSector->UpgradeStation(SimulatedSpacecraft);
+			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft);
+		}
+	}
+}
+
+bool SFlareShipMenu::IsUpgradeStationDisabled() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	if (TargetSpacecraft)
+	{
+		UFlareSectorInterface* SectorInterface = TargetSpacecraft->GetCurrentSectorInterface();
+		UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(SectorInterface);
+		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
+
+
+		if (SimulatedSector && SimulatedSpacecraft)
+		{
+			TArray<FText> Reasons;
+			return !SimulatedSector->CanUpgradeStation(SimulatedSpacecraft, Reasons);
+		}
+	}
+
+	return true;
+}
 /*----------------------------------------------------
 	Action callbacks
 ----------------------------------------------------*/

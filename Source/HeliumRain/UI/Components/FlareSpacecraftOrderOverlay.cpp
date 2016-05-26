@@ -400,8 +400,9 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		}
 
 		// Final text
-		ProductionCost = FText::Format(LOCTEXT("StationCostFormat", "{0} credits{1}\nRequires a cargo ship{2}"),
-			FText::AsNumber(UFlareGameTools::DisplayMoney(Desc->CycleCost.ProductionCost)),
+		ProductionCost = FText::Format(LOCTEXT("StationCostFormat", "{0} credits ({1} existing stations) {2}\nRequires a cargo ship {3}"),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(TargetSector->GetStationConstructionFee(Desc->CycleCost.ProductionCost))),
+			FText::AsNumber(TargetSector->GetSectorStations().Num()),
 			FText::FromString(ResourcesString),
 			FText::FromString(ConstraintString));
 	}

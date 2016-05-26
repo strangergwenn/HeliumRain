@@ -297,5 +297,9 @@ public:
 		return 128;
 	}
 
+	TSharedPtr<SFlareShipMenu>	GetShipMenu()
+	{
+		return ShipMenu;
+	}
 
 };

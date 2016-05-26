@@ -136,6 +136,10 @@ public:
 
 	UFlareSectorInterface* GetCurrentSectorInterface() override;
 
+	inline int32 GetLevel() const override
+	{
+		return ShipData.Level;
+	}
 
 public:
 

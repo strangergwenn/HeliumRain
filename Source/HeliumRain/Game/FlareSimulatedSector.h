@@ -72,6 +72,11 @@ public:
 
 	bool BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
+	bool CanUpgradeStation(UFlareSimulatedSpacecraft* Station, TArray<FText>& OutReason);
+
+	bool UpgradeStation(UFlareSimulatedSpacecraft* Station);
+
+
 	void AttachStationToAsteroid(UFlareSimulatedSpacecraft* Spacecraft);
 
 	void SimulateTransport();
@@ -180,6 +185,8 @@ public:
 	{
 		return 30;
 	}
+
+	int64 GetStationConstructionFee(int64 BasePrice);
 
 	uint32 GetTransportCapacity(UFlareCompany* Company, bool AllCompanies = false);
 

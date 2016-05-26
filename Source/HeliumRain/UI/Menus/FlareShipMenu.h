@@ -108,6 +108,8 @@ protected:
 	/** Generate the factory menus */
 	void UpdateFactoryList();
 
+	/** Generate upgrade box */
+	void UpdateUpgradeBox();
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -131,6 +133,9 @@ protected:
 	/** Cancelled a part */
 	void OnPartCancelled();
 
+	void OnUpgradeStationClicked();
+
+	bool IsUpgradeStationDisabled() const;
 
 	/*----------------------------------------------------
 		Helpers
@@ -184,6 +189,15 @@ protected:
 
 	// Factory list
 	TSharedPtr<SVerticalBox>                        FactoryList;
+	TSharedPtr<SVerticalBox>                        UpgradeBox;
 	
+public:
+	/*----------------------------------------------------
+		Getter
+	----------------------------------------------------*/
 
+	IFlareSpacecraftInterface* GetTargetSpacecraft()
+	{
+		return TargetSpacecraft;
+	}
 };

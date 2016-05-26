@@ -52,7 +52,7 @@ protected:
 
 	// Cache
 	uint32								       CargoBayCount;
-	uint32								       CargoBayCapacity;
+	uint32								       CargoBayBaseCapacity;
 	AFlareGame*                                Game;
 
 
@@ -81,10 +81,7 @@ public:
 		return CargoBay;
 	}
 
-	uint32 GetSlotCapacity() const
-	{
-		return CargoBayCapacity;
-	}
+	uint32 GetSlotCapacity() const;
 
 	inline IFlareSpacecraftInterface* GetParent() const
 	{

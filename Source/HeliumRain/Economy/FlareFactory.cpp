@@ -28,6 +28,7 @@ void UFlareFactory::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, const FFla
 	FactoryData = Data;
 	FactoryDescription = Description;
 	Parent = ParentSpacecraft;
+	CycleCostCacheLevel = -1;
 }
 
 
@@ -585,9 +586,29 @@ const FFlareProductionData& UFlareFactory::GetCycleData()
 	{
 		return GetCycleDataForShipClass(FactoryData.TargetShipClass);
 	}
+	else if (Parent->GetLevel() == CycleCostCacheLevel)
+	{
+		return CycleCostCache;
+	}
 	else
 	{
-		return FactoryDescription->CycleCost;
+		CycleCostCacheLevel = Parent->GetLevel();
+		CycleCostCache.ProductionTime = FactoryDescription->CycleCost.ProductionTime;
+		CycleCostCache.ProductionCost = FactoryDescription->CycleCost.ProductionCost * CycleCostCacheLevel;
+		CycleCostCache.InputResources = FactoryDescription->CycleCost.InputResources;
+		for (int32 ResourceIndex = 0 ; ResourceIndex < CycleCostCache.InputResources.Num() ; ResourceIndex++)
+		{
+			FFlareFactoryResource* Resource = &CycleCostCache.InputResources[ResourceIndex];
+			Resource->Quantity *= CycleCostCacheLevel;
+		}
+
+		CycleCostCache.OutputResources = FactoryDescription->CycleCost.OutputResources;
+		for (int32 ResourceIndex = 0 ; ResourceIndex < CycleCostCache.OutputResources.Num() ; ResourceIndex++)
+		{
+			FFlareFactoryResource* Resource = &CycleCostCache.OutputResources[ResourceIndex];
+			Resource->Quantity *= CycleCostCacheLevel;
+		}
+		return CycleCostCache;
 	}
 }
 
