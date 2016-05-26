@@ -195,7 +195,13 @@ FSlateColor SFlareStoryMenu::GetTextColor() const
 void SFlareStoryMenu::OnStartPlaying()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
+	UFlareSimulatedSpacecraft* CurrentShip = PC->GetLastFlownShip();
+	if (CurrentShip)
+	{
+		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
+		Sector->SetShipToFly(CurrentShip);
+		MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
+	}
 }
 
 

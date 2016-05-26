@@ -31,60 +31,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-
-		// Buttons
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Top)
-		[
-			SNew(SHorizontalBox)
-
-			// Fast forward
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SAssignNew(FastForward, SFlareButton)
-				.Width(4)
-				.Toggle(true)
-				.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
-				.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
-				.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
-				.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
-				.HelpText(LOCTEXT("FastForwardInfo", "Wait and see - Travels, production, building will be accelerated."))
-			]
-
-			// Fly selected ship
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SFlareButton)
-				.Width(9)
-				.Text(this, &SFlareOrbitalMenu::GetFlySelectedShipText)
-				.HelpText(LOCTEXT("FlySelectedInfo", "Fly the currently selected ship"))
-				.Icon(FFlareStyleSet::GetIcon("Travel"))
-				.OnClicked(this, &SFlareOrbitalMenu::OnFlySelectedShipClicked)
-				.IsDisabled(this, &SFlareOrbitalMenu::IsFlySelectedShipDisabled)
-			]
-
-			// Fly last flown
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SFlareButton)
-				.Width(9)
-				.Text(this, &SFlareOrbitalMenu::GetFlyCurrentShipText)
-				.HelpText(LOCTEXT("FlyCurrentInfo", "Fly the last flown ship"))
-				.Icon(FFlareStyleSet::GetIcon("Travel"))
-				.OnClicked(this, &SFlareOrbitalMenu::OnFlyCurrentShipClicked)
-				.IsDisabled(this, &SFlareOrbitalMenu::IsFlyCurrentShipDisabled)
-			]
-		]
-
+		
 		// Planetarium
 		+ SVerticalBox::Slot()
 		.Padding(Theme.ContentPadding)
@@ -96,19 +43,43 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			// Left column
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
-			.VAlign(VAlign_Fill)
 			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Top)
 			[
 				SNew(SVerticalBox)
 					
-				// Date
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareOrbitalMenu::GetDateText)
+					SNew(SHorizontalBox)
+
+					// Fast forward
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(FastForward, SFlareButton)
+						.Width(4)
+						.Toggle(true)
+						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
+						.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
+						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
+						.HelpText(LOCTEXT("FastForwardInfo", "Wait and see - Travels, production, building will be accelerated."))
+					]
+					
+					// Date
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareOrbitalMenu::GetDateText)
+					]
 				]
 			
 				// Nema
@@ -359,85 +330,6 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 	Callbacks
 ----------------------------------------------------*/
 
-FText SFlareOrbitalMenu::GetFlyCurrentShipText() const
-{
-	UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
-	FText Reason;
-
-	if (!CurrentShip)
-	{
-		return LOCTEXT("FlyCurrentNone", "Previous ship is unavailable");
-	}
-	else if (CurrentShip->CanBeFlown(Reason))
-	{
-		return FText::Format(LOCTEXT("FlyCurrentFormat", "Fly previous ship ({0})"), FText::FromName(CurrentShip->GetImmatriculation()));
-	}
-	else
-	{
-		return Reason;
-	}
-}
-
-bool SFlareOrbitalMenu::IsFlyCurrentShipDisabled() const
-{
-	if (IsEnabled())
-	{
-		UFlareSimulatedSpacecraft* CurrentShip = MenuManager->GetPC()->GetLastFlownShip();
-		FText Unused;
-
-		if (CurrentShip && CurrentShip->CanBeFlown(Unused))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-FText SFlareOrbitalMenu::GetFlySelectedShipText() const
-{
-	UFlareSimulatedSpacecraft* CurrentShip = NULL;
-	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
-	if (SelectedFleet && SelectedFleet->GetShips().Num() > 0)
-	{
-		CurrentShip = SelectedFleet->GetShips()[0];
-	}
-
-	FText Reason;
-	if (!CurrentShip)
-	{
-		return LOCTEXT("FlySelectedNone", "No fleet selected");
-	}
-	else if (CurrentShip->CanBeFlown(Reason))
-	{
-		return FText::Format(LOCTEXT("FlySelectedFormat", "Fly selected ship ({0})"), FText::FromName(CurrentShip->GetImmatriculation()));
-	}
-	else
-	{
-		return Reason;
-	}
-}
-
-bool SFlareOrbitalMenu::IsFlySelectedShipDisabled() const
-{
-	if (IsEnabled())
-	{
-		UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
-
-		if (SelectedFleet && SelectedFleet->GetShips().Num() > 0)
-		{
-			FText Unused;
-			UFlareSimulatedSpacecraft* CurrentShip = SelectedFleet->GetShips()[0];
-			if (CurrentShip && CurrentShip->CanBeFlown(Unused))
-			{
-				return false;
-			}
-		}
-	}
-
-	return true;
-}
-
 FText SFlareOrbitalMenu::GetFastForwardText() const
 {
 	if (!IsEnabled())
@@ -543,7 +435,7 @@ FText SFlareOrbitalMenu::GetDateText() const
 		{
 			int64 Credits = PlayerCompany->GetMoney();
 			FText DateText = UFlareGameTools::GetDisplayDate(GameWorld->GetDate());
-			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "\n{0} - {1} credits"), DateText, FText::AsNumber(UFlareGameTools::DisplayMoney(Credits)));
+			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "{0} - {1} credits"), DateText, FText::AsNumber(UFlareGameTools::DisplayMoney(Credits)));
 		}
 	}
 
@@ -735,38 +627,6 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed()
 {
 	FastForwardActive = true;
 	Game->SaveGame(MenuManager->GetPC());
-}
-
-void SFlareOrbitalMenu::OnFlyCurrentShipClicked()
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	UFlareSimulatedSpacecraft* CurrentShip = PC->GetLastFlownShip();
-
-	if (CurrentShip)
-	{
-		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
-		Sector->SetShipToFly(CurrentShip);
-		MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
-	}
-}
-
-void SFlareOrbitalMenu::OnFlySelectedShipClicked()
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
-	if (SelectedFleet->GetShips().Num() == 0)
-	{
-		return;
-	}
-
-	UFlareSimulatedSpacecraft* CurrentShip = SelectedFleet->GetShips()[0];
-
-	if (CurrentShip)
-	{
-		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
-		Sector->SetShipToFly(CurrentShip);
-		MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
-	}
 }
 
 #undef LOCTEXT_NAMESPACE

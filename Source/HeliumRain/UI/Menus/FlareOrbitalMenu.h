@@ -61,19 +61,7 @@ protected:
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
-
-	/** Get the text for the fly-current-ship button */
-	FText GetFlyCurrentShipText() const;
-
-	/** Visibility setting for the fly-current-ship feature */
-	bool IsFlyCurrentShipDisabled() const;
-
-	/** Get the text for the fly-selected-ship button */
-	FText GetFlySelectedShipText() const;
-
-	/** Visibility setting for the fly-selected-ship feature */
-	bool IsFlySelectedShipDisabled() const;
-
+		
 	/** Get the text for the fast-forward feature */
 	FText GetFastForwardText() const;
 
@@ -108,13 +96,7 @@ protected:
 
 	/** Fast forward to the next event */
 	void OnFastForwardConfirmed();
-
-	/** Fly the last flown ship */
-	void OnFlyCurrentShipClicked();
-
-	/** Fly the selected ship */
-	void OnFlySelectedShipClicked();
-
+		
 
 protected:
 

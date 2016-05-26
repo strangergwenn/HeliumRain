@@ -307,7 +307,13 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 		if (Game->DoesSaveSlotExist(*Index))
 		{
 			Game->LoadGame(PC);
-			MenuManager->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
+			UFlareSimulatedSpacecraft* CurrentShip = PC->GetLastFlownShip();
+			if (CurrentShip)
+			{
+				UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
+				Sector->SetShipToFly(CurrentShip);
+				MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
+			}
 		}
 
 		// Create the world
