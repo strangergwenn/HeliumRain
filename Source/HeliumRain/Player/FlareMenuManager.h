@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../UI/Components/FlareTooltip.h"
-#include "../UI/Components/FlareNotifier.h"
+#include "../UI/Components/FlareMainOverlay.h"
 #include "../UI/Components/FlareSpacecraftOrderOverlay.h"
 #include "../UI/Components/FlareConfirmationOverlay.h"
 #include "FlareMenuManager.generated.h"
@@ -227,7 +227,7 @@ protected:
 
 	// Menu tools
 	TSharedPtr<SFlareTooltip>               Tooltip;
-	TSharedPtr<SFlareNotifier>              Notifier;
+	TSharedPtr<SFlareMainOverlay>      FlareMainOverlay;
 	TSharedPtr<SFlareConfirmationOverlay>   Confirmation;
 	TSharedPtr<SFlareSpacecraftOrderOverlay>SpacecraftOrder;
 

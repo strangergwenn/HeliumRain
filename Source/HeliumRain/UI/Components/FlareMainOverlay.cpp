@@ -1,17 +1,17 @@
 
 #include "../../Flare.h"
-#include "FlareNotifier.h"
+#include "FlareMainOverlay.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../Components/FlareObjectiveInfo.h"
 
-#define LOCTEXT_NAMESPACE "FlareNotifier"
+#define LOCTEXT_NAMESPACE "FlareMainOverlay"
 
 
 /*----------------------------------------------------
 	Construct
 ----------------------------------------------------*/
 
-void SFlareNotifier::Construct(const FArguments& InArgs)
+void SFlareMainOverlay::Construct(const FArguments& InArgs)
 {
 	// Data
 	MenuManager = InArgs._MenuManager;
@@ -23,26 +23,41 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Right)
 	.Padding(FMargin(0, 200, 0, 0))
 	[
-		SNew(SBox)
-		.HeightOverride(800)
-		.VAlign(VAlign_Top)
+		SNew(SVerticalBox)
+
+		// Menu list
+		+ SVerticalBox::Slot()
+		.AutoHeight()
 		[
-			SNew(SVerticalBox)
-
-			// Objective
-			+ SVerticalBox::Slot()
-			.AutoHeight()
+			SNew(SHorizontalBox)
+		]
+	
+		// Notifications
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SNew(SBox)
+			.HeightOverride(800)
+			.VAlign(VAlign_Top)
+			.Visibility(EVisibility::SelfHitTestInvisible)
 			[
-				SNew(SFlareObjectiveInfo)
-				.PC(MenuManager->GetPC())
-				.Visibility(EVisibility::SelfHitTestInvisible)
-			]
+				SNew(SVerticalBox)
 
-			// Notifications
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SAssignNew(NotificationContainer, SVerticalBox)
+				// Objective
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SFlareObjectiveInfo)
+					.PC(MenuManager->GetPC())
+					.Visibility(EVisibility::SelfHitTestInvisible)
+				]
+
+				// Notifications
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(NotificationContainer, SVerticalBox)
+				]
 			]
 		]
 	];
@@ -53,7 +68,17 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo, FName TargetSpacecraft)
+void SFlareMainOverlay::Open()
+{
+
+}
+
+void SFlareMainOverlay::Close()
+{
+
+}
+
+void SFlareMainOverlay::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo, FName TargetSpacecraft)
 {
 	// Remove notification with the same tag.
 	if (Tag != NAME_None)
@@ -63,7 +88,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 			if (NotificationData[Index]->IsDuplicate(Tag))
 			{
 				NotificationData[Index]->Finish();
-				FLOG("SFlareNotifier::Notify : ignoring because it's duplicate");
+				FLOG("SFlareMainOverlay::Notify : ignoring because it's duplicate");
 			}
 		}
 	}
@@ -90,7 +115,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 	NotificationData.Add(NotificationEntry);
 }
 
-void SFlareNotifier::FlushNotifications()
+void SFlareMainOverlay::FlushNotifications()
 {
 	for (auto& NotificationEntry : NotificationData)
 	{
@@ -103,7 +128,7 @@ void SFlareNotifier::FlushNotifications()
 	Callbacks
 ----------------------------------------------------*/
 
-void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	int32 NotificationCount = 0;
@@ -133,7 +158,7 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 	Getters
 ----------------------------------------------------*/
 
-bool SFlareNotifier::IsFirstNotification(SFlareNotification* Notification)
+bool SFlareMainOverlay::IsFirstNotification(SFlareNotification* Notification)
 {
 	for (int i = 0; i < NotificationData.Num(); i++)
 	{

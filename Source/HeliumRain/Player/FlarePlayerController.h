@@ -7,7 +7,7 @@
 #include "FlareCockpitManager.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSaveGame.h"
-#include "../UI/Components/FlareNotifier.h"
+#include "../UI/Components/FlareMainOverlay.h"
 #include "FlarePlayerController.generated.h"
 
 

@@ -7,6 +7,8 @@
 #include "FlareTravel.h"
 #include "FlareFleet.h"
 
+#include "../Player/FlarePlayerController.h"
+
 
 /*----------------------------------------------------
     Constructor

@@ -7,13 +7,13 @@
 class AFlareMenuManager;
 
 
-class SFlareNotifier : public SCompoundWidget
+class SFlareMainOverlay : public SCompoundWidget
 {
 	/*----------------------------------------------------
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareNotifier)
+	SLATE_BEGIN_ARGS(SFlareMainOverlay)
 	{}
 
 	SLATE_ARGUMENT(AFlareMenuManager*, MenuManager)
@@ -34,6 +34,12 @@ public:
 	/*----------------------------------------------------
 		Interaction
 	----------------------------------------------------*/
+
+	/** Open the menu list */
+	void Open();
+
+	/** Close the menu list */
+	void Close();
 
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo = NULL, FName TargetSpacecraft = NAME_None);

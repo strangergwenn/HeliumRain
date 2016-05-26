@@ -66,13 +66,9 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(WorldEconomyMenu, SFlareWorldEconomyMenu).MenuManager(this);
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 
-		// Notifier
-		SAssignNew(Notifier, SFlareNotifier).MenuManager(this).Visibility(EVisibility::SelfHitTestInvisible);
-
-		// Confirmation overlay
+		// Create overlays
+		SAssignNew(FlareMainOverlay, SFlareMainOverlay).MenuManager(this);
 		SAssignNew(Confirmation, SFlareConfirmationOverlay).MenuManager(this);
-
-		// Spacecraft order overlay
 		SAssignNew(SpacecraftOrder, SFlareSpacecraftOrderOverlay).MenuManager(this);
 
 		// Tooltip
@@ -104,11 +100,11 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),        50);
 
 		// Register special menus
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),           60);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Confirmation.ToSharedRef()),       60);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),            90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SpacecraftOrder.ToSharedRef()),    70);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),              100);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(FlareMainOverlay.ToSharedRef()),   150);
 
 		// Setup regular menus
 		MainMenu->Setup();
@@ -396,18 +392,18 @@ void AFlareMenuManager::Confirm(FText Title, FText Text, FSimpleDelegate OnConfi
 
 void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo, FName TargetSpacecraft)
 {
-	if (Notifier.IsValid())
+	if (FlareMainOverlay.IsValid())
 	{
 		OrbitMenu->StopFastForward();
-		Notifier->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo, TargetSpacecraft);
+		FlareMainOverlay->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo, TargetSpacecraft);
 	}
 }
 
 void AFlareMenuManager::FlushNotifications()
 {
-	if (Notifier.IsValid())
+	if (FlareMainOverlay.IsValid())
 	{
-		Notifier->FlushNotifications();
+		FlareMainOverlay->FlushNotifications();
 	}
 }
 
@@ -488,7 +484,7 @@ void AFlareMenuManager::ResetMenu()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	
 	SpacecraftOrder->Close();
-	Notifier->SetVisibility(EVisibility::SelfHitTestInvisible);
+	FlareMainOverlay->SetVisibility(EVisibility::SelfHitTestInvisible);
 
 	MainMenu->Exit();
 	SettingsMenu->Exit();
@@ -648,7 +644,7 @@ AFlareGame* AFlareMenuManager::GetGame() const
 void AFlareMenuManager::OpenMainMenu()
 {
 	ResetMenu();
-	Notifier->SetVisibility(EVisibility::Collapsed);
+	FlareMainOverlay->SetVisibility(EVisibility::Collapsed);
 
 	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->OnEnterMenu();
@@ -659,7 +655,7 @@ void AFlareMenuManager::OpenMainMenu()
 void AFlareMenuManager::OpenSettingsMenu()
 {
 	ResetMenu();
-	Notifier->SetVisibility(EVisibility::Collapsed);
+	FlareMainOverlay->SetVisibility(EVisibility::Collapsed);
 
 	CurrentMenu = EFlareMenu::MENU_Settings;
 	GetPC()->OnEnterMenu();
@@ -670,7 +666,7 @@ void AFlareMenuManager::OpenSettingsMenu()
 void AFlareMenuManager::OpenNewGameMenu()
 {
 	ResetMenu();
-	Notifier->SetVisibility(EVisibility::Collapsed);
+	FlareMainOverlay->SetVisibility(EVisibility::Collapsed);
 
 	CurrentMenu = EFlareMenu::MENU_NewGame;
 	GetPC()->OnEnterMenu();
@@ -681,7 +677,7 @@ void AFlareMenuManager::OpenNewGameMenu()
 void AFlareMenuManager::OpenStoryMenu()
 {
 	ResetMenu();
-	Notifier->SetVisibility(EVisibility::Collapsed);
+	FlareMainOverlay->SetVisibility(EVisibility::Collapsed);
 
 	CurrentMenu = EFlareMenu::MENU_Story;
 	GetPC()->OnEnterMenu();
