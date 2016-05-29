@@ -31,22 +31,22 @@ public:
 	----------------------------------------------------*/
 
 	/** Get the list of docked ships */
-	virtual TArray<IFlareSpacecraftInterface*> GetDockedShips();
+	virtual TArray<UFlareSimulatedSpacecraft*> GetDockedShips();
 
 	/** Request a docking point */
-	virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship, FVector PreferredLocation);
+	virtual FFlareDockingInfo RequestDock(UFlareSimulatedSpacecraft* Ship, FVector PreferredLocation);
 
 	/** Cancel docking */
-	virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId);
+	virtual void ReleaseDock(UFlareSimulatedSpacecraft* Ship, int32 DockId);
 
 	/** Confirm the docking from external ship */
-	virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId);
+	virtual void Dock(UFlareSimulatedSpacecraft* Ship, int32 DockId);
 
 	virtual int GetDockCount() const;
 
-	virtual bool HasCompatibleDock(IFlareSpacecraftInterface* Ship) const;
+	virtual bool HasCompatibleDock(UFlareSimulatedSpacecraft* Ship) const;
 
-	virtual bool IsDockedShip(IFlareSpacecraftInterface* ShipCanditate) const;
+	virtual bool IsDockedShip(UFlareSimulatedSpacecraft* ShipCanditate) const;
 
 
 protected:

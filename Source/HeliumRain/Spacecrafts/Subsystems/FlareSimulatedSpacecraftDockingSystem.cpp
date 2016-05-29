@@ -34,26 +34,26 @@ void UFlareSimulatedSpacecraftDockingSystem::Initialize(UFlareSimulatedSpacecraf
 	System API
 ----------------------------------------------------*/
 
-TArray<IFlareSpacecraftInterface*> UFlareSimulatedSpacecraftDockingSystem::GetDockedShips()
+TArray<UFlareSimulatedSpacecraft*> UFlareSimulatedSpacecraftDockingSystem::GetDockedShips()
 {
 	// TODO replace mock
-	TArray<IFlareSpacecraftInterface*> MockArray;
+	TArray<UFlareSimulatedSpacecraft*> MockArray;
 	return MockArray;
 }
 
-FFlareDockingInfo UFlareSimulatedSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInterface* Ship, FVector PreferredLocation)
+FFlareDockingInfo UFlareSimulatedSpacecraftDockingSystem::RequestDock(UFlareSimulatedSpacecraft* Ship, FVector PreferredLocation)
 {
 	// TODO replace mock
 	FFlareDockingInfo MockInfo;
 	return MockInfo;
 }
 
-void UFlareSimulatedSpacecraftDockingSystem::ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId)
+void UFlareSimulatedSpacecraftDockingSystem::ReleaseDock(UFlareSimulatedSpacecraft* Ship, int32 DockId)
 {
 	// TODO replace mock
 }
 
-void UFlareSimulatedSpacecraftDockingSystem::Dock(IFlareSpacecraftInterface* Ship, int32 DockId)
+void UFlareSimulatedSpacecraftDockingSystem::Dock(UFlareSimulatedSpacecraft* Ship, int32 DockId)
 {
 	// TODO replace mock
 }
@@ -64,13 +64,13 @@ int UFlareSimulatedSpacecraftDockingSystem::GetDockCount() const
 	return 0;
 }
 
-bool UFlareSimulatedSpacecraftDockingSystem::HasCompatibleDock(IFlareSpacecraftInterface* Ship) const
+bool UFlareSimulatedSpacecraftDockingSystem::HasCompatibleDock(UFlareSimulatedSpacecraft* Ship) const
 {
 	// TODO replace mock
 	return false;
 }
 
-bool UFlareSimulatedSpacecraftDockingSystem::IsDockedShip(IFlareSpacecraftInterface* ShipCanditate) const
+bool UFlareSimulatedSpacecraftDockingSystem::IsDockedShip(UFlareSimulatedSpacecraft* ShipCanditate) const
 {
 	// TODO replace mock
 	return false;

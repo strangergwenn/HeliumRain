@@ -40,7 +40,7 @@ void UFlareSpacecraftSpinningComponent::TickComponent(float DeltaSeconds, enum E
 	}
 
 	// Update
-	if (!Ship->IsPresentationMode() && Ship->GetDamageSystem()->IsAlive())
+	if (!Ship->IsPresentationMode() && Ship->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		// Rotation axis
 		FRotator Axis;

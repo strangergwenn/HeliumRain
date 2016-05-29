@@ -1387,7 +1387,7 @@ int32 UFlareCompanyAI::GetShipCountForShipGroup(EFlareCombatGroup::Type Type) co
 	}
 }
 
-void UFlareCompanyAI::ResetControlGroups(UFlareSector* Sector)
+void UFlareCompanyAI::ResetControlGroups(UFlareSimulatedSector* Sector)
 {
 	// Reset ship count values
 	CurrentMilitaryShipCount = 0;
@@ -1398,10 +1398,10 @@ void UFlareCompanyAI::ResetControlGroups(UFlareSector* Sector)
 	// Compute the current count of all kinds of ships
 	if (Sector)
 	{
-		TArray<IFlareSpacecraftInterface*>& ShipList = Sector->GetSectorShipInterfaces();
+		TArray<UFlareSimulatedSpacecraft*>& ShipList = Sector->GetSectorShips();
 		for (int32 Index = 0; Index < ShipList.Num(); Index++)
 		{
-			IFlareSpacecraftInterface* Ship = ShipList[Index];
+			UFlareSimulatedSpacecraft* Ship = ShipList[Index];
 			check(Ship);
 
 			if (Ship->GetCompany() != Company)

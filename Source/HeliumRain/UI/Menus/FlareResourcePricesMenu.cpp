@@ -154,7 +154,7 @@ void SFlareResourcePricesMenu::Setup()
 	SetVisibility(EVisibility::Collapsed);
 }
 
-void SFlareResourcePricesMenu::Enter(UFlareSectorInterface* Sector)
+void SFlareResourcePricesMenu::Enter(UFlareSimulatedSector* Sector)
 {
 	FLOG("SFlareResourcePricesMenu::Enter");
 	SetEnabled(true);

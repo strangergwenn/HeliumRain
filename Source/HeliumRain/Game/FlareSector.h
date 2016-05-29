@@ -5,7 +5,6 @@
 #include "../Spacecrafts/FlareBomb.h"
 #include "FlareAsteroid.h"
 #include "FlareSimulatedSector.h"
-#include "FlareSectorInterface.h"
 #include "FlareSector.generated.h"
 
 class UFlareSimulatedSector;
@@ -13,7 +12,7 @@ class AFlareGame;
 class AFlareAsteroid;
 
 UCLASS()
-class HELIUMRAIN_API UFlareSector : public UFlareSectorInterface
+class HELIUMRAIN_API UFlareSector : public UObject
 {
 	GENERATED_UCLASS_BODY()
 
@@ -24,10 +23,10 @@ public:
 	----------------------------------------------------*/
 
 	/** Load the sector from a save file */
-	virtual void Load(UFlareSimulatedSector* ParentSector, const FFlareSectorSave& Data);
+	virtual void Load(UFlareSimulatedSector* Parent);
 
 	/** Save the sector to a save file */
-	virtual FFlareSectorSave* Save(TArray<FFlareSpacecraftSave>& SpacecraftData);
+	virtual void Save();
 
 	/** Destroy the sector */
 	virtual void DestroySector();
@@ -36,23 +35,9 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
-	/** Create a station in the level  for a specific company */
-	// AFlareSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
-
-	/** Create a ship in the level  for a specific company */
-	// AFlareSpacecraft* CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
-
-	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
-	// AFlareSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
-
-	/** Add an asteroid to the world at a specific location */
-	// void CreateAsteroidAt(int32 ID, FVector Location);
-
-	// virtual void EmptySector();
-
 	AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
 
-	AFlareSpacecraft* LoadSpacecraft(const FFlareSpacecraftSave& ShipData);
+	AFlareSpacecraft* LoadSpacecraft(UFlareSimulatedSpacecraft* ParentSpacecraft);
 
 	AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 
@@ -78,14 +63,14 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-	UFlareSimulatedSector*      SimulatedSector;
+	UFlareSimulatedSector*      ParentSector;
 
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorStations;
-	TArray<IFlareSpacecraftInterface*>      SectorStationInterfaces;
+
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorShips;
-	TArray<IFlareSpacecraftInterface*>      SectorShipInterfaces;
+
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorSpacecrafts;
 
@@ -95,7 +80,6 @@ protected:
 	TArray<AFlareBomb*>      SectorBombs;
 	UPROPERTY()
 	TArray<AFlareShell*>      SectorShells;
-	// TODO shell register
 
 	int64						  LocalTime;
 	bool						  SectorRepartitionCache;
@@ -107,9 +91,14 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	UFlareSimulatedSector* GetSimulatedSector() override
+	inline AFlareGame* GetGame()
 	{
-		return SimulatedSector;
+		return ParentSector->GetGame();
+	}
+
+	UFlareSimulatedSector* GetSimulatedSector()
+	{
+		return ParentSector;
 	}
 
 	TArray<AFlareSpacecraft*> GetCompanyShips(UFlareCompany* Company);
@@ -118,33 +107,29 @@ public:
 
 	AFlareSpacecraft* FindSpacecraft(FName Immatriculation);
 
-	inline FName GetIdentifier() const
+	inline const FFlareSectorDescription* GetDescription() const
+	{
+		return ParentSector->GetDescription();
+	}
+
+
+	/*inline FName GetIdentifier() const
 	{
 		return SectorData.Identifier;
-	}
+	}*/
 
 	inline TArray<AFlareSpacecraft*>& GetSpacecrafts()
 	{
 		return SectorSpacecrafts;
 	}
 
-	inline FFlarePeopleSave* GetPeople(){
+	/*inline FFlarePeopleSave* GetPeople(){
 		return &SectorData.PeopleData;
-	}
-
-	inline TArray<IFlareSpacecraftInterface*>& GetSectorShipInterfaces() override
-	{
-		return SectorShipInterfaces;
-	}
+	}*/
 
 	inline TArray<AFlareSpacecraft*>& GetStations()
 	{
 		return SectorStations;
-	}
-
-	inline TArray<IFlareSpacecraftInterface*>& GetSectorStationInterfaces() override
-	{
-		return SectorStationInterfaces;
 	}
 
 	inline TArray<AFlareAsteroid*>& GetAsteroids()

@@ -16,7 +16,6 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 {
 	// Args
 	TargetShip = NULL;
-	TargetComponent = NULL;
 	SubsystemType = InArgs._Subsystem;
 
 	// Settings
@@ -58,16 +57,10 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareSubsystemStatus::SetTargetShip(IFlareSpacecraftInterface* Target)
+void SFlareSubsystemStatus::SetTargetShip(UFlareSimulatedSpacecraft* Target)
 {
 	TargetShip = Target;
 }
-
-void SFlareSubsystemStatus::SetTargetComponent(UFlareSpacecraftComponent* Target)
-{
-	TargetComponent = Target;
-}
-
 
 /*----------------------------------------------------
 	Callbacks

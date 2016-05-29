@@ -115,7 +115,7 @@ public:
 	bool IsSelectingWeapon() const;
 
 	/** Show a notification explaining if we succeeded in docking */
-	void NotifyDockingResult(bool Success, IFlareSpacecraftInterface* Target);
+	void NotifyDockingResult(bool Success, UFlareSimulatedSpacecraft* Target);
 
 
 	/*----------------------------------------------------

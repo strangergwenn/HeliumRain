@@ -4,7 +4,6 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareCompanyFlag.h"
 #include "../Components/FlareShipStatus.h"
-#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Game/FlareCompany.h"
 
@@ -25,7 +24,7 @@ class SFlareSpacecraftInfo : public SCompoundWidget
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
-	SLATE_ARGUMENT(IFlareSpacecraftInterface*, Spacecraft)
+	SLATE_ARGUMENT(UFlareSimulatedSpacecraft*, Spacecraft)
 	SLATE_ARGUMENT(SWidget*, OwnerWidget)
 
 	SLATE_ARGUMENT(bool, NoInspect)
@@ -45,7 +44,7 @@ public:
 	void Construct(const FArguments& InArgs);
 	
 	/** Set a spacecraft as content */
-	void SetSpacecraft(IFlareSpacecraftInterface* Target);
+	void SetSpacecraft(UFlareSimulatedSpacecraft* Target);
 
 	/** Set the no-inspect mode */
 	void SetNoInspect(bool NewState);
@@ -133,7 +132,7 @@ protected:
 	bool                              Minimized;
 
 	// Target data	
-	IFlareSpacecraftInterface*        TargetSpacecraft;
+	UFlareSimulatedSpacecraft*        TargetSpacecraft;
 	FFlareSpacecraftDescription*      TargetSpacecraftDesc;
 	FText                             TargetName;
 

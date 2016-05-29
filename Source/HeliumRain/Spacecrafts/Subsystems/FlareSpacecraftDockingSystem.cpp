@@ -30,7 +30,7 @@ void UFlareSpacecraftDockingSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft
 {
 	Spacecraft = OwnerSpacecraft;
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	Description = Spacecraft->GetDescription();
+	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
 
 }
@@ -59,7 +59,7 @@ void UFlareSpacecraftDockingSystem::Start()
 			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
 			Info.DockId = Count;
 			Info.DockSize = Component->DockSize;
-			Info.Station = Spacecraft;
+			Info.Station = Spacecraft->GetParent();
 			Info.Granted = false;
 			Info.Occupied = false;
 
@@ -70,7 +70,7 @@ void UFlareSpacecraftDockingSystem::Start()
 	}
 }
 
-bool UFlareSpacecraftDockingSystem::HasCompatibleDock(IFlareSpacecraftInterface* Ship) const
+bool UFlareSpacecraftDockingSystem::HasCompatibleDock(UFlareSimulatedSpacecraft* Ship) const
 {
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
@@ -82,7 +82,7 @@ bool UFlareSpacecraftDockingSystem::HasCompatibleDock(IFlareSpacecraftInterface*
 	return false;
 }
 
-FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInterface* Ship, FVector PreferredLocation)
+FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(UFlareSimulatedSpacecraft* Ship, FVector PreferredLocation)
 {
 	FLOGV("UFlareSpacecraftDockingSystem::RequestDock ('%s')", *Ship->GetImmatriculation().ToString());
 
@@ -114,11 +114,11 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(IFlareSpacecraftInt
 	// Default values
 	FFlareDockingInfo Info;
 	Info.Granted = false;
-	Info.Station = Spacecraft;
+	Info.Station = Spacecraft->GetParent();
 	return Info;
 }
 
-void UFlareSpacecraftDockingSystem::ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId)
+void UFlareSpacecraftDockingSystem::ReleaseDock(UFlareSimulatedSpacecraft* Ship, int32 DockId)
 {
 	FLOGV("UFlareSpacecraftDockingSystem::ReleaseDock %d ('%s')", DockId, *Ship->GetImmatriculation().ToString());
 	DockingSlots[DockId].Granted = false;
@@ -126,7 +126,7 @@ void UFlareSpacecraftDockingSystem::ReleaseDock(IFlareSpacecraftInterface* Ship,
 	DockingSlots[DockId].Ship = NULL;
 }
 
-void UFlareSpacecraftDockingSystem::Dock(IFlareSpacecraftInterface* Ship, int32 DockId)
+void UFlareSpacecraftDockingSystem::Dock(UFlareSimulatedSpacecraft* Ship, int32 DockId)
 {
 	FLOGV("UFlareSpacecraftDockingSystem::Dock %d ('%s')", DockId, *Ship->GetImmatriculation().ToString());
 	DockingSlots[DockId].Granted = true;
@@ -134,9 +134,9 @@ void UFlareSpacecraftDockingSystem::Dock(IFlareSpacecraftInterface* Ship, int32 
 	DockingSlots[DockId].Ship = Ship;
 }
 
-TArray<IFlareSpacecraftInterface*> UFlareSpacecraftDockingSystem::GetDockedShips()
+TArray<UFlareSimulatedSpacecraft*> UFlareSpacecraftDockingSystem::GetDockedShips()
 {
-	TArray<IFlareSpacecraftInterface*> Result;
+	TArray<UFlareSimulatedSpacecraft*> Result;
 
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
@@ -150,7 +150,7 @@ TArray<IFlareSpacecraftInterface*> UFlareSpacecraftDockingSystem::GetDockedShips
 	return Result;
 }
 
-bool UFlareSpacecraftDockingSystem::HasAvailableDock(IFlareSpacecraftInterface* Ship) const
+bool UFlareSpacecraftDockingSystem::HasAvailableDock(UFlareSimulatedSpacecraft* Ship) const
 {
 	// Looking for slot
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
@@ -179,7 +179,7 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::GetDockInfo(int32 DockId)
 	return DockingSlots[DockId];
 }
 
-bool UFlareSpacecraftDockingSystem::IsGrantedShip(IFlareSpacecraftInterface* ShipCanditate) const
+bool UFlareSpacecraftDockingSystem::IsGrantedShip(UFlareSimulatedSpacecraft* ShipCanditate) const
 {
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{
@@ -193,7 +193,7 @@ bool UFlareSpacecraftDockingSystem::IsGrantedShip(IFlareSpacecraftInterface* Shi
 }
 
 
-bool UFlareSpacecraftDockingSystem::IsDockedShip(IFlareSpacecraftInterface* ShipCanditate) const
+bool UFlareSpacecraftDockingSystem::IsDockedShip(UFlareSimulatedSpacecraft* ShipCanditate) const
 {
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
 	{

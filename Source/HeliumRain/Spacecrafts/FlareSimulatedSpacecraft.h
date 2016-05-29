@@ -2,20 +2,21 @@
 #pragma once
 
 #include "Object.h"
-#include "FlareSpacecraftInterface.h"
 #include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "Subsystems/FlareSimulatedSpacecraftNavigationSystem.h"
 #include "Subsystems/FlareSimulatedSpacecraftDockingSystem.h"
 #include "Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
+#include "../Economy/FlareResource.h"
 #include "FlareSimulatedSpacecraft.generated.h"
 
 class UFlareGame;
 class UFlareSimulatedSector;
 class UFlareFleet;
 class UFlareCargoBay;
+class UFlareFactory;
 
 UCLASS()
-class HELIUMRAIN_API UFlareSimulatedSpacecraft : public UObject, public IFlareSpacecraftInterface
+class HELIUMRAIN_API UFlareSimulatedSpacecraft : public UObject
 {
 	 GENERATED_UCLASS_BODY()
 
@@ -26,41 +27,41 @@ public:
 	----------------------------------------------------*/
 
 	/** Load the ship from a save file */
-	virtual void Load(const FFlareSpacecraftSave& Data) override;
+	virtual void Load(const FFlareSpacecraftSave& Data);
 
 	/** Save the ship to a save file */
-	virtual FFlareSpacecraftSave* Save() override;
+	virtual FFlareSpacecraftSave* Save();
 
 	/** Get the parent company */
-	virtual UFlareCompany* GetCompany() override;
+	virtual UFlareCompany* GetCompany() const;
 
 	/** Get the ship size class */
-	virtual EFlarePartSize::Type GetSize() override;
+	virtual EFlarePartSize::Type GetSize();
 
-	virtual FName GetImmatriculation() const override;
+	virtual FName GetImmatriculation() const;
 
 	/** Check if this is a military ship */
-	virtual bool IsMilitary() const override;
+	virtual bool IsMilitary() const;
 
 	/** Check if this is a station ship */
-	virtual bool IsStation() const override;
+	virtual bool IsStation() const;
 
-	virtual bool CanFight() const override;
+	virtual bool CanFight() const;
 
-	virtual bool CanTravel() const override;
+	virtual bool CanTravel() const;
 
 
 	/*----------------------------------------------------
 		Sub system
 	----------------------------------------------------*/
 
-	virtual UFlareSimulatedSpacecraftDamageSystem* GetDamageSystem() const override;
+	virtual UFlareSimulatedSpacecraftDamageSystem* GetDamageSystem() const;
 
-	virtual UFlareSimulatedSpacecraftNavigationSystem* GetNavigationSystem() const override;
+	virtual UFlareSimulatedSpacecraftNavigationSystem* GetNavigationSystem() const;
 
-	virtual UFlareSimulatedSpacecraftDockingSystem* GetDockingSystem() const override;
+	virtual UFlareSimulatedSpacecraftDockingSystem* GetDockingSystem() const;
 
-	virtual UFlareSimulatedSpacecraftWeaponsSystem* GetWeaponsSystem() const override;
+	virtual UFlareSimulatedSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
     /*----------------------------------------------------
         Gameplay
@@ -75,14 +76,14 @@ public:
 
 	virtual void SetSpawnMode(EFlareSpawnMode::Type SpawnMode);
 
-	virtual bool CanBeFlown(FText& OutInfo) const override;
+	virtual bool CanBeFlown(FText& OutInfo) const;
 
-	virtual bool IsAssignedToSector() const override
+	virtual bool IsAssignedToSector() const
 	{
 		return SpacecraftData.IsAssigned;
 	}
 
-	void AssignToSector(bool Assign) override;
+	void AssignToSector(bool Assign);
 
 	/** Set asteroid data from an asteroid save */
 	void SetAsteroidData(FFlareAsteroidSave* Data);
@@ -94,11 +95,19 @@ public:
 		SpacecraftData.Level++;
 	}
 
+	void SetActiveSpacecraft(AFlareSpacecraft* Spacecraft)
+	{
+		ActiveSpacecraft = Spacecraft;
+	}
+
 	/*----------------------------------------------------
 		Resources
 	----------------------------------------------------*/
 
 	bool CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft);
+
+	EFlareResourcePriceContext::Type GetResourceUseType(FFlareResourceDescription* Resource);
+	void LockResources();
 
 protected:
 
@@ -111,6 +120,8 @@ protected:
 	FFlareSpacecraftDescription*  SpacecraftDescription;
 
 	AFlareGame*                   Game;
+
+	AFlareSpacecraft*                   ActiveSpacecraft;
 
 	UFlareFleet*                  CurrentFleet;
 	UFlareSimulatedSector*        CurrentSector;
@@ -136,12 +147,27 @@ public:
         Getters
     ----------------------------------------------------*/
 
-	inline AFlareGame* GetGame() const override
+	inline AFlareGame* GetGame() const
 	{
 		return Game;
 	}	
 
-	inline FText GetNickName() const override
+	inline bool IsActive() const
+	{
+		return ActiveSpacecraft != NULL;
+	}
+
+	inline AFlareSpacecraft* GetActive()
+	{
+		return ActiveSpacecraft;
+	}
+
+	inline FFlareSpacecraftSave& GetData()
+	{
+		return SpacecraftData;
+	}
+
+	inline FText GetNickName() const
 	{
 		return SpacecraftData.NickName;
 	}
@@ -169,14 +195,9 @@ public:
 		return SpacecraftDescription;
 	}
 
-	inline UFlareCargoBay* GetCargoBay() override
+	inline UFlareCargoBay* GetCargoBay()
 	{
 		return CargoBay;
-	}
-
-	inline UFlareSectorInterface* GetCurrentSectorInterface() override
-	{
-		return Cast<UFlareSectorInterface>(CurrentSector);
 	}
 
 	inline TArray<UFlareFactory*>& GetFactories()
@@ -189,7 +210,7 @@ public:
 		return SpacecraftData.Location;
 	}
 
-	inline int32 GetLevel() const override
+	inline int32 GetLevel() const
 	{
 		return SpacecraftData.Level;
 	}
@@ -203,5 +224,12 @@ public:
 	{
 		return SpacecraftData.Level * SpacecraftDescription->CycleCost.ProductionCost;
 	}
+
+	inline bool HasCapability(EFlareSpacecraftCapability::Type Capability) const
+	{
+		return GetDescription()->Capabilities.Contains(Capability);
+	}
+
+	EFlareHostility::Type GetPlayerWarState() const;
 
 };

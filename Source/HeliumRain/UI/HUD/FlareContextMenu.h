@@ -31,7 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set a station as content */
-	void SetSpacecraft(IFlareSpacecraftInterface* Target);
+	void SetSpacecraft(AFlareSpacecraft* Target);
 	
 	/** Show the menu */
 	void Show();
@@ -77,6 +77,6 @@ protected:
 	// Game data
 	bool                                       IsTargetting;
 	AFlareSpacecraft*                          PlayerShip;
-	IFlareSpacecraftInterface*                 TargetSpacecraft;
+	AFlareSpacecraft*                 TargetSpacecraft;
 	
 };

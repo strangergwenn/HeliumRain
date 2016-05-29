@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../../Spacecrafts/FlareSpacecraftComponent.h"
 
 
@@ -30,11 +29,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set the ship to display data for */
-	void SetTargetShip(IFlareSpacecraftInterface* Target);
-
-	/** Set an optional component to show data for */
-	void SetTargetComponent(UFlareSpacecraftComponent* Target);
-
+	void SetTargetShip(UFlareSimulatedSpacecraft* Target);
 
 protected:
 
@@ -65,8 +60,7 @@ protected:
 
 	// Indicator data
 	TEnumAsByte<EFlareSubsystem::Type>      SubsystemType;
-	IFlareSpacecraftInterface*              TargetShip;
-	UFlareSpacecraftComponent*              TargetComponent;
+	UFlareSimulatedSpacecraft*              TargetShip;
 
 	// Health management
 	float                                   Health;

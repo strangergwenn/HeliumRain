@@ -2,6 +2,8 @@
 
 #include "FlareSpacecraftNavigationSystemInterface.generated.h"
 
+class UFlareSimulatedSpacecraft;
+
 /** Status of the ship */
 UENUM()
 namespace EFlareShipStatus
@@ -58,8 +60,7 @@ struct FFlareShipCommandData
 	FVector RotationTarget;
 	FVector LocalShipAxis;
 
-	UPROPERTY()
-	AActor* ActionTarget;
+	UFlareSimulatedSpacecraft* ActionTarget;
 
 	int32 ActionTargetParam;
 

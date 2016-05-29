@@ -448,23 +448,23 @@ FText UFlareWeapon::GetSlotName() const
 	//Find Local slot check
 	if (ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
 	{
-		for (int32 i = 0; i < Spacecraft->GetDescription()->TurretSlots.Num(); i++)
+		for (int32 i = 0; i < Spacecraft->GetParent()->GetDescription()->TurretSlots.Num(); i++)
 		{
 				// TODO optimize and store that in cache
-				if (Spacecraft->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+				if (Spacecraft->GetParent()->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
 				{
-					return Spacecraft->GetDescription()->TurretSlots[i].SlotName;
+					return Spacecraft->GetParent()->GetDescription()->TurretSlots[i].SlotName;
 				}
 		}
 	}
 	else
 	{
-		for (int32 i = 0; i < Spacecraft->GetDescription()->GunSlots.Num(); i++)
+		for (int32 i = 0; i < Spacecraft->GetParent()->GetDescription()->GunSlots.Num(); i++)
 		{
 			// TODO optimize and store that in cache
-			if (Spacecraft->GetDescription()->GunSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+			if (Spacecraft->GetParent()->GetDescription()->GunSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
 			{
-				return Spacecraft->GetDescription()->GunSlots[i].SlotName;
+				return Spacecraft->GetParent()->GetDescription()->GunSlots[i].SlotName;
 			}
 		}
 	}

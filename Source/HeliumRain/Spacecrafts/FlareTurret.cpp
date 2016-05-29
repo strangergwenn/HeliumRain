@@ -378,14 +378,15 @@ static inline int PositiveModulo(int i, int n)
 float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 {
 	float BarrelsMinAngle = ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMinAngle;
+	FFlareSpacecraftDescription* Desc = Spacecraft->GetParent()->GetDescription();
 
 	// Fine Local slot check
-	for (int32 i = 0; i < Spacecraft->GetDescription()->TurretSlots.Num(); i++)
+	for (int32 i = 0; i < Desc->TurretSlots.Num(); i++)
 	{
 		// TODO optimize and store that in cache
-		if (Spacecraft->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+		if (Desc->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
 		{
-			int LimitStepCount = Spacecraft->GetDescription()->TurretSlots[i].TurretBarrelsAngleLimit.Num();
+			int LimitStepCount = Desc->TurretSlots[i].TurretBarrelsAngleLimit.Num();
 
 
 			if (LimitStepCount > 0)
@@ -407,8 +408,8 @@ float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 
 				float Ratio = FMath::Abs(Angle - NearestStep * StepAngle) /  StepAngle;
 
-				float LocalMin = Spacecraft->GetDescription()->TurretSlots[i].TurretBarrelsAngleLimit[PositiveModulo(NearestStep, LimitStepCount)] * (1.f - Ratio)
-									+ Spacecraft->GetDescription()->TurretSlots[i].TurretBarrelsAngleLimit[PositiveModulo(SecondNearestStep,LimitStepCount)] * Ratio;
+				float LocalMin = Desc->TurretSlots[i].TurretBarrelsAngleLimit[PositiveModulo(NearestStep, LimitStepCount)] * (1.f - Ratio)
+									+ Desc->TurretSlots[i].TurretBarrelsAngleLimit[PositiveModulo(SecondNearestStep,LimitStepCount)] * Ratio;
 
 				BarrelsMinAngle = FMath::Max(BarrelsMinAngle, LocalMin);
 			}

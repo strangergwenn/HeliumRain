@@ -93,14 +93,14 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	{
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 		
-		UFlareSector* Sector = Cast<UFlareSector>(ShipPawn->GetCurrentSectorInterface());
+		UFlareSimulatedSector* Sector = ShipPawn->GetParent()->GetCurrentSector();
 		GetCompany()->GetAI()->ResetControlGroups(Sector);
 
 
 		// Battle state
 		if (GetGame()->GetActiveSector())
 		{
-			EFlareSectorBattleState::Type BattleState = GetGame()->GetActiveSector()->GetSectorBattleState(GetCompany());
+			EFlareSectorBattleState::Type BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
 			if (BattleState != LastBattleState)
 			{
 				LastBattleState = BattleState;
@@ -257,14 +257,14 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		for (FConstPawnIterator Iterator = GetWorld()->GetPawnIterator(); Iterator; ++Iterator)
 		{
 			AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(*Iterator);
-			if (OtherSpacecraft && OtherSpacecraft->GetCompany() == GetCompany())
+			if (OtherSpacecraft && OtherSpacecraft->GetParent()->GetCompany() == GetCompany())
 			{
 				OwnedSpacecraftCount++;
 			}
 		}
 
 		// Notification
-		FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetImmatriculation()));
+		FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
 		FText Info = (OwnedSpacecraftCount > 1) ? LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.") : FText();
 		Notify(Text, Info, "flying-info", EFlareNotification::NT_Info);
 
@@ -309,14 +309,14 @@ void AFlarePlayerController::OnLoadComplete()
 
 void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 {
-	FLOGV("AFlarePlayerController::OnSectorActivated LastFlownShip=%s", *ActiveSector->GetData()->LastFlownShip.ToString());
+	FLOGV("AFlarePlayerController::OnSectorActivated LastFlownShip=%s", *ActiveSector->GetSimulatedSector()->GetData()->LastFlownShip.ToString());
 	bool CandidateFound = false;
 
 	// Last flown ship
-	if (ActiveSector->GetData()->LastFlownShip != "")
+	if (ActiveSector->GetSimulatedSector()->GetData()->LastFlownShip != "")
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated not null last ship");
-		AFlareSpacecraft* Candidate = ActiveSector->FindSpacecraft(ActiveSector->GetData()->LastFlownShip);
+		AFlareSpacecraft* Candidate = ActiveSector->FindSpacecraft(ActiveSector->GetSimulatedSector()->GetData()->LastFlownShip);
 		if (Candidate)
 		{
 			FLOG("AFlarePlayerController::OnSectorActivated last ship found");
@@ -335,7 +335,7 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 	}
 
 	// Level music
-	EFlareMusicTrack::Type LevelMusic = ActiveSector->GetDescription()->LevelTrack;
+	EFlareMusicTrack::Type LevelMusic = ActiveSector->GetSimulatedSector()->GetDescription()->LevelTrack;
 	if (LevelMusic != EFlareMusicTrack::None)
 	{
 		SoundManager->RequestMusicTrack(LevelMusic);
@@ -562,7 +562,7 @@ bool AFlarePlayerController::IsSelectingWeapon() const
 	return (TimeSinceWeaponSwitch < WeaponSwitchTime);
 }
 
-void AFlarePlayerController::NotifyDockingResult(bool Success, IFlareSpacecraftInterface* Target)
+void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSpacecraft* Target)
 {
 	if (Success)
 	{
@@ -762,7 +762,7 @@ void AFlarePlayerController::SettingsMenu()
 
 void AFlarePlayerController::ToggleCombat()
 {
-	if (ShipPawn && ShipPawn->IsMilitary() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
+	if (ShipPawn && ShipPawn->GetParent()->IsMilitary() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
 		FLOG("AFlarePlayerController::ToggleCombat");
 		ShipPawn->GetWeaponsSystem()->ToogleWeaponActivation();
@@ -813,7 +813,7 @@ void AFlarePlayerController::QuickSwitch()
 				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
 
-				if (Candidate && Candidate != ShipPawn && Candidate->CanFight())
+				if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanFight())
 				{
 					SeletedCandidate = Candidate;
 					break;
@@ -842,7 +842,7 @@ void AFlarePlayerController::QuickSwitch()
 				QuickSwitchNextOffset = OffsetIndex + 1;
 				// Disable pilot during the switch
 				SeletedCandidate->GetStateManager()->EnablePilot(false);
-				MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, SeletedCandidate);
+				MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, SeletedCandidate->GetParent());
 			}
 			else
 			{
@@ -932,7 +932,7 @@ void AFlarePlayerController::WheelPressed()
 		// Docked controls
 		if (ShipPawn->GetNavigationSystem()->IsDocked())
 		{
-			if (ShipPawn->GetCurrentSectorInterface()->CanUpgrade(ShipPawn->GetCompany()))
+			if (ShipPawn->GetParent()->GetCurrentSector()->CanUpgrade(ShipPawn->GetParent()->GetCompany()))
 			{
 				MouseMenu->AddWidget("ShipUpgrade_Button", LOCTEXT("Upgrade", "Upgrade"),
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UpgradeShip));
@@ -941,7 +941,7 @@ void AFlarePlayerController::WheelPressed()
 				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UndockShip));
 
 			// Trade if possible
-			if (ShipPawn->GetDescription()->CargoBayCount > 0)
+			if (ShipPawn->GetParent()->GetDescription()->CargoBayCount > 0)
 			{
 				MouseMenu->AddWidget("Trade_Button", LOCTEXT("Trade", "Trade"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::StartTrading));
@@ -956,27 +956,27 @@ void AFlarePlayerController::WheelPressed()
 			if (Target)
 			{
 				// Inspect
-				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Inspect {0}"), FText::FromName(Target->GetImmatriculation()));
-				MouseMenu->AddWidget(Target->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
+				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Inspect {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
+				MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
 
 				// Fly
-				if (Target->GetCompany() == GetCompany() && !Target->IsStation())
+				if (Target->GetParent()->GetCompany() == GetCompany() && !Target->GetParent()->IsStation())
 				{
-					Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), FText::FromName(Target->GetImmatriculation()));
+					Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
 					MouseMenu->AddWidget("Mouse_Fly", Text,	FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::FlyTargetSpacecraft));
 				}
 
 				// Dock
-				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn()) && Target->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
+				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn()->GetParent()) && Target->GetParent()->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
 				{
-					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetImmatriculation()));
+					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
 					MouseMenu->AddWidget("Mouse_DockAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));
 				}
 			}
 
 			// Capital ship controls
-			if (ShipPawn->GetDescription()->Size == EFlarePartSize::L)
+			if (ShipPawn->GetParent()->GetDescription()->Size == EFlarePartSize::L)
 			{
 				MouseMenu->AddWidget("Mouse_ProtectMe", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::ProtectMe),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::ProtectMe));
@@ -1056,7 +1056,7 @@ void AFlarePlayerController::FlyTargetSpacecraft()
 		{
 			// Disable pilot during the switch
 			TargetSpacecraft->GetStateManager()->EnablePilot(false);
-			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, TargetSpacecraft);
+			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, TargetSpacecraft->GetParent());
 		}
 	}
 }
@@ -1068,8 +1068,8 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
-			bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
-			NotifyDockingResult(DockingConfirmed, TargetSpacecraft);
+			bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft->GetParent());
+			NotifyDockingResult(DockingConfirmed, TargetSpacecraft->GetParent());
 		}
 	}
 }
@@ -1108,7 +1108,7 @@ void AFlarePlayerController::LookAtTargetSpacecraft()
 
 void AFlarePlayerController::UpgradeShip()
 {
-	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_ShipConfig, ShipPawn);
+	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_ShipConfig, ShipPawn->GetParent());
 }
 
 void AFlarePlayerController::UndockShip()
@@ -1121,7 +1121,7 @@ void AFlarePlayerController::UndockShip()
 
 void AFlarePlayerController::StartTrading()
 {
-	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Trade, ShipPawn);
+	MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Trade, ShipPawn->GetParent());
 }
 
 

@@ -78,7 +78,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		SecondaryShipSize = EFlarePartSize::L;
 	}
 
-	EFlareCombatTactic::Type Tactic = Turret->GetSpacecraft()->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(EFlareCombatGroup::Capitals);
+	EFlareCombatTactic::Type Tactic = Turret->GetSpacecraft()->GetParent()->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(EFlareCombatGroup::Capitals);
 
 	PilotTargetShip = GetNearestHostileShip(true, Tactic);
 
@@ -313,7 +313,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 	else if (Tactic == EFlareCombatTactic::ProtectMe)
 	{
 		// Protect me is only available for player ship
-		if (Turret->GetSpacecraft()->GetCompany() == Turret->GetSpacecraft()->GetGame()->GetPC()->GetCompany())
+		if (Turret->GetSpacecraft()->GetParent()->GetCompany() == Turret->GetSpacecraft()->GetGame()->GetPC()->GetCompany())
 		{
 			TargetPreferences.AttackTarget = Turret->GetSpacecraft()->GetGame()->GetPC()->GetShipPawn();
 			TargetPreferences.AttackTargetWeight = 1.0;
@@ -354,7 +354,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 
 bool UFlareTurretPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
 {
-	return ShipCandidate->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+	return ShipCandidate->GetParent()->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
 }
 
 UFlareSpacecraftComponent* UFlareTurretPilot::GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft)

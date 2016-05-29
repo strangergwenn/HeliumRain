@@ -109,7 +109,7 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	Resource loading
 ----------------------------------------------------*/
 
-void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const FFlareSpacecraftSave* ShipData)
+void AFlareMenuPawn::ShowShip(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	// Clean up
 	ResetContent();
@@ -121,7 +121,7 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// Spawn and setup the ship
-	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(ShipDesc->Template->GeneratedClass, Params);
+	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(Spacecraft->GetDescription()->Template->GeneratedClass, Params);
 	CurrentSpacecraft->AttachRootComponentToActor(this, NAME_None, EAttachLocation::SnapToTarget);
 
 	// Setup rotation and scale
@@ -138,10 +138,7 @@ void AFlareMenuPawn::ShowShip(const FFlareSpacecraftDescription* ShipDesc, const
 	CurrentSpacecraft->StartPresentation();
 
 	// UI
-	if (ShipData)
-	{
-		CurrentSpacecraft->Load(*ShipData);
-	}
+	CurrentSpacecraft->Load(Spacecraft);
 }
 
 void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDesc)
@@ -149,7 +146,7 @@ void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDe
 	// Choose a part to work with
 	SlideFromAToB = !SlideFromAToB;
 	UFlareSpacecraftComponent* CurrentPart = SlideFromAToB ? CurrentPartB : CurrentPartA;
-	UFlareCompany* Company = CurrentSpacecraft ? CurrentSpacecraft->GetCompany() : GetPC()->GetCompany();
+	UFlareCompany* Company = CurrentSpacecraft ? CurrentSpacecraft->GetParent()->GetCompany() : GetPC()->GetCompany();
 	FVector& CurrentPartOffset = SlideFromAToB ? CurrentPartOffsetB : CurrentPartOffsetA;
 
 	// Clean up

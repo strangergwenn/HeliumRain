@@ -2,6 +2,7 @@
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareSector.h"
 #include "../Game/FlareGame.h"
+#include "FlareShipPilot.h"
 #include "FlarePilotHelper.h"
 
 
@@ -16,7 +17,7 @@ bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompa
 		{
 
 
-			if (MyCompany->GetWarState(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile)
+			if (MyCompany->GetWarState(SpacecraftCandidate->GetParent()->GetCompany()) == EFlareHostility::Hostile)
 			{
 				//FLOG("  hostile, skip");
 				continue;
@@ -82,8 +83,8 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 
 		if (SpacecraftCandidate != Ship
 				&& SpacecraftCandidate != SpacecraftToIgnore
-				&& !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate)
-				&& !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate))
+				&& !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate->GetParent())
+				&& !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate->GetParent()))
 		{
 			CheckRelativeDangerosity(SpacecraftCandidate, CurrentLocation, CurrentSize, SpacecraftCandidate->Airframe, CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
 		}
@@ -175,7 +176,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			continue;
 		}
 
-		if (Ship->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		if (Ship->GetParent()->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
 		{
 			// Ignore not hostile ships
 			continue;
@@ -201,18 +202,18 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 
 		StateScore = Preferences.TargetStateWeight;
 
-		if (ShipCandidate->GetSize() == EFlarePartSize::L)
+		if (ShipCandidate->GetParent()->GetSize() == EFlarePartSize::L)
 		{
 			StateScore *= Preferences.IsLarge;
 		}
 
-		if (ShipCandidate->GetSize() == EFlarePartSize::S)
+		if (ShipCandidate->GetParent()->GetSize() == EFlarePartSize::S)
 		{
 			StateScore *= Preferences.IsSmall;
 		}
 
 
-		if (ShipCandidate->IsStation())
+		if (ShipCandidate->GetParent()->IsStation())
 		{
 			StateScore *= Preferences.IsStation;
 		}
@@ -222,7 +223,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 		}
 
 
-		if (ShipCandidate->IsMilitary())
+		if (ShipCandidate->GetParent()->IsMilitary())
 		{
 			StateScore *= Preferences.IsMilitary;
 		}

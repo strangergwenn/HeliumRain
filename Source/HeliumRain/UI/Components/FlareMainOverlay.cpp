@@ -399,7 +399,7 @@ void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
 		if (Menu == EFlareMenu::MENU_Ship)
 		{
 			AFlarePlayerController* PC = MenuManager->GetPC();
-			MenuManager->OpenMenuSpacecraft(Menu, PC->GetShipPawn());
+			MenuManager->OpenMenuSpacecraft(Menu, PC->GetShipPawn()->GetParent());
 		}
 		else
 		{

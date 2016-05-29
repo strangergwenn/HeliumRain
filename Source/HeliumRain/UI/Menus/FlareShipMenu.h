@@ -36,7 +36,7 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter(IFlareSpacecraftInterface* Target, bool IsEditable = false);
+	void Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable = false);
 
 	/** Exit this menu */
 	void Exit();
@@ -163,7 +163,7 @@ protected:
 	TSharedPtr<SHorizontalBox>                      WeaponButtonBox;
 
 	// Spacecraft data
-	IFlareSpacecraftInterface*                      TargetSpacecraft;
+	UFlareSimulatedSpacecraft*                      TargetSpacecraft;
 	FFlareSpacecraftSave*                           TargetSpacecraftData;
 	FFlareSpacecraftComponentDescription*           RCSDescription;
 	FFlareSpacecraftComponentDescription*           EngineDescription;
@@ -196,7 +196,7 @@ public:
 		Getter
 	----------------------------------------------------*/
 
-	IFlareSpacecraftInterface* GetTargetSpacecraft()
+	UFlareSimulatedSpacecraft* GetTargetSpacecraft()
 	{
 		return TargetSpacecraft;
 	}

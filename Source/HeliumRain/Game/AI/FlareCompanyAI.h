@@ -92,7 +92,7 @@ public:
 	/** Get the ship count in this group */
 	int32 GetShipCountForShipGroup(EFlareCombatGroup::Type Type) const;
 
-	void ResetControlGroups(UFlareSector* Sector);
+	void ResetControlGroups(UFlareSimulatedSector* Sector);
 
 	void ResetShipGroup(EFlareCombatTactic::Type Tactic);
 

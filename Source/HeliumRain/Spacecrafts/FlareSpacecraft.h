@@ -2,7 +2,6 @@
 
 #include "FlareSpacecraftPawn.h"
 #include "FlareWeapon.h"
-#include "FlareSpacecraftInterface.h"
 #include "FlareSpacecraftComponent.h"
 #include "FlareSpacecraftSpinningComponent.h"
 #include "Subsystems/FlareSpacecraftDamageSystem.h"
@@ -12,9 +11,11 @@
 #include "FlareSpacecraftStateManager.h"
 #include "FlareSpacecraft.generated.h"
 
+class UFlareShipPilot;
+
 /** Ship class */
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
-class AFlareSpacecraft : public AFlareSpacecraftPawn, public IFlareSpacecraftInterface
+class AFlareSpacecraft : public AFlareSpacecraftPawn
 {
 
 public:
@@ -44,9 +45,9 @@ public:
 
 	virtual void Destroyed() override;
 
-	virtual void OnDocked(IFlareSpacecraftInterface* DockStation);
+	virtual void OnDocked(UFlareSimulatedSpacecraft* DockStation);
 
-	virtual void OnUndocked(IFlareSpacecraftInterface* DockStation);
+	virtual void OnUndocked(UFlareSimulatedSpacecraft* DockStation);
 
 	virtual void SetPause(bool Pause);
 
@@ -76,23 +77,17 @@ public:
 		Ship interface
 	----------------------------------------------------*/
 
-	virtual void Load(const FFlareSpacecraftSave& Data) override;
+	virtual void Load(UFlareSimulatedSpacecraft* Parent);
 
-	virtual FFlareSpacecraftSave* Save() override;
+	virtual void Save();
 
 	virtual void SetOwnerCompany(UFlareCompany* Company);
 
-	virtual UFlareCompany* GetCompany() override;
 
-	virtual EFlarePartSize::Type GetSize() override;
 
-	virtual FName GetImmatriculation() const override;
-
-	virtual bool IsMilitary() const override;
-
-	virtual bool IsStation() const override;
 
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
+
 
 	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const;
 
@@ -101,23 +96,6 @@ public:
 	virtual UFlareSpacecraftDockingSystem* GetDockingSystem() const;
 
 	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const;
-
-	virtual bool CanBeFlown(FText& OutInfo) const override;
-
-	virtual bool CanFight() const override;
-
-	virtual bool CanTravel() const override;
-
-	void AssignToSector(bool Assign) override
-	{
-		ShipData.IsAssigned = Assign;
-		// TODO remove/add in fleet or remove feature un active sector
-	}
-
-	virtual bool IsAssignedToSector() const override
-	{
-		return ShipData.IsAssigned;
-	}
 
 	/** Set asteroid data from an asteroid save */
 	void SetAsteroidData(FFlareAsteroidSave* Data);
@@ -130,28 +108,23 @@ public:
 
 	void UpdateDynamicComponents();
 
-	inline UFlareCargoBay* GetCargoBay() override
+	/*inline UFlareCargoBay* GetCargoBay() override
 	{
 		return CargoBay;
-	}
+	}*/
 
 	UFlareSimulatedSector* GetOwnerSector();
 
-	UFlareSectorInterface* GetCurrentSectorInterface() override;
-
-	inline int32 GetLevel() const override
+	/*inline int32 GetLevel() const override
 	{
 		return ShipData.Level;
-	}
+	}*/
 
 public:
 
 	/*----------------------------------------------------
 		Customization
 	----------------------------------------------------*/
-
-	/** Set he ship description to load data from */
-	virtual void SetShipDescription(FFlareSpacecraftDescription* Description);
 
 	/** Set the description to use for all orbital engines */
 	virtual void SetOrbitalEngineDescription(FFlareSpacecraftComponentDescription* Description);
@@ -236,8 +209,7 @@ protected:
 	----------------------------------------------------*/
 
 	// Component descriptions, save data
-	FFlareSpacecraftSave                           ShipData;
-	FFlareSpacecraftDescription*                   ShipDescription;
+	UFlareSimulatedSpacecraft*	                   Parent;
 	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
 	FFlareSpacecraftComponentDescription*          RCSDescription;
 
@@ -283,9 +255,6 @@ protected:
 
 	float                                          LastMass;
 
-	UPROPERTY()
-	UFlareCargoBay*                                CargoBay;
-
 	bool										   InWarningZone;
 
 	bool                                           Harpooned;
@@ -318,23 +287,53 @@ public:
 
 	FText GetShipStatus() const;
 
-	inline AFlareGame* GetGame() const override
-	{
-		return AFlareSpacecraftPawn::GetGame();
-	}
-
 	/** Return linear velocity in meters */
 	FVector GetLinearVelocity() const;
 
-	inline FFlareSpacecraftDescription* GetDescription() const
+	inline UFlareSimulatedSpacecraft* GetParent() const
 	{
-		return ShipDescription;
+		return Parent;
 	}
 
-	inline FText GetNickName() const override
+	inline FFlareSpacecraftDescription* GetDescription() const
+	{
+		return Parent->GetDescription();
+	}
+
+	inline UFlareCompany* GetCompany()
+	{
+		return Parent->GetCompany();
+	}
+
+	inline FName GetImmatriculation() const
+	{
+		return Parent->GetImmatriculation();
+	}
+
+	inline EFlarePartSize::Type GetSize()
+	{
+		return Parent->GetSize();
+	}
+
+	inline bool IsMilitary()
+	{
+		return Parent->IsMilitary();
+	}
+
+	inline FFlareSpacecraftSave& GetData()
+	{
+		return Parent->GetData();
+	}
+
+	bool IsStation() const
+	{
+		return Parent->IsStation();
+	}
+
+	/*inline FText GetNickName() const override
 	{
 		return ShipData.NickName;
-	}
+	}*/
 
 	inline FFlareSpacecraftComponentDescription* GetOrbitalEngineDescription() const
 	{

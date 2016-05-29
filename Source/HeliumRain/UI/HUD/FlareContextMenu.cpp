@@ -48,7 +48,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareContextMenu::SetSpacecraft(IFlareSpacecraftInterface* Target)
+void SFlareContextMenu::SetSpacecraft(AFlareSpacecraft* Target)
 {
 	TargetSpacecraft = Target;
 }
@@ -71,7 +71,7 @@ void SFlareContextMenu::OnClicked()
 		if (IsTargetting)
 		{
 			UFlareSpacecraftWeaponsSystem* WeaponSystem = PlayerShip->GetWeaponsSystem();
-			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(TargetSpacecraft);
+			AFlareSpacecraft* Spacecraft = TargetSpacecraft;
 			check(Spacecraft != NULL);
 
 			if (Spacecraft != WeaponSystem->GetActiveWeaponTarget())
@@ -85,7 +85,7 @@ void SFlareContextMenu::OnClicked()
 		}
 		else
 		{
-			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft);
+			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft->GetParent());
 		}
 	}
 }
@@ -130,7 +130,7 @@ FMargin SFlareContextMenu::GetContextMenuPosition() const
 
 EVisibility SFlareContextMenu::GetButtonVisibility() const
 {
-	if (!IsTargetting || (TargetSpacecraft && TargetSpacecraft->GetCompany()->GetPlayerWarState() <= EFlareHostility::Neutral))
+	if (!IsTargetting || (TargetSpacecraft && TargetSpacecraft->GetParent()->GetCompany()->GetPlayerWarState() <= EFlareHostility::Neutral))
 	{
 		return EVisibility::Visible;
 	}
@@ -167,7 +167,7 @@ FText SFlareContextMenu::GetText() const
 			}
 		}
 
-		Info = FText::Format(Info, FText::FromName(TargetSpacecraft->GetImmatriculation()));
+		Info = FText::Format(Info, FText::FromName(TargetSpacecraft->GetParent()->GetImmatriculation()));
 	}
 
 	return Info;

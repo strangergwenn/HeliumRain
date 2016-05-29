@@ -137,7 +137,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 	if (ActiveSector)
 	{
 		FLOG("AFlareGame::ActivateSector : There is already an active sector");
-		if (ActiveSector->GetIdentifier() == Sector->GetIdentifier())
+		if (ActiveSector->GetSimulatedSector()->GetIdentifier() == Sector->GetIdentifier())
 		{
 			// Sector to activate is already active
 			return;
@@ -175,7 +175,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		}
 		Planetarium->ResetTime();
 		Planetarium->SkipNight(UFlareGameTools::SECONDS_IN_DAY);
-		ActiveSector->Load(Sector, *SectorData);
+		ActiveSector->Load(Sector);
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 		PC->OnSectorActivated(ActiveSector);
@@ -190,45 +190,24 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 		return NULL;
 	}
 
-	FLOGV("AFlareGame::DeactivateSector : %s", *ActiveSector->GetSectorName().ToString());
+	UFlareSimulatedSector* Sector = ActiveSector->GetSimulatedSector();
+	World->Save();
+	FLOGV("AFlareGame::DeactivateSector : %s", *Sector->GetSectorName().ToString());
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 
 	// Set last flown ship
 	FName LastFlownShip = "";
 	if (PC->GetShipPawn())
 	{
-		LastFlownShip = PC->GetShipPawn()->GetImmatriculation();
+		LastFlownShip = PC->GetShipPawn()->GetParent()->GetImmatriculation();
 	}
 
-	// Save and destroy the active sector
-	TArray<FFlareSpacecraftSave> SpacecraftData;
-	FFlareSectorSave* SectorData = ActiveSector->Save(SpacecraftData);
+	// Destroy the active sector
 	ActiveSector->DestroySector();
 	ActiveSector = NULL;
 
-	SectorData->LastFlownShip = LastFlownShip;
+	Sector->GetData()->LastFlownShip = LastFlownShip;
 	PC->SetLastFlownShip(LastFlownShip);
-
-	// Reload spacecrafts
-	for (int i = 0 ; i < SpacecraftData.Num(); i++)
-	{
-		UFlareSimulatedSpacecraft* Spacecraft = GetGameWorld()->FindSpacecraft(SpacecraftData[i].Immatriculation);
-		Spacecraft->Load(SpacecraftData[i]);
-	}
-
-	// Reload simulated sector
-	UFlareSimulatedSector* Sector = World->FindSector(SectorData->Identifier);
-	if (Sector)
-	{
-		Sector->Load(Sector->GetDescription(), *SectorData, *Sector->GetOrbitParameters());
-
-		// Unload the sector level - Will call OnLevelUnloaded()
-		UnloadStreamingLevel(Sector->GetDescription()->LevelName);
-	}
-	else
-	{
-		FLOGV("AFlareGame::DeactivateSector : no simulated sector match for active sector '%s'", *SectorData->Identifier.ToString());
-	}
 
 	PC->OnSectorDeactivated();
 	SaveGame(PC);
@@ -632,7 +611,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 	{
 		// Save the player
 		PC->Save(Save->PlayerData, Save->PlayerCompanyDescription);
-		Save->WorldData = *World->Save(ActiveSector);
+		Save->WorldData = *World->Save();
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
 		Save->PlayerData.QuestData = *QuestManager->Save();
 
@@ -660,7 +639,7 @@ void AFlareGame::UnloadGame()
 
 	if (ActiveSector)
 	{
-		UnloadStreamingLevel(ActiveSector->GetDescription()->LevelName);
+		UnloadStreamingLevel(ActiveSector->GetSimulatedSector()->GetDescription()->LevelName);
 		ActiveSector->DestroySector();
 		ActiveSector = NULL;
 	}
@@ -729,7 +708,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	FString NickName;
 	CurrentImmatriculationIndex++;
 	FFlareSpacecraftDescription* SpacecraftDesc = SpacecraftCatalog->Get(TargetClass);
-	bool IsStation = IFlareSpacecraftInterface::IsStation(SpacecraftDesc);
+	bool IsStation = FFlareSpacecraftDescription::IsStation(SpacecraftDesc);
 
 	// Company name
 	Immatriculation += Company->GetShortName().ToString().ToUpper();

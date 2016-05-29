@@ -38,7 +38,7 @@ public:
 	void AddFleet(UFlareFleet* Fleet);
 
 	/** Add a new ship to the list */
-	void AddShip(IFlareSpacecraftInterface* Ship);
+	void AddShip(UFlareSimulatedSpacecraft* Ship);
 
 	/** Update the list display from content */
 	void RefreshList();

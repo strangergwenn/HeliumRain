@@ -4,7 +4,6 @@
 #include "../Components/FlareButton.h"
 
 
-class UFlareSectorInterface;
 class AFlareMenuManager;
 struct FFlareResourceDescription;
 
@@ -35,7 +34,7 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter(UFlareSectorInterface* Sector);
+	void Enter(UFlareSimulatedSector* Sector);
 
 	/** Exit this menu */
 	void Exit();
@@ -75,7 +74,7 @@ protected:
 
 	// Target data
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
-	UFlareSectorInterface*                          TargetSector;
+	UFlareSimulatedSector*                          TargetSector;
 
 	// Slate data
 	TSharedPtr<SVerticalBox>                        ResourcePriceList;

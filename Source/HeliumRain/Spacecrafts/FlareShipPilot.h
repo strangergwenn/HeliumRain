@@ -6,7 +6,6 @@
 
 class UFlareCompany;
 class AFlareSpacecraft;
-class IFlareSpacecraftInterface;
 class UFlareSpacecraftComponent;
 
 

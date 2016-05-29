@@ -238,7 +238,7 @@ FReply SFlareNotification::OnNotificationClicked()
 	{
 		if (MenuManager->IsSpacecraftMenu(TargetMenu))
 		{
-			IFlareSpacecraftInterface* TargetShip = MenuManager->GetGame()->GetGameWorld()->FindSpacecraft(TargetSpacecraft);
+			UFlareSimulatedSpacecraft* TargetShip = MenuManager->GetGame()->GetGameWorld()->FindSpacecraft(TargetSpacecraft);
 			MenuManager->OpenMenuSpacecraft(TargetMenu, TargetShip);
 		}
 		else

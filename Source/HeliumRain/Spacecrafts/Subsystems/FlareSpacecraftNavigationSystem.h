@@ -51,20 +51,20 @@ public:
 		Docking
 	----------------------------------------------------*/
 
-	virtual bool DockAt(IFlareSpacecraftInterface* TargetStation);
+	virtual bool DockAt(UFlareSimulatedSpacecraft* TargetStation);
 
 	/** Continue docking sequence has completed until effectif docking */
-	virtual void DockingAutopilot(IFlareSpacecraftInterface* DockStation, int32 DockId, float DeltaSeconds);
+	virtual void DockingAutopilot(UFlareSimulatedSpacecraft* DockStation, int32 DockId, float DeltaSeconds);
 
 	/** Confirm that the docking sequence has completed */
-	virtual void ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId);
+	virtual void ConfirmDock(UFlareSimulatedSpacecraft* DockStation, int32 DockId);
 
 	/** Check if the colliding spacecraft is not the station we want to dock to */
 	virtual void CheckCollisionDocking(AFlareSpacecraft* DockingCandidate);
 
 	virtual bool Undock() override;
 
-	virtual IFlareSpacecraftInterface* GetDockStation();
+	virtual UFlareSimulatedSpacecraft* GetDockStation();
 
 	/*----------------------------------------------------
 		Navigation commands and helpers

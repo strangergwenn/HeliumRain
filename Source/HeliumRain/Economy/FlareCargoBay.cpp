@@ -1,6 +1,5 @@
 
 #include "../Flare.h"
-#include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../Game/FlareGame.h"
 #include "FlareCargoBay.h"
 
@@ -14,7 +13,7 @@ UFlareCargoBay::UFlareCargoBay(const FObjectInitializer& ObjectInitializer)
 {
 }
 
-void UFlareCargoBay::Load(IFlareSpacecraftInterface* ParentSpacecraft, TArray<FFlareCargoSave>& Data)
+void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FFlareCargoSave>& Data)
 {
 	Parent = ParentSpacecraft;
 	Game = Parent->GetGame();

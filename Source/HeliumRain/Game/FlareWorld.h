@@ -2,7 +2,6 @@
 #pragma once
 
 #include "Object.h"
-#include "FlareSectorInterface.h"
 #include "FlareGameTypes.h"
 #include "FlareTravel.h"
 #include "Planetarium/FlareSimulatedPlanetarium.h"
@@ -73,7 +72,7 @@ public:
 	virtual void Load(const FFlareWorldSave& Data);
 
 	/** Save the company to a save file */
-	virtual FFlareWorldSave* Save(UFlareSector* ActiveSector);
+	virtual FFlareWorldSave* Save();
 
 	/** Spawn a company from save data */
 	virtual UFlareCompany* LoadCompany(const FFlareCompanySave& CompanyData);

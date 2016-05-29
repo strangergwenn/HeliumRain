@@ -201,7 +201,7 @@ void SFlareWorldEconomyMenu::Setup()
 	SetVisibility(EVisibility::Collapsed);
 }
 
-void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSectorInterface* Sector)
+void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector)
 {
 	FLOG("SFlareWorldEconomyMenu::Enter");
 	SetEnabled(true);

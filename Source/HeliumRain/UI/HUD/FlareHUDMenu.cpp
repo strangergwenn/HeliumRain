@@ -219,7 +219,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
+void SFlareHUDMenu::SetTargetShip(UFlareSimulatedSpacecraft* Target)
 {
 	// Set targets
 	TargetShip = Target;
@@ -229,7 +229,7 @@ void SFlareHUDMenu::SetTargetShip(IFlareSpacecraftInterface* Target)
 	RCSStatus->SetTargetShip(Target);
 	LifeSupportStatus->SetTargetShip(Target);
 	WeaponStatus->SetTargetShip(Target);
-	AFlareSpacecraft* PlayerShip = Cast<AFlareSpacecraft>(Target);
+	AFlareSpacecraft* PlayerShip = Target->GetActive();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Is this a civilian ship ?
@@ -332,7 +332,7 @@ FText SFlareHUDMenu::GetInfoText() const
 	{
 		FText ModeText;
 		FText AutopilotText;
-		FText SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSectorName();
+		FText SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
 
 		if (TargetShip->GetNavigationSystem()->IsDocked())
 		{

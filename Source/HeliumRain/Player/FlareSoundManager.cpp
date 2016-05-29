@@ -210,7 +210,7 @@ void UFlareSoundManager::SetCurrentSpacecraft(AFlareSpacecraft* Ship)
 	if (Ship)
 	{
 		// Setup power sound
-		FFlareSpacecraftDescription* ShipDescription = Ship->GetDescription();
+		FFlareSpacecraftDescription* ShipDescription = Ship->GetParent()->GetDescription();
 		PowerPlayer.Sound->SetSound(ShipDescription ? ShipDescription->PowerSound : NULL);
 
 		// Setup orbital engine sound

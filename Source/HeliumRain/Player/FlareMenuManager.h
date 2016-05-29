@@ -28,10 +28,8 @@ class SFlareWorldEconomyMenu;
 class AFlarePlayerController;
 class AFlareSpacecraft;
 class AFlareGame;
-class IFlareSpacecraftInterface;
 class UFlareCompany;
 class UFlareSimulatedSector;
-class UFlareSectorInterface;
 class UFlareTradeRoute;
 class UFlareFactory;
 class UFlareFleet;
@@ -74,7 +72,7 @@ public:
 	void OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
 
 	/** Open a menu asynchronously, from a target and user data */
-	void OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacecraftInterface* Data = NULL);
+	void OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimulatedSpacecraft* Data = NULL);
 
 	/** Show the list of spacecraft that can be ordered here */
 	void OpenSpacecraftOrder(UFlareFactory* Factory);
@@ -182,19 +180,19 @@ protected:
 	virtual void FlyShip(AFlareSpacecraft* Target);
 
 	/** Activate a sector */
-	virtual void ActivateSector(UFlareSectorInterface* Target);
+	virtual void ActivateSector(UFlareSimulatedSector* Target);
 
 	/** Show the config menu for a specific ship */
-	virtual void InspectShip(IFlareSpacecraftInterface* Target = NULL, bool IsEditable = false);
+	virtual void InspectShip(UFlareSimulatedSpacecraft* Target = NULL, bool IsEditable = false);
 
 	/** Show the fleet menu */
 	virtual void OpenFleetMenu(UFlareFleet* TargetFleet);
 
 	/** Open the sector menu */
-	virtual void OpenSector(UFlareSectorInterface* Sector);
+	virtual void OpenSector(UFlareSimulatedSector* Sector);
 
 	/** Open the trade menu */
-	virtual void OpenTrade(IFlareSpacecraftInterface* Spacecraft);
+	virtual void OpenTrade(UFlareSimulatedSpacecraft* Spacecraft);
 
 	/** Open the trade route menu */
 	virtual void OpenTradeRoute(UFlareTradeRoute* TradeRoute);
@@ -206,7 +204,7 @@ protected:
 	virtual void OpenLeaderboard();
 
 	/** Open the resource prices menu */
-	virtual void OpenResourcePrices(UFlareSectorInterface* Sector);
+	virtual void OpenResourcePrices(UFlareSimulatedSector* Sector);
 
 	/** Open the world economy menu */
 	virtual void OpenWorldEconomy(FFlareWorldEconomyMenuParam* Params);
@@ -268,7 +266,7 @@ protected:
 	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
 
 	// Ship data
-	IFlareSpacecraftInterface*              FadeTargetSpacecraft;
+	UFlareSimulatedSpacecraft*              FadeTargetSpacecraft;
 
 	// Generic data
 	void*                                   FadeTargetData;

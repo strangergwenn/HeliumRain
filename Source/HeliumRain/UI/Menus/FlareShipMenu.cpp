@@ -255,7 +255,7 @@ void SFlareShipMenu::Setup()
 	EngineDescription = NULL;
 }
 
-void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
+void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 {
 	// Info
 	SetEnabled(true);
@@ -288,7 +288,7 @@ void SFlareShipMenu::Enter(IFlareSpacecraftInterface* Target, bool IsEditable)
 	// Fill the docking list if it is visible
 	else if (DockSystem && DockSystem->GetDockCount() > 0)
 	{
-		TArray<IFlareSpacecraftInterface*> DockedShips = Target->GetDockingSystem()->GetDockedShips();
+		TArray<UFlareSimulatedSpacecraft*> DockedShips = Target->GetDockingSystem()->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
 		{
 			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(DockedShips[i]);
@@ -359,7 +359,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 
 			ObjectClassName->SetText(ShipDesc->Name);
 			ObjectDescription->SetText(ShipDesc->Description);
-			PC->GetMenuPawn()->ShowShip(ShipDesc, TargetSpacecraftData);
+			PC->GetMenuPawn()->ShowShip(TargetSpacecraft);
 		}
 
 		// Reset weapon data
@@ -578,7 +578,7 @@ void SFlareShipMenu::Back()
 	}
 	else
 	{
-		UFlareSectorInterface* CurrentSector = TargetSpacecraft->GetCurrentSectorInterface();
+		UFlareSimulatedSector* CurrentSector = TargetSpacecraft->GetCurrentSector();
 		if (CurrentSector)
 		{
 			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, CurrentSector);
@@ -794,13 +794,12 @@ void SFlareShipMenu::OnUpgradeStationClicked()
 {
 	if (TargetSpacecraft)
 	{
-		UFlareSectorInterface* SectorInterface = TargetSpacecraft->GetCurrentSectorInterface();
-		UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(SectorInterface);
+		UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 
-		if (SimulatedSector && SimulatedSpacecraft)
+		if (Sector && SimulatedSpacecraft)
 		{
-			SimulatedSector->UpgradeStation(SimulatedSpacecraft);
+			Sector->UpgradeStation(SimulatedSpacecraft);
 			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft);
 		}
 	}
@@ -812,15 +811,14 @@ bool SFlareShipMenu::IsUpgradeStationDisabled() const
 
 	if (TargetSpacecraft)
 	{
-		UFlareSectorInterface* SectorInterface = TargetSpacecraft->GetCurrentSectorInterface();
-		UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(SectorInterface);
+		UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
 		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 
 
-		if (SimulatedSector && SimulatedSpacecraft)
+		if (Sector && SimulatedSpacecraft)
 		{
 			TArray<FText> Reasons;
-			return !SimulatedSector->CanUpgradeStation(SimulatedSpacecraft, Reasons);
+			return !Sector->CanUpgradeStation(SimulatedSpacecraft, Reasons);
 		}
 	}
 
@@ -1021,30 +1019,17 @@ void SFlareShipMenu::OnPartConfirmed()
 				TargetSpacecraft->GetCompany()->GiveMoney(FMath::Abs(TransactionCost));
 			}
 
-			UFlareSectorInterface* SectorInterface = TargetSpacecraft->GetCurrentSectorInterface();
+			UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
 
-			UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(SectorInterface);
-			UFlareSector* ActiveSector = Cast<UFlareSector>(SectorInterface);
-			if (SimulatedSector)
+			if (Sector)
 			{
 				if(TransactionCost > 0)
 				{
-					SimulatedSector->GetPeople()->Pay(TransactionCost);
+					Sector->GetPeople()->Pay(TransactionCost);
 				}
 				else
 				{
-					SimulatedSector->GetPeople()->TakeMoney(FMath::Abs(TransactionCost));
-				}
-			}
-			else if (ActiveSector)
-			{
-				if(TransactionCost > 0)
-				{
-					ActiveSector->GetPeople()->Money += TransactionCost;
-				}
-				else
-				{
-					ActiveSector->GetPeople()->Dept += FMath::Abs(TransactionCost);
+					Sector->GetPeople()->TakeMoney(FMath::Abs(TransactionCost));
 				}
 			}
 

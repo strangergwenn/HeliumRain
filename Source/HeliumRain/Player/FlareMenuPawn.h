@@ -29,7 +29,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Load a new ship to visualize */
-	void ShowShip(const FFlareSpacecraftDescription* ShipDesc, const FFlareSpacecraftSave* ShipData);
+	void ShowShip(UFlareSimulatedSpacecraft* Spacecraft);
 	
 	/** Load a new part to visualize */
 	void ShowPart(const FFlareSpacecraftComponentDescription* PartDesc);

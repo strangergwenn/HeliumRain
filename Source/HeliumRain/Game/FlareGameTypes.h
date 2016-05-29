@@ -5,6 +5,18 @@
 #include "FlareTradeRoute.h"
 #include "FlareGameTypes.generated.h"
 
+/** Hostility status */
+UENUM()
+namespace EFlareHostility
+{
+	enum Type
+	{
+		Hostile,
+		Neutral,
+		Friendly,
+		Owned
+	};
+}
 
 /** Combat groups */
 UENUM()

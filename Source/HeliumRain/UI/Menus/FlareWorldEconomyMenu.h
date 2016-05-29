@@ -4,7 +4,6 @@
 #include "../Components/FlareButton.h"
 
 
-class UFlareSectorInterface;
 class UFlareSimulatedSector;
 class AFlareMenuManager;
 struct FFlareResourceDescription;
@@ -16,7 +15,7 @@ struct FFlareWorldEconomyMenuParam
 	FFlareResourceDescription* Resource;
 
 	/** Sector */
-	UFlareSectorInterface* Sector;
+	UFlareSimulatedSector* Sector;
 };
 
 class SFlareWorldEconomyMenu : public SCompoundWidget
@@ -45,7 +44,7 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter(FFlareResourceDescription* Resource, UFlareSectorInterface* Sector);
+	void Enter(FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector);
 
 	/** Exit this menu */
 	void Exit();
@@ -94,7 +93,7 @@ protected:
 
 	// Target data
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
-	UFlareSectorInterface*                          BackSector;
+	UFlareSimulatedSector*                          BackSector;
 	FFlareResourceDescription*                      TargetResource;
 
 	// Slate data

@@ -1093,13 +1093,13 @@ void UFlareGameTools::TransferResources(FName SourceImmatriculation, FName Desti
 		return;
 	}
 
-	if(SourceSpacecraft->GetCurrentSectorInterface() == NULL)
+	if(SourceSpacecraft->GetCurrentSector() == NULL)
 	{
 		FLOG("UFlareGameTools::TransferResources failed: no source spacecraft not in a sector");
 		return;
 	}
 
-	SourceSpacecraft->GetCurrentSectorInterface()->TransfertResources(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
+	SourceSpacecraft->GetCurrentSector()->TransfertResources(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
 }
 
 /*----------------------------------------------------

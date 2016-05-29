@@ -2,7 +2,6 @@
 #include "../Flare.h"
 #include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
-#include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Game/AI/FlareCompanyAI.h"
@@ -180,7 +179,7 @@ void AFlareHUD::OnTargetShipChanged()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && PC->GetShipPawn())
 	{
-		HUDMenu->SetTargetShip(PC->GetShipPawn());
+		HUDMenu->SetTargetShip(PC->GetShipPawn()->GetParent());
 		UpdateHUDVisibility();
 	}
 }
@@ -366,7 +365,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
 
 	// Ship name
-	FString FlyingText = PlayerShip->GetImmatriculation().ToString();
+	FString FlyingText = PlayerShip->GetParent()->GetImmatriculation().ToString();
 	FlareDrawText(FlyingText, CurrentPos, Theme.FriendlyColor, false, true);
 	CurrentPos += 2 * InstrumentLine;
 
@@ -389,14 +388,14 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Power, CurrentPos);
 
 	// Weapons
-	if (PlayerShip->IsMilitary())
+	if (PlayerShip->GetParent()->IsMilitary())
 	{
 		DrawCockpitSubsystemInfo(EFlareSubsystem::SYS_Weapon, CurrentPos);
 	}
 
 	// Ship icon
 	int32 ShipIconSize = 80;
-	UTexture2D* ShipIcon = Cast<UTexture2D>(PlayerShip->GetDescription()->MeshPreviewBrush.GetResourceObject());
+	UTexture2D* ShipIcon = Cast<UTexture2D>(PlayerShip->GetParent()->GetDescription()->MeshPreviewBrush.GetResourceObject());
 	DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - ShipIconSize, 0), ShipIconSize, ShipIcon, Theme.FriendlyColor);
 }
 
@@ -406,7 +405,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Fighter version
-	if (PlayerShip->IsMilitary() && PlayerShip->GetDescription()->Size == EFlarePartSize::S)
+	if (PlayerShip->GetParent()->IsMilitary() && PlayerShip->GetParent()->GetDescription()->Size == EFlarePartSize::S)
 	{
 		FText TitleText;
 		FText InfoText;
@@ -481,7 +480,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	}
 
 	// Capital ship version
-	else if (PlayerShip->IsMilitary())
+	else if (PlayerShip->GetParent()->IsMilitary())
 	{
 		// Title
 		FText CommandGroupText = LOCTEXT("ShipGroups", "Command groups");
@@ -511,7 +510,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	// Unarmed version
 	else
 	{
-		UFlareCargoBay* CargoBay = PlayerShip->GetCargoBay();
+		UFlareCargoBay* CargoBay = PlayerShip->GetParent()->GetCargoBay();
 		check(CargoBay);
 
 		// Title
@@ -560,8 +559,8 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 	if (CurrentSector)
 	{
 		FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
-			CurrentSector->GetSectorName(),
-			CurrentSector->GetSectorFriendlynessText(PlayerShip->GetCompany()));
+			CurrentSector->GetSimulatedSector()->GetSectorName(),
+			CurrentSector->GetSimulatedSector()->GetSectorFriendlynessText(PlayerShip->GetParent()->GetCompany()));
 		FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
 
@@ -570,8 +569,8 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
 			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0} ({1})"),
-				FText::FromString(TargetShip->GetImmatriculation().ToString()),
-				TargetShip->GetCompany()->GetPlayerHostilityText());
+				FText::FromString(TargetShip->GetParent()->GetImmatriculation().ToString()),
+				TargetShip->GetParent()->GetCompany()->GetPlayerHostilityText());
 			FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 		}
 	}
@@ -687,7 +686,7 @@ void AFlareHUD::DrawHUDInternal()
 		
 	// Iterate on all 'other' ships to show designators, markings, etc
 	ScreenTargets.Empty();
-	ScreenTargetsOwner = PlayerShip->GetImmatriculation();
+	ScreenTargetsOwner = PlayerShip->GetParent()->GetImmatriculation();
 	FoundTargetUnderMouse = false;
 	for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 	{
@@ -991,9 +990,9 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 
 			// Draw the status
-			if (!Spacecraft->IsStation() && ObjectSize.X > IconSize)
+			if (!Spacecraft->GetParent()->IsStation() && ObjectSize.X > IconSize)
 			{
-				int32 NumberOfIcons = Spacecraft->IsMilitary() ? 3 : 2;
+				int32 NumberOfIcons = Spacecraft->GetParent()->IsMilitary() ? 3 : 2;
 				FVector2D StatusPos = CenterPos;
 				StatusPos.X += 0.5 * (ObjectSize.X - NumberOfIcons * IconSize);
 				StatusPos.Y -= (IconSize + 0.5 * CornerSize);
@@ -1008,7 +1007,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}*/
 			
 			// Combat helper
-			if (Spacecraft->GetPlayerWarState() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
+			if (Spacecraft->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
 				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 				if (WeaponGroup)
@@ -1022,9 +1021,9 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						// Get some more data
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
 						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
-						bool FighterTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_GUN && Spacecraft->GetSize() == EFlarePartSize::L;
-						bool BomberTargettingSmall = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetSize() == EFlarePartSize::S;
-						bool BomberTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetSize() == EFlarePartSize::L;
+						bool FighterTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_GUN && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
+						bool BomberTargettingSmall = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::S;
+						bool BomberTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
 
 						// Draw helper if it makes sense
 						if (!FighterTargettingLarge && !BomberTargettingSmall)
@@ -1077,7 +1076,7 @@ void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIcon
 	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
 	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDHealthIcon);
 
-	if (Ship->IsMilitary())
+	if (Ship->GetParent()->IsMilitary())
 	{
 		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
 	}
@@ -1189,9 +1188,9 @@ bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const
 	}
 }
 
-FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target)
+FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraft* Target)
 {
-	EFlareHostility::Type Hostility = Target->GetPlayerWarState();
+	EFlareHostility::Type Hostility = Target->GetParent()->GetPlayerWarState();
 	switch (Hostility)
 	{
 		case EFlareHostility::Hostile:

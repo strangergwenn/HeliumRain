@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "FlareSpacecraftCatalogEntry.generated.h"
 
 

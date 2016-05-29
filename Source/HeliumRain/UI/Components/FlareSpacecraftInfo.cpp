@@ -280,7 +280,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareSpacecraftInfo::SetSpacecraft(IFlareSpacecraftInterface* Target)
+void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 {
 	TargetSpacecraft = Target;
 	ShipStatus->SetTargetShip(Target);
@@ -354,24 +354,24 @@ void SFlareSpacecraftInfo::Show()
 		// Useful data
 		IFlareSpacecraftDockingSystemInterface* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
-		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PC->GetShipPawn();
+		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PC->GetShipPawn()->GetParent();
 		bool FriendlyAndNotSelf = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
 		bool IsStrategy = Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL;
-		bool IsDocked = TargetSpacecraft->GetNavigationSystem()->IsDocked() || TargetDockingSystem->IsDockedShip(PC->GetShipPawn());
+		bool IsDocked = TargetSpacecraft->GetNavigationSystem()->IsDocked() || TargetDockingSystem->IsDockedShip(PC->GetShipPawn()->GetParent());
 		bool IsStation = TargetSpacecraft->IsStation();
 
 		// Permissions
-		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()) && !IsDocked;
-		bool CanAssign = Owned && !IsStation && TargetSpacecraft->GetCurrentSectorInterface() && !TargetSpacecraft->IsAssignedToSector();
+		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()->GetParent()) && !IsDocked;
+		bool CanAssign = Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && !TargetSpacecraft->IsAssignedToSector();
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
-		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy) && TargetSpacecraft->GetCurrentSectorInterface() && TargetSpacecraft->GetCurrentSectorInterface()->CanUpgrade(TargetSpacecraft->GetCompany());
-		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetCurrentSectorInterface() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
+		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy) && TargetSpacecraft->GetCurrentSector() && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
+		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
 
 		// Trade override during battles
 		if (Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft)
-				&& TargetSpacecraft->GetCurrentSectorInterface())
+				&& TargetSpacecraft->GetCurrentSector())
 		{
-			EFlareSectorBattleState::Type BattleState = TargetSpacecraft->GetCurrentSectorInterface()->GetSectorBattleState(TargetSpacecraft->GetCompany());
+			EFlareSectorBattleState::Type BattleState = TargetSpacecraft->GetCurrentSector()->GetSectorBattleState(TargetSpacecraft->GetCompany());
 			if (BattleState == EFlareSectorBattleState::BattleLost
 			 || BattleState == EFlareSectorBattleState::BattleLostNoRetreat
 			 || BattleState == EFlareSectorBattleState::BattleNoRetreat
@@ -513,18 +513,15 @@ void SFlareSpacecraftInfo::OnFly()
 	FText Unused;
 	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown(Unused))
 	{
-		// Check if a simulated spacecraft
-		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-
-		if (SimulatedSpacecraft)
+		if(TargetSpacecraft->IsActive())
 		{
-			UFlareSimulatedSector* Sector = SimulatedSpacecraft->GetCurrentSector();
-			Sector->SetShipToFly(SimulatedSpacecraft);
-			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
+			PC->GetMenuManager()->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, TargetSpacecraft);
 		}
 		else
 		{
-			PC->GetMenuManager()->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, Cast<AFlareSpacecraft>(TargetSpacecraft));
+			UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
+			Sector->SetShipToFly(TargetSpacecraft);
+			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
 		}
 	}
 }
@@ -580,8 +577,8 @@ void SFlareSpacecraftInfo::OnScrap()
 	if (PC && TargetSpacecraft)
 	{
 		FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping '%s'", *TargetSpacecraft->GetImmatriculation().ToString())
-		IFlareSpacecraftInterface* TargetStation = NULL;
-		TArray<IFlareSpacecraftInterface*> SectorStations = TargetSpacecraft->GetCurrentSectorInterface()->GetSectorStationInterfaces();
+		UFlareSimulatedSpacecraft* TargetStation = NULL;
+		TArray<UFlareSimulatedSpacecraft*> SectorStations = TargetSpacecraft->GetCurrentSector()->GetSectorStations();
 
 		// Find a suitable station
 		for (int Index = 0; Index < SectorStations.Num(); Index++)
@@ -677,7 +674,7 @@ const FSlateBrush* SFlareSpacecraftInfo::GetClassIcon() const
 {
 	if (TargetSpacecraftDesc)
 	{
-		return IFlareSpacecraftInterface::GetIcon(TargetSpacecraftDesc);
+		return FFlareSpacecraftDescription::GetIcon(TargetSpacecraftDesc);
 	}
 	return NULL;
 }

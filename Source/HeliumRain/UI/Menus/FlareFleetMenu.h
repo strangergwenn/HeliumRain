@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../Components/FlareShipList.h"
 
-class IFlareSpacecraftInterface;
+class UFlareSimulatedSpacecraft;
 
 
 class SFlareFleetMenu : public SCompoundWidget
@@ -115,7 +115,7 @@ protected:
 	// State data
 	UFlareFleet*                                    SelectedFleet;
 	UFlareFleet*                                    FleetToAdd;
-	IFlareSpacecraftInterface*                      ShipToRemove;
+	UFlareSimulatedSpacecraft*                      ShipToRemove;
 
 
 };

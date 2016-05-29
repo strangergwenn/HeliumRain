@@ -259,7 +259,7 @@ void SFlareFleetMenu::UpdateShipList()
 
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ShipCount; SpacecraftIndex++)
 	{
-		IFlareSpacecraftInterface* ShipCandidate = SelectedFleet->GetShips()[SpacecraftIndex];
+		UFlareSimulatedSpacecraft* ShipCandidate = SelectedFleet->GetShips()[SpacecraftIndex];
 		if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
 		{
 			ShipList->AddShip(ShipCandidate);
@@ -281,7 +281,7 @@ void SFlareFleetMenu::OnBackClicked()
 
 void SFlareFleetMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer)
 {
-	IFlareSpacecraftInterface* Spacecraft = SpacecraftContainer->ShipInterfacePtr;
+	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftContainer->ShipInterfacePtr;
 	if (Spacecraft)
 	{
 		ShipToRemove = Spacecraft;

@@ -16,7 +16,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Load the factory from a save file */
-	virtual void Load(IFlareSpacecraftInterface* ParentSpacecraft, TArray<FFlareCargoSave>& Data);
+	virtual void Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FFlareCargoSave>& Data);
 
 	/** Save the factory to a save file */
 	virtual TArray<FFlareCargoSave>* Save();
@@ -46,7 +46,7 @@ protected:
 
 	// Gameplay data
 	TArray<FFlareCargoSave>                    CargoBayData;
-	IFlareSpacecraftInterface*				   Parent;
+	UFlareSimulatedSpacecraft*				   Parent;
 
 	TArray<FFlareCargo>                        CargoBay;
 
@@ -83,7 +83,7 @@ public:
 
 	uint32 GetSlotCapacity() const;
 
-	inline IFlareSpacecraftInterface* GetParent() const
+	inline UFlareSimulatedSpacecraft* GetParent() const
 	{
 		return Parent;
 	}

@@ -31,7 +31,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set the ship to display data for */
-	void SetTargetShip(IFlareSpacecraftInterface* Target);
+	void SetTargetShip(UFlareSimulatedSpacecraft* Target);
 
 
 protected:
@@ -95,7 +95,7 @@ protected:
 	TSharedPtr<SVerticalBox>             WeaponContainer;
 
 	// Target data
-	IFlareSpacecraftInterface*           TargetShip;
+	UFlareSimulatedSpacecraft*           TargetShip;
 	float                                Temperature;
 	float                                OverheatTemperature;
 	bool                                 Overheating;

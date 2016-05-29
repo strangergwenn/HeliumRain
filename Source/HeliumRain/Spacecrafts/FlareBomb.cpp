@@ -53,7 +53,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 	{
 		FFlareSpacecraftComponentSave ComponentData;
 		ComponentData.ComponentIdentifier = WeaponDescription->Identifier;
-		BombComp->Initialize(&ComponentData, Weapon->GetSpacecraft()->GetCompany(), Weapon->GetSpacecraft(), false);
+		BombComp->Initialize(&ComponentData, Weapon->GetSpacecraft()->GetParent()->GetCompany(), Weapon->GetSpacecraft(), false);
 
 		DamageSound = WeaponDescription->WeaponCharacteristics.DamageSound;
 

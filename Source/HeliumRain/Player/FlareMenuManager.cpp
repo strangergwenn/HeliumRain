@@ -18,9 +18,7 @@
 #include "../UI/Menus/FlareResourcePricesMenu.h"
 #include "../UI/Menus/FlareWorldEconomyMenu.h"
 
-#include "../Game/FlareSectorInterface.h"
 #include "../Player/FlarePlayerController.h"
-#include "../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../HeliumRainLoadingScreen/FlareLoadingScreen.h"
 
 
@@ -210,7 +208,7 @@ void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 	FadeTargetData = Data;
 }
 
-void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, IFlareSpacecraftInterface* Data)
+void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimulatedSpacecraft* Data)
 {
 	FLOG("AFlareMenuManager::OpenMenuSpacecraft");
 
@@ -615,7 +613,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_ActivateSector:
-			ActivateSector(static_cast<UFlareSectorInterface*>(FadeTargetData));
+			ActivateSector(static_cast<UFlareSimulatedSector*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Fleet:
@@ -631,7 +629,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Sector:
-			OpenSector(static_cast<UFlareSectorInterface*>(FadeTargetData));
+			OpenSector(static_cast<UFlareSimulatedSector*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Trade:
@@ -651,7 +649,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_ResourcePrices:
-			OpenResourcePrices(static_cast<UFlareSectorInterface*>(FadeTargetData));
+			OpenResourcePrices(static_cast<UFlareSimulatedSector*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_WorldEconomy:
@@ -760,26 +758,26 @@ void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
 	}
 }
 
-void AFlareMenuManager::ActivateSector(UFlareSectorInterface* Target)
+void AFlareMenuManager::ActivateSector(UFlareSimulatedSector* Target)
 {
 	ExitMenu();
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && Target)
 	{
-		PC->GetGame()->ActivateSector(PC, Cast<UFlareSimulatedSector>(Target));
+		PC->GetGame()->ActivateSector(PC, Target);
 		MenuIsOpen = false;
 	}
 }
 
-void AFlareMenuManager::InspectShip(IFlareSpacecraftInterface* Target, bool IsEditable)
+void AFlareMenuManager::InspectShip(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 {
-	IFlareSpacecraftInterface* MenuTarget = NULL;
+	UFlareSimulatedSpacecraft* MenuTarget = NULL;
 
 	// No target passed - "Inspect" on target ship
 	if (Target == NULL && GetPC()->GetShipPawn())
 	{
-		MenuTarget = GetPC()->GetShipPawn()->GetCurrentTarget();
+		MenuTarget = GetPC()->GetShipPawn()->GetCurrentTarget()->GetParent();
 		if (MenuTarget)
 		{
 			FLOGV("AFlareMenuManager::InspectShip : No ship passed, using selection : %s", *MenuTarget->GetImmatriculation().ToString());
@@ -820,7 +818,7 @@ void AFlareMenuManager::OpenFleetMenu(UFlareFleet* TargetFleet)
 	UseLightBackground();
 }
 
-void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)
+void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
 {
 	ResetMenu();
 
@@ -828,26 +826,12 @@ void AFlareMenuManager::OpenSector(UFlareSectorInterface* Sector)
 	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
 	
-	UFlareSimulatedSector* SimulatedSector = Cast<UFlareSimulatedSector>(Sector);
-	if (SimulatedSector)
-	{
-		SectorMenu->Enter(SimulatedSector);
-	}
-	else
-	{
-		if (GetPC()->GetShipPawn())
-		{
-			FLOG("Fail to cast to UFlareSimulatedSector, using current sector");
-			UFlareSector* ActiveSector = Cast<UFlareSector>(GetPC()->GetShipPawn()->GetCurrentSectorInterface());
-			SimulatedSector = ActiveSector->GetSimulatedSector();
-			SectorMenu->Enter(SimulatedSector);
-		}
-	}
+	SectorMenu->Enter(Sector);
 
 	UseLightBackground();
 }
 
-void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
+void AFlareMenuManager::OpenTrade(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	ResetMenu();
 
@@ -855,16 +839,7 @@ void AFlareMenuManager::OpenTrade(IFlareSpacecraftInterface* Spacecraft)
 	CurrentMenu = EFlareMenu::MENU_Trade;
 	GetPC()->OnEnterMenu();
 
-	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(Spacecraft);
-	if (SimulatedSpacecraft)
-	{
-		TradeMenu->Enter(SimulatedSpacecraft->GetCurrentSector(), SimulatedSpacecraft, NULL);
-	}
-	else
-	{
-		AFlareSpacecraft* ActiveSpacecraft = Cast<AFlareSpacecraft>(Spacecraft);
-		TradeMenu->Enter(GetGame()->GetActiveSector(), ActiveSpacecraft, NULL);
-	}
+	TradeMenu->Enter(Spacecraft->GetCurrentSector(), Spacecraft, NULL);
 
 	UseLightBackground();
 }
@@ -903,7 +878,7 @@ void AFlareMenuManager::OpenLeaderboard()
 	UseDarkBackground();
 }
 
-void AFlareMenuManager::OpenResourcePrices(UFlareSectorInterface* Sector)
+void AFlareMenuManager::OpenResourcePrices(UFlareSimulatedSector* Sector)
 {
 	ResetMenu();
 

@@ -1,7 +1,6 @@
 
 #include "../../Flare.h"
 #include "FlareCargoInfo.h"
-#include "../../Spacecrafts/FlareSpacecraftInterface.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Economy/FlareCargoBay.h"

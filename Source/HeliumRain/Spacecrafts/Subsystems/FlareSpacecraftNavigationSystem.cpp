@@ -77,7 +77,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Dock)
 			{
-				DockingAutopilot(Cast<IFlareSpacecraftInterface>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam, DeltaSeconds);
+				DockingAutopilot(Cast<UFlareSimulatedSpacecraft>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam, DeltaSeconds);
 			}
 		}
 
@@ -97,7 +97,7 @@ void UFlareSpacecraftNavigationSystem::Initialize(AFlareSpacecraft* OwnerSpacecr
 {
 	Spacecraft = OwnerSpacecraft;
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	Description = Spacecraft->GetDescription();
+	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
 
 	// Load data from the ship info
@@ -168,13 +168,13 @@ void UFlareSpacecraftNavigationSystem::SetAngularAccelerationRate(float Accelera
 	Docking
 ----------------------------------------------------*/
 
-bool UFlareSpacecraftNavigationSystem::DockAt(IFlareSpacecraftInterface* TargetStation)
+bool UFlareSpacecraftNavigationSystem::DockAt(UFlareSimulatedSpacecraft* TargetStation)
 {
 	FLOGV("UFlareSpacecraftNavigationSystem::DockAt : '%s' docking at '%s'",
-		*Spacecraft->GetImmatriculation().ToString(),
+		*Spacecraft->GetParent()->GetImmatriculation().ToString(),
 		*TargetStation->GetImmatriculation().ToString());
 
-	FFlareDockingInfo DockingInfo = TargetStation->GetDockingSystem()->RequestDock(Spacecraft, Spacecraft->GetActorLocation());
+	FFlareDockingInfo DockingInfo = TargetStation->GetDockingSystem()->RequestDock(Spacecraft->GetParent(), Spacecraft->GetActorLocation());
 
 	// Docking granted
 	if (DockingInfo.Granted)
@@ -204,13 +204,13 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 	if (IsDocked())
 	{
 		FLOGV("UFlareSpacecraftNavigationSystem::Undock : '%s' undocking from '%s'",
-			*Spacecraft->GetImmatriculation().ToString(),
+			*Spacecraft->GetParent()->GetImmatriculation().ToString(),
 			*Data->DockedTo.ToString());
 
 		// Detach from station
 		Spacecraft->DetachRootComponentFromParent(true);
-		IFlareSpacecraftInterface* DockStation = GetDockStation();
-		DockStation->GetDockingSystem()->ReleaseDock(Spacecraft, Data->DockedAt);
+		UFlareSimulatedSpacecraft* DockStation = GetDockStation();
+		DockStation->GetDockingSystem()->ReleaseDock(Spacecraft->GetParent(), Data->DockedAt);
 
 		// Update data
 		SetStatus(EFlareShipStatus::SS_AutoPilot);
@@ -235,12 +235,12 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 	// Failed
 	else
 	{
-		FLOGV("UFlareSpacecraftNavigationSystem::Undock : '%s' is not docked", *Spacecraft->GetImmatriculation().ToString());
+		FLOGV("UFlareSpacecraftNavigationSystem::Undock : '%s' is not docked", *Spacecraft->GetParent()->GetImmatriculation().ToString());
 		return false;
 	}
 }
 
-IFlareSpacecraftInterface* UFlareSpacecraftNavigationSystem::GetDockStation()
+UFlareSimulatedSpacecraft* UFlareSpacecraftNavigationSystem::GetDockStation()
 {
 	if (IsDocked())
 	{
@@ -248,9 +248,9 @@ IFlareSpacecraftInterface* UFlareSpacecraftNavigationSystem::GetDockStation()
 		{
 			AFlareSpacecraft* Station = Spacecraft->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
 
-			if (Station && Station->GetImmatriculation() == Data->DockedTo)
+			if (Station && Station->GetParent()->GetImmatriculation() == Data->DockedTo)
 			{
-				return Station;
+				return Station->GetParent();
 			}
 		}
 	}
@@ -358,7 +358,7 @@ void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* D
 				{
 					// All is ok for docking, perform dock
 					//FLOG("  Ok for docking after hit");
-					ConfirmDock(DockStation, DockId);
+					ConfirmDock(DockStation->GetParent(), DockId);
 					return;
 				}
 
@@ -368,7 +368,7 @@ void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* D
 }
 
 
-void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterface* DockStationInterface, int32 DockId, float DeltaSeconds)
+void UFlareSpacecraftNavigationSystem::DockingAutopilot(UFlareSimulatedSpacecraft* DockStationInterface, int32 DockId, float DeltaSeconds)
 {
 	// The dockin has multiple phase
 	// - Rendez-vous : go at the entrance of the docking corridor.
@@ -541,7 +541,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 	if (OkForDocking)
 	{
 		/*FLOG("-> OK for docking");*/
-		ConfirmDock(DockStation, DockId);
+		ConfirmDock(DockStation->GetParent(), DockId);
 		return;
 	}
 
@@ -683,31 +683,34 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(IFlareSpacecraftInterfac
 }
 
 
-void UFlareSpacecraftNavigationSystem::ConfirmDock(IFlareSpacecraftInterface* DockStation, int32 DockId)
+void UFlareSpacecraftNavigationSystem::ConfirmDock(UFlareSimulatedSpacecraft* DockStation, int32 DockId)
 {
-	FLOGV("UFlareSpacecraftNavigationSystem::ConfirmDock : '%s' is now docked", *Spacecraft->GetImmatriculation().ToString());
+	FLOGV("UFlareSpacecraftNavigationSystem::ConfirmDock : '%s' is now docked", *Spacecraft->GetParent()->GetImmatriculation().ToString());
 	ClearCurrentCommand();
 
 	// Set as docked
-	DockStation->GetDockingSystem()->Dock(Spacecraft, DockId);
+	DockStation->GetDockingSystem()->Dock(Spacecraft->GetParent(), DockId);
 	SetStatus(EFlareShipStatus::SS_Docked);
 	Data->DockedTo = DockStation->GetImmatriculation();
 	Data->DockedAt = DockId;
 
 
-	// Attach to station
-	AFlareSpacecraft* Station = Cast<AFlareSpacecraft>(DockStation);
-	if (Station)
+	if(DockStation->IsActive())
 	{
-		Spacecraft->AttachRootComponentToActor(Station,"", EAttachLocation::KeepWorldPosition, true);
-	}
+		// Attach to station
+		AFlareSpacecraft* Station = DockStation->GetActive();
+		if (Station)
+		{
+			Spacecraft->AttachRootComponentToActor(Station,"", EAttachLocation::KeepWorldPosition, true);
+		}
 
-	// Cut engines
-	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
-	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
-	{
-		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
-		Engine->SetAlpha(0.0f);
+		// Cut engines
+		TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
+		{
+			UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+			Engine->SetAlpha(0.0f);
+		}
 	}
 
 	Spacecraft->OnDocked(DockStation);
@@ -762,7 +765,7 @@ void UFlareSpacecraftNavigationSystem::PushCommandDock(const FFlareDockingInfo& 
 {
 	FFlareShipCommandData Command;
 	Command.Type = EFlareCommandDataType::CDT_Dock;
-	Command.ActionTarget = Cast<AFlareSpacecraft>(DockingInfo.Station);
+	Command.ActionTarget = DockingInfo.Station;
 	Command.ActionTargetParam = DockingInfo.DockId;
 	PushCommand(Command);
 }
@@ -773,7 +776,7 @@ void UFlareSpacecraftNavigationSystem::PushCommand(const FFlareShipCommandData& 
 	CommandData.Enqueue(Command);
 
 	FLOGV("UFlareSpacecraftNavigationSystem::PushCommand : '%s' has new command '%s'",
-		*Spacecraft->GetImmatriculation().ToString(),
+		*Spacecraft->GetParent()->GetImmatriculation().ToString(),
 		*EFlareCommandDataType::ToString(Command.Type));
 }
 
@@ -783,7 +786,7 @@ void UFlareSpacecraftNavigationSystem::ClearCurrentCommand()
 	CommandData.Dequeue(Command);
 
 	FLOGV("UFlareSpacecraftNavigationSystem::ClearCurrentCommand : '%s' has cleared command '%s'",
-		*Spacecraft->GetImmatriculation().ToString(),
+		*Spacecraft->GetParent()->GetImmatriculation().ToString(),
 		*EFlareCommandDataType::ToString(Command.Type));
 
 	if (!CommandData.Peek(Command))
@@ -807,14 +810,14 @@ void UFlareSpacecraftNavigationSystem::AbortAllCommands()
 	while (CommandData.Dequeue(Command))
 	{
 		FLOGV("UFlareSpacecraftNavigationSystem::AbortAllCommands : '%s' has aborted command '%s'",
-			*Spacecraft->GetImmatriculation().ToString(), 
+			*Spacecraft->GetParent()->GetImmatriculation().ToString(),
 			*EFlareCommandDataType::ToString(Command.Type));
 
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
 			// Release dock grant
-			IFlareSpacecraftInterface* Station = Cast<IFlareSpacecraftInterface>(Command.ActionTarget);
-			Station->GetDockingSystem()->ReleaseDock(Spacecraft, Command.ActionTargetParam);
+			UFlareSimulatedSpacecraft* Station = Command.ActionTarget;
+			Station->GetDockingSystem()->ReleaseDock(Spacecraft->GetParent(), Command.ActionTargetParam);
 		}
 	}
 	SetStatus(EFlareShipStatus::SS_Manual);
@@ -866,7 +869,7 @@ AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecr
 		if (ShipCandidate != Spacecraft && ShipCandidate != DockingStation)
 		{
 
-			if (DockingStation && (DockingStation->GetDockingSystem()->IsGrantedShip(ShipCandidate) || DockingStation->GetDockingSystem()->IsDockedShip(ShipCandidate)))
+			if (DockingStation && (DockingStation->GetDockingSystem()->IsGrantedShip(ShipCandidate->GetParent()) || DockingStation->GetDockingSystem()->IsDockedShip(ShipCandidate->GetParent())))
 			{
 				// Ignore ship docked or docking at the same station
 				continue;
@@ -1134,7 +1137,7 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 		DeltaVAxis.Normalize();
 
 		bool Log = false;
-		if (Spacecraft->GetCompany() == Spacecraft->GetGame()->GetPC()->GetCompany())
+		if (Spacecraft->GetParent()->GetCompany() == Spacecraft->GetGame()->GetPC()->GetCompany())
 		{
 			//Log = true;
 		}

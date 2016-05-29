@@ -78,18 +78,18 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		if (PC && LastDamageCauser == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
 		{
 			PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"),
-				FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetDescription()->Name),
+				FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
 				FName("ship-killed"),
 				EFlareNotification::NT_Info);
 		}
 
 		// Company kill
-		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetCompany())
+		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetParent()->GetCompany())
 		{
 			PC->Notify(LOCTEXT("ShipKilledCompany", "Target destroyed"),
 				FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"),
-					Spacecraft->GetDescription()->Name,
-					LastDamageCauser->GetDescription()->Name),
+					Spacecraft->GetParent()->GetDescription()->Name,
+					LastDamageCauser->GetParent()->GetDescription()->Name),
 				FName("ship-killed"),
 				EFlareNotification::NT_Info);
 		}
@@ -105,7 +105,7 @@ void UFlareSpacecraftDamageSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft,
 {
 	Spacecraft = OwnerSpacecraft;
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	Description = Spacecraft->GetDescription();
+	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
 }
 
@@ -163,7 +163,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		{
 			PC->Notify(
 				LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
-				FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetDescription()->Name),
+				FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
 				FName("ship-destroyed"),
 				EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
 		}
@@ -180,10 +180,10 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	}
 
 	// Lost company ship
-	else if (Spacecraft->GetCompany() == PC->GetCompany())
+	else if (Spacecraft->GetParent()->GetCompany() == PC->GetCompany())
 	{
 		PC->Notify(LOCTEXT("ShipDestroyedCompany", "One of your ships has been destroyed"),
-			FText::Format(LOCTEXT("ShipDestroyedCompanyFormat", "Your {0}-class ship was destroyed"), Spacecraft->GetDescription()->Name),
+			FText::Format(LOCTEXT("ShipDestroyedCompanyFormat", "Your {0}-class ship was destroyed"), Spacecraft->GetParent()->GetDescription()->Name),
 			FName("ship-killed"),
 			EFlareNotification::NT_Military);
 	}
@@ -321,7 +321,7 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	UFlareCompany* DamageSource = NULL;
 	if (OtherSpacecraft)
 	{
-		DamageSource = OtherSpacecraft->GetCompany();
+		DamageSource = OtherSpacecraft->GetParent()->GetCompany();
 		LastDamageCauser = OtherSpacecraft;
 	}
 	else
@@ -364,9 +364,9 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
 			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency);
 
-			if(DamageSource != NULL && DamageSource != Spacecraft->GetCompany())
+			if(DamageSource != NULL && DamageSource != Spacecraft->GetParent()->GetCompany())
 			{
-				Spacecraft->GetCompany()->GiveReputation(DamageSource, - (InflictedDamageRatio * 30), true);
+				Spacecraft->GetParent()->GetCompany()->GiveReputation(DamageSource, - (InflictedDamageRatio * 30), true);
 			}
 		}
 	}

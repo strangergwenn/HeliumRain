@@ -26,18 +26,7 @@ struct CompanyValue
 	int64 TotalValue;
 };
 
-/** Hostility status */
-UENUM()
-namespace EFlareHostility
-{
-	enum Type
-	{
-		Hostile,
-		Neutral,
-		Friendly,
-		Owned
-	};
-}
+
 
 /** Catalog data */
 USTRUCT()

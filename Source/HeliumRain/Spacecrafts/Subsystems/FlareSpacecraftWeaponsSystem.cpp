@@ -77,7 +77,7 @@ void UFlareSpacecraftWeaponsSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft
 {
 	Spacecraft = OwnerSpacecraft;
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	Description = Spacecraft->GetDescription();
+	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
 }
 

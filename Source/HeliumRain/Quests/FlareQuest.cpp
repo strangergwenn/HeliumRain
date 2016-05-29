@@ -224,7 +224,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 					// No specific ship required
 					Status = true;
 				}
-				else if (Condition->Identifier1 == QuestManager->GetGame()->GetPC()->GetShipPawn()->GetDescription()->Identifier)
+				else if (Condition->Identifier1 == QuestManager->GetGame()->GetPC()->GetShipPawn()->GetParent()->GetDescription()->Identifier)
 				{
 					// The flyed ship is the right kind of ship
 					Status = true;

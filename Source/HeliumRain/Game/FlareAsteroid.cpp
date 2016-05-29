@@ -39,7 +39,7 @@ void AFlareAsteroid::BeginPlay()
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	if(Game)
 	{
-		Asteroid->SetIcy(Game->GetActiveSector()->GetDescription()->IsIcy);
+		Asteroid->SetIcy(Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
 	}
 
 	Super::BeginPlay();
@@ -67,7 +67,7 @@ void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	AsteroidData = Data;
 
-	SetupAsteroidMesh(Game, Asteroid, Data, Game->GetActiveSector()->GetDescription()->IsIcy);
+	SetupAsteroidMesh(Game, Asteroid, Data, Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
 	Asteroid->SetPhysicsLinearVelocity(Data.LinearVelocity);
 	Asteroid->SetPhysicsAngularVelocity(Data.AngularVelocity);
 }

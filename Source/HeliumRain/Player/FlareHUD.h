@@ -174,7 +174,7 @@ protected:
 	bool IsInScreen(FVector2D ScreenPosition) const;
 
 	/** Get the appropriate hostility color */
-	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraftPawn* Target);
+	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraft* Target);
 
 	/** Convert a world location to screen-space */
 	bool WorldToScreenOld(FVector World, FVector2D& Screen);

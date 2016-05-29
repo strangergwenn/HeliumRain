@@ -3,6 +3,10 @@
 #include "Engine.h"
 #include "FlareSpacecraftTypes.generated.h"
 
+
+class UFlareResourceCatalogEntry;
+class UFlareFactoryCatalogEntry;
+
 /** Part size values */
 UENUM()
 namespace EFlarePartSize
@@ -340,6 +344,281 @@ struct FFlareSpacecraftSave
 	int32 Level;
 };
 
+/** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */
+USTRUCT()
+struct FFlareSpacecraftSlotDescription
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Slot internal name */
+	UPROPERTY(EditAnywhere, Category = Content) FName SlotIdentifier;
+
+	/** Component description can be empty if configurable slot */
+	UPROPERTY(EditAnywhere, Category = Content) FName ComponentIdentifier;
+
+	/** Component slot name */
+	UPROPERTY(EditAnywhere, Category = Content) FText SlotName;
+
+	/** Size of the slot  */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TEnumAsByte<EFlarePartSize::Type> Size;
+
+	/** Turret angle limits. The number of value indicate indicate the angular between each limit. For exemple 4 value are for 0°, 90°, -90° and 180°? */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<float> TurretBarrelsAngleLimit;
+
+	/** Power components */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FName> PoweredComponents;
+};
+
+USTRUCT()
+struct FFlareSpacecraftDynamicComponentStateDescription
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Dynamic component state name */
+	UPROPERTY(EditAnywhere, Category = Content) FName StateIdentifier;
+
+	/** Dynamic component state templates */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<UBlueprint*> StateTemplates;
+
+};
+
+/** Spacecraft capabilities */
+UENUM()
+namespace EFlareSpacecraftCapability
+{
+	enum Type
+	{
+		Consumer,
+		Storage,
+		Maintenance
+	};
+}
+
+/** Build constraints for stations */
+UENUM()
+namespace EFlareBuildConstraint
+{
+	enum Type
+	{
+		FreeAsteroid,
+		SunExposure,
+		HideOnIce,
+		HideOnNoIce,
+		GeostationaryOrbit
+	};
+}
+
+/** Factory input or output resource */
+USTRUCT()
+struct FFlareFactoryResource
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Resource */
+	UPROPERTY(EditAnywhere, Category = Content)
+	UFlareResourceCatalogEntry* Resource;
+
+	/** Quantity for the resource */
+	UPROPERTY(EditAnywhere, Category = Content)
+	uint32 Quantity;
+};
+
+/** Factory action type values */
+UENUM()
+namespace EFlareFactoryAction
+{
+	enum Type
+	{
+		CreateShip,
+		GainTechnology,
+		DiscoverSector
+	};
+}
+
+/** Factory output action */
+USTRUCT()
+struct FFlareFactoryAction
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Faction action. */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlareFactoryAction::Type> Action;
+
+	/** Generic identifier */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName Identifier;
+
+	/** Quantity for this action */
+	UPROPERTY(EditAnywhere, Category = Content)
+	uint32 Quantity;
+};
+
+/** Production cost */
+USTRUCT()
+struct FFlareProductionData
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Time for 1 production cycle */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int64 ProductionTime;
+
+	/** Cost for 1 production cycle */
+	UPROPERTY(EditAnywhere, Category = Content)
+	uint32 ProductionCost;
+
+	/** Input resources */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareFactoryResource> InputResources;
+
+	/** Output resources */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareFactoryResource> OutputResources;
+};
+
+/** Factory description */
+USTRUCT()
+struct FFlareFactoryDescription
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Name */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FText Name;
+
+	/** Description */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FText Description;
+
+	/** Resource identifier */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName Identifier;
+
+	/** Output actions */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareFactoryAction> OutputActions;
+
+	/** Sun impact factory cost */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool NeedSun;
+
+	/** Auto-start */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool AutoStart;
+
+	/** Cycle cost & yields */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FFlareProductionData CycleCost;
+
+	/** Visible states */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool VisibleStates;
+};
+
+/** Catalog data structure for a spacecraft */
+USTRUCT()
+struct FFlareSpacecraftDescription
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Spacecraft internal name */
+	UPROPERTY(EditAnywhere, Category = Content) FName Identifier;
+
+	/** Spacecraft name */
+	UPROPERTY(EditAnywhere, Category = Content) FText Name;
+
+	/** Spacecraft description */
+	UPROPERTY(EditAnywhere, Category = Content) FText Description;
+
+	/** Spacecraft description */
+	UPROPERTY(EditAnywhere, Category = Content) FText ImmatriculationCode;
+
+	/** Spacecraft mass */
+	UPROPERTY(EditAnywhere, Category = Content) float Mass;
+
+	/** Build constraints for stations */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<TEnumAsByte<EFlareBuildConstraint::Type>> BuildConstraint;
+
+	/** Size of the ship components */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlarePartSize::Type> Size;
+
+	/** Number of RCS */
+	UPROPERTY(EditAnywhere, Category = Save) int32 RCSCount;
+
+	/** Number of orbital engine */
+	UPROPERTY(EditAnywhere, Category = Save) int32 OrbitalEngineCount;
+
+	/** Gun slots */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareSpacecraftSlotDescription> GunSlots;
+
+	/** Turret slots */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareSpacecraftSlotDescription> TurretSlots;
+
+	/** Internal component slots */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareSpacecraftSlotDescription> InternalComponentSlots;
+
+	/** Dynamic component states */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareSpacecraftDynamicComponentStateDescription> DynamicComponentStates;
+
+	/** Max angular velocity in degree/s */
+	UPROPERTY(EditAnywhere, Category = Content)	float AngularMaxVelocity;
+
+	/** Max linear velocity in m/s */
+	UPROPERTY(EditAnywhere, Category = Content)	float LinearMaxVelocity;
+
+	/** Heat capacity un KJ/K */
+	UPROPERTY(EditAnywhere, Category = Content) float HeatCapacity;
+
+	/** Spacecraft mesh name */
+	UPROPERTY(EditAnywhere, Category = Content) UBlueprint* Template;
+
+	/** Spacecraft mesh preview image */
+	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush MeshPreviewBrush;
+
+	/** Engine Power sound*/
+	UPROPERTY(EditAnywhere, Category = Content) USoundCue* PowerSound;
+
+	/** Cargo bay count.*/
+	UPROPERTY(EditAnywhere, Category = Content)
+	uint32 CargoBayCount;
+
+	/** Cargo bay capacity.*/
+	UPROPERTY(EditAnywhere, Category = Content)
+	uint32 CargoBayCapacity;
+
+	/** Factories*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<UFlareFactoryCatalogEntry*> Factories;
+
+	/** Is people can consume resource in this station */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<TEnumAsByte<EFlareSpacecraftCapability::Type>> Capabilities;
+
+	/** Cycle cost & yields */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FFlareProductionData CycleCost;
+
+	/** Max level.*/
+	UPROPERTY(EditAnywhere, Category = Content)
+	int32 MaxLevel;
+
+	static bool IsStation(FFlareSpacecraftDescription* SpacecraftDesc);
+
+	static bool IsMilitary(FFlareSpacecraftDescription* SpacecraftDesc);
+
+	static const FSlateBrush* GetIcon(FFlareSpacecraftDescription* Characteristic);
+};
 
 struct SpacecraftHelper
 {

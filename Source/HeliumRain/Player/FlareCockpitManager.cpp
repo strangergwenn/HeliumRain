@@ -263,7 +263,7 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	check(CockpitFrameMaterialTemplate);
 
 	// Set the correct variation
-	if (TargetPlayerShip->IsMilitary())
+	if (TargetPlayerShip->GetParent()->IsMilitary())
 	{
 		CockpitMesh->SetStaticMesh(FighterCockpitMeshTemplate);
 	}
@@ -315,7 +315,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	else if (TargetShip)
 	{
 		Intensity = 1;
-		FLinearColor Color = TargetShip->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
+		FLinearColor Color = TargetShip->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
 		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorTop", Color);
 
 		IFlareSpacecraftNavigationSystemInterface* Nav = PlayerShip->GetNavigationSystem();
@@ -424,10 +424,10 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 {
 	float Intensity = 0;
 
-	if (PlayerShip->IsMilitary())
+	if (PlayerShip->GetParent()->IsMilitary())
 	{
 		// Fighter
-		if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
+		if (PlayerShip->GetParent()->GetDescription()->Size == EFlarePartSize::S)
 		{
 			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 			if (WeaponGroup)

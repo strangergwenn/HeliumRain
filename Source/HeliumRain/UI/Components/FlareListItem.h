@@ -11,17 +11,17 @@ class FInterfaceContainer
 public:
 
 	// Ship
-	static TSharedPtr<FInterfaceContainer> New(IFlareSpacecraftInterface* InObject)
+	static TSharedPtr<FInterfaceContainer> New(UFlareSimulatedSpacecraft* InObject)
 	{
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
-	FInterfaceContainer(IFlareSpacecraftInterface* InPtr)
+	FInterfaceContainer(UFlareSimulatedSpacecraft* InPtr)
 		: ShipInterfacePtr(InPtr)
 		, SpacecraftDescriptionPtr(NULL)
 		, PartDescription(NULL)
 		, FleetPtr(NULL)
 	{}
-	IFlareSpacecraftInterface* ShipInterfacePtr;
+	UFlareSimulatedSpacecraft* ShipInterfacePtr;
 
 	// Ship description
 	static TSharedPtr<FInterfaceContainer> New(FFlareSpacecraftDescription* InObject)

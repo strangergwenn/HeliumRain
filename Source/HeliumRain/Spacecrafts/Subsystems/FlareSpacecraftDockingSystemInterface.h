@@ -3,8 +3,6 @@
 #include "../FlareSpacecraftTypes.h"
 #include "FlareSpacecraftDockingSystemInterface.generated.h"
 
-class IFlareSpacecraftInterface;
-
 /** Docking data */
 struct FFlareDockingInfo
 {
@@ -12,8 +10,8 @@ struct FFlareDockingInfo
 	bool                      Occupied;
 	int32                     DockId;
 	EFlarePartSize::Type      DockSize;
-	IFlareSpacecraftInterface*   Station;
-	IFlareSpacecraftInterface*      Ship;
+	UFlareSimulatedSpacecraft*   Station;
+	UFlareSimulatedSpacecraft*      Ship;
 
 	FVector                   LocalAxis;
 	FVector                   LocalLocation;
@@ -46,22 +44,22 @@ public:
 		----------------------------------------------------*/
 
 		/** Get the list of docked ships */
-		virtual TArray<IFlareSpacecraftInterface*> GetDockedShips() = 0;
+		virtual TArray<UFlareSimulatedSpacecraft*> GetDockedShips() = 0;
 
 		/** Request a docking point */
-		virtual FFlareDockingInfo RequestDock(IFlareSpacecraftInterface* Ship, FVector PreferredLocation) = 0;
+		virtual FFlareDockingInfo RequestDock(UFlareSimulatedSpacecraft* Ship, FVector PreferredLocation) = 0;
 
 		/** Cancel docking */
-		virtual void ReleaseDock(IFlareSpacecraftInterface* Ship, int32 DockId) = 0;
+		virtual void ReleaseDock(UFlareSimulatedSpacecraft* Ship, int32 DockId) = 0;
 
 		/** Confirm the docking from external ship */
-		virtual void Dock(IFlareSpacecraftInterface* Ship, int32 DockId) = 0;
+		virtual void Dock(UFlareSimulatedSpacecraft* Ship, int32 DockId) = 0;
 
 		virtual int GetDockCount() const = 0;
 
-		virtual bool HasCompatibleDock(IFlareSpacecraftInterface* Ship) const = 0;
+		virtual bool HasCompatibleDock(UFlareSimulatedSpacecraft* Ship) const = 0;
 
-		virtual bool IsDockedShip(IFlareSpacecraftInterface* ShipCanditate) const = 0;
+		virtual bool IsDockedShip(UFlareSimulatedSpacecraft* ShipCanditate) const = 0;
 
 
 };

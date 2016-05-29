@@ -81,7 +81,7 @@ void SFlareShipList::AddFleet(UFlareFleet* Fleet)
 	TargetListData.AddUnique(FInterfaceContainer::New(Fleet));
 }
 
-void SFlareShipList::AddShip(IFlareSpacecraftInterface* Ship)
+void SFlareShipList::AddShip(UFlareSimulatedSpacecraft* Ship)
 {
 	TargetListData.AddUnique(FInterfaceContainer::New(Ship));
 }
@@ -94,8 +94,8 @@ void SFlareShipList::RefreshList()
 		{
 			check(PtrA.IsValid());
 			check(PtrB.IsValid());
-			IFlareSpacecraftInterface* A = PtrA->ShipInterfacePtr;
-			IFlareSpacecraftInterface* B = PtrB->ShipInterfacePtr;
+			UFlareSimulatedSpacecraft* A = PtrA->ShipInterfacePtr;
+			UFlareSimulatedSpacecraft* B = PtrB->ShipInterfacePtr;
 
 			if (PtrA->FleetPtr)
 			{
