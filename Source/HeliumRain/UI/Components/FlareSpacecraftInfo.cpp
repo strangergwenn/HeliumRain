@@ -513,12 +513,14 @@ void SFlareSpacecraftInfo::OnFly()
 	FText Unused;
 	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown(Unused))
 	{
-		if(TargetSpacecraft->IsActive())
+		if (TargetSpacecraft->IsActive())
 		{
+			FLOGV("SFlareSpacecraftInfo::OnFly : flying active spacecraft '%s'", *TargetSpacecraft->GetImmatriculation().ToString());
 			PC->GetMenuManager()->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, TargetSpacecraft);
 		}
 		else
 		{
+			FLOGV("SFlareSpacecraftInfo::OnFly : activating sector for %s'", *TargetSpacecraft->GetImmatriculation().ToString());
 			UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
 			Sector->SetShipToFly(TargetSpacecraft);
 			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);

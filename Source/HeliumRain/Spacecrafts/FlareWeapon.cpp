@@ -29,9 +29,7 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
-
-	FLOG("UFlareWeapon::Initialize");
-
+	
 	// Destroy attached bombs
 	ClearBombs();
 	CurrentAmmo = 0;
@@ -47,7 +45,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 
 		CurrentAmmo = MaxAmmo - ShipComponentData.Weapon.FiredAmmo;
 
-		FLOGV("UFlareWeapon::Initialize IsBomb ? %d", ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb);
+		//FLOGV("UFlareWeapon::Initialize IsBomb ? %d", ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb);
 
 		if (ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
 		{
