@@ -410,17 +410,16 @@ UFlareSaveGame* AFlareGame::ReadSaveSlot(int32 Index)
 	UFlareSaveGame* Save = NULL;
 
 	// Prototype load
-	if(SaveGameSystem->DoesSaveGameExist(SaveFile))
+	if (SaveGameSystem->DoesSaveGameExist(SaveFile))
 	{
-		FLOG("Try load with prototype");
+		FLOG("AFlareGame::ReadSaveSlot : using JSON");
 		Save = SaveGameSystem->LoadGame(SaveFile);
 	}
-
-
+	
 	if (Save == NULL && UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
 	{
 		// Try legacy load
-		FLOG("Try load with legacy");
+		FLOG("AFlareGame::ReadSaveSlot : using legacy");
 		Save = Cast<UFlareSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveFile, 0));
 	}
 

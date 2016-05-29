@@ -79,7 +79,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Cancel", "Cancel"))
+				.Text(LOCTEXT("Back", "Back"))
 				.HelpText(LOCTEXT("CancelInfo", "Cancel and go back to the main menu"))
 				.Icon(FFlareStyleSet::GetIcon("Back_Button"))
 				.OnClicked(this, &SFlareNewGameMenu::OnExit)

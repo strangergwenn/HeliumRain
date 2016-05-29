@@ -373,7 +373,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	{
 		CurrentTarget = NULL;
 		Save(); // Save must be performed with the old pause state
-		FLOGV("%s save linear velocity : %s", *GetImmatriculation().ToString(), *GetData().LinearVelocity.ToString());
+		//FLOGV("%s save linear velocity : %s", *GetImmatriculation().ToString(), *GetData().LinearVelocity.ToString());
 	}
 
 	Airframe->SetSimulatePhysics(!Pause);
@@ -384,7 +384,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 
 	if (!Pause)
 	{
-		FLOGV("%s restore linear velocity : %s", *GetImmatriculation().ToString(), *GetData().LinearVelocity.ToString());
+		//FLOGV("%s restore linear velocity : %s", *GetImmatriculation().ToString(), *GetData().LinearVelocity.ToString());
 		Airframe->SetPhysicsLinearVelocity(GetData().LinearVelocity);
 		Airframe->SetPhysicsAngularVelocity(GetData().AngularVelocity);
 		SmoothedVelocity = GetLinearVelocity();
