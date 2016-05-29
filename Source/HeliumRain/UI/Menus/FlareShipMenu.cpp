@@ -531,7 +531,7 @@ void SFlareShipMenu::UpdateUpgradeBox()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("CurrentLevelInfo", "Levels act as a multiplier to all station characteristics - a higher level station is larger."))
+			.Text(LOCTEXT("CurrentLevelInfo", "Levels act as a multiplier to all station characteristics - a level 2 station acts like two level 1 stations."))
 		];
 
 		// Add resources
