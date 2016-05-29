@@ -838,7 +838,14 @@ void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
 	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
 	
-	SectorMenu->Enter(Sector);
+	if(!Sector && GetGame()->GetActiveSector())
+	{
+		SectorMenu->Enter(GetGame()->GetActiveSector()->GetSimulatedSector());
+	}
+	else
+	{
+		SectorMenu->Enter(Sector);
+	}
 
 	UseLightBackground();
 }
