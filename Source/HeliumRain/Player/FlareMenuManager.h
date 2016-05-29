@@ -177,7 +177,7 @@ protected:
 	virtual void InspectCompany(UFlareCompany* Target);
 
 	/** Fly this ship */
-	virtual void FlyShip(AFlareSpacecraft* Target);
+	virtual void FlyShip(UFlareSimulatedSpacecraft* Target);
 
 	/** Activate a sector */
 	virtual void ActivateSector(UFlareSimulatedSector* Target);

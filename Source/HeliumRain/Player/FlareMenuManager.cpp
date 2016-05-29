@@ -615,7 +615,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_FlyShip:
-			FlyShip(Cast<AFlareSpacecraft>(FadeTargetSpacecraft));
+			FlyShip(Cast<UFlareSimulatedSpacecraft>(FadeTargetSpacecraft));
 			break;
 
 		case EFlareMenu::MENU_ActivateSector:
@@ -758,14 +758,14 @@ void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
 	UseLightBackground();
 }
 
-void AFlareMenuManager::FlyShip(AFlareSpacecraft* Target)
+void AFlareMenuManager::FlyShip(UFlareSimulatedSpacecraft* Target)
 {
 	ExitMenu();
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && Target->IsValidLowLevel())
 	{
-		PC->FlyShip(Target);
+		PC->FlyShip(Target->GetActive());
 		MenuIsOpen = false;
 	}
 }
