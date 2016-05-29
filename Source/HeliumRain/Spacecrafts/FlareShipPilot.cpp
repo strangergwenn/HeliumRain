@@ -351,7 +351,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
 
-	FLOGV("%s Location = %s LinearTargetVelocity = %s",  *Ship->GetImmatriculation().ToString(), * Ship->GetActorLocation().ToString(),	 *LinearTargetVelocity.ToString());
+	//FLOGV("%s Location = %s LinearTargetVelocity = %s",  *Ship->GetImmatriculation().ToString(), * Ship->GetActorLocation().ToString(),	 *LinearTargetVelocity.ToString());
 }
 
 void UFlareShipPilot::FighterPilot(float DeltaSeconds)
