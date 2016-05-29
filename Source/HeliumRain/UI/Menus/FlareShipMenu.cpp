@@ -494,7 +494,7 @@ void SFlareShipMenu::UpdateUpgradeBox()
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UpgradeBox->ClearChildren();
 
-	if(!SimulatedSpacecraft || !SimulatedSpacecraft->IsStation())
+	if (!SimulatedSpacecraft || !SimulatedSpacecraft->IsStation())
 	{
 		return;
 	}
@@ -506,23 +506,33 @@ void SFlareShipMenu::UpdateUpgradeBox()
 	[
 		SNew(STextBlock)
 		.TextStyle(&Theme.SubTitleFont)
-		.Text(LOCTEXT("TitleUpgrade", "Upgrade"))
+		.Text(FText::Format(LOCTEXT("UpgradeTitleFormat", "Upgrade ({0}/{1})"),
+			FText::AsNumber(SimulatedSpacecraft->GetLevel()),
+			FText::AsNumber(SimulatedSpacecraft->GetDescription()->MaxLevel)))
 	];
 
-	if(SimulatedSpacecraft->GetLevel() >= SimulatedSpacecraft->GetDescription()->MaxLevel)
+	// Max level
+	if (SimulatedSpacecraft->GetLevel() >= SimulatedSpacecraft->GetDescription()->MaxLevel)
 	{
-		// Max level
 		UpgradeBox->AddSlot()
 		.AutoHeight()
 		.Padding(Theme.TitlePadding)
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("MaxLevel", "The station is at the max level."))
+			.Text(LOCTEXT("MaxLevelInfo", "This station has reached the maximum level."))
 		];
 	}
 	else
 	{
+		UpgradeBox->AddSlot()
+		.AutoHeight()
+		.Padding(Theme.TitlePadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(LOCTEXT("CurrentLevelInfo", "Levels act as a multiplier to all station characteristics - a higher level station is larger."))
+		];
 
 		// Add resources
 		FString ResourcesString;
@@ -533,41 +543,27 @@ void SFlareShipMenu::UpdateUpgradeBox()
 		}
 
 		// Final text
-		FText ProductionCost = FText::Format(LOCTEXT("UpgradeCostFormat", "Level {0}/{1}. Upgrade for {2} credits and {3}"),
-			FText::AsNumber(SimulatedSpacecraft->GetLevel()),
-			FText::AsNumber(SimulatedSpacecraft->GetDescription()->MaxLevel),
+		FText ProductionCost = FText::Format(LOCTEXT("UpgradeCostFormat", "Upgrade to level {0} ({1} credits{2})"),
+			FText::AsNumber(SimulatedSpacecraft->GetLevel() + 1),
 			FText::AsNumber(UFlareGameTools::DisplayMoney(SimulatedSpacecraft->GetStationUpgradeFee())),
 			FText::FromString(ResourcesString));
 
 		// TODO increase stock inc cargo bay with level
-
-
-		// Upgrade cost
-		UpgradeBox->AddSlot()
-		.AutoHeight()
-		.Padding(Theme.TitlePadding)
-		[
-			SNew(STextBlock)
-			.TextStyle(&Theme.TextFont)
-			.Text(ProductionCost)
-		];
-
+		
 		// Upgrade button
 		UpgradeBox->AddSlot()
 		.AutoHeight()
 		.Padding(Theme.TitlePadding)
+		.HAlign(HAlign_Left)
 		[
-				SNew(SFlareButton)
-				.Width(10)
-				.Text(LOCTEXT("UpgradeStationInfo", "Upgrade this station"))
-				.Icon(FFlareStyleSet::GetIcon("Travel"))
-				.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked)
-				.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled)
+			SNew(SFlareButton)
+			.Width(10)
+			.Text(ProductionCost)
+			.Icon(FFlareStyleSet::GetIcon("Travel"))
+			.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked)
+			.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled)
 		];
 	}
-
-
-
 }
 
 void SFlareShipMenu::Back()

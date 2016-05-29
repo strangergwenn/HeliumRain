@@ -648,9 +648,9 @@ FText SFlareSpacecraftInfo::GetDescription() const
 		// TODO exclude shipyard
 		if(TargetSpacecraft && TargetSpacecraft->IsStation())
 		{
-			return FText::Format(LOCTEXT("DescriptionStationFormat", "({0} level {1})"),
-								 TargetSpacecraftDesc->Name,
-								 FText::AsNumber(TargetSpacecraft->GetLevel()));
+			return FText::Format(LOCTEXT("DescriptionStationFormat", "(Level {0} {1})"),
+				FText::AsNumber(TargetSpacecraft->GetLevel()),
+				TargetSpacecraftDesc->Name);
 		}
 		else
 		{
