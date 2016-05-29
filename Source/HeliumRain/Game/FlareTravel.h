@@ -3,8 +3,11 @@
 #include "Object.h"
 #include "FlareTravel.generated.h"
 
+
+struct FFlareSectorOrbitParameters;
 struct FFlareCelestialBody;
 class UFlareWorld;
+
 
 /** Travel save data */
 USTRUCT()

@@ -7,10 +7,16 @@
 #include "Planetarium/FlareSimulatedPlanetarium.h"
 #include "FlareWorld.generated.h"
 
-class UFlareSector;
+
+struct FFlareSectorSave;
+struct FFlareSectorDescription;
+
+class UFlareCompany;
 class UFlareFleet;
 class UFlareFactory;
-class UFlareCompany;
+class UFlareSector;
+class UFlareSimulatedSector;
+
 
 /** Hostility status */
 UENUM()
