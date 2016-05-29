@@ -192,7 +192,7 @@ bool AFlareMenuManager::IsOverlayOpen() const
 
 void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 {
-	FLOG("AFlareMenuManager::OpenMenu");
+	FLOGV("AFlareMenuManager::OpenMenu : %d", (Target - EFlareMenu::MENU_None));
 
 	// Filters
 	check(!IsSpacecraftMenu(Target));
@@ -216,7 +216,7 @@ void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 
 void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimulatedSpacecraft* Data)
 {
-	FLOG("AFlareMenuManager::OpenMenuSpacecraft");
+	FLOGV("AFlareMenuManager::OpenMenuSpacecraft : %d", (Target - EFlareMenu::MENU_None));
 
 	// Filters
 	check(IsSpacecraftMenu(Target));
@@ -263,7 +263,7 @@ bool AFlareMenuManager::IsMenuOpen() const
 
 void AFlareMenuManager::CloseMenu(bool HardClose)
 {
-	FLOG("AFlareMenuManager::CloseMenu");
+	FLOGV("AFlareMenuManager::CloseMenu : HardClose = %d", HardClose);
 	if (MenuIsOpen)
 	{
 		if (HardClose)
@@ -937,7 +937,6 @@ void AFlareMenuManager::ExitMenu()
 
 	CurrentMenu = EFlareMenu::MENU_None;
 	CloseMainOverlay();
-	CloseMenu();
 	GetPC()->OnExitMenu();
 }
 

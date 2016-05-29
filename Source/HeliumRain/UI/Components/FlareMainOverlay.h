@@ -79,6 +79,9 @@ public:
 	/** Go back */
 	void OnBack();
 
+	/** Close the menu */
+	void OnCloseMenu();
+
 
 protected:
 

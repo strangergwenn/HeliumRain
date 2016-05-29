@@ -173,7 +173,7 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 	// Reset data
 	if (PlayerShip != NewPlayerShip)
 	{
-		CockpitPowerTime = 0;
+		CockpitPowerTime = CockpitPowerPeriod;
 	}
 	PlayerShip = NewPlayerShip;
 

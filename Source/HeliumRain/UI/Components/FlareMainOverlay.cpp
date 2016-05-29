@@ -166,7 +166,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.Width(TitleButtonWidth)
 		.Height(TitleButtonHeight)
 		.Transparent(true)
-		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, EFlareMenu::MENU_Exit)
+		.OnClicked(this, &SFlareMainOverlay::OnCloseMenu)
 	];
 	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit), AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Exit));
 
@@ -415,6 +415,18 @@ void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
 void SFlareMainOverlay::OnBack()
 {
 	MenuManager->Back();
+}
+
+void SFlareMainOverlay::OnCloseMenu()
+{
+	if (MenuManager->IsMenuOpen())
+	{
+		MenuManager->CloseMenu();
+	}
+	else
+	{
+		MenuManager->CloseMainOverlay();
+	}
 }
 
 
