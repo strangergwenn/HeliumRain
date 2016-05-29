@@ -36,6 +36,9 @@ public:
 	/** Fly this ship */
 	virtual void FlyShip(AFlareSpacecraft* Ship, bool PossessNow = true);
 
+	/** Stop flying a ship */
+	virtual void ExitShip();
+
 	/** The world is ending. Literally. */
 	virtual void PrepareForExit();
 

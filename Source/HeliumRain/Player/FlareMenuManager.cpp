@@ -168,7 +168,10 @@ void AFlareMenuManager::OpenMainOverlay()
 	FLOG("AFlareMenuManager::CloseMainOverlay");
 
 	MainOverlay->Open();
-	GetPC()->GetNavHUD()->UpdateHUDVisibility();
+	if (GetPC()->GetNavHUD())
+	{
+		GetPC()->GetNavHUD()->UpdateHUDVisibility();
+	}
 }
 
 void AFlareMenuManager::CloseMainOverlay()
@@ -176,7 +179,10 @@ void AFlareMenuManager::CloseMainOverlay()
 	FLOG("AFlareMenuManager::CloseMainOverlay");
 
 	MainOverlay->Close();
-	GetPC()->GetNavHUD()->UpdateHUDVisibility();
+	if (GetPC()->GetNavHUD())
+	{
+		GetPC()->GetNavHUD()->UpdateHUDVisibility();
+	}
 }
 
 bool AFlareMenuManager::IsOverlayOpen() const
@@ -676,7 +682,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 	// Reset everything
 	FadeTargetData = NULL;
 	FadeTarget = EFlareMenu::MENU_None;
-	GetPC()->GetNavHUD()->UpdateHUDVisibility();
+	if (GetPC()->GetNavHUD())
+	{
+		GetPC()->GetNavHUD()->UpdateHUDVisibility();
+	}
 }
 
 AFlareGame* AFlareMenuManager::GetGame() const
@@ -691,8 +700,11 @@ AFlareGame* AFlareMenuManager::GetGame() const
 
 void AFlareMenuManager::OpenMainMenu()
 {
+	GetPC()->ExitShip();
+
 	ResetMenu();
 
+	CloseMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();

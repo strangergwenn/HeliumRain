@@ -246,8 +246,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	MenuManager->CloseMainOverlay();
 
 	// Combat groups
-	GetCompany()->GetAI()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
-	GetCompany()->GetAI()->ResetShipGroup(EFlareCombatTactic::ProtectMe);
+	Company->GetAI()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
+	Company->GetAI()->ResetShipGroup(EFlareCombatTactic::ProtectMe);
 
 	// Inform the player
 	if (Ship)
@@ -274,6 +274,11 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 
 		GetGame()->GetQuestManager()->OnFlyShip(Ship);
 	}
+}
+
+void AFlarePlayerController::ExitShip()
+{
+	ShipPawn = NULL;
 }
 
 void AFlarePlayerController::PrepareForExit()
@@ -490,7 +495,10 @@ void AFlarePlayerController::OnExitMenu()
 		SetSelectingWeapon();
 	}
 
-	GetNavHUD()->UpdateHUDVisibility();
+	if (GetNavHUD())
+	{
+		GetNavHUD()->UpdateHUDVisibility();
+	}
 }
 
 void AFlarePlayerController::SetWorldPause(bool Pause)
