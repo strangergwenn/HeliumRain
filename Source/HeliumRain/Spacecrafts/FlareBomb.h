@@ -70,18 +70,29 @@ public:
 	/** Properties setup */
 	void Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon);
 
-	/** Save the bomb to a save file */
-	virtual FFlareBombSave* Save();
-
-	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
-
-	virtual void Drop();
+	/** Launch the weapon */
+	virtual void OnLaunched();
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved,
+		FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
+
+	/** Spacecraft hit */
+	void OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal);
+
+	/** Bomb detonated */
+	void OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal);
+
+	/** Save the bomb to a save file */
+	virtual FFlareBombSave* Save();
+
+	/** Game pause */
+	virtual void SetPause(bool Paused);
+
+	/** Get the distance from the parent ship */
 	virtual float GetParentDistance() const;
 
-	virtual void SetPause(bool Paused);
 
 protected:
 

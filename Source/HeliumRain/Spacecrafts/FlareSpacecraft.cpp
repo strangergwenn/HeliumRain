@@ -49,13 +49,14 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
 
 	// Gameplay
-	CurrentTarget = NULL;
+	Paused = false;
+	LastMass = 0;
 	TargetIndex = 0;
 	TimeSinceSelection = 0;
 	MaxTimeBeforeSelectionReset = 3.0;
-	Paused = false;
-	LastMass = 0;
 	StateManager = NULL;
+	CurrentTarget = NULL;
+	HarpoonCompany = NULL;
 }
 
 
@@ -787,6 +788,13 @@ void AFlareSpacecraft::ApplyAsteroidData()
 			}
 		}
 	}
+}
+
+void AFlareSpacecraft::SetHarpooned(UFlareCompany* OwnerCompany)
+{
+	FLOGV("AFlareSpacecraft::SetHarpooned : %s harpooned by %s", *GetImmatriculation().ToString(), *OwnerCompany->GetCompanyName().ToString());
+	Harpooned = true;
+	HarpoonCompany = OwnerCompany;
 }
 
 UFlareSimulatedSector* AFlareSpacecraft::GetOwnerSector()

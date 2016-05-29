@@ -125,6 +125,9 @@ public:
 	/** Apply the current asteroid data */
 	void ApplyAsteroidData();
 
+	/** This ship was harpooned */
+	void SetHarpooned(UFlareCompany* OwnerCompany);
+
 	void UpdateDynamicComponents();
 
 	inline UFlareCargoBay* GetCargoBay() override
@@ -284,6 +287,10 @@ protected:
 	UFlareCargoBay*                                CargoBay;
 
 	bool										   InWarningZone;
+
+	bool                                           Harpooned;
+	UFlareCompany*                                 HarpoonCompany;
+
 
 	/*----------------------------------------------------
 		Target selection

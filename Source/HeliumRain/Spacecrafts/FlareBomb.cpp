@@ -9,13 +9,15 @@
 #include "FlareBomb.h"
 
 
+#define LOCTEXT_NAMESPACE "FlareBomb"
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
 
 AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
-	//FLOG("AFlareBomb");
 	// Mesh data
 	BombComp = PCIP.CreateDefaultSubobject<UFlareBombComponent>(this, TEXT("Root"));
 	BombComp->bTraceComplexOnMove = true;
@@ -25,8 +27,8 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 	BombComp->SetAngularDamping(0);
 	RootComponent = BombComp;
 
-	SetActorEnableCollision(false);
 	// Settings
+	SetActorEnableCollision(false);
 	PrimaryActorTick.bCanEverTick = true;
 	Paused = false;
 }
@@ -80,121 +82,15 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 	}
 }
 
-void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+void AFlareBomb::OnLaunched()
 {
-	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-	FLOG("AFlareBomb Hit");
+	FLOG("AFlareBomb::OnLaunched");
 
-	if (Other && OtherComp)
-	{
-		//TODO Investigate on NULL ParentWeapon
-		if (!ParentWeapon || Other == ParentWeapon->GetSpacecraft())
-		{
-			// Avoid auto hit
-			return;
-		}
-
-
-		AFlareBomb* BombCandidate = Cast<AFlareBomb>(Other);
-		if (BombCandidate)
-		{
-			// Avoid bomb hit
-			return;
-		}
-
-		// Spawn penetration effect
-		if (ExplosionEffectTemplate)
-		{
-			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
-				ExplosionEffectTemplate,
-				OtherComp,
-				NAME_None,
-				HitLocation,
-				HitNormal.Rotation(),
-				EAttachLocation::KeepWorldPosition,
-				true);
-			if (PSC)
-			{
-				PSC->SetWorldScale3D(FVector(1, 1, 1));
-			}
-		}
-
-		//TODO Explosion radius
-
-		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(Other);
-		AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(Other);
-		if (Spacecraft)
-		{
-			Spacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower , WeaponDescription->WeaponCharacteristics.AmmoDamageRadius, HitLocation, EFlareDamage::DAM_HEAT, ParentWeapon->GetSpacecraft()->GetCompany());
-
-
-			float ImpulseForce = 1000 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius;
-
-			FVector ImpulseDirection = (HitLocation - GetActorLocation()).GetUnsafeNormal();
-
-			// Physics impulse
-			Spacecraft->Airframe->AddImpulseAtLocation( ImpulseForce * ImpulseDirection, HitLocation);
-
-			// Play sound
-			AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
-			if (ShipBase && ShipBase->IsLocallyControlled())
-			{
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound, HitLocation, 1, 1);
-			}
-		}
-		else if (Asteroid)
-		{
-			float ImpulseForce = 1000 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius;
-
-			FVector ImpulseDirection = (HitLocation - GetActorLocation()).GetUnsafeNormal();
-
-			// Physics impulse
-			Asteroid->GetAsteroidComponent()->AddImpulseAtLocation( ImpulseForce * ImpulseDirection, HitLocation);
-		}
-
-		UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(OtherComp);
-		// Spawn impact decal
-		if (ShipComponent && ShipComponent->IsVisibleByPlayer() && ExplosionEffectMaterial)
-		{
-			// FX data
-			float DecalSize = FMath::FRandRange(50, 150);
-
-			UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
-				ExplosionEffectMaterial,
-				DecalSize * FVector(1, 1, 1),
-				ShipComponent,
-				NAME_None,
-				HitLocation,
-				HitNormal.Rotation(),
-				EAttachLocation::KeepWorldPosition,
-				120);
-
-			// Instanciate and configure the decal material
-			UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);
-			UMaterialInstanceDynamic* DecalMaterialInst = UMaterialInstanceDynamic::Create(DecalMaterial, GetWorld());
-			if (DecalMaterialInst)
-			{
-				DecalMaterialInst->SetScalarParameterValue("RandomParameter", FMath::FRandRange(1, 0));
-				Decal->SetMaterial(0, DecalMaterialInst);
-			}
-		}
-
-		ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
-		Destroy();
-	}
-
-
-}
-
-void AFlareBomb::Drop()
-{
-	FLOG("AFlareBomb Drop");
 	DetachRootComponentFromParent(true);
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterBomb(this);
 
-	FVector FrontVector = BombComp->ComponentToWorld.TransformVector(FVector(1,0,0));
-
 	// Spin to stabilize
+	FVector FrontVector = BombComp->ComponentToWorld.TransformVector(FVector(1, 0, 0));
 	BombComp->SetPhysicsAngularVelocity(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
 	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity() + FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity * 100);
 
@@ -207,11 +103,11 @@ void AFlareBomb::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// Activate after few centimeters
 	if (BombData.Dropped && !BombData.Activated)
 	{
-		if (GetParentDistance() > BombData.DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance*100)
+		if (GetParentDistance() > BombData.DropParentDistance + WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationDistance * 100)
 		{
-			// Activate after few centimeters
 			SetActorEnableCollision(true);
 			BombData.Activated = true;
 		}
@@ -233,24 +129,155 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
 			if (Distance > 500000 && BombData.LifeTime > 30)
 			{
-				Destroy();
-				PlayerShip->GetGame()->GetActiveSector()->UnregisterBomb(this);
+				OnBombDetonated(NULL, NULL, FVector(), FVector());
 			}
 
 			// Parent removed destroy
 			if (!ParentWeapon->IsValidLowLevel() || !ParentWeapon->GetSpacecraft()->IsValidLowLevel())
 			{
-				Destroy();
-				PlayerShip->GetGame()->GetActiveSector()->UnregisterBomb(this);
+				OnBombDetonated(NULL, NULL, FVector(), FVector());
 			}
 		}
 	}
 }
 
-
-float AFlareBomb::GetParentDistance() const
+void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
-	return (ParentWeapon->GetComponentLocation() - GetActorLocation()).Size();
+	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+	FLOG("AFlareBomb::NotifyHit");
+
+	AFlareBomb* BombCandidate = Cast<AFlareBomb>(Other);
+	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(Other);
+	AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(Other);
+	UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(OtherComp);
+
+	// Forget uninteresting hits
+	if (!Other || !OtherComp || !ParentWeapon || Other == ParentWeapon->GetSpacecraft() || BombCandidate)
+	{
+		FLOG("AFlareBomb::OnSpacecraftHit : invalid hit");
+		return;
+	}
+
+	// Spawn penetration effect
+	if (ExplosionEffectTemplate)
+	{
+		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
+			ExplosionEffectTemplate,
+			OtherComp,
+			NAME_None,
+			HitLocation,
+			HitNormal.Rotation(),
+			EAttachLocation::KeepWorldPosition,
+			true);
+		if (PSC)
+		{
+			PSC->SetWorldScale3D(FVector(1, 1, 1));
+		}
+	}
+
+	// Physics impulse
+	float ImpulseForce = 1000 * WeaponDescription->WeaponCharacteristics.ExplosionPower * WeaponDescription->WeaponCharacteristics.AmmoDamageRadius;
+	FVector ImpulseDirection = (HitLocation - GetActorLocation()).GetUnsafeNormal();
+
+	// Process damage
+	if (Spacecraft)
+	{
+		Spacecraft->Airframe->AddImpulseAtLocation(ImpulseForce * ImpulseDirection, HitLocation);
+		OnSpacecraftHit(Spacecraft, ShipComponent, HitLocation, NormalImpulse);
+	}
+	else if (Asteroid)
+	{
+		Asteroid->GetAsteroidComponent()->AddImpulseAtLocation(ImpulseForce * ImpulseDirection, HitLocation);
+	}
+
+	// Spawn impact decal
+	if (ShipComponent && ShipComponent->IsVisibleByPlayer() && ExplosionEffectMaterial)
+	{
+		// Spawn
+		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
+			ExplosionEffectMaterial,
+			FMath::FRandRange(50, 150) * FVector(1, 1, 1),
+			ShipComponent,
+			NAME_None,
+			HitLocation,
+			HitNormal.Rotation(),
+			EAttachLocation::KeepWorldPosition,
+			120);
+
+		// Instanciate and configure the decal material
+		UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);
+		UMaterialInstanceDynamic* DecalMaterialInst = UMaterialInstanceDynamic::Create(DecalMaterial, GetWorld());
+		if (DecalMaterialInst)
+		{
+			DecalMaterialInst->SetScalarParameterValue("RandomParameter", FMath::FRandRange(1, 0));
+			Decal->SetMaterial(0, DecalMaterialInst);
+		}
+	}
+
+	// Bomb has done its job, good job bomb
+	OnBombDetonated(Spacecraft, ShipComponent, HitLocation, ImpulseDirection);
+}
+
+void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal)
+{
+	FLOG("AFlareBomb::OnSpacecraftHit");
+	UFlareCompany* OwnerCompany = ParentWeapon->GetSpacecraft()->GetCompany();
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+
+	// Apply damage
+	HitSpacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower,
+		WeaponDescription->WeaponCharacteristics.AmmoDamageRadius,
+		HitLocation,
+		EFlareDamage::DAM_HEAT,
+		ParentWeapon->GetSpacecraft()->GetCompany());
+
+	// Play sound
+	if (HitSpacecraft->IsLocallyControlled())
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound, HitLocation, 1, 1);
+	}
+
+	// Ship salvage
+	if (!HitSpacecraft->IsStation() && (
+		WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::S
+	 || WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::L))
+	{
+		FLOGV("AFlareBomb::OnSpacecraftHit : salvaging %s for %s", *HitSpacecraft->GetImmatriculation().ToString(), *OwnerCompany->GetCompanyName().ToString());
+		HitSpacecraft->SetHarpooned(OwnerCompany);
+
+		if (OwnerCompany == PC->GetCompany())
+		{
+			PC->Notify(LOCTEXT("HeavyShipHarpooned", "Ship harpooned !"),
+				FText::Format(LOCTEXT("HeavyShipHarpoonedFormat", "If it is destroyed, you will retrieve {0} on the next day, if you are still in this sector."),
+					FText::FromString(HitSpacecraft->GetImmatriculation().ToString())),
+				FName("ship-harpooned"),
+				EFlareNotification::NT_Military,
+				10.0f,
+				EFlareMenu::MENU_Ship,
+				NULL,
+				HitSpacecraft->GetImmatriculation());
+		}
+	}
+}
+
+void AFlareBomb::OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal)
+{
+	// Unregister
+	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
+	
+	// Attach to the hull if it's a salvage harpoon
+	if (HitSpacecraft && !HitSpacecraft->IsStation() && HitComponent && WeaponDescription && (
+		WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::S
+	 || WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::L))
+	{
+		SetActorLocation(HitLocation);
+		SetActorRotation(InertialNormal.Rotation());
+		AttachRootComponentToActor(HitSpacecraft, "", EAttachLocation::KeepWorldPosition, true);
+	}
+	else
+	{
+		Destroy();
+	}
 }
 
 FFlareBombSave* AFlareBomb::Save()
@@ -281,16 +308,19 @@ void AFlareBomb::SetPause(bool Pause)
 		return;
 	}
 
-	CustomTimeDilation = (Pause ? 0.f : 1.0);
+	// On pause, save the state
 	if (Pause)
 	{
-		Save(); // Save must be performed with the old pause state
+		Save();
 	}
-	BombComp->SetSimulatePhysics(!Pause);
 
+	// Toggle pause
 	Paused = Pause;
 	SetActorHiddenInGame(Pause);
+	BombComp->SetSimulatePhysics(!Pause);
+	CustomTimeDilation = (Pause ? 0.f : 1.0);
 
+	// On unpause, restore physics
 	if (!Pause)
 	{
 		BombComp->SetPhysicsLinearVelocity(BombData.LinearVelocity);
@@ -301,3 +331,11 @@ void AFlareBomb::SetPause(bool Pause)
 		}
 	}
 }
+
+float AFlareBomb::GetParentDistance() const
+{
+	return (ParentWeapon->GetComponentLocation() - GetActorLocation()).Size();
+}
+
+
+#undef LOCTEXT_NAMESPACE

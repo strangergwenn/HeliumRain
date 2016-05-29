@@ -189,7 +189,7 @@ bool UFlareWeapon::FireBomb()
 	if (Bomb)
 	{
 		// TODO refill
-		Bomb->Drop();
+		Bomb->OnLaunched();
 		CurrentAmmo--;
 	}
 	return true;

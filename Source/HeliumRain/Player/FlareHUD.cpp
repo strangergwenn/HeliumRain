@@ -447,7 +447,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		FlareDrawText(TitleText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 2 * InstrumentLine;
 		FlareDrawText(InfoText.ToString(), CurrentPos, HealthColor, false);
-		CurrentPos += 2 * InstrumentLine;
+		CurrentPos += InstrumentLine;
 
 		// Weapon icon
 		if (CurrentWeaponGroup)
