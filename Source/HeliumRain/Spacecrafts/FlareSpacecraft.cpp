@@ -5,6 +5,7 @@
 #include "FlareOrbitalEngine.h"
 #include "FlareRCS.h"
 #include "FlareWeapon.h"
+#include "FlareShipPilot.h"
 #include "FlareInternalComponent.h"
 
 #include "Particles/ParticleSystemComponent.h"
@@ -13,6 +14,8 @@
 #include "../Game/FlareGame.h"
 #include "../Game/FlareAsteroid.h"
 #include "../Game/AI/FlareCompanyAI.h"
+
+#include "../UI/Menus/FlareShipMenu.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraft"
