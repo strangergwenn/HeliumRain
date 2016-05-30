@@ -35,7 +35,8 @@ AFlareMenuManager* AFlareMenuManager::Singleton;
 AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, MenuIsOpen(false)
-	, FadeDuration(0.20)
+	, FadeFromBlack(true)
+	, FadeDuration(0.3)
 {
 }
 
@@ -606,6 +607,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 			OpenNewGameMenu();
 			break;
 
+		case EFlareMenu::MENU_LoadGame:
+			LoadGame();
+			break;
+
 		case EFlareMenu::MENU_Story:
 			OpenStoryMenu();
 			break;
@@ -730,6 +735,23 @@ void AFlareMenuManager::OpenNewGameMenu()
 	GetPC()->OnEnterMenu();
 	NewGameMenu->Enter();
 	UseLightBackground();
+}
+
+void AFlareMenuManager::LoadGame()
+{
+	ExitMenu();
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	PC->GetGame()->LoadGame(PC);
+	UFlareSimulatedSpacecraft* CurrentShip = PC->GetLastFlownShip();
+
+	if (CurrentShip)
+	{
+		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
+		Sector->SetShipToFly(CurrentShip);
+		PC->GetGame()->ActivateSector(PC, Sector);
+		MenuIsOpen = false;
+	}
 }
 
 void AFlareMenuManager::OpenStoryMenu()

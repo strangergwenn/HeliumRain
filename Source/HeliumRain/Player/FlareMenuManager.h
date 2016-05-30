@@ -170,6 +170,9 @@ protected:
 	/** Open the new game menu */
 	virtual void OpenNewGameMenu();
 
+	/** Load the game */
+	virtual void LoadGame();
+
 	/** Open the story menu */
 	virtual void OpenStoryMenu();
 
@@ -292,7 +295,7 @@ public:
 
 	static inline int32 GetMainOverlayHeight()
 	{
-		return 128;
+		return 135;
 	}
 
 	TSharedPtr<SFlareShipMenu>	GetShipMenu()

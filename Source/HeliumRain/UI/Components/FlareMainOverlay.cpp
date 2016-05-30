@@ -22,7 +22,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TitleButtonWidth = 2.0f;
-	TitleButtonHeight = 2.666667f;
+	TitleButtonHeight = 2.8f;
 
 	// Create the layout
 	ChildSlot

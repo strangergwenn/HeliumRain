@@ -22,7 +22,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
 	SaveSlotToDelete = -1;
-
+	
 	// Build structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
@@ -305,21 +305,10 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 	if (PC && Game)
 	{
 		Game->SetCurrentSlot(*Index);
-
-		// Load the world
 		if (Game->DoesSaveSlotExist(*Index))
 		{
-			Game->LoadGame(PC);
-			UFlareSimulatedSpacecraft* CurrentShip = PC->GetLastFlownShip();
-			if (CurrentShip)
-			{
-				UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
-				Sector->SetShipToFly(CurrentShip);
-				MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
-			}
+			MenuManager->OpenMenu(EFlareMenu::MENU_LoadGame);
 		}
-
-		// Create the world
 		else
 		{
 			MenuManager->OpenMenu(EFlareMenu::MENU_NewGame);

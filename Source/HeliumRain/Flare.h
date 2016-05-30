@@ -19,15 +19,18 @@ namespace EFlareMenu
 		MENU_None,
 		MENU_Main,
 		MENU_NewGame,
-		MENU_Story,
-		MENU_Company,
+
+		MENU_LoadGame,
 		MENU_FlyShip,
 		MENU_ActivateSector,
+		MENU_Undock,
+
+		MENU_Story,
+		MENU_Company,
 		MENU_Fleet,
 		MENU_Ship,
 		MENU_ShipConfig,
 		MENU_Station,
-		MENU_Undock,
 		MENU_Sector,
 		MENU_Trade,
 		MENU_TradeRoute,
@@ -37,6 +40,7 @@ namespace EFlareMenu
 		MENU_WorldEconomy,
 		MENU_Settings,
 		MENU_Credits,
+
 		MENU_Quit,
 		MENU_Exit
 	};
