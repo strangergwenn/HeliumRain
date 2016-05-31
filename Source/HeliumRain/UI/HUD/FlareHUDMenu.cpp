@@ -328,7 +328,7 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 FText SFlareHUDMenu::GetInfoText() const
 {
-	if (TargetShip && !MenuManager->GetPC()->UseCockpit && MenuManager->GetPC()->GetGame()->GetActiveSector())
+	if (TargetShip && Cast<AFlareSpacecraft>(TargetShip) && !MenuManager->GetPC()->UseCockpit && MenuManager->GetPC()->GetGame()->GetActiveSector())
 	{
 		FText ModeText;
 		FText AutopilotText;

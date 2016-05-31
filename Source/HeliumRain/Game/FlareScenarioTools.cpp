@@ -116,7 +116,7 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	FLOG("UFlareScenarioTools::GenerateFighterScenario");
 
 	SetupWorld();
-	CreatePlayerShip(ShoreOfIce, "ship-ghoul");
+	CreatePlayerShip(FirstLight, "ship-ghoul");
 }
 
 void UFlareScenarioTools::GenerateFreighterScenario()
@@ -124,7 +124,7 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	FLOG("UFlareScenarioTools::GenerateFreighterScenario");
 
 	SetupWorld();
-	CreatePlayerShip(ShoreOfIce, "ship-omen");
+	CreatePlayerShip(FirstLight, "ship-omen");
 }
 
 void UFlareScenarioTools::GenerateDebugScenario()
