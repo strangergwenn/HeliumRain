@@ -31,9 +31,12 @@ public:
 	/** Destroy the sector */
 	virtual void DestroySector();
 
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
+
+	AStaticMeshActor* AddDebris(UStaticMesh* Mesh);
 
 	AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
 
@@ -63,7 +66,8 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-	UFlareSimulatedSector*      ParentSector;
+
+	UFlareSimulatedSector*         ParentSector;
 
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorStations;
@@ -73,18 +77,22 @@ protected:
 
 	UPROPERTY()
 	TArray<AFlareSpacecraft*>      SectorSpacecrafts;
+	
+	UPROPERTY()
+	TArray<AFlareAsteroid*>        SectorAsteroids;
+	UPROPERTY()
+	TArray<AStaticMeshActor*>      SectorDebrisField;
+	UPROPERTY()
+	TArray<AFlareBomb*>            SectorBombs;
+	UPROPERTY()
+	TArray<AFlareShell*>           SectorShells;
 
-	UPROPERTY()
-	TArray<AFlareAsteroid*>      SectorAsteroids;
-	UPROPERTY()
-	TArray<AFlareBomb*>      SectorBombs;
-	UPROPERTY()
-	TArray<AFlareShell*>      SectorShells;
+	int64						   LocalTime;
+	bool						   SectorRepartitionCache;
+	FVector                        SectorCenter;
+	float                          SectorRadius;
 
-	int64						  LocalTime;
-	bool						  SectorRepartitionCache;
-	FVector                       SectorCenter;
-	float                         SectorRadius;
+
 public:
 
 	/*----------------------------------------------------

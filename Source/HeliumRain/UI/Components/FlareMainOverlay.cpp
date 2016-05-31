@@ -64,6 +64,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 							// Title icon
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
+							.VAlign(VAlign_Top)
 							[
 								SNew(SImage)
 								.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)

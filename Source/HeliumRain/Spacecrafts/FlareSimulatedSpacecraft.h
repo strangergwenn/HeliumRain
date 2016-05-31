@@ -1,7 +1,7 @@
-
 #pragma once
 
 #include "Object.h"
+#include "../Game/FlareSimulatedSector.h"
 #include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "Subsystems/FlareSimulatedSpacecraftNavigationSystem.h"
 #include "Subsystems/FlareSimulatedSpacecraftDockingSystem.h"

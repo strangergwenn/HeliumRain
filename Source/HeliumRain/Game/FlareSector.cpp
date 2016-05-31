@@ -2,6 +2,7 @@
 #include "FlareGame.h"
 #include "FlareSector.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "StaticMeshResources.h"
 
 // TODO rework
 
@@ -23,11 +24,10 @@ UFlareSector::UFlareSector(const FObjectInitializer& ObjectInitializer)
 void UFlareSector::Load(UFlareSimulatedSector* Parent)
 {
 	DestroySector();
-
 	ParentSector = Parent;
-
 	LocalTime = Parent->GetData()->LocalTime;
 
+	// Load asteroids
 	for (int i = 0 ; i < ParentSector->GetData()->AsteroidData.Num(); i++)
 	{
 		LoadAsteroid(ParentSector->GetData()->AsteroidData[i]);
@@ -61,9 +61,24 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 		SectorSpacecrafts[i]->Redock();
 	}
 
+	// Load bombs
 	for (int i = 0 ; i < ParentSector->GetData()->BombData.Num(); i++)
 	{
 		LoadBomb(ParentSector->GetData()->BombData[i]);
+	}
+
+	// Spawn debris field
+	UFlareAsteroidCatalog* DebrisFieldInfo = ParentSector->GetDescription()->DebrisFieldCatalog;
+	if (DebrisFieldInfo)
+	{
+		int32 DebrisCount = 100 * ParentSector->GetDescription()->DebrisFieldIntensity;
+		FLOGV("UFlareSector::Load : Spawning debris field, size = %d", DebrisCount);
+
+		for (int32 Index = 0; Index < DebrisCount; Index++)
+		{
+			int32 DebrisIndex = FMath::RandRange(0, DebrisFieldInfo->Asteroids.Num() - 1);
+			AddDebris(DebrisFieldInfo->Asteroids[DebrisIndex]);
+		}
 	}
 }
 
@@ -108,6 +123,11 @@ void UFlareSector::DestroySector()
 		SectorBombs[BombIndex]->Destroy();
 	}
 
+	for (int DebrisIndex = 0; DebrisIndex < SectorDebrisField.Num(); DebrisIndex++)
+	{
+		SectorDebrisField[DebrisIndex]->Destroy();
+	}
+
 	for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
 	{
 		SectorAsteroids[AsteroidIndex]->Destroy();
@@ -122,6 +142,7 @@ void UFlareSector::DestroySector()
 	SectorShips.Empty();
 	SectorStations.Empty();
 	SectorBombs.Empty();
+	SectorDebrisField.Empty();
 	SectorAsteroids.Empty();
 	SectorShells.Empty();
 }
@@ -131,6 +152,56 @@ void UFlareSector::DestroySector()
 	Gameplay
 ----------------------------------------------------*/
 
+AStaticMeshActor* UFlareSector::AddDebris(UStaticMesh* Mesh)
+{
+	FActorSpawnParameters Params;
+	Params.bNoFail = false;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
+
+	// Compute size, location and rotation
+	float MinSize = 0.2;
+	float MaxSize = 5.0;
+	float Size = FMath::FRandRange(MinSize, MaxSize);
+	FVector Location = FMath::VRand() * 1000 * 100 * FMath::FRandRange(0.2, 1.0);
+	FRotator Rotation = FRotator(FMath::FRandRange(0, 360), FMath::FRandRange(0, 360), FMath::FRandRange(0, 360));
+	
+	// Spawn
+	AStaticMeshActor* DebrisMesh = GetGame()->GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), Location, Rotation, Params);
+	DebrisMesh->SetMobility(EComponentMobility::Movable);
+	DebrisMesh->SetActorScale3D(Size * FVector(1, 1, 1));
+	DebrisMesh->SetActorEnableCollision(true);
+
+	// Setup
+	UStaticMeshComponent* DebrisComponent = DebrisMesh->GetStaticMeshComponent();
+	if (DebrisComponent)
+	{
+		DebrisComponent->SetStaticMesh(Mesh);
+		DebrisComponent->SetSimulatePhysics(true);
+		DebrisComponent->SetCollisionProfileName("BlockAllDynamic");
+
+		// Set material
+		UMaterialInstanceDynamic* DebrisMaterial = UMaterialInstanceDynamic::Create(DebrisComponent->GetMaterial(0), DebrisComponent->GetWorld());
+		if (DebrisMaterial && DebrisComponent->StaticMesh)
+		{
+			for (int32 LodIndex = 0; LodIndex < DebrisComponent->StaticMesh->RenderData->LODResources.Num(); LodIndex++)
+			{
+				DebrisComponent->SetMaterial(LodIndex, DebrisMaterial);
+			}
+			DebrisMaterial->SetScalarParameterValue("IceMask", ParentSector->GetDescription()->IsIcy);
+		}
+		else
+		{
+			FLOGV("UFlareSector::AddDebris : failed to set material")
+		}
+	}
+	else
+	{
+		FLOGV("UFlareSector::AddDebris : failed to create debris")
+	}
+
+	SectorDebrisField.Add(DebrisMesh);
+	return DebrisMesh;
+}
 
 AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
 {
@@ -424,6 +495,12 @@ void UFlareSector::SetPause(bool Pause)
 	for (int i = 0 ; i < SectorBombs.Num(); i++)
 	{
 		SectorBombs[i]->SetPause(Pause);
+	}
+
+	for (int i = 0; i < SectorDebrisField.Num(); i++)
+	{
+		// TODO Gwenn
+		//SectorDebrisField[i]->SetPause(Pause);
 	}
 
 	for (int i = 0 ; i < SectorAsteroids.Num(); i++)

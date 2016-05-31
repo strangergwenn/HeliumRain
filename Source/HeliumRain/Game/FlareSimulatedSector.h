@@ -2,8 +2,9 @@
 #pragma once
 
 #include "Object.h"
-#include "../Spacecrafts/FlareBomb.h"
 #include "FlareAsteroid.h"
+#include "../Data/FlareAsteroidCatalog.h"
+#include "../Spacecrafts/FlareBomb.h"
 #include "../Economy/FlarePeople.h"
 #include "../Player/FlareSoundManager.h"
 #include "FlareSimulatedSector.generated.h"
@@ -55,20 +56,6 @@ namespace EFlareSectorBattleState
 	};
 }
 
-/** Resource price context */
-UENUM()
-namespace EFlareResourcePriceContext
-{
-	enum Type
-	{
-		Default, /** Default price */
-		FactoryInput, /** Price selling to a factory needing the resource */
-		FactoryOutput, /** Price buying the resource to a factory */
-		ConsumerConsumption, /** Price selling to a the people */
-		MaintenanceConsumption, /** Price selling to company using maintenance */
-	};
-}
-
 /** Sector description */
 USTRUCT()
 struct FFlareSectorDescription
@@ -114,6 +101,14 @@ struct FFlareSectorDescription
 	/** Track to play for this sector */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TEnumAsByte<EFlareMusicTrack::Type> LevelTrack;
+
+	/** Debris field catalog */
+	UPROPERTY(EditAnywhere, Category = Content)
+	class UFlareAsteroidCatalog* DebrisFieldCatalog;
+
+	/** Debris field intensity */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float DebrisFieldIntensity;
 
 };
 

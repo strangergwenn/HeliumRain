@@ -116,7 +116,7 @@ void UFlareScenarioTools::GenerateFighterScenario()
 	FLOG("UFlareScenarioTools::GenerateFighterScenario");
 
 	SetupWorld();
-	CreatePlayerShip(FirstLight, "ship-ghoul");
+	CreatePlayerShip(ShoreOfIce, "ship-ghoul");
 }
 
 void UFlareScenarioTools::GenerateFreighterScenario()
@@ -124,7 +124,7 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	FLOG("UFlareScenarioTools::GenerateFreighterScenario");
 
 	SetupWorld();
-	CreatePlayerShip(FirstLight, "ship-omen");	
+	CreatePlayerShip(ShoreOfIce, "ship-omen");
 }
 
 void UFlareScenarioTools::GenerateDebugScenario()
@@ -232,15 +232,15 @@ void UFlareScenarioTools::SetupWorld()
 void UFlareScenarioTools::SetupAsteroids()
 {
 	CreateAsteroids(FirstLight, 8, FVector(2, 3, 1));
-	CreateAsteroids(MinersHome, 45, FVector(3, 50, 1));
-	CreateAsteroids(TheDepths, 16, FVector(3, 10, 2));
+	CreateAsteroids(MinersHome, 45, FVector(13, 50, 5));
+	CreateAsteroids(TheDepths, 16, FVector(2, 10, 2));
 
-	CreateAsteroids(Outpost, 17, FVector(2, 20, 1));
-	CreateAsteroids(TheDig, 22, FVector(5, 50, 2));
+	CreateAsteroids(Outpost, 17, FVector(5, 20, 3));
+	CreateAsteroids(TheDig, 22, FVector(15, 50, 7));
 
 	CreateAsteroids(FrozenRealm, 16, FVector(5, 50, 2));
-	CreateAsteroids(ShoreOfIce, 27, FVector(2, 20, 1));
-	CreateAsteroids(Ruins, 10, FVector(2, 5, 1));
+	CreateAsteroids(ShoreOfIce, 9, FVector(8, 20, 3));
+	CreateAsteroids(Ruins, 10, FVector(3, 8, 2));
 }
 
 void UFlareScenarioTools::SetupArtifacts()

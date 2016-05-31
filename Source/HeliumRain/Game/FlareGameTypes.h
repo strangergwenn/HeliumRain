@@ -31,6 +31,20 @@ namespace EFlareCombatGroup
 	};
 }
 
+/** Resource price context */
+UENUM()
+namespace EFlareResourcePriceContext
+{
+	enum Type
+	{
+		Default, /** Default price */
+		FactoryInput, /** Price selling to a factory needing the resource */
+		FactoryOutput, /** Price buying the resource to a factory */
+		ConsumerConsumption, /** Price selling to a the people */
+		MaintenanceConsumption, /** Price selling to company using maintenance */
+	};
+}
+
 /** Combat tactics */
 UENUM()
 namespace EFlareCombatTactic
