@@ -1,10 +1,10 @@
 #include "../Flare.h"
 #include "FlareGame.h"
+#include "FlareSimulatedSector.h"
 #include "FlareSector.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
-#include "StaticMeshResources.h"
 
-// TODO rework
+#include "StaticMeshResources.h"
 
 
 /*----------------------------------------------------
@@ -68,16 +68,23 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 	}
 
 	// Spawn debris field
-	UFlareAsteroidCatalog* DebrisFieldInfo = ParentSector->GetDescription()->DebrisFieldCatalog;
+	const FFlareDebrisFieldInfo* DebrisFieldInfo = &ParentSector->GetDescription()->DebrisFieldInfo;
+	UFlareAsteroidCatalog* DebrisFieldMeshes = DebrisFieldInfo->DebrisCatalog;
 	if (DebrisFieldInfo)
 	{
-		int32 DebrisCount = 100 * ParentSector->GetDescription()->DebrisFieldIntensity;
+		float SectorScale = 5000 * 100;
+		int32 DebrisCount = 100 * DebrisFieldInfo->DebrisFieldDensity;
 		FLOGV("UFlareSector::Load : Spawning debris field, size = %d", DebrisCount);
 
 		for (int32 Index = 0; Index < DebrisCount; Index++)
 		{
-			int32 DebrisIndex = FMath::RandRange(0, DebrisFieldInfo->Asteroids.Num() - 1);
-			AddDebris(DebrisFieldInfo->Asteroids[DebrisIndex]);
+			int32 DebrisIndex = FMath::RandRange(0, DebrisFieldMeshes->Asteroids.Num() - 1);
+
+			float MinSize = DebrisFieldInfo->MinDebrisSize;
+			float MaxSize = DebrisFieldInfo->MaxDebrisSize;
+			float Size = FMath::FRandRange(MinSize, MaxSize);
+			
+			AddDebris(DebrisFieldMeshes->Asteroids[DebrisIndex], Size, SectorScale);
 		}
 	}
 }
@@ -152,17 +159,14 @@ void UFlareSector::DestroySector()
 	Gameplay
 ----------------------------------------------------*/
 
-AStaticMeshActor* UFlareSector::AddDebris(UStaticMesh* Mesh)
+AStaticMeshActor* UFlareSector::AddDebris(UStaticMesh* Mesh, float Size, float SectorScale)
 {
 	FActorSpawnParameters Params;
 	Params.bNoFail = false;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
 
 	// Compute size, location and rotation
-	float MinSize = 0.2;
-	float MaxSize = 5.0;
-	float Size = FMath::FRandRange(MinSize, MaxSize);
-	FVector Location = FMath::VRand() * 1000 * 100 * FMath::FRandRange(0.2, 1.0);
+	FVector Location = FMath::VRand() * SectorScale * FMath::FRandRange(0.2, 1.0);
 	FRotator Rotation = FRotator(FMath::FRandRange(0, 360), FMath::FRandRange(0, 360), FMath::FRandRange(0, 360));
 	
 	// Spawn

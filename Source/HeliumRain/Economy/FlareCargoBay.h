@@ -1,8 +1,11 @@
-
 #pragma once
+
 #include "FlareCargoBay.generated.h"
 
+
+struct FFlareCargo;
 struct FFlareResourceDescription;
+
 
 UCLASS()
 class HELIUMRAIN_API UFlareCargoBay : public UObject

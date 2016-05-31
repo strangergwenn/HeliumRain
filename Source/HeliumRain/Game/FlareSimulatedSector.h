@@ -56,6 +56,29 @@ namespace EFlareSectorBattleState
 	};
 }
 
+/** Debris field settings */
+USTRUCT()
+struct FFlareDebrisFieldInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Debris mesh catalog */
+	UPROPERTY(EditAnywhere, Category = Content)
+	class UFlareAsteroidCatalog* DebrisCatalog;
+
+	/** Debris field intensity */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float DebrisFieldDensity;
+
+	/** Debris size */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float MinDebrisSize;
+
+	/** Debris size */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float MaxDebrisSize;
+};
+
 /** Sector description */
 USTRUCT()
 struct FFlareSectorDescription
@@ -104,11 +127,7 @@ struct FFlareSectorDescription
 
 	/** Debris field catalog */
 	UPROPERTY(EditAnywhere, Category = Content)
-	class UFlareAsteroidCatalog* DebrisFieldCatalog;
-
-	/** Debris field intensity */
-	UPROPERTY(EditAnywhere, Category = Content)
-	float DebrisFieldIntensity;
+	FFlareDebrisFieldInfo DebrisFieldInfo;
 
 };
 
