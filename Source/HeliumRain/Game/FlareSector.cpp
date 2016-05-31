@@ -83,8 +83,10 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 			float MinSize = DebrisFieldInfo->MinDebrisSize;
 			float MaxSize = DebrisFieldInfo->MaxDebrisSize;
 			float Size = FMath::FRandRange(MinSize, MaxSize);
+
+			FName Name = FName(*(FString::Printf(TEXT("Debris%d"), Index)));
 			
-			AddDebris(DebrisFieldMeshes->Asteroids[DebrisIndex], Size, SectorScale);
+			AddDebris(DebrisFieldMeshes->Asteroids[DebrisIndex], Size, SectorScale, Name);
 		}
 	}
 }
@@ -159,9 +161,10 @@ void UFlareSector::DestroySector()
 	Gameplay
 ----------------------------------------------------*/
 
-AStaticMeshActor* UFlareSector::AddDebris(UStaticMesh* Mesh, float Size, float SectorScale)
+AStaticMeshActor* UFlareSector::AddDebris(UStaticMesh* Mesh, float Size, float SectorScale, FName Name)
 {
 	FActorSpawnParameters Params;
+	Params.Name = Name;
 	Params.bNoFail = false;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
 

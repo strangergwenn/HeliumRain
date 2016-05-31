@@ -36,7 +36,7 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
-	AStaticMeshActor* AddDebris(UStaticMesh* Mesh, float Debris, float SectorScale);
+	AStaticMeshActor* AddDebris(UStaticMesh* Mesh, float Debris, float SectorScale, FName Name);
 
 	AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
 

@@ -211,10 +211,21 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 		return;
 	}
 
+	// No primitive component, ignore
 	UPrimitiveComponent* OtherRoot = Cast<UPrimitiveComponent>(Other->GetRootComponent());
 	if (!OtherRoot)
 	{
 		return;
+	}
+
+	// Ignore debris
+	AStaticMeshActor* OtherActor = Cast<AStaticMeshActor>(Other);
+	if (OtherActor)
+	{
+		if (OtherActor->GetName().StartsWith("Debris"))
+		{
+			return;
+		}
 	}
 
 	// Relative velocity
