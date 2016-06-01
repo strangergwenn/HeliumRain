@@ -86,12 +86,14 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 	{
 		USceneComponent* RootComponent = Player->GetRootComponent();
 
-		MusicPlayer.Sound->AttachTo(RootComponent);
+		FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+
+		MusicPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		MusicPlayer.Sound->SetSound(NULL);
 
-		PowerPlayer.Sound->AttachTo(RootComponent);
-		EnginePlayer.Sound->AttachTo(RootComponent);
-		RCSPlayer.Sound->AttachTo(RootComponent);
+		PowerPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
+		EnginePlayer.Sound->AttachToComponent(RootComponent, AttachRules);
+		RCSPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 	}
 }
 

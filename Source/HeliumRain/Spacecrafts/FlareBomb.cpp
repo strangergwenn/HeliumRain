@@ -272,7 +272,7 @@ void AFlareBomb::OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 	{
 		SetActorLocation(HitLocation);
 		SetActorRotation(InertialNormal.Rotation());
-		AttachRootComponentToActor(HitSpacecraft, "", EAttachLocation::KeepWorldPosition, true);
+		AttachToActor(HitSpacecraft, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
 	}
 	else
 	{
@@ -327,7 +327,7 @@ void AFlareBomb::SetPause(bool Pause)
 		BombComp->SetPhysicsAngularVelocity(BombData.AngularVelocity);
 		if (!BombData.Dropped && ParentWeapon)
 		{
-			AttachRootComponentToActor(ParentWeapon->GetSpacecraft(),"", EAttachLocation::KeepWorldPosition, true);
+			AttachToActor(ParentWeapon->GetSpacecraft(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
 		}
 	}
 }

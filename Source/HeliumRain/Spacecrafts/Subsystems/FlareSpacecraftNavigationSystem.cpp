@@ -701,7 +701,7 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(UFlareSimulatedSpacecraft* Do
 		AFlareSpacecraft* Station = DockStation->GetActive();
 		if (Station)
 		{
-			Spacecraft->AttachRootComponentToActor(Station,"", EAttachLocation::KeepWorldPosition, true);
+			Spacecraft->AttachToActor(Station, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
 		}
 
 		// Cut engines

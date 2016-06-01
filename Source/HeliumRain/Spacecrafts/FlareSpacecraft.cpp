@@ -38,7 +38,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	RootComponent = Airframe;
 
 	// Camera settings
-	CameraContainerYaw->AttachTo(Airframe);
+	CameraContainerYaw->AttachToComponent(Airframe, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 	CameraMaxPitch = 80;
 	CameraPanSpeed = 2;
 
@@ -821,19 +821,19 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 		{
 			Component->SetChildActorClass(*(CurrentState->StateTemplates[TemplateIndex]->GeneratedClass));
 
-			if (Component->ChildActor)
+			if (Component->GetChildActor())
 			{
-				TArray<UActorComponent*> SubDynamicComponents = Component->ChildActor->GetComponentsByClass(UChildActorComponent::StaticClass());
+				TArray<UActorComponent*> SubDynamicComponents = Component->GetChildActor()->GetComponentsByClass(UChildActorComponent::StaticClass());
 				for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
 				{
 					UChildActorComponent* SubDynamicComponent = Cast<UChildActorComponent>(SubDynamicComponents[SubComponentIndex]);
 
-					if(SubDynamicComponent->ChildActor)
+					if(SubDynamicComponent->GetChildActor())
 					{
-						SubDynamicComponent->ChildActor->AttachRootComponentToActor(this,"", EAttachLocation::KeepWorldPosition, true);
-						SubDynamicComponent->ChildActor->SetOwner(this);
+						SubDynamicComponent->GetChildActor()->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
+						SubDynamicComponent->GetChildActor()->SetOwner(this);
 
-						UFlareSpacecraftComponent* ChildRootComponent = Cast<UFlareSpacecraftComponent>(SubDynamicComponent->ChildActor->GetRootComponent());
+						UFlareSpacecraftComponent* ChildRootComponent = Cast<UFlareSpacecraftComponent>(SubDynamicComponent->GetChildActor()->GetRootComponent());
 						if (ChildRootComponent)
 						{
 							FFlareSpacecraftComponentSave Data;
@@ -844,7 +844,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 					}
 				}
 
-				SubDynamicComponents = Component->ChildActor->GetComponentsByClass(UStaticMeshComponent::StaticClass());
+				SubDynamicComponents = Component->GetChildActor()->GetComponentsByClass(UStaticMeshComponent::StaticClass());
 				for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
 				{
 					UStaticMeshComponent* SubDynamicComponent = Cast<UStaticMeshComponent>(SubDynamicComponents[SubComponentIndex]);
@@ -854,7 +854,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 						USceneComponent* ParentDefaultAttachComponent = GetDefaultAttachComponent();
 						if (ParentDefaultAttachComponent)
 						{
-							SubDynamicComponent->AttachTo(ParentDefaultAttachComponent, "", EAttachLocation::KeepWorldPosition, true);
+							SubDynamicComponent->AttachToComponent(ParentDefaultAttachComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
 						}
 					}
 

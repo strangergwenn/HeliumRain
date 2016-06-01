@@ -84,7 +84,7 @@ void UFlareTurret::SetupComponentMesh()
 		 {
 			TurretComponent->SetParentSpacecraftComponent(this);
 			TurretComponent->RegisterComponent();
-			TurretComponent->AttachTo(this);
+			TurretComponent->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 			TurretComponent->SetStaticMesh(ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh);
 			TurretComponent->SetMaterial(0, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh->GetMaterial(0));
 			TurretComponent->Initialize(NULL, PlayerCompany, Spacecraft, false);
@@ -99,15 +99,15 @@ void UFlareTurret::SetupComponentMesh()
 		BarrelComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass());
 		 if (BarrelComponent)
 		 {
-			 BarrelComponent->SetParentSpacecraftComponent(this);
+			BarrelComponent->SetParentSpacecraftComponent(this);
 			BarrelComponent->RegisterComponent();
 			if (TurretComponent)
 			{
-				BarrelComponent->AttachTo(TurretComponent, FName("Axis"));
+				BarrelComponent->AttachToComponent(TurretComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), FName("Axis"));
 			}
 			else
 			{
-				BarrelComponent->AttachTo(this);
+				BarrelComponent->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 			}
 			BarrelComponent->SetStaticMesh(ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh);
 			BarrelComponent->SetMaterial(0, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh->GetMaterial(0));

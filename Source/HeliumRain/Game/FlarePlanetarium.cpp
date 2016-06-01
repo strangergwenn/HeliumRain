@@ -207,8 +207,8 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 	FLOGV("MoveCelestialBody %s AlignedLocation = %s", *Body->Name, *AlignedLocation.ToString());*/
 
 	// Find the celestial body component
-	TArray<UActorComponent*> Components = GetComponents();
 	UStaticMeshComponent* BodyComponent = NULL;
+	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UStaticMeshComponent* ComponentCandidate = Cast<UStaticMeshComponent>(Components[ComponentIndex]);

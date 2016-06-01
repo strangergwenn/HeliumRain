@@ -32,24 +32,24 @@ AFlareMenuPawn::AFlareMenuPawn(const class FObjectInitializer& PCIP)
 
 	// Dummy root to allow better configuration of the subparts
 	USceneComponent* SceneComponent = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("SceneComponent"));
-	CameraContainerYaw->AttachTo(SceneComponent);
+	CameraContainerYaw->AttachToComponent(SceneComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 	RootComponent = SceneComponent;
 
 	// Part container turnplate
 	PartContainer = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("PartContainer"));
-	PartContainer->AttachTo(RootComponent);
+	PartContainer->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 
 	// Create static mesh component for the part
 	CurrentPartA = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("PartA"));
 	CurrentPartA->SetStaticMesh(ConstructorStatics.CurrentPart.Get());
 	CurrentPartA->SetSimulatePhysics(false);
-	CurrentPartA->AttachTo(PartContainer);
+	CurrentPartA->AttachToComponent(PartContainer, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 
 	// Create static mesh component for the part
 	CurrentPartB = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("PartB"));
 	CurrentPartB->SetStaticMesh(ConstructorStatics.CurrentPart.Get());
 	CurrentPartB->SetSimulatePhysics(false);
-	CurrentPartB->AttachTo(PartContainer);
+	CurrentPartB->AttachToComponent(PartContainer, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 }
 
 
@@ -121,8 +121,9 @@ void AFlareMenuPawn::ShowShip(UFlareSimulatedSpacecraft* Spacecraft)
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// Spawn and setup the ship
+	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
 	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(Spacecraft->GetDescription()->Template->GeneratedClass, Params);
-	CurrentSpacecraft->AttachRootComponentToActor(this, NAME_None, EAttachLocation::SnapToTarget);
+	CurrentSpacecraft->AttachToActor(this, AttachRules, NAME_None);
 
 	// Setup rotation and scale
 	CurrentSpacecraft->SetActorScale3D(FVector(1, 1, 1));

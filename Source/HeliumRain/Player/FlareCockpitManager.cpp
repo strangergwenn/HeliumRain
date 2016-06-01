@@ -63,7 +63,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitLight->SetCastShadows(false);
 	CockpitLight->LightingChannels.bChannel0 = false;
 	CockpitLight->LightingChannels.bChannel1 = true;
-	CockpitLight->AttachTo(CockpitMesh);
+	CockpitLight->AttachToComponent(CockpitMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 
 	// Light 2
 	CockpitLight2 = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight2"));
@@ -73,7 +73,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitLight2->SetCastShadows(false);
 	CockpitLight2->LightingChannels.bChannel0 = false;
 	CockpitLight2->LightingChannels.bChannel1 = true;
-	CockpitLight2->AttachTo(CockpitMesh);
+	CockpitLight2->AttachToComponent(CockpitMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
@@ -256,6 +256,8 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 
 void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 {
+	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+
 	// Ensure we're not doing anything stupid
 	check(PC->UseCockpit);
 	check(CockpitMesh);
@@ -278,12 +280,12 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 
 	// Offset the cockpit
 #if FLARE_USE_COCKPIT_RENDERTARGET
-	CockpitCapture->AttachTo(TargetPlayerShip->GetRootComponent(), "Camera", EAttachLocation::SnapToTarget);
+	CockpitCapture->AttachToComponent(TargetPlayerShip->GetRootComponent(), AttachRules, "Camera");
 #endif
-	CockpitMesh->AttachTo(TargetPlayerShip->GetCamera(), NAME_None, EAttachLocation::SnapToTarget);
+	CockpitMesh->AttachToComponent(TargetPlayerShip->GetCamera(), AttachRules, NAME_None);
 
 	// FLIR camera
-	CockpitFLIRCapture->AttachTo(TargetPlayerShip->GetRootComponent(), "Dock", EAttachLocation::SnapToTarget);
+	CockpitFLIRCapture->AttachToComponent(TargetPlayerShip->GetRootComponent(), AttachRules, "Dock");
 
 	// General data
 	IsInCockpit = true;
@@ -381,7 +383,8 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 
 			if(FlirCameraFound)
 			{
-				CockpitFLIRCapture->AttachTo(PlayerShip->GetRootComponent(), BestCameraName, EAttachLocation::SnapToTarget);
+				FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+				CockpitFLIRCapture->AttachToComponent(PlayerShip->GetRootComponent(), AttachRules, BestCameraName);
 
 				FRotator CameraRotation = TargetDirection.Rotation();
 

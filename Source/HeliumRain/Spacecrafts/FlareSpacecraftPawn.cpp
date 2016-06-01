@@ -24,14 +24,16 @@ AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	, CameraDistanceStepAmount(0.5)
 	, Company(NULL)
 {
+	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+
 	// Camera containers
 	CameraContainerYaw = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("CameraContainerYaw"));
 	CameraContainerPitch = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("CameraContainerPitch"));
-	CameraContainerPitch->AttachTo(CameraContainerYaw);
+	CameraContainerPitch->AttachToComponent(CameraContainerYaw, AttachRules);
 	
 	// Camera component 
 	Camera = PCIP.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Camera"));
-	Camera->AttachTo(CameraContainerPitch);
+	Camera->AttachToComponent(CameraContainerPitch, AttachRules);
 }
 
 

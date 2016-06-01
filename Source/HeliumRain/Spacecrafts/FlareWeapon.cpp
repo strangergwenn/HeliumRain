@@ -343,7 +343,7 @@ void UFlareWeapon::FillBombs()
 		Params.bNoFail = true;
 
 		AFlareBomb* Bomb = GetWorld()->SpawnActor<AFlareBomb>(AFlareBomb::StaticClass(), BombLocation, Rotation.Rotator(), Params);
-		Bomb->AttachRootComponentToActor(Spacecraft,"", EAttachLocation::KeepWorldPosition, true);
+		Bomb->AttachToActor(Spacecraft, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
 		Bomb->Initialize(NULL, this);
 
 		Cast<class UPrimitiveComponent>(Bomb->GetRootComponent())->IgnoreActorWhenMoving(GetSpacecraft(), true);
@@ -429,7 +429,7 @@ void UFlareWeapon::OnAttachmentChanged()
 {
 	Super::OnAttachmentChanged();
 
-	if (!AttachParent)
+	if (!GetAttachParent())
 	{
 		ClearBombs();
 	}
