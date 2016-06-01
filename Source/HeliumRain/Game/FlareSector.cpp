@@ -198,12 +198,12 @@ AStaticMeshActor* UFlareSector::AddDebris(UStaticMesh* Mesh, float Size, float S
 		}
 		else
 		{
-			FLOGV("UFlareSector::AddDebris : failed to set material")
+			FLOG("UFlareSector::AddDebris : failed to set material")
 		}
 	}
 	else
 	{
-		FLOGV("UFlareSector::AddDebris : failed to create debris")
+		FLOG("UFlareSector::AddDebris : failed to create debris")
 	}
 
 	SectorDebrisField.Add(DebrisMesh);
