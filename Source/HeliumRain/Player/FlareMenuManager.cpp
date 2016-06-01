@@ -747,7 +747,7 @@ void AFlareMenuManager::LoadGame()
 	PC->GetGame()->LoadGame(PC);
 	UFlareSimulatedSpacecraft* CurrentShip = PC->GetLastFlownShip();
 
-	if (CurrentShip)
+	if (CurrentShip && CurrentShip->GetCurrentSector())
 	{
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
 		Sector->SetShipToFly(CurrentShip);
