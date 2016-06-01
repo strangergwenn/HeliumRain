@@ -5,7 +5,7 @@
 
 
 class AFlareMenuManager;
-class SFlareMainOverlay;
+class SFlareNotifier;
 
 
 /** Possible notification types */
@@ -35,7 +35,7 @@ class SFlareNotification : public SCompoundWidget
 	{}
 
 	SLATE_ARGUMENT(AFlareMenuManager*, MenuManager)
-	SLATE_ARGUMENT(SFlareMainOverlay*, Notifier)
+	SLATE_ARGUMENT(SFlareNotifier*, Notifier)
 	SLATE_ARGUMENT(EFlareNotification::Type, Type)
 	SLATE_ARGUMENT(FText, Text)
 	SLATE_ARGUMENT(FText, Info)
@@ -107,7 +107,7 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 
-	SFlareMainOverlay*                   Notifier;
+	SFlareNotifier*                      Notifier;
 
 	// Gameplay
 	float                                Lifetime;

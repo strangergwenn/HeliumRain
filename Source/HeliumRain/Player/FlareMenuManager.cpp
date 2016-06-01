@@ -64,6 +64,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 
 		// Create overlays
+		SAssignNew(Notifier, SFlareNotifier).MenuManager(this);
 		SAssignNew(MainOverlay, SFlareMainOverlay).MenuManager(this);
 		SAssignNew(Confirmation, SFlareConfirmationOverlay).MenuManager(this);
 		SAssignNew(SpacecraftOrder, SFlareSpacecraftOrderOverlay).MenuManager(this);
@@ -98,8 +99,9 @@ void AFlareMenuManager::SetupMenu()
 		// Register special menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainOverlay.ToSharedRef()),        55);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Confirmation.ToSharedRef()),       60);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),            90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SpacecraftOrder.ToSharedRef()),    70);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),           80);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),            90);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),              100);
 
 		// Setup regular menus
@@ -426,7 +428,7 @@ void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotifica
 	if (MainOverlay.IsValid())
 	{
 		OrbitMenu->StopFastForward();
-		MainOverlay->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo, TargetSpacecraft);
+		Notifier->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo, TargetSpacecraft);
 	}
 }
 
@@ -434,7 +436,7 @@ void AFlareMenuManager::FlushNotifications()
 {
 	if (MainOverlay.IsValid())
 	{
-		MainOverlay->FlushNotifications();
+		Notifier->FlushNotifications();
 	}
 }
 

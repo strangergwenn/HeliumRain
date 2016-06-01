@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "../Components/FlareNotification.h"
 
 
 class AFlareMenuManager;
@@ -50,13 +49,7 @@ public:
 
 	/** Is the overlay open */
 	bool IsOpen() const;
-
-	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo = NULL, FName TargetSpacecraft = NAME_None);
-
-	/** Remvoe all notifications from the screen */
-	void FlushNotifications();
-
+	
 
 	/*----------------------------------------------------
 		Callbacks
@@ -101,16 +94,6 @@ protected:
 	// Slate data
 	TSharedPtr<SBorder>                             Background;
 	TSharedPtr<SHorizontalBox>                      MenuList;
-	TArray< TSharedPtr<SFlareNotification> >        NotificationData;
-	TSharedPtr<SVerticalBox>                        NotificationContainer;
 
-
-public:
-
-	/*----------------------------------------------------
-		Getters
-	----------------------------------------------------*/
-
-	virtual bool IsFirstNotification(SFlareNotification* Notification);
 
 };
