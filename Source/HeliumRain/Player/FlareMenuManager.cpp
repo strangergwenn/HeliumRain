@@ -64,10 +64,10 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 
 		// Create overlays
-		SAssignNew(Notifier, SFlareNotifier).MenuManager(this);
 		SAssignNew(MainOverlay, SFlareMainOverlay).MenuManager(this);
 		SAssignNew(Confirmation, SFlareConfirmationOverlay).MenuManager(this);
 		SAssignNew(SpacecraftOrder, SFlareSpacecraftOrderOverlay).MenuManager(this);
+		SAssignNew(Notifier, SFlareNotifier).MenuManager(this).Visibility(EVisibility::SelfHitTestInvisible);
 
 		// Tooltip
 		SAssignNew(Tooltip, SFlareTooltip).MenuManager(this);

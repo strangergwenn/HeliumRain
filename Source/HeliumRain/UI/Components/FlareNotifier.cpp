@@ -20,12 +20,12 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	// Create the layout
 	ChildSlot
 	.VAlign(VAlign_Top)
-	.HAlign(HAlign_Fill)
+	.HAlign(HAlign_Right)
+	.Padding(FMargin(0, 200, 0, 0))
 	[
 		SNew(SBox)
 		.HeightOverride(800)
 		.VAlign(VAlign_Top)
-		.Visibility(EVisibility::SelfHitTestInvisible)
 		[
 			SNew(SVerticalBox)
 
@@ -46,8 +46,6 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 			]
 		]
 	];
-
-	SetVisibility(EVisibility::HitTestInvisible);
 }
 
 
@@ -73,20 +71,20 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 	// Add notification
 	TSharedPtr<SFlareNotification> NotificationEntry;
 	NotificationContainer->AddSlot()
-	.AutoHeight()
-	[
-		SAssignNew(NotificationEntry, SFlareNotification)
-		.MenuManager(MenuManager.Get())
-		.Notifier(this)
-		.Text(Text)
-		.Info(Info)
-		.Type(Type)
-		.Tag(Tag)
-		.Timeout(Timeout)
-		.TargetMenu(TargetMenu)
-		.TargetInfo(TargetInfo)
-		.TargetSpacecraft(TargetSpacecraft)
-	];
+		.AutoHeight()
+		[
+			SAssignNew(NotificationEntry, SFlareNotification)
+			.MenuManager(MenuManager.Get())
+			.Notifier(this)
+			.Text(Text)
+			.Info(Info)
+			.Type(Type)
+			.Tag(Tag)
+			.Timeout(Timeout)
+			.TargetMenu(TargetMenu)
+			.TargetInfo(TargetInfo)
+			.TargetSpacecraft(TargetSpacecraft)
+		];
 
 	// Store a reference to it
 	NotificationData.Add(NotificationEntry);
@@ -108,9 +106,9 @@ void SFlareNotifier::FlushNotifications()
 void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+	int32 NotificationCount = 0;
 
 	// Destroy notifications when they're done with the animation
-	int32 NotificationCount = 0;
 	for (auto& NotificationEntry : NotificationData)
 	{
 		if (NotificationEntry->IsFinished())
