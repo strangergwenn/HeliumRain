@@ -75,7 +75,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDFontLarge = HUDFontLargeObj.Object;
 
 	// Settings
-	FocusDistance = 1000000;
+	FocusDistance = 10000000;
 	IconSize = 24;
 	ShadowOffset = FVector2D(1, 1);
 	ShadowColor = FLinearColor(0.02, 0.02, 0.02, 1.0f);
@@ -705,9 +705,7 @@ void AFlareHUD::DrawHUDInternal()
 			}
 
 			// Draw search markers
-			if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE
-				&& !PlayerShip->GetStateManager()->IsExternalCamera()
-				&& ShouldDrawSearchMarker)
+			if (!PlayerShip->GetStateManager()->IsExternalCamera() && ShouldDrawSearchMarker)
 			{
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
 			}
