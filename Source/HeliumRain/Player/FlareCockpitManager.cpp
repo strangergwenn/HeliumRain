@@ -450,18 +450,18 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 			{
 				Intensity = 1;
 				float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex());
-				GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", PC->GetNavHUD()->GetHealthColor(ComponentHealth));
+				GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", PC->GetNavHUD()->GetHealthColor(ComponentHealth));
 			}
 		}
 
 		// Capital
 		else
 		{
-			GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", PC->GetNavHUD()->GetHealthColor(1));
+			GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", PC->GetNavHUD()->GetHealthColor(1));
 		}
 	}
 
-	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityLeft", Intensity);
+	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityRight", Intensity);
 }
 
 void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
@@ -479,7 +479,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 	if (PlayerShip->GetDamageSystem()->HasPowerOutage())
 	{
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", Theme.EnemyColor);
+		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", Theme.EnemyColor);
 	}
 
 	// Temperature
@@ -488,7 +488,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 		float Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
 		float OverheatTemperature = PlayerShip->GetDamageSystem()->GetOverheatTemperature();
 		FLinearColor TemperatureColor = PC->GetNavHUD()->GetTemperatureColor(Temperature, OverheatTemperature);
-		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", TemperatureColor);
+		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", TemperatureColor);
 	}
 
 	// Cockpit health
@@ -496,7 +496,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 	{
 		float ComponentHealth = PlayerShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport);
 		FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(ComponentHealth);
-		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", HealthColor);
+		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", HealthColor);
 	}
 }
 
