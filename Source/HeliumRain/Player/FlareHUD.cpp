@@ -359,7 +359,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 {
 	// Data
 	float CockpitIconSize = 20;
-	FVector2D CurrentPos = RightInstrument;
+	FVector2D CurrentPos = LeftInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
 	FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
@@ -396,12 +396,12 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	// Ship icon
 	int32 ShipIconSize = 80;
 	UTexture2D* ShipIcon = Cast<UTexture2D>(PlayerShip->GetParent()->GetDescription()->MeshPreviewBrush.GetResourceObject());
-	DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - ShipIconSize, 0), ShipIconSize, ShipIcon, Theme.FriendlyColor);
+	DrawHUDIcon(LeftInstrument + FVector2D(InstrumentSize.X - ShipIconSize, 0), ShipIconSize, ShipIcon, Theme.FriendlyColor);
 }
 
 void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 {
-	FVector2D CurrentPos = LeftInstrument;
+	FVector2D CurrentPos = RightInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Fighter version
@@ -453,7 +453,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		{
 			int32 WeaponIconSize = 80;
 			UTexture2D* WeaponIcon = Cast<UTexture2D>(CurrentWeaponGroup->Weapons[0]->GetDescription()->MeshPreviewBrush.GetResourceObject());
-			DrawHUDIcon(LeftInstrument + FVector2D(InstrumentSize.X - WeaponIconSize, 0), WeaponIconSize, WeaponIcon, Theme.FriendlyColor);
+			DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - WeaponIconSize, 0), WeaponIconSize, WeaponIcon, Theme.FriendlyColor);
 		}
 
 		// Weapon list
