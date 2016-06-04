@@ -27,7 +27,7 @@ UFlareAsteroidComponent::UFlareAsteroidComponent(const class FObjectInitializer&
 	// Settings
 	PrimaryComponentTick.bCanEverTick = true;
 	IsIcyAsteroid = true;
-	EffectsCount = FMath::RandRange(1, 5);
+	EffectsCount = FMath::RandRange(5, 10);
 	EffectsScale = 0.05;
 	EffectsUpdatePeriod = 0.17f;
 	EffectsUpdateTimer = 0;
