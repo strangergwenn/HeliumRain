@@ -30,7 +30,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> FighterCockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit_Fighter"));
 	FighterCockpitMeshTemplate = FighterCockpitMeshTemplateObj.Object;
-	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MT_Cockpit"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MI_Cockpit"));
 	CockpitMaterialTemplate = CockpitMaterialInstanceObj.Object;
 	static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MI_CockpitFrame"));
 	CockpitFrameMaterialTemplate = CockpitFrameMaterialInstanceObj.Object;
@@ -58,9 +58,9 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	// Light
 	CockpitLight = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight"));
 	CockpitLight->SetLightColor(FLinearColor(1.0f, 0.871f, 0.731));
-	CockpitLight->SetIntensity(200);
+	CockpitLight->SetIntensity(5);
 	CockpitLight->SetRelativeLocation(FVector(0, -30, -30));
-	CockpitLight->SetCastShadows(false);
+	CockpitLight->SetCastShadows(true);
 	CockpitLight->LightingChannels.bChannel0 = false;
 	CockpitLight->LightingChannels.bChannel1 = true;
 	CockpitLight->AttachTo(CockpitMesh);
@@ -68,9 +68,9 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	// Light 2
 	CockpitLight2 = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight2"));
 	CockpitLight2->SetLightColor(FLinearColor(1.0f, 0.376f, 0.212f));
-	CockpitLight2->SetIntensity(200);
+	CockpitLight2->SetIntensity(5);
 	CockpitLight2->SetRelativeLocation(FVector(0, 10, 10));
-	CockpitLight2->SetCastShadows(false);
+	CockpitLight2->SetCastShadows(true);
 	CockpitLight2->LightingChannels.bChannel0 = false;
 	CockpitLight2->LightingChannels.bChannel1 = true;
 	CockpitLight2->AttachTo(CockpitMesh);

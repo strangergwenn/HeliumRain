@@ -117,7 +117,7 @@ protected:
 
 	// Cockpit material template
 	UPROPERTY()
-	UMaterial*                               CockpitMaterialTemplate;
+		UMaterialInstanceConstant*           CockpitMaterialTemplate;
 
 	// Cockpit material instance
 	UPROPERTY(Category = Cockpit, EditAnywhere)
