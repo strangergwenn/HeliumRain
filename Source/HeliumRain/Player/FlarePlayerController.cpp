@@ -381,7 +381,22 @@ void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type 
 	if (NewBattleState == EFlareSectorBattleState::NoBattle)
 	{
 		FLOG("AFlarePlayerController::OnBattleStateChanged : peace");
-		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+		if (GetGame()->GetActiveSector())
+		{
+			EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
+			if (LevelMusic != EFlareMusicTrack::None)
+			{
+				SoundManager->RequestMusicTrack(LevelMusic);
+			}
+			else
+			{
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+			}
+		}
+		else
+		{
+			SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+		}
 	}
 	else
 	{
