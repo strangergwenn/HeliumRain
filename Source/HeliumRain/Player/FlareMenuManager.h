@@ -101,7 +101,10 @@ public:
 	
 	/** Is a menu being opened or closed */
 	bool IsSwitchingMenu() const;
-	
+
+	/** Start the loading screen */
+	void ShowLoadingScreen();
+
 	/** Start using the light background setting */
 	void UseLightBackground();
 
@@ -231,12 +234,11 @@ protected:
 	bool                                    FadeFromBlack;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
+	TSharedPtr<SBorder>                     Fader;
 	TEnumAsByte<EFlareMenu::Type>           CurrentMenu;
 	TEnumAsByte<EFlareMenu::Type>           LastNonSettingsMenu;
 
 	// Menu tools
-	TSharedPtr<SBox>                        LoadingBackground;
-	TSharedPtr<SBorder>                     Fader;
 	TSharedPtr<SFlareTooltip>               Tooltip;
 	TSharedPtr<SFlareNotifier>              Notifier;
 	TSharedPtr<SFlareMainOverlay>           MainOverlay;

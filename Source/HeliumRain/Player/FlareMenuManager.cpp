@@ -74,24 +74,10 @@ void AFlareMenuManager::SetupMenu()
 
 		// Fader
 		SAssignNew(Fader, SBorder)
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Fill)
-		.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"));
-		Fader->SetVisibility(EVisibility::Hidden);
-
-		// Loading screen
-		SAssignNew(LoadingBackground, SBox)
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
-		.WidthOverride(1920)
-		.HeightOverride(1080)
-		[
-			SNew(SBorder)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
-			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_LoadingScreen"))
-		];
-		LoadingBackground->SetVisibility(EVisibility::Hidden);
+			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"));
+		Fader->SetVisibility(EVisibility::Hidden);
 
 		// Register regular menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainMenu.ToSharedRef()),           50);
@@ -116,9 +102,8 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SpacecraftOrder.ToSharedRef()),    70);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Notifier.ToSharedRef()),           80);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Tooltip.ToSharedRef()),            90);
-		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LoadingBackground.ToSharedRef()),  95);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(Fader.ToSharedRef()),              100);
-		
+
 		// Setup regular menus
 		MainMenu->Setup();
 		SettingsMenu->Setup();
@@ -154,7 +139,7 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 	{
 		FadeTimer += DeltaSeconds;
 		float AccelRatio = 1.1;
-		float Alpha = FadeTimer / FadeDuration;
+		float Alpha = FMath::Clamp(FadeTimer / FadeDuration, 0.0f, 1.0f);
 
 		// Apply alpha
 		FLinearColor Color = FLinearColor::Black;
@@ -167,24 +152,16 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 			Fader->SetVisibility(EVisibility::Visible);
 		}
 
-		// Show the loading screen for at least a few ms
-		else if (Alpha <= 1.5)
-		{
-			LoadingBackground->SetVisibility(EVisibility::Visible);
-		}
-
-		// Process the target menu
+		// Callback
 		else if (FadeTarget != EFlareMenu::MENU_None)
 		{
 			ProcessFadeTarget();
-			LoadingBackground->SetVisibility(EVisibility::Hidden);
 		}
 
 		// Done
 		else
 		{
 			Fader->SetVisibility(EVisibility::Hidden);
-			LoadingBackground->SetVisibility(EVisibility::Hidden);
 		}
 	}
 }
@@ -417,6 +394,15 @@ EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
 bool AFlareMenuManager::IsSwitchingMenu() const
 {
 	return (Fader->GetVisibility() == EVisibility::Visible);
+}
+
+void AFlareMenuManager::ShowLoadingScreen()
+{
+	IFlareLoadingScreenModule* LoadingScreenModule = FModuleManager::LoadModulePtr<IFlareLoadingScreenModule>("FlareLoadingScreen");
+	if (LoadingScreenModule)
+	{
+		LoadingScreenModule->StartInGameLoadingScreen();
+	}
 }
 
 void AFlareMenuManager::UseLightBackground()
