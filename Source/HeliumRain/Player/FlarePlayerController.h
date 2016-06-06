@@ -340,14 +340,13 @@ public:
 		
 	/** Whether to use the 3D cockpit */
 	bool                                     UseCockpit;
-		
-	/** Music volume */
-	int32                                    MusicVolume;
 
-	/** Master volume */
-	int32                                    MasterVolume;
+	/** Whether to pause the game in menus */
+	bool                                     PauseGameInMenus;
 	
 	void SetUseCockpit(bool New);
+
+	void SetPauseGameInMenus(bool New);
 
 	void SetMusicVolume(int32 New);
 

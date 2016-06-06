@@ -60,8 +60,7 @@ void AFlarePlayerController::BeginPlay()
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	check(MyGameSettings);
 	UseCockpit = MyGameSettings->UseCockpit;
-	MusicVolume = MyGameSettings->MusicVolume;
-	MasterVolume = MyGameSettings->MasterVolume;
+	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
 
 	// Cockpit
 	SetupCockpit();
@@ -77,8 +76,8 @@ void AFlarePlayerController::BeginPlay()
 	if (SoundManager)
 	{
 		SoundManager->Setup(this);
-		SoundManager->SetMusicVolume(MusicVolume);
-		SoundManager->SetMasterVolume(MasterVolume);
+		SoundManager->SetMusicVolume(MyGameSettings->MusicVolume);
+		SoundManager->SetMasterVolume(MyGameSettings->MasterVolume);
 	}
 }
 
@@ -520,7 +519,7 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 {
 	FLOGV("AFlarePlayerController::SetWorldPause world %d", Pause);
 
-	if (GetGame()->GetActiveSector())
+	if (PauseGameInMenus && GetGame()->GetActiveSector())
 	{
 		GetGame()->GetActiveSector()->SetPause(Pause);
 	}
@@ -1158,15 +1157,30 @@ void AFlarePlayerController::SetUseCockpit(bool New)
 	CockpitManager->SetupCockpit(this);
 }
 
+void AFlarePlayerController::SetPauseGameInMenus(bool New)
+{
+	// Unpause if we are disabling the option
+	if (New == false)
+	{
+		SetWorldPause(false);
+	}
+
+	PauseGameInMenus = New;
+
+	// Pause if we are setting the option
+	if (New == true)
+	{
+		SetWorldPause(true);
+	}
+}
+
 void AFlarePlayerController::SetMusicVolume(int32 New)
 {
-	MusicVolume = New;
 	SoundManager->SetMusicVolume(New);
 }
 
 void AFlarePlayerController::SetMasterVolume(int32 New)
 {
-	MasterVolume = New;
 	SoundManager->SetMasterVolume(New);
 }
 

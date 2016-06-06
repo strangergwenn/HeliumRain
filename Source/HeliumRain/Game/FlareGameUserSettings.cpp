@@ -17,7 +17,10 @@ void UFlareGameUserSettings::SetToDefaults()
 	Super::SetToDefaults();
 
 	ScreenPercentage = 100;
+
 	UseCockpit = true;
+	PauseGameInMenus = false;
+
 	MusicVolume = 8;
 	MasterVolume = 10;
 }

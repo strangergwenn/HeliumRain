@@ -30,6 +30,10 @@ public:
 	UPROPERTY(Config)
 	bool                                     UseCockpit;
 		
+	/** Whether to pause the game in menus */
+	UPROPERTY(Config)
+	bool                                     PauseGameInMenus;
+		
 	/** Music volume */
 	UPROPERTY(Config)
 	int32                                    MusicVolume;
