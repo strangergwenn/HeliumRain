@@ -161,9 +161,8 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		ColorBox->Setup(Data);
 
 		// Menu
-		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
-		PC->GetMenuPawn()->ShowPart(PartDesc);
+		PC->GetMenuPawn()->ShowShip(PC->GetShipPawn()->GetParent());
 		
 		// Station list
 		TArray<UFlareSimulatedSpacecraft*>& CompanyStations = Target->GetCompanyStations();

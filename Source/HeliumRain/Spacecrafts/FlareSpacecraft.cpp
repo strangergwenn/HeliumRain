@@ -936,14 +936,14 @@ void AFlareSpacecraft::UpdateCustomization()
 			{
 				if (ShipNameTexture && !ShipNameDecalMaterial)
 				{
-					FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
-					FLinearColor ShipNameColor = (BasePaintColor.GetLuminance() > 0.5) ? FLinearColor::Black : FLinearColor::White;
 					ShipNameDecalMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), GetWorld());
-					ShipNameDecalMaterial->SetVectorParameterValue("NameColor", ShipNameColor);
-					ShipNameDecalMaterial->SetTextureParameterValue("NameTexture", ShipNameTexture);
 				}
 				if (Company && ShipNameDecalMaterial)
 				{
+					FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
+					FLinearColor ShipNameColor = (BasePaintColor.GetLuminance() > 0.5) ? FLinearColor::Black : FLinearColor::White;
+					ShipNameDecalMaterial->SetVectorParameterValue("NameColor", ShipNameColor);
+					ShipNameDecalMaterial->SetTextureParameterValue("NameTexture", ShipNameTexture);
 					Component->SetMaterial(0, ShipNameDecalMaterial);
 				}
 			}
@@ -954,10 +954,10 @@ void AFlareSpacecraft::UpdateCustomization()
 				if (!DecalMaterial)
 				{
 					DecalMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), GetWorld());
-					Company->CustomizeComponentMaterial(DecalMaterial);
 				}
 				if (Company && DecalMaterial)
 				{
+					Company->CustomizeComponentMaterial(DecalMaterial);
 					Component->SetMaterial(0, DecalMaterial);
 				}
 			}
