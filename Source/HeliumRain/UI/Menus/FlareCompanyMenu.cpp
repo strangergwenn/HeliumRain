@@ -162,7 +162,15 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 		// Menu
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
-		PC->GetMenuPawn()->ShowShip(PC->GetShipPawn()->GetParent());
+		if (PC->GetShipPawn())
+		{
+			PC->GetMenuPawn()->ShowShip(PC->GetShipPawn()->GetParent());
+		}
+		else
+		{
+			const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
+			PC->GetMenuPawn()->ShowPart(PartDesc);
+		}
 		
 		// Station list
 		TArray<UFlareSimulatedSpacecraft*>& CompanyStations = Target->GetCompanyStations();

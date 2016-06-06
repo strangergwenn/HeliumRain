@@ -351,17 +351,23 @@ void SFlareSpacecraftInfo::Show()
 	}
 	else if (TargetSpacecraft)
 	{
+		UFlareSimulatedSpacecraft* SimulatedPlayerShip = NULL;
+		if (PC->GetShipPawn())
+		{
+			SimulatedPlayerShip = PC->GetShipPawn()->GetParent();
+		}
+
 		// Useful data
 		IFlareSpacecraftDockingSystemInterface* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
-		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PC->GetShipPawn()->GetParent();
+		bool OwnedAndNotSelf = Owned && TargetSpacecraft != SimulatedPlayerShip;
 		bool FriendlyAndNotSelf = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
 		bool IsStrategy = Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL;
-		bool IsDocked = TargetSpacecraft->GetNavigationSystem()->IsDocked() || TargetDockingSystem->IsDockedShip(PC->GetShipPawn()->GetParent());
+		bool IsDocked = TargetSpacecraft->GetNavigationSystem()->IsDocked() || TargetDockingSystem->IsDockedShip(SimulatedPlayerShip);
 		bool IsStation = TargetSpacecraft->IsStation();
 
 		// Permissions
-		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()->GetParent()) && !IsDocked;
+		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(SimulatedPlayerShip) && !IsDocked;
 		bool CanAssign = Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && !TargetSpacecraft->IsAssignedToSector();
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
 		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy) && TargetSpacecraft->GetCurrentSector() && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());

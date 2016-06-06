@@ -195,14 +195,14 @@ bool AFlareMenuManager::IsOverlayOpen() const
 
 void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 {
-	FLOGV("AFlareMenuManager::OpenMenu : %d", (Target - EFlareMenu::MENU_None));
-
 	// Filters
 	check(!IsSpacecraftMenu(Target));
 	if (FadeTarget == Target && FadeTargetData == Data)
 	{
 		return;
 	}
+
+	FLOGV("AFlareMenuManager::OpenMenu : %d", (Target - EFlareMenu::MENU_None));
 
 	// Back function
 	if (Target != EFlareMenu::MENU_None && Target != EFlareMenu::MENU_Settings)
@@ -654,7 +654,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Orbit:
-			OpenOrbit();
+			OpenOrbit(static_cast<bool*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Leaderboard:
@@ -862,16 +862,23 @@ void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
 	CurrentMenu = EFlareMenu::MENU_Sector;
 	GetPC()->OnEnterMenu();
 	
-	if(!Sector && GetGame()->GetActiveSector())
+	if (!Sector)
 	{
-		SectorMenu->Enter(GetGame()->GetActiveSector()->GetSimulatedSector());
+		if (GetGame()->GetActiveSector())
+		{
+			SectorMenu->Enter(GetGame()->GetActiveSector()->GetSimulatedSector());
+			UseLightBackground();
+		}
+		else
+		{
+			OpenOrbit(NULL);
+		}
 	}
 	else
 	{
 		SectorMenu->Enter(Sector);
+		UseLightBackground();
 	}
-
-	UseLightBackground();
 }
 
 void AFlareMenuManager::OpenTrade(UFlareSimulatedSpacecraft* Spacecraft)
@@ -899,14 +906,14 @@ void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
 	UseDarkBackground();
 }
 
-void AFlareMenuManager::OpenOrbit()
+void AFlareMenuManager::OpenOrbit(bool* DeactivateCurrentSector)
 {
 	ResetMenu();
 
 	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Orbit;
 	GetPC()->OnEnterMenu();
-	OrbitMenu->Enter();
+	OrbitMenu->Enter(DeactivateCurrentSector ? *DeactivateCurrentSector : false);
 	UseDarkBackground();
 }
 

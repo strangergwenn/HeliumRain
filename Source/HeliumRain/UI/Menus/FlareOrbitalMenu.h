@@ -34,7 +34,7 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter();
+	void Enter(bool DeactivateCurrentSector);
 
 	/** Exit this menu */
 	void Exit();

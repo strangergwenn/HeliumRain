@@ -145,7 +145,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 						"exit-sector",
 						EFlareNotification::NT_Info);
 					GetData().SpawnMode = EFlareSpawnMode::Exit;
-					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
+					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, new bool(true));
 				}
 				else
 				{

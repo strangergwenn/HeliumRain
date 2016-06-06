@@ -202,7 +202,7 @@ protected:
 	virtual void OpenTradeRoute(UFlareTradeRoute* TradeRoute);
 
 	/** Open the orbital menu */
-	virtual void OpenOrbit();
+	virtual void OpenOrbit(bool* DeactivateCurrentSector);
 
 	/** Open the company menu */
 	virtual void OpenLeaderboard();
