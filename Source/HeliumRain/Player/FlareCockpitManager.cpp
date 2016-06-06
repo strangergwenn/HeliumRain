@@ -457,6 +457,7 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 		// Capital
 		else
 		{
+			Intensity = 1;
 			GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", PC->GetNavHUD()->GetHealthColor(1));
 		}
 	}
