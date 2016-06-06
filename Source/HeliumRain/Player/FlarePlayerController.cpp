@@ -307,7 +307,6 @@ void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 
 void AFlarePlayerController::OnLoadComplete()
 {
-	SetWorldPause(true);
 	Company->UpdateCompanyCustomization();
 }
 
