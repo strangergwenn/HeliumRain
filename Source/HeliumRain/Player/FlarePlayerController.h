@@ -399,8 +399,7 @@ public:
 		return CockpitManager;
 	}
 
-	/** Return the last flown ship.
-	 * Return NULL if no last flown ship, or if it is destroyed */
-	UFlareSimulatedSpacecraft* GetLastFlownShip();
+	/** Return the last flown ship. Return NULL if no last flown ship, or if it is destroyed */
+	UFlareSimulatedSpacecraft* GetPlayerShip();
 };
 

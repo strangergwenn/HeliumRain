@@ -193,13 +193,13 @@ bool AFlareMenuManager::IsOverlayOpen() const
 	return MainOverlay->IsOpen();
 }
 
-void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
+bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 {
 	// Filters
 	check(!IsSpacecraftMenu(Target));
 	if (FadeTarget == Target && FadeTargetData == Data)
 	{
-		return;
+		return false;
 	}
 
 	FLOGV("AFlareMenuManager::OpenMenu : %d", (Target - EFlareMenu::MENU_None));
@@ -215,9 +215,10 @@ void AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 	FadeOut();
 	FadeTarget = Target;
 	FadeTargetData = Data;
+	return true;
 }
 
-void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimulatedSpacecraft* Data)
+bool AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimulatedSpacecraft* Data)
 {
 	FLOGV("AFlareMenuManager::OpenMenuSpacecraft : %d", (Target - EFlareMenu::MENU_None));
 
@@ -225,7 +226,7 @@ void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimula
 	check(IsSpacecraftMenu(Target));
 	if (FadeTarget == Target && FadeTargetData == Data)
 	{
-		return;
+		return false;
 	}
 
 	// Back function
@@ -240,6 +241,7 @@ void AFlareMenuManager::OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimula
 	FadeTarget = Target;
 	FadeTargetData = NULL;
 	FadeTargetSpacecraft = Data;
+	return true;
 }
 
 void AFlareMenuManager::OpenSpacecraftOrder(UFlareFactory* Factory)
@@ -745,7 +747,7 @@ void AFlareMenuManager::LoadGame()
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	PC->GetGame()->LoadGame(PC);
-	UFlareSimulatedSpacecraft* CurrentShip = PC->GetLastFlownShip();
+	UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
 
 	if (CurrentShip && CurrentShip->GetCurrentSector())
 	{
@@ -784,11 +786,11 @@ void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
 
 void AFlareMenuManager::FlyShip(UFlareSimulatedSpacecraft* Target)
 {
-	ExitMenu();
-
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && Target->IsValidLowLevel())
 	{
+		ExitMenu();
+
 		PC->FlyShip(Target->GetActive());
 		MenuIsOpen = false;
 	}
@@ -796,11 +798,11 @@ void AFlareMenuManager::FlyShip(UFlareSimulatedSpacecraft* Target)
 
 void AFlareMenuManager::ActivateSector(UFlareSimulatedSector* Target)
 {
-	ExitMenu();
-
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && Target)
 	{
+		ExitMenu();
+
 		PC->GetGame()->ActivateSector(PC, Target);
 		MenuIsOpen = false;
 	}
@@ -856,28 +858,32 @@ void AFlareMenuManager::OpenFleetMenu(UFlareFleet* TargetFleet)
 
 void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
 {
-	ResetMenu();
-
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_Sector;
-	GetPC()->OnEnterMenu();
-	
+	// Do everythong we can to find the active sector
 	if (!Sector)
 	{
 		if (GetGame()->GetActiveSector())
 		{
-			SectorMenu->Enter(GetGame()->GetActiveSector()->GetSimulatedSector());
-			UseLightBackground();
+			Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
 		}
-		else
+		else if (GetPC()->GetPlayerShip())
 		{
-			OpenOrbit(NULL);
+			Sector = GetPC()->GetPlayerShip()->GetCurrentSector();
 		}
+	}
+
+	if (Sector)
+	{
+		ResetMenu();
+
+		OpenMainOverlay();
+		CurrentMenu = EFlareMenu::MENU_Sector;
+		GetPC()->OnEnterMenu();
+		SectorMenu->Enter(Sector);
+		UseLightBackground();
 	}
 	else
 	{
-		SectorMenu->Enter(Sector);
-		UseLightBackground();
+		OpenOrbit(NULL);
 	}
 }
 

@@ -352,9 +352,9 @@ void SFlareSpacecraftInfo::Show()
 	else if (TargetSpacecraft)
 	{
 		UFlareSimulatedSpacecraft* SimulatedPlayerShip = NULL;
-		if (PC->GetShipPawn())
+		if (PC->GetPlayerShip())
 		{
-			SimulatedPlayerShip = PC->GetShipPawn()->GetParent();
+			SimulatedPlayerShip = PC->GetPlayerShip();
 		}
 
 		// Useful data

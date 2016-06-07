@@ -162,9 +162,9 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 		// Menu
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
-		if (PC->GetShipPawn())
+		if (PC->GetPlayerShip())
 		{
-			PC->GetMenuPawn()->ShowShip(PC->GetShipPawn()->GetParent());
+			PC->GetMenuPawn()->ShowShip(PC->GetPlayerShip());
 		}
 		else
 		{

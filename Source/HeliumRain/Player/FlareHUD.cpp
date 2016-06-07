@@ -177,9 +177,9 @@ bool AFlareHUD::IsWheelMenuOpen() const
 void AFlareHUD::OnTargetShipChanged()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && PC->GetShipPawn())
+	if (PC && PC->GetPlayerShip())
 	{
-		HUDMenu->SetTargetShip(PC->GetShipPawn()->GetParent());
+		HUDMenu->SetTargetShip(PC->GetPlayerShip());
 		UpdateHUDVisibility();
 	}
 }

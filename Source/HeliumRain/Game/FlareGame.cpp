@@ -197,9 +197,9 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 
 	// Set last flown ship
 	FName LastFlownShip = "";
-	if (PC->GetShipPawn())
+	if (PC->GetPlayerShip())
 	{
-		LastFlownShip = PC->GetShipPawn()->GetParent()->GetImmatriculation();
+		LastFlownShip = PC->GetPlayerShip()->GetImmatriculation();
 	}
 
 	// Destroy the active sector

@@ -70,10 +70,10 @@ public:
 	bool IsOverlayOpen() const;
 	
 	/** Open a menu asynchronously, from a target and user data */
-	void OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
+	bool OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
 
 	/** Open a menu asynchronously, from a target and user data */
-	void OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimulatedSpacecraft* Data = NULL);
+	bool OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimulatedSpacecraft* Data = NULL);
 
 	/** Show the list of spacecraft that can be ordered here */
 	void OpenSpacecraftOrder(UFlareFactory* Factory);
