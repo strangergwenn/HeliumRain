@@ -370,7 +370,10 @@ void AFlarePlayerController::OnSectorDeactivated()
 
 	// Reset states
 	LastBattleState = EFlareSectorBattleState::NoBattle;
-	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+	if (!MenuManager->IsMenuOpen())
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+	}
 }
 
 void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState)

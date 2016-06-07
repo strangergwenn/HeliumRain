@@ -789,9 +789,8 @@ void AFlareMenuManager::FlyShip(UFlareSimulatedSpacecraft* Target)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && Target->IsValidLowLevel())
 	{
-		ExitMenu();
-
 		PC->FlyShip(Target->GetActive());
+		ExitMenu();
 		MenuIsOpen = false;
 	}
 }
@@ -801,9 +800,8 @@ void AFlareMenuManager::ActivateSector(UFlareSimulatedSector* Target)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && Target)
 	{
-		ExitMenu();
-
 		PC->GetGame()->ActivateSector(PC, Target);
+		ExitMenu();
 		MenuIsOpen = false;
 	}
 }
@@ -980,6 +978,7 @@ void AFlareMenuManager::OpenCredits()
 void AFlareMenuManager::ExitMenu()
 {
 	FLOG("AFlareMenuManager::ExitMenu");
+
 	ResetMenu();
 
 	CurrentMenu = EFlareMenu::MENU_None;
