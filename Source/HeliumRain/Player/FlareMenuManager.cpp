@@ -919,7 +919,17 @@ void AFlareMenuManager::OpenOrbit(bool* DeactivateCurrentSector)
 	OpenMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Orbit;
 	GetPC()->OnEnterMenu();
-	OrbitMenu->Enter(DeactivateCurrentSector ? *DeactivateCurrentSector : false);
+
+	if (DeactivateCurrentSector)
+	{
+		OrbitMenu->Enter(*DeactivateCurrentSector);
+		delete DeactivateCurrentSector;
+	}
+	else
+	{
+
+		OrbitMenu->Enter(false);
+	}
 	UseDarkBackground();
 }
 
