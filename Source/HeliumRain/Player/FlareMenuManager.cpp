@@ -269,7 +269,7 @@ bool AFlareMenuManager::IsMenuOpen() const
 void AFlareMenuManager::CloseMenu(bool HardClose)
 {
 	FLOGV("AFlareMenuManager::CloseMenu : HardClose = %d", HardClose);
-	if (MenuIsOpen)
+	if (MenuIsOpen && GetPC()->GetShipPawn() && GetGame()->GetActiveSector())
 	{
 		if (HardClose)
 		{
@@ -279,8 +279,8 @@ void AFlareMenuManager::CloseMenu(bool HardClose)
 		{
 			OpenMenu(EFlareMenu::MENU_Exit);
 		}
+		MenuIsOpen = false;
 	}
-	MenuIsOpen = false;
 }
 
 void AFlareMenuManager::Back()
