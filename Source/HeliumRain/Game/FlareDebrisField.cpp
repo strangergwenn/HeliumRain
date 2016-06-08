@@ -21,15 +21,21 @@ UFlareDebrisField::UFlareDebrisField(const FObjectInitializer& ObjectInitializer
 
 void UFlareDebrisField::Load(AFlareGame* GameMode, UFlareSimulatedSector* Sector)
 {
+	check(Sector);
+	check(GameMode);
+
+	// Get debris field parameters
 	Game = GameMode;
 	const FFlareDebrisFieldInfo* DebrisFieldInfo = &Sector->GetDescription()->DebrisFieldInfo;
 	UFlareAsteroidCatalog* DebrisFieldMeshes = DebrisFieldInfo->DebrisCatalog;
+	TArray<AStaticMeshActor*> NewDebris;
 
+	// Add debris
 	if (DebrisFieldInfo)
 	{
 		float SectorScale = 5000 * 100;
 		int32 DebrisCount = 100 * DebrisFieldInfo->DebrisFieldDensity;
-		FLOGV("UFlareDebrisField::Load : Spawning debris field, size = %d", DebrisCount);
+		FLOGV("UFlareDebrisField::Load : spawning debris field, size = %d", DebrisCount);
 
 		for (int32 Index = 0; Index < DebrisCount; Index++)
 		{
@@ -41,19 +47,24 @@ void UFlareDebrisField::Load(AFlareGame* GameMode, UFlareSimulatedSector* Sector
 
 			FName Name = FName(*(FString::Printf(TEXT("Debris%d"), Index)));
 
-			AddDebris(Sector, DebrisFieldMeshes->Asteroids[DebrisIndex], Size, SectorScale, Name);
+			NewDebris.Add(AddDebris(Sector, DebrisFieldMeshes->Asteroids[DebrisIndex], Size, SectorScale, Name));
 		}
 	}
+
+	// Add new debris
+	DebrisField.Empty();
+	for (int DebrisIndex = 0; DebrisIndex < NewDebris.Num(); DebrisIndex++)
+	{
+		if (NewDebris[DebrisIndex])
+		{
+			DebrisField.Add(NewDebris[DebrisIndex]);
+		}
+	}
+	FLOGV("UFlareDebrisField::Load : done spawning debris field, size = %d", DebrisField.Num());
 }
 
 void UFlareDebrisField::Reset()
 {
-	FLOGV("UFlareDebrisField::Reset : Cleaning debris field, size = %d", DebrisField.Num());
-	for (int DebrisIndex = 0; DebrisIndex < DebrisField.Num(); DebrisIndex++)
-	{
-		DebrisField[DebrisIndex]->Destroy();
-	}
-	DebrisField.Empty();
 }
 
 void UFlareDebrisField::SetWorldPause(bool Pause)
@@ -75,6 +86,7 @@ AStaticMeshActor* UFlareDebrisField::AddDebris(UFlareSimulatedSector* Sector, US
 {
 	FActorSpawnParameters Params;
 	Params.Name = Name;
+	Params.Owner = Game;
 	Params.bNoFail = false;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
 
@@ -84,38 +96,41 @@ AStaticMeshActor* UFlareDebrisField::AddDebris(UFlareSimulatedSector* Sector, US
 
 	// Spawn
 	AStaticMeshActor* DebrisMesh = Game->GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), Location, Rotation, Params);
-	DebrisMesh->SetMobility(EComponentMobility::Movable);
-	DebrisMesh->SetActorScale3D(Size * FVector(1, 1, 1));
-	DebrisMesh->SetActorEnableCollision(true);
-
-	// Setup
-	UStaticMeshComponent* DebrisComponent = DebrisMesh->GetStaticMeshComponent();
-	if (DebrisComponent)
+	if (DebrisMesh)
 	{
-		DebrisComponent->SetStaticMesh(Mesh);
-		DebrisComponent->SetSimulatePhysics(true);
-		DebrisComponent->SetCollisionProfileName("BlockAllDynamic");
+		DebrisMesh->SetMobility(EComponentMobility::Movable);
+		DebrisMesh->SetActorScale3D(Size * FVector(1, 1, 1));
+		DebrisMesh->SetActorEnableCollision(true);
 
-		// Set material
-		if (DebrisComponent->GetMaterial(0)->IsA(UMaterialInstanceConstant::StaticClass()))
+		// Setup
+		UStaticMeshComponent* DebrisComponent = DebrisMesh->GetStaticMeshComponent();
+		if (DebrisComponent)
 		{
-			UMaterialInstanceDynamic* DebrisMaterial = UMaterialInstanceDynamic::Create(DebrisComponent->GetMaterial(0), DebrisComponent->GetWorld());
-			if (DebrisMaterial && DebrisComponent->StaticMesh)
+			DebrisComponent->SetStaticMesh(Mesh);
+			DebrisComponent->SetSimulatePhysics(true);
+			DebrisComponent->SetCollisionProfileName("BlockAllDynamic");
+
+			// Set material
+			if (!DebrisComponent->GetMaterial(0)->IsA(UMaterialInstanceDynamic::StaticClass()))
 			{
-				for (int32 LodIndex = 0; LodIndex < DebrisComponent->StaticMesh->RenderData->LODResources.Num(); LodIndex++)
+				UMaterialInstanceDynamic* DebrisMaterial = UMaterialInstanceDynamic::Create(DebrisComponent->GetMaterial(0), DebrisComponent->GetWorld());
+				if (DebrisMaterial && DebrisComponent->StaticMesh)
 				{
-					DebrisComponent->SetMaterial(LodIndex, DebrisMaterial);
+					for (int32 LodIndex = 0; LodIndex < DebrisComponent->StaticMesh->RenderData->LODResources.Num(); LodIndex++)
+					{
+						DebrisComponent->SetMaterial(LodIndex, DebrisMaterial);
+					}
+					DebrisMaterial->SetScalarParameterValue("IceMask", Sector->GetDescription()->IsIcy);
 				}
-				DebrisMaterial->SetScalarParameterValue("IceMask", Sector->GetDescription()->IsIcy);
+				else
+				{
+					FLOG("UFlareDebrisField::AddDebris : failed to set material (no material or mesh)")
+				}
 			}
 			else
 			{
-				FLOG("UFlareDebrisField::AddDebris : failed to set material (no material or mesh)")
+				//FLOG("UFlareDebrisField::AddDebris : failed to set material (already dynamic, can't inherit)")
 			}
-		}
-		else
-		{
-			FLOG("UFlareDebrisField::AddDebris : failed to set material (not a constant material instance)")
 		}
 	}
 	else
@@ -123,7 +138,6 @@ AStaticMeshActor* UFlareDebrisField::AddDebris(UFlareSimulatedSector* Sector, US
 		FLOG("UFlareDebrisField::AddDebris : failed to spawn debris")
 	}
 
-	DebrisField.Add(DebrisMesh);
 	return DebrisMesh;
 }
 

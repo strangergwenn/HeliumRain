@@ -37,7 +37,7 @@ private:
 
 	/** Add debris */
 	AStaticMeshActor* AddDebris(UFlareSimulatedSector* Sector, UStaticMesh* Mesh, float Debris, float SectorScale, FName Name);
-
+	
 
 protected:
 
@@ -48,7 +48,9 @@ protected:
 	/** Debris field */
 	UPROPERTY()
 	TArray<AStaticMeshActor*>                  DebrisField;
-
+	
+	/** Game reference */
+	UPROPERTY()
 	AFlareGame*                                Game;
 
 };
