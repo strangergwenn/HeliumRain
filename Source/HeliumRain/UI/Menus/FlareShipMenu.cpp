@@ -209,7 +209,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.SubTitleFont)
-						.Text(LOCTEXT("TransactionTitle", "Confirm transaction"))
+						.Text(LOCTEXT("TransactionTitle", "Upgrade component"))
 					]
 
 					// Button box
@@ -218,7 +218,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SAssignNew(BuyConfirmation, SFlareConfirmationBox)
-						.ConfirmText(LOCTEXT("Confirm", "Buy component"))
+						.ConfirmText(LOCTEXT("Confirm", "Upgrade component"))
 						.CancelText(LOCTEXT("BackTopShip", "Back to ship"))
 						.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
 						.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)
