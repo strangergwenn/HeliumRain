@@ -524,6 +524,7 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 
 	if (PauseGameInMenus && GetGame()->GetActiveSector())
 	{
+		GetGame()->SetWorldPause(Pause);
 		GetGame()->GetActiveSector()->SetPause(Pause);
 	}
 }

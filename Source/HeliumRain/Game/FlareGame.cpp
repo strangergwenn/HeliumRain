@@ -3,6 +3,7 @@
 #include "FlareGame.h"
 #include "FlareSaveGame.h"
 #include "FlareAsteroid.h"
+#include "FlareDebrisField.h"
 #include "FlareGameTools.h"
 #include "FlareScenarioTools.h"
 
@@ -100,6 +101,9 @@ void AFlareGame::StartPlay()
 	
 	// Spawn planetarium
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
+
+	// Spawn debris field system
+	DebrisFieldSystem = NewObject<UFlareDebrisField>(this, UFlareDebrisField::StaticClass());
 }
 
 void AFlareGame::PostLogin(APlayerController* Player)
@@ -173,9 +177,12 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 			// TODO Find time with light
 			SectorData->LocalTime = GetGameWorld()->GetDate() * UFlareGameTools::SECONDS_IN_DAY;
 		}
+
+		// Load and setup the sector
 		Planetarium->ResetTime();
 		Planetarium->SkipNight(UFlareGameTools::SECONDS_IN_DAY);
 		ActiveSector->Load(Sector);
+		DebrisFieldSystem->Load(this, Sector);
 
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 		PC->OnSectorActivated(ActiveSector);
@@ -191,9 +198,9 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 	}
 
 	UFlareSimulatedSector* Sector = ActiveSector->GetSimulatedSector();
-	World->Save();
 	FLOGV("AFlareGame::DeactivateSector : %s", *Sector->GetSectorName().ToString());
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
+	World->Save();
 
 	// Set last flown ship
 	FName LastFlownShip = "";
@@ -205,14 +212,20 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 	// Destroy the active sector
 	ActiveSector->DestroySector();
 	ActiveSector = NULL;
+	DebrisFieldSystem->Reset();
 
+	// Update the PC
 	Sector->GetData()->LastFlownShip = LastFlownShip;
 	PC->SetLastFlownShip(LastFlownShip);
-
 	PC->OnSectorDeactivated();
 	SaveGame(PC);
 
 	return Sector;
+}
+
+void AFlareGame::SetWorldPause(bool Pause)
+{
+	DebrisFieldSystem->SetWorldPause(Pause);
 }
 
 void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation)

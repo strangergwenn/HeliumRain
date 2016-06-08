@@ -27,7 +27,9 @@ class UFlareSaveGame;
 class UFlareSaveGameSystem;
 class UFlareQuestManager;
 class UFlareQuestCatalog;
+class UFlareDebrisField;
 struct FFlarePlayerSave;
+
 
 USTRUCT()
 struct FFlareSaveSlotInfo
@@ -65,6 +67,8 @@ public:
 	virtual void ActivateSector(AController* Player,UFlareSimulatedSector* Sector);
 
 	virtual UFlareSimulatedSector* DeactivateSector(AController* Player);
+
+	virtual void SetWorldPause(bool Pause);
 
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -117,7 +121,7 @@ public:
 
 	/** Unload the game*/
 	virtual void UnloadGame();
-
+	
 	
 	/*----------------------------------------------------
 		Level streaming
@@ -185,6 +189,12 @@ protected:
 	UPROPERTY()
 	UFlareSector*                              ActiveSector;
 
+	/** Debris field */
+	UPROPERTY()
+	UFlareDebrisField*                         DebrisFieldSystem;
+
+	/** Player controller */
+	UPROPERTY()
 	AFlarePlayerController*			           PlayerController;
 
 	/** Save game system*/

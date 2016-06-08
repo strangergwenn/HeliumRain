@@ -4,8 +4,6 @@
 #include "FlareSector.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 
-#include "StaticMeshResources.h"
-
 
 /*----------------------------------------------------
 	Constructor
@@ -66,29 +64,6 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 	{
 		LoadBomb(ParentSector->GetData()->BombData[i]);
 	}
-
-	// Spawn debris field
-	const FFlareDebrisFieldInfo* DebrisFieldInfo = &ParentSector->GetDescription()->DebrisFieldInfo;
-	UFlareAsteroidCatalog* DebrisFieldMeshes = DebrisFieldInfo->DebrisCatalog;
-	if (DebrisFieldInfo)
-	{
-		float SectorScale = 5000 * 100;
-		int32 DebrisCount = 100 * DebrisFieldInfo->DebrisFieldDensity;
-		FLOGV("UFlareSector::Load : Spawning debris field, size = %d", DebrisCount);
-
-		for (int32 Index = 0; Index < DebrisCount; Index++)
-		{
-			int32 DebrisIndex = FMath::RandRange(0, DebrisFieldMeshes->Asteroids.Num() - 1);
-
-			float MinSize = DebrisFieldInfo->MinDebrisSize;
-			float MaxSize = DebrisFieldInfo->MaxDebrisSize;
-			float Size = FMath::FRandRange(MinSize, MaxSize);
-
-			FName Name = FName(*(FString::Printf(TEXT("Debris%d"), Index)));
-			
-			AddDebris(DebrisFieldMeshes->Asteroids[DebrisIndex], Size, SectorScale, Name);
-		}
-	}
 }
 
 void UFlareSector::Save()
@@ -132,11 +107,6 @@ void UFlareSector::DestroySector()
 		SectorBombs[BombIndex]->Destroy();
 	}
 
-	for (int DebrisIndex = 0; DebrisIndex < SectorDebrisField.Num(); DebrisIndex++)
-	{
-		SectorDebrisField[DebrisIndex]->Destroy();
-	}
-
 	for (int AsteroidIndex = 0 ; AsteroidIndex < SectorAsteroids.Num(); AsteroidIndex++)
 	{
 		SectorAsteroids[AsteroidIndex]->Destroy();
@@ -151,7 +121,6 @@ void UFlareSector::DestroySector()
 	SectorShips.Empty();
 	SectorStations.Empty();
 	SectorBombs.Empty();
-	SectorDebrisField.Empty();
 	SectorAsteroids.Empty();
 	SectorShells.Empty();
 }
@@ -160,55 +129,6 @@ void UFlareSector::DestroySector()
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
-
-AStaticMeshActor* UFlareSector::AddDebris(UStaticMesh* Mesh, float Size, float SectorScale, FName Name)
-{
-	FActorSpawnParameters Params;
-	Params.Name = Name;
-	Params.bNoFail = false;
-	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
-
-	// Compute size, location and rotation
-	FVector Location = FMath::VRand() * SectorScale * FMath::FRandRange(0.2, 1.0);
-	FRotator Rotation = FRotator(FMath::FRandRange(0, 360), FMath::FRandRange(0, 360), FMath::FRandRange(0, 360));
-	
-	// Spawn
-	AStaticMeshActor* DebrisMesh = GetGame()->GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), Location, Rotation, Params);
-	DebrisMesh->SetMobility(EComponentMobility::Movable);
-	DebrisMesh->SetActorScale3D(Size * FVector(1, 1, 1));
-	DebrisMesh->SetActorEnableCollision(true);
-
-	// Setup
-	UStaticMeshComponent* DebrisComponent = DebrisMesh->GetStaticMeshComponent();
-	if (DebrisComponent)
-	{
-		DebrisComponent->SetStaticMesh(Mesh);
-		DebrisComponent->SetSimulatePhysics(true);
-		DebrisComponent->SetCollisionProfileName("BlockAllDynamic");
-
-		// Set material
-		UMaterialInstanceDynamic* DebrisMaterial = UMaterialInstanceDynamic::Create(DebrisComponent->GetMaterial(0), DebrisComponent->GetWorld());
-		if (DebrisMaterial && DebrisComponent->StaticMesh)
-		{
-			for (int32 LodIndex = 0; LodIndex < DebrisComponent->StaticMesh->RenderData->LODResources.Num(); LodIndex++)
-			{
-				DebrisComponent->SetMaterial(LodIndex, DebrisMaterial);
-			}
-			DebrisMaterial->SetScalarParameterValue("IceMask", ParentSector->GetDescription()->IsIcy);
-		}
-		else
-		{
-			FLOG("UFlareSector::AddDebris : failed to set material")
-		}
-	}
-	else
-	{
-		FLOG("UFlareSector::AddDebris : failed to create debris")
-	}
-
-	SectorDebrisField.Add(DebrisMesh);
-	return DebrisMesh;
-}
 
 AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidData)
 {
@@ -368,6 +288,10 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 				FVector Location = SpawnDirection * SpawnDistance;
 				FVector CenterDirection = (GetSectorCenter() - Location).GetUnsafeNormal();
 
+				FLOGV("UFlareSector::LoadSpacecraft : Exit '%s' at (%f, %f, %f)",
+					*ParentSpacecraft->GetImmatriculation().ToString(),
+					Location.X, Location.Y, Location.Z);
+
 				PlaceSpacecraft(Spacecraft, Location);
 				Spacecraft->SetActorRotation(CenterDirection.Rotation());
 
@@ -505,13 +429,7 @@ void UFlareSector::SetPause(bool Pause)
 	{
 		SectorBombs[i]->SetPause(Pause);
 	}
-
-	for (int i = 0; i < SectorDebrisField.Num(); i++)
-	{
-		// TODO Gwenn
-		//SectorDebrisField[i]->SetPause(Pause);
-	}
-
+	
 	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorAsteroids[i]->SetPause(Pause);
