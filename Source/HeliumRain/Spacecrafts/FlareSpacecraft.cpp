@@ -527,7 +527,6 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	// Update local data
 	Parent = ParentSpacecraft;
 	Parent->SetActiveSpacecraft(this);
-	Parent->GetData().SpawnMode = EFlareSpawnMode::Safe;
 
 	// Load ship description
 	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();

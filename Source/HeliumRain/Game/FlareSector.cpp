@@ -377,6 +377,8 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 			}
 			break;
 		}
+
+		ParentSpacecraft->SetSpawnMode(EFlareSpawnMode::Safe);
 	}
 	else
 	{
