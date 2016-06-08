@@ -103,8 +103,23 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(SFlareButton)
 							.Width(10)
+							.Text(this, &SFlareSectorMenu::GetPlayerTravelText)
+							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the player ship or fleet"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.OnClicked(this, &SFlareSectorMenu::OnPlayerTravelHereClicked)
+							.IsDisabled(this, &SFlareSectorMenu::IsPlayerTravelDisabled)
+						]
+
+						// Travel here
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(10)
 							.Text(this, &SFlareSectorMenu::GetTravelText)
-							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the current ship or fleet"))
+							.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the selected ship or fleet"))
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
 							.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
@@ -368,6 +383,33 @@ bool SFlareSectorMenu::IsBuildStationDisabled() const
 	}
 }
 
+FText SFlareSectorMenu::GetPlayerTravelText() const
+{
+	UFlareFleet* PlayerFleet = MenuManager->GetPC()->GetPlayerFleet();
+
+	if (PlayerFleet)
+	{
+		FText Reason;
+
+		if (PlayerFleet->GetCurrentSector() == TargetSector)
+		{
+			return FText::Format(LOCTEXT("PlayerTravelAlreadyHereFormat", "{0} is already there"), PlayerFleet->GetFleetName());
+		}
+		else if (!PlayerFleet->CanTravel(Reason))
+		{
+			return Reason;
+		}
+		else
+		{
+			return FText::Format(LOCTEXT("PlayerTravelFormat", "Travel with player fleet ({0})"), PlayerFleet->GetFleetName());
+		}
+	}
+	else
+	{
+		return LOCTEXT("PlayerTravelNoSelection", "Travel here (player fleet unavailable)");
+	}
+}
+
 FText SFlareSectorMenu::GetTravelText() const
 {
 	UFlareFleet* SelectedFleet = MenuManager->GetPC()->GetSelectedFleet();
@@ -392,6 +434,20 @@ FText SFlareSectorMenu::GetTravelText() const
 	else
 	{
 		return LOCTEXT("TravelNoSelection", "Travel here (no fleet selected)");
+	}
+}
+
+bool SFlareSectorMenu::IsPlayerTravelDisabled() const
+{
+	UFlareFleet* PlayerFleet = MenuManager->GetPC()->GetPlayerFleet();
+
+	if (PlayerFleet && PlayerFleet->GetCurrentSector() != TargetSector && PlayerFleet->CanTravel())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
 	}
 }
 
@@ -596,6 +652,30 @@ void SFlareSectorMenu::OnResourcePrices()
 	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, TargetSector);
 }
 
+void SFlareSectorMenu::OnPlayerTravelHereClicked()
+{
+	UFlareFleet* PlayerFleet = MenuManager->GetGame()->GetPC()->GetPlayerFleet();
+	if (PlayerFleet)
+	{
+		if (PlayerFleet->GetImmobilizedShipCount() == 0)
+		{
+			OnPlayerStartTravelConfirmed();
+		}
+		else
+		{
+			FText ShipText = LOCTEXT("PlayerConfirmTravelSingular", "{0} ship is too damaged to travel. Do you really want to leave it in this sector ?");
+			FText ShipsText = LOCTEXT("PlayerConfirmTravelPlural", "{0} ships are too damaged to travel. Do you really want to leave them in this sector ?");
+
+			FText ConfirmText = FText::Format(PlayerFleet->GetImmobilizedShipCount() != 1 ? ShipsText : ShipText,
+				FText::AsNumber(PlayerFleet->GetImmobilizedShipCount()));
+
+			MenuManager->Confirm(LOCTEXT("PlayerConfirmTravelTitle", "ABANDON SHIPS ?"),
+				ConfirmText,
+				FSimpleDelegate::CreateSP(this, &SFlareSectorMenu::OnPlayerStartTravelConfirmed));
+		}
+	}
+}
+
 void SFlareSectorMenu::OnTravelHereClicked()
 {
 	UFlareFleet* SelectedFleet = MenuManager->GetGame()->GetPC()->GetSelectedFleet();
@@ -628,6 +708,16 @@ void SFlareSectorMenu::OnRefuelClicked()
 void SFlareSectorMenu::OnRepairClicked()
 {
 	// TODO FRED (#155) : utiliser les API de réparation
+}
+
+void SFlareSectorMenu::OnPlayerStartTravelConfirmed()
+{
+	UFlareFleet* PlayerFleet = MenuManager->GetGame()->GetPC()->GetPlayerFleet();
+	if (PlayerFleet)
+	{
+		MenuManager->GetGame()->GetGameWorld()->StartTravel(PlayerFleet, TargetSector);
+		MenuManager->Back();
+	}
 }
 
 void SFlareSectorMenu::OnStartTravelConfirmed()

@@ -552,6 +552,10 @@ UFlareFleet* AFlarePlayerController::GetSelectedFleet()
 	return SelectedFleet;
 }
 
+UFlareFleet* AFlarePlayerController::GetPlayerFleet()
+{
+	return GetPlayerShip()->GetCurrentFleet();
+}
 
 bool AFlarePlayerController::IsInMenu()
 {

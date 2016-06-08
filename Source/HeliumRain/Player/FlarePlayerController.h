@@ -51,6 +51,9 @@ public:
 	/** Get the currently selected fleet */
 	virtual UFlareFleet* GetSelectedFleet();
 
+	/** Get the currently selected fleet */
+	virtual UFlareFleet* GetPlayerFleet();
+
 
 	/*----------------------------------------------------
 		Data management
