@@ -197,6 +197,11 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		DustEffect->SetVectorParameter("Direction", -Direction);
 		DustEffect->SetVectorParameter("Size", FVector(1, VelocityFactor, 1));
 	}
+	else if (DustEffect)
+	{
+		DustEffect->SetColorParameter("Intensity", FVector::ZeroVector);
+		DustEffect->SetColorParameter("Direction", FVector::ZeroVector);
+	}
 
 	// Sound
 	if (SoundManager)
