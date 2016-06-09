@@ -624,7 +624,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_FlyShip:
-			FlyShip(Cast<UFlareSimulatedSpacecraft>(FadeTargetSpacecraft));
+			FlyShip(FadeTargetSpacecraft);
 			break;
 
 		case EFlareMenu::MENU_ActivateSector:

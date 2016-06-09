@@ -431,7 +431,7 @@ void SFlareFleetMenu::OnRemoveFromFleet()
 	check(ShipToRemove);
 
 	FLOGV("SFlareFleetMenu::OnRemoveFromFleet : removing '%s'", *ShipToRemove->GetImmatriculation().ToString());
-	SelectedFleet->RemoveShip(Cast<UFlareSimulatedSpacecraft>(ShipToRemove));
+	SelectedFleet->RemoveShip(ShipToRemove);
 
 	UpdateShipList();
 	UpdateFleetList();

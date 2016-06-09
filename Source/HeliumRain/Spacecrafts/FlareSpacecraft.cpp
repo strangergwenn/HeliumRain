@@ -1406,7 +1406,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 	else if (Command.Type == EFlareCommandDataType::CDT_Dock)
 	{
-		AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
+		AFlareSpacecraft* Target = Command.ActionTarget->GetActive();
 		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
 	}
 	else

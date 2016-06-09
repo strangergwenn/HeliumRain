@@ -79,7 +79,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 
 	if (TargetShip)
 	{
-		SetVisibility(Cast<AFlareSpacecraft>(TargetShip) ? EVisibility::Visible : EVisibility::Collapsed);
+		SetVisibility(TargetShip->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 	}
 }
 
@@ -94,7 +94,7 @@ void SFlareShipStatus::SetTargetShip(UFlareSimulatedSpacecraft* Target)
 
 	if (TargetShip)
 	{
-		SetVisibility(Cast<AFlareSpacecraft>(TargetShip) ? EVisibility::Visible : EVisibility::Collapsed);
+		SetVisibility(TargetShip->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 
 		if (TargetShip->IsMilitary())
 		{

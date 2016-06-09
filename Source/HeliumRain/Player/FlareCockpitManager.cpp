@@ -348,7 +348,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 			// Get docking data
 			if (Command.Type == EFlareCommandDataType::CDT_Dock)
 			{
-				AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(Command.ActionTarget);
+				AFlareSpacecraft* DockStation = Command.ActionTarget->GetActive();
 				int32 DockId = Command.ActionTargetParam;
 
 				FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);

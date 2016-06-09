@@ -279,8 +279,8 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	TargetLeftSpacecraft = LeftSpacecraft;
 
 	// First-person trading override
-	AFlareSpacecraft* PhysicalSpacecraft = Cast<AFlareSpacecraft>(TargetLeftSpacecraft);
-	if (PhysicalSpacecraft)
+	AFlareSpacecraft* PhysicalSpacecraft = TargetLeftSpacecraft->GetActive();
+	if (TargetLeftSpacecraft->IsActive())
 	{
 		if (PhysicalSpacecraft->GetNavigationSystem()->IsDocked())
 		{
@@ -457,8 +457,7 @@ EVisibility SFlareTradeMenu::GetTradingVisibility() const
 
 EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 {
-	AFlareSpacecraft* PhysicalSpacecraft = Cast<AFlareSpacecraft>(TargetLeftSpacecraft);
-	if (PhysicalSpacecraft)
+	if (TargetLeftSpacecraft->IsActive())
 	{
 		return EVisibility::Collapsed;
 	}
@@ -467,9 +466,6 @@ EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 		return GetTradingVisibility();
 	}
 }
-
-
-
 
 EVisibility SFlareTradeMenu::GetTransactionDetailsVisibility() const
 {

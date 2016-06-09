@@ -97,8 +97,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(UpgradeBox, SVerticalBox)
 				]
-
-
+				
 				// Ship part characteristics
 				+ SVerticalBox::Slot()
 				.VAlign(VAlign_Center)
@@ -291,7 +290,7 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 		TArray<UFlareSimulatedSpacecraft*> DockedShips = Target->GetDockingSystem()->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
 		{
-			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(DockedShips[i]);
+			AFlareSpacecraft* Spacecraft = DockedShips[i]->GetActive();
 
 			if (Spacecraft)
 			{
@@ -469,12 +468,10 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 
 void SFlareShipMenu::UpdateFactoryList()
 {
-	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-
 	// Iterate on all factories
-	if (SimulatedSpacecraft)
+	if (TargetSpacecraft)
 	{
-		TArray<UFlareFactory*>& Factories = SimulatedSpacecraft->GetFactories();
+		TArray<UFlareFactory*>& Factories = TargetSpacecraft->GetFactories();
 		for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 		{
 			FactoryList->AddSlot()
@@ -490,11 +487,12 @@ void SFlareShipMenu::UpdateFactoryList()
 
 void SFlareShipMenu::UpdateUpgradeBox()
 {
-	UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UpgradeBox->ClearChildren();
 
-	if (!SimulatedSpacecraft || !SimulatedSpacecraft->IsStation())
+	if (!TargetSpacecraft
+	 || !TargetSpacecraft->IsStation()
+	 || TargetSpacecraft->GetCompany() != MenuManager->GetPC()->GetCompany())
 	{
 		return;
 	}
@@ -507,12 +505,12 @@ void SFlareShipMenu::UpdateUpgradeBox()
 		SNew(STextBlock)
 		.TextStyle(&Theme.SubTitleFont)
 		.Text(FText::Format(LOCTEXT("UpgradeTitleFormat", "Upgrade ({0}/{1})"),
-			FText::AsNumber(SimulatedSpacecraft->GetLevel()),
-			FText::AsNumber(SimulatedSpacecraft->GetDescription()->MaxLevel)))
+			FText::AsNumber(TargetSpacecraft->GetLevel()),
+			FText::AsNumber(TargetSpacecraft->GetDescription()->MaxLevel)))
 	];
 
 	// Max level
-	if (SimulatedSpacecraft->GetLevel() >= SimulatedSpacecraft->GetDescription()->MaxLevel)
+	if (TargetSpacecraft->GetLevel() >= TargetSpacecraft->GetDescription()->MaxLevel)
 	{
 		UpgradeBox->AddSlot()
 		.AutoHeight()
@@ -536,16 +534,16 @@ void SFlareShipMenu::UpdateUpgradeBox()
 
 		// Add resources
 		FString ResourcesString;
-		for (int ResourceIndex = 0; ResourceIndex < SimulatedSpacecraft->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
+		for (int ResourceIndex = 0; ResourceIndex < TargetSpacecraft->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
 		{
-			FFlareFactoryResource* FactoryResource = &SimulatedSpacecraft->GetDescription()->CycleCost.InputResources[ResourceIndex];
+			FFlareFactoryResource* FactoryResource = &TargetSpacecraft->GetDescription()->CycleCost.InputResources[ResourceIndex];
 			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
 		}
 
 		// Final text
 		FText ProductionCost = FText::Format(LOCTEXT("UpgradeCostFormat", "Upgrade to level {0} ({1} credits{2})"),
-			FText::AsNumber(SimulatedSpacecraft->GetLevel() + 1),
-			FText::AsNumber(UFlareGameTools::DisplayMoney(SimulatedSpacecraft->GetStationUpgradeFee())),
+			FText::AsNumber(TargetSpacecraft->GetLevel() + 1),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(TargetSpacecraft->GetStationUpgradeFee())),
 			FText::FromString(ResourcesString));
 
 		// TODO increase stock inc cargo bay with level
@@ -568,7 +566,7 @@ void SFlareShipMenu::UpdateUpgradeBox()
 
 void SFlareShipMenu::Back()
 {
-	if (TargetSpacecraft && Cast<AFlareSpacecraft>(TargetSpacecraft))
+	if (TargetSpacecraft && TargetSpacecraft->IsActive())
 	{
 		MenuManager->CloseMenu();
 	}
@@ -791,11 +789,9 @@ void SFlareShipMenu::OnUpgradeStationClicked()
 	if (TargetSpacecraft)
 	{
 		UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
-		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-
-		if (Sector && SimulatedSpacecraft)
+		if (Sector)
 		{
-			Sector->UpgradeStation(SimulatedSpacecraft);
+			Sector->UpgradeStation(TargetSpacecraft);
 			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft);
 		}
 	}
@@ -808,18 +804,17 @@ bool SFlareShipMenu::IsUpgradeStationDisabled() const
 	if (TargetSpacecraft)
 	{
 		UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
-		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-
-
-		if (Sector && SimulatedSpacecraft)
+		if (Sector)
 		{
 			TArray<FText> Reasons;
-			return !Sector->CanUpgradeStation(SimulatedSpacecraft, Reasons);
+			return !Sector->CanUpgradeStation(TargetSpacecraft, Reasons);
 		}
 	}
 
 	return true;
 }
+
+
 /*----------------------------------------------------
 	Action callbacks
 ----------------------------------------------------*/

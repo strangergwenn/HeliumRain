@@ -283,7 +283,7 @@ void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* D
 			if (CurrentCommand.Type == EFlareCommandDataType::CDT_Dock)
 			{
 				// We are in a automatic docking process
-				AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(CurrentCommand.ActionTarget);
+				AFlareSpacecraft* DockStation = CurrentCommand.ActionTarget->GetActive();
 				if (DockStation != DockingCandidate)
 				{
 					// The hit spacecraft is not the docking target station
@@ -388,7 +388,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(UFlareSimulatedSpacecraf
 	// - Docking : As soon as the ship is in the docking limits, the ship is attached to the station
 
 
-	AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(DockStationInterface);
+	AFlareSpacecraft* DockStation = DockStationInterface->GetActive();
 	if (!DockStation)
 	{
 		// TODO LOG
