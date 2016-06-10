@@ -173,7 +173,7 @@ void SFlareOrbitalMenu::Enter(bool DeactivateCurrentSector)
 	if (DeactivateCurrentSector)
 	{
 		AFlarePlayerController* PC = MenuManager->GetPC();
-		PC->GetGame()->DeactivateSector(PC);
+		PC->GetGame()->DeactivateSector();
 	}
 
 	StopFastForward();

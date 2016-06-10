@@ -155,6 +155,8 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 	Params.bNoFail = true;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
+
+
 	// Create and configure the ship
 	Spacecraft = GetGame()->GetWorld()->SpawnActor<AFlareSpacecraft>(ParentSpacecraft->GetDescription()->Template->GeneratedClass, ParentSpacecraft->GetData().Location, ParentSpacecraft->GetData().Rotation, Params);
 	if (Spacecraft && !Spacecraft->IsPendingKillPending())
@@ -171,6 +173,9 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 			SectorShips.Add(Spacecraft);
 		}
 		SectorSpacecrafts.Add(Spacecraft);
+
+		FLOGV("%s spawn mode = %d", *Spacecraft->GetImmatriculation().ToString(), ParentSpacecraft->GetData().SpawnMode+0)
+
 
 		switch (ParentSpacecraft->GetData().SpawnMode)
 		{

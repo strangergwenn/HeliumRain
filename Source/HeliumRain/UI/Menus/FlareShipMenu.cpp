@@ -573,14 +573,7 @@ void SFlareShipMenu::Back()
 	else
 	{
 		UFlareSimulatedSector* CurrentSector = TargetSpacecraft->GetCurrentSector();
-		if (CurrentSector)
-		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, CurrentSector);
-		}
-		else
-		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Company);
-		}
+		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, CurrentSector);
 	}
 }
 

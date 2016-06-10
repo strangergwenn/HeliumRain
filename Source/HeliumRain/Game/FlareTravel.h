@@ -7,6 +7,7 @@
 struct FFlareSectorOrbitParameters;
 struct FFlareCelestialBody;
 class UFlareWorld;
+class UFlareSimulatedSector;
 
 
 /** Travel save data */
@@ -30,6 +31,8 @@ struct FFlareTravelSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 DepartureDate;
 
+	UPROPERTY(EditAnywhere, Category = Save)
+	FFlareSectorSave SectorData;
 };
 
 
@@ -65,6 +68,11 @@ public:
 
 	void GenerateTravelDuration();
 
+	UFlareSimulatedSector* GetTravelSector()
+	{
+		return TravelSector;
+	}
+
 	FFlareSectorOrbitParameters ComputeCurrentTravelLocation();
 
 	static int64 ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSector* OriginSector, UFlareSimulatedSector* DestinationSector);
@@ -85,7 +93,7 @@ public:
 
 	FFlareSectorOrbitParameters ComputeAltitudeTravelLocation(UFlareWorld* World, FFlareCelestialBody* CelestialBody, double OriginAltitude, double DestinationAltitude, int64 ElapsedTime);
 
-
+	static void InitTravelSector(FFlareSectorSave& NewSectorData);
 
 protected:
 
@@ -98,6 +106,11 @@ protected:
 	UFlareSimulatedSector*                  DestinationSector;
 	UFlareSimulatedSector*                  OriginSector;
 
+	UPROPERTY()
+	UFlareSimulatedSector*                  TravelSector;
+
+	UPROPERTY()
+	FFlareSectorDescription          SectorDescription;
 
 	FFlareTravelSave                        TravelData;
 	AFlareGame*                             Game;

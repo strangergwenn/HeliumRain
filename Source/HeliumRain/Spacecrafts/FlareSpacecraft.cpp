@@ -139,9 +139,12 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
 				if (Distance > Limits && !PC->GetMenuManager()->IsMenuOpen())
 				{
+					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits)
+
 					bool GoingToOrbit = PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, new bool(true));
 					if (GoingToOrbit)
 					{
+
 						PC->Notify(
 							LOCTEXT("ExitSector", "Exited sector"),
 							LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference."),
@@ -527,6 +530,7 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	// Update local data
 	Parent = ParentSpacecraft;
 	Parent->SetActiveSpacecraft(this);
+	FLOGV("AFlareSpacecraft::Load %s", *ParentSpacecraft->GetImmatriculation().ToString());
 
 	// Load ship description
 	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();

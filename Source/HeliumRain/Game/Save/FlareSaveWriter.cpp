@@ -548,6 +548,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSector(FFlareSectorSave* Data)
 	}
 	JsonObject->SetArrayField("ResourcePrices", ResourcePrices);
 
+	JsonObject->SetBoolField("IsTravelSector", Data->IsTravelSector);
+
 	return JsonObject;
 }
 
@@ -640,6 +642,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveTravel(FFlareTravelSave* Data)
 	JsonObject->SetStringField("OriginSectorIdentifier", Data->OriginSectorIdentifier.ToString());
 	JsonObject->SetStringField("DestinationSectorIdentifier", Data->DestinationSectorIdentifier.ToString());
 	JsonObject->SetStringField("DepartureDate", FormatInt64(Data->DepartureDate));
+
+	JsonObject->SetObjectField("SectorData", SaveSector(&Data->SectorData));
 
 	return JsonObject;
 }

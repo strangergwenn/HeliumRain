@@ -64,9 +64,11 @@ public:
 
 	virtual void Logout(AController* Player) override;
 
-	virtual void ActivateSector(AController* Player,UFlareSimulatedSector* Sector);
+	virtual void ActivateSector(UFlareSimulatedSector* Sector);
 
-	virtual UFlareSimulatedSector* DeactivateSector(AController* Player);
+	virtual void ActivateCurrentSector();
+
+	virtual UFlareSimulatedSector* DeactivateSector();
 
 	virtual void SetWorldPause(bool Pause);
 

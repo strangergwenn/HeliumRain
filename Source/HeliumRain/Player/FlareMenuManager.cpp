@@ -753,7 +753,7 @@ void AFlareMenuManager::LoadGame()
 	{
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
 		Sector->SetShipToFly(CurrentShip);
-		PC->GetGame()->ActivateSector(PC, Sector);
+		PC->GetGame()->ActivateCurrentSector();
 		MenuIsOpen = false;
 	}
 }
@@ -800,7 +800,7 @@ void AFlareMenuManager::ActivateSector(UFlareSimulatedSector* Target)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && Target)
 	{
-		PC->GetGame()->ActivateSector(PC, Target);
+		PC->GetGame()->ActivateSector(Target);
 		ExitMenu();
 		MenuIsOpen = false;
 	}

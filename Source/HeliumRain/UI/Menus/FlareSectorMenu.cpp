@@ -725,8 +725,11 @@ void SFlareSectorMenu::OnStartTravelConfirmed()
 	UFlareFleet* SelectedFleet = MenuManager->GetGame()->GetPC()->GetSelectedFleet();
 	if (SelectedFleet)
 	{
-		MenuManager->GetGame()->GetGameWorld()->StartTravel(SelectedFleet, TargetSector);
-		MenuManager->Back();
+		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->StartTravel(SelectedFleet, TargetSector);
+		if (Travel)
+		{
+			MenuManager->GetGame()->ActivateCurrentSector();
+		}
 	}
 }
 

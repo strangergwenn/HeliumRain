@@ -41,7 +41,7 @@ void UFlareGameTools::ForceSectorActivation(FName SectorIdentifier)
 		return;
 	}
 
-	GetGame()->ActivateSector(GetPC(), Sector);
+	GetGame()->ActivateSector(Sector);
 }
 
 void UFlareGameTools::ForceSectorDeactivation()
@@ -52,7 +52,7 @@ void UFlareGameTools::ForceSectorDeactivation()
 		return;
 	}
 
-	GetGame()->DeactivateSector(GetPC());
+	GetGame()->DeactivateSector();
 }
 
 void UFlareGameTools::SetDefaultWeapon(FName NewDefaultWeaponIdentifier)
@@ -1093,12 +1093,6 @@ void UFlareGameTools::TransferResources(FName SourceImmatriculation, FName Desti
 		return;
 	}
 
-	if(SourceSpacecraft->GetCurrentSector() == NULL)
-	{
-		FLOG("UFlareGameTools::TransferResources failed: no source spacecraft not in a sector");
-		return;
-	}
-
 	SourceSpacecraft->GetCurrentSector()->TransfertResources(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
 }
 
@@ -1143,7 +1137,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName Station
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
-	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
 
 	UFlareSimulatedSpacecraft* NewStation= NULL;
 
@@ -1191,7 +1185,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
-	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
 
 	UFlareSimulatedSpacecraft* NewShip = NULL;
 
@@ -1225,7 +1219,7 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
-	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
 
 	for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
 	{
@@ -1268,7 +1262,7 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 		TargetPosition2 = ExistingShipPawn->GetActorLocation() - ExistingShipPawn->GetActorRotation().RotateVector(Distance / 2.f * FVector(100, 0, 0));
 	}
 
-	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
 
 	for (int32 ShipIndex = 0; ShipIndex < ShipClass1Count; ShipIndex++)
 	{
@@ -1304,7 +1298,7 @@ void UFlareGameTools::CreateAsteroid(int32 ID, FName Name)
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(200 * FVector(100, 0, 0));
 	}
 
-	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector(PC);
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
 
 	ActiveSector->CreateAsteroid(ID, Name, TargetPosition);
 

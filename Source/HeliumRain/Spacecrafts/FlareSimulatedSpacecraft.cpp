@@ -177,7 +177,7 @@ bool UFlareSimulatedSpacecraft::CanBeFlown(FText& OutInfo) const
 	{
 		return false;
 	}
-	else if (CurrentSector == NULL)
+	else if (CurrentSector->IsTravelSector())
 	{
 		OutInfo = FText::Format(LOCTEXT("CantTravelFormat", "Can't fly during travel ({0})"), FText::FromName(GetImmatriculation()));
 		return false;
@@ -201,7 +201,7 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 	CurrentSector = Sector;
 
 	// Mark the sector as visited
-	if (Sector)
+	if (!Sector->IsTravelSector())
 	{
 		GetCompany()->VisitSector(Sector);
 	}
@@ -214,7 +214,7 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 
 void UFlareSimulatedSpacecraft::AssignToSector(bool Assign)
 {
-	if (CurrentSector == NULL)
+	if (!CurrentSector->IsTravelSector())
 	{
 		SpacecraftData.IsAssigned = false;
 	}

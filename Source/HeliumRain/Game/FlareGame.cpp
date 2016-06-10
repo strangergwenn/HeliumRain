@@ -118,14 +118,14 @@ void AFlareGame::Logout(AController* Player)
 
 	// Save the world, literally
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
-	DeactivateSector(PC);
+	DeactivateSector();
 	SaveGame(PC);
 	PC->PrepareForExit();
 
 	Super::Logout(Player);
 }
 
-void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sector)
+void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 {
 	if (!Sector)
 	{
@@ -148,7 +148,7 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		}
 
 		// Deactivate the sector
-		DeactivateSector(Player);
+		DeactivateSector();
 	}
 
 	// Ships
@@ -184,13 +184,17 @@ void AFlareGame::ActivateSector(AController* Player, UFlareSimulatedSector* Sect
 		ActiveSector->Load(Sector);
 		DebrisFieldSystem->Load(this, Sector);
 
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
-		PC->OnSectorActivated(ActiveSector);
+		GetPC()->OnSectorActivated(ActiveSector);
 	}
 	GetQuestManager()->OnSectorActivation(Sector);
 }
 
-UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
+void AFlareGame::ActivateCurrentSector()
+{
+	ActivateSector(GetPC()->GetPlayerShip()->GetCurrentSector());
+}
+
+UFlareSimulatedSector* AFlareGame::DeactivateSector()
 {
 	if (!ActiveSector)
 	{
@@ -199,14 +203,13 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 
 	UFlareSimulatedSector* Sector = ActiveSector->GetSimulatedSector();
 	FLOGV("AFlareGame::DeactivateSector : %s", *Sector->GetSectorName().ToString());
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 	World->Save();
 
 	// Set last flown ship
 	FName LastFlownShip = "";
-	if (PC->GetPlayerShip())
+	if (GetPC()->GetPlayerShip())
 	{
-		LastFlownShip = PC->GetPlayerShip()->GetImmatriculation();
+		LastFlownShip = GetPC()->GetPlayerShip()->GetImmatriculation();
 	}
 
 	// Destroy the active sector
@@ -216,9 +219,10 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector(AController* Player)
 
 	// Update the PC
 	Sector->GetData()->LastFlownShip = LastFlownShip;
-	PC->SetLastFlownShip(LastFlownShip);
-	PC->OnSectorDeactivated();
-	SaveGame(PC);
+	GetPC()->SetLastFlownShip(LastFlownShip);
+
+	GetPC()->OnSectorDeactivated();
+	SaveGame(GetPC());
 
 	return Sector;
 }
@@ -230,7 +234,7 @@ void AFlareGame::SetWorldPause(bool Pause)
 
 void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation)
 {
-	DeactivateSector(GetPC());
+	DeactivateSector();
 
 	UFlareSimulatedSpacecraft* ShipToScrap = World->FindSpacecraft(ShipImmatriculation);
 	UFlareSimulatedSpacecraft* ScrapingStation = World->FindSpacecraft(TargetStationImmatriculation);

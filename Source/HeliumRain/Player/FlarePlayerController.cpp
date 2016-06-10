@@ -770,20 +770,15 @@ void AFlarePlayerController::Simulate()
 		return;
 	}
 	
-	UFlareSimulatedSector* LastActiveSector = NULL;
 
 	if(GetGame()->GetActiveSector())
 	{
-		LastActiveSector = GetGame()->GetActiveSector()->GetSimulatedSector();
-		GetGame()->DeactivateSector(this);
+		GetGame()->DeactivateSector();
 	}
 
 	GetGame()->GetGameWorld()->Simulate();
 
-	if(LastActiveSector)
-	{
-		GetGame()->ActivateSector(this, LastActiveSector);
-	}
+	GetGame()->ActivateCurrentSector();
 }
 
 void AFlarePlayerController::SettingsMenu()
