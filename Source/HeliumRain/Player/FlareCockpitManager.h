@@ -48,6 +48,9 @@ public:
 
 protected:
 
+	/** Setup the cockpit materials */
+	void SetupCockpitInstances(UMaterialInstanceDynamic* ScreenInstance, UMaterialInstanceDynamic* FrameInstanceh);
+
 	/** Enter the cockpit */
 	void EnterCockpit(AFlareSpacecraft* TargetPlayerShip);
 
@@ -81,14 +84,6 @@ protected:
 	UPROPERTY()
 	AFlareSpacecraft*                        PlayerShip;
 
-	// Cockpit mesh template
-	UPROPERTY()
-	UStaticMesh*                             CockpitMeshTemplate;
-
-	// Cockpit mesh template
-	UPROPERTY()
-	UStaticMesh*                             FighterCockpitMeshTemplate;
-
 	// Cockpit
 	UPROPERTY(Category = Cockpit, EditAnywhere)
 	UStaticMeshComponent*                    CockpitMesh;
@@ -109,27 +104,40 @@ protected:
 	float                                    CockpitHealthLightPeriod;
 	float                                    CockpitPowerTime;
 	float                                    CockpitPowerPeriod;
-	
+
 
 	/*----------------------------------------------------
-		Materials
+		Cockpit templates
 	----------------------------------------------------*/
 
-	// Cockpit material template
+	// Freighter cockpit mesh
 	UPROPERTY()
-	UMaterial*                               CockpitMaterialTemplate;
+	UStaticMesh*                             FreighterCockpitMeshTemplate;
+
+	// Fighter cockpit mesh
+	UPROPERTY()
+	UStaticMesh*                             FighterCockpitMeshTemplate;
+
+
+	/*----------------------------------------------------
+		Dynamic data
+	----------------------------------------------------*/
 
 	// Cockpit material instance
 	UPROPERTY(Category = Cockpit, EditAnywhere)
-	UMaterialInstanceDynamic*                CockpitMaterialInstance;
-
-	// Cockpit material template (frame)
-	UPROPERTY(Category = Cockpit, EditAnywhere)
-	UMaterialInstanceConstant*               CockpitFrameMaterialTemplate;
+	UMaterialInstanceDynamic*                FreighterCockpitMaterialInstance;
 
 	// Cockpit material instance (frame)
 	UPROPERTY(Category = Cockpit, EditAnywhere)
-	UMaterialInstanceDynamic*                CockpitFrameMaterialInstance;
+	UMaterialInstanceDynamic*                FreighterCockpitFrameMaterialInstance;
+
+	// Cockpit material instance
+	UPROPERTY(Category = Cockpit, EditAnywhere)
+	UMaterialInstanceDynamic*                FighterCockpitMaterialInstance;
+
+	// Cockpit material instance (frame)
+	UPROPERTY(Category = Cockpit, EditAnywhere)
+	UMaterialInstanceDynamic*                FighterCockpitFrameMaterialInstance;
 
 
 	/*----------------------------------------------------
@@ -174,5 +182,10 @@ public:
 	{
 		return CockpitMesh;
 	}
+	
+	UMaterialInstanceDynamic* GetCurrentScreenMaterial();
+
+	UMaterialInstanceDynamic* GetCurrentFrameMaterial();
+
 
 };

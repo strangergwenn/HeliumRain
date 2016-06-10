@@ -111,6 +111,8 @@ protected:
 		
 	void OnCockpitToggle();
 
+	void OnPauseInMenusToggle();
+
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
 
 	/** Exit this menu */
@@ -146,27 +148,32 @@ protected:
 	AFlareGame*                                 Game;
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
 
-	// Slate widgets
+	// Graphics settings
 	TSharedPtr<SFlareButton>                    FullscreenButton;
 	TSharedPtr<SFlareButton>                    VSyncButton;
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
-	TSharedPtr<SFlareButton>                    CockpitButton;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;
 	TSharedPtr<SSlider>                         AntiAliasingQualitySlider;
 	TSharedPtr<SSlider>                         PostProcessQualitySlider;
-	TSharedPtr<SSlider>                         MusicVolumeSlider;
-	TSharedPtr<SSlider>                         MasterVolumeSlider;
 	TSharedPtr<STextBlock>	        			TextureQualityLabel;
 	TSharedPtr<STextBlock>	        			EffectsQualityLabel;
 	TSharedPtr<STextBlock>	        			AntiAliasingQualityLabel;
 	TSharedPtr<STextBlock>	        			PostProcessQualityLabel;
+
+	// Gameplay
+	TSharedPtr<SFlareButton>                    CockpitButton;
+	TSharedPtr<SFlareButton>                    PauseInMenusButton;
+
+	// Sound
+	TSharedPtr<SSlider>                         MusicVolumeSlider;
+	TSharedPtr<SSlider>                         MasterVolumeSlider;
 	TSharedPtr<STextBlock>	        			MusicVolumeLabel;
 	TSharedPtr<STextBlock>	        			MasterVolumeLabel;
+	
+	// Controls
 	TSharedPtr<SVerticalBox>                    ControlList;
-
-
-	TArray<TSharedPtr<FSimpleBind> > Binds;
+	TArray<TSharedPtr<FSimpleBind> >            Binds;
 
 	// Resolution data
 	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;

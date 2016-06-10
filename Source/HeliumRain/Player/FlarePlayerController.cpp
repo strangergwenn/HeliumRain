@@ -60,8 +60,7 @@ void AFlarePlayerController::BeginPlay()
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	check(MyGameSettings);
 	UseCockpit = MyGameSettings->UseCockpit;
-	MusicVolume = MyGameSettings->MusicVolume;
-	MasterVolume = MyGameSettings->MasterVolume;
+	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
 
 	// Cockpit
 	SetupCockpit();
@@ -77,8 +76,8 @@ void AFlarePlayerController::BeginPlay()
 	if (SoundManager)
 	{
 		SoundManager->Setup(this);
-		SoundManager->SetMusicVolume(MusicVolume);
-		SoundManager->SetMasterVolume(MasterVolume);
+		SoundManager->SetMusicVolume(MyGameSettings->MusicVolume);
+		SoundManager->SetMasterVolume(MyGameSettings->MasterVolume);
 	}
 }
 
@@ -198,6 +197,11 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		DustEffect->SetVectorParameter("Direction", -Direction);
 		DustEffect->SetVectorParameter("Size", FVector(1, VelocityFactor, 1));
 	}
+	else if (DustEffect)
+	{
+		DustEffect->SetColorParameter("Intensity", FVector::ZeroVector);
+		DustEffect->SetColorParameter("Direction", FVector::ZeroVector);
+	}
 
 	// Sound
 	if (SoundManager)
@@ -272,6 +276,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		GetNavHUD()->OnTargetShipChanged();
 		SetSelectingWeapon();
 
+		PlayerData.LastFlownShipIdentifier = Ship->GetParent()->GetImmatriculation();
 		GetGame()->GetQuestManager()->OnFlyShip(Ship);
 	}
 }
@@ -308,7 +313,6 @@ void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 
 void AFlarePlayerController::OnLoadComplete()
 {
-	SetWorldPause(true);
 	Company->UpdateCompanyCustomization();
 }
 
@@ -371,7 +375,10 @@ void AFlarePlayerController::OnSectorDeactivated()
 
 	// Reset states
 	LastBattleState = EFlareSectorBattleState::NoBattle;
-	MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+	if (!MenuManager->IsMenuOpen())
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+	}
 }
 
 void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState)
@@ -381,7 +388,22 @@ void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type 
 	if (NewBattleState == EFlareSectorBattleState::NoBattle)
 	{
 		FLOG("AFlarePlayerController::OnBattleStateChanged : peace");
-		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+		if (GetGame()->GetActiveSector())
+		{
+			EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
+			if (LevelMusic != EFlareMusicTrack::None)
+			{
+				SoundManager->RequestMusicTrack(LevelMusic);
+			}
+			else
+			{
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+			}
+		}
+		else
+		{
+			SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+		}
 	}
 	else
 	{
@@ -505,8 +527,9 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 {
 	FLOGV("AFlarePlayerController::SetWorldPause world %d", Pause);
 
-	if (GetGame()->GetActiveSector())
+	if (PauseGameInMenus && GetGame()->GetActiveSector())
 	{
+		GetGame()->SetWorldPause(Pause);
 		GetGame()->GetActiveSector()->SetPause(Pause);
 	}
 }
@@ -529,6 +552,10 @@ UFlareFleet* AFlarePlayerController::GetSelectedFleet()
 	return SelectedFleet;
 }
 
+UFlareFleet* AFlarePlayerController::GetPlayerFleet()
+{
+	return GetPlayerShip()->GetCurrentFleet();
+}
 
 bool AFlarePlayerController::IsInMenu()
 {
@@ -708,7 +735,7 @@ void AFlarePlayerController::ToggleCamera()
 
 void AFlarePlayerController::ToggleMenu()
 {
-	if (GetGame()->IsLoadedOrCreated())
+	if (GetGame()->IsLoadedOrCreated() && ShipPawn && GetGame()->GetActiveSector())
 	{
 		if (MenuManager->IsMenuOpen())
 		{
@@ -743,20 +770,15 @@ void AFlarePlayerController::Simulate()
 		return;
 	}
 	
-	UFlareSimulatedSector* LastActiveSector = NULL;
 
 	if(GetGame()->GetActiveSector())
 	{
-		LastActiveSector = GetGame()->GetActiveSector()->GetSimulatedSector();
-		GetGame()->DeactivateSector(this);
+		GetGame()->DeactivateSector();
 	}
 
 	GetGame()->GetGameWorld()->Simulate();
 
-	if(LastActiveSector)
-	{
-		GetGame()->ActivateSector(this, LastActiveSector);
-	}
+	GetGame()->ActivateCurrentSector();
 }
 
 void AFlarePlayerController::SettingsMenu()
@@ -976,7 +998,7 @@ void AFlarePlayerController::WheelPressed()
 				}
 
 				// Dock
-				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn()->GetParent()) && Target->GetParent()->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
+				if (Target->GetDockingSystem()->HasCompatibleDock(GetPlayerShip()) && Target->GetParent()->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
 				{
 					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
 					MouseMenu->AddWidget("Mouse_DockAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));
@@ -1143,15 +1165,30 @@ void AFlarePlayerController::SetUseCockpit(bool New)
 	CockpitManager->SetupCockpit(this);
 }
 
+void AFlarePlayerController::SetPauseGameInMenus(bool New)
+{
+	// Unpause if we are disabling the option
+	if (New == false)
+	{
+		SetWorldPause(false);
+	}
+
+	PauseGameInMenus = New;
+
+	// Pause if we are setting the option
+	if (New == true)
+	{
+		SetWorldPause(true);
+	}
+}
+
 void AFlarePlayerController::SetMusicVolume(int32 New)
 {
-	MusicVolume = New;
 	SoundManager->SetMusicVolume(New);
 }
 
 void AFlarePlayerController::SetMasterVolume(int32 New)
 {
-	MasterVolume = New;
 	SoundManager->SetMasterVolume(New);
 }
 
@@ -1160,7 +1197,7 @@ void AFlarePlayerController::SetMasterVolume(int32 New)
 	Getters for game classes
 ----------------------------------------------------*/
 
-UFlareSimulatedSpacecraft* AFlarePlayerController::GetLastFlownShip()
+UFlareSimulatedSpacecraft* AFlarePlayerController::GetPlayerShip()
 {
 	UFlareWorld* GameWorld = GetGame()->GetGameWorld();
 	if (GameWorld)

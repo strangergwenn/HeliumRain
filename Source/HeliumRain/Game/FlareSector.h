@@ -36,8 +36,6 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
-	AStaticMeshActor* AddDebris(UStaticMesh* Mesh, float Debris, float SectorScale, FName Name);
-
 	AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
 
 	AFlareSpacecraft* LoadSpacecraft(UFlareSimulatedSpacecraft* ParentSpacecraft);
@@ -80,8 +78,6 @@ protected:
 	
 	UPROPERTY()
 	TArray<AFlareAsteroid*>        SectorAsteroids;
-	UPROPERTY()
-	TArray<AStaticMeshActor*>      SectorDebrisField;
 	UPROPERTY()
 	TArray<AFlareBomb*>            SectorBombs;
 	UPROPERTY()

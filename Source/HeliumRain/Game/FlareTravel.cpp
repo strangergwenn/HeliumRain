@@ -40,7 +40,36 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 
 	Fleet->SetCurrentTravel(this);
 	GenerateTravelDuration();
+
+
+	FFlareSectorOrbitParameters OrbitParameters;
+	OrbitParameters = *OriginSector->GetOrbitParameters();
+
+
+	SectorDescription.Name = LOCTEXT("TravelSectorName", "Travelling ...");
+	SectorDescription.Description = LOCTEXT("TravelSectorDescription", "Travel local sector");
+	SectorDescription.Identifier=Fleet->GetIdentifier();
+	SectorDescription.Phase = 0;
+	SectorDescription.IsPeaceful = true;
+	SectorDescription.IsIcy = false;
+	SectorDescription.IsGeostationary = false;
+	SectorDescription.IsSolarPoor = false;
+	SectorDescription.LevelName = NAME_None;
+	SectorDescription.DebrisFieldInfo.DebrisCatalog = NULL;
+	SectorDescription.LevelTrack = EFlareMusicTrack::Pacific;
+	SectorDescription.DebrisFieldInfo.DebrisFieldDensity = 0;
+	SectorDescription.DebrisFieldInfo.MaxDebrisSize = 0;
+	SectorDescription.DebrisFieldInfo.MinDebrisSize = 0;
+
+	TravelSector = NewObject<UFlareSimulatedSector>(this, UFlareSimulatedSector::StaticClass());
+	TravelSector->Load(&SectorDescription, Data.SectorData, OrbitParameters);
+
+	Fleet->SetCurrentSector(TravelSector);
+	TravelSector->AddFleet(Fleet);
+
+
 }
+
 
 FFlareTravelSave* UFlareTravel::Save()
 {
@@ -119,6 +148,10 @@ void UFlareTravel::EndTravel()
 			5.0f,
 			EFlareMenu::MENU_Sector,
 			DestinationSector);
+		if(Game->GetPC()->GetPlayerShip()->GetCurrentFleet() == Fleet)
+		{
+			Game->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, Game->GetPC()->GetPlayerShip()->GetCurrentSector());
+		}
 	}
 }
 
@@ -275,6 +308,32 @@ double UFlareTravel::ComputeAltitudeTravelMoonToMoonDistance(UFlareWorld* World,
 {
 	// Moon1 orbit  to moon2 orbit
 	return FMath::Abs(DestinationCelestialBody->OrbitDistance - OriginCelestialBody->OrbitDistance);
+}
+
+void UFlareTravel::InitTravelSector(FFlareSectorSave& NewSectorData)
+{
+	// Init new travel sector
+	NewSectorData.GivenName = FText();
+	NewSectorData.Identifier = TEXT("Travel");
+	NewSectorData.LocalTime = 0;
+	NewSectorData.IsTravelSector = true;
+
+	// Init population
+	NewSectorData.PeopleData.Population = 0;
+	NewSectorData.PeopleData.BirthPoint = 0;
+	NewSectorData.PeopleData.DeathPoint = 0;
+	NewSectorData.PeopleData.FoodStock = 0;
+	NewSectorData.PeopleData.FuelStock = 0;
+	NewSectorData.PeopleData.ToolStock = 0;
+	NewSectorData.PeopleData.TechStock = 0;
+	NewSectorData.PeopleData.FoodConsumption = 0;
+	NewSectorData.PeopleData.FuelConsumption = 0;
+	NewSectorData.PeopleData.ToolConsumption = 0;
+	NewSectorData.PeopleData.TechConsumption = 0;
+	NewSectorData.PeopleData.HappinessPoint = 0;
+	NewSectorData.PeopleData.HungerPoint = 0;
+	NewSectorData.PeopleData.Money = 0;
+	NewSectorData.PeopleData.Dept = 0;
 }
 
 #undef LOCTEXT_NAMESPACE

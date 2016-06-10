@@ -51,7 +51,13 @@ protected:
 	bool IsBuildStationDisabled() const;
 
 	/** Get the travel text */
+	FText GetPlayerTravelText() const;
+
+	/** Get the travel text */
 	FText GetTravelText() const;
+
+	/** Visibility setting for the travel button */
+	bool IsPlayerTravelDisabled() const;
 
 	/** Visibility setting for the travel button */
 	bool IsTravelDisabled() const;
@@ -95,6 +101,9 @@ protected:
 	void OnResourcePrices();
 
 	/** Move the selected fleet here */
+	void OnPlayerTravelHereClicked();
+
+	/** Move the selected fleet here */
 	void OnTravelHereClicked();
 
 	/** Refuel all fleets */
@@ -102,6 +111,9 @@ protected:
 
 	/** Repair all fleets */
 	void OnRepairClicked();
+
+	/** Start travel */
+	void OnPlayerStartTravelConfirmed();
 
 	/** Start travel */
 	void OnStartTravelConfirmed();

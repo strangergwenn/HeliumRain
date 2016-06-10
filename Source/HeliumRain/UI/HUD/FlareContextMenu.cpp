@@ -154,10 +154,8 @@ FText SFlareContextMenu::GetText() const
 		if (IsTargetting)
 		{
 			UFlareSpacecraftWeaponsSystem* WeaponSystem = PlayerShip->GetWeaponsSystem();
-			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(TargetSpacecraft);
-			check(Spacecraft != NULL);
 
-			if (Spacecraft != WeaponSystem->GetActiveWeaponTarget())
+			if (TargetSpacecraft != WeaponSystem->GetActiveWeaponTarget())
 			{
 				Info = LOCTEXT("Mark", "Mark as target\n {0}");
 			}

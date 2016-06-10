@@ -63,7 +63,6 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 			if (NotificationData[Index]->IsDuplicate(Tag))
 			{
 				NotificationData[Index]->Finish();
-				FLOG("SFlareNotifier::Notify : ignoring because it's duplicate");
 			}
 		}
 	}

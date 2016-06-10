@@ -75,7 +75,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDFontLarge = HUDFontLargeObj.Object;
 
 	// Settings
-	FocusDistance = 1000000;
+	FocusDistance = 10000000;
 	IconSize = 24;
 	ShadowOffset = FVector2D(1, 1);
 	ShadowColor = FLinearColor(0.02, 0.02, 0.02, 1.0f);
@@ -83,7 +83,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	// Cockpit instruments
 	TopInstrument =   FVector2D(20, 10);
 	LeftInstrument =  FVector2D(20, 165);
-	RightInstrument = FVector2D(20, 320);
+	RightInstrument = FVector2D(24, 320);
 	InstrumentSize =  FVector2D(380, 115);
 	InstrumentLine =  FVector2D(0, 20);
 
@@ -177,9 +177,9 @@ bool AFlareHUD::IsWheelMenuOpen() const
 void AFlareHUD::OnTargetShipChanged()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && PC->GetShipPawn())
+	if (PC && PC->GetPlayerShip())
 	{
-		HUDMenu->SetTargetShip(PC->GetShipPawn()->GetParent());
+		HUDMenu->SetTargetShip(PC->GetPlayerShip());
 		UpdateHUDVisibility();
 	}
 }
@@ -359,7 +359,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 {
 	// Data
 	float CockpitIconSize = 20;
-	FVector2D CurrentPos = RightInstrument;
+	FVector2D CurrentPos = LeftInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
 	FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
@@ -396,12 +396,12 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	// Ship icon
 	int32 ShipIconSize = 80;
 	UTexture2D* ShipIcon = Cast<UTexture2D>(PlayerShip->GetParent()->GetDescription()->MeshPreviewBrush.GetResourceObject());
-	DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - ShipIconSize, 0), ShipIconSize, ShipIcon, Theme.FriendlyColor);
+	DrawHUDIcon(LeftInstrument + FVector2D(InstrumentSize.X - ShipIconSize, 0), ShipIconSize, ShipIcon, Theme.FriendlyColor);
 }
 
 void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 {
-	FVector2D CurrentPos = LeftInstrument;
+	FVector2D CurrentPos = RightInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Fighter version
@@ -453,7 +453,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		{
 			int32 WeaponIconSize = 80;
 			UTexture2D* WeaponIcon = Cast<UTexture2D>(CurrentWeaponGroup->Weapons[0]->GetDescription()->MeshPreviewBrush.GetResourceObject());
-			DrawHUDIcon(LeftInstrument + FVector2D(InstrumentSize.X - WeaponIconSize, 0), WeaponIconSize, WeaponIcon, Theme.FriendlyColor);
+			DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - WeaponIconSize, 0), WeaponIconSize, WeaponIcon, Theme.FriendlyColor);
 		}
 
 		// Weapon list
@@ -705,9 +705,7 @@ void AFlareHUD::DrawHUDInternal()
 			}
 
 			// Draw search markers
-			if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE
-				&& !PlayerShip->GetStateManager()->IsExternalCamera()
-				&& ShouldDrawSearchMarker)
+			if (!PlayerShip->GetStateManager()->IsExternalCamera() && ShouldDrawSearchMarker)
 			{
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
 			}

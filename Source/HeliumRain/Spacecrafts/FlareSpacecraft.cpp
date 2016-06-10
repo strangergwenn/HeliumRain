@@ -137,15 +137,21 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				// Return to orbital if player leave the limits
 				float Distance = GetActorLocation().Size();
 				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-				if(Distance > Limits)
+				if (Distance > Limits && !PC->GetMenuManager()->IsMenuOpen())
 				{
-					PC->Notify(
-						LOCTEXT("ExitSector", "Exited sector"),
-						LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference."),
-						"exit-sector",
-						EFlareNotification::NT_Info);
-					GetData().SpawnMode = EFlareSpawnMode::Exit;
-					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
+					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits)
+
+					bool GoingToOrbit = PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, new bool(true));
+					if (GoingToOrbit)
+					{
+
+						PC->Notify(
+							LOCTEXT("ExitSector", "Exited sector"),
+							LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference."),
+							"exit-sector",
+							EFlareNotification::NT_Info);
+						GetData().SpawnMode = EFlareSpawnMode::Exit;
+					}
 				}
 				else
 				{
@@ -524,7 +530,7 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	// Update local data
 	Parent = ParentSpacecraft;
 	Parent->SetActiveSpacecraft(this);
-	Parent->GetData().SpawnMode = EFlareSpawnMode::Safe;
+	FLOGV("AFlareSpacecraft::Load %s", *ParentSpacecraft->GetImmatriculation().ToString());
 
 	// Load ship description
 	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
@@ -936,14 +942,14 @@ void AFlareSpacecraft::UpdateCustomization()
 			{
 				if (ShipNameTexture && !ShipNameDecalMaterial)
 				{
-					FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
-					FLinearColor ShipNameColor = (BasePaintColor.GetLuminance() > 0.5) ? FLinearColor::Black : FLinearColor::White;
 					ShipNameDecalMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), GetWorld());
-					ShipNameDecalMaterial->SetVectorParameterValue("NameColor", ShipNameColor);
-					ShipNameDecalMaterial->SetTextureParameterValue("NameTexture", ShipNameTexture);
 				}
 				if (Company && ShipNameDecalMaterial)
 				{
+					FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
+					FLinearColor ShipNameColor = (BasePaintColor.GetLuminance() > 0.5) ? FLinearColor::Black : FLinearColor::White;
+					ShipNameDecalMaterial->SetVectorParameterValue("NameColor", ShipNameColor);
+					ShipNameDecalMaterial->SetTextureParameterValue("NameTexture", ShipNameTexture);
 					Component->SetMaterial(0, ShipNameDecalMaterial);
 				}
 			}
@@ -954,10 +960,10 @@ void AFlareSpacecraft::UpdateCustomization()
 				if (!DecalMaterial)
 				{
 					DecalMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), GetWorld());
-					Company->CustomizeComponentMaterial(DecalMaterial);
 				}
 				if (Company && DecalMaterial)
 				{
+					Company->CustomizeComponentMaterial(DecalMaterial);
 					Component->SetMaterial(0, DecalMaterial);
 				}
 			}
@@ -1404,7 +1410,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 	else if (Command.Type == EFlareCommandDataType::CDT_Dock)
 	{
-		AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
+		AFlareSpacecraft* Target = Command.ActionTarget->GetActive();
 		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
 	}
 	else

@@ -65,6 +65,7 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 					NewSectorData.GivenName = FText();
 					NewSectorData.Identifier = SectorDescription->Identifier;
 					NewSectorData.LocalTime = 0;
+					NewSectorData.IsTravelSector = false;
 
 					// Init population
 					NewSectorData.PeopleData.Population = 0;
@@ -385,9 +386,16 @@ bool UFlareWorld::CheckIntegrity()
 				Integrity = false;
 			}
 
-			if(Fleet->GetCurrentSector() == NULL && Fleet->GetCurrentTravel() == NULL)
+			if(Fleet->GetCurrentSector() == NULL )
 			{
-				FLOGV("WARNING : World integrity failure : %s fleet %s is not is a sector and not in travel",
+				FLOGV("WARNING : World integrity failure : %s fleet %s is not in a sector",
+					  *Company->GetCompanyName().ToString(),
+					  *Fleet->GetFleetName().ToString());
+				Integrity = false;
+			}
+			else if(Fleet->GetCurrentSector()->IsTravelSector() && Fleet->GetCurrentTravel() == NULL)
+			{
+				FLOGV("WARNING : World integrity failure : %s fleet %s is in a travel sector and not in travel",
 					  *Company->GetCompanyName().ToString(),
 					  *Fleet->GetFleetName().ToString());
 				Integrity = false;
@@ -699,7 +707,7 @@ void UFlareWorld::AddFactory(UFlareFactory* Factory)
 	Factories.Add(Factory);
 }
 
-UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
+UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
 {
 	if (!TravelingFleet->CanTravel())
 	{
@@ -731,7 +739,13 @@ UFlareTravel* UFlareWorld::StartTravel(UFlareFleet* TravelingFleet, UFlareSimula
 		TravelData.OriginSectorIdentifier = OriginSector->GetIdentifier();
 		TravelData.DestinationSectorIdentifier = DestinationSector->GetIdentifier();
 		TravelData.DepartureDate = GetDate();
-		return LoadTravel(TravelData);
+		UFlareTravel::InitTravelSector(TravelData.SectorData);
+		UFlareTravel* Travel = LoadTravel(TravelData);
+		if(Game->GetPC()->GetPlayerShip()->GetCurrentFleet() == TravelingFleet)
+		{
+			Game->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, Game->GetPC()->GetPlayerShip()->GetCurrentSector());
+		}
+		return Travel;
 	}
 }
 

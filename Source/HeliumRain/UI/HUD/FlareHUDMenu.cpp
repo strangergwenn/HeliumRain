@@ -328,11 +328,11 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 FText SFlareHUDMenu::GetInfoText() const
 {
-	if (TargetShip && Cast<AFlareSpacecraft>(TargetShip) && !MenuManager->GetPC()->UseCockpit && MenuManager->GetPC()->GetGame()->GetActiveSector())
+	if (TargetShip && TargetShip->IsActive() && !MenuManager->GetPC()->UseCockpit && MenuManager->GetPC()->GetGame()->GetActiveSector())
 	{
 		FText ModeText;
 		FText AutopilotText;
-		FText SectorText = Cast<AFlareSpacecraft>(TargetShip)->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
+		FText SectorText = TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
 
 		if (TargetShip->GetNavigationSystem()->IsDocked())
 		{
@@ -348,7 +348,7 @@ FText SFlareHUDMenu::GetInfoText() const
 		}
 
 		return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}m/s - {1} {2} - {3}"),
-			FText::AsNumber(FMath::RoundToInt(Cast<AFlareSpacecraft>(TargetShip)->GetLinearVelocity().Size())),
+			FText::AsNumber(FMath::RoundToInt(TargetShip->GetActive()->GetLinearVelocity().Size())),
 			ModeText,
 			AutopilotText,
 			SectorText);
@@ -369,14 +369,14 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 		// Docking info
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
-			AFlareSpacecraft* Target = Cast<AFlareSpacecraft>(Command.ActionTarget);
+			AFlareSpacecraft* Target = Command.ActionTarget->GetActive();
 			Info = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
 		}
 
 		// Targetting info
 		else
 		{
-			AFlareSpacecraft* TargetShipPawn = Cast<AFlareSpacecraft>(TargetShip);
+			AFlareSpacecraft* TargetShipPawn = TargetShip->GetActive();
 			if (TargetShipPawn && TargetShipPawn->GetCurrentTarget())
 			{
 				Info = FText::Format(LOCTEXT("TargettingFormat", "Targetting {0}"), FText::FromName(TargetShipPawn->GetCurrentTarget()->GetImmatriculation()));

@@ -268,13 +268,16 @@ void UFlareFleet::Merge(UFlareFleet* Fleet)
 void UFlareFleet::SetCurrentSector(UFlareSimulatedSector* Sector)
 {
 	CurrentSector = Sector;
-	CurrentTravel = NULL;
+	if(!Sector->IsTravelSector())
+	{
+		CurrentTravel = NULL;
+	}
 	InitShipList();
 }
 
 void UFlareFleet::SetCurrentTravel(UFlareTravel* Travel)
 {
-	CurrentSector = NULL;
+	CurrentSector = Travel->GetTravelSector();
 	CurrentTravel = Travel;
 	InitShipList();
 	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)

@@ -90,13 +90,21 @@ void SFlareTooltip::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 void SFlareTooltip::ShowTooltip(SWidget* TargetWidget, FText Title, FText Content)
 {
-	if (TooltipTarget != TargetWidget)
+	if (Title.ToString().Len())
 	{
-		SetVisibility(EVisibility::HitTestInvisible);
-		TooltipTarget = TargetWidget;
-		TooltipTitle = Title;
-		TooltipContent = Content;
-		TooltipVisible = !TooltipContent.IsEmptyOrWhitespace();
+		if (TooltipTarget != TargetWidget)
+		{
+			SetVisibility(EVisibility::HitTestInvisible);
+			TooltipTarget = TargetWidget;
+			TooltipTitle = Title;
+			TooltipContent = Content;
+			TooltipVisible = !TooltipContent.IsEmptyOrWhitespace();
+		}
+	}
+	else
+	{
+		TooltipVisible = false;
+		TooltipTarget = NULL;
 	}
 }
 

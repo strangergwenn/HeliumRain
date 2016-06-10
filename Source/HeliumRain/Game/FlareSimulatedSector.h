@@ -251,6 +251,9 @@ struct FFlareSectorSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFFlareResourcePrice> ResourcePrices;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	bool IsTravelSector;
 };
 
 
@@ -439,6 +442,12 @@ public:
 	{
 		return 30;
 	}
+
+	bool IsTravelSector()
+	{
+		return SectorData.IsTravelSector;
+	}
+
 
 	int64 GetStationConstructionFee(int64 BasePrice);
 

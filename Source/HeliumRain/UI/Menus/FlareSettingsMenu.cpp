@@ -417,9 +417,21 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(CockpitButton, SFlareButton)
 						.Text(LOCTEXT("Cockpit", "Use cockpit"))
-						.HelpText(LOCTEXT("DarkNavInfo", "Use the 3D cockpit instead of a flat interface"))
+						.HelpText(LOCTEXT("CockpitInfo", "Use the 3D cockpit instead of a flat interface"))
 						.Toggle(true)
 						.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
+					]
+					
+					// Pause in menus
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(PauseInMenusButton, SFlareButton)
+						.Text(LOCTEXT("PauseInMenus", "Pause game in menus"))
+						.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu"))
+						.Toggle(true)
+						.OnClicked(this, &SFlareSettingsMenu::OnPauseInMenusToggle)
 					]
 				]
 				
@@ -449,7 +461,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SAssignNew(MasterVolumeSlider, SSlider)
-						.Value(MenuManager->GetPC()->MusicVolume / 10.0f)
+						.Value(MyGameSettings->MusicVolume / 10.0f)
 						.Style(&Theme.SliderStyle)
 						.OnValueChanged(this, &SFlareSettingsMenu::OnMasterVolumeSliderChanged)
 					]
@@ -464,7 +476,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(MasterVolumeLabel, STextBlock)
 							.TextStyle(&Theme.TextFont)
-							.Text(GetMusicVolumeLabel(MenuManager->GetPC()->MasterVolume))
+							.Text(GetMusicVolumeLabel(MyGameSettings->MasterVolume))
 						]
 					]
 				]
@@ -495,7 +507,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SAssignNew(MusicVolumeSlider, SSlider)
-						.Value(MenuManager->GetPC()->MusicVolume / 10.0f)
+						.Value(MyGameSettings->MusicVolume / 10.0f)
 						.Style(&Theme.SliderStyle)
 						.OnValueChanged(this, &SFlareSettingsMenu::OnMusicVolumeSliderChanged)
 					]
@@ -510,7 +522,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(MusicVolumeLabel, STextBlock)
 							.TextStyle(&Theme.TextFont)
-							.Text(GetMusicVolumeLabel(MenuManager->GetPC()->MusicVolume))
+							.Text(GetMusicVolumeLabel(MyGameSettings->MusicVolume))
 						]
 					]
 				]
@@ -543,6 +555,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
+	PauseInMenusButton->SetActive(MyGameSettings->PauseGameInMenus);
 
 	// Music volume
 	int32 MusicVolume = MyGameSettings->MusicVolume;
@@ -732,6 +745,16 @@ void SFlareSettingsMenu::OnCockpitToggle()
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->UseCockpit = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnPauseInMenusToggle()
+{
+	bool New = PauseInMenusButton->IsActive();
+	MenuManager->GetPC()->SetPauseGameInMenus(New);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->PauseGameInMenus = New;
 	MyGameSettings->ApplySettings(false);
 }
 

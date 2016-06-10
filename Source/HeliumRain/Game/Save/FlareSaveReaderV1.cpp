@@ -284,6 +284,7 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	LoadVector(Object, "Location", &Data->Location);
 	LoadRotator(Object, "Rotation", &Data->Rotation);
 	Data->SpawnMode = LoadEnum<EFlareSpawnMode::Type>(Object, "SpawnMode", "EFlareSpawnMode");
+	FLOGV("Load  %s SpawnMode %d", *Data->Immatriculation.ToString(), Data->SpawnMode+0);
 	LoadVector(Object, "LinearVelocity", &Data->LinearVelocity);
 	LoadVector(Object, "AngularVelocity", &Data->AngularVelocity);
 	LoadFName(Object, "DockedTo", &Data->DockedTo);
@@ -591,6 +592,12 @@ void UFlareSaveReaderV1::LoadSector(const TSharedPtr<FJsonObject> Object, FFlare
 			Data->ResourcePrices.Add(ChildData);
 		}
 	}
+
+	if(!Object->TryGetBoolField(TEXT("IsTravelSector"), Data->IsTravelSector))
+	{
+		Data->IsTravelSector = false;
+	}
+
 }
 
 
@@ -654,6 +661,16 @@ void UFlareSaveReaderV1::LoadTravel(const TSharedPtr<FJsonObject> Object, FFlare
 	LoadFName(Object, "OriginSectorIdentifier", &Data->OriginSectorIdentifier);
 	LoadFName(Object, "DestinationSectorIdentifier", &Data->DestinationSectorIdentifier);
 	LoadInt64(Object, "DepartureDate", &Data->DepartureDate);
+
+	const TSharedPtr< FJsonObject >* Sector;
+	if(Object->TryGetObjectField(TEXT("SectorData"), Sector))
+	{
+		LoadSector(*Sector, &Data->SectorData);
+	}
+	else
+	{
+		UFlareTravel::InitTravelSector(Data->SectorData);
+	}
 }
 
 

@@ -279,8 +279,7 @@ FText SFlareMainOverlay::GetSpacecraftInfo() const
 	}
 	else
 	{
-		// TODO : this should not happen anymore
-		return FText::FromString(FString("No player ship found"));
+		return LOCTEXT("TravellingPlayerShip", "Ship is travelling");
 	}
 
 	return FText();
@@ -293,7 +292,15 @@ void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
 		if (Menu == EFlareMenu::MENU_Ship)
 		{
 			AFlarePlayerController* PC = MenuManager->GetPC();
-			MenuManager->OpenMenuSpacecraft(Menu, PC->GetShipPawn()->GetParent());
+
+			if (PC->GetPlayerShip())
+			{
+				MenuManager->OpenMenuSpacecraft(Menu, PC->GetPlayerShip());
+			}
+			else
+			{
+				MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+			}
 		}
 		else
 		{

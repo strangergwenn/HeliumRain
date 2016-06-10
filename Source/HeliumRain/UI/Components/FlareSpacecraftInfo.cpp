@@ -352,24 +352,30 @@ void SFlareSpacecraftInfo::Show()
 	else if (TargetSpacecraft)
 	{
 		// Useful data
+		UFlareSimulatedSpacecraft* PlayerShip = PC->GetPlayerShip();
 		IFlareSpacecraftDockingSystemInterface* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
-		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PC->GetShipPawn()->GetParent();
-		bool FriendlyAndNotSelf = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
-		bool IsStrategy = Cast<AFlareSpacecraft>(TargetSpacecraft) == NULL;
-		bool IsDocked = TargetSpacecraft->GetNavigationSystem()->IsDocked() || TargetDockingSystem->IsDockedShip(PC->GetShipPawn()->GetParent());
+		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PlayerShip;
+		bool IsFriendly = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
+		bool IsRemoteFlying = TargetSpacecraft->GetCurrentSector() && TargetSpacecraft->GetCurrentSector() != PC->GetPlayerShip()->GetCurrentSector();
+		bool IsDocked = TargetSpacecraft->GetNavigationSystem()->IsDocked() || TargetDockingSystem->IsDockedShip(PlayerShip);
 		bool IsStation = TargetSpacecraft->IsStation();
 
+		FLOGV("SFlareSpacecraftInfo::Show : Owned = %d OwnedAndNotSelf = %d IsFriendly = %d IsRemoteFlying = %d IsDocked = %d",
+			Owned, OwnedAndNotSelf, IsFriendly, IsRemoteFlying, IsDocked);
+
 		// Permissions
-		bool CanDock = FriendlyAndNotSelf && TargetDockingSystem->HasCompatibleDock(PC->GetShipPawn()->GetParent()) && !IsDocked;
-		bool CanAssign = Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && !TargetSpacecraft->IsAssignedToSector();
+		bool CanDock =     !IsDocked && IsFriendly && TargetDockingSystem->HasCompatibleDock(PlayerShip);
+		bool CanAssign =   Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && !TargetSpacecraft->IsAssignedToSector();
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
-		bool CanUpgrade = Owned && !IsStation && (IsDocked || IsStrategy) && TargetSpacecraft->GetCurrentSector() && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
-		bool CanTrade = Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
+		bool CanUpgrade =  Owned && !IsStation && (IsDocked || IsRemoteFlying) && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
+		bool CanTrade =    Owned && !IsStation && (IsDocked || IsRemoteFlying) && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
+
+		FLOGV("SFlareSpacecraftInfo::Show : CanDock = %d CanAssign = %d CanUnAssign = %d CanUpgrade = %d CanTrade = %d",
+			CanDock, CanAssign, CanUnAssign, CanUpgrade, CanTrade);
 
 		// Trade override during battles
-		if (Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft)
-				&& TargetSpacecraft->GetCurrentSector())
+		if (TargetSpacecraft->GetCurrentSector())
 		{
 			EFlareSectorBattleState::Type BattleState = TargetSpacecraft->GetCurrentSector()->GetSectorBattleState(TargetSpacecraft->GetCompany());
 			if (BattleState == EFlareSectorBattleState::BattleLost
@@ -394,8 +400,8 @@ void SFlareSpacecraftInfo::Show()
 		UnassignButton->SetVisibility(CanUnAssign ? EVisibility::Visible : EVisibility::Collapsed);
 		TradeButton->SetVisibility(CanTrade ? EVisibility::Visible : EVisibility::Collapsed);
 		UpgradeButton->SetVisibility(Owned && !IsStation ? EVisibility::Visible : EVisibility::Collapsed);
-		DockButton->SetVisibility(CanDock && !IsStrategy ? EVisibility::Visible : EVisibility::Collapsed);
-		UndockButton->SetVisibility(IsDocked && !IsStrategy ? EVisibility::Visible : EVisibility::Collapsed);
+		DockButton->SetVisibility(CanDock && !IsRemoteFlying ? EVisibility::Visible : EVisibility::Collapsed);
+		UndockButton->SetVisibility(IsDocked && !IsRemoteFlying ? EVisibility::Visible : EVisibility::Collapsed);
 		ScrapButton->SetVisibility(IsStation ? EVisibility::Collapsed : EVisibility::Visible);
 
 		// Flyable ships : disable when not flyable
@@ -429,7 +435,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 
 		// Disable trade while flying unless docked
-		if (IsStrategy || IsDocked)
+		if (IsRemoteFlying || IsDocked)
 		{
 			TradeButton->SetHelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"));
 			TradeButton->SetDisabled(false);
@@ -480,13 +486,6 @@ void SFlareSpacecraftInfo::OnInspect()
 	if (PC && TargetSpacecraft)
 	{
 		FLOGV("SFlareSpacecraftInfo::OnInspect : TargetSpacecraft=%p", TargetSpacecraft);
-		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-		if(SimulatedSpacecraft)
-		{
-			FLOGV("SFlareSpacecraftInfo::OnInspect : Immatriculation=%s, Parent Sector=%p",
-				*SimulatedSpacecraft->GetImmatriculation().ToString(), SimulatedSpacecraft->GetCurrentSector());
-		}
-
 		PC->GetMenuManager()->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft);
 	}
 }
@@ -533,15 +532,7 @@ void SFlareSpacecraftInfo::OnSelect()
 	FText Unused;
 	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown(Unused))
 	{
-		// Check if a simulated spacecraft
-		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
-
-		if (!SimulatedSpacecraft)
-		{
-			SimulatedSpacecraft = PC->GetGame()->GetGameWorld()->FindSpacecraft(TargetSpacecraft->GetImmatriculation());
-		}
-
-		PC->SelectFleet(SimulatedSpacecraft->GetCurrentFleet());
+		PC->SelectFleet(TargetSpacecraft->GetCurrentFleet());
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit);
 	}
 }
@@ -560,10 +551,9 @@ void SFlareSpacecraftInfo::OnUndock()
 {
 	if (PC && TargetSpacecraft)
 	{
-		AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(TargetSpacecraft);
-		if (Spacecraft && Spacecraft->GetNavigationSystem()->IsDocked())
+		if (TargetSpacecraft->IsActive() && TargetSpacecraft->GetNavigationSystem()->IsDocked())
 		{
-			Spacecraft->GetNavigationSystem()->Undock();
+			TargetSpacecraft->GetNavigationSystem()->Undock();
 			PC->GetMenuManager()->CloseMenu();
 		}
 		else if(TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
@@ -722,7 +712,6 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 	if (TargetSpacecraft)
 	{
 		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
-		UFlareSimulatedSpacecraft* SimulatedSpacecraft = Cast<UFlareSimulatedSpacecraft>(TargetSpacecraft);
 
 		// Our company
 		if (TargetCompany && PC && TargetCompany == PC->GetCompany())
@@ -730,31 +719,28 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 			// Station : show production, if simulated
 			if (TargetSpacecraft->IsStation())
 			{
-				if (SimulatedSpacecraft)
+				FText ProductionStatusText = FText();
+				TArray<UFlareFactory*>& Factories = TargetSpacecraft->GetFactories();
+
+				for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 				{
-					FText ProductionStatusText = FText();
-					TArray<UFlareFactory*>& Factories = SimulatedSpacecraft->GetFactories();
+					FText NewLineText = (FactoryIndex > 0) ? FText::FromString("\n") : FText();
+					UFlareFactory* Factory = Factories[FactoryIndex];
 
-					for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
-					{
-						FText NewLineText = (FactoryIndex > 0) ? FText::FromString("\n") : FText();
-						UFlareFactory* Factory = Factories[FactoryIndex];
-
-						ProductionStatusText = FText::Format(LOCTEXT("ProductionStatusFormat", "{0}{1}{2} : {3}"),
-							ProductionStatusText,
-							NewLineText,
-							Factory->GetDescription()->Name,
-							Factory->GetFactoryStatus());
-					}
-
-					return ProductionStatusText;
+					ProductionStatusText = FText::Format(LOCTEXT("ProductionStatusFormat", "{0}{1}{2} : {3}"),
+						ProductionStatusText,
+						NewLineText,
+						Factory->GetDescription()->Name,
+						Factory->GetFactoryStatus());
 				}
+
+				return ProductionStatusText;
 			}
 
 			// Ship : show fleet info
-			else if (SimulatedSpacecraft)
+			else
 			{
-				UFlareFleet* Fleet = SimulatedSpacecraft->GetCurrentFleet();
+				UFlareFleet* Fleet = TargetSpacecraft->GetCurrentFleet();
 				if (Fleet)
 				{
 					return FText::Format(LOCTEXT("FleetFormat", "{0} - {1} ({2} / {3})"),

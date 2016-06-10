@@ -20,20 +20,18 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitHealthLightPeriod(1.2)
 	, CockpitPowerTime(0)
 	, CockpitPowerPeriod(0.7)
-	, CockpitMaterialInstance(NULL)
-	, CockpitFrameMaterialInstance(NULL)
+	, FreighterCockpitMaterialInstance(NULL)
+	, FreighterCockpitFrameMaterialInstance(NULL)
+	, FighterCockpitMaterialInstance(NULL)
+	, FighterCockpitFrameMaterialInstance(NULL)
 	, CockpitHUDTarget(NULL)
 	, CockpitInstrumentsTarget(NULL)
 {
-	// Cockpit data
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit"));
-	CockpitMeshTemplate = CockpitMeshTemplateObj.Object;
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> FighterCockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/SM_Cockpit_Fighter"));
+	// Cockpit meshes
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> FreighterCockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/Freighter/SM_Cockpit_Freighter"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> FighterCockpitMeshTemplateObj(TEXT("/Game/Gameplay/Cockpit/Fighter/SM_Cockpit_Fighter"));
+	FreighterCockpitMeshTemplate = FreighterCockpitMeshTemplateObj.Object;
 	FighterCockpitMeshTemplate = FighterCockpitMeshTemplateObj.Object;
-	static ConstructorHelpers::FObjectFinder<UMaterial> CockpitMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MT_Cockpit"));
-	CockpitMaterialTemplate = CockpitMaterialInstanceObj.Object;
-	static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> CockpitFrameMaterialInstanceObj(TEXT("/Game/Gameplay/Cockpit/MI_CockpitFrame"));
-	CockpitFrameMaterialTemplate = CockpitFrameMaterialInstanceObj.Object;
 
 	// Cockpit mesh
 	CockpitMesh = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Cockpit"));
@@ -58,7 +56,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	// Light
 	CockpitLight = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight"));
 	CockpitLight->SetLightColor(FLinearColor(1.0f, 0.871f, 0.731));
-	CockpitLight->SetIntensity(200);
+	CockpitLight->SetIntensity(5);
 	CockpitLight->SetRelativeLocation(FVector(0, -30, -30));
 	CockpitLight->SetCastShadows(false);
 	CockpitLight->LightingChannels.bChannel0 = false;
@@ -68,7 +66,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	// Light 2
 	CockpitLight2 = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight2"));
 	CockpitLight2->SetLightColor(FLinearColor(1.0f, 0.376f, 0.212f));
-	CockpitLight2->SetIntensity(200);
+	CockpitLight2->SetIntensity(5);
 	CockpitLight2->SetRelativeLocation(FVector(0, 10, 10));
 	CockpitLight2->SetCastShadows(false);
 	CockpitLight2->LightingChannels.bChannel0 = false;
@@ -88,7 +86,7 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 	PC = NewPC;
 
 	// Cockpit on
-	if (PC->UseCockpit && CockpitMaterialInstance == NULL)
+	if (PC->UseCockpit && (FreighterCockpitMaterialInstance == NULL || FighterCockpitMaterialInstance == NULL))
 	{
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -96,24 +94,13 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		int32 ParentViewportWidth = 1920;
 		FVector2D ViewportSize = FVector2D (ParentViewportWidth, (ParentViewportWidth * 9) / 16);
 		FLOGV("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit (%dx%d", ViewportSize.X, ViewportSize.Y);
-
-		// Screen material
-		CockpitMaterialInstance = UMaterialInstanceDynamic::Create(CockpitMaterialTemplate, GetWorld());
-		check(CockpitMaterialInstance);
-		CockpitMaterialInstance->SetVectorParameterValue("IndicatorColorBorders", Theme.FriendlyColor);
-
-		// Frame material
-		CockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(CockpitFrameMaterialTemplate, GetWorld());
-		check(CockpitMaterialInstance);
-		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorBorders", Theme.FriendlyColor);
-		
+				
 		// HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
 		check(CockpitHUDTarget);
 		CockpitHUDTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawCockpitHUD);
 		CockpitHUDTarget->ClearColor = FLinearColor::Black;
 		CockpitHUDTarget->UpdateResource();
-		CockpitMaterialInstance->SetTextureParameterValue("HUDTarget", CockpitHUDTarget);
 
 		// Instruments texture target
 		CockpitInstrumentsTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitInstrumentsTargetSize, CockpitInstrumentsTargetSize);
@@ -121,7 +108,6 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		CockpitInstrumentsTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawCockpitInstruments);
 		CockpitInstrumentsTarget->ClearColor = FLinearColor::Black;
 		CockpitInstrumentsTarget->UpdateResource();
-		CockpitFrameMaterialInstance->SetTextureParameterValue("InstrumentsTarget", CockpitInstrumentsTarget);
 
 		// FLIR camera target
 		CockpitFLIRCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitFLIRTargetSize, CockpitFLIRTargetSize);
@@ -132,7 +118,6 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		// Setup FLIR camera
 		check(CockpitFLIRCapture);
 		CockpitFLIRCapture->TextureTarget = CockpitFLIRCameraTarget;
-		CockpitFrameMaterialInstance->SetTextureParameterValue("FLIRTarget", CockpitFLIRCameraTarget);
 
 #if FLARE_USE_COCKPIT_RENDERTARGET
 		// Main camera texture target
@@ -145,14 +130,26 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		check(CockpitCapture);
 		CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
 		CockpitCapture->TextureTarget = CockpitCameraTarget;
-		CockpitMaterialInstance->SetTextureParameterValue("CameraTarget", CockpitCameraTarget);
 #endif
+
+		// Freighter materials
+		FreighterCockpitMaterialInstance = UMaterialInstanceDynamic::Create(FreighterCockpitMeshTemplate->GetMaterial(0), GetWorld());
+		FreighterCockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(FreighterCockpitMeshTemplate->GetMaterial(1), GetWorld());
+		SetupCockpitInstances(FreighterCockpitMaterialInstance, FreighterCockpitFrameMaterialInstance);
+
+		// Fighter materials
+		FighterCockpitMaterialInstance = UMaterialInstanceDynamic::Create(FighterCockpitMeshTemplate->GetMaterial(0), GetWorld());
+		FighterCockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(FighterCockpitMeshTemplate->GetMaterial(1), GetWorld());
+		SetupCockpitInstances(FighterCockpitMaterialInstance, FighterCockpitFrameMaterialInstance);
+
 	}
 	else
 	{
 		FLOG("AFlareCockpitManager::SetupCockpit : cockpit manager is disabled");
-		CockpitMaterialInstance = NULL;
-		CockpitFrameMaterialInstance = NULL;
+		FreighterCockpitMaterialInstance = NULL;
+		FreighterCockpitFrameMaterialInstance = NULL;
+		FighterCockpitMaterialInstance = NULL;
+		FighterCockpitFrameMaterialInstance = NULL;
 		ExitCockpit();
 	}
 }
@@ -223,7 +220,7 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 	if (PC->UseCockpit)
 	{
 		// Ensure cockpit existence
-		if (CockpitMaterialInstance == NULL)
+		if (FreighterCockpitMaterialInstance == NULL || FighterCockpitMaterialInstance == NULL)
 		{
 			SetupCockpit(PC);
 		}
@@ -243,7 +240,7 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 			}
 
 			// Update instruments
-			if (CockpitFrameMaterialInstance)
+			if (FreighterCockpitFrameMaterialInstance && FighterCockpitFrameMaterialInstance)
 			{
 				UpdateTarget(DeltaSeconds);
 				UpdateInfo(DeltaSeconds);
@@ -254,6 +251,24 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 	}
 }
 
+void AFlareCockpitManager::SetupCockpitInstances(UMaterialInstanceDynamic* ScreenInstance, UMaterialInstanceDynamic* FrameInstance)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	check(ScreenInstance);
+	check(FrameInstance);
+
+	ScreenInstance->SetVectorParameterValue( "IndicatorColorBorders", Theme.FriendlyColor);
+	ScreenInstance->SetTextureParameterValue("HUDTarget",             CockpitHUDTarget);
+#if FLARE_USE_COCKPIT_RENDERTARGET
+	ScreenInstance->SetTextureParameterValue("CameraTarget",          CockpitCameraTarget);
+#endif
+
+	FrameInstance->SetVectorParameterValue( "IndicatorColorBorders",  Theme.FriendlyColor);
+	FrameInstance->SetTextureParameterValue("FLIRTarget",             CockpitFLIRCameraTarget);
+	FrameInstance->SetTextureParameterValue("InstrumentsTarget",      CockpitInstrumentsTarget);
+}
+
 void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 {
 	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
@@ -261,22 +276,22 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	// Ensure we're not doing anything stupid
 	check(PC->UseCockpit);
 	check(CockpitMesh);
-	check(CockpitMaterialTemplate);
-	check(CockpitFrameMaterialTemplate);
+	check(FreighterCockpitMeshTemplate);
+	check(FighterCockpitMeshTemplate);
 
 	// Set the correct variation
 	if (TargetPlayerShip->GetParent()->IsMilitary())
 	{
-		CockpitMesh->SetStaticMesh(FighterCockpitMeshTemplate);
+		CockpitMesh->SetStaticMesh( FighterCockpitMeshTemplate);
+		CockpitMesh->SetMaterial(0, FighterCockpitMaterialInstance);
+		CockpitMesh->SetMaterial(1, FighterCockpitFrameMaterialInstance);
 	}
 	else
 	{
-		CockpitMesh->SetStaticMesh(CockpitMeshTemplate);
+		CockpitMesh->SetStaticMesh( FreighterCockpitMeshTemplate);
+		CockpitMesh->SetMaterial(0, FreighterCockpitMaterialInstance);
+		CockpitMesh->SetMaterial(1, FreighterCockpitFrameMaterialInstance);
 	}
-
-	// Set materials
-	CockpitMesh->SetMaterial(0, CockpitMaterialInstance);
-	CockpitMesh->SetMaterial(1, CockpitFrameMaterialInstance);
 
 	// Offset the cockpit
 #if FLARE_USE_COCKPIT_RENDERTARGET
@@ -302,6 +317,7 @@ void AFlareCockpitManager::ExitCockpit()
 
 void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 {
+	check(PlayerShip);
 	float Intensity = 0;
 	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -318,32 +334,29 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	{
 		Intensity = 1;
 		FLinearColor Color = TargetShip->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
-		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorTop", Color);
+		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorTop", Color);
 
 		IFlareSpacecraftNavigationSystemInterface* Nav = PlayerShip->GetNavigationSystem();
-
-
-		if(Nav->IsDocked())
+		if (Nav->IsDocked())
 		{
 			CockpitFLIRCapture->Deactivate();
 		}
 		else
 		{
 			float MaxFlirCameraAngle = 60.0f;
-
 			FVector TargetLocation = TargetShip->GetActorLocation();
 			FFlareShipCommandData Command = Nav->GetCurrentCommand();
 
-			if(Command.Type == EFlareCommandDataType::CDT_Dock)
+			// Get docking data
+			if (Command.Type == EFlareCommandDataType::CDT_Dock)
 			{
-				AFlareSpacecraft* DockStation = Cast<AFlareSpacecraft>(Command.ActionTarget);
+				AFlareSpacecraft* DockStation = Command.ActionTarget->GetActive();
 				int32 DockId = Command.ActionTargetParam;
 
 				FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);
 				FVector StationDockLocation =  DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
 				TargetLocation = StationDockLocation;
 			}
-
 
 			// Find best FLIR camera
 			TArray<FName> SocketNames  = PlayerShip->Airframe->GetAllSocketNames();
@@ -354,6 +367,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 			bool FlirCameraFound = false;
 			FName BestCameraName;
 
+			// Find the best FLIR camera on the ship if any
 			for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
 			{
 				if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
@@ -381,7 +395,8 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 				}
 			}
 
-			if(FlirCameraFound)
+			// Update the FLIR camera
+			if (FlirCameraFound)
 			{
 				FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
 				CockpitFLIRCapture->AttachToComponent(PlayerShip->GetRootComponent(), AttachRules, BestCameraName);
@@ -420,11 +435,12 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 		CockpitFLIRCapture->Deactivate();
 	}
 
-	CockpitFrameMaterialInstance->SetScalarParameterValue("IndicatorIntensityTop", Intensity);
+	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityTop", Intensity);
 }
 
 void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 {
+	check(PlayerShip);
 	float Intensity = 0;
 
 	if (PlayerShip->GetParent()->IsMilitary())
@@ -437,22 +453,25 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 			{
 				Intensity = 1;
 				float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex());
-				CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorLeft", PC->GetNavHUD()->GetHealthColor(ComponentHealth));
+				GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", PC->GetNavHUD()->GetHealthColor(ComponentHealth));
 			}
 		}
 
 		// Capital
 		else
 		{
-			CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorLeft", PC->GetNavHUD()->GetHealthColor(1));
+			Intensity = 1;
+			GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", PC->GetNavHUD()->GetHealthColor(1));
 		}
 	}
 
-	CockpitFrameMaterialInstance->SetScalarParameterValue("IndicatorIntensityLeft", Intensity);
+	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityRight", Intensity);
 }
 
 void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 {
+	check(PlayerShip);
+
 	// Update timer
 	CockpitHealthLightTime += DeltaSeconds;
 	if (CockpitHealthLightTime > CockpitHealthLightPeriod)
@@ -464,7 +483,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 	if (PlayerShip->GetDamageSystem()->HasPowerOutage())
 	{
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", Theme.EnemyColor);
+		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", Theme.EnemyColor);
 	}
 
 	// Temperature
@@ -473,7 +492,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 		float Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
 		float OverheatTemperature = PlayerShip->GetDamageSystem()->GetOverheatTemperature();
 		FLinearColor TemperatureColor = PC->GetNavHUD()->GetTemperatureColor(Temperature, OverheatTemperature);
-		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", TemperatureColor);
+		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", TemperatureColor);
 	}
 
 	// Cockpit health
@@ -481,12 +500,14 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 	{
 		float ComponentHealth = PlayerShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport);
 		FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(ComponentHealth);
-		CockpitFrameMaterialInstance->SetVectorParameterValue("IndicatorColorRight", HealthColor);
+		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", HealthColor);
 	}
 }
 
 void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 {
+	check(PlayerShip);
+
 	// Update timer
 	bool HasPower = !PlayerShip->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetDamageSystem()->IsAlive();
 	CockpitPowerTime += (HasPower ? 1.0f : -1.0f) * DeltaSeconds;
@@ -500,10 +521,25 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 
 	// Update materials
 	FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(PowerAlpha);
-	CockpitMaterialInstance->SetScalarParameterValue(      "Power", PowerAlpha);
-	CockpitFrameMaterialInstance->SetScalarParameterValue( "Power", PowerAlpha);
-	CockpitMaterialInstance->SetVectorParameterValue(      "IndicatorColorBorders", HealthColor);
-	CockpitFrameMaterialInstance->SetVectorParameterValue( "IndicatorColorBorders", HealthColor);
+	GetCurrentScreenMaterial()->SetScalarParameterValue("Power", PowerAlpha);
+	GetCurrentFrameMaterial()->SetScalarParameterValue( "Power", PowerAlpha);
+	GetCurrentScreenMaterial()->SetVectorParameterValue("IndicatorColorBorders", HealthColor);
+	GetCurrentFrameMaterial()->SetVectorParameterValue( "IndicatorColorBorders", HealthColor);
+}
+
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+UMaterialInstanceDynamic* AFlareCockpitManager::GetCurrentScreenMaterial()
+{
+	return (PlayerShip->GetParent()->IsMilitary()) ? FighterCockpitMaterialInstance : FreighterCockpitMaterialInstance;
+}
+
+UMaterialInstanceDynamic* AFlareCockpitManager::GetCurrentFrameMaterial()
+{
+	return (PlayerShip->GetParent()->IsMilitary()) ? FighterCockpitFrameMaterialInstance : FreighterCockpitFrameMaterialInstance;
 }
 
 

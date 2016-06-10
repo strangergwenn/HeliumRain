@@ -22,7 +22,15 @@ UFlareSimulatedSector::UFlareSimulatedSector(const FObjectInitializer& ObjectIni
 
 void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, const FFlareSectorSave& Data, const FFlareSectorOrbitParameters& OrbitParameters)
 {
-	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
+	if(Cast<UFlareWorld>(GetOuter()))
+	{
+		Game = Cast<UFlareWorld>(GetOuter())->GetGame();
+	}
+	else
+	{
+		Game = Cast<UFlareTravel>(GetOuter())->GetGame();
+	}
+
 
 
 	SectorData = Data;
@@ -390,7 +398,6 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Fleet->GetShips()[ShipIndex];
-		Spacecraft->SetCurrentSector(NULL);
 		Spacecraft->GetNavigationSystem()->Undock();
 
 		if (RemoveSpacecraft(Fleet->GetShips()[ShipIndex]) == 0)
