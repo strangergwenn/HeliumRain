@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Object.h"
+#include "FlareSimulatedSector.h"
 #include "FlareTravel.generated.h"
 
 
+struct FFlareSectorDescription;
 struct FFlareSectorOrbitParameters;
 struct FFlareCelestialBody;
+
 class UFlareWorld;
 class UFlareSimulatedSector;
 
