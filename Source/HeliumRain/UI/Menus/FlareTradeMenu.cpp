@@ -457,7 +457,7 @@ EVisibility SFlareTradeMenu::GetTradingVisibility() const
 
 EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 {
-	if (TargetLeftSpacecraft->IsActive())
+	if (IsEnabled() && TargetLeftSpacecraft->IsActive())
 	{
 		return EVisibility::Collapsed;
 	}
@@ -469,12 +469,12 @@ EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 
 EVisibility SFlareTradeMenu::GetTransactionDetailsVisibility() const
 {
-	return IsTransactionValid() ? EVisibility::Visible : EVisibility::Collapsed;
+	return IsEnabled() && IsTransactionValid() ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 EVisibility SFlareTradeMenu::GetTransactionInvalidVisibility() const
 {
-	return (!IsTransactionValid() && TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
+	return (IsEnabled() && !IsTransactionValid() && TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 FText SFlareTradeMenu::GetLeftSpacecraftName() const
