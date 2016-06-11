@@ -140,13 +140,19 @@ void SFlareNotification::Finish(bool Now)
 	// 1s to finish quietly
 	if (NotificationTimeout == 0)
 	{
-		NotificationTimeout  = Lifetime + (Now ? NotificationExitDuration : NotificationFinishDuration);
+		NotificationTimeout = Lifetime + NotificationFinishDuration;
 	}
 	else
 	{
-		float Timeout = NotificationTimeout - (Now ? NotificationExitDuration : NotificationFinishDuration);
-		Lifetime = FMath::Max(Lifetime, Timeout);
+		Lifetime = FMath::Max(Lifetime, NotificationTimeout - NotificationFinishDuration);
 	}
+
+	// Exit right now
+	if (Now)
+	{
+		Lifetime = NotificationTimeout;
+	}
+
 	ForcedLife = true;
 }
 
