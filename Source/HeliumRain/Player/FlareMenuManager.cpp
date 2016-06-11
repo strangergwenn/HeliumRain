@@ -603,7 +603,7 @@ bool AFlareMenuManager::IsFading()
 void AFlareMenuManager::ProcessFadeTarget()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-
+	FLOGV("ProcessFadeTarget %d", FadeTarget + 0)
 	switch (FadeTarget)
 	{
 		case EFlareMenu::MENU_Main:
@@ -796,7 +796,10 @@ void AFlareMenuManager::FlyShip(UFlareSimulatedSpacecraft* Target)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && Target->IsValidLowLevel())
 	{
-		PC->FlyShip(Target->GetActive());
+		if(Target)
+		{
+			PC->FlyShip(Target->GetActive());
+		}
 		ExitMenu();
 		MenuIsOpen = false;
 	}

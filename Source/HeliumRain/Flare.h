@@ -22,7 +22,7 @@ namespace EFlareMenu
 
 		MENU_LoadGame,
 		MENU_FlyShip,
-		MENU_ActivateSector,
+		MENU_ActivateSector, // TODO Deprecated
 		MENU_Undock,
 
 		MENU_Story,

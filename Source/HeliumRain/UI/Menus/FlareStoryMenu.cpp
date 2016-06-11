@@ -200,7 +200,7 @@ void SFlareStoryMenu::OnStartPlaying()
 	{
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
 		Sector->SetShipToFly(CurrentShip);
-		MenuManager->OpenMenu(EFlareMenu::MENU_ActivateSector, Sector);
+		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Sector);
 	}
 }
 

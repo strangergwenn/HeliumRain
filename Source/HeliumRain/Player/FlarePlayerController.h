@@ -194,8 +194,13 @@ public:
 	/** Toggle the HUD's presence */
 	virtual void ToggleHUD();
 
+	virtual void QuickSwitch()
+	{
+		QuickSwitch(false);
+	}
+
 	/** Quick switch to another ship */
-	virtual void QuickSwitch();
+	virtual void QuickSwitch(bool instant);
 
 	/** Move hidden cursor */
 	virtual void MouseInputX(float Val);

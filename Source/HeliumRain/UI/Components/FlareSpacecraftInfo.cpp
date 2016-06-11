@@ -519,6 +519,7 @@ void SFlareSpacecraftInfo::OnFly()
 		}
 		else
 		{
+			// TODO Deprecated
 			FLOGV("SFlareSpacecraftInfo::OnFly : activating sector for %s'", *TargetSpacecraft->GetImmatriculation().ToString());
 			UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
 			Sector->SetShipToFly(TargetSpacecraft);

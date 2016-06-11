@@ -148,10 +148,8 @@ void UFlareTravel::EndTravel()
 			5.0f,
 			EFlareMenu::MENU_Sector,
 			DestinationSector);
-		if(Game->GetPC()->GetPlayerShip()->GetCurrentFleet() == Fleet)
-		{
-			Game->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, Game->GetPC()->GetPlayerShip()->GetCurrentSector());
-		}
+
+		Game->ActivateCurrentSector();
 	}
 }
 

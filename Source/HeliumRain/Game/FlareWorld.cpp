@@ -743,7 +743,7 @@ UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimul
 		UFlareTravel* Travel = LoadTravel(TravelData);
 		if(Game->GetPC()->GetPlayerShip()->GetCurrentFleet() == TravelingFleet)
 		{
-			Game->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, Game->GetPC()->GetPlayerShip()->GetCurrentSector());
+			Game->ActivateCurrentSector();
 		}
 		return Travel;
 	}

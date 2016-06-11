@@ -322,6 +322,7 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 	bool CandidateFound = false;
 
 	// Last flown ship
+
 	if (ActiveSector->GetSimulatedSector()->GetData()->LastFlownShip != "")
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated not null last ship");
@@ -340,7 +341,7 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 	if (!CandidateFound)
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
-		QuickSwitch();
+		QuickSwitch(true);
 	}
 
 	// Level music
@@ -823,7 +824,7 @@ void AFlarePlayerController::ToggleHUD()
 	}
 }
 
-void AFlarePlayerController::QuickSwitch()
+void AFlarePlayerController::QuickSwitch(bool instant)
 {
 	FLOG("AFlarePlayerController::QuickSwitch");
 
@@ -872,7 +873,15 @@ void AFlarePlayerController::QuickSwitch()
 				QuickSwitchNextOffset = OffsetIndex + 1;
 				// Disable pilot during the switch
 				SeletedCandidate->GetStateManager()->EnablePilot(false);
-				MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, SeletedCandidate->GetParent());
+
+				if(instant)
+				{
+					FlyShip(SeletedCandidate);
+				}
+				else
+				{
+					MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, SeletedCandidate->GetParent());
+				}
 			}
 			else
 			{
