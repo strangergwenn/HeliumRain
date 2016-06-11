@@ -201,7 +201,7 @@ bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, void* Data)
 	{
 		return false;
 	}
-
+	
 	FLOGV("AFlareMenuManager::OpenMenu : %d", (Target - EFlareMenu::MENU_None));
 
 	// Back function
@@ -317,7 +317,14 @@ void AFlareMenuManager::Back()
 		// General-purpose back
 		else if (PreviousMenu != EFlareMenu::MENU_None)
 		{
-			OpenMenu(PreviousMenu);
+			if (IsSpacecraftMenu(PreviousMenu))
+			{
+				OpenMenuSpacecraft(PreviousMenu);
+			}
+			else
+			{
+				OpenMenu(PreviousMenu);
+			}
 		}
 	}
 }
