@@ -38,7 +38,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	RootComponent = Airframe;
 
 	// Camera settings
-	CameraContainerYaw->AttachToComponent(Airframe, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+	CameraContainerYaw->AttachToComponent(Airframe, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	CameraMaxPitch = 80;
 	CameraPanSpeed = 2;
 

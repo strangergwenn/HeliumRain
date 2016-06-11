@@ -29,27 +29,28 @@ AFlareMenuPawn::AFlareMenuPawn(const class FObjectInitializer& PCIP)
 		{}
 	};
 	static FConstructorStatics ConstructorStatics;
+	FAttachmentTransformRules AttachRules(EAttachmentRule::KeepRelative, false);
 
 	// Dummy root to allow better configuration of the subparts
 	USceneComponent* SceneComponent = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("SceneComponent"));
-	CameraContainerYaw->AttachToComponent(SceneComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+	CameraContainerYaw->AttachToComponent(SceneComponent, AttachRules);
 	RootComponent = SceneComponent;
 
 	// Part container turnplate
 	PartContainer = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("PartContainer"));
-	PartContainer->AttachToComponent(RootComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+	PartContainer->AttachToComponent(RootComponent, AttachRules);
 
 	// Create static mesh component for the part
 	CurrentPartA = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("PartA"));
 	CurrentPartA->SetStaticMesh(ConstructorStatics.CurrentPart.Get());
 	CurrentPartA->SetSimulatePhysics(false);
-	CurrentPartA->AttachToComponent(PartContainer, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+	CurrentPartA->AttachToComponent(PartContainer, AttachRules);
 
 	// Create static mesh component for the part
 	CurrentPartB = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("PartB"));
 	CurrentPartB->SetStaticMesh(ConstructorStatics.CurrentPart.Get());
 	CurrentPartB->SetSimulatePhysics(false);
-	CurrentPartB->AttachToComponent(PartContainer, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+	CurrentPartB->AttachToComponent(PartContainer, AttachRules);
 }
 
 

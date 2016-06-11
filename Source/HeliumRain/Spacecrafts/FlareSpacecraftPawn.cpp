@@ -24,7 +24,7 @@ AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	, CameraDistanceStepAmount(0.5)
 	, Company(NULL)
 {
-	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+	FAttachmentTransformRules AttachRules(EAttachmentRule::KeepRelative, false);
 
 	// Camera containers
 	CameraContainerYaw = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("CameraContainerYaw"));

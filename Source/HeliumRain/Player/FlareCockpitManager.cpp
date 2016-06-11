@@ -61,7 +61,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitLight->SetCastShadows(false);
 	CockpitLight->LightingChannels.bChannel0 = false;
 	CockpitLight->LightingChannels.bChannel1 = true;
-	CockpitLight->AttachToComponent(CockpitMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+	CockpitLight->AttachToComponent(CockpitMesh, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 
 	// Light 2
 	CockpitLight2 = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight2"));
@@ -71,7 +71,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitLight2->SetCastShadows(false);
 	CockpitLight2->LightingChannels.bChannel0 = false;
 	CockpitLight2->LightingChannels.bChannel1 = true;
-	CockpitLight2->AttachToComponent(CockpitMesh, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+	CockpitLight2->AttachToComponent(CockpitMesh, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
