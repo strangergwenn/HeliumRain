@@ -284,7 +284,6 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	LoadVector(Object, "Location", &Data->Location);
 	LoadRotator(Object, "Rotation", &Data->Rotation);
 	Data->SpawnMode = LoadEnum<EFlareSpawnMode::Type>(Object, "SpawnMode", "EFlareSpawnMode");
-	FLOGV("Load  %s SpawnMode %d", *Data->Immatriculation.ToString(), Data->SpawnMode+0);
 	LoadVector(Object, "LinearVelocity", &Data->LinearVelocity);
 	LoadVector(Object, "AngularVelocity", &Data->AngularVelocity);
 	LoadFName(Object, "DockedTo", &Data->DockedTo);

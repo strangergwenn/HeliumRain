@@ -148,8 +148,6 @@ void UFlareTravel::EndTravel()
 			5.0f,
 			EFlareMenu::MENU_Sector,
 			DestinationSector);
-
-		Game->ActivateCurrentSector();
 	}
 }
 

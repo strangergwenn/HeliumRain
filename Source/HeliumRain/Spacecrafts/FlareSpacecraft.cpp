@@ -137,21 +137,20 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				// Return to orbital if player leave the limits
 				float Distance = GetActorLocation().Size();
 				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-				if (Distance > Limits && !PC->GetMenuManager()->IsMenuOpen())
+				if (Distance > Limits)
 				{
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits)
 
-					bool GoingToOrbit = PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, new bool(true));
-					if (GoingToOrbit)
-					{
 
-						PC->Notify(
-							LOCTEXT("ExitSector", "Exited sector"),
-							LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference."),
-							"exit-sector",
-							EFlareNotification::NT_Info);
-						GetData().SpawnMode = EFlareSpawnMode::Exit;
-					}
+					PC->Notify(
+						LOCTEXT("ExitSector", "Exited sector"),
+						LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference."),
+						"exit-sector",
+						EFlareNotification::NT_Info);
+					GetData().SpawnMode = EFlareSpawnMode::Exit;
+					GetGame()->DeactivateSector();
+					GetGame()->ActivateCurrentSector();
+					return;
 				}
 				else
 				{
