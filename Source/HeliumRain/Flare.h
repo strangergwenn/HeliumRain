@@ -22,7 +22,6 @@ namespace EFlareMenu
 
 		MENU_LoadGame,
 		MENU_FlyShip,
-		MENU_ActivateSector,
 		MENU_Undock,
 
 		MENU_Story,
@@ -42,7 +41,6 @@ namespace EFlareMenu
 		MENU_Credits,
 
 		MENU_Quit,
-		MENU_Exit
 	};
 }
 

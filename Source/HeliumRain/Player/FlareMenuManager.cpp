@@ -168,7 +168,7 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 
 void AFlareMenuManager::OpenMainOverlay()
 {
-	FLOG("AFlareMenuManager::CloseMainOverlay");
+	FLOG("AFlareMenuManager::OpenMainOverlay");
 
 	MainOverlay->Open();
 	if (GetPC()->GetNavHUD())
@@ -277,7 +277,7 @@ void AFlareMenuManager::CloseMenu(bool HardClose)
 		}
 		else
 		{
-			OpenMenu(EFlareMenu::MENU_Exit);
+			OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, GetPC()->GetPlayerShip());
 		}
 		MenuIsOpen = false;
 	}
@@ -306,12 +306,6 @@ void AFlareMenuManager::Back()
 		else if (CurrentMenu == EFlareMenu::MENU_WorldEconomy)
 		{
 			WorldEconomyMenu->Back();
-		}
-
-		// Close menu and fly the ship again
-		else if (PreviousMenu == EFlareMenu::MENU_Exit)
-		{
-			CloseMenu();
 		}
 
 		// General-purpose back
@@ -362,11 +356,9 @@ EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
 		
 		// Settings
 		case EFlareMenu::MENU_Settings:
-			if (LastNonSettingsMenu == EFlareMenu::MENU_FlyShip
-			 || LastNonSettingsMenu == EFlareMenu::MENU_Exit
-			 || LastNonSettingsMenu == EFlareMenu::MENU_ActivateSector)
+			if (LastNonSettingsMenu == EFlareMenu::MENU_FlyShip)
 			{
-				return EFlareMenu::MENU_Exit;
+				return EFlareMenu::MENU_FlyShip;
 			}
 			else
 			{
@@ -384,14 +376,12 @@ EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
 
 		// Those menus have only the main overlay as root, close
 		case EFlareMenu::MENU_Orbit:
-			return EFlareMenu::MENU_Exit;
+			return EFlareMenu::MENU_FlyShip;
 
 		// Those menus have no back
 		case EFlareMenu::MENU_Main:
 		case EFlareMenu::MENU_FlyShip:
-		case EFlareMenu::MENU_ActivateSector:
 		case EFlareMenu::MENU_Quit:
-		case EFlareMenu::MENU_Exit:
 		case EFlareMenu::MENU_None:
 		default:
 			break;
@@ -468,7 +458,7 @@ void AFlareMenuManager::HideTooltip(SWidget* TargetWidget)
 bool AFlareMenuManager::IsSpacecraftMenu(EFlareMenu::Type Type) const
 {
 	if (Type == EFlareMenu::MENU_FlyShip
-     || Type == EFlareMenu::MENU_Ship
+	 || Type == EFlareMenu::MENU_Ship
      || Type == EFlareMenu::MENU_ShipConfig
      || Type == EFlareMenu::MENU_Trade)
 	{
@@ -503,8 +493,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_TradeRoute:     Name = LOCTEXT("TradeRouteMenuName", "Trade route");         break;
 		case EFlareMenu::MENU_Orbit:          Name = LOCTEXT("OrbitMenuName", "Orbital map");              break;
 		case EFlareMenu::MENU_Settings:       Name = LOCTEXT("SettingsMenuName", "Settings");              break;
-		case EFlareMenu::MENU_Quit:           Name = LOCTEXT("QuitMenuName", "Quit");                      break;
-		case EFlareMenu::MENU_Exit:           Name = LOCTEXT("ExitMenuName", "Close");                     break;
+		case EFlareMenu::MENU_Quit:           Name = LOCTEXT("QuitMenuName", "Quit");                      break;		
 		default:                                                                                           break;
 	}
 
@@ -534,7 +523,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_Orbit:          Path = "Orbit";        break;
 		case EFlareMenu::MENU_Settings:       Path = "Settings";     break;
 		case EFlareMenu::MENU_Quit:           Path = "Quit";         break;
-		case EFlareMenu::MENU_Exit:           Path = "Close";        break;
+		case EFlareMenu::MENU_FlyShip:        Path = "Close";        break;
 		default:                              Path = "Empty";
 	}
 
@@ -603,7 +592,7 @@ bool AFlareMenuManager::IsFading()
 void AFlareMenuManager::ProcessFadeTarget()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-
+	FLOGV("ProcessFadeTarget %d", FadeTarget + 0)
 	switch (FadeTarget)
 	{
 		case EFlareMenu::MENU_Main:
@@ -634,10 +623,6 @@ void AFlareMenuManager::ProcessFadeTarget()
 			FlyShip(FadeTargetSpacecraft);
 			break;
 
-		case EFlareMenu::MENU_ActivateSector:
-			ActivateSector(static_cast<UFlareSimulatedSector*>(FadeTargetData));
-			break;
-
 		case EFlareMenu::MENU_Fleet:
 			OpenFleetMenu(static_cast<UFlareFleet*>(FadeTargetData));
 			break;
@@ -663,7 +648,7 @@ void AFlareMenuManager::ProcessFadeTarget()
 			break;
 
 		case EFlareMenu::MENU_Orbit:
-			OpenOrbit(static_cast<bool*>(FadeTargetData));
+			OpenOrbit();
 			break;
 
 		case EFlareMenu::MENU_Leaderboard:
@@ -684,10 +669,6 @@ void AFlareMenuManager::ProcessFadeTarget()
 
 		case EFlareMenu::MENU_Quit:
 			PC->ConsoleCommand("quit");
-			break;
-
-		case EFlareMenu::MENU_Exit:
-			ExitMenu();
 			break;
 
 		case EFlareMenu::MENU_None:
@@ -722,6 +703,7 @@ void AFlareMenuManager::OpenMainMenu()
 
 	CloseMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Main;
+	GetPC()->GetGame()->SaveGame(GetPC());
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
 	UseLightBackground();
@@ -761,7 +743,7 @@ void AFlareMenuManager::LoadGame()
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
 		Sector->SetShipToFly(CurrentShip);
 		PC->GetGame()->ActivateCurrentSector();
-		MenuIsOpen = false;
+		FlyShip(CurrentShip);
 	}
 }
 
@@ -794,20 +776,13 @@ void AFlareMenuManager::InspectCompany(UFlareCompany* Target)
 void AFlareMenuManager::FlyShip(UFlareSimulatedSpacecraft* Target)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && Target->IsValidLowLevel())
+	if (PC)
 	{
-		PC->FlyShip(Target->GetActive());
-		ExitMenu();
-		MenuIsOpen = false;
-	}
-}
+		if(Target)
+		{
+			PC->FlyShip(Target->GetActive());
+		}
 
-void AFlareMenuManager::ActivateSector(UFlareSimulatedSector* Target)
-{
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	if (PC && Target)
-	{
-		PC->GetGame()->ActivateSector(Target);
 		ExitMenu();
 		MenuIsOpen = false;
 	}
@@ -888,7 +863,7 @@ void AFlareMenuManager::OpenSector(UFlareSimulatedSector* Sector)
 	}
 	else
 	{
-		OpenOrbit(NULL);
+		OpenOrbit();
 	}
 }
 
@@ -917,7 +892,7 @@ void AFlareMenuManager::OpenTradeRoute(UFlareTradeRoute* TradeRoute)
 	UseDarkBackground();
 }
 
-void AFlareMenuManager::OpenOrbit(bool* DeactivateCurrentSector)
+void AFlareMenuManager::OpenOrbit()
 {
 	ResetMenu();
 
@@ -925,16 +900,8 @@ void AFlareMenuManager::OpenOrbit(bool* DeactivateCurrentSector)
 	CurrentMenu = EFlareMenu::MENU_Orbit;
 	GetPC()->OnEnterMenu();
 
-	if (DeactivateCurrentSector)
-	{
-		OrbitMenu->Enter(*DeactivateCurrentSector);
-		delete DeactivateCurrentSector;
-	}
-	else
-	{
+	OrbitMenu->Enter();
 
-		OrbitMenu->Enter(false);
-	}
 	UseDarkBackground();
 }
 

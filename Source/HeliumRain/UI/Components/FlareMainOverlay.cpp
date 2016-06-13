@@ -127,7 +127,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.Transparent(true)
 		.OnClicked(this, &SFlareMainOverlay::OnCloseMenu)
 	];
-	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Exit), AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Exit));
+	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_FlyShip), AFlareMenuManager::GetMenuName(EFlareMenu::MENU_FlyShip));
 
 	// Init
 	Close();

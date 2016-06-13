@@ -52,7 +52,25 @@ TSharedRef< FSlateStyleSet > FFlareStyleSet::Create()
 		.SetActiveHoveredBrush(FSlateNoResource())
 		.SetInactiveBrush(FSlateNoResource())
 		.SetInactiveHoveredBrush(FSlateNoResource())
-		);
+	);
+
+	Style.Set("Flare.CoreButton", FButtonStyle()
+		.SetNormal(FSlateNoResource())
+		.SetHovered(FSlateNoResource())
+		.SetPressed(FSlateNoResource())
+		.SetDisabled(FSlateNoResource())
+		.SetNormalPadding(FMargin(0.0f, 0.0f, 0.0f, 1.0f))
+		.SetPressedPadding(FMargin(0.0f, 0.0f, 0.0f, 1.0f))
+	);
+
+	Style.Set("Flare.ActiveCoreButton", FButtonStyle()
+		.SetNormal(FSlateNoResource())
+		.SetHovered(FSlateNoResource())
+		.SetPressed(FSlateNoResource())
+		.SetDisabled(FSlateNoResource())
+		.SetNormalPadding(FMargin(0.0f, 0.0f, 0.0f, 1.0f))
+		.SetPressedPadding(FMargin(0.0f, 1.0f, 0.0f, 0.0f))
+	);
 
 	return StyleRef;
 }

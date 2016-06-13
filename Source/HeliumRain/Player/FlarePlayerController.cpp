@@ -227,6 +227,14 @@ void AFlarePlayerController::SetExternalCamera(bool NewState)
 
 void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 {
+	check(Ship);
+
+	if(ShipPawn == Ship)
+	{
+		// Already flying this ship
+		return;
+	}
+
 	// Reset the current ship to auto
 	if (ShipPawn)
 	{
@@ -247,38 +255,36 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
-	MenuManager->CloseMainOverlay();
 
 	// Combat groups
 	Company->GetAI()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
 	Company->GetAI()->ResetShipGroup(EFlareCombatTactic::ProtectMe);
 
 	// Inform the player
-	if (Ship)
+
+	// Count owned ships
+	int32 OwnedSpacecraftCount = 0;
+	TArray<AFlareSpacecraft*>& SectorSpacecrafts = GetGame()->GetActiveSector()->GetSpacecrafts();
+	for (int SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
-		// Count owned ships
-		int32 OwnedSpacecraftCount = 0;
-		for (FConstPawnIterator Iterator = GetWorld()->GetPawnIterator(); Iterator; ++Iterator)
+		AFlareSpacecraft* OtherSpacecraft = SectorSpacecrafts[SpacecraftIndex];
+		if (OtherSpacecraft->GetParent()->GetCompany() == GetCompany())
 		{
-			AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(*Iterator);
-			if (OtherSpacecraft && OtherSpacecraft->GetParent()->GetCompany() == GetCompany())
-			{
-				OwnedSpacecraftCount++;
-			}
+			OwnedSpacecraftCount++;
 		}
-
-		// Notification
-		FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
-		FText Info = (OwnedSpacecraftCount > 1) ? LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.") : FText();
-		Notify(Text, Info, "flying-info", EFlareNotification::NT_Info);
-
-		// HUD update
-		GetNavHUD()->OnTargetShipChanged();
-		SetSelectingWeapon();
-
-		PlayerData.LastFlownShipIdentifier = Ship->GetParent()->GetImmatriculation();
-		GetGame()->GetQuestManager()->OnFlyShip(Ship);
 	}
+
+	// Notification
+	FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
+	FText Info = (OwnedSpacecraftCount > 1) ? LOCTEXT("FlyingInfo", "You can switch to nearby ships with N.") : FText();
+	Notify(Text, Info, "flying-info", EFlareNotification::NT_Info);
+
+	// HUD update
+	GetNavHUD()->OnTargetShipChanged();
+	SetSelectingWeapon();
+
+	PlayerData.LastFlownShipIdentifier = Ship->GetParent()->GetImmatriculation();
+	GetGame()->GetQuestManager()->OnFlyShip(Ship);
 }
 
 void AFlarePlayerController::ExitShip()
@@ -322,6 +328,7 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 	bool CandidateFound = false;
 
 	// Last flown ship
+
 	if (ActiveSector->GetSimulatedSector()->GetData()->LastFlownShip != "")
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated not null last ship");
@@ -333,14 +340,14 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 
 			// Disable pilot during the switch
 			Candidate->GetStateManager()->EnablePilot(false);
-			FlyShip(Candidate);
+			FlyShip(Candidate, false);
 		}
 	}
 
 	if (!CandidateFound)
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
-		QuickSwitch();
+		QuickSwitch(true);
 	}
 
 	// Level music
@@ -375,10 +382,6 @@ void AFlarePlayerController::OnSectorDeactivated()
 
 	// Reset states
 	LastBattleState = EFlareSectorBattleState::NoBattle;
-	if (!MenuManager->IsMenuOpen())
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
-	}
 }
 
 void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState)
@@ -823,7 +826,7 @@ void AFlarePlayerController::ToggleHUD()
 	}
 }
 
-void AFlarePlayerController::QuickSwitch()
+void AFlarePlayerController::QuickSwitch(bool instant)
 {
 	FLOG("AFlarePlayerController::QuickSwitch");
 
@@ -872,7 +875,15 @@ void AFlarePlayerController::QuickSwitch()
 				QuickSwitchNextOffset = OffsetIndex + 1;
 				// Disable pilot during the switch
 				SeletedCandidate->GetStateManager()->EnablePilot(false);
-				MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, SeletedCandidate->GetParent());
+
+				if(instant)
+				{
+					FlyShip(SeletedCandidate, false);
+				}
+				else
+				{
+					MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, SeletedCandidate->GetParent());
+				}
 			}
 			else
 			{

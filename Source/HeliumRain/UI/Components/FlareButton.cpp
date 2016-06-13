@@ -32,10 +32,10 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Center)
 	[
 		// Button (behaviour only, no display)
-		SNew(SButton)
+		SAssignNew(InternalButton, SButton)
 		.OnClicked(this, &SFlareButton::OnButtonClicked)
 		.ContentPadding(FMargin(0))
-		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+		.ButtonStyle(FFlareStyleSet::Get(), "Flare.CoreButton")
 		[
 			SNew(SVerticalBox)
 
@@ -204,6 +204,8 @@ void SFlareButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent
 {
 	SWidget::OnMouseEnter(MyGeometry, MouseEvent);
 
+	InternalButton->SetButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FButtonStyle>("Flare.ActiveCoreButton"));
+
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	if (MenuManager)
 	{
@@ -214,6 +216,8 @@ void SFlareButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent
 void SFlareButton::OnMouseLeave(const FPointerEvent& MouseEvent)
 {
 	SWidget::OnMouseLeave(MouseEvent);
+
+	InternalButton->SetButtonStyle(&FFlareStyleSet::Get().GetWidgetStyle<FButtonStyle>("Flare.CoreButton"));
 
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	if (MenuManager)
@@ -310,7 +314,7 @@ FSlateFontInfo SFlareButton::GetTextStyle() const
 FReply SFlareButton::OnButtonClicked()
 {
 	bool WasDisabled = (IsDisabled.IsBound() || IsDisabled.IsSet()) && IsDisabled.Get();
-	if (!WasDisabled)
+	if (!WasDisabled && IsHovered())
 	{
 		if (IsToggle)
 		{

@@ -163,18 +163,12 @@ void SFlareOrbitalMenu::Setup()
 	SetVisibility(EVisibility::Collapsed);
 }
 
-void SFlareOrbitalMenu::Enter(bool DeactivateCurrentSector)
+void SFlareOrbitalMenu::Enter()
 {
 	FLOG("SFlareOrbitalMenu::Enter");
 	
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-
-	if (DeactivateCurrentSector)
-	{
-		AFlarePlayerController* PC = MenuManager->GetPC();
-		PC->GetGame()->DeactivateSector();
-	}
 
 	StopFastForward();
 
@@ -207,6 +201,7 @@ void SFlareOrbitalMenu::StopFastForward()
 	{
 		FastForwardActive = false;
 		Game->SaveGame(MenuManager->GetPC());
+		Game->ActivateCurrentSector();
 	}
 }
 
@@ -634,6 +629,7 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed()
 {
 	FastForwardActive = true;
 	Game->SaveGame(MenuManager->GetPC());
+	Game->DeactivateSector();
 }
 
 #undef LOCTEXT_NAMESPACE

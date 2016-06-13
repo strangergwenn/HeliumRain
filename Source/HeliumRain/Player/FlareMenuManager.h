@@ -183,9 +183,6 @@ protected:
 	/** Fly this ship */
 	virtual void FlyShip(UFlareSimulatedSpacecraft* Target);
 
-	/** Activate a sector */
-	virtual void ActivateSector(UFlareSimulatedSector* Target);
-
 	/** Show the config menu for a specific ship */
 	virtual void InspectShip(UFlareSimulatedSpacecraft* Target = NULL, bool IsEditable = false);
 
@@ -202,7 +199,7 @@ protected:
 	virtual void OpenTradeRoute(UFlareTradeRoute* TradeRoute);
 
 	/** Open the orbital menu */
-	virtual void OpenOrbit(bool* DeactivateCurrentSector);
+	virtual void OpenOrbit();
 
 	/** Open the company menu */
 	virtual void OpenLeaderboard();

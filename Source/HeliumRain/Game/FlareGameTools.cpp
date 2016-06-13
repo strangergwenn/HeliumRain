@@ -148,7 +148,9 @@ void UFlareGameTools::Simulate()
 		return;
 	}
 
+	GetGame()->DeactivateSector();
 	GetGameWorld()->Simulate();
+	GetGame()->ActivateCurrentSector();
 }
 
 void UFlareGameTools::SetPlanatariumTimeMultiplier(float Multiplier)
@@ -1142,7 +1144,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName Station
 	UFlareSimulatedSpacecraft* NewStation= NULL;
 
 	NewStation = ActiveSector->CreateStation(StationClass, Company, TargetPosition);
-	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
+	GetGame()->ActivateCurrentSector();
 
 	return NewStation;
 }
@@ -1190,7 +1192,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 	UFlareSimulatedSpacecraft* NewShip = NULL;
 
 	NewShip = ActiveSector->CreateShip(ShipClass, Company, TargetPosition);
-	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
+	GetGame()->ActivateCurrentSector();
 
 	return NewShip;
 }
@@ -1226,7 +1228,7 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 		ActiveSector->CreateShip(ShipClass, Company, TargetPosition);
 	}
 
-	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
+	GetGame()->ActivateCurrentSector();
 }
 
 void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FName Company2Name, FName ShipClass1, int32 ShipClass1Count, FName ShipClass2, int32 ShipClass2Count)
@@ -1276,7 +1278,7 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 		ActiveSector->CreateShip(ShipClass2, Company2, TargetPosition2);
 	}
 
-	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
+	GetGame()->ActivateCurrentSector();
 }
 
 
@@ -1302,7 +1304,7 @@ void UFlareGameTools::CreateAsteroid(int32 ID, FName Name)
 
 	ActiveSector->CreateAsteroid(ID, Name, TargetPosition);
 
-	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ActivateSector, ActiveSector);
+	GetGame()->ActivateCurrentSector();
 }
 
 void UFlareGameTools::PrintCompanyList()
