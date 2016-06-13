@@ -329,27 +329,30 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 void AFlareSpacecraft::Destroyed()
 {
 	// Notify PC
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-	if (PC)
+	if(!IsPresentationMode())
 	{
-		if (PC->GetShipPawn())
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+		if (PC)
 		{
-			AFlareSpacecraft* PlayerTarget = PC->GetShipPawn()->GetCurrentTarget();
-			if (PlayerTarget == this)
+			if (PC->GetShipPawn())
 			{
-				PC->GetShipPawn()->ResetCurrentTarget();
+				AFlareSpacecraft* PlayerTarget = PC->GetShipPawn()->GetCurrentTarget();
+				if (PlayerTarget == this)
+				{
+					PC->GetShipPawn()->ResetCurrentTarget();
+				}
+			}
+
+			if (PC->GetNavHUD())
+			{
+				PC->GetNavHUD()->RemoveTarget(this);
 			}
 		}
 
-		if (PC->GetNavHUD())
+		if(Parent)
 		{
-			PC->GetNavHUD()->RemoveTarget(this);
+			Parent->SetActiveSpacecraft(NULL);
 		}
-	}
-
-	if(Parent)
-	{
-		Parent->SetActiveSpacecraft(NULL);
 	}
 
 
@@ -521,14 +524,15 @@ AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 
 void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 {
+	// Update local data
+	Parent = ParentSpacecraft;
+
 	if (!IsPresentationMode())
 	{
 		Airframe->SetSimulatePhysics(true);
+		Parent->SetActiveSpacecraft(this);
 	}
 
-	// Update local data
-	Parent = ParentSpacecraft;
-	Parent->SetActiveSpacecraft(this);
 	FLOGV("AFlareSpacecraft::Load %s", *ParentSpacecraft->GetImmatriculation().ToString());
 
 	// Load ship description

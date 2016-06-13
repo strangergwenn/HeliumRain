@@ -168,7 +168,7 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 
 void AFlareMenuManager::OpenMainOverlay()
 {
-	FLOG("AFlareMenuManager::CloseMainOverlay");
+	FLOG("AFlareMenuManager::OpenMainOverlay");
 
 	MainOverlay->Open();
 	if (GetPC()->GetNavHUD())
