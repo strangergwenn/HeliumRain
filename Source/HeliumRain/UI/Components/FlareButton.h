@@ -107,6 +107,7 @@ protected:
 	FFlareButtonClicked            OnClicked;
 	TSharedPtr<SBorder>            InnerContainer;
 	TSharedPtr<STextBlock>         TextBlock;
+	TSharedPtr<SButton>            InternalButton;
 
 	// Attributes
 	TAttribute<const FSlateBrush*> Icon;
