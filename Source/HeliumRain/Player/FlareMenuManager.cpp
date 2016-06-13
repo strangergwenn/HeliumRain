@@ -703,6 +703,7 @@ void AFlareMenuManager::OpenMainMenu()
 
 	CloseMainOverlay();
 	CurrentMenu = EFlareMenu::MENU_Main;
+	GetPC()->GetGame()->SaveGame(GetPC());
 	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
 	UseLightBackground();
