@@ -340,7 +340,7 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 
 			// Disable pilot during the switch
 			Candidate->GetStateManager()->EnablePilot(false);
-			FlyShip(Candidate);
+			FlyShip(Candidate, false);
 		}
 	}
 
@@ -878,7 +878,7 @@ void AFlarePlayerController::QuickSwitch(bool instant)
 
 				if(instant)
 				{
-					FlyShip(SeletedCandidate);
+					FlyShip(SeletedCandidate, false);
 				}
 				else
 				{

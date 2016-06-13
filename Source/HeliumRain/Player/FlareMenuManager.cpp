@@ -742,7 +742,7 @@ void AFlareMenuManager::LoadGame()
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
 		Sector->SetShipToFly(CurrentShip);
 		PC->GetGame()->ActivateCurrentSector();
-		MenuIsOpen = false;
+		FlyShip(CurrentShip);
 	}
 }
 
