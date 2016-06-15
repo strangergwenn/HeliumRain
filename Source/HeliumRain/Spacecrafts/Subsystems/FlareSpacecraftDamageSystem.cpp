@@ -70,7 +70,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	}
 
 	// Update Alive status
-	if (WasAlive && !IsAlive())
+	if (WasAlive && !Parent->IsAlive())
 	{
 		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
 
@@ -107,6 +107,7 @@ void UFlareSpacecraftDamageSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft,
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
+	Parent = Spacecraft->GetParent()->GetDamageSystem();
 }
 
 void UFlareSpacecraftDamageSystem::Start()
@@ -134,7 +135,7 @@ void UFlareSpacecraftDamageSystem::Start()
 	UpdatePower();
 
 	// Init alive status
-	WasAlive = IsAlive();
+	WasAlive = Parent->IsAlive();
 	TimeSinceLastExternalDamage = 10000;
 }
 
@@ -353,8 +354,6 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation().ToString()), Radius, *Location.ToString());
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
-	bool IsAliveBeforeDamage = IsAlive();
-
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
@@ -435,116 +434,6 @@ void UFlareSpacecraftDamageSystem::OnElectricDamage(float DamageRatio)
 	}
 }
 
-float UFlareSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor, bool WithAmmo) const
-{
-	float Health = 0.f;
-
-	switch(Type)
-	{
-		case EFlareSubsystem::SYS_Propulsion:
-		{
-			TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
-			float Total = 0.f;
-			float EngineCount = 0;
-			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
-			{
-				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
-				if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
-				{
-					EngineCount+=1.f;
-					Total+=Engine->GetDamageRatio(WithArmor)*(Engine->IsPowered() ? 1 : 0);
-				}
-			}
-			Health = Total/EngineCount;
-		}
-		break;
-		case EFlareSubsystem::SYS_RCS:
-		{
-			TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
-			float Total = 0.f;
-			float EngineCount = 0;
-			for (int32 ComponentIndex = 0; ComponentIndex < Engines.Num(); ComponentIndex++)
-			{
-				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[ComponentIndex]);
-				if (!Engine->IsA(UFlareOrbitalEngine::StaticClass()))
-				{
-					EngineCount+=1.f;
-					Total+=Engine->GetDamageRatio(WithArmor)*(Engine->IsPowered() ? 1 : 0);
-				}
-			}
-			Health = Total/EngineCount;
-		}
-		break;
-		case EFlareSubsystem::SYS_LifeSupport:
-		{
-			if (Spacecraft->GetCockpit())
-			{
-				Health = Spacecraft->GetCockpit()->GetDamageRatio(WithArmor) * (Spacecraft->GetCockpit()->IsPowered() ? 1 : 0);
-			}
-			else
-			{
-				// No cockpit mean no destructible
-				Health = 1.0f;
-			}
-		}
-		break;
-		case EFlareSubsystem::SYS_Power:
-		{
-			float Total = 0.f;
-			float GeneratorCount = 0;
-			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-			{
-				UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-				if (Component->IsGenerator())
-				{
-					GeneratorCount+=1.f;
-					Total+=Component->GetDamageRatio(WithArmor);
-				}
-			}
-			Health = Total/GeneratorCount;
-		}
-		break;
-		case EFlareSubsystem::SYS_Weapon:
-		{
-			TArray<UActorComponent*> Weapons = Spacecraft->GetComponentsByClass(UFlareWeapon::StaticClass());
-			float Total = 0.f;
-			for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
-			{
-				UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
-				Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*((Weapon->GetCurrentAmmo() > 0 || !WithAmmo) ? 1 : 0);
-			}
-			if(Weapons.Num() == 0)
-			{
-				Health = 0;
-			}
-			else
-			{
-				Health = Total/Weapons.Num();
-			}
-
-		}
-		break;
-		case EFlareSubsystem::SYS_Temperature:
-		{
-			float Total = 0.f;
-			float HeatSinkCount = 0;
-			for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-			{
-				UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-				if (Component->IsHeatSink())
-				{
-					HeatSinkCount+=1.f;
-					Total+=Component->GetDamageRatio(WithArmor) * (Spacecraft->GetCockpit() && Spacecraft->GetCockpit()->IsPowered() ? 1 : 0);
-				}
-			}
-			Health = Total/HeatSinkCount;
-		}
-		break;
-	}
-
-	return Health;
-}
-
 float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor, bool WithAmmo) const
 {
 	 FFlareWeaponGroup* WeaponGroup = Spacecraft->GetWeaponsSystem()->GetWeaponGroup(GroupIndex);
@@ -561,17 +450,6 @@ float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool 
 	 return Health;
 }
 
-float UFlareSpacecraftDamageSystem::GetTemperature() const
-{
-	return Data->Heat / Description->HeatCapacity;
-}
-
-
-bool UFlareSpacecraftDamageSystem::IsAlive() const
-{
-	return GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport) > 0;
-}
-
 bool UFlareSpacecraftDamageSystem::IsPowered() const
 {
 	if (Spacecraft->GetCockpit())
@@ -584,26 +462,16 @@ bool UFlareSpacecraftDamageSystem::IsPowered() const
 	}
 }
 
-bool UFlareSpacecraftDamageSystem::HasPowerOutage() const
-{
-	return GetPowerOutageDuration() > 0.f;
-}
-
-float UFlareSpacecraftDamageSystem::GetPowerOutageDuration() const
-{
-	return Data->PowerOutageDelay;
-}
-
 float UFlareSpacecraftDamageSystem::GetOverheatRatio(float HalfRatio) const
 {
-	if (GetTemperature() <= GetOverheatTemperature())
+	if (Parent->GetTemperature() <= Parent->GetOverheatTemperature())
 	{
 		return 0;
 	}
 	else
 	{
-		float OverHeat = GetTemperature() - GetOverheatTemperature();
-		float BaseOverHeatRatio = OverHeat / GetOverheatTemperature();
+		float OverHeat = Parent->GetTemperature() - Parent->GetOverheatTemperature();
+		float BaseOverHeatRatio = OverHeat / Parent->GetOverheatTemperature();
 
 
 		return (-1/(BaseOverHeatRatio/HalfRatio+1))+1;

@@ -88,7 +88,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		AFlareSpacecraft* TargetCandidate = Turret->GetWeaponGroup()->Target;
 
 
-		if(!TargetCandidate->GetDamageSystem()->IsAlive())
+		if(!TargetCandidate->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			Turret->GetWeaponGroup()->Target = NULL;
 		}
@@ -229,7 +229,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 			}
 		}
 
-		if (Turret->GetSpacecraft()->GetDamageSystem()->GetTemperature() > Turret->GetSpacecraft()->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
+		if (Turret->GetSpacecraft()->GetParent()->GetDamageSystem()->GetTemperature() > Turret->GetSpacecraft()->GetParent()->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
 		{
 			// TODO Fire on dangerous target
 			WantFire = false;
@@ -354,7 +354,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 
 bool UFlareTurretPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
 {
-	return ShipCandidate->GetParent()->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+	return ShipCandidate->GetParent()->IsMilitary() && ShipCandidate->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
 }
 
 UFlareSpacecraftComponent* UFlareTurretPilot::GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft)

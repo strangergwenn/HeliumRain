@@ -20,7 +20,7 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	void Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu) override;
+	void Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu) override;
 
 	/** Setup this weapon's effects */
 	virtual void SetupFiringEffects();

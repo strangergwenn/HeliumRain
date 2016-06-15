@@ -1,10 +1,40 @@
 #pragma once
-#include "FlareSpacecraftDamageSystemInterface.h"
 #include "FlareSimulatedSpacecraftDamageSystem.generated.h"
+
+/** Possible subsystems targets */
+UENUM()
+namespace EFlareSubsystem
+{
+	enum Type
+	{
+		SYS_None,
+		SYS_Temperature,
+		SYS_Propulsion,
+		SYS_RCS,
+		SYS_LifeSupport,
+		SYS_Power,
+		SYS_Weapon,
+	};
+}
+
+/** Damage Type */
+UENUM()
+namespace EFlareDamage
+{
+	enum Type
+	{
+		DAM_None,
+		DAM_Collision,
+		DAM_Overheat,
+		DAM_HighExplosive,
+		DAM_ArmorPiercing,
+		DAM_HEAT,
+	};
+}
 
 /** Spacecraft damage system class */
 UCLASS()
-class HELIUMRAIN_API UFlareSimulatedSpacecraftDamageSystem : public UObject, public IFlareSpacecraftDamageSystemInterface
+class HELIUMRAIN_API UFlareSimulatedSpacecraftDamageSystem : public UObject
 {
 
 public:
@@ -34,8 +64,6 @@ public:
 
 	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false, bool WithAmmo = false) const;
 
-	virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor = false, bool WithAmmo = true) const;
-
 	virtual float GetTemperature() const;
 
 	virtual float GetOverheatTemperature() const { return 1000; }
@@ -60,4 +88,7 @@ public:
 		Getters
 	----------------------------------------------------*/
 
+
+	/** Get a subsystem's name */
+	static FText GetSubsystemName(EFlareSubsystem::Type SubsystemType);
 };

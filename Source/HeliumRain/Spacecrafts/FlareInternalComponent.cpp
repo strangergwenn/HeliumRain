@@ -19,7 +19,7 @@ UFlareInternalComponent::UFlareInternalComponent(const class FObjectInitializer&
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareInternalComponent::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
+void UFlareInternalComponent::Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 	if (!ComponentDescription)

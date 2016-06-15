@@ -182,7 +182,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			continue;
 		}
 
-		if (!ShipCandidate->GetDamageSystem()->IsAlive())
+		if (!ShipCandidate->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			// Ignore destroyed ships
 			continue;
@@ -435,5 +435,5 @@ void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 
 bool PilotHelper::IsShipDangerous(AFlareSpacecraft* ShipCandidate)
 {
-	return ShipCandidate->IsMilitary() && ShipCandidate->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+	return ShipCandidate->IsMilitary() && ShipCandidate->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
 }

@@ -321,7 +321,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Power out
-	bool HasPower = !PlayerShip->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetDamageSystem()->IsAlive();
+	bool HasPower = !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
 	if (!HasPower)
 	{
 		Intensity = 0;
@@ -477,7 +477,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 	}
 
 	// Power out
-	if (PlayerShip->GetDamageSystem()->HasPowerOutage())
+	if (PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
 	{
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", Theme.EnemyColor);
@@ -486,8 +486,8 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 	// Temperature
 	else if (CockpitHealthLightTime > CockpitHealthLightPeriod / 2)
 	{
-		float Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
-		float OverheatTemperature = PlayerShip->GetDamageSystem()->GetOverheatTemperature();
+		float Temperature = PlayerShip->GetParent()->GetDamageSystem()->GetTemperature();
+		float OverheatTemperature = PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature();
 		FLinearColor TemperatureColor = PC->GetNavHUD()->GetTemperatureColor(Temperature, OverheatTemperature);
 		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", TemperatureColor);
 	}
@@ -495,7 +495,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 	// Cockpit health
 	else
 	{
-		float ComponentHealth = PlayerShip->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport);
+		float ComponentHealth = PlayerShip->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport);
 		FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(ComponentHealth);
 		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", HealthColor);
 	}
@@ -506,7 +506,7 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 	check(PlayerShip);
 
 	// Update timer
-	bool HasPower = !PlayerShip->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetDamageSystem()->IsAlive();
+	bool HasPower = !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
 	CockpitPowerTime += (HasPower ? 1.0f : -1.0f) * DeltaSeconds;
 	CockpitPowerTime = FMath::Clamp(CockpitPowerTime, 0.0f, CockpitPowerPeriod);
 	float PowerAlpha = CockpitPowerTime / CockpitPowerPeriod;

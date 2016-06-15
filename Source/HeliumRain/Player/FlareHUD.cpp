@@ -326,10 +326,10 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 		CurrentCanvas = TargetCanvas;
 
 		// Draw instruments
-		if (PlayerShip && PlayerShip->IsValidLowLevel() && PlayerShip->GetDamageSystem()->IsAlive())
+		if (PlayerShip && PlayerShip->IsValidLowLevel() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			// Regular case
-			if (!PlayerShip->GetDamageSystem()->HasPowerOutage())
+			if (!PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
 			{
 				DrawCockpitSubsystems(PlayerShip);
 				DrawCockpitEquipment(PlayerShip);
@@ -342,7 +342,7 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 				// Power out text
 				FText PowerOut = LOCTEXT("PowerOut", "NO POWER");
 				FText PowerOutInfo = FText::Format(LOCTEXT("PwBackInFormat", "Power back in {0}..."),
-					FText::AsNumber((int32)(PlayerShip->GetDamageSystem()->GetPowerOutageDuration()) + 1));
+					FText::AsNumber((int32)(PlayerShip->GetParent()->GetDamageSystem()->GetPowerOutageDuration()) + 1));
 
 				// Draw
 				FVector2D CurrentPos = RightInstrument;
@@ -361,7 +361,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	float CockpitIconSize = 20;
 	FVector2D CurrentPos = LeftInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
+	int32 Temperature = PlayerShip->GetParent()->GetDamageSystem()->GetTemperature();
 	FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
 
 	// Ship name
@@ -374,7 +374,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	CurrentPos += InstrumentLine;
 	
 	// Temperature text
-	FLinearColor TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetDamageSystem()->GetOverheatTemperature());
+	FLinearColor TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature());
 	DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
 	FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
 	CurrentPos += InstrumentLine;
@@ -579,10 +579,10 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position)
 {
 	AFlareSpacecraft* PlayerShip = MenuManager->GetPC()->GetShipPawn();
-	float ComponentHealth = PlayerShip->GetDamageSystem()->GetSubsystemHealth(Subsystem);
+	float ComponentHealth = PlayerShip->GetParent()->GetDamageSystem()->GetSubsystemHealth(Subsystem);
 
 	FText SystemText = FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}: {1}%"),
-		IFlareSpacecraftDamageSystemInterface::GetSubsystemName(Subsystem),
+		UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(Subsystem),
 		FText::AsNumber((int32)(100 * ComponentHealth)));
 
 	// Drawing data
@@ -667,7 +667,7 @@ bool AFlareHUD::ShouldDrawHUD() const
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
-	if (!ActiveSector || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsUIOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
+	if (!ActiveSector || !PlayerShip || !PlayerShip->GetParent()->GetDamageSystem()->IsAlive() || MenuManager->IsUIOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
 	{
 		return false;
 	}
@@ -701,7 +701,7 @@ void AFlareHUD::DrawHUDInternal()
 			}
 			else
 			{
-				ShouldDrawSearchMarker = Spacecraft->GetDamageSystem()->IsAlive();
+				ShouldDrawSearchMarker = Spacecraft->GetParent()->GetDamageSystem()->IsAlive();
 			}
 
 			// Draw search markers
@@ -958,14 +958,14 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			ContextMenuPosition = ScreenPosition;
 
 			ContextMenu->SetSpacecraft(Spacecraft);
-			if (Spacecraft->GetDamageSystem()->IsAlive())
+			if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 			{
 				ContextMenu->Show();
 			}
 		}
 
 		// Draw the HUD designator
-		else if (Spacecraft->GetDamageSystem()->IsAlive())
+		else if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			float CornerSize = 8;
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
@@ -1047,7 +1047,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	}
 
 	// Dead ship
-	if (!Spacecraft->GetDamageSystem()->IsAlive())
+	if (!Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		return false;
 	}
@@ -1071,12 +1071,12 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 
 void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDHealthIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDHealthIcon);
 
 	if (Ship->GetParent()->IsMilitary())
 	{
-		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
+		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
 	}
 }
 

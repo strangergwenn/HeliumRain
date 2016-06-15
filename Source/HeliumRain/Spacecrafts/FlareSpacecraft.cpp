@@ -200,7 +200,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			}
 
 			// 5km limit
-			if (PlayerShip && !GetDamageSystem()->IsAlive())
+			if (PlayerShip && !Parent->GetDamageSystem()->IsAlive())
 			{
 				float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
 				if (Company && Distance > 500000)
@@ -507,7 +507,7 @@ AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 {
 	// Crash "preventer" - ensure we've got a really valid target, this isn't a solution, but it seems to only happen when using CreateShip commands
 	if (IsValidLowLevel() && CurrentTarget  && CurrentTarget->IsValidLowLevel()
-	 && CurrentTarget->GetDamageSystem() && CurrentTarget->GetDamageSystem()->IsValidLowLevel() && CurrentTarget->GetDamageSystem()->IsAlive())
+	 && CurrentTarget->GetDamageSystem() && CurrentTarget->GetDamageSystem()->IsValidLowLevel() && CurrentTarget->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		return CurrentTarget;
 	}
@@ -565,7 +565,7 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		FFlareSpacecraftComponentSave ComponentData;
+		FFlareSpacecraftComponentSave* ComponentData;
 
 		// Find component the corresponding component data comparing the slot id
 		bool found = false;
@@ -573,7 +573,7 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 		{
 			if (Component->SlotIdentifier == GetData().Components[i].ShipSlotIdentifier)
 			{
-				ComponentData = GetData().Components[i];
+				ComponentData = &GetData().Components[i];
 				found = true;
 				break;
 			}
@@ -586,10 +586,10 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 		}
 
 		// Reload the component
-		ReloadPart(Component, &ComponentData);
+		ReloadPart(Component, ComponentData);
 
 		// Set RCS description
-		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData.ComponentIdentifier);
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
 		if (ComponentDescription->Type == EFlarePartType::RCS)
 		{
 			SetRCSDescription(ComponentDescription);
@@ -668,17 +668,11 @@ void AFlareSpacecraft::Save()
 	}
 
 	// Save all components datas
-	GetData().Components.Empty();
 	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		FFlareSpacecraftComponentSave* ComponentSave = Component->Save();
-
-		if (ComponentSave)
-		{
-			GetData().Components.Add(*ComponentSave);
-		}
+		Component->Save();
 	}
 }
 

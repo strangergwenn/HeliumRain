@@ -860,7 +860,7 @@ void AFlarePlayerController::QuickSwitch(bool instant)
 				{
 					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
-					if (Candidate && Candidate != ShipPawn && Candidate->GetDamageSystem()->IsAlive())
+					if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->GetDamageSystem()->IsAlive())
 					{
 						SeletedCandidate = Candidate;
 						break;

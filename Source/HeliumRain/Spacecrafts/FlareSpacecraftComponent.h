@@ -358,7 +358,7 @@ public:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	/** Initialize this component and register the master ship object */
-	virtual void Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerSpacecraftPawn, bool IsInMenu = false);
+	virtual void Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerSpacecraftPawn, bool IsInMenu = false);
 
 	/** Save the ship component to a save file */
 	virtual FFlareSpacecraftComponentSave* Save();
@@ -488,7 +488,7 @@ protected:
 
 	// Component description and data
 	FFlareSpacecraftComponentDescription*   ComponentDescription;
-	FFlareSpacecraftComponentSave                 ShipComponentData;
+	FFlareSpacecraftComponentSave*          ShipComponentData;
 
 	// General state
 	bool                                    LifeSupport;

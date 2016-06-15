@@ -133,7 +133,7 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 			}
 			Info = FText::Format(LOCTEXT("HealthInfoFormat", "{0}{1} : {2}%\n"),
 				Info,
-				IFlareSpacecraftDamageSystemInterface::GetSubsystemName((EFlareSubsystem::Type)Index),
+				UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName((EFlareSubsystem::Type)Index),
 				FText::AsNumber(100 * TargetShip->GetDamageSystem()->GetSubsystemHealth((EFlareSubsystem::Type)Index, false, true))
 				);
 		}
