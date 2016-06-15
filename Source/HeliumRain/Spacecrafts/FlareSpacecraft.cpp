@@ -565,22 +565,22 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		FFlareSpacecraftComponentSave* ComponentData;
+		FFlareSpacecraftComponentSave* ComponentData = NULL;
 
 		// Find component the corresponding component data comparing the slot id
-		bool found = false;
+		bool Found = false;
 		for (int32 i = 0; i < GetData().Components.Num(); i++)
 		{
 			if (Component->SlotIdentifier == GetData().Components[i].ShipSlotIdentifier)
 			{
 				ComponentData = &GetData().Components[i];
-				found = true;
+				Found = true;
 				break;
 			}
 		}
 
 		// If no data, this is a cosmetic component and it don't need to be initialized
-		if (!found)
+		if (!Found)
 		{
 			continue;
 		}
