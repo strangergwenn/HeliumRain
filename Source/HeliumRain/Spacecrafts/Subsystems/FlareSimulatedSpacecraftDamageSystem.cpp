@@ -42,14 +42,12 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsAlive() const
 
 bool UFlareSimulatedSpacecraftDamageSystem::HasPowerOutage() const
 {
-	// No power outage in simulation
-	return false;
+	return GetPowerOutageDuration() > 0.f;
 }
 
 float UFlareSimulatedSpacecraftDamageSystem::GetPowerOutageDuration() const
 {
-	// No power outage in simulation
-	return 0;
+	return Data->PowerOutageDelay;
 }
 
 float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor, bool WithAmmo) const
@@ -113,7 +111,7 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 				FFlareSpacecraftComponentSave* ComponentData = &Data->Components[ComponentIndex];
 
 				FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
-				if (ComponentDescription->GeneralCharacteristics.LifeSupport)
+				if (ComponentDescription && ComponentDescription->GeneralCharacteristics.LifeSupport)
 				{
 					Health = GetDamageRatio(ComponentDescription, ComponentData, WithArmor);
 					break;
@@ -199,16 +197,11 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 	return 1.0f;
 }
 
-float UFlareSimulatedSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor, bool WithAmmo) const
-{
-	return 1.0f;
-}
+
 
 float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
 {
-	// TODO replace mock
-	return 400;
-
+	return Data->Heat / Description->HeatCapacity;
 }
 
 float UFlareSimulatedSpacecraftDamageSystem::GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
@@ -273,7 +266,22 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentS
 	return false;
 }
 
+FText UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(EFlareSubsystem::Type SubsystemType)
+{
+	FText Text;
 
+	switch (SubsystemType)
+	{
+	case EFlareSubsystem::SYS_Temperature:   Text = LOCTEXT("SYS_Temperature", "Cooling");      break;
+	case EFlareSubsystem::SYS_Propulsion:    Text = LOCTEXT("SYS_Propulsion", "Engines");       break;
+	case EFlareSubsystem::SYS_RCS:           Text = LOCTEXT("SYS_RCS", "RCS");                  break;
+	case EFlareSubsystem::SYS_LifeSupport:   Text = LOCTEXT("SYS_LifeSupport", "Crew");         break;
+	case EFlareSubsystem::SYS_Power:         Text = LOCTEXT("SYS_Power", "Power");              break;
+	case EFlareSubsystem::SYS_Weapon:        Text = LOCTEXT("SYS_Weapon", "Weapons");           break;
+	}
+
+	return Text;
+}
 
 
 #undef LOCTEXT_NAMESPACE

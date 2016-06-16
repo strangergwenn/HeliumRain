@@ -149,8 +149,8 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 		if (LocalHeatEffect && HeatProduction > 0.f)
 		{
 			float Alpha = GetHeatProduction() / HeatProduction;
-			float TargetTemperature = (1.f- Alpha) * (Spacecraft->GetDamageSystem()->GetTemperature() * 0.3f)
-						+ Alpha * (Spacecraft->GetDamageSystem()->GetTemperature() * 1.8f);
+			float TargetTemperature = (1.f- Alpha) * (Spacecraft->GetParent()->GetDamageSystem()->GetTemperature() * 0.3f)
+						+ Alpha * (Spacecraft->GetParent()->GetDamageSystem()->GetTemperature() * 1.8f);
 			float HalfLife = 3;
 			float Variation = DeltaTime / HalfLife;
 			LocalTemperature = (LocalTemperature + (TargetTemperature * Variation)) / (1+Variation);
@@ -158,14 +158,14 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 		else
 		{
 
-			LocalTemperature = Spacecraft->GetDamageSystem()->GetTemperature();
+			LocalTemperature = Spacecraft->GetParent()->GetDamageSystem()->GetTemperature();
 		}
 		SetTemperature(Spacecraft->IsPresentationMode() ? 290 : LocalTemperature);
 
 	}
 }
 
-void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerSpacecraftPawn, bool IsInMenu)
+void UFlareSpacecraftComponent::Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerSpacecraftPawn, bool IsInMenu)
 {
 	// Main data
 	SpacecraftPawn = OwnerSpacecraftPawn;
@@ -174,13 +174,13 @@ void UFlareSpacecraftComponent::Initialize(const FFlareSpacecraftComponentSave* 
 	Spacecraft = Cast<AFlareSpacecraft>(SpacecraftPawn);
 	if (Spacecraft)
 	{
-		LocalTemperature = Spacecraft->GetDamageSystem()->GetTemperature();
+		LocalTemperature = Spacecraft->GetParent()->GetDamageSystem()->GetTemperature();
 	}
 
 	// Setup properties
 	if (Data)
 	{
-		ShipComponentData = *Data;
+		ShipComponentData = Data;
 		ComponentDescription = OwnerSpacecraftPawn->GetGame()->GetShipPartsCatalog()->Get(Data->ComponentIdentifier);
 
 		if (!ComponentDescription)
@@ -213,7 +213,7 @@ FFlareSpacecraftComponentSave* UFlareSpacecraftComponent::Save()
 {
 	if (ComponentDescription)
 	{
-		return &ShipComponentData;
+		return ShipComponentData;
 	}
 	else
 	{
@@ -387,7 +387,7 @@ float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
 	}
 	else if (ComponentDescription->ArmorHitPoints != 0.0f || ComponentDescription->HitPoints != 0.0f)
 	{
-		return FMath::Max(0.0f, ComponentDescription->ArmorHitPoints - ShipComponentData.Damage);
+		return FMath::Max(0.0f, ComponentDescription->ArmorHitPoints - ShipComponentData->Damage);
 	}
 
 	// Not destructible
@@ -401,7 +401,7 @@ float UFlareSpacecraftComponent::ApplyDamage(float Energy)
 	{
 		// Apply damage
 		float StateBeforeDamage = GetDamageRatio();
-		ShipComponentData.Damage += Energy;
+		ShipComponentData->Damage += Energy;
 		float StateAfterDamage = GetDamageRatio();
 		InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
 
@@ -427,7 +427,7 @@ float UFlareSpacecraftComponent::GetDamageRatio(bool WithArmor) const
 {
 	if (ComponentDescription)
 	{
-		float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData.Damage;
+		float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData->Damage;
 		return FMath::Clamp(RemainingHitPoints / (ComponentDescription->HitPoints + (WithArmor ? ComponentDescription->ArmorHitPoints : 0.f)), 0.f, 1.f);
 	}
 	else
@@ -501,7 +501,7 @@ void UFlareSpacecraftComponent::UpdateLight()
 	{
 		SetLightStatus(EFlareLightStatus::Dark);
 	}
-	else if (AvailablePower < 0.5 || (Spacecraft && Spacecraft->GetDamageSystem()->HasPowerOutage()))
+	else if (AvailablePower < 0.5 || (Spacecraft && Spacecraft->GetParent()->GetDamageSystem()->HasPowerOutage()))
 	{
 		SetLightStatus(EFlareLightStatus::Flickering);
 	}
@@ -541,22 +541,22 @@ void UFlareSpacecraftComponent::UpdatePowerSources(TArray<UFlareSpacecraftCompon
 			continue;
 		}
 
-		if (SlotDescription->PoweredComponents.Contains(ShipComponentData.ShipSlotIdentifier))
+		if (ShipComponentData && SlotDescription->PoweredComponents.Contains(ShipComponentData->ShipSlotIdentifier))
 		{
 			PowerSources.Add(PowerSource);
 		}
 	}
 
-	if (PowerSources.Num() == 0 && ShipComponentData.ShipSlotIdentifier != NAME_None)
+	if (PowerSources.Num() == 0 && ShipComponentData && ShipComponentData->ShipSlotIdentifier != NAME_None)
 	{
 		FLOGV("Warning: %s : %s has no power source", *Spacecraft->GetImmatriculation().ToString(),
-			  *ShipComponentData.ShipSlotIdentifier.ToString());
+			  *ShipComponentData->ShipSlotIdentifier.ToString());
 	}
 }
 
 float UFlareSpacecraftComponent::GetUsableRatio() const
 {
-	return GetDamageRatio() * (IsPowered() ? 1 : 0) * (Spacecraft && Spacecraft->GetDamageSystem()->HasPowerOutage() ? 0 : 1);
+	return GetDamageRatio() * (IsPowered() ? 1 : 0) * (Spacecraft && Spacecraft->GetParent()->GetDamageSystem()->HasPowerOutage() ? 0 : 1);
 }
 
 float UFlareSpacecraftComponent::GetHeatProduction() const
@@ -590,7 +590,7 @@ void UFlareSpacecraftComponent::Repair()
 {
 	if (ComponentDescription)
 	{
-		ShipComponentData.Damage = 0;
+		ShipComponentData->Damage = 0;
 		UpdateLight();
 		if (DestroyedEffects)
 		{

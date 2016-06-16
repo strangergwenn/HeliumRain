@@ -103,7 +103,7 @@ void AFlareSpacecraftPawn::SetCompany(UFlareCompany* NewCompany)
 	Company = NewCompany;
 }
 
-void AFlareSpacecraftPawn::ReloadPart(UFlareSpacecraftComponent* Target, const FFlareSpacecraftComponentSave* Data)
+void AFlareSpacecraftPawn::ReloadPart(UFlareSpacecraftComponent* Target, FFlareSpacecraftComponentSave* Data)
 {
 	Target->Initialize(Data, Company, this);
 }

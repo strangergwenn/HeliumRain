@@ -34,7 +34,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 	UpdateCOM();
 
 	// Manual pilot
-	if (IsManualPilot() && Spacecraft->GetDamageSystem()->IsAlive())
+	if (IsManualPilot() && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		LinearTargetVelocity = Spacecraft->GetStateManager()->GetLinearTargetVelocity();
 		AngularTargetVelocity = Spacecraft->GetStateManager()->GetAngularTargetVelocity();

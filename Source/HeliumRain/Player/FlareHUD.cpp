@@ -326,10 +326,10 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 		CurrentCanvas = TargetCanvas;
 
 		// Draw instruments
-		if (PlayerShip && PlayerShip->IsValidLowLevel() && PlayerShip->GetDamageSystem()->IsAlive())
+		if (PlayerShip && PlayerShip->IsValidLowLevel() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			// Regular case
-			if (!PlayerShip->GetDamageSystem()->HasPowerOutage())
+			if (!PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
 			{
 				DrawCockpitSubsystems(PlayerShip);
 				DrawCockpitEquipment(PlayerShip);
@@ -342,7 +342,7 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 				// Power out text
 				FText PowerOut = LOCTEXT("PowerOut", "NO POWER");
 				FText PowerOutInfo = FText::Format(LOCTEXT("PwBackInFormat", "Power back in {0}..."),
-					FText::AsNumber((int32)(PlayerShip->GetDamageSystem()->GetPowerOutageDuration()) + 1));
+					FText::AsNumber((int32)(PlayerShip->GetParent()->GetDamageSystem()->GetPowerOutageDuration()) + 1));
 
 				// Draw
 				FVector2D CurrentPos = RightInstrument;
@@ -361,7 +361,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	float CockpitIconSize = 20;
 	FVector2D CurrentPos = LeftInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
+	int32 Temperature = PlayerShip->GetParent()->GetDamageSystem()->GetTemperature();
 	FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
 
 	// Ship name
@@ -374,7 +374,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	CurrentPos += InstrumentLine;
 	
 	// Temperature text
-	FLinearColor TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetDamageSystem()->GetOverheatTemperature());
+	FLinearColor TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature());
 	DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
 	FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
 	CurrentPos += InstrumentLine;
@@ -579,10 +579,10 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position)
 {
 	AFlareSpacecraft* PlayerShip = MenuManager->GetPC()->GetShipPawn();
-	float ComponentHealth = PlayerShip->GetDamageSystem()->GetSubsystemHealth(Subsystem);
+	float ComponentHealth = PlayerShip->GetParent()->GetDamageSystem()->GetSubsystemHealth(Subsystem);
 
 	FText SystemText = FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}: {1}%"),
-		IFlareSpacecraftDamageSystemInterface::GetSubsystemName(Subsystem),
+		UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(Subsystem),
 		FText::AsNumber((int32)(100 * ComponentHealth)));
 
 	// Drawing data
@@ -667,7 +667,7 @@ bool AFlareHUD::ShouldDrawHUD() const
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
-	if (!ActiveSector || !PlayerShip || !PlayerShip->GetDamageSystem()->IsAlive() || MenuManager->IsUIOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
+	if (!ActiveSector || !PlayerShip || !PlayerShip->GetParent()->GetDamageSystem()->IsAlive() || MenuManager->IsUIOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
 	{
 		return false;
 	}
@@ -701,7 +701,7 @@ void AFlareHUD::DrawHUDInternal()
 			}
 			else
 			{
-				ShouldDrawSearchMarker = Spacecraft->GetDamageSystem()->IsAlive();
+				ShouldDrawSearchMarker = Spacecraft->GetParent()->GetDamageSystem()->IsAlive();
 			}
 
 			// Draw search markers
@@ -838,7 +838,10 @@ void AFlareHUD::DrawDebugGrid(FLinearColor Color)
 			if (!IsDrawingCockpit || ScreenToCockpit(Screen, Cockpit))
 			{
 				DrawHUDIcon(Cockpit, IconSize, HUDNoseIcon, Color, true);
-				FlareDrawText(FText::Format(LOCTEXT("GridLocation", "{0},{1}"), FText::AsNumber(HIndex), FText::AsNumber(VIndex)).ToString(), Cockpit, Color, false, false);
+				FlareDrawText(FText::Format(LOCTEXT("GridLocation", "{0},{1}"),
+					FText::AsNumber(VIndex + VPrecision),
+					FText::AsNumber(HIndex + HPrecision)).ToString(),
+					Cockpit, Color, false, false);
 			}
 		}
 	}
@@ -958,14 +961,14 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			ContextMenuPosition = ScreenPosition;
 
 			ContextMenu->SetSpacecraft(Spacecraft);
-			if (Spacecraft->GetDamageSystem()->IsAlive())
+			if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 			{
 				ContextMenu->Show();
 			}
 		}
 
 		// Draw the HUD designator
-		else if (Spacecraft->GetDamageSystem()->IsAlive())
+		else if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			float CornerSize = 8;
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
@@ -1047,7 +1050,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	}
 
 	// Dead ship
-	if (!Spacecraft->GetDamageSystem()->IsAlive())
+	if (!Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		return false;
 	}
@@ -1071,12 +1074,12 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 
 void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDHealthIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
+	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDHealthIcon);
 
 	if (Ship->GetParent()->IsMilitary())
 	{
-		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
+		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
 	}
 }
 
@@ -1228,49 +1231,41 @@ bool AFlareHUD::ProjectWorldLocationToCockpit(FVector World, FVector2D& Cockpit)
 
 }
 
-//TODO remove
-bool AFlareHUD::WorldToScreenOld(FVector World, FVector2D& Screen)
-{
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
-	// Cockpit projection
-	if (IsDrawingCockpit)
-	{
-		FVector WorldDirection = World - PC->GetShipPawn()->GetActorLocation();
-		FVector ScreenDirection = PC->GetShipPawn()->WorldToLocal(WorldDirection);
-		ScreenDirection += FVector(100, 0, 0); // Cockpit is supposed to be spherical around -100
-
-		// FoV calculation. The vertical FoV is scaled by an arbitrary factor because UV adjustments were made for horizontal.
-		float HorizontalFOV = PC->PlayerCameraManager->GetFOVAngle();
-		float VerticalFOV = (ViewportSize.Y / ViewportSize.X) * HorizontalFOV * 0.95;
-		HorizontalFOV *= 1.1;
-
-		FVector ScreenRotation = ScreenDirection.Rotation().Euler();
-		if (FMath::Abs(ScreenRotation.Z) <= HorizontalFOV && FMath::Abs(ScreenRotation.Y) <= VerticalFOV)
-		{
-			Screen.X = (ScreenRotation.Z / HorizontalFOV) * CurrentViewportSize.X;
-			Screen.Y = (-ScreenRotation.Y / VerticalFOV) * CurrentViewportSize.Y;
-			Screen += CurrentViewportSize / 2;
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	// Flat screen projection
-	else
-	{
-		return PC->ProjectWorldLocationToScreen(World, Screen);
-	}
-}
+/*----------------------------------------------------
+	Distorsion
+----------------------------------------------------*/
 
 #define GRID_H_SIZE 11
 #define GRID_V_SIZE 11
 
-static float BaseHorizontalDistortion = 1.0f;
-static float HorizontalDistortionMap[] = {
+static float FighterHorizontalDistortionMap[] = {
+	1.000f, 0.960f, 0.910f, 0.940f, 1.000f, 1.000f, 1.000f, 1.030f, 1.020f, 1.005f, 1.000f,
+	1.000f, 0.910f, 0.900f, 0.930f, 1.000f, 1.000f, 1.030f, 1.030f, 1.025f, 1.007f, 1.000f,
+	1.000f, 0.870f, 0.880f, 0.920f, 0.960f, 1.000f, 1.025f, 1.035f, 1.030f, 1.013f, 1.000f,
+	1.000f, 0.820f, 0.860f, 0.910f, 0.960f, 1.000f, 1.025f, 1.035f, 1.035f, 1.018f, 1.000f,
+	1.000f, 0.800f, 0.850f, 0.905f, 0.955f, 1.000f, 1.026f, 1.040f, 1.037f, 1.022f, 1.000f,
+	1.000f, 0.795f, 0.850f, 0.905f, 0.960f,   1.f , 1.030f, 1.040f, 1.037f, 1.022f, 1.000f,
+	1.000f, 0.800f, 0.850f, 0.905f, 0.955f, 1.000f, 1.026f, 1.040f, 1.037f, 1.022f, 1.000f,
+	1.000f, 0.820f, 0.860f, 0.910f, 0.960f, 1.000f, 1.025f, 1.035f, 1.035f, 1.018f, 1.000f,
+	1.000f, 0.870f, 0.880f, 0.920f, 0.960f, 1.000f, 1.025f, 1.035f, 1.030f, 1.013f, 1.000f,
+	1.000f, 0.910f, 0.900f, 0.930f, 1.000f, 1.000f, 1.030f, 1.030f, 1.025f, 1.008f, 1.000f,
+	1.000f, 0.960f, 0.910f, 0.940f, 1.000f, 1.000f, 1.000f, 1.030f, 1.020f, 1.005f, 1.000f };
+
+static float FighterVerticalDistortionMap[] = {
+	1.000f, 0.500f, 0.100f, 0.000f, 1.000f, 1.000f, 1.000f, 0.000f, 0.100f, 0.100f, 1.000f,
+	1.000f, 0.680f, 0.500f, 0.350f, 0.350f, 0.350f, 0.350f, 0.350f, 0.500f, 0.680f, 1.000f,
+	1.000f, 0.850f, 0.770f, 0.720f, 0.680f, 0.680f, 0.680f, 0.720f, 0.770f, 0.850f, 1.000f,
+	1.000f, 0.920f, 0.890f, 0.860f, 0.840f, 0.840f, 0.840f, 0.860f, 0.890f, 0.920f, 1.000f,
+	1.000f, 0.970f, 0.955f, 0.950f, 0.940f, 0.940f, 0.940f, 0.950f, 0.955f, 0.970f, 1.000f,
+	1.000f, 1.000f, 1.000f, 1.000f, 1.000f,   1.f , 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
+	1.000f, 1.020f, 1.030f, 1.035f, 1.040f, 1.040f, 1.040f, 1.035f, 1.030f, 1.020f, 1.000f,
+	1.000f, 1.030f, 1.045f, 1.060f, 1.070f, 1.070f, 1.070f, 1.060f, 1.045f, 1.030f, 1.000f,
+	1.000f, 1.040f, 1.055f, 1.070f, 1.070f, 1.070f, 1.070f, 1.070f, 1.055f, 1.040f, 1.000f,
+	1.000f, 1.040f, 1.065f, 1.080f, 1.080f, 1.080f, 1.080f, 1.080f, 1.065f, 1.040f, 1.000f,
+	1.000f, 1.040f, 1.075f, 1.090f, 1.090f, 1.090f, 1.090f, 1.090f, 1.075f, 1.040f, 1.000f };
+
+static float FreighterHorizontalDistortionMap[] = {
 	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
 	1.000f, 0.980f, 0.928f, 0.940f, 0.980f, 1.000f, 1.014f, 1.024f, 1.018f, 1.002f, 1.000f,
 	1.000f, 0.941f, 0.917f, 0.935f, 0.975f, 1.000f, 1.016f, 1.026f, 1.021f, 1.005f, 1.000f,
@@ -1283,8 +1278,7 @@ static float HorizontalDistortionMap[] = {
 	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
 	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f };
 
-static float BaseVerticalDistortion = 1.0f;
-static float VerticalDistortionMap[] = {
+static float FreighterVerticalDistortionMap[] = {
 	0.000f, 0.000f, 0.000f, 0.000f, 0.000f, 0.620f, 0.000f, 0.000f, 0.000f, 0.000f, 0.000f,
 	0.750f, 0.600f, 0.400f, 0.240f, 0.300f, 0.620f, 0.300f, 0.190f, 0.350f, 0.540f, 0.750f,
 	0.940f, 0.830f, 0.750f, 0.670f, 0.635f, 0.620f, 0.635f, 0.670f, 0.750f, 0.830f, 0.940f,
@@ -1297,18 +1291,42 @@ static float VerticalDistortionMap[] = {
 	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.100f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
 	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.100f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f };
 
+bool AFlareHUD::IsFlyingMilitaryShip() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	if (PC && PC->GetPlayerShip())
+	{
+		if (PC->GetPlayerShip()->IsMilitary())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+float* AFlareHUD::GetCurrentHorizontalGrid() const
+{
+	return IsFlyingMilitaryShip() ? FighterHorizontalDistortionMap : FreighterHorizontalDistortionMap;
+}
+
+float* AFlareHUD::GetCurrentVerticalGrid() const
+{
+	return IsFlyingMilitaryShip() ? FighterVerticalDistortionMap : FreighterVerticalDistortionMap;
+}
+
 void AFlareHUD::SetDistortion(uint32 Axis, uint32 X, uint32 Y, float Value)
 {
-	if(X < GRID_H_SIZE && Y < GRID_V_SIZE)
+	if (X < GRID_H_SIZE && Y < GRID_V_SIZE)
 	{
-
-		if(Axis == 0)
+		if (Axis == 0)
 		{
-			HorizontalDistortionMap[X  + Y * GRID_H_SIZE] = Value;
+			GetCurrentHorizontalGrid()[X  + Y * GRID_H_SIZE] = Value;
 		}
 		else
 		{
-			VerticalDistortionMap[X + Y * GRID_V_SIZE] = Value;
+			GetCurrentVerticalGrid()[X + Y * GRID_V_SIZE] = Value;
 		}
 	}
 }
@@ -1316,22 +1334,18 @@ void AFlareHUD::SetDistortion(uint32 Axis, uint32 X, uint32 Y, float Value)
 bool AFlareHUD::ScreenToCockpit(FVector2D Screen, FVector2D& Cockpit)
 {
 	float AspectRatio = CurrentViewportSize.X/CurrentViewportSize.Y;
-
 	float ExtraHeight = ViewportSize.Y - ViewportSize.X / AspectRatio;
 
 	// Find for near point of the map
 	float XRelativeLocation = (Screen.X / ViewportSize.X)  * (GRID_H_SIZE - 1);
 	float YRelativeLocation = (Screen.Y - (ExtraHeight / 2)) / (ViewportSize.Y - ExtraHeight) * (GRID_V_SIZE - 1);
-
-
-
+	
 	//FLOGV("Screen=%s XRelativeLocation=%f YRelativeLocation=%f AspectRatio=%f ExtraHeight=%f", *Screen.ToString(), XRelativeLocation, YRelativeLocation, AspectRatio, ExtraHeight);
 
 	if(XRelativeLocation < 0.f || XRelativeLocation > (GRID_H_SIZE - 1) || YRelativeLocation < 0.f || YRelativeLocation > (GRID_V_SIZE - 1))
 	{
 		return false;
 	}
-
 
 	int32 LeftIndex = FMath::FloorToInt(XRelativeLocation);
 	int32 RightIndex = FMath::CeilToInt(XRelativeLocation);
@@ -1340,43 +1354,38 @@ bool AFlareHUD::ScreenToCockpit(FVector2D Screen, FVector2D& Cockpit)
 
 	float LocalX = XRelativeLocation - LeftIndex;
 	float LocalY = YRelativeLocation - TopIndex;
-
-
-	float TopLeftXDistorsion = HorizontalDistortionMap[LeftIndex + TopIndex * GRID_H_SIZE];
-	float TopRightXDistorsion = HorizontalDistortionMap[RightIndex + TopIndex * GRID_H_SIZE];
-	float BottomLeftXDistorsion = HorizontalDistortionMap[LeftIndex + BottomIndex * GRID_H_SIZE];
-	float BottomRightXDistorsion = HorizontalDistortionMap[RightIndex + BottomIndex * GRID_H_SIZE];
-
-
+	
+	float TopLeftXDistorsion = GetCurrentHorizontalGrid()[LeftIndex + TopIndex * GRID_H_SIZE];
+	float TopRightXDistorsion = GetCurrentHorizontalGrid()[RightIndex + TopIndex * GRID_H_SIZE];
+	float BottomLeftXDistorsion = GetCurrentHorizontalGrid()[LeftIndex + BottomIndex * GRID_H_SIZE];
+	float BottomRightXDistorsion = GetCurrentHorizontalGrid()[RightIndex + BottomIndex * GRID_H_SIZE];
+	
 	float TopMeanXDistorsion = LocalX * TopRightXDistorsion +  (1 - LocalX) * TopLeftXDistorsion;
 	float BottomMeanXDistorsion = LocalX * BottomRightXDistorsion +  (1 - LocalX) * BottomLeftXDistorsion;
 	float MeanXDistorsion = LocalY * BottomMeanXDistorsion +  (1 - LocalY) * TopMeanXDistorsion;
 
-	float TopLeftYDistorsion = VerticalDistortionMap[LeftIndex + TopIndex * GRID_V_SIZE];
-	float TopRightYDistorsion = VerticalDistortionMap[RightIndex + TopIndex * GRID_V_SIZE];
-	float BottomLeftYDistorsion = VerticalDistortionMap[LeftIndex + BottomIndex * GRID_V_SIZE];
-	float BottomRightYDistorsion = VerticalDistortionMap[RightIndex + BottomIndex * GRID_V_SIZE];
-
-
+	float TopLeftYDistorsion = GetCurrentVerticalGrid()[LeftIndex + TopIndex * GRID_V_SIZE];
+	float TopRightYDistorsion = GetCurrentVerticalGrid()[RightIndex + TopIndex * GRID_V_SIZE];
+	float BottomLeftYDistorsion = GetCurrentVerticalGrid()[LeftIndex + BottomIndex * GRID_V_SIZE];
+	float BottomRightYDistorsion = GetCurrentVerticalGrid()[RightIndex + BottomIndex * GRID_V_SIZE];
+	
 	float TopMeanYDistorsion = LocalX * TopRightYDistorsion +  (1 - LocalX) * TopLeftYDistorsion;
 	float BottomMeanYDistorsion = LocalX * BottomRightYDistorsion +  (1 - LocalX) * BottomLeftYDistorsion;
 	float MeanYDistorsion = LocalY * BottomMeanYDistorsion +  (1 - LocalY) * TopMeanYDistorsion;
-
-
-	Cockpit = FVector2D(XRelativeLocation / (GRID_H_SIZE - 1) * (BaseHorizontalDistortion * MeanXDistorsion) * CurrentViewportSize.X,
-						YRelativeLocation / (GRID_H_SIZE - 1) * (BaseVerticalDistortion * MeanYDistorsion) * CurrentViewportSize.Y);
+	
+	Cockpit = FVector2D(XRelativeLocation / (GRID_H_SIZE - 1) * MeanXDistorsion * CurrentViewportSize.X,
+						YRelativeLocation / (GRID_H_SIZE - 1) * MeanYDistorsion * CurrentViewportSize.Y);
 
 	//FLOGV("Cockpit=%s MeanXDistorsion=%f MeanYDistorsion=%f", *Cockpit.ToString(), MeanXDistorsion, MeanYDistorsion);
-
-
-	if(Cockpit.X < 0.f || Cockpit.X > CurrentViewportSize.X || Cockpit.Y < 0.f || Cockpit.Y > CurrentViewportSize.Y)
+	
+	if (Cockpit.X < 0.f || Cockpit.X > CurrentViewportSize.X || Cockpit.Y < 0.f || Cockpit.Y > CurrentViewportSize.Y)
 	{
 		return false;
 	}
-
-
-
-	return true;
+	else
+	{
+		return true;
+	}
 }
 
 

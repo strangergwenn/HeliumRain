@@ -65,7 +65,6 @@ void AFlarePlayerController::BeginPlay()
 	// Cockpit
 	SetupCockpit();
 	CockpitManager->SetupCockpit(this);
-	PlayerCameraManager->SetFOV(92);
 
 	// Menu manager
 	SetupMenu();
@@ -255,6 +254,16 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
+
+	// Setup FOV
+	if (ShipPawn->GetParent()->IsMilitary())
+	{
+		PlayerCameraManager->SetFOV(92);
+	}
+	else
+	{
+		PlayerCameraManager->SetFOV(93);
+	}
 
 	// Combat groups
 	Company->GetAI()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
@@ -860,7 +869,7 @@ void AFlarePlayerController::QuickSwitch(bool instant)
 				{
 					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
-					if (Candidate && Candidate != ShipPawn && Candidate->GetDamageSystem()->IsAlive())
+					if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->GetDamageSystem()->IsAlive())
 					{
 						SeletedCandidate = Candidate;
 						break;

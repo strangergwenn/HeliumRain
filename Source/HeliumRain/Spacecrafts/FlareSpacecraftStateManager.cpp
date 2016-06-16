@@ -55,7 +55,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	EFlareWeaponGroupType::Type CurrentWeaponType = Spacecraft->GetWeaponsSystem()->GetActiveWeaponType();
 
-	if (Spacecraft->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
+	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
 	{
 		Spacecraft->GetPilot()->TickPilot(DeltaSeconds);
 		int32 PreferedWeaponGroup = Spacecraft->GetPilot()->GetPreferedWeaponGroup();

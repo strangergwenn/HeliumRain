@@ -23,7 +23,7 @@ UFlareTurret::UFlareTurret(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareTurret::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
+void UFlareTurret::Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 	AimDirection = FVector::ZeroVector;
@@ -129,7 +129,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		return;
 	}
 
-	if (Spacecraft->GetDamageSystem()->IsAlive() && Pilot)
+	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && Pilot)
 	{
 
 		Pilot->TickPilot(DeltaTime);
@@ -146,7 +146,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		//FLOGV("Pilot AimDirection %s", *AimDirection.ToString());
 	}
 
-	if (Spacecraft->GetDamageSystem()->IsAlive() && GetUsableRatio() > 0)
+	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && GetUsableRatio() > 0)
 	{
 
 		if (TurretComponent && ComponentDescription)
@@ -164,22 +164,22 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 			float UsableTurretVelocity = GetUsableRatio() * ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretAngularVelocity;
 
-			float TurretAngleDiff = FMath::UnwindDegrees(TargetTurretAngle - ShipComponentData.Turret.TurretAngle);
+			float TurretAngleDiff = FMath::UnwindDegrees(TargetTurretAngle - ShipComponentData->Turret.TurretAngle);
 
 			if (FMath::Abs(TurretAngleDiff) <= UsableTurretVelocity * DeltaTime)
 			{
-				ShipComponentData.Turret.TurretAngle = TargetTurretAngle;
+				ShipComponentData->Turret.TurretAngle = TargetTurretAngle;
 			}
 			else if (TurretAngleDiff < 0)
 			{
-				ShipComponentData.Turret.TurretAngle -= UsableTurretVelocity * DeltaTime;
+				ShipComponentData->Turret.TurretAngle -= UsableTurretVelocity * DeltaTime;
 			}
 			else
 			{
-				ShipComponentData.Turret.TurretAngle += UsableTurretVelocity * DeltaTime;
+				ShipComponentData->Turret.TurretAngle += UsableTurretVelocity * DeltaTime;
 			}
 
-			TurretComponent->SetRelativeRotation(FRotator(0, ShipComponentData.Turret.TurretAngle, 0));
+			TurretComponent->SetRelativeRotation(FRotator(0, ShipComponentData->Turret.TurretAngle, 0));
 		}
 
 		if (BarrelComponent)
@@ -203,22 +203,22 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 			}
 
 			// Clamp movements
-			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, GetMinLimitAtAngle(ShipComponentData.Turret.TurretAngle), ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMaxAngle);
+			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, GetMinLimitAtAngle(ShipComponentData->Turret.TurretAngle), ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMaxAngle);
 
 
 			// TODO Add ship specific bound
 
 			float UsableBarrelsVelocity = GetUsableRatio() * ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretAngularVelocity;
-			float BarrelAngleDiff = FMath::UnwindDegrees(TargetBarrelAngle - ShipComponentData.Turret.BarrelsAngle);
+			float BarrelAngleDiff = FMath::UnwindDegrees(TargetBarrelAngle - ShipComponentData->Turret.BarrelsAngle);
 
 			if (FMath::Abs(BarrelAngleDiff) <= UsableBarrelsVelocity * DeltaTime) {
-				ShipComponentData.Turret.BarrelsAngle = TargetBarrelAngle;
+				ShipComponentData->Turret.BarrelsAngle = TargetBarrelAngle;
 			} else if (BarrelAngleDiff < 0) {
-				ShipComponentData.Turret.BarrelsAngle -= UsableBarrelsVelocity * DeltaTime;
+				ShipComponentData->Turret.BarrelsAngle -= UsableBarrelsVelocity * DeltaTime;
 			} else {
-				ShipComponentData.Turret.BarrelsAngle += UsableBarrelsVelocity * DeltaTime;
+				ShipComponentData->Turret.BarrelsAngle += UsableBarrelsVelocity * DeltaTime;
 			}
-			BarrelComponent->SetRelativeRotation(FRotator(ShipComponentData.Turret.BarrelsAngle, 0, 0));
+			BarrelComponent->SetRelativeRotation(FRotator(ShipComponentData->Turret.BarrelsAngle, 0, 0));
 
 		}
 	}
@@ -384,7 +384,7 @@ float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 	for (int32 i = 0; i < Desc->TurretSlots.Num(); i++)
 	{
 		// TODO optimize and store that in cache
-		if (Desc->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+		if (Desc->TurretSlots[i].SlotIdentifier == ShipComponentData->ShipSlotIdentifier)
 		{
 			int LimitStepCount = Desc->TurretSlots[i].TurretBarrelsAngleLimit.Num();
 

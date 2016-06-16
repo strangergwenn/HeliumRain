@@ -404,9 +404,9 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 			}
 			break;
 		case EFlareQuestCondition::SHIP_ALIVE:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
+			if (QuestManager->GetGame()->GetPC()->GetPlayerShip())
 			{
-				Status = QuestManager->GetGame()->GetPC()->GetShipPawn()->GetDamageSystem()->IsAlive();
+				Status = QuestManager->GetGame()->GetPC()->GetPlayerShip()->GetDamageSystem()->IsAlive();
 			}
 			break;
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:

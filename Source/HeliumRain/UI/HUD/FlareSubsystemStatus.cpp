@@ -93,7 +93,7 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 FText SFlareSubsystemStatus::GetText() const
 {
 	return FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}\n{1}%"),
-		IFlareSpacecraftDamageSystemInterface::GetSubsystemName(SubsystemType),
+		UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(SubsystemType),
 		FText::AsNumber(FMath::RoundToInt(100 * ComponentHealth)));
 }
 

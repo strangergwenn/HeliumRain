@@ -26,7 +26,7 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
+void UFlareWeapon::Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerShip, bool IsInMenu)
 {
 	Super::Initialize(Data, Company, OwnerShip, IsInMenu);
 	
@@ -43,7 +43,7 @@ void UFlareWeapon::Initialize(const FFlareSpacecraftComponentSave* Data, UFlareC
 		FiringSound = ComponentDescription->WeaponCharacteristics.FiringSound;
 		FiringEffectTemplate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.FiringEffect;
 
-		CurrentAmmo = MaxAmmo - ShipComponentData.Weapon.FiredAmmo;
+		CurrentAmmo = MaxAmmo - ShipComponentData->Weapon.FiredAmmo;
 
 		//FLOGV("UFlareWeapon::Initialize IsBomb ? %d", ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb);
 
@@ -91,7 +91,7 @@ void UFlareWeapon::SetupFiringEffects()
 
 FFlareSpacecraftComponentSave* UFlareWeapon::Save()
 {
-	ShipComponentData.Weapon.FiredAmmo =  MaxAmmo - CurrentAmmo;
+	ShipComponentData->Weapon.FiredAmmo =  MaxAmmo - CurrentAmmo;
 
 	return Super::Save();
 }
@@ -102,7 +102,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetDamageSystem()->IsAlive())
+	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
 		{
@@ -449,7 +449,7 @@ FText UFlareWeapon::GetSlotName() const
 		for (int32 i = 0; i < Spacecraft->GetParent()->GetDescription()->TurretSlots.Num(); i++)
 		{
 				// TODO optimize and store that in cache
-				if (Spacecraft->GetParent()->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+				if (Spacecraft->GetParent()->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData->ShipSlotIdentifier)
 				{
 					return Spacecraft->GetParent()->GetDescription()->TurretSlots[i].SlotName;
 				}
@@ -460,7 +460,7 @@ FText UFlareWeapon::GetSlotName() const
 		for (int32 i = 0; i < Spacecraft->GetParent()->GetDescription()->GunSlots.Num(); i++)
 		{
 			// TODO optimize and store that in cache
-			if (Spacecraft->GetParent()->GetDescription()->GunSlots[i].SlotIdentifier == ShipComponentData.ShipSlotIdentifier)
+			if (Spacecraft->GetParent()->GetDescription()->GunSlots[i].SlotIdentifier == ShipComponentData->ShipSlotIdentifier)
 			{
 				return Spacecraft->GetParent()->GetDescription()->GunSlots[i].SlotName;
 			}

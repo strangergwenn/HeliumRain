@@ -3,13 +3,14 @@
 #include "FlareSpacecraftDamageSystem.generated.h"
 
 class AFlareSpacecraft;
+class UFlareSimulatedSpacecraftDamageSystem;
 struct FFlareSpacecraftSave;
 struct FFlareSpacecraftDescription;
 
 
 /** Spacecraft damage system class */
 UCLASS()
-class HELIUMRAIN_API UFlareSpacecraftDamageSystem : public UObject, public IFlareSpacecraftDamageSystemInterface
+class HELIUMRAIN_API UFlareSpacecraftDamageSystem : public UObject
 {
 
 public:
@@ -39,22 +40,10 @@ public:
 		System Interface
 	----------------------------------------------------*/
 
-	virtual float GetTemperature() const;
-
-	virtual float GetOverheatTemperature() const { return 1000; }
-
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false, bool WithAmmo = false) const;
 
 	virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor = false, bool WithAmmo = true) const;
 
-
-	virtual bool IsAlive() const;
-
 	virtual bool IsPowered() const;
-
-	virtual bool HasPowerOutage() const;
-
-	virtual float GetPowerOutageDuration() const;
 
 	virtual float GetOverheatRatio(float HalfRatio) const;
 
@@ -90,6 +79,7 @@ protected:
 
 	FFlareSpacecraftSave*                           Data;
 	FFlareSpacecraftDescription*                    Description;
+	UFlareSimulatedSpacecraftDamageSystem*          Parent;
 	TArray<UActorComponent*>                        Components;
 
 	bool                                            WasAlive; // True if was alive at the last tick

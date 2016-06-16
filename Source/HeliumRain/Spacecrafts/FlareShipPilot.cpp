@@ -104,10 +104,10 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	}
 
 	// Weapon is hs, go repair and refill
-	if (Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) < 0.15
-		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, true) < 0.5
-		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 0.5
-		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 0.25)
+	if (Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) < 0.15
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, true) < 0.5
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 0.5
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 0.25)
 	{
 		// Go repair or refill ammo
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
@@ -137,7 +137,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	EFlareCombatTactic::Type Tactic = Ship->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(CombatGroup);
 
 	if (!PilotTargetShip // No target
-			|| !PilotTargetShip->GetDamageSystem()->IsAlive() // Target dead
+			|| !PilotTargetShip->GetParent()->GetDamageSystem()->IsAlive() // Target dead
 			|| (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > MaxFollowDistance * 100 // Target too far
 			|| (Ship->GetSize() == EFlarePartSize::S && SelectedWeaponGroupIndex == -1)  // No selected weapon
 			|| (Ship->GetSize() == EFlarePartSize::S && !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0)
@@ -574,7 +574,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 	}
 
-	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
+	if (Ship->GetParent()->GetDamageSystem()->GetTemperature() > Ship->GetParent()->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
 	{
 		// TODO Fire on dangerous target
 		WantFire = false;
@@ -582,7 +582,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 
 	// Manage orbital boost
-	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
+	if (Ship->GetParent()->GetDamageSystem()->GetTemperature() > Ship->GetParent()->GetDamageSystem()->GetOverheatTemperature() * 0.75)
 	{
 		//UseOrbitalBoost = false;
 	}
@@ -628,7 +628,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// 3 - Drop : Drop util its not safe to stay
 	// 2 - Withdraw : target is passed, wait a security distance to attack again
 
-	float WeigthCoef = FMath::Sqrt(Ship->GetSpacecraftMass()) / FMath::Sqrt(5425.f) * (2-Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS)) ; // 1 for ghoul at 100%
+	float WeigthCoef = FMath::Sqrt(Ship->GetSpacecraftMass()) / FMath::Sqrt(5425.f) * (2-Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS)) ; // 1 for ghoul at 100%
 
 	float ChargeDistance = 15 * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * WeigthCoef ;
 	float AlignTime = 12 * WeigthCoef;
@@ -800,7 +800,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 
 	// Manage orbital boost
-	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.75)
+	if (Ship->GetParent()->GetDamageSystem()->GetTemperature() > Ship->GetParent()->GetDamageSystem()->GetOverheatTemperature() * 0.75)
 	{
 		//UseOrbitalBoost = false;
 	}
@@ -817,11 +817,11 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 
 	// If damaged repair
-	if (Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) < 1
-		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, true) < 1
-		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, true) < 1
-		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 1
-		|| Ship->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 1)
+	if (Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) < 1
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, true) < 1
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, true) < 1
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 1
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 1)
 	{
 		// Go repair or refill ammo
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
@@ -860,7 +860,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 			UseOrbitalBoost = true;
 		}
 
-		if (Distance > 2000 && Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.95)
+		if (Distance > 2000 && Ship->GetParent()->GetDamageSystem()->GetTemperature() > Ship->GetParent()->GetDamageSystem()->GetOverheatTemperature() * 0.95)
 		{
 			// Too hot and no imminent danger
 			//UseOrbitalBoost = false;
@@ -1020,7 +1020,7 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 	WantFire = false;
 	// Manage orbital boost
-	if (Ship->GetDamageSystem()->GetTemperature() > Ship->GetDamageSystem()->GetOverheatTemperature() * 0.9)
+	if (Ship->GetParent()->GetDamageSystem()->GetTemperature() > Ship->GetParent()->GetDamageSystem()->GetOverheatTemperature() * 0.9)
 	{
 		//UseOrbitalBoost = false;
 	}
@@ -1169,7 +1169,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly, EFl
 	{
 		AFlareSpacecraft* ShipCandidate = Ship->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
 
-		if (!ShipCandidate->GetDamageSystem()->IsAlive())
+		if (!ShipCandidate->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			continue;
 		}
@@ -1221,7 +1221,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestShip(bool IgnoreDockingShip) const
 			continue;
 		}
 
-		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate->GetParent()) && ShipCandidate->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
+		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate->GetParent()) && ShipCandidate->GetParent()->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
 		{
 			// Alive and powered granted ship are not dangerous for collision
 			continue;

@@ -119,6 +119,7 @@ public:
 		DistortionGrid = Value;
 	}
 
+	/** Change a distortion value */
 	void SetDistortion(uint32 Axis, uint32 X, uint32 Y, float Value);
 
 	/** Format a distance in meter */
@@ -147,7 +148,7 @@ protected:
 	void DrawSearchArrow(FVector TargetLocation, FLinearColor Color, float MaxDistance = 10000000);
 
 	/** Draw a designator block around a spacecraft */
-	bool DrawHUDDesignator(AFlareSpacecraft*Spacecraft);
+	bool DrawHUDDesignator(AFlareSpacecraft* Spacecraft);
 
 	/** Draw a designator corner */
 	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Highlighted = false);
@@ -176,9 +177,15 @@ protected:
 	/** Get the appropriate hostility color */
 	FLinearColor GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraft* Target);
 
-	/** Convert a world location to screen-space */
-	bool WorldToScreenOld(FVector World, FVector2D& Screen);
+	/** Is the player flying a military ship */
+	bool IsFlyingMilitaryShip() const;
+	
+	/** Get the distortion grid */
+	float* GetCurrentHorizontalGrid() const;
 
+	/** Get the distortion grid */
+	float* GetCurrentVerticalGrid() const;
+	
 	/** Convert a world location to cockpit-space */
 	bool ProjectWorldLocationToCockpit(FVector World, FVector2D& Cockpit);
 
