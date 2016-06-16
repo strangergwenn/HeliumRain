@@ -63,6 +63,8 @@ void UFlareTurret::SetupComponentMesh()
 {
 	Super::SetupComponentMesh();
 
+	FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
+
 	if (TurretComponent)
 	{
 		TurretComponent->DestroyComponent();
@@ -78,13 +80,12 @@ void UFlareTurret::SetupComponentMesh()
 	// Turret Mesh
 	if (Spacecraft && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh)
 	{
-
 		TurretComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass());
 		 if (TurretComponent)
 		 {
 			TurretComponent->SetParentSpacecraftComponent(this);
 			TurretComponent->RegisterComponent();
-			TurretComponent->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+			TurretComponent->AttachToComponent(this, AttachRules);
 			TurretComponent->SetStaticMesh(ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh);
 			TurretComponent->SetMaterial(0, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh->GetMaterial(0));
 			TurretComponent->Initialize(NULL, PlayerCompany, Spacecraft, false);
@@ -97,17 +98,17 @@ void UFlareTurret::SetupComponentMesh()
 	{
 
 		BarrelComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass());
-		 if (BarrelComponent)
-		 {
+		if (BarrelComponent)
+		{
 			BarrelComponent->SetParentSpacecraftComponent(this);
 			BarrelComponent->RegisterComponent();
 			if (TurretComponent)
 			{
-				BarrelComponent->AttachToComponent(TurretComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), FName("Axis"));
+				BarrelComponent->AttachToComponent(TurretComponent, AttachRules, FName("Axis"));
 			}
 			else
 			{
-				BarrelComponent->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+				BarrelComponent->AttachToComponent(this, AttachRules);
 			}
 			BarrelComponent->SetStaticMesh(ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh);
 			BarrelComponent->SetMaterial(0, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh->GetMaterial(0));
@@ -120,6 +121,11 @@ void UFlareTurret::SetupComponentMesh()
 
 void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
+	if (!Spacecraft)
+	{
+		return;
+	}
+
 	if (Spacecraft->IsPresentationMode())
 	{
 		TurretComponent->SetRelativeRotation(FRotator(0, 0, 0));

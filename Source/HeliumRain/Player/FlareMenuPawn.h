@@ -153,8 +153,4 @@ public:
 		return Cast<AFlarePlayerController>(GetController());
 	}
 
-	inline AFlareSpacecraft* GetCurrentSpacecraft()
-	{
-		return CurrentSpacecraft;
-	}
 };

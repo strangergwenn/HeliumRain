@@ -271,7 +271,7 @@ void AFlareCockpitManager::SetupCockpitInstances(UMaterialInstanceDynamic* Scree
 
 void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 {
-	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+	FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
 
 	// Ensure we're not doing anything stupid
 	check(PC->UseCockpit);
@@ -398,7 +398,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 			// Update the FLIR camera
 			if (FlirCameraFound)
 			{
-				FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+				FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
 				CockpitFLIRCapture->AttachToComponent(PlayerShip->GetRootComponent(), AttachRules, BestCameraName);
 
 				FRotator CameraRotation = TargetDirection.Rotation();

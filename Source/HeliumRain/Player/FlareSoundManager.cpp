@@ -86,7 +86,7 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 	{
 		USceneComponent* RootComponent = Player->GetRootComponent();
 
-		FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+		FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
 
 		MusicPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		MusicPlayer.Sound->SetSound(NULL);

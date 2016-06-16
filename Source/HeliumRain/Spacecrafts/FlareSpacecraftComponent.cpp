@@ -295,11 +295,6 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 	if (ComponentDescription && Mesh)
 	{
 		SetStaticMesh(Mesh);
-		SetMaterial(0, Mesh->GetMaterial(0));
-	}
-	else if (ComponentDescription && !Mesh)
-	{
-		bVisible = false;
 	}
 
 	if (StaticMesh)
@@ -318,7 +313,7 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 				if (ElementIndex == 0)
 				{
 					// Generate MIDs from LOD 0 only, apply generated materials at each LOD
-					if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+					if (ComponentMaterial == NULL && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
 					{
 						ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
 					}
@@ -332,7 +327,7 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 				else if (ElementIndex == 1)
 				{
 					// Generate MIDs from LOD 0 only, apply generated materials at each LOD
-					if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+					if (EffectMaterial == NULL && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
 					{
 						EffectMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
 					}

@@ -87,20 +87,8 @@ public:
 		Helpers
 	----------------------------------------------------*/
 
-	/** Compute a quaternion's "length" in degrees */
-	static float GetRotationAmount(const FQuat& X, bool ClampToHalfTurn = false);
-
-	/** Clamp a quaternion within a cone */
-	static FQuat ClampQuaternion(const FQuat& X, float Angle);
-
-	/** Compute a float value between -1 and 1 to regulate a value */
-	static float TriStateRegulator(float Target, float Current, float Threshold);
-
 	/** Convert a direction from world space to localspace */
 	FVector WorldToLocal(FVector World);
-
-	/** Convert a rotation from world space to local space */
-	FQuat WorldToLocal(const FQuat& World);
 
 	/** Get the pawn */
 	AFlarePlayerController* GetPC() const;
