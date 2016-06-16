@@ -259,19 +259,10 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
-	// TODO #158 aka the self-collision event of death
+	// Strictly disallow self-collision : this should never happen
 	if (Other == this)
 	{
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-		PC->Notify(
-			FText::FromString("KNOWN BUG #158"),
-			FText::FromString("You just encountered the known bug #158. You can re-fly your ship by clicking \"fly previous\". Sorry for the inconvenience."),
-			"known-bug-155",
-			EFlareNotification::NT_Military,
-			10.0f);
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
-
-		return;
+		check(false);
 	}
 
 	// ghoul 10m/s -> asteroid : 5919376.500000
