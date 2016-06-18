@@ -28,7 +28,7 @@ UFlareSpacecraftSpinningComponent::UFlareSpacecraftSpinningComponent(const class
 void UFlareSpacecraftSpinningComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	SetCollisionProfileName("BlockAllDynamic");
+	SetCollisionProfileName("NoCollision");
 }
 
 void UFlareSpacecraftSpinningComponent::TickComponent(float DeltaSeconds, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
