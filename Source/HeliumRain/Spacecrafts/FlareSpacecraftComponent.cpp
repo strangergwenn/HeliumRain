@@ -296,6 +296,12 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 	{
 		SetStaticMesh(Mesh);
 	}
+	else if (ComponentDescription && !Mesh)
+	{
+		// In case of a turret we must hide the root component
+		// as the turret will spawn 2 sub mobile components.
+		SetVisibility(false, false);
+	}
 
 	if (StaticMesh)
 	{
