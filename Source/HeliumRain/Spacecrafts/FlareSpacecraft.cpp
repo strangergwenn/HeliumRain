@@ -34,7 +34,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("Airframe"));
-	Airframe->SetSimulatePhysics(true);
+	Airframe->SetSimulatePhysics(false);
 	RootComponent = Airframe;
 
 	// Camera settings
