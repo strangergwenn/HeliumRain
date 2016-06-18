@@ -10,4 +10,5 @@
 UFlareStationDock::UFlareStationDock(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
+	SetCollisionProfileName("NoCollision");
 }

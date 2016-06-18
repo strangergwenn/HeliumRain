@@ -35,6 +35,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 
 	// Cockpit mesh
 	CockpitMesh = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Cockpit"));
+	CockpitMesh->SetCollisionProfileName("NoCollision");
 	CockpitMesh->LightingChannels.bChannel0 = false;
 	CockpitMesh->LightingChannels.bChannel1 = true;
 	RootComponent = CockpitMesh;
