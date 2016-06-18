@@ -101,6 +101,11 @@ void UFlareSpacecraftWeaponsSystem::Start()
 	for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
 	{
 		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);
+		if(Weapon->GetDescription() == NULL)
+		{
+			FLOGV("ERROR: Weapon %s has no description", *Weapon->GetName());
+			continue;
+		}
 		WeaponList.Add(Weapon);
 		WeaponDescriptionList.Add(Weapon->GetDescription());
 		int32 GroupIndex = GetGroupByWeaponIdentifer(Weapon->GetDescription()->Identifier);
