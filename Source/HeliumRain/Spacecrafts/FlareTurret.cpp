@@ -63,7 +63,7 @@ void UFlareTurret::SetupComponentMesh()
 {
 	Super::SetupComponentMesh();
 
-	FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
+	FAttachmentTransformRules AttachRules(EAttachmentRule::KeepRelative, false);
 
 	if (TurretComponent)
 	{

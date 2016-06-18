@@ -122,7 +122,7 @@ void AFlareMenuPawn::ShowShip(UFlareSimulatedSpacecraft* Spacecraft)
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	// Spawn and setup the ship
-	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
+	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, false);
 	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(Spacecraft->GetDescription()->Template->GeneratedClass, Params);
 	CurrentSpacecraft->AttachToActor(this, AttachRules, NAME_None);
 
