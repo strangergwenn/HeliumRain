@@ -977,6 +977,7 @@ void AFlareSpacecraft::StartPresentation()
 	if (Airframe)
 	{
 		Airframe->SetSimulatePhysics(false);
+		Airframe->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	CurrentTarget = NULL;
