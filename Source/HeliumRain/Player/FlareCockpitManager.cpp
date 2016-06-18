@@ -271,7 +271,7 @@ void AFlareCockpitManager::SetupCockpitInstances(UMaterialInstanceDynamic* Scree
 
 void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 {
-	FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
+	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
 
 	// Ensure we're not doing anything stupid
 	check(PC->UseCockpit);
