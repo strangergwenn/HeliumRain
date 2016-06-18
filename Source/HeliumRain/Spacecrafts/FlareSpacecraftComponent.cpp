@@ -295,6 +295,7 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 	if (ComponentDescription && Mesh)
 	{
 		SetStaticMesh(Mesh);
+		SetMaterial(0, Mesh->GetMaterial(0));
 	}
 	else if (ComponentDescription && !Mesh)
 	{
