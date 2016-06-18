@@ -17,6 +17,7 @@ UFlareSpacecraftSpinningComponent::UFlareSpacecraftSpinningComponent(const class
 	, RotationAxisYaw(false)
 	, RotationSpeed(20)
 {
+	GetBodyInstance()->bAutoWeld = false;
 }
 
 
