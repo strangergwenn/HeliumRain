@@ -182,7 +182,7 @@ void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 		Planetarium->ResetTime();
 		Planetarium->SkipNight(UFlareGameTools::SECONDS_IN_DAY);
 		ActiveSector->Load(Sector);
-		DebrisFieldSystem->Load(this, Sector);
+		DebrisFieldSystem->Setup(this, Sector);
 
 		GetPC()->OnSectorActivated(ActiveSector);
 	}

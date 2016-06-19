@@ -20,7 +20,7 @@ public:
     ----------------------------------------------------*/
 
 	/** Load the debris field from a sector info */
-	void Load(AFlareGame* GameMode, UFlareSimulatedSector* Sector);
+	void Setup(AFlareGame* GameMode, UFlareSimulatedSector* Sector);
 
 	/** Cleanup the debris field */
 	void Reset();

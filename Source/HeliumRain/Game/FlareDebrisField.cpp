@@ -19,7 +19,7 @@ UFlareDebrisField::UFlareDebrisField(const FObjectInitializer& ObjectInitializer
 {
 }
 
-void UFlareDebrisField::Load(AFlareGame* GameMode, UFlareSimulatedSector* Sector)
+void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Sector)
 {
 	check(Sector);
 	check(GameMode);
@@ -35,7 +35,7 @@ void UFlareDebrisField::Load(AFlareGame* GameMode, UFlareSimulatedSector* Sector
 	{
 		float SectorScale = 5000 * 100;
 		int32 DebrisCount = 100 * DebrisFieldInfo->DebrisFieldDensity;
-		FLOGV("UFlareDebrisField::Load : spawning debris field, size = %d", DebrisCount);
+		FLOGV("UFlareDebrisField::Setup : spawning debris field, size = %d", DebrisCount);
 
 		for (int32 Index = 0; Index < DebrisCount; Index++)
 		{
@@ -51,7 +51,7 @@ void UFlareDebrisField::Load(AFlareGame* GameMode, UFlareSimulatedSector* Sector
 		}
 	}
 
-	// Add new debris
+	// Remember new debris
 	DebrisField.Empty();
 	for (int DebrisIndex = 0; DebrisIndex < NewDebris.Num(); DebrisIndex++)
 	{
@@ -60,11 +60,17 @@ void UFlareDebrisField::Load(AFlareGame* GameMode, UFlareSimulatedSector* Sector
 			DebrisField.Add(NewDebris[DebrisIndex]);
 		}
 	}
-	FLOGV("UFlareDebrisField::Load : done spawning debris field, size = %d", DebrisField.Num());
+	FLOGV("UFlareDebrisField::Setup : done spawning debris field, size = %d", DebrisField.Num());
 }
 
 void UFlareDebrisField::Reset()
 {
+	FLOGV("UFlareDebrisField::Reset :clearing debris field, size = %d", DebrisField.Num());
+	for (int i = 0; i < DebrisField.Num(); i++)
+	{
+		Game->GetWorld()->DestroyActor(DebrisField[i]);
+	}
+	DebrisField.Empty();
 }
 
 void UFlareDebrisField::SetWorldPause(bool Pause)
