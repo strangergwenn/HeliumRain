@@ -81,10 +81,14 @@ void UFlareTurret::SetupComponentMesh()
 	if (Spacecraft && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh)
 	{
 		TurretComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass());
-		 if (TurretComponent)
-		 {
-			TurretComponent->SetParentSpacecraftComponent(this);
+		if (TurretComponent)
+		{
 			TurretComponent->RegisterComponent();
+			TurretComponent->GetBodyInstance()->bAutoWeld = false;
+			TurretComponent->SetCollisionProfileName("IgnoreOnlyPawn");
+			TurretComponent->SetSimulatePhysics(false);
+
+			TurretComponent->SetParentSpacecraftComponent(this);
 			TurretComponent->AttachToComponent(this, AttachRules);
 			TurretComponent->SetStaticMesh(ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh);
 			TurretComponent->SetMaterial(0, ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretMesh->GetMaterial(0));
@@ -96,12 +100,15 @@ void UFlareTurret::SetupComponentMesh()
 	// Barrel Mesh
 	if (Spacecraft && ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMesh)
 	{
-
 		BarrelComponent = NewObject<UFlareSpacecraftSubComponent>(this, UFlareSpacecraftSubComponent::StaticClass());
 		if (BarrelComponent)
 		{
-			BarrelComponent->SetParentSpacecraftComponent(this);
 			BarrelComponent->RegisterComponent();
+			BarrelComponent->GetBodyInstance()->bAutoWeld = false;
+			BarrelComponent->SetCollisionProfileName("IgnoreOnlyPawn");
+			BarrelComponent->SetSimulatePhysics(false);
+
+			BarrelComponent->SetParentSpacecraftComponent(this);
 			if (TurretComponent)
 			{
 				BarrelComponent->AttachToComponent(TurretComponent, AttachRules, FName("Axis"));

@@ -34,7 +34,7 @@ void UFlareSpacecraftSpinningComponent::Initialize(FFlareSpacecraftComponentSave
 {
 	Super::Initialize(Data, Company, OwnerSpacecraftPawn, IsInMenu);
 
-	SetCollisionProfileName("NoCollision");
+	SetCollisionProfileName("IgnoreOnlyPawn");
 }
 
 void UFlareSpacecraftSpinningComponent::TickComponent(float DeltaSeconds, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
