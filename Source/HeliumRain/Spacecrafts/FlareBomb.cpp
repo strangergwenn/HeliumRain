@@ -191,7 +191,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	}
 
 	// Spawn impact decal
-	if (ShipComponent && ShipComponent->IsVisibleByPlayer() && ExplosionEffectMaterial)
+	if (ShipComponent && ExplosionEffectMaterial)
 	{
 		// Spawn
 		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(

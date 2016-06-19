@@ -83,7 +83,7 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 	}
 
 	// Graphical updates
-	if (ComponentMaterial && IsVisibleByPlayer())
+	if (ComponentMaterial)
 	{
 		// Update the light status
 		if (HasFlickeringLights)
@@ -268,18 +268,6 @@ void UFlareSpacecraftComponent::GetBoundingSphere(FVector& Location, float& Radi
 
 	Radius = (Max - LocalBoxCenter).GetMax();
 	Location = GetComponentToWorld().TransformPosition(LocalBoxCenter);
-}
-
-bool UFlareSpacecraftComponent::IsVisibleByPlayer()
-{
-	if (bVisible)
-	{
-		return (GetWorld()->TimeSeconds - LastRenderTime < 0.2f);
-	}
-	else
-	{
-		return false;
-	}
 }
 
 

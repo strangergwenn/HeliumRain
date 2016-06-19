@@ -71,19 +71,18 @@ void UFlareEngine::UpdateEffects()
 	// Apply the glow value
 	if (EffectMaterial && SpacecraftPawn)
 	{
-
 		float Opacity = ExhaustAccumulator;
 
-		if(this->IsA(UFlareOrbitalEngine::StaticClass()))
+		if (IsA(UFlareOrbitalEngine::StaticClass()))
 		{
 			Opacity = FMath::Square(ExhaustAccumulator);
 		}
 
-		if (!SpacecraftPawn->IsPresentationMode() && IsVisibleByPlayer())
+		if (!SpacecraftPawn->IsPresentationMode())
 		{
 			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), Opacity);
 		}
-		else if (SpacecraftPawn->IsPresentationMode() || IsVisibleByPlayer())
+		else if (SpacecraftPawn->IsPresentationMode())
 		{
 			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), 0);
 		}
