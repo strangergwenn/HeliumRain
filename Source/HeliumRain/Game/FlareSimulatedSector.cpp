@@ -398,7 +398,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 	for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Fleet->GetShips()[ShipIndex];
-		Spacecraft->GetNavigationSystem()->Undock();
+		Spacecraft->ForceUndock();
 
 		if (RemoveSpacecraft(Fleet->GetShips()[ShipIndex]) == 0)
 		{

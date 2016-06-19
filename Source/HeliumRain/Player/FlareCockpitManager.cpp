@@ -337,7 +337,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 		FLinearColor Color = TargetShip->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
 		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorTop", Color);
 
-		IFlareSpacecraftNavigationSystemInterface* Nav = PlayerShip->GetNavigationSystem();
+		UFlareSpacecraftNavigationSystem* Nav = PlayerShip->GetNavigationSystem();
 		if (Nav->IsDocked())
 		{
 			CockpitFLIRCapture->Deactivate();
@@ -351,7 +351,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 			// Get docking data
 			if (Command.Type == EFlareCommandDataType::CDT_Dock)
 			{
-				AFlareSpacecraft* DockStation = Command.ActionTarget->GetActive();
+				AFlareSpacecraft* DockStation = Command.ActionTarget;
 				int32 DockId = Command.ActionTargetParam;
 
 				FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);

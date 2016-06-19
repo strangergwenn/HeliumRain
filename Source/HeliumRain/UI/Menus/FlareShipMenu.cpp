@@ -277,7 +277,12 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 	}
 
 	// Is the docking list visible ?
-	UFlareSpacecraftDockingSystem* DockSystem = Cast<UFlareSpacecraftDockingSystem>(TargetSpacecraft->GetDockingSystem());
+	UFlareSpacecraftDockingSystem* DockSystem;
+	if(TargetSpacecraft->IsActive())
+	{
+		DockSystem = TargetSpacecraft->GetActive()->GetDockingSystem();
+	}
+
 	if (CanEdit)
 	{
 		FLOG("SFlareShipMenu::Enter : Upgrade view");
@@ -287,18 +292,18 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 	// Fill the docking list if it is visible
 	else if (DockSystem && DockSystem->GetDockCount() > 0)
 	{
-		TArray<UFlareSimulatedSpacecraft*> DockedShips = Target->GetDockingSystem()->GetDockedShips();
+		TArray<AFlareSpacecraft*> DockedShips = DockSystem->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
 		{
-			AFlareSpacecraft* Spacecraft = DockedShips[i]->GetActive();
+			AFlareSpacecraft* Spacecraft = DockedShips[i];
 
 			if (Spacecraft)
 			{
 				FLOGV("SFlareShipMenu::Enter : Found docked ship %s", *Spacecraft->GetName());
 			}
-			if (DockedShips[i]->GetDamageSystem()->IsAlive())
+			if (DockedShips[i]->GetParent()->GetDamageSystem()->IsAlive())
 			{
-				ShipList->AddShip(DockedShips[i]);
+				ShipList->AddShip(DockedShips[i]->GetParent());
 			}
 		}
 

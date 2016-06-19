@@ -284,7 +284,7 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	{
 		if (PhysicalSpacecraft->GetNavigationSystem()->IsDocked())
 		{
-			TargetRightSpacecraft = PhysicalSpacecraft->GetNavigationSystem()->GetDockStation();
+			TargetRightSpacecraft = PhysicalSpacecraft->GetNavigationSystem()->GetDockStation()->GetParent();
 		}
 	}
 	else

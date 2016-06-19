@@ -419,7 +419,7 @@ void AFlareSpacecraft::Redock()
 			if (Station->GetImmatriculation() == GetData().DockedTo)
 			{
 				FLOGV("AFlareSpacecraft::Redock : Found dock station '%s'", *Station->GetImmatriculation().ToString());
-				NavigationSystem->ConfirmDock(Station->GetParent(), GetData().DockedAt);
+				NavigationSystem->ConfirmDock(Station, GetData().DockedAt);
 				break;
 			}
 		}
@@ -1011,7 +1011,7 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 		Damage system
 ----------------------------------------------------*/
 
-void AFlareSpacecraft::OnDocked(UFlareSimulatedSpacecraft* DockStation)
+void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation)
 {
 	// Signal the PC
 	AFlarePlayerController* PC = GetPC();
@@ -1046,7 +1046,7 @@ void AFlareSpacecraft::OnDocked(UFlareSimulatedSpacecraft* DockStation)
 	DamageSystem->UpdatePower();
 }
 
-void AFlareSpacecraft::OnUndocked(UFlareSimulatedSpacecraft* DockStation)
+void AFlareSpacecraft::OnUndocked(AFlareSpacecraft* DockStation)
 {
 	// Signal the PC
 	AFlarePlayerController* PC = GetGame()->GetPC();
@@ -1396,7 +1396,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 	FText PauseText;
 	FText ModeText;
 	FText AutopilotText;
-	IFlareSpacecraftNavigationSystemInterface* Nav = GetNavigationSystem();
+	UFlareSpacecraftNavigationSystem* Nav = GetNavigationSystem();
 	FFlareShipCommandData Command = Nav->GetCurrentCommand();
 	UFlareSector* CurrentSector = GetGame()->GetActiveSector();
 
@@ -1422,7 +1422,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 	else if (Command.Type == EFlareCommandDataType::CDT_Dock)
 	{
-		AFlareSpacecraft* Target = Command.ActionTarget->GetActive();
+		AFlareSpacecraft* Target = Command.ActionTarget;
 
 		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"),
 			FText::FromName(Target->GetImmatriculation()));

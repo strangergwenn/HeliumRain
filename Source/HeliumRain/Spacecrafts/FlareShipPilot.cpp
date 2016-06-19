@@ -113,7 +113,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
 		if (TargetStation)
 		{
-			if (Ship->GetNavigationSystem()->DockAt(TargetStation->GetParent()))
+			if (Ship->GetNavigationSystem()->DockAt(TargetStation))
 			{
 				//FLOG("  dock")
 				PilotTargetShip = NULL;
@@ -326,7 +326,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 			if (Distance < 1000)
 			{
-				if (!Ship->GetNavigationSystem()->DockAt(PilotTargetStation->GetParent()))
+				if (!Ship->GetNavigationSystem()->DockAt(PilotTargetStation))
 				{
 					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 				}
@@ -827,7 +827,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
 		if (TargetStation)
 		{
-			if (Ship->GetNavigationSystem()->DockAt(TargetStation->GetParent()))
+			if (Ship->GetNavigationSystem()->DockAt(TargetStation))
 			{
 				PilotTargetShip = NULL;
 				// Ok let dock
@@ -1221,13 +1221,13 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestShip(bool IgnoreDockingShip) const
 			continue;
 		}
 
-		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate->GetParent()) && ShipCandidate->GetParent()->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
+		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate) && ShipCandidate->GetParent()->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
 		{
 			// Alive and powered granted ship are not dangerous for collision
 			continue;
 		}
 
-		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsDockedShip(ShipCandidate->GetParent()))
+		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsDockedShip(ShipCandidate))
 		{
 			// Docked shipship are not dangerous for collision, even if they are dead or offlline
 			continue;
@@ -1314,7 +1314,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestAvailableStation(bool RealStation) 
 			continue;
 		}
 
-		if (!StationCandidate->GetDockingSystem()->HasAvailableDock(Ship->GetParent()))
+		if (!StationCandidate->GetDockingSystem()->HasAvailableDock(Ship))
 		{
 			continue;
 		}

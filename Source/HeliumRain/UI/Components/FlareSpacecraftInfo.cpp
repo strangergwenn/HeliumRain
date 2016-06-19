@@ -353,19 +353,23 @@ void SFlareSpacecraftInfo::Show()
 	{
 		// Useful data
 		UFlareSimulatedSpacecraft* PlayerShip = PC->GetPlayerShip();
-		IFlareSpacecraftDockingSystemInterface* TargetDockingSystem = TargetSpacecraft->GetDockingSystem();
+		AFlareSpacecraft* ActiveTargetSpacecraft = NULL;
+		if(TargetSpacecraft->IsActive())
+		{
+			ActiveTargetSpacecraft = TargetSpacecraft->GetActive();
+		}
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PlayerShip;
 		bool IsFriendly = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
 		bool IsRemoteFlying = TargetSpacecraft->GetCurrentSector() && TargetSpacecraft->GetCurrentSector() != PC->GetPlayerShip()->GetCurrentSector();
-		bool IsDocked = TargetSpacecraft->GetNavigationSystem()->IsDocked() || TargetDockingSystem->IsDockedShip(PlayerShip);
+		bool IsDocked = ActiveTargetSpacecraft && (ActiveTargetSpacecraft->GetNavigationSystem()->IsDocked() || ActiveTargetSpacecraft->GetDockingSystem()->IsDockedShip(PlayerShip->GetActive()));
 		bool IsStation = TargetSpacecraft->IsStation();
 
 		FLOGV("SFlareSpacecraftInfo::Show : Owned = %d OwnedAndNotSelf = %d IsFriendly = %d IsRemoteFlying = %d IsDocked = %d",
 			Owned, OwnedAndNotSelf, IsFriendly, IsRemoteFlying, IsDocked);
 
 		// Permissions
-		bool CanDock =     !IsDocked && IsFriendly && TargetDockingSystem->HasCompatibleDock(PlayerShip);
+		bool CanDock =     !IsDocked && IsFriendly && ActiveTargetSpacecraft && ActiveTargetSpacecraft->GetDockingSystem()->HasCompatibleDock(PlayerShip->GetActive());
 		bool CanAssign =   Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && !TargetSpacecraft->IsAssignedToSector();
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
 		bool CanUpgrade =  Owned && !IsStation && (IsDocked || IsRemoteFlying) && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
@@ -534,9 +538,9 @@ void SFlareSpacecraftInfo::OnSelect()
 
 void SFlareSpacecraftInfo::OnDockAt()
 {
-	if (PC && TargetSpacecraft && TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
+	if (PC && TargetSpacecraft && TargetSpacecraft->IsActive() && TargetSpacecraft->GetActive()->GetDockingSystem()->GetDockCount() > 0)
 	{
-		bool DockingConfirmed = PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetSpacecraft);
+		bool DockingConfirmed = PC->GetShipPawn()->GetNavigationSystem()->DockAt(TargetSpacecraft->GetActive());
 		PC->NotifyDockingResult(DockingConfirmed, TargetSpacecraft);
 		PC->GetMenuManager()->CloseMenu();
 	}
@@ -546,12 +550,12 @@ void SFlareSpacecraftInfo::OnUndock()
 {
 	if (PC && TargetSpacecraft)
 	{
-		if (TargetSpacecraft->IsActive() && TargetSpacecraft->GetNavigationSystem()->IsDocked())
+		if (TargetSpacecraft->IsActive() && TargetSpacecraft->GetActive()->GetNavigationSystem()->IsDocked())
 		{
-			TargetSpacecraft->GetNavigationSystem()->Undock();
+			TargetSpacecraft->GetActive()->GetNavigationSystem()->Undock();
 			PC->GetMenuManager()->CloseMenu();
 		}
-		else if(TargetSpacecraft->GetDockingSystem()->GetDockCount() > 0)
+		else if(TargetSpacecraft->IsActive() && TargetSpacecraft->GetActive()->GetDockingSystem()->GetDockCount() > 0)
 		{
 			PC->GetShipPawn()->GetNavigationSystem()->Undock();
 			PC->GetMenuManager()->CloseMenu();

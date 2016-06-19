@@ -35,14 +35,6 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	DamageSystem = NewObject<UFlareSimulatedSpacecraftDamageSystem>(this, UFlareSimulatedSpacecraftDamageSystem::StaticClass());
 	DamageSystem->Initialize(this, &SpacecraftData);
 
-	// Initialize navigation system
-	NavigationSystem = NewObject<UFlareSimulatedSpacecraftNavigationSystem>(this, UFlareSimulatedSpacecraftNavigationSystem::StaticClass());
-	NavigationSystem->Initialize(this, &SpacecraftData);
-
-	// Initialize docking system
-	DockingSystem = NewObject<UFlareSimulatedSpacecraftDockingSystem>(this, UFlareSimulatedSpacecraftDockingSystem::StaticClass());
-	DockingSystem->Initialize(this, &SpacecraftData);
-
 	// Initialize weapons system
 	WeaponsSystem = NewObject<UFlareSimulatedSpacecraftWeaponsSystem>(this, UFlareSimulatedSpacecraftWeaponsSystem::StaticClass());
 	WeaponsSystem->Initialize(this, &SpacecraftData);
@@ -149,16 +141,6 @@ FName UFlareSimulatedSpacecraft::GetImmatriculation() const
 UFlareSimulatedSpacecraftDamageSystem* UFlareSimulatedSpacecraft::GetDamageSystem() const
 {
 	return DamageSystem;
-}
-
-UFlareSimulatedSpacecraftNavigationSystem* UFlareSimulatedSpacecraft::GetNavigationSystem() const
-{
-	return NavigationSystem;
-}
-
-UFlareSimulatedSpacecraftDockingSystem* UFlareSimulatedSpacecraft::GetDockingSystem() const
-{
-	return DockingSystem;
 }
 
 UFlareSimulatedSpacecraftWeaponsSystem* UFlareSimulatedSpacecraft::GetWeaponsSystem() const
@@ -386,6 +368,12 @@ void UFlareSimulatedSpacecraft::SetDynamicComponentState(FName Identifier, float
 {
 	SpacecraftData.DynamicComponentStateIdentifier = Identifier;
 	SpacecraftData.DynamicComponentStateProgress = Progress;
+}
+
+void UFlareSimulatedSpacecraft::ForceUndock()
+{
+	SpacecraftData.DockedTo = NAME_None;
+	SpacecraftData.DockedAt = -1;
 }
 
 EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const

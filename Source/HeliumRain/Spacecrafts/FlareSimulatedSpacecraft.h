@@ -3,8 +3,6 @@
 #include "Object.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
-#include "Subsystems/FlareSimulatedSpacecraftNavigationSystem.h"
-#include "Subsystems/FlareSimulatedSpacecraftDockingSystem.h"
 #include "Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
 #include "../Economy/FlareResource.h"
 #include "FlareSimulatedSpacecraft.generated.h"
@@ -57,10 +55,6 @@ public:
 
 	virtual UFlareSimulatedSpacecraftDamageSystem* GetDamageSystem() const;
 
-	virtual UFlareSimulatedSpacecraftNavigationSystem* GetNavigationSystem() const;
-
-	virtual UFlareSimulatedSpacecraftDockingSystem* GetDockingSystem() const;
-
 	virtual UFlareSimulatedSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
     /*----------------------------------------------------
@@ -100,6 +94,8 @@ public:
 		ActiveSpacecraft = Spacecraft;
 	}
 
+	void ForceUndock();
+
 	/*----------------------------------------------------
 		Resources
 	----------------------------------------------------*/
@@ -129,10 +125,6 @@ protected:
 	// Systems
 	UPROPERTY()
 	UFlareSimulatedSpacecraftDamageSystem*                  DamageSystem;
-	UPROPERTY()
-	UFlareSimulatedSpacecraftNavigationSystem*              NavigationSystem;
-	UPROPERTY()
-	UFlareSimulatedSpacecraftDockingSystem*                 DockingSystem;
 	UPROPERTY()
 	UFlareSimulatedSpacecraftWeaponsSystem*                 WeaponsSystem;
 

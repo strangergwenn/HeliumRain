@@ -1,15 +1,34 @@
 #pragma once
 
-#include "FlareSpacecraftDockingSystemInterface.h"
 #include "FlareSpacecraftDockingSystem.generated.h"
 
 class AFlareSpacecraft;
 
 
+/** Docking data */
+struct FFlareDockingInfo
+{
+	bool                      Granted;
+	bool                      Occupied;
+	int32                     DockId;
+	EFlarePartSize::Type      DockSize;
+	AFlareSpacecraft*         Station;
+	AFlareSpacecraft*         Ship;
+
+	FVector                   LocalAxis;
+	FVector                   LocalLocation;
+
+	FFlareDockingInfo()
+		: Granted(false)
+		, Occupied(false)
+		, DockId(-1)
+		, Station(NULL)
+	{}
+};
 
 /** Spacecraft docking system class */
 UCLASS()
-class HELIUMRAIN_API UFlareSpacecraftDockingSystem : public UObject, public IFlareSpacecraftDockingSystemInterface
+class HELIUMRAIN_API UFlareSpacecraftDockingSystem : public UObject
 {
 
 public:
@@ -36,29 +55,29 @@ public:
 	----------------------------------------------------*/
 
 	/** Get the list of docked ships */
-	virtual TArray<UFlareSimulatedSpacecraft*> GetDockedShips();
+	virtual TArray<AFlareSpacecraft*> GetDockedShips();
 
 	/** Request a docking point */
-	virtual FFlareDockingInfo RequestDock(UFlareSimulatedSpacecraft* Ship, FVector PreferredLocation);
+	virtual FFlareDockingInfo RequestDock(AFlareSpacecraft* Ship, FVector PreferredLocation);
 
 	/** Cancel docking */
-	virtual void ReleaseDock(UFlareSimulatedSpacecraft* Ship, int32 DockId);
+	virtual void ReleaseDock(AFlareSpacecraft* Ship, int32 DockId);
 
 	/** Confirm the docking from external ship */
-	virtual void Dock(UFlareSimulatedSpacecraft* Ship, int32 DockId);
+	virtual void Dock(AFlareSpacecraft* Ship, int32 DockId);
 
 	/** Get infos for a specific docking port */
 	virtual FFlareDockingInfo GetDockInfo(int32 DockId);
 
-	virtual bool HasAvailableDock(UFlareSimulatedSpacecraft* Ship) const;
+	virtual bool HasAvailableDock(AFlareSpacecraft* Ship) const;
 
-	virtual bool HasCompatibleDock(UFlareSimulatedSpacecraft* Ship) const;
+	virtual bool HasCompatibleDock(AFlareSpacecraft* Ship) const;
 
 	virtual int GetDockCount() const;
 
-	virtual bool IsGrantedShip(UFlareSimulatedSpacecraft* ShipCanditate) const;
+	virtual bool IsGrantedShip(AFlareSpacecraft* ShipCanditate) const;
 
-	virtual bool IsDockedShip(UFlareSimulatedSpacecraft* ShipCanditate) const;
+	virtual bool IsDockedShip(AFlareSpacecraft* ShipCanditate) const;
 
 protected:
 

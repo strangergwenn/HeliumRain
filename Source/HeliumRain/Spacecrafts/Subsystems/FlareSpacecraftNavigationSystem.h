@@ -1,16 +1,76 @@
 #pragma once
 #include "FlareSpacecraftDockingSystem.h"
-#include "FlareSpacecraftNavigationSystemInterface.h"
+#include "FlareSpacecraftDockingSystem.h"
 #include "FlareSpacecraftNavigationSystem.generated.h"
 
 class AFlareSpacecraft;
 
 
+/** Status of the ship */
+UENUM()
+namespace EFlareShipStatus
+{
+	enum Type
+	{
+		SS_Manual,
+		SS_AutoPilot,
+		SS_Docked
+	};
+}
+namespace EFlareShipStatus
+{
+	inline FString ToString(EFlareShipStatus::Type EnumValue)
+	{
+		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlareShipStatus"), true);
+		return EnumPtr->GetEnumName(EnumValue);
+	}
+}
 
+
+/** Type of command */
+UENUM()
+namespace EFlareCommandDataType
+{
+	enum Type
+	{
+		CDT_None,
+		CDT_Location,
+		CDT_Rotation,
+		CDT_BrakeLocation,
+		CDT_BrakeRotation,
+		CDT_Dock
+	};
+}
+namespace EFlareCommandDataType
+{
+	inline FString ToString(EFlareCommandDataType::Type EnumValue)
+	{
+		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlareCommandDataType"), true);
+		return EnumPtr->GetEnumName(EnumValue);
+	}
+}
+
+
+/** Structure holding all data for a single command */
+struct FFlareShipCommandData
+{
+	TEnumAsByte <EFlareCommandDataType::Type> Type;
+
+	bool PreciseApproach;
+	FVector LocationTarget;
+	FVector VelocityTarget;
+	FVector RotationTarget;
+	FVector LocalShipAxis;
+
+	AFlareSpacecraft* ActionTarget;
+
+	int32 ActionTargetParam;
+
+};
 
 /** Spacecraft navigation system class */
 UCLASS()
-class HELIUMRAIN_API UFlareSpacecraftNavigationSystem : public UObject, public IFlareSpacecraftNavigationSystemInterface
+class HELIUMRAIN_API UFlareSpacecraftNavigationSystem : public UObject
 {
 
 public:
@@ -51,20 +111,20 @@ public:
 		Docking
 	----------------------------------------------------*/
 
-	virtual bool DockAt(UFlareSimulatedSpacecraft* TargetStation);
+	virtual bool DockAt(AFlareSpacecraft* TargetStation);
 
 	/** Continue docking sequence has completed until effectif docking */
-	virtual void DockingAutopilot(UFlareSimulatedSpacecraft* DockStation, int32 DockId, float DeltaSeconds);
+	virtual void DockingAutopilot(AFlareSpacecraft* DockStation, int32 DockId, float DeltaSeconds);
 
 	/** Confirm that the docking sequence has completed */
-	virtual void ConfirmDock(UFlareSimulatedSpacecraft* DockStation, int32 DockId);
+	virtual void ConfirmDock(AFlareSpacecraft* DockStation, int32 DockId);
 
 	/** Check if the colliding spacecraft is not the station we want to dock to */
 	virtual void CheckCollisionDocking(AFlareSpacecraft* DockingCandidate);
 
-	virtual bool Undock() override;
+	virtual bool Undock();
 
-	virtual UFlareSimulatedSpacecraft* GetDockStation();
+	virtual AFlareSpacecraft* GetDockStation();
 
 	/*----------------------------------------------------
 		Navigation commands and helpers

@@ -115,14 +115,7 @@ void SFlareShipList::RefreshList()
 
 			if (A->IsStation())
 			{
-				if (B->IsStation())
-				{
-					return A->GetDockingSystem()->GetDockCount() > B->GetDockingSystem()->GetDockCount();
-				}
-				else
-				{
 					return true;
-				}
 			}
 			else if (B->IsStation())
 			{

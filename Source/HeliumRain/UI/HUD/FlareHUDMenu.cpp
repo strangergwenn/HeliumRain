@@ -333,22 +333,23 @@ FText SFlareHUDMenu::GetInfoText() const
 		FText ModeText;
 		FText AutopilotText;
 		FText SectorText = TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
+		AFlareSpacecraft* ActiveTargetShip = TargetShip->GetActive();
 
-		if (TargetShip->GetNavigationSystem()->IsDocked())
+		if (ActiveTargetShip->GetNavigationSystem()->IsDocked())
 		{
 			ModeText = LOCTEXT("Docked", "Docked");
 		}
 		else
 		{
-			ModeText = TargetShip->GetWeaponsSystem()->GetWeaponModeInfo();
-			if (TargetShip->GetNavigationSystem()->IsAutoPilot())
+			ModeText = ActiveTargetShip->GetWeaponsSystem()->GetWeaponModeInfo();
+			if (ActiveTargetShip->GetNavigationSystem()->IsAutoPilot())
 			{
 				AutopilotText = LOCTEXT("AUTOPILOT", " (Autopilot)");
 			}
 		}
 
 		return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}m/s - {1} {2} - {3}"),
-			FText::AsNumber(FMath::RoundToInt(TargetShip->GetActive()->GetLinearVelocity().Size())),
+			FText::AsNumber(FMath::RoundToInt(ActiveTargetShip->GetLinearVelocity().Size())),
 			ModeText,
 			AutopilotText,
 			SectorText);
@@ -361,22 +362,23 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 {
 	FText Info;
 
-	if (TargetShip)
+	if (TargetShip && TargetShip->IsActive())
 	{
-		IFlareSpacecraftNavigationSystemInterface* Nav = TargetShip->GetNavigationSystem();
+		AFlareSpacecraft* ActiveTargetShip = TargetShip->GetActive();
+		UFlareSpacecraftNavigationSystem* Nav = ActiveTargetShip->GetNavigationSystem();
 		FFlareShipCommandData Command = Nav->GetCurrentCommand();
 
 		// Docking info
 		if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
-			AFlareSpacecraft* Target = Command.ActionTarget->GetActive();
+			AFlareSpacecraft* Target = Command.ActionTarget;
 			Info = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
 		}
 
 		// Targetting info
 		else
 		{
-			AFlareSpacecraft* TargetShipPawn = TargetShip->GetActive();
+			AFlareSpacecraft* TargetShipPawn = ActiveTargetShip;
 			if (TargetShipPawn && TargetShipPawn->GetCurrentTarget())
 			{
 				Info = FText::Format(LOCTEXT("TargettingFormat", "Targetting {0}"), FText::FromName(TargetShipPawn->GetCurrentTarget()->GetImmatriculation()));

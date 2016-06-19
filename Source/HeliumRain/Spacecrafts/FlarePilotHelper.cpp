@@ -83,8 +83,8 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 
 		if (SpacecraftCandidate != Ship
 				&& SpacecraftCandidate != SpacecraftToIgnore
-				&& !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate->GetParent())
-				&& !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate->GetParent()))
+				&& !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate)
+				&& !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate))
 		{
 			CheckRelativeDangerosity(SpacecraftCandidate, CurrentLocation, CurrentSize, SpacecraftCandidate->Airframe, CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
 		}
