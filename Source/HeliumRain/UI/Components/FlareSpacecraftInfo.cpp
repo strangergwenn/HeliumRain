@@ -372,8 +372,9 @@ void SFlareSpacecraftInfo::Show()
 		bool CanDock =     !IsDocked && IsFriendly && ActiveTargetSpacecraft && ActiveTargetSpacecraft->GetDockingSystem()->HasCompatibleDock(PlayerShip->GetActive());
 		bool CanAssign =   Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && !TargetSpacecraft->IsAssignedToSector();
 		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
-		bool CanUpgrade =  Owned && !IsStation && (IsDocked || IsRemoteFlying) && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
-		bool CanTrade =    Owned && !IsStation && (IsDocked || IsRemoteFlying) && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
+		bool CanUpgrade =  Owned && !IsStation && (IsDocked || (IsRemoteFlying && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany())));
+		bool CanTrade =    Owned && !IsStation && (IsDocked || (IsRemoteFlying && TargetSpacecraft->GetDescription()->CargoBayCount > 0));
+		bool CanScrap =    Owned && !IsStation && IsRemoteFlying && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
 
 		FLOGV("SFlareSpacecraftInfo::Show : CanDock = %d CanAssign = %d CanUnAssign = %d CanUpgrade = %d CanTrade = %d",
 			CanDock, CanAssign, CanUnAssign, CanUpgrade, CanTrade);
@@ -460,13 +461,21 @@ void SFlareSpacecraftInfo::Show()
 		{
 			UpgradeButton->SetHelpText(LOCTEXT("UpgradeInfo", "Upgrade this spacecraft"));
 			UpgradeButton->SetDisabled(false);
-			ScrapButton->SetHelpText(LOCTEXT("ScrapInfo", "Permanently destroy this ship and get some resources back"));
-			ScrapButton->SetDisabled(false);
 		}
 		else
 		{
 			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked (distant ships can be upgraded if a station is present in the sector)"));
 			UpgradeButton->SetDisabled(true);
+		}
+
+		// Disable scrapping
+		if (CanScrap)
+		{
+			ScrapButton->SetHelpText(LOCTEXT("ScrapInfo", "Permanently destroy this ship and get some resources back"));
+			ScrapButton->SetDisabled(false);
+		}
+		else
+		{
 			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked (distant ships can be scrapped if a station is present in the sector)"));
 			ScrapButton->SetDisabled(true);
 		}
