@@ -447,7 +447,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else
 		{
-			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading requires to be docked, or on the orbital map"));
+			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading requires to be docked (distant ships can trade within their sector)"));
 			TradeButton->SetDisabled(true);
 		}
 
@@ -461,9 +461,9 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else
 		{
-			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked, or on the orbital map with an available station in the sector"));
+			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked (distant ships can be upgraded if a station is present in the sector)"));
 			UpgradeButton->SetDisabled(true);
-			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked, or on the orbital map with an available station in the sector"));
+			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked (distant ships can be scrapped if a station is present in the sector)"));
 			ScrapButton->SetDisabled(true);
 		}
 	}
