@@ -207,6 +207,10 @@ protected:
 
 	UPROPERTY()
 	AFlareSpacecraft*                               Spacecraft;
+
+	UPROPERTY()
+	UPhysicsConstraintComponent*                    DockConstraint;
+
 	FFlareSpacecraftSave*                           Data;
 	FFlareSpacecraftDescription*                    Description;
 	TArray<UActorComponent*>                        Components;

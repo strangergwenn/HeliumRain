@@ -22,6 +22,7 @@ UFlareSpacecraftNavigationSystem::UFlareSpacecraftNavigationSystem(const class F
 	, NegligibleSpeedRatio(0.0005)
 {
 	AnticollisionAngle = FMath::FRandRange(0, 360);
+	DockConstraint = NULL;
 }
 
 
@@ -208,7 +209,13 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 			*Data->DockedTo.ToString());
 
 		// Detach from station
-		Spacecraft->DetachRootComponentFromParent(true);
+		if(DockConstraint)
+		{
+			DockConstraint->BreakConstraint();
+			DockConstraint->DestroyComponent();
+			DockConstraint = NULL;
+		}
+
 		AFlareSpacecraft* DockStation = GetDockStation();
 		DockStation->GetDockingSystem()->ReleaseDock(Spacecraft, Data->DockedAt);
 
@@ -692,10 +699,36 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation
 	Data->DockedTo = DockStation->GetImmatriculation();
 	Data->DockedAt = DockId;
 
-
+	if(DockConstraint)
+	{
+		DockConstraint->BreakConstraint();
+		DockConstraint->DestroyComponent();
+		DockConstraint = NULL;
+	}
 
 	// Attach to station
-	Spacecraft->AttachToActor(DockStation, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
+	FConstraintInstance ConstraintInstance;
+	ConstraintInstance.bDisableCollision = true;
+	ConstraintInstance.AngularSwing1Motion = ACM_Locked;
+	ConstraintInstance.AngularSwing2Motion = ACM_Locked;
+	ConstraintInstance.AngularTwistMotion = ACM_Locked;
+	ConstraintInstance.LinearXMotion = LCM_Locked;
+	ConstraintInstance.LinearYMotion = LCM_Locked;
+	ConstraintInstance.LinearZMotion = LCM_Locked;
+	ConstraintInstance.AngularRotationOffset = FRotator::ZeroRotator;
+	ConstraintInstance.bSwingLimitSoft = 0;
+	ConstraintInstance.bTwistLimitSoft = 0;
+	ConstraintInstance.bLinearLimitSoft = 0;
+	ConstraintInstance.bLinearBreakable = 0;
+	ConstraintInstance.bAngularBreakable = 0;
+
+
+	DockConstraint = NewObject<UPhysicsConstraintComponent>(Spacecraft->Airframe);
+	DockConstraint->ConstraintInstance = ConstraintInstance;
+	DockConstraint->SetWorldLocation(Spacecraft->GetActorLocation());
+	DockConstraint->AttachTo(Spacecraft->GetRootComponent(), NAME_None, EAttachLocation::KeepWorldPosition);
+
+	DockConstraint->SetConstrainedComponents(Spacecraft->Airframe, NAME_None, DockStation->Airframe,NAME_None);
 
 	// Cut engines
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
