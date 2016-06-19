@@ -1393,40 +1393,56 @@ void AFlareSpacecraft::ForceManual()
 
 FText AFlareSpacecraft::GetShipStatus() const
 {
+	FText PauseText;
 	FText ModeText;
 	FText AutopilotText;
 	IFlareSpacecraftNavigationSystemInterface* Nav = GetNavigationSystem();
 	FFlareShipCommandData Command = Nav->GetCurrentCommand();
 	UFlareSector* CurrentSector = GetGame()->GetActiveSector();
 
+	// Modifiers
 	if (Paused)
 	{
-		return FText::Format(LOCTEXT("ShipPausedFormat", "Flying in {0} (game paused)"),
-			CurrentSector ? CurrentSector->GetSimulatedSector()->GetSectorName() : LOCTEXT("UnknownSector", "Unknown Sector"));
+		PauseText = LOCTEXT("GamePausedModInfo", "Game paused - ");
 	}
-	else if (Nav->IsDocked())
+	if (Nav->IsAutoPilot())
+	{
+		AutopilotText = LOCTEXT("AutopilotMod", "(Autopilot)");
+	}
+
+	// Build mode text
+	if (Nav->IsDocked())
 	{
 		ModeText = LOCTEXT("Docked", "Docked");
+	}
+	else if (Parent->GetCurrentFleet()->IsTraveling())
+	{
+		ModeText = FText::Format(LOCTEXT("TravellingAtFormat", "Travelling to {0}"),
+			Parent->GetCurrentFleet()->GetCurrentTravel()->GetDestinationSector()->GetSectorName());
 	}
 	else if (Command.Type == EFlareCommandDataType::CDT_Dock)
 	{
 		AFlareSpacecraft* Target = Command.ActionTarget->GetActive();
-		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
+
+		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"),
+			FText::FromName(Target->GetImmatriculation()));
+	}
+	else if (!Paused)
+	{
+		ModeText = FText::Format(LOCTEXT("SpeedNotPausedFormat", "{0}m/s - {1} in {2}"),
+			FText::AsNumber(FMath::RoundToInt(GetLinearVelocity().Size())),
+			GetWeaponsSystem()->GetWeaponModeInfo(),
+			CurrentSector->GetSimulatedSector()->GetSectorName());
 	}
 	else
 	{
-		ModeText = FText::Format(LOCTEXT("SpeedFormat", "{0}m/s - {1}"),
-			FText::AsNumber(FMath::RoundToInt(GetLinearVelocity().Size())),
-			GetWeaponsSystem()->GetWeaponModeInfo());
+		ModeText = FText::Format(LOCTEXT("SpeedPausedFormat-", "{1} in {2}"),
+			GetWeaponsSystem()->GetWeaponModeInfo(),
+			CurrentSector->GetSimulatedSector()->GetSectorName());
 	}
 
-	if (Nav->IsAutoPilot())
-	{
-		AutopilotText = LOCTEXT("Autopilot", "(Autopilot)");
-	}
-
-	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} in {1} {2}"),
-		ModeText, CurrentSector->GetSimulatedSector()->GetSectorName(), AutopilotText);
+	return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}{1} {2}"),
+		PauseText, ModeText, AutopilotText);
 }
 
 /** Linear velocity, in m/s in world reference*/
