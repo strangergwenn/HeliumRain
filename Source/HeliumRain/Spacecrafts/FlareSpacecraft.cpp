@@ -262,9 +262,12 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	// Strictly disallow self-collision : this should never happen
 	if (Other == this)
 	{
-		check(false);
-
+		// TODO fixme
+		FLOGV("%s (%d) self-collision: %s collide with %s", *GetImmatriculation().ToString(), IsPresentationMode(), (MyComp ? *MyComp->GetName() : TEXT("null")), (OtherComp ? *OtherComp->GetName() : TEXT("null")));
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+		PC->ConsoleCommand("quit");
+		return;
+
 		PC->Notify(
 			FText::FromString("KNOWN BUG #158"),
 			FText::FromString("You just encountered the known bug #158. You can re-fly your ship by clicking \"fly previous\". Sorry for the inconvenience."),
