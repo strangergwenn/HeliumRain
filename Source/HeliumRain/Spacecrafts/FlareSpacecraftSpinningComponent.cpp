@@ -28,6 +28,12 @@ UFlareSpacecraftSpinningComponent::UFlareSpacecraftSpinningComponent(const class
 void UFlareSpacecraftSpinningComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UFlareSpacecraftSpinningComponent::Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany* Company, AFlareSpacecraftPawn* OwnerSpacecraftPawn, bool IsInMenu)
+{
+	Super::Initialize(Data, Company, OwnerSpacecraftPawn, IsInMenu);
+
 	SetCollisionProfileName("NoCollision");
 }
 
