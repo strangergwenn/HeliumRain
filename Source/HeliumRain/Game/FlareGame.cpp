@@ -213,14 +213,14 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 	}
 
 	// Destroy the active sector
+	DebrisFieldSystem->Reset();
+	UnloadStreamingLevel(ActiveSector->GetSimulatedSector()->GetDescription()->LevelName);
 	ActiveSector->DestroySector();
 	ActiveSector = NULL;
-	DebrisFieldSystem->Reset();
 
 	// Update the PC
 	Sector->GetData()->LastFlownShip = LastFlownShip;
 	GetPC()->SetLastFlownShip(LastFlownShip);
-
 	GetPC()->OnSectorDeactivated();
 	SaveGame(GetPC());
 
@@ -619,9 +619,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 
 	FLOGV("AFlareGame::SaveGame : saving to slot %d", CurrentSaveIndex);
 	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
-
-
-
+	
 	// Save process
 	if (PC && Save)
 	{
