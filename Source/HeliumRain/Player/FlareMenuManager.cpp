@@ -487,7 +487,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleets");                   break;
 		case EFlareMenu::MENU_Station:        Name = LOCTEXT("StationMenuName", "Station");                break;
 		case EFlareMenu::MENU_ShipConfig:     Name = LOCTEXT("ShipConfigMenuName", "Ship upgrade");        break;
-		case EFlareMenu::MENU_Undock:         Name = LOCTEXT("UndockMenuName", "Undock");                  break;
+		case EFlareMenu::MENU_Travel:         Name = LOCTEXT("TravelMenuName", "Travel");                  break;
 		case EFlareMenu::MENU_Sector:         Name = LOCTEXT("SectorMenuName", "Sector info");             break;
 		case EFlareMenu::MENU_Trade:          Name = LOCTEXT("TradeMenuName", "Trade");                    break;
 		case EFlareMenu::MENU_TradeRoute:     Name = LOCTEXT("TradeRouteMenuName", "Trade route");         break;
@@ -516,7 +516,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_Fleet:          Path = "Fleet";        break;
 		case EFlareMenu::MENU_Station:        Path = "Station";      break;
 		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
-		case EFlareMenu::MENU_Undock:         Path = "Undock";       break;
+		case EFlareMenu::MENU_Travel:         Path = "Travel";       break;
 		case EFlareMenu::MENU_Sector:         Path = "Sector";       break;
 		case EFlareMenu::MENU_Trade:          Path = "Trade";        break;
 		case EFlareMenu::MENU_TradeRoute:     Path = "TradeRoute";   break;
@@ -621,6 +621,10 @@ void AFlareMenuManager::ProcessFadeTarget()
 
 		case EFlareMenu::MENU_FlyShip:
 			FlyShip(FadeTargetSpacecraft);
+			break;
+
+		case EFlareMenu::MENU_Travel:
+			Travel(static_cast<UFlareTravel*>(FadeTargetData));
 			break;
 
 		case EFlareMenu::MENU_Fleet:
@@ -786,6 +790,30 @@ void AFlareMenuManager::FlyShip(UFlareSimulatedSpacecraft* Target)
 		ExitMenu();
 		MenuIsOpen = false;
 	}
+}
+
+void AFlareMenuManager::Travel(UFlareTravel* Travel)
+{
+	UFlareFleet* PlayerFleet = GetGame()->GetPC()->GetPlayerFleet();
+	UFlareFleet* SelectedFleet = GetGame()->GetPC()->GetSelectedFleet();
+
+	if (Travel && PlayerFleet)
+	{
+		// Player flying : activate the travel sector
+		if (PlayerFleet == Travel->GetFleet())
+		{
+			GetGame()->ActivateCurrentSector();
+		}
+
+		// Reload sector to update it after the departure of a fleet
+		else if (PlayerFleet->GetCurrentSector() == Travel->GetSourceSector())
+		{
+			GetGame()->DeactivateSector();
+			GetGame()->ActivateCurrentSector();
+		}
+	}
+
+	OpenOrbit();
 }
 
 void AFlareMenuManager::InspectShip(UFlareSimulatedSpacecraft* Target, bool IsEditable)

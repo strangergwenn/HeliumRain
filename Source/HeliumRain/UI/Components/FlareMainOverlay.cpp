@@ -279,7 +279,7 @@ FText SFlareMainOverlay::GetSpacecraftInfo() const
 	}
 	else
 	{
-		return LOCTEXT("TravellingPlayerShip", "Ship is travelling");
+		return LOCTEXT("FastForwarding", "Fast forwarding...");
 	}
 
 	return FText();

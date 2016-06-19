@@ -22,7 +22,7 @@ namespace EFlareMenu
 
 		MENU_LoadGame,
 		MENU_FlyShip,
-		MENU_Undock,
+		MENU_Travel,
 
 		MENU_Story,
 		MENU_Company,

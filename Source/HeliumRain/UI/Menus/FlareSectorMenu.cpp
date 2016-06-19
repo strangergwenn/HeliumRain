@@ -718,28 +718,22 @@ void SFlareSectorMenu::OnPlayerStartTravelConfirmed()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->StartTravel(PlayerFleet, TargetSector);
 		if (Travel)
 		{
-			MenuManager->GetGame()->ActivateCurrentSector();
+			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Travel);
 		}
-		MenuManager->Back();
 	}
 }
 
 void SFlareSectorMenu::OnStartTravelConfirmed()
 {
 	UFlareFleet* SelectedFleet = MenuManager->GetGame()->GetPC()->GetSelectedFleet();
-
-
+	
 	if (SelectedFleet)
 	{
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->StartTravel(SelectedFleet, TargetSector);
-		UFlareFleet* PlayerFleet = MenuManager->GetGame()->GetPC()->GetPlayerFleet();
-		if (Travel && PlayerFleet && PlayerFleet->GetCurrentSector() == Travel->GetSourceSector())
+		if (Travel)
 		{
-			// Reload sector
-			MenuManager->GetGame()->DeactivateSector();
-			MenuManager->GetGame()->ActivateCurrentSector();
+			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Travel);
 		}
-		MenuManager->Back();
 	}
 }
 

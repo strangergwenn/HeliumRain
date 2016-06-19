@@ -183,6 +183,9 @@ protected:
 	/** Fly this ship */
 	virtual void FlyShip(UFlareSimulatedSpacecraft* Target);
 
+	/** Travel here */
+	virtual void Travel(UFlareTravel* Sector);
+
 	/** Show the config menu for a specific ship */
 	virtual void InspectShip(UFlareSimulatedSpacecraft* Target = NULL, bool IsEditable = false);
 

@@ -741,10 +741,7 @@ UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimul
 		TravelData.DepartureDate = GetDate();
 		UFlareTravel::InitTravelSector(TravelData.SectorData);
 		UFlareTravel* Travel = LoadTravel(TravelData);
-		if(Game->GetPC()->GetPlayerShip()->GetCurrentFleet() == TravelingFleet)
-		{
-			Game->ActivateCurrentSector();
-		}
+
 		return Travel;
 	}
 }
