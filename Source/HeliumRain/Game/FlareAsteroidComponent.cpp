@@ -41,29 +41,6 @@ UFlareAsteroidComponent::UFlareAsteroidComponent(const class FObjectInitializer&
 void UFlareAsteroidComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (IsIcyAsteroid)
-	{
-		// Create random effects
-		for (int32 Index = 0; Index < EffectsCount; Index++)
-		{
-			EffectsKernels.Add(FMath::VRand());
-
-			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
-				IceEffectTemplate,
-				this,
-				NAME_None,
-				GetComponentLocation(),
-				FRotator(),
-				EAttachLocation::KeepWorldPosition,
-				false);
-
-			PSC->SetWorldScale3D(EffectsScale * FVector(1, 1, 1));
-			Effects.Add(PSC);
-
-			PSC->SetTemplate(IceEffectTemplate);
-		}
-	}
 }
 
 void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
@@ -120,4 +97,32 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 void UFlareAsteroidComponent::SetIcy(bool Icy)
 {
 	IsIcyAsteroid = Icy;
+	Effects.Empty();
+
+	// Create random effects
+	for (int32 Index = 0; Index < EffectsCount; Index++)
+	{
+		EffectsKernels.Add(FMath::VRand());
+
+		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
+			IceEffectTemplate,
+			this,
+			NAME_None,
+			GetComponentLocation(),
+			FRotator(),
+			EAttachLocation::KeepWorldPosition,
+			false);
+
+		PSC->SetWorldScale3D(EffectsScale * FVector(1, 1, 1));
+		Effects.Add(PSC);
+
+		if (IsIcyAsteroid)
+		{
+			PSC->SetTemplate(IceEffectTemplate);
+		}
+		else
+		{
+			PSC->SetTemplate(DustEffectTemplate);
+		}
+	}
 }
