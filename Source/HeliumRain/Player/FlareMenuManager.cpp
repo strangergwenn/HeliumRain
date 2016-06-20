@@ -122,9 +122,9 @@ void AFlareMenuManager::SetupMenu()
 		CreditsMenu->Setup();
 
 		// Init
-		CurrentMenu = EFlareMenu::MENU_None;
 		CurrentTarget.Key = EFlareMenu::MENU_None;
 		CurrentTarget.Value = NULL;
+		CurrentMenu = CurrentTarget;
 	}
 }
 
@@ -199,13 +199,7 @@ bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterDat
 		return false;
 	}
 	FLOGV("AFlareMenuManager::OpenMenu : %d", (Target - EFlareMenu::MENU_None));
-
-	// Back function
-	if (Target != EFlareMenu::MENU_None && Target != EFlareMenu::MENU_Settings)
-	{
-		LastNonSettingsMenu = Target;
-	}
-
+	
 	// Settings
 	MenuIsOpen = true;
 	FadeOut();
@@ -337,7 +331,8 @@ void AFlareMenuManager::FadeOut()
 {
 	FadeFromBlack = false;
 	FadeTimer = 0;
-	CurrentMenu = EFlareMenu::MENU_None;
+	CurrentMenu.Key = EFlareMenu::MENU_None;
+	CurrentMenu.Value = NULL;
 	Tooltip->HideTooltipForce();
 }
 
@@ -349,85 +344,28 @@ void AFlareMenuManager::ProcessCurrentTarget()
 	// Process the target
 	switch (CurrentTarget.Key)
 	{
-		case EFlareMenu::MENU_Main:
-			OpenMainMenu(CurrentTarget.Value);
-			break;
+		case EFlareMenu::MENU_LoadGame:           LoadGame();                  break;
+		case EFlareMenu::MENU_FlyShip:            FlyShip();                   break;
+		case EFlareMenu::MENU_Travel:             Travel();                    break;
 
-		case EFlareMenu::MENU_Settings:
-			OpenSettingsMenu(CurrentTarget.Value);
-			break;
+		case EFlareMenu::MENU_Main:               OpenMainMenu();              break;
+		case EFlareMenu::MENU_Settings:           OpenSettingsMenu();          break;
+		case EFlareMenu::MENU_NewGame:            OpenNewGameMenu();           break;
+		case EFlareMenu::MENU_Story:              OpenStoryMenu();             break;
+		case EFlareMenu::MENU_Company:            InspectCompany();            break;
+		case EFlareMenu::MENU_Fleet:              OpenFleetMenu();             break;
+		case EFlareMenu::MENU_Ship:               InspectShip(false);          break;
+		case EFlareMenu::MENU_ShipConfig:         InspectShip(true);           break;
+		case EFlareMenu::MENU_Sector:             OpenSector();                break;
+		case EFlareMenu::MENU_Trade:              OpenTrade();                 break;
+		case EFlareMenu::MENU_TradeRoute:         OpenTradeRoute();            break;
+		case EFlareMenu::MENU_Orbit:              OpenOrbit();                 break;
+		case EFlareMenu::MENU_Leaderboard:        OpenLeaderboard();           break;
+		case EFlareMenu::MENU_ResourcePrices:     OpenResourcePrices();        break;
+		case EFlareMenu::MENU_WorldEconomy:       OpenWorldEconomy();          break;
+		case EFlareMenu::MENU_Credits:            OpenCredits();               break;
 
-		case EFlareMenu::MENU_NewGame:
-			OpenNewGameMenu(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_LoadGame:
-			LoadGame(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Story:
-			OpenStoryMenu(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Company:
-			InspectCompany(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_FlyShip:
-			FlyShip(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Travel:
-			Travel(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Fleet:
-			OpenFleetMenu(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Ship:
-			InspectShip(CurrentTarget.Value, false);
-			break;
-
-		case EFlareMenu::MENU_ShipConfig:
-			InspectShip(CurrentTarget.Value, true);
-			break;
-
-		case EFlareMenu::MENU_Sector:
-			OpenSector(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Trade:
-			OpenTrade(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_TradeRoute:
-			OpenTradeRoute(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Orbit:
-			OpenOrbit(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Leaderboard:
-			OpenLeaderboard(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_ResourcePrices:
-			OpenResourcePrices(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_WorldEconomy:
-			OpenWorldEconomy(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Credits:
-			OpenCredits(CurrentTarget.Value);
-			break;
-
-		case EFlareMenu::MENU_Quit:
-			PC->ConsoleCommand("quit");
-			break;
+		case EFlareMenu::MENU_Quit:               PC->ConsoleCommand("quit");  break;
 
 		case EFlareMenu::MENU_None:
 		default:
@@ -435,9 +373,12 @@ void AFlareMenuManager::ProcessCurrentTarget()
 	}
 
 	// Reset everything
-	delete CurrentTarget.Value;
-	CurrentTarget.Value = NULL;
 	CurrentTarget.Key = EFlareMenu::MENU_None;
+	if (CurrentTarget.Value)
+	{
+		delete CurrentTarget.Value;
+		CurrentTarget.Value = NULL;
+	}
 
 	// Signal the HUD
 	if (GetPC()->GetNavHUD())
@@ -459,6 +400,35 @@ void AFlareMenuManager::FlushNotifications()
 	}
 }
 
+void AFlareMenuManager::OnEnterMenu(bool LightBackground , bool ShowOverlay, bool TellPlayer)
+{
+	ResetMenu();
+	CurrentMenu = CurrentTarget;
+
+	if (LightBackground)
+	{
+		UseLightBackground();
+	}
+	else
+	{
+		UseDarkBackground();
+	}
+
+	if (ShowOverlay)
+	{
+		OpenMainOverlay();
+	}
+	else
+	{
+		CloseMainOverlay();
+	}
+
+	if (TellPlayer)
+	{
+		GetPC()->OnEnterMenu();
+	}
+}
+
 void AFlareMenuManager::UseLightBackground()
 {
 	GetPC()->GetMenuPawn()->UseLightBackground();
@@ -469,17 +439,12 @@ void AFlareMenuManager::UseDarkBackground()
 	GetPC()->GetMenuPawn()->UseDarkBackground();
 }
 
-AFlareGame* AFlareMenuManager::GetGame() const
-{
-	return GetPC()->GetGame();
-}
-
 
 /*----------------------------------------------------
 	Internal menu callbacks
 ----------------------------------------------------*/
 
-void AFlareMenuManager::LoadGame(FFlareMenuParameterData* Data)
+void AFlareMenuManager::LoadGame()
 {
 	ExitMenu();
 
@@ -498,19 +463,21 @@ void AFlareMenuManager::LoadGame(FFlareMenuParameterData* Data)
 		// Fly the ship - we create another set of data here to keep with the convention :) 
 		FFlareMenuParameterData FlyData;
 		FlyData.Spacecraft = CurrentShip;
-		FlyShip(&FlyData);
+		CurrentTarget.Key = EFlareMenu::MENU_FlyShip;
+		CurrentTarget.Value = &FlyData;
+		FlyShip();
 	}
 }
 
-void AFlareMenuManager::FlyShip(FFlareMenuParameterData* Data)
+void AFlareMenuManager::FlyShip()
 {
-	check(Data);
+	check(CurrentTarget.Value);
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC)
 	{
-		if (Data->Spacecraft)
+		if (CurrentTarget.Value->Spacecraft)
 		{
-			PC->FlyShip(Data->Spacecraft->GetActive());
+			PC->FlyShip(CurrentTarget.Value->Spacecraft->GetActive());
 		}
 
 		ExitMenu();
@@ -518,107 +485,85 @@ void AFlareMenuManager::FlyShip(FFlareMenuParameterData* Data)
 	}
 }
 
-void AFlareMenuManager::Travel(FFlareMenuParameterData* Data)
+void AFlareMenuManager::Travel()
 {
-	check(Data);
+	check(CurrentTarget.Value);
 	UFlareFleet* PlayerFleet = GetGame()->GetPC()->GetPlayerFleet();
 	UFlareFleet* SelectedFleet = GetGame()->GetPC()->GetSelectedFleet();
 
-	if (Data->Travel && PlayerFleet)
+	if (CurrentTarget.Value->Travel && PlayerFleet)
 	{
 		// Player flying : activate the travel sector
-		if (PlayerFleet == Data->Travel->GetFleet())
+		if (PlayerFleet == CurrentTarget.Value->Travel->GetFleet())
 		{
 			GetGame()->ActivateCurrentSector();
 		}
 
 		// Reload sector to update it after the departure of a fleet
-		else if (PlayerFleet->GetCurrentSector() == Data->Travel->GetSourceSector())
+		else if (PlayerFleet->GetCurrentSector() == CurrentTarget.Value->Travel->GetSourceSector())
 		{
 			GetGame()->DeactivateSector();
 			GetGame()->ActivateCurrentSector();
 		}
 	}
 
-	OpenOrbit(NULL);
+	// Redirect to the orbit menu
+	CurrentTarget.Key = EFlareMenu::MENU_Orbit;
+	CurrentTarget.Value = NULL;
+	OpenOrbit();
 }
 
-void AFlareMenuManager::OpenMainMenu(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenMainMenu()
 {
+	OnEnterMenu(true, false);
 	GetPC()->ExitShip();
-
-	ResetMenu();
-
-	CloseMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_Main;
 	GetPC()->GetGame()->SaveGame(GetPC());
-	GetPC()->OnEnterMenu();
 	MainMenu->Enter();
-	UseLightBackground();
 }
 
-void AFlareMenuManager::OpenSettingsMenu(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenSettingsMenu()
 {
-	ResetMenu();
-
-	CloseMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_Settings;
-	GetPC()->OnEnterMenu();
+	OnEnterMenu(true, false);
 	SettingsMenu->Enter();
-	UseLightBackground();
 }
 
-void AFlareMenuManager::OpenNewGameMenu(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenNewGameMenu()
 {
-	ResetMenu();
-
-	CurrentMenu = EFlareMenu::MENU_NewGame;
-	GetPC()->OnEnterMenu();
+	OnEnterMenu(true, false);
 	NewGameMenu->Enter();
-	UseLightBackground();
 }
 
-void AFlareMenuManager::OpenStoryMenu(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenStoryMenu()
 {
-	ResetMenu();
-
-	CurrentMenu = EFlareMenu::MENU_Story;
-	GetPC()->OnEnterMenu();
+	OnEnterMenu(false, false);
 	StoryMenu->Enter();
-	UseDarkBackground();
 }
 
-void AFlareMenuManager::InspectCompany(FFlareMenuParameterData* Data)
+void AFlareMenuManager::InspectCompany()
 {
-	ResetMenu();
+	OnEnterMenu();
 
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_Company;
-	GetPC()->OnEnterMenu();
-
-	if (Data && Data->Company)
+	if (CurrentTarget.Value && CurrentTarget.Value->Company)
 	{
-		CompanyMenu->Enter(Data->Company);
+		CompanyMenu->Enter(CurrentTarget.Value->Company);
 	}
 	else
 	{
 		CompanyMenu->Enter(GetPC()->GetCompany());
 	}
-
-	UseLightBackground();
 }
 
-void AFlareMenuManager::InspectShip(FFlareMenuParameterData* Data, bool IsEditable)
+void AFlareMenuManager::InspectShip(bool IsEditable)
 {
 	UFlareSimulatedSpacecraft* MenuTarget = NULL;
 
 	// No target passed - "Inspect" on target ship
-	if ((Data == NULL || Data->Spacecraft == NULL) && GetPC()->GetShipPawn())
+	if ((CurrentTarget.Value == NULL || CurrentTarget.Value->Spacecraft == NULL) && GetPC()->GetShipPawn())
 	{
-		MenuTarget = GetPC()->GetShipPawn()->GetCurrentTarget()->GetParent();
+		MenuTarget = GetPC()->GetShipPawn()->GetParent();
 		if (MenuTarget)
 		{
-			FLOGV("AFlareMenuManager::InspectShip : No ship passed, using selection : %s", *MenuTarget->GetImmatriculation().ToString());
+			FLOGV("AFlareMenuManager::InspectShip : No ship passed, using player ship : %s", *MenuTarget->GetImmatriculation().ToString());
 		}
 		else
 		{
@@ -627,38 +572,26 @@ void AFlareMenuManager::InspectShip(FFlareMenuParameterData* Data, bool IsEditab
 	}
 	else
 	{
-		MenuTarget = Data->Spacecraft;
+		MenuTarget = CurrentTarget.Value->Spacecraft;
 	}
 
 	// Open the menu for good
 	if (MenuTarget)
 	{
-		ResetMenu();
-
-		OpenMainOverlay();
-		CurrentMenu = EFlareMenu::MENU_Ship;
-		GetPC()->OnEnterMenu();
-
+		OnEnterMenu();
 		ShipMenu->Enter(MenuTarget, IsEditable);
-		UseLightBackground();
 	}
 }
 
-void AFlareMenuManager::OpenFleetMenu(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenFleetMenu()
 {
-	ResetMenu();
-
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_Fleet;
-	GetPC()->OnEnterMenu();
-
-	FleetMenu->Enter(Data ? Data->Fleet : NULL);
-	UseLightBackground();
+	OnEnterMenu();
+	FleetMenu->Enter(CurrentTarget.Value ? CurrentTarget.Value->Fleet : NULL);
 }
 
-void AFlareMenuManager::OpenSector(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenSector()
 {
-	UFlareSimulatedSector* Sector = Data ? Data->Sector : NULL;
+	UFlareSimulatedSector* Sector = CurrentTarget.Value ? CurrentTarget.Value->Sector : NULL;
 
 	// Do everythong we can to find the active sector
 	if (!Sector)
@@ -675,112 +608,70 @@ void AFlareMenuManager::OpenSector(FFlareMenuParameterData* Data)
 
 	if (Sector)
 	{
-		ResetMenu();
-
-		OpenMainOverlay();
-		CurrentMenu = EFlareMenu::MENU_Sector;
-		GetPC()->OnEnterMenu();
+		OnEnterMenu();
 		SectorMenu->Enter(Sector);
-		UseLightBackground();
 	}
 	else
 	{
-		OpenOrbit(NULL);
+		// Redirect to the orbit menu
+		CurrentTarget.Key = EFlareMenu::MENU_Orbit;
+		CurrentTarget.Value = NULL;
+		OpenOrbit();
 	}
 }
 
-void AFlareMenuManager::OpenTrade(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenTrade()
 {
-	check(Data);
-	ResetMenu();
-
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_Trade;
-	GetPC()->OnEnterMenu();
-
-	TradeMenu->Enter(Data->Spacecraft->GetCurrentSector(), Data->Spacecraft, NULL);
-
-	UseLightBackground();
+	OnEnterMenu();
+	check(CurrentTarget.Value);
+	TradeMenu->Enter(CurrentTarget.Value->Spacecraft->GetCurrentSector(), CurrentTarget.Value->Spacecraft, NULL);
 }
 
-void AFlareMenuManager::OpenTradeRoute(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenTradeRoute()
 {
-	check(Data);
-	ResetMenu();
-
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_TradeRoute;
-	GetPC()->OnEnterMenu();
-	
-	TradeRouteMenu->Enter(Data->Route);
-	UseDarkBackground();
+	OnEnterMenu(false);
+	check(CurrentTarget.Value);
+	TradeRouteMenu->Enter(CurrentTarget.Value->Route);
 }
 
-void AFlareMenuManager::OpenOrbit(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenOrbit()
 {
-	ResetMenu();
-
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_Orbit;
-	GetPC()->OnEnterMenu();
-
+	OnEnterMenu(false);
 	OrbitMenu->Enter();
-
-	UseDarkBackground();
 }
 
-void AFlareMenuManager::OpenLeaderboard(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenLeaderboard()
 {
-	ResetMenu();
-
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_Leaderboard;
-	GetPC()->OnEnterMenu();
+	OnEnterMenu(false);
 	LeaderboardMenu->Enter();
-	UseDarkBackground();
 }
 
-void AFlareMenuManager::OpenResourcePrices(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenResourcePrices()
 {
-	check(Data);
-	ResetMenu();
-
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_ResourcePrices;
-	GetPC()->OnEnterMenu();
-	ResourcePricesMenu->Enter(Data->Sector);
-	UseDarkBackground();
+	OnEnterMenu(false);
+	check(CurrentTarget.Value);
+	ResourcePricesMenu->Enter(CurrentTarget.Value->Sector);
 }
 
-void AFlareMenuManager::OpenWorldEconomy(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenWorldEconomy()
 {
-	check(Data);
-	ResetMenu();
-
-	OpenMainOverlay();
-	CurrentMenu = EFlareMenu::MENU_WorldEconomy;
-	GetPC()->OnEnterMenu();
-	WorldEconomyMenu->Enter(Data->Resource, Data->Sector);
-	UseDarkBackground();
+	OnEnterMenu(false);
+	check(CurrentTarget.Value);
+	WorldEconomyMenu->Enter(CurrentTarget.Value->Resource, CurrentTarget.Value->Sector);
 }
 
-void AFlareMenuManager::OpenCredits(FFlareMenuParameterData* Data)
+void AFlareMenuManager::OpenCredits()
 {
-	ResetMenu();
-
-	CurrentMenu = EFlareMenu::MENU_Credits;
-	GetPC()->OnEnterMenu();
+	OnEnterMenu(false, false, false);
 	CreditsMenu->Enter();
-	UseDarkBackground();
 }
 
 void AFlareMenuManager::ExitMenu()
 {
-	FLOG("AFlareMenuManager::ExitMenu");
 	ResetMenu();
-
-	CurrentMenu = EFlareMenu::MENU_None;
 	CloseMainOverlay();
+	CurrentMenu.Key = EFlareMenu::MENU_None;
+	CurrentMenu.Value = NULL;
 	GetPC()->OnExitMenu();
 }
 
@@ -788,36 +679,6 @@ void AFlareMenuManager::ExitMenu()
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
-
-bool AFlareMenuManager::IsUIOpen() const
-{
-	return IsMenuOpen() || IsOverlayOpen();
-}
-
-bool AFlareMenuManager::IsMenuOpen() const
-{
-	return MenuIsOpen;
-}
-
-bool AFlareMenuManager::IsOverlayOpen() const
-{
-	return MainOverlay->IsOpen();
-}
-
-bool AFlareMenuManager::IsFading()
-{
-	return (FadeTimer < FadeDuration);
-}
-
-bool AFlareMenuManager::IsSwitchingMenu() const
-{
-	return (Fader->GetVisibility() == EVisibility::Visible);
-}
-
-EFlareMenu::Type AFlareMenuManager::GetCurrentMenu() const
-{
-	return CurrentMenu;
-}
 
 FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 {
@@ -884,5 +745,60 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 	return FFlareStyleSet::GetIcon(Path);
 }
 
-#undef LOCTEXT_NAMESPACE
+bool AFlareMenuManager::IsUIOpen() const
+{
+	return IsMenuOpen() || IsOverlayOpen();
+}
 
+bool AFlareMenuManager::IsMenuOpen() const
+{
+	return MenuIsOpen;
+}
+
+bool AFlareMenuManager::IsOverlayOpen() const
+{
+	return MainOverlay->IsOpen();
+}
+
+bool AFlareMenuManager::IsFading()
+{
+	return (FadeTimer < FadeDuration);
+}
+
+bool AFlareMenuManager::IsSwitchingMenu() const
+{
+	return (Fader->GetVisibility() == EVisibility::Visible);
+}
+
+EFlareMenu::Type AFlareMenuManager::GetCurrentMenu() const
+{
+	return CurrentMenu.Key;
+}
+
+AFlareGame* AFlareMenuManager::GetGame() const
+{
+	return GetPC()->GetGame();
+}
+
+AFlarePlayerController* AFlareMenuManager::GetPC() const
+{
+	return Cast<AFlarePlayerController>(GetOwner());
+}
+
+AFlareMenuManager* AFlareMenuManager::GetSingleton()
+{
+	return Singleton;
+}
+
+int32 AFlareMenuManager::GetMainOverlayHeight()
+{
+	return 135;
+}
+
+TSharedPtr<SFlareShipMenu> AFlareMenuManager::GetShipMenu()
+{
+	return ShipMenu;
+}
+
+
+#undef LOCTEXT_NAMESPACE

@@ -152,6 +152,9 @@ protected:
 	/** Remvoe all notifications from the screen */
 	void FlushNotifications();
 
+	/** Target menu was correctly entered */
+	void OnEnterMenu(bool LightBackground = true, bool ShowOverlay = true, bool TellPlayer = true);
+
 	/** Start using the light background setting */
 	void UseLightBackground();
 
@@ -164,58 +167,58 @@ protected:
 	----------------------------------------------------*/
 
 	/** Load the game */
-	virtual void LoadGame(FFlareMenuParameterData* Data);
+	virtual void LoadGame();
 
 	/** Fly this ship */
-	virtual void FlyShip(FFlareMenuParameterData* Data);
+	virtual void FlyShip();
 
 	/** Travel here */
-	virtual void Travel(FFlareMenuParameterData* Data);
+	virtual void Travel();
 
 	/** Open the main menu */
-	virtual void OpenMainMenu(FFlareMenuParameterData* Data);
+	virtual void OpenMainMenu();
 
 	/** Open the settings menu */
-	virtual void OpenSettingsMenu(FFlareMenuParameterData* Data);
+	virtual void OpenSettingsMenu();
 
 	/** Open the new game menu */
-	virtual void OpenNewGameMenu(FFlareMenuParameterData* Data);
+	virtual void OpenNewGameMenu();
 
 	/** Open the story menu */
-	virtual void OpenStoryMenu(FFlareMenuParameterData* Data);
+	virtual void OpenStoryMenu();
 
 	/** Open the company menu */
-	virtual void InspectCompany(FFlareMenuParameterData* Data);
+	virtual void InspectCompany();
 
 	/** Show the config menu for a specific ship */
-	virtual void InspectShip(FFlareMenuParameterData* Data, bool IsEditable = false);
+	virtual void InspectShip(bool IsEditable = false);
 
 	/** Show the fleet menu */
-	virtual void OpenFleetMenu(FFlareMenuParameterData* Data);
+	virtual void OpenFleetMenu();
 
 	/** Open the sector menu */
-	virtual void OpenSector(FFlareMenuParameterData* Data);
+	virtual void OpenSector();
 
 	/** Open the trade menu */
-	virtual void OpenTrade(FFlareMenuParameterData* Data);
+	virtual void OpenTrade();
 
 	/** Open the trade route menu */
-	virtual void OpenTradeRoute(FFlareMenuParameterData* Data);
+	virtual void OpenTradeRoute();
 
 	/** Open the orbital menu */
-	virtual void OpenOrbit(FFlareMenuParameterData* Data);
+	virtual void OpenOrbit();
 
 	/** Open the company menu */
-	virtual void OpenLeaderboard(FFlareMenuParameterData* Data);
+	virtual void OpenLeaderboard();
 
 	/** Open the resource prices menu */
-	virtual void OpenResourcePrices(FFlareMenuParameterData* Data);
+	virtual void OpenResourcePrices();
 
 	/** Open the world economy menu */
-	virtual void OpenWorldEconomy(FFlareMenuParameterData* Data);
+	virtual void OpenWorldEconomy();
 
 	/** Go to the game's credits */
-	virtual void OpenCredits(FFlareMenuParameterData* Data);
+	virtual void OpenCredits();
 
 	/** Exit the menu */
 	virtual void ExitMenu();
@@ -226,6 +229,12 @@ public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
+
+	/** Get the name text for this menu */
+	static FText GetMenuName(EFlareMenu::Type MenuType);
+
+	/** Get the Slate icon brush for this menu */
+	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
 
 	/** Is UI visible */
 	bool IsUIOpen() const;
@@ -245,11 +254,20 @@ public:
 	/** Which menu, if any, is opened ? */
 	EFlareMenu::Type GetCurrentMenu() const;
 
-	/** Get the name text for this menu */
-	static FText GetMenuName(EFlareMenu::Type MenuType);
+	/** Get the PC */
+	AFlarePlayerController* GetPC() const;
 
-	/** Get the Slate icon brush for this menu */
-	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
+	/** Get the game */
+	AFlareGame* GetGame() const;
+
+	/** Get the menu manager */
+	static AFlareMenuManager* GetSingleton();
+
+	/** Get the height of the main overlay */
+	static int32 GetMainOverlayHeight();
+
+	/** Get the spacecraft menu */
+	TSharedPtr<SFlareShipMenu> GetShipMenu();
 
 
 protected:
@@ -267,8 +285,7 @@ protected:
 	float                                   FadeDuration;
 	float                                   FadeTimer;
 	TFlareMenuData                          CurrentTarget;
-	TEnumAsByte<EFlareMenu::Type>           CurrentMenu;
-	TEnumAsByte<EFlareMenu::Type>           LastNonSettingsMenu;
+	TFlareMenuData                          CurrentMenu;
 
 	// Menu tools
 	TSharedPtr<SBorder>                     Fader;
@@ -295,33 +312,5 @@ protected:
 	TSharedPtr<SFlareResourcePricesMenu>    ResourcePricesMenu;
 	TSharedPtr<SFlareWorldEconomyMenu>      WorldEconomyMenu;
 	
-
-public:
-
-	/*----------------------------------------------------
-		Getters
-	----------------------------------------------------*/
-
-	inline AFlarePlayerController* GetPC() const
-	{
-		return Cast<AFlarePlayerController>(GetOwner());
-	}
-
-	AFlareGame* GetGame() const;
-
-	static inline AFlareMenuManager* GetSingleton()
-	{
-		return Singleton;
-	}
-
-	static inline int32 GetMainOverlayHeight()
-	{
-		return 135;
-	}
-
-	TSharedPtr<SFlareShipMenu>	GetShipMenu()
-	{
-		return ShipMenu;
-	}
 
 };

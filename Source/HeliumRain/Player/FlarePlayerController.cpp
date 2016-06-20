@@ -1096,7 +1096,9 @@ void AFlarePlayerController::InspectTargetSpacecraft()
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Ship);
+			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+			Data->Spacecraft = TargetSpacecraft->GetParent();
+			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
 		}
 	}
 }
