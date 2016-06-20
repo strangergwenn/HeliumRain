@@ -34,7 +34,6 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	Notifier = InArgs._Notifier;
 	TargetMenu = InArgs._TargetMenu;
 	TargetInfo = InArgs._TargetInfo;
-	TargetSpacecraft = InArgs._TargetSpacecraft;
 	Tag = InArgs._Tag;
 	NotificationTimeout = InArgs._Timeout;
 	FLOGV("SFlareNotification::Construct : notifying '%s'", *InArgs._Text.ToString());
@@ -242,15 +241,7 @@ FReply SFlareNotification::OnNotificationClicked()
 	// Call if necessary
 	if (TargetMenu != EFlareMenu::MENU_None)
 	{
-		if (MenuManager->IsSpacecraftMenu(TargetMenu))
-		{
-			UFlareSimulatedSpacecraft* TargetShip = MenuManager->GetGame()->GetGameWorld()->FindSpacecraft(TargetSpacecraft);
-			MenuManager->OpenMenuSpacecraft(TargetMenu, TargetShip);
-		}
-		else
-		{
-			MenuManager->OpenMenu(TargetMenu, TargetInfo);
-		}
+		MenuManager->OpenMenu(TargetMenu, TargetInfo);
 	}
 
 	// Set the lifetime to "almost done"

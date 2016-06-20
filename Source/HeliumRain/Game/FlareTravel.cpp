@@ -139,6 +139,8 @@ void UFlareTravel::EndTravel()
 	// Notify travel ended
 	if (Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && Fleet->GetCurrentTradeRoute() == NULL)
 	{
+		FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+		Data->Sector = DestinationSector;
 		Game->GetPC()->Notify(LOCTEXT("TravelEnded", "Travel ended"),
 			FText::Format(LOCTEXT("TravelEndedFormat", "{0} arrived at {1}"),
 				Fleet->GetFleetName(),
@@ -147,7 +149,7 @@ void UFlareTravel::EndTravel()
 			EFlareNotification::NT_Economy,
 			5.0f,
 			EFlareMenu::MENU_Sector,
-			DestinationSector);
+			Data);
 	}
 }
 

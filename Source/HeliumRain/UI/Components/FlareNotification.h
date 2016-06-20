@@ -31,7 +31,6 @@ class SFlareNotification : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareNotification)
 		: _TargetInfo(NULL)
-		, _TargetSpacecraft(NAME_None)
 	{}
 
 	SLATE_ARGUMENT(AFlareMenuManager*, MenuManager)
@@ -42,8 +41,7 @@ class SFlareNotification : public SCompoundWidget
 	SLATE_ARGUMENT(FName, Tag)
 	SLATE_ARGUMENT(float, Timeout)
 	SLATE_ARGUMENT(EFlareMenu::Type, TargetMenu)
-	SLATE_ARGUMENT(void*, TargetInfo)
-	SLATE_ARGUMENT(FName, TargetSpacecraft)
+	SLATE_ARGUMENT(struct FFlareMenuParameterData*, TargetInfo)
 
 	SLATE_END_ARGS()
 
@@ -113,8 +111,7 @@ protected:
 	float                                Lifetime;
 	bool                                 ForcedLife;
 	TEnumAsByte<EFlareMenu::Type>        TargetMenu;
-	void*                                TargetInfo;
-	FName                                TargetSpacecraft;
+	FFlareMenuParameterData*             TargetInfo;
 	FText                                Text;
 	FName                                Tag;
 	

@@ -91,7 +91,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Info, float Timeout = 5.0f, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL, FName TargetSpacecraft = NAME_None);
+	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Info, float Timeout = 5.0f, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData* TargetInfo = NULL);
 
 	/** Setup the cockpit */
 	virtual void SetupCockpit();

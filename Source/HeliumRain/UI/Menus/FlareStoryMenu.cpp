@@ -119,7 +119,6 @@ void SFlareStoryMenu::Enter()
 
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	MenuManager->UseDarkBackground();
 
 	CurrentTime = -2.0;
 	CurrentTextAlpha = 0;
@@ -201,7 +200,10 @@ void SFlareStoryMenu::OnStartPlaying()
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
 		Sector->SetShipToFly(CurrentShip);
 		PC->GetGame()->ActivateCurrentSector();
-		MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_FlyShip, PC->GetPlayerShip());
+
+		FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+		Data->Spacecraft = PC->GetPlayerShip();
+		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
 	}
 }
 

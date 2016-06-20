@@ -433,18 +433,6 @@ void SFlareTradeMenu::Exit()
 	SetVisibility(EVisibility::Collapsed);
 }
 
-void SFlareTradeMenu::Back()
-{
-	if (!TargetSector || TargetSector->IsA(UFlareSector::StaticClass()))
-	{
-		MenuManager->CloseMenu();
-	}
-	else
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
-	}
-}
-
 
 /*----------------------------------------------------
 	Callbacks

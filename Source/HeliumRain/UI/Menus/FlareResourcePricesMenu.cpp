@@ -159,7 +159,6 @@ void SFlareResourcePricesMenu::Enter(UFlareSimulatedSector* Sector)
 	FLOG("SFlareResourcePricesMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	MenuManager->UseDarkBackground();
 
 	TargetSector = Sector;
 
@@ -295,18 +294,6 @@ void SFlareResourcePricesMenu::Exit()
 	TargetSector = NULL;
 }
 
-void SFlareResourcePricesMenu::Back()
-{
-	if (TargetSector)
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
-	}
-	else
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
-	}
-}
-
 
 /*----------------------------------------------------
 	Callbacks
@@ -339,11 +326,10 @@ FSlateColor SFlareResourcePricesMenu::GetPriceColor(FFlareResourceDescription* R
 
 void SFlareResourcePricesMenu::OnShowWorldInfosClicked(FFlareResourceDescription* Resource)
 {
-	FFlareWorldEconomyMenuParam* Params = new FFlareWorldEconomyMenuParam();
-	Params->Resource = Resource;
-	Params->Sector = TargetSector;
-
-	MenuManager->OpenMenu(EFlareMenu::MENU_WorldEconomy, Params);
+	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+	Data->Sector = TargetSector;
+	Data->Resource = Resource;
+	MenuManager->OpenMenu(EFlareMenu::MENU_WorldEconomy, Data);
 }
 
 FText SFlareResourcePricesMenu::GetSectorPriceInfo() const

@@ -50,9 +50,6 @@ public:
 	/** Update the part list, preselect an item */
 	void UpdatePartList(FFlareSpacecraftComponentDescription* SelectItem);
 
-	/** Go back to the previous menu */
-	void Back();
-
 
 protected:
 

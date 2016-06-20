@@ -8,15 +8,6 @@ class UFlareSimulatedSector;
 class AFlareMenuManager;
 struct FFlareResourceDescription;
 
-/** Sector resources prices*/
-struct FFlareWorldEconomyMenuParam
-{
-	/** Resource */
-	FFlareResourceDescription* Resource;
-
-	/** Sector */
-	UFlareSimulatedSector* Sector;
-};
 
 class SFlareWorldEconomyMenu : public SCompoundWidget
 {
@@ -48,9 +39,6 @@ public:
 
 	/** Exit this menu */
 	void Exit();
-
-	/** Exit this menu */
-	void Back();
 
 	void GenerateSectorList();
 
@@ -93,7 +81,6 @@ protected:
 
 	// Target data
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
-	UFlareSimulatedSector*                          BackSector;
 	FFlareResourceDescription*                      TargetResource;
 
 	// Slate data

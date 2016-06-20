@@ -39,9 +39,6 @@ public:
 	/** Exit this menu */
 	void Exit();
 
-	/** Exit this menu */
-	void Back();
-
 
 protected:
 

@@ -543,8 +543,11 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 		FVector SpawnPosition = Parent->GetSpawnLocation();
 		for (uint32 Index = 0; Index < Action->Quantity; Index++)
 		{
+			// Get data
 			UFlareSimulatedSpacecraft* Spacecraft = Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
 			AFlarePlayerController* PC = Parent->GetGame()->GetPC();
+			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+			Data->Spacecraft = Spacecraft;
 
 			// Notify PC
 			if (PC && Spacecraft && Spacecraft->GetCompany() == PC->GetCompany())
@@ -555,8 +558,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 					EFlareNotification::NT_Economy,
 					5.0f,
 					EFlareMenu::MENU_Ship,
-					NULL,
-					Spacecraft->GetImmatriculation());
+					Data);
 			}
 		}
 	}

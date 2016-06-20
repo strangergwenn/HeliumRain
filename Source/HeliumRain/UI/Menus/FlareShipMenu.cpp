@@ -569,19 +569,6 @@ void SFlareShipMenu::UpdateUpgradeBox()
 	}
 }
 
-void SFlareShipMenu::Back()
-{
-	if (TargetSpacecraft && TargetSpacecraft->IsActive())
-	{
-		MenuManager->CloseMenu();
-	}
-	else
-	{
-		UFlareSimulatedSector* CurrentSector = TargetSpacecraft->GetCurrentSector();
-		MenuManager->OpenMenu(EFlareMenu::MENU_Sector, CurrentSector);
-	}
-}
-
 
 /*----------------------------------------------------
 	Content callbacks
@@ -790,7 +777,9 @@ void SFlareShipMenu::OnUpgradeStationClicked()
 		if (Sector)
 		{
 			Sector->UpgradeStation(TargetSpacecraft);
-			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft);
+			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+			Data->Spacecraft = TargetSpacecraft;
+			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
 		}
 	}
 }

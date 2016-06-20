@@ -53,7 +53,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo, FName TargetSpacecraft)
+void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, FFlareMenuParameterData* TargetInfo)
 {
 	// Remove notification with the same tag.
 	if (Tag != NAME_None)
@@ -82,7 +82,6 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 			.Timeout(Timeout)
 			.TargetMenu(TargetMenu)
 			.TargetInfo(TargetInfo)
-			.TargetSpacecraft(TargetSpacecraft)
 		];
 
 	// Store a reference to it

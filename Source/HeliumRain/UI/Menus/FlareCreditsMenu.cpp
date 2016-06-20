@@ -275,7 +275,6 @@ void SFlareCreditsMenu::Enter()
 	FLOG("SFlareCreditsMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	MenuManager->UseDarkBackground();
 }
 
 void SFlareCreditsMenu::Exit()

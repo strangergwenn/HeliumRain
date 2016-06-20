@@ -287,30 +287,7 @@ FText SFlareMainOverlay::GetSpacecraftInfo() const
 
 void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
 {
-	if (MenuManager->IsSpacecraftMenu(Menu))
-	{
-		if (Menu == EFlareMenu::MENU_Ship)
-		{
-			AFlarePlayerController* PC = MenuManager->GetPC();
-
-			if (PC->GetPlayerShip())
-			{
-				MenuManager->OpenMenuSpacecraft(Menu, PC->GetPlayerShip());
-			}
-			else
-			{
-				MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
-			}
-		}
-		else
-		{
-			MenuManager->OpenMenuSpacecraft(Menu);
-		}
-	}
-	else
-	{
-		MenuManager->OpenMenu(Menu);
-	}
+	MenuManager->OpenMenu(Menu);
 }
 
 void SFlareMainOverlay::OnBack()

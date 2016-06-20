@@ -37,7 +37,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, void* TargetInfo = NULL, FName TargetSpacecraft = NAME_None);
+	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, FFlareMenuParameterData* TargetInfo = NULL);
 
 	/** Remvoe all notifications from the screen */
 	void FlushNotifications();

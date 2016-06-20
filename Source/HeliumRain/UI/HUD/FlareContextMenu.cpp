@@ -85,7 +85,9 @@ void SFlareContextMenu::OnClicked()
 		}
 		else
 		{
-			MenuManager->OpenMenuSpacecraft(EFlareMenu::MENU_Ship, TargetSpacecraft->GetParent());
+			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+			Data->Spacecraft = TargetSpacecraft->GetParent();
+			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
 		}
 	}
 }

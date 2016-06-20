@@ -276,13 +276,18 @@ FText SFlareCompanyMenu::GetCompanyName() const
 void SFlareCompanyMenu::OnNewTradeRouteClicked()
 {
 	UFlareTradeRoute* TradeRoute = Company->CreateTradeRoute(LOCTEXT("UntitledRoute", "Untitled Route"));
+	check(TradeRoute);
 
-	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, TradeRoute);
+	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+	Data->Route = TradeRoute;
+	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
 }
 
 void SFlareCompanyMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, TradeRoute);
+	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+	Data->Route = TradeRoute;
+	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
 }
 
 void SFlareCompanyMenu::OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute)

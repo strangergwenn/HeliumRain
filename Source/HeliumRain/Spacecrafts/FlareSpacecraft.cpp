@@ -274,7 +274,8 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 			"known-bug-155",
 			EFlareNotification::NT_Military,
 			10.0f);
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit, PC->GetShipPawn());
+
+		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit);
 
 		return;
 	}

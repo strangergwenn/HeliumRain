@@ -44,9 +44,6 @@ public:
 	/** Exit this menu */
 	void Exit();
 
-	/** Go back to the previous menu */
-	void Back();
-
 
 protected:
 

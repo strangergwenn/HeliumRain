@@ -649,7 +649,9 @@ FText SFlareSectorMenu::GetSectorLocation() const
 
 void SFlareSectorMenu::OnResourcePrices()
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, TargetSector);
+	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+	Data->Sector = TargetSector;
+	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, Data);
 }
 
 void SFlareSectorMenu::OnPlayerTravelHereClicked()
@@ -718,7 +720,9 @@ void SFlareSectorMenu::OnPlayerStartTravelConfirmed()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->StartTravel(PlayerFleet, TargetSector);
 		if (Travel)
 		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Travel);
+			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+			Data->Travel = Travel;
+			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Data);
 		}
 	}
 }
@@ -732,14 +736,18 @@ void SFlareSectorMenu::OnStartTravelConfirmed()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->StartTravel(SelectedFleet, TargetSector);
 		if (Travel)
 		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Travel);
+			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+			Data->Travel = Travel;
+			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Data);
 		}
 	}
 }
 
 void SFlareSectorMenu::OnBuildStationClicked()
 {
-	MenuManager->OpenSpacecraftOrder(TargetSector, FOrderDelegate::CreateSP(this, &SFlareSectorMenu::OnBuildStationSelected));
+	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+	Data->Sector = TargetSector;
+	MenuManager->OpenSpacecraftOrder(Data, FOrderDelegate::CreateSP(this, &SFlareSectorMenu::OnBuildStationSelected));
 }
 
 void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewStationDescription)
@@ -757,7 +765,10 @@ void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewSt
 		if (StationBuildable)
 		{
 			TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
-			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, TargetSector);
+
+			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+			Data->Sector = TargetSector;
+			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Data);
 		}
 	}
 }

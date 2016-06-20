@@ -8,8 +8,11 @@
 #include "FlareMenuManager.generated.h"
 
 
-class SFlareFactoryInfo;
+/*----------------------------------------------------
+	Definitions
+----------------------------------------------------*/
 
+// Menus
 class SFlareMainMenu;
 class SFlareSettingsMenu;
 class SFlareNewGameMenu;
@@ -26,17 +29,51 @@ class SFlareCreditsMenu;
 class SFlareResourcePricesMenu;
 class SFlareWorldEconomyMenu;
 
+// Gameplay classes
 class AFlarePlayerController;
-class AFlareSpacecraft;
-class AFlareGame;
 class UFlareCompany;
-class UFlareSimulatedSector;
-class UFlareTradeRoute;
+class AFlareGame;
 class UFlareFactory;
 class UFlareFleet;
-struct FFlareWorldEconomyMenuParam;
+class UFlareSimulatedSector;
+class AFlareSpacecraft;
+class UFlareTradeRoute;
+class UFlareTravel;
+struct FFlareResourceDescription;
 
-/** Main HUD class (container for HUD and menus) */
+
+/** Menu parameter structure storing commands + data for async processing */
+struct FFlareMenuParameterData
+{
+	FFlareMenuParameterData()
+		: Company(NULL)
+		, Factory(NULL)
+		, Fleet(NULL)
+		, Route(NULL)
+		, Sector(NULL)
+		, Spacecraft(NULL)
+		, Travel(NULL)
+		, Resource(NULL)
+	{}
+
+	UFlareCompany*                        Company;
+	UFlareFactory*                        Factory;
+	UFlareFleet*                          Fleet;
+	UFlareTradeRoute*                     Route;
+	UFlareSimulatedSector*                Sector;
+	UFlareSimulatedSpacecraft*            Spacecraft;
+	UFlareTravel*                         Travel;
+	FFlareResourceDescription*            Resource;
+};
+
+typedef TPair<EFlareMenu::Type, FFlareMenuParameterData*> TFlareMenuData;
+
+
+/*----------------------------------------------------
+	Menu manager code
+----------------------------------------------------*/
+
+/** The menu manager is the central UI class for the game, controlling fading, menu transitions and setup */
 UCLASS()
 class HELIUMRAIN_API AFlareMenuManager : public AHUD
 {
@@ -47,84 +84,42 @@ public:
 public:
 		
 	/*----------------------------------------------------
-		Setup
+		Setup and engine API
 	----------------------------------------------------*/
 		
 	/** Construct the Slate menu interface */
 	virtual void SetupMenu();
 
-
-	/*----------------------------------------------------
-		Interaction
-	----------------------------------------------------*/
-
 	virtual void Tick(float DeltaSeconds) override;
 
+
+	/*----------------------------------------------------
+		Public API for interaction
+	----------------------------------------------------*/
+	
 	/** Open the main overlay */
 	void OpenMainOverlay();
 
 	/** Close the main overlay */
 	void CloseMainOverlay();
+
+	/** Asynchronously switch to a target menu, with optional data */
+	bool OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData* Data = NULL);
 	
-	/** Is the overlay open ? */
-	bool IsOverlayOpen() const;
-	
-	/** Open a menu asynchronously, from a target and user data */
-	bool OpenMenu(EFlareMenu::Type Target, void* Data = NULL);
-
-	/** Open a menu asynchronously, from a target and user data */
-	bool OpenMenuSpacecraft(EFlareMenu::Type Target, UFlareSimulatedSpacecraft* Data = NULL);
-
-	/** Show the list of spacecraft that can be ordered here */
-	void OpenSpacecraftOrder(UFlareFactory* Factory);
-
-	/** Show the list of stations that can be ordered here */
-	void OpenSpacecraftOrder(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback);
-
-	/** Is UI visible */
-	bool IsUIOpen() const;
-
-	/** Is a menu open */
-	bool IsMenuOpen() const;
-
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
-	
+
+	/** Show the list of spacecraft that can be ordered here */
+	void OpenSpacecraftOrder(FFlareMenuParameterData* Data, FOrderDelegate ConfirmationCallback);
+		
 	/** Return to the previous menu */
 	void Back();
 
-	/** Which menu, if any, is opened ? */
-	EFlareMenu::Type GetCurrentMenu() const;
-
-	/** Which menu, if any, was opened ? */
-	EFlareMenu::Type GetPreviousMenu() const;
-	
-	/** Is a menu being opened or closed */
-	bool IsSwitchingMenu() const;
-
-	/** Start the loading screen */
-	void ShowLoadingScreen();
-
-	/** Start using the light background setting */
-	void UseLightBackground();
-
-	/** Start using the dark background setting */
-	void UseDarkBackground();
-
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Objective, float Timeout = 5, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, void* TargetInfo = NULL, FName TargetSpacecraft = NAME_None);
-
-	/** Remvoe all notifications from the screen */
-	void FlushNotifications();
-
+	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Objective, float Timeout = 5, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData* TargetInfo = NULL);
+	
 	/** Show the confirmation overlay */
 	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed);
-
-	/** Get the name text for this menu */
-	static FText GetMenuName(EFlareMenu::Type MenuType);
-
-	/** Get the Slate icon brush for this menu */
-	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
 
 	/** Start displaying the tooltip */
 	void ShowTooltip(SWidget* TargetWidget, FText Title, FText Content);
@@ -132,14 +127,11 @@ public:
 	/** Stop displaying the tooltip */
 	void HideTooltip(SWidget* TargetWidget);
 
-	// Is this a spacecraft menu
-	bool IsSpacecraftMenu(EFlareMenu::Type Type) const;
-
 
 protected:
 
 	/*----------------------------------------------------
-		Menu management
+		Internal management
 	----------------------------------------------------*/
 
 	/** Hide the menu */
@@ -150,74 +142,114 @@ protected:
 
 	/** Fade to black */
 	void FadeOut();
-
-	/** Are we during a fade transition ? */
-	bool IsFading();
 	
 	/** After a fading process has completed, proceed */
-	virtual void ProcessFadeTarget();
+	void ProcessCurrentTarget();
+
+	/** Pop the previous menu from the stack */
+	TFlareMenuData PopPreviousMenu();
+
+	/** Remvoe all notifications from the screen */
+	void FlushNotifications();
+
+	/** Start using the light background setting */
+	void UseLightBackground();
+
+	/** Start using the dark background setting */
+	void UseDarkBackground();
 
 
 	/*----------------------------------------------------
-		Callbacks
+		Internal menu callbacks
 	----------------------------------------------------*/
 
-	/** Open the main menu */
-	virtual void OpenMainMenu();
-
-	/** Open the settings menu */
-	virtual void OpenSettingsMenu();
-
-	/** Open the new game menu */
-	virtual void OpenNewGameMenu();
-
 	/** Load the game */
-	virtual void LoadGame();
-
-	/** Open the story menu */
-	virtual void OpenStoryMenu();
-
-	/** Open the company menu */
-	virtual void InspectCompany(UFlareCompany* Target);
+	virtual void LoadGame(FFlareMenuParameterData* Data);
 
 	/** Fly this ship */
-	virtual void FlyShip(UFlareSimulatedSpacecraft* Target);
+	virtual void FlyShip(FFlareMenuParameterData* Data);
 
 	/** Travel here */
-	virtual void Travel(UFlareTravel* Sector);
+	virtual void Travel(FFlareMenuParameterData* Data);
 
-	/** Show the config menu for a specific ship */
-	virtual void InspectShip(UFlareSimulatedSpacecraft* Target = NULL, bool IsEditable = false);
+	/** Open the main menu */
+	virtual void OpenMainMenu(FFlareMenuParameterData* Data);
 
-	/** Show the fleet menu */
-	virtual void OpenFleetMenu(UFlareFleet* TargetFleet);
+	/** Open the settings menu */
+	virtual void OpenSettingsMenu(FFlareMenuParameterData* Data);
 
-	/** Open the sector menu */
-	virtual void OpenSector(UFlareSimulatedSector* Sector);
+	/** Open the new game menu */
+	virtual void OpenNewGameMenu(FFlareMenuParameterData* Data);
 
-	/** Open the trade menu */
-	virtual void OpenTrade(UFlareSimulatedSpacecraft* Spacecraft);
-
-	/** Open the trade route menu */
-	virtual void OpenTradeRoute(UFlareTradeRoute* TradeRoute);
-
-	/** Open the orbital menu */
-	virtual void OpenOrbit();
+	/** Open the story menu */
+	virtual void OpenStoryMenu(FFlareMenuParameterData* Data);
 
 	/** Open the company menu */
-	virtual void OpenLeaderboard();
+	virtual void InspectCompany(FFlareMenuParameterData* Data);
+
+	/** Show the config menu for a specific ship */
+	virtual void InspectShip(FFlareMenuParameterData* Data, bool IsEditable = false);
+
+	/** Show the fleet menu */
+	virtual void OpenFleetMenu(FFlareMenuParameterData* Data);
+
+	/** Open the sector menu */
+	virtual void OpenSector(FFlareMenuParameterData* Data);
+
+	/** Open the trade menu */
+	virtual void OpenTrade(FFlareMenuParameterData* Data);
+
+	/** Open the trade route menu */
+	virtual void OpenTradeRoute(FFlareMenuParameterData* Data);
+
+	/** Open the orbital menu */
+	virtual void OpenOrbit(FFlareMenuParameterData* Data);
+
+	/** Open the company menu */
+	virtual void OpenLeaderboard(FFlareMenuParameterData* Data);
 
 	/** Open the resource prices menu */
-	virtual void OpenResourcePrices(UFlareSimulatedSector* Sector);
+	virtual void OpenResourcePrices(FFlareMenuParameterData* Data);
 
 	/** Open the world economy menu */
-	virtual void OpenWorldEconomy(FFlareWorldEconomyMenuParam* Params);
+	virtual void OpenWorldEconomy(FFlareMenuParameterData* Data);
 
 	/** Go to the game's credits */
-	virtual void OpenCredits();
+	virtual void OpenCredits(FFlareMenuParameterData* Data);
 
 	/** Exit the menu */
 	virtual void ExitMenu();
+
+
+public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	/** Is UI visible */
+	bool IsUIOpen() const;
+
+	/** Is a menu open */
+	bool IsMenuOpen() const;
+
+	/** Is the overlay open ? */
+	bool IsOverlayOpen() const;
+
+	/** Is a menu being opened or closed */
+	bool IsSwitchingMenu() const;
+
+	/** Are we during a fade transition ? */
+	bool IsFading();
+
+	/** Which menu, if any, is opened ? */
+	EFlareMenu::Type GetCurrentMenu() const;
+
+	/** Get the name text for this menu */
+	static FText GetMenuName(EFlareMenu::Type MenuType);
+
+	/** Get the Slate icon brush for this menu */
+	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
 
 
 protected:
@@ -234,11 +266,12 @@ protected:
 	bool                                    FadeFromBlack;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
-	TSharedPtr<SBorder>                     Fader;
+	TFlareMenuData                          CurrentTarget;
 	TEnumAsByte<EFlareMenu::Type>           CurrentMenu;
 	TEnumAsByte<EFlareMenu::Type>           LastNonSettingsMenu;
 
 	// Menu tools
+	TSharedPtr<SBorder>                     Fader;
 	TSharedPtr<SFlareTooltip>               Tooltip;
 	TSharedPtr<SFlareNotifier>              Notifier;
 	TSharedPtr<SFlareMainOverlay>           MainOverlay;
@@ -261,21 +294,7 @@ protected:
 	TSharedPtr<SFlareCreditsMenu>           CreditsMenu;
 	TSharedPtr<SFlareResourcePricesMenu>    ResourcePricesMenu;
 	TSharedPtr<SFlareWorldEconomyMenu>      WorldEconomyMenu;
-
-
-	/*----------------------------------------------------
-		Menu target data
-	----------------------------------------------------*/
-
-	// Menu
-	TEnumAsByte<EFlareMenu::Type>           FadeTarget;
-
-	// Ship data
-	UFlareSimulatedSpacecraft*              FadeTargetSpacecraft;
-
-	// Generic data
-	void*                                   FadeTargetData;
-
+	
 
 public:
 

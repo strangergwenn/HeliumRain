@@ -206,9 +206,7 @@ void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSi
 	FLOG("SFlareWorldEconomyMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	MenuManager->UseDarkBackground();
 
-	BackSector = Sector;
 	TargetResource = Resource;
 
 	ResourceSelector->SetSelectedItem(MenuManager->GetPC()->GetGame()->GetResourceCatalog()->GetEntry(TargetResource));
@@ -351,18 +349,6 @@ void SFlareWorldEconomyMenu::Exit()
 	SetVisibility(EVisibility::Collapsed);
 	SectorList->ClearChildren();
 	TargetResource = NULL;
-}
-
-void SFlareWorldEconomyMenu::Back()
-{
-	if (BackSector)
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, BackSector);
-	}
-	else
-	{
-		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
-	}
 }
 
 
@@ -510,7 +496,9 @@ void SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged(UFlareResourceC
 
 void SFlareWorldEconomyMenu::OnOpenSector(UFlareSimulatedSector* Sector)
 {
-	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, Sector);
+	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
+	Data->Sector = Sector;
+	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, Data);
 }
 
 #undef LOCTEXT_NAMESPACE
