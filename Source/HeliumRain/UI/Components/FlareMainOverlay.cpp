@@ -113,6 +113,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.Height(TitleButtonHeight)
 		.Transparent(true)
 		.OnClicked(this, &SFlareMainOverlay::OnBack)
+		.IsDisabled(this, &SFlareMainOverlay::IsBackDisabled)
 	];
 	SetupMenuLink(Button, FFlareStyleSet::GetIcon("Back"), LOCTEXT("BackButtonTitle", "Back"));
 	
@@ -235,6 +236,11 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	{
 		SetVisibility(EVisibility::Visible);
 	}
+}
+
+bool SFlareMainOverlay::IsBackDisabled() const
+{
+	return (MenuManager->HasPreviousMenu() == false);
 }
 
 FText SFlareMainOverlay::GetCurrentMenuName() const

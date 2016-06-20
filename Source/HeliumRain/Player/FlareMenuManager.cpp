@@ -122,9 +122,10 @@ void AFlareMenuManager::SetupMenu()
 		CreditsMenu->Setup();
 
 		// Init
-		CurrentTarget.Key = EFlareMenu::MENU_None;
-		CurrentTarget.Value = NULL;
-		CurrentMenu = CurrentTarget;
+		CurrentMenu.Key = EFlareMenu::MENU_None;
+		NextMenu.Key = EFlareMenu::MENU_None;
+		CurrentMenu.Value = NULL;
+		NextMenu.Value = NULL;
 	}
 }
 
@@ -151,9 +152,9 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 		}
 
 		// Callback
-		else if (CurrentTarget.Key != EFlareMenu::MENU_None)
+		else if (NextMenu.Key != EFlareMenu::MENU_None)
 		{
-			ProcessCurrentTarget();
+			ProcessNextMenu();
 		}
 
 		// Done
@@ -191,20 +192,31 @@ void AFlareMenuManager::CloseMainOverlay()
 	}
 }
 
-bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData* Data)
+bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData* Data, bool AddToHistory)
 {
 	// Filters
-	if (CurrentTarget.Key == Target && CurrentTarget.Value == Data)
+	if (NextMenu.Key == Target && NextMenu.Value == Data)
 	{
 		return false;
 	}
-	FLOGV("AFlareMenuManager::OpenMenu : %d", (Target - EFlareMenu::MENU_None));
+	FLOGV("AFlareMenuManager::OpenMenu : '%s'", *GetMenuName(Target).ToString());
 	
-	// Settings
+	// Store current menu in history
+	if (CurrentMenu.Key != EFlareMenu::MENU_None && AddToHistory)
+	{
+		FLOGV("AFlareMenuManager::OnEnterMenu : previous menu is now '%s'", *GetMenuName(CurrentMenu.Key).ToString());
+		MenuHistory.Add(CurrentMenu);
+	}
+
+	// Reset current menu, set next menu
+	CurrentMenu.Key = EFlareMenu::MENU_None;
+	CurrentMenu.Value = NULL;
+	NextMenu.Key = Target;
+	NextMenu.Value = Data;
+
+	// Start fading out
 	MenuIsOpen = true;
 	FadeOut();
-	CurrentTarget.Key = Target;
-	CurrentTarget.Value = Data;
 	return true;
 }
 
@@ -245,10 +257,15 @@ void AFlareMenuManager::Back()
 	if (MenuIsOpen)
 	{
 		FLOG("AFlareMenuManager::Back");
-		TFlareMenuData CurrentTarget = PopPreviousMenu();
-		if (CurrentTarget.Key != EFlareMenu::MENU_None)
+
+		int32 HistoryCount = MenuHistory.Num();
+		if (HistoryCount)
 		{
-			OpenMenu(CurrentTarget.Key, CurrentTarget.Value);
+			TFlareMenuData PreviousMenu = MenuHistory.Last();
+			FLOGV("AFlareMenuManager::Back : backing to '%s'", *GetMenuName(PreviousMenu.Key).ToString());
+
+			MenuHistory.RemoveAt(HistoryCount - 1);
+			OpenMenu(PreviousMenu.Key, PreviousMenu.Value, false);
 		}
 	}
 }
@@ -331,18 +348,16 @@ void AFlareMenuManager::FadeOut()
 {
 	FadeFromBlack = false;
 	FadeTimer = 0;
-	CurrentMenu.Key = EFlareMenu::MENU_None;
-	CurrentMenu.Value = NULL;
 	Tooltip->HideTooltipForce();
 }
 
-void AFlareMenuManager::ProcessCurrentTarget()
+void AFlareMenuManager::ProcessNextMenu()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	FLOGV("ProcessCurrentTarget %d", CurrentTarget.Key + 0)
+	FLOGV("AFlareMenuManager::ProcessNextMenu : '%s'", *GetMenuName(NextMenu.Key).ToString());
 
 	// Process the target
-	switch (CurrentTarget.Key)
+	switch (NextMenu.Key)
 	{
 		case EFlareMenu::MENU_LoadGame:           LoadGame();                  break;
 		case EFlareMenu::MENU_FlyShip:            FlyShip();                   break;
@@ -373,23 +388,18 @@ void AFlareMenuManager::ProcessCurrentTarget()
 	}
 
 	// Reset everything
-	CurrentTarget.Key = EFlareMenu::MENU_None;
-	if (CurrentTarget.Value)
+	if (NextMenu.Value)
 	{
-		delete CurrentTarget.Value;
-		CurrentTarget.Value = NULL;
+		delete NextMenu.Value;
+		NextMenu.Value = NULL;
 	}
+	NextMenu.Key = EFlareMenu::MENU_None;
 
 	// Signal the HUD
 	if (GetPC()->GetNavHUD())
 	{
 		GetPC()->GetNavHUD()->UpdateHUDVisibility();
 	}
-}
-
-TFlareMenuData AFlareMenuManager::PopPreviousMenu()
-{
-	return TFlareMenuData();
 }
 
 void AFlareMenuManager::FlushNotifications()
@@ -403,7 +413,7 @@ void AFlareMenuManager::FlushNotifications()
 void AFlareMenuManager::OnEnterMenu(bool LightBackground , bool ShowOverlay, bool TellPlayer)
 {
 	ResetMenu();
-	CurrentMenu = CurrentTarget;
+	CurrentMenu = NextMenu;
 
 	if (LightBackground)
 	{
@@ -463,21 +473,22 @@ void AFlareMenuManager::LoadGame()
 		// Fly the ship - we create another set of data here to keep with the convention :) 
 		FFlareMenuParameterData FlyData;
 		FlyData.Spacecraft = CurrentShip;
-		CurrentTarget.Key = EFlareMenu::MENU_FlyShip;
-		CurrentTarget.Value = &FlyData;
+		NextMenu.Key = EFlareMenu::MENU_FlyShip;
+		NextMenu.Value = &FlyData;
 		FlyShip();
+		NextMenu.Value = NULL;
 	}
 }
 
 void AFlareMenuManager::FlyShip()
 {
-	check(CurrentTarget.Value);
+	check(NextMenu.Value);
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC)
 	{
-		if (CurrentTarget.Value->Spacecraft)
+		if (NextMenu.Value->Spacecraft)
 		{
-			PC->FlyShip(CurrentTarget.Value->Spacecraft->GetActive());
+			PC->FlyShip(NextMenu.Value->Spacecraft->GetActive());
 		}
 
 		ExitMenu();
@@ -487,20 +498,20 @@ void AFlareMenuManager::FlyShip()
 
 void AFlareMenuManager::Travel()
 {
-	check(CurrentTarget.Value);
+	check(NextMenu.Value);
 	UFlareFleet* PlayerFleet = GetGame()->GetPC()->GetPlayerFleet();
 	UFlareFleet* SelectedFleet = GetGame()->GetPC()->GetSelectedFleet();
 
-	if (CurrentTarget.Value->Travel && PlayerFleet)
+	if (NextMenu.Value->Travel && PlayerFleet)
 	{
 		// Player flying : activate the travel sector
-		if (PlayerFleet == CurrentTarget.Value->Travel->GetFleet())
+		if (PlayerFleet == NextMenu.Value->Travel->GetFleet())
 		{
 			GetGame()->ActivateCurrentSector();
 		}
 
 		// Reload sector to update it after the departure of a fleet
-		else if (PlayerFleet->GetCurrentSector() == CurrentTarget.Value->Travel->GetSourceSector())
+		else if (PlayerFleet->GetCurrentSector() == NextMenu.Value->Travel->GetSourceSector())
 		{
 			GetGame()->DeactivateSector();
 			GetGame()->ActivateCurrentSector();
@@ -508,8 +519,8 @@ void AFlareMenuManager::Travel()
 	}
 
 	// Redirect to the orbit menu
-	CurrentTarget.Key = EFlareMenu::MENU_Orbit;
-	CurrentTarget.Value = NULL;
+	NextMenu.Key = EFlareMenu::MENU_Orbit;
+	NextMenu.Value = NULL;
 	OpenOrbit();
 }
 
@@ -543,14 +554,10 @@ void AFlareMenuManager::InspectCompany()
 {
 	OnEnterMenu();
 
-	if (CurrentTarget.Value && CurrentTarget.Value->Company)
-	{
-		CompanyMenu->Enter(CurrentTarget.Value->Company);
-	}
-	else
-	{
-		CompanyMenu->Enter(GetPC()->GetCompany());
-	}
+	UFlareCompany* Company = (NextMenu.Value && NextMenu.Value->Company) ? NextMenu.Value->Company : GetPC()->GetCompany();
+	check(Company);
+
+	CompanyMenu->Enter(Company);
 }
 
 void AFlareMenuManager::InspectShip(bool IsEditable)
@@ -558,7 +565,7 @@ void AFlareMenuManager::InspectShip(bool IsEditable)
 	UFlareSimulatedSpacecraft* MenuTarget = NULL;
 
 	// No target passed - "Inspect" on target ship
-	if ((CurrentTarget.Value == NULL || CurrentTarget.Value->Spacecraft == NULL) && GetPC()->GetShipPawn())
+	if ((NextMenu.Value == NULL || NextMenu.Value->Spacecraft == NULL) && GetPC()->GetShipPawn())
 	{
 		MenuTarget = GetPC()->GetShipPawn()->GetParent();
 		if (MenuTarget)
@@ -572,7 +579,7 @@ void AFlareMenuManager::InspectShip(bool IsEditable)
 	}
 	else
 	{
-		MenuTarget = CurrentTarget.Value->Spacecraft;
+		MenuTarget = NextMenu.Value->Spacecraft;
 	}
 
 	// Open the menu for good
@@ -586,14 +593,14 @@ void AFlareMenuManager::InspectShip(bool IsEditable)
 void AFlareMenuManager::OpenFleetMenu()
 {
 	OnEnterMenu();
-	FleetMenu->Enter(CurrentTarget.Value ? CurrentTarget.Value->Fleet : NULL);
+	FleetMenu->Enter(NextMenu.Value ? NextMenu.Value->Fleet : NULL);
 }
 
 void AFlareMenuManager::OpenSector()
 {
-	UFlareSimulatedSector* Sector = CurrentTarget.Value ? CurrentTarget.Value->Sector : NULL;
+	UFlareSimulatedSector* Sector = NextMenu.Value ? NextMenu.Value->Sector : NULL;
 
-	// Do everythong we can to find the active sector
+	// Do everything we can to find the active sector
 	if (!Sector)
 	{
 		if (GetGame()->GetActiveSector())
@@ -608,14 +615,15 @@ void AFlareMenuManager::OpenSector()
 
 	if (Sector)
 	{
+		// We found the sector, open the menu
 		OnEnterMenu();
 		SectorMenu->Enter(Sector);
 	}
 	else
 	{
 		// Redirect to the orbit menu
-		CurrentTarget.Key = EFlareMenu::MENU_Orbit;
-		CurrentTarget.Value = NULL;
+		NextMenu.Key = EFlareMenu::MENU_Orbit;
+		NextMenu.Value = NULL;
 		OpenOrbit();
 	}
 }
@@ -623,15 +631,15 @@ void AFlareMenuManager::OpenSector()
 void AFlareMenuManager::OpenTrade()
 {
 	OnEnterMenu();
-	check(CurrentTarget.Value);
-	TradeMenu->Enter(CurrentTarget.Value->Spacecraft->GetCurrentSector(), CurrentTarget.Value->Spacecraft, NULL);
+	check(NextMenu.Value);
+	TradeMenu->Enter(NextMenu.Value->Spacecraft->GetCurrentSector(), NextMenu.Value->Spacecraft, NULL);
 }
 
 void AFlareMenuManager::OpenTradeRoute()
 {
 	OnEnterMenu(false);
-	check(CurrentTarget.Value);
-	TradeRouteMenu->Enter(CurrentTarget.Value->Route);
+	check(NextMenu.Value);
+	TradeRouteMenu->Enter(NextMenu.Value->Route);
 }
 
 void AFlareMenuManager::OpenOrbit()
@@ -649,15 +657,15 @@ void AFlareMenuManager::OpenLeaderboard()
 void AFlareMenuManager::OpenResourcePrices()
 {
 	OnEnterMenu(false);
-	check(CurrentTarget.Value);
-	ResourcePricesMenu->Enter(CurrentTarget.Value->Sector);
+	check(NextMenu.Value);
+	ResourcePricesMenu->Enter(NextMenu.Value->Sector);
 }
 
 void AFlareMenuManager::OpenWorldEconomy()
 {
 	OnEnterMenu(false);
-	check(CurrentTarget.Value);
-	WorldEconomyMenu->Enter(CurrentTarget.Value->Resource, CurrentTarget.Value->Sector);
+	check(NextMenu.Value);
+	WorldEconomyMenu->Enter(NextMenu.Value->Resource, NextMenu.Value->Sector);
 }
 
 void AFlareMenuManager::OpenCredits()
@@ -668,10 +676,16 @@ void AFlareMenuManager::OpenCredits()
 
 void AFlareMenuManager::ExitMenu()
 {
+	// Reset menu
 	ResetMenu();
 	CloseMainOverlay();
+
+	// Reset data
+	MenuHistory.Empty();
 	CurrentMenu.Key = EFlareMenu::MENU_None;
 	CurrentMenu.Value = NULL;
+
+	// Signal PC
 	GetPC()->OnExitMenu();
 }
 
@@ -753,6 +767,11 @@ bool AFlareMenuManager::IsUIOpen() const
 bool AFlareMenuManager::IsMenuOpen() const
 {
 	return MenuIsOpen;
+}
+
+bool AFlareMenuManager::HasPreviousMenu() const
+{
+	return (MenuHistory.Num() > 0);
 }
 
 bool AFlareMenuManager::IsOverlayOpen() const

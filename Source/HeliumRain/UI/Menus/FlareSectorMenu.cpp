@@ -527,7 +527,7 @@ bool SFlareSectorMenu::IsRepairDisabled() const
 FText SFlareSectorMenu::GetSectorName() const
 {
 	FText Result;
-	if (TargetSector)
+	if (IsEnabled() && TargetSector)
 	{
 		Result = FText::Format(LOCTEXT("SectorFormat", "Sector : {0} ({1})"),
 			FText::FromString(TargetSector->GetSectorName().ToString()), //FString needed here
@@ -541,7 +541,7 @@ FText SFlareSectorMenu::GetSectorDescription() const
 {
 	FText Result;
 
-	if (TargetSector)
+	if (IsEnabled() && TargetSector)
 	{
 		Result = TargetSector->GetSectorDescription();
 	}
@@ -553,7 +553,7 @@ FText SFlareSectorMenu::GetSectorTransportInfo() const
 {
 	FText Result;
 
-	if (TargetSector)
+	if (IsEnabled() && TargetSector)
 	{
 		UFlareCompany* PlayerCompany = MenuManager->GetGame()->GetPC()->GetCompany();
 		FText TransportInfoText = LOCTEXT("SectorDescriptionFormat",
@@ -573,7 +573,7 @@ FText SFlareSectorMenu::GetSectorLocation() const
 {
 	FText Result;
 
-	if (TargetSector)
+	if (IsEnabled() && TargetSector)
 	{
 		FFlareCelestialBody* Body = TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(TargetSector->GetOrbitParameters()->CelestialBodyIdentifier);
 

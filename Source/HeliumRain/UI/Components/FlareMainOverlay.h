@@ -57,6 +57,9 @@ public:
 	
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 	
+	/** Can we go back */
+	bool IsBackDisabled() const;
+
 	/** Get the name of the current menu */
 	FText GetCurrentMenuName() const;
 

@@ -104,14 +104,14 @@ public:
 	void CloseMainOverlay();
 
 	/** Asynchronously switch to a target menu, with optional data */
-	bool OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData* Data = NULL);
+	bool OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData* Data = NULL, bool AddToHistory = true);
 	
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
 
 	/** Show the list of spacecraft that can be ordered here */
 	void OpenSpacecraftOrder(FFlareMenuParameterData* Data, FOrderDelegate ConfirmationCallback);
-		
+	
 	/** Return to the previous menu */
 	void Back();
 
@@ -144,10 +144,7 @@ protected:
 	void FadeOut();
 	
 	/** After a fading process has completed, proceed */
-	void ProcessCurrentTarget();
-
-	/** Pop the previous menu from the stack */
-	TFlareMenuData PopPreviousMenu();
+	void ProcessNextMenu();
 
 	/** Remvoe all notifications from the screen */
 	void FlushNotifications();
@@ -242,6 +239,9 @@ public:
 	/** Is a menu open */
 	bool IsMenuOpen() const;
 
+	/** Can we go back ? */
+	bool HasPreviousMenu() const;
+
 	/** Is the overlay open ? */
 	bool IsOverlayOpen() const;
 
@@ -284,8 +284,9 @@ protected:
 	bool                                    FadeFromBlack;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
-	TFlareMenuData                          CurrentTarget;
 	TFlareMenuData                          CurrentMenu;
+	TFlareMenuData                          NextMenu;
+	TArray<TFlareMenuData>                  MenuHistory;
 
 	// Menu tools
 	TSharedPtr<SBorder>                     Fader;
