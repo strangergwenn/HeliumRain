@@ -3,6 +3,7 @@
 
 #include "FlareSpacecraftNavigationSystem.h"
 #include "../FlareSpacecraft.h"
+#include "../FlareEngine.h"
 #include "../../Game/FlareGame.h"
 #include "../FlarePilotHelper.h"
 
@@ -726,7 +727,7 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation
 	DockConstraint = NewObject<UPhysicsConstraintComponent>(Spacecraft->Airframe);
 	DockConstraint->ConstraintInstance = ConstraintInstance;
 	DockConstraint->SetWorldLocation(Spacecraft->GetActorLocation());
-	DockConstraint->AttachTo(Spacecraft->GetRootComponent(), NAME_None, EAttachLocation::KeepWorldPosition);
+	DockConstraint->AttachToComponent(Spacecraft->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false), NAME_None);
 
 	DockConstraint->SetConstrainedComponents(Spacecraft->Airframe, NAME_None, DockStation->Airframe,NAME_None);
 
