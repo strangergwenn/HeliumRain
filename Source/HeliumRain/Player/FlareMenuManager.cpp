@@ -258,14 +258,26 @@ void AFlareMenuManager::Back()
 	{
 		FLOG("AFlareMenuManager::Back");
 
-		int32 HistoryCount = MenuHistory.Num();
-		if (HistoryCount)
+		while (MenuHistory.Num())
 		{
+			// Pop from stack
 			TFlareMenuData PreviousMenu = MenuHistory.Last();
-			FLOGV("AFlareMenuManager::Back : backing to '%s'", *GetMenuName(PreviousMenu.Key).ToString());
+			MenuHistory.RemoveAt(MenuHistory.Num() - 1);
 
-			MenuHistory.RemoveAt(HistoryCount - 1);
-			OpenMenu(PreviousMenu.Key, PreviousMenu.Value, false);
+			// Check consistency of target, open the previous menu if nothing looks wrong
+			if (PreviousMenu.Value.Spacecraft && !PreviousMenu.Value.Spacecraft->IsValidLowLevel()
+			 || PreviousMenu.Value.Fleet      && !PreviousMenu.Value.Fleet->IsValidLowLevel()
+			 || PreviousMenu.Value.Route      && !PreviousMenu.Value.Route->IsValidLowLevel())
+			{
+				FLOGV("AFlareMenuManager::Back : ignore corrupted target '%s'", *GetMenuName(PreviousMenu.Key).ToString());
+				continue;
+			}
+			else
+			{
+				FLOGV("AFlareMenuManager::Back : backing to '%s'", *GetMenuName(PreviousMenu.Key).ToString());
+				OpenMenu(PreviousMenu.Key, PreviousMenu.Value, false);
+				return;
+			}
 		}
 	}
 }
