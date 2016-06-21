@@ -31,42 +31,10 @@ class SFlareWorldEconomyMenu;
 
 // Gameplay classes
 class AFlarePlayerController;
-class UFlareCompany;
 class AFlareGame;
-class UFlareFactory;
-class UFlareFleet;
-class UFlareSimulatedSector;
-class AFlareSpacecraft;
-class UFlareTradeRoute;
-class UFlareTravel;
-struct FFlareResourceDescription;
 
-
-/** Menu parameter structure storing commands + data for async processing */
-struct FFlareMenuParameterData
-{
-	FFlareMenuParameterData()
-		: Company(NULL)
-		, Factory(NULL)
-		, Fleet(NULL)
-		, Route(NULL)
-		, Sector(NULL)
-		, Spacecraft(NULL)
-		, Travel(NULL)
-		, Resource(NULL)
-	{}
-
-	UFlareCompany*                        Company;
-	UFlareFactory*                        Factory;
-	UFlareFleet*                          Fleet;
-	UFlareTradeRoute*                     Route;
-	UFlareSimulatedSector*                Sector;
-	UFlareSimulatedSpacecraft*            Spacecraft;
-	UFlareTravel*                         Travel;
-	FFlareResourceDescription*            Resource;
-};
-
-typedef TPair<EFlareMenu::Type, FFlareMenuParameterData*> TFlareMenuData;
+// Menu state
+typedef TPair<EFlareMenu::Type, FFlareMenuParameterData> TFlareMenuData;
 
 
 /*----------------------------------------------------
@@ -88,9 +56,9 @@ public:
 	----------------------------------------------------*/
 		
 	/** Construct the Slate menu interface */
-	virtual void SetupMenu();
+	void SetupMenu();
 
-	virtual void Tick(float DeltaSeconds) override;
+	void Tick(float DeltaSeconds) override;
 
 
 	/*----------------------------------------------------
@@ -104,19 +72,19 @@ public:
 	void CloseMainOverlay();
 
 	/** Asynchronously switch to a target menu, with optional data */
-	bool OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData* Data = NULL, bool AddToHistory = true);
+	bool OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData Data = FFlareMenuParameterData(), bool AddToHistory = true);
 	
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
 
 	/** Show the list of spacecraft that can be ordered here */
-	void OpenSpacecraftOrder(FFlareMenuParameterData* Data, FOrderDelegate ConfirmationCallback);
+	void OpenSpacecraftOrder(FFlareMenuParameterData Data, FOrderDelegate ConfirmationCallback);
 	
 	/** Return to the previous menu */
 	void Back();
 
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Objective, float Timeout = 5, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData* TargetInfo = NULL);
+	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Objective, float Timeout = 5, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
 	
 	/** Show the confirmation overlay */
 	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed);
@@ -164,61 +132,61 @@ protected:
 	----------------------------------------------------*/
 
 	/** Load the game */
-	virtual void LoadGame();
+	void LoadGame();
 
 	/** Fly this ship */
-	virtual void FlyShip();
+	void FlyShip();
 
 	/** Travel here */
-	virtual void Travel();
+	void Travel();
 
 	/** Open the main menu */
-	virtual void OpenMainMenu();
+	void OpenMainMenu();
 
 	/** Open the settings menu */
-	virtual void OpenSettingsMenu();
+	void OpenSettingsMenu();
 
 	/** Open the new game menu */
-	virtual void OpenNewGameMenu();
+	void OpenNewGameMenu();
 
 	/** Open the story menu */
-	virtual void OpenStoryMenu();
+	void OpenStoryMenu();
 
 	/** Open the company menu */
-	virtual void InspectCompany();
+	void InspectCompany();
 
 	/** Show the config menu for a specific ship */
-	virtual void InspectShip(bool IsEditable = false);
+	void InspectShip(bool IsEditable = false);
 
 	/** Show the fleet menu */
-	virtual void OpenFleetMenu();
+	void OpenFleetMenu();
 
 	/** Open the sector menu */
-	virtual void OpenSector();
+	void OpenSector();
 
 	/** Open the trade menu */
-	virtual void OpenTrade();
+	void OpenTrade();
 
 	/** Open the trade route menu */
-	virtual void OpenTradeRoute();
+	void OpenTradeRoute();
 
 	/** Open the orbital menu */
-	virtual void OpenOrbit();
+	void OpenOrbit();
 
 	/** Open the company menu */
-	virtual void OpenLeaderboard();
+	void OpenLeaderboard();
 
 	/** Open the resource prices menu */
-	virtual void OpenResourcePrices();
+	void OpenResourcePrices();
 
 	/** Open the world economy menu */
-	virtual void OpenWorldEconomy();
+	void OpenWorldEconomy();
 
 	/** Go to the game's credits */
-	virtual void OpenCredits();
+	void OpenCredits();
 
 	/** Exit the menu */
-	virtual void ExitMenu();
+	void ExitMenu();
 
 
 public:

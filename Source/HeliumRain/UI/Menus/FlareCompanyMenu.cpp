@@ -278,15 +278,15 @@ void SFlareCompanyMenu::OnNewTradeRouteClicked()
 	UFlareTradeRoute* TradeRoute = Company->CreateTradeRoute(LOCTEXT("UntitledRoute", "Untitled Route"));
 	check(TradeRoute);
 
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Route = TradeRoute;
+	FFlareMenuParameterData Data;
+	Data.Route = TradeRoute;
 	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
 }
 
 void SFlareCompanyMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
 {
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Route = TradeRoute;
+	FFlareMenuParameterData Data;
+	Data.Route = TradeRoute;
 	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
 }
 

@@ -496,8 +496,8 @@ void SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged(UFlareResourceC
 
 void SFlareWorldEconomyMenu::OnOpenSector(UFlareSimulatedSector* Sector)
 {
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Sector = Sector;
+	FFlareMenuParameterData Data;
+	Data.Sector = Sector;
 	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, Data);
 }
 

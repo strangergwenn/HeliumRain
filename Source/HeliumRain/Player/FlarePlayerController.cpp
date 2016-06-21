@@ -286,8 +286,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Notification
 	FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
 	FText Info = (OwnedSpacecraftCount > 1) ? LOCTEXT("FlyingMultipleInfo", "You can switch to nearby ships with N.") : LOCTEXT("FlyingInfo", "You are now flying your personal ship.");
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Spacecraft = Ship->GetParent();
+	FFlareMenuParameterData Data;
+	Data.Spacecraft = Ship->GetParent();
 	Notify(Text, Info, "flying-info", EFlareNotification::NT_Info, 5.0f, EFlareMenu::MENU_Ship, Data);
 
 	// HUD update
@@ -455,7 +455,7 @@ void AFlarePlayerController::SetLastFlownShip(FName LastFlownShipIdentifier)
 	Menus
 ----------------------------------------------------*/
 
-void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, FFlareMenuParameterData* TargetInfo)
+void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
 	MenuManager->Notify(Title, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
@@ -893,8 +893,8 @@ void AFlarePlayerController::QuickSwitch(bool instant)
 				}
 				else
 				{
-					FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-					Data->Spacecraft = SeletedCandidate->GetParent();
+					FFlareMenuParameterData Data;
+					Data.Spacecraft = SeletedCandidate->GetParent();
 					MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
 				}
 			}
@@ -1096,8 +1096,8 @@ void AFlarePlayerController::InspectTargetSpacecraft()
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
-			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-			Data->Spacecraft = TargetSpacecraft->GetParent();
+			FFlareMenuParameterData Data;
+			Data.Spacecraft = TargetSpacecraft->GetParent();
 			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
 		}
 	}
@@ -1112,8 +1112,8 @@ void AFlarePlayerController::FlyTargetSpacecraft()
 		{
 			// Disable pilot during the switch
 			TargetSpacecraft->GetStateManager()->EnablePilot(false);
-			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-			Data->Spacecraft = TargetSpacecraft->GetParent();
+			FFlareMenuParameterData Data;
+			Data.Spacecraft = TargetSpacecraft->GetParent();
 			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
 		}
 	}
@@ -1166,8 +1166,8 @@ void AFlarePlayerController::LookAtTargetSpacecraft()
 
 void AFlarePlayerController::UpgradeShip()
 {
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Spacecraft = ShipPawn->GetParent();
+	FFlareMenuParameterData Data;
+	Data.Spacecraft = ShipPawn->GetParent();
 	MenuManager->OpenMenu(EFlareMenu::MENU_ShipConfig, Data);
 }
 
@@ -1181,8 +1181,8 @@ void AFlarePlayerController::UndockShip()
 
 void AFlarePlayerController::StartTrading()
 {
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Spacecraft = ShipPawn->GetParent();
+	FFlareMenuParameterData Data;
+	Data.Spacecraft = ShipPawn->GetParent();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Trade, Data);
 }
 

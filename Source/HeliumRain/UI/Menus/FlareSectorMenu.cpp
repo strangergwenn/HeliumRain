@@ -649,8 +649,8 @@ FText SFlareSectorMenu::GetSectorLocation() const
 
 void SFlareSectorMenu::OnResourcePrices()
 {
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Sector = TargetSector;
+	FFlareMenuParameterData Data;
+	Data.Sector = TargetSector;
 	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, Data);
 }
 
@@ -720,8 +720,8 @@ void SFlareSectorMenu::OnPlayerStartTravelConfirmed()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->StartTravel(PlayerFleet, TargetSector);
 		if (Travel)
 		{
-			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-			Data->Travel = Travel;
+			FFlareMenuParameterData Data;
+			Data.Travel = Travel;
 			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Data);
 		}
 	}
@@ -736,8 +736,8 @@ void SFlareSectorMenu::OnStartTravelConfirmed()
 		UFlareTravel* Travel = MenuManager->GetGame()->GetGameWorld()->StartTravel(SelectedFleet, TargetSector);
 		if (Travel)
 		{
-			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-			Data->Travel = Travel;
+			FFlareMenuParameterData Data;
+			Data.Travel = Travel;
 			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Data);
 		}
 	}
@@ -745,8 +745,8 @@ void SFlareSectorMenu::OnStartTravelConfirmed()
 
 void SFlareSectorMenu::OnBuildStationClicked()
 {
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Sector = TargetSector;
+	FFlareMenuParameterData Data;
+	Data.Sector = TargetSector;
 	MenuManager->OpenSpacecraftOrder(Data, FOrderDelegate::CreateSP(this, &SFlareSectorMenu::OnBuildStationSelected));
 }
 
@@ -766,8 +766,8 @@ void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewSt
 		{
 			TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 
-			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-			Data->Sector = TargetSector;
+			FFlareMenuParameterData Data;
+			Data.Sector = TargetSector;
 			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Data);
 		}
 	}

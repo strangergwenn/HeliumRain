@@ -4,7 +4,6 @@
 #include "FlareNotification.generated.h"
 
 
-class AFlareMenuManager;
 class SFlareNotifier;
 
 
@@ -30,7 +29,7 @@ class SFlareNotification : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareNotification)
-		: _TargetInfo(NULL)
+		: _TargetInfo(FFlareMenuParameterData())
 	{}
 
 	SLATE_ARGUMENT(AFlareMenuManager*, MenuManager)
@@ -41,7 +40,7 @@ class SFlareNotification : public SCompoundWidget
 	SLATE_ARGUMENT(FName, Tag)
 	SLATE_ARGUMENT(float, Timeout)
 	SLATE_ARGUMENT(EFlareMenu::Type, TargetMenu)
-	SLATE_ARGUMENT(struct FFlareMenuParameterData*, TargetInfo)
+	SLATE_ARGUMENT(FFlareMenuParameterData, TargetInfo)
 
 	SLATE_END_ARGS()
 
@@ -111,7 +110,7 @@ protected:
 	float                                Lifetime;
 	bool                                 ForcedLife;
 	TEnumAsByte<EFlareMenu::Type>        TargetMenu;
-	FFlareMenuParameterData*             TargetInfo;
+	FFlareMenuParameterData              TargetInfo;
 	FText                                Text;
 	FName                                Tag;
 	

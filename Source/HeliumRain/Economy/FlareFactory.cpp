@@ -546,8 +546,8 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 			// Get data
 			UFlareSimulatedSpacecraft* Spacecraft = Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
 			AFlarePlayerController* PC = Parent->GetGame()->GetPC();
-			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-			Data->Spacecraft = Spacecraft;
+			FFlareMenuParameterData Data;
+			Data.Spacecraft = Spacecraft;
 
 			// Notify PC
 			if (PC && Spacecraft && Spacecraft->GetCompany() == PC->GetCompany())

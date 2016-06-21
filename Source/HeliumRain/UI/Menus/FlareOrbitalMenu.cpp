@@ -228,8 +228,8 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 				}
 
 				// Notify
-				FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-				Data->Sector = Sector;
+				FFlareMenuParameterData Data;
+				Data.Sector = Sector;
 				MenuManager->GetPC()->Notify(LOCTEXT("BattleStateChange", "Battle update"),
 					FText::Format(LOCTEXT("BattleStateChangeFormat", "The military status of {0} has changed !"), Sector->GetSectorName()),
 					FName("battle-state-changed"),
@@ -568,8 +568,8 @@ FVector2D SFlareOrbitalMenu::GetWidgetSize(int32 Index) const
 void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 {
 	UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[*Index];
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Sector = Sector;
+	FFlareMenuParameterData Data;
+	Data.Sector = Sector;
 	MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Data);
 }
 

@@ -777,8 +777,8 @@ void SFlareShipMenu::OnUpgradeStationClicked()
 		if (Sector)
 		{
 			Sector->UpgradeStation(TargetSpacecraft);
-			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-			Data->Spacecraft = TargetSpacecraft;
+			FFlareMenuParameterData Data;
+			Data.Spacecraft = TargetSpacecraft;
 			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
 		}
 	}

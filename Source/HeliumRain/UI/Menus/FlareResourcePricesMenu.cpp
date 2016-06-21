@@ -326,9 +326,9 @@ FSlateColor SFlareResourcePricesMenu::GetPriceColor(FFlareResourceDescription* R
 
 void SFlareResourcePricesMenu::OnShowWorldInfosClicked(FFlareResourceDescription* Resource)
 {
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Sector = TargetSector;
-	Data->Resource = Resource;
+	FFlareMenuParameterData Data;
+	Data.Sector = TargetSector;
+	Data.Resource = Resource;
 	MenuManager->OpenMenu(EFlareMenu::MENU_WorldEconomy, Data);
 }
 

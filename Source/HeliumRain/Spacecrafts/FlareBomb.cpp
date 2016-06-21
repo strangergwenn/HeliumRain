@@ -247,8 +247,8 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 
 		if (OwnerCompany == PC->GetCompany())
 		{
-			FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-			Data->Spacecraft = HitSpacecraft->GetParent();
+			FFlareMenuParameterData Data;
+			Data.Spacecraft = HitSpacecraft->GetParent();
 			PC->Notify(LOCTEXT("HeavyShipHarpooned", "Ship harpooned !"),
 				FText::Format(LOCTEXT("HeavyShipHarpoonedFormat", "If it is destroyed, you will retrieve {0} on the next day, if you are still in this sector."),
 					FText::FromString(HitSpacecraft->GetImmatriculation().ToString())),

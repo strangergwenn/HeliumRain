@@ -45,6 +45,31 @@ namespace EFlareMenu
 }
 
 
+/** Menu parameter structure storing commands + data for async processing */
+struct FFlareMenuParameterData
+{
+	FFlareMenuParameterData()
+		: Company(NULL)
+		, Factory(NULL)
+		, Fleet(NULL)
+		, Route(NULL)
+		, Sector(NULL)
+		, Spacecraft(NULL)
+		, Travel(NULL)
+		, Resource(NULL)
+	{}
+
+	class UFlareCompany*                        Company;
+	class UFlareFactory*                        Factory;
+	class UFlareFleet*                          Fleet;
+	class UFlareTradeRoute*                     Route;
+	class UFlareSimulatedSector*                Sector;
+	class UFlareSimulatedSpacecraft*            Spacecraft;
+	class UFlareTravel*                         Travel;
+	struct FFlareResourceDescription*           Resource;
+};
+
+
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/

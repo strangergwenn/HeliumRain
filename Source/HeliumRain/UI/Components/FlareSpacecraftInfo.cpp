@@ -504,8 +504,8 @@ void SFlareSpacecraftInfo::OnInspect()
 	if (PC && TargetSpacecraft)
 	{
 		FLOGV("SFlareSpacecraftInfo::OnInspect : TargetSpacecraft=%p", TargetSpacecraft);
-		FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-		Data->Spacecraft = TargetSpacecraft;
+		FFlareMenuParameterData Data;
+		Data.Spacecraft = TargetSpacecraft;
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Ship, Data);
 	}
 }
@@ -515,8 +515,8 @@ void SFlareSpacecraftInfo::OnUpgrade()
 	if (PC && TargetSpacecraft)
 	{
 		FLOGV("SFlareSpacecraftInfo::OnUpgrade : TargetSpacecraft=%p", TargetSpacecraft);
-		FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-		Data->Spacecraft = TargetSpacecraft;
+		FFlareMenuParameterData Data;
+		Data.Spacecraft = TargetSpacecraft;
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ShipConfig, Data);
 	}
 }
@@ -525,8 +525,8 @@ void SFlareSpacecraftInfo::OnTrade()
 {
 	if (PC && TargetSpacecraft)
 	{
-		FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-		Data->Spacecraft = TargetSpacecraft;
+		FFlareMenuParameterData Data;
+		Data.Spacecraft = TargetSpacecraft;
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Trade, Data);
 	}
 }
@@ -537,8 +537,8 @@ void SFlareSpacecraftInfo::OnFly()
 	if (PC && TargetSpacecraft && TargetSpacecraft->IsActive() && TargetSpacecraft->CanBeFlown(Unused))
 	{
 		FLOGV("SFlareSpacecraftInfo::OnFly : flying active spacecraft '%s'", *TargetSpacecraft->GetImmatriculation().ToString());
-		FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-		Data->Spacecraft = TargetSpacecraft;
+		FFlareMenuParameterData Data;
+		Data.Spacecraft = TargetSpacecraft;
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
 	}
 }

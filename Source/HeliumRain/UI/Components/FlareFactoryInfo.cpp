@@ -492,8 +492,8 @@ EVisibility SFlareFactoryInfo::GetCancelShipOrderVisibility() const
 
 void SFlareFactoryInfo::OnOpenSpacecraftOrder()
 {
-	FFlareMenuParameterData* Data = new FFlareMenuParameterData;
-	Data->Factory = TargetFactory;
+	FFlareMenuParameterData Data;
+	Data.Factory = TargetFactory;
 	MenuManager->OpenSpacecraftOrder(Data, FOrderDelegate());
 }
 
