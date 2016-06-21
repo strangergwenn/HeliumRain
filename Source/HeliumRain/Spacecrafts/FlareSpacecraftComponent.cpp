@@ -138,9 +138,6 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 			}
 			ComponentMaterial->SetScalarParameterValue("GlowAlpha", GlowAlpha);
 		}
-
-		// Update health
-		SetHealth(GetDamageRatio());
 	}
 
 	// Need even if no ComponentDescription to heat airframes
@@ -160,8 +157,9 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 
 			LocalTemperature = Spacecraft->GetParent()->GetDamageSystem()->GetTemperature();
 		}
-		SetTemperature(Spacecraft->IsPresentationMode() ? 290 : LocalTemperature);
 
+		SetTemperature(Spacecraft->IsPresentationMode() ? 290 : LocalTemperature);
+		SetHealth(     Spacecraft->IsPresentationMode() ? 1 :   GetDamageRatio());
 	}
 }
 
