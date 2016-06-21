@@ -445,7 +445,7 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 	Company = NewCompany;
 }
 
-void AFlarePlayerController::SetLastFlownShip(FName LastFlownShipIdentifier)
+void AFlarePlayerController::SetPlayerShip(FName LastFlownShipIdentifier)
 {
 	PlayerData.LastFlownShipIdentifier = LastFlownShipIdentifier;
 }

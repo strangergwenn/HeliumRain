@@ -220,7 +220,7 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 
 	// Update the PC
 	Sector->GetData()->LastFlownShip = LastFlownShip;
-	GetPC()->SetLastFlownShip(LastFlownShip);
+	GetPC()->SetPlayerShip(LastFlownShip);
 	GetPC()->OnSectorDeactivated();
 	SaveGame(GetPC());
 

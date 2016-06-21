@@ -83,7 +83,7 @@ public:
 	/** The battle state has changed, update music, notify, etc */
 	virtual void OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState);
 
-	void SetLastFlownShip(FName LastFlownShipIdentifier);
+	void SetPlayerShip(FName LastFlownShipIdentifier);
 
 
 	/*----------------------------------------------------
