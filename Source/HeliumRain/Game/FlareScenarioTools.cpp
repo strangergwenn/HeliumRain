@@ -231,16 +231,16 @@ void UFlareScenarioTools::SetupWorld()
 
 void UFlareScenarioTools::SetupAsteroids()
 {
-	CreateAsteroids(FirstLight, 8, FVector(5, 10, 3));
-	CreateAsteroids(MinersHome, 45, FVector(13, 50, 5));
-	CreateAsteroids(TheDepths, 16, FVector(5, 25, 10));
+	CreateAsteroids(FirstLight, 8, FVector(5, 10, 5));
+	CreateAsteroids(MinersHome, 45, FVector(13, 50, 7));
+	CreateAsteroids(TheDepths, 31, FVector(5, 25, 10));
 
-	CreateAsteroids(Outpost, 17, FVector(5, 20, 3));
-	CreateAsteroids(TheDig, 22, FVector(15, 50, 7));
+	CreateAsteroids(Outpost, 19, FVector(8, 20, 5));
+	CreateAsteroids(TheDig, 27, FVector(15, 50, 7));
 
-	CreateAsteroids(FrozenRealm, 16, FVector(5, 50, 2));
-	CreateAsteroids(ShoreOfIce, 9, FVector(8, 20, 3));
-	CreateAsteroids(Ruins, 10, FVector(3, 18, 7));
+	CreateAsteroids(FrozenRealm, 19, FVector(9, 50, 5));
+	CreateAsteroids(ShoreOfIce, 38, FVector(17, 25, 9));
+	CreateAsteroids(Ruins, 15, FVector(7, 18, 9));
 }
 
 void UFlareScenarioTools::SetupArtifacts()
