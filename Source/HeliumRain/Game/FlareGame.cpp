@@ -35,7 +35,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	HUDClass = AFlareHUD::StaticClass();
 	PlayerControllerClass = AFlarePlayerController::StaticClass();
 	DefaultWeaponIdentifier = FName("weapon-eradicator");
-	DefaultTurretIdentifier = FName("weapon-hades-heat");
+	DefaultTurretIdentifier = FName("weapon-artemis");
 
 	// Menu pawn
 	static ConstructorHelpers::FObjectFinder<UBlueprint> MenuPawnBPClass(TEXT("/Game/Gameplay/Menu/BP_MenuPawn"));
