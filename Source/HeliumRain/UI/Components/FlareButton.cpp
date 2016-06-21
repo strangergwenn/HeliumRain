@@ -274,13 +274,13 @@ const FSlateBrush* SFlareButton::GetBackgroundBrush() const
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	bool WasDisabled = (IsDisabled.IsBound() || IsDisabled.IsSet()) && IsDisabled.Get();
 
-	if (IsTransparent)
-	{
-		return (IsHovered() ? &Theme.NearInvisibleBrush : &Theme.InvisibleBrush);
-	}
-	else if (WasDisabled)
+	if (WasDisabled)
 	{
 		return &Theme.ButtonDisabledBackground;
+	}
+	else if (IsTransparent)
+	{
+		return (IsHovered() ? &Theme.NearInvisibleBrush : &Theme.InvisibleBrush);
 	}
 	else
 	{

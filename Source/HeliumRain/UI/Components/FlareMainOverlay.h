@@ -26,7 +26,7 @@ public:
 	/*----------------------------------------------------
 		Construction
 	----------------------------------------------------*/
-
+	
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
 
