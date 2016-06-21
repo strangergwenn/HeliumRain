@@ -913,7 +913,14 @@ void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSh
 
 void SFlareSettingsMenu::OnExit()
 {
-	MenuManager->Back();
+	if (MenuManager->HasPreviousMenu())
+	{
+		MenuManager->Back();
+	}
+	else
+	{
+		MenuManager->CloseMenu();
+	}
 }
 
 
