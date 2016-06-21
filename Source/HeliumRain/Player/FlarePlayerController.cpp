@@ -1056,7 +1056,7 @@ void AFlarePlayerController::WheelPressed()
 
 void AFlarePlayerController::WheelReleased()
 {
-	if (GetGame()->IsLoadedOrCreated())
+	if (GetGame()->IsLoadedOrCreated() && MenuManager && !MenuManager->IsUIOpen() && GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelMenu(false);
 	}
