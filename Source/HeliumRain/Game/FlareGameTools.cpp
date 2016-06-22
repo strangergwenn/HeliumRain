@@ -1187,12 +1187,14 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
-	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
-
 	UFlareSimulatedSpacecraft* NewShip = NULL;
-
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
 	NewShip = ActiveSector->CreateShip(ShipClass, Company, TargetPosition);
 	GetGame()->ActivateCurrentSector();
+
+	FFlareMenuParameterData Data;
+	Data.Spacecraft = NewShip;
+	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
 
 	return NewShip;
 }
