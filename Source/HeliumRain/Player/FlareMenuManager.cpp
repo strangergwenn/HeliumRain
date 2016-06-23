@@ -465,11 +465,18 @@ void AFlareMenuManager::UseDarkBackground()
 void AFlareMenuManager::LoadGame()
 {
 	ExitMenu();
+
+	FText Reason;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	PC->GetGame()->LoadGame(PC);
 	
 	// No player ship ? Get one !
-	if (!PC->GetPlayerShip())
+	UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
+	if (CurrentShip && CurrentShip->GetActive() && CurrentShip->CanBeFlown(Reason))
+	{
+		// Do nothing
+	}
+	else
 	{
 		FLOG("AFlareMenuManager::LoadGame : no player ship");
 		TArray<UFlareSimulatedSpacecraft*> Ships = PC->GetCompany()->GetCompanyShips();
@@ -477,8 +484,7 @@ void AFlareMenuManager::LoadGame()
 		{
 			for (int32 ShipIndex = 0; ShipIndex < Ships.Num(); ShipIndex++)
 			{
-				FText Reason;
-				if (Ships[ShipIndex]->CanBeFlown(Reason))
+				if (Ships[ShipIndex]->GetActive() && Ships[ShipIndex]->CanBeFlown(Reason))
 				{
 					PC->SetPlayerShip(Ships[ShipIndex]->GetImmatriculation());
 					break;
@@ -488,8 +494,8 @@ void AFlareMenuManager::LoadGame()
 	}
 
 	// We got a valid ship here
-	UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
-	if (CurrentShip && CurrentShip->GetCurrentSector())
+	CurrentShip = PC->GetPlayerShip();
+	if (CurrentShip && CurrentShip->GetActive() && CurrentShip->CanBeFlown(Reason))
 	{
 		// Activate sector
 		FLOGV("AFlareMenuManager::LoadGame : found player ship '%s'", *CurrentShip->GetImmatriculation().ToString());

@@ -201,6 +201,8 @@ void SFlareStoryMenu::OnStartPlaying()
 		Sector->SetShipToFly(CurrentShip);
 		PC->GetGame()->ActivateCurrentSector();
 
+		check(PC->GetPlayerShip()->GetActive());
+
 		FFlareMenuParameterData Data;
 		Data.Spacecraft = PC->GetPlayerShip();
 		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);

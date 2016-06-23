@@ -1231,15 +1231,24 @@ void AFlarePlayerController::SetMasterVolume(int32 New)
 
 UFlareSimulatedSpacecraft* AFlarePlayerController::GetPlayerShip()
 {
+	UFlareSimulatedSpacecraft* Result = NULL;
 	UFlareWorld* GameWorld = GetGame()->GetGameWorld();
-	if (GameWorld)
+
+	if (ShipPawn)
 	{
-		return GameWorld->FindSpacecraft(PlayerData.LastFlownShipIdentifier);
+		Result = ShipPawn->GetParent();
 	}
-	else
+	else if (GameWorld)
 	{
-		return NULL;
+		Result = GameWorld->FindSpacecraft(PlayerData.LastFlownShipIdentifier);
 	}
+
+	if (!Result)
+	{
+		FLOGV("AFlarePlayerController::GetPlayerShip : no player ship !");
+	}
+
+	return Result;
 }
 
 
