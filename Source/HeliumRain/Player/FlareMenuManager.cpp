@@ -267,9 +267,9 @@ void AFlareMenuManager::Back()
 			MenuHistory.RemoveAt(MenuHistory.Num() - 1);
 
 			// Check consistency of target, open the previous menu if nothing looks wrong
-			if (PreviousMenu.Value.Spacecraft && !PreviousMenu.Value.Spacecraft->IsValidLowLevel()
-			 || PreviousMenu.Value.Fleet      && !PreviousMenu.Value.Fleet->IsValidLowLevel()
-			 || PreviousMenu.Value.Route      && !PreviousMenu.Value.Route->IsValidLowLevel())
+			if ((PreviousMenu.Value.Spacecraft && !PreviousMenu.Value.Spacecraft->IsValidLowLevel())
+			 || (PreviousMenu.Value.Fleet      && !PreviousMenu.Value.Fleet->IsValidLowLevel())
+			 || (PreviousMenu.Value.Route      && !PreviousMenu.Value.Route->IsValidLowLevel()))
 			{
 				FLOGV("AFlareMenuManager::Back : ignore corrupted target '%s'", *GetMenuName(PreviousMenu.Key).ToString());
 				continue;
