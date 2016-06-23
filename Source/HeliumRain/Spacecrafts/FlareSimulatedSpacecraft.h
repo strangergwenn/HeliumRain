@@ -91,6 +91,10 @@ public:
 
 	void SetActiveSpacecraft(AFlareSpacecraft* Spacecraft)
 	{
+		if(Spacecraft)
+		{
+			check(ActiveSpacecraft == NULL || ActiveSpacecraft == Spacecraft);
+		}
 		ActiveSpacecraft = Spacecraft;
 	}
 

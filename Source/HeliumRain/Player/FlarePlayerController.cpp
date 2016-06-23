@@ -298,7 +298,6 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 
 	// Set player ship
 	SetPlayerShip(ShipPawn->GetParent());
-	PlayerShip->SetActiveSpacecraft(ShipPawn);
 	GetGame()->GetQuestManager()->OnFlyShip(Ship);
 }
 

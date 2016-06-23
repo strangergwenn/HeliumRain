@@ -19,13 +19,13 @@
 UFlareSimulatedSpacecraft::UFlareSimulatedSpacecraft(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	ActiveSpacecraft = NULL;
 }
 
 
 void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 {
 	Game = Cast<UFlareCompany>(GetOuter())->GetGame();
-	ActiveSpacecraft = NULL;
 	SpacecraftData = Data;
 
 	// Load spacecraft description
@@ -78,6 +78,11 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 	// Lock resources
 	LockResources();
+
+	if(ActiveSpacecraft)
+	{
+		ActiveSpacecraft->Load(this);
+	}
 }
 
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
