@@ -223,8 +223,10 @@ bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterDat
 void AFlareMenuManager::CloseMenu(bool HardClose)
 {
 	FLOGV("AFlareMenuManager::CloseMenu : HardClose = %d", HardClose);
-	if (MenuIsOpen && GetPC()->GetShipPawn() && GetGame()->GetActiveSector())
+	if (MenuIsOpen && GetPC()->GetPlayerShip() && GetGame()->GetActiveSector())
 	{
+		check(GetPC()->GetPlayerShip()->GetActive());
+
 		if (HardClose)
 		{
 			ExitMenu();
