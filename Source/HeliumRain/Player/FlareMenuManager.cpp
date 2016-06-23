@@ -484,9 +484,9 @@ void AFlareMenuManager::LoadGame()
 		{
 			for (int32 ShipIndex = 0; ShipIndex < Ships.Num(); ShipIndex++)
 			{
-				if (Ships[ShipIndex]->GetActive() && Ships[ShipIndex]->CanBeFlown(Reason))
+				if (Ships[ShipIndex]->CanBeFlown(Reason))
 				{
-					PC->SetPlayerShip(Ships[ShipIndex]->GetImmatriculation());
+					PC->SetPlayerShip(Ships[ShipIndex]);
 					break;
 				}
 			}
@@ -495,13 +495,15 @@ void AFlareMenuManager::LoadGame()
 
 	// We got a valid ship here
 	CurrentShip = PC->GetPlayerShip();
-	if (CurrentShip && CurrentShip->GetActive() && CurrentShip->CanBeFlown(Reason))
+	if (CurrentShip && CurrentShip->CanBeFlown(Reason))
 	{
 		// Activate sector
 		FLOGV("AFlareMenuManager::LoadGame : found player ship '%s'", *CurrentShip->GetImmatriculation().ToString());
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
 		Sector->SetShipToFly(CurrentShip);
 		PC->GetGame()->ActivateCurrentSector();
+
+		check(CurrentShip->GetActive());
 
 		// Fly the ship - we create another set of data here to keep with the convention :) 
 		NextMenu.Key = EFlareMenu::MENU_FlyShip;

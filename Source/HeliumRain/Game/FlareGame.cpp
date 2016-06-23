@@ -206,10 +206,10 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 	World->Save();
 
 	// Set last flown ship
-	FName LastFlownShip = "";
+	UFlareSimulatedSpacecraft* PlayerShip = NULL;
 	if (GetPC()->GetPlayerShip())
 	{
-		LastFlownShip = GetPC()->GetPlayerShip()->GetImmatriculation();
+		PlayerShip = GetPC()->GetPlayerShip();
 	}
 
 	// Destroy the active sector
@@ -219,8 +219,8 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 	ActiveSector = NULL;
 
 	// Update the PC
-	Sector->GetData()->LastFlownShip = LastFlownShip;
-	GetPC()->SetPlayerShip(LastFlownShip);
+	Sector->GetData()->LastFlownShip = PlayerShip->GetImmatriculation();
+	GetPC()->SetPlayerShip(PlayerShip);
 	GetPC()->OnSectorDeactivated();
 	SaveGame(GetPC());
 

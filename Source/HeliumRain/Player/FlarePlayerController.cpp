@@ -44,6 +44,10 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	IsTest1 = false;
 	IsTest2 = false;
 	LastBattleState = EFlareSectorBattleState::NoBattle;
+
+	// Setup
+	ShipPawn = NULL;
+	PlayerShip = NULL;
 }
 
 
@@ -228,7 +232,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 {
 	check(Ship);
 
-	if(ShipPawn == Ship)
+	if (ShipPawn == Ship)
 	{
 		// Already flying this ship
 		return;
@@ -268,9 +272,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Combat groups
 	Company->GetAI()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
 	Company->GetAI()->ResetShipGroup(EFlareCombatTactic::ProtectMe);
-
-	// Inform the player
-
+	
 	// Count owned ships
 	int32 OwnedSpacecraftCount = 0;
 	TArray<AFlareSpacecraft*>& SectorSpacecrafts = GetGame()->GetActiveSector()->GetSpacecrafts();
@@ -290,11 +292,13 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	Data.Spacecraft = Ship->GetParent();
 	Notify(Text, Info, "flying-info", EFlareNotification::NT_Info, 5.0f, EFlareMenu::MENU_Ship, Data);
 
-	// HUD update
+	// Update HUD
 	GetNavHUD()->OnTargetShipChanged();
 	SetSelectingWeapon();
 
-	PlayerData.LastFlownShipIdentifier = Ship->GetParent()->GetImmatriculation();
+	// Set player ship
+	SetPlayerShip(ShipPawn->GetParent());
+	PlayerShip->SetActiveSpacecraft(ShipPawn);
 	GetGame()->GetQuestManager()->OnFlyShip(Ship);
 }
 
@@ -305,6 +309,8 @@ void AFlarePlayerController::ExitShip()
 
 void AFlarePlayerController::PrepareForExit()
 {
+	PlayerShip = NULL;
+
 	if (IsInMenu())
 	{
 		MenuManager->CloseMenu(true);
@@ -445,9 +451,10 @@ void AFlarePlayerController::SetCompany(UFlareCompany* NewCompany)
 	Company = NewCompany;
 }
 
-void AFlarePlayerController::SetPlayerShip(FName LastFlownShipIdentifier)
+void AFlarePlayerController::SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerShip)
 {
-	PlayerData.LastFlownShipIdentifier = LastFlownShipIdentifier;
+	PlayerData.LastFlownShipIdentifier = NewPlayerShip->GetImmatriculation();
+	PlayerShip = NewPlayerShip;
 }
 
 
@@ -1234,7 +1241,11 @@ UFlareSimulatedSpacecraft* AFlarePlayerController::GetPlayerShip()
 	UFlareSimulatedSpacecraft* Result = NULL;
 	UFlareWorld* GameWorld = GetGame()->GetGameWorld();
 
-	if (ShipPawn)
+	if (PlayerShip)
+	{
+		Result = PlayerShip;
+	}
+	else if (ShipPawn && ShipPawn->GetParent())
 	{
 		Result = ShipPawn->GetParent();
 	}
@@ -1245,7 +1256,7 @@ UFlareSimulatedSpacecraft* AFlarePlayerController::GetPlayerShip()
 
 	if (!Result)
 	{
-		FLOGV("AFlarePlayerController::GetPlayerShip : no player ship !");
+		FLOG("AFlarePlayerController::GetPlayerShip : no player ship !");
 	}
 
 	return Result;

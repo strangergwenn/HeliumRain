@@ -83,7 +83,8 @@ public:
 	/** The battle state has changed, update music, notify, etc */
 	virtual void OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState);
 
-	void SetPlayerShip(FName LastFlownShipIdentifier);
+	/** Set the currently flown player ship */
+	void SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerShip);
 
 
 	/*----------------------------------------------------
@@ -316,6 +317,10 @@ protected:
 	/** Currently flown ship */
 	UPROPERTY()
 	AFlareSpacecraft*                        ShipPawn;
+
+	/** Currently flown ship */
+	UPROPERTY()
+	UFlareSimulatedSpacecraft*               PlayerShip;
 
 	/** Player owned company */
 	UPROPERTY()
