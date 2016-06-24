@@ -1036,7 +1036,7 @@ void AFlarePlayerController::WheelPressed()
 			}
 
 			// Capital ship controls
-			if (ShipPawn->GetParent()->GetDescription()->Size == EFlarePartSize::L)
+			if (ShipPawn->GetParent()->GetDescription()->Size == EFlarePartSize::L && ShipPawn->IsMilitary())
 			{
 				MouseMenu->AddWidget("Mouse_ProtectMe", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::ProtectMe),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::ProtectMe));
