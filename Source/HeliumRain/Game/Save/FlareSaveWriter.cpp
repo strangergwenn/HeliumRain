@@ -655,6 +655,11 @@ void UFlareSaveWriter::SaveFloat(TSharedPtr< FJsonObject > Object, FString Key, 
 		FLOGV("WARNING: Fix NaN in code for field '%s' : %f", *Key, Data);
 		Object->SetNumberField(Key, 0);
 	}
+	else if(!FMath::IsFinite(Data))
+	{
+		FLOGV("WARNING: Fix Inf in code for field '%s' : %f", *Key, Data);
+		Object->SetNumberField(Key, 0);
+	}
 	else
 	{
 		Object->SetNumberField(Key, Data);
