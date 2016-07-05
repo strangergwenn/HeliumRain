@@ -200,6 +200,17 @@ bool UFlareSpacecraftNavigationSystem::DockAt(AFlareSpacecraft* TargetStation)
 	}
 }
 
+void UFlareSpacecraftNavigationSystem::BreakDock()
+{
+	// Detach from station
+	if(DockConstraint)
+	{
+		DockConstraint->BreakConstraint();
+		DockConstraint->DestroyComponent();
+		DockConstraint = NULL;
+	}
+}
+
 bool UFlareSpacecraftNavigationSystem::Undock()
 {
 	// Try undocking

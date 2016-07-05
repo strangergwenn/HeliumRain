@@ -60,6 +60,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	StateManager = NULL;
 	CurrentTarget = NULL;
 	HarpoonCompany = NULL;
+	NavigationSystem = NULL;
 }
 
 
@@ -543,6 +544,12 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 
 	// Load ship description
 	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
+
+	// Unload
+	if(NavigationSystem)
+	{
+		NavigationSystem->BreakDock();
+	}
 
 	// Initialize damage system
 	DamageSystem = NewObject<UFlareSpacecraftDamageSystem>(this, UFlareSpacecraftDamageSystem::StaticClass());

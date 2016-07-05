@@ -124,6 +124,9 @@ public:
 
 	virtual bool Undock();
 
+	virtual void BreakDock();
+
+
 	virtual AFlareSpacecraft* GetDockStation();
 
 	/*----------------------------------------------------
