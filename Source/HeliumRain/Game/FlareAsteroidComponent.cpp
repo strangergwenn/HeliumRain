@@ -109,7 +109,7 @@ void UFlareAsteroidComponent::SetIcy(bool Icy)
 			this,
 			NAME_None,
 			GetComponentLocation(),
-			FRotator(),
+			FRotator::ZeroRotator,
 			EAttachLocation::KeepWorldPosition,
 			false);
 
