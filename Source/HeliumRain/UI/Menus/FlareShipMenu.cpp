@@ -981,7 +981,7 @@ void SFlareShipMenu::OnPartConfirmed()
 			if (UpdatePart)
 			{
 				TargetSpacecraftData->Components[i].ComponentIdentifier = PartDesc->Identifier;
-
+				TargetSpacecraftData->Components[i].Weapon.FiredAmmo = 0;
 			}
 		}
 		
