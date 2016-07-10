@@ -140,6 +140,9 @@ protected:
 	/** Travel here */
 	void Travel();
 
+	/** Reload the sector */
+	void ReloadSector();
+
 	/** Open the main menu */
 	void OpenMainMenu();
 

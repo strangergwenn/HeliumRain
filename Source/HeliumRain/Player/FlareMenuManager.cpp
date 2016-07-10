@@ -375,6 +375,7 @@ void AFlareMenuManager::ProcessNextMenu()
 	{
 		case EFlareMenu::MENU_LoadGame:           LoadGame();                  break;
 		case EFlareMenu::MENU_FlyShip:            FlyShip();                   break;
+		case EFlareMenu::MENU_ReloadSector:       ReloadSector();              break;
 		case EFlareMenu::MENU_Travel:             Travel();                    break;
 
 		case EFlareMenu::MENU_Main:               OpenMainMenu();              break;
@@ -560,6 +561,24 @@ void AFlareMenuManager::Travel()
 	NextMenu.Key = EFlareMenu::MENU_Orbit;
 	NextMenu.Value = FFlareMenuParameterData();
 	OpenOrbit();
+}
+
+void AFlareMenuManager::ReloadSector()
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC)
+	{
+		PC->GetGame()->DeactivateSector();
+		PC->GetGame()->ActivateCurrentSector();
+
+		if (NextMenu.Value.Spacecraft)
+		{
+			PC->FlyShip(NextMenu.Value.Spacecraft->GetActive());
+		}
+
+		ExitMenu();
+		MenuIsOpen = false;
+	}
 }
 
 void AFlareMenuManager::OpenMainMenu()
