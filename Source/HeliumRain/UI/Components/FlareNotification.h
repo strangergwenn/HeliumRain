@@ -5,6 +5,7 @@
 
 
 class SFlareNotifier;
+class AFlareMenuManager;
 
 
 /** Possible notification types */

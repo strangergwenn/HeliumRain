@@ -5,6 +5,7 @@
 #include "FlareWorld.h"
 #include "FlareGame.h"
 #include "FlareGameTools.h"
+#include "../Player/FlarePlayerController.h"
 #include "../UI/Components/FlareNotification.h"
 #include "../Economy/FlareCargoBay.h"
 
