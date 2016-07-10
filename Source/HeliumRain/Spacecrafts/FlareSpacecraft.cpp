@@ -151,6 +151,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					GetData().SpawnMode = EFlareSpawnMode::Exit;
 					GetGame()->DeactivateSector();
 					GetGame()->ActivateCurrentSector();
+
+					PC->FlyShip(GetParent()->GetActive());
 					return;
 				}
 				else

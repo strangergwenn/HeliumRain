@@ -235,6 +235,12 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	if (ShipPawn == Ship)
 	{
 		// Already flying this ship
+		// Fly the new ship
+		if (PossessNow)
+		{
+			Possess(Ship);
+		}
+
 		return;
 	}
 
