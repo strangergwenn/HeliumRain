@@ -54,6 +54,9 @@ public:
 	/** Get the currently selected fleet */
 	virtual UFlareFleet* GetPlayerFleet();
 
+	/** Quick switch to another ship */
+	virtual bool SwitchToNextShip(bool Instant = false);
+
 
 	/*----------------------------------------------------
 		Data management
@@ -196,13 +199,8 @@ public:
 	/** Toggle the HUD's presence */
 	virtual void ToggleHUD();
 
-	virtual void QuickSwitch()
-	{
-		QuickSwitch(false);
-	}
-
-	/** Quick switch to another ship */
-	virtual void QuickSwitch(bool instant);
+	/** Quick switch */
+	virtual void QuickSwitch();
 
 	/** Move hidden cursor */
 	virtual void MouseInputX(float Val);

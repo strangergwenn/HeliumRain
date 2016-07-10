@@ -360,7 +360,7 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 	else
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
-		QuickSwitch(true);
+		SwitchToNextShip(true);
 	}
 
 	// Level music
@@ -592,6 +592,87 @@ UFlareFleet* AFlarePlayerController::GetSelectedFleet()
 UFlareFleet* AFlarePlayerController::GetPlayerFleet()
 {
 	return GetPlayerShip()->GetCurrentFleet();
+}
+
+bool AFlarePlayerController::SwitchToNextShip(bool Instant)
+{
+	FLOG("AFlarePlayerController::SwitchToNextShip");
+
+	if (GetGame()->GetActiveSector() && Company)
+	{
+		TArray<AFlareSpacecraft*> CompanyShips = GetGame()->GetActiveSector()->GetCompanyShips(Company);
+
+		if (CompanyShips.Num())
+		{
+			int32 QuickSwitchOffset = QuickSwitchNextOffset;
+			int32 OffsetIndex = 0;
+			AFlareSpacecraft* SeletedCandidate = NULL;
+
+			// First loop in military armed alive ships
+			for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
+			{
+				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
+				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
+
+				if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanFight())
+				{
+					SeletedCandidate = Candidate;
+					break;
+				}
+			}
+
+			// If not, loop in all alive ships
+			if (!SeletedCandidate)
+			{
+				for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
+				{
+					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
+					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
+					if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->GetDamageSystem()->IsAlive())
+					{
+						SeletedCandidate = Candidate;
+						break;
+					}
+				}
+			}
+
+			// Switch to the found ship
+			if (SeletedCandidate)
+			{
+				FLOG("AFlarePlayerController::SwitchToNextShip : found new ship");
+				QuickSwitchNextOffset = OffsetIndex + 1;
+				// Disable pilot during the switch
+				SeletedCandidate->GetStateManager()->EnablePilot(false);
+
+				if (Instant)
+				{
+					FlyShip(SeletedCandidate, false);
+				}
+				else
+				{
+					FFlareMenuParameterData Data;
+					Data.Spacecraft = SeletedCandidate->GetParent();
+					MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
+				}
+
+				return true;
+			}
+			else
+			{
+				FLOG("AFlarePlayerController::SwitchToNextShip : no ship found");
+			}
+		}
+		else
+		{
+			FLOG("AFlarePlayerController::SwitchToNextShip : no ships in company !");
+		}
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::SwitchToNextShip : no sector or company !");
+	}
+
+	return false;
 }
 
 bool AFlarePlayerController::IsInMenu()
@@ -860,81 +941,9 @@ void AFlarePlayerController::ToggleHUD()
 	}
 }
 
-void AFlarePlayerController::QuickSwitch(bool instant)
+void AFlarePlayerController::QuickSwitch()
 {
-	FLOG("AFlarePlayerController::QuickSwitch");
-
-	if (GetGame()->GetActiveSector() && Company)
-	{
-		TArray<AFlareSpacecraft*> CompanyShips = GetGame()->GetActiveSector()->GetCompanyShips(Company);
-
-		if (CompanyShips.Num())
-		{
-			int32 QuickSwitchOffset = QuickSwitchNextOffset;
-			int32 OffsetIndex = 0;
-			AFlareSpacecraft* SeletedCandidate = NULL;
-
-			// First loop in military armed alive ships
-			for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
-			{
-				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
-				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
-
-				if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanFight())
-				{
-					SeletedCandidate = Candidate;
-					break;
-				}
-			}
-
-			// If not, loop in all alive ships
-			if (!SeletedCandidate)
-			{
-				for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
-				{
-					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
-					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
-					if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->GetDamageSystem()->IsAlive())
-					{
-						SeletedCandidate = Candidate;
-						break;
-					}
-				}
-			}
-
-			// Switch to the found ship
-			if (SeletedCandidate)
-			{
-				FLOG("AFlarePlayerController::QuickSwitch : found new ship");
-				QuickSwitchNextOffset = OffsetIndex + 1;
-				// Disable pilot during the switch
-				SeletedCandidate->GetStateManager()->EnablePilot(false);
-
-				if(instant)
-				{
-					FlyShip(SeletedCandidate, false);
-				}
-				else
-				{
-					FFlareMenuParameterData Data;
-					Data.Spacecraft = SeletedCandidate->GetParent();
-					MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
-				}
-			}
-			else
-			{
-				FLOG("AFlarePlayerController::QuickSwitch : no ship found");
-			}
-		}
-		else
-		{
-			FLOG("AFlarePlayerController::QuickSwitch : no ships in company !");
-		}
-	}
-	else
-	{
-		FLOG("AFlarePlayerController::QuickSwitch : company !");
-	}
+	SwitchToNextShip(false);
 }
 
 void AFlarePlayerController::MouseInputX(float Val)
