@@ -547,7 +547,6 @@ void UFlareSaveReaderV1::LoadSector(const TSharedPtr<FJsonObject> Object, FFlare
 {
 	LoadFText(Object, "GivenName", &Data->GivenName);
 	LoadFName(Object, "Identifier", &Data->Identifier);
-	LoadFName(Object, "LastFlownShip", &Data->LastFlownShip);
 	LoadInt64(Object, "LocalTime", &Data->LocalTime);
 
 	const TSharedPtr< FJsonObject >* People;

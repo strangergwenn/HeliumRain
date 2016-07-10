@@ -340,27 +340,18 @@ void AFlarePlayerController::OnLoadComplete()
 
 void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 {
-	FLOGV("AFlarePlayerController::OnSectorActivated LastFlownShip=%s", *ActiveSector->GetSimulatedSector()->GetData()->LastFlownShip.ToString());
+	FLOGV("AFlarePlayerController::OnSectorActivated %s", *ActiveSector->GetSimulatedSector()->GetData()->Identifier.ToString());
 	bool CandidateFound = false;
 
 	// Last flown ship
 
-	if (ActiveSector->GetSimulatedSector()->GetData()->LastFlownShip != "")
+	if(PlayerShip && PlayerShip->IsActive())
 	{
-		FLOG("AFlarePlayerController::OnSectorActivated not null last ship");
-		AFlareSpacecraft* Candidate = ActiveSector->FindSpacecraft(ActiveSector->GetSimulatedSector()->GetData()->LastFlownShip);
-		if (Candidate)
-		{
-			FLOG("AFlarePlayerController::OnSectorActivated last ship found");
-			CandidateFound = true;
-
-			// Disable pilot during the switch
-			Candidate->GetStateManager()->EnablePilot(false);
-			FlyShip(Candidate, false);
-		}
+		// Disable pilot during the switch
+		PlayerShip->GetActive()->GetStateManager()->EnablePilot(false);
+		FlyShip(PlayerShip->GetActive(), false);
 	}
-
-	if (!CandidateFound)
+	else
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
 		QuickSwitch(true);
@@ -456,6 +447,26 @@ void AFlarePlayerController::SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerS
 	PlayerShip = NewPlayerShip;
 }
 
+void AFlarePlayerController::Clean()
+{
+	PlayerData.ScenarioId = 0;
+	PlayerData.CompanyIdentifier = NAME_None;
+	PlayerData.LastFlownShipIdentifier = NAME_None;
+	PlayerData.SelectedFleetIdentifier = NAME_None;
+
+	ShipPawn = NULL;
+	PlayerShip = NULL;
+	Company = NULL;
+	SelectedFleet = NULL;
+
+	CurrentObjective.Set = false;
+	CurrentObjective.Version = 0;
+
+	QuickSwitchNextOffset = 0;
+	TimeSinceWeaponSwitch = 0;
+
+	LastBattleState = EFlareSectorBattleState::NoBattle;
+}
 
 /*----------------------------------------------------
 	Menus

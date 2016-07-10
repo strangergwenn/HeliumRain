@@ -413,13 +413,6 @@ int UFlareSimulatedSector::RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraf
 	return SectorShips.Remove(Spacecraft);
 }
 
-void UFlareSimulatedSector::SetShipToFly(UFlareSimulatedSpacecraft* Ship)
-{
-	FLOGV("UFlareSimulatedSector::SetShipToFly : '%s'", *Ship->GetImmatriculation().ToString());
-	SectorData.LastFlownShip = Ship->GetImmatriculation();
-}
-
-
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/

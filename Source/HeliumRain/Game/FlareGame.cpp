@@ -219,8 +219,6 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 	ActiveSector = NULL;
 
 	// Update the PC
-	Sector->GetData()->LastFlownShip = PlayerShip->GetImmatriculation();
-	GetPC()->SetPlayerShip(PlayerShip);
 	GetPC()->OnSectorDeactivated();
 	SaveGame(GetPC());
 
@@ -471,6 +469,8 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	FLOGV("AFlareGame::CreateGame CompanyName %s", *CompanyName.ToString());
 
 	PlayerController = PC;
+	Clean();
+	PC->Clean();
 
 	// Create the new world
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
@@ -567,6 +567,8 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 {
 	FLOGV("AFlareGame::LoadGame : loading from slot %d", CurrentSaveIndex);
 	PlayerController = PC;
+	Clean();
+	PC->Clean();
 
 	UFlareSaveGame* Save = ReadSaveSlot(CurrentSaveIndex);
 
@@ -658,10 +660,19 @@ void AFlareGame::UnloadGame()
 		ActiveSector = NULL;
 	}
 
-	World = NULL;
-	LoadedOrCreated = false;
+	Clean();
 }
 
+void AFlareGame::Clean()
+{
+	World = NULL;
+	QuestManager = NULL;
+	ActiveSector = NULL;
+
+	LoadedOrCreated = false;
+
+	CurrentImmatriculationIndex = 0;
+}
 
 /*----------------------------------------------------
 	Level streaming

@@ -86,6 +86,7 @@ public:
 	/** Set the currently flown player ship */
 	void SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerShip);
 
+	virtual void Clean();
 
 	/*----------------------------------------------------
 		Menus

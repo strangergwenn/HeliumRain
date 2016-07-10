@@ -474,7 +474,7 @@ void AFlareMenuManager::LoadGame()
 	
 	// No player ship ? Get one !
 	UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
-	if (CurrentShip && CurrentShip->GetActive() && CurrentShip->CanBeFlown(Reason))
+	if (CurrentShip && CurrentShip->CanBeFlown(Reason))
 	{
 		// Do nothing
 	}
@@ -501,8 +501,6 @@ void AFlareMenuManager::LoadGame()
 	{
 		// Activate sector
 		FLOGV("AFlareMenuManager::LoadGame : found player ship '%s'", *CurrentShip->GetImmatriculation().ToString());
-		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
-		Sector->SetShipToFly(CurrentShip);
 		PC->GetGame()->ActivateCurrentSector();
 
 		check(CurrentShip->GetActive());

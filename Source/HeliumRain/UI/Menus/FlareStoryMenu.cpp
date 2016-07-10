@@ -198,7 +198,6 @@ void SFlareStoryMenu::OnStartPlaying()
 	if (CurrentShip)
 	{
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
-		Sector->SetShipToFly(CurrentShip);
 		PC->GetGame()->ActivateCurrentSector();
 
 		check(PC->GetPlayerShip()->GetActive());

@@ -124,6 +124,7 @@ public:
 	/** Unload the game*/
 	virtual void UnloadGame();
 	
+	virtual void Clean();
 	
 	/*----------------------------------------------------
 		Level streaming

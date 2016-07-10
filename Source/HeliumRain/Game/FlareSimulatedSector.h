@@ -237,10 +237,6 @@ struct FFlareSectorSave
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> SpacecraftIdentifiers;
 
-	/** Last flown identifier */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName LastFlownShip;
-
 	/** Local sector time. */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 LocalTime;
@@ -307,8 +303,6 @@ public:
 	void RetireFleet(UFlareFleet* Fleet);
 
 	int RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
-
-	void SetShipToFly(UFlareSimulatedSpacecraft* Ship);
 
 	/** Check whether we can build a station, understand why if not */
 	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReason, bool IgnoreCost = false);

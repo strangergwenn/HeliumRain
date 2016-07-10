@@ -506,7 +506,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSector(FFlareSectorSave* Data)
 
 	JsonObject->SetStringField("GivenName", Data->GivenName.ToString());
 	JsonObject->SetStringField("Identifier", Data->Identifier.ToString());
-	JsonObject->SetStringField("LastFlownShip", Data->LastFlownShip.ToString());
 	JsonObject->SetStringField("LocalTime", FormatInt64(Data->LocalTime));
 	JsonObject->SetObjectField("People", SavePeople(&Data->PeopleData));
 
