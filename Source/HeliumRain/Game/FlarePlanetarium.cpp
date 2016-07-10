@@ -246,6 +246,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		BodyComponent->SetRelativeRotation(FQuat::Identity);
 		BodyComponent->SetRelativeRotation(Rotation);
 
+		// Apply sun direction to component
 		UMaterialInstanceDynamic* ComponentMaterial = Cast<UMaterialInstanceDynamic>(BodyComponent->GetMaterial(0));
 		if (!ComponentMaterial)
 		{
@@ -254,6 +255,28 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		}
 		ComponentMaterial->SetVectorParameterValue("SunDirection", SunDirection.ToVector());
 
+		// Look for rings and orient them
+		TArray<USceneComponent*> RingCandidates;
+		BodyComponent->GetChildrenComponents(true, RingCandidates);
+		for (int32 ComponentIndex = 0; ComponentIndex < RingCandidates.Num(); ComponentIndex++)
+		{
+			UStaticMeshComponent* RingComponent = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
+			if (RingComponent && RingComponent->GetName().Contains("ring"))
+			{
+				UMaterialInstanceDynamic* RingMaterial = Cast<UMaterialInstanceDynamic>(RingComponent->GetMaterial(0));
+				if (!RingMaterial)
+				{
+					RingMaterial = UMaterialInstanceDynamic::Create(RingComponent->GetMaterial(0), GetWorld());
+					RingComponent->SetMaterial(0, RingMaterial);
+				}
+
+				FRotator RingRotation = RingComponent->GetComponentRotation();
+				FRotator OffsetRotation = SunDirection.ToVector().Rotation() - RingRotation;
+				RingMaterial->SetScalarParameterValue("SunYaw", OffsetRotation.Yaw);
+			}
+		}
+
+		// Sun also rotates to track direction
 		if (Body == &Sun)
 		{
 			BodyComponent->SetRelativeRotation(SunDirection.ToVector().Rotation());
