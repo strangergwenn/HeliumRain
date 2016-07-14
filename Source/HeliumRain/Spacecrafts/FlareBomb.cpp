@@ -133,7 +133,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			}
 
 			// Parent removed destroy
-			if (!ParentWeapon->IsValidLowLevel() || !ParentWeapon->GetSpacecraft()->IsValidLowLevel())
+			if (!ParentWeapon || !ParentWeapon->IsValidLowLevel() || !ParentWeapon->GetSpacecraft()->IsValidLowLevel())
 			{
 				OnBombDetonated(NULL, NULL, FVector(), FVector());
 			}
@@ -264,7 +264,10 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 void AFlareBomb::OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal)
 {
 	// Unregister
-	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
+	if (ParentWeapon)
+	{
+		ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
+	}
 	
 	// Attach to the hull if it's a salvage harpoon
 	if ((WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage)
