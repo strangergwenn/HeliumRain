@@ -154,7 +154,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	// Forget uninteresting hits
 	if (!Other || !OtherComp || !ParentWeapon || Other == ParentWeapon->GetSpacecraft() || BombCandidate)
 	{
-		FLOG("AFlareBomb::OnSpacecraftHit : invalid hit");
+		FLOG("AFlareBomb::NotifyHit : invalid hit");
 		return;
 	}
 
@@ -267,13 +267,17 @@ void AFlareBomb::OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
 	
 	// Attach to the hull if it's a salvage harpoon
-	if (HitSpacecraft && !HitSpacecraft->IsStation() && HitComponent && WeaponDescription &&
-		((WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::S)
-	 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::L)))
+	if ((WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage)
+	 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage))
 	{
-		SetActorLocation(HitLocation);
-		SetActorRotation(InertialNormal.Rotation());
-		AttachToActor(HitSpacecraft, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
+		if (HitSpacecraft && !HitSpacecraft->IsStation() && HitComponent && WeaponDescription &&
+		   ((WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::S)
+		 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::L)))
+		{
+			SetActorLocation(HitLocation);
+			SetActorRotation(InertialNormal.Rotation());
+			AttachToActor(HitSpacecraft, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
+		}
 	}
 	else
 	{
