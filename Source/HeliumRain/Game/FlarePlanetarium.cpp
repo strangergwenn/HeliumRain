@@ -263,6 +263,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 			UStaticMeshComponent* RingComponent = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
 			if (RingComponent && RingComponent->GetName().Contains("ring"))
 			{
+				// Get or create the material
 				UMaterialInstanceDynamic* RingMaterial = Cast<UMaterialInstanceDynamic>(RingComponent->GetMaterial(0));
 				if (!RingMaterial)
 				{
@@ -270,9 +271,17 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 					RingComponent->SetMaterial(0, RingMaterial);
 				}
 
+				// Compute rotation params
 				FRotator RingRotation = RingComponent->GetComponentRotation();
-				FRotator OffsetRotation = SunDirection.ToVector().Rotation() - RingRotation;
-				RingMaterial->SetScalarParameterValue("SunYaw", OffsetRotation.Yaw);
+				FRotator SunRotation = SunDirection.ToVector().Rotation();
+				//FLOGV("AFlarePlanetarium::MoveCelestialBody : ring rotation is %f, %f", RingRotation.Pitch, RingRotation.Yaw);
+				//FLOGV("AFlarePlanetarium::MoveCelestialBody : sun rotation is %f, %f", SunRotation.Pitch, SunRotation.Yaw);
+
+				// Feed params to the shader
+				RingMaterial->SetScalarParameterValue("RingPitch", RingRotation.Pitch);
+				RingMaterial->SetScalarParameterValue("RingYaw", RingRotation.Yaw);
+				RingMaterial->SetScalarParameterValue("SunPitch", SunRotation.Pitch);
+				RingMaterial->SetScalarParameterValue("SunYaw", SunRotation.Yaw);
 			}
 		}
 
