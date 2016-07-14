@@ -48,40 +48,6 @@ void UFlareCompanyAI::Simulate()
 
 
 
-
-	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
-	{
-		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
-		int32 TransportCapacityBalance = Sector->GetTransportCapacityBalance(Company, true);
-		//FLOGV("Sector %s, transport capacity=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacity(Company));
-		//FLOGV("Sector %s, transport needs=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacityNeeds(Company));
-		//FLOGV("Sector %s, transport balance=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacityBalance(Company));
-
-		if (TransportCapacityBalance > 0)
-		{
-			// TODO tolerate few more ship
-			UnassignShipsFromSector(Sector, (uint32) TransportCapacityBalance);
-			//FLOGV("AI %s ACTION : Unassign ships from sector %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TransportCapacityBalance)
-		}
-		else if (TransportCapacityBalance < 0)
-		{
-			AssignShipsToSector(Sector, (uint32) (- TransportCapacityBalance));
-			//FLOGV("AI %s ACTION : Assign ships to sector %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TransportCapacityBalance)
-		}
-		// TODO reassign large ships
-
-
-		// Assign ship for trade
-
-		int32 TradeTransportCapacityBalance = Sector->GetTransportCapacityBalance(Company, true);
-		if (TradeTransportCapacityBalance < 0)
-		{
-			AssignShipsToSector(Sector, (uint32) (- TradeTransportCapacityBalance));
-			//FLOGV("AI %s ACTION : Assign ships to sector for trade %s %d units", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(), TradeTransportCapacityBalance)
-		}
-		//FLOGV("Sector %s, final transport capacity=%d", *Sector->GetSectorName().ToString(), Sector->GetTransportCapacity(Company));
-	}
-
 	TArray<UFlareSimulatedSpacecraft*> IdleCargos = FindIdleCargos();
 
 
@@ -103,7 +69,7 @@ void UFlareCompanyAI::Simulate()
 		{
 			UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
 
-			if(Ship->GetCompany() != Company || Ship->GetCargoBay()->GetCapacity() == 0 || Ship->IsAssignedToSector() || ConstructionShips.Contains(Ship))
+			if(Ship->GetCompany() != Company || Ship->GetCargoBay()->GetCapacity() == 0 || ConstructionShips.Contains(Ship))
 			{
 				continue;
 			}
@@ -126,8 +92,6 @@ void UFlareCompanyAI::Simulate()
 	}
 
 	FLOGV("%s has %d idle ships", *Company->GetCompanyName().ToString(), IdleShip);
-
-	// TODO Move unassign ship un sector that have not enough ship
 
 
 	// Substract ship that are currently traveling to the sector and are not in a trade route
@@ -163,8 +127,6 @@ void UFlareCompanyAI::Simulate()
 		UFlareSimulatedSpacecraft* Ship = IdleCargos[ShipIndex];
 
 	//	FLOGV("Search something to do for %s", *Ship->GetImmatriculation().ToString());
-
-		// TODO first, go for auto assign if needed
 
 
 		SectorDeal BestDeal;
@@ -1263,32 +1225,6 @@ void UFlareCompanyAI::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 	ConstructionShips.Remove(Spacecraft);
 }
 
-
-void UFlareCompanyAI::UnassignShipsFromSector(UFlareSimulatedSector* Sector, uint32 MaxCapacity)
-{
-	uint32 RemainingCapacity = MaxCapacity;
-
-	for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
-	{
-		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-		if(Ship->GetCompany() != Company || !Ship->IsAssignedToSector())
-		{
-			continue;
-		}
-
-		if(Ship->GetCargoBay()->GetCapacity() <= RemainingCapacity)
-		{
-			Ship->AssignToSector(false);
-			RemainingCapacity-= Ship->GetCargoBay()->GetCapacity();
-		}
-
-		if(RemainingCapacity == 0)
-		{
-			return;
-		}
-	}
-}
-
 TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos()
 {
 	TArray<UFlareSimulatedSpacecraft*> IdleCargos;
@@ -1301,7 +1237,7 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos()
 		for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-			if(Ship->GetCompany() != Company || Ship->IsAssignedToSector() || Ship->GetCurrentTradeRoute() != NULL || Ship->GetCargoBay()->GetCapacity() == 0 || ConstructionShips.Contains(Ship))
+			if(Ship->GetCompany() != Company || Ship->GetCurrentTradeRoute() != NULL || Ship->GetCargoBay()->GetCapacity() == 0 || ConstructionShips.Contains(Ship))
 			{
 				continue;
 			}
@@ -1311,30 +1247,6 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos()
 	}
 
 	return IdleCargos;
-}
-
-void UFlareCompanyAI::AssignShipsToSector(UFlareSimulatedSector* Sector, uint32 MinCapacity)
-{
-	int32 RemainingCapacity = MinCapacity;
-
-	for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
-	{
-		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-		if(Ship->GetCompany() != Company || Ship->IsAssignedToSector() || Ship->GetCurrentTradeRoute() != NULL || Ship->GetCargoBay()->GetCapacity() == 0 || ConstructionShips.Contains(Ship))
-		{
-			continue;
-		}
-
-
-		Ship->AssignToSector(true);
-		RemainingCapacity-= Ship->GetCargoBay()->GetCapacity();
-
-
-		if(RemainingCapacity <= 0)
-		{
-			return;
-		}
-	}
 }
 
 /*----------------------------------------------------

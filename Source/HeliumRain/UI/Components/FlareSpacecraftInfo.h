@@ -86,12 +86,6 @@ public:
 
 	/** Scrap this ship */
 	void OnScrap();
-
-	/** Assign*/
-	void OnAssign();
-
-	/** Unassign*/
-	void OnUnassign();
 	
 
 	/*----------------------------------------------------
@@ -140,8 +134,6 @@ protected:
 	TSharedPtr<SFlareButton>          InspectButton;
 	TSharedPtr<SFlareButton>          UpgradeButton;
 	TSharedPtr<SFlareButton>          TradeButton;
-	TSharedPtr<SFlareButton>          AssignButton;
-	TSharedPtr<SFlareButton>          UnassignButton;
 	TSharedPtr<SFlareButton>          FlyButton;
 	TSharedPtr<SFlareButton>          SelectButton;
 	TSharedPtr<SFlareButton>          DockButton;

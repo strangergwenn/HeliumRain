@@ -171,28 +171,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					[
 						SNew(SHorizontalBox)
 
-						// Assign to sector
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(AssignButton, SFlareButton)
-							.Text(LOCTEXT("Assign", "ASSIGN HERE"))
-							.HelpText(LOCTEXT("AssignInfo", "Assign this ship to it's current sector"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnAssign)
-							.Width(3)
-						]
-
-						// UnAssign to sector
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(UnassignButton, SFlareButton)
-							.Text(LOCTEXT("Unassign", "UNASSIGN"))
-							.HelpText(LOCTEXT("UnassignInfo", "Unassign this ship from the sector"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnUnassign)
-							.Width(3)
-						]
-
 						// Trade
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
@@ -341,8 +319,6 @@ void SFlareSpacecraftInfo::Show()
 		InspectButton->SetVisibility(EVisibility::Collapsed);
 		UpgradeButton->SetVisibility(EVisibility::Collapsed);
 		TradeButton->SetVisibility(EVisibility::Collapsed);
-		AssignButton->SetVisibility(EVisibility::Collapsed);
-		UnassignButton->SetVisibility(EVisibility::Collapsed);
 		FlyButton->SetVisibility(EVisibility::Collapsed);
 		SelectButton->SetVisibility(EVisibility::Collapsed);
 		DockButton->SetVisibility(EVisibility::Collapsed);
@@ -370,14 +346,12 @@ void SFlareSpacecraftInfo::Show()
 
 		// Permissions
 		bool CanDock =     !IsDocked && IsFriendly && ActiveTargetSpacecraft && ActiveTargetSpacecraft->GetDockingSystem()->HasCompatibleDock(PlayerShip->GetActive());
-		bool CanAssign =   Owned && !IsStation && TargetSpacecraft->GetCurrentSector() && !TargetSpacecraft->IsAssignedToSector();
-		bool CanUnAssign = Owned && !IsStation && TargetSpacecraft->IsAssignedToSector();
 		bool CanUpgrade =  Owned && !IsStation && (IsDocked || (IsRemoteFlying && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany())));
 		bool CanTrade =    Owned && !IsStation && (IsDocked || (IsRemoteFlying && TargetSpacecraft->GetDescription()->CargoBayCount > 0));
 		bool CanScrap =    Owned && !IsStation && IsRemoteFlying && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
 
-		FLOGV("SFlareSpacecraftInfo::Show : CanDock = %d CanAssign = %d CanUnAssign = %d CanUpgrade = %d CanTrade = %d",
-			CanDock, CanAssign, CanUnAssign, CanUpgrade, CanTrade);
+		FLOGV("SFlareSpacecraftInfo::Show : CanDock = %d CanUpgrade = %d CanTrade = %d",
+			CanDock, CanUpgrade, CanTrade);
 
 		// Trade override during battles
 		if (TargetSpacecraft->GetCurrentSector())
@@ -401,8 +375,6 @@ void SFlareSpacecraftInfo::Show()
 		FlyButton->SetVisibility(!Owned || IsStation ? EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
-		AssignButton->SetVisibility(CanAssign ? EVisibility::Visible : EVisibility::Collapsed);
-		UnassignButton->SetVisibility(CanUnAssign ? EVisibility::Visible : EVisibility::Collapsed);
 		TradeButton->SetVisibility(CanTrade ? EVisibility::Visible : EVisibility::Collapsed);
 		UpgradeButton->SetVisibility(Owned && !IsStation ? EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock && !IsRemoteFlying ? EVisibility::Visible : EVisibility::Collapsed);
@@ -421,11 +393,6 @@ void SFlareSpacecraftInfo::Show()
 			FlyButton->SetHelpText(Reason);
 			FlyButton->SetDisabled(true);
 		}
-		else if (!TargetSpacecraft->IsActive())
-		{
-			FlyButton->SetHelpText(LOCTEXT("CantFlyDistantShipInfo", "You can't fly a ship from another sector"));
-			FlyButton->SetDisabled(true);
-		}
 		else
 		{
 			FlyButton->SetHelpText(LOCTEXT("ShipFlyInfo", "Take command of this spacecraft"));
@@ -433,16 +400,9 @@ void SFlareSpacecraftInfo::Show()
 		}
 
 		// Select button
-		if (TargetSpacecraft->IsAssignedToSector())
-		{
-			SelectButton->SetHelpText(LOCTEXT("ShipAssignedSelectInfo", "You must unassign this ship befor select it"));
-			SelectButton->SetDisabled(true);
-		}
-		else
-		{
-			SelectButton->SetHelpText(LOCTEXT("ShipSelectInfo", "Select this spacecraft's fleet"));
-			SelectButton->SetDisabled(false);
-		}
+		SelectButton->SetHelpText(LOCTEXT("ShipSelectInfo", "Select this spacecraft's fleet"));
+		SelectButton->SetDisabled(false);
+
 
 		// Disable trade while flying unless docked
 		if (IsRemoteFlying || IsDocked)
@@ -614,24 +574,6 @@ void SFlareSpacecraftInfo::OnScrap()
 		{
 			FLOG("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !")
 		}
-	}
-}
-
-void SFlareSpacecraftInfo::OnAssign()
-{
-	if (PC && TargetSpacecraft)
-	{
-		TargetSpacecraft->AssignToSector(true);
-		Show();
-	}
-}
-
-void SFlareSpacecraftInfo::OnUnassign()
-{
-	if (PC && TargetSpacecraft)
-	{
-		TargetSpacecraft->AssignToSector(false);
-		Show();
 	}
 }
 

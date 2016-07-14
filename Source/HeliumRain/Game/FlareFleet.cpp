@@ -171,7 +171,6 @@ void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 	FleetData.ShipImmatriculations.Add(Ship->GetImmatriculation());
 	FleetShips.AddUnique(Ship);
 	Ship->SetCurrentFleet(this);
-	Ship->AssignToSector(false);
 }
 
 void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship, bool destroyed)
@@ -186,7 +185,7 @@ void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship, bool destroyed)
 	FleetShips.Remove(Ship);
 	Ship->SetCurrentFleet(NULL);
 
-	if (!destroyed && !Ship->IsAssignedToSector())
+	if (!destroyed)
 	{
 		Ship->GetCompany()->CreateAutomaticFleet(Ship);
 	}

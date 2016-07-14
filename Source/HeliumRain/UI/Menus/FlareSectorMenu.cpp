@@ -83,17 +83,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.TextFont)
 							.WrapTextAt(Theme.ContentWidth)
 						]
-				
-						// Sector transport info
-						+ SVerticalBox::Slot()
-						.Padding(Theme.ContentPadding)
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSectorMenu::GetSectorTransportInfo)
-							.TextStyle(&Theme.TextFont)
-							.WrapTextAt(Theme.ContentWidth)
-						]
 
 						// Travel here
 						+ SVerticalBox::Slot()
@@ -549,25 +538,6 @@ FText SFlareSectorMenu::GetSectorDescription() const
 	return Result;
 }
 
-FText SFlareSectorMenu::GetSectorTransportInfo() const
-{
-	FText Result;
-
-	if (IsEnabled() && TargetSector)
-	{
-		UFlareCompany* PlayerCompany = MenuManager->GetGame()->GetPC()->GetCompany();
-		FText TransportInfoText = LOCTEXT("SectorDescriptionFormat",
-			"Stations here require {0} cargo units per day (current capacity is {1}). The sector has a population of {2}.");
-
-		Result = FText::Format(TransportInfoText,
-			FText::AsNumber(TargetSector->GetTransportCapacityNeeds(PlayerCompany)),
-			FText::AsNumber(TargetSector->GetTransportCapacity(PlayerCompany)),
-			FText::AsNumber(TargetSector->GetPeople()->GetPopulation())
-		);
-	}
-
-	return Result;
-}
 
 FText SFlareSectorMenu::GetSectorLocation() const
 {

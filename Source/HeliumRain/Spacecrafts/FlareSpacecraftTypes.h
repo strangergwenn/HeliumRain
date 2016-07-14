@@ -319,10 +319,6 @@ struct FFlareSpacecraftSave
 	/** Factory states */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareFactorySave> FactoryStates;
-
-	/** Is spacecraft assigned to the sector */
-	UPROPERTY(EditAnywhere, Category = Save)
-	bool IsAssigned;
 	
 	/** Asteroid we're stuck to */
 	UPROPERTY(EditAnywhere, Category = Save)

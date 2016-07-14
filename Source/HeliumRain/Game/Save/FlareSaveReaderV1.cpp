@@ -291,7 +291,6 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	LoadFloat(Object, "Heat", &Data->Heat);
 	LoadFloat(Object, "PowerOutageDelay", &Data->PowerOutageDelay);
 	LoadFloat(Object, "PowerOutageAcculumator", &Data->PowerOutageAcculumator);
-	Object->TryGetBoolField(TEXT("IsAssigned"), Data->IsAssigned);
 	LoadFName(Object, "DynamicComponentStateIdentifier", &Data->DynamicComponentStateIdentifier);
 	LoadFloat(Object, "DynamicComponentStateProgress", &Data->DynamicComponentStateProgress);
 	LoadInt32(Object, "Level", &Data->Level);

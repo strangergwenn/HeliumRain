@@ -252,7 +252,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	SaveFloat(JsonObject,"Heat", Data->Heat);
 	SaveFloat(JsonObject,"PowerOutageDelay", Data->PowerOutageDelay);
 	SaveFloat(JsonObject,"PowerOutageAcculumator", Data->PowerOutageAcculumator);
-	JsonObject->SetBoolField("IsAssigned", Data->IsAssigned);
 	JsonObject->SetStringField("DynamicComponentStateIdentifier", Data->DynamicComponentStateIdentifier.ToString());
 	SaveFloat(JsonObject,"DynamicComponentStateProgress", Data->DynamicComponentStateProgress);
 	JsonObject->SetStringField("Level", FormatInt32(Data->Level));

@@ -164,16 +164,11 @@ bool UFlareSimulatedSpacecraft::CanBeFlown(FText& OutInfo) const
 	{
 		return false;
 	}
-	else if (CurrentSector->IsTravelSector())
+	else if (!IsActive())
 	{
-		OutInfo = FText::Format(LOCTEXT("CantTravelFormat", "Can't fly during travel ({0})"), FText::FromName(GetImmatriculation()));
-		return false;
+		OutInfo = LOCTEXT("CantFlyDistantFormat", "You can't fly a ship from another sector");
 	}
-	else if (IsAssignedToSector())
-	{
-		OutInfo = FText::Format(LOCTEXT("CantAssignedFormat", "Can't fly if assigned ({0})"), FText::FromName(GetImmatriculation()));
-		return false;
-	}
+
 	return true;
 }
 
@@ -191,33 +186,6 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 	if (!Sector->IsTravelSector())
 	{
 		GetCompany()->VisitSector(Sector);
-	}
-	else
-	{
-		// Un assign the ship
-		AssignToSector(false);
-	}
-}
-
-void UFlareSimulatedSpacecraft::AssignToSector(bool Assign)
-{
-	if (!CurrentSector->IsTravelSector())
-	{
-		SpacecraftData.IsAssigned = false;
-	}
-	else
-	{
-		SpacecraftData.IsAssigned = Assign;
-	}
-
-	if (Assign && GetCurrentFleet()) {
-		GetCurrentFleet()->RemoveShip(this);
-	}
-
-	if (!Assign && !GetCurrentFleet())
-	{
-		// Add in automatic fleet
-		GetCompany()->CreateAutomaticFleet(this);
 	}
 }
 

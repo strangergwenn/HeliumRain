@@ -318,15 +318,9 @@ public:
 
 	void AttachStationToAsteroid(UFlareSimulatedSpacecraft* Spacecraft);
 
-	void SimulateTransport();
-
-	int32 SimulateTransport(UFlareCompany* Company, int32 TransportCapacity);
-
 	void SimulatePriceVariation();
 
 	void SimulatePriceVariation(FFlareResourceDescription* Resource);
-
-	void SimulateTrade(TArray<uint32> CompanyRemainingTransportCapacity);
 
 	void FillResourceConsumers(UFlareCompany* Company, int32& TransportCapacity, bool AllowTrade);
 
@@ -445,16 +439,7 @@ public:
 
 	int64 GetStationConstructionFee(int64 BasePrice);
 
-	uint32 GetTransportCapacity(UFlareCompany* Company, bool AllCompanies = false);
-
 	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips = false, bool AllowTrade = false);
-
-	/** If positive, return the remaining tranport capacity after transport.
-	 *  If negative, return the laking tranport capacity after transport
-	 */
-	int32 GetTransportCapacityBalance(UFlareCompany* Company, bool AllowTrade = false);
-
-	int32 GetTransportCapacityNeeds(UFlareCompany* Company, bool AllowTrade = false);
 
 	float GetLightRatio()
 	{

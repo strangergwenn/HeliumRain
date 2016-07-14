@@ -102,10 +102,6 @@ protected:
 		Helpers
 	----------------------------------------------------*/
 
-	virtual void UnassignShipsFromSector(UFlareSimulatedSector* Sector, uint32 Capacity);
-
-	virtual void AssignShipsToSector(UFlareSimulatedSector* Sector, uint32 Capacity);
-
 	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector);
 
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation);

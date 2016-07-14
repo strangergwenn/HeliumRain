@@ -305,9 +305,9 @@ bool UFlareWorld::CheckIntegrity()
 
 			if(ShipSector)
 			{
-				if (Ship->GetCurrentFleet() == NULL && !Ship->IsAssignedToSector())
+				if (Ship->GetCurrentFleet() == NULL)
 				{
-					FLOGV("WARNING : World integrity failure : %s in %s is not assigned and in no fleetis not have %d spacecraft but %d ships and %s stations",
+					FLOGV("WARNING : World integrity failure : %s in %s is in no fleet",
 						  *Ship->GetImmatriculation().ToString(),
 						  *ShipSector->GetSectorName().ToString());
 					Integrity = false;
@@ -325,9 +325,8 @@ bool UFlareWorld::CheckIntegrity()
 			{
 				if (Ship->GetCurrentFleet() == NULL)
 				{
-					FLOGV("WARNING : World integrity failure : %s not in sector but in no fleet (is assigned ? %d)",
-						  *Ship->GetImmatriculation().ToString(),
-						  Ship->IsAssignedToSector());
+					FLOGV("WARNING : World integrity failure : %s not in sector but in no fleet",
+						  *Ship->GetImmatriculation().ToString());
 					Integrity = false;
 
 				}
@@ -465,13 +464,6 @@ void UFlareWorld::Simulate()
 	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
 		Factories[FactoryIndex]->Simulate();
-	}
-
-	FLOG("Automatic transport");
-	// Automatic transport
-	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
-	{
-		Sectors[SectorIndex]->SimulateTransport();
 	}
 
 	// Peoples

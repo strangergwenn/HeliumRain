@@ -72,13 +72,6 @@ public:
 
 	virtual bool CanBeFlown(FText& OutInfo) const;
 
-	virtual bool IsAssignedToSector() const
-	{
-		return SpacecraftData.IsAssigned;
-	}
-
-	void AssignToSector(bool Assign);
-
 	/** Set asteroid data from an asteroid save */
 	void SetAsteroidData(FFlareAsteroidSave* Data);
 
