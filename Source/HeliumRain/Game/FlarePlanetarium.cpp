@@ -271,17 +271,19 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 					RingComponent->SetMaterial(0, RingMaterial);
 				}
 
-				// Compute rotation params
+				// Get world-space rotation angles for the ring and the sun
 				FRotator RingRotation = RingComponent->GetComponentRotation();
 				FRotator SunRotation = SunDirection.ToVector().Rotation();
-				//FLOGV("AFlarePlanetarium::MoveCelestialBody : ring rotation is %f, %f", RingRotation.Pitch, RingRotation.Yaw);
-				//FLOGV("AFlarePlanetarium::MoveCelestialBody : sun rotation is %f, %f", SunRotation.Pitch, SunRotation.Yaw);
+				FVector RingDirection = RingRotation.Vector();
+				
+				// Compensate for rotator bugs in edge cases : yaw can be 0 or 180, when it's 180 we need to invert the pitch
+				float RingRotationPitch = (FMath::Abs(RingRotation.Yaw) > 90 ? +1 : -1) * RingRotation.Pitch;
+				float SunRotationPitch =  (FMath::Abs(SunRotation.Yaw ) > 90 ? +1 : -1) * SunRotation.Pitch;
+				FLOGV("AFlarePlanetarium::MoveCelestialBody : ring pitch is %f°, sun pitch %f°", RingRotationPitch, SunRotationPitch);
 
 				// Feed params to the shader
-				RingMaterial->SetScalarParameterValue("RingPitch", RingRotation.Pitch);
-				RingMaterial->SetScalarParameterValue("RingYaw", RingRotation.Yaw);
-				RingMaterial->SetScalarParameterValue("SunPitch", SunRotation.Pitch);
-				RingMaterial->SetScalarParameterValue("SunYaw", SunRotation.Yaw);
+				RingMaterial->SetScalarParameterValue("RingPitch", RingRotationPitch / 360);
+				RingMaterial->SetScalarParameterValue("SunPitch", SunRotationPitch / 360);
 			}
 		}
 
