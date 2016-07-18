@@ -1,59 +1,15 @@
-Intermediate/
-Flare.opensdf
-Flare.sdf
-Flare.sln
-Saved/
-DerivedDataCache/
 *.exp
 *.tmp
 *.blend1
 *.blend2
 *.blend3
 *.fbx
-Build/Receipts/FlareEditor-Win64-Development.target.xml
-Build/
-Binaries/Win64/FlareEditor.target
-Binaries/Win64/UE4Editor.modules
-Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor.modules
-Plugins/InternalComponentVisualizer/Binaries/Linux
-Binaries/Win64/Flare.target
-Binaries/Win64/Flare-Win64-Shipping.target
-Binaries/Linux/
-Helium Rain.sdf
-Helium Rain.sln
-Helium Rain.opensdf
-Binaries/Win64/HeliumRainEditor.target
-Binaries/Win64/HeliumRain.target
+*.kdev4
 HeliumRain.opensdf
 HeliumRain.sdf
 HeliumRain.sln
-Binaries/Win64/HeliumRain-Win64-DebugGame.target
-Binaries/Win64/HeliumRainEditor-Win64-DebugGame.target
-Binaries/Win64/UE4Editor-Win64-DebugGame.modules
-Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor-Win64-DebugGame.modules
-CMakeLists.txt
-Flare.kdev4
-Flare.pro
-Flare.pro.user
-Flare.workspace
-FlareCodeCompletionFolders.txt
-FlareCodeLitePreProcessor.txt
-FlareConfig.pri
-FlareDefines.pri
-FlareHeader.pri
-FlareIncludes.pri
-FlareSource.pri
-Helium Rain.kdev4
-Helium Rain.pro
-Helium Rain.pro.user
-Helium Rain.workspace
-Helium RainCodeCompletionFolders.txt
-Helium RainCodeLitePreProcessor.txt
-Helium RainConfig.pri
-Helium RainDefines.pri
-Helium RainHeader.pri
-Helium RainIncludes.pri
-Helium RainSource.pri
+HeliumRain.VC.db
+HeliumRain.VC.VC.opendb
 HeliumRain.kdev4
 HeliumRain.pro
 HeliumRain.pro.user
@@ -66,15 +22,13 @@ HeliumRainDefines.pri
 HeliumRainHeader.pri
 HeliumRainIncludes.pri
 HeliumRainSource.pri
+CMakeLists.txt
 Makefile
-.kdev4
 core
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
 Releases/
-Binaries/Win64/HeliumRain-Win64-Shipping.target
-Binaries/Win64/HeliumRain-Win64-Test.target
-HeliumRain.VC.db
-HeliumRain.VC.VC.opendb
-Binaries/Win64/steam_appid.txt
-Binaries/Win64/HeliumRainEditor-Win64-Debug.target
-Binaries/Win64/UE4Editor-Win64-Debug.modules
-Plugins/InternalComponentVisualizer/Binaries/Win64/UE4Editor-Win64-Debug.modules
+Saved/
+Plugins/InternalComponentVisualizer/Binaries
