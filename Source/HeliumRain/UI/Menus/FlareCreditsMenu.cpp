@@ -238,7 +238,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("DONT-TRANSLATE-Assets-Info", "Helium Rain uses some game assets by 'Imphenzia', 'Gargore', and Danny Kauer."))
+					.Text(LOCTEXT("DONT-TRANSLATE-Assets-Info", "Helium Rain uses asteroids and rocks by 'Gargore', and Danny Kauer. Skybox reference sourced from work by NASA/Goddard Space Flight Center Scientific Visualization Studio."))
 					.Font(SecondaryFont)
 					.WrapTextAt(TextWidth)
 				]
