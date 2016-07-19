@@ -21,7 +21,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	ChildSlot
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Right)
-	.Padding(FMargin(0, 200, 0, 0))
+	.Padding(FMargin(0, 220, 0, 0))
 	[
 		SNew(SBox)
 		.HeightOverride(800)
