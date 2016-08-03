@@ -72,7 +72,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 			{
 				for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 				{
-					if ((*ActorItr)->GetName().StartsWith("BP_Sky_Saygar_C_0"))
+					if ((*ActorItr)->GetName().StartsWith("Skybox"))
 					{
 						FLOG("AFlarePlanetarium::Tick : found the sky");
 						Sky = *ActorItr;
@@ -173,7 +173,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 				}
 				else
 				{
-					FLOGV("AFlarePlanetarium::Tick : fFailed to find the current sector: '%s' in planetarium", *(PlayerOrbit->CelestialBodyIdentifier.ToString()));
+					FLOGV("AFlarePlanetarium::Tick : failed to find the current sector: '%s' in planetarium", *(PlayerOrbit->CelestialBodyIdentifier.ToString()));
 				}
 
 
@@ -279,7 +279,7 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 				// Compensate for rotator bugs in edge cases : yaw can be 0 or 180, when it's 180 we need to invert the pitch
 				float RingRotationPitch = (FMath::Abs(RingRotation.Yaw) > 90 ? +1 : -1) * RingRotation.Pitch;
 				float SunRotationPitch =  (FMath::Abs(SunRotation.Yaw ) > 90 ? +1 : -1) * SunRotation.Pitch;
-				FLOGV("AFlarePlanetarium::MoveCelestialBody : ring pitch is %f°, sun pitch %f°", RingRotationPitch, SunRotationPitch);
+				//FLOGV("AFlarePlanetarium::MoveCelestialBody : ring pitch is %f°, sun pitch %f°", RingRotationPitch, SunRotationPitch);
 
 				// Feed params to the shader
 				RingMaterial->SetScalarParameterValue("RingPitch", RingRotationPitch / 360);

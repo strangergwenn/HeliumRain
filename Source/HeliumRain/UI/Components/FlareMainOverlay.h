@@ -88,6 +88,10 @@ protected:
 	// Menu manager
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
+	
+	// Blur material
+	UPROPERTY()
+	UMaterialInstanceDynamic*                       BlurMaterial;
 
 	// General data
 	bool                                            IsOverlayVisible;
@@ -96,6 +100,7 @@ protected:
 
 	// Slate data
 	TSharedPtr<SBorder>                             Background;
+	TSharedPtr<SImage>                              Border;
 	TSharedPtr<SHorizontalBox>                      MenuList;
 
 

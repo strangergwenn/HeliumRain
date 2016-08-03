@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareMainOverlay.h"
 
+#include "../../Game/FlareGameUserSettings.h"
 #include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
 
@@ -32,13 +33,14 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Fill)
 		.Padding(FMargin(0))
-		.BorderImage(&Theme.BackgroundBrush)
+		.BorderImage(FCoreStyle::Get().GetBrush("NoBrush"))
 		[
-			SNew(SBorder)
+			SNew(SVerticalBox)
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
-			.Padding(FMargin(0, 0, 0, 8))
-			.BorderImage(&Theme.BackgroundBrush)
 			[
 				SAssignNew(MenuList, SHorizontalBox)
 
@@ -90,6 +92,15 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 					]
 				]
 			]
+
+			// Bottom border
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Fill)
+			[
+				SAssignNew(Border, SImage)
+				.Image(&Theme.NearInvisibleBrush)
+			]
 		]
 	];
 
@@ -132,6 +143,35 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 
 	// Init
 	Close();
+
+	// Setup the post process 
+	TArray<AActor*> PostProcessCandidates;
+	UGameplayStatics::GetAllActorsOfClass(MenuManager->GetPC()->GetWorld(), APostProcessVolume::StaticClass(), PostProcessCandidates);
+	if (PostProcessCandidates.Num())
+	{
+		APostProcessVolume* Volume = Cast<APostProcessVolume>(PostProcessCandidates.Last());
+		check(Volume);
+
+		FWeightedBlendable Blendable = Volume->Settings.WeightedBlendables.Array.Last();
+		UMaterial* MasterMaterial = Cast<UMaterial>(Blendable.Object);
+		if (MasterMaterial)
+		{
+			BlurMaterial = UMaterialInstanceDynamic::Create(MasterMaterial, MenuManager->GetPC()->GetWorld());
+			check(BlurMaterial);
+			
+			Volume->Settings.RemoveBlendable(MasterMaterial);
+			Volume->Settings.AddBlendable(BlurMaterial, 1.0f);
+			FLOG("SFlareMainOverlay::Construct : blur material ready");
+		}
+		else
+		{
+			FLOG("SFlareMainOverlay::Construct : no usable material found for blur");
+		}
+	}
+	else
+	{
+		FLOG("SFlareMainOverlay::Construct : no post process found");
+	}
 }
 
 void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
@@ -228,13 +268,27 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
 
 	// Visibility check
-	if (!IsOverlayVisible || (MousePosition.Y / ViewportScale) > AFlareMenuManager::GetMainOverlayHeight())
+	float Height = AFlareMenuManager::GetMainOverlayHeight();
+	if (!IsOverlayVisible || (MousePosition.Y / ViewportScale) > Height)
 	{
 		SetVisibility(EVisibility::HitTestInvisible);
 	}
 	else
 	{
 		SetVisibility(EVisibility::Visible);
+	}
+
+	// Update blur material with appropriate values
+	if (IsOpen())
+	{
+		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+		float ActualScale = ViewportScale * (MyGameSettings->ScreenPercentage / 100.0f);
+		BlurMaterial->SetVectorParameterValue("PanelPosition", FVector(0.0, 0.0, 0));
+		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(ViewportSize.X, ActualScale * Height, 0));
+	}
+	else
+	{
+		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(0.0, 0.0, 0));
 	}
 }
 
