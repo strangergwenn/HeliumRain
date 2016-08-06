@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareTradeMenu.h"
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareSectorHelper.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../Components/FlareRoundButton.h"
@@ -581,6 +582,7 @@ void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> Space
 
 void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource)
 {
+	FLOGV("OnTransferResources %p %p", SourceSpacecraft, DestinationSpacecraft);
 	if (DestinationSpacecraft)
 	{
 		// Store transaction data
@@ -629,8 +631,7 @@ void SFlareTradeMenu::OnConfirmTransaction()
 	// Actual transaction
 	if (TransactionSourceSpacecraft && TransactionSourceSpacecraft->GetCurrentSector() && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		TransactionSourceSpacecraft->GetCurrentSector()->TransfertResources(
-			TransactionSourceSpacecraft,
+		SectorHelper::Trade(TransactionSourceSpacecraft,
 			TransactionDestinationSpacecraft,
 			TransactionResource,
 			TransactionQuantity);

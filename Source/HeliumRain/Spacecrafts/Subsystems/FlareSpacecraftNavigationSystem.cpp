@@ -213,9 +213,16 @@ void UFlareSpacecraftNavigationSystem::BreakDock()
 
 bool UFlareSpacecraftNavigationSystem::Undock()
 {
+
 	// Try undocking
 	if (IsDocked())
 	{
+		if(Spacecraft->GetParent()->IsTrading())
+		{
+			FLOGV("UFlareSpacecraftNavigationSystem::Undock : '%s' is trading", *Spacecraft->GetParent()->GetImmatriculation().ToString());
+			return false;
+		}
+
 		FLOGV("UFlareSpacecraftNavigationSystem::Undock : '%s' undocking from '%s'",
 			*Spacecraft->GetParent()->GetImmatriculation().ToString(),
 			*Data->DockedTo.ToString());

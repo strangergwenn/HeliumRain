@@ -322,23 +322,6 @@ public:
 
 	void SimulatePriceVariation(FFlareResourceDescription* Resource);
 
-	void FillResourceConsumers(UFlareCompany* Company, int32& TransportCapacity, bool AllowTrade);
-
-	void FillResourceMaintenances(UFlareCompany* Company, int32& TransportCapacity, bool AllowTrade);
-
-	void AdaptativeTransportResources(UFlareCompany* Company, int32& TransportCapacity, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool AllowTrade = false);
-
-	uint32 TakeUselessResources(UFlareCompany* Company, FFlareResourceDescription* Resource, int32 QuantityToTake, bool AllowTrade = false, bool AllowDepts = false);
-
-	uint32 TakeResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToTake);
-
-	uint32 GiveResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToGive, bool AllowTrade);
-	uint32 DoGiveResources(UFlareCompany* Company, FFlareResourceDescription* Resource, uint32 QuantityToGive, bool AllowTrade);
-
-	uint32 AdaptativeGiveResources(UFlareCompany* Company, FFlareResourceDescription* GivenResource, uint32 QuantityToGive, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool ActiveOnly, bool StorageOnly, bool AllowTrade);
-	uint32 AdaptativeGiveCustomerResources(UFlareCompany* Company, FFlareResourceDescription* GivenResource, uint32 QuantityToGive, EFlareTransportLimitType::Type TransportLimitType, uint32 TransportLimit, bool AllowTrade);
-
-
 protected:
 
     /*----------------------------------------------------
@@ -458,10 +441,6 @@ public:
 	static float GetDefaultResourcePrice(FFlareResourceDescription* Resource);
 
 	uint32 GetTransfertResourcePrice(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource);
-
-	// TODO Check docking capabilities
-	/** Transfert resource from one spacecraft to another spacecraft */
-	uint32 TransfertResources(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, uint32 Quantity);
 
 	inline FFlareSectorOrbitParameters* GetOrbitParameters()
 	{

@@ -459,6 +459,16 @@ void UFlareWorld::Simulate()
 	 */
 	WorldData.Date++;
 
+	// End trade operation
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
+		for (int32 ShipIndex = 0; ShipIndex < Sector->GetSectorSpacecrafts().Num(); ShipIndex++)
+		{
+			Sector->GetSectorSpacecrafts()[ShipIndex]->SetTrading(false);
+		}
+	}
+
 	// Factories
 	FLOG("Factories");
 	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)

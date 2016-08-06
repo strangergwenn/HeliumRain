@@ -2,12 +2,13 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../../Data/FlareResourceCatalogEntry.h"
 
 
 class UFlareSimulatedSector;
 class AFlareMenuManager;
 struct FFlareResourceDescription;
-
+class UFlareResourceCatalogEntry;
 
 class SFlareWorldEconomyMenu : public SCompoundWidget
 {

@@ -293,6 +293,12 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	LoadFloat(Object, "PowerOutageAcculumator", &Data->PowerOutageAcculumator);
 	LoadFName(Object, "DynamicComponentStateIdentifier", &Data->DynamicComponentStateIdentifier);
 	LoadFloat(Object, "DynamicComponentStateProgress", &Data->DynamicComponentStateProgress);
+
+	// LEGACY alpha 3
+	Data->IsTrading = false;
+
+	Object->TryGetBoolField(TEXT("IsTrading"), Data->IsTrading);
+
 	LoadInt32(Object, "Level", &Data->Level);
 	if (Data->Level == 0)
 	{
@@ -416,6 +422,13 @@ void UFlareSaveReaderV1::LoadTurretPilot(const TSharedPtr<FJsonObject> Object, F
 }
 
 
+void UFlareSaveReaderV1::LoadTradeOperation(const TSharedPtr<FJsonObject> Object, FFlareTradeRouteSectorOperationSave* Data)
+{
+	LoadFName(Object, "ResourceIdentifier", &Data->ResourceIdentifier);
+	LoadInt32(Object, "MaxQuantity", (int32*) &Data->MaxQuantity);
+	LoadInt32(Object, "MaxWait", (int32*) &Data->MaxWait);
+	Data->Type = LoadEnum<EFlareTradeRouteOperation::Type>(Object, "Type", "EFlareTradeRouteOperation");
+}
 
 void UFlareSaveReaderV1::LoadCargo(const TSharedPtr<FJsonObject> Object, FFlareCargoSave* Data)
 {
@@ -476,7 +489,17 @@ void UFlareSaveReaderV1::LoadTradeRoute(const TSharedPtr<FJsonObject> Object, FF
 {
 	LoadFText(Object, "Name", &Data->Name);
 	LoadFName(Object, "Identifier", &Data->Identifier);
-	LoadFNameArray(Object, "FleetIdentifiers", &Data->FleetIdentifiers);
+	LoadFName(Object, "FleetIdentifier", &Data->FleetIdentifier);
+
+	// LEGACY alpha 3
+	TArray<FName> FleetIdentifiers;
+	LoadFNameArray(Object, "FleetIdentifiers", &FleetIdentifiers);
+	if(FleetIdentifiers.Num() > 0)
+	{
+		Data->FleetIdentifier = FleetIdentifiers[0];
+	}
+
+
 
 	const TArray<TSharedPtr<FJsonValue>>* Sectors;
 	if(Object->TryGetArrayField("Sectors", Sectors))
@@ -497,17 +520,7 @@ void UFlareSaveReaderV1::LoadTradeRouteSector(const TSharedPtr<FJsonObject> Obje
 	LoadFName(Object, "SectorIdentifier", &Data->SectorIdentifier);
 
 
-	const TArray<TSharedPtr<FJsonValue>>* ResourcesToLoad;
-	if(Object->TryGetArrayField("ResourcesToLoad", ResourcesToLoad))
-	{
-		for (TSharedPtr<FJsonValue> Item : *ResourcesToLoad)
-		{
-			FFlareCargoSave ChildData;
-			LoadCargo(Item->AsObject(), &ChildData);
-			Data->ResourcesToLoad.Add(ChildData);
-		}
-	}
-
+	// LEGACY alpha 3
 	const TArray<TSharedPtr<FJsonValue>>* ResourcesToUnload;
 	if(Object->TryGetArrayField("ResourcesToUnload", ResourcesToUnload))
 	{
@@ -515,7 +528,45 @@ void UFlareSaveReaderV1::LoadTradeRouteSector(const TSharedPtr<FJsonObject> Obje
 		{
 			FFlareCargoSave ChildData;
 			LoadCargo(Item->AsObject(), &ChildData);
-			Data->ResourcesToUnload.Add(ChildData);
+
+			FFlareTradeRouteSectorOperationSave Operation;
+			Operation.Type = EFlareTradeRouteOperation::Unload;
+			Operation.ResourceIdentifier = ChildData.ResourceIdentifier;
+			Operation.MaxQuantity = (ChildData.Quantity == 0 ? -1: ChildData.Quantity);
+			Operation.MaxWait = -1;
+
+			Data->Operations.Add(Operation);
+		}
+	}
+
+	// LEGACY alpha 3
+	const TArray<TSharedPtr<FJsonValue>>* ResourcesToLoad;
+	if(Object->TryGetArrayField("ResourcesToLoad", ResourcesToLoad))
+	{
+		for (TSharedPtr<FJsonValue> Item : *ResourcesToLoad)
+		{
+			FFlareCargoSave ChildData;
+			LoadCargo(Item->AsObject(), &ChildData);
+
+			FFlareTradeRouteSectorOperationSave Operation;
+			Operation.Type = EFlareTradeRouteOperation::Load;
+			Operation.ResourceIdentifier = ChildData.ResourceIdentifier;
+			Operation.MaxQuantity = (ChildData.Quantity == 0 ? -1: ChildData.Quantity);
+			Operation.MaxWait = -1;
+
+			Data->Operations.Add(Operation);
+		}
+	}
+
+	const TArray<TSharedPtr<FJsonValue>>* Operations;
+	if(Object->TryGetArrayField("Operations", Operations))
+	{
+		for (TSharedPtr<FJsonValue> Item : *Operations)
+		{
+			FFlareTradeRouteSectorOperationSave ChildData;
+			LoadTradeOperation(Item->AsObject(), &ChildData);
+
+			Data->Operations.Add(ChildData);
 		}
 	}
 }

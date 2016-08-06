@@ -8,7 +8,47 @@ class UFlareSimulatedSector;
 class UFlareFleet;
 struct FFlareResourceDescription;
 
-/** Fleet save data */
+/** Hostility status */
+UENUM()
+namespace EFlareTradeRouteOperation
+{
+	enum Type
+	{
+		Load,
+		Unload,
+		Buy,
+		Sell,
+		LoadOrBuy,
+		UnloadOrSell,
+	};
+}
+
+/** Trade route sector operation data */
+USTRUCT()
+struct FFlareTradeRouteSectorOperationSave
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Operation type */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlareTradeRouteOperation::Type> Type;
+
+	/** Resource */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ResourceIdentifier;
+
+	/** Max quantity before next operation. -1 Mean no limit */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 MaxQuantity;
+
+	/** Max wait time before next operation. -1 Mean no limit */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 MaxWait;
+
+};
+
+
+/** Trade route sector data */
 USTRUCT()
 struct FFlareTradeRouteSectorSave
 {
@@ -22,14 +62,7 @@ struct FFlareTradeRouteSectorSave
 	 *  The quantity represent the quantity to let in the sector
 	 */
 	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareCargoSave> ResourcesToLoad;
-
-	/** Resource to unload for this sector
-	 *  The quantity represent the max quantity present in the sector
-	 *	0 mean no limit.
-	 */
-	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareCargoSave> ResourcesToUnload;
+	TArray<FFlareTradeRouteSectorOperationSave> Operations;
 };
 
 
@@ -49,11 +82,27 @@ struct FFlareTradeRouteSave
 
 	/** Trade route fleets */
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FName> FleetIdentifiers;
+	FName FleetIdentifier;
 
 	/** Trade route sectors */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareTradeRouteSectorSave> Sectors;
+
+	/** Trade route current target sector */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName TargetSectorIdentifier;
+
+	/** Trade route current target sector */
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 CurrentOperationIndex;
+
+	/** Trade route current operation progress*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 CurrentOperationProgress;
+
+	/** Trade route current operation duration*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	uint32 CurrentOperationDuration;
 };
 
 UCLASS()
@@ -80,22 +129,29 @@ public:
 
 	void Simulate();
 
-	virtual void AddFleet(UFlareFleet* Ship);
+	bool ProcessCurrentOperation(FFlareTradeRouteSectorOperationSave* Operation);
 
-	virtual void RemoveFleet(UFlareFleet* Ship);
+	bool ProcessLoadOperation(FFlareTradeRouteSectorOperationSave* Operation);
+
+	bool ProcessUnloadOperation(FFlareTradeRouteSectorOperationSave* Operation);
+
+	int32 GetOperationRemainingQuantity(FFlareTradeRouteSectorOperationSave* Operation);
+
+	bool IsOperationQuantityLimitReach(FFlareTradeRouteSectorOperationSave* Operation);
+
+	void SetTargetSector(UFlareSimulatedSector* Sector);
+
+	virtual void AssignFleet(UFlareFleet* Fleet);
+
+	virtual void RemoveFleet(UFlareFleet* Fleet);
 
 	virtual void AddSector(UFlareSimulatedSector* Sector);
 
 	virtual void RemoveSector(UFlareSimulatedSector* Sector);
 
-	virtual void SetSectorLoadOrder(int32 SectorIndex, FFlareResourceDescription* Resource, uint32 QuantityToLeft);
+	virtual void AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOperation::Type Type, FFlareResourceDescription* Resource);
 
-	virtual void ClearSectorLoadOrder(int32 SectorIndex, FFlareResourceDescription* Resource);
-
-	virtual void SetSectorUnloadOrder(int32 SectorIndex, FFlareResourceDescription* Resource, uint32 LimitQuantity);
-
-	virtual void ClearSectorUnloadOrder(int32 SectorIndex, FFlareResourceDescription* Resource);
-
+	virtual void RemoveSectorOperation(int32 SectorIndex, int32 OperationIndex);
 
 	/** Remove all fleet from the trade route and delete it. */
 	virtual void Dissolve();
@@ -109,7 +165,7 @@ public:
 
 protected:
 
-	TArray<UFlareFleet*>                  TradeRouteFleets;
+	UFlareFleet*                  TradeRouteFleet;
 
 	UFlareCompany*			               TradeRouteCompany;
 	FFlareTradeRouteSave                   TradeRouteData;
@@ -147,7 +203,7 @@ public:
 		return &TradeRouteData;
 	}
 
-	TArray<UFlareFleet*>& GetFleets();
+	UFlareFleet* GetFleet();
 
     TArray<FFlareTradeRouteSectorSave>& GetSectors()
     {

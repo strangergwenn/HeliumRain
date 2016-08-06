@@ -261,7 +261,7 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 		int ResourceToGive = Resource->Quantity;
 
 		ResourceToGive -= ScrapingStation->GetCargoBay()->GiveResources(&Resource->Resource->Data, Resource->Quantity);
-		CurrentSector->GiveResources(ScrapingStation->GetCompany(), &Resource->Resource->Data, ResourceToGive, true);
+		// Remaining resources are lost
 	}
 
 

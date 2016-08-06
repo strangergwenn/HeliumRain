@@ -338,6 +338,9 @@ struct FFlareSpacecraftSave
 
 	/** Station current level */
 	int32 Level;
+
+	/** Is a trade in progress */
+	bool IsTrading;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */

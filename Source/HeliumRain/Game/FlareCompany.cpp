@@ -354,6 +354,11 @@ UFlareTradeRoute* UFlareCompany::CreateTradeRoute(FText TradeRouteName)
 	FFlareTradeRouteSave TradeRouteData;
 	TradeRouteData.Identifier = FName(*(GetIdentifier().ToString() + "-" + FString::FromInt(CompanyData.TradeRouteImmatriculationIndex++)));
 	TradeRouteData.Name = TradeRouteName;
+	TradeRouteData.TargetSectorIdentifier = NAME_None;
+	TradeRouteData.CurrentOperationIndex = 0;
+	TradeRouteData.CurrentOperationProgress = 0;
+	TradeRouteData.CurrentOperationDuration = 0;
+
 	UFlareTradeRoute* TradeRoute = LoadTradeRoute(TradeRouteData);
 	return TradeRoute;
 }

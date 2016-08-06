@@ -1,5 +1,6 @@
 
 #pragma once
+#include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareResource.generated.h"
 
 

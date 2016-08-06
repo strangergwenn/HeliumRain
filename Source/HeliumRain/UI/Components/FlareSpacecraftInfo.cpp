@@ -399,16 +399,32 @@ void SFlareSpacecraftInfo::Show()
 			FlyButton->SetDisabled(false);
 		}
 
+		if(TargetSpacecraft->IsTrading())
+		{
+			UndockButton->SetHelpText(LOCTEXT("ShipTradingUndockInfo", "Wait trading end before undock"));
+			UndockButton->SetDisabled(true);
+		}
+		else
+		{
+			UndockButton->SetHelpText(LOCTEXT("ShipUndockInfo", "Undock the ship"));
+			UndockButton->SetDisabled(false);
+		}
+
 		// Select button
 		SelectButton->SetHelpText(LOCTEXT("ShipSelectInfo", "Select this spacecraft's fleet"));
 		SelectButton->SetDisabled(false);
 
 
 		// Disable trade while flying unless docked
-		if (IsRemoteFlying || IsDocked)
+		if (IsRemoteFlying || (IsDocked && !TargetSpacecraft->IsTrading()))
 		{
 			TradeButton->SetHelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"));
 			TradeButton->SetDisabled(false);
+		}
+		else if (IsDocked && TargetSpacecraft->IsTrading())
+		{
+			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading in progress"));
+			TradeButton->SetDisabled(true);
 		}
 		else
 		{

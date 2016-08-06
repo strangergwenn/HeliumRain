@@ -134,7 +134,7 @@ bool UFlareSimulatedSpacecraft::CanFight() const
 
 bool UFlareSimulatedSpacecraft::CanTravel() const
 {
-	return GetDamageSystem()->IsAlive() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) > 0;
+	return !IsTrading() && GetDamageSystem()->IsAlive() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) > 0;
 }
 
 
@@ -211,6 +211,12 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 
 	// Check if spacecraft are not both ships
 	if(!IsStation() && !OtherSpacecraft->IsStation())
+	{
+		return false;
+	}
+
+	// Check if spacecraft are are not already trading
+	if(IsTrading() || OtherSpacecraft->IsTrading())
 	{
 		return false;
 	}
@@ -347,6 +353,16 @@ void UFlareSimulatedSpacecraft::ForceUndock()
 {
 	SpacecraftData.DockedTo = NAME_None;
 	SpacecraftData.DockedAt = -1;
+}
+
+void UFlareSimulatedSpacecraft::SetTrading(bool Trading)
+{
+	if(IsStation())
+	{
+		FLOGV("Fail to set trading state to %s : station are never locked in trading state", *GetImmatriculation().ToString());
+		return;
+	}
+	SpacecraftData.IsTrading = Trading;
 }
 
 EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const

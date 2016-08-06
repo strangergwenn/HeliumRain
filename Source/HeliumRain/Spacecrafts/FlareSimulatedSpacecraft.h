@@ -93,6 +93,9 @@ public:
 
 	void ForceUndock();
 
+	void SetTrading(bool Trading);
+
+
 	/*----------------------------------------------------
 		Resources
 	----------------------------------------------------*/
@@ -202,6 +205,11 @@ public:
 	inline int32 GetLevel() const
 	{
 		return SpacecraftData.Level;
+	}
+
+	inline bool IsTrading() const
+	{
+		return SpacecraftData.IsTrading;
 	}
 
 	inline bool IsConsumeResource(FFlareResourceDescription* Resource) const

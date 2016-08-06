@@ -78,7 +78,7 @@ bool UFlareFleet::CanTravel(FText& OutInfo)
 
 	if (GetImmobilizedShipCount() == FleetShips.Num())
 	{
-		OutInfo = LOCTEXT("Travelling", "Can't travel with stranded ships");
+		OutInfo = LOCTEXT("Travelling", "Can't travel with stranded or trading ships");
 		return false;
 	}
 

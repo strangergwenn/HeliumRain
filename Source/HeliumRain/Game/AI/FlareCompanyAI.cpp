@@ -5,6 +5,7 @@
 #include "../FlareGame.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../../Economy/FlareCargoBay.h"
+#include "../FlareSectorHelper.h"
 
 #define STATION_CONSTRUCTION_PRICE_BONUS 1.2
 
@@ -84,8 +85,20 @@ void UFlareCompanyAI::Simulate()
 					continue;
 				}
 
-				uint32 SoldResources = Sector->GiveResources(Company, Cargo.Resource , Cargo.Quantity, true);
-				Ship->GetCargoBay()->TakeResources(Cargo.Resource, SoldResources);
+
+				// Try to unload or sell
+				SectorHelper::FlareTradeRequest Request;
+				Request.Resource = Cargo.Resource;
+				Request.Operation = EFlareTradeRouteOperation::UnloadOrSell;
+				Request.Client = Ship;
+				Request.MaxQuantity = Ship->GetCargoBay()->GetResourceQuantity(Cargo.Resource);
+
+				UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
+
+				if(StationCandidate)
+				{
+					SectorHelper::Trade(Ship, StationCandidate, Cargo.Resource, Request.MaxQuantity);
+				}
 			}
 
 		}
@@ -126,6 +139,10 @@ void UFlareCompanyAI::Simulate()
 	{
 		UFlareSimulatedSpacecraft* Ship = IdleCargos[ShipIndex];
 
+		if(Ship->IsTrading())
+		{
+			continue;
+		}
 	//	FLOGV("Search something to do for %s", *Ship->GetImmatriculation().ToString());
 
 
@@ -193,20 +210,25 @@ void UFlareCompanyAI::Simulate()
 			if (Ship->GetCurrentSector() == BestDeal.SectorA)
 			{
 				// Already in A, buy resources and go to B
+				SectorHelper::FlareTradeRequest Request;
+				Request.Resource = BestDeal.Resource;
+				Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
+				Request.Client = Ship;
+				Request.MaxQuantity = Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource);
 
-				uint32 BroughtResource = BestDeal.SectorA->TakeUselessResources(Company, BestDeal.Resource, BestDeal.BuyQuantity, false);
-				BroughtResource += BestDeal.SectorA->TakeUselessResources(Company, BestDeal.Resource, BestDeal.BuyQuantity - BroughtResource, true);
-				Ship->GetCargoBay()->GiveResources(BestDeal.Resource, BroughtResource);
+				UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
+
+				uint32 BroughtResource = 0;
+				if(StationCandidate)
+				{
+					BroughtResource = SectorHelper::Trade(StationCandidate, Ship, BestDeal.Resource, Request.MaxQuantity);
+				}
 
 				// TODO reduce computed sector stock
 
 				FLOGV(" -> Buy %d / %d", BroughtResource, BestDeal.BuyQuantity);
 				if(BroughtResource == BestDeal.BuyQuantity)
 				{
-					// All wanted resources is get, travel to B
-					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestDeal.SectorB);
-					FLOGV(" -> Travel to %s", *BestDeal.SectorB->GetSectorName().ToString());
-
 					// Virtualy decrease the stock for other ships in sector A
 					SectorVariation* SectorVariationA = &WorldResourceVariation[BestDeal.SectorA];
 					struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[BestDeal.Resource];
@@ -221,7 +243,7 @@ void UFlareCompanyAI::Simulate()
 					struct ResourceVariation* VariationB = &SectorVariationB->ResourceVariations[BestDeal.Resource];
 					VariationB->OwnedCapacity -= BestDeal.BuyQuantity;
 				}
-				else
+				else if(BroughtResource == 0)
 				{
 					// Fail to buy the promised resources, remove the deal from the list
 					SectorVariation* SectorVariationA = &WorldResourceVariation[BestDeal.SectorA];
@@ -236,8 +258,6 @@ void UFlareCompanyAI::Simulate()
 
 					FLOG(" -> Buy Fail remove the deal from the list");
 				}
-
-
 			}
 			else
 			{
@@ -670,6 +690,7 @@ void UFlareCompanyAI::Simulate()
 
 void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, SectorVariation> & WorldResourceVariation)
 {
+	// TODO simplify
 
 	TArray<UFlareSimulatedSpacecraft *> ShipsInConstructionSector;
 	TArray<UFlareSimulatedSpacecraft *> ShipsInOtherSector;
@@ -806,6 +827,11 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 			MissingResourcesQuantity.GetKeys(MissingResources);
 			for (int ResourceIndex = 0; ResourceIndex < MissingResources.Num() ; ResourceIndex++)
 			{
+				if(Ship->IsTrading())
+				{
+					break;
+				}
+
 				FFlareResourceDescription* MissingResource = MissingResources[ResourceIndex];
 				if(!MissingResourcesQuantity.Contains(MissingResource))
 				{
@@ -817,9 +843,22 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 
 				int32 QuantityToBuy = FMath::Min(Capacity, MissingResourceQuantity);
 
-				int32 TakenQuantity = Ship->GetCurrentSector()->TakeUselessResources(Company, MissingResource, QuantityToBuy, true);
+				int32 TakenQuantity = 0;
 
-				Ship->GetCargoBay()->GiveResources(MissingResource, TakenQuantity);
+
+				// Try to load or buy
+				SectorHelper::FlareTradeRequest Request;
+				Request.Resource = MissingResource;
+				Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
+				Request.Client = Ship;
+				Request.MaxQuantity = QuantityToBuy;
+
+				UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
+
+				if(StationCandidate)
+				{
+					TakenQuantity = SectorHelper::Trade(StationCandidate, Ship, MissingResource, Request.MaxQuantity);
+				}
 
 
 				MissingResourceQuantity -= TakenQuantity;

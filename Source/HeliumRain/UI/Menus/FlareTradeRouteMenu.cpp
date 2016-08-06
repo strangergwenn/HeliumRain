@@ -414,7 +414,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 			];
 
 			// Fill resource lists
-			for (int ResourceIndex = 0; ResourceIndex < SectorOrders->ResourcesToLoad.Num(); ResourceIndex++)
+/*			for (int ResourceIndex = 0; ResourceIndex < SectorOrders->ResourcesToLoad.Num(); ResourceIndex++)
 			{
 				FFlareCargoSave* LoadedResource = &SectorOrders->ResourcesToLoad[ResourceIndex];
 				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(LoadedResource->ResourceIdentifier);
@@ -501,9 +501,9 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 						.Width(1)
 					]
 				];
-			}
+			}*/
 
-			for (int ResourceIndex = 0; ResourceIndex < SectorOrders->ResourcesToUnload.Num(); ResourceIndex++)
+			/*for (int ResourceIndex = 0; ResourceIndex < SectorOrders->ResourcesToUnload.Num(); ResourceIndex++)
 			{
 				FFlareCargoSave* UnloadedResource = &SectorOrders->ResourcesToUnload[ResourceIndex];
 				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(UnloadedResource->ResourceIdentifier);
@@ -589,7 +589,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 						.Width(1)
 					]
 				];
-			}
+			}*/
 		}
 	}
 
@@ -619,10 +619,9 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 		FleetSelector->RefreshOptions();
 
 		// Assigned fleets (text display)
-		TArray<UFlareFleet*>& TradeFleets = TargetTradeRoute->GetFleets();
-		for (int FleetIndex = 0; FleetIndex < TradeFleets.Num(); FleetIndex++)
+		if(TargetTradeRoute->GetFleet())
 		{
-			UFlareFleet* Fleet = TradeFleets[FleetIndex];
+			UFlareFleet* Fleet = TargetTradeRoute->GetFleet();
 
 			TradeFleetList->AddSlot()
 			.AutoHeight()
@@ -657,7 +656,7 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 		}
 
 		// No fleets
-		if (FleetList.Num() == 0 && TradeFleets.Num() == 0)
+		if (FleetList.Num() == 0 && TargetTradeRoute->GetFleet() == NULL)
 		{
 			TradeFleetList->AddSlot()
 			.AutoHeight()
@@ -833,7 +832,7 @@ FText SFlareTradeRouteMenu::OnGetCurrentFleetComboLine() const
 EVisibility SFlareTradeRouteMenu::GetAssignFleetVisibility() const
 {
 	// Only one fleet !
-	return FleetList.Num() > 0 && TargetTradeRoute && TargetTradeRoute->GetFleets().Num() == 0 ? EVisibility::Visible : EVisibility::Collapsed;
+	return FleetList.Num() > 0 && TargetTradeRoute && TargetTradeRoute->GetFleet() == NULL ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 
@@ -876,18 +875,18 @@ void SFlareTradeRouteMenu::OnLoadResourceClicked(UFlareSimulatedSector* Sector)
 {
 	UFlareResourceCatalogEntry* Resource = ResourceSelector->GetSelectedItem();
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-	if (SectorIndex >= 0 && Resource)
+	/*if (SectorIndex >= 0 && Resource)
 	{
 		TargetTradeRoute->SetSectorLoadOrder(SectorIndex, &Resource->Data, 0);
 		GenerateSectorList();
-	}
+	}*/
 }
 
 void SFlareTradeRouteMenu::OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
 {
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
 	FFlareTradeRouteSectorSave* PreviousOrder = TargetTradeRoute->GetSectorOrders(Sector);
-
+	/*
 	if (SectorIndex >= 0 && Resource && PreviousOrder)
 	{
 		uint32 PreviousLimit = 0;
@@ -902,15 +901,15 @@ void SFlareTradeRouteMenu::OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sec
 
 		TargetTradeRoute->SetSectorLoadOrder(SectorIndex, Resource, PreviousLimit + 1);
 		GenerateSectorList();
-	}
+	}*/
 }
 
 void SFlareTradeRouteMenu::OnIncreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
 {
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
 	FFlareTradeRouteSectorSave* PreviousOrder = TargetTradeRoute->GetSectorOrders(Sector);
-
-	if (SectorIndex >= 0 && Resource && PreviousOrder)
+//TODO
+	/*if (SectorIndex >= 0 && Resource && PreviousOrder)
 	{
 		uint32 PreviousLimit = 0;
 		for (int ResourceIndex = 0; ResourceIndex < PreviousOrder->ResourcesToLoad.Num(); ResourceIndex++)
@@ -929,17 +928,17 @@ void SFlareTradeRouteMenu::OnIncreaseLoadLimitClicked(UFlareSimulatedSector* Sec
 
 		TargetTradeRoute->SetSectorLoadOrder(SectorIndex, Resource, PreviousLimit - 1);
 		GenerateSectorList();
-	}
+	}*/
 }
 
 void SFlareTradeRouteMenu::OnClearLoadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
 {
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-	if (SectorIndex >= 0 && Resource)
+/*	if (SectorIndex >= 0 && Resource)
 	{
 		TargetTradeRoute->ClearSectorLoadOrder(SectorIndex, Resource);
 		GenerateSectorList();
-	}
+	}*/
 }
 
 void SFlareTradeRouteMenu::OnUnloadResourceClicked(UFlareSimulatedSector* Sector)
@@ -947,11 +946,11 @@ void SFlareTradeRouteMenu::OnUnloadResourceClicked(UFlareSimulatedSector* Sector
 	UFlareResourceCatalogEntry* Resource = ResourceSelector->GetSelectedItem();
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
 
-	if (SectorIndex >= 0 && Resource)
+	/*if (SectorIndex >= 0 && Resource)
 	{
 		TargetTradeRoute->SetSectorUnloadOrder(SectorIndex, &Resource->Data, 0);
 		GenerateSectorList();
-	}
+	}*/
 }
 
 
@@ -959,7 +958,7 @@ void SFlareTradeRouteMenu::OnDecreaseUnloadLimitClicked(UFlareSimulatedSector* S
 {
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
 	FFlareTradeRouteSectorSave* PreviousOrder = TargetTradeRoute->GetSectorOrders(Sector);
-
+	/*
 	if (SectorIndex >= 0 && Resource && PreviousOrder)
 	{
 		uint32 PreviousLimit = 0;
@@ -974,14 +973,14 @@ void SFlareTradeRouteMenu::OnDecreaseUnloadLimitClicked(UFlareSimulatedSector* S
 
 		TargetTradeRoute->SetSectorUnloadOrder(SectorIndex, Resource, PreviousLimit + 1);
 		GenerateSectorList();
-	}
+	}*/
 }
 
 void SFlareTradeRouteMenu::OnIncreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
 {
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
 	FFlareTradeRouteSectorSave* PreviousOrder = TargetTradeRoute->GetSectorOrders(Sector);
-
+	/*
 	if (SectorIndex >= 0 && Resource && PreviousOrder)
 	{
 		uint32 PreviousLimit = 0;
@@ -1001,17 +1000,17 @@ void SFlareTradeRouteMenu::OnIncreaseUnloadLimitClicked(UFlareSimulatedSector* S
 
 		TargetTradeRoute->SetSectorUnloadOrder(SectorIndex, Resource, PreviousLimit - 1);
 		GenerateSectorList();
-	}
+	}*/
 }
 
 void SFlareTradeRouteMenu::OnClearUnloadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
 {
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-	if (SectorIndex >= 0 && Resource)
+	/*if (SectorIndex >= 0 && Resource)
 	{
 		TargetTradeRoute->ClearSectorUnloadOrder(SectorIndex, Resource);
 		GenerateSectorList();
-	}
+	}*/
 }
 
 void SFlareTradeRouteMenu::OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo)
@@ -1023,7 +1022,7 @@ void SFlareTradeRouteMenu::OnAssignFleetClicked()
 	UFlareFleet* Item = FleetSelector->GetSelectedItem();
 	if (Item)
 	{
-		TargetTradeRoute->AddFleet(Item);
+		TargetTradeRoute->AssignFleet(Item);
 		GenerateFleetList();
 	}
 }

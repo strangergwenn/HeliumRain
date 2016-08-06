@@ -5,6 +5,7 @@
 #include "FlareGame.h"
 #include "../Player/FlarePlayerController.h"
 #include "FlareCompany.h"
+#include "FlareSectorHelper.h"
 
 #define LOCTEXT_NAMESPACE "FlareGameTools"
 
@@ -610,7 +611,7 @@ void UFlareGameTools::AddToTradeRoute(FName TradeRouteIdentifier, FName FleetIde
 		return;
 	}
 
-	TradeRoute->AddFleet(Fleet);
+	TradeRoute->AssignFleet(Fleet);
 }
 
 
@@ -1095,7 +1096,8 @@ void UFlareGameTools::TransferResources(FName SourceImmatriculation, FName Desti
 		return;
 	}
 
-	SourceSpacecraft->GetCurrentSector()->TransfertResources(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
+
+	SectorHelper::Trade(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
 }
 
 /*----------------------------------------------------

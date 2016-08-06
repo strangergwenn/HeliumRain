@@ -73,6 +73,7 @@ protected:
 	TSharedRef<FJsonObject> SaveSpacecraftComponentWeapon(FFlareSpacecraftComponentWeaponSave* Data);
 	TSharedRef<FJsonObject> SaveTurretPilot(FFlareTurretPilotSave* Data);
 
+	TSharedRef<FJsonObject> SaveTradeOperation(FFlareTradeRouteSectorOperationSave* Data);
 	TSharedRef<FJsonObject> SaveCargo(FFlareCargoSave* Data);
 	TSharedRef<FJsonObject> SaveFactory(FFlareFactorySave* Data);
 

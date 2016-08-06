@@ -38,6 +38,7 @@ protected:
 	void LoadSpacecraftComponentWeapon(const TSharedPtr<FJsonObject> Object, FFlareSpacecraftComponentWeaponSave* Data);
 	void LoadTurretPilot(const TSharedPtr<FJsonObject> Object, FFlareTurretPilotSave* Data);
 
+	void LoadTradeOperation(const TSharedPtr<FJsonObject> Object, FFlareTradeRouteSectorOperationSave* Data);
 	void LoadCargo(const TSharedPtr<FJsonObject> Object, FFlareCargoSave* Data);
 	void LoadFactory(const TSharedPtr<FJsonObject> Object, FFlareFactorySave* Data);
 
