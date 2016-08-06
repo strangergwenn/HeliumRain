@@ -282,9 +282,9 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	if (IsOpen())
 	{
 		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-		float ActualScale = ViewportScale * (MyGameSettings->ScreenPercentage / 100.0f);
+		float ScreenScale = MyGameSettings->ScreenPercentage / 100.0f;
 		BlurMaterial->SetVectorParameterValue("PanelPosition", FVector(0.0, 0.0, 0));
-		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(ViewportSize.X, ActualScale * Height, 0));
+		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(ScreenScale * ViewportSize.X, ViewportScale * ScreenScale * Height, 0));
 	}
 	else
 	{
