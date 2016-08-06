@@ -68,7 +68,7 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		uint32 StationFreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Request.Resource);
 		uint32 StationResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Request.Resource);
 
-		if(StationFreeSpace == 0 & StationResourceQuantity == 0)
+		if (StationFreeSpace == 0 && StationResourceQuantity == 0)
 		{
 			continue;
 		}

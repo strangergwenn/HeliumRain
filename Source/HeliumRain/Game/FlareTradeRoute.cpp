@@ -41,21 +41,21 @@ void UFlareTradeRoute::Simulate()
 {
 	FLOG("Trade route simulate");
 
-	if(TradeRouteData.Sectors.Num() == 0 || TradeRouteFleet == NULL)
+	if (TradeRouteData.Sectors.Num() == 0 || TradeRouteFleet == NULL)
     {
 		FLOG("  -> no sector or assigned fleet");
         // Nothing to do
         return;
     }
 
-	if(TradeRouteFleet->IsTraveling())
+	if (TradeRouteFleet->IsTraveling())
 	{
 		FLOG("  -> is travelling");
 		return;
 	}
 
 	UFlareSimulatedSector* TargetSector = Game->GetGameWorld()->FindSector(TradeRouteData.TargetSectorIdentifier);
-	if(!TargetSector || GetSectorOrders(TargetSector) == NULL)
+	if (!TargetSector || GetSectorOrders(TargetSector) == NULL)
 	{
 		TargetSector = GetNextTradeSector(NULL);
 		SetTargetSector(TargetSector);
@@ -67,14 +67,14 @@ void UFlareTradeRoute::Simulate()
 	UFlareSimulatedSector* CurrentSector = TradeRouteFleet->GetCurrentSector();
 
 
-	if(TargetSector == CurrentSector)
+	if (TargetSector == CurrentSector)
 	{
 		// In the target sector
 		FFlareTradeRouteSectorSave* SectorOrder = GetSectorOrders(CurrentSector);
 
-		while(TradeRouteData.CurrentOperationIndex < SectorOrder->Operations.Num())
+		while (TradeRouteData.CurrentOperationIndex < SectorOrder->Operations.Num())
 		{
-			if(ProcessCurrentOperation(&SectorOrder->Operations[TradeRouteData.CurrentOperationIndex]))
+			if (ProcessCurrentOperation(&SectorOrder->Operations[TradeRouteData.CurrentOperationIndex]))
 			{
 				// Operation finish
 				TradeRouteData.CurrentOperationDuration = 0;
@@ -88,7 +88,7 @@ void UFlareTradeRoute::Simulate()
 			}
 		}
 
-		if(TradeRouteData.CurrentOperationIndex >= SectorOrder->Operations.Num())
+		if (TradeRouteData.CurrentOperationIndex >= SectorOrder->Operations.Num())
 		{
 			// Sector operations finished
 			TargetSector = GetNextTradeSector(TargetSector);
@@ -107,7 +107,7 @@ void UFlareTradeRoute::Simulate()
 
 bool UFlareTradeRoute::ProcessCurrentOperation(FFlareTradeRouteSectorOperationSave* Operation)
 {
-	if(Operation->MaxWait != -1 && TradeRouteData.CurrentOperationDuration >= Operation->MaxWait)
+	if (Operation->MaxWait != -1 && TradeRouteData.CurrentOperationDuration >= Operation->MaxWait)
 	{
 		FLOGV("Max wait duration reach (%d)", Operation->MaxWait);
 		return true;
@@ -148,7 +148,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 
 		// Keep trading ship as they will be usefull later
 		int32 FreeSpace = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource);
-		if(FreeSpace > 0)
+		if (FreeSpace > 0)
 		{
 			FleetFreeSpace += FreeSpace;
 			UsefullShips.Add(Ship);
@@ -157,7 +157,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 		// TODO sort by most pertinent
 	}
 
-	if(FleetFreeSpace == 0)
+	if (FleetFreeSpace == 0)
 	{
 		// Fleet full: operation done
 		return true;
@@ -171,7 +171,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 	{
 		UFlareSimulatedSpacecraft* Ship = RouteShips[ShipIndex];
 
-		if(Ship->IsTrading())
+		if (Ship->IsTrading())
 		{
 			// Skip trading ships
 			continue;
@@ -179,7 +179,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 
 		Request.Client = Ship;
 		Request.MaxQuantity = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource);
-		if(Operation->MaxQuantity !=-1)
+		if (Operation->MaxQuantity !=-1)
 		{
 			Request.MaxQuantity = FMath::Min(Request.MaxQuantity, GetOperationRemainingQuantity(Operation));
 		}
@@ -187,12 +187,12 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 		UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
 
 
-		if(StationCandidate)
+		if (StationCandidate)
 		{
 			TradeRouteData.CurrentOperationProgress += SectorHelper::Trade(StationCandidate, Ship, Resource, Request.MaxQuantity);
 		}
 
-		if(IsOperationQuantityLimitReach(Operation))
+		if (IsOperationQuantityLimitReach(Operation))
 		{
 			// Operation limit reach : operation done
 			return true;
@@ -219,7 +219,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 
 		// Keep trading ship as they will be usefull later
 		int32 Quantity = Ship->GetCargoBay()->GetResourceQuantity(Resource);
-		if(Quantity > 0)
+		if (Quantity > 0)
 		{
 			FleetQuantity += Quantity;
 			UsefullShips.Add(Ship);
@@ -228,7 +228,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 		// TODO sort by most pertinent
 	}
 
-	if(FleetQuantity == 0)
+	if (FleetQuantity == 0)
 	{
 		// Fleet empty: operation done
 		return true;
@@ -242,7 +242,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 	{
 		UFlareSimulatedSpacecraft* Ship = RouteShips[ShipIndex];
 
-		if(Ship->IsTrading())
+		if (Ship->IsTrading())
 		{
 			// Skip trading ships
 			continue;
@@ -250,19 +250,19 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 
 		Request.Client = Ship;
 		Request.MaxQuantity = Ship->GetCargoBay()->GetResourceQuantity(Resource);
-		if(Operation->MaxQuantity !=-1)
+		if (Operation->MaxQuantity !=-1)
 		{
 			Request.MaxQuantity = FMath::Min(Request.MaxQuantity, GetOperationRemainingQuantity(Operation));
 		}
 
 		UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
 
-		if(StationCandidate)
+		if (StationCandidate)
 		{
 			TradeRouteData.CurrentOperationProgress += SectorHelper::Trade(Ship, StationCandidate, Resource, Request.MaxQuantity);
 		}
 
-		if(IsOperationQuantityLimitReach(Operation))
+		if (IsOperationQuantityLimitReach(Operation))
 		{
 			// Operation limit reach : operation done
 			return true;
@@ -275,7 +275,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 
 int32 UFlareTradeRoute::GetOperationRemainingQuantity(FFlareTradeRouteSectorOperationSave* Operation)
 {
-	if(Operation->MaxQuantity != -1)
+	if (Operation->MaxQuantity != -1)
 	{
 		return MAX_int32;
 	}
@@ -285,7 +285,7 @@ int32 UFlareTradeRoute::GetOperationRemainingQuantity(FFlareTradeRouteSectorOper
 
 bool UFlareTradeRoute::IsOperationQuantityLimitReach(FFlareTradeRouteSectorOperationSave* Operation)
 {
-	if(Operation->MaxQuantity != -1 && TradeRouteData.CurrentOperationProgress >= Operation->MaxQuantity)
+	if (Operation->MaxQuantity != -1 && TradeRouteData.CurrentOperationProgress >= Operation->MaxQuantity)
 	{
 		return true;
 	}
@@ -294,7 +294,7 @@ bool UFlareTradeRoute::IsOperationQuantityLimitReach(FFlareTradeRouteSectorOpera
 
 void UFlareTradeRoute::SetTargetSector(UFlareSimulatedSector* Sector)
 {
-	if(Sector)
+	if (Sector)
 	{
 		TradeRouteData.TargetSectorIdentifier = Sector->GetIdentifier();
 		FLOGV("  set target sector to %s", *Sector->GetIdentifier().ToString());
@@ -334,7 +334,7 @@ void UFlareTradeRoute::RemoveFleet(UFlareFleet* Fleet)
 
 void UFlareTradeRoute::AddSector(UFlareSimulatedSector* Sector)
 {
-    if(IsVisiting(Sector))
+    if (IsVisiting(Sector))
     {
         FLOG("Warning: try to add a sector already visited by the trade route");
         return;
@@ -359,7 +359,7 @@ void UFlareTradeRoute::RemoveSector(UFlareSimulatedSector* Sector)
 
 void UFlareTradeRoute::AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOperation::Type Type, FFlareResourceDescription* Resource)
 {
-	if(SectorIndex >= TradeRouteData.Sectors.Num())
+	if (SectorIndex >= TradeRouteData.Sectors.Num())
 	{
 		FLOGV("Fail to configure trade route '%s', sector %d: only %d sector present.", *GetTradeRouteName().ToString(), SectorIndex, TradeRouteData.Sectors.Num());
 		return;
@@ -378,7 +378,7 @@ void UFlareTradeRoute::AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOpe
 
 void UFlareTradeRoute::RemoveSectorOperation(int32 SectorIndex, int32 OperationIndex)
 {
-	if(SectorIndex >= TradeRouteData.Sectors.Num())
+	if (SectorIndex >= TradeRouteData.Sectors.Num())
 	{
 		FLOGV("Fail to configure trade route '%s', sector %d: only %d sector present.", *GetTradeRouteName().ToString(), SectorIndex, TradeRouteData.Sectors.Num());
 		return;
@@ -392,7 +392,7 @@ void UFlareTradeRoute::RemoveSectorOperation(int32 SectorIndex, int32 OperationI
 /** Remove all ship from the trade route and delete it.*/
 void UFlareTradeRoute::Dissolve()
 {
-	if(TradeRouteFleet)
+	if (TradeRouteFleet)
 	{
 		TradeRouteFleet->SetCurrentTradeRoute(NULL);
 	}
@@ -407,7 +407,7 @@ void UFlareTradeRoute::InitFleetList()
 		IsFleetListLoaded = true;
 		TradeRouteFleet = NULL;
 
-		if(TradeRouteData.FleetIdentifier != NAME_None)
+		if (TradeRouteData.FleetIdentifier != NAME_None)
 		{
 			TradeRouteFleet = TradeRouteCompany->FindFleet(TradeRouteData.FleetIdentifier);
 			if (TradeRouteFleet)
@@ -439,7 +439,7 @@ FFlareTradeRouteSectorSave* UFlareTradeRoute::GetSectorOrders(UFlareSimulatedSec
 {
 	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
 	{
-		if(TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+		if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
 		{
 			return &TradeRouteData.Sectors[SectorIndex];
 		}
@@ -453,19 +453,19 @@ UFlareSimulatedSector* UFlareTradeRoute::GetNextTradeSector(UFlareSimulatedSecto
 	int32 NextSectorId = -1;
 	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
 	{
-		if(TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+		if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
 		{
 			NextSectorId = SectorIndex + 1;
 			break;
 		}
 	}
 
-	if(NextSectorId < 0)
+	if (NextSectorId < 0)
 	{
         NextSectorId = 0;
 	}
 
-	if(NextSectorId >= TradeRouteData.Sectors.Num())
+	if (NextSectorId >= TradeRouteData.Sectors.Num())
 	{
 		NextSectorId = 0;
 	}
@@ -478,7 +478,7 @@ bool UFlareTradeRoute::IsVisiting(UFlareSimulatedSector *Sector)
 {
     for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
     {
-        if(TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+        if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
         {
             return true;
         }
@@ -490,7 +490,7 @@ int32 UFlareTradeRoute::GetSectorIndex(UFlareSimulatedSector *Sector)
 {
     for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
     {
-        if(TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+        if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
         {
             return SectorIndex;
         }
