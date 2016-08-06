@@ -94,15 +94,15 @@ struct FFlareTradeRouteSave
 
 	/** Trade route current target sector */
 	UPROPERTY(EditAnywhere, Category = Save)
-	uint32 CurrentOperationIndex;
+	int32 CurrentOperationIndex;
 
 	/** Trade route current operation progress*/
 	UPROPERTY(EditAnywhere, Category = Save)
-	uint32 CurrentOperationProgress;
+	int32 CurrentOperationProgress;
 
 	/** Trade route current operation duration*/
 	UPROPERTY(EditAnywhere, Category = Save)
-	uint32 CurrentOperationDuration;
+	int32 CurrentOperationDuration;
 };
 
 UCLASS()
