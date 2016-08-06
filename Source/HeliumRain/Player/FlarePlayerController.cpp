@@ -845,7 +845,7 @@ void AFlarePlayerController::MousePositionInput(FVector2D Val)
 
 void AFlarePlayerController::ToggleCamera()
 {
-	if (ShipPawn && ShipPawn->GetParent()->GetDamageSystem()->IsAlive())
+	if (ShipPawn && ShipPawn->GetParent()->GetDamageSystem()->IsAlive() && !MenuManager->IsUIOpen())
 	{
 		SetExternalCamera(!ShipPawn->GetStateManager()->IsExternalCamera());
 	}
