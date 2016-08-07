@@ -432,8 +432,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 
 			// Final strings
 			TitleText = CurrentWeaponGroup->Description->Name;
-			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}x {1} - {2}%"),
-				FText::AsNumber(CurrentWeaponGroup->Weapons.Num()),
+			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0} - {1}%"),
 				FText::Format(LOCTEXT("Rounds", "{0} rounds"), FText::AsNumber(RemainingAmmo)),
 				FText::AsNumber((int32)(100 * ComponentHealth)));
 		}
