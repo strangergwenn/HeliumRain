@@ -153,6 +153,12 @@ public:
 
 	virtual void RemoveSectorOperation(int32 SectorIndex, int32 OperationIndex);
 
+	void DeleteOperation(FFlareTradeRouteSectorOperationSave* Operation);
+
+	FFlareTradeRouteSectorOperationSave* MoveOperationUp(FFlareTradeRouteSectorOperationSave* Operation);
+
+	FFlareTradeRouteSectorOperationSave* MoveOperationDown(FFlareTradeRouteSectorOperationSave* Operation);
+
 	/** Remove all fleet from the trade route and delete it. */
 	virtual void Dissolve();
 
@@ -218,4 +224,5 @@ public:
 
     int32 GetSectorIndex(UFlareSimulatedSector *Sector);
 
+	FFlareTradeRouteSectorOperationSave* GetActiveOperation();
 };

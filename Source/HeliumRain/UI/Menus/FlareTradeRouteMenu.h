@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../../Game/FlareTradeRoute.h"
 
 class UFlareTradeRoute;
+struct FFlareTradeRouteSectorOperationSave;
 
 class SFlareTradeRouteMenu : public SCompoundWidget
 {
@@ -61,8 +63,14 @@ protected:
 
 	FText OnGetCurrentResourceComboLine() const;
 
-	/** Can Add resource*/
-	EVisibility GetResourceSelectorVisibility() const;
+	TSharedRef<SWidget> OnGenerateOperationComboLine(TSharedPtr<FString> Item);
+
+	FText OnGetCurrentOperationComboLine() const;
+
+	void OnOperationComboLineSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo);
+
+	/** Can edit operation*/
+	EVisibility GetOperationDetailsVisibility() const;
 
 	/** Add button */
 	FText GetAddSectorText() const;
@@ -82,6 +90,10 @@ protected:
 	EVisibility GetAssignFleetVisibility() const;
 
 
+	EVisibility GetEditOperationVisibility(FFlareTradeRouteSectorOperationSave* Operation) const;
+
+	EVisibility GetSkipOperationVisibility(FFlareTradeRouteSectorOperationSave* Operation) const;
+
 	/*----------------------------------------------------
 		Actions callbacks
 	----------------------------------------------------*/
@@ -97,8 +109,14 @@ protected:
 	/** Sector removed */
 	void OnRemoveSectorClicked(UFlareSimulatedSector* Sector);
 
+	void OnEditOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
+
+	void OnDeleteOperationClicked();
+	void OnOperationUpClicked();
+	void OnOperationDownClicked();
+
 	// Load the current resource
-	void OnLoadResourceClicked(UFlareSimulatedSector* Sector);
+	void OnAddOperationClicked(UFlareSimulatedSector* Sector);
 	void OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 	void OnIncreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
 	void OnClearLoadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
@@ -128,6 +146,7 @@ protected:
 	// Menu data
 	int32                                              MaxSectorsInRoute;
 	UFlareTradeRoute*                                  TargetTradeRoute;
+	FFlareTradeRouteSectorOperationSave*               SelectedOperation;
 
 	// Sector data
 	TSharedPtr<SComboBox<UFlareSimulatedSector*>>      SectorSelector;
@@ -139,6 +158,10 @@ protected:
 
 	// Items
 	TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
+	TSharedPtr<SComboBox<TSharedPtr<FString> >>        OperationSelector;
+	TArray<TSharedPtr<FString>>                        OperationNameList;
+	TArray<EFlareTradeRouteOperation::Type>            OperationList;
+
 	TSharedPtr<SEditableText>                          EditRouteName;
 	TSharedPtr<SHorizontalBox>                         TradeSectorList;
 	TSharedPtr<SVerticalBox>                           TradeFleetList;

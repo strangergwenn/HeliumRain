@@ -343,6 +343,10 @@ void UFlareTradeRoute::AddSector(UFlareSimulatedSector* Sector)
 	TradeRouteSector.SectorIdentifier = Sector->GetIdentifier();
 
 	TradeRouteData.Sectors.Add(TradeRouteSector);
+	if(TradeRouteData.Sectors.Num() == 1)
+	{
+		SetTargetSector(Sector);
+	}
 }
 
 void UFlareTradeRoute::RemoveSector(UFlareSimulatedSector* Sector)
@@ -387,6 +391,110 @@ void UFlareTradeRoute::RemoveSectorOperation(int32 SectorIndex, int32 OperationI
 	FFlareTradeRouteSectorSave* Sector = &TradeRouteData.Sectors[SectorIndex];
 
 	Sector->Operations.RemoveAt(OperationIndex);
+}
+
+void UFlareTradeRoute::DeleteOperation(FFlareTradeRouteSectorOperationSave* Operation)
+{
+	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+	{
+		FFlareTradeRouteSectorSave* Sector = &TradeRouteData.Sectors[SectorIndex];
+
+		for (int32 OperationIndex = 0; OperationIndex < Sector->Operations.Num(); OperationIndex++)
+		{
+			if(&Sector->Operations[OperationIndex] == Operation)
+			{
+				if(Operation == GetActiveOperation())
+				{
+					// Active operation, reset progress
+					TradeRouteData.CurrentOperationDuration = 0;
+					TradeRouteData.CurrentOperationProgress = 0;
+				}
+				else if(TradeRouteData.TargetSectorIdentifier == Sector->SectorIdentifier && TradeRouteData.CurrentOperationIndex > OperationIndex)
+				{
+					// Modify the current operation index
+					TradeRouteData.CurrentOperationIndex--;
+				}
+				Sector->Operations.RemoveAt(OperationIndex);
+				return;
+			}
+		}
+	}
+}
+
+FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::MoveOperationUp(FFlareTradeRouteSectorOperationSave* Operation)
+{
+	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+	{
+		FFlareTradeRouteSectorSave* Sector = &TradeRouteData.Sectors[SectorIndex];
+
+		for (int32 OperationIndex = 0; OperationIndex < Sector->Operations.Num(); OperationIndex++)
+		{
+			if(&Sector->Operations[OperationIndex] == Operation)
+			{
+				if(OperationIndex == 0)
+				{
+					//Already on top
+					return Operation;
+				}
+
+				if(Operation == GetActiveOperation())
+				{
+					// Active operation, modify the current operation index
+					TradeRouteData.CurrentOperationIndex--;
+				}
+				else if(TradeRouteData.TargetSectorIdentifier == Sector->SectorIdentifier && TradeRouteData.CurrentOperationIndex == OperationIndex-1)
+				{
+					TradeRouteData.CurrentOperationIndex++;
+				}
+
+				FFlareTradeRouteSectorOperationSave NewOperation = *Operation;
+
+				Sector->Operations.RemoveAt(OperationIndex);
+				Sector->Operations.Insert(NewOperation, OperationIndex-1);
+				return &Sector->Operations[OperationIndex-1];
+			}
+		}
+	}
+
+	return Operation;
+}
+
+FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::MoveOperationDown(FFlareTradeRouteSectorOperationSave* Operation)
+{
+	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+	{
+		FFlareTradeRouteSectorSave* Sector = &TradeRouteData.Sectors[SectorIndex];
+
+		for (int32 OperationIndex = 0; OperationIndex < Sector->Operations.Num(); OperationIndex++)
+		{
+			if(&Sector->Operations[OperationIndex] == Operation)
+			{
+				if(OperationIndex == Sector->Operations.Num()-1)
+				{
+					//Already on bottom
+					return Operation;
+				}
+
+				if(Operation == GetActiveOperation())
+				{
+					// Active operation, modify the current operation index
+					TradeRouteData.CurrentOperationIndex++;
+				}
+				else if(TradeRouteData.TargetSectorIdentifier == Sector->SectorIdentifier && TradeRouteData.CurrentOperationIndex == OperationIndex+1)
+				{
+					TradeRouteData.CurrentOperationIndex--;
+				}
+
+				FFlareTradeRouteSectorOperationSave NewOperation = *Operation;
+
+				Sector->Operations.RemoveAt(OperationIndex);
+				Sector->Operations.Insert(NewOperation, OperationIndex+1);
+				return &Sector->Operations[OperationIndex+1];
+			}
+		}
+	}
+
+	return Operation;
 }
 
 /** Remove all ship from the trade route and delete it.*/
@@ -451,12 +559,15 @@ FFlareTradeRouteSectorSave* UFlareTradeRoute::GetSectorOrders(UFlareSimulatedSec
 UFlareSimulatedSector* UFlareTradeRoute::GetNextTradeSector(UFlareSimulatedSector* Sector)
 {
 	int32 NextSectorId = -1;
-	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+	if(Sector)
 	{
-		if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+		for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
 		{
-			NextSectorId = SectorIndex + 1;
-			break;
+			if(TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+			{
+				NextSectorId = SectorIndex + 1;
+				break;
+			}
 		}
 	}
 
@@ -496,4 +607,35 @@ int32 UFlareTradeRoute::GetSectorIndex(UFlareSimulatedSector *Sector)
         }
     }
     return -1;
+}
+
+FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::GetActiveOperation()
+{
+	UFlareSimulatedSector* TargetSector = Game->GetGameWorld()->FindSector(TradeRouteData.TargetSectorIdentifier);
+
+
+	if(TargetSector == NULL)
+	{
+		return NULL;
+	}
+
+	FFlareTradeRouteSectorSave* SectorOrder = GetSectorOrders(TargetSector);
+
+	if(SectorOrder == NULL)
+	{
+		return NULL;
+	}
+
+	if(SectorOrder->Operations.Num() == 0)
+	{
+		return NULL;
+	}
+
+	if(TradeRouteData.CurrentOperationIndex >= SectorOrder->Operations.Num())
+	{
+		return NULL;
+	}
+
+	return &SectorOrder->Operations[TradeRouteData.CurrentOperationIndex];
+
 }
