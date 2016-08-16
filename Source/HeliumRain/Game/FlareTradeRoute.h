@@ -129,6 +129,8 @@ public:
 
 	void Simulate();
 
+	UFlareSimulatedSector* UpdateTargetSector();
+
 	bool ProcessCurrentOperation(FFlareTradeRouteSectorOperationSave* Operation);
 
 	bool ProcessLoadOperation(FFlareTradeRouteSectorOperationSave* Operation);
@@ -163,6 +165,8 @@ public:
 	virtual void Dissolve();
 
 	virtual void InitFleetList();
+
+	void SkipCurrentOperation();
 
     virtual void SetTradeRouteName(FText NewName)
     {

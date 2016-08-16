@@ -24,6 +24,8 @@ void UFlareTradeRoute::Load(const FFlareTradeRouteSave& Data)
 	TradeRouteData = Data;
 	IsFleetListLoaded = false;
 
+	UpdateTargetSector();
+
     InitFleetList();
 }
 
@@ -54,14 +56,7 @@ void UFlareTradeRoute::Simulate()
 		return;
 	}
 
-	UFlareSimulatedSector* TargetSector = Game->GetGameWorld()->FindSector(TradeRouteData.TargetSectorIdentifier);
-	if (!TargetSector || GetSectorOrders(TargetSector) == NULL)
-	{
-		TargetSector = GetNextTradeSector(NULL);
-		SetTargetSector(TargetSector);
-	}
-
-
+	UFlareSimulatedSector* TargetSector = UpdateTargetSector();
 
 	// Not travelling, check if the fleet is in a trade route sector
 	UFlareSimulatedSector* CurrentSector = TradeRouteFleet->GetCurrentSector();
@@ -103,6 +98,26 @@ void UFlareTradeRoute::Simulate()
 		// Travel to next sector
 		Game->GetGameWorld()->StartTravel(TradeRouteFleet, TargetSector);
 	}
+}
+
+UFlareSimulatedSector* UFlareTradeRoute::UpdateTargetSector()
+{
+	UFlareSimulatedSector* TargetSector = Game->GetGameWorld()->FindSector(TradeRouteData.TargetSectorIdentifier);
+	if (!TargetSector || GetSectorOrders(TargetSector) == NULL)
+	{
+		TargetSector = GetNextTradeSector(NULL);
+		if(TargetSector)
+		{
+			FLOGV("Has TargetSector %s", *TargetSector->GetIdentifier().ToString());
+		}
+		else
+		{
+			FLOG("Has no TargetSector");
+		}
+		SetTargetSector(TargetSector);
+	}
+
+	return TargetSector;
 }
 
 bool UFlareTradeRoute::ProcessCurrentOperation(FFlareTradeRouteSectorOperationSave* Operation)
@@ -212,7 +227,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 
 	TArray<UFlareSimulatedSpacecraft*>&  RouteShips = TradeRouteFleet->GetShips();
 	int32 FleetQuantity = 0;
-	//
+
 	for (int ShipIndex = 0; ShipIndex < RouteShips.Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = RouteShips[ShipIndex];
@@ -297,13 +312,10 @@ void UFlareTradeRoute::SetTargetSector(UFlareSimulatedSector* Sector)
 	if (Sector)
 	{
 		TradeRouteData.TargetSectorIdentifier = Sector->GetIdentifier();
-		FLOGV("  set target sector to %s", *Sector->GetIdentifier().ToString());
 	}
 	else
 	{
 		TradeRouteData.TargetSectorIdentifier = NAME_None;
-		FLOG("  set target sector to none");
-
 	}
 	TradeRouteData.CurrentOperationDuration = 0;
 	TradeRouteData.CurrentOperationIndex = 0;
@@ -558,6 +570,11 @@ FFlareTradeRouteSectorSave* UFlareTradeRoute::GetSectorOrders(UFlareSimulatedSec
 
 UFlareSimulatedSector* UFlareTradeRoute::GetNextTradeSector(UFlareSimulatedSector* Sector)
 {
+	if(TradeRouteData.Sectors.Num() == 0)
+	{
+		return NULL;
+	}
+
 	int32 NextSectorId = -1;
 	if(Sector)
 	{
@@ -576,11 +593,11 @@ UFlareSimulatedSector* UFlareTradeRoute::GetNextTradeSector(UFlareSimulatedSecto
         NextSectorId = 0;
 	}
 
+
 	if (NextSectorId >= TradeRouteData.Sectors.Num())
 	{
 		NextSectorId = 0;
 	}
-
 	return Game->GetGameWorld()->FindSector(TradeRouteData.Sectors[NextSectorId].SectorIdentifier);
 }
 
@@ -613,7 +630,6 @@ FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::GetActiveOperation()
 {
 	UFlareSimulatedSector* TargetSector = Game->GetGameWorld()->FindSector(TradeRouteData.TargetSectorIdentifier);
 
-
 	if(TargetSector == NULL)
 	{
 		return NULL;
@@ -637,5 +653,20 @@ FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::GetActiveOperation()
 	}
 
 	return &SectorOrder->Operations[TradeRouteData.CurrentOperationIndex];
+}
 
+void UFlareTradeRoute::SkipCurrentOperation()
+{
+	UFlareSimulatedSector* TargetSector = UpdateTargetSector();
+	TradeRouteData.CurrentOperationDuration = 0;
+	TradeRouteData.CurrentOperationProgress = 0;
+	TradeRouteData.CurrentOperationIndex++;
+
+	FFlareTradeRouteSectorSave* SectorOrder = GetSectorOrders(TargetSector);
+
+	if (TradeRouteData.CurrentOperationIndex >= SectorOrder->Operations.Num())
+	{
+		TargetSector = GetNextTradeSector(TargetSector);
+		SetTargetSector(TargetSector);
+	}
 }

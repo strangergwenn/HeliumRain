@@ -66,11 +66,7 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 		LoadFleet(CompanyData.Fleets[i]);
 	}
 
-	// Load all trade routes
-	for (int32 i = 0; i < CompanyData.TradeRoutes.Num(); i++)
-	{
-		LoadTradeRoute(CompanyData.TradeRoutes[i]);
-	}
+
 
 	// Load emblem
 	SetupEmblem();
@@ -80,6 +76,13 @@ void UFlareCompany::PostLoad()
 {
 	VisitedSectors.Empty();
 	KnownSectors.Empty();
+	CompanyTradeRoutes.Empty();
+
+	// Load all trade routes
+	for (int32 i = 0; i < CompanyData.TradeRoutes.Num(); i++)
+	{
+		LoadTradeRoute(CompanyData.TradeRoutes[i]);
+	}
 
 	// Load sector knowledge
 	for (int32 i = 0; i < CompanyData.SectorsKnowledge.Num(); i++)
@@ -373,7 +376,7 @@ UFlareTradeRoute* UFlareCompany::LoadTradeRoute(const FFlareTradeRouteSave& Trad
 	TradeRoute->Load(TradeRouteData);
 	CompanyTradeRoutes.AddUnique(TradeRoute);
 
-	FLOGV("UFlareWorld::LoadTradeRoute : loaded trade route '%s'", *TradeRoute->GetTradeRouteName().ToString());
+	FLOGV("UFlareCompany::LoadTradeRoute : loaded trade route '%s'", *TradeRoute->GetTradeRouteName().ToString());
 
 	return TradeRoute;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../Components/FlareButton.h"
 #include "../../Game/FlareTradeRoute.h"
 
 class UFlareTradeRoute;
@@ -75,6 +76,8 @@ protected:
 	/** Add button */
 	FText GetAddSectorText() const;
 
+	FText GetOperationStatusText(FFlareTradeRouteSectorOperationSave* Operation) const;
+
 	/** Get the load text's button */
 	FText GetLoadText() const;
 
@@ -94,6 +97,10 @@ protected:
 
 	EVisibility GetSkipOperationVisibility(FFlareTradeRouteSectorOperationSave* Operation) const;
 
+	EVisibility GetQuantityLimitVisibility() const;
+
+	EVisibility GetWaitLimitVisibility() const;
+
 	/*----------------------------------------------------
 		Actions callbacks
 	----------------------------------------------------*/
@@ -110,10 +117,19 @@ protected:
 	void OnRemoveSectorClicked(UFlareSimulatedSector* Sector);
 
 	void OnEditOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
+	void OnSkipOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
+
+
 
 	void OnDeleteOperationClicked();
 	void OnOperationUpClicked();
 	void OnOperationDownClicked();
+	void OnQuantityLimitToggle();
+	void OnWaitLimitToggle();
+
+	void OnQuantityLimitChanged(float Value);
+	void OnWaitLimitChanged(float Value);
+
 
 	// Load the current resource
 	void OnAddOperationClicked(UFlareSimulatedSector* Sector);
@@ -166,4 +182,8 @@ protected:
 	TSharedPtr<SHorizontalBox>                         TradeSectorList;
 	TSharedPtr<SVerticalBox>                           TradeFleetList;
 
+	TSharedPtr<SFlareButton>                           QuantityLimitButton;
+	TSharedPtr<SFlareButton>                           WaitLimitButton;
+	TSharedPtr<SSlider>                                QuantityLimitSlider;
+	TSharedPtr<SSlider>                                WaitLimitSlider;
 };

@@ -1,7 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareTradeRouteMenu.h"
-
+#include "../Components/FlareButton.h"
 #include "../Components/FlareSectorButton.h"
 
 #include "../../Game/FlareGame.h"
@@ -10,6 +10,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareTradeRouteMenu"
 
+#define MAX_WAIT_LIMIT 50
+#define MAX_QUANTITY_LIMIT 1000
 
 /*----------------------------------------------------
 	Construct
@@ -284,7 +286,54 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 							]
 						]
 
+						// Quantity limit
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(QuantityLimitButton, SFlareButton)
+							.Text(LOCTEXT("QuantityLimit", "Limit max quantity"))
+							.HelpText(LOCTEXT("QuantityLimitInfo", "Skip to the next operation as soon a resource quantity is reach"))
+							.Toggle(true)
+							.OnClicked(this, &SFlareTradeRouteMenu::OnQuantityLimitToggle)
+						]
 
+						// Quantity limit slider
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(QuantityLimitSlider, SSlider)
+							.Style(&Theme.SliderStyle)
+							.Value(0)
+							.OnValueChanged(this, &SFlareTradeRouteMenu::OnQuantityLimitChanged)
+							.Visibility(this, &SFlareTradeRouteMenu::GetQuantityLimitVisibility)
+						]
+
+
+						// Wait limit
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(WaitLimitButton, SFlareButton)
+							.Text(LOCTEXT("WaitLimit", "Limit max wait duration"))
+							.HelpText(LOCTEXT("WaitLimitInfo", "Skip to the next operation after a defined amount of days"))
+							.Toggle(true)
+							.OnClicked(this, &SFlareTradeRouteMenu::OnWaitLimitToggle)
+						]
+
+						// Wait limit slider
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(WaitLimitSlider, SSlider)
+							.Style(&Theme.SliderStyle)
+							.Value(0)
+							.OnValueChanged(this, &SFlareTradeRouteMenu::OnWaitLimitChanged)
+							.Visibility(this, &SFlareTradeRouteMenu::GetWaitLimitVisibility)
+						]
 
 
 						// Delete Operation
@@ -495,22 +544,6 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 
 				FText OperationResume =	FText::Format(LOCTEXT("OperationResume", "{0} - {1} {2}"), FText::AsNumber(OperationIndex), OperationName, Resource->Name);
 
-
-/*
-
-				FFlareCargoSave* LoadedResource = &SectorOrders->ResourcesToLoad[ResourceIndex];
-				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(LoadedResource->ResourceIdentifier);
-
-				FText LoadLimits;
-				if (LoadedResource->Quantity > 0)
-				{
-					LoadLimits = FText::Format(LOCTEXT("LoadLimits", "Load, leave {0}"), FText::AsNumber(LoadedResource->Quantity));
-				}
-				else
-				{
-					LoadLimits = FText(LOCTEXT("NoLoadLimits", "Load all"));
-				}
-*/
 				// TODO current operation progress
 				// Add operation limits
 				SectorOperationList->AddSlot()
@@ -531,6 +564,21 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 							SNew(STextBlock)
 							.TextStyle(&Theme.TextFont)
 							.Text(OperationResume)
+						]
+					]
+
+					// Operation status
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.HAlign(HAlign_Left)
+						.VAlign(VAlign_Center)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareTradeRouteMenu::GetOperationStatusText,Operation)
 						]
 					]
 
@@ -557,100 +605,12 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 					.AutoWidth()
 					[
 						SNew(SFlareButton)
-						.OnClicked(this, &SFlareTradeRouteMenu::OnEditOperationClicked, Operation)
-						.Text(LOCTEXT("EditOperation", "Edit"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnSkipOperationClicked, Operation)
+						.Text(LOCTEXT("SkipOperation", "Skip"))
 						.Visibility(this, &SFlareTradeRouteMenu::GetSkipOperationVisibility, Operation)
 					]
 				];
 			}
-
-			/*for (int ResourceIndex = 0; ResourceIndex < SectorOrders->ResourcesToUnload.Num(); ResourceIndex++)
-			{
-				FFlareCargoSave* UnloadedResource = &SectorOrders->ResourcesToUnload[ResourceIndex];
-				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(UnloadedResource->ResourceIdentifier);
-
-				FText UnloadLimits;
-				if (UnloadedResource->Quantity > 0)
-				{
-					UnloadLimits = FText::Format(LOCTEXT("UnloadLimits", "Unload, stop at {0}"), FText::AsNumber(UnloadedResource->Quantity));
-				}
-				else
-				{
-					UnloadLimits = FText(LOCTEXT("UnloadAll", "Unload all"));
-				}
-
-				UnloadResourceList->AddSlot()
-				.AutoHeight()
-				.HAlign(HAlign_Right)
-				[
-					SNew(SHorizontalBox)
-
-					// Resource name
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Center)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(Resource->Acronym)
-						]
-					]
-
-					// Limits
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Center)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(UnloadLimits)
-						]
-					]
-
-					// Limit decrease
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SFlareButton)
-						.OnClicked(this, &SFlareTradeRouteMenu::OnDecreaseUnloadLimitClicked, Sector, Resource)
-						.Text(FText::FromString(TEXT("-")))
-						.Transparent(true)
-						.Width(1)
-					]
-
-					// Limit increase
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SFlareButton)
-						.OnClicked(this, &SFlareTradeRouteMenu::OnIncreaseUnloadLimitClicked, Sector, Resource)
-						.Text(FText::FromString(TEXT("+")))
-						.Transparent(true)
-						.Width(1)
-					]
-
-					// Clear resource load
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SFlareButton)
-						.OnClicked(this, &SFlareTradeRouteMenu::OnClearUnloadResourceClicked, Sector, Resource)
-						.Text(FText())
-						.HelpText(LOCTEXT("ClearUnloadResource", "Stop unloading this resource"))
-						.Icon(FFlareStyleSet::GetIcon("Stop"))
-						.Transparent(true)
-						.Width(1)
-					]
-				];
-			}*/
 		}
 	}
 
@@ -856,6 +816,79 @@ FText SFlareTradeRouteMenu::GetAddSectorText() const
 	return FText();
 }
 
+FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperationSave* Operation) const
+{
+
+	if (TargetTradeRoute && Operation)
+	{
+		FText WaitText;
+		FText QuantityText;
+		FText ForeverText = LOCTEXT("Forever", "forever");
+		FText FullCargoText = LOCTEXT("FullCargo", "full cargo");
+
+
+		if(TargetTradeRoute->GetActiveOperation() == Operation)
+		{
+			if(Operation->MaxWait == -1)
+			{
+				WaitText = ForeverText;
+			}
+			else
+			{
+				WaitText = FText::Format(LOCTEXT("OperationStatusActiveWaitFormat", "{0}/{1} days"),
+						   FText::AsNumber(TargetTradeRoute->GetData()->CurrentOperationDuration),
+						   FText::AsNumber(Operation->MaxWait));
+			}
+
+			if(Operation->MaxQuantity == -1)
+			{
+				QuantityText = FullCargoText;
+			}
+			else
+			{
+				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
+
+				QuantityText = FText::Format(LOCTEXT("OperationStatusActiveQuantityFormat", "{0}/{1} {2}"),
+						   FText::AsNumber(TargetTradeRoute->GetData()->CurrentOperationProgress),
+						   FText::AsNumber(Operation->MaxQuantity),
+							Resource->Name);
+			}
+
+		}
+		else
+		{
+			if(Operation->MaxWait == -1)
+			{
+				WaitText = ForeverText;
+			}
+			else
+			{
+				WaitText = FText::Format(LOCTEXT("OperationStatusWaitFormat", "{0} days"),
+						   FText::AsNumber(Operation->MaxWait));
+			}
+
+			if(Operation->MaxQuantity == -1)
+			{
+				QuantityText = FullCargoText;
+			}
+			else
+			{
+				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
+
+				QuantityText = FText::Format(LOCTEXT("OperationStatusQuantityFormat", "{0} {1}"),
+						   FText::AsNumber(Operation->MaxQuantity),
+							Resource->Name);
+			}
+		}
+
+		return FText::Format(LOCTEXT("OperationStatusFormat", "Wait {0} or {1}"),
+			WaitText,
+			QuantityText);
+	}
+
+	return FText();
+}
+
 FText SFlareTradeRouteMenu::GetLoadText() const
 {
 	FText Result;
@@ -920,11 +953,30 @@ EVisibility SFlareTradeRouteMenu::GetSkipOperationVisibility(FFlareTradeRouteSec
 {
 	if(TargetTradeRoute)
 	{
-		return TargetTradeRoute->GetActiveOperation() == Operation ? EVisibility::Visible : EVisibility::Collapsed;
+		return TargetTradeRoute->GetActiveOperation() == Operation ? EVisibility::Visible : EVisibility::Hidden;
 	}
 	return EVisibility::Hidden;
 }
 
+EVisibility SFlareTradeRouteMenu::GetQuantityLimitVisibility() const
+{
+	if(QuantityLimitButton->IsActive())
+	{
+		return EVisibility::Visible;
+	}
+
+	return EVisibility::Hidden;
+}
+
+EVisibility SFlareTradeRouteMenu::GetWaitLimitVisibility() const
+{
+	if(WaitLimitButton->IsActive())
+	{
+		return EVisibility::Visible;
+	}
+
+	return EVisibility::Hidden;
+}
 
 /*----------------------------------------------------
 	Action callbacks
@@ -1006,6 +1058,38 @@ void SFlareTradeRouteMenu::OnAddOperationClicked(UFlareSimulatedSector* Sector)
 void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperationSave* Operation)
 {
 	SelectedOperation = Operation;
+	if(SelectedOperation)
+	{
+		if(SelectedOperation->MaxQuantity == -1)
+		{
+			QuantityLimitButton->SetActive(false);
+			QuantityLimitSlider->SetValue(0);
+		}
+		else
+		{
+			QuantityLimitButton->SetActive(true);
+			QuantityLimitSlider->SetValue((float) (SelectedOperation->MaxQuantity - 1) / (float) MAX_QUANTITY_LIMIT);
+		}
+
+		if(SelectedOperation->MaxWait == -1)
+		{
+			WaitLimitButton->SetActive(false);
+			WaitLimitSlider->SetValue(0);
+		}
+		else
+		{
+			WaitLimitButton->SetActive(true);
+			WaitLimitSlider->SetValue((float) (SelectedOperation->MaxWait -1 )/ (float) MAX_WAIT_LIMIT);
+		}
+	}
+}
+
+void SFlareTradeRouteMenu::OnSkipOperationClicked(FFlareTradeRouteSectorOperationSave* Operation)
+{
+	if(TargetTradeRoute)
+	{
+		TargetTradeRoute->SkipCurrentOperation();
+	}
 }
 
 
@@ -1036,6 +1120,53 @@ void SFlareTradeRouteMenu::OnOperationDownClicked()
 		GenerateSectorList();
 	}
 }
+
+void SFlareTradeRouteMenu::OnQuantityLimitToggle()
+{
+	if(SelectedOperation && TargetTradeRoute)
+	{
+		if(QuantityLimitButton->IsActive())
+		{
+			SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT + 1;
+		}
+		else
+		{
+			SelectedOperation->MaxQuantity = -1;
+		}
+	}
+}
+
+void SFlareTradeRouteMenu::OnWaitLimitToggle()
+{
+	if(SelectedOperation && TargetTradeRoute)
+	{
+		if(WaitLimitButton->IsActive())
+		{
+			SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT + 1;
+		}
+		else
+		{
+			SelectedOperation->MaxWait = -1;
+		}
+	}
+}
+
+void SFlareTradeRouteMenu::OnQuantityLimitChanged(float Value)
+{
+	if(SelectedOperation)
+	{
+		SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT + 1;
+	}
+}
+
+void SFlareTradeRouteMenu::OnWaitLimitChanged(float Value)
+{
+	if(SelectedOperation)
+	{
+		SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT +1;
+	}
+}
+
 
 void SFlareTradeRouteMenu::OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
 {

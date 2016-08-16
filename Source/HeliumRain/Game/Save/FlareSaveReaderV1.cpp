@@ -490,6 +490,10 @@ void UFlareSaveReaderV1::LoadTradeRoute(const TSharedPtr<FJsonObject> Object, FF
 	LoadFText(Object, "Name", &Data->Name);
 	LoadFName(Object, "Identifier", &Data->Identifier);
 	LoadFName(Object, "FleetIdentifier", &Data->FleetIdentifier);
+	LoadFName(Object, "TargetSectorIdentifier", &Data->TargetSectorIdentifier);
+	LoadInt32(Object, "CurrentOperationIndex", &Data->CurrentOperationIndex);
+	LoadInt32(Object, "CurrentOperationProgress", &Data->CurrentOperationProgress);
+	LoadInt32(Object, "CurrentOperationDuration", &Data->CurrentOperationDuration);
 
 	// LEGACY alpha 3
 	TArray<FName> FleetIdentifiers;

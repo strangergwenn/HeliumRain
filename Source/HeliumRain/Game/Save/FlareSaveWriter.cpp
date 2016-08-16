@@ -442,8 +442,11 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveTradeRoute(FFlareTradeRouteSave* D
 
 	JsonObject->SetStringField("Name", Data->Name.ToString());
 	JsonObject->SetStringField("Identifier", Data->Identifier.ToString());
-
 	JsonObject->SetStringField("FleetIdentifier", Data->FleetIdentifier.ToString());
+	JsonObject->SetStringField("TargetSectorIdentifier", Data->TargetSectorIdentifier.ToString());
+	JsonObject->SetStringField("CurrentOperationIndex", FormatInt32(Data->CurrentOperationIndex));
+	JsonObject->SetStringField("CurrentOperationProgress", FormatInt32(Data->CurrentOperationProgress));
+	JsonObject->SetStringField("CurrentOperationDuration", FormatInt32(Data->CurrentOperationDuration));
 
 	TArray< TSharedPtr<FJsonValue> > Sectors;
 	for(int i = 0; i < Data->Sectors.Num(); i++)
