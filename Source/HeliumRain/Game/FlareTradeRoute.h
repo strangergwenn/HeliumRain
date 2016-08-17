@@ -228,5 +228,7 @@ public:
 
     int32 GetSectorIndex(UFlareSimulatedSector *Sector);
 
+	UFlareSimulatedSector* GetTargetSector() const;
+
 	FFlareTradeRouteSectorOperationSave* GetActiveOperation();
 };

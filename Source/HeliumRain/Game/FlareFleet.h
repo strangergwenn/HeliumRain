@@ -153,19 +153,19 @@ public:
 	FText GetStatusInfo() const;
 
 	/** Return null if traveling */
-	inline UFlareSimulatedSector* GetCurrentSector()
+	inline UFlareSimulatedSector* GetCurrentSector() const
 	{
 		return CurrentSector;
 	}
 
 	/** Return null if not traveling */
-	inline UFlareTravel* GetCurrentTravel()
+	inline UFlareTravel* GetCurrentTravel() const
 	{
 		return CurrentTravel;
 	}
 
 	/** Return null if not in a trade route */
-	inline UFlareTradeRoute* GetCurrentTradeRoute()
+	inline UFlareTradeRoute* GetCurrentTradeRoute() const
 	{
 		return CurrentTradeRoute;
 	}

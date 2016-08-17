@@ -626,6 +626,11 @@ int32 UFlareTradeRoute::GetSectorIndex(UFlareSimulatedSector *Sector)
     return -1;
 }
 
+UFlareSimulatedSector* UFlareTradeRoute::GetTargetSector() const
+{
+	return Game->GetGameWorld()->FindSector(TradeRouteData.TargetSectorIdentifier);
+}
+
 FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::GetActiveOperation()
 {
 	UFlareSimulatedSector* TargetSector = Game->GetGameWorld()->FindSector(TradeRouteData.TargetSectorIdentifier);
@@ -664,7 +669,7 @@ void UFlareTradeRoute::SkipCurrentOperation()
 
 	FFlareTradeRouteSectorSave* SectorOrder = GetSectorOrders(TargetSector);
 
-	if (TradeRouteData.CurrentOperationIndex >= SectorOrder->Operations.Num())
+	if (SectorOrder && TradeRouteData.CurrentOperationIndex >= SectorOrder->Operations.Num())
 	{
 		TargetSector = GetNextTradeSector(TargetSector);
 		SetTargetSector(TargetSector);

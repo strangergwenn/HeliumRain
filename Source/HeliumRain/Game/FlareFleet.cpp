@@ -120,7 +120,7 @@ FText UFlareFleet::GetStatusInfo() const
 	}
 	else
 	{
-		return LOCTEXT("TravelIdle", "Idle");
+		return FText::Format(LOCTEXT("TravelIdle", "Idle in {0}"), GetCurrentSector()->GetSectorName());
 	}
 
 	return FText();

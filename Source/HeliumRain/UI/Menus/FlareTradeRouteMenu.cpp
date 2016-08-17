@@ -13,6 +13,7 @@
 #define MAX_WAIT_LIMIT 50
 #define MAX_QUANTITY_LIMIT 1000
 
+
 /*----------------------------------------------------
 	Construct
 ----------------------------------------------------*/
@@ -27,17 +28,17 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 	MaxSectorsInRoute = 4;
 
 	OperationList.Add(EFlareTradeRouteOperation::Load);
-	OperationNameList.Add(MakeShareable(new FString(TEXT("Load"))));
+	OperationNameList.Add(MakeShareable(new FText(LOCTEXT("OpLoad", "Load"))));
 	OperationList.Add(EFlareTradeRouteOperation::Buy);
-	OperationNameList.Add(MakeShareable(new FString(TEXT("Buy"))));
+	OperationNameList.Add(MakeShareable(new FText(LOCTEXT("OpBuy", "Buy"))));
 	OperationList.Add(EFlareTradeRouteOperation::LoadOrBuy);
-	OperationNameList.Add(MakeShareable(new FString(TEXT("Load or buy"))));
+	OperationNameList.Add(MakeShareable(new FText(LOCTEXT("OpLoadBuy", "Load / Buy"))));
 	OperationList.Add(EFlareTradeRouteOperation::Unload);
-	OperationNameList.Add(MakeShareable(new FString(TEXT("Unload"))));
+	OperationNameList.Add(MakeShareable(new FText(LOCTEXT("OpUnload", "Unload"))));
 	OperationList.Add(EFlareTradeRouteOperation::Sell);
-	OperationNameList.Add(MakeShareable(new FString(TEXT("Sell"))));
+	OperationNameList.Add(MakeShareable(new FText(LOCTEXT("OpSell", "Sell"))));
 	OperationList.Add(EFlareTradeRouteOperation::UnloadOrSell);
-	OperationNameList.Add(MakeShareable(new FString(TEXT("Unload or sell"))));
+	OperationNameList.Add(MakeShareable(new FText(LOCTEXT("OpUnloadSell", "Unload / Sell"))));
 
 	// Build structure
 	ChildSlot
@@ -50,320 +51,367 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 		// UI container
 		+ SVerticalBox::Slot()
 		.Padding(Theme.ContentPadding)
-		.HAlign(HAlign_Center)
 		[
-			SNew(SVerticalBox)
+			SNew(SHorizontalBox)
 			
 			// Content block
-			+ SVerticalBox::Slot()
+			+ SHorizontalBox::Slot()
 			.VAlign(VAlign_Top)
-			.HAlign(HAlign_Left)
+			.HAlign(HAlign_Fill)
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(SScrollBox)
 				.Style(&Theme.ScrollBoxStyle)
 				.ScrollBarStyle(&Theme.ScrollBarStyle)
 
 				+ SScrollBox::Slot()
-				.HAlign(HAlign_Center)
+				.HAlign(HAlign_Fill)
+				.Padding(Theme.ContentPadding)
 				[
 					SNew(SVerticalBox)
 
-					// Buttons
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Center)
-					[
-						SNew(SBox)
-						.WidthOverride(Theme.ContentWidth)
-						.HAlign(HAlign_Fill)
-						[
-							SNew(SVerticalBox)
-							
-							// Title
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.TitlePadding)
-							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("TradeRouteControls", "Trade route controls"))
-								.TextStyle(&Theme.SubTitleFont)
-							]
-
-							// Trade route name
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							[
-								SNew(SHorizontalBox)
-
-								// Name field
-								+ SHorizontalBox::Slot()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SAssignNew(EditRouteName, SEditableText)
-									.Style(&Theme.TextInputStyle)
-								]
-
-								// Confirm
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SNew(SFlareButton)
-									.Width(5)
-									.Text(LOCTEXT("Rename", "Rename"))
-									.HelpText(LOCTEXT("ChangeNameInfo", "Rename this trade route"))
-									.Icon(FFlareStyleSet::GetIcon("OK"))
-									.OnClicked(this, &SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked)
-								]
-							]
-
-							// Fleet list
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							[
-								SNew(SHorizontalBox)
-
-								// List
-								+ SHorizontalBox::Slot()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SAssignNew(FleetSelector, SComboBox<UFlareFleet*>)
-									.OptionsSource(&FleetList)
-									.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateFleetComboLine)
-									.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnFleetComboLineSelectionChanged)
-									.ComboBoxStyle(&Theme.ComboBoxStyle)
-									.ForegroundColor(FLinearColor::White)
-									.Visibility(this, &SFlareTradeRouteMenu::GetAssignFleetVisibility)
-									[
-										SNew(STextBlock)
-										.Text(this, &SFlareTradeRouteMenu::OnGetCurrentFleetComboLine)
-										.TextStyle(&Theme.TextFont)
-									]
-								]
-
-								// Name field
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								.Padding(Theme.SmallContentPadding)
-								.HAlign(HAlign_Right)
-								[
-									SNew(SFlareButton)
-									.Width(5)
-									.Text(LOCTEXT("AssignFleet", "Assign"))
-									.HelpText(LOCTEXT("AssignFleetInfo", "Assign this fleet to the trade route"))
-									.OnClicked(this, &SFlareTradeRouteMenu::OnAssignFleetClicked)
-									.Visibility(this, &SFlareTradeRouteMenu::GetAssignFleetVisibility)
-								]
-							]
-
-							// Fleet list (assigned)
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							[
-								SAssignNew(TradeFleetList, SVerticalBox)
-							]
-
-							// Sector selection
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							[
-								SNew(SHorizontalBox)
-
-								// List
-								+ SHorizontalBox::Slot()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SAssignNew(SectorSelector, SComboBox<UFlareSimulatedSector*>)
-									.OptionsSource(&SectorList)
-									.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateSectorComboLine)
-									.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged)
-									.ComboBoxStyle(&Theme.ComboBoxStyle)
-									.ForegroundColor(FLinearColor::White)
-									[
-										SNew(STextBlock)
-										.Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
-										.TextStyle(&Theme.TextFont)
-									]
-								]
-
-								// Button
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SNew(SFlareButton)
-									.Width(5)
-									.Text(this, &SFlareTradeRouteMenu::GetAddSectorText)
-									.HelpText(LOCTEXT("AddSectorInfo", "Add this sector to the trade route"))
-									.OnClicked(this, &SFlareTradeRouteMenu::OnAddSectorClicked)
-									.IsDisabled(this, &SFlareTradeRouteMenu::IsAddSectorDisabled)
-								]
-							]
-						]
-					]
-
-					// Header
+					// Status of the current fleet
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-						.Padding(Theme.TitlePadding)
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Center)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("TradeRouteDetails", "Trade route details"))
-						.TextStyle(&Theme.SubTitleFont)
+						.Text(this, &SFlareTradeRouteMenu::GetFleetInfo)
+						.TextStyle(&Theme.TextFont)
 					]
 
-					// Trade route sector list
+					// Map
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.HAlign(HAlign_Center)
 					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Center)
 					[
 						SAssignNew(TradeSectorList, SHorizontalBox)
 					]
+				]
+			]
 
+			// Side panel
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Right)
+			[
+				SNew(SVerticalBox)
+				
+				// Title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("TradeRouteControlsTitle", "Trade route controls"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+				
+				// Sector selection
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
 
-					// Operation edition box
+					// Name field
+					+ SHorizontalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
+					.VAlign(VAlign_Center)
+					[
+						SAssignNew(EditRouteName, SEditableText)
+						.Style(&Theme.TextInputStyle)
+					]
+
+					// Confirm
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					.HAlign(HAlign_Right)
+					[
+						SNew(SFlareButton)
+						.Width(3)
+						.Text(LOCTEXT("Rename", "Rename"))
+						.HelpText(LOCTEXT("ChangeNameInfo", "Rename this trade route"))
+						.Icon(FFlareStyleSet::GetIcon("OK"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked)
+					]
+
+				]
+				
+				// Fleet selection
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// List
+					+ SHorizontalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(FleetSelector, SComboBox<UFlareFleet*>)
+						.OptionsSource(&FleetList)
+						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateFleetComboLine)
+						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnFleetComboLineSelectionChanged)
+						.ComboBoxStyle(&Theme.ComboBoxStyle)
+						.ForegroundColor(FLinearColor::White)
+						.Visibility(this, &SFlareTradeRouteMenu::GetAssignFleetVisibility)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentFleetComboLine)
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Name field
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					.HAlign(HAlign_Right)
+					[
+						SNew(SFlareButton)
+						.Width(3)
+						.Text(LOCTEXT("AssignFleet", "Assign"))
+						.HelpText(LOCTEXT("AssignFleetInfo", "Assign this fleet to the trade route"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnAssignFleetClicked)
+						.Visibility(this, &SFlareTradeRouteMenu::GetAssignFleetVisibility)
+					]
+				]
+
+				// Fleet list (assigned)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SAssignNew(TradeFleetList, SVerticalBox)
+				]
+
+				// Sector selection
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// List
+					+ SHorizontalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(SectorSelector, SComboBox<UFlareSimulatedSector*>)
+						.OptionsSource(&SectorList)
+						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateSectorComboLine)
+						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged)
+						.ComboBoxStyle(&Theme.ComboBoxStyle)
+						.ForegroundColor(FLinearColor::White)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Button
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(3)
+						.Text(this, &SFlareTradeRouteMenu::GetAddSectorText)
+						.HelpText(LOCTEXT("AddSectorInfo", "Add this sector to the trade route"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnAddSectorClicked)
+						.IsDisabled(this, &SFlareTradeRouteMenu::IsAddSectorDisabled)
+					]
+				]
+				
+				// Next trade operation
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// Status of the next trade step
+					+ SHorizontalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareTradeRouteMenu::GetNextStepInfo)
+						.TextStyle(&Theme.TextFont)
+						.ColorAndOpacity(Theme.InfoColor)
+					]
+
+					// Skip next operation
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					.HAlign(HAlign_Right)
+					[
+						SNew(SFlareButton)
+						.Width(3)
+						.OnClicked(this, &SFlareTradeRouteMenu::OnSkipOperationClicked)
+						.Text(LOCTEXT("SkipOperation", "Skip"))
+						.HelpText(LOCTEXT("SkipOperationInfo", "Skip the next operation and move on with the following one"))
+					]
+				]
+
+				// Operation edition box
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SVerticalBox)
+					.Visibility(this, &SFlareTradeRouteMenu::GetOperationDetailsVisibility)
+
+					// Title resource
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.HAlign(HAlign_Center)
-					.Padding(Theme.ContentPadding)
+					.Padding(Theme.TitlePadding)
 					[
-						SNew(SVerticalBox)
-						.Visibility(this, &SFlareTradeRouteMenu::GetOperationDetailsVisibility)
+						SNew(STextBlock)
+						.Text(LOCTEXT("OperationEditTitle", "Edit selected operation"))
+						.TextStyle(&Theme.SubTitleFont)
+					]
 
-						// Title operation
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.TitlePadding)
+					// Status of the selected trade step
+					+ SVerticalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareTradeRouteMenu::GetSelectedStepInfo)
+						.TextStyle(&Theme.TextFont)
+						.ColorAndOpacity(Theme.ObjectiveColor)
+					]
+					
+					// Resource action
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(OperationSelector, SComboBox<TSharedPtr<FText>>)
+						.OptionsSource(&OperationNameList)
+						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateOperationComboLine)
+						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnOperationComboLineSelectionChanged)
+						.ComboBoxStyle(&Theme.ComboBoxStyle)
+						.ForegroundColor(FLinearColor::White)
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("ResourceSelection", "Change current resource"))
-							.TextStyle(&Theme.SubTitleFont)
+							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentOperationComboLine)
+							.TextStyle(&Theme.TextFont)
 						]
+					]
 
-						// Resource selection
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(OperationSelector, SComboBox<TSharedPtr<FString>>)
-							.OptionsSource(&OperationNameList)
-							.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateOperationComboLine)
-							.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnOperationComboLineSelectionChanged)
-							.ComboBoxStyle(&Theme.ComboBoxStyle)
-							.ForegroundColor(FLinearColor::White)
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareTradeRouteMenu::OnGetCurrentOperationComboLine)
-								.TextStyle(&Theme.TextFont)
-							]
-						]
-
-						// Title resource
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.TitlePadding)
+					// Resource selection
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
+						.OptionsSource(&PC->GetGame()->GetResourceCatalog()->Resources)
+						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateResourceComboLine)
+						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged)
+						.ComboBoxStyle(&Theme.ComboBoxStyle)
+						.ForegroundColor(FLinearColor::White)
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("OperationSelection", "Operation"))
-							.TextStyle(&Theme.SubTitleFont)
+							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentResourceComboLine)
+							.TextStyle(&Theme.TextFont)
 						]
+					]
+					
+					// Operation order
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
 
-						// Resource selection
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
-							.OptionsSource(&PC->GetGame()->GetResourceCatalog()->Resources)
-							.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateResourceComboLine)
-							.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged)
-							.ComboBoxStyle(&Theme.ComboBoxStyle)
-							.ForegroundColor(FLinearColor::White)
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareTradeRouteMenu::OnGetCurrentResourceComboLine)
-								.TextStyle(&Theme.TextFont)
-							]
-						]
-
-						// Quantity limit
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(QuantityLimitButton, SFlareButton)
-							.Text(LOCTEXT("QuantityLimit", "Limit max quantity"))
-							.HelpText(LOCTEXT("QuantityLimitInfo", "Skip to the next operation as soon a resource quantity is reach"))
-							.Toggle(true)
-							.OnClicked(this, &SFlareTradeRouteMenu::OnQuantityLimitToggle)
-						]
-
-						// Quantity limit slider
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
-							SAssignNew(QuantityLimitSlider, SSlider)
-							.Style(&Theme.SliderStyle)
-							.Value(0)
-							.OnValueChanged(this, &SFlareTradeRouteMenu::OnQuantityLimitChanged)
-							.Visibility(this, &SFlareTradeRouteMenu::GetQuantityLimitVisibility)
-						]
-
-
-						// Wait limit
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(WaitLimitButton, SFlareButton)
-							.Text(LOCTEXT("WaitLimit", "Limit max wait duration"))
-							.HelpText(LOCTEXT("WaitLimitInfo", "Skip to the next operation after a defined amount of days"))
-							.Toggle(true)
-							.OnClicked(this, &SFlareTradeRouteMenu::OnWaitLimitToggle)
-						]
-
-						// Wait limit slider
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
-							SAssignNew(WaitLimitSlider, SSlider)
-							.Style(&Theme.SliderStyle)
-							.Value(0)
-							.OnValueChanged(this, &SFlareTradeRouteMenu::OnWaitLimitChanged)
-							.Visibility(this, &SFlareTradeRouteMenu::GetWaitLimitVisibility)
-						]
-
-
-						// Delete Operation
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SFlareButton)
-							.OnClicked(this, &SFlareTradeRouteMenu::OnDeleteOperationClicked)
-							.Text(LOCTEXT("DeleteOperation", "Delete"))
-						]
-
-						// Move Operation up
-						+ SVerticalBox::Slot()
-						.AutoHeight()
+						// Move up
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
 						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SFlareButton)
 							.OnClicked(this, &SFlareTradeRouteMenu::OnOperationUpClicked)
-							.Text(LOCTEXT("MoveUpOperation", "Up"))
+							.Text(LOCTEXT("MoveUpOperation", "Move up"))
 						]
 
-						// Move Operation down
-						+ SVerticalBox::Slot()
-						.AutoHeight()
+						// Move down
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
 						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SFlareButton)
 							.OnClicked(this, &SFlareTradeRouteMenu::OnOperationDownClicked)
-							.Text(LOCTEXT("MoveDownOperation", "Down"))
+							.Text(LOCTEXT("MoveDownOperation", "Move down"))
+						]
+					]
+					
+					// Resource setup
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Left field
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SVerticalBox)
+
+							// Quantity limit
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(QuantityLimitButton, SFlareButton)
+								.Text(LOCTEXT("QuantityLimit", "Limit max quantity"))
+								.HelpText(LOCTEXT("QuantityLimitInfo", "Skip to the next operation after a certain amount is is reached"))
+								.Toggle(true)
+								.OnClicked(this, &SFlareTradeRouteMenu::OnQuantityLimitToggle)
+							]
+
+							// Quantity limit slider
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(QuantityLimitSlider, SSlider)
+								.Style(&Theme.SliderStyle)
+								.Value(0)
+								.OnValueChanged(this, &SFlareTradeRouteMenu::OnQuantityLimitChanged)
+								.Visibility(this, &SFlareTradeRouteMenu::GetQuantityLimitVisibility)
+							]
+						]
+					
+						// Right field
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SVerticalBox)
+
+							// Wait limit
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(WaitLimitButton, SFlareButton)
+								.Text(LOCTEXT("WaitLimit", "Limit max wait"))
+								.HelpText(LOCTEXT("WaitLimitInfo", "Skip to the next operation after some time has passed"))
+								.Toggle(true)
+								.OnClicked(this, &SFlareTradeRouteMenu::OnWaitLimitToggle)
+							]
+
+							// Wait limit slider
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(WaitLimitSlider, SSlider)
+								.Style(&Theme.SliderStyle)
+								.Value(0)
+								.OnValueChanged(this, &SFlareTradeRouteMenu::OnWaitLimitChanged)
+								.Visibility(this, &SFlareTradeRouteMenu::GetWaitLimitVisibility)
+							]
 						]
 					]
 				]
@@ -379,7 +427,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 
 
 /*----------------------------------------------------
-Interaction
+	Interaction
 ----------------------------------------------------*/
 
 void SFlareTradeRouteMenu::Setup()
@@ -507,22 +555,34 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 					// Operation list
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.HAlign(HAlign_Right)
+					.HAlign(HAlign_Left)
 					[
 						SAssignNew(SectorOperationList, SVerticalBox)
+					]
+
+					// Operation list
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("SectorAddOperationTitle", "Add operation"))
+						.TextStyle(&Theme.NameFont)
 					]
 
 					// Add operation button
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.HAlign(HAlign_Right)
+					.HAlign(HAlign_Left)
 					[
 						SNew(SFlareButton)
+						.Width(4)
 						.OnClicked(this, &SFlareTradeRouteMenu::OnAddOperationClicked, Sector)
-						.Text(LOCTEXT("SectorAddOperation", "Add operation"))
+						.Text(LOCTEXT("SectorAddOperation", "Add"))
+						.Icon(FFlareStyleSet::GetIcon("New"))
 						.HelpText(LOCTEXT("UnloadHelp", "Add an operation for this sector"))
 					]
-
 				]
 			];
 
@@ -530,84 +590,58 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 			for (int OperationIndex = 0; OperationIndex < SectorOrders->Operations.Num(); OperationIndex++)
 			{
 				FFlareTradeRouteSectorOperationSave* Operation = &SectorOrders->Operations[OperationIndex];
-				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
-
-				int32 OperationNameIndex;
-				OperationNameIndex = OperationList.Find(Operation->Type);
-				if(OperationNameIndex < 0)
-				{
-					OperationNameIndex = 0;
-				}
-
-				FText OperationName = FText::FromString(*OperationNameList[OperationNameIndex]);
-
-
-				FText OperationResume =	FText::Format(LOCTEXT("OperationResume", "{0} - {1} {2}"), FText::AsNumber(OperationIndex), OperationName, Resource->Name);
+				FText OperationResume = FText::FromString(FString::FromInt(OperationIndex + 1) + " - " + GetOperationInfo(Operation).ToString()); // FString needed here;
 
 				// TODO current operation progress
 				// Add operation limits
 				SectorOperationList->AddSlot()
 				.AutoHeight()
-				.HAlign(HAlign_Right)
+				.Padding(Theme.ContentPadding)
 				[
-					SNew(SHorizontalBox)
-
-					// Operation name
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Center)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(OperationResume)
-						]
-					]
-
-					// Operation status
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Center)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(this, &SFlareTradeRouteMenu::GetOperationStatusText,Operation)
-						]
-					]
-
+					SNew(STextBlock)
+					.TextStyle(&Theme.NameFont)
+					.Text(OperationResume)
+					.ColorAndOpacity(this, &SFlareTradeRouteMenu::GetOperationHighlight, Operation)
 				];
 
 				SectorOperationList->AddSlot()
 				.AutoHeight()
-				.HAlign(HAlign_Right)
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(this, &SFlareTradeRouteMenu::GetOperationStatusText, Operation)
+				];
+
+				// Buttons
+				SectorOperationList->AddSlot()
+				.AutoHeight()
 				[
 					SNew(SHorizontalBox)
 
-					// Edit operation
+					// Edit
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(SFlareButton)
-						.OnClicked(this, &SFlareTradeRouteMenu::OnEditOperationClicked, Operation)
+						.Width(2.4)
 						.Text(LOCTEXT("EditOperation", "Edit"))
-						.Visibility(this, &SFlareTradeRouteMenu::GetEditOperationVisibility, Operation)
+						.HelpText(LOCTEXT("EditOperationInfo", "Edit this trade operation"))
+						.IsDisabled(this, &SFlareTradeRouteMenu::IsEditOperationDisabled, Operation)
+						.OnClicked(this, &SFlareTradeRouteMenu::OnEditOperationClicked, Operation)
 					]
 
-					// Skip operation
+					// Delete
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(SFlareButton)
-						.OnClicked(this, &SFlareTradeRouteMenu::OnSkipOperationClicked, Operation)
-						.Text(LOCTEXT("SkipOperation", "Skip"))
-						.Visibility(this, &SFlareTradeRouteMenu::GetSkipOperationVisibility, Operation)
+						.Width(2.4)
+						.Text(LOCTEXT("DeleteOperation", "Delete"))
+						.HelpText(LOCTEXT("DeletOperationInfo", "Delete this trade operation"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnDeleteOperationClicked, Operation)
 					]
 				];
 			}
@@ -640,7 +674,7 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 		FleetSelector->RefreshOptions();
 
 		// Assigned fleets (text display)
-		if(TargetTradeRoute->GetFleet())
+		if (TargetTradeRoute->GetFleet())
 		{
 			UFlareFleet* Fleet = TargetTradeRoute->GetFleet();
 
@@ -663,11 +697,11 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 				// Unassign fleet
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
-				.HAlign(HAlign_Right)
 				.Padding(Theme.SmallContentPadding)
+				.HAlign(HAlign_Right)
 				[
 					SNew(SFlareButton)
-					.Width(5)
+					.Width(3)
 					.OnClicked(this, &SFlareTradeRouteMenu::OnUnassignFleetClicked, Fleet)
 					.Text(FText(LOCTEXT("Unassign", "Unassign")))
 					.HelpText(FText(LOCTEXT("UnassignHelp", "Unassign this fleet and pick another one")))
@@ -681,6 +715,7 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 		{
 			TradeFleetList->AddSlot()
 			.AutoHeight()
+			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TextFont)
@@ -711,6 +746,64 @@ FText SFlareTradeRouteMenu::GetTradeRouteName() const
 	}
 
 	return Result;
+}
+
+FText SFlareTradeRouteMenu::GetFleetInfo() const
+{
+	if (TargetTradeRoute && TargetTradeRoute->GetFleet())
+	{
+		return FText::Format(LOCTEXT("FleetInfoFormat", "Current fleet status : {0}"), TargetTradeRoute->GetFleet()->GetStatusInfo());
+	}
+
+	return LOCTEXT("NoFleetSelected", "No assigned fleet !");
+}
+
+FText SFlareTradeRouteMenu::GetSelectedStepInfo() const
+{
+	if (SelectedOperation)
+	{
+		return FText::Format(LOCTEXT("SelectedSectorFormat", "Operation : {0}"),
+			GetOperationInfo(SelectedOperation));
+	}
+	
+	return FText();
+}
+
+FText SFlareTradeRouteMenu::GetNextStepInfo() const
+{
+	if (TargetTradeRoute)
+	{
+		UFlareSimulatedSector* NextSector = TargetTradeRoute->GetTargetSector();
+		FFlareTradeRouteSave* TradeRouteData = TargetTradeRoute->Save();
+		check(TradeRouteData);
+
+		if (NextSector)
+		{
+			return FText::Format(LOCTEXT("NextSectorFormat", "Next operation : {0}"),
+				GetOperationInfo(TargetTradeRoute->GetActiveOperation()));
+		}
+	}
+
+	return LOCTEXT("NoNextStep", "No trade step defined");
+}
+
+FText SFlareTradeRouteMenu::GetOperationInfo(FFlareTradeRouteSectorOperationSave* Operation) const
+{
+	if (TargetTradeRoute && Operation)
+	{
+		FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
+		int32 OperationNameIndex = OperationList.Find(Operation->Type);
+		if (OperationNameIndex < 0)
+		{
+			OperationNameIndex = 0;
+		}
+
+		return FText::Format(LOCTEXT("OperationInfoFormat", "{0} {1}"),
+			*OperationNameList[OperationNameIndex],
+			Resource->Acronym);
+	}
+
+	return LOCTEXT("NoNextOperation", "No operation");
 }
 
 TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateSectorComboLine(UFlareSimulatedSector* Item)
@@ -775,24 +868,25 @@ FText SFlareTradeRouteMenu::OnGetCurrentResourceComboLine() const
 	}
 }
 
-TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateOperationComboLine(TSharedPtr<FString> Item)
+TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateOperationComboLine(TSharedPtr<FText> Item)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	return SNew(STextBlock)
-		.Text(FText::FromString(*Item)) // FString needed here
+		.Text(*Item) // FString needed here
 		.TextStyle(&Theme.TextFont);
 }
 
 FText SFlareTradeRouteMenu::OnGetCurrentOperationComboLine() const
 {
-	TSharedPtr<FString> Item = OperationSelector->GetSelectedItem();
-	return Item.IsValid() ? FText::FromString(*Item) : FText::FromString(*OperationNameList[0]);
+	TSharedPtr<FText> Item = OperationSelector->GetSelectedItem();
+	return Item.IsValid() ? *Item : *OperationNameList[0];
 }
 
 EVisibility SFlareTradeRouteMenu::GetOperationDetailsVisibility() const
 {
-	EVisibility visibility = EVisibility::Collapsed;
+	EVisibility visibility = EVisibility::Hidden;
+
 	if (TargetTradeRoute)
 	{
 		if (SelectedOperation != NULL)
@@ -800,15 +894,15 @@ EVisibility SFlareTradeRouteMenu::GetOperationDetailsVisibility() const
 			visibility = EVisibility::Visible;
 		}
 	}
+
 	return visibility;
 }
-
 
 FText SFlareTradeRouteMenu::GetAddSectorText() const
 {
 	if (TargetTradeRoute)
 	{
-		return FText::Format(LOCTEXT("AddSectorFormat", "Add sector ({0} / {1})"),
+		return FText::Format(LOCTEXT("AddSectorFormat", "Add ({0} / {1})"),
 			FText::AsNumber(TargetTradeRoute->GetSectors().Num()),
 			FText::AsNumber(MaxSectorsInRoute));
 	}
@@ -816,48 +910,75 @@ FText SFlareTradeRouteMenu::GetAddSectorText() const
 	return FText();
 }
 
+FSlateColor SFlareTradeRouteMenu::GetOperationHighlight(FFlareTradeRouteSectorOperationSave* Operation) const
+{
+	FLinearColor Result = FLinearColor::White;
+
+	if (TargetTradeRoute)
+	{
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+		if (SelectedOperation == Operation)
+		{
+			return Theme.ObjectiveColor;
+		}
+		else if (TargetTradeRoute->GetActiveOperation() == Operation)
+		{
+			return Theme.InfoColor;
+		}
+	}
+
+	return Result;
+}
+
 FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperationSave* Operation) const
 {
-
 	if (TargetTradeRoute && Operation)
 	{
 		FText WaitText;
 		FText QuantityText;
 		FText ForeverText = LOCTEXT("Forever", "forever");
-		FText FullCargoText = LOCTEXT("FullCargo", "full cargo");
-
-
-		if(TargetTradeRoute->GetActiveOperation() == Operation)
+		FText FullCargoText = LOCTEXT("FullCargo", "until full");
+		FText EmptyCargoText = LOCTEXT("EmptyCargo", "until empty");
+		
+		if (Operation->Type == EFlareTradeRouteOperation::Load
+		 || Operation->Type == EFlareTradeRouteOperation::LoadOrBuy
+		 || Operation->Type == EFlareTradeRouteOperation::Buy)
 		{
-			if(Operation->MaxWait == -1)
+			QuantityText = FullCargoText;
+		}
+		else
+		{
+			QuantityText = EmptyCargoText;
+		}
+
+		if (TargetTradeRoute->GetActiveOperation() == Operation)
+		{
+			if (Operation->MaxWait == -1)
 			{
 				WaitText = ForeverText;
 			}
 			else
 			{
-				WaitText = FText::Format(LOCTEXT("OperationStatusActiveWaitFormat", "{0}/{1} days"),
+				WaitText = FText::Format(LOCTEXT("OperationStatusActiveWaitFormat", "{0} / {1} days"),
 						   FText::AsNumber(TargetTradeRoute->GetData()->CurrentOperationDuration),
 						   FText::AsNumber(Operation->MaxWait));
 			}
 
-			if(Operation->MaxQuantity == -1)
-			{
-				QuantityText = FullCargoText;
-			}
-			else
+			if (Operation->MaxQuantity > -1)
 			{
 				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
 
-				QuantityText = FText::Format(LOCTEXT("OperationStatusActiveQuantityFormat", "{0}/{1} {2}"),
+				QuantityText = FText::Format(LOCTEXT("OperationStatusActiveQuantityFormat", "{0} / {1} {2}"),
 						   FText::AsNumber(TargetTradeRoute->GetData()->CurrentOperationProgress),
 						   FText::AsNumber(Operation->MaxQuantity),
-							Resource->Name);
+							Resource->Acronym);
 			}
 
 		}
 		else
 		{
-			if(Operation->MaxWait == -1)
+			if (Operation->MaxWait == -1)
 			{
 				WaitText = ForeverText;
 			}
@@ -867,21 +988,17 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 						   FText::AsNumber(Operation->MaxWait));
 			}
 
-			if(Operation->MaxQuantity == -1)
-			{
-				QuantityText = FullCargoText;
-			}
-			else
+			if (Operation->MaxQuantity > -1)
 			{
 				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
 
 				QuantityText = FText::Format(LOCTEXT("OperationStatusQuantityFormat", "{0} {1}"),
 						   FText::AsNumber(Operation->MaxQuantity),
-							Resource->Name);
+							Resource->Acronym);
 			}
 		}
 
-		return FText::Format(LOCTEXT("OperationStatusFormat", "Wait {0} or {1}"),
+		return FText::Format(LOCTEXT("OperationStatusFormat", "(Wait {0} or {1})"),
 			WaitText,
 			QuantityText);
 	}
@@ -944,23 +1061,14 @@ EVisibility SFlareTradeRouteMenu::GetAssignFleetVisibility() const
 	return FleetList.Num() > 0 && TargetTradeRoute && TargetTradeRoute->GetFleet() == NULL ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
-EVisibility SFlareTradeRouteMenu::GetEditOperationVisibility(FFlareTradeRouteSectorOperationSave* Operation) const
+bool SFlareTradeRouteMenu::IsEditOperationDisabled(FFlareTradeRouteSectorOperationSave* Operation) const
 {
-	return SelectedOperation != Operation ? EVisibility::Visible :EVisibility::Hidden;
-}
-
-EVisibility SFlareTradeRouteMenu::GetSkipOperationVisibility(FFlareTradeRouteSectorOperationSave* Operation) const
-{
-	if(TargetTradeRoute)
-	{
-		return TargetTradeRoute->GetActiveOperation() == Operation ? EVisibility::Visible : EVisibility::Hidden;
-	}
-	return EVisibility::Hidden;
+	return SelectedOperation != Operation ? false : true;
 }
 
 EVisibility SFlareTradeRouteMenu::GetQuantityLimitVisibility() const
 {
-	if(QuantityLimitButton->IsActive())
+	if (QuantityLimitButton->IsActive())
 	{
 		return EVisibility::Visible;
 	}
@@ -970,13 +1078,14 @@ EVisibility SFlareTradeRouteMenu::GetQuantityLimitVisibility() const
 
 EVisibility SFlareTradeRouteMenu::GetWaitLimitVisibility() const
 {
-	if(WaitLimitButton->IsActive())
+	if (WaitLimitButton->IsActive())
 	{
 		return EVisibility::Visible;
 	}
 
 	return EVisibility::Hidden;
 }
+
 
 /*----------------------------------------------------
 	Action callbacks
@@ -1002,21 +1111,21 @@ void SFlareTradeRouteMenu::OnAddSectorClicked()
 
 void SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo)
 {
-	if(SelectedOperation)
+	if (SelectedOperation)
 	{
 		SelectedOperation->ResourceIdentifier = Item->Data.Identifier;
 		GenerateSectorList();
 	}
 }
 
-void SFlareTradeRouteMenu::OnOperationComboLineSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo)
+void SFlareTradeRouteMenu::OnOperationComboLineSelectionChanged(TSharedPtr<FText> Item, ESelectInfo::Type SelectInfo)
 {
-	if(SelectedOperation)
+	if (SelectedOperation)
 	{
 		int32 OperationIndex  = OperationNameList.Find(Item);
 
 
-		if(OperationIndex == -1)
+		if (OperationIndex == -1)
 		{
 			OperationIndex = 0;
 		}
@@ -1041,7 +1150,7 @@ void SFlareTradeRouteMenu::OnAddOperationClicked(UFlareSimulatedSector* Sector)
 	int32 OperationIndex  = OperationNameList.Find(OperationSelector->GetSelectedItem());
 
 
-	if(OperationIndex == -1)
+	if (OperationIndex == -1)
 	{
 		OperationIndex = 0;
 	}
@@ -1058,9 +1167,15 @@ void SFlareTradeRouteMenu::OnAddOperationClicked(UFlareSimulatedSector* Sector)
 void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperationSave* Operation)
 {
 	SelectedOperation = Operation;
-	if(SelectedOperation)
+	if (SelectedOperation)
 	{
-		if(SelectedOperation->MaxQuantity == -1)
+		FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
+		ResourceSelector->SetSelectedItem(MenuManager->GetGame()->GetResourceCatalog()->GetEntry(Resource));
+
+		int32 OperationTypeIndex = OperationList.Find(Operation->Type);
+		OperationSelector->SetSelectedItem(OperationNameList[OperationTypeIndex]);
+
+		if (SelectedOperation->MaxQuantity == -1)
 		{
 			QuantityLimitButton->SetActive(false);
 			QuantityLimitSlider->SetValue(0);
@@ -1071,7 +1186,7 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 			QuantityLimitSlider->SetValue((float) (SelectedOperation->MaxQuantity - 1) / (float) MAX_QUANTITY_LIMIT);
 		}
 
-		if(SelectedOperation->MaxWait == -1)
+		if (SelectedOperation->MaxWait == -1)
 		{
 			WaitLimitButton->SetActive(false);
 			WaitLimitSlider->SetValue(0);
@@ -1084,28 +1199,27 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 	}
 }
 
-void SFlareTradeRouteMenu::OnSkipOperationClicked(FFlareTradeRouteSectorOperationSave* Operation)
+void SFlareTradeRouteMenu::OnSkipOperationClicked()
 {
-	if(TargetTradeRoute)
+	if (TargetTradeRoute)
 	{
 		TargetTradeRoute->SkipCurrentOperation();
 	}
 }
 
 
-void SFlareTradeRouteMenu::OnDeleteOperationClicked()
+void SFlareTradeRouteMenu::OnDeleteOperationClicked(FFlareTradeRouteSectorOperationSave* Operation)
 {
-	if(SelectedOperation && TargetTradeRoute)
+	if (Operation && TargetTradeRoute)
 	{
-		TargetTradeRoute->DeleteOperation(SelectedOperation);
-		SelectedOperation = NULL;
+		TargetTradeRoute->DeleteOperation(Operation);
 		GenerateSectorList();
 	}
 }
 
 void SFlareTradeRouteMenu::OnOperationUpClicked()
 {
-	if(SelectedOperation && TargetTradeRoute)
+	if (SelectedOperation && TargetTradeRoute)
 	{
 		SelectedOperation = TargetTradeRoute->MoveOperationUp(SelectedOperation);
 		GenerateSectorList();
@@ -1114,7 +1228,7 @@ void SFlareTradeRouteMenu::OnOperationUpClicked()
 
 void SFlareTradeRouteMenu::OnOperationDownClicked()
 {
-	if(SelectedOperation && TargetTradeRoute)
+	if (SelectedOperation && TargetTradeRoute)
 	{
 		SelectedOperation = TargetTradeRoute->MoveOperationDown(SelectedOperation);
 		GenerateSectorList();
@@ -1123,9 +1237,9 @@ void SFlareTradeRouteMenu::OnOperationDownClicked()
 
 void SFlareTradeRouteMenu::OnQuantityLimitToggle()
 {
-	if(SelectedOperation && TargetTradeRoute)
+	if (SelectedOperation && TargetTradeRoute)
 	{
-		if(QuantityLimitButton->IsActive())
+		if (QuantityLimitButton->IsActive())
 		{
 			SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT + 1;
 		}
@@ -1138,9 +1252,9 @@ void SFlareTradeRouteMenu::OnQuantityLimitToggle()
 
 void SFlareTradeRouteMenu::OnWaitLimitToggle()
 {
-	if(SelectedOperation && TargetTradeRoute)
+	if (SelectedOperation && TargetTradeRoute)
 	{
-		if(WaitLimitButton->IsActive())
+		if (WaitLimitButton->IsActive())
 		{
 			SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT + 1;
 		}
@@ -1153,7 +1267,7 @@ void SFlareTradeRouteMenu::OnWaitLimitToggle()
 
 void SFlareTradeRouteMenu::OnQuantityLimitChanged(float Value)
 {
-	if(SelectedOperation)
+	if (SelectedOperation)
 	{
 		SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT + 1;
 	}
@@ -1161,142 +1275,10 @@ void SFlareTradeRouteMenu::OnQuantityLimitChanged(float Value)
 
 void SFlareTradeRouteMenu::OnWaitLimitChanged(float Value)
 {
-	if(SelectedOperation)
+	if (SelectedOperation)
 	{
 		SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT +1;
 	}
-}
-
-
-void SFlareTradeRouteMenu::OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
-{
-	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-	FFlareTradeRouteSectorSave* PreviousOrder = TargetTradeRoute->GetSectorOrders(Sector);
-	/*
-	if (SectorIndex >= 0 && Resource && PreviousOrder)
-	{
-		uint32 PreviousLimit = 0;
-		for (int ResourceIndex = 0; ResourceIndex < PreviousOrder->ResourcesToLoad.Num(); ResourceIndex++)
-		{
-			if (Resource->Identifier == PreviousOrder->ResourcesToLoad[ResourceIndex].ResourceIdentifier)
-			{
-				PreviousLimit = PreviousOrder->ResourcesToLoad[ResourceIndex].Quantity;
-				break;
-			}
-		}
-
-		TargetTradeRoute->SetSectorLoadOrder(SectorIndex, Resource, PreviousLimit + 1);
-		GenerateSectorList();
-	}*/
-}
-
-void SFlareTradeRouteMenu::OnIncreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
-{
-	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-	FFlareTradeRouteSectorSave* PreviousOrder = TargetTradeRoute->GetSectorOrders(Sector);
-//TODO
-	/*if (SectorIndex >= 0 && Resource && PreviousOrder)
-	{
-		uint32 PreviousLimit = 0;
-		for (int ResourceIndex = 0; ResourceIndex < PreviousOrder->ResourcesToLoad.Num(); ResourceIndex++)
-		{
-			if (Resource->Identifier == PreviousOrder->ResourcesToLoad[ResourceIndex].ResourceIdentifier)
-			{
-				PreviousLimit = PreviousOrder->ResourcesToLoad[ResourceIndex].Quantity;
-				break;
-			}
-		}
-
-		if (PreviousLimit == 0)
-		{
-			return;
-		}
-
-		TargetTradeRoute->SetSectorLoadOrder(SectorIndex, Resource, PreviousLimit - 1);
-		GenerateSectorList();
-	}*/
-}
-
-void SFlareTradeRouteMenu::OnClearLoadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
-{
-	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-/*	if (SectorIndex >= 0 && Resource)
-	{
-		TargetTradeRoute->ClearSectorLoadOrder(SectorIndex, Resource);
-		GenerateSectorList();
-	}*/
-}
-
-void SFlareTradeRouteMenu::OnUnloadResourceClicked(UFlareSimulatedSector* Sector)
-{
-	UFlareResourceCatalogEntry* Resource = ResourceSelector->GetSelectedItem();
-	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-
-	/*if (SectorIndex >= 0 && Resource)
-	{
-		TargetTradeRoute->SetSectorUnloadOrder(SectorIndex, &Resource->Data, 0);
-		GenerateSectorList();
-	}*/
-}
-
-
-void SFlareTradeRouteMenu::OnDecreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
-{
-	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-	FFlareTradeRouteSectorSave* PreviousOrder = TargetTradeRoute->GetSectorOrders(Sector);
-	/*
-	if (SectorIndex >= 0 && Resource && PreviousOrder)
-	{
-		uint32 PreviousLimit = 0;
-		for (int ResourceIndex = 0; ResourceIndex < PreviousOrder->ResourcesToUnload.Num(); ResourceIndex++)
-		{
-			if (Resource->Identifier == PreviousOrder->ResourcesToUnload[ResourceIndex].ResourceIdentifier)
-			{
-				PreviousLimit = PreviousOrder->ResourcesToUnload[ResourceIndex].Quantity;
-				break;
-			}
-		}
-
-		TargetTradeRoute->SetSectorUnloadOrder(SectorIndex, Resource, PreviousLimit + 1);
-		GenerateSectorList();
-	}*/
-}
-
-void SFlareTradeRouteMenu::OnIncreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
-{
-	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-	FFlareTradeRouteSectorSave* PreviousOrder = TargetTradeRoute->GetSectorOrders(Sector);
-	/*
-	if (SectorIndex >= 0 && Resource && PreviousOrder)
-	{
-		uint32 PreviousLimit = 0;
-		for (int ResourceIndex = 0; ResourceIndex < PreviousOrder->ResourcesToUnload.Num(); ResourceIndex++)
-		{
-			if (Resource->Identifier == PreviousOrder->ResourcesToUnload[ResourceIndex].ResourceIdentifier)
-			{
-				PreviousLimit = PreviousOrder->ResourcesToUnload[ResourceIndex].Quantity;
-				break;
-			}
-		}
-
-		if (PreviousLimit == 0)
-		{
-			return;
-		}
-
-		TargetTradeRoute->SetSectorUnloadOrder(SectorIndex, Resource, PreviousLimit - 1);
-		GenerateSectorList();
-	}*/
-}
-
-void SFlareTradeRouteMenu::OnClearUnloadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource)
-{
-	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
-	/*if (SectorIndex >= 0 && Resource)
-	{
-		TargetTradeRoute->ClearSectorUnloadOrder(SectorIndex, Resource);
-		GenerateSectorList();
-	}*/
 }
 
 void SFlareTradeRouteMenu::OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo)
@@ -1321,5 +1303,5 @@ void SFlareTradeRouteMenu::OnUnassignFleetClicked(UFlareFleet* Fleet)
 	}
 }
 
-#undef LOCTEXT_NAMESPACE
 
+#undef LOCTEXT_NAMESPACE

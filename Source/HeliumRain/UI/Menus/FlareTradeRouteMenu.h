@@ -51,6 +51,18 @@ protected:
 	/** Get route name */
 	FText GetTradeRouteName() const;
 
+	/** Get info for the current fleet */
+	FText GetFleetInfo() const;
+
+	/** Get info for the selected trade route step */
+	FText GetSelectedStepInfo() const;
+
+	/** Get info for the next trade route step */
+	FText GetNextStepInfo() const;
+
+	/** Get a description of a trade operation */
+	FText GetOperationInfo(FFlareTradeRouteSectorOperationSave* Operation) const;
+	
 	TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* Item);
 	
 	FText OnGetCurrentSectorComboLine() const;
@@ -64,11 +76,11 @@ protected:
 
 	FText OnGetCurrentResourceComboLine() const;
 
-	TSharedRef<SWidget> OnGenerateOperationComboLine(TSharedPtr<FString> Item);
+	TSharedRef<SWidget> OnGenerateOperationComboLine(TSharedPtr<FText> Item);
 
 	FText OnGetCurrentOperationComboLine() const;
 
-	void OnOperationComboLineSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo);
+	void OnOperationComboLineSelectionChanged(TSharedPtr<FText> Item, ESelectInfo::Type SelectInfo);
 
 	/** Can edit operation*/
 	EVisibility GetOperationDetailsVisibility() const;
@@ -76,7 +88,11 @@ protected:
 	/** Add button */
 	FText GetAddSectorText() const;
 
+	/** Get status */
 	FText GetOperationStatusText(FFlareTradeRouteSectorOperationSave* Operation) const;
+
+	/** Highlight color */
+	FSlateColor GetOperationHighlight(FFlareTradeRouteSectorOperationSave* Operation) const;
 
 	/** Get the load text's button */
 	FText GetLoadText() const;
@@ -91,15 +107,13 @@ protected:
 	
 	/** Can assign a fleet*/
 	EVisibility GetAssignFleetVisibility() const;
-
-
-	EVisibility GetEditOperationVisibility(FFlareTradeRouteSectorOperationSave* Operation) const;
-
-	EVisibility GetSkipOperationVisibility(FFlareTradeRouteSectorOperationSave* Operation) const;
-
+	
+	bool IsEditOperationDisabled(FFlareTradeRouteSectorOperationSave* Operation) const;
+	
 	EVisibility GetQuantityLimitVisibility() const;
 
 	EVisibility GetWaitLimitVisibility() const;
+
 
 	/*----------------------------------------------------
 		Actions callbacks
@@ -116,34 +130,25 @@ protected:
 	/** Sector removed */
 	void OnRemoveSectorClicked(UFlareSimulatedSector* Sector);
 
+	/** Edit & Delete */
 	void OnEditOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
-	void OnSkipOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
+	void OnDeleteOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
 
+	/** Skip current operation */
+	void OnSkipOperationClicked();
 
-
-	void OnDeleteOperationClicked();
+	/** Limits */
 	void OnOperationUpClicked();
 	void OnOperationDownClicked();
 	void OnQuantityLimitToggle();
 	void OnWaitLimitToggle();
-
 	void OnQuantityLimitChanged(float Value);
 	void OnWaitLimitChanged(float Value);
-
-
-	// Load the current resource
+	
+	/** Load the current resource */
 	void OnAddOperationClicked(UFlareSimulatedSector* Sector);
-	void OnDecreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
-	void OnIncreaseLoadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
-	void OnClearLoadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
-
-	// Unload the current resource
-	void OnUnloadResourceClicked(UFlareSimulatedSector* Sector);
-	void OnDecreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
-	void OnIncreaseUnloadLimitClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
-	void OnClearUnloadResourceClicked(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource);
-
-	// Fleet selection
+	
+	/** Fleet selection */
 	void OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo);
 	void OnAssignFleetClicked();
 	void OnUnassignFleetClicked(UFlareFleet* Fleet);
@@ -152,7 +157,7 @@ protected:
 protected:
 
 	/*----------------------------------------------------
-	Protected data
+		Protected data
 	----------------------------------------------------*/
 
 	// HUD reference
@@ -174,8 +179,8 @@ protected:
 
 	// Items
 	TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
-	TSharedPtr<SComboBox<TSharedPtr<FString> >>        OperationSelector;
-	TArray<TSharedPtr<FString>>                        OperationNameList;
+	TSharedPtr<SComboBox<TSharedPtr<FText> >>          OperationSelector;
+	TArray<TSharedPtr<FText>>                          OperationNameList;
 	TArray<EFlareTradeRouteOperation::Type>            OperationList;
 
 	TSharedPtr<SEditableText>                          EditRouteName;
