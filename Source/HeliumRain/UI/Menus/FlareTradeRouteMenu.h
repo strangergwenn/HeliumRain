@@ -60,6 +60,9 @@ protected:
 	/** Get info for the next trade route step */
 	FText GetNextStepInfo() const;
 
+	/** Get the icon for the pause button */
+	const FSlateBrush* GetPauseIcon() const;
+
 	/** Get a description of a trade operation */
 	FText GetOperationInfo(FFlareTradeRouteSectorOperationSave* Operation) const;
 	
@@ -139,6 +142,9 @@ protected:
 
 	/** Skip current operation */
 	void OnSkipOperationClicked();
+
+	/** Pause current operation */
+	void OnPauseTradeRouteClicked();
 
 	/** Limits */
 	void OnOperationUpClicked();

@@ -248,10 +248,24 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Right)
 					[
 						SNew(SFlareButton)
-						.Width(3)
-						.OnClicked(this, &SFlareTradeRouteMenu::OnSkipOperationClicked)
+						.Width(1.9)
 						.Text(LOCTEXT("SkipOperation", "Skip"))
 						.HelpText(LOCTEXT("SkipOperationInfo", "Skip the next operation and move on with the following one"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnSkipOperationClicked)
+					]
+
+					// Pause
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					.HAlign(HAlign_Right)
+					[
+						SNew(SFlareButton)
+						.Width(1)
+						.Icon(this, &SFlareTradeRouteMenu::GetPauseIcon)
+						.Text(FText())
+						.HelpText(LOCTEXT("PauseInfo", "Pause the trade route"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnPauseTradeRouteClicked)
 					]
 				]
 
@@ -415,7 +429,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						]
 					]
 
-					// Skip next operation
+					// Done editing
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
@@ -791,7 +805,11 @@ FText SFlareTradeRouteMenu::GetNextStepInfo() const
 		FFlareTradeRouteSave* TradeRouteData = TargetTradeRoute->Save();
 		check(TradeRouteData);
 
-		if (NextSector)
+		if (TargetTradeRoute->IsPaused())
+		{
+			return LOCTEXT("NoNextStep", "Paused");
+		}
+		else if (NextSector)
 		{
 			return FText::Format(LOCTEXT("NextSectorFormat", "Next operation : {0}"),
 				GetOperationInfo(TargetTradeRoute->GetActiveOperation()));
@@ -799,6 +817,23 @@ FText SFlareTradeRouteMenu::GetNextStepInfo() const
 	}
 
 	return LOCTEXT("NoNextStep", "No trade step defined");
+}
+
+const FSlateBrush* SFlareTradeRouteMenu::GetPauseIcon() const
+{
+	if (TargetTradeRoute)
+	{
+		if (TargetTradeRoute->IsPaused())
+		{
+			return FFlareStyleSet::GetIcon("Load");
+		}
+		else
+		{
+			return FFlareStyleSet::GetIcon("Pause");
+		}
+	}
+
+	return NULL;
 }
 
 FText SFlareTradeRouteMenu::GetOperationInfo(FFlareTradeRouteSectorOperationSave* Operation) const
@@ -1223,6 +1258,21 @@ void SFlareTradeRouteMenu::OnSkipOperationClicked()
 	if (TargetTradeRoute)
 	{
 		TargetTradeRoute->SkipCurrentOperation();
+	}
+}
+
+void SFlareTradeRouteMenu::OnPauseTradeRouteClicked()
+{
+	if (TargetTradeRoute)
+	{
+		if (TargetTradeRoute->IsPaused())
+		{
+			TargetTradeRoute->SetPaused(false);
+		}
+		else
+		{
+			TargetTradeRoute->SetPaused(true);
+		}
 	}
 }
 
