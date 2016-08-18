@@ -75,8 +75,6 @@ void UFlareSpacecraftSpinningComponent::TickComponent(float DeltaSeconds, enum E
 				FVector Y(0, 1, 0);
 				FVector Z(0, 0, 1);
 
-				DrawDebugLine(GetWorld(), GetComponentLocation() , GetComponentLocation() + Planetarium->GetSunDirection() * 10000, FColor::Yellow, false);
-
 				FVector SunDirection = Planetarium->GetSunDirection();
 				FVector LocalSunDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(SunDirection);
 				FVector LocalPlanarSunDirection = LocalSunDirection;
