@@ -577,7 +577,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 					.HAlign(HAlign_Left)
 					[
 						SNew(SFlareButton)
-						.Width(4)
+						.Width(5)
 						.OnClicked(this, &SFlareTradeRouteMenu::OnAddOperationClicked, Sector)
 						.Text(LOCTEXT("SectorAddOperation", "Add"))
 						.Icon(FFlareStyleSet::GetIcon("New"))
