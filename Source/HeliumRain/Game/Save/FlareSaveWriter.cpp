@@ -96,7 +96,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestProgress(FFlareQuestProgressS
 	{
 		SuccessfullSteps.Add(MakeShareable(new FJsonValueString(Data->SuccessfullSteps[i].ToString())));
 	}
-	JsonObject->SetArrayField("SuccessfulQuests", SuccessfullSteps);
+	JsonObject->SetArrayField("SuccessfullSteps", SuccessfullSteps);
 
 	TArray< TSharedPtr<FJsonValue> > CurrentStepProgress;
 	for(int i = 0; i < Data->CurrentStepProgress.Num(); i++)
