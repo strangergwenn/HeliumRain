@@ -43,6 +43,12 @@ void UFlareTradeRoute::Simulate()
 {
 	FLOG("Trade route simulate");
 
+	if(TradeRouteData.IsPaused)
+	{
+		// Trade route paused. To nothing
+		return;
+	}
+
 	if (TradeRouteData.Sectors.Num() == 0 || TradeRouteFleet == NULL)
     {
 		FLOG("  -> no sector or assigned fleet");

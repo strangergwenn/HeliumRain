@@ -361,6 +361,7 @@ UFlareTradeRoute* UFlareCompany::CreateTradeRoute(FText TradeRouteName)
 	TradeRouteData.CurrentOperationIndex = 0;
 	TradeRouteData.CurrentOperationProgress = 0;
 	TradeRouteData.CurrentOperationDuration = 0;
+	TradeRouteData.IsPaused = false;
 
 	UFlareTradeRoute* TradeRoute = LoadTradeRoute(TradeRouteData);
 	return TradeRoute;

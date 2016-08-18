@@ -103,6 +103,10 @@ struct FFlareTradeRouteSave
 	/** Trade route current operation duration*/
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CurrentOperationDuration;
+
+	/** Trade route current pause status*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool IsPaused;
 };
 
 UCLASS()
@@ -173,6 +177,11 @@ public:
         TradeRouteData.Name = NewName;
     }
 
+	void SetPaused(bool Paused)
+	{
+		TradeRouteData.IsPaused = Paused;
+	}
+
 protected:
 
 	UFlareFleet*                  TradeRouteFleet;
@@ -231,4 +240,9 @@ public:
 	UFlareSimulatedSector* GetTargetSector() const;
 
 	FFlareTradeRouteSectorOperationSave* GetActiveOperation();
+
+	bool IsPaused()
+	{
+		return TradeRouteData.IsPaused;
+	}
 };

@@ -495,6 +495,11 @@ void UFlareSaveReaderV1::LoadTradeRoute(const TSharedPtr<FJsonObject> Object, FF
 	LoadInt32(Object, "CurrentOperationProgress", &Data->CurrentOperationProgress);
 	LoadInt32(Object, "CurrentOperationDuration", &Data->CurrentOperationDuration);
 
+	if(!Object->TryGetBoolField(TEXT("IsPaused"), Data->IsPaused))
+	{
+		Data->IsPaused = false;
+	}
+
 	// LEGACY alpha 3
 	TArray<FName> FleetIdentifiers;
 	LoadFNameArray(Object, "FleetIdentifiers", &FleetIdentifiers);
