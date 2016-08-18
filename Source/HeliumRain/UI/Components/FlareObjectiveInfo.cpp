@@ -153,12 +153,12 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 
 					// Progress bar
 					+ SHorizontalBox::Slot()
-					.AutoWidth()
 					[
 						SNew(SBox)
 						.WidthOverride(ObjectiveInfoWidth / 2)
 						.Visibility(this, &SFlareObjectiveInfo::GetProgressVisibility, ConditionIndex)
 						.VAlign(VAlign_Center)
+						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SProgressBar)
 							.Style(&Theme.ProgressBarStyle)
@@ -170,6 +170,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 					// Counter
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareObjectiveInfo::GetCounter, ConditionIndex)
@@ -183,6 +184,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 					// Terminal text
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareObjectiveInfo::GetTerminalLabel, ConditionIndex)

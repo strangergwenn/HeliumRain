@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareMainOverlay.h"
 
+#include "../Components/FlareObjectiveInfo.h"
 #include "../../Game/FlareGameUserSettings.h"
 #include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
@@ -22,7 +23,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TitleButtonWidth = 2.0f;
-	TitleButtonHeight = 2.8f;
+	TitleButtonHeight = AFlareMenuManager::GetMainOverlayHeight() / (float)(Theme.ButtonHeight);
 
 	// Create the layout
 	ChildSlot
@@ -50,7 +51,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 				[
 					SNew(SBox)
 					.HAlign(HAlign_Fill)
-					.WidthOverride(0.9 * Theme.ContentWidth)
+					.WidthOverride(0.8 * Theme.ContentWidth)
 					[
 						SNew(SHorizontalBox)
 
@@ -88,8 +89,26 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 								.TextStyle(&Theme.TextFont)
 								.Text(this, &SFlareMainOverlay::GetSpacecraftInfo)
 							]
+
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.TextFont)
+								.Text(this, &SFlareMainOverlay::GetPlayerInfo)
+							]
 						]
 					]
+				]
+
+				// objective
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareObjectiveInfo)
+					.PC(MenuManager->GetPC())
+					.Visibility(EVisibility::SelfHitTestInvisible)
 				]
 			]
 
@@ -340,6 +359,23 @@ FText SFlareMainOverlay::GetSpacecraftInfo() const
 	else
 	{
 		return LOCTEXT("FastForwarding", "Fast forwarding...");
+	}
+
+	return FText();
+}
+
+FText SFlareMainOverlay::GetPlayerInfo() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	if (MenuManager->IsMenuOpen() && MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None)
+	{
+		return FText();
+	}
+	else if (PC->GetCompany())
+	{
+		return FText::Format(LOCTEXT("PlayerMoneyFormat", "{0} credits available"),
+			FText::AsNumber(PC->GetCompany()->GetMoney() / 100));
 	}
 
 	return FText();

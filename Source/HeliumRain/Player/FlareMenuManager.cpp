@@ -864,7 +864,7 @@ AFlareMenuManager* AFlareMenuManager::GetSingleton()
 
 int32 AFlareMenuManager::GetMainOverlayHeight()
 {
-	return 135;
+	return 160;
 }
 
 TSharedPtr<SFlareShipMenu> AFlareMenuManager::GetShipMenu()

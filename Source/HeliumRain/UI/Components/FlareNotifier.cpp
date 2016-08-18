@@ -21,7 +21,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	ChildSlot
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Right)
-	.Padding(FMargin(0, 220, 0, 0))
+	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight() + 10, 0, 0))
 	[
 		SNew(SBox)
 		.HeightOverride(800)
@@ -35,7 +35,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareObjectiveInfo)
 				.PC(MenuManager->GetPC())
-				.Visibility(EVisibility::SelfHitTestInvisible)
+				.Visibility(this, &SFlareNotifier::GetObjectiveVisibility)
 			]
 
 			// Notifications
@@ -106,6 +106,18 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	int32 NotificationCount = 0;
 
+	// Don't show notifications in story menu
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story
+	 || MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main
+	 || MenuManager->GetCurrentMenu() == EFlareMenu::MENU_NewGame)
+	{
+		NotificationContainer->SetVisibility(EVisibility::Hidden);
+	}
+	else
+	{
+		NotificationContainer->SetVisibility(EVisibility::SelfHitTestInvisible);
+	}
+
 	// Destroy notifications when they're done with the animation
 	for (auto& NotificationEntry : NotificationData)
 	{
@@ -123,6 +135,18 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 	if (NotificationCount == 0)
 	{
 		NotificationData.Empty();
+	}
+}
+
+EVisibility SFlareNotifier::GetObjectiveVisibility() const
+{
+	if (MenuManager->IsUIOpen())
+	{
+		return EVisibility::Collapsed;
+	}
+	else
+	{
+		return EVisibility::SelfHitTestInvisible;
 	}
 }
 

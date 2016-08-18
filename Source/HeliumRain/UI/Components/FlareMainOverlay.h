@@ -69,6 +69,9 @@ public:
 	/** Get the spacecraft info text */
 	FText GetSpacecraftInfo() const;
 
+	/** Get the player info text */
+	FText GetPlayerInfo() const;
+
 	/** Switch menu */
 	void OnOpenMenu(EFlareMenu::Type Menu);
 

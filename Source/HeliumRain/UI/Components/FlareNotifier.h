@@ -39,7 +39,7 @@ public:
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
 
-	/** Remvoe all notifications from the screen */
+	/** Remove all notifications from the screen */
 	void FlushNotifications();
 
 
@@ -48,7 +48,10 @@ public:
 	----------------------------------------------------*/
 	
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-	
+
+	/** Get the visibility of the objective info */
+	EVisibility GetObjectiveVisibility() const;
+
 
 protected:
 
