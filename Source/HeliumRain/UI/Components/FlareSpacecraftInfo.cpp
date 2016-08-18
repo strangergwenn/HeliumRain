@@ -685,9 +685,21 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 
 	if (TargetSpacecraft)
 	{
-		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
-
+		// Get the object's distance
+		FText DistanceText;
+		if (PC->GetPlayerShip() && PC->GetPlayerShip() != TargetSpacecraft)
+		{
+			AFlareSpacecraft* PlayerShipPawn = PC->GetPlayerShip()->GetActive();
+			AFlareSpacecraft* TargetSpacecraftPawn = TargetSpacecraft->GetActive();
+			if (PlayerShipPawn && TargetSpacecraftPawn)
+			{
+				float Distance = (PlayerShipPawn->GetActorLocation() - TargetSpacecraftPawn->GetActorLocation()).Size();
+				DistanceText = FText::FromString(AFlareHUD::FormatDistance(Distance / 100) + " - ");
+			}
+		}
+		
 		// Our company
+		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
 		if (TargetCompany && PC && TargetCompany == PC->GetCompany())
 		{
 			// Station : show production, if simulated
@@ -708,7 +720,9 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 						Factory->GetFactoryStatus());
 				}
 
-				return ProductionStatusText;
+				return FText::Format(LOCTEXT("StationInfoFormat", "{0}{1}"),
+					DistanceText,
+					ProductionStatusText);
 			}
 
 			// Ship : show fleet info
@@ -717,11 +731,15 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 				UFlareFleet* Fleet = TargetSpacecraft->GetCurrentFleet();
 				if (Fleet)
 				{
-					return FText::Format(LOCTEXT("FleetFormat", "{0} - {1} ({2} / {3})"),
+					FText SpacecraftDescriptionText = FText::Format(LOCTEXT("FleetFormat", "{0} - {1} ({2} / {3})"),
 						Fleet->GetStatusInfo(),
 						Fleet->GetFleetName(),
 						FText::AsNumber(Fleet->GetShipCount()),
 						FText::AsNumber(Fleet->GetMaxShipCount()));
+
+					return FText::Format(LOCTEXT("SpacecraftInfoFormat", "{0}{1}"),
+						DistanceText,
+						SpacecraftDescriptionText);
 				}
 				return FText();
 			}
@@ -730,7 +748,8 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		// Other company
 		else
 		{
-			return FText::Format(LOCTEXT("OwnedByFormat", "Owned by {0} ({1})"),
+			return FText::Format(LOCTEXT("OwnedByFormat", "{0}Owned by {1} ({2})"),
+				DistanceText,
 				TargetCompany->GetCompanyName(),
 				TargetCompany->GetPlayerHostilityText());
 		}
