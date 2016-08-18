@@ -15,6 +15,7 @@ AFlarePlanetarium::AFlarePlanetarium(const class FObjectInitializer& PCIP)
 	PrimaryActorTick.bCanEverTick = true;
 	TimeMultiplier = 1.0;
 	SkipNightTimeRange = 0;
+	Ready = false;
 }
 
 void AFlarePlanetarium::BeginPlay()
@@ -58,6 +59,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 		if (!GetGame()->GetActiveSector())
 		{
 			// No active sector, do nothing
+			Ready = false;
 			return;
 		}
 
@@ -95,6 +97,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 				}
 			}
 
+			Ready = true;
 
 			do
 			{

@@ -75,6 +75,7 @@ protected:
 	float SmoothTime;
 	float TimeMultiplier;
 	float SkipNightTimeRange;
+	bool Ready;
 
 public:
 
@@ -107,6 +108,10 @@ public:
 		}
 
 		return Direction;
+	}
+
+	bool IsReady() {
+		return Ready;
 	}
 
 };

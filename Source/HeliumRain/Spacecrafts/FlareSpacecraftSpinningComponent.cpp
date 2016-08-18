@@ -35,6 +35,7 @@ void UFlareSpacecraftSpinningComponent::Initialize(FFlareSpacecraftComponentSave
 	Super::Initialize(Data, Company, OwnerSpacecraftPawn, IsInMenu);
 
 	SetCollisionProfileName("IgnoreOnlyPawn");
+	NeedTackerInit = true;
 }
 
 void UFlareSpacecraftSpinningComponent::TickComponent(float DeltaSeconds, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
@@ -68,41 +69,69 @@ void UFlareSpacecraftSpinningComponent::TickComponent(float DeltaSeconds, enum E
 		if (LookForSun)
 		{
 			AFlarePlanetarium* Planetarium = Ship->GetGame()->GetPlanetarium();
-			if (Planetarium)
+			if (Planetarium && Planetarium->IsReady())
 			{
 				FVector X(1, 0, 0);
 				FVector Y(0, 1, 0);
 				FVector Z(0, 0, 1);
 
-				FRotator SunRotator = Planetarium->GetSunDirection().Rotation();
-				FRotator SpinnerRotator = GetComponentRotation();
-				FRotator Delta;
+				DrawDebugLine(GetWorld(), GetComponentLocation() , GetComponentLocation() + Planetarium->GetSunDirection() * 10000, FColor::Yellow, false);
 
-				// Compute the angle difference
-				SunRotator.Normalize();
-				SpinnerRotator.Normalize();
-				float Angle = FMath::Acos(FVector::DotProduct(SunRotator.RotateVector(X), SpinnerRotator.RotateVector(Z)));
-				// TODO : angle has a 50% chance of being the wrong way depending on orientation...
+				FVector SunDirection = Planetarium->GetSunDirection();
+				FVector LocalSunDirection = GetComponentToWorld().GetRotation().Inverse().RotateVector(SunDirection);
+				FVector LocalPlanarSunDirection = LocalSunDirection;
 
-				// Use the correct axis
 				if (RotationAxisRoll)
 				{
-					Delta = FQuat(X, Angle).Rotator();
+					LocalPlanarSunDirection.X = 0;
 				}
 				else if (RotationAxisYaw)
 				{
-					Delta = FQuat(Z, Angle).Rotator();
+					LocalPlanarSunDirection.Z = 0;
 				}
 				else
 				{
-					Delta = FQuat(Y, Angle).Rotator();
+					LocalPlanarSunDirection.Y = 0;
 				}
 
-				// Update
-				float DegreesAngle = FMath::RadiansToDegrees(Angle);
-				if (DegreesAngle > 1)
+				if(!LocalPlanarSunDirection.IsNearlyZero())
 				{
-					AddLocalRotation(RotationSpeed * DeltaSeconds * Delta);
+					float Angle = 0;
+					FVector RotationAxis = X;
+					LocalPlanarSunDirection.Normalize();
+
+					if (RotationAxisRoll)
+					{
+						Angle =  -FMath::RadiansToDegrees(FMath::Atan2(LocalPlanarSunDirection.Y,LocalPlanarSunDirection.Z));
+						RotationAxis = X;
+					}
+					else if (RotationAxisYaw)
+					{
+						Angle =  - FMath::RadiansToDegrees(FMath::Atan2(LocalPlanarSunDirection.X,LocalPlanarSunDirection.Y));
+						RotationAxis = Z;
+					}
+					else
+					{
+						Angle =  FMath::RadiansToDegrees(FMath::Atan2(LocalPlanarSunDirection.Z,LocalPlanarSunDirection.X));
+						RotationAxis = Y;
+					}
+
+					Angle = FMath::UnwindDegrees(Angle);
+
+					float DeltaAngle = FMath::Sign(Angle) * FMath::Min(RotationSpeed * DeltaSeconds, FMath::Abs(Angle));
+
+					if(NeedTackerInit)
+					{
+						DeltaAngle = Angle;
+						NeedTackerInit = false;
+					}
+
+					if(FMath::Abs(Angle) > 0.01)
+					{
+						FRotator Delta = FQuat(RotationAxis, FMath::DegreesToRadians(DeltaAngle)).Rotator();
+
+						AddLocalRotation(Delta);
+					}
 				}
 			}
 		}

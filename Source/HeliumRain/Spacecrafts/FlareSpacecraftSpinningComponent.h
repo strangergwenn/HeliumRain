@@ -45,5 +45,5 @@ public:
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly)
 	bool LookForSun;
 
-	
+	bool NeedTackerInit;
 };
