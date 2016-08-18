@@ -68,7 +68,6 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.VAlign(VAlign_Center)
 						.AutoWidth()
-						.Padding(FMargin(20, 0))
 						[
 							SNew(SVerticalBox)
 
@@ -102,9 +101,10 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// objective
+				// Objective
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
+				.VAlign(VAlign_Center)
 				[
 					SNew(SFlareObjectiveInfo)
 					.PC(MenuManager->GetPC())

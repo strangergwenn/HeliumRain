@@ -421,7 +421,7 @@ void AFlareMenuManager::FlushNotifications()
 	}
 }
 
-void AFlareMenuManager::OnEnterMenu(bool LightBackground , bool ShowOverlay, bool TellPlayer)
+void AFlareMenuManager::OnEnterMenu(bool LightBackground, bool ShowOverlay, bool TellPlayer)
 {
 	ResetMenu();
 	CurrentMenu = NextMenu;
@@ -609,7 +609,7 @@ void AFlareMenuManager::OpenStoryMenu()
 
 void AFlareMenuManager::InspectCompany()
 {
-	OnEnterMenu();
+	OnEnterMenu(false);
 
 	UFlareCompany* Company = (NextMenu.Value.Company) ? NextMenu.Value.Company : GetPC()->GetCompany();
 	check(Company);
@@ -649,7 +649,7 @@ void AFlareMenuManager::InspectShip(bool IsEditable)
 
 void AFlareMenuManager::OpenFleetMenu()
 {
-	OnEnterMenu();
+	OnEnterMenu(false);
 	FleetMenu->Enter(NextMenu.Value.Fleet);
 }
 
@@ -711,7 +711,7 @@ void AFlareMenuManager::OpenLeaderboard()
 
 void AFlareMenuManager::OpenResourcePrices()
 {
-	OnEnterMenu(false);
+	OnEnterMenu();
 	ResourcePricesMenu->Enter(NextMenu.Value.Sector);
 }
 
@@ -758,8 +758,8 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New game");               break;
 		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
 		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Leaderboard");        break;
-		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Local economy");   break;
-		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World economy");     break;
+		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Local prices");    break;
+		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World prices");      break;
 		case EFlareMenu::MENU_Ship:           Name = LOCTEXT("ShipMenuName", "Ship");                      break;
 		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleets");                   break;
 		case EFlareMenu::MENU_Station:        Name = LOCTEXT("StationMenuName", "Station");                break;
@@ -864,7 +864,7 @@ AFlareMenuManager* AFlareMenuManager::GetSingleton()
 
 int32 AFlareMenuManager::GetMainOverlayHeight()
 {
-	return 160;
+	return 150;
 }
 
 TSharedPtr<SFlareShipMenu> AFlareMenuManager::GetShipMenu()

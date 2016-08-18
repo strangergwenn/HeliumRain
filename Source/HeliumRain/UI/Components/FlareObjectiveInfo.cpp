@@ -19,7 +19,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 	CurrentFadeTime = 0;
 	LastObjectiveVersion = -1;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 ObjectiveInfoWidth = 400;
+	int32 ObjectiveInfoWidth = 350;
 	int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
 	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
 	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
@@ -215,28 +215,28 @@ FText SFlareObjectiveInfo::GetName() const
 	}
 	else
 	{
-		return FText::FromString("noname");
+		return LOCTEXT("UnnamedObjective", "Objective");
 	}
 }
 
 FText SFlareObjectiveInfo::GetDescription() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Data.Description : FText::FromString("nodesc"));
+	return (Objective ? Objective->Data.Description : FText());
 }
 
 FText SFlareObjectiveInfo::GetInitialLabel(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
-				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText::FromString("noinit"));
+				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText());
 }
 
 FText SFlareObjectiveInfo::GetTerminalLabel(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
 	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
-				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText::FromString("noterm"));
+				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText());
 }
 
 FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
@@ -245,14 +245,14 @@ FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 
 	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
-		return FText::FromString("nocount");
+		return FText();
 	}
 
 	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
 
 	if (Condition->MaxCounter == 0)
 	{
-		return FText::FromString("maxcount");
+		return FText();
 	}
 
 	return FText::Format(LOCTEXT("ObjectiveCounterFormat", "{0} / {1}"), FText::AsNumber(Condition->Counter), FText::AsNumber(Condition->MaxCounter));

@@ -17,7 +17,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	NotificationScroll = 150;
 	NotificationEnterDuration = 0.4;
 	NotificationExitDuration = 0.7;
-	int32 NotificatioNWidth = 400;
+	int32 NotificatioNWidth = 350;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 NotificationTextWidth = NotificatioNWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
 	FLinearColor ShadowColor = FLinearColor::Black;

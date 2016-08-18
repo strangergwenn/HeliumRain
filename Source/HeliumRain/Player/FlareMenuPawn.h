@@ -59,7 +59,7 @@ public:
 
 	/** Change the background color */
 	UFUNCTION(BlueprintImplementableEvent, Category = "Flare")
-	void UpdateBackgroundColor(float HueShift, float Luminosity, float Desaturation);
+	void UpdateBackgroundColor(float Luminosity, float Desaturation);
 
 
 public:

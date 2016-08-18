@@ -138,19 +138,39 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Actions", "Sector tools"))
 						]
 
-						// Show prices
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
 						.HAlign(HAlign_Left)
 						[
-							SNew(SFlareButton)
-							.Width(10)
-							.Text(LOCTEXT("ResourcePrices", "Resource prices"))
-							.HelpText(LOCTEXT("ResourcePricesInfo", "See the price and use of resources in this sector"))
-							.Icon(FFlareStyleSet::GetIcon("Travel"))
-							.OnClicked(this, &SFlareSectorMenu::OnResourcePrices)
-							.IsDisabled(this, &SFlareSectorMenu::IsResourcePricesDisabled)
+							SNew(SHorizontalBox)
+
+							+ SHorizontalBox::Slot()
+							.Padding(Theme.SmallContentPadding)
+							.AutoWidth()
+							[
+								// Show prices
+								SNew(SFlareButton)
+								.Width(4.9)
+								.Text(LOCTEXT("ResourcePrices", "Local prices"))
+								.HelpText(LOCTEXT("ResourcePricesInfo", "See the price and use of resources in this sector"))
+								.Icon(FFlareStyleSet::GetIcon("Travel"))
+								.OnClicked(this, &SFlareSectorMenu::OnResourcePrices)
+								.IsDisabled(this, &SFlareSectorMenu::IsResourcePricesDisabled)
+							]
+
+							// Build station button
+							+ SHorizontalBox::Slot()
+							.Padding(Theme.SmallContentPadding)
+							.AutoWidth()
+							[
+								SNew(SFlareButton)
+								.Width(5)
+								.Text(this, &SFlareSectorMenu::GetBuildStationText)
+								.HelpText(LOCTEXT("BuildStationInfo", "Build a station in this sector"))
+								.Icon(FFlareStyleSet::GetIcon("Travel"))
+								.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
+								.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
+							]
 						]
 
 						// Refuel fleets
@@ -181,21 +201,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.Icon(FFlareStyleSet::GetIcon("Repair"))
 							.OnClicked(this, &SFlareSectorMenu::OnRepairClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsRepairDisabled)
-						]
-
-						// Build station button
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						.HAlign(HAlign_Left)
-						[
-							SNew(SFlareButton)
-							.Width(10)
-							.Text(this, &SFlareSectorMenu::GetBuildStationText)
-							.HelpText(LOCTEXT("BuildStationInfo", "Build a station in this sector"))
-							.Icon(FFlareStyleSet::GetIcon("Travel"))
-							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
-							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
 						]
 					]
 				]
