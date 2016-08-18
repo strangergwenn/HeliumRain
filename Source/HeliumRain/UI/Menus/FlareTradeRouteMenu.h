@@ -134,6 +134,9 @@ protected:
 	void OnEditOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
 	void OnDeleteOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
 
+	/** Done editing current operation */
+	void OnDoneClicked();
+
 	/** Skip current operation */
 	void OnSkipOperationClicked();
 

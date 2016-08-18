@@ -414,6 +414,20 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 							]
 						]
 					]
+
+					// Skip next operation
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Center)
+					[
+						SNew(SFlareButton)
+						.Width(4)
+						.Icon(FFlareStyleSet::GetIcon("Delete"))
+						.Text(LOCTEXT("DoneEditing", "Done"))
+						.HelpText(LOCTEXT("DoneEditingInfo", "Finish editing this operation"))
+						.OnClicked(this, &SFlareTradeRouteMenu::OnDoneClicked)
+					]
 				]
 			]
 		]
@@ -1199,6 +1213,11 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 	}
 }
 
+void SFlareTradeRouteMenu::OnDoneClicked()
+{
+	SelectedOperation = NULL;
+}
+
 void SFlareTradeRouteMenu::OnSkipOperationClicked()
 {
 	if (TargetTradeRoute)
@@ -1206,7 +1225,6 @@ void SFlareTradeRouteMenu::OnSkipOperationClicked()
 		TargetTradeRoute->SkipCurrentOperation();
 	}
 }
-
 
 void SFlareTradeRouteMenu::OnDeleteOperationClicked(FFlareTradeRouteSectorOperationSave* Operation)
 {
