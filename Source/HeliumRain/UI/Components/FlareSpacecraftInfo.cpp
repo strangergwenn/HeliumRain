@@ -370,16 +370,16 @@ void SFlareSpacecraftInfo::Show()
 		CargoBay->SetVisibility(CargoBay->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
 
 		// Upper line
-		InspectButton->SetVisibility(NoInspect ? EVisibility::Collapsed : EVisibility::Visible);
-		SelectButton->SetVisibility(!Owned || IsStation ? EVisibility::Collapsed : EVisibility::Visible);
-		FlyButton->SetVisibility(!Owned || IsStation ? EVisibility::Collapsed : EVisibility::Visible);
+		InspectButton->SetVisibility(NoInspect ?           EVisibility::Collapsed : EVisibility::Visible);
+		SelectButton->SetVisibility(!Owned || IsStation ?  EVisibility::Collapsed : EVisibility::Visible);
+		FlyButton->SetVisibility(!Owned || IsStation ?     EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
-		TradeButton->SetVisibility(CanTrade ? EVisibility::Visible : EVisibility::Collapsed);
-		UpgradeButton->SetVisibility(Owned && !IsStation ? EVisibility::Visible : EVisibility::Collapsed);
-		DockButton->SetVisibility(CanDock && !IsRemoteFlying ? EVisibility::Visible : EVisibility::Collapsed);
-		UndockButton->SetVisibility(IsDocked && !IsRemoteFlying ? EVisibility::Visible : EVisibility::Collapsed);
-		ScrapButton->SetVisibility(IsStation ? EVisibility::Collapsed : EVisibility::Visible);
+		TradeButton->SetVisibility(CanTrade ?                              EVisibility::Visible : EVisibility::Collapsed);
+		UpgradeButton->SetVisibility(Owned && !IsStation ?                 EVisibility::Visible : EVisibility::Collapsed);
+		DockButton->SetVisibility(CanDock && !IsRemoteFlying ?             EVisibility::Visible : EVisibility::Collapsed);
+		UndockButton->SetVisibility(Owned && IsDocked && !IsRemoteFlying ? EVisibility::Visible : EVisibility::Collapsed);
+		ScrapButton->SetVisibility(Owned && !IsStation ?                   EVisibility::Visible : EVisibility::Collapsed);
 
 		// Flyable ships : disable when not flyable
 		FText Reason;
