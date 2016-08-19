@@ -291,12 +291,36 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		}
 	}
 
-	// Notification
-	FText Text = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
-	FText Info = (OwnedSpacecraftCount > 1) ? LOCTEXT("FlyingMultipleInfo", "You can switch to nearby ships with N.") : LOCTEXT("FlyingInfo", "You are now flying your personal ship.");
+	// Notification title
+	FText Title;
+	if (GetPlayerFleet()->IsTraveling())
+	{
+		Title = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
+	}
+	else
+	{
+		Title = FText::Format(LOCTEXT("FlyingTravelFormat", "Travelling with {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
+	}
+
+	// Notification body
+	FText Info;
+	if (GetPlayerFleet()->IsTraveling())
+	{
+		Info = LOCTEXT("FlyingTravelInfo", "Complete travels with the \"Fast forward\" button on the orbital map.");
+	}
+	else if (OwnedSpacecraftCount > 1)
+	{
+		Info = LOCTEXT("FlyingMultipleInfo", "You can switch to nearby ships with N.");
+	}
+	else
+	{
+		Info = LOCTEXT("FlyingInfo", "You are now flying your personal ship.");
+	}
+
+	// Notify
 	FFlareMenuParameterData Data;
 	Data.Spacecraft = Ship->GetParent();
-	Notify(Text, Info, "flying-info", EFlareNotification::NT_Info, false, EFlareMenu::MENU_Ship, Data);
+	Notify(Title, Info, "flying-info", EFlareNotification::NT_Info, false, EFlareMenu::MENU_Ship, Data);
 
 	// Set player ship
 	SetPlayerShip(ShipPawn->GetParent());
