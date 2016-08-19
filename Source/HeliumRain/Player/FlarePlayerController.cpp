@@ -294,11 +294,11 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	FText Title;
 	if (GetPlayerFleet()->IsTraveling())
 	{
-		Title = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
+		Title = FText::Format(LOCTEXT("FlyingTravelFormat", "Travelling with {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
 	}
 	else
 	{
-		Title = FText::Format(LOCTEXT("FlyingTravelFormat", "Travelling with {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
+		Title = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetParent()->GetImmatriculation()));
 	}
 
 	// Notification body
