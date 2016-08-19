@@ -103,7 +103,6 @@ void SFlareNotifier::FlushNotifications()
 
 void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
-	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	int32 NotificationCount = 0;
 
 	// Don't show notifications in story menu
@@ -117,6 +116,9 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 	{
 		NotificationContainer->SetVisibility(EVisibility::SelfHitTestInvisible);
 	}
+
+	// Tick parent
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
 	// Destroy notifications when they're done with the animation
 	for (auto& NotificationEntry : NotificationData)

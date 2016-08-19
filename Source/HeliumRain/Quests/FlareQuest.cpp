@@ -834,7 +834,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("VisitSectorFormat", "Visit the sector \"{0}\""), TargetSector->GetSectorName());
 			ObjectiveCondition.TerminalLabel = FText();
 			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = 0;
+			ObjectiveCondition.MaxCounter = 1;
 			ObjectiveCondition.Progress = 0;
 			
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
@@ -849,7 +849,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("BeInSectorFormat", "Fly in the sector \"{0}\""), TargetSector->GetSectorName());
 			ObjectiveCondition.TerminalLabel = FText();
 			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = 0;
+			ObjectiveCondition.MaxCounter = 1;
 			ObjectiveCondition.Progress = 0;
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
