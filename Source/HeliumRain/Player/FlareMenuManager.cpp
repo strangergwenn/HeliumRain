@@ -539,7 +539,6 @@ void AFlareMenuManager::FlyShip()
 void AFlareMenuManager::Travel()
 {
 	UFlareFleet* PlayerFleet = GetGame()->GetPC()->GetPlayerFleet();
-	UFlareFleet* SelectedFleet = GetGame()->GetPC()->GetSelectedFleet();
 
 	if (NextMenu.Value.Travel && PlayerFleet)
 	{

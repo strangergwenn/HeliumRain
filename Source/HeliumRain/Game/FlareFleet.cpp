@@ -72,13 +72,13 @@ bool UFlareFleet::CanTravel(FText& OutInfo)
 {
 	if (IsTraveling() && !GetCurrentTravel()->CanChangeDestination())
 	{
-		OutInfo = FText::Format(LOCTEXT("TravellingFormat", "Can't change destination for {0}"), GetFleetName());
+		OutInfo = LOCTEXT("TravellingFormat", "Can't change destination");
 		return false;
 	}
 
 	if (GetImmobilizedShipCount() == FleetShips.Num())
 	{
-		OutInfo = LOCTEXT("Travelling", "Can't travel with stranded or trading ships");
+		OutInfo = LOCTEXT("Travelling", "Some ships are trading or stranded");
 		return false;
 	}
 

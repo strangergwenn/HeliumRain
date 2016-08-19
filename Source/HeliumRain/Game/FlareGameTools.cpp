@@ -374,7 +374,6 @@ void UFlareGameTools::TakeCompanyControl(FName CompanyShortName)
 	FFlarePlayerSave SavePlayerData;
 	SavePlayerData.CompanyIdentifier = Company->GetIdentifier();
 	SavePlayerData.LastFlownShipIdentifier = NAME_None;
-	SavePlayerData.SelectedFleetIdentifier = NAME_None;
 	GetGame()->GetPC()->Load(SavePlayerData);
 }
 

@@ -47,18 +47,18 @@ protected:
 	/** Can we build stations */
 	FText GetBuildStationText() const;
 	
-	/** Dp we have more than the max stations already ? */
+	/** Do we have more than the max stations already ? */
 	bool IsBuildStationDisabled() const;
 
-	/** Get the travel text */
-	FText GetPlayerTravelText() const;
+	/** Fleet info line */
+	TSharedRef<SWidget> OnGenerateFleetComboLine(UFlareFleet* Item);
 
+	/** Current fleet info line */
+	FText OnGetCurrentFleetComboLine() const;
+	
 	/** Get the travel text */
 	FText GetTravelText() const;
-
-	/** Visibility setting for the travel button */
-	bool IsPlayerTravelDisabled() const;
-
+	
 	/** Visibility setting for the travel button */
 	bool IsTravelDisabled() const;
 
@@ -85,10 +85,7 @@ protected:
 
 	/** Get the sector's location */
 	FText GetSectorLocation() const;
-
-	/** Get the station' cost */
-	FText OnGetStationCost() const;
-
+	
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -97,8 +94,8 @@ protected:
 	/** See the resource prices */
 	void OnResourcePrices();
 
-	/** Move the selected fleet here */
-	void OnPlayerTravelHereClicked();
+	/** Fleet selection */
+	void OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo);
 
 	/** Move the selected fleet here */
 	void OnTravelHereClicked();
@@ -108,12 +105,9 @@ protected:
 
 	/** Repair all fleets */
 	void OnRepairClicked();
-
+	
 	/** Start travel */
-	void OnPlayerStartTravelConfirmed();
-
-	/** Start travel */
-	void OnStartTravelConfirmed();
+	void OnStartTravelConfirmed(UFlareFleet* SelectedFleet);
 
 	/** Build a station */
 	void OnBuildStationClicked();
@@ -131,6 +125,10 @@ protected:
 	// HUD reference
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+
+	// Fleet list
+	TSharedPtr<SComboBox<UFlareFleet*>>        FleetSelector;
+	TArray<UFlareFleet*>                       FleetList;
 
 	// Menu components
 	TSharedPtr<SFlareShipList>                 OwnedShipList;

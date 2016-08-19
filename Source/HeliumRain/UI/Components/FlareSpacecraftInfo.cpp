@@ -142,14 +142,13 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Width(4)
 						]
 
-						// Select this ship
+						// Upgrade
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
-							SAssignNew(SelectButton, SFlareButton)
-							.Text(LOCTEXT("ShipSelect", "SELECT"))
-							.HelpText(LOCTEXT("ShipSelectInfo", "Use this ship for orital navigation"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnSelect)
+							SAssignNew(UpgradeButton, SFlareButton)
+							.Text(LOCTEXT("Upgrade", "UPGRADE"))
+							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
 							.Width(4)
 						]
 
@@ -178,17 +177,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							SAssignNew(TradeButton, SFlareButton)
 							.Text(LOCTEXT("Trade", "TRADE"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
-							.Width(3)
-						]
-
-						// Upgrade
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(UpgradeButton, SFlareButton)
-							.Text(LOCTEXT("Upgrade", "UPGRADE"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
-							.Width(3)
+							.Width(4)
 						]
 			
 						// Dock here
@@ -199,7 +188,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Dock", "DOCK HERE"))
 							.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
-							.Width(3)
+							.Width(4)
 						]
 
 						// Undock
@@ -210,7 +199,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Undock", "UNDOCK"))
 							.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
-							.Width(3)
+							.Width(4)
 						]
 
 						// Scrap
@@ -220,7 +209,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							SAssignNew(ScrapButton, SFlareButton)
 							.Text(LOCTEXT("Scrap", "SCRAP"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
-							.Width(3)
+							.Width(4)
 						]
 					]
 				]
@@ -320,7 +309,6 @@ void SFlareSpacecraftInfo::Show()
 		UpgradeButton->SetVisibility(EVisibility::Collapsed);
 		TradeButton->SetVisibility(EVisibility::Collapsed);
 		FlyButton->SetVisibility(EVisibility::Collapsed);
-		SelectButton->SetVisibility(EVisibility::Collapsed);
 		DockButton->SetVisibility(EVisibility::Collapsed);
 		UndockButton->SetVisibility(EVisibility::Collapsed);
 		ScrapButton->SetVisibility(EVisibility::Collapsed);
@@ -371,7 +359,6 @@ void SFlareSpacecraftInfo::Show()
 
 		// Upper line
 		InspectButton->SetVisibility(NoInspect ?           EVisibility::Collapsed : EVisibility::Visible);
-		SelectButton->SetVisibility(!Owned || IsStation ?  EVisibility::Collapsed : EVisibility::Visible);
 		FlyButton->SetVisibility(!Owned || IsStation ?     EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
@@ -409,11 +396,6 @@ void SFlareSpacecraftInfo::Show()
 			UndockButton->SetHelpText(LOCTEXT("ShipUndockInfo", "Undock the ship"));
 			UndockButton->SetDisabled(false);
 		}
-
-		// Select button
-		SelectButton->SetHelpText(LOCTEXT("ShipSelectInfo", "Select this spacecraft's fleet"));
-		SelectButton->SetDisabled(false);
-
 
 		// Disable trade while flying unless docked
 		if (IsRemoteFlying || (IsDocked && !TargetSpacecraft->IsTrading()))
@@ -516,16 +498,6 @@ void SFlareSpacecraftInfo::OnFly()
 		FFlareMenuParameterData Data;
 		Data.Spacecraft = TargetSpacecraft;
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
-	}
-}
-
-void SFlareSpacecraftInfo::OnSelect()
-{
-	FText Unused;
-	if (PC && TargetSpacecraft && TargetSpacecraft->CanBeFlown(Unused))
-	{
-		PC->SelectFleet(TargetSpacecraft->GetCurrentFleet());
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit);
 	}
 }
 

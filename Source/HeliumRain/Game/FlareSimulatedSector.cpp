@@ -325,13 +325,6 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	if (!Spacecraft->IsStation())
 	{
 		UFlareFleet* NewFleet = Company->CreateAutomaticFleet(Spacecraft);
-
-
-		// If the ship is in the player company, select the new fleet
-		if (Game->GetPC()->GetCompany() == Company)
-		{
-			Game->GetPC()->SelectFleet(NewFleet);
-		}
 	}
 
 	return Spacecraft;

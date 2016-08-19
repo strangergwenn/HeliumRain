@@ -75,9 +75,6 @@ public:
 	/** Fly the current target */
 	void OnFly();
 
-	/** Select the current target */
-	void OnSelect();
-
 	/** Try to dock at the target station */
 	void OnDockAt();
 
@@ -135,7 +132,6 @@ protected:
 	TSharedPtr<SFlareButton>          UpgradeButton;
 	TSharedPtr<SFlareButton>          TradeButton;
 	TSharedPtr<SFlareButton>          FlyButton;
-	TSharedPtr<SFlareButton>          SelectButton;
 	TSharedPtr<SFlareButton>          DockButton;
 	TSharedPtr<SFlareButton>          UndockButton;
 	TSharedPtr<SFlareButton>          ScrapButton;

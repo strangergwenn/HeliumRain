@@ -44,13 +44,7 @@ public:
 
 	/** Set the pause state */
 	virtual void SetWorldPause(bool Pause);
-
-	/** Set the currently selected fleet */
-	void SelectFleet(UFlareFleet* Fleet);
-
-	/** Get the currently selected fleet */
-	virtual UFlareFleet* GetSelectedFleet();
-
+	
 	/** Get the currently selected fleet */
 	virtual UFlareFleet* GetPlayerFleet();
 
@@ -341,7 +335,6 @@ protected:
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
-	UFlareFleet*                             SelectedFleet;
 	TEnumAsByte<EFlareSectorBattleState::Type> LastBattleState;
 
 public:

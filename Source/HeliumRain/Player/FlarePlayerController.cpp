@@ -335,7 +335,6 @@ void AFlarePlayerController::SetCompanyDescription(const FFlareCompanyDescriptio
 void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 {
 	PlayerData = SavePlayerData;
-	SelectedFleet = GetGame()->GetGameWorld()->FindFleet(PlayerData.SelectedFleetIdentifier);
 	Company = GetGame()->GetGameWorld()->FindCompany(PlayerData.CompanyIdentifier);
 }
 
@@ -430,14 +429,6 @@ void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type 
 
 void AFlarePlayerController::Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData)
 {
-	if (SelectedFleet)
-	{
-		PlayerData.SelectedFleetIdentifier = SelectedFleet->GetIdentifier();
-	}
-	else
-	{
-		PlayerData.SelectedFleetIdentifier = NAME_None;
-	}
 	SavePlayerData = PlayerData;
 	SaveCompanyData = CompanyData;
 }
@@ -458,12 +449,10 @@ void AFlarePlayerController::Clean()
 	PlayerData.ScenarioId = 0;
 	PlayerData.CompanyIdentifier = NAME_None;
 	PlayerData.LastFlownShipIdentifier = NAME_None;
-	PlayerData.SelectedFleetIdentifier = NAME_None;
 
 	ShipPawn = NULL;
 	PlayerShip = NULL;
 	Company = NULL;
-	SelectedFleet = NULL;
 
 	CurrentObjective.Set = false;
 	CurrentObjective.Version = 0;
@@ -569,24 +558,6 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 		GetGame()->SetWorldPause(Pause);
 		GetGame()->GetActiveSector()->SetPause(Pause);
 	}
-}
-
-void AFlarePlayerController::SelectFleet(UFlareFleet* Fleet)
-{
-	if (Fleet == NULL)
-	{
-		FLOG("Select no fleet");
-	}
-	else
-	{
-		FLOGV("Select fleet %s : %s", *Fleet->GetIdentifier().ToString(), *Fleet->GetFleetName().ToString());
-	}
-	SelectedFleet = Fleet;
-}
-
-UFlareFleet* AFlarePlayerController::GetSelectedFleet()
-{
-	return SelectedFleet;
 }
 
 UFlareFleet* AFlarePlayerController::GetPlayerFleet()
