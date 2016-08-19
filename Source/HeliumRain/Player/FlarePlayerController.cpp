@@ -520,9 +520,9 @@ void AFlarePlayerController::OnEnterMenu()
 		// Pause all gameplay actors
 		SetWorldPause(true);
 		MenuPawn->SetActorHiddenInGame(false);
-		GetGame()->GetPlanetarium()->SetActorHiddenInGame(true);
 	}
 
+	GetGame()->GetPlanetarium()->SetActorHiddenInGame(true);
 	GetNavHUD()->UpdateHUDVisibility();
 }
 
@@ -532,7 +532,6 @@ void AFlarePlayerController::OnExitMenu()
 	{
 		// Quit menu
 		MenuPawn->SetActorHiddenInGame(true);
-		GetGame()->GetPlanetarium()->SetActorHiddenInGame(false);
 		ClientPlaySound(OffSound);
 
 		// Unpause all gameplay actors
@@ -549,6 +548,7 @@ void AFlarePlayerController::OnExitMenu()
 	{
 		GetNavHUD()->UpdateHUDVisibility();
 	}
+	GetGame()->GetPlanetarium()->SetActorHiddenInGame(false);
 }
 
 void AFlarePlayerController::SetWorldPause(bool Pause)
