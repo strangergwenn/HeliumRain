@@ -93,9 +93,10 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 
 		// Use same width as parent and 16:9 ratio
 		int32 ParentViewportWidth = 1920;
-		FVector2D ViewportSize = FVector2D (ParentViewportWidth, (ParentViewportWidth * 9) / 16);
-		FLOGV("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit (%dx%d", ViewportSize.X, ViewportSize.Y);
-				
+		FVector2D ViewportSize = FVector2D (ParentViewportWidth, (ParentViewportWidth * 9.0f) / 16.0f);
+		FLOGV("AFlareCockpitManager::SetupCockpit : will be using 3D cockpit (%dx%d)",
+			FMath::RoundToInt(ViewportSize.X), FMath::RoundToInt(ViewportSize.Y));
+		
 		// HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
 		check(CockpitHUDTarget);
@@ -143,6 +144,11 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		FighterCockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(FighterCockpitMeshTemplate->GetMaterial(1), GetWorld());
 		SetupCockpitInstances(FighterCockpitMaterialInstance, FighterCockpitFrameMaterialInstance);
 
+		// Enter if we have to
+		if (PC->GetPlayerShip())
+		{
+			EnterCockpit(PC->GetPlayerShip()->GetActive());
+		}
 	}
 	else
 	{

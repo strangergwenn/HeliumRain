@@ -68,7 +68,6 @@ void AFlarePlayerController::BeginPlay()
 
 	// Cockpit
 	SetupCockpit();
-	CockpitManager->SetupCockpit(this);
 
 	// Menu manager
 	SetupMenu();
@@ -499,11 +498,15 @@ void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNo
 
 void AFlarePlayerController::SetupCockpit()
 {
-	FActorSpawnParameters SpawnInfo;
-	SpawnInfo.Owner = this;
-	SpawnInfo.Instigator = Instigator;
-	SpawnInfo.ObjectFlags |= RF_Transient;
-	CockpitManager = GetWorld()->SpawnActor<AFlareCockpitManager>(AFlareCockpitManager::StaticClass(), SpawnInfo);
+	if (!CockpitManager)
+	{
+		FActorSpawnParameters SpawnInfo;
+		SpawnInfo.Owner = this;
+		SpawnInfo.Instigator = Instigator;
+		SpawnInfo.ObjectFlags |= RF_Transient;
+		CockpitManager = GetWorld()->SpawnActor<AFlareCockpitManager>(AFlareCockpitManager::StaticClass(), SpawnInfo);
+	}
+	CockpitManager->SetupCockpit(this);
 }
 
 void AFlarePlayerController::SetupMenu()
