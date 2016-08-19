@@ -298,13 +298,13 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	Data.Spacecraft = Ship->GetParent();
 	Notify(Text, Info, "flying-info", EFlareNotification::NT_Info, 5.0f, EFlareMenu::MENU_Ship, Data);
 
-	// Update HUD
-	GetNavHUD()->OnTargetShipChanged();
-	SetSelectingWeapon();
-
 	// Set player ship
 	SetPlayerShip(ShipPawn->GetParent());
 	GetGame()->GetQuestManager()->OnFlyShip(Ship);
+
+	// Update HUD
+	GetNavHUD()->OnTargetShipChanged();
+	SetSelectingWeapon();
 }
 
 void AFlarePlayerController::ExitShip()
@@ -639,7 +639,7 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 			// Switch to the found ship
 			if (SeletedCandidate)
 			{
-				FLOG("AFlarePlayerController::SwitchToNextShip : found new ship");
+				FLOGV("AFlarePlayerController::SwitchToNextShip : found new ship %s", *SeletedCandidate->GetImmatriculation().ToString());
 				QuickSwitchNextOffset = OffsetIndex + 1;
 				// Disable pilot during the switch
 				SeletedCandidate->GetStateManager()->EnablePilot(false);
