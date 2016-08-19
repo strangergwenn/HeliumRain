@@ -254,7 +254,7 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 					FText::FromString(HitSpacecraft->GetImmatriculation().ToString())),
 				FName("ship-harpooned"),
 				EFlareNotification::NT_Military,
-				10.0f,
+				false,
 				EFlareMenu::MENU_Ship,
 				Data);
 		}

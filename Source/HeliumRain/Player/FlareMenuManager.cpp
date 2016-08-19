@@ -292,12 +292,12 @@ void AFlareMenuManager::Confirm(FText Title, FText Text, FSimpleDelegate OnConfi
 	}
 }
 
-void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
+void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
 {
 	if (MainOverlay.IsValid())
 	{
 		OrbitMenu->StopFastForward();
-		Notifier->Notify(Text, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
+		Notifier->Notify(Text, Info, Tag, Type, Pinned, TargetMenu, TargetInfo);
 	}
 }
 

@@ -556,7 +556,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 					FText::Format(LOCTEXT("ShipBuiltFormat", "Your ship {0} is ready to use !"), FText::FromString(Spacecraft->GetImmatriculation().ToString())),
 					FName("ship-production-complete"),
 					EFlareNotification::NT_Economy,
-					5.0f,
+					false,
 					EFlareMenu::MENU_Ship,
 					Data);
 			}

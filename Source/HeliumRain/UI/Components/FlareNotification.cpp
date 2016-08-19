@@ -17,7 +17,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	NotificationScroll = 150;
 	NotificationEnterDuration = 0.4;
 	NotificationExitDuration = 0.7;
-	int32 NotificatioNWidth = 350;
+	int32 NotificatioNWidth = 400;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 NotificationTextWidth = NotificatioNWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
 	FLinearColor ShadowColor = FLinearColor::Black;
@@ -80,26 +80,47 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 							SNew(SBorder)
 							.BorderImage(&Theme.BackgroundBrush)
 							.BorderBackgroundColor(this, &SFlareNotification::GetNotificationBackgroundColor)
-							.Padding(Theme.ContentPadding)
 							[
 								SNew(SVerticalBox)
 
 								// Header
 								+ SVerticalBox::Slot()
 								.AutoHeight()
-								.Padding(Theme.SmallContentPadding)
 								[
-									SNew(STextBlock)
-									.Text(InArgs._Text)
-									.WrapTextAt(NotificationTextWidth)
-									.TextStyle(&Theme.NameFont)
-									.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
-									.ShadowColorAndOpacity(ShadowColor)
+									SNew(SHorizontalBox)
+
+									// Title
+									+ SHorizontalBox::Slot()
+									.HAlign(HAlign_Fill)
+									.Padding(Theme.ContentPadding)
+									[
+										SNew(STextBlock)
+										.Text(InArgs._Text)
+										.WrapTextAt(NotificationTextWidth)
+										.TextStyle(&Theme.NameFont)
+										.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
+										.ShadowColorAndOpacity(ShadowColor)
+									]
+
+									// Close button
+									+ SHorizontalBox::Slot()
+									.AutoWidth()
+									.HAlign(HAlign_Right)
+									[
+										SNew(SFlareButton)
+										.Width(1)
+										.Transparent(true)
+										.Text(FText())
+										.HelpText(LOCTEXT("DismissInfo", "Dismiss this notification"))
+										.Icon(FFlareStyleSet::GetIcon("Delete"))
+										.OnClicked(this, &SFlareNotification::OnNotificationDismissed)
+									]
 								]
 
 								// Info
 								+ SVerticalBox::Slot()
 								.AutoHeight()
+								.Padding(Theme.ContentPadding)
 								[
 									SNew(STextBlock)
 									.Text(InArgs._Info)
@@ -236,16 +257,18 @@ FMargin SFlareNotification::GetNotificationMargins() const
 	return Result;
 }
 
+void SFlareNotification::OnNotificationDismissed()
+{
+	Finish();
+}
+
 FReply SFlareNotification::OnNotificationClicked()
 {
-	// Call if necessary
 	if (TargetMenu != EFlareMenu::MENU_None)
 	{
 		MenuManager->OpenMenu(TargetMenu, TargetInfo);
 	}
 
-	// Set the lifetime to "almost done"
-	Finish();
 	return FReply::Handled();
 }
 

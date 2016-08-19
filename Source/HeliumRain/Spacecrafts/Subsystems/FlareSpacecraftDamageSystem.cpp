@@ -166,7 +166,9 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 				LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
 				FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
 				FName("ship-destroyed"),
-				EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Company);
 		}
 		else
 		{
@@ -174,7 +176,9 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 				LOCTEXT("ShipCrashed", "Crash"),
 				FText::FText(LOCTEXT("ShipDestroyedFormat", "You crashed your ship")),
 				FName("ship-crashed"),
-				EFlareNotification::NT_Military, EFlareMenu::MENU_Company);
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Company);
 		}
 
 		PC->GetMenuManager()->OpenMainOverlay();

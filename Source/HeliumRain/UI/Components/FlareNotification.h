@@ -83,7 +83,10 @@ public:
 	/** Get the margins */
 	FMargin GetNotificationMargins() const;
 
-	/** We clicked something */
+	/** We clicked the close button */
+	void OnNotificationDismissed();
+
+	/** We clicked the notification */
 	FReply OnNotificationClicked();
 
 	

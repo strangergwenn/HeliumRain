@@ -277,8 +277,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 			FText::FromString("KNOWN BUG #158"),
 			FText::FromString("You just encountered the known bug #158. You can re-fly your ship by clicking \"fly previous\". Sorry for the inconvenience."),
 			"known-bug-155",
-			EFlareNotification::NT_Military,
-			10.0f);
+			EFlareNotification::NT_Military);
 
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit);
 

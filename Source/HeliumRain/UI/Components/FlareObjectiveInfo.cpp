@@ -19,7 +19,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 	CurrentFadeTime = 0;
 	LastObjectiveVersion = -1;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 ObjectiveInfoWidth = 350;
+	int32 ObjectiveInfoWidth = 400;
 	int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
 	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
 	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;

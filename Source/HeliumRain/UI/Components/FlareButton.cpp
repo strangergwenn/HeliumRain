@@ -128,7 +128,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 			// Icon
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
-			.Padding(FMargin(0, 0, 10, 0))
+			.Padding(FMargin(6, 0))
 			[
 				SAssignNew(IconBox, SVerticalBox)
 			]

@@ -296,7 +296,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	FText Info = (OwnedSpacecraftCount > 1) ? LOCTEXT("FlyingMultipleInfo", "You can switch to nearby ships with N.") : LOCTEXT("FlyingInfo", "You are now flying your personal ship.");
 	FFlareMenuParameterData Data;
 	Data.Spacecraft = Ship->GetParent();
-	Notify(Text, Info, "flying-info", EFlareNotification::NT_Info, 5.0f, EFlareMenu::MENU_Ship, Data);
+	Notify(Text, Info, "flying-info", EFlareNotification::NT_Info, false, EFlareMenu::MENU_Ship, Data);
 
 	// Set player ship
 	SetPlayerShip(ShipPawn->GetParent());
@@ -467,10 +467,10 @@ void AFlarePlayerController::Clean()
 	Menus
 ----------------------------------------------------*/
 
-void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, float Timeout, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
+void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
-	MenuManager->Notify(Title, Info, Tag, Type, Timeout, TargetMenu, TargetInfo);
+	MenuManager->Notify(Title, Info, Tag, Type, Pinned, TargetMenu, TargetInfo);
 }
 
 void AFlarePlayerController::SetupCockpit()
@@ -697,7 +697,7 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 				FText::FromName(Target->GetImmatriculation())),
 			"docking-granted",
 			EFlareNotification::NT_Info,
-			10.0f);
+			false);
 	}
 	else
 	{
@@ -706,7 +706,7 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 			FText::Format(LOCTEXT("DockingDeniedInfoFormat", "{0} denied your docking request"), FText::FromName(Target->GetImmatriculation())),
 			"docking-denied",
 			EFlareNotification::NT_Info,
-			10.0f);
+			false);
 	}
 }
 
@@ -963,12 +963,26 @@ void AFlarePlayerController::Test1()
 {
 	IsTest1 = !IsTest1;
 	FLOGV("AFlarePlayerController::Test1 %d", IsTest1);
+
+	Notify(
+		LOCTEXT("LolWutWtf", "Test 1 !"),
+		LOCTEXT("LolWutWtfDE", "Test data for the lolwtf !"),
+		"wtf-aaafr",
+		EFlareNotification::NT_Info,
+		true);
 }
 
 void AFlarePlayerController::Test2()
 {
 	IsTest2 = !IsTest2;
 	FLOGV("AFlarePlayerController::Test2 %d", IsTest2);
+
+	Notify(
+		LOCTEXT("LolWutWtf", "Test 2 !"),
+		LOCTEXT("LolWutWtfDE", "Test data for the lolwtf 2 !"),
+		"wtf-efrfrfrf",
+		EFlareNotification::NT_Info,
+		true);
 }
 
 
