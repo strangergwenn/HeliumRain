@@ -39,7 +39,7 @@ class SFlareNotification : public SCompoundWidget
 	SLATE_ARGUMENT(FText, Text)
 	SLATE_ARGUMENT(FText, Info)
 	SLATE_ARGUMENT(FName, Tag)
-	SLATE_ARGUMENT(float, Timeout)
+	SLATE_ARGUMENT(bool, Pinned)
 	SLATE_ARGUMENT(EFlareMenu::Type, TargetMenu)
 	SLATE_ARGUMENT(FFlareMenuParameterData, TargetInfo)
 
@@ -79,6 +79,15 @@ public:
 
 	/** Get the current background color */
 	FSlateColor GetNotificationBackgroundColor() const;
+
+	/** Get the visibility of the clickable icon */
+	EVisibility GetClickableIconVisibility() const;
+
+	/** Get the visibility of the lifetime icon */
+	EVisibility GetLifetimeIconVisibility() const;
+
+	/** Get the size of the lifetime icon */
+	FOptionalSize GetLifetimeSize() const;
 
 	/** Get the margins */
 	FMargin GetNotificationMargins() const;

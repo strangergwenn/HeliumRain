@@ -79,7 +79,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 			.Info(Info)
 			.Type(Type)
 			.Tag(Tag)
-			.Timeout(Pinned ? 0 : 7.0f)
+			.Pinned(Pinned)
 			.TargetMenu(TargetMenu)
 			.TargetInfo(TargetInfo)
 		];

@@ -963,26 +963,12 @@ void AFlarePlayerController::Test1()
 {
 	IsTest1 = !IsTest1;
 	FLOGV("AFlarePlayerController::Test1 %d", IsTest1);
-
-	Notify(
-		LOCTEXT("LolWutWtf", "Test 1 !"),
-		LOCTEXT("LolWutWtfDE", "Test data for the lolwtf !"),
-		"wtf-aaafr",
-		EFlareNotification::NT_Info,
-		true);
 }
 
 void AFlarePlayerController::Test2()
 {
 	IsTest2 = !IsTest2;
 	FLOGV("AFlarePlayerController::Test2 %d", IsTest2);
-
-	Notify(
-		LOCTEXT("LolWutWtf", "Test 2 !"),
-		LOCTEXT("LolWutWtfDE", "Test data for the lolwtf 2 !"),
-		"wtf-efrfrfrf",
-		EFlareNotification::NT_Info,
-		true);
 }
 
 

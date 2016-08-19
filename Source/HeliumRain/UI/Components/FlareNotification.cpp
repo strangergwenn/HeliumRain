@@ -35,7 +35,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	TargetMenu = InArgs._TargetMenu;
 	TargetInfo = InArgs._TargetInfo;
 	Tag = InArgs._Tag;
-	NotificationTimeout = InArgs._Timeout;
+	NotificationTimeout = InArgs._Pinned ? 0 : 7.0f;
 	FLOGV("SFlareNotification::Construct : notifying '%s'", *InArgs._Text.ToString());
 
 	// Create the layout
@@ -128,6 +128,44 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 									.TextStyle(&Theme.TextFont)
 									.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
 									.ShadowColorAndOpacity(ShadowColor)
+								]
+
+								// Icons
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.HAlign(HAlign_Left)
+								.VAlign(VAlign_Center)
+								.Padding(NotificatioNWidth - 50, Theme.SmallContentPadding.Top, Theme.SmallContentPadding.Right, Theme.SmallContentPadding.Bottom)
+								[
+									SNew(SHorizontalBox)
+
+									// Clickable
+									+ SHorizontalBox::Slot()
+									.AutoWidth()
+									[
+										SNew(SImage)
+										.Image(FFlareStyleSet::GetIcon("Clickable"))
+										.Visibility(this, &SFlareNotification::GetClickableIconVisibility)
+										.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
+									]
+
+									// Lifetime
+									+ SHorizontalBox::Slot()
+									.HAlign(HAlign_Center)
+									.VAlign(VAlign_Center)
+									[
+										SNew(SBox)
+										.WidthOverride(this, &SFlareNotification::GetLifetimeSize)
+										.HeightOverride(this, &SFlareNotification::GetLifetimeSize)
+										.Visibility(this, &SFlareNotification::GetLifetimeIconVisibility)
+										.HAlign(HAlign_Fill)
+										.VAlign(VAlign_Fill)
+										[
+											SNew(SImage)
+											.Image(FFlareStyleSet::GetIcon("Lifetime"))
+											.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
+										]
+									]
 								]
 							]
 						]
@@ -246,6 +284,43 @@ FSlateColor SFlareNotification::GetNotificationBackgroundColor() const
 	FLinearColor Result = FFlareStyleSet::GetDefaultTheme().NeutralColor;
 	Result.A = CurrentAlpha;
 	return Result;
+}
+
+EVisibility SFlareNotification::GetClickableIconVisibility() const
+{
+	if (TargetMenu != EFlareMenu::MENU_None)
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Visible;
+	}
+}
+
+EVisibility SFlareNotification::GetLifetimeIconVisibility() const
+{
+	if (NotificationTimeout == 0)
+	{
+		return EVisibility::Collapsed;
+	}
+	else
+	{
+		return EVisibility::Visible;
+	}
+}
+
+FOptionalSize  SFlareNotification::GetLifetimeSize() const
+{
+	float InitialSize = 24.0f;
+	if (NotificationTimeout == 0)
+	{
+		return InitialSize;
+	}
+	else
+	{
+		return FMath::Clamp(1.0f - Lifetime / NotificationTimeout, 0.0f, 1.0f) * InitialSize;
+	}
 }
 
 FMargin SFlareNotification::GetNotificationMargins() const
