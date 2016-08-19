@@ -294,7 +294,7 @@ EVisibility SFlareNotification::GetClickableIconVisibility() const
 	}
 	else
 	{
-		return EVisibility::Visible;
+		return EVisibility::Hidden;
 	}
 }
 
