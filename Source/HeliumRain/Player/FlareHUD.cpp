@@ -557,9 +557,20 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 
 	if (CurrentSector)
 	{
-		FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
-			CurrentSector->GetSimulatedSector()->GetSectorName(),
-			CurrentSector->GetSimulatedSector()->GetSectorFriendlynessText(PlayerShip->GetParent()->GetCompany()));
+		// Get text
+		FText SectorText;
+		if (PlayerShip->GetParent()->GetCurrentFleet()->IsTraveling())
+		{
+			SectorText = PlayerShip->GetParent()->GetCurrentFleet()->GetStatusInfo();
+		}
+		else
+		{
+			SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
+				CurrentSector->GetSimulatedSector()->GetSectorName(),
+				CurrentSector->GetSimulatedSector()->GetSectorFriendlynessText(PlayerShip->GetParent()->GetCompany()));
+		}
+
+		// Draw
 		FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
 
