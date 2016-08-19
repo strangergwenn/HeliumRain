@@ -174,7 +174,7 @@ void SFlareOrbitalMenu::Enter()
 
 	UpdateMap();
 
-	Game->SaveGame(MenuManager->GetPC());
+	Game->SaveGame(MenuManager->GetPC(), true);
 }
 
 void SFlareOrbitalMenu::Exit()
@@ -200,7 +200,7 @@ void SFlareOrbitalMenu::StopFastForward()
 	if (FastForwardActive)
 	{
 		FastForwardActive = false;
-		Game->SaveGame(MenuManager->GetPC());
+		Game->SaveGame(MenuManager->GetPC(), true);
 		Game->ActivateCurrentSector();
 	}
 }
@@ -632,7 +632,7 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 void SFlareOrbitalMenu::OnFastForwardConfirmed()
 {
 	FastForwardActive = true;
-	Game->SaveGame(MenuManager->GetPC());
+	Game->SaveGame(MenuManager->GetPC(), true);
 	Game->DeactivateSector();
 }
 

@@ -585,7 +585,7 @@ void AFlareMenuManager::OpenMainMenu()
 {
 	OnEnterMenu(true, false);
 	GetPC()->ExitShip();
-	GetPC()->GetGame()->SaveGame(GetPC());
+	GetPC()->GetGame()->SaveGame(GetPC(), false);
 	MainMenu->Enter();
 }
 

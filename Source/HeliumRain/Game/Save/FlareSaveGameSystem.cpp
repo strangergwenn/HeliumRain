@@ -28,6 +28,8 @@ bool UFlareSaveGameSystem::DoesSaveGameExist(const FString SaveName)
 
 bool UFlareSaveGameSystem::SaveGame(const FString SaveName, UFlareSaveGame* SaveData)
 {
+	bool ret = false;
+	SaveLock.Lock();
 	FLOGV("UFlareSaveGameSystem::SaveGame SaveName=%s", *SaveName);
 
 	UFlareSaveWriter* SaveWriter = NewObject<UFlareSaveWriter>(this, UFlareSaveWriter::StaticClass());
@@ -41,13 +43,18 @@ bool UFlareSaveGameSystem::SaveGame(const FString SaveName, UFlareSaveGame* Save
 	if (FJsonSerializer::Serialize(JsonObject, JsonWriter))
 	{
 		JsonWriter->Close();
-		return FFileHelper::SaveStringToFile(FileContents, *GetSaveGamePath(SaveName));
+
+		ret = FFileHelper::SaveStringToFile(FileContents, *GetSaveGamePath(SaveName));
+		FLOG("UFlareSaveGameSystem::SaveGame : Save done");
 	}
 	else
 	{
 		FLOGV("Fail to serialize save %s", *SaveName);
-		return false;
+		ret = false;
 	}
+
+	SaveLock.Unlock();
+	return ret;
 }
 
 UFlareSaveGame* UFlareSaveGameSystem::LoadGame(const FString SaveName)

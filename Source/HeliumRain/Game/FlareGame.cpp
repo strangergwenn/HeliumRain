@@ -119,7 +119,7 @@ void AFlareGame::Logout(AController* Player)
 	// Save the world, literally
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Player);
 	DeactivateSector();
-	SaveGame(PC);
+	SaveGame(PC, false);
 	PC->PrepareForExit();
 
 	Super::Logout(Player);
@@ -220,7 +220,6 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 
 	// Update the PC
 	GetPC()->OnSectorDeactivated();
-	SaveGame(GetPC());
 
 	return Sector;
 }
@@ -611,7 +610,38 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 	}
 }
 
-bool AFlareGame::SaveGame(AFlarePlayerController* PC)
+
+class FAsyncSave : public FNonAbandonableTask
+{
+	friend class FAutoDeleteAsyncTask<FAsyncSave>;
+public:
+	FAsyncSave(UFlareSaveGameSystem* SaveSystemParam, const FString SaveNameParam, TWeakObjectPtr<class UFlareSaveGame> SaveDataParam) :
+		SaveName(SaveNameParam),
+		SaveData(SaveDataParam),
+		SaveSystem(SaveSystemParam)
+	{}
+
+protected:
+	FString SaveName;
+	TWeakObjectPtr<class UFlareSaveGame> SaveData;
+	UFlareSaveGameSystem* SaveSystem;
+
+	void DoWork()
+	{
+		FLOG("Async save start");
+		SaveSystem->SaveGame(SaveName, SaveData.Get());
+		FLOG("Async save end");
+	}
+
+	// This next section of code needs to be here.  Not important as to why.
+
+	FORCEINLINE TStatId GetStatId() const
+	{
+		RETURN_QUICK_DECLARE_CYCLE_STAT(FAsyncSave, STATGROUP_ThreadPoolAsyncTasks);
+	}
+};
+
+bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async)
 {
 	if (!IsLoadedOrCreated())
 	{
@@ -636,7 +666,16 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC)
 		FString SaveName = "SaveSlot" + FString::FromInt(CurrentSaveIndex);
 
 		// Save prototype
-		SaveGameSystem->SaveGame(SaveName, Save);
+
+		if(Async)
+		{
+			TWeakObjectPtr<class UFlareSaveGame> SavePtr = Save;
+			(new FAutoDeleteAsyncTask<FAsyncSave>(SaveGameSystem, SaveName, SavePtr))->StartBackgroundTask();
+		}
+		else
+		{
+			SaveGameSystem->SaveGame(SaveName, Save);
+		}
 
 		return true;
 	}

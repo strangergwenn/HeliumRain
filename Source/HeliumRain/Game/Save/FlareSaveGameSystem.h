@@ -35,6 +35,7 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
+	FCriticalSection SaveLock;
 
 
 public:
