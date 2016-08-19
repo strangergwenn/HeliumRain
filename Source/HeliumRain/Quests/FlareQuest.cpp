@@ -637,7 +637,7 @@ void UFlareQuest::UpdateObjectiveTracker()
 	{
 		Objective.StepsDone = QuestData.SuccessfullSteps.Num();
 		Objective.StepsCount = GetQuestDescription()->Steps.Num();
-		Objective.Description = GetCurrentStepDescription()->Description;
+		Objective.Description = GetQuestDescription()->QuestDescription;
 		Objective.Name = GetQuestName();
 	}
 
@@ -701,7 +701,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 		{
 			float Velocity = Spacecraft ? FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) : 0;
 
-			FText ReachSpeedText = LOCTEXT("ReachMaxSpeedFormat", "Fly at less than {0} m/s forward");
+			FText ReachSpeedText = LOCTEXT("ReachMaxSpeedFormat", "Fly at least than {0} m/s backward");
 			FText ReachSpeedShortText = LOCTEXT("ReachMaxSpeedShortFormat", "{0} m/s");
 
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
@@ -787,7 +787,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
 		{
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = LOCTEXT("FollowWaypoints", "Follow waypoints");
+			ObjectiveCondition.InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
 			ObjectiveCondition.TerminalLabel = FText::GetEmpty();
 			ObjectiveCondition.Counter = 0;
 			ObjectiveCondition.MaxCounter = Condition->VectorListParam.Num();
@@ -825,10 +825,37 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
 		}
+
 		case EFlareQuestCondition::SECTOR_VISITED:
+		{
+			UFlareSimulatedSector* TargetSector = QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1);
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("VisitSectorFormat", "Visit the sector \"{0}\""), TargetSector->GetSectorName());
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+			ObjectiveCondition.Progress = 0;
+			
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
+		}
+
 		case EFlareQuestCondition::SECTOR_ACTIVE:
+		{
+			UFlareSimulatedSector* TargetSector = QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1);
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("BeInSectorFormat", "Fly in the sector \"{0}\""), TargetSector->GetSectorName());
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+			ObjectiveCondition.Progress = 0;
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
+		}
+
 		default:
 			FLOGV("ERROR: UpdateObjectiveTracker not implemented for condition type %d", (int)(Condition->Type +0));
 			break;

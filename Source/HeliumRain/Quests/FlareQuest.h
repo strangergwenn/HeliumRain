@@ -173,9 +173,6 @@ struct FFlareQuestStepDescription
 	UPROPERTY(EditAnywhere, Category = Quest)
 	FName Identifier;
 
-	UPROPERTY(EditAnywhere, Category = Quest)
-	FText Description;
-
 	/** End conditions */
 	UPROPERTY(EditAnywhere, Category = Quest)
 	TArray<FFlareQuestConditionDescription> EndConditions;
