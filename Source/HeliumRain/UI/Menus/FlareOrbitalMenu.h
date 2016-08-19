@@ -39,8 +39,11 @@ public:
 	/** Exit this menu */
 	void Exit();
 
-	/** A notification was received, stop */
+	/** Stop fast forward */
 	void StopFastForward();
+
+	/** A notification was received, stop */
+	void RequestStopFastForward();
 
 	virtual void Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime ) override;
 
@@ -110,6 +113,7 @@ protected:
 
 	// Fast forward
 	bool                                        FastForwardActive;
+	bool                                        FastForwardStopRequested;
 	float                                       FastForwardPeriod;
 	float                                       TimeSinceFastForward;
 

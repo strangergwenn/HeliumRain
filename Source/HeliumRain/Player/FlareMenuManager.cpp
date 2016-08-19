@@ -296,7 +296,7 @@ void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotifica
 {
 	if (MainOverlay.IsValid())
 	{
-		OrbitMenu->StopFastForward();
+		OrbitMenu->RequestStopFastForward();
 		Notifier->Notify(Text, Info, Tag, Type, Pinned, TargetMenu, TargetInfo);
 	}
 }
