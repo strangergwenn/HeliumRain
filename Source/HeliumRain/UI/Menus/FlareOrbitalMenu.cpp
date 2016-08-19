@@ -624,7 +624,7 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 	}
 	else
 	{
-		FastForwardActive = false;
+		StopFastForward();
 	}
 }
 
