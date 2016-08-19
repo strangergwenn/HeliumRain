@@ -476,7 +476,12 @@ FText SFlareSectorMenu::GetTravelText() const
 bool SFlareSectorMenu::IsTravelDisabled() const
 {
 	UFlareFleet* SelectedFleet = FleetSelector->GetSelectedItem();
-	if (SelectedFleet && SelectedFleet->GetCurrentSector() != TargetSector && SelectedFleet->CanTravel())
+
+	if (MenuManager->GetPC()->GetPlayerFleet() && MenuManager->GetPC()->GetPlayerFleet()->IsTraveling())
+	{
+		return true;
+	}
+	else if (SelectedFleet && SelectedFleet->GetCurrentSector() != TargetSector && SelectedFleet->CanTravel())
 	{
 		return false;
 	}
@@ -550,9 +555,16 @@ FText SFlareSectorMenu::GetSectorName() const
 	FText Result;
 	if (IsEnabled() && TargetSector)
 	{
-		Result = FText::Format(LOCTEXT("SectorFormat", "Sector : {0} ({1})"),
-			FText::FromString(TargetSector->GetSectorName().ToString()), //FString needed here
-			TargetSector->GetSectorFriendlynessText(MenuManager->GetPC()->GetCompany()));
+		if (MenuManager->GetPC()->GetPlayerFleet() && MenuManager->GetPC()->GetPlayerFleet()->IsTraveling())
+		{
+			Result = MenuManager->GetPC()->GetPlayerFleet()->GetStatusInfo();
+		}
+		else
+		{
+			Result = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
+				TargetSector->GetSectorName(),
+				TargetSector->GetSectorFriendlynessText(MenuManager->GetPC()->GetCompany()));
+		}
 	}
 
 	return Result;
