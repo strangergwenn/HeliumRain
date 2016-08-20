@@ -124,7 +124,6 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	];
 
 	// Add menus
-	TSharedPtr<SFlareButton> Button;
 	AddMenuLink(EFlareMenu::MENU_Ship);
 	AddMenuLink(EFlareMenu::MENU_Sector);
 	AddMenuLink(EFlareMenu::MENU_Orbit);
@@ -133,32 +132,40 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	AddMenuLink(EFlareMenu::MENU_Fleet);
 	AddMenuLink(EFlareMenu::MENU_Settings);
 	AddMenuLink(EFlareMenu::MENU_Main);
-	
-	// Back button
+
+	TSharedPtr<SFlareButton> BackButton;
+	TSharedPtr<SFlareButton> ExitButton;
 	MenuList->AddSlot()
 	.HAlign(HAlign_Right)
 	[
-		SAssignNew(Button, SFlareButton)
-		.Width(TitleButtonWidth)
-		.Height(TitleButtonHeight)
-		.Transparent(true)
-		.OnClicked(this, &SFlareMainOverlay::OnBack)
-		.IsDisabled(this, &SFlareMainOverlay::IsBackDisabled)
+		SNew(SVerticalBox)
+
+		// Back button
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SAssignNew(BackButton, SFlareButton)
+			.Width(TitleButtonWidth)
+			.Height(TitleButtonHeight / 2)
+			.Transparent(true)
+			.OnClicked(this, &SFlareMainOverlay::OnBack)
+			.IsDisabled(this, &SFlareMainOverlay::IsBackDisabled)
+		]
+
+		// Exit button
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SAssignNew(ExitButton, SFlareButton)
+			.Width(TitleButtonWidth)
+			.Height(TitleButtonHeight / 2)
+			.Transparent(true)
+			.OnClicked(this, &SFlareMainOverlay::OnCloseMenu)
+		]
 	];
-	SetupMenuLink(Button, FFlareStyleSet::GetIcon("Back"), LOCTEXT("BackButtonTitle", "Back"));
-	
-	// Exit button
-	MenuList->AddSlot()
-	.HAlign(HAlign_Right)
-	.AutoWidth()
-	[
-		SAssignNew(Button, SFlareButton)
-		.Width(TitleButtonWidth)
-		.Height(TitleButtonHeight)
-		.Transparent(true)
-		.OnClicked(this, &SFlareMainOverlay::OnCloseMenu)
-	];
-	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_FlyShip), AFlareMenuManager::GetMenuName(EFlareMenu::MENU_FlyShip));
+
+	SetupMenuLink(BackButton, FFlareStyleSet::GetIcon("Back"), FText(), true);
+	SetupMenuLink(ExitButton, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_FlyShip), FText(), true);
 
 	// Init
 	Close();
@@ -210,16 +217,16 @@ void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
 	];
 
 	// Fill button contents
-	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(Menu), AFlareMenuManager::GetMenuName(Menu));
+	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(Menu), AFlareMenuManager::GetMenuName(Menu), false);
 }
 
-void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text)
+void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, bool Small)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	Button->GetContainer()->SetHAlign(HAlign_Center);
 	Button->GetContainer()->SetVAlign(VAlign_Fill);
-	Button->GetContainer()->SetPadding(FMargin(0, 25));
+	Button->GetContainer()->SetPadding(FMargin(0, Small ? 5 : 30));
 
 	Button->GetContainer()->SetContent(
 		SNew(SVerticalBox)
