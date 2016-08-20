@@ -289,13 +289,13 @@ void UFlareScenarioTools::CreateAsteroids(UFlareSimulatedSector* Sector, int32 C
 	int32 CellCount = DistributionShape.X * DistributionShape.Y * DistributionShape.Z * 4;
 	int32 FailCount = 0;
 
-	while(AsteroidCount < Count && FailCount < 5000)
+	while (AsteroidCount < Count && FailCount < 5000)
 	{
 		for (int32 X = -DistributionShape.X; X <= DistributionShape.X; X++)
 		{
 			for (int32 Y = -DistributionShape.Y; Y <= DistributionShape.Y; Y++)
 			{
-				for (int32 Z = DistributionShape.Z; Z <= DistributionShape.Z; Z++)
+				for (int32 Z = -DistributionShape.Z; Z <= DistributionShape.Z; Z++)
 				{
 					if (FMath::RandHelper(CellCount) <= Count)
 					{
@@ -351,13 +351,12 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 		{
 			continue;
 		}
-		
 
-		if(Station->GetFactories().Num() > 0)
+		// Give input resources
+		if (Station->GetFactories().Num() > 0)
 		{
 			UFlareFactory* ActiveFactory = Station->GetFactories()[0];
 
-			// Give input resources
 			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
 			{
 				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
@@ -365,8 +364,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity());
 			}
 		}
-
-
+		
 		// Give customer resources
 		if (Station->HasCapability(EFlareSpacecraftCapability::Consumer))
 		{

@@ -429,7 +429,7 @@ const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
 FText SFlareMainOverlay::GetPlayerInfo() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-
+	
 	if (PC->GetShipPawn())
 	{
 		return FText::Format(LOCTEXT("PlayerInfoFormat", "{0}\n{1} credits available"),
@@ -454,7 +454,7 @@ FText SFlareMainOverlay::GetPlayerInfo() const
 	{
 		return FText();
 	}
-	else
+	else if (!MenuManager->IsFading())
 	{
 		return LOCTEXT("FastForwarding", "Fast forwarding...");
 	}
