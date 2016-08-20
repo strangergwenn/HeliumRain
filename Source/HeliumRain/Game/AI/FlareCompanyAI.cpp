@@ -575,9 +575,8 @@ void UFlareCompanyAI::Simulate()
 			// Try build station
 
 
-			if (ConstructionProjectSector->BuildStation(ConstructionProjectStation, Company))
+			if (ConstructionProjectSector->BuildStation(ConstructionProjectStation, Company) != NULL)
 			{
-
 				FLOGV("%s build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
 
 				// Build success clean contruction project

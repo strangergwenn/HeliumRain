@@ -307,7 +307,7 @@ public:
 	/** Check whether we can build a station, understand why if not */
 	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReason, bool IgnoreCost = false);
 
-	bool BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
+	UFlareSimulatedSpacecraft* BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
 
 	bool CanUpgrade(UFlareCompany* Company);
 

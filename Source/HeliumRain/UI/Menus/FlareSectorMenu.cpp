@@ -736,22 +736,42 @@ void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewSt
 		// Can we build ?
 		TArray<FText> Reasons;
 		FString ResourcesString;
+		UFlareFleet* PlayerFleet = MenuManager->GetPC()->GetPlayerFleet();
 		bool StationBuildable = TargetSector->CanBuildStation(StationDescription, MenuManager->GetPC()->GetCompany(), Reasons);
 
 		// Build it
 		if (StationBuildable)
 		{
-			TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
+			UFlareSimulatedSpacecraft* NewStation = TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 
-			FFlareMenuParameterData Data;
-			Data.Sector = TargetSector;
-			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Data);
+			// Same sector
+			if (PlayerFleet && PlayerFleet->GetCurrentSector() == TargetSector)
+			{
+				FFlareMenuParameterData MenuParameters;
+				MenuParameters.Spacecraft = PlayerFleet->GetShips()[0];
+				MenuParameters.Sector = TargetSector;
+				MenuManager->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
+			}
 
+			// Other sector
+			else
+			{
+				FFlareMenuParameterData MenuParameters;
+				MenuParameters.Sector = TargetSector;
+				MenuManager->OpenMenu(EFlareMenu::MENU_Sector, MenuParameters);
+			}
+
+			// Notify
+			FFlareMenuParameterData NotificationParameters;
+			NotificationParameters.Spacecraft = NewStation;
 			MenuManager->GetPC()->Notify(
-				LOCTEXT("StationBuilt", "Station ordered"),
-				LOCTEXT("StationBuiltInfo", "Your new station is being transferred to this sector, it will be visible the next time you come here."),
+				LOCTEXT("StationBuilt", "Station built"),
+				LOCTEXT("StationBuiltInfo", "Your new station has been built."),
 				"station-built",
-				EFlareNotification::NT_Economy);
+				EFlareNotification::NT_Economy,
+				false,
+				EFlareMenu::MENU_Ship,
+				NotificationParameters);
 		}
 	}
 }

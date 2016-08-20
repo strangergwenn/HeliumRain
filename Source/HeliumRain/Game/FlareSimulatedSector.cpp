@@ -584,7 +584,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	return Result;
 }
 
-bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
 {
 	TArray<FText> Reasons;
 	if (!CanBuildStation(StationDescription, Company, Reasons))
@@ -593,15 +593,15 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 			*StationDescription->Identifier.ToString(),
 			*Company->GetCompanyName().ToString(),
 			*Reasons[0].ToString());
-		return false;
+		return NULL;
 	}
 
 	int64 ProductionCost = GetStationConstructionFee(StationDescription->CycleCost.ProductionCost);
 
 	// Pay station cost
-	if(!Company->TakeMoney(ProductionCost))
+	if (!Company->TakeMoney(ProductionCost))
 	{
-		return false;
+		return NULL;
 	}
 
 	GetPeople()->Pay(ProductionCost);
@@ -633,9 +633,7 @@ bool UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDes
 		}
 	}
 
-	UFlareSimulatedSpacecraft* Spacecraft = CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
-
-	return true;
+	return CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
 }
 
 bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station, TArray<FText>& OutReasons)
