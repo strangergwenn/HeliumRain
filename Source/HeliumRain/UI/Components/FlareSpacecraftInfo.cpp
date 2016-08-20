@@ -335,8 +335,8 @@ void SFlareSpacecraftInfo::Show()
 		// Permissions
 		bool CanDock =     !IsDocked && IsFriendly && ActiveTargetSpacecraft && ActiveTargetSpacecraft->GetDockingSystem()->HasCompatibleDock(PlayerShip->GetActive());
 		bool CanUpgrade =  Owned && !IsStation && (IsDocked || (IsRemoteFlying && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany())));
-		bool CanTrade =    Owned && !IsStation && (IsDocked || (IsRemoteFlying && TargetSpacecraft->GetDescription()->CargoBayCount > 0));
-		bool CanScrap =    Owned && !IsStation && IsRemoteFlying && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
+		bool CanTrade =    Owned && !IsStation && (IsDocked || IsRemoteFlying) && TargetSpacecraft->GetDescription()->CargoBayCount > 0;
+		bool CanScrap =    CanUpgrade && OwnedAndNotSelf;
 
 		FLOGV("SFlareSpacecraftInfo::Show : CanDock = %d CanUpgrade = %d CanTrade = %d",
 			CanDock, CanUpgrade, CanTrade);
