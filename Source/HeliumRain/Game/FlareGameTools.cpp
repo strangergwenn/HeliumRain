@@ -972,12 +972,6 @@ void UFlareGameTools::GiveResources(FName ShipImmatriculation, FName ResourceIde
 		return;
 	}
 
-	if (GetActiveSector())
-	{
-		FLOG("AFlareGame::GiveResources failed: a sector is active");
-		return;
-	}
-
 	FFlareResourceDescription* Resource = GetGame()->GetResourceCatalog()->Get(ResourceIdentifier);
 	if (!Resource)
 	{
