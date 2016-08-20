@@ -700,7 +700,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 		{
 			float Velocity = Spacecraft ? FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) : 0;
 
-			FText ReachSpeedText = LOCTEXT("ReachMaxSpeedFormat", "Fly at least than {0} m/s backward");
+			FText ReachSpeedText = LOCTEXT("ReachMaxSpeedFormat", "Reach at least {0} m/s backward");
 			FText ReachSpeedShortText = LOCTEXT("ReachMaxSpeedShortFormat", "{0} m/s");
 
 			FFlarePlayerObjectiveCondition ObjectiveCondition;

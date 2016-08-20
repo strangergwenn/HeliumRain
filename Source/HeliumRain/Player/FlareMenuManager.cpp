@@ -8,6 +8,7 @@
 #include "../UI/Menus/FlareStoryMenu.h"
 #include "../UI/Menus/FlareShipMenu.h"
 #include "../UI/Menus/FlareFleetMenu.h"
+#include "../UI/Menus/FlareQuestMenu.h"
 #include "../UI/Menus/FlareOrbitalMenu.h"
 #include "../UI/Menus/FlareLeaderboardMenu.h"
 #include "../UI/Menus/FlareCompanyMenu.h"
@@ -53,6 +54,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(StoryMenu, SFlareStoryMenu).MenuManager(this);
 		SAssignNew(CompanyMenu, SFlareCompanyMenu).MenuManager(this);
 		SAssignNew(FleetMenu, SFlareFleetMenu).MenuManager(this);
+		SAssignNew(QuestMenu, SFlareQuestMenu).MenuManager(this);
 		SAssignNew(ShipMenu, SFlareShipMenu).MenuManager(this);
 		SAssignNew(SectorMenu, SFlareSectorMenu).MenuManager(this);
 		SAssignNew(TradeMenu, SFlareTradeMenu).MenuManager(this);
@@ -86,6 +88,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(StoryMenu.ToSharedRef()),          50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CompanyMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(FleetMenu.ToSharedRef()),          50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(QuestMenu.ToSharedRef()),          50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ShipMenu.ToSharedRef()),           50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SectorMenu.ToSharedRef()),         50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TradeMenu.ToSharedRef()),          50);
@@ -112,6 +115,7 @@ void AFlareMenuManager::SetupMenu()
 		CompanyMenu->Setup();
 		ShipMenu->Setup();
 		FleetMenu->Setup();
+		QuestMenu->Setup();
 		SectorMenu->Setup();
 		TradeMenu->Setup();
 		TradeRouteMenu->Setup();
@@ -343,6 +347,7 @@ void AFlareMenuManager::ResetMenu()
 	CompanyMenu->Exit();
 	ShipMenu->Exit();
 	FleetMenu->Exit();
+	QuestMenu->Exit();
 	SectorMenu->Exit();
 	TradeMenu->Exit();
 	TradeRouteMenu->Exit();
@@ -392,6 +397,7 @@ void AFlareMenuManager::ProcessNextMenu()
 		case EFlareMenu::MENU_Story:              OpenStoryMenu();             break;
 		case EFlareMenu::MENU_Company:            InspectCompany();            break;
 		case EFlareMenu::MENU_Fleet:              OpenFleetMenu();             break;
+		case EFlareMenu::MENU_Quest:              OpenQuestMenu();             break;
 		case EFlareMenu::MENU_Ship:               InspectShip(false);          break;
 		case EFlareMenu::MENU_ShipConfig:         InspectShip(true);           break;
 		case EFlareMenu::MENU_Sector:             OpenSector();                break;
@@ -697,6 +703,12 @@ void AFlareMenuManager::OpenFleetMenu()
 	FleetMenu->Enter(NextMenu.Value.Fleet);
 }
 
+void AFlareMenuManager::OpenQuestMenu()
+{
+	OnEnterMenu(false);
+	QuestMenu->Enter(NextMenu.Value.Quest);
+}
+
 void AFlareMenuManager::OpenSector()
 {
 	UFlareSimulatedSector* Sector = NextMenu.Value.Sector;
@@ -806,6 +818,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World prices");      break;
 		case EFlareMenu::MENU_Ship:           Name = LOCTEXT("ShipMenuName", "Ship");                      break;
 		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleets");                   break;
+		case EFlareMenu::MENU_Quest:          Name = LOCTEXT("QuestMenuName", "Quests");                   break;
 		case EFlareMenu::MENU_Station:        Name = LOCTEXT("StationMenuName", "Station");                break;
 		case EFlareMenu::MENU_ShipConfig:     Name = LOCTEXT("ShipConfigMenuName", "Ship upgrade");        break;
 		case EFlareMenu::MENU_Travel:         Name = LOCTEXT("TravelMenuName", "Travel");                  break;
@@ -835,6 +848,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_WorldEconomy:   Path = "Sector";       break;
 		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
 		case EFlareMenu::MENU_Fleet:          Path = "Fleet";        break;
+		case EFlareMenu::MENU_Quest:          Path = "Quest";        break;
 		case EFlareMenu::MENU_Station:        Path = "Station";      break;
 		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
 		case EFlareMenu::MENU_Travel:         Path = "Travel";       break;

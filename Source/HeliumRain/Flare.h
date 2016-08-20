@@ -17,17 +17,22 @@ namespace EFlareMenu
 	enum Type
 	{
 		MENU_None,
+
+		// Boot menus
 		MENU_Main,
 		MENU_NewGame,
 
+		// Special "menus" for async transitions
 		MENU_LoadGame,
 		MENU_FlyShip,
 		MENU_Travel,
 		MENU_ReloadSector,
 
+		// Main gameplay menus
 		MENU_Story,
 		MENU_Company,
 		MENU_Fleet,
+		MENU_Quest,
 		MENU_Ship,
 		MENU_ShipConfig,
 		MENU_Station,
@@ -38,10 +43,11 @@ namespace EFlareMenu
 		MENU_Leaderboard,
 		MENU_ResourcePrices,
 		MENU_WorldEconomy,
+
+		// Support menus
 		MENU_Settings,
 		MENU_Credits,
-
-		MENU_Quit,
+		MENU_Quit
 	};
 }
 
@@ -53,6 +59,7 @@ struct FFlareMenuParameterData
 		: Company(NULL)
 		, Factory(NULL)
 		, Fleet(NULL)
+		, Quest(NULL)
 		, Route(NULL)
 		, Sector(NULL)
 		, Spacecraft(NULL)
@@ -63,6 +70,7 @@ struct FFlareMenuParameterData
 	class UFlareCompany*                        Company;
 	class UFlareFactory*                        Factory;
 	class UFlareFleet*                          Fleet;
+	class UFlareQuest*                          Quest;
 	class UFlareTradeRoute*                     Route;
 	class UFlareSimulatedSector*                Sector;
 	class UFlareSimulatedSpacecraft*            Spacecraft;

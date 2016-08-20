@@ -19,6 +19,7 @@ class SFlareNewGameMenu;
 class SFlareStoryMenu;
 class SFlareShipMenu;
 class SFlareFleetMenu;
+class SFlareQuestMenu;
 class SFlareOrbitalMenu;
 class SFlareLeaderboardMenu;
 class SFlareCompanyMenu;
@@ -164,6 +165,9 @@ protected:
 	/** Show the fleet menu */
 	void OpenFleetMenu();
 
+	/** Show the quest menu */
+	void OpenQuestMenu();
+
 	/** Open the sector menu */
 	void OpenSector();
 
@@ -277,6 +281,7 @@ protected:
 	TSharedPtr<SFlareStoryMenu>             StoryMenu;
 	TSharedPtr<SFlareShipMenu>              ShipMenu;
 	TSharedPtr<SFlareFleetMenu>             FleetMenu;
+	TSharedPtr<SFlareQuestMenu>             QuestMenu;
 	TSharedPtr<SFlareOrbitalMenu>           OrbitMenu;
 	TSharedPtr<SFlareLeaderboardMenu>       LeaderboardMenu;
 	TSharedPtr<SFlareCompanyMenu>           CompanyMenu;

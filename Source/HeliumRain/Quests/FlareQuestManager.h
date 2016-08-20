@@ -174,6 +174,11 @@ protected:
 		return SelectedQuest;
 	}
 
+	inline TArray<UFlareQuest*>& GetActiveQuests()
+	{
+		return ActiveQuests;
+	}
+
 	bool IsQuestActive(FName QuestIdentifier);
 
 	bool IsQuestSuccesfull(FName QuestIdentifier);

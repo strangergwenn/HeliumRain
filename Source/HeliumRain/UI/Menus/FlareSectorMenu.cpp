@@ -30,7 +30,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 
 		// UI container
 		+ SVerticalBox::Slot()
-		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		[
 			SNew(SVerticalBox)
