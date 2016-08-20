@@ -560,7 +560,7 @@ void SFlareShipMenu::UpdateUpgradeBox()
 		.HAlign(HAlign_Left)
 		[
 			SNew(SFlareButton)
-			.Width(10)
+			.Width(12)
 			.Text(ProductionCost)
 			.Icon(FFlareStyleSet::GetIcon("Travel"))
 			.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked)
