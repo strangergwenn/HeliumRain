@@ -746,6 +746,12 @@ void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewSt
 			FFlareMenuParameterData Data;
 			Data.Sector = TargetSector;
 			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Data);
+
+			MenuManager->GetPC()->Notify(
+				LOCTEXT("StationBuilt", "Station ordered"),
+				LOCTEXT("StationBuiltInfo", "Your new station is being transferred to this sector, it will be visible the next time you come here."),
+				"station-built",
+				EFlareNotification::NT_Economy);
 		}
 	}
 }
