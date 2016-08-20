@@ -225,6 +225,9 @@ public:
 	/** Which menu, if any, is opened ? */
 	EFlareMenu::Type GetCurrentMenu() const;
 
+	/** Which menu, if any, is coming next ? */
+	EFlareMenu::Type GetNextMenu() const;
+
 	/** Get the PC */
 	AFlarePlayerController* GetPC() const;
 

@@ -107,8 +107,7 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 
 	// Don't show notifications in story menu
 	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story
-	 || MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main
-	 || MenuManager->GetCurrentMenu() == EFlareMenu::MENU_NewGame)
+		|| MenuManager->GetNextMenu() == EFlareMenu::MENU_Story)
 	{
 		NotificationContainer->SetVisibility(EVisibility::Hidden);
 	}

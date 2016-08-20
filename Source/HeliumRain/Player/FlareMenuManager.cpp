@@ -841,6 +841,11 @@ EFlareMenu::Type AFlareMenuManager::GetCurrentMenu() const
 	return CurrentMenu.Key;
 }
 
+EFlareMenu::Type AFlareMenuManager::GetNextMenu() const
+{
+	return NextMenu.Key;
+}
+
 AFlareGame* AFlareMenuManager::GetGame() const
 {
 	return GetPC()->GetGame();

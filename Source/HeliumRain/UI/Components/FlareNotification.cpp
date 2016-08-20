@@ -135,7 +135,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 								.AutoHeight()
 								.HAlign(HAlign_Left)
 								.VAlign(VAlign_Center)
-								.Padding(NotificatioNWidth - 50, Theme.SmallContentPadding.Top, Theme.SmallContentPadding.Right, Theme.SmallContentPadding.Bottom)
+								.Padding(NotificatioNWidth - 55, Theme.SmallContentPadding.Top, Theme.SmallContentPadding.Right, Theme.SmallContentPadding.Bottom)
 								[
 									SNew(SHorizontalBox)
 
@@ -223,11 +223,8 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	// Update lifetime only if lifetime is forced or if this the first notification
-	if (Notifier->IsFirstNotification(this) || ForcedLife || Lifetime <= NotificationEnterDuration)
-	{
-		Lifetime += InDeltaTime;
-	}
+	Lifetime += InDeltaTime;
+
 	float Ease = 2;
 	float AnimationTime = NotificationExitDuration / 2;
 	float TimeToFade = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime - 2 * AnimationTime : 2 * AnimationTime);
