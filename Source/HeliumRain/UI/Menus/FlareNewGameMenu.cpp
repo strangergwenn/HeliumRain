@@ -43,68 +43,10 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
+	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main))
-			]
-
-			// Title
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("NewGame", "NEW GAME"))
-			]
-
-			// Close
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Back", "Back"))
-				.HelpText(LOCTEXT("CancelInfo", "Cancel and go back to the main menu"))
-				.Icon(FFlareStyleSet::GetIcon("Back_Button"))
-				.OnClicked(this, &SFlareNewGameMenu::OnExit)
-			]
-		]
-
-		// Separator
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(200, 20))
-		[
-			SNew(SImage).Image(&Theme.SeparatorBrush)
-		]
-
-		// Info
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		.HAlign(HAlign_Center)
-		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("NewGameHint", "Please describe your company."))
-			.TextStyle(&Theme.SubTitleFont)
-		]
-
+		
 		// Main form
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -263,13 +205,6 @@ TSharedRef<SWidget> SFlareNewGameMenu::OnGenerateComboLine(TSharedPtr<FString> I
 void SFlareNewGameMenu::OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo)
 {
 }
-
-void SFlareNewGameMenu::OnExit()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
-}
-
-
 
 
 #undef LOCTEXT_NAMESPACE

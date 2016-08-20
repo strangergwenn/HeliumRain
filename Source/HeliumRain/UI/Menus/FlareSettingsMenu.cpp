@@ -46,56 +46,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
+	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main))
-			]
-
-			// Title
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("Settings", "SETTINGS"))
-			]
-
-			// Close
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Back", "Back"))
-				.HelpText(LOCTEXT("BackInfo", "Go back to the main menu"))
-				.Icon(FFlareStyleSet::GetIcon("Back_Button"))
-				.OnClicked(this, &SFlareSettingsMenu::OnExit)
-			]
-		]
-
-		// Separator
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(200, 20))
-		[
-			SNew(SImage).Image(&Theme.SeparatorBrush)
-		]
 
 		// Main form
 		+ SVerticalBox::Slot()
@@ -109,18 +62,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			+ SScrollBox::Slot()
 			[
 				SNew(SVerticalBox)
-
-				// Help
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Left)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(LOCTEXT("AutoApply", "Changes will be applied and saved automatically."))
-				]
-
+				
 				// Title
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -909,18 +851,6 @@ void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSh
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 	BindingThatChanged->WriteBind();
 	InputSettings->SaveKeyMappings();
-}
-
-void SFlareSettingsMenu::OnExit()
-{
-	if (MenuManager->HasPreviousMenu())
-	{
-		MenuManager->Back();
-	}
-	else
-	{
-		MenuManager->CloseMenu();
-	}
 }
 
 

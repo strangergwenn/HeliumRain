@@ -58,7 +58,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 						// Title icon
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.VAlign(VAlign_Top)
+						.VAlign(VAlign_Center)
 						[
 							SNew(SImage)
 							.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)
@@ -78,15 +78,6 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 								SNew(STextBlock)
 								.TextStyle(&Theme.TitleFont)
 								.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
-							]
-
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(this, &SFlareMainOverlay::GetSpacecraftInfo)
 							]
 
 							+ SVerticalBox::Slot()
@@ -123,19 +114,33 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		]
 	];
 
-	// Add menus
+	// Add general gameplay menus
 	AddMenuLink(EFlareMenu::MENU_Ship);
 	AddMenuLink(EFlareMenu::MENU_Sector);
 	AddMenuLink(EFlareMenu::MENU_Orbit);
 	AddMenuLink(EFlareMenu::MENU_Leaderboard);
 	AddMenuLink(EFlareMenu::MENU_Company);
 	AddMenuLink(EFlareMenu::MENU_Fleet);
-	AddMenuLink(EFlareMenu::MENU_Settings);
 	AddMenuLink(EFlareMenu::MENU_Main);
-
+	
+	// Settings
+	TSharedPtr<SFlareButton> SettingsButton;
+	MenuList->AddSlot()
+	.HAlign(HAlign_Right)
+	[
+		SAssignNew(SettingsButton, SFlareButton)
+		.Width(TitleButtonWidth)
+		.Height(TitleButtonHeight)
+		.Transparent(true)
+		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, EFlareMenu::MENU_Settings)
+	];
+	SetupMenuLink(SettingsButton, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings), AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Settings), false);
+	
+	// Back, exit
 	TSharedPtr<SFlareButton> BackButton;
 	TSharedPtr<SFlareButton> ExitButton;
 	MenuList->AddSlot()
+	.AutoWidth()
 	.HAlign(HAlign_Right)
 	[
 		SNew(SVerticalBox)
@@ -161,6 +166,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 			.Height(TitleButtonHeight / 2)
 			.Transparent(true)
 			.OnClicked(this, &SFlareMainOverlay::OnCloseMenu)
+			.IsDisabled(this, &SFlareMainOverlay::IsCloseDisabled)
 		]
 	];
 
@@ -207,13 +213,14 @@ void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
 	// Create button
 	MenuList->AddSlot()
 	.AutoWidth()
-	.HAlign(HAlign_Left)
+	.HAlign(HAlign_Right)
 	[
 		SAssignNew(Button, SFlareButton)
 		.Width(TitleButtonWidth)
 		.Height(TitleButtonHeight)
 		.Transparent(true)
 		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
+		.Visibility(this, &SFlareMainOverlay::GetGameButtonVisibility)
 	];
 
 	// Fill button contents
@@ -318,9 +325,42 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	}
 }
 
+EVisibility SFlareMainOverlay::GetGameButtonVisibility() const
+{
+	if (MenuManager->GetPC()->GetShipPawn())
+	{
+		return EVisibility::Visible;
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_NewGame
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Settings
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Credits
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story)
+	{
+		return EVisibility::Hidden;
+	}
+	else
+	{
+		return EVisibility::Visible;
+	}
+}
+
 bool SFlareMainOverlay::IsBackDisabled() const
 {
 	return (MenuManager->HasPreviousMenu() == false);
+}
+
+bool SFlareMainOverlay::IsCloseDisabled() const
+{
+	if (MenuManager->GetPC()->GetPlayerShip() && MenuManager->GetPC()->GetPlayerShip()->GetActive())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 FText SFlareMainOverlay::GetCurrentMenuName() const
@@ -351,38 +391,37 @@ const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
 	}
 }
 
-FText SFlareMainOverlay::GetSpacecraftInfo() const
-{
-	AFlarePlayerController* PC = MenuManager->GetPC();
-
-	if (MenuManager->IsMenuOpen() && MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None)
-	{
-		return FText();
-	}
-	else if (PC->GetShipPawn())
-	{
-		return PC->GetShipPawn()->GetShipStatus();
-	}
-	else
-	{
-		return LOCTEXT("FastForwarding", "Fast forwarding...");
-	}
-
-	return FText();
-}
-
 FText SFlareMainOverlay::GetPlayerInfo() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	if (MenuManager->IsMenuOpen() && MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None)
+	if (PC->GetShipPawn())
+	{
+		return FText::Format(LOCTEXT("PlayerInfoFormat", "{0}\n{1} credits available"),
+			PC->GetShipPawn()->GetShipStatus(),
+			FText::AsNumber(PC->GetCompany()->GetMoney() / 100));
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	{
+		return LOCTEXT("SaveSlotHint", "Pick a save slot to start the game");
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_NewGame)
+	{
+		return LOCTEXT("NewGameHint", "Please describe your company");
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Settings)
+	{
+		return LOCTEXT("SettingsHint", "Changes will be applied and saved automatically");
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Credits
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story)
 	{
 		return FText();
 	}
-	else if (PC->GetCompany())
+	else
 	{
-		return FText::Format(LOCTEXT("PlayerMoneyFormat", "{0} credits available"),
-			FText::AsNumber(PC->GetCompany()->GetMoney() / 100));
+		return LOCTEXT("FastForwarding", "Fast forwarding...");
 	}
 
 	return FText();

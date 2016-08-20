@@ -115,8 +115,6 @@ protected:
 
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
 
-	/** Exit this menu */
-	void OnExit();
 
 	/*----------------------------------------------------
 		Helpers

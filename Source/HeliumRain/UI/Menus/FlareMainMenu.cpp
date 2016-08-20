@@ -27,82 +27,10 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
+	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Icon
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SImage).Image(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main))
-			]
-
-			// Title
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TitleFont)
-				.Text(LOCTEXT("MainMenu", "HELIUM RAIN"))
-			]
-
-			// Settings
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Settings", "Settings"))
-				.HelpText(LOCTEXT("SettingsInfo", "Open the system settings"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings, true))
-				.OnClicked(this, &SFlareMainMenu::OnOpenSettings)
-			]
-
-			// Quit
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.Padding(Theme.TitleButtonPadding)
-			.AutoWidth()
-			[
-				SNew(SFlareRoundButton)
-				.Text(LOCTEXT("Quit", "Quit game"))
-				.HelpText(LOCTEXT("QuitInfo", "Quit the game and go back to the OS desktop"))
-				.Icon(AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Quit, true))
-				.OnClicked(this, &SFlareMainMenu::OnQuitGame)
-			]
-		]
-
-		// Separator
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(FMargin(200, 20))
-		[
-			SNew(SImage).Image(&Theme.SeparatorBrush)
-		]
-
-		// Info
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		.HAlign(HAlign_Center)
-		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("SaveSlotHint", "Pick a save slot to start the game."))
-			.TextStyle(&Theme.SubTitleFont)
-		]
-
+		
 		// Save slots
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -241,9 +169,7 @@ void SFlareMainMenu::Enter()
 
 	Game->UnloadGame();
 	Game->ReadAllSaveSlots();
-
-	MenuManager->CloseMainOverlay();
-
+	
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 }
@@ -334,20 +260,10 @@ void SFlareMainMenu::OnDeleteSlotConfirmed()
 	}
 }
 
-void SFlareMainMenu::OnOpenSettings()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
-}
 void SFlareMainMenu::OnOpenCredits()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Credits);
 }
-
-void SFlareMainMenu::OnQuitGame()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
-}
-
 
 #undef LOCTEXT_NAMESPACE
 

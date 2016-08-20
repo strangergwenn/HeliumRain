@@ -582,7 +582,7 @@ void AFlareMenuManager::ReloadSector()
 
 void AFlareMenuManager::OpenMainMenu()
 {
-	OnEnterMenu(true, false);
+	OnEnterMenu(true);
 	GetPC()->ExitShip();
 	GetPC()->GetGame()->SaveGame(GetPC(), false);
 	MainMenu->Enter();
@@ -590,13 +590,13 @@ void AFlareMenuManager::OpenMainMenu()
 
 void AFlareMenuManager::OpenSettingsMenu()
 {
-	OnEnterMenu(true, false);
+	OnEnterMenu(true);
 	SettingsMenu->Enter();
 }
 
 void AFlareMenuManager::OpenNewGameMenu()
 {
-	OnEnterMenu(true, false);
+	OnEnterMenu(true);
 	NewGameMenu->Enter();
 }
 
@@ -753,7 +753,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 	switch (MenuType)
 	{
 		case EFlareMenu::MENU_None:           Name = LOCTEXT("NoneMenuName", "");                          break;
-		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Save & quit");               break;
+		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Load game");                 break;
 		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New game");               break;
 		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
 		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Leaderboard");        break;
@@ -776,7 +776,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 	return Name;
 }
 
-const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion)
+const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType)
 {
 	FString Path;
 
@@ -801,11 +801,6 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType, boo
 		case EFlareMenu::MENU_Quit:           Path = "Quit";         break;
 		case EFlareMenu::MENU_FlyShip:        Path = "Close";        break;
 		default:                              Path = "Empty";
-	}
-
-	if (ButtonVersion)
-	{
-		Path += "_Button";
 	}
 
 	return FFlareStyleSet::GetIcon(Path);

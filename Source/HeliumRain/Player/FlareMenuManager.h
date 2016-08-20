@@ -202,7 +202,7 @@ public:
 	static FText GetMenuName(EFlareMenu::Type MenuType);
 
 	/** Get the Slate icon brush for this menu */
-	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType, bool ButtonVersion = false);
+	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType);
 
 	/** Is UI visible */
 	bool IsUIOpen() const;

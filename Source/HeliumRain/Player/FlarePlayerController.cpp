@@ -1279,11 +1279,6 @@ UFlareSimulatedSpacecraft* AFlarePlayerController::GetPlayerShip()
 		Result = GameWorld->FindSpacecraft(PlayerData.LastFlownShipIdentifier);
 	}
 
-	if (!Result)
-	{
-		FLOG("AFlarePlayerController::GetPlayerShip : no player ship !");
-	}
-
 	return Result;
 }
 

@@ -58,10 +58,7 @@ protected:
 
 	/** Combo line selection changed */
 	void OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo);
-
-	/** Exit this menu */
-	void OnExit();
-
+	
 
 protected:
 

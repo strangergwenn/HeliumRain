@@ -57,18 +57,21 @@ public:
 	
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 	
+	/** Are the main buttons visible */
+	EVisibility GetGameButtonVisibility() const;
+
 	/** Can we go back */
 	bool IsBackDisabled() const;
+
+	/** Can we close the overlay */
+	bool IsCloseDisabled() const;
 
 	/** Get the name of the current menu */
 	FText GetCurrentMenuName() const;
 
 	/** Get the icon of the current menu */
 	const FSlateBrush* GetCurrentMenuIcon() const;
-
-	/** Get the spacecraft info text */
-	FText GetSpacecraftInfo() const;
-
+	
 	/** Get the player info text */
 	FText GetPlayerInfo() const;
 
