@@ -484,7 +484,10 @@ void AFlarePlayerController::Clean()
 	TimeSinceWeaponSwitch = 0;
 
 	LastBattleState = EFlareSectorBattleState::NoBattle;
+
+	MenuManager->FlushNotifications();
 }
+
 
 /*----------------------------------------------------
 	Menus

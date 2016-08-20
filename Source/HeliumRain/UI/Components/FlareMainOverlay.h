@@ -66,6 +66,9 @@ public:
 	/** Can we close the overlay */
 	bool IsCloseDisabled() const;
 
+	/** Get icon for the close button */
+	const FSlateBrush* GetCloseIcon() const;
+
 	/** Get the name of the current menu */
 	FText GetCurrentMenuName() const;
 

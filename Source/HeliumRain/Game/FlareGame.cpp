@@ -700,6 +700,10 @@ void AFlareGame::UnloadGame()
 	}
 
 	Clean();
+	if (GetPC())
+	{
+		GetPC()->Clean();
+	}
 }
 
 void AFlareGame::Clean()
@@ -712,6 +716,7 @@ void AFlareGame::Clean()
 
 	CurrentImmatriculationIndex = 0;
 }
+
 
 /*----------------------------------------------------
 	Level streaming

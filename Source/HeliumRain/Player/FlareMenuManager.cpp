@@ -301,6 +301,14 @@ void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotifica
 	}
 }
 
+void AFlareMenuManager::FlushNotifications()
+{
+	if (MainOverlay.IsValid())
+	{
+		Notifier->FlushNotifications();
+	}
+}
+
 void AFlareMenuManager::ShowTooltip(SWidget* TargetWidget, FText Title, FText Content)
 {
 	if (Tooltip.IsValid() && !IsFading())
@@ -410,14 +418,6 @@ void AFlareMenuManager::ProcessNextMenu()
 	if (GetPC()->GetNavHUD())
 	{
 		GetPC()->GetNavHUD()->UpdateHUDVisibility();
-	}
-}
-
-void AFlareMenuManager::FlushNotifications()
-{
-	if (MainOverlay.IsValid())
-	{
-		Notifier->FlushNotifications();
 	}
 }
 

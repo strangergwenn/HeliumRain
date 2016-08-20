@@ -170,8 +170,27 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		]
 	];
 
+	// Back, exit config
 	SetupMenuLink(BackButton, FFlareStyleSet::GetIcon("Back"), FText(), true);
-	SetupMenuLink(ExitButton, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_FlyShip), FText(), true);
+	ExitButton->GetContainer()->SetHAlign(HAlign_Center);
+	ExitButton->GetContainer()->SetVAlign(VAlign_Fill);
+	ExitButton->GetContainer()->SetPadding(FMargin(0, 5));
+	ExitButton->GetContainer()->SetContent(
+		SNew(SVerticalBox)
+
+		// Icon
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		[
+			SNew(SBox)
+			.WidthOverride(64)
+			.HeightOverride(64)
+			[
+				SNew(SImage)
+				.Image(this, &SFlareMainOverlay::GetCloseIcon)
+			]
+		]);
 
 	// Init
 	Close();
@@ -353,13 +372,29 @@ bool SFlareMainOverlay::IsBackDisabled() const
 
 bool SFlareMainOverlay::IsCloseDisabled() const
 {
-	if (MenuManager->GetPC()->GetPlayerShip() && MenuManager->GetPC()->GetPlayerShip()->GetActive())
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	{
+		return false;
+	}
+	else if (MenuManager->GetPC()->GetShipPawn())
 	{
 		return false;
 	}
 	else
 	{
 		return true;
+	}
+}
+
+const FSlateBrush* SFlareMainOverlay::GetCloseIcon() const
+{
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	{
+		return FFlareStyleSet::GetIcon("Quit");
+	}
+	else
+	{
+		return FFlareStyleSet::GetIcon("Close");
 	}
 }
 
@@ -439,7 +474,11 @@ void SFlareMainOverlay::OnBack()
 
 void SFlareMainOverlay::OnCloseMenu()
 {
-	if (MenuManager->IsMenuOpen())
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	{
+		MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
+	}
+	else if (MenuManager->IsMenuOpen())
 	{
 		MenuManager->CloseMenu();
 	}

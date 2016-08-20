@@ -85,7 +85,10 @@ public:
 
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Objective, bool Pinned = false, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
-	
+
+	/** Remove all notifications from the screen */
+	void FlushNotifications();
+
 	/** Show the confirmation overlay */
 	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed);
 
@@ -113,9 +116,6 @@ protected:
 	
 	/** After a fading process has completed, proceed */
 	void ProcessNextMenu();
-
-	/** Remvoe all notifications from the screen */
-	void FlushNotifications();
 
 	/** Target menu was correctly entered */
 	void OnEnterMenu(bool LightBackground = true, bool ShowOverlay = true, bool TellPlayer = true);
