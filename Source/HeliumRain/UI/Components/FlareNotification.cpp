@@ -80,6 +80,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 							SNew(SBorder)
 							.BorderImage(&Theme.BackgroundBrush)
 							.BorderBackgroundColor(this, &SFlareNotification::GetNotificationBackgroundColor)
+							.Padding(Theme.SmallContentPadding)
 							[
 								SNew(SVerticalBox)
 
@@ -92,7 +93,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 									// Title
 									+ SHorizontalBox::Slot()
 									.HAlign(HAlign_Fill)
-									.Padding(Theme.ContentPadding)
+									.Padding(Theme.SmallContentPadding)
 									[
 										SNew(STextBlock)
 										.Text(InArgs._Text)
@@ -120,7 +121,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 								// Info
 								+ SVerticalBox::Slot()
 								.AutoHeight()
-								.Padding(Theme.ContentPadding)
+								.Padding(Theme.SmallContentPadding)
 								[
 									SNew(STextBlock)
 									.Text(InArgs._Info)

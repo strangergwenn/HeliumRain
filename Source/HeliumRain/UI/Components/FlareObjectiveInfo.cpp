@@ -20,7 +20,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 	LastObjectiveVersion = -1;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 ObjectiveInfoWidth = 400;
-	int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
+	int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.SmallContentPadding.Left - Theme.SmallContentPadding.Right;
 	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
 	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 	
@@ -56,7 +56,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 				SNew(SBox)
 				.WidthOverride(ObjectiveInfoWidth)
 				.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
-				.Padding(Theme.ContentPadding)
+				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(SVerticalBox)
 
@@ -76,6 +76,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 					// Description
 					+ SVerticalBox::Slot()
 					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareObjectiveInfo::GetDescription)
@@ -88,6 +89,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 					// Conditions
 					+ SVerticalBox::Slot()
 					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
 					[
 						SAssignNew(ConditionBox, SVerticalBox)
 					]

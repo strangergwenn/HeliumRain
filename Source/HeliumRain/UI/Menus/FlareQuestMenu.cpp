@@ -47,7 +47,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 				+ SScrollBox::Slot()
 				[
 					SNew(SBox)
-					.WidthOverride(0.7 * Theme.ContentWidth)
+					.WidthOverride(Theme.ContentWidth)
 					[
 						SNew(SVerticalBox)
 
@@ -97,7 +97,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 				+ SScrollBox::Slot()
 				[
 					SNew(SBox)
-					.WidthOverride(0.7 * Theme.ContentWidth)
+					.WidthOverride(Theme.ContentWidth)
 					[
 						SNew(SVerticalBox)
 
