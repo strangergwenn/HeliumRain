@@ -354,7 +354,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				[
 					SNew(STextBlock)
 					.WrapTextAt(0.5 * Theme.ContentWidth)
-					.TextStyle(&Theme.TextFont)
+					.TextStyle(&Theme.NameFont)
 					.Text(StepConditionsText)
 				];
 				
