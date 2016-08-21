@@ -38,15 +38,13 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 	// Load quests
 	for (int QuestIndex = 0; QuestIndex <Game->GetQuestCatalog()->Quests.Num(); QuestIndex++)
 	{
-
 		FFlareQuestDescription* QuestDescription = &(Game->GetQuestCatalog()->Quests[QuestIndex]->Data);
 
+		// Skip tutorial quests.
 		if (QuestDescription->Category == EFlareQuestCategory::TUTORIAL && !QuestData.PlayTutorial)
 		{
-			// Skip tutorial quests.
 			continue;
 		}
-
 
 		// Create the quest
 		UFlareQuest* Quest = NewObject<UFlareQuest>(this, UFlareQuest::StaticClass());
@@ -88,12 +86,12 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 		LoadCallbacks(Quest);
 		Quest->UpdateState();
 	}
+
 	if (!SelectedQuest)
 	{
 		AutoSelectQuest();
 	}
 }
-
 
 FFlareQuestSave* UFlareQuestManager::Save()
 {
@@ -133,8 +131,48 @@ FFlareQuestSave* UFlareQuestManager::Save()
 	return &QuestData;
 }
 
+
 /*----------------------------------------------------
-	Callback
+	Quest management
+----------------------------------------------------*/
+
+void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
+{
+	FLOGV("Select quest %s", *Quest->GetIdentifier().ToString());
+	if (!IsQuestActive(Quest->GetIdentifier()))
+	{
+		FLOGV("ERROR: Fail to select quest %s. The quest to select must be active", *Quest->GetIdentifier().ToString());
+		return;
+	}
+
+	if (SelectedQuest)
+	{
+		SelectedQuest->StopObjectiveTracking();
+	}
+
+	SelectedQuest = Quest;
+	SelectedQuest->StartObjectiveTracking();
+}
+
+void UFlareQuestManager::AutoSelectQuest()
+{
+	if (ActiveQuests.Num()> 1)
+	{
+		SelectQuest(ActiveQuests[0]);
+	}
+	else
+	{
+		if (SelectedQuest)
+		{
+			SelectedQuest->StopObjectiveTracking();
+		}
+		SelectedQuest = NULL;
+	}
+}
+
+
+/*----------------------------------------------------
+	Callbacks
 ----------------------------------------------------*/
 
 void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
@@ -145,25 +183,25 @@ void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 
 	for (int i = 0; i < Callbacks.Num(); i++)
 	{
-		switch(Callbacks[i])
+		switch (Callbacks[i])
 		{
-			case EFlareQuestCallback::FLY_SHIP:
-				FlyShipCallback.Add(Quest);
-				break;
-			case EFlareQuestCallback::TICK_FLYING:
-				TickFlyingCallback.Add(Quest);
-				break;
-			case EFlareQuestCallback::SECTOR_VISITED:
-				SectorVisitedCallback.Add(Quest);
-				break;
-			case EFlareQuestCallback::SECTOR_ACTIVE:
-				SectorActiveCallback.Add(Quest);
-				break;
-			case EFlareQuestCallback::QUEST:
-				QuestCallback.Add(Quest);
-				break;
-			default:
-				FLOGV("Bad callback type %d for quest %s", (int) (Callbacks[i] + 0), *Quest->GetIdentifier().ToString());
+		case EFlareQuestCallback::FLY_SHIP:
+			FlyShipCallback.Add(Quest);
+			break;
+		case EFlareQuestCallback::TICK_FLYING:
+			TickFlyingCallback.Add(Quest);
+			break;
+		case EFlareQuestCallback::SECTOR_VISITED:
+			SectorVisitedCallback.Add(Quest);
+			break;
+		case EFlareQuestCallback::SECTOR_ACTIVE:
+			SectorActiveCallback.Add(Quest);
+			break;
+		case EFlareQuestCallback::QUEST:
+			QuestCallback.Add(Quest);
+			break;
+		default:
+			FLOGV("Bad callback type %d for quest %s", (int)(Callbacks[i] + 0), *Quest->GetIdentifier().ToString());
 		}
 	}
 }
@@ -210,7 +248,6 @@ void UFlareQuestManager::OnSectorVisited(UFlareSimulatedSector* Sector)
 	}
 }
 
-
 void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
 {
 	LoadCallbacks(Quest);
@@ -224,7 +261,7 @@ void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
 void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 {
 	FLOGV("Quest %s is now successful", *Quest->GetIdentifier().ToString())
-	ActiveQuests.Remove(Quest);
+		ActiveQuests.Remove(Quest);
 	OldQuests.Add(Quest);
 
 	// Quest successful notification
@@ -247,7 +284,7 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 {
 	FLOGV("Quest %s is now failed", *Quest->GetIdentifier().ToString())
-	ActiveQuests.Remove(Quest);
+		ActiveQuests.Remove(Quest);
 	OldQuests.Add(Quest);
 
 	// Quest failed notification
@@ -268,7 +305,7 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 {
 	FLOGV("Quest %s is now active", *Quest->GetIdentifier().ToString())
-	AvailableQuests.Remove(Quest);
+		AvailableQuests.Remove(Quest);
 	ActiveQuests.Add(Quest);
 
 	// New quest notification
@@ -284,46 +321,6 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 		SelectQuest(Quest);
 	}
 	OnQuestStatusChanged(Quest);
-}
-
-
-/*----------------------------------------------------
-	Quest management
-----------------------------------------------------*/
-
-void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
-{
-	FLOGV("Select quest %s", *Quest->GetIdentifier().ToString());
-	if (!IsQuestActive(Quest->GetIdentifier()))
-	{
-		FLOGV("ERROR: Fail to select quest %s. The quest to select must be active", *Quest->GetIdentifier().ToString());
-		return;
-	}
-
-	if (SelectedQuest)
-	{
-		SelectedQuest->StopObjectiveTracking();
-	}
-
-	SelectedQuest = Quest;
-	SelectedQuest->StartObjectiveTracking();
-}
-
-void UFlareQuestManager::AutoSelectQuest()
-{
-	if (ActiveQuests.Num()> 1)
-	{
-		SelectQuest(ActiveQuests[0]);
-	}
-	else
-	{
-		if (SelectedQuest)
-		{
-			SelectedQuest->StopObjectiveTracking();
-		}
-		SelectedQuest = NULL;
-	}
-
 }
 
 

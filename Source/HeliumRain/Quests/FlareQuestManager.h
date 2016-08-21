@@ -5,6 +5,7 @@
 class UFlareQuest;
 class AFlareGame;
 class AFlareSpacecraft;
+struct FFlareQuestDescription;
 
 
 /** Quest callback type */
@@ -20,9 +21,6 @@ namespace EFlareQuestCallback
 		QUEST // Trig when a quest status change
 	};
 }
-
-
-
 
 /** Quest current step status save data */
 USTRUCT()
@@ -98,6 +96,18 @@ public:
 	/** Save the quests status to a save file */
 	virtual FFlareQuestSave* Save();
 
+
+	/*----------------------------------------------------
+		Quest management
+	----------------------------------------------------*/
+		
+	/** Select this quest */
+	void SelectQuest(UFlareQuest* Quest);
+
+	/** Auto select a quest */
+	void AutoSelectQuest();
+
+
    /*----------------------------------------------------
 	   Callback
    ----------------------------------------------------*/
@@ -123,14 +133,6 @@ public:
 	virtual void OnQuestActivation(UFlareQuest* Quest);
 
 
-	/*----------------------------------------------------
-		Quest management
-	----------------------------------------------------*/
-
-	virtual void SelectQuest(UFlareQuest* Quest);
-
-	virtual void AutoSelectQuest();
-
 protected:
 
    /*----------------------------------------------------
@@ -138,27 +140,27 @@ protected:
    ----------------------------------------------------*/
 
 	UPROPERTY()
-	TArray<UFlareQuest*>	AvailableQuests;
+	TArray<UFlareQuest*>	                 AvailableQuests;
 
 	UPROPERTY()
-	TArray<UFlareQuest*>	ActiveQuests;
+	TArray<UFlareQuest*>	                 ActiveQuests;
 
 	UPROPERTY()
-	TArray<UFlareQuest*>	OldQuests;
-
-	UFlareQuest*			SelectedQuest;
+	TArray<UFlareQuest*>	                 OldQuests;
+	
+	UFlareQuest*			                 SelectedQuest;
 	// TODO Use map structure
-	TArray<UFlareQuest*>	FlyShipCallback;
-	TArray<UFlareQuest*>	SectorVisitedCallback;
-	TArray<UFlareQuest*>	SectorActiveCallback;
-	TArray<UFlareQuest*>	TickFlyingCallback;
-	TArray<UFlareQuest*>	QuestCallback;
+	TArray<UFlareQuest*>	                 FlyShipCallback;
+	TArray<UFlareQuest*>	                 SectorVisitedCallback;
+	TArray<UFlareQuest*>	                 SectorActiveCallback;
+	TArray<UFlareQuest*>	                 TickFlyingCallback;
+	TArray<UFlareQuest*>	                 QuestCallback;
 
-	FFlareQuestSave			QuestData;
+	FFlareQuestSave			                 QuestData;
 
-	AFlareGame*             Game;
+	AFlareGame*                              Game;
 
-	public:
+public:
 
 	/*----------------------------------------------------
 		Getters
