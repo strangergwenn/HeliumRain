@@ -151,6 +151,14 @@ void UFlareQuest::NextStep()
 			CurrentStepDescription = &QuestDescription->Steps[StepIndex];
 			FLOGV("Quest %s step %s begin", *GetIdentifier().ToString(), *CurrentStepDescription->Identifier.ToString());
 			PerformActions(CurrentStepDescription->InitActions);
+
+			// Notify message only when it's different than previous step
+			if (StepIndex == 0 || QuestDescription->Steps[StepIndex - 1].StepDescription.ToString() != CurrentStepDescription->StepDescription.ToString())
+			{
+				FText MessageText = FormatTags(CurrentStepDescription->StepDescription);
+				SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
+			}
+
 			QuestManager->LoadCallbacks(this);
 			UpdateState();
 			return;
@@ -463,14 +471,14 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 		break;
 	}
 	case EFlareQuestAction::PRINT_MESSAGE:
-		for (int i = 0; i < Action->MessagesParameter.Num(); i++)
-		{
-			//Replace tags in quests text
-			FText MessageText = FormatTags(Action->MessagesParameter[i].MessageText);
 
-			SendQuestNotification(MessageText, FName(*(FString("quest-")+GetIdentifier().ToString()+"-message")));
+		// Replace tags in quests text
+		{
+			FText MessageText = FormatTags(Action->MessagesParameter);
+			SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
 		}
 		break;
+
 	default:
 		FLOGV("ERROR: PerformAction not implemented for action type %d", (int)(Action->Type +0));
 		break;
@@ -704,7 +712,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			FText ReachSpeedShortText = LOCTEXT("ReachMaxSpeedShortFormat", "{0} m/s");
 
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(Condition->FloatParam1)));
+			ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(-Condition->FloatParam1)));
 			ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Velocity)));
 			ObjectiveCondition.Counter = 0;
 			ObjectiveCondition.MaxCounter = 0;

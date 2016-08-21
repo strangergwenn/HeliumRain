@@ -135,20 +135,6 @@ struct FFlareSharedQuestCondition
 
 };
 
-/** Quest message */
-USTRUCT()
-struct FFlareQuestMessage
-{
-	GENERATED_USTRUCT_BODY()
-		
-	UPROPERTY(EditAnywhere, Category = Quest)
-	FText MessageText;
-
-	UPROPERTY(EditAnywhere, Category = Quest)
-	bool WaitAck;
-};
-
-
 /** Quest condition */
 USTRUCT()
 struct FFlareQuestActionDescription
@@ -161,9 +147,8 @@ struct FFlareQuestActionDescription
 	FName Identifier1;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
-	TArray<FFlareQuestMessage> MessagesParameter;
+	FText MessagesParameter;
 };
-
 
 /** Quest step */
 USTRUCT()
@@ -172,6 +157,9 @@ struct FFlareQuestStepDescription
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(EditAnywhere, Category = Quest)
 	FName Identifier;
+
+	UPROPERTY(EditAnywhere, Category = Quest)
+	FText StepDescription;
 
 	/** End conditions */
 	UPROPERTY(EditAnywhere, Category = Quest)
