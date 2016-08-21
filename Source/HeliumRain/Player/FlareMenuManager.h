@@ -242,7 +242,7 @@ public:
 	TSharedPtr<SFlareShipMenu> GetShipMenu() const;
 
 	/** Get the height of the main overlay */
-	static int32 GetMainOverlayHeight() const;
+	static int32 GetMainOverlayHeight();
 
 	/** Get the menu manager */
 	static AFlareMenuManager* GetSingleton();

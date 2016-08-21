@@ -920,7 +920,7 @@ TSharedPtr<SFlareShipMenu> AFlareMenuManager::GetShipMenu() const
 	return ShipMenu;
 }
 
-int32 AFlareMenuManager::GetMainOverlayHeight() const
+int32 AFlareMenuManager::GetMainOverlayHeight()
 {
 	return 150;
 }
