@@ -50,6 +50,20 @@ protected:
 	/** Show all steps for the current quest */
 	void FillQuestDetails();
 
+	/** Add a quest detail line */
+	TSharedPtr<SVerticalBox> AddQuestDetail(int32 QuestIndex);
+
+
+	/*----------------------------------------------------
+		Content callbacks
+	----------------------------------------------------*/
+
+	/** Get the active quest title */
+	FText GetActiveQuestTitle() const;
+
+	/** Get the active quest description */
+	FText GetActiveQuestDescription() const;
+
 
 	/*----------------------------------------------------
 		Callbacks

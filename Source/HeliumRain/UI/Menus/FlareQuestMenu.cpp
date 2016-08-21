@@ -33,7 +33,6 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 		// Content block
 		+ SVerticalBox::Slot()
 		.VAlign(VAlign_Top)
-		.Padding(Theme.ContentPadding)
 		[
 			SNew(SHorizontalBox)
 
@@ -48,13 +47,13 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 				+ SScrollBox::Slot()
 				[
 					SNew(SBox)
-					.WidthOverride(0.75 * Theme.ContentWidth)
-					.Padding(Theme.ContentPadding)
+					.WidthOverride(0.7 * Theme.ContentWidth)
 					[
 						SNew(SVerticalBox)
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
+						.Padding(Theme.TitlePadding)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
@@ -63,6 +62,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
+						.Padding(Theme.ContentPadding)
 						[
 							SAssignNew(QuestList, SVerticalBox)
 						]
@@ -81,21 +81,22 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 				+ SScrollBox::Slot()
 				[
 					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth)
-					.Padding(Theme.ContentPadding)
+					.WidthOverride(0.7 * Theme.ContentWidth)
 					[
 						SNew(SVerticalBox)
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
+						.Padding(Theme.TitlePadding)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("CurrentQuestTitle", "Tracked quest"))
+							.Text(this, &SFlareQuestMenu::GetActiveQuestTitle)
 						]
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
+						.Padding(Theme.ContentPadding)
 						[
 							SAssignNew(QuestDetails, SVerticalBox)
 						]
@@ -193,7 +194,7 @@ void SFlareQuestMenu::FillQuestList()
 	// No active quest
 	if (ActiveQuests.Num() == 0)
 	{
-		QuestDetails->AddSlot()
+		QuestList->AddSlot()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
@@ -204,10 +205,11 @@ void SFlareQuestMenu::FillQuestList()
 
 void SFlareQuestMenu::FillQuestDetails()
 {
-	QuestDetails->ClearChildren();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	check(QuestManager);
+
+	QuestDetails->ClearChildren();
 
 	// Get active quest
 	UFlareQuest* ActiveQuest = QuestManager->GetSelectedQuest();
@@ -218,13 +220,11 @@ void SFlareQuestMenu::FillQuestDetails()
 
 		// Header
 		QuestDetails->AddSlot()
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(STextBlock)
-			.TextStyle(&Theme.NameFont)
-			.Text(FText::Format(LOCTEXT("QuestTitleFormat", "{0} ({1} / {2})"),
-				ActiveQuest->GetQuestName(),
-				FText::AsNumber(ActiveQuestProgress->SuccessfullSteps.Num() + 1),
-				FText::AsNumber(ActiveQuestDescription->Steps.Num())))
+			.TextStyle(&Theme.TextFont)
+			.Text(ActiveQuestDescription->QuestDescription)
 		];
 
 		// List all quest steps
@@ -232,43 +232,75 @@ void SFlareQuestMenu::FillQuestDetails()
 		for (int32 QuestIndex = 0; QuestIndex < ActiveQuestDescription->Steps.Num(); QuestIndex++)
 		{
 			const FFlareQuestStepDescription& QuestStep = ActiveQuestDescription->Steps[QuestIndex];
+			FFlarePlayerObjectiveData QuestStepData;
+			ActiveQuest->AddConditionObjectives(&QuestStepData, QuestStep.EndConditions);
+
+			// Generate condition text
+			FText StepConditionsText;
+			for (int ConditionIndex = 0; ConditionIndex < QuestStepData.ConditionList.Num(); ConditionIndex++)
+			{
+				StepConditionsText = FText::Format(LOCTEXT("StepConditionFormat", "{0}{1}{2}"),
+					StepConditionsText,
+					(ConditionIndex > 0 ? FText::FromString("\n") : FText()),
+					QuestStepData.ConditionList[ConditionIndex].InitialLabel);
+			}
 
 			// Completed step
 			if (QuestIndex < CompletedSteps)
 			{
-				QuestDetails->AddSlot()
+				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestIndex);
+
+				// Description
+				DetailBox->AddSlot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(FText::Format(LOCTEXT("QuestSuccessfulStepFormat", "{0} - {1} (done)"),
-						FText::AsNumber(QuestIndex + 1),
-						FText::FromName(QuestStep.Identifier)))
+					SNew(SHorizontalBox)
+
+					// Text
+					+ SHorizontalBox::Slot()
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(StepConditionsText)
+					]
+					
+					// Icon
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Right)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("OK"))
+					]
 				];
 			}
 
 			// Current step
 			else if (QuestIndex == CompletedSteps)
 			{
-				QuestDetails->AddSlot()
+				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestIndex);
+				
+				// Description
+				DetailBox->AddSlot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(STextBlock)
+					.WrapTextAt(0.5 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
-					.Text(FText::Format(LOCTEXT("QuestSuccessfulStepFormat", "{0} - {1} (current)"),
-						FText::AsNumber(QuestIndex + 1),
-						FText::FromName(QuestStep.Identifier)))
+					.Text(StepConditionsText)
 				];
-			}
-
-			// Future steps
-			else if (QuestIndex > CompletedSteps)
-			{
-				QuestDetails->AddSlot()
+				
+				// Detailed text
+				DetailBox->AddSlot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(STextBlock)
+					.WrapTextAt(0.5 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
-					.Text(FText::Format(LOCTEXT("QuestSuccessfulStepFormat", "{0} - {1} (todo)"),
-						FText::AsNumber(QuestIndex + 1),
-						FText::FromName(QuestStep.Identifier)))
+					.Text(this, &SFlareQuestMenu::GetActiveQuestDescription)
 				];
 			}
 		}
@@ -284,6 +316,100 @@ void SFlareQuestMenu::FillQuestDetails()
 			.Text(LOCTEXT("NoTrackedQuest", "No tracked quest."))
 		];
 	}
+}
+
+TSharedPtr<SVerticalBox> SFlareQuestMenu::AddQuestDetail(int32 QuestIndex)
+{
+	TSharedPtr<SVerticalBox> Temp;
+
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
+	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
+
+	QuestDetails->AddSlot()
+	.AutoHeight()
+	.Padding(Theme.SmallContentPadding)
+	[
+		SNew(SHorizontalBox)
+
+		// Icon
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SBox)
+			.WidthOverride(40)
+			[
+				SNew(SBorder)
+				.BorderImage(&Theme.InvertedBrush)
+				.BorderBackgroundColor(ObjectiveColor)
+				.Padding(Theme.SmallContentPadding)
+				.HAlign(HAlign_Center)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.NameFont)
+					.Text(FText::AsNumber(QuestIndex + 1))
+				]
+			]
+		]
+
+		// Text
+		+ SHorizontalBox::Slot()
+		[
+			SNew(SBorder)
+			.BorderImage(&Theme.BackgroundBrush)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SAssignNew(Temp, SVerticalBox)
+			]
+		]
+	];
+
+	return Temp;
+}
+
+
+/*----------------------------------------------------
+	Content callbacks
+----------------------------------------------------*/
+
+FText SFlareQuestMenu::GetActiveQuestTitle() const
+{
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	check(QuestManager);
+
+	// Get active quest
+	UFlareQuest* ActiveQuest = QuestManager->GetSelectedQuest();
+	if (ActiveQuest && ActiveQuest->GetCurrentStepDescription())
+	{
+		FFlareQuestProgressSave* ActiveQuestProgress = ActiveQuest->Save();
+		const FFlareQuestDescription* ActiveQuestDescription = ActiveQuest->GetQuestDescription();
+
+		return FText::Format(LOCTEXT("TrackedQuestTitleFormat", "Tracked quest : {0} ({1} / {2})"),
+			ActiveQuest->GetQuestName(),
+			FText::AsNumber(ActiveQuestProgress->SuccessfullSteps.Num() + 1),
+			FText::AsNumber(ActiveQuestDescription->Steps.Num()));
+	}
+	else
+	{
+		return LOCTEXT("TrackedQuestTitleEmpty", "Tracked quest");
+	}
+
+	return FText();
+}
+
+FText SFlareQuestMenu::GetActiveQuestDescription() const
+{
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	check(QuestManager);
+
+	// Get active quest
+	UFlareQuest* ActiveQuest = QuestManager->GetSelectedQuest();
+	if (ActiveQuest && ActiveQuest->GetCurrentStepDescription())
+	{
+		return ActiveQuest->FormatTags(ActiveQuest->GetCurrentStepDescription()->StepDescription);
+	}
+
+	return FText();
 }
 
 
