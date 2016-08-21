@@ -362,14 +362,16 @@ public:
 		return QuestDescription;
 	}
 
-	inline EFlareQuestStatus::Type GetStatus()
+	inline EFlareQuestStatus::Type GetStatus() const
 	{
 		return QuestStatus;
 	}
 
+	FText GetStatusText() const;
+
 	const FFlareSharedQuestCondition* FindSharedCondition(FName SharedConditionIdentifier);
 
-	inline const FFlareQuestStepDescription* GetCurrentStepDescription()
+	inline const FFlareQuestStepDescription* GetCurrentStepDescription() const
 	{
 		return CurrentStepDescription;
 	}

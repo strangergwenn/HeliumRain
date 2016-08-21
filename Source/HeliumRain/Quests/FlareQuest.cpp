@@ -676,6 +676,36 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			}
 			break;
 		}
+
+		case EFlareQuestCondition::FLYING_SHIP:
+		{
+			FFlareSpacecraftDescription* SpacecraftDesc = QuestManager->GetGame()->GetSpacecraftCatalog()->Get(Condition->Identifier1);
+			check(SpacecraftDesc);
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("FlyShipFormat", "Fly a {0}-class ship"), SpacecraftDesc->Name);
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 1;
+			ObjectiveCondition.Progress = (Spacecraft && Spacecraft->GetDescription()->Identifier == Condition->Identifier1) ? 1: 0;
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			break;
+		}
+		case EFlareQuestCondition::SHIP_ALIVE:
+		{
+			UFlareSimulatedSpacecraft* TargetSpacecraft = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(Condition->Identifier1);
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("ShipAliveFormat", "{0} must stay alive"), FText::FromName(Condition->Identifier1));
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 1;
+			ObjectiveCondition.Progress = (TargetSpacecraft && TargetSpacecraft->GetDamageSystem()->IsAlive()) ? 1 : 0;
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			break;
+		}
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
 		{
 			float Velocity = Spacecraft ? FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) : 0;
@@ -842,7 +872,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveCondition.TerminalLabel = FText();
 			ObjectiveCondition.Counter = 0;
 			ObjectiveCondition.MaxCounter = 1;
-			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.Progress = QuestManager->GetGame()->GetPC()->GetCompany()->HasVisitedSector(TargetSector) ? 1 : 0;
 			
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
@@ -857,7 +887,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveCondition.TerminalLabel = FText();
 			ObjectiveCondition.Counter = 0;
 			ObjectiveCondition.MaxCounter = 1;
-			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.Progress = (TargetSector && Spacecraft && TargetSector == Spacecraft->GetParent()->GetCurrentSector()) ? 1 : 0;
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
@@ -1062,6 +1092,19 @@ void UFlareQuest::OnSectorVisited(UFlareSimulatedSector* Sector)
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
+
+FText UFlareQuest::GetStatusText() const
+{
+	switch (QuestStatus)
+	{
+		case EFlareQuestStatus::AVAILABLE:    return LOCTEXT("QuestAvailable", "Available");   break;
+		case EFlareQuestStatus::ACTIVE:       return LOCTEXT("QuestActive", "Active");         break;
+		case EFlareQuestStatus::SUCCESSFUL:   return LOCTEXT("QuestCompleted", "Completed");   break;
+		case EFlareQuestStatus::ABANDONNED:   return LOCTEXT("QuestAbandonned", "Abandonned"); break;
+		case EFlareQuestStatus::FAILED:       return LOCTEXT("QuestFailed", "Failed");         break;
+		default:                              return LOCTEXT("QuestUnknown", "Unknown");       break;
+	}
+}
 
 const FFlareSharedQuestCondition* UFlareQuest::FindSharedCondition(FName SharedConditionIdentifier)
 {
