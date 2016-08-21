@@ -685,9 +685,10 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
 			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("FlyShipFormat", "Fly a {0}-class ship"), SpacecraftDesc->Name);
 			ObjectiveCondition.TerminalLabel = FText();
-			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 0;
+			ObjectiveCondition.Counter = (Spacecraft && Spacecraft->GetDescription()->Identifier == Condition->Identifier1) ? 1 : 0;
 			ObjectiveCondition.MaxCounter = 1;
-			ObjectiveCondition.Progress = (Spacecraft && Spacecraft->GetDescription()->Identifier == Condition->Identifier1) ? 1: 0;
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
@@ -699,9 +700,10 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
 			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("ShipAliveFormat", "{0} must stay alive"), FText::FromName(Condition->Identifier1));
 			ObjectiveCondition.TerminalLabel = FText();
-			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 0;
+			ObjectiveCondition.Counter = (TargetSpacecraft && TargetSpacecraft->GetDamageSystem()->IsAlive()) ? 1 : 0;
 			ObjectiveCondition.MaxCounter = 1;
-			ObjectiveCondition.Progress = (TargetSpacecraft && TargetSpacecraft->GetDamageSystem()->IsAlive()) ? 1 : 0;
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
@@ -720,14 +722,20 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveCondition.MaxCounter = 0;
 
 			FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-			if (ProgressSave)
+			if (ProgressSave) // TODO #402 : investigate why this can be NULL
 			{
 				ObjectiveCondition.MaxProgress = FMath::Abs(ProgressSave->InitialVelocity - Condition->FloatParam1);
 				ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - Condition->FloatParam1);
-				if (Velocity > Condition->FloatParam1)
-				{
-					ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
-				}
+			}
+			else
+			{
+				ObjectiveCondition.MaxProgress = FMath::Abs(Condition->FloatParam1);
+				ObjectiveCondition.Progress = Velocity;
+			}
+
+			if (Velocity > Condition->FloatParam1)
+			{
+				ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
@@ -748,14 +756,20 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveCondition.MaxCounter = 0;
 
 			FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-			if (ProgressSave)
+			if (ProgressSave) // TODO #402 : investigate why this can be NULL
 			{
 				ObjectiveCondition.MaxProgress = FMath::Abs(ProgressSave->InitialVelocity - Condition->FloatParam1);
 				ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - Condition->FloatParam1);
-				if (Velocity < Condition->FloatParam1)
-				{
-					ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
-				}
+			}
+			else
+			{
+				ObjectiveCondition.MaxProgress = Condition->FloatParam1;
+				ObjectiveCondition.Progress = Velocity;
+			}
+
+			if (Velocity < Condition->FloatParam1)
+			{
+				ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
@@ -870,9 +884,10 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
 			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("VisitSectorFormat", "Visit the sector \"{0}\""), TargetSector->GetSectorName());
 			ObjectiveCondition.TerminalLabel = FText();
-			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = 1;
-			ObjectiveCondition.Progress = QuestManager->GetGame()->GetPC()->GetCompany()->HasVisitedSector(TargetSector) ? 1 : 0;
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 0;
+			ObjectiveCondition.Counter = QuestManager->GetGame()->GetPC()->GetCompany()->HasVisitedSector(TargetSector) ? 1 : 0;
+			ObjectiveCondition.MaxCounter = 0;
 			
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
@@ -885,9 +900,10 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
 			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("BeInSectorFormat", "Fly in the sector \"{0}\""), TargetSector->GetSectorName());
 			ObjectiveCondition.TerminalLabel = FText();
-			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 0;
+			ObjectiveCondition.Counter = (TargetSector && Spacecraft && TargetSector == Spacecraft->GetParent()->GetCurrentSector()) ? 1 : 0;
 			ObjectiveCondition.MaxCounter = 1;
-			ObjectiveCondition.Progress = (TargetSector && Spacecraft && TargetSector == Spacecraft->GetParent()->GetCurrentSector()) ? 1 : 0;
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;

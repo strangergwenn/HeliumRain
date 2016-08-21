@@ -915,19 +915,19 @@ AFlarePlayerController* AFlareMenuManager::GetPC() const
 	return Cast<AFlarePlayerController>(GetOwner());
 }
 
-AFlareMenuManager* AFlareMenuManager::GetSingleton()
+TSharedPtr<SFlareShipMenu> AFlareMenuManager::GetShipMenu() const
 {
-	return Singleton;
+	return ShipMenu;
 }
 
-int32 AFlareMenuManager::GetMainOverlayHeight()
+int32 AFlareMenuManager::GetMainOverlayHeight() const
 {
 	return 150;
 }
 
-TSharedPtr<SFlareShipMenu> AFlareMenuManager::GetShipMenu()
+AFlareMenuManager* AFlareMenuManager::GetSingleton()
 {
-	return ShipMenu;
+	return Singleton;
 }
 
 

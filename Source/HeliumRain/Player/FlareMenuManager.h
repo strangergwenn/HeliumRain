@@ -238,14 +238,14 @@ public:
 	/** Get the game */
 	AFlareGame* GetGame() const;
 
-	/** Get the menu manager */
-	static AFlareMenuManager* GetSingleton();
+	/** Get the spacecraft menu */
+	TSharedPtr<SFlareShipMenu> GetShipMenu() const;
 
 	/** Get the height of the main overlay */
-	static int32 GetMainOverlayHeight();
+	static int32 GetMainOverlayHeight() const;
 
-	/** Get the spacecraft menu */
-	TSharedPtr<SFlareShipMenu> GetShipMenu();
+	/** Get the menu manager */
+	static AFlareMenuManager* GetSingleton();
 
 
 protected:

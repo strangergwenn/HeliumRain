@@ -731,7 +731,6 @@ const FFlarePlayerObjective* AFlarePlayerController::GetCurrentObjective() const
 }
 
 
-
 /*----------------------------------------------------
 	Customization
 ----------------------------------------------------*/
