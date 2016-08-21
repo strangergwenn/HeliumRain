@@ -181,6 +181,11 @@ public:
 		return ActiveQuests;
 	}
 
+	inline TArray<UFlareQuest*>& GetPreviousQuests()
+	{
+		return OldQuests;
+	}
+
 	bool IsQuestActive(FName QuestIdentifier);
 
 	bool IsQuestSuccesfull(FName QuestIdentifier);

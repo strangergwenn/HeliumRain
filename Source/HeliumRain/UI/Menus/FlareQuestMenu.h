@@ -44,8 +44,11 @@ protected:
 		Internal methods
 	----------------------------------------------------*/
 
-	/** Fill the quest lists with all active quests */
-	void FillQuestList();
+	/** Fill the quest list for all active quests */
+	void FillActiveQuestList();
+
+	/** Fill the quest list for all previous quests */
+	void FillPreviousQuestList();
 
 	/** Show all steps for the current quest */
 	void FillQuestDetails();
@@ -64,6 +67,9 @@ protected:
 	/** Get the active quest description */
 	FText GetActiveQuestDescription() const;
 
+	/** Is the "track" button visible ?*/
+	bool GetTrackQuestVisibility(UFlareQuest*  Quest) const;
+	
 
 	/*----------------------------------------------------
 		Callbacks
@@ -83,7 +89,8 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
 
 	// Slate widgets
-	TSharedPtr<SVerticalBox>                        QuestList;
+	TSharedPtr<SVerticalBox>                        ActiveQuestList;
+	TSharedPtr<SVerticalBox>                        PreviousQuestList;
 	TSharedPtr<SVerticalBox>                        QuestDetails;
 
 

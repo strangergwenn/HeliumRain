@@ -57,14 +57,30 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("PreviousQuestsTitle", "Active quests"))
+							.Text(LOCTEXT("ActiveQuestsTitle", "Active quests"))
 						]
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(QuestList, SVerticalBox)
+							SAssignNew(ActiveQuestList, SVerticalBox)
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(LOCTEXT("PreviousQuestsTitle", "Previous quests"))
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(PreviousQuestList, SVerticalBox)
 						]
 					]
 				]
@@ -124,8 +140,9 @@ void SFlareQuestMenu::Enter(UFlareQuest* Sector)
 
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	
-	FillQuestList();
+
+	FillActiveQuestList();
+	FillPreviousQuestList();
 	FillQuestDetails();
 }
 
@@ -134,7 +151,8 @@ void SFlareQuestMenu::Exit()
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
 
-	QuestList->ClearChildren();
+	ActiveQuestList->ClearChildren();
+	PreviousQuestList->ClearChildren();
 	QuestDetails->ClearChildren();
 }
 
@@ -143,22 +161,23 @@ void SFlareQuestMenu::Exit()
 	Internal methods
 ----------------------------------------------------*/
 
-void SFlareQuestMenu::FillQuestList()
+void SFlareQuestMenu::FillActiveQuestList()
 {
-	QuestList->ClearChildren();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	check(QuestManager);
 
-	// Get list of active quests
+	ActiveQuestList->ClearChildren();
 	TArray<UFlareQuest*>& ActiveQuests = QuestManager->GetActiveQuests();
+
+	// Get list of active quests
 	for (int32 QuestIndex = 0; QuestIndex < ActiveQuests.Num(); QuestIndex++)
 	{
 		UFlareQuest* Quest = ActiveQuests[QuestIndex];
-		FFlareQuestProgressSave* ActiveQuestProgress = Quest->Save();
-		const FFlareQuestDescription* ActiveQuestDescription = Quest->GetQuestDescription();
+		FFlareQuestProgressSave* QuestProgress = Quest->Save();
+		const FFlareQuestDescription* QuestDescription = Quest->GetQuestDescription();
 
-		QuestList->AddSlot()
+		ActiveQuestList->AddSlot()
 		.Padding(Theme.SmallContentPadding)
 		[
 			SNew(SHorizontalBox)
@@ -173,6 +192,7 @@ void SFlareQuestMenu::FillQuestList()
 				.Text(LOCTEXT("SelectQuest", "Track"))
 				.HelpText(LOCTEXT("SelectQuestInfo", "Select this quest as the main quest"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
+				.IsDisabled(this, &SFlareQuestMenu::GetTrackQuestVisibility, Quest)
 			]
 
 			// Title
@@ -183,10 +203,10 @@ void SFlareQuestMenu::FillQuestList()
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.NameFont)
-				.Text(FText::Format(LOCTEXT("QuestTitleFormat", "{0} ({1} / {2})"),
+				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} ({1} / {2})"),
 					Quest->GetQuestName(),
-					FText::AsNumber(ActiveQuestProgress->SuccessfullSteps.Num() + 1),
-					FText::AsNumber(ActiveQuestDescription->Steps.Num())))
+					FText::AsNumber(QuestProgress->SuccessfullSteps.Num() + 1),
+					FText::AsNumber(QuestDescription->Steps.Num())))
 			]
 		];
 	}
@@ -194,11 +214,57 @@ void SFlareQuestMenu::FillQuestList()
 	// No active quest
 	if (ActiveQuests.Num() == 0)
 	{
-		QuestList->AddSlot()
+		ActiveQuestList->AddSlot()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
 			.Text(LOCTEXT("NoActiveQuest", "No active quest."))
+		];
+	}
+}
+
+void SFlareQuestMenu::FillPreviousQuestList()
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	check(QuestManager);
+
+	PreviousQuestList->ClearChildren();
+	TArray<UFlareQuest*>& PreviousQuests = QuestManager->GetPreviousQuests();
+
+	// Get list of previous quests
+	for (int32 QuestIndex = 0; QuestIndex < PreviousQuests.Num(); QuestIndex++)
+	{
+		UFlareQuest* Quest = PreviousQuests[QuestIndex];
+		FFlareQuestProgressSave* QuestProgress = Quest->Save();
+		const FFlareQuestDescription* QuestDescription = Quest->GetQuestDescription();
+		
+		PreviousQuestList->AddSlot()
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SHorizontalBox)
+			
+			// Title
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(FText::Format(LOCTEXT("PreviousQuestTitleFormat", "{0} ({1})"),
+					Quest->GetQuestName(),
+					Quest->GetStatusText()))
+			]
+		];
+	}
+
+	// No previous quest
+	if (PreviousQuests.Num() == 0)
+	{
+		PreviousQuestList->AddSlot()
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(LOCTEXT("NoPreviousQuest", "No previous quest."))
 		];
 	}
 }
@@ -410,6 +476,14 @@ FText SFlareQuestMenu::GetActiveQuestDescription() const
 	}
 
 	return FText();
+}
+
+bool SFlareQuestMenu::GetTrackQuestVisibility(UFlareQuest*  Quest) const
+{
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	check(QuestManager);
+
+	return (Quest == QuestManager->GetSelectedQuest());
 }
 
 

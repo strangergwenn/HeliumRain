@@ -39,21 +39,23 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 	for (int QuestIndex = 0; QuestIndex <Game->GetQuestCatalog()->Quests.Num(); QuestIndex++)
 	{
 		FFlareQuestDescription* QuestDescription = &(Game->GetQuestCatalog()->Quests[QuestIndex]->Data);
+		
+		// Create the quest
+		UFlareQuest* Quest = NewObject<UFlareQuest>(this, UFlareQuest::StaticClass());
+		Quest->Load(QuestDescription);
+		int QuestProgressIndex = ActiveQuestIdentifiers.IndexOfByKey(QuestDescription->Identifier);
 
 		// Skip tutorial quests.
 		if (QuestDescription->Category == EFlareQuestCategory::TUTORIAL && !QuestData.PlayTutorial)
 		{
-			continue;
+			FLOGV("Found skipped tutorial quest %s", *Quest->GetIdentifier().ToString());
+			OldQuests.Add(Quest);
+			Quest->SetStatus(EFlareQuestStatus::ABANDONNED);
 		}
-
-		// Create the quest
-		UFlareQuest* Quest = NewObject<UFlareQuest>(this, UFlareQuest::StaticClass());
-		Quest->Load(QuestDescription);
-
-		// Find quest status
-		int QuestProgressIndex = ActiveQuestIdentifiers.IndexOfByKey(QuestDescription->Identifier);
-		if (QuestProgressIndex != INDEX_NONE)
+		else if (QuestProgressIndex != INDEX_NONE)
 		{
+			FLOGV("Found active quest %s", *Quest->GetIdentifier().ToString());
+
 			// Current quests
 			ActiveQuests.Add(Quest);
 			Quest->Restore(Data.QuestProgresses[QuestProgressIndex]);
@@ -64,21 +66,25 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 		}
 		else if (Data.SuccessfulQuests.Contains(QuestDescription->Identifier))
 		{
+			FLOGV("Found completed quest %s", *Quest->GetIdentifier().ToString());
 			OldQuests.Add(Quest);
 			Quest->SetStatus(EFlareQuestStatus::SUCCESSFUL);
 		}
 		else if (Data.AbandonnedQuests.Contains(QuestDescription->Identifier))
 		{
+			FLOGV("Found abandonned quest %s", *Quest->GetIdentifier().ToString());
 			OldQuests.Add(Quest);
 			Quest->SetStatus(EFlareQuestStatus::ABANDONNED);
 		}
 		else if (Data.FailedQuests.Contains(QuestDescription->Identifier))
 		{
+			FLOGV("Found failed quest %s", *Quest->GetIdentifier().ToString());
 			OldQuests.Add(Quest);
 			Quest->SetStatus(EFlareQuestStatus::FAILED);
 		}
 		else
 		{
+			FLOGV("Found available quest %s", *Quest->GetIdentifier().ToString());
 			AvailableQuests.Add(Quest);
 			Quest->SetStatus(EFlareQuestStatus::AVAILABLE);
 		}
