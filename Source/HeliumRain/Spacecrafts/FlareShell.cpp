@@ -521,6 +521,8 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 		if (DecalMaterialInst)
 		{
 			DecalMaterialInst->SetScalarParameterValue("RandomParameter", FMath::FRandRange(1, 0));
+			DecalMaterialInst->SetScalarParameterValue("RandomParameter2", FMath::FRandRange(1, 0));
+			DecalMaterialInst->SetScalarParameterValue("IsShipHull", HitComponent->IsA(UFlareSpacecraftComponent::StaticClass()));
 			Decal->SetMaterial(0, DecalMaterialInst);
 		}
 	}
