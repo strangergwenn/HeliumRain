@@ -535,51 +535,55 @@ void AFlareMenuManager::FlyShip()
 		// Fly ship
 		if (NextMenu.Value.Spacecraft)
 		{
+			AFlareSpacecraft* OldShip = PC->GetShipPawn();
 			UFlareSimulatedSpacecraft* Ship = NextMenu.Value.Spacecraft;
 			PC->FlyShip(Ship->GetActive());
 
-			// Count owned ships
-			int32 OwnedSpacecraftCount = 0;
-			TArray<AFlareSpacecraft*>& SectorSpacecrafts = GetGame()->GetActiveSector()->GetSpacecrafts();
-			for (int SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
+			if (OldShip != Ship->GetActive())
 			{
-				AFlareSpacecraft* OtherSpacecraft = SectorSpacecrafts[SpacecraftIndex];
-				if (OtherSpacecraft->GetParent()->GetCompany() == PC->GetCompany())
+				// Count owned ships
+				int32 OwnedSpacecraftCount = 0;
+				TArray<AFlareSpacecraft*>& SectorSpacecrafts = GetGame()->GetActiveSector()->GetSpacecrafts();
+				for (int SpacecraftIndex = 0; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 				{
-					OwnedSpacecraftCount++;
+					AFlareSpacecraft* OtherSpacecraft = SectorSpacecrafts[SpacecraftIndex];
+					if (OtherSpacecraft->GetParent()->GetCompany() == PC->GetCompany())
+					{
+						OwnedSpacecraftCount++;
+					}
 				}
-			}
 
-			// Notification title
-			FText Title;
-			if (PC->GetPlayerFleet()->IsTraveling())
-			{
-				Title = FText::Format(LOCTEXT("FlyingTravelFormat", "Travelling with {0}"), FText::FromName(Ship->GetImmatriculation()));
-			}
-			else
-			{
-				Title = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetImmatriculation()));
-			}
+				// Notification title
+				FText Title;
+				if (PC->GetPlayerFleet()->IsTraveling())
+				{
+					Title = FText::Format(LOCTEXT("FlyingTravelFormat", "Travelling with {0}"), FText::FromName(Ship->GetImmatriculation()));
+				}
+				else
+				{
+					Title = FText::Format(LOCTEXT("FlyingFormat", "Now flying {0}"), FText::FromName(Ship->GetImmatriculation()));
+				}
 
-			// Notification body
-			FText Info;
-			if (PC->GetPlayerFleet()->IsTraveling())
-			{
-				Info = LOCTEXT("FlyingTravelInfo", "Complete travels with the \"Fast forward\" button on the orbital map.");
-			}
-			else if (OwnedSpacecraftCount > 1)
-			{
-				Info = LOCTEXT("FlyingMultipleInfo", "You can switch to nearby ships with N.");
-			}
-			else
-			{
-				Info = LOCTEXT("FlyingInfo", "You are now flying your personal ship.");
-			}
+				// Notification body
+				FText Info;
+				if (PC->GetPlayerFleet()->IsTraveling())
+				{
+					Info = LOCTEXT("FlyingTravelInfo", "Complete travels with the \"Fast forward\" button on the orbital map.");
+				}
+				else if (OwnedSpacecraftCount > 1)
+				{
+					Info = LOCTEXT("FlyingMultipleInfo", "You can switch to nearby ships with N.");
+				}
+				else
+				{
+					Info = LOCTEXT("FlyingInfo", "You are now flying your personal ship.");
+				}
 
-			// Notify
-			FFlareMenuParameterData Data;
-			Data.Spacecraft = Ship;
-			Notify(Title, Info, "flying-info", EFlareNotification::NT_Info, false, EFlareMenu::MENU_Ship, Data);
+				// Notify
+				FFlareMenuParameterData Data;
+				Data.Spacecraft = Ship;
+				Notify(Title, Info, "flying-info", EFlareNotification::NT_Info, false, EFlareMenu::MENU_Ship, Data);
+			}
 		}
 
 		ExitMenu();
