@@ -605,86 +605,72 @@ void UFlareCompanyAI::Simulate()
 		}
 	}
 
-
-
 	// Buy ships
-	if(IdleCargoCapacity < 0)
+	if (IdleCargoCapacity < 0)
 	{
 		FLOGV("Want buy cargo : IdleCargoCapacity = %d", IdleCargoCapacity);
 		// Buy Omen
 		// TODO buy all kind of ships
 
 		// Find shipyard
-
 		for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 		{
 			UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
-
-
+			
 			for (int32 StationIndex = 0 ; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
 			{
 				UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
-
-
 				TArray<UFlareFactory*>& Factories = Station->GetFactories();
+
 				for (int32 Index = 0; Index < Factories.Num(); Index++)
 				{
 					UFlareFactory* Factory = Factories[Index];
-
 					if (!Factory->IsShipyard())
 					{
 						continue;
-
 					}
 
 					// Can produce only if nobody as order a ship and nobody is buidling a ship
-
-					if(Factory->GetOrderShipCompany() == NAME_None && Factory->GetTargetShipCompany() == NAME_None)
+					if (Factory->GetOrderShipCompany() == NAME_None && Factory->GetTargetShipCompany() == NAME_None)
 					{
-						FLOG("Shipyard is available");
-
-
+						int64 CompanyMoney = Company->GetMoney();
+						FName ShipClassToOrder = NAME_None;
+						float CostSafetyMargin = 2.0f;
+						
+						// Large factory
 						if (Factory->IsLargeShipyard())
 						{
-							FLOG("Order atlas");
-							// TODO generic helper
-
-							if(UFlareGameTools::ComputeShipPrice("ship-atlas", Sector, true) * 2 < Company->GetMoney())
+							if (UFlareGameTools::ComputeShipPrice("ship-atlas", Sector, true) * CostSafetyMargin < CompanyMoney)
 							{
-
-								Factory->OrderShip(Company, "ship-atlas");
-								Factory->Start();
-							}
-							else
-							{
-								FLOG("Not enought money");
+								ShipClassToOrder = "ship-atlas";
 							}
 						}
+
+						// Small factory
 						else if (Factory->IsSmallShipyard())
 						{
-							FLOG("Order omen");
-							// TODO generic helper
-
-							if(UFlareGameTools::ComputeShipPrice("ship-omen", Sector, true) * 2 < Company->GetMoney())
+							if (UFlareGameTools::ComputeShipPrice("ship-omen", Sector, true) * CostSafetyMargin < CompanyMoney)
 							{
-
-								Factory->OrderShip(Company, "ship-omen");
-								Factory->Start();
+								ShipClassToOrder = "ship-omen";
 							}
-							else
+							else if (UFlareGameTools::ComputeShipPrice("ship-solen", Sector, true) * CostSafetyMargin < CompanyMoney)
 							{
-								FLOG("Not enought money");
+								ShipClassToOrder = "ship-solen";
 							}
+						}
+
+						// Order the target ship
+						if (ShipClassToOrder != NAME_None)
+						{
+							FLOGV("Ordering spacecraft : '%s'", *ShipClassToOrder.ToString());
+							Factory->OrderShip(Company, ShipClassToOrder);
+							Factory->Start();
 						}
 					}
 				}
 			}
-
 		}
-
 	}
-
-
 }
 
 void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, SectorVariation> & WorldResourceVariation)
