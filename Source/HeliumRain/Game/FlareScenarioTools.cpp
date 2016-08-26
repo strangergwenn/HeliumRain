@@ -255,11 +255,11 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 	Company->DiscoverSector(MinersHome);
 	Company->DiscoverSector(BlueHeart);
 	Company->DiscoverSector(Lighthouse);
-	Company->DiscoverSector(TheSpire); // TODO GWENN
+	Company->DiscoverSector(TheSpire);
 
 	// Notable sectors (Anka)
 	Company->DiscoverSector(Outpost);
-	//Company->DiscoverSector(Colossus); // TODO GWENN
+	Company->DiscoverSector(Colossus);
 	Company->DiscoverSector(Crossroads);
 
 	// Notable sectors (Hela)
