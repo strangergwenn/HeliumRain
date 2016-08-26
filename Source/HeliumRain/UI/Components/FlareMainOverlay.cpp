@@ -439,7 +439,7 @@ FText SFlareMainOverlay::GetPlayerInfo() const
 	}
 	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
 	{
-		return LOCTEXT("SaveSlotHint", "Pick a save slot to start the game");
+		return LOCTEXT("SaveSlotHint", "Pick a save slot");
 	}
 	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_NewGame)
 	{
@@ -447,7 +447,7 @@ FText SFlareMainOverlay::GetPlayerInfo() const
 	}
 	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Settings)
 	{
-		return LOCTEXT("SettingsHint", "Changes will be applied and saved automatically");
+		return LOCTEXT("SettingsHint", "Changes will be applied and saved");
 	}
 	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None
 		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Credits

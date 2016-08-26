@@ -501,10 +501,12 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 
 	// Music volume
 	int32 MusicVolume = MyGameSettings->MusicVolume;
+	int32 MasterVolume = MyGameSettings->MusicVolume;
 	MusicVolumeSlider->SetValue((float)MusicVolume / 10.0f);
 	MusicVolumeLabel->SetText(GetMusicVolumeLabel(MusicVolume));
+	MasterVolumeSlider->SetValue((float)MasterVolume / 10.0f);
+	MasterVolumeLabel->SetText(GetMasterVolumeLabel(MasterVolume));
 }
-
 
 TSharedRef<SWidget> SFlareSettingsMenu::BuildKeyBindingBox()
 {
@@ -808,7 +810,6 @@ void SFlareSettingsMenu::OnMasterVolumeSliderChanged(float Value)
 		PC->SetMasterVolume(StepValue);
 	}
 }
-
 
 void SFlareSettingsMenu::OnVSyncToggle()
 {
