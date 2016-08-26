@@ -1206,7 +1206,7 @@ FText UFlareSimulatedSector::GetSectorFriendlynessText(UFlareCompany* Company)
 	switch (GetSectorFriendlyness(Company))
 	{
 		case EFlareSectorFriendlyness::NotVisited:
-			Status = LOCTEXT("Unknown", "");
+			Status = LOCTEXT("Unknown", "Unknown");
 			break;
 		case EFlareSectorFriendlyness::Neutral:
 			Status = LOCTEXT("Neutral", "Neutral");
