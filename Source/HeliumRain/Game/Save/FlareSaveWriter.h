@@ -29,6 +29,7 @@ struct FFlareFactorySave;
 struct FFlareFleetSave;
 struct FFlareTradeRouteSave;
 struct FFlareTradeRouteSectorSave;
+struct FFlareTradeRouteSectorOperationSave;
 struct FFlareCompanySectorKnowledge;
 struct FFlareCompanyAISave;
 struct FFlareCompanyReputationSave;
@@ -38,6 +39,7 @@ struct FFlarePeopleSave;
 struct FFlareBombSave;
 struct FFFlareResourcePrice;
 struct FFlareTravelSave;
+struct FFlareFloatBuffer;
 
 
 UCLASS()

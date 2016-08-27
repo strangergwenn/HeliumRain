@@ -5,6 +5,8 @@
 #include "FlareSaveReaderV1.generated.h"
 
 class UFlareSaveGame;
+struct FFlareTradeRouteSectorOperationSave;
+struct FFlareFloatBuffer;
 
 UCLASS()
 class HELIUMRAIN_API UFlareSaveReaderV1: public UObject
