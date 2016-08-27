@@ -27,7 +27,6 @@ public:
 	UFUNCTION(exec)
 	void ForceSectorDeactivation();
 
-
 	/** Set the default weapon for new created ship */
 	UFUNCTION(exec)
 	void SetDefaultWeapon(FName NewDefaultWeaponIdentifier);
@@ -43,6 +42,8 @@ public:
 	UFUNCTION(exec)
 	void SetHudDistortion(uint32 Axis, uint32 X, uint32 Y, float Value);
 
+	UFUNCTION(exec)
+	void CheckEconomyBalance();
 
 	/*----------------------------------------------------
 		World tools

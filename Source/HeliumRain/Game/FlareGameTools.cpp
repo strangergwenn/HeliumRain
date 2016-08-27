@@ -102,6 +102,155 @@ void UFlareGameTools::SetHudDistortion(uint32 Axis, uint32 X, uint32 Y, float Va
 	}
 }
 
+void UFlareGameTools::CheckEconomyBalance()
+{
+	FLOG("=============");
+	FLOG("Economy check");
+	FLOG("=============");
+	FLOG("");
+
+	TArray<UFlareResourceCatalogEntry*> ResourceEntries = GetGame()->GetResourceCatalog()->Resources;
+	for(int ResourceIndex = 0; ResourceIndex < ResourceEntries.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &ResourceEntries[ResourceIndex]->Data;
+
+		FLOGV("Resource '%s'", *Resource->Name.ToString());
+		FLOGV("- Min price %.2f $", Resource->MinPrice/100.);
+		FLOGV("- Max price %.2f $", Resource->MaxPrice/100.);
+		FLOGV("- Transport fee %.2f $", Resource->TransportFee/100.);
+	}
+
+
+
+	TArray<UFlareSpacecraftCatalogEntry*>& StationCatalog = GetGame()->GetSpacecraftCatalog()->StationCatalog;
+
+	for (int32 StationIndex = 0; StationIndex < StationCatalog.Num(); StationIndex++)
+	{
+		FFlareSpacecraftDescription* StationDescription = &StationCatalog[StationIndex]->Data;
+
+		FLOGV("Station '%s'", *StationDescription->Name.ToString());
+		FLOG( "-------");
+
+		FLOGV("- Factory count: %d", StationDescription->Factories.Num());
+
+
+		for (int FactoryIndex = 0; FactoryIndex < StationDescription->Factories.Num(); FactoryIndex++)
+		{
+			FFlareFactoryDescription* FactoryDescription = &StationDescription->Factories[FactoryIndex]->Data;
+
+
+			bool IsShipyard = false;
+			for (int32 Index = 0; Index < FactoryDescription->OutputActions.Num(); Index++)
+			{
+				if (FactoryDescription->OutputActions[Index].Action == EFlareFactoryAction::CreateShip)
+				{
+					IsShipyard = true;
+					break;
+				}
+			}
+
+			if(IsShipyard)
+			{
+				FLOGV("  - Shipyard %d", FactoryIndex);
+				continue;
+			}
+
+			int64 MinRevenue= 0;
+			int64 MaxRevenue = 0;
+			int64 MinCost = 0;
+			int64 MaxCost = 0;
+
+
+			FString Cycle;
+
+			MinCost += FactoryDescription->CycleCost.ProductionCost;
+			MaxCost += FactoryDescription->CycleCost.ProductionCost;
+
+			for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num() ; ResourceIndex++)
+			{
+				const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+
+				MinCost += (Resource->Resource->Data.MinPrice + Resource->Resource->Data.TransportFee) * Resource->Quantity;
+				MaxCost += (Resource->Resource->Data.MaxPrice + Resource->Resource->Data.TransportFee) * Resource->Quantity;
+
+				if(Cycle.Len() > 0)
+				{
+					Cycle += " + ";
+				}
+				Cycle.Append(FString::FromInt(Resource->Quantity));
+				Cycle.Append(FString(" "));
+				Cycle.Append(Resource->Resource->Data.Name.ToString());
+			}
+
+			if(Cycle.Len() > 0)
+			{
+				Cycle += " + ";
+			}
+			Cycle.Append(FString::FromInt(FactoryDescription->CycleCost.ProductionCost/100));
+
+			Cycle += " $ -> ";
+
+			for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num() ; ResourceIndex++)
+			{
+				const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
+
+				MinRevenue += (Resource->Resource->Data.MinPrice - Resource->Resource->Data.TransportFee) * Resource->Quantity;
+				MaxRevenue += (Resource->Resource->Data.MaxPrice - Resource->Resource->Data.TransportFee) * Resource->Quantity;
+
+
+				if(Cycle.Len() > 4)
+				{
+					Cycle += " + ";
+				}
+				Cycle += FString::FromInt(Resource->Quantity) + " " + Resource->Resource->Data.Name.ToString();
+			}
+
+
+			int64 MinBenefice = MinRevenue - MaxCost;
+			int64 MaxBenefice = MaxRevenue - MinCost;
+
+
+			float MinMargin = (float) MinBenefice / (float)MinRevenue;
+			float MaxMargin = (float) MaxBenefice / (float) MaxRevenue;
+
+
+			FLOGV("- Factory %d", FactoryIndex);
+			FLOGV("  - Cycle : '%s'", *Cycle);
+			FLOGV("  - Min revenue %.2f $", MinRevenue / 100.);
+			FLOGV("  - Max revenue %.2f $", MaxRevenue / 100.);
+			FLOGV("  - Min cost %.2f $", MinCost / 100.);
+			FLOGV("  - Max cost %.2f $", MaxCost / 100.);
+			FLOGV("  - Min benefice %.2f $", MinBenefice / 100.);
+			FLOGV("  - Max benefice %.2f $", MaxBenefice / 100.);
+			FLOGV("  - Min margin %.2f %%", MinMargin*100);
+			FLOGV("  - Max margin %.2f %%", MaxMargin*100);
+
+
+			if(MinMargin < 0)
+			{
+				FLOG("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				FLOG("!! Min margin is too low !!");
+				FLOG("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			}
+
+			if(MinMargin > 0)
+			{
+				FLOG("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				FLOG("!! Min margin is too high !!");
+				FLOG("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			}
+		}
+
+
+
+		FLOG( "");
+	}
+
+
+
+}
+
+
 /*----------------------------------------------------
 	World tools
 ----------------------------------------------------*/
