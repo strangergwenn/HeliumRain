@@ -140,10 +140,12 @@ bool UFlareTradeRoute::ProcessCurrentOperation(FFlareTradeRouteSectorOperationSa
 	switch (Operation->Type) {
 	case EFlareTradeRouteOperation::Buy:
 	case EFlareTradeRouteOperation::Load:
+	case EFlareTradeRouteOperation::LoadOrBuy:
 			return ProcessLoadOperation(Operation);
 		break;
 	case EFlareTradeRouteOperation::Sell:
 	case EFlareTradeRouteOperation::Unload:
+	case EFlareTradeRouteOperation::UnloadOrSell:
 			return ProcessUnloadOperation(Operation);
 		break;
 	default:
