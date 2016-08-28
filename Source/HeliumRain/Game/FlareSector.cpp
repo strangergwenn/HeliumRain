@@ -147,7 +147,7 @@ AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidDat
 AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* ParentSpacecraft)
 {
 	AFlareSpacecraft* Spacecraft = NULL;
-	FLOGV("UFlareSector::LoadSpacecraft : Start loading ('%s')", *ParentSpacecraft->GetImmatriculation().ToString());
+	/*FLOGV("UFlareSector::LoadSpacecraft : Start loading ('%s')", *ParentSpacecraft->GetImmatriculation().ToString());*/
 
 
 	// Spawn parameters
@@ -174,18 +174,15 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 		}
 		SectorSpacecrafts.Add(Spacecraft);
 
-		FLOGV("%s spawn mode = %d", *Spacecraft->GetImmatriculation().ToString(), ParentSpacecraft->GetData().SpawnMode+0)
-
-
 		switch (ParentSpacecraft->GetData().SpawnMode)
 		{
 			// Already known to be correct
 			case EFlareSpawnMode::Safe:
 
-				FLOGV("UFlareSector::LoadSpacecraft : Safe spawn '%s' at (%f,%f,%f)",
+				/*FLOGV("UFlareSector::LoadSpacecraft : Safe spawn '%s' at (%f,%f,%f)",
 					*ParentSpacecraft->GetImmatriculation().ToString(),
 					ParentSpacecraft->GetData().Location.X, ParentSpacecraft->GetData().Location.Y, ParentSpacecraft->GetData().Location.Z);
-
+				*/
 				RootComponent->SetPhysicsLinearVelocity(ParentSpacecraft->GetData().LinearVelocity, false);
 				RootComponent->SetPhysicsAngularVelocity(ParentSpacecraft->GetData().AngularVelocity, false);
 				break;

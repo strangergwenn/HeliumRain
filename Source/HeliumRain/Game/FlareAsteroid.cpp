@@ -82,8 +82,8 @@ void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* C
 	FVector ScaleFactor = Component->GetOwner()->GetActorScale3D() * Data.Scale * (20000.0f / CollisionSize);
 	Component->SetWorldScale3D(ScaleFactor);
 
-	FLOGV("AFlareAsteroid::SetupAsteroidMesh : ID=%d Scale=%f,%f,%f CollisionSize=%f",
-		Data.AsteroidMeshID, Data.Scale.X, Data.Scale.Y, Data.Scale.Z, CollisionSize);
+	/*FLOGV("AFlareAsteroid::SetupAsteroidMesh : ID=%d Scale=%f,%f,%f CollisionSize=%f",
+		Data.AsteroidMeshID, Data.Scale.X, Data.Scale.Y, Data.Scale.Z, CollisionSize);*/
 
 	// Mass scale
 	FBodyInstance* BodyInst = Component->GetBodyInstance();

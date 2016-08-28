@@ -230,7 +230,6 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
 {
-	FLOGV("EnablePilot %d", PilotEnabled);
 	IsPiloted = PilotEnabled;
 }
 

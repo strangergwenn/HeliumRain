@@ -948,7 +948,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 		float MeanPrice = (float) (Resource->MaxPrice + Resource->MinPrice) / 2.f;
 
 		SetPreciseResourcePrice(Resource, NewPrice);
-		if(NewPrice > Resource->MaxPrice)
+		/*if(NewPrice > Resource->MaxPrice)
 		{
 			FLOGV("%s price at max in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
 		}
@@ -959,7 +959,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 		else
 		{
 			FLOGV("%s price in %s change from %f to %f (%f)", *Resource->Name.ToString(), *GetSectorName().ToString(), OldPrice / 100.f, NewPrice / 100.f, Variation);
-		}
+		}*/
 	}
 }
 

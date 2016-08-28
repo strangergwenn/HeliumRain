@@ -207,7 +207,6 @@ void UFlareSoundManager::RequestMusicTrack(EFlareMusicTrack::Type NewTrack)
 void UFlareSoundManager::SetCurrentSpacecraft(AFlareSpacecraft* Ship)
 {
 	ShipPawn = Ship;
-	FLOG("UFlareSoundManager::SetCurrentSpacecraft : new spacecraft");
 
 	if (Ship)
 	{

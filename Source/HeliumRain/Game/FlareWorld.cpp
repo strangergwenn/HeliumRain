@@ -412,7 +412,9 @@ void UFlareWorld::Simulate()
 	/**
 	 *  End previous day
 	 */
+	FLOGV("** Simulate day %d", WorldData.Date);
 
+	FLOG("* Simulate > Battles");
 	// Finish player battles
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
@@ -441,7 +443,7 @@ void UFlareWorld::Simulate()
 	}
 	// TODO battles between 2 AI company
 
-
+	FLOG("* Simulate > AI");
 	// AI. Play them in random order
 	TArray<UFlareCompany*> CompaniesToSimulateAI = Companies;
 	while(CompaniesToSimulateAI.Num())
@@ -457,34 +459,36 @@ void UFlareWorld::Simulate()
 	/**
 	 *  Begin day
 	 */
+	FLOG("* Simulate > New day");
+
 	WorldData.Date++;
 
 	// End trade operation
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
 		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
-		for (int32 ShipIndex = 0; ShipIndex < Sector->GetSectorSpacecrafts().Num(); ShipIndex++)
+		for (int32 ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 		{
-			Sector->GetSectorSpacecrafts()[ShipIndex]->SetTrading(false);
+			Sector->GetSectorShips()[ShipIndex]->SetTrading(false);
 		}
 	}
 
 	// Factories
-	FLOG("Factories");
+	FLOG("* Simulate > Factories");
 	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
 		Factories[FactoryIndex]->Simulate();
 	}
 
 	// Peoples
-	FLOG("Peoples");
+	FLOG("* Simulate > Peoples");
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
 		Sectors[SectorIndex]->GetPeople()->Simulate();
 	}
 
 
-	FLOG("Trade routes");
+	FLOG("* Simulate > Trade routes");
 
 	// Trade routes
 	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
@@ -496,13 +500,14 @@ void UFlareWorld::Simulate()
 			TradeRoutes[RouteIndex]->Simulate();
 		}
 	}
-
+	FLOG("* Simulate > Travels");
 	// Travels
 	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
 	{
 		Travels[TravelIndex]->Simulate();
 	}
 
+	FLOG("* Simulate > Reputation");
 	// Reputation stabilization
 	for (int CompanyIndex1 = 0; CompanyIndex1 < Companies.Num(); CompanyIndex1++)
 	{
@@ -525,6 +530,7 @@ void UFlareWorld::Simulate()
 		}
 	}
 
+	FLOG("* Simulate > Prices");
 	// Price variation.
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
@@ -541,7 +547,7 @@ void UFlareWorld::Simulate()
 	{
 		Sectors[SectorIndex]->SwapPrices();
 	}
-
+	FLOGV("** Simulate day %d done", WorldData.Date-1);
 }
 
 void UFlareWorld::SimulatePeopleMoneyMigration()

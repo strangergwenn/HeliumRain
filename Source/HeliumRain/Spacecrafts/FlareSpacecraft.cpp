@@ -114,7 +114,6 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 	if (LastMass <= KINDA_SMALL_NUMBER && Airframe && Airframe->IsSimulatingPhysics())
 	{
 		LastMass = Airframe->GetMass();
-		FLOGV("AFlareSpacecraft::Tick : Mass is %f for spacecraft '%s'", LastMass, *GetName());
 	}
 
 	if (!IsPresentationMode() && StateManager && !Paused)
@@ -543,7 +542,7 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 		Parent->SetActiveSpacecraft(this);
 	}
 
-	FLOGV("AFlareSpacecraft::Load %s", *ParentSpacecraft->GetImmatriculation().ToString());
+	/*FLOGV("AFlareSpacecraft::Load %s", *ParentSpacecraft->GetImmatriculation().ToString());*/
 
 	// Load ship description
 	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();

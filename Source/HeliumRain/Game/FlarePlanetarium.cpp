@@ -372,7 +372,6 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 
 void AFlarePlanetarium::ResetTime()
 {
-	FLOGV("AFlarePlanetarium::ResetTime : %f", SmoothTime);
 	SmoothTime = 0;
 }
 

@@ -173,8 +173,8 @@ void UFlarePeople::SimulateResourcePurchase()
 
 	uint32 FoodConsumption = GetRessourceConsumption(Food);
 	uint32 BoughtFood = BuyResourcesInSector(Food, FoodConsumption); // In Tons
-	if(BoughtFood)
-		FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
+	//if(BoughtFood)
+	//	FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
 	PeopleData.FoodStock += BoughtFood * 1000; // In kg
 
 	if(FoodConsumption == BoughtFood)
@@ -193,8 +193,8 @@ void UFlarePeople::SimulateResourcePurchase()
 
 	uint32 FuelConsumption = GetRessourceConsumption(Fuel);
 	uint32 BoughtFuel = BuyResourcesInSector(Fuel, FuelConsumption); // In Tons
-	if(BoughtFuel)
-		FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
+	//if(BoughtFuel)
+	//	FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
 	PeopleData.FuelStock += BoughtFuel * 1000; // In kg
 
 	if(FuelConsumption == BoughtFuel)
@@ -213,8 +213,8 @@ void UFlarePeople::SimulateResourcePurchase()
 
 	uint32 ToolConsumption = GetRessourceConsumption(Tool);
 	uint32 BoughtTool = BuyResourcesInSector(Tool, ToolConsumption); // In Tons
-	if(BoughtTool)
-		FLOGV("People in %s bought %u tool", *Parent->GetSectorName().ToString(), BoughtTool);
+	//if(BoughtTool)
+	//	FLOGV("People in %s bought %u tool", *Parent->GetSectorName().ToString(), BoughtTool);
 	PeopleData.ToolStock += BoughtTool * 1000; // In kg
 
 	if(ToolConsumption == BoughtTool)
@@ -233,8 +233,8 @@ void UFlarePeople::SimulateResourcePurchase()
 
 	uint32 TechConsumption = GetRessourceConsumption(Tech);
 	uint32 BoughtTech = BuyResourcesInSector(Tech, TechConsumption); // In Tons
-	if(BoughtTech)
-		FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
+	//if(BoughtTech)
+	//	FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
 	PeopleData.TechStock += BoughtTech * 1000; // In kg
 
 	if(TechConsumption == BoughtTech)
@@ -428,7 +428,7 @@ void UFlarePeople::GiveBirth(uint32 BirthCount)
 		return;
 	}
 
-	FLOGV("Give birth %u people for sector %s", BirthCount, *Parent->GetSectorName().ToString());
+	//FLOGV("Give birth %u people for sector %s", BirthCount, *Parent->GetSectorName().ToString());
 
 	// Increase population
 	PeopleData.Population += BirthCount;
@@ -451,7 +451,7 @@ void UFlarePeople::KillPeople(uint32 KillCount)
 		return;
 	}
 
-	FLOGV("Kill %u people for sector %s", KillCount, *Parent->GetSectorName().ToString());
+	//FLOGV("Kill %u people for sector %s", KillCount, *Parent->GetSectorName().ToString());
 
 
 	float KillRatio = (float) PeopleToKill / (float)PeopleData.Population;
