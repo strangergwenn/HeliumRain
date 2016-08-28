@@ -63,7 +63,6 @@ void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Secto
 	}
 
 	CurrentGenerationIndex++;
-	FLOGV("UFlareDebrisField::Setup : done spawning debris field, size = %d", DebrisField.Num());
 }
 
 void UFlareDebrisField::Reset()
@@ -125,7 +124,6 @@ AStaticMeshActor* UFlareDebrisField::AddDebris(UFlareSimulatedSector* Sector, US
 			{
 				DebrisComponent->SetMaterial(0, DebrisMaterial);
 				DebrisMaterial->SetScalarParameterValue("IceMask", Sector->GetDescription()->IsIcy);
-				FLOGV("UFlareDebrisField::AddDebris : updated icy set %d", Sector->GetDescription()->IsIcy);
 			}
 			else
 			{
