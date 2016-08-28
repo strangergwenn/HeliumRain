@@ -29,6 +29,22 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 	[
 		SNew(SVerticalBox)
 
+		// Trade permission
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(0))
+		[
+			SAssignNew(PermissionButton, SFlareButton)
+			.Transparent(true)
+			.Toggle(true)
+			.SmallToggleIcons(true)
+			.Text(LOCTEXT("PermissionButton", "Trade"))
+			.HelpText(LOCTEXT("PermissionButtonHelp", "Set whether resources in this cargo slot can be traded with other companies"))
+			.OnClicked(this, &SFlareCargoInfo::OnPermissionClicked)
+			.Visibility(this, &SFlareCargoInfo::GetPermissionVisibility)
+			.Width(1.5)
+		]
+
 		// Main
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -90,6 +106,11 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 			.Width(1)
 		]
 	];
+
+	// Initial state of cargo slot
+	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
+	check(Cargo);
+	PermissionButton->SetActive(Cargo->Restriction == EFlareResourceRestriction::Everybody);
 
 	// Don't intercept clicks if it's not interactive
 	if (!OnClicked.IsBound())
@@ -227,5 +248,26 @@ void SFlareCargoInfo::OnDumpClicked()
 		TargetSpacecraft->GetCargoBay()->DumpCargo(Cargo);
 	}
 }
+
+void SFlareCargoInfo::OnPermissionClicked()
+{
+	TargetSpacecraft->GetCargoBay()->SetSlotRestriction(
+		CargoIndex,
+		PermissionButton->IsActive() ? EFlareResourceRestriction::Everybody : EFlareResourceRestriction::Nobody);
+}
+
+EVisibility SFlareCargoInfo::GetPermissionVisibility() const
+{
+	if (TargetSpacecraft->IsStation()
+	 && TargetSpacecraft->GetCompany() == TargetSpacecraft->GetGame()->GetPC()->GetCompany())
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
+
 
 #undef LOCTEXT_NAMESPACE

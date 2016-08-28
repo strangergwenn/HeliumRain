@@ -17,6 +17,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	// Arguments
 	Icon = InArgs._Icon;
 	IsToggle = InArgs._Toggle;
+	IsSmallToggleIcons = InArgs._SmallToggleIcons;
 	IsTransparent = InArgs._Transparent;
 	OnClicked = InArgs._OnClicked;
 	Color = InArgs._Color;
@@ -128,7 +129,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 			// Icon
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
-			.Padding(FMargin(6, 0))
+			.Padding(FMargin(3, 0))
 			[
 				SAssignNew(IconBox, SVerticalBox)
 			]
@@ -261,7 +262,14 @@ const FSlateBrush* SFlareButton::GetIconBrush() const
 	}
 	else if (IsToggle)
 	{
-		return (IsPressed ? FFlareStyleSet::GetIcon("OK") : FFlareStyleSet::GetIcon("Disabled"));
+		if (IsSmallToggleIcons)
+		{
+			return (IsPressed ? FFlareStyleSet::GetIcon("OK_Small") : FFlareStyleSet::GetIcon("Disabled_Small"));
+		}
+		else
+		{
+			return (IsPressed ? FFlareStyleSet::GetIcon("OK") : FFlareStyleSet::GetIcon("Disabled"));
+		}
 	}
 	else
 	{
@@ -302,7 +310,7 @@ FSlateFontInfo SFlareButton::GetTextStyle() const
 		float TextLength = Text.Get().ToString().Len();
 		float ButtonWidth = GetDesiredSize().X;
 
-		if (TextLength > 0.075 * ButtonWidth)
+		if (TextLength > 0.075 * ButtonWidth || IsSmallToggleIcons)
 		{
 			return Theme.SmallFont.Font;
 		}

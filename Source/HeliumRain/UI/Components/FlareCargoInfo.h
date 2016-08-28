@@ -61,6 +61,12 @@ protected:
 	/** Dump this bay */
 	void OnDumpClicked();
 
+	/** Change permissions */
+	void OnPermissionClicked();
+
+	/** Change permissions */
+	EVisibility GetPermissionVisibility() const;
+
 
 protected:
 
@@ -75,6 +81,7 @@ protected:
 
 	// Slate data
 	TSharedPtr<SFlareButton>                        DumpButton;
+	TSharedPtr<SFlareButton>                        PermissionButton;
 
 
 };
