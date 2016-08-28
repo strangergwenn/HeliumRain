@@ -69,6 +69,8 @@ public:
 	/** Tell us if we are travelling */
 	bool IsTraveling() const;
 
+	bool IsTrading() const;
+
 	/** Tell us if we can travel */
 	bool CanTravel();
 
@@ -143,8 +145,10 @@ public:
 
 	uint32 GetImmobilizedShipCount();
 
+	uint32 GetTradingShipCount() const;
+
 	/** Get the current ship count in the fleet */
-	uint32 GetShipCount();
+	uint32 GetShipCount() const;
 
 	/** Get the maximum ship count in a fleet */
 	uint32 GetMaxShipCount();
@@ -170,4 +174,7 @@ public:
 		return CurrentTradeRoute;
 	}
 
+	int32 GetFleetCapacity() const;
+
+	int32 GetFleetFreeCargoSpace() const;
 };

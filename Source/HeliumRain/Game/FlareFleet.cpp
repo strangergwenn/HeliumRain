@@ -52,6 +52,12 @@ bool UFlareFleet::IsTraveling() const
 	return CurrentTravel != NULL;
 }
 
+bool UFlareFleet::IsTrading() const
+{
+	return GetTradingShipCount() > 0;
+}
+
+
 bool UFlareFleet::CanTravel()
 {
 	if (IsTraveling() && !GetCurrentTravel()->CanChangeDestination())
@@ -99,7 +105,21 @@ uint32 UFlareFleet::GetImmobilizedShipCount()
 	return ImmobilizedShip;
 }
 
-uint32 UFlareFleet::GetShipCount()
+uint32 UFlareFleet::GetTradingShipCount() const
+{
+	uint32 TradingShip = 0;
+
+	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	{
+		if (FleetShips[ShipIndex]->IsTrading())
+		{
+			TradingShip++;
+		}
+	}
+	return TradingShip;
+}
+
+uint32 UFlareFleet::GetShipCount() const
 {
 	return FleetShips.Num();
 }
@@ -118,12 +138,46 @@ FText UFlareFleet::GetStatusInfo() const
 			CurrentTravel->GetDestinationSector()->GetSectorName(),
 			FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1))); //FString needed here
 	}
+	else if (IsTrading())
+	{
+		if(GetTradingShipCount() == GetShipCount())
+		{
+			return FText::Format(LOCTEXT("FleetTrading", "Trading in {0}"), GetCurrentSector()->GetSectorName());
+		}
+		else
+		{
+			return FText::Format(LOCTEXT("FleetPartialTrading", "{0} of {1} ships are trading in {2}"), FText::AsNumber(GetTradingShipCount()), FText::AsNumber(GetShipCount()), GetCurrentSector()->GetSectorName());
+		}
+	}
 	else
 	{
-		return FText::Format(LOCTEXT("TravelIdle", "Idle in {0}"), GetCurrentSector()->GetSectorName());
+		return FText::Format(LOCTEXT("FleetIdle", "Idle in {0}"), GetCurrentSector()->GetSectorName());
 	}
 
 	return FText();
+}
+
+
+int32 UFlareFleet::GetFleetCapacity() const
+{
+	int32 FreeCargoSpace = 0;
+
+	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	{
+		FreeCargoSpace += FleetShips[ShipIndex]->GetCargoBay()->GetCapacity();
+	}
+	return FreeCargoSpace;
+}
+
+int32 UFlareFleet::GetFleetFreeCargoSpace() const
+{
+	int32 FreeCargoSpace = 0;
+
+	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	{
+		FreeCargoSpace += FleetShips[ShipIndex]->GetCargoBay()->GetFreeCargoSpace();
+	}
+	return FreeCargoSpace;
 }
 
 void UFlareFleet::RemoveImmobilizedShips()

@@ -80,6 +80,16 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						.Text(this, &SFlareTradeRouteMenu::GetFleetInfo)
 						.TextStyle(&Theme.TextFont)
 					]
+					// Cargo of the current fleet
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareTradeRouteMenu::GetFleetCargoInfo)
+						.TextStyle(&Theme.TextFont)
+					]
 
 					// Map
 					+ SVerticalBox::Slot()
@@ -786,6 +796,18 @@ FText SFlareTradeRouteMenu::GetFleetInfo() const
 	return LOCTEXT("NoFleetSelected", "No assigned fleet !");
 }
 
+FText SFlareTradeRouteMenu::GetFleetCargoInfo() const
+{
+	if (TargetTradeRoute && TargetTradeRoute->GetFleet())
+	{
+		return FText::Format(LOCTEXT("FleetCargoInfoFormat", "  Total fleet capacity : {0} ({1} free)"),
+							 FText::AsNumber(TargetTradeRoute->GetFleet()->GetFleetCapacity()),
+							 FText::AsNumber(TargetTradeRoute->GetFleet()->GetFleetFreeCargoSpace()));
+	}
+
+	return FText();
+}
+
 FText SFlareTradeRouteMenu::GetSelectedStepInfo() const
 {
 	if (SelectedOperation)
@@ -1005,7 +1027,8 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 		{
 			if (Operation->MaxWait == -1)
 			{
-				WaitText = ForeverText;
+				WaitText = FText::Format(LOCTEXT("OperationStatusActiveWaitForeverFormat", "since {0} days"),
+										 FText::AsNumber(TargetTradeRoute->GetData()->CurrentOperationDuration));;
 			}
 			else
 			{
@@ -1014,10 +1037,16 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 						   FText::AsNumber(Operation->MaxWait));
 			}
 
-			if (Operation->MaxQuantity > -1)
-			{
-				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
+			FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
 
+			if (Operation->MaxQuantity == -1)
+			{
+				QuantityText = FText::Format(LOCTEXT("OperationStatusActiveQuantityFullFormat", "unit full ({0} {1} traded)"),
+						   FText::AsNumber(TargetTradeRoute->GetData()->CurrentOperationProgress),
+							Resource->Acronym);
+			}
+			else
+			{
 				QuantityText = FText::Format(LOCTEXT("OperationStatusActiveQuantityFormat", "{0} / {1} {2}"),
 						   FText::AsNumber(TargetTradeRoute->GetData()->CurrentOperationProgress),
 						   FText::AsNumber(Operation->MaxQuantity),
