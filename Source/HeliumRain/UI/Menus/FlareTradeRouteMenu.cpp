@@ -10,8 +10,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareTradeRouteMenu"
 
-#define MAX_WAIT_LIMIT 50
-#define MAX_QUANTITY_LIMIT 1000
+#define MAX_WAIT_LIMIT 30
+#define MAX_QUANTITY_LIMIT 2000
 
 
 /*----------------------------------------------------
@@ -1306,7 +1306,7 @@ void SFlareTradeRouteMenu::OnQuantityLimitToggle()
 	{
 		if (QuantityLimitButton->IsActive())
 		{
-			SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT + 1;
+			SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT;
 		}
 		else
 		{
@@ -1321,7 +1321,7 @@ void SFlareTradeRouteMenu::OnWaitLimitToggle()
 	{
 		if (WaitLimitButton->IsActive())
 		{
-			SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT + 1;
+			SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT;
 		}
 		else
 		{
@@ -1334,7 +1334,7 @@ void SFlareTradeRouteMenu::OnQuantityLimitChanged(float Value)
 {
 	if (SelectedOperation)
 	{
-		SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT + 1;
+		SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT;
 	}
 }
 
@@ -1342,7 +1342,7 @@ void SFlareTradeRouteMenu::OnWaitLimitChanged(float Value)
 {
 	if (SelectedOperation)
 	{
-		SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT +1;
+		SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT;
 	}
 }
 
