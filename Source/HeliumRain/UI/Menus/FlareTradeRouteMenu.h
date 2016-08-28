@@ -53,10 +53,7 @@ protected:
 
 	/** Get info for the current fleet */
 	FText GetFleetInfo() const;
-
-	/** Get cargo info for the current fleet */
-	FText GetFleetCargoInfo() const;
-
+	
 	/** Get info for the selected trade route step */
 	FText GetSelectedStepInfo() const;
 
