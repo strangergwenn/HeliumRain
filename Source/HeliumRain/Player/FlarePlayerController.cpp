@@ -219,6 +219,8 @@ void AFlarePlayerController::SetExternalCamera(bool NewState)
 {
 	if (ShipPawn)
 	{
+		MenuManager->CloseMainOverlay();
+
 		// No internal camera when docked
 		if (ShipPawn && ShipPawn->GetNavigationSystem()->IsDocked())
 		{
