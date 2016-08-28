@@ -856,6 +856,11 @@ void AFlarePlayerController::Simulate()
 	GetGame()->GetGameWorld()->Simulate();
 
 	GetGame()->ActivateCurrentSector();
+
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None && ShipPawn)
+	{
+		FlyShip(ShipPawn, true);
+	}
 }
 
 void AFlarePlayerController::SettingsMenu()
