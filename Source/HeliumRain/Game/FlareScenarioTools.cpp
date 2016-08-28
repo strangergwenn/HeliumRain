@@ -146,7 +146,7 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	CreatePlayerShip(MinersHome, "ship-omen");
 	CreatePlayerShip(FrozenRealm, "ship-omen");
 	PlayerCompany->GiveMoney(10000000);
-	CreateStations(StationIceMine, PlayerCompany, FrozenRealm, 1);
+	CreateStations(StationIceMine, PlayerCompany, ShoreOfIce, 1);
 	CreateStations(StationIceMine, PlayerCompany, MinersHome, 1);
 }
 
@@ -197,7 +197,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHabitation, IonLane, BlueHeart, 4);
 	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 6);
 
-	CreateStations(StationIceMine, MiningSyndicate, FrozenRealm, 3);
+	CreateStations(StationIceMine, MiningSyndicate, ShoreOfIce, 3);
 
 	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);
 	CreateStations(StationToolFactory, HelixFoundries, Outpost, 1);
@@ -258,7 +258,6 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 
 	// Notable sectors (Anka)
 	Company->DiscoverSector(Outpost);
-	Company->DiscoverSector(Colossus);
 	Company->DiscoverSector(Crossroads);
 
 	// Notable sectors (Hela)
