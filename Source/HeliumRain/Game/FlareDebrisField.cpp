@@ -36,7 +36,7 @@ void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Secto
 	{
 		float SectorScale = 5000 * 100;
 		int32 DebrisCount = 100 * DebrisFieldInfo->DebrisFieldDensity;
-		FLOGV("UFlareDebrisField::Setup : spawning debris field, size = %d", DebrisCount);
+		FLOGV("UFlareDebrisField::Setup : spawning debris field : gen %d, size = %d, icy = %d", CurrentGenerationIndex, DebrisCount, Sector->GetDescription()->IsIcy);
 
 		for (int32 Index = 0; Index < DebrisCount; Index++)
 		{
@@ -63,12 +63,12 @@ void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Secto
 	}
 
 	CurrentGenerationIndex++;
-	FLOGV("UFlareDebrisField::Setup : done spawning debris field gen %d, size = %d", CurrentGenerationIndex, DebrisField.Num());
+	FLOGV("UFlareDebrisField::Setup : done spawning debris field, size = %d", DebrisField.Num());
 }
 
 void UFlareDebrisField::Reset()
 {
-	FLOGV("UFlareDebrisField::Reset :clearing debris field, size = %d", DebrisField.Num());
+	FLOGV("UFlareDebrisField::Reset : clearing debris field, size = %d", DebrisField.Num());
 	for (int i = 0; i < DebrisField.Num(); i++)
 	{
 		Game->GetWorld()->DestroyActor(DebrisField[i]);
@@ -120,25 +120,16 @@ AStaticMeshActor* UFlareDebrisField::AddDebris(UFlareSimulatedSector* Sector, US
 			DebrisComponent->SetCollisionProfileName("BlockAllDynamic");
 
 			// Set material
-			if (!DebrisComponent->GetMaterial(0)->IsA(UMaterialInstanceDynamic::StaticClass()))
+			UMaterialInstanceDynamic* DebrisMaterial = UMaterialInstanceDynamic::Create(DebrisComponent->GetMaterial(0), DebrisComponent->GetWorld());
+			if (DebrisMaterial)
 			{
-				UMaterialInstanceDynamic* DebrisMaterial = UMaterialInstanceDynamic::Create(DebrisComponent->GetMaterial(0), DebrisComponent->GetWorld());
-				if (DebrisMaterial && DebrisComponent->StaticMesh)
-				{
-					for (int32 LodIndex = 0; LodIndex < DebrisComponent->StaticMesh->RenderData->LODResources.Num(); LodIndex++)
-					{
-						DebrisComponent->SetMaterial(LodIndex, DebrisMaterial);
-					}
-					DebrisMaterial->SetScalarParameterValue("IceMask", Sector->GetDescription()->IsIcy);
-				}
-				else
-				{
-					FLOG("UFlareDebrisField::AddDebris : failed to set material (no material or mesh)")
-				}
+				DebrisComponent->SetMaterial(0, DebrisMaterial);
+				DebrisMaterial->SetScalarParameterValue("IceMask", Sector->GetDescription()->IsIcy);
+				FLOGV("UFlareDebrisField::AddDebris : updated icy set %d", Sector->GetDescription()->IsIcy);
 			}
 			else
 			{
-				//FLOG("UFlareDebrisField::AddDebris : failed to set material (already dynamic, can't inherit)")
+				FLOG("UFlareDebrisField::AddDebris : failed to set material (no material or mesh)")
 			}
 		}
 	}
