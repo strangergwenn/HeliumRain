@@ -32,7 +32,7 @@ public:
 	void Setup();
 
 	/** Enter this menu */
-	void Enter(UFlareQuest* Sector);
+	void Enter(UFlareQuest* TargetQuest);
 
 	/** Exit this menu */
 	void Exit();
@@ -54,29 +54,38 @@ protected:
 	void FillQuestDetails();
 
 	/** Add a quest detail line */
-	TSharedPtr<SVerticalBox> AddQuestDetail(int32 QuestIndex);
+	TSharedPtr<SVerticalBox> AddQuestDetail(int32 QuestStepIndex);
 
 
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
 
-	/** Get the active quest title */
-	FText GetActiveQuestTitle() const;
+	/** Get the selected quest title */
+	FText GetSelectedQuestTitle() const;
 
 	/** Get the active quest description */
-	FText GetActiveQuestDescription() const;
+	FText GetQuestStepDescription(int32 QuestStepIndex) const;
 
-	/** Is the "track" button visible ?*/
-	bool GetTrackQuestVisibility(UFlareQuest*  Quest) const;
+	/** Is this quest step visible */
+	EVisibility GetQuestStepDescriptionVisibility(int32 QuestStepIndex) const;
+
+	/** Is the "track" button disabled */
+	bool IsTrackQuestButtonDisabled(UFlareQuest*  Quest) const;
 	
 
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
 
-	/** A new quest is selected */
+	/** A new quest is tracked */
+	void OnQuestTracked(UFlareQuest* Quest);
+
+	/** A new quest is selected for more details */
 	void OnQuestSelected(UFlareQuest* Quest);
+
+	/** A new quest step is selected for more details */
+	FReply OnQuestStepSelected(int32 QuestStepIndex);
 
 
 protected:
@@ -92,6 +101,10 @@ protected:
 	TSharedPtr<SVerticalBox>                        ActiveQuestList;
 	TSharedPtr<SVerticalBox>                        PreviousQuestList;
 	TSharedPtr<SVerticalBox>                        QuestDetails;
+
+	// Data
+	UFlareQuest*                                    SelectedQuest;
+	int32                                           CurrentQuestStepIndex;
 
 
 };
