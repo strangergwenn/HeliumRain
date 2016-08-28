@@ -17,6 +17,7 @@
 UFlareDebrisField::UFlareDebrisField(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	CurrentGenerationIndex = 0;
 }
 
 void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Sector)
@@ -45,7 +46,7 @@ void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Secto
 			float MaxSize = DebrisFieldInfo->MaxDebrisSize;
 			float Size = FMath::FRandRange(MinSize, MaxSize);
 
-			FName Name = FName(*(FString::Printf(TEXT("Debris%d"), Index)));
+			FName Name = FName(*(FString::Printf(TEXT("DebrisGen%dIndex%d"), CurrentGenerationIndex, Index)));
 
 			NewDebris.Add(AddDebris(Sector, DebrisFieldMeshes->Asteroids[DebrisIndex], Size, SectorScale, Name));
 		}
@@ -60,7 +61,9 @@ void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Secto
 			DebrisField.Add(NewDebris[DebrisIndex]);
 		}
 	}
-	FLOGV("UFlareDebrisField::Setup : done spawning debris field, size = %d", DebrisField.Num());
+
+	CurrentGenerationIndex++;
+	FLOGV("UFlareDebrisField::Setup : done spawning debris field gen %d, size = %d", CurrentGenerationIndex, DebrisField.Num());
 }
 
 void UFlareDebrisField::Reset()

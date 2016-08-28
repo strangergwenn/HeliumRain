@@ -53,4 +53,7 @@ protected:
 	UPROPERTY()
 	AFlareGame*                                Game;
 
+	// Data
+	int32                                      CurrentGenerationIndex;
+
 };
