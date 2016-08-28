@@ -501,11 +501,7 @@ struct FFlareFactoryDescription
 	/** Output actions */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareFactoryAction> OutputActions;
-
-	/** Sun impact factory cost */
-	UPROPERTY(EditAnywhere, Category = Content)
-	bool NeedSun;
-
+	
 	/** Auto-start */
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool AutoStart;

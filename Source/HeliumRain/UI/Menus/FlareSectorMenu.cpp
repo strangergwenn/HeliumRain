@@ -599,7 +599,7 @@ FText SFlareSectorMenu::GetSectorLocation() const
 			if (TargetSector->GetDescription()->IsSolarPoor)
 			{
 				LightRatioString = LOCTEXT("SectorLightRatioFoggy", "0%");
-				AttributeString += LOCTEXT("Foggy", "Foggy").ToString();
+				AttributeString += LOCTEXT("Dusty", "Dusty").ToString();
 			}
 			else
 			{

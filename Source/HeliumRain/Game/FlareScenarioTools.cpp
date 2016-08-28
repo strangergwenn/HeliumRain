@@ -238,7 +238,6 @@ void UFlareScenarioTools::SetupAsteroids()
 	CreateAsteroids(Outpost, 12, FVector(8, 20, 5));
 	CreateAsteroids(TheDig, 22, FVector(15, 50, 7));
 
-	CreateAsteroids(FrozenRealm, 19, FVector(9, 50, 5));
 	CreateAsteroids(ShoreOfIce, 22, FVector(17, 25, 9));
 	CreateAsteroids(Ruins, 15, FVector(7, 18, 9));
 }

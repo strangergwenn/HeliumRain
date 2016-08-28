@@ -430,7 +430,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	// Does it needs sun
 	if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure) && SectorDescription->IsSolarPoor)
 	{
-		OutReasons.Add(LOCTEXT("BuildRequiresSun", "This station requires high solar exposure"));
+		OutReasons.Add(LOCTEXT("BuildRequiresSun", "This station can't be built near debris or dust"));
 		Result = false;
 	}
 
