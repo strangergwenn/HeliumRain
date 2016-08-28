@@ -380,6 +380,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCargo(FFlareCargoSave* Data)
 	JsonObject->SetStringField("ResourceIdentifier", Data->ResourceIdentifier.ToString());
 	JsonObject->SetStringField("Quantity", FormatInt32(Data->Quantity));
 	JsonObject->SetStringField("Lock", FormatEnum<EFlareResourceLock::Type>("EFlareResourceLock",Data->Lock));
+	JsonObject->SetStringField("Restriction", FormatEnum<EFlareResourceRestriction::Type>("EFlareResourceRestriction",Data->Restriction));
 
 	return JsonObject;
 }

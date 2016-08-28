@@ -64,6 +64,10 @@ struct FFlareCargo
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlareResourceLock::Type> Lock;
 
+	/** Cargo restriction */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlareResourceRestriction::Type> Restriction;
+
 	/** Manual lock */
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool ManualLock;

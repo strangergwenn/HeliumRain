@@ -339,7 +339,7 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 			continue;
 		}
 
-		uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantity);
+		uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantity, NULL);
 		RemainingQuantity -= TakenQuantity;
 		uint32 Price = (uint32) (Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption)) * TakenQuantity;
 		PeopleData.Money -= Price;

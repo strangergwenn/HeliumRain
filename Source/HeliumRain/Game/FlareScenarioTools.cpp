@@ -359,7 +359,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			{
 				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
 
-				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity());
+				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity(), Company);
 			}
 		}
 		
@@ -369,7 +369,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity());
+				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity(), Company);
 			}
 		}
 
@@ -379,7 +379,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
-				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() / 2);
+				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
 			}
 		}
 

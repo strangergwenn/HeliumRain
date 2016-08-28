@@ -29,17 +29,22 @@ public:
 	   Gameplay
 	----------------------------------------------------*/
 
-	bool HasResources(FFlareResourceDescription* Resource, uint32 Quantity);
+	/* If client is not null, restriction are used*/
+	bool HasResources(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Client);
 
-	uint32 TakeResources(FFlareResourceDescription* Resource, uint32 Quantity);
+	/* If client is not null, restriction are used*/
+	uint32 TakeResources(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Client);
 
 	void DumpCargo(FFlareCargo* Cargo);
 
-	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity);
+	/* If client is not null, restriction are used*/
+	uint32 GiveResources(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Client);
 
 	void UnlockAll(bool IgnoreManualLock = true);
 
 	bool LockSlot(FFlareResourceDescription* Resource, EFlareResourceLock::Type LockType, bool ManualLock);
+
+	void SetSlotRestriction(int32 SlotIndex, EFlareResourceRestriction::Type RestrictionType);
 
 protected:
 
@@ -73,9 +78,13 @@ public:
 
 	uint32 GetFreeCargoSpace() const;
 
-	uint32 GetResourceQuantity(FFlareResourceDescription* Resource) const;
+	/* If client is not null, restriction are used*/
+	uint32 GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
 
-	uint32 GetFreeSpaceForResource(FFlareResourceDescription* Resource) const;
+	/* If client is not null, restriction are used*/
+	uint32 GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
+
+	bool HasRestrictions() const;
 
 	FFlareCargo* GetSlot(uint32 Index);
 
@@ -91,7 +100,11 @@ public:
 		return Parent;
 	}
 
-	bool WantSell(FFlareResourceDescription* Resource) const;
+	/* If client is not null, restriction are used*/
+	bool WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
 
-	bool WantBuy(FFlareResourceDescription* Resource) const;
+	/* If client is not null, restriction are used*/
+	bool WantBuy(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
+
+	bool CheckRestriction(const FFlareCargo* Cargo, UFlareCompany* Client) const;
 };

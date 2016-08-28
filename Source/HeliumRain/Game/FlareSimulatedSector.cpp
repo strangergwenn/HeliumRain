@@ -518,23 +518,20 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		UFlareCargoBay* CargoBay = Spacecraft->GetCargoBay();
 
 
-		for (uint32 CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
+		for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 		{
-			FFlareCargo* Cargo = CargoBay->GetSlot(CargoIndex);
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
 
-			if (!Cargo->Resource)
-			{
-				continue;
-			}
+			uint32 AvailableQuantity = CargoBay->GetResourceQuantity(Resource, Company);
 
 			bool NewResource = true;
 
 
 			for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
 			{
-				if (AvailableResources[AvailableResourceIndex].Resource == Cargo->Resource)
+				if (AvailableResources[AvailableResourceIndex].Resource == Resource)
 				{
-					AvailableResources[AvailableResourceIndex].Quantity += Cargo->Quantity;
+					AvailableResources[AvailableResourceIndex].Quantity += AvailableQuantity;
 					NewResource = false;
 
 					break;
@@ -544,8 +541,8 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 			if (NewResource)
 			{
 				FFlareCargo NewResourceCargo;
-				NewResourceCargo.Resource = Cargo->Resource;
-				NewResourceCargo.Quantity = Cargo->Quantity;
+				NewResourceCargo.Resource = Resource;
+				NewResourceCargo.Quantity = AvailableQuantity;
 				AvailableResources.Add(NewResourceCargo);
 			}
 		}
@@ -624,7 +621,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftD
 				continue;
 			}
 
-			ResourceToTake -= Ship->GetCargoBay()->TakeResources(Resource, ResourceToTake);
+			ResourceToTake -= Ship->GetCargoBay()->TakeResources(Resource, ResourceToTake, Ship->GetCompany());
 		}
 
 		if (ResourceToTake > 0)
@@ -667,23 +664,20 @@ bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station
 		UFlareCargoBay* CargoBay = Spacecraft->GetCargoBay();
 
 
-		for (uint32 CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
+		for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 		{
-			FFlareCargo* Cargo = CargoBay->GetSlot(CargoIndex);
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
 
-			if (!Cargo->Resource)
-			{
-				continue;
-			}
+			uint32 AvailableQuantity = CargoBay->GetResourceQuantity(Resource, Company);
 
 			bool NewResource = true;
 
 
 			for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
 			{
-				if (AvailableResources[AvailableResourceIndex].Resource == Cargo->Resource)
+				if (AvailableResources[AvailableResourceIndex].Resource == Resource)
 				{
-					AvailableResources[AvailableResourceIndex].Quantity += Cargo->Quantity;
+					AvailableResources[AvailableResourceIndex].Quantity += AvailableQuantity;
 					NewResource = false;
 
 					break;
@@ -693,8 +687,8 @@ bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station
 			if (NewResource)
 			{
 				FFlareCargo NewResourceCargo;
-				NewResourceCargo.Resource = Cargo->Resource;
-				NewResourceCargo.Quantity = Cargo->Quantity;
+				NewResourceCargo.Resource = Resource;
+				NewResourceCargo.Quantity = AvailableQuantity;
 				AvailableResources.Add(NewResourceCargo);
 			}
 		}
@@ -776,7 +770,7 @@ bool UFlareSimulatedSector::UpgradeStation(UFlareSimulatedSpacecraft* Station)
 				continue;
 			}
 
-			ResourceToTake -= Ship->GetCargoBay()->TakeResources(Resource, ResourceToTake);
+			ResourceToTake -= Ship->GetCargoBay()->TakeResources(Resource, ResourceToTake, Company);
 		}
 
 
@@ -856,7 +850,13 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
 
-		float StockRatio = FMath::Clamp((float) Station->GetCargoBay()->GetResourceQuantity(Resource) / (float) Station->GetCargoBay()->GetSlotCapacity(), 0.f, 1.f);
+		if(Station->GetCargoBay()->HasRestrictions())
+		{
+			// Not allow station with slot restriction to impact the price
+			continue;
+		}
+
+		float StockRatio = FMath::Clamp((float) Station->GetCargoBay()->GetResourceQuantity(Resource, NULL) / (float) Station->GetCargoBay()->GetSlotCapacity(), 0.f, 1.f);
 
 		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
@@ -989,7 +989,7 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 			continue;
 		}
 
-		ResourceCount += Station->GetCargoBay()->GetResourceQuantity(Resource);
+		ResourceCount += Station->GetCargoBay()->GetResourceQuantity(Resource, NULL);
 	}
 
 	return ResourceCount;

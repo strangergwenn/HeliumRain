@@ -617,8 +617,8 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 		TransactionSourceSpacecraft = SourceSpacecraft;
 		TransactionDestinationSpacecraft = DestinationSpacecraft;
 		TransactionResource = Resource;
-		TransactionQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
-		                            TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
+		TransactionQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
+									TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
 		QuantitySlider->SetValue(1.0f);
 		QuantityText->SetText(FText::AsNumber(TransactionQuantity));
 
@@ -629,8 +629,8 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 {
 	// Force slider value, update quantity
-	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
-		                              TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
+	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
+									  TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
 
 	TransactionQuantity = FMath::Lerp((int32)1, ResourceMaxQuantity, Value);
 
@@ -661,8 +661,8 @@ void SFlareTradeMenu::OnResourceQuantityEntered(const FText& TextValue)
 {
 	if (TextValue.ToString().IsNumeric())
 	{
-		int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
-			TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
+		int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
+			TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
 		
 		TransactionQuantity = FMath::Clamp(FCString::Atoi(*TextValue.ToString()), 0, ResourceMaxQuantity);
 		FLOGV("SFlareTradeMenu::OnResourceQuantityEntered number %d / %d", TransactionQuantity, ResourceMaxQuantity)
@@ -774,7 +774,7 @@ bool SFlareTradeMenu::IsTransactionValid() const
 		{
 			return true;
 		}
-		if (TransactionSourceSpacecraft->GetCargoBay()->WantSell(TransactionResource) && TransactionDestinationSpacecraft->GetCargoBay()->WantBuy(TransactionResource))
+		if (TransactionSourceSpacecraft->GetCargoBay()->WantSell(TransactionResource, MenuManager->GetPC()->GetCompany()) && TransactionDestinationSpacecraft->GetCargoBay()->WantBuy(TransactionResource, MenuManager->GetPC()->GetCompany()))
 		{
 			return true;
 		}

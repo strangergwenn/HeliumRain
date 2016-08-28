@@ -91,7 +91,7 @@ void UFlareCompanyAI::Simulate()
 				Request.Resource = Cargo.Resource;
 				Request.Operation = EFlareTradeRouteOperation::UnloadOrSell;
 				Request.Client = Ship;
-				Request.MaxQuantity = Ship->GetCargoBay()->GetResourceQuantity(Cargo.Resource);
+				Request.MaxQuantity = Ship->GetCargoBay()->GetResourceQuantity(Cargo.Resource, Ship->GetCompany());
 
 				UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
 
@@ -214,7 +214,7 @@ void UFlareCompanyAI::Simulate()
 				Request.Resource = BestDeal.Resource;
 				Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
 				Request.Client = Ship;
-				Request.MaxQuantity = Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource);
+				Request.MaxQuantity = Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany());
 
 				UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
 
@@ -713,7 +713,7 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 			UFlareSimulatedSpacecraft* Ship = ConstructionShips[ShipIndex];
 			if (Ship->GetCurrentSector() != ConstructionProjectSector)
 			{
-				OwnedQuantity = Ship->GetCargoBay()->GetResourceQuantity(&Resource->Resource->Data);
+				OwnedQuantity = Ship->GetCargoBay()->GetResourceQuantity(&Resource->Resource->Data, Ship->GetCompany());
 			}
 		}
 
@@ -746,16 +746,16 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 			}
 
 			FFlareResourceDescription* ResourceToGive = Cargo->Resource;
-			uint32 QuantityToGive = Ship->GetCargoBay()->GetResourceQuantity(ResourceToGive);
+			uint32 QuantityToGive = Ship->GetCargoBay()->GetResourceQuantity(ResourceToGive, Ship->GetCompany());
 
 
 			for (int32 OtherShipIndex = ShipIndex+1 ; QuantityToGive > 0 && OtherShipIndex < ShipsInConstructionSector.Num(); OtherShipIndex++)
 			{
 
 				UFlareSimulatedSpacecraft* OtherShip = ShipsInConstructionSector[OtherShipIndex];
-				uint32 GivenQuantity = OtherShip->GetCargoBay()->GiveResources(ResourceToGive, QuantityToGive);
+				uint32 GivenQuantity = OtherShip->GetCargoBay()->GiveResources(ResourceToGive, QuantityToGive, Ship->GetCompany());
 
-				Ship->GetCargoBay()->TakeResources(ResourceToGive, GivenQuantity);
+				Ship->GetCargoBay()->TakeResources(ResourceToGive, GivenQuantity, OtherShip->GetCompany());
 
 				QuantityToGive -= GivenQuantity;
 
@@ -773,7 +773,7 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 		{
 			FFlareResourceDescription* MissingResource = MissingResources[ResourceIndex];
 
-			if (Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource))
+			if (Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany()))
 			{
 				// Can do more work
 				ShipsToTravel.Add(Ship);
@@ -824,7 +824,7 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 				}
 				int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
 
-				int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource);
+				int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
 
 				int32 QuantityToBuy = FMath::Min(Capacity, MissingResourceQuantity);
 
@@ -866,7 +866,7 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 			{
 				FFlareResourceDescription* MissingResource = MissingResources[ResourceIndex];
 
-				if (Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource))
+				if (Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany()))
 				{
 					// Can do more work
 					IsFull = false;
@@ -922,7 +922,7 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 							FLOGV("!!!!!!!!! MissingResourcesQuantity don't contains %s 2", *MissingResource->Name.ToString());
 						}
 						int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
-						int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource);
+						int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
 
 
 
@@ -969,7 +969,7 @@ void UFlareCompanyAI::ManagerConstructionShips(TMap<UFlareSimulatedSector*, Sect
 								FLOGV("!!!!!!!!! MissingResourcesQuantity don't contains %s 3", *MissingResource->Name.ToString());
 							}
 							int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
-							int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource);
+							int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
 
 
 							/* Owned stock will be set negative if multiple cargo go here. This will impact the score */
@@ -1074,8 +1074,8 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			}
 
 
-			int32 InitialQuantity = Ship->GetCargoBay()->GetResourceQuantity(Resource);
-			int32 FreeSpace = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource);
+			int32 InitialQuantity = Ship->GetCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany());
+			int32 FreeSpace = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource, Ship->GetCompany());
 
 			int32 StockInAAfterTravel =
 					VariationA->OwnedStock
@@ -1524,7 +1524,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 				}
 
-				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 				if (ResourceQuantity < SlotCapacity)
 				{
 					int32 Capacity = SlotCapacity - ResourceQuantity;
@@ -1566,7 +1566,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 				}
 
-				uint32 Stock = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				uint32 Stock = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 				if (Company == Station->GetCompany())
 				{
 					Variation->OwnedStock += Stock;
@@ -1601,7 +1601,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
-				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 
 				// Dept are allowed for sell to customers
 
@@ -1629,7 +1629,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
-				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 
 				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
 
@@ -1744,7 +1744,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			if(TotalFlow >= 0)
 			{
 				int32 LongTermConsumption = TotalFlow * 10;
-				int32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource);
+				int32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 
 				if (ResourceQuantity > LongTermConsumption)
 				{

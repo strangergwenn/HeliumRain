@@ -46,6 +46,18 @@ namespace EFlareResourceLock
 	};
 }
 
+/** Resource restruction type values */
+UENUM()
+namespace EFlareResourceRestriction
+{
+	enum Type
+	{
+		Everybody, // Everybody can trade with this slot
+		OwnerOnly, // Only the owner can trade with this slot
+		Nobody, // Nobody can trade with this slot
+	};
+}
+
 /** Ship component turret save data */
 USTRUCT()
 struct FFlareSpacecraftComponentTurretSave
@@ -182,9 +194,13 @@ struct FFlareCargoSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 Quantity;
 
-	/** Lock type */
+	/** Resource Lock type */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlareResourceLock::Type> Lock;
+
+	/** Resource restriction type */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TEnumAsByte<EFlareResourceRestriction::Type> Restriction;
 };
 
 /** Spacecraft factory save data */

@@ -109,9 +109,9 @@ void UFlareTravel::EndTravel()
 		for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = Fleet->GetShips()[ShipIndex];
-			if (Ship->GetCargoBay()->GetResourceQuantity(Resource) > 0)
+			if (Ship->GetCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany()) > 0)
 			{
-				ContaminationFactor += Ship->GetCargoBay()->GetResourceQuantity(Resource) / 1000.f;
+				ContaminationFactor += Ship->GetCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany()) / 1000.f;
 				//TODO scale bay world stock/flow
 			}
 		}
