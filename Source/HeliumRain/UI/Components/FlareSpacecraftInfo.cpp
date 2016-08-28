@@ -375,7 +375,7 @@ void SFlareSpacecraftInfo::Show()
 			FlyButton->SetHelpText(LOCTEXT("ShipAlreadyFlyInfo", "You are already flying this spacecraft"));
 			FlyButton->SetDisabled(true);
 		}
-		else if (!TargetSpacecraft->CanBeFlown(Reason))
+		else if (!TargetSpacecraft->IsActive() || !TargetSpacecraft->CanBeFlown(Reason))
 		{
 			FlyButton->SetHelpText(Reason);
 			FlyButton->SetDisabled(true);
