@@ -198,34 +198,38 @@ void SFlareQuestMenu::FillActiveQuestList()
 
 		ActiveQuestList->AddSlot()
 		.Padding(Theme.SmallContentPadding)
+		.HAlign(HAlign_Left)
 		[
 			SNew(SHorizontalBox)
+
+			// Title
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.VAlign(VAlign_Center)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Width(8.4)
+				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} ({1} / {2})"),
+					Quest->GetQuestName(),
+					FText::AsNumber(QuestProgress->SuccessfullSteps.Num() + 1),
+					FText::AsNumber(QuestDescription->Steps.Num())))
+				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this quest"))
+				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
+				.IsDisabled(this, &SFlareQuestMenu::IsSelectQuestButtonDisabled, Quest)
+			]
 
 			// Select button
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			[
 				SNew(SFlareButton)
-				.Width(3)
+				.Width(2.5)
 				.Icon(FFlareStyleSet::GetIcon("Travel"))
 				.Text(LOCTEXT("SelectQuest", "Track"))
 				.HelpText(LOCTEXT("SelectQuestInfo", "Activate this quest and track its progress"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestTracked, Quest)
 				.IsDisabled(this, &SFlareQuestMenu::IsTrackQuestButtonDisabled, Quest)
-			]
-
-			// Title
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.VAlign(VAlign_Center)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.NameFont)
-				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} ({1} / {2})"),
-					Quest->GetQuestName(),
-					FText::AsNumber(QuestProgress->SuccessfullSteps.Num() + 1),
-					FText::AsNumber(QuestDescription->Steps.Num())))
 			]
 		];
 	}
@@ -260,6 +264,7 @@ void SFlareQuestMenu::FillPreviousQuestList()
 		
 		PreviousQuestList->AddSlot()
 		.Padding(Theme.SmallContentPadding)
+		.HAlign(HAlign_Left)
 		[
 			SNew(SHorizontalBox)
 			
@@ -267,11 +272,14 @@ void SFlareQuestMenu::FillPreviousQuestList()
 			+ SHorizontalBox::Slot()
 			.VAlign(VAlign_Center)
 			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
-				.Text(FText::Format(LOCTEXT("PreviousQuestTitleFormat", "{0} ({1})"),
+				SNew(SFlareButton)
+				.Width(12)
+				.Text(FText::Format(LOCTEXT("SelectPreviousQuestFormat", "{0} ({1})"),
 					Quest->GetQuestName(),
 					Quest->GetStatusText()))
+				.HelpText(LOCTEXT("SelectPreviousQuestInfo", "Take a closer look at this quest"))
+				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
+				.IsDisabled(this, &SFlareQuestMenu::IsSelectQuestButtonDisabled, Quest)
 			]
 		];
 	}
@@ -300,21 +308,24 @@ void SFlareQuestMenu::FillQuestDetails()
 	// Get active quest
 	if (SelectedQuest)
 	{
-		FFlareQuestProgressSave* SelectedQuestProgress = SelectedQuest->Save();
 		const FFlareQuestDescription* SelectedQuestDescription = SelectedQuest->GetQuestDescription();
+		bool IsActiveQuest = (QuestManager->IsQuestActive(SelectedQuestDescription->Identifier));
 
 		// Header
 		QuestDetails->AddSlot()
-		.Padding(Theme.ContentPadding)
+		.Padding(FMargin(0, 0, 0, 20))
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
 			.Text(SelectedQuestDescription->QuestDescription)
 		];
 
-		// List all quest steps
-		int32 CompletedSteps = SelectedQuestProgress->SuccessfullSteps.Num();
+		// Get progress info
+		FFlareQuestProgressSave* SelectedQuestProgress = SelectedQuest->Save();
+		int32 CompletedSteps = IsActiveQuest ? SelectedQuestProgress->SuccessfullSteps.Num() : SelectedQuestDescription->Steps.Num();
 		CurrentQuestStepIndex = CompletedSteps;
+
+		// List all quest steps
 		for (int32 QuestStepIndex = 0; QuestStepIndex < SelectedQuestDescription->Steps.Num(); QuestStepIndex++)
 		{
 			const FFlareQuestStepDescription& QuestStep = SelectedQuestDescription->Steps[QuestStepIndex];
@@ -358,6 +369,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					[
 						SNew(SImage)
 						.Image(FFlareStyleSet::GetIcon("OK"))
+						.Visibility(IsActiveQuest ? EVisibility::Visible : EVisibility::Hidden)
 					]
 				];
 				
@@ -484,13 +496,22 @@ FText SFlareQuestMenu::GetSelectedQuestTitle() const
 	// Get selected quest
 	if (SelectedQuest && SelectedQuest->GetCurrentStepDescription())
 	{
-		FFlareQuestProgressSave* SelectedQuestProgress = SelectedQuest->Save();
 		const FFlareQuestDescription* SelectedQuestDescription = SelectedQuest->GetQuestDescription();
 
-		return FText::Format(LOCTEXT("SelectedQuestTitleFormat", "Selected quest : {0} ({1} / {2})"),
-			SelectedQuest->GetQuestName(),
-			FText::AsNumber(SelectedQuestProgress->SuccessfullSteps.Num() + 1),
-			FText::AsNumber(SelectedQuestDescription->Steps.Num()));
+		if (QuestManager->IsQuestActive(SelectedQuestDescription->Identifier))
+		{
+			FFlareQuestProgressSave* SelectedQuestProgress = SelectedQuest->Save();
+
+			return FText::Format(LOCTEXT("SelectedActiveQuestTitleFormat", "Selected quest : {0} ({1} / {2})"),
+				SelectedQuest->GetQuestName(),
+				FText::AsNumber(SelectedQuestProgress->SuccessfullSteps.Num() + 1),
+				FText::AsNumber(SelectedQuestDescription->Steps.Num()));
+		}
+		else
+		{
+			return FText::Format(LOCTEXT("SelectedQuestTitleFormat", "Selected quest : {0}"),
+				SelectedQuest->GetQuestName());
+		}
 	}
 	else
 	{
@@ -524,12 +545,17 @@ EVisibility SFlareQuestMenu::GetQuestStepDescriptionVisibility(int32 QuestStepIn
 	return (CurrentQuestStepIndex == QuestStepIndex ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
-bool SFlareQuestMenu::IsTrackQuestButtonDisabled(UFlareQuest*  Quest) const
+bool SFlareQuestMenu::IsTrackQuestButtonDisabled(UFlareQuest* Quest) const
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	check(QuestManager);
 
 	return (Quest == QuestManager->GetSelectedQuest());
+}
+
+bool SFlareQuestMenu::IsSelectQuestButtonDisabled(UFlareQuest* Quest) const
+{
+	return (Quest == SelectedQuest);
 }
 
 

@@ -70,6 +70,9 @@ protected:
 	/** Is this quest step visible */
 	EVisibility GetQuestStepDescriptionVisibility(int32 QuestStepIndex) const;
 
+	/** Is the "select" button disabled */
+	bool IsSelectQuestButtonDisabled(UFlareQuest*  Quest) const;
+
 	/** Is the "track" button disabled */
 	bool IsTrackQuestButtonDisabled(UFlareQuest*  Quest) const;
 	
