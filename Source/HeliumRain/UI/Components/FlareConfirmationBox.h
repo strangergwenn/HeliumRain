@@ -72,7 +72,6 @@ protected:
 	TSharedPtr<SFlareButton>                ConfirmButton;
 	TSharedPtr<SFlareButton>                CancelButton;
 	TSharedPtr<STextBlock>                  CostLabel;
-
-
+	TSharedPtr<STextBlock>                  WalletText;
 
 };

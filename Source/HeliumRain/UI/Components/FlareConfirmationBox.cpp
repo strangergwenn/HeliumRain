@@ -33,7 +33,7 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.Padding(Theme.ContentPadding)
 		[
-			SNew(STextBlock)
+			SAssignNew(WalletText, STextBlock)
 			.TextStyle(&Theme.TextFont)
 			.Text(this, &SFlareConfirmationBox::GetWalletText)
 		]
@@ -120,6 +120,7 @@ void SFlareConfirmationBox::Show(int64 NewAmount, UFlareCompany* NewTargetCompan
 	TargetCompany = NewTargetCompany;
 	ConfirmButton->SetVisibility(EVisibility::Visible);
 	CancelButton->SetVisibility(EVisibility::Visible);
+	WalletText->SetVisibility(EVisibility::Visible);
 
 	if (NewAmount > TargetCompany->GetMoney() && !AllowDepts)
 	{
@@ -141,6 +142,7 @@ void SFlareConfirmationBox::Hide()
 	{
 		ConfirmButton->SetVisibility(EVisibility::Collapsed);
 		CancelButton->SetVisibility(EVisibility::Collapsed);
+		WalletText->SetVisibility(EVisibility::Collapsed);
 	}
 }
 

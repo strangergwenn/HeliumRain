@@ -208,7 +208,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 								.Padding(Theme.ContentPadding)
 								[
 									SNew(STextBlock)
-									.TextStyle(&Theme.TextFont)
+									.TextStyle(&Theme.NameFont)
 									.Text(this, &SFlareTradeMenu::GetTransactionInvalidDetails)
 									.Visibility(this, &SFlareTradeMenu::GetTransactionInvalidVisibility)
 								]
@@ -386,7 +386,16 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
 	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
 	ShipList->RefreshList();
-	ShipList->SetVisibility(EVisibility::Visible);
+
+	// Show selector if still needed
+	if (TargetRightSpacecraft)
+	{
+		ShipList->SetVisibility(EVisibility::Collapsed);
+	}
+	else
+	{
+		ShipList->SetVisibility(EVisibility::Visible);
+	}
 }
 
 void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft, TSharedPtr<SHorizontalBox> CargoBay)
@@ -510,7 +519,7 @@ FText SFlareTradeMenu::GetTransactionInvalidDetails() const
 {
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Trading of {0} is unauthorized from {1} to {2}"),
+		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Trading of {0} is unauthorized from {1} to {2} !"),
 			TransactionResource->Name,
 			FText::FromName(TransactionSourceSpacecraft->GetImmatriculation()),
 			FText::FromName(TransactionDestinationSpacecraft->GetImmatriculation()));
@@ -693,7 +702,7 @@ void SFlareTradeMenu::UpdatePrice()
 			TransactionResource);
 	}
 
-	if(IsTransactionValid())
+	if (IsTransactionValid())
 	{
 		if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
 		{
@@ -716,7 +725,7 @@ bool SFlareTradeMenu::IsTransactionValid() const
 {
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		if(TransactionSourceSpacecraft->GetCompany() == TransactionDestinationSpacecraft->GetCompany())
+		if (TransactionSourceSpacecraft->GetCompany() == TransactionDestinationSpacecraft->GetCompany())
 		{
 			return true;
 		}
