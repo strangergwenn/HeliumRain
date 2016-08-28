@@ -216,13 +216,32 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 								// Quantity
 								+ SVerticalBox::Slot()
 								.AutoHeight()
-								.Padding(Theme.ContentPadding)
 								[
-									SAssignNew(QuantitySlider, SSlider)
-									.Style(&Theme.SliderStyle)
-									.Value(0)
-									.OnValueChanged(this, &SFlareTradeMenu::OnResourceQuantityChanged)
-									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+									SNew(SHorizontalBox)
+
+									// Slider
+									+ SHorizontalBox::Slot()
+									.HAlign(HAlign_Fill)
+									.Padding(Theme.ContentPadding)
+									[
+										SAssignNew(QuantitySlider, SSlider)
+										.Style(&Theme.SliderStyle)
+										.Value(0)
+										.OnValueChanged(this, &SFlareTradeMenu::OnResourceQuantityChanged)
+										.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+									]
+
+									// Text box
+									+ SHorizontalBox::Slot()
+									.AutoWidth()
+									.HAlign(HAlign_Right)
+									.Padding(Theme.ContentPadding)
+									[
+										SAssignNew(QuantityText, SEditableText)
+										.Style(&Theme.TextInputStyle)
+										.OnTextChanged(this, &SFlareTradeMenu::OnResourceQuantityEntered)
+										.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+									]
 								]
 
 								// Info
@@ -601,6 +620,7 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 		TransactionQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
 		                            TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
 		QuantitySlider->SetValue(1.0f);
+		QuantityText->SetText(FText::AsNumber(TransactionQuantity));
 
 		UpdatePrice();
 	}
@@ -614,11 +634,11 @@ void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 
 	TransactionQuantity = FMath::Lerp((int32)1, ResourceMaxQuantity, Value);
 
-	if(ResourceMaxQuantity >= 1000 && (TransactionQuantity - ResourceMaxQuantity) > 50)
+	if (ResourceMaxQuantity >= 1000 && (TransactionQuantity - ResourceMaxQuantity) > 50)
 	{
 		TransactionQuantity = (TransactionQuantity / 50) * 50;
 	}
-	else if(ResourceMaxQuantity >= 100 && (TransactionQuantity - ResourceMaxQuantity) > 10)
+	else if (ResourceMaxQuantity >= 100 && (TransactionQuantity - ResourceMaxQuantity) > 10)
 	{
 		TransactionQuantity = (TransactionQuantity / 10) * 10;
 	}
@@ -632,7 +652,32 @@ void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 		QuantitySlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
 	}
 
+	QuantityText->SetText(FText::AsNumber(TransactionQuantity));
+
 	UpdatePrice();
+}
+
+void SFlareTradeMenu::OnResourceQuantityEntered(const FText& TextValue)
+{
+	if (TextValue.ToString().IsNumeric())
+	{
+		int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource),
+			TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource));
+		
+		TransactionQuantity = FMath::Clamp(FCString::Atoi(*TextValue.ToString()), 0, ResourceMaxQuantity);
+		FLOGV("SFlareTradeMenu::OnResourceQuantityEntered number %d / %d", TransactionQuantity, ResourceMaxQuantity)
+
+		if (ResourceMaxQuantity == 1)
+		{
+			QuantitySlider->SetValue(1.0f);
+		}
+		else
+		{
+			QuantitySlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
+		}
+
+		UpdatePrice();
+	}
 }
 
 void SFlareTradeMenu::OnConfirmTransaction()

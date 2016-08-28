@@ -87,6 +87,9 @@ protected:
 	/** Changed resource quantity, recompute price **/
 	void OnResourceQuantityChanged(float Value);
 
+	/** Changed resource quantity, recompute price **/
+	void OnResourceQuantityEntered(const FText& TextValue);
+
 	/** Accept a transaction */
 	void OnConfirmTransaction();
 
@@ -117,6 +120,7 @@ protected:
 	TSharedPtr<SHorizontalBox>                      LeftCargoBay;
 	TSharedPtr<SHorizontalBox>                      RightCargoBay;
 	TSharedPtr<SSlider>                             QuantitySlider;
+	TSharedPtr<SEditableText>                       QuantityText;
 	TSharedPtr<SFlareConfirmationBox>               PriceBox;
 	TSharedPtr<SVerticalBox>                        ResourcePriceList;
 
