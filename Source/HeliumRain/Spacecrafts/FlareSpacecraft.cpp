@@ -108,7 +108,6 @@ void AFlareSpacecraft::BeginPlay()
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
 	check(IsValidLowLevel());
-	//check(Airframe && Airframe->GetBodyInstance()->IsValidBodyInstance());
 
 	// Show mass in logs
 	if (LastMass <= KINDA_SMALL_NUMBER && Airframe && Airframe->IsSimulatingPhysics())
@@ -124,6 +123,17 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		NavigationSystem->TickSystem(DeltaSeconds);
 		WeaponsSystem->TickSystem(DeltaSeconds);
 		DamageSystem->TickSystem(DeltaSeconds);
+
+		// Llights
+		TArray<UActorComponent*> LightComponents = GetComponentsByClass(USpotLightComponent::StaticClass());
+		for (int32 ComponentIndex = 0; ComponentIndex < LightComponents.Num(); ComponentIndex++)
+		{
+			USpotLightComponent* Component = Cast<USpotLightComponent>(LightComponents[ComponentIndex]);
+			if (Component)
+			{
+				Component->SetActive(!Parent->GetDamageSystem()->HasPowerOutage());
+			}
+		}
 
 		// Player ship updates
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
@@ -942,11 +952,22 @@ void AFlareSpacecraft::UpdateCustomization()
 		ShipNameTexture->UpdateResource();
 	}
 
-	// Customize decal materials
-	TArray<UActorComponent*> Components = GetComponentsByClass(UDecalComponent::StaticClass());
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	// Customize lights
+	TArray<UActorComponent*> LightComponents = GetComponentsByClass(USpotLightComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < LightComponents.Num(); ComponentIndex++)
 	{
-		UDecalComponent* Component = Cast<UDecalComponent>(Components[ComponentIndex]);
+		USpotLightComponent* Component = Cast<USpotLightComponent>(LightComponents[ComponentIndex]);
+		if (Component)
+		{
+			Component->SetLightColor(GetGame()->GetCustomizationCatalog()->GetColor(Company->GetLightColorIndex()));
+		}
+	}
+
+	// Customize decal materials
+	TArray<UActorComponent*> DecalComponents = GetComponentsByClass(UDecalComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < DecalComponents.Num(); ComponentIndex++)
+	{
+		UDecalComponent* Component = Cast<UDecalComponent>(DecalComponents[ComponentIndex]);
 		if (Component)
 		{
 			// Ship name decal
