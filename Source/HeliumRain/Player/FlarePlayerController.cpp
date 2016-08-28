@@ -60,9 +60,12 @@ void AFlarePlayerController::BeginPlay()
 	Super::BeginPlay();
 	EnableCheats();
 
-	// Settings
+	// Get settings
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	check(MyGameSettings);
+
+	// Apply settings
+	MyGameSettings->ApplySettings(false);
 	UseCockpit = MyGameSettings->UseCockpit;
 	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
 
