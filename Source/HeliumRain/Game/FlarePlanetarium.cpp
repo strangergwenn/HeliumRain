@@ -133,6 +133,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					FPreciseVector SunDirection = -(SunDeltaLocation.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0))).GetUnsafeNormal();
 					// Reset sun occlusion;
 					SunOcclusion = 0;
+					MinDistance = DistanceToParentCenter;
 
 					MoveCelestialBody(&Sun, -PlayerLocation, AngleOffset, SunDirection);
 
@@ -186,7 +187,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 
 void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection)
 {
-	double BaseDistance = 1e7;
+	double BaseDistance = 1e6;
 
 	FPreciseVector Location = Offset + Body->AbsoluteLocation;
 	FPreciseVector AlignedLocation = Location.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0));

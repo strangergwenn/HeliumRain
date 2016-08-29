@@ -68,6 +68,7 @@ protected:
 	FFlareCelestialBody Sun;
 
 	double SunOcclusion;
+	double MinDistance;
 
 	double SunAnglularRadius;
 	double SunPhase;
