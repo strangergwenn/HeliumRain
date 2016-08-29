@@ -39,14 +39,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMesh->LightingChannels.bChannel0 = false;
 	CockpitMesh->LightingChannels.bChannel1 = true;
 	RootComponent = CockpitMesh;
-
-	// Main camera
-#if FLARE_USE_COCKPIT_RENDERTARGET
-	CockpitCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitCapture"));
-	CockpitCapture->bCaptureEveryFrame = true;
-	CockpitCameraTarget = NULL;
-#endif
-
+	
 	// FLIR camera
 	CockpitFLIRCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitFLIRCapture"));
 	CockpitFLIRCapture->bCaptureEveryFrame = true;
@@ -120,19 +113,6 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		// Setup FLIR camera
 		check(CockpitFLIRCapture);
 		CockpitFLIRCapture->TextureTarget = CockpitFLIRCameraTarget;
-
-#if FLARE_USE_COCKPIT_RENDERTARGET
-		// Main camera texture target
-		CockpitCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
-		check(CockpitCameraTarget);
-		CockpitCameraTarget->ClearColor = FLinearColor::Black;
-		CockpitCameraTarget->UpdateResource();
-
-		// Setup main camera
-		check(CockpitCapture);
-		CockpitCapture->FOVAngle = PC->PlayerCameraManager->GetFOVAngle();
-		CockpitCapture->TextureTarget = CockpitCameraTarget;
-#endif
 
 		// Freighter materials
 		FreighterCockpitMaterialInstance = UMaterialInstanceDynamic::Create(FreighterCockpitMeshTemplate->GetMaterial(0), GetWorld());
@@ -267,9 +247,6 @@ void AFlareCockpitManager::SetupCockpitInstances(UMaterialInstanceDynamic* Scree
 
 	ScreenInstance->SetVectorParameterValue( "IndicatorColorBorders", Theme.FriendlyColor);
 	ScreenInstance->SetTextureParameterValue("HUDTarget",             CockpitHUDTarget);
-#if FLARE_USE_COCKPIT_RENDERTARGET
-	ScreenInstance->SetTextureParameterValue("CameraTarget",          CockpitCameraTarget);
-#endif
 
 	FrameInstance->SetVectorParameterValue( "IndicatorColorBorders",  Theme.FriendlyColor);
 	FrameInstance->SetTextureParameterValue("FLIRTarget",             CockpitFLIRCameraTarget);
@@ -301,9 +278,6 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	}
 
 	// Offset the cockpit
-#if FLARE_USE_COCKPIT_RENDERTARGET
-	CockpitCapture->AttachToComponent(TargetPlayerShip->GetRootComponent(), AttachRules, "Camera");
-#endif
 	CockpitMesh->AttachToComponent(TargetPlayerShip->GetCamera(), AttachRules, NAME_None);
 
 	// FLIR camera

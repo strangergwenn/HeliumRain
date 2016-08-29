@@ -53,7 +53,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
+void SFlareNotifier::Notify(FText Text, FText Info, FName Identifier, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
 {
 	// Remove notification with the same tag.
 	if (Tag != NAME_None)
@@ -78,7 +78,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Tag, EFlareNotificatio
 			.Text(Text)
 			.Info(Info)
 			.Type(Type)
-			.Tag(Tag)
+			.Tag(Identifier)
 			.Pinned(Pinned)
 			.TargetMenu(TargetMenu)
 			.TargetInfo(TargetInfo)

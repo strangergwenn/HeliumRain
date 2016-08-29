@@ -148,7 +148,7 @@ void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDe
 	// Choose a part to work with
 	SlideFromAToB = !SlideFromAToB;
 	UFlareSpacecraftComponent* CurrentPart = SlideFromAToB ? CurrentPartB : CurrentPartA;
-	UFlareCompany* Company = CurrentSpacecraft ? CurrentSpacecraft->GetParent()->GetCompany() : GetPC()->GetCompany();
+	UFlareCompany* TargetCompany = CurrentSpacecraft ? CurrentSpacecraft->GetParent()->GetCompany() : GetPC()->GetCompany();
 	FVector& CurrentPartOffset = SlideFromAToB ? CurrentPartOffsetB : CurrentPartOffsetA;
 
 	// Clean up
@@ -159,7 +159,7 @@ void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDe
 	FFlareSpacecraftComponentSave Data;
 	Data.Damage = 0;
 	Data.ComponentIdentifier = PartDesc->Identifier;
-	CurrentPart->Initialize(&Data, Company, this, true);
+	CurrentPart->Initialize(&Data, TargetCompany, this, true);
 	CurrentPart->SetWorldScale3D(FVector(1, 1, 1));
 	float Scale = DisplaySize / CurrentPart->GetMeshScale();
 	CurrentPart->SetWorldScale3D(Scale * FVector(1, 1, 1));
@@ -240,9 +240,9 @@ void AFlareMenuPawn::UseDarkBackground()
 	Input
 ----------------------------------------------------*/
 
-void AFlareMenuPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)
+void AFlareMenuPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	check(InputComponent);
+	check(PlayerInputComponent);
 }
 
 void AFlareMenuPawn::PitchInput(float Val)

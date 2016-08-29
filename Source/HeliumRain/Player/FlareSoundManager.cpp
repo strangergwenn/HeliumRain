@@ -110,11 +110,13 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 	float MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 
 	FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
+
+	/*
 	for (auto i = AudioDevice->SoundClasses.CreateIterator(); i; ++i)
 	{
 		USoundClass* SoundClass = i.Key();
 		SoundClass->Properties.Volume = MasterVolume;
-	}
+	}*/
 }
 
 void UFlareSoundManager::Update(float DeltaSeconds)
