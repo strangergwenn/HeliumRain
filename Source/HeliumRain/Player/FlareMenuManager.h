@@ -208,6 +208,9 @@ public:
 	/** Get the Slate icon brush for this menu */
 	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType);
 
+	/** Get the key bound to this menu */
+	static FString GetMenuKey(EFlareMenu::Type MenuType);
+
 	/** Is UI visible */
 	bool IsUIOpen() const;
 

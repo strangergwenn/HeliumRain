@@ -219,7 +219,11 @@ void AFlarePlayerController::SetExternalCamera(bool NewState)
 {
 	if (ShipPawn)
 	{
-		MenuManager->CloseMainOverlay();
+		// Close main overlay if open outside menu
+		if (!MenuManager->IsMenuOpen())
+		{
+			MenuManager->CloseMainOverlay();
+		}
 
 		// No internal camera when docked
 		if (ShipPawn && ShipPawn->GetNavigationSystem()->IsDocked())
@@ -779,22 +783,34 @@ void AFlarePlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
+	// Main keys
 	InputComponent->BindAction("ToggleCamera", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCamera);
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
 	InputComponent->BindAction("BackMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::BackMenu);
 	InputComponent->BindAction("Simulate", EInputEvent::IE_Released, this, &AFlarePlayerController::Simulate);
-	InputComponent->BindAction("SettingsMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::SettingsMenu);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
 	InputComponent->BindAction("TooglePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePilot);
 	InputComponent->BindAction("ToggleHUD", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleHUD);
 	InputComponent->BindAction("QuickSwitch", EInputEvent::IE_Released, this, &AFlarePlayerController::QuickSwitch);
 
+	// Menus
+	InputComponent->BindAction("ShipMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ShipMenu);
+	InputComponent->BindAction("SectorMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::SectorMenu);
+	InputComponent->BindAction("OrbitMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::OrbitMenu);
+	InputComponent->BindAction("LeaderboardMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::LeaderboardMenu);
+	InputComponent->BindAction("CompanyMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::CompanyMenu);
+	InputComponent->BindAction("FleetMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::FleetMenu);
+	InputComponent->BindAction("QuestMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::QuestMenu);
+	InputComponent->BindAction("MainMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::MainMenu);
+	InputComponent->BindAction("SettingsMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::SettingsMenu);
+
+	// Mouse
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Pressed, this, &AFlarePlayerController::WheelPressed);
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Released, this, &AFlarePlayerController::WheelReleased);
-
 	InputComponent->BindAxis("MouseInputX", this, &AFlarePlayerController::MouseInputX);
 	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
 
+	// Test
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
 }
@@ -852,8 +868,7 @@ void AFlarePlayerController::Simulate()
 		return;
 	}
 	
-
-	if(GetGame()->GetActiveSector())
+	if (GetGame()->GetActiveSector())
 	{
 		GetGame()->DeactivateSector();
 	}
@@ -865,6 +880,78 @@ void AFlarePlayerController::Simulate()
 	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None && ShipPawn)
 	{
 		FlyShip(ShipPawn, true);
+	}
+}
+
+void AFlarePlayerController::ShipMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Ship)
+	{
+		FLOG("AFlarePlayerController::ShipMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Ship);
+	}
+}
+
+void AFlarePlayerController::SectorMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Sector)
+	{
+		FLOG("AFlarePlayerController::SectorMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Sector);
+	}
+}
+
+void AFlarePlayerController::OrbitMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Orbit)
+	{
+		FLOG("AFlarePlayerController::OrbitMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+	}
+}
+
+void AFlarePlayerController::LeaderboardMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Leaderboard)
+	{
+		FLOG("AFlarePlayerController::LeaderboardMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Leaderboard);
+	}
+}
+
+void AFlarePlayerController::CompanyMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Company)
+	{
+		FLOG("AFlarePlayerController::CompanyMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Company);
+	}
+}
+
+void AFlarePlayerController::FleetMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Fleet)
+	{
+		FLOG("AFlarePlayerController::FleetMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Fleet);
+	}
+}
+
+void AFlarePlayerController::QuestMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Quest)
+	{
+		FLOG("AFlarePlayerController::QuestMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Quest);
+	}
+}
+
+void AFlarePlayerController::MainMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Main)
+	{
+		FLOG("AFlarePlayerController::MainMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 	}
 }
 

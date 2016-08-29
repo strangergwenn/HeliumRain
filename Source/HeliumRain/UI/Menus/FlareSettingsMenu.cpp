@@ -1023,7 +1023,7 @@ FText SFlareSettingsMenu::GetMasterVolumeLabel(int32 Value) const
 
 void SFlareSettingsMenu::CreateBinds()
 {
-	//Piloting
+	// Piloting
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Flying", "FLYING")))->MakeHeader()));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveForward", "Move Forward")))
 		->AddAxisMapping("Thrust", 1.0f)
@@ -1047,9 +1047,18 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCCW", "Roll Left")))
 		->AddAxisMapping("RollInput", -1.0f)
 		->AddDefaults(EKeys::E)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Quick Ship Switch", "Quick Ship Switch")))
+		->AddActionMapping("QuickSwitch")
+		->AddDefaults(EKeys::N)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Camera", "Toogle Camera")))
+		->AddActionMapping("ToggleCamera")
+		->AddDefaults(EKeys::C)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("LockDirection", "Lock direction")))
 		->AddActionMapping("LockDirection")
 		->AddDefaults(EKeys::SpaceBar)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle HUD", "Toogle HUD")))
+		->AddActionMapping("ToggleHUD")
+		->AddDefaults(EKeys::H)));
 
 	// Auto pilot
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Autopilot", "AUTOPILOT")))->MakeHeader()));
@@ -1081,23 +1090,38 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddActionMapping("ToggleCombat")
 		->AddDefaults(EKeys::F)));
 
-	//Misc
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("End day", "End day")))
-		->AddActionMapping("Simulate")
+	// Menus
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menus", "MENUS")))->MakeHeader()));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open ship menu", "Open ship menu")))
+		->AddActionMapping("ShipMenu")
+		->AddDefaults(EKeys::F2)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open sector menu", "Open sector menu")))
+		->AddActionMapping("SectorMenu")
+		->AddDefaults(EKeys::F3)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open orbital map", "Open orbital map")))
+		->AddActionMapping("OrbitMenu")
+		->AddDefaults(EKeys::F4)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open leaderboard", "Open leaderboard")))
+		->AddActionMapping("LeaderboardMenu")
+		->AddDefaults(EKeys::F5)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open company menu", "Open company menu")))
+		->AddActionMapping("CompanyMenu")
 		->AddDefaults(EKeys::F6)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Misc", "MISCELLANEOUS")))->MakeHeader()));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Quick Ship Switch", "Quick Ship Switch")))
-		->AddActionMapping("QuickSwitch")
-		->AddDefaults(EKeys::N)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Camera", "Toogle Camera")))
-		->AddActionMapping("ToggleCamera")
-		->AddDefaults(EKeys::C)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle HUD", "Toogle HUD")))
-		->AddActionMapping("ToggleHUD")
-		->AddDefaults(EKeys::H)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open fleet menu", "Open fleet menu")))
+		->AddActionMapping("FleetMenu")
+		->AddDefaults(EKeys::F7)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open quest menu", "Open quest menu")))
+		->AddActionMapping("QuestMenu")
+		->AddDefaults(EKeys::F8)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open main menu", "Open main menu")))
+		->AddActionMapping("MainMenu")
+		->AddDefaults(EKeys::F9)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open settings menu", "Open settings menu")))
 		->AddActionMapping("SettingsMenu")
 		->AddDefaults(EKeys::F10)));
+	/*Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("End day", "End day")))
+	->AddActionMapping("Simulate")
+	->AddDefaults(EKeys::F6)));*/
 
 }
 

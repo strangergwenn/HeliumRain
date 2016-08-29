@@ -135,7 +135,11 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.Transparent(true)
 		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, EFlareMenu::MENU_Settings)
 	];
-	SetupMenuLink(SettingsButton, AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings), AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Settings), false);
+	SetupMenuLink(SettingsButton,
+		AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings),
+		AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Settings),
+		AFlareMenuManager::GetMenuKey(EFlareMenu::MENU_Settings),
+		false);
 	
 	// Back, exit
 	TSharedPtr<SFlareButton> BackButton;
@@ -172,7 +176,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	];
 
 	// Back, exit config
-	SetupMenuLink(BackButton, FFlareStyleSet::GetIcon("Back"), FText(), true);
+	SetupMenuLink(BackButton, FFlareStyleSet::GetIcon("Back"), FText(), FString(), true);
 	ExitButton->GetContainer()->SetHAlign(HAlign_Center);
 	ExitButton->GetContainer()->SetVAlign(VAlign_Fill);
 	ExitButton->GetContainer()->SetPadding(FMargin(0, 5));
@@ -244,16 +248,20 @@ void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
 	];
 
 	// Fill button contents
-	SetupMenuLink(Button, AFlareMenuManager::GetMenuIcon(Menu), AFlareMenuManager::GetMenuName(Menu), false);
+	SetupMenuLink(Button,
+		AFlareMenuManager::GetMenuIcon(Menu),
+		AFlareMenuManager::GetMenuName(Menu),
+		AFlareMenuManager::GetMenuKey(Menu),
+		false);
 }
 
-void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, bool Small)
+void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, FString Key, bool Small)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	Button->GetContainer()->SetHAlign(HAlign_Center);
 	Button->GetContainer()->SetVAlign(VAlign_Fill);
-	Button->GetContainer()->SetPadding(FMargin(0, Small ? 5 : 30));
+	Button->GetContainer()->SetPadding(FMargin(0, Small ? 5 : 25));
 
 	Button->GetContainer()->SetContent(
 		SNew(SVerticalBox)
@@ -280,6 +288,16 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSl
 			SNew(STextBlock)
 			.TextStyle(&Theme.SmallFont)
 			.Text(Text)
+		]
+
+		// Shortcut
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SmallFont)
+			.Text(FText::Format(LOCTEXT("ShortcutKeyFormat", "({0})"), FText::FromString(Key)))
 		]
 	);
 }

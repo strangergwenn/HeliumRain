@@ -869,6 +869,39 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType)
 	return FFlareStyleSet::GetIcon(Path);
 }
 
+FString AFlareMenuManager::GetMenuKey(EFlareMenu::Type MenuType)
+{
+	FName Key;
+
+	switch (MenuType)
+	{
+		case EFlareMenu::MENU_Main:           Key = "MainMenu";         break;
+		case EFlareMenu::MENU_Company:        Key = "CompanyMenu";      break;
+		case EFlareMenu::MENU_Leaderboard:    Key = "LeaderboardMenu";  break;
+		case EFlareMenu::MENU_Ship:           Key = "ShipMenu";         break;
+		case EFlareMenu::MENU_Fleet:          Key = "FleetMenu";        break;
+		case EFlareMenu::MENU_Quest:          Key = "QuestMenu";        break;
+		case EFlareMenu::MENU_Sector:         Key = "SectorMenu";       break;
+		case EFlareMenu::MENU_Orbit:          Key = "OrbitMenu";        break;
+		case EFlareMenu::MENU_Settings:       Key = "SettingsMenu";     break;
+		default:                              Key = "NoKey";
+	}
+	
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	check(InputSettings);
+
+	for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
+	{
+		FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
+		if (Action.ActionName == Key && !Action.Key.IsGamepadKey())
+		{
+			return Action.Key.ToString();
+		}
+	}
+
+	return LOCTEXT("NoKey", "No Key").ToString();
+}
+
 bool AFlareMenuManager::IsUIOpen() const
 {
 	return IsMenuOpen() || IsOverlayOpen();

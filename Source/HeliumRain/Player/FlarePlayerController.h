@@ -181,7 +181,15 @@ public:
 	/** Simulate a turn */
 	virtual void Simulate();
 
-	/** Open settings menu */
+	// Menus
+	virtual void ShipMenu();
+	virtual void SectorMenu();
+	virtual void OrbitMenu();
+	virtual void LeaderboardMenu();
+	virtual void CompanyMenu();
+	virtual void FleetMenu();
+	virtual void QuestMenu();
+	virtual void MainMenu();
 	virtual void SettingsMenu();
 
 	/** Toggle the combat mode */
