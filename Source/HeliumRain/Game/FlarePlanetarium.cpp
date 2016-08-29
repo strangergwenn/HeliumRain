@@ -195,20 +195,23 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 
 	double AngularRadius = FMath::Asin(Body->Radius / AlignedLocation.Size());
 
-	double DisplayDistance = FMath::Sin(AngularRadius) * BaseDistance / 5 + BaseDistance + AlignedLocation.Size() / 10;
-
+	double DisplayDistance =  BaseDistance + FMath::Sqrt(FMath::Max(1.0, AlignedLocation.Size() - MinDistance)) * BaseDistance / 500;
 
 	double VisibleRadius = FMath::Sin(AngularRadius) * DisplayDistance;
 
 
-	/*FLOGV("MoveCelestialBody %s VisibleRadius = %f", *Body->Name, VisibleRadius);
-	FLOGV("MoveCelestialBody %s AngularRadius = %f", *Body->Name, AngularRadius);
-	FLOGV("MoveCelestialBody %s DisplayDistance = %f", *Body->Name, DisplayDistance);
+	/*FLOGV("MoveCelestialBody %s VisibleRadius = %f", *Body->Name.ToString(), VisibleRadius);
+	FLOGV("MoveCelestialBody %s AngularRadius = %f", *Body->Name.ToString(), AngularRadius);
+	FLOGV("MoveCelestialBody %s DisplayDistance = %f", *Body->Name.ToString(), DisplayDistance);
+	FLOGV("MoveCelestialBody %s MinDistance = %f", *Body->Name.ToString(), MinDistance);
+	FLOGV("MoveCelestialBody %s AlignedLocation.Size() = %f", *Body->Name.ToString(), AlignedLocation.Size());
+	FLOGV("MoveCelestialBody %s AlignedLocation.Size() - MinDistance = %f", *Body->Name.ToString(), (AlignedLocation.Size() - MinDistance));
+	FLOGV("MoveCelestialBody %s FMath::Loge(FMath::Max(1, AlignedLocation.Size() - MinDistance)) = %f", *Body->Name.ToString(), FMath::Loge(FMath::Max(1.0, AlignedLocation.Size() - MinDistance)));
 
 
-	FLOGV("MoveCelestialBody %s Location = %s", *Body->Name, *Location.ToString());
-	FLOGV("MoveCelestialBody %s AlignedLocation = %s", *Body->Name, *AlignedLocation.ToString());*/
-
+	FLOGV("MoveCelestialBody %s Location = %s", *Body->Name.ToString(), *Location.ToString());
+	FLOGV("MoveCelestialBody %s AlignedLocation = %s", *Body->Name.ToString(), *AlignedLocation.ToString());
+*/
 	// Find the celestial body component
 	UStaticMeshComponent* BodyComponent = NULL;
 	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());
@@ -229,8 +232,15 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		{
 			PlayerShipLocation = GetGame()->GetPC()->GetShipPawn()->GetActorLocation();
 		}
+
+		//DrawDebugSphere(GetWorld(), FVector::ZeroVector, DisplayDistance /1000 , 32, FColor::Blue, false);
+		//DrawDebugSphere(GetWorld(), FVector::ZeroVector, BaseDistance / 1000 , 32, FColor::Red, false);
+
 		BodyComponent->SetRelativeLocation((DisplayDistance * AlignedLocation.GetUnsafeNormal()).ToVector() + PlayerShipLocation);
 		float Scale = VisibleRadius / 512; // Mesh size is 1024;
+
+		//BodyComponent->SetRelativeLocation((DisplayDistance /1000 * AlignedLocation.GetUnsafeNormal()).ToVector());
+		//float Scale = VisibleRadius / 512 / 1000; // Mesh size is 1024;
 		BodyComponent->SetRelativeScale3D(FPreciseVector(Scale).ToVector());
 
 		// BodyComponent->SetRelativeRotation(FRotator(90, Body->RotationAngle + AngleOffset ,0));
