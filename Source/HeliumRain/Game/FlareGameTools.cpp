@@ -316,12 +316,7 @@ void UFlareGameTools::RevealMap()
 		return;
 	}
 
-	if (GetActiveSector())
-	{
-		FLOG("UFlareGameTools::RevealMap failed: a sector is active");
-		return;
-	}
-
+	GetGame()->DeactivateSector();
 	for (int i = 0; i < GetGameWorld()->GetSectors().Num(); i++)
 	{
 
@@ -329,6 +324,7 @@ void UFlareGameTools::RevealMap()
 		AFlarePlayerController* PC = GetPC();
 		PC->GetCompany()->VisitSector(Sector);
 	}
+	GetGame()->ActivateCurrentSector();
 }
 
 
