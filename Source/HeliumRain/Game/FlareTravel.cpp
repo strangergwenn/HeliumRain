@@ -279,7 +279,7 @@ int64 UFlareTravel::ComputeAltitudeTravelDuration(UFlareWorld* World, FFlareCele
 				ComputeAltitudeTravelMoonToMoonDistance(World, OriginCelestialBody, DestinationCelestialBody) +
 				ComputeAltitudeTravelToSoiDistance(World, DestinationCelestialBody, DestinationAltitude);
 	}
-	return TRAVEL_DURATION_PER_ALTITUDE_KM * TravelAltitude;
+	return TRAVEL_DURATION_PER_ALTITUDE_KM * TravelAltitude + UFlareGameTools::SECONDS_IN_DAY;
 }
 
 double UFlareTravel::ComputeAltitudeTravelDistance(UFlareWorld* World, double OriginAltitude, double DestinationAltitude)
