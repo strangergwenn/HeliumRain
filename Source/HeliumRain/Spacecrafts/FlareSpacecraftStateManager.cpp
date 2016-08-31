@@ -501,6 +501,10 @@ bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 	{
 		return true;
 	}
+	else if (Spacecraft->GetPC()->GetMenuManager()->IsOverlayOpen())
+	{
+		return true;
+	}
 	else
 	{
 		switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())

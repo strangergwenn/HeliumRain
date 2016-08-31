@@ -108,6 +108,9 @@ public:
 		HUD helpers
 	----------------------------------------------------*/
 
+	/** Update the context menu */
+	void UpdateContextMenu(AFlareSpacecraft* PlayerShip);
+
 	/** Get the temperature color, using custom threshold */
 	static FLinearColor GetTemperatureColor(float Current, float Max);
 
@@ -221,9 +224,9 @@ protected:
 	// General data
 	bool                                    HUDVisible;
 	bool                                    IsInteractive;
-	bool                                    FoundTargetUnderMouse;
 	bool                                    IsDrawingCockpit;
 	FVector2D                               ViewportSize;
+	AFlareSpacecraft*                       ContextMenuSpacecraft;
 
 	// Current data
 	FVector2D                               CurrentViewportSize;

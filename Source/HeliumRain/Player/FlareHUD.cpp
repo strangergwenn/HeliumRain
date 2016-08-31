@@ -185,7 +185,7 @@ void AFlareHUD::OnTargetShipChanged()
 
 void AFlareHUD::UpdateHUDVisibility()
 {
-	bool NewVisibility = HUDVisible && !MenuManager->IsUIOpen();
+	bool NewVisibility = HUDVisible && !MenuManager->IsMenuOpen();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
@@ -215,6 +215,9 @@ void AFlareHUD::DrawHUD()
 	Super::DrawHUD();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
+	// This is the normal HUD in 2D, it is always drawn no matter what
+	// There is a second call to DrawHUDInternal() in DrawCockpitHUD that can trigger HUD drawing
+
 	if (PC)
 	{
 		// Setup data
@@ -228,6 +231,9 @@ void AFlareHUD::DrawHUD()
 		{
 			return;
 		}
+
+		// Look for a spacecraft to draw the context menu on
+		UpdateContextMenu(PlayerShip);
 
 		// Draw the general-purpose HUD (no-cockpit version)
 		bool IsExternalCamera = PlayerShip->GetStateManager()->IsExternalCamera();
@@ -643,6 +649,76 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 	Helpers
 ----------------------------------------------------*/
 
+void AFlareHUD::UpdateContextMenu(AFlareSpacecraft* PlayerShip)
+{
+	ContextMenuSpacecraft = NULL;
+	UFlareSector* ActiveSector = PlayerShip->GetGame()->GetActiveSector();
+
+	// Look for a ship
+	if (ActiveSector && IsInteractive)
+	{
+		for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex++)
+		{
+			AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
+			if (Spacecraft->IsValidLowLevel() && Spacecraft != PlayerShip)
+			{
+				// Calculation data
+				FVector2D ScreenPosition;
+				AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+				FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
+				FVector TargetLocation = Spacecraft->GetActorLocation();
+
+				if (PC->ProjectWorldLocationToScreen(TargetLocation, ScreenPosition))
+				{
+					// Compute apparent size in screenspace
+					float ShipSize = 2 * Spacecraft->GetMeshScale();
+					float Distance = (TargetLocation - PlayerLocation).Size();
+					float ApparentAngle = FMath::RadiansToDegrees(FMath::Atan(ShipSize / Distance));
+					float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * CurrentViewportSize.X;
+					FVector2D ObjectSize = FMath::Min(0.66f * Size, 300.0f) * FVector2D(1, 1);
+
+					// Add to targets
+					FFlareScreenTarget TargetData;
+					TargetData.Spacecraft = Spacecraft;
+					TargetData.DistanceFromScreenCenter = (ScreenPosition - CurrentViewportSize / 2).Size();
+					ScreenTargets.Add(TargetData);
+
+					// Check if the mouse is there
+					int ToleranceRange = 3;
+					FVector2D MousePos = PC->GetMousePosition();
+					FVector2D ShipBoxMin = ScreenPosition - ObjectSize / 2;
+					FVector2D ShipBoxMax = ScreenPosition + ObjectSize / 2;
+					bool Hovering = (MousePos.X + ToleranceRange >= ShipBoxMin.X
+						&& MousePos.Y + ToleranceRange >= ShipBoxMin.Y
+						&& MousePos.X - ToleranceRange <= ShipBoxMax.X
+						&& MousePos.Y - ToleranceRange <= ShipBoxMax.Y);
+
+					// Draw the context menu
+					if (Hovering)
+					{
+						// Update state
+						ContextMenuPosition = ScreenPosition;
+						ContextMenuSpacecraft = Spacecraft;
+
+						ContextMenu->SetSpacecraft(Spacecraft);
+						if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+						{
+							ContextMenu->Show();
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Hide the context menu if nothing was found
+	if (ContextMenuSpacecraft == NULL || !IsInteractive)
+	{
+		ContextMenu->Hide();
+	}
+}
+
 FLinearColor AFlareHUD::GetTemperatureColor(float Current, float Max)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -687,7 +763,7 @@ bool AFlareHUD::ShouldDrawHUD() const
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
-	if (!ActiveSector || !PlayerShip || !PlayerShip->GetParent()->GetDamageSystem()->IsAlive() || MenuManager->IsUIOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
+	if (!ActiveSector || !PlayerShip || !PlayerShip->GetParent()->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
 	{
 		return false;
 	}
@@ -707,7 +783,6 @@ void AFlareHUD::DrawHUDInternal()
 	// Iterate on all 'other' ships to show designators, markings, etc
 	ScreenTargets.Empty();
 	ScreenTargetsOwner = PlayerShip->GetParent()->GetImmatriculation();
-	FoundTargetUnderMouse = false;
 	for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 	{
 		AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
@@ -729,12 +804,6 @@ void AFlareHUD::DrawHUDInternal()
 			{
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
 			}
-		}
-
-		// Hide the context menu if nothing was found
-		if (!FoundTargetUnderMouse || !IsInteractive)
-		{
-			ContextMenu->Hide();
 		}
 	}
 
@@ -929,7 +998,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = Spacecraft->GetActorLocation();
 
-	if (ProjectWorldLocationToCockpit(TargetLocation, ScreenPosition))
+	if (ProjectWorldLocationToCockpit(TargetLocation, ScreenPosition) && Spacecraft != ContextMenuSpacecraft)
 	{
 		// Compute apparent size in screenspace
 		float ShipSize = 2 * Spacecraft->GetMeshScale();
@@ -943,33 +1012,9 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		TargetData.Spacecraft = Spacecraft;
 		TargetData.DistanceFromScreenCenter = (ScreenPosition - CurrentViewportSize / 2).Size();
 		ScreenTargets.Add(TargetData);
-
-		// Check if the mouse is there
-		int ToleranceRange = 3;
-		FVector2D MousePos = PC->GetMousePosition();
-		FVector2D ShipBoxMin = ScreenPosition - ObjectSize / 2;
-		FVector2D ShipBoxMax = ScreenPosition + ObjectSize / 2;
-		bool Hovering = (MousePos.X + ToleranceRange >= ShipBoxMin.X
-		              && MousePos.Y + ToleranceRange >= ShipBoxMin.Y
-		              && MousePos.X - ToleranceRange <= ShipBoxMax.X
-		              && MousePos.Y - ToleranceRange <= ShipBoxMax.Y);
-
-		// Draw the context menu
-		if (Hovering && !FoundTargetUnderMouse && IsInteractive)
-		{
-			// Update state
-			FoundTargetUnderMouse = true;
-			ContextMenuPosition = ScreenPosition;
-
-			ContextMenu->SetSpacecraft(Spacecraft);
-			if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
-			{
-				ContextMenu->Show();
-			}
-		}
-
+		
 		// Draw the HUD designator
-		else if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+		if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			float CornerSize = 8;
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
