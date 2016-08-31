@@ -142,7 +142,7 @@ protected:
 	void DrawDebugGrid (FLinearColor Color);
 
 	/** Draw speed indicator */
-	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert);
+	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed);
 
 	/** Draw a search arrow */
 	void DrawSearchArrow(FVector TargetLocation, FLinearColor Color, float MaxDistance = 10000000);
@@ -211,7 +211,6 @@ protected:
 	FLinearColor                            HudColorFriendly;
 	FLinearColor                            HudColorEnemy;
 	FLinearColor                            HudColorObjective;
-	FVector2D                               ShadowOffset;
 	FLinearColor                            ShadowColor;
 	
 	// Spacecraft targets

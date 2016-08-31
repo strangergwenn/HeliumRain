@@ -77,8 +77,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	// Settings
 	FocusDistance = 10000000;
 	IconSize = 24;
-	ShadowOffset = FVector2D(1, 1);
-	ShadowColor = FLinearColor(0.02, 0.02, 0.02, 1.0f);
+	ShadowColor = FLinearColor(0.02f, 0.02f, 0.02f, 1.0f);
 
 	// Cockpit instruments
 	TopInstrument =   FVector2D(20, 10);
@@ -240,7 +239,18 @@ void AFlareHUD::DrawHUD()
 		// Draw nose
 		if (HUDVisible && !IsExternalCamera)
 		{
-			DrawHUDIcon(CurrentViewportSize / 2, IconSize, PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon, HudColorNeutral, true);
+			DrawHUDIcon(
+				CurrentViewportSize / 2,
+				IconSize,
+				PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon,
+				HudColorNeutral,
+				true);
+
+			// Speed indication
+			FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
+			int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
+			FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
+			FlareDrawText(VelocityText, FVector2D(0, 40), HudColorNeutral);
 		}
 
 		// Draw combat mouse pointer
@@ -733,18 +743,8 @@ void AFlareHUD::DrawHUDInternal()
 	{
 		// Draw inertial vectors
 		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
-		bool Firing = (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN);
-
-		if (Firing)
-		{
-			DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, ShipSmoothedVelocity, FText(), false);
-			DrawSpeed(PC, PlayerShip, HUDCombatReticleIcon, -ShipSmoothedVelocity, FText(), true);
-		}
-		else
-		{
-			DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipSmoothedVelocity, LOCTEXT("Forward", "FWD"), false);
-			DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity, LOCTEXT("Backward", "BWD"), true);
-		}
+		DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipSmoothedVelocity);
+		DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity);
 
 		// Draw objective
 		if (PC->HasObjective() && PC->GetCurrentObjective()->Data.TargetList.Num() > 0)
@@ -878,7 +878,7 @@ FString AFlareHUD::FormatDistance(float Distance)
 	}
 }
 
-void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert)
+void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed)
 {
 	// Get HUD data
 	FVector2D ScreenPosition;
@@ -894,18 +894,9 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, ScreenBorderDistanceX, CurrentViewportSize.X - ScreenBorderDistanceX);
 		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, ScreenBorderDistanceY, CurrentViewportSize.Y - ScreenBorderDistanceY);
 
-		// Label
-		FString IndicatorText = Designation.ToString();
-		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(60, 0);
-		FlareDrawText(IndicatorText, IndicatorPosition, HudColorNeutral);
-
 		// Icon
+		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(0, 30);
 		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
-
-		// Speed 
-		FString VelocityText = FString::FromInt(Invert ? -SpeedMS : SpeedMS) + FString(" m/s");
-		FVector2D VelocityPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(60, 0);
-		FlareDrawText(VelocityText, VelocityPosition, HudColorNeutral);
 	}
 }
 
@@ -1127,6 +1118,7 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 	{
 		float X, Y;
 		UFont* Font = Large ? HUDFontLarge : HUDFont;
+		FVector2D ShadowOffset = FVector2D(1, 1);
 
 		// Optional centering
 		if (Center)
@@ -1142,12 +1134,21 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 			Y = Position.Y;
 		}
 
-		// Drawing
+		// Shadow 1
+		{
+			FCanvasTextItem ShadowItem(FVector2D(X, Y) - ShadowOffset, FText::FromString(Text), Font, ShadowColor);
+			ShadowItem.Scale = FVector2D(1, 1);
+			CurrentCanvas->DrawItem(ShadowItem);
+		}
+
+		// Shadow 2
 		{
 			FCanvasTextItem ShadowItem(FVector2D(X, Y) + ShadowOffset, FText::FromString(Text), Font, ShadowColor);
 			ShadowItem.Scale = FVector2D(1, 1);
 			CurrentCanvas->DrawItem(ShadowItem);
 		}
+
+		// Text
 		{
 			FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), Font, Color);
 			TextItem.Scale = FVector2D(1, 1);
@@ -1178,7 +1179,6 @@ void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY
 		TileItem.BlendMode = FCanvas::BlendToSimpleElementBlend(BlendMode);
 		
 		// Draw texture
-		TileItem.Position -= ShadowOffset;
 		TileItem.SetColor(Color);
 		CurrentCanvas->DrawItem(TileItem);
 	}

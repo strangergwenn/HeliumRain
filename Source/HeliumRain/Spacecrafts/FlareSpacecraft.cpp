@@ -1465,8 +1465,10 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 	else if (!Paused)
 	{
+		int32 Speed = GetLinearVelocity().Size();
+		Speed = IsMovingForward() ? Speed : -Speed;
 		ModeText = FText::Format(LOCTEXT("SpeedNotPausedFormat", "{0}m/s - {1} in {2}"),
-			FText::AsNumber(FMath::RoundToInt(GetLinearVelocity().Size())),
+			FText::AsNumber(FMath::RoundToInt(Speed)),
 			GetWeaponsSystem()->GetWeaponModeInfo(),
 			CurrentSector->GetSimulatedSector()->GetSectorName());
 	}
