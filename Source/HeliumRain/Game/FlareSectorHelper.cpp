@@ -20,34 +20,42 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 	float BuyQuantityScoreMultiplier = 0;
 	float FullRatioBonus = 0;
 	float EmptyRatioBonus = 0;
+	bool  NeedInput = false;
+	bool  NeedOutput = false;
 
 	switch(Request.Operation)
 	{
 		case EFlareTradeRouteOperation::Buy:
 			BuyQuantityScoreMultiplier = 10.f;
 			FullRatioBonus = 0.1;
+			NeedOutput = true;
 		break;
 		case EFlareTradeRouteOperation::Sell:
 			SellQuantityScoreMultiplier = 10.f;
 			EmptyRatioBonus = 0.1;
+			NeedInput = true;
 		break;
 		case EFlareTradeRouteOperation::Load:
 			LoadQuantityScoreMultiplier = 10.f;
 			FullRatioBonus = 0.1;
+			NeedOutput = true;
 		break;
 		case EFlareTradeRouteOperation::Unload:
 			UnloadQuantityScoreMultiplier = 10.f;
 			EmptyRatioBonus = 0.1;
+			NeedInput = true;
 		break;
 		case EFlareTradeRouteOperation::LoadOrBuy:
 			LoadQuantityScoreMultiplier = 10.f;
 			BuyQuantityScoreMultiplier = 1.f;
 			FullRatioBonus = 0.1;
+			NeedOutput = true;
 		break;
 		case EFlareTradeRouteOperation::UnloadOrSell:
 			UnloadQuantityScoreMultiplier = 10.f;
 			SellQuantityScoreMultiplier = 1.f;
 			EmptyRatioBonus = 0.1;
+			NeedInput = true;
 		break;
 	}
 
@@ -61,6 +69,19 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
 		if(!Request.Client->CanTradeWith(Station))
+		{
+			continue;
+		}
+		EFlareResourcePriceContext::Type StationResourceUsage = Station->GetResourceUseType(Request.Resource);
+
+		if(NeedOutput && StationResourceUsage != EFlareResourcePriceContext::FactoryOutput)
+		{
+			continue;
+		}
+
+		if(NeedInput && (StationResourceUsage != EFlareResourcePriceContext::FactoryInput &&
+						 StationResourceUsage != EFlareResourcePriceContext::ConsumerConsumption &&
+						 StationResourceUsage != EFlareResourcePriceContext::MaintenanceConsumption))
 		{
 			continue;
 		}
@@ -83,13 +104,13 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		if(Station->GetCargoBay()->WantBuy(Request.Resource, Request.Client->GetCompany()))
 		{
 			UnloadMaxQuantity = StationFreeSpace;
-			UnloadMaxQuantity  = FMath::Max(UnloadMaxQuantity , AvailableQuantity);
+			UnloadMaxQuantity  = FMath::Min(UnloadMaxQuantity , AvailableQuantity);
 		}
 
 		if(Station->GetCargoBay()->WantSell(Request.Resource, Request.Client->GetCompany()))
 		{
 			LoadMaxQuantity = StationResourceQuantity;
-			LoadMaxQuantity = FMath::Max(LoadMaxQuantity , FreeSpace);
+			LoadMaxQuantity = FMath::Min(LoadMaxQuantity , FreeSpace);
 		}
 
 		if(Station->GetCompany() == Request.Client->GetCompany())
@@ -102,10 +123,10 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 			EFlareResourcePriceContext::Type ResourceUsage = Station->GetResourceUseType(Request.Resource);
 
 			uint32 MaxBuyableQuantity = Request.Client->GetCompany()->GetMoney() / Sector->GetResourcePrice(Request.Resource, ResourceUsage);
-			LoadMaxQuantity = FMath::Max(LoadMaxQuantity , MaxBuyableQuantity);
+			LoadMaxQuantity = FMath::Min(LoadMaxQuantity , MaxBuyableQuantity);
 
 			uint32 MaxSellableQuantity = Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Request.Resource, ResourceUsage);
-			UnloadMaxQuantity = FMath::Max(UnloadMaxQuantity , MaxSellableQuantity);
+			UnloadMaxQuantity = FMath::Min(UnloadMaxQuantity , MaxSellableQuantity);
 
 			Score += UnloadMaxQuantity * SellQuantityScoreMultiplier;
 			Score += LoadMaxQuantity * BuyQuantityScoreMultiplier;
@@ -159,14 +180,18 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft*  SourceSpacecraft, UFlareSi
 		DestinationSpacecraft->GetCompany()->GiveReputation(SourceSpacecraft->GetCompany(), 0.5f, true);
 	}
 
-	if(!SourceSpacecraft->IsStation())
-	{
-		SourceSpacecraft->SetTrading(true);
-	}
 
-	if(!DestinationSpacecraft->IsStation())
+	if(GivenResources > 0)
 	{
-		DestinationSpacecraft->SetTrading(true);
+		if(!SourceSpacecraft->IsStation())
+		{
+			SourceSpacecraft->SetTrading(true);
+		}
+
+		if(!DestinationSpacecraft->IsStation())
+		{
+			DestinationSpacecraft->SetTrading(true);
+		}
 	}
 
 	return GivenResources;
