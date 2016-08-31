@@ -959,7 +959,9 @@ void AFlareSpacecraft::UpdateCustomization()
 		USpotLightComponent* Component = Cast<USpotLightComponent>(LightComponents[ComponentIndex]);
 		if (Component)
 		{
-			Component->SetLightColor(GetGame()->GetCustomizationCatalog()->GetColor(Company->GetLightColorIndex()));
+			FLinearColor LightColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetLightColorIndex());
+			LightColor = LightColor.Desaturate(0.5);
+			Component->SetLightColor(LightColor);
 		}
 	}
 
