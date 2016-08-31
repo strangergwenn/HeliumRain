@@ -54,6 +54,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 
 	// Notable sectors (Asta)
 	Decay =       World->FindSector("decay");
+	Boneyard =    World->FindSector("boneyard");
 
 	// Notable sectors (Adena)
 	Solitude =    World->FindSector("solitude");
@@ -65,6 +66,8 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	IonLane =              World->FindCompanyByShortName("ION");
 	UnitedFarmsChemicals = World->FindCompanyByShortName("UFC");
 	GhostWorksShipyards =  World->FindCompanyByShortName("GWS");
+	NemaHeavyWorks =       World->FindCompanyByShortName("NHW");
+	Pirates =              World->FindCompanyByShortName("PIR");
 
 	// Resources
 	Water =    Game->GetResourceCatalog()->Get("h2o");
@@ -124,7 +127,7 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	FLOG("UFlareScenarioTools::GenerateFreighterScenario");
 
 	SetupWorld();
-	CreatePlayerShip(FirstLight, "ship-omen");
+	CreatePlayerShip(FirstLight, "ship-solen");
 }
 
 void UFlareScenarioTools::GenerateDebugScenario()
@@ -170,12 +173,14 @@ void UFlareScenarioTools::SetupWorld()
 	SetupKnownSectors(UnitedFarmsChemicals);
 	SetupKnownSectors(IonLane);
 	SetupKnownSectors(GhostWorksShipyards);
+	SetupKnownSectors(NemaHeavyWorks);
+	SetupKnownSectors(Pirates);
 
 	// Player-exclusive sectors
 	PlayerCompany->DiscoverSector(TheDig);
 	PlayerCompany->DiscoverSector(Decay);
 	PlayerCompany->DiscoverSector(Anomaly);
-	PlayerCompany->DiscoverSector(Decay);
+	//PlayerCompany->DiscoverSector(Decay);
 	PlayerCompany->DiscoverSector(ShoreOfIce);
 	PlayerCompany->DiscoverSector(Solitude);
 
@@ -187,46 +192,83 @@ void UFlareScenarioTools::SetupWorld()
 	UnitedFarmsChemicals->GiveMoney(100000000);
 	IonLane->GiveMoney(100000000);
 	GhostWorksShipyards->GiveMoney(100000000);
+	NemaHeavyWorks->GiveMoney(100000000);
+	Pirates->GiveMoney(100000000); // TODO start with no money
 
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);
+	FrozenRealm->GetPeople()->GiveBirth(1000);
 
 	// Create initial stations
-	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 4);
-	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 8);
-	CreateStations(StationHabitation, IonLane, BlueHeart, 4);
-	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 6);
 
-	CreateStations(StationIceMine, MiningSyndicate, ShoreOfIce, 3);
 
+
+	// Nema main economy
+	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 3);
+	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 2);
+	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 2);
+	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 2);
+	CreateStations(StationSteelworks, NemaHeavyWorks, MinersHome, 2);
+	CreateStations(StationToolFactory, NemaHeavyWorks, MinersHome, 1);
+	CreateStations(StationMethanePump, UnitedFarmsChemicals, TheSpire, 2);
+	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 1);
+	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
+	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1);
+
+	CreateStations(StationArsenal, NemaHeavyWorks, BlueHeart, 1);
+	CreateStations(StationShipyard, NemaHeavyWorks, BlueHeart, 1);
+	CreateStations(StationHabitation, Sunwatch, BlueHeart, 2);
+
+
+	// Anka HFR factory
 	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);
-	CreateStations(StationToolFactory, HelixFoundries, Outpost, 1);
-	CreateStations(StationMethanePump, UnitedFarmsChemicals, TheSpire, 4);
-	CreateStations(StationHydrogenPump, HelixFoundries, TheSpire, 3);
+	CreateStations(StationToolFactory, HelixFoundries, Outpost, 2);
+	CreateStations(StationHabitation, Sunwatch, Outpost, 1);
 
 
-	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 4);
-	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 4);
-	CreateStations(StationShipyard, GhostWorksShipyards, FrozenRealm, 1);
+	// Hela secondary economy
 	CreateStations(StationArsenal, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationShipyard, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationHabitation, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationSolarPlant, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 1);
+	CreateStations(StationHub, GhostWorksShipyards, FrozenRealm, 1);
+
+	// Asta pirate base
+	CreateStations(StationShipyard, Pirates, Boneyard, 1);
+	CreateStations(StationArsenal, Pirates, Boneyard, 2);
 
 	// Create hubs
-	CreateStations(StationHub, IonLane, Crossroads, 4);
-	CreateStations(StationHub, IonLane, Lighthouse, 2);
+	// TODO fix hub before
+	CreateStations(StationHub, IonLane, Crossroads, 2);
+	CreateStations(StationHub, IonLane, Lighthouse, 1);
 	CreateStations(StationHub, IonLane, BlueHeart, 1);
 	CreateStations(StationHub, IonLane, MinersHome, 1);
 	CreateStations(StationHub, IonLane, Outpost, 1);
 	CreateStations(StationHub, IonLane, TheSpire, 1);
-	CreateStations(StationHub, IonLane, FrozenRealm, 1);
+
 
 	// Create cargos
-	CreateShips(ShipOmen, IonLane, Crossroads, 60);
-	CreateShips(ShipAtlas, IonLane, Crossroads, 2);
-	CreateShips(ShipOmen, MiningSyndicate, MinersHome, 10);
-	CreateShips(ShipOmen, HelixFoundries, Outpost, 10);
-	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 10);
-	CreateShips(ShipOmen, Sunwatch, Lighthouse, 10);
+	CreateShips(ShipSolen, GhostWorksShipyards, FrozenRealm, 3);
 
+	CreateShips(ShipSolen, IonLane, Lighthouse, 3);
+	CreateShips(ShipOmen, IonLane, MinersHome, 2);
+	CreateShips(ShipOmen, IonLane, FrozenRealm, 1);
+
+	CreateShips(ShipSolen, MiningSyndicate, MinersHome, 2);
+	CreateShips(ShipSolen, NemaHeavyWorks, MinersHome, 2);
+	CreateShips(ShipSolen, UnitedFarmsChemicals, TheSpire, 3);
+	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 1);
+	CreateShips(ShipSolen, Sunwatch, Lighthouse, 4);
+
+	CreateShips(ShipSolen, HelixFoundries, Outpost, 3);
+	CreateShips(ShipOmen, HelixFoundries, Outpost, 1);
+
+	CreateShips(ShipSolen, Pirates, Boneyard, 1);
+
+	// Create military
+	CreateShips(ShipGhoul, Pirates, Boneyard, 5);
 }
 
 void UFlareScenarioTools::SetupAsteroids()
@@ -240,6 +282,8 @@ void UFlareScenarioTools::SetupAsteroids()
 
 	CreateAsteroids(ShoreOfIce, 22, FVector(17, 25, 9));
 	CreateAsteroids(Ruins, 15, FVector(7, 18, 9));
+
+	CreateAsteroids(Boneyard, 28, FVector(10, 8, 3));
 }
 
 void UFlareScenarioTools::SetupArtifacts()
@@ -359,7 +403,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			{
 				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
 
-				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity(), Company);
+				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
 			}
 		}
 		
@@ -369,7 +413,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity(), Company);
+				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
 			}
 		}
 

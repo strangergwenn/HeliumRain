@@ -96,6 +96,7 @@ protected:
 
 	// Notable sectors (Asta)
 	UFlareSimulatedSector*                     Decay;
+	UFlareSimulatedSector*                     Boneyard;
 
 	// Notable sectors (Adena)
 	UFlareSimulatedSector*                     Solitude;
@@ -107,6 +108,8 @@ protected:
 	UFlareCompany*                             IonLane;
 	UFlareCompany*                             UnitedFarmsChemicals;
 	UFlareCompany*                             GhostWorksShipyards;
+	UFlareCompany*                             NemaHeavyWorks;
+	UFlareCompany*                             Pirates;
 
 	// Resources
 	FFlareResourceDescription*                 Water;
