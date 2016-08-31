@@ -22,6 +22,7 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	IsTargetting = false;
 	PlayerShip = NULL;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Structure
 	ChildSlot
@@ -32,11 +33,30 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 		.BorderImage(FCoreStyle::Get().GetBrush("NoBrush"))
 		.Padding(this, &SFlareContextMenu::GetContextMenuPosition)
 		[
-			SNew(SFlareRoundButton)
-			.Visibility(this, &SFlareContextMenu::GetButtonVisibility)
+			SNew(SButton)
+			.ContentPadding(FMargin(0))
+			.ButtonStyle(FCoreStyle::Get(), "NoBorder")
 			.OnClicked(this, &SFlareContextMenu::OnClicked)
-			.Icon(this, &SFlareContextMenu::GetIcon)
-			.Text(this, &SFlareContextMenu::GetText)
+			.Visibility(this, &SFlareContextMenu::GetButtonVisibility)
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SImage)
+					.Image(this, &SFlareContextMenu::GetIcon)
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Center)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(this, &SFlareContextMenu::GetText)
+				]
+			]
 		]
 	];
 
@@ -64,7 +84,7 @@ void SFlareContextMenu::Hide()
 	TargetSpacecraft = NULL;
 }
 
-void SFlareContextMenu::OnClicked()
+FReply SFlareContextMenu::OnClicked()
 {
 	if (TargetSpacecraft && PlayerShip)
 	{
@@ -90,6 +110,8 @@ void SFlareContextMenu::OnClicked()
 			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
 		}
 	}
+
+	return FReply::Handled();
 }
 
 
