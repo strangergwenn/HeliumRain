@@ -10,7 +10,7 @@
 #include "../Economy/FlareCargoBay.h"
 
 static const double TRAVEL_DURATION_PER_PHASE_KM = 0.4;
-static const double TRAVEL_DURATION_PER_ALTITUDE_KM = 6;
+static const double TRAVEL_DURATION_PER_ALTITUDE_KM = 6.0;
 
 #define LOCTEXT_NAMESPACE "FlareTravelInfos"
 
@@ -229,7 +229,7 @@ int64 UFlareTravel::ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSec
 		FFlareCelestialBody* OriginCelestialBody = World->GetPlanerarium()->FindCelestialBody(OriginCelestialBodyIdentifier);
 		FFlareCelestialBody* DestinationCelestialBody = World->GetPlanerarium()->FindCelestialBody(DestinationCelestialBodyIdentifier);
 
-		TravelDuration = ComputeAltitudeTravelDuration(World, OriginCelestialBody, OriginAltitude, DestinationCelestialBody, DestinationAltitude) / UFlareGameTools::SECONDS_IN_DAY;
+		TravelDuration = (UFlareGameTools::SECONDS_IN_DAY/2 + ComputeAltitudeTravelDuration(World, OriginCelestialBody, OriginAltitude, DestinationCelestialBody, DestinationAltitude)) / UFlareGameTools::SECONDS_IN_DAY;
 	}
 
 	return FMath::Max((int64) 1, TravelDuration);
@@ -279,7 +279,6 @@ int64 UFlareTravel::ComputeAltitudeTravelDuration(UFlareWorld* World, FFlareCele
 				ComputeAltitudeTravelMoonToMoonDistance(World, OriginCelestialBody, DestinationCelestialBody) +
 				ComputeAltitudeTravelToSoiDistance(World, DestinationCelestialBody, DestinationAltitude);
 	}
-
 	return TRAVEL_DURATION_PER_ALTITUDE_KM * TravelAltitude;
 }
 
