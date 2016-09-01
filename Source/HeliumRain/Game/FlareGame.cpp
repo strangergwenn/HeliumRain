@@ -734,7 +734,7 @@ void AFlareGame::LoadStreamingLevel(FName SectorLevel)
 		Info.UUID = CurrentStreamingLevelIndex;
 		Info.Linkage = 0;
 
-		UGameplayStatics::LoadStreamLevel(this, SectorLevel, true, true, Info);
+		UGameplayStatics::LoadStreamLevel(this, SectorLevel, true, false, Info);
 		CurrentStreamingLevelIndex++;
 	}
 }
