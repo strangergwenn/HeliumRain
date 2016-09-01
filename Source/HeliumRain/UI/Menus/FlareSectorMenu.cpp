@@ -463,7 +463,16 @@ FText SFlareSectorMenu::GetTravelText() const
 		}
 		else
 		{
-			return LOCTEXT("TravelFormat", "Travel");
+			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(MenuManager->GetGame()->GetGameWorld(), SelectedFleet->GetCurrentSector(), TargetSector);
+
+			if(TravelDuration == 1)
+			{
+				return LOCTEXT("ShortTravelFormat", "Travel (1 day)");
+			}
+			else
+			{
+				return FText::Format(LOCTEXT("TravelFormat", "Travel ({0} days)"), FText::AsNumber(TravelDuration));
+			}
 		}
 	}
 	else
