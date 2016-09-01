@@ -29,6 +29,12 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> CombatMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Engine/EngineSounds/Master"));
+	static ConstructorHelpers::FObjectFinder<USoundMix> MasterSoundMixObj(TEXT("/Game/Master/Sound/Mix_Master"));
+
+	// Sound class
+	MasterSoundClass = MasterClassObj.Object;
+	MasterSoundMix = MasterSoundMixObj.Object;
 
 	// Music track store
 	MusicTracks.Add(NULL);
@@ -94,6 +100,14 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 		PowerPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		EnginePlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		RCSPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
+
+		FAudioDevice* AudioDevice = Player->GetWorld()->GetAudioDevice();
+
+		check(AudioDevice);
+		check(MasterSoundClass);
+		check(MasterSoundMix);
+
+		AudioDevice->SetBaseSoundMix(MasterSoundMix);
 	}
 }
 
@@ -109,12 +123,10 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 	FLOGV("UFlareSoundManager::SetMasterVolume %d", Volume);
 	float MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 
-	FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
-	for (auto i = AudioDevice->SoundClasses.CreateIterator(); i; ++i)
-	{
-		USoundClass* SoundClass = i.Key();
-		SoundClass->Properties.Volume = MasterVolume;
-	}
+	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
+	check(AudioDevice);
+	
+	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
 }
 
 void UFlareSoundManager::Update(float DeltaSeconds)

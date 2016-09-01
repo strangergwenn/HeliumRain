@@ -7,7 +7,10 @@
 #include "../../Game/FlareGame.h"
 #include "../FlarePilotHelper.h"
 
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
+
 #define LOCTEXT_NAMESPACE "FlareSpacecraftNavigationSystem"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -727,20 +730,19 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation
 
 	// Attach to station
 	FConstraintInstance ConstraintInstance;
-	ConstraintInstance.bDisableCollision = true;
-	ConstraintInstance.AngularSwing1Motion = ACM_Locked;
-	ConstraintInstance.AngularSwing2Motion = ACM_Locked;
-	ConstraintInstance.AngularTwistMotion = ACM_Locked;
-	ConstraintInstance.LinearXMotion = LCM_Locked;
-	ConstraintInstance.LinearYMotion = LCM_Locked;
-	ConstraintInstance.LinearZMotion = LCM_Locked;
+	ConstraintInstance.ProfileInstance.bDisableCollision = true;
+	ConstraintInstance.ProfileInstance.ConeLimit.Swing1Motion = ACM_Locked;
+	ConstraintInstance.ProfileInstance.ConeLimit.Swing2Motion = ACM_Locked;
+	ConstraintInstance.ProfileInstance.ConeLimit.Swing1LimitDegrees = 0;
+	ConstraintInstance.ProfileInstance.TwistLimit.TwistMotion = ACM_Locked;
+	ConstraintInstance.ProfileInstance.TwistLimit.TwistLimitDegrees = 0;
+	ConstraintInstance.ProfileInstance.LinearLimit.XMotion = LCM_Locked;
+	ConstraintInstance.ProfileInstance.LinearLimit.YMotion = LCM_Locked;
+	ConstraintInstance.ProfileInstance.LinearLimit.ZMotion = LCM_Locked;
+	ConstraintInstance.ProfileInstance.LinearLimit.Limit = 0;
+	ConstraintInstance.ProfileInstance.bLinearBreakable = 0;
+	ConstraintInstance.ProfileInstance.bAngularBreakable = 0;
 	ConstraintInstance.AngularRotationOffset = FRotator::ZeroRotator;
-	ConstraintInstance.bSwingLimitSoft = 0;
-	ConstraintInstance.bTwistLimitSoft = 0;
-	ConstraintInstance.bLinearLimitSoft = 0;
-	ConstraintInstance.bLinearBreakable = 0;
-	ConstraintInstance.bAngularBreakable = 0;
-
 
 	DockConstraint = NewObject<UPhysicsConstraintComponent>(Spacecraft->Airframe);
 	DockConstraint->ConstraintInstance = ConstraintInstance;

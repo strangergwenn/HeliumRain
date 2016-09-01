@@ -7,12 +7,6 @@ class UFlareSpacecraftComponent;
 class AFlarePlayerController;
 
 
-// Set to 1 to use the render-target system (deferred render on camera that gets displayed on a texture)
-// Ensure manually that "/Content/Gameplay/Cockpit/MT_Cockpit" has "Blend Mode" to "Opaque" if 1, "Transparent" if 0
-// TODO : fix changes of PC->UseCockpit during gameplay with FLARE_USE_COCKPIT_RENDERTARGET == 1
-#define FLARE_USE_COCKPIT_RENDERTARGET 0
-
-
 /** Cockpit manager class */
 UCLASS()
 class HELIUMRAIN_API AFlareCockpitManager : public AActor
@@ -160,17 +154,6 @@ protected:
 	UPROPERTY(Category = Cockpit, EditAnywhere)
 	UCanvasRenderTarget2D*                   CockpitFLIRCameraTarget;
 
-#if FLARE_USE_COCKPIT_RENDERTARGET
-
-	// Scene capture (main camera, for RT version)
-	UPROPERTY(Category = Cockpit, EditAnywhere)
-	USceneCaptureComponent2D*                CockpitCapture;
-
-	// Cockpit texture (main camera, for RT version)
-	UPROPERTY(Category = Cockpit, EditAnywhere)
-	UCanvasRenderTarget2D*                   CockpitCameraTarget;
-
-#endif
 
 public:
 

@@ -106,6 +106,14 @@ protected:
 	UPROPERTY()
 	AFlareSpacecraft*                        ShipPawn;
 
+	// Master sound class
+	UPROPERTY()
+	USoundClass*                             MasterSoundClass;
+
+	// Master sound mix
+	UPROPERTY()
+	USoundMix*                               MasterSoundMix;
+
 	float                                    MusicVolume;
 
 
