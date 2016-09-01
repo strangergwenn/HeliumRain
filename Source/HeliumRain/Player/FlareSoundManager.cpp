@@ -101,7 +101,7 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 		EnginePlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		RCSPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 
-		FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
+		FAudioDevice* AudioDevice = Player->GetWorld()->GetAudioDevice();
 
 		check(AudioDevice);
 		check(MasterSoundClass);
@@ -123,7 +123,7 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 	FLOGV("UFlareSoundManager::SetMasterVolume %d", Volume);
 	float MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 
-	FAudioDevice* AudioDevice = GEngine->GetMainAudioDevice();
+	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
 	check(AudioDevice);
 	
 	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
