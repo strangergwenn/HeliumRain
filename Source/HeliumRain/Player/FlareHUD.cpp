@@ -1163,7 +1163,6 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 	{
 		float X, Y;
 		UFont* Font = Large ? HUDFontLarge : HUDFont;
-		FVector2D ShadowOffset = FVector2D(1, 1);
 
 		// Optional centering
 		if (Center)
@@ -1181,14 +1180,7 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 
 		// Shadow 1
 		{
-			FCanvasTextItem ShadowItem(FVector2D(X, Y) - ShadowOffset, FText::FromString(Text), Font, ShadowColor);
-			ShadowItem.Scale = FVector2D(1, 1);
-			CurrentCanvas->DrawItem(ShadowItem);
-		}
-
-		// Shadow 2
-		{
-			FCanvasTextItem ShadowItem(FVector2D(X, Y) + ShadowOffset, FText::FromString(Text), Font, ShadowColor);
+			FCanvasTextItem ShadowItem(FVector2D(X, Y) - FVector2D(1, 1), FText::FromString(Text), Font, ShadowColor);
 			ShadowItem.Scale = FVector2D(1, 1);
 			CurrentCanvas->DrawItem(ShadowItem);
 		}
