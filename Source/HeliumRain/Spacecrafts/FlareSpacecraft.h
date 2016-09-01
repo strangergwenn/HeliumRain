@@ -365,6 +365,11 @@ public:
 		return Pilot;
 	}
 
+	inline bool IsMovingForward() const
+	{
+		return (FVector::DotProduct(GetSmoothedLinearVelocity(), GetFrontVector()) > 0);
+	}
+
 	inline FVector GetSmoothedLinearVelocity() const
 	{
 		return SmoothedVelocity;

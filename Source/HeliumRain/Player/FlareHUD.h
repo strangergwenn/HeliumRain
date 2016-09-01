@@ -108,6 +108,9 @@ public:
 		HUD helpers
 	----------------------------------------------------*/
 
+	/** Update the context menu */
+	void UpdateContextMenu(AFlareSpacecraft* PlayerShip);
+
 	/** Get the temperature color, using custom threshold */
 	static FLinearColor GetTemperatureColor(float Current, float Max);
 
@@ -142,7 +145,7 @@ protected:
 	void DrawDebugGrid (FLinearColor Color);
 
 	/** Draw speed indicator */
-	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed, FText Designation, bool Invert);
+	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed);
 
 	/** Draw a search arrow */
 	void DrawSearchArrow(FVector TargetLocation, FLinearColor Color, float MaxDistance = 10000000);
@@ -211,7 +214,6 @@ protected:
 	FLinearColor                            HudColorFriendly;
 	FLinearColor                            HudColorEnemy;
 	FLinearColor                            HudColorObjective;
-	FVector2D                               ShadowOffset;
 	FLinearColor                            ShadowColor;
 	
 	// Spacecraft targets
@@ -222,9 +224,9 @@ protected:
 	// General data
 	bool                                    HUDVisible;
 	bool                                    IsInteractive;
-	bool                                    FoundTargetUnderMouse;
 	bool                                    IsDrawingCockpit;
 	FVector2D                               ViewportSize;
+	AFlareSpacecraft*                       ContextMenuSpacecraft;
 
 	// Current data
 	FVector2D                               CurrentViewportSize;

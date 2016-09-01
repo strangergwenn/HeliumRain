@@ -40,7 +40,7 @@ public:
 	void Hide();
 
 	/** Open the menu associated to the target */
-	void OnClicked();
+	FReply OnClicked();
 
 
 protected:
@@ -77,6 +77,6 @@ protected:
 	// Game data
 	bool                                       IsTargetting;
 	AFlareSpacecraft*                          PlayerShip;
-	AFlareSpacecraft*                 TargetSpacecraft;
+	AFlareSpacecraft*		                   TargetSpacecraft;
 	
 };
