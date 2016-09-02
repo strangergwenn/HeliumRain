@@ -56,11 +56,11 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 void SFlareNotifier::Notify(FText Text, FText Info, FName Identifier, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
 {
 	// Remove notification with the same tag.
-	if (Tag != NAME_None)
+	if (Identifier != NAME_None)
 	{
 		for (int Index = 0; Index < NotificationData.Num(); Index++)
 		{
-			if (NotificationData[Index]->IsDuplicate(Tag))
+			if (NotificationData[Index]->IsDuplicate(Identifier))
 			{
 				NotificationData[Index]->Finish(true);
 			}
