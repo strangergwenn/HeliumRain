@@ -273,15 +273,15 @@ void UFlareScenarioTools::SetupWorld()
 
 void UFlareScenarioTools::SetupAsteroids()
 {
-	CreateAsteroids(FirstLight, 8, FVector(5, 10, 5));
-	CreateAsteroids(MinersHome, 35, FVector(13, 50, 7));
-	CreateAsteroids(TheDepths, 31, FVector(5, 25, 10));
+	CreateAsteroids(FirstLight, 8, FVector(10, 5, 5));
+	CreateAsteroids(MinersHome, 35, FVector(50, 7, 13));
+	CreateAsteroids(TheDepths, 31, FVector(25, 5, 10));
 
-	CreateAsteroids(Outpost, 12, FVector(8, 20, 5));
-	CreateAsteroids(TheDig, 22, FVector(15, 50, 7));
+	CreateAsteroids(Outpost, 12, FVector(20, 5, 8));
+	CreateAsteroids(TheDig, 22, FVector(20, 7, 20));
 
-	CreateAsteroids(ShoreOfIce, 22, FVector(17, 25, 9));
-	CreateAsteroids(Ruins, 15, FVector(7, 18, 9));
+	CreateAsteroids(ShoreOfIce, 22, FVector(25, 9, 17));
+	CreateAsteroids(Ruins, 15, FVector(18, 7, 9));
 
 	CreateAsteroids(Boneyard, 28, FVector(10, 8, 3));
 }
