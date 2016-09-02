@@ -436,7 +436,7 @@ void AFlareSpacecraft::Redock()
 			if (Station->GetImmatriculation() == GetData().DockedTo)
 			{
 				FLOGV("AFlareSpacecraft::Redock : Found dock station '%s'", *Station->GetImmatriculation().ToString());
-				NavigationSystem->ConfirmDock(Station, GetData().DockedAt);
+				NavigationSystem->ConfirmDock(Station, GetData().DockedAt, false);
 				break;
 			}
 		}
@@ -1047,7 +1047,7 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 		Damage system
 ----------------------------------------------------*/
 
-void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation)
+void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation, bool TellUser)
 {
 	// Signal the PC
 	AFlarePlayerController* PC = GetPC();
@@ -1058,11 +1058,14 @@ void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation)
 			PC->SetExternalCamera(true);
 		}
 
-		PC->Notify(
-			LOCTEXT("DockingSuccess", "Docking successful"),
-			FText::Format(LOCTEXT("DockingSuccessInfoFormat", "Your ship is now docked at {0}"), FText::FromName(DockStation->GetImmatriculation())),
-			"docking-success",
-			EFlareNotification::NT_Info);
+		if (TellUser)
+		{
+			PC->Notify(
+				LOCTEXT("DockingSuccess", "Docking successful"),
+				FText::Format(LOCTEXT("DockingSuccessInfoFormat", "Your ship is now docked at {0}"), FText::FromName(DockStation->GetImmatriculation())),
+				"docking-success",
+				EFlareNotification::NT_Info);
+		}
 	}
 
 	// Reload and repair

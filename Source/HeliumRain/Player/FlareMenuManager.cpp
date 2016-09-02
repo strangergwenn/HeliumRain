@@ -675,6 +675,7 @@ void AFlareMenuManager::InspectShip(bool IsEditable)
 {
 	UFlareSimulatedSpacecraft* MenuTarget = NULL;
 
+	// Make sure we're not simulating anymore
 	ResetMenu();
 
 	// No target passed - "Inspect" on target ship

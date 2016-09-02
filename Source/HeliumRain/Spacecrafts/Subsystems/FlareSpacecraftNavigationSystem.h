@@ -117,7 +117,7 @@ public:
 	virtual void DockingAutopilot(AFlareSpacecraft* DockStation, int32 DockId, float DeltaSeconds);
 
 	/** Confirm that the docking sequence has completed */
-	virtual void ConfirmDock(AFlareSpacecraft* DockStation, int32 DockId);
+	virtual void ConfirmDock(AFlareSpacecraft* DockStation, int32 DockId, bool TellUser = true);
 
 	/** Check if the colliding spacecraft is not the station we want to dock to */
 	virtual void CheckCollisionDocking(AFlareSpacecraft* DockingCandidate);
