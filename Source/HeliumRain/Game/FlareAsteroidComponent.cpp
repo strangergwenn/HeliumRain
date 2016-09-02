@@ -1,7 +1,9 @@
 
 #include "../Flare.h"
 #include "FlareAsteroidComponent.h"
+
 #include "FlareGame.h"
+#include "../Player/FlarePlayerController.h"
 
 #include "StaticMeshResources.h"
 
@@ -27,9 +29,9 @@ UFlareAsteroidComponent::UFlareAsteroidComponent(const class FObjectInitializer&
 	// Settings
 	PrimaryComponentTick.bCanEverTick = true;
 	IsIcyAsteroid = true;
-	EffectsCount = FMath::RandRange(5, 10);
+	EffectsCount = FMath::RandRange(2, 5);
 	EffectsScale = 0.05;
-	EffectsUpdatePeriod = 0.17f;
+	EffectsUpdatePeriod = 0.5f;
 	EffectsUpdateTimer = 0;
 }
 
@@ -49,48 +51,67 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 	float CollisionSize = GetCollisionShape().GetExtent().Size();
 	EffectsUpdateTimer += DeltaTime;
 
-	if (EffectsUpdateTimer > EffectsUpdatePeriod)
+	// Get player ship
+	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+	check(Game);
+	AFlarePlayerController* PC = Game->GetPC();
+	check(PC);
+	AFlareSpacecraft* ShipPawn = PC->GetShipPawn();
+
+	// Update if close to player
+	if (ShipPawn && (ShipPawn->GetActorLocation() - GetComponentLocation()).Size() < 200000)
 	{
-		// World data
-		AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-		FVector AsteroidLocation = GetComponentLocation();
-		FVector SunDirection = Game->GetPlanetarium()->GetSunDirection();
-		SunDirection.Normalize();
+		if (EffectsUpdateTimer > EffectsUpdatePeriod)
+		{
+			// World data
+			FVector AsteroidLocation = GetComponentLocation();
+			FVector SunDirection = Game->GetPlanetarium()->GetSunDirection();
+			SunDirection.Normalize();
 	
-		// Compute new FX locations
+			// Compute new FX locations
+			for (int32 Index = 0; Index < EffectsKernels.Num(); Index++)
+			{
+				FVector RandomDirection = FVector::CrossProduct(SunDirection, EffectsKernels[Index]);
+				RandomDirection.Normalize();
+				FVector StartPoint = AsteroidLocation + RandomDirection * CollisionSize;
+
+				// Trace params
+				FHitResult HitResult(ForceInit);
+				FCollisionQueryParams TraceParams(FName(TEXT("Asteroid Trace")), false, NULL);
+				TraceParams.bTraceComplex = true;
+				TraceParams.bReturnPhysicalMaterial = false;
+				ECollisionChannel CollisionChannel = ECollisionChannel::ECC_WorldDynamic;
+
+				// Trace
+				bool FoundHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, AsteroidLocation, CollisionChannel, TraceParams);
+				if (FoundHit && HitResult.Component == this && Effects[Index])
+				{
+					FVector EffectLocation = HitResult.Location;
+
+					if (!Effects[Index]->IsActive())
+					{
+						Effects[Index]->Activate();
+					}
+					Effects[Index]->SetWorldLocation(EffectLocation);
+					Effects[Index]->SetWorldRotation(SunDirection.Rotation());
+				}
+				else
+				{
+					Effects[Index]->Deactivate();
+				}
+			}
+
+			EffectsUpdateTimer = 0;
+		}
+	}
+
+	// Disable all
+	else
+	{
 		for (int32 Index = 0; Index < EffectsKernels.Num(); Index++)
 		{
-			FVector RandomDirection = FVector::CrossProduct(SunDirection, EffectsKernels[Index]);
-			RandomDirection.Normalize();
-			FVector StartPoint = AsteroidLocation + RandomDirection * CollisionSize;
-
-			// Trace params
-			FHitResult HitResult(ForceInit);
-			FCollisionQueryParams TraceParams(FName(TEXT("Asteroid Trace")), false, NULL);
-			TraceParams.bTraceComplex = true;
-			TraceParams.bReturnPhysicalMaterial = false;
-			ECollisionChannel CollisionChannel = ECollisionChannel::ECC_WorldDynamic;
-
-			// Trace
-			bool FoundHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, AsteroidLocation, CollisionChannel, TraceParams);
-			if (FoundHit && HitResult.Component == this && Effects[Index])
-			{
-				FVector EffectLocation = HitResult.Location;
-
-				if (!Effects[Index]->IsActive())
-				{
-					Effects[Index]->Activate();
-				}
-				Effects[Index]->SetWorldLocation(EffectLocation);
-				Effects[Index]->SetWorldRotation(SunDirection.Rotation());
-			}
-			else
-			{
-				Effects[Index]->Deactivate();
-			}
+			Effects[Index]->Deactivate();
 		}
-
-		EffectsUpdateTimer = 0;
 	}
 }
 
