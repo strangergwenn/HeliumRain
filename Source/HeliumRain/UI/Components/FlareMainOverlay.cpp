@@ -339,7 +339,8 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
 
 	// Visibility check
-	float Height = AFlareMenuManager::GetMainOverlayHeight();
+	float Width = ViewportSize.X + 2.0f;
+	float Height = AFlareMenuManager::GetMainOverlayHeight() + 2.0f;
 	if (!IsOverlayVisible || (MousePosition.Y / ViewportScale) > Height)
 	{
 		SetVisibility(EVisibility::HitTestInvisible);
@@ -355,7 +356,7 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 		float ScreenScale = MyGameSettings->ScreenPercentage / 100.0f;
 		BlurMaterial->SetVectorParameterValue("PanelPosition", FVector(0.0, 0.0, 0));
-		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(ScreenScale * ViewportSize.X, ViewportScale * ScreenScale * Height, 0));
+		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(ScreenScale * Width, ViewportScale * ScreenScale * Height, 0));
 	}
 	else
 	{
