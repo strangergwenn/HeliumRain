@@ -1595,19 +1595,27 @@ FText UFlareGameTools::GetDisplayDate(int64 Days)
 		FText::AsNumber(RemainingDays));
 }
 
-int64 UFlareGameTools::ComputeShipPrice(FName ShipClass, UFlareSimulatedSector *Sector, bool WithMargin)
+int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSector* Sector, bool WithMargin, bool ConstructionPrice)
 {
 	FFlareSpacecraftDescription* Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
 
 	if (!Desc)
 	{
-		FLOGV("ComputeShipPrice failed: Unkwnon ship %s", *ShipClass.ToString());
+		FLOGV("ComputeSpacecraftPrice failed: Unkwnon ship %s", *ShipClass.ToString());
 		return 0;
 	}
 
+	// Base cost
 	int64 Cost = 0;
 	Cost += Desc->CycleCost.ProductionCost;
 
+	// For stations, use the sectore penalty
+	if (FFlareSpacecraftDescription::IsStation(Desc) && ConstructionPrice)
+	{
+		Cost = Sector->GetStationConstructionFee(Cost);
+	}
+
+	// Add input resource cost
 	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num() ; ResourceIndex++)
 	{
 		FFlareFactoryResource* Resource = &Desc->CycleCost.InputResources[ResourceIndex];

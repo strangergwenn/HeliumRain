@@ -432,7 +432,7 @@ void UFlareCompanyAI::Simulate()
 				//FLOGV("%s in %s GainPerDay=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), GainPerDay / 100);
 
 				// Price with station resources prices bonus
-				float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeShipPrice(StationDescription->Identifier, Sector, true);
+				float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, true);
 				float DayToPayPrice = StationPrice / GainPerDay;
 				float MissingMoneyRatio = FMath::Min(1.0f, Company->GetMoney() / StationPrice);
 
@@ -487,7 +487,7 @@ void UFlareCompanyAI::Simulate()
 
 		// Start construction only if can afford to buy the station
 
-		float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeShipPrice(BestStationDescription->Identifier, BestSector, true);
+		float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(BestStationDescription->Identifier, BestSector, true);
 
 		bool StartConstruction = true;
 
@@ -627,7 +627,7 @@ void UFlareCompanyAI::Simulate()
 						// Large factory
 						if (Factory->IsLargeShipyard())
 						{
-							if (UFlareGameTools::ComputeShipPrice("ship-atlas", Sector, true) * CostSafetyMargin < CompanyMoney)
+							if (UFlareGameTools::ComputeSpacecraftPrice("ship-atlas", Sector, true) * CostSafetyMargin < CompanyMoney)
 							{
 								ShipClassToOrder = "ship-atlas";
 							}
@@ -636,11 +636,11 @@ void UFlareCompanyAI::Simulate()
 						// Small factory
 						else if (Factory->IsSmallShipyard())
 						{
-							if (UFlareGameTools::ComputeShipPrice("ship-omen", Sector, true) * CostSafetyMargin < CompanyMoney)
+							if (UFlareGameTools::ComputeSpacecraftPrice("ship-omen", Sector, true) * CostSafetyMargin < CompanyMoney)
 							{
 								ShipClassToOrder = "ship-omen";
 							}
-							else if (UFlareGameTools::ComputeShipPrice("ship-solen", Sector, true) * CostSafetyMargin < CompanyMoney)
+							else if (UFlareGameTools::ComputeSpacecraftPrice("ship-solen", Sector, true) * CostSafetyMargin < CompanyMoney)
 							{
 								ShipClassToOrder = "ship-solen";
 							}

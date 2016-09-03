@@ -216,7 +216,7 @@ void UFlareFactory::OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 
 	if(Parent->GetCompany() != OrderCompany)
 	{
-		ShipPrice = UFlareGameTools::ComputeShipPrice(ShipIdentifier, Parent->GetCurrentSector(), true);
+		ShipPrice = UFlareGameTools::ComputeSpacecraftPrice(ShipIdentifier, Parent->GetCurrentSector(), true);
 		if(!OrderCompany->TakeMoney(ShipPrice))
 		{
 			// Not enough money

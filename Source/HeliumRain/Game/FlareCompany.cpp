@@ -706,7 +706,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 		}
 
 		// Value of the spacecraft
-		int64 SpacecraftPrice = UFlareGameTools::ComputeShipPrice(Spacecraft->GetDescription()->Identifier, ReferenceSector, true);
+		int64 SpacecraftPrice = UFlareGameTools::ComputeSpacecraftPrice(Spacecraft->GetDescription()->Identifier, ReferenceSector, true);
 
 		if(Spacecraft->IsStation())
 		{
