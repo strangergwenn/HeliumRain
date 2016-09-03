@@ -44,6 +44,10 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitFLIRCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitFLIRCapture"));
 	CockpitFLIRCapture->bCaptureEveryFrame = true;
 	CockpitFLIRCapture->FOVAngle = 10;
+	CockpitFLIRCapture->ShowFlags.Bloom = false;
+	CockpitFLIRCapture->ShowFlags.Decals = false;
+	CockpitFLIRCapture->ShowFlags.ScreenSpaceAO = false;
+	CockpitFLIRCapture->ShowFlags.ScreenSpaceReflections = false;
 	CockpitFLIRCameraTarget = NULL;
 	CockpitFLIRCapture->Deactivate();
 
@@ -71,7 +75,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 	CockpitInstrumentsTargetSize = 512;
-	CockpitFLIRTargetSize = 256;
+	CockpitFLIRTargetSize = 512;
 	IsInCockpit = false;
 }
 
