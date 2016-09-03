@@ -134,7 +134,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		CombatGroup = EFlareCombatGroup::Fighters;
 	}
 
-	EFlareCombatTactic::Type Tactic = Ship->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(CombatGroup);
+	EFlareCombatTactic::Type Tactic = Ship->GetCompany()->GetTacticManager()->GetCurrentTacticForShipGroup(CombatGroup);
 
 	if (!PilotTargetShip // No target
 			|| !PilotTargetShip->GetParent()->GetDamageSystem()->IsAlive() // Target dead

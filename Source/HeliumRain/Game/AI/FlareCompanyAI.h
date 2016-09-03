@@ -4,11 +4,10 @@
 #include "../FlareGameTypes.h"
 #include "FlareCompanyAI.generated.h"
 
+
 class UFlareCompany;
 
-
-
-
+/* Inter-sector trade deal */
 struct SectorDeal
 {
 	float MoneyBalanceParDay;
@@ -18,7 +17,7 @@ struct SectorDeal
 	int32 BuyQuantity;
 };
 
-
+/* Resource flow */
 struct ResourceVariation
 {
 	int32 OwnedFlow;
@@ -34,11 +33,13 @@ struct ResourceVariation
 	int32 StorageCapacity;
 };
 
+/* Local list of resource flows */
 struct SectorVariation
 {
 	int32 IncomingCapacity;
 	TMap<FFlareResourceDescription*, ResourceVariation> ResourceVariations;
 };
+
 
 UCLASS()
 class HELIUMRAIN_API UFlareCompanyAI : public UObject
@@ -46,8 +47,9 @@ class HELIUMRAIN_API UFlareCompanyAI : public UObject
 	GENERATED_UCLASS_BODY()
 
 public:
+
 	/*----------------------------------------------------
-		Save
+		Public API
 	----------------------------------------------------*/
 
 	/** Load the company AI from a save file */
@@ -56,97 +58,76 @@ public:
 	/** Save the company AI to a save file */
 	virtual FFlareCompanyAISave* Save();
 
-
-
-
-	/*----------------------------------------------------
-		Gameplay
-	----------------------------------------------------*/
-
-	virtual void Simulate();
-
+	/** Real-time tick */
 	virtual void Tick();
 
-	virtual void SimulateDiplomacy();
+	/** Simulate a day */
+	virtual void Simulate();
 
 	/** Destroy a spacecraft */
 	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
 
+protected:
+
 	/*----------------------------------------------------
-		Command groups
+		Internal subsystems
 	----------------------------------------------------*/
 
-	/** Set the current ship group to give orders to */
-	void SetCurrentShipGroup(EFlareCombatGroup::Type Type);
+	/** Simulate a day of diplomacy */
+	virtual void SimulateDiplomacy();
 
-	/** Set the current order for the currently selected ship group */
-	void SetTacticForCurrentShipGroup(EFlareCombatTactic::Type Tactic);
+	/** Manage the construction of ships */
+	void SimulateShipConstruction(TMap<UFlareSimulatedSector*, SectorVariation> & WorldResourceVariation);
 
-	/** Get the current ship group */
-	EFlareCombatGroup::Type GetCurrentShipGroup() const;
-
-	/* Get the current order */
-	EFlareCombatTactic::Type GetCurrentTacticForShipGroup(EFlareCombatGroup::Type Type) const;
-
-	/** Get the ship count in this group */
-	int32 GetShipCountForShipGroup(EFlareCombatGroup::Type Type) const;
-
-	void ResetControlGroups(UFlareSimulatedSector* Sector);
-
-	void ResetShipGroup(EFlareCombatTactic::Type Tactic);
-
-protected:
 
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
 
+	/** Get a list of idle cargos */
+	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos();
+
 	/** Generate a score for ranking construction projects & the gains per day */
 	TPair<float, float> ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription) const;
 
+	/** Get the resource flow in this sector */
 	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector);
 
+	/** Print the resource flow */
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation);
 
-	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos();
-
 	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation);
-
-	void ManagerConstructionShips(TMap<UFlareSimulatedSector*, SectorVariation> & WorldResourceVariation);
-
+	
 	TMap<FFlareResourceDescription*, int32> ComputeWorldResourceFlow() const;
 
-	protected:
 
+protected:
+
+	/*----------------------------------------------------
+		Data
+	----------------------------------------------------*/
+
+	// Gameplay data
 	UFlareCompany*			               Company;
 	FFlareCompanyAISave					   AIData;
 	AFlareGame*                            Game;
-
-	// Command groups
-	TEnumAsByte<EFlareCombatGroup::Type>     CurrentShipGroup;
-	TArray<TEnumAsByte<EFlareCombatTactic::Type>> CurrentCombatTactics;
-	int32                                    CurrentMilitaryShipCount;
-	int32                                    CurrentCapitalShipCount;
-	int32                                    CurrentFighterCount;
-	int32                                    CurrentCivilianShipCount;
-
-
+	
 	// TODO Save it
 	FFlareSpacecraftDescription*			 ConstructionProjectStation;
 	UFlareSimulatedSector*         			 ConstructionProjectSector;
 	TArray<UFlareSimulatedSpacecraft *>      ConstructionShips;
 
 
-	public:
+public:
 
 	/*----------------------------------------------------
-	  Getters
+		Getters
 	----------------------------------------------------*/
 
 	AFlareGame* GetGame() const
 	{
-	  return Game;
+		return Game;
 	}
 
 };

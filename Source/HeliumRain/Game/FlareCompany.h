@@ -5,6 +5,8 @@
 #include "FlareFleet.h"
 #include "FlareGameTypes.h"
 #include "FlareSimulatedSector.h"
+#include "AI/FlareCompanyAI.h"
+#include "AI/FlareTacticManager.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "FlareCompany.generated.h"
 
@@ -213,6 +215,9 @@ protected:
 	TArray<UFlareFleet*>                    CompanyFleets;
 
 	UPROPERTY()
+	UFlareTacticManager*                    TacticManager;
+
+	UPROPERTY()
 	TArray<UFlareTradeRoute*>               CompanyTradeRoutes;
 
 	UPROPERTY()
@@ -368,4 +373,10 @@ public:
 	{
 		return CompanyAI;
 	}
+
+	inline UFlareTacticManager* GetTacticManager()
+	{
+		return TacticManager;
+	}
+
 };

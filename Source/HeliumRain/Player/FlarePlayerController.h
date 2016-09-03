@@ -412,6 +412,11 @@ public:
 		return CockpitManager;
 	}
 
+	inline UFlareTacticManager* GetTacticManager()
+	{
+		return GetCompany()->GetTacticManager();
+	}
+
 	/** Return the last flown ship. Return NULL if no last flown ship, or if it is destroyed */
 	UFlareSimulatedSpacecraft* GetPlayerShip();
 };

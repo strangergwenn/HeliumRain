@@ -44,9 +44,15 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 		CompanyDescription = GetGame()->GetPlayerCompanyDescription();
 	}
 
+	// Spawn AI
 	CompanyAI = NewObject<UFlareCompanyAI>(this, UFlareCompanyAI::StaticClass());
+	check(CompanyAI);
 	CompanyAI->Load(this, CompanyData.AI);
 
+	// Spawn tactic manager
+	TacticManager = NewObject<UFlareTacticManager>(this, UFlareTacticManager::StaticClass());
+	check(TacticManager);
+	TacticManager->Load(this);
 
 	// Load ships
 	for (int i = 0 ; i < CompanyData.ShipData.Num(); i++)
@@ -65,8 +71,6 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	{
 		LoadFleet(CompanyData.Fleets[i]);
 	}
-
-
 
 	// Load emblem
 	SetupEmblem();
@@ -177,7 +181,6 @@ void UFlareCompany::TickAI()
 {
 	CompanyAI->Tick();
 }
-
 
 EFlareHostility::Type UFlareCompany::GetPlayerHostility() const
 {

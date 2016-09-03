@@ -78,7 +78,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		SecondaryShipSize = EFlarePartSize::L;
 	}
 
-	EFlareCombatTactic::Type Tactic = Turret->GetSpacecraft()->GetParent()->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(EFlareCombatGroup::Capitals);
+	EFlareCombatTactic::Type Tactic = Turret->GetSpacecraft()->GetParent()->GetCompany()->GetTacticManager()->GetCurrentTacticForShipGroup(EFlareCombatGroup::Capitals);
 
 	PilotTargetShip = GetNearestHostileShip(true, Tactic);
 

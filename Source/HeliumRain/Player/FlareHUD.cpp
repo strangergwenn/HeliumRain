@@ -419,6 +419,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 {
 	FVector2D CurrentPos = RightInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	UFlareTacticManager* TacticManager = MenuManager->GetPC()->GetCompany()->GetTacticManager();
 
 	// Fighter version
 	if (PlayerShip->GetParent()->IsMilitary() && PlayerShip->GetParent()->GetDescription()->Size == EFlarePartSize::S)
@@ -502,7 +503,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		FlareDrawText(CommandGroupText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 2 * InstrumentLine;
 
-		int32 CurrentGroupIndex = MenuManager->GetPC()->GetCompany()->GetAI()->GetCurrentShipGroup();
+		int32 CurrentGroupIndex = TacticManager->GetCurrentShipGroup();
 
 		// Group list
 		for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
@@ -512,8 +513,8 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			FText GroupText = FText::Format(LOCTEXT("GroupListInfoFormat", "{0}. {1} ({2}) : {3}"),
 				FText::AsNumber(Index + 1),
 				GroupName,
-				FText::AsNumber(MenuManager->GetPC()->GetCompany()->GetAI()->GetShipCountForShipGroup(GroupType)),
-				UFlareGameTypes::GetCombatTacticDescription(MenuManager->GetPC()->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(GroupType)));
+				FText::AsNumber(TacticManager->GetShipCountForShipGroup(GroupType)),
+				UFlareGameTypes::GetCombatTacticDescription(TacticManager->GetCurrentTacticForShipGroup(GroupType)));
 
 			FString GroupString = ((Index == CurrentGroupIndex) ? FString("> ") : FString("   ")) + GroupText.ToString();
 

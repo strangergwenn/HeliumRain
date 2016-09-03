@@ -98,9 +98,8 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 		
 		UFlareSimulatedSector* Sector = ShipPawn->GetParent()->GetCurrentSector();
-		GetCompany()->GetAI()->ResetControlGroups(Sector);
-
-
+		GetTacticManager()->ResetControlGroups(Sector);
+		
 		// Battle state
 		if (GetGame()->GetActiveSector())
 		{
@@ -284,8 +283,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	}
 
 	// Combat groups
-	Company->GetAI()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
-	Company->GetAI()->ResetShipGroup(EFlareCombatTactic::ProtectMe);
+	GetTacticManager()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
+	GetTacticManager()->ResetShipGroup(EFlareCombatTactic::ProtectMe);
 
 	// Set player ship
 	SetPlayerShip(ShipPawn->GetParent());
@@ -1222,7 +1221,7 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 
 void AFlarePlayerController::SetTacticForCurrentGroup(EFlareCombatTactic::Type Tactic)
 {
-	GetCompany()->GetAI()->SetTacticForCurrentShipGroup(Tactic);
+	GetTacticManager()->SetTacticForCurrentShipGroup(Tactic);
 }
 
 void AFlarePlayerController::MatchSpeedWithTargetSpacecraft()

@@ -78,7 +78,8 @@ void SFlareGroupStatus::Tick(const FGeometry& AllottedGeometry, const double InC
 	float IsSelecting = false;
 	if (PC)
 	{
-		IsSelected = (PC->GetCompany()->GetAI()->GetCurrentShipGroup() == TargetShipGroup);
+		UFlareTacticManager* TacticManager = PC->GetCompany()->GetTacticManager();
+		IsSelected = (TacticManager->GetCurrentShipGroup() == TargetShipGroup);
 		IsSelecting = PC->IsSelectingWeapon();
 	}
 
@@ -110,8 +111,9 @@ FText SFlareGroupStatus::GetText() const
 {
 	FText Text;
 
-	int32 TargetShipGroupCount = PC->GetCompany()->GetAI()->GetShipCountForShipGroup(TargetShipGroup);
-	EFlareCombatTactic::Type TargetShipGroupOrder = PC->GetCompany()->GetAI()->GetCurrentTacticForShipGroup(TargetShipGroup);
+	UFlareTacticManager* TacticManager = PC->GetCompany()->GetTacticManager();
+	int32 TargetShipGroupCount = TacticManager->GetShipCountForShipGroup(TargetShipGroup);
+	EFlareCombatTactic::Type TargetShipGroupOrder = TacticManager->GetCurrentTacticForShipGroup(TargetShipGroup);
 	
 	// Final string
 	Text = FText::Format(LOCTEXT("GroupInfoFormat", "{0} ({1} ships)\nCurrent order : {2}\n"),
