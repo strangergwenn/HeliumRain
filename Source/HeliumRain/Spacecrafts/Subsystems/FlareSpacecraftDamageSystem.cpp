@@ -87,8 +87,8 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetParent()->GetCompany())
 		{
 			PC->Notify(LOCTEXT("ShipKilledCompany", "Target destroyed"),
-				FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"), ,
-					LastDamageCauser->GetParent()->GetDescription()->Name
+				FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"),
+					LastDamageCauser->GetParent()->GetDescription()->Name,
 					Spacecraft->GetParent()->GetDescription()->Name),
 				FName("ship-killed"),
 				EFlareNotification::NT_Info);
