@@ -308,28 +308,16 @@ void UFlareCompanyAI::Simulate()
 	// create a route.
 	// assign enought capacity to match the min(negative balance, positive balance)
 
-
-
 	// TODO hub by stock, % of world production max
-
-
-
 
 	//TODO always keep money for production
 	// Acquire ship
 
 	TArray<UFlareSpacecraftCatalogEntry*>& StationCatalog = Game->GetSpacecraftCatalog()->StationCatalog;
-
-	TMap<FFlareResourceDescription*, int32> ResourceFlow = ComputeWorldResourceFlow();
-
+	
 	// Build station
-
-
-
-
-
+	
 	// Count factories for the company
-
 
 	// Compute rentability in each sector for each station
 	// Add weight if the company already have another station in this type
@@ -338,13 +326,11 @@ void UFlareCompanyAI::Simulate()
 	float BestScore = 0;
 	FFlareSpacecraftDescription* BestStationDescription = NULL;
 	UFlareSimulatedSector* BestSector = NULL;
-
-
+	
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 	{
 		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
-
-
+		
 		for (int32 StationIndex = 0; StationIndex < StationCatalog.Num(); StationIndex++)
 		{
 			FFlareSpacecraftDescription* StationDescription = &StationCatalog[StationIndex]->Data;
@@ -355,15 +341,13 @@ void UFlareCompanyAI::Simulate()
 			{
 				continue;
 			}
-
-
-
+			
 			for (int FactoryIndex = 0; FactoryIndex < StationDescription->Factories.Num(); FactoryIndex++)
 			{
 				FFlareFactoryDescription* FactoryDescription = &StationDescription->Factories[FactoryIndex]->Data;
 
+				// Detect shipyards
 				bool Shipyard = false;
-
 				for (int32 Index = 0; Index < FactoryDescription->OutputActions.Num(); Index++)
 				{
 					if (FactoryDescription->OutputActions[Index].Action == EFlareFactoryAction::CreateShip)
@@ -373,104 +357,27 @@ void UFlareCompanyAI::Simulate()
 					}
 				}
 
-				if(Shipyard)
+				if (Shipyard)
 				{
 					// TODO Shipyard case
 					continue;
 				}
 
-				float GainPerDay = 0;
-				float GainPerCycle = 0;
-
-				GainPerCycle -= Sector->GetStationConstructionFee(FactoryDescription->CycleCost.ProductionCost);
-
-				float Malus = 0;
-				float Bonus = 0;
-
-				for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num() ; ResourceIndex++)
-				{
-					const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
-					GainPerCycle -= Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryInput) * Resource->Quantity;
-
-					float NeededFlow = (float) Resource->Quantity / (float) FactoryDescription->CycleCost.ProductionTime;
-					//FLOGV("%s, %s: ResourceFlow = %d Flow needed = %f",
-					//	  *FactoryDescription->Name.ToString(),
-					//	  *Resource->Resource->Data.Name.ToString(),
-					//	  ResourceFlow[&Resource->Resource->Data] ,NeededFlow);
-					if(ResourceFlow[&Resource->Resource->Data] <= NeededFlow)
-					{
-						float DisponibilityMalus = (NeededFlow - (float) ResourceFlow[&Resource->Resource->Data]);
-						Malus += DisponibilityMalus;
-						//FLOGV("Factory %s as %f as malus for resource %s", *FactoryDescription->Name.ToString(), DisponibilityMalus, *Resource->Resource->Data.Name.ToString());
-
-					}
-
-				}
-
-				for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num() ; ResourceIndex++)
-				{
-					const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
-					GainPerCycle += Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryOutput) * Resource->Quantity;
-
-
-					float ProducedFlow = (float) Resource->Quantity / (float) FactoryDescription->CycleCost.ProductionTime;
-					//FLOGV("%s, %s: ResourceFlow = %d Flow produced = %f",
-					//	  *FactoryDescription->Name.ToString(),
-					//	  *Resource->Resource->Data.Name.ToString(),
-					//	  ResourceFlow[&Resource->Resource->Data] ,ProducedFlow);
-					if(ResourceFlow[&Resource->Resource->Data] <=  0)
-					{
-						float DisponibilityBonus = ProducedFlow - (float) ResourceFlow[&Resource->Resource->Data];
-						//FLOGV("Factory %s as %f as bonus for resource %s", *FactoryDescription->Name.ToString(), DisponibilityBonus, *Resource->Resource->Data.Name.ToString());
-						Bonus += DisponibilityBonus;
-					}
-
-				}
-
-				GainPerDay = GainPerCycle / FactoryDescription->CycleCost.ProductionTime;
-
-				//FLOGV("%s in %s GainPerDay=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), GainPerDay / 100);
-
-				// Price with station resources prices bonus
-				float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, true);
-				float DayToPayPrice = StationPrice / GainPerDay;
-				float MissingMoneyRatio = FMath::Min(1.0f, Company->GetMoney() / StationPrice);
-
-
-				//FLOGV("StationPrice=%f DayToPayPrice=%f", StationPrice, DayToPayPrice);
-
-
-
-				float Score =  (100.f / DayToPayPrice) * MissingMoneyRatio;
-
-				//FLOGV("%s in %s Score=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Score);
-				//FLOGV("         Bonus=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Bonus);
-				//FLOGV("         Malus=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Malus);
-
-
-				if(Bonus > 0)
-				{
-					Score *= Bonus;
-				}
-
-				if(Malus > 0)
-				{
-					Score /= Malus;
-				}
-
+				// Generate score
+				TPair<float, float> ScoreResults = ComputeConstructionScoreForStation(Sector, StationDescription, FactoryDescription);
+				float Score = ScoreResults.Key;
+				float GainPerDay = ScoreResults.Value;
 				//FLOGV("         Final Score =%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Score);
 
-
-				if(ConstructionProjectSector == Sector && ConstructionProjectStation == StationDescription)
+				// Update current construction score
+				if (ConstructionProjectSector == Sector && ConstructionProjectStation == StationDescription)
 				{
 					CurrentConstructionScore = Score;
 				}
-
 				if (GainPerDay > 0 && (!BestStationDescription || Score > BestScore))
 				{
 					//FLOGV("New Best : StationPrice=%f DayToPayPrice=%f", StationPrice, DayToPayPrice);
 					//FLOGV("           MissingMoneyRatio=%f Score=%f", MissingMoneyRatio, Score);
-
 
 					BestScore = Score;
 					BestStationDescription = StationDescription;
@@ -1377,7 +1284,7 @@ void UFlareCompanyAI::ResetShipGroup(EFlareCombatTactic::Type Tactic)
 	}
 }
 
-TMap<FFlareResourceDescription*, int32> UFlareCompanyAI::ComputeWorldResourceFlow()
+TMap<FFlareResourceDescription*, int32> UFlareCompanyAI::ComputeWorldResourceFlow() const
 {
 	TMap<FFlareResourceDescription*, int32> WorldResourceFlow;
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
@@ -1452,6 +1359,82 @@ TMap<FFlareResourceDescription*, int32> UFlareCompanyAI::ComputeWorldResourceFlo
 	}
 
 	return WorldResourceFlow;
+}
+
+TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription) const
+{
+	float GainPerDay = 0;
+	float GainPerCycle = 0;
+
+	TMap<FFlareResourceDescription*, int32> ResourceFlow = ComputeWorldResourceFlow();
+	GainPerCycle -= Sector->GetStationConstructionFee(FactoryDescription->CycleCost.ProductionCost);
+
+	float Malus = 0;
+	float Bonus = 0;
+
+	for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num(); ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+		GainPerCycle -= Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryInput) * Resource->Quantity;
+
+		float NeededFlow = (float)Resource->Quantity / (float)FactoryDescription->CycleCost.ProductionTime;
+		//FLOGV("%s, %s: ResourceFlow = %d Flow needed = %f",
+		//	  *FactoryDescription->Name.ToString(),
+		//	  *Resource->Resource->Data.Name.ToString(),
+		//	  ResourceFlow[&Resource->Resource->Data] ,NeededFlow);
+		if (ResourceFlow[&Resource->Resource->Data] <= NeededFlow)
+		{
+			float DisponibilityMalus = (NeededFlow - (float)ResourceFlow[&Resource->Resource->Data]);
+			Malus += DisponibilityMalus;
+			//FLOGV("Factory %s as %f as malus for resource %s", *FactoryDescription->Name.ToString(), DisponibilityMalus, *Resource->Resource->Data.Name.ToString());
+
+		}
+	}
+
+	for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num(); ResourceIndex++)
+	{
+		const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
+		GainPerCycle += Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryOutput) * Resource->Quantity;
+
+		float ProducedFlow = (float)Resource->Quantity / (float)FactoryDescription->CycleCost.ProductionTime;
+		//FLOGV("%s, %s: ResourceFlow = %d Flow produced = %f",
+		//	  *FactoryDescription->Name.ToString(),
+		//	  *Resource->Resource->Data.Name.ToString(),
+		//	  ResourceFlow[&Resource->Resource->Data] ,ProducedFlow);
+		if (ResourceFlow[&Resource->Resource->Data] <= 0)
+		{
+			float DisponibilityBonus = ProducedFlow - (float)ResourceFlow[&Resource->Resource->Data];
+			//FLOGV("Factory %s as %f as bonus for resource %s", *FactoryDescription->Name.ToString(), DisponibilityBonus, *Resource->Resource->Data.Name.ToString());
+			Bonus += DisponibilityBonus;
+		}
+
+	}
+
+	GainPerDay = GainPerCycle / FactoryDescription->CycleCost.ProductionTime;
+	//FLOGV("%s in %s GainPerDay=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), GainPerDay / 100);
+
+	// Price with station resources prices bonus
+	float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, true);
+	float DayToPayPrice = StationPrice / GainPerDay;
+	float MissingMoneyRatio = FMath::Min(1.0f, Company->GetMoney() / StationPrice);
+	//FLOGV("StationPrice=%f DayToPayPrice=%f", StationPrice, DayToPayPrice);
+
+	float Score = (100.f / DayToPayPrice) * MissingMoneyRatio;
+	//FLOGV("%s in %s Score=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Score);
+	//FLOGV("         Bonus=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Bonus);
+	//FLOGV("         Malus=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Malus);
+
+	if (Bonus > 0)
+	{
+		Score *= Bonus;
+	}
+
+	if (Malus > 0)
+	{
+		Score /= Malus;
+	}
+
+	return TPairInitializer<float, float>(Score, GainPerDay);
 }
 
 SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedSector* Sector)

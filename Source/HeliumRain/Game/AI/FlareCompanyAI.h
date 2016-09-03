@@ -102,6 +102,9 @@ protected:
 		Helpers
 	----------------------------------------------------*/
 
+	/** Generate a score for ranking construction projects & the gains per day */
+	TPair<float, float> ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription) const;
+
 	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector);
 
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation);
@@ -112,7 +115,7 @@ protected:
 
 	void ManagerConstructionShips(TMap<UFlareSimulatedSector*, SectorVariation> & WorldResourceVariation);
 
-	TMap<FFlareResourceDescription*, int32> ComputeWorldResourceFlow();
+	TMap<FFlareResourceDescription*, int32> ComputeWorldResourceFlow() const;
 
 	protected:
 
