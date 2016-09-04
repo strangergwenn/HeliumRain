@@ -10,6 +10,8 @@ struct FPreciseMath
 
 	static inline double Sin( double Value ) { return sin(Value); }
 	static inline double Cos( double Value ) { return cos(Value); }
+	static inline double Tan( double Value ) { return tan(Value); }
+	static inline double Asin( double Value ) { return asin(Value); }
 	static inline double Sqrt( double Value ) { return sqrt(Value); }
 
 	/**
