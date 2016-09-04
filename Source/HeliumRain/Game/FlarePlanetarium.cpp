@@ -140,7 +140,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					MinDistance = DistanceToParentCenter;
 
 					BodyPositions.Empty();
-					PrepareCelestialBody(&Sun, -PlayerLocation, AngleOffset, SunDirection);
+					PrepareCelestialBody(&Sun, -PlayerLocation, AngleOffset);
 					SetupCelestialBodies();
 
 					if(SkipNightTimeRange > 0 && SunOcclusion >= 1)
@@ -227,8 +227,6 @@ void AFlarePlanetarium::SetupCelestialBodies()
 		// Update BaseDistance for future bodies. Take margin for Nema rings
 		BaseDistance = DisplayDistance + 2 * DisplayRadius;
 	}
-
-
 }
 
 void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius)
@@ -238,8 +236,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 	{
 		PlayerShipLocation = GetGame()->GetPC()->GetShipPawn()->GetActorLocation();
 	}
-
-
+	
 #ifdef PLANETARIUM_DEBUG
 	DrawDebugSphere(GetWorld(), FVector::ZeroVector, DisplayDistance /1000 , 32, FColor::Blue, false);
 
@@ -254,7 +251,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 	BodyPosition->BodyComponent->SetRelativeScale3D(FPreciseVector(Scale).ToVector());
 
 	FTransform BaseRotation = FTransform(FRotator(0, 0 ,90));
-	FTransform TimeRotation = FTransform(FRotator(0, BodyComponent->TotalRotation, 0));
+	FTransform TimeRotation = FTransform(FRotator(0, BodyPosition->TotalRotation, 0));
 
 	FQuat Rotation = (TimeRotation * BaseRotation).GetRotation();
 
@@ -290,7 +287,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 
 			// Get world-space rotation angles for the ring and the sun
 			float SunRotationPitch = FMath::RadiansToDegrees(FMath::Atan2(SunDirection.Z,SunDirection.X)) + 180;
-			float RingRotationPitch = -TotalRotation;
+			float RingRotationPitch = -BodyPosition->TotalRotation;
 
 			// Feed params to the shader
 			RingMaterial->SetScalarParameterValue("RingPitch", RingRotationPitch / 360);
@@ -299,21 +296,18 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 	}
 
 	// Sun also rotates to track direction
-	if (Body == &Sun)
+	if (BodyPosition->Body == &Sun)
 	{
 		BodyPosition->BodyComponent->SetRelativeRotation(SunDirection.ToVector().Rotation());
 	}
 
 	// Compute sun occlusion
-	if (Body != &Sun)
+	if (BodyPosition->Body != &Sun)
 	{
-		float BodyPhase =  FMath::UnwindRadians(FMath::Atan2(AlignedLocation.Z, AlignedLocation.X));
-
-
-
+		float BodyPhase =  FMath::UnwindRadians(FMath::Atan2(BodyPosition->AlignedLocation.Z, BodyPosition->AlignedLocation.X));
 		float CenterAngularDistance = FMath::Abs(FMath::UnwindRadians(SunPhase - BodyPhase));
-		float AngleSum = (SunAnglularRadius + AngularRadius);
-		float AngleDiff = FMath::Abs(SunAnglularRadius - AngularRadius);
+		float AngleSum = (SunAngularRadius + BodyPosition->Radius);
+		float AngleDiff = FMath::Abs(SunAngularRadius - BodyPosition->Radius);
 
 		if (CenterAngularDistance < AngleSum)
 		{
@@ -328,42 +322,39 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 			else
 			{
 				// Partial occlusion
-				OcclusionRatio = (AngleSum - CenterAngularDistance) / (2* FMath::Min(SunAnglularRadius, AngularRadius));
+				OcclusionRatio = (AngleSum - CenterAngularDistance) / (2* FMath::Min(SunAngularRadius, BodyPosition->Radius));
 
-				// OcclusionRatio = ((SunAnglularRadius + AngularRadius) + FMath::Max(SunAnglularRadius, AngularRadius) - FMath::Min(SunAnglularRadius, AngularRadius)) / (2 * CenterAngularDistance);
+				// OcclusionRatio = ((SunAngularRadius + AngularRadius) + FMath::Max(SunAngularRadius, AngularRadius) - FMath::Min(SunAngularRadius, AngularRadius)) / (2 * CenterAngularDistance);
 			}
 			//FLOGV("MoveCelestialBody %s OcclusionRatio = %f", *Body->Name, OcclusionRatio);
 
 			// Now, find the surface occlusion
-			float SunAngularSurface = PI*FMath::Square(SunAnglularRadius);
-			float MaxOcclusionAngularSurface = PI*FMath::Square(FMath::Min(SunAnglularRadius, AngularRadius));
-			float MaxOcclusion = MaxOcclusionAngularSurface/SunAngularSurface;
+			float SunAngularSurface = PI*FMath::Square(SunAngularRadius);
+			float MaxOcclusionAngularSurface = PI*FMath::Square(FMath::Min(SunAngularRadius, BodyPosition->Radius));
+			float MaxOcclusion = MaxOcclusionAngularSurface / SunAngularSurface;
 			float Occlusion = OcclusionRatio * MaxOcclusion;
-
-
+			
 			//FLOGV("MoveCelestialBody %s OcclusionRatioSmooth = %f", *Body->Name, OcclusionRatioSmooth);
 			/*FLOGV("MoveCelestialBody %s CenterAngularDistance = %f", *Body->Name, CenterAngularDistance);
-			FLOGV("MoveCelestialBody %s SunAnglularRadius = %f", *Body->Name, SunAnglularRadius);
+			FLOGV("MoveCelestialBody %s SunAngularRadius = %f", *Body->Name, SunAngularRadius);
 			FLOGV("MoveCelestialBody %s AngularRadius = %f", *Body->Name, AngularRadius);
 			FLOGV("MoveCelestialBody %s SunAngularSurface = %f", *Body->Name, SunAngularSurface);
 			FLOGV("MoveCelestialBody %s MaxOcclusionAngularSurface = %f", *Body->Name, MaxOcclusionAngularSurface);
 			FLOGV("MoveCelestialBody %s MaxOcclusion = %f", *Body->Name, MaxOcclusion);
 
 			FLOGV("MoveCelestialBody %s Occlusion = %f", *Body->Name, Occlusion);*/
-
-
+			
 			if (Occlusion > SunOcclusion)
 			{
 				// Keep only best occlusion
 				SunOcclusion = Occlusion;
 			}
-
 		}
 	}
 	else
 	{
-		SunAnglularRadius = AngularRadius;
-		SunPhase = FMath::UnwindRadians(FMath::Atan2(AlignedLocation.Z, AlignedLocation.X));
+		SunAngularRadius = BodyPosition->Radius;
+		SunPhase = FMath::UnwindRadians(FMath::Atan2(BodyPosition->AlignedLocation.Z, BodyPosition->AlignedLocation.X));
 	}
 }
 
@@ -375,11 +366,9 @@ void AFlarePlanetarium::PrepareCelestialBody(FFlareCelestialBody* Body, FPrecise
 	FPreciseVector Location = Offset + Body->AbsoluteLocation;
 	BodyPosition.AlignedLocation = Location.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0));
 	BodyPosition.Radius = Body->Radius;
-	BodyPosition.Distance = AlignedLocation.Size();
+	BodyPosition.Distance = BodyPosition.AlignedLocation.Size();
 	BodyPosition.TotalRotation = Body->RotationAngle + AngleOffset;
-
-
-
+	
 	// Find the celestial body component
 	UStaticMeshComponent* BodyComponent = NULL;
 	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());
