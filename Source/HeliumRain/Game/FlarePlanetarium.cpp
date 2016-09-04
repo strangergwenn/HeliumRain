@@ -5,6 +5,9 @@
 #include "../Player/FlarePlayerController.h"
 
 
+#define PLANETARIUM_DEBUG
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -117,11 +120,12 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					FPreciseVector PlayerLocation =  ParentLocation + World->GetPlanerarium()->GetRelativeLocation(CurrentParent, LocalTime, SmoothTime, DistanceToParentCenter, 0, PlayerOrbit->Phase);
 					/*FLOGV("Parent location = %s", *CurrentParent->AbsoluteLocation.ToString());
 					FLOGV("PlayerLocation = %s", *PlayerLocation.ToString());*/
-		/*			DrawDebugLine(GetWorld(), FVector(1000, 0 ,0), FVector(- 1000, 0 ,0), FColor::Red, false);
+#ifdef PLANETARIUM_DEBUG
+					DrawDebugLine(GetWorld(), FVector(1000, 0 ,0), FVector(- 1000, 0 ,0), FColor::Red, false);
 					DrawDebugLine(GetWorld(), FVector(0, 1000 ,0), FVector(0,- 1000 ,0), FColor::Green, false);
 					DrawDebugLine(GetWorld(), FVector(0, 0, 900), FVector(0, 0, -1000), FColor::Blue, false);
 					DrawDebugLine(GetWorld(), FVector(0, 0, 900), FVector(0, 0, 1000), FColor::Cyan, false);
-	*/
+#endif
 					FPreciseVector DeltaLocation = ParentLocation - PlayerLocation;
 					FPreciseVector SunDeltaLocation = Sun.AbsoluteLocation - PlayerLocation;
 
@@ -130,12 +134,14 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					FLOGV("FMath::Atan2(DeltaLocation.Y,DeltaLocation.X)  = %f", FMath::Atan2(DeltaLocation.Z,DeltaLocation.X));
 					FLOGV("AngleOffset  = %f", AngleOffset);*/
 
-					FPreciseVector SunDirection = -(SunDeltaLocation.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0))).GetUnsafeNormal();
+					SunDirection = -(SunDeltaLocation.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0))).GetUnsafeNormal();
 					// Reset sun occlusion;
 					SunOcclusion = 0;
 					MinDistance = DistanceToParentCenter;
 
-					MoveCelestialBody(&Sun, -PlayerLocation, AngleOffset, SunDirection);
+					BodyPositions.Empty();
+					PrepareCelestialBody(&Sun, -PlayerLocation, AngleOffset, SunDirection);
+					SetupCelestialBodies();
 
 					if(SkipNightTimeRange > 0 && SunOcclusion >= 1)
 					{
@@ -185,133 +191,119 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 	}
 }
 
-void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection)
+inline static bool BodyDistanceComparator (const CelestialBodyPosition& ip1, const CelestialBodyPosition& ip2)
 {
-	double BaseDistance = 1e6;
+	return (ip1.Distance < ip2.Distance);
+}
 
-	FPreciseVector Location = Offset + Body->AbsoluteLocation;
-	FPreciseVector AlignedLocation = Location.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0));
+void AFlarePlanetarium::SetupCelestialBodies()
+{
+	// Sort by incresing distance
+	BodyPositions.Sort(&BodyDistanceComparator);
+	double BaseDistance = 2000000; // Min distance, 20km
 
-
-	double AngularRadius = FMath::Asin(Body->Radius / AlignedLocation.Size());
-
-	double DisplayDistance =  BaseDistance + FMath::Sqrt(FMath::Max(1.0, AlignedLocation.Size() - MinDistance)) * BaseDistance / 500;
-
-	double VisibleRadius = FMath::Sin(AngularRadius) * DisplayDistance;
-
-
-	/*FLOGV("MoveCelestialBody %s VisibleRadius = %f", *Body->Name.ToString(), VisibleRadius);
-	FLOGV("MoveCelestialBody %s AngularRadius = %f", *Body->Name.ToString(), AngularRadius);
-	FLOGV("MoveCelestialBody %s DisplayDistance = %f", *Body->Name.ToString(), DisplayDistance);
-	FLOGV("MoveCelestialBody %s MinDistance = %f", *Body->Name.ToString(), MinDistance);
-	FLOGV("MoveCelestialBody %s AlignedLocation.Size() = %f", *Body->Name.ToString(), AlignedLocation.Size());
-	FLOGV("MoveCelestialBody %s AlignedLocation.Size() - MinDistance = %f", *Body->Name.ToString(), (AlignedLocation.Size() - MinDistance));
-	FLOGV("MoveCelestialBody %s FMath::Loge(FMath::Max(1, AlignedLocation.Size() - MinDistance)) = %f", *Body->Name.ToString(), FMath::Loge(FMath::Max(1.0, AlignedLocation.Size() - MinDistance)));
-
-
-	FLOGV("MoveCelestialBody %s Location = %s", *Body->Name.ToString(), *Location.ToString());
-	FLOGV("MoveCelestialBody %s AlignedLocation = %s", *Body->Name.ToString(), *AlignedLocation.ToString());
-*/
-	// Find the celestial body component
-	UStaticMeshComponent* BodyComponent = NULL;
-	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	for(int32 BodyIndex = 0; BodyIndex < BodyPositions.Num(); BodyIndex++)
 	{
-		UStaticMeshComponent* ComponentCandidate = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
-		if (ComponentCandidate && ComponentCandidate->GetName() == Body->Identifier.ToString()	)
-		{
-			BodyComponent = ComponentCandidate;
-			break;
-		}
+		CelestialBodyPosition* BodyPosition = &BodyPositions[BodyIndex];
+
+		// The surface must be at the base distance.
+		// So the display is the base distance + the display radius
+		// But the display radius depend on the base distance
+
+		double AngularRadius = FPreciseMath::Asin(BodyPosition->Radius / BodyPosition->Distance);
+
+		double DisplayDistance = BaseDistance / (1- FPreciseMath::Tan(AngularRadius));
+		double DisplayRadius = FPreciseMath::Sin(AngularRadius) * DisplayDistance;
+
+		SetupCelestialBody(BodyPosition, DisplayDistance, DisplayRadius);
+#ifdef PLANETARIUM_DEBUG
+		FLOGV("SetupCelestialBodies %s BodyPosition->Radius = %f", *BodyPosition->Body->Identifier.ToString(), BodyPosition->Radius);
+		FLOGV("SetupCelestialBodies %s BodyPosition->Distance = %f", *BodyPosition->Body->Identifier.ToString(), BodyPosition->Distance);
+		FLOGV("SetupCelestialBodies %s BaseDistance = %f", *BodyPosition->Body->Identifier.ToString(), BaseDistance);
+		FLOGV("SetupCelestialBodies %s AngularRadius = %f", *BodyPosition->Body->Identifier.ToString(), AngularRadius);
+		FLOGV("SetupCelestialBodies %s DisplayDistance = %f", *BodyPosition->Body->Identifier.ToString(), DisplayDistance);
+		FLOGV("SetupCelestialBodies %s DisplayRadius = %f", *BodyPosition->Body->Identifier.ToString(), DisplayRadius);
+#endif
+		// Update BaseDistance for future bodies. Take margin for Nema rings
+		BaseDistance = DisplayDistance + 2 * DisplayRadius;
 	}
 
-	if (BodyComponent)
+
+}
+
+void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius)
+{
+	FVector PlayerShipLocation = FVector::ZeroVector;
+	if (GetGame()->GetPC()->GetShipPawn())
 	{
-		FVector PlayerShipLocation = FVector::ZeroVector;
-		if (GetGame()->GetPC()->GetShipPawn())
+		PlayerShipLocation = GetGame()->GetPC()->GetShipPawn()->GetActorLocation();
+	}
+
+
+#ifdef PLANETARIUM_DEBUG
+	DrawDebugSphere(GetWorld(), FVector::ZeroVector, DisplayDistance /1000 , 32, FColor::Blue, false);
+
+	PlayerShipLocation = FVector::ZeroVector;
+	DisplayRadius /= 1000;
+	DisplayDistance /= 1000;
+#endif
+
+	BodyPosition->BodyComponent->SetRelativeLocation((DisplayDistance * BodyPosition->AlignedLocation.GetUnsafeNormal()).ToVector() + PlayerShipLocation);
+
+	float Scale = DisplayRadius / 512; // Mesh size is 1024;
+	BodyPosition->BodyComponent->SetRelativeScale3D(FPreciseVector(Scale).ToVector());
+
+	FTransform BaseRotation = FTransform(FRotator(0, 0 ,90));
+	FTransform TimeRotation = FTransform(FRotator(0, BodyComponent->TotalRotation, 0));
+
+	FQuat Rotation = (TimeRotation * BaseRotation).GetRotation();
+
+	// TODO Rotation float time interpolation
+	BodyPosition->BodyComponent->SetRelativeRotation(FQuat::Identity);
+	BodyPosition->BodyComponent->SetRelativeRotation(Rotation);
+
+	// Apply sun direction to component
+	UMaterialInstanceDynamic* ComponentMaterial = Cast<UMaterialInstanceDynamic>(BodyPosition->BodyComponent->GetMaterial(0));
+	if (!ComponentMaterial)
+	{
+		ComponentMaterial = UMaterialInstanceDynamic::Create(BodyPosition->BodyComponent->GetMaterial(0) , GetWorld());
+		BodyPosition->BodyComponent->SetMaterial(0, ComponentMaterial);
+	}
+	ComponentMaterial->SetVectorParameterValue("SunDirection", SunDirection.ToVector());
+
+	// Look for rings and orient them
+	TArray<USceneComponent*> RingCandidates;
+	BodyPosition->BodyComponent->GetChildrenComponents(true, RingCandidates);
+	for (int32 ComponentIndex = 0; ComponentIndex < RingCandidates.Num(); ComponentIndex++)
+	{
+		UStaticMeshComponent* RingComponent = Cast<UStaticMeshComponent>(RingCandidates[ComponentIndex]);
+
+		if (RingComponent && RingComponent->GetName().Contains("ring"))
 		{
-			PlayerShipLocation = GetGame()->GetPC()->GetShipPawn()->GetActorLocation();
-		}
-
-		//DrawDebugSphere(GetWorld(), FVector::ZeroVector, DisplayDistance /1000 , 32, FColor::Blue, false);
-		//DrawDebugSphere(GetWorld(), FVector::ZeroVector, BaseDistance / 1000 , 32, FColor::Red, false);
-
-		BodyComponent->SetRelativeLocation((DisplayDistance * AlignedLocation.GetUnsafeNormal()).ToVector() + PlayerShipLocation);
-		float Scale = VisibleRadius / 512; // Mesh size is 1024;
-
-		//BodyComponent->SetRelativeLocation((DisplayDistance /1000 * AlignedLocation.GetUnsafeNormal()).ToVector());
-		//float Scale = VisibleRadius / 512 / 1000; // Mesh size is 1024;
-		BodyComponent->SetRelativeScale3D(FPreciseVector(Scale).ToVector());
-
-		// BodyComponent->SetRelativeRotation(FRotator(90, Body->RotationAngle + AngleOffset ,0));
-		// BodyComponent->SetRelativeRotation(FRotator(0, -90 ,0));
-
-		/*FLOGV("MoveCelestialBody %s Body->RotationAngle = %f", *Body->Name, Body->RotationAngle);
-		FLOGV("MoveCelestialBody %s AngleOffset = %f", *Body->Name, AngleOffset);
-		FLOGV("MoveCelestialBody %s Body->RotationAngle + AngleOffset = %f", *Body->Name, (Body->RotationAngle + AngleOffset));*/
-
-		double TotalRotation = Body->RotationAngle + AngleOffset;
-
-		FTransform BaseRotation = FTransform(FRotator(0, 0 ,90));
-		FTransform TimeRotation = FTransform(FRotator(0, TotalRotation, 0));
-
-		FQuat Rotation = (TimeRotation * BaseRotation).GetRotation();
-
-		// TODO Rotation float time interpolation
-		BodyComponent->SetRelativeRotation(FQuat::Identity);
-		BodyComponent->SetRelativeRotation(Rotation);
-
-		// Apply sun direction to component
-		UMaterialInstanceDynamic* ComponentMaterial = Cast<UMaterialInstanceDynamic>(BodyComponent->GetMaterial(0));
-		if (!ComponentMaterial)
-		{
-			ComponentMaterial = UMaterialInstanceDynamic::Create(BodyComponent->GetMaterial(0) , GetWorld());
-			BodyComponent->SetMaterial(0, ComponentMaterial);
-		}
-		ComponentMaterial->SetVectorParameterValue("SunDirection", SunDirection.ToVector());
-
-		// Look for rings and orient them
-		TArray<USceneComponent*> RingCandidates;
-		BodyComponent->GetChildrenComponents(true, RingCandidates);
-		for (int32 ComponentIndex = 0; ComponentIndex < RingCandidates.Num(); ComponentIndex++)
-		{
-			UStaticMeshComponent* RingComponent = Cast<UStaticMeshComponent>(RingCandidates[ComponentIndex]);
-
-			if (RingComponent && RingComponent->GetName().Contains("ring"))
+			// Get or create the material
+			UMaterialInstanceDynamic* RingMaterial = Cast<UMaterialInstanceDynamic>(RingComponent->GetMaterial(0));
+			if (!RingMaterial)
 			{
-				// Get or create the material
-				UMaterialInstanceDynamic* RingMaterial = Cast<UMaterialInstanceDynamic>(RingComponent->GetMaterial(0));
-				if (!RingMaterial)
-				{
-					RingMaterial = UMaterialInstanceDynamic::Create(RingComponent->GetMaterial(0), GetWorld());
-					RingComponent->SetMaterial(0, RingMaterial);
-				}
-
-				// Get world-space rotation angles for the ring and the sun
-				float SunRotationPitch = FMath::RadiansToDegrees(FMath::Atan2(SunDirection.Z,SunDirection.X)) + 180;
-				float RingRotationPitch = -TotalRotation;
-
-				// Feed params to the shader
-				RingMaterial->SetScalarParameterValue("RingPitch", RingRotationPitch / 360);
-				RingMaterial->SetScalarParameterValue("SunPitch", SunRotationPitch / 360);
+				RingMaterial = UMaterialInstanceDynamic::Create(RingComponent->GetMaterial(0), GetWorld());
+				RingComponent->SetMaterial(0, RingMaterial);
 			}
-		}
 
-		// Sun also rotates to track direction
-		if (Body == &Sun)
-		{
-			BodyComponent->SetRelativeRotation(SunDirection.ToVector().Rotation());
+			// Get world-space rotation angles for the ring and the sun
+			float SunRotationPitch = FMath::RadiansToDegrees(FMath::Atan2(SunDirection.Z,SunDirection.X)) + 180;
+			float RingRotationPitch = -TotalRotation;
+
+			// Feed params to the shader
+			RingMaterial->SetScalarParameterValue("RingPitch", RingRotationPitch / 360);
+			RingMaterial->SetScalarParameterValue("SunPitch", SunRotationPitch / 360);
 		}
 	}
-	else
+
+	// Sun also rotates to track direction
+	if (Body == &Sun)
 	{
-		FLOGV("AFlarePlanetarium::MoveCelestialBody : no planetarium component for celestial body '%s'", *(Body->Identifier.ToString()));
+		BodyPosition->BodyComponent->SetRelativeRotation(SunDirection.ToVector().Rotation());
 	}
 
-	/*DrawDebugLine(GetWorld(), FVector(0, 0, 0), AlignedLocation * 100000, FColor::Blue, false, 1.f);
-	DrawDebugLine(GetWorld(), FVector(0, 0, 0), AlignedLocation.RotateAngleAxis(FMath::RadiansToDegrees(AngularRadius), FVector(0,1,0)) * 100000, FColor::Red, false, 1.f);
-	DrawDebugLine(GetWorld(), FVector(0, 0, 0), AlignedLocation.RotateAngleAxis(-FMath::RadiansToDegrees(AngularRadius), FVector(0,1,0)) * 100000, FColor::Green, false, 1.f);
-*/
 	// Compute sun occlusion
 	if (Body != &Sun)
 	{
@@ -373,11 +365,48 @@ void AFlarePlanetarium::MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVec
 		SunAnglularRadius = AngularRadius;
 		SunPhase = FMath::UnwindRadians(FMath::Atan2(AlignedLocation.Z, AlignedLocation.X));
 	}
+}
+
+void AFlarePlanetarium::PrepareCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset)
+{
+	CelestialBodyPosition BodyPosition;
+
+	BodyPosition.Body = Body;
+	FPreciseVector Location = Offset + Body->AbsoluteLocation;
+	BodyPosition.AlignedLocation = Location.RotateAngleAxis(AngleOffset, FPreciseVector(0,1,0));
+	BodyPosition.Radius = Body->Radius;
+	BodyPosition.Distance = AlignedLocation.Size();
+	BodyPosition.TotalRotation = Body->RotationAngle + AngleOffset;
+
+
+
+	// Find the celestial body component
+	UStaticMeshComponent* BodyComponent = NULL;
+	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UStaticMeshComponent* ComponentCandidate = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
+		if (ComponentCandidate && ComponentCandidate->GetName() == Body->Identifier.ToString()	)
+		{
+			BodyComponent = ComponentCandidate;
+			break;
+		}
+	}
+
+	if (BodyComponent)
+	{
+		BodyPosition.BodyComponent = BodyComponent;
+		BodyPositions.Add(BodyPosition);
+	}
+	else
+	{
+		FLOGV("AFlarePlanetarium::PrepareCelestialBody : no planetarium component for celestial body '%s'", *(Body->Identifier.ToString()));
+	}
 
 	for (int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
 	{
 		FFlareCelestialBody* CelestialBody = &Body->Sattelites[SatteliteIndex];
-		MoveCelestialBody(CelestialBody, Offset, AngleOffset, SunDirection);
+		PrepareCelestialBody(CelestialBody, Offset, AngleOffset);
 	}
 }
 

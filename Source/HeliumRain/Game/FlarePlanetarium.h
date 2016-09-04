@@ -4,6 +4,18 @@
 #include "FlarePlanetarium.generated.h"
 
 
+
+struct CelestialBodyPosition
+{
+	UStaticMeshComponent* BodyComponent;
+	FFlareCelestialBody* Body;
+	double Distance;
+	double Radius;
+	double TotalRotation;
+	FPreciseVector AlignedLocation;
+};
+
+
 struct FFlareCelestialBody;
 
 UCLASS()
@@ -21,8 +33,12 @@ public:
 
 	void BeginPlay() override;
 
-	/** Move a celestial body */
-	void MoveCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset, FPreciseVector SunDirection);
+	/** Prepare a celestial body to future setup */
+	void PrepareCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset);
+
+	void SetupCelestialBodies();
+
+	void SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius);
 
 	/** Reset the current time */
 	void ResetTime();
@@ -40,15 +56,15 @@ public:
 	/** Set the altitude of the current system, in km */
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetAltitude(int32 Altitude);
-	
+
 	/** Set the sun rotation, in degrees */
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetSunRotation(int32 RotationDegrees);
-	
+
 	/** Set the rotation of the planet, in degrees */
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetPlanetRotation(int32 RotationDegrees);
-	
+
 	/** Set the rotation of the current system, in degrees */
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetSectorRotation(int32 RotationDegrees);
@@ -77,6 +93,9 @@ protected:
 	float TimeMultiplier;
 	float SkipNightTimeRange;
 	bool Ready;
+
+	TArray<CelestialBodyPosition> BodyPositions;
+	FPreciseVector SunDirection;
 
 public:
 
