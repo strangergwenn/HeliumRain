@@ -86,7 +86,7 @@ protected:
 	double SunOcclusion;
 	double MinDistance;
 
-	double SunAnglularRadius;
+	double SunAngularRadius;
 	double SunPhase;
 
 	float SmoothTime;
