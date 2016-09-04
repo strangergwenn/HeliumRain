@@ -352,11 +352,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 			}
 		}
 	}
-	else
-	{
-		SunAngularRadius = AngularRadius;
-		SunPhase = FMath::UnwindRadians(FMath::Atan2(BodyPosition->AlignedLocation.Z, BodyPosition->AlignedLocation.X));
-	}
+
 }
 
 void AFlarePlanetarium::PrepareCelestialBody(FFlareCelestialBody* Body, FPreciseVector Offset, double AngleOffset)
@@ -391,6 +387,15 @@ void AFlarePlanetarium::PrepareCelestialBody(FFlareCelestialBody* Body, FPrecise
 	else
 	{
 		FLOGV("AFlarePlanetarium::PrepareCelestialBody : no planetarium component for celestial body '%s'", *(Body->Identifier.ToString()));
+	}
+
+
+	if (Body == &Sun)
+	{
+		double AngularRadius = FPreciseMath::Atan(BodyPosition.Radius / BodyPosition.Distance);
+
+		SunAngularRadius = AngularRadius;
+		SunPhase = FMath::UnwindRadians(FMath::Atan2(BodyPosition.AlignedLocation.Z, BodyPosition.AlignedLocation.X));
 	}
 
 	for (int SatteliteIndex = 0; SatteliteIndex < Body->Sattelites.Num(); SatteliteIndex++)
