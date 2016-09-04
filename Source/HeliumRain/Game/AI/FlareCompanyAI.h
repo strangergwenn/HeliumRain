@@ -74,11 +74,20 @@ protected:
 		Internal subsystems
 	----------------------------------------------------*/
 
-	/** Simulate a day of diplomacy */
-	virtual void SimulateDiplomacy();
+	/** Update diplomacy changes */
+	void UpdateDiplomacy();
+
+	/** Update trading for the company's fleet*/
+	int32 UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
+
+	/** Manage the construction of stations */
+	void UpdateStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, int32 IdleCargoCapacity);
 
 	/** Manage the construction of ships */
-	void SimulateShipConstruction(TMap<UFlareSimulatedSector*, SectorVariation> & WorldResourceVariation);
+	void UpdateShipConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
+
+	/** Buy ships at shipyards */
+	void UpdateShipAcquisition(int32 IdleCargoCapacity);
 
 
 	/*----------------------------------------------------
