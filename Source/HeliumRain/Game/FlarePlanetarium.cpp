@@ -5,7 +5,7 @@
 #include "../Player/FlarePlayerController.h"
 
 
-#define PLANETARIUM_DEBUG
+//#define PLANETARIUM_DEBUG
 
 
 /*----------------------------------------------------
@@ -200,8 +200,8 @@ void AFlarePlanetarium::SetupCelestialBodies()
 {
 	// Sort by incresing distance
 	BodyPositions.Sort(&BodyDistanceComparator);
-	double BaseDistance = 2000000; // Min distance, 20km
-
+	double BaseDistance = 1500000; // Min distance, 15km
+	double BaseIncrement = BaseDistance;
 	for(int32 BodyIndex = 0; BodyIndex < BodyPositions.Num(); BodyIndex++)
 	{
 		CelestialBodyPosition* BodyPosition = &BodyPositions[BodyIndex];
@@ -210,12 +210,12 @@ void AFlarePlanetarium::SetupCelestialBodies()
 		// So the display is the base distance + the display radius
 		// But the display radius depend on the base distance
 
-		double AngularRadius = FPreciseMath::Asin(BodyPosition->Radius / BodyPosition->Distance);
+		double AngularRadius = FPreciseMath::Atan(BodyPosition->Radius / BodyPosition->Distance);
 
 		double DisplayDistance = BaseDistance / (1- FPreciseMath::Tan(AngularRadius));
-		double DisplayRadius = FPreciseMath::Sin(AngularRadius) * DisplayDistance;
+		double DisplayRadius = FPreciseMath::Tan(AngularRadius) * DisplayDistance;
 
-		SetupCelestialBody(BodyPosition, DisplayDistance, DisplayRadius);
+		SetupCelestialBody(BodyPosition, DisplayDistance, DisplayRadius, AngularRadius);
 #ifdef PLANETARIUM_DEBUG
 		FLOGV("SetupCelestialBodies %s BodyPosition->Radius = %f", *BodyPosition->Body->Identifier.ToString(), BodyPosition->Radius);
 		FLOGV("SetupCelestialBodies %s BodyPosition->Distance = %f", *BodyPosition->Body->Identifier.ToString(), BodyPosition->Distance);
@@ -224,12 +224,13 @@ void AFlarePlanetarium::SetupCelestialBodies()
 		FLOGV("SetupCelestialBodies %s DisplayDistance = %f", *BodyPosition->Body->Identifier.ToString(), DisplayDistance);
 		FLOGV("SetupCelestialBodies %s DisplayRadius = %f", *BodyPosition->Body->Identifier.ToString(), DisplayRadius);
 #endif
+
 		// Update BaseDistance for future bodies. Take margin for Nema rings
-		BaseDistance = DisplayDistance + 2 * DisplayRadius;
+		BaseDistance = DisplayDistance + DisplayRadius;
 	}
 }
 
-void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius)
+void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius, double AngularRadius)
 {
 	FVector PlayerShipLocation = FVector::ZeroVector;
 	if (GetGame()->GetPC()->GetShipPawn())
@@ -306,8 +307,8 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 	{
 		float BodyPhase =  FMath::UnwindRadians(FMath::Atan2(BodyPosition->AlignedLocation.Z, BodyPosition->AlignedLocation.X));
 		float CenterAngularDistance = FMath::Abs(FMath::UnwindRadians(SunPhase - BodyPhase));
-		float AngleSum = (SunAngularRadius + BodyPosition->Radius);
-		float AngleDiff = FMath::Abs(SunAngularRadius - BodyPosition->Radius);
+		float AngleSum = (SunAngularRadius + AngularRadius);
+		float AngleDiff = FMath::Abs(SunAngularRadius - AngularRadius);
 
 		if (CenterAngularDistance < AngleSum)
 		{
@@ -322,7 +323,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 			else
 			{
 				// Partial occlusion
-				OcclusionRatio = (AngleSum - CenterAngularDistance) / (2* FMath::Min(SunAngularRadius, BodyPosition->Radius));
+				OcclusionRatio = (AngleSum - CenterAngularDistance) / (2* FMath::Min(SunAngularRadius, AngularRadius));
 
 				// OcclusionRatio = ((SunAngularRadius + AngularRadius) + FMath::Max(SunAngularRadius, AngularRadius) - FMath::Min(SunAngularRadius, AngularRadius)) / (2 * CenterAngularDistance);
 			}
@@ -330,7 +331,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 
 			// Now, find the surface occlusion
 			float SunAngularSurface = PI*FMath::Square(SunAngularRadius);
-			float MaxOcclusionAngularSurface = PI*FMath::Square(FMath::Min(SunAngularRadius, BodyPosition->Radius));
+			float MaxOcclusionAngularSurface = PI*FMath::Square(FMath::Min(SunAngularRadius, AngularRadius));
 			float MaxOcclusion = MaxOcclusionAngularSurface / SunAngularSurface;
 			float Occlusion = OcclusionRatio * MaxOcclusion;
 			
@@ -353,7 +354,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 	}
 	else
 	{
-		SunAngularRadius = BodyPosition->Radius;
+		SunAngularRadius = AngularRadius;
 		SunPhase = FMath::UnwindRadians(FMath::Atan2(BodyPosition->AlignedLocation.Z, BodyPosition->AlignedLocation.X));
 	}
 }

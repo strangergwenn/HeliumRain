@@ -38,7 +38,7 @@ public:
 
 	void SetupCelestialBodies();
 
-	void SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius);
+	void SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius, double AngularRadius);
 
 	/** Reset the current time */
 	void ResetTime();
