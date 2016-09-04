@@ -249,7 +249,7 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 					}
 					else if (BroughtResource == 0)
 					{
-						// Fail to buy the promised resources, remove the deal from the list
+						// Failed to buy the promised resources, remove the deal from the list
 						SectorVariation* SectorVariationA = &WorldResourceVariation[BestDeal.SectorA];
 						struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[BestDeal.Resource];
 						VariationA->FactoryStock = 0;
@@ -260,7 +260,7 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 						if (VariationA->FactoryFlow > 0)
 							VariationA->FactoryFlow = 0;
 
-						FLOG("UFlareCompanyAI::UpdateTrading -> Buy Fail remove the deal from the list");
+						FLOG("UFlareCompanyAI::UpdateTrading -> Buy failed, remove the deal from the list");
 					}
 				}
 			}
@@ -400,7 +400,7 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 
 	if (BestSector && BestStationDescription)
 	{
-		FLOGV("%s >>> %s in %s Score=%f", *Company->GetCompanyName().ToString(), *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), BestScore);
+		FLOGV("UFlareCompanyAI::UpdateStationConstruction : %s >>> %s in %s Score=%f", *Company->GetCompanyName().ToString(), *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), BestScore);
 
 		// Start construction only if can afford to buy the station
 
@@ -452,7 +452,7 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 		if (!ConstructionProjectSector->CanBuildStation(ConstructionProjectStation, Company, Reasons, true))
 		{
 			// Abandon build project
-			FLOGV("%s abandon to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+			FLOGV("UFlareCompanyAI::UpdateStationConstruction %s abandon building of %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
 			ConstructionProjectStation = NULL;
 			ConstructionProjectSector = NULL;
 			ConstructionShips.Empty();
@@ -466,7 +466,7 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 			// Build success clean contruction project
 			if (ConstructionProjectSector->BuildStation(ConstructionProjectStation, Company) != NULL)
 			{
-				FLOGV("%s build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
 
 				ConstructionProjectStation = NULL;
 				ConstructionProjectSector = NULL;
@@ -476,26 +476,25 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 			// Cannot build
 			else
 			{
-				FLOGV("%s fail to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
-
-				// TODO make price very attractive
-				// TODO make capacity very high
-
+				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s failed to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+				
 				int32 NeedCapacity = UFlareGameTools::ComputeConstructionCapacity(ConstructionProjectStation->Identifier, Game);
 				if (NeedCapacity > IdleCargoCapacity)
 				{
 					IdleCargoCapacity -= NeedCapacity;
 				}
 
-				UpdateShipConstruction(WorldResourceVariation);
+				FindResourcesForStationConstruction(WorldResourceVariation);
 			}
 		}
 	}
 }
 
-void UFlareCompanyAI::UpdateShipConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation)
+void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation)
 {
 	// TODO simplify
+	// TODO make price very attractive
+	// TODO make capacity very high
 
 	TArray<UFlareSimulatedSpacecraft *> ShipsInConstructionSector;
 	TArray<UFlareSimulatedSpacecraft *> ShipsInOtherSector;
@@ -640,7 +639,7 @@ void UFlareCompanyAI::UpdateShipConstruction(TMap<UFlareSimulatedSector*, Sector
 				FFlareResourceDescription* MissingResource = MissingResources[ResourceIndex];
 				if (!MissingResourcesQuantity.Contains(MissingResource))
 				{
-					FLOGV("UFlareCompanyAI::UpdateShipConstruction : !!! MissingResourcesQuantity doesn't contain %s 0", *MissingResource->Name.ToString());
+					FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 0", *MissingResource->Name.ToString());
 				}
 				int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
 
@@ -665,7 +664,6 @@ void UFlareCompanyAI::UpdateShipConstruction(TMap<UFlareSimulatedSector*, Sector
 					TakenQuantity = SectorHelper::Trade(StationCandidate, Ship, MissingResource, Request.MaxQuantity);
 				}
 
-
 				MissingResourceQuantity -= TakenQuantity;
 				if (MissingResourceQuantity == 0)
 				{
@@ -675,7 +673,7 @@ void UFlareCompanyAI::UpdateShipConstruction(TMap<UFlareSimulatedSector*, Sector
 				{
 					if (!MissingResourcesQuantity.Contains(MissingResource))
 					{
-						FLOGV("UFlareCompanyAI::UpdateShipConstruction : !!! MissingResourcesQuantity doesn't contain %s 1", *MissingResource->Name.ToString());
+						FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 1", *MissingResource->Name.ToString());
 					}
 					MissingResourcesQuantity[MissingResource] = MissingResourceQuantity;
 				}
@@ -717,15 +715,14 @@ void UFlareCompanyAI::UpdateShipConstruction(TMap<UFlareSimulatedSector*, Sector
 
 					if (!WorldResourceVariation.Contains(Sector))
 					{
-						FLOGV("UFlareCompanyAI::UpdateShipConstruction : !!! WorldResourceVariation doesn't contain %s", *Sector->GetSectorName().ToString());
+						FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! WorldResourceVariation doesn't contain %s", *Sector->GetSectorName().ToString());
 					}
 					SectorVariation* SectorVariation = &WorldResourceVariation[Sector];
 					
 					for (int32 ResourceIndex = 0; ResourceIndex < MissingResources.Num(); ResourceIndex++)
 					{
 						FFlareResourceDescription* MissingResource = MissingResources[ResourceIndex];
-
-
+						
 						struct ResourceVariation* Variation = &SectorVariation->ResourceVariations[MissingResource];
 
 						int32 Stock = Variation->FactoryStock + Variation->OwnedStock + Variation->StorageStock;
@@ -738,13 +735,11 @@ void UFlareCompanyAI::UpdateShipConstruction(TMap<UFlareSimulatedSector*, Sector
 						// Sector with missing ressource stock
 						if (!MissingResourcesQuantity.Contains(MissingResource))
 						{
-							FLOGV("UFlareCompanyAI::UpdateShipConstruction : !!! MissingResourcesQuantity doesn't contain %s 2", *MissingResource->Name.ToString());
+							FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 2", *MissingResource->Name.ToString());
 						}
 						int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
 						int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
-
-
-
+						
 						int32 Score = FMath::Min(Stock, MissingResourceQuantity);
 						Score = FMath::Min(Score, Capacity);
 
@@ -785,7 +780,7 @@ void UFlareCompanyAI::UpdateShipConstruction(TMap<UFlareSimulatedSector*, Sector
 							// Sector with missing ressource stock
 							if (!MissingResourcesQuantity.Contains(MissingResource))
 							{
-								FLOGV("UFlareCompanyAI::UpdateShipConstruction : !!! MissingResourcesQuantity doesn't contain %s 3", *MissingResource->Name.ToString());
+								FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 3", *MissingResource->Name.ToString());
 							}
 							int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
 							int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
@@ -814,7 +809,7 @@ void UFlareCompanyAI::UpdateShipConstruction(TMap<UFlareSimulatedSector*, Sector
 					// Decrease missing quantity
 					if (!MissingResourcesQuantity.Contains(BestResource))
 					{
-						FLOGV("UFlareCompanyAI::UpdateShipConstruction : !!! MissingResourcesQuantity doesn't contain %s 4", *BestResource->Name.ToString());
+						FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 4", *BestResource->Name.ToString());
 					}
 					MissingResourcesQuantity[BestResource] -= FMath::Max(0, BestEstimateTake);
 					SectorVariation* SectorVariation = &WorldResourceVariation[BestSector];

@@ -83,10 +83,10 @@ protected:
 	/** Manage the construction of stations */
 	void UpdateStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, int32 IdleCargoCapacity);
 
-	/** Manage the construction of ships */
-	void UpdateShipConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
+	/** Try to muster resources to build stations */
+	void FindResourcesForStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
 
-	/** Buy ships at shipyards */
+	/** Buy / build ships at shipyards */
 	void UpdateShipAcquisition(int32 IdleCargoCapacity);
 
 
