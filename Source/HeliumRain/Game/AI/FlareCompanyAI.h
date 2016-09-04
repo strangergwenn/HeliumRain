@@ -95,18 +95,18 @@ protected:
 	----------------------------------------------------*/
 
 	/** Get a list of idle cargos */
-	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos();
+	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
 
 	/** Generate a score for ranking construction projects & the gains per day */
 	TPair<float, float> ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription) const;
 
 	/** Get the resource flow in this sector */
-	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector);
+	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector) const;
 
 	/** Print the resource flow */
-	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation);
+	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation) const;
 
-	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation);
+	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation) const;
 	
 	TMap<FFlareResourceDescription*, int32> ComputeWorldResourceFlow() const;
 

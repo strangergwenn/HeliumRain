@@ -900,7 +900,7 @@ void UFlareCompanyAI::UpdateShipAcquisition(int32 IdleCargoCapacity)
 	Helpers
 ----------------------------------------------------*/
 
-TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos()
+TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 {
 	TArray<UFlareSimulatedSpacecraft*> IdleCargos;
 
@@ -1000,7 +1000,7 @@ TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSi
 	return TPairInitializer<float, float>(Score, GainPerDay);
 }
 
-SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedSector* Sector)
+SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedSector* Sector) const
 {
 	SectorVariation SectorVariation;
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
@@ -1309,7 +1309,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 	return SectorVariation;
 }
 
-void UFlareCompanyAI::DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* SectorVariation)
+void UFlareCompanyAI::DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* SectorVariation) const
 {
 	FLOGV("DumpSectorResourceVariation : sector %s resource variation: ", *Sector->GetSectorName().ToString());
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
@@ -1348,7 +1348,7 @@ void UFlareCompanyAI::DumpSectorResourceVariation(UFlareSimulatedSector* Sector,
 	}
 }
 
-SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation)
+SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation) const
 {
 	SectorDeal BestDeal;
 	BestDeal.Resource = NULL;
