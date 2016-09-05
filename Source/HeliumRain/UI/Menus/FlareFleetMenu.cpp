@@ -314,6 +314,10 @@ FText SFlareFleetMenu::GetSelectText() const
 	{
 		return LOCTEXT("CantEditTravelFleet", "Can't edit travelling fleets");
 	}
+	else if (FleetToAdd->GetCurrentSector()->IsPlayerBattleInProgress())
+	{
+		return LOCTEXT("CantEditBattleFleet", "Can't edit fleets during battles");
+	}
 	else
 	{
 		return LOCTEXT("SelectFleet", "Edit selection");
