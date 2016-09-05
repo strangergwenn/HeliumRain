@@ -38,7 +38,7 @@ public:
 
 	void SetupCelestialBodies();
 
-	void SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius, double AngularRadius);
+	void SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius);
 
 	/** Reset the current time */
 	void ResetTime();
@@ -86,7 +86,7 @@ protected:
 	double SunOcclusion;
 	double MinDistance;
 
-	double SunAngularRadius;
+	double SunOcclusionAngle;
 	double SunPhase;
 
 	float SmoothTime;

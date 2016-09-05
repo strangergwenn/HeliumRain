@@ -215,7 +215,7 @@ void AFlarePlanetarium::SetupCelestialBodies()
 		double DisplayDistance = BaseDistance / (1- FPreciseMath::Tan(AngularRadius));
 		double DisplayRadius = FPreciseMath::Tan(AngularRadius) * DisplayDistance;
 
-		SetupCelestialBody(BodyPosition, DisplayDistance, DisplayRadius, AngularRadius);
+		SetupCelestialBody(BodyPosition, DisplayDistance, DisplayRadius);
 #ifdef PLANETARIUM_DEBUG
 		FLOGV("SetupCelestialBodies %s BodyPosition->Radius = %f", *BodyPosition->Body->Identifier.ToString(), BodyPosition->Radius);
 		FLOGV("SetupCelestialBodies %s BodyPosition->Distance = %f", *BodyPosition->Body->Identifier.ToString(), BodyPosition->Distance);
@@ -230,7 +230,7 @@ void AFlarePlanetarium::SetupCelestialBodies()
 	}
 }
 
-void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius, double AngularRadius)
+void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, double DisplayDistance, double DisplayRadius)
 {
 	FVector PlayerShipLocation = FVector::ZeroVector;
 	if (GetGame()->GetPC()->GetShipPawn())
@@ -305,10 +305,24 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 	// Compute sun occlusion
 	if (BodyPosition->Body != &Sun)
 	{
+		double OcclusionAngle = FPreciseMath::Asin(BodyPosition->Radius / BodyPosition->Distance);
+
+
+
 		float BodyPhase =  FMath::UnwindRadians(FMath::Atan2(BodyPosition->AlignedLocation.Z, BodyPosition->AlignedLocation.X));
 		float CenterAngularDistance = FMath::Abs(FMath::UnwindRadians(SunPhase - BodyPhase));
-		float AngleSum = (SunAngularRadius + AngularRadius);
-		float AngleDiff = FMath::Abs(SunAngularRadius - AngularRadius);
+		float AngleSum = (SunOcclusionAngle + OcclusionAngle);
+		float AngleDiff = FMath::Abs(SunOcclusionAngle - SunOcclusionAngle);
+
+		/*FLOGV("SetupCelestialBody %s BodyPhase = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(BodyPhase));
+		FLOGV("SetupCelestialBody %s SunPhase = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(SunPhase));
+		FLOGV("SetupCelestialBody %s OcclusionAngle = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(OcclusionAngle));
+		FLOGV("SetupCelestialBody %s SunOcclusionAngle = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(SunOcclusionAngle));
+		FLOGV("SetupCelestialBody %s AngleDiff = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(AngleDiff));
+
+		FLOGV("SetupCelestialBody %s CenterAngularDistance = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(CenterAngularDistance));
+		FLOGV("SetupCelestialBody %s AngleSum = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(AngleSum));*/
+
 
 		if (CenterAngularDistance < AngleSum)
 		{
@@ -323,27 +337,26 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 			else
 			{
 				// Partial occlusion
-				OcclusionRatio = (AngleSum - CenterAngularDistance) / (2* FMath::Min(SunAngularRadius, AngularRadius));
+				OcclusionRatio = (AngleSum - CenterAngularDistance) / (2* FMath::Min(SunOcclusionAngle, OcclusionAngle));
 
-				// OcclusionRatio = ((SunAngularRadius + AngularRadius) + FMath::Max(SunAngularRadius, AngularRadius) - FMath::Min(SunAngularRadius, AngularRadius)) / (2 * CenterAngularDistance);
+				// OcclusionRatio = ((SunOcclusionAngle + OcclusionAngle) + FMath::Max(SunOcclusionAngle, OcclusionAngle) - FMath::Min(SunOcclusionAngle, OcclusionAngle)) / (2 * CenterAngularDistance);
 			}
 			//FLOGV("MoveCelestialBody %s OcclusionRatio = %f", *Body->Name, OcclusionRatio);
 
 			// Now, find the surface occlusion
-			float SunAngularSurface = PI*FMath::Square(SunAngularRadius);
-			float MaxOcclusionAngularSurface = PI*FMath::Square(FMath::Min(SunAngularRadius, AngularRadius));
+			float SunAngularSurface = PI*FMath::Square(SunOcclusionAngle);
+			float MaxOcclusionAngularSurface = PI*FMath::Square(FMath::Min(SunOcclusionAngle, OcclusionAngle));
 			float MaxOcclusion = MaxOcclusionAngularSurface / SunAngularSurface;
 			float Occlusion = OcclusionRatio * MaxOcclusion;
 			
-			//FLOGV("MoveCelestialBody %s OcclusionRatioSmooth = %f", *Body->Name, OcclusionRatioSmooth);
-			/*FLOGV("MoveCelestialBody %s CenterAngularDistance = %f", *Body->Name, CenterAngularDistance);
-			FLOGV("MoveCelestialBody %s SunAngularRadius = %f", *Body->Name, SunAngularRadius);
-			FLOGV("MoveCelestialBody %s AngularRadius = %f", *Body->Name, AngularRadius);
-			FLOGV("MoveCelestialBody %s SunAngularSurface = %f", *Body->Name, SunAngularSurface);
-			FLOGV("MoveCelestialBody %s MaxOcclusionAngularSurface = %f", *Body->Name, MaxOcclusionAngularSurface);
-			FLOGV("MoveCelestialBody %s MaxOcclusion = %f", *Body->Name, MaxOcclusion);
-
-			FLOGV("MoveCelestialBody %s Occlusion = %f", *Body->Name, Occlusion);*/
+			/*FLOGV("SetupCelestialBody %s OcclusionRatioSmooth = %f", *Body->Name, OcclusionRatioSmooth);
+			FLOGV("SetupCelestialBody %s CenterAngularDistance = %f", *BodyPosition->Body->Name.ToString(), CenterAngularDistance);
+			FLOGV("SetupCelestialBody %s SunOcclusionAngle = %f", *BodyPosition->Body->Name.ToString(), SunOcclusionAngle);
+			FLOGV("SetupCelestialBody %s OcclusionAngle = %f", *BodyPosition->Body->Name.ToString(), OcclusionAngle);
+			FLOGV("SetupCelestialBody %s SunAngularSurface = %f", *BodyPosition->Body->Name.ToString(), SunAngularSurface);
+			FLOGV("SetupCelestialBody %s MaxOcclusionAngularSurface = %f", *BodyPosition->Body->Name.ToString(), MaxOcclusionAngularSurface);
+			FLOGV("SetupCelestialBody %s MaxOcclusion = %f", *BodyPosition->Body->Name.ToString(), MaxOcclusion);
+			FLOGV("SetupCelestialBody %s Occlusion = %f", *BodyPosition->Body->Name.ToString(), Occlusion);*/
 			
 			if (Occlusion > SunOcclusion)
 			{
@@ -392,9 +405,7 @@ void AFlarePlanetarium::PrepareCelestialBody(FFlareCelestialBody* Body, FPrecise
 
 	if (Body == &Sun)
 	{
-		double AngularRadius = FPreciseMath::Atan(BodyPosition.Radius / BodyPosition.Distance);
-
-		SunAngularRadius = AngularRadius;
+		SunOcclusionAngle = FPreciseMath::Asin(BodyPosition.Radius / BodyPosition.Distance);
 		SunPhase = FMath::UnwindRadians(FMath::Atan2(BodyPosition.AlignedLocation.Z, BodyPosition.AlignedLocation.X));
 	}
 
