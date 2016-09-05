@@ -374,11 +374,31 @@ void UFlareSimulatedSpacecraft::ForceUndock()
 
 void UFlareSimulatedSpacecraft::SetTrading(bool Trading)
 {
-	if(IsStation())
+	if (IsStation())
 	{
 		FLOGV("Fail to set trading state to %s : station are never locked in trading state", *GetImmatriculation().ToString());
 		return;
 	}
+
+	// Notify end of state if not on trade route
+	if (!Trading
+		&& SpacecraftData.IsTrading
+		&& GetCompany() == GetGame()->GetPC()->GetCompany()
+		&& GetCurrentTradeRoute() == NULL)
+	{
+		FFlareMenuParameterData Data;
+		Data.Spacecraft = this;
+		Game->GetPC()->Notify(LOCTEXT("TradingStateEnd", "Trading complete"),
+			FText::Format(LOCTEXT("TravelEndedFormat", "{0} finished trading at {1}"),
+				FText::FromString(GetImmatriculation().ToString()),
+				GetCurrentSector()->GetSectorName()),
+			FName("trading-state-end"),
+			EFlareNotification::NT_Economy,
+			false,
+			EFlareMenu::MENU_Ship,
+			Data);
+	}
+
 	SpacecraftData.IsTrading = Trading;
 }
 
