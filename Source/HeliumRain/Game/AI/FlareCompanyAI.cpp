@@ -47,6 +47,8 @@ void UFlareCompanyAI::Simulate()
 		// Simulate company attitude towards others
 		UpdateDiplomacy();
 	
+		ResourceFlow = ComputeWorldResourceFlow();
+
 		// Compute input and output ressource equation (ex: 100 + 10/ day)
 		TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
 		for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
@@ -309,7 +311,7 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 		else
 		{
 			FLOGV("UFlareCompanyAI::UpdateTrading : %s found nothing to do", *Ship->GetImmatriculation().ToString());
-			if (ConstructionProjectStation && ConstructionProjectSector)
+			if (ConstructionProjectStationDescription && ConstructionProjectSector)
 			{
 				ConstructionShips.Add(Ship);
 			}
@@ -325,20 +327,22 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 	return IdleCargoCapacity;
 }
 
-void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, int32 IdleCargoCapacity)
+void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, int32& IdleCargoCapacity)
 {
 	// Prepare resources for station-building analysis
 	float BestScore = 0;
 	float CurrentConstructionScore = 0;
 	UFlareSimulatedSector* BestSector = NULL;
 	FFlareSpacecraftDescription* BestStationDescription = NULL;
+	UFlareSimulatedSpacecraft* BestStation = NULL;
 	TArray<UFlareSpacecraftCatalogEntry*>& StationCatalog = Game->GetSpacecraftCatalog()->StationCatalog;
 
-	// Loop on catalog
+	// Loop on sector list
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 	{
 		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
 
+		// Loop on catalog
 		for (int32 StationIndex = 0; StationIndex < StationCatalog.Num(); StationIndex++)
 		{
 			FFlareSpacecraftDescription* StationDescription = &StationCatalog[StationIndex]->Data;
@@ -350,36 +354,22 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 				continue;
 			}
 
+			//FLOGV("> Analyse build %s in %s", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString());
+
 			// Count factories for the company, compute rentability in each sector for each station
 			for (int32 FactoryIndex = 0; FactoryIndex < StationDescription->Factories.Num(); FactoryIndex++)
 			{
 				FFlareFactoryDescription* FactoryDescription = &StationDescription->Factories[FactoryIndex]->Data;
 
-				// Detect shipyards
-				bool Shipyard = false;
-				for (int32 Index = 0; Index < FactoryDescription->OutputActions.Num(); Index++)
-				{
-					if (FactoryDescription->OutputActions[Index].Action == EFlareFactoryAction::CreateShip)
-					{
-						Shipyard = true;
-						break;
-					}
-				}
-
-				if (Shipyard)
-				{
-					// TODO Shipyard case
-					continue;
-				}
 
 				// Add weight if the company already have another station in this type
-				TPair<float, float> ScoreResults = ComputeConstructionScoreForStation(Sector, StationDescription, FactoryDescription);
+				TPair<float, float> ScoreResults = ComputeConstructionScoreForStation(Sector, StationDescription, FactoryDescription, NULL);
 				float Score = ScoreResults.Key;
 				float GainPerDay = ScoreResults.Value;
-				//FLOGV("         Final Score =%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Score);
+
 
 				// Update current construction score
-				if (ConstructionProjectSector == Sector && ConstructionProjectStation == StationDescription)
+				if (ConstructionProjectSector == Sector && ConstructionProjectStationDescription == StationDescription)
 				{
 					CurrentConstructionScore = Score;
 				}
@@ -387,24 +377,68 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 				// Change best if we found better
 				if (GainPerDay > 0 && (!BestStationDescription || Score > BestScore))
 				{
-					//FLOGV("New Best : StationPrice=%f DayToPayPrice=%f", StationPrice, DayToPayPrice);
-					//FLOGV("           MissingMoneyRatio=%f Score=%f", MissingMoneyRatio, Score);
+					//FLOGV("New Best : GainPerDay=%f Score=%f", GainPerDay, Score);
 
 					BestScore = Score;
 					BestStationDescription = StationDescription;
+					BestStation = NULL;
 					BestSector = Sector;
 				}
 			}
 		}
+
+		for (int32 StationIndex = 0; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
+		{
+			UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
+			if(Station->GetCompany() != Company)
+			{
+				// Only AI company station
+				continue;
+			}
+
+			//FLOGV("> Analyse upgrade %s in %s", *Station->GetImmatriculation().ToString(), *Sector->GetSectorName().ToString());
+
+			// Count factories for the company, compute rentability in each sector for each station
+			for (int32 FactoryIndex = 0; FactoryIndex < Station->GetDescription()->Factories.Num(); FactoryIndex++)
+			{
+				FFlareFactoryDescription* FactoryDescription = &Station->GetDescription()->Factories[FactoryIndex]->Data;
+
+				// Add weight if the company already have another station in this type
+				TPair<float, float> ScoreResults = ComputeConstructionScoreForStation(Sector, Station->GetDescription(), FactoryDescription, Station);
+				float Score = ScoreResults.Key;
+				float GainPerDay = ScoreResults.Value;
+
+				// Update current construction score
+				if (ConstructionProjectSector == Sector && ConstructionProjectStation == Station)
+				{
+					CurrentConstructionScore = Score;
+				}
+
+				// Change best if we found better
+				if (GainPerDay > 0 && (!BestStationDescription || Score > BestScore))
+				{
+					//FLOGV("New Best : GainPerDay=%f Score=%f", GainPerDay, Score);
+
+					BestScore = Score;
+					BestStationDescription = Station->GetDescription();
+					BestStation = Station;
+					BestSector = Sector;
+				}
+			}
+
+		}
+
+
+
 	}
 
 	if (BestSector && BestStationDescription)
 	{
-		FLOGV("UFlareCompanyAI::UpdateStationConstruction : %s >>> %s in %s Score=%f", *Company->GetCompanyName().ToString(), *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), BestScore);
+		FLOGV("UFlareCompanyAI::UpdateStationConstruction : %s >>> %s in %s (upgrade: %d) Score=%f", *Company->GetCompanyName().ToString(), *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), (BestStation != NULL),BestScore);
 
 		// Start construction only if can afford to buy the station
 
-		float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(BestStationDescription->Identifier, BestSector, true);
+		float StationPrice = ComputeStationPrice(BestSector, BestStationDescription, BestStation);
 
 		bool StartConstruction = true;
 
@@ -424,14 +458,15 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 		if (NeedCapacity > IdleCargoCapacity)
 		{
 			StartConstruction = false;
-			FLOGV("    dont build yet :station nedd %d idle capacity but company has only %d", NeedCapacity, IdleCargoCapacity);
+			FLOGV("    dont build yet :station need %d idle capacity but company has only %d", NeedCapacity, IdleCargoCapacity);
 			IdleCargoCapacity -= NeedCapacity * 1.5; // Keep margin
 		}
 
 		if (StartConstruction)
 		{
-			ConstructionProjectStation = BestStationDescription;
+			ConstructionProjectStationDescription = BestStationDescription;
 			ConstructionProjectSector = BestSector;
+			ConstructionProjectStation = BestStation;
 		}
 	}
 
@@ -446,28 +481,41 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 
 	// TODO Save ConstructionProjectStation
 
-	if (ConstructionProjectStation && ConstructionProjectSector)
+	if (ConstructionProjectStationDescription && ConstructionProjectSector)
 	{
 		TArray<FText> Reasons;
-		if (!ConstructionProjectSector->CanBuildStation(ConstructionProjectStation, Company, Reasons, true))
+		bool ShouldBeAbleToBuild = true;
+		if (!ConstructionProjectStation && !ConstructionProjectSector->CanBuildStation(ConstructionProjectStationDescription, Company, Reasons, true))
 		{
-			// Abandon build project
-			FLOGV("UFlareCompanyAI::UpdateStationConstruction %s abandon building of %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
-			ConstructionProjectStation = NULL;
-			ConstructionProjectSector = NULL;
-			ConstructionShips.Empty();
-
+			ShouldBeAbleToBuild = false;
 		}
-		else
+		else if (ConstructionProjectStation && !ConstructionProjectSector->CanUpgradeStation(ConstructionProjectStation, Reasons))
+		{
+			ShouldBeAbleToBuild = false;
+		}
+
+
+		if(ShouldBeAbleToBuild)
 		{
 			// TODO Need at least one cargo
 			// TODO Buy cost keeping marging
 
-			// Build success clean contruction project
-			if (ConstructionProjectSector->BuildStation(ConstructionProjectStation, Company) != NULL)
+			bool BuildSuccess = false;
+			if(ConstructionProjectStation)
 			{
-				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+				BuildSuccess = ConstructionProjectSector->UpgradeStation(ConstructionProjectStation);
+			}
+			else
+			{
+				BuildSuccess = (ConstructionProjectSector->BuildStation(ConstructionProjectStationDescription, Company) != NULL);
+			}
 
+			if(BuildSuccess)
+			{
+				// Build success clean contruction project
+				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+
+				ConstructionProjectStationDescription = NULL;
 				ConstructionProjectStation = NULL;
 				ConstructionProjectSector = NULL;
 				ConstructionShips.Empty();
@@ -476,9 +524,9 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 			// Cannot build
 			else
 			{
-				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s failed to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStation->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s failed to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
 				
-				int32 NeedCapacity = UFlareGameTools::ComputeConstructionCapacity(ConstructionProjectStation->Identifier, Game);
+				int32 NeedCapacity = UFlareGameTools::ComputeConstructionCapacity(ConstructionProjectStationDescription->Identifier, Game);
 				if (NeedCapacity > IdleCargoCapacity)
 				{
 					IdleCargoCapacity -= NeedCapacity;
@@ -486,6 +534,15 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 
 				FindResourcesForStationConstruction(WorldResourceVariation);
 			}
+		}
+		else
+		{
+			// Abandon build project
+			FLOGV("UFlareCompanyAI::UpdateStationConstruction %s abandon building of %s in %s (upgrade: %d)", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString(), (ConstructionProjectStation != NULL));
+			ConstructionProjectStationDescription = NULL;
+			ConstructionProjectSector = NULL;
+			ConstructionProjectStation = NULL;
+			ConstructionShips.Empty();
 		}
 	}
 }
@@ -518,9 +575,9 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 	TMap<FFlareResourceDescription *, int32> MissingResourcesQuantity;
 
 	// List missing ressources
-	for (int32 ResourceIndex = 0; ResourceIndex < ConstructionProjectStation->CycleCost.InputResources.Num(); ResourceIndex++)
+	for (int32 ResourceIndex = 0; ResourceIndex < ConstructionProjectStationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
 	{
-		FFlareFactoryResource* Resource = &ConstructionProjectStation->CycleCost.InputResources[ResourceIndex];
+		FFlareFactoryResource* Resource = &ConstructionProjectStationDescription->CycleCost.InputResources[ResourceIndex];
 
 		int32 NeededQuantity = Resource->Quantity;
 
@@ -823,7 +880,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 	}
 }
 
-void UFlareCompanyAI::UpdateShipAcquisition(int32 IdleCargoCapacity)
+void UFlareCompanyAI::UpdateShipAcquisition(int32& IdleCargoCapacity)
 {
 	if (IdleCargoCapacity < 0)
 	{
@@ -919,13 +976,22 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 	return IdleCargos;
 }
 
-TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription) const
+TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const
 {
+
+	// Detect shipyards
+	if (FactoryDescription->IsShipyard())
+	{
+		// TODO Shipyard case
+		return TPairInitializer<float, float>(0, 0);
+	}
+
+
 	float GainPerDay = 0;
 	float GainPerCycle = 0;
 
-	TMap<FFlareResourceDescription*, int32> ResourceFlow = ComputeWorldResourceFlow();
-	GainPerCycle -= Sector->GetStationConstructionFee(FactoryDescription->CycleCost.ProductionCost);
+
+	GainPerCycle -= FactoryDescription->CycleCost.ProductionCost;
 
 	float Malus = 0;
 	float Bonus = 0;
@@ -936,10 +1002,10 @@ TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSi
 		GainPerCycle -= Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryInput) * Resource->Quantity;
 
 		float NeededFlow = (float)Resource->Quantity / (float)FactoryDescription->CycleCost.ProductionTime;
-		//FLOGV("%s, %s: ResourceFlow = %d Flow needed = %f",
-		//	  *FactoryDescription->Name.ToString(),
-		//	  *Resource->Resource->Data.Name.ToString(),
-		//	  ResourceFlow[&Resource->Resource->Data] ,NeededFlow);
+		/*FLOGV("%s, %s: ResourceFlow = %d Flow needed = %f",
+			  *FactoryDescription->Name.ToString(),
+			  *Resource->Resource->Data.Name.ToString(),
+			  ResourceFlow[&Resource->Resource->Data] ,NeededFlow);*/
 		if (ResourceFlow[&Resource->Resource->Data] <= NeededFlow)
 		{
 			float DisponibilityMalus = (NeededFlow - (float)ResourceFlow[&Resource->Resource->Data]);
@@ -955,10 +1021,10 @@ TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSi
 		GainPerCycle += Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryOutput) * Resource->Quantity;
 
 		float ProducedFlow = (float)Resource->Quantity / (float)FactoryDescription->CycleCost.ProductionTime;
-		//FLOGV("%s, %s: ResourceFlow = %d Flow produced = %f",
-		//	  *FactoryDescription->Name.ToString(),
-		//	  *Resource->Resource->Data.Name.ToString(),
-		//	  ResourceFlow[&Resource->Resource->Data] ,ProducedFlow);
+		/*FLOGV("%s, %s: ResourceFlow = %d Flow produced = %f",
+			  *FactoryDescription->Name.ToString(),
+			  *Resource->Resource->Data.Name.ToString(),
+			  ResourceFlow[&Resource->Resource->Data] ,ProducedFlow);*/
 		if (ResourceFlow[&Resource->Resource->Data] <= 0)
 		{
 			float DisponibilityBonus = ProducedFlow - (float)ResourceFlow[&Resource->Resource->Data];
@@ -972,15 +1038,16 @@ TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSi
 	//FLOGV("%s in %s GainPerDay=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), GainPerDay / 100);
 
 	// Price with station resources prices bonus
-	float StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, true);
+	float StationPrice = ComputeStationPrice(Sector, StationDescription, Station);
+
 	float DayToPayPrice = StationPrice / GainPerDay;
 	float MissingMoneyRatio = FMath::Min(1.0f, Company->GetMoney() / StationPrice);
-	//FLOGV("StationPrice=%f DayToPayPrice=%f", StationPrice, DayToPayPrice);
+	//FLOGV("StationPrice=%f DayToPayPrice=%f MissingMoneyRatio=%f", StationPrice, DayToPayPrice, MissingMoneyRatio);
 
-	float Score = (100.f / DayToPayPrice) * MissingMoneyRatio;
+	float Score = (100.f / DayToPayPrice) * MissingMoneyRatio * MissingMoneyRatio;
 	//FLOGV("%s in %s Score=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Score);
-	//FLOGV("         Bonus=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Bonus);
-	//FLOGV("         Malus=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Malus);
+	//FLOGV("         Bonus=%f", Bonus);
+	//FLOGV("         Malus=%f", Malus);
 
 	if (Bonus > 0)
 	{
@@ -992,7 +1059,28 @@ TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSi
 		Score /= Malus;
 	}
 
+	//FLOGV("         Final score=%f", Score);
+
+
 	return TPairInitializer<float, float>(Score, GainPerDay);
+}
+
+float UFlareCompanyAI::ComputeStationPrice(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSpacecraft* Station) const
+{
+	float StationPrice;
+
+	if(Station)
+	{
+		// Upgrade
+		StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * (Station->GetStationUpgradeFee() +  UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, false));
+	}
+	else
+	{
+		// Construction
+		StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, true);
+	}
+	return StationPrice;
+
 }
 
 SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedSector* Sector) const

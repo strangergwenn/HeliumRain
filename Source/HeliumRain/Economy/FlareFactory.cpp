@@ -626,14 +626,7 @@ const FFlareProductionData& UFlareFactory::GetCycleDataForShipClass(FName Class)
 
 bool UFlareFactory::IsShipyard() const
 {
-	for (int32 Index = 0; Index < GetDescription()->OutputActions.Num(); Index++)
-	{
-		if (GetDescription()->OutputActions[Index].Action == EFlareFactoryAction::CreateShip)
-		{
-			return true;
-		}
-	}
-	return false;
+	return GetDescription()->IsShipyard();
 }
 
 bool UFlareFactory::IsSmallShipyard() const

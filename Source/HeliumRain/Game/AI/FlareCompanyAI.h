@@ -81,13 +81,13 @@ protected:
 	int32 UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
 
 	/** Manage the construction of stations */
-	void UpdateStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, int32 IdleCargoCapacity);
+	void UpdateStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, int32& IdleCargoCapacity);
 
 	/** Try to muster resources to build stations */
 	void FindResourcesForStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
 
 	/** Buy / build ships at shipyards */
-	void UpdateShipAcquisition(int32 IdleCargoCapacity);
+	void UpdateShipAcquisition(int32& IdleCargoCapacity);
 
 
 	/*----------------------------------------------------
@@ -98,7 +98,9 @@ protected:
 	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
 
 	/** Generate a score for ranking construction projects & the gains per day */
-	TPair<float, float> ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription) const;
+	TPair<float, float> ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const;
+
+	float ComputeStationPrice(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSpacecraft* Station) const;
 
 	/** Get the resource flow in this sector */
 	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector) const;
@@ -123,9 +125,13 @@ protected:
 	AFlareGame*                            Game;
 	
 	// TODO Save it
-	FFlareSpacecraftDescription*			 ConstructionProjectStation;
+	FFlareSpacecraftDescription*			 ConstructionProjectStationDescription;
 	UFlareSimulatedSector*         			 ConstructionProjectSector;
+	UFlareSimulatedSpacecraft *              ConstructionProjectStation;
 	TArray<UFlareSimulatedSpacecraft *>      ConstructionShips;
+
+	// Cache
+	TMap<FFlareResourceDescription*, int32>  ResourceFlow;
 
 
 public:

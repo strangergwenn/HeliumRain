@@ -138,18 +138,7 @@ void UFlareGameTools::CheckEconomyBalance()
 		{
 			FFlareFactoryDescription* FactoryDescription = &StationDescription->Factories[FactoryIndex]->Data;
 
-
-			bool IsShipyard = false;
-			for (int32 Index = 0; Index < FactoryDescription->OutputActions.Num(); Index++)
-			{
-				if (FactoryDescription->OutputActions[Index].Action == EFlareFactoryAction::CreateShip)
-				{
-					IsShipyard = true;
-					break;
-				}
-			}
-
-			if(IsShipyard)
+			if(FactoryDescription->IsShipyard())
 			{
 				FLOGV("  - Shipyard %d", FactoryIndex);
 				continue;
