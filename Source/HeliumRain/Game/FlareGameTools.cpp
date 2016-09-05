@@ -1328,7 +1328,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 	GetGame()->ActivateCurrentSector();
 
 	FFlareMenuParameterData Data;
-	Data.Spacecraft = NewShip;
+	Data.Spacecraft = PC->GetPlayerShip();
 	PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
 
 	return NewShip;

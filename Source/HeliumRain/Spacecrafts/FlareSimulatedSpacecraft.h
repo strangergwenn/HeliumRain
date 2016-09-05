@@ -149,7 +149,7 @@ public:
 		return ActiveSpacecraft != NULL;
 	}
 
-	inline AFlareSpacecraft* GetActive()
+	inline AFlareSpacecraft* GetActive() const
 	{
 		return ActiveSpacecraft;
 	}
@@ -165,19 +165,19 @@ public:
 	}
 
 	/** Return null if traveling */
-	inline UFlareSimulatedSector* GetCurrentSector()
+	inline UFlareSimulatedSector* GetCurrentSector() const
 	{
 		return CurrentSector;
 	}
 
 	/** Return null if not in a fleet */
-	inline UFlareFleet* GetCurrentFleet()
+	inline UFlareFleet* GetCurrentFleet() const
 	{
 		return CurrentFleet;
 	}
 
 	/** Return null if not in a trade route */
-	inline UFlareTradeRoute* GetCurrentTradeRoute()
+	inline UFlareTradeRoute* GetCurrentTradeRoute( )const
 	{
 		return (CurrentFleet ? CurrentFleet->GetCurrentTradeRoute() : NULL);
 	}
@@ -187,7 +187,7 @@ public:
 		return SpacecraftDescription;
 	}
 
-	inline UFlareCargoBay* GetCargoBay()
+	inline UFlareCargoBay* GetCargoBay() const
 	{
 		return CargoBay;
 	}

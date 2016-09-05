@@ -451,12 +451,14 @@ public:
 
 	/** Get the friendlyness status toward a company, as a color */
 	FLinearColor GetSectorFriendlynessColor(UFlareCompany* Company);
-
-
+	
 	/** Get the friendlyness status toward a company */
 	EFlareSectorFriendlyness::Type GetSectorFriendlyness(UFlareCompany* Company);
 
 	/** Get the current battle status of a company */
-	EFlareSectorBattleState::Type  GetSectorBattleState(UFlareCompany* Company);
+	EFlareSectorBattleState::Type GetSectorBattleState(UFlareCompany* Company);
+
+	/** Is a battle in progress with the player */
+	bool IsPlayerBattleInProgress();
 
 };

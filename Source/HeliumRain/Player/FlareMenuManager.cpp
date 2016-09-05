@@ -481,16 +481,18 @@ void AFlareMenuManager::LoadGame()
 	
 	// No player ship ? Get one !
 	UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
-	if (CurrentShip && CurrentShip->CanBeFlown(Reason))
+	if (CurrentShip)
 	{
 		// Do nothing
 	}
 	else
 	{
-		FLOG("AFlareMenuManager::LoadGame : no player ship");
+		// Find a better ship
 		TArray<UFlareSimulatedSpacecraft*> Ships = PC->GetCompany()->GetCompanyShips();
 		if (Ships.Num())
 		{
+			// Find a nice, good, playable ship
+			FLOG("AFlareMenuManager::LoadGame : no flyable player ship, looking for a flyable one");
 			for (int32 ShipIndex = 0; ShipIndex < Ships.Num(); ShipIndex++)
 			{
 				if (Ships[ShipIndex]->CanBeFlown(Reason))
@@ -499,17 +501,34 @@ void AFlareMenuManager::LoadGame()
 					break;
 				}
 			}
+
+			// Find a ship no matter what
+			if (!PC->GetPlayerShip())
+			{
+				FLOG("AFlareMenuManager::LoadGame : still no flyable player ship, overriding limits");
+				for (int32 ShipIndex = 0; ShipIndex < Ships.Num(); ShipIndex++)
+				{
+					if (Ships[ShipIndex]->GetDamageSystem()->IsAlive())
+					{
+						PC->SetPlayerShip(Ships[ShipIndex]);
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			FLOG("AFlareMenuManager::LoadGame : no ship in company");
 		}
 	}
 
 	// We got a valid ship here
 	CurrentShip = PC->GetPlayerShip();
-	if (CurrentShip && CurrentShip->CanBeFlown(Reason))
+	if (CurrentShip)
 	{
 		// Activate sector
 		FLOGV("AFlareMenuManager::LoadGame : found player ship '%s'", *CurrentShip->GetImmatriculation().ToString());
 		PC->GetGame()->ActivateCurrentSector();
-
 		check(CurrentShip->GetActive());
 
 		// Fly the ship - we create another set of data here to keep with the convention :) 

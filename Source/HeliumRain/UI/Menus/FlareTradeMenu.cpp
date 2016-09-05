@@ -297,6 +297,7 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	SetVisibility(EVisibility::Visible);
 	TargetSector = ParentSector;
 	TargetLeftSpacecraft = LeftSpacecraft;
+	ShipList->Reset();
 
 	// First-person trading override
 	AFlareSpacecraft* PhysicalSpacecraft = TargetLeftSpacecraft->GetActive();
@@ -313,7 +314,7 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	}
 
 	// Not first person - list spacecrafts
-	if (!PhysicalSpacecraft)
+	if (TargetLeftSpacecraft->GetCurrentFleet() != MenuManager->GetPC()->GetPlayerFleet())
 	{
 		// Add stations
 		for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorStations().Num(); SpacecraftIndex++)

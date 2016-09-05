@@ -357,7 +357,10 @@ FText SFlareFleetMenu::GetRemoveText() const
 
 bool SFlareFleetMenu::IsSelectDisabled() const
 {
-	return (!FleetToAdd || FleetToAdd == SelectedFleet || FleetToAdd->IsTraveling());
+	return (!FleetToAdd
+	 || FleetToAdd == SelectedFleet
+	 || FleetToAdd->IsTraveling()
+	 || FleetToAdd->GetCurrentSector()->IsPlayerBattleInProgress());
 }
 
 bool SFlareFleetMenu::IsAddDisabled() const

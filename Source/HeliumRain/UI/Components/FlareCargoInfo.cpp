@@ -258,8 +258,11 @@ void SFlareCargoInfo::OnPermissionClicked()
 
 EVisibility SFlareCargoInfo::GetPermissionVisibility() const
 {
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+
 	if (TargetSpacecraft->IsStation()
-	 && TargetSpacecraft->GetCompany() == TargetSpacecraft->GetGame()->GetPC()->GetCompany())
+	 && TargetSpacecraft->GetCompany() == TargetSpacecraft->GetGame()->GetPC()->GetCompany()
+	 && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Trade)
 	{
 		return EVisibility::Visible;
 	}

@@ -318,6 +318,7 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 void UFlareScenarioTools::CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class)
 {
 	UFlareSimulatedSpacecraft* InitialShip = Sector->CreateShip(Class, PlayerCompany, FVector::ZeroVector);
+	InitialShip->GetCurrentFleet()->SetFleetName(LOCTEXT("PlayerFleetName", "Player Fleet"));
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 }
 

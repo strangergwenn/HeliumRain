@@ -694,7 +694,7 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 		TArray<UFlareFleet*>& Fleets = MenuManager->GetGame()->GetPC()->GetCompany()->GetCompanyFleets();
 		for (int FleetIndex = 0; FleetIndex < Fleets.Num(); FleetIndex++)
 		{
-			if (!Fleets[FleetIndex]->GetCurrentTradeRoute())
+			if (!Fleets[FleetIndex]->GetCurrentTradeRoute() && Fleets[FleetIndex] != MenuManager->GetPC()->GetPlayerFleet())
 			{
 				FleetList.Add(Fleets[FleetIndex]);
 			}

@@ -1385,4 +1385,22 @@ bool UFlareSimulatedSector::CanUpgrade(UFlareCompany* Company)
 	return false;
 }
 
+bool UFlareSimulatedSector::IsPlayerBattleInProgress()
+{
+	AFlarePlayerController* PC = GetGame()->GetPC();
+	EFlareSectorBattleState::Type BattleState = GetSectorBattleState(PC->GetCompany());
+
+	if (BattleState == EFlareSectorBattleState::BattleLost
+	 || BattleState == EFlareSectorBattleState::BattleLostNoRetreat
+	 || BattleState == EFlareSectorBattleState::BattleNoRetreat
+	 || BattleState == EFlareSectorBattleState::Battle)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 #undef LOCTEXT_NAMESPACE

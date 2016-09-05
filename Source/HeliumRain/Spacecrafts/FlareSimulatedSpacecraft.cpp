@@ -3,8 +3,10 @@
 #include "../Game/FlareSimulatedSector.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareWorld.h"
+#include "../Player/FlarePlayerController.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Economy/FlareFactory.h"
+#include "../Spacecrafts/Subsystems/FlareSpacecraftDamageSystemInterface.h"
 #include "../Data/FlareFactoryCatalogEntry.h"
 #include "FlareSimulatedSpacecraft.h"
 
@@ -160,16 +162,31 @@ void UFlareSimulatedSpacecraft::SetSpawnMode(EFlareSpawnMode::Type SpawnMode)
 
 bool UFlareSimulatedSpacecraft::CanBeFlown(FText& OutInfo) const
 {
+	UFlareFleet* PlayerFleet = GetGame()->GetPC()->GetPlayerFleet();
+
 	if (IsStation())
 	{
 		return false;
 	}
+	else if (!GetDamageSystem()->IsAlive())
+	{
+		OutInfo = LOCTEXT("CantFlyDestroyedInfo", "This ship has been destroyed");
+		return false;
+	}
+	else if (PlayerFleet && GetCurrentFleet() != PlayerFleet)
+	{
+		OutInfo = LOCTEXT("CantFlyOtherInfo", "You can only switch ships from whithin the same fleet");
+		return false;
+	}
 	else if (!IsActive())
 	{
-		OutInfo = LOCTEXT("CantFlyDistantFormat", "You can't fly a ship from another sector");
+		OutInfo = LOCTEXT("CantFlyDistantInfo", "You can't fly a ship from another sector");
+		return false;
 	}
-
-	return true;
+	else
+	{
+		return true;
+	}
 }
 
 

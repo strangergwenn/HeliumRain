@@ -92,6 +92,9 @@ public:
 	/** Get the target name */
 	FText GetName() const;
 
+	/** Get the text color */
+	FSlateColor GetTextColor() const;
+
 	/** Get the target class name */
 	FText GetDescription() const;
 

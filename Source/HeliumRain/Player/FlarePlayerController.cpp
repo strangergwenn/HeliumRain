@@ -572,8 +572,9 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 
 		if (CompanyShips.Num())
 		{
-			int32 QuickSwitchOffset = QuickSwitchNextOffset;
+			FText CantFlyReasons;
 			int32 OffsetIndex = 0;
+			int32 QuickSwitchOffset = QuickSwitchNextOffset;
 			AFlareSpacecraft* SeletedCandidate = NULL;
 
 			// First loop in military armed alive ships
@@ -582,7 +583,7 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
 
-				if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanFight())
+				if (Candidate && Candidate->GetParent()->CanBeFlown(CantFlyReasons) && Candidate->GetParent()->CanFight())
 				{
 					SeletedCandidate = Candidate;
 					break;
@@ -596,7 +597,7 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 				{
 					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
-					if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->GetDamageSystem()->IsAlive())
+					if (Candidate && Candidate->GetParent()->CanBeFlown(CantFlyReasons))
 					{
 						SeletedCandidate = Candidate;
 						break;
@@ -1070,8 +1071,15 @@ void AFlarePlayerController::WheelPressed()
 		MouseMenu->ClearWidgets();
 		MouseMenu->AddDefaultWidget("Mouse_Nothing", LOCTEXT("Cancel", "Cancel"));
 
+		// Is a battle in progress ?
+		bool IsBattleInProgress = false;
+		if (GetPlayerShip()->GetCurrentSector())
+		{
+			IsBattleInProgress = GetPlayerShip()->GetCurrentSector()->IsPlayerBattleInProgress();
+		}
+
 		// Docked controls
-		if (ShipPawn->GetNavigationSystem()->IsDocked())
+		if (ShipPawn->GetNavigationSystem()->IsDocked() && !IsBattleInProgress)
 		{
 			if (ShipPawn->GetParent()->GetCurrentSector()->CanUpgrade(ShipPawn->GetParent()->GetCompany()))
 			{
@@ -1109,7 +1117,9 @@ void AFlarePlayerController::WheelPressed()
 				}
 
 				// Dock
-				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn()) && Target->GetParent()->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
+				if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn())
+				 && !IsBattleInProgress
+				 && Target->GetParent()->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
 				{
 					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
 					MouseMenu->AddWidget("Mouse_DockAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));
