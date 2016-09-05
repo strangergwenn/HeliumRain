@@ -680,21 +680,28 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 				FText ProductionStatusText = FText();
 				TArray<UFlareFactory*>& Factories = TargetSpacecraft->GetFactories();
 
-				for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+				if (Factories.Num() > 0)
 				{
-					FText NewLineText = (FactoryIndex > 0) ? FText::FromString("\n") : FText();
-					UFlareFactory* Factory = Factories[FactoryIndex];
+					for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+					{
+						FText NewLineText = (FactoryIndex > 0) ? FText::FromString("\n") : FText();
+						UFlareFactory* Factory = Factories[FactoryIndex];
 
-					ProductionStatusText = FText::Format(LOCTEXT("ProductionStatusFormat", "{0}{1}{2} : {3}"),
-						ProductionStatusText,
-						NewLineText,
-						Factory->GetDescription()->Name,
-						Factory->GetFactoryStatus());
+						ProductionStatusText = FText::Format(LOCTEXT("ProductionStatusFormat", "{0}{1}{2} : {3}"),
+							ProductionStatusText,
+							NewLineText,
+							Factory->GetDescription()->Name,
+							Factory->GetFactoryStatus());
+					}
+
+					return FText::Format(LOCTEXT("StationInfoFormat", "{0}{1}"),
+						DistanceText,
+						ProductionStatusText);
 				}
-
-				return FText::Format(LOCTEXT("StationInfoFormat", "{0}{1}"),
-					DistanceText,
-					ProductionStatusText);
+				else
+				{
+					return FText::Format(LOCTEXT("StationInfoFormatNoFactories", "{0}No factories"), DistanceText);
+				}
 			}
 
 			// Ship : show fleet info
