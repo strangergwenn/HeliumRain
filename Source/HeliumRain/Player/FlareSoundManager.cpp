@@ -121,7 +121,9 @@ void UFlareSoundManager::SetMusicVolume(int32 Volume)
 void UFlareSoundManager::SetMasterVolume(int32 Volume)
 {
 	FLOGV("UFlareSoundManager::SetMasterVolume %d", Volume);
-	float MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
+
+	// Volume is doubled, because it sounds quite low
+	float MasterVolume = 2.0f * FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 
 	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
 	check(AudioDevice);
