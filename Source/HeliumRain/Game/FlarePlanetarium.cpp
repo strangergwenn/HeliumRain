@@ -312,7 +312,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 		float BodyPhase =  FMath::UnwindRadians(FMath::Atan2(BodyPosition->AlignedLocation.Z, BodyPosition->AlignedLocation.X));
 		float CenterAngularDistance = FMath::Abs(FMath::UnwindRadians(SunPhase - BodyPhase));
 		float AngleSum = (SunOcclusionAngle + OcclusionAngle);
-		float AngleDiff = FMath::Abs(SunOcclusionAngle - SunOcclusionAngle);
+		float AngleDiff = FMath::Abs(SunOcclusionAngle - OcclusionAngle);
 
 		/*FLOGV("SetupCelestialBody %s BodyPhase = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(BodyPhase));
 		FLOGV("SetupCelestialBody %s SunPhase = %f", *BodyPosition->Body->Name.ToString(), FMath::RadiansToDegrees(SunPhase));
@@ -349,8 +349,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 			float MaxOcclusion = MaxOcclusionAngularSurface / SunAngularSurface;
 			float Occlusion = OcclusionRatio * MaxOcclusion;
 			
-			/*FLOGV("SetupCelestialBody %s OcclusionRatioSmooth = %f", *Body->Name, OcclusionRatioSmooth);
-			FLOGV("SetupCelestialBody %s CenterAngularDistance = %f", *BodyPosition->Body->Name.ToString(), CenterAngularDistance);
+			/*FLOGV("SetupCelestialBody %s CenterAngularDistance = %f", *BodyPosition->Body->Name.ToString(), CenterAngularDistance);
 			FLOGV("SetupCelestialBody %s SunOcclusionAngle = %f", *BodyPosition->Body->Name.ToString(), SunOcclusionAngle);
 			FLOGV("SetupCelestialBody %s OcclusionAngle = %f", *BodyPosition->Body->Name.ToString(), OcclusionAngle);
 			FLOGV("SetupCelestialBody %s SunAngularSurface = %f", *BodyPosition->Body->Name.ToString(), SunAngularSurface);
