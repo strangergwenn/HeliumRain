@@ -1,7 +1,10 @@
 #include "../Flare.h"
 #include "FlareSectorHelper.h"
-#include "../Economy/FlareCargoBay.h"
+
 #include "FlareCompany.h"
+#include "../Game/FlareGame.h"
+#include "../Economy/FlareCargoBay.h"
+#include "../Player/FlarePlayerController.h"
 
 UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Request)
 {
@@ -164,14 +167,13 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft*  SourceSpacecraft, UFlareSi
 	int32 ResourceCapacity = DestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(Resource, SourceSpacecraft->GetCompany());
 
 	QuantityToTake = FMath::Min(QuantityToTake, ResourceCapacity);
-
-
+	
 	int32 TakenResources = SourceSpacecraft->GetCargoBay()->TakeResources(Resource, QuantityToTake, DestinationSpacecraft->GetCompany());
 	int32 GivenResources = DestinationSpacecraft->GetCargoBay()->GiveResources(Resource, TakenResources, SourceSpacecraft->GetCompany());
 
+	// Pay
 	if (GivenResources > 0 && SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
 	{
-		// Pay
 		int64 Price = ResourcePrice * GivenResources;
 		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
 		SourceSpacecraft->GetCompany()->GiveMoney(Price);
@@ -179,16 +181,20 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft*  SourceSpacecraft, UFlareSi
 		SourceSpacecraft->GetCompany()->GiveReputation(DestinationSpacecraft->GetCompany(), 0.5f, true);
 		DestinationSpacecraft->GetCompany()->GiveReputation(SourceSpacecraft->GetCompany(), 0.5f, true);
 	}
-
-
-	if(GivenResources > 0)
+	
+	// Set the trading state if not player fleet
+	if (GivenResources > 0)
 	{
-		if(!SourceSpacecraft->IsStation())
+		AFlarePlayerController* PC = SourceSpacecraft->GetGame()->GetPC();
+		UFlareFleet* PlayerFleet = PC->GetPlayerFleet();
+		check(PC);
+
+		if (SourceSpacecraft->GetCurrentFleet() != PlayerFleet && !SourceSpacecraft->IsStation())
 		{
 			SourceSpacecraft->SetTrading(true);
 		}
 
-		if(!DestinationSpacecraft->IsStation())
+		if (DestinationSpacecraft->GetCurrentFleet() != PlayerFleet && !DestinationSpacecraft->IsStation())
 		{
 			DestinationSpacecraft->SetTrading(true);
 		}
