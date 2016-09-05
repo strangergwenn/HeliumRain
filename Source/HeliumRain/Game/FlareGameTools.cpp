@@ -1590,9 +1590,9 @@ FText UFlareGameTools::GetDisplayDate(int64 Days)
 	int64 RemainingDays = Days % DAYS_IN_YEAR;
 	FString YearsString;
 
-	return FText::Format(LOCTEXT("DateFormat", "Year {0} - Day {1}"),
-		FText::FromString(FString::FromInt(Years)),
-		FText::AsNumber(RemainingDays));
+	return FText::Format(LOCTEXT("DateFormat", "Company date : year {0}, day {1}"),
+		FText::FromString(FString::FromInt(Years + 1)),
+		FText::AsNumber(RemainingDays + 1));
 }
 
 int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSector* Sector, bool WithMargin, bool ConstructionPrice)
