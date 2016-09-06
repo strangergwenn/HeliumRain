@@ -11,7 +11,7 @@
 AFlareMenuPawn::AFlareMenuPawn(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, InitialYaw(150)
-	, DisplayDistance(1000)
+	, DisplayDistance(800)
 	, DisplaySize(500)
 	, SlideInOutUpOffset(0, 0, -2000)
 	, SlideInOutSideOffset(0, 2000, 0)

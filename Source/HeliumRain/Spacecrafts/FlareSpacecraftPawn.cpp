@@ -19,9 +19,6 @@ AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	, CameraPanSpeed(2)
 	, CameraMaxPitch(60)
 	, CameraMaxYaw(180)
-	, CameraMinDistance(1.5)
-	, CameraMaxDistance(4)
-	, CameraDistanceStepAmount(0.5)
 	, Company(NULL)
 {
 	FAttachmentTransformRules AttachRules(EAttachmentRule::KeepRelative, false);
@@ -79,18 +76,6 @@ void AFlareSpacecraftPawn::SetCameraLocalPosition(FVector Value)
 void AFlareSpacecraftPawn::SetCameraDistance(float Value)
 {
 	CameraOffsetDistance = Value;
-}
-
-void AFlareSpacecraftPawn::StepCameraDistance(bool TowardCenter)
-{
-	// Compute camera data
-	float Scale = GetMeshScale();
-	float LimitNear = Scale * CameraMinDistance;
-	float LimitFar = Scale * CameraMaxDistance;
-	float Offset = Scale * (TowardCenter ? -CameraDistanceStepAmount : CameraDistanceStepAmount);
-
-	// Move camera
-	SetCameraDistance(FMath::Clamp(CameraOffsetDistance + Offset, LimitNear, LimitFar));
 }
 
 

@@ -58,9 +58,6 @@ public:
 	/** Set the camera radius in the spherical coordinate system */
 	void SetCameraDistance(float Value);
 
-	/** Step the camera distance */
-	void StepCameraDistance(bool TowardCenter);
-
 
 	/*----------------------------------------------------
 		Customization
@@ -118,9 +115,6 @@ protected:
 	float    CameraMaxYaw;
 
 	// Camera distance properties
-	float    CameraMinDistance;
-	float    CameraMaxDistance;
-	float    CameraDistanceStepAmount;
 	FVector  CameraLocalPosition;
 
 	// Company reference
