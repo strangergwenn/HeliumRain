@@ -530,7 +530,7 @@ void UFlareSpacecraftStateManager::ResetExternalCamera()
 	ExternalCameraPitchTarget = 0;
 	ExternalCameraYawTarget = 0;
 	// TODO Don't copy SpacecraftPawn
-	ExternalCameraDistance = 4 * Spacecraft->GetMeshScale();
+	ExternalCameraDistance = 2.5 * Spacecraft->GetMeshScale();
 	ExternalCameraDistanceTarget = ExternalCameraDistance;
 }
 
