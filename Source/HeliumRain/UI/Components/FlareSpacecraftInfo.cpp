@@ -407,7 +407,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else
 		{
-			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading requires to be docked (ships outside the player fleet can trade within their sector)"));
+			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading requires to be docked in a peaceful sector (ships outside the player fleet can trade within their sector)"));
 			TradeButton->SetDisabled(true);
 		}
 
@@ -419,7 +419,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else
 		{
-			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked (ships outside the player fleet can be upgraded when a station is present)"));
+			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked in a peaceful sector (ships outside the player fleet can be upgraded when a station is present)"));
 			UpgradeButton->SetDisabled(true);
 		}
 
@@ -431,7 +431,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else
 		{
-			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked (ships outside the player fleet can be scrapped when a station is present)"));
+			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked in a peaceful sector (ships outside the player fleet can be scrapped when a station is present)"));
 			ScrapButton->SetDisabled(true);
 		}
 	}

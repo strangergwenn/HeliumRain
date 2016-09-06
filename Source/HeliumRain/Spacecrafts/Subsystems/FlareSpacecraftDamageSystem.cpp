@@ -187,7 +187,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	// Lost company ship
 	else if (Spacecraft->GetParent()->GetCompany() == PC->GetCompany())
 	{
-		PC->Notify(LOCTEXT("ShipDestroyedCompany", "One of your ships has been destroyed"),
+		PC->Notify(LOCTEXT("ShipDestroyedCompany", "You lost a ship"),
 			FText::Format(LOCTEXT("ShipDestroyedCompanyFormat", "Your {0}-class ship was destroyed"), Spacecraft->GetParent()->GetDescription()->Name),
 			FName("ship-killed"),
 			EFlareNotification::NT_Military);
