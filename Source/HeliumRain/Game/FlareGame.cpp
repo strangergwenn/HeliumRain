@@ -615,7 +615,7 @@ class FAsyncSave : public FNonAbandonableTask
 {
 	friend class FAutoDeleteAsyncTask<FAsyncSave>;
 public:
-	FAsyncSave(UFlareSaveGameSystem* SaveSystemParam, const FString SaveNameParam, TWeakObjectPtr<class UFlareSaveGame> SaveDataParam) :
+	FAsyncSave(UFlareSaveGameSystem* SaveSystemParam, const FString SaveNameParam, UFlareSaveGame *SaveDataParam) :
 		SaveName(SaveNameParam),
 		SaveData(SaveDataParam),
 		SaveSystem(SaveSystemParam)
@@ -623,13 +623,14 @@ public:
 
 protected:
 	FString SaveName;
-	TWeakObjectPtr<class UFlareSaveGame> SaveData;
+	UPROPERTY()
+	UFlareSaveGame *SaveData;
 	UFlareSaveGameSystem* SaveSystem;
 
 	void DoWork()
 	{
 		FLOG("Async save start");
-		SaveSystem->SaveGame(SaveName, SaveData.Get());
+		SaveSystem->SaveGame(SaveName, SaveData);
 		FLOG("Async save end");
 	}
 
@@ -669,8 +670,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async)
 
 		if(Async)
 		{
-			TWeakObjectPtr<class UFlareSaveGame> SavePtr = Save;
-			(new FAutoDeleteAsyncTask<FAsyncSave>(SaveGameSystem, SaveName, SavePtr))->StartBackgroundTask();
+			(new FAutoDeleteAsyncTask<FAsyncSave>(SaveGameSystem, SaveName, Save))->StartBackgroundTask();
 		}
 		else
 		{
