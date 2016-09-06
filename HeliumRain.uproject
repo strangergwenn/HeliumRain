@@ -17,6 +17,10 @@
 	],
 	"Plugins": [
 		{
+			"Name": "InternalComponentVisualizer",
+			"Enabled": true
+		},
+		{
 			"Name": "Paper2D",
 			"Enabled": false
 		},
