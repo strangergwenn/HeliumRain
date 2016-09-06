@@ -476,7 +476,7 @@ FText SFlareMainOverlay::GetPlayerInfo() const
 	}
 	else if (!MenuManager->IsFading())
 	{
-		return LOCTEXT("FastForwarding", "Fast forwarding...");
+		return LOCTEXT("FastForwarding", "Fast forwarding...\n");
 	}
 
 	return FText();

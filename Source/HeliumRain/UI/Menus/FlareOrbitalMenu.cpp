@@ -22,8 +22,11 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	Game = MenuManager->GetPC()->GetGame();
+
+	// FF setup
 	FastForwardPeriod = 0.5f;
 	FastForwardStopRequested = false;
+	FastForwardActiveAutomatic = false;
 
 	// Build structure
 	ChildSlot
@@ -59,16 +62,30 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.HAlign(HAlign_Left)
-					.Padding(Theme.ContentPadding)
 					[
 						SAssignNew(FastForward, SFlareButton)
+						.Width(1)
+						.Toggle(true)
+						.Text(FText())
+						.Icon(FFlareStyleSet::GetIcon("Load_Small"))
+						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked, false)
+						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
+						.HelpText(LOCTEXT("FastForwardInfo", "Wait for one day - Travels, production, building will be accelerated"))
+					]
+
+					// Fast forward
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					[
+						SAssignNew(FastForwardAuto, SFlareButton)
 						.Width(4)
 						.Toggle(true)
 						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
 						.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
-						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked, true)
 						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
-						.HelpText(LOCTEXT("FastForwardInfo", "Wait and see - Travels, production, building will be accelerated."))
+						.HelpText(LOCTEXT("FastForwardInfo", "Wait for the next event - Travels, production, building will be accelerated"))
 					]
 					
 					// Date
@@ -76,6 +93,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					.HAlign(HAlign_Left)
 					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
@@ -198,6 +216,7 @@ void SFlareOrbitalMenu::StopFastForward()
 	TimeSinceFastForward = 0;
 	FastForwardStopRequested = false;
 	FastForward->SetActive(false);
+	FastForwardAuto->SetActive(false);
 
 	if (FastForwardActive)
 	{
@@ -213,7 +232,6 @@ void SFlareOrbitalMenu::RequestStopFastForward()
 	FLOG("Stop fast forward requested");
 	FastForwardStopRequested = true;
 }
-
 
 void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
@@ -260,15 +278,19 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 		TimeSinceFastForward += InDeltaTime;
 		if (FastForwardActive)
 		{
-
-
 			if (TimeSinceFastForward > FastForwardPeriod)
 			{
 				MenuManager->GetGame()->GetGameWorld()->FastForward();
 				TimeSinceFastForward = 0;
+
+				if (FastForwardActiveAutomatic == false)
+				{
+					FastForwardStopRequested = true;
+				}
 			}
 
-			if(FastForwardStopRequested)
+			// Stop request
+			if (FastForwardStopRequested)
 			{
 				StopFastForward();
 			}
@@ -358,7 +380,7 @@ FText SFlareOrbitalMenu::GetFastForwardText() const
 		return FText();
 	}
 
-	if (!FastForward->IsActive())
+	if (!FastForward->IsActive() && !FastForwardAuto->IsActive())
 	{
 		bool BattleInProgress = false;
 		bool BattleLostWithRetreat = false;
@@ -437,7 +459,6 @@ bool SFlareOrbitalMenu::IsFastForwardDisabled() const
 		
 		if (GameWorld && (GameWorld->GetTravels().Num() > 0 || true)) // Not true if there is pending todo event
 		{
-			// TODO ALPHA : show the button during station/ship constructions as well
 			return false;
 		}
 	}
@@ -463,7 +484,6 @@ FText SFlareOrbitalMenu::GetDateText() const
 	return FText();
 }
 
-
 inline static bool EventDurationComparator (const FFlareIncomingEvent& ip1, const FFlareIncomingEvent& ip2)
  {
 	 return (ip1.RemainingDuration < ip2.RemainingDuration);
@@ -477,8 +497,7 @@ FText SFlareOrbitalMenu::GetTravelText() const
 		if (GameWorld)
 		{
 			TArray<FFlareIncomingEvent> IncomingEvents;
-
-
+			
 			// List travels
 			for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
 			{
@@ -590,21 +609,23 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 	MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Data);
 }
 
-void SFlareOrbitalMenu::OnFastForwardClicked()
+void SFlareOrbitalMenu::OnFastForwardClicked(bool Automatic)
 {
-	if (FastForward->IsActive())
+	if (FastForward->IsActive() || FastForwardAuto->IsActive())
 	{
-		if(!FastForwardActive && TimeSinceFastForward < FastForwardPeriod)
-		{
-			// Avoid too fast double fast forward
-			FastForward->SetActive(false);
-			return;
-		}
-
 		bool BattleInProgress = false;
 		bool BattleLostWithRetreat = false;
 		bool BattleLostWithoutRetreat = false;
 
+		// Avoid too fast double fast forward
+		if (!FastForwardActive && TimeSinceFastForward < FastForwardPeriod)
+		{
+			FastForward->SetActive(false);
+			FastForwardAuto->SetActive(false);
+			return;
+		}
+
+		// Check for battle
 		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
 		{
 			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
@@ -624,6 +645,7 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 			}
 		}
 
+		// Notify when a battle is happening
 		if (BattleInProgress)
 		{
 			return;
@@ -632,18 +654,18 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 		{
 			MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
 								 LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and will be lost."),
-								 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
+								 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, Automatic));
 
 		}
 		else if (BattleLostWithRetreat)
 		{
 			MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
 								 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some of the ships engaged in a battle can still retreat ! They will be lost."),
-								 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed));
+								 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, Automatic));
 		}
 		else
 		{
-			OnFastForwardConfirmed();
+			OnFastForwardConfirmed(Automatic);
 		}
 	}
 	else
@@ -652,12 +674,14 @@ void SFlareOrbitalMenu::OnFastForwardClicked()
 	}
 }
 
-
-void SFlareOrbitalMenu::OnFastForwardConfirmed()
+void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 {
-	FLOG("Start fast forward");
+	FLOGV("Start fast forward, automatic = %d", Automatic);
+
 	FastForwardActive = true;
 	FastForwardStopRequested = false;
+	FastForwardActiveAutomatic = Automatic;
+
 	Game->SaveGame(MenuManager->GetPC(), true);
 	Game->DeactivateSector();
 }

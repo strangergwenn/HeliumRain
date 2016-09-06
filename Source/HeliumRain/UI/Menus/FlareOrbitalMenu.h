@@ -95,10 +95,10 @@ protected:
 	void OnOpenSector(TSharedPtr<int32> Index);
 	
 	/** Check if we can fast forward */
-	void OnFastForwardClicked();
+	void OnFastForwardClicked(bool Automatic);
 
 	/** Fast forward to the next event */
-	void OnFastForwardConfirmed();
+	void OnFastForwardConfirmed(bool Automatic);
 		
 
 protected:
@@ -114,6 +114,7 @@ protected:
 	// Fast forward
 	bool                                        FastForwardActive;
 	bool                                        FastForwardStopRequested;
+	bool                                        FastForwardActiveAutomatic;
 	float                                       FastForwardPeriod;
 	float                                       TimeSinceFastForward;
 
@@ -124,6 +125,7 @@ protected:
 	TSharedPtr<SFlarePlanetaryBox>              HelaBox;
 	TSharedPtr<SFlarePlanetaryBox>              AdenaBox;
 	TSharedPtr<SFlareButton>                    FastForward;
+	TSharedPtr<SFlareButton>                    FastForwardAuto;
 	TMap<UFlareSimulatedSector*, EFlareSectorBattleState::Type> LastSectorBattleState;
 
 };
