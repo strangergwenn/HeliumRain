@@ -26,6 +26,11 @@ void UFlareCompanyAI::Load(UFlareCompany* ParentCompany, const FFlareCompanyAISa
 {
 	Company = ParentCompany;
 	Game = Company->GetGame();
+	ConstructionProjectStationDescription = NULL;
+	ConstructionProjectSector = NULL;
+	ConstructionProjectStation = NULL;
+	ConstructionProjectNeedCapacity = 0;
+	ConstructionShips.Empty();
 }
 
 FFlareCompanyAISave* UFlareCompanyAI::Save()
@@ -312,9 +317,10 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 		else
 		{
 			FLOGV("UFlareCompanyAI::UpdateTrading : %s found nothing to do", *Ship->GetImmatriculation().ToString());
-			if (ConstructionProjectStationDescription && ConstructionProjectSector)
+			if (ConstructionProjectStationDescription && ConstructionProjectSector && ConstructionProjectNeedCapacity > 0)
 			{
 				ConstructionShips.Add(Ship);
+				ConstructionProjectNeedCapacity -= Ship->GetCargoBay()->GetCapacity();
 			}
 			else
 			{
@@ -445,29 +451,35 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 
 		if (CurrentConstructionScore * 1.5 > BestScore)
 		{
-			StartConstruction = false;
 			FLOGV("    dont change construction yet : current score is %f but best score is %f", CurrentConstructionScore, BestScore);
 		}
-
-		if (StationPrice > Company->GetMoney())
+		else
 		{
-			StartConstruction = false;
-			FLOGV("    dont build yet :station cost %f but company has only %lld", StationPrice, Company->GetMoney());
-		}
+			if (StationPrice > Company->GetMoney())
+			{
+				StartConstruction = false;
+				FLOGV("    dont build yet :station cost %f but company has only %lld", StationPrice, Company->GetMoney());
+			}
 
-		int32 NeedCapacity = UFlareGameTools::ComputeConstructionCapacity(BestStationDescription->Identifier, Game);
-		if (NeedCapacity > IdleCargoCapacity)
-		{
-			StartConstruction = false;
-			FLOGV("    dont build yet :station need %d idle capacity but company has only %d", NeedCapacity, IdleCargoCapacity);
-			IdleCargoCapacity -= NeedCapacity * 1.5; // Keep margin
-		}
+			int32 NeedCapacity = UFlareGameTools::ComputeConstructionCapacity(BestStationDescription->Identifier, Game);
 
-		if (StartConstruction)
-		{
-			ConstructionProjectStationDescription = BestStationDescription;
-			ConstructionProjectSector = BestSector;
-			ConstructionProjectStation = BestStation;
+			IdleCargoCapacity -= NeedCapacity * 2; // Keep margin
+
+			if (NeedCapacity > IdleCargoCapacity)
+			{
+				StartConstruction = false;
+				FLOGV("    dont build yet :station need %d idle capacity but company has only %d", NeedCapacity, IdleCargoCapacity);
+			}
+
+			if (StartConstruction)
+			{
+				ConstructionProjectStationDescription = BestStationDescription;
+				ConstructionProjectSector = BestSector;
+				ConstructionProjectStation = BestStation;
+				ConstructionProjectNeedCapacity = NeedCapacity * 1.5;
+				ConstructionProjectNeedCapacity = 0;
+				ConstructionShips.Empty();
+			}
 		}
 	}
 
@@ -519,6 +531,7 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 				ConstructionProjectStationDescription = NULL;
 				ConstructionProjectStation = NULL;
 				ConstructionProjectSector = NULL;
+				ConstructionProjectNeedCapacity = 0;
 				ConstructionShips.Empty();
 			}
 
@@ -543,6 +556,7 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 			ConstructionProjectStationDescription = NULL;
 			ConstructionProjectSector = NULL;
 			ConstructionProjectStation = NULL;
+			ConstructionProjectNeedCapacity = 0;
 			ConstructionShips.Empty();
 		}
 	}
@@ -883,7 +897,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 
 void UFlareCompanyAI::UpdateShipAcquisition(int32& IdleCargoCapacity)
 {
-	if (IdleCargoCapacity < 0)
+	if (IdleCargoCapacity < 0 || ConstructionProjectNeedCapacity  > 0)
 	{
 		FLOGV("UFlareCompanyAI::UpdateShipAcquisition : IdleCargoCapacity = %d", IdleCargoCapacity);
 
