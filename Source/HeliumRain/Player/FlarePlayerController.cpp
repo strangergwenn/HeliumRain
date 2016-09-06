@@ -1292,6 +1292,7 @@ void AFlarePlayerController::SetUseCockpit(bool New)
 {
 	UseCockpit = New;
 	CockpitManager->SetupCockpit(this);
+	SetExternalCamera(false);
 }
 
 void AFlarePlayerController::SetPauseGameInMenus(bool New)
