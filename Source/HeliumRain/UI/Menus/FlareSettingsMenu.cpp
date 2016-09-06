@@ -39,8 +39,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	// General data
 	FLinearColor Color = Theme.NeutralColor;
 	Color.A = Theme.DefaultAlpha;
-	int32 LabelSize = 200;
-	int32 ValueSize = 80;
+	int32 LabelSize = 250;
+	int32 ValueSize = 50;
 
 	// Build structure
 	ChildSlot
