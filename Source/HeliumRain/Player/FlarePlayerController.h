@@ -172,8 +172,11 @@ public:
 	/** Toggle the external view */
 	virtual void ToggleCamera();
 
-	/** Toggle the overlay */
+	/** Toggle the menus */
 	virtual void ToggleMenu();
+
+	/** Toggle the overlay */
+	virtual void ToggleOverlay();
 
 	/** Send back to menu */
 	virtual void BackMenu();

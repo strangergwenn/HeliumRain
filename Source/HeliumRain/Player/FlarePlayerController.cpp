@@ -786,6 +786,7 @@ void AFlarePlayerController::SetupInputComponent()
 	// Main keys
 	InputComponent->BindAction("ToggleCamera", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCamera);
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
+	InputComponent->BindAction("ToggleOverlay", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleOverlay);
 	InputComponent->BindAction("BackMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::BackMenu);
 	InputComponent->BindAction("Simulate", EInputEvent::IE_Released, this, &AFlarePlayerController::Simulate);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
@@ -841,6 +842,21 @@ void AFlarePlayerController::ToggleMenu()
 			MenuManager->CloseMainOverlay();
 		}
 		else if (MenuManager->IsOverlayOpen())
+		{
+			MenuManager->CloseMainOverlay();
+		}
+		else
+		{
+			MenuManager->OpenMainOverlay();
+		}
+	}
+}
+
+void AFlarePlayerController::ToggleOverlay()
+{
+	if (GetGame()->IsLoadedOrCreated() && ShipPawn && GetGame()->GetActiveSector() && !MenuManager->IsMenuOpen())
+	{
+		if (MenuManager->IsOverlayOpen())
 		{
 			MenuManager->CloseMainOverlay();
 		}

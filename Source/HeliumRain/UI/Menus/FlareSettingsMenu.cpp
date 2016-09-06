@@ -1092,6 +1092,12 @@ void SFlareSettingsMenu::CreateBinds()
 
 	// Menus
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menus", "MENUS")))->MakeHeader()));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toggle menus", "Open / close menus")))
+		->AddActionMapping("ToggleMenu")
+		->AddDefaults(EKeys::Enter)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toggle overlay", "Open / close flight overlay")))
+		->AddActionMapping("ToggleOverlay")
+		->AddDefaults(EKeys::RightMouseButton)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open ship menu", "Open ship menu")))
 		->AddActionMapping("ShipMenu")
 		->AddDefaults(EKeys::F2)));
