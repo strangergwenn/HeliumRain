@@ -682,8 +682,15 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 			AFlareSpacecraft* TargetSpacecraftPawn = TargetSpacecraft->GetActive();
 			if (PlayerShipPawn && TargetSpacecraftPawn)
 			{
-				float Distance = (PlayerShipPawn->GetActorLocation() - TargetSpacecraftPawn->GetActorLocation()).Size();
-				DistanceText = FText::FromString(AFlareHUD::FormatDistance(Distance / 100) + " - ");
+				if (PlayerShipPawn->GetNavigationSystem()->GetDockStation() == TargetSpacecraftPawn)
+				{
+					DistanceText = LOCTEXT("DockedHereStation", "Docked - ");
+				}
+				else
+				{
+					float Distance = (PlayerShipPawn->GetActorLocation() - TargetSpacecraftPawn->GetActorLocation()).Size();
+					DistanceText = FText::FromString(AFlareHUD::FormatDistance(Distance / 100) + " - ");
+				}
 			}
 		}
 		
