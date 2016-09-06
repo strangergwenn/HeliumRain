@@ -10,7 +10,8 @@
 
 
 #define STATION_CONSTRUCTION_PRICE_BONUS 1.2
-
+// TODO, make it depend on player CA
+#define AI_NERF_RATIO 0.5
 
 /*----------------------------------------------------
 	Public API
@@ -1171,6 +1172,10 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 				}
 
+
+				// The AI don't let anything for the player : it's too hard
+				// Make the AI ignore the sector with not enought stock or to little capacity
+				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
 			}
 
 			// Ouput flow
@@ -1207,10 +1212,12 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				{
 					Variation->FactoryStock += Stock;
 				}
+
+				// The AI don't let anything for the player : it's too hard
+				// Make the AI ignore the sector with not enought stock or to little capacity
+				Variation->OwnedStock -= SlotCapacity * AI_NERF_RATIO;
 			}
 
-
-			// TODO habitation
 
 			// TODO storage
 
