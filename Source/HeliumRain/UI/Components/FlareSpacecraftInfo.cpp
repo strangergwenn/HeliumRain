@@ -359,7 +359,7 @@ void SFlareSpacecraftInfo::Show()
 		FlyButton->SetVisibility(!Owned || IsStation ?     EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
-		TradeButton->SetVisibility(IsCargo && OwnedAndNotSelf ?                  EVisibility::Visible : EVisibility::Collapsed);
+		TradeButton->SetVisibility(IsCargo ?                                     EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock ?                                      EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(Owned && IsDocked && !IsOutsidePlayerFleet ? EVisibility::Visible : EVisibility::Collapsed);
 		ScrapButton->SetVisibility(Owned && !IsStation ?                         EVisibility::Visible : EVisibility::Collapsed);
