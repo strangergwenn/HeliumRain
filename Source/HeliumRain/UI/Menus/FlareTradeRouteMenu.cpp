@@ -680,6 +680,8 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 	{
 		SectorSelector->SetSelectedItem(SectorList[0]);
 	}
+
+	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 }
 
 void SFlareTradeRouteMenu::GenerateFleetList()
@@ -757,6 +759,8 @@ void SFlareTradeRouteMenu::GenerateFleetList()
 	{
 		FleetSelector->SetSelectedItem(FleetList[0]);
 	}
+
+	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 }
 
 

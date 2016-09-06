@@ -154,6 +154,8 @@ void SFlareShipList::RefreshList()
 	ClearSelection();
 	TargetListData.Sort(FSortBySize());
 	TargetList->RequestListRefresh();
+
+	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 }
 
 void SFlareShipList::ClearSelection()
