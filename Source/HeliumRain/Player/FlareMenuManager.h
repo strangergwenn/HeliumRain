@@ -147,6 +147,9 @@ protected:
 	/** Reload the sector */
 	void ReloadSector();
 
+	/** Reload the sector after a FF */
+	void FastForwardSingle();
+
 	/** Open the main menu */
 	void OpenMainMenu();
 

@@ -46,6 +46,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	LastWeaponType = EFlareWeaponGroupType::WG_NONE;
 }
 
+
 /*----------------------------------------------------
 	Gameplay events
 ----------------------------------------------------*/

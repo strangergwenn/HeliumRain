@@ -413,6 +413,7 @@ void AFlareMenuManager::ProcessNextMenu()
 		case EFlareMenu::MENU_LoadGame:           LoadGame();                  break;
 		case EFlareMenu::MENU_FlyShip:            FlyShip();                   break;
 		case EFlareMenu::MENU_ReloadSector:       ReloadSector();              break;
+		case EFlareMenu::MENU_FastForwardSingle:  FastForwardSingle();         break;
 		case EFlareMenu::MENU_Travel:             Travel();                    break;
 
 		case EFlareMenu::MENU_Main:               OpenMainMenu();              break;
@@ -672,6 +673,29 @@ void AFlareMenuManager::ReloadSector()
 		{
 			PC->FlyShip(NextMenu.Value.Spacecraft->GetActive());
 		}
+
+		ExitMenu();
+		MenuIsOpen = false;
+	}
+}
+
+void AFlareMenuManager::FastForwardSingle()
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	if (PC)
+	{
+		// Exit sector
+		PC->GetGame()->DeactivateSector();
+		PC->GetGame()->GetGameWorld()->Simulate();
+
+		// reload sector
+		PC->GetGame()->ActivateCurrentSector();
+		PC->FlyShip(PC->GetShipPawn());
+
+		// Notify date
+		PC->Notify(LOCTEXT("NewDate", "A day passed by..."),
+			UFlareGameTools::GetDisplayDate(GetGame()->GetGameWorld()->GetDate()),
+			FName("new-date-ff"));
 
 		ExitMenu();
 		MenuIsOpen = false;
@@ -955,7 +979,7 @@ FString AFlareMenuManager::GetKeyNameFromActionName(FName ActionName)
 
 bool AFlareMenuManager::IsUIOpen() const
 {
-	return IsMenuOpen() || IsOverlayOpen();
+	return IsMenuOpen() || IsOverlayOpen() || Confirmation->IsOpen();
 }
 
 bool AFlareMenuManager::IsMenuOpen() const

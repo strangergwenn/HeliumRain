@@ -74,7 +74,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SFlareButton)
 						.Width(5)
-						.Text(FText::Format(LOCTEXT("FastForwardSingleFormat", "Fast forward({0})"),
+						.Text(FText::Format(LOCTEXT("FastForwardSingleFormat", "Fast forward ({0})"),
 							FText::FromString(AFlareMenuManager::GetKeyNameFromActionName("Simulate"))))
 						.Icon(FFlareStyleSet::GetIcon("Load_Small"))
 						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)

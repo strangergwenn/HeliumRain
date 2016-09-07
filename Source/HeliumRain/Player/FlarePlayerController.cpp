@@ -923,7 +923,7 @@ void AFlarePlayerController::ToggleOverlay()
 		{
 			MenuManager->CloseMainOverlay();
 		}
-		else
+		else if (!MenuManager->IsUIOpen())
 		{
 			MenuManager->OpenMainOverlay();
 		}
@@ -942,8 +942,9 @@ void AFlarePlayerController::BackMenu()
 
 void AFlarePlayerController::Simulate()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->IsMenuOpen())
+	if (GetGame()->IsLoadedOrCreated() && !GetNavHUD()->IsWheelMenuOpen())
 	{
+		FLOG("AFlarePlayerController::Simulate");
 		bool CanGoAhead = ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed));
 		if (CanGoAhead)
 		{
@@ -954,12 +955,21 @@ void AFlarePlayerController::Simulate()
 
 void AFlarePlayerController::SimulateConfirmed()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->IsMenuOpen())
+	// Menu version : simple synchronous code
+	if (MenuManager->IsMenuOpen())
 	{
+		FLOG("AFlarePlayerController::SimulateConfirmed : synchronous");
 		GetGame()->DeactivateSector();
 		MenuManager->GetGame()->GetGameWorld()->Simulate();
 		MenuManager->Reload();
 		GetGame()->ActivateCurrentSector();
+	}
+
+	// Asynchronous mode when flying
+	else
+	{
+		FLOG("AFlarePlayerController::SimulateConfirmed : asynchronous");
+		MenuManager->OpenMenu(EFlareMenu::MENU_FastForwardSingle);
 	}
 }
 

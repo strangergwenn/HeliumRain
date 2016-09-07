@@ -23,6 +23,7 @@ namespace EFlareMenu
 		MENU_FlyShip,
 		MENU_Travel,
 		MENU_ReloadSector,
+		MENU_FastForwardSingle,
 
 		// Main gameplay menus
 		MENU_Story,

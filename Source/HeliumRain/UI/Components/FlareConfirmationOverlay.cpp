@@ -106,6 +106,11 @@ void SFlareConfirmationOverlay::Confirm(FText Title, FText Text, FSimpleDelegate
 	SetVisibility(EVisibility::Visible);
 }
 
+bool SFlareConfirmationOverlay::IsOpen() const
+{
+	return (GetVisibility() == EVisibility::Visible);
+}
+
 
 /*----------------------------------------------------
 	Callbacks

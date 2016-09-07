@@ -38,6 +38,9 @@ public:
 	/** Show the confirmation overlay */
 	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed);
 	
+	/** Is this open */
+	bool IsOpen() const;
+
 
 	/*----------------------------------------------------
 		Callbacks
