@@ -312,7 +312,9 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 		else
 		{
 			FLOGV("UFlareCompanyAI::UpdateTrading : %s found nothing to do", *Ship->GetImmatriculation().ToString());
-			if (ConstructionProjectStationDescription && ConstructionProjectSector && ConstructionProjectNeedCapacity > 0)
+
+			FLOGV("UFlareCompanyAI::UpdateTrading : HasProject ? %d ConstructionProjectNeedCapacity %d", (ConstructionProjectStationDescription != NULL), ConstructionProjectNeedCapacity);
+			if (ConstructionProjectStationDescription && ConstructionProjectSector && ConstructionProjectNeedCapacity > 0 && Ship->GetCargoBay()->GetUsedCargoSpace() == 0)
 			{
 				ConstructionShips.Add(Ship);
 				ConstructionProjectNeedCapacity -= Ship->GetCargoBay()->GetCapacity();
@@ -338,6 +340,8 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 	FFlareSpacecraftDescription* BestStationDescription = NULL;
 	UFlareSimulatedSpacecraft* BestStation = NULL;
 	TArray<UFlareSpacecraftCatalogEntry*>& StationCatalog = Game->GetSpacecraftCatalog()->StationCatalog;
+
+	FLOGV("UFlareCompanyAI::UpdateStationConstruction construction ships count: %d", ConstructionShips.Num());
 
 	// Loop on sector list
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
@@ -472,7 +476,6 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 				ConstructionProjectSector = BestSector;
 				ConstructionProjectStation = BestStation;
 				ConstructionProjectNeedCapacity = NeedCapacity * 1.5;
-				ConstructionProjectNeedCapacity = 0;
 				ConstructionShips.Empty();
 			}
 		}
