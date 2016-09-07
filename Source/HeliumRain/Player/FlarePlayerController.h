@@ -122,6 +122,9 @@ public:
 	/** Show a notification explaining if we succeeded in docking */
 	void NotifyDockingResult(bool Success, UFlareSimulatedSpacecraft* Target);
 
+	/** Check the battle state of the game before FF */
+	bool ConfirmFastForward(FSimpleDelegate OnConfirmed);
+
 
 	/*----------------------------------------------------
 		Objectives
@@ -183,6 +186,9 @@ public:
 
 	/** Simulate a turn */
 	virtual void Simulate();
+
+	/** Simulate a turn */
+	virtual void SimulateConfirmed();
 
 	// Menus
 	virtual void ShipMenu();

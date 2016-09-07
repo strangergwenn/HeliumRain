@@ -72,13 +72,12 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Left)
 					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(FastForward, SFlareButton)
+						SNew(SFlareButton)
 						.Width(5)
-						.Toggle(true)
 						.Text(FText::Format(LOCTEXT("FastForwardSingleFormat", "Fast forward({0})"),
 							FText::FromString(AFlareMenuManager::GetKeyNameFromActionName("Simulate"))))
 						.Icon(FFlareStyleSet::GetIcon("Load_Small"))
-						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked, false)
+						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
 						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
 						.HelpText(LOCTEXT("FastForwardInfo", "Wait for one day - Travels, production, building will be accelerated"))
 					]
@@ -94,7 +93,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						.Toggle(true)
 						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
 						.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
-						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked, true)
+						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardAutomaticClicked)
 						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
 						.HelpText(LOCTEXT("FastForwardInfo", "Wait for the next event - Travels, production, building will be accelerated"))
 					]
@@ -214,7 +213,6 @@ void SFlareOrbitalMenu::StopFastForward()
 {
 	TimeSinceFastForward = 0;
 	FastForwardStopRequested = false;
-	FastForward->SetActive(false);
 	FastForwardAuto->SetActive(false);
 
 	if (FastForwardActive)
@@ -374,7 +372,7 @@ FText SFlareOrbitalMenu::GetFastForwardText() const
 		return FText();
 	}
 
-	if (!FastForward->IsActive() && !FastForwardAuto->IsActive())
+	if (!FastForwardAuto->IsActive())
 	{
 		bool BattleInProgress = false;
 		bool BattleLostWithRetreat = false;
@@ -424,7 +422,7 @@ FText SFlareOrbitalMenu::GetFastForwardText() const
 
 const FSlateBrush* SFlareOrbitalMenu::GetFastForwardIcon() const
 {
-	if (FastForward->IsActive())
+	if (FastForwardAuto->IsActive())
 	{
 		return FFlareStyleSet::GetIcon("Stop");
 	}
@@ -603,63 +601,32 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 	MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Data);
 }
 
-void SFlareOrbitalMenu::OnFastForwardClicked(bool Automatic)
+void SFlareOrbitalMenu::OnFastForwardClicked()
 {
-	if (FastForward->IsActive() || FastForwardAuto->IsActive())
+	// Confirm and go on
+	bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, false));
+	if (CanGoAhead)
+	{
+		OnFastForwardConfirmed(false);
+	}
+}
+
+void SFlareOrbitalMenu::OnFastForwardAutomaticClicked()
+{
+	if (FastForwardAuto->IsActive())
 	{
 		// Avoid too fast double fast forward
 		if (!FastForwardActive && TimeSinceFastForward < FastForwardPeriod)
 		{
-			FastForward->SetActive(false);
 			FastForwardAuto->SetActive(false);
 			return;
 		}
 
-		bool BattleInProgress = false;
-		bool BattleLostWithRetreat = false;
-		bool BattleLostWithoutRetreat = false;
-
-		// Check for battle
-		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+		// Confirm and go on
+		bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, true));
+		if (CanGoAhead)
 		{
-			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
-
-			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
-			if (BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
-			{
-				BattleInProgress = true;
-			}
-			else if (BattleState == EFlareSectorBattleState::BattleLost)
-			{
-				BattleLostWithRetreat = true;
-			}
-			else if (BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
-			{
-				BattleLostWithoutRetreat = true;
-			}
-		}
-
-		// Notify when a battle is happening
-		if (BattleInProgress)
-		{
-			return;
-		}
-		else if (BattleLostWithoutRetreat)
-		{
-			MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
-								 LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and will be lost."),
-								 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, Automatic));
-
-		}
-		else if (BattleLostWithRetreat)
-		{
-			MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
-								 LOCTEXT("ConfirmBattleLostWithRetreatText", "Some of the ships engaged in a battle can still retreat ! They will be lost."),
-								 FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, Automatic));
-		}
-		else
-		{
-			OnFastForwardConfirmed(Automatic);
+			OnFastForwardConfirmed(true);
 		}
 	}
 	else

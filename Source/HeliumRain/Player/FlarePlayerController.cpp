@@ -708,6 +708,69 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 	}
 }
 
+bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
+{
+	bool BattleInProgress = false;
+	bool BattleLostWithRetreat = false;
+	bool BattleLostWithoutRetreat = false;
+
+	// Check for battle
+	for (int32 SectorIndex = 0; SectorIndex < GetCompany()->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = GetCompany()->GetKnownSectors()[SectorIndex];
+
+		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(GetCompany());
+		if (BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+		{
+			FFlareMenuParameterData Data;
+			Data.Sector = Sector;
+			MenuManager->GetPC()->Notify(LOCTEXT("CantFastForward", "Battle in progress"),
+				FText::Format(LOCTEXT("CantFastForwardFormat", "You can't fast-forward because of a battle in progress in {0}"), Sector->GetSectorName()),
+				FName("cant-ff-battle"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Sector,
+				Data);
+
+			BattleInProgress = true;
+		}
+		else if (BattleState == EFlareSectorBattleState::BattleLost)
+		{
+			BattleLostWithRetreat = true;
+		}
+		else if (BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
+		{
+			BattleLostWithoutRetreat = true;
+		}
+	}
+
+	// Notify when a battle is happening
+	if (BattleInProgress)
+	{
+		// Was notified
+		return false;
+	}
+	else if (BattleLostWithoutRetreat)
+	{
+		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
+								LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and will be lost."),
+								OnConfirmed);
+		return false;
+
+	}
+	else if (BattleLostWithRetreat)
+	{
+		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
+								LOCTEXT("ConfirmBattleLostWithRetreatText", "Some of the ships engaged in a battle can still retreat ! They will be lost."),
+								OnConfirmed);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 
 /*----------------------------------------------------
 	Objectives
@@ -878,6 +941,18 @@ void AFlarePlayerController::BackMenu()
 }
 
 void AFlarePlayerController::Simulate()
+{
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->IsMenuOpen())
+	{
+		bool CanGoAhead = ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed));
+		if (CanGoAhead)
+		{
+			SimulateConfirmed();
+		}
+	}
+}
+
+void AFlarePlayerController::SimulateConfirmed()
 {
 	if (GetGame()->IsLoadedOrCreated() && MenuManager->IsMenuOpen())
 	{
