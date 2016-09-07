@@ -1336,7 +1336,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 	// Compute incoming capacity and resources
 	SectorVariation.IncomingCapacity = 0;
-	for (int32 TravelIndex = 0; TravelIndex < Game->GetGameWorld()->GetTravels().Num(); TravelIndex++)
+	/*for (int32 TravelIndex = 0; TravelIndex < Game->GetGameWorld()->GetTravels().Num(); TravelIndex++)
 	{
 		UFlareTravel* Travel = Game->GetGameWorld()->GetTravels()[TravelIndex];
 		if (Travel->GetDestinationSector() != Sector)
@@ -1373,7 +1373,8 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				Variation->IncomingResources += Cargo.Quantity / (RemainingTravelDuration * 0.5);
 			}
 		}
-	}
+	}*/
+	// TODO Check if needed
 
 	// Consider resource over 10 days of consumption as IncomingResources
 	/*for (int32 StationIndex = 0 ; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
@@ -1540,6 +1541,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			}
 
 			int32 CanBuyQuantity = FMath::Min(FreeSpace, StockInAAfterTravel);
+			CanBuyQuantity = FMath::Max(0, CanBuyQuantity);
 
 			// Affordable quantity
 			CanBuyQuantity = FMath::Min(CanBuyQuantity, (int32)(Company->GetMoney() / SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput)));
