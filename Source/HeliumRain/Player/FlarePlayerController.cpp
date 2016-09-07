@@ -959,10 +959,17 @@ void AFlarePlayerController::SimulateConfirmed()
 	if (MenuManager->IsMenuOpen())
 	{
 		FLOG("AFlarePlayerController::SimulateConfirmed : synchronous");
+
+		// Do the FF and reload
 		GetGame()->DeactivateSector();
 		MenuManager->GetGame()->GetGameWorld()->Simulate();
 		MenuManager->Reload();
 		GetGame()->ActivateCurrentSector();
+
+		// Notify date
+		MenuManager->GetPC()->Notify(LOCTEXT("NewDate", "A day passed by..."),
+			UFlareGameTools::GetDisplayDate(MenuManager->GetGame()->GetGameWorld()->GetDate()),
+			FName("new-date-ff"));
 	}
 
 	// Asynchronous mode when flying

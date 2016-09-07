@@ -641,18 +641,17 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 
 	if (Automatic)
 	{
+		// Mark FF
 		FastForwardActive = true;
 		FastForwardStopRequested = false;
 
+		// Prepare for FF
 		Game->SaveGame(MenuManager->GetPC(), true);
 		Game->DeactivateSector();
 	}
 	else
 	{
-		Game->DeactivateSector();
-		MenuManager->GetGame()->GetGameWorld()->Simulate();
-		MenuManager->Reload();
-		Game->ActivateCurrentSector();
+		MenuManager->GetPC()->SimulateConfirmed();
 	}
 }
 
