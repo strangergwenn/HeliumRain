@@ -206,7 +206,7 @@ void UFlareScenarioTools::SetupWorld()
 	// Nema main economy
 	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 3);
 	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 2);
-	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 2);
+	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 2, 2);
 	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 2);
 	CreateStations(StationSteelworks, NemaHeavyWorks, MinersHome, 2);
 	CreateStations(StationToolFactory, NemaHeavyWorks, MinersHome, 1);
@@ -231,7 +231,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationShipyard, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationHabitation, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 1);
-	CreateStations(StationSolarPlant, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationSolarPlant, GhostWorksShipyards, FrozenRealm, 1, 2);
 	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 1);
 	CreateStations(StationHub, GhostWorksShipyards, FrozenRealm, 1);
 
@@ -384,7 +384,7 @@ void UFlareScenarioTools::CreateShips(FName ShipClass, UFlareCompany* Company, U
 	}
 }
 
-void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count)
+void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count, int32 Level)
 {
 	for (uint32 Index = 0; Index < Count; Index++)
 	{
@@ -395,14 +395,24 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			continue;
 		}
 
-		// Give input resources
+		Station->GetData().Level = Level;
+
 		if (Station->GetFactories().Num() > 0)
 		{
 			UFlareFactory* ActiveFactory = Station->GetFactories()[0];
 
+			// Give input resources
 			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
 			{
 				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
+
+				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
+			}
+
+			// Give output resources
+			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.OutputResources.Num(); ResourceIndex++)
+			{
+				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
 
 				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
 			}
