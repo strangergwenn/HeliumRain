@@ -13,6 +13,7 @@ UFlareSector::UFlareSector(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	SectorRepartitionCache = false;
+	IsDestroyingSector = false;
 }
 
 /*----------------------------------------------------
@@ -89,6 +90,10 @@ void UFlareSector::Save()
 
 void UFlareSector::DestroySector()
 {
+	FLOG("UFlareSector::DestroySector");
+
+	IsDestroyingSector = true;
+
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
 		if (!SectorSpacecrafts[SpacecraftIndex]->GetParent()->GetDamageSystem()->IsAlive())
@@ -123,6 +128,8 @@ void UFlareSector::DestroySector()
 	SectorBombs.Empty();
 	SectorAsteroids.Empty();
 	SectorShells.Empty();
+
+	IsDestroyingSector = false;
 }
 
 
@@ -390,7 +397,10 @@ void UFlareSector::RegisterBomb(AFlareBomb* Bomb)
 
 void UFlareSector::UnregisterBomb(AFlareBomb* Bomb)
 {
-	SectorBombs.Remove(Bomb);
+	if (!IsDestroyingSector)
+	{
+		SectorBombs.Remove(Bomb);
+	}
 }
 
 void UFlareSector::RegisterShell(AFlareShell* Shell)
@@ -400,7 +410,10 @@ void UFlareSector::RegisterShell(AFlareShell* Shell)
 
 void UFlareSector::UnregisterShell(AFlareShell* Shell)
 {
-	SectorShells.Remove(Shell);
+	if (!IsDestroyingSector)
+	{
+		SectorShells.Remove(Shell);
+	}
 }
 
 void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying)

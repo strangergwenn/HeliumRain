@@ -85,6 +85,7 @@ protected:
 
 	int64						   LocalTime;
 	bool						   SectorRepartitionCache;
+	bool                           IsDestroyingSector;
 	FVector                        SectorCenter;
 	float                          SectorRadius;
 

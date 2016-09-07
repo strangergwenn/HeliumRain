@@ -28,21 +28,14 @@ AFlareShell::AFlareShell(const class FObjectInitializer& PCIP) : Super(PCIP)
 
 void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftComponentDescription* Description, FVector ShootDirection, FVector ParentVelocity, bool Tracer)
 {
-	// TODO Register the projectile in the sector
-
 	ShellDescription = Description;
 	TracerShell = Tracer;
 	ParentWeapon = Weapon;
 	Armed = false;
 	MinEffectiveDistance = 0.f;
 
-	// Get the power from description
-	if (!Description)
-	{
-		FLOG("Shell initialized without description");
-		return;
-	}
-
+	// Can't exist without description, can't return
+	check(Description);
 
 	ImpactSound = Description->WeaponCharacteristics.ImpactSound;
 	DamageSound = Description->WeaponCharacteristics.DamageSound;
@@ -52,12 +45,10 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 	FlightEffectsTemplate = Description->WeaponCharacteristics.GunCharacteristics.TracerEffect;
 
 	ExplosionEffectMaterial = Description->WeaponCharacteristics.GunCharacteristics.ExplosionMaterial;
-
-
+	
 	float AmmoVelocity = Description->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
 	float KineticEnergy = Description->WeaponCharacteristics.GunCharacteristics.KineticEnergy;
-
-
+	
 	ShellVelocity = ParentVelocity + ShootDirection * AmmoVelocity * 100;
 	ShellMass = 2 * KineticEnergy * 1000 / FMath::Square(AmmoVelocity); // ShellPower is in Kilo-Joule, reverse kinetic energy equation
 
@@ -83,6 +74,7 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 void AFlareShell::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	
 	FVector ActorLocation = GetActorLocation();
 	FVector NextActorLocation = ActorLocation + ShellVelocity * DeltaSeconds;
 	SetActorLocation(NextActorLocation, false);
@@ -584,8 +576,11 @@ void AFlareShell::Destroyed()
 	UFlareSector* Sector = Game->GetActiveSector();
 	if (Sector->IsValidLowLevel())
 	{
+		FLOGV("AFlareShell::Destroyed : unregister '%s'", *GetName());
 		Sector->UnregisterShell(this);
 	}
+
+	FLOGV("AFlareShell::Destroyed : destroyed '%s'", *GetName());
 }
 
 void AFlareShell::SetFuzeTimer(float TargetSecureTime, float TargetActiveTime)
