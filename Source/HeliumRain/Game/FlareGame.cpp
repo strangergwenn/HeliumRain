@@ -692,6 +692,7 @@ void AFlareGame::UnloadGame()
 {
 	FLOG("AFlareGame::UnloadGame");
 
+	// Deactivate current sector
 	if (ActiveSector)
 	{
 		UnloadStreamingLevel(ActiveSector->GetSimulatedSector()->GetDescription()->LevelName);
@@ -699,11 +700,34 @@ void AFlareGame::UnloadGame()
 		ActiveSector = NULL;
 	}
 
+	// Cleanup stuff
 	Clean();
 	if (GetPC())
 	{
 		GetPC()->Clean();
 	}
+
+	// Consistency check
+	int32 ActorCount = 0;
+	TArray<AActor*> ActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), ActorList);
+	for (int32 Index = 0; Index < ActorList.Num(); Index++)
+	{
+		if (ActorList[Index]->IsA(AFlareBomb::StaticClass())
+		 || ActorList[Index]->IsA(AFlareShell::StaticClass())
+		 || ActorList[Index]->IsA(AFlareAsteroid::StaticClass())
+		 || ActorList[Index]->IsA(AFlareSpacecraft::StaticClass()))
+		{
+			ActorCount++;
+			FLOGV("AFlareGame::UnloadGame : spurious remaining actor '%s' of class '%s'",
+				*ActorList[Index]->GetName(),
+				*ActorList[Index]->GetClass()->GetName());
+		}
+	}
+	check(ActorCount == 0);
+
+	// Force GC
+	GetWorld()->ForceGarbageCollection(true);
 }
 
 void AFlareGame::Clean()
