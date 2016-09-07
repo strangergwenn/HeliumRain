@@ -239,21 +239,21 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 					// TODO reduce computed sector stock
 
 
-					if (BroughtResource == BestDeal.BuyQuantity)
+					if (BroughtResource > 0)
 					{
 						// Virtualy decrease the stock for other ships in sector A
 						SectorVariation* SectorVariationA = &WorldResourceVariation[BestDeal.SectorA];
 						struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[BestDeal.Resource];
-						VariationA->OwnedStock -= BestDeal.BuyQuantity;
+						VariationA->OwnedStock -= BroughtResource;
 
 
 						// Virtualy say some capacity arrive in sector B
 						SectorVariation* SectorVariationB = &WorldResourceVariation[BestDeal.SectorB];
-						SectorVariationB->IncomingCapacity += BestDeal.BuyQuantity;
+						SectorVariationB->IncomingCapacity += BroughtResource;
 
 						// Virtualy decrease the capacity for other ships in sector B
 						struct ResourceVariation* VariationB = &SectorVariationB->ResourceVariations[BestDeal.Resource];
-						VariationB->OwnedCapacity -= BestDeal.BuyQuantity;
+						VariationB->OwnedCapacity -= BroughtResource;
 					}
 					else if (BroughtResource == 0)
 					{
@@ -288,11 +288,6 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 				SectorVariation* SectorVariationA = &WorldResourceVariation[BestDeal.SectorA];
 				struct ResourceVariation* VariationA = &SectorVariationA->ResourceVariations[BestDeal.Resource];
 				VariationA->OwnedStock -= BestDeal.BuyQuantity;
-
-				// Reserve the deal by virtualy decrease the capacity for other ships
-				SectorVariation* SectorVariationB = &WorldResourceVariation[BestDeal.SectorB];
-				struct ResourceVariation* VariationB = &SectorVariationB->ResourceVariations[BestDeal.Resource];
-				VariationB->OwnedCapacity -= BestDeal.BuyQuantity;
 			}
 
 			if (Ship->GetCurrentSector() == BestDeal.SectorB && !Ship->IsTrading())
@@ -1177,7 +1172,9 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					int32 Capacity = SlotCapacity - ResourceQuantity;
 					if (Company == Station->GetCompany())
 					{
-						Variation->OwnedCapacity += Capacity;
+						// The AI don't let anything for the player : it's too hard
+						// Make the AI ignore the sector with not enought stock or to little capacity
+						Variation->OwnedCapacity += FMath::Max(0, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
 					}
 					else
 					{
@@ -1185,11 +1182,6 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 						Variation->FactoryCapacity += Capacity;
 					}
 				}
-
-
-				// The AI don't let anything for the player : it's too hard
-				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
 			}
 
 			// Ouput flow
@@ -1626,7 +1618,13 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 
 			float MoneyBalanceParDay = (float)MoneyBalance / (float)(TimeToGetB + 1); // 1 day to sell
 
-			if (MoneyBalanceParDay > BestDeal.MoneyBalanceParDay)
+			bool Temporisation = false;
+			if (BuyQuantity == 0 && Ship->GetCurrentSector() == SectorB && SectorA != SectorB)
+			{
+				// Temporisation action, better to do nothing
+				Temporisation = true;
+			}
+			if (MoneyBalanceParDay > BestDeal.MoneyBalanceParDay && !Temporisation)
 			{
 
 				BestDeal.MoneyBalanceParDay = MoneyBalanceParDay;
