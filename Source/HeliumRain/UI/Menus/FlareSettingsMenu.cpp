@@ -1094,7 +1094,7 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Strategy", "STRATEGY")))->MakeHeader()));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fast forward single", "Fast forward a day")))
 		->AddActionMapping("Simulate")
-		->AddDefaults(EKeys::N)));
+		->AddDefaults(EKeys::J)));
 	/*Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fast forward auto", "Fast forward (auto)")))
 		->AddActionMapping("FastForward")
 		->AddDefaults(EKeys::SpaceBar)));*/
