@@ -649,8 +649,10 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 	}
 	else
 	{
+		Game->DeactivateSector();
 		MenuManager->GetGame()->GetGameWorld()->Simulate();
 		MenuManager->Reload();
+		Game->ActivateCurrentSector();
 	}
 }
 

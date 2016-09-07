@@ -956,8 +956,10 @@ void AFlarePlayerController::SimulateConfirmed()
 {
 	if (GetGame()->IsLoadedOrCreated() && MenuManager->IsMenuOpen())
 	{
-		GetGame()->GetGameWorld()->Simulate();
+		GetGame()->DeactivateSector();
+		MenuManager->GetGame()->GetGameWorld()->Simulate();
 		MenuManager->Reload();
+		GetGame()->ActivateCurrentSector();
 	}
 }
 
