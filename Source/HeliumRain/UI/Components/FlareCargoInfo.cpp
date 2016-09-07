@@ -208,7 +208,9 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	// TODO Trade
 	
 	// Format the current capacity info
-	if (Cargo->Capacity > 999)
+	int32 Capacity = TargetSpacecraft->GetCargoBay()->GetSlotCapacity();
+
+	if (Capacity > 999)
 	{
 		FNumberFormattingOptions CargoFormat;
 		CargoFormat.MaximumFractionalDigits = 1;
@@ -216,14 +218,14 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 		return FText::Format(FText::FromString("{0} {1}/{2}k"),
 			LockText,
 			FText::AsNumber(Cargo->Quantity, &CargoFormat),
-			FText::AsNumber(Cargo->Capacity / 1000.0f, &CargoFormat));
+			FText::AsNumber(Capacity / 1000.0f, &CargoFormat));
 	}
 	else
 	{
 		return FText::Format(FText::FromString("{0} {1}/{2}"),
 			LockText,
 			FText::AsNumber(Cargo->Quantity),
-			FText::AsNumber(Cargo->Capacity));
+			FText::AsNumber(Capacity));
 	}
 }
 
