@@ -1167,14 +1167,13 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				}
 
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
+				int32 Capacity = SlotCapacity - ResourceQuantity;
 				if (ResourceQuantity < SlotCapacity)
 				{
-					int32 Capacity = SlotCapacity - ResourceQuantity;
 					if (Company == Station->GetCompany())
 					{
-						// The AI don't let anything for the player : it's too hard
-						// Make the AI ignore the sector with not enought stock or to little capacity
-						Variation->OwnedCapacity += FMath::Max(0, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
+
+						Variation->OwnedCapacity += Capacity;
 					}
 					else
 					{
@@ -1182,6 +1181,10 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 						Variation->FactoryCapacity += Capacity;
 					}
 				}
+
+				// The AI don't let anything for the player : it's too hard
+				// Make the AI ignore the sector with not enought stock or to little capacity
+				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
 			}
 
 			// Ouput flow
