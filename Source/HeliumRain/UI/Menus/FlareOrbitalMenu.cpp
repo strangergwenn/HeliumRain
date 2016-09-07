@@ -26,7 +26,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	// FF setup
 	FastForwardPeriod = 0.5f;
 	FastForwardStopRequested = false;
-	FastForwardActiveAutomatic = false;
 
 	// Build structure
 	ChildSlot
@@ -51,7 +50,16 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Top)
 			[
 				SNew(SVerticalBox)
-					
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(this, &SFlareOrbitalMenu::GetDateText)
+				]
+
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
@@ -62,11 +70,13 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
 					[
 						SAssignNew(FastForward, SFlareButton)
-						.Width(1)
+						.Width(5)
 						.Toggle(true)
-						.Text(FText())
+						.Text(FText::Format(LOCTEXT("FastForwardSingleFormat", "Fast forward({0})"),
+							FText::FromString(AFlareMenuManager::GetKeyNameFromActionName("Simulate"))))
 						.Icon(FFlareStyleSet::GetIcon("Load_Small"))
 						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked, false)
 						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
@@ -77,27 +87,16 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
 					[
 						SAssignNew(FastForwardAuto, SFlareButton)
-						.Width(4)
+						.Width(5)
 						.Toggle(true)
 						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
 						.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
 						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked, true)
 						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
 						.HelpText(LOCTEXT("FastForwardInfo", "Wait for the next event - Travels, production, building will be accelerated"))
-					]
-					
-					// Date
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Left)
-					.VAlign(VAlign_Center)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareOrbitalMenu::GetDateText)
 					]
 				]
 			
@@ -282,11 +281,6 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 			{
 				MenuManager->GetGame()->GetGameWorld()->FastForward();
 				TimeSinceFastForward = 0;
-
-				if (FastForwardActiveAutomatic == false)
-				{
-					FastForwardStopRequested = true;
-				}
 			}
 
 			// Stop request
@@ -613,10 +607,6 @@ void SFlareOrbitalMenu::OnFastForwardClicked(bool Automatic)
 {
 	if (FastForward->IsActive() || FastForwardAuto->IsActive())
 	{
-		bool BattleInProgress = false;
-		bool BattleLostWithRetreat = false;
-		bool BattleLostWithoutRetreat = false;
-
 		// Avoid too fast double fast forward
 		if (!FastForwardActive && TimeSinceFastForward < FastForwardPeriod)
 		{
@@ -625,21 +615,25 @@ void SFlareOrbitalMenu::OnFastForwardClicked(bool Automatic)
 			return;
 		}
 
+		bool BattleInProgress = false;
+		bool BattleLostWithRetreat = false;
+		bool BattleLostWithoutRetreat = false;
+
 		// Check for battle
 		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
 		{
 			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
 
 			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
-			if(BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+			if (BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
 			{
 				BattleInProgress = true;
 			}
-			else if(BattleState == EFlareSectorBattleState::BattleLost)
+			else if (BattleState == EFlareSectorBattleState::BattleLost)
 			{
 				BattleLostWithRetreat = true;
 			}
-			else if(BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
+			else if (BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
 			{
 				BattleLostWithoutRetreat = true;
 			}
@@ -678,12 +672,19 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 {
 	FLOGV("Start fast forward, automatic = %d", Automatic);
 
-	FastForwardActive = true;
-	FastForwardStopRequested = false;
-	FastForwardActiveAutomatic = Automatic;
+	if (Automatic)
+	{
+		FastForwardActive = true;
+		FastForwardStopRequested = false;
 
-	Game->SaveGame(MenuManager->GetPC(), true);
-	Game->DeactivateSector();
+		Game->SaveGame(MenuManager->GetPC(), true);
+		Game->DeactivateSector();
+	}
+	else
+	{
+		MenuManager->GetGame()->GetGameWorld()->Simulate();
+		MenuManager->Reload();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

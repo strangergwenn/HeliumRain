@@ -559,19 +559,7 @@ FText UFlareQuest::FormatTags(FText Message)
 				FString TagValue = MessageString.Mid(StartIndex + StartTag.Len(), EndIndex - (StartIndex + StartTag.Len()));
 
 				FName ActionName = FName(*TagValue);
-
-				FString Mapping;
-
-				UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-
-				for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
-				{
-					FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
-					if (Action.ActionName == ActionName&& !Action.Key.IsGamepadKey())
-					{
-						Mapping = Action.Key.ToString();
-					}
-				}
+				FString Mapping = AFlareMenuManager::GetKeyNameFromActionName(ActionName);
 
 				FString TagString = TEXT("<")+ Mapping + TEXT(">");
 

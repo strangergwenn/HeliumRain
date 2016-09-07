@@ -879,23 +879,10 @@ void AFlarePlayerController::BackMenu()
 
 void AFlarePlayerController::Simulate()
 {
-	if (!GetGame()->IsLoadedOrCreated())
+	if (GetGame()->IsLoadedOrCreated() && MenuManager->IsMenuOpen())
 	{
-		return;
-	}
-	
-	if (GetGame()->GetActiveSector())
-	{
-		GetGame()->DeactivateSector();
-	}
-
-	GetGame()->GetGameWorld()->Simulate();
-
-	GetGame()->ActivateCurrentSector();
-
-	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None && ShipPawn)
-	{
-		FlyShip(ShipPawn, true);
+		GetGame()->GetGameWorld()->Simulate();
+		MenuManager->Reload();
 	}
 }
 
@@ -1015,7 +1002,10 @@ void AFlarePlayerController::ToggleHUD()
 
 void AFlarePlayerController::QuickSwitch()
 {
-	SwitchToNextShip(false);
+	if (!MenuManager->IsMenuOpen())
+	{
+		SwitchToNextShip(false);
+	}
 }
 
 void AFlarePlayerController::MouseInputX(float Val)

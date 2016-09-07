@@ -73,16 +73,19 @@ public:
 	void CloseMainOverlay();
 
 	/** Asynchronously switch to a target menu, with optional data */
-	bool OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData Data = FFlareMenuParameterData(), bool AddToHistory = true);
+	bool OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData Data = FFlareMenuParameterData(), bool AddToHistory = true, bool OpenDirectly = false);
 	
 	/** Close the current menu */
 	void CloseMenu(bool HardClose = false);
 
 	/** Show the list of spacecraft that can be ordered here */
 	void OpenSpacecraftOrder(FFlareMenuParameterData Data, FOrderDelegate ConfirmationCallback);
-	
+
 	/** Return to the previous menu */
 	void Back();
+
+	/** Reload the current menu with the same parameters */
+	void Reload();
 
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Objective, bool Pinned = false, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
@@ -211,6 +214,9 @@ public:
 	/** Get the key bound to this menu */
 	static FString GetMenuKey(EFlareMenu::Type MenuType);
 
+	/** Get the key bound to this action */
+	static FString GetKeyNameFromActionName(FName ActionName);
+
 	/** Is UI visible */
 	bool IsUIOpen() const;
 
@@ -263,6 +269,7 @@ protected:
 	// General data
 	bool                                    MenuIsOpen;
 	bool                                    FadeFromBlack;
+	bool                                    SkipNextFade;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
 	TFlareMenuData                          CurrentMenu;

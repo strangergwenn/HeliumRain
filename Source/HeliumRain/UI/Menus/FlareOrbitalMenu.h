@@ -114,7 +114,6 @@ protected:
 	// Fast forward
 	bool                                        FastForwardActive;
 	bool                                        FastForwardStopRequested;
-	bool                                        FastForwardActiveAutomatic;
 	float                                       FastForwardPeriod;
 	float                                       TimeSinceFastForward;
 

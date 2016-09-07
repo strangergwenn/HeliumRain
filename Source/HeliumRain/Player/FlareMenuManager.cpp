@@ -196,7 +196,7 @@ void AFlareMenuManager::CloseMainOverlay()
 	}
 }
 
-bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData Data, bool AddToHistory)
+bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData Data, bool AddToHistory, bool OpenDirectly)
 {
 	// Filters
 	if (NextMenu.Key == Target)
@@ -218,9 +218,17 @@ bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterDat
 	NextMenu.Key = Target;
 	NextMenu.Value = Data;
 
-	// Start fading out
+	// Open the menu via fade or directly
 	MenuIsOpen = true;
-	FadeOut();
+	if (OpenDirectly)
+	{
+		SkipNextFade = true;
+		ProcessNextMenu();
+	}
+	else
+	{
+		FadeOut();
+	}
 	return true;
 }
 
@@ -285,6 +293,15 @@ void AFlareMenuManager::Back()
 				return;
 			}
 		}
+	}
+}
+
+void AFlareMenuManager::Reload()
+{
+	if (MenuIsOpen)
+	{
+		FLOGV("AFlareMenuManager::Reload : reloading to '%s'", *GetMenuName(CurrentMenu.Key).ToString());
+		OpenMenu(CurrentMenu.Key, CurrentMenu.Value, false, true);
 	}
 }
 
@@ -362,7 +379,14 @@ void AFlareMenuManager::ResetMenu()
 		PC->GetMenuPawn()->ResetContent();
 	}
 
-	FadeIn();
+	if (SkipNextFade)
+	{
+		SkipNextFade = false;
+	}
+	else
+	{
+		FadeIn();
+	}
 }
 
 void AFlareMenuManager::FadeIn()
@@ -909,13 +933,18 @@ FString AFlareMenuManager::GetMenuKey(EFlareMenu::Type MenuType)
 		default:                              Key = "NoKey";
 	}
 	
+	return GetKeyNameFromActionName(Key);
+}
+
+FString AFlareMenuManager::GetKeyNameFromActionName(FName ActionName)
+{
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 	check(InputSettings);
 
 	for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
 	{
 		FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
-		if (Action.ActionName == Key && !Action.Key.IsGamepadKey())
+		if (Action.ActionName == ActionName && !Action.Key.IsGamepadKey())
 		{
 			return Action.Key.ToString();
 		}

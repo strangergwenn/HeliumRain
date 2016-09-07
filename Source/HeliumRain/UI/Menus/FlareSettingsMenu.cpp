@@ -1090,6 +1090,15 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddActionMapping("ToggleCombat")
 		->AddDefaults(EKeys::F)));
 
+	// Strategy
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Strategy", "STRATEGY")))->MakeHeader()));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fast forward single", "Fast forward a day")))
+		->AddActionMapping("Simulate")
+		->AddDefaults(EKeys::N)));
+	/*Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fast forward auto", "Fast forward (auto)")))
+		->AddActionMapping("FastForward")
+		->AddDefaults(EKeys::SpaceBar)));*/
+
 	// Menus
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menus", "MENUS")))->MakeHeader()));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toggle menus", "Open / close menus")))
@@ -1125,9 +1134,6 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open settings menu", "Open settings menu")))
 		->AddActionMapping("SettingsMenu")
 		->AddDefaults(EKeys::F10)));
-	/*Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("End day", "End day")))
-	->AddActionMapping("Simulate")
-	->AddDefaults(EKeys::F6)));*/
 
 }
 
