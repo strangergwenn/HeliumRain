@@ -28,6 +28,9 @@ public:
 
 	virtual bool DeleteGame(const FString SaveName);
 
+	/* Keep Save data reference for the async save*/
+	virtual void PushSaveData(UFlareSaveGame* SaveData);
+
 protected:
 
 
@@ -36,6 +39,11 @@ protected:
 	----------------------------------------------------*/
 
 	FCriticalSection SaveLock;
+
+	FCriticalSection SaveListLock;
+
+	UPROPERTY()
+	TArray<UFlareSaveGame *> SaveList;
 
 
 public:

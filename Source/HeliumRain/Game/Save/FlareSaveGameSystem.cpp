@@ -54,6 +54,11 @@ bool UFlareSaveGameSystem::SaveGame(const FString SaveName, UFlareSaveGame* Save
 	}
 
 	SaveLock.Unlock();
+
+	SaveListLock.Lock();
+	SaveList.Remove(SaveData);
+	SaveListLock.Unlock();
+
 	return ret;
 }
 
@@ -93,6 +98,13 @@ bool UFlareSaveGameSystem::DeleteGame(const FString SaveName)
 	return IFileManager::Get().Delete(*GetSaveGamePath(SaveName), true);
 }
 
+
+void UFlareSaveGameSystem::PushSaveData(UFlareSaveGame* SaveData)
+{
+	SaveListLock.Lock();
+	SaveList.Add(SaveData);
+	SaveListLock.Unlock();
+}
 
 
 /*----------------------------------------------------

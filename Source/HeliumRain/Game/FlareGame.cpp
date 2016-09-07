@@ -623,7 +623,6 @@ public:
 
 protected:
 	FString SaveName;
-	UPROPERTY()
 	UFlareSaveGame *SaveData;
 	UFlareSaveGameSystem* SaveSystem;
 
@@ -667,6 +666,8 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async)
 		FString SaveName = "SaveSlot" + FString::FromInt(CurrentSaveIndex);
 
 		// Save prototype
+
+		SaveGameSystem->PushSaveData(Save);
 
 		if(Async)
 		{
