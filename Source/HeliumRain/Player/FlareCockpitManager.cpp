@@ -46,7 +46,6 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitFLIRCapture->FOVAngle = 10;
 	CockpitFLIRCapture->ShowFlags.Bloom = false;
 	CockpitFLIRCapture->ShowFlags.Decals = false;
-	CockpitFLIRCapture->ShowFlags.DepthOfField = false;
 	CockpitFLIRCapture->ShowFlags.ScreenSpaceAO = false;
 	CockpitFLIRCapture->ShowFlags.ReflectionEnvironment = false;
 	CockpitFLIRCapture->ShowFlags.ScreenSpaceReflections = false;
