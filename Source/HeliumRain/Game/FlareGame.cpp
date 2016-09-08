@@ -474,7 +474,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	// Create the new world
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
 	FFlareWorldSave WorldData;
-	WorldData.Date = 3168;
+	WorldData.Date = 0;
 	World->Load(WorldData);
 
 	// Create companies
