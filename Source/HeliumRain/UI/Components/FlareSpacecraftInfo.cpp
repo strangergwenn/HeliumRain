@@ -738,7 +738,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 
 					if (Fleet->GetCurrentTradeRoute())
 					{
-						FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - Assigned to {0}"),
+						FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}"),
 							Fleet->GetCurrentTradeRoute()->GetTradeRouteName());
 					}
 
