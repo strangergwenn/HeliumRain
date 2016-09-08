@@ -841,8 +841,8 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 	//  - Maintenance ressource is full (and more than half) (very slow decrease)
 
 
-	float WantedVariation = 0;
-	float WantedTotal = 0;
+	float WantedPriceSum = 0;
+	float WantedWeightSum = 0;
 
 
 	// Prices never go below min production cost
@@ -870,96 +870,102 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 
 			if (Factory->HasInputResource(Resource))
 			{
-				if (StockRatio < 0.8f)
-				{
-					float Weight = Factory->GetInputResourceQuantity(Resource);
-					WantedVariation += Weight * (1.f - (StockRatio / 0.8)); // Max 1
-					WantedTotal += Weight;
-				}
+				float Weight = Factory->GetInputResourceQuantity(Resource);
+				WantedPriceSum += Weight * (1.f - StockRatio);
+				WantedWeightSum += Weight;
 			}
-
 
 			if (Factory->HasOutputResource(Resource))
 			{
-				if (StockRatio > 0.8f)
-				{
-					float Weight = Factory->GetOutputResourceQuantity(Resource);
-					WantedVariation -= Weight * (StockRatio - 0.8) / 0.2; // Max 1
-					WantedTotal += Weight;
-				}
+				float Weight = Factory->GetOutputResourceQuantity(Resource);
+				WantedPriceSum += Weight * (1.f - StockRatio);
+				WantedWeightSum += Weight;
 			}
 		}
 
 		if(Station->HasCapability(EFlareSpacecraftCapability::Consumer) && Game->GetResourceCatalog()->IsCustomerResource(Resource))
 		{
-			if (StockRatio < 0.8f)
-			{
-				float Weight = GetPeople()->GetRessourceConsumption(Resource);
-				WantedVariation += Weight * (1.f - (StockRatio / 0.8)); // Max 1
-				WantedTotal += Weight;
-			}
+			float Weight = GetPeople()->GetRessourceConsumption(Resource);
+			WantedPriceSum += Weight * (1.f - StockRatio);
+			WantedWeightSum += Weight;
 		}
 
 		if(Station->HasCapability(EFlareSpacecraftCapability::Maintenance) && Game->GetResourceCatalog()->IsMaintenanceResource(Resource))
 		{
-			if (StockRatio < 0.8f)
-			{
-				WantedVariation += 1.f - (StockRatio / 0.8); // Max 1
-				WantedTotal += 1;
-			}
+			WantedPriceSum += 1.f - StockRatio;
+			WantedWeightSum += 1;
 		}
 	}
 
-	float MeanWantedVariation = (WantedTotal > 0 ? WantedVariation / WantedTotal : 0);
-
-
-	if(MeanWantedVariation != 0.f)
+	if(WantedWeightSum > 0)
 	{
-
+		float MeanWantedPriceRatio = WantedPriceSum / WantedWeightSum;
 		float OldPriceRatio = (OldPrice - Resource->MinPrice) / (float) (Resource->MaxPrice - Resource->MinPrice);
 
-		float MaxPriceVariation = 10;
-		float OldPriceRatioToVariationDirection;
 
-		if(MeanWantedVariation > 0)
+		float WantedVariation = MeanWantedPriceRatio - OldPriceRatio;
+
+
+		/*FLOGV(">>> %s price in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
+		FLOGV("   WantedPriceSum %f", WantedPriceSum);
+		FLOGV("   WantedWeightSum %f", WantedWeightSum);
+		FLOGV("   MeanWantedPriceRatio %f", MeanWantedPriceRatio);
+		FLOGV("   OldPrice %f", OldPrice);
+		FLOGV("   OldPriceRatio %f", OldPriceRatio);
+		FLOGV("   WantedVariation %f", WantedVariation);*/
+
+
+
+
+		if(WantedVariation != 0.f)
 		{
-			OldPriceRatioToVariationDirection = OldPriceRatio;
+
+
+
+			float MaxPriceVariation = 10;
+			float OldPriceRatioToVariationDirection;
+
+			if(WantedVariation > 0)
+			{
+				OldPriceRatioToVariationDirection = OldPriceRatio;
+			}
+			else
+			{
+				OldPriceRatioToVariationDirection = 1 - OldPriceRatio;
+			}
+
+			float A = (MaxPriceVariation - 2) * (MaxPriceVariation - 2) / (MaxPriceVariation * (MaxPriceVariation - 1));
+			float B = (MaxPriceVariation - 2) / (MaxPriceVariation * (MaxPriceVariation - 1));
+			float C = MaxPriceVariation / (MaxPriceVariation - 2);
+
+			float VariationScale = (1 / (A*OldPriceRatioToVariationDirection + B)) - C;
+
+
+
+			float Variation = VariationScale * WantedVariation;
+
+
+			float NewPrice = FMath::Max(1.f, OldPrice * (1 + Variation / 100.f));
+
+
+			/*FLOGV("   VariationScale %f", VariationScale);
+			FLOGV("   Variation %f", Variation);
+			FLOGV("   NewPrice %f", NewPrice);*/
+
+			SetPreciseResourcePrice(Resource, NewPrice);
+			/*if(NewPrice > Resource->MaxPrice)
+			{
+				FLOGV("%s price at max in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
+			}
+			else if(NewPrice < Resource->MinPrice)
+			{
+				FLOGV("%s price at min in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
+			}
+			else
+			{
+				FLOGV("%s price in %s change from %f to %f (%f)", *Resource->Name.ToString(), *GetSectorName().ToString(), OldPrice / 100.f, NewPrice / 100.f, Variation);
+			}*/
 		}
-		else
-		{
-			OldPriceRatioToVariationDirection = 1 - OldPriceRatio;
-		}
-
-		float A = (MaxPriceVariation - 2) * (MaxPriceVariation - 2) / (MaxPriceVariation * (MaxPriceVariation - 1));
-		float B = (MaxPriceVariation - 2) / (MaxPriceVariation * (MaxPriceVariation - 1));
-		float C = MaxPriceVariation / (MaxPriceVariation - 2);
-
-		float VariationScale = (1 / (A*OldPriceRatioToVariationDirection + B)) - C;
-
-
-
-		float Variation = VariationScale * MeanWantedVariation;
-
-
-		float NewPrice = FMath::Max(1.f, OldPrice * (1 + Variation / 100.f));
-
-
-		//
-		float MeanPrice = (float) (Resource->MaxPrice + Resource->MinPrice) / 2.f;
-
-		SetPreciseResourcePrice(Resource, NewPrice);
-		/*if(NewPrice > Resource->MaxPrice)
-		{
-			FLOGV("%s price at max in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
-		}
-		else if(NewPrice < Resource->MinPrice)
-		{
-			FLOGV("%s price at min in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
-		}
-		else
-		{
-			FLOGV("%s price in %s change from %f to %f (%f)", *Resource->Name.ToString(), *GetSectorName().ToString(), OldPrice / 100.f, NewPrice / 100.f, Variation);
-		}*/
 	}
 }
 
