@@ -54,7 +54,7 @@ public:
 	void SetInteractive(bool Status);
 
 	/** Set the wheel menu state */
-	void SetWheelMenu(bool State);
+	void SetWheelMenu(bool State, bool EnableActionOnClose = true);
 
 	/** Move wheel menu cursor */
 	void SetWheelCursorMove(FVector2D Move);

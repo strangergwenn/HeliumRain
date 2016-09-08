@@ -78,10 +78,10 @@ void SFlareMouseMenu::Open()
 	SetAnimDirection(true);
 }
 
-void SFlareMouseMenu::Close()
+void SFlareMouseMenu::Close(bool EnableAction)
 {
 	// Result extraction
-	if (HasSelection())
+	if (HasSelection() && EnableAction)
 	{
 		int32 Index = GetSelectedIndex();
 		if (Index >= 0 && Index < Actions.Num())
@@ -205,13 +205,20 @@ void SFlareMouseMenu::AddWidgetInternal(FString Icon, FText Legend, int32 Index)
 		.Position(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetPosition, Index)))
 		.Size(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetSize, Index)))
 		[
-			SNew(SFlareRoundButton)
-			.Clickable(false)
-			.Text(Legend)
-			.Icon(FFlareStyleSet::GetIcon(Icon))
-			.HighlightColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
-			.IconColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
-			.TextColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			SNew(SBorder)
+			.BorderImage(FFlareStyleSet::GetIcon("LargeButtonBackground"))
+			.BorderBackgroundColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
+			[
+				SNew(SFlareRoundButton)
+				.Clickable(false)
+				.Text(Legend)
+				.Icon(FFlareStyleSet::GetIcon(Icon))
+				.HighlightColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+				.IconColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+				.TextColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			]
 		];
 }
 

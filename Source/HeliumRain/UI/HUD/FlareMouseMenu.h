@@ -46,7 +46,7 @@ public:
 	void Open();
 
 	/** Hide the menu */
-	void Close();
+	void Close(bool EnableAction = true);
 
 	/** Check if the menu is open */
 	bool IsOpen();

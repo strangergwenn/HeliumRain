@@ -151,7 +151,7 @@ void AFlareHUD::SetInteractive(bool Status)
 	IsInteractive = Status;
 }
 
-void AFlareHUD::SetWheelMenu(bool State)
+void AFlareHUD::SetWheelMenu(bool State, bool EnableActionOnClose)
 {
 	if (State)
 	{
@@ -159,7 +159,7 @@ void AFlareHUD::SetWheelMenu(bool State)
 	}
 	else
 	{
-		MouseMenu->Close();
+		MouseMenu->Close(EnableActionOnClose);
 	}
 }
 

@@ -919,6 +919,13 @@ void AFlarePlayerController::ToggleOverlay()
 {
 	if (GetGame()->IsLoadedOrCreated() && ShipPawn && GetGame()->GetActiveSector() && !MenuManager->IsMenuOpen())
 	{
+		// Close mouse menu
+		if (GetNavHUD()->IsWheelMenuOpen())
+		{
+			GetNavHUD()->SetWheelMenu(false, false);
+		}
+
+		// Toggle overlay
 		if (MenuManager->IsOverlayOpen())
 		{
 			MenuManager->CloseMainOverlay();
@@ -1163,7 +1170,13 @@ void AFlarePlayerController::Test2()
 
 void AFlarePlayerController::WheelPressed()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager && !MenuManager->IsUIOpen() && !GetNavHUD()->IsWheelMenuOpen())
+	// Force close the overlay
+	if (MenuManager->IsOverlayOpen() && !MenuManager->IsMenuOpen())
+	{
+		MenuManager->CloseMainOverlay();
+	}
+
+	if (GetGame()->IsLoadedOrCreated() && MenuManager && !MenuManager->IsMenuOpen() && !GetNavHUD()->IsWheelMenuOpen())
 	{
 		TSharedPtr<SFlareMouseMenu> MouseMenu = GetNavHUD()->GetMouseMenu();
 
