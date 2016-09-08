@@ -1,8 +1,12 @@
 @echo off
 
-SET VersionName=%1
-SET InputProject=D:\HeliumRain\HeliumRain.uproject
-SET OutputDir=D:\HR-Builds\Build
-set UAT=D:\Dock\UE4_Packaged\4.13\Engine\Build\BatchFiles\RunUAT.bat
+set OutputDir=D:\HR-Builds
+set ProjectDir=D:\HeliumRain
+set EngineDir=D:\Dock\UE4_Packaged\4.13
 
-GenerateRelease.bat %VersionName% %InputProject% %OutputDir% %UAT%
+set VersionName=dev
+if not "%1"=="" (
+	set VersionName=%1
+)
+
+call GenerateRelease.bat %VersionName% %OutputDir% %ProjectDir% %EngineDir%

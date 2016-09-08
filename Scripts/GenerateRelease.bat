@@ -1,26 +1,44 @@
-
 @echo off
 
-REM =======================================================
-REM Release variables
-REM =======================================================
+rem =======================================================
+rem Parameters
+rem =======================================================
 
-SET VersionName=%1
-SET InputProject=%2
-SET OutputDir=%3
-set UAT=%4
+set VersionName=%1
+set OutputDir=%2
+set ProjectDir=%3
+set EngineDir=%4
 
-REM =======================================================
-REM Additional settings
-REM =======================================================
-set Platform=Win64
-set BuildMode=Development
-set SessioName=Release
-set SessionOwner=AutoBuild
-Set MapList=Anomaly+Colossus+Space+Spire
 
-REM =======================================================
-REM Run the damn thing
-REM =======================================================
+rem =======================================================
+rem Intermediary files and directories
+rem =======================================================
 
-%UAT% -ScriptsForProject=%InputProject% BuildCookRun -project=%InputProject% -noP4 -clientconfig=%BuildMode% -serverconfig=%BuildMode% -nocompile -nocompileeditor -installed -ue4exe=UE4Editor-Cmd.exe -utf8output -platform=%Platform% -targetplatform=%Platform% -build -cook -map=%MapList% -unversionedcookedcontent -pak -createreleaseversion=%VersionName% -distribution -compressed -stage -package -stagingdirectory=%OutputDir% -cmdline=" -Messaging" -addcmdline="-SessionOwner='%SessionOwner%' -SessionName='%SessioName%'"
+set InputProject=%ProjectDir%\HeliumRain.uproject
+set ReleaseNotes=%ProjectDir%\Scripts\ReleaseNotes.xml
+set ManifestTool=%ProjectDir%\Scripts\UnrealManifest.exe
+
+set UAT=%EngineDir%\Engine\Build\BatchFiles\RunUAT.bat
+set InstallerDir=Engine\Extras\Redist\en-us
+set Installer=UE4PrereqSetup_x64.exe
+
+
+rem =======================================================
+rem Build process
+rem =======================================================
+
+call BuildGame.bat %VersionName% %InputProject% %OutputDir% %UAT%
+
+pushd %OutputDir%\WindowsNoEditor
+
+del /s *.txt
+del HeliumRain\Binaries\Win64\HeliumRain.pdb
+
+md %InstallerDir%
+copy %EngineDir%\%InstallerDir%\%Installer% %InstallerDir%
+
+%ManifestTool%
+
+copy %ReleaseNotes%
+
+popd
