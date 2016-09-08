@@ -4,6 +4,9 @@
 #include "../Components/FlareRoundButton.h"
 #include "../../Player/FlarePlayerController.h"
 
+#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
+#include "Runtime/Engine/Classes/Engine/RendererSettings.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareMouseMenu"
 
@@ -140,7 +143,10 @@ void SFlareMouseMenu::SetWheelCursorMove(FVector2D Move)
 
 FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
 {
-	return ViewportCenter + GetDirection(Index);
+	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
+
+	return (ViewportCenter + GetDirection(Index)) / ViewportScale;
 }
 
 FVector2D SFlareMouseMenu::GetWidgetSize(int32 Index) const
