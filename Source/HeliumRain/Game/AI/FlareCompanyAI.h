@@ -129,6 +129,7 @@ protected:
 	UFlareSimulatedSector*         			 ConstructionProjectSector;
 	UFlareSimulatedSpacecraft *              ConstructionProjectStation;
 	TArray<UFlareSimulatedSpacecraft *>      ConstructionShips;
+	TArray<UFlareSimulatedSpacecraft *>      ConstructionStaticShips;
 	int32                                    ConstructionProjectNeedCapacity;
 
 	// Cache
