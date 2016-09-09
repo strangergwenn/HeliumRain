@@ -31,6 +31,8 @@ struct ResourceVariation
 	int32 OwnedCapacity;
 	int32 FactoryCapacity;
 	int32 StorageCapacity;
+
+	int32 MinCapacity;
 };
 
 /* Local list of resource flows */

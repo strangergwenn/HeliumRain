@@ -1309,6 +1309,8 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 		ResourceVariation.FactoryCapacity = 0;
 		ResourceVariation.StorageCapacity = 0;
 		ResourceVariation.IncomingResources = 0;
+		ResourceVariation.MinCapacity = 0;
+
 		SectorVariation.ResourceVariations.Add(Resource, ResourceVariation);
 	}
 
@@ -1385,6 +1387,12 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
 				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
+
+				float EmptyRatio = (float) Capacity / (float) SlotCapacity;
+				if (EmptyRatio > AI_NERF_RATIO/2)
+				{
+					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
+				}
 			}
 
 			// Ouput flow
@@ -1450,12 +1458,11 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
+				int32 Capacity = SlotCapacity - ResourceQuantity;
 
 				// Dept are allowed for sell to customers
-
 				if (ResourceQuantity < SlotCapacity)
 				{
-					int32 Capacity = SlotCapacity - ResourceQuantity;
 					if (Company == Station->GetCompany())
 					{
 						Variation->OwnedCapacity += Capacity;
@@ -1464,6 +1471,16 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					{
 						Variation->FactoryCapacity += Capacity;
 					}
+				}
+
+				// The AI don't let anything for the player : it's too hard
+				// Make the AI ignore the sector with not enought stock or to little capacity
+				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
+
+				float EmptyRatio = (float) Capacity / (float) SlotCapacity;
+				if (EmptyRatio > AI_NERF_RATIO/2)
+				{
+					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
 				}
 
 			}
@@ -1480,11 +1497,11 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 
 				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
-
+				int32 Capacity = SlotCapacity - ResourceQuantity;
 
 				if (ResourceQuantity < SlotCapacity)
 				{
-					int32 Capacity = SlotCapacity - ResourceQuantity;
+
 					if (Company == Station->GetCompany())
 					{
 						Variation->OwnedCapacity += Capacity;
@@ -1494,6 +1511,16 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 						Capacity = FMath::Min(Capacity, CanBuyQuantity);
 						Variation->FactoryCapacity += Capacity;
 					}
+				}
+
+				// The AI don't let anything for the player : it's too hard
+				// Make the AI ignore the sector with not enought stock or to little capacity
+				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
+
+				float EmptyRatio = (float) Capacity / (float) SlotCapacity;
+				if (EmptyRatio > AI_NERF_RATIO/2)
+				{
+					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
 				}
 
 			}
@@ -1743,10 +1770,20 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 
 			int32 TimeToGetB = TravelTime + (CanBuyQuantity > 0 ? 1 : 0); // If full, will not buy so no trade time in A
 
+			int32 LocalCapacity = VariationB->OwnedCapacity
+					+ VariationB->FactoryCapacity
+					+ VariationB->StorageCapacity;
+
+			if (VariationB->MinCapacity > 0)
+			{
+				// The nerf system make big capacity malus in whole sector if a big station is near full
+				// If there is an empty small station in the sector, this station will not get any resource
+				// as the sector will be avoided by trade ships
+				LocalCapacity = FMath::Max(LocalCapacity, VariationB->MinCapacity);
+			}
+
 			int32 CapacityInBAfterTravel =
-				VariationB->OwnedCapacity
-				+ VariationB->FactoryCapacity
-				+ VariationB->StorageCapacity
+				LocalCapacity
 				+ VariationB->OwnedFlow * TimeToGetB
 				+ VariationB->FactoryFlow * TimeToGetB;
 			if (TimeToGetB > 0)
