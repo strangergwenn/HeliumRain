@@ -189,6 +189,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 	SectorHelper::FlareTradeRequest Request;
 	Request.Resource = Resource;
 	Request.Operation = Operation->Type;
+	Request.CargoLimit = -1;
 
 	for (int ShipIndex = 0; ShipIndex < UsefullShips.Num(); ShipIndex++)
 	{

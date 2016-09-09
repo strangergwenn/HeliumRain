@@ -10,6 +10,7 @@ struct SectorHelper
 		FFlareResourceDescription* Resource;
 		EFlareTradeRouteOperation::Type Operation;
 		int32 MaxQuantity;
+		float CargoLimit;
 		UFlareSimulatedSpacecraft *Client;
 	};
 

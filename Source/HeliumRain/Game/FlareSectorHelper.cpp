@@ -104,6 +104,17 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		uint32 LoadMaxQuantity  = 0;
 
 
+		// Check cargo limit
+		if(NeedOutput && Request.CargoLimit != -1 && FullRatio < Request.CargoLimit)
+		{
+			continue;
+		}
+
+		if(NeedInput && Request.CargoLimit != -1 && FullRatio > Request.CargoLimit)
+		{
+			continue;
+		}
+
 		if(Station->GetCargoBay()->WantBuy(Request.Resource, Request.Client->GetCompany()))
 		{
 			UnloadMaxQuantity = StationFreeSpace;

@@ -297,6 +297,7 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 					Request.Resource = BestDeal.Resource;
 					Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
 					Request.Client = Ship;
+					Request.CargoLimit = AI_NERF_RATIO;
 					Request.MaxQuantity = Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany());
 
 					UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
@@ -370,6 +371,7 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 				Request.Resource = BestDeal.Resource;
 				Request.Operation = EFlareTradeRouteOperation::UnloadOrSell;
 				Request.Client = Ship;
+				Request.CargoLimit = AI_NERF_RATIO;
 				Request.MaxQuantity = Ship->GetCargoBay()->GetResourceQuantity(BestDeal.Resource, Ship->GetCompany());
 
 				UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
@@ -967,6 +969,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 				Request.Resource = MissingResource;
 				Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
 				Request.Client = Ship;
+				Request.CargoLimit = AI_NERF_RATIO;
 				Request.MaxQuantity = QuantityToBuy;
 
 				UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
