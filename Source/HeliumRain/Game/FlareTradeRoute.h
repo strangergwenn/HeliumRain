@@ -155,7 +155,7 @@ public:
 
 	virtual void RemoveSector(UFlareSimulatedSector* Sector);
 
-	virtual void AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOperation::Type Type, FFlareResourceDescription* Resource);
+	virtual FFlareTradeRouteSectorOperationSave* AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOperation::Type Type, FFlareResourceDescription* Resource);
 
 	virtual void RemoveSectorOperation(int32 SectorIndex, int32 OperationIndex);
 

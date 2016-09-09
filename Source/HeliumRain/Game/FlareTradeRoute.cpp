@@ -381,12 +381,12 @@ void UFlareTradeRoute::RemoveSector(UFlareSimulatedSector* Sector)
 	}
 }
 
-void UFlareTradeRoute::AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOperation::Type Type, FFlareResourceDescription* Resource)
+FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOperation::Type Type, FFlareResourceDescription* Resource)
 {
 	if (SectorIndex >= TradeRouteData.Sectors.Num())
 	{
 		FLOGV("Fail to configure trade route '%s', sector %d: only %d sector present.", *GetTradeRouteName().ToString(), SectorIndex, TradeRouteData.Sectors.Num());
-		return;
+		return NULL;
 	}
 
 	FFlareTradeRouteSectorSave* Sector = &TradeRouteData.Sectors[SectorIndex];
@@ -398,6 +398,8 @@ void UFlareTradeRoute::AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOpe
 	Operation.MaxWait = -1;
 
 	Sector->Operations.Add(Operation);
+
+	return &Sector->Operations.Last();
 }
 
 void UFlareTradeRoute::RemoveSectorOperation(int32 SectorIndex, int32 OperationIndex)

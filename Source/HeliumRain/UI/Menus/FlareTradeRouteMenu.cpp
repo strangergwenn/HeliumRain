@@ -849,14 +849,13 @@ FText SFlareTradeRouteMenu::GetOperationInfo(FFlareTradeRouteSectorOperationSave
 	{
 		FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
 		int32 OperationNameIndex = OperationList.Find(Operation->Type);
-		if (OperationNameIndex < 0)
-		{
-			OperationNameIndex = 0;
-		}
 
-		return FText::Format(LOCTEXT("OperationInfoFormat", "{0} {1}"),
-			*OperationNameList[OperationNameIndex],
-			Resource->Acronym);
+		if (Resource && OperationNameIndex >= 0 && OperationNameIndex < OperationNameList.Num())
+		{
+			return FText::Format(LOCTEXT("OperationInfoFormat", "{0} {1}"),
+				*OperationNameList[OperationNameIndex],
+				Resource->Acronym);
+		}
 	}
 
 	return LOCTEXT("NoNextOperation", "No operation");
@@ -1155,6 +1154,7 @@ void SFlareTradeRouteMenu::OnAddSectorClicked()
 	if (Item)
 	{
 		TargetTradeRoute->AddSector(Item);
+		OnAddOperationClicked(Item);
 		GenerateSectorList();
 	}
 }
@@ -1173,12 +1173,12 @@ void SFlareTradeRouteMenu::OnOperationComboLineSelectionChanged(TSharedPtr<FText
 	if (SelectedOperation)
 	{
 		int32 OperationIndex  = OperationNameList.Find(Item);
-
-
+		
 		if (OperationIndex == -1)
 		{
 			OperationIndex = 0;
 		}
+
 		EFlareTradeRouteOperation::Type OperationType = OperationList[OperationIndex];
 		SelectedOperation->Type = OperationType;
 		GenerateSectorList();
@@ -1199,17 +1199,18 @@ void SFlareTradeRouteMenu::OnAddOperationClicked(UFlareSimulatedSector* Sector)
 	UFlareResourceCatalogEntry* Resource = ResourceSelector->GetSelectedItem();
 	int32 OperationIndex  = OperationNameList.Find(OperationSelector->GetSelectedItem());
 
-
 	if (OperationIndex == -1)
 	{
 		OperationIndex = 0;
 	}
-	EFlareTradeRouteOperation::Type OperationType = OperationList[OperationIndex];
-
+	
 	int32 SectorIndex = TargetTradeRoute->GetSectorIndex(Sector);
 	if (SectorIndex >= 0 && Resource)
 	{
-		TargetTradeRoute->AddSectorOperation(SectorIndex, OperationType, &Resource->Data);
+		EFlareTradeRouteOperation::Type OperationType = OperationList[OperationIndex];
+		FFlareTradeRouteSectorOperationSave* Operation = TargetTradeRoute->AddSectorOperation(SectorIndex, OperationType, &Resource->Data);
+
+		OnEditOperationClicked(Operation);
 		GenerateSectorList();
 	}
 }
