@@ -661,7 +661,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 		UFlareSimulatedSpacecraft* Ship = ConstructionStaticShips[ShipIndex];
 
 
-		for(int SlotIndex = 0; SlotIndex < Ship->GetCargoBay()->GetSlotCount(); SlotIndex++)
+		for(uint32 SlotIndex = 0; SlotIndex < Ship->GetCargoBay()->GetSlotCount(); SlotIndex++)
 		{
 			FFlareCargo* Cargo = Ship->GetCargoBay()->GetSlot(SlotIndex);
 			if(Cargo->Quantity > 0)
@@ -703,7 +703,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 
 		UFlareSimulatedSpacecraft* Ship = ConstructionStaticShips[ShipIndex];
 
-		for(int SlotIndex = 0; SlotIndex < Ship->GetCargoBay()->GetSlotCount(); SlotIndex++)
+		for(uint32 SlotIndex = 0; SlotIndex < Ship->GetCargoBay()->GetSlotCount(); SlotIndex++)
 		{
 			FirstResourceQuantity-= Ship->GetCargoBay()->GetSlotCapacity();
 			if(FirstResourceQuantity <=0)
@@ -741,7 +741,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 		ConstructionStaticShips.Add(Ship);
 		ConstructionProjectNeedCapacity += Ship->GetCargoBay()->GetCapacity();
 
-		for(int SlotIndex = 0; SlotIndex < Ship->GetCargoBay()->GetSlotCount(); SlotIndex++)
+		for(uint32 SlotIndex = 0; SlotIndex < Ship->GetCargoBay()->GetSlotCount(); SlotIndex++)
 		{
 			if(MissingStaticResourcesQuantity.Num() == 0)
 			{
