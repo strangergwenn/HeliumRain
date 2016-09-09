@@ -655,12 +655,10 @@ void AFlareMenuManager::Travel()
 		}
 	}
 
-	// Redirect to the sector menu
-	FFlareMenuParameterData Data;
-	Data.Sector = NextMenu.Value.Travel->GetDestinationSector();
-	NextMenu.Key = EFlareMenu::MENU_Sector;
-	NextMenu.Value = Data;
-	OpenSector();
+	// Redirect to the orbit menu
+	NextMenu.Key = EFlareMenu::MENU_Orbit;
+	NextMenu.Value = FFlareMenuParameterData();
+	OpenOrbit();
 }
 
 void AFlareMenuManager::ReloadSector()
