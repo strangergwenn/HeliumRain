@@ -656,8 +656,6 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 	TArray<UFlareSimulatedSpacecraft *> ShipsToTravel;
 
 
-
-
 	// Generate ships lists
 	for (int32 ShipIndex = 0; ShipIndex < ConstructionShips.Num(); ShipIndex++)
 	{
@@ -982,7 +980,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 				}
 
 				MissingResourceQuantity -= TakenQuantity;
-				if (MissingResourceQuantity == 0)
+				if (MissingResourceQuantity <= 0)
 				{
 					MissingResourcesQuantity.Remove(MissingResource);
 				}
@@ -1013,7 +1011,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 			{
 				// Go to construction sector
 				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), ConstructionProjectSector);
-				FLOGV("  travel to %s", *ConstructionProjectSector->GetSectorName().ToString());
+				//FLOGV("  full, travel to %s", *ConstructionProjectSector->GetSectorName().ToString());
 			}
 			else
 			{
@@ -1023,7 +1021,7 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 
 				UFlareSimulatedSector* BestSector = NULL;
 				FFlareResourceDescription* BestResource = NULL;
-				int32 BestScore = 0;
+				float BestScore = 0;
 				int32 BestEstimateTake = 0;
 
 				// Look for station with stock
@@ -1045,7 +1043,10 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 
 						int32 Stock = Variation->FactoryStock + Variation->OwnedStock + Variation->StorageStock;
 
-						if (Stock == 0)
+						//FLOGV("Stock in %s for %s : %d", *Sector->GetSectorName().ToString(), *MissingResource->Name.ToString(), Stock);
+
+
+						if (Stock <= 0)
 						{
 							continue;
 						}
@@ -1058,16 +1059,20 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 						int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
 						int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
 						
-						int32 Score = FMath::Min(Stock, MissingResourceQuantity);
-						Score = FMath::Min(Score, Capacity);
+						float Score = FMath::Min(Stock, MissingResourceQuantity);
+						Score = FMath::Min(Score, (float)Capacity);
+
+						/*FLOGV("MissingResourceQuantity %d", MissingResourceQuantity);
+						FLOGV("Capacity %d", Capacity);
+						FLOGV("Score %d", Score);*/
 
 						if (Score > 0 && (BestSector == NULL || BestScore < Score))
 						{
-							FLOGV("Best sector with stock %s for %s. Score = %d", *Sector->GetSectorName().ToString(), *MissingResource->Name.ToString(), Score);
+							/*FLOGV("Best sector with stock %s for %s. Score = %f", *Sector->GetSectorName().ToString(), *MissingResource->Name.ToString(), Score);
 							FLOGV("Stock = %d",Stock);
 							FLOGV("Variation->FactoryStock = %d",Variation->FactoryStock);
 							FLOGV("Variation->OwnedStock = %d",Variation->OwnedStock);
-							FLOGV("Variation->StorageStock = %d",Variation->StorageStock);
+							FLOGV("Variation->StorageStock = %d",Variation->StorageStock);*/
 
 							BestSector = Sector;
 							BestScore = Score;
@@ -1097,6 +1102,10 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 
 							int32 Flow = Variation->FactoryFlow + Variation->OwnedFlow;
 
+
+							//FLOGV("Flow in %s for %s : %d", *Sector->GetSectorName().ToString(), *MissingResource->Name.ToString(), Flow);
+
+
 							if (Flow >= 0)
 							{
 								continue;
@@ -1112,15 +1121,22 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 
 
 							/* Owned stock will be set negative if multiple cargo go here. This will impact the score */
-							int32 Score = FMath::Min(-Flow + Variation->OwnedStock, MissingResourceQuantity);
-							Score = FMath::Min(Score, Capacity);
+							float Score = FMath::Min((float)Flow / (Variation->OwnedStock-1),(float) MissingResourceQuantity);
+							Score = FMath::Min(Score, (float)Capacity);
+
+
+
+							/*FLOGV("MissingResourceQuantity %d", MissingResourceQuantity);
+							FLOGV("Capacity %d", Capacity);
+							FLOGV("Score %f", Score);*/
+
 
 							if (Score > 0 && (BestSector == NULL || BestScore < Score))
 							{
-								FLOGV("Best sector with flow %s for %s. Score = %d", *Sector->GetSectorName().ToString(), *MissingResource->Name.ToString(), Score);
+								/*FLOGV("Best sector with flow %s for %s. Score = %f", *Sector->GetSectorName().ToString(), *MissingResource->Name.ToString(), Score);
 								FLOGV("Flow = %d",Flow);
 								FLOGV("Variation->FactoryFlow = %d",Variation->FactoryFlow);
-								FLOGV("Variation->OwnedFlow = %d",Variation->OwnedFlow);
+								FLOGV("Variation->OwnedFlow = %d",Variation->OwnedFlow);*/
 
 
 								BestSector = Sector;
