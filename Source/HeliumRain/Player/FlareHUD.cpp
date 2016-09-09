@@ -543,7 +543,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
 			FText CargoSlotResourceText = Cargo.Resource ? Cargo.Resource->Acronym : LOCTEXT("CargoBaySlotEmpty", "Empty");
 			FText CargoBaySlotText = FText::Format(LOCTEXT("CargoBaySlotFormat", "{0} ({1}/{2})"),
-				CargoSlotResourceText, FText::AsNumber(Cargo.Quantity), FText::AsNumber(Cargo.Capacity));
+				CargoSlotResourceText, FText::AsNumber(Cargo.Quantity), FText::AsNumber(CargoBay->GetSlotCapacity()));
 
 			// Go to the right column after n/2 slots
 			if (CargoIndex == MaxCargoBayCount / 2)

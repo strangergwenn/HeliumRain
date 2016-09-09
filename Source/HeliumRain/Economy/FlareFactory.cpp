@@ -320,7 +320,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 			if (&OutputResources[ResourceIndex].Resource->Data == CargoBay->GetSlot(CargoIndex)->Resource)
 			{
 				// Same resource
-				uint32 AvailableCapacity = CargoBay->GetSlot(CargoIndex)->Capacity - CargoBay->GetSlot(CargoIndex)->Quantity;
+				uint32 AvailableCapacity = CargoBay->GetSlotCapacity() - CargoBay->GetSlot(CargoIndex)->Quantity;
 				if (AvailableCapacity > 0)
 				{
 					OutputResources[ResourceIndex].Quantity -= FMath::Min(AvailableCapacity, OutputResources[ResourceIndex].Quantity);
@@ -349,7 +349,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 		if (CargoBay->GetSlot(CargoIndex)->Quantity == 0)
 		{
 			// Empty slot, fill it
-			OutputResources[0].Quantity -= FMath::Min(CargoBay->GetSlot(CargoIndex)->Capacity, OutputResources[0].Quantity);
+			OutputResources[0].Quantity -= FMath::Min(CargoBay->GetSlotCapacity(), OutputResources[0].Quantity);
 
 			if (OutputResources[0].Quantity == 0)
 			{

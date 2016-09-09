@@ -56,10 +56,6 @@ struct FFlareCargo
 	UPROPERTY(EditAnywhere, Category = Save)
 	uint32 Quantity;
 
-	/** Cargo capacity */
-	UPROPERTY(EditAnywhere, Category = Save)
-	uint32 Capacity;
-
 	/** Cargo lock */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlareResourceLock::Type> Lock;

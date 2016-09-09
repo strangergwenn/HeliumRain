@@ -25,7 +25,6 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 	{
 		FFlareCargo Cargo;
 		Cargo.Resource = NULL;
-		Cargo.Capacity = GetSlotCapacity();
 		Cargo.Quantity = 0;
 		Cargo.Lock = EFlareResourceLock::NoLock;
 		Cargo.Restriction = EFlareResourceRestriction::Everybody;
@@ -239,7 +238,7 @@ uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32
 			}
 
 			// Same resource
-			uint32 AvailableCapacity = Cargo.Capacity - Cargo.Quantity;
+			uint32 AvailableCapacity = GetSlotCapacity() - Cargo.Quantity;
 			uint32 GivenQuantity = FMath::Min(AvailableCapacity, QuantityToGive);
 			if (GivenQuantity > 0)
 			{
@@ -266,7 +265,7 @@ uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32
 			}
 
 			// Empty Cargo
-			uint32 GivenQuantity = FMath::Min(Cargo.Capacity, QuantityToGive);
+			uint32 GivenQuantity = FMath::Min(GetSlotCapacity(), QuantityToGive);
 			if (GivenQuantity > 0)
 			{
 				Cargo.Quantity += GivenQuantity;
@@ -358,11 +357,11 @@ uint32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resour
 
 		if (Cargo.Resource == NULL)
 		{
-			Quantity += Cargo.Capacity;
+			Quantity += GetSlotCapacity();
 		}
 		else if (Cargo.Resource == Resource)
 		{
-			Quantity += Cargo.Capacity - Cargo.Quantity;
+			Quantity += GetSlotCapacity() - Cargo.Quantity;
 		}
 	}
 
