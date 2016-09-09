@@ -126,7 +126,7 @@ protected:
 	FFlareCompanyAISave					   AIData;
 	AFlareGame*                            Game;
 	
-	// TODO Save it
+	// Construction project
 	FFlareSpacecraftDescription*			 ConstructionProjectStationDescription;
 	UFlareSimulatedSector*         			 ConstructionProjectSector;
 	UFlareSimulatedSpacecraft *              ConstructionProjectStation;

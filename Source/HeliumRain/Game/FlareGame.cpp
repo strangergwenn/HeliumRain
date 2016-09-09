@@ -555,6 +555,10 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.Money = 0;
 	CompanyData.FleetImmatriculationIndex = 0;
 	CompanyData.TradeRouteImmatriculationIndex = 0;
+	CompanyData.AI.ConstructionProjectNeedCapacity = 0;
+	CompanyData.AI.ConstructionProjectSectorIdentifier = NAME_None;
+	CompanyData.AI.ConstructionProjectStationDescriptionIdentifier = NAME_None;
+	CompanyData.AI.ConstructionProjectStationIdentifier = NAME_None;
 	// Create company
 	Company = World->LoadCompany(CompanyData);
 	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());

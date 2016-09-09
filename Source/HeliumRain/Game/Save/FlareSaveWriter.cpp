@@ -489,6 +489,27 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSectorKnowledge(FFlareCompanySecto
 TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompanyAI(FFlareCompanyAISave* Data)
 {
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	JsonObject->SetStringField("ConstructionProjectStationDescriptionIdentifier", Data->ConstructionProjectStationDescriptionIdentifier.ToString());
+	JsonObject->SetStringField("ConstructionProjectSectorIdentifier", Data->ConstructionProjectSectorIdentifier.ToString());
+	JsonObject->SetStringField("ConstructionProjectStationIdentifier", Data->ConstructionProjectStationIdentifier.ToString());
+	JsonObject->SetStringField("ConstructionProjectNeedCapacity", FormatInt32(Data->ConstructionProjectNeedCapacity));
+
+
+	TArray< TSharedPtr<FJsonValue> > ConstructionShipsIdentifiers;
+	for(int i = 0; i < Data->ConstructionShipsIdentifiers.Num(); i++)
+	{
+		ConstructionShipsIdentifiers.Add(MakeShareable(new FJsonValueString(Data->ConstructionShipsIdentifiers[i].ToString())));
+	}
+	JsonObject->SetArrayField("ConstructionShipsIdentifiers", ConstructionShipsIdentifiers);
+
+	TArray< TSharedPtr<FJsonValue> > ConstructionStaticShipsIdentifiers;
+	for(int i = 0; i < Data->ConstructionStaticShipsIdentifiers.Num(); i++)
+	{
+		ConstructionStaticShipsIdentifiers.Add(MakeShareable(new FJsonValueString(Data->ConstructionStaticShipsIdentifiers[i].ToString())));
+	}
+	JsonObject->SetArrayField("ConstructionStaticShipsIdentifiers", ConstructionStaticShipsIdentifiers);
+
 	return JsonObject;
 }
 

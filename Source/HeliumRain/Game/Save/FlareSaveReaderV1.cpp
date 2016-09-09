@@ -590,6 +590,13 @@ void UFlareSaveReaderV1::LoadSectorKnowledge(const TSharedPtr<FJsonObject> Objec
 
 void UFlareSaveReaderV1::LoadCompanyAI(const TSharedPtr<FJsonObject> Object, FFlareCompanyAISave* Data)
 {
+	LoadFName(Object, "ConstructionProjectStationDescriptionIdentifier", &Data->ConstructionProjectStationDescriptionIdentifier);
+	LoadFName(Object, "ConstructionProjectSectorIdentifier", &Data->ConstructionProjectSectorIdentifier);
+	LoadFName(Object, "ConstructionProjectStationIdentifier", &Data->ConstructionProjectStationIdentifier);
+	LoadInt32(Object, "ConstructionProjectNeedCapacity", &Data->ConstructionProjectNeedCapacity);
+
+	LoadFNameArray(Object, "ConstructionShipsIdentifiers", &Data->ConstructionShipsIdentifiers);
+	LoadFNameArray(Object, "ConstructionStaticShipsIdentifiers", &Data->ConstructionStaticShipsIdentifiers);
 }
 
 

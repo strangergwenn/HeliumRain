@@ -27,16 +27,86 @@ void UFlareCompanyAI::Load(UFlareCompany* ParentCompany, const FFlareCompanyAISa
 {
 	Company = ParentCompany;
 	Game = Company->GetGame();
+	AIData = Data;
+
 	ConstructionProjectStationDescription = NULL;
 	ConstructionProjectSector = NULL;
 	ConstructionProjectStation = NULL;
-	ConstructionProjectNeedCapacity = 0;
+	ConstructionProjectNeedCapacity = AIData.ConstructionProjectNeedCapacity;
 	ConstructionShips.Empty();
 	ConstructionStaticShips.Empty();
+
+	if(AIData.ConstructionProjectSectorIdentifier != NAME_None)
+	{
+		ConstructionProjectSector = Game->GetGameWorld()->FindSector(AIData.ConstructionProjectSectorIdentifier);
+	}
+
+	if(AIData.ConstructionProjectStationIdentifier != NAME_None)
+	{
+		ConstructionProjectStation = Game->GetGameWorld()->FindSpacecraft(AIData.ConstructionProjectStationIdentifier);
+	}
+
+	if(AIData.ConstructionProjectStationDescriptionIdentifier != NAME_None)
+	{
+		ConstructionProjectStationDescription = Game->GetSpacecraftCatalog()->Get(AIData.ConstructionProjectStationDescriptionIdentifier);
+	}
+
+	for (int32 ShipIndex = 0; ShipIndex < AIData.ConstructionShipsIdentifiers.Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = Game->GetGameWorld()->FindSpacecraft(AIData.ConstructionShipsIdentifiers[ShipIndex]);
+		if (Ship)
+		{
+			ConstructionShips.Add(Ship);
+		}
+	}
+
+	for (int32 ShipIndex = 0; ShipIndex < AIData.ConstructionStaticShipsIdentifiers.Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = Game->GetGameWorld()->FindSpacecraft(AIData.ConstructionStaticShipsIdentifiers[ShipIndex]);
+		if (Ship)
+		{
+			ConstructionStaticShips.Add(Ship);
+		}
+	}
 }
 
 FFlareCompanyAISave* UFlareCompanyAI::Save()
 {
+
+	AIData.ConstructionShipsIdentifiers.Empty();
+	AIData.ConstructionStaticShipsIdentifiers.Empty();
+	AIData.ConstructionProjectStationDescriptionIdentifier = NAME_None;
+	AIData.ConstructionProjectSectorIdentifier = NAME_None;
+	AIData.ConstructionProjectStationIdentifier = NAME_None;
+	AIData.ConstructionProjectNeedCapacity = ConstructionProjectNeedCapacity;
+
+	if(ConstructionProjectStationDescription)
+	{
+		AIData.ConstructionProjectStationDescriptionIdentifier = ConstructionProjectStationDescription->Identifier;
+	}
+
+	if(ConstructionProjectSector)
+	{
+		AIData.ConstructionProjectSectorIdentifier = ConstructionProjectSector->GetIdentifier();
+	}
+
+	if(ConstructionProjectStation)
+	{
+		AIData.ConstructionProjectStationIdentifier = ConstructionProjectStation->GetImmatriculation();
+	}
+
+	for (int32 ShipIndex = 0; ShipIndex < ConstructionShips.Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = ConstructionShips[ShipIndex];
+		AIData.ConstructionShipsIdentifiers.Add(Ship->GetImmatriculation());
+	}
+
+	for (int32 ShipIndex = 0; ShipIndex < ConstructionStaticShips.Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = ConstructionStaticShips[ShipIndex];
+		AIData.ConstructionStaticShipsIdentifiers.Add(Ship->GetImmatriculation());
+	}
+
 	return &AIData;
 }
 

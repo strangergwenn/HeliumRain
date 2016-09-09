@@ -47,7 +47,6 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	// Spawn AI
 	CompanyAI = NewObject<UFlareCompanyAI>(this, UFlareCompanyAI::StaticClass());
 	check(CompanyAI);
-	CompanyAI->Load(this, CompanyData.AI);
 
 	// Spawn tactic manager
 	TacticManager = NewObject<UFlareTacticManager>(this, UFlareTacticManager::StaticClass());
@@ -110,6 +109,8 @@ void UFlareCompany::PostLoad()
 			FLOGV("Fail to find known sector '%s'. Ignore it.", *CompanyData.SectorsKnowledge[i].SectorIdentifier.ToString());
 		}
 	}
+
+	CompanyAI->Load(this, CompanyData.AI);
 }
 
 FFlareCompanySave* UFlareCompany::Save()
@@ -163,6 +164,8 @@ FFlareCompanySave* UFlareCompany::Save()
 	}
 
 	CompanyData.CompanyValue = GetCompanyValue().TotalValue;
+
+	CompanyData.AI = *CompanyAI->Save();
 
 	return &CompanyData;
 }
