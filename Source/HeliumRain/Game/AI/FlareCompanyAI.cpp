@@ -14,11 +14,6 @@
 #define AI_NERF_RATIO 0.5
 
 
-// TODO : the nerf avoid to fill the empty mine
-// TODO : the prices wight should exponetial with a big overflow or underflow to make a small mine without fuel make the price raise
-// TODO : the ai should use cargo with resources to build stations
-
-
 /*----------------------------------------------------
 	Public API
 ----------------------------------------------------*/
@@ -318,12 +313,12 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 		}
 		else
 		{
-			FLOGV("UFlareCompanyAI::UpdateTrading : %s found nothing to do", *Ship->GetImmatriculation().ToString());
+			//FLOGV("UFlareCompanyAI::UpdateTrading : %s found nothing to do", *Ship->GetImmatriculation().ToString());
 
-			FLOGV("UFlareCompanyAI::UpdateTrading : HasProject ? %d ConstructionProjectNeedCapacity %d", (ConstructionProjectStationDescription != NULL), ConstructionProjectNeedCapacity);
+			//FLOGV("UFlareCompanyAI::UpdateTrading : HasProject ? %d ConstructionProjectNeedCapacity %d", (ConstructionProjectStationDescription != NULL), ConstructionProjectNeedCapacity);
 			if (ConstructionProjectStationDescription && ConstructionProjectSector && ConstructionProjectNeedCapacity > 0 && Ship->GetCargoBay()->GetUsedCargoSpace() == 0)
 			{
-				FLOGV("UFlareCompanyAI::UpdateTrading : %s add to construction", *Ship->GetImmatriculation().ToString());
+				//FLOGV("UFlareCompanyAI::UpdateTrading : %s add to construction", *Ship->GetImmatriculation().ToString());
 
 				ConstructionShips.Add(Ship);
 				ConstructionProjectNeedCapacity -= Ship->GetCargoBay()->GetCapacity();
@@ -579,9 +574,6 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 {
 
 	// First, place construction ships in construction sector.
-
-
-
 
 	// TODO simplify
 	// TODO make price very attractive
@@ -1382,6 +1374,9 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 						Capacity = FMath::Min(Capacity, CanBuyQuantity);
 						Variation->FactoryCapacity += Capacity;
 					}
+
+
+
 				}
 
 				// The AI don't let anything for the player : it's too hard
@@ -1459,7 +1454,6 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				uint32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 				int32 Capacity = SlotCapacity - ResourceQuantity;
-
 				// Dept are allowed for sell to customers
 				if (ResourceQuantity < SlotCapacity)
 				{
