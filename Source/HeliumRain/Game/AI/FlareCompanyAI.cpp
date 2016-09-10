@@ -1942,9 +1942,10 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			float MoneyBalanceParDay = (float)MoneyBalance / (float)(TimeToGetB + 1); // 1 day to sell
 
 			bool Temporisation = false;
-			if (BuyQuantity == 0 && Ship->GetCurrentSector() == SectorB && SectorA != SectorB)
+			if (BuyQuantity == 0 && Ship->GetCurrentSector() != SectorA)
 			{
-				// Temporisation action, better to do nothing
+				// If can't buy in A and A is not local, it's just a temporisation route. Better to do nothing.
+				// Accepting to be idle help to avoid building ships
 				Temporisation = true;
 			}
 			if (MoneyBalanceParDay > BestDeal.MoneyBalanceParDay && !Temporisation)
