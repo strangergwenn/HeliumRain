@@ -1222,6 +1222,10 @@ void AFlarePlayerController::WheelPressed()
 				MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
 
+				// Look at
+				Text = FText::Format(LOCTEXT("LookAtTargetFormat", "Focus on {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
+				MouseMenu->AddWidget("Mouse_LookAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::LookAtTargetSpacecraft));
+
 				// Fly
 				if (Target->GetParent()->GetCompany() == GetCompany() && !Target->GetParent()->IsStation())
 				{
