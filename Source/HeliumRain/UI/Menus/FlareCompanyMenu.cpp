@@ -82,40 +82,6 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.MenuManager(MenuManager)
 				]
 
-				// Trade routes Title
-				+ SVerticalBox::Slot()
-				.Padding(Theme.TitlePadding)
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("Trade routes", "Trade routes"))
-					.TextStyle(&Theme.SubTitleFont)
-                    .Visibility(this, &SFlareCompanyMenu::GetTradeRouteVisibility)
-				]
-
-                // New trade route button
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Left)
-				[
-					SNew(SFlareButton)
-					.Width(6)
-					.Text(LOCTEXT("NewTradeRouteButton", "Add new trade route"))
-					.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it"))
-					.Icon(FFlareStyleSet::GetIcon("New"))
-					.OnClicked(this, &SFlareCompanyMenu::OnNewTradeRouteClicked)
-                    .Visibility(this, &SFlareCompanyMenu::GetTradeRouteVisibility)
-				]
-
-				// Trade route list
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-                .HAlign(HAlign_Left)
-				[
-					SAssignNew(TradeRouteList, SVerticalBox)
-				]
-
 				// Object list
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -195,7 +161,6 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 
 	ShipList->RefreshList();
 	ShipList->SetVisibility(EVisibility::Visible);
-	UpdateTradeRouteList();
 }
 
 void SFlareCompanyMenu::Exit()
@@ -203,59 +168,11 @@ void SFlareCompanyMenu::Exit()
 	SetEnabled(false);
 	ShipList->Reset();
 	ShipList->SetVisibility(EVisibility::Collapsed);
-	TradeRouteList->ClearChildren();
 
 	Company = NULL;
 	SetVisibility(EVisibility::Collapsed);
 }
 
-void SFlareCompanyMenu::UpdateTradeRouteList()
-{
-	if (Company)
-	{
-		TradeRouteList->ClearChildren();
-		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-		TArray<UFlareTradeRoute*>& TradeRoutes = Company->GetCompanyTradeRoutes();
-
-		for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
-		{
-			UFlareTradeRoute* TradeRoute = TradeRoutes[RouteIndex];
-
-			// Add line
-			TradeRouteList->AddSlot()
-			.AutoHeight()
-			.HAlign(HAlign_Right)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SHorizontalBox)
-
-				// Inspect
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SFlareButton)
-					.Width(6)
-					.Text(TradeRoute->GetTradeRouteName())
-					.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
-					.OnClicked(this, &SFlareCompanyMenu::OnInspectTradeRouteClicked, TradeRoute)
-				]
-
-				// Remove
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SFlareButton)
-					.Transparent(true)
-					.Text(FText())
-					.HelpText(LOCTEXT("RemoveTradeRouteHelp", "Remove this trade route"))
-					.Icon(FFlareStyleSet::GetIcon("Stop"))
-					.OnClicked(this, &SFlareCompanyMenu::OnDeleteTradeRoute, TradeRoute)
-					.Width(1)
-				]
-			];
-		}
-	}
-}
 
 /*----------------------------------------------------
 	Callbacks
@@ -272,43 +189,6 @@ FText SFlareCompanyMenu::GetCompanyName() const
 
 	return Result;
 }
-
-void SFlareCompanyMenu::OnNewTradeRouteClicked()
-{
-	UFlareTradeRoute* TradeRoute = Company->CreateTradeRoute(LOCTEXT("UntitledRoute", "Untitled Route"));
-	check(TradeRoute);
-
-	FFlareMenuParameterData Data;
-	Data.Route = TradeRoute;
-	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
-}
-
-void SFlareCompanyMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
-{
-	FFlareMenuParameterData Data;
-	Data.Route = TradeRoute;
-	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
-}
-
-void SFlareCompanyMenu::OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute)
-{
-	check(TradeRoute);
-	TradeRoute->Dissolve();
-	UpdateTradeRouteList();
-}
-
-EVisibility SFlareCompanyMenu::GetTradeRouteVisibility() const
-{
-    if (Company)
-    {
-        return MenuManager->GetPC()->GetCompany()->GetVisitedSectors().Num() >= 2 ? EVisibility::Visible : EVisibility::Collapsed;
-    }
-    else
-    {
-        return EVisibility::Collapsed;
-    }
-}
-
 
 
 #undef LOCTEXT_NAMESPACE

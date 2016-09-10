@@ -70,9 +70,13 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.ComboBoxStyle(&Theme.ComboBoxStyle)
 						.ForegroundColor(FLinearColor::White)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine)
-							.TextStyle(&Theme.TextFont)
+							SNew(SBox)
+							.WidthOverride(8 * Theme.ButtonWidth)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
 						]
 					]
 

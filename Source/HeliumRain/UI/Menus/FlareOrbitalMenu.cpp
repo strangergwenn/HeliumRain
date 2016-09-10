@@ -51,6 +51,16 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 
+				// Trade routes title
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("WorldStatus", "World status"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(Theme.ContentPadding)
@@ -73,8 +83,8 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(SFlareButton)
-						.Width(5)
-						.Text(FText::Format(LOCTEXT("FastForwardSingleFormat", "Fast forward ({0})"),
+						.Width(3.5)
+						.Text(FText::Format(LOCTEXT("FastForwardSingleFormat", "Skip day ({0})"),
 							FText::FromString(AFlareMenuManager::GetKeyNameFromActionName("Simulate"))))
 						.Icon(FFlareStyleSet::GetIcon("Load_Small"))
 						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
@@ -89,13 +99,27 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.SmallContentPadding)
 					[
 						SAssignNew(FastForwardAuto, SFlareButton)
-						.Width(5)
+						.Width(4.5)
 						.Toggle(true)
 						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
 						.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
 						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardAutomaticClicked)
 						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
 						.HelpText(LOCTEXT("FastForwardInfo", "Wait for the next event - Travels, production, building will be accelerated"))
+					]
+
+					// World economy
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(FastForwardAuto, SFlareButton)
+						.Width(3.5)
+						.Text(LOCTEXT("WorldEconomy", "World prices"))
+						.HelpText(LOCTEXT("WorldEconomyInfo", "See global prices, usage and variation for all resources"))
+						.Icon(FFlareStyleSet::GetIcon("Sector_Small"))
+						.OnClicked(this, &SFlareOrbitalMenu::OnWorldEconomyClicked)
 					]
 				]
 			
@@ -132,10 +156,79 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Right)
 					.Padding(Theme.ContentPadding)
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareOrbitalMenu::GetTravelText)
-						.WrapTextAt(0.8 * Theme.ContentWidth)
+						SNew(SVerticalBox)
+
+						// Travel list title
+						+ SVerticalBox::Slot()
+						.Padding(Theme.TitlePadding)
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("Travels", "Travels"))
+							.TextStyle(&Theme.SubTitleFont)
+						]
+
+						// Travel list
+						+ SVerticalBox::Slot()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(SScrollBox)
+							.Style(&Theme.ScrollBoxStyle)
+							.ScrollBarStyle(&Theme.ScrollBarStyle)
+							+ SScrollBox::Slot()
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.TextFont)
+								.Text(this, &SFlareOrbitalMenu::GetTravelText)
+								.WrapTextAt(0.8 * Theme.ContentWidth)
+							]
+						]
+					]
+
+					// Travels
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Top)
+					.HAlign(HAlign_Right)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SVerticalBox)
+
+						// Trade routes title
+						+ SVerticalBox::Slot()
+						.Padding(Theme.TitlePadding)
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("Trade routes", "Trade routes"))
+							.TextStyle(&Theme.SubTitleFont)
+						]
+
+						// New trade route button
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(8)
+							.Text(LOCTEXT("NewTradeRouteButton", "Add new trade route"))
+							.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it"))
+							.Icon(FFlareStyleSet::GetIcon("New"))
+							.OnClicked(this, &SFlareOrbitalMenu::OnNewTradeRouteClicked)
+						]
+
+						// Trade route list
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						[
+							SNew(SScrollBox)
+							.Style(&Theme.ScrollBoxStyle)
+							.ScrollBarStyle(&Theme.ScrollBarStyle)
+							+ SScrollBox::Slot()
+							[
+								SAssignNew(TradeRouteList, SVerticalBox)
+							]
+						]
 					]
 				]
 
@@ -191,6 +284,8 @@ void SFlareOrbitalMenu::Enter()
 
 	UpdateMap();
 
+	UpdateTradeRouteList();
+
 	Game->SaveGame(MenuManager->GetPC(), true);
 }
 
@@ -205,6 +300,8 @@ void SFlareOrbitalMenu::Exit()
 	AstaBox->ClearChildren();
 	HelaBox->ClearChildren();
 	AdenaBox->ClearChildren();
+
+	TradeRouteList->ClearChildren();
 
 	StopFastForward();
 }
@@ -359,6 +456,55 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 		];
 	}
 }
+void SFlareOrbitalMenu::UpdateTradeRouteList()
+{
+	UFlareCompany* Company = MenuManager->GetPC()->GetCompany();
+	if (Company)
+	{
+		TradeRouteList->ClearChildren();
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+		TArray<UFlareTradeRoute*>& TradeRoutes = Company->GetCompanyTradeRoutes();
+
+		for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
+		{
+			UFlareTradeRoute* TradeRoute = TradeRoutes[RouteIndex];
+
+			// Add line
+			TradeRouteList->AddSlot()
+			.AutoHeight()
+			.HAlign(HAlign_Right)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SHorizontalBox)
+
+				// Inspect
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Width(8)
+					.Text(TradeRoute->GetTradeRouteName())
+					.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
+					.OnClicked(this, &SFlareOrbitalMenu::OnInspectTradeRouteClicked, TradeRoute)
+				]
+
+				// Remove
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Transparent(true)
+					.Text(FText())
+					.HelpText(LOCTEXT("RemoveTradeRouteHelp", "Remove this trade route"))
+					.Icon(FFlareStyleSet::GetIcon("Stop"))
+					.OnClicked(this, &SFlareOrbitalMenu::OnDeleteTradeRoute, TradeRoute)
+					.Width(1)
+				]
+			];
+		}
+	}
+}
+
 
 
 /*----------------------------------------------------
@@ -497,9 +643,24 @@ FText SFlareOrbitalMenu::GetTravelText() const
 				if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
 				{
 					int64 RemainingDuration = Travel->GetRemainingTravelDuration();
-					FText TravelText = FText::Format(LOCTEXT("TravelTextFormat", "{0} : {1}"),
-						Travel->GetFleet()->GetFleetName(),
-						Travel->GetFleet()->GetStatusInfo());
+					FText TravelText;
+
+					// Trade route version
+					if (Travel->GetFleet()->GetCurrentTradeRoute())
+					{
+						TravelText = FText::Format(LOCTEXT("TravelTextTradeRouteFormat", "\u2022 {0} ({1})\n    {2}"),
+							Travel->GetFleet()->GetFleetName(),
+							Travel->GetFleet()->GetCurrentTradeRoute()->GetTradeRouteName(),
+							Travel->GetFleet()->GetStatusInfo());
+					}
+					else
+					{
+						TravelText = FText::Format(LOCTEXT("TravelTextManualFormat", "\u2022 {0}\n    {1}"),
+							Travel->GetFleet()->GetFleetName(),
+							Travel->GetFleet()->GetStatusInfo());
+					}
+
+					// Add data
 					FFlareIncomingEvent TravelEvent;
 					TravelEvent.Text = TravelText;
 					TravelEvent.RemainingDuration = RemainingDuration;
@@ -559,14 +720,17 @@ FText SFlareOrbitalMenu::GetTravelText() const
 					}
 				}
 			}
-			// TODO merge with world event system
 
+			// Generate list
+			FString Result;
 			IncomingEvents.Sort(&EventDurationComparator);
-
-			FString Result = "\n";
-			for(FFlareIncomingEvent& Event : IncomingEvents)
+			for (FFlareIncomingEvent& Event : IncomingEvents)
 			{
 				Result += Event.Text.ToString() + "\n";
+			}
+			if (Result.Len() == 0)
+			{
+				Result = LOCTEXT("NoTravel", "No travel.").ToString();
 			}
 
 			return FText::FromString(Result);
@@ -654,6 +818,36 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 		MenuManager->GetPC()->SimulateConfirmed();
 	}
 }
+
+void SFlareOrbitalMenu::OnNewTradeRouteClicked()
+{
+	UFlareTradeRoute* TradeRoute = MenuManager->GetPC()->GetCompany()->CreateTradeRoute(LOCTEXT("UntitledRoute", "Untitled Route"));
+	check(TradeRoute);
+
+	FFlareMenuParameterData Data;
+	Data.Route = TradeRoute;
+	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
+}
+
+void SFlareOrbitalMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
+{
+	FFlareMenuParameterData Data;
+	Data.Route = TradeRoute;
+	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
+}
+
+void SFlareOrbitalMenu::OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute)
+{
+	check(TradeRoute);
+	TradeRoute->Dissolve();
+	UpdateTradeRouteList();
+}
+
+void SFlareOrbitalMenu::OnWorldEconomyClicked()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_WorldEconomy);
+}
+
 
 #undef LOCTEXT_NAMESPACE
 
