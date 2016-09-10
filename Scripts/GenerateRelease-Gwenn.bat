@@ -2,7 +2,7 @@
 
 set OutputDir=D:\HR-Builds
 set ProjectDir=D:\HeliumRain
-set EngineDir=D:\Dock\UE4_Packaged\4.13
+set EngineDir=D:\Dock\UE4
 
 set VersionName=dev
 if not "%1"=="" (
