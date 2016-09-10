@@ -370,7 +370,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.SmallContentPadding)
 					[
 						SAssignNew(PauseInMenusButton, SFlareButton)
-						.Text(LOCTEXT("PauseInMenus", "Pause game in menus"))
+						.Text(LOCTEXT("PauseInMenus", "Pause in menus"))
 						.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu"))
 						.Toggle(true)
 						.OnClicked(this, &SFlareSettingsMenu::OnPauseInMenusToggle)
@@ -1107,6 +1107,9 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toggle overlay", "Open / close flight overlay")))
 		->AddActionMapping("ToggleOverlay")
 		->AddDefaults(EKeys::RightMouseButton)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Back", "Previous menu")))
+		->AddActionMapping("BackMenu")
+		->AddDefaults(EKeys::Escape)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open ship menu", "Open ship menu")))
 		->AddActionMapping("ShipMenu")
 		->AddDefaults(EKeys::F2)));
