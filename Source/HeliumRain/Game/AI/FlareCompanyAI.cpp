@@ -112,7 +112,7 @@ FFlareCompanyAISave* UFlareCompanyAI::Save()
 
 void UFlareCompanyAI::Tick()
 {
-	if (Company != Game->GetPC()->GetCompany())
+	if (Game && Company != Game->GetPC()->GetCompany())
 	{
 		UpdateDiplomacy();
 	}
@@ -120,7 +120,7 @@ void UFlareCompanyAI::Tick()
 
 void UFlareCompanyAI::Simulate()
 {
-	if (Company != Game->GetPC()->GetCompany())
+	if (Game && Company != Game->GetPC()->GetCompany())
 	{
 		// Simulate company attitude towards others
 		UpdateDiplomacy();
