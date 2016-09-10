@@ -382,7 +382,10 @@ bool SFlareFleetMenu::IsAddDisabled() const
 
 bool SFlareFleetMenu::IsRemoveDisabled() const
 {
-	if (!ShipToRemove || !SelectedFleet || SelectedFleet->GetShips().Num() <= 1)
+	if (ShipToRemove == NULL
+	 || ShipToRemove == MenuManager->GetPC()->GetPlayerShip()
+	 || SelectedFleet == NULL
+	 || SelectedFleet->GetShips().Num() <= 1)
 	{
 		return true;
 	}
