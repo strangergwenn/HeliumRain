@@ -10,7 +10,7 @@
 
 #define LOCTEXT_NAMESPACE "FlareTradeRouteMenu"
 
-#define MAX_WAIT_LIMIT 30
+#define MAX_WAIT_LIMIT 29
 #define MAX_QUANTITY_LIMIT 2000
 
 
@@ -1326,7 +1326,7 @@ void SFlareTradeRouteMenu::OnWaitLimitToggle()
 	{
 		if (WaitLimitButton->IsActive())
 		{
-			SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT;
+			SelectedOperation->MaxWait = (WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT) + 1;
 		}
 		else
 		{
@@ -1347,7 +1347,7 @@ void SFlareTradeRouteMenu::OnWaitLimitChanged(float Value)
 {
 	if (SelectedOperation)
 	{
-		SelectedOperation->MaxWait = WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT;
+		SelectedOperation->MaxWait = (WaitLimitSlider->GetValue() * MAX_WAIT_LIMIT) + 1;
 	}
 }
 

@@ -128,6 +128,12 @@ UFlareSimulatedSector* UFlareTradeRoute::UpdateTargetSector()
 
 bool UFlareTradeRoute::ProcessCurrentOperation(FFlareTradeRouteSectorOperationSave* Operation)
 {
+	if(Operation->MaxWait == 0)
+	{
+		// Minimum wait is 1
+		Operation->MaxWait = 1;
+	}
+
 	if (Operation->MaxWait != -1 && TradeRouteData.CurrentOperationDuration >= Operation->MaxWait)
 	{
 		FLOGV("Max wait duration reach (%d)", Operation->MaxWait);
@@ -261,6 +267,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 	SectorHelper::FlareTradeRequest Request;
 	Request.Resource = Resource;
 	Request.Operation = Operation->Type;
+	Request.CargoLimit = -1;
 
 	for (int ShipIndex = 0; ShipIndex < UsefullShips.Num(); ShipIndex++)
 	{
