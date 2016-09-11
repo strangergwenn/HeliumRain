@@ -164,7 +164,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						.AutoHeight()
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("Travels", "Travels"))
+							.Text(LOCTEXT("Travels", "Travels & Orders"))
 							.TextStyle(&Theme.SubTitleFont)
 						]
 
@@ -691,9 +691,8 @@ FText SFlareOrbitalMenu::GetTravelText() const
 							FFlareSpacecraftDescription* OrderDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass());
 							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration() + OrderDesc->CycleCost.ProductionTime;
 
-							FText ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "A {0} ordered to {1} ({2} left)"),
+							FText ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered ({1} left)"),
 								OrderDesc->Name,
-								Companies[CompanyIndex]->GetCompanyName(),
 								FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
 
 							FFlareIncomingEvent ProductionEvent;
@@ -707,9 +706,8 @@ FText SFlareOrbitalMenu::GetTravelText() const
 						{
 							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration();
 
-							FText ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "A {0} is being built by {1} ({2} left)"),
+							FText ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "\u2022 {0} being built ({1} left)"),
 								MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
-								Companies[CompanyIndex]->GetCompanyName(),
 								FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
 
 							FFlareIncomingEvent ProductionEvent;
