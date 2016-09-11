@@ -74,9 +74,18 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+protected:
+
+	/*----------------------------------------------------
+		Internal
+	----------------------------------------------------*/
+
+	/** Fill the key biding list */
 	TSharedRef<SWidget> BuildKeyBindingBox();
 
-protected:
+	/** Fill a key biding pane */
+	void BuildKeyBindingPane(TArray<TSharedPtr<FSimpleBind> >& BindList, TSharedPtr<SVerticalBox>& Form);
+
 
 	/*----------------------------------------------------
 		Callbacks
@@ -170,8 +179,10 @@ protected:
 	TSharedPtr<STextBlock>	        			MasterVolumeLabel;
 	
 	// Controls
-	TSharedPtr<SVerticalBox>                    ControlList;
+	TSharedPtr<SVerticalBox>                    ControlListLeft;
+	TSharedPtr<SVerticalBox>                    ControlListRight;
 	TArray<TSharedPtr<FSimpleBind> >            Binds;
+	TArray<TSharedPtr<FSimpleBind> >            Binds2;
 
 	// Resolution data
 	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;
