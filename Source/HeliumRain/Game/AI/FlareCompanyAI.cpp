@@ -1399,7 +1399,7 @@ bool UFlareCompanyAI::IsBuildingShip(bool Military)
 
 TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindShipyards()
 {
-	TArray<UFlareSimulatedSpacecraft*> Shipyards;
+	TArray<UFlareSimulatedSpacecraft*> ShipyardList;
 
 	// Find shipyard
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
@@ -1422,14 +1422,14 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindShipyards()
 				UFlareFactory* Factory = Factories[Index];
 				if (Factory->IsShipyard())
 				{
-					Shipyards.Add(Station);
+					ShipyardList.Add(Station);
 					break;
 				}
 			}
 		}
 	}
 
-	return Shipyards;
+	return ShipyardList;
 }
 
 
