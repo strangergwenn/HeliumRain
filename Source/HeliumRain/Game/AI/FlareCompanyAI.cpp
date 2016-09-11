@@ -126,6 +126,7 @@ void UFlareCompanyAI::Simulate()
 		UpdateDiplomacy();
 	
 		ResourceFlow = ComputeWorldResourceFlow();
+		WorldStats = WorldHelper::ComputeWorldResourceStats(Game);
 
 		// Compute input and output ressource equation (ex: 100 + 10/ day)
 		TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
@@ -1304,6 +1305,14 @@ TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSi
 			//FLOGV("Factory %s as %f as malus for resource %s", *FactoryDescription->Name.ToString(), DisponibilityMalus, *Resource->Resource->Data.Name.ToString());
 
 		}
+
+		// TODO : moderate, like 10% margin with mals in 0 to -10%
+		if(WorldStats[&Resource->Resource->Data].Balance < 0)
+		{
+			// Input resource in underflow, don't build a useless station
+			return TPairInitializer<float, float>(0, 0);
+		}
+
 	}
 
 	for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num(); ResourceIndex++)
@@ -1321,6 +1330,13 @@ TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSi
 			float DisponibilityBonus = ProducedFlow - (float)ResourceFlow[&Resource->Resource->Data];
 			//FLOGV("Factory %s as %f as bonus for resource %s", *FactoryDescription->Name.ToString(), DisponibilityBonus, *Resource->Resource->Data.Name.ToString());
 			Bonus += DisponibilityBonus;
+		}
+
+		// TODO : moderate, like 10% margin with mals in 0 to 10%
+		if(WorldStats[&Resource->Resource->Data].Balance > 0)
+		{
+			// Output resource in underflow, don't build a useless station
+			return TPairInitializer<float, float>(0, 0);
 		}
 
 	}

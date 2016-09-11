@@ -2,6 +2,7 @@
 
 #include "Object.h"
 #include "../FlareGameTypes.h"
+#include "../FlareWorldHelper.h"
 #include "FlareCompanyAI.generated.h"
 
 
@@ -136,7 +137,7 @@ protected:
 
 	// Cache
 	TMap<FFlareResourceDescription*, int32>  ResourceFlow;
-
+	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
 
 public:
 
