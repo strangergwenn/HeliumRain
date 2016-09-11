@@ -563,6 +563,8 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	Company = World->LoadCompany(CompanyData);
 	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());
 
+	Company->PostLoad();
+
 	return Company;
 }
 
