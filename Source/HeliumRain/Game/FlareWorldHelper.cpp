@@ -111,12 +111,12 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 
 		ResourceStats->Balance = ResourceStats->Production - ResourceStats->Consumption;
 
-		FLOGV("World stats for %s: Production=%f Consumption=%f Balance=%f Stock=%d",
+		/*FLOGV("World stats for %s: Production=%f Consumption=%f Balance=%f Stock=%d",
 			  *Resource->Name.ToString(),
 			  ResourceStats->Production,
 			  ResourceStats->Consumption,
 			  ResourceStats->Balance,
-			  ResourceStats->Stock);
+			  ResourceStats->Stock);*/
 	}
 
 	return WorldStats;
