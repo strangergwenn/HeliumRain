@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../../Game/FlareWorldHelper.h"
 #include "../../Data/FlareResourceCatalogEntry.h"
 
 
@@ -54,6 +55,18 @@ protected:
 	/** Get the resource price info */
 	FText GetResourceDescription() const;
 
+	/** Get the resource stock info */
+	FText GetResourceStock() const;
+
+	/** Get the resource production info */
+	FText GetResourceProduction() const;
+
+	/** Get the resource consumption info */
+	FText GetResourceConsumption() const;
+
+	/** Get the resource balance info */
+	FText GetResourceBalance() const;
+
 	/** Get the sector info */
 	FText GetSectorText(UFlareSimulatedSector* Sector) const;
 
@@ -83,6 +96,7 @@ protected:
 	// Target data
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
 	FFlareResourceDescription*                      TargetResource;
+	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
 
 	// Slate data
 	TSharedPtr<SVerticalBox>                        SectorList;

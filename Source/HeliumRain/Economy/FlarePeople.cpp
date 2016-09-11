@@ -349,7 +349,7 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 	return Quantity - RemainingQuantity;
 }
 
-uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
+float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 {
 	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
 	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
@@ -372,7 +372,7 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 		if(FoodToHave > PeopleData.FoodStock)
 		{
 			uint32 FoodToBuy = FoodToHave - PeopleData.FoodStock;
-			return FoodToBuy / 1000;
+			return FoodToBuy / 1000.f;
 		}
 	}
 	else if (Resource == Fuel)
@@ -386,7 +386,7 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 		if (FuelToHave > PeopleData.FuelStock)
 		{
 			int32 FuelToBuy = FuelToHave - PeopleData.FuelStock;
-			return FuelToBuy / 1000;
+			return FuelToBuy / 1000.f;
 		}
 	}
 	else if (Resource == Tools)
@@ -400,7 +400,7 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 		if (ToolToHave > PeopleData.ToolStock)
 		{
 			int32 ToolToBuy = ToolToHave - PeopleData.ToolStock;
-			return ToolToBuy / 1000;
+			return ToolToBuy / 1000.f;
 		}
 	}
 	else if (Resource == Tech)
@@ -414,7 +414,7 @@ uint32 UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource
 		if (TechToHave > PeopleData.TechStock)
 		{
 			int32 TechToBuy = TechToHave - PeopleData.TechStock;
-			return TechToBuy / 1000;
+			return TechToBuy / 1000.f;
 		}
 	}
 
