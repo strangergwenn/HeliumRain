@@ -114,7 +114,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Left)
 					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(FastForwardAuto, SFlareButton)
+						SNew(SFlareButton)
 						.Width(3.5)
 						.Text(LOCTEXT("WorldEconomy", "World prices"))
 						.HelpText(LOCTEXT("WorldEconomyInfo", "See global prices, usage and variation for all resources"))
