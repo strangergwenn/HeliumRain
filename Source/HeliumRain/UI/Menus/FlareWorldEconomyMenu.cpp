@@ -101,53 +101,16 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.Padding(Theme.ContentPadding)
+		.HAlign(HAlign_Center)
 		[
-			SNew(SHorizontalBox)
-			// Stock
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
+			SNew(SBox)
+			.WidthOverride(2 * Theme.ContentWidth)
+			.Padding(FMargin(0))
 			.HAlign(HAlign_Left)
-			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TextFont)
-				.Text(this, &SFlareWorldEconomyMenu::GetResourceStock)
-				.WrapTextAt(Theme.ContentWidth)
-			]
-
-			// Production
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.HAlign(HAlign_Left)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
-				.Text(this, &SFlareWorldEconomyMenu::GetResourceProduction)
-				.WrapTextAt(Theme.ContentWidth)
-			]
-
-			// Consumption
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.HAlign(HAlign_Left)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
-				.Text(this, &SFlareWorldEconomyMenu::GetResourceConsumption)
-				.WrapTextAt(Theme.ContentWidth)
-			]
-
-			// Balance
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.HAlign(HAlign_Left)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
-				.Text(this, &SFlareWorldEconomyMenu::GetResourceBalance)
+				.Text(this, &SFlareWorldEconomyMenu::GetResourceInfo)
 				.WrapTextAt(Theme.ContentWidth)
 			]
 		]
@@ -269,7 +232,12 @@ void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSi
 	TargetResource = Resource;
 	WorldStats = WorldHelper::ComputeWorldResourceStats(MenuManager->GetGame());
 
-	ResourceSelector->SetSelectedItem(MenuManager->GetPC()->GetGame()->GetResourceCatalog()->GetEntry(TargetResource));
+	// Update resource selector
+	ResourceSelector->RefreshOptions();
+	if (TargetResource)
+	{
+		ResourceSelector->SetSelectedItem(MenuManager->GetPC()->GetGame()->GetResourceCatalog()->GetEntry(TargetResource));
+	}
 
 	GenerateSectorList();
 }
@@ -454,21 +422,7 @@ FText SFlareWorldEconomyMenu::GetResourceDescription() const
 	return FText();
 }
 
-FText SFlareWorldEconomyMenu::GetResourceStock() const
-{
-	if (TargetResource)
-	{
-		if (WorldStats.Contains(TargetResource))
-		{
-			return FText::Format(LOCTEXT("StockInfoFormat", "Stock: {0}"),
-				FText::AsNumber(WorldStats[TargetResource].Stock));
-		}
-	}
-
-	return FText();
-}
-
-FText SFlareWorldEconomyMenu::GetResourceProduction() const
+FText SFlareWorldEconomyMenu::GetResourceInfo() const
 {
 	if (TargetResource)
 	{
@@ -477,52 +431,27 @@ FText SFlareWorldEconomyMenu::GetResourceProduction() const
 			FNumberFormattingOptions Format;
 			Format.MaximumFractionalDigits = 1;
 
-			return FText::Format(LOCTEXT("ProductionInfoFormat", "Production: {0}/day"),
-				FText::AsNumber(WorldStats[TargetResource].Production, &Format));
-		}
-	}
-
-	return FText();
-}
-
-FText SFlareWorldEconomyMenu::GetResourceConsumption() const
-{
-	if (TargetResource)
-	{
-		if (WorldStats.Contains(TargetResource))
-		{
-			FNumberFormattingOptions Format;
-			Format.MaximumFractionalDigits = 1;
-
-			return FText::Format(LOCTEXT("ConsumptionInfoFormat", "Consumption: {0}/day"),
-				FText::AsNumber(WorldStats[TargetResource].Consumption, &Format));
-		}
-	}
-
-	return FText();
-}
-
-FText SFlareWorldEconomyMenu::GetResourceBalance() const
-{
-	if (TargetResource)
-	{
-		if (WorldStats.Contains(TargetResource))
-		{
+			// Balance info
+			FText BalanceText;
 			float Balance = WorldStats[TargetResource].Balance;
-			FText BalanceSign;
-
 			if (Balance > 0)
 			{
-				BalanceSign = LOCTEXT("BalanceSignPlus", "+");
+				BalanceText = FText::Format(LOCTEXT("BalanceInfoPlusFormat", "+{0} / day"),
+					FText::AsNumber(Balance, &Format));
 			}
-
-			FNumberFormattingOptions Format;
-			Format.MaximumFractionalDigits = 1;
-
-
-			return FText::Format(LOCTEXT("BalanceInfoFormat", "Balance: {0}{1}/day"),
-				BalanceSign,
-				FText::AsNumber(Balance, &Format));
+			else
+			{
+				BalanceText = FText::Format(LOCTEXT("BalanceInfoNegFormat", "{0} / day"),
+					FText::AsNumber(Balance, &Format));
+			}
+			
+			// Generate info
+			return FText::Format(LOCTEXT("StockInfoFormat",
+					"\u2022 Worldwide stock: {0}\n\u2022 Worldwide production: {1} / day\n\u2022 Worldwide usage : {2} / day\n\u2022 Balance: {3}"),
+				FText::AsNumber(WorldStats[TargetResource].Stock),
+				FText::AsNumber(WorldStats[TargetResource].Production, &Format),
+				FText::AsNumber(WorldStats[TargetResource].Consumption, &Format),
+				BalanceText);
 		}
 	}
 

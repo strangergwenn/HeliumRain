@@ -55,17 +55,8 @@ protected:
 	/** Get the resource price info */
 	FText GetResourceDescription() const;
 
-	/** Get the resource stock info */
-	FText GetResourceStock() const;
-
-	/** Get the resource production info */
-	FText GetResourceProduction() const;
-
-	/** Get the resource consumption info */
-	FText GetResourceConsumption() const;
-
-	/** Get the resource balance info */
-	FText GetResourceBalance() const;
+	/** Get the resource usage & production info */
+	FText GetResourceInfo() const;
 
 	/** Get the sector info */
 	FText GetSectorText(UFlareSimulatedSector* Sector) const;
