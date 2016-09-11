@@ -421,10 +421,6 @@ const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescript
 			{
 				return FFlareStyleSet::GetIcon("MS");
 			}
-			else if (Characteristic->Size == EFlarePartSize::M)
-			{
-				return FFlareStyleSet::GetIcon("MM");
-			}
 			else if (Characteristic->Size == EFlarePartSize::L)
 			{
 				return FFlareStyleSet::GetIcon("ML");
@@ -435,10 +431,6 @@ const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescript
 			if (Characteristic->Size == EFlarePartSize::S)
 			{
 				return FFlareStyleSet::GetIcon("CS");
-			}
-			else if (Characteristic->Size == EFlarePartSize::M)
-			{
-				return FFlareStyleSet::GetIcon("CM");
 			}
 			else if (Characteristic->Size == EFlarePartSize::L)
 			{

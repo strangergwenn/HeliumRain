@@ -14,10 +14,18 @@ namespace EFlarePartSize
 	enum Type
 	{
 		S,
-		M,
 		L,
 		Num
 	};
+}
+
+namespace EFlarePartSize
+{
+	inline FString ToString(EFlarePartSize::Type EnumValue)
+	{
+		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlarePartSize"), true);
+		return EnumPtr->GetEnumName(EnumValue);
+	}
 }
 
 /** Part type values */
