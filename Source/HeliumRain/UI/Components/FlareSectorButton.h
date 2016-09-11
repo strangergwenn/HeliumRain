@@ -54,9 +54,12 @@ protected:
 	/** Brush callback */
 	const FSlateBrush* GetBackgroundBrush() const;
 
+	/** Get the main color */
+	FSlateColor GetMainColor() const;
+
 	/** Get the color to use for the border */
 	FSlateColor GetBorderColor() const;
-	
+
 	/** Get the shadow color */
 	FLinearColor GetShadowColor() const;
 

@@ -54,6 +54,7 @@ void SFlareSectorButton::Construct(const FArguments& InArgs)
 						// Icon
 						SNew(SImage)
 						.Image(this, &SFlareSectorButton::GetBackgroundBrush)
+						.ColorAndOpacity(this, &SFlareSectorButton::GetMainColor)
 					]
 				]
 			]
@@ -154,9 +155,6 @@ FText SFlareSectorButton::GetSectorText() const
 
 		}
 
-
-
-
 		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}{2}\n{3}"), SectorTitle, ShipText, StationText, BattleStatusText);
 	}
 
@@ -168,6 +166,21 @@ const FSlateBrush* SFlareSectorButton::GetBackgroundBrush() const
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	return (IsHovered() ? &Theme.SectorButtonActiveBackground : &Theme.SectorButtonBackground);
+}
+
+FSlateColor SFlareSectorButton::GetMainColor() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	FLinearColor Color = FLinearColor::White;
+
+	if (Sector == MenuManager->GetPC()->GetPlayerFleet()->GetCurrentSector())
+	{
+		Color = Theme.FriendlyColor;
+	}
+
+	Color = (IsHovered() ? Color : Color.Desaturate(0.1));
+	return FSlateColor(Color);
 }
 
 FSlateColor SFlareSectorButton::GetBorderColor() const
