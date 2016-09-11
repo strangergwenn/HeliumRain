@@ -7,7 +7,6 @@
 #include "../Economy/FlareResource.h"
 #include "FlareSimulatedSpacecraft.generated.h"
 
-class UFlareGame;
 class UFlareSimulatedSector;
 class UFlareFleet;
 class UFlareCargoBay;

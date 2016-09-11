@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../../Game/FlareGameTypes.h"
 #include "FlareNotification.generated.h"
 
 
