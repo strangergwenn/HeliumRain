@@ -1452,7 +1452,8 @@ FText AFlareSpacecraft::GetShipStatus() const
 	// Build mode text
 	if (Nav->IsDocked())
 	{
-		ModeText = LOCTEXT("Docked", "Docked");
+		ModeText = FText::Format(LOCTEXT("DockedFormat", "Docked in {0}"),
+			CurrentSector->GetSimulatedSector()->GetSectorName());
 	}
 	else if (Parent->GetCurrentFleet()->IsTraveling())
 	{
@@ -1477,7 +1478,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 	else
 	{
-		ModeText = FText::Format(LOCTEXT("SpeedPausedFormat-", "{1} in {2}"),
+		ModeText = FText::Format(LOCTEXT("SpeedPausedFormat-", "{0} in {1}"),
 			GetWeaponsSystem()->GetWeaponModeInfo(),
 			CurrentSector->GetSimulatedSector()->GetSectorName());
 	}
