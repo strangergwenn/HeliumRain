@@ -73,3 +73,19 @@ float SpacecraftHelper::GetIntersectionPosition(FVector TargetLocation, FVector 
 	}
 	return InterceptTime;
 }
+
+int32 FFlareSpacecraftDescription::GetCapacity()
+{
+	return CargoBayCapacity * CargoBayCount;
+}
+
+
+bool FFlareSpacecraftDescription::IsStation()
+{
+	return OrbitalEngineCount == 0;
+}
+
+bool FFlareSpacecraftDescription::IsMilitary()
+{
+	return GunSlots.Num() > 0 || TurretSlots.Num() > 0;
+}

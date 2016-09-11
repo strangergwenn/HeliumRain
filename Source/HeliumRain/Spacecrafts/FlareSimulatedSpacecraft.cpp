@@ -120,12 +120,12 @@ EFlarePartSize::Type UFlareSimulatedSpacecraft::GetSize()
 
 bool UFlareSimulatedSpacecraft::IsMilitary() const
 {
-	return FFlareSpacecraftDescription::IsMilitary(SpacecraftDescription);
+	return SpacecraftDescription->IsMilitary();
 }
 
 bool UFlareSimulatedSpacecraft::IsStation() const
 {
-	return FFlareSpacecraftDescription::IsStation(SpacecraftDescription);
+	return SpacecraftDescription->IsStation();
 }
 
 
@@ -411,11 +411,11 @@ const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescript
 {
 	if (Characteristic)
 	{
-		if (FFlareSpacecraftDescription::IsStation(Characteristic))
+		if (Characteristic->IsStation())
 		{
 			return FFlareStyleSet::GetIcon("SS");
 		}
-		else if (FFlareSpacecraftDescription::IsMilitary(Characteristic))
+		else if (Characteristic->IsMilitary())
 		{
 			if (Characteristic->Size == EFlarePartSize::S)
 			{
@@ -439,16 +439,6 @@ const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescript
 		}
 	}
 	return NULL;
-}
-
-bool FFlareSpacecraftDescription::IsStation(FFlareSpacecraftDescription* SpacecraftDesc)
-{
-	return SpacecraftDesc->OrbitalEngineCount == 0;
-}
-
-bool FFlareSpacecraftDescription::IsMilitary(FFlareSpacecraftDescription* SpacecraftDesc)
-{
-	return SpacecraftDesc->GunSlots.Num() > 0 || SpacecraftDesc->TurretSlots.Num() > 0;
 }
 
 #undef LOCTEXT_NAMESPACE

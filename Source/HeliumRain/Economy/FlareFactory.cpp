@@ -207,6 +207,24 @@ void UFlareFactory::ClearOutputLimit(FFlareResourceDescription* Resource)
 
 void UFlareFactory::OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 {
+	if(!IsShipyard())
+	{
+		FLOGV("%s failed to order %s to %s at %s: not a shipyard",
+			  *OrderCompany->GetCompanyName().ToString(), *ShipIdentifier.ToString(),
+			  *Parent->GetCompany()->GetCompanyName().ToString(), *Parent->GetImmatriculation().ToString());
+		return;
+	}
+
+
+	if(Parent->GetCompany()->GetWarState(OrderCompany) == EFlareHostility::Hostile)
+	{
+		// Not possible to buy ship to hostile company
+		FLOGV("%s failed to order %s to %s at %s: they are at war",
+			  *OrderCompany->GetCompanyName().ToString(), *ShipIdentifier.ToString(),
+			  *Parent->GetCompany()->GetCompanyName().ToString(), *Parent->GetImmatriculation().ToString());
+		return;
+	}
+
 	if (FactoryData.OrderShipCompany != NAME_None)
 	{
 		CancelOrder();

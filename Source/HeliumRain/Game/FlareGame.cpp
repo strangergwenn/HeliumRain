@@ -808,7 +808,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	FString NickName;
 	CurrentImmatriculationIndex++;
 	FFlareSpacecraftDescription* SpacecraftDesc = SpacecraftCatalog->Get(TargetClass);
-	bool IsStation = FFlareSpacecraftDescription::IsStation(SpacecraftDesc);
+	bool IsStation = SpacecraftDesc->IsStation();
 
 	// Company name
 	Immatriculation += Company->GetShortName().ToString().ToUpper();

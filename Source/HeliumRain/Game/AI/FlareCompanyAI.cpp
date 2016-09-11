@@ -12,6 +12,8 @@
 #define STATION_CONSTRUCTION_PRICE_BONUS 1.2
 // TODO, make it depend on player CA
 #define AI_NERF_RATIO 0.5
+// TODO, make it depend on company's nature
+#define AI_CARGO_DIVERSITY_THRESOLD 10
 
 
 /*----------------------------------------------------
@@ -1174,75 +1176,195 @@ void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSe
 
 void UFlareCompanyAI::UpdateShipAcquisition(int32& IdleCargoCapacity)
 {
+	// 2 pass : tranport pass and military pass
+	// For the transport pass only one ship is created at the same time
+	// For the military pass, only one ship if not at war, as many ship as possible if at war
+
+	FLOGV("UFlareCompanyAI::UpdateShipAcquisition : IdleCargoCapacity = %d", IdleCargoCapacity);
+
+
 	if (IdleCargoCapacity <= 0)
 	{
-		FLOGV("UFlareCompanyAI::UpdateShipAcquisition : IdleCargoCapacity = %d", IdleCargoCapacity);
+		UpdateCargoShipAcquisition();
 
-		// Find shipyard
-		for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	}
+}
+
+void UFlareCompanyAI::UpdateCargoShipAcquisition()
+{
+	// For the transport pass, the best ship is choose. The best ship is the one with the small capacity, but
+	// only if the is no more then the AI_CARGO_DIVERSITY_THERESOLD
+
+
+	// Check if a ship is building
+	//TODO Cache
+	TArray<UFlareSimulatedSpacecraft*> Shipyards = FindShipyards();
+	for(int32 ShipyardIndex = 0; ShipyardIndex < Shipyards.Num(); ShipyardIndex++)
+	{
+		UFlareSimulatedSpacecraft* Shipyard =Shipyards[ShipyardIndex];
+
+		TArray<UFlareFactory*>& Factories = Shipyard->GetFactories();
+
+		for (int32 Index = 0; Index < Factories.Num(); Index++)
 		{
-			UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
-
-			for (int32 StationIndex = 0; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
+			UFlareFactory* Factory = Factories[Index];
+			if(Factory->GetTargetShipCompany() == Company->GetIdentifier())
 			{
-				UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
-				TArray<UFlareFactory*>& Factories = Station->GetFactories();
-
-				for (int32 Index = 0; Index < Factories.Num(); Index++)
+				FFlareSpacecraftDescription* BuildingShip = Game->GetSpacecraftCatalog()->Get(Factory->GetTargetShipClass());
+				if(!BuildingShip->IsMilitary())
 				{
-					UFlareFactory* Factory = Factories[Index];
-					if (!Factory->IsShipyard())
-					{
-						continue;
-					}
+					// Already building. Don't build another
+					FLOGV("Already building a ship in %s at %s!", *Shipyard->GetCurrentSector()->GetSectorName().ToString(),
+						 *Shipyard->GetImmatriculation().ToString());
+					return;
+				}
+			}
+		}
+	}
 
-					// Can produce only if nobody as order a ship and nobody is buidling a ship
-					if (Factory->GetOrderShipCompany() == NAME_None && Factory->GetTargetShipCompany() == NAME_None)
-					{
-						int64 CompanyMoney = Company->GetMoney();
-						FName ShipClassToOrder = NAME_None;
-						float CostSafetyMargin = 2.0f;
 
-						// Large factory
-						if (Factory->IsLargeShipyard())
-						{
-							if (UFlareGameTools::ComputeSpacecraftPrice("ship-atlas", Sector, true) * CostSafetyMargin < CompanyMoney)
-							{
-								ShipClassToOrder = "ship-atlas";
-							}
-						}
+	// Count owned ships
+	TMap<FFlareSpacecraftDescription*, int32> OwnedShipCount;
+	for(int32 ShipIndex = 0; ShipIndex < Company->GetCompanyShips().Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = Company->GetCompanyShips()[ShipIndex];
 
-						// Small factory
-						else if (Factory->IsSmallShipyard())
-						{
-							if (UFlareGameTools::ComputeSpacecraftPrice("ship-omen", Sector, true) * CostSafetyMargin < CompanyMoney)
-							{
-								ShipClassToOrder = "ship-omen";
-							}
-							else if (UFlareGameTools::ComputeSpacecraftPrice("ship-solen", Sector, true) * CostSafetyMargin < CompanyMoney)
-							{
-								ShipClassToOrder = "ship-solen";
-							}
-						}
+		if(OwnedShipCount.Contains(Ship->GetDescription()))
+		{
+			OwnedShipCount[Ship->GetDescription()]++;
+		}
+		else
+		{
+			OwnedShipCount.Add(Ship->GetDescription(), 1);
+		}
+	}
 
-						// Order the target ship
-						if (ShipClassToOrder != NAME_None)
-						{
-							FLOGV("UFlareCompanyAI::UpdateShipAcquisition : Ordering spacecraft : '%s'", *ShipClassToOrder.ToString());
-							Factory->OrderShip(Company, ShipClassToOrder);
-							Factory->Start();
-						}
-					}
+	FFlareSpacecraftDescription* BestShipDescription = NULL;
+	FFlareSpacecraftDescription* BiggestShipDescription = NULL;
+
+	for (int SpacecraftIndex = 0; SpacecraftIndex < Game->GetSpacecraftCatalog()->ShipCatalog.Num(); SpacecraftIndex++)
+	{
+		UFlareSpacecraftCatalogEntry* Entry = Game->GetSpacecraftCatalog()->ShipCatalog[SpacecraftIndex];
+		FFlareSpacecraftDescription* Description = &Entry->Data;
+
+		if(Description->IsMilitary())
+		{
+			continue;
+		}
+
+
+		if (!OwnedShipCount.Contains(Description) || OwnedShipCount[Description] < AI_CARGO_DIVERSITY_THRESOLD)
+		{
+			if(BestShipDescription == NULL || BestShipDescription->GetCapacity() > Description->GetCapacity())
+			{
+				BestShipDescription = Description;
+			}
+		}
+
+		if(BiggestShipDescription == NULL || BiggestShipDescription->GetCapacity() < Description->GetCapacity())
+		{
+			BiggestShipDescription = Description;
+		}
+	}
+
+
+	if(BestShipDescription == NULL)
+	{
+		// If no best ship, the thresold is reach for each ship, so build the bigger ship
+		BestShipDescription = BiggestShipDescription;
+	}
+
+	if(BestShipDescription == NULL)
+	{
+		FLOG("ERROR: no ship to build");
+		return;
+	}
+
+
+
+	for(int32 ShipyardIndex = 0; ShipyardIndex < Shipyards.Num(); ShipyardIndex++)
+	{
+		UFlareSimulatedSpacecraft* Shipyard =Shipyards[ShipyardIndex];
+
+		TArray<UFlareFactory*>& Factories = Shipyard->GetFactories();
+
+		for (int32 Index = 0; Index < Factories.Num(); Index++)
+		{
+			UFlareFactory* Factory = Factories[Index];
+
+			// Can produce only if nobody as order a ship and nobody is buidling a ship
+			if (Factory->GetOrderShipCompany() == NAME_None && Factory->GetTargetShipCompany() == NAME_None)
+			{
+				int64 CompanyMoney = Company->GetMoney();
+
+				float CostSafetyMargin = 2.0f;
+
+				// Large factory
+				if (Factory->IsLargeShipyard()&& BestShipDescription->Size != EFlarePartSize::L)
+				{
+					// Not compatible factory
+					continue;
+				}
+
+				// Large factory
+				if (Factory->IsSmallShipyard()&& BestShipDescription->Size != EFlarePartSize::S)
+				{
+					// Not compatible factory
+					continue;
+				}
+
+				if (UFlareGameTools::ComputeSpacecraftPrice(BestShipDescription->Identifier, Shipyard->GetCurrentSector(), true) * CostSafetyMargin < CompanyMoney)
+				{
+					FName ShipClassToOrder = BestShipDescription->Identifier;
+					FLOGV("UFlareCompanyAI::UpdateShipAcquisition : Ordering spacecraft : '%s'", *ShipClassToOrder.ToString());
+					Factory->OrderShip(Company, ShipClassToOrder);
+					Factory->Start();
+					return;
 				}
 			}
 		}
 	}
 }
 
-
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/
+TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindShipyards()
+{
+	TArray<UFlareSimulatedSpacecraft*> Shipyards;
+
+	// Find shipyard
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+
+		for (int32 StationIndex = 0; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
+		{
+			UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
+
+			if(Company->GetWarState(Station->GetCompany()) == EFlareHostility::Hostile)
+			{
+				continue;
+			}
+
+			TArray<UFlareFactory*>& Factories = Station->GetFactories();
+
+			for (int32 Index = 0; Index < Factories.Num(); Index++)
+			{
+				UFlareFactory* Factory = Factories[Index];
+				if (Factory->IsShipyard())
+				{
+					Shipyards.Add(Station);
+					break;
+				}
+			}
+		}
+	}
+
+	return Shipyards;
+}
+
+
 
 TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 {

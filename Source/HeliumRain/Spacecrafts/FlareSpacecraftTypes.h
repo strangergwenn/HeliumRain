@@ -645,9 +645,11 @@ struct FFlareSpacecraftDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	int32 MaxLevel;
 
-	static bool IsStation(FFlareSpacecraftDescription* SpacecraftDesc);
+	int32 GetCapacity();
 
-	static bool IsMilitary(FFlareSpacecraftDescription* SpacecraftDesc);
+	bool IsStation();
+
+	bool IsMilitary();
 
 	static const FSlateBrush* GetIcon(FFlareSpacecraftDescription* Characteristic);
 };

@@ -1599,7 +1599,7 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 	Cost += Desc->CycleCost.ProductionCost;
 
 	// For stations, use the sectore penalty
-	if (FFlareSpacecraftDescription::IsStation(Desc) && ConstructionPrice)
+	if (Desc->IsStation() && ConstructionPrice)
 	{
 		Cost = Sector->GetStationConstructionFee(Cost);
 	}

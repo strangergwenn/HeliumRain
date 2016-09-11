@@ -92,10 +92,14 @@ protected:
 	/** Buy / build ships at shipyards */
 	void UpdateShipAcquisition(int32& IdleCargoCapacity);
 
+	void UpdateCargoShipAcquisition();
 
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
+
+	/** Get a list of shipyard */
+	TArray<UFlareSimulatedSpacecraft*> FindShipyards();
 
 	/** Get a list of idle cargos */
 	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
