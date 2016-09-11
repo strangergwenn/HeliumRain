@@ -92,11 +92,24 @@ protected:
 	/** Buy / build ships at shipyards */
 	void UpdateShipAcquisition(int32& IdleCargoCapacity);
 
+	/** Buy cargos ships */
 	void UpdateCargoShipAcquisition();
+
+	/** Buy war ships */
+	void UpdateWarShipAcquisition();
 
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
+
+	/** Order one ship at any shipyard */
+	bool OrderOneShip(FFlareSpacecraftDescription* ShipDescription);
+
+	FFlareSpacecraftDescription* FindBestShipToBuild(bool Military);
+
+
+	/** Return if a ship is currently build for the company */
+	bool IsBuildingShip(bool Military);
 
 	/** Get a list of shipyard */
 	TArray<UFlareSimulatedSpacecraft*> FindShipyards();
@@ -142,6 +155,7 @@ protected:
 	// Cache
 	TMap<FFlareResourceDescription*, int32>  ResourceFlow;
 	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
+	TArray<UFlareSimulatedSpacecraft*>       Shipyards;
 
 public:
 

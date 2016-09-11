@@ -237,7 +237,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 	{
 		PlayerShipLocation = GetGame()->GetPC()->GetShipPawn()->GetActorLocation();
 	}
-	
+
 #ifdef PLANETARIUM_DEBUG
 	DrawDebugSphere(GetWorld(), FVector::ZeroVector, DisplayDistance /1000 , 32, FColor::Blue, false);
 
@@ -348,7 +348,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 			float MaxOcclusionAngularSurface = PI*FMath::Square(FMath::Min(SunOcclusionAngle, OcclusionAngle));
 			float MaxOcclusion = MaxOcclusionAngularSurface / SunAngularSurface;
 			float Occlusion = OcclusionRatio * MaxOcclusion;
-			
+
 			/*FLOGV("SetupCelestialBody %s CenterAngularDistance = %f", *BodyPosition->Body->Name.ToString(), CenterAngularDistance);
 			FLOGV("SetupCelestialBody %s SunOcclusionAngle = %f", *BodyPosition->Body->Name.ToString(), SunOcclusionAngle);
 			FLOGV("SetupCelestialBody %s OcclusionAngle = %f", *BodyPosition->Body->Name.ToString(), OcclusionAngle);
@@ -356,7 +356,7 @@ void AFlarePlanetarium::SetupCelestialBody(CelestialBodyPosition* BodyPosition, 
 			FLOGV("SetupCelestialBody %s MaxOcclusionAngularSurface = %f", *BodyPosition->Body->Name.ToString(), MaxOcclusionAngularSurface);
 			FLOGV("SetupCelestialBody %s MaxOcclusion = %f", *BodyPosition->Body->Name.ToString(), MaxOcclusion);
 			FLOGV("SetupCelestialBody %s Occlusion = %f", *BodyPosition->Body->Name.ToString(), Occlusion);*/
-			
+
 			if (Occlusion > SunOcclusion)
 			{
 				// Keep only best occlusion
@@ -377,7 +377,7 @@ void AFlarePlanetarium::PrepareCelestialBody(FFlareCelestialBody* Body, FPrecise
 	BodyPosition.Radius = Body->Radius;
 	BodyPosition.Distance = BodyPosition.AlignedLocation.Size();
 	BodyPosition.TotalRotation = Body->RotationAngle + AngleOffset;
-	
+
 	// Find the celestial body component
 	UStaticMeshComponent* BodyComponent = NULL;
 	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());

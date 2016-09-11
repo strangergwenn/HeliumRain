@@ -689,6 +689,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 	Value.MoneyValue = GetMoney();
 	Value.StockValue = 0;
 	Value.ShipsValue = 0;
+	Value.ArmyValue = 0;
 	Value.StationsValue = 0;
 
 	for (int SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafts.Num(); SpacecraftIndex++)
@@ -721,6 +722,12 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 		else
 		{
 			Value.ShipsValue += SpacecraftPrice;
+		}
+
+		if(Spacecraft->IsMilitary())
+		{
+			// TODO Upgrade cost
+			Value.ArmyValue += SpacecraftPrice;
 		}
 
 		// Value of the stock

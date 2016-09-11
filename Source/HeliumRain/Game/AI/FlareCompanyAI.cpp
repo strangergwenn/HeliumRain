@@ -15,6 +15,9 @@
 // TODO, make it depend on company's nature
 #define AI_CARGO_DIVERSITY_THRESOLD 10
 
+// TODO, make it depend on company's nature
+#define AI_CARGO_PEACE_MILILTARY_THRESOLD 10
+
 
 /*----------------------------------------------------
 	Public API
@@ -129,6 +132,7 @@ void UFlareCompanyAI::Simulate()
 	
 		ResourceFlow = ComputeWorldResourceFlow();
 		WorldStats = WorldHelper::ComputeWorldResourceStats(Game);
+		Shipyards = FindShipyards();
 
 		// Compute input and output ressource equation (ex: 100 + 10/ day)
 		TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
@@ -1188,6 +1192,8 @@ void UFlareCompanyAI::UpdateShipAcquisition(int32& IdleCargoCapacity)
 		UpdateCargoShipAcquisition();
 
 	}
+
+	UpdateWarShipAcquisition();
 }
 
 void UFlareCompanyAI::UpdateCargoShipAcquisition()
@@ -1197,8 +1203,60 @@ void UFlareCompanyAI::UpdateCargoShipAcquisition()
 
 
 	// Check if a ship is building
-	//TODO Cache
-	TArray<UFlareSimulatedSpacecraft*> Shipyards = FindShipyards();
+	if(IsBuildingShip(false))
+	{
+		return;
+	}
+
+	FFlareSpacecraftDescription* ShipDescription = FindBestShipToBuild(false);
+	if(ShipDescription == NULL)
+	{
+		return;
+	}
+
+	OrderOneShip(ShipDescription);
+}
+
+void UFlareCompanyAI::UpdateWarShipAcquisition()
+{
+	// For the war pass there is 2 states : slow preventive ship buy. And war state.
+	//
+	// - In the first state, the company will limit his army to a percentage of his value.
+	//   It will create only one ship at once
+	// - In the second state, it is war, the company will limit itself to de double of the
+	//   army value of all enemies and buy as many ship it can.
+	CompanyValue Value = Company->GetCompanyValue();
+
+	// TODO, war behavior
+
+	if(Value.ArmyValue > Value.TotalValue * AI_CARGO_PEACE_MILILTARY_THRESOLD)
+	{
+		// Enough army
+		return;
+	}
+
+	// Check if a ship is building
+	if(IsBuildingShip(true))
+	{
+		return;
+	}
+
+	FFlareSpacecraftDescription* ShipDescription = FindBestShipToBuild(true);
+
+	OrderOneShip(ShipDescription);
+}
+
+/*----------------------------------------------------
+	Helpers
+----------------------------------------------------*/
+
+bool UFlareCompanyAI::OrderOneShip(FFlareSpacecraftDescription* ShipDescription)
+{
+	if(ShipDescription == NULL)
+	{
+		return false;
+	}
+
 	for(int32 ShipyardIndex = 0; ShipyardIndex < Shipyards.Num(); ShipyardIndex++)
 	{
 		UFlareSimulatedSpacecraft* Shipyard =Shipyards[ShipyardIndex];
@@ -1208,20 +1266,45 @@ void UFlareCompanyAI::UpdateCargoShipAcquisition()
 		for (int32 Index = 0; Index < Factories.Num(); Index++)
 		{
 			UFlareFactory* Factory = Factories[Index];
-			if(Factory->GetTargetShipCompany() == Company->GetIdentifier())
+
+			// Can produce only if nobody as order a ship and nobody is buidling a ship
+			if (Factory->GetOrderShipCompany() == NAME_None && Factory->GetTargetShipCompany() == NAME_None)
 			{
-				FFlareSpacecraftDescription* BuildingShip = Game->GetSpacecraftCatalog()->Get(Factory->GetTargetShipClass());
-				if(!BuildingShip->IsMilitary())
+				int64 CompanyMoney = Company->GetMoney();
+
+				float CostSafetyMargin = 2.0f;
+
+				// Large factory
+				if (Factory->IsLargeShipyard()&& ShipDescription->Size != EFlarePartSize::L)
 				{
-					// Already building. Don't build another
-					FLOGV("Already building a ship in %s at %s!", *Shipyard->GetCurrentSector()->GetSectorName().ToString(),
-						 *Shipyard->GetImmatriculation().ToString());
-					return;
+					// Not compatible factory
+					continue;
+				}
+
+				// Large factory
+				if (Factory->IsSmallShipyard()&& ShipDescription->Size != EFlarePartSize::S)
+				{
+					// Not compatible factory
+					continue;
+				}
+
+				if (UFlareGameTools::ComputeSpacecraftPrice(ShipDescription->Identifier, Shipyard->GetCurrentSector(), true) * CostSafetyMargin < CompanyMoney)
+				{
+					FName ShipClassToOrder = ShipDescription->Identifier;
+					FLOGV("UFlareCompanyAI::UpdateShipAcquisition : Ordering spacecraft : '%s'", *ShipClassToOrder.ToString());
+					Factory->OrderShip(Company, ShipClassToOrder);
+					Factory->Start();
+					return true;
 				}
 			}
 		}
 	}
 
+	return false;
+}
+
+FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
+{
 
 	// Count owned ships
 	TMap<FFlareSpacecraftDescription*, int32> OwnedShipCount;
@@ -1247,21 +1330,27 @@ void UFlareCompanyAI::UpdateCargoShipAcquisition()
 		UFlareSpacecraftCatalogEntry* Entry = Game->GetSpacecraftCatalog()->ShipCatalog[SpacecraftIndex];
 		FFlareSpacecraftDescription* Description = &Entry->Data;
 
-		if(Description->IsMilitary())
+		if(Military != Description->IsMilitary())
 		{
 			continue;
 		}
 
 
+
+
 		if (!OwnedShipCount.Contains(Description) || OwnedShipCount[Description] < AI_CARGO_DIVERSITY_THRESOLD)
 		{
-			if(BestShipDescription == NULL || BestShipDescription->GetCapacity() > Description->GetCapacity())
+			if(BestShipDescription == NULL || (Military?
+											   BestShipDescription->Mass > Description-> Mass
+											   : BestShipDescription->GetCapacity() > Description->GetCapacity()))
 			{
 				BestShipDescription = Description;
 			}
 		}
 
-		if(BiggestShipDescription == NULL || BiggestShipDescription->GetCapacity() < Description->GetCapacity())
+		if(BiggestShipDescription == NULL || (Military ?
+											  BestShipDescription->Mass < Description->Mass
+											  : BiggestShipDescription->GetCapacity() < Description->GetCapacity()))
 		{
 			BiggestShipDescription = Description;
 		}
@@ -1277,11 +1366,14 @@ void UFlareCompanyAI::UpdateCargoShipAcquisition()
 	if(BestShipDescription == NULL)
 	{
 		FLOG("ERROR: no ship to build");
-		return;
+		return NULL;
 	}
 
+	return BestShipDescription;
+}
 
-
+bool UFlareCompanyAI::IsBuildingShip(bool Military)
+{
 	for(int32 ShipyardIndex = 0; ShipyardIndex < Shipyards.Num(); ShipyardIndex++)
 	{
 		UFlareSimulatedSpacecraft* Shipyard =Shipyards[ShipyardIndex];
@@ -1291,44 +1383,20 @@ void UFlareCompanyAI::UpdateCargoShipAcquisition()
 		for (int32 Index = 0; Index < Factories.Num(); Index++)
 		{
 			UFlareFactory* Factory = Factories[Index];
-
-			// Can produce only if nobody as order a ship and nobody is buidling a ship
-			if (Factory->GetOrderShipCompany() == NAME_None && Factory->GetTargetShipCompany() == NAME_None)
+			if(Factory->GetTargetShipCompany() == Company->GetIdentifier())
 			{
-				int64 CompanyMoney = Company->GetMoney();
-
-				float CostSafetyMargin = 2.0f;
-
-				// Large factory
-				if (Factory->IsLargeShipyard()&& BestShipDescription->Size != EFlarePartSize::L)
+				FFlareSpacecraftDescription* BuildingShip = Game->GetSpacecraftCatalog()->Get(Factory->GetTargetShipClass());
+				if(Military == BuildingShip->IsMilitary())
 				{
-					// Not compatible factory
-					continue;
-				}
-
-				// Large factory
-				if (Factory->IsSmallShipyard()&& BestShipDescription->Size != EFlarePartSize::S)
-				{
-					// Not compatible factory
-					continue;
-				}
-
-				if (UFlareGameTools::ComputeSpacecraftPrice(BestShipDescription->Identifier, Shipyard->GetCurrentSector(), true) * CostSafetyMargin < CompanyMoney)
-				{
-					FName ShipClassToOrder = BestShipDescription->Identifier;
-					FLOGV("UFlareCompanyAI::UpdateShipAcquisition : Ordering spacecraft : '%s'", *ShipClassToOrder.ToString());
-					Factory->OrderShip(Company, ShipClassToOrder);
-					Factory->Start();
-					return;
+					return true;
 				}
 			}
 		}
 	}
+	return false;
 }
 
-/*----------------------------------------------------
-	Helpers
-----------------------------------------------------*/
+
 TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindShipyards()
 {
 	TArray<UFlareSimulatedSpacecraft*> Shipyards;

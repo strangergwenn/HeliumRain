@@ -19,6 +19,7 @@ struct CompanyValue
 	int64 MoneyValue;
 	int64 StockValue;
 	int64 ShipsValue;
+	int64 ArmyValue;
 	int64 StationsValue;
 
 	/** Ships + Stations*/

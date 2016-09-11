@@ -400,6 +400,7 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 	FLOGV("    - Spacecrafts %f $", Value.SpacecraftsValue/ 100.);
 	FLOGV("      - Ships %f $", Value.ShipsValue/ 100.);
 	FLOGV("      - Stations %f $", Value.StationsValue/ 100.);
+	FLOGV("    - Army %f $", Value.ArmyValue/ 100.);
 	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();
 	FLOGV("  > %d fleets", CompanyFleets.Num());
 	for (int i = 0; i < CompanyFleets.Num(); i++)
@@ -1617,6 +1618,8 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 		FFlareFactoryResource* Resource = &Desc->CycleCost.OutputResources[ResourceIndex];
 		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
 	}
+
+	// Upgrade value
 
 	return FMath::Max((int64) 0, Cost) * (WithMargin ? 1.2f : 1.0f);
 }
