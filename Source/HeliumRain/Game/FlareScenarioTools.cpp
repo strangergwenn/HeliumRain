@@ -39,6 +39,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	Anomaly =     World->FindSector("anomaly");
 	BlueHeart =   World->FindSector("blue-heart");
 	Lighthouse =  World->FindSector("lighthouse");
+	BlueShores =  World->FindSector("blue-shores");
 	TheSpire =    World->FindSector("the-spire");
 	
 	// Notable sectors (Anka)
@@ -51,6 +52,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	FrozenRealm = World->FindSector("frozen-realm");
 	ShoreOfIce =  World->FindSector("shore-of-ice");
 	Ruins =       World->FindSector("ruins");
+	WinterJunction = World->FindSector("winter-junction");
 
 	// Notable sectors (Asta)
 	Decay =       World->FindSector("decay");
@@ -58,6 +60,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 
 	// Notable sectors (Adena)
 	Solitude =    World->FindSector("solitude");
+	Tranquility = World->FindSector("tranquility");
 
 	// Companies
 	MiningSyndicate =      World->FindCompanyByShortName("MSY");
@@ -177,12 +180,7 @@ void UFlareScenarioTools::SetupWorld()
 	SetupKnownSectors(Pirates);
 
 	// Player-exclusive sectors
-	PlayerCompany->DiscoverSector(TheDig);
-	PlayerCompany->DiscoverSector(Decay);
-	PlayerCompany->DiscoverSector(Anomaly);
-	//PlayerCompany->DiscoverSector(Decay);
-	PlayerCompany->DiscoverSector(ShoreOfIce);
-	PlayerCompany->DiscoverSector(Solitude);
+	SetupPlayerSectors();
 
 	// Company setup
 	PlayerCompany->GiveMoney(5000000);
@@ -290,24 +288,44 @@ void UFlareScenarioTools::SetupArtifacts()
 {
 }
 
+void UFlareScenarioTools::SetupPlayerSectors()
+{
+	// Notable sectors (Nema)
+	PlayerCompany->DiscoverSector(FirstLight);
+	PlayerCompany->DiscoverSector(Anomaly);
+
+	// Notable sectors (Asta)
+	PlayerCompany->DiscoverSector(Decay);
+
+	// Notable sectors (Hela)
+	PlayerCompany->DiscoverSector(ShoreOfIce);
+
+	// Notable sectors (Adena)
+	PlayerCompany->DiscoverSector(Solitude);
+}
+
 void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 {
 	// Notable sectors (Nema)
 	Company->DiscoverSector(TheDepths);
-	Company->DiscoverSector(FirstLight);
 	Company->DiscoverSector(MinersHome);
-	Company->DiscoverSector(BlueHeart);
 	Company->DiscoverSector(Lighthouse);
+	Company->DiscoverSector(BlueHeart);
+	Company->DiscoverSector(BlueShores);
 	Company->DiscoverSector(TheSpire);
 
 	// Notable sectors (Anka)
 	Company->DiscoverSector(Outpost);
 	Company->DiscoverSector(Crossroads);
+	Company->DiscoverSector(TheDig);
 
 	// Notable sectors (Hela)
 	Company->DiscoverSector(FrozenRealm);
-	Company->DiscoverSector(ShoreOfIce);
 	Company->DiscoverSector(Ruins);
+	Company->DiscoverSector(WinterJunction);
+
+	// Notable sectors (Adena)
+	Company->DiscoverSector(Tranquility);
 }
 
 

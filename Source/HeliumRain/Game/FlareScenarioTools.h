@@ -43,6 +43,9 @@ protected:
 	/** Setup artifacts */
 	void SetupArtifacts();
 
+	/** Discover all private sectors*/
+	void SetupPlayerSectors();
+
 	/** Discover all public sectors*/
 	void SetupKnownSectors(UFlareCompany* Company);
 
@@ -81,6 +84,7 @@ protected:
 	UFlareSimulatedSector*                     Anomaly;
 	UFlareSimulatedSector*                     BlueHeart;
 	UFlareSimulatedSector*                     Lighthouse;
+	UFlareSimulatedSector*                     BlueShores;
 	UFlareSimulatedSector*                     TheSpire;
 
 	// Notable sectors (Anka)
@@ -93,6 +97,7 @@ protected:
 	UFlareSimulatedSector*                     FrozenRealm;
 	UFlareSimulatedSector*                     ShoreOfIce;
 	UFlareSimulatedSector*                     Ruins;
+	UFlareSimulatedSector*                     WinterJunction;
 
 	// Notable sectors (Asta)
 	UFlareSimulatedSector*                     Decay;
@@ -100,6 +105,7 @@ protected:
 
 	// Notable sectors (Adena)
 	UFlareSimulatedSector*                     Solitude;
+	UFlareSimulatedSector*                     Tranquility;
 	
 	// Companies
 	UFlareCompany*                             MiningSyndicate;
