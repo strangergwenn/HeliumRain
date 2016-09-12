@@ -485,17 +485,17 @@ bool SFlareSectorMenu::IsTravelDisabled() const
 {
 	UFlareFleet* SelectedFleet = FleetSelector->GetSelectedItem();
 
-	if (MenuManager->GetPC()->GetPlayerFleet() && MenuManager->GetPC()->GetPlayerFleet()->IsTraveling())
+	if (SelectedFleet == NULL)
 	{
 		return true;
 	}
-	else if (SelectedFleet && SelectedFleet->GetCurrentSector() != TargetSector && SelectedFleet->CanTravel())
+	else if (SelectedFleet->IsTraveling() || !SelectedFleet->CanTravel() || SelectedFleet->GetCurrentSector() == TargetSector)
 	{
-		return false;
+		return true;
 	}
 	else
 	{
-		return true;
+		return false;
 	}
 }
 
