@@ -38,31 +38,36 @@ void SFlareTooltip::Construct(const FArguments& InArgs)
 				.BorderImage(&Theme.BackgroundBrush)
 				.BorderBackgroundColor(this, &SFlareTooltip::GetTooltipColor)
 				[
-					SNew(SVerticalBox)
-
-					// Title
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
+					SNew(SBorder)
+					.BorderImage(&Theme.BackgroundBrush)
+					.BorderBackgroundColor(this, &SFlareTooltip::GetTooltipColor)
 					[
-						SNew(STextBlock)
-						.Text(this, &SFlareTooltip::GetTitleText)
-						.TextStyle(&Theme.NameFont)
-						.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
-						.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
-					]
+						SNew(SVerticalBox)
 
-					// Content
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareTooltip::GetHelpText)
-						.TextStyle(&Theme.SmallFont)
-						.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
-						.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
-						.WrapTextAt(Theme.ContentWidth / 2 - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+						// Title
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareTooltip::GetTitleText)
+							.TextStyle(&Theme.NameFont)
+							.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
+							.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
+						]
+
+						// Content
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareTooltip::GetHelpText)
+							.TextStyle(&Theme.SmallFont)
+							.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
+							.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
+							.WrapTextAt(Theme.ContentWidth / 2 - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+						]
 					]
 				]
 			]
