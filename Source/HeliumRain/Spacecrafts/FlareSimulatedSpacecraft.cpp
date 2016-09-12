@@ -128,17 +128,15 @@ bool UFlareSimulatedSpacecraft::IsStation() const
 	return SpacecraftDescription->IsStation();
 }
 
-
 bool UFlareSimulatedSpacecraft::CanFight() const
 {
-	return GetDamageSystem()->IsAlive() && IsMilitary() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+	return GetDamageSystem()->IsAlive() && IsMilitary() && !GetDamageSystem()->IsDisarmed();
 }
 
 bool UFlareSimulatedSpacecraft::CanTravel() const
 {
-	return !IsTrading() && GetDamageSystem()->IsAlive() && GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) > 0;
+	return !IsTrading() && GetDamageSystem()->IsAlive() && !GetDamageSystem()->IsStranded();
 }
-
 
 FName UFlareSimulatedSpacecraft::GetImmatriculation() const
 {

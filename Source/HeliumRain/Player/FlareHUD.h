@@ -160,7 +160,7 @@ protected:
 	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
 
 	/** Draw a status icon */
-	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, float Health, UTexture2D* Texture);
+	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, UTexture2D* Texture);
 
 	/** Draw an icon */
 	void DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color = FLinearColor::White, bool Center = false);

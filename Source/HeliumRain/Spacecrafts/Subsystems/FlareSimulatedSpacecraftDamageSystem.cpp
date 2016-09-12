@@ -28,8 +28,8 @@ void UFlareSimulatedSpacecraftDamageSystem::Initialize(UFlareSimulatedSpacecraft
 	Spacecraft = OwnerSpacecraft;
 	Description = Spacecraft->GetDescription();
 	Data = OwnerData;
-
 }
+
 
 /*----------------------------------------------------
 	System API
@@ -50,15 +50,46 @@ float UFlareSimulatedSpacecraftDamageSystem::GetPowerOutageDuration() const
 	return Data->PowerOutageDelay;
 }
 
+bool UFlareSimulatedSpacecraftDamageSystem::IsStranded() const
+{
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, false) < 0.3f || IsUncontrollable());
+}
+
+bool UFlareSimulatedSpacecraftDamageSystem::IsUncontrollable() const
+{
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, false) < 0.8f);
+}
+
+bool UFlareSimulatedSpacecraftDamageSystem::IsDisarmed() const
+{
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, false) < 0.3f);
+}
+
+float UFlareSimulatedSpacecraftDamageSystem::GetGlobalHealth()
+{
+	float GlobalHealth = (GetSubsystemHealth(EFlareSubsystem::SYS_Temperature, false, false)
+		+ GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, false)
+		+ GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, false)
+		+ GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, false)
+		+ GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, false));
+
+	if (Spacecraft->IsMilitary())
+	{
+		GlobalHealth += GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, false);
+		return GlobalHealth / 6.0f;
+	}
+	else
+	{
+		return GlobalHealth / 5.0f;
+	}
+}
+
 float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor, bool WithAmmo) const
 {
 	UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
 
 	// TODO cache
-
-
-
-
+	
 	float Health = 0.f;
 
 	switch(Type)

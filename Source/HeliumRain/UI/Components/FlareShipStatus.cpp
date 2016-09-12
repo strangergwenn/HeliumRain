@@ -13,31 +13,16 @@
 void SFlareShipStatus::Construct(const FArguments& InArgs)
 {
 	TargetShip = InArgs._Ship;
-	CenterIcons = InArgs._Center;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	ChildSlot
 	.VAlign(VAlign_Fill)
 	.HAlign(HAlign_Fill)
-	.Padding(FMargin(8))
+	.Padding(FMargin(8, 8, 32, 8))
 	[
 		SNew(SHorizontalBox)
 
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(SImage)
-			.Image(FFlareStyleSet::GetIcon("Temperature"))
-			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Temperature)
-		]
-
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(SImage)
-			.Image(FFlareStyleSet::GetIcon("Power"))
-			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Power)
-		]
-
+		// Power icon
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
 		[
@@ -46,6 +31,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Propulsion)
 		]
 
+		// RCS icon
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
 		[
@@ -54,14 +40,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_RCS)
 		]
 
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(SImage)
-			.Image(FFlareStyleSet::GetIcon("LifeSupport"))
-			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_LifeSupport)
-		]
-
+		// Weapon icon
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
 		[
@@ -69,18 +48,23 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 			.Image(FFlareStyleSet::GetIcon("Shell"))
 			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Weapon)
 		]
+
+		// Health
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SBox)
+			.WidthOverride(60)
+			.VAlign(VAlign_Center)
+			[
+				SNew(SProgressBar)
+				.Percent(this, &SFlareShipStatus::GetGlobalHealth)
+				.Style(&Theme.ProgressBarStyle)
+			]
+		]
 	];
 
-	// Set visibility for the weapon indicator
-	if (TargetShip && !TargetShip->IsMilitary())
-	{
-		WeaponIndicator->SetVisibility(CenterIcons ? EVisibility::Collapsed : EVisibility::Hidden);
-	}
-
-	if (TargetShip)
-	{
-		SetVisibility(TargetShip->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
-	}
+	SetVisibility(EVisibility::Hidden);
 }
 
 
@@ -94,20 +78,19 @@ void SFlareShipStatus::SetTargetShip(UFlareSimulatedSpacecraft* Target)
 
 	if (TargetShip)
 	{
-		SetVisibility(TargetShip->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
-
+		SetVisibility(EVisibility::Visible);
 		if (TargetShip->IsMilitary())
 		{
 			WeaponIndicator->SetVisibility(EVisibility::Visible);
 		}
 		else
 		{
-			WeaponIndicator->SetVisibility(CenterIcons ? EVisibility::Collapsed : EVisibility::Hidden);
+			WeaponIndicator->SetVisibility(EVisibility::Hidden);
 		}
 	}
 	else
 	{
-		SetVisibility(EVisibility::Collapsed);
+		SetVisibility(EVisibility::Hidden);
 	}
 }
 
@@ -124,6 +107,22 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 	if (MenuManager && TargetShip)
 	{
 		FText Info;
+		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = TargetShip->GetDamageSystem();
+
+		if (DamageSystem->IsStranded())
+		{
+			Info = FText::Format(LOCTEXT("ShipStrandedFormat", "{0}This ship is stranded and can't exit the sector !\n"), Info);
+		}
+
+		if (DamageSystem->IsUncontrollable())
+		{
+			Info = FText::Format(LOCTEXT("ShipUncontrollableFormat", "{0}This ship is uncontrollable and can't move in the local space !\n"), Info);
+		}
+
+		if (TargetShip->IsMilitary() && DamageSystem->IsDisarmed())
+		{
+			Info = FText::Format(LOCTEXT("ShipDisarmedFormat", "{0}This ship is disarmed and unable to fight back !\n"), Info);
+		}
 
 		for (int32 Index = EFlareSubsystem::SYS_None + 1; Index <= EFlareSubsystem::SYS_Weapon; Index++)
 		{
@@ -131,10 +130,10 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 			{
 				continue;
 			}
-			Info = FText::Format(LOCTEXT("HealthInfoFormat", "{0}{1} : {2}%\n"),
+			Info = FText::Format(LOCTEXT("HealthInfoFormat", "{0}\n{1} : {2}%"),
 				Info,
 				UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName((EFlareSubsystem::Type)Index),
-				FText::AsNumber(100 * TargetShip->GetDamageSystem()->GetSubsystemHealth((EFlareSubsystem::Type)Index, false, true))
+				FText::AsNumber(100 * FMath::RoundToInt(DamageSystem->GetSubsystemHealth((EFlareSubsystem::Type)Index, false, false)))
 				);
 		}
 
@@ -153,19 +152,48 @@ void SFlareShipStatus::OnMouseLeave(const FPointerEvent& MouseEvent)
 	}
 }
 
-FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
+TOptional<float> SFlareShipStatus::GetGlobalHealth() const
 {
-	if (TargetShip && !TargetShip->IsStation())
+	if (TargetShip)
 	{
-		float Health = TargetShip->GetDamageSystem()->GetSubsystemHealth(Type, false, true);
-		return FFlareStyleSet::GetHealthColor(Health, false);
+		return TargetShip->GetDamageSystem()->GetGlobalHealth();
 	}
 	else
 	{
-		FLinearColor Result = FLinearColor::Black;
-		Result.A = 0;
-		return Result;
+		return 0;
 	}
+}
+
+FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
+{
+	FLinearColor Result = FLinearColor::Black;
+	Result.A = 0.0f;
+
+	// Ignore stations
+	if (TargetShip && !TargetShip->IsStation())
+	{
+		bool IsIncapacitated = false;
+		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = TargetShip->GetDamageSystem();
+
+		// Only those are used (see above)
+		switch (Type)
+		{
+			case EFlareSubsystem::SYS_Propulsion:    IsIncapacitated = DamageSystem->IsStranded();         break;
+			case EFlareSubsystem::SYS_RCS:           IsIncapacitated = DamageSystem->IsUncontrollable();   break;
+			case EFlareSubsystem::SYS_Weapon:        IsIncapacitated = DamageSystem->IsDisarmed();         break;
+			default: break;
+		}
+
+		// Show in red when disabled
+		if (IsIncapacitated)
+		{
+			const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+			Result = Theme.DamageColor;
+			Result.A = 1.0f;
+		}
+	}
+
+	return Result;
 }
 
 

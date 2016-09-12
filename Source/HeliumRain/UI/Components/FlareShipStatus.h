@@ -11,11 +11,9 @@ class SFlareShipStatus : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareShipStatus)
 		: _Ship(NULL)
-		, _Center(false)
 	{}
 
 	SLATE_ARGUMENT(UFlareSimulatedSpacecraft*, Ship)
-	SLATE_ARGUMENT(bool, Center)
 	
 	SLATE_END_ARGS()
 
@@ -45,6 +43,9 @@ protected:
 	/** Mouse left (tooltip) */
 	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
 
+	/** Get the current health */
+	TOptional<float> GetGlobalHealth() const;
+
 	/** Get the current color */
 	FSlateColor GetIconColor(EFlareSubsystem::Type Type) const;
 
@@ -56,11 +57,10 @@ protected:
 	----------------------------------------------------*/
 
 	// Ship data
-	UFlareSimulatedSpacecraft*                    TargetShip;
-	bool                                    CenterIcons;
+	UFlareSimulatedSpacecraft*                   TargetShip;
 
 	// Slate data
-	TSharedPtr<SImage>                      WeaponIndicator;
+	TSharedPtr<SImage>                           WeaponIndicator;
 
 
 };

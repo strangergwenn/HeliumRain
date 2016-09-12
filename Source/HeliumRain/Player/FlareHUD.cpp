@@ -1123,23 +1123,31 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 
 void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion), HUDPropulsionIcon);
-	Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport), HUDHealthIcon);
+	UFlareSimulatedSpacecraftDamageSystem* DamageSystem = Ship->GetParent()->GetDamageSystem();
 
-	if (Ship->GetParent()->IsMilitary())
+	if (DamageSystem->IsStranded())
 	{
-		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon), HUDWeaponIcon);
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDPropulsionIcon);
+	}
+
+	if (DamageSystem->IsUncontrollable())
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDRCSIcon);
+	}
+
+	if (Ship->GetParent()->IsMilitary() && DamageSystem->IsDisarmed())
+	{
+		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDWeaponIcon);
 	}
 }
 
-FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float DesignatorIconSize, float Health, UTexture2D* Texture)
+FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture)
 {
-	if (Health < 0.95f)
-	{
-		FLinearColor Color = FFlareStyleSet::GetHealthColor(Health);
-		Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
-		DrawHUDIcon(Position, DesignatorIconSize, Texture, Color);
-	}
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = Theme.DamageColor;
+	Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
+
+	DrawHUDIcon(Position, DesignatorIconSize, Texture, Color);
 
 	return Position + DesignatorIconSize * FVector2D(1, 0);
 }

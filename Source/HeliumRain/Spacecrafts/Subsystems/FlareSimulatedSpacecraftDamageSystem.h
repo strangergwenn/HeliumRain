@@ -56,17 +56,36 @@ public:
 		System Interface
 	----------------------------------------------------*/
 
+	/** Is this ship alive and well ? */
 	virtual bool IsAlive() const;
 
+	/** Is this ship temporarily unpowered ? */
 	virtual bool HasPowerOutage() const;
 
+	/** For how long ? */
 	virtual float GetPowerOutageDuration() const;
 
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false, bool WithAmmo = false) const;
-
+	/** Get the current temperature */
 	virtual float GetTemperature() const;
 
+	/** Get the max temperature*/
 	virtual float GetOverheatTemperature() const { return 1000; }
+
+
+	/** Is this ship unable to use orbital engines for inter-sector navigation ? */
+	virtual bool IsStranded() const;
+
+	/** Is this ship unable to manoeuver at all ? */
+	virtual bool IsUncontrollable() const;
+
+	/** Is this ship unable to fight ? */
+	virtual bool IsDisarmed() const;
+
+	/** Get the health */
+	virtual float GetGlobalHealth();
+
+	/** Get the detailed health for this subsystem */
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false, bool WithAmmo = false) const;
 
 protected:
 
@@ -75,6 +94,8 @@ protected:
 						 bool WithArmor) const;
 
 	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
+
+
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
