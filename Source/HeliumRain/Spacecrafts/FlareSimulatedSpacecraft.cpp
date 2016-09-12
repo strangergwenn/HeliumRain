@@ -6,7 +6,6 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Economy/FlareFactory.h"
-#include "../Spacecrafts/Subsystems/FlareSpacecraftDamageSystemInterface.h"
 #include "../Data/FlareFactoryCatalogEntry.h"
 #include "FlareSimulatedSpacecraft.h"
 

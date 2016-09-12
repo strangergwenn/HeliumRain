@@ -1,5 +1,4 @@
 #pragma once
-#include "FlareSpacecraftDamageSystemInterface.h"
 #include "FlareSpacecraftDamageSystem.generated.h"
 
 class AFlareSpacecraft;

@@ -233,6 +233,21 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 		}
 	}
 
+	// Ignore docking or docked station
+	AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(Other);
+
+	if(OtherSpacecraft && (
+			Spacecraft->GetDockingSystem()->IsDockedShip(OtherSpacecraft) ||
+			OtherSpacecraft->GetDockingSystem()->IsDockedShip(Spacecraft) ||
+			Spacecraft->GetDockingSystem()->IsGrantedShip(OtherSpacecraft) ||
+			OtherSpacecraft->GetDockingSystem()->IsGrantedShip(Spacecraft)))
+	{
+		FLOGV("WARNING: Avoid unexpected damage between docked or docking spacecraft : %s and %s",
+			  *Spacecraft->GetImmatriculation().ToString(),
+			  *OtherSpacecraft->GetImmatriculation().ToString());
+		return;
+	}
+
 	// Relative velocity
 	FVector DeltaVelocity = ((OtherRoot->GetPhysicsLinearVelocity() - Spacecraft->Airframe->GetPhysicsLinearVelocity()) / 100);
 
@@ -333,7 +348,6 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 
 	}
 
-	AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(Other);
 	UFlareCompany* DamageSource = NULL;
 	if (OtherSpacecraft)
 	{
