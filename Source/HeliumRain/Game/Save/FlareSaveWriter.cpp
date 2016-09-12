@@ -40,6 +40,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SavePlayer(FFlarePlayerSave* Data)
 
 	JsonObject->SetStringField("ScenarioId", FormatInt32(Data->ScenarioId));
 	JsonObject->SetStringField("CompanyIdentifier", Data->CompanyIdentifier.ToString());
+	JsonObject->SetStringField("PlayerFleetIdentifier", Data->PlayerFleetIdentifier.ToString());
 	JsonObject->SetStringField("LastFlownShipIdentifier", Data->LastFlownShipIdentifier.ToString());
 	JsonObject->SetObjectField("Quest", SaveQuest(&Data->QuestData));
 

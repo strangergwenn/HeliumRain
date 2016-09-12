@@ -75,6 +75,10 @@ struct FFlarePlayerSave
     UPROPERTY(EditAnywhere, Category = Save)
     FName CompanyIdentifier;
 
+	/** Identifier of the player fleet */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName PlayerFleetIdentifier;
+
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareQuestSave		QuestData;
 

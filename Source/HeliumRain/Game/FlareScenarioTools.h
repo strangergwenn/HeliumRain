@@ -27,6 +27,7 @@ public:
 
 	void GenerateDebugScenario();
 	
+	UFlareSimulatedSpacecraft* GenerateRecoveryShip();
 	
 protected:
 
@@ -55,7 +56,7 @@ protected:
 	----------------------------------------------------*/
 
 	/** Create the player ship */
-	void CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class);
+	UFlareSimulatedSpacecraft* CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class);
 
 	/** Spawn a series of asteroids in this sector */
 	void CreateAsteroids(UFlareSimulatedSector* Sector, int32 Count = 50, FVector DistributionShape = FVector(2, 50, 1));

@@ -324,6 +324,7 @@ void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 {
 	PlayerData = SavePlayerData;
 	Company = GetGame()->GetGameWorld()->FindCompany(PlayerData.CompanyIdentifier);
+	PlayerFleet = GetGame()->GetGameWorld()->FindFleet(PlayerData.PlayerFleetIdentifier);
 }
 
 void AFlarePlayerController::OnLoadComplete()
@@ -559,7 +560,7 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 
 UFlareFleet* AFlarePlayerController::GetPlayerFleet()
 {
-	return GetPlayerShip()->GetCurrentFleet();
+	return PlayerFleet;
 }
 
 bool AFlarePlayerController::SwitchToNextShip(bool Instant)

@@ -69,6 +69,7 @@ void UFlareSaveReaderV1::LoadPlayer(const TSharedPtr<FJsonObject> Object, FFlare
 {
 	LoadInt32(Object, "ScenarioId", &Data->ScenarioId);
 	LoadFName(Object, "CompanyIdentifier", &Data->CompanyIdentifier);
+	LoadFName(Object, "PlayerFleetIdentifier", &Data->PlayerFleetIdentifier);
 	LoadFName(Object, "LastFlownShipIdentifier", &Data->LastFlownShipIdentifier);
 
 	const TSharedPtr< FJsonObject >* Quest;

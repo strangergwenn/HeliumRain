@@ -157,6 +157,11 @@ void UFlareScenarioTools::GenerateDebugScenario()
 }
 
 
+UFlareSimulatedSpacecraft* UFlareScenarioTools::GenerateRecoveryShip()
+{
+	return CreatePlayerShip(FirstLight, "ship-solen");
+}
+
 /*----------------------------------------------------
 	Common world
 ----------------------------------------------------*/
@@ -333,11 +338,13 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 	Helpers
 ----------------------------------------------------*/
 
-void UFlareScenarioTools::CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class)
+UFlareSimulatedSpacecraft* UFlareScenarioTools::CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class)
 {
 	UFlareSimulatedSpacecraft* InitialShip = Sector->CreateShip(Class, PlayerCompany, FVector::ZeroVector);
 	InitialShip->GetCurrentFleet()->SetFleetName(LOCTEXT("PlayerFleetName", "Player Fleet"));
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
+	PlayerData->PlayerFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
+	return InitialShip;
 }
 
 void UFlareScenarioTools::CreateAsteroids(UFlareSimulatedSector* Sector, int32 Count, FVector DistributionShape)

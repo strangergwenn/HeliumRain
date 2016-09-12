@@ -332,6 +332,10 @@ protected:
 	UPROPERTY()
 	UFlareSimulatedSpacecraft*               PlayerShip;
 
+	/** Player fleet */
+	UPROPERTY()
+	UFlareFleet*                             PlayerFleet;
+
 	/** Player owned company */
 	UPROPERTY()
 	UFlareCompany*                           Company;
@@ -428,5 +432,10 @@ public:
 
 	/** Return the last flown ship. Return NULL if no last flown ship, or if it is destroyed */
 	UFlareSimulatedSpacecraft* GetPlayerShip();
+
+	FFlarePlayerSave* GetPlayerData()
+	{
+		return &PlayerData;
+	}
 };
 

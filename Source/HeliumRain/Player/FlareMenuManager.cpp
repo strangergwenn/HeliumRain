@@ -20,6 +20,7 @@
 #include "../UI/Menus/FlareWorldEconomyMenu.h"
 
 #include "../Player/FlarePlayerController.h"
+#include "../Game/FlareScenarioTools.h"
 #include "../HeliumRainLoadingScreen/FlareLoadingScreen.h"
 
 
@@ -504,6 +505,15 @@ void AFlareMenuManager::LoadGame()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	PC->GetGame()->LoadGame(PC);
 	
+	if(!PC->GetPlayerFleet())
+	{
+		// No player fleet, create recovery ship
+		UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(PC->GetGame(), UFlareScenarioTools::StaticClass());
+		ScenarioTools->Init(PC->GetCompany(), PC->GetPlayerData());
+		PC->Load(*PC->GetPlayerData());
+		PC->SetPlayerShip(ScenarioTools->GenerateRecoveryShip());
+	}
+
 	// No player ship ? Get one !
 	UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
 	if (CurrentShip)
@@ -512,39 +522,8 @@ void AFlareMenuManager::LoadGame()
 	}
 	else
 	{
-		// Find a better ship
-		TArray<UFlareSimulatedSpacecraft*> Ships = PC->GetCompany()->GetCompanyShips();
-		if (Ships.Num())
-		{
-			// Find a nice, good, playable ship
-			FLOG("AFlareMenuManager::LoadGame : no flyable player ship, looking for a flyable one");
-			for (int32 ShipIndex = 0; ShipIndex < Ships.Num(); ShipIndex++)
-			{
-				if (Ships[ShipIndex]->CanBeFlown(Reason))
-				{
-					PC->SetPlayerShip(Ships[ShipIndex]);
-					break;
-				}
-			}
-
-			// Find a ship no matter what
-			if (!PC->GetPlayerShip())
-			{
-				FLOG("AFlareMenuManager::LoadGame : still no flyable player ship, overriding limits");
-				for (int32 ShipIndex = 0; ShipIndex < Ships.Num(); ShipIndex++)
-				{
-					if (Ships[ShipIndex]->GetDamageSystem()->IsAlive())
-					{
-						PC->SetPlayerShip(Ships[ShipIndex]);
-						break;
-					}
-				}
-			}
-		}
-		else
-		{
-			FLOG("AFlareMenuManager::LoadGame : no ship in company");
-		}
+		// A new ship in player fleet
+		PC->SetPlayerShip(PC->GetPlayerFleet()->GetShips()[0]);
 	}
 
 	// We got a valid ship here
