@@ -124,7 +124,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		WeaponsSystem->TickSystem(DeltaSeconds);
 		DamageSystem->TickSystem(DeltaSeconds);
 
-		// Llights
+		// Lights
 		TArray<UActorComponent*> LightComponents = GetComponentsByClass(USpotLightComponent::StaticClass());
 		for (int32 ComponentIndex = 0; ComponentIndex < LightComponents.Num(); ComponentIndex++)
 		{
@@ -374,6 +374,16 @@ void AFlareSpacecraft::Destroyed()
 		}
 	}
 
+	// Stop lights
+	TArray<UActorComponent*> LightComponents = GetComponentsByClass(USpotLightComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < LightComponents.Num(); ComponentIndex++)
+	{
+		USpotLightComponent* Component = Cast<USpotLightComponent>(LightComponents[ComponentIndex]);
+		if (Component)
+		{
+			Component->SetActive(false);
+		}
+	}
 
 	Super::Destroyed();
 
