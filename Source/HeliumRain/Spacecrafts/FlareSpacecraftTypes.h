@@ -417,7 +417,8 @@ namespace EFlareSpacecraftCapability
 	{
 		Consumer,
 		Storage,
-		Maintenance
+		Maintenance,
+		Upgrade
 	};
 }
 

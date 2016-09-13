@@ -1195,19 +1195,24 @@ void AFlarePlayerController::WheelPressed()
 		// Docked controls
 		if (ShipPawn->GetNavigationSystem()->IsDocked() && !IsBattleInProgress)
 		{
-			if (ShipPawn->GetParent()->GetCurrentSector()->CanUpgrade(ShipPawn->GetParent()->GetCompany()))
-			{
-				MouseMenu->AddWidget("ShipUpgrade_Button", LOCTEXT("Upgrade", "Upgrade"),
-				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UpgradeShip));
-			}
-			MouseMenu->AddWidget("Undock_Button", LOCTEXT("Undock", "Undock"),
-				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UndockShip));
-
 			// Trade if possible
 			if (ShipPawn->GetParent()->GetDescription()->CargoBayCount > 0)
 			{
 				MouseMenu->AddWidget("Trade_Button", LOCTEXT("Trade", "Trade"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::StartTrading));
+			}
+
+			// Undock
+			MouseMenu->AddWidget("Undock_Button", LOCTEXT("Undock", "Undock"),
+				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UndockShip));
+
+			// Upgrade if possible
+			AFlareSpacecraft* DockStation = ShipPawn->GetNavigationSystem()->GetDockStation();
+			if (ShipPawn->GetParent()->GetCurrentSector()->CanUpgrade(ShipPawn->GetParent()->GetCompany())
+			 && ShipPawn->GetNavigationSystem()->IsDocked() && DockStation->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade))
+			{
+				MouseMenu->AddWidget("ShipUpgrade_Button", LOCTEXT("Upgrade", "Upgrade"),
+				FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::UpgradeShip));
 			}
 		}
 

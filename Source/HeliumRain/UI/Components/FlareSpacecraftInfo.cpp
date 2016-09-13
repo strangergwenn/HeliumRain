@@ -319,22 +319,28 @@ void SFlareSpacecraftInfo::Show()
 	{
 		// Useful data
 		UFlareSimulatedSpacecraft* PlayerShip = PC->GetPlayerShip();
+		AFlareSpacecraft* DockedStation = NULL;
 		AFlareSpacecraft* ActiveTargetSpacecraft = NULL;
 		if (TargetSpacecraft->IsActive())
 		{
 			ActiveTargetSpacecraft = TargetSpacecraft->GetActive();
+			DockedStation = ActiveTargetSpacecraft->GetNavigationSystem()->GetDockStation();
 		}
+
+		// Helpers
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PlayerShip;
 		bool IsFriendly = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
 		bool IsOutsidePlayerFleet = TargetSpacecraft->GetCurrentFleet() != PlayerShip->GetCurrentFleet();
-		bool IsDocked = ActiveTargetSpacecraft && (ActiveTargetSpacecraft->GetNavigationSystem()->IsDocked() || ActiveTargetSpacecraft->GetDockingSystem()->IsDockedShip(PlayerShip->GetActive()));
+		bool IsDocked = ActiveTargetSpacecraft && (DockedStation || ActiveTargetSpacecraft->GetDockingSystem()->IsDockedShip(PlayerShip->GetActive()));
 		bool IsStation = TargetSpacecraft->IsStation();
 		bool IsCargo = (TargetSpacecraft->GetDescription()->CargoBayCount > 0) && !IsStation;
 		
 		// Permissions
 		bool CanDock =     !IsDocked && IsFriendly && ActiveTargetSpacecraft && ActiveTargetSpacecraft->GetDockingSystem()->HasCompatibleDock(PlayerShip->GetActive());
-		bool CanUpgrade =  Owned && !IsStation && (IsDocked || (IsOutsidePlayerFleet && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany())));
+		bool CanUpgradeDistant = IsOutsidePlayerFleet && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
+		bool CanUpgradeDocked = ActiveTargetSpacecraft && DockedStation && DockedStation->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade);
+		bool CanUpgrade =  Owned && !IsStation && (CanUpgradeDistant || CanUpgradeDocked);
 		bool CanTrade =    Owned && IsCargo && (IsDocked || IsOutsidePlayerFleet);
 		bool CanScrap =    CanUpgrade && OwnedAndNotSelf;
 		
@@ -419,7 +425,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else
 		{
-			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked in a peaceful sector (ships outside the player fleet can be upgraded when a station is present)"));
+			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked at a supply outpost in a peaceful sector"));
 			UpgradeButton->SetDisabled(true);
 		}
 

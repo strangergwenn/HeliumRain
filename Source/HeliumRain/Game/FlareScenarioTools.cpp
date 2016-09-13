@@ -3,6 +3,7 @@
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 #include "FlareScenarioTools.h"
@@ -12,18 +13,13 @@
 
 
 /*----------------------------------------------------
-	Constructor
+	Public API
 ----------------------------------------------------*/
 
 UFlareScenarioTools::UFlareScenarioTools(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
-
-
-/*----------------------------------------------------
-	Public methods
-----------------------------------------------------*/
 
 void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 {
@@ -71,6 +67,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	GhostWorksShipyards =  World->FindCompanyByShortName("GWS");
 	NemaHeavyWorks =       World->FindCompanyByShortName("NHW");
 	Pirates =              World->FindCompanyByShortName("PIR");
+	AxisSupplies =         World->FindCompanyByShortName("AXS");
 
 	// Resources
 	Water =    Game->GetResourceCatalog()->Get("h2o");
@@ -87,12 +84,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	// Ships
 	ShipSolen = "ship-solen";
 	ShipOmen = "ship-omen";
-	ShipAtlas = "ship-atlas";
 	ShipGhoul = "ship-ghoul";
-	ShipOrca = "ship-orca";
-	ShipDragon = "ship-dragon";
-	ShipInvader = "ship-invader";
-	ShipLeviathan = "ship-leviathan";
 
 	// Stations
 	StationFarm = "station-farm";
@@ -111,36 +103,37 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	StationArsenal = "station-arsenal";
 	StationShipyard = "station-shipyard";
 	StationHub = "station-hub";
+	StationOutpost = "station-outpost";
 }
 
 void UFlareScenarioTools::GenerateEmptyScenario()
 {
+	FLOG("UFlareScenarioTools::GenerateEmptyScenario");
+	SetupWorld();
 }
 
 void UFlareScenarioTools::GenerateFighterScenario()
 {
 	FLOG("UFlareScenarioTools::GenerateFighterScenario");
-
 	SetupWorld();
+
 	CreatePlayerShip(FirstLight, "ship-ghoul");
 }
 
 void UFlareScenarioTools::GenerateFreighterScenario()
 {
 	FLOG("UFlareScenarioTools::GenerateFreighterScenario");
-
 	SetupWorld();
+
 	CreatePlayerShip(FirstLight, "ship-solen");
 }
 
 void UFlareScenarioTools::GenerateDebugScenario()
 {
+	FLOG("UFlareScenarioTools::GenerateFreighterScenario");
+	SetupWorld();
 
-	/*----------------------------------------------------
-		Player setup
-	----------------------------------------------------*/
-
-	// Discover known sectors
+	// Discover all known sectors
 	if (!PlayerData->QuestData.PlayTutorial)
 	{
 		for (int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
@@ -149,18 +142,18 @@ void UFlareScenarioTools::GenerateDebugScenario()
 		}
 	}
 
+	// Add more stuff
 	CreatePlayerShip(MinersHome, "ship-omen");
 	CreatePlayerShip(FrozenRealm, "ship-omen");
-	PlayerCompany->GiveMoney(10000000);
 	CreateStations(StationIceMine, PlayerCompany, ShoreOfIce, 1);
 	CreateStations(StationIceMine, PlayerCompany, MinersHome, 1);
 }
 
-
-UFlareSimulatedSpacecraft* UFlareScenarioTools::GenerateRecoveryShip()
+UFlareSimulatedSpacecraft* UFlareScenarioTools::CreateRecoveryPlayerShip()
 {
 	return CreatePlayerShip(FirstLight, "ship-solen");
 }
+
 
 /*----------------------------------------------------
 	Common world
@@ -170,7 +163,6 @@ void UFlareScenarioTools::SetupWorld()
 {
 	// Setup common stuff
 	SetupAsteroids();
-	SetupArtifacts();
 
 	// Discover public sectors
 	SetupKnownSectors(PlayerCompany);
@@ -201,11 +193,7 @@ void UFlareScenarioTools::SetupWorld()
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);
 	FrozenRealm->GetPeople()->GiveBirth(1000);
-
-	// Create initial stations
-
-
-
+	
 	// Nema main economy
 	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 3);
 	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 2);
@@ -217,20 +205,17 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 1);
 	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
 	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1);
-
-	CreateStations(StationArsenal, NemaHeavyWorks, BlueHeart, 1);
+	CreateStations(StationArsenal, AxisSupplies, BlueHeart, 1);
 	CreateStations(StationShipyard, NemaHeavyWorks, BlueHeart, 1);
 	CreateStations(StationHabitation, Sunwatch, BlueHeart, 2);
-
-
+	
 	// Anka HFR factory
 	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);
 	CreateStations(StationToolFactory, HelixFoundries, Outpost, 2);
 	CreateStations(StationHabitation, Sunwatch, Outpost, 1);
-
-
+	
 	// Hela secondary economy
-	CreateStations(StationArsenal, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 1);
 	CreateStations(StationShipyard, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationHabitation, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 1);
@@ -240,7 +225,7 @@ void UFlareScenarioTools::SetupWorld()
 
 	// Asta pirate base
 	CreateStations(StationShipyard, Pirates, Boneyard, 1);
-	CreateStations(StationArsenal, Pirates, Boneyard, 2);
+	CreateStations(StationArsenal, AxisSupplies, Boneyard, 2);
 
 	// Create hubs
 	// TODO fix hub before
@@ -250,27 +235,37 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHub, IonLane, MinersHome, 1);
 	CreateStations(StationHub, IonLane, Outpost, 1);
 	CreateStations(StationHub, IonLane, TheSpire, 1);
-
+	
+	// Create outposts
+	CreateStations(StationOutpost, AxisSupplies, TheDepths, 1);
+	CreateStations(StationOutpost, AxisSupplies, MinersHome, 1);
+	CreateStations(StationOutpost, AxisSupplies, Lighthouse, 1);
+	CreateStations(StationOutpost, AxisSupplies, BlueHeart, 1);
+	CreateStations(StationOutpost, AxisSupplies, BlueShores, 1);
+	CreateStations(StationOutpost, AxisSupplies, TheSpire, 1);
+	CreateStations(StationOutpost, AxisSupplies, Outpost, 1);
+	CreateStations(StationOutpost, AxisSupplies, Crossroads, 1);
+	CreateStations(StationOutpost, AxisSupplies, TheDig, 1);
+	CreateStations(StationOutpost, AxisSupplies, FrozenRealm, 1);
+	CreateStations(StationOutpost, AxisSupplies, Ruins, 1);
+	CreateStations(StationOutpost, AxisSupplies, WinterJunction, 1);
+	CreateStations(StationOutpost, AxisSupplies, Tranquility, 1);
 
 	// Create cargos
 	CreateShips(ShipSolen, GhostWorksShipyards, FrozenRealm, 3);
-
 	CreateShips(ShipSolen, IonLane, Lighthouse, 3);
 	CreateShips(ShipOmen, IonLane, MinersHome, 2);
 	CreateShips(ShipOmen, IonLane, FrozenRealm, 1);
-
 	CreateShips(ShipSolen, MiningSyndicate, MinersHome, 2);
 	CreateShips(ShipSolen, NemaHeavyWorks, MinersHome, 2);
 	CreateShips(ShipSolen, UnitedFarmsChemicals, TheSpire, 3);
 	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 1);
 	CreateShips(ShipSolen, Sunwatch, Lighthouse, 4);
-
 	CreateShips(ShipSolen, HelixFoundries, Outpost, 3);
 	CreateShips(ShipOmen, HelixFoundries, Outpost, 1);
-
 	CreateShips(ShipSolen, Pirates, Boneyard, 1);
 
-	// Create military
+	// Create military ships
 	CreateShips(ShipGhoul, Pirates, Boneyard, 5);
 }
 
@@ -287,10 +282,6 @@ void UFlareScenarioTools::SetupAsteroids()
 	CreateAsteroids(Ruins, 15, FVector(18, 7, 9));
 
 	CreateAsteroids(Boneyard, 28, FVector(10, 8, 3));
-}
-
-void UFlareScenarioTools::SetupArtifacts()
-{
 }
 
 void UFlareScenarioTools::SetupPlayerSectors()

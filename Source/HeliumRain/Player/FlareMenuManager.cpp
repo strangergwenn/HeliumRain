@@ -511,7 +511,7 @@ void AFlareMenuManager::LoadGame()
 		UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(PC->GetGame(), UFlareScenarioTools::StaticClass());
 		ScenarioTools->Init(PC->GetCompany(), PC->GetPlayerData());
 		PC->Load(*PC->GetPlayerData());
-		PC->SetPlayerShip(ScenarioTools->GenerateRecoveryShip());
+		PC->SetPlayerShip(ScenarioTools->CreateRecoveryPlayerShip());
 	}
 
 	// No player ship ? Get one !

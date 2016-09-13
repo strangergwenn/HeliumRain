@@ -1372,17 +1372,19 @@ uint32 UFlareSimulatedSector::GetTransfertResourcePrice(UFlareSimulatedSpacecraf
 
 bool UFlareSimulatedSector::CanUpgrade(UFlareCompany* Company)
 {
+	// Can't upgrade during battles
 	EFlareSectorBattleState::Type BattleState = GetSectorBattleState(Company);
-	if(BattleState != EFlareSectorBattleState::NoBattle
-			&& BattleState != EFlareSectorBattleState::BattleWon)
+	if (BattleState != EFlareSectorBattleState::NoBattle && BattleState != EFlareSectorBattleState::BattleWon)
 	{
 		return false;
 	}
 
-	for(int StationIndex = 0 ; StationIndex < GetSectorStations().Num(); StationIndex ++ )
+	// Look for a station with upgrade capability
+	for (int StationIndex = 0 ; StationIndex < GetSectorStations().Num(); StationIndex ++ )
 	{
 		UFlareSimulatedSpacecraft* StationInterface = GetSectorStations()[StationIndex];
-		if (StationInterface->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile)
+		if (StationInterface->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile
+			&& StationInterface->HasCapability(EFlareSpacecraftCapability::Upgrade))
 		{
 			return true;
 		}

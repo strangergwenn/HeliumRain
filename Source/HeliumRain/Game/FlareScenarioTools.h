@@ -19,15 +19,15 @@ public:
 
 	void Init(UFlareCompany* Company, FFlarePlayerSave* Player);
 	
+	// Game scnarios
 	void GenerateEmptyScenario();
-
 	void GenerateFighterScenario();
-
 	void GenerateFreighterScenario();
-
 	void GenerateDebugScenario();
 	
-	UFlareSimulatedSpacecraft* GenerateRecoveryShip();
+	/** Add a new player ship */
+	UFlareSimulatedSpacecraft* CreateRecoveryPlayerShip();
+
 	
 protected:
 
@@ -40,10 +40,7 @@ protected:
 
 	/** Setup asteroids */
 	void SetupAsteroids();
-
-	/** Setup artifacts */
-	void SetupArtifacts();
-
+	
 	/** Discover all private sectors*/
 	void SetupPlayerSectors();
 
@@ -116,6 +113,7 @@ protected:
 	UFlareCompany*                             UnitedFarmsChemicals;
 	UFlareCompany*                             GhostWorksShipyards;
 	UFlareCompany*                             NemaHeavyWorks;
+	UFlareCompany*                             AxisSupplies;
 	UFlareCompany*                             Pirates;
 
 	// Resources
@@ -133,12 +131,7 @@ protected:
 	// Ships
 	FName                                      ShipSolen;
 	FName                                      ShipOmen;
-	FName                                      ShipAtlas;
 	FName                                      ShipGhoul;
-	FName                                      ShipOrca;
-	FName                                      ShipDragon;
-	FName                                      ShipInvader;
-	FName                                      ShipLeviathan;
 
 	// Stations
 	FName                                      StationFarm;
@@ -157,5 +150,6 @@ protected:
 	FName                                      StationArsenal;
 	FName                                      StationShipyard;
 	FName                                      StationHub;
+	FName                                      StationOutpost;
 
 };
