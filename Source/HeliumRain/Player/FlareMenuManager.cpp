@@ -508,10 +508,7 @@ void AFlareMenuManager::LoadGame()
 	if(!PC->GetPlayerFleet())
 	{
 		// No player fleet, create recovery ship
-		UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(PC->GetGame(), UFlareScenarioTools::StaticClass());
-		ScenarioTools->Init(PC->GetCompany(), PC->GetPlayerData());
-		PC->Load(*PC->GetPlayerData());
-		PC->SetPlayerShip(ScenarioTools->CreateRecoveryPlayerShip());
+		PC->GetGame()->Recovery();
 	}
 
 	// No player ship ? Get one !

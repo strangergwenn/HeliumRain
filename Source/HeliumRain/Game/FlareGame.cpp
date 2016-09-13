@@ -228,6 +228,44 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 	return Sector;
 }
 
+void AFlareGame::Recovery()
+{
+	// No player fleet, create recovery ship
+	UFlareCompany* PlayerCompany = GetPC()->GetCompany();
+
+	UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
+	ScenarioTools->Init(PlayerCompany, GetPC()->GetPlayerData());
+	GetPC()->SetPlayerShip(ScenarioTools->CreateRecoveryPlayerShip());
+	GetPC()->Load(*GetPC()->GetPlayerData());
+
+	// TODO peaces
+
+	for (int32 CompanyIndex = 0; CompanyIndex < GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany == PlayerCompany)
+		{
+			continue;
+		}
+
+		// Make peace
+		OtherCompany->SetHostilityTo(PlayerCompany, false);
+		PlayerCompany->SetHostilityTo(OtherCompany, false);
+
+		if (OtherCompany->GetReputation(PlayerCompany) <= -100)
+		{
+			OtherCompany->ForceReputation(PlayerCompany, -99);
+		}
+	}
+
+	GetPC()->Notify(LOCTEXT("ShipRecovery", "Recovery ship"),
+		FText::Format(LOCTEXT("ShipRecoveryFormat", "Your fleet was destroy. You wake up in a recovery ship at {0} !"),
+					  GetPC()->GetPlayerShip()->GetCurrentSector()->GetSectorName()),
+		FName("ship-recovery"),
+		EFlareNotification::NT_Info);
+}
+
 void AFlareGame::SetWorldPause(bool Pause)
 {
 	DebrisFieldSystem->SetWorldPause(Pause);

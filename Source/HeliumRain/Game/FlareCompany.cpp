@@ -593,6 +593,37 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 }
 
 
+void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
+{
+	FFlareCompanyReputationSave* CompanyReputation = NULL;
+
+	if (Company == this)
+	{
+		FLOG("ERROR: A company don't have reputation for itself!");
+		return;
+	}
+
+	for (int32 CompanyIndex = 0; CompanyIndex < CompanyData.CompaniesReputation.Num(); CompanyIndex++)
+	{
+		if(Company->GetIdentifier() == CompanyData.CompaniesReputation[CompanyIndex].CompanyIdentifier)
+		{
+			CompanyReputation = &CompanyData.CompaniesReputation[CompanyIndex];
+			break;
+		}
+	}
+
+	if (CompanyReputation == NULL)
+	{
+		FFlareCompanyReputationSave NewCompanyReputation;
+		NewCompanyReputation.CompanyIdentifier = Company->GetIdentifier();
+		NewCompanyReputation.Reputation = 0;
+		CompanyData.CompaniesReputation.Add(NewCompanyReputation);
+		CompanyReputation = &CompanyData.CompaniesReputation[CompanyData.CompaniesReputation.Num()-1];
+	}
+
+	CompanyReputation->Reputation = Amount;
+}
+
 /*----------------------------------------------------
 	Customization
 ----------------------------------------------------*/

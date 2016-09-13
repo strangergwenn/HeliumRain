@@ -51,6 +51,9 @@ public:
 	/** Quick switch to another ship */
 	virtual bool SwitchToNextShip(bool Instant = false);
 
+	void ActivateRecovery() {
+		RecoveryActive = true;
+	}
 
 	/*----------------------------------------------------
 		Data management
@@ -357,7 +360,7 @@ protected:
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
 	TEnumAsByte<EFlareSectorBattleState::Type> LastBattleState;
-
+	bool									RecoveryActive;
 public:
 
 	/*----------------------------------------------------

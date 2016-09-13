@@ -167,6 +167,8 @@ public:
 
 	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);
 
+	virtual void ForceReputation(UFlareCompany* Company, float Amount);
+
 	/*----------------------------------------------------
 		Customization
 	----------------------------------------------------*/

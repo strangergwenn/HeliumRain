@@ -70,6 +70,8 @@ public:
 
 	virtual UFlareSimulatedSector* DeactivateSector();
 
+	virtual void Recovery();
+
 	virtual void SetWorldPause(bool Pause);
 
 	virtual void Tick(float DeltaSeconds) override;

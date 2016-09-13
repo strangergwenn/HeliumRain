@@ -44,6 +44,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	IsTest1 = false;
 	IsTest2 = false;
 	LastBattleState = EFlareSectorBattleState::NoBattle;
+	RecoveryActive = false;
 
 	// Setup
 	ShipPawn = NULL;
@@ -91,6 +92,15 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
+
+	// Check recovery
+	if(RecoveryActive)
+	{
+		RecoveryActive = false;
+		GetGame()->DeactivateSector();
+		GetGame()->Recovery();
+		MenuManager->OpenMenu(EFlareMenu::MENU_FastForwardSingle);
+	}
 
 	// We are flying
 	if (ShipPawn)
@@ -450,6 +460,7 @@ void AFlarePlayerController::Clean()
 	TimeSinceWeaponSwitch = 0;
 
 	LastBattleState = EFlareSectorBattleState::NoBattle;
+	RecoveryActive = false;
 
 	MenuManager->FlushNotifications();
 }

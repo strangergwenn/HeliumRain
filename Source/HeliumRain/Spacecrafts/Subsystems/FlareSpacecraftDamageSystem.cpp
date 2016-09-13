@@ -182,6 +182,23 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		}
 
 		PC->GetMenuManager()->OpenMainOverlay();
+
+		// Check if it the last ship
+		bool EmptyFleet = true;
+		for(int ShipIndex = 0; ShipIndex < PC->GetPlayerFleet()->GetShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = PC->GetPlayerFleet()->GetShips()[ShipIndex];
+			if(Ship->GetDamageSystem()->IsAlive())
+			{
+				EmptyFleet = false;
+				break;
+			}
+		}
+
+		if(EmptyFleet)
+		{
+			PC->ActivateRecovery();
+		}
 	}
 
 	// Lost company ship
