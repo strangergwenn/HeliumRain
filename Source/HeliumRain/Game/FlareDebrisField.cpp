@@ -32,7 +32,7 @@ void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Secto
 	TArray<AStaticMeshActor*> NewDebris;
 
 	// Add debris
-	if (DebrisFieldInfo)
+	if (DebrisFieldInfo && DebrisFieldMeshes)
 	{
 		float SectorScale = 5000 * 100;
 		int32 DebrisCount = 100 * DebrisFieldInfo->DebrisFieldDensity;
@@ -50,6 +50,10 @@ void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Secto
 
 			NewDebris.Add(AddDebris(Sector, DebrisFieldMeshes->Asteroids[DebrisIndex], Size, SectorScale, Name));
 		}
+	}
+	else
+	{
+		FLOG("UFlareDebrisField::Setup : debris catalog not available, skipping");
 	}
 
 	// Remember new debris

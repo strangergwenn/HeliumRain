@@ -37,6 +37,10 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	DefaultWeaponIdentifier = FName("weapon-eradicator");
 	DefaultTurretIdentifier = FName("weapon-artemis");
 
+	// Default asteroid
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultAsteroidObj(TEXT("/Game/Master/Default/SM_Asteroid_Default"));
+	DefaultAsteroid = DefaultAsteroidObj.Object;
+
 	// Menu pawn
 	static ConstructorHelpers::FObjectFinder<UBlueprint> MenuPawnBPClass(TEXT("/Game/Gameplay/Menu/BP_MenuPawn"));
 	if (MenuPawnBPClass.Object != NULL)
@@ -67,7 +71,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 			: SpacecraftCatalog(TEXT("/Game/Gameplay/Catalog/SpacecraftCatalog"))
 			, ShipPartsCatalog(TEXT("/Game/Gameplay/Catalog/ShipPartsCatalog"))
 			, CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
-			, AsteroidCatalog(TEXT("/Game/Gameplay/Catalog/AsteroidCatalog"))
+			, AsteroidCatalog(TEXT("/Game/Environment/Asteroids/AsteroidCatalog"))
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
 			, SectorCatalog(TEXT("/Game/Gameplay/Catalog/SectorCatalog"))
 			, QuestCatalog(TEXT("/Game/Gameplay/Catalog/QuestCatalog"))

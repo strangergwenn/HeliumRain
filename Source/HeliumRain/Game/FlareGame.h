@@ -239,6 +239,10 @@ protected:
 	/** Reference to all quests*/
 	UPROPERTY()
 	UFlareResourceCatalog*                     ResourceCatalog;
+
+	// Default asteroid
+	UPROPERTY()
+	UStaticMesh*                               DefaultAsteroid;
 	
 
 	/*----------------------------------------------------
@@ -373,6 +377,11 @@ public:
 	inline void SetDefaultTurretIdentifier(FName Identifier)
 	{
 		DefaultTurretIdentifier = Identifier;
+	}
+
+	inline UStaticMesh* GetDefaultAsteroid() const
+	{
+		return DefaultAsteroid;
 	}
 
 };

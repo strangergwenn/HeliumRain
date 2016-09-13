@@ -74,17 +74,22 @@ void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 
 void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data, bool IsIcy)
 {
-	Component->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
+	if (Game->GetAsteroidCatalog())
+	{
+		check(Data.AsteroidMeshID >= 0 && Data.AsteroidMeshID < Game->GetAsteroidCatalog()->Asteroids.Num());
+		Component->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
+	}
+	else
+	{
+		Component->SetStaticMesh(Game->GetDefaultAsteroid());
+	}
 
 	// Actor scale
 	Component->SetWorldScale3D(FVector(1, 1, 1));
 	float CollisionSize = Component->GetCollisionShape().GetExtent().Size();
 	FVector ScaleFactor = Component->GetOwner()->GetActorScale3D() * Data.Scale * (20000.0f / CollisionSize);
 	Component->SetWorldScale3D(ScaleFactor);
-
-	/*FLOGV("AFlareAsteroid::SetupAsteroidMesh : ID=%d Scale=%f,%f,%f CollisionSize=%f",
-		Data.AsteroidMeshID, Data.Scale.X, Data.Scale.Y, Data.Scale.Z, CollisionSize);*/
-
+	
 	// Mass scale
 	FBodyInstance* BodyInst = Component->GetBodyInstance();
 	BodyInst->MassScale = ScaleFactor.Size();

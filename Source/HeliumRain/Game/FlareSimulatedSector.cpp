@@ -332,12 +332,6 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 
 void UFlareSimulatedSector::CreateAsteroid(int32 ID, FName Name, FVector Location)
 {
-	if (ID < 0 || ID >= Game->GetAsteroidCatalog()->Asteroids.Num())
-	{
-		FLOGV("UFlareSimulatedSector::CreateAsteroid : Can't find ID %d", ID);
-		return;
-	}
-
 	// Compute size
 	float MinSize = 0.6;
 	float MinMaxSize = 0.9;

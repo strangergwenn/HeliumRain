@@ -46,9 +46,11 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
+	// Mesh
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-	UFlareAsteroidComponent*          Asteroid;
+	UFlareAsteroidComponent*                Asteroid;
 
+	// Data
 	FVector                                 SpawnLocation;
 	FFlareAsteroidSave                      AsteroidData;
 	bool                                    Paused;
