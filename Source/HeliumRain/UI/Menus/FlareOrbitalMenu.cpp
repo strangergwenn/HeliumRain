@@ -291,7 +291,6 @@ void SFlareOrbitalMenu::Enter()
 
 void SFlareOrbitalMenu::Exit()
 {
-	FLOG("SFlareOrbitalMenu::Exit");
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
 

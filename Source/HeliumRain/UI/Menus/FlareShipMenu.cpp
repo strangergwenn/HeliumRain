@@ -278,7 +278,7 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 
 	// Is the docking list visible ?
 	UFlareSpacecraftDockingSystem* DockSystem = NULL;
-	if(TargetSpacecraft->IsActive())
+	if (TargetSpacecraft->IsActive())
 	{
 		DockSystem = TargetSpacecraft->GetActive()->GetDockingSystem();
 	}

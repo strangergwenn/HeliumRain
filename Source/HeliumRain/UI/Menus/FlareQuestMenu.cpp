@@ -161,6 +161,8 @@ void SFlareQuestMenu::Enter(UFlareQuest* TargetQuest)
 	FillActiveQuestList();
 	FillPreviousQuestList();
 	FillQuestDetails();
+
+	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 }
 
 void SFlareQuestMenu::Exit()

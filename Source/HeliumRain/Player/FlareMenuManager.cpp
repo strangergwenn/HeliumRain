@@ -718,8 +718,8 @@ void AFlareMenuManager::InspectShip(bool IsEditable)
 {
 	UFlareSimulatedSpacecraft* MenuTarget = NULL;
 
-	// Make sure we're not simulating anymore
-	ResetMenu();
+	// Make sure we're not simulating anymore when going from orbit to ship, as we use player pawn
+	OrbitMenu->StopFastForward();
 
 	// No target passed - "Inspect" on target ship
 	if (NextMenu.Value.Spacecraft == NULL && GetPC()->GetShipPawn())
@@ -742,6 +742,9 @@ void AFlareMenuManager::InspectShip(bool IsEditable)
 	// Open the menu for good
 	if (MenuTarget)
 	{
+		NextMenu.Value = FFlareMenuParameterData();
+		NextMenu.Value.Spacecraft = MenuTarget;
+
 		OnEnterMenu();
 		ShipMenu->Enter(MenuTarget, IsEditable);
 	}
