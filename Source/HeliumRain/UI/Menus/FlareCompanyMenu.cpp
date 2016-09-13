@@ -35,7 +35,6 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 
 		// Content block
 		+ SHorizontalBox::Slot()
-		.AutoWidth()
 		.HAlign(HAlign_Left)
 		[
 			SNew(SVerticalBox)
@@ -91,6 +90,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		// Color box
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Right)
+		.AutoWidth()
 		[
 			SNew(SVerticalBox)
 

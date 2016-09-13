@@ -23,7 +23,9 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 	FText RankText;
 	if (InArgs._Rank >= 0)
 	{
-		RankText = FText::Format(LOCTEXT("RankFormat", "{0}/"), FText::AsNumber(InArgs._Rank));
+		FNumberFormattingOptions RankFormat;
+		RankFormat.MinimumIntegralDigits = 2;
+		RankText = FText::Format(LOCTEXT("RankFormat", "{0}/"), FText::AsNumber(InArgs._Rank, &RankFormat));
 	}
 
 	// Create the layout
