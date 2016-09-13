@@ -764,7 +764,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		}
 
 		// Other company
-		else
+		else if (TargetCompany)
 		{
 			return FText::Format(LOCTEXT("OwnedByFormat", "{0}Owned by {1} ({2})"),
 				DistanceText,
