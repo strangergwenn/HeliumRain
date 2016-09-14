@@ -357,12 +357,27 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
 		if (ShipDesc)
 		{
+			// Name
 			FText Prefix = TargetSpacecraft->IsStation() ? LOCTEXT("Station", "Station") : LOCTEXT("Ship", "Ship");
 			FText Immatriculation = FText::FromString(TargetSpacecraft->GetImmatriculation().ToString());
 			ObjectName->SetText(FText::Format(LOCTEXT("ObjectNameFormat", "{0} : {1}"), Prefix, Immatriculation));
-
 			ObjectClassName->SetText(ShipDesc->Name);
-			ObjectDescription->SetText(ShipDesc->Description);
+
+			// Description
+			FText SpacecraftDescription = ShipDesc->Description;
+			if (TargetSpacecraft->IsStation())
+			{
+				if (TargetSpacecraft->HasCapability(EFlareSpacecraftCapability::Consumer))
+				{
+					SpacecraftDescription = FText::Format(LOCTEXT("ObjectDescriptionConsumerFormat", "\u2022 This station can buy consumer resources !\n{0}"), SpacecraftDescription);
+				}
+				if (TargetSpacecraft->HasCapability(EFlareSpacecraftCapability::Upgrade))
+				{
+					SpacecraftDescription = FText::Format(LOCTEXT("ObjectDescriptionUpgradeFormat", "\u2022 You can upgrade your ship at this station !\n{0}"), SpacecraftDescription);
+				}
+			}
+			ObjectDescription->SetText(SpacecraftDescription);
+			
 			PC->GetMenuPawn()->ShowShip(TargetSpacecraft);
 		}
 
