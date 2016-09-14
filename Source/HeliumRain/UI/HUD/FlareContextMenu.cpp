@@ -92,7 +92,7 @@ FReply SFlareContextMenu::OnClicked()
 		{
 			UFlareSpacecraftWeaponsSystem* WeaponSystem = PlayerShip->GetWeaponsSystem();
 			AFlareSpacecraft* Spacecraft = TargetSpacecraft;
-			check(Spacecraft != NULL);
+			FCHECK(Spacecraft != NULL);
 
 			if (Spacecraft != WeaponSystem->GetActiveWeaponTarget())
 			{

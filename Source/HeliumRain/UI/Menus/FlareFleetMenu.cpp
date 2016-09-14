@@ -409,7 +409,7 @@ bool SFlareFleetMenu::IsRenameDisabled() const
 
 void SFlareFleetMenu::OnSelectFleet()
 {
-	check(FleetToAdd);
+	FCHECK(FleetToAdd);
 
 	SelectedFleet = FleetToAdd;
 	EditFleetName->SetText(SelectedFleet->GetFleetName());
@@ -423,8 +423,8 @@ void SFlareFleetMenu::OnSelectFleet()
 
 void SFlareFleetMenu::OnAddToFleet()
 {
-	check(SelectedFleet);
-	check(FleetToAdd);
+	FCHECK(SelectedFleet);
+	FCHECK(FleetToAdd);
 
 	FLOGV("SFlareFleetMenu::OnAddToFleet : adding '%s'", *FleetToAdd->GetFleetName().ToString());
 	SelectedFleet->Merge(FleetToAdd);
@@ -437,8 +437,8 @@ void SFlareFleetMenu::OnAddToFleet()
 
 void SFlareFleetMenu::OnRemoveFromFleet()
 {
-	check(SelectedFleet);
-	check(ShipToRemove);
+	FCHECK(SelectedFleet);
+	FCHECK(ShipToRemove);
 
 	FLOGV("SFlareFleetMenu::OnRemoveFromFleet : removing '%s'", *ShipToRemove->GetImmatriculation().ToString());
 	SelectedFleet->RemoveShip(ShipToRemove);
@@ -451,7 +451,7 @@ void SFlareFleetMenu::OnRemoveFromFleet()
 
 void SFlareFleetMenu::OnRenameFleet()
 {
-	check(SelectedFleet);
+	FCHECK(SelectedFleet);
 
 	FText NewText = EditFleetName->GetText();
 	FLOGV("SFlareFleetMenu::OnRenameFleet : renaming as '%s'", *NewText.ToString());

@@ -109,7 +109,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 
 	// Initial state of cargo slot
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
-	check(Cargo);
+	FCHECK(Cargo);
 	PermissionButton->SetActive(Cargo->Restriction == EFlareResourceRestriction::Everybody);
 
 	// Don't intercept clicks if it's not interactive
@@ -131,7 +131,7 @@ void SFlareCargoInfo::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEv
 
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
-	check(Cargo);
+	FCHECK(Cargo);
 
 	// Tooltip
 	if (MenuManager)
@@ -162,7 +162,7 @@ void SFlareCargoInfo::OnMouseLeave(const FPointerEvent& MouseEvent)
 const FSlateBrush* SFlareCargoInfo::GetResourceIcon() const
 {
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
-	check(Cargo);
+	FCHECK(Cargo);
 
 	if (Cargo->Resource)
 	{
@@ -178,7 +178,7 @@ const FSlateBrush* SFlareCargoInfo::GetResourceIcon() const
 FText SFlareCargoInfo::GetResourceAcronym() const
 {
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
-	check(Cargo);
+	FCHECK(Cargo);
 
 	if (Cargo->Resource)
 	{
@@ -193,7 +193,7 @@ FText SFlareCargoInfo::GetResourceAcronym() const
 FText SFlareCargoInfo::GetResourceQuantity() const
 {
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
-	check(Cargo);
+	FCHECK(Cargo);
 	
 	// Print IO text if any
 	FText LockText;

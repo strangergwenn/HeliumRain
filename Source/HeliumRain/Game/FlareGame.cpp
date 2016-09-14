@@ -338,7 +338,7 @@ void AFlareGame::Tick(float DeltaSeconds)
 	{
 		// This should never fail
 		APawn* Pawn = *Iterator;
-		check(Pawn);
+		FCHECK(Pawn);
 	}
 
 	if (QuestManager)
@@ -773,7 +773,7 @@ void AFlareGame::UnloadGame()
 				*ActorList[Index]->GetClass()->GetName());
 		}
 	}
-	check(ActorCount == 0);
+	FCHECK(ActorCount == 0);
 
 	// Force GC
 	GetWorld()->ForceGarbageCollection(true);

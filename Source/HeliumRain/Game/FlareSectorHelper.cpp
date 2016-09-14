@@ -198,7 +198,7 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft*  SourceSpacecraft, UFlareSi
 	{
 		AFlarePlayerController* PC = SourceSpacecraft->GetGame()->GetPC();
 		UFlareFleet* PlayerFleet = PC->GetPlayerFleet();
-		check(PC);
+		FCHECK(PC);
 
 		if (SourceSpacecraft->GetCurrentFleet() != PlayerFleet && !SourceSpacecraft->IsStation())
 		{

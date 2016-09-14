@@ -28,7 +28,7 @@ void FFlareStyleSet::Initialize()
 void FFlareStyleSet::Shutdown()
 {
 	FSlateStyleRegistry::UnRegisterSlateStyle(*Instance);
-	ensure(Instance.IsUnique());
+	FCHECK(Instance.IsUnique());
 	Instance.Reset();
 }
 

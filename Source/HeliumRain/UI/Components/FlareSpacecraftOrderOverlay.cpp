@@ -319,7 +319,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 	// Factory
 	if (TargetFactory)
 	{
-		check(TargetFactory);
+		FCHECK(TargetFactory);
 		const FFlareProductionData* CycleData = &TargetFactory->GetCycleDataForShipClass(Desc->Identifier);
 		ProductionTime = CycleData->ProductionTime;
 
@@ -364,7 +364,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 	// Sector
 	else
 	{
-		check(TargetSector);
+		FCHECK(TargetSector);
 		SpacecraftInfoText = FText::Format(LOCTEXT("StationInfoFormat", "(Station, {0} factories)"), FText::AsNumber(Desc->Factories.Num()));
 		ProductionTime = Desc->CycleCost.ProductionTime;
 

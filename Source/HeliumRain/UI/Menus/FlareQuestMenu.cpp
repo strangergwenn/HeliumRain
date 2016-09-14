@@ -140,7 +140,7 @@ void SFlareQuestMenu::Enter(UFlareQuest* TargetQuest)
 	SetVisibility(EVisibility::Visible);
 
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	check(QuestManager);
+	FCHECK(QuestManager);
 
 	if (TargetQuest)
 	{
@@ -186,7 +186,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	check(QuestManager);
+	FCHECK(QuestManager);
 
 	ActiveQuestList->ClearChildren();
 	TArray<UFlareQuest*>& ActiveQuests = QuestManager->GetActiveQuests();
@@ -252,7 +252,7 @@ void SFlareQuestMenu::FillPreviousQuestList()
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	check(QuestManager);
+	FCHECK(QuestManager);
 
 	PreviousQuestList->ClearChildren();
 	TArray<UFlareQuest*>& PreviousQuests = QuestManager->GetPreviousQuests();
@@ -302,7 +302,7 @@ void SFlareQuestMenu::FillQuestDetails()
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	check(QuestManager);
+	FCHECK(QuestManager);
 
 	CurrentQuestStepIndex = 0;
 	QuestDetails->ClearChildren();
@@ -493,7 +493,7 @@ TSharedPtr<SVerticalBox> SFlareQuestMenu::AddQuestDetail(int32 QuestStepIndex)
 FText SFlareQuestMenu::GetSelectedQuestTitle() const
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	check(QuestManager);
+	FCHECK(QuestManager);
 
 	// Get selected quest
 	if (SelectedQuest && SelectedQuest->GetCurrentStepDescription())
@@ -526,14 +526,14 @@ FText SFlareQuestMenu::GetSelectedQuestTitle() const
 FText SFlareQuestMenu::GetQuestStepDescription(int32 QuestStepIndex) const
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	check(QuestManager);
+	FCHECK(QuestManager);
 
 	// Only show this for the currently selected quest step
 	if (SelectedQuest && CurrentQuestStepIndex == QuestStepIndex)
 	{
 		const FFlareQuestDescription* CurrentQuestDescription = SelectedQuest->GetQuestDescription();
-		check(CurrentQuestDescription);
-		check(QuestStepIndex >= 0 && QuestStepIndex < CurrentQuestDescription->Steps.Num());
+		FCHECK(CurrentQuestDescription);
+		FCHECK(QuestStepIndex >= 0 && QuestStepIndex < CurrentQuestDescription->Steps.Num());
 				
 		const FFlareQuestStepDescription& QuestStep = CurrentQuestDescription->Steps[QuestStepIndex];
 		return SelectedQuest->FormatTags(QuestStep.StepDescription);
@@ -550,7 +550,7 @@ EVisibility SFlareQuestMenu::GetQuestStepDescriptionVisibility(int32 QuestStepIn
 bool SFlareQuestMenu::IsTrackQuestButtonDisabled(UFlareQuest* Quest) const
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	check(QuestManager);
+	FCHECK(QuestManager);
 
 	return (Quest == QuestManager->GetSelectedQuest());
 }
@@ -568,7 +568,7 @@ bool SFlareQuestMenu::IsSelectQuestButtonDisabled(UFlareQuest* Quest) const
 void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	check(QuestManager);
+	FCHECK(QuestManager);
 	QuestManager->SelectQuest(Quest);
 
 	OnQuestSelected(Quest);

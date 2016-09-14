@@ -660,7 +660,7 @@ bool UFlareFactory::IsLargeShipyard() const
 uint32 UFlareFactory::GetProductionCost(const FFlareProductionData* Data)
 {
 	const FFlareProductionData* CycleData = Data ? Data : &GetCycleData();
-	check(CycleData);
+	FCHECK(CycleData);
 
 	ScaledProductionCost = CycleData->ProductionCost;
 	
@@ -839,7 +839,7 @@ FText UFlareFactory::GetFactoryCycleCost(const FFlareProductionData* Data)
 	{
 		FText CommaText = ProductionCostText.IsEmpty() ? FText() : CommaTextReference;
 		const FFlareFactoryResource* FactoryResource = &Data->InputResources[ResourceIndex];
-		check(FactoryResource);
+		FCHECK(FactoryResource);
 
 		ProductionCostText = FText::Format(LOCTEXT("ProductionResourcesFormat", "{0}{1} {2} {3}"),
 			ProductionCostText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
@@ -866,7 +866,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 	{
 		FText CommaText = ProductionOutputText.IsEmpty() ? FText() : CommaTextReference;
 		const FFlareFactoryAction* FactoryAction = &GetDescription()->OutputActions[ActionIndex];
-		check(FactoryAction);
+		FCHECK(FactoryAction);
 
 		switch (FactoryAction->Action)
 		{
@@ -890,7 +890,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 	{
 		FText CommaText = ProductionOutputText.IsEmpty() ? FText() : CommaTextReference;
 		const FFlareFactoryResource* FactoryResource = &GetCycleData().OutputResources[ResourceIndex];
-		check(FactoryResource);
+		FCHECK(FactoryResource);
 
 		ProductionOutputText = FText::Format(LOCTEXT("ProductionOutputFormat", "{0}{1} {2} {3}"),
 			ProductionOutputText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);

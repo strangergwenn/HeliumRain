@@ -521,7 +521,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	else
 	{
 		UFlareCargoBay* CargoBay = PlayerShip->GetParent()->GetCargoBay();
-		check(CargoBay);
+		FCHECK(CargoBay);
 
 		// Title
 		FText CargoText = LOCTEXT("CargoText", "Cargo bay");

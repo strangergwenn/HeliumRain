@@ -103,9 +103,9 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 
 		FAudioDevice* AudioDevice = Player->GetWorld()->GetAudioDevice();
 
-		check(AudioDevice);
-		check(MasterSoundClass);
-		check(MasterSoundMix);
+		FCHECK(AudioDevice);
+		FCHECK(MasterSoundClass);
+		FCHECK(MasterSoundMix);
 
 		AudioDevice->SetBaseSoundMix(MasterSoundMix);
 	}
@@ -126,7 +126,7 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 	float MasterVolume = 2.0f * FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 
 	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
-	check(AudioDevice);
+	FCHECK(AudioDevice);
 	
 	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
 }
@@ -242,7 +242,7 @@ void UFlareSoundManager::SetDesiredMusicTrack()
 {
 	int32 TrackIndex = (int32)(MusicDesiredTrack - EFlareMusicTrack::None);
 	FLOGV("UFlareSoundManager::SetDesiredMusicTrack : starting %d", TrackIndex);
-	check(TrackIndex >= 0 && TrackIndex < MusicTracks.Num() - 1);
+	FCHECK(TrackIndex >= 0 && TrackIndex < MusicTracks.Num() - 1);
 
 	MusicPlayer.Sound->SetSound(MusicTracks[TrackIndex]);
 	MusicChanging = false;

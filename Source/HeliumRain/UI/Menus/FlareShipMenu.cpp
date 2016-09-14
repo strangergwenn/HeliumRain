@@ -726,12 +726,12 @@ FText SFlareShipMenu::GetWeaponText(TSharedPtr<int32> Index) const
 		{
 			if (ShipDesc->Size == EFlarePartSize::L)
 			{
-				check(*Index >= 0 && *Index < ShipDesc->TurretSlots.Num());
+				FCHECK(*Index >= 0 && *Index < ShipDesc->TurretSlots.Num());
 				Comment = ShipDesc->TurretSlots[*Index].SlotName;
 			}
 			else
 			{
-				check(*Index >= 0 && *Index < ShipDesc->GunSlots.Num());
+				FCHECK(*Index >= 0 && *Index < ShipDesc->GunSlots.Num());
 				Comment = ShipDesc->GunSlots[*Index].SlotName;
 			}
 		}

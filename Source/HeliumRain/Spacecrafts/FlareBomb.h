@@ -134,10 +134,10 @@ public:
 
 	inline AFlareSpacecraft* GetFiringSpacecraft() const
 	{
-		check(ParentWeapon);
+		FCHECK(ParentWeapon);
 
 		AFlareSpacecraft* Spacecraft = ParentWeapon->GetSpacecraft();
-		check(Spacecraft);
+		FCHECK(Spacecraft);
 
 		return Spacecraft;
 	}

@@ -100,26 +100,26 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		
 		// HUD texture target
 		CockpitHUDTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
-		check(CockpitHUDTarget);
+		FCHECK(CockpitHUDTarget);
 		CockpitHUDTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawCockpitHUD);
 		CockpitHUDTarget->ClearColor = FLinearColor::Black;
 		CockpitHUDTarget->UpdateResource();
 
 		// Instruments texture target
 		CockpitInstrumentsTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitInstrumentsTargetSize, CockpitInstrumentsTargetSize);
-		check(CockpitInstrumentsTarget);
+		FCHECK(CockpitInstrumentsTarget);
 		CockpitInstrumentsTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawCockpitInstruments);
 		CockpitInstrumentsTarget->ClearColor = FLinearColor::Black;
 		CockpitInstrumentsTarget->UpdateResource();
 
 		// FLIR camera target
 		CockpitFLIRCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitFLIRTargetSize, CockpitFLIRTargetSize);
-		check(CockpitFLIRCameraTarget);
+		FCHECK(CockpitFLIRCameraTarget);
 		CockpitFLIRCameraTarget->ClearColor = FLinearColor::Black;
 		CockpitFLIRCameraTarget->UpdateResource();
 
 		// Setup FLIR camera
-		check(CockpitFLIRCapture);
+		FCHECK(CockpitFLIRCapture);
 		CockpitFLIRCapture->TextureTarget = CockpitFLIRCameraTarget;
 
 		// Freighter materials
@@ -250,8 +250,8 @@ void AFlareCockpitManager::SetupCockpitInstances(UMaterialInstanceDynamic* Scree
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	check(ScreenInstance);
-	check(FrameInstance);
+	FCHECK(ScreenInstance);
+	FCHECK(FrameInstance);
 
 	ScreenInstance->SetVectorParameterValue( "IndicatorColorBorders", Theme.FriendlyColor);
 	ScreenInstance->SetTextureParameterValue("HUDTarget",             CockpitHUDTarget);
@@ -266,10 +266,10 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, true);
 
 	// Ensure we're not doing anything stupid
-	check(PC->UseCockpit);
-	check(CockpitMesh);
-	check(FreighterCockpitMeshTemplate);
-	check(FighterCockpitMeshTemplate);
+	FCHECK(PC->UseCockpit);
+	FCHECK(CockpitMesh);
+	FCHECK(FreighterCockpitMeshTemplate);
+	FCHECK(FighterCockpitMeshTemplate);
 
 	// Set the correct variation
 	if (TargetPlayerShip->GetParent()->IsMilitary())
@@ -306,7 +306,7 @@ void AFlareCockpitManager::ExitCockpit()
 
 void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 {
-	check(PlayerShip);
+	FCHECK(PlayerShip);
 	float Intensity = 0;
 	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -429,7 +429,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 
 void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 {
-	check(PlayerShip);
+	FCHECK(PlayerShip);
 	float Intensity = 0;
 
 	if (PlayerShip->GetParent()->IsMilitary())
@@ -459,7 +459,7 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 
 void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 {
-	check(PlayerShip);
+	FCHECK(PlayerShip);
 
 	// Update timer
 	CockpitHealthLightTime += DeltaSeconds;
@@ -495,7 +495,7 @@ void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
 
 void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 {
-	check(PlayerShip);
+	FCHECK(PlayerShip);
 
 	// Update timer
 	bool HasPower = !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();

@@ -85,7 +85,7 @@ public:
 	{
 		if(Spacecraft)
 		{
-			check(ActiveSpacecraft == NULL || ActiveSpacecraft == Spacecraft);
+			FCHECK(ActiveSpacecraft == NULL || ActiveSpacecraft == Spacecraft);
 		}
 		ActiveSpacecraft = Spacecraft;
 	}

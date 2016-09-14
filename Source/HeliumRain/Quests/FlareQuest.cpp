@@ -668,7 +668,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 		case EFlareQuestCondition::FLYING_SHIP:
 		{
 			FFlareSpacecraftDescription* SpacecraftDesc = QuestManager->GetGame()->GetSpacecraftCatalog()->Get(Condition->Identifier1);
-			check(SpacecraftDesc);
+			FCHECK(SpacecraftDesc);
 
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
 			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("FlyShipFormat", "Fly a {0}-class ship"), SpacecraftDesc->Name);

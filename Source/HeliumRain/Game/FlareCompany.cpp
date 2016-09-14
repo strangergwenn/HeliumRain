@@ -46,11 +46,11 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 
 	// Spawn AI
 	CompanyAI = NewObject<UFlareCompanyAI>(this, UFlareCompanyAI::StaticClass());
-	check(CompanyAI);
+	FCHECK(CompanyAI);
 
 	// Spawn tactic manager
 	TacticManager = NewObject<UFlareTacticManager>(this, UFlareTacticManager::StaticClass());
-	check(TacticManager);
+	FCHECK(TacticManager);
 	TacticManager->Load(this);
 
 	// Load ships

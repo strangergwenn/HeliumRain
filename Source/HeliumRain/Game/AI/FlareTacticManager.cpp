@@ -31,7 +31,7 @@ void UFlareTacticManager::SetCurrentShipGroup(EFlareCombatGroup::Type Type)
 
 void UFlareTacticManager::SetTacticForCurrentShipGroup(EFlareCombatTactic::Type Tactic)
 {
-	check(CurrentShipGroup < CurrentCombatTactics.Num());
+	FCHECK(CurrentShipGroup < CurrentCombatTactics.Num());
 	CurrentCombatTactics[CurrentShipGroup] = Tactic;
 
 	if (CurrentShipGroup == EFlareCombatGroup::AllMilitary)
@@ -48,7 +48,7 @@ EFlareCombatGroup::Type UFlareTacticManager::GetCurrentShipGroup() const
 
 EFlareCombatTactic::Type UFlareTacticManager::GetCurrentTacticForShipGroup(EFlareCombatGroup::Type Type) const
 {
-	check(Type < CurrentCombatTactics.Num());
+	FCHECK(Type < CurrentCombatTactics.Num());
 	return CurrentCombatTactics[Type];
 }
 
@@ -86,7 +86,7 @@ void UFlareTacticManager::ResetControlGroups(UFlareSimulatedSector* Sector)
 		for (int32 Index = 0; Index < ShipList.Num(); Index++)
 		{
 			UFlareSimulatedSpacecraft* Ship = ShipList[Index];
-			check(Ship);
+			FCHECK(Ship);
 
 			if (Ship->GetCompany() != Company)
 			{

@@ -260,43 +260,43 @@ public:
 
 	inline FText GetCompanyName() const
 	{
-		check(CompanyDescription);
+		FCHECK(CompanyDescription);
 		return CompanyDescription->Name;
 	}
 
 	inline FName GetShortName() const
 	{
-		check(CompanyDescription);
+		FCHECK(CompanyDescription);
 		return CompanyDescription->ShortName;
 	}
 
 	inline int32 GetBasePaintColorIndex() const
 	{
-		check(CompanyDescription);
+		FCHECK(CompanyDescription);
 		return CompanyDescription->CustomizationBasePaintColorIndex;
 	}
 
 	inline int32 GetPaintColorIndex() const
 	{
-		check(CompanyDescription);
+		FCHECK(CompanyDescription);
 		return CompanyDescription->CustomizationPaintColorIndex;
 	}
 
 	inline int32 GetOverlayColorIndex() const
 	{
-		check(CompanyDescription);
+		FCHECK(CompanyDescription);
 		return CompanyDescription->CustomizationOverlayColorIndex;
 	}
 
 	inline int32 GetLightColorIndex() const
 	{
-		check(CompanyDescription);
+		FCHECK(CompanyDescription);
 		return CompanyDescription->CustomizationLightColorIndex;
 	}
 
 	inline int32 GetPatternIndex() const
 	{
-		check(CompanyDescription);
+		FCHECK(CompanyDescription);
 		return CompanyDescription->CustomizationPatternIndex;
 	}
 

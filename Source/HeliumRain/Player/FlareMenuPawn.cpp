@@ -242,7 +242,7 @@ void AFlareMenuPawn::UseDarkBackground()
 
 void AFlareMenuPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	check(PlayerInputComponent);
+	FCHECK(PlayerInputComponent);
 }
 
 void AFlareMenuPawn::PitchInput(float Val)

@@ -53,9 +53,9 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 
 	// Get player ship
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-	check(Game);
+	FCHECK(Game);
 	AFlarePlayerController* PC = Game->GetPC();
-	check(PC);
+	FCHECK(PC);
 	AFlareSpacecraft* ShipPawn = PC->GetShipPawn();
 
 	// Update if close to player

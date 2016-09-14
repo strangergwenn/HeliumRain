@@ -76,7 +76,7 @@ void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* C
 {
 	if (Game->GetAsteroidCatalog())
 	{
-		check(Data.AsteroidMeshID >= 0 && Data.AsteroidMeshID < Game->GetAsteroidCatalog()->Asteroids.Num());
+		FCHECK(Data.AsteroidMeshID >= 0 && Data.AsteroidMeshID < Game->GetAsteroidCatalog()->Asteroids.Num());
 		Component->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.AsteroidMeshID]);
 	}
 	else

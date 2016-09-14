@@ -192,7 +192,7 @@ void SFlareFactoryInfo::Construct(const FArguments& InArgs)
 
 void SFlareFactoryInfo::UpdateFactoryLimits()
 {
-	check(TargetFactory);
+	FCHECK(TargetFactory);
 	LimitList->ClearChildren();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareSimulatedSpacecraft* SimulatedSpacecraft = TargetFactory->GetParent();
@@ -202,7 +202,7 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 	{
 		const FFlareFactoryResource* FactoryResource = &TargetFactory->GetCycleData().OutputResources[ResourceIndex];
 		FFlareResourceDescription* Resource = &FactoryResource->Resource->Data;
-		check(Resource);
+		FCHECK(Resource);
 				
 		// Production resource limiter
 		bool ResourceLimitEnabled = TargetFactory->HasOutputLimit(Resource);
@@ -517,21 +517,21 @@ void SFlareFactoryInfo::OnCancelSpacecraftOrder()
 
 void SFlareFactoryInfo::OnStartProduction()
 {
-	check(TargetFactory);
+	FCHECK(TargetFactory);
 	TargetFactory->Start();
 	UpdateFactoryLimits();
 }
 
 void SFlareFactoryInfo::OnStopProduction()
 {
-	check(TargetFactory);
+	FCHECK(TargetFactory);
 	TargetFactory->Stop();
 	UpdateFactoryLimits();
 }
 
 void SFlareFactoryInfo::OnDecreaseOutputLimit(FFlareResourceDescription* Resource)
 {
-	check(TargetFactory);
+	FCHECK(TargetFactory);
 	uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
 
 	if (!TargetFactory->HasOutputLimit(Resource))
@@ -547,7 +547,7 @@ void SFlareFactoryInfo::OnDecreaseOutputLimit(FFlareResourceDescription* Resourc
 
 void SFlareFactoryInfo::OnIncreaseOutputLimit(FFlareResourceDescription* Resource)
 {
-	check(TargetFactory);
+	FCHECK(TargetFactory);
 	uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
 
 	if (TargetFactory->GetOutputLimit(Resource) + 1 >= MaxOutput)

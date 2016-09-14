@@ -810,7 +810,7 @@ FText SFlareTradeRouteMenu::GetNextStepInfo() const
 	{
 		UFlareSimulatedSector* NextSector = TargetTradeRoute->GetTargetSector();
 		FFlareTradeRouteSave* TradeRouteData = TargetTradeRoute->Save();
-		check(TradeRouteData);
+		FCHECK(TradeRouteData);
 
 		if (TargetTradeRoute->IsPaused())
 		{

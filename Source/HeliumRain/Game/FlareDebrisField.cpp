@@ -22,8 +22,8 @@ UFlareDebrisField::UFlareDebrisField(const FObjectInitializer& ObjectInitializer
 
 void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Sector)
 {
-	check(Sector);
-	check(GameMode);
+	FCHECK(Sector);
+	FCHECK(GameMode);
 
 	// Get debris field parameters
 	Game = GameMode;

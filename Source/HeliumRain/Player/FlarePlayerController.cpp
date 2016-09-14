@@ -63,7 +63,7 @@ void AFlarePlayerController::BeginPlay()
 
 	// Get settings
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	check(MyGameSettings);
+	FCHECK(MyGameSettings);
 
 	// Apply settings
 	MyGameSettings->ApplySettings(false);
@@ -247,7 +247,7 @@ void AFlarePlayerController::SetExternalCamera(bool NewState)
 
 void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 {
-	check(Ship);
+	FCHECK(Ship);
 
 	if (ShipPawn == Ship)
 	{

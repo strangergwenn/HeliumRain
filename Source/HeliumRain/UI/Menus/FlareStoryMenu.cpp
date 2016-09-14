@@ -200,7 +200,7 @@ void SFlareStoryMenu::OnStartPlaying()
 		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
 		PC->GetGame()->ActivateCurrentSector();
 
-		check(PC->GetPlayerShip()->GetActive());
+		FCHECK(PC->GetPlayerShip()->GetActive());
 
 		FFlareMenuParameterData Data;
 		Data.Spacecraft = PC->GetPlayerShip();

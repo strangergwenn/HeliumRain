@@ -35,7 +35,7 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 	MinEffectiveDistance = 0.f;
 
 	// Can't exist without description, can't return
-	check(Description);
+	FCHECK(Description);
 
 	ImpactSound = Description->WeaponCharacteristics.ImpactSound;
 	DamageSound = Description->WeaponCharacteristics.DamageSound;
@@ -571,7 +571,7 @@ void AFlareShell::Destroyed()
 	Super::Destroyed();
 
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-	check(Game);
+	FCHECK(Game);
 
 	UFlareSector* Sector = Game->GetActiveSector();
 	if (Sector->IsValidLowLevel())

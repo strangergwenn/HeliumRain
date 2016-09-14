@@ -238,7 +238,7 @@ void AFlareMenuManager::CloseMenu(bool HardClose)
 	FLOGV("AFlareMenuManager::CloseMenu : HardClose = %d", HardClose);
 	if (MenuIsOpen && GetPC()->GetPlayerShip() && GetGame()->GetActiveSector())
 	{
-		check(GetPC()->GetPlayerShip()->GetActive());
+		FCHECK(GetPC()->GetPlayerShip()->GetActive());
 
 		if (HardClose)
 		{
@@ -530,7 +530,7 @@ void AFlareMenuManager::LoadGame()
 		// Activate sector
 		FLOGV("AFlareMenuManager::LoadGame : found player ship '%s'", *CurrentShip->GetImmatriculation().ToString());
 		PC->GetGame()->ActivateCurrentSector();
-		check(CurrentShip->GetActive());
+		FCHECK(CurrentShip->GetActive());
 
 		// Fly the ship - we create another set of data here to keep with the convention :) 
 		NextMenu.Key = EFlareMenu::MENU_FlyShip;
@@ -709,7 +709,7 @@ void AFlareMenuManager::InspectCompany()
 	OnEnterMenu(false);
 
 	UFlareCompany* Company = (NextMenu.Value.Company) ? NextMenu.Value.Company : GetPC()->GetCompany();
-	check(Company);
+	FCHECK(Company);
 
 	CompanyMenu->Enter(Company);
 }
@@ -942,7 +942,7 @@ FString AFlareMenuManager::GetMenuKey(EFlareMenu::Type MenuType)
 FString AFlareMenuManager::GetKeyNameFromActionName(FName ActionName)
 {
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	check(InputSettings);
+	FCHECK(InputSettings);
 
 	for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
 	{

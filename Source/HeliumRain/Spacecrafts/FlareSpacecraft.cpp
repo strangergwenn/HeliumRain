@@ -107,7 +107,7 @@ void AFlareSpacecraft::BeginPlay()
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
-	check(IsValidLowLevel());
+	FCHECK(IsValidLowLevel());
 
 	// Show mass in logs
 	if (LastMass <= KINDA_SMALL_NUMBER && Airframe && Airframe->IsSimulatingPhysics())
@@ -650,7 +650,7 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	if (GetDescription()->Size == EFlarePartSize::L)
 	{
 		ShipNameTexture = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), 256, 256);
-		check(ShipNameTexture);
+		FCHECK(ShipNameTexture);
 		ShipNameTexture->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlareSpacecraft::DrawShipName);
 		ShipNameTexture->ClearColor = FLinearColor::Black;
 	}
@@ -1121,7 +1121,7 @@ void AFlareSpacecraft::OnUndocked(AFlareSpacecraft* DockStation)
 
 void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	check(InputComponent);
+	FCHECK(InputComponent);
 
 	PlayerInputComponent->BindAxis("Thrust", this, &AFlareSpacecraft::ThrustInput);
 	PlayerInputComponent->BindAxis("RollInput", this, &AFlareSpacecraft::RollInput);

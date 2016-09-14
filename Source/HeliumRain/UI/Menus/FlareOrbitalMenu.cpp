@@ -819,7 +819,7 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 void SFlareOrbitalMenu::OnNewTradeRouteClicked()
 {
 	UFlareTradeRoute* TradeRoute = MenuManager->GetPC()->GetCompany()->CreateTradeRoute(LOCTEXT("UntitledRoute", "Untitled Route"));
-	check(TradeRoute);
+	FCHECK(TradeRoute);
 
 	FFlareMenuParameterData Data;
 	Data.Route = TradeRoute;
@@ -835,7 +835,7 @@ void SFlareOrbitalMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
 
 void SFlareOrbitalMenu::OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute)
 {
-	check(TradeRoute);
+	FCHECK(TradeRoute);
 	TradeRoute->Dissolve();
 	UpdateTradeRouteList();
 }

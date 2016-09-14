@@ -92,8 +92,8 @@ void SFlareShipList::RefreshList()
 	{
 		FORCEINLINE bool operator()(const TSharedPtr<FInterfaceContainer> PtrA, const TSharedPtr<FInterfaceContainer> PtrB) const
 		{
-			check(PtrA.IsValid());
-			check(PtrB.IsValid());
+			FCHECK(PtrA.IsValid());
+			FCHECK(PtrB.IsValid());
 			UFlareSimulatedSpacecraft* A = PtrA->ShipInterfacePtr;
 			UFlareSimulatedSpacecraft* B = PtrB->ShipInterfacePtr;
 

@@ -206,14 +206,14 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	if (PostProcessCandidates.Num())
 	{
 		APostProcessVolume* Volume = Cast<APostProcessVolume>(PostProcessCandidates.Last());
-		check(Volume);
+		FCHECK(Volume);
 
 		FWeightedBlendable Blendable = Volume->Settings.WeightedBlendables.Array.Last();
 		UMaterial* MasterMaterial = Cast<UMaterial>(Blendable.Object);
 		if (MasterMaterial)
 		{
 			BlurMaterial = UMaterialInstanceDynamic::Create(MasterMaterial, MenuManager->GetPC()->GetWorld());
-			check(BlurMaterial);
+			FCHECK(BlurMaterial);
 			
 			Volume->Settings.RemoveBlendable(MasterMaterial);
 			Volume->Settings.AddBlendable(BlurMaterial, 1.0f);
