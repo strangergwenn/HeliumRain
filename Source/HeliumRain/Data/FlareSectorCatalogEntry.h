@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../Game/FlareSimulatedSector.h"
-#include "FlareSectorCatalog.generated.h"
+#include "../Game/FlareSector.h"
+#include "FlareSectorCatalogEntry.generated.h"
 
 
 UCLASS()
-class HELIUMRAIN_API UFlareSectorCatalog : public UDataAsset
+class HELIUMRAIN_API UFlareSectorCatalogEntry : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 
@@ -15,8 +15,8 @@ public:
 		Public data
 	----------------------------------------------------*/
 
-	/** Sectors data */
+	/** Sector data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareSectorCelestialBodyDescription> OrbitalBodies;
+	FFlareSectorDescription Data;
 
 };

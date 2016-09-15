@@ -7,6 +7,7 @@
 #include "FlareTravel.h"
 #include "FlareFleet.h"
 
+#include "../Data/FlareSectorCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
 
 
@@ -36,66 +37,59 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
     }
 
 	// Load sectors
-	for (int32 OrbitalBodyIndex = 0; OrbitalBodyIndex < Game->GetSectorCatalog()->OrbitalBodies.Num(); OrbitalBodyIndex++)
+	TArray<UFlareSectorCatalogEntry*> SectorList = Game->GetSectorCatalog();
+	for (int32 SectorIndex = 0; SectorIndex < SectorList.Num(); SectorIndex++)
 	{
-		FFlareSectorCelestialBodyDescription* SectorCelestialBodyDescription = &Game->GetSectorCatalog()->OrbitalBodies[OrbitalBodyIndex];
-		for (int32 OrbitIndex = 0; OrbitIndex < SectorCelestialBodyDescription->Orbits.Num(); OrbitIndex++)
+		const FFlareSectorDescription* SectorDescription = &SectorList[SectorIndex]->Data;
+
+		// Find save if exist
+		FFlareSectorSave* SectorSave = NULL;
+		for (int32 i = 0; i < WorldData.SectorData.Num(); i++)
 		{
-			FFlareSectorOrbitDescription* SectorOrbitDescription = &SectorCelestialBodyDescription->Orbits[OrbitIndex];
-			for (int32 SectorIndex = 0; SectorIndex < SectorOrbitDescription->Sectors.Num(); SectorIndex++)
+			if (WorldData.SectorData[i].Identifier == SectorDescription->Identifier)
 			{
-				const FFlareSectorDescription* SectorDescription = &SectorOrbitDescription->Sectors[SectorIndex];
-
-				// Find save if exist
-				FFlareSectorSave* SectorSave = NULL;
-				for (int32 i = 0; i < WorldData.SectorData.Num(); i++)
-				{
-					if (WorldData.SectorData[i].Identifier == SectorDescription->Identifier)
-					{
-						// Old save found
-						SectorSave = &WorldData.SectorData[i];
-						break;
-					}
-				}
-
-				FFlareSectorSave NewSectorData;
-				if (!SectorSave)
-				{
-					// No save, init new sector
-					NewSectorData.GivenName = FText();
-					NewSectorData.Identifier = SectorDescription->Identifier;
-					NewSectorData.LocalTime = 0;
-					NewSectorData.IsTravelSector = false;
-
-					// Init population
-					NewSectorData.PeopleData.Population = 0;
-					NewSectorData.PeopleData.BirthPoint = 0;
-					NewSectorData.PeopleData.DeathPoint = 0;
-					NewSectorData.PeopleData.FoodStock = 0;
-					NewSectorData.PeopleData.FuelStock = 0;
-					NewSectorData.PeopleData.ToolStock = 0;
-					NewSectorData.PeopleData.TechStock = 0;
-					NewSectorData.PeopleData.FoodConsumption = 0;
-					NewSectorData.PeopleData.FuelConsumption = 0;
-					NewSectorData.PeopleData.ToolConsumption = 0;
-					NewSectorData.PeopleData.TechConsumption = 0;
-					NewSectorData.PeopleData.HappinessPoint = 0;
-					NewSectorData.PeopleData.HungerPoint = 0;
-					NewSectorData.PeopleData.Money = 0;
-					NewSectorData.PeopleData.Dept = 0;
-
-
-					SectorSave = &NewSectorData;
-				}
-
-				FFlareSectorOrbitParameters OrbitParameters;
-				OrbitParameters.CelestialBodyIdentifier = SectorCelestialBodyDescription->CelestialBodyIdentifier;
-				OrbitParameters.Altitude = SectorOrbitDescription->Altitude;
-				OrbitParameters.Phase = SectorDescription->Phase;
-
-				LoadSector(SectorDescription, *SectorSave, OrbitParameters);
+				// Old save found
+				SectorSave = &WorldData.SectorData[i];
+				break;
 			}
 		}
+
+		FFlareSectorSave NewSectorData;
+		if (!SectorSave)
+		{
+			// No save, init new sector
+			NewSectorData.GivenName = FText();
+			NewSectorData.Identifier = SectorDescription->Identifier;
+			NewSectorData.LocalTime = 0;
+			NewSectorData.IsTravelSector = false;
+
+			// Init population
+			NewSectorData.PeopleData.Population = 0;
+			NewSectorData.PeopleData.BirthPoint = 0;
+			NewSectorData.PeopleData.DeathPoint = 0;
+			NewSectorData.PeopleData.FoodStock = 0;
+			NewSectorData.PeopleData.FuelStock = 0;
+			NewSectorData.PeopleData.ToolStock = 0;
+			NewSectorData.PeopleData.TechStock = 0;
+			NewSectorData.PeopleData.FoodConsumption = 0;
+			NewSectorData.PeopleData.FuelConsumption = 0;
+			NewSectorData.PeopleData.ToolConsumption = 0;
+			NewSectorData.PeopleData.TechConsumption = 0;
+			NewSectorData.PeopleData.HappinessPoint = 0;
+			NewSectorData.PeopleData.HungerPoint = 0;
+			NewSectorData.PeopleData.Money = 0;
+			NewSectorData.PeopleData.Dept = 0;
+
+
+			SectorSave = &NewSectorData;
+		}
+
+		FFlareSectorOrbitParameters OrbitParameters;
+		OrbitParameters.CelestialBodyIdentifier = SectorDescription->CelestialBodyIdentifier;
+		OrbitParameters.Altitude = SectorDescription->Altitude;
+		OrbitParameters.Phase = SectorDescription->Phase;
+
+		LoadSector(SectorDescription, *SectorSave, OrbitParameters);
 	}
 
 	// Load all travels

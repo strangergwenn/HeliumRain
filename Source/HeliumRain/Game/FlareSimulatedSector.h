@@ -97,6 +97,14 @@ struct FFlareSectorDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	FName Identifier;
 
+	/** Parent celestial body identifier */
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName CelestialBodyIdentifier;
+
+	/** Orbit altitude */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float Altitude;
+
 	/** Orbit phase */
 	UPROPERTY(EditAnywhere, Category = Content)
 	float Phase;
@@ -132,22 +140,6 @@ struct FFlareSectorDescription
 };
 
 
-/** Sector orbit description */
-USTRUCT()
-struct FFlareSectorOrbitDescription
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Orbit altitude */
-	UPROPERTY(EditAnywhere, Category = Content)
-	float Altitude;
-
-	/** Orbit altitude */
-	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareSectorDescription> Sectors;
-};
-
-
 /** Sector celestial body description */
 USTRUCT()
 struct FFlareSectorCelestialBodyDescription
@@ -169,10 +161,6 @@ struct FFlareSectorCelestialBodyDescription
 	/** Celestial body image */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FSlateBrush CelestialBodyPicture;
-
-	/** Orbit altitude */
-	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareSectorOrbitDescription> Orbits;
 };
 
 

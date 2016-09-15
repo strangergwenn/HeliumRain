@@ -388,11 +388,13 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 
 void SFlareOrbitalMenu::UpdateMap()
 {
-	UpdateMapForBody(NemaBox, &Game->GetSectorCatalog()->OrbitalBodies[0]);
-	UpdateMapForBody(AnkaBox, &Game->GetSectorCatalog()->OrbitalBodies[1]);
-	UpdateMapForBody(AstaBox, &Game->GetSectorCatalog()->OrbitalBodies[2]);
-	UpdateMapForBody(HelaBox, &Game->GetSectorCatalog()->OrbitalBodies[3]);
-	UpdateMapForBody(AdenaBox, &Game->GetSectorCatalog()->OrbitalBodies[4]);
+	TArray<FFlareSectorCelestialBodyDescription>& OrbitalBodies = Game->GetOrbitalBodies()->OrbitalBodies;
+
+	UpdateMapForBody(NemaBox,  &OrbitalBodies[0]);
+	UpdateMapForBody(AnkaBox,  &OrbitalBodies[1]);
+	UpdateMapForBody(AstaBox,  &OrbitalBodies[2]);
+	UpdateMapForBody(HelaBox,  &OrbitalBodies[3]);
+	UpdateMapForBody(AdenaBox, &OrbitalBodies[4]);
 }
 
 struct FSortByAltitudeAndPhase

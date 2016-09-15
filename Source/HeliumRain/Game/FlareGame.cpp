@@ -15,7 +15,9 @@
 #include "../Quests/FlareQuestManager.h"
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareResourceCatalog.h"
+#include "../Data/FlareSectorCatalogEntry.h"
 #include "Save/FlareSaveGameSystem.h"
+#include "AssetRegistryModule.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 
@@ -61,13 +63,13 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareSectorCatalog> SectorCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareOrbitalMap> OrbitalBodies;
 
 		FConstructorStatics()
 			: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
 			, AsteroidCatalog(TEXT("/Game/Environment/Asteroids/AsteroidCatalog"))
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
-			, SectorCatalog(TEXT("/Game/Gameplay/Catalog/SectorCatalog"))
+			, OrbitalBodies(TEXT("/Game/Gameplay/Catalog/OrbitalMap"))
 		{}
 	};
 	static FConstructorStatics ConstructorStatics;
@@ -76,7 +78,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	CustomizationCatalog = ConstructorStatics.CustomizationCatalog.Object;
 	AsteroidCatalog = ConstructorStatics.AsteroidCatalog.Object;
 	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
-	SectorCatalog = ConstructorStatics.SectorCatalog.Object;
+	OrbitalBodies = ConstructorStatics.OrbitalBodies.Object;
 
 	// Create dynamic objects
 	SaveGameSystem = NewObject<UFlareSaveGameSystem>(this, UFlareSaveGameSystem::StaticClass(), TEXT("SaveGameSystem"));
@@ -84,6 +86,20 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	ShipPartsCatalog = NewObject<UFlareSpacecraftComponentsCatalog>(this, UFlareSpacecraftComponentsCatalog::StaticClass(), TEXT("FlareSpacecraftComponentsCatalog"));
 	QuestCatalog = NewObject<UFlareQuestCatalog>(this, UFlareQuestCatalog::StaticClass(), TEXT("FlareQuestCatalog"));
 	ResourceCatalog = NewObject<UFlareResourceCatalog>(this, UFlareResourceCatalog::StaticClass(), TEXT("FlareResourceCatalog"));
+
+	// Look for sector assets
+	TArray<FAssetData> AssetList;
+	const IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	Registry.GetAssetsByClass(UFlareSectorCatalogEntry::StaticClass()->GetFName(), AssetList);
+
+	// Do the orbital map setup
+	for (int32 Index = 0; Index < AssetList.Num(); Index++)
+	{
+		FLOGV("AFlareGame::AFlareGame : Found '%s'", *AssetList[Index].GetFullName());
+		UFlareSectorCatalogEntry* Sector = Cast<UFlareSectorCatalogEntry>(AssetList[Index].GetAsset());
+		FCHECK(Sector);
+		SectorList.Add(Sector);
+	}
 }
 
 

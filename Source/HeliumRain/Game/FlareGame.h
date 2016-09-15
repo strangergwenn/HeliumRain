@@ -17,7 +17,7 @@
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Data/FlareAsteroidCatalog.h"
 #include "../Data/FlareCompanyCatalog.h"
-#include "../Data/FlareSectorCatalog.h"
+#include "../Data/FlareOrbitalMap.h"
 #include "../Data/FlareResourceCatalog.h"
 
 #include "FlareGame.generated.h"
@@ -28,6 +28,7 @@ class UFlareSaveGameSystem;
 class UFlareQuestManager;
 class UFlareQuestCatalog;
 class UFlareDebrisField;
+class UFlareSectorCatalogEntry;
 struct FFlarePlayerSave;
 
 
@@ -230,19 +231,23 @@ protected:
 	UPROPERTY()
 	UFlareCompanyCatalog*                      CompanyCatalog;
 
-	/** Reference to all sector descriptions */
+	/** Reference to the orbital setup */
 	UPROPERTY()
-	UFlareSectorCatalog*                       SectorCatalog;
+	UFlareOrbitalMap*                          OrbitalBodies;
 
-	/** Reference to all quests*/
+	/** Sector description list */
+	UPROPERTY()
+	TArray<UFlareSectorCatalogEntry*>          SectorList;
+
+	/** Reference to all quests */
 	UPROPERTY()
 	UFlareQuestCatalog*                        QuestCatalog;
 
-	/** Reference to all quests*/
+	/** Reference to all quests */
 	UPROPERTY()
 	UFlareResourceCatalog*                     ResourceCatalog;
 
-	// Default asteroid
+	/** Default asteroid */
 	UPROPERTY()
 	UStaticMesh*                               DefaultAsteroid;
 	
@@ -321,9 +326,14 @@ public:
 		return SpacecraftCatalog;
 	}
 
-	inline UFlareSectorCatalog* GetSectorCatalog() const
+	inline UFlareOrbitalMap* GetOrbitalBodies() const
 	{
-		return SectorCatalog;
+		return OrbitalBodies;
+	}
+
+	inline TArray<UFlareSectorCatalogEntry*>& GetSectorCatalog()
+	{
+		return SectorList;
 	}
 
 	inline UFlareSpacecraftComponentsCatalog* GetShipPartsCatalog() const
