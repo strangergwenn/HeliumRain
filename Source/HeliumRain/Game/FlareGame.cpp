@@ -58,8 +58,6 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	// Data catalogs
 	struct FConstructorStatics
 	{
-		ConstructorHelpers::FObjectFinder<UFlareSpacecraftCatalog> SpacecraftCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareSpacecraftComponentsCatalog> ShipPartsCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
@@ -68,9 +66,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 		ConstructorHelpers::FObjectFinder<UFlareResourceCatalog> ResourceCatalog;
 
 		FConstructorStatics()
-			: SpacecraftCatalog(TEXT("/Game/Gameplay/Catalog/SpacecraftCatalog"))
-			, ShipPartsCatalog(TEXT("/Game/Gameplay/Catalog/ShipPartsCatalog"))
-			, CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
+			: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
 			, AsteroidCatalog(TEXT("/Game/Environment/Asteroids/AsteroidCatalog"))
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
 			, SectorCatalog(TEXT("/Game/Gameplay/Catalog/SectorCatalog"))
@@ -81,8 +77,6 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	static FConstructorStatics ConstructorStatics;
 
 	// Push catalog data into storage
-	SpacecraftCatalog = ConstructorStatics.SpacecraftCatalog.Object;
-	ShipPartsCatalog = ConstructorStatics.ShipPartsCatalog.Object;
 	CustomizationCatalog = ConstructorStatics.CustomizationCatalog.Object;
 	AsteroidCatalog = ConstructorStatics.AsteroidCatalog.Object;
 	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
@@ -90,7 +84,10 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	QuestCatalog = ConstructorStatics.QuestCatalog.Object;
 	ResourceCatalog = ConstructorStatics.ResourceCatalog.Object;
 
+	// Create dynamic objects
 	SaveGameSystem = NewObject<UFlareSaveGameSystem>(this, UFlareSaveGameSystem::StaticClass(), TEXT("SaveGameSystem"));
+	SpacecraftCatalog = NewObject<UFlareSpacecraftCatalog>(this, UFlareSpacecraftCatalog::StaticClass(), TEXT("FlareSpacecraftCatalog"));
+	ShipPartsCatalog = NewObject<UFlareSpacecraftComponentsCatalog>(this, UFlareSpacecraftComponentsCatalog::StaticClass(), TEXT("FlareSpacecraftComponentsCatalog"));
 }
 
 
@@ -126,6 +123,7 @@ void AFlareGame::Logout(AController* Player)
 	SaveGame(PC, false);
 	PC->PrepareForExit();
 
+	// Exit
 	Super::Logout(Player);
 }
 

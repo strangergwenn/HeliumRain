@@ -1,6 +1,7 @@
 
 #include "../Flare.h"
 #include "FlareSpacecraftComponentsCatalog.h"
+#include "AssetRegistryModule.h"
 
 
 /*----------------------------------------------------
@@ -10,6 +11,37 @@
 UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
+	TArray<FAssetData> AssetList;
+	const IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	Registry.GetAssetsByClass(UFlareSpacecraftComponentsCatalogEntry::StaticClass()->GetFName(), AssetList);
+
+	for (int32 Index = 0; Index < AssetList.Num(); Index++)
+	{
+		FLOGV("UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog : Found '%s'", *AssetList[Index].GetFullName());
+		UFlareSpacecraftComponentsCatalogEntry* SpacecraftComponent = Cast<UFlareSpacecraftComponentsCatalogEntry>(AssetList[Index].GetAsset());
+		FCHECK(SpacecraftComponent);
+
+		if (SpacecraftComponent->Data.Type == EFlarePartType::OrbitalEngine)
+		{
+			EngineCatalog.Add(SpacecraftComponent);
+		}
+		else if (SpacecraftComponent->Data.Type == EFlarePartType::RCS)
+		{
+			RCSCatalog.Add(SpacecraftComponent);
+		}
+		else if (SpacecraftComponent->Data.Type == EFlarePartType::Weapon)
+		{
+			WeaponCatalog.Add(SpacecraftComponent);
+		}
+		else if (SpacecraftComponent->Data.Type == EFlarePartType::InternalComponent)
+		{
+			InternalComponentsCatalog.Add(SpacecraftComponent);
+		}
+		else if (SpacecraftComponent->Data.Type == EFlarePartType::Meta)
+		{
+			MetaCatalog.Add(SpacecraftComponent);
+		}
+	}
 }
 
 
