@@ -1,5 +1,6 @@
 #include "../Flare.h"
 #include "FlareResourceCatalog.h"
+#include "AssetRegistryModule.h"
 
 
 /*----------------------------------------------------
@@ -9,6 +10,28 @@
 UFlareResourceCatalog::UFlareResourceCatalog(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
+	TArray<FAssetData> AssetList;
+	const IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	Registry.GetAssetsByClass(UFlareResourceCatalogEntry::StaticClass()->GetFName(), AssetList);
+
+	for (int32 Index = 0; Index < AssetList.Num(); Index++)
+	{
+		FLOGV("UFlareResourceCatalog::UFlareResourceCatalog : Found '%s'", *AssetList[Index].GetFullName());
+		UFlareResourceCatalogEntry* Resource = Cast<UFlareResourceCatalogEntry>(AssetList[Index].GetAsset());
+		FCHECK(Resource);
+		
+		Resources.Add(Resource);
+
+		if (IsCustomerResource(&Resource->Data))
+		{
+			ConsumerResources.Add(Resource);
+		}
+
+		if (IsMaintenanceResource(&Resource->Data))
+		{
+			MaintenanceResources.Add(Resource);
+		}
+	}
 }
 
 

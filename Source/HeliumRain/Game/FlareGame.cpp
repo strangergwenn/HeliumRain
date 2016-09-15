@@ -62,16 +62,12 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareSectorCatalog> SectorCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareQuestCatalog> QuestCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareResourceCatalog> ResourceCatalog;
 
 		FConstructorStatics()
 			: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
 			, AsteroidCatalog(TEXT("/Game/Environment/Asteroids/AsteroidCatalog"))
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
 			, SectorCatalog(TEXT("/Game/Gameplay/Catalog/SectorCatalog"))
-			, QuestCatalog(TEXT("/Game/Gameplay/Catalog/QuestCatalog"))
-			, ResourceCatalog(TEXT("/Game/Gameplay/Catalog/ResourceCatalog"))
 		{}
 	};
 	static FConstructorStatics ConstructorStatics;
@@ -81,13 +77,13 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	AsteroidCatalog = ConstructorStatics.AsteroidCatalog.Object;
 	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
 	SectorCatalog = ConstructorStatics.SectorCatalog.Object;
-	QuestCatalog = ConstructorStatics.QuestCatalog.Object;
-	ResourceCatalog = ConstructorStatics.ResourceCatalog.Object;
 
 	// Create dynamic objects
 	SaveGameSystem = NewObject<UFlareSaveGameSystem>(this, UFlareSaveGameSystem::StaticClass(), TEXT("SaveGameSystem"));
 	SpacecraftCatalog = NewObject<UFlareSpacecraftCatalog>(this, UFlareSpacecraftCatalog::StaticClass(), TEXT("FlareSpacecraftCatalog"));
 	ShipPartsCatalog = NewObject<UFlareSpacecraftComponentsCatalog>(this, UFlareSpacecraftComponentsCatalog::StaticClass(), TEXT("FlareSpacecraftComponentsCatalog"));
+	QuestCatalog = NewObject<UFlareQuestCatalog>(this, UFlareQuestCatalog::StaticClass(), TEXT("FlareQuestCatalog"));
+	ResourceCatalog = NewObject<UFlareResourceCatalog>(this, UFlareResourceCatalog::StaticClass(), TEXT("FlareResourceCatalog"));
 }
 
 

@@ -5,7 +5,7 @@
 
 
 UCLASS()
-class HELIUMRAIN_API UFlareResourceCatalog : public UDataAsset
+class HELIUMRAIN_API UFlareResourceCatalog : public UObject
 {
 	GENERATED_UCLASS_BODY()
 
