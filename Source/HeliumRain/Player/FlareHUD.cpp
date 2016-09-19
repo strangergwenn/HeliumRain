@@ -251,6 +251,12 @@ void AFlareHUD::DrawHUD()
 				PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon,
 				HudColorNeutral,
 				true);
+
+			// Speed indication
+			FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
+			int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
+			FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
+			FlareDrawText(VelocityText, FVector2D(0, 40), HudColorNeutral);
 		}
 
 		// Draw combat mouse pointer
@@ -947,14 +953,6 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 	// Get HUD data
 	FVector2D ScreenPosition;
 	int32 SpeedMS = (Speed.Size() + 10.) / 100.0f;
-
-	// Speed indication
-	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
-	if (PlayerShip && !PlayerShip->GetStateManager()->IsExternalCamera())
-	{
-		FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
-		FlareDrawText(VelocityText, FVector2D(0, 50), HudColorNeutral);
-	}
 
 	// Draw inertial vector
 	FVector EndPoint = Object->GetActorLocation() + FocusDistance * Speed;
