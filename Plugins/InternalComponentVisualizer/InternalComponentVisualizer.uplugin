@@ -1,22 +1,22 @@
 {
     "FileVersion" : 3,
 
-    "FriendlyName" : "Internal component visualizer Plugin",
+    "FriendlyName" : "Component visualizer plugin for Helium Rain",
     "Version" : 1,
     "VersionName": "1.0",
-    "EngineVersion" : 1579795,
-    "Description" : "Display the radius of ship internal component.",
+    "EngineVersion" : "4.13.0",
+    "Description" : "Display the radius of internal components of ships in Helium Rain",
     "Category" : "Flare.Module",
     "CreatedBy" : "Frédéric Bertolus",
     "CreatedByURL" : "http://niavok.com",
-    "CanContainContent" : "true",
+    "CanContainContent" : "false",
+	"EnabledByDefault" : true,
 
     "Modules" :
     [
-        {
+        { 
             "Name" : "InternalComponentVisualizer",
-            "Type" : "Editor",
-            "LoadingPhase" : "PostEngineInit"
+            "Type" : "Editor"
         }
     ]
 }
