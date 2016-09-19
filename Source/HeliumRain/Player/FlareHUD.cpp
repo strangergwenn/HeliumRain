@@ -45,6 +45,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Load content (font)
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj                (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
+	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontSmallObj           (TEXT("/Game/Slate/Fonts/HudFontSmall.HudFontSmall"));
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontLargeObj           (TEXT("/Game/Slate/Fonts/HudFontLarge.HudFontLarge"));
 
 	// Set content (general icons)
@@ -72,6 +73,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Set content (font)
 	HUDFont = HUDFontObj.Object;
+	HUDFontSmall = HUDFontSmallObj.Object;
 	HUDFontLarge = HUDFontLargeObj.Object;
 
 	// Settings
@@ -1171,7 +1173,24 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 	if (CurrentCanvas)
 	{
 		float X, Y;
-		UFont* Font = Large ? HUDFontLarge : HUDFont;
+		UFont* Font = NULL;
+		
+		// Pick the appropriate font
+		if (Large)
+		{
+			Font = HUDFontLarge;
+		}
+		else
+		{
+			if (IsDrawingCockpit)
+			{
+				Font = HUDFont;
+			}
+			else
+			{
+				Font = HUDFontSmall;
+			}
+		}
 
 		// Optional centering
 		if (Center)

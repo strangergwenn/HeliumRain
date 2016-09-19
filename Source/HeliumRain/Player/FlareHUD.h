@@ -257,6 +257,7 @@ protected:
 
 	// Font
 	UFont*                                  HUDFont;
+	UFont*                                  HUDFontSmall;
 	UFont*                                  HUDFontLarge;
 
 	// Instruments
