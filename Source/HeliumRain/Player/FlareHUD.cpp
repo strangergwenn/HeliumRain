@@ -532,15 +532,10 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		FCHECK(CargoBay);
 
 		// Title
-		FText CargoText = LOCTEXT("CargoText", "Cargo bay");
-		FlareDrawText(CargoText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
-		CurrentPos += 2 * InstrumentLine;
-
-		// Subtitle
-		FText CargoInfoText = FText::Format(LOCTEXT("CargoInfoFormat", "Current usage : {0} / {1}"),
+		FText CargoText = FText::Format(LOCTEXT("CargoInfoFormat", "Cargo bay ({0} / {1})"),
 			FText::AsNumber(CargoBay->GetUsedCargoSpace()), FText::AsNumber(CargoBay->GetCapacity()));
-		FlareDrawText(CargoInfoText.ToString(), CurrentPos, Theme.FriendlyColor, false);
-		CurrentPos += InstrumentLine;
+		FlareDrawText(CargoText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
+		CurrentPos += 3 * InstrumentLine;
 
 		// Cargo bay slots
 		uint32 MaxCargoBayCount = 8;
@@ -549,7 +544,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		{
 			// Create text
 			FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
-			FText CargoSlotResourceText = Cargo.Resource ? Cargo.Resource->Acronym : LOCTEXT("CargoBaySlotEmpty", "Empty");
+			FText CargoSlotResourceText = Cargo.Resource ? Cargo.Resource->Acronym : LOCTEXT("CargoBaySlotEmpty", "Empty slot");
 			FText CargoBaySlotText = FText::Format(LOCTEXT("CargoBaySlotFormat", "{0} ({1}/{2})"),
 				CargoSlotResourceText, FText::AsNumber(Cargo.Quantity), FText::AsNumber(CargoBay->GetSlotCapacity()));
 
