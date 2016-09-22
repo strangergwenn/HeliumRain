@@ -428,6 +428,11 @@ public:
 		return CockpitManager;
 	}
 
+	inline UFlareSoundManager* GetSoundManager()
+	{
+		return SoundManager;
+	}
+
 	inline UFlareTacticManager* GetTacticManager()
 	{
 		return GetCompany()->GetTacticManager();

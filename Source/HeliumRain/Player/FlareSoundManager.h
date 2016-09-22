@@ -19,7 +19,8 @@ namespace EFlareMusicTrack
 		Danger,
 		Pacific,
 		Combat,
-		War
+		War,
+		Menu
 	};
 }
 

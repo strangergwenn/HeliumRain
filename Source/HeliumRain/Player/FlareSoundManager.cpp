@@ -29,6 +29,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> CombatMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> MenuMusicObj(TEXT("/Game/Master/Music/A_Menu_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Engine/EngineSounds/Master"));
 	static ConstructorHelpers::FObjectFinder<USoundMix> MasterSoundMixObj(TEXT("/Game/Master/Sound/Mix_Master"));
 
@@ -43,6 +44,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	MusicTracks.Add(PacificMusicObj.Object);
 	MusicTracks.Add(CombatMusicObj.Object);
 	MusicTracks.Add(WarMusicObj.Object);
+	MusicTracks.Add(MenuMusicObj.Object);
 
 	// Music sound
 	MusicPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("MusicSound"));
@@ -242,7 +244,7 @@ void UFlareSoundManager::SetDesiredMusicTrack()
 {
 	int32 TrackIndex = (int32)(MusicDesiredTrack - EFlareMusicTrack::None);
 	FLOGV("UFlareSoundManager::SetDesiredMusicTrack : starting %d", TrackIndex);
-	FCHECK(TrackIndex >= 0 && TrackIndex < MusicTracks.Num() - 1);
+	FCHECK(TrackIndex >= 0 && TrackIndex < MusicTracks.Num());
 
 	MusicPlayer.Sound->SetSound(MusicTracks[TrackIndex]);
 	MusicChanging = false;
