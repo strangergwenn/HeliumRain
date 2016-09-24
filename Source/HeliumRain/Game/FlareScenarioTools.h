@@ -75,6 +75,18 @@ protected:
 	AFlareGame*                                Game;
 	UFlareWorld*                               World;
 
+public:
+
+	/*----------------------------------------------------
+		Public data
+	----------------------------------------------------*/
+	// Celestial body
+	FFlareCelestialBody*                       Nema;
+	FFlareCelestialBody*                       Anka;
+	FFlareCelestialBody*                       Asta;
+	FFlareCelestialBody*                       Hela;
+	FFlareCelestialBody*                       Adena;
+
 	// Notable sectors (Nema)
 	UFlareSimulatedSector*                     TheDepths;
 	UFlareSimulatedSector*                     FirstLight;
@@ -124,9 +136,13 @@ protected:
 	FFlareResourceDescription*                 Hydrogen;
 	FFlareResourceDescription*                 Helium;
 	FFlareResourceDescription*                 Silica;
+	FFlareResourceDescription*                 IronOxyde;
 	FFlareResourceDescription*                 Steel;
 	FFlareResourceDescription*                 Tools;
 	FFlareResourceDescription*                 Tech;
+	FFlareResourceDescription*                 Carbon;
+	FFlareResourceDescription*                 Methane;
+	FFlareResourceDescription*                 FleetSupply;
 
 	// Ships
 	FName                                      ShipSolen;

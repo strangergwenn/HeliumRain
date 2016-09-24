@@ -28,6 +28,12 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	PlayerCompany = Company;
 	PlayerData = Player;
 
+	Nema = World->GetPlanerarium()->FindCelestialBody("nema");
+	Anka = World->GetPlanerarium()->FindCelestialBody("anka");
+	Hela = World->GetPlanerarium()->FindCelestialBody("hela");
+	Asta = World->GetPlanerarium()->FindCelestialBody("asta");
+	Adena = World->GetPlanerarium()->FindCelestialBody("adena");
+
 	// Notable sectors (Nema)
 	TheDepths =   World->FindSector("the-depths");
 	FirstLight =  World->FindSector("first-light");
@@ -58,6 +64,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	Solitude =    World->FindSector("solitude");
 	Tranquility = World->FindSector("tranquility");
 
+
 	// Companies
 	MiningSyndicate =      World->FindCompanyByShortName("MSY");
 	HelixFoundries =       World->FindCompanyByShortName("HFR");
@@ -77,9 +84,13 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	Hydrogen = Game->GetResourceCatalog()->Get("h2");
 	Helium =   Game->GetResourceCatalog()->Get("he3");
 	Silica =   Game->GetResourceCatalog()->Get("sio2");
+	IronOxyde =Game->GetResourceCatalog()->Get("feo");
 	Steel =    Game->GetResourceCatalog()->Get("steel");
 	Tools =    Game->GetResourceCatalog()->Get("tools");
 	Tech =     Game->GetResourceCatalog()->Get("tech");
+	Carbon =     Game->GetResourceCatalog()->Get("carbon");
+	Methane =     Game->GetResourceCatalog()->Get("ch4");
+	FleetSupply =     Game->GetResourceCatalog()->Get("fleet-supply");
 
 	// Ships
 	ShipSolen = "ship-solen";

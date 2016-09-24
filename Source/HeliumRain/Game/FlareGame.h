@@ -28,6 +28,7 @@ class UFlareSaveGameSystem;
 class UFlareQuestManager;
 class UFlareQuestCatalog;
 class UFlareDebrisField;
+class UFlareScenarioTools;
 struct FFlarePlayerSave;
 
 
@@ -205,6 +206,10 @@ protected:
 	/** Save game system*/
 	UPROPERTY()
 	UFlareSaveGameSystem*                      SaveGameSystem;
+
+	/** Scenario tools */
+	UPROPERTY()
+	UFlareScenarioTools*                       ScenarioTools;
 
 	/*----------------------------------------------------
 		Catalogs
@@ -384,6 +389,11 @@ public:
 	inline UStaticMesh* GetDefaultAsteroid() const
 	{
 		return DefaultAsteroid;
+	}
+
+	UFlareScenarioTools* GetScenarioTools()
+	{
+		return ScenarioTools;
 	}
 
 };

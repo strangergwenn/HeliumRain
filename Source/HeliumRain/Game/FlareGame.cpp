@@ -16,6 +16,7 @@
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareResourceCatalog.h"
 #include "Save/FlareSaveGameSystem.h"
+#include "Log/FlareLogWriter.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 
@@ -126,6 +127,10 @@ void AFlareGame::Logout(AController* Player)
 	SaveGame(PC, false);
 	PC->PrepareForExit();
 
+	FLOG("AFlareGame::Logout log writer shutdown");
+	FFlareLogWriter::Shutdown();
+	FLOG("AFlareGame::Logout log writer shutdown done");
+
 	Super::Logout(Player);
 }
 
@@ -233,8 +238,6 @@ void AFlareGame::Recovery()
 	// No player fleet, create recovery ship
 	UFlareCompany* PlayerCompany = GetPC()->GetCompany();
 
-	UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
-	ScenarioTools->Init(PlayerCompany, GetPC()->GetPlayerData());
 	GetPC()->SetPlayerShip(ScenarioTools->CreateRecoveryPlayerShip());
 	GetPC()->Load(*GetPC()->GetPlayerData());
 
@@ -545,7 +548,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
 	PC->SetCompany(PlayerCompany);
 
-	UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
+	ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
 	ScenarioTools->Init(PlayerCompany, &PlayerData);
 
 	switch(ScenarioIndex)
@@ -574,6 +577,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	// End loading
 	LoadedOrCreated = true;
 	PC->OnLoadComplete();
+	FFlareLogWriter::InitWriter();
 }
 
 UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
@@ -631,12 +635,17 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 
         World->Load(Save->WorldData);
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
-		
+
+
         // TODO check if load is ok for ship event before the PC load
 
 		// Load the player
 		PC->Load(Save->PlayerData);
 		PC->GetCompany()->SetupEmblem();
+
+
+		ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
+		ScenarioTools->Init(PC->GetCompany(), &Save->PlayerData);
 
 		World->CheckIntegrity();
 
@@ -646,6 +655,7 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 
 		LoadedOrCreated = true;
 		PC->OnLoadComplete();
+		FFlareLogWriter::InitWriter();
 
 		return true;
 	}
@@ -755,6 +765,8 @@ void AFlareGame::UnloadGame()
 	{
 		GetPC()->Clean();
 	}
+
+	FFlareLogWriter::Shutdown();
 
 	// Consistency check
 	int32 ActorCount = 0;

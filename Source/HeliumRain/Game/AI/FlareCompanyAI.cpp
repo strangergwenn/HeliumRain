@@ -73,6 +73,10 @@ void UFlareCompanyAI::Load(UFlareCompany* ParentCompany, const FFlareCompanyAISa
 			ConstructionStaticShips.Add(Ship);
 		}
 	}
+
+	// Setup Behavior
+	Behavior = NewObject<UFlareAIBehavior>(this, UFlareCompanyAI::StaticClass());
+	Behavior->Load(Company);
 }
 
 FFlareCompanyAISave* UFlareCompanyAI::Save()

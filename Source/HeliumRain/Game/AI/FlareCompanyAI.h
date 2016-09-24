@@ -7,6 +7,7 @@
 
 
 class UFlareCompany;
+class UFlareAIBehavior;
 
 /* Inter-sector trade deal */
 struct SectorDeal
@@ -143,6 +144,8 @@ protected:
 	UFlareCompany*			               Company;
 	FFlareCompanyAISave					   AIData;
 	AFlareGame*                            Game;
+	UPROPERTY()
+	UFlareAIBehavior*                      Behavior;
 	
 	// Construction project
 	FFlareSpacecraftDescription*			 ConstructionProjectStationDescription;
