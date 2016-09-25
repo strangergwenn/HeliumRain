@@ -98,15 +98,16 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 		LoadTravel(WorldData.TravelData[i]);
 	}
 
-	// Companies post load
+	WorldMoneyReferenceInit = false;
+}
+
+void UFlareWorld::PostLoad()
+{
 	for (int i = 0; i < Companies.Num(); i++)
 	{
 		Companies[i]->PostLoad();
 	}
-
-	WorldMoneyReferenceInit = false;
 }
-
 
 UFlareCompany* UFlareWorld::LoadCompany(const FFlareCompanySave& CompanyData)
 {
@@ -542,6 +543,8 @@ void UFlareWorld::Simulate()
 		Sectors[SectorIndex]->SwapPrices();
 	}
 	FLOGV("** Simulate day %d done", WorldData.Date-1);
+
+	GameLog::DaySimulated(WorldData.Date);
 }
 
 void UFlareWorld::SimulatePeopleMoneyMigration()

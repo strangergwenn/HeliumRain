@@ -67,6 +67,10 @@ struct FFlarePlayerSave
 {
     GENERATED_USTRUCT_BODY()
 
+	/** Unique identifier of the game */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName UUID;
+
 	/** Chosen scenario */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 ScenarioId;

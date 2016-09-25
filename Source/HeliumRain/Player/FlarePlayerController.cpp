@@ -445,6 +445,7 @@ void AFlarePlayerController::SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerS
 
 void AFlarePlayerController::Clean()
 {
+	PlayerData.UUID = NAME_None;
 	PlayerData.ScenarioId = 0;
 	PlayerData.CompanyIdentifier = NAME_None;
 	PlayerData.LastFlownShipIdentifier = NAME_None;

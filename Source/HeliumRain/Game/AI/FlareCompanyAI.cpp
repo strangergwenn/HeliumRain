@@ -1,10 +1,12 @@
 
 #include "../../Flare.h"
 #include "FlareCompanyAI.h"
+#include "FlareAIBehavior.h"
 
 #include "../FlareGame.h"
 #include "../FlareCompany.h"
 #include "../FlareSectorHelper.h"
+
 #include "../../Economy/FlareCargoBay.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
@@ -73,6 +75,9 @@ void UFlareCompanyAI::Load(UFlareCompany* ParentCompany, const FFlareCompanyAISa
 			ConstructionStaticShips.Add(Ship);
 		}
 	}
+
+	// Setup Behavior
+	Behavior = NewObject<UFlareAIBehavior>(this, UFlareAIBehavior::StaticClass());
 }
 
 FFlareCompanyAISave* UFlareCompanyAI::Save()
@@ -127,6 +132,8 @@ void UFlareCompanyAI::Simulate()
 {
 	if (Game && Company != Game->GetPC()->GetCompany())
 	{
+		Behavior->Load(Company);
+
 		// Simulate company attitude towards others
 		UpdateDiplomacy();
 	
@@ -453,21 +460,20 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 
 
 				// Add weight if the company already have another station in this type
-				TPair<float, float> ScoreResults = ComputeConstructionScoreForStation(Sector, StationDescription, FactoryDescription, NULL);
-				float Score = ScoreResults.Key;
-				float GainPerDay = ScoreResults.Value;
+				float Score = ComputeConstructionScoreForStation(Sector, StationDescription, FactoryDescription, NULL);
 
 
 				// Update current construction score
 				if (ConstructionProjectSector == Sector && ConstructionProjectStationDescription == StationDescription)
 				{
 					CurrentConstructionScore = Score;
+					//FLOGV("Current : Score=%f", Score);
 				}
 
 				// Change best if we found better
-				if (GainPerDay > 1.f && (!BestStationDescription || Score > BestScore))
+				if (Score > 0.f && (!BestStationDescription || Score > BestScore))
 				{
-					//FLOGV("New Best : GainPerDay=%f Score=%f", GainPerDay, Score);
+					//FLOGV("New Best : Score=%f", Score);
 
 					BestScore = Score;
 					BestStationDescription = StationDescription;
@@ -494,21 +500,19 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 				FFlareFactoryDescription* FactoryDescription = &Station->GetDescription()->Factories[FactoryIndex]->Data;
 
 				// Add weight if the company already have another station in this type
-				TPair<float, float> ScoreResults = ComputeConstructionScoreForStation(Sector, Station->GetDescription(), FactoryDescription, Station);
-				float Score = ScoreResults.Key;
-				float GainPerDay = ScoreResults.Value;
+				float Score = ComputeConstructionScoreForStation(Sector, Station->GetDescription(), FactoryDescription, Station);
 
 				// Update current construction score
 				if (ConstructionProjectSector == Sector && ConstructionProjectStation == Station)
 				{
+					//FLOGV("Current update : Score=%f", Score);
 					CurrentConstructionScore = Score;
 				}
 
 				// Change best if we found better
-				if (GainPerDay > 0 && (!BestStationDescription || Score > BestScore))
+				if (Score > 0 && (!BestStationDescription || Score > BestScore))
 				{
-					//FLOGV("New Best : GainPerDay=%f Score=%f", GainPerDay, Score);
-
+					//FLOGV("New Best update: Score=%f", Score);
 					BestScore = Score;
 					BestStationDescription = Station->GetDescription();
 					BestStation = Station;
@@ -566,6 +570,7 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 				ConstructionStaticShips.Empty();
 
 				FLOGV("  ConstructionProjectNeedCapacity = %d", ConstructionProjectNeedCapacity);
+				GameLog::AIConstructionStart(Company, ConstructionProjectSector, ConstructionProjectStationDescription, ConstructionProjectStation);
 			}
 		}
 	}
@@ -1458,51 +1463,97 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 	return IdleCargos;
 }
 
-TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const
+float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const
 {
+	// The score is a number between 0 and infinity. A classical score is 1. If 0, the company don't want to build this station
 
-	// Detect shipyards
-	if (FactoryDescription->IsShipyard())
-	{
-		// TODO Shipyard case
-		return TPairInitializer<float, float>(0, 0);
-	}
+	// Multiple parameter impact the score
+	// Base score is 1
+	// x sector affility
+	// x resource affility if produce a resource
+	// x customer, maintenance, shipyard affility if as the capability
+	//
+	// Then some world state multiplier occurs
+	// - for factories : if the resource world flow of a input resourse is negative, multiply by 1 to 0 for 0 to x% (x is resource afficility) of negative ratio
+	// - for factories : if the resource world flow of a output resourse is positive, multiply by 1 to 0 for 0 to x% (x is resource afficility) of positive ratio
+	// - for customer, if customer affility > customer consumption in sector reduce the score
+	// - maintenance, same with world FS consumption
+	// - for shipyard, if a own shipyard is not used, don't do one
+	//
+	// - x 2 to 0, for the current price of input and output resource. If output resource price is min : 0, if max : 2. Inverse for input
+	//
+	// - Time to pay the construction price multiply from 1 for 1 day to 0 for infinity. 0.5 at 200 days
 
-
-	float GainPerDay = 0;
+	float Score = 1.0f;
 	float GainPerCycle = 0;
 
+	//FLOGV(">>>>>Score for %s in %s", *StationDescription->Identifier.ToString(), *Sector->GetIdentifier().ToString());
+
+
+	//TODO customer, maintenance and shipyard limit
 
 	GainPerCycle -= FactoryDescription->CycleCost.ProductionCost;
 
-	float Malus = 0;
-	float Bonus = 0;
+	Score *= Behavior->GetSectorAffility(Sector);
+	//FLOGV(" after sector Affility: %f", Score);
+
+
+	if(StationDescription->Capabilities.Contains(EFlareSpacecraftCapability::Consumer))
+	{
+		Score *= Behavior->ConsumerAffility;
+	}
+
+
+
+	if(StationDescription->Capabilities.Contains(EFlareSpacecraftCapability::Maintenance))
+	{
+		Score *= Behavior->MaintenanceAffility;
+	}
+
+	if (FactoryDescription->IsShipyard())
+	{
+		Score *= Behavior->ShipyardAffility;
+	}
+
+
+
+	//FLOGV(" after special Affility: %f", Score);
+
+	if(Score == 0)
+	{
+		return 0;
+	}
 
 	for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num(); ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
 		GainPerCycle -= Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryInput) * Resource->Quantity;
 
-		float NeededFlow = (float)Resource->Quantity / (float)FactoryDescription->CycleCost.ProductionTime;
-		/*FLOGV("%s, %s: ResourceFlow = %d Flow needed = %f",
-			  *FactoryDescription->Name.ToString(),
-			  *Resource->Resource->Data.Name.ToString(),
-			  ResourceFlow[&Resource->Resource->Data] ,NeededFlow);*/
-		if (ResourceFlow[&Resource->Resource->Data] <= NeededFlow)
+		float MaxVolume = FMath::Max(WorldStats[&Resource->Resource->Data].Production, WorldStats[&Resource->Resource->Data].Consumption);
+		if(MaxVolume > 0)
 		{
-			float DisponibilityMalus = (NeededFlow - (float)ResourceFlow[&Resource->Resource->Data]);
-			Malus += DisponibilityMalus;
-			//FLOGV("Factory %s as %f as malus for resource %s", *FactoryDescription->Name.ToString(), DisponibilityMalus, *Resource->Resource->Data.Name.ToString());
-
+			float UnderflowRatio = WorldStats[&Resource->Resource->Data].Balance / MaxVolume;
+			if(UnderflowRatio < 0)
+			{
+				float UnderflowMalus = FMath::Clamp((UnderflowRatio * 100)  / 5.f + 1.f, 0.f, 1.f);
+				Score *= UnderflowMalus;
+				//FLOGV("    MaxVolume %f", MaxVolume);
+				//FLOGV("    UnderflowRatio %f", UnderflowRatio);
+				//FLOGV("    UnderflowMalus %f", UnderflowMalus);
+			}
 		}
 
-		// TODO : moderate, like 10% margin with mals in 0 to -10%
-		if(WorldStats[&Resource->Resource->Data].Balance < 0)
-		{
-			// Input resource in underflow, don't build a useless station
-			return TPairInitializer<float, float>(0, 0);
-		}
+		float ResourcePrice = Sector->GetPreciseResourcePrice(&Resource->Resource->Data);
+		float PriceRatio = (ResourcePrice - (float) Resource->Resource->Data.MinPrice) / (float) (Resource->Resource->Data.MaxPrice - Resource->Resource->Data.MinPrice);
 
+		Score *= (1 - PriceRatio) * 2;
+	}
+
+	//FLOGV(" after input: %f", Score);
+
+	if(Score == 0)
+	{
+		return 0;
 	}
 
 	for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num(); ResourceIndex++)
@@ -1510,56 +1561,58 @@ TPair<float, float> UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSi
 		const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
 		GainPerCycle += Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryOutput) * Resource->Quantity;
 
-		float ProducedFlow = (float)Resource->Quantity / (float)FactoryDescription->CycleCost.ProductionTime;
-		/*FLOGV("%s, %s: ResourceFlow = %d Flow produced = %f",
-			  *FactoryDescription->Name.ToString(),
-			  *Resource->Resource->Data.Name.ToString(),
-			  ResourceFlow[&Resource->Resource->Data] ,ProducedFlow);*/
-		if (ResourceFlow[&Resource->Resource->Data] <= 0)
+		float ResourceAffility = Behavior->GetResourceAffility(&Resource->Resource->Data);
+		Score *= ResourceAffility;
+
+
+		//FLOGV(" ResourceAffility for %s: %f", *Resource->Resource->Data.Identifier.ToString(), ResourceAffility);
+
+		float MaxVolume = FMath::Max(WorldStats[&Resource->Resource->Data].Production, WorldStats[&Resource->Resource->Data].Consumption);
+		if(MaxVolume > 0)
 		{
-			float DisponibilityBonus = ProducedFlow - (float)ResourceFlow[&Resource->Resource->Data];
-			//FLOGV("Factory %s as %f as bonus for resource %s", *FactoryDescription->Name.ToString(), DisponibilityBonus, *Resource->Resource->Data.Name.ToString());
-			Bonus += DisponibilityBonus;
+			float OverflowRatio = WorldStats[&Resource->Resource->Data].Balance / MaxVolume;
+			if(OverflowRatio > 0)
+			{
+				float OverflowMalus = FMath::Clamp(1.f - (OverflowRatio * 100)  / ResourceAffility, 0.f, 1.f);
+				Score *= OverflowMalus;
+				//FLOGV("    MaxVolume %f", MaxVolume);
+				//FLOGV("    OverflowRatio %f", OverflowRatio);
+				//FLOGV("    OverflowMalus %f", OverflowMalus);
+			}
 		}
 
-		// TODO : moderate, like 10% margin with mals in 0 to 10%
-		if(WorldStats[&Resource->Resource->Data].Balance > 0)
-		{
-			// Output resource in underflow, don't build a useless station
-			return TPairInitializer<float, float>(0, 0);
-		}
+		float ResourcePrice = Sector->GetPreciseResourcePrice(&Resource->Resource->Data);
+		float PriceRatio = (ResourcePrice - (float) Resource->Resource->Data.MinPrice) / (float) (Resource->Resource->Data.MaxPrice - Resource->Resource->Data.MinPrice);
 
+
+		//FLOGV("    PriceRatio %f", PriceRatio);
+
+
+		Score *= PriceRatio * 2;
 	}
 
-	GainPerDay = GainPerCycle / FactoryDescription->CycleCost.ProductionTime;
-	//FLOGV("%s in %s GainPerDay=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), GainPerDay / 100);
+	//FLOGV(" after output: %f", Score);
 
-	// Price with station resources prices bonus
+	float GainPerDay = GainPerCycle / FactoryDescription->CycleCost.ProductionTime;
 	float StationPrice = ComputeStationPrice(Sector, StationDescription, Station);
-
 	float DayToPayPrice = StationPrice / GainPerDay;
-	float MissingMoneyRatio = FMath::Min(1.0f, Company->GetMoney() / StationPrice);
-	//FLOGV("StationPrice=%f DayToPayPrice=%f MissingMoneyRatio=%f", StationPrice, DayToPayPrice, MissingMoneyRatio);
 
-	float Score = (100.f / DayToPayPrice) * MissingMoneyRatio * MissingMoneyRatio;
-	//FLOGV("%s in %s Score=%f", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString(), Score);
-	//FLOGV("         Bonus=%f", Bonus);
-	//FLOGV("         Malus=%f", Malus);
+	float HalfRatioDelay = 1500;
 
-	if (Bonus > 0)
-	{
-		Score *= Bonus;
-	}
-
-	if (Malus > 0)
-	{
-		Score /= Malus;
-	}
-
-	//FLOGV("         Final score=%f", Score);
+	float PaybackMalus = (HalfRatioDelay -1.f)/(DayToPayPrice+(HalfRatioDelay -2.f)); // 1for 1 day, 0.5 for 1500 days
+	Score *= PaybackMalus;
 
 
-	return TPairInitializer<float, float>(Score, GainPerDay);
+	//FLOGV(" GainPerCycle: %f", GainPerCycle);
+	//FLOGV(" GainPerDay: %f", GainPerDay);
+	//FLOGV(" StationPrice: %f", StationPrice);
+	//FLOGV(" DayToPayPrice: %f", DayToPayPrice);
+	//FLOGV(" PaybackMalus: %f", PaybackMalus);
+
+
+	//FLOGV("Score=%f for %s in %s", Score, *StationDescription->Identifier.ToString(), *Sector->GetIdentifier().ToString());
+
+	return Score;
 }
 
 float UFlareCompanyAI::ComputeStationPrice(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSpacecraft* Station) const
@@ -1579,6 +1632,7 @@ float UFlareCompanyAI::ComputeStationPrice(UFlareSimulatedSector* Sector, FFlare
 	return StationPrice;
 
 }
+
 
 SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedSector* Sector) const
 {

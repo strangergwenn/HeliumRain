@@ -18,6 +18,7 @@
 #include "../Data/FlareSectorCatalogEntry.h"
 #include "Save/FlareSaveGameSystem.h"
 #include "AssetRegistryModule.h"
+#include "Log/FlareLogWriter.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 
@@ -136,6 +137,7 @@ void AFlareGame::Logout(AController* Player)
 	PC->PrepareForExit();
 
 	// Exit
+	FFlareLogWriter::Shutdown();
 	Super::Logout(Player);
 }
 
@@ -243,8 +245,6 @@ void AFlareGame::Recovery()
 	// No player fleet, create recovery ship
 	UFlareCompany* PlayerCompany = GetPC()->GetCompany();
 
-	UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
-	ScenarioTools->Init(PlayerCompany, GetPC()->GetPlayerData());
 	GetPC()->SetPlayerShip(ScenarioTools->CreateRecoveryPlayerShip());
 	GetPC()->Load(*GetPC()->GetPlayerData());
 
@@ -528,7 +528,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	FFlareWorldSave WorldData;
 	WorldData.Date = 0;
 	World->Load(WorldData);
-
+	
 	// Create companies
 	for (int32 Index = 0; Index < GetCompanyCatalogCount(); Index++)
 	{
@@ -551,14 +551,17 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	FFlarePlayerSave PlayerData;
 	UFlareCompany* PlayerCompany = CreateCompany(-1);
 	PlayerData.CompanyIdentifier = PlayerCompany->GetIdentifier();
+	PlayerData.UUID = FName(*FGuid::NewGuid().ToString());
 	PlayerData.ScenarioId = ScenarioIndex;
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
 	PC->SetCompany(PlayerCompany);
-
-	UFlareScenarioTools* ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
+	
+	// Create world tools
+	ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
 	ScenarioTools->Init(PlayerCompany, &PlayerData);
+	World->PostLoad();
 
-	switch(ScenarioIndex)
+	switch (ScenarioIndex)
 	{
 		case -1: // Empty
 			ScenarioTools->GenerateEmptyScenario();
@@ -584,6 +587,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	// End loading
 	LoadedOrCreated = true;
 	PC->OnLoadComplete();
+	FFlareLogWriter::InitWriter(PlayerData.UUID);
 }
 
 UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
@@ -636,18 +640,20 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 
         // Create the new world
         World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
-
 		FLOGV("AFlareGame::LoadGame date=%lld", Save->WorldData.Date);
-
         World->Load(Save->WorldData);
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
-		
+				
         // TODO check if load is ok for ship event before the PC load
 
 		// Load the player
 		PC->Load(Save->PlayerData);
 		PC->GetCompany()->SetupEmblem();
 
+		// Create world tools
+		ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
+		ScenarioTools->Init(PC->GetCompany(), &Save->PlayerData);
+		World->PostLoad();
 		World->CheckIntegrity();
 
 		// Init the quest manager
@@ -656,6 +662,7 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 
 		LoadedOrCreated = true;
 		PC->OnLoadComplete();
+		FFlareLogWriter::InitWriter(Save->PlayerData.UUID);
 
 		return true;
 	}
@@ -766,6 +773,8 @@ void AFlareGame::UnloadGame()
 	{
 		GetPC()->Clean();
 	}
+
+	FFlareLogWriter::Shutdown();
 
 	// Consistency check
 	int32 ActorCount = 0;

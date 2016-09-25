@@ -7,6 +7,7 @@
 
 
 class UFlareCompany;
+class UFlareAIBehavior;
 
 /* Inter-sector trade deal */
 struct SectorDeal
@@ -117,8 +118,8 @@ protected:
 	/** Get a list of idle cargos */
 	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
 
-	/** Generate a score for ranking construction projects & the gains per day */
-	TPair<float, float> ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const;
+	/** Generate a score for ranking construction projects, version 2 */
+	float ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const;
 
 	float ComputeStationPrice(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSpacecraft* Station) const;
 
@@ -143,6 +144,8 @@ protected:
 	UFlareCompany*			               Company;
 	FFlareCompanyAISave					   AIData;
 	AFlareGame*                            Game;
+	UPROPERTY()
+	UFlareAIBehavior*                      Behavior;
 	
 	// Construction project
 	FFlareSpacecraftDescription*			 ConstructionProjectStationDescription;

@@ -53,6 +53,6 @@ public:
 	----------------------------------------------------*/
 
    /** Get the path to save game file for the given name, a platform _may_ be able to simply override this and no other functions above */
-   virtual FString GetSaveGamePath(const FString SaveName);
+   static FString GetSaveGamePath(const FString SaveName);
 
 };

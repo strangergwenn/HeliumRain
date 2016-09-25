@@ -67,10 +67,17 @@ UFlareSaveGame* UFlareSaveReaderV1::LoadGame(TSharedPtr< FJsonObject > GameObjec
 
 void UFlareSaveReaderV1::LoadPlayer(const TSharedPtr<FJsonObject> Object, FFlarePlayerSave* Data)
 {
+	LoadFName(Object, "UUID", &Data->UUID);
 	LoadInt32(Object, "ScenarioId", &Data->ScenarioId);
 	LoadFName(Object, "CompanyIdentifier", &Data->CompanyIdentifier);
 	LoadFName(Object, "PlayerFleetIdentifier", &Data->PlayerFleetIdentifier);
 	LoadFName(Object, "LastFlownShipIdentifier", &Data->LastFlownShipIdentifier);
+
+	// LEGACY alpha 3
+	if(Data->UUID == NAME_None)
+	{
+		Data->UUID = FName(*FGuid::NewGuid().ToString());
+	}
 
 	const TSharedPtr< FJsonObject >* Quest;
 	if(Object->TryGetObjectField(TEXT("Quest"), Quest))

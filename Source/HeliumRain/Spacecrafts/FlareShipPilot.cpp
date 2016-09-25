@@ -9,6 +9,8 @@
 #include "../Game/FlareGame.h"
 #include "../Game/AI/FlareCompanyAI.h"
 
+#include "../Player/FlarePlayerController.h"
+
 #include "../Spacecrafts/FlareEngine.h"
 #include "../Spacecrafts/FlareRCS.h"
 

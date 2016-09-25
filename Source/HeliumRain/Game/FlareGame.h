@@ -11,6 +11,7 @@
 #include "FlareCompany.h"
 #include "FlareWorld.h"
 #include "FlareSector.h"
+#include "Log/FlareLogApi.h"
 
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
@@ -29,6 +30,7 @@ class UFlareQuestManager;
 class UFlareQuestCatalog;
 class UFlareDebrisField;
 class UFlareSectorCatalogEntry;
+class UFlareScenarioTools;
 struct FFlarePlayerSave;
 
 
@@ -207,6 +209,10 @@ protected:
 	UPROPERTY()
 	UFlareSaveGameSystem*                      SaveGameSystem;
 
+	/** Scenario tools */
+	UPROPERTY()
+	UFlareScenarioTools*                       ScenarioTools;
+
 	/*----------------------------------------------------
 		Catalogs
 	----------------------------------------------------*/
@@ -269,7 +275,6 @@ protected:
 
 	UPROPERTY()
 	TArray<FFlareSaveSlotInfo>                 SaveSlots;
-
 
 public:
 	
@@ -394,6 +399,11 @@ public:
 	inline UStaticMesh* GetDefaultAsteroid() const
 	{
 		return DefaultAsteroid;
+	}
+
+	UFlareScenarioTools* GetScenarioTools()
+	{
+		return ScenarioTools;
 	}
 
 };

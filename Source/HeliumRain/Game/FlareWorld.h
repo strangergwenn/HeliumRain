@@ -77,6 +77,9 @@ public:
 	/** Load the world from a save file */
 	virtual void Load(const FFlareWorldSave& Data);
 
+	/** Loading is done */
+	virtual void PostLoad();
+
 	/** Save the company to a save file */
 	virtual FFlareWorldSave* Save();
 

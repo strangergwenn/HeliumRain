@@ -38,6 +38,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SavePlayer(FFlarePlayerSave* Data)
 {
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
+	JsonObject->SetStringField("UUID", Data->UUID.ToString());
 	JsonObject->SetStringField("ScenarioId", FormatInt32(Data->ScenarioId));
 	JsonObject->SetStringField("CompanyIdentifier", Data->CompanyIdentifier.ToString());
 	JsonObject->SetStringField("PlayerFleetIdentifier", Data->PlayerFleetIdentifier.ToString());
