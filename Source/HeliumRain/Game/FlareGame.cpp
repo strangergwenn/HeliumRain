@@ -67,7 +67,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 
 		FConstructorStatics()
 			: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
-			, AsteroidCatalog(TEXT("/Game/Environment/Asteroids/AsteroidCatalog"))
+			, AsteroidCatalog(TEXT("/Game/ThirdParty/Asteroids/AsteroidCatalog"))
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
 			, OrbitalBodies(TEXT("/Game/Gameplay/Catalog/OrbitalMap"))
 		{}
@@ -758,6 +758,7 @@ void AFlareGame::UnloadGame()
 		ActiveSector->DestroySector();
 		ActiveSector = NULL;
 	}
+	DebrisFieldSystem->Reset();
 
 	// Cleanup stuff
 	Clean();

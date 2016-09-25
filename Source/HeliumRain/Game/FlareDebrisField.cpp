@@ -36,6 +36,7 @@ void UFlareDebrisField::Setup(AFlareGame* GameMode, UFlareSimulatedSector* Secto
 	{
 		float SectorScale = 5000 * 100;
 		int32 DebrisCount = 100 * DebrisFieldInfo->DebrisFieldDensity;
+		FLOGV("UFlareDebrisField::Setup : debris catalog is %s", *DebrisFieldMeshes->GetName());
 		FLOGV("UFlareDebrisField::Setup : spawning debris field : gen %d, size = %d, icy = %d", CurrentGenerationIndex, DebrisCount, Sector->GetDescription()->IsIcy);
 
 		for (int32 Index = 0; Index < DebrisCount; Index++)
