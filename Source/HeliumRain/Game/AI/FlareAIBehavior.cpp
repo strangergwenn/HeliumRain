@@ -19,10 +19,11 @@ UFlareAIBehavior::UFlareAIBehavior(const FObjectInitializer& ObjectInitializer)
 void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 {
 	Company = ParentCompany;
+	check(Company);
 	Game = Company->GetGame();
-	ST = Game->GetScenarioTools();
 
-	GenerateAffilities();
+	ST = Game->GetScenarioTools();
+	check(ST);
 }
 
 void UFlareAIBehavior::GenerateAffilities()

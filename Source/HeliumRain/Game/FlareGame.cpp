@@ -521,7 +521,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	FFlareWorldSave WorldData;
 	WorldData.Date = 0;
 	World->Load(WorldData);
-
+	
 	// Create companies
 	for (int32 Index = 0; Index < GetCompanyCatalogCount(); Index++)
 	{
@@ -547,11 +547,13 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	PlayerData.ScenarioId = ScenarioIndex;
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
 	PC->SetCompany(PlayerCompany);
-
+	
+	// Create world tools
 	ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
 	ScenarioTools->Init(PlayerCompany, &PlayerData);
+	World->PostLoad();
 
-	switch(ScenarioIndex)
+	switch (ScenarioIndex)
 	{
 		case -1: // Empty
 			ScenarioTools->GenerateEmptyScenario();
@@ -630,23 +632,20 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 
         // Create the new world
         World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
-
 		FLOGV("AFlareGame::LoadGame date=%lld", Save->WorldData.Date);
-
         World->Load(Save->WorldData);
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
-
-
+				
         // TODO check if load is ok for ship event before the PC load
 
 		// Load the player
 		PC->Load(Save->PlayerData);
 		PC->GetCompany()->SetupEmblem();
 
-
+		// Create world tools
 		ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
 		ScenarioTools->Init(PC->GetCompany(), &Save->PlayerData);
-
+		World->PostLoad();
 		World->CheckIntegrity();
 
 		// Init the quest manager
