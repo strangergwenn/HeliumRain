@@ -270,7 +270,6 @@ protected:
 	UPROPERTY()
 	TArray<FFlareSaveSlotInfo>                 SaveSlots;
 
-
 public:
 	
 	/*----------------------------------------------------

@@ -78,7 +78,6 @@ void UFlareCompanyAI::Load(UFlareCompany* ParentCompany, const FFlareCompanyAISa
 
 	// Setup Behavior
 	Behavior = NewObject<UFlareAIBehavior>(this, UFlareAIBehavior::StaticClass());
-	Behavior->Load(Company);
 }
 
 FFlareCompanyAISave* UFlareCompanyAI::Save()
@@ -133,6 +132,8 @@ void UFlareCompanyAI::Simulate()
 {
 	if (Game && Company != Game->GetPC()->GetCompany())
 	{
+		Behavior->Load(Company);
+
 		// Simulate company attitude towards others
 		UpdateDiplomacy();
 	

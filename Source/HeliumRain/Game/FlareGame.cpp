@@ -131,6 +131,7 @@ void AFlareGame::Logout(AController* Player)
 	FFlareLogWriter::Shutdown();
 	FLOG("AFlareGame::Logout log writer shutdown done");
 
+
 	Super::Logout(Player);
 }
 
