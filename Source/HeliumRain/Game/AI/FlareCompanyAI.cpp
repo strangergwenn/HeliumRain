@@ -1,10 +1,12 @@
 
 #include "../../Flare.h"
 #include "FlareCompanyAI.h"
+#include "FlareAIBehavior.h"
 
 #include "../FlareGame.h"
 #include "../FlareCompany.h"
 #include "../FlareSectorHelper.h"
+
 #include "../../Economy/FlareCargoBay.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
@@ -75,7 +77,7 @@ void UFlareCompanyAI::Load(UFlareCompany* ParentCompany, const FFlareCompanyAISa
 	}
 
 	// Setup Behavior
-	Behavior = NewObject<UFlareAIBehavior>(this, UFlareCompanyAI::StaticClass());
+	Behavior = NewObject<UFlareAIBehavior>(this, UFlareAIBehavior::StaticClass());
 	Behavior->Load(Company);
 }
 
