@@ -1,9 +1,12 @@
 
 #include "../../Flare.h"
 #include "FlareSectorButton.h"
+
 #include "../../Game/FlareCompany.h"
 #include "../../Game/FlareSimulatedSector.h"
+
 #include "../../Player/FlareMenuManager.h"
+#include "../../Player/FlarePlayerController.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSectorButton"
