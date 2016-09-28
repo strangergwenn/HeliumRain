@@ -43,7 +43,7 @@ static void FlareReportError(FString FunctionName)
 	{ \
 		if (!ensure(Expression)) \
 		{ \
-			FlareReportError(TEXT(__FUNCTION__)); \
+			FlareReportError(__FUNCTION__); \
 		} \
 	} \
 	while (0)
