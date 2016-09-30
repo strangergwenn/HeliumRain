@@ -134,7 +134,6 @@ void UFlareCompanyAI::Simulate()
 	{
 		Behavior->Load(Company);
 
-		// Simulate company attitude towards others
 		UpdateDiplomacy();
 	
 		ResourceFlow = ComputeWorldResourceFlow();
@@ -142,7 +141,7 @@ void UFlareCompanyAI::Simulate()
 		Shipyards = FindShipyards();
 
 		// Compute input and output ressource equation (ex: 100 + 10/ day)
-		TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
+		WorldResourceVariation.Empty();
 		for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 		{
 			UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
@@ -152,14 +151,7 @@ void UFlareCompanyAI::Simulate()
 			//DumpSectorResourceVariation(Sector, &Variation);
 		}
 
-		// Update trade routes
-		int32 IdleCargoCapacity = UpdateTrading(WorldResourceVariation);
-	
-		// Create or upgrade stations
-		UpdateStationConstruction(WorldResourceVariation, IdleCargoCapacity);
-
-		// Buy ships
-		UpdateShipAcquisition(IdleCargoCapacity);
+		Behavior->Simulate();
 	}
 }
 
@@ -176,31 +168,11 @@ void UFlareCompanyAI::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 
 void UFlareCompanyAI::UpdateDiplomacy()
 {
-	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
-	{
-		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
-
-		if (OtherCompany == Company)
-		{
-			continue;
-		}
-
-		if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
-		{
-			Company->SetHostilityTo(OtherCompany, false);
-		}
-		else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
-		{
-			Company->SetHostilityTo(OtherCompany, true);
-			if (OtherCompany == Game->GetPC()->GetCompany())
-			{
-				OtherCompany->SetHostilityTo(Company, true);
-			}
-		}
-	}
+	Behavior->Load(Company);
+	Behavior->UpdateDiplomacy();
 }
 
-int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation)
+int32 UFlareCompanyAI::UpdateTrading()
 {
 	int32 IdleCargoCapacity = 0;
 	TArray<UFlareSimulatedSpacecraft*> IdleCargos = FindIdleCargos();
@@ -228,10 +200,6 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 	{
 		UFlareSimulatedSpacecraft* Ship = IdleCargos[ShipIndex];
 
-		if (Ship->IsTrading())
-		{
-			continue;
-		}
 		//	FLOGV("UFlareCompanyAI::UpdateTrading : Search something to do for %s", *Ship->GetImmatriculation().ToString());
 		
 		SectorDeal BestDeal;
@@ -257,7 +225,7 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 			
 			while (true)
 			{
-				SectorBestDeal = FindBestDealForShipFromSector(Ship, SectorA, &BestDeal, &WorldResourceVariation);
+				SectorBestDeal = FindBestDealForShipFromSector(Ship, SectorA, &BestDeal);
 				if (!SectorBestDeal.Resource)
 				{
 					// No best deal found
@@ -421,7 +389,7 @@ int32 UFlareCompanyAI::UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariatio
 	return IdleCargoCapacity;
 }
 
-void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, int32& IdleCargoCapacity)
+void UFlareCompanyAI::UpdateStationConstruction(int32& IdleCargoCapacity)
 {
 	// Prepare resources for station-building analysis
 	float BestScore = 0;
@@ -637,7 +605,7 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 					IdleCargoCapacity -= NeedCapacity;
 				}
 
-				FindResourcesForStationConstruction(WorldResourceVariation);
+				FindResourcesForStationConstruction();
 			}
 		}
 		else
@@ -654,7 +622,7 @@ void UFlareCompanyAI::UpdateStationConstruction(TMap<UFlareSimulatedSector*, Sec
 	}
 }
 
-void UFlareCompanyAI::FindResourcesForStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation)
+void UFlareCompanyAI::FindResourcesForStationConstruction()
 {
 
 	// First, place construction ships in construction sector.
@@ -1251,6 +1219,26 @@ void UFlareCompanyAI::UpdateWarShipAcquisition()
 	OrderOneShip(ShipDescription);
 }
 
+void UFlareCompanyAI::UpdateMilitaryMovement()
+{
+
+	TArray<UFlareSimulatedSpacecraft*> IdleMilitaryShips = FindIdleMilitaryShips();
+
+	FLOGV("UpdateMilitaryMovement %d ships", IdleMilitaryShips.Num());
+
+	for (int32 ShipIndex = 0; ShipIndex < IdleMilitaryShips.Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = IdleMilitaryShips[ShipIndex];
+
+		if (FMath::FRand() < 0.1) {
+			// Move
+			int32 SectorIndex = FMath::RandRange(0, Company->GetKnownSectors().Num() - 1);
+			Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Company->GetKnownSectors()[SectorIndex]);
+		}
+	}
+
+}
+
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/
@@ -1461,6 +1449,31 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 	}
 
 	return IdleCargos;
+}
+
+
+TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleMilitaryShips() const
+{
+	TArray<UFlareSimulatedSpacecraft*> IdleMilitaryShips;
+
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+
+
+		for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
+			if (Ship->GetCompany() != Company || !Ship->IsMilitary() || (Ship->GetCurrentFleet() && Ship->GetCurrentFleet()->IsTraveling()))
+			{
+				continue;
+			}
+
+			IdleMilitaryShips.Add(Ship);
+		}
+	}
+
+	return IdleMilitaryShips;
 }
 
 float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const
@@ -2018,7 +2031,7 @@ void UFlareCompanyAI::DumpSectorResourceVariation(UFlareSimulatedSector* Sector,
 	}
 }
 
-SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation) const
+SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat)
 {
 	SectorDeal BestDeal;
 	BestDeal.Resource = NULL;
@@ -2060,8 +2073,8 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 		int64 TravelTime = TravelTimeToA + TravelTimeToB;
 
 
-		SectorVariation* SectorVariationA = &(*WorldResourceVariation)[SectorA];
-		SectorVariation* SectorVariationB = &(*WorldResourceVariation)[SectorB];
+		SectorVariation* SectorVariationA = &(WorldResourceVariation[SectorA]);
+		SectorVariation* SectorVariationB = &(WorldResourceVariation[SectorB]);
 
 		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 		{

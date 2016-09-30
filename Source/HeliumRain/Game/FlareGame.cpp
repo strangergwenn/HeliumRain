@@ -245,10 +245,9 @@ void AFlareGame::Recovery()
 	// No player fleet, create recovery ship
 	UFlareCompany* PlayerCompany = GetPC()->GetCompany();
 
+	ScenarioTools->Init(PlayerCompany,GetPC()->GetPlayerData());
 	GetPC()->SetPlayerShip(ScenarioTools->CreateRecoveryPlayerShip());
 	GetPC()->Load(*GetPC()->GetPlayerData());
-
-	// TODO peaces
 
 	for (int32 CompanyIndex = 0; CompanyIndex < GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 	{

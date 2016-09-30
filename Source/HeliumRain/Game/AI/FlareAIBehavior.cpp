@@ -30,6 +30,82 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 	}
 }
 
+void UFlareAIBehavior::Simulate()
+{
+	if(Company == ST->Pirates)
+	{
+		SimulatePirateBehavior();
+	}
+	else
+	{
+		SimulateGeneralBehavior();
+	}
+
+}
+
+void UFlareAIBehavior::SimulateGeneralBehavior()
+{
+	// Update trade routes
+	int32 IdleCargoCapacity = Company->GetAI()->UpdateTrading();
+
+	// Create or upgrade stations
+	Company->GetAI()->UpdateStationConstruction(IdleCargoCapacity);
+
+	// Buy ships
+	Company->GetAI()->UpdateShipAcquisition(IdleCargoCapacity);
+
+	Company->GetAI()->UpdateMilitaryMovement();
+}
+
+void UFlareAIBehavior::UpdateDiplomacy()
+{
+
+	// Simulate company attitude towards others
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany == Company)
+		{
+			continue;
+		}
+
+		if(Company == ST->Pirates)
+		{
+			Company->SetHostilityTo(OtherCompany, true);
+		}
+		else
+		{
+			if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
+			{
+				Company->SetHostilityTo(OtherCompany, false);
+			}
+			else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
+			{
+				Company->SetHostilityTo(OtherCompany, true);
+				if (OtherCompany == Game->GetPC()->GetCompany())
+				{
+					OtherCompany->SetHostilityTo(Company, true);
+				}
+			}
+		}
+	}
+}
+
+void UFlareAIBehavior::SimulatePirateBehavior()
+{
+	// Simulate company attitude towards others
+	Company->GetAI()->UpdateDiplomacy();
+
+	// Update trade routes
+	int32 IdleCargoCapacity = Company->GetAI()->UpdateTrading();
+
+	// Buy war ships
+	Company->GetAI()->UpdateWarShipAcquisition();
+
+	Company->GetAI()->UpdateMilitaryMovement();
+}
+
 void UFlareAIBehavior::GenerateAffilities()
 {
 	// Reset resource affilities

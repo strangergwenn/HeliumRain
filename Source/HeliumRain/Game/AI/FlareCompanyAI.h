@@ -72,32 +72,44 @@ public:
 	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
 
+/*----------------------------------------------------
+	Behavior API
+----------------------------------------------------*/
+
+	/** Update diplomacy changes */
+	void UpdateDiplomacy();
+
+	/** Update trading for the company's fleet*/
+	int32 UpdateTrading();
+
+	/** Manage the construction of stations */
+	void UpdateStationConstruction(int32& IdleCargoCapacity);
+
+	/** Buy / build ships at shipyards */
+	void UpdateShipAcquisition(int32& IdleCargoCapacity);
+
+	/** Buy / build ships at shipyards */
+	void UpdateMilitaryMovement();
+
+	/** Buy war ships */
+	void UpdateWarShipAcquisition();
+
 protected:
 
 	/*----------------------------------------------------
 		Internal subsystems
 	----------------------------------------------------*/
 
-	/** Update diplomacy changes */
-	void UpdateDiplomacy();
 
-	/** Update trading for the company's fleet*/
-	int32 UpdateTrading(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
-
-	/** Manage the construction of stations */
-	void UpdateStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, int32& IdleCargoCapacity);
 
 	/** Try to muster resources to build stations */
-	void FindResourcesForStationConstruction(TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
+	void FindResourcesForStationConstruction();
 
-	/** Buy / build ships at shipyards */
-	void UpdateShipAcquisition(int32& IdleCargoCapacity);
 
 	/** Buy cargos ships */
 	void UpdateCargoShipAcquisition();
 
-	/** Buy war ships */
-	void UpdateWarShipAcquisition();
+
 
 	/*----------------------------------------------------
 		Helpers
@@ -118,6 +130,9 @@ protected:
 	/** Get a list of idle cargos */
 	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
 
+	/** Get a list of idle military */
+	TArray<UFlareSimulatedSpacecraft*> FindIdleMilitaryShips() const;
+
 	/** Generate a score for ranking construction projects, version 2 */
 	float ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const;
 
@@ -129,7 +144,7 @@ protected:
 	/** Print the resource flow */
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation) const;
 
-	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> *WorldResourceVariation) const;
+	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat);
 	
 	TMap<FFlareResourceDescription*, int32> ComputeWorldResourceFlow() const;
 
@@ -159,6 +174,7 @@ protected:
 	TMap<FFlareResourceDescription*, int32>  ResourceFlow;
 	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
 	TArray<UFlareSimulatedSpacecraft*>       Shipyards;
+	TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
 
 public:
 

@@ -23,11 +23,20 @@ public:
 	/** Load the company behavior */
 	virtual void Load(UFlareCompany* ParentCompany);
 
+	virtual void Simulate();
+
+	void UpdateDiplomacy();
+
 protected:
 
 	/*----------------------------------------------------
 		Internal subsystems
 	----------------------------------------------------*/
+
+	virtual void SimulateGeneralBehavior();
+
+	virtual void SimulatePirateBehavior();
+
 
 
 	void GenerateAffilities();
