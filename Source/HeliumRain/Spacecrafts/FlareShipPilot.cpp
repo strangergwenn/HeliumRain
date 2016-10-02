@@ -105,26 +105,6 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		return;
 	}
 
-	// Weapon is hs, go repair and refill
-	if (Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) < 0.15
-		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, true) < 0.5
-		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 0.5
-		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 0.25)
-	{
-		// Go repair or refill ammo
-		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
-		if (TargetStation)
-		{
-			if (Ship->GetNavigationSystem()->DockAt(TargetStation))
-			{
-				//FLOG("  dock")
-				PilotTargetShip = NULL;
-				// Ok let dock
-				return;
-			}
-		}
-	}
-
 	EFlareCombatGroup::Type CombatGroup;
 
 	if(Ship->GetSize() == EFlarePartSize::L)
