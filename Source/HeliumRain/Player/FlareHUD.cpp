@@ -1035,7 +1035,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 
 			// Draw the status
-			if (!Spacecraft->GetParent()->IsStation() && ObjectSize.X > IconSize)
+			//if (!Spacecraft->GetParent()->IsStation() && ObjectSize.X > IconSize/4)
 			{
 				int32 NumberOfIcons = Spacecraft->GetParent()->IsMilitary() ? 3 : 2;
 				FVector2D StatusPos = CenterPos;
