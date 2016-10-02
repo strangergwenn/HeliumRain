@@ -542,9 +542,14 @@ void UFlareSpacecraftComponent::UpdatePowerSources(TArray<UFlareSpacecraftCompon
 	}
 }
 
+bool UFlareSpacecraftComponent::IsBroken() const
+{
+	return (GetDamageRatio() * (IsPowered() ? 1 : 0)) < BROKEN_RATIO;
+}
+
 float UFlareSpacecraftComponent::GetUsableRatio() const
 {
-	return GetDamageRatio() * (IsPowered() ? 1 : 0) * (Spacecraft && Spacecraft->GetParent()->GetDamageSystem()->HasPowerOutage() ? 0 : 1);
+	return (IsBroken() ? 0 : 1) * (GetDamageRatio() * (IsPowered() ? 1 : 0)) * (Spacecraft && Spacecraft->GetParent()->GetDamageSystem()->HasPowerOutage() ? 0 : 1);
 }
 
 float UFlareSpacecraftComponent::GetHeatProduction() const

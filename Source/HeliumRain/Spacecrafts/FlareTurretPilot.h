@@ -32,8 +32,6 @@ protected:
 
 	AFlareSpacecraft* GetNearestHostileShip(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const;
 
-	virtual UFlareSpacecraftComponent* GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft);
-
 public:
 
 	/*----------------------------------------------------

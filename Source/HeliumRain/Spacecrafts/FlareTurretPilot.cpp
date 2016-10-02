@@ -135,7 +135,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 		if (!PilotTargetComponent)
 		{
-			PilotTargetComponent = GetRandomTargetComponent(PilotTargetShip);
+			PilotTargetComponent = PilotHelper::GetBestTargetComponent(PilotTargetShip);
 			TimeUntilNextComponentSwitch = 10;
 			//FLOGV("%s Select new target component %s ", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
 		}
@@ -273,6 +273,10 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 	TargetPreferences.IsNotMilitary = 0.1;
 	TargetPreferences.IsDangerous = 1;
 	TargetPreferences.IsNotDangerous = 0.01;
+	TargetPreferences.IsStranded = 1;
+	TargetPreferences.IsNotStranded = 0.5;
+	TargetPreferences.IsUncontrolable = 0.1;
+	TargetPreferences.IsNotUncontrolable = 1;
 	TargetPreferences.TargetStateWeight = 1;
 	TargetPreferences.MaxDistance = 5000000;
 	TargetPreferences.DistanceWeight = 0.1;
@@ -355,45 +359,6 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 bool UFlareTurretPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
 {
 	return ShipCandidate->GetParent()->IsMilitary() && ShipCandidate->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
-}
-
-UFlareSpacecraftComponent* UFlareTurretPilot::GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft)
-{
-	TArray<UFlareSpacecraftComponent*> ComponentSelection;
-
-	TArray<UActorComponent*> Components = TargetSpacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-
-		if (Component->GetDescription() && Component->GetDamageRatio() > 0)
-		{
-			ComponentSelection.Add(Component);
-		}
-	}
-
-	if (ComponentSelection.Num() == 0)
-	{
-		return TargetSpacecraft->GetCockpit();
-	}
-	else
-	{
-		while(true)
-		{
-			UFlareSpacecraftComponent* Component = ComponentSelection[FMath::RandRange(0, ComponentSelection.Num()-1)];
-
-			UFlareRCS* RCS = Cast<UFlareRCS>(Component);
-			if (RCS)
-			{
-				if (FMath::FRand() > 0.25)
-				{
-					continue;
-				}
-			}
-			return Component;
-		}
-
-	}
 }
 
 

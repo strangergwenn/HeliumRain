@@ -1175,6 +1175,11 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularBraking(float DeltaSeconds)
 
 void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 {
+	if(Spacecraft->GetParent()->GetDamageSystem()->IsUncontrollable())
+	{
+		return;
+	}
+
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 	if (Spacecraft->GetDamageSystem()->IsPowered())
 	{

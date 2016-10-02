@@ -1,6 +1,9 @@
 #pragma once
 #include "FlareSimulatedSpacecraftDamageSystem.generated.h"
 
+const float BROKEN_RATIO = 0.5f;
+const float UNCONTROLLABLE_RATIO = 0.5f;
+
 /** Possible subsystems targets */
 UENUM()
 namespace EFlareSubsystem
@@ -92,6 +95,13 @@ protected:
 	float GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
 						 FFlareSpacecraftComponentSave* ComponentData,
 						 bool WithArmor) const;
+
+	float GetUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
+																FFlareSpacecraftComponentSave* ComponentData) const;
+
+
+	float GetClampedUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
+																FFlareSpacecraftComponentSave* ComponentData) const;
 
 	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
 

@@ -2,6 +2,9 @@
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareSector.h"
 #include "../Game/FlareGame.h"
+#include "FlareRCS.h"
+#include "FlareOrbitalEngine.h"
+#include "FlareWeapon.h"
 #include "FlareShipPilot.h"
 #include "FlarePilotHelper.h"
 
@@ -194,6 +197,12 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			continue;
 		}
 
+		if(ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable() && ShipCandidate->GetParent()->GetDamageSystem()->IsDisarmed())
+		{
+			// Ship HS
+			continue;
+		}
+
 		float Score;
 		float StateScore;
 		float AttackTargetScore;
@@ -212,7 +221,6 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			StateScore *= Preferences.IsSmall;
 		}
 
-
 		if (ShipCandidate->GetParent()->IsStation())
 		{
 			StateScore *= Preferences.IsStation;
@@ -221,7 +229,6 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 		{
 			StateScore *= Preferences.IsNotStation;
 		}
-
 
 		if (ShipCandidate->GetParent()->IsMilitary())
 		{
@@ -239,6 +246,24 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 		else
 		{
 			StateScore *= Preferences.IsNotDangerous;
+		}
+
+		if (ShipCandidate->GetParent()->GetDamageSystem()->IsStranded())
+		{
+			StateScore *= Preferences.IsStranded;
+		}
+		else
+		{
+			StateScore *= Preferences.IsNotStranded;
+		}
+
+		if (ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable())
+		{
+			StateScore *= Preferences.IsUncontrolable;
+		}
+		else
+		{
+			StateScore *= Preferences.IsNotUncontrolable;
 		}
 
 		float Distance = (Preferences.BaseLocation - ShipCandidate->GetActorLocation()).Size();
@@ -259,7 +284,6 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 		{
 			AttackTargetScore = 0.0f;
 		}
-
 
 		FVector Direction = (ShipCandidate->GetActorLocation() - Preferences.BaseLocation).GetUnsafeNormal();
 
@@ -304,6 +328,93 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 	}*/
 
 	return BestTarget;
+}
+
+
+UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft* TargetSpacecraft)
+{
+	// Is armed, target the gun
+	// Else if not stranger target the orbital
+	// else target the rsc
+
+	float WeaponWeight = 1;
+	float PodWeight = 1;
+	float RCSWeight = 1;
+	float HeatSinkWeight = 1;
+
+	if (!TargetSpacecraft->GetParent()->GetDamageSystem()->IsDisarmed())
+	{
+		WeaponWeight = 10;
+		PodWeight = 4;
+		RCSWeight = 1;
+		HeatSinkWeight = 1;
+	}
+	else if (!TargetSpacecraft->GetParent()->GetDamageSystem()->IsStranded())
+	{
+		PodWeight = 5;
+		RCSWeight = 1;
+		HeatSinkWeight = 1;
+	}
+	else
+	{
+		RCSWeight = 1;
+		HeatSinkWeight = 1;
+	}
+
+	TArray<UFlareSpacecraftComponent*> ComponentSelection;
+
+	TArray<UActorComponent*> Components = TargetSpacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+
+		if (Component->GetDescription() && !Component->IsBroken() )
+		{
+
+			UFlareRCS* RCS = Cast<UFlareRCS>(Component);
+			if (RCS)
+			{
+				for (int32 i = 0; i < RCSWeight; i++)
+				{
+					ComponentSelection.Add(Component);
+				}
+			}
+
+			UFlareOrbitalEngine* OrbitalEngine = Cast<UFlareOrbitalEngine>(Component);
+			if (OrbitalEngine)
+			{
+				for (int32 i = 0; i < PodWeight; i++)
+				{
+					ComponentSelection.Add(Component);
+				}
+			}
+
+			UFlareWeapon* Weapon = Cast<UFlareWeapon>(Component);
+			if (Weapon)
+			{
+				for (int32 i = 0; i < WeaponWeight; i++)
+				{
+					ComponentSelection.Add(Component);
+				}
+			}
+
+			if(Component->GetDescription()->GeneralCharacteristics.HeatSink > 0)
+			{
+				for (int32 i = 0; i < HeatSinkWeight; i++)
+				{
+					ComponentSelection.Add(Component);
+				}
+			}
+		}
+	}
+
+	if(ComponentSelection.Num() == 0)
+	{
+		return NULL;
+	}
+
+	int32 ComponentIndex = FMath::RandRange(0, ComponentSelection.Num() - 1);
+	return ComponentSelection[ComponentIndex];
 }
 
 
@@ -435,5 +546,5 @@ void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 
 bool PilotHelper::IsShipDangerous(AFlareSpacecraft* ShipCandidate)
 {
-	return ShipCandidate->IsMilitary() && ShipCandidate->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+	return ShipCandidate->IsMilitary() && !ShipCandidate->GetParent()->GetDamageSystem()->IsDisarmed();
 }

@@ -80,8 +80,6 @@ public:
 
 	virtual void FindBestHostileTarget(EFlareCombatTactic::Type Tactic);
 
-	virtual UFlareSpacecraftComponent* GetRandomTargetComponent(AFlareSpacecraft* TargetSpacecraft);
-
 public:
 
 	/*----------------------------------------------------

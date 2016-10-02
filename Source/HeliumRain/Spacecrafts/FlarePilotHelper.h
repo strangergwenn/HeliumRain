@@ -19,6 +19,10 @@ struct PilotHelper
 		float IsNotMilitary;
 		float IsDangerous;
 		float IsNotDangerous;
+		float IsStranded;
+		float IsNotStranded;
+		float IsUncontrolable;
+		float IsNotUncontrolable;
 		float TargetStateWeight;
 		float MaxDistance;
 		float DistanceWeight;
@@ -36,6 +40,8 @@ struct PilotHelper
 	static FVector AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore = NULL);
 
 	static AFlareSpacecraft* GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences);
+
+	static UFlareSpacecraftComponent* GetBestTargetComponent(AFlareSpacecraft* TargetSpacecraft);
 
 	/** Return true if the ship is dangerous */
 	static bool IsShipDangerous(AFlareSpacecraft* ShipCandidate);

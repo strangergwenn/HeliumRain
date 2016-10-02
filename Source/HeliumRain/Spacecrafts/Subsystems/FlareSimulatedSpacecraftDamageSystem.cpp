@@ -52,17 +52,33 @@ float UFlareSimulatedSpacecraftDamageSystem::GetPowerOutageDuration() const
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsStranded() const
 {
+	if(Spacecraft->IsStation())
+	{
+		return false;
+	}
 	return (GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, false) < 0.3f || IsUncontrollable());
 }
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsUncontrollable() const
 {
-	return (GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, false) < 0.8f);
+	if(Spacecraft->IsStation())
+	{
+		return false;
+	}
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, false) == 0.0f);
 }
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsDisarmed() const
 {
-	return (GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, false) < 0.3f);
+	if(Spacecraft->IsStation())
+	{
+		return true;
+	}
+	if(Spacecraft->GetSize() == EFlarePartSize::S && IsUncontrollable())
+	{
+		return true;
+	}
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) == 0.0f);
 }
 
 float UFlareSimulatedSpacecraftDamageSystem::GetGlobalHealth()
@@ -106,8 +122,10 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 
 				if(ComponentDescription->Type == EFlarePartType::OrbitalEngine)
 				{
+
+
 					EngineCount+=1.f;
-					Total += GetDamageRatio(ComponentDescription, ComponentData, WithArmor) * (IsPowered(ComponentData) ? 1 : 0);
+					Total += GetClampedUsableRatio(ComponentDescription, ComponentData);
 				}
 			}
 			Health = Total/EngineCount;
@@ -126,10 +144,11 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 				if(ComponentDescription->Type == EFlarePartType::RCS)
 				{
 					EngineCount+=1.f;
-					Total += GetDamageRatio(ComponentDescription, ComponentData, WithArmor) * (IsPowered(ComponentData) ? 1 : 0);
+					Total += (GetUsableRatio(ComponentDescription, ComponentData) == 0 ? 0 : 1);
 				}
 			}
-			Health = Total/EngineCount;
+			float CorrectionFactor = 1/(1-UNCONTROLLABLE_RATIO);
+			Health = FMath::Max(0.f, (Total/EngineCount - UNCONTROLLABLE_RATIO) * CorrectionFactor);
 		}
 		break;
 		case EFlareSubsystem::SYS_LifeSupport:
@@ -163,7 +182,7 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 				if(ComponentDescription->GeneralCharacteristics.ElectricSystem)
 				{
 					GeneratorCount+=1.f;
-					Total += GetDamageRatio(ComponentDescription, ComponentData, WithArmor);
+					Total += GetClampedUsableRatio(ComponentDescription, ComponentData);
 				}
 			}
 			Health = Total/GeneratorCount;
@@ -185,9 +204,7 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 					int32 MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
 					int32 CurrentAmmo = MaxAmmo - ComponentData->Weapon.FiredAmmo;
 
-
-					Total += GetDamageRatio(ComponentDescription, ComponentData, WithArmor)
-							* ( IsPowered(ComponentData) ? 1 : 0)
+					Total += GetClampedUsableRatio(ComponentDescription, ComponentData)
 							*((CurrentAmmo > 0 || !WithAmmo) ? 1 : 0);
 				}
 			}
@@ -215,7 +232,7 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 				if(ComponentDescription->GeneralCharacteristics.HeatSink)
 				{
 					HeatSinkCount+=1.f;
-					Total += GetDamageRatio(ComponentDescription, ComponentData, WithArmor);
+					Total += GetClampedUsableRatio(ComponentDescription, ComponentData);
 				}
 			}
 			Health = Total/HeatSinkCount;
@@ -250,6 +267,26 @@ float UFlareSimulatedSpacecraftDamageSystem::GetDamageRatio(FFlareSpacecraftComp
 	}
 }
 
+float UFlareSimulatedSpacecraftDamageSystem::GetUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
+															FFlareSpacecraftComponentSave* ComponentData) const
+{
+	float FullUsageRatio = (GetDamageRatio(ComponentDescription, ComponentData, false) * (IsPowered(ComponentData) ? 1 : 0));
+
+	if(FullUsageRatio < BROKEN_RATIO)
+	{
+		return 0.0f;
+	}
+
+	return FullUsageRatio;
+}
+
+
+float UFlareSimulatedSpacecraftDamageSystem::GetClampedUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
+															FFlareSpacecraftComponentSave* ComponentData) const
+{
+	float CorrectionFactor = 1/(1-BROKEN_RATIO);
+	return FMath::Max(0.f, (GetUsableRatio(ComponentDescription, ComponentData) - BROKEN_RATIO) * CorrectionFactor);
+}
 bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const
 {
 	UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
@@ -279,9 +316,10 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentS
 		}
 
 		if (ComponentDescription->GeneralCharacteristics.ElectricSystem &&
-				SlotDescription->PoweredComponents.Contains(ComponentToPowerData->ShipSlotIdentifier))
+				(SlotDescription->PoweredComponents.Contains(ComponentToPowerData->ShipSlotIdentifier) ||
+				 ComponentToPowerData == ComponentData))
 		{
-			if (GetDamageRatio(ComponentDescription, ComponentData, false) > 0) {
+			if (GetUsableRatio(ComponentDescription, ComponentData) > 0) {
 				return true;
 			}
 			HasPowerSource = true;
