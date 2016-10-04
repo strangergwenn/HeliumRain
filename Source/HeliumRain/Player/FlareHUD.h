@@ -148,13 +148,13 @@ protected:
 	void DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D* Icon, FVector Speed);
 
 	/** Draw a search arrow */
-	void DrawSearchArrow(FVector TargetLocation, FLinearColor Color, float MaxDistance = 10000000);
+	void DrawSearchArrow(FVector TargetLocation, FLinearColor Color, bool Highlighted, float MaxDistance = 10000000);
 
 	/** Draw a designator block around a spacecraft */
 	bool DrawHUDDesignator(AFlareSpacecraft* Spacecraft);
 
 	/** Draw a designator corner */
-	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Highlighted = false);
+	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Military, bool Highlighted);
 
 	/** Draw a status block for the ship */
 	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
@@ -243,7 +243,9 @@ protected:
 	UTexture2D*                             HUDNoseIcon;
 	UTexture2D*                             HUDObjectiveIcon;
 	UTexture2D*                             HUDCombatMouseIcon;
+	UTexture2D*                             HUDHighlightSearchArrowTexture;
 	UTexture2D*                             HUDDesignatorCornerTexture;
+	UTexture2D*                             HUDDesignatorMilCornerTexture;
 	UTexture2D*                             HUDDesignatorCornerSelectedTexture;
 	UTexture2D*                             HUDDesignatorSelectionTexture;
 

@@ -32,6 +32,8 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj       (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj    (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHighlightSearchArrowObj(TEXT("/Game/Gameplay/HUD/TX_HighlightSearchArrow.TX_HighlightSearchArrow"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorMilCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorMilitaryCorner.TX_DesignatorMilitaryCorner"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorSelectedCornerObj(TEXT("/Game/Gameplay/HUD/TX_DesignatorCornerSelected.TX_DesignatorCornerSelected"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorSelectionObj (TEXT("/Game/Slate/Icons/TX_Icon_TargettingContextButton.TX_Icon_TargettingContextButton"));
 
@@ -59,7 +61,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDNoseIcon = HUDNoseIconObj.Object;
 	HUDObjectiveIcon = HUDObjectiveIconObj.Object;
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
+	HUDHighlightSearchArrowTexture = HUDHighlightSearchArrowObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
+	HUDDesignatorMilCornerTexture = HUDDesignatorMilCornerObj.Object;
 	HUDDesignatorCornerSelectedTexture = HUDDesignatorSelectedCornerObj.Object;
 	HUDDesignatorSelectionTexture = HUDDesignatorSelectionObj.Object;
 
@@ -800,7 +804,8 @@ void AFlareHUD::DrawHUDInternal()
 			// Draw search markers
 			if (!PlayerShip->GetStateManager()->IsExternalCamera() && ShouldDrawSearchMarker)
 			{
-				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), FocusDistance);
+				bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
+				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);
 			}
 		}
 	}
@@ -851,7 +856,7 @@ void AFlareHUD::DrawHUDInternal()
 
 				if (ShouldDrawMarker && !PlayerShip->GetStateManager()->IsExternalCamera() && Target->Active)
 				{
-					DrawSearchArrow(ObjectiveLocation, HudColorObjective);
+					DrawSearchArrow(ObjectiveLocation, HudColorObjective, true);
 				}
 			}
 		}
@@ -967,7 +972,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 	}
 }
 
-void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, float MaxDistance)
+void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, bool Highlighted, float MaxDistance)
 {
 	// Data
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
@@ -984,7 +989,8 @@ void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, floa
 
 		// Draw
 		FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
-		DrawHUDIconRotated(CurrentViewportSize / 2 + ScreenspacePosition, IconSize, HUDCombatMouseIcon, Color, Position3D.Rotation().Yaw);
+		UTexture2D* Texture = Highlighted ? HUDHighlightSearchArrowTexture : HUDCombatMouseIcon;
+		DrawHUDIconRotated(CurrentViewportSize / 2 + ScreenspacePosition, IconSize, Texture, Color, Position3D.Rotation().Yaw);
 	}
 }
 
@@ -1021,10 +1027,11 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 
 			// Draw designator corners
 			bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color, Highlighted);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color, Highlighted);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color, Highlighted);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color, Highlighted);
+			bool Military = Spacecraft->IsMilitary();
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color, Military, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color, Military, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color, Military, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color, Military, Highlighted);
 
 			// Draw the target's distance if selected
 			if (Spacecraft == PlayerShip->GetCurrentTarget())
@@ -1034,8 +1041,8 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 				FlareDrawText(DistanceText, DistanceTextPosition, Color);
 			}
 
-			// Draw the status
-			//if (!Spacecraft->GetParent()->IsStation() && ObjectSize.X > IconSize/4)
+			// Draw the status for close targets or highlighted
+			if (!Spacecraft->GetParent()->IsStation() && ObjectSize.X > 0.15 * IconSize || Highlighted)
 			{
 				int32 NumberOfIcons = Spacecraft->GetParent()->IsMilitary() ? 3 : 2;
 				FVector2D StatusPos = CenterPos;
@@ -1043,13 +1050,6 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 				StatusPos.Y -= (IconSize + 0.5 * CornerSize);
 				DrawHUDDesignatorStatus(StatusPos, IconSize, Spacecraft);
 			}
-
-			// Target selection info
-			/*int32 SelectionSize = FMath::Min(48, (int32)ObjectSize.X);
-			if (Spacecraft == PlayerShip->GetWeaponsSystem()->GetActiveWeaponTarget())
-			{
-				DrawHUDIcon(ScreenPosition, SelectionSize, HUDDesignatorSelectionTexture, Color, true);
-			}*/
 			
 			// Combat helper
 			if (Spacecraft->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
@@ -1102,12 +1102,22 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	return true;
 }
 
-void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Highlighted)
+void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Military, bool Highlighted)
 {
 	float ScaledDesignatorIconSize = DesignatorIconSize * (Highlighted ? 2 : 1);
 	ObjectSize = FMath::Max(ObjectSize, ScaledDesignatorIconSize * FVector2D::UnitVector);
+	UTexture2D* Texture = HUDDesignatorCornerTexture;
 
-	FlareDrawTexture(Highlighted ? HUDDesignatorCornerSelectedTexture : HUDDesignatorCornerTexture,
+	if (Highlighted)
+	{
+		Texture = HUDDesignatorCornerSelectedTexture;
+	}
+	else if (Military)
+	{
+		Texture = HUDDesignatorMilCornerTexture;
+	}
+
+	FlareDrawTexture(Texture,
 		Position.X + (ObjectSize.X + DesignatorIconSize) * MainOffset.X / 2,
 		Position.Y + (ObjectSize.Y + DesignatorIconSize) * MainOffset.Y / 2,
 		ScaledDesignatorIconSize, ScaledDesignatorIconSize, 0, 0, 1, 1,
