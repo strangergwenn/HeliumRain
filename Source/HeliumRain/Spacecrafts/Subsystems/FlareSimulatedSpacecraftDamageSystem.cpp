@@ -315,10 +315,15 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentS
 			continue;
 		}
 
+		if(ComponentToPowerData == ComponentData  && ComponentDescription->GeneralCharacteristics.ElectricSystem)
+		{
+			return true;
+		}
+
 		if (ComponentDescription->GeneralCharacteristics.ElectricSystem &&
 				SlotDescription->PoweredComponents.Contains(ComponentToPowerData->ShipSlotIdentifier) )
 		{
-			if (ComponentToPowerData == ComponentData || GetUsableRatio(ComponentDescription, ComponentData) > 0) {
+			if (GetUsableRatio(ComponentDescription, ComponentData) > 0) {
 				return true;
 			}
 			HasPowerSource = true;
