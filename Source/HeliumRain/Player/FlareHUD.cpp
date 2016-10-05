@@ -469,7 +469,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 
 			// Final strings
 			TitleText = CurrentWeaponGroup->Description->Name;
-			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0} - {1}%"),
+			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}: {1}%"),
 				FText::Format(LOCTEXT("Rounds", "{0} rounds"), FText::AsNumber(RemainingAmmo)),
 				FText::AsNumber((int32)(100 * ComponentHealth)));
 		}
@@ -497,7 +497,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
 		{
 			float WeaponHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(i);
-			FText WeaponText = FText::Format(LOCTEXT("WeaponListInfoFormat", "{0}. {1} - {2}%"),
+			FText WeaponText = FText::Format(LOCTEXT("WeaponListInfoFormat", "{0}. {1}: {2}%"),
 				FText::AsNumber(i + 2), 
 				WeaponGroupList[i]->Description->Name,
 				FText::AsNumber((int32)(100 * WeaponHealth)));
