@@ -1042,7 +1042,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 
 			// Draw the status for close targets or highlighted
-			if (!Spacecraft->GetParent()->IsStation() && ObjectSize.X > 0.15 * IconSize || Highlighted)
+			if (!Spacecraft->GetParent()->IsStation() && (ObjectSize.X > 0.15 * IconSize || Highlighted))
 			{
 				int32 NumberOfIcons = Spacecraft->GetParent()->IsMilitary() ? 3 : 2;
 				FVector2D StatusPos = CenterPos;
