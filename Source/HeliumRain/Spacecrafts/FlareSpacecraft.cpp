@@ -143,46 +143,35 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			
 			if (this == PlayerShip)
 			{
-				// Reload the sector if player leave the limits
+				// Warn player if he's going to exit the sector
 				float Distance = GetActorLocation().Size();
 				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-				if (Distance > Limits)
-				{
-					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits)
-
-					// Notify
-					PC->Notify(
-						LOCTEXT("ExitSector", "Exited sector"),
-						LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference."),
-						"exit-sector",
-						EFlareNotification::NT_Info);
-					GetData().SpawnMode = EFlareSpawnMode::Exit;
-
-					// Reload
-					FFlareMenuParameterData MenuParameters;
-					MenuParameters.Spacecraft = GetParent();
-					MenuParameters.Sector = GetParent()->GetCurrentSector();
-					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
-
-					return;
-				}
-				else
+				if (Distance < Limits)
 				{
 					float MinDistance = Limits - Distance;
 					bool ExitImminent = false;
 
-					if (MinDistance < 0.1 * Limits)
+					// Facing the center of the sector : no warning
+					if (FVector::DotProduct(PlayerShip->GetActorRotation().Vector(), -PlayerShip->GetActorLocation()) > 0.5)
+					{
+						ExitImminent = false;
+					}
+
+					// Else, if close to limits : warning
+					else if (MinDistance < 0.1 * Limits)
 					{
 						ExitImminent = true;
 					}
-					else if (! GetLinearVelocity().IsNearlyZero())
+
+					// Else if going to exit soon : warning
+					else if (!GetLinearVelocity().IsNearlyZero())
 					{
 						// https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
 						FVector ShipDirection = GetLinearVelocity().GetUnsafeNormal();
 						FVector ShipLocation = GetActorLocation();
 						float Dot = FVector::DotProduct(ShipDirection, ShipLocation);
 
-						float DistanceBeforeExit = - Dot + FMath::Sqrt(Dot * Dot - Distance * Distance + Limits * Limits);
+						float DistanceBeforeExit = -Dot + FMath::Sqrt(Dot * Dot - Distance * Distance + Limits * Limits);
 						float Velocity = GetLinearVelocity().Size() * 100;
 						float DurationBeforeExit = DistanceBeforeExit / Velocity;
 
@@ -192,6 +181,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 						}
 					}
 
+					// Warn if going to exit
 					if (ExitImminent)
 					{
 						if (!InWarningZone)
@@ -209,11 +199,47 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					{
 						InWarningZone = false;
 					}
+				}
 
+				// Reload the sector if player leave the limits
+				else
+				{
+					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
+
+					// TODO #496 : destroy ship if stranded, ensure state is fine
+					/*if (PlayerShip->GetParent()->GetDamageSystem()->IsUncontrollable())
+					{
+						PC->Notify(
+							LOCTEXT("ExitSectorLost", "Ship lost"),
+							LOCTEXT("ExitSectorLostDescription", "Your ship was lost in space"),
+							"exit-sector-lost",
+							EFlareNotification::NT_Info);
+
+						GetGame()->GetActiveSector()->DestroySpacecraft(this);
+					}*/
+
+					// Notify if we're just resetting the ship
+					//else
+					{
+						PC->Notify(
+							LOCTEXT("ExitSector", "Exited sector"),
+							LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference and had to turn around."),
+							"exit-sector",
+							EFlareNotification::NT_Info);
+
+						GetData().SpawnMode = EFlareSpawnMode::Exit;
+					}
+
+					// Reload
+					FFlareMenuParameterData MenuParameters;
+					MenuParameters.Spacecraft = GetParent();
+					MenuParameters.Sector = GetParent()->GetCurrentSector();
+					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
+					return;
 				}
 			}
 
-			// 5km limit
+			// Destroy dead ships when they are 5km away
 			if (PlayerShip && !Parent->GetDamageSystem()->IsAlive())
 			{
 				float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
@@ -224,10 +250,10 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				}
 			}
 
-			// Destroy lost ship
+			// Destroy lost ships if they are outside 3 * limit
 			float Distance = GetActorLocation().Size();
 			float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-			if(Distance > Limits * 3)
+			if (Distance > Limits * 3)
 			{
 				// Ship is lost, destroy it
 				if(GetCompany() ==	PC->GetCompany())
