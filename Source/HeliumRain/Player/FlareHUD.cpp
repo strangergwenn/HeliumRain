@@ -3,6 +3,7 @@
 #include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Game/AI/FlareCompanyAI.h"
 
@@ -384,7 +385,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	FVector2D CurrentPos = LeftInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Temperature = PlayerShip->GetParent()->GetDamageSystem()->GetTemperature();
-	FText TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
+	int32 MaxTemperature = PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature();
 
 	// Ship name
 	FString FlyingText = PlayerShip->GetParent()->GetImmatriculation().ToString();
@@ -395,8 +396,21 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	FlareDrawText(PlayerShip->GetShipStatus().ToString(), CurrentPos, Theme.FriendlyColor, false);
 	CurrentPos += InstrumentLine;
 	
-	// Temperature text
-	FLinearColor TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature());
+	// Temperature data
+	FText TemperatureText;
+	FLinearColor TemperatureColor;
+	if (Temperature > MaxTemperature)
+	{
+		TemperatureText = FText::Format(LOCTEXT("TemperatureOverheatingFormat", "OVERHEATING ({0}K)"), FText::AsNumber(Temperature));
+		TemperatureColor = Theme.EnemyColor;
+	}
+	else
+	{
+		TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
+		TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature());
+	}
+
+	// Temperature draw
 	DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
 	FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
 	CurrentPos += InstrumentLine;
@@ -606,43 +620,59 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 
 void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position)
 {
-	AFlareSpacecraft* PlayerShip = MenuManager->GetPC()->GetShipPawn();
-	float ComponentHealth = PlayerShip->GetParent()->GetDamageSystem()->GetSubsystemHealth(Subsystem);
+	UFlareSimulatedSpacecraftDamageSystem* DamageSystem = MenuManager->GetPC()->GetShipPawn()->GetParent()->GetDamageSystem();
 
 	FText SystemText = FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}: {1}%"),
 		UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(Subsystem),
-		FText::AsNumber((int32)(100 * ComponentHealth)));
-
+		FText::AsNumber((int32)(100 * DamageSystem->GetSubsystemHealth(Subsystem))));
+	
 	// Drawing data
 	UTexture2D* Icon = NULL;
-	float CockpitIconSize = 20;
-	FLinearColor HealthColor = GetHealthColor(ComponentHealth);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor NormalColor = Theme.FriendlyColor;
+	FLinearColor DamageColor = Theme.EnemyColor;
+	FLinearColor Color = NormalColor;
 	
 	// Icon
 	switch (Subsystem)
 	{
+		case EFlareSubsystem::SYS_Propulsion:
+			Icon = HUDPropulsionIcon;
+			Color = DamageSystem->IsStranded() ? DamageColor : NormalColor;
+			SystemText = DamageSystem->IsStranded() ? LOCTEXT("CockpitStranded", "STRANDED") : SystemText;
+			break;
+
+		case EFlareSubsystem::SYS_RCS:
+			Icon = HUDRCSIcon;
+			Color = DamageSystem->IsUncontrollable() ? DamageColor : NormalColor;
+			SystemText = DamageSystem->IsUncontrollable() ? LOCTEXT("CockpitUncontrollable", "UNCONTROLLABLE") : SystemText;
+			break;
+
+		case EFlareSubsystem::SYS_Weapon:
+			Icon = HUDWeaponIcon;
+			Color = DamageSystem->IsDisarmed() ? DamageColor : NormalColor;
+			SystemText = DamageSystem->IsDisarmed() ? LOCTEXT("CockpitDisarmed", "DISARMED") : SystemText;
+			break;
+
 		case EFlareSubsystem::SYS_Temperature:
 			Icon = HUDTemperatureIcon;
 			break;
-		case EFlareSubsystem::SYS_Propulsion:
-			Icon = HUDPropulsionIcon;
+
+		case EFlareSubsystem::SYS_Power:
+			Icon = HUDPowerIcon;
+			Color = DamageSystem->HasPowerOutage() ? DamageColor : NormalColor;
+			SystemText = DamageSystem->HasPowerOutage() ? LOCTEXT("CockpitOutage", "POWER OUTAGE") : SystemText;
 			break;
-		case EFlareSubsystem::SYS_RCS:
-			Icon = HUDRCSIcon;
-			break;
+
 		case EFlareSubsystem::SYS_LifeSupport:
 			Icon = HUDHealthIcon;
 			break;
-		case EFlareSubsystem::SYS_Power:
-			Icon = HUDPowerIcon;
-			break;
-		case EFlareSubsystem::SYS_Weapon:
-			Icon = HUDWeaponIcon;
-			break;
 	}
 
-	DrawHUDIcon(Position, CockpitIconSize, Icon, HealthColor);
-	FlareDrawText(SystemText.ToString(), Position + FVector2D(1.5 * CockpitIconSize, 0), HealthColor, false);
+	// Draw
+	float CockpitIconSize = 20;
+	DrawHUDIcon(Position, CockpitIconSize, Icon, Color);
+	FlareDrawText(SystemText.ToString(), Position + FVector2D(1.5 * CockpitIconSize, 0), Color, false);
 	Position += InstrumentLine;
 }
 
