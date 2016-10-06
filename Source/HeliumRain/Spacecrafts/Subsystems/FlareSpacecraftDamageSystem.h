@@ -42,8 +42,6 @@ public:
 
 	virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor = false, bool WithAmmo = true) const;
 
-	virtual bool IsPowered() const;
-
 	virtual float GetOverheatRatio(float HalfRatio) const;
 
 	/*----------------------------------------------------
@@ -67,6 +65,8 @@ protected:
 	/** Our ship was destroyed */
 	virtual void OnControlLost();
 
+	virtual void CheckRecovery();
+
 
 
 	/*----------------------------------------------------
@@ -81,7 +81,7 @@ protected:
 	UFlareSimulatedSpacecraftDamageSystem*          Parent;
 	TArray<UActorComponent*>                        Components;
 
-	bool                                            WasAlive; // True if was alive at the last tick
+	bool                                            WasControllable; // True if was controllable at the last tick
 	float											TimeSinceLastExternalDamage;
 
 	AFlareSpacecraft*                               LastDamageCauser;

@@ -125,7 +125,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		}
 
 		// If damage the firerate is randomly reduced to a min of 10 times normal value
-		float DamageDelay = FMath::Square(1.f- GetDamageRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
+		float DamageDelay = FMath::Square(1.f- GetUsableRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
 		TimeSinceLastShell = -DamageDelay;
 	}
 
@@ -146,7 +146,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 
 	// Get firing data
 	FVector FiringLocation = GetMuzzleLocation(GunIndex);
-	float Imprecision  = FMath::DegreesToRadians(ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoPrecision  + 3.f *(1 - GetDamageRatio()));
+	float Imprecision  = FMath::DegreesToRadians(ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoPrecision  + 3.f *(1 - GetUsableRatio()));
 	FVector FiringDirection = FMath::VRandCone(GetFireAxis(), Imprecision);
 	FVector FiringVelocity = GetPhysicsLinearVelocity();
 

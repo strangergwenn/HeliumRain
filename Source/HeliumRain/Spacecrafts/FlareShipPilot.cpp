@@ -169,7 +169,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			{
 				PilotTargetComponent = NULL;
 			}
-			else if (PilotTargetComponent->GetDamageRatio() <=0)
+			else if (PilotTargetComponent->GetUsableRatio() <=0)
 			{
 				PilotTargetComponent = NULL;
 			}
@@ -1215,9 +1215,9 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestShip(bool IgnoreDockingShip) const
 			continue;
 		}
 
-		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate) && ShipCandidate->GetParent()->GetDamageSystem()->IsAlive() && ShipCandidate->GetDamageSystem()->IsPowered())
+		if (IgnoreDockingShip && Ship->GetDockingSystem()->IsGrantedShip(ShipCandidate) && !ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable())
 		{
-			// Alive and powered granted ship are not dangerous for collision
+			// Constrollable ship are not dangerous for collision
 			continue;
 		}
 

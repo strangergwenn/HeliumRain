@@ -436,7 +436,7 @@ bool UFlareSpacecraftComponent::IsPowered() const
 
 float UFlareSpacecraftComponent::GetGeneratedPower() const
 {
-	return GeneratedPower*GetDamageRatio();
+	return GeneratedPower*GetUsableRatio();
 }
 
 float UFlareSpacecraftComponent::GetMaxGeneratedPower() const
@@ -452,12 +452,15 @@ float UFlareSpacecraftComponent::GetAvailablePower() const
 
 		if (Cockpit)
 		{
-			Cockpit->UpdatePower();
-			return Cockpit->GetAvailablePower();
+			return 1.f;
 		}
 	}
+	else if (ComponentDescription->GeneralCharacteristics.ElectricSystem)
+	{
+		return 1.f;
+	}
 
-	return Power*GetDamageRatio();
+	return Power;
 }
 
 bool UFlareSpacecraftComponent::IsGenerator() const

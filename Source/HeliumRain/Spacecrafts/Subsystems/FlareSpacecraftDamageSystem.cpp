@@ -70,31 +70,53 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	}
 
 	// Update Alive status
-	if (WasAlive && !Parent->IsAlive())
+	if (WasControllable && Parent->IsUncontrollable())
 	{
 		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
 
 		// Player kill
 		if (PC && LastDamageCauser == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
 		{
-			PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"),
-				FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
-				FName("ship-killed"),
-				EFlareNotification::NT_Info);
+			if(Parent->IsAlive())
+			{
+				PC->Notify(LOCTEXT("ShipUncontrollable", "Target uncontrollable"),
+					FText::Format(LOCTEXT("ShipUncontrollableFormat", "You make a ship uncontrollable({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
+					FName("ship-uncontrollable"),
+					EFlareNotification::NT_Info);
+			}
+			else
+			{
+				PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"),
+					FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
+					FName("ship-killed"),
+					EFlareNotification::NT_Info);
+			}
 		}
 
 		// Company kill
 		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetParent()->GetCompany())
 		{
-			PC->Notify(LOCTEXT("ShipKilledCompany", "Target destroyed"),
-				FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"),
-					LastDamageCauser->GetParent()->GetDescription()->Name,
-					Spacecraft->GetParent()->GetDescription()->Name),
-				FName("ship-killed"),
-				EFlareNotification::NT_Info);
+			if(Parent->IsAlive())
+			{
+				PC->Notify(LOCTEXT("ShipUncontrollableCompany", "Target uncontrollable"),
+					FText::Format(LOCTEXT("ShipUncontrollableCompanyFormat", "Your {0}-class ship make a ship uncontrollable ({1}-class)"),
+						LastDamageCauser->GetParent()->GetDescription()->Name,
+						Spacecraft->GetParent()->GetDescription()->Name),
+					FName("ship-uncontrollable"),
+					EFlareNotification::NT_Info);
+			}
+			else
+			{
+				PC->Notify(LOCTEXT("ShipKilledCompany", "Target destroyed"),
+					FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"),
+						LastDamageCauser->GetParent()->GetDescription()->Name,
+						Spacecraft->GetParent()->GetDescription()->Name),
+					FName("ship-killed"),
+					EFlareNotification::NT_Info);
+			}
 		}
 
-		WasAlive = false;
+		WasControllable = false;
 		OnControlLost();
 	}
 
@@ -135,7 +157,7 @@ void UFlareSpacecraftDamageSystem::Start()
 	UpdatePower();
 
 	// Init alive status
-	WasAlive = Parent->IsAlive();
+	WasControllable = !Parent->IsUncontrollable();
 	TimeSinceLastExternalDamage = 10000;
 }
 
@@ -162,13 +184,25 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	{
 		if (LastDamageCauser)
 		{
-			PC->Notify(
-				LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
-				FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
-				FName("ship-destroyed"),
-				EFlareNotification::NT_Military,
-				false,
-				EFlareMenu::MENU_Company);
+			if (Parent->IsAlive()) {
+				PC->Notify(
+					LOCTEXT("ShipUncontrollable", "Your ship is uncontrollable"),
+					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship has been made uncontrollable by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FName("ship-uncontrollable"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Company);
+			}
+			else
+			{
+				PC->Notify(
+					LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
+					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FName("ship-destroyed"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Company);
+			}
 		}
 		else
 		{
@@ -183,12 +217,13 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 
 		PC->GetMenuManager()->OpenMainOverlay();
 
+		CheckRecovery();
 		// Check if it the last ship
 		bool EmptyFleet = true;
 		for(int ShipIndex = 0; ShipIndex < PC->GetPlayerFleet()->GetShips().Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = PC->GetPlayerFleet()->GetShips()[ShipIndex];
-			if(Ship->GetDamageSystem()->IsAlive())
+			if(Ship->GetDamageSystem()->IsAlive() && !Ship->GetDamageSystem()->IsUncontrollable())
 			{
 				EmptyFleet = false;
 				break;
@@ -212,6 +247,29 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 
 	Spacecraft->GetNavigationSystem()->Undock();
 	Spacecraft->GetNavigationSystem()->AbortAllCommands();
+}
+
+
+void UFlareSpacecraftDamageSystem::CheckRecovery()
+{
+	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+
+	// Check if it the last ship
+	bool EmptyFleet = true;
+	for(int ShipIndex = 0; ShipIndex < PC->GetPlayerFleet()->GetShips().Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = PC->GetPlayerFleet()->GetShips()[ShipIndex];
+		if(Ship->GetDamageSystem()->IsAlive() && !Ship->GetDamageSystem()->IsUncontrollable())
+		{
+			EmptyFleet = false;
+			break;
+		}
+	}
+
+	if(EmptyFleet)
+	{
+		PC->ActivateRecovery();
+	}
 }
 
 void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitLocation, FVector NormalImpulse)
@@ -478,23 +536,11 @@ float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool 
 	 for (int32 ComponentIndex = 0; ComponentIndex < WeaponGroup->Weapons.Num(); ComponentIndex++)
 	 {
 		 UFlareWeapon* Weapon = Cast<UFlareWeapon>(WeaponGroup->Weapons[ComponentIndex]);
-		 Total += Weapon->GetDamageRatio(WithArmor)*(Weapon->IsPowered() ? 1 : 0)*((Weapon->GetCurrentAmmo() > 0 || !WithAmmo) ? 1 : 0);
+		 Total += Weapon->GetUsableRatio()*((Weapon->GetCurrentAmmo() > 0 || !WithAmmo) ? 1 : 0);
 	 }
 	 Health = Total/WeaponGroup->Weapons.Num();
 
 	 return Health;
-}
-
-bool UFlareSpacecraftDamageSystem::IsPowered() const
-{
-	if (Spacecraft->GetCockpit())
-	{
-		return Spacecraft->GetCockpit()->IsPowered();
-	}
-	else
-	{
-		return false;
-	}
 }
 
 float UFlareSpacecraftDamageSystem::GetOverheatRatio(float HalfRatio) const

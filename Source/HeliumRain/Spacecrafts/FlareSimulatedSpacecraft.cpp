@@ -165,9 +165,9 @@ bool UFlareSimulatedSpacecraft::CanBeFlown(FText& OutInfo) const
 	{
 		return false;
 	}
-	else if (!GetDamageSystem()->IsAlive())
+	else if (GetDamageSystem()->IsUncontrollable())
 	{
-		OutInfo = LOCTEXT("CantFlyDestroyedInfo", "This ship has been destroyed");
+		OutInfo = LOCTEXT("CantFlyDestroyedInfo", "This ship is uncontrollable");
 		return false;
 	}
 	else if (PlayerFleet && GetCurrentFleet() != PlayerFleet)

@@ -2,6 +2,8 @@
 #include "../Flare.h"
 #include "FlareFleet.h"
 #include "FlareCompany.h"
+#include "FlareGame.h"
+#include "../Player/FlarePlayerController.h"
 #include "FlareSimulatedSector.h"
 
 
@@ -45,6 +47,16 @@ FText UFlareFleet::GetName()
 	{
 		return GetFleetName();
 	}
+}
+
+FText  UFlareFleet::GetFleetName() const
+{
+	if(Game->GetPC()->GetPlayerFleet() == this)
+	{
+		return LOCTEXT("PlayerFleetName", "Player Fleet");
+	}
+
+	return FleetData.Name;
 }
 
 bool UFlareFleet::IsTraveling() const

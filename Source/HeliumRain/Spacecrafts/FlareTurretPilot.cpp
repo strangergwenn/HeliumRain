@@ -125,7 +125,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				//FLOGV("%s Switch because the component %s is not in the target ship", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
 				PilotTargetComponent = NULL;
 			}
-			else if (PilotTargetComponent->GetDamageRatio() <=0)
+			else if (PilotTargetComponent->GetUsableRatio() <=0)
 			{
 				//FLOGV("%s Switch because the component %s is destroyed", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
 				PilotTargetComponent = NULL;

@@ -116,10 +116,7 @@ public:
 		return Game;
 	}
 
-	FText GetFleetName() const
-	{
-		return FleetData.Name;
-	}
+	FText GetFleetName() const;
 
 	void SetFleetName(FText Name)
 	{

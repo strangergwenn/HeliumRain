@@ -190,7 +190,7 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		}
 
 		// Update sounds
-		UpdatePlayer(PowerPlayer,  (ShipPawn->GetDamageSystem()->IsPowered() && !ShipPawn->GetParent()->GetDamageSystem()->HasPowerOutage() ? 1 : -1) * DeltaSeconds);
+		UpdatePlayer(PowerPlayer,  (!ShipPawn->GetParent()->GetDamageSystem()->IsUncontrollable() && !ShipPawn->GetParent()->GetDamageSystem()->HasPowerOutage() ? 1 : -1) * DeltaSeconds);
 		UpdatePlayer(EnginePlayer, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1)              * DeltaSeconds);
 		UpdatePlayer(RCSPlayer,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)                       * DeltaSeconds);
 	}

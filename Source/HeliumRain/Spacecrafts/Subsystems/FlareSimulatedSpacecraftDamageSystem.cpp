@@ -52,6 +52,10 @@ float UFlareSimulatedSpacecraftDamageSystem::GetPowerOutageDuration() const
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsStranded() const
 {
+	if (!IsAlive()) {
+		return false;
+	}
+
 	if(Spacecraft->IsStation())
 	{
 		return false;
@@ -65,6 +69,11 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsUncontrollable() const
 	{
 		return false;
 	}
+
+	if (!IsAlive()) {
+		return true;
+	}
+
 	return (GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, false) == 0.0f);
 }
 
@@ -78,6 +87,11 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsDisarmed() const
 	{
 		return true;
 	}
+
+	if (!IsAlive()) {
+		return true;
+	}
+
 	return (GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) == 0.0f);
 }
 

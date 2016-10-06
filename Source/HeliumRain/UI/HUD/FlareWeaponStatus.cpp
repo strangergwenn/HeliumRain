@@ -139,7 +139,7 @@ FText SFlareWeaponStatus::GetText() const
 		int32 RemainingAmmo = 0;
 		for (int32 i = 0; i < TargetWeaponGroup->Weapons.Num(); i++)
 		{
-			if (TargetWeaponGroup->Weapons[i]->GetDamageRatio() <= 0.)
+			if (TargetWeaponGroup->Weapons[i]->GetUsableRatio() <= 0.)
 			{
 				// Don't count ammo from destroyed components
 				continue;

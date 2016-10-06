@@ -460,7 +460,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			int32 RemainingAmmo = 0;
 			for (int32 i = 0; i < CurrentWeaponGroup->Weapons.Num(); i++)
 			{
-				if (CurrentWeaponGroup->Weapons[i]->GetDamageRatio() <= 0.0f)
+				if (CurrentWeaponGroup->Weapons[i]->GetUsableRatio() <= 0.0f)
 				{
 					continue;
 				}
@@ -632,7 +632,7 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 	FLinearColor NormalColor = Theme.FriendlyColor;
 	FLinearColor DamageColor = Theme.EnemyColor;
 	FLinearColor Color = NormalColor;
-	
+
 	// Icon
 	switch (Subsystem)
 	{
