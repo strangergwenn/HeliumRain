@@ -3,6 +3,7 @@
 #include "FlareHUD.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Spacecrafts/FlarePilotHelper.h"
 #include "../Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Game/AI/FlareCompanyAI.h"
@@ -1057,11 +1058,11 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 
 			// Draw designator corners
 			bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
-			bool Military = Spacecraft->IsMilitary();
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color, Military, Highlighted);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color, Military, Highlighted);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color, Military, Highlighted);
-			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color, Military, Highlighted);
+			bool Dangerous = PilotHelper::IsShipDangerous(Spacecraft);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color, Dangerous, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color, Dangerous, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color, Dangerous, Highlighted);
+			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color, Dangerous, Highlighted);
 
 			// Draw the target's distance if selected
 			if (Spacecraft == PlayerShip->GetCurrentTarget())
@@ -1132,7 +1133,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	return true;
 }
 
-void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Military, bool Highlighted)
+void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Dangerous, bool Highlighted)
 {
 	float ScaledDesignatorIconSize = DesignatorIconSize * (Highlighted ? 2 : 1);
 	ObjectSize = FMath::Max(ObjectSize, ScaledDesignatorIconSize * FVector2D::UnitVector);
@@ -1142,7 +1143,7 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 	{
 		Texture = HUDDesignatorCornerSelectedTexture;
 	}
-	else if (Military)
+	else if (Dangerous)
 	{
 		Texture = HUDDesignatorMilCornerTexture;
 	}

@@ -154,7 +154,7 @@ protected:
 	bool DrawHUDDesignator(AFlareSpacecraft* Spacecraft);
 
 	/** Draw a designator corner */
-	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Military, bool Highlighted);
+	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Dangerous, bool Highlighted);
 
 	/** Draw a status block for the ship */
 	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
