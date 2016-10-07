@@ -465,7 +465,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 		{
 			//FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
-			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency);
+			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType);
 
 			if(DamageSource != NULL && DamageSource != Spacecraft->GetParent()->GetCompany())
 			{
@@ -527,7 +527,7 @@ void UFlareSpacecraftDamageSystem::OnElectricDamage(float DamageRatio)
 	}
 }
 
-float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor, bool WithAmmo) const
+float UFlareSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithAmmo) const
 {
 	 FFlareWeaponGroup* WeaponGroup = Spacecraft->GetWeaponsSystem()->GetWeaponGroup(GroupIndex);
 	 float Health = 0.0;

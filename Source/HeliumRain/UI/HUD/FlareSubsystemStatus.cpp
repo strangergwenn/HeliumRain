@@ -73,7 +73,7 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 	if (TargetShip)
 	{
 		// Update health
-		float NewHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType, true, false);
+		float NewHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType, false);
 		ComponentHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType);
 
 		// Update flash

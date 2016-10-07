@@ -7,6 +7,21 @@
 class UFlareResourceCatalogEntry;
 class UFlareFactoryCatalogEntry;
 
+/** Damage Type */
+UENUM()
+namespace EFlareDamage
+{
+	enum Type
+	{
+		DAM_None,
+		DAM_Collision,
+		DAM_Overheat,
+		DAM_HighExplosive,
+		DAM_ArmorPiercing,
+		DAM_HEAT,
+	};
+}
+
 /** Part size values */
 UENUM()
 namespace EFlarePartSize

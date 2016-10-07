@@ -137,7 +137,7 @@ void SFlarePartInfo::BuildInfoBlock(TSharedPtr<SHorizontalBox>& Box, const FFlar
 	// Armor
 	AddCharacteristicToBlock(Box,
 		LOCTEXT("Armor", "Armor"),
-		FText::AsNumber(Desc->ArmorHitPoints + Desc->HitPoints),
+		FText::AsNumber(Desc->HitPoints),
 		FFlareStyleSet::GetIcon("Armor"),
 		ShowHelpers);
 

@@ -33,12 +33,12 @@ void UFlareSpacecraftSubComponent::TickComponent(float DeltaTime, enum ELevelTic
 	SetTemperature(ParentComponent->GetSpacecraft()->IsPresentationMode() ? 290 : ParentComponent->GetLocalTemperature());
 }
 
-float UFlareSpacecraftSubComponent::GetRemainingArmorAtLocation(FVector Location)
+float UFlareSpacecraftSubComponent::GetArmorAtLocation(FVector Location)
 {
-	return ParentComponent->GetRemainingArmorAtLocation(Location);
+	return ParentComponent->GetArmorAtLocation(Location);
 }
 
-float UFlareSpacecraftSubComponent::ApplyDamage(float Energy)
+float UFlareSpacecraftSubComponent::ApplyDamage(float Energy, EFlareDamage::Type DamageType)
 {
-	return ParentComponent->ApplyDamage(Energy);
+	return ParentComponent->ApplyDamage(Energy, DamageType);
 }

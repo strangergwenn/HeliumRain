@@ -40,7 +40,7 @@ public:
 	----------------------------------------------------*/
 
 
-	virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithArmor = false, bool WithAmmo = true) const;
+	virtual float GetWeaponGroupHealth(int32 GroupIndex, bool WithAmmo = true) const;
 
 	virtual float GetOverheatRatio(float HalfRatio) const;
 

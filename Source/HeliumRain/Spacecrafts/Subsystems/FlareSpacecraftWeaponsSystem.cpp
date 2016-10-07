@@ -291,7 +291,7 @@ bool UFlareSpacecraftWeaponsSystem::HasUsableWeaponType(EFlareWeaponGroupType::T
 {
 	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 	{
-		if (WeaponGroupList[GroupIndex]->Type == Type && Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, false, true))
+		if (WeaponGroupList[GroupIndex]->Type == Type && Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true))
 		{
 			return true;
 		}
@@ -306,7 +306,7 @@ void UFlareSpacecraftWeaponsSystem::GetTargetSizePreference(float* IsSmall, floa
 
 	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 	{
-		if (Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, false, true) <= 0)
+		if (Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true) <= 0)
 		{
 			continue;
 		}

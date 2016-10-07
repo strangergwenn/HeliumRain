@@ -302,10 +302,10 @@ struct FFlareSpacecraftComponentDescription
 	/** Part cost */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
 
-	/** Hit point for component armor. Absorb first damages */
-	UPROPERTY(EditAnywhere, Category = Content) float ArmorHitPoints;
+	/** Component armor. 1 for full absorb */
+	UPROPERTY(EditAnywhere, Category = Content) float Armor;
 
-	/** Hit point for component fonctionnaly. Absorb when no more armor. Component not working when no more hit points */
+	/** Hit point for component fonctionnaly. Component not working when no more hit points */
 	UPROPERTY(EditAnywhere, Category = Content) float HitPoints;
 
 	/** Part mesh name */
@@ -397,14 +397,17 @@ public:
 		Damages
 	----------------------------------------------------*/
 
-	/** Return the amount of armor hit points at the world location. If not destructible, return a negative value */
-	virtual float GetRemainingArmorAtLocation(FVector Location);
+	/** Return the amount of armor. If not destructible, return 1 */
+	virtual float GetArmor();
+
+	/** Return the amount of armor at the world location. If not destructible, return 1 */
+	virtual float GetArmorAtLocation(FVector Location);
 
 	/** Apply damage to this component. Return inflicted damage ratio */
-	virtual float ApplyDamage(float Energy);
+	virtual float ApplyDamage(float Energy, EFlareDamage::Type DamageType);
 
 	/** Return the remaining hit points ratio. 1 for no damage, 0 for destroyed */
-	virtual float GetDamageRatio(bool WithArmor = false) const;
+	virtual float GetDamageRatio() const;
 
 	/** Return true if the ship component is destroyed */
 	virtual bool IsDestroyed() const;
@@ -443,7 +446,7 @@ public:
 	/** Return true if is a heatsink (broken or not) */
 	virtual bool IsHeatSink() const;
 
-	/** Return component total hit points, with armor and hitpoints */
+	/** Return component total hit points */
 	virtual float GetTotalHitPoints() const;
 
 	/** Reset the taken damage to zero.	*/

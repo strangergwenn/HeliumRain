@@ -17,9 +17,9 @@ public:
 
 	virtual void SetParentSpacecraftComponent(UFlareSpacecraftComponent* Component);
 
-	float GetRemainingArmorAtLocation(FVector Location) override;
+	float GetArmorAtLocation(FVector Location) override;
 
-	virtual float ApplyDamage(float Energy) override;
+	virtual float ApplyDamage(float Energy, EFlareDamage::Type DamageType) override;
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 

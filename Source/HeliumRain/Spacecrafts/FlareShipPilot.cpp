@@ -122,7 +122,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			|| !PilotTargetShip->GetParent()->GetDamageSystem()->IsAlive() // Target dead
 			|| (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > MaxFollowDistance * 100 // Target too far
 			|| (Ship->GetSize() == EFlarePartSize::S && SelectedWeaponGroupIndex == -1)  // No selected weapon
-			|| (Ship->GetSize() == EFlarePartSize::S && !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0)
+			|| (Ship->GetSize() == EFlarePartSize::S && !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, true) <=0)
 			|| Tactic != CurrentTactic)  // Selected weapon not usable
 	{
 // 		if (PilotTargetShip == NULL)
@@ -807,11 +807,11 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 
 	// If damaged repair
-	if (Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) < 1
-		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, true) < 1
-		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, true) < 1
-		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, true) < 1
-		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, true) < 1)
+	if (Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, true) < 1
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, true) < 1
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, true) < 1
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS, true) < 1
+		|| Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Power, true) < 1)
 	{
 		// Go repair or refill ammo
 		AFlareSpacecraft* TargetStation  = GetNearestAvailableStation(false);
@@ -1090,7 +1090,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 
 		for (int WeaponGroupIndex=0; WeaponGroupIndex < Ship->GetWeaponsSystem()->GetWeaponGroupCount(); WeaponGroupIndex++)
 		{
-			float Score = Ship->GetDamageSystem()->GetWeaponGroupHealth(WeaponGroupIndex, false, true);
+			float Score = Ship->GetDamageSystem()->GetWeaponGroupHealth(WeaponGroupIndex, true);
 			switch(Ship->GetWeaponsSystem()->GetWeaponGroup(WeaponGroupIndex)->Type)
 			{
 				case EFlareWeaponGroupType::WG_BOMB:

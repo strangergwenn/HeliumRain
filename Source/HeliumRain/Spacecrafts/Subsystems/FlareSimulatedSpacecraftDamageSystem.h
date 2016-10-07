@@ -20,21 +20,6 @@ namespace EFlareSubsystem
 	};
 }
 
-/** Damage Type */
-UENUM()
-namespace EFlareDamage
-{
-	enum Type
-	{
-		DAM_None,
-		DAM_Collision,
-		DAM_Overheat,
-		DAM_HighExplosive,
-		DAM_ArmorPiercing,
-		DAM_HEAT,
-	};
-}
-
 /** Spacecraft damage system class */
 UCLASS()
 class HELIUMRAIN_API UFlareSimulatedSpacecraftDamageSystem : public UObject
@@ -88,13 +73,9 @@ public:
 	virtual float GetGlobalHealth();
 
 	/** Get the detailed health for this subsystem */
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor = false, bool WithAmmo = false) const;
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithAmmo = false) const;
 
 protected:
-
-	float GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
-						 FFlareSpacecraftComponentSave* ComponentData,
-						 bool WithArmor) const;
 
 	float GetUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
 																FFlareSpacecraftComponentSave* ComponentData) const;
@@ -119,6 +100,8 @@ public:
 		Getters
 	----------------------------------------------------*/
 
+	static float GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
+						 FFlareSpacecraftComponentSave* ComponentData);
 
 	/** Get a subsystem's name */
 	static FText GetSubsystemName(EFlareSubsystem::Type SubsystemType);

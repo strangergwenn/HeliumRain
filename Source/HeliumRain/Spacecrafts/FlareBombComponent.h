@@ -18,7 +18,7 @@ public:
 	----------------------------------------------------*/
 	virtual UStaticMesh* GetMesh(bool PresentationMode) const override;
 
-	virtual float GetDamageRatio(bool WithArmor = false) const override;
+	virtual float GetDamageRatio() const override;
 public:
 
 	/*----------------------------------------------------

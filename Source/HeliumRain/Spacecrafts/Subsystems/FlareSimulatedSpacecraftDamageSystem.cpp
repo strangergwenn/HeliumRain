@@ -60,7 +60,7 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsStranded() const
 	{
 		return false;
 	}
-	return (GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, false) < 0.3f || IsUncontrollable());
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false) < 0.3f || IsUncontrollable());
 }
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsUncontrollable() const
@@ -74,7 +74,7 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsUncontrollable() const
 		return true;
 	}
 
-	return (GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, false) == 0.0f);
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false) == 0.0f);
 }
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsDisarmed() const
@@ -92,20 +92,20 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsDisarmed() const
 		return true;
 	}
 
-	return (GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, true) == 0.0f);
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, true) == 0.0f);
 }
 
 float UFlareSimulatedSpacecraftDamageSystem::GetGlobalHealth()
 {
-	float GlobalHealth = (GetSubsystemHealth(EFlareSubsystem::SYS_Temperature, false, false)
-		+ GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false, false)
-		+ GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false, false)
-		+ GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false, false)
-		+ GetSubsystemHealth(EFlareSubsystem::SYS_Power, false, false));
+	float GlobalHealth = (GetSubsystemHealth(EFlareSubsystem::SYS_Temperature, false)
+		+ GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false)
+		+ GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false)
+		+ GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false)
+		+ GetSubsystemHealth(EFlareSubsystem::SYS_Power, false));
 
 	if (Spacecraft->IsMilitary())
 	{
-		GlobalHealth += GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false, false);
+		GlobalHealth += GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false);
 		return GlobalHealth / 6.0f;
 	}
 	else
@@ -114,7 +114,7 @@ float UFlareSimulatedSpacecraftDamageSystem::GetGlobalHealth()
 	}
 }
 
-float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithArmor, bool WithAmmo) const
+float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithAmmo) const
 {
 	UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
 
@@ -177,7 +177,7 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 				FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
 				if (ComponentDescription && ComponentDescription->GeneralCharacteristics.LifeSupport)
 				{
-					Health = GetDamageRatio(ComponentDescription, ComponentData, WithArmor);
+					Health = GetDamageRatio(ComponentDescription, ComponentData);
 					break;
 				}
 			}
@@ -267,13 +267,12 @@ float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
 }
 
 float UFlareSimulatedSpacecraftDamageSystem::GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
-															FFlareSpacecraftComponentSave* ComponentData,
-															bool WithArmor) const
+															FFlareSpacecraftComponentSave* ComponentData)
 {
 	if (ComponentDescription)
 	{
-		float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ComponentData->Damage;
-		return FMath::Clamp(RemainingHitPoints / (ComponentDescription->HitPoints + (WithArmor ? ComponentDescription->ArmorHitPoints : 0.f)), 0.f, 1.f);
+		float RemainingHitPoints = ComponentDescription->HitPoints - ComponentData->Damage;
+		return FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
 	}
 	else
 	{
@@ -284,7 +283,7 @@ float UFlareSimulatedSpacecraftDamageSystem::GetDamageRatio(FFlareSpacecraftComp
 float UFlareSimulatedSpacecraftDamageSystem::GetUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
 															FFlareSpacecraftComponentSave* ComponentData) const
 {
-	float FullUsageRatio = (GetDamageRatio(ComponentDescription, ComponentData, false) * (IsPowered(ComponentData) ? 1 : 0));
+	float FullUsageRatio = (GetDamageRatio(ComponentDescription, ComponentData) * (IsPowered(ComponentData) ? 1 : 0));
 
 	if(FullUsageRatio < BROKEN_RATIO)
 	{

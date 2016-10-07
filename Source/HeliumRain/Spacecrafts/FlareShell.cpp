@@ -440,7 +440,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitComponent, FVector ImpactLocation,  FVector ImpactAxis,  FVector ImpactNormal, float ImpactPower, float ImpactRadius, EFlareDamage::Type DamageType)
 {
 	float Incidence = FVector::DotProduct(ImpactNormal, -ImpactAxis);
-	float RemainingArmor = -1; // Negative value means undestructible
+	float Armor = 1; // Full armored
 
 	if (Incidence < 0)
 	{
@@ -452,7 +452,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(HitComponent);
 	if (ShipComponent)
 	{
-		 RemainingArmor = ShipComponent->GetRemainingArmorAtLocation(ImpactLocation);
+		 Armor = ShipComponent->GetArmorAtLocation(ImpactLocation);
 	}
 
 	// Check armor peneration
@@ -462,7 +462,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	{
 		PenetrateArmor = true; // No ricochet
 	}
-	else if (RemainingArmor == 0)
+	else if (Armor == 0)
 	{
 		PenetrateArmor = true; // Armor destruction
 	}

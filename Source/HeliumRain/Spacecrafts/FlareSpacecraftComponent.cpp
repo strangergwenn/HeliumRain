@@ -354,7 +354,17 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 	Damages
 ----------------------------------------------------*/
 
-float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
+float UFlareSpacecraftComponent::GetArmor()
+{
+	if (ComponentDescription)
+	{
+		return ComponentDescription->Armor;
+	}
+
+	return 1;
+}
+
+float UFlareSpacecraftComponent::GetArmorAtLocation(FVector Location)
 {
 	if (!ComponentDescription)
 	{
@@ -363,33 +373,44 @@ float UFlareSpacecraftComponent::GetRemainingArmorAtLocation(FVector Location)
 			UFlareInternalComponent* Component = Spacecraft->GetInternalComponentAtLocation(Location);
 			if (Component == this)
 			{
-				FLOGV("!!! GetRemainingArmorAtLocation loop ! %s may not be correctly bind to its description", *Component->GetReadableName());
-				return -1;
+				FLOGV("!!! GetArmorAtLocation loop ! %s may not be correctly bind to its description", *Component->GetReadableName());
+				return 1;
 			}
 
 			if (Component)
 			{
-				return Component->GetRemainingArmorAtLocation(Location);
+				return Component->GetArmorAtLocation(Location);
 			}
 		}
 	}
-	else if (ComponentDescription->ArmorHitPoints != 0.0f || ComponentDescription->HitPoints != 0.0f)
+	else
 	{
-		return FMath::Max(0.0f, ComponentDescription->ArmorHitPoints - ShipComponentData->Damage);
+		return GetArmor();
 	}
 
-	// Not destructible
-	return -1.0f;
+	return 1;
 }
 
-float UFlareSpacecraftComponent::ApplyDamage(float Energy)
+float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type DamageType)
 {
 	float InflictedDamageRatio = 0;
 	if (ComponentDescription)
 	{
 		// Apply damage
 		float StateBeforeDamage = GetDamageRatio();
-		ShipComponentData->Damage += Energy;
+
+		float EffectiveEnergy;
+
+		if (DamageType == EFlareDamage::DAM_HEAT)
+		{
+			EffectiveEnergy = Energy;
+		}
+		else
+		{
+			EffectiveEnergy = Energy * (1.f - GetArmor());
+		}
+
+		ShipComponentData->Damage += EffectiveEnergy;
 		float StateAfterDamage = GetDamageRatio();
 		InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
 
@@ -411,12 +432,12 @@ float UFlareSpacecraftComponent::ApplyDamage(float Energy)
 	return InflictedDamageRatio;
 }
 
-float UFlareSpacecraftComponent::GetDamageRatio(bool WithArmor) const
+float UFlareSpacecraftComponent::GetDamageRatio() const
 {
 	if (ComponentDescription)
 	{
-		float RemainingHitPoints = ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints - ShipComponentData->Damage;
-		return FMath::Clamp(RemainingHitPoints / (ComponentDescription->HitPoints + (WithArmor ? ComponentDescription->ArmorHitPoints : 0.f)), 0.f, 1.f);
+		float RemainingHitPoints = ComponentDescription->HitPoints - ShipComponentData->Damage;
+		return FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
 	}
 	else
 	{
@@ -574,7 +595,7 @@ float UFlareSpacecraftComponent::GetTotalHitPoints() const
 {
 	if (ComponentDescription)
 	{
-		return ComponentDescription->ArmorHitPoints + ComponentDescription->HitPoints;
+		return ComponentDescription->HitPoints;
 	}
 	else
 	{
