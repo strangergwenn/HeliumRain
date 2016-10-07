@@ -1139,12 +1139,12 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 		if (OtherCompany == Company)
 		{
 			FriendlySpacecraftCount++;
-			if (Spacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
+			if (!Spacecraft->GetDamageSystem()->IsDisarmed())
 			{
 				DangerousFriendlySpacecraftCount++;
 			}
 
-			if (Spacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) == 0)
+			if (Spacecraft->GetDamageSystem()->IsStranded())
 			{
 				CrippledFriendlySpacecraftCount++;
 			}
@@ -1152,7 +1152,7 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
 		{
 			HostileSpacecraftCount++;
-			if (Spacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0)
+			if (!Spacecraft->GetDamageSystem()->IsDisarmed())
 			{
 				DangerousHostileSpacecraftCount++;
 			}
