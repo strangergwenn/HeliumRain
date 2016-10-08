@@ -1104,20 +1104,6 @@ void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation, bool TellUser)
 		}
 	}
 
-	// Reload and repair
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		Component->Repair();
-
-		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Components[ComponentIndex]);
-		if (Weapon)
-		{
-			Weapon->RefillAmmo();
-		}
-	}
-
 	DamageSystem->UpdatePower();
 }
 
