@@ -16,7 +16,6 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	, FiringEffect(NULL)
 	, Target(NULL)
 	, FiringRate(0)
-	, MaxAmmo(0)
 	, Firing(false)
 {
 	LocalHeatEffect = true;
@@ -34,18 +33,14 @@ void UFlareWeapon::Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany
 	
 	// Destroy attached bombs
 	ClearBombs();
-	CurrentAmmo = 0;
 
 	// Setup properties
 	if (ComponentDescription && Spacecraft)
 	{
 		FiringRate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoRate;
-		MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
 
 		FiringSound = ComponentDescription->WeaponCharacteristics.FiringSound;
 		FiringEffectTemplate = ComponentDescription->WeaponCharacteristics.GunCharacteristics.FiringEffect;
-
-		CurrentAmmo = MaxAmmo - ShipComponentData->Weapon.FiredAmmo;
 
 		//FLOGV("UFlareWeapon::Initialize IsBomb ? %d", ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb);
 
@@ -93,8 +88,6 @@ void UFlareWeapon::SetupFiringEffects()
 
 FFlareSpacecraftComponentSave* UFlareWeapon::Save()
 {
-	ShipComponentData->Weapon.FiredAmmo =  MaxAmmo - CurrentAmmo;
-
 	return Super::Save();
 }
 
@@ -104,7 +97,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && CurrentAmmo > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	if (Firing && GetCurrentAmmo() > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
 		{
@@ -171,7 +164,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	}
 
 	// Update data
-	CurrentAmmo--;
+	ShipComponentData->Weapon.FiredAmmo++;
 	return true;
 }
 
@@ -188,9 +181,8 @@ bool UFlareWeapon::FireBomb()
 	AFlareBomb* Bomb = Bombs.Pop();
 	if (Bomb)
 	{
-		// TODO refill
 		Bomb->OnLaunched();
-		CurrentAmmo--;
+		ShipComponentData->Weapon.FiredAmmo++;
 	}
 	return true;
 }
@@ -263,9 +255,8 @@ float UFlareWeapon::GetHeatProduction() const
 	return Super::GetHeatProduction() * (TimeSinceLastShell <= FiringPeriod ? 1.f : 0.f);
 }
 
-void UFlareWeapon::RefillAmmo()
+void UFlareWeapon::OnRefilled()
 {
-	CurrentAmmo = MaxAmmo;
 	if (ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
 	{
 		FillBombs();
@@ -278,7 +269,7 @@ void UFlareWeapon::FillBombs()
 	//FLOGV("BombHardpoint RelativeLocation=%s", *BombHardpoint->RelativeLocation.ToString());
 	int CurrentBombCount = Bombs.Num();
 
-	for (int BombIndex = CurrentBombCount; BombIndex < CurrentAmmo ; BombIndex++)
+	for (int BombIndex = CurrentBombCount; BombIndex < GetCurrentAmmo() ; BombIndex++)
 	{
 		// Get data
 		FVector HardpointLocation;

@@ -222,6 +222,9 @@ struct FFlareSpacecraftComponentWeaponCharacteristics
 	/** Weapon order in weapon groups */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Order;
 
+	/** Repair cost (in fleet supply) */
+	UPROPERTY(EditAnywhere, Category = Content) int32 RefillCost;
+
 	/** Alterned weapons. If true, all the weapons don't fire at same time */
 	UPROPERTY(EditAnywhere, Category = Content) bool AlternedWeapon;
 
@@ -301,6 +304,9 @@ struct FFlareSpacecraftComponentDescription
 
 	/** Part cost */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
+
+	/** Repair cost (in fleet supply) */
+	UPROPERTY(EditAnywhere, Category = Content) int32 RepairCost;
 
 	/** Component armor. 1 for full absorb */
 	UPROPERTY(EditAnywhere, Category = Content) float Armor;
@@ -449,8 +455,7 @@ public:
 	/** Return component total hit points */
 	virtual float GetTotalHitPoints() const;
 
-	/** Reset the taken damage to zero.	*/
-	virtual void Repair();
+	virtual void OnRepaired();
 
 	/** Create a damaged effect */
 	virtual void StartDestroyedEffects();

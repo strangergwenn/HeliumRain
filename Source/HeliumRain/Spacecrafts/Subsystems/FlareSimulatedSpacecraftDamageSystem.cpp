@@ -259,7 +259,107 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 	return 1.0f;
 }
 
+int32 UFlareSimulatedSpacecraftDamageSystem::GetRepairCost(FFlareSpacecraftComponentDescription* ComponentDescription)
+{
+	return FMath::Max(1,ComponentDescription->RepairCost);
+}
 
+int32 UFlareSimulatedSpacecraftDamageSystem::GetRefillCost(FFlareSpacecraftComponentDescription* ComponentDescription)
+{
+	return FMath::Max(1, ComponentDescription->WeaponCharacteristics.RefillCost);
+}
+
+float UFlareSimulatedSpacecraftDamageSystem::Repair(FFlareSpacecraftComponentDescription* ComponentDescription,
+			 FFlareSpacecraftComponentSave* ComponentData,
+			 float MaxRepairRatio,
+			 float MaxFS)
+{
+	float RepairCost = 0.f;
+	float MaxAffordableRatio = MaxFS / (float) GetRepairCost(ComponentDescription);
+	float RepairNeedsRatio = 1.f - GetDamageRatio(ComponentDescription, ComponentData);
+
+	float RepairRatio = FMath::Min(RepairNeedsRatio, MaxAffordableRatio);
+	RepairRatio = FMath::Min(RepairRatio, MaxRepairRatio);
+
+
+	if (RepairRatio > 0.f)
+	{
+		if(ComponentData->Damage > ComponentDescription->HitPoints)
+		{
+			ComponentData->Damage = ComponentDescription->HitPoints;
+		}
+
+		ComponentData->Damage = FMath::Max(0.f, ComponentData->Damage - ComponentDescription->HitPoints * RepairRatio);
+		RepairCost = RepairRatio * GetRepairCost(ComponentDescription);
+
+		FLOGV("%s %s repair %f for %f fs (damage ratio: %f)",  *Spacecraft->GetImmatriculation().ToString(),  *ComponentData->ShipSlotIdentifier.ToString(), RepairRatio, RepairCost, GetDamageRatio(ComponentDescription, ComponentData));
+
+		Spacecraft->SetRepairing(true);
+
+		if (Spacecraft->IsActive())
+		{
+			Spacecraft->GetActive()->OnRepaired();
+		}
+	}
+	return RepairCost;
+}
+
+float UFlareSimulatedSpacecraftDamageSystem::Refill(FFlareSpacecraftComponentDescription* ComponentDescription,
+			 FFlareSpacecraftComponentSave* ComponentData,
+			 float MaxRefillRatio,
+			 float MaxFS)
+{
+	float RefillCost = 0.f;
+	float MaxAffordableRatio = MaxFS / (float) GetRefillCost(ComponentDescription);
+
+
+
+	if(ComponentDescription->Type != EFlarePartType::Weapon)
+	{
+		return 0.f;
+	}
+	int32 MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+	int32 CurrentAmmo = MaxAmmo - ComponentData->Weapon.FiredAmmo;
+
+	float FillRatio = FMath::Clamp((float) CurrentAmmo / (float) MaxAmmo, 0.f, 1.f);
+	float RefillNeedsRatio = 1.f - FillRatio;
+
+	float RefillRatio = FMath::Min(RefillNeedsRatio, MaxAffordableRatio);
+	RefillRatio = FMath::Min(RefillRatio, MaxRefillRatio);
+
+
+	if (RefillRatio > 0.f)
+	{
+		int32 RefillAmount = FMath::CeilToInt(FMath::Max(1.f, MaxAmmo * RefillRatio));
+
+		int32 NewAmmoCount =  CurrentAmmo + RefillAmount;
+
+		ComponentData->Weapon.FiredAmmo = FMath::Clamp(MaxAmmo - NewAmmoCount, 0, MaxAmmo);
+
+		RefillCost = RefillRatio * GetRefillCost(ComponentDescription);
+
+		FLOGV("%s %s refill %f for %f fs (fill ratio: %f)",
+			  *Spacecraft->GetImmatriculation().ToString(),
+			  *ComponentData->ShipSlotIdentifier.ToString(),
+			  RefillRatio,
+			  RefillCost,
+			  ((float)(MaxAmmo - ComponentData->Weapon.FiredAmmo) / (float) MaxAmmo));
+
+		FLOGV("RefillRatio %f,",RefillRatio);
+		FLOGV("MaxAmmo %d,",MaxAmmo);
+		FLOGV("CurrentAmmo %d,",CurrentAmmo);
+		FLOGV("NewAmmoCount %d,",NewAmmoCount);
+		FLOGV("ComponentData->Weapon.FiredAmmo %d,",ComponentData->Weapon.FiredAmmo);
+
+		Spacecraft->SetRefilling(true);
+
+		if (Spacecraft->IsActive())
+		{
+			Spacecraft->GetActive()->OnRefilled();
+		}
+	}
+	return RefillCost;
+}
 
 float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
 {

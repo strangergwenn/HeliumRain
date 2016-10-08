@@ -311,7 +311,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 		PC->Notify(
 			FText::FromString("KNOWN BUG #158"),
 			FText::FromString("You just encountered the known bug #158. You can re-fly your ship by clicking \"fly previous\". Sorry for the inconvenience."),
-			"known-bug-155",
+			"known-bug-158",
 			EFlareNotification::NT_Military);
 
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit);
@@ -1082,6 +1082,32 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 /*----------------------------------------------------
 		Damage system
 ----------------------------------------------------*/
+
+void AFlareSpacecraft::OnRepaired()
+{
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+		Component->OnRepaired();
+	}
+}
+
+void AFlareSpacecraft::OnRefilled()
+{
+	// Reload and repair
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+
+		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Components[ComponentIndex]);
+		if (Weapon)
+		{
+			Weapon->OnRefilled();
+		}
+	}
+}
 
 void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation, bool TellUser)
 {

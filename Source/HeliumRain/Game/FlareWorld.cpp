@@ -458,13 +458,20 @@ void UFlareWorld::Simulate()
 
 	WorldData.Date++;
 
-	// End trade operation
-	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	// End trade, repair and refill, operations
+	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 	{
-		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
-		for (int32 ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+		UFlareCompany* Company = Companies[CompanyIndex];
+
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Company->GetCompanySpacecrafts().Num(); SpacecraftIndex++)
 		{
-			Sector->GetSectorShips()[ShipIndex]->SetTrading(false);
+			UFlareSimulatedSpacecraft* Spacecraft = Company->GetCompanySpacecrafts()[SpacecraftIndex];
+			if (!Spacecraft->IsStation())
+			{
+				Spacecraft->SetTrading(false);
+			}
+			Spacecraft->SetRepairing(false);
+			Spacecraft->SetRefilling(false);
 		}
 	}
 

@@ -45,6 +45,10 @@ public:
 
 	virtual void Destroyed() override;
 
+	virtual void OnRepaired();
+
+	virtual void OnRefilled();
+
 	virtual void OnDocked(AFlareSpacecraft* DockStation, bool TellUser);
 
 	virtual void OnUndocked(AFlareSpacecraft* DockStation);

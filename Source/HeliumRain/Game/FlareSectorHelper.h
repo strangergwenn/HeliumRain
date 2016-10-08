@@ -17,4 +17,17 @@ struct SectorHelper
 	static UFlareSimulatedSpacecraft*  FindTradeStation(FlareTradeRequest Request);
 
 	static int32 Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity);
+
+	static void GetAvailableFleetSupplyCount(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& OwnedFS, int32& AvailableFS, int32& AffordableFS);
+
+	static void GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply);
+
+	static void GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply);
+
+
+	static void RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company);
+
+	static void RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company);
+
+	static void ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS);
 };

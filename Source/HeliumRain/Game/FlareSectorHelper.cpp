@@ -5,6 +5,10 @@
 #include "../Game/FlareGame.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Player/FlarePlayerController.h"
+#include "../Game/FlareScenarioTools.h"
+
+#define MAX_REPAIR_RATIO_BY_DAY 0.1f
+#define MAX_REFILL_RATIO_BY_DAY 0.4f
 
 UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Request)
 {
@@ -213,4 +217,315 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft*  SourceSpacecraft, UFlareSi
 
 	return GivenResources;
 
+}
+
+void SectorHelper::GetAvailableFleetSupplyCount(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& OwnedFS, int32& AvailableFS, int32& AffordableFS)
+{
+	OwnedFS = 0;
+	int32 NotOwnedFS = 0;
+
+	FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if (Company->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile)
+		{
+			// At war, no trade possible
+			continue;
+		}
+
+		int32 AvailableQuantity = Spacecraft->GetCargoBay()->GetResourceQuantity(FleetSupply, Company);
+
+		if (Company == Spacecraft->GetCompany())
+		{
+			OwnedFS += AvailableQuantity;
+		}
+		else
+		{
+			NotOwnedFS += AvailableQuantity;
+		}
+	}
+
+	AvailableFS = OwnedFS + NotOwnedFS;
+	int32 ResourcePrice = Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
+
+	int32 MaxAffordableQuantity = Company->GetMoney() / ResourcePrice;
+
+	AffordableFS = OwnedFS + FMath::Min(MaxAffordableQuantity, NotOwnedFS);
+	/*FLOGV("GetAvailableFleetSupplyCount for %s in %s: AvailableFS=%d AffordableFS=%d",
+		  *Company->GetCompanyName().ToString(),
+		  *Sector->GetSectorName().ToString(),
+		  AvailableFS,
+		  AffordableFS);*/
+}
+
+void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply)
+{
+	float PreciseCurrentNeededFleetSupply = 0;
+	float PreciseTotalNeededFleetSupply = 0;
+	UFlareSpacecraftComponentsCatalog* Catalog = Company->GetGame()->GetShipPartsCatalog();
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if (Company != Spacecraft->GetCompany()) {
+			continue;
+		}
+
+		// List components
+		for (int32 ComponentIndex = 0; ComponentIndex < Spacecraft->GetData().Components.Num(); ComponentIndex++)
+		{
+			FFlareSpacecraftComponentSave* ComponentData = &Spacecraft->GetData().Components[ComponentIndex];
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+			float DamageRatio = UFlareSimulatedSpacecraftDamageSystem::GetDamageRatio(ComponentDescription,
+																					  ComponentData);
+
+			float CurrentRepairRatio = FMath::Min(MAX_REPAIR_RATIO_BY_DAY, (1.f - DamageRatio));
+			float TotalRepairRatio = 1.f - DamageRatio;
+
+			if(!Spacecraft->IsRepairing()) {
+				PreciseCurrentNeededFleetSupply += CurrentRepairRatio * UFlareSimulatedSpacecraftDamageSystem::GetRepairCost(ComponentDescription);
+			}
+			PreciseTotalNeededFleetSupply += TotalRepairRatio * UFlareSimulatedSpacecraftDamageSystem::GetRepairCost(ComponentDescription);
+		}
+	}
+
+
+
+
+	// Round to ceil
+	CurrentNeededFleetSupply = FMath::CeilToInt(PreciseCurrentNeededFleetSupply);
+	TotalNeededFleetSupply = FMath::CeilToInt(PreciseTotalNeededFleetSupply);
+
+	/*FLOGV("GetRepairFleetSupplyNeeds for %s in %s: CurrentNeededFleetSupply=%f %d TotalNeededFleetSupply=%f %d",
+		  *Company->GetCompanyName().ToString(),
+		  *Sector->GetSectorName().ToString(),
+		  PreciseCurrentNeededFleetSupply,
+		  CurrentNeededFleetSupply,
+			PreciseTotalNeededFleetSupply,
+			TotalNeededFleetSupply);*/
+}
+
+void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply)
+{
+	float PreciseCurrentNeededFleetSupply = 0;
+	float PreciseTotalNeededFleetSupply = 0;
+	UFlareSpacecraftComponentsCatalog* Catalog = Company->GetGame()->GetShipPartsCatalog();
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if (Company != Spacecraft->GetCompany()) {
+			continue;
+		}
+
+		// List components
+		for (int32 ComponentIndex = 0; ComponentIndex < Spacecraft->GetData().Components.Num(); ComponentIndex++)
+		{
+			FFlareSpacecraftComponentSave* ComponentData = &Spacecraft->GetData().Components[ComponentIndex];
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+			if(ComponentDescription->Type == EFlarePartType::Weapon)
+			{
+
+				int32 MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+				int32 CurrentAmmo = MaxAmmo - ComponentData->Weapon.FiredAmmo;
+
+				float FillRatio = (float) CurrentAmmo / (float) MaxAmmo;
+
+
+				float CurrentRefillRatio = FMath::Min(MAX_REFILL_RATIO_BY_DAY, (1.f - FillRatio));
+				float TotalRefillRatio = 1.f - FillRatio;
+
+				if(!Spacecraft->IsRefilling()) {
+					PreciseCurrentNeededFleetSupply += CurrentRefillRatio * UFlareSimulatedSpacecraftDamageSystem::GetRefillCost(ComponentDescription);
+				}
+				PreciseTotalNeededFleetSupply += TotalRefillRatio * (float) FMath::Max(1, ComponentDescription->WeaponCharacteristics.RefillCost);
+			}
+		}
+	}
+
+	// Round to ceil
+	CurrentNeededFleetSupply = FMath::CeilToInt(PreciseCurrentNeededFleetSupply);
+	TotalNeededFleetSupply = FMath::CeilToInt(PreciseTotalNeededFleetSupply);
+}
+
+void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company)
+{
+	int32 CurrentNeededFleetSupply;
+	int32 TotalNeededFleetSupply;
+	int32 OwnedFS;
+	int32 AvailableFS;
+	int32 AffordableFS;
+
+	GetRepairFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, TotalNeededFleetSupply);
+	GetAvailableFleetSupplyCount(Sector, Company, OwnedFS, AvailableFS, AffordableFS);
+
+	if(AffordableFS == 0 || CurrentNeededFleetSupply == 0)
+	{
+		// No repair possible
+		return;
+	}
+
+	float MaxRepairRatio = MAX_REPAIR_RATIO_BY_DAY * FMath::Min(1.f,(float) AffordableFS /  (float) CurrentNeededFleetSupply);
+	float RemainingFS = (float) AffordableFS;
+	UFlareSpacecraftComponentsCatalog* Catalog = Company->GetGame()->GetShipPartsCatalog();
+
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if (Company != Spacecraft->GetCompany() || Spacecraft->IsRepairing()) {
+			continue;
+		}
+
+		// List components
+		for (int32 ComponentIndex = 0; ComponentIndex < Spacecraft->GetData().Components.Num(); ComponentIndex++)
+		{
+			FFlareSpacecraftComponentSave* ComponentData = &Spacecraft->GetData().Components[ComponentIndex];
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+			float ConsumedFS = Spacecraft->GetDamageSystem()->Repair(ComponentDescription,ComponentData, MaxRepairRatio, RemainingFS);
+
+			RemainingFS -= ConsumedFS;
+
+			if(RemainingFS == 0)
+			{
+				break;
+			}
+		}
+
+		if(RemainingFS == 0)
+		{
+			break;
+		}
+	}
+
+	int32 ConsumedFS = FMath::CeilToInt((float) AffordableFS - RemainingFS);
+
+	FLOGV("Repair consumed %d FS", ConsumedFS);
+	ConsumeFleetSupply(Sector, Company, ConsumedFS);
+}
+
+void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company)
+{
+	int32 CurrentNeededFleetSupply;
+	int32 TotalNeededFleetSupply;
+	int32 OwnedFS;
+	int32 AvailableFS;
+	int32 AffordableFS;
+
+	GetRefillFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, TotalNeededFleetSupply);
+	GetAvailableFleetSupplyCount(Sector, Company, OwnedFS, AvailableFS, AffordableFS);
+
+	if(AffordableFS == 0 || CurrentNeededFleetSupply == 0)
+	{
+		// No refill possible
+		return;
+	}
+
+	float MaxRefillRatio = MAX_REFILL_RATIO_BY_DAY * FMath::Min(1.f,(float) AffordableFS /  (float) CurrentNeededFleetSupply);
+	float RemainingFS = (float) AffordableFS;
+	UFlareSpacecraftComponentsCatalog* Catalog = Company->GetGame()->GetShipPartsCatalog();
+
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if (Company != Spacecraft->GetCompany() || Spacecraft->IsRefilling()) {
+			continue;
+		}
+
+		// List components
+		for (int32 ComponentIndex = 0; ComponentIndex < Spacecraft->GetData().Components.Num(); ComponentIndex++)
+		{
+			FFlareSpacecraftComponentSave* ComponentData = &Spacecraft->GetData().Components[ComponentIndex];
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+			float ConsumedFS = Spacecraft->GetDamageSystem()->Refill(ComponentDescription,ComponentData, MaxRefillRatio, RemainingFS);
+
+			RemainingFS -= ConsumedFS;
+
+			if(RemainingFS == 0)
+			{
+				break;
+			}
+		}
+
+		if(RemainingFS == 0)
+		{
+			break;
+		}
+	}
+
+	int32 ConsumedFS = FMath::CeilToInt((float) AffordableFS - RemainingFS);
+
+	FLOGV("Refill consumed %d FS", ConsumedFS);
+	ConsumeFleetSupply(Sector, Company, ConsumedFS);
+}
+
+void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS)
+{
+	// First check for owned FS
+
+	FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if (Company != Spacecraft->GetCompany())
+		{
+			continue;
+		}
+
+		int TakenQuantity = Spacecraft->GetCargoBay()->TakeResources(FleetSupply, ConsumedFS, Company);
+		ConsumedFS -= TakenQuantity;
+
+		if(ConsumedFS == 0)
+		{
+			return;
+		}
+	}
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if (Company == Spacecraft->GetCompany())
+		{
+			continue;
+		}
+
+		if (Company->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile)
+		{
+			// At war, no trade possible
+			continue;
+		}
+
+		int TakenQuantity = Spacecraft->GetCargoBay()->TakeResources(FleetSupply, ConsumedFS, Company);
+
+		if(TakenQuantity > 0)
+		{
+			int32 ResourcePrice = Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
+
+			int64 Cost = TakenQuantity * ResourcePrice;
+			Company->TakeMoney(Cost, true);
+			Spacecraft->GetCompany()->GiveMoney(Cost);
+
+			ConsumedFS -= TakenQuantity;
+
+			if(ConsumedFS == 0)
+			{
+				return;
+			}
+		}
+	}
 }

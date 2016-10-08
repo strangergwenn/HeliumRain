@@ -399,6 +399,16 @@ void UFlareSimulatedSpacecraft::SetTrading(bool Trading)
 	SpacecraftData.IsTrading = Trading;
 }
 
+void UFlareSimulatedSpacecraft::SetRefilling(bool Refilling)
+{
+	SpacecraftData.IsRefilling = Refilling;
+}
+
+void UFlareSimulatedSpacecraft::SetRepairing(bool Repairing)
+{
+	SpacecraftData.IsRepairing = Repairing;
+}
+
 EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const
 {
 	return GetCompany()->GetPlayerWarState();

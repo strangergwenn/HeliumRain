@@ -380,6 +380,12 @@ struct FFlareSpacecraftSave
 
 	/** Is a trade in progress */
 	bool IsTrading;
+
+	/** Is a repair in progress */
+	bool IsRepairing;
+
+	/** Is a refill in progress */
+	bool IsRefilling;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */

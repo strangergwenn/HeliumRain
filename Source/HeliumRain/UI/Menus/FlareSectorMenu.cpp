@@ -3,8 +3,10 @@
 #include "FlareSectorMenu.h"
 
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareSectorHelper.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Game/FlareScenarioTools.h"
 
 #define LOCTEXT_NAMESPACE "FlareSectorMenu"
 
@@ -187,7 +189,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							]
 						]
 
-						// Refuel fleets
+						// Refill fleets
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.HAlign(HAlign_Left)
@@ -195,11 +197,11 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(SFlareButton)
 							.Width(10)
-							.Text(this, &SFlareSectorMenu::GetRefuelText)
+							.Text(this, &SFlareSectorMenu::GetRefillText)
 							.HelpText(LOCTEXT("RefillInfo", "Refill all fleets in this sector so that they have the necessary fuel, ammo and resources to fight."))
 							.Icon(FFlareStyleSet::GetIcon("Tank"))
-							.OnClicked(this, &SFlareSectorMenu::OnRefuelClicked)
-							.IsDisabled(this, &SFlareSectorMenu::IsRefuelDisabled)
+							.OnClicked(this, &SFlareSectorMenu::OnRefillClicked)
+							.IsDisabled(this, &SFlareSectorMenu::IsRefillDisabled)
 						]
 
 						// Repair fleets
@@ -499,43 +501,155 @@ bool SFlareSectorMenu::IsTravelDisabled() const
 	}
 }
 
-FText SFlareSectorMenu::GetRefuelText() const
+FText SFlareSectorMenu::GetRefillText() const
 {
-	if (IsRefuelDisabled())
+	if (!TargetSector)
 	{
-		if (true) // TODO FRED(#155) : utiliser les API de ravitaillement
+		return FText();
+	}
+
+	int32 AvailableFS;
+	int32 OwnedFS;
+	int32 AffordableFS;
+	int32 NeededFS;
+	int32 TotalNeededFS;
+
+	SectorHelper::GetRefillFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS);
+	SectorHelper::GetAvailableFleetSupplyCount(TargetSector, MenuManager->GetPC()->GetCompany(), OwnedFS, AvailableFS, AffordableFS);
+
+	if (IsRefillDisabled())
+	{
+		if (NeededFS > 0)
 		{
-			return LOCTEXT("NoFleetToRefuel", "No fleet here needs refilling");
+			// Refill needed
+			if (AvailableFS == 0) {
+				return LOCTEXT("CantRefillNoFS", "Can't refill here : no fleet supply available !");
+			}
+			else
+			{
+				return LOCTEXT("CantRefillNoMoney", "Can't refill here : not enough money !");
+			}
+		}
+		else if (TotalNeededFS > 0)
+		{
+			// Refill in progress
+			return LOCTEXT("RefillInProgress", "Refill in progress. Continue later");
 		}
 		else
 		{
-			return LOCTEXT("CantRefuel", "Can't refill here !");
+			// No refill needed
+			return LOCTEXT("NoFleetToRefill", "No fleet here needs refilling");
 		}
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("RefuelOkayFormat", "Refill all fleets ({0} fleet supplies)"),
-			FText::AsNumber(42)); // TODO FRED (#155) : utiliser les API de ravitaillement
+		int32 UsedFs = FMath::Min (AffordableFS, NeededFS);
+		int32 UsedOwnedFs  = FMath::Min (OwnedFS, UsedFs);
+		int32 UsedNotOwnedFs  = UsedFs - UsedOwnedFs;
+		FFlareResourceDescription* FleetSupply = TargetSector->GetGame()->GetScenarioTools()->FleetSupply;
+
+		int64 UsedNotOwnedFsCost = UsedNotOwnedFs * TargetSector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
+
+
+		FText OwnedCostText;
+		FText CostSeparatorText;
+		FText NotOwnedCostText;
+
+		if (UsedOwnedFs > 0)
+		{
+			OwnedCostText = FText::Format(LOCTEXT("RefillOwnedCostFormat", "{0} fleet supplies"), FText::AsNumber(UsedOwnedFs));
+		}
+
+		if (UsedNotOwnedFsCost > 0)
+		{
+			NotOwnedCostText = FText::Format(LOCTEXT("RefillNotOwnedCostFormat", "{0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(UsedNotOwnedFsCost)));
+		}
+
+		if (UsedOwnedFs > 0 && UsedNotOwnedFsCost > 0)
+		{
+			CostSeparatorText = LOCTEXT("CostSeparatorText", " + ");
+		}
+
+		FText CostText = FText::Format(LOCTEXT("RefillCostFormat", "{0}{1}{2}"), OwnedCostText, CostSeparatorText, NotOwnedCostText);
+
+		return FText::Format(LOCTEXT("RefillOkayFormat", "Refill all fleets ({0})"),
+			CostText);
 	}
 }
 
 FText SFlareSectorMenu::GetRepairText() const
 {
+	if (!TargetSector)
+	{
+		return FText();
+	}
+
+	int32 AvailableFS;
+	int32 OwnedFS;
+	int32 AffordableFS;
+	int32 NeededFS;
+	int32 TotalNeededFS;
+
+	SectorHelper::GetRepairFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS);
+	SectorHelper::GetAvailableFleetSupplyCount(TargetSector, MenuManager->GetPC()->GetCompany(), OwnedFS, AvailableFS, AffordableFS);
+
 	if (IsRepairDisabled())
 	{
-		if (true) // TODO FRED(#155) : utiliser les API de réparation
+		if (NeededFS > 0)
 		{
-			return LOCTEXT("NoFleetToRepair", "No fleet here needs repairing");
+			// Repair needed
+			if (AvailableFS == 0) {
+				return LOCTEXT("CantRepairNoFS", "Can't repair here : no fleet supply available !");
+			}
+			else
+			{
+				return LOCTEXT("CantRepairNoMoney", "Can't repair here : not enough money !");
+			}
+		}
+		else if (TotalNeededFS > 0)
+		{
+			// Repair in progress
+			return LOCTEXT("RepairInProgress", "Repair in progress. Continue later");
 		}
 		else
 		{
-			return LOCTEXT("CantRepair", "Can't repair here !");
+			// No repair needed
+			return LOCTEXT("NoFleetToRepair", "No fleet here needs repairing");
 		}
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("RepairOkayFormat", "Repair all fleets ({0} fleet supplies)"),
-			FText::AsNumber(42)); // TODO FRED (#155) : utiliser les API de réparation
+		int32 UsedFs = FMath::Min (AffordableFS, NeededFS);
+		int32 UsedOwnedFs  = FMath::Min (OwnedFS, UsedFs);
+		int32 UsedNotOwnedFs  = UsedFs - UsedOwnedFs;
+		FFlareResourceDescription* FleetSupply = TargetSector->GetGame()->GetScenarioTools()->FleetSupply;
+
+		int64 UsedNotOwnedFsCost = UsedNotOwnedFs * TargetSector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
+
+
+		FText OwnedCostText;
+		FText CostSeparatorText;
+		FText NotOwnedCostText;
+
+		if (UsedOwnedFs > 0)
+		{
+			OwnedCostText = FText::Format(LOCTEXT("RepairOwnedCostFormat", "{0} fleet supplies"), FText::AsNumber(UsedOwnedFs));
+		}
+
+		if (UsedNotOwnedFsCost > 0)
+		{
+			NotOwnedCostText = FText::Format(LOCTEXT("RepairNotOwnedCostFormat", "{0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(UsedNotOwnedFsCost)));
+		}
+
+		if (UsedOwnedFs > 0 && UsedNotOwnedFsCost > 0)
+		{
+			CostSeparatorText = LOCTEXT("CostSeparatorText", " + ");
+		}
+
+		FText CostText = FText::Format(LOCTEXT("RepairCostFormat", "{0}{1}{2}"), OwnedCostText, CostSeparatorText, NotOwnedCostText);
+
+		return FText::Format(LOCTEXT("RepairOkayFormat", "Repair all fleets ({0})"),
+			CostText);
 	}
 }
 
@@ -548,14 +662,74 @@ bool SFlareSectorMenu::IsResourcePricesDisabled() const
 	return false;
 }
 
-bool SFlareSectorMenu::IsRefuelDisabled() const
+bool SFlareSectorMenu::IsRefillDisabled() const
 {
-	return true; // TODO FRED (#155) : utiliser les API de ravitaillement
+	if (!TargetSector)
+	{
+		return true;
+	}
+
+	int32 NeededFS;
+	int32 TotalNeededFS;
+
+	SectorHelper::GetRefillFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS);
+	if (NeededFS > 0)
+	{
+		// Refill needed
+
+		int32 AvailableFS;
+		int32 OwnedFS;
+		int32 AffordableFS;
+
+		SectorHelper::GetAvailableFleetSupplyCount(TargetSector, MenuManager->GetPC()->GetCompany(), OwnedFS, AvailableFS, AffordableFS);
+
+		if (AffordableFS == 0) {
+			return true;
+		}
+
+		// There is somme affordable FS, can refill
+		return false;
+	}
+	else
+	{
+		// No refill needed
+		return true;
+	}
 }
 
 bool SFlareSectorMenu::IsRepairDisabled() const
 {
-	return true; // TODO FRED (#155) : utiliser les API de réparation
+	if (!TargetSector)
+	{
+		return true;
+	}
+
+	int32 NeededFS;
+	int32 TotalNeededFS;
+
+	SectorHelper::GetRepairFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS);
+	if (NeededFS > 0)
+	{
+		// Repair needed
+
+		int32 AvailableFS;
+		int32 OwnedFS;
+		int32 AffordableFS;
+
+		SectorHelper::GetAvailableFleetSupplyCount(TargetSector, MenuManager->GetPC()->GetCompany(), OwnedFS, AvailableFS, AffordableFS);
+
+		if (AffordableFS == 0) {
+			return true;
+		}
+
+		// There is somme affordable FS, can repair
+		return false;
+	}
+	else
+	{
+		// No repair needed
+		return true;
+	}
 }
 
 FText SFlareSectorMenu::GetSectorName() const
@@ -704,14 +878,14 @@ void SFlareSectorMenu::OnTravelHereClicked()
 	}
 }
 
-void SFlareSectorMenu::OnRefuelClicked()
+void SFlareSectorMenu::OnRefillClicked()
 {
-	// TODO FRED (#155) : utiliser les API de ravitaillement
+	SectorHelper::RefillFleets(TargetSector, MenuManager->GetPC()->GetCompany());
 }
 
 void SFlareSectorMenu::OnRepairClicked()
 {
-	// TODO FRED (#155) : utiliser les API de réparation
+	SectorHelper::RepairFleets(TargetSector, MenuManager->GetPC()->GetCompany());
 }
 
 void SFlareSectorMenu::OnStartTravelConfirmed(UFlareFleet* SelectedFleet)

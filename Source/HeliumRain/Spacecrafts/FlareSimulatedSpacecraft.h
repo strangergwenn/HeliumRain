@@ -94,6 +94,10 @@ public:
 
 	void SetTrading(bool Trading);
 
+	void SetRepairing(bool Repairing);
+
+	void SetRefilling(bool Refilling);
+
 
 	/*----------------------------------------------------
 		Resources
@@ -209,6 +213,16 @@ public:
 	inline bool IsTrading() const
 	{
 		return SpacecraftData.IsTrading;
+	}
+
+	inline bool IsRepairing() const
+	{
+		return SpacecraftData.IsRepairing;
+	}
+
+	inline bool IsRefilling() const
+	{
+		return SpacecraftData.IsRefilling;
 	}
 
 	inline bool IsConsumeResource(FFlareResourceDescription* Resource) const

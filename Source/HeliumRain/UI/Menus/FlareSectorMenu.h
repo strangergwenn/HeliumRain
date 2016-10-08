@@ -62,14 +62,14 @@ protected:
 	/** Visibility setting for the travel button */
 	bool IsTravelDisabled() const;
 
-	/** Get the refuel text */
-	FText GetRefuelText() const;
+	/** Get the refill text */
+	FText GetRefillText() const;
 
 	/** Visibility setting for the resource prices button */
 	bool IsResourcePricesDisabled() const;
 
-	/** Visibility setting for the refuel button */
-	bool IsRefuelDisabled() const;
+	/** Visibility setting for the refill button */
+	bool IsRefillDisabled() const;
 
 	/** Get the repair text */
 	FText GetRepairText() const;
@@ -100,8 +100,8 @@ protected:
 	/** Move the selected fleet here */
 	void OnTravelHereClicked();
 
-	/** Refuel all fleets */
-	void OnRefuelClicked();
+	/** Refill all fleets */
+	void OnRefillClicked();
 
 	/** Repair all fleets */
 	void OnRepairClicked();

@@ -75,6 +75,16 @@ public:
 	/** Get the detailed health for this subsystem */
 	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithAmmo = false) const;
 
+	float Repair(FFlareSpacecraftComponentDescription* ComponentDescription,
+				 FFlareSpacecraftComponentSave* ComponentData,
+				 float MaxRepairRatio,
+				 float MaxFS);
+
+	float Refill(FFlareSpacecraftComponentDescription* ComponentDescription,
+				 FFlareSpacecraftComponentSave* ComponentData,
+				 float MaxRefillRatio,
+				 float MaxFS);
+
 protected:
 
 	float GetUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
@@ -102,6 +112,10 @@ public:
 
 	static float GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
 						 FFlareSpacecraftComponentSave* ComponentData);
+
+	static int32 GetRepairCost(FFlareSpacecraftComponentDescription* ComponentDescription);
+
+	static int32 GetRefillCost(FFlareSpacecraftComponentDescription* ComponentDescription);
 
 	/** Get a subsystem's name */
 	static FText GetSubsystemName(EFlareSubsystem::Type SubsystemType);

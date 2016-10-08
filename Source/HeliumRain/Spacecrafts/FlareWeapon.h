@@ -40,8 +40,7 @@ public:
 	/** Return the current amount of heat production in KW */
 	virtual float GetHeatProduction() const override;
 
-	/** Reset the current ammo to max ammo.	*/
-	virtual void RefillAmmo();
+	virtual void OnRefilled();
 
 	virtual FVector GetFireAxis() const;
 
@@ -106,7 +105,6 @@ protected:
 	float                       FiringRate;
 	float                       FiringPeriod;
 	float                       AmmoVelocity;
-	int32                       MaxAmmo;
 	FActorSpawnParameters       ProjectileSpawnParams;
 
 	UPROPERTY()
@@ -115,7 +113,6 @@ protected:
 	// State
 	bool                        Firing;
 	float                       TimeSinceLastShell;
-	int32                       CurrentAmmo;
 	int                         LastFiredGun;
 	FFlareWeaponGroup*          WeaponGroup;
 public:
@@ -126,12 +123,12 @@ public:
 
 	inline int32 GetCurrentAmmo() const
 	{
-		return CurrentAmmo;
+		return GetMaxAmmo() - ShipComponentData->Weapon.FiredAmmo;
 	}
 
 	inline int32 GetMaxAmmo() const
 	{
-		return MaxAmmo;
+		return ComponentDescription->WeaponCharacteristics.AmmoCapacity;
 	}
 
 	inline float GetAmmoVelocity() const
@@ -141,7 +138,7 @@ public:
 
 	inline bool isFiring() const
 	{
-		return Firing && CurrentAmmo > 0;
+		return Firing && GetCurrentAmmo() > 0;
 	}
 
 	virtual UStaticMesh* GetMesh(bool PresentationMode) const;

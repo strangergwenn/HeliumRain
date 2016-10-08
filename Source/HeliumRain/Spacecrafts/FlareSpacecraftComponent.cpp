@@ -411,6 +411,9 @@ float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type Da
 		}
 
 		ShipComponentData->Damage += EffectiveEnergy;
+		if (ShipComponentData->Damage > ComponentDescription->HitPoints) {
+			ShipComponentData->Damage = ComponentDescription->HitPoints;
+		}
 		float StateAfterDamage = GetDamageRatio();
 		InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
 
@@ -603,11 +606,10 @@ float UFlareSpacecraftComponent::GetTotalHitPoints() const
 	}
 }
 
-void UFlareSpacecraftComponent::Repair()
+void UFlareSpacecraftComponent::OnRepaired()
 {
 	if (ComponentDescription)
 	{
-		ShipComponentData->Damage = 0;
 		UpdateLight();
 		if (DestroyedEffects)
 		{
