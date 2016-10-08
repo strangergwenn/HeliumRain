@@ -317,9 +317,10 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 			Spacecraft->GetDockingSystem()->IsGrantedShip(OtherSpacecraft) ||
 			OtherSpacecraft->GetDockingSystem()->IsGrantedShip(Spacecraft)))
 	{
-		FLOGV("WARNING: Avoid unexpected damage between docked or docking spacecraft : %s and %s",
+		// #490 : disable this warning until we fix the actual bug some day...
+		/*FLOGV("WARNING: Avoid unexpected damage between docked or docking spacecraft : %s and %s",
 			  *Spacecraft->GetImmatriculation().ToString(),
-			  *OtherSpacecraft->GetImmatriculation().ToString());
+			  *OtherSpacecraft->GetImmatriculation().ToString());*/
 		return;
 	}
 
