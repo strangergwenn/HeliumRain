@@ -41,6 +41,14 @@ struct FFlareResourceDescription
 	/** Min resource price */
 	UPROPERTY(EditAnywhere, Category = Content)
 	int64 TransportFee;
+
+	/** Is consumer resource */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool IsConsumerResource;
+
+	/** Is maintenance resource */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool IsMaintenanceResource;
 };
 
 /** Spacecraft cargo data */

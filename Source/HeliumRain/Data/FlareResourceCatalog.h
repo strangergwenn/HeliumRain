@@ -45,10 +45,6 @@ public:
 		return Resources;
 	}
 
-	bool IsCustomerResource(FFlareResourceDescription* Resource) const;
-
-	bool IsMaintenanceResource(FFlareResourceDescription* Resource) const;
-
 };
 
 

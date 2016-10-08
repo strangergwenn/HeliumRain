@@ -877,14 +877,14 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			}
 		}
 
-		if(Station->HasCapability(EFlareSpacecraftCapability::Consumer) && Game->GetResourceCatalog()->IsCustomerResource(Resource))
+		if(Station->HasCapability(EFlareSpacecraftCapability::Consumer) && Resource->IsConsumerResource)
 		{
 			float Weight = GetPeople()->GetRessourceConsumption(Resource);
 			WantedPriceSum += Weight * (1.f - StockRatio);
 			WantedWeightSum += Weight;
 		}
 
-		if(Station->HasCapability(EFlareSpacecraftCapability::Maintenance) && Game->GetResourceCatalog()->IsMaintenanceResource(Resource))
+		if(Station->HasCapability(EFlareSpacecraftCapability::Maintenance) && Resource->IsMaintenanceResource)
 		{
 			WantedPriceSum += 1.f - StockRatio;
 			WantedWeightSum += 1;

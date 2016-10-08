@@ -279,13 +279,13 @@ EFlareResourcePriceContext::Type UFlareSimulatedSpacecraft::GetResourceUseType(F
 	}
 
 	// Customer resource ?
-	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Consumer) && GetGame()->GetResourceCatalog()->IsCustomerResource(Resource))
+	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Consumer) && Resource->IsConsumerResource)
 	{
 		return EFlareResourcePriceContext::ConsumerConsumption;
 	}
 
 	// Maintenance resource ?
-	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Maintenance) && GetGame()->GetResourceCatalog()->IsMaintenanceResource(Resource))
+	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Maintenance) && Resource->IsMaintenanceResource)
 	{
 		return EFlareResourcePriceContext::MaintenanceConsumption;
 	}

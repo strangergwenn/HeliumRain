@@ -22,12 +22,12 @@ UFlareResourceCatalog::UFlareResourceCatalog(const class FObjectInitializer& PCI
 		
 		Resources.Add(Resource);
 
-		if (IsCustomerResource(&Resource->Data))
+		if (&Resource->Data.IsConsumerResource)
 		{
 			ConsumerResources.Add(Resource);
 		}
 
-		if (IsMaintenanceResource(&Resource->Data))
+		if (&Resource->Data.IsMaintenanceResource)
 		{
 			MaintenanceResources.Add(Resource);
 		}
@@ -53,30 +53,6 @@ FFlareResourceDescription* UFlareResourceCatalog::Get(FName Identifier) const
 	}
 
 	return NULL;
-}
-
-bool UFlareResourceCatalog::IsCustomerResource(FFlareResourceDescription* Resource) const
-{
-	for (int32 ResourceIndex = 0; ResourceIndex < ConsumerResources.Num(); ResourceIndex++)
-	{
-		if(Resource == &ConsumerResources[ResourceIndex]->Data)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool UFlareResourceCatalog::IsMaintenanceResource(FFlareResourceDescription* Resource) const
-{
-	for (int32 ResourceIndex = 0; ResourceIndex < MaintenanceResources.Num(); ResourceIndex++)
-	{
-		if(Resource == &MaintenanceResources[ResourceIndex]->Data)
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 UFlareResourceCatalogEntry* UFlareResourceCatalog::GetEntry(FFlareResourceDescription* Resource) const
