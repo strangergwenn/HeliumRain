@@ -381,40 +381,29 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 			PC->GetMenuPawn()->ShowShip(TargetSpacecraft);
 		}
 
-		// Reset weapon data
-		int32 WeaponCount = 0;
-		WeaponButtonBox->ClearChildren();
+		// Setup weapon descriptions
 		WeaponDescriptions.Empty();
-		
-		// Setup component descriptions
+		for (int32 GroupIndex = 0; GroupIndex < ShipDesc->WeaponGroups.Num(); GroupIndex++)
+		{
+			FName SlotName = GetSlotIdentifierFromWeaponGroupIndex(ShipDesc, GroupIndex);
+
+			for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
+			{
+				FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetSpacecraftData->Components[i].ComponentIdentifier);
+				if (ComponentDescription->Type == EFlarePartType::Weapon && TargetSpacecraftData->Components[i].ShipSlotIdentifier == SlotName)
+				{
+					FCHECK(ComponentDescription);
+					WeaponDescriptions.Add(ComponentDescription);
+					break;
+				}
+			}
+		}
+
+		// Setup engine descriptions
 		for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
 		{
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetSpacecraftData->Components[i].ComponentIdentifier);
-
-			if (ComponentDescription->Type == EFlarePartType::Weapon)
-			{
-				// Register the weapon data
-				TSharedPtr<int32> IndexPtr(new int32(WeaponCount));
-				WeaponDescriptions.Add(Catalog->Get(ComponentDescription->Identifier));
-				WeaponCount++;
-
-				// Add the button itself
-				WeaponButtonBox->AddSlot()
-					.AutoWidth()
-					.Padding(FFlareStyleSet::GetDefaultTheme().TitleButtonPadding)
-					.VAlign(VAlign_Top)
-					[
-						SNew(SFlareRoundButton)
-						.OnClicked(this, &SFlareShipMenu::ShowWeapons, IndexPtr)
-						.Icon(this, &SFlareShipMenu::GetWeaponIcon, IndexPtr)
-						.Text(this, &SFlareShipMenu::GetWeaponText, IndexPtr)
-						.HelpText(LOCTEXT("WeaponInfo", "Inspect this weapon system"))
-						.InvertedBackground(true)
-						.HighlightColor(this, &SFlareShipMenu::GetWeaponHealthColor)
-					];
-
-			} 
-			else if (ComponentDescription->Type == EFlarePartType::RCS)
+			if (ComponentDescription->Type == EFlarePartType::RCS)
 			{
 				RCSDescription = Catalog->Get(ComponentDescription->Identifier);
 			}
@@ -423,8 +412,28 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 				EngineDescription = Catalog->Get(ComponentDescription->Identifier);
 			}
 		}
+		
+		// Add a button for each weapon group
+		WeaponButtonBox->ClearChildren();
+		for (int32 i = 0; i < WeaponDescriptions.Num(); i++)
+		{
+			TSharedPtr<int32> IndexPtr(new int32(i));
 
-		WeaponButtonBox->SetVisibility(WeaponCount > 0 ? EVisibility::Visible : EVisibility::Collapsed);
+			WeaponButtonBox->AddSlot()
+				.AutoWidth()
+				.Padding(FFlareStyleSet::GetDefaultTheme().TitleButtonPadding)
+				.VAlign(VAlign_Top)
+				[
+					SNew(SFlareRoundButton)
+					.OnClicked(this, &SFlareShipMenu::ShowWeapons, IndexPtr)
+					.Icon(this, &SFlareShipMenu::GetWeaponIcon, IndexPtr)
+					.Text(this, &SFlareShipMenu::GetWeaponText, IndexPtr)
+					.HelpText(LOCTEXT("WeaponInfo", "Inspect this weapon group"))
+					.InvertedBackground(true)
+					.HighlightColor(this, &SFlareShipMenu::GetWeaponHealthColor)
+				];
+		}
+		WeaponButtonBox->SetVisibility(WeaponDescriptions.Num() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
 	}
 }
 
@@ -704,20 +713,21 @@ const FSlateBrush* SFlareShipMenu::GetWeaponIcon(TSharedPtr<int32> Index) const
 	return NULL;
 }
 
-FText SFlareShipMenu::GetWeaponText(TSharedPtr<int32> Index) const
+FText SFlareShipMenu::GetWeaponText(TSharedPtr<int32> GroupIndex) const
 {
 	FText Result;
 	FText Comment;
 
-	if (*Index < WeaponDescriptions.Num())
+	if (*GroupIndex < WeaponDescriptions.Num())
 	{
-		FFlareSpacecraftComponentDescription* Desc = WeaponDescriptions[*Index];
+		FFlareSpacecraftComponentDescription* Desc = WeaponDescriptions[*GroupIndex];
 		if (Desc)
 		{
 			Result = Desc->Name;
 		}
 	}
 
+	// Get group name
 	if (TargetSpacecraft)
 	{
 		const FFlareSpacecraftDescription* ShipDesc = TargetSpacecraft->GetDescription();
@@ -726,13 +736,13 @@ FText SFlareShipMenu::GetWeaponText(TSharedPtr<int32> Index) const
 		{
 			if (ShipDesc->Size == EFlarePartSize::L)
 			{
-				FCHECK(*Index >= 0 && *Index < ShipDesc->TurretSlots.Num());
-				Comment = ShipDesc->TurretSlots[*Index].SlotName;
+				FCHECK(*GroupIndex >= 0 && *GroupIndex < ShipDesc->WeaponGroups.Num());
+				Comment = ShipDesc->WeaponGroups[*GroupIndex].GroupName;
 			}
 			else
 			{
-				FCHECK(*Index >= 0 && *Index < ShipDesc->GunSlots.Num());
-				Comment = ShipDesc->GunSlots[*Index].SlotName;
+				FCHECK(*GroupIndex >= 0 && *GroupIndex < ShipDesc->WeaponGroups.Num());
+				Comment = ShipDesc->WeaponGroups[*GroupIndex].GroupName;
 			}
 		}
 	}
@@ -875,40 +885,46 @@ void SFlareShipMenu::ShowEngines()
 	}
 }
 
-void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponIndex)
+void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponGroupIndex)
 {
-	PartListData.Empty();
-	CurrentWeaponIndex = *WeaponIndex;
-
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC)
-	{
-		int32 CurrentSearchIndex = 0;
-		FFlareSpacecraftComponentDescription* PartDesc = NULL;
-		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+	FCHECK(PC);
 
-		// Browse all the parts in the save until we find the right one
-		for (int32 Index = 0; Index < TargetSpacecraftData->Components.Num(); Index++)
+	UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+	FCHECK(Catalog);
+
+	FFlareSpacecraftDescription* ShipDesc = TargetSpacecraft->GetDescription();
+	FCHECK(ShipDesc);
+
+	// Setup data
+	PartListData.Empty();
+	int32 CurrentSearchIndex = 0;
+	CurrentWeaponGroupIndex = *WeaponGroupIndex;
+	FFlareSpacecraftComponentDescription* PartDesc = NULL;
+
+	// Browse all the parts in the save until we find the right one
+	for (int32 Index = 0; Index < TargetSpacecraftData->Components.Num(); Index++)
+	{
+		FFlareSpacecraftComponentDescription* Desc = Catalog->Get(TargetSpacecraftData->Components[Index].ComponentIdentifier);
+		if (Desc && Desc->Type == EFlarePartType::Weapon)
 		{
-			FFlareSpacecraftComponentDescription* Desc = Catalog->Get(TargetSpacecraftData->Components[Index].ComponentIdentifier);
-			if (Desc && Desc->Type == EFlarePartType::Weapon)
+			FName TargetSlotName = GetSlotIdentifierFromWeaponGroupIndex(ShipDesc, CurrentWeaponGroupIndex);
+
+			if (TargetSpacecraftData->Components[Index].ShipSlotIdentifier == TargetSlotName)
 			{
-				if (CurrentSearchIndex == CurrentWeaponIndex)
-				{
-					PartDesc = Desc;
-					break;
-				}
-				else
-				{
-					CurrentSearchIndex++;
-				}
+				PartDesc = Desc;
+				break;
+			}
+			else
+			{
+				CurrentSearchIndex++;
 			}
 		}
-
-		Catalog->GetWeaponList(PartListData, TargetSpacecraft->GetDescription()->Size);
-		FLOGV("SFlareShipMenu::ShowWeapons : %d parts", PartListData.Num());
-		UpdatePartList(PartDesc);
 	}
+
+	Catalog->GetWeaponList(PartListData, TargetSpacecraft->GetDescription()->Size);
+	FLOGV("SFlareShipMenu::ShowWeapons : %d parts", PartListData.Num());
+	UpdatePartList(PartDesc);
 }
 
 void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo)
@@ -959,80 +975,74 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 void SFlareShipMenu::OnPartConfirmed()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	if (PC)
+	FCHECK(PC);
+	UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
+
+	// Edit the correct save data property
+	FFlareSpacecraftComponentDescription* NewPartDesc = PartListData[CurrentPartIndex];
+	int32 TransactionCost = GetTransactionCost(NewPartDesc);
+	CurrentEquippedPartIndex = CurrentPartIndex;
+
+	// Update all components
+	for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
 	{
-		// Edit the correct save data property
-		FFlareSpacecraftComponentDescription* PartDesc = PartListData[CurrentPartIndex];
+		bool UpdatePart = false;
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetSpacecraftData->Components[i].ComponentIdentifier);
 
-		int32 TransactionCost = GetTransactionCost(PartDesc);
-
-		CurrentEquippedPartIndex = CurrentPartIndex;
-
-
-		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
-		int32 WeaponCount = 0;
-		for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
+		if (ComponentDescription->Type == NewPartDesc->Type)
 		{
-			bool UpdatePart = false;
-			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetSpacecraftData->Components[i].ComponentIdentifier);
-
-			if (ComponentDescription->Type == PartDesc->Type)
+			// For a weapon, check if this slot belongs to the current group
+			if (ComponentDescription->Type == EFlarePartType::Weapon)
 			{
-				if (ComponentDescription->Type == EFlarePartType::Weapon)
-				{
-					if (WeaponCount == CurrentWeaponIndex)
-					{
-						UpdatePart = true;
-					}
-					WeaponCount ++;
-				}
-				else
-				{
-					UpdatePart = true;
-
-				}
-			}
-
-			if (UpdatePart)
-			{
-				TargetSpacecraftData->Components[i].ComponentIdentifier = PartDesc->Identifier;
-				TargetSpacecraftData->Components[i].Weapon.FiredAmmo = 0;
-			}
-		}
-		
-		// Update the world ship if it exists
-		if (TargetSpacecraft)
-		{
-			if(TransactionCost > 0)
-			{
-				TargetSpacecraft->GetCompany()->TakeMoney(TransactionCost);
+				FName SlotName = TargetSpacecraftData->Components[i].ShipSlotIdentifier;
+				int32 TargetGroupIndex = GetGroupIndexFromSlotIdentifier(TargetSpacecraft->GetDescription(), SlotName);
+				UpdatePart = (TargetGroupIndex == CurrentWeaponGroupIndex);
 			}
 			else
 			{
-				TargetSpacecraft->GetCompany()->GiveMoney(FMath::Abs(TransactionCost));
+				UpdatePart = true;
 			}
-
-			UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
-
-			if (Sector)
-			{
-				if(TransactionCost > 0)
-				{
-					Sector->GetPeople()->Pay(TransactionCost);
-				}
-				else
-				{
-					Sector->GetPeople()->TakeMoney(FMath::Abs(TransactionCost));
-				}
-			}
-
-			TargetSpacecraft->Load(*TargetSpacecraftData);
 		}
 
-		// Get back to the ship config
-		BuyConfirmation->Hide();
-		LoadTargetSpacecraft();
+		// Set the new description and reload the weapon if it was marked for change
+		if (UpdatePart)
+		{
+			TargetSpacecraftData->Components[i].ComponentIdentifier = NewPartDesc->Identifier;
+			TargetSpacecraftData->Components[i].Weapon.FiredAmmo = 0;
+		}
 	}
+		
+	// Update the world ship, take money from player, etc
+	if (TargetSpacecraft)
+	{
+		if (TransactionCost > 0)
+		{
+			TargetSpacecraft->GetCompany()->TakeMoney(TransactionCost);
+		}
+		else
+		{
+			TargetSpacecraft->GetCompany()->GiveMoney(FMath::Abs(TransactionCost));
+		}
+
+		UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
+		if (Sector)
+		{
+			if (TransactionCost > 0)
+			{
+				Sector->GetPeople()->Pay(TransactionCost);
+			}
+			else
+			{
+				Sector->GetPeople()->TakeMoney(FMath::Abs(TransactionCost));
+			}
+		}
+
+		TargetSpacecraft->Load(*TargetSpacecraftData);
+	}
+
+	// Get back to the ship config
+	BuyConfirmation->Hide();
+	LoadTargetSpacecraft();
 }
 
 void SFlareShipMenu::OnPartCancelled()
@@ -1049,6 +1059,56 @@ void SFlareShipMenu::OnPartCancelled()
 int64 SFlareShipMenu::GetTransactionCost(FFlareSpacecraftComponentDescription* SelectedPart)
 {
 	return SelectedPart->Cost - PartListData[CurrentEquippedPartIndex]->Cost;
+}
+
+FName SFlareShipMenu::GetSlotIdentifierFromWeaponGroupIndex(const FFlareSpacecraftDescription* ShipDesc, int32 WeaponGroupIndex)
+{
+	FName TargetSlotName = NAME_None;
+
+	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->GunSlots.Num(); WeaponIndex++)
+	{
+		if (ShipDesc->GunSlots[WeaponIndex].GroupIndex == WeaponGroupIndex)
+		{
+			TargetSlotName = ShipDesc->GunSlots[WeaponIndex].SlotIdentifier;
+			break;
+		}
+	}
+
+	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->TurretSlots.Num(); WeaponIndex++)
+	{
+		if (ShipDesc->TurretSlots[WeaponIndex].GroupIndex == WeaponGroupIndex)
+		{
+			TargetSlotName = ShipDesc->TurretSlots[WeaponIndex].SlotIdentifier;
+			break;
+		}
+	}
+
+	return TargetSlotName;
+}
+
+int32 SFlareShipMenu::GetGroupIndexFromSlotIdentifier(const FFlareSpacecraftDescription* ShipDesc, FName SlotName)
+{
+	int32 TargetIndex = 0;
+
+	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->GunSlots.Num(); WeaponIndex++)
+	{
+		if (ShipDesc->GunSlots[WeaponIndex].SlotIdentifier == SlotName)
+		{
+			TargetIndex = ShipDesc->GunSlots[WeaponIndex].GroupIndex;
+			break;
+		}
+	}
+
+	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->TurretSlots.Num(); WeaponIndex++)
+	{
+		if (ShipDesc->TurretSlots[WeaponIndex].SlotIdentifier == SlotName)
+		{
+			TargetIndex = ShipDesc->TurretSlots[WeaponIndex].GroupIndex;
+			break;
+		}
+	}
+
+	return TargetIndex;
 }
 
 #undef LOCTEXT_NAMESPACE

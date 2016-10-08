@@ -384,6 +384,16 @@ struct FFlareSpacecraftSave
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */
 USTRUCT()
+struct FFlareSpacecraftSlotGroupDescription
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Group name */
+	UPROPERTY(EditAnywhere, Category = Content) FText GroupName;
+};
+
+/** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */
+USTRUCT()
 struct FFlareSpacecraftSlotDescription
 {
 	GENERATED_USTRUCT_BODY()
@@ -394,9 +404,9 @@ struct FFlareSpacecraftSlotDescription
 	/** Component description can be empty if configurable slot */
 	UPROPERTY(EditAnywhere, Category = Content) FName ComponentIdentifier;
 
-	/** Component slot name */
-	UPROPERTY(EditAnywhere, Category = Content) FText SlotName;
-
+	/** Group index */
+	UPROPERTY(EditAnywhere, Category = Content) int32 GroupIndex;
+	
 	/** Size of the slot  */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TEnumAsByte<EFlarePartSize::Type> Size;
@@ -602,6 +612,10 @@ struct FFlareSpacecraftDescription
 
 	/** Number of orbital engine */
 	UPROPERTY(EditAnywhere, Category = Save) int32 OrbitalEngineCount;
+
+	/** Weapon groups */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareSpacecraftSlotGroupDescription> WeaponGroups;
 
 	/** Gun slots */
 	UPROPERTY(EditAnywhere, Category = Content)

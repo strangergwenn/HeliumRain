@@ -140,6 +140,11 @@ protected:
 
 	int64 GetTransactionCost(FFlareSpacecraftComponentDescription* SelectedPart);
 
+	FName GetSlotIdentifierFromWeaponGroupIndex(const FFlareSpacecraftDescription* ShipDesc, int32 WeaponGroupIndex);
+
+	int32 GetGroupIndexFromSlotIdentifier(const FFlareSpacecraftDescription* ShipDesc, FName SlotName);
+
+
 protected:
 
 	/*----------------------------------------------------
@@ -165,7 +170,7 @@ protected:
 	FFlareSpacecraftComponentDescription*           RCSDescription;
 	FFlareSpacecraftComponentDescription*           EngineDescription;
 	TArray<FFlareSpacecraftComponentDescription*>   WeaponDescriptions;
-	int32                                           CurrentWeaponIndex;
+	int32                                           CurrentWeaponGroupIndex;
 	
 	// List of parts being shown right now 
 	TArray< FFlareSpacecraftComponentDescription* >               PartListData;
@@ -189,6 +194,7 @@ protected:
 	TSharedPtr<SVerticalBox>                        UpgradeBox;
 	
 public:
+
 	/*----------------------------------------------------
 		Getter
 	----------------------------------------------------*/

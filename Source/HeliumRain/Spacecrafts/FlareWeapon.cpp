@@ -1,9 +1,11 @@
 
 #include "../Flare.h"
+#include "FlareSpacecraftTypes.h"
 #include "FlareWeapon.h"
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
 #include "FlareBomb.h"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -443,15 +445,19 @@ void UFlareWeapon::BeginDestroy()
 
 FText UFlareWeapon::GetSlotName() const
 {
+	FFlareSpacecraftDescription* SpacecraftDesc = Spacecraft->GetParent()->GetDescription();
+
 	//Find Local slot check
 	if (ComponentDescription && ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret)
 	{
-		for (int32 i = 0; i < Spacecraft->GetParent()->GetDescription()->TurretSlots.Num(); i++)
+		for (int32 i = 0; i < SpacecraftDesc->TurretSlots.Num(); i++)
 		{
 				// TODO optimize and store that in cache
 				if (Spacecraft->GetParent()->GetDescription()->TurretSlots[i].SlotIdentifier == ShipComponentData->ShipSlotIdentifier)
 				{
-					return Spacecraft->GetParent()->GetDescription()->TurretSlots[i].SlotName;
+					int32 GroupIndex = SpacecraftDesc->TurretSlots[i].GroupIndex;
+					FCHECK(GroupIndex >= 0 && GroupIndex < SpacecraftDesc->WeaponGroups.Num());
+					return SpacecraftDesc->WeaponGroups[GroupIndex].GroupName;
 				}
 		}
 	}
@@ -460,9 +466,11 @@ FText UFlareWeapon::GetSlotName() const
 		for (int32 i = 0; i < Spacecraft->GetParent()->GetDescription()->GunSlots.Num(); i++)
 		{
 			// TODO optimize and store that in cache
-			if (Spacecraft->GetParent()->GetDescription()->GunSlots[i].SlotIdentifier == ShipComponentData->ShipSlotIdentifier)
+			if (SpacecraftDesc->GunSlots[i].SlotIdentifier == ShipComponentData->ShipSlotIdentifier)
 			{
-				return Spacecraft->GetParent()->GetDescription()->GunSlots[i].SlotName;
+				int32 GroupIndex = SpacecraftDesc->GunSlots[i].GroupIndex;
+				FCHECK(GroupIndex >= 0 && GroupIndex < SpacecraftDesc->WeaponGroups.Num());
+				return SpacecraftDesc->WeaponGroups[GroupIndex].GroupName;
 			}
 		}
 	}

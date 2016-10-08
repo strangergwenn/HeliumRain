@@ -40,7 +40,7 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	UFlareSimulatedSpacecraft*                                Spacecraft;
+	UFlareSimulatedSpacecraft*                       Spacecraft;
 	FFlareSpacecraftSave*                            Data;
 	FFlareSpacecraftDescription*                     Description;
 };
