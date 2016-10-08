@@ -22,12 +22,12 @@ UFlareResourceCatalog::UFlareResourceCatalog(const class FObjectInitializer& PCI
 		
 		Resources.Add(Resource);
 
-		if (&Resource->Data.IsConsumerResource)
+		if (Resource->Data.IsConsumerResource)
 		{
 			ConsumerResources.Add(Resource);
 		}
 
-		if (&Resource->Data.IsMaintenanceResource)
+		if (Resource->Data.IsMaintenanceResource)
 		{
 			MaintenanceResources.Add(Resource);
 		}
