@@ -47,8 +47,7 @@ public:
 
 };
 
-
 inline static bool SortByResourceType(const UFlareResourceCatalogEntry& ResourceA, const UFlareResourceCatalogEntry& ResourceB)
 {
-	return (ResourceA.Data.Icon.GetResourceName() < ResourceB.Data.Icon.GetResourceName());
+	return (ResourceA.Data.DisplayIndex < ResourceB.Data.DisplayIndex);
 }

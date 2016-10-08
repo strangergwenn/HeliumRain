@@ -7,11 +7,6 @@
 	Constructor
 ----------------------------------------------------*/
 
-inline static bool IsResourceMoreImportant(const UFlareResourceCatalogEntry& Res1, const UFlareResourceCatalogEntry& Res2)
-{
-	return (Res1.Data.DisplayIndex < Res2.Data.DisplayIndex);
-}
-
 UFlareResourceCatalog::UFlareResourceCatalog(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
@@ -39,9 +34,9 @@ UFlareResourceCatalog::UFlareResourceCatalog(const class FObjectInitializer& PCI
 	}
 
 	// Sort resources
-	Resources.Sort(IsResourceMoreImportant);
-	ConsumerResources.Sort(IsResourceMoreImportant);
-	MaintenanceResources.Sort(IsResourceMoreImportant);
+	Resources.Sort(SortByResourceType);
+	ConsumerResources.Sort(SortByResourceType);
+	MaintenanceResources.Sort(SortByResourceType);
 }
 
 
