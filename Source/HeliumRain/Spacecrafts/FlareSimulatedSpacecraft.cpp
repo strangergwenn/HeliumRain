@@ -340,7 +340,7 @@ void UFlareSimulatedSpacecraft::LockResources()
 		{
 			FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
 
-			if (!GetCargoBay()->LockSlot(Resource, EFlareResourceLock::Input, false))
+			if (!GetCargoBay()->LockSlot(Resource, EFlareResourceLock::Trade, false))
 			{
 				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
 			}

@@ -1354,8 +1354,8 @@ uint32 UFlareSimulatedSector::GetTransfertResourcePrice(UFlareSimulatedSpacecraf
 
 	// Get context
 	EFlareResourcePriceContext::Type ResourceUsage = Station->GetResourceUseType(Resource);
-	if (ResourceUsage == EFlareResourcePriceContext::ConsumerConsumption ||
-			ResourceUsage == EFlareResourcePriceContext::MaintenanceConsumption)
+	if (Station == DestinationSpacecraft && (ResourceUsage == EFlareResourcePriceContext::ConsumerConsumption ||
+			ResourceUsage == EFlareResourcePriceContext::MaintenanceConsumption))
 	{
 		ResourceUsage = EFlareResourcePriceContext::FactoryInput;
 	}

@@ -466,9 +466,10 @@ bool UFlareCargoBay::WantSell(FFlareResourceDescription* Resource, UFlareCompany
 			continue;
 		}
 
-		if(Cargo.Lock == EFlareResourceLock::NoLock || Cargo.Lock == EFlareResourceLock::Output)
+		if(Cargo.Lock == EFlareResourceLock::NoLock ||
+				Cargo.Lock == EFlareResourceLock::Output ||
+				Cargo.Lock == EFlareResourceLock::Trade)
 		{
-			// TODO Trade lock
 			return true;
 		}
 	}
@@ -491,9 +492,10 @@ bool UFlareCargoBay::WantBuy(FFlareResourceDescription* Resource, UFlareCompany*
 			continue;
 		}
 
-		if(Cargo.Lock == EFlareResourceLock::NoLock || Cargo.Lock == EFlareResourceLock::Input)
+		if(Cargo.Lock == EFlareResourceLock::NoLock ||
+				Cargo.Lock == EFlareResourceLock::Input||
+				Cargo.Lock == EFlareResourceLock::Trade)
 		{
-			// TODO Trade lock
 			return true;
 		}
 	}
