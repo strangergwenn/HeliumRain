@@ -49,6 +49,10 @@ struct FFlareResourceDescription
 	/** Is maintenance resource */
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsMaintenanceResource;
+
+	/** Display sorting index */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float DisplayIndex;
 };
 
 /** Spacecraft cargo data */
