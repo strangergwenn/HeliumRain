@@ -621,6 +621,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBomb(FFlareBombSave* Data)
 	JsonObject->SetStringField("AngularVelocity", FormatVector(Data->AngularVelocity));
 	JsonObject->SetStringField("WeaponSlotIdentifier", Data->WeaponSlotIdentifier.ToString());
 	JsonObject->SetStringField("ParentSpacecraft", Data->ParentSpacecraft.ToString());
+	JsonObject->SetStringField("AttachTarget", Data->AttachTarget.ToString());
 	JsonObject->SetBoolField("Activated", Data->Activated);
 	JsonObject->SetBoolField("Dropped", Data->Dropped);
 	SaveFloat(JsonObject,"DropParentDistance", Data->DropParentDistance);

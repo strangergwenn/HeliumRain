@@ -35,6 +35,10 @@ struct FFlareBombSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName ParentSpacecraft;
 
+	/** Spacecraft onto attache the bomb (for harpoon) */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName AttachTarget;
+
 	/** Activated */
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool Activated;
@@ -84,6 +88,9 @@ public:
 	/** Bomb detonated */
 	void OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal);
 
+	/** Attach bomb */
+	void AttachBomb(AFlareSpacecraft* HitSpacecraft);
+
 	/** Save the bomb to a save file */
 	virtual FFlareBombSave* Save();
 
@@ -125,6 +132,8 @@ protected:
 	FFlareBombSave                          BombData;
 
 	bool                                    Paused;
+
+	FRotator								LastTickRotation;
 
 public:
 

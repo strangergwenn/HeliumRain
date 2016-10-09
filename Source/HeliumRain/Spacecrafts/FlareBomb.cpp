@@ -80,6 +80,14 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 	{
 		SetActorEnableCollision(true);
 	}
+
+
+
+	if (BombData.AttachTarget != NAME_None)
+	{
+		AFlareSpacecraft* AttachTarget = ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->FindSpacecraft(BombData.AttachTarget);
+		AttachBomb(AttachTarget);
+	}
 }
 
 void AFlareBomb::OnLaunched()
@@ -116,6 +124,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 	if (BombData.Dropped && BombData.Activated)
 	{
 		BombData.LifeTime += DeltaSeconds;
+		LastTickRotation = GetActorRotation();
 	}
 
 	// Auto-destroy
@@ -139,6 +148,8 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			}
 		}
 	}
+
+
 }
 
 void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
@@ -152,7 +163,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(OtherComp);
 
 	// Forget uninteresting hits
-	if (!Other || !OtherComp || !ParentWeapon || Other == ParentWeapon->GetSpacecraft() || BombCandidate)
+	if (!Other || !OtherComp || !ParentWeapon || Other == ParentWeapon->GetSpacecraft() || BombCandidate || (BombData.AttachTarget != NAME_None))
 	{
 		FLOG("AFlareBomb::NotifyHit : invalid hit");
 		return;
@@ -265,12 +276,6 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 
 void AFlareBomb::OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal)
 {
-	// Unregister
-	if (ParentWeapon)
-	{
-		ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
-	}
-	
 	// Attach to the hull if it's a salvage harpoon
 	if ((WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage)
 	 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage))
@@ -280,13 +285,31 @@ void AFlareBomb::OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 		 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::L)))
 		{
 			SetActorLocation(HitLocation);
-			SetActorRotation(InertialNormal.Rotation());
-			AttachToActor(HitSpacecraft, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
+			FLOGV("Attach actor rotation %s", *GetActorRotation().ToString());
+			SetActorRotation(LastTickRotation);
+			AttachBomb(HitSpacecraft);
 		}
 	}
 	else
 	{
+		if (ParentWeapon)
+		{
+			ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
+		}
 		Destroy();
+	}
+}
+
+void AFlareBomb::AttachBomb(AFlareSpacecraft* HitSpacecraft)
+{
+	if(HitSpacecraft)
+	{
+		AttachToActor(HitSpacecraft, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
+		BombData.AttachTarget =  HitSpacecraft->GetImmatriculation();
+	}
+	else
+	{
+		BombData.AttachTarget =  NAME_None;
 	}
 }
 

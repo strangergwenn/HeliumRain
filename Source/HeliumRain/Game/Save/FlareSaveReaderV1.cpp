@@ -716,6 +716,7 @@ void UFlareSaveReaderV1::LoadBomb(const TSharedPtr<FJsonObject> Object, FFlareBo
 	LoadVector(Object, "AngularVelocity", &Data->AngularVelocity);
 	LoadFName(Object, "WeaponSlotIdentifier", &Data->WeaponSlotIdentifier);
 	LoadFName(Object, "ParentSpacecraft", &Data->ParentSpacecraft);
+	LoadFName(Object, "AttachTarget", &Data->AttachTarget);
 	Object->TryGetBoolField(TEXT("Activated"), Data->Activated);
 	Object->TryGetBoolField(TEXT("Dropped"), Data->Dropped);
 	LoadFloat(Object, "DropParentDistance", &Data->DropParentDistance);
