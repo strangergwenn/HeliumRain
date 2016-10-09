@@ -80,7 +80,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 			if(Parent->IsAlive())
 			{
 				PC->Notify(LOCTEXT("ShipUncontrollable", "Target uncontrollable"),
-					FText::Format(LOCTEXT("ShipUncontrollableFormat", "You make a ship uncontrollable({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
+					FText::Format(LOCTEXT("ShipUncontrollableFormat", "You rendered a ship uncontrollable ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
 					EFlareNotification::NT_Info);
 			}
@@ -99,7 +99,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 			if(Parent->IsAlive())
 			{
 				PC->Notify(LOCTEXT("ShipUncontrollableCompany", "Target uncontrollable"),
-					FText::Format(LOCTEXT("ShipUncontrollableCompanyFormat", "Your {0}-class ship make a ship uncontrollable ({1}-class)"),
+					FText::Format(LOCTEXT("ShipUncontrollableCompanyFormat", "Your {0}-class ship rendered a ship uncontrollable ({1}-class)"),
 						LastDamageCauser->GetParent()->GetDescription()->Name,
 						Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
@@ -187,7 +187,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			if (Parent->IsAlive()) {
 				PC->Notify(
 					LOCTEXT("ShipUncontrollable", "Your ship is uncontrollable"),
-					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship has been made uncontrollable by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship has been rendered uncontrollable by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
 					EFlareNotification::NT_Military,
 					false,
