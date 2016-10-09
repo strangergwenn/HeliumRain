@@ -256,6 +256,7 @@ protected:
 	UTexture2D*                             HUDRCSIcon;
 	UTexture2D*                             HUDHealthIcon;
 	UTexture2D*                             HUDWeaponIcon;
+	UTexture2D*                             HUDHarpoonedIcon;
 
 	// Font
 	UFont*                                  HUDFont;

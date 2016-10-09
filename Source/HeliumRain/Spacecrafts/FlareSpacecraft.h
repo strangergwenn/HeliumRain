@@ -110,6 +110,11 @@ public:
 	/** This ship was harpooned */
 	void SetHarpooned(UFlareCompany* OwnerCompany);
 
+	bool IsHarpooned()
+	{
+		return Harpooned;
+	}
+
 	void UpdateDynamicComponents();
 
 	/*inline UFlareCargoBay* GetCargoBay() override

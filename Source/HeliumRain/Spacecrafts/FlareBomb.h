@@ -151,6 +151,11 @@ public:
 		return Spacecraft;
 	}
 
+	inline bool IsHarpooned() const
+	{
+		return (BombData.AttachTarget != NAME_None);
+	}
+
 	inline bool IsDropped() const
 	{
 		return BombData.Dropped;

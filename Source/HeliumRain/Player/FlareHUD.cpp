@@ -32,7 +32,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj       (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDNoseIconObj            (TEXT("/Game/Gameplay/HUD/TX_Nose.TX_Nose"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj       (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
+
+	// Load content (designator icons)
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj(TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj    (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHighlightSearchArrowObj(TEXT("/Game/Gameplay/HUD/TX_HighlightSearchArrow.TX_HighlightSearchArrow"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorMilCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorMilitaryCorner.TX_DesignatorMilitaryCorner"));
@@ -46,6 +48,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDRCSIconObj             (TEXT("/Game/Slate/Icons/TX_Icon_RCS.TX_Icon_RCS"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHealthIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_LifeSupport.TX_Icon_LifeSupport"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHarpoonedIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Harpooned.TX_Icon_Harpooned"));
 
 	// Load content (font)
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj                (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
@@ -62,6 +65,8 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
 	HUDNoseIcon = HUDNoseIconObj.Object;
 	HUDObjectiveIcon = HUDObjectiveIconObj.Object;
+
+	// Load content (designator icons)
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
 	HUDHighlightSearchArrowTexture = HUDHighlightSearchArrowObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
@@ -76,6 +81,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDRCSIcon = HUDRCSIconObj.Object;
 	HUDHealthIcon = HUDHealthIconObj.Object;
 	HUDWeaponIcon = HUDWeaponIconObj.Object;
+	HUDHarpoonedIcon = HUDHarpoonedIconObj.Object;
 
 	// Set content (font)
 	HUDFont = HUDFontObj.Object;
@@ -921,7 +927,7 @@ void AFlareHUD::DrawHUDInternal()
 			FVector2D ScreenPosition;
 			AFlareBomb* Bomb = ActiveSector->GetBombs()[BombIndex];
 			
-			if (Bomb && ProjectWorldLocationToCockpit(Bomb->GetActorLocation(), ScreenPosition))
+			if (Bomb && ProjectWorldLocationToCockpit(Bomb->GetActorLocation(), ScreenPosition) && !Bomb->IsHarpooned())
 			{
 				if (IsInScreen(ScreenPosition))
 				{
@@ -1177,6 +1183,11 @@ void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIcon
 	if (Ship->GetParent()->IsMilitary() && DamageSystem->IsDisarmed())
 	{
 		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDWeaponIcon);
+	}
+
+	if (Ship->IsHarpooned() && Ship->GetParent()->GetCompany()->GetPlayerHostility() != EFlareHostility::Owned)
+	{
+		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDHarpoonedIcon);
 	}
 }
 

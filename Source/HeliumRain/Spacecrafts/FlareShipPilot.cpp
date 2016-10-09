@@ -1125,7 +1125,7 @@ FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector Ini
 	float SectorLimits = TargetShip->GetGame()->GetActiveSector()->GetSectorLimits() / 3;
 	/*FLOGV("%s ExitAvoidance ShipCenterDistance=%f SectorLimits=%f InitialVelocityTarget=%s",
 		  *TargetShip->GetImmatriculation().ToString(),
-	*/	  ShipCenterDistance /100, SectorLimits /100, *InitialVelocityTarget.ToString());
+		  ShipCenterDistance /100, SectorLimits /100, *InitialVelocityTarget.ToString());*/
 
 	if (ShipCenterDistance > SectorLimits * CurveTrajectoryLimit)
 	{
