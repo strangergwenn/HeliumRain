@@ -123,32 +123,47 @@ public:
 	inline static FString FormatTransform(FTransform Data)
 	{
 		return FString::Printf(TEXT("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f"),
-				Data.GetRotation().X,
-				Data.GetRotation().Y,
-				Data.GetRotation().Z,
-				Data.GetRotation().W,
-				Data.GetTranslation().X,
-				Data.GetTranslation().Y,
-				Data.GetTranslation().Z,
-				Data.GetScale3D().X,
-				Data.GetScale3D().Y,
-				Data.GetScale3D().Z);
+				FixFloat(Data.GetRotation().X),
+				FixFloat(Data.GetRotation().Y),
+				FixFloat(Data.GetRotation().Z),
+				FixFloat(Data.GetRotation().W),
+				FixFloat(Data.GetTranslation().X),
+				FixFloat(Data.GetTranslation().Y),
+				FixFloat(Data.GetTranslation().Z),
+				FixFloat(Data.GetScale3D().X),
+				FixFloat(Data.GetScale3D().Y),
+				FixFloat(Data.GetScale3D().Z));
+	}
+
+	inline static float FixFloat(float value)
+	{
+		if(FMath::IsNaN(value))
+		{
+			FLOG("WARNING: Fix NaN in code");
+			return 0.f;
+		}
+		else if(!FMath::IsFinite(value))
+		{
+			FLOG("WARNING: Fix Inf in code");
+			return 0.f;
+		}
+		return value;
 	}
 
 	inline static FString FormatVector(FVector Data)
 	{
 		return FString::Printf(TEXT("%f,%f,%f"),
-				Data.X,
-				Data.Y,
-				Data.Z);
+				FixFloat(Data.X),
+				FixFloat(Data.Y),
+				FixFloat(Data.Z));
 	}
 
 	inline static FString FormatRotator(FRotator Data)
 	{
 		return FString::Printf(TEXT("%f,%f,%f"),
-				Data.Pitch,
-				Data.Yaw,
-				Data.Roll);
+				FixFloat(Data.Pitch),
+				FixFloat(Data.Yaw),
+				FixFloat(Data.Roll));
 	}
 
 	template<typename TEnum>

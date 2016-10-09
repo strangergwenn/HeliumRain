@@ -678,18 +678,5 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveTravel(FFlareTravelSave* Data)
 
 void UFlareSaveWriter::SaveFloat(TSharedPtr< FJsonObject > Object, FString Key, float Data)
 {
-	if(FMath::IsNaN(Data))
-	{
-		FLOGV("WARNING: Fix NaN in code for field '%s' : %f", *Key, Data);
-		Object->SetNumberField(Key, 0);
-	}
-	else if(!FMath::IsFinite(Data))
-	{
-		FLOGV("WARNING: Fix Inf in code for field '%s' : %f", *Key, Data);
-		Object->SetNumberField(Key, 0);
-	}
-	else
-	{
-		Object->SetNumberField(Key, Data);
-	}
+	Object->SetNumberField(Key, FixFloat(Data));
 }
