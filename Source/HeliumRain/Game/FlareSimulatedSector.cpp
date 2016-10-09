@@ -965,6 +965,11 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 	}
 }
 
+void UFlareSimulatedSector::ClearBombs()
+{
+	SectorData.BombData.Empty();
+}
+
 int64 UFlareSimulatedSector::GetStationConstructionFee(int64 BasePrice)
 {
 	return BasePrice + 1000000 * SectorStations.Num();

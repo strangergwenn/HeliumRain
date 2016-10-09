@@ -310,6 +310,8 @@ public:
 
 	void SimulatePriceVariation(FFlareResourceDescription* Resource);
 
+	void ClearBombs();
+
 protected:
 
     /*----------------------------------------------------

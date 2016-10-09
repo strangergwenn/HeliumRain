@@ -448,6 +448,15 @@ void UFlareWorld::Simulate()
 		CompaniesToSimulateAI.RemoveAt(Index);
 	}
 
+
+	// Clear bombs
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		Sectors[SectorIndex]->ClearBombs();
+	}
+
+
+
 	CompanyMutualAssistance();
 	CheckIntegrity();
 
