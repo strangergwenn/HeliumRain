@@ -206,7 +206,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					.Padding(Theme.TitlePadding)
 					[
-						SNew(STextBlock)
+						SAssignNew(UpgradeTitle, STextBlock)
 						.TextStyle(&Theme.SubTitleFont)
 						.Text(LOCTEXT("TransactionTitle", "Upgrade component"))
 					]
@@ -221,6 +221,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						.CancelText(LOCTEXT("BackTopShip", "Back to ship"))
 						.OnConfirmed(this, &SFlareShipMenu::OnPartConfirmed)
 						.OnCancelled(this, &SFlareShipMenu::OnPartCancelled)
+						.UpgradeBehavior(true)
 						.PC(PC)
 					]
 				]
@@ -282,15 +283,9 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 	{
 		DockSystem = TargetSpacecraft->GetActive()->GetDockingSystem();
 	}
-
-	if (CanEdit)
-	{
-		FLOG("SFlareShipMenu::Enter : Upgrade view");
-		ShipList->SetVisibility(EVisibility::Collapsed);
-	}
-
+	
 	// Fill the docking list if it is visible
-	else if (DockSystem && DockSystem->GetDockCount() > 0)
+	if (DockSystem && DockSystem->GetDockCount() > 0)
 	{
 		TArray<AFlareSpacecraft*> DockedShips = DockSystem->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
@@ -308,12 +303,6 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 		}
 
 		ShipList->RefreshList();
-		ShipList->SetVisibility(EVisibility::Visible);
-	}
-	else
-	{
-		FLOG("SFlareShipMenu::Enter : Target ship doesn't have a docking system");
-		ShipList->SetVisibility(EVisibility::Collapsed);
 	}
 }
 
@@ -351,6 +340,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		ShipPartCustomizationBox->SetVisibility(EVisibility::Collapsed);
 		PartCharacteristicBox->SetVisibility(EVisibility::Collapsed);
 		ShipCustomizationBox->SetVisibility(EVisibility::Visible);
+		ShipList->SetVisibility(CanEdit ? EVisibility::Collapsed : EVisibility::Visible);
 
 		// Get the description data
 		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
@@ -458,11 +448,19 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 
 	// Make the right box visible
 	ObjectActionMenu->Hide();
+	ShipList->SetVisibility(EVisibility::Collapsed);
 	ObjectName->SetVisibility(EVisibility::Collapsed);
 	ObjectDescription->SetVisibility(EVisibility::Visible);
 	ShipPartCustomizationBox->SetVisibility(EVisibility::Visible);
 	PartCharacteristicBox->SetVisibility(EVisibility::Visible);
 	ShipCustomizationBox->SetVisibility(EVisibility::Collapsed);
+
+	// Boxes depending on edit mode
+	UpgradeTitle->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
+	if (!CanEdit)
+	{
+		BuyConfirmation->Hide();
+	}
 }
 
 void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* SelectItem)

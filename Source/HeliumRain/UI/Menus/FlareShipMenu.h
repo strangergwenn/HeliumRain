@@ -178,6 +178,7 @@ protected:
 	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >    PartList;
 
 	// Parts list UI
+	TSharedPtr<STextBlock>                          UpgradeTitle;
 	TSharedPtr<SFlareListItem>                      PreviousSelection;
 	TSharedPtr<SVerticalBox>                        ShipPartCustomizationBox;
 	TSharedPtr<STextBlock>                          ShipPartPickerTitle;

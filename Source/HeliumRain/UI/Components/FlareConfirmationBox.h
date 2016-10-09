@@ -15,7 +15,8 @@ class SFlareConfirmationBox : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareConfirmationBox)
 		: _PC(NULL)
-		, _FullHide(false)
+		, _TradeBehavior(false)
+		, _UpgradeBehavior(false)
 	{}
 
 	SLATE_EVENT(FFlareButtonClicked, OnConfirmed)
@@ -24,7 +25,8 @@ class SFlareConfirmationBox : public SCompoundWidget
 	SLATE_ARGUMENT(AFlarePlayerController*, PC)
 	SLATE_ARGUMENT(FText, ConfirmText)
 	SLATE_ARGUMENT(FText, CancelText)
-	SLATE_ARGUMENT(bool, FullHide)
+	SLATE_ARGUMENT(bool, TradeBehavior)
+	SLATE_ARGUMENT(bool, UpgradeBehavior)
 			
 	SLATE_END_ARGS()
 
@@ -62,7 +64,8 @@ protected:
 	AFlarePlayerController*                 PC;
 
 	// Gameplay data
-	bool                                    FullHide;
+	bool                                    TradeBehavior;
+	bool                                    UpgradeBehavior;
 	bool                                    AllowDepts;
 	int64                                   Amount;
 	FText                                   ConfirmText;

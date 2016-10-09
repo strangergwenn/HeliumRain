@@ -15,7 +15,8 @@ void SFlareConfirmationBox::Construct(const FArguments& InArgs)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	ConfirmText = InArgs._ConfirmText;
-	FullHide = InArgs._FullHide;
+	TradeBehavior = InArgs._TradeBehavior;
+	UpgradeBehavior = InArgs._UpgradeBehavior;
 	PC = InArgs._PC;
 
 	Amount = 0;
@@ -138,7 +139,13 @@ void SFlareConfirmationBox::Hide()
 	TargetCompany = NULL;
 	ConfirmButton->SetDisabled(true);
 
-	if (FullHide)
+	if (UpgradeBehavior)
+	{
+		ConfirmButton->SetVisibility(EVisibility::Collapsed);
+		WalletText->SetVisibility(EVisibility::Collapsed);
+	}
+
+	if (TradeBehavior)
 	{
 		ConfirmButton->SetVisibility(EVisibility::Collapsed);
 		CancelButton->SetVisibility(EVisibility::Collapsed);

@@ -264,7 +264,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 									.CancelText(LOCTEXT("BackTopShip", "Cancel"))
 									.OnConfirmed(this, &SFlareTradeMenu::OnConfirmTransaction)
 									.OnCancelled(this, &SFlareTradeMenu::OnCancelTransaction)
-									.FullHide(true)
+									.TradeBehavior(true)
 									.PC(MenuManager->GetPC())
 								]
 							]
