@@ -251,8 +251,6 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 			}
 			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 100;
 
-			// Exit avoidance
-			LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity);
 
 
 
@@ -329,14 +327,10 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 	}
 
 
+	// Exit avoidance
+	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity);
 
-
-	// Turn to destination
-	if (! LinearTargetVelocity.IsZero())
-	{
-		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1.f, 0.f, 0.f) , LinearTargetVelocity.GetUnsafeNormal(),FVector(0.f, 0.f, 0.f), DeltaSeconds);
-	}
-
+	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
@@ -764,15 +758,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	}
 	else
 	{
-		if (LinearTargetVelocity.IsNearlyZero())
-		{
-			AngularTargetVelocity = FVector::ZeroVector;
-		}
-		else
-		{
-			FVector LinearTargetVelocityAxis = LinearTargetVelocity.GetUnsafeNormal();
-			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocityAxis, FVector::ZeroVector, DeltaSeconds);
-		}
+		AlignToTargetVelocityWithThrust(DeltaSeconds);
 	}
 
 	// Anticollision
@@ -844,8 +830,6 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		{
 			Ship->ForceManual(); // TODO make independant command channel
 			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
-
-			LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity);
 
 			UseOrbitalBoost = true;
 		}
@@ -938,13 +922,10 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	AngularTargetVelocity = FVector::ZeroVector;
 
 
+	// Exit avoidance
+	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity);
 
-
-	// Turn to destination
-	if (! LinearTargetVelocity.IsZero())
-	{
-		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocity, FVector::ZeroVector, DeltaSeconds);
-	}
+	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
@@ -988,11 +969,10 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 	// TODO Bomb avoid
 
+	AlignToTargetVelocityWithThrust(DeltaSeconds);
+
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
-
-
-	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), LinearTargetVelocity, FVector::ZeroVector, DeltaSeconds);
 
 	FVector FrontAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
 
@@ -1125,20 +1105,64 @@ int32 UFlareShipPilot::GetPreferedWeaponGroup() const
 
 FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector InitialVelocityTarget) const
 {
+
+	/*if(TargetShip->GetImmatriculation() != "PIRSOL-0111")
+	{
+		return InitialVelocityTarget;
+	}
+
+
+	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetActorLocation(), FColor::Cyan, false, 1.0);
+	DrawDebugLine(TargetShip->GetWorld(),  FVector::ZeroVector, TargetShip->GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetActorLocation(), FColor::Cyan, false, 1.0);
+	DrawDebugLine(TargetShip->GetWorld(), FVector::ZeroVector, TargetShip->GetActorLocation(), FColor::Cyan, false, 1.0);
+
+
+	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + TargetShip->GetVelocity() * 1000, FColor::Red, false, 1.0);
+	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + InitialVelocityTarget * 1000, FColor::Blue, false, 1.0);
+*/
 	float CurveTrajectoryLimit = 0.3f;
 	float ShipCenterDistance = TargetShip->GetActorLocation().Size();
-	float SectorLimits = TargetShip->GetGame()->GetActiveSector()->GetSectorLimits();
-	if (ShipCenterDistance > SectorLimits * CurveTrajectoryLimit && !InitialVelocityTarget.IsNearlyZero())
+	float SectorLimits = TargetShip->GetGame()->GetActiveSector()->GetSectorLimits() / 3;
+	/*FLOGV("%s ExitAvoidance ShipCenterDistance=%f SectorLimits=%f InitialVelocityTarget=%s",
+		  *TargetShip->GetImmatriculation().ToString(),
+	*/	  ShipCenterDistance /100, SectorLimits /100, *InitialVelocityTarget.ToString());
+
+	if (ShipCenterDistance > SectorLimits * CurveTrajectoryLimit)
 	{
 		// Curve the trajectory to avoid exit
 		float CurveRatio = FMath::Min(1.f, (ShipCenterDistance - SectorLimits * CurveTrajectoryLimit) / (SectorLimits * (1-CurveTrajectoryLimit)));
+
+
 		FVector CenterDirection = (TargetShip->GetGame()->GetActiveSector()->GetSectorCenter() - TargetShip->GetActorLocation()).GetUnsafeNormal();
-		FVector InitialVelocityTargetDirection = InitialVelocityTarget.GetUnsafeNormal();
 
-		FVector ExitAvoidanceDirection = (10 * CurveRatio * CenterDirection + (1 - CurveRatio) * InitialVelocityTargetDirection).GetUnsafeNormal();
-		FVector ExitAvoidanceVelocity = ExitAvoidanceDirection *  InitialVelocityTarget.Size();
 
-		return ExitAvoidanceVelocity;
+		//DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + CenterDirection * 100000, FColor::White, false, 1.0);
+
+		//FLOGV("CenterDirection %s", *CenterDirection.ToCompactString());
+
+
+		if (InitialVelocityTarget.IsNearlyZero()) {
+			//FLOGV("TargetShip->GetNavigationSystem()->GetLinearMaxVelocity() %f", TargetShip->GetNavigationSystem()->GetLinearMaxVelocity());
+			//DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + CenterDirection * TargetShip->GetNavigationSystem()->GetLinearMaxVelocity() * 10000, FColor::Green, false, 1.0);
+
+			return CenterDirection * TargetShip->GetNavigationSystem()->GetLinearMaxVelocity();
+		}
+		else
+		{
+			FVector InitialVelocityTargetDirection = InitialVelocityTarget.GetUnsafeNormal();
+
+			FVector ExitAvoidanceDirection = (CurveRatio * CenterDirection + (1 - CurveRatio) * InitialVelocityTargetDirection).GetUnsafeNormal();
+			FVector ExitAvoidanceVelocity = ExitAvoidanceDirection *  InitialVelocityTarget.Size();
+
+		/*	FLOGV("CurveRatio %f", CurveRatio);
+
+			FLOGV("InitialVelocityTargetDirection %s", *InitialVelocityTargetDirection.ToCompactString());
+			FLOGV("ExitAvoidanceDirection %s", *ExitAvoidanceDirection.ToCompactString());
+			FLOGV("ExitAvoidanceVelocity %s", *ExitAvoidanceVelocity.ToCompactString());
+			DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + ExitAvoidanceVelocity * 10000, FColor::Green, false, 1.0);
+			*/
+			return ExitAvoidanceVelocity;
+		}
 
 	}
 	else
@@ -1355,6 +1379,28 @@ TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 	}
 	return FriendlyStations;
 }
+
+void UFlareShipPilot::AlignToTargetVelocityWithThrust(float DeltaSeconds)
+{
+	if(!LinearTargetVelocity.IsNearlyZero()) {
+		FVector LinearTargetVelocityAxis = LinearTargetVelocity.GetUnsafeNormal();
+		FVector ThrustVector = (LinearTargetVelocity - 100 * Ship->GetLinearVelocity());
+		FVector ThrustAxis;
+		if(ThrustVector.IsNearlyZero())
+		{
+			 ThrustAxis = LinearTargetVelocityAxis;
+		}
+		else
+		{
+			ThrustAxis = ThrustVector.GetUnsafeNormal();
+		}
+
+		FVector OrientationVector = (ThrustAxis * 0.3  + LinearTargetVelocityAxis * 0.7).GetUnsafeNormal();
+
+		AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), OrientationVector, FVector::ZeroVector, DeltaSeconds);
+	}
+}
+
 
 /*----------------------------------------------------
 	Pilot Output

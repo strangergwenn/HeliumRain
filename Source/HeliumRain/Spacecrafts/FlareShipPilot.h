@@ -80,6 +80,8 @@ public:
 
 	virtual void FindBestHostileTarget(EFlareCombatTactic::Type Tactic);
 
+	void AlignToTargetVelocityWithThrust(float DeltaSeconds);
+
 public:
 
 	/*----------------------------------------------------
