@@ -257,6 +257,7 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 					SNew(STextBlock)
 					.Text(Item->FleetPtr->GetFleetName())
 					.TextStyle(&Theme.NameFont)
+					.ColorAndOpacity((Item->FleetPtr == MenuManager->GetPC()->GetPlayerFleet()) ? Theme.FriendlyColor : Theme.NeutralColor)
 				]
 
 				// Ship class
