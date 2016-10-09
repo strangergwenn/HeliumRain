@@ -1102,9 +1102,10 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						bool BomberTargettingSmall = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::S;
 						bool BomberTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
 						bool Salvage = (DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage);
+						bool AntiLarge = (DamageType == EFlareShellDamageType::HEAT);
 
 						// Draw helper if it makes sense
-						if (!FighterTargettingLarge && !(BomberTargettingSmall && ! Salvage))
+						if (!(FighterTargettingLarge && !AntiLarge) && !(BomberTargettingSmall && ! Salvage))
 						{
 							DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
 						}
