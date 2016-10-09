@@ -522,7 +522,11 @@ FText SFlareSectorMenu::GetRefillText() const
 		if (NeededFS > 0)
 		{
 			// Refill needed
-			if (AvailableFS == 0) {
+			if(TargetSector->IsInDangerousBattle(MenuManager->GetPC()->GetCompany()))
+			{
+				return LOCTEXT("CantRefillBattle", "Can't refill here : battle in progress!");
+			}
+			else if (AvailableFS == 0) {
 				return LOCTEXT("CantRefillNoFS", "Can't refill here : no fleet supply available !");
 			}
 			else
@@ -598,7 +602,11 @@ FText SFlareSectorMenu::GetRepairText() const
 		if (NeededFS > 0)
 		{
 			// Repair needed
-			if (AvailableFS == 0) {
+			if(TargetSector->IsInDangerousBattle(MenuManager->GetPC()->GetCompany()))
+			{
+				return LOCTEXT("CantRepairBattle", "Can't repair here : battle in progress!");
+			}
+			else if (AvailableFS == 0) {
 				return LOCTEXT("CantRepairNoFS", "Can't repair here : no fleet supply available !");
 			}
 			else
@@ -664,7 +672,7 @@ bool SFlareSectorMenu::IsResourcePricesDisabled() const
 
 bool SFlareSectorMenu::IsRefillDisabled() const
 {
-	if (!TargetSector)
+	if (!TargetSector || TargetSector->IsInDangerousBattle(MenuManager->GetPC()->GetCompany()))
 	{
 		return true;
 	}
@@ -699,7 +707,7 @@ bool SFlareSectorMenu::IsRefillDisabled() const
 
 bool SFlareSectorMenu::IsRepairDisabled() const
 {
-	if (!TargetSector)
+	if (!TargetSector || TargetSector->IsInDangerousBattle(MenuManager->GetPC()->GetCompany()))
 	{
 		return true;
 	}

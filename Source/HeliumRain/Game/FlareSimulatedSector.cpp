@@ -1201,6 +1201,16 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 	}
 }
 
+bool UFlareSimulatedSector::IsInDangerousBattle(UFlareCompany* Company)
+{
+	EFlareSectorBattleState::Type BattleState = GetSectorBattleState(Company);
+
+	return (BattleState == EFlareSectorBattleState::Battle ||
+			BattleState == EFlareSectorBattleState::BattleNoRetreat ||
+			BattleState == EFlareSectorBattleState::BattleLost ||
+			BattleState == EFlareSectorBattleState::BattleLostNoRetreat);
+}
+
 FText UFlareSimulatedSector::GetSectorFriendlynessText(UFlareCompany* Company)
 {
 	FText Status;

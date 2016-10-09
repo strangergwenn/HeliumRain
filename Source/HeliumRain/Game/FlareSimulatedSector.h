@@ -446,6 +446,9 @@ public:
 	/** Get the current battle status of a company */
 	EFlareSectorBattleState::Type GetSectorBattleState(UFlareCompany* Company);
 
+	/** Return true if the company is in a battle where it can 	be hurt */
+	bool IsInDangerousBattle(UFlareCompany* Company);
+
 	/** Is a battle in progress with the player */
 	bool IsPlayerBattleInProgress();
 
