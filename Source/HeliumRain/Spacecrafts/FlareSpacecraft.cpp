@@ -303,7 +303,15 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	if (Other == this)
 	{
 		// TODO fixme
-		FLOGV("%s (%d) self-collision: %s collide with %s", *GetImmatriculation().ToString(), IsPresentationMode(), (MyComp ? *MyComp->GetName() : TEXT("null")), (OtherComp ? *OtherComp->GetName() : TEXT("null")));
+		FLOGV("%s (%d) self-collision: %s/%s collide with %s/%s",
+			*GetImmatriculation().ToString(),
+			IsPresentationMode(),
+			(this ? *this->GetName() : TEXT("null")),
+			(MyComp ? *MyComp->GetName() : TEXT("null")),
+			(Other ? *Other->GetName() : TEXT("null")),
+			(OtherComp ? *OtherComp->GetName() : TEXT("null"))
+		);
+
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 		PC->ConsoleCommand("quit");
 		return;
