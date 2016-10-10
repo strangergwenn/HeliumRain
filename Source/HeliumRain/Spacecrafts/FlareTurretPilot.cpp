@@ -141,6 +141,12 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		}
 
 
+		if(!PilotTargetComponent)
+		{
+			PilotTargetShip = NULL;
+			return;
+		}
+
 		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
 
 		// float PredictionDelay = ReactionTime - DeltaSeconds;
