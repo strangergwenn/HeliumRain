@@ -236,14 +236,9 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
 		float Distance = DeltaLocation.Size(); // Distance in meters
 
-		FLOGV("%s If enemy near, run away ! Distance = %f", *Ship->GetImmatriculation().ToString(),Distance);
-
-
 		// There is at least one hostile enemy
 		if (Distance < 4000)
 		{
-			FLOGV("%s Low distance", *Ship->GetImmatriculation().ToString());
-
 			Ship->ForceManual(); // TODO make independant command channel
 			if(Ship->GetNavigationSystem()->IsDocked())
 			{

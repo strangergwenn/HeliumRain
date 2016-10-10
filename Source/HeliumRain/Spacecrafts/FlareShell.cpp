@@ -576,11 +576,8 @@ void AFlareShell::Destroyed()
 	UFlareSector* Sector = Game->GetActiveSector();
 	if (Sector->IsValidLowLevel())
 	{
-		FLOGV("AFlareShell::Destroyed : unregister '%s'", *GetName());
 		Sector->UnregisterShell(this);
 	}
-
-	FLOGV("AFlareShell::Destroyed : destroyed '%s'", *GetName());
 }
 
 void AFlareShell::SetFuzeTimer(float TargetSecureTime, float TargetActiveTime)
