@@ -62,7 +62,6 @@ void UFlareSpacecraftComponent::OnRegister()
 	Super::OnRegister();
 
 	Activate(true);
-	SetCollisionProfileName("BlockAllDynamic");
 }
 
 void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
