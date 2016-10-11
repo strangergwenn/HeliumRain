@@ -5,27 +5,9 @@ struct FFlareSpacecraftDescription;
 class UFlareCompany;
 class UFlareSimulatedSector;
 class UFlareSimulatedSpacecraft;
-
-class CombatLog
-{
-
-
-	/*
-		FlareLog::Combat->DamageDone(23);
-		FlareLog::Combat->WeaponEmpty(23);
-
-
-		FlareLog::Game->Loaded();
-		FlareLog::Game->DamageDone(23);
-		FlareLog::Game->Unloaded();
-
-		FlareLog::Game->Trade();
-		FlareLog::Game->Trade();
-		FlareLog::Game->ReputationChange();*/
-
-
-};
-
+class AFlareBomb;
+class AFlareSpacecraft;
+class UFlareSpacecraftComponent;
 
 class GameLog
 {
@@ -69,4 +51,93 @@ public:
 									UFlareSimulatedSector* ConstructionProjectSector,
 									FFlareSpacecraftDescription* ConstructionProjectStationDescription,
 									UFlareSimulatedSpacecraft* ConstructionProjectStation);
+};
+
+class CombatLog
+{
+public:
+	/**
+	 * The sector has been activated
+	 *
+	 * Event: SECTOR_ACTIVATED
+	 * Params:
+	 *  - string : sector
+	 */
+	static void SectorActivated(UFlareSimulatedSector* Sector);
+
+	/**
+	 * The sector has been deactivated
+	 *
+	 * Event: SECTOR_DEACTIVATED
+	 * Params:
+	 *  - string : sector
+	 */
+	static void SectorDeactivated(UFlareSimulatedSector* Sector);
+
+	/**
+	 * A bomb has been dropped
+	 *
+	 * Event: BOMB_DROPPED
+	 * Params:
+	 *  - string : bombId
+	 *  - string : sourceSpacecraft
+	 *  - string : sourceWeapon
+	 *  - string : bombType
+	 */
+	static void BombDropped(AFlareBomb *Bomb);
+
+	/**
+	 * A bomb has been destroyed
+	 *
+	 * Event: BOMB_DESTROYED
+	 * Params:
+	 *  - string : bombId
+	 */
+	static void BombDestroyed(FName BombIdentifier);
+
+	/**
+	 * A spacecraft has been damaged
+	 *
+	 * Event: SPACECRAFT_DAMAGED
+	 * Params:
+	 *  - string : spacecraft
+	 *  - string : damageType
+	 *  - float : energy
+	 *  - float : radius
+	 *  - vector3 : relative location
+	 *  - string : damageSourceCompany
+	 */
+	static void SpacecraftDamaged(AFlareSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
+
+
+	/**
+	 * A spacecraft component has been damaged
+	 *
+	 * Event: SPACECRAFT_COMPONENT_DAMAGED
+	 * Params:
+	 *  - string : spacecraft
+	 *  - string : componentSlot
+	 *  - string : componentType
+	 *  - float : energy
+	 *  - float : effectiveEnergy
+	 *  - string : damageType
+	 *  - float : InitialDamageRatio
+	 *  - float : TerminalDamageRatio
+	 */
+	static void SpacecraftComponentDamaged(UFlareSpacecraftComponent* Component, float Energy, float EffectiveEnergy, EFlareDamage::Type DamageType, float InitialDamageRatio, float TerminalDamageRatio);
+
+	/*
+		FlareLog::Combat->DamageDone(23);
+		FlareLog::Combat->WeaponEmpty(23);
+
+
+		FlareLog::Game->Loaded();
+		FlareLog::Game->DamageDone(23);
+		FlareLog::Game->Unloaded();
+
+		FlareLog::Game->Trade();
+		FlareLog::Game->Trade();
+		FlareLog::Game->ReputationChange();*/
+
+
 };

@@ -157,6 +157,8 @@ public:
 	/** Build a unique immatriculation string for this object */
 	void Immatriculate(UFlareCompany* Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave);
 
+	FName GenerateIdentifier(FName BaseName);
+
 	/** Fill the database with capital ship names */
 	void InitCapitalShipNameDatabase();
 
@@ -263,6 +265,7 @@ protected:
 	----------------------------------------------------*/
 
 	int32                                      CurrentImmatriculationIndex;
+	int32                                      CurrentIdentifierIndex;
 	TArray<FText>                              BaseImmatriculationNameList;
 
 	FName                                      DefaultWeaponIdentifier;

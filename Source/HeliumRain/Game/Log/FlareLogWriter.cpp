@@ -211,6 +211,12 @@ FString FFlareLogWriter::FormatParam(FlareLogMessageParam* Param)
 	case EFlareLogParam::Integer:
 		return UFlareSaveWriter::FormatInt64(Param->IntValue);
 		break;
+	case EFlareLogParam::Float:
+		return  FString::Printf(TEXT("%f"), Param->FloatValue);
+		break;
+	case EFlareLogParam::Vector3:
+		return "("+UFlareSaveWriter::FormatVector(Param->Vector3Value)+")";
+		break;
 	default:
 		FLOGV("Invalid log param type %d", (Param->Type + 0));
 		break;

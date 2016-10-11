@@ -416,6 +416,9 @@ float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type Da
 		float StateAfterDamage = GetDamageRatio();
 		InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
 
+
+		CombatLog::SpacecraftComponentDamaged(this, Energy, EffectiveEnergy, DamageType, StateBeforeDamage, StateAfterDamage);
+
 		//FLOGV("Component %s. Apply Energy=%f  %f->%f", *(GetReadableName()), Energy, StateBeforeDamage, StateAfterDamage);
 
 		// No more armor, power outage risk

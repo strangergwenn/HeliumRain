@@ -967,6 +967,11 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 
 void UFlareSimulatedSector::ClearBombs()
 {
+	for (int i = 0 ; i < SectorData.BombData.Num(); i++)
+	{
+		CombatLog::BombDestroyed(SectorData.BombData[i].Identifier);
+	}
+
 	SectorData.BombData.Empty();
 }
 

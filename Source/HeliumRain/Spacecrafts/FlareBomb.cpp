@@ -74,6 +74,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 		BombData.Dropped = false;
 		BombData.LifeTime = 0;
 		BombData.DropParentDistance = 0;
+		BombData.Identifier = Weapon->GetSpacecraft()->GetGame()->GenerateIdentifier(TEXT("bomb"));
 	}
 
 	if (BombData.Activated)
@@ -93,6 +94,8 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 void AFlareBomb::OnLaunched()
 {
 	FLOG("AFlareBomb::OnLaunched");
+
+	CombatLog::BombDropped(this);
 
 	DetachRootComponentFromParent(true);
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterBomb(this);
@@ -277,8 +280,9 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 void AFlareBomb::OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal)
 {
 	// Attach to the hull if it's a salvage harpoon
-	if ((WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage)
-	 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage))
+	if (HitSpacecraft && (
+			(WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage)
+	 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage)))
 	{
 		if (HitSpacecraft && !HitSpacecraft->IsStation() && HitComponent && WeaponDescription &&
 		   ((WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::S)
@@ -296,6 +300,7 @@ void AFlareBomb::OnBombDetonated(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 		{
 			ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->UnregisterBomb(this);
 		}
+		CombatLog::BombDestroyed(GetIdentifier());
 		Destroy();
 	}
 }

@@ -25,6 +25,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveGame(UFlareSaveGame* Data)
 	JsonObject->SetObjectField("Player", SavePlayer(&Data->PlayerData));
 	JsonObject->SetObjectField("PlayerCompanyDescription", SaveCompanyDescription(&Data->PlayerCompanyDescription));
 	JsonObject->SetStringField("CurrentImmatriculationIndex", FormatInt32(Data->CurrentImmatriculationIndex));
+	JsonObject->SetStringField("CurrentIdentifierIndex", FormatInt32(Data->CurrentIdentifierIndex));
 	JsonObject->SetObjectField("World", SaveWorld(&Data->WorldData));
 
 	return JsonObject;
@@ -143,7 +144,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveWorld(FFlareWorldSave* Data)
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
 	JsonObject->SetStringField("Date", FormatInt64(Data->Date));
-
 
 	TArray< TSharedPtr<FJsonValue> > Companies;
 	for(int i = 0; i < Data->CompanyData.Num(); i++)
@@ -615,6 +615,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBomb(FFlareBombSave* Data)
 {
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
+	JsonObject->SetStringField("Identifier", Data->Identifier.ToString());
 	JsonObject->SetStringField("Location", FormatVector(Data->Location));
 	JsonObject->SetStringField("Rotation", FormatRotator(Data->Rotation));
 	JsonObject->SetStringField("LinearVelocity", FormatVector(Data->LinearVelocity));

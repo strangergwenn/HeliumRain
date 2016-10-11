@@ -11,6 +11,10 @@ struct FFlareBombSave
 {
 	GENERATED_USTRUCT_BODY()
 
+	/** Bomb identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName Identifier;
+
 	/** Bomb location */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector Location;
@@ -149,6 +153,18 @@ public:
 		FCHECK(Spacecraft);
 
 		return Spacecraft;
+	}
+
+	FName GetIdentifier() const
+	{
+		return BombData.Identifier;
+	}
+
+	inline UFlareWeapon* GetFiringWeapon() const
+	{
+		FCHECK(ParentWeapon);
+
+		return ParentWeapon;
 	}
 
 	inline bool IsHarpooned() const

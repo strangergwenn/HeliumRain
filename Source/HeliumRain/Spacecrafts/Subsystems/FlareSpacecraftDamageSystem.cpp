@@ -448,6 +448,9 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation().ToString()), Radius, *Location.ToString());
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
+	FVector LocalLocation = Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(Location) / 100.f;
+	CombatLog::SpacecraftDamaged(Spacecraft, Energy, Radius, LocalLocation, DamageType, DamageSource);
+
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);

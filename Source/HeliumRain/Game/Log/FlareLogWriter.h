@@ -24,6 +24,12 @@ namespace EFlareLogEvent
 		AI_CONSTRUCTION_STARTED,
 
 		// Combat event
+		SECTOR_ACTIVATED,
+		SECTOR_DEACTIVATED,
+		BOMB_DROPPED,
+		BOMB_DESTROYED,
+		SPACECRAFT_DAMAGED,
+		SPACECRAFT_COMPONENT_DAMAGED
 	};
 }
 
@@ -35,6 +41,8 @@ namespace EFlareLogParam
 	{
 		String,
 		Integer,
+		Float,
+		Vector3,
 	};
 }
 
@@ -43,6 +51,8 @@ struct FlareLogMessageParam
 	EFlareLogParam::Type Type;
 	FString StringValue;
 	int64 IntValue;
+	double FloatValue;
+	FVector Vector3Value;
 };
 
 struct FlareLogMessage

@@ -30,6 +30,7 @@
 AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CurrentImmatriculationIndex(0)
+	, CurrentIdentifierIndex(0)
 	, LoadedOrCreated(false)
 	, SaveSlotCount(3)
 	, CurrentStreamingLevelIndex(0)
@@ -185,6 +186,8 @@ void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 	FLOGV("AFlareGame::ActivateSector : PlayerHasShip = %d", PlayerHasShip);
 	if (PlayerHasShip)
 	{
+		CombatLog::SectorActivated(Sector);
+
 		// Create the new sector
 		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
 		FFlareSectorSave* SectorData = Sector->Save();
@@ -232,6 +235,9 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 	DebrisFieldSystem->Reset();
 	UnloadStreamingLevel(ActiveSector->GetSimulatedSector()->GetDescription()->LevelName);
 	ActiveSector->DestroySector();
+
+	CombatLog::SectorDeactivated(Sector);
+
 	ActiveSector = NULL;
 
 	// Update the PC
@@ -642,6 +648,7 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 		FLOGV("AFlareGame::LoadGame date=%lld", Save->WorldData.Date);
         World->Load(Save->WorldData);
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
+		CurrentIdentifierIndex = Save->CurrentIdentifierIndex;
 				
         // TODO check if load is ok for ship event before the PC load
 
@@ -723,6 +730,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async)
 		PC->Save(Save->PlayerData, Save->PlayerCompanyDescription);
 		Save->WorldData = *World->Save();
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
+		Save->CurrentIdentifierIndex = CurrentIdentifierIndex;
 		Save->PlayerData.QuestData = *QuestManager->Save();
 
 		FLOGV("AFlareGame::SaveGame date=%lld", Save->WorldData.Date);
@@ -807,6 +815,7 @@ void AFlareGame::Clean()
 	LoadedOrCreated = false;
 
 	CurrentImmatriculationIndex = 0;
+	CurrentIdentifierIndex = 0;
 }
 
 
@@ -892,6 +901,16 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
 	SpacecraftSave->Immatriculation = FName(*Immatriculation);
 	SpacecraftSave->NickName = FText::FromString(NickName);
+}
+
+FName AFlareGame::GenerateIdentifier(FName BaseName)
+{
+	FString Identifier;
+
+	Identifier = FString::Printf(TEXT("%s-%d"), *BaseName.ToString(), CurrentIdentifierIndex);
+
+	CurrentIdentifierIndex++;
+	return FName(*Identifier);
 }
 
 // convertToRoman:

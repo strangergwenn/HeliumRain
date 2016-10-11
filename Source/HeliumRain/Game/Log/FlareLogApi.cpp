@@ -3,8 +3,12 @@
 #include "FlareLogWriter.h"
 
 #include "../FlareCompany.h"
+#include "../../Spacecrafts/FlareBomb.h"
+#include "../../Spacecrafts/FlareWeapon.h"
+#include "../../Spacecrafts/FlareSpacecraft.h"
 #include "../FlareSimulatedSector.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../Save/FlareSaveWriter.h"
 
 // Game log api
 
@@ -72,6 +76,209 @@ void GameLog::AIConstructionStart(UFlareCompany* Company,
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
 		Param.StringValue = (ConstructionProjectStation ? ConstructionProjectStation->GetImmatriculation().ToString() : "");
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
+// Combat log api
+
+void CombatLog::SectorActivated(UFlareSimulatedSector* Sector)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::SECTOR_ACTIVATED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Sector->GetIdentifier().ToString();
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
+void CombatLog::SectorDeactivated(UFlareSimulatedSector* Sector)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::SECTOR_DEACTIVATED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Sector->GetIdentifier().ToString();
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
+void CombatLog::BombDropped(AFlareBomb *Bomb)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::BOMB_DROPPED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Bomb->GetIdentifier().ToString();
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Bomb->GetFiringSpacecraft()->GetImmatriculation().ToString();
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Bomb->GetFiringWeapon()->Save()->ShipSlotIdentifier.ToString();
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Bomb->GetFiringWeapon()->GetDescription()->Identifier.ToString();
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
+void CombatLog::BombDestroyed(FName BombIdentifier)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::BOMB_DESTROYED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = BombIdentifier.ToString();
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
+void CombatLog::SpacecraftDamaged(AFlareSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::SPACECRAFT_DAMAGED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Spacecraft->GetImmatriculation().ToString();
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = UFlareSaveWriter::FormatEnum<EFlareDamage::Type>("EFlareDamage", DamageType);
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::Float;
+		Param.FloatValue = Energy;
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::Float;
+		Param.FloatValue = Radius;
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::Vector3;
+		Param.Vector3Value = RelativeLocation;
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue =  (DamageSource ? DamageSource->GetCompanyName().ToString() : "");
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
+void CombatLog::SpacecraftComponentDamaged(UFlareSpacecraftComponent* Component, float Energy, float EffectiveEnergy, EFlareDamage::Type DamageType, float InitialDamageRatio, float TerminalDamageRatio)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::SPACECRAFT_COMPONENT_DAMAGED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Component->GetSpacecraft()->GetImmatriculation().ToString();
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Component->Save()->ShipSlotIdentifier.ToString();
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Component->GetDescription()->Identifier.ToString();
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::Float;
+		Param.FloatValue = Energy;
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::Float;
+		Param.FloatValue = EffectiveEnergy;
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = UFlareSaveWriter::FormatEnum<EFlareDamage::Type>("EFlareDamage", DamageType);
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::Float;
+		Param.FloatValue = InitialDamageRatio;
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::Float;
+		Param.FloatValue = TerminalDamageRatio;
 		Message.Params.Add(Param);
 	}
 

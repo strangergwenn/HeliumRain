@@ -55,6 +55,7 @@ UFlareSaveGame* UFlareSaveReaderV1::LoadGame(TSharedPtr< FJsonObject > GameObjec
 	}
 
 	LoadInt32(GameObject, "CurrentImmatriculationIndex", &SaveGame->CurrentImmatriculationIndex);
+	LoadInt32(GameObject, "CurrentIdentifierIndex", &SaveGame->CurrentIdentifierIndex);
 
 	const TSharedPtr< FJsonObject >* World;
 	if(GameObject->TryGetObjectField(TEXT("World"), World))
@@ -710,6 +711,7 @@ void UFlareSaveReaderV1::LoadPeople(const TSharedPtr<FJsonObject> Object, FFlare
 
 void UFlareSaveReaderV1::LoadBomb(const TSharedPtr<FJsonObject> Object, FFlareBombSave* Data)
 {
+	LoadFName(Object, "Identifier", &Data->Identifier);
 	LoadVector(Object, "Location", &Data->Location);
 	LoadRotator(Object, "Rotation", &Data->Rotation);
 	LoadVector(Object, "LinearVelocity", &Data->LinearVelocity);
