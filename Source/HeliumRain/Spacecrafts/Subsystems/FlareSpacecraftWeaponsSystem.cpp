@@ -416,13 +416,13 @@ int32 UFlareSpacecraftWeaponsSystem::FindBestWeaponGroup(AFlareSpacecraft* Targe
 			{
 				Score *= (SmallTarget ? 1.f : 0.f);
 				Score *= (UncontrollableTarget ? 1.f : 0.f);
-				Score *= (Target->IsHarpooned() ? 0.f: 1.f);
+				Score *= (Target->GetParent()->IsHarpooned() ? 0.f: 1.f);
 			}
 			else if(DamageType == EFlareShellDamageType::HeavySalvage)
 			{
 				Score *= (LargeTarget ? 1.f : 0.f);
 				Score *= (UncontrollableTarget ? 1.f : 0.f);
-				Score *= (Target->IsHarpooned() ? 0.f: 1.f);
+				Score *= (Target->GetParent()->IsHarpooned() ? 0.f: 1.f);
 			}
 		}
 		else

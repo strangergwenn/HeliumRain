@@ -260,7 +260,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			StateScore *= Preferences.IsNotUncontrolable;
 		}
 
-		if(ShipCandidate->IsHarpooned()) {
+		if(ShipCandidate->GetParent()->IsHarpooned()) {
 			StateScore *=  Preferences.IsHarpooned;
 		}
 

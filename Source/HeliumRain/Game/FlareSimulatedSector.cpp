@@ -199,6 +199,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	ShipData.IsRepairing = false;
 	ShipData.IsRefilling = false;
 	ShipData.Level = 1;
+	ShipData.HarpoonCompany = NAME_None;
 
 	if (ShipDescription->DynamicComponentStates.Num() > 0)
 	{

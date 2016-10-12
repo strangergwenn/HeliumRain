@@ -1185,7 +1185,7 @@ void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIcon
 		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDWeaponIcon);
 	}
 
-	if (Ship->IsHarpooned() && Ship->GetParent()->GetCompany()->GetPlayerHostility() != EFlareHostility::Owned)
+	if (Ship->GetParent()->IsHarpooned() && Ship->GetParent()->GetCompany()->GetPlayerHostility() != EFlareHostility::Owned)
 	{
 		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDHarpoonedIcon);
 	}

@@ -409,6 +409,23 @@ void UFlareSimulatedSpacecraft::SetRepairing(bool Repairing)
 	SpacecraftData.IsRepairing = Repairing;
 }
 
+
+void UFlareSimulatedSpacecraft::SetHarpooned(UFlareCompany* OwnerCompany)
+{
+	if (OwnerCompany) {
+		if (SpacecraftData.HarpoonCompany != OwnerCompany->GetIdentifier())
+		{
+			CombatLog::SpacecraftHarpooned(this, OwnerCompany);
+			SpacecraftData.HarpoonCompany  = OwnerCompany->GetIdentifier();
+		}
+	}
+	else
+	{
+		SpacecraftData.HarpoonCompany = NAME_None;
+	}
+}
+
+
 EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const
 {
 	return GetCompany()->GetPlayerWarState();

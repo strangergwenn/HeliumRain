@@ -126,18 +126,14 @@ public:
 	 */
 	static void SpacecraftComponentDamaged(UFlareSpacecraftComponent* Component, float Energy, float EffectiveEnergy, EFlareDamage::Type DamageType, float InitialDamageRatio, float TerminalDamageRatio);
 
-	/*
-		FlareLog::Combat->DamageDone(23);
-		FlareLog::Combat->WeaponEmpty(23);
-
-
-		FlareLog::Game->Loaded();
-		FlareLog::Game->DamageDone(23);
-		FlareLog::Game->Unloaded();
-
-		FlareLog::Game->Trade();
-		FlareLog::Game->Trade();
-		FlareLog::Game->ReputationChange();*/
-
+	/**
+	 * A spacecraft has been harpooned
+	 *
+	 * Event: SPACECRAFT_HARPOONED
+	 * Params:
+	 *  - string : spacecraft
+	 *  - string : harpoonOwner
+	 */
+	static void SpacecraftHarpooned(UFlareSimulatedSpacecraft* Spacecraft, UFlareCompany* HarpoonOwner);
 
 };

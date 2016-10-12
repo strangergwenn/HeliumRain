@@ -98,6 +98,13 @@ public:
 
 	void SetRefilling(bool Refilling);
 
+	/** This ship was harpooned */
+	void SetHarpooned(UFlareCompany* OwnerCompany);
+
+	bool IsHarpooned()
+	{
+		return SpacecraftData.HarpoonCompany != NAME_None;
+	}
 
 	/*----------------------------------------------------
 		Resources

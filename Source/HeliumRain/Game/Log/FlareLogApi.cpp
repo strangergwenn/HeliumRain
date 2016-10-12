@@ -284,3 +284,26 @@ void CombatLog::SpacecraftComponentDamaged(UFlareSpacecraftComponent* Component,
 
 	FFlareLogWriter::PushWriterMessage(Message);
 }
+
+void CombatLog::SpacecraftHarpooned(UFlareSimulatedSpacecraft* Spacecraft, UFlareCompany* HarpoonOwner)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::SPACECRAFT_HARPOONED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Spacecraft->GetImmatriculation().ToString();
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue =  (HarpoonOwner ? HarpoonOwner->GetShortName().ToString() : "");
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}

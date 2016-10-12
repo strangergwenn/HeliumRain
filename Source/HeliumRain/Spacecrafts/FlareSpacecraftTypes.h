@@ -412,6 +412,10 @@ struct FFlareSpacecraftSave
 
 	/** Is a refill in progress */
 	bool IsRefilling;
+
+	/** HarpoonCompany */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName HarpoonCompany;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */

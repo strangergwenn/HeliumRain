@@ -59,7 +59,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	MaxTimeBeforeSelectionReset = 3.0;
 	StateManager = NULL;
 	CurrentTarget = NULL;
-	HarpoonCompany = NULL;
 	NavigationSystem = NULL;
 }
 
@@ -813,13 +812,6 @@ void AFlareSpacecraft::ApplyAsteroidData()
 			}
 		}
 	}
-}
-
-void AFlareSpacecraft::SetHarpooned(UFlareCompany* OwnerCompany)
-{
-	FLOGV("AFlareSpacecraft::SetHarpooned : %s harpooned by %s", *GetImmatriculation().ToString(), *OwnerCompany->GetCompanyName().ToString());
-	Harpooned = true;
-	HarpoonCompany = OwnerCompany;
 }
 
 UFlareSimulatedSector* AFlareSpacecraft::GetOwnerSector()

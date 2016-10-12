@@ -259,14 +259,14 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 	 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage && HitSpacecraft->GetDescription()->Size == EFlarePartSize::L)))
 	{
 		FLOGV("AFlareBomb::OnSpacecraftHit : salvaging %s for %s", *HitSpacecraft->GetImmatriculation().ToString(), *OwnerCompany->GetCompanyName().ToString());
-		HitSpacecraft->SetHarpooned(OwnerCompany);
+		HitSpacecraft->GetParent()->SetHarpooned(OwnerCompany);
 
 		if (OwnerCompany == PC->GetCompany())
 		{
 			FFlareMenuParameterData Data;
 			Data.Spacecraft = HitSpacecraft->GetParent();
 			PC->Notify(LOCTEXT("HeavyShipHarpooned", "Ship harpooned !"),
-				FText::Format(LOCTEXT("HeavyShipHarpoonedFormat", "If it is destroyed, you will retrieve {0} on the next day, if you are still in this sector."),
+				FText::Format(LOCTEXT("HeavyShipHarpoonedFormat", "If it is uncontrollable, you will retrieve {0} on the next day, if you are still in this sector."),
 					FText::FromString(HitSpacecraft->GetImmatriculation().ToString())),
 				FName("ship-harpooned"),
 				EFlareNotification::NT_Military,

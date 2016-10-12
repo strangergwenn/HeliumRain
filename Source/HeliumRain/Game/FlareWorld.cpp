@@ -455,7 +455,22 @@ void UFlareWorld::Simulate()
 		Sectors[SectorIndex]->ClearBombs();
 	}
 
+	// Ship capture
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
 
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorShips()[SpacecraftIndex];
+
+			if(Spacecraft->IsHarpooned()) {
+				// TODO Process capture
+				FLOG("Day skip with harpooned ship");
+				Spacecraft->SetHarpooned(NULL);
+			}
+		}
+	}
 
 	CompanyMutualAssistance();
 	CheckIntegrity();
