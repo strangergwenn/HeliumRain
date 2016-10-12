@@ -116,41 +116,8 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		CombatGroup = EFlareCombatGroup::Fighters;
 	}
 
-	EFlareCombatTactic::Type Tactic = Ship->GetCompany()->GetTacticManager()->GetCurrentTacticForShipGroup(CombatGroup);
-
-	if (!PilotTargetShip // No target
-			|| !PilotTargetShip->GetParent()->GetDamageSystem()->IsAlive() // Target dead
-			|| (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > MaxFollowDistance * 100 // Target too far
-			|| (Ship->GetSize() == EFlarePartSize::S && SelectedWeaponGroupIndex == -1)  // No selected weapon
-			|| (Ship->GetSize() == EFlarePartSize::S && !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, true) <=0)
-			|| Tactic != CurrentTactic)  // Selected weapon not usable
-	{
-// 		if (PilotTargetShip == NULL)
-// 		{
-// 			FLOG("Switch target because no current target");
-// 		}
-// 		else if (!PilotTargetShip->GetDamageSystem()->IsAlive())
-// 		{
-// 			FLOG("Switch target because current target is dead");
-// 		}
-// 		else if ((PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size() > MaxFollowDistance * 100)
-// 		{
-// 			FLOGV("Switch target because current target is too far %f > %f", (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()).Size(), (MaxFollowDistance * 100));
-// 		}
-// 		else if (SelectedWeaponGroupIndex == -1)
-// 		{
-// 			FLOG("Switch target because no selected weapon");
-// 		}
-// 		else if (( !LockTarget && Ship->GetDamageSystem()->GetWeaponGroupHealth(SelectedWeaponGroupIndex, false, true) <=0))
-// 		{
-// 			FLOG("Switch target because selected weapon is not usable");
-// 		}
-
-		PilotTargetShip = NULL;
-		SelectedWeaponGroupIndex = -1;
-		CurrentTactic = Tactic;
-		FindBestHostileTarget(CurrentTactic);
-	}
+	CurrentTactic = Ship->GetCompany()->GetTacticManager()->GetCurrentTacticForShipGroup(CombatGroup);
+	FindBestHostileTarget(CurrentTactic);
 
 	bool Idle = true;
 
@@ -616,6 +583,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
 
+	TimeUntilNextReaction /=5;
 
 	float ChargeDistance = 15 * PreferedVelocity * WeigthCoef ;
 	float AlignTime = 12 * WeigthCoef;
@@ -1019,25 +987,28 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	TargetPreferences.IsNotStranded = 0.5;
 	TargetPreferences.IsUncontrolable = 0.1;
 	TargetPreferences.IsNotUncontrolable = 1;
+	TargetPreferences.IsHarpooned = 0;
 	TargetPreferences.TargetStateWeight = 1;
 	TargetPreferences.MaxDistance = 1000000;
 	TargetPreferences.DistanceWeight = 0.5;
 	TargetPreferences.AttackTarget = NULL;
 	TargetPreferences.AttackTargetWeight = 1;
+	TargetPreferences.LastTarget = PilotTargetShip;
+	TargetPreferences.LastTargetWeight = 10;
 	TargetPreferences.PreferredDirection = Ship->GetFrontVector();
 	TargetPreferences.MinAlignement = -1;
 	TargetPreferences.AlignementWeight = 0.1;
 	TargetPreferences.BaseLocation = Ship->GetActorLocation();
 
-	Ship->GetWeaponsSystem()->GetTargetSizePreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge);
+	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrolable, &TargetPreferences.IsNotUncontrolable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
 
 	if (Tactic == EFlareCombatTactic::AttackStations)
 	{
-		TargetPreferences.IsStation = 10;
+		TargetPreferences.IsStation *= 10;
 	}
 	else if (Tactic == EFlareCombatTactic::AttackMilitary)
 	{
-		TargetPreferences.IsStation = 0.1;
+		TargetPreferences.IsStation = 0.0;
 	}
 	else if (Tactic == EFlareCombatTactic::AttackCivilians)
 	{
@@ -1059,40 +1030,38 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 
 	if (TargetCandidate)
 	{
-		PilotTargetShip = TargetCandidate;
-		AttackPhase = 0;
-		AttackAngle = FMath::FRandRange(0, 360);
-		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
-		AttackDistance = FMath::FRandRange(50, 100) + TargetSize;
-		MaxFollowDistance = TargetSize * 60; // Distance in meters
-		LockTarget = false;
+		bool NewTarget = false;
+		bool NewWeapon = false;
 
-		SelectedWeaponGroupIndex = -1;
-		// Find best weapon
-
-		float BestScore = 0;
-
-		for (int WeaponGroupIndex=0; WeaponGroupIndex < Ship->GetWeaponsSystem()->GetWeaponGroupCount(); WeaponGroupIndex++)
+		if(PilotTargetShip != TargetCandidate)
 		{
-			float Score = Ship->GetDamageSystem()->GetWeaponGroupHealth(WeaponGroupIndex, true);
-			switch(Ship->GetWeaponsSystem()->GetWeaponGroup(WeaponGroupIndex)->Type)
-			{
-				case EFlareWeaponGroupType::WG_BOMB:
-					Score *= (PilotTargetShip->GetSize() == EFlarePartSize::L ? 1.f : 0.f);
-					break;
-				case EFlareWeaponGroupType::WG_GUN:
-					Score *= (PilotTargetShip->GetSize() == EFlarePartSize::L ? 0.01f : 1.f);
-					break;
-				default:
-					Score *= 0.f;
-			}
-
-			if (Score > 0 && Score > BestScore)
-			{
-				SelectedWeaponGroupIndex = WeaponGroupIndex;
-				BestScore = Score;
-			}
+			PilotTargetShip = TargetCandidate;
+			NewTarget = true;
 		}
+
+		// Find best weapon
+		int32 WeaponGroupIndex = Ship->GetWeaponsSystem()->FindBestWeaponGroup(PilotTargetShip);
+		if (SelectedWeaponGroupIndex != WeaponGroupIndex)
+		{
+			SelectedWeaponGroupIndex = WeaponGroupIndex;
+			NewWeapon = true;
+		}
+
+		if (NewTarget || NewWeapon)
+		{
+			AttackPhase = 0;
+			AttackAngle = FMath::FRandRange(0, 360);
+			float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
+			AttackDistance = FMath::FRandRange(50, 100) + TargetSize;
+			MaxFollowDistance = TargetSize * 60; // Distance in meters
+			LockTarget = false;
+		}
+
+	}
+	else
+	{
+		PilotTargetShip = NULL;
+		SelectedWeaponGroupIndex = -1;
 	}
 }
 

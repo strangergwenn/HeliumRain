@@ -112,9 +112,9 @@ public:
 	
 	virtual void StopAllWeapons();
 
-	void GetTargetSizePreference(float* IsSmall, float* IsLarge);
+	void GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollable, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned);
 
-
+	int32 FindBestWeaponGroup(AFlareSpacecraft* Target);
 protected:
 
 

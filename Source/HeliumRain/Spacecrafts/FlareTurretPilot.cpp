@@ -288,6 +288,9 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 	TargetPreferences.DistanceWeight = 0.1;
 	TargetPreferences.AttackTarget = NULL;
 	TargetPreferences.AttackTargetWeight = 1;
+	TargetPreferences.LastTarget = PilotTargetShip;
+	TargetPreferences.LastTargetWeight = 10;
+
 	TargetPreferences.PreferredDirection = FireAxis;
 	TargetPreferences.MinAlignement = -1;
 	TargetPreferences.AlignementWeight = 1.0;

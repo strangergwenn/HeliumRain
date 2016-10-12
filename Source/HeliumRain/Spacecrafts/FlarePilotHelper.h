@@ -23,11 +23,14 @@ struct PilotHelper
 		float IsNotStranded;
 		float IsUncontrolable;
 		float IsNotUncontrolable;
+		float IsHarpooned;
 		float TargetStateWeight;
 		float MaxDistance;
 		float DistanceWeight;
 		AFlareSpacecraft* AttackTarget;
 		float AttackTargetWeight;
+		AFlareSpacecraft* LastTarget;
+		float LastTargetWeight;
 		FVector PreferredDirection;
 		float MinAlignement;
 		float AlignementWeight;

@@ -197,12 +197,6 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			continue;
 		}
 
-		if(ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable() && ShipCandidate->GetParent()->GetDamageSystem()->IsDisarmed())
-		{
-			// Ship HS
-			continue;
-		}
-
 		float Score;
 		float StateScore;
 		float AttackTargetScore;
@@ -264,6 +258,15 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 		else
 		{
 			StateScore *= Preferences.IsNotUncontrolable;
+		}
+
+		if(ShipCandidate->IsHarpooned()) {
+			StateScore *=  Preferences.IsHarpooned;
+		}
+
+
+		if(ShipCandidate == Preferences.LastTarget) {
+			StateScore *=  Preferences.LastTargetWeight;
 		}
 
 		float Distance = (Preferences.BaseLocation - ShipCandidate->GetActorLocation()).Size();
