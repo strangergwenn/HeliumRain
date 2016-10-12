@@ -99,6 +99,8 @@ public:
 
 	void CompanyMutualAssistance();
 
+	void ProcessShipCapture();
+
 	/** Simulate world for a day */
 	void Simulate();
 

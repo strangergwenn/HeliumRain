@@ -217,6 +217,11 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 		return false;
 	}
 
+	if(GetDamageSystem()->IsUncontrollable() || OtherSpacecraft->GetDamageSystem()->IsUncontrollable())
+	{
+		return false;
+	}
+
 	// Check if spacecraft are not both stations
 	if(IsStation() && OtherSpacecraft->IsStation())
 	{
@@ -425,6 +430,10 @@ void UFlareSimulatedSpacecraft::SetHarpooned(UFlareCompany* OwnerCompany)
 	}
 }
 
+UFlareCompany* UFlareSimulatedSpacecraft::GetHarpoonCompany()
+{
+	return Game->GetGameWorld()->FindCompany(SpacecraftData.HarpoonCompany);
+}
 
 EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const
 {

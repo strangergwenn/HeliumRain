@@ -276,7 +276,7 @@ public:
 	UFlareSimulatedSpacecraft* CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
 
 	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
-	UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator);
+	UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator, FFlareSpacecraftSave* CapturedSpacecraft = NULL);
 
 	/** Create an asteroid */
 	void CreateAsteroid(int32 ID, FName Name, FVector Location);

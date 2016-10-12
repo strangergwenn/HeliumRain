@@ -177,7 +177,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FName ShipClass, UF
 	return NULL;
 }
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation, FFlareSpacecraftSave* CapturedSpacecraft)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
 
@@ -308,6 +308,21 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 	ShipData.AsteroidData.Identifier = NAME_None;
 	ShipData.AsteroidData.AsteroidMeshID = 0;
 	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
+
+
+	// If capture, copy data form captured ship
+	if (CapturedSpacecraft)
+	{
+		ShipData.Location = CapturedSpacecraft->Location;
+		ShipData.Rotation = CapturedSpacecraft->Rotation;
+		ShipData.Components = CapturedSpacecraft->Components;
+		ShipData.Cargo = CapturedSpacecraft->Cargo;
+		ShipData.FactoryStates = CapturedSpacecraft->FactoryStates;
+		ShipData.AsteroidData = CapturedSpacecraft->AsteroidData;
+		ShipData.DynamicComponentStateIdentifier = CapturedSpacecraft->DynamicComponentStateIdentifier;
+		ShipData.DynamicComponentStateProgress = CapturedSpacecraft->DynamicComponentStateProgress;
+		ShipData.Level = CapturedSpacecraft->Level;
+	}
 
 	// Create the ship
 	Spacecraft = Company->LoadSpacecraft(ShipData);

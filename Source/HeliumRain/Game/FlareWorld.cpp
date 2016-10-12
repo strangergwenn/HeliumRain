@@ -10,6 +10,7 @@
 #include "../Data/FlareSectorCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
 
+#define LOCTEXT_NAMESPACE "FlareWorld"
 
 /*----------------------------------------------------
     Constructor
@@ -456,21 +457,7 @@ void UFlareWorld::Simulate()
 	}
 
 	// Ship capture
-	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
-	{
-		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
-
-		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
-		{
-			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorShips()[SpacecraftIndex];
-
-			if(Spacecraft->IsHarpooned()) {
-				// TODO Process capture
-				FLOG("Day skip with harpooned ship");
-				Spacecraft->SetHarpooned(NULL);
-			}
-		}
-	}
+	ProcessShipCapture();
 
 	CompanyMutualAssistance();
 	CheckIntegrity();
@@ -576,6 +563,83 @@ void UFlareWorld::Simulate()
 	FLOGV("** Simulate day %d done", WorldData.Date-1);
 
 	GameLog::DaySimulated(WorldData.Date);
+}
+
+void UFlareWorld::ProcessShipCapture()
+{
+	TArray<UFlareSimulatedSpacecraft*> ShipToCapture;
+
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
+
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorShips().Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorShips()[SpacecraftIndex];
+
+			if(Spacecraft->IsHarpooned()) {
+				// Capture the ship if the following condition is ok :
+				// - The harpoon owner must be at war this the ship owner
+				// - The harpoon owner must in won state : military presence only for him
+
+				UFlareCompany* HarpoonOwner = Spacecraft->GetHarpoonCompany();
+
+				if(HarpoonOwner
+						&& HarpoonOwner->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile
+						&& Sector->GetSectorBattleState(HarpoonOwner) == EFlareSectorBattleState::BattleWon)
+				{
+					// If battle won state, this mean the Harpoon owner has at least one dangerous ship
+					// This also mean that no company at war with this company has a military ship
+
+					ShipToCapture.Add(Spacecraft);
+					// Need to keep the harpoon for capture process
+				}
+				else
+				{
+					Spacecraft->SetHarpooned(NULL);
+				}
+			}
+		}
+	}
+
+	FLOGV("ShipToCapture %d", ShipToCapture.Num());
+
+
+	// Capture consist on :
+	// - Kill rotation and velocity
+	// - respawn the ship at near location
+	// - change its owner
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ShipToCapture.Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = ShipToCapture[SpacecraftIndex];
+
+		UFlareCompany* HarpoonOwner = Spacecraft->GetHarpoonCompany();
+		UFlareSimulatedSector* Sector =  Spacecraft->GetCurrentSector();
+		FVector SpawnLocation =  Spacecraft->GetData().Location;
+		FRotator SpawnRotation =  Spacecraft->GetData().Rotation;
+		FFlareSpacecraftSave Data = Spacecraft->GetData();
+		FFlareSpacecraftDescription* ShipDescription = Spacecraft->GetDescription();
+
+		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
+		UFlareSimulatedSpacecraft* NewShip = Sector->CreateShip(ShipDescription, HarpoonOwner, SpawnLocation, SpawnRotation, &Data);
+
+		if (GetGame()->GetPC()->GetCompany() == HarpoonOwner)
+		{
+			FFlareMenuParameterData MenuData;
+			MenuData.Sector = Sector;
+
+			GetGame()->GetPC()->Notify(LOCTEXT("ShipCaptured", "Ship captured"),
+				FText::Format(LOCTEXT("ShipCaptureFormat", "The ship {0} has been captured in {1}. It's new name is {2}."),
+							  FText::FromString(Data.Immatriculation.ToString()),
+							  FText::FromString(Sector->GetSectorName().ToString()),
+							  FText::FromString(NewShip->GetImmatriculation().ToString())),
+				FName("ship-captured"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Sector,
+				MenuData);
+		}
+	}
 }
 
 void UFlareWorld::SimulatePeopleMoneyMigration()
@@ -944,3 +1008,4 @@ uint32 UFlareWorld::GetWorldPopulation()
 
 	return WorldPopulation;
 }
+#undef LOCTEXT_NAMESPACE

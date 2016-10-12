@@ -106,6 +106,8 @@ public:
 		return SpacecraftData.HarpoonCompany != NAME_None;
 	}
 
+	UFlareCompany* GetHarpoonCompany();
+
 	/*----------------------------------------------------
 		Resources
 	----------------------------------------------------*/
