@@ -283,7 +283,7 @@ struct FFlareSpacecraftComponentDescription
 	/** Repair cost (in fleet supply) */
 	UPROPERTY(EditAnywhere, Category = Content) int32 RepairCost;
 
-	/** Component armor. 1 for full absorb */
+	/** Component armor, in percent. 100 for full absorb */
 	UPROPERTY(EditAnywhere, Category = Content) float Armor;
 
 	/** Hit point for component fonctionnaly. Component not working when no more hit points */

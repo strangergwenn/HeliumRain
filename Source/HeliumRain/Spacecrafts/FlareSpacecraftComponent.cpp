@@ -357,7 +357,7 @@ float UFlareSpacecraftComponent::GetArmor()
 {
 	if (ComponentDescription)
 	{
-		return ComponentDescription->Armor;
+		return ComponentDescription->Armor / 100.f;
 	}
 
 	return 1;
@@ -397,6 +397,11 @@ float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type Da
 	{
 		// Apply damage
 		float StateBeforeDamage = GetDamageRatio();
+
+		if (StateBeforeDamage == 0)
+		{
+			return 0;
+		}
 
 		float EffectiveEnergy;
 
