@@ -339,6 +339,8 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	bool DangerousTarget = PilotHelper::IsShipDangerous(PilotTargetShip);
 
+	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+
 	//FLOGV("%s target %s",  *Ship->GetHumanReadableName(),  *PilotTargetShip->GetHumanReadableName());
 	// The pilot have a target, track and kill it
 
@@ -439,7 +441,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 		else
 		{
-			LinearTargetVelocity = PredictedFireTargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity;
 			UseOrbitalBoost = true;
 		}
 
@@ -464,7 +466,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 			FVector AttackMargin =  AttackDistanceQuat.RotateVector(TopVector);
 
 
-			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * PreferedVelocity;
 
 			if (Distance > SecurityDistance || DangerousTarget)
 			{
@@ -485,7 +487,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 		else
 		{
-			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * PreferedVelocity;
 			if (DangerousTarget)
 			{
 				UseOrbitalBoost = true;
@@ -612,7 +614,10 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 	float WeigthCoef = FMath::Sqrt(Ship->GetSpacecraftMass()) / FMath::Sqrt(5425.f) * (2-Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS)) ; // 1 for ghoul at 100%
 
-	float ChargeDistance = 15 * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * WeigthCoef ;
+	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+
+
+	float ChargeDistance = 15 * PreferedVelocity * WeigthCoef ;
 	float AlignTime = 12 * WeigthCoef;
 	float DropTime = 5 * WeigthCoef ;
 	float EvadeTime = 2.5 * WeigthCoef;
@@ -624,6 +629,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	bool HardBoost = false;
 	bool Anticollision = true;
 
+
 	if (AttackPhase == 0)
 	{
 		if (Distance < ChargeDistance)
@@ -634,7 +640,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		}
 		else
 		{
-			LinearTargetVelocity = TargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			LinearTargetVelocity = TargetAxis * PreferedVelocity;
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), TargetAxis, FVector::ZeroVector, DeltaSeconds);
 			UseOrbitalBoost = true;
 		}
@@ -658,14 +664,14 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		else if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < AlignTime)
 		{
 			FVector ChargeAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
-			LinearTargetVelocity = ChargeAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			LinearTargetVelocity = ChargeAxis * PreferedVelocity;
 			UseOrbitalBoost = true;
 			HardBoost = true;
 			Anticollision = false;
 		}
 		else
 		{
-			LinearTargetVelocity = TargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			LinearTargetVelocity = TargetAxis * PreferedVelocity;
 		}
 
 		LastTargetDistance = Distance;
@@ -705,7 +711,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 				}
 			}
 
-			LinearTargetVelocity = ChargeAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			LinearTargetVelocity = ChargeAxis * PreferedVelocity;
 		}
 	}
 
@@ -726,7 +732,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			FVector TopVector = Ship->GetActorRotation().RotateVector(FVector(0,0,PilotTargetShip->GetMeshScale()));
 			FVector Avoid =  AvoidQuat.RotateVector(TopVector);
 
-			LinearTargetVelocity = Avoid.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			LinearTargetVelocity = Avoid.GetUnsafeNormal() * PreferedVelocity;
 			UseOrbitalBoost = true;
 			HardBoost = true;
 		}
@@ -734,7 +740,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		{
 			UseOrbitalBoost = true;
 			HardBoost = true;
-			LinearTargetVelocity = -TargetAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 2;
+			LinearTargetVelocity = -TargetAxis * PreferedVelocity * 2;
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), -TargetAxis, FVector::ZeroVector, DeltaSeconds);
 		}
 	}
