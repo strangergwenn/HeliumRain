@@ -186,7 +186,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		{
 			if (Parent->IsAlive()) {
 				PC->Notify(
-					LOCTEXT("ShipUncontrollable", "Your ship is uncontrollable"),
+					LOCTEXT("PlayerShipUncontrollable", "Your ship is uncontrollable"),
 					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship has been rendered uncontrollable by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
 					EFlareNotification::NT_Military,
@@ -196,7 +196,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			else
 			{
 				PC->Notify(
-					LOCTEXT("ShipDestroyed", "Your ship has been destroyed"),
+					LOCTEXT("PlayerShipDestroyed", "Your ship has been destroyed"),
 					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
 					FName("ship-destroyed"),
 					EFlareNotification::NT_Military,
@@ -207,7 +207,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		else
 		{
 			PC->Notify(
-				LOCTEXT("ShipCrashed", "Crash"),
+				LOCTEXT("PlayerShipCrashed", "Crash"),
 				FText::FText(LOCTEXT("ShipDestroyedFormat", "You crashed your ship")),
 				FName("ship-crashed"),
 				EFlareNotification::NT_Military,
