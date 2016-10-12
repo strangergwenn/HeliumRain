@@ -323,7 +323,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 
 	// Exit avoidance
-	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity);
+	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.4);
 
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
@@ -581,6 +581,9 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		FVector NoseAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
 		LinearTargetVelocity = LinearTargetVelocity.GetUnsafeNormal() * 0.5 + NoseAxis * 0.5 *  Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 3.0;
 	}
+
+	// Exit avoidance
+	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.8);
 
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
@@ -918,7 +921,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 
 	// Exit avoidance
-	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity);
+	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
 
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
@@ -1098,7 +1101,7 @@ int32 UFlareShipPilot::GetPreferedWeaponGroup() const
 	Helpers
 ----------------------------------------------------*/
 
-FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector InitialVelocityTarget) const
+FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector InitialVelocityTarget, float CurveTrajectoryLimit) const
 {
 
 	// DEBUG
@@ -1146,7 +1149,6 @@ FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector Ini
 	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + TargetShip->GetVelocity() * 1000, FColor::Red, false, 1.0);
 	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + InitialVelocityTarget * 1000, FColor::Blue, false, 1.0);
 */
-	float CurveTrajectoryLimit = 0.5f;
 	float ShipCenterDistance = TargetShip->GetActorLocation().Size();
 	float SectorLimits = TargetShip->GetGame()->GetActiveSector()->GetSectorLimits() / 3;
 	/*FLOGV("%s ExitAvoidance ShipCenterDistance=%f SectorLimits=%f InitialVelocityTarget=%s",

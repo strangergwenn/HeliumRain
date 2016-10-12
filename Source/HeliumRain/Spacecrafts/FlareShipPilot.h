@@ -53,7 +53,7 @@ public:
 	/**
 	 * Return the curved trajectory to avoid exiting sector
 	 */
-	FVector ExitAvoidance(AFlareSpacecraft* Ship, FVector InitialVelocityTarget) const;
+	FVector ExitAvoidance(AFlareSpacecraft* Ship, FVector InitialVelocityTarget,float CurveTrajectoryLimit) const;
 
 	/**
 	 * Return the nearest hostile alive ship
