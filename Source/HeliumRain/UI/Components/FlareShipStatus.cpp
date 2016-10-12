@@ -59,6 +59,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 			[
 				SNew(SProgressBar)
 				.Percent(this, &SFlareShipStatus::GetGlobalHealth)
+				.BorderPadding( FVector2D(0,0))
 				.Style(&Theme.ProgressBarStyle)
 			]
 		]
