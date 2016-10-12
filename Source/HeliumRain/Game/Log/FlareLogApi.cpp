@@ -57,7 +57,7 @@ void GameLog::AIConstructionStart(UFlareCompany* Company,
 	{
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
-		Param.StringValue = Company->GetCompanyName().ToString();
+		Param.StringValue = Company->GetShortName().ToString();
 		Message.Params.Add(Param);
 	}
 	{
@@ -213,7 +213,7 @@ void CombatLog::SpacecraftDamaged(AFlareSpacecraft* Spacecraft, float Energy, fl
 	{
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
-		Param.StringValue =  (DamageSource ? DamageSource->GetCompanyName().ToString() : "");
+		Param.StringValue =  (DamageSource ? DamageSource->GetShortName().ToString() : "");
 		Message.Params.Add(Param);
 	}
 
