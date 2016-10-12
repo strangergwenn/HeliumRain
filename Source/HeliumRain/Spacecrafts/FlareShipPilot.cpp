@@ -1101,13 +1101,44 @@ int32 UFlareShipPilot::GetPreferedWeaponGroup() const
 FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector InitialVelocityTarget) const
 {
 
-	/*if(TargetShip->GetImmatriculation() != "PIRSOL-0111")
+	// DEBUG
+	/*if(TargetShip->GetImmatriculation() != "PIRSPX-Arrow")
 	{
+
 		return InitialVelocityTarget;
+	}*/
+
+
+	float TimeToStop;
+
+
+	FVector CurrentVelocity = Ship->GetLinearVelocity();
+
+	if (FMath::IsNearlyZero(CurrentVelocity.SizeSquared()))
+	{
+		TimeToStop = 0;
+	}
+	else
+	{
+
+		FVector CurrentVelocityAxis = CurrentVelocity.GetUnsafeNormal();
+
+		// TODO Cache
+		TArray<UActorComponent*> Engines = Ship->GetComponentsByClass(UFlareEngine::StaticClass());
+
+
+		FVector Acceleration = Ship->GetNavigationSystem()->GetTotalMaxThrustInAxis(Engines, CurrentVelocityAxis, false) / Ship->GetSpacecraftMass();
+		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, CurrentVelocityAxis));
+
+		TimeToStop= (CurrentVelocity.Size() / (AccelerationInAngleAxis));
 	}
 
+	float DistanceToStop = (CurrentVelocity.Size() / (2)) * (TimeToStop);
 
-	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetActorLocation(), FColor::Cyan, false, 1.0);
+
+
+
+/*	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetActorLocation(), FColor::Cyan, false, 1.0);
 	DrawDebugLine(TargetShip->GetWorld(),  FVector::ZeroVector, TargetShip->GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetActorLocation(), FColor::Cyan, false, 1.0);
 	DrawDebugLine(TargetShip->GetWorld(), FVector::ZeroVector, TargetShip->GetActorLocation(), FColor::Cyan, false, 1.0);
 
@@ -1115,12 +1146,28 @@ FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector Ini
 	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + TargetShip->GetVelocity() * 1000, FColor::Red, false, 1.0);
 	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + InitialVelocityTarget * 1000, FColor::Blue, false, 1.0);
 */
-	float CurveTrajectoryLimit = 0.3f;
+	float CurveTrajectoryLimit = 0.5f;
 	float ShipCenterDistance = TargetShip->GetActorLocation().Size();
 	float SectorLimits = TargetShip->GetGame()->GetActiveSector()->GetSectorLimits() / 3;
 	/*FLOGV("%s ExitAvoidance ShipCenterDistance=%f SectorLimits=%f InitialVelocityTarget=%s",
 		  *TargetShip->GetImmatriculation().ToString(),
-		  ShipCenterDistance /100, SectorLimits /100, *InitialVelocityTarget.ToString());*/
+		  ShipCenterDistance /100, SectorLimits /100, *InitialVelocityTarget.ToString());
+
+
+	FLOGV("CurrentVelocity %s", *CurrentVelocity.ToString());
+	FLOGV("TimeToFinalVelocity %f", TimeToStop);
+	FLOGV("DistanceToStop %f", DistanceToStop);
+	FLOGV("SectorLimits * CurveTrajectoryLimit %f", SectorLimits * CurveTrajectoryLimit);
+*/
+	if(DistanceToStop * 100 > SectorLimits * CurveTrajectoryLimit)
+	{
+		float OverflowRatio = (DistanceToStop * 100) / (SectorLimits * CurveTrajectoryLimit);
+		// Clamp target velocity size
+		InitialVelocityTarget = InitialVelocityTarget.GetClampedToSize(0, (CurrentVelocity.Size()) / OverflowRatio);
+
+	//	FLOGV("Clamp target velocity %s (%f) OverflowRatio %f", *InitialVelocityTarget.ToString(), InitialVelocityTarget.Size(), OverflowRatio);
+	}
+
 
 	if (ShipCenterDistance > SectorLimits * CurveTrajectoryLimit)
 	{
@@ -1149,13 +1196,13 @@ FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector Ini
 			FVector ExitAvoidanceDirection = (CurveRatio * CenterDirection + (1 - CurveRatio) * InitialVelocityTargetDirection).GetUnsafeNormal();
 			FVector ExitAvoidanceVelocity = ExitAvoidanceDirection *  InitialVelocityTarget.Size();
 
-		/*	FLOGV("CurveRatio %f", CurveRatio);
+			/*FLOGV("CurveRatio %f", CurveRatio);
 
 			FLOGV("InitialVelocityTargetDirection %s", *InitialVelocityTargetDirection.ToCompactString());
 			FLOGV("ExitAvoidanceDirection %s", *ExitAvoidanceDirection.ToCompactString());
-			FLOGV("ExitAvoidanceVelocity %s", *ExitAvoidanceVelocity.ToCompactString());
+			FLOGV("ExitAvoidanceVelocity %s %f", *ExitAvoidanceVelocity.ToCompactString(), ExitAvoidanceVelocity.Size());
 			DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + ExitAvoidanceVelocity * 10000, FColor::Green, false, 1.0);
-			*/
+*/
 			return ExitAvoidanceVelocity;
 		}
 
