@@ -74,6 +74,22 @@ float SpacecraftHelper::GetIntersectionPosition(FVector TargetLocation, FVector 
 	return InterceptTime;
 }
 
+EFlareDamage::Type SpacecraftHelper::GetWeaponDamageType(EFlareShellDamageType::Type ShellDamageType)
+{
+	switch(ShellDamageType) {
+	case EFlareShellDamageType::HighExplosive:
+		return EFlareDamage::DAM_HighExplosive;
+	case EFlareShellDamageType::ArmorPiercing:
+	case EFlareShellDamageType::LightSalvage:
+	case EFlareShellDamageType::HeavySalvage:
+		return EFlareDamage::DAM_ArmorPiercing;
+	case EFlareShellDamageType::HEAT:
+		return EFlareDamage::DAM_HEAT;
+	default:
+		return EFlareDamage::DAM_None;
+	};
+}
+
 int32 FFlareSpacecraftDescription::GetCapacity()
 {
 	return CargoBayCapacity * CargoBayCount;

@@ -244,7 +244,7 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 	HitSpacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower,
 		WeaponDescription->WeaponCharacteristics.AmmoDamageRadius,
 		HitLocation,
-		EFlareDamage::DAM_HEAT,
+		SpacecraftHelper::GetWeaponDamageType(WeaponDescription->WeaponCharacteristics.DamageType),
 		ParentWeapon->GetSpacecraft()->GetCompany());
 
 	// Play sound

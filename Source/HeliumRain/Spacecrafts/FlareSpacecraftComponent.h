@@ -39,31 +39,6 @@ namespace EFlareLightStatus
 	};
 }
 
-/** Shell fuze type */
-UENUM()
-namespace EFlareShellFuzeType
-{
-	enum Type
-	{
-		Contact, // The shell explode on contact
-		Proximity, // The shell explode near the target
-	};
-}
-
-/** Shell damage type */
-UENUM()
-namespace EFlareShellDamageType
-{
-	enum Type
-	{
-		HighExplosive, // Explosion send shell pieces around at hight velocity.
-		ArmorPiercing, // Not explosive shell, The damage are done by kinetic energy. Classique bullets.
-		HEAT,          // Heat Explosive Anti Tank. The explosion is focalized in a hot beam of metal melting armor.
-		LightSalvage,  // No actual damage, enable retrieval of light ships
-		HeavySalvage,  // No actual damage, enable retrieval of heavy ships
-	};
-}
-
 /** Component general characteristic */
 USTRUCT()
 struct FFlareSpacecraftComponentGeneralCharacteristics
