@@ -54,6 +54,7 @@ void SFlareTooltip::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.NameFont)
 							.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
 							.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
+							.WrapTextAt(Theme.ContentWidth / 2)
 						]
 
 						// Content
