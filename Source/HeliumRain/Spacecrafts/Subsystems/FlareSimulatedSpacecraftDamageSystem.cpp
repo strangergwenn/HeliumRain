@@ -97,20 +97,27 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsDisarmed() const
 
 float UFlareSimulatedSpacecraftDamageSystem::GetGlobalHealth()
 {
-	float GlobalHealth = (GetSubsystemHealth(EFlareSubsystem::SYS_Temperature, false)
-		+ GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false)
-		+ GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false)
-		+ GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false)
-		+ GetSubsystemHealth(EFlareSubsystem::SYS_Power, false));
-
-	if (Spacecraft->IsMilitary())
+	if(Spacecraft->IsStation())
 	{
-		GlobalHealth += GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false);
-		return GlobalHealth / 6.0f;
+		return GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false);
 	}
 	else
 	{
-		return GlobalHealth / 5.0f;
+		float GlobalHealth = (GetSubsystemHealth(EFlareSubsystem::SYS_Temperature, false)
+			+ GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion, false)
+			+ GetSubsystemHealth(EFlareSubsystem::SYS_RCS, false)
+			+ GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport, false)
+			+ GetSubsystemHealth(EFlareSubsystem::SYS_Power, false));
+
+		if (Spacecraft->IsMilitary())
+		{
+			GlobalHealth += GetSubsystemHealth(EFlareSubsystem::SYS_Weapon, false);
+			return GlobalHealth / 6.0f;
+		}
+		else
+		{
+			return GlobalHealth / 5.0f;
+		}
 	}
 }
 
