@@ -342,7 +342,7 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 
 UFlareSimulatedSpacecraft* UFlareScenarioTools::CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class)
 {
-	UFlareSimulatedSpacecraft* InitialShip = Sector->CreateShip(Class, PlayerCompany, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* InitialShip = Sector->CreateSpacecraft(Class, PlayerCompany, FVector::ZeroVector);
 	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
 	PlayerData->PlayerFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 	return InitialShip;
@@ -406,7 +406,7 @@ void UFlareScenarioTools::CreateShips(FName ShipClass, UFlareCompany* Company, U
 {
 	for (uint32 Index = 0; Index < Count; Index++)
 	{
-		Sector->CreateShip(ShipClass, Company, FVector::ZeroVector);
+		Sector->CreateSpacecraft(ShipClass, Company, FVector::ZeroVector);
 	}
 }
 

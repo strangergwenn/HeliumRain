@@ -456,9 +456,6 @@ void UFlareWorld::Simulate()
 		Sectors[SectorIndex]->ClearBombs();
 	}
 
-	// Ship capture
-	ProcessShipCapture();
-
 	CompanyMutualAssistance();
 	CheckIntegrity();
 
@@ -485,6 +482,11 @@ void UFlareWorld::Simulate()
 			Spacecraft->SetRefilling(false);
 		}
 	}
+
+	// Ship capture
+	ProcessShipCapture();
+
+	ProcessStationCapture();
 
 	// Factories
 	FLOG("* Simulate > Factories");
@@ -621,7 +623,7 @@ void UFlareWorld::ProcessShipCapture()
 		FFlareSpacecraftDescription* ShipDescription = Spacecraft->GetDescription();
 
 		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
-		UFlareSimulatedSpacecraft* NewShip = Sector->CreateShip(ShipDescription, HarpoonOwner, SpawnLocation, SpawnRotation, &Data);
+		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, HarpoonOwner, SpawnLocation, SpawnRotation, &Data);
 
 		if (GetGame()->GetPC()->GetCompany() == HarpoonOwner)
 		{
@@ -640,6 +642,94 @@ void UFlareWorld::ProcessShipCapture()
 				MenuData);
 		}
 	}
+}
+
+void UFlareWorld::ProcessStationCapture()
+{
+	TArray<UFlareSimulatedSpacecraft*> StationToCapture;
+	TArray<UFlareCompany*> StationCapturer;
+
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
+
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorStations()[SpacecraftIndex];
+
+			EFlareSectorBattleState::Type StationOwnerBattleState = Sector->GetSectorBattleState(Spacecraft->GetCompany());
+
+			if (StationOwnerBattleState != EFlareSectorBattleState::BattleLost
+					&& StationOwnerBattleState != EFlareSectorBattleState::BattleLostNoRetreat)
+			{
+				// The station is not being captured
+				Spacecraft->ResetCapture();
+				continue;
+			}
+
+			// Find capturing companies
+			for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+			{
+				UFlareCompany* Company = Companies[CompanyIndex];
+
+				if ((Company->GetWarState(Spacecraft->GetCompany()) != EFlareHostility::Hostile)
+					|| (Sector->GetSectorBattleState(Company) != EFlareSectorBattleState::BattleWon))
+				{
+					// Friend don't capture and not winner don't capture
+					Spacecraft->ResetCapture(Company);
+					continue;
+				}
+
+				// Capture
+				int32 CompanyCapturePoint = Sector->GetCompanyCapturePoints(Company);
+				if(Spacecraft->TryCapture(Company, CompanyCapturePoint))
+				{
+					StationToCapture.Add(Spacecraft);
+					StationCapturer.Add(Company);
+					break;
+				}
+			}
+		}
+	}
+
+	FLOGV("Station to capture %d", StationToCapture.Num());
+
+	// Capture consist on :
+	// - Kill rotation and velocity
+	// - respawn the ship at near location
+	// - change its owner
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < StationToCapture.Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = StationToCapture[SpacecraftIndex];
+		UFlareCompany* Capturer = StationCapturer[SpacecraftIndex];
+
+		UFlareSimulatedSector* Sector =  Spacecraft->GetCurrentSector();
+		FVector SpawnLocation =  Spacecraft->GetData().Location;
+		FRotator SpawnRotation =  Spacecraft->GetData().Rotation;
+		FFlareSpacecraftSave Data = Spacecraft->GetData();
+		FFlareSpacecraftDescription* ShipDescription = Spacecraft->GetDescription();
+
+		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
+		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, Capturer, SpawnLocation, SpawnRotation, &Data);
+
+		if (GetGame()->GetPC()->GetCompany() == Capturer)
+		{
+			FFlareMenuParameterData MenuData;
+			MenuData.Sector = Sector;
+
+			GetGame()->GetPC()->Notify(LOCTEXT("StationCaptured", "Station captured"),
+				FText::Format(LOCTEXT("StationCaptureFormat", "The station {0} has been captured in {1}. It's new name is {2}."),
+							  FText::FromString(Data.Immatriculation.ToString()),
+							  FText::FromString(Sector->GetSectorName().ToString()),
+							  FText::FromString(NewShip->GetImmatriculation().ToString())),
+				FName("station-captured"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Sector,
+				MenuData);
+		}
+	}
+
 }
 
 void UFlareWorld::SimulatePeopleMoneyMigration()

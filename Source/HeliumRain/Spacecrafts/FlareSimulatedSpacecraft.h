@@ -108,6 +108,10 @@ public:
 
 	UFlareCompany* GetHarpoonCompany();
 
+	void ResetCapture(UFlareCompany* Company = NULL);
+
+	bool TryCapture(UFlareCompany* Company, int32 CapturePoint);
+
 	/*----------------------------------------------------
 		Resources
 	----------------------------------------------------*/
@@ -250,5 +254,9 @@ public:
 	}
 
 	EFlareHostility::Type GetPlayerWarState() const;
+
+	int32 GetCapturePoint(UFlareCompany* Company) const;
+
+	int32 GetCapturePointThresold() const;
 
 };

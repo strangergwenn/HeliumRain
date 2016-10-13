@@ -416,6 +416,10 @@ struct FFlareSpacecraftSave
 	/** HarpoonCompany */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName HarpoonCompany;
+
+	/** Current capture points */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TMap<FName, int32> CapturePoints;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */
@@ -710,6 +714,10 @@ struct FFlareSpacecraftDescription
 	/** Max level.*/
 	UPROPERTY(EditAnywhere, Category = Content)
 	int32 MaxLevel;
+
+	/** Capture point to capture (scale with level.*/
+	UPROPERTY(EditAnywhere, Category = Content)
+	int32 CapturePointThreshold;
 
 	int32 GetCapacity();
 

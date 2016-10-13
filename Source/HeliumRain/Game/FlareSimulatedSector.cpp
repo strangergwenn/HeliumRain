@@ -144,7 +144,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 
 	if (Desc)
 	{
-		Station = CreateShip(Desc, Company, TargetPosition, TargetRotation);
+		Station = CreateSpacecraft(Desc, Company, TargetPosition, TargetRotation);
 
 		// Needs an esteroid ? 
 		if (Station && Desc->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
@@ -156,7 +156,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 	return Station;
 }
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FName ShipClass, UFlareCompany* Company, FVector TargetPosition)
 {
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipClass);
 
@@ -167,7 +167,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FName ShipClass, UF
 
 	if (Desc)
 	{
-		return CreateShip(Desc, Company, TargetPosition);
+		return CreateSpacecraft(Desc, Company, TargetPosition);
 	}
 	else
 	{
@@ -177,7 +177,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FName ShipClass, UF
 	return NULL;
 }
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation, FFlareSpacecraftSave* CapturedSpacecraft)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation, FFlareSpacecraftSave* CapturedSpacecraft)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
 
@@ -322,6 +322,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateShip(FFlareSpacecraftDes
 		ShipData.DynamicComponentStateIdentifier = CapturedSpacecraft->DynamicComponentStateIdentifier;
 		ShipData.DynamicComponentStateProgress = CapturedSpacecraft->DynamicComponentStateProgress;
 		ShipData.Level = CapturedSpacecraft->Level;
+		ShipData.SpawnMode = EFlareSpawnMode::Safe;
 	}
 
 	// Create the ship
@@ -414,8 +415,9 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 
 int UFlareSimulatedSector::RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
-	SectorSpacecrafts.Remove(Spacecraft);
-	return SectorShips.Remove(Spacecraft);
+	SectorStations.Remove(Spacecraft);
+	SectorShips.Remove(Spacecraft);
+	return SectorSpacecrafts.Remove(Spacecraft);
 }
 
 /*----------------------------------------------------
@@ -1187,6 +1189,27 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 		}
 	}
 
+	for (int SpacecraftIndex = 0 ; SpacecraftIndex < GetSectorStations().Num(); SpacecraftIndex++)
+	{
+
+		UFlareSimulatedSpacecraft* Spacecraft = GetSectorStations()[SpacecraftIndex];
+		UFlareCompany* OtherCompany = Spacecraft->GetCompany();
+
+		if (!Spacecraft->GetDamageSystem()->IsAlive())
+		{
+			continue;
+		}
+
+		if (OtherCompany == Company)
+		{
+			FriendlySpacecraftCount++;
+		}
+		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
+		{
+			HostileSpacecraftCount++;
+		}
+	}
+
 	// No friendly or no hostile ship
 	if (FriendlySpacecraftCount == 0 || HostileSpacecraftCount == 0)
 	{
@@ -1443,4 +1466,34 @@ bool UFlareSimulatedSector::IsPlayerBattleInProgress()
 	}
 }
 
+int32 UFlareSimulatedSector::GetCompanyCapturePoints(UFlareCompany* Company) const
+{
+	int32 CapturePoints = 0;
+
+	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
+
+		if (Ship->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		if (Ship->GetDamageSystem()->IsDisarmed())
+		{
+			continue;
+		}
+
+		if (Ship->GetSize() ==  EFlarePartSize::S)
+		{
+			CapturePoints += 1;
+		}
+
+		if (Ship->GetSize() ==  EFlarePartSize::L)
+		{
+			CapturePoints += 10;
+		}
+	}
+	return CapturePoints;
+}
 #undef LOCTEXT_NAMESPACE

@@ -1314,7 +1314,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipInCompany(FName ShipClass,
 	}
 
 	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
-	UFlareSimulatedSpacecraft* NewShip = ActiveSector->CreateShip(ShipClass, Company, TargetPosition);
+	UFlareSimulatedSpacecraft* NewShip = ActiveSector->CreateSpacecraft(ShipClass, Company, TargetPosition);
 	GetGame()->ActivateCurrentSector();
 
 	FFlareMenuParameterData Data;
@@ -1352,7 +1352,7 @@ void UFlareGameTools::CreateShipsInCompany(FName ShipClass, FName CompanyShortNa
 
 	for (int32 ShipIndex = 0; ShipIndex < Count; ShipIndex++)
 	{
-		ActiveSector->CreateShip(ShipClass, Company, TargetPosition);
+		ActiveSector->CreateSpacecraft(ShipClass, Company, TargetPosition);
 	}
 
 	GetGame()->ActivateCurrentSector();
@@ -1395,14 +1395,14 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 
 	for (int32 ShipIndex = 0; ShipIndex < ShipClass1Count; ShipIndex++)
 	{
-		ActiveSector->CreateShip(ShipClass1, Company1, TargetPosition1);
-		ActiveSector->CreateShip(ShipClass1, Company2, TargetPosition2);
+		ActiveSector->CreateSpacecraft(ShipClass1, Company1, TargetPosition1);
+		ActiveSector->CreateSpacecraft(ShipClass1, Company2, TargetPosition2);
 	}
 
 	for (int32 ShipIndex = 0; ShipIndex < ShipClass2Count; ShipIndex++)
 	{
-		ActiveSector->CreateShip(ShipClass2, Company1, TargetPosition1);
-		ActiveSector->CreateShip(ShipClass2, Company2, TargetPosition2);
+		ActiveSector->CreateSpacecraft(ShipClass2, Company1, TargetPosition1);
+		ActiveSector->CreateSpacecraft(ShipClass2, Company2, TargetPosition2);
 	}
 
 	GetGame()->ActivateCurrentSector();

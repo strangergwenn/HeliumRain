@@ -365,6 +365,24 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	}
 
 	LoadFNameArray(Object, "SalesExcludedResources", &Data->SalesExcludedResources);
+
+
+	const TArray<TSharedPtr<FJsonValue>>* CapturePoints;
+	if(Object->TryGetArrayField("CapturePoints", CapturePoints))
+	{
+		for (TSharedPtr<FJsonValue> Item : *CapturePoints)
+		{
+			// Object with 2 field, the company name, and the point count
+			const TSharedPtr<FJsonObject> ChildObject = Item->AsObject();
+			FName Company;
+			int32 Points;
+			LoadFName(ChildObject, "Company", &Company);
+			LoadInt32(ChildObject, "Points", &Points);
+
+			Data->CapturePoints.Add(Company, Points);
+		}
+	}
+
 }
 
 

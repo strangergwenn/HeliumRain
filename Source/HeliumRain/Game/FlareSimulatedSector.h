@@ -273,10 +273,10 @@ public:
 	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
 
     /** Create a ship in the level  for a specific company */
-	UFlareSimulatedSpacecraft* CreateShip(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
+	UFlareSimulatedSpacecraft* CreateSpacecraft(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
 
 	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
-	UFlareSimulatedSpacecraft* CreateShip(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator, FFlareSpacecraftSave* CapturedSpacecraft = NULL);
+	UFlareSimulatedSpacecraft* CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator, FFlareSpacecraftSave* CapturedSpacecraft = NULL);
 
 	/** Create an asteroid */
 	void CreateAsteroid(int32 ID, FName Name, FVector Location);
@@ -454,4 +454,5 @@ public:
 	/** Is a battle in progress with the player */
 	bool IsPlayerBattleInProgress();
 
+	int32 GetCompanyCapturePoints(UFlareCompany* Company) const;
 };

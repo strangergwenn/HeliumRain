@@ -292,6 +292,24 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	}
 	JsonObject->SetArrayField("SalesExcludedResources", SalesExcludedResources);
 
+
+	TArray<FName> CapturePointCompanies;
+	Data->CapturePoints.GetKeys(CapturePointCompanies);
+	TArray< TSharedPtr<FJsonValue> > CapturePoints;
+	for(int i = 0; i < Data->CapturePoints.Num(); i++)
+	{
+		FName Company = CapturePointCompanies[i];
+		int32 Points = Data->CapturePoints[Company];
+
+		TSharedRef<FJsonObject> JsonChildObject = MakeShareable(new FJsonObject());
+
+		JsonChildObject->SetStringField("Company", Company.ToString());
+		JsonChildObject->SetStringField("Points", FormatInt32(Points));
+
+		CapturePoints.Add(MakeShareable(new FJsonValueObject(JsonChildObject)));
+	}
+	JsonObject->SetArrayField("CapturePoints", CapturePoints);
+
 	return JsonObject;
 }
 

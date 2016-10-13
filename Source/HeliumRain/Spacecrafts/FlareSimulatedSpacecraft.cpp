@@ -435,10 +435,65 @@ UFlareCompany* UFlareSimulatedSpacecraft::GetHarpoonCompany()
 	return Game->GetGameWorld()->FindCompany(SpacecraftData.HarpoonCompany);
 }
 
+void UFlareSimulatedSpacecraft::ResetCapture(UFlareCompany* Company)
+{
+	if (Company)
+	{
+		SpacecraftData.CapturePoints.Remove(Company->GetIdentifier());
+	}
+	else
+	{
+		SpacecraftData.CapturePoints.Empty();
+	}
+}
+
+bool UFlareSimulatedSpacecraft::TryCapture(UFlareCompany* Company, int32 CapturePoint)
+{
+	int32 CurrentCapturePoint = 0;
+	FName CompanyIdentifier = Company->GetIdentifier();
+	if (SpacecraftData.CapturePoints.Contains(CompanyIdentifier))
+	{
+		CurrentCapturePoint = SpacecraftData.CapturePoints[CompanyIdentifier];
+	}
+
+	CurrentCapturePoint += CapturePoint;
+
+	if(SpacecraftData.CapturePoints.Contains(CompanyIdentifier)){
+		SpacecraftData.CapturePoints[CompanyIdentifier] = CurrentCapturePoint;
+	}
+	else
+	{
+		SpacecraftData.CapturePoints.Add(CompanyIdentifier, CurrentCapturePoint);
+	}
+
+	if (CurrentCapturePoint > GetCapturePointThresold())
+	{
+		// Can be captured
+		return true;
+	}
+
+	return false;
+}
+
 EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const
 {
 	return GetCompany()->GetPlayerWarState();
 }
+
+int32 UFlareSimulatedSpacecraft::GetCapturePoint(UFlareCompany* Company) const
+{
+	if(SpacecraftData.CapturePoints.Contains(Company->GetIdentifier()))
+	{
+		return SpacecraftData.CapturePoints[Company->GetIdentifier()];
+	}
+	return 0;
+}
+
+int32 UFlareSimulatedSpacecraft::GetCapturePointThresold() const
+{
+	return SpacecraftData.Level * SpacecraftDescription->CapturePointThreshold;
+}
+
 
 const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescription* Characteristic)
 {

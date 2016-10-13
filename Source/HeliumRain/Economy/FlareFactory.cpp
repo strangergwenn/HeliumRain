@@ -567,7 +567,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 		for (uint32 Index = 0; Index < Action->Quantity; Index++)
 		{
 			// Get data
-			UFlareSimulatedSpacecraft* Spacecraft = Parent->GetCurrentSector()->CreateShip(ShipDescription, Company, SpawnPosition);
+			UFlareSimulatedSpacecraft* Spacecraft = Parent->GetCurrentSector()->CreateSpacecraft(ShipDescription, Company, SpawnPosition);
 			AFlarePlayerController* PC = Parent->GetGame()->GetPC();
 			FFlareMenuParameterData Data;
 			Data.Spacecraft = Spacecraft;

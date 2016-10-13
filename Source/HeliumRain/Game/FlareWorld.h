@@ -101,6 +101,8 @@ public:
 
 	void ProcessShipCapture();
 
+	void ProcessStationCapture();
+
 	/** Simulate world for a day */
 	void Simulate();
 
