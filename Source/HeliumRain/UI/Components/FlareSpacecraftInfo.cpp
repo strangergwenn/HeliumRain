@@ -117,6 +117,13 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						]
 					]
 
+					// Captures
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SAssignNew(CaptureBox, SVerticalBox)
+					]
+
 					// Cargo bay block
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -446,10 +453,13 @@ void SFlareSpacecraftInfo::Show()
 	{
 		CargoBay->SetVisibility(EVisibility::Visible);
 	}
+
+	UpdateCaptureList();
 }
 
 void SFlareSpacecraftInfo::Hide()
 {
+	CaptureBox->ClearChildren();
 	TargetSpacecraft = NULL;
 	TargetSpacecraftDesc = NULL;
 	SetVisibility(EVisibility::Collapsed);
@@ -459,6 +469,80 @@ void SFlareSpacecraftInfo::Hide()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+void SFlareSpacecraftInfo::UpdateCaptureList()
+{
+	CaptureBox->ClearChildren();
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Initial checks
+	FCHECK(PC);
+	FCHECK(TargetSpacecraft);
+	if (!TargetSpacecraft->IsStation())
+	{
+		return;
+	}
+
+	// Find all companies that could capture this
+	TArray<UFlareCompany*> Companies = PC->GetGame()->GetGameWorld()->GetCompanies();
+	for (int32 CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+	{
+		UFlareCompany* Company = Companies[CompanyIndex];
+		if (TargetSpacecraft->GetCapturePoint(Company) > 0)
+		{
+			FText CaptureInfo = FText::Format(LOCTEXT("CaptureFormat", "Capture in progress by {0} ({1})"),
+				Company->GetCompanyName(),
+				Company->GetPlayerHostilityText());
+
+			CaptureBox->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SBorder)
+				.BorderImage(&Theme.BackgroundBrush)
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SHorizontalBox)
+
+					// Flag
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareCompanyFlag)
+						.Company(Company)
+						.Player(PC)
+					]
+
+					// Textual warning
+					+ SHorizontalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(CaptureInfo)
+					]
+
+					// Progress bar
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(100)
+						.VAlign(VAlign_Center)
+						[
+							SNew(SProgressBar)
+							.Percent(static_cast<float>(TargetSpacecraft->GetCapturePoint(Company)) / static_cast<float>(TargetSpacecraft->GetCapturePointThreshold()))
+							.BorderPadding(FVector2D(0, 0))
+							.Style(&Theme.ProgressBarStyle)
+						]
+					]
+				]
+			];
+		}
+	}
+}
 
 void SFlareSpacecraftInfo::OnInspect()
 {

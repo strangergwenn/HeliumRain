@@ -850,7 +850,7 @@ FText UFlareCompany::GetPlayerHostilityText() const
 			Status = LOCTEXT("Friendly", "Friendly");
 			break;
 		case EFlareHostility::Owned:
-			Status = LOCTEXT("Owned", "Owned");
+			Status = LOCTEXT("Owned", "You");
 			break;
 		case EFlareHostility::Hostile:
 			Status = LOCTEXT("Hostile", "Hostile");

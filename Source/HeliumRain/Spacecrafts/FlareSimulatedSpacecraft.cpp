@@ -466,7 +466,7 @@ bool UFlareSimulatedSpacecraft::TryCapture(UFlareCompany* Company, int32 Capture
 		SpacecraftData.CapturePoints.Add(CompanyIdentifier, CurrentCapturePoint);
 	}
 
-	if (CurrentCapturePoint > GetCapturePointThresold())
+	if (CurrentCapturePoint > GetCapturePointThreshold())
 	{
 		// Can be captured
 		return true;
@@ -489,7 +489,7 @@ int32 UFlareSimulatedSpacecraft::GetCapturePoint(UFlareCompany* Company) const
 	return 0;
 }
 
-int32 UFlareSimulatedSpacecraft::GetCapturePointThresold() const
+int32 UFlareSimulatedSpacecraft::GetCapturePointThreshold() const
 {
 	return SpacecraftData.Level * SpacecraftDescription->CapturePointThreshold;
 }

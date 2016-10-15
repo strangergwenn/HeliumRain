@@ -63,6 +63,9 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Update a list of capturing companies */
+	void UpdateCaptureList();
+
 	/** Inspect the current target */
 	void OnInspect();
 
@@ -131,6 +134,7 @@ protected:
 	FText                             TargetName;
 
 	// Slate data (buttons)
+	TSharedPtr<SVerticalBox>          CaptureBox;
 	TSharedPtr<SFlareButton>          InspectButton;
 	TSharedPtr<SFlareButton>          UpgradeButton;
 	TSharedPtr<SFlareButton>          TradeButton;

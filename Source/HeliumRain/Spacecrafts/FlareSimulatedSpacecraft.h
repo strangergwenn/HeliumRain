@@ -257,6 +257,6 @@ public:
 
 	int32 GetCapturePoint(UFlareCompany* Company) const;
 
-	int32 GetCapturePointThresold() const;
+	int32 GetCapturePointThreshold() const;
 
 };
