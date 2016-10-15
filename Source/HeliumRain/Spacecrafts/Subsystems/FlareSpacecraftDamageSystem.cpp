@@ -478,7 +478,16 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 
 			if(DamageSource != NULL && DamageSource != Spacecraft->GetParent()->GetCompany())
 			{
-				Spacecraft->GetParent()->GetCompany()->GiveReputation(DamageSource, - (InflictedDamageRatio * 30), true);
+				float Reputation;
+				if(Spacecraft->IsStation())
+				{
+					Reputation = -InflictedDamageRatio * 3000;
+				}
+				else
+				{
+					Reputation = -InflictedDamageRatio * 30;
+				}
+				Spacecraft->GetParent()->GetCompany()->GiveReputation(DamageSource, Reputation, true);
 			}
 		}
 	}
