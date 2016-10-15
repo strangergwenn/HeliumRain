@@ -110,8 +110,10 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	static float GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
-						 FFlareSpacecraftComponentSave* ComponentData);
+	float GetMaxHitPoints(FFlareSpacecraftComponentDescription* ComponentDescription) const;
+
+	float GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
+						 FFlareSpacecraftComponentSave* ComponentData) const;
 
 	static int32 GetRepairCost(FFlareSpacecraftComponentDescription* ComponentDescription);
 

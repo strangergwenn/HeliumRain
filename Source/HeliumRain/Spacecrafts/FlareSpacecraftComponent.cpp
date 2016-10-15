@@ -415,8 +415,9 @@ float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type Da
 		}
 
 		ShipComponentData->Damage += EffectiveEnergy;
-		if (ShipComponentData->Damage > ComponentDescription->HitPoints) {
-			ShipComponentData->Damage = ComponentDescription->HitPoints;
+		float MaxHitPoints = Spacecraft->GetParent()->GetDamageSystem()->GetMaxHitPoints(ComponentDescription);
+		if (ShipComponentData->Damage > MaxHitPoints) {
+			ShipComponentData->Damage = MaxHitPoints;
 		}
 		float StateAfterDamage = GetDamageRatio();
 		InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
@@ -446,8 +447,9 @@ float UFlareSpacecraftComponent::GetDamageRatio() const
 {
 	if (ComponentDescription)
 	{
-		float RemainingHitPoints = ComponentDescription->HitPoints - ShipComponentData->Damage;
-		return FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
+		float MaxHitPoints = Spacecraft->GetParent()->GetDamageSystem()->GetMaxHitPoints(ComponentDescription);
+		float RemainingHitPoints = MaxHitPoints - ShipComponentData->Damage;
+		return FMath::Clamp(RemainingHitPoints / MaxHitPoints, 0.f, 1.f);
 	}
 	else
 	{
@@ -605,7 +607,7 @@ float UFlareSpacecraftComponent::GetTotalHitPoints() const
 {
 	if (ComponentDescription)
 	{
-		return ComponentDescription->HitPoints;
+		return Spacecraft->GetParent()->GetDamageSystem()->GetMaxHitPoints(ComponentDescription);
 	}
 	else
 	{

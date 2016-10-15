@@ -291,12 +291,13 @@ float UFlareSimulatedSpacecraftDamageSystem::Repair(FFlareSpacecraftComponentDes
 
 	if (RepairRatio > 0.f)
 	{
-		if(ComponentData->Damage > ComponentDescription->HitPoints)
+		float MaxHitPoints = GetMaxHitPoints(ComponentDescription);
+		if(ComponentData->Damage > MaxHitPoints)
 		{
-			ComponentData->Damage = ComponentDescription->HitPoints;
+			ComponentData->Damage = MaxHitPoints;
 		}
 
-		ComponentData->Damage = FMath::Max(0.f, ComponentData->Damage - ComponentDescription->HitPoints * RepairRatio);
+		ComponentData->Damage = FMath::Max(0.f, ComponentData->Damage - MaxHitPoints * RepairRatio);
 		RepairCost = RepairRatio * GetRepairCost(ComponentDescription);
 
 		FLOGV("%s %s repair %f for %f fs (damage ratio: %f)",  *Spacecraft->GetImmatriculation().ToString(),  *ComponentData->ShipSlotIdentifier.ToString(), RepairRatio, RepairCost, GetDamageRatio(ComponentDescription, ComponentData));
@@ -373,13 +374,21 @@ float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
 	return Data->Heat / Description->HeatCapacity;
 }
 
+float UFlareSimulatedSpacecraftDamageSystem::GetMaxHitPoints(FFlareSpacecraftComponentDescription* ComponentDescription) const
+{
+	return Spacecraft->GetLevel() * ComponentDescription->HitPoints;
+}
+
+
 float UFlareSimulatedSpacecraftDamageSystem::GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
-															FFlareSpacecraftComponentSave* ComponentData)
+															FFlareSpacecraftComponentSave* ComponentData) const
 {
 	if (ComponentDescription)
 	{
-		float RemainingHitPoints = ComponentDescription->HitPoints - ComponentData->Damage;
-		return FMath::Clamp(RemainingHitPoints / ComponentDescription->HitPoints, 0.f, 1.f);
+		float MaxHitPoints = GetMaxHitPoints(ComponentDescription);
+
+		float RemainingHitPoints = MaxHitPoints - ComponentData->Damage;
+		return FMath::Clamp(RemainingHitPoints / MaxHitPoints, 0.f, 1.f);
 	}
 	else
 	{

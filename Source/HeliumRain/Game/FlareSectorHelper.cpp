@@ -281,8 +281,7 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 			FFlareSpacecraftComponentSave* ComponentData = &Spacecraft->GetData().Components[ComponentIndex];
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
 
-			float DamageRatio = UFlareSimulatedSpacecraftDamageSystem::GetDamageRatio(ComponentDescription,
-																					  ComponentData);
+			float DamageRatio = Spacecraft->GetDamageSystem()->GetDamageRatio(ComponentDescription, ComponentData);
 
 			float CurrentRepairRatio = FMath::Min(MAX_REPAIR_RATIO_BY_DAY, (1.f - DamageRatio));
 			float TotalRepairRatio = 1.f - DamageRatio;
