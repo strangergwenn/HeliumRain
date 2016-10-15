@@ -159,6 +159,7 @@ void UFlareCompanyAI::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	// Don't keep reference on destroyed ship
 	ConstructionShips.Remove(Spacecraft);
+	ConstructionStaticShips.Remove(Spacecraft);
 }
 
 
