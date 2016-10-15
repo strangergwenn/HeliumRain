@@ -54,7 +54,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SNew(SBox)
-			.WidthOverride(60)
+			.WidthOverride(50)
 			.VAlign(VAlign_Center)
 			[
 				SNew(SProgressBar)
