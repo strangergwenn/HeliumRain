@@ -1203,6 +1203,7 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 		if (OtherCompany == Company)
 		{
 			FriendlySpacecraftCount++;
+			CrippledFriendlySpacecraftCount++;
 		}
 		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
 		{
