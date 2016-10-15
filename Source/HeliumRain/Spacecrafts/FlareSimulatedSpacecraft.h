@@ -123,6 +123,8 @@ public:
 
 protected:
 
+	void RemoveCapturePoint(FName CompanyIdentifier, int32 CapturePoint);
+
     /*----------------------------------------------------
         Protected data
     ----------------------------------------------------*/

@@ -12,6 +12,7 @@
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraft"
 
+#define CAPTURE_RESET_SPEED 0.1f
 
 /*----------------------------------------------------
 	Constructor
@@ -435,15 +436,40 @@ UFlareCompany* UFlareSimulatedSpacecraft::GetHarpoonCompany()
 	return Game->GetGameWorld()->FindCompany(SpacecraftData.HarpoonCompany);
 }
 
+void UFlareSimulatedSpacecraft::RemoveCapturePoint(FName CompanyIdentifier, int32 CapturePoint)
+{
+	if(SpacecraftData.CapturePoints.Contains(CompanyIdentifier))
+	{
+		int32 CurrentCapturePoint = SpacecraftData.CapturePoints[CompanyIdentifier];
+		if(CapturePoint >= CurrentCapturePoint)
+		{
+			SpacecraftData.CapturePoints.Remove(CompanyIdentifier);
+		}
+		else
+		{
+			SpacecraftData.CapturePoints[CompanyIdentifier] = CurrentCapturePoint - CapturePoint;
+		}
+	}
+}
+
 void UFlareSimulatedSpacecraft::ResetCapture(UFlareCompany* Company)
 {
+	int32 ResetSpeedPoint = FMath::CeilToInt(GetCapturePointThreshold() * CAPTURE_RESET_SPEED);
+
 	if (Company)
 	{
-		SpacecraftData.CapturePoints.Remove(Company->GetIdentifier());
+		FName CompanyIdentifier = Company->GetIdentifier();
+		RemoveCapturePoint(CompanyIdentifier, ResetSpeedPoint);
 	}
 	else
 	{
-		SpacecraftData.CapturePoints.Empty();
+		TArray<FName> CapturingCompany;
+		SpacecraftData.CapturePoints.GetKeys(CapturingCompany);
+
+		for(int CompanyIndex = 0; CompanyIndex < CapturingCompany.Num(); CompanyIndex++)
+		{
+			RemoveCapturePoint(CapturingCompany[CompanyIndex], ResetSpeedPoint);
+		}
 	}
 }
 
