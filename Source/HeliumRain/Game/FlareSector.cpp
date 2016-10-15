@@ -431,6 +431,18 @@ void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroyi
 	SimulatedSpacecraft->GetCompany()->DestroySpacecraft(SimulatedSpacecraft);
 
 	Spacecraft->Destroy();
+
+	if(!Destroying)
+	{
+		// Reload the menu as they can show the destroyed ship
+		// TODO #524: This will crash if a ship inspect menu is open on the destroyed ship,
+		// as the menu will be reload with a invalid spacecraft
+		AFlareMenuManager* MenuManager = GetGame()->GetPC()->GetMenuManager();
+		if (MenuManager->IsMenuOpen())
+		{
+			MenuManager->Reload();
+		}
+	}
 }
 
 void UFlareSector::SetPause(bool Pause)
