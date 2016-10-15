@@ -110,35 +110,48 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 		FText Info;
 		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = TargetShip->GetDamageSystem();
 
-		if (DamageSystem->IsStranded())
+		// Station-specific damage & info
+		if (TargetShip->IsStation())
 		{
-			Info = FText::Format(LOCTEXT("ShipStrandedFormat", "{0}This ship is stranded and can't exit the sector !\n"), Info);
-		}
-
-		if (DamageSystem->IsUncontrollable())
-		{
-			Info = FText::Format(LOCTEXT("ShipUncontrollableFormat", "{0}This ship is uncontrollable and can't move in the local space !\n"), Info);
-		}
-
-		if (TargetShip->IsMilitary() && DamageSystem->IsDisarmed())
-		{
-			Info = FText::Format(LOCTEXT("ShipDisarmedFormat", "{0}This ship is disarmed and unable to fight back !\n"), Info);
-		}
-
-		for (int32 Index = EFlareSubsystem::SYS_None + 1; Index <= EFlareSubsystem::SYS_Weapon; Index++)
-		{
-			if (Index == EFlareSubsystem::SYS_Weapon && !TargetShip->IsMilitary())
-			{
-				continue;
-			}
-			Info = FText::Format(LOCTEXT("HealthInfoFormat", "{0}\n{1} : {2}%"),
+			// Structure
+			Info = FText::Format(LOCTEXT("HealthInfoFormat", "Structure : {0}{1}%"),
 				Info,
-				UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName((EFlareSubsystem::Type)Index),
-				FText::AsNumber(FMath::RoundToInt(100 * DamageSystem->GetSubsystemHealth((EFlareSubsystem::Type)Index, false)))
-				);
+				FText::AsNumber(FMath::RoundToInt(100 * DamageSystem->GetGlobalHealth())));
 		}
 
-		MenuManager->ShowTooltip(this, LOCTEXT("Status", "SHIP STATUS"), Info);
+		// Ship-specific damage
+		else
+		{
+			if (DamageSystem->IsStranded())
+			{
+				Info = FText::Format(LOCTEXT("ShipStrandedFormat", "{0}This ship is stranded and can't exit the sector !\n"), Info);
+			}
+
+			if (DamageSystem->IsUncontrollable())
+			{
+				Info = FText::Format(LOCTEXT("ShipUncontrollableFormat", "{0}This ship is uncontrollable and can't move in the local space !\n"), Info);
+			}
+
+			if (TargetShip->IsMilitary() && DamageSystem->IsDisarmed())
+			{
+				Info = FText::Format(LOCTEXT("ShipDisarmedFormat", "{0}This ship is disarmed and unable to fight back !\n"), Info);
+			}
+
+			// Subsystems
+			for (int32 Index = EFlareSubsystem::SYS_None + 1; Index <= EFlareSubsystem::SYS_Weapon; Index++)
+			{
+				if (Index == EFlareSubsystem::SYS_Weapon && !TargetShip->IsMilitary())
+				{
+					continue;
+				}
+				Info = FText::Format(LOCTEXT("HealthInfoFormat", "{0}\n{1} : {2}%"),
+					Info,
+					UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName((EFlareSubsystem::Type)Index),
+					FText::AsNumber(FMath::RoundToInt(100 * DamageSystem->GetSubsystemHealth((EFlareSubsystem::Type)Index, false))));
+			}
+		}
+
+		MenuManager->ShowTooltip(this, LOCTEXT("Status", "SPACECRAFT STATUS"), Info);
 	}
 }
 
