@@ -150,7 +150,7 @@ FText SFlareSectorButton::GetSectorText() const
 				BattleStatusText = LOCTEXT("SectorBattleBattle", "Battle in progress\nRetreat possible");
 				break;
 			case EFlareSectorBattleState::BattleNoRetreat:
-				BattleStatusText = LOCTEXT("SectorBattleBattle", "Battle in progress");
+				BattleStatusText = LOCTEXT("SectorBattleBattleNoRetreat", "Battle in progress");
 				break;
 			default:
 				break;
