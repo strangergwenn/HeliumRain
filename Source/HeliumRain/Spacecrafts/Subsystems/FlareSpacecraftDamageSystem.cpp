@@ -454,6 +454,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+		bool IsStationCockpit = Spacecraft->IsStation() && Spacecraft->GetCockpit() == Component;
 
 		float ComponentSize;
 		FVector ComponentLocation;
@@ -465,10 +466,14 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 		//DrawDebugSphere(Spacecraft->GetWorld(), ComponentLocation, ComponentSize, 12, FColor::Green, true);
 
 		// Hit this component
-		if (IntersectDistance > 0)
+		if (IntersectDistance > 0 || IsStationCockpit)
 		{
 			//FLOGV("Component %s. ComponentSize=%f, Distance=%f, IntersectDistance=%f", *(Component->GetReadableName()), ComponentSize, Distance, IntersectDistance);
 			float Efficiency = FMath::Clamp(IntersectDistance / Radius , 0.0f, 1.0f);
+			if(IsStationCockpit)
+			{
+				Efficiency = 1;
+			}
 			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType);
 
 			if(DamageSource != NULL && DamageSource != Spacecraft->GetParent()->GetCompany())
