@@ -308,7 +308,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
 
-	//FLOGV("%s target %s",  *Ship->GetHumanReadableName(),  *PilotTargetShip->GetHumanReadableName());
+	//FLOGV("%s target %s",  *Ship->GetImmatriculation().ToString(),  *PilotTargetShip->GetImmatriculation().ToString());
 	// The pilot have a target, track and kill it
 
 	FVector LocalNose = FVector(1.f, 0.f, 0.f);
@@ -434,7 +434,6 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 
 			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * PreferedVelocity;
-
 			if (Distance > SecurityDistance || DangerousTarget)
 			{
 				UseOrbitalBoost = true;
@@ -449,6 +448,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		if (Distance > SecurityDistance)
 		{
 			// Security distance reach
+			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity;
 			AttackPhase = 0;
 			ClearTarget = true;
 		}
@@ -1057,7 +1057,6 @@ int32 UFlareShipPilot::GetPreferedWeaponGroup() const
 
 FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector InitialVelocityTarget, float CurveTrajectoryLimit) const
 {
-
 	// DEBUG
 	/*if(TargetShip->GetImmatriculation() != "PIRSPX-Arrow")
 	{
