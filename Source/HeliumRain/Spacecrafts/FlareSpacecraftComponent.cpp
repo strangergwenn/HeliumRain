@@ -493,6 +493,11 @@ float UFlareSpacecraftComponent::GetAvailablePower() const
 		return 1.f;
 	}
 
+	if(Spacecraft && Spacecraft->IsStation())
+	{
+		return 1.f;
+	}
+
 	return Power;
 }
 
@@ -537,6 +542,11 @@ void UFlareSpacecraftComponent::UpdateLight()
 
 void UFlareSpacecraftComponent::UpdatePowerSources(TArray<UFlareSpacecraftComponent*>* AvailablePowerSources)
 {
+	if(Spacecraft->IsStation())
+	{
+		return;
+	}
+
 	PowerSources.Empty();
 
 	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)

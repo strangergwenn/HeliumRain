@@ -418,6 +418,11 @@ float UFlareSimulatedSpacecraftDamageSystem::GetClampedUsableRatio(FFlareSpacecr
 }
 bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const
 {
+	if(Spacecraft->IsStation())
+	{
+		return true;
+	}
+
 	UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
 	bool HasPowerSource = false;
 
