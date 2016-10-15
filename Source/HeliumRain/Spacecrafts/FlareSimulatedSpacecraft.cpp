@@ -13,6 +13,10 @@
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraft"
 
 #define CAPTURE_RESET_SPEED 0.1f
+#define CAPTURE_THRESOLD_MIN 0.05f
+#define CAPTURE_THRESOLD_MIN_DAMAGE 0.25f
+
+#define STATION_DAMAGE_THRESOLD 0.75f
 
 /*----------------------------------------------------
 	Constructor
@@ -517,9 +521,36 @@ int32 UFlareSimulatedSpacecraft::GetCapturePoint(UFlareCompany* Company) const
 
 int32 UFlareSimulatedSpacecraft::GetCapturePointThreshold() const
 {
-	return SpacecraftData.Level * SpacecraftDescription->CapturePointThreshold;
+	int32 BaseCapturePoint = SpacecraftData.Level * SpacecraftDescription->CapturePointThreshold;
+	float DamageRatio = GetDamageSystem()->GetGlobalHealth();
+	float CaptureRatio = CAPTURE_THRESOLD_MIN;
+
+	if (DamageRatio > CAPTURE_THRESOLD_MIN_DAMAGE)
+	{
+		// if Damage ratio == 1 , Capture ratio == 1
+		// if Damage ratio == CAPTURE_THRESOLD_MIN_DAMAGE , Capture ratio == CAPTURE_THRESOLD_MIN
+		float Coef = (CAPTURE_THRESOLD_MIN - CAPTURE_THRESOLD_MIN_DAMAGE) / (1.f - CAPTURE_THRESOLD_MIN_DAMAGE);
+		CaptureRatio = (1.f - Coef) * DamageRatio + Coef;
+	}
+
+	return FMath::CeilToInt(BaseCapturePoint * CaptureRatio);
 }
 
+float UFlareSimulatedSpacecraft::GetStationEfficiency()
+{
+	// if Damage ratio == 1 ,  efficiency == 1
+	// if Damage ratio == STATION_DAMAGE_THRESOLD , efficiency = 0
+	float DamageRatio = GetDamageSystem()->GetGlobalHealth();
+	float Efficiency = 0.f;
+
+	if (DamageRatio > STATION_DAMAGE_THRESOLD)
+	{
+		float Coef = -STATION_DAMAGE_THRESOLD / (1.f - STATION_DAMAGE_THRESOLD);
+		Efficiency = (1.f - Coef) * DamageRatio + Coef;
+	}
+
+	return Efficiency;
+}
 
 const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescription* Characteristic)
 {

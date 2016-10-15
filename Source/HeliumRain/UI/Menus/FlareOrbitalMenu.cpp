@@ -690,7 +690,7 @@ FText SFlareOrbitalMenu::GetTravelText() const
 						if (TargetFactory->GetOrderShipCompany() == CompanyIdentifier)
 						{
 							FFlareSpacecraftDescription* OrderDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass());
-							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration() + OrderDesc->CycleCost.ProductionTime;
+							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration() + TargetFactory->GetProductionTime(OrderDesc->CycleCost);
 
 							FText ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered ({1} left)"),
 								OrderDesc->Name,

@@ -163,7 +163,7 @@ public:
 
 	inline int64 GetProductionDuration()
 	{
-		return GetCycleData().ProductionTime;
+		return GetProductionTime(GetCycleData());
 	}
 
 	inline bool IsActive()
@@ -237,6 +237,8 @@ public:
 	}
 
 	int64 GetProductionBalance();
+
+	int64 GetProductionTime(const struct FFlareProductionData& Cycle);
 
 	float GetMarginRatio();
 };

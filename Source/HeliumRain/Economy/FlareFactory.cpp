@@ -11,6 +11,7 @@
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
 
+#define MAX_DAMAGE_MALUS 10
 
 /*----------------------------------------------------
 	Constructor
@@ -56,12 +57,12 @@ void UFlareFactory::Simulate()
 	if (HasCostReserved())
 	{
 
-		if (FactoryData.ProductedDuration < GetCycleData().ProductionTime)
+		if (FactoryData.ProductedDuration < GetProductionTime(GetCycleData()))
 		{
 			FactoryData.ProductedDuration += 1;
 		}
 
-		if (FactoryData.ProductedDuration < GetCycleData().ProductionTime)
+		if (FactoryData.ProductedDuration < GetProductionTime(GetCycleData()))
 		{
 
 			// Still In production
@@ -543,7 +544,7 @@ FFlareWorldEvent *UFlareFactory::GenerateEvent()
 			return NULL;
 		}
 
-		NextEvent.Date= GetGame()->GetGameWorld()->GetDate() + GetCycleData().ProductionTime - FactoryData.ProductedDuration;
+		NextEvent.Date= GetGame()->GetGameWorld()->GetDate() + GetProductionTime(GetCycleData()) - FactoryData.ProductedDuration;
 		NextEvent.Visibility = EFlareEventVisibility::Silent;
 		return &NextEvent;
 	}
@@ -669,7 +670,7 @@ uint32 UFlareFactory::GetProductionCost(const FFlareProductionData* Data)
 
 int64 UFlareFactory::GetRemainingProductionDuration()
 {
-	return GetCycleData().ProductionTime - FactoryData.ProductedDuration;
+	return GetProductionTime(GetCycleData()) - FactoryData.ProductedDuration;
 }
 
 TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
@@ -898,7 +899,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 
 	return FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} in {2}"),
 		ProductionCostText, ProductionOutputText,
-		FText::FromString(*UFlareGameTools::FormatDate(GetCycleData().ProductionTime, 2))); // FString needed here
+		FText::FromString(*UFlareGameTools::FormatDate(GetProductionTime(GetCycleData()), 2))); // FString needed here
 }
 
 FText UFlareFactory::GetFactoryStatus()
@@ -1041,6 +1042,12 @@ int64 UFlareFactory::GetProductionBalance()
 	}
 
 	return Balance;
+}
+
+int64 UFlareFactory::GetProductionTime(const struct FFlareProductionData& Cycle)
+{
+	float Malus = 1.f + (1.f - Parent->GetStationEfficiency()) * (MAX_DAMAGE_MALUS -1.f);
+	return FMath::FloorToInt(Cycle.ProductionTime * Malus);
 }
 
 

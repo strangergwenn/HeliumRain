@@ -321,7 +321,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 	{
 		FCHECK(TargetFactory);
 		const FFlareProductionData* CycleData = &TargetFactory->GetCycleDataForShipClass(Desc->Identifier);
-		ProductionTime = CycleData->ProductionTime;
+		ProductionTime = TargetFactory->GetProductionTime(*CycleData);
 
 		// Station
 		if (Desc->OrbitalEngineCount == 0)

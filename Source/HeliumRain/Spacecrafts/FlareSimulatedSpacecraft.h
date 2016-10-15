@@ -261,4 +261,5 @@ public:
 
 	int32 GetCapturePointThreshold() const;
 
+	float GetStationEfficiency();
 };
