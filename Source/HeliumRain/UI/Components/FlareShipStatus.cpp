@@ -114,8 +114,7 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 		if (TargetShip->IsStation())
 		{
 			// Structure
-			Info = FText::Format(LOCTEXT("HealthInfoFormat", "Structure : {0}{1}%"),
-				Info,
+			Info = FText::Format(LOCTEXT("StationHealthInfoFormat", "Structure : {0}%"),
 				FText::AsNumber(FMath::RoundToInt(100 * DamageSystem->GetGlobalHealth())));
 		}
 
@@ -144,7 +143,7 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 				{
 					continue;
 				}
-				Info = FText::Format(LOCTEXT("HealthInfoFormat", "{0}\n{1} : {2}%"),
+				Info = FText::Format(LOCTEXT("ShipHealthInfoFormat", "{0}\n{1} : {2}%"),
 					Info,
 					UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName((EFlareSubsystem::Type)Index),
 					FText::AsNumber(FMath::RoundToInt(100 * DamageSystem->GetSubsystemHealth((EFlareSubsystem::Type)Index, false))));
