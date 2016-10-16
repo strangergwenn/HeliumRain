@@ -617,10 +617,13 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
-			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Current target : {0} ({1})"),
+			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Target : {0} ({1})"),
 				FText::FromString(TargetShip->GetParent()->GetImmatriculation().ToString()),
 				TargetShip->GetParent()->GetCompany()->GetPlayerHostilityText());
 			FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+
+			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.7;
+			DrawHUDDesignatorStatus(CurrentPos, IconSize, TargetShip);
 		}
 	}
 }
