@@ -274,8 +274,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				GetGame()->GetActiveSector()->DestroySpacecraft(this);
 			}
 
-			// Set a default target if there is no manual choice
-			if (this == PlayerShip && TargetIndex == 0 && PC->GetNavHUD()->GetCurrentTargetsOwner() == GetImmatriculation())
+			// Set a default target if there is current target
+			if (this == PlayerShip && !CurrentTarget && PC->GetNavHUD()->GetCurrentTargetsOwner() == GetImmatriculation())
 			{
 				TArray<FFlareScreenTarget>& ScreenTargets = PC->GetNavHUD()->GetCurrentTargets();
 				if (ScreenTargets.Num())
@@ -1178,6 +1178,8 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("LockDirection", EInputEvent::IE_Released, this, &AFlareSpacecraft::LockDirectionOff);
 	PlayerInputComponent->BindAction("Manual", EInputEvent::IE_Released, this, &AFlareSpacecraft::ForceManual);
 
+	PlayerInputComponent->BindAction("FindTarget", EInputEvent::IE_Released, this, &AFlareSpacecraft::FindTarget);
+
 	PlayerInputComponent->BindAction("LeftMouse", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::LeftMousePress);
 	PlayerInputComponent->BindAction("LeftMouse", EInputEvent::IE_Released, this, &AFlareSpacecraft::LeftMouseRelease);
 
@@ -1470,6 +1472,54 @@ void AFlareSpacecraft::ForceManual()
 	if (!StateManager->IsPilotMode() && NavigationSystem->GetStatus() != EFlareShipStatus::SS_Docked)
 	{
 		NavigationSystem->AbortAllCommands();
+	}
+}
+
+void AFlareSpacecraft::FindTarget()
+{
+	AFlareSpacecraft* TargetCandidate = NULL;
+
+	struct PilotHelper::TargetPreferences TargetPreferences;
+	TargetPreferences.IsLarge = 1;
+	TargetPreferences.IsSmall = 1;
+	TargetPreferences.IsStation = 1;
+	TargetPreferences.IsNotStation = 1;
+	TargetPreferences.IsMilitary = 1;
+	TargetPreferences.IsNotMilitary = 0.1;
+	TargetPreferences.IsDangerous = 1;
+	TargetPreferences.IsNotDangerous = 0.01;
+	TargetPreferences.IsStranded = 1;
+	TargetPreferences.IsNotStranded = 0.5;
+	TargetPreferences.IsUncontrolable = 0.1;
+	TargetPreferences.IsNotUncontrolable = 1;
+	TargetPreferences.IsHarpooned = 0;
+	TargetPreferences.TargetStateWeight = 1;
+	TargetPreferences.MaxDistance = 2000000;
+	TargetPreferences.DistanceWeight = 0.5;
+	TargetPreferences.AttackTarget = this;
+	TargetPreferences.AttackTargetWeight = 1;
+	TargetPreferences.LastTarget = CurrentTarget;
+	TargetPreferences.LastTargetWeight = -10; // Avoid current target
+	TargetPreferences.PreferredDirection = GetFrontVector();
+	TargetPreferences.MinAlignement = -1;
+	TargetPreferences.AlignementWeight = 0.1;
+	TargetPreferences.BaseLocation = GetActorLocation();
+
+	GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrolable, &TargetPreferences.IsNotUncontrolable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned, GetWeaponsSystem()->GetActiveWeaponGroup());
+
+	TargetCandidate = PilotHelper::GetBestTarget(this, TargetPreferences);
+
+	if (TargetCandidate)
+	{
+		CurrentTarget = TargetCandidate;
+	}
+	else
+	{
+		// Notify PC
+		GetPC()->Notify(LOCTEXT("NoBestTarget", "No best target"),
+				LOCTEXT("NoBestTargetFormat", "No target is adapted for your current weapon."),
+				FName("no-best-target"),
+				EFlareNotification::NT_Military);
 	}
 }
 

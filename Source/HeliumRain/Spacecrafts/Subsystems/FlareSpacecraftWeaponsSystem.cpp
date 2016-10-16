@@ -299,7 +299,7 @@ bool UFlareSpacecraftWeaponsSystem::HasUsableWeaponType(EFlareWeaponGroupType::T
 	return false;
 }
 
-void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollable, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned)
+void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollable, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned, FFlareWeaponGroup* RestrictGroup)
 {
 	float LargePool = 0;
 	float SmallPool = 0;
@@ -312,6 +312,11 @@ void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* I
 	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 	{
 		EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
+
+		if(RestrictGroup && WeaponGroupList[GroupIndex] != RestrictGroup)
+		{
+			continue;
+		}
 
 		if (Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true) <= 0)
 		{
