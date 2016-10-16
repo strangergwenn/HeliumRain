@@ -47,6 +47,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Get the visibility of the top panel depending on overlay visibility */
+	EVisibility GetTopPanelVisibility() const;
+
 	/** Get the current information to show */
 	FText GetInfoText() const;
 

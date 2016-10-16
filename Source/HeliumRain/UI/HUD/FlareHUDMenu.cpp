@@ -61,6 +61,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					SNew(SImage)
 					.Image(FFlareStyleSet::GetIcon("Temperature"))
 					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
+					.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 				]
 
 				// Bar
@@ -76,6 +77,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 						.Style(&Theme.ProgressBarStyle)
 						.Percent(this, &SFlareHUDMenu::GetTemperatureProgress)
 						.FillColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
+						.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 					]
 				]
 
@@ -92,6 +94,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 						.TextStyle(&Theme.NameFont)
 						.Text(this, &SFlareHUDMenu::GetTemperatureText)
 						.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+						.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 					]
 				]
 			]
@@ -107,6 +110,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			.TextStyle(&Theme.NameFont)
 			.Text(this, &SFlareHUDMenu::GetInfoText)
 			.ColorAndOpacity(NormalColor)
+			.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 		]
 
 		// Info text 2
@@ -119,6 +123,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			.TextStyle(&Theme.NameFont)
 			.Text(this, &SFlareHUDMenu::GetLowerInfoText)
 			.ColorAndOpacity(NormalColor)
+			.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 		]
 	
 		// Overheating box
@@ -326,13 +331,17 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 	Callbacks
 ----------------------------------------------------*/
 
+EVisibility SFlareHUDMenu::GetTopPanelVisibility() const
+{
+	return MenuManager->IsOverlayOpen() ? EVisibility::Hidden : EVisibility::Visible;
+}
+
 FText SFlareHUDMenu::GetInfoText() const
 {
 	if (TargetShip && TargetShip->IsActive() && !MenuManager->GetPC()->UseCockpit && MenuManager->GetPC()->GetGame()->GetActiveSector())
 	{
 		FText ModeText;
 		FText AutopilotText;
-		FText SectorText = TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName();
 		AFlareSpacecraft* ActiveTargetShip = TargetShip->GetActive();
 
 		if (ActiveTargetShip->GetNavigationSystem()->IsDocked())
@@ -347,6 +356,10 @@ FText SFlareHUDMenu::GetInfoText() const
 				AutopilotText = LOCTEXT("AUTOPILOT", " (Autopilot)");
 			}
 		}
+
+		FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "{0} ({1})"),
+			TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName(),
+			TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorFriendlynessText(TargetShip->GetCompany()));
 
 		return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}m/s - {1} {2} - {3}"),
 			FText::AsNumber(FMath::RoundToInt(ActiveTargetShip->GetLinearVelocity().Size())),
@@ -381,7 +394,9 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 			AFlareSpacecraft* TargetShipPawn = ActiveTargetShip;
 			if (TargetShipPawn && TargetShipPawn->GetCurrentTarget())
 			{
-				Info = FText::Format(LOCTEXT("TargettingFormat", "Targetting {0}"), FText::FromName(TargetShipPawn->GetCurrentTarget()->GetImmatriculation()));
+				Info = FText::Format(LOCTEXT("TargettingFormat", "Targetting {0} ({1})"),
+					FText::FromName(TargetShipPawn->GetCurrentTarget()->GetImmatriculation()),
+					TargetShipPawn->GetCurrentTarget()->GetParent()->GetCompany()->GetPlayerHostilityText());
 			}
 		}
 	}
