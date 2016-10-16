@@ -92,8 +92,38 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 
 FText SFlareSubsystemStatus::GetText() const
 {
+	UFlareSimulatedSpacecraftDamageSystem* DamageSystem = TargetShip->GetDamageSystem();
+	FText SystemText = UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(SubsystemType);
+
+	switch (SubsystemType)
+	{
+		case EFlareSubsystem::SYS_Propulsion:
+			SystemText = DamageSystem->IsStranded() ? LOCTEXT("CockpitStranded", "STRANDED") : SystemText;
+			break;
+
+		case EFlareSubsystem::SYS_RCS:
+			SystemText = DamageSystem->IsUncontrollable() ? LOCTEXT("CockpitUncontrollable", "UNCONTROLLABLE") : SystemText;
+			break;
+
+		case EFlareSubsystem::SYS_Weapon:
+			SystemText = DamageSystem->IsDisarmed() ? LOCTEXT("CockpitDisarmed", "DISARMED") : SystemText;
+			break;
+
+		case EFlareSubsystem::SYS_Temperature:
+			SystemText = (DamageSystem->GetTemperature() > DamageSystem->GetOverheatTemperature()) ? LOCTEXT("CockpitOverheating", "OVERHEATING") : SystemText;
+			break;
+
+		case EFlareSubsystem::SYS_Power:
+			SystemText = DamageSystem->HasPowerOutage() ? LOCTEXT("CockpitOutage", "POWER OUTAGE") : SystemText;
+			break;
+
+		case EFlareSubsystem::SYS_LifeSupport:
+			break;
+	}
+
+	// Format result
 	return FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}\n{1}%"),
-		UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(SubsystemType),
+		SystemText,
 		FText::AsNumber(FMath::RoundToInt(100 * ComponentHealth)));
 }
 

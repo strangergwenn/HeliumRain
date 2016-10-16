@@ -665,6 +665,8 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 			break;
 
 		case EFlareSubsystem::SYS_Temperature:
+			SystemText = (DamageSystem->GetTemperature() > DamageSystem->GetOverheatTemperature()) ? LOCTEXT("CockpitOverheating", "OVERHEATING") : SystemText;
+			Color = (DamageSystem->GetTemperature() > DamageSystem->GetOverheatTemperature()) ? DamageColor : NormalColor;
 			Icon = HUDTemperatureIcon;
 			break;
 
@@ -1026,6 +1028,12 @@ void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, bool
 		FVector2D ScreenspacePosition = FVector2D(LocalDirection.Y, -LocalDirection.Z);
 		ScreenspacePosition.Normalize();
 		ScreenspacePosition *= 1.2 * CombatMouseRadius;
+
+		// Make highlights more visible
+		if (Highlighted)
+		{
+			ScreenspacePosition *= 1.1;
+		}
 
 		// Draw
 		FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
