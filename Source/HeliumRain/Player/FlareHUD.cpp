@@ -665,8 +665,6 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 			break;
 
 		case EFlareSubsystem::SYS_Temperature:
-			SystemText = (DamageSystem->GetTemperature() > DamageSystem->GetOverheatTemperature()) ? LOCTEXT("CockpitOverheating", "OVERHEATING") : SystemText;
-			Color = (DamageSystem->GetTemperature() > DamageSystem->GetOverheatTemperature()) ? DamageColor : NormalColor;
 			Icon = HUDTemperatureIcon;
 			break;
 
