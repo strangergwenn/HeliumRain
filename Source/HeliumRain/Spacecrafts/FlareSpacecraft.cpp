@@ -107,6 +107,12 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		LastMass = Airframe->GetMass();
 	}
 
+	// Attach to parent actor, if any
+	if (GetData().AttachActorName != NAME_None && AttachActorConstraint == NULL)
+	{
+		TryAttachParentActor();
+	}
+
 	if (!IsPresentationMode() && StateManager && !Paused)
 	{
 		// Tick systems
@@ -700,46 +706,7 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 		StateManager = NewObject<UFlareSpacecraftStateManager>(this, UFlareSpacecraftStateManager::StaticClass());
 	}
 	StateManager->Initialize(this);
-
-	// Attach to actor, if any
-	if (GetData().AttachActorName != NAME_None)
-	{
-		// Find actor
-		AActor* AttachActor = NULL;
-		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-		{
-			if ((*ActorItr)->GetName() == GetData().AttachActorName.ToString())
-			{
-				AttachActor = *ActorItr;
-				break;
-			}
-		}
-		FCHECK(AttachActor);
-
-		// Setup constraint
-		FConstraintInstance ConstraintInstance;
-		ConstraintInstance.ProfileInstance.bDisableCollision = true;
-		ConstraintInstance.ProfileInstance.ConeLimit.Swing1Motion = ACM_Locked;
-		ConstraintInstance.ProfileInstance.ConeLimit.Swing2Motion = ACM_Locked;
-		ConstraintInstance.ProfileInstance.ConeLimit.Swing1LimitDegrees = 0;
-		ConstraintInstance.ProfileInstance.TwistLimit.TwistMotion = ACM_Locked;
-		ConstraintInstance.ProfileInstance.TwistLimit.TwistLimitDegrees = 0;
-		ConstraintInstance.ProfileInstance.LinearLimit.XMotion = LCM_Locked;
-		ConstraintInstance.ProfileInstance.LinearLimit.YMotion = LCM_Locked;
-		ConstraintInstance.ProfileInstance.LinearLimit.ZMotion = LCM_Locked;
-		ConstraintInstance.ProfileInstance.LinearLimit.Limit = 0;
-		ConstraintInstance.ProfileInstance.bLinearBreakable = 0;
-		ConstraintInstance.ProfileInstance.bAngularBreakable = 0;
-		ConstraintInstance.AngularRotationOffset = FRotator::ZeroRotator;
-
-		// Attach
-		AttachActorConstraint = NewObject<UPhysicsConstraintComponent>(Airframe);
-		AttachActorConstraint->ConstraintInstance = ConstraintInstance;
-		AttachActorConstraint->SetWorldLocation(GetActorLocation());
-		AttachActorConstraint->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false), NAME_None);
-		AttachActorConstraint->SetConstrainedComponents(Airframe, NAME_None, Cast<UPrimitiveComponent>(AttachActor->GetRootComponent()), NAME_None);
-	}
-
+	
 	// Subsystems
 	DamageSystem->Start();
 	NavigationSystem->Start();
@@ -787,7 +754,6 @@ UFlareSpacecraftDamageSystem* AFlareSpacecraft::GetDamageSystem() const
 	return DamageSystem;
 }
 
-
 UFlareSpacecraftNavigationSystem* AFlareSpacecraft::GetNavigationSystem() const
 {
 	return NavigationSystem;
@@ -814,6 +780,48 @@ void AFlareSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
 	ApplyAsteroidData();
 	SetActorLocation(Data->Location);
 	SetActorRotation(Data->Rotation);
+}
+
+void AFlareSpacecraft::TryAttachParentActor()
+{
+	// Find actor
+	AActor* AttachActor = NULL;
+	for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		if ((*ActorItr)->GetName() == GetData().AttachActorName.ToString())
+		{
+			AttachActor = *ActorItr;
+			break;
+		}
+	}
+
+	if (AttachActor)
+	{
+		FLOG("AFlareSpacecraft::TryAttachParentActor : found valid actor target");
+
+		// Setup constraint
+		FConstraintInstance ConstraintInstance;
+		ConstraintInstance.ProfileInstance.bDisableCollision = true;
+		ConstraintInstance.ProfileInstance.ConeLimit.Swing1Motion = ACM_Locked;
+		ConstraintInstance.ProfileInstance.ConeLimit.Swing2Motion = ACM_Locked;
+		ConstraintInstance.ProfileInstance.ConeLimit.Swing1LimitDegrees = 0;
+		ConstraintInstance.ProfileInstance.TwistLimit.TwistMotion = ACM_Locked;
+		ConstraintInstance.ProfileInstance.TwistLimit.TwistLimitDegrees = 0;
+		ConstraintInstance.ProfileInstance.LinearLimit.XMotion = LCM_Locked;
+		ConstraintInstance.ProfileInstance.LinearLimit.YMotion = LCM_Locked;
+		ConstraintInstance.ProfileInstance.LinearLimit.ZMotion = LCM_Locked;
+		ConstraintInstance.ProfileInstance.LinearLimit.Limit = 0;
+		ConstraintInstance.ProfileInstance.bLinearBreakable = 0;
+		ConstraintInstance.ProfileInstance.bAngularBreakable = 0;
+		ConstraintInstance.AngularRotationOffset = FRotator::ZeroRotator;
+
+		// Attach
+		AttachActorConstraint = NewObject<UPhysicsConstraintComponent>(Airframe);
+		AttachActorConstraint->ConstraintInstance = ConstraintInstance;
+		AttachActorConstraint->SetWorldLocation(GetActorLocation());
+		AttachActorConstraint->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false), NAME_None);
+		AttachActorConstraint->SetConstrainedComponents(Airframe, NAME_None, Cast<UPrimitiveComponent>(AttachActor->GetRootComponent()), NAME_None);
+	}
 }
 
 void AFlareSpacecraft::ApplyAsteroidData()

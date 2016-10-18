@@ -369,6 +369,9 @@ void UFlareSimulatedSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
 
 void UFlareSimulatedSpacecraft::SetActorAttachment(FName ActorName)
 {
+	FLOGV("UFlareSimulatedSpacecraft::SetActorAttachment : %s will attach to %s",
+		*GetImmatriculation().ToString(), *ActorName.ToString());
+
 	SpacecraftData.AttachActorName = ActorName;
 }
 

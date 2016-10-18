@@ -220,6 +220,13 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationArsenal, AxisSupplies, BlueHeart, 1);
 	CreateStations(StationShipyard, NemaHeavyWorks, BlueHeart, 1);
 	CreateStations(StationHabitation, Sunwatch, BlueHeart, 2);
+
+	// Create Blue Heart capital
+	FFlareStationSpawnParameters StationParams;
+	StationParams.Location = FVector(-50000.0, 0, 0);
+	StationParams.Rotation = FRotator::ZeroRotator;
+	StationParams.AttachActorName = FName("BlueHeartCore");
+	CreateStations("station-blue-heart", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
 	
 	// Anka HFR factory
 	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);

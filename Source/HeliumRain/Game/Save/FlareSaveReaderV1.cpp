@@ -302,6 +302,7 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	LoadFName(Object, "DynamicComponentStateIdentifier", &Data->DynamicComponentStateIdentifier);
 	LoadFloat(Object, "DynamicComponentStateProgress", &Data->DynamicComponentStateProgress);
 	LoadFName(Object, "HarpoonCompany", &Data->HarpoonCompany);
+	LoadFName(Object, "AttachActorName", &Data->AttachActorName);
 
 	// LEGACY alpha 3
 	Data->IsTrading = false;

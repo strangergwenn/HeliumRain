@@ -104,6 +104,9 @@ public:
 	/** Set asteroid data from an asteroid save */
 	void SetAsteroidData(FFlareAsteroidSave* Data);
 
+	/** Try to attach to the parent */
+	void TryAttachParentActor();
+
 	/** Apply the current asteroid data */
 	void ApplyAsteroidData();
 
