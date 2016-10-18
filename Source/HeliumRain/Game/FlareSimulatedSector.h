@@ -241,6 +241,30 @@ struct FFlareSectorSave
 };
 
 
+/** Spawn settings for a station */
+USTRUCT()
+struct FFlareStationSpawnParameters
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FVector Location;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FRotator Rotation;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName AttachActorName;
+
+	FFlareStationSpawnParameters()
+	{
+		Location = FVector::ZeroVector;
+		Rotation = FRotator::ZeroRotator;
+		AttachActorName = NAME_None;
+	}
+};
+
+
 UCLASS()
 class HELIUMRAIN_API UFlareSimulatedSector : public UObject
 {
@@ -270,13 +294,14 @@ public:
     ----------------------------------------------------*/
 
     /** Create a station in the level  for a specific company */
-	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation = FRotator::ZeroRotator);
+	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FFlareStationSpawnParameters SpawnParameters = FFlareStationSpawnParameters());
 
     /** Create a ship in the level  for a specific company */
 	UFlareSimulatedSpacecraft* CreateSpacecraft(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
 
 	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
-	UFlareSimulatedSpacecraft* CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator, FFlareSpacecraftSave* CapturedSpacecraft = NULL);
+	UFlareSimulatedSpacecraft* CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator,
+		FFlareSpacecraftSave* CapturedSpacecraft = NULL, bool SafeSpawnAtLocation = false);
 
 	/** Create an asteroid */
 	void CreateAsteroid(int32 ID, FName Name, FVector Location);
@@ -305,6 +330,8 @@ public:
 
 
 	void AttachStationToAsteroid(UFlareSimulatedSpacecraft* Spacecraft);
+
+	void AttachStationToActor(UFlareSimulatedSpacecraft* Spacecraft, FName AttachActorName);
 
 	void SimulatePriceVariation();
 

@@ -3,6 +3,7 @@
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "../Economy/FlareCargoBay.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
@@ -410,11 +411,11 @@ void UFlareScenarioTools::CreateShips(FName ShipClass, UFlareCompany* Company, U
 	}
 }
 
-void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count, int32 Level)
+void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count, int32 Level, FFlareStationSpawnParameters SpawnParameters)
 {
 	for (uint32 Index = 0; Index < Count; Index++)
 	{
-		UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, FVector::ZeroVector, FRotator::ZeroRotator);
+		UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, SpawnParameters);
 
 		if (!Station)
 		{

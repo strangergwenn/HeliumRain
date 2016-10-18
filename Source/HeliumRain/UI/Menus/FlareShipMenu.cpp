@@ -368,7 +368,11 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 			}
 			ObjectDescription->SetText(SpacecraftDescription);
 			
-			PC->GetMenuPawn()->ShowShip(TargetSpacecraft);
+			// Show the ship if it's not a substation
+			if (!ShipDesc->IsSubstation)
+			{
+				PC->GetMenuPawn()->ShowShip(TargetSpacecraft);
+			}
 		}
 
 		// Setup weapon descriptions

@@ -9,6 +9,7 @@
 #include "FlareInternalComponent.h"
 
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
 
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
@@ -42,15 +43,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	CameraMaxPitch = 80;
 	CameraPanSpeed = 2;
 
-	// Dock info
-	/*ShipData.DockedTo = NAME_None;
-	ShipData.DockedAt = -1;
-
-	// Asteroid info
-	ShipData.AsteroidData.Identifier = NAME_None;
-	ShipData.AsteroidData.AsteroidMeshID = 0;
-	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
-*/
 	// Gameplay
 	Paused = false;
 	LastMass = 0;
@@ -60,6 +52,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	StateManager = NULL;
 	CurrentTarget = NULL;
 	NavigationSystem = NULL;
+	AttachActorConstraint = NULL;
 }
 
 
@@ -242,7 +235,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			if (PlayerShip && !Parent->GetDamageSystem()->IsAlive())
 			{
 				float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-				if (Company && Distance > 500000)
+				if (Company && Distance > 500000 && !IsStation())
 				{
 					GetGame()->GetActiveSector()->DestroySpacecraft(this);
 					return;
@@ -707,6 +700,45 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 		StateManager = NewObject<UFlareSpacecraftStateManager>(this, UFlareSpacecraftStateManager::StaticClass());
 	}
 	StateManager->Initialize(this);
+
+	// Attach to actor, if any
+	if (GetData().AttachActorName != NAME_None)
+	{
+		// Find actor
+		AActor* AttachActor = NULL;
+		for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			if ((*ActorItr)->GetName() == GetData().AttachActorName.ToString())
+			{
+				AttachActor = *ActorItr;
+				break;
+			}
+		}
+		FCHECK(AttachActor);
+
+		// Setup constraint
+		FConstraintInstance ConstraintInstance;
+		ConstraintInstance.ProfileInstance.bDisableCollision = true;
+		ConstraintInstance.ProfileInstance.ConeLimit.Swing1Motion = ACM_Locked;
+		ConstraintInstance.ProfileInstance.ConeLimit.Swing2Motion = ACM_Locked;
+		ConstraintInstance.ProfileInstance.ConeLimit.Swing1LimitDegrees = 0;
+		ConstraintInstance.ProfileInstance.TwistLimit.TwistMotion = ACM_Locked;
+		ConstraintInstance.ProfileInstance.TwistLimit.TwistLimitDegrees = 0;
+		ConstraintInstance.ProfileInstance.LinearLimit.XMotion = LCM_Locked;
+		ConstraintInstance.ProfileInstance.LinearLimit.YMotion = LCM_Locked;
+		ConstraintInstance.ProfileInstance.LinearLimit.ZMotion = LCM_Locked;
+		ConstraintInstance.ProfileInstance.LinearLimit.Limit = 0;
+		ConstraintInstance.ProfileInstance.bLinearBreakable = 0;
+		ConstraintInstance.ProfileInstance.bAngularBreakable = 0;
+		ConstraintInstance.AngularRotationOffset = FRotator::ZeroRotator;
+
+		// Attach
+		AttachActorConstraint = NewObject<UPhysicsConstraintComponent>(Airframe);
+		AttachActorConstraint->ConstraintInstance = ConstraintInstance;
+		AttachActorConstraint->SetWorldLocation(GetActorLocation());
+		AttachActorConstraint->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false), NAME_None);
+		AttachActorConstraint->SetConstrainedComponents(Airframe, NAME_None, Cast<UPrimitiveComponent>(AttachActor->GetRootComponent()), NAME_None);
+	}
 
 	// Subsystems
 	DamageSystem->Start();

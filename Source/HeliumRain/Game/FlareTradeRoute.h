@@ -4,8 +4,10 @@
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareTradeRoute.generated.h"
 
-class UFlareSimulatedSector;
+class AFlareGame;
 class UFlareFleet;
+class UFlareCompany;
+class UFlareSimulatedSector;
 struct FFlareResourceDescription;
 
 /** Hostility status */

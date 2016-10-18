@@ -94,11 +94,12 @@ void UFlareSector::DestroySector()
 
 	IsDestroyingSector = true;
 
+	// Remove spacecrafts from world
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
-		if (!SectorSpacecrafts[SpacecraftIndex]->GetParent()->GetDamageSystem()->IsAlive())
+		UFlareSimulatedSpacecraft* Spacecraft = SectorSpacecrafts[SpacecraftIndex]->GetParent();
+		if (!Spacecraft->GetDamageSystem()->IsAlive() && !Spacecraft->GetDescription()->IsSubstation)
 		{
-			// Remove from world
 			DestroySpacecraft(SectorSpacecrafts[SpacecraftIndex], true);
 		}
 		else

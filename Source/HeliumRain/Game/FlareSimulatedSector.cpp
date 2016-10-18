@@ -131,7 +131,7 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 }
 
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, FFlareStationSpawnParameters SpawnParameters)
 {
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(StationClass);
 	UFlareSimulatedSpacecraft* Station = NULL;
@@ -144,12 +144,20 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 
 	if (Desc)
 	{
-		Station = CreateSpacecraft(Desc, Company, TargetPosition, TargetRotation);
+		bool SafeSpawn = (SpawnParameters.AttachActorName != NAME_None);
+		Station = CreateSpacecraft(Desc, Company, SpawnParameters.Location, SpawnParameters.Rotation, NULL, SafeSpawn);
 
 		// Needs an esteroid ? 
 		if (Station && Desc->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
 		{
 			AttachStationToAsteroid(Station);
+		}
+
+		// Substation
+		if (Station && Desc->IsSubstation)
+		{
+			FCHECK(SpawnParameters.AttachActorName != NAME_None);
+			AttachStationToActor(Station, SpawnParameters.AttachActorName);
 		}
 	}
 
@@ -177,7 +185,8 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FName ShipCla
 	return NULL;
 }
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation, FFlareSpacecraftSave* CapturedSpacecraft)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation,
+	FFlareSpacecraftSave* CapturedSpacecraft, bool SafeSpawnAtLocation)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
 
@@ -187,7 +196,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.Rotation = TargetRotation;
 	ShipData.LinearVelocity = FVector::ZeroVector;
 	ShipData.AngularVelocity = FVector::ZeroVector;
-	ShipData.SpawnMode = EFlareSpawnMode::Spawn;
+	ShipData.SpawnMode = SafeSpawnAtLocation ? EFlareSpawnMode::Safe : EFlareSpawnMode::Spawn;
 	Game->Immatriculate(Company, ShipDescription->Identifier, &ShipData);
 	ShipData.Identifier = ShipDescription->Identifier;
 	ShipData.Heat = 600 * ShipDescription->HeatCapacity;
@@ -644,7 +653,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftD
 		}
 	}
 
-	return CreateStation(StationDescription->Identifier, Company, FVector::ZeroVector);
+	return CreateStation(StationDescription->Identifier, Company);
 }
 
 bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station, TArray<FText>& OutReasons)
@@ -828,6 +837,11 @@ void UFlareSimulatedSector::AttachStationToAsteroid(UFlareSimulatedSpacecraft* S
 	{
 		FLOG("UFlareSimulatedSector::AttachStationToAsteroid : Failed to use asteroid !");
 	}
+}
+
+void UFlareSimulatedSector::AttachStationToActor(UFlareSimulatedSpacecraft* Spacecraft, FName AttachActorName)
+{
+	Spacecraft->SetActorAttachment(AttachActorName);
 }
 
 void UFlareSimulatedSector::SimulatePriceVariation()

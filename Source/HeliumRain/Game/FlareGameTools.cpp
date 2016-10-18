@@ -893,8 +893,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipCl
 
 	AFlarePlayerController* PC = GetPC();
 
-	FVector TargetPosition = FVector::ZeroVector;
-	UFlareSimulatedSpacecraft* ShipPawn = Sector->CreateStation(ShipClass, PC->GetCompany(), TargetPosition);
+	UFlareSimulatedSpacecraft* ShipPawn = Sector->CreateStation(ShipClass, PC->GetCompany());
 
 	return ShipPawn;
 }
@@ -928,7 +927,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSect
 		return NULL;
 	}
 
-	UFlareSimulatedSpacecraft* NewStation = Sector->CreateStation(StationClass, Company, FVector::ZeroVector, FRotator::ZeroRotator);
+	UFlareSimulatedSpacecraft* NewStation = Sector->CreateStation(StationClass, Company);
 	return NewStation;
 }
 
@@ -1260,14 +1259,15 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName Station
 
 	AFlarePlayerController* PC = GetPC();
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();
-	FVector TargetPosition = FVector::ZeroVector;
+
+	FFlareStationSpawnParameters StationParams;
 	if (ExistingShipPawn)
 	{
-		TargetPosition = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
+		StationParams.Location = ExistingShipPawn->GetActorLocation() + ExistingShipPawn->GetActorRotation().RotateVector(Distance * FVector(100, 0, 0));
 	}
 
 	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
-	UFlareSimulatedSpacecraft* NewStation = ActiveSector->CreateStation(StationClass, Company, TargetPosition);
+	UFlareSimulatedSpacecraft* NewStation = ActiveSector->CreateStation(StationClass, Company, StationParams);
 	GetGame()->ActivateCurrentSector();
 	
 	FFlareMenuParameterData Data;

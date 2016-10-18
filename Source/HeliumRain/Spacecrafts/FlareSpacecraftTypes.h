@@ -413,13 +413,18 @@ struct FFlareSpacecraftSave
 	/** Is a refill in progress */
 	bool IsRefilling;
 
-	/** HarpoonCompany */
+	/** Company that harpooned us */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName HarpoonCompany;
 
 	/** Current capture points */
-	UPROPERTY(EditAnywhere, Category = Content)
+	UPROPERTY(EditAnywhere, Category = Save)
 	TMap<FName, int32> CapturePoints;
+
+	/** Actor to attach to */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName AttachActorName;
+	
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */
@@ -718,6 +723,11 @@ struct FFlareSpacecraftDescription
 	/** Capture point to capture (scale with level.*/
 	UPROPERTY(EditAnywhere, Category = Content)
 	int32 CapturePointThreshold;
+
+	/** Is this a fixed station attached to world geometry */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool IsSubstation;
+
 
 	int32 GetCapacity();
 

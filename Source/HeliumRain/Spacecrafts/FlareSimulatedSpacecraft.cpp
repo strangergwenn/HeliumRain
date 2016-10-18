@@ -367,6 +367,11 @@ void UFlareSimulatedSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
 	SpacecraftData.Rotation = Data->Rotation;
 }
 
+void UFlareSimulatedSpacecraft::SetActorAttachment(FName ActorName)
+{
+	SpacecraftData.AttachActorName = ActorName;
+}
+
 void UFlareSimulatedSpacecraft::SetDynamicComponentState(FName Identifier, float Progress)
 {
 	SpacecraftData.DynamicComponentStateIdentifier = Identifier;

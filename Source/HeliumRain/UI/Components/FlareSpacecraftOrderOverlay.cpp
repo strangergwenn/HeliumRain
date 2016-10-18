@@ -153,18 +153,21 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareFactory* Factory)
 			UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->ShipCatalog[SpacecraftIndex];
 			FFlareSpacecraftDescription* Description = &Entry->Data;
 
-			// Filter by Spacecraft size, and add
-			bool LargeFactory = TargetFactory->IsLargeShipyard();
-			bool LargeSpacecraft = Description->Size >= EFlarePartSize::L;
-			if (LargeFactory == LargeSpacecraft)
+			if (!Description->IsSubstation)
 			{
-				SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
-			}
+				// Filter by spacecraft size and add
+				bool LargeFactory = TargetFactory->IsLargeShipyard();
+				bool LargeSpacecraft = Description->Size >= EFlarePartSize::L;
+				if (LargeFactory == LargeSpacecraft)
+				{
+					SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
+				}
 
-			// Pre-selection
-			if (Description->Identifier == TargetFactory->GetTargetShipClass())
-			{
-				SelectedEntry = Entry;
+				// Pre-selection
+				if (Description->Identifier == TargetFactory->GetTargetShipClass())
+				{
+					SelectedEntry = Entry;
+				}
 			}
 		}
 	}
@@ -187,8 +190,12 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSector* Sector, FOrderDel
 
 		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
 		{
-			UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
-			SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
+			FFlareSpacecraftDescription* Description = &SpacecraftCatalog->ShipCatalog[SpacecraftIndex]->Data;
+			if (!Description->IsSubstation)
+			{
+				UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
+				SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
+			}
 		}
 	}
 

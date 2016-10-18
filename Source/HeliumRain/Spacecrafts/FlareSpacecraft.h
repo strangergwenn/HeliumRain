@@ -241,6 +241,10 @@ protected:
 	UPROPERTY()
 	UFont*                                         ShipNameFont;
 
+	// Attach to parent actor in world
+	UPROPERTY()
+	UPhysicsConstraintComponent*                   AttachActorConstraint;
+
 	// Systems
 	UPROPERTY()
 	UFlareSpacecraftDamageSystem*                  DamageSystem;
@@ -258,6 +262,7 @@ protected:
 	float                                          LastMass;
 
 	bool										   InWarningZone;
+
 
 	/*----------------------------------------------------
 		Target selection

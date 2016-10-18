@@ -74,6 +74,9 @@ public:
 	/** Set asteroid data from an asteroid save */
 	void SetAsteroidData(FFlareAsteroidSave* Data);
 
+	/** Set parent object name */
+	void SetActorAttachment(FName ActorName);
+
 	void SetDynamicComponentState(FName Identifier, float Progress = 0.f);
 
 	void Upgrade()
