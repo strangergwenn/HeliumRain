@@ -807,6 +807,8 @@ void AFlareSpacecraft::TryAttachParentActor()
 			*GetImmatriculation().ToString(),
 			*GetData().AttachActorName.ToString());
 
+		Airframe->SetSimulatePhysics(true);
+		Airframe->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		AttachToActor(AttachActor, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 		AttachedToParentActor = true;
 	}
