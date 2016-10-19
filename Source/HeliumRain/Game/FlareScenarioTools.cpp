@@ -217,16 +217,40 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 1);
 	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
 	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1);
-	CreateStations(StationArsenal, AxisSupplies, BlueHeart, 1);
-	CreateStations(StationShipyard, NemaHeavyWorks, BlueHeart, 1);
-	CreateStations(StationHabitation, Sunwatch, BlueHeart, 2);
 
-	// Create Blue Heart capital
-	FFlareStationSpawnParameters StationParams;
-	StationParams.Location = FVector::ZeroVector;
-	StationParams.Rotation = FRotator::ZeroRotator;
-	StationParams.AttachActorName = FName("BlueHeartCore");
-	CreateStations("station-blue-heart", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+	// Create Blue Heart capital station
+	{
+		float StationRadius = 48000;
+		FVector UpVector(0, 0, 1);
+		FVector BaseLocation = FVector(-200000.0, 0, 0);
+		FFlareStationSpawnParameters StationParams;
+		StationParams.AttachActorName = FName("BlueHeartCore");
+
+		// BH Shipyard
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0);
+		StationParams.Rotation = FRotator::ZeroRotator;
+		CreateStations("station-bh-shipyard",   NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+
+		// BH Arsenal
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(30, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 30));
+		CreateStations("station-bh-arsenal",    AxisSupplies,   BlueHeart, 1, 1, StationParams);
+
+		// BH Hub
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-30, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -30));
+		CreateStations("station-bh-hub",        NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+
+		// BH Habitation 1
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 10000);
+		StationParams.Rotation = FRotator::ZeroRotator;
+		CreateStations("station-bh-habitation", Sunwatch,       BlueHeart, 1, 1, StationParams);
+
+		// BH Habitation 2
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, -10000);
+		StationParams.Rotation = FRotator::ZeroRotator;
+		CreateStations("station-bh-habitation", Sunwatch,       BlueHeart, 1, 1, StationParams);
+	}
 	
 	// Anka HFR factory
 	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);
