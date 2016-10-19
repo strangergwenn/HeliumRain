@@ -816,10 +816,11 @@ void AFlareSpacecraft::TryAttachParentActor()
 		ConstraintInstance.AngularRotationOffset = FRotator::ZeroRotator;
 
 		// Attach
+		SetActorLocation(AttachActor->GetActorLocation());
 		AttachActorConstraint = NewObject<UPhysicsConstraintComponent>(Airframe);
 		AttachActorConstraint->ConstraintInstance = ConstraintInstance;
-		AttachActorConstraint->SetWorldLocation(GetActorLocation());
-		AttachActorConstraint->AttachToComponent(GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false), NAME_None);
+		AttachActorConstraint->SetWorldLocation(AttachActor->GetActorLocation());
+		AttachActorConstraint->AttachToComponent(AttachActor->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), NAME_None);
 		AttachActorConstraint->SetConstrainedComponents(Airframe, NAME_None, Cast<UPrimitiveComponent>(AttachActor->GetRootComponent()), NAME_None);
 	}
 }

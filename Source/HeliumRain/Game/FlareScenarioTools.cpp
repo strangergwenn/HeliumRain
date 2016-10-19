@@ -223,7 +223,7 @@ void UFlareScenarioTools::SetupWorld()
 
 	// Create Blue Heart capital
 	FFlareStationSpawnParameters StationParams;
-	StationParams.Location = FVector(-50000.0, 0, 0);
+	StationParams.Location = FVector::ZeroVector;
 	StationParams.Rotation = FRotator::ZeroRotator;
 	StationParams.AttachActorName = FName("BlueHeartCore");
 	CreateStations("station-blue-heart", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
