@@ -9,7 +9,6 @@
 #include "FlareInternalComponent.h"
 
 #include "Particles/ParticleSystemComponent.h"
-#include "PhysicsEngine/PhysicsConstraintComponent.h"
 
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
@@ -45,6 +44,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 
 	// Gameplay
 	Paused = false;
+	AttachedToParentActor = false;
 	LastMass = 0;
 	TargetIndex = 0;
 	TimeSinceSelection = 0;
@@ -52,7 +52,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	StateManager = NULL;
 	CurrentTarget = NULL;
 	NavigationSystem = NULL;
-	AttachActorConstraint = NULL;
 }
 
 
@@ -108,7 +107,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 	}
 
 	// Attach to parent actor, if any
-	if (GetData().AttachActorName != NAME_None && AttachActorConstraint == NULL)
+	if (GetData().AttachActorName != NAME_None && !AttachedToParentActor)
 	{
 		TryAttachParentActor();
 	}
@@ -587,11 +586,17 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 {
 	// Update local data
 	Parent = ParentSpacecraft;
-
+	
 	if (!IsPresentationMode())
 	{
 		Airframe->SetSimulatePhysics(true);
 		Parent->SetActiveSpacecraft(this);
+	}
+
+	if (Parent->GetData().AttachActorName != NAME_None)
+	{
+		Airframe->SetSimulatePhysics(false);
+		Airframe->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	/*FLOGV("AFlareSpacecraft::Load %s", *ParentSpacecraft->GetImmatriculation().ToString());*/
@@ -795,35 +800,15 @@ void AFlareSpacecraft::TryAttachParentActor()
 		}
 	}
 
+	// Atrach the actor
 	if (AttachActor)
 	{
 		FLOGV("AFlareSpacecraft::TryAttachParentActor : '%s' found valid actor target '%s'",
 			*GetImmatriculation().ToString(),
 			*GetData().AttachActorName.ToString());
 
-		// Setup constraint
-		FConstraintInstance ConstraintInstance;
-		ConstraintInstance.ProfileInstance.bDisableCollision = true;
-		ConstraintInstance.ProfileInstance.ConeLimit.Swing1Motion = ACM_Locked;
-		ConstraintInstance.ProfileInstance.ConeLimit.Swing2Motion = ACM_Locked;
-		ConstraintInstance.ProfileInstance.ConeLimit.Swing1LimitDegrees = 0;
-		ConstraintInstance.ProfileInstance.TwistLimit.TwistMotion = ACM_Locked;
-		ConstraintInstance.ProfileInstance.TwistLimit.TwistLimitDegrees = 0;
-		ConstraintInstance.ProfileInstance.LinearLimit.XMotion = LCM_Locked;
-		ConstraintInstance.ProfileInstance.LinearLimit.YMotion = LCM_Locked;
-		ConstraintInstance.ProfileInstance.LinearLimit.ZMotion = LCM_Locked;
-		ConstraintInstance.ProfileInstance.LinearLimit.Limit = 0;
-		ConstraintInstance.ProfileInstance.bLinearBreakable = 0;
-		ConstraintInstance.ProfileInstance.bAngularBreakable = 0;
-		ConstraintInstance.AngularRotationOffset = FRotator::ZeroRotator;
-
-		// Attach
-		SetActorLocation(AttachActor->GetActorLocation() + GetActorLocation());
-		AttachActorConstraint = NewObject<UPhysicsConstraintComponent>(Airframe);
-		AttachActorConstraint->ConstraintInstance = ConstraintInstance;
-		AttachActorConstraint->SetWorldLocation(AttachActor->GetActorLocation());
-		AttachActorConstraint->AttachToComponent(AttachActor->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false), NAME_None);
-		AttachActorConstraint->SetConstrainedComponents(Airframe, NAME_None, Cast<UPrimitiveComponent>(AttachActor->GetRootComponent()), NAME_None);
+		AttachToActor(AttachActor, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+		AttachedToParentActor = true;
 	}
 }
 
