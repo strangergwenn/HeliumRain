@@ -1375,6 +1375,7 @@ void AFlareSpacecraft::NextTarget()
 		else
 		{
 			TargetIndex = 0;
+			CurrentTarget = NULL;
 			FLOG("AFlareSpacecraft::NextTarget : reset to center");
 		}
 
