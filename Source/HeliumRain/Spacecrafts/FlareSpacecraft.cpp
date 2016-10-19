@@ -797,7 +797,9 @@ void AFlareSpacecraft::TryAttachParentActor()
 
 	if (AttachActor)
 	{
-		FLOG("AFlareSpacecraft::TryAttachParentActor : found valid actor target");
+		FLOGV("AFlareSpacecraft::TryAttachParentActor : '%s' found valid actor target '%s'",
+			*GetImmatriculation().ToString(),
+			*GetData().AttachActorName.ToString());
 
 		// Setup constraint
 		FConstraintInstance ConstraintInstance;
@@ -816,11 +818,11 @@ void AFlareSpacecraft::TryAttachParentActor()
 		ConstraintInstance.AngularRotationOffset = FRotator::ZeroRotator;
 
 		// Attach
-		SetActorLocation(AttachActor->GetActorLocation());
+		SetActorLocation(AttachActor->GetActorLocation() + GetActorLocation());
 		AttachActorConstraint = NewObject<UPhysicsConstraintComponent>(Airframe);
 		AttachActorConstraint->ConstraintInstance = ConstraintInstance;
 		AttachActorConstraint->SetWorldLocation(AttachActor->GetActorLocation());
-		AttachActorConstraint->AttachToComponent(AttachActor->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false), NAME_None);
+		AttachActorConstraint->AttachToComponent(AttachActor->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false), NAME_None);
 		AttachActorConstraint->SetConstrainedComponents(Airframe, NAME_None, Cast<UPrimitiveComponent>(AttachActor->GetRootComponent()), NAME_None);
 	}
 }
