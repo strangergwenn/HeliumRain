@@ -285,7 +285,7 @@ void UFlareWeapon::FillBombs()
 		FLOGV("Bomb %d HardpointLocation=%s", BombIndex, *HardpointLocation.ToString());
 		FLOGV("Bomb %d HardpointRotation=%s", BombIndex, *HardpointRotation.ToString());*/
 
-		UStaticMeshSocket* Hardpoint = StaticMesh->FindSocket(HardpointName);
+		UStaticMeshSocket* Hardpoint = GetStaticMesh()->FindSocket(HardpointName);
 		FMatrix SocketMatrix;
 		Hardpoint->GetSocketMatrix(SocketMatrix, this);
 

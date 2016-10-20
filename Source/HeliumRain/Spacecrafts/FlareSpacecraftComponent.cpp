@@ -289,12 +289,12 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 		SetVisibility(false, false);
 	}
 
-	if (StaticMesh)
+	if (GetStaticMesh())
 	{
 		// Parse all LODs levels, then all elements
-		for (int32 LODIndex = 0; LODIndex < StaticMesh->RenderData->LODResources.Num(); LODIndex++)
+		for (int32 LODIndex = 0; LODIndex < GetStaticMesh()->RenderData->LODResources.Num(); LODIndex++)
 		{
-			FStaticMeshLODResources& LOD = StaticMesh->RenderData->LODResources[LODIndex];
+			FStaticMeshLODResources& LOD = GetStaticMesh()->RenderData->LODResources[LODIndex];
 			for (int32 ElementIndex = 0; ElementIndex < LOD.Sections.Num(); ElementIndex++)
 			{
 				// Get base material from LOD element
