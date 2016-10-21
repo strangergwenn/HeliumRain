@@ -835,8 +835,9 @@ void AFlareGame::LoadStreamingLevel(FName SectorLevel)
 		Info.UUID = CurrentStreamingLevelIndex;
 		Info.Linkage = 0;
 
-		UGameplayStatics::LoadStreamLevel(this, SectorLevel, true, false, Info);
+		UGameplayStatics::LoadStreamLevel(this, SectorLevel, true, true, Info);
 		CurrentStreamingLevelIndex++;
+		IsLoadingStreamingLevel = true;
 	}
 }
 
@@ -854,16 +855,19 @@ void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
 
 		UGameplayStatics::UnloadStreamLevel(this, SectorLevel, Info);
 		CurrentStreamingLevelIndex++;
+		IsLoadingStreamingLevel = true;
 	}
 }
 
 void AFlareGame::OnLevelLoaded()
 {
+	IsLoadingStreamingLevel = false;
 	FLOG("AFlareGame::OnLevelLoaded");
 }
 
 void AFlareGame::OnLevelUnLoaded()
 {
+	IsLoadingStreamingLevel = false;
 	FLOG("AFlareGame::OnLevelUnLoaded");
 }
 

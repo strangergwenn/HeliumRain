@@ -275,9 +275,11 @@ protected:
 	bool                                       LoadedOrCreated;
 	int32                                      SaveSlotCount;
 	int32                                      CurrentStreamingLevelIndex;
+	bool                                       IsLoadingStreamingLevel;
 
 	UPROPERTY()
 	TArray<FFlareSaveSlotInfo>                 SaveSlots;
+
 
 public:
 	
@@ -408,5 +410,11 @@ public:
 	{
 		return ScenarioTools;
 	}
+
+	bool IsLoadingLevel() const
+	{
+		return IsLoadingStreamingLevel;
+	}
+
 
 };
