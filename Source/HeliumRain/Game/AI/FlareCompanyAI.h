@@ -88,6 +88,9 @@ public:
 	/** Buy / build ships at shipyards */
 	void UpdateShipAcquisition(int32& IdleCargoCapacity);
 
+	/** Repair then refill all ships and stations */
+	void RepairAndRefill();
+
 	/** Buy / build ships at shipyards */
 	void UpdateMilitaryMovement(bool DefendOnly);
 

@@ -390,6 +390,21 @@ int32 UFlareCompanyAI::UpdateTrading()
 	return IdleCargoCapacity;
 }
 
+void UFlareCompanyAI::RepairAndRefill()
+{
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+		SectorHelper::RepairFleets(Sector, Company);
+	}
+
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+		SectorHelper::RefillFleets(Sector, Company);
+	}
+}
+
 void UFlareCompanyAI::UpdateStationConstruction(int32& IdleCargoCapacity)
 {
 	// Prepare resources for station-building analysis

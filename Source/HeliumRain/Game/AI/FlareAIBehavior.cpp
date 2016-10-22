@@ -48,6 +48,9 @@ void UFlareAIBehavior::SimulateGeneralBehavior()
 	// Update trade routes
 	int32 IdleCargoCapacity = Company->GetAI()->UpdateTrading();
 
+	// Repair and refill ships and stations
+	Company->GetAI()->RepairAndRefill();
+
 	// Create or upgrade stations
 	Company->GetAI()->UpdateStationConstruction(IdleCargoCapacity);
 
@@ -96,6 +99,9 @@ void UFlareAIBehavior::SimulatePirateBehavior()
 {
 	// Simulate company attitude towards others
 	Company->GetAI()->UpdateDiplomacy();
+
+	// Repair and refill ships and stations
+	Company->GetAI()->RepairAndRefill();
 
 	// Update trade routes
 	int32 IdleCargoCapacity = Company->GetAI()->UpdateTrading();
