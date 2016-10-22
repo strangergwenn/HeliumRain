@@ -89,7 +89,7 @@ public:
 	void UpdateShipAcquisition(int32& IdleCargoCapacity);
 
 	/** Buy / build ships at shipyards */
-	void UpdateMilitaryMovement();
+	void UpdateMilitaryMovement(bool DefendOnly);
 
 	/** Buy war ships */
 	void UpdateWarShipAcquisition();

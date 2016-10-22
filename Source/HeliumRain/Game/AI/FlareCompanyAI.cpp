@@ -1220,7 +1220,7 @@ void UFlareCompanyAI::UpdateWarShipAcquisition()
 	OrderOneShip(ShipDescription);
 }
 
-void UFlareCompanyAI::UpdateMilitaryMovement()
+void UFlareCompanyAI::UpdateMilitaryMovement(bool DefendOnly)
 {
 
 	TArray<UFlareSimulatedSpacecraft*> IdleMilitaryShips = FindIdleMilitaryShips();
@@ -1233,8 +1233,36 @@ void UFlareCompanyAI::UpdateMilitaryMovement()
 
 		if (FMath::FRand() < 0.1) {
 			// Move
-			int32 SectorIndex = FMath::RandRange(0, Company->GetKnownSectors().Num() - 1);
-			Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Company->GetKnownSectors()[SectorIndex]);
+			while(true)
+			{
+				int32 SectorIndex = FMath::RandRange(0, Company->GetKnownSectors().Num() - 1);
+
+				UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+
+				if(DefendOnly)
+				{
+					bool DefendTarget = false;
+					for (int32 SpacecraftIndex = 0 ; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+					{
+						UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+						if (ShipCandidate->GetCompany() == Company && !ShipCandidate->IsMilitary())
+						{
+							DefendTarget = true;
+							break;
+						}
+
+					}
+
+					if(!DefendTarget)
+					{
+						continue;
+					}
+				}
+
+				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Sector);
+				break;
+			}
 		}
 	}
 
