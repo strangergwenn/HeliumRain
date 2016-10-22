@@ -355,12 +355,7 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 
 float UFlareSpacecraftComponent::GetArmor()
 {
-	if (ComponentDescription)
-	{
-		return ComponentDescription->Armor / 100.f;
-	}
-
-	return 1;
+	return UFlareSimulatedSpacecraftDamageSystem::GetArmor(ComponentDescription);
 }
 
 float UFlareSpacecraftComponent::GetArmorAtLocation(FVector Location)
@@ -390,55 +385,30 @@ float UFlareSpacecraftComponent::GetArmorAtLocation(FVector Location)
 	return 1;
 }
 
-float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type DamageType)
+float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
 {
 	float InflictedDamageRatio = 0;
 	if (ComponentDescription)
 	{
-		// Apply damage
-		float StateBeforeDamage = GetDamageRatio();
 
-		if (StateBeforeDamage == 0)
+		InflictedDamageRatio = Spacecraft->GetParent()->GetDamageSystem()->ApplyDamage(ComponentDescription,
+																					   ShipComponentData, Energy, DamageType, DamageSource);
+
+		if (InflictedDamageRatio > 0)
 		{
-			return 0;
+			// No more armor, power outage risk
+			if (Spacecraft && IsGenerator())
+			{
+				Spacecraft->GetDamageSystem()->OnElectricDamage(InflictedDamageRatio);
+			}
+
+			// Effects
+			if (GetDamageRatio() == 0)
+			{
+				StartDestroyedEffects();
+			}
+			UpdateLight();
 		}
-
-		float EffectiveEnergy;
-
-		if (DamageType == EFlareDamage::DAM_HEAT)
-		{
-			EffectiveEnergy = Energy;
-		}
-		else
-		{
-			EffectiveEnergy = Energy * (1.f - GetArmor());
-		}
-
-		ShipComponentData->Damage += EffectiveEnergy;
-		float MaxHitPoints = Spacecraft->GetParent()->GetDamageSystem()->GetMaxHitPoints(ComponentDescription);
-		if (ShipComponentData->Damage > MaxHitPoints) {
-			ShipComponentData->Damage = MaxHitPoints;
-		}
-		float StateAfterDamage = GetDamageRatio();
-		InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
-
-
-		CombatLog::SpacecraftComponentDamaged(this, Energy, EffectiveEnergy, DamageType, StateBeforeDamage, StateAfterDamage);
-
-		//FLOGV("Component %s. Apply Energy=%f  %f->%f", *(GetReadableName()), Energy, StateBeforeDamage, StateAfterDamage);
-
-		// No more armor, power outage risk
-		if (Spacecraft && IsGenerator() && StateAfterDamage < 1.0 && StateBeforeDamage > 0)
-		{
-			Spacecraft->GetDamageSystem()->OnElectricDamage(StateBeforeDamage - StateAfterDamage);
-		}
-
-		// Effects
-		if (StateAfterDamage <= 0 && StateBeforeDamage > 0)
-		{
-			StartDestroyedEffects();
-		}
-		UpdateLight();
 	}
 	return InflictedDamageRatio;
 }

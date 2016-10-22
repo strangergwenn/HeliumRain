@@ -38,7 +38,7 @@ float UFlareSpacecraftSubComponent::GetArmorAtLocation(FVector Location)
 	return ParentComponent->GetArmorAtLocation(Location);
 }
 
-float UFlareSpacecraftSubComponent::ApplyDamage(float Energy, EFlareDamage::Type DamageType)
+float UFlareSpacecraftSubComponent::ApplyDamage(float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
 {
-	return ParentComponent->ApplyDamage(Energy, DamageType);
+	return ParentComponent->ApplyDamage(Energy, DamageType, DamageSource);
 }

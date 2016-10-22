@@ -449,7 +449,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
 	FVector LocalLocation = Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(Location) / 100.f;
-	CombatLog::SpacecraftDamaged(Spacecraft, Energy, Radius, LocalLocation, DamageType, DamageSource);
+	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, DamageSource);
 
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
@@ -474,21 +474,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 			{
 				Efficiency = 1;
 			}
-			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType);
-
-			if(DamageSource != NULL && DamageSource != Spacecraft->GetParent()->GetCompany())
-			{
-				float Reputation;
-				if(Spacecraft->IsStation())
-				{
-					Reputation = -InflictedDamageRatio * 3000;
-				}
-				else
-				{
-					Reputation = -InflictedDamageRatio * 30;
-				}
-				Spacecraft->GetParent()->GetCompany()->GiveReputation(DamageSource, Reputation, true);
-			}
+			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType, DamageSource);
 		}
 	}
 
