@@ -83,6 +83,12 @@ bool UFlareFleet::CanTravel()
 		return false;
 	}
 
+	if(Game->GetPC()->GetPlayerFleet() == this && Game->GetPC()->GetPlayerShip()->GetDamageSystem()->IsStranded())
+	{
+		// The player ship is stranded
+		return false;
+	}
+
 	return true;
 }
 
@@ -97,6 +103,12 @@ bool UFlareFleet::CanTravel(FText& OutInfo)
 	if (GetImmobilizedShipCount() == FleetShips.Num())
 	{
 		OutInfo = LOCTEXT("Travelling", "Some ships are trading or stranded");
+		return false;
+	}
+
+	if(Game->GetPC()->GetPlayerFleet() == this && Game->GetPC()->GetPlayerShip()->GetDamageSystem()->IsStranded())
+	{
+		OutInfo = LOCTEXT("PlayerShipStranded", "The ship you are piloting is stranded");
 		return false;
 	}
 
