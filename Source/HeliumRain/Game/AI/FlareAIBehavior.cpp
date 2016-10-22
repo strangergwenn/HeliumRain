@@ -70,7 +70,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			continue;
 		}
 
-		if(Company == ST->Pirates)
+		if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
 		{
 			Company->SetHostilityTo(OtherCompany, true);
 		}
