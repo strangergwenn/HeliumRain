@@ -281,7 +281,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 	TargetPreferences.IsNotDangerous = 0.01;
 	TargetPreferences.IsStranded = 1;
 	TargetPreferences.IsNotStranded = 0.5;
-	TargetPreferences.IsUncontrolable = 0.1;
+	TargetPreferences.IsUncontrolable = 0.0;
 	TargetPreferences.IsNotUncontrolable = 1;
 	TargetPreferences.TargetStateWeight = 1;
 	TargetPreferences.MaxDistance = 5000000;

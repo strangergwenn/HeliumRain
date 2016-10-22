@@ -584,17 +584,6 @@ bool SFlareOrbitalMenu::IsFastForwardDisabled() const
 	if (IsEnabled())
 	{
 		UFlareWorld* GameWorld = MenuManager->GetGame()->GetGameWorld();
-
-		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
-		{
-			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
-
-			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
-			if(BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
-			{
-				return true;
-			}
-		}
 		
 		if (GameWorld && (GameWorld->GetTravels().Num() > 0 || true)) // Not true if there is pending todo event
 		{

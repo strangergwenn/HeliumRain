@@ -116,6 +116,38 @@ void CombatLog::SectorDeactivated(UFlareSimulatedSector* Sector)
 	FFlareLogWriter::PushWriterMessage(Message);
 }
 
+void CombatLog::AutomaticBattleStarted(UFlareSimulatedSector* Sector)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::AUTOMATIC_BATTLE_STARTED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Sector->GetIdentifier().ToString();
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
+void CombatLog::AutomaticBattleEnded(UFlareSimulatedSector* Sector)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Combat;
+	Message.Event = EFlareLogEvent::AUTOMATIC_BATTLE_ENDED;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Sector->GetIdentifier().ToString();
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
 void CombatLog::BombDropped(AFlareBomb *Bomb)
 {
 	FlareLogMessage Message;
@@ -169,7 +201,7 @@ void CombatLog::BombDestroyed(FName BombIdentifier)
 	FFlareLogWriter::PushWriterMessage(Message);
 }
 
-void CombatLog::SpacecraftDamaged(AFlareSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+void CombatLog::SpacecraftDamaged(UFlareSimulatedSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
 {
 	FlareLogMessage Message;
 	Message.Target = EFlareLogTarget::Combat;
@@ -220,7 +252,7 @@ void CombatLog::SpacecraftDamaged(AFlareSpacecraft* Spacecraft, float Energy, fl
 	FFlareLogWriter::PushWriterMessage(Message);
 }
 
-void CombatLog::SpacecraftComponentDamaged(UFlareSpacecraftComponent* Component, float Energy, float EffectiveEnergy, EFlareDamage::Type DamageType, float InitialDamageRatio, float TerminalDamageRatio)
+void CombatLog::SpacecraftComponentDamaged(UFlareSimulatedSpacecraft* Spacecraft, FFlareSpacecraftComponentSave* ComponentData, FFlareSpacecraftComponentDescription* ComponentDescription, float Energy, float EffectiveEnergy, EFlareDamage::Type DamageType, float InitialDamageRatio, float TerminalDamageRatio)
 {
 	FlareLogMessage Message;
 	Message.Target = EFlareLogTarget::Combat;
@@ -229,21 +261,21 @@ void CombatLog::SpacecraftComponentDamaged(UFlareSpacecraftComponent* Component,
 	{
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
-		Param.StringValue = Component->GetSpacecraft()->GetImmatriculation().ToString();
+		Param.StringValue = Spacecraft->GetImmatriculation().ToString();
 		Message.Params.Add(Param);
 	}
 
 	{
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
-		Param.StringValue = Component->Save()->ShipSlotIdentifier.ToString();
+		Param.StringValue = ComponentData->ShipSlotIdentifier.ToString();
 		Message.Params.Add(Param);
 	}
 
 	{
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
-		Param.StringValue = Component->GetDescription()->Identifier.ToString();
+		Param.StringValue = ComponentDescription->Identifier.ToString();
 		Message.Params.Add(Param);
 	}
 

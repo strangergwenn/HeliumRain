@@ -207,7 +207,7 @@ public:
 
 	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation);
 
-	inline TArray<UFlareCompany*> GetCompanies() const
+	inline const TArray<UFlareCompany*>& GetCompanies() const
 	{
 		return Companies;
 	}

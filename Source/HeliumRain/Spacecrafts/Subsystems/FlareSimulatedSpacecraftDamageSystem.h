@@ -75,6 +75,8 @@ public:
 	/** Get the detailed health for this subsystem */
 	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithAmmo = false) const;
 
+	float GetWeaponGroupHealth(int32 GroupIndex, bool WithAmmo) const;
+
 	float Repair(FFlareSpacecraftComponentDescription* ComponentDescription,
 				 FFlareSpacecraftComponentSave* ComponentData,
 				 float MaxRepairRatio,
@@ -85,10 +87,14 @@ public:
 				 float MaxRefillRatio,
 				 float MaxFS);
 
+	/** Apply damage to this component. Return inflicted damage ratio */
+	virtual float ApplyDamage(FFlareSpacecraftComponentDescription* ComponentDescription,
+							  FFlareSpacecraftComponentSave* ComponentData,
+							  float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
+
+
 protected:
 
-	float GetUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
-																FFlareSpacecraftComponentSave* ComponentData) const;
 
 
 	float GetClampedUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
@@ -115,10 +121,24 @@ public:
 	float GetDamageRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
 						 FFlareSpacecraftComponentSave* ComponentData) const;
 
+	float GetUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
+																FFlareSpacecraftComponentSave* ComponentData) const;
+
 	static int32 GetRepairCost(FFlareSpacecraftComponentDescription* ComponentDescription);
 
 	static int32 GetRefillCost(FFlareSpacecraftComponentDescription* ComponentDescription);
 
 	/** Get a subsystem's name */
 	static FText GetSubsystemName(EFlareSubsystem::Type SubsystemType);
+
+	static float GetArmor(FFlareSpacecraftComponentDescription* ComponentDescription)
+	{
+		if (ComponentDescription)
+		{
+			return ComponentDescription->Armor / 100.f;
+		}
+
+		return 1;
+	}
+
 };

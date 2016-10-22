@@ -266,6 +266,29 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 	return 1.0f;
 }
 
+
+float UFlareSimulatedSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithAmmo) const
+{
+	 FFlareSimulatedWeaponGroup* WeaponGroup = Spacecraft->GetWeaponsSystem()->GetWeaponGroup(GroupIndex);
+	 float Health = 0.0;
+
+	 float Total = 0.f;
+	 for (int32 ComponentIndex = 0; ComponentIndex < WeaponGroup->Weapons.Num(); ComponentIndex++)
+	 {
+		 FFlareSpacecraftComponentSave* Weapon = WeaponGroup->Weapons[ComponentIndex];
+
+		 int32 MaxAmmo = WeaponGroup->Description->WeaponCharacteristics.AmmoCapacity;
+		 int32 CurrentAmmo = MaxAmmo - Weapon->Weapon.FiredAmmo;
+
+		 Total += GetClampedUsableRatio(WeaponGroup->Description, Weapon)
+				 *((CurrentAmmo > 0 || !WithAmmo) ? 1 : 0);
+
+	 }
+	 Health = Total/WeaponGroup->Weapons.Num();
+
+	 return Health;
+}
+
 int32 UFlareSimulatedSpacecraftDamageSystem::GetRepairCost(FFlareSpacecraftComponentDescription* ComponentDescription)
 {
 	return FMath::Max(1,ComponentDescription->RepairCost);
@@ -368,6 +391,62 @@ float UFlareSimulatedSpacecraftDamageSystem::Refill(FFlareSpacecraftComponentDes
 	}
 	return RefillCost;
 }
+
+float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftComponentDescription* ComponentDescription,
+						  FFlareSpacecraftComponentSave* ComponentData,
+						  float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+{
+	float InflictedDamageRatio = 0;
+
+	// Apply damage
+	float StateBeforeDamage = GetDamageRatio(ComponentDescription, ComponentData);
+
+	if (StateBeforeDamage == 0)
+	{
+		return 0;
+	}
+
+	float EffectiveEnergy;
+
+	if (DamageType == EFlareDamage::DAM_HEAT)
+	{
+		EffectiveEnergy = Energy;
+	}
+	else
+	{
+		EffectiveEnergy = Energy * (1.f - GetArmor(ComponentDescription));
+	}
+
+	ComponentData->Damage += EffectiveEnergy;
+	float MaxHitPoints = GetMaxHitPoints(ComponentDescription);
+	if (ComponentData->Damage > MaxHitPoints) {
+		ComponentData->Damage = MaxHitPoints;
+	}
+	float StateAfterDamage = GetDamageRatio(ComponentDescription, ComponentData);
+	InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
+
+	if (EffectiveEnergy > 0)
+	{
+		CombatLog::SpacecraftComponentDamaged(Spacecraft, ComponentData, ComponentDescription, Energy, EffectiveEnergy, DamageType, StateBeforeDamage, StateAfterDamage);
+
+		if(DamageSource != NULL && DamageSource != Spacecraft->GetCompany())
+		{
+			float Reputation;
+			if(Spacecraft->IsStation())
+			{
+				Reputation = -InflictedDamageRatio * 3000;
+			}
+			else
+			{
+				Reputation = -InflictedDamageRatio * 30;
+			}
+			Spacecraft->GetCompany()->GiveReputation(DamageSource, Reputation, true);
+		}
+	}
+
+	return InflictedDamageRatio;
+}
+
 
 float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
 {

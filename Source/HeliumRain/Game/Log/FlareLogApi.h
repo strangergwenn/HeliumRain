@@ -75,6 +75,24 @@ public:
 	static void SectorDeactivated(UFlareSimulatedSector* Sector);
 
 	/**
+	 * An automatic battle started
+	 *
+	 * Event: AUTOMATIC_BATTLE_STARTED
+	 * Params:
+	 *  - string : sector
+	 */
+	static void AutomaticBattleStarted(UFlareSimulatedSector* Sector);
+
+	/**
+	 * An automatic battle ended
+	 *
+	 * Event: AUTOMATIC_BATTLE_ENDED
+	 * Params:
+	 *  - string : sector
+	 */
+	static void AutomaticBattleEnded(UFlareSimulatedSector* Sector);
+
+	/**
 	 * A bomb has been dropped
 	 *
 	 * Event: BOMB_DROPPED
@@ -107,7 +125,7 @@ public:
 	 *  - vector3 : relative location
 	 *  - string : damageSourceCompany
 	 */
-	static void SpacecraftDamaged(AFlareSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
+	static void SpacecraftDamaged(UFlareSimulatedSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
 
 
 	/**
@@ -124,7 +142,7 @@ public:
 	 *  - float : InitialDamageRatio
 	 *  - float : TerminalDamageRatio
 	 */
-	static void SpacecraftComponentDamaged(UFlareSpacecraftComponent* Component, float Energy, float EffectiveEnergy, EFlareDamage::Type DamageType, float InitialDamageRatio, float TerminalDamageRatio);
+	static void SpacecraftComponentDamaged(UFlareSimulatedSpacecraft* Spacecraft, FFlareSpacecraftComponentSave* ComponentData, FFlareSpacecraftComponentDescription* ComponentDescription, float Energy, float EffectiveEnergy, EFlareDamage::Type DamageType, float InitialDamageRatio, float TerminalDamageRatio);
 
 	/**
 	 * A spacecraft has been harpooned

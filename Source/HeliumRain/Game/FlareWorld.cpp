@@ -6,6 +6,7 @@
 #include "FlareSector.h"
 #include "FlareTravel.h"
 #include "FlareFleet.h"
+#include "FlareBattle.h"
 
 #include "../Data/FlareSectorCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
@@ -411,30 +412,45 @@ void UFlareWorld::Simulate()
 	FLOGV("** Simulate day %d", WorldData.Date);
 
 	FLOG("* Simulate > Battles");
-	// Finish player battles
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
 		UFlareSimulatedSector* Sector = Sectors[SectorIndex];
 
-		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(PlayerCompany);
-
-		if(BattleState != EFlareSectorBattleState::NoBattle && BattleState != EFlareSectorBattleState::BattleWon)
+		// Check if battle
+		bool HasBattle = false;
+		for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 		{
-			// Destroy all player ships
-			TArray<UFlareSimulatedSpacecraft*> ShipToDestroy;
+			UFlareCompany* Company = Companies[CompanyIndex];
 
-			for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+			if (Company == PlayerCompany && Sector == GetGame()->GetPC()->GetPlayerShip()->GetCurrentSector())
 			{
-				if(Sector->GetSectorShips()[ShipIndex]->GetCompany() == PlayerCompany)
-				{
-					ShipToDestroy.Add(Sector->GetSectorShips()[ShipIndex]);
-				}
+				// Local sector, don't check if the player want fight
+				continue;
 			}
 
-			for (int ShipIndex = 0; ShipIndex < ShipToDestroy.Num(); ShipIndex++)
+			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(Company);
+
+			if(BattleState == EFlareSectorBattleState::NoBattle ||
+					BattleState == EFlareSectorBattleState::BattleLost ||
+					BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
 			{
-				PlayerCompany->DestroySpacecraft(ShipToDestroy[ShipIndex]);
+				// Don't want fight
+				continue;
 			}
+
+			FLOGV("%s want fight in %s : %d", *Company->GetCompanyName().ToString(),
+				  *Sector->GetSectorName().ToString(),
+				  BattleState);
+
+			HasBattle = true;
+			break;
+		}
+
+		if (HasBattle)
+		{
+			UFlareBattle* Battle = NewObject<UFlareBattle>(this, UFlareBattle::StaticClass());
+			Battle->Load(Sector);
+			Battle->Simulate();
 		}
 	}
 	// TODO battles between 2 AI company
