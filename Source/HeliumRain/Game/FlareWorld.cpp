@@ -440,7 +440,7 @@ void UFlareWorld::Simulate()
 
 			FLOGV("%s want fight in %s : %d", *Company->GetCompanyName().ToString(),
 				  *Sector->GetSectorName().ToString(),
-				  BattleState);
+				  (int32)BattleState);
 
 			HasBattle = true;
 			break;
