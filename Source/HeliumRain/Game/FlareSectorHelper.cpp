@@ -7,7 +7,10 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareScenarioTools.h"
 
-#define MAX_REPAIR_RATIO_BY_DAY 0.1f
+#define MAX_RCS_REPAIR_RATIO_BY_DAY 0.4f
+#define MAX_REPAIR_RATIO_BY_DAY 0.2f
+#define MAX_ENGINE_REPAIR_RATIO_BY_DAY 0.3f
+#define MAX_WEAPON_REPAIR_RATIO_BY_DAY 0.1f
 #define MAX_REFILL_RATIO_BY_DAY 0.4f
 
 UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Request)
@@ -261,6 +264,24 @@ void SectorHelper::GetAvailableFleetSupplyCount(UFlareSimulatedSector* Sector, U
 		  AffordableFS);*/
 }
 
+float SectorHelper::GetComponentMaxRepairRatio(FFlareSpacecraftComponentDescription* ComponentDescription)
+{
+	switch(ComponentDescription->Type)
+	{
+	case EFlarePartType::RCS:
+		return MAX_RCS_REPAIR_RATIO_BY_DAY;
+		break;
+	case EFlarePartType::OrbitalEngine:
+		return MAX_ENGINE_REPAIR_RATIO_BY_DAY;
+		break;
+	case EFlarePartType::Weapon:
+		return MAX_WEAPON_REPAIR_RATIO_BY_DAY;
+		break;
+	default:
+		return MAX_REPAIR_RATIO_BY_DAY;
+	}
+}
+
 void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply)
 {
 	float PreciseCurrentNeededFleetSupply = 0;
@@ -283,7 +304,9 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 
 			float DamageRatio = Spacecraft->GetDamageSystem()->GetDamageRatio(ComponentDescription, ComponentData);
 
-			float CurrentRepairRatio = FMath::Min(MAX_REPAIR_RATIO_BY_DAY, (1.f - DamageRatio));
+			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription);
+
+			float CurrentRepairRatio = FMath::Min(ComponentMaxRepairRatio, (1.f - DamageRatio));
 			float TotalRepairRatio = 1.f - DamageRatio;
 
 			if(!Spacecraft->IsRepairing()) {
@@ -371,7 +394,7 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 		return;
 	}
 
-	float MaxRepairRatio = MAX_REPAIR_RATIO_BY_DAY * FMath::Min(1.f,(float) AffordableFS /  (float) CurrentNeededFleetSupply);
+	float RepairRatio = MAX_REPAIR_RATIO_BY_DAY * FMath::Min(1.f,(float) AffordableFS /  (float) CurrentNeededFleetSupply);
 	float RemainingFS = (float) AffordableFS;
 	UFlareSpacecraftComponentsCatalog* Catalog = Company->GetGame()->GetShipPartsCatalog();
 
@@ -390,7 +413,9 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 			FFlareSpacecraftComponentSave* ComponentData = &Spacecraft->GetData().Components[ComponentIndex];
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
 
-			float ConsumedFS = Spacecraft->GetDamageSystem()->Repair(ComponentDescription,ComponentData, MaxRepairRatio, RemainingFS);
+			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription);
+
+			float ConsumedFS = Spacecraft->GetDamageSystem()->Repair(ComponentDescription,ComponentData, RepairRatio * ComponentMaxRepairRatio, RemainingFS);
 
 			RemainingFS -= ConsumedFS;
 
