@@ -317,7 +317,10 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.AsteroidData.Identifier = NAME_None;
 	ShipData.AsteroidData.AsteroidMeshID = 0;
 	ShipData.AsteroidData.Scale = FVector(1, 1, 1);
-
+	ShipData.AsteroidData.Location = FVector::ZeroVector;
+	ShipData.AsteroidData.LinearVelocity = FVector::ZeroVector;
+	ShipData.AsteroidData.AngularVelocity = FVector::ZeroVector;
+	ShipData.AsteroidData.Rotation = FRotator::ZeroRotator;
 
 	// If capture, copy data form captured ship
 	if (CapturedSpacecraft)
