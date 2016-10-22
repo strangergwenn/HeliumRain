@@ -44,6 +44,8 @@ public:
 
 	void ResetExternalCamera();
 
+	void OnCollision();
+
 	virtual void SetPlayerMousePosition(FVector2D Val);
 
 	virtual void SetPlayerMouseOffset(FVector2D Val, bool Relative);

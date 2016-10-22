@@ -535,3 +535,7 @@ void UFlareSpacecraftStateManager::ResetExternalCamera()
 	ExternalCameraDistanceTarget = ExternalCameraDistance;
 }
 
+void UFlareSpacecraftStateManager::OnCollision()
+{
+	PlayerManualVelocityCommand = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
+}
