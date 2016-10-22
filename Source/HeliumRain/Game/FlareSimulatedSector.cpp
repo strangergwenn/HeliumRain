@@ -6,6 +6,7 @@
 #include "FlareFleet.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSector"
 
