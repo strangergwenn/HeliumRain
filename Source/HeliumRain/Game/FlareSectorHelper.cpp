@@ -394,7 +394,7 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 		return;
 	}
 
-	float RepairRatio = MAX_REPAIR_RATIO_BY_DAY * FMath::Min(1.f,(float) AffordableFS /  (float) CurrentNeededFleetSupply);
+	float RepairRatio = FMath::Min(1.f,(float) AffordableFS /  (float) CurrentNeededFleetSupply);
 	float RemainingFS = (float) AffordableFS;
 	UFlareSpacecraftComponentsCatalog* Catalog = Company->GetGame()->GetShipPartsCatalog();
 
