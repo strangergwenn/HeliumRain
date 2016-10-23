@@ -403,7 +403,7 @@ bool UFlareWorld::CheckIntegrity()
 
 void UFlareWorld::Simulate()
 {
-
+	double StartTs = FPlatformTime::Seconds();
 	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
 
 	/**
@@ -578,7 +578,9 @@ void UFlareWorld::Simulate()
 	{
 		Sectors[SectorIndex]->SwapPrices();
 	}
-	FLOGV("** Simulate day %d done", WorldData.Date-1);
+
+	double EndTs = FPlatformTime::Seconds();
+	FLOGV("** Simulate day %d done in %.6fs", WorldData.Date-1, EndTs- StartTs);
 
 	GameLog::DaySimulated(WorldData.Date);
 }

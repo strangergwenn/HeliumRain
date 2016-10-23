@@ -72,6 +72,9 @@ public:
 	UFUNCTION(exec)
 	void RevealMap();
 
+	UFUNCTION(exec)
+	void SetFastFastForward(bool FFF);
+
 	/*----------------------------------------------------
 		Company tools
 	----------------------------------------------------*/
@@ -282,6 +285,6 @@ public:
 
 	UFlareSector* GetActiveSector() const;
 
-
+	static bool FastFastForward;
 
 };
