@@ -220,7 +220,7 @@ void UFlareScenarioTools::SetupWorld()
 
 	// Create Blue Heart capital station
 	{
-		float StationRadius = 48000;
+		float StationRadius = 50000;
 		FVector UpVector(0, 0, 1);
 		FVector BaseLocation = FVector(-200000.0, 0, 0);
 		FFlareStationSpawnParameters StationParams;
@@ -242,13 +242,13 @@ void UFlareScenarioTools::SetupWorld()
 		CreateStations("station-bh-hub",        NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
 
 		// BH Habitation 1
-		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 10000);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 0));
+		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, 7168);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 8.5, 0));
 		CreateStations("station-bh-habitation", Sunwatch,       BlueHeart, 1, 1, StationParams);
 
 		// BH Habitation 2
-		StationParams.Location = BaseLocation + FVector(StationRadius, 0, -10000);
-		StationParams.Rotation = FRotator::ZeroRotator;
+		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, -7168);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 8.5, 0));
 		CreateStations("station-bh-habitation", Sunwatch,       BlueHeart, 1, 1, StationParams);
 	}
 	
