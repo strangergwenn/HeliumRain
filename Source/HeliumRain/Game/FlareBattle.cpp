@@ -18,8 +18,9 @@ struct BattleTargetPreferences
         float IsNotDangerous;
         float IsStranded;
         float IsNotStranded;
-        float IsUncontrolable;
-        float IsNotUncontrolable;
+		float IsUncontrollableCivil;
+		float IsUncontrollableMilitary;
+		float IsNotUncontrollable;
         float IsHarpooned;
         float TargetStateWeight;
 };
@@ -55,10 +56,10 @@ void UFlareBattle::Simulate()
 
 	CombatLog::AutomaticBattleStarted(Sector);
 
-    while (HasBattle())
+	while (HasBattle())
     {
         BattleTurn++;
-        if(!SimulateTurn())
+		if(!SimulateTurn())
         {
             FLOG("Nobody can fight, end battle");
             break;
@@ -69,6 +70,26 @@ void UFlareBattle::Simulate()
             break;
         }
     }
+
+	// Remove destroyed spacecraft
+	TArray<UFlareSimulatedSpacecraft*> SpacecraftToRemove;
+
+	for (int32 SpacecraftIndex = 0 ; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if(!Spacecraft->GetDamageSystem()->IsAlive())
+		{
+			SpacecraftToRemove.Add(Spacecraft);
+		}
+	}
+
+	for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftToRemove.Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = SpacecraftToRemove[SpacecraftIndex];
+		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
+	}
+
 
 	CombatLog::AutomaticBattleEnded(Sector);
     FLOGV("Battle in %s finish after %d turns", *Sector->GetSectorName().ToString(), BattleTurn);
@@ -196,12 +217,13 @@ bool UFlareBattle::SimulateSmallShipTurn(UFlareSimulatedSpacecraft* Ship)
     TargetPreferences.IsNotDangerous = 0.01;
     TargetPreferences.IsStranded = 1;
     TargetPreferences.IsNotStranded = 0.5;
-    TargetPreferences.IsUncontrolable = 0.1;
-    TargetPreferences.IsNotUncontrolable = 1;
+	TargetPreferences.IsUncontrollableCivil = 0.0;
+	TargetPreferences.IsUncontrollableMilitary = 0.01;
+	TargetPreferences.IsNotUncontrollable = 1;
     TargetPreferences.IsHarpooned = 0;
     TargetPreferences.TargetStateWeight = 1;
 
-    Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrolable, &TargetPreferences.IsNotUncontrolable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
+	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil, &TargetPreferences.IsUncontrollableMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
 
 	Target = GetBestTarget(Ship, TargetPreferences);
 
@@ -212,7 +234,6 @@ bool UFlareBattle::SimulateSmallShipTurn(UFlareSimulatedSpacecraft* Ship)
 
 	// Find best weapon
 	int32 WeaponGroupIndex = Ship->GetWeaponsSystem()->FindBestWeaponGroup(Target);
-
 
 	if(WeaponGroupIndex == -1)
 	{
@@ -266,8 +287,9 @@ bool UFlareBattle::SimulateLargeShipTurn(UFlareSimulatedSpacecraft* Ship)
 		TargetPreferences.IsNotDangerous = 0.01;
 		TargetPreferences.IsStranded = 1;
 		TargetPreferences.IsNotStranded = 0.5;
-		TargetPreferences.IsUncontrolable = 0.0;
-		TargetPreferences.IsNotUncontrolable = 1;
+		TargetPreferences.IsUncontrollableCivil = 0.0;
+		TargetPreferences.IsUncontrollableMilitary = 0.01;
+		TargetPreferences.IsNotUncontrollable = 1;
 		TargetPreferences.IsHarpooned = 0;
 		TargetPreferences.TargetStateWeight = 1;
 
@@ -382,14 +404,26 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 
 		if (ShipCandidate->GetDamageSystem()->IsUncontrollable())
 		{
-			StateScore *= Preferences.IsUncontrolable;
+			if(ShipCandidate->IsMilitary())
+			{
+				StateScore *= Preferences.IsUncontrollableMilitary;
+			}
+			else
+			{
+				StateScore *= Preferences.IsUncontrollableCivil;
+			}
 		}
 		else
 		{
-			StateScore *= Preferences.IsNotUncontrolable;
+			StateScore *= Preferences.IsNotUncontrollable;
 		}
 
 		if(ShipCandidate->IsHarpooned()) {
+			if(ShipCandidate->GetDamageSystem()->IsUncontrollable())
+			{
+				// Never target harponned uncontrollable ships
+				continue;
+			}
 			StateScore *=  Preferences.IsHarpooned;
 		}
 
@@ -514,11 +548,11 @@ bool UFlareBattle::SimulateShipWeaponAttack(UFlareSimulatedSpacecraft* Ship, FFl
 	}
 	else
 	{
+		FLOGV("Not supported weapon %s", *WeaponDescription->Identifier.ToString());
 		return false;
 	}
 
 	return true;
-
 }
 
 void UFlareBattle::SimulateBulletDamage(FFlareSpacecraftComponentDescription* WeaponDescription, UFlareSimulatedSpacecraft* Target, UFlareCompany* DamageSource)

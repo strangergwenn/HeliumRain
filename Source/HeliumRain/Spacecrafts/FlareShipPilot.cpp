@@ -964,8 +964,9 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	TargetPreferences.IsNotDangerous = 0.01;
 	TargetPreferences.IsStranded = 1;
 	TargetPreferences.IsNotStranded = 0.5;
-	TargetPreferences.IsUncontrolable = 0.1;
-	TargetPreferences.IsNotUncontrolable = 1;
+	TargetPreferences.IsUncontrollableCivil = 0.0;
+	TargetPreferences.IsUncontrollableMilitary = 0.01;
+	TargetPreferences.IsNotUncontrollable = 1;
 	TargetPreferences.IsHarpooned = 0;
 	TargetPreferences.TargetStateWeight = 1;
 	TargetPreferences.MaxDistance = 1000000;
@@ -979,7 +980,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	TargetPreferences.AlignementWeight = 0.1;
 	TargetPreferences.BaseLocation = Ship->GetActorLocation();
 
-	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrolable, &TargetPreferences.IsNotUncontrolable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
+	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil , &TargetPreferences.IsUncontrollableMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
 
 	if (Tactic == EFlareCombatTactic::AttackStations)
 	{

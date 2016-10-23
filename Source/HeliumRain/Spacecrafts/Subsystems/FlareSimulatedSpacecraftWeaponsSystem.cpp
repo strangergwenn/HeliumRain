@@ -105,12 +105,13 @@ int32 UFlareSimulatedSpacecraftWeaponsSystem::GetGroupByWeaponIdentifer(FName Id
 }
 
 
-void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollable, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned)
+void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned)
 {
 	float LargePool = 0;
 	float SmallPool = 0;
 	float StationPool = 0;
-	float UncontrollablePool = 0;
+	float UncontrollableCivilPool = 0;
+	float UncontrollableMilitaryPool = 0;
 	float NotUncontrollablePool = 0;
 	float HarpoonedPool = 0;
 
@@ -131,17 +132,20 @@ void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall,
 				LargePool += 1.0;
 				StationPool += 0.1;
 				NotUncontrollablePool += 1.0;
+				UncontrollableMilitaryPool += 0.01;
 			}
 			else if(DamageType == EFlareShellDamageType::LightSalvage)
 			{
 				SmallPool += 1.0;
-				UncontrollablePool += 1.0;
+				UncontrollableCivilPool += 1.0;
+				UncontrollableMilitaryPool += 1.0;
 
 			}
 			else if(DamageType == EFlareShellDamageType::HeavySalvage)
 			{
 				LargePool += 1.0;
-				UncontrollablePool += 1.0;
+				UncontrollableCivilPool += 1.0;
+				UncontrollableMilitaryPool += 1.0;
 			}
 		}
 		else
@@ -152,12 +156,14 @@ void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall,
 				SmallPool += 0.1;
 				StationPool = 0.1;
 				NotUncontrollablePool += 1.0;
+				UncontrollableMilitaryPool += 0.01;
 				HarpoonedPool += 1.0;
 			}
 			else
 			{
 				SmallPool += 1.0;
 				NotUncontrollablePool += 1.0;
+				UncontrollableMilitaryPool += 0.01;
 				HarpoonedPool += 1.0;
 			}
 		}
@@ -171,21 +177,17 @@ void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall,
 		SmallPool = PoolVector.Y;
 	}
 
-	if(NotUncontrollablePool > 0 || UncontrollablePool > 0)
-	{
-		FVector2D PoolVector = FVector2D(NotUncontrollablePool, UncontrollablePool);
-		PoolVector.Normalize();
-		NotUncontrollablePool = PoolVector.X;
-		UncontrollablePool = PoolVector.Y;
-	}
-
 	StationPool = FMath::Clamp(StationPool, 0.f, 0.1f);
 	HarpoonedPool = FMath::Clamp(HarpoonedPool, 0.f, 0.1f);
+	NotUncontrollablePool = FMath::Clamp(NotUncontrollablePool, 0.f, 0.1f);
+	UncontrollableCivilPool = FMath::Clamp(UncontrollableCivilPool, 0.f, 0.1f);
+	UncontrollableMilitaryPool = FMath::Clamp(UncontrollableMilitaryPool, 0.f, 0.1f);
 
 	*IsLarge  = LargePool;
 	*IsSmall  = SmallPool;
 	*IsNotUncontrollable  = NotUncontrollablePool;
-	*IsUncontrollable  = UncontrollablePool;
+	*IsUncontrollableCivil  = UncontrollableCivilPool;
+	*IsUncontrollableMilitary  = UncontrollableMilitaryPool;
 	*IsStation = StationPool;
 	*IsHarpooned = HarpoonedPool;
 }
@@ -216,7 +218,14 @@ int32 UFlareSimulatedSpacecraftWeaponsSystem::FindBestWeaponGroup(UFlareSimulate
 			if(DamageType == EFlareShellDamageType::HEAT)
 			{
 				Score *= (LargeTarget ? 1.f : 0.f);
-				Score *= (UncontrollableTarget ? 0.f : 1.f);
+				if(Target->IsMilitary())
+				{
+					Score *= (UncontrollableTarget ? 0.01f : 1.f);
+				}
+				else
+				{
+					Score *= (UncontrollableTarget ? 0.f : 1.f);
+				}
 			}
 			else if(DamageType == EFlareShellDamageType::LightSalvage)
 			{
@@ -236,12 +245,26 @@ int32 UFlareSimulatedSpacecraftWeaponsSystem::FindBestWeaponGroup(UFlareSimulate
 			if (DamageType == EFlareShellDamageType::HEAT)
 			{
 				Score *= (LargeTarget ? 1.f : 0.1f);
-				Score *= (UncontrollableTarget ? 0.f : 1.f);
+				if(Target->IsMilitary())
+				{
+					Score *= (UncontrollableTarget ? 0.01f : 1.f);
+				}
+				else
+				{
+					Score *= (UncontrollableTarget ? 0.f : 1.f);
+				}
 			}
 			else
 			{
 				Score *= (SmallTarget ? 1.f : 0.f);
-				Score *= (UncontrollableTarget ? 0.f : 1.f);
+				if(Target->IsMilitary())
+				{
+					Score *= (UncontrollableTarget ? 0.01f : 1.f);
+				}
+				else
+				{
+					Score *= (UncontrollableTarget ? 0.f : 1.f);
+				}
 			}
 		}
 

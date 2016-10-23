@@ -253,14 +253,26 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 
 		if (ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable())
 		{
-			StateScore *= Preferences.IsUncontrolable;
+			if (ShipCandidate->IsMilitary())
+			{
+				StateScore *= Preferences.IsUncontrollableMilitary;
+			}
+			else
+			{
+				StateScore *= Preferences.IsUncontrollableCivil;
+			}
 		}
 		else
 		{
-			StateScore *= Preferences.IsNotUncontrolable;
+			StateScore *= Preferences.IsNotUncontrollable;
 		}
 
 		if(ShipCandidate->GetParent()->IsHarpooned()) {
+			if(ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable())
+			{
+				// Never target harponned uncontrollable ships
+				continue;
+			}
 			StateScore *=  Preferences.IsHarpooned;
 		}
 
