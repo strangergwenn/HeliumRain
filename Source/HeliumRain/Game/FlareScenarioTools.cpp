@@ -200,7 +200,7 @@ void UFlareScenarioTools::SetupWorld()
 	IonLane->GiveMoney(100000000);
 	GhostWorksShipyards->GiveMoney(100000000);
 	NemaHeavyWorks->GiveMoney(100000000);
-	Pirates->GiveMoney(100000000); // TODO start with no money
+	Pirates->GiveMoney(0);
 
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);
@@ -209,14 +209,14 @@ void UFlareScenarioTools::SetupWorld()
 	// Nema main economy
 	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 3);
 	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 2);
-	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 3, 2);
+	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 2, 2);
 	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 2);
-	CreateStations(StationSteelworks, NemaHeavyWorks, MinersHome, 2);
+	CreateStations(StationSteelworks, NemaHeavyWorks, MinersHome, 1);
 	CreateStations(StationToolFactory, NemaHeavyWorks, MinersHome, 1);
 	CreateStations(StationMethanePump, UnitedFarmsChemicals, TheSpire, 2);
-	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 1);
+	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 1, 2);
 	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
-	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1);
+	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 2, 2);
 
 	// Create Blue Heart capital station
 	{
@@ -253,7 +253,7 @@ void UFlareScenarioTools::SetupWorld()
 	}
 	
 	// Anka HFR factory
-	CreateStations(StationSteelworks, HelixFoundries, Outpost, 3);
+	CreateStations(StationSteelworks, HelixFoundries, Outpost, 2);
 	CreateStations(StationToolFactory, HelixFoundries, Outpost, 2);
 	CreateStations(StationHabitation, Sunwatch, Outpost, 1);
 	
@@ -269,7 +269,8 @@ void UFlareScenarioTools::SetupWorld()
 	// Asta pirate base
 	CreateStations(StationShipyard, Pirates, Boneyard, 1);
 	CreateStations(StationSolarPlant, Pirates, Boneyard, 1, 1);
-	CreateStations(StationArsenal, AxisSupplies, Boneyard, 2);
+	CreateStations(StationArsenal, Pirates, Boneyard, 1);
+	CreateStations(StationOutpost, Pirates, Boneyard, 1);
 
 	// Create hubs
 	// TODO fix hub before
@@ -310,7 +311,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateShips(ShipSolen, Pirates, Boneyard, 1);
 
 	// Create military ships
-	CreateShips(ShipGhoul, Pirates, Boneyard, 5);
+	CreateShips(ShipGhoul, Pirates, Boneyard, 1);
 }
 
 void UFlareScenarioTools::SetupAsteroids()
