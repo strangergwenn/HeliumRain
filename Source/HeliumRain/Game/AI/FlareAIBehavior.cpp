@@ -304,7 +304,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	else if(Company == ST->AxisSupplies)
 	{
 		// Assure fleet supply disponibility
-		SetResourceAffility(ST->FleetSupply, 2.f);
+		SetResourceAffility(ST->FleetSupply, 5.f);
 		SetResourceAffility(ST->Food, 2.f);
 
 		ShipyardAffility = 0.0;
