@@ -538,6 +538,12 @@ void UFlarePeople::ResetPeople()
 
 void UFlarePeople::PrintInfo()
 {
+	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
+	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
+	FFlareResourceDescription* Tools = Game->GetResourceCatalog()->Get("tools");
+	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
+
+
 
 	FLOGV("People for sector %s. ", *Parent->GetSectorName().ToString())
 	FLOGV(" - population: %u", PeopleData.Population);
@@ -549,7 +555,12 @@ void UFlarePeople::PrintInfo()
 	FLOGV("   - Fuel: %u", PeopleData.FuelStock);
 	FLOGV("   - Tool: %u", PeopleData.ToolStock);
 	FLOGV("   - Tech: %u", PeopleData.TechStock);
-	FLOG(" - Consumptions");
+	FLOG(" - Consumptions (sector)");
+	FLOGV("   - Food: %f", GetRessourceConsumption(Food));
+	FLOGV("   - Fuel: %f", GetRessourceConsumption(Fuel));
+	FLOGV("   - Tool: %f", GetRessourceConsumption(Tools));
+	FLOGV("   - Tech: %f", GetRessourceConsumption(Tech));
+	FLOG(" - Consumptions (per inhabitant)");
 	FLOGV("   - Food: %f", PeopleData.FoodConsumption);
 	FLOGV("   - Fuel: %f", PeopleData.FuelConsumption);
 	FLOGV("   - Tool: %f", PeopleData.ToolConsumption);
