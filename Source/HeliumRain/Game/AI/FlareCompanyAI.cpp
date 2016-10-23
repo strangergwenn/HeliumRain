@@ -1656,6 +1656,12 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 	//FLOGV(" after output: %f", Score);
 
 	float GainPerDay = GainPerCycle / FactoryDescription->CycleCost.ProductionTime;
+	if(GainPerDay < 0)
+	{
+		// TODO Shipyard
+		return 0;
+	}
+
 	float StationPrice = ComputeStationPrice(Sector, StationDescription, Station);
 	float DayToPayPrice = StationPrice / GainPerDay;
 
