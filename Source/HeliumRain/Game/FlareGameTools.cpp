@@ -239,6 +239,45 @@ void UFlareGameTools::CheckEconomyBalance()
 
 }
 
+#define RESET   "\033[0m"
+#define RED     "\033[31m"      /* Red */
+
+
+void UFlareGameTools::PrintEconomyStatus()
+{
+	FLOG("=============");
+	FLOG("Economy status");
+	FLOG("=============");
+	FLOG("");
+
+	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
+	WorldStats = WorldHelper::ComputeWorldResourceStats(GetGame());
+
+
+	TArray<UFlareResourceCatalogEntry*> ResourceEntries = GetGame()->GetResourceCatalog()->Resources;
+	for(int ResourceIndex = 0; ResourceIndex < ResourceEntries.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &ResourceEntries[ResourceIndex]->Data;
+
+		if (WorldStats.Contains(Resource))
+		{
+			FLOGV("Resource '%s'", *Resource->Name.ToString());
+			FLOGV("- Stock: %d", WorldStats[Resource].Stock);
+			FLOGV("- Production: %.2f", WorldStats[Resource].Production);
+			FLOGV("- Consumption: %.2f", WorldStats[Resource].Consumption);
+			if(WorldStats[Resource].Balance < 0)
+			{
+				FLOGV("- " RED "Balance: %.2f" RESET, WorldStats[Resource].Balance);
+			}
+			else
+			{
+				FLOGV("- Balance: %.2f", WorldStats[Resource].Balance);
+			}
+		}
+	}
+
+}
+
 
 /*----------------------------------------------------
 	World tools
