@@ -258,7 +258,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHabitation, Sunwatch, Outpost, 1);
 	
 	// Hela secondary economy
-	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 1);
+	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 2, 2);
 	CreateStations(StationShipyard, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationHabitation, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 1);
