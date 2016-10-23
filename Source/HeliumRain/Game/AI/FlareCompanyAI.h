@@ -12,7 +12,7 @@ class UFlareAIBehavior;
 /* Inter-sector trade deal */
 struct SectorDeal
 {
-	float MoneyBalanceParDay;
+	float Score;
 	UFlareSimulatedSector* SectorA;
 	UFlareSimulatedSector* SectorB;
 	FFlareResourceDescription* Resource;
@@ -132,6 +132,8 @@ protected:
 
 	/** Get a list of idle cargos */
 	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
+
+	int32 GetDamagedCargosCapacity();
 
 	/** Get a list of idle military */
 	TArray<UFlareSimulatedSpacecraft*> FindIdleMilitaryShips() const;

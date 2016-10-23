@@ -205,7 +205,7 @@ int32 UFlareCompanyAI::UpdateTrading()
 		
 		SectorDeal BestDeal;
 		BestDeal.BuyQuantity = 0;
-		BestDeal.MoneyBalanceParDay = 0;
+		BestDeal.Score = 0;
 		BestDeal.Resource = NULL;
 		BestDeal.SectorA = NULL;
 		BestDeal.SectorB = NULL;
@@ -219,7 +219,7 @@ int32 UFlareCompanyAI::UpdateTrading()
 			SectorDeal SectorBestDeal;
 			SectorBestDeal.Resource = NULL;
 			SectorBestDeal.BuyQuantity = 0;
-			SectorBestDeal.MoneyBalanceParDay = 0;
+			SectorBestDeal.Score = 0;
 			SectorBestDeal.Resource = NULL;
 			SectorBestDeal.SectorA = NULL;
 			SectorBestDeal.SectorB = NULL;
@@ -257,8 +257,8 @@ int32 UFlareCompanyAI::UpdateTrading()
 
 		if (BestDeal.Resource)
 		{
-			FLOGV("UFlareCompanyAI::UpdateTrading : Best balance for %s (%s) : %f credit per day",
-				*Ship->GetImmatriculation().ToString(), *Ship->GetCurrentSector()->GetSectorName().ToString(), BestDeal.MoneyBalanceParDay / 100);
+			FLOGV("UFlareCompanyAI::UpdateTrading : Best balance for %s (%s) : %f score",
+				*Ship->GetImmatriculation().ToString(), *Ship->GetCurrentSector()->GetSectorName().ToString(), BestDeal.Score / 100);
 			FLOGV("UFlareCompanyAI::UpdateTrading -> Transfer %s from %s to %s",
 				*BestDeal.Resource->Name.ToString(), *BestDeal.SectorA->GetSectorName().ToString(), *BestDeal.SectorB->GetSectorName().ToString());
 			if (Ship->GetCurrentSector() == BestDeal.SectorA)
@@ -1173,10 +1173,11 @@ void UFlareCompanyAI::UpdateShipAcquisition(int32& IdleCargoCapacity)
 	// For the transport pass only one ship is created at the same time
 	// For the military pass, only one ship if not at war, as many ship as possible if at war
 
-	FLOGV("UFlareCompanyAI::UpdateShipAcquisition : IdleCargoCapacity = %d", IdleCargoCapacity);
+	int32 DamagedCargosCapacity = GetDamagedCargosCapacity();
 
+	FLOGV("UFlareCompanyAI::UpdateShipAcquisition : IdleCargoCapacity = %d DamagedCargosCapacity = %d", IdleCargoCapacity, DamagedCargosCapacity);
 
-	if (IdleCargoCapacity <= 0)
+	if (IdleCargoCapacity + DamagedCargosCapacity <= 0)
 	{
 		UpdateCargoShipAcquisition();
 
@@ -1483,7 +1484,7 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 		for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-			if (Ship->GetCompany() != Company || Ship->IsTrading() || (Ship->GetCurrentFleet() && Ship->GetCurrentFleet()->IsTraveling()) || Ship->GetCurrentTradeRoute() != NULL || Ship->GetCargoBay()->GetCapacity() == 0 || ConstructionShips.Contains(Ship))
+			if (Ship->GetCompany() != Company || Ship->GetDamageSystem()->IsStranded() || Ship->IsTrading() || (Ship->GetCurrentFleet() && Ship->GetCurrentFleet()->IsTraveling()) || Ship->GetCurrentTradeRoute() != NULL || Ship->GetCargoBay()->GetCapacity() == 0 || ConstructionShips.Contains(Ship))
 			{
 				continue;
 			}
@@ -1493,6 +1494,32 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 	}
 
 	return IdleCargos;
+}
+
+int32 UFlareCompanyAI::GetDamagedCargosCapacity()
+{
+	int32 DamagedCapacity = 0;
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+
+
+		for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
+			if (Ship->GetCompany() != Company || Ship->IsTrading() || (Ship->GetCurrentFleet() && Ship->GetCurrentFleet()->IsTraveling()) || Ship->GetCurrentTradeRoute() != NULL || Ship->GetCargoBay()->GetCapacity() == 0 || ConstructionShips.Contains(Ship))
+			{
+				continue;
+			}
+
+			if(Ship->GetDamageSystem()->IsStranded())
+			{
+				DamagedCapacity += Ship->GetCargoBay()->GetCapacity();
+			}
+
+		}
+	}
+	return DamagedCapacity;
 }
 
 
@@ -1986,7 +2013,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 		{
 			UFlareSimulatedSpacecraft* Ship = IncomingFleet->GetShips()[ShipIndex];
 
-			if (Ship->GetCargoBay()->GetSlotCapacity() == 0)
+			if (Ship->GetCargoBay()->GetSlotCapacity() == 0 && Ship->GetDamageSystem()->IsStranded())
 			{
 				continue;
 			}
@@ -2091,7 +2118,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 	SectorDeal BestDeal;
 	BestDeal.Resource = NULL;
 	BestDeal.BuyQuantity = 0;
-	BestDeal.MoneyBalanceParDay = DealToBeat->MoneyBalanceParDay;
+	BestDeal.Score = DealToBeat->Score;
 	BestDeal.Resource = NULL;
 	BestDeal.SectorA = NULL;
 	BestDeal.SectorB = NULL;
@@ -2276,10 +2303,16 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				// Accepting to be idle help to avoid building ships
 				Temporisation = true;
 			}
-			if (MoneyBalanceParDay > BestDeal.MoneyBalanceParDay && !Temporisation)
-			{
 
-				BestDeal.MoneyBalanceParDay = MoneyBalanceParDay;
+			MoneyBalanceParDay *= Behavior->GetResourceAffility(Resource);
+
+			float Score = MoneyBalanceParDay
+					* Behavior->GetResourceAffility(Resource)
+					* (Behavior->GetSectorAffility(SectorA) + Behavior->GetSectorAffility(SectorB));
+
+			if (Score > BestDeal.Score && !Temporisation)
+			{
+				BestDeal.Score = Score;
 				BestDeal.SectorA = SectorA;
 				BestDeal.SectorB = SectorB;
 				BestDeal.Resource = Resource;
@@ -2289,6 +2322,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				*SectorA->GetSectorName().ToString(), *SectorB->GetSectorName().ToString(), TravelTime);
 
 				FLOGV("New Best Resource %s", *Resource->Name.ToString())
+
 
 				FLOGV(" -> IncomingCapacity=%d", SectorVariationA->IncomingCapacity);
 				FLOGV(" -> IncomingResources=%d", VariationA->IncomingResources);
@@ -2304,7 +2338,11 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				FLOGV("   -> FactoryBuyQuantity=%d", FactoryBuyQuantity);
 				FLOGV("   -> StorageBuyQuantity=%d", StorageBuyQuantity);
 				FLOGV(" -> MoneyBalance=%f", MoneyBalance/100.f);
-				FLOGV(" -> MoneyBalanceParDay=%f", MoneyBalanceParDay/100.f);*/
+				FLOGV(" -> MoneyBalanceParDay=%f", MoneyBalanceParDay/100.f);
+				FLOGV(" -> Resource affility=%f", Behavior->GetResourceAffility(Resource));
+				FLOGV(" -> SectorA affility=%f", Behavior->GetSectorAffility(SectorA));
+				FLOGV(" -> SectorB affility=%f", Behavior->GetSectorAffility(SectorB));
+				FLOGV(" -> Score=%f", Score);*/
 			}
 		}
 	}
