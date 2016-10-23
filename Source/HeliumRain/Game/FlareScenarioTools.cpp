@@ -209,7 +209,7 @@ void UFlareScenarioTools::SetupWorld()
 	// Nema main economy
 	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 3);
 	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 2);
-	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 2, 2);
+	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 3, 2);
 	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 2);
 	CreateStations(StationSteelworks, NemaHeavyWorks, MinersHome, 2);
 	CreateStations(StationToolFactory, NemaHeavyWorks, MinersHome, 1);
@@ -263,11 +263,12 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHabitation, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationSolarPlant, GhostWorksShipyards, FrozenRealm, 1, 2);
-	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 1);
+	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 2);
 	CreateStations(StationHub, GhostWorksShipyards, FrozenRealm, 1);
 
 	// Asta pirate base
 	CreateStations(StationShipyard, Pirates, Boneyard, 1);
+	CreateStations(StationSolarPlant, Pirates, Boneyard, 1, 1);
 	CreateStations(StationArsenal, AxisSupplies, Boneyard, 2);
 
 	// Create hubs
