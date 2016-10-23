@@ -62,8 +62,12 @@ public:
 
 protected:
 
-	/** Our ship was destroyed */
+	/** The ship is uncontrollable */
 	virtual void OnControlLost();
+
+
+	/** The ship was destroyed */
+	void OnSpacecraftDestroyed();
 
 	virtual void CheckRecovery();
 
@@ -82,6 +86,7 @@ protected:
 	TArray<UActorComponent*>                        Components;
 
 	bool                                            WasControllable; // True if was controllable at the last tick
+	bool                                            WasAlive;
 	float											TimeSinceLastExternalDamage;
 
 	AFlareSpacecraft*                               LastDamageCauser;
