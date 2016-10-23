@@ -371,16 +371,45 @@ int32 UFlareCompanyAI::UpdateTrading()
 			//FLOGV("UFlareCompanyAI::UpdateTrading : %s found nothing to do", *Ship->GetImmatriculation().ToString());
 
 			//FLOGV("UFlareCompanyAI::UpdateTrading : HasProject ? %d ConstructionProjectNeedCapacity %d", (ConstructionProjectStationDescription != NULL), ConstructionProjectNeedCapacity);
-			if (ConstructionProjectStationDescription && ConstructionProjectSector && ConstructionProjectNeedCapacity > 0 && Ship->GetCargoBay()->GetUsedCargoSpace() == 0)
-			{
-				//FLOGV("UFlareCompanyAI::UpdateTrading : %s add to construction", *Ship->GetImmatriculation().ToString());
 
-				ConstructionShips.Add(Ship);
-				ConstructionProjectNeedCapacity -= Ship->GetCargoBay()->GetCapacity();
-			}
-			else
+			bool Usefull = false;
+
+			if (ConstructionProjectStationDescription && ConstructionProjectSector && ConstructionProjectNeedCapacity > 0)
 			{
-				IdleCargoCapacity += Ship->GetCargoBay()->GetCapacity();
+				if (Ship->GetCargoBay()->GetFreeSlotCount() > 0)
+				{
+					ConstructionShips.Add(Ship);
+					ConstructionProjectNeedCapacity -= Ship->GetCargoBay()->GetFreeSlotCount() * Ship->GetCargoBay()->GetSlotCapacity();
+					Usefull = true;
+				}
+				else
+				{
+					TArray<FFlareResourceDescription*> MissingResources;
+					MissingResourcesQuantity.GetKeys(MissingResources);
+					for (int32 ResourceIndex = 0; ResourceIndex < MissingResources.Num(); ResourceIndex++)
+					{
+						FFlareResourceDescription* MissingResource = MissingResources[ResourceIndex];
+						int32 Quantity = Ship->GetCargoBay()->GetResourceQuantity(MissingResource, Ship->GetCompany());
+						int32 MissingQuantity =  MissingResourcesQuantity[MissingResource];
+
+						int32 UsefullQuantity = FMath::Min(Quantity, MissingQuantity);
+
+						if (UsefullQuantity > 0)
+						{
+							// Usefull ship
+							ConstructionShips.Add(Ship);
+							ConstructionProjectNeedCapacity -= UsefullQuantity;
+							MissingResourcesQuantity[MissingResource] = MissingQuantity - UsefullQuantity;
+							Usefull = true;
+						}
+					}
+				}
+				//FLOGV("UFlareCompanyAI::UpdateTrading : %s add to construction", *Ship->GetImmatriculation().ToString());
+			}
+
+			if (!Usefull && Ship->GetCargoBay()->GetFreeSlotCount() > 0)
+			{
+				IdleCargoCapacity += Ship->GetCargoBay()->GetCapacity() * Ship->GetCargoBay()->GetFreeSlotCount();
 			}
 
 			// TODO recruit to build station
@@ -667,8 +696,8 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 		}
 	}
 
-	TMap<FFlareResourceDescription *, int32> MissingResourcesQuantity;
-	TMap<FFlareResourceDescription *, int32> MissingStaticResourcesQuantity;
+	MissingResourcesQuantity.Empty();
+	MissingStaticResourcesQuantity.Empty();
 	TArray<int32> TotalResourcesQuantity;
 
 	// List missing ressources
