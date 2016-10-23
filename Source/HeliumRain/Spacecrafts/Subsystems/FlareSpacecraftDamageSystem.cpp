@@ -69,7 +69,8 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		}
 	}
 
-	// Update Alive status
+
+	// Update uncontrollable status
 	if (WasControllable && Parent->IsUncontrollable())
 	{
 		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
@@ -79,16 +80,9 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		{
 			if(Parent->IsAlive())
 			{
-				PC->Notify(LOCTEXT("ShipUncontrollable", "Target uncontrollable"),
-					FText::Format(LOCTEXT("ShipUncontrollableFormat", "You rendered a ship uncontrollable ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
+				PC->Notify(LOCTEXT("TargetShipUncontrollable", "Enemy ship uncontrollable"),
+					FText::Format(LOCTEXT("TargetShipUncontrollableFormat", "You rendered a ship uncontrollable ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
-					EFlareNotification::NT_Info);
-			}
-			else
-			{
-				PC->Notify(LOCTEXT("ShipKilled", "Target destroyed"),
-					FText::Format(LOCTEXT("ShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
-					FName("ship-killed"),
 					EFlareNotification::NT_Info);
 			}
 		}
@@ -98,17 +92,50 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		{
 			if(Parent->IsAlive())
 			{
-				PC->Notify(LOCTEXT("ShipUncontrollableCompany", "Target uncontrollable"),
-					FText::Format(LOCTEXT("ShipUncontrollableCompanyFormat", "Your {0}-class ship rendered a ship uncontrollable ({1}-class)"),
+				PC->Notify(LOCTEXT("TargetShipUncontrollableCompany", "Enemy ship uncontrollable"),
+					FText::Format(LOCTEXT("TargetShipUncontrollableCompanyFormat", "Your {0}-class ship rendered a ship uncontrollable ({1}-class)"),
 						LastDamageCauser->GetParent()->GetDescription()->Name,
 						Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
 					EFlareNotification::NT_Info);
 			}
+		}
+
+		WasControllable = false;
+		OnControlLost();
+	}
+
+
+	// Update alive status
+	if (WasAlive && !Parent->IsAlive())
+	{
+		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+
+		// Player kill
+		if (PC && LastDamageCauser == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
+		{
+			PC->Notify(LOCTEXT("TargetShipKilled", "Target destroyed"),
+				FText::Format(LOCTEXT("TargetShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
+				FName("ship-killed"),
+				EFlareNotification::NT_Info);
+		}
+
+		// Company kill
+		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetParent()->GetCompany())
+		{
+			if(Spacecraft->IsStation())
+			{
+				PC->Notify(LOCTEXT("TargetStationKilledCompany", "Enemy destroyed"),
+					FText::Format(LOCTEXT("TargetStationKilledCompanyFormat", "Your {0}-class ship destroyed a station ({1}-class)"),
+						LastDamageCauser->GetParent()->GetDescription()->Name,
+						Spacecraft->GetParent()->GetDescription()->Name),
+					FName("station-killed"),
+					EFlareNotification::NT_Info);
+			}
 			else
 			{
-				PC->Notify(LOCTEXT("ShipKilledCompany", "Target destroyed"),
-					FText::Format(LOCTEXT("ShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"),
+				PC->Notify(LOCTEXT("TargetShipKilledCompany", "Enemy destroyed"),
+					FText::Format(LOCTEXT("TargetShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"),
 						LastDamageCauser->GetParent()->GetDescription()->Name,
 						Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-killed"),
@@ -116,8 +143,8 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 			}
 		}
 
-		WasControllable = false;
-		OnControlLost();
+		WasAlive = false;
+		OnSpacecraftDestroyed();
 	}
 
 	TimeSinceLastExternalDamage += DeltaSeconds;
@@ -158,6 +185,7 @@ void UFlareSpacecraftDamageSystem::Start()
 
 	// Init alive status
 	WasControllable = !Parent->IsUncontrollable();
+	WasAlive = Parent->IsAlive();
 	TimeSinceLastExternalDamage = 10000;
 }
 
@@ -175,6 +203,55 @@ void UFlareSpacecraftDamageSystem::UpdatePower()
 	}
 }
 
+void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
+{
+	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+
+	// Lost player ship
+	if (Spacecraft == PC->GetShipPawn())
+	{
+		if (LastDamageCauser)
+		{
+			PC->Notify(
+				LOCTEXT("PlayerShipDestroyed", "Your ship has been destroyed"),
+				FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
+				FName("ship-destroyed"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Company);
+		}
+		else
+		{
+			PC->Notify(
+				LOCTEXT("PlayerShipCrashedDestroyed", "Crash"),
+				FText::FText(LOCTEXT("ShipCrashedDestroyedFormat", "You crashed your ship")),
+				FName("ship-crashed"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Company);
+		}
+	}
+
+	// Lost company ship
+	else if (Spacecraft->GetParent()->GetCompany() == PC->GetCompany())
+	{
+		if(!Spacecraft->IsStation())
+		{
+			PC->Notify(LOCTEXT("ShipDestroyedCompany", "You lost a ship"),
+				FText::Format(LOCTEXT("ShipDestroyedCompanyFormat", "Your {0}-class ship was destroyed"), Spacecraft->GetParent()->GetDescription()->Name),
+				FName("ship-killed"),
+				EFlareNotification::NT_Military);
+		}
+		else
+		{
+			PC->Notify(LOCTEXT("StationDestroyedCompany", "You lost a station"),
+				FText::Format(LOCTEXT("StationDestroyedCompanyFormat", "Your {0}-class station was destroyed"), Spacecraft->GetParent()->GetDescription()->Name),
+				FName("station-killed"),
+				EFlareNotification::NT_Military);
+		}
+	}
+}
+
 void UFlareSpacecraftDamageSystem::OnControlLost()
 {
 	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
@@ -184,21 +261,12 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	{
 		if (LastDamageCauser)
 		{
-			if (Parent->IsAlive()) {
-				PC->Notify(
-					LOCTEXT("PlayerShipUncontrollable", "Your ship is uncontrollable"),
-					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship has been rendered uncontrollable by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
-					FName("ship-uncontrollable"),
-					EFlareNotification::NT_Military,
-					false,
-					EFlareMenu::MENU_Company);
-			}
-			else
+			if (Parent->IsAlive())
 			{
 				PC->Notify(
-					LOCTEXT("PlayerShipDestroyed", "Your ship has been destroyed"),
-					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
-					FName("ship-destroyed"),
+					LOCTEXT("PlayerShipUncontrollable", "Your ship is uncontrollable"),
+					FText::Format(LOCTEXT("ShipUncontrollableFormat", "Your ship has been rendered uncontrollable by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FName("ship-uncontrollable"),
 					EFlareNotification::NT_Military,
 					false,
 					EFlareMenu::MENU_Company);
@@ -206,13 +274,16 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		}
 		else
 		{
-			PC->Notify(
-				LOCTEXT("PlayerShipCrashed", "Crash"),
-				FText::FText(LOCTEXT("ShipDestroyedFormat", "You crashed your ship")),
-				FName("ship-crashed"),
-				EFlareNotification::NT_Military,
-				false,
-				EFlareMenu::MENU_Company);
+			if (Parent->IsAlive())
+			{
+				PC->Notify(
+					LOCTEXT("PlayerShipUncontrollableCrashed", "Crash"),
+					FText::FText(LOCTEXT("ShipUncontrollableCrashedFormat", "You crashed your ship")),
+					FName("ship-uncontrollable-crashed"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Company);
+			}
 		}
 
 		PC->GetMenuManager()->OpenMainOverlay();
@@ -239,10 +310,13 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	// Lost company ship
 	else if (Spacecraft->GetParent()->GetCompany() == PC->GetCompany())
 	{
-		PC->Notify(LOCTEXT("ShipDestroyedCompany", "You lost a ship"),
-			FText::Format(LOCTEXT("ShipDestroyedCompanyFormat", "Your {0}-class ship was destroyed"), Spacecraft->GetParent()->GetDescription()->Name),
-			FName("ship-killed"),
+		if (Parent->IsAlive() && Spacecraft->IsStation())
+		{
+		PC->Notify(LOCTEXT("ShipUncontrollableCompany", "Ship uncontrollable"),
+			FText::Format(LOCTEXT("ShipUncontrollableCompanyFormat", "Your {0}-class ship is uncontrollable"), Spacecraft->GetParent()->GetDescription()->Name),
+			FName("ship-uncontrollable"),
 			EFlareNotification::NT_Military);
+		}
 	}
 
 	Spacecraft->GetNavigationSystem()->Undock();
