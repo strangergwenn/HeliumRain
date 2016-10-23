@@ -9,6 +9,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareGameTools"
 
+bool UFlareGameTools::FastFastForward = false;
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -101,6 +103,11 @@ void UFlareGameTools::SetHudDistortion(uint32 Axis, uint32 X, uint32 Y, float Va
 		Hud->SetDistortion(Axis, X, Y, Value);
 	}
 }
+
+
+#define RESET   "\033[0m"
+#define RED     "\033[31m"      /* Red */
+
 
 void UFlareGameTools::CheckEconomyBalance()
 {
@@ -217,16 +224,66 @@ void UFlareGameTools::CheckEconomyBalance()
 
 			if(MinMargin < 0)
 			{
-				FLOG("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-				FLOG("!! Min margin is too low !!");
-				FLOG("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+				for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num() ; ResourceIndex++)
+				{
+					const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
+
+					float PriceOverflowPerResource = (float) MinBenefice / (float) Resource->Quantity;
+					int64 BestMinPrice = Resource->Resource->Data.MinPrice - PriceOverflowPerResource;
+					int64 BestMaxPrice = BestMinPrice * 1.2f;
+
+					if(BestMinPrice !=  Resource->Resource->Data.MinPrice)
+					{
+						FLOG(RED "!!!!!!!!!!!!!!!!!!!!!!!!!!!" RESET);
+						FLOG(RED "!! Min margin is too low !!" RESET);
+
+						FLOGV(RED "!! %s min price %lld -> %lld !!" RESET,
+							 *Resource->Resource->Data.Identifier.ToString(),
+							 Resource->Resource->Data.MinPrice,
+							 BestMinPrice);
+
+						FLOGV(RED "!! %s max price %lld -> %lld !!" RESET,
+							 *Resource->Resource->Data.Identifier.ToString(),
+							 Resource->Resource->Data.MaxPrice,
+							 BestMaxPrice);
+						FLOG(RED "!!!!!!!!!!!!!!!!!!!!!!!!!!!" RESET);
+					}
+				}
+
+
 			}
 
 			if(MinMargin > 0)
 			{
-				FLOG("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-				FLOG("!! Min margin is too high !!");
-				FLOG("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+				for (int32 ResourceIndex = 0 ; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num() ; ResourceIndex++)
+				{
+					const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
+
+					float PriceOverflowPerResource = (float) MinBenefice / (float) Resource->Quantity;
+					int64 BestMinPrice = Resource->Resource->Data.MinPrice - PriceOverflowPerResource;
+					int64 BestMaxPrice = BestMinPrice * 1.2f;
+
+					if(BestMinPrice !=  Resource->Resource->Data.MinPrice)
+					{
+						FLOG(RED "!!!!!!!!!!!!!!!!!!!!!!!!!!!" RESET);
+						FLOG(RED "!! Min margin is too high !!" RESET);
+
+						FLOGV(RED "!! %s min price %lld -> %lld !!" RESET,
+							 *Resource->Resource->Data.Identifier.ToString(),
+							 Resource->Resource->Data.MinPrice,
+							 BestMinPrice);
+
+						FLOGV(RED "!! %s max price %lld -> %lld !!" RESET,
+							 *Resource->Resource->Data.Identifier.ToString(),
+							 Resource->Resource->Data.MaxPrice,
+							 BestMaxPrice);
+						FLOG(RED "!!!!!!!!!!!!!!!!!!!!!!!!!!!" RESET);
+					}
+				}
+
+
 			}
 		}
 
@@ -238,9 +295,6 @@ void UFlareGameTools::CheckEconomyBalance()
 
 
 }
-
-#define RESET   "\033[0m"
-#define RED     "\033[31m"      /* Red */
 
 
 void UFlareGameTools::PrintEconomyStatus()
@@ -276,6 +330,21 @@ void UFlareGameTools::PrintEconomyStatus()
 		}
 	}
 
+
+	int64 PeopleMoney = 0;
+	int64 PeopleDept = 0;
+
+	for (int SectorIndex = 0; SectorIndex < GetGameWorld()->GetSectors().Num(); SectorIndex++)
+	{
+		PeopleMoney += GetGameWorld()->GetSectors()[SectorIndex]->GetPeople()->GetMoney();
+		PeopleDept += GetGameWorld()->GetSectors()[SectorIndex]->GetPeople()->GetDept();
+	}
+
+	int64 WorldMoney = GetGameWorld()->GetWorldMoney();
+
+	FLOGV("World money: %lld $", WorldMoney / 100);
+	FLOGV("- People money: %lld $ (%f %%)", PeopleMoney/100, 100.f * (float)PeopleMoney / (float) WorldMoney);
+	FLOGV("- People dept: %lld $ (%f %%)", PeopleDept/100, 100.f * (float)PeopleDept / (float) PeopleMoney);
 }
 
 
@@ -355,6 +424,10 @@ void UFlareGameTools::RevealMap()
 	GetGame()->ActivateCurrentSector();
 }
 
+void UFlareGameTools::SetFastFastForward(bool FFF)
+{
+	FastFastForward = FFF;
+}
 
 /*----------------------------------------------------
 	Company tools

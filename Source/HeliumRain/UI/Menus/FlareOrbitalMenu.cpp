@@ -371,7 +371,7 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 		TimeSinceFastForward += InDeltaTime;
 		if (FastForwardActive)
 		{
-			if (TimeSinceFastForward > FastForwardPeriod)
+			if (TimeSinceFastForward > FastForwardPeriod || UFlareGameTools::FastFastForward)
 			{
 				MenuManager->GetGame()->GetGameWorld()->FastForward();
 				TimeSinceFastForward = 0;
