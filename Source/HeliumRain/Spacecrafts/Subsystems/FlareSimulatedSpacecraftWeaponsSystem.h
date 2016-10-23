@@ -32,7 +32,7 @@ public:
 	/** Initialize this system */
 	virtual void Initialize(UFlareSimulatedSpacecraft* OwnerSpacecraft, FFlareSpacecraftSave* OwnerData);
 
-	void GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollable, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned);
+	void GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned);
 
 	int32 FindBestWeaponGroup(UFlareSimulatedSpacecraft* Target);
 public:

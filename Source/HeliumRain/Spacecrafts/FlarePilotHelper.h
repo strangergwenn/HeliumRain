@@ -21,8 +21,9 @@ struct PilotHelper
 		float IsNotDangerous;
 		float IsStranded;
 		float IsNotStranded;
-		float IsUncontrolable;
-		float IsNotUncontrolable;
+		float IsUncontrollableCivil;
+		float IsUncontrollableMilitary;
+		float IsNotUncontrollable;
 		float IsHarpooned;
 		float TargetStateWeight;
 		float MaxDistance;
