@@ -1592,12 +1592,17 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 			float UnderflowRatio = WorldStats[&Resource->Resource->Data].Balance / MaxVolume;
 			if(UnderflowRatio < 0)
 			{
-				float UnderflowMalus = FMath::Clamp((UnderflowRatio * 100)  / 5.f + 1.f, 0.f, 1.f);
+				float UnderflowMalus = FMath::Clamp((UnderflowRatio * 100)  / 20.f + 1.f, 0.f, 1.f);
 				Score *= UnderflowMalus;
 				//FLOGV("    MaxVolume %f", MaxVolume);
 				//FLOGV("    UnderflowRatio %f", UnderflowRatio);
 				//FLOGV("    UnderflowMalus %f", UnderflowMalus);
 			}
+		}
+		else
+		{
+			// No input production, ignore this station
+			return 0;
 		}
 
 		float ResourcePrice = Sector->GetPreciseResourcePrice(&Resource->Resource->Data);
