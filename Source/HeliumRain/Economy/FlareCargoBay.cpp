@@ -304,6 +304,20 @@ uint32 UFlareCargoBay::GetCapacity() const
 	return GetSlotCapacity() * CargoBayCount;
 }
 
+int32 UFlareCargoBay::GetFreeSlotCount() const
+{
+	int32 FreeSlotCount = 0;
+
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
+	{
+		if(CargoBay[CargoIndex].Quantity == 0)
+		{
+			FreeSlotCount++;
+		}
+	}
+	return FreeSlotCount;
+}
+
 uint32 UFlareCargoBay::GetUsedCargoSpace() const
 {
 	uint32 Used = 0;

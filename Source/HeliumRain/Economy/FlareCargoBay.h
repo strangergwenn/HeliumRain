@@ -74,6 +74,8 @@ public:
 
 	uint32 GetCapacity() const;
 
+	int32 GetFreeSlotCount() const;
+
 	uint32 GetUsedCargoSpace() const;
 
 	uint32 GetFreeCargoSpace() const;

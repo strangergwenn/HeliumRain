@@ -180,6 +180,8 @@ protected:
 	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
 	TArray<UFlareSimulatedSpacecraft*>       Shipyards;
 	TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
+	TMap<FFlareResourceDescription *, int32> MissingResourcesQuantity;
+	TMap<FFlareResourceDescription *, int32> MissingStaticResourcesQuantity;
 
 public:
 
