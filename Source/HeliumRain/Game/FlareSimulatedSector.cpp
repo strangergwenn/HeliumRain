@@ -357,9 +357,11 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	if (!Spacecraft->IsStation())
 	{
 		// Add to player fleet if possible
-		if (Company == Game->GetPC()->GetCompany() && Game->GetPC()->GetPlayerFleet()->GetCurrentSector() == this)
+		UFlareFleet* PlayerFleet = Game->GetPC()->GetPlayerFleet();
+
+		if (Company == Game->GetPC()->GetCompany() && PlayerFleet &&  PlayerFleet->GetCurrentSector() == this)
 		{
-			Game->GetPC()->GetPlayerFleet()->AddShip(Spacecraft);
+			PlayerFleet->AddShip(Spacecraft);
 		}
 		else
 		{
