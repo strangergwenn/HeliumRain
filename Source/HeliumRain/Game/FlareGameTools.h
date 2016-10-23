@@ -45,6 +45,9 @@ public:
 	UFUNCTION(exec)
 	void CheckEconomyBalance();
 
+	UFUNCTION(exec)
+	void PrintEconomyStatus();
+
 	/*----------------------------------------------------
 		World tools
 	----------------------------------------------------*/
