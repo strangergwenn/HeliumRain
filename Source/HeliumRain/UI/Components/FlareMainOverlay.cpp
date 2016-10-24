@@ -205,18 +205,16 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	UGameplayStatics::GetAllActorsOfClass(MenuManager->GetPC()->GetWorld(), APostProcessVolume::StaticClass(), PostProcessCandidates);
 	if (PostProcessCandidates.Num())
 	{
-		APostProcessVolume* Volume = Cast<APostProcessVolume>(PostProcessCandidates.Last());
-		FCHECK(Volume);
+		PostProcessVolume = Cast<APostProcessVolume>(PostProcessCandidates.Last());
+		FCHECK(PostProcessVolume);
 
-		FWeightedBlendable Blendable = Volume->Settings.WeightedBlendables.Array.Last();
+		FWeightedBlendable Blendable = PostProcessVolume->Settings.WeightedBlendables.Array.Last();
 		UMaterial* MasterMaterial = Cast<UMaterial>(Blendable.Object);
 		if (MasterMaterial)
 		{
 			BlurMaterial = UMaterialInstanceDynamic::Create(MasterMaterial, MenuManager->GetPC()->GetWorld());
 			FCHECK(BlurMaterial);
-			
-			Volume->Settings.RemoveBlendable(MasterMaterial);
-			Volume->Settings.AddBlendable(BlurMaterial, 1.0f);
+			PostProcessVolume->Settings.RemoveBlendable(MasterMaterial);
 			FLOG("SFlareMainOverlay::Construct : blur material ready");
 		}
 		else
@@ -362,6 +360,9 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	{
 		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(0.0, 0.0, 0));
 	}
+
+	// Apply with weight depending on whether it's used
+	PostProcessVolume->Settings.AddBlendable(BlurMaterial, IsOpen() ? 1.0f : 0.0f);
 }
 
 EVisibility SFlareMainOverlay::GetGameButtonVisibility() const

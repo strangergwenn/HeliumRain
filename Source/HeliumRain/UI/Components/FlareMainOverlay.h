@@ -99,6 +99,10 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
 	
+	// Post process volume
+	UPROPERTY()
+	APostProcessVolume*                             PostProcessVolume;
+
 	// Blur material
 	UPROPERTY()
 	UMaterialInstanceDynamic*                       BlurMaterial;
