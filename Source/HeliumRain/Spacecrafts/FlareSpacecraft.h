@@ -153,6 +153,10 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
+	virtual void StartFire();
+
+	virtual void StopFire();
+
 	virtual void LeftMousePress();
 
 	virtual void LeftMouseRelease();
@@ -175,17 +179,28 @@ public:
 
 	virtual void PreviousTarget();
 
-	virtual void ThrustInput(float Val);
-
 	virtual void MoveVerticalInput(float Val);
 
 	virtual void MoveHorizontalInput(float Val);
 
-	virtual void RollInput(float Val);
+
+	virtual void YawInput(float Val);
 
 	virtual void PitchInput(float Val);
 
-	virtual void YawInput(float Val);
+	virtual void RollInput(float Val);
+
+	virtual void ThrustInput(float Val);
+
+
+	virtual void JoystickYawInput(float Val);
+
+	virtual void JoystickPitchInput(float Val);
+
+	virtual void JoystickRollInput(float Val);
+
+	virtual void JoystickThrustInput(float Val);
+
 
 	virtual void ZoomIn();
 

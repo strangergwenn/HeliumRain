@@ -1124,6 +1124,9 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate tertiary weapons", "Weapon Group 3")))
 		->AddActionMapping("WeaponGroup3")
 		->AddDefaults(EKeys::Four)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fire Weapon", "Fire")))
+		->AddActionMapping("StartFire")
+		->AddDefaults(EKeys::LeftControl)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Weapons", "Toogle Weapons")))
 		->AddActionMapping("ToggleCombat")
 		->AddDefaults(EKeys::F)));
