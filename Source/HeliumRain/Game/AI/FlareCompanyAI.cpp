@@ -1206,13 +1206,14 @@ void UFlareCompanyAI::UpdateShipAcquisition(int32& IdleCargoCapacity)
 
 	FLOGV("UFlareCompanyAI::UpdateShipAcquisition : IdleCargoCapacity = %d DamagedCargosCapacity = %d", IdleCargoCapacity, DamagedCargosCapacity);
 
+
 	if (IdleCargoCapacity + DamagedCargosCapacity <= 0)
 	{
 		UpdateCargoShipAcquisition();
 
 	}
 
-	UpdateWarShipAcquisition();
+	UpdateWarShipAcquisition(true);
 }
 
 void UFlareCompanyAI::UpdateCargoShipAcquisition()
@@ -1236,7 +1237,7 @@ void UFlareCompanyAI::UpdateCargoShipAcquisition()
 	OrderOneShip(ShipDescription);
 }
 
-void UFlareCompanyAI::UpdateWarShipAcquisition()
+void UFlareCompanyAI::UpdateWarShipAcquisition(bool limitToOne)
 {
 	// For the war pass there is 2 states : slow preventive ship buy. And war state.
 	//
@@ -1246,16 +1247,14 @@ void UFlareCompanyAI::UpdateWarShipAcquisition()
 	//   army value of all enemies and buy as many ship it can.
 	CompanyValue Value = Company->GetCompanyValue();
 
-	// TODO, war behavior
-
-	if(Value.ArmyValue > Value.TotalValue * AI_CARGO_PEACE_MILILTARY_THRESOLD)
+	if(Value.ArmyValue > Value.TotalValue * Behavior->ArmySize)
 	{
 		// Enough army
 		return;
 	}
 
 	// Check if a ship is building
-	if(IsBuildingShip(true))
+	if(limitToOne && IsBuildingShip(true))
 	{
 		return;
 	}
@@ -1829,7 +1828,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					else
 					{
 						Flow = FMath::Min(Flow, CanBuyQuantity);
-						Variation->FactoryFlow += Flow;
+						Variation->FactoryFlow += Flow * Behavior->TradingSell;
 					}
 				}
 
@@ -1845,7 +1844,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					else
 					{
 						Capacity = FMath::Min(Capacity, CanBuyQuantity);
-						Variation->FactoryCapacity += Capacity;
+						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
 					}
 
 
@@ -1884,7 +1883,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 					else
 					{
-						Variation->FactoryFlow -= Flow;
+						Variation->FactoryFlow -= Flow * Behavior->TradingBuy;
 					}
 				}
 
@@ -1895,7 +1894,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				}
 				else
 				{
-					Variation->FactoryStock += Stock;
+					Variation->FactoryStock += Stock * Behavior->TradingBuy;
 				}
 
 				// The AI don't let anything for the player : it's too hard
@@ -1936,7 +1935,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 					else
 					{
-						Variation->FactoryCapacity += Capacity;
+						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
 					}
 				}
 
@@ -1976,7 +1975,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					else
 					{
 						Capacity = FMath::Min(Capacity, CanBuyQuantity);
-						Variation->FactoryCapacity += Capacity;
+						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
 					}
 				}
 
@@ -2019,7 +2018,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			uint32 Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource);
 
 			Variation->OwnedFlow = OwnedCustomerRatio * Consumption;
-			Variation->FactoryFlow = NotOwnedCustomerRatio * Consumption;
+			Variation->FactoryFlow = NotOwnedCustomerRatio * Consumption * Behavior->TradingSell;
 		}
 	}
 
