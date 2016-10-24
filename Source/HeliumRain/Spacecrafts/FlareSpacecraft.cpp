@@ -1197,12 +1197,13 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("PitchInput", this, &AFlareSpacecraft::PitchInput);
 	PlayerInputComponent->BindAxis("RollInput", this, &AFlareSpacecraft::RollInput);
 	PlayerInputComponent->BindAxis("ThrustInput", this, &AFlareSpacecraft::ThrustInput);
-
+/*
+	// Not working at the moment (will break mouse)
 	PlayerInputComponent->BindAxis("JoystickYawInput", this, &AFlareSpacecraft::JoystickYawInput);
 	PlayerInputComponent->BindAxis("JoystickPitchInput", this, &AFlareSpacecraft::JoystickPitchInput);
 	PlayerInputComponent->BindAxis("JoystickThrustInput", this, &AFlareSpacecraft::JoystickThrustInput);
 	PlayerInputComponent->BindAxis("JoystickRollInput", this, &AFlareSpacecraft::JoystickRollInput);
-
+*/
 	PlayerInputComponent->BindAxis("MoveVerticalInput", this, &AFlareSpacecraft::MoveVerticalInput);
 	PlayerInputComponent->BindAxis("MoveHorizontalInput", this, &AFlareSpacecraft::MoveHorizontalInput);
 
