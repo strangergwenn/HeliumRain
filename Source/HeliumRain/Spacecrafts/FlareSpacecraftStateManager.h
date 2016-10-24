@@ -50,7 +50,13 @@ public:
 
 	virtual void SetPlayerMouseOffset(FVector2D Val, bool Relative);
 
+	virtual void SetPlayerYaw(float Val);
+
+	virtual void SetPlayerPitch(float Val);
+
 	virtual void SetPlayerLeftMouse(bool Val);
+
+	virtual void SetPlayerFiring(bool Val);
 
 	virtual void ExternalCameraZoom(bool ZoomIn);
 
@@ -99,6 +105,7 @@ protected:
 	float									 InternalCameraYawTarget;
 	
 	EFlareWeaponGroupType::Type              LastWeaponType;
+	bool                                     PlayerFiring;
 	
 	// Manual player pilot
 	bool                                     PlayerLeftMousePressed;

@@ -178,7 +178,6 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	UpdateCamera(DeltaSeconds);
 }
 
-
 void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 {
 	AFlarePlayerController* PC = Spacecraft->GetPC();
@@ -320,9 +319,24 @@ void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Rela
 	}
 }
 
+void UFlareSpacecraftStateManager::SetPlayerYaw(float Val)
+{
+	PlayerMouseOffset.X = Val;
+}
+
+void UFlareSpacecraftStateManager::SetPlayerPitch(float Val)
+{
+	PlayerMouseOffset.Y = Val;
+}
+
 void UFlareSpacecraftStateManager::SetPlayerLeftMouse(bool Val)
 {
 	PlayerLeftMousePressed = Val;
+}
+
+void UFlareSpacecraftStateManager::SetPlayerFiring(bool Val)
+{
+	PlayerFiring = Val;
 }
 
 void UFlareSpacecraftStateManager::ExternalCameraZoom(bool ZoomIn)
@@ -466,7 +480,7 @@ bool UFlareSpacecraftStateManager::IsWantFire() const
 					return false;
 				case EFlareWeaponGroupType::WG_BOMB:
 				case EFlareWeaponGroupType::WG_GUN:
-					return PlayerLeftMousePressed;
+					return PlayerLeftMousePressed || PlayerFiring;
 				default:
 					return false;
 			}
