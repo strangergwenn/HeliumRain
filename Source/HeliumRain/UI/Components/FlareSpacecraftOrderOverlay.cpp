@@ -416,7 +416,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 
 	// Structure
 	return SNew(SFlareListItem, OwnerTable)
-	.Width(30)
+	.Width(32)
 	.Height(2)
 	.Content()
 	[
