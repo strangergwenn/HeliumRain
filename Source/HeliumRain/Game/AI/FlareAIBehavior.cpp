@@ -27,6 +27,9 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 		check(ST);
 
 		GenerateAffilities();
+
+		// TODO save
+		PirateLowProfile = true;
 	}
 }
 
@@ -34,6 +37,31 @@ void UFlareAIBehavior::Simulate()
 {
 	if(Company == ST->Pirates)
 	{
+		// TODO save state
+
+
+		int32 ShipsReady = 0;
+
+		for(int32 ShipIndex = 0; ShipIndex < Company->GetCompanyShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = Company->GetCompanyShips()[ShipIndex];
+			 if (Ship->IsMilitary() && !Ship->GetDamageSystem()->IsDisarmed())
+			 {
+				ShipsReady++;
+			 }
+		}
+
+		FLOGV("Pirate army size: %d", ShipsReady);
+		if(PirateLowProfile && ShipsReady > 15)
+		{
+			PirateLowProfile = false;
+		}
+
+		if(!PirateLowProfile && ShipsReady == 5)
+		{
+			PirateLowProfile = false;
+		}
+
 		SimulatePirateBehavior();
 	}
 	else
@@ -73,7 +101,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			continue;
 		}
 
-		if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
+		if(Company == ST->Pirates && !PirateLowProfile && OtherCompany != ST->AxisSupplies)
 		{
 			Company->SetHostilityTo(OtherCompany, true);
 		}
@@ -97,19 +125,27 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 void UFlareAIBehavior::SimulatePirateBehavior()
 {
-	// Simulate company attitude towards others
-	Company->GetAI()->UpdateDiplomacy();
-
 	// Repair and refill ships and stations
 	Company->GetAI()->RepairAndRefill();
 
-	// Update trade routes
-	int32 IdleCargoCapacity = Company->GetAI()->UpdateTrading();
+	if(PirateLowProfile)
+	{
+		// Update trade routes
+		int32 IdleCargoCapacity = Company->GetAI()->UpdateTrading();
 
-	// Buy war ships
-	Company->GetAI()->UpdateWarShipAcquisition();
+		// Buy ships
+		Company->GetAI()->UpdateShipAcquisition(IdleCargoCapacity);
+		Company->GetAI()->UpdateWarShipAcquisition(false);
 
-	Company->GetAI()->UpdateMilitaryMovement(false);
+		Company->GetAI()->UpdateMilitaryMovement(true);
+	}
+	else
+	{
+		// Buy war ships
+		Company->GetAI()->UpdateWarShipAcquisition(false);
+
+		Company->GetAI()->UpdateMilitaryMovement(false);
+	}
 }
 
 void UFlareAIBehavior::GenerateAffilities()
@@ -169,7 +205,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		// They need some cargo to buy resources for their shipyard and arsenal
 
-		SetResourceAffilities(0.f);
+		SetResourceAffilities(0.1f);
 
 
 		SetSectorAffilities(0.f);

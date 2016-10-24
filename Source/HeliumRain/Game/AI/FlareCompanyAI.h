@@ -95,7 +95,7 @@ public:
 	void UpdateMilitaryMovement(bool DefendOnly);
 
 	/** Buy war ships */
-	void UpdateWarShipAcquisition();
+	void UpdateWarShipAcquisition(bool limitToOne);
 
 protected:
 
