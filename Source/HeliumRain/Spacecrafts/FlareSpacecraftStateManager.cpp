@@ -28,7 +28,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 {
 	Spacecraft = ParentSpacecraft;
 	PlayerMousePosition = FVector2D(0,0);
-	PlayerMouseOffset = FVector2D(0,0);
+	PlayerAim = FVector2D(0,0);
 	ExternalCamera = true;
 
 	PlayerManualLinearVelocity = FVector::ZeroVector;
@@ -70,11 +70,10 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		}
 	}
 
-	// Player inputs
+	// Axis input mode start, reset mouse offset
 	if (LastWeaponType == EFlareWeaponGroupType::WG_NONE && (CurrentWeaponType == EFlareWeaponGroupType::WG_GUN || CurrentWeaponType == EFlareWeaponGroupType::WG_BOMB ))
 	{
-		// Axis input mode start, reset mouse offset
-		SetPlayerMouseOffset(FVector2D(0,0), false);
+		PlayerAim = FVector2D(0,0);
 	}
 	LastWeaponType = CurrentWeaponType;
 
@@ -156,11 +155,11 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		{
 			if (Spacecraft->IsFlownByPlayer() && PC && !PC->GetNavHUD()->IsWheelMenuOpen() && !PC->GetMenuManager()->IsUIOpen())
 			{
-				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMouseOffset.X) + FMath::Square(PlayerMouseOffset.Y));
+				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerAim.X) + FMath::Square(PlayerAim.Y));
 
 				// Compensation curve
 				float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio), 0.f, 1.f), MouseSensitivityPower);
-				float Angle = FMath::Atan2(PlayerMouseOffset.Y, PlayerMouseOffset.X);
+				float Angle = FMath::Atan2(PlayerAim.Y, PlayerAim.X);
 
 				PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
 				PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
@@ -284,49 +283,54 @@ void UFlareSpacecraftStateManager::SetPlayerMousePosition(FVector2D Val)
 	PlayerMousePosition = Val;
 }
 
-void UFlareSpacecraftStateManager::SetPlayerMouseOffset(FVector2D Val, bool Relative)
+void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 {
-	if (Relative)
+	// External camera : panning with mouse clicks
+	if (ExternalCamera)
 	{
-		// External camera : panning with mouse clicks
-		if (ExternalCamera)
-		{
-			ExternalCameraYawTarget += Val.X * Spacecraft->GetCameraPanSpeed();
-			ExternalCameraPitchTarget += Val.Y * Spacecraft->GetCameraPanSpeed();
-			PlayerMouseOffset = FVector2D(0, 0);
-		}
+		ExternalCameraYawTarget += Val.X * Spacecraft->GetCameraPanSpeed();
+		ExternalCameraPitchTarget += Val.Y * Spacecraft->GetCameraPanSpeed();
+		PlayerAim = FVector2D(0, 0);
+	}
 		
-		// FP view
-		else
+	// FP view
+	else
+	{
+		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
+		if (PC && !PC->GetNavHUD()->IsWheelMenuOpen())
 		{
-			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
-			if (PC && !PC->GetNavHUD()->IsWheelMenuOpen())
+			if (Val.X != LastPlayerAimMouse.X || Val.Y != LastPlayerAimMouse.Y)
 			{
+				LastPlayerAimMouse = Val;
 				float X = Val.X * MouseSensitivity;
 				float Y = -Val.Y * MouseSensitivity;
 
-				PlayerMouseOffset += FVector2D(X, Y);
-				if (PlayerMouseOffset.Size() > 1)
+				PlayerAim += FVector2D(X, Y);
+				if (PlayerAim.Size() > 1)
 				{
-					PlayerMouseOffset /= PlayerMouseOffset.Size();
+					PlayerAim /= PlayerAim.Size();
 				}
 			}
 		}
 	}
-	else
+}
+
+void UFlareSpacecraftStateManager::SetPlayerAimYaw(float Val)
+{
+	if (Val != LastPlayerAimJoystick.X)
 	{
-		PlayerMouseOffset = Val;
+		LastPlayerAimJoystick.X = Val;
+		PlayerAim.X = Val;
 	}
 }
 
-void UFlareSpacecraftStateManager::SetPlayerYaw(float Val)
+void UFlareSpacecraftStateManager::SetPlayerAimPitch(float Val)
 {
-	PlayerMouseOffset.X = Val;
-}
-
-void UFlareSpacecraftStateManager::SetPlayerPitch(float Val)
-{
-	PlayerMouseOffset.Y = Val;
+	if (Val != LastPlayerAimJoystick.Y)
+	{
+		LastPlayerAimJoystick.Y = Val;
+		PlayerAim.Y = Val;
+	}
 }
 
 void UFlareSpacecraftStateManager::SetPlayerLeftMouse(bool Val)
@@ -375,9 +379,22 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
 	PlayerManualLinearVelocity.Z = Val;
 }
 
-void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocity(float Val)
+void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocityKeyboard(float Val)
 {
-	PlayerManualAngularVelocity.X = Val;
+	if (Val != LastPlayerAngularRollKeyboard)
+	{
+		LastPlayerAngularRollKeyboard = Val;
+		PlayerManualAngularVelocity.X = Val;
+	}
+}
+
+void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocityJoystick(float Val)
+{
+	if (Val != LastPlayerAngularRollJoystick)
+	{
+		LastPlayerAngularRollJoystick = Val;
+		PlayerManualAngularVelocity.X = Val;
+	}
 }
 
 FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const

@@ -37,35 +37,37 @@ public:
 		return IsPiloted;
 	}
 
-	inline FVector2D GetPlayerMouseOffset() const
+	inline FVector2D GetPlayerAim() const
 	{
-		return PlayerMouseOffset;
+		return PlayerAim;
 	}
 
 	void ResetExternalCamera();
 
 	void OnCollision();
-
+	
+	// Mouse aim
 	virtual void SetPlayerMousePosition(FVector2D Val);
-
-	virtual void SetPlayerMouseOffset(FVector2D Val, bool Relative);
-
-	virtual void SetPlayerYaw(float Val);
-
-	virtual void SetPlayerPitch(float Val);
-
+	virtual void SetPlayerAimMouse(FVector2D Val);
 	virtual void SetPlayerLeftMouse(bool Val);
-
 	virtual void SetPlayerFiring(bool Val);
 
+	// Joystick aim
+	virtual void SetPlayerAimYaw(float Val);
+	virtual void SetPlayerAimPitch(float Val);
+	
+	// Mouse zoom
 	virtual void ExternalCameraZoom(bool ZoomIn);
 
+	// Linear movement
 	virtual void SetPlayerLockDirection(bool Val);
 	virtual void SetPlayerXLinearVelocity(float Val);
 	virtual void SetPlayerYLinearVelocity(float Val);
 	virtual void SetPlayerZLinearVelocity(float Val);
-
-	virtual void SetPlayerRollAngularVelocity(float Val);
+	
+	// Roll movement
+	virtual void SetPlayerRollAngularVelocityKeyboard(float Val);
+	virtual void SetPlayerRollAngularVelocityJoystick(float Val);
 
 	virtual void OnStatusChanged();
 
@@ -112,9 +114,18 @@ protected:
 	bool                                     PlayerManualLockDirection;
 	FVector                                  PlayerManualAngularVelocity; // In local space
 	FVector                                  PlayerManualLinearVelocity;
-	FVector2D                                PlayerMouseOffset;
 	FVector2D                                PlayerMousePosition;
 	float	                                 PlayerManualVelocityCommand;
 	bool	                                 PlayerManualVelocityCommandActive;
 	FVector	                                 PlayerManualLockDirectionVector;
+
+	// Roll
+	float	                                 LastPlayerAngularRollKeyboard;
+	float	                                 LastPlayerAngularRollJoystick;
+	
+	// Player aim
+	FVector2D                                PlayerAim;
+	FVector2D                                LastPlayerAimJoystick;
+	FVector2D                                LastPlayerAimMouse;
+
 };
