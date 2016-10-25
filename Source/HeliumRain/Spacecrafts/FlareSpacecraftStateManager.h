@@ -46,24 +46,29 @@ public:
 
 	void OnCollision();
 	
-	// Mouse aim
+	// Mouse aim and firing
 	virtual void SetPlayerMousePosition(FVector2D Val);
 	virtual void SetPlayerAimMouse(FVector2D Val);
 	virtual void SetPlayerLeftMouse(bool Val);
 	virtual void SetPlayerFiring(bool Val);
 
 	// Joystick aim
-	virtual void SetPlayerAimYaw(float Val);
-	virtual void SetPlayerAimPitch(float Val);
+	virtual void SetPlayerAimJoystickYaw(float Val);
+	virtual void SetPlayerAimJoystickPitch(float Val);
 	
 	// Mouse zoom
 	virtual void ExternalCameraZoom(bool ZoomIn);
 
-	// Linear movement
+	// Mouse movement
 	virtual void SetPlayerLockDirection(bool Val);
 	virtual void SetPlayerXLinearVelocity(float Val);
 	virtual void SetPlayerYLinearVelocity(float Val);
 	virtual void SetPlayerZLinearVelocity(float Val);
+
+	// Joystick movement
+	virtual void SetPlayerXLinearVelocityJoystick(float Val);
+	virtual void SetPlayerYLinearVelocityJoystick(float Val);
+	virtual void SetPlayerZLinearVelocityJoystick(float Val);
 	
 	// Roll movement
 	virtual void SetPlayerRollAngularVelocityKeyboard(float Val);
@@ -119,11 +124,15 @@ protected:
 	bool	                                 PlayerManualVelocityCommandActive;
 	FVector	                                 PlayerManualLockDirectionVector;
 
-	// Roll
+	// Linear movement state
+	FVector                                  LastPlayerLinearVelocityKeyboard;
+	FVector                                  LastPlayerLinearVelocityJoystick;
+
+	// Roll state
 	float	                                 LastPlayerAngularRollKeyboard;
 	float	                                 LastPlayerAngularRollJoystick;
 	
-	// Player aim
+	// Player aim state
 	FVector2D                                PlayerAim;
 	FVector2D                                LastPlayerAimJoystick;
 	FVector2D                                LastPlayerAimMouse;
