@@ -1064,10 +1064,10 @@ void SFlareSettingsMenu::CreateBinds()
 	// Piloting
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Flying", "FLYING")))->MakeHeader()));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveForward", "Move Forward")))
-		->AddAxisMapping("Thrust", 1.0f)
+		->AddAxisMapping("NormalThrustInput", 1.0f)
 		->AddDefaults(EKeys::W)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveBackward", "Move Backward")))
-		->AddAxisMapping("Thrust", -1.0f)
+		->AddAxisMapping("NormalThrustInput", -1.0f)
 		->AddDefaults(EKeys::S)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveLeft", "Move Left")))
 		->AddAxisMapping("MoveHorizontalInput", -1.0f)
@@ -1080,10 +1080,10 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveDown", "Move Down")))
 		->AddAxisMapping("MoveVerticalInput", -1.0f)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCW", "Roll Right")))
-		->AddAxisMapping("RollInput", 1.0f)
+		->AddAxisMapping("NormalRollInput", 1.0f)
 		->AddDefaults(EKeys::A)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCCW", "Roll Left")))
-		->AddAxisMapping("RollInput", -1.0f)
+		->AddAxisMapping("NormalRollInput", -1.0f)
 		->AddDefaults(EKeys::E)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Quick Ship Switch", "Quick Ship Switch")))
 		->AddActionMapping("QuickSwitch")

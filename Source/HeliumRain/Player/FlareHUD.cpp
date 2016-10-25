@@ -273,7 +273,7 @@ void AFlareHUD::DrawHUD()
 			|| PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
 		{
 			// Compute clamped mouse position
-			FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerMouseOffset();
+			FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerAim();
 			FVector MousePosDelta3D = FVector(MousePosDelta.X, MousePosDelta.Y, 0);
 			MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
 			MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);
