@@ -222,11 +222,11 @@ public:
 	/** Move hidden cursor */
 	virtual void MouseInputY(float Val);
 
-	// Joystick inputs
-	virtual void JoystickYawInput(float Val);
-	virtual void JoystickPitchInput(float Val);
-	virtual void JoystickRollInput(float Val);
-	virtual void JoystickThrustInput(float Val);
+	/** Joystick lateral movement X */
+	virtual void JoystickMoveHorizontalInput(float Val);
+
+	/** Joystick lateral movement Y */
+	virtual void JoystickMoveVerticalInput(float Val);
 	
 	/** Test method 1 */
 	virtual void Test1();

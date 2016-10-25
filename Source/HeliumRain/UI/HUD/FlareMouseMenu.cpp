@@ -22,11 +22,14 @@ void SFlareMouseMenu::Construct(const FArguments& InArgs)
 	WidgetSize = 200;
 	AnimTime = 0.20f;
 	ColinearityPower = 4.0f;
+	AutoResetTime = 1.0f;
+	Sensitivity = 15.0f;
 
 	// Init
 	MenuManager = InArgs._MenuManager;
 	PC = MenuManager->GetPC();
 	SetVisibility(EVisibility::Collapsed);
+	TimeSinceActive = 0.0f;
 	CurrentTime = 0.0f;
 	IsOpening = false;
 	
@@ -79,6 +82,7 @@ void SFlareMouseMenu::Open()
 	MouseOffset = FVector2D::ZeroVector;
 	SetVisibility(EVisibility::HitTestInvisible);
 	SetAnimDirection(true);
+	TimeSinceActive = 0;
 }
 
 void SFlareMouseMenu::Close(bool EnableAction)
@@ -129,17 +133,34 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 	{
 		SetVisibility(EVisibility::Collapsed);
 	}
+
+	// Auto-reset
+	else
+	{
+		TimeSinceActive += InDeltaTime;
+		FLOGV("SFlareMouseMenu::Tick : %f", TimeSinceActive);
+		if (TimeSinceActive > AutoResetTime && MouseOffset != FVector2D::ZeroVector)
+		{
+			FLOG("SFlareMouseMenu::Tick : auto reset");
+			MouseOffset = FVector2D::ZeroVector;
+		}
+	}
 }
 
 void SFlareMouseMenu::SetWheelCursorMove(FVector2D Move)
 {
-	MouseOffset += Move * 15; // Wheel menu sensibility
-	if (MouseOffset.Size() > WidgetDistance)
+	if (Move != PreviousMove)
 	{
-		MouseOffset /= MouseOffset.Size() / (float) WidgetDistance;
+		TimeSinceActive = 0;
+		PreviousMove = Move;
+
+		MouseOffset += Move * Sensitivity;
+		if (MouseOffset.Size() > WidgetDistance)
+		{
+			MouseOffset /= MouseOffset.Size() / (float)WidgetDistance;
+		}
 	}
 }
-
 
 FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
 {
