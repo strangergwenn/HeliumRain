@@ -117,14 +117,18 @@ protected:
 	int32                                WidgetSize;
 	float                                AnimTime;
 	float                                ColinearityPower;
+	float                                AutoResetTime;
+	float                                Sensitivity;
 
 	// HUD data
 	FFlareMouseMenuClicked               DefaultAction;
 	TArray<FFlareMouseMenuClicked>       Actions;
 	FVector2D                            ViewportCenter;
 	FVector2D                            MouseOffset;
+	FVector2D                            PreviousMove;
 	int32                                SelectedWidget;
 	float                                CurrentTime;
+	float                                TimeSinceActive;
 	float                                IsOpening;
 
 

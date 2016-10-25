@@ -193,6 +193,15 @@ public:
 	virtual void ThrustInput(float Val);
 
 
+	virtual void JoystickYawInput(float Val);
+
+	virtual void JoystickPitchInput(float Val);
+
+	virtual void JoystickRollInput(float Val);
+
+	virtual void JoystickThrustInput(float Val);
+
+
 	virtual void ZoomIn();
 
 	virtual void ZoomOut();
