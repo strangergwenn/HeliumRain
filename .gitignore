@@ -22,7 +22,7 @@ HeliumRainDefines.pri
 HeliumRainHeader.pri
 HeliumRainIncludes.pri
 HeliumRainSource.pri
-CMakeLists.txt
+/CMakeLists.txt
 Makefile
 core
 Binaries/
@@ -33,3 +33,5 @@ Releases/
 Saved/
 Content/
 Plugins/InternalComponentVisualizer/Binaries
+Plugins/JoystickPlugin/ThirdParty/SDL2/SDL/
+Plugins/JoystickPlugin/ThirdParty/SDL2/build-SDL/
