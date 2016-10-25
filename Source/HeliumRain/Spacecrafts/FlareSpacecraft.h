@@ -179,10 +179,6 @@ public:
 
 	virtual void PreviousTarget();
 
-	virtual void MoveVerticalInput(float Val);
-
-	virtual void MoveHorizontalInput(float Val);
-
 
 	virtual void YawInput(float Val);
 
@@ -192,6 +188,10 @@ public:
 
 	virtual void ThrustInput(float Val);
 
+	virtual void MoveVerticalInput(float Val);
+
+	virtual void MoveHorizontalInput(float Val);
+
 
 	virtual void JoystickYawInput(float Val);
 
@@ -200,6 +200,10 @@ public:
 	virtual void JoystickRollInput(float Val);
 
 	virtual void JoystickThrustInput(float Val);
+
+	virtual void JoystickMoveVerticalInput(float Val);
+
+	virtual void JoystickMoveHorizontalInput(float Val);
 
 
 	virtual void ZoomIn();

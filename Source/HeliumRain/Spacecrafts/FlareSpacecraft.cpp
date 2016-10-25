@@ -1437,16 +1437,6 @@ void AFlareSpacecraft::PreviousTarget()
 	}
 }
 
-void AFlareSpacecraft::MoveVerticalInput(float Val)
-{
-	StateManager->SetPlayerZLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
-}
-
-void AFlareSpacecraft::MoveHorizontalInput(float Val)
-{
-	StateManager->SetPlayerYLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
-}
-
 
 void AFlareSpacecraft::YawInput(float Val)
 {
@@ -1468,15 +1458,25 @@ void AFlareSpacecraft::ThrustInput(float Val)
 	StateManager->SetPlayerXLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 
+void AFlareSpacecraft::MoveVerticalInput(float Val)
+{
+	StateManager->SetPlayerZLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
+void AFlareSpacecraft::MoveHorizontalInput(float Val)
+{
+	StateManager->SetPlayerYLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
 
 void AFlareSpacecraft::JoystickYawInput(float Val)
 {
-	StateManager->SetPlayerAimYaw(Val);
+	StateManager->SetPlayerAimJoystickYaw(Val);
 }
 
 void AFlareSpacecraft::JoystickPitchInput(float Val)
 {
-	StateManager->SetPlayerAimPitch(-Val);
+	StateManager->SetPlayerAimJoystickPitch(-Val);
 }
 
 void AFlareSpacecraft::JoystickRollInput(float Val)
@@ -1486,7 +1486,17 @@ void AFlareSpacecraft::JoystickRollInput(float Val)
 
 void AFlareSpacecraft::JoystickThrustInput(float Val)
 {
-	// TODO
+	//StateManager->SetPlayerXLinearVelocityJoystick(Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
+void AFlareSpacecraft::JoystickMoveVerticalInput(float Val)
+{
+	StateManager->SetPlayerZLinearVelocityJoystick(Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
+void AFlareSpacecraft::JoystickMoveHorizontalInput(float Val)
+{
+	StateManager->SetPlayerYLinearVelocityJoystick(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 
 

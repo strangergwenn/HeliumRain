@@ -315,7 +315,7 @@ void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 	}
 }
 
-void UFlareSpacecraftStateManager::SetPlayerAimYaw(float Val)
+void UFlareSpacecraftStateManager::SetPlayerAimJoystickYaw(float Val)
 {
 	if (Val != LastPlayerAimJoystick.X)
 	{
@@ -324,7 +324,7 @@ void UFlareSpacecraftStateManager::SetPlayerAimYaw(float Val)
 	}
 }
 
-void UFlareSpacecraftStateManager::SetPlayerAimPitch(float Val)
+void UFlareSpacecraftStateManager::SetPlayerAimJoystickPitch(float Val)
 {
 	if (Val != LastPlayerAimJoystick.Y)
 	{
@@ -366,17 +366,56 @@ void UFlareSpacecraftStateManager::SetPlayerLockDirection(bool Val)
 
 void UFlareSpacecraftStateManager::SetPlayerXLinearVelocity(float Val)
 {
-	PlayerManualLinearVelocity.X = Val;
+	if (Val != LastPlayerLinearVelocityKeyboard.X)
+	{
+		LastPlayerLinearVelocityKeyboard.X = Val;
+		PlayerManualLinearVelocity.X = Val;
+	}
 }
 
 void UFlareSpacecraftStateManager::SetPlayerYLinearVelocity(float Val)
 {
-	PlayerManualLinearVelocity.Y = Val;
+	if (Val != LastPlayerLinearVelocityKeyboard.Y)
+	{
+		LastPlayerLinearVelocityKeyboard.Y = Val;
+		PlayerManualLinearVelocity.Y = Val;
+	}
 }
 
 void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
 {
-	PlayerManualLinearVelocity.Z = Val;
+	if (Val != LastPlayerLinearVelocityKeyboard.Z)
+	{
+		LastPlayerLinearVelocityKeyboard.Z = Val;
+		PlayerManualLinearVelocity.Z = Val;
+	}
+}
+
+void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityJoystick(float Val)
+{
+	if (Val != LastPlayerLinearVelocityJoystick.X)
+	{
+		LastPlayerLinearVelocityJoystick.X = Val;
+		PlayerManualLinearVelocity.X = Val;
+	}
+}
+
+void UFlareSpacecraftStateManager::SetPlayerYLinearVelocityJoystick(float Val)
+{
+	if (Val != LastPlayerLinearVelocityJoystick.Y)
+	{
+		LastPlayerLinearVelocityJoystick.Y = Val;
+		PlayerManualLinearVelocity.Y = Val;
+	}
+}
+
+void UFlareSpacecraftStateManager::SetPlayerZLinearVelocityJoystick(float Val)
+{
+	if (Val != LastPlayerLinearVelocityJoystick.Z)
+	{
+		LastPlayerLinearVelocityJoystick.Z = Val;
+		PlayerManualLinearVelocity.Z = Val;
+	}
 }
 
 void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocityKeyboard(float Val)
