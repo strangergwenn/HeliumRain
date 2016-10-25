@@ -878,6 +878,10 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Released, this, &AFlarePlayerController::WheelReleased);
 	InputComponent->BindAxis("MouseInputX", this, &AFlarePlayerController::MouseInputX);
 	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
+	InputComponent->BindAxis("JoystickYawInput", this, &AFlarePlayerController::JoystickYawInput);
+	InputComponent->BindAxis("JoystickPitchInput", this, &AFlarePlayerController::JoystickPitchInput);
+	InputComponent->BindAxis("JoystickRollInput", this, &AFlarePlayerController::JoystickRollInput);
+	InputComponent->BindAxis("JoystickThrustInput", this, &AFlarePlayerController::JoystickThrustInput);
 
 	// Test
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
@@ -1154,6 +1158,47 @@ void AFlarePlayerController::MouseInputY(float Val)
 	{
 		ShipPawn->PitchInput(Val);
 	}
+}
+
+void AFlarePlayerController::JoystickYawInput(float Val)
+{
+	if (GetNavHUD()->IsWheelMenuOpen())
+	{
+		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
+	}
+	else if (ShipPawn)
+	{
+		ShipPawn->ForceManual();
+		ShipPawn->GetStateManager()->SetPlayerAimYaw(Val);
+	}
+}
+
+void AFlarePlayerController::JoystickPitchInput(float Val)
+{
+	if (GetNavHUD()->IsWheelMenuOpen())
+	{
+		GetNavHUD()->SetWheelCursorMove(FVector2D(0, Val));
+	}
+	else if (ShipPawn)
+	{
+		ShipPawn->ForceManual();
+		ShipPawn->GetStateManager()->SetPlayerAimPitch(-Val);
+	}
+}
+
+void AFlarePlayerController::JoystickRollInput(float Val)
+{
+	if (ShipPawn)
+	{
+		ShipPawn->ForceManual();
+		float Speed = -Val * ShipPawn->GetNavigationSystem()->GetAngularMaxVelocity();
+		ShipPawn->GetStateManager()->SetPlayerRollAngularVelocityJoystick(Speed);
+	}
+}
+
+void AFlarePlayerController::JoystickThrustInput(float Val)
+{
+	// TODO
 }
 
 void AFlarePlayerController::Test1()

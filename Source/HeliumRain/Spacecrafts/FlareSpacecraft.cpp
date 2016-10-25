@@ -1197,12 +1197,7 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("NormalPitchInput", this, &AFlareSpacecraft::PitchInput);
 	PlayerInputComponent->BindAxis("NormalRollInput", this, &AFlareSpacecraft::RollInput);
 	PlayerInputComponent->BindAxis("NormalThrustInput", this, &AFlareSpacecraft::ThrustInput);
-
-	PlayerInputComponent->BindAxis("JoystickYawInput", this, &AFlareSpacecraft::JoystickYawInput);
-	PlayerInputComponent->BindAxis("JoystickPitchInput", this, &AFlareSpacecraft::JoystickPitchInput);
-	PlayerInputComponent->BindAxis("JoystickRollInput", this, &AFlareSpacecraft::JoystickRollInput);
-	PlayerInputComponent->BindAxis("JoystickThrustInput", this, &AFlareSpacecraft::JoystickThrustInput);
-
+	
 	PlayerInputComponent->BindAxis("MoveVerticalInput", this, &AFlareSpacecraft::MoveVerticalInput);
 	PlayerInputComponent->BindAxis("MoveHorizontalInput", this, &AFlareSpacecraft::MoveHorizontalInput);
 
@@ -1466,27 +1461,6 @@ void AFlareSpacecraft::RollInput(float Val)
 void AFlareSpacecraft::ThrustInput(float Val)
 {
 	StateManager->SetPlayerXLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
-}
-
-
-void AFlareSpacecraft::JoystickYawInput(float Val)
-{
-	StateManager->SetPlayerAimYaw(Val);
-}
-
-void AFlareSpacecraft::JoystickPitchInput(float Val)
-{
-	StateManager->SetPlayerAimPitch(-Val);
-}
-
-void AFlareSpacecraft::JoystickRollInput(float Val)
-{
-	StateManager->SetPlayerRollAngularVelocityJoystick(-Val * NavigationSystem->GetAngularMaxVelocity());
-}
-
-void AFlareSpacecraft::JoystickThrustInput(float Val)
-{
-	// TODO
 }
 
 
