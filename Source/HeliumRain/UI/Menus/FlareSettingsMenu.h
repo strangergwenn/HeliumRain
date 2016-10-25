@@ -80,25 +80,34 @@ protected:
 		Internal
 	----------------------------------------------------*/
 
-	/** Fill the key biding list */
+	/** Fill the key binding list */
 	TSharedRef<SWidget> BuildKeyBindingBox();
 
-	/** Fill a key biding pane */
+	/** Fill a key binding pane */
 	void BuildKeyBindingPane(TArray<TSharedPtr<FSimpleBind> >& BindList, TSharedPtr<SVerticalBox>& Form);
+
+	/** Fill the joystick binding list */
+	TSharedRef<SWidget> BuildJoystickBindingBox();
+
+	/** Fill a joystick binding item */
+	void BuildJoystickBinding(FText AxisDisplayName, FName AxisMappingName, TSharedPtr<SVerticalBox>& Form);
 
 
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
 
-	/** Get the combo line headline */
+	// Resolution list
 	FText OnGetCurrentResolutionComboLine() const;
-
-	/** Generate a combo box line */
 	TSharedRef<SWidget> OnGenerateResolutionComboLine(TSharedPtr<FScreenResolutionRHI> Item);
-
-	/** Combo line selection changed */
 	void OnResolutionComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo);
+
+	// Joystick axis list
+	FText OnGetCurrentJoystickKeyName(FName AxisName) const;
+	TSharedRef<SWidget> OnGenerateJoystickComboLine(TSharedPtr<FKey> Item, FName AxisName);
+	void OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> KeyItem, ESelectInfo::Type SelectInfo, FName AxisName);
+	
+	void OnInvertAxisClicked(FName AxisName);
 
 	void OnTextureQualitySliderChanged(float Value);
 
@@ -128,6 +137,9 @@ protected:
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
+
+	/** Get all axis bindings */
+	void FillJoystickAxisList();
 
 	/** Get all resolutions */
 	void FillResolutionList();
@@ -183,6 +195,9 @@ protected:
 	TSharedPtr<SVerticalBox>                    ControlListRight;
 	TArray<TSharedPtr<FSimpleBind> >            Binds;
 	TArray<TSharedPtr<FSimpleBind> >            Binds2;
+
+	// Joystick data
+	TArray<TSharedPtr<FKey>>                    JoystickAxisKeys;
 
 	// Resolution data
 	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;

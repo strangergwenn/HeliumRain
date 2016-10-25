@@ -475,7 +475,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				]
 			]
 
-			// Controls Info
+			// Controls
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(Theme.TitlePadding)
@@ -493,6 +493,26 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Fill)
 			[
 				BuildKeyBindingBox()
+			]
+
+			// Joystick
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("JoystickSettingsHint", "JOYSTICK"))
+				.TextStyle(&Theme.NameFont)
+			]
+
+			// Controls form
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Fill)
+			[
+				BuildJoystickBindingBox()
 			]
 		]
 	];
@@ -641,7 +661,7 @@ void SFlareSettingsMenu::BuildKeyBindingPane(TArray<TSharedPtr<FSimpleBind> >& B
 
 				// Key 2
 				+ SHorizontalBox::Slot()
-					.Padding(Theme.SmallContentPadding)
+				.Padding(Theme.SmallContentPadding)
 				[
 					SAssignNew(Bind->AltKeyWidget, SFlareKeyBind)
 					.Key(Bind->AltKey)
@@ -651,6 +671,84 @@ void SFlareSettingsMenu::BuildKeyBindingPane(TArray<TSharedPtr<FSimpleBind> >& B
 			];
 		}
 	}
+}
+
+TSharedRef<SWidget> SFlareSettingsMenu::BuildJoystickBindingBox()
+{
+	// Get data
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	TSharedPtr<SVerticalBox> JoystickBox;
+	SAssignNew(JoystickBox, SVerticalBox);
+
+	// Add bindings
+	BuildJoystickBinding(LOCTEXT("JoyBindYaw",        "Yaw"),        "JoystickYawInput",            JoystickBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindPitch",      "Pitch"),      "JoystickPitchInput",          JoystickBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindRoll",       "Roll"),       "JoystickRollInput",           JoystickBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindThrust",     "Thrust"),     "JoystickThrustInput",         JoystickBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindHorizontal", "Horizontal"), "JoystickMoveHorizontalInput", JoystickBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindVertical",   "Vertical"),   "JoystickMoveVerticalInput",   JoystickBox);
+
+	return JoystickBox.ToSharedRef();
+}
+
+void SFlareSettingsMenu::BuildJoystickBinding(FText AxisDisplayName, FName AxisName, TSharedPtr<SVerticalBox>& Form)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	Form->AddSlot()
+	.AutoHeight()
+	[
+		SNew(SHorizontalBox)
+
+		// Label
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SBox)
+			.WidthOverride(Theme.ContentWidth / 3)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(AxisDisplayName)
+			]
+		]
+
+		// Combo box for selection
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SComboBox<TSharedPtr<FKey>>)
+			.OptionsSource(&JoystickAxisKeys)
+			.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateJoystickComboLine, AxisName)
+			.OnSelectionChanged(this, &SFlareSettingsMenu::OnJoystickComboLineSelectionChanged, AxisName)
+			.ComboBoxStyle(&Theme.ComboBoxStyle)
+			.ForegroundColor(FLinearColor::White)
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth / 3)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSettingsMenu::OnGetCurrentJoystickKeyName, AxisName)
+					.TextStyle(&Theme.TextFont)
+				]
+			]
+		]
+
+		// Inversion switch
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SFlareButton)
+			.Text(LOCTEXT("InvertAxisDirection", "Toggle direction"))
+			.HelpText(LOCTEXT("InvertAxisDirectionInfo", "Toggle the axis inversion to reverse the joystick axis."))
+			.OnClicked(this, &SFlareSettingsMenu::OnInvertAxisClicked, AxisName)
+		]
+	];
 }
 
 
@@ -672,16 +770,19 @@ void SFlareSettingsMenu::Enter()
 	SetVisibility(EVisibility::Visible);
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
+	// Get decorator mesh
 	if (PC)
 	{
-		// Decorator mesh
 		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(150, 30));
 		PC->GetMenuPawn()->ShowPart(PartDesc);
-		PC->GetMenuPawn()->SetCameraDistance(600);
+		PC->GetMenuPawn()->SetCameraDistance(500);
 	}
 
-	// Resolutions
+	// Get a list of joystick axis keys
+	FillJoystickAxisList();
+
+	// Get a list of resolutions
 	FillResolutionList();
 }
 
@@ -714,6 +815,68 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateResolutionComboLine(TSharedPtr
 void SFlareSettingsMenu::OnResolutionComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo)
 {
 	UpdateResolution();
+}
+
+FText SFlareSettingsMenu::OnGetCurrentJoystickKeyName(FName AxisName) const
+{
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	for (auto& Bind : InputSettings->AxisMappings)
+	{
+		if (Bind.AxisName == AxisName)
+		{
+			FText InvertedText = (Bind.Scale < 0) ? LOCTEXT("AxisInvertedHint", "(Inverted)") : FText();
+			return FText::Format(FText::FromString("{0} {1}"), Bind.Key.GetDisplayName(), InvertedText);
+		}
+	}
+
+	return FText();
+}
+
+TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateJoystickComboLine(TSharedPtr<FKey> Item, FName AxisName)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(STextBlock)
+		.Text(Item->GetDisplayName())
+		.TextStyle(&Theme.TextFont);
+}
+
+void SFlareSettingsMenu::OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> KeyItem, ESelectInfo::Type SelectInfo, FName AxisName)
+{
+	if (KeyItem.IsValid())
+	{
+		// Remove the original binding
+		UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+		for (auto& Bind : InputSettings->AxisMappings)
+		{
+			if (Bind.AxisName == AxisName)
+			{
+				InputSettings->RemoveAxisMapping(Bind);
+			}
+		}
+
+		// Add binding
+		FInputAxisKeyMapping Bind;
+		Bind.AxisName = AxisName;
+		Bind.Key = *KeyItem;
+		Bind.Scale = 1.0f;
+		InputSettings->AddAxisMapping(Bind);
+		InputSettings->SaveKeyMappings();
+	}
+}
+
+void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
+{
+	// Update the original binding
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	for (auto& Bind : InputSettings->AxisMappings)
+	{
+		if (Bind.AxisName == AxisName)
+		{
+			Bind.Scale = (Bind.Scale < 0) ? 1 : -1;
+		}
+	}
+	InputSettings->SaveKeyMappings();
 }
 
 void SFlareSettingsMenu::OnFullscreenToggle()
@@ -897,6 +1060,22 @@ void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSh
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/
+
+void SFlareSettingsMenu::FillJoystickAxisList()
+{
+	// Get keys
+	JoystickAxisKeys.Empty();
+	TArray<FKey> AllKeys;
+	EKeys::GetAllKeys(AllKeys);
+	for (FKey Key : AllKeys)
+	{
+		if (Key.GetFName().ToString().StartsWith("Joystick")
+		&& !Key.GetFName().ToString().Contains("Button"))
+		{
+			JoystickAxisKeys.Add(MakeShareable(new FKey(Key)));
+		}
+	}
+}
 
 void SFlareSettingsMenu::FillResolutionList()
 {
@@ -1181,16 +1360,13 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fast forward single", "Fast forward a day")))
 		->AddActionMapping("Simulate")
 		->AddDefaults(EKeys::J)));
-	/*Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fast forward auto", "Fast forward (auto)")))
-	->AddActionMapping("FastForward")
-	->AddDefaults(EKeys::SpaceBar)));*/
 
 }
+
 
 /*----------------------------------------------------
 	FSimpleBind
 ----------------------------------------------------*/
-
 
 FSimpleBind::FSimpleBind(const FText& InDisplayName)
 {
@@ -1199,6 +1375,7 @@ FSimpleBind::FSimpleBind(const FText& InDisplayName)
 	Key = MakeShareable(new FKey());
 	AltKey = MakeShareable(new FKey());
 }
+
 FSimpleBind* FSimpleBind::AddActionMapping(const FName& Mapping)
 {
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
@@ -1267,7 +1444,6 @@ FSimpleBind* FSimpleBind::AddAxisMapping(const FName& Mapping, float Scale)
 	}
 	return this;
 }
-
 
 FSimpleBind* FSimpleBind::AddSpecialBinding(const FName& Mapping)
 {
