@@ -55,6 +55,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 {
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	EFlareWeaponGroupType::Type CurrentWeaponType = Spacecraft->GetWeaponsSystem()->GetActiveWeaponType();
+	float MaxVelocity = Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
 
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
 	{
@@ -77,34 +78,52 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	}
 	LastWeaponType = CurrentWeaponType;
 
-	if(Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() == 0)
+	// Stations can't move
+	if (Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() == 0)
 	{
-		// Stations can't move
 		PlayerManualVelocityCommand = 0;
 	}
-	else if( FMath::IsNearlyZero(PlayerManualLinearVelocity.X))
+
+	// Keep current command if no new command has been received
+	else if (FMath::IsNearlyZero(PlayerManualLinearVelocity.X))
 	{
-		// Keep current command
-		if(PlayerManualVelocityCommandActive)
+		if (PlayerManualVelocityCommandActive)
 		{
 			PlayerManualVelocityCommandActive = false;
-			// Get current state
-			PlayerManualVelocityCommand = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
+			PlayerManualVelocityCommand = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) / MaxVelocity;
 		}
 	}
-	else
+
+	// Manual speed
+	else 
 	{
 		PlayerManualVelocityCommandActive = true;
+		PlayerManualVelocityCommand = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) / MaxVelocity;
 
-		PlayerManualVelocityCommand = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
-
-		if (PlayerManualLinearVelocity.X < 0)
+		// Joystick speed setting
+		if (LinearVelocityIsJoystick)
 		{
-			PlayerManualVelocityCommand -= 0.1;
+			if (LastPlayerLinearVelocityJoystick.X / MaxVelocity < PlayerManualVelocityCommand)
+			{
+				PlayerManualVelocityCommand -= 0.1;
+			}
+			else if (LastPlayerLinearVelocityJoystick.X / MaxVelocity> PlayerManualVelocityCommand)
+			{
+				PlayerManualVelocityCommand += 0.1;
+			}
 		}
-		else if (PlayerManualLinearVelocity.X > 0)
+
+		// Keyboard speed setting
+		else
 		{
-			PlayerManualVelocityCommand += 0.1;
+			if (PlayerManualLinearVelocity.X < 0)
+			{
+				PlayerManualVelocityCommand -= 0.1;
+			}
+			else if (PlayerManualLinearVelocity.X > 0)
+			{
+				PlayerManualVelocityCommand += 0.1;
+			}
 		}
 	}
 
@@ -368,6 +387,7 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.X)
 	{
+		LinearVelocityIsJoystick = false;
 		LastPlayerLinearVelocityKeyboard.X = Val;
 		PlayerManualLinearVelocity.X = Val;
 	}
@@ -395,6 +415,7 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.X)
 	{
+		LinearVelocityIsJoystick = true;
 		LastPlayerLinearVelocityJoystick.X = Val;
 		PlayerManualLinearVelocity.X = Val;
 	}
