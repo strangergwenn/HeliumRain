@@ -199,33 +199,6 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 
 	// Init
 	Close();
-
-	// Setup the post process 
-	TArray<AActor*> PostProcessCandidates;
-	UGameplayStatics::GetAllActorsOfClass(MenuManager->GetPC()->GetWorld(), APostProcessVolume::StaticClass(), PostProcessCandidates);
-	if (PostProcessCandidates.Num())
-	{
-		PostProcessVolume = Cast<APostProcessVolume>(PostProcessCandidates.Last());
-		FCHECK(PostProcessVolume);
-
-		FWeightedBlendable Blendable = PostProcessVolume->Settings.WeightedBlendables.Array.Last();
-		UMaterial* MasterMaterial = Cast<UMaterial>(Blendable.Object);
-		if (MasterMaterial)
-		{
-			BlurMaterial = UMaterialInstanceDynamic::Create(MasterMaterial, MenuManager->GetPC()->GetWorld());
-			FCHECK(BlurMaterial);
-			PostProcessVolume->Settings.RemoveBlendable(MasterMaterial);
-			FLOG("SFlareMainOverlay::Construct : blur material ready");
-		}
-		else
-		{
-			FLOG("SFlareMainOverlay::Construct : no usable material found for blur");
-		}
-	}
-	else
-	{
-		FLOG("SFlareMainOverlay::Construct : no post process found");
-	}
 }
 
 void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
@@ -330,6 +303,12 @@ bool SFlareMainOverlay::IsOpen() const
 void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	// Get post-processing actors
+	APostProcessVolume* PostProcessVolume = MenuManager->GetGame()->GetPostProcessVolume();
+	UMaterialInstanceDynamic* BlurMaterial = MenuManager->GetGame()->GetBlurMaterial();
+	FCHECK(PostProcessVolume);
+	FCHECK(BlurMaterial);
 
 	// Get 2D position
 	FVector2D MousePosition = MenuManager->GetPC()->GetMousePosition();

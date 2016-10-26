@@ -114,6 +114,33 @@ void AFlareGame::StartPlay()
 	FLOG("AFlareGame::StartPlay");
 	Super::StartPlay();
 	
+	// Setup the post process 
+	TArray<AActor*> PostProcessCandidates;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APostProcessVolume::StaticClass(), PostProcessCandidates);
+	if (PostProcessCandidates.Num())
+	{
+		PostProcessVolume = Cast<APostProcessVolume>(PostProcessCandidates.Last());
+		FCHECK(PostProcessVolume);
+
+		FWeightedBlendable Blendable = PostProcessVolume->Settings.WeightedBlendables.Array.Last();
+		UMaterial* MasterMaterial = Cast<UMaterial>(Blendable.Object);
+		if (MasterMaterial)
+		{
+			BlurMaterial = UMaterialInstanceDynamic::Create(MasterMaterial, GetWorld());
+			FCHECK(BlurMaterial);
+			PostProcessVolume->Settings.RemoveBlendable(MasterMaterial);
+			FLOG("AFlareGame::StartPlay : blur material ready");
+		}
+		else
+		{
+			FLOG("AFlareGame::StartPlay : no usable material found for blur");
+		}
+	}
+	else
+	{
+		FLOG("AFlareGame::StartPlay : no post process found");
+	}
+
 	// Spawn planetarium
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
 

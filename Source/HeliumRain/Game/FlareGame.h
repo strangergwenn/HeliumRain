@@ -214,6 +214,15 @@ protected:
 	/** Scenario tools */
 	UPROPERTY()
 	UFlareScenarioTools*                       ScenarioTools;
+	
+	// Post process volume
+	UPROPERTY()
+	APostProcessVolume*                        PostProcessVolume;
+
+	// Blur material
+	UPROPERTY()
+	UMaterialInstanceDynamic*                  BlurMaterial;
+
 
 	/*----------------------------------------------------
 		Catalogs
@@ -295,6 +304,16 @@ public:
 	AFlarePlayerController* GetPC() const
 	{
 		return PlayerController;
+	}
+
+	APostProcessVolume* GetPostProcessVolume() const
+	{
+		return PostProcessVolume;
+	}
+
+	UMaterialInstanceDynamic* GetBlurMaterial() const
+	{
+		return BlurMaterial;
 	}
 
 	inline UFlareSector* GetActiveSector() const
