@@ -5,7 +5,7 @@ rem Settings
 rem =======================================================
 
 set Platform=Win64
-set BuildMode=Test
+set BuildMode=Development
 set SessioName=Release
 set SessionOwner=AutoBuild
 
