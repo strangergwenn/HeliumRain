@@ -30,6 +30,7 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 
 		// TODO save
 		PirateLowProfile = true;
+		PirateAttackThresold = 1;
 	}
 }
 
@@ -51,15 +52,16 @@ void UFlareAIBehavior::Simulate()
 			 }
 		}
 
-		FLOGV("Pirate army size: %d", ShipsReady);
-		if(PirateLowProfile && ShipsReady > 15)
+		FLOGV("Pirate army size: %d, PirateAttackThresold: %f", ShipsReady, PirateAttackThresold);
+		if(PirateLowProfile && ShipsReady > PirateAttackThresold)
 		{
 			PirateLowProfile = false;
 		}
 
-		if(!PirateLowProfile && ShipsReady == 5)
+		if(!PirateLowProfile && ShipsReady < (PirateAttackThresold / 2.f))
 		{
-			PirateLowProfile = false;
+			PirateLowProfile = true;
+			PirateAttackThresold += 0.2;
 		}
 
 		SimulatePirateBehavior();
