@@ -5,7 +5,7 @@
 #include "../Economy/FlareCargoBay.h"
 #include "FlareSimulatedSector.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
-
+#include "FlareScenarioTools.h"
 
 TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::ComputeWorldResourceStats(AFlareGame* Game)
 {
@@ -77,20 +77,6 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 					ResourceStats->Production+= Flow;
 				}
 			}
-
-			// Maintenance
-			if (Spacecraft->HasCapability(EFlareSpacecraftCapability::Maintenance))
-			{
-				for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
-				{
-					FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
-					WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
-
-					// TODO, real time FS flow using real stats
-					ResourceStats->Consumption += Spacecraft->GetLevel();
-				}
-			}
-
 		}
 
 		// Customer flow
@@ -118,6 +104,15 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 			  ResourceStats->Balance,
 			  ResourceStats->Stock);*/
 	}
+
+	FFlareResourceDescription* FleetSupply = Game->GetScenarioTools()->FleetSupply;
+
+	WorldHelper::FlareResourceStats *FSResourceStats = &WorldStats[FleetSupply];
+
+	FFlareFloatBuffer* Stats = &Game->GetGameWorld()->GetData()->FleetSupplyConsumptionStats;
+
+	float MeanConsumption = Stats->GetMean(0, Stats->MaxSize-1);
+	FSResourceStats->Consumption = MeanConsumption;
 
 	return WorldStats;
 }

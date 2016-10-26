@@ -3,6 +3,9 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../../Game/FlareTradeRoute.h"
+#include "../../Game/FlareSimulatedSector.h"
+#include "../../Game/FlareFleet.h"
+#include "../../Data/FlareResourceCatalogEntry.h"
 
 class UFlareTradeRoute;
 struct FFlareTradeRouteSectorOperationSave;

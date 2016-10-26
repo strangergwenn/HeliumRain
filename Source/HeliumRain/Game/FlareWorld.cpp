@@ -13,6 +13,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareWorld"
 
+#define FLEET_SUPPLY_CONSUMPTION_STATS 365
+
 /*----------------------------------------------------
     Constructor
 ----------------------------------------------------*/
@@ -101,6 +103,12 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 	}
 
 	WorldMoneyReferenceInit = false;
+
+
+	if (WorldData.FleetSupplyConsumptionStats.MaxSize != FLEET_SUPPLY_CONSUMPTION_STATS)
+	{
+		WorldData.FleetSupplyConsumptionStats.Resize(FLEET_SUPPLY_CONSUMPTION_STATS);
+	}
 }
 
 void UFlareWorld::PostLoad()
@@ -481,6 +489,10 @@ void UFlareWorld::Simulate()
 	FLOG("* Simulate > New day");
 
 	WorldData.Date++;
+
+	// Write FS consumption stats
+	WorldData.FleetSupplyConsumptionStats.Append(WorldData.DailyFleetSupplyConsumption);
+	WorldData.DailyFleetSupplyConsumption = 0;
 
 	// End trade, repair and refill, operations
 	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
@@ -913,6 +925,11 @@ void UFlareWorld::ClearFactories(UFlareSimulatedSpacecraft *ParentSpacecraft)
 void UFlareWorld::AddFactory(UFlareFactory* Factory)
 {
 	Factories.Add(Factory);
+}
+
+void UFlareWorld::OnFleetSupplyConsumed(int32 Quantity)
+{
+	WorldData.DailyFleetSupplyConsumption += Quantity;
 }
 
 UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)

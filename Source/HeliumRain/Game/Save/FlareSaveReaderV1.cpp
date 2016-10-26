@@ -190,6 +190,9 @@ void UFlareSaveReaderV1::LoadWorld(const TSharedPtr<FJsonObject> Object, FFlareW
 			Data->TravelData.Add(ChildData);
 		}
 	}
+
+	LoadFloatBuffer(Object, "FleetSupplyConsumptionStats", &Data->FleetSupplyConsumptionStats);
+	LoadInt32(Object, "DailyFleetSupplyConsumption", &Data->DailyFleetSupplyConsumption);
 }
 
 
