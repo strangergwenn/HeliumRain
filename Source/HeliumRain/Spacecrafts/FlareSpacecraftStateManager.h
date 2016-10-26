@@ -127,6 +127,7 @@ protected:
 	// Linear movement state
 	FVector                                  LastPlayerLinearVelocityKeyboard;
 	FVector                                  LastPlayerLinearVelocityJoystick;
+	bool                                     LinearVelocityIsJoystick;
 
 	// Roll state
 	float	                                 LastPlayerAngularRollKeyboard;

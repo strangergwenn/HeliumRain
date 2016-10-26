@@ -42,6 +42,11 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	CameraMaxPitch = 80;
 	CameraPanSpeed = 2;
 
+	// Joystick
+	JoystickThrustMinSpeed = -50;;
+	JoystickThrustMaxSpeed = 200;
+	JoystickThrustExponent = 2;
+
 	// Gameplay
 	Paused = false;
 	AttachedToParentActor = false;
@@ -1486,7 +1491,20 @@ void AFlareSpacecraft::JoystickRollInput(float Val)
 
 void AFlareSpacecraft::JoystickThrustInput(float Val)
 {
-	//StateManager->SetPlayerXLinearVelocityJoystick(Val * NavigationSystem->GetLinearMaxVelocity());
+	float Threshold = 0.95;
+	float TargetSpeed = 0;
+
+	if (FMath::Abs(Val) > Threshold)
+	{
+		TargetSpeed = -FMath::Sign(Val) * 10 * NavigationSystem->GetLinearMaxVelocity();
+	}
+	else
+	{
+		float NormalizedVal = ((-Val / Threshold) + 1.0f) / 2.0f;
+		TargetSpeed = FMath::Lerp(JoystickThrustMinSpeed, JoystickThrustMaxSpeed, FMath::Pow(NormalizedVal, JoystickThrustExponent));
+	}
+
+	StateManager->SetPlayerXLinearVelocityJoystick(TargetSpeed);
 }
 
 void AFlareSpacecraft::JoystickMoveVerticalInput(float Val)

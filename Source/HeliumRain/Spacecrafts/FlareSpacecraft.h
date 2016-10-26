@@ -283,6 +283,11 @@ protected:
 
 	bool                                           AttachedToParentActor;
 
+	// Joystick settings
+	float                                          JoystickThrustMinSpeed;
+	float                                          JoystickThrustMaxSpeed;
+	float                                          JoystickThrustExponent;
+
 
 	/*----------------------------------------------------
 		Target selection
