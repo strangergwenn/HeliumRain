@@ -447,14 +447,14 @@ void SFlareSpacecraftInfo::Show()
 			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked in a peaceful sector (ships outside the player fleet can be scrapped when a station is present)"));
 			ScrapButton->SetDisabled(true);
 		}
+
+		UpdateCaptureList();
 	}
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
 	{
 		CargoBay->SetVisibility(EVisibility::Visible);
 	}
-
-	UpdateCaptureList();
 }
 
 void SFlareSpacecraftInfo::Hide()
