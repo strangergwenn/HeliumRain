@@ -677,16 +677,30 @@ TSharedRef<SWidget> SFlareSettingsMenu::BuildJoystickBindingBox()
 {
 	// Get data
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	TSharedPtr<SVerticalBox> JoystickBindingsBox;
 	TSharedPtr<SVerticalBox> JoystickBox;
-	SAssignNew(JoystickBox, SVerticalBox);
 
+	// Create box
+	SAssignNew(JoystickBox, SVerticalBox)
+	+ SVerticalBox::Slot()
+	.AutoHeight()
+	.HAlign(HAlign_Left)
+	[
+		SNew(SBox)
+		.WidthOverride(Theme.ContentWidth)
+		.HAlign(HAlign_Fill)
+		[
+			SAssignNew(JoystickBindingsBox, SVerticalBox)
+		]
+	];
+	
 	// Add bindings
-	BuildJoystickBinding(LOCTEXT("JoyBindYaw",        "Yaw"),        "JoystickYawInput",            JoystickBox);
-	BuildJoystickBinding(LOCTEXT("JoyBindPitch",      "Pitch"),      "JoystickPitchInput",          JoystickBox);
-	BuildJoystickBinding(LOCTEXT("JoyBindRoll",       "Roll"),       "JoystickRollInput",           JoystickBox);
-	BuildJoystickBinding(LOCTEXT("JoyBindThrust",     "Thrust"),     "JoystickThrustInput",         JoystickBox);
-	BuildJoystickBinding(LOCTEXT("JoyBindHorizontal", "Horizontal"), "JoystickMoveHorizontalInput", JoystickBox);
-	BuildJoystickBinding(LOCTEXT("JoyBindVertical",   "Vertical"),   "JoystickMoveVerticalInput",   JoystickBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindYaw",        "Yaw"),        "JoystickYawInput",            JoystickBindingsBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindPitch",      "Pitch"),      "JoystickPitchInput",          JoystickBindingsBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindRoll",       "Roll"),       "JoystickRollInput",           JoystickBindingsBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindThrust",     "Thrust"),     "JoystickThrustInput",         JoystickBindingsBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindHorizontal", "Horizontal"), "JoystickMoveHorizontalInput", JoystickBindingsBox);
+	BuildJoystickBinding(LOCTEXT("JoyBindVertical",   "Vertical"),   "JoystickMoveVerticalInput",   JoystickBindingsBox);
 
 	return JoystickBox.ToSharedRef();
 }
@@ -694,19 +708,22 @@ TSharedRef<SWidget> SFlareSettingsMenu::BuildJoystickBindingBox()
 void SFlareSettingsMenu::BuildJoystickBinding(FText AxisDisplayName, FName AxisName, TSharedPtr<SVerticalBox>& Form)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	int32 LabelSize = Theme.ContentWidth / 3 - Theme.SmallContentPadding.Left - Theme.SmallContentPadding.Right;
 
 	Form->AddSlot()
 	.AutoHeight()
+	.HAlign(HAlign_Fill)
 	[
 		SNew(SHorizontalBox)
 
 		// Label
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
+		.HAlign(HAlign_Left)
 		.Padding(Theme.SmallContentPadding)
 		[
 			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth / 3)
+			.WidthOverride(LabelSize)
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.TextFont)
@@ -716,8 +733,7 @@ void SFlareSettingsMenu::BuildJoystickBinding(FText AxisDisplayName, FName AxisN
 
 		// Combo box for selection
 		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.HAlign(HAlign_Left)
+		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Center)
 		.Padding(Theme.SmallContentPadding)
 		[
@@ -728,23 +744,21 @@ void SFlareSettingsMenu::BuildJoystickBinding(FText AxisDisplayName, FName AxisN
 			.ComboBoxStyle(&Theme.ComboBoxStyle)
 			.ForegroundColor(FLinearColor::White)
 			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth / 3)
-				[
-					SNew(STextBlock)
-					.Text(this, &SFlareSettingsMenu::OnGetCurrentJoystickKeyName, AxisName)
-					.TextStyle(&Theme.TextFont)
-				]
+				SNew(STextBlock)
+				.Text(this, &SFlareSettingsMenu::OnGetCurrentJoystickKeyName, AxisName)
+				.TextStyle(&Theme.TextFont)
 			]
 		]
 
 		// Inversion switch
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
+		.HAlign(HAlign_Right)
 		.Padding(Theme.SmallContentPadding)
 		[
 			SNew(SFlareButton)
-			.Text(LOCTEXT("InvertAxisDirection", "Toggle direction"))
+			.Width(2)
+			.Text(LOCTEXT("InvertAxisDirection", "Invert"))
 			.HelpText(LOCTEXT("InvertAxisDirectionInfo", "Toggle the axis inversion to reverse the joystick axis."))
 			.OnClicked(this, &SFlareSettingsMenu::OnInvertAxisClicked, AxisName)
 		]
@@ -845,17 +859,24 @@ void SFlareSettingsMenu::OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> Ke
 {
 	if (KeyItem.IsValid())
 	{
+		FLOGV("SFlareSettingsMenu::OnJoystickComboLineSelectionChanged : '%s' bound to '%s'",
+			*AxisName.ToString(), *KeyItem->GetDisplayName().ToString());
+
 		// Remove the original binding
 		UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-		for (auto& Bind : InputSettings->AxisMappings)
+		for (int i = 0; i < InputSettings->AxisMappings.Num();)
 		{
-			if (Bind.AxisName == AxisName)
+			if (InputSettings->AxisMappings[i].AxisName == AxisName)
 			{
-				InputSettings->RemoveAxisMapping(Bind);
+				InputSettings->RemoveAxisMapping(InputSettings->AxisMappings[i]);
+			}
+			else
+			{
+				i++;
 			}
 		}
 
-		// Add binding
+		// Add new binding
 		FInputAxisKeyMapping Bind;
 		Bind.AxisName = AxisName;
 		Bind.Key = *KeyItem;
@@ -867,15 +888,21 @@ void SFlareSettingsMenu::OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> Ke
 
 void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
 {
-	// Update the original binding
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	for (auto& Bind : InputSettings->AxisMappings)
+	for (int i = 0; i < InputSettings->AxisMappings.Num(); i++)
 	{
-		if (Bind.AxisName == AxisName)
+		if (InputSettings->AxisMappings[i].AxisName == AxisName && i != InputSettings->AxisMappings.Num() - 1)
 		{
+			// Remove the original binding
+			FInputAxisKeyMapping Bind = InputSettings->AxisMappings[i];
+			InputSettings->RemoveAxisMapping(Bind);
+
+			// Re-add to force update
 			Bind.Scale = (Bind.Scale < 0) ? 1 : -1;
+			InputSettings->AddAxisMapping(Bind);
 		}
 	}
+
 	InputSettings->SaveKeyMappings();
 }
 
