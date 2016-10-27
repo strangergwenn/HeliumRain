@@ -27,15 +27,25 @@ UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectIn
 void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft)
 {
 	Spacecraft = ParentSpacecraft;
-	PlayerMousePosition = FVector2D(0,0);
-	PlayerAim = FVector2D(0,0);
+
+	PlayerAim = FVector2D::ZeroVector;
+	PlayerMousePosition = FVector2D::ZeroVector;
+	LastPlayerAimJoystick = FVector2D::ZeroVector;
+	LastPlayerAimMouse = FVector2D::ZeroVector;
+
 	ExternalCamera = true;
+	LinearVelocityIsJoystick = false;
+	PlayerManualVelocityCommandActive = true;
+
+	LastPlayerLinearVelocityKeyboard = FVector::ZeroVector;
+	LastPlayerLinearVelocityJoystick = FVector::ZeroVector;
+	LastPlayerAngularRollKeyboard = 0;
+	LastPlayerAngularRollJoystick = 0;
 
 	PlayerManualLinearVelocity = FVector::ZeroVector;
 	PlayerManualAngularVelocity = FVector::ZeroVector;
 	float ForwardVelocity = FVector::DotProduct(ParentSpacecraft->GetLinearVelocity(), FVector(1, 0, 0));
 	PlayerManualVelocityCommand = ForwardVelocity;
-	PlayerManualVelocityCommandActive = true;
 
 	InternalCameraPitch = 0;
 	InternalCameraYaw = 0;
@@ -74,7 +84,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	// Axis input mode start, reset mouse offset
 	if (LastWeaponType == EFlareWeaponGroupType::WG_NONE && (CurrentWeaponType == EFlareWeaponGroupType::WG_GUN || CurrentWeaponType == EFlareWeaponGroupType::WG_BOMB ))
 	{
-		PlayerAim = FVector2D(0,0);
+		PlayerAim = FVector2D::ZeroVector;
 	}
 	LastWeaponType = CurrentWeaponType;
 
@@ -103,11 +113,11 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		// Joystick speed setting
 		if (LinearVelocityIsJoystick)
 		{
-			if (LastPlayerLinearVelocityJoystick.X / MaxVelocity < PlayerManualVelocityCommand)
+			if (PlayerManualLinearVelocity.X / MaxVelocity < PlayerManualVelocityCommand)
 			{
 				PlayerManualVelocityCommand -= 0.1;
 			}
-			else if (LastPlayerLinearVelocityJoystick.X / MaxVelocity> PlayerManualVelocityCommand)
+			else if (PlayerManualLinearVelocity.X / MaxVelocity> PlayerManualVelocityCommand)
 			{
 				PlayerManualVelocityCommand += 0.1;
 			}
@@ -139,7 +149,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		}
 	}
 
-	if (!IsPiloted && !PlayerManualLinearVelocity.IsZero())
+	if (!IsPiloted && PlayerManualVelocityCommandActive)
 	{
 		Spacecraft->ForceManual();
 	}
@@ -309,7 +319,7 @@ void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 	{
 		ExternalCameraYawTarget += Val.X * Spacecraft->GetCameraPanSpeed();
 		ExternalCameraPitchTarget += Val.Y * Spacecraft->GetCameraPanSpeed();
-		PlayerAim = FVector2D(0, 0);
+		PlayerAim = FVector2D::ZeroVector;
 	}
 		
 	// FP view

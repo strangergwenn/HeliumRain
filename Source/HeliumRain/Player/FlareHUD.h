@@ -248,6 +248,8 @@ protected:
 	UTexture2D*                             HUDDesignatorMilCornerTexture;
 	UTexture2D*                             HUDDesignatorCornerSelectedTexture;
 	UTexture2D*                             HUDDesignatorSelectionTexture;
+	UTexture2D*                             HUDDockingCircleTexture;
+	UTexture2D*                             HUDDockingAxisTexture;
 
 	// Ship status content
 	UTexture2D*                             HUDTemperatureIcon;
