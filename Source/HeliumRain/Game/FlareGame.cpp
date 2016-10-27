@@ -302,7 +302,7 @@ void AFlareGame::Recovery()
 	}
 
 	GetPC()->Notify(LOCTEXT("ShipRecovery", "Recovery ship"),
-		FText::Format(LOCTEXT("ShipRecoveryFormat", "Your fleet was destroy. You wake up in a recovery ship at {0} !"),
+		FText::Format(LOCTEXT("ShipRecoveryFormat", "Your fleet was destroyed. You wake up in a recovery ship at {0}..."),
 					  GetPC()->GetPlayerShip()->GetCurrentSector()->GetSectorName()),
 		FName("ship-recovery"),
 		EFlareNotification::NT_Info);
