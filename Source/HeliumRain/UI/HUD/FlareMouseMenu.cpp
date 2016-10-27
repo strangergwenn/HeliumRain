@@ -138,7 +138,6 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 	else
 	{
 		TimeSinceActive += InDeltaTime;
-		FLOGV("SFlareMouseMenu::Tick : %f", TimeSinceActive);
 		if (TimeSinceActive > AutoResetTime && MouseOffset != FVector2D::ZeroVector)
 		{
 			FLOG("SFlareMouseMenu::Tick : auto reset");
