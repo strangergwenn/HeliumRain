@@ -113,11 +113,11 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		// Joystick speed setting
 		if (LinearVelocityIsJoystick)
 		{
-			if (LastPlayerLinearVelocityJoystick.X / MaxVelocity < PlayerManualVelocityCommand)
+			if (PlayerManualLinearVelocity.X / MaxVelocity < PlayerManualVelocityCommand)
 			{
 				PlayerManualVelocityCommand -= 0.1;
 			}
-			else if (LastPlayerLinearVelocityJoystick.X / MaxVelocity> PlayerManualVelocityCommand)
+			else if (PlayerManualLinearVelocity.X / MaxVelocity> PlayerManualVelocityCommand)
 			{
 				PlayerManualVelocityCommand += 0.1;
 			}

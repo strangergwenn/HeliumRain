@@ -1496,12 +1496,19 @@ void AFlareSpacecraft::JoystickThrustInput(float Val)
 
 	if (FMath::Abs(Val) > Threshold)
 	{
-		TargetSpeed = -FMath::Sign(Val) * 10 * NavigationSystem->GetLinearMaxVelocity();
+		TargetSpeed = FMath::Sign(-Val) * 10 * NavigationSystem->GetLinearMaxVelocity();
 	}
 	else
 	{
-		float NormalizedVal = ((-Val / Threshold) + 1.0f) / 2.0f;
-		TargetSpeed = FMath::Lerp(JoystickThrustMinSpeed, JoystickThrustMaxSpeed, FMath::Pow(NormalizedVal, JoystickThrustExponent));
+		float NormalizedVal = -Val / Threshold;
+		if (Val < 0)
+		{
+			TargetSpeed = JoystickThrustMaxSpeed * FMath::Pow(FMath::Abs(NormalizedVal), JoystickThrustExponent);
+		}
+		else if(Val > 0)
+		{
+			TargetSpeed = JoystickThrustMinSpeed * FMath::Pow(FMath::Abs(NormalizedVal), JoystickThrustExponent);
+		}
 	}
 
 	StateManager->SetPlayerXLinearVelocityJoystick(TargetSpeed);
