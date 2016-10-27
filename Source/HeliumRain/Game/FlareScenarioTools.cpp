@@ -243,12 +243,12 @@ void UFlareScenarioTools::SetupWorld()
 
 		// BH Habitation 1
 		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, 7168);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 8.5, 0));
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 0));
 		CreateStations("station-bh-habitation", Sunwatch,       BlueHeart, 1, 1, StationParams);
 
 		// BH Habitation 2
 		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, -7168);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 8.5, 0));
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 0));
 		CreateStations("station-bh-habitation", Sunwatch,       BlueHeart, 1, 1, StationParams);
 	}
 	
