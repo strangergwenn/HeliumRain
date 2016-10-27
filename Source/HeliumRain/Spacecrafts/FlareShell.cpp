@@ -496,7 +496,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	// Spawn impact decal
 	if (HitComponent)
 	{
-		float DecalSize = FMath::FRandRange(50, 100);
+		float DecalSize = FMath::FRandRange(20, 30);
 		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
 			ExplosionEffectMaterial,
 			DecalSize * FVector(1, 1, 1),
