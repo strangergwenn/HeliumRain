@@ -53,8 +53,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHarpoonedIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Harpooned.TX_Icon_Harpooned"));
 
 	// Load content (font)
-	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj                (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontSmallObj           (TEXT("/Game/Slate/Fonts/HudFontSmall.HudFontSmall"));
+	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj                (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
+	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontMediumObj          (TEXT("/Game/Slate/Fonts/HudFontMedium.HudFontMedium"));
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontLargeObj           (TEXT("/Game/Slate/Fonts/HudFontLarge.HudFontLarge"));
 
 	// Set content (general icons)
@@ -88,8 +89,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDHarpoonedIcon = HUDHarpoonedIconObj.Object;
 
 	// Set content (font)
-	HUDFont = HUDFontObj.Object;
 	HUDFontSmall = HUDFontSmallObj.Object;
+	HUDFont = HUDFontObj.Object;
+	HUDFontMedium = HUDFontMediumObj.Object;
 	HUDFontLarge = HUDFontLargeObj.Object;
 
 	// Settings
@@ -242,6 +244,7 @@ void AFlareHUD::DrawHUD()
 		CurrentViewportSize = ViewportSize;
 		CurrentCanvas = Canvas;
 		IsDrawingCockpit = false;
+		IsDrawingHUD = true;
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
 		// Initial data and checks
@@ -258,45 +261,6 @@ void AFlareHUD::DrawHUD()
 		if (HUDVisible && (!PC->UseCockpit || IsExternalCamera))
 		{
 			DrawHUDInternal();
-		}
-
-		// Draw nose
-		if (HUDVisible && !IsExternalCamera)
-		{
-			DrawHUDIcon(
-				CurrentViewportSize / 2,
-				IconSize,
-				PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon,
-				HudColorNeutral,
-				true);
-
-			// Speed indication
-			FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
-			int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
-			FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
-			FlareDrawText(VelocityText, FVector2D(0, 40), HudColorNeutral);
-		}
-
-		// Draw combat mouse pointer
-		if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
-			PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
-			|| PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
-		{
-			// Compute clamped mouse position
-			FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerAim();
-			FVector MousePosDelta3D = FVector(MousePosDelta.X, MousePosDelta.Y, 0);
-			MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
-			MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);
-
-			// Keep an offset
-			FVector2D MinimalOffset = MousePosDelta;
-			MinimalOffset.Normalize();
-			MousePosDelta += 12 * MinimalOffset;
-
-			// Draw
-			FLinearColor PointerColor = HudColorNeutral;
-			PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
-			DrawHUDIconRotated(CurrentViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
 		}
 
 		// Distorsion grid
@@ -336,6 +300,7 @@ void AFlareHUD::DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height)
 		CurrentViewportSize = FVector2D(Width, Height);
 		CurrentCanvas = TargetCanvas;
 		IsDrawingCockpit = true;
+		IsDrawingHUD = true;
 
 		if (HUDVisible && ShouldDrawHUD())
 		{
@@ -358,6 +323,7 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		CurrentViewportSize = FVector2D(Width, Height);
 		CurrentCanvas = TargetCanvas;
+		IsDrawingHUD = false;
 
 		// Draw instruments
 		if (PlayerShip && PlayerShip->IsValidLowLevel() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive())
@@ -802,7 +768,6 @@ inline static bool IsCloserToCenter(const FFlareScreenTarget& TargetA, const FFl
 	return (TargetA.DistanceFromScreenCenter < TargetB.DistanceFromScreenCenter);
 }
 
-
 bool AFlareHUD::ShouldDrawHUD() const
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
@@ -825,7 +790,46 @@ void AFlareHUD::DrawHUDInternal()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
-		
+
+	// Draw nose
+	if (HUDVisible && !PlayerShip->GetStateManager()->IsExternalCamera())
+	{
+		DrawHUDIcon(
+			CurrentViewportSize / 2,
+			IconSize,
+			PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon,
+			HudColorNeutral,
+			true);
+
+		// Speed indication
+		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
+		int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
+		FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
+		FlareDrawText(VelocityText, FVector2D(0, 40), HudColorNeutral);
+	}
+
+	// Draw combat mouse pointer
+	if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
+		PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
+	 || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
+	{
+		// Compute clamped mouse position
+		FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerAim();
+		FVector MousePosDelta3D = FVector(MousePosDelta.X, MousePosDelta.Y, 0);
+		MousePosDelta3D = MousePosDelta3D.GetClampedToMaxSize(CombatMouseRadius);
+		MousePosDelta = FVector2D(MousePosDelta3D.X, MousePosDelta3D.Y);
+
+		// Keep an offset
+		FVector2D MinimalOffset = MousePosDelta;
+		MinimalOffset.Normalize();
+		MousePosDelta += 12 * MinimalOffset;
+
+		// Draw
+		FLinearColor PointerColor = HudColorNeutral;
+		PointerColor.A = FMath::Clamp((MousePosDelta.Size() / CombatMouseRadius) - 0.1f, 0.0f, PointerColor.A);
+		DrawHUDIconRotated(CurrentViewportSize / 2 + MousePosDelta, IconSize, HUDCombatMouseIcon, PointerColor, MousePosDelta3D.Rotation().Yaw);
+	}
+
 	// Iterate on all 'other' ships to show designators, markings, etc
 	ScreenTargets.Empty();
 	ScreenTargetsOwner = PlayerShip->GetParent()->GetImmatriculation();
@@ -854,92 +858,87 @@ void AFlareHUD::DrawHUDInternal()
 		}
 	}
 
-	// Update HUD materials
-	if (PlayerShip)
+	// Draw inertial vectors
+	FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
+	DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipSmoothedVelocity);
+	DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity);
+
+	// Draw objective
+	if (PC->HasObjective() && PC->GetCurrentObjective()->Data.TargetList.Num() > 0)
 	{
-		// Draw inertial vectors
-		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
-		DrawSpeed(PC, PlayerShip, HUDReticleIcon, ShipSmoothedVelocity);
-		DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity);
+		FVector2D ScreenPosition;
 
-		// Draw objective
-		if (PC->HasObjective() && PC->GetCurrentObjective()->Data.TargetList.Num() > 0)
+		for (int TargetIndex = 0; TargetIndex < PC->GetCurrentObjective()->Data.TargetList.Num(); TargetIndex++)
 		{
-			FVector2D ScreenPosition;
+			const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->Data.TargetList[TargetIndex];
+			FVector ObjectiveLocation = Target->Location;
+			FLinearColor InactiveColor = HudColorNeutral;
 
-			for (int TargetIndex = 0; TargetIndex < PC->GetCurrentObjective()->Data.TargetList.Num(); TargetIndex++)
-			{
-				const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->Data.TargetList[TargetIndex];
-				FVector ObjectiveLocation = Target->Location;
-				FLinearColor InactiveColor = HudColorNeutral;
+			bool ShouldDrawMarker = false;
 
-				bool ShouldDrawMarker = false;
-
-				if (ProjectWorldLocationToCockpit(ObjectiveLocation, ScreenPosition))
-				{
-					if (IsInScreen(ScreenPosition))
-					{
-						// Draw icon
-						DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, (Target->Active ? HudColorNeutral : InactiveColor), true);
-
-						float Distance = (ObjectiveLocation - PlayerShip->GetActorLocation()).Size() / 100;
-						FString ObjectiveText = FormatDistance(Distance);
-
-						// Draw distance
-						FVector2D CenterScreenPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(0, IconSize);
-						FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? HudColorObjective : HudColorNeutral));
-					}
-
-					// Tell the HUD to draw the search marker only if we are outside this
-					ShouldDrawMarker = (FVector2D::Distance(ScreenPosition, CurrentViewportSize / 2) >= (CurrentViewportSize.GetMin() / 3));
-				}
-				else
-				{
-					ShouldDrawMarker = true;
-				}
-
-				if (ShouldDrawMarker && !PlayerShip->GetStateManager()->IsExternalCamera() && Target->Active)
-				{
-					DrawSearchArrow(ObjectiveLocation, HudColorObjective, true);
-				}
-			}
-		}
-
-		// Draw bomb marker
-		if (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
-		{
-			float AmmoVelocity = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetAmmoVelocity();
-			FRotator ShipAttitude = PlayerShip->GetActorRotation();
-			FVector ShipVelocity = 100.f * PlayerShip->GetLinearVelocity();
-
-			// Bomb velocity
-			FVector BombVelocity = ShipAttitude.Vector();
-			BombVelocity.Normalize();
-			BombVelocity *= 100.f * AmmoVelocity;
-
-			FVector BombDirection = (ShipVelocity + BombVelocity).GetUnsafeNormal();
-			FVector BombTarget = PlayerShip->GetActorLocation() + BombDirection * 1000000;
-
-			FVector2D ScreenPosition;
-			if (ProjectWorldLocationToCockpit(BombTarget, ScreenPosition))
-			{
-				// Icon
-				DrawHUDIcon(ScreenPosition, IconSize, HUDBombAimIcon, HudColorNeutral, true);
-			}
-		}
-
-		// Draw bombs
-		for (int32 BombIndex = 0; BombIndex < ActiveSector->GetBombs().Num(); BombIndex++)
-		{
-			FVector2D ScreenPosition;
-			AFlareBomb* Bomb = ActiveSector->GetBombs()[BombIndex];
-			
-			if (Bomb && ProjectWorldLocationToCockpit(Bomb->GetActorLocation(), ScreenPosition) && !Bomb->IsHarpooned())
+			if (ProjectWorldLocationToCockpit(ObjectiveLocation, ScreenPosition))
 			{
 				if (IsInScreen(ScreenPosition))
 				{
-					DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, GetHostilityColor(PC, Bomb->GetFiringSpacecraft()) , true);
+					// Draw icon
+					DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, (Target->Active ? HudColorNeutral : InactiveColor), true);
+
+					float Distance = (ObjectiveLocation - PlayerShip->GetActorLocation()).Size() / 100;
+					FString ObjectiveText = FormatDistance(Distance);
+
+					// Draw distance
+					FVector2D CenterScreenPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(0, IconSize);
+					FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? HudColorObjective : HudColorNeutral));
 				}
+
+				// Tell the HUD to draw the search marker only if we are outside this
+				ShouldDrawMarker = (FVector2D::Distance(ScreenPosition, CurrentViewportSize / 2) >= (CurrentViewportSize.GetMin() / 3));
+			}
+			else
+			{
+				ShouldDrawMarker = true;
+			}
+
+			if (ShouldDrawMarker && !PlayerShip->GetStateManager()->IsExternalCamera() && Target->Active)
+			{
+				DrawSearchArrow(ObjectiveLocation, HudColorObjective, true);
+			}
+		}
+	}
+
+	// Draw bomb marker
+	if (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
+	{
+		float AmmoVelocity = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetAmmoVelocity();
+		FRotator ShipAttitude = PlayerShip->GetActorRotation();
+		FVector ShipVelocity = 100.f * PlayerShip->GetLinearVelocity();
+
+		// Bomb velocity
+		FVector BombVelocity = ShipAttitude.Vector();
+		BombVelocity.Normalize();
+		BombVelocity *= 100.f * AmmoVelocity;
+
+		FVector BombDirection = (ShipVelocity + BombVelocity).GetUnsafeNormal();
+		FVector BombTarget = PlayerShip->GetActorLocation() + BombDirection * 1000000;
+
+		FVector2D ScreenPosition;
+		if (ProjectWorldLocationToCockpit(BombTarget, ScreenPosition))
+		{
+			DrawHUDIcon(ScreenPosition, IconSize, HUDBombAimIcon, HudColorNeutral, true);
+		}
+	}
+
+	// Draw bombs
+	for (int32 BombIndex = 0; BombIndex < ActiveSector->GetBombs().Num(); BombIndex++)
+	{
+		FVector2D ScreenPosition;
+		AFlareBomb* Bomb = ActiveSector->GetBombs()[BombIndex];
+			
+		if (Bomb && ProjectWorldLocationToCockpit(Bomb->GetActorLocation(), ScreenPosition) && !Bomb->IsHarpooned())
+		{
+			if (IsInScreen(ScreenPosition))
+			{
+				DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, GetHostilityColor(PC, Bomb->GetFiringSpacecraft()) , true);
 			}
 		}
 	}
@@ -1238,20 +1237,29 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 		float X, Y;
 		UFont* Font = NULL;
 		
-		// Pick the appropriate font
-		if (Large)
-		{
-			Font = HUDFontLarge;
-		}
-		else
+		// HUD fonts
+		if (IsDrawingHUD)
 		{
 			if (IsDrawingCockpit)
 			{
-				Font = HUDFont;
+				Font = HUDFontMedium;
 			}
 			else
 			{
 				Font = HUDFontSmall;
+			}
+		}
+
+		// Instrument fonts
+		else
+		{
+			if (Large)
+			{
+				Font = HUDFontLarge;
+			}
+			else
+			{
+				Font = HUDFont;
 			}
 		}
 

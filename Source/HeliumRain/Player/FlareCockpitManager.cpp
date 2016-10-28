@@ -20,6 +20,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitHealthLightPeriod(1.2)
 	, CockpitPowerTime(0)
 	, CockpitPowerPeriod(0.7)
+	, CockpitLightingIntensity(10)
 	, FreighterCockpitMaterialInstance(NULL)
 	, FreighterCockpitFrameMaterialInstance(NULL)
 	, FighterCockpitMaterialInstance(NULL)
@@ -254,8 +255,9 @@ void AFlareCockpitManager::SetupCockpitInstances(UMaterialInstanceDynamic* Scree
 	FCHECK(FrameInstance);
 
 	ScreenInstance->SetVectorParameterValue( "IndicatorColorBorders", Theme.FriendlyColor);
-	ScreenInstance->SetTextureParameterValue("HUDTarget",             CockpitHUDTarget);
-
+	ScreenInstance->SetTextureParameterValue("HUDTarget", CockpitHUDTarget);
+	ScreenInstance->SetScalarParameterValue("ScreenLuminosity", CockpitLightingIntensity);
+	
 	FrameInstance->SetVectorParameterValue( "IndicatorColorBorders",  Theme.FriendlyColor);
 	FrameInstance->SetTextureParameterValue("FLIRTarget",             CockpitFLIRCameraTarget);
 	FrameInstance->SetTextureParameterValue("InstrumentsTarget",      CockpitInstrumentsTarget);
@@ -425,6 +427,7 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	}
 
 	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityTop", Intensity);
+	GetCurrentFrameMaterial()->SetScalarParameterValue("ScreenLuminosity", CockpitLightingIntensity);
 }
 
 void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
