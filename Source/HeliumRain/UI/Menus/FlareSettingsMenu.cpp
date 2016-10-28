@@ -1068,7 +1068,7 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 	}
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 142 : 100);
+	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 200 : 100);
 	MyGameSettings->ApplySettings(false);
 
 }
