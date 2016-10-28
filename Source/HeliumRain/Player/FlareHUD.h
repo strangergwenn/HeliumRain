@@ -225,6 +225,7 @@ protected:
 	bool                                    HUDVisible;
 	bool                                    IsInteractive;
 	bool                                    IsDrawingCockpit;
+	bool                                    IsDrawingHUD;
 	FVector2D                               ViewportSize;
 	AFlareSpacecraft*                       ContextMenuSpacecraft;
 
@@ -261,8 +262,9 @@ protected:
 	UTexture2D*                             HUDHarpoonedIcon;
 
 	// Font
-	UFont*                                  HUDFont;
 	UFont*                                  HUDFontSmall;
+	UFont*                                  HUDFont;
+	UFont*                                  HUDFontMedium;
 	UFont*                                  HUDFontLarge;
 
 	// Instruments

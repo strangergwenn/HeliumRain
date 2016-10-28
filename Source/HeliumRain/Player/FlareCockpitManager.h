@@ -98,6 +98,7 @@ protected:
 	float                                    CockpitHealthLightPeriod;
 	float                                    CockpitPowerTime;
 	float                                    CockpitPowerPeriod;
+	float                                    CockpitLightingIntensity;
 
 
 	/*----------------------------------------------------
