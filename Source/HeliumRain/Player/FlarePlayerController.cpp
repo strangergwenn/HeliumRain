@@ -69,6 +69,7 @@ void AFlarePlayerController::BeginPlay()
 	MyGameSettings->ApplySettings(false);
 	UseCockpit = MyGameSettings->UseCockpit;
 	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
+	SetUseMotionBlur(MyGameSettings->UseMotionBlur);
 
 	// Cockpit
 	SetupCockpit();
@@ -1446,6 +1447,13 @@ void AFlarePlayerController::SetUseCockpit(bool New)
 	UseCockpit = New;
 	CockpitManager->SetupCockpit(this);
 	SetExternalCamera(false);
+}
+
+void AFlarePlayerController::SetUseMotionBlur(bool New)
+{
+	UseMotionBlur = New;
+	GetGame()->GetPostProcessVolume()->Settings.bOverride_MotionBlurAmount = true;
+	GetGame()->GetPostProcessVolume()->Settings.MotionBlurAmount = UseMotionBlur ? 0.25 : 0;
 }
 
 void AFlarePlayerController::SetPauseGameInMenus(bool New)

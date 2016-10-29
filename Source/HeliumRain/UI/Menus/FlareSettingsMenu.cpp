@@ -135,8 +135,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.SmallContentPadding)
 						[
 							SAssignNew(SupersamplingButton, SFlareButton)
-							.Text(LOCTEXT("Supersampling", "Supersampling 4x (!)"))
-							.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at 4x the resolution. This is a very demanding feature."))
+							.Text(LOCTEXT("Supersampling", "2x Supersampling (!)"))
+							.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a very demanding feature."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
 						]
@@ -363,9 +363,21 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(CockpitButton, SFlareButton)
 							.Text(LOCTEXT("Cockpit", "Use cockpit"))
-							.HelpText(LOCTEXT("CockpitInfo", "Use the 3D cockpit instead of a flat interface"))
+							.HelpText(LOCTEXT("CockpitInfo", "Use the immersive 3D cockpit instead of a flat interface."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
+						]
+
+						// Motion Blur
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(MotionBlurButton, SFlareButton)
+							.Text(LOCTEXT("MotionBlur", "Use motion blur"))
+							.HelpText(LOCTEXT("MotionBlurInfo", "Motion blur makes the game feel much more responsive and fluid."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnMotionBlurToggle)
 						]
 					
 						// Pause in menus
@@ -375,7 +387,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(PauseInMenusButton, SFlareButton)
 							.Text(LOCTEXT("PauseInMenus", "Pause in menus"))
-							.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu"))
+							.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnPauseInMenusToggle)
 						]
@@ -519,6 +531,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 
 	// Default settings
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
+	MotionBlurButton->SetActive(MyGameSettings->UseMotionBlur);
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
@@ -1051,8 +1064,26 @@ void SFlareSettingsMenu::OnVSyncToggle()
 		FLOG("SFlareSettingsMenu::OnVSyncToggle : Disable vsync")
 	}
 
-	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->SetVSyncEnabled(VSyncButton->IsActive());
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnMotionBlurToggle()
+{
+	if (MotionBlurButton->IsActive())
+	{
+		FLOG("SFlareSettingsMenu::OnMotionBlurToggle : Enable motion blur")
+	}
+	else
+	{
+		FLOG("SFlareSettingsMenu::OnMotionBlurToggle : Disable motion blur")
+	}
+
+	MenuManager->GetPC()->SetUseMotionBlur(MotionBlurButton->IsActive());
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->SetMotionBlurEnabled(MotionBlurButton->IsActive());
 	MyGameSettings->ApplySettings(false);
 }
 
@@ -1068,7 +1099,7 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 	}
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 200 : 100);
+	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 142 : 100);
 	MyGameSettings->ApplySettings(false);
 
 }

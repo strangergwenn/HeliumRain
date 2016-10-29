@@ -125,6 +125,8 @@ protected:
 
 	void OnVSyncToggle();
 
+	void OnMotionBlurToggle();
+
 	void OnSupersamplingToggle();
 		
 	void OnCockpitToggle();
@@ -170,6 +172,7 @@ protected:
 	// Graphics settings
 	TSharedPtr<SFlareButton>                    FullscreenButton;
 	TSharedPtr<SFlareButton>                    VSyncButton;
+	TSharedPtr<SFlareButton>                    MotionBlurButton;
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;

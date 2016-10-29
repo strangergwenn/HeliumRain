@@ -112,7 +112,6 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 void AFlareGame::StartPlay()
 {
 	FLOG("AFlareGame::StartPlay");
-	Super::StartPlay();
 	
 	// Setup the post process 
 	TArray<AActor*> PostProcessCandidates;
@@ -143,6 +142,8 @@ void AFlareGame::StartPlay()
 
 	// Spawn planetarium
 	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	// Start the game
+	Super::StartPlay();
 
 	// Spawn debris field system
 	DebrisFieldSystem = NewObject<UFlareDebrisField>(this, UFlareDebrisField::StaticClass());

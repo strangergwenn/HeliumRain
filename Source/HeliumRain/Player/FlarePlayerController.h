@@ -376,10 +376,15 @@ public:
 	/** Whether to use the 3D cockpit */
 	bool                                     UseCockpit;
 
+	/** Whether to use motion blur */
+	bool                                     UseMotionBlur;
+
 	/** Whether to pause the game in menus */
 	bool                                     PauseGameInMenus;
 	
 	void SetUseCockpit(bool New);
+
+	void SetUseMotionBlur(bool New);
 
 	void SetPauseGameInMenus(bool New);
 
