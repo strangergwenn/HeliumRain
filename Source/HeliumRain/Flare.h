@@ -15,6 +15,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogFlare, Log, All);
 
+DECLARE_STATS_GROUP(TEXT("HeliumRain"), STATGROUP_Flare, STATCAT_Advanced);
+
 
 /*----------------------------------------------------
 	Error reporting

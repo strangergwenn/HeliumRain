@@ -6,6 +6,10 @@
 #include "FlareShell.h"
 #include "FlareBomb.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareWeapon Firing"), STAT_Weapon_Firing, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareWeapon FireGun"), STAT_Weapon_FireGun, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareWeapon ConfigureShellFuze"), STAT_Weapon_ConfigureShellFuze, STATGROUP_Flare);
+
 
 /*----------------------------------------------------
 	Constructor
@@ -99,6 +103,8 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Firing && GetCurrentAmmo() > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
+		SCOPE_CYCLE_COUNTER(STAT_Weapon_Firing);
+
 		if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
 		{
 			if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.AlternedFire)
@@ -132,6 +138,8 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 bool UFlareWeapon::FireGun(int GunIndex)
 {
+	SCOPE_CYCLE_COUNTER(STAT_Weapon_FireGun);
+
 	// Avoid firing itself
 	if (!IsSafeToFire(GunIndex))
 	{
@@ -189,6 +197,8 @@ bool UFlareWeapon::FireBomb()
 
 void UFlareWeapon::ConfigureShellFuze(AFlareShell* Shell)
 {
+	SCOPE_CYCLE_COUNTER(STAT_Weapon_ConfigureShellFuze);
+
 	if (ComponentDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
 	{
 		float SecurityRadius = 	ComponentDescription->WeaponCharacteristics.AmmoExplosionRadius + Spacecraft->GetMeshScale() / 100;

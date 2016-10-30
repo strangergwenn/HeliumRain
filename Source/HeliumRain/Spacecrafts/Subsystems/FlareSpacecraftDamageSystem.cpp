@@ -9,7 +9,10 @@
 #include "../FlareOrbitalEngine.h"
 #include "../FlareShell.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareDamageSystem Tick"), STAT_FlareDamageSystem_Tick, STATGROUP_Flare);
+
 #define LOCTEXT_NAMESPACE "FlareSpacecraftDamageSystem"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -29,6 +32,8 @@ UFlareSpacecraftDamageSystem::UFlareSpacecraftDamageSystem(const class FObjectIn
 
 void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareDamageSystem_Tick);
+
 	// Apply heat variation : add producted heat then substract radiated heat.
 
 	// Get the to heat production and heat sink surface

@@ -5,6 +5,13 @@
 #include "FlareShell.h"
 #include "FlareSpacecraftSubComponent.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Tick"), STAT_FlareTurret_Tick, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Pilot"), STAT_FlareTurret_Pilot, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft IsSafeToFire"), STAT_FlareTurret_IsSafeToFire, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Trace"), STAT_FlareTurret_Trace, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft IsReacheableAxis"), STAT_FlareTurret_IsReacheableAxis, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft GetMinLimitAtAngle"), STAT_FlareTurret_GetMinLimitAtAngle, STATGROUP_Flare);
+
 
 /*----------------------------------------------------
 	Constructor
@@ -144,6 +151,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && Pilot)
 	{
+		SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Pilot);
 
 		Pilot->TickPilot(DeltaTime);
 		//FLOGV("Pilot exist WantFire %d", Pilot->IsWantFire());
@@ -161,6 +169,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && GetUsableRatio() > 0)
 	{
+		SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Tick);
 
 		if (TurretComponent && ComponentDescription)
 		{
@@ -299,6 +308,8 @@ FVector UFlareTurret::GetTurretBaseLocation() const
 
 bool UFlareTurret::IsSafeToFire(int GunIndex) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_IsSafeToFire);
+
 	FVector FiringLocation = GetMuzzleLocation(GunIndex);
 	FVector FiringDirection = GetFireAxis();
 	FVector TargetLocation = FiringLocation + FiringDirection * 100000;
@@ -317,6 +328,8 @@ bool UFlareTurret::IsSafeToFire(int GunIndex) const
 
 bool UFlareTurret::Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Trace);
+
 	FCollisionQueryParams TraceParams(FName(TEXT("Shell Trace")), true, NULL);
 	TraceParams.bTraceComplex = true;
 	// TraceParams.bTraceAsyncScene = true;
@@ -342,6 +355,8 @@ bool UFlareTurret::Trace(const FVector& Start, const FVector& End, FHitResult& H
 
 bool UFlareTurret::IsReacheableAxis(FVector TargetAxis) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_IsReacheableAxis);
+
 	float TargetTurretAngle = 0;
 	if (TurretComponent && ComponentDescription)
 	{
@@ -390,6 +405,8 @@ static inline int PositiveModulo(int i, int n)
 
 float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_GetMinLimitAtAngle);
+
 	float BarrelsMinAngle = ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMinAngle;
 	FFlareSpacecraftDescription* Desc = Spacecraft->GetParent()->GetDescription();
 

@@ -9,6 +9,9 @@
 #include "FlareMenuManager.h"
 #include "EngineUtils.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick ControlGroups"), STAT_FlarePlayerTick_ControlGroups, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Battle"), STAT_FlarePlayerTick_Battle, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Sound"), STAT_FlarePlayerTick_Sound, STATGROUP_Flare);
 
 #define LOCTEXT_NAMESPACE "AFlarePlayerController"
 
@@ -107,13 +110,16 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	if (ShipPawn)
 	{
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
-		
-		UFlareSimulatedSector* Sector = ShipPawn->GetParent()->GetCurrentSector();
-		GetTacticManager()->ResetControlGroups(Sector);
+		{
+			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_ControlGroups);
+			UFlareSimulatedSector* Sector = ShipPawn->GetParent()->GetCurrentSector();
+			GetTacticManager()->ResetControlGroups(Sector);
+		}
 		
 		// Battle state
 		if (GetGame()->GetActiveSector())
 		{
+			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Battle);
 			EFlareSectorBattleState::Type BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
 			if (BattleState != LastBattleState)
 			{
@@ -221,6 +227,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	// Sound
 	if (SoundManager)
 	{
+		SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Sound);
 		SoundManager->Update(DeltaSeconds);
 	}
 }

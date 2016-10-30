@@ -4,7 +4,10 @@
 #include "FlareSpacecraftWeaponsSystem.h"
 #include "../FlareSpacecraft.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareWeaponsSystem Tick"), STAT_FlareWeaponsSystem_Tick, STATGROUP_Flare);
+
 #define LOCTEXT_NAMESPACE "FlareSpacecraftWeaponsSystem"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -30,6 +33,8 @@ UFlareSpacecraftWeaponsSystem::~UFlareSpacecraftWeaponsSystem()
 
 void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareWeaponsSystem_Tick);
+
 	if (!ActiveWeaponGroup)
 	{
 		return;

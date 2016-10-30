@@ -5,7 +5,10 @@
 #include "../FlareStationDock.h"
 #include "../FlareSpacecraft.h"
 
-#define LOCTEXT_NAMESPACE "FlareSpacecraftDockingSystem"
+DECLARE_CYCLE_STAT(TEXT("FlareDockingSystem Tick"), STAT_FlareDockingSystem_Tick, STATGROUP_Flare);
+
+#define LOCTEXT_NAMESPACE "FlareDockingSystem"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -15,6 +18,7 @@ UFlareSpacecraftDockingSystem::UFlareSpacecraftDockingSystem(const class FObject
 	: Super(PCIP)
 	, Spacecraft(NULL)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareDockingSystem_Tick);
 }
 
 

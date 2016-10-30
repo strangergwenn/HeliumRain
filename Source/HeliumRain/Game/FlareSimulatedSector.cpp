@@ -8,6 +8,10 @@
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareSector SimulatePriceVariation"), STAT_FlareSector_SimulatePriceVariation, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorFriendlyness"), STAT_FlareSector_GetSectorFriendlyness, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorBattleState"), STAT_FlareSector_GetSectorBattleState, STATGROUP_Flare);
+
 #define LOCTEXT_NAMESPACE "FlareSimulatedSector"
 
 
@@ -869,6 +873,8 @@ void UFlareSimulatedSector::SimulatePriceVariation()
 
 void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Resource)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSector_SimulatePriceVariation);
+
 	float OldPrice = GetPreciseResourcePrice(Resource);
 	// Prices can increase because :
 
@@ -1115,6 +1121,8 @@ FString UFlareSimulatedSector::GetSectorCode()
 
 EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFlareCompany* Company)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSector_GetSectorFriendlyness);
+
 	if (!Company->HasVisitedSector(this))
 	{
 		return EFlareSectorFriendlyness::NotVisited;
@@ -1168,6 +1176,7 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 
 EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlareCompany* Company)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSector_GetSectorBattleState);
 
 	if (GetSectorShips().Num() == 0)
 	{

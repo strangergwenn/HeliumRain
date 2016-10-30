@@ -9,6 +9,19 @@
 
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem Tick"), STAT_NavigationSystem_Tick, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem Manual"), STAT_NavigationSystem_Manual, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem Auto"), STAT_NavigationSystem_Auto, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem Physics"), STAT_NavigationSystem_Physics, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem CheckCollision"), STAT_NavigationSystem_CheckCollision, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem DockingAuto"), STAT_NavigationSystem_DockingAuto, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem GetNearestShip"), STAT_NavigationSystem_GetNearestShip, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem UpdateLinearAttitudeAuto"), STAT_NavigationSystem_UpdateLinearAttitudeAuto, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem UpdateAngularAttitudeAuto"), STAT_NavigationSystem_UpdateAngularAttitudeAuto, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem GetAngularVelocityToAlignAxis"), STAT_NavigationSystem_GetAngularVelocityToAlignAxis, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem GetTotalMaxThrustInAxis"), STAT_NavigationSystem_GetTotalMaxThrustInAxis, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem GetTotalMaxTorqueInAxis"), STAT_NavigationSystem_GetTotalMaxTorqueInAxis, STATGROUP_Flare);
+
 #define LOCTEXT_NAMESPACE "FlareSpacecraftNavigationSystem"
 
 
@@ -36,11 +49,15 @@ UFlareSpacecraftNavigationSystem::UFlareSpacecraftNavigationSystem(const class F
 
 void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_Tick);
+
 	UpdateCOM();
 
 	// Manual pilot
 	if (IsManualPilot() && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
+		SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_Manual);
+
 		LinearTargetVelocity = Spacecraft->GetStateManager()->GetLinearTargetVelocity();
 		AngularTargetVelocity = Spacecraft->GetStateManager()->GetAngularTargetVelocity();
 		UseOrbitalBoost = Spacecraft->GetStateManager()->IsUseOrbitalBoost();
@@ -58,6 +75,8 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 	// Autopilot
 	else if (IsAutoPilot())
 	{
+		SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_Auto);
+
 		FFlareShipCommandData CurrentCommand;
 		if (CommandData.Peek(CurrentCommand))
 		{
@@ -304,6 +323,8 @@ static float GetApproachVelocityLimit(float Distance)
 
 void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* DockingCandidate)
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_CheckCollision);
+
 	if (IsAutoPilot())
 	{
 		FFlareShipCommandData CurrentCommand;
@@ -399,6 +420,8 @@ void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* D
 
 void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockStation, int32 DockId, float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_DockingAuto);
+
 	// The dockin has multiple phase
 	// - Rendez-vous : go at the entrance of the docking corridor.
 	//     Its a large sphere  in front of the dock with a speed limit. During
@@ -899,6 +922,8 @@ bool UFlareSpacecraftNavigationSystem::IsPointColliding(FVector Candidate, AActo
 
 AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecraft* DockingStation) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_GetNearestShip);
+
 	// For now an host ship is a the nearest host ship with the following critera:
 	// - Alive or not
 	// - From any company
@@ -941,6 +966,8 @@ AFlareSpacecraft* UFlareSpacecraftNavigationSystem::GetNearestShip(AFlareSpacecr
 
 bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity, float SecurityRatio)
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_UpdateLinearAttitudeAuto);
+
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 
 	FVector DeltaPosition = (TargetLocation - Spacecraft->GetActorLocation()) / 100; // Distance in meters
@@ -1026,6 +1053,8 @@ void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds, F
 
 void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_UpdateAngularAttitudeAuto);
+
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 
 	// Rotation data
@@ -1102,6 +1131,8 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeco
 
 FVector UFlareSpacecraftNavigationSystem::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_GetAngularVelocityToAlignAxis);
+
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 
 	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
@@ -1175,6 +1206,8 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularBraking(float DeltaSeconds)
 
 void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_Physics);
+
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 
 	if(Spacecraft->GetParent()->GetDamageSystem()->IsUncontrollable())
@@ -1320,6 +1353,8 @@ void UFlareSpacecraftNavigationSystem::UpdateCOM()
 
 FVector UFlareSpacecraftNavigationSystem::GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, bool WithOrbitalEngines) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_GetTotalMaxThrustInAxis);
+
 	Axis.Normalize();
 	FVector TotalMaxThrust = FVector::ZeroVector;
 	for (int32 i = 0; i < Engines.Num(); i++)
@@ -1350,6 +1385,8 @@ FVector UFlareSpacecraftNavigationSystem::GetTotalMaxThrustInAxis(TArray<UActorC
 
 float UFlareSpacecraftNavigationSystem::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, bool WithDamages) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_GetTotalMaxTorqueInAxis);
+
 	TorqueAxis.Normalize();
 	float TotalMaxTorque = 0;
 
