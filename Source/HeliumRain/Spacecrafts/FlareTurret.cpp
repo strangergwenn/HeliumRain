@@ -6,6 +6,7 @@
 #include "FlareSpacecraftSubComponent.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Tick"), STAT_FlareTurret_Tick, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Update"), STAT_FlareTurret_Update, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Pilot"), STAT_FlareTurret_Pilot, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft IsSafeToFire"), STAT_FlareTurret_IsSafeToFire, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Trace"), STAT_FlareTurret_Trace, STATGROUP_Flare);
@@ -135,6 +136,8 @@ void UFlareTurret::SetupComponentMesh()
 
 void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Tick);
+
 	if (!Spacecraft)
 	{
 		return;
@@ -169,7 +172,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && GetUsableRatio() > 0)
 	{
-		SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Tick);
+		SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Update);
 
 		if (TurretComponent && ComponentDescription)
 		{

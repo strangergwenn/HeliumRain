@@ -6,7 +6,13 @@
 #include "../../Game/FlareGame.h"
 #include "FlareSimulatedSpacecraftDamageSystem.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareSimulatedDamageSystem GetSubsystemHealth"), STAT_FlareSimulatedDamageSystem_GetSubsystemHealth, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSimulatedDamageSystem GetWeaponGroupHealth"), STAT_FlareSimulatedDamageSystem_GetWeaponGroupHealth, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSimulatedDamageSystem ApplyDamage"), STAT_FlareSimulatedDamageSystem_ApplyDamage, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSimulatedDamageSystem IsPowered"), STAT_FlareSimulatedDamageSystem_IsPowered, STATGROUP_Flare);
+
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraftDamageSystem"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -123,6 +129,8 @@ float UFlareSimulatedSpacecraftDamageSystem::GetGlobalHealth()
 
 float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithAmmo) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSimulatedDamageSystem_GetSubsystemHealth);
+
 	UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
 
 	// TODO cache
@@ -269,6 +277,8 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealth(EFlareSubsystem:
 
 float UFlareSimulatedSpacecraftDamageSystem::GetWeaponGroupHealth(int32 GroupIndex, bool WithAmmo) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSimulatedDamageSystem_GetWeaponGroupHealth);
+
 	 FFlareSimulatedWeaponGroup* WeaponGroup = Spacecraft->GetWeaponsSystem()->GetWeaponGroup(GroupIndex);
 	 float Health = 0.0;
 
@@ -396,6 +406,8 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 						  FFlareSpacecraftComponentSave* ComponentData,
 						  float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSimulatedDamageSystem_ApplyDamage);
+
 	float InflictedDamageRatio = 0;
 
 	// Apply damage
@@ -495,8 +507,11 @@ float UFlareSimulatedSpacecraftDamageSystem::GetClampedUsableRatio(FFlareSpacecr
 	float CorrectionFactor = 1/(1-BROKEN_RATIO);
 	return FMath::Max(0.f, (GetUsableRatio(ComponentDescription, ComponentData) - BROKEN_RATIO) * CorrectionFactor);
 }
+
 bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSimulatedDamageSystem_IsPowered);
+
 	if(Spacecraft->IsStation())
 	{
 		return true;
