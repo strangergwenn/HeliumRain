@@ -396,20 +396,11 @@ public:
 	/** Return true if the ship component is powered. A destroyed component is not powered */
 	virtual bool IsPowered() const;
 
-	/** Compute the current available power from power sources */
-	virtual void UpdatePower();
-
 	/** Return the current amount of generated power */
 	virtual float GetGeneratedPower() const;
 
 	/** Return the maximum amount of generated power */
 	virtual float GetMaxGeneratedPower() const;
-
-	/** Return the current amount of available power */
-	virtual float GetAvailablePower() const;
-
-	/** Find the closest power sources form all ship power sources */
-	virtual void UpdatePowerSources(TArray<UFlareSpacecraftComponent*>* AvailablePowerSources);
 
 	/** Return true if is a generator (broken or not) */
 	virtual bool IsGenerator() const;

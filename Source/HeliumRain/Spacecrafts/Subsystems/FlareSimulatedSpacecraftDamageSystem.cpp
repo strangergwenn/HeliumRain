@@ -36,10 +36,17 @@ void UFlareSimulatedSpacecraftDamageSystem::Initialize(UFlareSimulatedSpacecraft
 	Data = OwnerData;
 	DamageDirty = true;
 	AmmoDirty = true;
+	IsPoweredCacheIndex = 0;
 
 	for (int32 Index = EFlareSubsystem::SYS_None; Index <= EFlareSubsystem::SYS_WeaponAndAmmo; Index++)
 	{
 		SubsystemHealth.Add(1.0f);
+	}
+
+	for (int32 ComponentIndex = 0; ComponentIndex < Data->Components.Num(); ComponentIndex++)
+	{
+		FFlareSpacecraftComponentSave* ComponentData = &Data->Components[ComponentIndex];
+		ComponentData->IsPoweredCacheIndex = -1;
 	}
 }
 
@@ -205,7 +212,7 @@ float UFlareSimulatedSpacecraftDamageSystem::Repair(FFlareSpacecraftComponentDes
 		}
 
 		ComponentData->Damage = FMath::Max(0.f, ComponentData->Damage - MaxHitPoints * RepairRatio);
-		DamageDirty =true;
+		SetDamageDirty(ComponentDescription);
 		RepairCost = RepairRatio * GetRepairCost(ComponentDescription);
 
 		FLOGV("%s %s repair %f for %f fs (damage ratio: %f)",  *Spacecraft->GetImmatriculation().ToString(),  *ComponentData->ShipSlotIdentifier.ToString(), RepairRatio, RepairCost, GetDamageRatio(ComponentDescription, ComponentData));
@@ -251,7 +258,7 @@ float UFlareSimulatedSpacecraftDamageSystem::Refill(FFlareSpacecraftComponentDes
 		int32 NewAmmoCount =  CurrentAmmo + RefillAmount;
 
 		ComponentData->Weapon.FiredAmmo = FMath::Clamp(MaxAmmo - NewAmmoCount, 0, MaxAmmo);
-		AmmoDirty =true;
+		SetAmmoDirty();
 
 		RefillCost = RefillRatio * GetRefillCost(ComponentDescription);
 
@@ -312,7 +319,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 	}
 	float StateAfterDamage = GetDamageRatio(ComponentDescription, ComponentData);
 	InflictedDamageRatio = StateBeforeDamage - StateAfterDamage;
-	DamageDirty = true;
+	SetDamageDirty(ComponentDescription);
 
 	if (EffectiveEnergy > 0)
 	{
@@ -550,63 +557,101 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealthInternal(EFlareSu
 	return Health;
 }
 
+void UFlareSimulatedSpacecraftDamageSystem::SetPowerDirty()
+{
+	IsPoweredCacheIndex++;
+}
+
+void UFlareSimulatedSpacecraftDamageSystem::SetDamageDirty(FFlareSpacecraftComponentDescription* ComponentDescription)
+{
+	DamageDirty = true;
+	if(ComponentDescription->GeneralCharacteristics.ElectricSystem)
+	{
+		SetPowerDirty();
+	}
+}
+
+void UFlareSimulatedSpacecraftDamageSystem::SetAmmoDirty()
+{
+	AmmoDirty = true;
+}
+
 bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareSimulatedDamageSystem_IsPowered);
 
+	if(ComponentToPowerData->IsPoweredCacheIndex < IsPoweredCacheIndex)
+	{
+		UFlareSimulatedSpacecraftDamageSystem* UnprotectedThis = const_cast<UFlareSimulatedSpacecraftDamageSystem *>(this);
+		UnprotectedThis->UpdatePower(ComponentToPowerData);
+	}
+
+	return ComponentToPowerData->IsPoweredCache;
+}
+
+void UFlareSimulatedSpacecraftDamageSystem::UpdatePower(FFlareSpacecraftComponentSave* ComponentToPowerData)
+{
+	bool AvailablePower;
+
 	if (Spacecraft->IsStation())
 	{
-		return true;
+		AvailablePower = true;
 	}
-
-	UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
-	bool HasPowerSource = false;
-	
-	for (int32 ComponentIndex = 0; ComponentIndex < Data->Components.Num(); ComponentIndex++)
+	else
 	{
-		FFlareSpacecraftComponentSave* ComponentData = &Data->Components[ComponentIndex];
+		UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
+		bool HasPowerSource = false;
 
-		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
-
-		FFlareSpacecraftSlotDescription* SlotDescription = NULL;
-
-		// Find InternalComponentSlot
-		for (int32 SlotIndex = 0; SlotIndex < Spacecraft->GetDescription()->InternalComponentSlots.Num(); SlotIndex ++)
+		for (int32 ComponentIndex = 0; ComponentIndex < Data->Components.Num(); ComponentIndex++)
 		{
-			if (Spacecraft->GetDescription()->InternalComponentSlots[SlotIndex].SlotIdentifier == ComponentData->ShipSlotIdentifier)
+			FFlareSpacecraftComponentSave* ComponentData = &Data->Components[ComponentIndex];
+
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+			FFlareSpacecraftSlotDescription* SlotDescription = NULL;
+
+			// Find InternalComponentSlot
+			for (int32 SlotIndex = 0; SlotIndex < Spacecraft->GetDescription()->InternalComponentSlots.Num(); SlotIndex ++)
 			{
-				SlotDescription = &Spacecraft->GetDescription()->InternalComponentSlots[SlotIndex];
-				break;
+				if (Spacecraft->GetDescription()->InternalComponentSlots[SlotIndex].SlotIdentifier == ComponentData->ShipSlotIdentifier)
+				{
+					SlotDescription = &Spacecraft->GetDescription()->InternalComponentSlots[SlotIndex];
+					break;
+				}
+			}
+
+			if (!SlotDescription)
+			{
+				continue;
+			}
+
+			if(ComponentToPowerData == ComponentData  &&
+					(ComponentDescription->GeneralCharacteristics.ElectricSystem || ComponentDescription->GeneralCharacteristics.LifeSupport))
+			{
+				HasPowerSource = true;
+				AvailablePower = true;
+			}
+
+			if (ComponentDescription->GeneralCharacteristics.ElectricSystem &&
+					SlotDescription->PoweredComponents.Contains(ComponentToPowerData->ShipSlotIdentifier) )
+			{
+				HasPowerSource = true;
+				if (GetUsableRatio(ComponentDescription, ComponentData) > 0) {
+					AvailablePower = true;
+					break;
+				}
 			}
 		}
 
-		if (!SlotDescription)
+		if (!HasPowerSource)
 		{
-			continue;
-		}
-
-		if(ComponentToPowerData == ComponentData  && ComponentDescription->GeneralCharacteristics.ElectricSystem)
-		{
-			return true;
-		}
-
-		if (ComponentDescription->GeneralCharacteristics.ElectricSystem &&
-				SlotDescription->PoweredComponents.Contains(ComponentToPowerData->ShipSlotIdentifier) )
-		{
-			if (GetUsableRatio(ComponentDescription, ComponentData) > 0) {
-				return true;
-			}
-			HasPowerSource = true;
+			FLOGV("Warning: %s : %s has no power source", *Spacecraft->GetImmatriculation().ToString(),
+				  *ComponentToPowerData->ShipSlotIdentifier.ToString());
 		}
 	}
 
-	if (!HasPowerSource)
-	{
-		FLOGV("Warning: %s : %s has no power source", *Spacecraft->GetImmatriculation().ToString(),
-			  *ComponentToPowerData->ShipSlotIdentifier.ToString());
-	}
-
-	return false;
+	ComponentToPowerData->IsPoweredCacheIndex = IsPoweredCacheIndex;
+	ComponentToPowerData->IsPoweredCache = AvailablePower;
 }
 
 FText UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(EFlareSubsystem::Type SubsystemType)

@@ -171,24 +171,6 @@ void UFlareSpacecraftDamageSystem::Start()
 	// Reload components
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
-	// Fill power sources
-	TArray<UFlareSpacecraftComponent*> PowerSources;
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		if (Component->IsGenerator())
-		{
-			PowerSources.Add(Component);
-		}
-	}
-
-	// Second pass, update component power sources and update power
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		Component->UpdatePowerSources(&PowerSources);
-	}
-	UpdatePower();
 	Parent->TickSystem();
 
 	// Init alive status
@@ -207,7 +189,7 @@ void UFlareSpacecraftDamageSystem::UpdatePower()
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		Component->UpdatePower();
+		Component->UpdateLight();
 	}
 }
 

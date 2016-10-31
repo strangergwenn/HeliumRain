@@ -241,7 +241,6 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 				UpdateTarget(DeltaSeconds);
 				UpdateInfo(DeltaSeconds);
 				UpdateTemperature(DeltaSeconds);
-				UpdatePower(DeltaSeconds);
 			}
 		}
 	}

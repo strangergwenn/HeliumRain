@@ -1178,8 +1178,6 @@ void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation, bool TellUser)
 				EFlareNotification::NT_Info);
 		}
 	}
-
-	DamageSystem->UpdatePower();
 }
 
 void AFlareSpacecraft::OnUndocked(AFlareSpacecraft* DockStation)

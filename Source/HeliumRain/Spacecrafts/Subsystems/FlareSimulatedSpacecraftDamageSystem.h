@@ -96,6 +96,11 @@ public:
 							  FFlareSpacecraftComponentSave* ComponentData,
 							  float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
 	
+	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
+
+	void SetPowerDirty();
+	void SetDamageDirty(FFlareSpacecraftComponentDescription* ComponentDescription);
+	void SetAmmoDirty();
 
 protected:
 
@@ -110,11 +115,11 @@ protected:
 	// Update health values
 	void UpdateSubsystemsHealth();
 
+	void UpdatePower(FFlareSpacecraftComponentSave* ComponentToPowerData);
+
+
 	// Update health values
 	float GetSubsystemHealthInternal(EFlareSubsystem::Type Type) const;
-	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
-
-
 
 	/*----------------------------------------------------
 		Protected data
@@ -125,11 +130,14 @@ protected:
 	FFlareSpacecraftDescription*                    Description;
 
 	TArray<float>                                   SubsystemHealth;
-
-public:
+	int64                                           IsPoweredCacheIndex;
 
 	bool                                            DamageDirty;
 	bool                                            AmmoDirty;
+
+public:
+
+
 
 	/*----------------------------------------------------
 		Getters
