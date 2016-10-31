@@ -843,6 +843,7 @@ void AFlareHUD::DrawHUDInternal()
 			if (PC->LineOfSightTo(Spacecraft))
 			{
 				ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
+				DrawDockingHelper(Spacecraft);
 			}
 			else
 			{
@@ -1213,6 +1214,145 @@ FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float Desig
 
 	return Position + DesignatorIconSize * FVector2D(1, 0);
 }
+
+void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
+{
+	int32 DockingIconSize = 128;
+	int32 DockingRoolIconSize = 32;
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	if (!HUDVisible || PC->GetShipPawn()->GetStateManager()->IsExternalCamera())
+	{
+		 return;
+	}
+
+	if (!Spacecraft->IsStation())
+	{
+		return;
+	}
+
+	if (!Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	{
+		return;
+	}
+
+	if (Spacecraft->GetCompany()->GetPlayerWarState() == EFlareHostility::Hostile)
+	{
+		 return;
+	}
+
+
+	// Calculation data
+
+
+	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
+	FVector TargetLocation = Spacecraft->GetActorLocation();
+	float Distance = (TargetLocation - PlayerLocation).Size();
+
+
+	if (Distance > 100000)
+	{
+		// Too far
+		return;
+	}
+
+	for(int32 DockingPortIndex = 0; DockingPortIndex < Spacecraft->GetDockingSystem()->GetDockCount(); DockingPortIndex++)
+	{
+		FFlareDockingInfo DockingPort = Spacecraft->GetDockingSystem()->GetDockInfo(DockingPortIndex);
+
+
+		if (DockingPort.DockSize != PC->GetShipPawn()->GetSize())
+		{
+			// Not compatible
+			continue;
+		}
+
+
+		FVector CameraLocation = PC->GetShipPawn()->Airframe->GetSocketLocation(FName("Camera"));
+
+		FFlareDockingParameters DockingParameters = PC->GetShipPawn()->GetNavigationSystem()->GetDockingParameters(DockingPort, CameraLocation);
+
+		if (DockingParameters.DockingPhase == EFlareDockingPhase::Docked)
+		{
+			// Docked
+			continue;
+		}
+
+		struct FVector DockingPortLocation = DockingParameters.StationDockLocation;
+
+		FVector2D DockingPortScreenPosition;
+		FVector2D CameraTargetScreenPosition;
+
+
+
+		if (ProjectWorldLocationToCockpit(DockingPortLocation, DockingPortScreenPosition))
+		{
+			FLinearColor Color = (DockingParameters.DockingPhase == EFlareDockingPhase::Locked ? HudColorNeutral : HudColorFriendly);
+			DrawHUDIcon(DockingPortScreenPosition, IconSize, HUDAimHelperIcon, Color, true);
+		}
+
+		if (DockingParameters.DockingPhase == EFlareDockingPhase::Locked || DockingParameters.DockingPhase == EFlareDockingPhase::Distant)
+		{
+			// Locked or rendez-vous
+			continue;
+		}
+
+		if (ProjectWorldLocationToCockpit(DockingParameters.ShipCameraTargetLocation, CameraTargetScreenPosition))
+		{
+			DrawHUDIcon(CameraTargetScreenPosition, DockingIconSize, HUDDockingCircleTexture, HudColorObjective, true);
+
+
+			// Distance display
+			float DockDistance = DockingParameters.DockToDockDistance / 100;
+
+			FString TimeText = FString::FromInt(DockDistance) + FString(".") + FString::FromInt( (DockDistance - (int) DockDistance ) *10) + FString(" m");
+			FVector2D TimePosition = CameraTargetScreenPosition - CurrentViewportSize / 2 + FVector2D(0,85);
+			FlareDrawText(TimeText, TimePosition, HudColorObjective);
+
+
+			FVector2D CameraTargetDockDirectionScreenPosition;
+			FVector CameraTargetDockDirectionLocation =
+					DockingParameters.ShipCameraTargetLocation + (DockingPortLocation - DockingParameters.ShipCameraTargetLocation) * 0.01;
+			if (ProjectWorldLocationToCockpit(CameraTargetDockDirectionLocation, CameraTargetDockDirectionScreenPosition))
+			{
+				FVector2D DockAxis = (CameraTargetScreenPosition - CameraTargetDockDirectionScreenPosition).GetSafeNormal();
+
+				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 82;
+				FVector2D ShipTopPosition = CameraTargetScreenPosition +  FVector2D(0,-70);
+				float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) - 90;
+
+				// Top icon
+				DrawHUDIconRotated(TopPosition, DockingRoolIconSize, HUDCombatMouseIcon, HudColorObjective, Rotation);
+				DrawHUDIconRotated(ShipTopPosition, DockingRoolIconSize, HUDCombatMouseIcon, HudColorObjective, -90.f);
+			}
+
+			FVector2D AlignementScreenPosition;
+			FVector AlignementLocation =
+					DockingParameters.ShipCameraTargetLocation + DockingParameters.StationDockAxis * 5.0f;
+			if (ProjectWorldLocationToCockpit(AlignementLocation, AlignementScreenPosition))
+			{
+				FVector2D Alignement = CameraTargetScreenPosition +
+						(AlignementScreenPosition - CameraTargetScreenPosition) * 100;
+
+
+				DrawHUDIcon(Alignement, DockingIconSize, HUDDockingAxisTexture, HudColorObjective, true);
+			}
+
+			if (!PC->GetShipPawn()->GetNavigationSystem()->IsAutoPilot()
+					&& (DockingParameters.DockingPhase == EFlareDockingPhase::Dockable ||
+					DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach ||
+					DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
+					&& DockingParameters.DockToDockDistance < (PC->GetShipPawn()->GetSize() == EFlarePartSize::S ? 300: 1000))
+			{
+				PC->GetShipPawn()->GetNavigationSystem()->DockAt(Spacecraft);
+			}
+
+		}
+
+	}
+}
+
 
 void AFlareHUD::DrawHUDIcon(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, bool Center)
 {

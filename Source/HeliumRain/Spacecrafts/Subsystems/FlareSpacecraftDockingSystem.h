@@ -16,6 +16,7 @@ struct FFlareDockingInfo
 	AFlareSpacecraft*         Ship;
 
 	FVector                   LocalAxis;
+	FVector                   LocalTopAxis;
 	FVector                   LocalLocation;
 
 	FFlareDockingInfo()

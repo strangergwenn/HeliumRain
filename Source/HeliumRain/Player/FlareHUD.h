@@ -159,6 +159,9 @@ protected:
 	/** Draw a status block for the ship */
 	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
 
+	/** Draw a docking helper around a station */
+	void DrawDockingHelper(AFlareSpacecraft* Spacecraft);
+
 	/** Draw a status icon */
 	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, UTexture2D* Texture);
 
