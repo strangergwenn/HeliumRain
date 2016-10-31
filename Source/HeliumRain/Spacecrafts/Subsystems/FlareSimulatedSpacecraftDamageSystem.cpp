@@ -531,18 +531,16 @@ float UFlareSimulatedSpacecraftDamageSystem::GetSubsystemHealthInternal(EFlareSu
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const
 {
-	auto CachedResult = PoweredComponents.Find(ComponentToPowerData->ShipSlotIdentifier);
-	if (CachedResult)
+	SCOPE_CYCLE_COUNTER(STAT_FlareSimulatedDamageSystem_IsPowered);
+
+	if (Spacecraft->IsStation())
 	{
-		return *CachedResult;
-	}
-	else
-	{
-		FLOGV("Warning : no power data for '%s'", *ComponentToPowerData->ShipSlotIdentifier.ToString());
 		return true;
 	}
-}
 
+	UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
+	bool HasPowerSource = false;
+	
 	for (int32 ComponentIndex = 0; ComponentIndex < Data->Components.Num(); ComponentIndex++)
 	{
 		FFlareSpacecraftComponentSave* ComponentData = &Data->Components[ComponentIndex];
