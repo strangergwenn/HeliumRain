@@ -241,6 +241,7 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 				UpdateTarget(DeltaSeconds);
 				UpdateInfo(DeltaSeconds);
 				UpdateTemperature(DeltaSeconds);
+				UpdatePower(DeltaSeconds);
 			}
 		}
 	}
@@ -506,7 +507,7 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 	float PowerAlpha = CockpitPowerTime / CockpitPowerPeriod;
 
 	// Update lights
-	float Intensity = 20 + PowerAlpha * 200;
+	float Intensity = 10 + PowerAlpha * 50;
 	CockpitLight->SetIntensity(Intensity);
 	CockpitLight2->SetIntensity(Intensity);
 
