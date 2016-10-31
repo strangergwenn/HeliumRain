@@ -1246,7 +1246,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 	float Distance = (TargetLocation - PlayerLocation).Size();
 
 	// Too far
-	if (Distance > 100000)
+	if (Distance > 40000)
 	{
 		return;
 	}
@@ -1267,6 +1267,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 
 		FVector CameraLocation = PC->GetShipPawn()->Airframe->GetSocketLocation(FName("Camera"));
 		FFlareDockingParameters DockingParameters = PC->GetShipPawn()->GetNavigationSystem()->GetDockingParameters(DockingPort, CameraLocation);
+		struct FVector DockingPortLocation = DockingParameters.StationDockLocation;
 
 		// Docked
 		if (DockingParameters.DockingPhase == EFlareDockingPhase::Docked)
@@ -1274,25 +1275,16 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 			continue;
 		}
 
-		struct FVector DockingPortLocation = DockingParameters.StationDockLocation;
-		FVector2D DockingPortScreenPosition;
-		FVector2D CameraTargetScreenPosition;
-		
-		if (ProjectWorldLocationToCockpit(DockingPortLocation, DockingPortScreenPosition))
-		{
-			FLinearColor Color = (DockingParameters.DockingPhase == EFlareDockingPhase::Locked ? HudColorNeutral : HudColorFriendly);
-			DrawHUDIcon(DockingPortScreenPosition, IconSize, HUDAimHelperIcon, Color, true);
-		}
-
 		// Locked or rendez-vous
-		if (DockingParameters.DockingPhase == EFlareDockingPhase::Locked || DockingParameters.DockingPhase == EFlareDockingPhase::Distant)
+		else if (DockingParameters.DockingPhase == EFlareDockingPhase::Locked || DockingParameters.DockingPhase == EFlareDockingPhase::Distant)
 		{
 			continue;
 		}
 
+		FVector2D CameraTargetScreenPosition;
 		if (ProjectWorldLocationToCockpit(DockingParameters.ShipCameraTargetLocation, CameraTargetScreenPosition))
 		{
-			FLinearColor HelperColor = HudColorFriendly;
+			FLinearColor HelperColor = HudColorEnemy;
 			DrawHUDIcon(CameraTargetScreenPosition, DockingIconSize, HUDDockingCircleTexture, HelperColor, true);
 			
 			// Distance display
