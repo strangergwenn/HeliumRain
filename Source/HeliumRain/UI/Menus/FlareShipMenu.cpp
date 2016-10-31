@@ -1011,6 +1011,7 @@ void SFlareShipMenu::OnPartConfirmed()
 		{
 			TargetSpacecraftData->Components[i].ComponentIdentifier = NewPartDesc->Identifier;
 			TargetSpacecraftData->Components[i].Weapon.FiredAmmo = 0;
+			TargetSpacecraft-> GetDamageSystem()->DamageDirty = true;
 		}
 	}
 		

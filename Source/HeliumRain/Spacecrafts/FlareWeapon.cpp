@@ -173,6 +173,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 
 	// Update data
 	ShipComponentData->Weapon.FiredAmmo++;
+	Spacecraft->GetParent()->GetDamageSystem()->AmmoDirty = true;
 	return true;
 }
 
@@ -191,6 +192,7 @@ bool UFlareWeapon::FireBomb()
 	{
 		Bomb->OnLaunched();
 		ShipComponentData->Weapon.FiredAmmo++;
+		Spacecraft->GetParent()->GetDamageSystem()->AmmoDirty = true;
 	}
 	return true;
 }
