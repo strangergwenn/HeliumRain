@@ -23,8 +23,6 @@ public:
 
 	void SetScreenPercentage(int32 NewScreenPercentage);
 
-	void SetMotionBlurEnabled(bool NewUseMotionBlur);
-
 
 	/*----------------------------------------------------
 		Public data
@@ -37,6 +35,10 @@ public:
 	/** Whether to use motion blur */
 	UPROPERTY(Config)
 	bool                                     UseMotionBlur;
+
+	/** Whether to use Temporal AA */
+	UPROPERTY(Config)
+	bool                                     UseTemporalAA;
 		
 	/** Whether to use the 3D cockpit */
 	UPROPERTY(Config)

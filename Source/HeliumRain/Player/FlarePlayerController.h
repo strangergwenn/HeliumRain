@@ -379,12 +379,17 @@ public:
 	/** Whether to use motion blur */
 	bool                                     UseMotionBlur;
 
+	/** Whether to use temporal AA */
+	bool                                     UseTemporalAA;
+
 	/** Whether to pause the game in menus */
 	bool                                     PauseGameInMenus;
 	
 	void SetUseCockpit(bool New);
 
 	void SetUseMotionBlur(bool New);
+
+	void SetUseTemporalAA(bool New);
 
 	void SetPauseGameInMenus(bool New);
 

@@ -20,6 +20,12 @@ void UFlareGameUserSettings::SetToDefaults()
 
 	ScreenPercentage = 100;
 
+#if LINUX
+	UseTemporalAA = false;
+#else
+	UseTemporalAA = true;
+#endif
+
 	UseMotionBlur = true;
 	UseCockpit = true;
 	PauseGameInMenus = false;
@@ -44,10 +50,4 @@ void UFlareGameUserSettings::SetScreenPercentage(int32 NewScreenPercentage)
 
 	auto ScreenPercentageCVar = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ScreenPercentage"));
 	ScreenPercentageCVar->Set(ScreenPercentage, ECVF_SetByGameSetting);
-}
-
-void UFlareGameUserSettings::SetMotionBlurEnabled(bool NewUseMotionBlur)
-{
-	FLOGV("UFlareGameUserSettings::SetMotionBlurEnabled %d", NewUseMotionBlur);
-	UseMotionBlur = NewUseMotionBlur;
 }

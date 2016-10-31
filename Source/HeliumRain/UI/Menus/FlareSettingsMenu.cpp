@@ -128,6 +128,40 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
 						]
+					]
+					
+
+					// Buttons 2
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SNew(SHorizontalBox)
+
+						// Motion blur
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(MotionBlurButton, SFlareButton)
+							.Text(LOCTEXT("MotionBlur", "Use motion blur"))
+							.HelpText(LOCTEXT("MotionBlurInfo", "Motion blur makes the game feel much more responsive and fluid."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnMotionBlurToggle)
+						]
+
+						// Temporal AA
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(TemporalAAButton, SFlareButton)
+							.Text(LOCTEXT("TemporalAA", "Use Temporal AA"))
+							.HelpText(LOCTEXT("TemporalAAInfo", "Temporal Anti-Aliasing is a cleaner AA method, but might create ghosting artifacts on some computers."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnTemporalAAToggle)
+						]
 
 						// Supersampling
 						+ SHorizontalBox::Slot()
@@ -367,18 +401,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
 						]
-
-						// Motion Blur
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(MotionBlurButton, SFlareButton)
-							.Text(LOCTEXT("MotionBlur", "Use motion blur"))
-							.HelpText(LOCTEXT("MotionBlurInfo", "Motion blur makes the game feel much more responsive and fluid."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnMotionBlurToggle)
-						]
 					
 						// Pause in menus
 						+ SHorizontalBox::Slot()
@@ -532,6 +554,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	// Default settings
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	MotionBlurButton->SetActive(MyGameSettings->UseMotionBlur);
+	TemporalAAButton->SetActive(MyGameSettings->UseTemporalAA);
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
@@ -1083,7 +1106,25 @@ void SFlareSettingsMenu::OnMotionBlurToggle()
 	MenuManager->GetPC()->SetUseMotionBlur(MotionBlurButton->IsActive());
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->SetMotionBlurEnabled(MotionBlurButton->IsActive());
+	MyGameSettings->UseMotionBlur = MotionBlurButton->IsActive();
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnTemporalAAToggle()
+{
+	if (TemporalAAButton->IsActive())
+	{
+		FLOG("SFlareSettingsMenu::OnTemporalAAToggle : Enable TAA")
+	}
+	else
+	{
+		FLOG("SFlareSettingsMenu::OnTemporalAAToggle : Enable FXAA")
+	}
+
+	MenuManager->GetPC()->SetUseTemporalAA(TemporalAAButton->IsActive());
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseTemporalAA = TemporalAAButton->IsActive();
 	MyGameSettings->ApplySettings(false);
 }
 

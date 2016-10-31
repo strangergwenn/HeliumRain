@@ -127,6 +127,8 @@ protected:
 
 	void OnMotionBlurToggle();
 
+	void OnTemporalAAToggle();
+
 	void OnSupersamplingToggle();
 		
 	void OnCockpitToggle();
@@ -173,6 +175,7 @@ protected:
 	TSharedPtr<SFlareButton>                    FullscreenButton;
 	TSharedPtr<SFlareButton>                    VSyncButton;
 	TSharedPtr<SFlareButton>                    MotionBlurButton;
+	TSharedPtr<SFlareButton>                    TemporalAAButton;
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;
