@@ -12,6 +12,11 @@
 #include "../Game/FlareGame.h"
 #include "../Game/AI/FlareCompanyAI.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot Tick"), STAT_FlareTurretPilot_Tick, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot Tick Target"), STAT_FlareTurretPilot_Target, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot Tick Intersect"), STAT_FlareTurretPilot_Intersect, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot GetNearestHostileShip"), STAT_FlareTurretPilot_GetNearestHostileShip, STATGROUP_Flare);
+
 
 /*----------------------------------------------------
 	Constructor
@@ -46,6 +51,8 @@ void UFlareTurretPilot::Initialize(const FFlareTurretPilotSave* Data, UFlareComp
 
 void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Tick);
+
 	/*if (TimeUntilNextReaction > 0)
 	{
 		TimeUntilNextReaction -= DeltaSeconds;
@@ -82,11 +89,11 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 	PilotTargetShip = GetNearestHostileShip(true, Tactic);
 
-	if(Turret->GetWeaponGroup()->Target)
+	if (Turret->GetWeaponGroup()->Target)
 	{
+		SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Target);
 
 		AFlareSpacecraft* TargetCandidate = Turret->GetWeaponGroup()->Target;
-
 
 		if(!TargetCandidate->GetParent()->GetDamageSystem()->IsAlive())
 		{
@@ -190,6 +197,8 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 		if (AmmoIntersectionPredictedTime > 0 && AmmoIntersectionPredictedTime < 10.f)
 		{
+			SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Intersect);
+
 			//FLOG("Near enough");
 			FVector FireAxis = Turret->GetFireAxis();
 
@@ -250,6 +259,8 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_GetNearestHostileShip);
+
 	// For now an host ship is a the nearest host ship with the following critera:
 	// - Alive
 	// - Is dangerous if needed

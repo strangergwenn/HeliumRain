@@ -5,13 +5,12 @@
 #include "FlareShell.h"
 #include "FlareSpacecraftSubComponent.h"
 
-DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Tick"), STAT_FlareTurret_Tick, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Update"), STAT_FlareTurret_Update, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Pilot"), STAT_FlareTurret_Pilot, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft IsSafeToFire"), STAT_FlareTurret_IsSafeToFire, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Trace"), STAT_FlareTurret_Trace, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft IsReacheableAxis"), STAT_FlareTurret_IsReacheableAxis, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft GetMinLimitAtAngle"), STAT_FlareTurret_GetMinLimitAtAngle, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurret Tick"), STAT_FlareTurret_Tick, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurret Update"), STAT_FlareTurret_Update, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurret IsSafeToFire"), STAT_FlareTurret_IsSafeToFire, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurret Trace"), STAT_FlareTurret_Trace, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurret IsReacheableAxis"), STAT_FlareTurret_IsReacheableAxis, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurret GetMinLimitAtAngle"), STAT_FlareTurret_GetMinLimitAtAngle, STATGROUP_Flare);
 
 
 /*----------------------------------------------------
@@ -154,8 +153,6 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && Pilot)
 	{
-		SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Pilot);
-
 		Pilot->TickPilot(DeltaTime);
 		//FLOGV("Pilot exist WantFire %d", Pilot->IsWantFire());
 		if (Pilot->IsWantFire())

@@ -9,6 +9,9 @@
 #include "FlareShipPilot.h"
 #include "FlareSpacecraft.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareStateManager Tick"), STAT_FlareStateManager_Tick, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareStateManager Camera"), STAT_FlareStateManager_Camera, STATGROUP_Flare);
+
 
 /*----------------------------------------------------
 	Constructor
@@ -63,6 +66,8 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareStateManager_Tick);
+
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	EFlareWeaponGroupType::Type CurrentWeaponType = Spacecraft->GetWeaponsSystem()->GetActiveWeaponType();
 	float MaxVelocity = Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
@@ -208,6 +213,8 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 
 void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareStateManager_Camera);
+
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	if (Spacecraft->IsFlownByPlayer() && PC)
 	{
