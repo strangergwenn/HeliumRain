@@ -507,7 +507,7 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 	float PowerAlpha = CockpitPowerTime / CockpitPowerPeriod;
 
 	// Update lights
-	float Intensity = PowerAlpha * 10;
+	float Intensity = PowerAlpha * 50;
 	CockpitLight->SetIntensity(Intensity);
 	CockpitLight2->SetIntensity(Intensity);
 
