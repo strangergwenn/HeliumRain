@@ -31,6 +31,7 @@ AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	// Camera component 
 	Camera = PCIP.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Camera"));
 	Camera->AttachToComponent(CameraContainerPitch, AttachRules);
+	MeshScaleCache = -1;
 }
 
 
@@ -155,9 +156,13 @@ AFlareGame* AFlareSpacecraftPawn::GetGame() const
 
 float AFlareSpacecraftPawn::GetMeshScale() const
 {
-	// TODO check diameter/radius usage
-	FBox Box = GetComponentsBoundingBox();
-	return FMath::Max(Box.GetExtent().Size(), 1.0f);
+	if(MeshScaleCache < 0)
+	{
+		FBox Box = GetComponentsBoundingBox();
+		AFlareSpacecraftPawn* UnprotectedThis = const_cast<AFlareSpacecraftPawn*>(this);
+		UnprotectedThis->MeshScaleCache = FMath::Max(Box.GetExtent().Size(), 1.0f);
+	}
+	return MeshScaleCache;
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -15,6 +15,8 @@
 DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot Tick"), STAT_FlareTurretPilot_Tick, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot Tick Target"), STAT_FlareTurretPilot_Target, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot Tick Intersect"), STAT_FlareTurretPilot_Intersect, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot Tick Intersect Gun"), STAT_FlareTurretPilot_Intersect_Gun, STATGROUP_Flare);
+
 DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot GetNearestHostileShip"), STAT_FlareTurretPilot_GetNearestHostileShip, STATGROUP_Flare);
 
 
@@ -25,8 +27,11 @@ DECLARE_CYCLE_STAT(TEXT("FlareTurretPilot GetNearestHostileShip"), STAT_FlareTur
 UFlareTurretPilot::UFlareTurretPilot(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-	ReactionTime = FMath::FRandRange(0.005, 0.01);
-	TimeUntilNextReaction = 0;
+	TargetSelectionReactionTime = FMath::FRandRange(1.0, 1.5);
+	TimeUntilNextTargetSelectionReaction = 0;
+
+	FireReactionTime = FMath::FRandRange(0.1, 0.2);
+	TimeUntilFireReaction = 0;
 	PilotTargetShip = NULL;
 }
 
@@ -41,6 +46,7 @@ void UFlareTurretPilot::Initialize(const FFlareTurretPilotSave* Data, UFlareComp
 	// Main data
 	Turret = OwnerTurret;
 	PlayerCompany = Company;
+	WantFire = false;
 
 	// Setup properties
 	if (Data)
@@ -53,70 +59,14 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Tick);
 
-	/*if (TimeUntilNextReaction > 0)
-	{
-		TimeUntilNextReaction -= DeltaSeconds;
-		return;
-	}
-	else
-	{
-		TimeUntilNextReaction = ReactionTime;
-	}*/
+	TimeUntilNextTargetSelectionReaction -=DeltaSeconds;
+	TimeUntilFireReaction -=DeltaSeconds;
+	TimeUntilNextComponentSwitch-=DeltaSeconds;
 
+
+	ProcessTurretTargetSelection();
 
 	AimAxis = FVector::ZeroVector;
-	WantFire = false;
-
-
-	AFlareSpacecraft* OldPilotTargetShip = PilotTargetShip;
-
-	FVector TurretLocation = Turret->GetTurretBaseLocation();
-
-	EFlarePartSize::Type PreferredShipSize;
-	EFlarePartSize::Type SecondaryShipSize;
-	if (Turret->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
-	{
-		PreferredShipSize = EFlarePartSize::L;
-		SecondaryShipSize = EFlarePartSize::S;
-	}
-	else
-	{
-		PreferredShipSize = EFlarePartSize::S;
-		SecondaryShipSize = EFlarePartSize::L;
-	}
-
-	EFlareCombatTactic::Type Tactic = Turret->GetSpacecraft()->GetParent()->GetCompany()->GetTacticManager()->GetCurrentTacticForShipGroup(EFlareCombatGroup::Capitals);
-
-	PilotTargetShip = GetNearestHostileShip(true, Tactic);
-
-	if (Turret->GetWeaponGroup()->Target)
-	{
-		SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Target);
-
-		AFlareSpacecraft* TargetCandidate = Turret->GetWeaponGroup()->Target;
-
-		if(!TargetCandidate->GetParent()->GetDamageSystem()->IsAlive())
-		{
-			Turret->GetWeaponGroup()->Target = NULL;
-		}
-		else
-		{
-			FVector TargetAxis = (TargetCandidate->GetActorLocation()- Turret->GetTurretBaseLocation()).GetUnsafeNormal();
-			if(Turret->IsReacheableAxis(TargetAxis))
-			{
-				PilotTargetShip = TargetCandidate;
-			}
-		}
-	}
-
-	if (!PilotTargetShip)
-	{
-		PilotTargetShip = GetNearestHostileShip(false, Tactic);
-	}
-
-
-	//TimeUntilNextComponentSwitch-=ReactionTime; // TODO restore if reaction time is restored
-	TimeUntilNextComponentSwitch-=DeltaSeconds;
 
 	if (PilotTargetShip)
 	{
@@ -164,7 +114,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 		FVector AmmoIntersectionPredictedLocation;
 
-
+		FVector TurretLocation = Turret->GetTurretBaseLocation();
 
 		float AmmoIntersectionPredictedTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), TurretLocation, TurretVelocity, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
 		FVector PredictedFireTargetLocation;
@@ -176,6 +126,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		{
 			PredictedFireTargetLocation = PilotTargetComponent->GetComponentLocation();
 		}
+
 
 
 		AimAxis = (PredictedFireTargetLocation - TurretLocation).GetUnsafeNormal();
@@ -195,9 +146,12 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		// TODO increase tolerance if target is near
 
 
-		if (AmmoIntersectionPredictedTime > 0 && AmmoIntersectionPredictedTime < 10.f)
+		if (AmmoIntersectionPredictedTime > 0 && AmmoIntersectionPredictedTime < 10.f && TimeUntilFireReaction < 0)
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Intersect);
+
+			TimeUntilFireReaction = FireReactionTime;
+			WantFire = false;
 
 			//FLOG("Near enough");
 			FVector FireAxis = Turret->GetFireAxis();
@@ -205,6 +159,8 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 			for (int GunIndex = 0; GunIndex < Turret->GetGunCount(); GunIndex++)
 			{
+				SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Intersect_Gun);
+
 				FVector MuzzleLocation = Turret->GetMuzzleLocation(GunIndex);
 
 				// Compute target Axis for each gun
@@ -243,19 +199,80 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				}
 			}
 		}
-
-		if (Turret->GetSpacecraft()->GetParent()->GetDamageSystem()->GetTemperature() > Turret->GetSpacecraft()->GetParent()->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
-		{
-			// TODO Fire on dangerous target
-			WantFire = false;
-			/*FLOG("Want Fire but too hot");*/
-		}
+	}
+	else
+	{
+		WantFire = false;
 	}
 }
 
 /*----------------------------------------------------
 	Helpers
 ----------------------------------------------------*/
+
+
+void UFlareTurretPilot::ProcessTurretTargetSelection()
+{
+
+	if (TimeUntilNextTargetSelectionReaction > 0)
+	{
+		if(PilotTargetShip && !PilotTargetShip->GetParent()->GetDamageSystem()->IsAlive())
+		{
+			PilotTargetShip = NULL;
+		}
+
+		return;
+	}
+	else
+	{
+		TimeUntilNextTargetSelectionReaction = TargetSelectionReactionTime;
+	}
+
+
+	AFlareSpacecraft* OldPilotTargetShip = PilotTargetShip;
+
+	EFlarePartSize::Type PreferredShipSize;
+	EFlarePartSize::Type SecondaryShipSize;
+	if (Turret->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
+	{
+		PreferredShipSize = EFlarePartSize::L;
+		SecondaryShipSize = EFlarePartSize::S;
+	}
+	else
+	{
+		PreferredShipSize = EFlarePartSize::S;
+		SecondaryShipSize = EFlarePartSize::L;
+	}
+
+	EFlareCombatTactic::Type Tactic = Turret->GetSpacecraft()->GetParent()->GetCompany()->GetTacticManager()->GetCurrentTacticForShipGroup(EFlareCombatGroup::Capitals);
+
+	PilotTargetShip = GetNearestHostileShip(true, Tactic);
+
+	if (Turret->GetWeaponGroup()->Target)
+	{
+		SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Target);
+
+		AFlareSpacecraft* TargetCandidate = Turret->GetWeaponGroup()->Target;
+
+		if(!TargetCandidate->GetParent()->GetDamageSystem()->IsAlive())
+		{
+			Turret->GetWeaponGroup()->Target = NULL;
+		}
+		else
+		{
+			FVector TargetAxis = (TargetCandidate->GetActorLocation()- Turret->GetTurretBaseLocation()).GetUnsafeNormal();
+			if(Turret->IsReacheableAxis(TargetAxis))
+			{
+				PilotTargetShip = TargetCandidate;
+			}
+		}
+	}
+
+	if (!PilotTargetShip)
+	{
+		PilotTargetShip = GetNearestHostileShip(false, Tactic);
+	}
+}
 
 AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const
 {

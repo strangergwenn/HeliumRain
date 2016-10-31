@@ -9,8 +9,12 @@
 #include "FlarePilotHelper.h"
 
 
+DECLARE_CYCLE_STAT(TEXT("PilotHelper CheckFriendlyFire"), STAT_PilotHelper_CheckFriendlyFire, STATGROUP_Flare);
+
+
 bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompany, FVector FireBaseLocation, FVector FireBaseVelocity , float AmmoVelocity, FVector FireAxis, float MaxDelay, float AimRadius)
 {
+	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_CheckFriendlyFire);
 	//FLOG("CheckFriendlyFire");
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSpacecrafts().Num(); SpacecraftIndex++)
 	{
