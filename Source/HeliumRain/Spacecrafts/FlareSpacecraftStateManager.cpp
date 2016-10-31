@@ -74,7 +74,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
 	{
-		//Spacecraft->GetPilot()->TickPilot(DeltaSeconds);
+		Spacecraft->GetPilot()->TickPilot(DeltaSeconds);
 		int32 PreferedWeaponGroup = Spacecraft->GetPilot()->GetPreferedWeaponGroup();
 		if (PreferedWeaponGroup >= 0)
 		{
