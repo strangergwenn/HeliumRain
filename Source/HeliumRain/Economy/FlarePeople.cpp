@@ -442,11 +442,33 @@ void UFlarePeople::GiveBirth(uint32 BirthCount)
 	PeopleData.HappinessPoint += BirthCount * 100 * 2; // Birth happiness bonus
 }
 
+int32 UFlarePeople::GetBasePopulation()
+{
+	int32 BasePopulation = 0;
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Parent->GetSectorStations().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = Parent->GetSectorStations()[SpacecraftIndex];
+
+		if(Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		{
+			BasePopulation += 1000 * Station->GetLevel();
+		}
+		else
+		{
+			BasePopulation += 100 * Station->GetLevel();
+		}
+	}
+	return BasePopulation;
+}
+
 void UFlarePeople::KillPeople(uint32 KillCount)
 {
+	// Never kill people below the base population
 
-	uint32 PeopleToKill = FMath::Min(KillCount, PeopleData.Population);
-	if(PeopleToKill == 0)
+	int32 PeopleToKill = FMath::Min(KillCount, PeopleData.Population - GetBasePopulation());
+
+	if (PeopleToKill <= 0)
 	{
 		return;
 	}
@@ -471,6 +493,35 @@ void UFlarePeople::KillPeople(uint32 KillCount)
 	if(PeopleToKill == 0)
 	{
 		ResetPeople();
+	}
+}
+
+void UFlarePeople::Migrate(UFlareSimulatedSector* DestinationSector, int32 ShipCount)
+{
+	UFlarePeople* DestinationPeople = DestinationSector->GetPeople();
+
+	if (DestinationPeople->GetBasePopulation() == 0)
+	{
+		// Empty destination sector: no migration
+		return;
+	}
+
+	if (DestinationPeople->GetPopulation() == 0
+	 || (DestinationPeople->GetWealth() > GetWealth() &&
+			DestinationPeople->GetHappiness() > GetHappiness()))
+	{
+		// Migrate
+		int32 MigratingPopulation = FMath::Min(ShipCount * 10, (int32) PeopleData.Population / 2);
+
+		int32 MigratingHappiness = MigratingPopulation * GetHappiness();
+
+		PeopleData.HappinessPoint -= MigratingHappiness;
+		PeopleData.Population -= MigratingPopulation;
+
+		DestinationPeople->GetData()->Population += MigratingPopulation;
+		DestinationPeople->GetData()->HappinessPoint += MigratingHappiness;
+
+		FLOGV("Migration from %s to %s : %d people", *Parent->GetSectorName().ToString(), DestinationSector);
 	}
 }
 

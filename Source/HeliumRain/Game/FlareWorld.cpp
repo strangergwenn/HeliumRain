@@ -785,14 +785,14 @@ void UFlareWorld::SimulatePeopleMoneyMigration()
 			else if (PopulationA  == 0)
 			{
 				// Origin sector has no population so it leak it's money
-				uint32 TransfertA = SectorA->GetPeople()->GetMoney() / 10;
+				uint32 TransfertA = SectorA->GetPeople()->GetMoney() / 1000;
 				SectorA->GetPeople()->TakeMoney(TransfertA);
 				SectorB->GetPeople()->Pay(TransfertA);
 			}
 			else if (PopulationB  == 0)
 			{
 				// Destination sector has no population so it leak it's money
-				uint32 TransfertB = SectorB->GetPeople()->GetMoney() / 10;
+				uint32 TransfertB = SectorB->GetPeople()->GetMoney() / 1000;
 				SectorB->GetPeople()->TakeMoney(TransfertB);
 				SectorA->GetPeople()->Pay(TransfertB);
 			}

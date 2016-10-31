@@ -115,6 +115,10 @@ public:
 
 	void KillPeople(uint32 KillCount);
 
+	int32 GetBasePopulation();
+
+	void Migrate(UFlareSimulatedSector* DestinationSector, int32 ShipCount);
+
 	void IncreaseHappiness(uint32 HappinessPoints);
 
 	void DecreaseHappiness(uint32 SadnessPoints);
@@ -173,6 +177,12 @@ public:
 	{
 		return PeopleData.Population;
 	}
+
+	FFlarePeopleSave* GetData()
+	{
+		return &PeopleData;
+	}
+
 
 	float GetHappiness();
 
