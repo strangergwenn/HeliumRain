@@ -591,7 +591,7 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsPowered(FFlareSpacecraftComponentS
 
 void UFlareSimulatedSpacecraftDamageSystem::UpdatePower(FFlareSpacecraftComponentSave* ComponentToPowerData)
 {
-	bool AvailablePower = true;
+	bool AvailablePower = false;
 
 	if (Spacecraft->IsStation())
 	{
@@ -630,6 +630,7 @@ void UFlareSimulatedSpacecraftDamageSystem::UpdatePower(FFlareSpacecraftComponen
 			{
 				HasPowerSource = true;
 				AvailablePower = true;
+				break;
 			}
 
 			if (ComponentDescription->GeneralCharacteristics.ElectricSystem &&
