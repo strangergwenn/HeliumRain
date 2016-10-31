@@ -1223,19 +1223,13 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
 	// Reasons we might not draw
-	if (!HUDVisible || PC->GetShipPawn()->GetStateManager()->IsExternalCamera())
-	{
-		 return;
-	}
-	else if (!Spacecraft->IsStation())
-	{
-		return;
-	}
-	else if (!Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
-	{
-		return;
-	}
-	else if (Spacecraft->GetCompany()->GetPlayerWarState() == EFlareHostility::Hostile)
+	if (!HUDVisible
+	 || PC->GetShipPawn()->GetStateManager()->IsExternalCamera()
+	 || !Spacecraft->IsStation()
+	 || !Spacecraft->GetParent()->GetDamageSystem()->IsAlive()
+	 ||  Spacecraft->GetCompany()->GetPlayerWarState() == EFlareHostility::Hostile
+	 || !PC->GetShipPawn()->GetNavigationSystem()->IsManualPilot()
+	 ||  PC->GetShipPawn()->GetWeaponsSystem()->GetActiveWeaponGroupIndex() >= 0)
 	{
 		return;
 	}
@@ -1243,14 +1237,10 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 	// Calculation data
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = Spacecraft->GetActorLocation();
-	float Distance = (TargetLocation - PlayerLocation).Size();
 
 	// Too far
+	float Distance = (TargetLocation - PlayerLocation).Size();
 	if (Distance > 40000)
-	{
-		return;
-	}
-	else if (!PC->GetShipPawn()->GetNavigationSystem()->IsManualPilot())
 	{
 		return;
 	}
@@ -1301,7 +1291,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 			{
 				FVector2D DockAxis = (CameraTargetScreenPosition - CameraTargetDockDirectionScreenPosition).GetSafeNormal();
 
-				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 82;
+				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 52;
 				float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) - 90;
 
 				DrawHUDIconRotated(TopPosition, DockingRoolIconSize, HUDCombatMouseIcon, HelperColor, Rotation);
