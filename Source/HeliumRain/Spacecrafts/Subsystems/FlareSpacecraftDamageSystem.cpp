@@ -34,6 +34,8 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareDamageSystem_Tick);
 
+	Parent->TickSystem();
+
 	// Apply heat variation : add producted heat then substract radiated heat.
 
 	// Get the to heat production and heat sink surface
@@ -169,11 +171,11 @@ void UFlareSpacecraftDamageSystem::Start()
 	// Reload components
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
+	// Fill power sources
 	TArray<UFlareSpacecraftComponent*> PowerSources;
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		// Fill power sources
 		if (Component->IsGenerator())
 		{
 			PowerSources.Add(Component);
@@ -187,6 +189,7 @@ void UFlareSpacecraftDamageSystem::Start()
 		Component->UpdatePowerSources(&PowerSources);
 	}
 	UpdatePower();
+	Parent->TickSystem();
 
 	// Init alive status
 	WasControllable = !Parent->IsUncontrollable();

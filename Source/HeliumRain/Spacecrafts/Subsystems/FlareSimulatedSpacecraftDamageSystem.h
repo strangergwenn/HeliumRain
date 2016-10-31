@@ -17,6 +17,7 @@ namespace EFlareSubsystem
 		SYS_LifeSupport,
 		SYS_Power,
 		SYS_Weapon,
+		SYS_WeaponAndAmmo
 	};
 }
 
@@ -43,6 +44,9 @@ public:
 	/*----------------------------------------------------
 		System Interface
 	----------------------------------------------------*/
+
+	/** Update this system */
+	void TickSystem();
 
 	/** Is this ship alive and well ? */
 	virtual bool IsAlive() const;
@@ -73,7 +77,7 @@ public:
 	virtual float GetGlobalHealth();
 
 	/** Get the detailed health for this subsystem */
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithAmmo = false) const;
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type) const;
 
 	float GetWeaponGroupHealth(int32 GroupIndex, bool WithAmmo) const;
 
@@ -91,27 +95,40 @@ public:
 	virtual float ApplyDamage(FFlareSpacecraftComponentDescription* ComponentDescription,
 							  FFlareSpacecraftComponentSave* ComponentData,
 							  float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
-
+	
 
 protected:
 
-
+	/*----------------------------------------------------
+		Internals
+	----------------------------------------------------*/
 
 	float GetClampedUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
 																FFlareSpacecraftComponentSave* ComponentData) const;
 
+
+	// Update health values
+	void UpdateSubsystemsHealth();
+
+	// Update health values
+	float GetSubsystemHealthInternal(EFlareSubsystem::Type Type) const;
 	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
+
 
 
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
 
-	UFlareSimulatedSpacecraft*                               Spacecraft;
+	UFlareSimulatedSpacecraft*                      Spacecraft;
 	FFlareSpacecraftSave*                           Data;
 	FFlareSpacecraftDescription*                    Description;
 
+	TArray<float>                                   SubsystemHealth;
+
+
 public:
+
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
