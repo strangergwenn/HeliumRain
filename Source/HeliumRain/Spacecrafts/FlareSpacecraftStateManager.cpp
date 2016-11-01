@@ -574,7 +574,7 @@ bool UFlareSpacecraftStateManager::IsWantFire() const
 					return false;
 				case EFlareWeaponGroupType::WG_BOMB:
 				case EFlareWeaponGroupType::WG_GUN:
-					return PlayerLeftMousePressed || PlayerFiring;
+					return (PlayerLeftMousePressed || PlayerFiring) && !Spacecraft->GetPC()->GetMenuManager()->IsUIOpen();
 				default:
 					return false;
 			}
