@@ -437,9 +437,9 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY()
-	AFlareSpacecraftPawn*                         SpacecraftPawn;
+	AFlareSpacecraftPawn*                   SpacecraftPawn;
 
-	AFlareSpacecraft*	                          Spacecraft;
+	AFlareSpacecraft*	                    Spacecraft;
 
 	UPROPERTY()
 	UFlareCompany*                          PlayerCompany;
@@ -456,13 +456,15 @@ protected:
 	bool                                    LifeSupport;
 	float                                   Power; // Current available power
 	float                                   GeneratedPower; // Maximum generated power
-	TArray<UFlareSpacecraftComponent*>            PowerSources;
+	TArray<UFlareSpacecraftComponent*>      PowerSources;
+	float                                   PreviousHealthRatio;
 
 	// Heat state
 	float                                   HeatSinkSurface; // Maximum heat surface in m^2
 	float                                   HeatProduction; // Maxiumum heat production, in KW
 	bool                                    LocalHeatEffect; // Is component temperature vary localy
 	float                                   LocalTemperature;
+	int32                                   PreviousTemperatureKelvin;
 
 	// Light flickering state
 	bool                                    HasFlickeringLights;

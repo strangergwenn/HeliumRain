@@ -1492,6 +1492,8 @@ void UFlareGameTools::CreateQuickBattle(float Distance, FName Company1Name, FNam
 		return;
 	}
 
+	DeclareWar(Company1Name, Company2Name);
+
 	AFlarePlayerController* PC = GetPC();
 
 	AFlareSpacecraft* ExistingShipPawn = PC->GetShipPawn();

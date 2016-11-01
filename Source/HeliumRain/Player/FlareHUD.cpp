@@ -786,18 +786,20 @@ bool AFlareHUD::ShouldDrawHUD() const
 
 void AFlareHUD::DrawHUDInternal()
 {
-	// Initial data and checks
+	// Initial data
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
+	bool IsExternalCamera = PlayerShip->GetStateManager()->IsExternalCamera();
+	EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 
 	// Draw nose
-	if (HUDVisible && !PlayerShip->GetStateManager()->IsExternalCamera())
+	if (HUDVisible && !IsExternalCamera)
 	{
 		DrawHUDIcon(
 			CurrentViewportSize / 2,
 			IconSize,
-			PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon,
+			WeaponType == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon,
 			HudColorNeutral,
 			true);
 
@@ -809,9 +811,8 @@ void AFlareHUD::DrawHUDInternal()
 	}
 
 	// Draw combat mouse pointer
-	if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
-		PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
-	 || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
+	if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot()
+	 && (WeaponType == EFlareWeaponGroupType::WG_NONE || WeaponType == EFlareWeaponGroupType::WG_GUN))
 	{
 		// Compute clamped mouse position
 		FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerAim();
@@ -836,22 +837,14 @@ void AFlareHUD::DrawHUDInternal()
 	for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 	{
 		AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
-		if (Spacecraft->IsValidLowLevel() && Spacecraft != PlayerShip)
+		if (Spacecraft != PlayerShip)
 		{
 			// Draw designators
-			bool ShouldDrawSearchMarker;
-			if (PC->LineOfSightTo(Spacecraft))
-			{
-				ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
-				DrawDockingHelper(Spacecraft);
-			}
-			else
-			{
-				ShouldDrawSearchMarker = Spacecraft->GetParent()->GetDamageSystem()->IsAlive();
-			}
+			bool ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
+			DrawDockingHelper(Spacecraft);
 
 			// Draw search markers
-			if (!PlayerShip->GetStateManager()->IsExternalCamera() && ShouldDrawSearchMarker)
+			if (!IsExternalCamera && ShouldDrawSearchMarker)
 			{
 				bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);
@@ -893,14 +886,14 @@ void AFlareHUD::DrawHUDInternal()
 				}
 
 				// Tell the HUD to draw the search marker only if we are outside this
-				ShouldDrawMarker = (FVector2D::Distance(ScreenPosition, CurrentViewportSize / 2) >= (CurrentViewportSize.GetMin() / 3));
+				ShouldDrawMarker = !IsInScreen(ScreenPosition);
 			}
 			else
 			{
 				ShouldDrawMarker = true;
 			}
 
-			if (ShouldDrawMarker && !PlayerShip->GetStateManager()->IsExternalCamera() && Target->Active)
+			if (ShouldDrawMarker && !IsExternalCamera && Target->Active)
 			{
 				DrawSearchArrow(ObjectiveLocation, HudColorObjective, true);
 			}
@@ -908,7 +901,7 @@ void AFlareHUD::DrawHUDInternal()
 	}
 
 	// Draw bomb marker
-	if (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
+	if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 	{
 		float AmmoVelocity = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetAmmoVelocity();
 		FRotator ShipAttitude = PlayerShip->GetActorRotation();
@@ -1102,7 +1095,9 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 			
 			// Combat helper
-			if (Spacecraft->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
+			if (Spacecraft == PlayerShip->GetCurrentTarget()
+			 && Spacecraft->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile
+			 && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
 				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 				if (WeaponGroup)
@@ -1142,7 +1137,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 
 			// Tell the HUD to draw the search marker only if we are outside this
-			return (FVector2D::Distance(ScreenPosition, CurrentViewportSize / 2) >= (CurrentViewportSize.GetMin() / 3));
+			return !IsInScreen(ScreenPosition);
 		}
 	}
 

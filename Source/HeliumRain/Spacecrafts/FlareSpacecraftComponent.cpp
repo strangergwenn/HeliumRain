@@ -68,19 +68,6 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	// Visibility
-	if (LDMaxDrawDistance)
-	{
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-		if (PC)
-		{
-			FVector ViewLocation;
-			FRotator ViewRotation;
-			PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
-			SetVisibility((ViewLocation - GetComponentLocation()).Size() < LDMaxDrawDistance);
-		}
-	}
-
 	// Graphical updates
 	if (ComponentMaterial)
 	{
@@ -153,7 +140,6 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 		}
 		else
 		{
-
 			LocalTemperature = Spacecraft->GetParent()->GetDamageSystem()->GetTemperature();
 		}
 
@@ -237,17 +223,19 @@ void UFlareSpacecraftComponent::SetVisibleInUpgrade(bool Visible)
 
 void UFlareSpacecraftComponent::SetTemperature(int32 TemperatureKelvin)
 {
-	if (ComponentMaterial)
+	if (TemperatureKelvin != PreviousTemperatureKelvin && ComponentMaterial)
 	{
 		ComponentMaterial->SetScalarParameterValue("Temperature", TemperatureKelvin);
+		PreviousTemperatureKelvin = TemperatureKelvin;
 	}
 }
 
 void UFlareSpacecraftComponent::SetHealth(float HealthRatio)
 {
-	if (ComponentMaterial)
+	if (HealthRatio != PreviousHealthRatio && ComponentMaterial)
 	{
 		ComponentMaterial->SetScalarParameterValue("Health", HealthRatio);
+		PreviousHealthRatio = HealthRatio;
 	}
 }
 
