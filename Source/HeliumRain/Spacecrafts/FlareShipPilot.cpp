@@ -396,10 +396,12 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	float TargetAxisAngularPrecision = FMath::Acos(TargetAxisAngularPrecisionDot);
 	float AngularNoise;
 
+	float Experience = 0.5;
+
 	if(FMath::RadiansToDegrees(TargetAxisAngularPrecision) < 30)
 	{
 		TimeSinceAiming += DeltaSeconds;
-		AngularNoise = 10 / (1+ FMath::Square(TimeSinceAiming)) ; // 10 degree
+		AngularNoise = 20 / (1+ Experience * FMath::Square(TimeSinceAiming)) ; // 10 degree
 	}
 	else
 	{
