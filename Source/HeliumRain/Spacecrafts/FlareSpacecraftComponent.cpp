@@ -516,7 +516,8 @@ void UFlareSpacecraftComponent::OnRepaired()
 
 void UFlareSpacecraftComponent::StartDestroyedEffects()
 {
-	if (!DestroyedEffects && DestroyedEffectTemplate)
+	// Smoke has a 50% chance
+	if (!DestroyedEffects && DestroyedEffectTemplate && FMath::FRand() > 0.5f)
 	{
 		// Calculate smoke origin
 		FVector Position = GetComponentLocation();
@@ -526,7 +527,6 @@ void UFlareSpacecraftComponent::StartDestroyedEffects()
 		}
 
 		// Start smoke
-
 		DestroyedEffects = UGameplayStatics::SpawnEmitterAttached(
 			DestroyedEffectTemplate,
 			this,
