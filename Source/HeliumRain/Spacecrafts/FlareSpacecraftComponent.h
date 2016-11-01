@@ -429,6 +429,9 @@ public:
 	/** Spawn damage effects */
 	virtual void StartDamagedEffect(FVector Location, FRotator Rotation, EFlarePartSize::Type WeaponSize);
 
+	/** Should we start destruction effects ? */
+	virtual bool IsDestroyedEffectRelevant();
+
 
 protected:
 

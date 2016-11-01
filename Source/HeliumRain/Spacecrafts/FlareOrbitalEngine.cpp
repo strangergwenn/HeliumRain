@@ -14,3 +14,13 @@ UFlareOrbitalEngine::UFlareOrbitalEngine(const class FObjectInitializer& PCIP)
 	LocalHeatEffect = true;
 }
 
+
+/*----------------------------------------------------
+	Gameplay
+----------------------------------------------------*/
+
+bool UFlareOrbitalEngine::IsDestroyedEffectRelevant()
+{
+	// Always smoke
+	return true;
+}

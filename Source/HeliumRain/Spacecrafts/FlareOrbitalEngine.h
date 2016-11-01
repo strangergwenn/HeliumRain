@@ -7,7 +7,6 @@
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class UFlareOrbitalEngine : public UFlareEngine
 {
-
 public:
 
 	GENERATED_UCLASS_BODY()
@@ -15,5 +14,7 @@ public:
 	/*----------------------------------------------------
 		Public methods
 	----------------------------------------------------*/
+
+	virtual bool IsDestroyedEffectRelevant() override;
 
 };

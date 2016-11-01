@@ -516,8 +516,7 @@ void UFlareSpacecraftComponent::OnRepaired()
 
 void UFlareSpacecraftComponent::StartDestroyedEffects()
 {
-	// Smoke has a 50% chance
-	if (!DestroyedEffects && DestroyedEffectTemplate && FMath::FRand() > 0.5f)
+	if (!DestroyedEffects && DestroyedEffectTemplate && IsDestroyedEffectRelevant())
 	{
 		// Calculate smoke origin
 		FVector Position = GetComponentLocation();
@@ -581,4 +580,10 @@ void UFlareSpacecraftComponent::StartDamagedEffect(FVector Location, FRotator Ro
 		ImpactCount++;
 		PSC->SetWorldScale3D(FVector(1, 1, 1));
 	}
+}
+
+bool UFlareSpacecraftComponent::IsDestroyedEffectRelevant()
+{
+	// No smoke
+	return false;
 }

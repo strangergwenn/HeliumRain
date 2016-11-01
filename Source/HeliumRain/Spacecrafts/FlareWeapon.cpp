@@ -481,3 +481,8 @@ FText UFlareWeapon::GetSlotName() const
 	return FText();
 }
 
+bool UFlareWeapon::IsDestroyedEffectRelevant()
+{
+	// Always smoke
+	return true;
+}

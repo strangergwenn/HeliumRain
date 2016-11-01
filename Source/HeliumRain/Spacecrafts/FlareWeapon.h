@@ -81,6 +81,8 @@ public:
 		WeaponGroup = Group;
 	}
 
+	virtual bool IsDestroyedEffectRelevant() override;
+
 protected:
 
 	/*----------------------------------------------------
