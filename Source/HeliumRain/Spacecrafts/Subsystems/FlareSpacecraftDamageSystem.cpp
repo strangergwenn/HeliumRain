@@ -518,8 +518,10 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 		Spacecraft->GetGame()->GetPC()->SignalHit(Spacecraft, DamageType);
 	}
 
+	UFlareCompany* CompanyDamageSource = (DamageSource ? DamageSource->GetCompany() : NULL);
+
 	FVector LocalLocation = Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(Location) / 100.f;
-	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, DamageSource->GetCompany());
+	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, CompanyDamageSource);
 
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
@@ -544,7 +546,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 			{
 				Efficiency = 1;
 			}
-			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType, DamageSource->GetCompany());
+			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType, CompanyDamageSource);
 		}
 	}
 
