@@ -167,7 +167,7 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		//FLOGV("Pilot AimDirection %s", *AimDirection.ToString());
 	}
 
-	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && !Spacecraft->GetParent()->GetDamageSystem()->IsUncontrollable() && GetUsableRatio() > 0)
+	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && GetUsableRatio() > 0)
 	{
 		SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Update);
 
