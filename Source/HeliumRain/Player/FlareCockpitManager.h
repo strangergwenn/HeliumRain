@@ -63,6 +63,9 @@ protected:
 	/** Update the power level */
 	void UpdatePower(float DeltaSeconds);
 
+	/** Update the FLIR camera */
+	void UpdateFLIR(AFlareSpacecraft* TargetShip);
+
 
 protected:
 

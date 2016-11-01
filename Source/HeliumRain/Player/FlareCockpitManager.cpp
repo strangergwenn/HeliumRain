@@ -8,6 +8,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareCockpitManager"
 
+#define COCKPIT_USES_FLIR 0
+
 
 /*----------------------------------------------------
 	Setup
@@ -41,6 +43,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMesh->LightingChannels.bChannel1 = true;
 	RootComponent = CockpitMesh;
 	
+#if COCKPIT_USES_FLIR
+
 	// FLIR camera
 	CockpitFLIRCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitFLIRCapture"));
 	CockpitFLIRCapture->bCaptureEveryFrame = true;
@@ -55,6 +59,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitFLIRCapture->ShowFlags.PostProcessing = false;
 	CockpitFLIRCameraTarget = NULL;
 	CockpitFLIRCapture->Deactivate();
+
+#endif
 
 	// Light
 	CockpitLight = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight"));
@@ -113,6 +119,8 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		CockpitInstrumentsTarget->ClearColor = FLinearColor::Black;
 		CockpitInstrumentsTarget->UpdateResource();
 
+#if COCKPIT_USES_FLIR
+
 		// FLIR camera target
 		CockpitFLIRCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitFLIRTargetSize, CockpitFLIRTargetSize);
 		FCHECK(CockpitFLIRCameraTarget);
@@ -122,6 +130,8 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		// Setup FLIR camera
 		FCHECK(CockpitFLIRCapture);
 		CockpitFLIRCapture->TextureTarget = CockpitFLIRCameraTarget;
+
+#endif
 
 		// Freighter materials
 		FreighterCockpitMaterialInstance = UMaterialInstanceDynamic::Create(FreighterCockpitMeshTemplate->GetMaterial(0), GetWorld());
@@ -259,8 +269,11 @@ void AFlareCockpitManager::SetupCockpitInstances(UMaterialInstanceDynamic* Scree
 	ScreenInstance->SetScalarParameterValue("ScreenLuminosity", CockpitLightingIntensity);
 	
 	FrameInstance->SetVectorParameterValue( "IndicatorColorBorders",  Theme.FriendlyColor);
-	FrameInstance->SetTextureParameterValue("FLIRTarget",             CockpitFLIRCameraTarget);
 	FrameInstance->SetTextureParameterValue("InstrumentsTarget",      CockpitInstrumentsTarget);
+
+#if COCKPIT_USES_FLIR
+	FrameInstance->SetTextureParameterValue("FLIRTarget",             CockpitFLIRCameraTarget);
+#endif
 }
 
 void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
@@ -290,20 +303,24 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	// Offset the cockpit
 	CockpitMesh->AttachToComponent(TargetPlayerShip->GetCamera(), AttachRules, NAME_None);
 
-	// FLIR camera
-	CockpitFLIRCapture->AttachToComponent(TargetPlayerShip->GetRootComponent(), AttachRules, "Dock");
-
 	// General data
 	IsInCockpit = true;
-	CockpitFLIRCapture->Activate();
 	CockpitMesh->SetVisibility(true, true);
+
+#if COCKPIT_USES_FLIR
+	CockpitFLIRCapture->AttachToComponent(TargetPlayerShip->GetRootComponent(), AttachRules, "Dock");
+	CockpitFLIRCapture->Activate();
+#endif
 }
 
 void AFlareCockpitManager::ExitCockpit()
 {
 	IsInCockpit = false;
-	CockpitFLIRCapture->Deactivate();
 	CockpitMesh->SetVisibility(false, true);
+
+#if COCKPIT_USES_FLIR
+	CockpitFLIRCapture->Deactivate();
+#endif
 }
 
 void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
@@ -324,106 +341,13 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	else if (TargetShip)
 	{
 		Intensity = 1;
-		FLinearColor Color = TargetShip->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
-		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorTop", Color);
-
-		UFlareSpacecraftNavigationSystem* Nav = PlayerShip->GetNavigationSystem();
-		if (Nav->IsDocked())
-		{
-			CockpitFLIRCapture->Deactivate();
-		}
-		else
-		{
-			float MaxFlirCameraAngle = 60.0f;
-			FVector TargetLocation = TargetShip->GetActorLocation();
-			FFlareShipCommandData Command = Nav->GetCurrentCommand();
-
-			// Get docking data
-			if (Command.Type == EFlareCommandDataType::CDT_Dock)
-			{
-				AFlareSpacecraft* DockStation = Command.ActionTarget;
-				int32 DockId = Command.ActionTargetParam;
-
-				FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);
-				FVector StationDockLocation =  DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
-				TargetLocation = StationDockLocation;
-			}
-
-			// Find best FLIR camera
-			TArray<FName> SocketNames  = PlayerShip->Airframe->GetAllSocketNames();
-			float BestAngle = 0;
-			FVector TargetDirection;
-			FVector CameraMainDirection;
-			FVector TargetLocationDelta;
-			bool FlirCameraFound = false;
-			FName BestCameraName;
-
-			// Find the best FLIR camera on the ship if any
-			for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
-			{
-				if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
-				{
-					FTransform CameraWorldTransform = PlayerShip->Airframe->GetSocketTransform(SocketNames[SocketIndex]);
-
-					FVector CameraLocation = CameraWorldTransform.GetTranslation();
-					FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1,0,0));
-
-					FVector CandidateTargetLocationDelta = TargetLocation - CameraLocation;
-					FVector CandidateTargetDirection = CandidateTargetLocationDelta.GetUnsafeNormal();
-
-					float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(CandidateTargetDirection, CandidateCameraMainDirection))));
-
-					if (!FlirCameraFound || Angle < BestAngle)
-					{
-						// Select camera
-						BestAngle  = Angle;
-						TargetDirection = CandidateTargetDirection;
-						CameraMainDirection = CandidateCameraMainDirection;
-						TargetLocationDelta = CandidateTargetLocationDelta;
-						FlirCameraFound = true;
-						BestCameraName = SocketNames[SocketIndex];
-					}
-				}
-			}
-
-			// Update the FLIR camera
-			if (FlirCameraFound)
-			{
-				FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
-				CockpitFLIRCapture->AttachToComponent(PlayerShip->GetRootComponent(), AttachRules, BestCameraName);
-
-				FRotator CameraRotation = TargetDirection.Rotation();
-
-				if(BestAngle > MaxFlirCameraAngle)
-				{
-					// Clamp max rotation
-					FVector RotationAxis = FVector::CrossProduct(CameraMainDirection, TargetDirection).GetUnsafeNormal();
-					FVector MaxTurnDirection = CameraMainDirection.RotateAngleAxis(MaxFlirCameraAngle, RotationAxis);
-
-					CameraRotation = MaxTurnDirection.Rotation();
-				}
-
-				CameraRotation.Roll = PlayerShip->GetActorRotation().Roll;
-
-				CockpitFLIRCapture->SetWorldRotation(CameraRotation);
-
-				FBox CandidateBox = TargetShip->GetComponentsBoundingBox();
-				float TargetSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
-
-				CockpitFLIRCapture->FOVAngle = 3 * FMath::RadiansToDegrees(FMath::Atan2(TargetSize, TargetLocationDelta.Size()));
-				CockpitFLIRCapture->FOVAngle = FMath::Min(CockpitFLIRCapture->FOVAngle, 30.0f);
-
-				CockpitFLIRCapture->Activate();
-			}
-			else
-			{
-				CockpitFLIRCapture->Deactivate();
-			}
-		}
+		UpdateFLIR(TargetShip);
 	}
 	else
 	{
+#if COCKPIT_USES_FLIR
 		CockpitFLIRCapture->Deactivate();
+#endif
 	}
 
 	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityTop", Intensity);
@@ -517,6 +441,110 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 	GetCurrentFrameMaterial()->SetScalarParameterValue( "Power", PowerAlpha);
 	GetCurrentScreenMaterial()->SetVectorParameterValue("IndicatorColorBorders", HealthColor);
 	GetCurrentFrameMaterial()->SetVectorParameterValue( "IndicatorColorBorders", HealthColor);
+}
+
+void AFlareCockpitManager::UpdateFLIR(AFlareSpacecraft* TargetShip)
+{
+#if COCKPIT_USES_FLIR
+
+	FLinearColor Color = TargetShip->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
+	GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorTop", Color);
+
+	UFlareSpacecraftNavigationSystem* Nav = PlayerShip->GetNavigationSystem();
+	if (Nav->IsDocked())
+	{
+		CockpitFLIRCapture->Deactivate();
+	}
+	else
+	{
+		float MaxFlirCameraAngle = 60.0f;
+		FVector TargetLocation = TargetShip->GetActorLocation();
+		FFlareShipCommandData Command = Nav->GetCurrentCommand();
+
+		// Get docking data
+		if (Command.Type == EFlareCommandDataType::CDT_Dock)
+		{
+			AFlareSpacecraft* DockStation = Command.ActionTarget;
+			int32 DockId = Command.ActionTargetParam;
+
+			FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);
+			FVector StationDockLocation = DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
+			TargetLocation = StationDockLocation;
+		}
+
+		// Find best FLIR camera
+		TArray<FName> SocketNames = PlayerShip->Airframe->GetAllSocketNames();
+		float BestAngle = 0;
+		FVector TargetDirection;
+		FVector CameraMainDirection;
+		FVector TargetLocationDelta;
+		bool FlirCameraFound = false;
+		FName BestCameraName;
+
+		// Find the best FLIR camera on the ship if any
+		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
+		{
+			if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
+			{
+				FTransform CameraWorldTransform = PlayerShip->Airframe->GetSocketTransform(SocketNames[SocketIndex]);
+
+				FVector CameraLocation = CameraWorldTransform.GetTranslation();
+				FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1, 0, 0));
+
+				FVector CandidateTargetLocationDelta = TargetLocation - CameraLocation;
+				FVector CandidateTargetDirection = CandidateTargetLocationDelta.GetUnsafeNormal();
+
+				float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(CandidateTargetDirection, CandidateCameraMainDirection))));
+
+				if (!FlirCameraFound || Angle < BestAngle)
+				{
+					// Select camera
+					BestAngle = Angle;
+					TargetDirection = CandidateTargetDirection;
+					CameraMainDirection = CandidateCameraMainDirection;
+					TargetLocationDelta = CandidateTargetLocationDelta;
+					FlirCameraFound = true;
+					BestCameraName = SocketNames[SocketIndex];
+				}
+			}
+		}
+
+		// Update the FLIR camera
+		if (FlirCameraFound)
+		{
+			FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
+			CockpitFLIRCapture->AttachToComponent(PlayerShip->GetRootComponent(), AttachRules, BestCameraName);
+
+			FRotator CameraRotation = TargetDirection.Rotation();
+
+			if (BestAngle > MaxFlirCameraAngle)
+			{
+				// Clamp max rotation
+				FVector RotationAxis = FVector::CrossProduct(CameraMainDirection, TargetDirection).GetUnsafeNormal();
+				FVector MaxTurnDirection = CameraMainDirection.RotateAngleAxis(MaxFlirCameraAngle, RotationAxis);
+
+				CameraRotation = MaxTurnDirection.Rotation();
+			}
+
+			CameraRotation.Roll = PlayerShip->GetActorRotation().Roll;
+
+			CockpitFLIRCapture->SetWorldRotation(CameraRotation);
+
+			FBox CandidateBox = TargetShip->GetComponentsBoundingBox();
+			float TargetSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
+
+			CockpitFLIRCapture->FOVAngle = 3 * FMath::RadiansToDegrees(FMath::Atan2(TargetSize, TargetLocationDelta.Size()));
+			CockpitFLIRCapture->FOVAngle = FMath::Min(CockpitFLIRCapture->FOVAngle, 30.0f);
+
+			CockpitFLIRCapture->Activate();
+		}
+		else
+		{
+			CockpitFLIRCapture->Deactivate();
+		}
+	}
+
+#endif
 }
 
 
