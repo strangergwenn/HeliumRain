@@ -103,12 +103,14 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 	if (Ship->GetNavigationSystem()->IsDocked())
 	{
+		WantFire = false;
 		// Let's undock
 		Ship->GetNavigationSystem()->Undock();
 		return;
 	}
 	else if (Ship->GetNavigationSystem()->IsAutoPilot())
 	{
+		WantFire = false;
 		// Wait manoeuver
 		return;
 	}
@@ -161,7 +163,6 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
 			if (WeaponType == EFlareWeaponGroupType::WG_GUN)
 			{
-
 				FighterPilot(DeltaSeconds);
 				Idle = false;
 			}
@@ -180,6 +181,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 	}
 	else if (Ship->GetSize() == EFlarePartSize::L && PilotTargetShip)
 	{
+		WantFire = false;
 		FlagShipPilot(DeltaSeconds);
 		Idle = false;
 	}
@@ -187,6 +189,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 	if (Idle)
 	{
+		WantFire = false;
 		IdlePilot(DeltaSeconds);
 	}
 
