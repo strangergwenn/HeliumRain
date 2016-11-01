@@ -834,7 +834,7 @@ void AFlareHUD::DrawHUDInternal()
 		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
 		int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
 		FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
-		FlareDrawText(VelocityText, FVector2D(0, 40), HudColorNeutral);
+		FlareDrawText(VelocityText, FVector2D(0, 70), HudColorNeutral);
 	}
 
 	// Draw combat mouse pointer
