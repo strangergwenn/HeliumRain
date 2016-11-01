@@ -28,13 +28,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, TimeSinceWeaponSwitch(0)
 {
 	CheatClass = UFlareGameTools::StaticClass();
-
-	// Sounds
-	static ConstructorHelpers::FObjectFinder<USoundCue> OnSoundObj(TEXT("/Game/Master/Sound/A_Beep_On"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> OffSoundObj(TEXT("/Game/Master/Sound/A_Beep_Off"));
-	OnSound = OnSoundObj.Object;
-	OffSound = OffSoundObj.Object;
-	
+		
 	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
 	DustEffectTemplate = DustEffectTemplateObj.Object;
@@ -536,7 +530,6 @@ void AFlarePlayerController::OnEnterMenu()
 {
 	if (!IsInMenu())
 	{
-		ClientPlaySound(OnSound);
 		Possess(MenuPawn);
 
 		// Pause all gameplay actors
@@ -554,7 +547,6 @@ void AFlarePlayerController::OnExitMenu()
 	{
 		// Quit menu
 		MenuPawn->SetActorHiddenInGame(true);
-		ClientPlaySound(OffSound);
 
 		// Unpause all gameplay actors
 		SetWorldPause(false);

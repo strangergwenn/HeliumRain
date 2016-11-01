@@ -51,7 +51,8 @@ public:
 	/** Quick switch to another ship */
 	bool SwitchToNextShip(bool Instant = false);
 
-	void ActivateRecovery() {
+	void ActivateRecovery()
+	{
 		RecoveryActive = true;
 	}
 
@@ -304,15 +305,7 @@ protected:
 	// Sound manager
 	UPROPERTY()
 	UFlareSoundManager*                      SoundManager;
-
-	/** Sound for menu openings */
-	UPROPERTY()
-	USoundCue*                               OnSound;
-
-	/** Sound for menu closings */
-	UPROPERTY()
-	USoundCue*                               OffSound;
-
+	
 
 	/*----------------------------------------------------
 		Gameplay data
