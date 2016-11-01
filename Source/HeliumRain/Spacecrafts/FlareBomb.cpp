@@ -245,7 +245,7 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 		WeaponDescription->WeaponCharacteristics.AmmoDamageRadius,
 		HitLocation,
 		SpacecraftHelper::GetWeaponDamageType(WeaponDescription->WeaponCharacteristics.DamageType),
-		ParentWeapon->GetSpacecraft()->GetCompany());
+		ParentWeapon->GetSpacecraft()->GetParent());
 
 	// Play sound
 	if (HitSpacecraft->IsLocallyControlled())

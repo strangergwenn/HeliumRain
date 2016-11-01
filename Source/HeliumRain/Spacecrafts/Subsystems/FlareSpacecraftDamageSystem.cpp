@@ -488,10 +488,10 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 
 	}
 
-	UFlareCompany* DamageSource = NULL;
+	UFlareSimulatedSpacecraft* DamageSource = NULL;
 	if (OtherSpacecraft)
 	{
-		DamageSource = OtherSpacecraft->GetParent()->GetCompany();
+		DamageSource = OtherSpacecraft->GetParent();
 		LastDamageCauser = OtherSpacecraft;
 	}
 	else
@@ -501,7 +501,7 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location, EFlareDamage::DAM_Collision, DamageSource);
 }
 
-void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource)
 {
 	// The damages are applied to all component touching the sphere defined by the radius and the
 	// location in parameter.
@@ -513,13 +513,13 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
 	// Signal hit to player
-	if (DamageSource == Spacecraft->GetGame()->GetPC()->GetCompany())
+	if (DamageSource == Spacecraft->GetGame()->GetPC()->GetShipPawn()->GetParent())
 	{
 		Spacecraft->GetGame()->GetPC()->SignalHit(Spacecraft, DamageType);
 	}
 
 	FVector LocalLocation = Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(Location) / 100.f;
-	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, DamageSource);
+	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, DamageSource->GetCompany());
 
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
@@ -544,7 +544,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 			{
 				Efficiency = 1;
 			}
-			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType, DamageSource);
+			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType, DamageSource->GetCompany());
 		}
 	}
 
@@ -554,18 +554,19 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	// Heat the ship
 	Data->Heat += Energy;
 
-	switch (DamageType) {
-	case EFlareDamage::DAM_ArmorPiercing:
-	case EFlareDamage::DAM_HighExplosive:
-	case EFlareDamage::DAM_HEAT:
-		//FLOGV("%s Reset TimeSinceLastExternalDamage", *Spacecraft->GetImmatriculation().ToString());
-		TimeSinceLastExternalDamage = 0;
-		break;
-	case EFlareDamage::DAM_Collision:
-	case EFlareDamage::DAM_Overheat:
-	default:
-		// Don't reset timer
-		break;
+	switch (DamageType)
+	{
+		case EFlareDamage::DAM_ArmorPiercing:
+		case EFlareDamage::DAM_HighExplosive:
+		case EFlareDamage::DAM_HEAT:
+			//FLOGV("%s Reset TimeSinceLastExternalDamage", *Spacecraft->GetImmatriculation().ToString());
+			TimeSinceLastExternalDamage = 0;
+			break;
+		case EFlareDamage::DAM_Collision:
+		case EFlareDamage::DAM_Overheat:
+		default:
+			// Don't reset timer
+			break;
 	}
 }
 
