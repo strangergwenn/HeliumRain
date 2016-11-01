@@ -452,6 +452,11 @@ void AFlarePlayerController::SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerS
 	PlayerShip = NewPlayerShip;
 }
 
+void AFlarePlayerController::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)
+{
+	GetNavHUD()->SignalHit(HitSpacecraft, DamageType);
+}
+
 void AFlarePlayerController::Clean()
 {
 	PlayerData.UUID = NAME_None;

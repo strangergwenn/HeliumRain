@@ -86,6 +86,8 @@ public:
 	/** Set the currently flown player ship */
 	void SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerShip);
 
+	/** We just hit this spacecraft with a weapon */
+	void SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType);
 
 	/** Cleanup the PC owned stuff */
 	void Clean();

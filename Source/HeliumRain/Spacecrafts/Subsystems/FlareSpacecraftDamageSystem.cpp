@@ -512,6 +512,12 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation().ToString()), Radius, *Location.ToString());
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
+	// Signal hit to player
+	if (DamageSource == Spacecraft->GetGame()->GetPC()->GetCompany())
+	{
+		Spacecraft->GetGame()->GetPC()->SignalHit(Spacecraft, DamageType);
+	}
+
 	FVector LocalLocation = Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(Location) / 100.f;
 	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, DamageSource);
 

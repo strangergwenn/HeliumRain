@@ -27,6 +27,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatReticleIconobj   (TEXT("/Game/Gameplay/HUD/TX_CombatReticle.TX_CombatReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBackReticleIconObj     (TEXT("/Game/Gameplay/HUD/TX_BackReticle.TX_BackReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj             (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHitIconObj          (TEXT("/Game/Gameplay/HUD/TX_AimHit.TX_AimHit"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombAimIconObj         (TEXT("/Game/Gameplay/HUD/TX_BombAim.TX_BombAim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombMarkerObj          (TEXT("/Game/Gameplay/HUD/TX_BombMarker.TX_BombMarker"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj       (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
@@ -63,6 +64,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDCombatReticleIcon = HUDCombatReticleIconobj.Object;
 	HUDBackReticleIcon = HUDBackReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
+	HUDAimHitIcon = HUDAimHitIconObj.Object;
 	HUDBombAimIcon = HUDBombAimIconObj.Object;
 	HUDBombMarker = HUDBombMarkerObj.Object;
 	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
@@ -95,8 +97,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDFontLarge = HUDFontLargeObj.Object;
 
 	// Settings
-	FocusDistance = 10000000;
 	IconSize = 24;
+	FocusDistance = 10000000;
+	PlayerHitDisplayTime = 0.08f;
 	ShadowColor = FLinearColor(0.02f, 0.02f, 0.02f, 1.0f);
 
 	// Cockpit instruments
@@ -230,6 +233,13 @@ void AFlareHUD::RemoveAllTargets()
 	ScreenTargets.Empty();
 }
 
+void AFlareHUD::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)
+{
+	PlayerHitSpacecraft = HitSpacecraft;
+	PlayerDamageType = DamageType;
+	PlayerHitTime = 0;
+}
+
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -245,7 +255,6 @@ void AFlareHUD::DrawHUD()
 		CurrentCanvas = Canvas;
 		IsDrawingCockpit = false;
 		IsDrawingHUD = true;
-		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
 		// Initial data and checks
 		if (!ShouldDrawHUD())
@@ -254,6 +263,7 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Look for a spacecraft to draw the context menu on
+		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		UpdateContextMenu(PlayerShip);
 
 		// Draw the general-purpose HUD (no-cockpit version)
@@ -269,12 +279,21 @@ void AFlareHUD::DrawHUD()
 			DrawDebugGrid(HudColorEnemy);
 		}
 	}
+
+	// Player hit management
+	if (PlayerHitTime >= PlayerHitDisplayTime)
+	{
+		PlayerHitSpacecraft = NULL;
+	}
 }
 
 void AFlareHUD::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	// Update data
 	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	PlayerHitTime += DeltaSeconds;
 
 	// Mouse control
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
@@ -796,10 +815,16 @@ void AFlareHUD::DrawHUDInternal()
 	// Draw nose
 	if (HUDVisible && !IsExternalCamera)
 	{
+		UTexture2D* NoseIcon = HUDNoseIcon;
+		if (WeaponType == EFlareWeaponGroupType::WG_GUN)
+		{
+			NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+		}
+
 		DrawHUDIcon(
 			CurrentViewportSize / 2,
 			IconSize,
-			WeaponType == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon,
+			NoseIcon,
 			HudColorNeutral,
 			true);
 

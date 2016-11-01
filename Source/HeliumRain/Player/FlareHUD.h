@@ -9,6 +9,8 @@
 
 class SFlareHUDMenu;
 class SFlareMouseMenu;
+class UFlareWeapon;
+
 
 /** Target info */
 USTRUCT()
@@ -73,6 +75,10 @@ public:
 
 	/** Reset all targets */
 	void RemoveAllTargets();
+
+	/** We just hit this spacecraft with a weapon */
+	void SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType);
+
 
 	virtual void DrawHUD() override;
 
@@ -236,11 +242,18 @@ protected:
 	FVector2D                               CurrentViewportSize;
 	UCanvas*                                CurrentCanvas;
 
+	// Hit target
+	AFlareSpacecraft*                       PlayerHitSpacecraft;
+	EFlareDamage::Type                      PlayerDamageType;
+	float                                   PlayerHitTime;
+	float                                   PlayerHitDisplayTime;
+
 	// Designator content
 	UTexture2D*                             HUDReticleIcon;
 	UTexture2D*                             HUDCombatReticleIcon;
 	UTexture2D*                             HUDBackReticleIcon;
 	UTexture2D*                             HUDAimIcon;
+	UTexture2D*                             HUDAimHitIcon;
 	UTexture2D*                             HUDBombAimIcon;
 	UTexture2D*                             HUDBombMarker;
 	UTexture2D*                             HUDAimHelperIcon;
