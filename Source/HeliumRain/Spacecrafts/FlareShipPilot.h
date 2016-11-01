@@ -148,6 +148,7 @@ protected:
 	bool LockTarget;
 	bool LastWantFire;
 	float TimeBeforeNextDrop;
+	float TimeSinceAiming;
 	float                                TimeUntilNextComponentSwitch;
 	EFlareCombatTactic::Type			CurrentTactic;
 

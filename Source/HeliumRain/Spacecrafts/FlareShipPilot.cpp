@@ -390,7 +390,35 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	// AngularTargetVelocity = GetAngularVelocityToAlignAxis(LocalNose, FireTargetAxis, DeltaSeconds);
 	// TODO find target angular velocity
 
-	AngularTargetVelocity = GetAngularVelocityToAlignAxis(BulletDirection, PredictedFireTargetAxis, PredictedTargetAngularVelocity, DeltaSeconds);
+	FVector FireAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
+
+	float TargetAxisAngularPrecisionDot = FVector::DotProduct(PredictedFireTargetAxis, FireAxis);
+	float TargetAxisAngularPrecision = FMath::Acos(TargetAxisAngularPrecisionDot);
+	float AngularNoise;
+
+	if(FMath::RadiansToDegrees(TargetAxisAngularPrecision) < 30)
+	{
+		TimeSinceAiming += DeltaSeconds;
+		AngularNoise = 10 / (1+ FMath::Square(TimeSinceAiming)) ; // 10 degree
+	}
+	else
+	{
+		TimeSinceAiming = 0;
+		AngularNoise = 10; // 1 degree
+	}
+
+
+	if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+	{
+		FLOGV("TargetAxisAngularPrecisionDot=%f", TargetAxisAngularPrecisionDot);
+		FLOGV("TargetAxisAngularPrecision=%f", TargetAxisAngularPrecision);
+		FLOGV("TimeSinceAiming=%f", TimeSinceAiming);
+		FLOGV("AngularNoise=%f", AngularNoise);
+	}
+
+	FVector PredictedFireTargetAxisWithError = FMath::VRandCone(PredictedFireTargetAxis, FMath::DegreesToRadians(AngularNoise));
+
+	AngularTargetVelocity = GetAngularVelocityToAlignAxis(BulletDirection, PredictedFireTargetAxisWithError, PredictedTargetAngularVelocity, DeltaSeconds);
 
 	/*FLOGV("Distance=%f", Distance);
 	FLOGV("PilotTargetShip->GetLinearVelocity()=%s", *(PilotTargetShip->GetLinearVelocity().ToString()));
@@ -488,7 +516,6 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		// TODO increase tolerance if target is near
 		if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < 1.5)
 		{
-			FVector FireAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
 			TArray <UFlareWeapon*> Weapons = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons;
 			for (int WeaponIndex = 0; WeaponIndex < Weapons.Num(); WeaponIndex++)
 			{
@@ -525,7 +552,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 						FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
 						FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);
 					}
-					if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
+					if (AngularPrecision < (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.2))
 					{
 						if (!PilotHelper::CheckFriendlyFire(Ship->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
 						{
@@ -1001,10 +1028,10 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	TargetPreferences.AttackTarget = NULL;
 	TargetPreferences.AttackTargetWeight = 1;
 	TargetPreferences.LastTarget = PilotTargetShip;
-	TargetPreferences.LastTargetWeight = 10;
+	TargetPreferences.LastTargetWeight = 20;
 	TargetPreferences.PreferredDirection = Ship->GetFrontVector();
 	TargetPreferences.MinAlignement = -1;
-	TargetPreferences.AlignementWeight = 0.1;
+	TargetPreferences.AlignementWeight = 0.5;
 	TargetPreferences.BaseLocation = Ship->GetActorLocation();
 
 	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil , &TargetPreferences.IsUncontrollableMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
@@ -1043,6 +1070,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 		if(PilotTargetShip != TargetCandidate)
 		{
 			PilotTargetShip = TargetCandidate;
+			TimeSinceAiming = 0;
 			NewTarget = true;
 		}
 
