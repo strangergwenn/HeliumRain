@@ -32,7 +32,7 @@ DECLARE_CYCLE_STAT(TEXT("FlareShipPilot ExitAvoidance"), STAT_FlareShipPilot_Exi
 UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
-	ReactionTime = FMath::FRandRange(0.2, 0.3);
+	ReactionTime = FMath::FRandRange(0.4, 0.7);
 	TimeUntilNextReaction = 0;
 	WaitTime = 0;
 	PilotTargetLocation = FVector::ZeroVector;
@@ -42,6 +42,7 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 	SelectedWeaponGroupIndex = -1;
 	MaxFollowDistance = 0;
 	LockTarget = false;
+	WantFire = false;
 }
 
 
@@ -59,19 +60,11 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 		return;
 	}
 
-	if (TimeUntilNextReaction > 0)
-	{
-		TimeUntilNextReaction -= DeltaSeconds;
-		return;
-	}
-	else
-	{
-		TimeUntilNextReaction = ReactionTime;
-	}
+	TimeUntilNextReaction -= DeltaSeconds;
+
 
 	LinearTargetVelocity = FVector::ZeroVector;
 	AngularTargetVelocity = FVector::ZeroVector;
-	WantFire = false;
 	UseOrbitalBoost = true;
 
 	if (Ship->IsMilitary())
@@ -168,6 +161,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 			EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
 			if (WeaponType == EFlareWeaponGroupType::WG_GUN)
 			{
+
 				FighterPilot(DeltaSeconds);
 				Idle = false;
 			}
@@ -480,72 +474,77 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 	}
 
-	// If at range and aligned fire on the target
-	// TODO increase tolerance if target is near
-	if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < 1.5)
+
+	if (TimeUntilNextReaction <= 0)
 	{
-		FVector FireAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
-		TArray <UFlareWeapon*> Weapons = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons;
-		for (int WeaponIndex = 0; WeaponIndex < Weapons.Num(); WeaponIndex++)
+		TimeUntilNextReaction = ReactionTime;
+
+		WantFire = false;
+
+		// If at range and aligned fire on the target
+		// TODO increase tolerance if target is near
+		if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < 1.5)
 		{
-			UFlareWeapon* Weapon = Weapons[WeaponIndex];
-			if (Weapon->GetUsableRatio() <= 0)
+			FVector FireAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalNose);
+			TArray <UFlareWeapon*> Weapons = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons;
+			for (int WeaponIndex = 0; WeaponIndex < Weapons.Num(); WeaponIndex++)
 			{
-				continue;
-			}
-
-			for (int GunIndex = 0; GunIndex < Weapon->GetGunCount(); GunIndex++)
-			{
-				FVector MuzzleLocation = Weapon->GetMuzzleLocation(GunIndex);
-
-				// Compute target Axis for each gun
-				FVector GunAmmoIntersectionLocation;
-				float GunAmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), MuzzleLocation, ShipVelocity, AmmoVelocity, 0, &GunAmmoIntersectionLocation);
-				if (GunAmmoIntersectionTime < 0)
+				UFlareWeapon* Weapon = Weapons[WeaponIndex];
+				if (Weapon->GetUsableRatio() <= 0)
 				{
-					// No ammo intersection, don't fire
 					continue;
 				}
-				FVector GunFireTargetAxis = (GunAmmoIntersectionLocation - MuzzleLocation - AmmoIntersectionPredictedTime * ShipVelocity).GetUnsafeNormal();
-				/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
-				FLOGV("Gun %d GunFireTargetAxis=%s", GunIndex, *GunFireTargetAxis.ToString());
-	*/
-				float AngularPrecisionDot = FVector::DotProduct(GunFireTargetAxis, FireAxis);
-				float AngularPrecision = FMath::Acos(AngularPrecisionDot);
-				float AngularSize = FMath::Atan(TargetSize / Distance);
 
-			/*	FLOGV("Gun %d Distance=%f", GunIndex, Distance);
-				FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
-				FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
-				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
-				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
+				for (int GunIndex = 0; GunIndex < Weapon->GetGunCount(); GunIndex++)
 				{
-					if (!PilotHelper::CheckFriendlyFire(Ship->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
+					FVector MuzzleLocation = Weapon->GetMuzzleLocation(GunIndex);
+
+					// Compute target Axis for each gun
+					FVector GunAmmoIntersectionLocation;
+					float GunAmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), MuzzleLocation, ShipVelocity, AmmoVelocity, 0, &GunAmmoIntersectionLocation);
+					if (GunAmmoIntersectionTime < 0)
 					{
-						Weapon->SetTarget(PilotTargetShip);
-						/*FLOG("Want Fire");*/
-						WantFire = true;
-						break;
+						// No ammo intersection, don't fire
+						continue;
 					}
-					else
+					FVector GunFireTargetAxis = (GunAmmoIntersectionLocation - MuzzleLocation - AmmoIntersectionPredictedTime * ShipVelocity).GetUnsafeNormal();
+					/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
+					FLOGV("Gun %d GunFireTargetAxis=%s", GunIndex, *GunFireTargetAxis.ToString());
+		*/
+					float AngularPrecisionDot = FVector::DotProduct(GunFireTargetAxis, FireAxis);
+					float AngularPrecision = FMath::Acos(AngularPrecisionDot);
+					float AngularSize = FMath::Atan(TargetSize / Distance);
+
+					if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
 					{
-						FLOG("Friendly fire avoidance");
+						FLOGV("Gun %d Distance=%f", GunIndex, Distance);
+						FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
+						FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
+						FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);
+					}
+					if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
+					{
+						if (!PilotHelper::CheckFriendlyFire(Ship->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
+						{
+							Weapon->SetTarget(PilotTargetShip);
+							/*FLOG("Want Fire");*/
+							WantFire = true;
+							break;
+						}
+						else
+						{
+							FLOG("Friendly fire avoidance");
+						}
 					}
 				}
-			}
-			if (WantFire)
-			{
-				break;
+				if (WantFire)
+				{
+					break;
+				}
 			}
 		}
-	}
 
-	if (Ship->GetParent()->GetDamageSystem()->GetTemperature() > Ship->GetParent()->GetDamageSystem()->GetOverheatTemperature() * (DangerousTarget ? 1.1f : 0.90f))
-	{
-		// TODO Fire on dangerous target
-		WantFire = false;
 	}
-
 
 	// Manage orbital boost
 	if (Ship->GetParent()->GetDamageSystem()->GetTemperature() > Ship->GetParent()->GetDamageSystem()->GetOverheatTemperature() * 0.75)
