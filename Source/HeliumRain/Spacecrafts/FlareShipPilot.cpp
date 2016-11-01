@@ -321,7 +321,8 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	bool DangerousTarget = PilotHelper::IsShipDangerous(PilotTargetShip);
 
-	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+	//float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+	float PreferedVelocity = Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 
 	//FLOGV("%s target %s",  *Ship->GetImmatriculation().ToString(),  *PilotTargetShip->GetImmatriculation().ToString());
 	// The pilot have a target, track and kill it
@@ -453,7 +454,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 		else
 		{
-			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity;
+			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity * 2 + PilotTargetShip->GetLinearVelocity();
 			UseOrbitalBoost = true;
 		}
 
@@ -478,7 +479,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 			FVector AttackMargin =  AttackDistanceQuat.RotateVector(TopVector);
 
 
-			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * PreferedVelocity;
+			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * PreferedVelocity + PilotTargetShip->GetLinearVelocity();
 			if (Distance > SecurityDistance || DangerousTarget)
 			{
 				UseOrbitalBoost = true;
@@ -493,13 +494,13 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		if (Distance > SecurityDistance)
 		{
 			// Security distance reach
-			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity;
+			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity + PilotTargetShip->GetLinearVelocity();
 			AttackPhase = 0;
 			ClearTarget = true;
 		}
 		else
 		{
-			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * PreferedVelocity;
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * PreferedVelocity + PilotTargetShip->GetLinearVelocity();
 			if (DangerousTarget)
 			{
 				UseOrbitalBoost = true;
