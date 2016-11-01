@@ -14,6 +14,16 @@
 #include "../Spacecrafts/FlareEngine.h"
 #include "../Spacecrafts/FlareRCS.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Tick"), STAT_FlareShipPilot_Tick, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Military"), STAT_FlareShipPilot_Military, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Cargo"), STAT_FlareShipPilot_Cargo, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Fighter"), STAT_FlareShipPilot_Fighter, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Bomber"), STAT_FlareShipPilot_Bomber, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Idle)"), STAT_FlareShipPilot_Idle, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Flagship"), STAT_FlareShipPilot_Flagship, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot FindBestHostileTarget"), STAT_FlareShipPilot_FindBestHostileTarget, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot ExitAvoidance"), STAT_FlareShipPilot_ExitAvoidance, STATGROUP_Flare);
+
 
 /*----------------------------------------------------
 	Constructor
@@ -41,6 +51,8 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 
 void UFlareShipPilot::TickPilot(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Tick);
+
 	if (Ship->IsStation())
 	{
 		// No pilot for stations
@@ -87,12 +99,15 @@ void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany*
 	AttackAngle = FMath::FRandRange(0, 360);
 }
 
+
 /*----------------------------------------------------
 	Pilot functions
 ----------------------------------------------------*/
 
 void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Military);
+
 	if (Ship->GetNavigationSystem()->IsDocked())
 	{
 		// Let's undock
@@ -189,6 +204,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Cargo);
 
 	PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::S);
 	if (!PilotTargetShip)
@@ -302,6 +318,8 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Fighter);
+
 	float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
 
 	bool DangerousTarget = PilotHelper::IsShipDangerous(PilotTargetShip);
@@ -566,9 +584,10 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Bomber);
+
 	LinearTargetVelocity = FVector::ZeroVector;
-
-
+	
 	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()) / 100.f;
 	FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
 	float Distance = DeltaLocation.Size(); // Distance in meters
@@ -760,6 +779,8 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Idle);
+
 	// TODO find better
 	//UseOrbitalBoost = false;
 
@@ -886,6 +907,8 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Flagship);
+
 	// Go to a random point at 800 m from the target
 
 	// If at less than 50 m from this point, get another random point
@@ -951,6 +974,8 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_FindBestHostileTarget);
+
 	AFlareSpacecraft* TargetCandidate = NULL;
 
 	struct PilotHelper::TargetPreferences TargetPreferences;
@@ -1058,6 +1083,8 @@ int32 UFlareShipPilot::GetPreferedWeaponGroup() const
 
 FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector InitialVelocityTarget, float CurveTrajectoryLimit) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_ExitAvoidance);
+
 	// DEBUG
 	/*if(TargetShip->GetImmatriculation() != "PIRSPX-Arrow")
 	{
