@@ -260,6 +260,7 @@ protected:
 	UTexture2D*                             HUDNoseIcon;
 	UTexture2D*                             HUDObjectiveIcon;
 	UTexture2D*                             HUDCombatMouseIcon;
+	UTexture2D*                             HUDSearchArrowIcon;
 	UTexture2D*                             HUDHighlightSearchArrowTexture;
 	UTexture2D*                             HUDDesignatorCornerTexture;
 	UTexture2D*                             HUDDesignatorMilCornerTexture;

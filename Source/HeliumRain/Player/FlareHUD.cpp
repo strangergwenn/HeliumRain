@@ -38,6 +38,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Load content (designator icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDSearchArrowIconObj     (TEXT("/Game/Gameplay/HUD/TX_SearchArrow.TX_SearchArrow"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj    (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHighlightSearchArrowObj(TEXT("/Game/Gameplay/HUD/TX_HighlightSearchArrow.TX_HighlightSearchArrow"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorMilCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorMilitaryCorner.TX_DesignatorMilitaryCorner"));
@@ -75,6 +76,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Load content (designator icons)
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
+	HUDSearchArrowIcon = HUDSearchArrowIconObj.Object;
 	HUDHighlightSearchArrowTexture = HUDHighlightSearchArrowObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 	HUDDesignatorMilCornerTexture = HUDDesignatorMilCornerObj.Object;
@@ -848,7 +850,7 @@ void AFlareHUD::DrawHUDInternal()
 		// Keep an offset
 		FVector2D MinimalOffset = MousePosDelta;
 		MinimalOffset.Normalize();
-		MousePosDelta += 12 * MinimalOffset;
+		MousePosDelta += 5 * MinimalOffset;
 
 		// Draw
 		FLinearColor PointerColor = HudColorNeutral;
@@ -1028,9 +1030,16 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, ScreenBorderDistanceX, CurrentViewportSize.X - ScreenBorderDistanceX);
 		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, ScreenBorderDistanceY, CurrentViewportSize.Y - ScreenBorderDistanceY);
 
+		// Fade the cursor when near the center
+		float FadePower = PC->UseCockpit ? 3.0f : 2.0f;
+		float FadeDistance = PC->UseCockpit ? 10.0f : 50.0f;
+		float CenterDistance = FMath::Clamp(FadeDistance * (ScreenPosition - ViewportSize / 2).Size() / ViewportSize.Y, 0.0f, 1.0f);
+		FLinearColor DrawColor = HudColorNeutral;
+		DrawColor.A = FMath::Pow(CenterDistance, FadePower);
+
 		// Icon
 		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(0, 30);
-		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
+		DrawHUDIcon(ScreenPosition, IconSize, Icon, DrawColor, true);
 	}
 }
 
@@ -1049,15 +1058,15 @@ void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, bool
 		ScreenspacePosition.Normalize();
 		ScreenspacePosition *= 1.2 * CombatMouseRadius;
 
-		// Make highlights more visible
-		if (Highlighted)
+		// Make highlights more visible by centering them more
+		if (!Highlighted)
 		{
-			ScreenspacePosition *= 1.1;
+			ScreenspacePosition *= 1.2;
 		}
 
 		// Draw
 		FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
-		UTexture2D* Texture = Highlighted ? HUDHighlightSearchArrowTexture : HUDCombatMouseIcon;
+		UTexture2D* Texture = Highlighted ? HUDHighlightSearchArrowTexture : HUDSearchArrowIcon;
 		DrawHUDIconRotated(CurrentViewportSize / 2 + ScreenspacePosition, IconSize, Texture, Color, Position3D.Rotation().Yaw);
 	}
 }
