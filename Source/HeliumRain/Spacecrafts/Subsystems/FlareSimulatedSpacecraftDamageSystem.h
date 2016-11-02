@@ -73,6 +73,9 @@ public:
 	/** Is this ship unable to fight ? */
 	virtual bool IsDisarmed() const;
 
+	/** Is the crew close to death ? */
+	virtual bool IsCrewEndangered() const;
+
 	/** Get the health */
 	virtual float GetGlobalHealth();
 

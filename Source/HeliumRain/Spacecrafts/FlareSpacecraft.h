@@ -86,10 +86,7 @@ public:
 	virtual void Save();
 
 	virtual void SetOwnerCompany(UFlareCompany* Company);
-
-
-
-
+	
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
 
 

@@ -89,12 +89,13 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsStranded() const
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsUncontrollable() const
 {
-	if(Spacecraft->IsStation())
+	if (Spacecraft->IsStation())
 	{
 		return false;
 	}
 
-	if (!IsAlive()) {
+	if (!IsAlive())
+	{
 		return true;
 	}
 
@@ -107,16 +108,28 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsDisarmed() const
 	{
 		return true;
 	}
-	if(Spacecraft->GetSize() == EFlarePartSize::S && IsUncontrollable())
+
+	if (Spacecraft->GetSize() == EFlarePartSize::S && IsUncontrollable())
 	{
 		return true;
 	}
 
-	if (!IsAlive()) {
+	if (!IsAlive())
+	{
 		return true;
 	}
 
 	return (GetSubsystemHealth(EFlareSubsystem::SYS_WeaponAndAmmo) == 0.0f);
+}
+
+bool UFlareSimulatedSpacecraftDamageSystem::IsCrewEndangered() const
+{
+	if (!IsAlive())
+	{
+		return true;
+	}
+
+	return (GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport) < BROKEN_RATIO);
 }
 
 float UFlareSimulatedSpacecraftDamageSystem::GetGlobalHealth()

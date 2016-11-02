@@ -3,6 +3,7 @@
 #include "FlarePlayerController.h"
 #include "../Game/FlareGameTools.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Spacecrafts/FlareShipPilot.h"
 #include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "../Game/FlareGameUserSettings.h"
 #include "../Game/AI/FlareCompanyAI.h"
@@ -33,7 +34,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
 	DustEffectTemplate = DustEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
-	
+
 	// Gameplay
 	QuickSwitchNextOffset = 0;
 	CurrentObjective.Set = false;
@@ -104,6 +105,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	// We are flying
 	if (ShipPawn)
 	{
+		// Ship groups
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_ControlGroups);
@@ -122,23 +124,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 				OnBattleStateChanged(BattleState);
 			}
 		}
-
-		// FLIR Debug Code. Keep it for future ship setup
-		/*TArray<FName> SocketNames  = ShipPawn->Airframe->GetAllSocketNames();
-		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
-		{
-			FLOGV("Check socket = %s", *SocketNames[SocketIndex].ToString());
-			if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
-			{
-				FTransform CameraWorldTransform = ShipPawn->Airframe->GetSocketTransform(SocketNames[SocketIndex]);
-
-				FVector CameraLocation = CameraWorldTransform.GetTranslation();
-				FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1,0,0));
-
-				DrawDebugLine(GetWorld(), CameraLocation, CameraLocation + 500 * CandidateCameraMainDirection, FColor::Red, false);
-				DrawDebugSphere(GetWorld(), CameraLocation, 50, 32, FColor::Green, false);
-			}
-		}*/
 	}
 
 	// Mouse cursor
@@ -661,6 +646,48 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 	}
 
 	return false;
+}
+
+void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, UFlareSimulatedSpacecraft*& Threat) const
+{
+	IsTargeted = false;
+	IsFiredUpon = false;
+	Threat = NULL;
+
+	float MaxDangerDistance = 200000;
+
+	if (GetShipPawn())
+	{
+		TArray<UFlareSimulatedSpacecraft*> Ships = GetShipPawn()->GetParent()->GetCurrentSector()->GetSectorShips();
+		for (UFlareSimulatedSpacecraft* Ship : Ships)
+		{
+			FCHECK(Ship->GetActive());
+			
+			if ( Ship->GetActive()->GetPilot()->GetTargetShip() == GetShipPawn()
+			&& (!Ship->GetDamageSystem()->IsDisarmed() && !Ship->GetDamageSystem()->IsUncontrollable())
+			&& ( Ship->GetActive()->GetActorLocation() - GetShipPawn()->GetActorLocation()).Size() < MaxDangerDistance)
+			{
+				// Is threat
+				IsTargeted = true;
+				if (!Threat)
+				{
+					Threat = Ship;
+				}
+
+				// Is active threat
+				if (Ship->GetActive()->GetPilot()->IsWantFire())
+				{
+					IsFiredUpon = true;
+					Threat = Ship;
+				}
+			}
+		}
+	}
+}
+
+void AFlarePlayerController::ActivateRecovery()
+{
+	RecoveryActive = true;
 }
 
 bool AFlarePlayerController::IsInMenu()

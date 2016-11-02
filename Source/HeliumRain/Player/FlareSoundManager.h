@@ -136,7 +136,7 @@ protected:
 
 
 	/*----------------------------------------------------
-		Sounds
+		Sound players
 	----------------------------------------------------*/
 
 	// Engine sound node
@@ -150,6 +150,35 @@ protected:
 	// Power sound node
 	UPROPERTY()
 	FFlareSoundPlayer                        PowerPlayer;
+
+	// Target warning sound node
+	UPROPERTY()
+	FFlareSoundPlayer                        TargetWarningPlayer;
+
+	// Attack warning sound node
+	UPROPERTY()
+	FFlareSoundPlayer                        AttackWarningPlayer;
+
+	// Health warning sound node
+	UPROPERTY()
+	FFlareSoundPlayer                        HealthWarningPlayer;
 	
+
+	/*----------------------------------------------------
+		Sound data
+	----------------------------------------------------*/
+
+	// Warning sound on targeting
+	UPROPERTY()
+	USoundCue*                               TargetWarningSound;
+
+	// Warning sound on attack
+	UPROPERTY()
+	USoundCue*                               AttackWarningSound;
+
+	// Warning sound on low health
+	UPROPERTY()
+	USoundCue*                               HealthWarningSound;
+
 };
 

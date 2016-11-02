@@ -107,7 +107,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	// Cockpit instruments
 	TopInstrument =   FVector2D(20, 10);
 	LeftInstrument =  FVector2D(20, 165);
-	RightInstrument = FVector2D(24, 320);
+	RightInstrument = FVector2D(30, 320);
 	InstrumentSize =  FVector2D(380, 115);
 	InstrumentLine =  FVector2D(0, 20);
 

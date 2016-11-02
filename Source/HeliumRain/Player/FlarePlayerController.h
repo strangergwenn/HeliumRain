@@ -51,10 +51,12 @@ public:
 	/** Quick switch to another ship */
 	bool SwitchToNextShip(bool Instant = false);
 
-	void ActivateRecovery()
-	{
-		RecoveryActive = true;
-	}
+	/** Is the player ship being targeted ? Get one of the attackers too. */
+	void GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, UFlareSimulatedSpacecraft*& Threat) const;
+
+	/** Get a recovery ship */
+	void ActivateRecovery();
+
 
 	/*----------------------------------------------------
 		Data management
@@ -297,19 +299,14 @@ public:
 
 
 protected:
-
+	
 	/*----------------------------------------------------
-		Sound
+		Gameplay data
 	----------------------------------------------------*/
 
 	// Sound manager
 	UPROPERTY()
 	UFlareSoundManager*                      SoundManager;
-	
-
-	/*----------------------------------------------------
-		Gameplay data
-	----------------------------------------------------*/
 
 	/** Dust effect template */
 	UPROPERTY()
