@@ -1027,11 +1027,55 @@ void UFlareSimulatedSector::ClearBombs()
 	SectorData.BombData.Empty();
 }
 
+void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips)
+{
+	PlayerShips = 0;
+	EnemyShips = 0;
+	NeutralShips = 0;
+
+	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
+	{
+		switch (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility())
+		{
+			case EFlareHostility::Friendly:
+			case EFlareHostility::Owned:
+				PlayerShips++;
+				break;
+			case EFlareHostility::Hostile:
+				EnemyShips++;
+				break;
+			case EFlareHostility::Neutral:
+			default:
+				NeutralShips++;
+				break;
+		}
+	}
+}
+
+FText UFlareSimulatedSector::GetSectorBalanceText()
+{
+	int32 PlayerShips, EnemyShips, NeutralShips;
+	GetSectorBalance(PlayerShips, EnemyShips, NeutralShips);
+
+	FText PlayerShipsText = FText::Format(LOCTEXT("PlayerShipsFormat", "{0} friendly {1}, "),
+		FText::AsNumber(PlayerShips),
+		PlayerShips > 1 ? LOCTEXT("PlayerShips", "ships") : LOCTEXT("PlayerShip", "ship"));
+
+	FText HostileShipsText = FText::Format(LOCTEXT("HostileShipsFormat", "{0} {1}, "),
+		FText::AsNumber(EnemyShips),
+		EnemyShips > 1 ? LOCTEXT("HostileShips", "hostiles") : LOCTEXT("HostileShip", "hostile"));
+
+	FText NeutralShipsText = FText::Format(LOCTEXT("NeutralShipsFormat", "{0} {1}"),
+		FText::AsNumber(NeutralShips),
+		NeutralShips > 1 ? LOCTEXT("NeutralShips", "neutrals") : LOCTEXT("NeutralShip", "neutral"));
+
+	return FText::FromString(PlayerShipsText.ToString() + HostileShipsText.ToString() + NeutralShipsText.ToString());
+}
+
 int64 UFlareSimulatedSector::GetStationConstructionFee(int64 BasePrice)
 {
 	return BasePrice + 1000000 * SectorStations.Num();
 }
-
 
 uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips, bool AllowTrade)
 {
@@ -1286,6 +1330,37 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 	{
 		return EFlareSectorBattleState::Battle;
 	}
+}
+
+
+FText UFlareSimulatedSector::GetSectorBattleStateText(UFlareCompany* Company)
+{
+	FText BattleStatusText;
+
+	switch (GetSectorBattleState(Company))
+	{
+		case EFlareSectorBattleState::NoBattle:
+			break;
+		case EFlareSectorBattleState::BattleWon:
+			BattleStatusText = LOCTEXT("SectorBattleWon", "Battle won");
+			break;
+		case EFlareSectorBattleState::BattleLost:
+			BattleStatusText = LOCTEXT("SectorBattleLost", "Battle lost, retreat possible");
+			break;
+		case EFlareSectorBattleState::BattleLostNoRetreat:
+			BattleStatusText = LOCTEXT("SectorBattleLostNoRetreat", "Battle lost");
+			break;
+		case EFlareSectorBattleState::Battle:
+			BattleStatusText = LOCTEXT("SectorBattleBattle", "Battle in progress, retreat possible");
+			break;
+		case EFlareSectorBattleState::BattleNoRetreat:
+			BattleStatusText = LOCTEXT("SectorBattleBattleNoRetreat", "Battle in progress");
+			break;
+		default:
+			break;
+	}
+
+	return BattleStatusText;
 }
 
 bool UFlareSimulatedSector::IsInDangerousBattle(UFlareCompany* Company)

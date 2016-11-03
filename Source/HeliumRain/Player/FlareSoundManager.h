@@ -180,5 +180,9 @@ protected:
 	UPROPERTY()
 	USoundCue*                               HealthWarningSound;
 
+	// Warning sound on low health (heavy ships)
+	UPROPERTY()
+	USoundCue*                               HealthWarningHeavySound;
+
 };
 

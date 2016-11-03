@@ -39,6 +39,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<USoundCue> TargetWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_TargetWarning"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> AttackWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_AttackWarning"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_HealthWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningHeavySoundObj(TEXT("/Game/Master/Sound/Sounds/A_HealthWarningHeavy"));
 
 	// Sound class
 	MasterSoundClass = MasterClassObj.Object;
@@ -57,6 +58,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	TargetWarningSound = TargetWarningSoundObj.Object;
 	AttackWarningSound = AttackWarningSoundObj.Object;
 	HealthWarningSound = HealthWarningSoundObj.Object;
+	HealthWarningHeavySound = HealthWarningHeavySoundObj.Object;
 	
 	// Music sound
 	MusicPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("MusicSound"));
@@ -246,9 +248,10 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		UpdatePlayer(RCSPlayer,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)          * DeltaSeconds);
 
 		// Update alarms
-		UpdatePlayer(TargetWarningPlayer, (Targeted && !FiredUpon ? 1.0f : -1.0f) * DeltaSeconds);
-		UpdatePlayer(AttackWarningPlayer, (FiredUpon ?              1.0f : -1.0f) * DeltaSeconds);
-		UpdatePlayer(HealthWarningPlayer, (PlayerShipEndangered ?   1.0f : -1.0f) * DeltaSeconds);
+		bool IsHeavy = (ShipPawn->GetParent()->GetDescription()->Size == EFlarePartSize::L);
+		UpdatePlayer(TargetWarningPlayer, (!IsHeavy && !FiredUpon & Targeted ?  1.0f : -1.0f) * DeltaSeconds);
+		UpdatePlayer(AttackWarningPlayer, (!IsHeavy &&  FiredUpon ?             1.0f : -1.0f) * DeltaSeconds);
+		UpdatePlayer(HealthWarningPlayer, (PlayerShipEndangered && !FiredUpon ? 1.0f : -1.0f) * DeltaSeconds);
 	}
 
 	// No ship : stop all ship sounds
@@ -296,6 +299,9 @@ void UFlareSoundManager::SetCurrentSpacecraft(AFlareSpacecraft* Ship)
 		// Setup RCS sound
 		FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
 		RCSPlayer.Sound->SetSound(RCSDescription ? RCSDescription->EngineCharacteristics.EngineSound : NULL);
+
+		// Setup warning sound
+		HealthWarningPlayer.Sound->Sound = ShipDescription->Size == EFlarePartSize::L ? HealthWarningHeavySound : HealthWarningSound;
 	}
 }
 

@@ -110,13 +110,13 @@ void SFlareSectorButton::OnMouseLeave(const FPointerEvent& MouseEvent)
 FText SFlareSectorButton::GetSectorText() const
 {
 	FText SectorText;
+	FText BattleStatusText;
 	
 	if (Sector)
 	{
 		FText SectorTitle = Sector->GetSectorName();
 		FText ShipText;
 		FText StationText;
-		FText BattleStatusText;
 
 		if (PlayerCompany->HasVisitedSector(Sector))
 		{
@@ -133,29 +133,7 @@ FText SFlareSectorButton::GetSectorText() const
 				StationText = FText::Format(StationText, CommaText, FText::AsNumber(Sector->GetSectorStations().Num()));
 			}
 
-			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(PlayerCompany);
-			switch (BattleState) {
-			case EFlareSectorBattleState::NoBattle:
-				break;
-			case EFlareSectorBattleState::BattleWon:
-				BattleStatusText = LOCTEXT("SectorBattleWon", "Battle won");
-				break;
-			case EFlareSectorBattleState::BattleLost:
-				BattleStatusText = LOCTEXT("SectorBattleLost", "Battle lost\nRetreat possible");
-				break;
-			case EFlareSectorBattleState::BattleLostNoRetreat:
-				BattleStatusText = LOCTEXT("SectorBattleLostNoRetreat", "Battle lost");
-				break;
-			case EFlareSectorBattleState::Battle:
-				BattleStatusText = LOCTEXT("SectorBattleBattle", "Battle in progress\nRetreat possible");
-				break;
-			case EFlareSectorBattleState::BattleNoRetreat:
-				BattleStatusText = LOCTEXT("SectorBattleBattleNoRetreat", "Battle in progress");
-				break;
-			default:
-				break;
-			}
-
+			BattleStatusText = Sector->GetSectorBattleStateText(PlayerCompany);
 		}
 
 		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}{2}\n{3}"), SectorTitle, ShipText, StationText, BattleStatusText);

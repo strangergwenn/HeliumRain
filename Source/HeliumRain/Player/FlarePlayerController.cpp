@@ -4,6 +4,8 @@
 #include "../Game/FlareGameTools.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareShipPilot.h"
+#include "../Spacecrafts/FlareTurret.h"
+#include "../Spacecrafts/FlareTurretPilot.h"
 #include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "../Game/FlareGameUserSettings.h"
 #include "../Game/AI/FlareCompanyAI.h"
@@ -654,7 +656,8 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 	IsFiredUpon = false;
 	Threat = NULL;
 
-	float MaxDangerDistance = 200000;
+	float MaxSDangerDistance = 250000;
+	float MaxLDangerDistance = 500000;
 
 	if (GetShipPawn())
 	{
@@ -662,10 +665,37 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 		for (UFlareSimulatedSpacecraft* Ship : Ships)
 		{
 			FCHECK(Ship->GetActive());
+			bool IsDangerous = false, IsFiring = false;
+			float ShipDistance = (Ship->GetActive()->GetActorLocation() - GetShipPawn()->GetActorLocation()).Size();
 			
-			if ( Ship->GetActive()->GetPilot()->GetTargetShip() == GetShipPawn()
-			&& (!Ship->GetDamageSystem()->IsDisarmed() && !Ship->GetDamageSystem()->IsUncontrollable())
-			&& ( Ship->GetActive()->GetActorLocation() - GetShipPawn()->GetActorLocation()).Size() < MaxDangerDistance)
+			// Small ship
+			if (ShipDistance < MaxSDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::S)
+			{
+				IsDangerous = (Ship->GetActive()->GetPilot()->GetTargetShip() == GetShipPawn());
+				IsFiring = IsDangerous && Ship->GetActive()->GetPilot()->IsWantFire();
+			}
+
+			// Large ship
+			else if (ShipDistance < MaxLDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::L)
+			{
+				for (auto Weapon : Ship->GetActive()->GetWeaponsSystem()->GetWeaponList())
+				{
+					UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
+					FCHECK(Turret);
+
+					if (Turret->GetTurretPilot()->GetTargetShip() == GetShipPawn())
+					{
+						IsDangerous = true;
+						if (Turret->GetTurretPilot()->IsWantFire())
+						{
+							IsFiring = true;
+						}
+					}
+				}
+			}
+
+			// Confirm this ship is working, then flag it
+			if (IsDangerous && !Ship->GetDamageSystem()->IsDisarmed() && !Ship->GetDamageSystem()->IsUncontrollable())
 			{
 				// Is threat
 				IsTargeted = true;
@@ -675,7 +705,7 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 				}
 
 				// Is active threat
-				if (Ship->GetActive()->GetPilot()->IsWantFire())
+				if (IsFiring)
 				{
 					IsFiredUpon = true;
 					Threat = Ship;

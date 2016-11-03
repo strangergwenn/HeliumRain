@@ -78,4 +78,9 @@ public:
 		Getters
 	----------------------------------------------------*/
 
+	inline UFlareTurretPilot* GetTurretPilot()
+	{
+		return Pilot;
+	}
+
 };

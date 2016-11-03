@@ -1638,8 +1638,8 @@ void AFlareSpacecraft::FindTarget()
 	else
 	{
 		// Notify PC
-		GetPC()->Notify(LOCTEXT("NoBestTarget", "No best target"),
-				LOCTEXT("NoBestTargetFormat", "No target is adapted for your current weapon."),
+		GetPC()->Notify(LOCTEXT("NoBestTarget", "No target"),
+				LOCTEXT("NoBestTargetFormat", "No appropriate target was found."),
 				FName("no-best-target"),
 				EFlareNotification::NT_Military);
 	}

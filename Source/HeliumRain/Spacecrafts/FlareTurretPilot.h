@@ -76,4 +76,17 @@ protected:
 	float                                TimeUntilNextComponentSwitch;
 	AFlareSpacecraft*                    PilotTargetShip;
 	UFlareSpacecraftComponent*			 PilotTargetComponent;
+
+
+	/*----------------------------------------------------
+		Helper
+	----------------------------------------------------*/
+
+public:
+
+	inline AFlareSpacecraft* GetTargetShip()
+	{
+		return PilotTargetShip;
+	}
+
 };
