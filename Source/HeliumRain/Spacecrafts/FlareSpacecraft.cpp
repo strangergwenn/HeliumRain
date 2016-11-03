@@ -36,6 +36,12 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UFont> ShipNameFontObj(TEXT("/Game/Slate/Fonts/ShipNameFont.ShipNameFont"));
 	ShipNameFont = ShipNameFontObj.Object;
 
+	// Sound
+	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponLoadedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_WeaponLoaded"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponUnloadedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_WeaponUnloaded"));
+	WeaponLoadedSound = WeaponLoadedSoundObj.Object;
+	WeaponUnloadedSound = WeaponUnloadedSoundObj.Object;
+
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("Airframe"));
 	Airframe->SetSimulatePhysics(false);
@@ -1286,6 +1292,7 @@ void AFlareSpacecraft::DeactivateWeapon()
 	{
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
 		GetPC()->SetSelectingWeapon();
+		GetPC()->ClientPlaySound(WeaponUnloadedSound);
 		GetWeaponsSystem()->DeactivateWeapons();
 	}
 }
@@ -1318,6 +1325,8 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 	// Fighter
 	else if(!StateManager->IsPilotMode())
 	{
+		GetPC()->ClientPlaySound(WeaponLoadedSound);
+
 		GetWeaponsSystem()->ActivateWeaponGroup(Index);
 		if (GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
 		{

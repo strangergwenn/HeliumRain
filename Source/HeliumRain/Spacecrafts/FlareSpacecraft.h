@@ -233,8 +233,15 @@ protected:
 	UFlareSimulatedSpacecraft*	                   Parent;
 	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
 	FFlareSpacecraftComponentDescription*          RCSDescription;
-
 	FVector                                        SmoothedVelocity;
+
+	// Weapon loaded
+	UPROPERTY()
+	USoundCue*                                     WeaponLoadedSound;
+
+	// Weapon loaded
+	UPROPERTY()
+	USoundCue*                                     WeaponUnloadedSound;
 
 	// Lifesupport status
 	UPROPERTY()
