@@ -22,6 +22,11 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	, FiringRate(0)
 	, Firing(false)
 {
+	static ConstructorHelpers::FObjectFinder<USoundCue> EmptySoundObj(TEXT("/Game/Master/Sound/Sounds/A_Empty"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> BombDroppedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_Bomb_Dropped"));
+	BombDroppedSound = BombDroppedSoundObj.Object;
+	EmptySound = EmptySoundObj.Object;
+
 	LocalHeatEffect = true;
 	HasFlickeringLights = false;
 }
@@ -101,36 +106,47 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && GetCurrentAmmo() > 0 && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	if (Firing && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
-		SCOPE_CYCLE_COUNTER(STAT_Weapon_Firing);
-
-		if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
+		if (GetCurrentAmmo() > 0)
 		{
-			if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.AlternedFire)
+			SCOPE_CYCLE_COUNTER(STAT_Weapon_Firing);
+
+			if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.IsGun)
 			{
-				LastFiredGun = (LastFiredGun + 1 ) % ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount;
-				FireGun(LastFiredGun);
-			}
-			else
-			{
-				for (int GunIndex = 0; GunIndex < ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount; GunIndex++)
+				if (ComponentDescription->WeaponCharacteristics.GunCharacteristics.AlternedFire)
 				{
-					FireGun(GunIndex);
+					LastFiredGun = (LastFiredGun + 1 ) % ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount;
+					FireGun(LastFiredGun);
+				}
+				else
+				{
+					for (int GunIndex = 0; GunIndex < ComponentDescription->WeaponCharacteristics.GunCharacteristics.GunCount; GunIndex++)
+					{
+						FireGun(GunIndex);
+					}
 				}
 			}
-		}
-		else if (ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
-		{
-			FireBomb();
+			else if (ComponentDescription->WeaponCharacteristics.BombCharacteristics.IsBomb)
+			{
+				FireBomb();
+			}
+
+			// If damage the firerate is randomly reduced to a min of 10 times normal value
+			float DamageDelay = FMath::Square(1.f- GetUsableRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
+			TimeSinceLastShell = -DamageDelay;
 		}
 
-		// If damage the firerate is randomly reduced to a min of 10 times normal value
-		float DamageDelay = FMath::Square(1.f- GetUsableRatio()) * 10 * FiringPeriod * FMath::FRandRange(0.f, 1.f);
-		TimeSinceLastShell = -DamageDelay;
+		// Empty
+		else if (!IsTurret() && SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), EmptySound, GetComponentLocation());
+			TimeSinceLastShell = 0;
+		}
 	}
 
-	if (FiringPeriod == 0){
+	if (FiringPeriod == 0)
+	{
 		Firing = false;
 	}
 }
@@ -168,7 +184,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	// Play sound
 	if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation(), 1, 1);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation());
 	}
 
 	// Update data
@@ -187,6 +203,8 @@ void UFlareWeapon::ShowFiringEffects(int GunIndex)
 
 bool UFlareWeapon::FireBomb()
 {
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BombDroppedSound, GetComponentLocation());
+
 	AFlareBomb* Bomb = Bombs.Pop();
 	if (Bomb)
 	{

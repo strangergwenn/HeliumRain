@@ -93,6 +93,14 @@ protected:
 	UPROPERTY()
 	USoundCue*                  FiringSound;
 
+	/** Empty sound */
+	UPROPERTY()
+	USoundCue*                  EmptySound;
+
+	/** Bomb sound */
+	UPROPERTY()
+	USoundCue*                  BombDroppedSound;
+
 	/** Special effects on firing (template) */
 	UPROPERTY()
 	UParticleSystem*            FiringEffectTemplate;
@@ -117,6 +125,7 @@ protected:
 	float                       TimeSinceLastShell;
 	int                         LastFiredGun;
 	FFlareWeaponGroup*          WeaponGroup;
+
 public:
 
 	/*----------------------------------------------------
