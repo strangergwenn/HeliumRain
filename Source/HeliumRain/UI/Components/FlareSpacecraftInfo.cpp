@@ -672,7 +672,11 @@ FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 
 	if (TargetSpacecraft)
 	{
-		if (TargetSpacecraft->GetCurrentFleet() == PC->GetPlayerFleet())
+		if (TargetSpacecraft == PC->GetPlayerShip())
+		{
+			return Theme.ObjectiveColor;
+		}
+		else if (TargetSpacecraft->GetCurrentFleet() == PC->GetPlayerFleet())
 		{
 			return Theme.FriendlyColor;
 		}
@@ -789,6 +793,10 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 					DistanceText = FText::FromString(AFlareHUD::FormatDistance(Distance / 100) + " - ");
 				}
 			}
+		}
+		else
+		{
+			DistanceText = LOCTEXT("PlayerShipText", "Player ship - ");
 		}
 		
 		// Our company
