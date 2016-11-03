@@ -579,15 +579,14 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 
 void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 {
-	FVector2D CurrentPos = TopInstrument + FVector2D(0, InstrumentSize.Y) - InstrumentLine;
+	FVector2D CurrentPos = TopInstrument + FVector2D(0, InstrumentSize.Y) - 5 * InstrumentLine;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	// Sector info
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	UFlareSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector();
 
 	if (CurrentSector)
 	{
-		// Get text
+		// Get sectoor name
 		FText SectorText;
 		if (PlayerShip->GetParent()->GetCurrentFleet()->IsTraveling())
 		{
@@ -599,22 +598,58 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 				CurrentSector->GetSimulatedSector()->GetSectorName(),
 				CurrentSector->GetSimulatedSector()->GetSectorFriendlynessText(PlayerShip->GetParent()->GetCompany()));
 		}
-
-		// Draw
 		FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
+
+		// Sector forces
+		// TODO
+		CurrentPos += 3 * InstrumentLine;
 
 		// Target info
 		AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
-			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Target : {0} ({1})"),
+			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0} ({1})"),
 				FText::FromString(TargetShip->GetParent()->GetImmatriculation().ToString()),
-				TargetShip->GetParent()->GetCompany()->GetPlayerHostilityText());
+				FText::FromString(TargetShip->GetCompany()->GetShortName().ToString()));
 			FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 
-			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.7;
+			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.8;
 			DrawHUDDesignatorStatus(CurrentPos, IconSize, TargetShip);
+			CurrentPos -= FVector2D(InstrumentSize.X, 0) * 0.8;
+		}
+		CurrentPos += InstrumentLine;
+
+		// Get player threats
+		bool Targeted, FiredUpon;
+		UFlareSimulatedSpacecraft* Threat;
+		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
+
+		// Fired on ?
+		if (FiredUpon)
+		{
+			FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1} - {2})"),
+				FText::FromString(Threat->GetImmatriculation().ToString()),
+				PC->GetGame()->GetSpacecraftCatalog()->Get(Threat->GetDescription()->Identifier)->Name,
+				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+		}
+
+		// Targeted ?
+		else if (Targeted)
+		{
+			FText WarningText = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1} - {2})"),
+				FText::FromString(Threat->GetImmatriculation().ToString()),
+				PC->GetGame()->GetSpacecraftCatalog()->Get(Threat->GetDescription()->Identifier)->Name,
+				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+		}
+
+		// Okay
+		else
+		{
+			FText WarningText = LOCTEXT("ThreatNone", "No active threat");
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 		}
 	}
 }

@@ -380,9 +380,33 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 		AFlareSpacecraft* ActiveTargetShip = TargetShip->GetActive();
 		UFlareSpacecraftNavigationSystem* Nav = ActiveTargetShip->GetNavigationSystem();
 		FFlareShipCommandData Command = Nav->GetCurrentCommand();
+		AFlarePlayerController* PC = MenuManager->GetPC();
+		
+		// Get player threats
+		bool Targeted, FiredUpon;
+		UFlareSimulatedSpacecraft* Threat;
+		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
+
+		// Fired on ?
+		if (FiredUpon)
+		{
+			Info = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1} - {2})"),
+				FText::FromString(Threat->GetImmatriculation().ToString()),
+				PC->GetGame()->GetSpacecraftCatalog()->Get(Threat->GetDescription()->Identifier)->Name,
+				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+		}
+
+		// Targeted ?
+		else if (Targeted)
+		{
+			Info = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1} - {2})"),
+				FText::FromString(Threat->GetImmatriculation().ToString()),
+				PC->GetGame()->GetSpacecraftCatalog()->Get(Threat->GetDescription()->Identifier)->Name,
+				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+		}
 
 		// Docking info
-		if (Command.Type == EFlareCommandDataType::CDT_Dock)
+		else if (Command.Type == EFlareCommandDataType::CDT_Dock)
 		{
 			AFlareSpacecraft* Target = Command.ActionTarget;
 			Info = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
@@ -394,7 +418,7 @@ FText SFlareHUDMenu::GetLowerInfoText() const
 			AFlareSpacecraft* TargetShipPawn = ActiveTargetShip;
 			if (TargetShipPawn && TargetShipPawn->GetCurrentTarget())
 			{
-				Info = FText::Format(LOCTEXT("TargettingFormat", "Targetting {0} ({1})"),
+				Info = FText::Format(LOCTEXT("TargettingFormat", "Targeting {0} ({1})"),
 					FText::FromName(TargetShipPawn->GetCurrentTarget()->GetImmatriculation()),
 					TargetShipPawn->GetCurrentTarget()->GetParent()->GetCompany()->GetPlayerHostilityText());
 			}
