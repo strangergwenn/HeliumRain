@@ -170,8 +170,8 @@ void UFlareAIBehavior::GenerateAffilities()
 	TradingBoth = 0.5f;
 
 	ShipyardAffility = 1.0;
-	ConsumerAffility = 1.0;
-	MaintenanceAffility = 0.5;
+	ConsumerAffility = 0.1;
+	MaintenanceAffility = 0.1;
 
 	// Budjet
 	BudgetTechnology = 1.0;
@@ -346,7 +346,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetResourceAffility(ST->Food, 2.f);
 
 		ShipyardAffility = 0.0;
-		ConsumerAffility = 5.0;
+		ConsumerAffility = 1.0;
 		MaintenanceAffility = 10.0;
 
 		// Budjet

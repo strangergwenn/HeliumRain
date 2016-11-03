@@ -35,6 +35,8 @@ struct ResourceVariation
 	int32 StorageCapacity;
 
 	int32 MinCapacity;
+	int32 ConsumerMaxStock;
+	int32 MaintenanceMaxStock;
 };
 
 /* Local list of resource flows */
@@ -84,6 +86,17 @@ public:
 
 	/** Manage the construction of stations */
 	void UpdateStationConstruction(int32& IdleCargoCapacity);
+
+
+	void UpdateBestScore(float Score,
+						  UFlareSimulatedSector* Sector,
+						  FFlareSpacecraftDescription* StationDescription,
+						  UFlareSimulatedSpacecraft *Station,
+						  float* CurrentConstructionScore,
+						  float* BestScore,
+						  FFlareSpacecraftDescription** BestStationDescription,
+						  UFlareSimulatedSpacecraft** BestStation,
+						  UFlareSimulatedSector** BestSector);
 
 	/** Buy / build ships at shipyards */
 	void UpdateShipAcquisition(int32& IdleCargoCapacity);
