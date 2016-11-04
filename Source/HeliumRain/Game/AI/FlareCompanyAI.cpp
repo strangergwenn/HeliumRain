@@ -490,6 +490,12 @@ void UFlareCompanyAI::UpdateStationConstruction(int32& IdleCargoCapacity)
 		{
 			FFlareSpacecraftDescription* StationDescription = &StationCatalog[StationIndex]->Data;
 
+			if (StationDescription->IsSubstation)
+			{
+				// Never try to build substations
+				continue;
+			}
+
 			// Check sector limitations
 			TArray<FText> Reasons;
 			if (!Sector->CanBuildStation(StationDescription, Company, Reasons, true))
