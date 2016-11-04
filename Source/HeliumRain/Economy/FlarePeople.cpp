@@ -309,7 +309,8 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 		{
 			FFlareCompanyReputationSave* Reputation = GetCompanyReputation(SellingCompanies[CompanyIndex]);
 
-			uint32 PartToBuy = (InitialResourceToBuy * Reputation->Reputation) / ReputationSum;
+			uint32 PartToBuy = FMath::CeilToInt((InitialResourceToBuy * Reputation->Reputation) / (float) ReputationSum);
+			PartToBuy = FMath::Min(ResourceToBuy, PartToBuy);
 
 			uint32 BoughtQuantity = BuyInStationForCompany(Resource, PartToBuy, SellingCompanies[CompanyIndex], SellingStations);
 			ResourceToBuy -= BoughtQuantity;
