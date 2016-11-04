@@ -625,6 +625,7 @@ void UFlarePeople::PrintInfo()
 
 	FLOGV("People for sector %s. ", *Parent->GetSectorName().ToString())
 	FLOGV(" - population: %u", PeopleData.Population);
+	FLOGV(" - base population: %d", GetBasePopulation());
 	FLOGV(" - happiness: %f", GetHappiness());
 	//FLOGV(" - Sickness: %f", Sickness);
 	//FLOGV(" - Fertility: %f", Fertility);
@@ -634,10 +635,10 @@ void UFlarePeople::PrintInfo()
 	FLOGV("   - Tool: %u", PeopleData.ToolStock);
 	FLOGV("   - Tech: %u", PeopleData.TechStock);
 	FLOG(" - Consumptions (sector)");
-	FLOGV("   - Food: %f", GetRessourceConsumption(Food));
-	FLOGV("   - Fuel: %f", GetRessourceConsumption(Fuel));
-	FLOGV("   - Tool: %f", GetRessourceConsumption(Tools));
-	FLOGV("   - Tech: %f", GetRessourceConsumption(Tech));
+	FLOGV("   - Food: %f", GetRessourceConsumption(Food, false));
+	FLOGV("   - Fuel: %f", GetRessourceConsumption(Fuel, false));
+	FLOGV("   - Tool: %f", GetRessourceConsumption(Tools, false));
+	FLOGV("   - Tech: %f", GetRessourceConsumption(Tech, false));
 	FLOG(" - Consumptions (per inhabitant)");
 	FLOGV("   - Food: %f", PeopleData.FoodConsumption);
 	FLOGV("   - Fuel: %f", PeopleData.FuelConsumption);

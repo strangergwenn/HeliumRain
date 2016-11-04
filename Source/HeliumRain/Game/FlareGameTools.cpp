@@ -333,14 +333,18 @@ void UFlareGameTools::PrintEconomyStatus()
 
 	int64 PeopleMoney = 0;
 	int64 PeopleDept = 0;
+	int64 Population = 0;
 
 	for (int SectorIndex = 0; SectorIndex < GetGameWorld()->GetSectors().Num(); SectorIndex++)
 	{
 		PeopleMoney += GetGameWorld()->GetSectors()[SectorIndex]->GetPeople()->GetMoney();
 		PeopleDept += GetGameWorld()->GetSectors()[SectorIndex]->GetPeople()->GetDept();
+		Population += GetGameWorld()->GetSectors()[SectorIndex]->GetPeople()->GetPopulation();
 	}
 
 	int64 WorldMoney = GetGameWorld()->GetWorldMoney();
+
+	FLOGV("World population: %lld ", Population);
 
 	FLOGV("World money: %lld $", WorldMoney / 100);
 	FLOGV("- People money: %lld $ (%f %%)", PeopleMoney/100, 100.f * (float)PeopleMoney / (float) WorldMoney);
