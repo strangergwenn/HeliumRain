@@ -800,21 +800,24 @@ void UFlareWorld::SimulatePeopleMoneyMigration()
 			{
 				// Both have population. The wealthier leak.
 				float WealthA = SectorA->GetPeople()->GetWealth();
-				float WealthB = SectorA->GetPeople()->GetWealth();
+				float WealthB = SectorB->GetPeople()->GetWealth();
 				float TotalWealth = WealthA + WealthB;
+
+				float PercentRatio = 0.05f; // 5% at max
+				float TravelDuration = FMath::Max(1.f, (float) UFlareTravel::ComputeTravelDuration(this, SectorA, SectorB));
 
 				if(TotalWealth > 0)
 				{
 					if(WealthA > WealthB)
 					{
-						float LeakRatio = 0.02f * ((WealthA / TotalWealth) - 0.5f); // 1% at max
+						float LeakRatio = PercentRatio * 2 * ((WealthA / TotalWealth) - 0.5f) / TravelDuration;
 						uint32 TransfertA = LeakRatio * SectorA->GetPeople()->GetMoney();
 						SectorA->GetPeople()->TakeMoney(TransfertA);
 						SectorB->GetPeople()->Pay(TransfertA);
 					}
 					else
 					{
-						float LeakRatio = 0.02f * ((WealthB / TotalWealth) - 0.5f); // 1% at max
+						float LeakRatio = 0.05f * 2 * ((WealthB / TotalWealth) - 0.5f) / TravelDuration; // 5% at max
 						uint32 TransfertB = LeakRatio * SectorB->GetPeople()->GetMoney();
 						SectorB->GetPeople()->TakeMoney(TransfertB);
 						SectorA->GetPeople()->Pay(TransfertB);
