@@ -1649,7 +1649,7 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 			const struct ResourceVariation* Variation = &ThisSectorVariation->ResourceVariations[Resource];
 
 
-			float Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource);
+			float Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource, false);
 			//FLOGV("%s comsumption = %f", *Resource->Name.ToString(), Consumption);
 
 			float ReserveStock =  Variation->ConsumerMaxStock / 10.f;
@@ -2123,7 +2123,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 
-			uint32 Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource);
+			uint32 Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource, false);
 
 			Variation->OwnedFlow = OwnedCustomerRatio * Consumption;
 			Variation->FactoryFlow = NotOwnedCustomerRatio * Consumption * Behavior->TradingSell;
@@ -2553,7 +2553,7 @@ TMap<FFlareResourceDescription*, int32> UFlareCompanyAI::ComputeWorldResourceFlo
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
 
-				uint32 Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource);
+				uint32 Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource, false);
 				WorldResourceFlow[Resource] -= Consumption;
 			}
 		}

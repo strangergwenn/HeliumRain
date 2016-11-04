@@ -109,7 +109,7 @@ public:
 
 	uint32 BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations);
 
-	float GetRessourceConsumption(FFlareResourceDescription* Resource);
+	float GetRessourceConsumption(FFlareResourceDescription* Resource, bool WithStock);
 
 	void GiveBirth(uint32 BirthCount);
 

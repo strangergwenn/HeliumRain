@@ -171,7 +171,7 @@ void UFlarePeople::SimulateResourcePurchase()
 	FFlareResourceDescription* Tool = Game->GetResourceCatalog()->Get("tools");
 	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
 
-	uint32 FoodConsumption = GetRessourceConsumption(Food);
+	uint32 FoodConsumption = GetRessourceConsumption(Food, true);
 	uint32 BoughtFood = BuyResourcesInSector(Food, FoodConsumption); // In Tons
 	//if(BoughtFood)
 	//	FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
@@ -191,7 +191,7 @@ void UFlarePeople::SimulateResourcePurchase()
 		//TODO reputation
 	}
 
-	uint32 FuelConsumption = GetRessourceConsumption(Fuel);
+	uint32 FuelConsumption = GetRessourceConsumption(Fuel, true);
 	uint32 BoughtFuel = BuyResourcesInSector(Fuel, FuelConsumption); // In Tons
 	//if(BoughtFuel)
 	//	FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
@@ -211,7 +211,7 @@ void UFlarePeople::SimulateResourcePurchase()
 		//TODO reputation
 	}
 
-	uint32 ToolConsumption = GetRessourceConsumption(Tool);
+	uint32 ToolConsumption = GetRessourceConsumption(Tool, true);
 	uint32 BoughtTool = BuyResourcesInSector(Tool, ToolConsumption); // In Tons
 	//if(BoughtTool)
 	//	FLOGV("People in %s bought %u tool", *Parent->GetSectorName().ToString(), BoughtTool);
@@ -231,7 +231,7 @@ void UFlarePeople::SimulateResourcePurchase()
 		//TODO reputation
 	}
 
-	uint32 TechConsumption = GetRessourceConsumption(Tech);
+	uint32 TechConsumption = GetRessourceConsumption(Tech, true);
 	uint32 BoughtTech = BuyResourcesInSector(Tech, TechConsumption); // In Tons
 	//if(BoughtTech)
 	//	FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
@@ -350,7 +350,7 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 	return Quantity - RemainingQuantity;
 }
 
-float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
+float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource, bool WithStock)
 {
 	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
 	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
@@ -369,6 +369,11 @@ float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 			PeopleData.FoodConsumption = FOOD_MIN_CONSUMPTION;
 		}
 
+		if(!WithStock)
+		{
+			return PeopleData.Population * PeopleData.FoodConsumption / 1000.f;
+		}
+
 		uint32 FoodToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.FoodConsumption * FOOD_NEED_STOCK; // In kg
 		if(FoodToHave > PeopleData.FoodStock)
 		{
@@ -381,6 +386,11 @@ float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 		if (PeopleData.FuelConsumption < FUEL_MIN_CONSUMPTION)
 		{
 			PeopleData.FuelConsumption = FUEL_MIN_CONSUMPTION;
+		}
+
+		if(!WithStock)
+		{
+			return PeopleData.Population * PeopleData.FuelConsumption / 1000.f;
 		}
 
 		int32 FuelToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.FuelConsumption * FUEL_NEED_STOCK; // In kg
@@ -397,6 +407,11 @@ float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 			PeopleData.ToolConsumption = TOOL_MIN_CONSUMPTION;
 		}
 
+		if(!WithStock)
+		{
+			return PeopleData.Population * PeopleData.ToolConsumption / 1000.f;
+		}
+
 		int32 ToolToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.ToolConsumption * TOOL_NEED_STOCK; // In kg
 		if (ToolToHave > PeopleData.ToolStock)
 		{
@@ -409,6 +424,11 @@ float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 		if (PeopleData.TechConsumption < TECH_MIN_CONSUMPTION)
 		{
 			PeopleData.TechConsumption = TECH_MIN_CONSUMPTION;
+		}
+
+		if(!WithStock)
+		{
+			return PeopleData.Population * PeopleData.TechConsumption / 1000.f;
 		}
 
 		int32 TechToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.TechConsumption * TECH_NEED_STOCK; // In kg

@@ -85,7 +85,7 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
 			WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
 
-			ResourceStats->Consumption += Sector->GetPeople()->GetRessourceConsumption(Resource);
+			ResourceStats->Consumption += Sector->GetPeople()->GetRessourceConsumption(Resource, false);
 		}
 	}
 
