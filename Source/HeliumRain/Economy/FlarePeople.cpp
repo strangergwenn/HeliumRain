@@ -525,7 +525,7 @@ void UFlarePeople::Migrate(UFlareSimulatedSector* DestinationSector, int32 ShipC
 	}
 }
 
-void UFlarePeople::IncreaseHappiness(uint32 HappinessPoints)
+void UFlarePeople::IncreaseHappiness(float HappinessPoints)
 {
 	// Max happiness is 2 so Happiness max is 200 x population
 	// Gain happiness is boost when sad and difficult when happy
@@ -533,6 +533,12 @@ void UFlarePeople::IncreaseHappiness(uint32 HappinessPoints)
 	//  - 4 times gain for 0 as happiness
 	//  - No gain for 2 as happiness
 	// Formula: gain = (happiness - 2) ^ 2
+
+	if(HappinessPoints > 0 && HappinessPoints < 1)
+	{
+		HappinessPoints = 1;
+	}
+
 	float Happiness = GetHappiness();
 	float Gain = FMath::Square(Happiness - 2);
 	PeopleData.HappinessPoint += HappinessPoints * Gain;

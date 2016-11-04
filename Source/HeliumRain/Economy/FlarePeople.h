@@ -119,7 +119,7 @@ public:
 
 	void Migrate(UFlareSimulatedSector* DestinationSector, int32 ShipCount);
 
-	void IncreaseHappiness(uint32 HappinessPoints);
+	void IncreaseHappiness(float HappinessPoints);
 
 	void DecreaseHappiness(uint32 SadnessPoints);
 
