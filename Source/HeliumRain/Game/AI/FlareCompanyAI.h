@@ -121,6 +121,8 @@ protected:
 	/** Try to muster resources to build stations */
 	void FindResourcesForStationConstruction();
 
+	void ClearConstructionProject();
+
 
 	/** Buy cargos ships */
 	void UpdateCargoShipAcquisition();

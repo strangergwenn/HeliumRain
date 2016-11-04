@@ -555,6 +555,11 @@ void UFlareCompanyAI::UpdateStationConstruction(int32& IdleCargoCapacity)
 		}
 	}
 
+	if (CurrentConstructionScore == 0)
+	{
+		ClearConstructionProject();
+	}
+
 	if (BestSector && BestStationDescription)
 	{
 		FLOGV("UFlareCompanyAI::UpdateStationConstruction : %s >>> %s in %s (upgrade: %d) Score=%f", *Company->GetCompanyName().ToString(), *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), (BestStation != NULL),BestScore);
@@ -600,6 +605,11 @@ void UFlareCompanyAI::UpdateStationConstruction(int32& IdleCargoCapacity)
 
 				FLOGV("  ConstructionProjectNeedCapacity = %d", ConstructionProjectNeedCapacity);
 				GameLog::AIConstructionStart(Company, ConstructionProjectSector, ConstructionProjectStationDescription, ConstructionProjectStation);
+			}
+			else if (ConstructionProjectStationDescription && ConstructionProjectSector)
+			{
+				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s abandon building of %s in %s (upgrade: %d) : want to change construction", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString(), (ConstructionProjectStation != NULL));
+				ClearConstructionProject();
 			}
 		}
 	}
@@ -647,12 +657,7 @@ void UFlareCompanyAI::UpdateStationConstruction(int32& IdleCargoCapacity)
 				// Build success clean contruction project
 				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
 
-				ConstructionProjectStationDescription = NULL;
-				ConstructionProjectStation = NULL;
-				ConstructionProjectSector = NULL;
-				ConstructionProjectNeedCapacity = 0;
-				ConstructionShips.Empty();
-				ConstructionStaticShips.Empty();
+				ClearConstructionProject();
 			}
 
 			// Cannot build
@@ -672,15 +677,19 @@ void UFlareCompanyAI::UpdateStationConstruction(int32& IdleCargoCapacity)
 		else
 		{
 			// Abandon build project
-			FLOGV("UFlareCompanyAI::UpdateStationConstruction %s abandon building of %s in %s (upgrade: %d)", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString(), (ConstructionProjectStation != NULL));
-			ConstructionProjectStationDescription = NULL;
-			ConstructionProjectSector = NULL;
-			ConstructionProjectStation = NULL;
-			ConstructionProjectNeedCapacity = 0;
-			ConstructionShips.Empty();
-			ConstructionStaticShips.Empty();
+			FLOGV("UFlareCompanyAI::UpdateStationConstruction %s abandon building of %s in %s (upgrade: %d) : cannot build for strange reason", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString(), (ConstructionProjectStation != NULL));
+			ClearConstructionProject();
 		}
 	}
+}
+void UFlareCompanyAI::ClearConstructionProject()
+{
+	ConstructionProjectStationDescription = NULL;
+	ConstructionProjectStation = NULL;
+	ConstructionProjectSector = NULL;
+	ConstructionProjectNeedCapacity = 0;
+	ConstructionShips.Empty();
+	ConstructionStaticShips.Empty();
 }
 
 void UFlareCompanyAI::FindResourcesForStationConstruction()
