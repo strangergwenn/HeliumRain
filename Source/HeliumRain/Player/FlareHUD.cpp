@@ -601,13 +601,13 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
 
+		// Sector forces
+		FlareDrawText(CurrentSector->GetSectorBalanceText().ToString(), CurrentPos, Theme.FriendlyColor, false);
+		CurrentPos += InstrumentLine;
+
 		// Battle status
 		FText BattleStatusText = CurrentSector->GetSectorBattleStateText(PC->GetCompany());
 		FlareDrawText(BattleStatusText.ToString(), CurrentPos, Theme.FriendlyColor, false);
-		CurrentPos += InstrumentLine;
-
-		// Sector forces
-		FlareDrawText(CurrentSector->GetSectorBalanceText().ToString(), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += 2 * InstrumentLine;
 
 		// Target info

@@ -1292,7 +1292,11 @@ void AFlareSpacecraft::DeactivateWeapon()
 	{
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
 		GetPC()->SetSelectingWeapon();
-		GetPC()->ClientPlaySound(WeaponUnloadedSound);
+
+		if (GetWeaponsSystem()->GetActiveWeaponGroup())
+		{
+			GetPC()->ClientPlaySound(WeaponUnloadedSound);
+		}
 		GetWeaponsSystem()->DeactivateWeapons();
 	}
 }
@@ -1325,7 +1329,10 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 	// Fighter
 	else if(!StateManager->IsPilotMode())
 	{
-		GetPC()->ClientPlaySound(WeaponLoadedSound);
+		if (Index != GetWeaponsSystem()->GetActiveWeaponGroupIndex())
+		{
+			GetPC()->ClientPlaySound(WeaponLoadedSound);
+		}
 
 		GetWeaponsSystem()->ActivateWeaponGroup(Index);
 		if (GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
