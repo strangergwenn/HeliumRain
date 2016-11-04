@@ -1152,7 +1152,9 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			if (Spacecraft == PlayerShip->GetCurrentTarget())
 			{
 				FString DistanceText = FormatDistance(Distance / 100);
-				FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 2 * CornerSize * FVector2D::UnitVector;
+				FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2)
+					+ FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2)
+					+ FVector2D(2 * CornerSize, 3 * CornerSize);
 				FlareDrawText(DistanceText, DistanceTextPosition, Color);
 			}
 
