@@ -170,12 +170,12 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 {
 	FLOGV("UFlareSoundManager::SetMasterVolume %d", Volume);
 
-	// Volume is doubled, because it sounds quite low
-	float MasterVolume = 2.0f * FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
-
+	// Get device
 	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
 	FCHECK(AudioDevice);
-	
+
+	// Apply volume
+	float MasterVolume = 5.0f * FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
 }
 

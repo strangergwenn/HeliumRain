@@ -404,7 +404,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	}
 	else
 	{
-		TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
+		TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Temperature: {0}K"), FText::AsNumber(Temperature));
 		TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature());
 	}
 
