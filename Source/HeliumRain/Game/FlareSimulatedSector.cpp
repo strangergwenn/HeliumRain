@@ -1177,27 +1177,8 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 		return EFlareSectorFriendlyness::Neutral;
 	}
 
-	int HostileSpacecraftCount = 0;
-	int NeutralSpacecraftCount = 0;
-	int FriendlySpacecraftCount = 0;
-
-	for (int SpacecraftIndex = 0 ; SpacecraftIndex < GetSectorSpacecrafts().Num(); SpacecraftIndex++)
-	{
-		UFlareCompany* OtherCompany = GetSectorSpacecrafts()[SpacecraftIndex]->GetCompany();
-
-		if (OtherCompany == Company)
-		{
-			FriendlySpacecraftCount++;
-		}
-		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
-		{
-			HostileSpacecraftCount++;
-		}
-		else
-		{
-			NeutralSpacecraftCount++;
-		}
-	}
+	int FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount;
+	GetSectorBalance(FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount);
 
 	if (FriendlySpacecraftCount > 0 && HostileSpacecraftCount > 0)
 	{
