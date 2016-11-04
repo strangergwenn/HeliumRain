@@ -1035,19 +1035,19 @@ void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShi
 
 	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
 	{
-		switch (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility())
+		if (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility() == EFlareHostility::Hostile
+		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
 		{
-			case EFlareHostility::Friendly:
-			case EFlareHostility::Owned:
-				PlayerShips++;
-				break;
-			case EFlareHostility::Hostile:
-				EnemyShips++;
-				break;
-			case EFlareHostility::Neutral:
-			default:
-				NeutralShips++;
-				break;
+			EnemyShips++;
+		}
+		else if (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned
+		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
+		{
+			PlayerShips++;
+		}
+		else
+		{
+			NeutralShips++;
 		}
 	}
 }
