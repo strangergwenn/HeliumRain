@@ -487,7 +487,7 @@ void UFlarePeople::KillPeople(uint32 KillCount)
 {
 	// Never kill people below the base population
 
-	int32 PeopleToKill = FMath::Min(KillCount, PeopleData.Population - GetBasePopulation());
+	int32 PeopleToKill = FMath::Min((int32) KillCount, (int32)PeopleData.Population - GetBasePopulation());
 
 	if (PeopleToKill <= 0)
 	{
