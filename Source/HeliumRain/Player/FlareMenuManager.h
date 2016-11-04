@@ -88,7 +88,7 @@ public:
 	void Reload();
 
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Objective, bool Pinned = false, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
+	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned = false, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
 
 	/** Remove all notifications from the screen */
 	void FlushNotifications();

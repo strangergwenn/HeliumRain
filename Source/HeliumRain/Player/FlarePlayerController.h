@@ -304,6 +304,12 @@ protected:
 		Gameplay data
 	----------------------------------------------------*/
 
+	// Sounds
+	UPROPERTY() USoundCue*                   NotificationInfoSound;
+	UPROPERTY() USoundCue*                   NotificationCombatSound;
+	UPROPERTY() USoundCue*                   NotificationQuestSound;
+	UPROPERTY() USoundCue*                   NotificationTradingSound;
+
 	// Sound manager
 	UPROPERTY()
 	UFlareSoundManager*                      SoundManager;

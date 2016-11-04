@@ -37,6 +37,18 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	DustEffectTemplate = DustEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
 
+	// Sound data
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationInfoSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationInfo"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationCombatSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationCombat"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationQuestSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationQuest"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationEconomy"));
+
+	// Sound
+	NotificationInfoSound = NotificationInfoSoundObj.Object;
+	NotificationCombatSound = NotificationCombatSoundObj.Object;
+	NotificationQuestSound = NotificationQuestSoundObj.Object;
+	NotificationTradingSound = NotificationTradingSoundObj.Object;
+
 	// Gameplay
 	QuickSwitchNextOffset = 0;
 	CurrentObjective.Set = false;
@@ -469,7 +481,20 @@ void AFlarePlayerController::Clean()
 void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
+
+	// Notify
 	MenuManager->Notify(Title, Info, Tag, Type, Pinned, TargetMenu, TargetInfo);
+
+	// Play sound
+	USoundCue* NotifSound = NULL;
+	switch (Type)
+	{
+		case EFlareNotification::NT_Info:      NotifSound = NotificationInfoSound;      break;
+		case EFlareNotification::NT_Military:  NotifSound = NotificationCombatSound;    break;
+		case EFlareNotification::NT_Quest:	   NotifSound = NotificationQuestSound;     break;
+		case EFlareNotification::NT_Economy:   NotifSound = NotificationTradingSound;   break;
+	}
+	MenuManager->GetPC()->ClientPlaySound(NotifSound);
 }
 
 void AFlarePlayerController::SetupCockpit()

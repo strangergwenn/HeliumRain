@@ -147,7 +147,7 @@ void UFlareTravel::EndTravel()
 				Fleet->GetFleetName(),
 				DestinationSector->GetSectorName()),
 			FName("travel-end"),
-			EFlareNotification::NT_Economy,
+			EFlareNotification::NT_Info,
 			false,
 			EFlareMenu::MENU_Sector,
 			Data);
