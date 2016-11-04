@@ -170,7 +170,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	TradingBoth = 0.5f;
 
 	ShipyardAffility = 1.0;
-	ConsumerAffility = 0.1;
+	ConsumerAffility = 0.5;
 	MaintenanceAffility = 0.1;
 
 	// Budjet
