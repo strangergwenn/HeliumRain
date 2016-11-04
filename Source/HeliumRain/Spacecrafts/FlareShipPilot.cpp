@@ -399,6 +399,11 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	float Experience = 0.5;
 
+	if(WantFire)
+	{
+		TimeSinceAiming -= 10 * DeltaSeconds / Experience;
+		TimeSinceAiming = FMath::Max(0.f, TimeSinceAiming);
+	}
 	if(FMath::RadiansToDegrees(TargetAxisAngularPrecision) < 30)
 	{
 		TimeSinceAiming += DeltaSeconds;
