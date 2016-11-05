@@ -88,5 +88,6 @@ protected:
 	float ActiveTime;
 
 	UFlareWeapon* ParentWeapon;
+	AFlarePlayerController* PC;
 
 };
