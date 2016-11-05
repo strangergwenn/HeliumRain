@@ -61,8 +61,10 @@ void UFlareTurretPilot::PlayerSetAim(FVector AimDirection)
 
 void UFlareTurretPilot::PlayerStartFire()
 {
-	// TODO #558 : check safe to fire / can reach / reloading... ?
-	WantFire = true;
+	if (Turret->IsCloseToAim())
+	{
+		WantFire = true;
+	}
 }
 
 void UFlareTurretPilot::PlayerStopFire()

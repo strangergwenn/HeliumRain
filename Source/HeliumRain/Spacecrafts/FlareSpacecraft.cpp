@@ -412,7 +412,7 @@ void AFlareSpacecraft::Destroyed()
 				AFlareSpacecraft* PlayerTarget = PC->GetShipPawn()->GetCurrentTarget();
 				if (PlayerTarget == this)
 				{
-					PC->GetShipPawn()->ResetCurrentTarget();
+					//PC->GetShipPawn()->ResetCurrentTarget();
 				}
 			}
 

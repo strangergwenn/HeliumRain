@@ -109,7 +109,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	if (Firing && IsReadyToFire() && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		if (GetCurrentAmmo() > 0)
 		{
@@ -273,6 +273,11 @@ void UFlareWeapon::StartFire()
 void UFlareWeapon::StopFire()
 {
 	Firing = false;
+}
+
+bool UFlareWeapon::IsReadyToFire() const
+{
+	return (TimeSinceLastShell >= FiringPeriod);
 }
 
 float UFlareWeapon::GetHeatProduction() const

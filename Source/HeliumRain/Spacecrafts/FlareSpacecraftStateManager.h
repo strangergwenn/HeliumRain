@@ -118,6 +118,7 @@ protected:
 	bool                                     PlayerLeftMousePressed;
 	bool                                     PlayerManualLockDirection;
 	FVector                                  PlayerManualAngularVelocity; // In local space
+	FVector                                  FireDirectorAngularVelocity; // In local space
 	FVector                                  PlayerManualLinearVelocity;
 	FVector2D                                PlayerMousePosition;
 	float	                                 PlayerManualVelocityCommand;

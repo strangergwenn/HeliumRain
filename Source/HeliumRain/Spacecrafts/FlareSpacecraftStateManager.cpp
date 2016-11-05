@@ -165,35 +165,36 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		Spacecraft->ForceManual();
 	}
 
-	// Control
-	switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+	// Mouse control
+	if (Spacecraft->IsFlownByPlayer() && PC && !PC->GetNavHUD()->IsWheelMenuOpen() && !PC->GetMenuManager()->IsUIOpen())
 	{
-		case EFlareWeaponGroupType::WG_TURRET:
+		// Compensation curve
+		float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerAim.X) + FMath::Square(PlayerAim.Y));
+		float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio), 0.f, 1.f), MouseSensitivityPower);
+		float Angle = FMath::Atan2(PlayerAim.Y, PlayerAim.X);
+
+		// Pass data
+		if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
+		{
+			FireDirectorAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			FireDirectorAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
 			PlayerManualAngularVelocity.Z = 0;
 			PlayerManualAngularVelocity.Y = 0;
-			break;
-
-		case EFlareWeaponGroupType::WG_NONE:
-		case EFlareWeaponGroupType::WG_GUN:
-		case EFlareWeaponGroupType::WG_BOMB:
-		{
-			if (Spacecraft->IsFlownByPlayer() && PC && !PC->GetNavHUD()->IsWheelMenuOpen() && !PC->GetMenuManager()->IsUIOpen())
-			{
-				// Compensation curve
-				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerAim.X) + FMath::Square(PlayerAim.Y));
-				float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio), 0.f, 1.f), MouseSensitivityPower);
-				float Angle = FMath::Atan2(PlayerAim.Y, PlayerAim.X);
-
-				PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-				PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-			}
-			else
-			{
-				PlayerManualAngularVelocity.Z = 0;
-				PlayerManualAngularVelocity.Y = 0;
-			}
 		}
-		break;
+		else
+		{
+			FireDirectorAngularVelocity.Z = 0;
+			FireDirectorAngularVelocity.Y = 0;
+			PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+		}
+	}
+	else
+	{
+		PlayerManualAngularVelocity.Z = 0;
+		PlayerManualAngularVelocity.Y = 0;
+		FireDirectorAngularVelocity.Z = 0;
+		FireDirectorAngularVelocity.Y = 0;
 	}
 
 	// Update Camera
@@ -213,13 +214,23 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		}
 	}
 
-	if (ExternalCamera)
+	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
+	{
+		ExternalCameraYaw += FireDirectorAngularVelocity.Z * DeltaSeconds;
+
+		ExternalCameraPitch -= FireDirectorAngularVelocity.Y * DeltaSeconds;
+		ExternalCameraPitch = FMath::Clamp(ExternalCameraPitch, 0.0f, 80.0f);
+
+		Spacecraft->SetCameraPitch(ExternalCameraPitch);
+		Spacecraft->SetCameraYaw(ExternalCameraYaw);
+		Spacecraft->SetCameraDistance(0);
+	}
+	else if (ExternalCamera)
 	{
 		float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
+
 		ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
-
 		ExternalCameraPitchTarget = FMath::Clamp(ExternalCameraPitchTarget, -Spacecraft->GetCameraMaxPitch(), Spacecraft->GetCameraMaxPitch());
-
 		ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
 		ExternalCameraDistance = ExternalCameraDistance * (1 - Speed) + ExternalCameraDistanceTarget * Speed;
 
@@ -238,8 +249,6 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		Spacecraft->SetCameraPitch(InternalCameraPitch);
 		Spacecraft->SetCameraYaw(InternalCameraYaw);
 	}
-	// TODO Camera smoothing
-
 }
 
 void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
@@ -508,7 +517,6 @@ FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
 		return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(PlayerManualAngularVelocity);
 	}
 }
-
 
 bool UFlareSpacecraftStateManager::IsUseOrbitalBoost() const
 {

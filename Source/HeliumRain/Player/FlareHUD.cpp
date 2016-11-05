@@ -4,6 +4,7 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlarePilotHelper.h"
+#include "../Spacecrafts/FlareTurret.h"
 #include "../Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Game/AI/FlareCompanyAI.h"
@@ -946,6 +947,31 @@ void AFlareHUD::DrawHUDInternal()
 		}
 	}
 
+	// Draw turrets in fire director
+	if (WeaponType == EFlareWeaponGroupType::WG_TURRET)
+	{
+		for (auto Weapon : PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons)
+		{
+			UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
+			FVector EndPoint = Turret->GetTurretBaseLocation() + Turret->GetFireAxis() * 1000000;
+			FVector2D ScreenPosition;
+
+			if (ProjectWorldLocationToCockpit(EndPoint, ScreenPosition))
+			{
+				FLinearColor TurretColor = HudColorEnemy;
+				if (!Turret->IsReadyToFire())
+				{
+					TurretColor = HudColorObjective;
+				}
+				else if (Turret->IsCloseToAim())
+				{
+					TurretColor = HudColorNeutral;
+				}
+				DrawHUDIcon(ScreenPosition, IconSize, HUDAimIcon, TurretColor, true);
+			}
+		}
+	}
+
 	// Draw bomb marker
 	if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 	{
@@ -996,7 +1022,6 @@ void AFlareHUD::DrawDebugGrid(FLinearColor Color)
 	{
 		for (int32 VIndex = -VPrecision; VIndex <= VPrecision; VIndex++)
 		{
-
 			FVector2D Screen = FVector2D(0.5 * ViewportSize.X * ((VPrecision + VIndex) / VPrecision),
 										 0.5 * ViewportSize.Y * ((HPrecision + HIndex) / HPrecision));
 			FVector2D Cockpit = Screen;
@@ -1072,7 +1097,7 @@ void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, bool
 	if (Direction.Size() < MaxDistance)
 	{
 		// Compute position
-		FVector LocalDirection = Ship->GetRootComponent()->GetComponentToWorld().GetRotation().Inverse().RotateVector(Direction);
+		FVector LocalDirection = Ship->GetCamera()->GetComponentToWorld().GetRotation().Inverse().RotateVector(Direction);
 		FVector2D ScreenspacePosition = FVector2D(LocalDirection.Y, -LocalDirection.Z);
 		ScreenspacePosition.Normalize();
 		ScreenspacePosition *= 1.2 * CombatMouseRadius;
@@ -1168,13 +1193,14 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 						EFlareShellDamageType::Type DamageType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Description->WeaponCharacteristics.DamageType;
 						bool FighterTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_GUN && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
+						bool FireDirector = WeaponType == EFlareWeaponGroupType::WG_TURRET;
 						bool BomberTargettingSmall = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::S;
 						bool BomberTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
 						bool Salvage = (DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage);
 						bool AntiLarge = (DamageType == EFlareShellDamageType::HEAT);
 
 						// Draw helper if it makes sense
-						if (!(FighterTargettingLarge && !AntiLarge) && !(BomberTargettingSmall && ! Salvage))
+						if (!(FighterTargettingLarge && !AntiLarge) && !(BomberTargettingSmall && ! Salvage) || FireDirector)
 						{
 							DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
 						}

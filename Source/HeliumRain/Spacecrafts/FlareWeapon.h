@@ -37,6 +37,9 @@ public:
 	/** Stop firing */
 	virtual void StopFire();
 
+	/** Is this weapon ready to fire a shell ?*/
+	virtual bool IsReadyToFire() const;
+
 	/** Return the current amount of heat production in KW */
 	virtual float GetHeatProduction() const override;
 

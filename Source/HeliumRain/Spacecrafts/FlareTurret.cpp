@@ -306,6 +306,11 @@ FVector UFlareTurret::GetTurretBaseLocation() const
 	return GetComponentLocation();
 }
 
+bool UFlareTurret::IsCloseToAim() const
+{
+	return (FVector::DotProduct(AimDirection, GetFireAxis()) > 0.999);
+}
+
 bool UFlareTurret::IsSafeToFire(int GunIndex, AActor*& HitTarget) const
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_IsSafeToFire);
