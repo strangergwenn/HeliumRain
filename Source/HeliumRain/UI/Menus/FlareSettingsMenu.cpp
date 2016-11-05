@@ -27,7 +27,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	// Current settings
 	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
 	float CurrentEffectsQualityRatio = MyGameSettings->ScalabilityQuality.EffectsQuality / 3.f;
-	float CurrentAntiAliasingQualityRatio = MyGameSettings->ScalabilityQuality.AntiAliasingQuality / 3.f;
+	float CurrentAntiAliasingQualityRatio = MyGameSettings->ScalabilityQuality.AntiAliasingQuality / 6.f;
 	float CurrentPostProcessQualityRatio = MyGameSettings->ScalabilityQuality.PostProcessQuality / 3.f;
 	FLOGV("MyGameSettings->ScalabilityQuality.TextureQuality=%d CurrentTextureQualityRatio=%f", MyGameSettings->ScalabilityQuality.TextureQuality, CurrentTextureQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.EffectsQuality=%d CurrentEffectsQualityRatio=%f", MyGameSettings->ScalabilityQuality.EffectsQuality, CurrentEffectsQualityRatio);
@@ -39,8 +39,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	// General data
 	FLinearColor Color = Theme.NeutralColor;
 	Color.A = Theme.DefaultAlpha;
-	int32 LabelSize = 250;
-	int32 ValueSize = 50;
+	int32 LabelSize = 200;
+	int32 ValueSize = 100;
 
 	// Build structure
 	ChildSlot
@@ -1003,7 +1003,7 @@ void SFlareSettingsMenu::OnEffectsQualitySliderChanged(float Value)
 
 void SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged(float Value)
 {
-	int32 Step = 3;
+	int32 Step = 6;
 	int32 StepValue = FMath::RoundToInt(Step * Value);
 	AntiAliasingQualitySlider->SetValue((float)StepValue / (float)Step);
 
@@ -1260,14 +1260,14 @@ FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value) const
 	switch(Value)
 	{
 		case 1:
-			return LOCTEXT("TextureQualityLow", "Low");
-		case 2:
 			return LOCTEXT("TextureQualityMedium", "Medium");
-		case 3:
+		case 2:
 			return LOCTEXT("TextureQualityHigh", "High");
+		case 3:
+			return LOCTEXT("TextureQualityUltra", "Ultra");
 		case 0:
 		default:
-			return LOCTEXT("TextureQualityVeryLow", "Very Low");
+			return LOCTEXT("TextureQualityLow", "Low");
 	}
 }
 
@@ -1276,14 +1276,14 @@ FText SFlareSettingsMenu::GetEffectsQualityLabel(int32 Value) const
 	switch(Value)
 	{
 		case 1:
-			return LOCTEXT("EffectsQualityLow", "Low");
-		case 2:
 			return LOCTEXT("EffectsQualityMedium", "Medium");
-		case 3:
+		case 2:
 			return LOCTEXT("EffectsQualityHigh", "High");
+		case 3:
+			return LOCTEXT("EffectsQualityUltra", "Ultra");
 		case 0:
 		default:
-			return LOCTEXT("EffectsQualityVeryLow", "Very Low");
+			return LOCTEXT("EffectsQualityLow", "Low");
 	}
 }
 
@@ -1292,14 +1292,20 @@ FText SFlareSettingsMenu::GetAntiAliasingQualityLabel(int32 Value) const
 	switch(Value)
 	{
 		case 1:
-			return LOCTEXT("AntiAliasingQualityLow", "Low");
+			return LOCTEXT("AntiAliasingQualityVeryLow", "Very low");
 		case 2:
-			return LOCTEXT("AntiAliasingQualityMedium", "Medium");
+			return LOCTEXT("AntiAliasingQualityLow", "Low");
 		case 3:
+			return LOCTEXT("AntiAliasingQualityMedium", "Medium");
+		case 4:
 			return LOCTEXT("AntiAliasingQualityHigh", "High");
+		case 5:
+			return LOCTEXT("AntiAliasingQualityVeryHigh", "Very high");
+		case 6:
+			return LOCTEXT("AntiAliasingQualityUltra", "Ultra");
 		case 0:
 		default:
-			return LOCTEXT("AntiAliasingQualityDisabled", "Disabled");		
+			return LOCTEXT("AntiAliasingQualityDisabled", "Off");		
 	}
 }
 
@@ -1308,14 +1314,14 @@ FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
 	switch(Value)
 	{
 		case 1:
-			return LOCTEXT("PostProcessQualityLow", "Low");
-		case 2:
 			return LOCTEXT("PostProcessQualityMedium", "Medium");
-		case 3:
+		case 2:
 			return LOCTEXT("PostProcessQualityHigh", "High");
+		case 3:
+			return LOCTEXT("PostProcessQualityUltra", "Ultra");
 		case 0:
 		default:
-			return LOCTEXT("PostProcessQualityVeryLow", "Very Low");
+			return LOCTEXT("PostProcessQualityLow", "Low");
 	}
 }
 
