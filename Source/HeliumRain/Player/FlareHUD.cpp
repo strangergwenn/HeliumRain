@@ -838,7 +838,7 @@ void AFlareHUD::DrawHUDInternal()
 	if (HUDVisible && !IsExternalCamera)
 	{
 		UTexture2D* NoseIcon = HUDNoseIcon;
-		if (WeaponType == EFlareWeaponGroupType::WG_GUN)
+		if (WeaponType == EFlareWeaponGroupType::WG_GUN || WeaponType == EFlareWeaponGroupType::WG_TURRET)
 		{
 			NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
 		}
@@ -967,7 +967,7 @@ void AFlareHUD::DrawHUDInternal()
 				{
 					TurretColor = HudColorNeutral;
 				}
-				DrawHUDIcon(ScreenPosition, IconSize, HUDAimIcon, TurretColor, true);
+				DrawHUDIcon(ScreenPosition, IconSize, HUDNoseIcon, TurretColor, true);
 			}
 		}
 	}

@@ -93,10 +93,16 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	{
 		AimAxis = ManualAimDirection;
 
-		// Aim the turret toward the target or a distant point
+		// Try getting a target
 		AActor* HitTarget = NULL;
 		Turret->IsSafeToFire(0, HitTarget);
-		if (HitTarget && HitTarget != Turret->GetSpacecraft())
+		if (!HitTarget || HitTarget == Turret->GetSpacecraft())
+		{
+			HitTarget = Turret->GetSpacecraft()->GetCurrentTarget();
+		}
+
+		// Aim the turret toward the target or a distant point
+		if (HitTarget)
 		{
 			FVector Location = PilotTargetShip->GetActorLocation();
 			FVector Velocity = Cast<UPrimitiveComponent>(PilotTargetShip->GetRootComponent())->GetPhysicsLinearVelocity() / 100;
