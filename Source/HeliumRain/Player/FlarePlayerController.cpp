@@ -286,8 +286,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Setup everything
 	ShipPawn = Ship;
 	SetExternalCamera(false);
+	ShipPawn->ForceManual();
 	ShipPawn->GetStateManager()->EnablePilot(false);
-	ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
 

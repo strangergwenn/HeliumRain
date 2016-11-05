@@ -75,14 +75,20 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
 	{
 		Spacecraft->GetPilot()->TickPilot(DeltaSeconds);
-		int32 PreferedWeaponGroup = Spacecraft->GetPilot()->GetPreferedWeaponGroup();
-		if (PreferedWeaponGroup >= 0)
+
+		// Fighters can use different weapons.
+		// If this is needed for capitals too, it needs to check that the player didn't select a group already.
+		if (Spacecraft->GetDescription()->Size == EFlarePartSize::S)
 		{
-			Spacecraft->GetWeaponsSystem()->ActivateWeaponGroup(PreferedWeaponGroup);
-		}
-		else
-		{
-			Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
+			int32 PreferedWeaponGroup = Spacecraft->GetPilot()->GetPreferedWeaponGroup();
+			if (PreferedWeaponGroup >= 0)
+			{
+				Spacecraft->GetWeaponsSystem()->ActivateWeaponGroup(PreferedWeaponGroup);
+			}
+			else
+			{
+				Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
+			}
 		}
 	}
 
@@ -238,9 +244,13 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
 {
+	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
+	{
+		PilotEnabled = true;
+	}
+
 	IsPiloted = PilotEnabled;
 }
-
 
 void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 {
@@ -377,6 +387,7 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.X)
 	{
+		EnablePilot(false);
 		LinearVelocityIsJoystick = false;
 		LastPlayerLinearVelocityKeyboard.X = Val;
 		PlayerManualLinearVelocity.X = Val;
@@ -387,6 +398,7 @@ void UFlareSpacecraftStateManager::SetPlayerYLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.Y)
 	{
+		EnablePilot(false);
 		LastPlayerLinearVelocityKeyboard.Y = Val;
 		PlayerManualLinearVelocity.Y = Val;
 	}
@@ -396,6 +408,7 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.Z)
 	{
+		EnablePilot(false);
 		LastPlayerLinearVelocityKeyboard.Z = Val;
 		PlayerManualLinearVelocity.Z = Val;
 	}
@@ -405,6 +418,7 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.X)
 	{
+		EnablePilot(false);
 		LinearVelocityIsJoystick = true;
 		LastPlayerLinearVelocityJoystick.X = Val;
 		PlayerManualLinearVelocity.X = Val;
@@ -415,6 +429,7 @@ void UFlareSpacecraftStateManager::SetPlayerYLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.Y)
 	{
+		EnablePilot(false);
 		LastPlayerLinearVelocityJoystick.Y = Val;
 		PlayerManualLinearVelocity.Y = Val;
 	}
@@ -424,6 +439,7 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.Z)
 	{
+		EnablePilot(false);
 		LastPlayerLinearVelocityJoystick.Z = Val;
 		PlayerManualLinearVelocity.Z = Val;
 	}
@@ -433,6 +449,7 @@ void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocityKeyboard(float Va
 {
 	if (Val != LastPlayerAngularRollKeyboard)
 	{
+		EnablePilot(false);
 		LastPlayerAngularRollKeyboard = Val;
 		PlayerManualAngularVelocity.X = Val;
 	}
@@ -442,6 +459,7 @@ void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocityJoystick(float Va
 {
 	if (Val != LastPlayerAngularRollJoystick)
 	{
+		EnablePilot(false);
 		LastPlayerAngularRollJoystick = Val;
 		PlayerManualAngularVelocity.X = Val;
 	}
@@ -506,7 +524,13 @@ bool UFlareSpacecraftStateManager::IsUseOrbitalBoost() const
 
 bool UFlareSpacecraftStateManager::IsWantFire() const
 {
-	if (IsPiloted)
+	bool PlayerWantsToFire = (PlayerLeftMousePressed || PlayerFiring) && !Spacecraft->GetPC()->GetMenuManager()->IsUIOpen();
+
+	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
+	{
+		return PlayerWantsToFire;
+	}
+	else if (IsPiloted)
 	{
 		return Spacecraft->GetPilot()->IsWantFire();
 	}
@@ -518,7 +542,7 @@ bool UFlareSpacecraftStateManager::IsWantFire() const
 		}
 		else if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 		{
-			return (PlayerLeftMousePressed || PlayerFiring) && !Spacecraft->GetPC()->GetMenuManager()->IsUIOpen();
+			return PlayerWantsToFire;
 		}
 		else
 		{

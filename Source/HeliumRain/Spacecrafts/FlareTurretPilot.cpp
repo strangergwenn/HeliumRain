@@ -79,7 +79,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	TimeUntilNextComponentSwitch-= DeltaSeconds;
 
 	// Is the player manually controlling this ? If not, pick a target
-	bool IsManualFireDirector = Turret->GetSpacecraft()->GetWeaponsSystem()->GetActiveWeaponGroup() == Turret->GetWeaponGroup();
+	bool IsManualFireDirector = Turret->GetSpacecraft()->GetWeaponsSystem()->IsInFireDirector();
 	if (!IsManualFireDirector)
 	{
 		ProcessTurretTargetSelection();

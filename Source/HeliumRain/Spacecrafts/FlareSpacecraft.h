@@ -88,8 +88,7 @@ public:
 	virtual void SetOwnerCompany(UFlareCompany* Company);
 	
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
-
-
+	
 	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const;
 
 	virtual UFlareSpacecraftNavigationSystem* GetNavigationSystem() const;
@@ -108,19 +107,9 @@ public:
 	void ApplyAsteroidData();
 
 	void UpdateDynamicComponents();
-
-	/*inline UFlareCargoBay* GetCargoBay() override
-	{
-		return CargoBay;
-	}*/
-
+	
 	UFlareSimulatedSector* GetOwnerSector();
-
-	/*inline int32 GetLevel() const override
-	{
-		return ShipData.Level;
-	}*/
-
+	
 public:
 
 	/*----------------------------------------------------
@@ -387,7 +376,7 @@ public:
 		return Cast<UCameraComponent>(Camera);
 	}
 
-	inline UFlareSpacecraftStateManager* GetStateManager()
+	inline UFlareSpacecraftStateManager* GetStateManager() const
 	{
 		return StateManager;
 	}

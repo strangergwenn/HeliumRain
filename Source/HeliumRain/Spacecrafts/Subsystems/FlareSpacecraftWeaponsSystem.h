@@ -61,6 +61,9 @@ public:
 	virtual void ActivateWeapons();
 	virtual void DeactivateWeapons();
 
+	/** Are we using the fire director mode where the player fires turret on capital ships ? */
+	bool IsInFireDirector();
+
 	virtual int32 GetGroupByWeaponIdentifer(FName Identifier) const;
 
 	virtual bool HasUsableWeaponType(EFlareWeaponGroupType::Type Type) const;

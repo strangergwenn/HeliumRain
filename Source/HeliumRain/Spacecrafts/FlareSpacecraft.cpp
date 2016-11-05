@@ -1281,12 +1281,9 @@ void AFlareSpacecraft::LeftMouseRelease()
 
 void AFlareSpacecraft::DeactivateWeapon()
 {
-	GetStateManager()->EnablePilot(false);
-
 	if (IsMilitary())
 	{
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
-		GetPC()->SetSelectingWeapon();
 
 		// Fighters have an unloading sound
 		if (GetDescription()->Size == EFlarePartSize::S)
@@ -1298,7 +1295,10 @@ void AFlareSpacecraft::DeactivateWeapon()
 		}
 
 		GetWeaponsSystem()->DeactivateWeapons();
+		GetStateManager()->EnablePilot(false);
 	}
+
+	GetPC()->SetSelectingWeapon();
 }
 
 void AFlareSpacecraft::ActivateWeaponGroup1()
@@ -1319,10 +1319,11 @@ void AFlareSpacecraft::ActivateWeaponGroup3()
 void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 {
 	FLOGV("AFlareSpacecraft::ActivateWeaponGroup : %d", Index);
-	GetStateManager()->EnablePilot(false);
 
 	if (IsMilitary())
 	{
+		GetStateManager()->EnablePilot(false);
+
 		// Fighters have a loading sound
 		if (GetDescription()->Size == EFlarePartSize::S)
 		{
@@ -1335,8 +1336,7 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 		// Capitals move to autopilot when using fire director
 		else
 		{
-			// TODO #558 : Ship pilot that doesn't fight
-			//GetStateManager()->EnablePilot(true);
+			GetStateManager()->EnablePilot(true);
 		}
 
 		// Change group
@@ -1354,7 +1354,7 @@ void AFlareSpacecraft::NextWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
 	
-	if (WeaponSystems && IsMilitary() && !StateManager->IsPilotMode())
+	if (WeaponSystems && IsMilitary())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
@@ -1370,18 +1370,8 @@ void AFlareSpacecraft::PreviousWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
 	
-	// Capital ship
-	if (GetDescription()->Size == EFlarePartSize::L)
-	{
-		int32 CurrentIndex = GetCompany()->GetTacticManager()->GetCurrentShipGroup() - 1;
-		CurrentIndex = FMath::Clamp(CurrentIndex, 0, static_cast<int32>(EFlareCombatGroup::Civilan));
-		FLOGV("AFlareSpacecraft::NextWeapon : group %d", CurrentIndex);
-
-		GetCompany()->GetTacticManager()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
-	}
-
 	// Fighter
-	else if (WeaponSystems && !StateManager->IsPilotMode())
+	if (WeaponSystems)
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount() - 1);
@@ -1638,7 +1628,15 @@ void AFlareSpacecraft::FindTarget()
 	TargetPreferences.AlignementWeight = 0.1;
 	TargetPreferences.BaseLocation = GetActorLocation();
 
-	GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil, &TargetPreferences.IsUncontrollableMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned, GetWeaponsSystem()->GetActiveWeaponGroup());
+	GetWeaponsSystem()->GetTargetPreference(
+		&TargetPreferences.IsSmall,
+		&TargetPreferences.IsLarge,
+		&TargetPreferences.IsUncontrollableCivil,
+		&TargetPreferences.IsUncontrollableMilitary,
+		&TargetPreferences.IsNotUncontrollable,
+		&TargetPreferences.IsStation,
+		&TargetPreferences.IsHarpooned,
+		GetWeaponsSystem()->GetActiveWeaponGroup());
 
 	TargetCandidate = PilotHelper::GetBestTarget(this, TargetPreferences);
 
@@ -1677,7 +1675,18 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 	if (Nav->IsAutoPilot())
 	{
-		AutopilotText = LOCTEXT("AutopilotMod", "(Autopilot)");
+		AutopilotText = LOCTEXT("AutopilotMod", "(Auto)");
+	}
+
+	// Get mode info
+	FText ActionInfo;
+	if (GetStateManager()->IsPilotMode())
+	{
+		ActionInfo = LOCTEXT("AutoPilotModeInfo", "Auto-piloted");
+	}
+	else
+	{
+		ActionInfo = GetWeaponsSystem()->GetWeaponModeInfo();
 	}
 
 	// Build mode text
@@ -1704,7 +1713,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 		Speed = IsMovingForward() ? Speed : -Speed;
 		ModeText = FText::Format(LOCTEXT("SpeedNotPausedFormat", "{0}m/s - {1} in {2}"),
 			FText::AsNumber(FMath::RoundToInt(Speed)),
-			GetWeaponsSystem()->GetWeaponModeInfo(),
+			ActionInfo,
 			CurrentSector->GetSimulatedSector()->GetSectorName());
 	}
 	else

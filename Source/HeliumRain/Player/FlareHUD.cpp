@@ -455,7 +455,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		}
 		else
 		{
-			DisarmText = LOCTEXT("WeaponsDisabledHeavy", "Automatic combat");
+			DisarmText = LOCTEXT("WeaponsDisabledHeavy", "Navigation mode");
 		}		
 
 		if (CurrentWeaponGroup)

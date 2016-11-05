@@ -64,21 +64,24 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 			}
 			break;
 
-		// For turrets, use the fire controller
+		// For turrets, use the fire director
 		case EFlareWeaponGroupType::WG_TURRET:
-			for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
+			if (IsInFireDirector())
 			{
-				UFlareTurretPilot* Pilot = Cast<UFlareTurret>(ActiveWeaponGroup->Weapons[i])->GetTurretPilot();
-				FVector AimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector(); // TODO #558 : rotating camera
-				Pilot->PlayerSetAim(AimDirection);
+				for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
+				{
+					UFlareTurretPilot* Pilot = Cast<UFlareTurret>(ActiveWeaponGroup->Weapons[i])->GetTurretPilot();
+					FVector AimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector(); // TODO #558 : rotating camera
+					Pilot->PlayerSetAim(AimDirection);
 
-				if (WantFire)
-				{
-					Pilot->PlayerStartFire();
-				}
-				else
-				{
-					Pilot->PlayerStopFire();
+					if (WantFire)
+					{
+						Pilot->PlayerStartFire();
+					}
+					else
+					{
+						Pilot->PlayerStopFire();
+					}
 				}
 			}
 			break;
@@ -269,6 +272,11 @@ void UFlareSpacecraftWeaponsSystem::DeactivateWeapons()
 	StopAllWeapons();
 	ActiveWeaponGroup = NULL;
 	ActiveWeaponGroupIndex = -1;
+}
+
+bool UFlareSpacecraftWeaponsSystem::IsInFireDirector()
+{
+	return (ActiveWeaponGroupIndex >= 0 && Spacecraft->GetDescription()->Size != EFlarePartSize::S);
 }
 
 void UFlareSpacecraftWeaponsSystem::ToogleWeaponActivation()
