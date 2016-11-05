@@ -37,17 +37,23 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	DustEffectTemplate = DustEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
 
+	// Camera shakes
+	static ConstructorHelpers::FObjectFinder<UFlareCameraShakeCatalog> CameraShakeCatalogObj(TEXT("/Game/Gameplay/Catalog/CameraShakeCatalog"));
+	CameraShakeCatalog = CameraShakeCatalogObj.Object;
+
 	// Sound data
 	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationInfoSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationInfo"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationCombatSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationCombat"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationQuestSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationQuest"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationEconomy"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> CrashSoundObj(TEXT("/Game/Master/Sound/Sounds/A_Collision"));
 
 	// Sound
 	NotificationInfoSound = NotificationInfoSoundObj.Object;
 	NotificationCombatSound = NotificationCombatSoundObj.Object;
 	NotificationQuestSound = NotificationQuestSoundObj.Object;
 	NotificationTradingSound = NotificationTradingSoundObj.Object;
+	CrashSound = CrashSoundObj.Object;
 
 	// Gameplay
 	QuickSwitchNextOffset = 0;
@@ -449,6 +455,34 @@ void AFlarePlayerController::SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerS
 void AFlarePlayerController::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)
 {
 	GetNavHUD()->SignalHit(HitSpacecraft, DamageType);
+}
+
+void AFlarePlayerController::SpacecraftHit(EFlarePartSize::Type WeaponSize)
+{
+	EFlarePartSize::Type ShipSize = PlayerShip->GetDescription()->Size;
+
+	if (ShipSize == EFlarePartSize::S && WeaponSize == EFlarePartSize::L)
+	{
+		ClientPlayCameraShake(CameraShakeCatalog->HitHeavy);
+	}
+	else if (ShipSize == WeaponSize)
+	{
+		ClientPlayCameraShake(CameraShakeCatalog->HitNormal);
+	}
+}
+
+void AFlarePlayerController::SpacecraftCrashed()
+{
+	ClientPlaySound(CrashSound);
+
+	if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
+	{
+		ClientPlayCameraShake(CameraShakeCatalog->ImpactS);
+	}
+	else
+	{
+		ClientPlayCameraShake(CameraShakeCatalog->ImpactL);
+	}
 }
 
 void AFlarePlayerController::Clean()

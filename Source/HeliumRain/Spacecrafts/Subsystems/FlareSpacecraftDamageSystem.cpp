@@ -510,10 +510,30 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation().ToString()), Radius, *Location.ToString());
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
-	// Signal hit to player
-	if (DamageSource == Spacecraft->GetGame()->GetPC()->GetShipPawn()->GetParent())
+	// Signal the player he's hit something
+	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+	if (DamageSource == PC->GetShipPawn()->GetParent())
 	{
-		Spacecraft->GetGame()->GetPC()->SignalHit(Spacecraft, DamageType);
+		PC->SignalHit(Spacecraft, DamageType);
+	}
+
+	// Signal the player he's been damaged
+	if (Spacecraft == PC->GetShipPawn())
+	{
+		switch (DamageType)
+		{
+			case EFlareDamage::DAM_ArmorPiercing:
+			case EFlareDamage::DAM_HighExplosive:
+			case EFlareDamage::DAM_HEAT:
+				PC->SpacecraftHit(DamageSource->GetDescription()->Size);
+				break;
+			case EFlareDamage::DAM_Collision:
+				PC->SpacecraftCrashed();
+				break;
+			case EFlareDamage::DAM_Overheat:
+			default:
+				break;
+		}
 	}
 
 	UFlareCompany* CompanyDamageSource = (DamageSource ? DamageSource->GetCompany() : NULL);

@@ -1,13 +1,17 @@
 #pragma once
 
 #include "../Flare.h"
+
 #include "FlareHUD.h"
 #include "FlareMenuPawn.h"
 #include "FlareSoundManager.h"
 #include "FlareCockpitManager.h"
+
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSaveGame.h"
+#include "../Data/FlareCameraShakeCatalog.h"
 #include "../UI/Components/FlareMainOverlay.h"
+
 #include "FlarePlayerController.generated.h"
 
 
@@ -91,6 +95,12 @@ public:
 
 	/** We just hit this spacecraft with a weapon */
 	void SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType);
+
+	/** We've been hit */
+	void SpacecraftHit(EFlarePartSize::Type WeaponSize);
+
+	/** We've impacted into something */
+	void SpacecraftCrashed();
 
 	/** Cleanup the PC owned stuff */
 	void Clean();
@@ -304,11 +314,16 @@ protected:
 		Gameplay data
 	----------------------------------------------------*/
 
+	/** Camera shakes */
+	UPROPERTY()
+	UFlareCameraShakeCatalog*                CameraShakeCatalog;
+
 	// Sounds
 	UPROPERTY() USoundCue*                   NotificationInfoSound;
 	UPROPERTY() USoundCue*                   NotificationCombatSound;
 	UPROPERTY() USoundCue*                   NotificationQuestSound;
 	UPROPERTY() USoundCue*                   NotificationTradingSound;
+	UPROPERTY() USoundCue*                   CrashSound;
 
 	// Sound manager
 	UPROPERTY()
