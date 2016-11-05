@@ -1232,7 +1232,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						bool AntiLarge = (DamageType == EFlareShellDamageType::HEAT);
 
 						// Draw helper if it makes sense
-						if (!(FighterTargettingLarge && !AntiLarge) && !(BomberTargettingSmall && ! Salvage) || FireDirector)
+						if ((!(FighterTargettingLarge && !AntiLarge) && !(BomberTargettingSmall && ! Salvage)) || FireDirector)
 						{
 							DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
 						}
