@@ -131,18 +131,16 @@ void UFlareTurret::SetupComponentMesh()
 	}
 }
 
-
-
 void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Tick);
 
+	FCHECK(Pilot);
 	if (!Spacecraft)
 	{
 		return;
 	}
-
-	if (Spacecraft->IsPresentationMode())
+	else if (Spacecraft->IsPresentationMode())
 	{
 		TurretComponent->SetRelativeRotation(FRotator(0, 0, 0));
 		BarrelComponent->SetRelativeRotation(FRotator(15, 0, 0));
@@ -151,10 +149,9 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		return;
 	}
 
-	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && Pilot)
+	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		Pilot->TickPilot(DeltaTime);
-		//FLOGV("Pilot exist WantFire %d", Pilot->IsWantFire());
 		if (Pilot->IsWantFire())
 		{
 			StartFire();
@@ -163,7 +160,10 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		{
 			StopFire();
 		}
+
 		AimDirection = Pilot->GetTargetAimAxis();
+
+		//FLOGV("Pilot exist WantFire %d", Pilot->IsWantFire());
 		//FLOGV("Pilot AimDirection %s", *AimDirection.ToString());
 	}
 
@@ -173,7 +173,6 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 		if (TurretComponent && ComponentDescription)
 		{
-
 			float TargetTurretAngle = 0;
 			if (AimDirection != FVector::ZeroVector)
 			{
@@ -206,7 +205,6 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 		if (BarrelComponent)
 		{
-
 			float TargetBarrelAngle = 15;
 
 			if (AimDirection != FVector::ZeroVector)
@@ -226,22 +224,25 @@ void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 			// Clamp movements
 			TargetBarrelAngle = FMath::Clamp(TargetBarrelAngle, GetMinLimitAtAngle(ShipComponentData->Turret.TurretAngle), ComponentDescription->WeaponCharacteristics.TurretCharacteristics.BarrelsMaxAngle);
-
-
+			
 			// TODO Add ship specific bound
 
 			float UsableBarrelsVelocity = GetUsableRatio() * ComponentDescription->WeaponCharacteristics.TurretCharacteristics.TurretAngularVelocity;
 			float BarrelAngleDiff = FMath::UnwindDegrees(TargetBarrelAngle - ShipComponentData->Turret.BarrelsAngle);
 
-			if (FMath::Abs(BarrelAngleDiff) <= UsableBarrelsVelocity * DeltaTime) {
+			if (FMath::Abs(BarrelAngleDiff) <= UsableBarrelsVelocity * DeltaTime)
+			{
 				ShipComponentData->Turret.BarrelsAngle = TargetBarrelAngle;
-			} else if (BarrelAngleDiff < 0) {
+			}
+			else if (BarrelAngleDiff < 0)
+			{
 				ShipComponentData->Turret.BarrelsAngle -= UsableBarrelsVelocity * DeltaTime;
-			} else {
+			}
+			else
+			{
 				ShipComponentData->Turret.BarrelsAngle += UsableBarrelsVelocity * DeltaTime;
 			}
 			BarrelComponent->SetRelativeRotation(FRotator(ShipComponentData->Turret.BarrelsAngle, 0, 0));
-
 		}
 	}
 
@@ -269,7 +270,6 @@ FVector UFlareTurret::GetIdleAxis() const
 	// Ship front
 	return Spacecraft->Airframe->GetComponentRotation().RotateVector(FVector(1, 0, 0));
 }
-
 
 FVector UFlareTurret::GetMuzzleLocation(int GunIndex) const
 {
@@ -312,10 +312,10 @@ bool UFlareTurret::IsSafeToFire(int GunIndex) const
 
 	FVector FiringLocation = GetMuzzleLocation(GunIndex);
 	FVector FiringDirection = GetFireAxis();
-	FVector TargetLocation = FiringLocation + FiringDirection * 100000;
+	FVector FireTargetLocation = FiringLocation + FiringDirection * 100000;
 
 	FHitResult HitResult(ForceInit);
-	if (Trace(FiringLocation, TargetLocation, HitResult))
+	if (Trace(FiringLocation, FireTargetLocation, HitResult))
 	{
 		if (HitResult.Actor.IsValid() && HitResult.Actor == Spacecraft)
 		{

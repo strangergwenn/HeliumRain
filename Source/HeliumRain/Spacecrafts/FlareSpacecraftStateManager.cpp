@@ -163,25 +163,9 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
 	{
 		case EFlareWeaponGroupType::WG_TURRET:
-		{
-			if (PlayerLeftMousePressed && !ExternalCamera && !PC->GetMenuManager()->IsUIOpen())
-			{
-				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMousePosition.X) + FMath::Square(PlayerMousePosition.Y));
-
-				// Compensation curve
-				float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio) , 0.f, 1.f), MouseSensitivityPower);
-				float Angle = FMath::Atan2(PlayerMousePosition.Y, PlayerMousePosition.X);
-
-				PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-				PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-			}
-			else
-			{
-				PlayerManualAngularVelocity.Z = 0;
-				PlayerManualAngularVelocity.Y = 0;
-			}
-		}
-		break;
+			PlayerManualAngularVelocity.Z = 0;
+			PlayerManualAngularVelocity.Y = 0;
+			break;
 
 		case EFlareWeaponGroupType::WG_NONE:
 		case EFlareWeaponGroupType::WG_GUN:
@@ -189,9 +173,8 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		{
 			if (Spacecraft->IsFlownByPlayer() && PC && !PC->GetNavHUD()->IsWheelMenuOpen() && !PC->GetMenuManager()->IsUIOpen())
 			{
-				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerAim.X) + FMath::Square(PlayerAim.Y));
-
 				// Compensation curve
+				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerAim.X) + FMath::Square(PlayerAim.Y));
 				float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio), 0.f, 1.f), MouseSensitivityPower);
 				float Angle = FMath::Atan2(PlayerAim.Y, PlayerAim.X);
 
@@ -240,18 +223,8 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 	}
 	else
 	{
-
-		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-		{
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_TURRET:
-			case EFlareWeaponGroupType::WG_BOMB:
-			case EFlareWeaponGroupType::WG_GUN:
-				// Camera to front
-				InternalCameraYawTarget = 0;
-				InternalCameraPitchTarget = 0;
-				break;
-		}
+		InternalCameraYawTarget = 0;
+		InternalCameraPitchTarget = 0;
 
 		float Speed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
 		InternalCameraYaw = InternalCameraYaw * (1 - Speed) + InternalCameraYawTarget * Speed;
@@ -482,32 +455,20 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 	}
 	else
 	{
-		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+		FVector PlayerForwardVelocity;
+
+		if (PlayerManualLockDirection && ! Spacecraft->GetLinearVelocity().IsNearlyZero())
 		{
-			case EFlareWeaponGroupType::WG_TURRET:
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_GUN:
-			case EFlareWeaponGroupType::WG_BOMB:
-			default:
-			{
-				FVector PlayerForwardVelocity;
-
-				if(PlayerManualLockDirection && ! Spacecraft->GetLinearVelocity().IsNearlyZero())
-				{
-
-					PlayerForwardVelocity =  PlayerManualLockDirectionVector * FMath::Abs(PlayerManualVelocityCommand) * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
-				}
-				else
-				{
-					FVector LocalPlayerForwardVelocity = PlayerManualVelocityCommand * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() * FVector(1, 0, 0);
-					PlayerForwardVelocity = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerForwardVelocity);
-				}
-
-				FVector LocalPlayerLateralLinearVelocity = FVector(0, PlayerManualLinearVelocity.Y, PlayerManualLinearVelocity.Z);
-
-				return PlayerForwardVelocity + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerLateralLinearVelocity);
-			}
+			PlayerForwardVelocity =  PlayerManualLockDirectionVector * FMath::Abs(PlayerManualVelocityCommand) * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
 		}
+		else
+		{
+			FVector LocalPlayerForwardVelocity = PlayerManualVelocityCommand * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() * FVector(1, 0, 0);
+			PlayerForwardVelocity = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerForwardVelocity);
+		}
+
+		FVector LocalPlayerLateralLinearVelocity = FVector(0, PlayerManualLinearVelocity.Y, PlayerManualLinearVelocity.Z);
+		return PlayerForwardVelocity + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerLateralLinearVelocity);
 	}
 }
 
@@ -526,17 +487,7 @@ FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
 	}
 	else
 	{
-		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-		{
-			case EFlareWeaponGroupType::WG_BOMB:
-			case EFlareWeaponGroupType::WG_TURRET:
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_GUN:
-			default:
-			{
-				return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(PlayerManualAngularVelocity);
-			}
-		}
+		return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(PlayerManualAngularVelocity);
 	}
 }
 
@@ -565,19 +516,13 @@ bool UFlareSpacecraftStateManager::IsWantFire() const
 		{
 			return false;
 		}
+		else if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
+		{
+			return (PlayerLeftMousePressed || PlayerFiring) && !Spacecraft->GetPC()->GetMenuManager()->IsUIOpen();
+		}
 		else
 		{
-			switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-			{
-				case EFlareWeaponGroupType::WG_NONE:
-				case EFlareWeaponGroupType::WG_TURRET:
-					return false;
-				case EFlareWeaponGroupType::WG_BOMB:
-				case EFlareWeaponGroupType::WG_GUN:
-					return (PlayerLeftMousePressed || PlayerFiring) && !Spacecraft->GetPC()->GetMenuManager()->IsUIOpen();
-				default:
-					return false;
-			}
+			return false;
 		}
 	}
 }
@@ -590,17 +535,7 @@ bool UFlareSpacecraftStateManager::IsWantCursor() const
 	}
 	else
 	{
-		switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-		{
-			case EFlareWeaponGroupType::WG_TURRET:
-				return true;
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_BOMB:
-			case EFlareWeaponGroupType::WG_GUN:
-				return false;
-			default:
-				return true;
-		}
+		return false;
 	}
 }
 
@@ -616,19 +551,7 @@ bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 	}
 	else
 	{
-		switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-		{
-			case EFlareWeaponGroupType::WG_TURRET:
-				return true;
-
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_BOMB:
-			case EFlareWeaponGroupType::WG_GUN:
-				return false;
-
-			default:
-				return true;
-		}
+		return false;
 	}
 }
 

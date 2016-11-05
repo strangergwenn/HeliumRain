@@ -439,15 +439,24 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareTacticManager* TacticManager = MenuManager->GetPC()->GetCompany()->GetTacticManager();
 
-	// Fighter version
-	if (PlayerShip->GetParent()->IsMilitary() && PlayerShip->GetParent()->GetDescription()->Size == EFlarePartSize::S)
+	// Military version
+	if (PlayerShip->GetParent()->IsMilitary())
 	{
 		FText TitleText;
 		FText InfoText;
 		FLinearColor HealthColor = Theme.FriendlyColor;
 		int32 CurrentWeapongroupIndex = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex();
 		FFlareWeaponGroup* CurrentWeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
-		FText DisarmText = LOCTEXT("WeaponsDisabled", "Standing down");;
+
+		FText DisarmText;
+		if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
+		{
+			DisarmText = LOCTEXT("WeaponsDisabledLight", "Standing down");
+		}
+		else
+		{
+			DisarmText = LOCTEXT("WeaponsDisabledHeavy", "Automatic combat");
+		}		
 
 		if (CurrentWeaponGroup)
 		{
@@ -511,34 +520,6 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		DisarmedName = ((CurrentWeapongroupIndex == -1) ? FString("> ") : FString("    ")) + DisarmedName;
 		FlareDrawText(DisarmedName, CurrentPos, HealthColor, false);
 		CurrentPos += InstrumentLine;
-	}
-
-	// Capital ship version
-	else if (PlayerShip->GetParent()->IsMilitary())
-	{
-		// Title
-		FText CommandGroupText = LOCTEXT("ShipGroups", "Command groups");
-		FlareDrawText(CommandGroupText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
-		CurrentPos += 2 * InstrumentLine;
-
-		int32 CurrentGroupIndex = TacticManager->GetCurrentShipGroup();
-
-		// Group list
-		for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
-		{
-			EFlareCombatGroup::Type GroupType = static_cast<EFlareCombatGroup::Type>(Index);
-			FText GroupName = UFlareGameTypes::GetCombatGroupDescription(GroupType);
-			FText GroupText = FText::Format(LOCTEXT("GroupListInfoFormat", "{0}. {1} ({2}) : {3}"),
-				FText::AsNumber(Index + 1),
-				GroupName,
-				FText::AsNumber(TacticManager->GetShipCountForShipGroup(GroupType)),
-				UFlareGameTypes::GetCombatTacticDescription(TacticManager->GetCurrentTacticForShipGroup(GroupType)));
-
-			FString GroupString = ((Index == CurrentGroupIndex) ? FString("> ") : FString("   ")) + GroupText.ToString();
-
-			FlareDrawText(GroupString, CurrentPos, Theme.FriendlyColor, false);
-			CurrentPos += InstrumentLine;
-		}
 	}
 
 	// Unarmed version

@@ -183,6 +183,10 @@ private:
 		}
 	}
 
+	UCameraComponent* GetCamera() const
+	{
+		return Cast<UCameraComponent>(Camera);
+	}
 
 	inline float GetCameraPanSpeed() const
 	{

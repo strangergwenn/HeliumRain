@@ -23,20 +23,24 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	virtual void TickPilot(float DeltaSeconds);
-
 	/** Initialize this pilot and register the master ship object */
-	virtual void Initialize(const FFlareTurretPilotSave* Data, UFlareCompany* Company, UFlareTurret* OwnerTurret);
+	void Initialize(const FFlareTurretPilotSave* Data, UFlareCompany* Company, UFlareTurret* OwnerTurret);
 
-protected:
-	void ProcessTurretTargetSelection();
+	/** Update this system */
+	void TickPilot(float DeltaSeconds);
 
-	AFlareSpacecraft* GetNearestHostileShip(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const;
+	/** Indicate the direction the player is aiming */
+	void PlayerSetAim(FVector AimDirection);
 
-public:
+	/** Fire the turret if ready */
+	void PlayerStartFire();
+
+	/** Stop firing */
+	void PlayerStopFire();
+
 
 	/*----------------------------------------------------
-		Pilot Output
+		Pilot output
 	----------------------------------------------------*/
 
 	/** Linear target velocity */
@@ -48,6 +52,18 @@ public:
 	/** Return true if the ship is dangerous */
 	virtual bool IsShipDangerous(AFlareSpacecraft* ShipCandidate) const;
 
+
+protected:
+
+	/*----------------------------------------------------
+		Internal
+	----------------------------------------------------*/
+
+	void ProcessTurretTargetSelection();
+
+	AFlareSpacecraft* GetNearestHostileShip(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const;
+
+
 protected:
 
 	/*----------------------------------------------------
@@ -55,19 +71,19 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY()
-	UFlareTurret*                               Turret;
+	UFlareTurret*                        Turret;
 
 	UPROPERTY()
-	UFlareCompany*                            PlayerCompany;
+	UFlareCompany*                       PlayerCompany;
 
 	// Component description
-	FFlareTurretPilotSave                       TurretPilotData;
+	FFlareTurretPilotSave                TurretPilotData;
 
-	// Output commands
-	bool                                      WantFire;
-	FVector                                   AimAxis;
-
-
+	// Local data
+	bool                                 WantFire;
+	FVector                              AimAxis;
+	FVector                              ManualAimDirection;
+	
 	// Pilot brain TODO save in save
 	float                                TargetSelectionReactionTime;
 	float                                FireReactionTime;

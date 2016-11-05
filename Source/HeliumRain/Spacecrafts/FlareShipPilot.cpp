@@ -564,14 +564,11 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 					{
 						if (!PilotHelper::CheckFriendlyFire(Ship->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
 						{
-							Weapon->SetTarget(PilotTargetShip);
-							/*FLOG("Want Fire");*/
+							FVector Location = PilotTargetShip->GetActorLocation();
+							FVector Velocity = Cast<UPrimitiveComponent>(PilotTargetShip->GetRootComponent())->GetPhysicsLinearVelocity() / 100;
+							Weapon->SetTarget(Location, Velocity);
 							WantFire = true;
 							break;
-						}
-						else
-						{
-							FLOG("Friendly fire avoidance");
 						}
 					}
 				}

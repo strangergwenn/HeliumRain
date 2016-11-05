@@ -244,47 +244,28 @@ void SFlareHUDMenu::SetTargetShip(UFlareSimulatedSpacecraft* Target)
 	// Update weapon list
 	if (PlayerShip && PlayerShip->IsMilitary())
 	{
-		// Fighter
-		if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
+		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
+
+		// Add weapon indicators
+		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
 		{
-			TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
-
-			// Add weapon indicators
-			for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
-			{
-				WeaponContainer->AddSlot()
-				.AutoHeight()
-				[
-					SNew(SFlareWeaponStatus)
-					.PlayerShip(PlayerShip)
-					.TargetWeaponGroupIndex(i)
-				];
-			}
-
-			// No weapon
 			WeaponContainer->AddSlot()
 			.AutoHeight()
 			[
 				SNew(SFlareWeaponStatus)
 				.PlayerShip(PlayerShip)
-				.TargetWeaponGroupIndex(-1)
+				.TargetWeaponGroupIndex(i)
 			];
 		}
 
-		// Capital ship
-		else
-		{
-			for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
-			{
-				WeaponContainer->AddSlot()
-				.AutoHeight()
-				[
-					SNew(SFlareGroupStatus)
-					.PC(MenuManager->GetPC())
-					.TargetShipGroup(static_cast<EFlareCombatGroup::Type>(Index))
-				];
-			}
-		}
+		// No weapon
+		WeaponContainer->AddSlot()
+		.AutoHeight()
+		[
+			SNew(SFlareWeaponStatus)
+			.PlayerShip(PlayerShip)
+			.TargetWeaponGroupIndex(-1)
+		];
 	}
 }
 

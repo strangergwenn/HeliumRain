@@ -51,11 +51,7 @@ public:
 	/*----------------------------------------------------
 		System API
 	----------------------------------------------------*/
-
-	virtual void StartFire();
-
-	virtual void StopFire();
-
+	
 	virtual void ActivateWeapons(bool Activate);
 
 	virtual void ActivateWeaponGroup(int32 Index);
@@ -131,7 +127,6 @@ protected:
 	int32                                            LastActiveWeaponGroupIndex;
 	int32                                            ActiveWeaponGroupIndex;
 	FFlareWeaponGroup*                               ActiveWeaponGroup;
-	bool                                             WantFire;
 	bool                                             Armed;
 	
 	UPROPERTY()

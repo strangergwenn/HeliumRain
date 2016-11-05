@@ -61,15 +61,6 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 		LinearTargetVelocity = Spacecraft->GetStateManager()->GetLinearTargetVelocity();
 		AngularTargetVelocity = Spacecraft->GetStateManager()->GetAngularTargetVelocity();
 		UseOrbitalBoost = Spacecraft->GetStateManager()->IsUseOrbitalBoost();
-
-		if (Spacecraft->GetStateManager()->IsWantFire())
-		{
-			Spacecraft->GetWeaponsSystem()->StartFire();
-		}
-		else
-		{
-			Spacecraft->GetWeaponsSystem()->StopFire();
-		}
 	}
 
 	// Autopilot

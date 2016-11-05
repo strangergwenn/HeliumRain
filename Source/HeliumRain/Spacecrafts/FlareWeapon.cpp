@@ -19,7 +19,6 @@ DECLARE_CYCLE_STAT(TEXT("FlareWeapon ConfigureShellFuze"), STAT_Weapon_Configure
 UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, FiringEffect(NULL)
-	, Target(NULL)
 	, FiringRate(0)
 	, Firing(false)
 {
@@ -30,6 +29,9 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 
 	LocalHeatEffect = true;
 	HasFlickeringLights = false;
+
+	TargetLocation = FVector::ZeroVector;
+	TargetVelocity = FVector::ZeroVector;
 }
 
 
@@ -152,6 +154,11 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 	}
 }
 
+void UFlareWeapon::SetTarget(FVector NewTargetLocation, FVector NewTargetVelocity)
+{
+	TargetLocation = NewTargetLocation;
+	TargetVelocity = NewTargetVelocity;
+}
 
 bool UFlareWeapon::FireGun(int GunIndex)
 {
@@ -231,38 +238,20 @@ void UFlareWeapon::ConfigureShellFuze(AFlareShell* Shell)
 		float SecurityDelay = SecurityRadius / ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
 		float ActiveTime = 10;
 
-		if (Target)
-		{
-			FVector TargetOffset = Target->GetActorLocation() - Spacecraft->GetActorLocation();
-			float EstimatedDistance = TargetOffset .Size() / 100;
+		FVector RelativeFiringVelocity = Spacecraft->GetLinearVelocity() - TargetVelocity;
+		FVector TargetOffset = TargetLocation - Spacecraft->GetActorLocation();
+		float EstimatedDistance = TargetOffset.Size() / 100;
 
-			FVector FiringVelocity = Spacecraft->GetLinearVelocity();
-			FVector TargetVelocity = FVector::ZeroVector;
-			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Target->GetRootComponent());
-			if (RootComponent)
-			{
-				TargetVelocity = RootComponent->GetPhysicsLinearVelocity() / 100;
-			}
+		float RelativeFiringVelocityInAxis = FVector::DotProduct(RelativeFiringVelocity, TargetOffset.GetUnsafeNormal());
+		float EstimatedRelativeVelocity = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity + RelativeFiringVelocityInAxis;
+		float EstimatedFlightTime = EstimatedDistance / EstimatedRelativeVelocity;
 
-			FVector RelativeFiringVelocity = FiringVelocity - TargetVelocity;
-
-			float RelativeFiringVelocityInAxis = FVector::DotProduct(RelativeFiringVelocity, TargetOffset.GetUnsafeNormal());
-
-			float EstimatedRelativeVelocity = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity + RelativeFiringVelocityInAxis;
-			float EstimatedFlightTime = EstimatedDistance / EstimatedRelativeVelocity;
-
-			float NeededSecurityDelay = EstimatedFlightTime * 0.5;
-			SecurityDelay = FMath::Max(SecurityDelay, NeededSecurityDelay);
-			ActiveTime = EstimatedFlightTime * 1.5 - SecurityDelay;
-		}
+		float NeededSecurityDelay = EstimatedFlightTime * 0.5;
+		SecurityDelay = FMath::Max(SecurityDelay, NeededSecurityDelay);
+		ActiveTime = EstimatedFlightTime * 1.5 - SecurityDelay;
 
 		Shell->SetFuzeTimer(SecurityDelay, ActiveTime);
 	}
-}
-
-void UFlareWeapon::SetTarget(AActor *NewTarget)
-{
-	Target = NewTarget;
 }
 
 void UFlareWeapon::SetVisibleInUpgrade(bool Visible)

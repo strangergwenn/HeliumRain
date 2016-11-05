@@ -40,7 +40,6 @@ UFlareTurretPilot::UFlareTurretPilot(const class FObjectInitializer& PCIP)
 	Gameplay events
 ----------------------------------------------------*/
 
-
 void UFlareTurretPilot::Initialize(const FFlareTurretPilotSave* Data, UFlareCompany* Company, UFlareTurret* OwnerTurret)
 {
 	// Main data
@@ -55,20 +54,56 @@ void UFlareTurretPilot::Initialize(const FFlareTurretPilotSave* Data, UFlareComp
 	}
 }
 
+void UFlareTurretPilot::PlayerSetAim(FVector AimDirection)
+{
+	ManualAimDirection = AimDirection;
+}
+
+void UFlareTurretPilot::PlayerStartFire()
+{
+	// TODO #558 : check safe to fire / can reach / reloading... ?
+	WantFire = true;
+}
+
+void UFlareTurretPilot::PlayerStopFire()
+{
+	WantFire = false;
+}
+
 void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Tick);
 
-	TimeUntilNextTargetSelectionReaction -=DeltaSeconds;
-	TimeUntilFireReaction -=DeltaSeconds;
-	TimeUntilNextComponentSwitch-=DeltaSeconds;
+	TimeUntilNextTargetSelectionReaction -= DeltaSeconds;
+	TimeUntilFireReaction -= DeltaSeconds;
+	TimeUntilNextComponentSwitch-= DeltaSeconds;
 
+	// Is the player manually controlling this ? If not, pick a target
+	bool IsManualFireDirector = Turret->GetSpacecraft()->GetWeaponsSystem()->GetActiveWeaponGroup() == Turret->GetWeaponGroup();
+	if (!IsManualFireDirector)
+	{
+		ProcessTurretTargetSelection();
+		AimAxis = FVector::ZeroVector;
+	}
 
-	ProcessTurretTargetSelection();
+	// Fire director
+	if (IsManualFireDirector)
+	{
+		AimAxis = ManualAimDirection;
 
-	AimAxis = FVector::ZeroVector;
+		// Compute a target
+		FVector BaseLocation = Turret->GetSpacecraft()->GetActorLocation();
+		FVector BaseDirection = ManualAimDirection;
+		BaseDirection.Normalize();
 
-	if (PilotTargetShip)
+		// TODO #558 : check safe to fire / can reach / reloading... ?
+
+		// Aim the turret toward a point 10km away in the aim direction
+		Turret->SetTarget(BaseLocation + BaseDirection * 1000000, FVector::ZeroVector);
+	}
+
+	// Auto pilot
+	else if (PilotTargetShip)
 	{
 		if (TimeUntilNextComponentSwitch <= 0)
 		{
@@ -86,7 +121,6 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 			{
 				//FLOGV("%s Switch because the component %s is destroyed", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
 				PilotTargetComponent = NULL;
-
 			}
 		}
 
@@ -97,23 +131,17 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 			//FLOGV("%s Select new target component %s ", *Turret->GetReadableName(), *PilotTargetComponent->GetReadableName());
 		}
 
-
-		if(!PilotTargetComponent)
+		if (!PilotTargetComponent)
 		{
 			PilotTargetShip = NULL;
 			return;
 		}
-
-		bool DangerousTarget = IsShipDangerous(PilotTargetShip);
-
-		// float PredictionDelay = ReactionTime - DeltaSeconds;
+		
 		float PredictionDelay = 0;
 		float AmmoVelocity = Turret->GetAmmoVelocity() * 100;
+
 		FVector TurretVelocity = 100 * Turret->GetSpacecraft()->GetLinearVelocity();
-
-
 		FVector AmmoIntersectionPredictedLocation;
-
 		FVector TurretLocation = Turret->GetTurretBaseLocation();
 
 		float AmmoIntersectionPredictedTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), TurretLocation, TurretVelocity, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
@@ -126,15 +154,11 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		{
 			PredictedFireTargetLocation = PilotTargetComponent->GetComponentLocation();
 		}
-
-
-
+		
 		AimAxis = (PredictedFireTargetLocation - TurretLocation).GetUnsafeNormal();
 		/*FLOGV("%s Have target AimAxis=%s",*Turret->GetReadableName(),  * AimAxis.ToString());
 		FLOGV("%s AmmoIntersectionPredictedTime=%f",*Turret->GetReadableName(),  AmmoIntersectionPredictedTime);
 		FLOGV("%s AmmoVelocity=%f",*Turret->GetReadableName(),  AmmoVelocity);*/
-
-
 
 		float TargetSize = PilotTargetShip->GetMeshScale() / 100.f + Turret->GetAimRadius() * 2; // Radius in meters
 		FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation()-TurretLocation) / 100.f;
@@ -155,8 +179,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 
 			//FLOG("Near enough");
 			FVector FireAxis = Turret->GetFireAxis();
-
-
+			
 			for (int GunIndex = 0; GunIndex < Turret->GetGunCount(); GunIndex++)
 			{
 				SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Intersect_Gun);
@@ -183,12 +206,14 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 				FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
 				FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
 				FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);*/
+				bool DangerousTarget = IsShipDangerous(PilotTargetShip);
 				if (AngularPrecision < (DangerousTarget ? AngularSize * 0.25 : AngularSize * 0.2))
 				{
 					if (!PilotHelper::CheckFriendlyFire(Turret->GetSpacecraft()->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, TurretVelocity, AmmoVelocity, FireTargetAxis, AmmoIntersectionTime, Turret->GetAimRadius()))
 					{
-						Turret->SetTarget(PilotTargetShip);
-
+						FVector Location = PilotTargetShip->GetActorLocation();
+						FVector Velocity = Cast<UPrimitiveComponent>(PilotTargetShip->GetRootComponent())->GetPhysicsLinearVelocity() / 100;
+						Turret->SetTarget(Location, Velocity);
 						WantFire = true;
 						break;
 					}
@@ -206,10 +231,10 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	}
 }
 
-/*----------------------------------------------------
-	Helpers
-----------------------------------------------------*/
 
+/*----------------------------------------------------
+	Internal
+----------------------------------------------------*/
 
 void UFlareTurretPilot::ProcessTurretTargetSelection()
 {

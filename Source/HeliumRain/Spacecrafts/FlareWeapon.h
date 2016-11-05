@@ -64,7 +64,8 @@ public:
 
 	virtual void ConfigureShellFuze(AFlareShell* Shell);
 
-	virtual void SetTarget(AActor *NewTarget);
+	/** Set the target data */
+	virtual void SetTarget(FVector TargetLocation, FVector TargetVelocity);
 
 	virtual void OnAttachmentChanged() override;
 
@@ -109,8 +110,10 @@ protected:
 	UPROPERTY()
 	UParticleSystemComponent*   FiringEffect;
 
-	UPROPERTY()
-	AActor *                    Target;
+	// Target info
+	FVector                     TargetLocation;
+	FVector                     TargetVelocity;
+
 	// Weapon properties
 	float                       FiringRate;
 	float                       FiringPeriod;

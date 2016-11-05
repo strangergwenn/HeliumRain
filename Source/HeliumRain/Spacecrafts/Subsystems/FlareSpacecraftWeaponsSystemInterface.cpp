@@ -30,7 +30,7 @@ FText IFlareSpacecraftWeaponsSystemInterface::GetWeaponModeInfo() const
 		case EFlareWeaponGroupType::WG_GUN:     ModeText = LOCTEXT("Fighter", "Fighting");                break;
 		case EFlareWeaponGroupType::WG_BOMB:    ModeText = LOCTEXT("Bomber", "Bombing");                  break;
 		case EFlareWeaponGroupType::WG_TURRET:
-		default:                                ModeText = LOCTEXT("CapitalShip", "Targetting");          break;
+		default:                                ModeText = LOCTEXT("CapitalShip", "Targeting");           break;
 	}
 
 	return ModeText;

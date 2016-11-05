@@ -1413,8 +1413,6 @@ void AFlarePlayerController::WheelPressed()
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackStations));
 				MouseMenu->AddWidget("Mouse_AttackCivilians", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::AttackCivilians),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackCivilians));
-				MouseMenu->AddWidget("Mouse_Nothing", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::StandDown),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::StandDown));
 			}
 
 			// Fighter controls

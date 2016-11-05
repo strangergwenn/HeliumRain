@@ -1281,22 +1281,22 @@ void AFlareSpacecraft::LeftMouseRelease()
 
 void AFlareSpacecraft::DeactivateWeapon()
 {
-	// Capital ship
-	if (GetDescription()->Size == EFlarePartSize::L)
-	{
-		GetCompany()->GetTacticManager()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(0));
-	}
+	GetStateManager()->EnablePilot(false);
 
-	// Fighter
-	else if(!StateManager->IsPilotMode())
+	if (IsMilitary())
 	{
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
 		GetPC()->SetSelectingWeapon();
 
-		if (GetWeaponsSystem()->GetActiveWeaponGroup())
+		// Fighters have an unloading sound
+		if (GetDescription()->Size == EFlarePartSize::S)
 		{
-			GetPC()->ClientPlaySound(WeaponUnloadedSound);
+			if (GetWeaponsSystem()->GetActiveWeaponGroup())
+			{
+				GetPC()->ClientPlaySound(WeaponUnloadedSound);
+			}
 		}
+
 		GetWeaponsSystem()->DeactivateWeapons();
 	}
 }
@@ -1319,23 +1319,29 @@ void AFlareSpacecraft::ActivateWeaponGroup3()
 void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 {
 	FLOGV("AFlareSpacecraft::ActivateWeaponGroup : %d", Index);
+	GetStateManager()->EnablePilot(false);
 
-	// Capital ship
-	if (GetDescription()->Size == EFlarePartSize::L)
+	if (IsMilitary())
 	{
-		GetCompany()->GetTacticManager()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(Index + 1));
-	}
-
-	// Fighter
-	else if(!StateManager->IsPilotMode())
-	{
-		if (Index != GetWeaponsSystem()->GetActiveWeaponGroupIndex())
+		// Fighters have a loading sound
+		if (GetDescription()->Size == EFlarePartSize::S)
 		{
-			GetPC()->ClientPlaySound(WeaponLoadedSound);
+			if (Index != GetWeaponsSystem()->GetActiveWeaponGroupIndex())
+			{
+				GetPC()->ClientPlaySound(WeaponLoadedSound);
+			}
 		}
 
+		// Capitals move to autopilot when using fire director
+		else
+		{
+			// TODO #558 : Ship pilot that doesn't fight
+			//GetStateManager()->EnablePilot(true);
+		}
+
+		// Change group
 		GetWeaponsSystem()->ActivateWeaponGroup(Index);
-		if (GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		if (GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 		{
 			StateManager->SetExternalCamera(false);
 		}
@@ -1348,18 +1354,7 @@ void AFlareSpacecraft::NextWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
 	
-	// Capital ship
-	if (GetDescription()->Size == EFlarePartSize::L)
-	{
-		int32 CurrentIndex = GetCompany()->GetTacticManager()->GetCurrentShipGroup() + 1;
-		CurrentIndex = FMath::Clamp(CurrentIndex, 0, static_cast<int32>(EFlareCombatGroup::Civilan));
-		FLOGV("AFlareSpacecraft::NextWeapon : group %d", CurrentIndex);
-
-		GetCompany()->GetTacticManager()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
-	}
-
-	// Fighter
-	else if (WeaponSystems && !StateManager->IsPilotMode())
+	if (WeaponSystems && IsMilitary() && !StateManager->IsPilotMode())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
