@@ -288,7 +288,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Setup FOV
 	if (ShipPawn->GetParent()->IsMilitary())
 	{
-		PlayerCameraManager->SetFOV(92);
+		PlayerCameraManager->SetFOV(94);
 	}
 	else
 	{
