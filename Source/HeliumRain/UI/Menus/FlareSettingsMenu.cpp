@@ -1121,10 +1121,8 @@ void SFlareSettingsMenu::OnTemporalAAToggle()
 		FLOG("SFlareSettingsMenu::OnTemporalAAToggle : Enable FXAA")
 	}
 
-	MenuManager->GetPC()->SetUseTemporalAA(TemporalAAButton->IsActive());
-
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->UseTemporalAA = TemporalAAButton->IsActive();
+	MyGameSettings->SetUseTemporalAA(TemporalAAButton->IsActive());
 	MyGameSettings->ApplySettings(false);
 }
 

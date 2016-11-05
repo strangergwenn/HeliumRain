@@ -217,11 +217,6 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 			{
 				FCHECK(PlayerShip);
 
-				// TemporalAA needs some tweaking
-				float TemporalAAValue = PC->UseTemporalAA ? 1.0f : 0.0f;
-				FreighterCockpitFrameMaterialInstance->SetScalarParameterValue("UseTemporalAA", TemporalAAValue);
-				FighterCockpitFrameMaterialInstance->SetScalarParameterValue("UseTemporalAA", TemporalAAValue);
-
 				// Update instruments
 				UpdateTarget(DeltaSeconds);
 				UpdateInfo(DeltaSeconds);
