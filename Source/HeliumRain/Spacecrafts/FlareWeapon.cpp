@@ -165,7 +165,8 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	SCOPE_CYCLE_COUNTER(STAT_Weapon_FireGun);
 
 	// Avoid firing itself
-	if (!IsSafeToFire(GunIndex))
+	AActor* Unused;
+	if (!IsSafeToFire(GunIndex, Unused))
 	{
 		FLOGV("%s Not secure", *GetReadableName());
 		return false;
@@ -413,9 +414,9 @@ bool UFlareWeapon::IsTurret() const
 	return ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret;
 }
 
-bool UFlareWeapon::IsSafeToFire(int GunIndex) const
+bool UFlareWeapon::IsSafeToFire(int GunIndex, AActor*& HitTarget) const
 {
-	// Only turret are unsafe
+	HitTarget = NULL;
 	return true;
 }
 

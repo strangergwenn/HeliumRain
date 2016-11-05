@@ -50,7 +50,7 @@ public:
 
 	virtual bool IsTurret() const;
 
-	virtual bool IsSafeToFire(int GunIndex) const;
+	virtual bool IsSafeToFire(int GunIndex, AActor*& HitTarget) const;
 
 	/** Return the aim need minimum radius. 0 if not proximity fuze */
 	virtual float GetAimRadius() const;

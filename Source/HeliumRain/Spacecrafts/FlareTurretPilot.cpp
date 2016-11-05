@@ -91,15 +91,20 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	{
 		AimAxis = ManualAimDirection;
 
-		// Compute a target
-		FVector BaseLocation = Turret->GetSpacecraft()->GetActorLocation();
-		FVector BaseDirection = ManualAimDirection;
-		BaseDirection.Normalize();
-
-		// TODO #558 : check safe to fire / can reach / reloading... ?
-
-		// Aim the turret toward a point 10km away in the aim direction
-		Turret->SetTarget(BaseLocation + BaseDirection * 1000000, FVector::ZeroVector);
+		// Aim the turret toward the target or a distant point
+		AActor* HitTarget = NULL;
+		Turret->IsSafeToFire(0, HitTarget);
+		if (HitTarget && HitTarget != Turret->GetSpacecraft())
+		{
+			FVector Location = PilotTargetShip->GetActorLocation();
+			FVector Velocity = Cast<UPrimitiveComponent>(PilotTargetShip->GetRootComponent())->GetPhysicsLinearVelocity() / 100;
+			Turret->SetTarget(Location, Velocity);
+		}
+		else
+		{
+			FVector FireTargetLocation = Turret->GetMuzzleLocation(0) + ManualAimDirection * 100000;
+			Turret->SetTarget(FireTargetLocation, FVector::ZeroVector);
+		}
 	}
 
 	// Auto pilot

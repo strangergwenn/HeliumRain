@@ -306,7 +306,7 @@ FVector UFlareTurret::GetTurretBaseLocation() const
 	return GetComponentLocation();
 }
 
-bool UFlareTurret::IsSafeToFire(int GunIndex) const
+bool UFlareTurret::IsSafeToFire(int GunIndex, AActor*& HitTarget) const
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_IsSafeToFire);
 
@@ -319,10 +319,12 @@ bool UFlareTurret::IsSafeToFire(int GunIndex) const
 	{
 		if (HitResult.Actor.IsValid() && HitResult.Actor == Spacecraft)
 		{
-			//FLOG("!!!!!!!!!Not safe to fire !");
+			HitTarget = HitResult.Actor.Get();
 			return false;
 		}
 	}
+
+	HitTarget = HitResult.Actor.IsValid() ? HitResult.Actor.Get() : NULL;
 	return true;
 }
 
